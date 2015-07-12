@@ -1,0 +1,4 @@
+#!/bin/bash
+rm editor
+g++ editor.c -o3 -Wall -o  editor  -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lXxf86vm 
+#gcc game.c -Wall -pedantic -o  play.exe  -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lXxf86vm

@@ -7,11 +7,41 @@
        #include <GL/freeglut.h>
 #endif
 #include <fstream>
+#include <cstdio>
 
 char mapName2[200];
 
 Cashe::Cashe()
 {
+     status_timer = NULL;
+     anubis = NULL;
+     scarab = NULL;
+     plant = NULL;
+     worm = NULL;
+     chest = NULL;
+     club = NULL;
+     sword = NULL;
+     bow = NULL;
+     potion = NULL;
+     spear = NULL;
+     invent = NULL;
+     Stats = NULL;
+     Player = NULL;
+     TrapD = NULL;
+     DeathTrap = NULL;
+     sphinx = NULL;
+     ankh = NULL;
+     column = NULL;
+     question = NULL;
+     mdlChange = NULL;
+     jump_timer = NULL;
+     jump_up_timer = NULL;
+     AttTimer = NULL;
+     rid = NULL;
+     wlc = NULL;
+     jump_inc = NULL;
+     fall_inc = NULL;
+
      Cache_loaded = 0;
      jumping = 0;
      jump_counter = 0;
@@ -232,22 +262,29 @@ void Cashe::Load()
      
      DrawLoad(95,"Loading game Map");    
              
-     sprintf(mapName2,"Levels/lvl%d",curMap);
-     if(!dungeon.Load(mapName2))
-	   printf("Failed loading map");     
+     snprintf(mapName2,sizeof(mapName2),"Levels/lvl%d",curMap);
+    if(!dungeon.Load(mapName2))
+	  printf("Failed loading map");     
      
      DrawLoad(100,"Loading game soundtrack"); 
      soundtrack.LoadOGG("Sounds/soundtrack.ogg");
      soundtrack.Play();
      
      std::ifstream f("Saves/gamelist.dat");
-     for(int a = 0; a < 6; a++)
-	   f >> saveNames[a].name;
-     f.close();
+    if(f)
+    {
+	  for(int a = 0; a < 6; a++)
+		f >> saveNames[a].name;
+	  f.close();
+    }
+    else
+    {
+	  printf("Failed loading save list\n");
+    }
      
      wlc = new winL();
      
-     sprintf(status,"");
+     snprintf(status,sizeof(status),"%s","");
      
      Cache_loaded = 1;     
 }
@@ -320,6 +357,11 @@ void Cashe::Save(const char filename[])
      }
      
      std::ofstream dump(filename);
+    if(!dump)
+    {
+	  printf("can't open save file %s\n",filename);
+	  return;
+    }
      
      dump << curMap << " ";
      
@@ -342,6 +384,11 @@ void Cashe::LoadSave(const char filename[])
      
      printf("Loading save %s \n",filename);
      std::ifstream dump(filename);
+    if(!dump)
+    {
+	  printf("can't open save file %s\n",filename);
+	  return;
+    }
      
      dump >> curMap;
      printf("Got MapNo : %d \n", curMap);

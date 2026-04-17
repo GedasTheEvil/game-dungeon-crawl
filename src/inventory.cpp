@@ -500,7 +500,9 @@ void inventory::MouseFunction(int button, int state , int x, int y)
 		      view.count = potions[3].count;
 		 }
 		 
-		 else if(inv_x >= 30);//nebeturim tiek
+		 else if(inv_x >= 30)//nebeturim tiek
+		 {
+		 }
 		 
 		 else 
 		 {

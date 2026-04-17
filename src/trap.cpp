@@ -38,11 +38,13 @@ void trap::Show()
 }
 void trap::Hurt()
 {
-     
-     if(fabs(*DX - x - 0.5) <= 0.02 * scale && fabs(*DY - y) <= 0.006 * scale)
-     {
-	   c.Stats -> GetHit( 1 );
-     }
+    if(!Hurt_timer->TimePassed())
+        return;
+
+    if(fabs(*DX - x - 0.5) <= 0.02 * scale && fabs(*DY - y) <= 0.006 * scale)
+    {
+	  c.Stats -> GetHit( 1 );
+    }
 }
 
 void trap::setCords(float nX, float nY)

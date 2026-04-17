@@ -13,9 +13,14 @@ Textura::Textura()
 
 Textura::~Textura()
 {
-     if(loaded)delete texture;
-     loaded = false;
-     printf("Deleting Texture %x \n",this);
+    if(texture != NULL && texture[0].data != NULL)
+        free(texture[0].data);
+
+    if(texture != NULL)
+        delete[] texture;
+
+    loaded = false;
+    printf("Deleting Texture %x \n",this);
 
 }
 
@@ -127,16 +132,18 @@ int Textura::LoadBMP(const char *filename)
 
      // read width
      if ((i = fread(&texture[0].width, 4, 1, file)) != 1) {
-	   printf("Error reading width from %s.\n", filename);
-	   return 0;
-     }
+	  printf("Error reading width from %s.\n", filename);
+	  fclose(file);
+	  return 0;
+    }
      printf("Width of %s: %lu\n",filename, texture[0].width);
 
      //read the height
      if ((i = fread(&texture[0].height,4,1,file)) != 1) {
-	   printf("Error reading height from %s.\n", filename);
-	   return 0;
-     }
+	  printf("Error reading height from %s.\n", filename);
+	  fclose(file);
+	  return 0;
+    }
      printf("Height of %s: %lu\n", filename, texture[0].height);
 
      // calculate the size (assuming 24 bpp)
@@ -144,25 +151,29 @@ int Textura::LoadBMP(const char *filename)
 
      // read the planes
      if ((fread(&planes, 2, 1, file)) != 1) {
-	   printf("Error reading planes from %s. \n", filename);
-	   return 0;
-     }
+	  printf("Error reading planes from %s. \n", filename);
+	  fclose(file);
+	  return 0;
+    }
 
      if (planes != 1) {
-	   printf("Planes from %s is not 1: %u\n", filename, planes);
-	   return 0;
-     }
+	  printf("Planes from %s is not 1: %u\n", filename, planes);
+	  fclose(file);
+	  return 0;
+    }
 
      // read the bpp
      if ((i = fread(&bpp, 2, 1, file)) != 1) {
-	   printf("Error reading bpp from %s. \n", filename);
-	   return 0;
-     }
+	  printf("Error reading bpp from %s. \n", filename);
+	  fclose(file);
+	  return 0;
+    }
 
      if (bpp != 24) {
-	   printf("Bpp from %s is not 24: %u\n", filename, bpp);
-	   return 0;
-     }
+	  printf("Bpp from %s is not 24: %u\n", filename, bpp);
+	  fclose(file);
+	  return 0;
+    }
      
 
      // seek past the rest of the bitmap header
@@ -176,17 +187,21 @@ int Textura::LoadBMP(const char *filename)
      texture[0].data = (char *) malloc(size);
      
      if (texture[0].data == NULL) 
-     {
-	   printf("Error allocating memory for texture data\n");
-	   return 0;
-     }
+    {
+	  printf("Error allocating memory for texture data\n");
+	  fclose(file);
+	  return 0;
+    }
 
 
      if ((i = fread(&texture[0].data[0],size,1,file)) != 1) 
-     {
-	   printf("Error reading texture data from %s.\n", filename);
-	   return 0;
-     }
+    {
+	  printf("Error reading texture data from %s.\n", filename);
+	  free(texture[0].data);
+	  texture[0].data = NULL;
+	  fclose(file);
+	  return 0;
+    }
 	 
 	 //windows neturi GL_BGR, darom savo
 	 char tmp_c;
@@ -210,9 +225,10 @@ int Textura::LoadBMP(const char *filename)
 
      glTexImage2D(GL_TEXTURE_2D, 0, 3, texture[0].width, texture[0].height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture[0].data);
 
-     loaded = true;
-     
-     return 1;
+    loaded = true;
+    fclose(file);
+    
+    return 1;
 }
 //----------------------------------------------------------------------------------
 void Textura::Bind()

@@ -76,7 +76,7 @@ monster::~monster() {
 		delete walk_timer;
 	}
 	stat = -1;
-	printf("Deleting monster %x \n", this);
+	printf("Deleting monster %p \n", (void*)this);
 }
 //================================================================================
 bool monster::Draw() // needs to choose animation

@@ -48,7 +48,8 @@ CartoonANI::CartoonANI() {
 			if (feof(In))
 				break;
 
-			fgets(Line, 255, In);
+			if (fgets(Line, 255, In) == NULL)
+				break;
 
 			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(Line));
 		}

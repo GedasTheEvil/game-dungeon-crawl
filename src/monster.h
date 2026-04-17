@@ -4,9 +4,11 @@
 #include "shader.h"
 // #include "Dungeon.h"
 #include "textures.h"
-#include "timer.h"
+#include "shader.h"
 #include "particles.h"
 #include "sound.h"
+#include "timer.h"
+#include <memory>
 
 class monster {
   private:
@@ -68,8 +70,8 @@ struct monsterToken {
 	int type;
 	int HP;
 	monster* m;
-	timer* t;
-	timer* at;
+	std::unique_ptr<timer> t;
+	std::unique_ptr<timer> at;
 	int state;
 	int frame;
 };

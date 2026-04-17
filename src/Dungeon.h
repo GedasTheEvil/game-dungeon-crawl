@@ -4,6 +4,7 @@
 #include "monster.h"
 #include "fstream"
 #include "timer.h"
+#include <memory>
 
 // dungeon segment types:
 #define Wall 0
@@ -41,7 +42,7 @@ class Dungeon {
 	bool mL;
 	int shaderTexture[1];
 	VECTOR lightAngle;
-	timer* aniT;
+	std::unique_ptr<timer> aniT;
 
   public:
 	Dungeon();

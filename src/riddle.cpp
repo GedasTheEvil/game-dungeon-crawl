@@ -63,8 +63,8 @@ Riddle::Riddle() {
 }
 
 Riddle::~Riddle() {
-	delete rid;
-	printf("Deleting Riddle %x \n", this);
+	delete[] rid;
+	printf("Deleting Riddle %p \n", (void*)this);
 }
 
 void Riddle::GetRiddle() {
@@ -120,12 +120,15 @@ void Riddle::Draw() {
 }
 
 void Riddle::KeyboardF(unsigned char key, int x, int y) {
+	(void)x;
+	(void)y;
 
 	//      printf("Ridddle key pressed: %d \n",key);
 
 	if (key != 8) // backspace,enter
 	{
 		if (key == 13) // enter
+		{
 			if (CheckAnswer()) {
 				show = 0;
 				sprintf(c.status, "Riddle answered, got 500 XP \n");
@@ -139,6 +142,7 @@ void Riddle::KeyboardF(unsigned char key, int x, int y) {
 				YourAnswer[4] = 'g';
 				ans_l = 4;
 			}
+		}
 
 		YourAnswer[ans_l] = key;
 		if (ans_l < 23)

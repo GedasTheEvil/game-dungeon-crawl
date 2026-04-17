@@ -3,6 +3,8 @@
 #include <GL/gl.h>
 #include <fstream>
 #include <cmath>
+#include <memory>
+#include "gameplay_config.h"
 
 float qRot = 0;
 
@@ -45,7 +47,8 @@ Dungeon::Dungeon() {
 			if (feof(In))
 				break;
 
-			fgets(Line, 255, In);
+			if (fgets(Line, 255, In) == NULL)
+				break;
 
 			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(Line));
 		}
@@ -69,11 +72,11 @@ Dungeon::Dungeon() {
 
 	Normalize(lightAngle);
 
-	aniT = new timer(50);
+	aniT = std::make_unique<timer>(50);
 
 	for (int i = 0; i < CMaxMonsters; i++) {
-		m[i].t = NULL;
-		m[i].at = NULL;
+		m[i].t.reset();
+		m[i].at.reset();
 	}
 }
 //======================================================================================
@@ -428,10 +431,10 @@ void Dungeon::Draw() {
 
 	/// @name Falling down
 	if (Map(x, y).a != Ladder && !c.jumping) {
-		if ((y - (int)y) > 0.03 || Map(x, y - 1).a != Wall) // fall down
+		if ((y - (int)y) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) // fall down
 		{
 			if (c.fall_inc->TimePassed())
-				y -= 0.03;
+				y -= FALL_STEP;
 			c.falling = true;
 		} else
 			c.falling = false;
@@ -445,7 +448,7 @@ void Dungeon::Draw() {
 				Move(c.jump_dir_x * c.jump_speed, 0);
 
 			y += c.jump_vel;
-			c.jump_vel -= 0.01f;
+			c.jump_vel -= JUMP_GRAVITY_STEP;
 
 			if (c.jump_vel <= 0 && y <= c.jump_start_y) {
 				y = c.jump_start_y;
@@ -775,9 +778,9 @@ bool Dungeon::SpawnMonster(int i, int j) {
 		m[index].state = 1;
 		m[index].frame = 1;
 		if (!m[index].t)
-			m[index].t = new timer(70);
+			m[index].t = std::make_unique<timer>(70);
 		if (!m[index].at)
-			m[index].at = new timer(800);
+			m[index].at = std::make_unique<timer>(800);
 		return 1;
 	}
 	/// pajimam slot'a is negyvu mobu (untested)
@@ -804,19 +807,18 @@ bool Dungeon::SpawnMonster(int i, int j) {
 			m[index].state = 1;
 			m[index].frame = 1;
 			if (!m[index].t)
-				m[index].t = new timer(70);
+				m[index].t = std::make_unique<timer>(70);
 			if (!m[index].at)
-				m[index].at = new timer(800);
+				m[index].at = std::make_unique<timer>(800);
 			return 1;
 		}
 	}
+
+	return 0;
 }
 
 //======================================================================================
-Dungeon::~Dungeon() {
-	printf("Deleting Dungeon %x \n", this);
-	delete aniT;
-}
+Dungeon::~Dungeon() { printf("Deleting Dungeon %p \n", (void*)this); }
 //======================================================================================
 void Dungeon::Dump(std::ofstream& f) {
 	f << x << " " << y << " ";

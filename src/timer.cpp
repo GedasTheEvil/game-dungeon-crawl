@@ -22,7 +22,7 @@ timer::timer(int defT) {
 
 timer::~timer() {
 	SDL_Quit();
-	printf("Deleting Timer %x \n", this);
+	printf("Deleting Timer %p \n", (void*)this);
 }
 
 bool timer::TimePassed() {

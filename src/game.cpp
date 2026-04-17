@@ -21,6 +21,8 @@ int fs = 0;
 
 void InitGL(GLsizei Width, GLsizei Height) // We call this right after our OpenGL window is created.
 {
+	(void)Width;
+	(void)Height;
 
 	glEnable(GL_TEXTURE_2D); // Enable texture mapping.
 

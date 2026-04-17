@@ -20,6 +20,7 @@
 #include "riddle.h"
 #include "menu.h"
 #include "winloose.h"
+#include <memory>
 
 struct word {
 	char name[25];
@@ -28,7 +29,7 @@ struct word {
 class Cashe {
   public:
 	char status[255];
-	timer* status_timer;
+	std::unique_ptr<timer> status_timer;
 	bool IHaveWon;
 	Textura Mt[4], nullTex, blackTex, column_t;
 	Textura anubis_t, scarab_t, plant_t, worm_t, chest_t, player_t;
@@ -45,24 +46,27 @@ class Cashe {
 	bool Cache_loaded;
 	monster *anubis, *scarab, *plant, *worm;
 	item *chest, *club, *sword, *bow, *potion, *spear;
-	inventory* invent;
-	stats* Stats;
+	std::unique_ptr<inventory> invent;
+	std::unique_ptr<stats> Stats;
 	monster* Player;
-	timer *jump_timer, *jump_up_timer;
-	timer *jump_inc, *fall_inc;
+	std::unique_ptr<timer> jump_timer;
+	std::unique_ptr<timer> jump_up_timer;
+	std::unique_ptr<timer> jump_inc;
+	std::unique_ptr<timer> fall_inc;
 	bool jumping;
 	float jump_dir_x;
 	float jump_speed;
 	float jump_vel;
 	float jump_start_y;
 	bool Orig_model;
-	trap *TrapD, *DeathTrap;
+	std::unique_ptr<trap> TrapD;
+	std::unique_ptr<trap> DeathTrap;
 	CartoonANI *sphinx, *ankh;
 	CartoonANI* column;
 	CartoonANI* question;
-	timer* mdlChange;
-	timer* AttTimer;
-	Riddle* rid;
+	std::unique_ptr<timer> mdlChange;
+	std::unique_ptr<timer> AttTimer;
+	std::unique_ptr<Riddle> rid;
 	int jump_counter;
 	int curMap;
 	bool falling;
@@ -72,7 +76,7 @@ class Cashe {
 
 	word saveNames[6];
 
-	winL* wlc;
+	std::unique_ptr<winL> wlc;
 
 	Cashe();
 	~Cashe();

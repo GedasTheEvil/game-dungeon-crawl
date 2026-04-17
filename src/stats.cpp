@@ -138,7 +138,7 @@ stats::stats() {
 	stats_ani = new timer(10);
 }
 
-stats::~stats() { printf("Deleting stats %x \n", this); }
+stats::~stats() { printf("Deleting stats %p \n", (void*)this); }
 
 void stats::GetArmored(int na) { Armor += na; }
 
@@ -152,7 +152,12 @@ void stats::GetHit(int dmg) {
 	HP = c.Player->HP;
 }
 
-void stats::MouseFunction(int button, int state, int x, int y) {}
+void stats::MouseFunction(int button, int state, int x, int y) {
+	(void)button;
+	(void)state;
+	(void)x;
+	(void)y;
+}
 
 bool stats::AdvanceLevel() {
 	if (XP >= 1000 * (pow(level, 1.4)))

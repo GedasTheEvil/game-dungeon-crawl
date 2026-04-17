@@ -8,6 +8,8 @@
 #endif
 #include <fstream>
 #include <cstdio>
+#include <memory>
+#include "gameplay_config.h"
 
 char mapName2[200];
 
@@ -57,7 +59,6 @@ Cashe::Cashe() {
 
 Cashe::~Cashe() {
 	Cache_loaded = 0;
-	delete status_timer;
 	delete anubis;
 	delete scarab;
 	delete plant;
@@ -68,23 +69,11 @@ Cashe::~Cashe() {
 	delete bow;
 	delete potion;
 	delete spear;
-	delete invent;
-	delete Stats;
 	delete Player;
-	delete TrapD;
-	delete rid;
 	delete sphinx;
-	delete mdlChange;
-	delete jump_timer;
-	delete jump_up_timer;
-	delete AttTimer;
 	delete column;
-	delete DeathTrap;
 	delete ankh;
 	delete question;
-	delete wlc;
-	delete jump_inc;
-	delete fall_inc;
 
 	printf("Deleting cashe %p \n", (void*)this);
 }
@@ -129,7 +118,7 @@ void Cashe::Load() {
 	DrawLoad(17, "Loading Textures");
 	plant_t.LoadBMP("Textures/plant.bmp");
 	riddle_bg.LoadBMP("Textures/riddlebg.bmp");
-	rid = new Riddle();
+	rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
 	Player = new monster(0, 0, 1, 1, 1, 0);
@@ -232,32 +221,32 @@ void Cashe::Load() {
 	plasma_t.LoadBMP("Textures/plasma.bmp");
 
 	DrawLoad(85, "Loading inventory");
-	invent = new inventory();
+	invent = std::make_unique<inventory>();
 	drink_s.LoadWAV("Sounds/Drink.wav");
 	jump_s.LoadWAV("Sounds/Jump.wav");
 
 	DrawLoad(88, "Loading stats");
-	Stats = new stats();
+	Stats = std::make_unique<stats>();
 
 	trap_t.LoadBMP("Textures/spikes.bmp");
-	TrapD = new trap();
+	TrapD = std::make_unique<trap>();
 	TrapD->LoadMDL("Models/spikes.mdl", trap_t);
 	TrapD->scale = 16;
 
-	DeathTrap = new trap();
+	DeathTrap = std::make_unique<trap>();
 	DeathTrap->LoadMDL("Models/spikes.mdl", trap_t);
 	DeathTrap->scale = 40;
 
 	DrawLoad(95, "Loading game font");
 	font.Load("Fonts/papyrus.bmp", 3, -0.3);
 
-	jump_timer = new timer(5000);	 // 5 sekundes
-	jump_up_timer = new timer(4000); // 4 sekundos
-	mdlChange = new timer(300);		 // 0.3 sekundes
-	AttTimer = new timer(250);
-	jump_inc = new timer(40);
-	fall_inc = new timer(40);
-	status_timer = new timer(3000);
+	jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
+	jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
+	mdlChange = std::make_unique<timer>(300);
+	AttTimer = std::make_unique<timer>(250);
+	jump_inc = std::make_unique<timer>(JUMP_TICK_MS);
+	fall_inc = std::make_unique<timer>(FALL_TICK_MS);
+	status_timer = std::make_unique<timer>(3000);
 
 	DrawLoad(95, "Loading game Map");
 
@@ -278,7 +267,7 @@ void Cashe::Load() {
 		printf("Failed loading save list\n");
 	}
 
-	wlc = new winL();
+	wlc = std::make_unique<winL>();
 
 	snprintf(status, sizeof(status), "%s", "");
 

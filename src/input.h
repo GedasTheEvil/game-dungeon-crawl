@@ -1,6 +1,8 @@
 #ifndef DInputH
 #define DInputH
 
+#include "gameplay_config.h"
+
 const unsigned char KEY_ESCAPE = 27;
 const unsigned char KEY_ENTER = 13;
 const unsigned char KEY_SPACE = 32;
@@ -26,16 +28,10 @@ const int SPECIAL_INTERACT = 12;
 const int MOUSE_LEFT_BUTTON = 0;
 const int MOUSE_MIDDLE_BUTTON = 1;
 const int MOUSE_RIGHT_BUTTON = 2;
-
-const float PLAYER_MOVE_STEP = 0.015f;
-const float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
 const float CAMERA_ROTATE_STEP = 2.5f;
 const float CAMERA_ROTATE_LIMIT_X = 30.0f;
 const float CAMERA_ROTATE_LIMIT_Y = 10.0f;
 const float MOUSE_LOOK_SENSITIVITY = 0.08f;
-
-const float JUMP_FORWARD_SPEED = 0.054f;
-const float JUMP_INITIAL_VELOCITY = 0.085f;
 
 void Load();
 

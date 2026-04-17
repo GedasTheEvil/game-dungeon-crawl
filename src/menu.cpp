@@ -31,7 +31,7 @@ MainMenu::MainMenu() {
 
 MainMenu::~MainMenu() {
 	delete t_cred;
-	printf("Menu %x deleted \n", this);
+	printf("Menu %p deleted \n", (void*)this);
 }
 
 void MainMenu::Draw() {
@@ -196,6 +196,9 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 }
 
 void MainMenu::InGameMouseFunction(int button, int state, int x, int y) {
+	(void)button;
+	(void)state;
+
 	if (credits)
 		return;
 
@@ -464,6 +467,8 @@ void MainMenu::SaveMouseFunction(int button, int state, int x, int y) {
 }
 
 void MainMenu::LoadMouseFunction(int button, int state, int x, int y) {
+	(void)button;
+	(void)state;
 
 	// c.LoadSave("Saves/dump.tmp");
 	extern int resX, resY;

@@ -3,6 +3,7 @@
 #include <stdio.h>
 // // #include "stats.h"
 #include "cashe.h"
+#include "gameplay_config.h"
 
 extern Cashe c;
 
@@ -26,7 +27,7 @@ int monster::AtDir() {
 int monster::Seek() {
 	if (Alive()) {
 		// 	   if(walk_timer -> TimePassed() )
-		x += 0.0042 * (AtDir() * speed);
+		x += MONSTER_SEEK_STEP * (AtDir() * speed);
 
 		if (!AtDir())
 			return 0;
@@ -35,6 +36,8 @@ int monster::Seek() {
 
 		return 1;
 	}
+
+	return 0;
 }
 
 void monster::Attack() {
@@ -92,7 +95,7 @@ int monster::Model_state() {
 void monster::setModel(int state) {
 	if (state == 1)
 		mdl = walk;
-	else if (state = 2)
+	else if (state == 2)
 		mdl = attack;
 	else
 		mdl = die;

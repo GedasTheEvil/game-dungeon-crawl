@@ -198,9 +198,6 @@ void processMouse(int button, int state, int x, int y) {
 		}
 	}
 }
-
-void processMouseActiveMotion(int a, int b) {}
-
 void processMousePassiveMotion(int a, int b) {
 	if (c.menu.show) {
 		c.menu.MousePassiveMotion(a, b);
@@ -226,4 +223,9 @@ void processMousePassiveMotion(int a, int b) {
 	lastMy = b;
 }
 
-void processMouseEntry(int a) {}
+void processMouseActiveMotion(int a, int b) {
+	(void)a;
+	(void)b;
+}
+
+void processMouseEntry(int a) { (void)a; }

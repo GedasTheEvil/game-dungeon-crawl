@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include "cashe.h"
 #include <cmath>
+#include "gameplay_config.h"
 
 extern Cashe c;
 
 trap::trap() {
-	Hurt_timer = new timer(100);
+	Hurt_timer = new timer(TRAP_HURT_INTERVAL_MS);
 	mdl = new CartoonANI();
 	x = 0;
 	y = 0;
@@ -37,7 +38,7 @@ void trap::Hurt() {
 	if (!Hurt_timer->TimePassed())
 		return;
 
-	if (fabs(*DX - x - 0.5) <= 0.02 * scale && fabs(*DY - y) <= 0.006 * scale) {
+	if (fabs(*DX - x - 0.5) <= TRAP_HITBOX_X_SCALE * scale && fabs(*DY - y) <= TRAP_HITBOX_Y_SCALE * scale) {
 		c.Stats->GetHit(1);
 	}
 }

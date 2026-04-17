@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <cstddef>
 #include <GL/gl.h>
 
 Textura::Textura()
@@ -20,7 +21,7 @@ Textura::~Textura()
         delete[] texture;
 
     loaded = false;
-    printf("Deleting Texture %x \n",this);
+    printf("Deleting Texture %p \n", (void*)this);
 
 }
 
@@ -30,7 +31,7 @@ int Textura::LoadTGA(const char *filename)			// Loads A TGA File Into Memory
 	char		TGAcompare[12];					// Used To Compare TGA Header
 	char		header[6];					// First 6 Useful Bytes From The Header
 	int		bytesPerPixel;					// Holds Number Of Bytes Per Pixel Used In The TGA File
-	int		imageSize;					// Used To Store The Image Size When Setting Aside Ram
+	size_t		imageSize;					// Used To Store The Image Size When Setting Aside Ram
 	int		temp;						// Temporary Variable
 	int		type=GL_RGBA;					// Set The Default GL Mode To RBGA (32 BPP)
 
@@ -66,7 +67,7 @@ int Textura::LoadTGA(const char *filename)			// Loads A TGA File Into Memory
 	texture->data = (char *)malloc(imageSize);				// Reserve Memory To Hold The TGA Data
 
 	if(	texture->data==NULL ||									// Does The Storage Memory Exist?
-		fread(texture->data, 1, imageSize, file)!=imageSize)	// Does The Image Size Match The Memory Reserved?
+		fread(texture->data, 1, imageSize, file)!=(size_t)imageSize)	// Does The Image Size Match The Memory Reserved?
 	{
 		if(texture->data!=NULL)								// Was Image Data Loaded
 		{
@@ -78,10 +79,10 @@ int Textura::LoadTGA(const char *filename)			// Loads A TGA File Into Memory
 		return false;												// Return False
 	}
 
-     printf("\tSize:%d\n",imageSize);
-	int i;
+     printf("\tSize:%zu\n",imageSize);
+	size_t i;
 
-	for(i=0; i<(unsigned int)imageSize; i+=bytesPerPixel)	// Loop Through The Image Data
+	for(i=0; i<imageSize; i+=bytesPerPixel)	// Loop Through The Image Data
 	{																// Swaps The 1st And 3rd Bytes ('R'ed and 'B'lue)
 		temp=texture->data[i];									// Temporarily Store The Value At Image Data 'i'
 		texture->data[i] = texture->data[i + 2];			// Set The 1st Byte To The Value Of The 3rd Byte
@@ -136,7 +137,7 @@ int Textura::LoadBMP(const char *filename)
 	  fclose(file);
 	  return 0;
     }
-     printf("Width of %s: %lu\n",filename, texture[0].width);
+     printf("Width of %s: %d\n",filename, texture[0].width);
 
      //read the height
      if ((i = fread(&texture[0].height,4,1,file)) != 1) {
@@ -144,7 +145,7 @@ int Textura::LoadBMP(const char *filename)
 	  fclose(file);
 	  return 0;
     }
-     printf("Height of %s: %lu\n", filename, texture[0].height);
+     printf("Height of %s: %d\n", filename, texture[0].height);
 
      // calculate the size (assuming 24 bpp)
      size = texture[0].width * texture[0].height * 3;
@@ -180,7 +181,7 @@ int Textura::LoadBMP(const char *filename)
      fseek(file, 24, SEEK_CUR);
 
      // Read the data
-     printf("creating data array of size %d\n",size);
+     printf("creating data array of size %lu\n",size);
      
      texture[0].data = NULL;
 //      texture[0].data = new char[size];
@@ -205,11 +206,11 @@ int Textura::LoadBMP(const char *filename)
 	 
 	 //windows neturi GL_BGR, darom savo
 	 char tmp_c;
-	 for(int i = 0; i< size; i+=3)
+	 for(unsigned long p = 0; p < size; p += 3)
 	 {
-		tmp_c = texture[0].data[i];
-		texture[0].data[i] = texture[0].data[i+2];
-		texture[0].data[i+2] = tmp_c;
+		tmp_c = texture[0].data[p];
+		texture[0].data[p] = texture[0].data[p+2];
+		texture[0].data[p+2] = tmp_c;
 	 }
 
 

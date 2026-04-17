@@ -57,7 +57,7 @@ Sound::~Sound()
         g_audioOpened = false;
     }
 
-    printf("Deleting sound %x \n",this);
+    printf("Deleting sound %p \n", (void*)this);
 }
 
 bool Sound::LoadWAV(const char Filename[])

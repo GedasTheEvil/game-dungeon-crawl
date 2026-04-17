@@ -85,7 +85,7 @@ Cashe::~Cashe()
      delete fall_inc;
      
      
-     printf("Deleting cashe %d \n",this);
+     printf("Deleting cashe %p \n", (void*)this);
 }
 
 void Cashe::Load()

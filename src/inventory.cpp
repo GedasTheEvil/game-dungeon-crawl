@@ -50,7 +50,7 @@ inventory::inventory()
 
 inventory::~inventory()
 {
-     printf("Deleting inventory %x \n",this);
+     printf("Deleting inventory %p \n", (void*)this);
      delete inv_ani;
 }
 
@@ -256,7 +256,7 @@ void inventory::Draw()
      
      //potions slots
      for(int j =0; j <2; j++)
-	   for(int i = 0; i<3; i++)
+	   for(int i = 0; i<3-j; i++)
 	   {
 		 glColor3f(0,0,0);
 		 glBegin(GL_LINE_LOOP); // sloti.j
@@ -369,13 +369,13 @@ void inventory::Draw()
 	   if(view.id == 0)
 	   {
 		 Impact.print(53,82, "Name: Small health"); 
-		 Impact.print(53,26,"Heals 25\% HP");
+		 Impact.print(53,26,"Heals 25%% HP");
 		
 	   }
 	   if(view.id == 1)
 	   {
 		 Impact.print(53,82, "Name: Large health"); 
-		 Impact.print(53,26,"Heals 50\% HP");
+		 Impact.print(53,26,"Heals 50%% HP");
 	   }
 	   if(view.id == 2)
 	   {
@@ -390,7 +390,7 @@ void inventory::Draw()
 	   if(view.id == 4)
 	   {
 		 Impact.print(53,82, "Name: Elixir of life"); 
-		 Impact.print(53,26,"Adds 5\% HP");
+		 Impact.print(53,26,"Adds 5%% HP");
 	   }
      }
      
@@ -417,8 +417,10 @@ void inventory::Draw()
 
 void inventory::MouseFunction(int button, int state , int x, int y)
 {
-     if(!state)
-	   return;
+    (void)button;
+
+    if(!state)
+	  return;
      
      extern int resX ,resY;
      float inv_x = 100 * ((float)x / (float)resX);
@@ -542,9 +544,10 @@ item *inventory::Equipped()
 	   if(equipped.id == 2)
 		 return c.spear;
      }
-     else if (equipped.type == 2)
-	   return c.bow;
-     else return c.club;
+    else if (equipped.type == 2)
+	  return c.bow;
+
+    return c.club;
 }
 
 

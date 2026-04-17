@@ -86,7 +86,7 @@ void keyPressed(unsigned char key, int x, int y) {
 		if (key == KEY_MOVE_DOWN) // s
 			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
 		if (key == KEY_MOVE_UP) // w
-			c.dungeon.Move(0, PLAYER_MOVE_STEP);
+			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
 
 		if (key == KEY_SPACE) // spacebar, jump
 		{
@@ -113,12 +113,35 @@ void keyPressed(unsigned char key, int x, int y) {
 
 void specialKeyPressed(int key, int x, int y) {
 	//      printf("Special key %d pressed\n",key);
+	(void)x;
+	(void)y;
+
+	if (c.menu.show)
+		return;
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
 		c.Cartoon = !c.Cartoon;
 
 	if (key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
 		c.Orig_model = !c.Orig_model;
+
+	if (c.Player->Alive() && !c.IHaveWon) {
+		if (key == SPECIAL_MOVE_LEFT) {
+			c.dungeon.Move(-PLAYER_MOVE_STEP, 0);
+			RotW = -110;
+			c.Player->changeMDL(1);
+		}
+		if (key == SPECIAL_MOVE_RIGHT) {
+			c.dungeon.Move(PLAYER_MOVE_STEP, 0);
+			RotW = 70;
+			c.Player->changeMDL(1);
+		}
+
+		if (key == SPECIAL_MOVE_DOWN)
+			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
+		if (key == SPECIAL_MOVE_UP)
+			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
+	}
 
 	if (key == SPECIAL_CAMERA_LEFT) {
 		rotM -= CAMERA_ROTATE_STEP;

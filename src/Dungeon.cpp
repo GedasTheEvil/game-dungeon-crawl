@@ -480,24 +480,23 @@ void Dungeon::Draw()
      /// @name jumping
 	   
      if(c.jumping)
-     {
-	   if(c.jump_timer -> TimePassed())
+    {
+	   if(c.jump_inc -> TimePassed())
 	   {
-		 c.jumping = 0;
-	   }
-	   else
-	   {
-		 if((int) y == (int)(y + c.Player->scale/40.0 + 0.045))//nesokam i kita langeli, ir virs lubu nelendam
-		      if(c.jump_inc -> TimePassed())
-			    y += 0.045;
+		 if(c.jump_dir_x != 0)
+		      Move(c.jump_dir_x * c.jump_speed, 0);
 
-		 
-		 if (c.jump_up_timer -> TimePassed())
+		 y += c.jump_vel;
+		 c.jump_vel -= 0.01f;
+
+		 if(c.jump_vel <= 0 && y <= c.jump_start_y)
 		 {
+		      y = c.jump_start_y;
 		      c.jumping = 0;
+		      c.falling = false;
 		 }
 	   }
-     }
+    }
 	   
      /// @name Drawing
      

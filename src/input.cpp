@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #include "cashe.h"
+#include "input.h"
 
 extern Cashe c;
 
@@ -15,6 +16,35 @@ int lastMx = 0;
 int lastMy = 0;
 
 void Draw();
+
+namespace
+{
+void StartJump()
+{
+    if(c.jumping || c.falling || !c.Player -> Alive() || c.IHaveWon)
+        return;
+
+    float curX, curY;
+    c.dungeon.getC(curX, curY);
+    c.jump_start_y = curY;
+
+    c.jump_dir_x = 0;
+    if(last_key == KEY_MOVE_LEFT)
+        c.jump_dir_x = -1;
+    else if(last_key == KEY_MOVE_RIGHT)
+        c.jump_dir_x = 1;
+    else if(RotW > 0)
+        c.jump_dir_x = 1;
+    else if(RotW < 0)
+        c.jump_dir_x = -1;
+
+    c.jump_speed = JUMP_FORWARD_SPEED;
+    c.jump_vel = JUMP_INITIAL_VELOCITY;
+    c.jumping = 1;
+    c.jump_up_timer -> Reset();
+    c.jump_s.Play();
+}
+}
 
 void Idle()
 {
@@ -31,7 +61,7 @@ void keyPressed(unsigned char key, int x, int y)
 	   return;
      }
      
-     if(key == 27)//esc
+     if(key == KEY_ESCAPE)//esc
      {
 	   if(c.Stats -> show || c.invent-> show)
 	   {
@@ -49,36 +79,30 @@ void keyPressed(unsigned char key, int x, int y)
      if(c.Player -> Alive() && !c.IHaveWon)
      {
 
-	   if(key == 97)//a
+	   if(key == KEY_MOVE_LEFT)//a
 	   {
-		 c.dungeon.Move(-0.015,0);
+		 c.dungeon.Move(-PLAYER_MOVE_STEP,0);
 		 RotW = -110;
 		 c.Player -> changeMDL(1);
 	   }
-	   if(key == 100)//d
+	   if(key == KEY_MOVE_RIGHT)//d
 	   {
-		 c.dungeon.Move(0.015,0);
+		 c.dungeon.Move(PLAYER_MOVE_STEP,0);
 		 RotW = 70;
 		 c.Player -> changeMDL(1);
 	   }
 	   
-	   if(key == 115)//s
-		 c.dungeon.Move(0,-0.015);
-	   if(key == 119)//w
-		 c.dungeon.Move(0,0.015);
+	   if(key == KEY_MOVE_DOWN)//s
+		 c.dungeon.Move(0,-PLAYER_MOVE_STEP);
+	   if(key == KEY_MOVE_UP)//w
+		 c.dungeon.Move(0,PLAYER_MOVE_STEP);
 	   
-	   if(key == 32)//spacebar, jump
+	   if(key == KEY_SPACE)//spacebar, jump
 	   {
-
-		 if(c.jump_timer -> TimePassed() && !c.falling)
-		 {
-		      c.jump_s.Play();
-		      c.jumping = 1;
-		      c.jump_up_timer -> Reset();
-		 }
+		 StartJump();
 	   }
 	   
-	   if(key == 13 && c.Player -> Att_timer -> TimePassed())//enter, attack
+	   if(key == KEY_ENTER && c.Player -> Att_timer -> TimePassed())//enter, attack
 	   {
 		 c.dungeon.GetAttack(c.Stats -> Damage() ,c.invent -> Equipped() -> range);
 		 c.Player -> att_s.Play();
@@ -87,10 +111,10 @@ void keyPressed(unsigned char key, int x, int y)
 	   
      }//eo Alive
      
-     if(key == 'i')
+     if(key == KEY_INVENTORY)
 	   c.invent-> show = !c.invent-> show;
-     
-     if(key == 'o')
+	 
+     if(key == KEY_STATS)
 	   c.Stats -> show = !c.Stats-> show;
      
      last_key = key;
@@ -100,38 +124,38 @@ void specialKeyPressed(int key, int x , int y)
 {
 //      printf("Special key %d pressed\n",key);
 
-     if(key == 1)
+     if(key == SPECIAL_TOGGLE_CARTOON)
 	   c.Cartoon = !c.Cartoon;
-     
-     if(key == 2)
+	 
+     if(key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
 	   c.Orig_model = !c.Orig_model;
 
-     if(key == 100)
+	 if(key == SPECIAL_CAMERA_LEFT)
      {
-	   rotM -= 2.5;
-	   if(rotM < -30)
-		 rotM = -30;
+	   rotM -= CAMERA_ROTATE_STEP;
+	   if(rotM < -CAMERA_ROTATE_LIMIT_X)
+		 rotM = -CAMERA_ROTATE_LIMIT_X;
      }
-     if(key == 102)
+	 if(key == SPECIAL_CAMERA_RIGHT)
      {
-	   rotM += 2.5;
-	   if(rotM > 30)
-		 rotM = 30;
+	   rotM += CAMERA_ROTATE_STEP;
+	   if(rotM > CAMERA_ROTATE_LIMIT_X)
+		 rotM = CAMERA_ROTATE_LIMIT_X;
      }
-     if(key == 101)
+	 if(key == SPECIAL_CAMERA_UP)
      {
-	   rotN += 2.5;
-	   if(rotN > 10)
-		 rotN = 10;
+	   rotN += CAMERA_ROTATE_STEP;
+	   if(rotN > CAMERA_ROTATE_LIMIT_Y)
+		 rotN = CAMERA_ROTATE_LIMIT_Y;
      }
-     if(key == 103)
+	 if(key == SPECIAL_CAMERA_DOWN)
      {
-	   rotN -= 2.5;
-	   if(rotN < -10)
-		 rotN = -10;
+	   rotN -= CAMERA_ROTATE_STEP;
+	   if(rotN < -CAMERA_ROTATE_LIMIT_Y)
+		 rotN = -CAMERA_ROTATE_LIMIT_Y;
      }
 
-     if(key == 12)
+	 if(key == SPECIAL_INTERACT)
      {
 	   c.dungeon.GetPickUp();
 	   c.dungeon.GetRiddle();
@@ -154,27 +178,22 @@ void processMouse(int button, int state , int x, int y)
      
      if(state && c.Player -> Alive() && !c.IHaveWon)
      {
-	if(button == 0 && c.Player -> Att_timer -> TimePassed())
+	if(button == MOUSE_LEFT_BUTTON && c.Player -> Att_timer -> TimePassed())
 	{
 	    c.dungeon.GetAttack(c.Stats -> Damage() ,c.invent -> Equipped() -> range);
 	    c.Player -> att_s.Play();
 	    Attacking = 1;
 	}
 	
-	if(button == 1)
+	if(button == MOUSE_MIDDLE_BUTTON)
 	{
 	   c.dungeon.GetPickUp();
 	   c.dungeon.GetRiddle();
 	}
 	
-	if(button == 2)
+	if(button == MOUSE_RIGHT_BUTTON)
 	{
-	   if(c.jump_timer -> TimePassed() && !c.falling)
-	   {
-		 c.jump_s.Play();
-		 c.jumping = 1;
-		 c.jump_up_timer -> Reset();
-	   }
+	   StartJump();
 	}
 	  
      }
@@ -193,20 +212,20 @@ void processMousePassiveMotion(int a, int b)
 	   return;
      }
      
-     rotM += -0.08*(lastMx-a);
-     rotN += -0.08*(lastMy-b);
-     
-     if(rotM > 30)
-	rotM = 30;
-     
-     if(rotM < -30)
-	rotM = -30;
-     
-     if(rotN > 10)
-	rotN = 10;
-     
-     if(rotN < -10)
-	  rotN = -10;
+     rotM += -MOUSE_LOOK_SENSITIVITY*(lastMx-a);
+     rotN += -MOUSE_LOOK_SENSITIVITY*(lastMy-b);
+	 
+	 if(rotM > CAMERA_ROTATE_LIMIT_X)
+	rotM = CAMERA_ROTATE_LIMIT_X;
+	 
+	 if(rotM < -CAMERA_ROTATE_LIMIT_X)
+	rotM = -CAMERA_ROTATE_LIMIT_X;
+	 
+	 if(rotN > CAMERA_ROTATE_LIMIT_Y)
+	rotN = CAMERA_ROTATE_LIMIT_Y;
+	 
+	 if(rotN < -CAMERA_ROTATE_LIMIT_Y)
+	  rotN = -CAMERA_ROTATE_LIMIT_Y;
      
      lastMx = a;
      lastMy = b;

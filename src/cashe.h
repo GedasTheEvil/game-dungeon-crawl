@@ -53,6 +53,10 @@ class Cashe
 	   timer *jump_timer, *jump_up_timer;	
 	   timer *jump_inc, *fall_inc;
 	   bool jumping;
+	   float jump_dir_x;
+	   float jump_speed;
+	   float jump_vel;
+	   float jump_start_y;
 	   bool Orig_model;
 	   trap *TrapD,*DeathTrap;
 	   CartoonANI *sphinx, *ankh;

@@ -44,6 +44,10 @@ Cashe::Cashe()
 
      Cache_loaded = 0;
      jumping = 0;
+     jump_dir_x = 0;
+     jump_speed = 0;
+     jump_vel = 0;
+     jump_start_y = 0;
      jump_counter = 0;
      falling = 0;
      curMap =1;

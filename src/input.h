@@ -40,9 +40,9 @@ void Idle();
 
 void keyPressed(unsigned char a, int x, int y);
 
-void specialKeyPressed(int a, int x , int y);
+void specialKeyPressed(int a, int x, int y);
 
-void processMouse(int a, int b , int c, int d);
+void processMouse(int a, int b, int c, int d);
 
 void processMouseActiveMotion(int a, int b);
 

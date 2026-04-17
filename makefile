@@ -11,6 +11,8 @@ DEPS=$(OBJECTS:.o=.d)
 
 EXECUTABLE=game
 
+.PHONY: all clean format
+
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
@@ -21,5 +23,8 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(DEPS)
+
+format:
+	clang-format -i src/*.h src/*.cpp
 
 -include $(DEPS)

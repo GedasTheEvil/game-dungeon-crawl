@@ -5,46 +5,35 @@
 #include "shader.h"
 
 // User Defined Structures
-typedef struct tagMATRIX	
-{
-	float Data[16];	
-}
-MATRIX;
+typedef struct tagMATRIX {
+	float Data[16];
+} MATRIX;
 
-typedef struct tagVECTOR	
-{
-	float X, Y, Z;	
-}
-VECTOR;
+typedef struct tagVECTOR {
+	float X, Y, Z;
+} VECTOR;
 
-typedef struct tagVERTEX		
-{
-	VECTOR Nor;	
+typedef struct tagVERTEX {
+	VECTOR Nor;
 	VECTOR Pos;
-}
-VERTEX;
+} VERTEX;
 
-typedef struct tagPOLYGON	
-{
-	VERTEX Verts[3];	
-}
-POLYGON;
+typedef struct tagPOLYGON {
+	VERTEX Verts[3];
+} POLYGON;
 
-class CartoonANI : public ANI
-{
-     private:
-	   VECTOR lightAngle;
-     
-     public:
+class CartoonANI : public ANI {
+  private:
+	VECTOR lightAngle;
 
-	   int	shaderTexture[1];
-	   int outlineWidth;
-	   bool outline;
-	   
-	   CartoonANI();
-// 	   ~CartoonANI();
-	   void ShowC();
-	   
+  public:
+	int shaderTexture[1];
+	int outlineWidth;
+	bool outline;
+
+	CartoonANI();
+	// 	   ~CartoonANI();
+	void ShowC();
 };
 
 #endif

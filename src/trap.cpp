@@ -18,7 +18,7 @@ trap::~trap()
 {
      delete mdl;
      delete Hurt_timer;
-     printf("Deleting trap %x \n",this);
+     printf("Deleting trap\n");
 }
 
 void trap::Show()
@@ -61,10 +61,10 @@ bool trap::LoadMDL(const char filename[],Textura &texture, bool compile)
      
      if(compile)
 	   mdl -> Compile();
-     
+     return 1;
 }
 
 void trap::debugText()
 {
-     printf("I am trap %d, my x=%f, y=%f\n Dungeon x=%f, y=%f\n\n",this,x,y,*DX,*DY);
+     printf("I am trap, my x=%f, y=%f\n Dungeon x=%f, y=%f\n\n",x,y,*DX,*DY);
 }

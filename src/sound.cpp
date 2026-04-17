@@ -1,5 +1,4 @@
 #include "sound.h"
-#include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 
 
@@ -10,14 +9,13 @@ Sound::Sound()
      int audio_channels  = 2;
      int audio_buffers   = 4096;
      
-     if ( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
+     int cur_rate; Uint16 cur_format; int cur_channels;
+     if (Mix_QuerySpec(&cur_rate, &cur_format, &cur_channels) == 0)
      {
-	  printf(  "Video/Audio initialization failed: %s\n", SDL_GetError( ) );
-     }
-
-     if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers))
-     {
-	  printf(  "Unable to open audio!\n" );
+         if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers))
+         {
+         	  printf(  "Unable to open audio!\n" );
+         }
      }
      OGG = 0;
      WAV = 0;
@@ -31,8 +29,6 @@ Sound::~Sound()
 	   Mix_FreeChunk(data);
      if(OGG)
 	   Mix_FreeMusic(Mdata);
-     Mix_CloseAudio();
-     SDL_Quit( );
      WAV = 0;
      OGG = 0;
      printf("Deleting sound %x \n",this);

@@ -100,12 +100,7 @@ void Cashe::Load()
      plant_t.LoadBMP("Textures/plant.bmp"); 
      riddle_bg.LoadBMP("Textures/riddlebg.bmp"); 
      rid = new Riddle();
-     
-     DrawLoad(18,"Loading Sounds");
-     ss[0].LoadWAV("Sounds/Spider_die.wav");
-     DrawLoad(19,"Loading Sounds");
-     ss[1].LoadOGG("Sounds/CS_INEXTREMO.ogg");
-     
+
      DrawLoad(20,"Loading Monster Models [Player]");     
      Player = new monster(0,0,1,1,1,0);
      Player->LoadMDL("human",player_t,progBar,true);
@@ -131,7 +126,7 @@ void Cashe::Load()
      anubis -> scale = 19;
      anubis -> rotA = 180;
      anubis -> MaxHP = 200;
-     
+
      DrawLoad(60,"Loading Item Models [Treasure chest]");
      chest = new item();
      chest -> LoadMDL("Models/tchest.mdl",chest_t);
@@ -259,6 +254,8 @@ void Cashe::Load()
 //==============================================================
 void Cashe::DrawLoad(float xxx, const char text[])
 {
+     printf("DrawLoad: %s\n", text);
+
      if(xxx > 100)
 	   xxx = 100;
      

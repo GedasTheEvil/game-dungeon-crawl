@@ -60,7 +60,7 @@ item::~item()
 	   delete mdl;
      mdl = NULL;
      loaded = 0;     
-     printf("Deleting item %x \n");
+     printf("Deleting item\n");
 }
 
 bool item::LoadMDL(const char filename[],Textura &texture, bool compile)
@@ -74,4 +74,5 @@ bool item::LoadMDL(const char filename[],Textura &texture, bool compile)
 	   mdl -> Compile();
      
      loaded = 1;
+     return 1;
 }

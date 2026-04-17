@@ -1,9 +1,9 @@
 ##DungeonCrawl by Gedas The Evil
 CC=g++
 RM=rm -f
-CFLAGS=-c -Wall -pedantic -Xlinker -zmuldefs -o3 -march=native
+CFLAGS=-c -Wall -pedantic -Xlinker -zmuldefs -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 CDFLAGS=-c -Wall -pedantic -Xlinker -zmuldefs
-LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib  `sdl-config --cflags --libs` -lSDL_mixer 
+LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
 SOURCES=src/ANI.cpp src/game.cpp src/textures.cpp src/Dungeon.cpp src/draw.cpp src/input.cpp src/monster.cpp src/font.cpp src/sound.cpp src/monster_ai.cpp src/item.cpp src/inventory.cpp src/particles.cpp src/stats.cpp src/timer.cpp src/cashe.cpp src/trap.cpp src/riddle.cpp src/menu.cpp src/shader.cpp src/winloose.cpp
 
@@ -14,12 +14,10 @@ EXECUTABLE=game
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
 
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(OBJECTSD)
-
-

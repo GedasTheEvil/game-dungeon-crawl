@@ -131,10 +131,6 @@ void specialKeyPressed(int key, int x , int y)
 		 rotN = -10;
      }
 
-
-     if(key == 5)c.ss[1].Play();
-
-     
      if(key == 12)
      {
 	   c.dungeon.GetPickUp();

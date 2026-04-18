@@ -1,7 +1,7 @@
 #ifndef GAMEPLAY_CONFIG_H
 #define GAMEPLAY_CONFIG_H
 
-constexpr float PLAYER_MOVE_STEP = 0.015f;
+constexpr float PLAYER_MOVE_STEP = 0.025f;
 constexpr float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
 
 constexpr float JUMP_FORWARD_SPEED = 0.054f;

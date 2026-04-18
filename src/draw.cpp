@@ -1,6 +1,7 @@
 #include "input.h"
 #include <GL/gl.h>
 #include "cashe.h"
+#include "screen_state.h"
 #ifndef WIN32
 #include <GL/glut.h>
 #endif
@@ -29,24 +30,21 @@ void Draw() {
 		return;
 	}
 
-	if (c.menu.show) {
+	switch (ScreenState::GetDrawScreen(c)) {
+	case ScreenState::DrawScreen::Menu:
 		c.menu.Draw();
 		return;
-	}
-
-	if (c.invent->show) {
+	case ScreenState::DrawScreen::Inventory:
 		c.invent->Draw();
 		return;
-	}
-
-	if (c.Stats->show) {
+	case ScreenState::DrawScreen::Stats:
 		c.Stats->Draw();
 		return;
-	}
-
-	if (c.rid->show) {
+	case ScreenState::DrawScreen::Riddle:
 		c.rid->Draw();
 		return;
+	case ScreenState::DrawScreen::Gameplay:
+		break;
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer

@@ -2,6 +2,8 @@
 #include <GL/gl.h>
 #include "cashe.h"
 #include "input.h"
+#include "input_actions.h"
+#include "screen_state.h"
 
 extern Cashe c;
 
@@ -42,6 +44,76 @@ void StartJump() {
 	c.jump_up_timer->Reset();
 	c.jump_s.Play();
 }
+
+class PlayerActionController {
+  public:
+	static void Execute(GameplayAction action) {
+		switch (action) {
+		case GameplayAction::MoveLeft:
+			c.dungeon.Move(-PLAYER_MOVE_STEP, 0);
+			RotW = -110;
+			c.Player->changeMDL(1);
+			break;
+		case GameplayAction::MoveRight:
+			c.dungeon.Move(PLAYER_MOVE_STEP, 0);
+			RotW = 70;
+			c.Player->changeMDL(1);
+			break;
+		case GameplayAction::MoveDown:
+			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
+			break;
+		case GameplayAction::MoveUp:
+			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
+			break;
+		case GameplayAction::Jump:
+			StartJump();
+			break;
+		case GameplayAction::Attack:
+			TryAttack();
+			break;
+		case GameplayAction::Interact:
+			Interact();
+			break;
+		case GameplayAction::None:
+			break;
+		}
+	}
+
+	static void ApplyCameraDelta(float deltaX, float deltaY) {
+		rotM += deltaX;
+		rotN += deltaY;
+		ClampCamera();
+	}
+
+  private:
+	static void TryAttack() {
+		if (!c.Player->Att_timer->TimePassed())
+			return;
+
+		c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
+		c.Player->att_s.Play();
+		Attacking = 1;
+	}
+
+	static void Interact() {
+		c.dungeon.GetPickUp();
+		c.dungeon.GetRiddle();
+	}
+
+	static void ClampCamera() {
+		if (rotM > CAMERA_ROTATE_LIMIT_X)
+			rotM = CAMERA_ROTATE_LIMIT_X;
+
+		if (rotM < -CAMERA_ROTATE_LIMIT_X)
+			rotM = -CAMERA_ROTATE_LIMIT_X;
+
+		if (rotN > CAMERA_ROTATE_LIMIT_Y)
+			rotN = CAMERA_ROTATE_LIMIT_Y;
+
+		if (rotN < -CAMERA_ROTATE_LIMIT_Y)
+			rotN = -CAMERA_ROTATE_LIMIT_Y;
+	}
+};
 } // namespace
 
 void Idle() { Draw(); }
@@ -49,7 +121,7 @@ void Idle() { Draw(); }
 void keyPressed(unsigned char key, int x, int y) {
 	//      printf("You pressed %d\n",key);
 
-	if (c.rid->show) {
+	if (ScreenState::ShouldRouteKeyboardToRiddle(c)) {
 		c.rid->KeyboardF(key, x, y);
 		return;
 	}
@@ -65,41 +137,11 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	}
 
-	if (c.menu.show)
+	if (ScreenState::ShouldBlockKeyboardGameplay(c))
 		return; // jei rodomas meniu, tai reaguojam tik i [esc]
 
-	if (c.Player->Alive() && !c.IHaveWon) {
-
-		if (key == KEY_MOVE_LEFT) // a
-		{
-			c.dungeon.Move(-PLAYER_MOVE_STEP, 0);
-			RotW = -110;
-			c.Player->changeMDL(1);
-		}
-		if (key == KEY_MOVE_RIGHT) // d
-		{
-			c.dungeon.Move(PLAYER_MOVE_STEP, 0);
-			RotW = 70;
-			c.Player->changeMDL(1);
-		}
-
-		if (key == KEY_MOVE_DOWN) // s
-			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
-		if (key == KEY_MOVE_UP) // w
-			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
-
-		if (key == KEY_SPACE) // spacebar, jump
-		{
-			StartJump();
-		}
-
-		if (key == KEY_ENTER && c.Player->Att_timer->TimePassed()) // enter, attack
-		{
-			c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
-			c.Player->att_s.Play();
-			Attacking = 1;
-		}
-
+	if (ScreenState::IsGameplayInteractionAllowed(c)) {
+		PlayerActionController::Execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)
@@ -116,7 +158,7 @@ void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
 
-	if (c.menu.show)
+	if (ScreenState::ShouldBlockKeyboardGameplay(c))
 		return;
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
@@ -125,99 +167,51 @@ void specialKeyPressed(int key, int x, int y) {
 	if (key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
 		c.Orig_model = !c.Orig_model;
 
-	if (c.Player->Alive() && !c.IHaveWon) {
-		if (key == SPECIAL_MOVE_LEFT) {
-			c.dungeon.Move(-PLAYER_MOVE_STEP, 0);
-			RotW = -110;
-			c.Player->changeMDL(1);
-		}
-		if (key == SPECIAL_MOVE_RIGHT) {
-			c.dungeon.Move(PLAYER_MOVE_STEP, 0);
-			RotW = 70;
-			c.Player->changeMDL(1);
-		}
-
-		if (key == SPECIAL_MOVE_DOWN)
-			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
-		if (key == SPECIAL_MOVE_UP)
-			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
+	if (ScreenState::IsGameplayInteractionAllowed(c)) {
+		PlayerActionController::Execute(MapSpecialGameplayAction(key));
 	}
 
 	if (key == SPECIAL_CAMERA_LEFT) {
-		rotM -= CAMERA_ROTATE_STEP;
-		if (rotM < -CAMERA_ROTATE_LIMIT_X)
-			rotM = -CAMERA_ROTATE_LIMIT_X;
+		PlayerActionController::ApplyCameraDelta(-CAMERA_ROTATE_STEP, 0);
 	}
 	if (key == SPECIAL_CAMERA_RIGHT) {
-		rotM += CAMERA_ROTATE_STEP;
-		if (rotM > CAMERA_ROTATE_LIMIT_X)
-			rotM = CAMERA_ROTATE_LIMIT_X;
+		PlayerActionController::ApplyCameraDelta(CAMERA_ROTATE_STEP, 0);
 	}
 	if (key == SPECIAL_CAMERA_UP) {
-		rotN += CAMERA_ROTATE_STEP;
-		if (rotN > CAMERA_ROTATE_LIMIT_Y)
-			rotN = CAMERA_ROTATE_LIMIT_Y;
+		PlayerActionController::ApplyCameraDelta(0, CAMERA_ROTATE_STEP);
 	}
 	if (key == SPECIAL_CAMERA_DOWN) {
-		rotN -= CAMERA_ROTATE_STEP;
-		if (rotN < -CAMERA_ROTATE_LIMIT_Y)
-			rotN = -CAMERA_ROTATE_LIMIT_Y;
+		PlayerActionController::ApplyCameraDelta(0, -CAMERA_ROTATE_STEP);
 	}
 
 	if (key == SPECIAL_INTERACT) {
-		c.dungeon.GetPickUp();
-		c.dungeon.GetRiddle();
+		PlayerActionController::Execute(GameplayAction::Interact);
 	}
 }
 
 void processMouse(int button, int state, int x, int y) {
-	if (c.menu.show) {
+	if (ScreenState::ShouldRouteMouseToMenu(c)) {
 		c.menu.MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (c.invent->show) {
+	if (ScreenState::ShouldRouteMouseToInventory(c)) {
 		c.invent->MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (state && c.Player->Alive() && !c.IHaveWon) {
-		if (button == MOUSE_LEFT_BUTTON && c.Player->Att_timer->TimePassed()) {
-			c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
-			c.Player->att_s.Play();
-			Attacking = 1;
-		}
-
-		if (button == MOUSE_MIDDLE_BUTTON) {
-			c.dungeon.GetPickUp();
-			c.dungeon.GetRiddle();
-		}
-
-		if (button == MOUSE_RIGHT_BUTTON) {
-			StartJump();
-		}
+	if (state && ScreenState::IsGameplayInteractionAllowed(c)) {
+		PlayerActionController::Execute(MapMouseGameplayAction(button));
 	}
 }
 void processMousePassiveMotion(int a, int b) {
-	if (c.menu.show) {
+	if (ScreenState::ShouldRouteMouseToMenu(c)) {
 		c.menu.MousePassiveMotion(a, b);
 		return;
 	}
 
-	rotM += -MOUSE_LOOK_SENSITIVITY * (lastMx - a);
-	rotN += -MOUSE_LOOK_SENSITIVITY * (lastMy - b);
-
-	if (rotM > CAMERA_ROTATE_LIMIT_X)
-		rotM = CAMERA_ROTATE_LIMIT_X;
-
-	if (rotM < -CAMERA_ROTATE_LIMIT_X)
-		rotM = -CAMERA_ROTATE_LIMIT_X;
-
-	if (rotN > CAMERA_ROTATE_LIMIT_Y)
-		rotN = CAMERA_ROTATE_LIMIT_Y;
-
-	if (rotN < -CAMERA_ROTATE_LIMIT_Y)
-		rotN = -CAMERA_ROTATE_LIMIT_Y;
+	PlayerActionController::ApplyCameraDelta(-MOUSE_LOOK_SENSITIVITY * (lastMx - a),
+											 -MOUSE_LOOK_SENSITIVITY * (lastMy - b));
 
 	lastMx = a;
 	lastMy = b;

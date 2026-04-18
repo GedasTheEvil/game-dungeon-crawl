@@ -449,6 +449,77 @@ void Dungeon::UpdateMovementState() {
 	}
 }
 //======================================================================================
+void Dungeon::DrawMonsterTile(int i, int j) {
+	SpawnMonster(i, j);
+	for (int a = 0; a < CMaxMonsters; a++) {
+		if (m[a].orX == i && m[a].orY == j) {
+			m[a].m->setCords(m[a].x, m[a].y);
+			m[a].m->HP = m[a].HP;
+			m[a].m->Y = m[a].orY;
+			m[a].m->X = m[a].orX;
+			m[a].m->setModel(m[a].state);
+			glPushMatrix();
+			glTranslatef(40, 0, 10);
+			m[a].m->Draw();
+			glPopMatrix();
+			if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
+				if (!m[a].m->Seek())
+					if (m[a].at->TimePassed())
+						m[a].m->Attack();
+				m[a].m->GetCords(m[a].x, m[a].y);
+				m[a].state = m[a].m->Model_state();
+			}
+		}
+	}
+}
+//======================================================================================
+void Dungeon::DrawTreasureTile(int i, int j) {
+	glPushMatrix();
+	glTranslatef(20, 0, 10);
+	c.chest->Draw();
+
+	if (Map(i, j).b == 3) {
+		c.potion->Draw();
+		c.potion->rotA++;
+	}
+
+	if (Map(i, j).b == 2) {
+		c.bow->Draw();
+		c.bow->rotA++;
+	}
+
+	if (Map(i, j).b == 1) {
+		if (Map(i, j).c == 0) {
+			c.club->scale = 10;
+			c.club->Draw();
+			c.club->rotA++;
+		}
+		if (Map(i, j).c == 1) {
+			c.sword->Draw();
+			c.sword->rotA++;
+		}
+		if (Map(i, j).c == 2) {
+			c.spear->Draw();
+			c.spear->rotA++;
+		}
+	}
+
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
+	glPushMatrix();
+	glTranslatef(20, 0, 10);
+
+	trap* tileTrap = isDeathTrap ? c.DeathTrap.get() : c.TrapD.get();
+	tileTrap->DX = &x;
+	tileTrap->DY = &y;
+	tileTrap->setCords(i, j);
+	tileTrap->Show();
+
+	glPopMatrix();
+}
+//======================================================================================
 void Dungeon::Draw() {
 
 	bool plasma_ani;
@@ -472,78 +543,16 @@ void Dungeon::Draw() {
 
 				if (Map(i, j).a == Monster) // mob
 				{
-					SpawnMonster(i, j);
-					for (int a = 0; a < CMaxMonsters; a++) {
-						if (m[a].orX == i && m[a].orY == j) {
-							m[a].m->setCords(m[a].x, m[a].y);
-							m[a].m->HP = m[a].HP;
-							m[a].m->Y = m[a].orY;
-							m[a].m->X = m[a].orX;
-							m[a].m->setModel(m[a].state);
-							glPushMatrix();
-							glTranslatef(40, 0, 10);
-							m[a].m->Draw();
-							glPopMatrix();
-							if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
-								if (!m[a].m->Seek())
-									if (m[a].at->TimePassed())
-										m[a].m->Attack();
-								m[a].m->GetCords(m[a].x, m[a].y);
-								m[a].state = m[a].m->Model_state();
-							}
-						}
-					}
-
+					DrawMonsterTile(i, j);
 				} // end of monster
 				if (Map(i, j).a == Treasure) {
-					glPushMatrix();
-					glTranslatef(20, 0, 10);
-					c.chest->Draw();
-
-					if (Map(i, j).b == 3) {
-						c.potion->Draw();
-						c.potion->rotA++;
-					}
-
-					if (Map(i, j).b == 2) {
-						c.bow->Draw();
-						c.bow->rotA++;
-					}
-
-					if (Map(i, j).b == 1) {
-						if (Map(i, j).c == 0) {
-							c.club->scale = 10; // debug
-							c.club->Draw();
-							c.club->rotA++;
-						}
-						if (Map(i, j).c == 1) {
-							c.sword->Draw();
-							c.sword->rotA++;
-						}
-						if (Map(i, j).c == 2) {
-							c.spear->Draw();
-							c.spear->rotA++;
-						}
-					}
-					glPopMatrix();
+					DrawTreasureTile(i, j);
 				} // end of treasure
 				if (Map(i, j).a == Spike) {
-					glPushMatrix();
-					glTranslatef(20, 0, 10);
-					c.TrapD->DX = &x;
-					c.TrapD->DY = &y;
-					c.TrapD->setCords(i, j);
-					c.TrapD->Show();
-					glPopMatrix();
+					DrawTrapTile(i, j, false);
 				} // end of spike trap
 				if (Map(i, j).a == Death) {
-					glPushMatrix();
-					glTranslatef(20, 0, 10);
-					c.DeathTrap->DX = &x;
-					c.DeathTrap->DY = &y;
-					c.DeathTrap->setCords(i, j);
-					c.DeathTrap->Show();
-					glPopMatrix();
+					DrawTrapTile(i, j, true);
 				} // end of death trap
 				if (Map(i, j).a == Ankh) {
 					glPushMatrix();

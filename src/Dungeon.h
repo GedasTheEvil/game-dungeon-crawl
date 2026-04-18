@@ -36,6 +36,7 @@ class Dungeon {
 	Tint map[1881];
 	float x, y;
 	int texC, *Tex;
+	void UpdateMovementState();
 	void DrawSegment(int seg, int l, int r, int u, int d);
 	Tint Map(float x, float y);
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin

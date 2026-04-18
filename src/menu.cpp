@@ -13,6 +13,68 @@
 #include <string.h>
 
 extern Cashe c;
+extern int resX, resY;
+
+namespace {
+void GetMenuMouseCoords(int x, int y, float& mx, float& my) {
+	mx = 100 * ((float)x / (float)resX);
+	my = 100 - 100 * ((float)y / (float)resY);
+}
+
+int GetSaveSlotFromCoords(float mx, float my) {
+	if (mx >= 6 && mx <= 43) {
+		if (my >= 71 && my <= 84)
+			return 0;
+		if (my >= 51 && my <= 64)
+			return 1;
+		if (my >= 31 && my <= 44)
+			return 2;
+	} else if (mx >= 54 && mx <= 93) {
+		if (my >= 71 && my <= 84)
+			return 3;
+		if (my >= 51 && my <= 64)
+			return 4;
+		if (my >= 31 && my <= 44)
+			return 5;
+	}
+
+	return -1;
+}
+
+bool IsSaveMenuExitFromCoords(float mx, float my) { return mx >= 6 && mx <= 43 && my >= 10 && my <= 23; }
+
+void PersistSaveNameList() {
+	std::ofstream f("Saves/gamelist.dat");
+	for (int a = 0; a < 6; a++)
+		f << c.saveNames[a].name << "\n";
+}
+
+void FormatSaveLabel(char out[25]) {
+	time_t t = time(0);
+	struct tm* lt = localtime(&t);
+	sprintf(out, "%02d_%02d-%02d_%02d:%02d", c.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
+}
+
+class SaveSlotService {
+  public:
+	static void SaveToSlot(int slot) {
+		char filename[20];
+		sprintf(filename, "Saves/save%d.sav", slot);
+		c.Save(filename);
+
+		char time_str[25];
+		FormatSaveLabel(time_str);
+		strcpy(c.saveNames[slot].name, time_str);
+		PersistSaveNameList();
+	}
+
+	static void LoadFromSlot(int slot) {
+		char filename[20];
+		sprintf(filename, "Saves/save%d.sav", slot);
+		c.LoadSave(filename);
+	}
+};
+} // namespace
 
 MainMenu::MainMenu() {
 	show = 1;
@@ -162,10 +224,8 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 
-	extern int resX, resY;
-
-	float m_x = 100 * ((float)x / (float)resX);
-	float m_y = 100 - 100 * ((float)y / (float)resY);
+	float m_x, m_y;
+	GetMenuMouseCoords(x, y, m_x, m_y);
 
 	if (m_x >= 23 && m_x <= 75) {
 		if (m_y <= 82 && m_y >= 71) // button1
@@ -202,10 +262,8 @@ void MainMenu::InGameMouseFunction(int button, int state, int x, int y) {
 	if (credits)
 		return;
 
-	extern int resX, resY;
-
-	float m_x = 100 * ((float)x / (float)resX);
-	float m_y = 100 - 100 * ((float)y / (float)resY);
+	float m_x, m_y;
+	GetMenuMouseCoords(x, y, m_x, m_y);
 
 	if (m_x >= 23 && m_x <= 75) {
 		if (m_y <= 82 && m_y >= 71) // button1
@@ -239,10 +297,8 @@ void MainMenu::MousePassiveMotion(int x, int y) {
 		return;
 	}
 
-	extern int resX, resY;
-
-	float m_x = 100 * ((float)x / (float)resX);
-	float m_y = 100 - 100 * ((float)y / (float)resY);
+	float m_x, m_y;
+	GetMenuMouseCoords(x, y, m_x, m_y);
 
 	if (m_x >= 23 && m_x <= 75) {
 		if (m_y <= 82 && m_y >= 71) // button1
@@ -384,86 +440,18 @@ void MainMenu::SaveMouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 
-	extern int resX, resY;
+	float mx, my;
+	GetMenuMouseCoords(x, y, mx, my);
 
-	float mx = 100 * ((float)x / (float)resX);
-	float my = 100 - 100 * ((float)y / (float)resY);
-
-	time_t t = time(0);
-	struct tm* lt = localtime(&t);
-	char time_str[25];
-	sprintf(time_str, "%02d_%02d-%02d_%02d:%02d", c.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
-
-	if (mx >= 6 && mx <= 43) {
-		if (my >= 71 && my <= 84) {
-			c.Save("Saves/save0.sav");
-
-			strcpy(c.saveNames[0].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-
-			saveD = 0;
-		}
-
-		if (my >= 51 && my <= 64) {
-			c.Save("Saves/save1.sav");
-
-			strcpy(c.saveNames[1].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-
-			saveD = 0;
-		}
-
-		if (my >= 31 && my <= 44) {
-			c.Save("Saves/save2.sav");
-			strcpy(c.saveNames[2].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-			saveD = 0;
-		}
-
-		if (my >= 10 && my <= 23) // exit button
-		{
-			saveD = 0;
-		}
-	} else if (mx >= 54 && mx <= 93) {
-		if (my >= 71 && my <= 84) {
-			c.Save("Saves/save3.sav");
-			strcpy(c.saveNames[3].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-			saveD = 0;
-		}
-
-		if (my >= 51 && my <= 64) {
-			c.Save("Saves/save4.sav");
-			strcpy(c.saveNames[4].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-			saveD = 0;
-		}
-
-		if (my >= 31 && my <= 44) {
-			c.Save("Saves/save5.sav");
-			strcpy(c.saveNames[5].name, time_str);
-			std::ofstream f("Saves/gamelist.dat");
-			for (int a = 0; a < 6; a++)
-				f << c.saveNames[a].name << "\n";
-			f.close();
-			saveD = 0;
-		}
+	int slot = GetSaveSlotFromCoords(mx, my);
+	if (slot != -1) {
+		SaveSlotService::SaveToSlot(slot);
+		saveD = 0;
+		return;
 	}
+
+	if (IsSaveMenuExitFromCoords(mx, my))
+		saveD = 0;
 }
 
 void MainMenu::LoadMouseFunction(int button, int state, int x, int y) {
@@ -471,102 +459,52 @@ void MainMenu::LoadMouseFunction(int button, int state, int x, int y) {
 	(void)state;
 
 	// c.LoadSave("Saves/dump.tmp");
-	extern int resX, resY;
+	float mx, my;
+	GetMenuMouseCoords(x, y, mx, my);
 
-	float mx = 100 * ((float)x / (float)resX);
-	float my = 100 - 100 * ((float)y / (float)resY);
-
-	if (mx >= 6 && mx <= 43) {
-		if (my >= 71 && my <= 84) {
-			c.LoadSave("Saves/save0.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
-
-		if (my >= 51 && my <= 64) {
-			c.LoadSave("Saves/save1.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
-
-		if (my >= 31 && my <= 44) {
-			c.LoadSave("Saves/save2.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
-
-		if (my >= 10 && my <= 23) // exit button
-		{
-			loadD = 0;
-		}
-	} else if (mx >= 54 && mx <= 93) {
-		if (my >= 71 && my <= 84) {
-			c.LoadSave("Saves/save3.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
-
-		if (my >= 51 && my <= 64) {
-			c.LoadSave("Saves/save4.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
-
-		if (my >= 31 && my <= 44) {
-			c.LoadSave("Saves/save5.sav");
-			loadD = 0;
-			show = 0;
-			inGame = 1;
-		}
+	int slot = GetSaveSlotFromCoords(mx, my);
+	if (slot != -1) {
+		SaveSlotService::LoadFromSlot(slot);
+		loadD = 0;
+		show = 0;
+		inGame = 1;
+		return;
 	}
+
+	if (IsSaveMenuExitFromCoords(mx, my))
+		loadD = 0;
 }
 
 void MainMenu::MousePassiveMotionSave(int x, int y) {
-	extern int resX, resY;
+	float mx, my;
+	GetMenuMouseCoords(x, y, mx, my);
 
-	float mx = 100 * ((float)x / (float)resX);
-	float my = 100 - 100 * ((float)y / (float)resY);
+	NoHover();
 
-	if (mx >= 6 && mx <= 43) {
-		if (my >= 71 && my <= 84) {
-			NoHover();
-			h1 = 1;
-		}
-
-		if (my >= 51 && my <= 64) {
-			NoHover();
-			h2 = 1;
-		}
-
-		if (my >= 31 && my <= 44) {
-			NoHover();
-			h3 = 1;
-		}
-
-		if (my >= 10 && my <= 23) // exit button
-		{
-			NoHover();
-			h7 = 1;
-		}
-	} else if (mx >= 54 && mx <= 93) {
-		if (my >= 71 && my <= 84) {
-			NoHover();
-			h4 = 1;
-		}
-
-		if (my >= 51 && my <= 64) {
-			NoHover();
-			h5 = 1;
-		}
-
-		if (my >= 31 && my <= 44) {
-			NoHover();
-			h6 = 1;
-		}
+	int slot = GetSaveSlotFromCoords(mx, my);
+	switch (slot) {
+	case 0:
+		h1 = 1;
+		return;
+	case 1:
+		h2 = 1;
+		return;
+	case 2:
+		h3 = 1;
+		return;
+	case 3:
+		h4 = 1;
+		return;
+	case 4:
+		h5 = 1;
+		return;
+	case 5:
+		h6 = 1;
+		return;
+	default:
+		break;
 	}
+
+	if (IsSaveMenuExitFromCoords(mx, my))
+		h7 = 1;
 }

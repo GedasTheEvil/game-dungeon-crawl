@@ -421,26 +421,16 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	return 1;
 }
 //======================================================================================
-void Dungeon::Draw() {
-
-	bool plasma_ani;
-	if (aniT->TimePassed())
-		plasma_ani = 1;
-	else
-		plasma_ani = 0;
-
-	/// @name Falling down
+void Dungeon::UpdateMovementState() {
 	if (Map(x, y).a != Ladder && !c.jumping) {
-		if ((y - (int)y) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) // fall down
-		{
+		if ((y - (int)y) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
 			if (c.fall_inc->TimePassed())
 				y -= FALL_STEP;
 			c.falling = true;
-		} else
+		} else {
 			c.falling = false;
+		}
 	}
-
-	/// @name jumping
 
 	if (c.jumping) {
 		if (c.jump_inc->TimePassed()) {
@@ -457,6 +447,17 @@ void Dungeon::Draw() {
 			}
 		}
 	}
+}
+//======================================================================================
+void Dungeon::Draw() {
+
+	bool plasma_ani;
+	if (aniT->TimePassed())
+		plasma_ani = 1;
+	else
+		plasma_ani = 0;
+
+	UpdateMovementState();
 
 	/// @name Drawing
 

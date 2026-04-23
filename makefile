@@ -4,7 +4,14 @@ RM=rm -f
 CXXFLAGS=-Wall -Wextra -pedantic -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
 LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
-SOURCES=src/ANI.cpp src/game.cpp src/textures.cpp src/Dungeon.cpp src/draw.cpp src/input.cpp src/monster.cpp src/font.cpp src/sound.cpp src/monster_ai.cpp src/item.cpp src/inventory.cpp src/particles.cpp src/stats.cpp src/timer.cpp src/cashe.cpp src/trap.cpp src/riddle.cpp src/menu.cpp src/shader.cpp src/winloose.cpp
+SOURCES=\
+	src/core/game.cpp src/core/timer.cpp src/core/sound.cpp \
+	src/graphics/ANI.cpp src/graphics/textures.cpp src/graphics/shader.cpp src/graphics/font.cpp src/graphics/particles.cpp src/graphics/draw.cpp \
+	src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/item.cpp src/entities/trap.cpp \
+	src/world/Dungeon.cpp \
+	src/ui/menu.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winloose.cpp \
+	src/input/input.cpp \
+	src/state/cashe.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 DEPS=$(OBJECTS:.o=.d)
@@ -25,6 +32,6 @@ clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(DEPS)
 
 format:
-	clang-format -i src/*.h src/*.cpp
+	clang-format -i src/*/*.h src/*/*.cpp
 
 -include $(DEPS)

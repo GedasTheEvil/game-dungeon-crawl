@@ -13,70 +13,9 @@
 
 char mapName2[200];
 
-Cashe::Cashe() {
-	status_timer = NULL;
-	anubis = NULL;
-	scarab = NULL;
-	plant = NULL;
-	worm = NULL;
-	chest = NULL;
-	club = NULL;
-	sword = NULL;
-	bow = NULL;
-	potion = NULL;
-	spear = NULL;
-	invent = NULL;
-	Stats = NULL;
-	Player = NULL;
-	TrapD = NULL;
-	DeathTrap = NULL;
-	sphinx = NULL;
-	ankh = NULL;
-	column = NULL;
-	question = NULL;
-	mdlChange = NULL;
-	jump_timer = NULL;
-	jump_up_timer = NULL;
-	AttTimer = NULL;
-	rid = NULL;
-	wlc = NULL;
-	jump_inc = NULL;
-	fall_inc = NULL;
+Cashe::Cashe() = default;
 
-	Cache_loaded = 0;
-	jumping = 0;
-	jump_dir_x = 0;
-	jump_speed = 0;
-	jump_vel = 0;
-	jump_start_y = 0;
-	jump_counter = 0;
-	falling = 0;
-	curMap = 1;
-	Cartoon = 1;
-	Orig_model = 1;
-	IHaveWon = 0;
-}
-
-Cashe::~Cashe() {
-	Cache_loaded = 0;
-	delete anubis;
-	delete scarab;
-	delete plant;
-	delete worm;
-	delete chest;
-	delete club;
-	delete sword;
-	delete bow;
-	delete potion;
-	delete spear;
-	delete Player;
-	delete sphinx;
-	delete column;
-	delete ankh;
-	delete question;
-
-	printf("Deleting cashe %p \n", (void*)this);
-}
+Cashe::~Cashe() { printf("Deleting cashe %p \n", (void*)this); }
 
 void Cashe::Load() {
 	// init main load resourses
@@ -121,98 +60,98 @@ void Cashe::Load() {
 	rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
-	Player = new monster(0, 0, 1, 1, 1, 0);
+	Player = std::make_unique<monster>(0, 0, 1, 1, 1, 0);
 	Player->LoadMDL("human", player_t, progBar, true);
 	Player->scale = 15;
 	Player->setCords(0, 0);
 
 	DrawLoad(30, "Loading Monster Models [Worm]");
-	worm = new monster(0, 0, 1, 40, 15, 1500);
+	worm = std::make_unique<monster>(0, 0, 1, 40, 15, 1500);
 	worm->LoadMDL("worm", worm_t, progBar, true);
 	worm->scale = 18;
 	worm->MaxHP = 20;
 
 	DrawLoad(40, "Loading Monster Models [Scarab]");
-	scarab = new monster(0, 0, 2, 25, 3, 500);
+	scarab = std::make_unique<monster>(0, 0, 2, 25, 3, 500);
 	scarab->LoadMDL("scarab", scarab_t, progBar, true);
 	scarab->scale = 10;
 	scarab->rotA = 180;
 	scarab->MaxHP = 15;
 
 	DrawLoad(50, "Loading Monster Models [Anubis]");
-	anubis = new monster(0, 0, 3, 200, 50, 10000);
+	anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
 	anubis->LoadMDL("anubis", anubis_t, progBar, true);
 	anubis->scale = 19;
 	anubis->rotA = 180;
 	anubis->MaxHP = 200;
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
-	chest = new item();
+	chest = std::make_unique<item>();
 	chest->LoadMDL("Models/tchest.mdl", chest_t);
 	chest->scale = 8;
 	chest->rotA = -90;
 
 	DrawLoad(65, "Loading Monster Models [Man-eater plant]");
-	plant = new monster(0, 0, 0, 50, 5, 1000);
+	plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
 	plant->LoadMDL("plant", plant_t, progBar, true);
 	plant->scale = 12;
 	plant->MaxHP = 30;
 
 	DrawLoad(70, "Loading Item Models [Club]");
-	club = new item();
+	club = std::make_unique<item>();
 	club->LoadMDL("Models/club.mdl", club_t);
 	club->damage = 9;
 	club->scale = 6;
 	club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
-	sword = new item();
+	sword = std::make_unique<item>();
 	sword->LoadMDL("Models/sword.mdl", sword_t);
 	sword->scale = 9;
 	sword->damage = 35;
 	sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
-	bow = new item();
+	bow = std::make_unique<item>();
 	bow->LoadMDL("Models/bow.mdl", bow_t);
 	bow->scale = 12;
 	bow->damage = 12;
 	bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
-	spear = new item();
+	spear = std::make_unique<item>();
 	spear->LoadMDL("Models/spear.mdl", spear_t);
 	spear->scale = 15;
 	spear->damage = 15;
 	spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
-	potion = new item();
+	potion = std::make_unique<item>();
 	potion->LoadMDL("Models/potion.mdl", potion_t);
 	potion->scale = 5;
 
 	sphinx_t.LoadBMP("Textures/sphinx.bmp");
-	sphinx = new CartoonANI();
+	sphinx = std::make_unique<CartoonANI>();
 	sphinx->Load("Models/sphinx.mdl");
 	sphinx->BindTexture(sphinx_t.ID());
 	sphinx->Centrify();
 	sphinx->Compile();
 
 	ankh_t.LoadBMP("Textures/ankh.bmp");
-	ankh = new CartoonANI();
+	ankh = std::make_unique<CartoonANI>();
 	ankh->Load("Models/ankh.mdl");
 	ankh->BindTexture(ankh_t.ID());
 	ankh->Centrify();
 	ankh->Compile();
 
 	column_t.LoadBMP("Textures/columns.bmp");
-	column = new CartoonANI();
+	column = std::make_unique<CartoonANI>();
 	column->Load("Models/columns.mdl");
 	column->BindTexture(column_t.ID());
 	column->Centrify();
 	column->Compile();
 
-	question = new CartoonANI();
+	question = std::make_unique<CartoonANI>();
 	question->Load("Models/questionmark.mdl");
 	question->BindTexture(scarab_t.ID());
 	question->Centrify();

@@ -83,7 +83,7 @@ bool monster::Draw() // needs to choose animation
 {
 	glPushMatrix();
 
-	if (this != c.Player)
+	if (this != c.Player.get())
 		glTranslatef(40 * x - 20, y, -30);
 	else
 		glTranslatef(0, 0, -30);
@@ -143,7 +143,7 @@ bool monster::Draw() // needs to choose animation
 
 	tex.Bind();
 
-	if (this != c.Player)
+	if (this != c.Player.get())
 		glRotatef(rotA + 90 * AtDir(), 0, 1, 0);
 	else
 		glRotatef(rotA, 0, 1, 0);

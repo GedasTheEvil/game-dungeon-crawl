@@ -36,7 +36,7 @@ inventory::inventory() {
 	mw[2].realScale = c.spear->scale;
 	rw.count = 0;
 	rw.realScale = c.bow->scale;
-	viewed = c.club;
+	viewed = c.club.get();
 
 	for (int i = 0; i < 5; i++) {
 		potions[i].count = 0;
@@ -413,7 +413,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		{
 			if (inv_x <= 15) // club
 			{
-				viewed = c.club;
+				viewed = c.club.get();
 				view.type = 1;
 				view.id = 0;
 				view.count = mw[0].count;
@@ -421,7 +421,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 
 			else if (inv_x >= 30) // spear
 			{
-				viewed = c.spear;
+				viewed = c.spear.get();
 				view.type = 1;
 				view.id = 2;
 				view.count = mw[2].count;
@@ -429,7 +429,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 
 			else // sword
 			{
-				viewed = c.sword;
+				viewed = c.sword.get();
 				view.type = 1;
 				view.id = 1;
 				view.count = mw[1].count;
@@ -438,7 +438,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 
 		if (inv_y > 48 && inv_y < 65 && inv_x <= 15) // ranged weapon (slot 2)
 		{
-			viewed = c.bow;
+			viewed = c.bow.get();
 			view.type = 2;
 			view.id = 1;
 			view.count = rw.count;
@@ -447,21 +447,21 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		if (inv_y > 24 && inv_y < 40) // potion slot 1
 		{
 			if (inv_x <= 15) {
-				viewed = c.potion;
+				viewed = c.potion.get();
 				view.type = 3;
 				view.id = 0;
 				view.count = potions[0].count;
 			}
 
 			else if (inv_x >= 30) {
-				viewed = c.potion;
+				viewed = c.potion.get();
 				view.type = 3;
 				view.id = 2;
 				view.count = potions[2].count;
 			}
 
 			else {
-				viewed = c.potion;
+				viewed = c.potion.get();
 				view.type = 3;
 				view.id = 1;
 				view.count = potions[1].count;
@@ -472,7 +472,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		{
 			if (inv_x <= 15) // club
 			{
-				viewed = c.potion;
+				viewed = c.potion.get();
 				view.type = 3;
 				view.id = 3;
 				view.count = potions[3].count;
@@ -483,7 +483,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 			}
 
 			else {
-				viewed = c.potion;
+				viewed = c.potion.get();
 				view.type = 3;
 				view.id = 4;
 				view.count = potions[4].count;
@@ -507,17 +507,17 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 item* inventory::Equipped() {
 	if (equipped.type == 1) {
 		if (equipped.id == 0)
-			return c.club;
+			return c.club.get();
 
 		if (equipped.id == 1)
-			return c.sword;
+			return c.sword.get();
 
 		if (equipped.id == 2)
-			return c.spear;
+			return c.spear.get();
 	} else if (equipped.type == 2)
-		return c.bow;
+		return c.bow.get();
 
-	return c.club;
+	return c.club.get();
 }
 
 void inventory::Dump(std::ofstream& f) {

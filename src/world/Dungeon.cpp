@@ -744,15 +744,15 @@ void Dungeon::GetRiddle() {
 //======================================================================================
 monster* GetMbyType(int type) {
 	if (type == 1)
-		return c.scarab;
+		return c.scarab.get();
 	if (type == 2)
-		return c.worm;
+		return c.worm.get();
 	if (type == 3)
-		return c.plant;
+		return c.plant.get();
 	if (type == 4)
-		return c.anubis;
+		return c.anubis.get();
 
-	return c.Player; // debug
+	return c.Player.get(); // debug
 }
 //======================================================================================
 bool Dungeon::SpawnMonster(int i, int j) {

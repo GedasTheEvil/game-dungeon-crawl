@@ -144,11 +144,17 @@ void keyPressed(unsigned char key, int x, int y) {
 		PlayerActionController::Execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
-	if (key == KEY_INVENTORY)
+	if (key == KEY_INVENTORY) {
 		c.invent->show = !c.invent->show;
+		if (c.invent->show)
+			c.Stats->show = 0;
+	}
 
-	if (key == KEY_STATS)
+	if (key == KEY_STATS) {
 		c.Stats->show = !c.Stats->show;
+		if (c.Stats->show)
+			c.invent->show = 0;
+	}
 
 	last_key = key;
 }

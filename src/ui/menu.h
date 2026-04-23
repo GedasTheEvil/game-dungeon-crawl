@@ -30,6 +30,7 @@ class MainMenu {
 	void InGameMouseFunction(int button, int state, int x, int y);
 	void MousePassiveMotion(int a, int b);
 	void MousePassiveMotionSave(int a, int b);
+	void ResetSubScreens();
 };
 
 #endif

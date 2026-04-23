@@ -133,6 +133,7 @@ void keyPressed(unsigned char key, int x, int y) {
 			c.invent->show = 0;
 		}
 
+		c.menu.ResetSubScreens();
 		c.menu.show = !c.menu.show;
 		return;
 	}

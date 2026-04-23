@@ -508,3 +508,9 @@ void MainMenu::MousePassiveMotionSave(int x, int y) {
 	if (IsSaveMenuExitFromCoords(mx, my))
 		h7 = 1;
 }
+
+void MainMenu::ResetSubScreens() {
+	credits = 0;
+	saveD = 0;
+	loadD = 0;
+}

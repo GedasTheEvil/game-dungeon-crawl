@@ -1,4 +1,6 @@
 src/*.o
+src/*/*.o
 src/*.d
+src/*/*.d
 ./game
 .idea

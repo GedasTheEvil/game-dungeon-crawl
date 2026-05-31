@@ -3,35 +3,35 @@
 #include <cstdio>
 
 namespace {
-int g_soundInstanceCount = 0;
-bool g_audioOpened = false;
+int gSoundInstanceCount = 0;
+bool gAudioOpened = false;
 } // namespace
 
 Sound::Sound() {
-	g_soundInstanceCount++;
+	gSoundInstanceCount++;
 
-	int audio_rate = 22050;
-	Uint16 audio_format = AUDIO_S16;
-	int audio_channels = 2;
-	int audio_buffers = 4096;
+	int audioRate = 22050;
+	Uint16 audioFormat = AUDIO_S16;
+	int audioChannels = 2;
+	int audioBuffers = 4096;
 
-	int cur_rate;
-	Uint16 cur_format;
-	int cur_channels;
-	if (!g_audioOpened && Mix_QuerySpec(&cur_rate, &cur_format, &cur_channels) == 0) {
-		if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers)) {
+	int curRate;
+	Uint16 curFormat;
+	int curChannels;
+	if (!gAudioOpened && Mix_QuerySpec(&curRate, &curFormat, &curChannels) == 0) {
+		if (Mix_OpenAudio(audioRate, audioFormat, audioChannels, audioBuffers)) {
 			printf("Unable to open audio!\n");
 		} else {
-			g_audioOpened = true;
+			gAudioOpened = true;
 		}
-	} else if (Mix_QuerySpec(&cur_rate, &cur_format, &cur_channels) != 0) {
-		g_audioOpened = true;
+	} else if (Mix_QuerySpec(&curRate, &curFormat, &curChannels) != 0) {
+		gAudioOpened = true;
 	}
 
 	OGG = 0;
 	WAV = 0;
-	data = NULL;
-	Mdata = NULL;
+	data = nullptr;
+	Mdata = nullptr;
 }
 
 Sound::~Sound() {
@@ -42,24 +42,24 @@ Sound::~Sound() {
 	WAV = 0;
 	OGG = 0;
 
-	g_soundInstanceCount--;
-	if (g_audioOpened && g_soundInstanceCount == 0) {
+	gSoundInstanceCount--;
+	if (gAudioOpened && gSoundInstanceCount == 0) {
 		Mix_CloseAudio();
-		g_audioOpened = false;
+		gAudioOpened = false;
 	}
 
 	printf("Deleting sound %p \n", (void*)this);
 }
 
-bool Sound::LoadWAV(const char Filename[]) {
+bool Sound::LoadWAV(const char filename[]) {
 	if (WAV || OGG) {
 		printf("Sound load error:A sound file has already been loaded\n");
 		return 0;
 	}
 
-	data = Mix_LoadWAV(Filename);
+	data = Mix_LoadWAV(filename);
 
-	if (data == NULL) {
+	if (data == nullptr) {
 		printf("Sound load error: failed loading [NULL, %s]\n", Mix_GetError());
 
 		return 0;
@@ -70,15 +70,15 @@ bool Sound::LoadWAV(const char Filename[]) {
 	return 1;
 }
 
-bool Sound::LoadOGG(const char Filename[]) {
+bool Sound::LoadOGG(const char filename[]) {
 	if (WAV || OGG) {
 		printf("Sound load error:A sound file has already been loaded\n");
 		return 0;
 	}
 
-	Mdata = Mix_LoadMUS(Filename);
+	Mdata = Mix_LoadMUS(filename);
 
-	if (Mdata == NULL) {
+	if (Mdata == nullptr) {
 		printf("Sound load error: failed loading [NULL, %s]\n", Mix_GetError());
 
 		return 0;

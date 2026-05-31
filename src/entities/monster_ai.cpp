@@ -9,17 +9,17 @@ extern Cashe c;
 
 int monster::AtDir() {
 	if (!speed) {
-		if (*DX - X - 0.5 > 0.2 + 0.02 * scale && fabs(Y - *DY) < 0.8)
+		if (*DX - X - 0.5 > 0.2 + 0.02 * scale && std::fabs(Y - *DY) < 0.8)
 			return 1;
-		else if (*DX - X - 0.5 < -0.2 - 0.02 * scale && fabs(Y - *DY) < 0.8)
+		else if (*DX - X - 0.5 < -0.2 - 0.02 * scale && std::fabs(Y - *DY) < 0.8)
 			return -1;
 		else
 			return 0;
 	}
 
-	if ((x + X + 0.5) - *DX > 0.05 + 0.02 * scale && fabs(Y - *DY) < 0.8)
+	if ((x + X + 0.5) - *DX > 0.05 + 0.02 * scale && std::fabs(Y - *DY) < 0.8)
 		return -1;
-	else if ((x + X + 0.5) - *DX < -0.05 - 0.02 * scale && fabs(Y - *DY) < 0.8)
+	else if ((x + X + 0.5) - *DX < -0.05 - 0.02 * scale && std::fabs(Y - *DY) < 0.8)
 		return 1;
 	return 0;
 }
@@ -46,7 +46,7 @@ void monster::Attack() {
 
 	mdl = attack;
 
-	if (/*Att_timer -> TimePassed() &&*/ fabs(Y - *DY) < 0.8) {
+	if (/*Att_timer -> TimePassed() &&*/ std::fabs(Y - *DY) < 0.8) {
 		c.Stats->GetHit(damage);
 		att_s.Play();
 	}
@@ -61,7 +61,7 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 
 	float range = 0.1 * (float)rangei;
 
-	if (fabs(X + x + 0.5 - xx) <= range && fabs(Y - yy) < 0.7)
+	if (fabs(X + x + 0.5 - xx) <= range && std::fabs(Y - yy) < 0.7)
 		return 1;
 
 	return 0;

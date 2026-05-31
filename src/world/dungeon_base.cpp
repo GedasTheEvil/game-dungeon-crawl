@@ -1,4 +1,4 @@
-#include "Dungeon.h"
+#include "dungeon.h"
 #include "../state/cashe.h"
 #include "../input/gameplay_config.h"
 #include <GL/gl.h>
@@ -9,7 +9,7 @@
 
 extern Cashe c;
 
-void Normalize(VECTOR& V);
+void normalize(VECTOR& v);
 
 bool Dungeon::IsInBounds(int mapX, int mapY) const {
 	return mapX >= 0 && mapX < kMapWidth && mapY >= 0 && mapY < kMapHeight;
@@ -32,8 +32,8 @@ void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->DX = &x;
 	m[index].m->DY = &y;
 	m[index].m->setCords(m[index].x, m[index].y);
-	m[index].m->X = m[index].orX;
-	m[index].m->Y = m[index].orY;
+	m[index].m->X = static_cast<float>(m[index].orX);
+	m[index].m->Y = static_cast<float>(m[index].orY);
 	m[index].m->setModel(m[index].state);
 	m[index].m->setFacingDir(m[index].facing_dir);
 	m[index].m->HP = m[index].HP;
@@ -53,7 +53,7 @@ Dungeon::Dungeon() {
 	y = 0;
 	c.falling = false;
 
-	mL = 0;
+	mL = false;
 
 	for (int i = 0; i < CMaxMonsters; i++) {
 		m[i].orX = -1;
@@ -63,24 +63,24 @@ Dungeon::Dungeon() {
 		m[i].facing_dir = 0;
 	}
 
-	char Line[255];
+	char line[255];
 	float shaderData[32][3];
 
-	FILE* In = NULL;
-	In = fopen("Textures/ShaderD.bmp", "r");
+	FILE* in = nullptr;
+	in = fopen("Textures/ShaderD.bmp", "r");
 
-	if (In) {
+	if (in) {
 		for (int i = 0; i < 32; i++) {
-			if (feof(In))
+			if (feof(in))
 				break;
 
-			if (fgets(Line, 255, In) == NULL)
+			if (fgets(line, 255, in) == nullptr)
 				break;
 
-			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(Line));
+			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(line));
 		}
 
-		fclose(In);
+		fclose(in);
 	}
 
 	glGenTextures(1, (GLuint*)&shaderTexture[0]);
@@ -96,7 +96,7 @@ Dungeon::Dungeon() {
 	lightAngle.Y = 0.0f;
 	lightAngle.Z = 1.0f;
 
-	Normalize(lightAngle);
+	normalize(lightAngle);
 
 	aniT = std::make_unique<timer>(50);
 
@@ -108,7 +108,7 @@ Dungeon::Dungeon() {
 //======================================================================================
 void Dungeon::UpdateMovementState() {
 	if (Map(x, y).a != Ladder && !c.jumping) {
-		if ((y - (int)y) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
+		if ((y - static_cast<float>(static_cast<int>(y))) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
 			if (c.fall_inc->TimePassed())
 				y -= FALL_STEP;
 			c.falling = true;
@@ -127,7 +127,7 @@ void Dungeon::UpdateMovementState() {
 
 			if (c.jump_vel <= 0 && y <= c.jump_start_y) {
 				y = c.jump_start_y;
-				c.jumping = 0;
+				c.jumping = false;
 				c.falling = false;
 			}
 		}
@@ -147,13 +147,13 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 	}
 
 	if (dirX > 0) {
-		if (Map(x, y).a != Wall && Map(x + dirX + c.Player->scale / 60.0, y).a != Wall)
+		if (Map(x, y).a != Wall && Map(x + dirX + static_cast<float>(c.Player->scale / 60.0), y).a != Wall)
 			x += dirX;
-	} else if (Map(x, y).a != Wall && Map(x + dirX - c.Player->scale / 60.0, y).a != Wall)
+	} else if (Map(x, y).a != Wall && Map(x + dirX - static_cast<float>(c.Player->scale / 60.0), y).a != Wall)
 		x += dirX;
 
 	if (dirY > 0) {
-		if (Map(x, y).a == Ladder && Map(x, y + dirY + c.Player->scale / 40.0).a == Ladder)
+		if (Map(x, y).a == Ladder && Map(x, y + dirY + static_cast<float>(c.Player->scale / 40.0)).a == Ladder)
 			y += dirY;
 	} else if (Map(x, y).a == Ladder && Map(x, y + dirY).a == Ladder)
 		y += dirY;
@@ -161,9 +161,9 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 //======================================================================================
 int Dungeon::Type(float x, float y) { return Map(x, y).a; }
 //======================================================================================
-void Dungeon::getC(float& x, float& y) {
-	x = this->x;
-	y = this->y;
+void Dungeon::getC(float& outX, float& outY) {
+	outX = this->x;
+	outY = this->y;
 }
 //======================================================================================
 Dungeon::~Dungeon() { printf("Deleting Dungeon %p \n", (void*)this); }

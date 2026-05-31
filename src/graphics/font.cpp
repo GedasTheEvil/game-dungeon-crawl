@@ -8,10 +8,10 @@ Font::Font() {}
 //=================================================================================================================
 void Font::print(int x, int y, const char* string, ...) // Where The Printing Happens
 {
-	char text[256];		// Holds Our String
-	va_list ap;			// Pointer To List Of Arguments
-	if (string == NULL) // If There's No Text
-		return;			// Do Nothing
+	char text[256];		   // Holds Our String
+	va_list ap;			   // Pointer To List Of Arguments
+	if (string == nullptr) // If There's No Text
+		return;			   // Do Nothing
 
 	va_start(ap, string);		// Parses The String For Variables
 	vsprintf(text, string, ap); // And Converts Symbols To Actual Numbers
@@ -26,12 +26,12 @@ void Font::print(int x, int y, const char* string, ...) // Where The Printing Ha
 	glPopMatrix();									   // Restore The Old Projection Matrix
 }
 //=================================================================================================================
-void Font::Load(const char Filename[], float size, float spacing) // Build Our Font Display List
+void Font::Load(const char filename[], float size, float spacing) // Build Our Font Display List
 {
 	base = glGenLists(95); // Creating 95 Display Lists
-	if (!t.LoadTGA(Filename))
-		if (!t.LoadBMP(Filename))
-			printf("Could not load font texture [%s]\n", Filename);
+	if (!t.LoadTGA(filename))
+		if (!t.LoadBMP(filename))
+			printf("Could not load font texture [%s]\n", filename);
 	t.Bind();
 
 	int loop;

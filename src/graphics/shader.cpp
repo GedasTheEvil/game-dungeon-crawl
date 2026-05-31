@@ -16,45 +16,45 @@
 extern Cashe c;
 
 // Math Functions
-inline float DotProduct(VECTOR& V1, VECTOR& V2) { return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z; }
+inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
 
-inline float Magnitude(VECTOR& V) { return sqrtf(V.X * V.X + V.Y * V.Y + V.Z * V.Z); }
+inline float magnitude(VECTOR& v) { return sqrtf(v.X * v.X + v.Y * v.Y + v.Z * v.Z); }
 
-void Normalize(VECTOR& V) {
-	float M = Magnitude(V);
+void normalize(VECTOR& v) {
+	float m = magnitude(v);
 
-	if (M != 0.0f) {
-		V.X /= M;
-		V.Y /= M;
-		V.Z /= M;
+	if (m != 0.0f) {
+		v.X /= m;
+		v.Y /= m;
+		v.Z /= m;
 	}
 }
 
-void RotateVector(MATRIX& M, VECTOR& V, VECTOR& D) {
-	D.X = (M.Data[0] * V.X) + (M.Data[4] * V.Y) + (M.Data[8] * V.Z);
-	D.Y = (M.Data[1] * V.X) + (M.Data[5] * V.Y) + (M.Data[9] * V.Z);
-	D.Z = (M.Data[2] * V.X) + (M.Data[6] * V.Y) + (M.Data[10] * V.Z);
+void rotateVector(MATRIX& m, VECTOR& v, VECTOR& d) {
+	d.X = (m.Data[0] * v.X) + (m.Data[4] * v.Y) + (m.Data[8] * v.Z);
+	d.Y = (m.Data[1] * v.X) + (m.Data[5] * v.Y) + (m.Data[9] * v.Z);
+	d.Z = (m.Data[2] * v.X) + (m.Data[6] * v.Y) + (m.Data[10] * v.Z);
 }
 
-CartoonANI::CartoonANI() {
-	char Line[255];
+AnimatedCartoonModel::AnimatedCartoonModel() {
+	char line[255];
 	float shaderData[32][3];
 
-	FILE* In = NULL;
-	In = fopen("Textures/Shader.bmp", "r");
+	FILE* in = nullptr;
+	in = fopen("Textures/Shader.bmp", "r");
 
-	if (In) {
+	if (in) {
 		for (int i = 0; i < 32; i++) {
-			if (feof(In))
+			if (feof(in))
 				break;
 
-			if (fgets(Line, 255, In) == NULL)
+			if (fgets(line, 255, in) == nullptr)
 				break;
 
-			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(Line));
+			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(line));
 		}
 
-		fclose(In);
+		fclose(in);
 	}
 
 	glGenTextures(1, (GLuint*)&shaderTexture[0]);
@@ -70,18 +70,18 @@ CartoonANI::CartoonANI() {
 	lightAngle.Y = 0.0f;
 	lightAngle.Z = 1.0f;
 
-	Normalize(lightAngle);
+	normalize(lightAngle);
 
 	outlineWidth = 2;
 }
 
-void CartoonANI::ShowC() {
+void AnimatedCartoonModel::ShowC() {
 	glEnable(GL_CULL_FACE);
-	float TmpShade;
-	MATRIX TmpMatrix;
-	VECTOR TmpVector, TmpNormal;
+	float tmpShade;
+	MATRIX tmpMatrix;
+	VECTOR tmpVector, tmpNormal;
 
-	glGetFloatv(GL_MODELVIEW_MATRIX, TmpMatrix.Data);
+	glGetFloatv(GL_MODELVIEW_MATRIX, tmpMatrix.Data);
 
 	glEnable(GL_TEXTURE_1D);
 	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
@@ -89,20 +89,20 @@ void CartoonANI::ShowC() {
 	glBegin(GL_TRIANGLES);
 
 	for (int i = 0; i < VCount * 3; i += 3) {
-		TmpNormal.X = Normals[i];
-		TmpNormal.Y = Normals[i + 1];
-		TmpNormal.Z = Normals[i + 2];
+		tmpNormal.X = Normals[i];
+		tmpNormal.Y = Normals[i + 1];
+		tmpNormal.Z = Normals[i + 2];
 
-		RotateVector(TmpMatrix, TmpNormal, TmpVector);
+		rotateVector(tmpMatrix, tmpNormal, tmpVector);
 
-		Normalize(TmpVector);
+		normalize(tmpVector);
 
-		TmpShade = DotProduct(TmpVector, lightAngle);
+		tmpShade = dotProduct(tmpVector, lightAngle);
 
-		if (TmpShade < 0.0f)
-			TmpShade = 0.0f;
+		if (tmpShade < 0.0f)
+			tmpShade = 0.0f;
 
-		glTexCoord1f(TmpShade);
+		glTexCoord1f(tmpShade);
 		glVertex3f(Ver[(int)frame].v[i], Ver[(int)frame].v[i + 1], Ver[(int)frame].v[i + 2]);
 	}
 

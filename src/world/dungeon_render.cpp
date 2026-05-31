@@ -1,4 +1,4 @@
-#include "Dungeon.h"
+#include "dungeon.h"
 #include "../state/cashe.h"
 #include <GL/gl.h>
 #include <cmath>
@@ -8,86 +8,86 @@ extern Cashe c;
 float qRot = 0;
 float plasma = 0;
 
-inline float DotProduct(VECTOR& V1, VECTOR& V2) { return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z; }
-void Normalize(VECTOR& V);
-void RotateVector(MATRIX& M, VECTOR& V, VECTOR& D);
+inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
+void normalize(VECTOR& v);
+void rotateVector(MATRIX& m, VECTOR& v, VECTOR& d);
 
-void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
+void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
 	c.blackTex.Bind();
 
 	if (c.Cartoon) {
-		float TmpShade;
-		MATRIX TmpMatrix;
-		VECTOR TmpVector, TmpNormal;
+		float tmpShade;
+		MATRIX tmpMatrix;
+		VECTOR tmpVector, tmpNormal;
 
-		glGetFloatv(GL_MODELVIEW_MATRIX, TmpMatrix.Data);
+		glGetFloatv(GL_MODELVIEW_MATRIX, tmpMatrix.Data);
 
 		glEnable(GL_TEXTURE_1D);
 		glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
 
-		switch (seg) {
+		switch (type) {
 		case 0:
 			break;
 
 		default:
 			glBegin(GL_QUADS);
-			TmpNormal.X = 0;
-			TmpNormal.Y = 0;
-			TmpNormal.Z = 1;
+			tmpNormal.X = 0;
+			tmpNormal.Y = 0;
+			tmpNormal.Z = 1;
 
-			RotateVector(TmpMatrix, TmpNormal, TmpVector);
-			Normalize(TmpVector);
-			TmpShade = DotProduct(TmpVector, lightAngle);
-			if (TmpShade < 0.0f)
-				TmpShade = 0.0f;
-			glTexCoord1f(TmpShade);
+			rotateVector(tmpMatrix, tmpNormal, tmpVector);
+			normalize(tmpVector);
+			tmpShade = dotProduct(tmpVector, lightAngle);
+			if (tmpShade < 0.0f)
+				tmpShade = 0.0f;
+			glTexCoord1f(tmpShade);
 			glVertex3i(0, 0, -40);
 
-			TmpNormal.X = 0;
-			TmpNormal.Y = 0.3;
-			TmpNormal.Z = 1;
-			RotateVector(TmpMatrix, TmpNormal, TmpVector);
-			Normalize(TmpVector);
-			TmpShade = DotProduct(TmpVector, lightAngle);
-			if (TmpShade < 0.0f)
-				TmpShade = 0.0f;
-			glTexCoord1f(TmpShade);
+			tmpNormal.X = 0;
+			tmpNormal.Y = 0.3;
+			tmpNormal.Z = 1;
+			rotateVector(tmpMatrix, tmpNormal, tmpVector);
+			normalize(tmpVector);
+			tmpShade = dotProduct(tmpVector, lightAngle);
+			if (tmpShade < 0.0f)
+				tmpShade = 0.0f;
+			glTexCoord1f(tmpShade);
 			glVertex3i(0, 40, -40);
 
-			TmpNormal.X = 0.2;
-			TmpNormal.Y = 0.3;
-			TmpNormal.Z = 1;
-			RotateVector(TmpMatrix, TmpNormal, TmpVector);
-			Normalize(TmpVector);
-			TmpShade = DotProduct(TmpVector, lightAngle);
-			if (TmpShade < 0.0f)
-				TmpShade = 0.0f;
-			glTexCoord1f(TmpShade);
+			tmpNormal.X = 0.2;
+			tmpNormal.Y = 0.3;
+			tmpNormal.Z = 1;
+			rotateVector(tmpMatrix, tmpNormal, tmpVector);
+			normalize(tmpVector);
+			tmpShade = dotProduct(tmpVector, lightAngle);
+			if (tmpShade < 0.0f)
+				tmpShade = 0.0f;
+			glTexCoord1f(tmpShade);
 			glVertex3i(40, 40, -40);
 
-			TmpNormal.X = 0.2;
-			TmpNormal.Y = 0.4;
-			TmpNormal.Z = 0.5;
-			RotateVector(TmpMatrix, TmpNormal, TmpVector);
-			Normalize(TmpVector);
-			TmpShade = DotProduct(TmpVector, lightAngle);
-			if (TmpShade < 0.0f)
-				TmpShade = 0.0f;
-			glTexCoord1f(TmpShade);
+			tmpNormal.X = 0.2;
+			tmpNormal.Y = 0.4;
+			tmpNormal.Z = 0.5;
+			rotateVector(tmpMatrix, tmpNormal, tmpVector);
+			normalize(tmpVector);
+			tmpShade = dotProduct(tmpVector, lightAngle);
+			if (tmpShade < 0.0f)
+				tmpShade = 0.0f;
+			glTexCoord1f(tmpShade);
 			glVertex3i(40, 0, -40);
 			glEnd();
 
-			if (!l) {
+			if (!leftWallType) {
 				glBegin(GL_QUADS);
-				TmpNormal.X = 1;
-				TmpNormal.Y = 0;
-				TmpNormal.Z = 0;
-				RotateVector(TmpMatrix, TmpNormal, TmpVector);
-				Normalize(TmpVector);
-				TmpShade = DotProduct(TmpVector, lightAngle);
-				if (TmpShade < 0.0f)
-					TmpShade = 0.0f;
-				glTexCoord1f(TmpShade);
+				tmpNormal.X = 1;
+				tmpNormal.Y = 0;
+				tmpNormal.Z = 0;
+				rotateVector(tmpMatrix, tmpNormal, tmpVector);
+				normalize(tmpVector);
+				tmpShade = dotProduct(tmpVector, lightAngle);
+				if (tmpShade < 0.0f)
+					tmpShade = 0.0f;
+				glTexCoord1f(tmpShade);
 				glVertex3i(0, 0, -40);
 				glVertex3i(0, 40, -40);
 				glVertex3i(0, 40, 0);
@@ -95,17 +95,17 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!r) {
+			if (!rightWallType) {
 				glBegin(GL_QUADS);
-				TmpNormal.X = -1;
-				TmpNormal.Y = 0;
-				TmpNormal.Z = 0;
-				RotateVector(TmpMatrix, TmpNormal, TmpVector);
-				Normalize(TmpVector);
-				TmpShade = DotProduct(TmpVector, lightAngle);
-				if (TmpShade < 0.0f)
-					TmpShade = 0.0f;
-				glTexCoord1f(TmpShade);
+				tmpNormal.X = -1;
+				tmpNormal.Y = 0;
+				tmpNormal.Z = 0;
+				rotateVector(tmpMatrix, tmpNormal, tmpVector);
+				normalize(tmpVector);
+				tmpShade = dotProduct(tmpVector, lightAngle);
+				if (tmpShade < 0.0f)
+					tmpShade = 0.0f;
+				glTexCoord1f(tmpShade);
 				glVertex3i(40, 0, -40);
 				glVertex3i(40, 40, -40);
 				glVertex3i(40, 40, 0);
@@ -113,17 +113,17 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!u) {
+			if (!upWallType) {
 				glBegin(GL_QUADS);
-				TmpNormal.X = 0;
-				TmpNormal.Y = -1;
-				TmpNormal.Z = 0;
-				RotateVector(TmpMatrix, TmpNormal, TmpVector);
-				Normalize(TmpVector);
-				TmpShade = DotProduct(TmpVector, lightAngle);
-				if (TmpShade < 0.0f)
-					TmpShade = 0.0f;
-				glTexCoord1f(TmpShade);
+				tmpNormal.X = 0;
+				tmpNormal.Y = -1;
+				tmpNormal.Z = 0;
+				rotateVector(tmpMatrix, tmpNormal, tmpVector);
+				normalize(tmpVector);
+				tmpShade = dotProduct(tmpVector, lightAngle);
+				if (tmpShade < 0.0f)
+					tmpShade = 0.0f;
+				glTexCoord1f(tmpShade);
 				glVertex3i(0, 40, -40);
 				glVertex3i(40, 40, -40);
 				glVertex3i(40, 40, 0);
@@ -131,17 +131,17 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!d) {
+			if (!downWallType) {
 				glBegin(GL_QUADS);
-				TmpNormal.X = 0;
-				TmpNormal.Y = 1;
-				TmpNormal.Z = 0;
-				RotateVector(TmpMatrix, TmpNormal, TmpVector);
-				Normalize(TmpVector);
-				TmpShade = DotProduct(TmpVector, lightAngle);
-				if (TmpShade < 0.0f)
-					TmpShade = 0.0f;
-				glTexCoord1f(TmpShade);
+				tmpNormal.X = 0;
+				tmpNormal.Y = 1;
+				tmpNormal.Z = 0;
+				rotateVector(tmpMatrix, tmpNormal, tmpVector);
+				normalize(tmpVector);
+				tmpShade = dotProduct(tmpVector, lightAngle);
+				if (tmpShade < 0.0f)
+					tmpShade = 0.0f;
+				glTexCoord1f(tmpShade);
 				glVertex3i(0, 0, -40);
 				glVertex3i(40, 0, -40);
 				glVertex3i(40, 0, 0);
@@ -161,7 +161,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 			glEnable(GL_BLEND);
 			glColor4f(1, 1, 1, 0.4);
 		}
-		switch (seg) {
+		switch (type) {
 		case 0:
 			glDisable(GL_BLEND);
 			c.black_t.Bind();
@@ -191,7 +191,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 			glVertex3i(40, 0, -40);
 			glEnd();
 
-			if (!l) {
+			if (!leftWallType) {
 				glBegin(GL_QUADS);
 				glNormal3f(1, 0, 0);
 				glTexCoord2f(0, 0);
@@ -205,7 +205,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!r) {
+			if (!rightWallType) {
 				glBegin(GL_QUADS);
 				glNormal3f(-1, 0, 0);
 				glTexCoord2f(0, 0);
@@ -219,7 +219,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!u) {
+			if (!upWallType) {
 				glBegin(GL_QUADS);
 				glNormal3f(0, -1, 0);
 				glTexCoord2f(0.3, 0.3);
@@ -233,7 +233,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 				glEnd();
 			}
 
-			if (!d) {
+			if (!downWallType) {
 				glBegin(GL_QUADS);
 				glNormal3f(0, 1, 0);
 				glTexCoord2f(0.3, 0.3);
@@ -299,21 +299,18 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	trap* tileTrap = isDeathTrap ? c.DeathTrap.get() : c.TrapD.get();
 	tileTrap->DX = &x;
 	tileTrap->DY = &y;
-	tileTrap->setCords(i, j);
+	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
 	tileTrap->Show();
 
 	glPopMatrix();
 }
 //======================================================================================
 void Dungeon::Draw() {
-	bool plasma_ani;
-	if (aniT->TimePassed())
-		plasma_ani = 1;
-	else
-		plasma_ani = 0;
+	bool plasmaAni;
+	plasmaAni = aniT->TimePassed();
 
 	glPushMatrix();
-	glTranslatef(-40 * (x - (int)x), -40 * (y - (int)y), 0);
+	glTranslatef(static_cast<float>(-40) * (x - static_cast<float>(static_cast<int>(x))), static_cast<float>(-40) * (y - static_cast<float>(static_cast<int>(y))), static_cast<float>(0));
 	glTranslatef(80, -120, 0);
 
 	for (int j = (int)y - 3; j < (int)y + 3; j++) {
@@ -379,7 +376,7 @@ void Dungeon::Draw() {
 						if (tile.b != GateEntrance)
 							glTranslatef(39, 0, 0);
 
-						float px = ((int)(plasma * 100) % 100) / 200.0;
+						float px = static_cast<float>(((int)(plasma * 100) % 100)) / 200.0f;
 
 						c.plasma_t.Bind();
 						glBegin(GL_QUADS);
@@ -393,7 +390,7 @@ void Dungeon::Draw() {
 						glTexCoord2f(px + 1, 0);
 						glVertex3f(0.4, 0, -10);
 						glEnd();
-						if (plasma_ani)
+						if (plasmaAni)
 							plasma -= 0.022;
 						glPopMatrix();
 					}
@@ -414,7 +411,7 @@ void Dungeon::Draw() {
 					c.plasma_t.Bind();
 					glBegin(GL_QUADS);
 
-					float px = ((int)(plasma * 100) % 100) / 200.0;
+					float px = static_cast<float>(((int)(plasma * 100) % 100)) / static_cast<float>(200.0);
 
 					glNormal3f(0, 0, 1.0);
 					glTexCoord2f(px, 0);
@@ -426,7 +423,7 @@ void Dungeon::Draw() {
 					glTexCoord2f(px + 1, 0);
 					glVertex3i(30, 0, -30);
 					glEnd();
-					if (plasma_ani)
+					if (plasmaAni)
 						plasma += 0.012;
 				}
 			}

@@ -9,7 +9,7 @@
 #include "../entities/player.h"
 #include "../graphics/textures.h"
 #include "../graphics/shader.h"
-#include "../world/Dungeon.h"
+#include "../world/dungeon.h"
 #include "../graphics/font.h"
 #include "../entities/item.h"
 #include "../ui/inventory.h"
@@ -19,7 +19,7 @@
 #include "../entities/trap.h"
 #include "../ui/riddle.h"
 #include "../ui/menu.h"
-#include "../ui/winloose.h"
+#include "../ui/winlose.h"
 #include <memory>
 
 struct word {
@@ -61,9 +61,9 @@ class Cashe {
 	bool Orig_model = true;
 	std::unique_ptr<trap> TrapD;
 	std::unique_ptr<trap> DeathTrap;
-	std::unique_ptr<CartoonANI> sphinx, ankh;
-	std::unique_ptr<CartoonANI> column;
-	std::unique_ptr<CartoonANI> question;
+	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh;
+	std::unique_ptr<AnimatedCartoonModel> column;
+	std::unique_ptr<AnimatedCartoonModel> question;
 	std::unique_ptr<timer> mdlChange;
 	std::unique_ptr<timer> AttTimer;
 	std::unique_ptr<Riddle> rid;

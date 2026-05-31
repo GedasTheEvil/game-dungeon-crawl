@@ -46,7 +46,7 @@ class stats {
 	~stats();
 	void GetArmored(int na = 1);
 	void GetHit(int dmg);
-	void MouseFunction(int button, int state, int x, int y);
+	void MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY);
 	void GetTougher(int hp_part);
 	void Dump(std::ofstream& f);
 	void LoadDump(std::ifstream& f);

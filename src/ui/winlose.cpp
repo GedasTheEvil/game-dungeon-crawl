@@ -1,4 +1,4 @@
-#include "winloose.h"
+#include "winlose.h"
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -17,13 +17,13 @@ void winL::DrawQuad(float sx, float sy) {
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, -1);
 	glTexCoord2f(0, 0);
-	glVertex3f(-sx / 2.0, -sy / 2.0, 15);
+	glVertex3f(-sx / static_cast<float>(2.0), -sy / static_cast<float>(2.0), static_cast<float>(15));
 	glTexCoord2f(1, 0);
-	glVertex3f(sx / 2.0, -sy / 2.0, 15);
+	glVertex3f(sx / static_cast<float>(2.0), -sy / static_cast<float>(2.0), static_cast<float>(15));
 	glTexCoord2f(1, 1);
-	glVertex3f(sx / 2.0, sy / 2.0, 15);
+	glVertex3f(sx / static_cast<float>(2.0), sy / static_cast<float>(2.0), static_cast<float>(15));
 	glTexCoord2f(0, 1);
-	glVertex3f(-sx / 2.0, sy / 2.0, 15);
+	glVertex3f(-sx / static_cast<float>(2.0), sy / static_cast<float>(2.0), static_cast<float>(15));
 	glEnd();
 }
 

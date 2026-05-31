@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "ANI.h"
+#include "ani.h"
 #include "../core/timer.h"
 #include <GL/glu.h>
 #include <cmath>
@@ -8,11 +8,11 @@
 
 using namespace std;
 //============================================================
-ANI::ANI() {
+AnimatedModel::AnimatedModel() {
 	VCount = 0;
-	Ver = NULL;
-	Normals = NULL;
-	TexCords = NULL;
+	Ver = nullptr;
+	Normals = nullptr;
+	TexCords = nullptr;
 	frame = 0;
 	speed = 1;
 	scale = 0.000000000000;
@@ -24,12 +24,12 @@ ANI::ANI() {
 	frameChange = new timer(100);
 }
 ////============================================================
-ANI::~ANI() {
+AnimatedModel::~AnimatedModel() {
 	if (VCount) {
 		VCount = 0;
 		for (int i = 0; i < frameC; i++) {
-			if (Ver[i].v)
-				delete Ver[i].v;
+
+			delete Ver[i].v;
 			printf("Deleting vertex array %x \n", &Ver[i].v);
 		}
 		delete Normals;
@@ -38,11 +38,11 @@ ANI::~ANI() {
 		delete Ver;
 	}
 	delete frameChange;
-	printf("ANI %x destroyed\n", this);
+	printf("AnimatedModel %x destroyed\n", this);
 }
 //============================================================
-int ANI::Load(const char FileName[]) {
-	ifstream r(FileName);
+int AnimatedModel::Load(const char fileName[]) {
+	ifstream r(fileName);
 	r >> VCount >> frameC;
 
 	if (!VCount)
@@ -72,7 +72,7 @@ int ANI::Load(const char FileName[]) {
 	return 1;
 }
 //============================================================
-void ANI::Show() {
+void AnimatedModel::Show() {
 
 	if (bounds) // debug:: Bounding cube
 	{
@@ -122,7 +122,7 @@ void ANI::Show() {
 		glCallList(List[(int)frame]);
 }
 //============================================================
-float ANI::getScale() {
+float AnimatedModel::getScale() {
 	if (fabs(scale) > 0.00000000001)
 		return scale;
 
@@ -150,22 +150,22 @@ float ANI::getScale() {
 
 	// find the largest scale
 
-	float ScX = maxX - minX;
-	float ScY = maxY - minY;
-	float ScZ = maxZ - minZ;
+	float scX = maxX - minX;
+	float scY = maxY - minY;
+	float scZ = maxZ - minZ;
 
-	if (ScX > ScY && ScX > ScZ)
-		scale = ScX;
+	if (scX > scY && scX > scZ)
+		scale = scX;
 
-	else if (ScY > ScX && ScY > ScZ)
-		scale = ScY;
+	else if (scY > scX && scY > scZ)
+		scale = scY;
 	else
-		scale = ScZ;
+		scale = scZ;
 
 	return scale;
 }
 //============================================================
-void ANI::Advance_Animation() {
+void AnimatedModel::Advance_Animation() {
 	if (frameC == 1)
 		return;
 
@@ -185,14 +185,14 @@ void ANI::Advance_Animation() {
 		frame = 0.0;
 }
 //============================================================
-void ANI::setSpeed(int nSpeed) {
+void AnimatedModel::setSpeed(int nSpeed) {
 	if (nSpeed < 1)
 		speed = 1;
 	else
 		speed = nSpeed;
 }
 //============================================================
-void ANI::Compile() {
+void AnimatedModel::Compile() {
 	if (compiled)
 		return; // avoid too many compilations
 
@@ -222,11 +222,11 @@ void ANI::Compile() {
 	compiled = 1;
 }
 //============================================================
-void ANI::BindTexture(int t) { texture = t; }
+void AnimatedModel::BindTexture(int t) { texture = t; }
 //============================================================
-void ANI::Centrify() {
-	float scale_ = 1 / getScale();
-	Scale(scale_);
+void AnimatedModel::Centrify() {
+	float scale = 1 / getScale();
+	Scale(scale);
 
 	float minX = 1000.0, maxX = -1000.0;
 	float minY = 1000.0, maxY = -1000.0;
@@ -255,7 +255,7 @@ void ANI::Centrify() {
 	scale = 1;
 }
 //============================================================
-void ANI::Translate(float x, float y, float z) {
+void AnimatedModel::Translate(float x, float y, float z) {
 	for (int j = 0; j < frameC; j++) {
 		for (int i = 0; i < VCount * 3; i += 3) {
 			Ver[j].v[i] += x;
@@ -265,11 +265,11 @@ void ANI::Translate(float x, float y, float z) {
 	}
 }
 //============================================================
-void ANI::Scale(float sc) {
+void AnimatedModel::Scale(float sc) {
 	for (int j = 0; j < frameC; j++)
 		for (int i = 0; i < VCount * 3; i++)
 			Ver[j].v[i] *= sc;
 }
 //============================================================
-void ANI::Reset() { frame = 0.0; }
+void AnimatedModel::Reset() { frame = 0.0; }
 //============================================================

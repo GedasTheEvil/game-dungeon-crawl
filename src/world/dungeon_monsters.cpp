@@ -1,4 +1,4 @@
-#include "Dungeon.h"
+#include "dungeon.h"
 #include "../state/cashe.h"
 #include <GL/gl.h>
 #include <memory>
@@ -6,7 +6,7 @@
 extern Cashe c;
 
 namespace {
-monster* GetMbyType(int type) {
+monster* getMbyType(int type) {
 	if (type == 1)
 		return c.scarab.get();
 	if (type == 2)
@@ -50,12 +50,12 @@ void Dungeon::DrawMonsterTile(int i, int j) {
 	}
 }
 //======================================================================================
-void Dungeon::GetAttack(int dmg, int range) {
+void Dungeon::GetAttack(int damage, int attackRange) {
 	for (int i = 0; i < CMaxMonsters; i++) {
 		if (m[i].orX != -1 && m[i].orY != -1) {
 			SyncMonsterFromToken(i);
-			if (m[i].m->Alive() && m[i].m->Nearby(x, y, range)) {
-				m[i].m->getHit(dmg);
+			if (m[i].m->Alive() && m[i].m->Nearby(x, y, attackRange)) {
+				m[i].m->getHit(damage);
 				SyncTokenFromMonster(i, true);
 				break;
 			}
@@ -64,11 +64,11 @@ void Dungeon::GetAttack(int dmg, int range) {
 }
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
-	m[index].m = GetMbyType(Map(i, j).b);
+	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).b);
 	m[index].m->DX = &x;
 	m[index].m->DY = &y;
-	m[index].m->X = i;
-	m[index].m->Y = j;
+	m[index].m->X = static_cast<float>(i);
+	m[index].m->Y = static_cast<float>(j);
 	m[index].orX = i;
 	m[index].orY = j;
 	m[index].HP = m[index].m->MaxHP;
@@ -92,7 +92,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 		}
 
 	if (index != -1)
-		return 0;
+		return false;
 
 	for (int a = 0; a < CMaxMonsters; a++)
 		if (m[a].orX == -1 && m[a].orY == -1) {
@@ -102,7 +102,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 
 	if (index != -1) {
 		InitializeMonsterSlot(index, i, j);
-		return 1;
+		return true;
 	}
 
 	for (int a = 0; a < CMaxMonsters; a++)
@@ -114,9 +114,9 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (index != -1) {
 		if (m[index].orX != i || m[index].orY != j) {
 			InitializeMonsterSlot(index, i, j);
-			return 1;
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }

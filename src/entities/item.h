@@ -7,7 +7,7 @@
 class item {
   private:
 	bool in_inventory;
-	CartoonANI* mdl;
+	AnimatedCartoonModel* mdl;
 	float x;
 	float y;
 	Textura tex;

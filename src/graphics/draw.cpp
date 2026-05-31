@@ -10,19 +10,19 @@
 #include <GL/freeglut.h>
 #endif
 
-float RotW = -110;
+float rotW = -110;
 float rotM = 0;
 float rotN = 0;
 
-int weapon_rot = 0;
+int weaponRot = 0;
 
 Cashe c;
 
-bool Attacking = 0;
+bool attacking = 0;
 
 extern float resX, resY;
 
-void DrawLoad(float xxx, char text[]);
+void drawLoad(float xxx, char text[]);
 
 void Draw() {
 
@@ -71,7 +71,7 @@ void Draw() {
 
 	glPopMatrix(); // for perspective
 
-	c.Player->rotA = RotW;
+	c.Player->rotA = rotW;
 
 	c.Player->Draw();
 
@@ -86,23 +86,23 @@ void Draw() {
 
 		if (c.Player->rotA > 0) {
 			glTranslatef(c.Player->scale / 20, c.Player->scale / 4 * 3 + 0.27, 2);
-			glRotatef(-45 - weapon_rot, 0, 0, 1);
+			glRotatef(-45 - weaponRot, 0, 0, 1);
 
 		} else {
 			glTranslatef(-c.Player->scale / 20, c.Player->scale / 4 * 3 + 0.27, 2);
-			glRotatef(45 + weapon_rot, 0, 0, 1);
+			glRotatef(45 + weaponRot, 0, 0, 1);
 		}
 		c.invent->Equipped()->Draw();
 		c.invent->Equipped()->rotA++; // just for the heck of it
 
-		if (Attacking) {
-			if (c.Player->Att_timer->TimePassed() || weapon_rot <= -40) {
-				weapon_rot = 70;
-				Attacking = 0;
+		if (attacking) {
+			if (c.Player->Att_timer->TimePassed() || weaponRot <= -40) {
+				weaponRot = 70;
+				attacking = 0;
 			} else
-				weapon_rot -= 4;
+				weaponRot -= 4;
 		} else if (c.AttTimer->TimePassed())
-			weapon_rot = 0;
+			weaponRot = 0;
 
 		glPopMatrix();
 

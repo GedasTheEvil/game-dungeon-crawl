@@ -122,11 +122,11 @@ void inventory::GetItem(int type, int id) {
 
 void inventory::Draw() {
 
-	bool rot_items;
+	bool rotItems;
 	if (inv_ani->TimePassed())
-		rot_items = 1;
+		rotItems = 1;
 	else
-		rot_items = 0;
+		rotItems = 0;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();
@@ -161,7 +161,7 @@ void inventory::Draw() {
 	glTranslatef(71, 40, 0);
 	viewed->scale = 34;
 	viewed->Draw();
-	if (rot_items)
+	if (rotItems)
 		viewed->rotA++;
 	glPopMatrix();
 	c.progBar.Bind();
@@ -179,7 +179,7 @@ void inventory::Draw() {
 	glTranslatef(9, 75, 0);
 	c.club->scale = 17;
 	c.club->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.club->rotA++;
 	c.club->scale = mw[0].realScale;
 	glPopMatrix();
@@ -198,7 +198,7 @@ void inventory::Draw() {
 	glTranslatef(22, 75, 0);
 	c.sword->scale = 17;
 	c.sword->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.sword->rotA++;
 	c.sword->scale = mw[1].realScale;
 	glPopMatrix();
@@ -217,7 +217,7 @@ void inventory::Draw() {
 	glTranslatef(35, 75, 0);
 	c.spear->scale = 17;
 	c.spear->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.spear->rotA++;
 	c.spear->scale = mw[2].realScale;
 	glPopMatrix();
@@ -246,7 +246,7 @@ void inventory::Draw() {
 	glTranslatef(9, 48, 0);
 	c.bow->scale = 17;
 	c.bow->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.bow->rotA++;
 	c.bow->scale = rw.realScale;
 	glPopMatrix();
@@ -283,7 +283,7 @@ void inventory::Draw() {
 
 	glColor3f(1, 1, 1);
 
-	if (rot_items)
+	if (rotItems)
 		c.potion->rotA++;
 
 	/// selected item slot
@@ -362,30 +362,30 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		return;
 
 	extern int resX, resY;
-	float inv_x = 100 * ((float)x / (float)resX);
-	float inv_y = 100 - 100 * ((float)y / (float)resY);
+	float invX = 100 * ((float)x / (float)resX);
+	float invY = 100 - 100 * ((float)y / (float)resY);
 
-	if (inv_x > 4 && inv_x < 84) {
+	if (invX > 4 && invX < 84) {
 		// Melee weapon slots (row 1)
-		if (inv_y > 74 && inv_y < 92) {
-			if (inv_x <= 15)
+		if (invY > 74 && invY < 92) {
+			if (invX <= 15)
 				SelectItem(c.club.get(), ItemType::MELEE_WEAPON, WeaponId::CLUB, mw[WeaponId::CLUB].count);
-			else if (inv_x >= 30)
+			else if (invX >= 30)
 				SelectItem(c.spear.get(), ItemType::MELEE_WEAPON, WeaponId::SPEAR, mw[WeaponId::SPEAR].count);
 			else
 				SelectItem(c.sword.get(), ItemType::MELEE_WEAPON, WeaponId::SWORD, mw[WeaponId::SWORD].count);
 		}
 
 		// Ranged weapon slot
-		if (inv_y > 48 && inv_y < 65 && inv_x <= 15)
+		if (invY > 48 && invY < 65 && invX <= 15)
 			SelectItem(c.bow.get(), ItemType::RANGED_WEAPON, WeaponId::BOW, rw.count);
 
 		// Potion slots (row 1)
-		if (inv_y > 24 && inv_y < 40) {
-			if (inv_x <= 15)
+		if (invY > 24 && invY < 40) {
+			if (invX <= 15)
 				SelectItem(c.potion.get(), ItemType::POTION, PotionId::SMALL_HEALTH,
 						   potions[PotionId::SMALL_HEALTH].count);
-			else if (inv_x >= 30)
+			else if (invX >= 30)
 				SelectItem(c.potion.get(), ItemType::POTION, PotionId::STRENGTH, potions[PotionId::STRENGTH].count);
 			else
 				SelectItem(c.potion.get(), ItemType::POTION, PotionId::LARGE_HEALTH,
@@ -393,10 +393,10 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		}
 
 		// Potion slots (row 2)
-		if (inv_y > 5 && inv_y < 20) {
-			if (inv_x <= 15)
+		if (invY > 5 && invY < 20) {
+			if (invX <= 15)
 				SelectItem(c.potion.get(), ItemType::POTION, PotionId::ARMOR, potions[PotionId::ARMOR].count);
-			else if (inv_x >= 30) {
+			else if (invX >= 30) {
 				// Empty slot
 			} else
 				SelectItem(c.potion.get(), ItemType::POTION, PotionId::LIFE, potions[PotionId::LIFE].count);
@@ -404,7 +404,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 	}
 
 	// Equip / use button
-	if (inv_y >= 8 && inv_y <= 14 && inv_x >= 54 && inv_x <= 88 && view.count > 0) {
+	if (invY >= 8 && invY <= 14 && invX >= 54 && invX <= 88 && view.count > 0) {
 		if (!c.Player->Alive()) {
 			printf("Player dead. Deal with it. No more actions\n");
 			return;
@@ -432,11 +432,11 @@ item* inventory::Equipped() {
 	return c.club.get();
 }
 
-void inventory::SelectItem(item* itemPtr, int type, int id, int count) {
+void inventory::SelectItem(item* itemPtr, int itemType, int itemId, int itemCount) {
 	viewed = itemPtr;
-	view.type = type;
-	view.id = id;
-	view.count = count;
+	view.type = itemType;
+	view.id = itemId;
+	view.count = itemCount;
 }
 
 void inventory::DrawItemSlot(int x1, int y1, int x2, int y2) {
@@ -449,11 +449,11 @@ void inventory::DrawItemSlot(int x1, int y1, int x2, int y2) {
 	glEnd();
 }
 
-void inventory::DrawItemModel(item* itemPtr, float posX, float posY, float scale, float& realScale, bool rotate) {
+void inventory::DrawItemModel(item* itemPtr, float positionX, float positionY, float itemScale, float& realScale, bool rotate) {
 	glColor3f(1, 1, 1);
 	glPushMatrix();
-	glTranslatef(posX, posY, 0);
-	itemPtr->scale = scale;
+	glTranslatef(positionX, positionY, 0);
+	itemPtr->scale = itemScale;
 	itemPtr->Draw();
 	if (rotate)
 		itemPtr->rotA++;
@@ -486,6 +486,10 @@ void inventory::DrawWeaponInfo(int weaponId) {
 		Impact.print(53, 26, "Long spear.");
 		Impact.print(53, 23, "None shall pass!");
 		break;
+	default:
+		Impact.print(53, 82, "Name: Unknown Weapon");
+		Impact.print(53, 26, "Weapon data not available.");
+		break;
 	}
 }
 
@@ -511,6 +515,10 @@ void inventory::DrawPotionInfo(int potionId) {
 	case PotionId::LIFE:
 		Impact.print(53, 82, "Name: Elixir of life");
 		Impact.print(53, 26, "Adds 5%% HP");
+		break;
+	default:
+		Impact.print(53, 82, "Name: Unknown Potion");
+		Impact.print(53, 26, "Potion data not available.");
 		break;
 	}
 }

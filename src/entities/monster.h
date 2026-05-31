@@ -11,10 +11,10 @@
 
 class monster {
   private:
-	CartoonANI* walk;
-	CartoonANI* attack;
-	CartoonANI* die;
-	CartoonANI* mdl;
+	AnimatedCartoonModel* walk;
+	AnimatedCartoonModel* attack;
+	AnimatedCartoonModel* die;
+	AnimatedCartoonModel* mdl;
 	float x; // kiek nuejo nuo pradzios
 	float y;
 	int speed;

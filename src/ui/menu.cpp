@@ -16,12 +16,12 @@ extern Cashe c;
 extern int resX, resY;
 
 namespace {
-void GetMenuMouseCoords(int x, int y, float& mx, float& my) {
-	mx = 100 * ((float)x / (float)resX);
-	my = 100 - 100 * ((float)y / (float)resY);
+void getMenuMouseCoords(int mouseX, int mouseY, float& outMenuX, float& outMenuY) {
+	outMenuX = 100 * ((float)mouseX / (float)resX);
+	outMenuY = 100 - 100 * ((float)mouseY / (float)resY);
 }
 
-int GetSaveSlotFromCoords(float mx, float my) {
+int getSaveSlotFromCoords(float mx, float my) {
 	if (mx >= 6 && mx <= 43) {
 		if (my >= 71 && my <= 84)
 			return 0;
@@ -41,34 +41,35 @@ int GetSaveSlotFromCoords(float mx, float my) {
 	return -1;
 }
 
-bool IsSaveMenuExitFromCoords(float mx, float my) { return mx >= 6 && mx <= 43 && my >= 10 && my <= 23; }
+bool isSaveMenuExitFromCoords(float mx, float my) { return mx >= 6 && mx <= 43 && my >= 10 && my <= 23; }
 
-void PersistSaveNameList() {
+void persistSaveNameList() {
 	std::ofstream f("Saves/gamelist.dat");
 	for (int a = 0; a < 6; a++)
 		f << c.saveNames[a].name << "\n";
 }
 
-void FormatSaveLabel(char out[25]) {
-	time_t t = time(0);
+void formatSaveLabel(char out[25]) {
+	time_t t = time(nullptr);
 	struct tm* lt = localtime(&t);
 	sprintf(out, "%02d_%02d-%02d_%02d:%02d", c.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
 }
 
 class SaveSlotService {
   public:
-	static void SaveToSlot(int slot) {
+	static void saveToSlot(int slot) {
 		char filename[20];
 		sprintf(filename, "Saves/save%d.sav", slot);
 		c.Save(filename);
 
-		char time_str[25];
-		FormatSaveLabel(time_str);
-		strcpy(c.saveNames[slot].name, time_str);
-		PersistSaveNameList();
+		char timeStr[25];
+		formatSaveLabel(timeStr);
+		strncpy(c.saveNames[slot].name, timeStr, sizeof(c.saveNames[slot].name) - 1);
+		c.saveNames[slot].name[sizeof(c.saveNames[slot].name) - 1] = '\0';
+		persistSaveNameList();
 	}
 
-	static void LoadFromSlot(int slot) {
+	static void loadFromSlot(int slot) {
 		char filename[20];
 		sprintf(filename, "Saves/save%d.sav", slot);
 		c.LoadSave(filename);
@@ -77,17 +78,17 @@ class SaveSlotService {
 } // namespace
 
 MainMenu::MainMenu() {
-	show = 1;
-	inGame = 0;
-	h1 = 0;
-	h2 = 0;
-	h3 = 0;
-	h4 = 0;
-	h5 = 0;
-	h6 = 0;
-	h7 = 0;
-	saveD = 0;
-	loadD = 0;
+	show = true;
+	inGame = false;
+	h1 = false;
+	h2 = false;
+	h3 = false;
+	h4 = false;
+	h5 = false;
+	h6 = false;
+	h7 = false;
+	saveD = false;
+	loadD = false;
 	t_cred = new timer(10000);
 }
 
@@ -100,7 +101,7 @@ void MainMenu::Draw() {
 	if (credits) {
 		c.wlc->DrawCredits();
 		if (t_cred->TimePassed())
-			credits = 0;
+			credits = false;
 		return;
 	}
 
@@ -224,66 +225,66 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 
-	float m_x, m_y;
-	GetMenuMouseCoords(x, y, m_x, m_y);
+	float mX, mY;
+	getMenuMouseCoords(x, y, mX, mY);
 
-	if (m_x >= 23 && m_x <= 75) {
-		if (m_y <= 82 && m_y >= 71) // button1
+	if (mX >= 23 && mX <= 75) {
+		if (mY <= 82 && mY >= 71) // button1
 		{
-			show = 0;
+			show = false;
 			// 		 c.LoadSave("Saves/new.sav");
 			c.dungeon.Load("Levels/lvl1");
-			inGame = 1;
-			c.IHaveWon = 0;
+			inGame = true;
+			c.IHaveWon = false;
 			c.Player->Reanimate();
 		}
 
-		if (m_y <= 63 && m_y >= 53) // button2
+		if (mY <= 63 && mY >= 53) // button2
 		{
-			loadD = 1;
+			loadD = true;
 		}
 
-		if (m_y <= 46 && m_y >= 35) // button3
+		if (mY <= 46 && mY >= 35) // button3
 		{
-			credits = 1;
+			credits = true;
 		}
 
-		if (m_y <= 27 && m_y >= 17) // button4
+		if (mY <= 27 && mY >= 17) // button4
 		{
 			exit(666);
 		}
 	}
 }
 
-void MainMenu::InGameMouseFunction(int button, int state, int x, int y) {
-	(void)button;
-	(void)state;
+void MainMenu::InGameMouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
+	(void)mouseButton;
+	(void)buttonState;
 
 	if (credits)
 		return;
 
-	float m_x, m_y;
-	GetMenuMouseCoords(x, y, m_x, m_y);
+	float mX, mY;
+	getMenuMouseCoords(mouseX, mouseY, mX, mY);
 
-	if (m_x >= 23 && m_x <= 75) {
-		if (m_y <= 82 && m_y >= 71) // button1
+	if (mX >= 23 && mX <= 75) {
+		if (mY <= 82 && mY >= 71) // button1
 		{
-			show = 0;
+			show = false;
 		}
 
-		if (m_y <= 63 && m_y >= 53) // button2
+		if (mY <= 63 && mY >= 53) // button2
 		{
-			saveD = 1;
+			saveD = true;
 		}
 
-		if (m_y <= 46 && m_y >= 35) // button3
+		if (mY <= 46 && mY >= 35) // button3
 		{
-			loadD = 1;
+			loadD = true;
 		}
 
-		if (m_y <= 27 && m_y >= 17) // button4
+		if (mY <= 27 && mY >= 17) // button4
 		{
-			inGame = 0;
+			inGame = false;
 		}
 	}
 }
@@ -297,45 +298,45 @@ void MainMenu::MousePassiveMotion(int x, int y) {
 		return;
 	}
 
-	float m_x, m_y;
-	GetMenuMouseCoords(x, y, m_x, m_y);
+	float mX, mY;
+	getMenuMouseCoords(x, y, mX, mY);
 
-	if (m_x >= 23 && m_x <= 75) {
-		if (m_y <= 82 && m_y >= 71) // button1
+	if (mX >= 23 && mX <= 75) {
+		if (mY <= 82 && mY >= 71) // button1
 		{
 			NoHover();
-			h1 = 1;
+			h1 = true;
 		}
 
-		if (m_y <= 63 && m_y >= 53) // button2
+		if (mY <= 63 && mY >= 53) // button2
 		{
 			NoHover();
-			h2 = 1;
+			h2 = true;
 		}
 
-		if (m_y <= 46 && m_y >= 35) // button3
+		if (mY <= 46 && mY >= 35) // button3
 		{
 			NoHover();
-			h3 = 1;
+			h3 = true;
 		}
 
-		if (m_y <= 27 && m_y >= 17) // button4
+		if (mY <= 27 && mY >= 17) // button4
 		{
 			NoHover();
-			h4 = 1;
+			h4 = true;
 		}
 	} else
 		NoHover();
 }
 
 void MainMenu::NoHover() {
-	h1 = 0;
-	h2 = 0;
-	h3 = 0;
-	h4 = 0;
-	h5 = 0;
-	h6 = 0;
-	h7 = 0;
+	h1 = false;
+	h2 = false;
+	h3 = false;
+	h4 = false;
+	h5 = false;
+	h6 = false;
+	h7 = false;
 }
 
 void MainMenu::DrawSave() {
@@ -441,76 +442,76 @@ void MainMenu::SaveMouseFunction(int button, int state, int x, int y) {
 	}
 
 	float mx, my;
-	GetMenuMouseCoords(x, y, mx, my);
+	getMenuMouseCoords(x, y, mx, my);
 
-	int slot = GetSaveSlotFromCoords(mx, my);
+	int slot = getSaveSlotFromCoords(mx, my);
 	if (slot != -1) {
-		SaveSlotService::SaveToSlot(slot);
-		saveD = 0;
+		SaveSlotService::saveToSlot(slot);
+		saveD = false;
 		return;
 	}
 
-	if (IsSaveMenuExitFromCoords(mx, my))
-		saveD = 0;
+	if (isSaveMenuExitFromCoords(mx, my))
+		saveD = false;
 }
 
-void MainMenu::LoadMouseFunction(int button, int state, int x, int y) {
-	(void)button;
-	(void)state;
+void MainMenu::LoadMouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
+	(void)mouseButton;
+	(void)buttonState;
 
 	// c.LoadSave("Saves/dump.tmp");
 	float mx, my;
-	GetMenuMouseCoords(x, y, mx, my);
+	getMenuMouseCoords(mouseX, mouseY, mx, my);
 
-	int slot = GetSaveSlotFromCoords(mx, my);
+	int slot = getSaveSlotFromCoords(mx, my);
 	if (slot != -1) {
-		SaveSlotService::LoadFromSlot(slot);
-		loadD = 0;
-		show = 0;
-		inGame = 1;
+		SaveSlotService::loadFromSlot(slot);
+		loadD = false;
+		show = false;
+		inGame = true;
 		return;
 	}
 
-	if (IsSaveMenuExitFromCoords(mx, my))
-		loadD = 0;
+	if (isSaveMenuExitFromCoords(mx, my))
+		loadD = false;
 }
 
 void MainMenu::MousePassiveMotionSave(int x, int y) {
 	float mx, my;
-	GetMenuMouseCoords(x, y, mx, my);
+	getMenuMouseCoords(x, y, mx, my);
 
 	NoHover();
 
-	int slot = GetSaveSlotFromCoords(mx, my);
+	int slot = getSaveSlotFromCoords(mx, my);
 	switch (slot) {
 	case 0:
-		h1 = 1;
+		h1 = true;
 		return;
 	case 1:
-		h2 = 1;
+		h2 = true;
 		return;
 	case 2:
-		h3 = 1;
+		h3 = true;
 		return;
 	case 3:
-		h4 = 1;
+		h4 = true;
 		return;
 	case 4:
-		h5 = 1;
+		h5 = true;
 		return;
 	case 5:
-		h6 = 1;
+		h6 = true;
 		return;
 	default:
 		break;
 	}
 
-	if (IsSaveMenuExitFromCoords(mx, my))
-		h7 = 1;
+	if (isSaveMenuExitFromCoords(mx, my))
+		h7 = true;
 }
 
 void MainMenu::ResetSubScreens() {
-	credits = 0;
-	saveD = 0;
-	loadD = 0;
+	credits = false;
+	saveD = false;
+	loadD = false;
 }

@@ -7,12 +7,12 @@
 
 extern Cashe c;
 
-extern float RotW;
+extern float rotW;
 extern float rotM, rotN;
 
-extern bool Attacking;
+extern bool attacking;
 
-unsigned char last_key;
+unsigned char lastKey;
 
 int lastMx = 0;
 int lastMy = 0;
@@ -20,7 +20,7 @@ int lastMy = 0;
 void Draw();
 
 namespace {
-void StartJump() {
+void startJump() {
 	if (c.jumping || c.falling || !c.Player->Alive() || c.IHaveWon)
 		return;
 
@@ -34,13 +34,13 @@ void StartJump() {
 	c.jump_start_y = curY;
 
 	c.jump_dir_x = 0;
-	if (last_key == KEY_MOVE_LEFT)
+	if (lastKey == KEY_MOVE_LEFT)
 		c.jump_dir_x = -1;
-	else if (last_key == KEY_MOVE_RIGHT)
+	else if (lastKey == KEY_MOVE_RIGHT)
 		c.jump_dir_x = 1;
-	else if (RotW > 0)
+	else if (rotW > 0)
 		c.jump_dir_x = 1;
-	else if (RotW < 0)
+	else if (rotW < 0)
 		c.jump_dir_x = -1;
 
 	c.jump_speed = JUMP_FORWARD_SPEED;
@@ -52,17 +52,17 @@ void StartJump() {
 
 class PlayerActionController {
   public:
-	static void Execute(GameplayAction action) {
+	static void execute(GameplayAction action) {
 		float moveMultiplier = c.Stats->SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			c.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
-			RotW = -110;
+			rotW = -110;
 			c.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveRight:
 			c.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
-			RotW = 70;
+			rotW = 70;
 			c.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveDown:
@@ -72,41 +72,41 @@ class PlayerActionController {
 			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
-			StartJump();
+			startJump();
 			break;
 		case GameplayAction::Attack:
-			TryAttack();
+			tryAttack();
 			break;
 		case GameplayAction::Interact:
-			Interact();
+			interact();
 			break;
 		case GameplayAction::None:
 			break;
 		}
 	}
 
-	static void ApplyCameraDelta(float deltaX, float deltaY) {
+	static void applyCameraDelta(float deltaX, float deltaY) {
 		rotM += deltaX;
 		rotN += deltaY;
-		ClampCamera();
+		clampCamera();
 	}
 
   private:
-	static void TryAttack() {
+	static void tryAttack() {
 		if (!c.Player->Att_timer->TimePassed())
 			return;
 
 		c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
 		c.Player->att_s.Play();
-		Attacking = 1;
+		attacking = 1;
 	}
 
-	static void Interact() {
+	static void interact() {
 		c.dungeon.GetPickUp();
 		c.dungeon.GetRiddle();
 	}
 
-	static void ClampCamera() {
+	static void clampCamera() {
 		if (rotM > CAMERA_ROTATE_LIMIT_X)
 			rotM = CAMERA_ROTATE_LIMIT_X;
 
@@ -148,7 +148,7 @@ void keyPressed(unsigned char key, int x, int y) {
 		return; // jei rodomas meniu, tai reaguojam tik i [esc]
 
 	if (ScreenState::IsGameplayInteractionAllowed(c)) {
-		PlayerActionController::Execute(MapKeyboardGameplayAction(key));
+		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
 	if (key == KEY_INVENTORY) {
@@ -163,7 +163,7 @@ void keyPressed(unsigned char key, int x, int y) {
 			c.invent->show = 0;
 	}
 
-	last_key = key;
+	lastKey = key;
 }
 
 void specialKeyPressed(int key, int x, int y) {
@@ -181,24 +181,24 @@ void specialKeyPressed(int key, int x, int y) {
 		c.Orig_model = !c.Orig_model;
 
 	if (ScreenState::IsGameplayInteractionAllowed(c)) {
-		PlayerActionController::Execute(MapSpecialGameplayAction(key));
+		PlayerActionController::execute(MapSpecialGameplayAction(key));
 	}
 
 	if (key == SPECIAL_CAMERA_LEFT) {
-		PlayerActionController::ApplyCameraDelta(-CAMERA_ROTATE_STEP, 0);
+		PlayerActionController::applyCameraDelta(-CAMERA_ROTATE_STEP, 0);
 	}
 	if (key == SPECIAL_CAMERA_RIGHT) {
-		PlayerActionController::ApplyCameraDelta(CAMERA_ROTATE_STEP, 0);
+		PlayerActionController::applyCameraDelta(CAMERA_ROTATE_STEP, 0);
 	}
 	if (key == SPECIAL_CAMERA_UP) {
-		PlayerActionController::ApplyCameraDelta(0, CAMERA_ROTATE_STEP);
+		PlayerActionController::applyCameraDelta(0, CAMERA_ROTATE_STEP);
 	}
 	if (key == SPECIAL_CAMERA_DOWN) {
-		PlayerActionController::ApplyCameraDelta(0, -CAMERA_ROTATE_STEP);
+		PlayerActionController::applyCameraDelta(0, -CAMERA_ROTATE_STEP);
 	}
 
 	if (key == SPECIAL_INTERACT) {
-		PlayerActionController::Execute(GameplayAction::Interact);
+		PlayerActionController::execute(GameplayAction::Interact);
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
@@ -225,7 +225,7 @@ void processMouse(int button, int state, int x, int y) {
 	}
 
 	if (state && ScreenState::IsGameplayInteractionAllowed(c)) {
-		PlayerActionController::Execute(MapMouseGameplayAction(button));
+		PlayerActionController::execute(MapMouseGameplayAction(button));
 	}
 }
 void processMousePassiveMotion(int a, int b) {
@@ -234,7 +234,7 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 
-	PlayerActionController::ApplyCameraDelta(-MOUSE_LOOK_SENSITIVITY * (lastMx - a),
+	PlayerActionController::applyCameraDelta(-MOUSE_LOOK_SENSITIVITY * (lastMx - a),
 											 -MOUSE_LOOK_SENSITIVITY * (lastMy - b));
 
 	lastMx = a;

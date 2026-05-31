@@ -53,7 +53,7 @@ class Dungeon {
 	void DrawMonsterTile(int i, int j);
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
-	void DrawSegment(int seg, int l, int r, int u, int d);
+	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
 	Tint Map(float x, float y) const;
 	void InitializeMonsterSlot(int index, int i, int j);
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin
@@ -70,8 +70,8 @@ class Dungeon {
 	void Draw();
 	void Move(float dirX, float dirY, bool jump = 0);
 	int Type(float x, float y);
-	void getC(float& x, float& y);
-	void GetAttack(int dmg, int range); // Redirects players attack to the nearest monster if in range
+	void getC(float& outX, float& outY);
+	void GetAttack(int damage, int attackRange); // Redirects players attack to the nearest monster if in range
 	void GetPickUp();					// not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void GetRiddle();

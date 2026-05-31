@@ -7,7 +7,7 @@
 
 class trap {
   private:
-	CartoonANI* mdl;
+	AnimatedCartoonModel* mdl;
 	float x;
 	float y;
 

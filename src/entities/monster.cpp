@@ -186,21 +186,21 @@ bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, b
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
 
 	printf("Loading model: %s\n", tmp1);
-	walk = new CartoonANI;
+	walk = new AnimatedCartoonModel;
 	walk->Load(tmp1);
 	walk->BindTexture(texture.ID());
 	walk->Centrify();
 	walk->setSpeed(35);
 
 	printf("Loading model: %s\n", tmp2);
-	attack = new CartoonANI;
+	attack = new AnimatedCartoonModel;
 	attack->Load(tmp2);
 	attack->BindTexture(texture.ID());
 	attack->Centrify();
 	attack->setSpeed(35);
 
 	printf("Loading model: %s\n", tmp3);
-	die = new CartoonANI;
+	die = new AnimatedCartoonModel;
 	die->Load(tmp3);
 	die->BindTexture(texture.ID());
 	die->Centrify();

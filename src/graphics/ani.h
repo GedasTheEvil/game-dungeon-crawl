@@ -7,7 +7,7 @@ struct VF {
 	float* v;
 };
 
-class ANI {
+class AnimatedModel {
   protected:
 	timer* frameChange;
 	float frame;
@@ -27,8 +27,8 @@ class ANI {
   public:
 	bool bounds;
 	bool loop;
-	ANI();
-	~ANI();
+	AnimatedModel();
+	~AnimatedModel();
 	int Load(const char FileName[]);
 	void Show();
 	void Advance_Animation();

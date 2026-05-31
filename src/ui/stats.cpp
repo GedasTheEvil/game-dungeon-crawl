@@ -16,11 +16,7 @@ void stats::GetStronger(int ns) { Might += ns; }
 
 void stats::Draw() {
 
-	bool rot_items;
-	if (stats_ani->TimePassed())
-		rot_items = 1;
-	else
-		rot_items = 0;
+	bool rotItems = stats_ani->TimePassed();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();
@@ -62,7 +58,7 @@ void stats::Draw() {
 	glTranslatef(22, 54, 20);
 	c.Player->scale = 32;
 	c.Player->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.Player->rotA--;
 	glPopMatrix();
 	c.Player->scale = realPscale;
@@ -78,7 +74,7 @@ void stats::Draw() {
 	c.invent->Equipped()->scale = 40;
 	glTranslatef(26, 5, 25);
 	c.invent->Equipped()->Draw();
-	if (rot_items)
+	if (rotItems)
 		c.invent->Equipped()->rotA++;
 	glPopMatrix();
 	c.invent->Equipped()->scale = realIscale;
@@ -143,12 +139,12 @@ void stats::UpdateStamina() {
 
 	stamina_sprint_drain_carry += 0.05f * (float)MaxStamina();
 
-	int stamina_drain = (int)stamina_sprint_drain_carry;
-	if (stamina_drain <= 0)
+	int staminaDrain = (int)stamina_sprint_drain_carry;
+	if (staminaDrain <= 0)
 		return;
 
-	stamina_sprint_drain_carry -= stamina_drain;
-	if (!c.Player->ConsumeStamina(stamina_drain))
+	stamina_sprint_drain_carry -= static_cast<float>(staminaDrain);
+	if (!c.Player->ConsumeStamina(staminaDrain))
 		c.Player->SetStamina(0);
 
 	if (c.Player->Stamina() <= 0) {
@@ -162,25 +158,25 @@ void stats::RegenerateStamina() {
 
 	stamina_regen_carry += 0.02f * (float)MaxStamina();
 
-	int stamina_gain = (int)stamina_regen_carry;
-	if (stamina_gain <= 0)
+	int staminaGain = (int)stamina_regen_carry;
+	if (staminaGain <= 0)
 		return;
 
-	stamina_regen_carry -= stamina_gain;
-	c.Player->AddStamina(stamina_gain);
+	stamina_regen_carry -= static_cast<float>(staminaGain);
+	c.Player->AddStamina(staminaGain);
 }
 
 int stats::MaxStamina() const { return 100 + (level - 1) * 10; }
 
-void stats::Heal(int hp_part) {
+void stats::Heal(int hpPart) {
 	if (HP == MaxHP)
 		return;
 
-	float heal = (float)(hp_part * MaxHP) / 100.0;
-	if (HP + heal > MaxHP)
+	float heal = static_cast<float>(hpPart * MaxHP) / static_cast<float>(100.0);
+	if (static_cast<float>(HP) + heal > static_cast<float>(MaxHP))
 		HP = MaxHP;
 	else
-		HP += heal;
+		HP = static_cast<int>(heal + static_cast<float>(HP));
 
 	c.Player->HP = HP;
 }
@@ -196,7 +192,7 @@ stats::stats() {
 	sprint_requested = false;
 	sprinting = false;
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
-	show = 0;
+	show = false;
 	c.Player->MaxHP = MaxHP;
 	c.Player->HP = MaxHP;
 	c.Player->SetMaxStamina(MaxStamina());
@@ -211,27 +207,27 @@ stats::~stats() { printf("Deleting stats %p \n", (void*)this); }
 void stats::GetArmored(int na) { Armor += na; }
 
 void stats::GetHit(int dmg) {
-	int damage_ = 1;
+	int damage = 1;
 
 	if (dmg - Armor > 0)
-		damage_ = dmg - Armor;
+		damage = dmg - Armor;
 
-	c.Player->getHit(damage_);
+	c.Player->getHit(damage);
 	HP = c.Player->HP;
 }
 
-void stats::MouseFunction(int button, int state, int x, int y) {
-	(void)button;
-	(void)state;
-	(void)x;
-	(void)y;
+void stats::MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
+	(void)mouseButton;
+	(void)buttonState;
+	(void)mouseX;
+	(void)mouseY;
 }
 
 bool stats::AdvanceLevel() {
 	if (XP >= 1000 * (pow(level, 1.4)))
 		level++;
 	else
-		return 0;
+		return false;
 
 	if (level % 5 == 0)
 		Armor++;
@@ -249,16 +245,16 @@ bool stats::AdvanceLevel() {
 	sprintf(c.status, "Now you are level %d\n", level);
 	c.status_timer->Reset();
 
-	return 1;
+	return true;
 }
 
 int stats::Damage() {
 	return Might + c.invent->Equipped()->damage; // + weapon dmg
 }
 
-void stats::GetTougher(int hp_part) {
-	float more = 1 + (float)(hp_part) / 100.0;
-	MaxHP *= more;
+void stats::GetTougher(int hpPart) {
+	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
+	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
 	HP = MaxHP;
 	c.Player->MaxHP = MaxHP;
 	c.Player->HP = MaxHP;

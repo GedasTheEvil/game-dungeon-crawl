@@ -1,4 +1,4 @@
-#include "Dungeon.h"
+#include "dungeon.h"
 #include "../state/cashe.h"
 #include <GL/gl.h>
 #include <fstream>

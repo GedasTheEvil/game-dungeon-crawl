@@ -131,27 +131,27 @@ void Cashe::Load() {
 	potion->scale = 5;
 
 	sphinx_t.LoadBMP("Textures/sphinx.bmp");
-	sphinx = std::make_unique<CartoonANI>();
+	sphinx = std::make_unique<AnimatedCartoonModel>();
 	sphinx->Load("Models/sphinx.mdl");
 	sphinx->BindTexture(sphinx_t.ID());
 	sphinx->Centrify();
 	sphinx->Compile();
 
 	ankh_t.LoadBMP("Textures/ankh.bmp");
-	ankh = std::make_unique<CartoonANI>();
+	ankh = std::make_unique<AnimatedCartoonModel>();
 	ankh->Load("Models/ankh.mdl");
 	ankh->BindTexture(ankh_t.ID());
 	ankh->Centrify();
 	ankh->Compile();
 
 	column_t.LoadBMP("Textures/columns.bmp");
-	column = std::make_unique<CartoonANI>();
+	column = std::make_unique<AnimatedCartoonModel>();
 	column->Load("Models/columns.mdl");
 	column->BindTexture(column_t.ID());
 	column->Centrify();
 	column->Compile();
 
-	question = std::make_unique<CartoonANI>();
+	question = std::make_unique<AnimatedCartoonModel>();
 	question->Load("Models/questionmark.mdl");
 	question->BindTexture(scarab_t.ID());
 	question->Centrify();

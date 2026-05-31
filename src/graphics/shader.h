@@ -1,7 +1,7 @@
 #ifndef ShaderH
 #define ShaderH
 
-#include "ANI.h"
+#include "ani.h"
 #include "shader.h"
 
 // User Defined Structures
@@ -22,7 +22,7 @@ typedef struct tagPOLYGON {
 	VERTEX Verts[3];
 } POLYGON;
 
-class CartoonANI : public ANI {
+class AnimatedCartoonModel : public AnimatedModel {
   private:
 	VECTOR lightAngle;
 
@@ -31,8 +31,8 @@ class CartoonANI : public ANI {
 	int outlineWidth;
 	bool outline;
 
-	CartoonANI();
-	// 	   ~CartoonANI();
+	AnimatedCartoonModel();
+	// 	   ~AnimatedCartoonModel();
 	void ShowC();
 };
 

@@ -19,10 +19,10 @@ int resY = 500;
 int window = 1;
 int fs = 0;
 
-void InitGL(GLsizei Width, GLsizei Height) // We call this right after our OpenGL window is created.
+void initGl(GLsizei width, GLsizei height) // We call this right after our OpenGL window is created.
 {
-	(void)Width;
-	(void)Height;
+	(void)width;
+	(void)height;
 
 	glEnable(GL_TEXTURE_2D); // Enable texture mapping.
 
@@ -36,20 +36,20 @@ void InitGL(GLsizei Width, GLsizei Height) // We call this right after our OpenG
 	glDisable(GL_LIGHTING);
 }
 
-void ReSizeGLScene(GLsizei Width, GLsizei Height) {
-	if (Height == 0) // Prevent A Divide By Zero If The Window Is Too Small
-		Height = 1;
+void reSizeGlScene(GLsizei width, GLsizei height) {
+	if (height == 0) // Prevent A Divide By Zero If The Window Is Too Small
+		height = 1;
 
-	glViewport(0, 0, Width, Height); // Reset The Current Viewport And Perspective Transformation
+	glViewport(0, 0, width, height); // Reset The Current Viewport And Perspective Transformation
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	gluPerspective(45.0f, (GLfloat)Width / (GLfloat)Height, 0.1f, 10000.0f);
+	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
 	glMatrixMode(GL_MODELVIEW);
-	printf("Resized to : %d x %d\n", Width, Height);
-	resX = Width;
-	resY = Height;
+	printf("Resized to : %d x %d\n", width, height);
+	resX = width;
+	resY = height;
 }
 
 // sita eilute reikalinga, kad kompiliuojant per win nemestu erroro su "WinMain@16" undefined
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
 	glutIdleFunc(&Idle);
 
-	glutReshapeFunc(&ReSizeGLScene);
+	glutReshapeFunc(&reSizeGlScene);
 
 	glutKeyboardFunc(&keyPressed);
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 	glutPassiveMotionFunc(processMousePassiveMotion);
 	glutEntryFunc(processMouseEntry);
 
-	InitGL(resX, resY);
+	initGl(resX, resY);
 
 	glutMainLoop();
 

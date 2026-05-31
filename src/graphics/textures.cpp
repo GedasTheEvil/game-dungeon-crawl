@@ -11,11 +11,10 @@ Textura::Textura() {
 }
 
 Textura::~Textura() {
-	if (texture != NULL && texture[0].data != NULL)
+	if (texture != nullptr && texture[0].data != nullptr)
 		free(texture[0].data);
 
-	if (texture != NULL)
-		delete[] texture;
+	delete[] texture;
 
 	loaded = false;
 	printf("Deleting Texture %p \n", (void*)this);
@@ -23,8 +22,8 @@ Textura::~Textura() {
 
 int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 {
-	char TGAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Uncompressed TGA Header
-	char TGAcompare[12];									   // Used To Compare TGA Header
+	char tgAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Uncompressed TGA Header
+	char tgAcompare[12];									   // Used To Compare TGA Header
 	char header[6];											   // First 6 Useful Bytes From The Header
 	int bytesPerPixel;										   // Holds Number Of Bytes Per Pixel Used In The TGA File
 	size_t imageSize;										   // Used To Store The Image Size When Setting Aside Ram
@@ -33,15 +32,15 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 
 	FILE* file = fopen(filename, "rb"); // Open The TGA File
 
-	if (file == NULL ||															// Does File Even Exist?
-		fread(TGAcompare, 1, sizeof(TGAcompare), file) != sizeof(TGAcompare) || // Are There 12 Bytes To Read?
-		memcmp(TGAheader, TGAcompare, sizeof(TGAheader)) != 0 ||				// Does The Header Match What We Want?
+	if (file == nullptr ||														// Does File Even Exist?
+		fread(tgAcompare, 1, sizeof(tgAcompare), file) != sizeof(tgAcompare) || // Are There 12 Bytes To Read?
+		memcmp(tgAheader, tgAcompare, sizeof(tgAheader)) != 0 ||				// Does The Header Match What We Want?
 		fread(header, 1, sizeof(header), file) != sizeof(header))				// If So Read Next 6 Header Bytes
 	{
-		if (file != NULL) // Did The File Even Exist? *Added Jim Strong*
-			fclose(file); // If Anything Failed, Close The File
+		if (file != nullptr) // Did The File Even Exist? *Added Jim Strong*
+			fclose(file);	 // If Anything Failed, Close The File
 
-		return false; // Return False
+		return 0; // Return False
 	}
 
 	texture->width = header[1] * 256 + header[0];  // Determine The TGA Width	(highbyte*256+lowbyte)
@@ -52,7 +51,7 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 		(header[4] != 24 && header[4] != 32)) // Is The TGA 24 or 32 Bit?
 	{
 		fclose(file); // If Anything Failed, Close The File
-		return false; // Return False
+		return 0;	  // Return False
 	}
 	printf("%s:: \n\tHeight:%d\n\tWidth:%d\n", filename, texture->height, texture->width);
 
@@ -62,17 +61,17 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 
 	texture->data = (char*)malloc(imageSize); // Reserve Memory To Hold The TGA Data
 
-	if (texture->data == NULL ||									   // Does The Storage Memory Exist?
+	if (texture->data == nullptr ||									   // Does The Storage Memory Exist?
 		fread(texture->data, 1, imageSize, file) != (size_t)imageSize) // Does The Image Size Match The Memory Reserved?
 	{
-		if (texture->data != NULL) // Was Image Data Loaded
+		if (texture->data != nullptr) // Was Image Data Loaded
 		{
 			free(texture->data); // If So, Release The Image Data
-			texture->data = NULL;
+			texture->data = nullptr;
 		}
 
 		fclose(file); // Close The File
-		return false; // Return False
+		return 0;	  // Return False
 	}
 
 	printf("\tSize:%zu\n", imageSize);
@@ -104,7 +103,7 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 
 	loaded = true;
 
-	return true; // Texture Building Went Ok, Return True
+	return 1; // Texture Building Went Ok, Return True
 }
 //================================================================================================================================
 int Textura::LoadBMP(const char* filename) {
@@ -117,7 +116,7 @@ int Textura::LoadBMP(const char* filename) {
 	//     char temp;                          // used to convert bgr to rgb color.
 
 	// Make sure the file exists
-	if ((file = fopen(filename, "rb")) == NULL) {
+	if ((file = fopen(filename, "rb")) == nullptr) {
 		printf("File Not Found : %s\n", filename);
 		return 0;
 	}
@@ -176,11 +175,11 @@ int Textura::LoadBMP(const char* filename) {
 	// Read the data
 	printf("creating data array of size %lu\n", size);
 
-	texture[0].data = NULL;
+	texture[0].data = nullptr;
 	//      texture[0].data = new char[size];
 	texture[0].data = (char*)malloc(size);
 
-	if (texture[0].data == NULL) {
+	if (texture[0].data == nullptr) {
 		printf("Error allocating memory for texture data\n");
 		fclose(file);
 		return 0;
@@ -189,17 +188,17 @@ int Textura::LoadBMP(const char* filename) {
 	if ((i = fread(&texture[0].data[0], size, 1, file)) != 1) {
 		printf("Error reading texture data from %s.\n", filename);
 		free(texture[0].data);
-		texture[0].data = NULL;
+		texture[0].data = nullptr;
 		fclose(file);
 		return 0;
 	}
 
 	// windows neturi GL_BGR, darom savo
-	char tmp_c;
+	char tmpC;
 	for (unsigned long p = 0; p < size; p += 3) {
-		tmp_c = texture[0].data[p];
+		tmpC = texture[0].data[p];
 		texture[0].data[p] = texture[0].data[p + 2];
-		texture[0].data[p + 2] = tmp_c;
+		texture[0].data[p + 2] = tmpC;
 	}
 
 	glGenTextures(1, /*(GLuint *)*/ &texture[0].texID);

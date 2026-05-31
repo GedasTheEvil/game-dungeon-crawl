@@ -1,4 +1,4 @@
-#include "Dungeon.h"
+#include "dungeon.h"
 #include "../state/cashe.h"
 #include <fstream>
 #include <cstdio>
@@ -6,7 +6,7 @@
 extern Cashe c;
 
 namespace {
-bool ReadMapCells(std::istream& in, Tint* map, int cellCount) {
+bool readMapCells(std::istream& in, Tint* map, int cellCount) {
 	for (int jj = 0; jj < cellCount; jj++) {
 		in >> map[jj].a;
 		in >> map[jj].b;
@@ -21,45 +21,45 @@ bool ReadMapCells(std::istream& in, Tint* map, int cellCount) {
 bool Dungeon::Load(const char* filename) {
 	std::ifstream f(filename);
 	if (!f)
-		return 0;
+		return false;
 
 	int header;
 	f >> header;
 	if (header != kMapCellCount) {
 		printf("Wrong map header. Expected '%d', got %d\n", kMapCellCount, header);
-		return 0;
+		return false;
 	}
 
-	if (!ReadMapCells(f, map, kMapCellCount))
-		return 0;
+	if (!readMapCells(f, map, kMapCellCount))
+		return false;
 	f.close();
 
 	for (int j = 0; j < kMapHeight; j++)
 		for (int i = 0; i < kMapWidth; i++)
 			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
-				x = i;
-				y = j;
+				x = static_cast<float>(i);
+				y = static_cast<float>(j);
 			}
 
-	return 1;
+	return true;
 }
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {
 	f >> x >> y;
 	if (!f)
-		return 0;
+		return false;
 
 	int header;
 	f >> header;
 	if (header != kMapCellCount) {
 		printf("Wrong header. Expected '%d', got %d\n", kMapCellCount, header);
-		return 0;
+		return false;
 	}
 
-	if (!ReadMapCells(f, map, kMapCellCount))
-		return 0;
+	if (!readMapCells(f, map, kMapCellCount))
+		return false;
 
-	return 1;
+	return true;
 }
 //======================================================================================
 void Dungeon::Dump(std::ofstream& f) {
@@ -75,7 +75,7 @@ void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
 		c.invent->GetItem(Map(x, y).b, Map(x, y).c);
 		map[MapIndex((int)x, (int)y)].a = Empty;
-		if (Map(x, y).b) {
+		if (Map(x, y).b != 0) {
 			sprintf(c.status, "Picked up an item  \n");
 			c.status_timer->Reset();
 		}
@@ -84,13 +84,13 @@ void Dungeon::GetPickUp() {
 //======================================================================================
 void Dungeon::GetRiddle() {
 	if (Map(x, y).a == Ankh) {
-		c.IHaveWon = 1;
+		c.IHaveWon = true;
 		return;
 	}
 
 	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
 		c.rid->GetRiddle();
-		c.rid->show = 1;
+		c.rid->show = true;
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
 		c.curMap++;

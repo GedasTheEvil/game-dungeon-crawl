@@ -26,7 +26,7 @@ Riddle::Riddle() {
 	rid = new riddle[RiddleCount];
 	selected = 0;
 
-	show = 0;
+	show = false;
 
 	rid[0].question_l1 = "How many hounds guard this gate?";
 	rid[0].question_l2 = "";
@@ -68,9 +68,9 @@ Riddle::~Riddle() {
 }
 
 void Riddle::GetRiddle() {
-	srand((unsigned)time(0));
+	srand((unsigned)time(nullptr));
 
-	selected = random() % RiddleCount;
+	selected = static_cast<int>(random() % RiddleCount);
 	YourAnswer[0] = '_';
 	YourAnswer[1] = 0;
 }
@@ -105,9 +105,9 @@ void Riddle::Draw() {
 	glEnable(GL_BLEND);
 
 	glColor3f(1, 1, 1);
-	c.font.print(5, 12.5, rid[selected].question_l1);
-	c.font.print(5, 10, rid[selected].question_l2);
-	c.font.print(5, 7.5, rid[selected].question_l3);
+	c.font.print(static_cast<int>(5), static_cast<int>(12.5), rid[selected].question_l1);
+	c.font.print(static_cast<int>(5), static_cast<int>(10), rid[selected].question_l2);
+	c.font.print(static_cast<int>(5), static_cast<int>(7.5), rid[selected].question_l3);
 	//      c.font.print(5,5, rid[selected].question_l4);
 	glColor3f(0, 1, 0);
 	c.font.print(5, 5, YourAnswer);
@@ -119,9 +119,9 @@ void Riddle::Draw() {
 	glutSwapBuffers();
 }
 
-void Riddle::KeyboardF(unsigned char key, int x, int y) {
-	(void)x;
-	(void)y;
+void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
+	(void)mouseX;
+	(void)mouseY;
 
 	//      printf("Ridddle key pressed: %d \n",key);
 
@@ -130,7 +130,7 @@ void Riddle::KeyboardF(unsigned char key, int x, int y) {
 		if (key == 13) // enter
 		{
 			if (CheckAnswer()) {
-				show = 0;
+				show = false;
 				sprintf(c.status, "Riddle answered, got 500 XP \n");
 				c.status_timer->Reset();
 				c.Stats->GetXP(500);
@@ -144,7 +144,7 @@ void Riddle::KeyboardF(unsigned char key, int x, int y) {
 			}
 		}
 
-		YourAnswer[ans_l] = key;
+		YourAnswer[ans_l] = static_cast<char>(key);
 		if (ans_l < 23)
 			ans_l++;
 		YourAnswer[ans_l] = 0;
@@ -159,10 +159,10 @@ void Riddle::KeyboardF(unsigned char key, int x, int y) {
 bool Riddle::CheckAnswer() {
 	for (int i = 0; i < ans_l; i++) {
 		if (!rid[selected].answer[i])
-			return 1;
+			return true;
 		if (rid[selected].answer[i] != YourAnswer[i])
-			return 0;
+			return false;
 	}
 
-	return 1; // nevykdomas
+	return true; // nevykdomas
 }

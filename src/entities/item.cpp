@@ -11,7 +11,7 @@ void item::Draw() {
 
 	glPushMatrix();
 
-	if (!in_inventory && fabs(x) >= 0.1)
+	if (!in_inventory && std::fabs(x) >= 0.1)
 		glTranslatef(40 * x - 20, y, -30);
 	else
 		glTranslatef(0, 0, -30);
@@ -42,7 +42,7 @@ bool item::getPickedUp() {
 }
 
 item::item() {
-	mdl = NULL;
+	mdl = nullptr;
 	x = 0;
 	y = 0;
 	scale = 0;
@@ -54,16 +54,16 @@ item::item() {
 	type = 0;
 }
 item::~item() {
-	if (mdl)
-		delete mdl;
-	mdl = NULL;
+
+	delete mdl;
+	mdl = nullptr;
 	loaded = 0;
 	printf("Deleting item\n");
 }
 
 bool item::LoadMDL(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
-	mdl = new CartoonANI();
+	mdl = new AnimatedCartoonModel();
 	mdl->Load(filename);
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());

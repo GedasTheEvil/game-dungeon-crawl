@@ -10,7 +10,7 @@ int clampToRange(int value, int minV, int maxV) {
 }
 } // namespace
 
-PlayerEntity::PlayerEntity() : monster(), stamina(100), max_stamina(100) {}
+PlayerEntity::PlayerEntity() : stamina(100), max_stamina(100) {}
 
 PlayerEntity::PlayerEntity(float dx, float dy) : monster(dx, dy), stamina(100), max_stamina(100) {}
 

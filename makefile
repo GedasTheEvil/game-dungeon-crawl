@@ -2,6 +2,7 @@
 CXX=g++
 RM=rm -f
 CXXFLAGS=-Wall -Wextra -pedantic -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
+TIDY_CPPFLAGS=-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
 SOURCES=\
@@ -17,8 +18,9 @@ OBJECTS=$(SOURCES:.cpp=.o)
 DEPS=$(OBJECTS:.o=.d)
 
 EXECUTABLE=game
+CLANG_TIDY?=clang-tidy
 
-.PHONY: all clean format
+.PHONY: all clean format tidy
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -33,6 +35,9 @@ clean:
 
 format:
 	clang-format -i src/*/*.h src/*/*.cpp
+
+tidy:
+	$(CLANG_TIDY) $(SOURCES) -- $(TIDY_CPPFLAGS)
 
 editor:
 	(cd DungeonEditor && ./make)

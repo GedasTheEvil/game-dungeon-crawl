@@ -6,24 +6,27 @@
 #include "../core/timer.h"
 #include <memory>
 
-// dungeon segment types:
-#define Wall 0
-#define Empty 1
-#define Door 2
-#define Death 3
-#define Monster 4
-#define Spike 5
-#define Ladder 6
-#define Area3D 7
-#define Treasure 8
-#define Ankh 9
+enum DungeonTileType {
+	Wall = 0,
+	Empty = 1,
+	Door = 2,
+	Death = 3,
+	Monster = 4,
+	Spike = 5,
+	Ladder = 6,
+	Area3D = 7,
+	Treasure = 8,
+	Ankh = 9,
+};
 
-#define GateEntrance 1
-#define GateExit 2
-#define GateRiddle 3
-#define GateEmpty 4
+enum GateType {
+	GateEntrance = 1,
+	GateExit = 2,
+	GateRiddle = 3,
+	GateEmpty = 4,
+};
 
-#define CMaxMonsters 9
+constexpr int CMaxMonsters = 9;
 
 struct Tint {
 	int a;
@@ -33,15 +36,26 @@ struct Tint {
 
 class Dungeon {
   private:
-	Tint map[1881];
+	static constexpr int kMapWidth = 40;
+	static constexpr int kMapHeight = 47;
+	static constexpr int kMapCellCount = kMapWidth * kMapHeight + 1;
+	Tint map[kMapCellCount];
 	float x, y;
 	int texC, *Tex;
+	bool IsInBounds(int mapX, int mapY) const;
+	int MapIndex(int mapX, int mapY) const;
+	Tint MapAt(int mapX, int mapY) const;
+	void SetMapBAtPlayer(int value);
+	void SyncMonsterFromToken(int index);
+	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();
+	void UpdateMonsters();
 	void DrawMonsterTile(int i, int j);
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
 	void DrawSegment(int seg, int l, int r, int u, int d);
-	Tint Map(float x, float y);
+	Tint Map(float x, float y) const;
+	void InitializeMonsterSlot(int index, int i, int j);
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin
 	bool mL;
 	int shaderTexture[1];
@@ -52,6 +66,7 @@ class Dungeon {
 	Dungeon();
 	~Dungeon();
 	bool Load(const char* filename);
+	void Update();
 	void Draw();
 	void Move(float dirX, float dirY, bool jump = 0);
 	int Type(float x, float y);

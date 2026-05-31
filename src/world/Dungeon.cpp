@@ -22,7 +22,55 @@ monster* GetMbyType(int type); // pagalbinis metodas, nepriklauso klasei
 
 float plasma = 0;
 
-Tint Dungeon::Map(float x, float y) { return map[40 * (int)y + (int)x]; }
+namespace {
+bool ReadMapCells(std::istream& in, Tint* map, int cellCount) {
+	for (int jj = 0; jj < cellCount; jj++) {
+		in >> map[jj].a;
+		in >> map[jj].b;
+		in >> map[jj].c;
+		if (!in)
+			return false;
+	}
+	return true;
+}
+} // namespace
+
+bool Dungeon::IsInBounds(int mapX, int mapY) const {
+	return mapX >= 0 && mapX < kMapWidth && mapY >= 0 && mapY < kMapHeight;
+}
+//======================================================================================
+int Dungeon::MapIndex(int mapX, int mapY) const {
+	if (!IsInBounds(mapX, mapY))
+		return 0;
+
+	return kMapWidth * mapY + mapX;
+}
+//======================================================================================
+Tint Dungeon::MapAt(int mapX, int mapY) const { return map[MapIndex(mapX, mapY)]; }
+//======================================================================================
+Tint Dungeon::Map(float x, float y) const { return MapAt((int)x, (int)y); }
+//======================================================================================
+void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex((int)x, (int)y)].b = value; }
+//======================================================================================
+void Dungeon::SyncMonsterFromToken(int index) {
+	m[index].m->DX = &x;
+	m[index].m->DY = &y;
+	m[index].m->setCords(m[index].x, m[index].y);
+	m[index].m->X = m[index].orX;
+	m[index].m->Y = m[index].orY;
+	m[index].m->setModel(m[index].state);
+	m[index].m->setFacingDir(m[index].facing_dir);
+	m[index].m->HP = m[index].HP;
+}
+//======================================================================================
+void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
+	if (includePosition)
+		m[index].m->GetCords(m[index].x, m[index].y);
+
+	m[index].HP = m[index].m->HP;
+	m[index].state = m[index].m->Model_state();
+	m[index].facing_dir = m[index].m->FacingDir();
+}
 //======================================================================================
 Dungeon::Dungeon() {
 	x = 0;
@@ -34,6 +82,9 @@ Dungeon::Dungeon() {
 	for (int i = 0; i < CMaxMonsters; i++) {
 		m[i].orX = -1;
 		m[i].orY = -1;
+		m[i].HP = 0;
+		m[i].state = 1;
+		m[i].facing_dir = 0;
 	}
 
 	char Line[255];
@@ -371,27 +422,24 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 //======================================================================================
 bool Dungeon::Load(const char* filename) {
 	std::ifstream f(filename);
+	if (!f)
+		return 0;
+
 	int header;
 	f >> header;
-	if (header != 1881) {
-		printf("Wrong map header. Expected '1881', got %d\n", header);
+	if (header != kMapCellCount) {
+		printf("Wrong map header. Expected '%d', got %d\n", kMapCellCount, header);
 		return 0;
 	}
 
-	// read the file into memory
-	for (int jj = 0; jj < 1881; jj++) {
-		f >> map[jj].a;
-
-		f >> map[jj].b;
-
-		f >> map[jj].c;
-	}
+	if (!ReadMapCells(f, map, kMapCellCount))
+		return 0;
 	f.close();
 
 	// find start point
-	for (int j = 0; j < 47; j++)
-		for (int i = 0; i < 40; i++)
-			if (map[40 * j + i].a == 2 && map[40 * j + i].b == 1) {
+	for (int j = 0; j < kMapHeight; j++)
+		for (int i = 0; i < kMapWidth; i++)
+			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
 				x = i;
 				y = j;
 			}
@@ -401,22 +449,18 @@ bool Dungeon::Load(const char* filename) {
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {
 	f >> x >> y;
+	if (!f)
+		return 0;
 
 	int header;
 	f >> header;
-	if (header != 1881) {
-		printf("Wrong header. Expected '1881', got %d\n", header);
+	if (header != kMapCellCount) {
+		printf("Wrong header. Expected '%d', got %d\n", kMapCellCount, header);
 		return 0;
 	}
 
-	// read the map into memory
-	for (int jj = 0; jj < 1881; jj++) {
-		f >> map[jj].a;
-
-		f >> map[jj].b;
-
-		f >> map[jj].c;
-	}
+	if (!ReadMapCells(f, map, kMapCellCount))
+		return 0;
 
 	return 1;
 }
@@ -449,56 +493,69 @@ void Dungeon::UpdateMovementState() {
 	}
 }
 //======================================================================================
+void Dungeon::UpdateMonsters() {
+	for (int a = 0; a < CMaxMonsters; a++) {
+		if (m[a].orX == -1 || m[a].orY == -1)
+			continue;
+
+		SyncMonsterFromToken(a);
+
+		if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
+			if (!m[a].m->Seek())
+				if (m[a].at->TimePassed())
+					m[a].m->Attack();
+			SyncTokenFromMonster(a, true);
+		}
+	}
+}
+//======================================================================================
+void Dungeon::Update() {
+	UpdateMovementState();
+	UpdateMonsters();
+}
+//======================================================================================
 void Dungeon::DrawMonsterTile(int i, int j) {
 	SpawnMonster(i, j);
 	for (int a = 0; a < CMaxMonsters; a++) {
 		if (m[a].orX == i && m[a].orY == j) {
-			m[a].m->setCords(m[a].x, m[a].y);
-			m[a].m->HP = m[a].HP;
-			m[a].m->Y = m[a].orY;
-			m[a].m->X = m[a].orX;
-			m[a].m->setModel(m[a].state);
+			SyncMonsterFromToken(a);
 			glPushMatrix();
 			glTranslatef(40, 0, 10);
 			m[a].m->Draw();
 			glPopMatrix();
-			if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
-				if (!m[a].m->Seek())
-					if (m[a].at->TimePassed())
-						m[a].m->Attack();
-				m[a].m->GetCords(m[a].x, m[a].y);
-				m[a].state = m[a].m->Model_state();
-			}
+			SyncTokenFromMonster(a, false);
 		}
 	}
 }
 //======================================================================================
 void Dungeon::DrawTreasureTile(int i, int j) {
+	const Tint tile = MapAt(i, j);
+
 	glPushMatrix();
 	glTranslatef(20, 0, 10);
 	c.chest->Draw();
 
-	if (Map(i, j).b == 3) {
+	if (tile.b == 3) {
 		c.potion->Draw();
 		c.potion->rotA++;
 	}
 
-	if (Map(i, j).b == 2) {
+	if (tile.b == 2) {
 		c.bow->Draw();
 		c.bow->rotA++;
 	}
 
-	if (Map(i, j).b == 1) {
-		if (Map(i, j).c == 0) {
+	if (tile.b == 1) {
+		if (tile.c == 0) {
 			c.club->scale = 10;
 			c.club->Draw();
 			c.club->rotA++;
 		}
-		if (Map(i, j).c == 1) {
+		if (tile.c == 1) {
 			c.sword->Draw();
 			c.sword->rotA++;
 		}
-		if (Map(i, j).c == 2) {
+		if (tile.c == 2) {
 			c.spear->Draw();
 			c.spear->rotA++;
 		}
@@ -528,8 +585,6 @@ void Dungeon::Draw() {
 	else
 		plasma_ani = 0;
 
-	UpdateMovementState();
-
 	/// @name Drawing
 
 	glPushMatrix();
@@ -538,23 +593,24 @@ void Dungeon::Draw() {
 
 	for (int j = (int)y - 3; j < (int)y + 3; j++) {
 		for (int i = (int)x - 3; i < (int)x + 5; i++) {
-			if (40 * j + i > 0) {
-				DrawSegment(Map(i, j).a, Map(i - 1, j).a, Map(i + 1, j).a, Map(i, j + 1).a, Map(i, j - 1).a); // map
+			if (IsInBounds(i, j)) {
+				const Tint tile = MapAt(i, j);
+				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a); // map
 
-				if (Map(i, j).a == Monster) // mob
+				if (tile.a == Monster) // mob
 				{
 					DrawMonsterTile(i, j);
 				} // end of monster
-				if (Map(i, j).a == Treasure) {
+				if (tile.a == Treasure) {
 					DrawTreasureTile(i, j);
 				} // end of treasure
-				if (Map(i, j).a == Spike) {
+				if (tile.a == Spike) {
 					DrawTrapTile(i, j, false);
 				} // end of spike trap
-				if (Map(i, j).a == Death) {
+				if (tile.a == Death) {
 					DrawTrapTile(i, j, true);
 				} // end of death trap
-				if (Map(i, j).a == Ankh) {
+				if (tile.a == Ankh) {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
@@ -565,12 +621,12 @@ void Dungeon::Draw() {
 						c.ankh->Show();
 					glPopMatrix();
 				}
-				if (Map(i, j).a == Door) {
+				if (tile.a == Door) {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glPushMatrix();
 					glScalef(40, 40, 40);
-					if (Map(i, j).b != GateEntrance)
+					if (tile.b != GateEntrance)
 						glRotatef(180, 0, 1, 0);
 					c.sphinx_t.Bind();
 					if (c.Cartoon)
@@ -580,7 +636,7 @@ void Dungeon::Draw() {
 					glPopMatrix();
 					glPopMatrix();
 
-					if (Map(i, j).b == GateRiddle) {
+					if (tile.b == GateRiddle) {
 						glPushMatrix();
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
@@ -600,9 +656,9 @@ void Dungeon::Draw() {
 						glPopMatrix();
 					}
 
-					if (Map(i, j).b == GateEntrance || Map(i, j).b == GateExit) {
+					if (tile.b == GateEntrance || tile.b == GateExit) {
 						glPushMatrix();
-						if (Map(i, j).b != GateEntrance)
+						if (tile.b != GateEntrance)
 							glTranslatef(39, 0, 0);
 
 						// testing plasma
@@ -627,7 +683,7 @@ void Dungeon::Draw() {
 					}
 
 				} // end of gate
-				if (Map(i, j).a == Ladder) {
+				if (tile.a == Ladder) {
 					glPushMatrix();
 					glTranslatef(20, 0, -25);
 					glPushMatrix();
@@ -700,10 +756,10 @@ void Dungeon::getC(float& x, float& y) {
 void Dungeon::GetAttack(int dmg, int range) {
 	for (int i = 0; i < CMaxMonsters; i++) {
 		if (m[i].orX != -1 && m[i].orY != -1) {
-			m[i].m->HP = m[i].HP;
+			SyncMonsterFromToken(i);
 			if (m[i].m->Alive() && m[i].m->Nearby(x, y, range)) {
 				m[i].m->getHit(dmg);
-				m[i].HP = m[i].m->HP;
+				SyncTokenFromMonster(i, true);
 				break; // hit only one monster at once;
 			}
 		}
@@ -713,7 +769,7 @@ void Dungeon::GetAttack(int dmg, int range) {
 void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
 		c.invent->GetItem(Map(x, y).b, Map(x, y).c);
-		map[40 * (int)y + (int)x].a = Empty;
+		map[MapIndex((int)x, (int)y)].a = Empty;
 		if (Map(x, y).b) {
 			sprintf(c.status, "Picked up an item  \n");
 			c.status_timer->Reset();
@@ -730,7 +786,7 @@ void Dungeon::GetRiddle() {
 	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
 		c.rid->GetRiddle();
 		c.rid->show = 1;
-		map[40 * (int)y + (int)x].b = GateEmpty;
+		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
 		c.curMap++;
 
@@ -755,6 +811,25 @@ monster* GetMbyType(int type) {
 	return c.Player.get(); // debug
 }
 //======================================================================================
+void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
+	m[index].m = GetMbyType(Map(i, j).b);
+	m[index].m->DX = &x;
+	m[index].m->DY = &y;
+	m[index].m->X = i;
+	m[index].m->Y = j;
+	m[index].orX = i;
+	m[index].orY = j;
+	m[index].HP = m[index].m->MaxHP;
+	m[index].m->GetCords(m[index].x, m[index].y);
+	m[index].state = 1;
+	m[index].facing_dir = 0;
+	m[index].frame = 1;
+	if (!m[index].t)
+		m[index].t = std::make_unique<timer>(70);
+	if (!m[index].at)
+		m[index].at = std::make_unique<timer>(800);
+}
+//======================================================================================
 bool Dungeon::SpawnMonster(int i, int j) {
 	int index = -1;
 
@@ -775,22 +850,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 
 	if (index != -1) // gavom laisva slot'a, spawninam
 	{
-
-		m[index].m = GetMbyType(Map(i, j).b);
-		m[index].m->DX = &x;
-		m[index].m->DY = &y;
-		m[index].m->X = i;
-		m[index].m->Y = j;
-		m[index].orX = i;
-		m[index].orY = j;
-		m[index].HP = m[index].m->MaxHP;
-		m[index].m->GetCords(m[index].x, m[index].y);
-		m[index].state = 1;
-		m[index].frame = 1;
-		if (!m[index].t)
-			m[index].t = std::make_unique<timer>(70);
-		if (!m[index].at)
-			m[index].at = std::make_unique<timer>(800);
+		InitializeMonsterSlot(index, i, j);
 		return 1;
 	}
 	/// pajimam slot'a is negyvu mobu (untested)
@@ -803,23 +863,9 @@ bool Dungeon::SpawnMonster(int i, int j) {
 
 	if (index != -1) // gavom laisva slot'a, spawninam
 	{
-		if (m[index].orX != i && m[index].orY != j) // avoid spawning a monster right after it's death
+		if (m[index].orX != i || m[index].orY != j) // avoid spawning a monster right after it's death
 		{
-			m[index].m = GetMbyType(Map(i, j).b);
-			m[index].m->DX = &x;
-			m[index].m->DY = &y;
-			m[index].m->X = i;
-			m[index].m->Y = j;
-			m[index].orX = i;
-			m[index].orY = j;
-			m[index].HP = m[index].m->MaxHP;
-			m[index].m->GetCords(m[index].x, m[index].y);
-			m[index].state = 1;
-			m[index].frame = 1;
-			if (!m[index].t)
-				m[index].t = std::make_unique<timer>(70);
-			if (!m[index].at)
-				m[index].at = std::make_unique<timer>(800);
+			InitializeMonsterSlot(index, i, j);
 			return 1;
 		}
 	}
@@ -833,9 +879,9 @@ Dungeon::~Dungeon() { printf("Deleting Dungeon %p \n", (void*)this); }
 void Dungeon::Dump(std::ofstream& f) {
 	f << x << " " << y << " ";
 
-	f << 1881 << " ";
+	f << kMapCellCount << " ";
 
-	for (int l = 0; l < 1881; l++)
+	for (int l = 0; l < kMapCellCount; l++)
 		f << map[l].a << " " << map[l].b << " " << map[l].c << " ";
 }
 //======================================================================================

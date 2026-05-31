@@ -4,3 +4,5 @@ src/*.d
 src/*/*.d
 ./game
 .idea
+game
+Sounds/soundtrack.ogg

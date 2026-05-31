@@ -24,6 +24,7 @@ monster::monster() {
 	damage = 1;
 	XP = 1000;
 	stat = -1;
+	facing_dir = 0;
 	scale = 1;
 
 	Att_timer = new timer(1000);
@@ -44,6 +45,7 @@ monster::monster(float x, float y) {
 	damage = 1;
 	XP = 1000;
 	stat = -1;
+	facing_dir = 0;
 	scale = 1;
 	Att_timer = new timer(1000);
 	walk_timer = new timer(40);
@@ -60,6 +62,7 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	damage = nDamage;
 	XP = nXP;
 	stat = -1;
+	facing_dir = 0;
 	Att_timer = new timer(1000);
 	walk_timer = new timer(40);
 
@@ -143,9 +146,13 @@ bool monster::Draw() // needs to choose animation
 
 	tex.Bind();
 
-	if (this != c.Player.get())
-		glRotatef(rotA + 90 * AtDir(), 0, 1, 0);
-	else
+	if (this != c.Player.get()) {
+		if (Alive()) {
+			facing_dir = AtDir();
+			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
+		} else
+			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
+	} else
 		glRotatef(rotA, 0, 1, 0);
 
 	if (c.Cartoon)
@@ -247,5 +254,10 @@ bool monster::getHit(int dmg) {
 void monster::Reanimate() {
 	HP = MaxHP;
 	mdl = walk;
+	facing_dir = 0;
 }
+//================================================================================
+void monster::setFacingDir(int dir) { facing_dir = dir; }
+//================================================================================
+int monster::FacingDir() { return facing_dir; }
 //================================================================================

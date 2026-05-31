@@ -8,7 +8,7 @@ SOURCES=\
 	src/core/game.cpp src/core/timer.cpp src/core/sound.cpp \
 	src/graphics/ANI.cpp src/graphics/textures.cpp src/graphics/shader.cpp src/graphics/font.cpp src/graphics/particles.cpp src/graphics/draw.cpp \
 	src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/item.cpp src/entities/trap.cpp \
-	src/world/Dungeon.cpp \
+	src/world/Dungeon_base.cpp src/world/Dungeon_io.cpp src/world/Dungeon_monsters.cpp src/world/Dungeon_render.cpp \
 	src/ui/menu.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winloose.cpp \
 	src/input/input.cpp \
 	src/state/cashe.cpp

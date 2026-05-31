@@ -21,6 +21,7 @@ class monster {
 	int damage;
 	int XP;
 	int stat;
+	int facing_dir;
 	Textura TNull, tex;
 	ParSys* blood;
 	timer* walk_timer;
@@ -61,6 +62,8 @@ class monster {
 	void changeMDL(int id);
 	int Model_state();
 	void setModel(int state);
+	void setFacingDir(int dir);
+	int FacingDir();
 };
 
 struct monsterToken {
@@ -72,6 +75,7 @@ struct monsterToken {
 	std::unique_ptr<timer> t;
 	std::unique_ptr<timer> at;
 	int state;
+	int facing_dir;
 	int frame;
 };
 

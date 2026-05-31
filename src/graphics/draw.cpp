@@ -65,6 +65,7 @@ void Draw() {
 	glPushMatrix();				  // for perspective
 	glTranslatef(-202, 0.0, -10); // for perspective, tarkim bus tiek :)
 
+	c.dungeon.Update();
 	c.dungeon.Draw();
 
 	glPopMatrix(); // for perspective

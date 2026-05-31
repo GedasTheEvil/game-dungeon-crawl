@@ -64,6 +64,7 @@ class monster {
 	void setModel(int state);
 	void setFacingDir(int dir);
 	int FacingDir();
+	float healthRatio() const;
 };
 
 struct monsterToken {

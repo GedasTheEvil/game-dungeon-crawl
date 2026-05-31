@@ -2,6 +2,7 @@
 #include <GL/gl.h>
 #include "../state/cashe.h"
 #include "../ui/screen_state.h"
+#include "hud.h"
 #ifndef WIN32
 #include <GL/glut.h>
 #endif
@@ -115,9 +116,16 @@ void Draw() {
 	glLoadIdentity();
 	glOrtho(0, 100, 0, 100, -21, 21);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
+	c.Stats->UpdateStamina();
+
+	c.nullTex.Bind();
+	Hud::drawPlayerBars(c.Player->healthRatio(), c.Player->staminaRatio());
+
+	glColor3f(1, 1, 1);
 
 	if (!c.status_timer->TimePassed(true))
 		c.load_font.print(25, 72, c.status);

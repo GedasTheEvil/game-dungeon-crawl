@@ -60,7 +60,7 @@ void Cashe::Load() {
 	rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
-	Player = std::make_unique<monster>(0, 0, 1, 1, 1, 0);
+	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
 	Player->LoadMDL("human", player_t, progBar, true);
 	Player->scale = 15;
 	Player->setCords(0, 0);

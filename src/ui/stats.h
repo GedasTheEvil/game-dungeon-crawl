@@ -22,8 +22,20 @@ class stats {
 	float realPscale; // player scale
 	float realIscale; // item scale
 	timer* stats_ani;
+	timer* stamina_regen_timer;
+	timer* stamina_sprint_drain_timer;
+	float stamina_regen_carry;
+	float stamina_sprint_drain_carry;
+	bool sprint_requested;
+	bool sprinting;
 
   public:
+	void SetSprintRequested(bool requested);
+	bool IsSprinting() const;
+	float SprintMoveMultiplier() const;
+	void UpdateStamina();
+	void RegenerateStamina();
+	int MaxStamina() const;
 	int Damage();
 	bool show;
 	void GetStronger(int ns = 1);

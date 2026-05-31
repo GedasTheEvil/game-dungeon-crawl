@@ -6,6 +6,7 @@
 // making something private would beat the purpose :)
 
 #include "../entities/monster.h"
+#include "../entities/player.h"
 #include "../graphics/textures.h"
 #include "../graphics/shader.h"
 #include "../world/Dungeon.h"
@@ -47,7 +48,7 @@ class Cashe {
 	std::unique_ptr<item> chest, club, sword, bow, potion, spear;
 	std::unique_ptr<inventory> invent;
 	std::unique_ptr<stats> Stats;
-	std::unique_ptr<monster> Player;
+	std::unique_ptr<PlayerEntity> Player;
 	std::unique_ptr<timer> jump_timer;
 	std::unique_ptr<timer> jump_up_timer;
 	std::unique_ptr<timer> jump_inc;

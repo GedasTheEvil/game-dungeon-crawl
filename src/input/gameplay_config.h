@@ -7,6 +7,7 @@ constexpr float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
 constexpr float JUMP_FORWARD_SPEED = 0.054f;
 constexpr float JUMP_INITIAL_VELOCITY = 0.085f;
 constexpr float JUMP_GRAVITY_STEP = 0.01f;
+constexpr int JUMP_STAMINA_COST = 20;
 
 constexpr int JUMP_TIMER_MS = 5000;
 constexpr int JUMP_UP_TIMER_MS = 4000;

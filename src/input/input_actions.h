@@ -17,12 +17,16 @@ enum class GameplayAction {
 inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
 	switch (key) {
 	case KEY_MOVE_LEFT:
+	case KEY_MOVE_LEFT_UPPER:
 		return GameplayAction::MoveLeft;
 	case KEY_MOVE_RIGHT:
+	case KEY_MOVE_RIGHT_UPPER:
 		return GameplayAction::MoveRight;
 	case KEY_MOVE_DOWN:
+	case KEY_MOVE_DOWN_UPPER:
 		return GameplayAction::MoveDown;
 	case KEY_MOVE_UP:
+	case KEY_MOVE_UP_UPPER:
 		return GameplayAction::MoveUp;
 	case KEY_SPACE:
 		return GameplayAction::Jump;

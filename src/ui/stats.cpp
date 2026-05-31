@@ -112,6 +112,66 @@ void stats::GetXP(int xp) {
 		;
 }
 
+void stats::SetSprintRequested(bool requested) { sprint_requested = requested; }
+
+bool stats::IsSprinting() const { return sprinting; }
+
+float stats::SprintMoveMultiplier() const {
+	if (sprinting)
+		return 3.0f;
+
+	return 1.0f;
+}
+
+void stats::UpdateStamina() {
+	if (!c.Player->Alive()) {
+		sprinting = false;
+		sprint_requested = false;
+		return;
+	}
+
+	if (!sprint_requested || c.Player->Stamina() <= 0) {
+		sprinting = false;
+		RegenerateStamina();
+		return;
+	}
+
+	sprinting = true;
+
+	if (!stamina_sprint_drain_timer->TimePassed())
+		return;
+
+	stamina_sprint_drain_carry += 0.05f * (float)MaxStamina();
+
+	int stamina_drain = (int)stamina_sprint_drain_carry;
+	if (stamina_drain <= 0)
+		return;
+
+	stamina_sprint_drain_carry -= stamina_drain;
+	if (!c.Player->ConsumeStamina(stamina_drain))
+		c.Player->SetStamina(0);
+
+	if (c.Player->Stamina() <= 0) {
+		sprinting = false;
+	}
+}
+
+void stats::RegenerateStamina() {
+	if (!stamina_regen_timer->TimePassed())
+		return;
+
+	stamina_regen_carry += 0.02f * (float)MaxStamina();
+
+	int stamina_gain = (int)stamina_regen_carry;
+	if (stamina_gain <= 0)
+		return;
+
+	stamina_regen_carry -= stamina_gain;
+	c.Player->AddStamina(stamina_gain);
+}
+
+int stats::MaxStamina() const { return 100 + (level - 1) * 10; }
+
 void stats::Heal(int hp_part) {
 	if (HP == MaxHP)
 		return;
@@ -131,11 +191,19 @@ stats::stats() {
 	Might = 0;
 	Armor = 0;
 	level = 1;
+	stamina_regen_carry = 0.0f;
+	stamina_sprint_drain_carry = 0.0f;
+	sprint_requested = false;
+	sprinting = false;
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
 	show = 0;
 	c.Player->MaxHP = MaxHP;
 	c.Player->HP = MaxHP;
+	c.Player->SetMaxStamina(MaxStamina());
+	c.Player->SetStamina(c.Player->MaxStamina());
 	stats_ani = new timer(10);
+	stamina_regen_timer = new timer(1000);
+	stamina_sprint_drain_timer = new timer(1000);
 }
 
 stats::~stats() { printf("Deleting stats %p \n", (void*)this); }
@@ -176,6 +244,7 @@ bool stats::AdvanceLevel() {
 
 	c.Player->MaxHP = MaxHP;
 	c.Player->HP = MaxHP;
+	c.Player->SetMaxStamina(MaxStamina());
 
 	sprintf(c.status, "Now you are level %d\n", level);
 	c.status_timer->Reset();
@@ -196,11 +265,26 @@ void stats::GetTougher(int hp_part) {
 }
 
 void stats::Dump(std::ofstream& f) {
-	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << "\n";
+	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << c.Player->Stamina()
+	  << "\n";
 }
 
 void stats::LoadDump(std::ifstream& f) {
 	f >> level >> XP >> Armor >> MaxHP >> HP >> Might;
+
+	int loadedStamina = 100;
+
+	if (!(f >> loadedStamina))
+		f.clear();
+
+	stamina_regen_carry = 0.0f;
+	stamina_sprint_drain_carry = 0.0f;
+	sprint_requested = false;
+	sprinting = false;
+	stamina_regen_timer->Reset();
+	stamina_sprint_drain_timer->Reset();
 	c.Player->MaxHP = MaxHP;
 	c.Player->HP = HP;
+	c.Player->SetMaxStamina(MaxStamina());
+	c.Player->SetStamina(loadedStamina);
 }

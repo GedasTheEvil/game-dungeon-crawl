@@ -103,35 +103,37 @@ bool monster::Draw() // needs to choose animation
 				mdl = walk;
 		}
 
-		TNull.Bind();
+		if (this != c.Player.get()) {
+			TNull.Bind();
 
-		glColor4f(1, 1, 1, 0.9);
+			glColor4f(1, 1, 1, 0.9);
 
-		glBegin(GL_LINE_LOOP);
-		glVertex3f(-0.501, 1.101, 0);
-		glVertex3f(0.501, 1.101, 0);
-		glVertex3f(0.501, 1.201, 0);
-		glVertex3f(-0.501, 1.201, 0);
-		glEnd();
+			glBegin(GL_LINE_LOOP);
+			glVertex3f(-0.501, 1.101, 0);
+			glVertex3f(0.501, 1.101, 0);
+			glVertex3f(0.501, 1.201, 0);
+			glVertex3f(-0.501, 1.201, 0);
+			glEnd();
 
-		glEnable(GL_BLEND);
+			glEnable(GL_BLEND);
 
-		float xxx = (float)HP / (float)MaxHP;
-		glColor3f(3 * (1 - xxx), 3 * xxx, 0);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0);
-		glVertex3f(-0.5, 1.1, 0);
-		glTexCoord2f(1, 0);
-		glVertex3f(xxx - 0.5, 1.1, 0);
-		glTexCoord2f(1, 1);
-		glVertex3f(xxx - 0.5, 1.2, 0);
-		glTexCoord2f(0, 1);
-		glVertex3f(-0.5, 1.2, 0);
-		glEnd();
+			float xxx = (float)HP / (float)MaxHP;
+			glColor3f(3 * (1 - xxx), 3 * xxx, 0);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0, 0);
+			glVertex3f(-0.5, 1.1, 0);
+			glTexCoord2f(1, 0);
+			glVertex3f(xxx - 0.5, 1.1, 0);
+			glTexCoord2f(1, 1);
+			glVertex3f(xxx - 0.5, 1.2, 0);
+			glTexCoord2f(0, 1);
+			glVertex3f(-0.5, 1.2, 0);
+			glEnd();
 
-		glDisable(GL_BLEND);
+			glDisable(GL_BLEND);
 
-		glColor3f(1, 1, 1);
+			glColor3f(1, 1, 1);
+		}
 
 		glPushMatrix();
 		glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
@@ -260,4 +262,17 @@ void monster::Reanimate() {
 void monster::setFacingDir(int dir) { facing_dir = dir; }
 //================================================================================
 int monster::FacingDir() { return facing_dir; }
+//================================================================================
+float monster::healthRatio() const {
+	if (MaxHP <= 0)
+		return 0.0f;
+
+	float ratio = (float)HP / (float)MaxHP;
+	if (ratio < 0.0f)
+		return 0.0f;
+	if (ratio > 1.0f)
+		return 1.0f;
+
+	return ratio;
+}
 //================================================================================

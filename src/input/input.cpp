@@ -24,6 +24,11 @@ void StartJump() {
 	if (c.jumping || c.falling || !c.Player->Alive() || c.IHaveWon)
 		return;
 
+	if (c.Player->Stamina() < JUMP_STAMINA_COST)
+		return;
+
+	c.Player->ConsumeStamina(JUMP_STAMINA_COST);
+
 	float curX, curY;
 	c.dungeon.getC(curX, curY);
 	c.jump_start_y = curY;
@@ -48,22 +53,23 @@ void StartJump() {
 class PlayerActionController {
   public:
 	static void Execute(GameplayAction action) {
+		float moveMultiplier = c.Stats->SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
-			c.dungeon.Move(-PLAYER_MOVE_STEP, 0);
+			c.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			RotW = -110;
 			c.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveRight:
-			c.dungeon.Move(PLAYER_MOVE_STEP, 0);
+			c.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			RotW = 70;
 			c.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveDown:
-			c.dungeon.Move(0, -PLAYER_MOVE_STEP);
+			c.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::MoveUp:
-			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP);
+			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
 			StartJump();
@@ -194,6 +200,17 @@ void specialKeyPressed(int key, int x, int y) {
 	if (key == SPECIAL_INTERACT) {
 		PlayerActionController::Execute(GameplayAction::Interact);
 	}
+
+	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
+		c.Stats->SetSprintRequested(true);
+}
+
+void specialKeyReleased(int key, int x, int y) {
+	(void)x;
+	(void)y;
+
+	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
+		c.Stats->SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {

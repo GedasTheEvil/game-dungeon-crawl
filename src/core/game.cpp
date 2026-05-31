@@ -77,6 +77,7 @@ int main(int argc, char* argv[]) {
 	glutKeyboardFunc(&keyPressed);
 
 	glutSpecialFunc(&specialKeyPressed);
+	glutSpecialUpFunc(&specialKeyReleased);
 
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseActiveMotion);

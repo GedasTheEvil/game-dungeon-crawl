@@ -10,6 +10,10 @@ const unsigned char KEY_MOVE_LEFT = 'a';
 const unsigned char KEY_MOVE_RIGHT = 'd';
 const unsigned char KEY_MOVE_DOWN = 's';
 const unsigned char KEY_MOVE_UP = 'w';
+const unsigned char KEY_MOVE_LEFT_UPPER = 'A';
+const unsigned char KEY_MOVE_RIGHT_UPPER = 'D';
+const unsigned char KEY_MOVE_DOWN_UPPER = 'S';
+const unsigned char KEY_MOVE_UP_UPPER = 'W';
 const unsigned char KEY_INVENTORY = 'i';
 const unsigned char KEY_STATS = 'o';
 
@@ -24,6 +28,8 @@ const int SPECIAL_CAMERA_DOWN = 105;
 const int SPECIAL_CAMERA_LEFT = 106;
 const int SPECIAL_CAMERA_RIGHT = 107;
 const int SPECIAL_INTERACT = 12;
+const int SPECIAL_SHIFT_LEFT = 112;
+const int SPECIAL_SHIFT_RIGHT = 113;
 
 const int MOUSE_LEFT_BUTTON = 0;
 const int MOUSE_MIDDLE_BUTTON = 1;
@@ -42,6 +48,8 @@ void Idle();
 void keyPressed(unsigned char a, int x, int y);
 
 void specialKeyPressed(int a, int x, int y);
+
+void specialKeyReleased(int a, int x, int y);
 
 void processMouse(int a, int b, int c, int d);
 

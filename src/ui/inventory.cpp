@@ -91,6 +91,9 @@ void inventory::UsePotion() {
 	case PotionId::LIFE:
 		c.Stats->GetTougher(5);
 		break;
+	default:
+		// Unknown potion type, no action
+		break;
 	}
 }
 
@@ -117,16 +120,15 @@ void inventory::GetItem(int type, int id) {
 		}
 		potions[id].count++;
 		break;
+	default:
+		// Unknown item type, no action
+		break;
 	}
 }
 
 void inventory::Draw() {
 
-	bool rotItems;
-	if (inv_ani->TimePassed())
-		rotItems = 1;
-	else
-		rotItems = 0;
+	bool rotItems = inv_ani->TimePassed();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();
@@ -155,7 +157,7 @@ void inventory::Draw() {
 	glColor3f(1, 1, 1);
 
 	if (view.type == ItemType::POTION)
-		glColor3f(1 - 0.3f * (view.id % 3), 0.6f * (view.id / 3), 0.3f * (view.id % 3));
+		glColor3f(1 - 0.3f * (view.id % 3), 0.6f * (view.id / 3.0f), 0.3f * (view.id % 3));
 
 	glPushMatrix(); // drawModel of view
 	glTranslatef(71, 40, 0);
@@ -425,6 +427,9 @@ item* inventory::Equipped() {
 			return c.sword.get();
 		case WeaponId::SPEAR:
 			return c.spear.get();
+		default:
+			// Unknown weapon type, return club as fallback
+			return c.club.get();
 		}
 	} else if (equipped.type == ItemType::RANGED_WEAPON) {
 		return c.bow.get();

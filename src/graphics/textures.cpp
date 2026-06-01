@@ -55,9 +55,9 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 	}
 	printf("%s:: \n\tHeight:%d\n\tWidth:%d\n", filename, texture->height, texture->width);
 
-	texture->bpp = header[4];									  // Grab The TGA's Bits Per Pixel (24 or 32)
+	texture->bpp = static_cast<unsigned char>(header[4]);									  // Grab The TGA's Bits Per Pixel (24 or 32)
 	bytesPerPixel = texture->bpp / 8;							  // Divide By 8 To Get The Bytes Per Pixel
-	imageSize = texture->width * texture->height * bytesPerPixel; // Calculate The Memory Required For The TGA Data
+	imageSize = static_cast<size_t>(texture->width) * texture->height * bytesPerPixel; // Calculate The Memory Required For The TGA Data
 
 	texture->data = (char*)malloc(imageSize); // Reserve Memory To Hold The TGA Data
 
@@ -79,9 +79,9 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 
 	for (i = 0; i < imageSize; i += bytesPerPixel) // Loop Through The Image Data
 	{											   // Swaps The 1st And 3rd Bytes ('R'ed and 'B'lue)
-		temp = texture->data[i];				   // Temporarily Store The Value At Image Data 'i'
+		temp = static_cast<unsigned char>(texture->data[i]);				   // Temporarily Store The Value At Image Data 'i'
 		texture->data[i] = texture->data[i + 2];   // Set The 1st Byte To The Value Of The 3rd Byte
-		texture->data[i + 2] = temp;			   // Set The 3rd Byte To The Value In 'temp' (1st Byte Value)
+		texture->data[i + 2] = static_cast<char>(temp);			   // Set The 3rd Byte To The Value In 'temp' (1st Byte Value)
 	}
 
 	fclose(file); // Close The File
@@ -116,7 +116,8 @@ int Textura::LoadBMP(const char* filename) {
 	//     char temp;                          // used to convert bgr to rgb color.
 
 	// Make sure the file exists
-	if ((file = fopen(filename, "rb")) == nullptr) {
+	file = fopen(filename, "rb");
+	if (file == nullptr) {
 		printf("File Not Found : %s\n", filename);
 		return 0;
 	}
@@ -125,7 +126,8 @@ int Textura::LoadBMP(const char* filename) {
 	fseek(file, 18, SEEK_CUR);
 
 	// read width
-	if ((i = fread(&texture[0].width, 4, 1, file)) != 1) {
+	i = fread(&texture[0].width, 4, 1, file);
+	if (i != 1) {
 		printf("Error reading width from %s.\n", filename);
 		fclose(file);
 		return 0;
@@ -133,7 +135,8 @@ int Textura::LoadBMP(const char* filename) {
 	printf("Width of %s: %d\n", filename, texture[0].width);
 
 	// read the height
-	if ((i = fread(&texture[0].height, 4, 1, file)) != 1) {
+	i = fread(&texture[0].height, 4, 1, file);
+	if (i != 1) {
 		printf("Error reading height from %s.\n", filename);
 		fclose(file);
 		return 0;
@@ -141,7 +144,7 @@ int Textura::LoadBMP(const char* filename) {
 	printf("Height of %s: %d\n", filename, texture[0].height);
 
 	// calculate the size (assuming 24 bpp)
-	size = texture[0].width * texture[0].height * 3;
+	size = static_cast<unsigned long>(texture[0].width) * texture[0].height * 3;
 
 	// read the planes
 	if ((fread(&planes, 2, 1, file)) != 1) {
@@ -157,7 +160,8 @@ int Textura::LoadBMP(const char* filename) {
 	}
 
 	// read the bpp
-	if ((i = fread(&bpp, 2, 1, file)) != 1) {
+	i = fread(&bpp, 2, 1, file);
+	if (i != 1) {
 		printf("Error reading bpp from %s. \n", filename);
 		fclose(file);
 		return 0;
@@ -185,7 +189,8 @@ int Textura::LoadBMP(const char* filename) {
 		return 0;
 	}
 
-	if ((i = fread(&texture[0].data[0], size, 1, file)) != 1) {
+	i = fread(&texture[0].data[0], size, 1, file);
+	if (i != 1) {
 		printf("Error reading texture data from %s.\n", filename);
 		free(texture[0].data);
 		texture[0].data = nullptr;
@@ -222,4 +227,4 @@ int Textura::LoadBMP(const char* filename) {
 //----------------------------------------------------------------------------------
 void Textura::Bind() { glBindTexture(GL_TEXTURE_2D, texture[0].texID); }
 //----------------------------------------------------------------------------------
-int Textura::ID() { return texture[0].texID; }
+int Textura::ID() { return static_cast<int>(texture[0].texID); }

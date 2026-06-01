@@ -34,18 +34,14 @@ void startJump() {
 	c.jump_start_y = curY;
 
 	c.jump_dir_x = 0;
-	if (lastKey == KEY_MOVE_LEFT)
+	if (lastKey == KEY_MOVE_LEFT || rotW < 0)
 		c.jump_dir_x = -1;
-	else if (lastKey == KEY_MOVE_RIGHT)
+	else if (lastKey == KEY_MOVE_RIGHT || rotW > 0)
 		c.jump_dir_x = 1;
-	else if (rotW > 0)
-		c.jump_dir_x = 1;
-	else if (rotW < 0)
-		c.jump_dir_x = -1;
 
 	c.jump_speed = JUMP_FORWARD_SPEED;
 	c.jump_vel = JUMP_INITIAL_VELOCITY;
-	c.jumping = 1;
+	c.jumping = true;
 	c.jump_up_timer->Reset();
 	c.jump_s.Play();
 }
@@ -98,7 +94,7 @@ class PlayerActionController {
 
 		c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
 		c.Player->att_s.Play();
-		attacking = 1;
+		attacking = true;
 	}
 
 	static void interact() {
@@ -135,8 +131,8 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (key == KEY_ESCAPE) // esc
 	{
 		if (c.Stats->show || c.invent->show) {
-			c.Stats->show = 0;
-			c.invent->show = 0;
+			c.Stats->show = false;
+			c.invent->show = false;
 		}
 
 		c.menu.ResetSubScreens();
@@ -154,13 +150,13 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (key == KEY_INVENTORY) {
 		c.invent->show = !c.invent->show;
 		if (c.invent->show)
-			c.Stats->show = 0;
+			c.Stats->show = false;
 	}
 
 	if (key == KEY_STATS) {
 		c.Stats->show = !c.Stats->show;
 		if (c.Stats->show)
-			c.invent->show = 0;
+			c.invent->show = false;
 	}
 
 	lastKey = key;

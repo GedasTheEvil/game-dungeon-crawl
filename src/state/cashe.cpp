@@ -210,7 +210,7 @@ void Cashe::Load() {
 
 	snprintf(status, sizeof(status), "%s", "");
 
-	Cache_loaded = 1;
+	Cache_loaded = true;
 }
 //==============================================================
 void Cashe::DrawLoad(float xxx, const char text[]) {

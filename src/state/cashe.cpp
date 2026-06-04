@@ -8,6 +8,7 @@
 #endif
 #include <fstream>
 #include <cstdio>
+#include "../core/logger.h"
 #include <memory>
 #include "../input/gameplay_config.h"
 
@@ -18,7 +19,7 @@ Cashe* c = nullptr;
 
 Cashe::Cashe() = default;
 
-Cashe::~Cashe() { printf("Deleting cashe %p \n", (void*)this); }
+Cashe::~Cashe() { LOG_DEBUGF("game", "Deleting cashe %p", (void*)this); }
 
 void Cashe::Load() {
 	// init main load resourses
@@ -196,7 +197,7 @@ void Cashe::Load() {
 
 	snprintf(mapName2, sizeof(mapName2), "Levels/lvl%d", curMap);
 	if (!dungeon.Load(mapName2))
-		printf("Failed loading map");
+		LOG_WARNING("game", "Failed loading map");
 
 	// Initialize dungeon after ServiceLocator is properly set up
 	dungeon.InitializeAfterServiceLocator();
@@ -211,7 +212,7 @@ void Cashe::Load() {
 			f >> saveNames[a].name;
 		f.close();
 	} else {
-		printf("Failed loading save list\n");
+		LOG_WARNING("game", "Failed loading save list");
 	}
 
 	wlc = std::make_unique<winL>();
@@ -222,7 +223,7 @@ void Cashe::Load() {
 }
 //==============================================================
 void Cashe::DrawLoad(float xxx, const char text[]) {
-	printf("DrawLoad: %s\n", text);
+	LOG_INFOF("loading", "DrawLoad: %s", text);
 
 	if (xxx > 100)
 		xxx = 100;
@@ -281,13 +282,13 @@ void Cashe::DrawLoad(float xxx, const char text[]) {
 //==============================================================
 void Cashe::Save(const char filename[]) {
 	if (!Cache_loaded) {
-		printf("can't save without loading cashe\n");
+		LOG_ERROR("game", "can't save without loading cashe");
 		return;
 	}
 
 	std::ofstream dump(filename);
 	if (!dump) {
-		printf("can't open save file %s\n", filename);
+		LOG_ERRORF("game", "can't open save file %s", filename);
 		return;
 	}
 
@@ -302,28 +303,28 @@ void Cashe::Save(const char filename[]) {
 //==============================================================
 void Cashe::LoadSave(const char filename[]) {
 	if (!Cache_loaded) {
-		printf("can't load without loading cashe\n");
+		LOG_ERROR("game", "can't load without loading cashe");
 		return;
 	}
 
 	Player->Reanimate();
 
-	printf("Loading save %s \n", filename);
+	LOG_INFOF("game", "Loading save %s", filename);
 	std::ifstream dump(filename);
 	if (!dump) {
-		printf("can't open save file %s\n", filename);
+		LOG_ERRORF("game", "can't open save file %s", filename);
 		return;
 	}
 
 	dump >> curMap;
-	printf("Got MapNo : %d \n", curMap);
+	LOG_INFOF("game", "Got MapNo : %d", curMap);
 
 	Stats->LoadDump(dump);
-	printf("Done loading Stats\n");
+	LOG_INFO("game", "Done loading Stats");
 	invent->LoadDump(dump);
-	printf("Done loading Inventory\n");
+	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
-	printf("Done loading map\n");
+	LOG_INFO("game", "Done loading map");
 	dump.close();
 }
 //==============================================================

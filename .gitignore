@@ -6,3 +6,4 @@ src/*/*.d
 .idea
 game
 Sounds/soundtrack.ogg
+game.log

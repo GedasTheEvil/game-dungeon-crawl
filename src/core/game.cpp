@@ -14,6 +14,7 @@
 #include "../graphics/textures.h"
 #include "sound.h"
 #include "service_locator.h"
+#include "logger.h"
 
 int resX = 800;
 int resY = 500;
@@ -48,7 +49,7 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 
 	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
 	glMatrixMode(GL_MODELVIEW);
-	printf("Resized to : %d x %d\n", width, height);
+	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
 	resX = width;
 	resY = height;
 }
@@ -57,6 +58,9 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 #undef main
 
 int main(int argc, char* argv[]) {
+	// Initialize logging system
+	Logger::initialize();
+	
 	// Initialize game state
 	ServiceLocator::initialize(std::make_unique<Cashe>());
 
@@ -94,6 +98,7 @@ int main(int argc, char* argv[]) {
 
 	// Cleanup
 	ServiceLocator::shutdown();
+	Logger::shutdown();
 
 	return 1;
 }

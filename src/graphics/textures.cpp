@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cstddef>
 #include <GL/gl.h>
+#include "../core/logger.h"
 
 Textura::Textura() {
 	loaded = false;
@@ -54,7 +55,7 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 			fclose(file); // If Anything Failed, Close The File
 			return 0;	  // Return False
 		}
-		printf("%s:: \n\tHeight:%d\n\tWidth:%d\n", filename, texture->height, texture->width);
+		LOG_INFOF("texture", "%s:: \n\tHeight:%d\n\tWidth:%d", filename, texture->height, texture->width);
 
 		texture->bpp = static_cast<unsigned char>(header[4]); // Grab The TGA's Bits Per Pixel (24 or 32)
 		bytesPerPixel = texture->bpp / 8;					  // Divide By 8 To Get The Bytes Per Pixel
@@ -76,7 +77,7 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 			throw std::runtime_error("Failed to read texture data from file");
 		}
 
-		printf("\tSize:%zu\n", imageSize);
+		LOG_INFOF("texture", "Size:%zu", imageSize);
 		size_t i;
 
 		for (i = 0; i < imageSize; i += bytesPerPixel)			 // Loop Through The Image Data
@@ -107,7 +108,7 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 
 		return 1; // Texture Building Went Ok, Return True
 	} catch (const std::exception& e) {
-		printf("Error loading TGA %s: %s\n", filename, e.what());
+		LOG_ERRORF("texture", "Error loading TGA %s: %s", filename, e.what());
 		return 0;
 	}
 }
@@ -123,7 +124,7 @@ int Textura::LoadBMP(const char* filename) {
 		// Make sure the file exists
 		file = fopen(filename, "rb");
 		if (file == nullptr) {
-			printf("File Not Found : %s\n", filename);
+			LOG_WARNINGF("texture", "File Not Found : %s", filename);
 			return 0;
 		}
 
@@ -133,33 +134,33 @@ int Textura::LoadBMP(const char* filename) {
 		// read width
 		i = fread(&texture[0].width, 4, 1, file);
 		if (i != 1) {
-			printf("Error reading width from %s.\n", filename);
+			LOG_ERRORF("texture", "Error reading width from %s.", filename);
 			fclose(file);
 			return 0;
 		}
-		printf("Width of %s: %d\n", filename, texture[0].width);
+		LOG_INFOF("texture", "Width of %s: %d", filename, texture[0].width);
 
 		// read the height
 		i = fread(&texture[0].height, 4, 1, file);
 		if (i != 1) {
-			printf("Error reading height from %s.\n", filename);
+			LOG_ERRORF("texture", "Error reading height from %s.", filename);
 			fclose(file);
 			return 0;
 		}
-		printf("Height of %s: %d\n", filename, texture[0].height);
+		LOG_INFOF("texture", "Height of %s: %d", filename, texture[0].height);
 
 		// calculate the size (assuming 24 bpp)
 		size = static_cast<unsigned long>(texture[0].width) * texture[0].height * 3;
 
 		// read the planes
 		if ((fread(&planes, 2, 1, file)) != 1) {
-			printf("Error reading planes from %s. \n", filename);
+			LOG_ERRORF("texture", "Error reading planes from %s.", filename);
 			fclose(file);
 			return 0;
 		}
 
 		if (planes != 1) {
-			printf("Planes from %s is not 1: %u\n", filename, planes);
+			LOG_WARNINGF("texture", "Planes from %s is not 1: %u", filename, planes);
 			fclose(file);
 			return 0;
 		}
@@ -167,13 +168,13 @@ int Textura::LoadBMP(const char* filename) {
 		// read the bpp
 		i = fread(&bpp, 2, 1, file);
 		if (i != 1) {
-			printf("Error reading bpp from %s. \n", filename);
+			LOG_ERRORF("texture", "Error reading bpp from %s.", filename);
 			fclose(file);
 			return 0;
 		}
 
 		if (bpp != 24) {
-			printf("Bpp from %s is not 24: %u\n", filename, bpp);
+			LOG_WARNINGF("texture", "Bpp from %s is not 24: %u", filename, bpp);
 			fclose(file);
 			return 0;
 		}
@@ -182,18 +183,18 @@ int Textura::LoadBMP(const char* filename) {
 		fseek(file, 24, SEEK_CUR);
 
 		// Read the data
-		printf("creating data array of size %lu\n", size);
+		LOG_INFOF("texture", "creating data array of size %lu", size);
 
 		texture[0].data = static_cast<char*>(malloc(size));
 
 		if (texture[0].data == nullptr) {
-			printf("Error allocating memory for texture data\n");
+			LOG_ERROR("texture", "Error allocating memory for texture data");
 			fclose(file);
 			throw std::runtime_error("Failed to allocate memory for texture data");
 		}
 
 		if (fread(&texture[0].data[0], size, 1, file) != 1) {
-			printf("Error reading texture data from %s.\n", filename);
+			LOG_ERRORF("texture", "Error reading texture data from %s.", filename);
 			free(texture[0].data);
 			texture[0].data = nullptr;
 			fclose(file);
@@ -210,7 +211,7 @@ int Textura::LoadBMP(const char* filename) {
 
 		glGenTextures(1, /*(GLuint *)*/ &texture[0].texID);
 
-		printf("Texture id=[%d]\n", texture[0].texID);
+		LOG_INFOF("texture", "Texture id=[%d]", texture[0].texID);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0].texID); // 2d texture (x and y size)
 
@@ -228,7 +229,7 @@ int Textura::LoadBMP(const char* filename) {
 
 		return 1;
 	} catch (const std::exception& e) {
-		printf("Error loading BMP %s: %s\n", filename, e.what());
+		LOG_ERRORF("texture", "Error loading BMP %s: %s", filename, e.what());
 		return 0;
 	}
 }

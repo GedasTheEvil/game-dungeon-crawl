@@ -77,6 +77,7 @@ void Cashe::Load() {
 	scarab->scale = 10;
 	scarab->rotA = 180;
 	scarab->MaxHP = 15;
+	scarab->setBloodColor(0.6f, 0.1f, 0.8f); // Purple blood
 
 	DrawLoad(50, "Loading Monster Models [Anubis]");
 	anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
@@ -96,6 +97,7 @@ void Cashe::Load() {
 	plant->LoadMDL("plant", plant_t, progBar, true);
 	plant->scale = 12;
 	plant->MaxHP = 30;
+	plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	club = std::make_unique<item>();

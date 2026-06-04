@@ -454,7 +454,8 @@ void inventory::DrawItemSlot(int x1, int y1, int x2, int y2) {
 	glEnd();
 }
 
-void inventory::DrawItemModel(item* itemPtr, float positionX, float positionY, float itemScale, float& realScale, bool rotate) {
+void inventory::DrawItemModel(item* itemPtr, float positionX, float positionY, float itemScale, float& realScale,
+							  bool rotate) {
 	glColor3f(1, 1, 1);
 	glPushMatrix();
 	glTranslatef(positionX, positionY, 0);

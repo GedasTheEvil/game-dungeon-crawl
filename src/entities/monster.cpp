@@ -146,6 +146,16 @@ bool monster::Draw() // needs to choose animation
 	} else
 		mdl = die;
 
+	// Draw blood particles even when monster is dead
+	glPushMatrix();
+	glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
+
+	c.nullTex.Bind();
+	blood->Explode();
+	blood->Fall();
+	blood->Draw();
+	glPopMatrix();
+
 	tex.Bind();
 
 	if (this != c.Player.get()) {
@@ -248,6 +258,15 @@ bool monster::getHit(int dmg) {
 		c.status_timer->Reset();
 		c.Stats->GetXP(XP);
 		die_s.Play();
+
+		// Death blood effect - 20% more intense than regular hit
+		blood->setCords(random() % (int)scale, random() % (int)scale, 0);
+		blood->Reset();
+
+		// Trigger 6 explosion cycles (20% more than the 5 cycles from regular hit + death)
+		for (int i = 0; i < 6; i++) {
+			blood->Explode();
+		}
 	}
 
 	return Alive();
@@ -262,6 +281,8 @@ void monster::Reanimate() {
 void monster::setFacingDir(int dir) { facing_dir = dir; }
 //================================================================================
 int monster::FacingDir() { return facing_dir; }
+//================================================================================
+void monster::setBloodColor(float r, float g, float b) { blood->setBloodColor(r, g, b); }
 //================================================================================
 float monster::healthRatio() const {
 	if (MaxHP <= 0)

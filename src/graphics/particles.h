@@ -30,6 +30,7 @@ class ParSys {
 	void Explode();
 	void Draw();
 	void setCords(float x = 0, float y = 0, float z = 0);
+	void setBloodColor(float r, float g, float b);
 	void Reset();
 };
 

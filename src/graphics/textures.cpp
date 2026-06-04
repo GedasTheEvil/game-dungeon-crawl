@@ -55,9 +55,10 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 	}
 	printf("%s:: \n\tHeight:%d\n\tWidth:%d\n", filename, texture->height, texture->width);
 
-	texture->bpp = static_cast<unsigned char>(header[4]);									  // Grab The TGA's Bits Per Pixel (24 or 32)
-	bytesPerPixel = texture->bpp / 8;							  // Divide By 8 To Get The Bytes Per Pixel
-	imageSize = static_cast<size_t>(texture->width) * texture->height * bytesPerPixel; // Calculate The Memory Required For The TGA Data
+	texture->bpp = static_cast<unsigned char>(header[4]); // Grab The TGA's Bits Per Pixel (24 or 32)
+	bytesPerPixel = texture->bpp / 8;					  // Divide By 8 To Get The Bytes Per Pixel
+	imageSize = static_cast<size_t>(texture->width) * texture->height *
+				bytesPerPixel; // Calculate The Memory Required For The TGA Data
 
 	texture->data = (char*)malloc(imageSize); // Reserve Memory To Hold The TGA Data
 
@@ -77,11 +78,11 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 	printf("\tSize:%zu\n", imageSize);
 	size_t i;
 
-	for (i = 0; i < imageSize; i += bytesPerPixel) // Loop Through The Image Data
-	{											   // Swaps The 1st And 3rd Bytes ('R'ed and 'B'lue)
-		temp = static_cast<unsigned char>(texture->data[i]);				   // Temporarily Store The Value At Image Data 'i'
-		texture->data[i] = texture->data[i + 2];   // Set The 1st Byte To The Value Of The 3rd Byte
-		texture->data[i + 2] = static_cast<char>(temp);			   // Set The 3rd Byte To The Value In 'temp' (1st Byte Value)
+	for (i = 0; i < imageSize; i += bytesPerPixel)			 // Loop Through The Image Data
+	{														 // Swaps The 1st And 3rd Bytes ('R'ed and 'B'lue)
+		temp = static_cast<unsigned char>(texture->data[i]); // Temporarily Store The Value At Image Data 'i'
+		texture->data[i] = texture->data[i + 2];			 // Set The 1st Byte To The Value Of The 3rd Byte
+		texture->data[i + 2] = static_cast<char>(temp);		 // Set The 3rd Byte To The Value In 'temp' (1st Byte Value)
 	}
 
 	fclose(file); // Close The File

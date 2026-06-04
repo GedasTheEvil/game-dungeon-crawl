@@ -310,7 +310,8 @@ void Dungeon::Draw() {
 	plasmaAni = aniT->TimePassed();
 
 	glPushMatrix();
-	glTranslatef(static_cast<float>(-40) * (x - static_cast<float>(static_cast<int>(x))), static_cast<float>(-40) * (y - static_cast<float>(static_cast<int>(y))), static_cast<float>(0));
+	glTranslatef(static_cast<float>(-40) * (x - static_cast<float>(static_cast<int>(x))),
+				 static_cast<float>(-40) * (y - static_cast<float>(static_cast<int>(y))), static_cast<float>(0));
 	glTranslatef(80, -120, 0);
 
 	for (int j = (int)y - 3; j < (int)y + 3; j++) {

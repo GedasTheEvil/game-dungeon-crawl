@@ -64,6 +64,7 @@ class monster {
 	void setModel(int state);
 	void setFacingDir(int dir);
 	int FacingDir();
+	void setBloodColor(float r, float g, float b);
 	float healthRatio() const;
 };
 

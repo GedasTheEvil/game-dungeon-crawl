@@ -17,6 +17,11 @@ ParSys::ParSys() {
 		pt[i].life = CDefaultParticleLife;
 	}
 
+	// Default blood color (red)
+	colour.r = 0.7f;
+	colour.g = 0.1f;
+	colour.b = 0.1f;
+
 	ani_e = new timer(5);
 	ani_f = new timer(5);
 }
@@ -29,6 +34,11 @@ ParSys::ParSys(int life) {
 		pt[i].z = 0;
 		pt[i].life = CDefaultParticleLife;
 	}
+
+	// Default blood color (red)
+	colour.r = 0.7f;
+	colour.g = 0.1f;
+	colour.b = 0.1f;
 
 	ani_e = new timer(5);
 	ani_f = new timer(5);
@@ -72,9 +82,19 @@ void ParSys::Explode() {
 		return;
 
 	for (int i = 0; i < CMaxPart; i++) {
-		pt[i].x += 0.1 * sin(i * 3.14) * (((int)rand()) % 5);
-		pt[i].y -= 0.1 * sin(2 * i * 3.14) * (((int)rand()) % 5);
-		pt[i].z += 0.1 * cos(-i * 3.14) * (((int)rand()) % 5);
+		// Chaotic explosion: completely random directions and forces
+		float explosionForce = ((rand() % 100) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
+		float randomAngle = (rand() % 360) * 3.14159f / 180.0f;			 // Completely random angle
+
+		// Add multiple layers of randomness for chaotic explosion
+		float chaosX = ((rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float chaosY = ((rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float upwardBurst = ((rand() % 40) / 100.0f) * 0.25f; // Random upward burst
+
+		pt[i].x += explosionForce * cos(randomAngle) * ((rand() % 4) + 1) + chaosX;
+		pt[i].y += explosionForce * sin(randomAngle) * ((rand() % 4) + 1) + upwardBurst + chaosY;
+		pt[i].z += explosionForce * ((rand() % 100 - 50) / 100.0f) * 0.5f; // Random depth
+
 		pt[i].life--;
 		if (pt[i].life <= 0) {
 			pt[i].x = 0;
@@ -98,7 +118,7 @@ void ParSys::Draw() {
 	glBlendFunc(GL_SRC_COLOR, /*GL_ONE_MINUS_SRC_COLOR*/ GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	glColor4f(0.7, 0.1, 0.1, 0.6);
+	glColor4f(colour.r, colour.g, colour.b, 0.6);
 
 	glPushMatrix();
 	glTranslatef(x, y, z);
@@ -118,6 +138,12 @@ void ParSys::setCords(float x, float y, float z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
+}
+
+void ParSys::setBloodColor(float r, float g, float b) {
+	colour.r = r;
+	colour.g = g;
+	colour.b = b;
 }
 
 void ParSys::Reset() {

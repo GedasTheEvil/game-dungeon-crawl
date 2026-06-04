@@ -72,7 +72,7 @@ class Dungeon {
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
 	void GetAttack(int damage, int attackRange); // Redirects players attack to the nearest monster if in range
-	void GetPickUp();					// not the car... just take an item away
+	void GetPickUp();							 // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void GetRiddle();
 	void Dump(std::ofstream& f);

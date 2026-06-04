@@ -60,7 +60,7 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 int main(int argc, char* argv[]) {
 	// Initialize logging system
 	Logger::initialize();
-	
+
 	// Initialize game state
 	ServiceLocator::initialize(std::make_unique<Cashe>());
 

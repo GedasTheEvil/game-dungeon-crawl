@@ -5,6 +5,7 @@
 #include "../entities/item.h"
 #include "inventory.h"
 #include "fstream"
+#include <memory>
 
 class stats {
   private:
@@ -21,9 +22,9 @@ class stats {
 
 	float realPscale; // player scale
 	float realIscale; // item scale
-	timer* stats_ani;
-	timer* stamina_regen_timer;
-	timer* stamina_sprint_drain_timer;
+	std::unique_ptr<timer> stats_ani;
+	std::unique_ptr<timer> stamina_regen_timer;
+	std::unique_ptr<timer> stamina_sprint_drain_timer;
 	float stamina_regen_carry;
 	float stamina_sprint_drain_carry;
 	bool sprint_requested;
@@ -36,7 +37,7 @@ class stats {
 	void UpdateStamina();
 	void RegenerateStamina();
 	int MaxStamina() const;
-	int Damage();
+	int Damage() const;
 	bool show;
 	void GetStronger(int ns = 1);
 	void Draw();

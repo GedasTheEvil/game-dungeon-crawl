@@ -196,9 +196,9 @@ stats::stats() {
 	GAME_STATE.Player->HP = MaxHP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 	GAME_STATE.Player->SetStamina(GAME_STATE.Player->MaxStamina());
-	stats_ani = new timer(10);
-	stamina_regen_timer = new timer(1000);
-	stamina_sprint_drain_timer = new timer(1000);
+	stats_ani = std::make_unique<timer>(10);
+	stamina_regen_timer = std::make_unique<timer>(1000);
+	stamina_sprint_drain_timer = std::make_unique<timer>(1000);
 }
 
 stats::~stats() { printf("Deleting stats %p \n", (void*)this); }
@@ -247,7 +247,7 @@ bool stats::AdvanceLevel() {
 	return true;
 }
 
-int stats::Damage() {
+int stats::Damage() const {
 	return Might + GAME_STATE.invent->Equipped()->damage; // + weapon dmg
 }
 

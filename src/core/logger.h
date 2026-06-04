@@ -5,43 +5,37 @@
 #include <fstream>
 #include <memory>
 
-enum class LogLevel {
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR
-};
+enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
 
 class Logger {
-private:
-    static std::unique_ptr<Logger> instance;
-    static bool enabled;
-    std::ofstream logFile;
-    
-    Logger();
-    
-public:
-    static void initialize();
-    static void shutdown();
-    static void setEnabled(bool enable);
-    
-    static void log(LogLevel level, const std::string& category, const std::string& message);
-    static void debug(const std::string& category, const std::string& message);
-    static void info(const std::string& category, const std::string& message);
-    static void warning(const std::string& category, const std::string& message);
-    static void error(const std::string& category, const std::string& message);
-    
-    template<typename... Args>
-    static void debugf(const std::string& category, const std::string& format, Args... args);
-    
-    template<typename... Args>
-    static void infof(const std::string& category, const std::string& format, Args... args);
-    
-    template<typename... Args>
-    static void warningf(const std::string& category, const std::string& format, Args... args);
-    
-    template<typename... Args>
-    static void errorf(const std::string& category, const std::string& format, Args... args);
+  private:
+	static std::unique_ptr<Logger> instance;
+	static bool enabled;
+	std::ofstream logFile;
+
+	Logger();
+
+  public:
+	static void initialize();
+	static void shutdown();
+	static void setEnabled(bool enable);
+
+	static void log(LogLevel level, const std::string& category, const std::string& message);
+	static void debug(const std::string& category, const std::string& message);
+	static void info(const std::string& category, const std::string& message);
+	static void warning(const std::string& category, const std::string& message);
+	static void error(const std::string& category, const std::string& message);
+
+	template <typename... Args>
+	static void debugf(const std::string& category, const std::string& format, Args... args);
+
+	template <typename... Args> static void infof(const std::string& category, const std::string& format, Args... args);
+
+	template <typename... Args>
+	static void warningf(const std::string& category, const std::string& format, Args... args);
+
+	template <typename... Args>
+	static void errorf(const std::string& category, const std::string& format, Args... args);
 };
 
 // Convenience macros for different categories

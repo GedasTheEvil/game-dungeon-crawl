@@ -1,13 +1,12 @@
 #include "dungeon.h"
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include "../input/gameplay_config.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
-
-extern Cashe c;
 
 void normalize(VECTOR& v);
 
@@ -51,7 +50,8 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 Dungeon::Dungeon() {
 	x = 0;
 	y = 0;
-	c.falling = false;
+	// Don't access GAME_STATE during construction to avoid circular dependency
+	// GAME_STATE.falling will be set during proper initialization
 
 	mL = false;
 
@@ -107,31 +107,36 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(x, y).a != Ladder && !c.jumping) {
+	if (Map(x, y).a != Ladder && !GAME_STATE.jumping) {
 		if ((y - static_cast<float>(static_cast<int>(y))) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
-			if (c.fall_inc->TimePassed())
+			if (GAME_STATE.fall_inc->TimePassed())
 				y -= FALL_STEP;
-			c.falling = true;
+			GAME_STATE.falling = true;
 		} else {
-			c.falling = false;
+			GAME_STATE.falling = false;
 		}
 	}
 
-	if (c.jumping) {
-		if (c.jump_inc->TimePassed()) {
-			if (c.jump_dir_x != 0)
-				Move(c.jump_dir_x * c.jump_speed, 0);
+	if (GAME_STATE.jumping) {
+		if (GAME_STATE.jump_inc->TimePassed()) {
+			if (GAME_STATE.jump_dir_x != 0)
+				Move(GAME_STATE.jump_dir_x * GAME_STATE.jump_speed, 0);
 
-			y += c.jump_vel;
-			c.jump_vel -= JUMP_GRAVITY_STEP;
+			y += GAME_STATE.jump_vel;
+			GAME_STATE.jump_vel -= JUMP_GRAVITY_STEP;
 
-			if (c.jump_vel <= 0 && y <= c.jump_start_y) {
-				y = c.jump_start_y;
-				c.jumping = false;
-				c.falling = false;
+			if (GAME_STATE.jump_vel <= 0 && y <= GAME_STATE.jump_start_y) {
+				y = GAME_STATE.jump_start_y;
+				GAME_STATE.jumping = false;
+				GAME_STATE.falling = false;
 			}
 		}
 	}
+}
+//======================================================================================
+void Dungeon::InitializeAfterServiceLocator() {
+	// Now it's safe to access GAME_STATE
+	GAME_STATE.falling = false;
 }
 //======================================================================================
 void Dungeon::Update() {
@@ -140,20 +145,20 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!c.falling && jump && Map(x, y).a != Ladder) {
+	if (!GAME_STATE.falling && jump && Map(x, y).a != Ladder) {
 		y = y + dirY;
 		x = x + dirX;
-		c.falling = true;
+		GAME_STATE.falling = true;
 	}
 
 	if (dirX > 0) {
-		if (Map(x, y).a != Wall && Map(x + dirX + static_cast<float>(c.Player->scale / 60.0), y).a != Wall)
+		if (Map(x, y).a != Wall && Map(x + dirX + static_cast<float>(GAME_STATE.Player->scale / 60.0), y).a != Wall)
 			x += dirX;
-	} else if (Map(x, y).a != Wall && Map(x + dirX - static_cast<float>(c.Player->scale / 60.0), y).a != Wall)
+	} else if (Map(x, y).a != Wall && Map(x + dirX - static_cast<float>(GAME_STATE.Player->scale / 60.0), y).a != Wall)
 		x += dirX;
 
 	if (dirY > 0) {
-		if (Map(x, y).a == Ladder && Map(x, y + dirY + static_cast<float>(c.Player->scale / 40.0)).a == Ladder)
+		if (Map(x, y).a == Ladder && Map(x, y + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).a == Ladder)
 			y += dirY;
 	} else if (Map(x, y).a == Ladder && Map(x, y + dirY).a == Ladder)
 		y += dirY;

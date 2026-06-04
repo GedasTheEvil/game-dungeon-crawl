@@ -1,22 +1,21 @@
 #include "dungeon.h"
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <memory>
-
-extern Cashe c;
 
 namespace {
 monster* getMbyType(int type) {
 	if (type == 1)
-		return c.scarab.get();
+		return GAME_STATE.scarab.get();
 	if (type == 2)
-		return c.worm.get();
+		return GAME_STATE.worm.get();
 	if (type == 3)
-		return c.plant.get();
+		return GAME_STATE.plant.get();
 	if (type == 4)
-		return c.anubis.get();
+		return GAME_STATE.anubis.get();
 
-	return c.Player.get();
+	return GAME_STATE.Player.get();
 }
 } // namespace
 
@@ -27,7 +26,7 @@ void Dungeon::UpdateMonsters() {
 
 		SyncMonsterFromToken(a);
 
-		if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
+		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
 			if (!m[a].m->Seek())
 				if (m[a].at->TimePassed())
 					m[a].m->Attack();

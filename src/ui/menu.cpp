@@ -10,9 +10,8 @@
 #endif
 #include <stdlib.h>
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <string.h>
-
-extern Cashe c;
 extern int resX, resY;
 
 namespace {
@@ -46,13 +45,13 @@ bool isSaveMenuExitFromCoords(float mx, float my) { return mx >= 6 && mx <= 43 &
 void persistSaveNameList() {
 	std::ofstream f("Saves/gamelist.dat");
 	for (int a = 0; a < 6; a++)
-		f << c.saveNames[a].name << "\n";
+		f << GAME_STATE.saveNames[a].name << "\n";
 }
 
 void formatSaveLabel(char out[25]) {
 	time_t t = time(nullptr);
 	struct tm* lt = localtime(&t);
-	sprintf(out, "%02d_%02d-%02d_%02d:%02d", c.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
+	sprintf(out, "%02d_%02d-%02d_%02d:%02d", GAME_STATE.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
 }
 
 class SaveSlotService {
@@ -60,19 +59,19 @@ class SaveSlotService {
 	static void saveToSlot(int slot) {
 		char filename[20];
 		sprintf(filename, "Saves/save%d.sav", slot);
-		c.Save(filename);
+		GAME_STATE.Save(filename);
 
 		char timeStr[25];
 		formatSaveLabel(timeStr);
-		strncpy(c.saveNames[slot].name, timeStr, sizeof(c.saveNames[slot].name) - 1);
-		c.saveNames[slot].name[sizeof(c.saveNames[slot].name) - 1] = '\0';
+		strncpy(GAME_STATE.saveNames[slot].name, timeStr, sizeof(GAME_STATE.saveNames[slot].name) - 1);
+		GAME_STATE.saveNames[slot].name[sizeof(GAME_STATE.saveNames[slot].name) - 1] = '\0';
 		persistSaveNameList();
 	}
 
 	static void loadFromSlot(int slot) {
 		char filename[20];
 		sprintf(filename, "Saves/save%d.sav", slot);
-		c.LoadSave(filename);
+		GAME_STATE.LoadSave(filename);
 	}
 };
 } // namespace
@@ -80,6 +79,7 @@ class SaveSlotService {
 MainMenu::MainMenu() {
 	show = true;
 	inGame = false;
+	credits = false;
 	h1 = false;
 	h2 = false;
 	h3 = false;
@@ -99,7 +99,7 @@ MainMenu::~MainMenu() {
 
 void MainMenu::Draw() {
 	if (credits) {
-		c.wlc->DrawCredits();
+		GAME_STATE.wlc->DrawCredits();
 		if (t_cred->TimePassed())
 			credits = false;
 		return;
@@ -120,7 +120,7 @@ void MainMenu::Draw() {
 
 	glColor3f(1, 1, 1);
 
-	c.menu_bg.Bind();
+	GAME_STATE.menu_bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -148,25 +148,25 @@ void MainMenu::Draw() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 72, "New Game");
+	GAME_STATE.load_font.print(25, 72, "New Game");
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 54, "Load Game");
+	GAME_STATE.load_font.print(25, 54, "Load Game");
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 36, "Credits");
+	GAME_STATE.load_font.print(25, 36, "Credits");
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 18, "Exit");
+	GAME_STATE.load_font.print(25, 18, "Exit");
 
 	glDisable(GL_BLEND);
 
@@ -181,25 +181,25 @@ void MainMenu::InGameDraw() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 72, "Return to game");
+	GAME_STATE.load_font.print(25, 72, "Return to game");
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 54, "Save Game");
+	GAME_STATE.load_font.print(25, 54, "Save Game");
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 36, "Load Game");
+	GAME_STATE.load_font.print(25, 36, "Load Game");
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(25, 18, "Exit to MainMenu");
+	GAME_STATE.load_font.print(25, 18, "Exit to MainMenu");
 
 	glDisable(GL_BLEND);
 
@@ -232,11 +232,11 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		if (mY <= 82 && mY >= 71) // button1
 		{
 			show = false;
-			// 		 c.LoadSave("Saves/new.sav");
-			c.dungeon.Load("Levels/lvl1");
+			// 		 GAME_STATE.LoadSave("Saves/new.sav");
+			GAME_STATE.dungeon.Load("Levels/lvl1");
 			inGame = true;
-			c.IHaveWon = false;
-			c.Player->Reanimate();
+			GAME_STATE.IHaveWon = false;
+			GAME_STATE.Player->Reanimate();
 		}
 
 		if (mY <= 63 && mY >= 53) // button2
@@ -350,7 +350,7 @@ void MainMenu::DrawSave() {
 
 	glColor3f(1, 1, 1);
 
-	c.menu_save_bg.Bind();
+	GAME_STATE.menu_save_bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -373,50 +373,50 @@ void MainMenu::DrawSave() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(6, 72, c.saveNames[0].name);
+	GAME_STATE.load_font.print(6, 72, GAME_STATE.saveNames[0].name);
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(6, 52, c.saveNames[1].name);
+	GAME_STATE.load_font.print(6, 52, GAME_STATE.saveNames[1].name);
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(6, 33, c.saveNames[2].name);
+	GAME_STATE.load_font.print(6, 33, GAME_STATE.saveNames[2].name);
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(56, 72, c.saveNames[3].name);
+	GAME_STATE.load_font.print(56, 72, GAME_STATE.saveNames[3].name);
 
 	if (h5)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(56, 52, c.saveNames[4].name);
+	GAME_STATE.load_font.print(56, 52, GAME_STATE.saveNames[4].name);
 
 	if (h6)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(56, 33, c.saveNames[5].name);
+	GAME_STATE.load_font.print(56, 33, GAME_STATE.saveNames[5].name);
 
 	if (h7)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	c.load_font.print(6, 10, "Exit");
+	GAME_STATE.load_font.print(6, 10, "Exit");
 
 	if (loadD) {
 		DrawLoad();
 		return;
 	}
 
-	c.load_font.print(15, 85, "Select slot to save ");
+	GAME_STATE.load_font.print(15, 85, "Select slot to save ");
 
 	glDisable(GL_BLEND);
 
@@ -426,7 +426,7 @@ void MainMenu::DrawSave() {
 }
 
 void MainMenu::DrawLoad() {
-	c.load_font.print(15, 85, "Select slot to Load ");
+	GAME_STATE.load_font.print(15, 85, "Select slot to Load ");
 
 	glDisable(GL_BLEND);
 
@@ -459,7 +459,7 @@ void MainMenu::LoadMouseFunction(int mouseButton, int buttonState, int mouseX, i
 	(void)mouseButton;
 	(void)buttonState;
 
-	// c.LoadSave("Saves/dump.tmp");
+	// GAME_STATE.LoadSave("Saves/dump.tmp");
 	float mx, my;
 	getMenuMouseCoords(mouseX, mouseY, mx, my);
 

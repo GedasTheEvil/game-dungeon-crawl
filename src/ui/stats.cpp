@@ -9,8 +9,7 @@
 #endif
 #include <stdio.h>
 #include "../state/cashe.h"
-
-extern Cashe c;
+#include "../core/service_locator.h"
 
 void stats::GetStronger(int ns) { Might += ns; }
 
@@ -27,7 +26,7 @@ void stats::Draw() {
 	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
 
 	// Background image
-	c.bg.Bind();
+	GAME_STATE.bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -41,11 +40,11 @@ void stats::Draw() {
 	glVertex3i(100, 0, -40);
 	glEnd();
 
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 	glColor3f(1, 1, 1);
 
-	realPscale = c.Player->scale;
-	realIscale = c.invent->Equipped()->scale;
+	realPscale = GAME_STATE.Player->scale;
+	realIscale = GAME_STATE.invent->Equipped()->scale;
 
 	glBegin(GL_LINE_LOOP); // player slot
 	glVertex3i(4, 4, -38);
@@ -56,12 +55,12 @@ void stats::Draw() {
 
 	glPushMatrix();
 	glTranslatef(22, 54, 20);
-	c.Player->scale = 32;
-	c.Player->Draw();
+	GAME_STATE.Player->scale = 32;
+	GAME_STATE.Player->Draw();
 	if (rotItems)
-		c.Player->rotA--;
+		GAME_STATE.Player->rotA--;
 	glPopMatrix();
-	c.Player->scale = realPscale;
+	GAME_STATE.Player->scale = realPscale;
 
 	glBegin(GL_LINE_LOOP); // item
 	glVertex3i(5, 5, -38);
@@ -71,13 +70,13 @@ void stats::Draw() {
 	glEnd();
 
 	glPushMatrix();
-	c.invent->Equipped()->scale = 40;
+	GAME_STATE.invent->Equipped()->scale = 40;
 	glTranslatef(26, 5, 25);
-	c.invent->Equipped()->Draw();
+	GAME_STATE.invent->Equipped()->Draw();
 	if (rotItems)
-		c.invent->Equipped()->rotA++;
+		GAME_STATE.invent->Equipped()->rotA++;
 	glPopMatrix();
-	c.invent->Equipped()->scale = realIscale;
+	GAME_STATE.invent->Equipped()->scale = realIscale;
 
 	glColor3f(1, 1, 1);
 
@@ -92,7 +91,7 @@ void stats::Draw() {
 	Impact.print(54, 50, "Might: %d", Might);
 	Impact.print(54, 40, "Armor: %d", Armor);
 	Impact.print(54, 30, "Damage: %d", Damage());
-	Impact.print(54, 20, "Range: %d", c.invent->Equipped()->range);
+	Impact.print(54, 20, "Range: %d", GAME_STATE.invent->Equipped()->range);
 
 	glDisable(GL_BLEND);
 
@@ -120,13 +119,13 @@ float stats::SprintMoveMultiplier() const {
 }
 
 void stats::UpdateStamina() {
-	if (!c.Player->Alive()) {
+	if (!GAME_STATE.Player->Alive()) {
 		sprinting = false;
 		sprint_requested = false;
 		return;
 	}
 
-	if (!sprint_requested || c.Player->Stamina() <= 0) {
+	if (!sprint_requested || GAME_STATE.Player->Stamina() <= 0) {
 		sprinting = false;
 		RegenerateStamina();
 		return;
@@ -144,10 +143,10 @@ void stats::UpdateStamina() {
 		return;
 
 	stamina_sprint_drain_carry -= static_cast<float>(staminaDrain);
-	if (!c.Player->ConsumeStamina(staminaDrain))
-		c.Player->SetStamina(0);
+	if (!GAME_STATE.Player->ConsumeStamina(staminaDrain))
+		GAME_STATE.Player->SetStamina(0);
 
-	if (c.Player->Stamina() <= 0) {
+	if (GAME_STATE.Player->Stamina() <= 0) {
 		sprinting = false;
 	}
 }
@@ -163,7 +162,7 @@ void stats::RegenerateStamina() {
 		return;
 
 	stamina_regen_carry -= static_cast<float>(staminaGain);
-	c.Player->AddStamina(staminaGain);
+	GAME_STATE.Player->AddStamina(staminaGain);
 }
 
 int stats::MaxStamina() const { return 100 + (level - 1) * 10; }
@@ -178,7 +177,7 @@ void stats::Heal(int hpPart) {
 	else
 		HP = static_cast<int>(heal + static_cast<float>(HP));
 
-	c.Player->HP = HP;
+	GAME_STATE.Player->HP = HP;
 }
 
 stats::stats() {
@@ -193,10 +192,10 @@ stats::stats() {
 	sprinting = false;
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
 	show = false;
-	c.Player->MaxHP = MaxHP;
-	c.Player->HP = MaxHP;
-	c.Player->SetMaxStamina(MaxStamina());
-	c.Player->SetStamina(c.Player->MaxStamina());
+	GAME_STATE.Player->MaxHP = MaxHP;
+	GAME_STATE.Player->HP = MaxHP;
+	GAME_STATE.Player->SetMaxStamina(MaxStamina());
+	GAME_STATE.Player->SetStamina(GAME_STATE.Player->MaxStamina());
 	stats_ani = new timer(10);
 	stamina_regen_timer = new timer(1000);
 	stamina_sprint_drain_timer = new timer(1000);
@@ -212,8 +211,8 @@ void stats::GetHit(int dmg) {
 	if (dmg - Armor > 0)
 		damage = dmg - Armor;
 
-	c.Player->getHit(damage);
-	HP = c.Player->HP;
+	GAME_STATE.Player->getHit(damage);
+	HP = GAME_STATE.Player->HP;
 }
 
 void stats::MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
@@ -238,31 +237,31 @@ bool stats::AdvanceLevel() {
 	MaxHP += 20;
 	HP = MaxHP;
 
-	c.Player->MaxHP = MaxHP;
-	c.Player->HP = MaxHP;
-	c.Player->SetMaxStamina(MaxStamina());
+	GAME_STATE.Player->MaxHP = MaxHP;
+	GAME_STATE.Player->HP = MaxHP;
+	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 
-	sprintf(c.status, "Now you are level %d\n", level);
-	c.status_timer->Reset();
+	sprintf(GAME_STATE.status, "Now you are level %d\n", level);
+	GAME_STATE.status_timer->Reset();
 
 	return true;
 }
 
 int stats::Damage() {
-	return Might + c.invent->Equipped()->damage; // + weapon dmg
+	return Might + GAME_STATE.invent->Equipped()->damage; // + weapon dmg
 }
 
 void stats::GetTougher(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
 	HP = MaxHP;
-	c.Player->MaxHP = MaxHP;
-	c.Player->HP = MaxHP;
+	GAME_STATE.Player->MaxHP = MaxHP;
+	GAME_STATE.Player->HP = MaxHP;
 }
 
 void stats::Dump(std::ofstream& f) {
-	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << c.Player->Stamina()
-	  << "\n";
+	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " "
+	  << GAME_STATE.Player->Stamina() << "\n";
 }
 
 void stats::LoadDump(std::ifstream& f) {
@@ -279,8 +278,8 @@ void stats::LoadDump(std::ifstream& f) {
 	sprinting = false;
 	stamina_regen_timer->Reset();
 	stamina_sprint_drain_timer->Reset();
-	c.Player->MaxHP = MaxHP;
-	c.Player->HP = HP;
-	c.Player->SetMaxStamina(MaxStamina());
-	c.Player->SetStamina(loadedStamina);
+	GAME_STATE.Player->MaxHP = MaxHP;
+	GAME_STATE.Player->HP = HP;
+	GAME_STATE.Player->SetMaxStamina(MaxStamina());
+	GAME_STATE.Player->SetStamina(loadedStamina);
 }

@@ -1,5 +1,6 @@
 #include "dungeon.h"
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <fstream>
 #include <cmath>
@@ -7,8 +8,6 @@
 #include "../input/gameplay_config.h"
 
 float qRot = 0;
-
-extern Cashe c;
 
 // Math Functions
 inline float DotProduct(VECTOR& V1, VECTOR& V2) { return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z; }
@@ -75,7 +74,7 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 Dungeon::Dungeon() {
 	x = 0;
 	y = 0;
-	c.falling = false;
+	GAME_STATE.falling = false;
 
 	mL = 0;
 
@@ -133,9 +132,9 @@ Dungeon::Dungeon() {
 //======================================================================================
 void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 
-	c.blackTex.Bind();
+	GAME_STATE.blackTex.Bind();
 
-	if (c.Cartoon) {
+	if (GAME_STATE.Cartoon) {
 
 		float TmpShade;
 		MATRIX TmpMatrix;
@@ -318,8 +317,8 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 		glDisable(GL_TEXTURE_1D);
 	}
 
-	if (!c.Cartoon || c.Orig_model) {
-		if (c.Orig_model) {
+	if (!GAME_STATE.Cartoon || GAME_STATE.Orig_model) {
+		if (GAME_STATE.Orig_model) {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 			glColor4f(1, 1, 1, 0.4);
@@ -327,7 +326,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 		switch (seg) {
 		case 0:
 			glDisable(GL_BLEND);
-			c.black_t.Bind();
+			GAME_STATE.black_t.Bind();
 			glBegin(/*GL_LINE_LOOP*/ GL_QUADS);
 			glNormal3f(0, 0, 1);
 			glTexCoord2f(0, 0);
@@ -413,7 +412,7 @@ void Dungeon::DrawSegment(int seg, int l, int r, int u, int d) {
 
 			break;
 		}
-		if (c.Orig_model)
+		if (GAME_STATE.Orig_model)
 			glDisable(GL_BLEND);
 	}
 
@@ -466,28 +465,28 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(x, y).a != Ladder && !c.jumping) {
+	if (Map(x, y).a != Ladder && !GAME_STATE.jumping) {
 		if ((y - (int)y) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
-			if (c.fall_inc->TimePassed())
+			if (GAME_STATE.fall_inc->TimePassed())
 				y -= FALL_STEP;
-			c.falling = true;
+			GAME_STATE.falling = true;
 		} else {
-			c.falling = false;
+			GAME_STATE.falling = false;
 		}
 	}
 
-	if (c.jumping) {
-		if (c.jump_inc->TimePassed()) {
-			if (c.jump_dir_x != 0)
-				Move(c.jump_dir_x * c.jump_speed, 0);
+	if (GAME_STATE.jumping) {
+		if (GAME_STATE.jump_inc->TimePassed()) {
+			if (GAME_STATE.jump_dir_x != 0)
+				Move(GAME_STATE.jump_dir_x * GAME_STATE.jump_speed, 0);
 
-			y += c.jump_vel;
-			c.jump_vel -= JUMP_GRAVITY_STEP;
+			y += GAME_STATE.jump_vel;
+			GAME_STATE.jump_vel -= JUMP_GRAVITY_STEP;
 
-			if (c.jump_vel <= 0 && y <= c.jump_start_y) {
-				y = c.jump_start_y;
-				c.jumping = 0;
-				c.falling = false;
+			if (GAME_STATE.jump_vel <= 0 && y <= GAME_STATE.jump_start_y) {
+				y = GAME_STATE.jump_start_y;
+				GAME_STATE.jumping = 0;
+				GAME_STATE.falling = false;
 			}
 		}
 	}
@@ -500,7 +499,7 @@ void Dungeon::UpdateMonsters() {
 
 		SyncMonsterFromToken(a);
 
-		if (m[a].m->Alive() && !c.IHaveWon && m[a].t->TimePassed()) {
+		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
 			if (!m[a].m->Seek())
 				if (m[a].at->TimePassed())
 					m[a].m->Attack();
@@ -533,31 +532,31 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(20, 0, 10);
-	c.chest->Draw();
+	GAME_STATE.chest->Draw();
 
 	if (tile.b == 3) {
-		c.potion->Draw();
-		c.potion->rotA++;
+		GAME_STATE.potion->Draw();
+		GAME_STATE.potion->rotA++;
 	}
 
 	if (tile.b == 2) {
-		c.bow->Draw();
-		c.bow->rotA++;
+		GAME_STATE.bow->Draw();
+		GAME_STATE.bow->rotA++;
 	}
 
 	if (tile.b == 1) {
 		if (tile.c == 0) {
-			c.club->scale = 10;
-			c.club->Draw();
-			c.club->rotA++;
+			GAME_STATE.club->scale = 10;
+			GAME_STATE.club->Draw();
+			GAME_STATE.club->rotA++;
 		}
 		if (tile.c == 1) {
-			c.sword->Draw();
-			c.sword->rotA++;
+			GAME_STATE.sword->Draw();
+			GAME_STATE.sword->rotA++;
 		}
 		if (tile.c == 2) {
-			c.spear->Draw();
-			c.spear->rotA++;
+			GAME_STATE.spear->Draw();
+			GAME_STATE.spear->rotA++;
 		}
 	}
 
@@ -568,7 +567,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(20, 0, 10);
 
-	trap* tileTrap = isDeathTrap ? c.DeathTrap.get() : c.TrapD.get();
+	trap* tileTrap = isDeathTrap ? GAME_STATE.DeathTrap.get() : GAME_STATE.TrapD.get();
 	tileTrap->DX = &x;
 	tileTrap->DY = &y;
 	tileTrap->setCords(i, j);
@@ -614,11 +613,11 @@ void Dungeon::Draw() {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
-					c.ankh_t.Bind();
-					if (c.Cartoon)
-						c.ankh->ShowC();
+					GAME_STATE.ankh_t.Bind();
+					if (GAME_STATE.Cartoon)
+						GAME_STATE.ankh->ShowC();
 					else
-						c.ankh->Show();
+						GAME_STATE.ankh->Show();
 					glPopMatrix();
 				}
 				if (tile.a == Door) {
@@ -628,11 +627,11 @@ void Dungeon::Draw() {
 					glScalef(40, 40, 40);
 					if (tile.b != GateEntrance)
 						glRotatef(180, 0, 1, 0);
-					c.sphinx_t.Bind();
-					if (c.Cartoon)
-						c.sphinx->ShowC();
+					GAME_STATE.sphinx_t.Bind();
+					if (GAME_STATE.Cartoon)
+						GAME_STATE.sphinx->ShowC();
 					else
-						c.sphinx->Show();
+						GAME_STATE.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
 
@@ -641,14 +640,14 @@ void Dungeon::Draw() {
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
 						glScalef(10, 10, 10);
-						c.scarab_t.Bind();
+						GAME_STATE.scarab_t.Bind();
 						// 				  glEnable(GL_BLEND);
 						glPushMatrix();
 						glRotatef(qRot, 0, 1, 0);
-						if (c.Cartoon)
-							c.question->ShowC();
+						if (GAME_STATE.Cartoon)
+							GAME_STATE.question->ShowC();
 						else
-							c.question->Show();
+							GAME_STATE.question->Show();
 						qRot += 1.0;
 						glPopMatrix();
 						// 				  glDisable(GL_BLEND);
@@ -664,7 +663,7 @@ void Dungeon::Draw() {
 						// testing plasma
 						float px = ((int)(plasma * 100) % 100) / 200.0;
 
-						c.plasma_t.Bind();
+						GAME_STATE.plasma_t.Bind();
 						glBegin(/*GL_LINE_LOOP*/ GL_QUADS);
 						glNormal3f(1, 0, 0);
 						glTexCoord2f(px, 0);
@@ -688,17 +687,17 @@ void Dungeon::Draw() {
 					glTranslatef(20, 0, -25);
 					glPushMatrix();
 					glScalef(40, 40, 40);
-					c.column_t.Bind();
-					if (c.Cartoon)
-						c.column->ShowC();
+					GAME_STATE.column_t.Bind();
+					if (GAME_STATE.Cartoon)
+						GAME_STATE.column->ShowC();
 					else
-						c.column->Show();
+						GAME_STATE.column->Show();
 					glPopMatrix();
 					glPopMatrix();
 
 					// testing plasma
 					// 			    glEnable(GL_BLEND);
-					c.plasma_t.Bind();
+					GAME_STATE.plasma_t.Bind();
 					glBegin(GL_QUADS);
 
 					float px = ((int)(plasma * 100) % 100) / 200.0;
@@ -726,21 +725,21 @@ void Dungeon::Draw() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!c.falling && jump && Map(x, y).a != Ladder) // needs more work
+	if (!GAME_STATE.falling && jump && Map(x, y).a != Ladder) // needs more work
 	{
 		y = /*(int)*/ y + dirY;
 		x = /*(int)*/ x + dirX;
-		c.falling = true;
+		GAME_STATE.falling = true;
 	}
 
 	if (dirX > 0) {
-		if (Map(x, y).a != Wall && Map(x + dirX + c.Player->scale / 60.0, y).a != Wall)
+		if (Map(x, y).a != Wall && Map(x + dirX + GAME_STATE.Player->scale / 60.0, y).a != Wall)
 			x += dirX;
-	} else if (Map(x, y).a != Wall && Map(x + dirX - c.Player->scale / 60.0, y).a != Wall)
+	} else if (Map(x, y).a != Wall && Map(x + dirX - GAME_STATE.Player->scale / 60.0, y).a != Wall)
 		x += dirX;
 
 	if (dirY > 0) {
-		if (Map(x, y).a == Ladder && Map(x, y + dirY + c.Player->scale / 40.0).a == Ladder)
+		if (Map(x, y).a == Ladder && Map(x, y + dirY + GAME_STATE.Player->scale / 40.0).a == Ladder)
 			y += dirY;
 	} else if (Map(x, y).a == Ladder && Map(x, y + dirY).a == Ladder)
 		y += dirY;
@@ -768,31 +767,31 @@ void Dungeon::GetAttack(int dmg, int range) {
 //======================================================================================
 void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
-		c.invent->GetItem(Map(x, y).b, Map(x, y).c);
+		GAME_STATE.invent->GetItem(Map(x, y).b, Map(x, y).c);
 		map[MapIndex((int)x, (int)y)].a = Empty;
 		if (Map(x, y).b) {
-			sprintf(c.status, "Picked up an item  \n");
-			c.status_timer->Reset();
+			sprintf(GAME_STATE.status, "Picked up an item  \n");
+			GAME_STATE.status_timer->Reset();
 		}
 	}
 }
 //======================================================================================
 void Dungeon::GetRiddle() {
 	if (Map(x, y).a == Ankh) {
-		c.IHaveWon = 1;
+		GAME_STATE.IHaveWon = 1;
 		return;
 	}
 
 	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
-		c.rid->GetRiddle();
-		c.rid->show = 1;
+		GAME_STATE.rid->GetRiddle();
+		GAME_STATE.rid->show = 1;
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
-		c.curMap++;
+		GAME_STATE.curMap++;
 
 		char mapName[40];
 
-		sprintf(mapName, "Levels/lvl%d", c.curMap);
+		sprintf(mapName, "Levels/lvl%d", GAME_STATE.curMap);
 
 		Load(mapName);
 	}
@@ -800,15 +799,15 @@ void Dungeon::GetRiddle() {
 //======================================================================================
 monster* GetMbyType(int type) {
 	if (type == 1)
-		return c.scarab.get();
+		return GAME_STATE.scarab.get();
 	if (type == 2)
-		return c.worm.get();
+		return GAME_STATE.worm.get();
 	if (type == 3)
-		return c.plant.get();
+		return GAME_STATE.plant.get();
 	if (type == 4)
-		return c.anubis.get();
+		return GAME_STATE.anubis.get();
 
-	return c.Player.get(); // debug
+	return GAME_STATE.Player.get(); // debug
 }
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {

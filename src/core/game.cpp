@@ -13,6 +13,7 @@
 #include "../input/input.h"
 #include "../graphics/textures.h"
 #include "sound.h"
+#include "service_locator.h"
 
 int resX = 800;
 int resY = 500;
@@ -56,6 +57,9 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 #undef main
 
 int main(int argc, char* argv[]) {
+	// Initialize game state
+	ServiceLocator::initialize(std::make_unique<Cashe>());
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
 
@@ -87,6 +91,9 @@ int main(int argc, char* argv[]) {
 	initGl(resX, resY);
 
 	glutMainLoop();
+
+	// Cleanup
+	ServiceLocator::shutdown();
 
 	return 1;
 }

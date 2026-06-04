@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 
 #ifdef WIN32
 
@@ -12,8 +13,6 @@
 inline int random() { return rand(); }
 
 #endif
-
-extern Cashe c;
 
 monster::monster() {
 	x = 0;
@@ -27,10 +26,10 @@ monster::monster() {
 	facing_dir = 0;
 	scale = 1;
 
-	Att_timer = new timer(1000);
-	walk_timer = new timer(40);
+	Att_timer = std::make_unique<timer>(1000);
+	walk_timer = std::make_unique<timer>(40);
 
-	blood = new ParSys(100);
+	blood = std::make_unique<ParSys>(100);
 }
 //================================================================================
 monster::monster(float x, float y) {
@@ -47,10 +46,10 @@ monster::monster(float x, float y) {
 	stat = -1;
 	facing_dir = 0;
 	scale = 1;
-	Att_timer = new timer(1000);
-	walk_timer = new timer(40);
+	Att_timer = std::make_unique<timer>(1000);
+	walk_timer = std::make_unique<timer>(40);
 
-	blood = new ParSys(100);
+	blood = std::make_unique<ParSys>(100);
 }
 //================================================================================
 monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) {
@@ -63,21 +62,13 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	XP = nXP;
 	stat = -1;
 	facing_dir = 0;
-	Att_timer = new timer(1000);
-	walk_timer = new timer(40);
+	Att_timer = std::make_unique<timer>(1000);
+	walk_timer = std::make_unique<timer>(40);
 
-	blood = new ParSys(100);
+	blood = std::make_unique<ParSys>(100);
 }
 //================================================================================
 monster::~monster() {
-	if (stat == 1) {
-		delete walk;
-		delete attack;
-		delete die;
-		delete Att_timer;
-		delete blood;
-		delete walk_timer;
-	}
 	stat = -1;
 	printf("Deleting monster %p \n", (void*)this);
 }
@@ -86,7 +77,7 @@ bool monster::Draw() // needs to choose animation
 {
 	glPushMatrix();
 
-	if (this != c.Player.get())
+	if (this != GAME_STATE.Player.get())
 		glTranslatef(40 * x - 20, y, -30);
 	else
 		glTranslatef(0, 0, -30);
@@ -96,14 +87,14 @@ bool monster::Draw() // needs to choose animation
 	glScalef(scale, scale, scale);
 
 	if (Alive()) {
-		if (mdl == die) {
+		if (mdl == die.get()) {
 			if (!AtDir())
-				mdl = attack;
+				mdl = attack.get();
 			else
-				mdl = walk;
+				mdl = walk.get();
 		}
 
-		if (this != c.Player.get()) {
+		if (this != GAME_STATE.Player.get()) {
 			TNull.Bind();
 
 			glColor4f(1, 1, 1, 0.9);
@@ -138,19 +129,19 @@ bool monster::Draw() // needs to choose animation
 		glPushMatrix();
 		glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
 
-		c.nullTex.Bind();
+		GAME_STATE.nullTex.Bind();
 		blood->Explode();
 		blood->Fall();
 		blood->Draw();
 		glPopMatrix();
 	} else
-		mdl = die;
+		mdl = die.get();
 
 	// Draw blood particles even when monster is dead
 	glPushMatrix();
 	glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
 
-	c.nullTex.Bind();
+	GAME_STATE.nullTex.Bind();
 	blood->Explode();
 	blood->Fall();
 	blood->Draw();
@@ -158,7 +149,7 @@ bool monster::Draw() // needs to choose animation
 
 	tex.Bind();
 
-	if (this != c.Player.get()) {
+	if (this != GAME_STATE.Player.get()) {
 		if (Alive()) {
 			facing_dir = AtDir();
 			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
@@ -167,7 +158,7 @@ bool monster::Draw() // needs to choose animation
 	} else
 		glRotatef(rotA, 0, 1, 0);
 
-	if (c.Cartoon)
+	if (GAME_STATE.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();
@@ -196,21 +187,21 @@ bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, b
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
 
 	printf("Loading model: %s\n", tmp1);
-	walk = new AnimatedCartoonModel;
+	walk = std::make_unique<AnimatedCartoonModel>();
 	walk->Load(tmp1);
 	walk->BindTexture(texture.ID());
 	walk->Centrify();
 	walk->setSpeed(35);
 
 	printf("Loading model: %s\n", tmp2);
-	attack = new AnimatedCartoonModel;
+	attack = std::make_unique<AnimatedCartoonModel>();
 	attack->Load(tmp2);
 	attack->BindTexture(texture.ID());
 	attack->Centrify();
 	attack->setSpeed(35);
 
 	printf("Loading model: %s\n", tmp3);
-	die = new AnimatedCartoonModel;
+	die = std::make_unique<AnimatedCartoonModel>();
 	die->Load(tmp3);
 	die->BindTexture(texture.ID());
 	die->Centrify();
@@ -228,7 +219,7 @@ bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, b
 	}
 	stat = 1;
 
-	mdl = walk;
+	mdl = walk.get();
 
 	return 1;
 }
@@ -252,11 +243,11 @@ bool monster::getHit(int dmg) {
 		blood->Reset();
 	}
 
-	if (!Alive() && mdl != die) {
-		mdl = die;
-		sprintf(c.status, "Gained %d XP", XP);
-		c.status_timer->Reset();
-		c.Stats->GetXP(XP);
+	if (!Alive() && mdl != die.get()) {
+		mdl = die.get();
+		sprintf(GAME_STATE.status, "Gained %d XP", XP);
+		GAME_STATE.status_timer->Reset();
+		GAME_STATE.Stats->GetXP(XP);
 		die_s.Play();
 
 		// Death blood effect - 20% more intense than regular hit
@@ -274,7 +265,7 @@ bool monster::getHit(int dmg) {
 //================================================================================
 void monster::Reanimate() {
 	HP = MaxHP;
-	mdl = walk;
+	mdl = walk.get();
 	facing_dir = 0;
 }
 //================================================================================

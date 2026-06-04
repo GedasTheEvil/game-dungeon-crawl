@@ -86,4 +86,7 @@ class Cashe {
 	void LoadSave(const char filename[]);
 };
 
+// Global instance for backward compatibility during transition
+extern Cashe* c;
+
 #endif

@@ -11,9 +11,9 @@
 
 class monster {
   private:
-	AnimatedCartoonModel* walk;
-	AnimatedCartoonModel* attack;
-	AnimatedCartoonModel* die;
+	std::unique_ptr<AnimatedCartoonModel> walk;
+	std::unique_ptr<AnimatedCartoonModel> attack;
+	std::unique_ptr<AnimatedCartoonModel> die;
 	AnimatedCartoonModel* mdl;
 	float x; // kiek nuejo nuo pradzios
 	float y;
@@ -23,11 +23,11 @@ class monster {
 	int stat;
 	int facing_dir;
 	Textura TNull, tex;
-	ParSys* blood;
-	timer* walk_timer;
+	std::unique_ptr<ParSys> blood;
+	std::unique_ptr<timer> walk_timer;
 
   public:
-	timer* Att_timer;
+	std::unique_ptr<timer> Att_timer;
 	Sound die_s, att_s;
 
 	int HP;

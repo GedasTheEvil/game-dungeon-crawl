@@ -1,9 +1,8 @@
 #include "dungeon.h"
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <fstream>
 #include <cstdio>
-
-extern Cashe c;
 
 namespace {
 bool readMapCells(std::istream& in, Tint* map, int cellCount) {
@@ -73,31 +72,31 @@ void Dungeon::Dump(std::ofstream& f) {
 //======================================================================================
 void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
-		c.invent->GetItem(Map(x, y).b, Map(x, y).c);
+		GAME_STATE.invent->GetItem(Map(x, y).b, Map(x, y).c);
 		map[MapIndex((int)x, (int)y)].a = Empty;
 		if (Map(x, y).b != 0) {
-			sprintf(c.status, "Picked up an item  \n");
-			c.status_timer->Reset();
+			sprintf(GAME_STATE.status, "Picked up an item  \n");
+			GAME_STATE.status_timer->Reset();
 		}
 	}
 }
 //======================================================================================
 void Dungeon::GetRiddle() {
 	if (Map(x, y).a == Ankh) {
-		c.IHaveWon = true;
+		GAME_STATE.IHaveWon = true;
 		return;
 	}
 
 	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
-		c.rid->GetRiddle();
-		c.rid->show = true;
+		GAME_STATE.rid->GetRiddle();
+		GAME_STATE.rid->show = true;
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
-		c.curMap++;
+		GAME_STATE.curMap++;
 
 		char mapName[40];
 
-		sprintf(mapName, "Levels/lvl%d", c.curMap);
+		sprintf(mapName, "Levels/lvl%d", GAME_STATE.curMap);
 
 		Load(mapName);
 	}

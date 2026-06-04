@@ -1,10 +1,9 @@
 #include "trap.h"
 #include <stdio.h>
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <cmath>
 #include "../input/gameplay_config.h"
-
-extern Cashe c;
 
 trap::trap() {
 	Hurt_timer = new timer(TRAP_HURT_INTERVAL_MS);
@@ -26,7 +25,7 @@ void trap::Show() {
 	glPushMatrix();
 	glScalef(scale, scale, scale);
 	tex.Bind();
-	if (c.Cartoon)
+	if (GAME_STATE.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();
@@ -39,7 +38,7 @@ void trap::Hurt() {
 		return;
 
 	if (fabs(*DX - x - 0.5) <= TRAP_HITBOX_X_SCALE * scale && std::fabs(*DY - y) <= TRAP_HITBOX_Y_SCALE * scale) {
-		c.Stats->GetHit(1);
+		GAME_STATE.Stats->GetHit(1);
 	}
 }
 

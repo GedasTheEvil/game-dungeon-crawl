@@ -2,8 +2,7 @@
 #include <cmath>
 #include <stdio.h>
 #include "../state/cashe.h"
-
-extern Cashe c;
+#include "../core/service_locator.h"
 
 void item::Draw() {
 	if (!loaded)
@@ -23,7 +22,7 @@ void item::Draw() {
 	tex.Bind();
 	glRotatef(rotA, 0, 1, 0);
 
-	if (c.Cartoon)
+	if (GAME_STATE.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();

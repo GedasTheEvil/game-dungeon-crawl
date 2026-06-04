@@ -1,6 +1,7 @@
 #include "inventory.h"
 #include "../entities/item.h"
 #include "../state/cashe.h"
+#include "../core/service_locator.h"
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -22,8 +23,6 @@ constexpr int VIEW_BG_Z = -40;
 
 item* viewed; // only pointer
 
-extern Cashe c;
-
 inventory::inventory() {
 	inv_ani = new timer(10);
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
@@ -38,20 +37,20 @@ inventory::inventory() {
 	view.count = 1;
 
 	mw[WeaponId::CLUB].count = 1;
-	mw[WeaponId::CLUB].realScale = c.club->scale;
+	mw[WeaponId::CLUB].realScale = GAME_STATE.club->scale;
 	mw[WeaponId::SWORD].count = 0;
-	mw[WeaponId::SWORD].realScale = c.sword->scale;
+	mw[WeaponId::SWORD].realScale = GAME_STATE.sword->scale;
 	mw[WeaponId::SPEAR].count = 0;
-	mw[WeaponId::SPEAR].realScale = c.spear->scale;
+	mw[WeaponId::SPEAR].realScale = GAME_STATE.spear->scale;
 
 	rw.count = 0;
-	rw.realScale = c.bow->scale;
+	rw.realScale = GAME_STATE.bow->scale;
 
-	viewed = c.club.get();
+	viewed = GAME_STATE.club.get();
 
 	for (int i = 0; i < PotionId::COUNT; i++) {
 		potions[i].count = 0;
-		potions[i].realScale = c.potion->scale;
+		potions[i].realScale = GAME_STATE.potion->scale;
 	}
 }
 
@@ -61,7 +60,7 @@ inventory::~inventory() {
 }
 
 void inventory::UsePotion() {
-	if (!c.Player->Alive()) {
+	if (!GAME_STATE.Player->Alive()) {
 		printf("Player dead, cannot drink anymore \n");
 		return;
 	}
@@ -72,24 +71,24 @@ void inventory::UsePotion() {
 	if (potions[view.id].count <= 0)
 		return;
 
-	c.drink_s.Play();
+	GAME_STATE.drink_s.Play();
 	potions[view.id].count--;
 
 	switch (view.id) {
 	case PotionId::SMALL_HEALTH:
-		c.Stats->Heal(25);
+		GAME_STATE.Stats->Heal(25);
 		break;
 	case PotionId::LARGE_HEALTH:
-		c.Stats->Heal(50);
+		GAME_STATE.Stats->Heal(50);
 		break;
 	case PotionId::STRENGTH:
-		c.Stats->GetStronger(2);
+		GAME_STATE.Stats->GetStronger(2);
 		break;
 	case PotionId::ARMOR:
-		c.Stats->GetArmored(2);
+		GAME_STATE.Stats->GetArmored(2);
 		break;
 	case PotionId::LIFE:
-		c.Stats->GetTougher(5);
+		GAME_STATE.Stats->GetTougher(5);
 		break;
 	default:
 		// Unknown potion type, no action
@@ -139,7 +138,7 @@ void inventory::Draw() {
 	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
 
 	// Background image
-	c.bg.Bind();
+	GAME_STATE.bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -153,7 +152,7 @@ void inventory::Draw() {
 	glVertex3i(100, 0, -40);
 	glEnd();
 
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 	glColor3f(1, 1, 1);
 
 	if (view.type == ItemType::POTION)
@@ -166,7 +165,7 @@ void inventory::Draw() {
 	if (rotItems)
 		viewed->rotA++;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE_LOOP); // weapon slot1
@@ -179,13 +178,13 @@ void inventory::Draw() {
 	glColor3f(1, 1, 1);
 	glPushMatrix(); // drawModel1
 	glTranslatef(9, 75, 0);
-	c.club->scale = 17;
-	c.club->Draw();
+	GAME_STATE.club->scale = 17;
+	GAME_STATE.club->Draw();
 	if (rotItems)
-		c.club->rotA++;
-	c.club->scale = mw[0].realScale;
+		GAME_STATE.club->rotA++;
+	GAME_STATE.club->scale = mw[0].realScale;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE_LOOP); // weapon slot2
@@ -198,13 +197,13 @@ void inventory::Draw() {
 	glColor3f(1, 1, 1);
 	glPushMatrix(); // drawModel2
 	glTranslatef(22, 75, 0);
-	c.sword->scale = 17;
-	c.sword->Draw();
+	GAME_STATE.sword->scale = 17;
+	GAME_STATE.sword->Draw();
 	if (rotItems)
-		c.sword->rotA++;
-	c.sword->scale = mw[1].realScale;
+		GAME_STATE.sword->rotA++;
+	GAME_STATE.sword->scale = mw[1].realScale;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE_LOOP); // weapon slot3
@@ -217,13 +216,13 @@ void inventory::Draw() {
 	glColor3f(1, 1, 1);
 	glPushMatrix(); // drawModel2
 	glTranslatef(35, 75, 0);
-	c.spear->scale = 17;
-	c.spear->Draw();
+	GAME_STATE.spear->scale = 17;
+	GAME_STATE.spear->Draw();
 	if (rotItems)
-		c.spear->rotA++;
-	c.spear->scale = mw[2].realScale;
+		GAME_STATE.spear->rotA++;
+	GAME_STATE.spear->scale = mw[2].realScale;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE); // underline for weapons text1
@@ -246,13 +245,13 @@ void inventory::Draw() {
 	glColor3f(1, 1, 1);
 	glPushMatrix(); // drawModel2.2
 	glTranslatef(9, 48, 0);
-	c.bow->scale = 17;
-	c.bow->Draw();
+	GAME_STATE.bow->scale = 17;
+	GAME_STATE.bow->Draw();
 	if (rotItems)
-		c.bow->rotA++;
-	c.bow->scale = rw.realScale;
+		GAME_STATE.bow->rotA++;
+	GAME_STATE.bow->scale = rw.realScale;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE); // underline forpotions text
@@ -275,18 +274,18 @@ void inventory::Draw() {
 
 			glPushMatrix(); // drawModel1
 			glTranslatef(9 + 13 * i, 25 - 20 * j, 0);
-			c.potion->scale = 10;
-			c.potion->Draw();
-			c.potion->scale = potions[0].realScale;
+			GAME_STATE.potion->scale = 10;
+			GAME_STATE.potion->Draw();
+			GAME_STATE.potion->scale = potions[0].realScale;
 			glPopMatrix();
 			glColor3f(1, 1, 1);
-			c.progBar.Bind();
+			GAME_STATE.progBar.Bind();
 		}
 
 	glColor3f(1, 1, 1);
 
 	if (rotItems)
-		c.potion->rotA++;
+		GAME_STATE.potion->rotA++;
 
 	/// selected item slot
 	glColor3f(0, 0, 0);
@@ -329,8 +328,8 @@ void inventory::Draw() {
 	} else if (view.type == ItemType::RANGED_WEAPON) {
 		Impact.print(53, 86, "Type: Ranged Weapon");
 		Impact.print(53, 82, "Name: Bow");
-		Impact.print(53, 34, "Damage: %d hp", c.bow->damage);
-		Impact.print(53, 31, "Range: %d ", c.bow->range);
+		Impact.print(53, 34, "Damage: %d hp", GAME_STATE.bow->damage);
+		Impact.print(53, 31, "Range: %d ", GAME_STATE.bow->range);
 		Impact.print(53, 26, "The simple bow.");
 		Impact.print(53, 23, "For slow monsters");
 	} else if (view.type == ItemType::POTION) {
@@ -371,43 +370,44 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 		// Melee weapon slots (row 1)
 		if (invY > 74 && invY < 92) {
 			if (invX <= 15)
-				SelectItem(c.club.get(), ItemType::MELEE_WEAPON, WeaponId::CLUB, mw[WeaponId::CLUB].count);
+				SelectItem(GAME_STATE.club.get(), ItemType::MELEE_WEAPON, WeaponId::CLUB, mw[WeaponId::CLUB].count);
 			else if (invX >= 30)
-				SelectItem(c.spear.get(), ItemType::MELEE_WEAPON, WeaponId::SPEAR, mw[WeaponId::SPEAR].count);
+				SelectItem(GAME_STATE.spear.get(), ItemType::MELEE_WEAPON, WeaponId::SPEAR, mw[WeaponId::SPEAR].count);
 			else
-				SelectItem(c.sword.get(), ItemType::MELEE_WEAPON, WeaponId::SWORD, mw[WeaponId::SWORD].count);
+				SelectItem(GAME_STATE.sword.get(), ItemType::MELEE_WEAPON, WeaponId::SWORD, mw[WeaponId::SWORD].count);
 		}
 
 		// Ranged weapon slot
 		if (invY > 48 && invY < 65 && invX <= 15)
-			SelectItem(c.bow.get(), ItemType::RANGED_WEAPON, WeaponId::BOW, rw.count);
+			SelectItem(GAME_STATE.bow.get(), ItemType::RANGED_WEAPON, WeaponId::BOW, rw.count);
 
 		// Potion slots (row 1)
 		if (invY > 24 && invY < 40) {
 			if (invX <= 15)
-				SelectItem(c.potion.get(), ItemType::POTION, PotionId::SMALL_HEALTH,
+				SelectItem(GAME_STATE.potion.get(), ItemType::POTION, PotionId::SMALL_HEALTH,
 						   potions[PotionId::SMALL_HEALTH].count);
 			else if (invX >= 30)
-				SelectItem(c.potion.get(), ItemType::POTION, PotionId::STRENGTH, potions[PotionId::STRENGTH].count);
+				SelectItem(GAME_STATE.potion.get(), ItemType::POTION, PotionId::STRENGTH,
+						   potions[PotionId::STRENGTH].count);
 			else
-				SelectItem(c.potion.get(), ItemType::POTION, PotionId::LARGE_HEALTH,
+				SelectItem(GAME_STATE.potion.get(), ItemType::POTION, PotionId::LARGE_HEALTH,
 						   potions[PotionId::LARGE_HEALTH].count);
 		}
 
 		// Potion slots (row 2)
 		if (invY > 5 && invY < 20) {
 			if (invX <= 15)
-				SelectItem(c.potion.get(), ItemType::POTION, PotionId::ARMOR, potions[PotionId::ARMOR].count);
+				SelectItem(GAME_STATE.potion.get(), ItemType::POTION, PotionId::ARMOR, potions[PotionId::ARMOR].count);
 			else if (invX >= 30) {
 				// Empty slot
 			} else
-				SelectItem(c.potion.get(), ItemType::POTION, PotionId::LIFE, potions[PotionId::LIFE].count);
+				SelectItem(GAME_STATE.potion.get(), ItemType::POTION, PotionId::LIFE, potions[PotionId::LIFE].count);
 		}
 	}
 
 	// Equip / use button
 	if (invY >= 8 && invY <= 14 && invX >= 54 && invX <= 88 && view.count > 0) {
-		if (!c.Player->Alive()) {
+		if (!GAME_STATE.Player->Alive()) {
 			printf("Player dead. Deal with it. No more actions\n");
 			return;
 		}
@@ -422,19 +422,19 @@ item* inventory::Equipped() {
 	if (equipped.type == ItemType::MELEE_WEAPON) {
 		switch (equipped.id) {
 		case WeaponId::CLUB:
-			return c.club.get();
+			return GAME_STATE.club.get();
 		case WeaponId::SWORD:
-			return c.sword.get();
+			return GAME_STATE.sword.get();
 		case WeaponId::SPEAR:
-			return c.spear.get();
+			return GAME_STATE.spear.get();
 		default:
 			// Unknown weapon type, return club as fallback
-			return c.club.get();
+			return GAME_STATE.club.get();
 		}
 	} else if (equipped.type == ItemType::RANGED_WEAPON) {
-		return c.bow.get();
+		return GAME_STATE.bow.get();
 	}
-	return c.club.get();
+	return GAME_STATE.club.get();
 }
 
 void inventory::SelectItem(item* itemPtr, int itemType, int itemId, int itemCount) {
@@ -465,7 +465,7 @@ void inventory::DrawItemModel(item* itemPtr, float positionX, float positionY, f
 		itemPtr->rotA++;
 	itemPtr->scale = realScale;
 	glPopMatrix();
-	c.progBar.Bind();
+	GAME_STATE.progBar.Bind();
 }
 
 void inventory::DrawWeaponInfo(int weaponId) {
@@ -473,22 +473,22 @@ void inventory::DrawWeaponInfo(int weaponId) {
 	switch (weaponId) {
 	case WeaponId::CLUB:
 		Impact.print(53, 82, "Name: Club");
-		Impact.print(53, 34, "Damage: %d hp", c.club->damage);
-		Impact.print(53, 31, "Range: %d ", c.club->range);
+		Impact.print(53, 34, "Damage: %d hp", GAME_STATE.club->damage);
+		Impact.print(53, 31, "Range: %d ", GAME_STATE.club->range);
 		Impact.print(53, 26, "Good old club.");
 		Impact.print(53, 23, "Now with spikes.");
 		break;
 	case WeaponId::SWORD:
 		Impact.print(53, 82, "Name: Sword");
-		Impact.print(53, 34, "Damage: %d hp", c.sword->damage);
-		Impact.print(53, 31, "Range: %d ", c.sword->range);
+		Impact.print(53, 34, "Damage: %d hp", GAME_STATE.sword->damage);
+		Impact.print(53, 31, "Range: %d ", GAME_STATE.sword->range);
 		Impact.print(53, 26, "Shiny sword.");
 		Impact.print(53, 23, "Hahah!");
 		break;
 	case WeaponId::SPEAR:
 		Impact.print(53, 82, "Name: Spear");
-		Impact.print(53, 34, "Damage: %d hp", c.spear->damage);
-		Impact.print(53, 31, "Range: %d ", c.spear->range);
+		Impact.print(53, 34, "Damage: %d hp", GAME_STATE.spear->damage);
+		Impact.print(53, 31, "Range: %d ", GAME_STATE.spear->range);
 		Impact.print(53, 26, "Long spear.");
 		Impact.print(53, 23, "None shall pass!");
 		break;

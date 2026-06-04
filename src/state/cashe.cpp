@@ -13,6 +13,9 @@
 
 char mapName2[200];
 
+// Global instance for backward compatibility during transition
+Cashe* c = nullptr;
+
 Cashe::Cashe() = default;
 
 Cashe::~Cashe() { printf("Deleting cashe %p \n", (void*)this); }
@@ -194,6 +197,9 @@ void Cashe::Load() {
 	snprintf(mapName2, sizeof(mapName2), "Levels/lvl%d", curMap);
 	if (!dungeon.Load(mapName2))
 		printf("Failed loading map");
+
+	// Initialize dungeon after ServiceLocator is properly set up
+	dungeon.InitializeAfterServiceLocator();
 
 	DrawLoad(100, "Loading game soundtrack");
 	soundtrack.LoadOGG("Sounds/soundtrack.ogg");

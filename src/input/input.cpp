@@ -4,8 +4,7 @@
 #include "input.h"
 #include "input_actions.h"
 #include "../ui/screen_state.h"
-
-extern Cashe c;
+#include "../core/service_locator.h"
 
 extern float rotW;
 extern float rotM, rotN;
@@ -21,51 +20,51 @@ void Draw();
 
 namespace {
 void startJump() {
-	if (c.jumping || c.falling || !c.Player->Alive() || c.IHaveWon)
+	if (GAME_STATE.jumping || GAME_STATE.falling || !GAME_STATE.Player->Alive() || GAME_STATE.IHaveWon)
 		return;
 
-	if (c.Player->Stamina() < JUMP_STAMINA_COST)
+	if (GAME_STATE.Player->Stamina() < JUMP_STAMINA_COST)
 		return;
 
-	c.Player->ConsumeStamina(JUMP_STAMINA_COST);
+	GAME_STATE.Player->ConsumeStamina(JUMP_STAMINA_COST);
 
 	float curX, curY;
-	c.dungeon.getC(curX, curY);
-	c.jump_start_y = curY;
+	GAME_STATE.dungeon.getC(curX, curY);
+	GAME_STATE.jump_start_y = curY;
 
-	c.jump_dir_x = 0;
+	GAME_STATE.jump_dir_x = 0;
 	if (lastKey == KEY_MOVE_LEFT || rotW < 0)
-		c.jump_dir_x = -1;
+		GAME_STATE.jump_dir_x = -1;
 	else if (lastKey == KEY_MOVE_RIGHT || rotW > 0)
-		c.jump_dir_x = 1;
+		GAME_STATE.jump_dir_x = 1;
 
-	c.jump_speed = JUMP_FORWARD_SPEED;
-	c.jump_vel = JUMP_INITIAL_VELOCITY;
-	c.jumping = true;
-	c.jump_up_timer->Reset();
-	c.jump_s.Play();
+	GAME_STATE.jump_speed = JUMP_FORWARD_SPEED;
+	GAME_STATE.jump_vel = JUMP_INITIAL_VELOCITY;
+	GAME_STATE.jumping = true;
+	GAME_STATE.jump_up_timer->Reset();
+	GAME_STATE.jump_s.Play();
 }
 
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
-		float moveMultiplier = c.Stats->SprintMoveMultiplier();
+		float moveMultiplier = GAME_STATE.Stats->SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
-			c.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
+			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			rotW = -110;
-			c.Player->changeMDL(1);
+			GAME_STATE.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveRight:
-			c.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
+			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			rotW = 70;
-			c.Player->changeMDL(1);
+			GAME_STATE.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveDown:
-			c.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
+			GAME_STATE.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::MoveUp:
-			c.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
+			GAME_STATE.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
 			startJump();
@@ -89,17 +88,17 @@ class PlayerActionController {
 
   private:
 	static void tryAttack() {
-		if (!c.Player->Att_timer->TimePassed())
+		if (!GAME_STATE.Player->Att_timer->TimePassed())
 			return;
 
-		c.dungeon.GetAttack(c.Stats->Damage(), c.invent->Equipped()->range);
-		c.Player->att_s.Play();
+		GAME_STATE.dungeon.GetAttack(GAME_STATE.Stats->Damage(), GAME_STATE.invent->Equipped()->range);
+		GAME_STATE.Player->att_s.Play();
 		attacking = true;
 	}
 
 	static void interact() {
-		c.dungeon.GetPickUp();
-		c.dungeon.GetRiddle();
+		GAME_STATE.dungeon.GetPickUp();
+		GAME_STATE.dungeon.GetRiddle();
 	}
 
 	static void clampCamera() {
@@ -123,40 +122,40 @@ void Idle() { Draw(); }
 void keyPressed(unsigned char key, int x, int y) {
 	//      printf("You pressed %d\n",key);
 
-	if (ScreenState::ShouldRouteKeyboardToRiddle(c)) {
-		c.rid->KeyboardF(key, x, y);
+	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {
+		GAME_STATE.rid->KeyboardF(key, x, y);
 		return;
 	}
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		if (c.Stats->show || c.invent->show) {
-			c.Stats->show = false;
-			c.invent->show = false;
+		if (GAME_STATE.Stats->show || GAME_STATE.invent->show) {
+			GAME_STATE.Stats->show = false;
+			GAME_STATE.invent->show = false;
 		}
 
-		c.menu.ResetSubScreens();
-		c.menu.show = !c.menu.show;
+		GAME_STATE.menu.ResetSubScreens();
+		GAME_STATE.menu.show = !GAME_STATE.menu.show;
 		return;
 	}
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(c))
+	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
 		return; // jei rodomas meniu, tai reaguojam tik i [esc]
 
-	if (ScreenState::IsGameplayInteractionAllowed(c)) {
+	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
 	if (key == KEY_INVENTORY) {
-		c.invent->show = !c.invent->show;
-		if (c.invent->show)
-			c.Stats->show = false;
+		GAME_STATE.invent->show = !GAME_STATE.invent->show;
+		if (GAME_STATE.invent->show)
+			GAME_STATE.Stats->show = false;
 	}
 
 	if (key == KEY_STATS) {
-		c.Stats->show = !c.Stats->show;
-		if (c.Stats->show)
-			c.invent->show = false;
+		GAME_STATE.Stats->show = !GAME_STATE.Stats->show;
+		if (GAME_STATE.Stats->show)
+			GAME_STATE.invent->show = false;
 	}
 
 	lastKey = key;
@@ -167,16 +166,16 @@ void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(c))
+	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
 		return;
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
-		c.Cartoon = !c.Cartoon;
+		GAME_STATE.Cartoon = !GAME_STATE.Cartoon;
 
 	if (key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
-		c.Orig_model = !c.Orig_model;
+		GAME_STATE.Orig_model = !GAME_STATE.Orig_model;
 
-	if (ScreenState::IsGameplayInteractionAllowed(c)) {
+	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapSpecialGameplayAction(key));
 	}
 
@@ -198,7 +197,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		c.Stats->SetSprintRequested(true);
+		GAME_STATE.Stats->SetSprintRequested(true);
 }
 
 void specialKeyReleased(int key, int x, int y) {
@@ -206,27 +205,27 @@ void specialKeyReleased(int key, int x, int y) {
 	(void)y;
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		c.Stats->SetSprintRequested(false);
+		GAME_STATE.Stats->SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {
-	if (ScreenState::ShouldRouteMouseToMenu(c)) {
-		c.menu.MouseFunction(button, state, x, y);
+	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
+		GAME_STATE.menu.MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (ScreenState::ShouldRouteMouseToInventory(c)) {
-		c.invent->MouseFunction(button, state, x, y);
+	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
+		GAME_STATE.invent->MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (state && ScreenState::IsGameplayInteractionAllowed(c)) {
+	if (state && ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapMouseGameplayAction(button));
 	}
 }
 void processMousePassiveMotion(int a, int b) {
-	if (ScreenState::ShouldRouteMouseToMenu(c)) {
-		c.menu.MousePassiveMotion(a, b);
+	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
+		GAME_STATE.menu.MousePassiveMotion(a, b);
 		return;
 	}
 

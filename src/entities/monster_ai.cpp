@@ -4,8 +4,7 @@
 // // #include "stats.h"
 #include "../state/cashe.h"
 #include "../input/gameplay_config.h"
-
-extern Cashe c;
+#include "../core/service_locator.h"
 
 int monster::AtDir() {
 	if (!speed) {
@@ -32,7 +31,7 @@ int monster::Seek() {
 		if (!AtDir())
 			return 0;
 		else
-			mdl = walk;
+			mdl = walk.get();
 
 		return 1;
 	}
@@ -44,10 +43,10 @@ void monster::Attack() {
 	if (!Alive())
 		return;
 
-	mdl = attack;
+	mdl = attack.get();
 
 	if (/*Att_timer -> TimePassed() &&*/ std::fabs(Y - *DY) < 0.8) {
-		c.Stats->GetHit(damage);
+		GAME_STATE.Stats->GetHit(damage);
 		att_s.Play();
 	}
 }
@@ -69,34 +68,34 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 
 void monster::changeMDL(int id) {
 	if (id == 0) {
-		mdl = walk;
+		mdl = walk.get();
 		return;
 	}
 
 	if (id == 1) {
-		mdl = attack;
+		mdl = attack.get();
 		return;
 	}
 
 	if (id == 2) {
-		mdl = die;
+		mdl = die.get();
 		return;
 	}
 }
 
 int monster::Model_state() {
-	if (mdl == walk)
+	if (mdl == walk.get())
 		return 1;
-	if (mdl == attack)
+	if (mdl == attack.get())
 		return 2;
 	return 0;
 }
 
 void monster::setModel(int state) {
 	if (state == 1)
-		mdl = walk;
+		mdl = walk.get();
 	else if (state == 2)
-		mdl = attack;
+		mdl = attack.get();
 	else
-		mdl = die;
+		mdl = die.get();
 }

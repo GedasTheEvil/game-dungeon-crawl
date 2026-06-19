@@ -6,18 +6,14 @@
 #include "../input/gameplay_config.h"
 
 trap::trap() {
-	Hurt_timer = new timer(TRAP_HURT_INTERVAL_MS);
-	mdl = new AnimatedCartoonModel();
+	Hurt_timer = std::make_unique<timer>(TRAP_HURT_INTERVAL_MS);
+	mdl = std::make_unique<AnimatedCartoonModel>();
 	x = 0;
 	y = 0;
 	scale = 3;
 }
 
-trap::~trap() {
-	delete mdl;
-	delete Hurt_timer;
-	printf("Deleting trap\n");
-}
+trap::~trap() {}
 
 void trap::Show() {
 	glPushMatrix();

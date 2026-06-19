@@ -14,7 +14,7 @@ struct TextureImage // Create A Structure
 
 class Textura {
   private:
-	TextureImage* texture;
+	TextureImage texture{};
 	bool loaded;
 
   public:

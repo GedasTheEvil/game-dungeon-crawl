@@ -1,7 +1,7 @@
 #ifndef TimerH
 #define TimerH
 
-#define CDefTime 100
+constexpr int CDefTime = 100;
 
 class timer {
   private:
@@ -12,8 +12,8 @@ class timer {
 	timer();
 	timer(int defT);
 	~timer();
-	bool TimePassed();
-	bool TimePassed(bool noRepeat);
+	[[nodiscard]] bool TimePassed();
+	[[nodiscard]] bool TimePassed(bool noRepeat);
 	void Reset();
 };
 

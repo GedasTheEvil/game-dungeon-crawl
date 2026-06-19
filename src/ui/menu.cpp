@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <string>
 #include <time.h>
 #include <stdio.h>
 #include <GL/gl.h>
@@ -48,30 +49,30 @@ void persistSaveNameList() {
 		f << GAME_STATE.saveNames[a].name << "\n";
 }
 
-void formatSaveLabel(char out[25]) {
+static std::string formatSaveLabel() {
 	time_t t = time(nullptr);
 	struct tm* lt = localtime(&t);
-	sprintf(out, "%02d_%02d-%02d_%02d:%02d", GAME_STATE.curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min);
+	char buf[25];
+	std::snprintf(buf, sizeof(buf), "%02d_%02d-%02d_%02d:%02d", GAME_STATE.curMap, lt->tm_mon + 1, lt->tm_mday,
+				  lt->tm_hour, lt->tm_min);
+	return std::string(buf);
 }
 
 class SaveSlotService {
   public:
 	static void saveToSlot(int slot) {
-		char filename[20];
-		sprintf(filename, "Saves/save%d.sav", slot);
-		GAME_STATE.Save(filename);
+		const std::string filename = "Saves/save" + std::to_string(slot) + ".sav";
+		GAME_STATE.Save(filename.c_str());
 
-		char timeStr[25];
-		formatSaveLabel(timeStr);
-		strncpy(GAME_STATE.saveNames[slot].name, timeStr, sizeof(GAME_STATE.saveNames[slot].name) - 1);
+		const std::string label = formatSaveLabel();
+		strncpy(GAME_STATE.saveNames[slot].name, label.c_str(), sizeof(GAME_STATE.saveNames[slot].name) - 1);
 		GAME_STATE.saveNames[slot].name[sizeof(GAME_STATE.saveNames[slot].name) - 1] = '\0';
 		persistSaveNameList();
 	}
 
 	static void loadFromSlot(int slot) {
-		char filename[20];
-		sprintf(filename, "Saves/save%d.sav", slot);
-		GAME_STATE.LoadSave(filename);
+		const std::string filename = "Saves/save" + std::to_string(slot) + ".sav";
+		GAME_STATE.LoadSave(filename.c_str());
 	}
 };
 } // namespace
@@ -89,13 +90,10 @@ MainMenu::MainMenu() {
 	h7 = false;
 	saveD = false;
 	loadD = false;
-	t_cred = new timer(10000);
+	t_cred = std::make_unique<timer>(10000);
 }
 
-MainMenu::~MainMenu() {
-	delete t_cred;
-	printf("Menu %p deleted \n", (void*)this);
-}
+MainMenu::~MainMenu() {}
 
 void MainMenu::Draw() {
 	if (credits) {

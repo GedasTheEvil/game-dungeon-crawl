@@ -32,12 +32,12 @@ class stats {
 
   public:
 	void SetSprintRequested(bool requested);
-	bool IsSprinting() const;
-	float SprintMoveMultiplier() const;
+	[[nodiscard]] bool IsSprinting() const;
+	[[nodiscard]] float SprintMoveMultiplier() const;
 	void UpdateStamina();
 	void RegenerateStamina();
-	int MaxStamina() const;
-	int Damage() const;
+	[[nodiscard]] int MaxStamina() const;
+	[[nodiscard]] int Damage() const;
 	bool show;
 	void GetStronger(int ns = 1);
 	void Draw();
@@ -49,7 +49,7 @@ class stats {
 	void GetHit(int dmg);
 	void MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY);
 	void GetTougher(int hp_part);
-	void Dump(std::ofstream& f);
+	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };
 

@@ -259,7 +259,7 @@ void stats::GetTougher(int hpPart) {
 	GAME_STATE.Player->HP = MaxHP;
 }
 
-void stats::Dump(std::ofstream& f) {
+void stats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " "
 	  << GAME_STATE.Player->Stamina() << "\n";
 }

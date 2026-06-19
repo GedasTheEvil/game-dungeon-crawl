@@ -41,7 +41,6 @@ bool item::getPickedUp() {
 }
 
 item::item() {
-	mdl = nullptr;
 	x = 0;
 	y = 0;
 	scale = 0;
@@ -52,17 +51,11 @@ item::item() {
 	range = 1;
 	type = 0;
 }
-item::~item() {
-
-	delete mdl;
-	mdl = nullptr;
-	loaded = 0;
-	printf("Deleting item\n");
-}
+item::~item() { loaded = 0; }
 
 bool item::LoadMDL(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
-	mdl = new AnimatedCartoonModel();
+	mdl = std::make_unique<AnimatedCartoonModel>();
 	mdl->Load(filename);
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());

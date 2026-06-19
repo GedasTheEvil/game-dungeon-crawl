@@ -1,26 +1,28 @@
 #ifndef ANI_c
 #define ANI_c
 
+#include <memory>
+#include <vector>
 #include "../core/timer.h"
 
 struct VF {
-	float* v;
+	std::vector<float> v;
 };
 
 class AnimatedModel {
   protected:
-	timer* frameChange;
+	std::unique_ptr<timer> frameChange;
 	float frame;
 	int speed;
 	float scale;
 	int frameC;
 	int texture;
 	bool compiled;
-	VF* Ver;
-	float* Normals;
-	float* TexCords;
+	std::vector<VF> Ver;
+	std::vector<float> Normals;
+	std::vector<float> TexCords;
 	int VCount;
-	int* List; // compiled list storage
+	std::vector<int> List;
 	void Scale(float sc);
 	void Translate(float x, float y, float z);
 

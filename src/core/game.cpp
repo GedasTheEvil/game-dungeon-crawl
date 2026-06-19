@@ -8,6 +8,7 @@
 
 #include <GL/glu.h>
 #include <GL/gl.h>
+#include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../input/input.h"
@@ -61,6 +62,11 @@ int main(int argc, char* argv[]) {
 	// Initialize logging system
 	Logger::initialize();
 
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+		LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
+		return -1;
+	}
+
 	// Initialize game state
 	ServiceLocator::initialize(std::make_unique<Cashe>());
 
@@ -99,6 +105,7 @@ int main(int argc, char* argv[]) {
 	// Cleanup
 	ServiceLocator::shutdown();
 	Logger::shutdown();
+	SDL_Quit();
 
 	return 1;
 }

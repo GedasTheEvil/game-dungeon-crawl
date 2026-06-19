@@ -12,6 +12,7 @@ struct rgb {
 	float r, g, b;
 };
 
+#include <memory>
 #include "../core/timer.h"
 
 class ParSys {
@@ -20,7 +21,7 @@ class ParSys {
 	rgb colour;
 	float x, y, z;
 	int life;
-	timer *ani_e, *ani_f;
+	std::unique_ptr<timer> ani_e, ani_f;
 
   public:
 	ParSys();

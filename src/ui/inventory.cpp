@@ -24,7 +24,7 @@ constexpr int VIEW_BG_Z = -40;
 item* viewed; // only pointer
 
 inventory::inventory() {
-	inv_ani = new timer(10);
+	inv_ani = std::make_unique<timer>(10);
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
 	small.Load("Fonts/impact_i.bmp", 3.5, -0.3);
 
@@ -54,10 +54,7 @@ inventory::inventory() {
 	}
 }
 
-inventory::~inventory() {
-	printf("Deleting inventory %p \n", (void*)this);
-	delete inv_ani;
-}
+inventory::~inventory() {}
 
 void inventory::UsePotion() {
 	if (!GAME_STATE.Player->Alive()) {

@@ -1,6 +1,7 @@
 #ifndef InventoryH
 #define InventoryH
 
+#include <memory>
 #include "../graphics/font.h"
 #include "../entities/item.h"
 #include "fstream"
@@ -48,7 +49,7 @@ class inventory {
 	eq view;
 	InvItem potions[PotionId::COUNT];
 	Font Impact, Scribe, small;
-	timer* inv_ani;
+	std::unique_ptr<timer> inv_ani;
 
 	void SelectItem(item* itemPtr, int type, int id, int count);
 	void DrawItemSlot(int x1, int y1, int x2, int y2);

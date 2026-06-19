@@ -10,36 +10,18 @@ using namespace std;
 //============================================================
 AnimatedModel::AnimatedModel() {
 	VCount = 0;
-	Ver = nullptr;
-	Normals = nullptr;
-	TexCords = nullptr;
 	frame = 0;
 	speed = 1;
-	scale = 0.000000000000;
+	scale = 0.0f;
 	frameC = 0;
 	compiled = 0;
 	texture = 0;
 	bounds = 0;
 	loop = 1;
-	frameChange = new timer(100);
+	frameChange = std::make_unique<timer>(100);
 }
 ////============================================================
-AnimatedModel::~AnimatedModel() {
-	if (VCount) {
-		VCount = 0;
-		for (int i = 0; i < frameC; i++) {
-
-			delete Ver[i].v;
-			printf("Deleting vertex array %x \n", &Ver[i].v);
-		}
-		delete Normals;
-		delete TexCords;
-		frameC = 0;
-		delete Ver;
-	}
-	delete frameChange;
-	printf("AnimatedModel %x destroyed\n", this);
-}
+AnimatedModel::~AnimatedModel() {}
 //============================================================
 int AnimatedModel::Load(const char fileName[]) {
 	ifstream r(fileName);
@@ -49,10 +31,10 @@ int AnimatedModel::Load(const char fileName[]) {
 		return 0;
 
 	float tmp;
-	Ver = new VF[frameC + 1];
-	Ver[0].v = new float[VCount * 3];
-	Normals = new float[VCount * 3];
-	TexCords = new float[VCount * 2];
+	Ver.resize(frameC + 1);
+	Ver[0].v.resize(VCount * 3);
+	Normals.resize(VCount * 3);
+	TexCords.resize(VCount * 2);
 
 	for (int i = 0; i < VCount * 3; i++)
 		r >> Ver[0].v[i];
@@ -64,7 +46,7 @@ int AnimatedModel::Load(const char fileName[]) {
 		r >> TexCords[i];
 
 	for (int j = 1; j < frameC + 1; j++) {
-		Ver[j].v = new float[VCount * 3];
+		Ver[j].v.resize(VCount * 3);
 		for (int i = 0; i < VCount * 3; i++)
 			r >> Ver[j].v[i];
 	}
@@ -111,9 +93,9 @@ void AnimatedModel::Show() {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, &Ver[(int)frame].v[0]);
-		glNormalPointer(GL_FLOAT, 0, &Normals[0]);
-		glTexCoordPointer(2, GL_FLOAT, 0, &TexCords[0]);
+		glVertexPointer(3, GL_FLOAT, 0, Ver[(int)frame].v.data());
+		glNormalPointer(GL_FLOAT, 0, Normals.data());
+		glTexCoordPointer(2, GL_FLOAT, 0, TexCords.data());
 		glDrawArrays(GL_TRIANGLES, 0, VCount);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -196,7 +178,7 @@ void AnimatedModel::Compile() {
 	if (compiled)
 		return; // avoid too many compilations
 
-	List = new int[frameC];
+	List.resize(frameC);
 
 	for (int i = 0; i < frameC; i++) {
 		List[i] = glGenLists(1);
@@ -208,9 +190,9 @@ void AnimatedModel::Compile() {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0 /*a*/, &Ver[i].v[0]);   // 0
-		glNormalPointer(GL_FLOAT, 0 /*a*/, &Normals[0]);	   // 0
-		glTexCoordPointer(2, GL_FLOAT, 0 /*b*/, &TexCords[0]); // 0
+		glVertexPointer(3, GL_FLOAT, 0, Ver[i].v.data());
+		glNormalPointer(GL_FLOAT, 0, Normals.data());
+		glTexCoordPointer(2, GL_FLOAT, 0, TexCords.data());
 		glDrawArrays(GL_TRIANGLES, 0, VCount /*/divisor*/);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);

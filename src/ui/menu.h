@@ -1,6 +1,7 @@
 #ifndef MenuH
 #define MenuH
 
+#include <memory>
 #include "../core/timer.h"
 
 /// @file menu.h
@@ -11,7 +12,7 @@ class MainMenu {
 	bool h1, h2, h3, h4, h5, h6, h7;
 	void NoHover();
 	bool credits;
-	timer* t_cred;
+	std::unique_ptr<timer> t_cred;
 
   public:
 	MainMenu();

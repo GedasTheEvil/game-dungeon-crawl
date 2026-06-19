@@ -22,8 +22,8 @@ ParSys::ParSys() {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	ani_e = new timer(5);
-	ani_f = new timer(5);
+	ani_e = std::make_unique<timer>(5);
+	ani_f = std::make_unique<timer>(5);
 }
 
 ParSys::ParSys(int life) {
@@ -40,16 +40,11 @@ ParSys::ParSys(int life) {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	ani_e = new timer(5);
-	ani_f = new timer(5);
+	ani_e = std::make_unique<timer>(5);
+	ani_f = std::make_unique<timer>(5);
 }
 
-ParSys::~ParSys() {
-	life = 0;
-	printf("Deleting Particle System %x \n", this);
-	delete ani_e;
-	delete ani_f;
-}
+ParSys::~ParSys() { life = 0; }
 
 void ParSys::Fall() {
 	if (!ani_f->TimePassed())

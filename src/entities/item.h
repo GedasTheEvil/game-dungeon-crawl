@@ -1,13 +1,14 @@
 #ifndef ItemH
 #define ItemH
 
+#include <memory>
 #include "../graphics/shader.h"
 #include "../graphics/textures.h"
 
 class item {
   private:
 	bool in_inventory;
-	AnimatedCartoonModel* mdl;
+	std::unique_ptr<AnimatedCartoonModel> mdl;
 	float x;
 	float y;
 	Textura tex;

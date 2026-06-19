@@ -1,10 +1,10 @@
 #include "monster.h"
 #include <GL/gl.h>
-#include <stdio.h>
 #include <cmath>
 
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../core/logger.h"
 
 #ifdef WIN32
 
@@ -18,8 +18,8 @@ monster::monster() {
 	x = 0;
 	y = 0;
 	speed = 1;
-	HP = 200;
-	MaxHP = 200;
+	health = 200;
+	maxHealth = 200;
 	damage = 1;
 	XP = 1000;
 	stat = -1;
@@ -39,8 +39,8 @@ monster::monster(float x, float y) {
 	this->x = 0;
 	this->y = 0;
 	speed = 1;
-	HP = 20;
-	MaxHP = 20;
+	health = 20;
+	maxHealth = 20;
 	damage = 1;
 	XP = 1000;
 	stat = -1;
@@ -56,8 +56,8 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	x = nX;
 	y = nY;
 	speed = nSpeed;
-	MaxHP = nHP;
-	HP = nHP;
+	maxHealth = nHP;
+	health = nHP;
 	damage = nDamage;
 	XP = nXP;
 	stat = -1;
@@ -70,7 +70,8 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 //================================================================================
 monster::~monster() {
 	stat = -1;
-	printf("Deleting monster %p \n", (void*)this);
+	void* selfPtr = this;
+	LOG_DEBUGF("entities", "Deleting monster %p", selfPtr);
 }
 //================================================================================
 bool monster::Draw() // needs to choose animation
@@ -87,15 +88,15 @@ bool monster::Draw() // needs to choose animation
 	glScalef(scale, scale, scale);
 
 	if (Alive()) {
-		if (mdl == die.get()) {
-			if (!AtDir())
-				mdl = attack.get();
+		if (model == die.get()) {
+			if (!attackDirection())
+				model = attack.get();
 			else
-				mdl = walk.get();
+				model = walk.get();
 		}
 
 		if (this != GAME_STATE.Player.get()) {
-			TNull.Bind();
+			nullTexture.Bind();
 
 			glColor4f(1, 1, 1, 0.9);
 
@@ -108,7 +109,7 @@ bool monster::Draw() // needs to choose animation
 
 			glEnable(GL_BLEND);
 
-			float xxx = (float)HP / (float)MaxHP;
+			float xxx = static_cast<float>(health) / static_cast<float>(maxHealth);
 			glColor3f(3 * (1 - xxx), 3 * xxx, 0);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0, 0);
@@ -135,7 +136,7 @@ bool monster::Draw() // needs to choose animation
 		blood->Draw();
 		glPopMatrix();
 	} else
-		mdl = die.get();
+		model = die.get();
 
 	// Draw blood particles even when monster is dead
 	glPushMatrix();
@@ -151,7 +152,7 @@ bool monster::Draw() // needs to choose animation
 
 	if (this != GAME_STATE.Player.get()) {
 		if (Alive()) {
-			facing_dir = AtDir();
+			facing_dir = attackDirection();
 			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
 		} else
 			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
@@ -159,21 +160,21 @@ bool monster::Draw() // needs to choose animation
 		glRotatef(rotA, 0, 1, 0);
 
 	if (GAME_STATE.render.Cartoon)
-		mdl->ShowC();
+		model->ShowC();
 	else
-		mdl->Show();
+		model->Show();
 
 	glPopMatrix();
 	glPopMatrix();
-	mdl->Advance_Animation();
+	model->Advance_Animation();
 	return 1;
 }
 //================================================================================
-bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, bool compile) {
-	TNull = nullT;
+bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile) {
+	nullTexture = nullT;
 
 	if (stat != -1) {
-		printf("Error [%d]: Object Already loaded\n", stat);
+		LOG_ERRORF("entities", "Object already loaded: error %d", stat);
 		return 0;
 	}
 
@@ -186,21 +187,21 @@ bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, b
 	sprintf(tmp4, "Sounds/%s_att.wav", filename);
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
 
-	printf("Loading model: %s\n", tmp1);
+	LOG_INFOF("entities", "Loading model: %s", tmp1);
 	walk = std::make_unique<AnimatedCartoonModel>();
 	walk->Load(tmp1);
 	walk->BindTexture(texture.ID());
 	walk->Centrify();
 	walk->setSpeed(35);
 
-	printf("Loading model: %s\n", tmp2);
+	LOG_INFOF("entities", "Loading model: %s", tmp2);
 	attack = std::make_unique<AnimatedCartoonModel>();
 	attack->Load(tmp2);
 	attack->BindTexture(texture.ID());
 	attack->Centrify();
 	attack->setSpeed(35);
 
-	printf("Loading model: %s\n", tmp3);
+	LOG_INFOF("entities", "Loading model: %s", tmp3);
 	die = std::make_unique<AnimatedCartoonModel>();
 	die->Load(tmp3);
 	die->BindTexture(texture.ID());
@@ -219,7 +220,7 @@ bool monster::LoadMDL(const char filename[], Textura& texture, Textura& nullT, b
 	}
 	stat = 1;
 
-	mdl = walk.get();
+	model = walk.get();
 
 	return 1;
 }
@@ -230,7 +231,7 @@ void monster::setCords(float nX, float nY) {
 }
 //================================================================================
 bool monster::Alive() {
-	if (HP > 0)
+	if (health > 0)
 		return 1;
 
 	return 0;
@@ -238,20 +239,20 @@ bool monster::Alive() {
 //================================================================================
 bool monster::getHit(int dmg) {
 	if (Alive()) {
-		HP -= dmg;
-		blood->setCords(random() % (int)scale, random() % (int)scale, 0);
+		health -= dmg;
+		blood->setCords(random() % static_cast<int>(scale), random() % static_cast<int>(scale), 0);
 		blood->Reset();
 	}
 
-	if (!Alive() && mdl != die.get()) {
-		mdl = die.get();
+	if (!Alive() && model != die.get()) {
+		model = die.get();
 		sprintf(GAME_STATE.status, "Gained %d XP", XP);
 		GAME_STATE.status_timer->Reset();
 		GAME_STATE.ui.Stats->GetXP(XP);
 		die_s.Play();
 
 		// Death blood effect - 20% more intense than regular hit
-		blood->setCords(random() % (int)scale, random() % (int)scale, 0);
+		blood->setCords(random() % static_cast<int>(scale), random() % static_cast<int>(scale), 0);
 		blood->Reset();
 
 		// Trigger 6 explosion cycles (20% more than the 5 cycles from regular hit + death)
@@ -264,8 +265,8 @@ bool monster::getHit(int dmg) {
 }
 //================================================================================
 void monster::Reanimate() {
-	HP = MaxHP;
-	mdl = walk.get();
+	health = maxHealth;
+	model = walk.get();
 	facing_dir = 0;
 }
 //================================================================================
@@ -276,10 +277,10 @@ int monster::FacingDir() { return facing_dir; }
 void monster::setBloodColor(float r, float g, float b) { blood->setBloodColor(r, g, b); }
 //================================================================================
 float monster::healthRatio() const {
-	if (MaxHP <= 0)
+	if (maxHealth <= 0)
 		return 0.0f;
 
-	float ratio = (float)HP / (float)MaxHP;
+	float ratio = static_cast<float>(health) / static_cast<float>(maxHealth);
 	if (ratio < 0.0f)
 		return 0.0f;
 	if (ratio > 1.0f)

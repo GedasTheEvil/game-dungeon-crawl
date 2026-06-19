@@ -141,3 +141,10 @@ template void Logger::errorf<const char*, const char*>(const std::string&, const
 // Additional instantiations for sound.cpp
 template void Logger::debugf<void*>(const std::string&, const std::string&, void*);
 template void Logger::errorf<char*>(const std::string&, const std::string&, char*);
+
+// Additional instantiations for monster.cpp (loading models with char[] arrays decaying to char*)
+template void Logger::infof<char*>(const std::string&, const std::string&, char*);
+
+// Additional instantiations for trap.cpp (debugText with 4 floats)
+template void Logger::debugf<float, float, float, float>(const std::string&, const std::string&, float, float, float,
+														 float);

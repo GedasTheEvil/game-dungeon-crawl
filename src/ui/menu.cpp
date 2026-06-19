@@ -1,7 +1,6 @@
 #include "menu.h"
 #include <string>
 #include <time.h>
-#include <stdio.h>
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -10,13 +9,13 @@
 #include <GL/freeglut.h>
 #endif
 #include <stdlib.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include <string.h>
 namespace {
 void getMenuMouseCoords(int mouseX, int mouseY, float& outMenuX, float& outMenuY) {
-	outMenuX = 100 * ((float)mouseX / (float)GAME_STATE.render.resX);
-	outMenuY = 100 - 100 * ((float)mouseY / (float)GAME_STATE.render.resY);
+	outMenuX = 100 * (static_cast<float>(mouseX) / static_cast<float>(GAME_STATE.render.resX));
+	outMenuY = 100 - 100 * (static_cast<float>(mouseY) / static_cast<float>(GAME_STATE.render.resY));
 }
 
 int getSaveSlotFromCoords(float mx, float my) {
@@ -88,7 +87,7 @@ MainMenu::MainMenu() {
 	h7 = false;
 	saveD = false;
 	loadD = false;
-	t_cred = std::make_unique<timer>(10000);
+	creditsTimer = std::make_unique<timer>(10000);
 }
 
 MainMenu::~MainMenu() {}
@@ -96,7 +95,7 @@ MainMenu::~MainMenu() {}
 void MainMenu::Draw() {
 	if (credits) {
 		GAME_STATE.ui.wlc->DrawCredits();
-		if (t_cred->TimePassed())
+		if (creditsTimer->TimePassed())
 			credits = false;
 		return;
 	}

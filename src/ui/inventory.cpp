@@ -1,7 +1,8 @@
 #include "inventory.h"
 #include "../entities/item.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../core/logger.h"
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -9,7 +10,6 @@
 #ifdef WIN32
 #include <GL/freeglut.h>
 #endif
-#include <stdio.h>
 
 namespace {
 constexpr int MELEE_WEAPON_COUNT = 3;
@@ -58,7 +58,7 @@ inventory::~inventory() {}
 
 void inventory::UsePotion() {
 	if (!GAME_STATE.Player->Alive()) {
-		printf("Player dead, cannot drink anymore \n");
+		LOG_INFO("entities", "Player dead, cannot drink anymore");
 		return;
 	}
 
@@ -97,21 +97,21 @@ void inventory::GetItem(int type, int id) {
 	switch (type) {
 	case ItemType::MELEE_WEAPON:
 		if (id >= MELEE_WEAPON_COUNT) {
-			printf("Error: Unknown weapon, id=%d\n", id);
+			LOG_ERRORF("ui", "Unknown weapon id: %d", id);
 			return;
 		}
 		mw[id].count++;
 		break;
 	case ItemType::RANGED_WEAPON:
 		if (id >= 1) {
-			printf("Error: Unknown bow, id=%d\n", id);
+			LOG_ERRORF("ui", "Unknown bow id: %d", id);
 			return;
 		}
 		rw.count++;
 		break;
 	case ItemType::POTION:
 		if (id >= PotionId::COUNT) {
-			printf("Error: Unknown potion, id=%d\n", id);
+			LOG_ERRORF("ui", "Unknown potion id: %d", id);
 			return;
 		}
 		potions[id].count++;
@@ -359,8 +359,8 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 	if (!state)
 		return;
 
-	float invX = 100 * ((float)x / (float)GAME_STATE.render.resX);
-	float invY = 100 - 100 * ((float)y / (float)GAME_STATE.render.resY);
+	float invX = 100 * (static_cast<float>(x) / static_cast<float>(GAME_STATE.render.resX));
+	float invY = 100 - 100 * (static_cast<float>(y) / static_cast<float>(GAME_STATE.render.resY));
 
 	if (invX > 4 && invX < 84) {
 		// Melee weapon slots (row 1)
@@ -409,7 +409,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 	// Equip / use button
 	if (invY >= 8 && invY <= 14 && invX >= 54 && invX <= 88 && view.count > 0) {
 		if (!GAME_STATE.Player->Alive()) {
-			printf("Player dead. Deal with it. No more actions\n");
+			LOG_INFO("entities", "Player dead, no actions possible");
 			return;
 		}
 		if (view.type != ItemType::POTION)

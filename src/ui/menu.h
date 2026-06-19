@@ -12,7 +12,7 @@ class MainMenu {
 	bool h1, h2, h3, h4, h5, h6, h7;
 	void NoHover();
 	bool credits;
-	std::unique_ptr<timer> t_cred;
+	std::unique_ptr<timer> creditsTimer;
 
   public:
 	MainMenu();

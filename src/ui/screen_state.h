@@ -1,7 +1,7 @@
 #ifndef SCREEN_STATE_H
 #define SCREEN_STATE_H
 
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 
 namespace ScreenState {
 enum class DrawScreen {
@@ -12,7 +12,7 @@ enum class DrawScreen {
 	Gameplay,
 };
 
-inline DrawScreen GetDrawScreen(const Cashe& c) {
+inline DrawScreen GetDrawScreen(const GameState& c) {
 	if (c.ui.menu.show)
 		return DrawScreen::Menu;
 
@@ -28,15 +28,15 @@ inline DrawScreen GetDrawScreen(const Cashe& c) {
 	return DrawScreen::Gameplay;
 }
 
-inline bool ShouldRouteKeyboardToRiddle(const Cashe& c) { return c.ui.rid->show; }
+inline bool ShouldRouteKeyboardToRiddle(const GameState& c) { return c.ui.rid->show; }
 
-inline bool ShouldBlockKeyboardGameplay(const Cashe& c) { return c.ui.menu.show; }
+inline bool ShouldBlockKeyboardGameplay(const GameState& c) { return c.ui.menu.show; }
 
-inline bool ShouldRouteMouseToMenu(const Cashe& c) { return c.ui.menu.show; }
+inline bool ShouldRouteMouseToMenu(const GameState& c) { return c.ui.menu.show; }
 
-inline bool ShouldRouteMouseToInventory(const Cashe& c) { return c.ui.invent->show; }
+inline bool ShouldRouteMouseToInventory(const GameState& c) { return c.ui.invent->show; }
 
-inline bool IsGameplayInteractionAllowed(const Cashe& c) { return c.Player->Alive() && !c.IHaveWon; }
+inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.Player->Alive() && !c.IHaveWon; }
 } // namespace ScreenState
 
 #endif

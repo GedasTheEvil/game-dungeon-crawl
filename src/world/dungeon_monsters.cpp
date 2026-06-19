@@ -1,8 +1,9 @@
 #include "dungeon.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <memory>
+#include "../graphics/render_config.h"
 
 namespace {
 monster* getMbyType(int type) {
@@ -41,7 +42,7 @@ void Dungeon::DrawMonsterTile(int i, int j) {
 		if (m[a].orX == i && m[a].orY == j) {
 			SyncMonsterFromToken(a);
 			glPushMatrix();
-			glTranslatef(40, 0, 10);
+			glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
 			m[a].m->Draw();
 			glPopMatrix();
 			SyncTokenFromMonster(a, false);
@@ -64,13 +65,13 @@ void Dungeon::GetAttack(int damage, int attackRange) {
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).b);
-	m[index].m->DX = &x;
-	m[index].m->DY = &y;
+	m[index].m->dungeonX = &x;
+	m[index].m->dungeonY = &y;
 	m[index].m->X = static_cast<float>(i);
 	m[index].m->Y = static_cast<float>(j);
 	m[index].orX = i;
 	m[index].orY = j;
-	m[index].HP = m[index].m->MaxHP;
+	m[index].HP = m[index].m->maxHealth;
 	m[index].m->GetCords(m[index].x, m[index].y);
 	m[index].state = 1;
 	m[index].facing_dir = 0;

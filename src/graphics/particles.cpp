@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include "render_config.h"
 
 #define CDefaultSystemLife 100
 #define CDefaultParticleLife 100
@@ -22,8 +23,8 @@ ParSys::ParSys() {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	ani_e = std::make_unique<timer>(5);
-	ani_f = std::make_unique<timer>(5);
+	frameTimer = std::make_unique<timer>(5);
+	decayTimer = std::make_unique<timer>(5);
 }
 
 ParSys::ParSys(int life) {
@@ -40,23 +41,23 @@ ParSys::ParSys(int life) {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	ani_e = std::make_unique<timer>(5);
-	ani_f = std::make_unique<timer>(5);
+	frameTimer = std::make_unique<timer>(5);
+	decayTimer = std::make_unique<timer>(5);
 }
 
 ParSys::~ParSys() { life = 0; }
 
 void ParSys::Fall() {
-	if (!ani_f->TimePassed())
+	if (!decayTimer->TimePassed())
 		return;
 
 	if (life <= 0)
 		return;
 
 	for (int i = 0; i < CMaxPart; i++) {
-		pt[i].x += 0.1 * sin(i);
-		pt[i].y -= 0.1;
-		pt[i].z += 0.1 * cos(i);
+		pt[i].x += RenderConfig::PARTICLE_DRIFT * static_cast<float>(sin(i));
+		pt[i].y -= RenderConfig::PARTICLE_DRIFT;
+		pt[i].z += RenderConfig::PARTICLE_DRIFT * static_cast<float>(cos(i));
 		pt[i].life--;
 		if (pt[i].life <= 0) {
 			pt[i].x = 0;
@@ -70,7 +71,7 @@ void ParSys::Fall() {
 }
 
 void ParSys::Explode() {
-	if (!ani_e->TimePassed())
+	if (!frameTimer->TimePassed())
 		return;
 
 	if (life <= 0)
@@ -109,8 +110,7 @@ void ParSys::Draw() {
 	if (life <= 0)
 		return;
 
-	//      glEnable(GL_POINT_SMOOTH);
-	glBlendFunc(GL_SRC_COLOR, /*GL_ONE_MINUS_SRC_COLOR*/ GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
 	glColor4f(colour.r, colour.g, colour.b, 0.6);

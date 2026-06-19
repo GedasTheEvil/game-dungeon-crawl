@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 
 // Math Functions
@@ -56,7 +56,7 @@ AnimatedCartoonModel::AnimatedCartoonModel() {
 		fclose(in);
 	}
 
-	glGenTextures(1, (GLuint*)&shaderTexture[0]);
+	glGenTextures(1, reinterpret_cast<GLuint*>(&shaderTexture[0]));
 
 	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
 
@@ -102,7 +102,8 @@ void AnimatedCartoonModel::ShowC() {
 			tmpShade = 0.0f;
 
 		glTexCoord1f(tmpShade);
-		glVertex3f(Ver[(int)frame].v[i], Ver[(int)frame].v[i + 1], Ver[(int)frame].v[i + 2]);
+		glVertex3f(Ver[static_cast<int>(frame)].v[i], Ver[static_cast<int>(frame)].v[i + 1],
+				   Ver[static_cast<int>(frame)].v[i + 2]);
 	}
 
 	glEnd();
@@ -125,7 +126,8 @@ void AnimatedCartoonModel::ShowC() {
 		glBegin(GL_TRIANGLES);
 
 		for (int i = 0; i < VCount * 3; i += 3)
-			glVertex3f(Ver[(int)frame].v[i], Ver[(int)frame].v[i + 1], Ver[(int)frame].v[i + 2]);
+			glVertex3f(Ver[static_cast<int>(frame)].v[i], Ver[static_cast<int>(frame)].v[i + 1],
+					   Ver[static_cast<int>(frame)].v[i + 2]);
 		glEnd();
 
 		glDepthFunc(GL_LEQUAL);

@@ -1,8 +1,8 @@
 #include "dungeon.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../core/logger.h"
 #include <fstream>
-#include <cstdio>
 
 namespace {
 bool readMapCells(std::istream& in, Tint* map, int cellCount) {
@@ -25,7 +25,7 @@ bool Dungeon::Load(const char* filename) {
 	int header;
 	f >> header;
 	if (header != kMapCellCount) {
-		printf("Wrong map header. Expected '%d', got %d\n", kMapCellCount, header);
+		LOG_ERRORF("world", "Wrong map header. Expected '%d', got %d", kMapCellCount, header);
 		return false;
 	}
 
@@ -51,7 +51,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	int header;
 	f >> header;
 	if (header != kMapCellCount) {
-		printf("Wrong header. Expected '%d', got %d\n", kMapCellCount, header);
+		LOG_ERRORF("world", "Wrong dump header. Expected '%d', got %d", kMapCellCount, header);
 		return false;
 	}
 
@@ -73,7 +73,7 @@ void Dungeon::Dump(std::ofstream& f) {
 void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
 		GAME_STATE.ui.invent->GetItem(Map(x, y).b, Map(x, y).c);
-		map[MapIndex((int)x, (int)y)].a = Empty;
+		map[MapIndex(static_cast<int>(x), static_cast<int>(y))].a = Empty;
 		if (Map(x, y).b != 0) {
 			sprintf(GAME_STATE.status, "Picked up an item  \n");
 			GAME_STATE.status_timer->Reset();

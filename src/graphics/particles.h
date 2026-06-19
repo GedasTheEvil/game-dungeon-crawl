@@ -21,7 +21,7 @@ class ParSys {
 	rgb colour;
 	float x, y, z;
 	int life;
-	std::unique_ptr<timer> ani_e, ani_f;
+	std::unique_ptr<timer> frameTimer, decayTimer;
 
   public:
 	ParSys();

@@ -93,7 +93,7 @@ void AnimatedModel::Show() {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, Ver[(int)frame].v.data());
+		glVertexPointer(3, GL_FLOAT, 0, Ver[static_cast<int>(frame)].v.data());
 		glNormalPointer(GL_FLOAT, 0, Normals.data());
 		glTexCoordPointer(2, GL_FLOAT, 0, TexCords.data());
 		glDrawArrays(GL_TRIANGLES, 0, VCount);
@@ -101,7 +101,7 @@ void AnimatedModel::Show() {
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 	} else
-		glCallList(List[(int)frame]);
+		glCallList(List[static_cast<int>(frame)]);
 }
 //============================================================
 float AnimatedModel::getScale() {
@@ -114,20 +114,20 @@ float AnimatedModel::getScale() {
 
 	// find maximum dimensions of the model
 	for (int i = 0; i < VCount * 3; i += 3) {
-		if (Ver[(int)frame].v[i] > maxX)
-			maxX = Ver[(int)frame].v[i];
-		if (Ver[(int)frame].v[i] < minX)
-			minX = Ver[(int)frame].v[i];
+		if (Ver[static_cast<int>(frame)].v[i] > maxX)
+			maxX = Ver[static_cast<int>(frame)].v[i];
+		if (Ver[static_cast<int>(frame)].v[i] < minX)
+			minX = Ver[static_cast<int>(frame)].v[i];
 
-		if (Ver[(int)frame].v[i + 1] > maxY)
-			maxY = Ver[(int)frame].v[i + 1];
-		if (Ver[(int)frame].v[i + 1] < minY)
-			minY = Ver[(int)frame].v[i + 1];
+		if (Ver[static_cast<int>(frame)].v[i + 1] > maxY)
+			maxY = Ver[static_cast<int>(frame)].v[i + 1];
+		if (Ver[static_cast<int>(frame)].v[i + 1] < minY)
+			minY = Ver[static_cast<int>(frame)].v[i + 1];
 
-		if (Ver[(int)frame].v[i + 2] > maxZ)
-			maxZ = Ver[(int)frame].v[i + 2];
-		if (Ver[(int)frame].v[i + 2] < minZ)
-			minZ = Ver[(int)frame].v[i + 2];
+		if (Ver[static_cast<int>(frame)].v[i + 2] > maxZ)
+			maxZ = Ver[static_cast<int>(frame)].v[i + 2];
+		if (Ver[static_cast<int>(frame)].v[i + 2] < minZ)
+			minZ = Ver[static_cast<int>(frame)].v[i + 2];
 	}
 
 	// find the largest scale

@@ -6,7 +6,6 @@
 class Font {
   private:
 	Textura t;
-	// 	   int loaded;
 	int base;
 
   public:

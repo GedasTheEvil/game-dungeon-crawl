@@ -1,7 +1,7 @@
 #include "trap.h"
-#include <stdio.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../core/logger.h"
 #include <cmath>
 #include "../input/gameplay_config.h"
 
@@ -33,7 +33,8 @@ void trap::Hurt() {
 	if (!Hurt_timer->TimePassed())
 		return;
 
-	if (fabs(*DX - x - 0.5) <= TRAP_HITBOX_X_SCALE * scale && std::fabs(*DY - y) <= TRAP_HITBOX_Y_SCALE * scale) {
+	if (fabs(*dungeonX - x - 0.5) <= TRAP_HITBOX_X_SCALE * scale &&
+		std::fabs(*dungeonY - y) <= TRAP_HITBOX_Y_SCALE * scale) {
 		GAME_STATE.ui.Stats->GetHit(1);
 	}
 }
@@ -43,7 +44,7 @@ void trap::setCords(float nX, float nY) {
 	y = nY;
 }
 
-bool trap::LoadMDL(const char filename[], Textura& texture, bool compile) {
+bool trap::loadModel(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
 
 	mdl->Load(filename);
@@ -55,4 +56,4 @@ bool trap::LoadMDL(const char filename[], Textura& texture, bool compile) {
 	return 1;
 }
 
-void trap::debugText() { printf("I am trap, my x=%f, y=%f\n Dungeon x=%f, y=%f\n\n", x, y, *DX, *DY); }
+void trap::debugText() { LOG_DEBUGF("entities", "trap x=%f y=%f dungeonX=%f dungeonY=%f", x, y, *dungeonX, *dungeonY); }

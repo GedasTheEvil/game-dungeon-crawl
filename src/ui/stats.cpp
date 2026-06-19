@@ -7,9 +7,9 @@
 #ifdef WIN32
 #include <GL/freeglut.h>
 #endif
-#include <stdio.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../core/logger.h"
 
 void stats::GetStronger(int ns) { Might += ns; }
 
@@ -85,8 +85,8 @@ void stats::Draw() {
 	glEnable(GL_BLEND);
 
 	Impact.print(54, 90, "Level: %d ", level);
-	Impact.print(54, 80, "XP: %d ", (int)XP);
-	Impact.print(54, 70, "Next level:%d ", (int)(1000 * (pow(level, 1.4))));
+	Impact.print(54, 80, "XP: %d ", static_cast<int>(XP));
+	Impact.print(54, 70, "Next level:%d ", static_cast<int>(1000 * (pow(level, 1.4))));
 	Impact.print(54, 60, "HP %d/%d", HP, MaxHP);
 	Impact.print(54, 50, "Might: %d", Might);
 	Impact.print(54, 40, "Armor: %d", Armor);
@@ -101,7 +101,6 @@ void stats::Draw() {
 }
 
 void stats::GetXP(int xp) {
-	//      printf("getXP called with %d \n",xp);
 	XP += xp;
 	while (AdvanceLevel())
 		;
@@ -136,9 +135,9 @@ void stats::UpdateStamina() {
 	if (!stamina_sprint_drain_timer->TimePassed())
 		return;
 
-	stamina_sprint_drain_carry += 0.05f * (float)MaxStamina();
+	stamina_sprint_drain_carry += 0.05f * static_cast<float>(MaxStamina());
 
-	int staminaDrain = (int)stamina_sprint_drain_carry;
+	int staminaDrain = static_cast<int>(stamina_sprint_drain_carry);
 	if (staminaDrain <= 0)
 		return;
 
@@ -155,9 +154,9 @@ void stats::RegenerateStamina() {
 	if (!stamina_regen_timer->TimePassed())
 		return;
 
-	stamina_regen_carry += 0.02f * (float)MaxStamina();
+	stamina_regen_carry += 0.02f * static_cast<float>(MaxStamina());
 
-	int staminaGain = (int)stamina_regen_carry;
+	int staminaGain = static_cast<int>(stamina_regen_carry);
 	if (staminaGain <= 0)
 		return;
 
@@ -177,7 +176,7 @@ void stats::Heal(int hpPart) {
 	else
 		HP = static_cast<int>(heal + static_cast<float>(HP));
 
-	GAME_STATE.Player->HP = HP;
+	GAME_STATE.Player->health = HP;
 }
 
 stats::stats() {
@@ -192,8 +191,8 @@ stats::stats() {
 	sprinting = false;
 	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
 	show = false;
-	GAME_STATE.Player->MaxHP = MaxHP;
-	GAME_STATE.Player->HP = MaxHP;
+	GAME_STATE.Player->maxHealth = MaxHP;
+	GAME_STATE.Player->health = MaxHP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 	GAME_STATE.Player->SetStamina(GAME_STATE.Player->MaxStamina());
 	stats_ani = std::make_unique<timer>(10);
@@ -201,7 +200,10 @@ stats::stats() {
 	stamina_sprint_drain_timer = std::make_unique<timer>(1000);
 }
 
-stats::~stats() { printf("Deleting stats %p \n", (void*)this); }
+stats::~stats() {
+	void* selfPtr = this;
+	LOG_DEBUGF("ui", "Deleting stats %p", selfPtr);
+}
 
 void stats::GetArmored(int na) { Armor += na; }
 
@@ -212,7 +214,7 @@ void stats::GetHit(int dmg) {
 		damage = dmg - Armor;
 
 	GAME_STATE.Player->getHit(damage);
-	HP = GAME_STATE.Player->HP;
+	HP = GAME_STATE.Player->health;
 }
 
 void stats::MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
@@ -237,8 +239,8 @@ bool stats::AdvanceLevel() {
 	MaxHP += 20;
 	HP = MaxHP;
 
-	GAME_STATE.Player->MaxHP = MaxHP;
-	GAME_STATE.Player->HP = MaxHP;
+	GAME_STATE.Player->maxHealth = MaxHP;
+	GAME_STATE.Player->health = MaxHP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 
 	sprintf(GAME_STATE.status, "Now you are level %d\n", level);
@@ -255,8 +257,8 @@ void stats::GetTougher(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
 	HP = MaxHP;
-	GAME_STATE.Player->MaxHP = MaxHP;
-	GAME_STATE.Player->HP = MaxHP;
+	GAME_STATE.Player->maxHealth = MaxHP;
+	GAME_STATE.Player->health = MaxHP;
 }
 
 void stats::Dump(std::ofstream& f) const {
@@ -278,8 +280,8 @@ void stats::LoadDump(std::ifstream& f) {
 	sprinting = false;
 	stamina_regen_timer->Reset();
 	stamina_sprint_drain_timer->Reset();
-	GAME_STATE.Player->MaxHP = MaxHP;
-	GAME_STATE.Player->HP = HP;
+	GAME_STATE.Player->maxHealth = MaxHP;
+	GAME_STATE.Player->health = HP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 	GAME_STATE.Player->SetStamina(loadedStamina);
 }

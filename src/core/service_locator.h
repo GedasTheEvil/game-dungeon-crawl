@@ -3,16 +3,16 @@
 
 #include <cassert>
 #include <memory>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 
 class ServiceLocator {
   private:
-	static std::unique_ptr<Cashe> gameState;
+	static std::unique_ptr<GameState> gameState;
 
   public:
-	static void initialize(std::unique_ptr<Cashe> state) { gameState = std::move(state); }
+	static void initialize(std::unique_ptr<GameState> state) { gameState = std::move(state); }
 
-	static Cashe& getGameState() {
+	static GameState& getGameState() {
 		assert(gameState && "ServiceLocator not initialized");
 		return *gameState;
 	}

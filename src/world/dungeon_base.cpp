@@ -1,7 +1,8 @@
 #include "dungeon.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../input/gameplay_config.h"
+#include "../core/logger.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <cstdio>
@@ -23,26 +24,26 @@ int Dungeon::MapIndex(int mapX, int mapY) const {
 //======================================================================================
 Tint Dungeon::MapAt(int mapX, int mapY) const { return map[MapIndex(mapX, mapY)]; }
 //======================================================================================
-Tint Dungeon::Map(float x, float y) const { return MapAt((int)x, (int)y); }
+Tint Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), static_cast<int>(y)); }
 //======================================================================================
-void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex((int)x, (int)y)].b = value; }
+void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(x), static_cast<int>(y))].b = value; }
 //======================================================================================
 void Dungeon::SyncMonsterFromToken(int index) {
-	m[index].m->DX = &x;
-	m[index].m->DY = &y;
+	m[index].m->dungeonX = &x;
+	m[index].m->dungeonY = &y;
 	m[index].m->setCords(m[index].x, m[index].y);
 	m[index].m->X = static_cast<float>(m[index].orX);
 	m[index].m->Y = static_cast<float>(m[index].orY);
 	m[index].m->setModel(m[index].state);
 	m[index].m->setFacingDir(m[index].facing_dir);
-	m[index].m->HP = m[index].HP;
+	m[index].m->health = m[index].HP;
 }
 //======================================================================================
 void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 	if (includePosition)
 		m[index].m->GetCords(m[index].x, m[index].y);
 
-	m[index].HP = m[index].m->HP;
+	m[index].HP = m[index].m->health;
 	m[index].state = m[index].m->Model_state();
 	m[index].facing_dir = m[index].m->FacingDir();
 }
@@ -83,7 +84,7 @@ Dungeon::Dungeon() {
 		fclose(in);
 	}
 
-	glGenTextures(1, (GLuint*)&shaderTexture[0]);
+	glGenTextures(1, reinterpret_cast<GLuint*>(&shaderTexture[0]));
 
 	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
 
@@ -166,4 +167,7 @@ void Dungeon::getC(float& outX, float& outY) {
 	outY = this->y;
 }
 //======================================================================================
-Dungeon::~Dungeon() { printf("Deleting Dungeon %p \n", (void*)this); }
+Dungeon::~Dungeon() {
+	void* selfPtr = this;
+	LOG_DEBUGF("world", "Deleting Dungeon %p", selfPtr);
+}

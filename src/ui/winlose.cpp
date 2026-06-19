@@ -6,7 +6,7 @@
 #ifdef WIN32
 #include <GL/freeglut.h>
 #endif
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 
 winL::winL() {

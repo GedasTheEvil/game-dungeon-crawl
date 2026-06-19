@@ -1,5 +1,5 @@
-#ifndef Cache_H
-#define Cache_H
+#ifndef GAME_STATE_H
+#define GAME_STATE_H
 
 #include "../entities/monster.h"
 #include "../entities/player.h"
@@ -77,7 +77,7 @@ struct UIContext {
 	std::unique_ptr<winL> wlc;
 };
 
-class Cashe {
+class GameState {
   public:
 	TextureRegistry textures;
 	Camera camera;
@@ -99,8 +99,8 @@ class Cashe {
 	Dungeon dungeon;
 	word saveNames[6] = {};
 
-	Cashe();
-	~Cashe();
+	GameState();
+	~GameState();
 	void Load();
 	void DrawLoad(float xxx, const char text[]);
 	void Save(const char filename[]);

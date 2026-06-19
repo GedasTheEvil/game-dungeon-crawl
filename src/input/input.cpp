@@ -1,6 +1,5 @@
-#include <stdio.h>
 #include <GL/gl.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "input.h"
 #include "input_actions.h"
 #include "../ui/screen_state.h"
@@ -116,8 +115,6 @@ class PlayerActionController {
 void Idle() { Draw(); }
 
 void keyPressed(unsigned char key, int x, int y) {
-	//      printf("You pressed %d\n",key);
-
 	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {
 		GAME_STATE.ui.rid->KeyboardF(key, x, y);
 		return;
@@ -158,7 +155,6 @@ void keyPressed(unsigned char key, int x, int y) {
 }
 
 void specialKeyPressed(int key, int x, int y) {
-	//      printf("Special key %d pressed\n",key);
 	(void)x;
 	(void)y;
 

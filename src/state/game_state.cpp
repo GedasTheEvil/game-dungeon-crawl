@@ -1,4 +1,4 @@
-#include "cashe.h"
+#include "game_state.h"
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -14,11 +14,14 @@
 
 char mapName2[200];
 
-Cashe::Cashe() = default;
+GameState::GameState() = default;
 
-Cashe::~Cashe() { LOG_DEBUGF("game", "Deleting cashe %p", (void*)this); }
+GameState::~GameState() {
+	void* selfPtr = this;
+	LOG_DEBUGF("game", "Deleting cashe %p", selfPtr);
+}
 
-void Cashe::Load() {
+void GameState::Load() {
 	// init main load resourses
 	fonts.load_font.Load("Fonts/papyrus.bmp", 7, -1.0);
 	textures.load_bg.LoadBMP("Textures/scarab_slate.bmp");
@@ -62,75 +65,75 @@ void Cashe::Load() {
 
 	DrawLoad(20, "Loading Monster Models [Player]");
 	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
-	Player->LoadMDL("human", textures.player_t, textures.progBar, true);
+	Player->loadModel("human", textures.player_t, textures.progBar, true);
 	Player->scale = 15;
 	Player->setCords(0, 0);
 
 	DrawLoad(30, "Loading Monster Models [Worm]");
 	monsters.worm = std::make_unique<monster>(0, 0, 1, 40, 15, 1500);
-	monsters.worm->LoadMDL("worm", textures.worm_t, textures.progBar, true);
+	monsters.worm->loadModel("worm", textures.worm_t, textures.progBar, true);
 	monsters.worm->scale = 18;
-	monsters.worm->MaxHP = 20;
+	monsters.worm->maxHealth = 20;
 
 	DrawLoad(40, "Loading Monster Models [Scarab]");
 	monsters.scarab = std::make_unique<monster>(0, 0, 2, 25, 3, 500);
-	monsters.scarab->LoadMDL("scarab", textures.scarab_t, textures.progBar, true);
+	monsters.scarab->loadModel("scarab", textures.scarab_t, textures.progBar, true);
 	monsters.scarab->scale = 10;
 	monsters.scarab->rotA = 180;
-	monsters.scarab->MaxHP = 15;
+	monsters.scarab->maxHealth = 15;
 	monsters.scarab->setBloodColor(0.6f, 0.1f, 0.8f); // Purple blood
 
 	DrawLoad(50, "Loading Monster Models [Anubis]");
 	monsters.anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
-	monsters.anubis->LoadMDL("anubis", textures.anubis_t, textures.progBar, true);
+	monsters.anubis->loadModel("anubis", textures.anubis_t, textures.progBar, true);
 	monsters.anubis->scale = 19;
 	monsters.anubis->rotA = 180;
-	monsters.anubis->MaxHP = 200;
+	monsters.anubis->maxHealth = 200;
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
 	items.chest = std::make_unique<item>();
-	items.chest->LoadMDL("Models/tchest.mdl", textures.chest_t);
+	items.chest->loadModel("Models/tchest.mdl", textures.chest_t);
 	items.chest->scale = 8;
 	items.chest->rotA = -90;
 
 	DrawLoad(65, "Loading Monster Models [Man-eater plant]");
 	monsters.plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
-	monsters.plant->LoadMDL("plant", textures.plant_t, textures.progBar, true);
+	monsters.plant->loadModel("plant", textures.plant_t, textures.progBar, true);
 	monsters.plant->scale = 12;
-	monsters.plant->MaxHP = 30;
+	monsters.plant->maxHealth = 30;
 	monsters.plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	items.club = std::make_unique<item>();
-	items.club->LoadMDL("Models/club.mdl", textures.club_t);
+	items.club->loadModel("Models/club.mdl", textures.club_t);
 	items.club->damage = 9;
 	items.club->scale = 6;
 	items.club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
 	items.sword = std::make_unique<item>();
-	items.sword->LoadMDL("Models/sword.mdl", textures.sword_t);
+	items.sword->loadModel("Models/sword.mdl", textures.sword_t);
 	items.sword->scale = 9;
 	items.sword->damage = 35;
 	items.sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
 	items.bow = std::make_unique<item>();
-	items.bow->LoadMDL("Models/bow.mdl", textures.bow_t);
+	items.bow->loadModel("Models/bow.mdl", textures.bow_t);
 	items.bow->scale = 12;
 	items.bow->damage = 12;
 	items.bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
 	items.spear = std::make_unique<item>();
-	items.spear->LoadMDL("Models/spear.mdl", textures.spear_t);
+	items.spear->loadModel("Models/spear.mdl", textures.spear_t);
 	items.spear->scale = 15;
 	items.spear->damage = 15;
 	items.spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
 	items.potion = std::make_unique<item>();
-	items.potion->LoadMDL("Models/potion.mdl", textures.potion_t);
+	items.potion->loadModel("Models/potion.mdl", textures.potion_t);
 	items.potion->scale = 5;
 
 	textures.sphinx_t.LoadBMP("Textures/sphinx.bmp");
@@ -172,11 +175,11 @@ void Cashe::Load() {
 
 	textures.trap_t.LoadBMP("Textures/spikes.bmp");
 	traps.TrapD = std::make_unique<trap>();
-	traps.TrapD->LoadMDL("Models/spikes.mdl", textures.trap_t);
+	traps.TrapD->loadModel("Models/spikes.mdl", textures.trap_t);
 	traps.TrapD->scale = 16;
 
 	traps.DeathTrap = std::make_unique<trap>();
-	traps.DeathTrap->LoadMDL("Models/spikes.mdl", textures.trap_t);
+	traps.DeathTrap->loadModel("Models/spikes.mdl", textures.trap_t);
 	traps.DeathTrap->scale = 40;
 
 	DrawLoad(95, "Loading game font");
@@ -216,7 +219,7 @@ void Cashe::Load() {
 	Cache_loaded = true;
 }
 //==============================================================
-void Cashe::DrawLoad(float xxx, const char text[]) {
+void GameState::DrawLoad(float xxx, const char text[]) {
 	LOG_INFOF("loading", "DrawLoad: %s", text);
 
 	if (xxx > 100)
@@ -274,7 +277,7 @@ void Cashe::DrawLoad(float xxx, const char text[]) {
 	glutSwapBuffers();
 }
 //==============================================================
-void Cashe::Save(const char filename[]) {
+void GameState::Save(const char filename[]) {
 	if (!Cache_loaded) {
 		LOG_ERROR("game", "can't save without loading cashe");
 		return;
@@ -295,7 +298,7 @@ void Cashe::Save(const char filename[]) {
 	dump.close();
 }
 //==============================================================
-void Cashe::LoadSave(const char filename[]) {
+void GameState::LoadSave(const char filename[]) {
 	if (!Cache_loaded) {
 		LOG_ERROR("game", "can't load without loading cashe");
 		return;

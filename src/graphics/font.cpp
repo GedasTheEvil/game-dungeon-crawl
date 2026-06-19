@@ -1,8 +1,8 @@
 #include "font.h"
 #include <GL/gl.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include "../core/logger.h"
 //=================================================================================================================
 Font::Font() {}
 //=================================================================================================================
@@ -31,14 +31,14 @@ void Font::Load(const char filename[], float size, float spacing) // Build Our F
 	base = glGenLists(95); // Creating 95 Display Lists
 	if (!t.LoadTGA(filename))
 		if (!t.LoadBMP(filename))
-			printf("Could not load font texture [%s]\n", filename);
+			LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
 	t.Bind();
 
 	int loop;
 	for (loop = 0; loop < 95; loop++) // Loop Through All 95 Lists
 	{
-		float cx = (float)(loop % 10) / 10.0f; // X Position Of Current Character
-		float cy = (float)(loop / 10) / 10.0f; // Y Position Of Current Character
+		float cx = static_cast<float>(loop % 10) / 10.0f; // X Position Of Current Character
+		float cy = static_cast<float>(loop / 10) / 10.0f; // Y Position Of Current Character
 
 		glNewList(base + loop, GL_COMPILE); // Start Building A List
 		{
@@ -62,5 +62,6 @@ void Font::Load(const char filename[], float size, float spacing) // Build Our F
 //=================================================================================================================
 Font::~Font() {
 	glDeleteLists(base, 95); // Delete All 95 Font Display Lists
-	printf("Deleting font %x \n", this);
+	void* selfPtr = this;
+	LOG_DEBUGF("graphics", "Deleting font %p", selfPtr);
 }

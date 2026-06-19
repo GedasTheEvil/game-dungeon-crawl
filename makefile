@@ -1,7 +1,7 @@
 ##DungeonCrawl by Gedas The Evil
 CXX=g++
 RM=rm -f
-CXXFLAGS=-Wall -Wextra -pedantic -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
+CXXFLAGS=-Wall -Wextra -pedantic -Wold-style-cast -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
 TIDY_CPPFLAGS=-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
@@ -12,7 +12,7 @@ SOURCES=\
 	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp \
 	src/ui/menu.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp \
 	src/input/input.cpp \
-	src/state/cashe.cpp
+	src/state/game_state.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 DEPS=$(OBJECTS:.o=.d)

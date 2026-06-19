@@ -14,7 +14,7 @@ class monster {
 	std::unique_ptr<AnimatedCartoonModel> walk;
 	std::unique_ptr<AnimatedCartoonModel> attack;
 	std::unique_ptr<AnimatedCartoonModel> die;
-	AnimatedCartoonModel* mdl;
+	AnimatedCartoonModel* model;
 	float x; // kiek nuejo nuo pradzios
 	float y;
 	int speed;
@@ -22,7 +22,7 @@ class monster {
 	int XP;
 	int stat;
 	int facing_dir;
-	Textura TNull, tex;
+	Textura nullTexture, tex;
 	std::unique_ptr<ParSys> blood;
 	std::unique_ptr<timer> walk_timer;
 
@@ -30,11 +30,11 @@ class monster {
 	std::unique_ptr<timer> Att_timer;
 	Sound die_s, att_s;
 
-	int HP;
-	int MaxHP;
+	int health;
+	int maxHealth;
 
-	float* DY; // ne , ne isvestine :D. Kordinates pozemio
-	float* DX;
+	float* dungeonY; // ne , ne isvestine :D. Kordinates pozemio
+	float* dungeonX;
 
 	float X; // kordinates kur monstras gyvena pozemyje
 	float Y;
@@ -44,17 +44,15 @@ class monster {
 	monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP);
 	~monster();
 	bool Draw();
-	bool LoadMDL(const char filename[], Textura& texture, Textura& nullT, bool compile = 1);
+	bool loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile = 1);
 	void setCords(float nX, float nY);
 	float rotA;
 	float scale;
 	// AI functions
-	int AtDir();
+	int attackDirection();
 	bool getHit(int dmg);
 	bool Alive();
 	int Seek();
-	// 	   void Attack(monster *target);//obsolete for attacking player, but can be used to attack other monsters,
-	// right?
 	void Attack();
 	void Reanimate();
 	void GetCords(float& xx, float& yy);

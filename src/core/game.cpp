@@ -9,8 +9,8 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include <SDL/SDL.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdexcept>
 #include "../input/input.h"
 #include "../graphics/textures.h"
 #include "sound.h"
@@ -46,7 +46,7 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
+	gluPerspective(45.0f, static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.1f, 10000.0f);
 	glMatrixMode(GL_MODELVIEW);
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
 	GAME_STATE.render.resX = width;
@@ -57,53 +57,57 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 #undef main
 
 int main(int argc, char* argv[]) {
-	// Initialize logging system
 	Logger::initialize();
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
+	try {
+		if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+			LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
+			return -1;
+		}
+
+		// Initialize game state
+		ServiceLocator::initialize(std::make_unique<GameState>());
+
+		glutInit(&argc, argv);
+		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
+
+		glutInitWindowSize(GAME_STATE.render.resX, GAME_STATE.render.resY);
+
+		glutInitWindowPosition(0, 0);
+
+		window = glutCreateWindow("Dungeon Crawl");
+
+		glutDisplayFunc(&Draw);
+
+		if (fs)
+			glutFullScreen();
+
+		glutIdleFunc(&Idle);
+
+		glutReshapeFunc(&reSizeGlScene);
+
+		glutKeyboardFunc(&keyPressed);
+
+		glutSpecialFunc(&specialKeyPressed);
+		glutSpecialUpFunc(&specialKeyReleased);
+
+		glutMouseFunc(processMouse);
+		glutMotionFunc(processMouseActiveMotion);
+		glutPassiveMotionFunc(processMousePassiveMotion);
+		glutEntryFunc(processMouseEntry);
+
+		initGl(GAME_STATE.render.resX, GAME_STATE.render.resY);
+
+		glutMainLoop();
+
+		// Cleanup
+		ServiceLocator::shutdown();
+		Logger::shutdown();
+		SDL_Quit();
+	} catch (const std::exception& e) {
+		LOG_ERRORF("game", "Fatal error: %s", e.what());
 		return -1;
 	}
-
-	// Initialize game state
-	ServiceLocator::initialize(std::make_unique<Cashe>());
-
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
-
-	glutInitWindowSize(GAME_STATE.render.resX, GAME_STATE.render.resY);
-
-	glutInitWindowPosition(0, 0);
-
-	window = glutCreateWindow("Dungeon Crawl");
-
-	glutDisplayFunc(&Draw);
-
-	if (fs)
-		glutFullScreen();
-
-	glutIdleFunc(&Idle);
-
-	glutReshapeFunc(&reSizeGlScene);
-
-	glutKeyboardFunc(&keyPressed);
-
-	glutSpecialFunc(&specialKeyPressed);
-	glutSpecialUpFunc(&specialKeyReleased);
-
-	glutMouseFunc(processMouse);
-	glutMotionFunc(processMouseActiveMotion);
-	glutPassiveMotionFunc(processMousePassiveMotion);
-	glutEntryFunc(processMouseEntry);
-
-	initGl(GAME_STATE.render.resX, GAME_STATE.render.resY);
-
-	glutMainLoop();
-
-	// Cleanup
-	ServiceLocator::shutdown();
-	Logger::shutdown();
-	SDL_Quit();
 
 	return 1;
 }

@@ -1,6 +1,6 @@
 #include "../input/input.h"
 #include <GL/gl.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../ui/screen_state.h"
 #include "hud.h"
@@ -44,7 +44,8 @@ void Draw() {
 
 	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
 	glLoadIdentity();			 // Reset The Projection Matrix
-	gluPerspective(45.0f, (float)GAME_STATE.render.resX / (float)GAME_STATE.render.resY, 10.0f, 300.0f);
+	gluPerspective(45.0f, static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY),
+				   10.0f, 300.0f);
 	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
 
 	glTranslatef(0, -20, -70); // for perspective, bet skaiciai is lempos

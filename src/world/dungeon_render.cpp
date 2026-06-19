@@ -1,8 +1,9 @@
 #include "dungeon.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <cmath>
+#include "../graphics/render_config.h"
 
 inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
 void normalize(VECTOR& v);
@@ -256,7 +257,7 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	const Tint tile = MapAt(i, j);
 
 	glPushMatrix();
-	glTranslatef(20, 0, 10);
+	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 	GAME_STATE.items.chest->Draw();
 
 	if (tile.b == 3) {
@@ -290,11 +291,11 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 //======================================================================================
 void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
-	glTranslatef(20, 0, 10);
+	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
 	trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
-	tileTrap->DX = &x;
-	tileTrap->DY = &y;
+	tileTrap->dungeonX = &x;
+	tileTrap->dungeonY = &y;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
 	tileTrap->Show();
 
@@ -306,12 +307,12 @@ void Dungeon::Draw() {
 	plasmaAni = aniT->TimePassed();
 
 	glPushMatrix();
-	glTranslatef(static_cast<float>(-40) * (x - static_cast<float>(static_cast<int>(x))),
-				 static_cast<float>(-40) * (y - static_cast<float>(static_cast<int>(y))), static_cast<float>(0));
-	glTranslatef(80, -120, 0);
+	glTranslatef(-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
+				 -RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))), 0.f);
+	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 
-	for (int j = (int)y - 3; j < (int)y + 3; j++) {
-		for (int i = (int)x - 3; i < (int)x + 5; i++) {
+	for (int j = static_cast<int>(y) - 3; j < static_cast<int>(y) + 3; j++) {
+		for (int i = static_cast<int>(x) - 3; i < static_cast<int>(x) + 5; i++) {
 			if (IsInBounds(i, j)) {
 				const Tint tile = MapAt(i, j);
 				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);
@@ -373,7 +374,7 @@ void Dungeon::Draw() {
 						if (tile.b != GateEntrance)
 							glTranslatef(39, 0, 0);
 
-						float px = static_cast<float>(((int)(plasma * 100) % 100)) / 200.0f;
+						float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / 200.0f;
 
 						GAME_STATE.textures.plasma_t.Bind();
 						glBegin(GL_QUADS);
@@ -408,7 +409,7 @@ void Dungeon::Draw() {
 					GAME_STATE.textures.plasma_t.Bind();
 					glBegin(GL_QUADS);
 
-					float px = static_cast<float>(((int)(plasma * 100) % 100)) / static_cast<float>(200.0);
+					float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / static_cast<float>(200.0);
 
 					glNormal3f(0, 0, 1.0);
 					glTexCoord2f(px, 0);
@@ -426,7 +427,7 @@ void Dungeon::Draw() {
 			}
 			glTranslatef(40, 0, 0);
 		}
-		glTranslatef(-320, 40, 0);
+		glTranslatef(RenderConfig::HUD_OFFSET_X, RenderConfig::TILE_SIZE, 0);
 	}
 	glPopMatrix();
 }

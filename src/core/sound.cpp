@@ -49,7 +49,8 @@ Sound::~Sound() {
 		gAudioOpened = false;
 	}
 
-	LOG_DEBUGF("audio", "Deleting sound %p", (void*)this);
+	void* selfPtr = this;
+	LOG_DEBUGF("audio", "Deleting sound %p", selfPtr);
 }
 
 bool Sound::LoadWAV(const char filename[]) {

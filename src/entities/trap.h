@@ -16,15 +16,15 @@ class trap {
 
   public:
 	float scale;
-	float* DY; // ne , ne isvestine :D. Kordinates pozemio
-	float* DX;
+	float* dungeonY; // ne , ne isvestine :D. Kordinates pozemio
+	float* dungeonX;
 
 	trap();
 	~trap();
 	void Show();
 	void Hurt();
 	void setCords(float nX, float nY);
-	bool LoadMDL(const char filename[], Textura& texture, bool compile = 1);
+	bool loadModel(const char filename[], Textura& texture, bool compile = 1);
 	void debugText();
 };
 

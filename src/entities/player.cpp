@@ -51,7 +51,7 @@ float PlayerEntity::staminaRatio() const {
 	if (max_stamina <= 0)
 		return 0.0f;
 
-	float ratio = (float)stamina / (float)max_stamina;
+	float ratio = static_cast<float>(stamina) / static_cast<float>(max_stamina);
 	if (ratio < 0.0f)
 		return 0.0f;
 	if (ratio > 1.0f)

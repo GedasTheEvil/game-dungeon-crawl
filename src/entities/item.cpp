@@ -1,7 +1,7 @@
 #include "item.h"
 #include <cmath>
 #include <stdio.h>
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
 
 void item::Draw() {
@@ -53,7 +53,7 @@ item::item() {
 }
 item::~item() { loaded = 0; }
 
-bool item::LoadMDL(const char filename[], Textura& texture, bool compile) {
+bool item::loadModel(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
 	mdl = std::make_unique<AnimatedCartoonModel>();
 	mdl->Load(filename);

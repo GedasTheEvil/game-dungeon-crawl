@@ -1,7 +1,7 @@
 #include "riddle.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../core/service_locator.h"
-#include <stdio.h>
+#include "../core/logger.h"
 #include <GL/gl.h>
 #ifndef WIN32
 #include <GL/glut.h>
@@ -63,11 +63,11 @@ Riddle::Riddle() {
 
 Riddle::~Riddle() {
 	delete[] rid;
-	printf("Deleting Riddle %p \n", (void*)this);
+	LOG_DEBUGF("ui", "Deleting Riddle %p", static_cast<void*>(this));
 }
 
 void Riddle::GetRiddle() {
-	srand((unsigned)time(nullptr));
+	srand(static_cast<unsigned>(time(nullptr)));
 
 	selected = static_cast<int>(random() % RiddleCount);
 	YourAnswer[0] = '_';
@@ -107,7 +107,6 @@ void Riddle::Draw() {
 	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(12.5), rid[selected].question_l1);
 	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(10), rid[selected].question_l2);
 	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(7.5), rid[selected].question_l3);
-	//      GAME_STATE.font.print(5,5, rid[selected].question_l4);
 	glColor3f(0, 1, 0);
 	GAME_STATE.fonts.font.print(5, 5, YourAnswer);
 
@@ -121,8 +120,6 @@ void Riddle::Draw() {
 void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	(void)mouseX;
 	(void)mouseY;
-
-	//      printf("Ridddle key pressed: %d \n",key);
 
 	if (key != 8) // backspace,enter
 	{

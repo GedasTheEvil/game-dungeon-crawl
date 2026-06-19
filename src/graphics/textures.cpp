@@ -65,8 +65,8 @@ int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
 		}
 
 		if (fread(texture.data, 1, imageSize, file) !=
-			(size_t)imageSize) { // Does The Image Size Match The Memory Reserved?
-			free(texture.data);	 // If So, Release The Image Data
+			static_cast<size_t>(imageSize)) { // Does The Image Size Match The Memory Reserved?
+			free(texture.data);				  // If So, Release The Image Data
 			texture.data = nullptr;
 			fclose(file); // Close The File
 			throw std::runtime_error("Failed to read texture data from file");

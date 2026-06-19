@@ -32,7 +32,6 @@ class AnimatedCartoonModel : public AnimatedModel {
 	bool outline;
 
 	AnimatedCartoonModel();
-	// 	   ~AnimatedCartoonModel();
 	void ShowC();
 };
 

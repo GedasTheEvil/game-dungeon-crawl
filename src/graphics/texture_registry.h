@@ -4,7 +4,7 @@
 #include "textures.h"
 
 struct TextureRegistry {
-	Textura Mt[4];
+	Textura monsterTextures[4];
 	Textura nullTex;
 	Textura blackTex;
 	Textura column_t;

@@ -2,36 +2,35 @@
 #include <cmath>
 #include <stdio.h>
 // // #include "stats.h"
-#include "../state/cashe.h"
+#include "../state/game_state.h"
 #include "../input/gameplay_config.h"
 #include "../core/service_locator.h"
 
-int monster::AtDir() {
+int monster::attackDirection() {
 	if (!speed) {
-		if (*DX - X - 0.5 > 0.2 + 0.02 * scale && std::fabs(Y - *DY) < 0.8)
+		if (*dungeonX - X - 0.5 > 0.2 + 0.02 * scale && std::fabs(Y - *dungeonY) < 0.8)
 			return 1;
-		else if (*DX - X - 0.5 < -0.2 - 0.02 * scale && std::fabs(Y - *DY) < 0.8)
+		else if (*dungeonX - X - 0.5 < -0.2 - 0.02 * scale && std::fabs(Y - *dungeonY) < 0.8)
 			return -1;
 		else
 			return 0;
 	}
 
-	if ((x + X + 0.5) - *DX > 0.05 + 0.02 * scale && std::fabs(Y - *DY) < 0.8)
+	if ((x + X + 0.5) - *dungeonX > 0.05 + 0.02 * scale && std::fabs(Y - *dungeonY) < 0.8)
 		return -1;
-	else if ((x + X + 0.5) - *DX < -0.05 - 0.02 * scale && std::fabs(Y - *DY) < 0.8)
+	else if ((x + X + 0.5) - *dungeonX < -0.05 - 0.02 * scale && std::fabs(Y - *dungeonY) < 0.8)
 		return 1;
 	return 0;
 }
 
 int monster::Seek() {
 	if (Alive()) {
-		// 	   if(walk_timer -> TimePassed() )
-		x += MONSTER_SEEK_STEP * (AtDir() * speed);
+		x += MONSTER_SEEK_STEP * (attackDirection() * speed);
 
-		if (!AtDir())
+		if (!attackDirection())
 			return 0;
 		else
-			mdl = walk.get();
+			model = walk.get();
 
 		return 1;
 	}
@@ -43,9 +42,9 @@ void monster::Attack() {
 	if (!Alive())
 		return;
 
-	mdl = attack.get();
+	model = attack.get();
 
-	if (/*Att_timer -> TimePassed() &&*/ std::fabs(Y - *DY) < 0.8) {
+	if (/*Att_timer -> TimePassed() &&*/ std::fabs(Y - *dungeonY) < 0.8) {
 		GAME_STATE.ui.Stats->GetHit(damage);
 		att_s.Play();
 	}
@@ -58,7 +57,7 @@ void monster::GetCords(float& xx, float& yy) {
 
 bool monster::Nearby(float xx, float yy, int rangei) {
 
-	float range = 0.1 * (float)rangei;
+	float range = 0.1f * static_cast<float>(rangei);
 
 	if (fabs(X + x + 0.5 - xx) <= range && std::fabs(Y - yy) < 0.7)
 		return 1;
@@ -68,34 +67,34 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 
 void monster::changeMDL(int id) {
 	if (id == 0) {
-		mdl = walk.get();
+		model = walk.get();
 		return;
 	}
 
 	if (id == 1) {
-		mdl = attack.get();
+		model = attack.get();
 		return;
 	}
 
 	if (id == 2) {
-		mdl = die.get();
+		model = die.get();
 		return;
 	}
 }
 
 int monster::Model_state() {
-	if (mdl == walk.get())
+	if (model == walk.get())
 		return 1;
-	if (mdl == attack.get())
+	if (model == attack.get())
 		return 2;
 	return 0;
 }
 
 void monster::setModel(int state) {
 	if (state == 1)
-		mdl = walk.get();
+		model = walk.get();
 	else if (state == 2)
-		mdl = attack.get();
+		model = attack.get();
 	else
-		mdl = die.get();
+		model = die.get();
 }

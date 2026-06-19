@@ -35,7 +35,7 @@ void Logger::log(LogLevel level, const std::string& category, const std::string&
 	if (!enabled || !instance)
 		return;
 
-	const char* levelStr = "";
+	const char* levelStr;
 	switch (level) {
 	case LogLevel::DEBUG:
 		levelStr = "DEBUG";

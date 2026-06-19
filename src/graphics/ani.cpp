@@ -234,7 +234,6 @@ void AnimatedModel::Centrify() {
 
 	Translate(-(minX + maxX) / 2, -minY, -(maxZ + minZ) / 2); // apacia bus 0, x centruojam, z 0
 
-	scale = 1;
 }
 //============================================================
 void AnimatedModel::Translate(float x, float y, float z) {

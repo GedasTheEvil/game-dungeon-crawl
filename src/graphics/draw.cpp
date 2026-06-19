@@ -11,15 +11,7 @@
 #include <GL/freeglut.h>
 #endif
 
-float rotW = -110;
-float rotM = 0;
-float rotN = 0;
-
 int weaponRot = 0;
-
-bool attacking = 0;
-
-extern float resX, resY;
 
 void drawLoad(float xxx, char text[]);
 
@@ -32,16 +24,16 @@ void Draw() {
 
 	switch (ScreenState::GetDrawScreen(GAME_STATE)) {
 	case ScreenState::DrawScreen::Menu:
-		GAME_STATE.menu.Draw();
+		GAME_STATE.ui.menu.Draw();
 		return;
 	case ScreenState::DrawScreen::Inventory:
-		GAME_STATE.invent->Draw();
+		GAME_STATE.ui.invent->Draw();
 		return;
 	case ScreenState::DrawScreen::Stats:
-		GAME_STATE.Stats->Draw();
+		GAME_STATE.ui.Stats->Draw();
 		return;
 	case ScreenState::DrawScreen::Riddle:
-		GAME_STATE.rid->Draw();
+		GAME_STATE.ui.rid->Draw();
 		return;
 	case ScreenState::DrawScreen::Gameplay:
 		break;
@@ -52,15 +44,15 @@ void Draw() {
 
 	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
 	glLoadIdentity();			 // Reset The Projection Matrix
-	gluPerspective(45.0f, resX / resY, 10.0f, 300.0f);
+	gluPerspective(45.0f, (float)GAME_STATE.render.resX / (float)GAME_STATE.render.resY, 10.0f, 300.0f);
 	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
 
 	glTranslatef(0, -20, -70); // for perspective, bet skaiciai is lempos
 
-	glRotatef(rotM, 0, 1, 0);
-	glRotatef(rotN, 1, 0, 0);
+	glRotatef(GAME_STATE.camera.rotM, 0, 1, 0);
+	glRotatef(GAME_STATE.camera.rotN, 1, 0, 0);
 
-	GAME_STATE.Dt[0].Bind();
+	GAME_STATE.textures.Dt[0].Bind();
 
 	glPushMatrix();				  // for perspective
 	glTranslatef(-202, 0.0, -10); // for perspective, tarkim bus tiek :)
@@ -70,15 +62,15 @@ void Draw() {
 
 	glPopMatrix(); // for perspective
 
-	GAME_STATE.Player->rotA = rotW;
+	GAME_STATE.Player->rotA = GAME_STATE.camera.rotW;
 
 	GAME_STATE.Player->Draw();
 
 	if (GAME_STATE.IHaveWon)
-		GAME_STATE.wlc->DrawWin();
+		GAME_STATE.ui.wlc->DrawWin();
 
 	if (GAME_STATE.Player->Alive()) {
-		if (GAME_STATE.mdlChange->TimePassed())
+		if (GAME_STATE.timers.mdlChange->TimePassed())
 			GAME_STATE.Player->changeMDL(0);
 
 		glPushMatrix(); // weapon
@@ -91,23 +83,23 @@ void Draw() {
 			glTranslatef(-GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
 			glRotatef(45 + weaponRot, 0, 0, 1);
 		}
-		GAME_STATE.invent->Equipped()->Draw();
-		GAME_STATE.invent->Equipped()->rotA++; // just for the heck of it
+		GAME_STATE.ui.invent->Equipped()->Draw();
+		GAME_STATE.ui.invent->Equipped()->rotA++; // just for the heck of it
 
-		if (attacking) {
+		if (GAME_STATE.Player->attacking) {
 			if (GAME_STATE.Player->Att_timer->TimePassed() || weaponRot <= -40) {
 				weaponRot = 70;
-				attacking = 0;
+				GAME_STATE.Player->attacking = false;
 			} else
 				weaponRot -= 4;
-		} else if (GAME_STATE.AttTimer->TimePassed())
+		} else if (GAME_STATE.timers.AttTimer->TimePassed())
 			weaponRot = 0;
 
 		glPopMatrix();
 
 	} // end of alive
 	else
-		GAME_STATE.wlc->DrawLoose();
+		GAME_STATE.ui.wlc->DrawLoose();
 
 	glLoadIdentity();
 
@@ -119,15 +111,15 @@ void Draw() {
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
-	GAME_STATE.Stats->UpdateStamina();
+	GAME_STATE.ui.Stats->UpdateStamina();
 
-	GAME_STATE.nullTex.Bind();
+	GAME_STATE.textures.nullTex.Bind();
 	Hud::drawPlayerBars(GAME_STATE.Player->healthRatio(), GAME_STATE.Player->staminaRatio());
 
 	glColor3f(1, 1, 1);
 
 	if (!GAME_STATE.status_timer->TimePassed(true))
-		GAME_STATE.load_font.print(25, 72, GAME_STATE.status);
+		GAME_STATE.fonts.load_font.print(25, 72, GAME_STATE.status);
 
 	glFlush();
 

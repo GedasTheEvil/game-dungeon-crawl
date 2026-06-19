@@ -107,36 +107,31 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(x, y).a != Ladder && !GAME_STATE.jumping) {
+	if (Map(x, y).a != Ladder && !GAME_STATE.Player->jump.jumping) {
 		if ((y - static_cast<float>(static_cast<int>(y))) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
-			if (GAME_STATE.fall_inc->TimePassed())
+			if (GAME_STATE.Player->jump.fall_inc->TimePassed())
 				y -= FALL_STEP;
-			GAME_STATE.falling = true;
+			GAME_STATE.Player->jump.falling = true;
 		} else {
-			GAME_STATE.falling = false;
+			GAME_STATE.Player->jump.falling = false;
 		}
 	}
 
-	if (GAME_STATE.jumping) {
-		if (GAME_STATE.jump_inc->TimePassed()) {
-			if (GAME_STATE.jump_dir_x != 0)
-				Move(GAME_STATE.jump_dir_x * GAME_STATE.jump_speed, 0);
+	if (GAME_STATE.Player->jump.jumping) {
+		if (GAME_STATE.Player->jump.jump_inc->TimePassed()) {
+			if (GAME_STATE.Player->jump.dir_x != 0)
+				Move(GAME_STATE.Player->jump.dir_x * GAME_STATE.Player->jump.speed, 0);
 
-			y += GAME_STATE.jump_vel;
-			GAME_STATE.jump_vel -= JUMP_GRAVITY_STEP;
+			y += GAME_STATE.Player->jump.velocity;
+			GAME_STATE.Player->jump.velocity -= JUMP_GRAVITY_STEP;
 
-			if (GAME_STATE.jump_vel <= 0 && y <= GAME_STATE.jump_start_y) {
-				y = GAME_STATE.jump_start_y;
-				GAME_STATE.jumping = false;
-				GAME_STATE.falling = false;
+			if (GAME_STATE.Player->jump.velocity <= 0 && y <= GAME_STATE.Player->jump.start_y) {
+				y = GAME_STATE.Player->jump.start_y;
+				GAME_STATE.Player->jump.jumping = false;
+				GAME_STATE.Player->jump.falling = false;
 			}
 		}
 	}
-}
-//======================================================================================
-void Dungeon::InitializeAfterServiceLocator() {
-	// Now it's safe to access GAME_STATE
-	GAME_STATE.falling = false;
 }
 //======================================================================================
 void Dungeon::Update() {
@@ -145,10 +140,10 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!GAME_STATE.falling && jump && Map(x, y).a != Ladder) {
+	if (!GAME_STATE.Player->jump.falling && jump && Map(x, y).a != Ladder) {
 		y = y + dirY;
 		x = x + dirX;
-		GAME_STATE.falling = true;
+		GAME_STATE.Player->jump.falling = true;
 	}
 
 	if (dirX > 0) {

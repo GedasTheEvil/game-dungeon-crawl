@@ -26,7 +26,7 @@ void stats::Draw() {
 	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
 
 	// Background image
-	GAME_STATE.bg.Bind();
+	GAME_STATE.textures.bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -40,11 +40,11 @@ void stats::Draw() {
 	glVertex3i(100, 0, -40);
 	glEnd();
 
-	GAME_STATE.progBar.Bind();
+	GAME_STATE.textures.progBar.Bind();
 	glColor3f(1, 1, 1);
 
 	realPscale = GAME_STATE.Player->scale;
-	realIscale = GAME_STATE.invent->Equipped()->scale;
+	realIscale = GAME_STATE.ui.invent->Equipped()->scale;
 
 	glBegin(GL_LINE_LOOP); // player slot
 	glVertex3i(4, 4, -38);
@@ -70,13 +70,13 @@ void stats::Draw() {
 	glEnd();
 
 	glPushMatrix();
-	GAME_STATE.invent->Equipped()->scale = 40;
+	GAME_STATE.ui.invent->Equipped()->scale = 40;
 	glTranslatef(26, 5, 25);
-	GAME_STATE.invent->Equipped()->Draw();
+	GAME_STATE.ui.invent->Equipped()->Draw();
 	if (rotItems)
-		GAME_STATE.invent->Equipped()->rotA++;
+		GAME_STATE.ui.invent->Equipped()->rotA++;
 	glPopMatrix();
-	GAME_STATE.invent->Equipped()->scale = realIscale;
+	GAME_STATE.ui.invent->Equipped()->scale = realIscale;
 
 	glColor3f(1, 1, 1);
 
@@ -91,7 +91,7 @@ void stats::Draw() {
 	Impact.print(54, 50, "Might: %d", Might);
 	Impact.print(54, 40, "Armor: %d", Armor);
 	Impact.print(54, 30, "Damage: %d", Damage());
-	Impact.print(54, 20, "Range: %d", GAME_STATE.invent->Equipped()->range);
+	Impact.print(54, 20, "Range: %d", GAME_STATE.ui.invent->Equipped()->range);
 
 	glDisable(GL_BLEND);
 
@@ -248,7 +248,7 @@ bool stats::AdvanceLevel() {
 }
 
 int stats::Damage() const {
-	return Might + GAME_STATE.invent->Equipped()->damage; // + weapon dmg
+	return Might + GAME_STATE.ui.invent->Equipped()->damage; // + weapon dmg
 }
 
 void stats::GetTougher(int hpPart) {

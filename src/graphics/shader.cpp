@@ -139,7 +139,7 @@ void AnimatedCartoonModel::ShowC() {
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	if (GAME_STATE.Orig_model) {
+	if (GAME_STATE.render.Orig_model) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glColor4f(1.0f, 1.0f, 1.0f, 0.4);

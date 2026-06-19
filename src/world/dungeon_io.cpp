@@ -72,7 +72,7 @@ void Dungeon::Dump(std::ofstream& f) {
 //======================================================================================
 void Dungeon::GetPickUp() {
 	if (Map(x, y).a == Treasure) {
-		GAME_STATE.invent->GetItem(Map(x, y).b, Map(x, y).c);
+		GAME_STATE.ui.invent->GetItem(Map(x, y).b, Map(x, y).c);
 		map[MapIndex((int)x, (int)y)].a = Empty;
 		if (Map(x, y).b != 0) {
 			sprintf(GAME_STATE.status, "Picked up an item  \n");
@@ -88,8 +88,8 @@ void Dungeon::GetRiddle() {
 	}
 
 	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
-		GAME_STATE.rid->GetRiddle();
-		GAME_STATE.rid->show = true;
+		GAME_STATE.ui.rid->GetRiddle();
+		GAME_STATE.ui.rid->show = true;
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
 		GAME_STATE.curMap++;

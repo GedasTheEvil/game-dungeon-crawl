@@ -14,183 +14,180 @@
 
 char mapName2[200];
 
-// Global instance for backward compatibility during transition
-Cashe* c = nullptr;
-
 Cashe::Cashe() = default;
 
 Cashe::~Cashe() { LOG_DEBUGF("game", "Deleting cashe %p", (void*)this); }
 
 void Cashe::Load() {
 	// init main load resourses
-	load_font.Load("Fonts/papyrus.bmp", 7, -1.0);
-	load_bg.LoadBMP("Textures/scarab_slate.bmp");
-	bg.LoadBMP("Textures/papyrus_sheet.bmp");
-	progBar.LoadBMP("Textures/loading.bmp");
-	nullTex.LoadBMP("Textures/null.bmp");
-	blackTex.LoadBMP("Textures/wallback.bmp");
-	black_t.LoadBMP("Textures/black.bmp");
+	fonts.load_font.Load("Fonts/papyrus.bmp", 7, -1.0);
+	textures.load_bg.LoadBMP("Textures/scarab_slate.bmp");
+	textures.bg.LoadBMP("Textures/papyrus_sheet.bmp");
+	textures.progBar.LoadBMP("Textures/loading.bmp");
+	textures.nullTex.LoadBMP("Textures/null.bmp");
+	textures.blackTex.LoadBMP("Textures/wallback.bmp");
+	textures.black_t.LoadBMP("Textures/black.bmp");
 	DrawLoad(4, "Loading Textures");
-	menu_bg.LoadBMP("Textures/menu_main.bmp");
-	menu_save_bg.LoadBMP("Textures/menu_save.bmp");
-	player_t.LoadBMP("Textures/player.bmp");
+	textures.menu_bg.LoadBMP("Textures/menu_main.bmp");
+	textures.menu_save_bg.LoadBMP("Textures/menu_save.bmp");
+	textures.player_t.LoadBMP("Textures/player.bmp");
 	DrawLoad(5, "Loading Textures");
-	anubis_t.LoadBMP("Textures/anubis.bmp");
+	textures.anubis_t.LoadBMP("Textures/anubis.bmp");
 	DrawLoad(6, "Loading Textures");
-	worm_t.LoadBMP("Textures/worm.bmp");
+	textures.worm_t.LoadBMP("Textures/worm.bmp");
 	DrawLoad(7, "Loading Textures");
-	scarab_t.LoadBMP("Textures/scarab.bmp");
+	textures.scarab_t.LoadBMP("Textures/scarab.bmp");
 	DrawLoad(8, "Loading Textures");
-	bow_t.LoadBMP("Textures/scarab.bmp");
+	textures.bow_t.LoadBMP("Textures/scarab.bmp");
 	DrawLoad(9, "Loading Textures");
-	chest_t.LoadBMP("Textures/tchest.bmp");
+	textures.chest_t.LoadBMP("Textures/tchest.bmp");
 	DrawLoad(10, "Loading Textures");
-	Dt[0].LoadBMP("Textures/sand.bmp");
+	textures.Dt[0].LoadBMP("Textures/sand.bmp");
 	DrawLoad(11, "Loading Textures");
-	Dt[1].LoadBMP("Textures/rock.bmp");
+	textures.Dt[1].LoadBMP("Textures/rock.bmp");
 	DrawLoad(12, "Loading Textures");
-	Dt[2].LoadBMP("Textures/vein.bmp");
+	textures.Dt[2].LoadBMP("Textures/vein.bmp");
 	DrawLoad(13, "Loading Textures");
-	club_t.LoadBMP("Textures/club.bmp");
+	textures.club_t.LoadBMP("Textures/club.bmp");
 	DrawLoad(14, "Loading Textures");
-	sword_t.LoadBMP("Textures/sword.bmp");
+	textures.sword_t.LoadBMP("Textures/sword.bmp");
 	DrawLoad(15, "Loading Textures");
-	potion_t.LoadBMP("Textures/potion.bmp");
+	textures.potion_t.LoadBMP("Textures/potion.bmp");
 	DrawLoad(16, "Loading Textures");
-	spear_t.LoadBMP("Textures/spear.bmp");
+	textures.spear_t.LoadBMP("Textures/spear.bmp");
 	DrawLoad(17, "Loading Textures");
-	plant_t.LoadBMP("Textures/plant.bmp");
-	riddle_bg.LoadBMP("Textures/riddlebg.bmp");
-	rid = std::make_unique<Riddle>();
+	textures.plant_t.LoadBMP("Textures/plant.bmp");
+	textures.riddle_bg.LoadBMP("Textures/riddlebg.bmp");
+	ui.rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
 	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
-	Player->LoadMDL("human", player_t, progBar, true);
+	Player->LoadMDL("human", textures.player_t, textures.progBar, true);
 	Player->scale = 15;
 	Player->setCords(0, 0);
 
 	DrawLoad(30, "Loading Monster Models [Worm]");
-	worm = std::make_unique<monster>(0, 0, 1, 40, 15, 1500);
-	worm->LoadMDL("worm", worm_t, progBar, true);
-	worm->scale = 18;
-	worm->MaxHP = 20;
+	monsters.worm = std::make_unique<monster>(0, 0, 1, 40, 15, 1500);
+	monsters.worm->LoadMDL("worm", textures.worm_t, textures.progBar, true);
+	monsters.worm->scale = 18;
+	monsters.worm->MaxHP = 20;
 
 	DrawLoad(40, "Loading Monster Models [Scarab]");
-	scarab = std::make_unique<monster>(0, 0, 2, 25, 3, 500);
-	scarab->LoadMDL("scarab", scarab_t, progBar, true);
-	scarab->scale = 10;
-	scarab->rotA = 180;
-	scarab->MaxHP = 15;
-	scarab->setBloodColor(0.6f, 0.1f, 0.8f); // Purple blood
+	monsters.scarab = std::make_unique<monster>(0, 0, 2, 25, 3, 500);
+	monsters.scarab->LoadMDL("scarab", textures.scarab_t, textures.progBar, true);
+	monsters.scarab->scale = 10;
+	monsters.scarab->rotA = 180;
+	monsters.scarab->MaxHP = 15;
+	monsters.scarab->setBloodColor(0.6f, 0.1f, 0.8f); // Purple blood
 
 	DrawLoad(50, "Loading Monster Models [Anubis]");
-	anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
-	anubis->LoadMDL("anubis", anubis_t, progBar, true);
-	anubis->scale = 19;
-	anubis->rotA = 180;
-	anubis->MaxHP = 200;
+	monsters.anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
+	monsters.anubis->LoadMDL("anubis", textures.anubis_t, textures.progBar, true);
+	monsters.anubis->scale = 19;
+	monsters.anubis->rotA = 180;
+	monsters.anubis->MaxHP = 200;
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
-	chest = std::make_unique<item>();
-	chest->LoadMDL("Models/tchest.mdl", chest_t);
-	chest->scale = 8;
-	chest->rotA = -90;
+	items.chest = std::make_unique<item>();
+	items.chest->LoadMDL("Models/tchest.mdl", textures.chest_t);
+	items.chest->scale = 8;
+	items.chest->rotA = -90;
 
 	DrawLoad(65, "Loading Monster Models [Man-eater plant]");
-	plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
-	plant->LoadMDL("plant", plant_t, progBar, true);
-	plant->scale = 12;
-	plant->MaxHP = 30;
-	plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
+	monsters.plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
+	monsters.plant->LoadMDL("plant", textures.plant_t, textures.progBar, true);
+	monsters.plant->scale = 12;
+	monsters.plant->MaxHP = 30;
+	monsters.plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
 
 	DrawLoad(70, "Loading Item Models [Club]");
-	club = std::make_unique<item>();
-	club->LoadMDL("Models/club.mdl", club_t);
-	club->damage = 9;
-	club->scale = 6;
-	club->range = 2;
+	items.club = std::make_unique<item>();
+	items.club->LoadMDL("Models/club.mdl", textures.club_t);
+	items.club->damage = 9;
+	items.club->scale = 6;
+	items.club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
-	sword = std::make_unique<item>();
-	sword->LoadMDL("Models/sword.mdl", sword_t);
-	sword->scale = 9;
-	sword->damage = 35;
-	sword->range = 4;
+	items.sword = std::make_unique<item>();
+	items.sword->LoadMDL("Models/sword.mdl", textures.sword_t);
+	items.sword->scale = 9;
+	items.sword->damage = 35;
+	items.sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
-	bow = std::make_unique<item>();
-	bow->LoadMDL("Models/bow.mdl", bow_t);
-	bow->scale = 12;
-	bow->damage = 12;
-	bow->range = 16;
+	items.bow = std::make_unique<item>();
+	items.bow->LoadMDL("Models/bow.mdl", textures.bow_t);
+	items.bow->scale = 12;
+	items.bow->damage = 12;
+	items.bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
-	spear = std::make_unique<item>();
-	spear->LoadMDL("Models/spear.mdl", spear_t);
-	spear->scale = 15;
-	spear->damage = 15;
-	spear->range = 8;
+	items.spear = std::make_unique<item>();
+	items.spear->LoadMDL("Models/spear.mdl", textures.spear_t);
+	items.spear->scale = 15;
+	items.spear->damage = 15;
+	items.spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
-	potion = std::make_unique<item>();
-	potion->LoadMDL("Models/potion.mdl", potion_t);
-	potion->scale = 5;
+	items.potion = std::make_unique<item>();
+	items.potion->LoadMDL("Models/potion.mdl", textures.potion_t);
+	items.potion->scale = 5;
 
-	sphinx_t.LoadBMP("Textures/sphinx.bmp");
-	sphinx = std::make_unique<AnimatedCartoonModel>();
-	sphinx->Load("Models/sphinx.mdl");
-	sphinx->BindTexture(sphinx_t.ID());
-	sphinx->Centrify();
-	sphinx->Compile();
+	textures.sphinx_t.LoadBMP("Textures/sphinx.bmp");
+	models.sphinx = std::make_unique<AnimatedCartoonModel>();
+	models.sphinx->Load("Models/sphinx.mdl");
+	models.sphinx->BindTexture(textures.sphinx_t.ID());
+	models.sphinx->Centrify();
+	models.sphinx->Compile();
 
-	ankh_t.LoadBMP("Textures/ankh.bmp");
-	ankh = std::make_unique<AnimatedCartoonModel>();
-	ankh->Load("Models/ankh.mdl");
-	ankh->BindTexture(ankh_t.ID());
-	ankh->Centrify();
-	ankh->Compile();
+	textures.ankh_t.LoadBMP("Textures/ankh.bmp");
+	models.ankh = std::make_unique<AnimatedCartoonModel>();
+	models.ankh->Load("Models/ankh.mdl");
+	models.ankh->BindTexture(textures.ankh_t.ID());
+	models.ankh->Centrify();
+	models.ankh->Compile();
 
-	column_t.LoadBMP("Textures/columns.bmp");
-	column = std::make_unique<AnimatedCartoonModel>();
-	column->Load("Models/columns.mdl");
-	column->BindTexture(column_t.ID());
-	column->Centrify();
-	column->Compile();
+	textures.column_t.LoadBMP("Textures/columns.bmp");
+	models.column = std::make_unique<AnimatedCartoonModel>();
+	models.column->Load("Models/columns.mdl");
+	models.column->BindTexture(textures.column_t.ID());
+	models.column->Centrify();
+	models.column->Compile();
 
-	question = std::make_unique<AnimatedCartoonModel>();
-	question->Load("Models/questionmark.mdl");
-	question->BindTexture(scarab_t.ID());
-	question->Centrify();
-	question->Compile();
+	models.question = std::make_unique<AnimatedCartoonModel>();
+	models.question->Load("Models/questionmark.mdl");
+	models.question->BindTexture(textures.scarab_t.ID());
+	models.question->Centrify();
+	models.question->Compile();
 
-	plasma_t.LoadBMP("Textures/plasma.bmp");
+	textures.plasma_t.LoadBMP("Textures/plasma.bmp");
 
 	DrawLoad(85, "Loading inventory");
-	invent = std::make_unique<inventory>();
-	drink_s.LoadWAV("Sounds/Drink.wav");
-	jump_s.LoadWAV("Sounds/Jump.wav");
+	ui.invent = std::make_unique<inventory>();
+	sounds.drink_s.LoadWAV("Sounds/Drink.wav");
+	sounds.jump_s.LoadWAV("Sounds/Jump.wav");
 
 	DrawLoad(88, "Loading stats");
-	Stats = std::make_unique<stats>();
+	ui.Stats = std::make_unique<stats>();
 
-	trap_t.LoadBMP("Textures/spikes.bmp");
-	TrapD = std::make_unique<trap>();
-	TrapD->LoadMDL("Models/spikes.mdl", trap_t);
-	TrapD->scale = 16;
+	textures.trap_t.LoadBMP("Textures/spikes.bmp");
+	traps.TrapD = std::make_unique<trap>();
+	traps.TrapD->LoadMDL("Models/spikes.mdl", textures.trap_t);
+	traps.TrapD->scale = 16;
 
-	DeathTrap = std::make_unique<trap>();
-	DeathTrap->LoadMDL("Models/spikes.mdl", trap_t);
-	DeathTrap->scale = 40;
+	traps.DeathTrap = std::make_unique<trap>();
+	traps.DeathTrap->LoadMDL("Models/spikes.mdl", textures.trap_t);
+	traps.DeathTrap->scale = 40;
 
 	DrawLoad(95, "Loading game font");
-	font.Load("Fonts/papyrus.bmp", 3, -0.3);
+	fonts.font.Load("Fonts/papyrus.bmp", 3, -0.3);
 
-	jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
-	jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
-	mdlChange = std::make_unique<timer>(300);
-	AttTimer = std::make_unique<timer>(250);
-	jump_inc = std::make_unique<timer>(JUMP_TICK_MS);
-	fall_inc = std::make_unique<timer>(FALL_TICK_MS);
+	Player->jump.jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
+	Player->jump.jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
+	timers.mdlChange = std::make_unique<timer>(300);
+	timers.AttTimer = std::make_unique<timer>(250);
+	Player->jump.jump_inc = std::make_unique<timer>(JUMP_TICK_MS);
+	Player->jump.fall_inc = std::make_unique<timer>(FALL_TICK_MS);
 	status_timer = std::make_unique<timer>(3000);
 
 	DrawLoad(95, "Loading game Map");
@@ -199,12 +196,9 @@ void Cashe::Load() {
 	if (!dungeon.Load(mapName2))
 		LOG_WARNING("game", "Failed loading map");
 
-	// Initialize dungeon after ServiceLocator is properly set up
-	dungeon.InitializeAfterServiceLocator();
-
 	DrawLoad(100, "Loading game soundtrack");
-	soundtrack.LoadOGG("Sounds/soundtrack.ogg");
-	soundtrack.Play();
+	sounds.soundtrack.LoadOGG("Sounds/soundtrack.ogg");
+	sounds.soundtrack.Play();
 
 	std::ifstream f("Saves/gamelist.dat");
 	if (f) {
@@ -215,7 +209,7 @@ void Cashe::Load() {
 		LOG_WARNING("game", "Failed loading save list");
 	}
 
-	wlc = std::make_unique<winL>();
+	ui.wlc = std::make_unique<winL>();
 
 	snprintf(status, sizeof(status), "%s", "");
 
@@ -239,7 +233,7 @@ void Cashe::DrawLoad(float xxx, const char text[]) {
 	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
 
 	// Background image
-	load_bg.Bind();
+	textures.load_bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -254,7 +248,7 @@ void Cashe::DrawLoad(float xxx, const char text[]) {
 	glEnd();
 
 	// progressbar
-	progBar.Bind();
+	textures.progBar.Bind();
 
 	glColor3f(1.2, 0.6, 0);
 	glBegin(GL_QUADS);
@@ -272,7 +266,7 @@ void Cashe::DrawLoad(float xxx, const char text[]) {
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
-	load_font.print(10, 15, text);
+	fonts.load_font.print(10, 15, text);
 	glDisable(GL_BLEND);
 
 	glFlush();
@@ -294,8 +288,8 @@ void Cashe::Save(const char filename[]) {
 
 	dump << curMap << " ";
 
-	Stats->Dump(dump);
-	invent->Dump(dump);
+	ui.Stats->Dump(dump);
+	ui.invent->Dump(dump);
 	dungeon.Dump(dump);
 
 	dump.close();
@@ -319,9 +313,9 @@ void Cashe::LoadSave(const char filename[]) {
 	dump >> curMap;
 	LOG_INFOF("game", "Got MapNo : %d", curMap);
 
-	Stats->LoadDump(dump);
+	ui.Stats->LoadDump(dump);
 	LOG_INFO("game", "Done loading Stats");
-	invent->LoadDump(dump);
+	ui.invent->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
 	LOG_INFO("game", "Done loading map");

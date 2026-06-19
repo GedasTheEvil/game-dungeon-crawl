@@ -129,7 +129,7 @@ bool monster::Draw() // needs to choose animation
 		glPushMatrix();
 		glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
 
-		GAME_STATE.nullTex.Bind();
+		GAME_STATE.textures.nullTex.Bind();
 		blood->Explode();
 		blood->Fall();
 		blood->Draw();
@@ -141,7 +141,7 @@ bool monster::Draw() // needs to choose animation
 	glPushMatrix();
 	glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
 
-	GAME_STATE.nullTex.Bind();
+	GAME_STATE.textures.nullTex.Bind();
 	blood->Explode();
 	blood->Fall();
 	blood->Draw();
@@ -158,7 +158,7 @@ bool monster::Draw() // needs to choose animation
 	} else
 		glRotatef(rotA, 0, 1, 0);
 
-	if (GAME_STATE.Cartoon)
+	if (GAME_STATE.render.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();
@@ -247,7 +247,7 @@ bool monster::getHit(int dmg) {
 		mdl = die.get();
 		sprintf(GAME_STATE.status, "Gained %d XP", XP);
 		GAME_STATE.status_timer->Reset();
-		GAME_STATE.Stats->GetXP(XP);
+		GAME_STATE.ui.Stats->GetXP(XP);
 		die_s.Play();
 
 		// Death blood effect - 20% more intense than regular hit

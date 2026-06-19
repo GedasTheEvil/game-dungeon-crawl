@@ -4,17 +4,14 @@
 #include <GL/gl.h>
 #include <cmath>
 
-float qRot = 0;
-float plasma = 0;
-
 inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
 void normalize(VECTOR& v);
 void rotateVector(MATRIX& m, VECTOR& v, VECTOR& d);
 
 void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
-	GAME_STATE.blackTex.Bind();
+	GAME_STATE.textures.blackTex.Bind();
 
-	if (GAME_STATE.Cartoon) {
+	if (GAME_STATE.render.Cartoon) {
 		float tmpShade;
 		MATRIX tmpMatrix;
 		VECTOR tmpVector, tmpNormal;
@@ -154,8 +151,8 @@ void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upW
 		glDisable(GL_TEXTURE_1D);
 	}
 
-	if (!GAME_STATE.Cartoon || GAME_STATE.Orig_model) {
-		if (GAME_STATE.Orig_model) {
+	if (!GAME_STATE.render.Cartoon || GAME_STATE.render.Orig_model) {
+		if (GAME_STATE.render.Orig_model) {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 			glColor4f(1, 1, 1, 0.4);
@@ -163,7 +160,7 @@ void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upW
 		switch (type) {
 		case 0:
 			glDisable(GL_BLEND);
-			GAME_STATE.black_t.Bind();
+			GAME_STATE.textures.black_t.Bind();
 			glBegin(GL_QUADS);
 			glNormal3f(0, 0, 1);
 			glTexCoord2f(0, 0);
@@ -248,7 +245,7 @@ void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upW
 
 			break;
 		}
-		if (GAME_STATE.Orig_model)
+		if (GAME_STATE.render.Orig_model)
 			glDisable(GL_BLEND);
 	}
 
@@ -260,31 +257,31 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(20, 0, 10);
-	GAME_STATE.chest->Draw();
+	GAME_STATE.items.chest->Draw();
 
 	if (tile.b == 3) {
-		GAME_STATE.potion->Draw();
-		GAME_STATE.potion->rotA++;
+		GAME_STATE.items.potion->Draw();
+		GAME_STATE.items.potion->rotA++;
 	}
 
 	if (tile.b == 2) {
-		GAME_STATE.bow->Draw();
-		GAME_STATE.bow->rotA++;
+		GAME_STATE.items.bow->Draw();
+		GAME_STATE.items.bow->rotA++;
 	}
 
 	if (tile.b == 1) {
 		if (tile.c == 0) {
-			GAME_STATE.club->scale = 10;
-			GAME_STATE.club->Draw();
-			GAME_STATE.club->rotA++;
+			GAME_STATE.items.club->scale = 10;
+			GAME_STATE.items.club->Draw();
+			GAME_STATE.items.club->rotA++;
 		}
 		if (tile.c == 1) {
-			GAME_STATE.sword->Draw();
-			GAME_STATE.sword->rotA++;
+			GAME_STATE.items.sword->Draw();
+			GAME_STATE.items.sword->rotA++;
 		}
 		if (tile.c == 2) {
-			GAME_STATE.spear->Draw();
-			GAME_STATE.spear->rotA++;
+			GAME_STATE.items.spear->Draw();
+			GAME_STATE.items.spear->rotA++;
 		}
 	}
 
@@ -295,7 +292,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(20, 0, 10);
 
-	trap* tileTrap = isDeathTrap ? GAME_STATE.DeathTrap.get() : GAME_STATE.TrapD.get();
+	trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
 	tileTrap->DX = &x;
 	tileTrap->DY = &y;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
@@ -331,11 +328,11 @@ void Dungeon::Draw() {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
-					GAME_STATE.ankh_t.Bind();
-					if (GAME_STATE.Cartoon)
-						GAME_STATE.ankh->ShowC();
+					GAME_STATE.textures.ankh_t.Bind();
+					if (GAME_STATE.render.Cartoon)
+						GAME_STATE.models.ankh->ShowC();
 					else
-						GAME_STATE.ankh->Show();
+						GAME_STATE.models.ankh->Show();
 					glPopMatrix();
 				}
 				if (tile.a == Door) {
@@ -345,11 +342,11 @@ void Dungeon::Draw() {
 					glScalef(40, 40, 40);
 					if (tile.b != GateEntrance)
 						glRotatef(180, 0, 1, 0);
-					GAME_STATE.sphinx_t.Bind();
-					if (GAME_STATE.Cartoon)
-						GAME_STATE.sphinx->ShowC();
+					GAME_STATE.textures.sphinx_t.Bind();
+					if (GAME_STATE.render.Cartoon)
+						GAME_STATE.models.sphinx->ShowC();
 					else
-						GAME_STATE.sphinx->Show();
+						GAME_STATE.models.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
 
@@ -358,13 +355,13 @@ void Dungeon::Draw() {
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
 						glScalef(10, 10, 10);
-						GAME_STATE.scarab_t.Bind();
+						GAME_STATE.textures.scarab_t.Bind();
 						glPushMatrix();
 						glRotatef(qRot, 0, 1, 0);
-						if (GAME_STATE.Cartoon)
-							GAME_STATE.question->ShowC();
+						if (GAME_STATE.render.Cartoon)
+							GAME_STATE.models.question->ShowC();
 						else
-							GAME_STATE.question->Show();
+							GAME_STATE.models.question->Show();
 						qRot += 1.0;
 						glPopMatrix();
 						glPopMatrix();
@@ -378,7 +375,7 @@ void Dungeon::Draw() {
 
 						float px = static_cast<float>(((int)(plasma * 100) % 100)) / 200.0f;
 
-						GAME_STATE.plasma_t.Bind();
+						GAME_STATE.textures.plasma_t.Bind();
 						glBegin(GL_QUADS);
 						glNormal3f(1, 0, 0);
 						glTexCoord2f(px, 0);
@@ -400,15 +397,15 @@ void Dungeon::Draw() {
 					glTranslatef(20, 0, -25);
 					glPushMatrix();
 					glScalef(40, 40, 40);
-					GAME_STATE.column_t.Bind();
-					if (GAME_STATE.Cartoon)
-						GAME_STATE.column->ShowC();
+					GAME_STATE.textures.column_t.Bind();
+					if (GAME_STATE.render.Cartoon)
+						GAME_STATE.models.column->ShowC();
 					else
-						GAME_STATE.column->Show();
+						GAME_STATE.models.column->Show();
 					glPopMatrix();
 					glPopMatrix();
 
-					GAME_STATE.plasma_t.Bind();
+					GAME_STATE.textures.plasma_t.Bind();
 					glBegin(GL_QUADS);
 
 					float px = static_cast<float>(((int)(plasma * 100) % 100)) / static_cast<float>(200.0);

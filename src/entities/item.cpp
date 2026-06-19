@@ -22,7 +22,7 @@ void item::Draw() {
 	tex.Bind();
 	glRotatef(rotA, 0, 1, 0);
 
-	if (GAME_STATE.Cartoon)
+	if (GAME_STATE.render.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();

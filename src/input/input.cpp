@@ -6,11 +6,6 @@
 #include "../ui/screen_state.h"
 #include "../core/service_locator.h"
 
-extern float rotW;
-extern float rotM, rotN;
-
-extern bool attacking;
-
 unsigned char lastKey;
 
 int lastMx = 0;
@@ -20,7 +15,8 @@ void Draw();
 
 namespace {
 void startJump() {
-	if (GAME_STATE.jumping || GAME_STATE.falling || !GAME_STATE.Player->Alive() || GAME_STATE.IHaveWon)
+	if (GAME_STATE.Player->jump.jumping || GAME_STATE.Player->jump.falling || !GAME_STATE.Player->Alive() ||
+		GAME_STATE.IHaveWon)
 		return;
 
 	if (GAME_STATE.Player->Stamina() < JUMP_STAMINA_COST)
@@ -30,34 +26,34 @@ void startJump() {
 
 	float curX, curY;
 	GAME_STATE.dungeon.getC(curX, curY);
-	GAME_STATE.jump_start_y = curY;
+	GAME_STATE.Player->jump.start_y = curY;
 
-	GAME_STATE.jump_dir_x = 0;
-	if (lastKey == KEY_MOVE_LEFT || rotW < 0)
-		GAME_STATE.jump_dir_x = -1;
-	else if (lastKey == KEY_MOVE_RIGHT || rotW > 0)
-		GAME_STATE.jump_dir_x = 1;
+	GAME_STATE.Player->jump.dir_x = 0;
+	if (lastKey == KEY_MOVE_LEFT || GAME_STATE.camera.rotW < 0)
+		GAME_STATE.Player->jump.dir_x = -1;
+	else if (lastKey == KEY_MOVE_RIGHT || GAME_STATE.camera.rotW > 0)
+		GAME_STATE.Player->jump.dir_x = 1;
 
-	GAME_STATE.jump_speed = JUMP_FORWARD_SPEED;
-	GAME_STATE.jump_vel = JUMP_INITIAL_VELOCITY;
-	GAME_STATE.jumping = true;
-	GAME_STATE.jump_up_timer->Reset();
-	GAME_STATE.jump_s.Play();
+	GAME_STATE.Player->jump.speed = JUMP_FORWARD_SPEED;
+	GAME_STATE.Player->jump.velocity = JUMP_INITIAL_VELOCITY;
+	GAME_STATE.Player->jump.jumping = true;
+	GAME_STATE.Player->jump.jump_up_timer->Reset();
+	GAME_STATE.sounds.jump_s.Play();
 }
 
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
-		float moveMultiplier = GAME_STATE.Stats->SprintMoveMultiplier();
+		float moveMultiplier = GAME_STATE.ui.Stats->SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
-			rotW = -110;
+			GAME_STATE.camera.rotW = -110;
 			GAME_STATE.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveRight:
 			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
-			rotW = 70;
+			GAME_STATE.camera.rotW = 70;
 			GAME_STATE.Player->changeMDL(1);
 			break;
 		case GameplayAction::MoveDown:
@@ -81,8 +77,8 @@ class PlayerActionController {
 	}
 
 	static void applyCameraDelta(float deltaX, float deltaY) {
-		rotM += deltaX;
-		rotN += deltaY;
+		GAME_STATE.camera.rotM += deltaX;
+		GAME_STATE.camera.rotN += deltaY;
 		clampCamera();
 	}
 
@@ -91,9 +87,9 @@ class PlayerActionController {
 		if (!GAME_STATE.Player->Att_timer->TimePassed())
 			return;
 
-		GAME_STATE.dungeon.GetAttack(GAME_STATE.Stats->Damage(), GAME_STATE.invent->Equipped()->range);
+		GAME_STATE.dungeon.GetAttack(GAME_STATE.ui.Stats->Damage(), GAME_STATE.ui.invent->Equipped()->range);
 		GAME_STATE.Player->att_s.Play();
-		attacking = true;
+		GAME_STATE.Player->attacking = true;
 	}
 
 	static void interact() {
@@ -102,17 +98,17 @@ class PlayerActionController {
 	}
 
 	static void clampCamera() {
-		if (rotM > CAMERA_ROTATE_LIMIT_X)
-			rotM = CAMERA_ROTATE_LIMIT_X;
+		if (GAME_STATE.camera.rotM > CAMERA_ROTATE_LIMIT_X)
+			GAME_STATE.camera.rotM = CAMERA_ROTATE_LIMIT_X;
 
-		if (rotM < -CAMERA_ROTATE_LIMIT_X)
-			rotM = -CAMERA_ROTATE_LIMIT_X;
+		if (GAME_STATE.camera.rotM < -CAMERA_ROTATE_LIMIT_X)
+			GAME_STATE.camera.rotM = -CAMERA_ROTATE_LIMIT_X;
 
-		if (rotN > CAMERA_ROTATE_LIMIT_Y)
-			rotN = CAMERA_ROTATE_LIMIT_Y;
+		if (GAME_STATE.camera.rotN > CAMERA_ROTATE_LIMIT_Y)
+			GAME_STATE.camera.rotN = CAMERA_ROTATE_LIMIT_Y;
 
-		if (rotN < -CAMERA_ROTATE_LIMIT_Y)
-			rotN = -CAMERA_ROTATE_LIMIT_Y;
+		if (GAME_STATE.camera.rotN < -CAMERA_ROTATE_LIMIT_Y)
+			GAME_STATE.camera.rotN = -CAMERA_ROTATE_LIMIT_Y;
 	}
 };
 } // namespace
@@ -123,19 +119,19 @@ void keyPressed(unsigned char key, int x, int y) {
 	//      printf("You pressed %d\n",key);
 
 	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {
-		GAME_STATE.rid->KeyboardF(key, x, y);
+		GAME_STATE.ui.rid->KeyboardF(key, x, y);
 		return;
 	}
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		if (GAME_STATE.Stats->show || GAME_STATE.invent->show) {
-			GAME_STATE.Stats->show = false;
-			GAME_STATE.invent->show = false;
+		if (GAME_STATE.ui.Stats->show || GAME_STATE.ui.invent->show) {
+			GAME_STATE.ui.Stats->show = false;
+			GAME_STATE.ui.invent->show = false;
 		}
 
-		GAME_STATE.menu.ResetSubScreens();
-		GAME_STATE.menu.show = !GAME_STATE.menu.show;
+		GAME_STATE.ui.menu.ResetSubScreens();
+		GAME_STATE.ui.menu.show = !GAME_STATE.ui.menu.show;
 		return;
 	}
 
@@ -147,15 +143,15 @@ void keyPressed(unsigned char key, int x, int y) {
 	} // eo Alive
 
 	if (key == KEY_INVENTORY) {
-		GAME_STATE.invent->show = !GAME_STATE.invent->show;
-		if (GAME_STATE.invent->show)
-			GAME_STATE.Stats->show = false;
+		GAME_STATE.ui.invent->show = !GAME_STATE.ui.invent->show;
+		if (GAME_STATE.ui.invent->show)
+			GAME_STATE.ui.Stats->show = false;
 	}
 
 	if (key == KEY_STATS) {
-		GAME_STATE.Stats->show = !GAME_STATE.Stats->show;
-		if (GAME_STATE.Stats->show)
-			GAME_STATE.invent->show = false;
+		GAME_STATE.ui.Stats->show = !GAME_STATE.ui.Stats->show;
+		if (GAME_STATE.ui.Stats->show)
+			GAME_STATE.ui.invent->show = false;
 	}
 
 	lastKey = key;
@@ -170,10 +166,10 @@ void specialKeyPressed(int key, int x, int y) {
 		return;
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
-		GAME_STATE.Cartoon = !GAME_STATE.Cartoon;
+		GAME_STATE.render.Cartoon = !GAME_STATE.render.Cartoon;
 
 	if (key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
-		GAME_STATE.Orig_model = !GAME_STATE.Orig_model;
+		GAME_STATE.render.Orig_model = !GAME_STATE.render.Orig_model;
 
 	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapSpecialGameplayAction(key));
@@ -197,7 +193,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.Stats->SetSprintRequested(true);
+		GAME_STATE.ui.Stats->SetSprintRequested(true);
 }
 
 void specialKeyReleased(int key, int x, int y) {
@@ -205,17 +201,17 @@ void specialKeyReleased(int key, int x, int y) {
 	(void)y;
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.Stats->SetSprintRequested(false);
+		GAME_STATE.ui.Stats->SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {
 	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
-		GAME_STATE.menu.MouseFunction(button, state, x, y);
+		GAME_STATE.ui.menu.MouseFunction(button, state, x, y);
 		return;
 	}
 
 	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
-		GAME_STATE.invent->MouseFunction(button, state, x, y);
+		GAME_STATE.ui.invent->MouseFunction(button, state, x, y);
 		return;
 	}
 
@@ -225,7 +221,7 @@ void processMouse(int button, int state, int x, int y) {
 }
 void processMousePassiveMotion(int a, int b) {
 	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
-		GAME_STATE.menu.MousePassiveMotion(a, b);
+		GAME_STATE.ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
 

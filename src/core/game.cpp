@@ -17,8 +17,6 @@
 #include "service_locator.h"
 #include "logger.h"
 
-int resX = 800;
-int resY = 500;
 int window = 1;
 int fs = 0;
 
@@ -51,8 +49,8 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
 	glMatrixMode(GL_MODELVIEW);
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
-	resX = width;
-	resY = height;
+	GAME_STATE.render.resX = width;
+	GAME_STATE.render.resY = height;
 }
 
 // sita eilute reikalinga, kad kompiliuojant per win nemestu erroro su "WinMain@16" undefined
@@ -73,7 +71,7 @@ int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
 
-	glutInitWindowSize(resX, resY);
+	glutInitWindowSize(GAME_STATE.render.resX, GAME_STATE.render.resY);
 
 	glutInitWindowPosition(0, 0);
 
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]) {
 	glutPassiveMotionFunc(processMousePassiveMotion);
 	glutEntryFunc(processMouseEntry);
 
-	initGl(resX, resY);
+	initGl(GAME_STATE.render.resX, GAME_STATE.render.resY);
 
 	glutMainLoop();
 

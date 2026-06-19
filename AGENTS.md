@@ -2,6 +2,8 @@
 After writing the code, verify it compiles by running `make`.
 Once in compiles, run the code style checks `make format` and `make tidy`.
 
+Never commit to git directly.
+
 ## Command whitelist
 These commands do need confirmation to run
 * make tidy

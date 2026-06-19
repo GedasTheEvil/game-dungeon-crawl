@@ -84,7 +84,7 @@ void Riddle::Draw() {
 	glOrtho(0, 50, 0, 50, -20, 20); // Set Up An Ortho Screen
 	glMatrixMode(GL_MODELVIEW);		// Select The Modelview Matrix
 
-	GAME_STATE.riddle_bg.Bind();
+	GAME_STATE.textures.riddle_bg.Bind();
 	glColor3f(1, 1, 1);
 
 	glBegin(GL_QUADS);
@@ -104,12 +104,12 @@ void Riddle::Draw() {
 	glEnable(GL_BLEND);
 
 	glColor3f(1, 1, 1);
-	GAME_STATE.font.print(static_cast<int>(5), static_cast<int>(12.5), rid[selected].question_l1);
-	GAME_STATE.font.print(static_cast<int>(5), static_cast<int>(10), rid[selected].question_l2);
-	GAME_STATE.font.print(static_cast<int>(5), static_cast<int>(7.5), rid[selected].question_l3);
+	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(12.5), rid[selected].question_l1);
+	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(10), rid[selected].question_l2);
+	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(7.5), rid[selected].question_l3);
 	//      GAME_STATE.font.print(5,5, rid[selected].question_l4);
 	glColor3f(0, 1, 0);
-	GAME_STATE.font.print(5, 5, YourAnswer);
+	GAME_STATE.fonts.font.print(5, 5, YourAnswer);
 
 	glDisable(GL_BLEND);
 
@@ -132,7 +132,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 				show = false;
 				sprintf(GAME_STATE.status, "Riddle answered, got 500 XP \n");
 				GAME_STATE.status_timer->Reset();
-				GAME_STATE.Stats->GetXP(500);
+				GAME_STATE.ui.Stats->GetXP(500);
 			} else {
 				YourAnswer[0] = 'W';
 				YourAnswer[1] = 'r';

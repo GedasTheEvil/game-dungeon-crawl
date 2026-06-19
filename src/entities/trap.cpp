@@ -21,7 +21,7 @@ void trap::Show() {
 	glPushMatrix();
 	glScalef(scale, scale, scale);
 	tex.Bind();
-	if (GAME_STATE.Cartoon)
+	if (GAME_STATE.render.Cartoon)
 		mdl->ShowC();
 	else
 		mdl->Show();
@@ -34,7 +34,7 @@ void trap::Hurt() {
 		return;
 
 	if (fabs(*DX - x - 0.5) <= TRAP_HITBOX_X_SCALE * scale && std::fabs(*DY - y) <= TRAP_HITBOX_Y_SCALE * scale) {
-		GAME_STATE.Stats->GetHit(1);
+		GAME_STATE.ui.Stats->GetHit(1);
 	}
 }
 

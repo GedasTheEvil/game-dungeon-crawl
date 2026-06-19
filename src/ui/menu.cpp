@@ -13,12 +13,10 @@
 #include "../state/cashe.h"
 #include "../core/service_locator.h"
 #include <string.h>
-extern int resX, resY;
-
 namespace {
 void getMenuMouseCoords(int mouseX, int mouseY, float& outMenuX, float& outMenuY) {
-	outMenuX = 100 * ((float)mouseX / (float)resX);
-	outMenuY = 100 - 100 * ((float)mouseY / (float)resY);
+	outMenuX = 100 * ((float)mouseX / (float)GAME_STATE.render.resX);
+	outMenuY = 100 - 100 * ((float)mouseY / (float)GAME_STATE.render.resY);
 }
 
 int getSaveSlotFromCoords(float mx, float my) {
@@ -97,7 +95,7 @@ MainMenu::~MainMenu() {}
 
 void MainMenu::Draw() {
 	if (credits) {
-		GAME_STATE.wlc->DrawCredits();
+		GAME_STATE.ui.wlc->DrawCredits();
 		if (t_cred->TimePassed())
 			credits = false;
 		return;
@@ -118,7 +116,7 @@ void MainMenu::Draw() {
 
 	glColor3f(1, 1, 1);
 
-	GAME_STATE.menu_bg.Bind();
+	GAME_STATE.textures.menu_bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -146,25 +144,25 @@ void MainMenu::Draw() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 72, "New Game");
+	GAME_STATE.fonts.load_font.print(25, 72, "New Game");
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 54, "Load Game");
+	GAME_STATE.fonts.load_font.print(25, 54, "Load Game");
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 36, "Credits");
+	GAME_STATE.fonts.load_font.print(25, 36, "Credits");
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 18, "Exit");
+	GAME_STATE.fonts.load_font.print(25, 18, "Exit");
 
 	glDisable(GL_BLEND);
 
@@ -179,25 +177,25 @@ void MainMenu::InGameDraw() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 72, "Return to game");
+	GAME_STATE.fonts.load_font.print(25, 72, "Return to game");
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 54, "Save Game");
+	GAME_STATE.fonts.load_font.print(25, 54, "Save Game");
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 36, "Load Game");
+	GAME_STATE.fonts.load_font.print(25, 36, "Load Game");
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(25, 18, "Exit to MainMenu");
+	GAME_STATE.fonts.load_font.print(25, 18, "Exit to MainMenu");
 
 	glDisable(GL_BLEND);
 
@@ -348,7 +346,7 @@ void MainMenu::DrawSave() {
 
 	glColor3f(1, 1, 1);
 
-	GAME_STATE.menu_save_bg.Bind();
+	GAME_STATE.textures.menu_save_bg.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -371,50 +369,50 @@ void MainMenu::DrawSave() {
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(6, 72, GAME_STATE.saveNames[0].name);
+	GAME_STATE.fonts.load_font.print(6, 72, GAME_STATE.saveNames[0].name);
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(6, 52, GAME_STATE.saveNames[1].name);
+	GAME_STATE.fonts.load_font.print(6, 52, GAME_STATE.saveNames[1].name);
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(6, 33, GAME_STATE.saveNames[2].name);
+	GAME_STATE.fonts.load_font.print(6, 33, GAME_STATE.saveNames[2].name);
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(56, 72, GAME_STATE.saveNames[3].name);
+	GAME_STATE.fonts.load_font.print(56, 72, GAME_STATE.saveNames[3].name);
 
 	if (h5)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(56, 52, GAME_STATE.saveNames[4].name);
+	GAME_STATE.fonts.load_font.print(56, 52, GAME_STATE.saveNames[4].name);
 
 	if (h6)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(56, 33, GAME_STATE.saveNames[5].name);
+	GAME_STATE.fonts.load_font.print(56, 33, GAME_STATE.saveNames[5].name);
 
 	if (h7)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.load_font.print(6, 10, "Exit");
+	GAME_STATE.fonts.load_font.print(6, 10, "Exit");
 
 	if (loadD) {
 		DrawLoad();
 		return;
 	}
 
-	GAME_STATE.load_font.print(15, 85, "Select slot to save ");
+	GAME_STATE.fonts.load_font.print(15, 85, "Select slot to save ");
 
 	glDisable(GL_BLEND);
 
@@ -424,7 +422,7 @@ void MainMenu::DrawSave() {
 }
 
 void MainMenu::DrawLoad() {
-	GAME_STATE.load_font.print(15, 85, "Select slot to Load ");
+	GAME_STATE.fonts.load_font.print(15, 85, "Select slot to Load ");
 
 	glDisable(GL_BLEND);
 

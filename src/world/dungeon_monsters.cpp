@@ -7,13 +7,13 @@
 namespace {
 monster* getMbyType(int type) {
 	if (type == 1)
-		return GAME_STATE.scarab.get();
+		return GAME_STATE.monsters.scarab.get();
 	if (type == 2)
-		return GAME_STATE.worm.get();
+		return GAME_STATE.monsters.worm.get();
 	if (type == 3)
-		return GAME_STATE.plant.get();
+		return GAME_STATE.monsters.plant.get();
 	if (type == 4)
-		return GAME_STATE.anubis.get();
+		return GAME_STATE.monsters.anubis.get();
 
 	return GAME_STATE.Player.get();
 }

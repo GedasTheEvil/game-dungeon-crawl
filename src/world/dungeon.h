@@ -61,11 +61,12 @@ class Dungeon {
 	int shaderTexture[1];
 	VECTOR lightAngle;
 	std::unique_ptr<timer> aniT;
+	float plasma = 0.f;
+	float qRot = 0.f;
 
   public:
 	Dungeon();
 	~Dungeon();
-	void InitializeAfterServiceLocator(); // Call after ServiceLocator is initialized
 	bool Load(const char* filename);
 	void Update();
 	void Draw();

@@ -13,28 +13,28 @@ enum class DrawScreen {
 };
 
 inline DrawScreen GetDrawScreen(const Cashe& c) {
-	if (c.menu.show)
+	if (c.ui.menu.show)
 		return DrawScreen::Menu;
 
-	if (c.invent->show)
+	if (c.ui.invent->show)
 		return DrawScreen::Inventory;
 
-	if (c.Stats->show)
+	if (c.ui.Stats->show)
 		return DrawScreen::Stats;
 
-	if (c.rid->show)
+	if (c.ui.rid->show)
 		return DrawScreen::Riddle;
 
 	return DrawScreen::Gameplay;
 }
 
-inline bool ShouldRouteKeyboardToRiddle(const Cashe& c) { return c.rid->show; }
+inline bool ShouldRouteKeyboardToRiddle(const Cashe& c) { return c.ui.rid->show; }
 
-inline bool ShouldBlockKeyboardGameplay(const Cashe& c) { return c.menu.show; }
+inline bool ShouldBlockKeyboardGameplay(const Cashe& c) { return c.ui.menu.show; }
 
-inline bool ShouldRouteMouseToMenu(const Cashe& c) { return c.menu.show; }
+inline bool ShouldRouteMouseToMenu(const Cashe& c) { return c.ui.menu.show; }
 
-inline bool ShouldRouteMouseToInventory(const Cashe& c) { return c.invent->show; }
+inline bool ShouldRouteMouseToInventory(const Cashe& c) { return c.ui.invent->show; }
 
 inline bool IsGameplayInteractionAllowed(const Cashe& c) { return c.Player->Alive() && !c.IHaveWon; }
 } // namespace ScreenState

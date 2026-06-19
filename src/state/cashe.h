@@ -1,13 +1,9 @@
 #ifndef Cache_H
 #define Cache_H
 
-/// @file cache.h
-// shared class for all game fun resourses
-// making something private would beat the purpose :)
-
 #include "../entities/monster.h"
 #include "../entities/player.h"
-#include "../graphics/textures.h"
+#include "../graphics/texture_registry.h"
 #include "../graphics/shader.h"
 #include "../world/dungeon.h"
 #include "../graphics/font.h"
@@ -26,57 +22,82 @@ struct word {
 	char name[25];
 };
 
-class Cashe {
-  public:
-	char status[255] = {};
-	std::unique_ptr<timer> status_timer;
-	bool IHaveWon = false;
-	Textura Mt[4], nullTex, blackTex, column_t;
-	Textura anubis_t, scarab_t, plant_t, worm_t, chest_t, player_t;
-	Textura club_t, bow_t, sword_t, potion_t, spear_t, trap_t, sphinx_t;
-	Textura Dt[9];
-	Textura bg, black_t, ankh_t;
-	Textura load_bg, riddle_bg, plasma_t, menu_bg, menu_save_bg;
-	Textura progBar;
+struct Camera {
+	float rotW = -110.f;
+	float rotM = 0.f;
+	float rotN = 0.f;
+};
+
+struct RenderSettings {
+	bool Cartoon = true;
+	bool Orig_model = true;
+	int resX = 800;
+	int resY = 500;
+};
+
+struct SoundBank {
 	Sound ss[2];
-	Sound drink_s, jump_s;
+	Sound drink_s;
+	Sound jump_s;
 	Sound soundtrack;
+};
+
+struct FontPair {
 	Font font;
 	Font load_font;
-	bool Cache_loaded = false;
+};
+
+struct MonsterPrototypes {
 	std::unique_ptr<monster> anubis, scarab, plant, worm;
+};
+
+struct ItemPrototypes {
 	std::unique_ptr<item> chest, club, sword, bow, potion, spear;
-	std::unique_ptr<inventory> invent;
-	std::unique_ptr<stats> Stats;
-	std::unique_ptr<PlayerEntity> Player;
-	std::unique_ptr<timer> jump_timer;
-	std::unique_ptr<timer> jump_up_timer;
-	std::unique_ptr<timer> jump_inc;
-	std::unique_ptr<timer> fall_inc;
-	bool jumping = false;
-	float jump_dir_x = 0.0f;
-	float jump_speed = 0.0f;
-	float jump_vel = 0.0f;
-	float jump_start_y = 0.0f;
-	bool Orig_model = true;
+};
+
+struct TrapPair {
 	std::unique_ptr<trap> TrapD;
 	std::unique_ptr<trap> DeathTrap;
-	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh;
-	std::unique_ptr<AnimatedCartoonModel> column;
-	std::unique_ptr<AnimatedCartoonModel> question;
+};
+
+struct SceneModels {
+	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh, column, question;
+};
+
+struct GameTimers {
 	std::unique_ptr<timer> mdlChange;
 	std::unique_ptr<timer> AttTimer;
+};
+
+struct UIContext {
+	std::unique_ptr<inventory> invent;
+	std::unique_ptr<stats> Stats;
 	std::unique_ptr<Riddle> rid;
-	int jump_counter = 0;
-	int curMap = 1;
-	bool falling = false;
-	bool Cartoon = true;
-	Dungeon dungeon;
 	MainMenu menu;
-
-	word saveNames[6] = {};
-
 	std::unique_ptr<winL> wlc;
+};
+
+class Cashe {
+  public:
+	TextureRegistry textures;
+	Camera camera;
+	RenderSettings render;
+	bool Cache_loaded = false;
+	bool IHaveWon = false;
+	int curMap = 1;
+	char status[255] = {};
+	std::unique_ptr<timer> status_timer;
+	SoundBank sounds;
+	FontPair fonts;
+	MonsterPrototypes monsters;
+	ItemPrototypes items;
+	std::unique_ptr<PlayerEntity> Player;
+	TrapPair traps;
+	SceneModels models;
+	GameTimers timers;
+	UIContext ui;
+	Dungeon dungeon;
+	word saveNames[6] = {};
 
 	Cashe();
 	~Cashe();
@@ -85,8 +106,5 @@ class Cashe {
 	void Save(const char filename[]);
 	void LoadSave(const char filename[]);
 };
-
-// Global instance for backward compatibility during transition
-extern Cashe* c;
 
 #endif

@@ -6,6 +6,8 @@
 #ifdef WIN32
 #include <GL/freeglut.h>
 #endif
+#include "../state/cashe.h"
+#include "../core/service_locator.h"
 
 winL::winL() {
 	win.LoadBMP("Textures/win.bmp");
@@ -33,10 +35,8 @@ void winL::DrawWin() {
 
 	glPushMatrix();
 
-	extern float rotN, rotM;
-
-	glRotatef(-rotN, 1, 0, 0);
-	glRotatef(-rotM, 0, 1, 0);
+	glRotatef(-GAME_STATE.camera.rotN, 1, 0, 0);
+	glRotatef(-GAME_STATE.camera.rotM, 0, 1, 0);
 
 	glTranslatef(0, 20, 0);
 
@@ -53,10 +53,8 @@ void winL::DrawLoose() {
 
 	glPushMatrix();
 
-	extern float rotN, rotM;
-
-	glRotatef(-rotN, 1, 0, 0);
-	glRotatef(-rotM, 0, 1, 0);
+	glRotatef(-GAME_STATE.camera.rotN, 1, 0, 0);
+	glRotatef(-GAME_STATE.camera.rotM, 0, 1, 0);
 
 	glTranslatef(0, 20, 0);
 

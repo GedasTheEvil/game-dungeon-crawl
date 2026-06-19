@@ -46,7 +46,7 @@ void monster::Attack() {
 	mdl = attack.get();
 
 	if (/*Att_timer -> TimePassed() &&*/ std::fabs(Y - *DY) < 0.8) {
-		GAME_STATE.Stats->GetHit(damage);
+		GAME_STATE.ui.Stats->GetHit(damage);
 		att_s.Play();
 	}
 }

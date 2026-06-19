@@ -3,12 +3,7 @@
 #include "../core/service_locator.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "../graphics/gl_includes.h"
 #include <cmath>
 #include <ctime>
 

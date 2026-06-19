@@ -1,11 +1,6 @@
 #include "shader.h"
 
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "gl_includes.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <stdio.h>

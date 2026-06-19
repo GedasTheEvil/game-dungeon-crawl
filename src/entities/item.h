@@ -9,8 +9,8 @@ class item {
   private:
 	bool in_inventory;
 	std::unique_ptr<AnimatedCartoonModel> mdl;
-	float x;
-	float y;
+	float itemX;
+	float itemY;
 	Textura tex;
 	bool loaded;
 

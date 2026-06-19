@@ -1,11 +1,6 @@
 #include "winlose.h"
 #include <GL/gl.h>
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 

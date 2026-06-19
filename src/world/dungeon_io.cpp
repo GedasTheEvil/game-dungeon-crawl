@@ -36,15 +36,15 @@ bool Dungeon::Load(const char* filename) {
 	for (int j = 0; j < kMapHeight; j++)
 		for (int i = 0; i < kMapWidth; i++)
 			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
-				x = static_cast<float>(i);
-				y = static_cast<float>(j);
+				mapX = static_cast<float>(i);
+				mapY = static_cast<float>(j);
 			}
 
 	return true;
 }
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {
-	f >> x >> y;
+	f >> mapX >> mapY;
 	if (!f)
 		return false;
 
@@ -62,7 +62,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 }
 //======================================================================================
 void Dungeon::Dump(std::ofstream& f) {
-	f << x << " " << y << " ";
+	f << mapX << " " << mapY << " ";
 
 	f << kMapCellCount << " ";
 
@@ -71,10 +71,10 @@ void Dungeon::Dump(std::ofstream& f) {
 }
 //======================================================================================
 void Dungeon::GetPickUp() {
-	if (Map(x, y).a == Treasure) {
-		GAME_STATE.ui.invent->GetItem(Map(x, y).b, Map(x, y).c);
-		map[MapIndex(static_cast<int>(x), static_cast<int>(y))].a = Empty;
-		if (Map(x, y).b != 0) {
+	if (Map(mapX, mapY).a == Treasure) {
+		GAME_STATE.ui.invent->GetItem(Map(mapX, mapY).b, Map(mapX, mapY).c);
+		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].a = Empty;
+		if (Map(mapX, mapY).b != 0) {
 			sprintf(GAME_STATE.status, "Picked up an item  \n");
 			GAME_STATE.status_timer->Reset();
 		}
@@ -82,16 +82,16 @@ void Dungeon::GetPickUp() {
 }
 //======================================================================================
 void Dungeon::GetRiddle() {
-	if (Map(x, y).a == Ankh) {
+	if (Map(mapX, mapY).a == Ankh) {
 		GAME_STATE.IHaveWon = true;
 		return;
 	}
 
-	if (Map(x, y).a == Door && Map(x, y).b == GateRiddle) {
+	if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateRiddle) {
 		GAME_STATE.ui.rid->GetRiddle();
 		GAME_STATE.ui.rid->show = true;
 		SetMapBAtPlayer(GateEmpty);
-	} else if (Map(x, y).a == Door && Map(x, y).b == GateExit) {
+	} else if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateExit) {
 		GAME_STATE.curMap++;
 
 		char mapName[40];

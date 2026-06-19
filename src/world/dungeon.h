@@ -6,6 +6,11 @@
 #include "../core/timer.h"
 #include <memory>
 
+// Coordinate spaces used throughout the world system:
+//   Map space:    float [0, MAP_W] x [0, MAP_H], tile units, used for collision
+//   World space:  map * TILE_SIZE, OpenGL units, used for rendering
+//   Screen space: projection of world space, origin top-left
+
 enum DungeonTileType {
 	Wall = 0,
 	Empty = 1,
@@ -40,11 +45,11 @@ class Dungeon {
 	static constexpr int kMapHeight = 47;
 	static constexpr int kMapCellCount = kMapWidth * kMapHeight + 1;
 	Tint map[kMapCellCount];
-	float x, y;
+	float mapX, mapY;
 	int texC, *Tex;
-	bool IsInBounds(int mapX, int mapY) const;
-	int MapIndex(int mapX, int mapY) const;
-	Tint MapAt(int mapX, int mapY) const;
+	bool IsInBounds(int col, int row) const;
+	int MapIndex(int col, int row) const;
+	Tint MapAt(int col, int row) const;
 	void SetMapBAtPlayer(int value);
 	void SyncMonsterFromToken(int index);
 	void SyncTokenFromMonster(int index, bool includePosition);
@@ -54,6 +59,8 @@ class Dungeon {
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
 	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
+	void renderCartoonTile(int type, int left, int right, int up, int down);
+	void renderFlatTile(int type, int left, int right, int up, int down);
 	Tint Map(float x, float y) const;
 	void InitializeMonsterSlot(int index, int i, int j);
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin

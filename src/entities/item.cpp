@@ -10,8 +10,8 @@ void item::Draw() {
 
 	glPushMatrix();
 
-	if (!in_inventory && std::fabs(x) >= 0.1)
-		glTranslatef(40 * x - 20, y, -30);
+	if (!in_inventory && std::fabs(itemX) >= 0.1)
+		glTranslatef(40 * itemX - 20, itemY, -30);
 	else
 		glTranslatef(0, 0, -30);
 
@@ -41,8 +41,8 @@ bool item::getPickedUp() {
 }
 
 item::item() {
-	x = 0;
-	y = 0;
+	itemX = 0;
+	itemY = 0;
 	scale = 0;
 	rotA = 0;
 	loaded = 0;

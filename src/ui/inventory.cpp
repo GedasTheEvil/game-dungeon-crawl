@@ -1,15 +1,12 @@
 #include "inventory.h"
+#include "stats.h"
 #include "../entities/item.h"
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "../graphics/gl_includes.h"
+#include <array>
 
 namespace {
 constexpr int MELEE_WEAPON_COUNT = 3;
@@ -62,35 +59,31 @@ void inventory::UsePotion() {
 		return;
 	}
 
-	if (view.type != ItemType::POTION)
+	if (view.type != ItemType::POTION || potions[view.id].count <= 0)
 		return;
 
-	if (potions[view.id].count <= 0)
+	if (view.id < 0 || view.id >= PotionId::COUNT)
 		return;
+
+	using PotionAction = void (stats::*)(int);
+	struct PotionEffect {
+		PotionAction action;
+		int delta;
+	};
+	static const std::array<PotionEffect, PotionId::COUNT> POTION_EFFECTS = {{
+		{&stats::Heal, 25},		  // SMALL_HEALTH
+		{&stats::Heal, 50},		  // LARGE_HEALTH
+		{&stats::GetStronger, 2}, // STRENGTH
+		{&stats::GetArmored, 2},  // ARMOR
+		{&stats::GetTougher, 5},  // LIFE
+	}};
 
 	GAME_STATE.sounds.drink_s.Play();
 	potions[view.id].count--;
 
-	switch (view.id) {
-	case PotionId::SMALL_HEALTH:
-		GAME_STATE.ui.Stats->Heal(25);
-		break;
-	case PotionId::LARGE_HEALTH:
-		GAME_STATE.ui.Stats->Heal(50);
-		break;
-	case PotionId::STRENGTH:
-		GAME_STATE.ui.Stats->GetStronger(2);
-		break;
-	case PotionId::ARMOR:
-		GAME_STATE.ui.Stats->GetArmored(2);
-		break;
-	case PotionId::LIFE:
-		GAME_STATE.ui.Stats->GetTougher(5);
-		break;
-	default:
-		// Unknown potion type, no action
-		break;
-	}
+	const auto& effect = POTION_EFFECTS[view.id];
+	stats* s = GAME_STATE.ui.Stats.get();
+	(s->*(effect.action))(effect.delta);
 }
 
 void inventory::GetItem(int type, int id) {
@@ -545,5 +538,18 @@ void inventory::LoadDump(std::ifstream& f) {
 	f >> rw.count;
 	for (int i = 0; i < PotionId::COUNT; i++)
 		f >> potions[i].count;
-	f >> equipped.type >> equipped.id;
+
+	// equipped.type/id were added after older saves were written.
+	// Old saves have mapX (a float like "3.32501") at this position.
+	// Peek at the next token: if it contains '.', it's mapX — rewind and skip.
+	auto pos = f.tellg();
+	std::string tok;
+	if ((f >> tok) && tok.find('.') == std::string::npos) {
+		equipped.type = std::stoi(tok);
+		if (!(f >> equipped.id))
+			f.clear();
+	} else {
+		f.clear();
+		f.seekg(pos);
+	}
 }

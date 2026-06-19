@@ -11,29 +11,27 @@
 
 void normalize(VECTOR& v);
 
-bool Dungeon::IsInBounds(int mapX, int mapY) const {
-	return mapX >= 0 && mapX < kMapWidth && mapY >= 0 && mapY < kMapHeight;
-}
+bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < kMapWidth && row >= 0 && row < kMapHeight; }
 //======================================================================================
-int Dungeon::MapIndex(int mapX, int mapY) const {
-	if (!IsInBounds(mapX, mapY))
+int Dungeon::MapIndex(int col, int row) const {
+	if (!IsInBounds(col, row))
 		return 0;
 
-	return kMapWidth * mapY + mapX;
+	return kMapWidth * row + col;
 }
 //======================================================================================
-Tint Dungeon::MapAt(int mapX, int mapY) const { return map[MapIndex(mapX, mapY)]; }
+Tint Dungeon::MapAt(int col, int row) const { return map[MapIndex(col, row)]; }
 //======================================================================================
 Tint Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), static_cast<int>(y)); }
 //======================================================================================
-void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(x), static_cast<int>(y))].b = value; }
+void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].b = value; }
 //======================================================================================
 void Dungeon::SyncMonsterFromToken(int index) {
-	m[index].m->dungeonX = &x;
-	m[index].m->dungeonY = &y;
-	m[index].m->setCords(m[index].x, m[index].y);
-	m[index].m->X = static_cast<float>(m[index].orX);
-	m[index].m->Y = static_cast<float>(m[index].orY);
+	m[index].m->dungeonCamX = &mapX;
+	m[index].m->dungeonCamY = &mapY;
+	m[index].m->setCords(m[index].mapX, m[index].mapY);
+	m[index].m->tileOriginX = static_cast<float>(m[index].orX);
+	m[index].m->tileOriginY = static_cast<float>(m[index].orY);
 	m[index].m->setModel(m[index].state);
 	m[index].m->setFacingDir(m[index].facing_dir);
 	m[index].m->health = m[index].HP;
@@ -41,7 +39,7 @@ void Dungeon::SyncMonsterFromToken(int index) {
 //======================================================================================
 void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 	if (includePosition)
-		m[index].m->GetCords(m[index].x, m[index].y);
+		m[index].m->GetCords(m[index].mapX, m[index].mapY);
 
 	m[index].HP = m[index].m->health;
 	m[index].state = m[index].m->Model_state();
@@ -49,8 +47,8 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 }
 //======================================================================================
 Dungeon::Dungeon() {
-	x = 0;
-	y = 0;
+	mapX = 0;
+	mapY = 0;
 	// Don't access GAME_STATE during construction to avoid circular dependency
 	// GAME_STATE.falling will be set during proper initialization
 
@@ -108,10 +106,11 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(x, y).a != Ladder && !GAME_STATE.Player->jump.jumping) {
-		if ((y - static_cast<float>(static_cast<int>(y))) > FALL_START_THRESHOLD || Map(x, y - 1).a != Wall) {
+	if (Map(mapX, mapY).a != Ladder && !GAME_STATE.Player->jump.jumping) {
+		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
+			Map(mapX, mapY - 1).a != Wall) {
 			if (GAME_STATE.Player->jump.fall_inc->TimePassed())
-				y -= FALL_STEP;
+				mapY -= FALL_STEP;
 			GAME_STATE.Player->jump.falling = true;
 		} else {
 			GAME_STATE.Player->jump.falling = false;
@@ -123,11 +122,11 @@ void Dungeon::UpdateMovementState() {
 			if (GAME_STATE.Player->jump.dir_x != 0)
 				Move(GAME_STATE.Player->jump.dir_x * GAME_STATE.Player->jump.speed, 0);
 
-			y += GAME_STATE.Player->jump.velocity;
+			mapY += GAME_STATE.Player->jump.velocity;
 			GAME_STATE.Player->jump.velocity -= JUMP_GRAVITY_STEP;
 
-			if (GAME_STATE.Player->jump.velocity <= 0 && y <= GAME_STATE.Player->jump.start_y) {
-				y = GAME_STATE.Player->jump.start_y;
+			if (GAME_STATE.Player->jump.velocity <= 0 && mapY <= GAME_STATE.Player->jump.start_y) {
+				mapY = GAME_STATE.Player->jump.start_y;
 				GAME_STATE.Player->jump.jumping = false;
 				GAME_STATE.Player->jump.falling = false;
 			}
@@ -141,30 +140,33 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!GAME_STATE.Player->jump.falling && jump && Map(x, y).a != Ladder) {
-		y = y + dirY;
-		x = x + dirX;
+	if (!GAME_STATE.Player->jump.falling && jump && Map(mapX, mapY).a != Ladder) {
+		mapY = mapY + dirY;
+		mapX = mapX + dirX;
 		GAME_STATE.Player->jump.falling = true;
 	}
 
 	if (dirX > 0) {
-		if (Map(x, y).a != Wall && Map(x + dirX + static_cast<float>(GAME_STATE.Player->scale / 60.0), y).a != Wall)
-			x += dirX;
-	} else if (Map(x, y).a != Wall && Map(x + dirX - static_cast<float>(GAME_STATE.Player->scale / 60.0), y).a != Wall)
-		x += dirX;
+		if (Map(mapX, mapY).a != Wall &&
+			Map(mapX + dirX + static_cast<float>(GAME_STATE.Player->scale / 60.0), mapY).a != Wall)
+			mapX += dirX;
+	} else if (Map(mapX, mapY).a != Wall &&
+			   Map(mapX + dirX - static_cast<float>(GAME_STATE.Player->scale / 60.0), mapY).a != Wall)
+		mapX += dirX;
 
 	if (dirY > 0) {
-		if (Map(x, y).a == Ladder && Map(x, y + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).a == Ladder)
-			y += dirY;
-	} else if (Map(x, y).a == Ladder && Map(x, y + dirY).a == Ladder)
-		y += dirY;
+		if (Map(mapX, mapY).a == Ladder &&
+			Map(mapX, mapY + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).a == Ladder)
+			mapY += dirY;
+	} else if (Map(mapX, mapY).a == Ladder && Map(mapX, mapY + dirY).a == Ladder)
+		mapY += dirY;
 }
 //======================================================================================
 int Dungeon::Type(float x, float y) { return Map(x, y).a; }
 //======================================================================================
 void Dungeon::getC(float& outX, float& outY) {
-	outX = this->x;
-	outY = this->y;
+	outX = mapX;
+	outY = mapY;
 }
 //======================================================================================
 Dungeon::~Dungeon() {

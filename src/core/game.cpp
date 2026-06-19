@@ -1,10 +1,4 @@
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "../graphics/gl_includes.h"
 
 #include <GL/glu.h>
 #include <GL/gl.h>
@@ -19,6 +13,11 @@
 
 int window = 1;
 int fs = 0;
+
+static void UpdateTimerCallback(int) {
+	Update();
+	glutTimerFunc(16, UpdateTimerCallback, 0);
+}
 
 void initGl(GLsizei width, GLsizei height) // We call this right after our OpenGL window is created.
 {
@@ -83,6 +82,8 @@ int main(int argc, char* argv[]) {
 			glutFullScreen();
 
 		glutIdleFunc(&Idle);
+
+		glutTimerFunc(16, UpdateTimerCallback, 0);
 
 		glutReshapeFunc(&reSizeGlScene);
 

@@ -9,14 +9,16 @@
 #include "../core/timer.h"
 #include <memory>
 
+enum class ModelState { Die = 0, Walk = 1, Attack = 2 };
+
 class monster {
   private:
 	std::unique_ptr<AnimatedCartoonModel> walk;
 	std::unique_ptr<AnimatedCartoonModel> attack;
 	std::unique_ptr<AnimatedCartoonModel> die;
 	AnimatedCartoonModel* model;
-	float x; // kiek nuejo nuo pradzios
-	float y;
+	float mapX;
+	float mapY;
 	int speed;
 	int damage;
 	int XP;
@@ -25,6 +27,8 @@ class monster {
 	Textura nullTexture, tex;
 	std::unique_ptr<ParSys> blood;
 	std::unique_ptr<timer> walk_timer;
+	ModelState currentState;
+	void applyModelState(ModelState state);
 
   public:
 	std::unique_ptr<timer> Att_timer;
@@ -33,11 +37,11 @@ class monster {
 	int health;
 	int maxHealth;
 
-	float* dungeonY; // ne , ne isvestine :D. Kordinates pozemio
-	float* dungeonX;
+	float* dungeonCamY;
+	float* dungeonCamX;
 
-	float X; // kordinates kur monstras gyvena pozemyje
-	float Y;
+	float tileOriginX;
+	float tileOriginY;
 
 	monster();
 	monster(float dx, float dy);
@@ -67,7 +71,7 @@ class monster {
 };
 
 struct monsterToken {
-	float x, y;
+	float mapX, mapY;
 	int orX, orY; // origin in map field
 	int type;
 	int HP;

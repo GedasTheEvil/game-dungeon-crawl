@@ -14,9 +14,35 @@ inline int random() { return rand(); }
 
 #endif
 
+namespace {
+std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, int speed) {
+	auto m = std::make_unique<AnimatedCartoonModel>();
+	m->Load(path);
+	m->BindTexture(texId);
+	m->Centrify();
+	m->setSpeed(speed);
+	return m;
+}
+} // namespace
+
+void monster::applyModelState(ModelState state) {
+	currentState = state;
+	switch (state) {
+	case ModelState::Walk:
+		model = walk.get();
+		break;
+	case ModelState::Attack:
+		model = attack.get();
+		break;
+	case ModelState::Die:
+		model = die.get();
+		break;
+	}
+}
+//================================================================================
 monster::monster() {
-	x = 0;
-	y = 0;
+	mapX = 0;
+	mapY = 0;
 	speed = 1;
 	health = 200;
 	maxHealth = 200;
@@ -25,6 +51,8 @@ monster::monster() {
 	stat = -1;
 	facing_dir = 0;
 	scale = 1;
+	currentState = ModelState::Walk;
+	model = nullptr;
 
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
@@ -32,12 +60,12 @@ monster::monster() {
 	blood = std::make_unique<ParSys>(100);
 }
 //================================================================================
-monster::monster(float x, float y) {
-	X = x;
-	Y = y;
+monster::monster(float dx, float dy) {
+	tileOriginX = dx;
+	tileOriginY = dy;
 
-	this->x = 0;
-	this->y = 0;
+	mapX = 0;
+	mapY = 0;
 	speed = 1;
 	health = 20;
 	maxHealth = 20;
@@ -46,6 +74,8 @@ monster::monster(float x, float y) {
 	stat = -1;
 	facing_dir = 0;
 	scale = 1;
+	currentState = ModelState::Walk;
+	model = nullptr;
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
 
@@ -53,8 +83,8 @@ monster::monster(float x, float y) {
 }
 //================================================================================
 monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) {
-	x = nX;
-	y = nY;
+	mapX = nX;
+	mapY = nY;
 	speed = nSpeed;
 	maxHealth = nHP;
 	health = nHP;
@@ -62,6 +92,8 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	XP = nXP;
 	stat = -1;
 	facing_dir = 0;
+	currentState = ModelState::Walk;
+	model = nullptr;
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
 
@@ -79,7 +111,7 @@ bool monster::Draw() // needs to choose animation
 	glPushMatrix();
 
 	if (this != GAME_STATE.Player.get())
-		glTranslatef(40 * x - 20, y, -30);
+		glTranslatef(40 * mapX - 20, mapY, -30);
 	else
 		glTranslatef(0, 0, -30);
 
@@ -88,11 +120,11 @@ bool monster::Draw() // needs to choose animation
 	glScalef(scale, scale, scale);
 
 	if (Alive()) {
-		if (model == die.get()) {
+		if (currentState == ModelState::Die) {
 			if (!attackDirection())
-				model = attack.get();
+				applyModelState(ModelState::Attack);
 			else
-				model = walk.get();
+				applyModelState(ModelState::Walk);
 		}
 
 		if (this != GAME_STATE.Player.get()) {
@@ -136,7 +168,7 @@ bool monster::Draw() // needs to choose animation
 		blood->Draw();
 		glPopMatrix();
 	} else
-		model = die.get();
+		applyModelState(ModelState::Die);
 
 	// Draw blood particles even when monster is dead
 	glPushMatrix();
@@ -183,31 +215,17 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	sprintf(tmp1, "Models/%s.mdl", filename);
 	sprintf(tmp2, "Models/%s_att.mdl", filename);
 	sprintf(tmp3, "Models/%s_die.mdl", filename);
-
 	sprintf(tmp4, "Sounds/%s_att.wav", filename);
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp1);
-	walk = std::make_unique<AnimatedCartoonModel>();
-	walk->Load(tmp1);
-	walk->BindTexture(texture.ID());
-	walk->Centrify();
-	walk->setSpeed(35);
+	walk = makeModel(tmp1, texture.ID(), 35);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp2);
-	attack = std::make_unique<AnimatedCartoonModel>();
-	attack->Load(tmp2);
-	attack->BindTexture(texture.ID());
-	attack->Centrify();
-	attack->setSpeed(35);
+	attack = makeModel(tmp2, texture.ID(), 35);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp3);
-	die = std::make_unique<AnimatedCartoonModel>();
-	die->Load(tmp3);
-	die->BindTexture(texture.ID());
-	die->Centrify();
-	die->setSpeed(35);
-
+	die = makeModel(tmp3, texture.ID(), 35);
 	die->loop = 0;
 
 	die_s.LoadWAV(tmp5);
@@ -220,14 +238,14 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	}
 	stat = 1;
 
-	model = walk.get();
+	applyModelState(ModelState::Walk);
 
 	return 1;
 }
 //================================================================================
 void monster::setCords(float nX, float nY) {
-	x = nX;
-	y = nY;
+	mapX = nX;
+	mapY = nY;
 }
 //================================================================================
 bool monster::Alive() {
@@ -244,8 +262,8 @@ bool monster::getHit(int dmg) {
 		blood->Reset();
 	}
 
-	if (!Alive() && model != die.get()) {
-		model = die.get();
+	if (!Alive() && currentState != ModelState::Die) {
+		applyModelState(ModelState::Die);
 		sprintf(GAME_STATE.status, "Gained %d XP", XP);
 		GAME_STATE.status_timer->Reset();
 		GAME_STATE.ui.Stats->GetXP(XP);
@@ -266,7 +284,7 @@ bool monster::getHit(int dmg) {
 //================================================================================
 void monster::Reanimate() {
 	health = maxHealth;
-	model = walk.get();
+	applyModelState(ModelState::Walk);
 	facing_dir = 0;
 }
 //================================================================================

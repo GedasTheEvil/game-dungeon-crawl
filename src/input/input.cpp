@@ -1,4 +1,5 @@
 #include <GL/gl.h>
+#include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "input.h"
 #include "input_actions.h"
@@ -9,8 +10,6 @@ unsigned char lastKey;
 
 int lastMx = 0;
 int lastMy = 0;
-
-void Draw();
 
 namespace {
 void startJump() {
@@ -48,12 +47,12 @@ class PlayerActionController {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = -110;
-			GAME_STATE.Player->changeMDL(1);
+			GAME_STATE.Player->changeMDL(2);
 			break;
 		case GameplayAction::MoveRight:
 			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = 70;
-			GAME_STATE.Player->changeMDL(1);
+			GAME_STATE.Player->changeMDL(2);
 			break;
 		case GameplayAction::MoveDown:
 			GAME_STATE.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
@@ -112,7 +111,7 @@ class PlayerActionController {
 };
 } // namespace
 
-void Idle() { Draw(); }
+void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {
 	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {

@@ -2,16 +2,12 @@
 #include <string>
 #include <time.h>
 #include <GL/gl.h>
-#ifndef WIN32
-#include <GL/glut.h>
-#endif
-#ifdef WIN32
-#include <GL/freeglut.h>
-#endif
+#include "../graphics/gl_includes.h"
 #include <stdlib.h>
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include <string.h>
+#include <fstream>
 namespace {
 void getMenuMouseCoords(int mouseX, int mouseY, float& outMenuX, float& outMenuY) {
 	outMenuX = 100 * (static_cast<float>(mouseX) / static_cast<float>(GAME_STATE.render.resX));
@@ -57,9 +53,15 @@ static std::string formatSaveLabel() {
 
 class SaveSlotService {
   public:
+	static std::string slotFilename(int slot) { return "Saves/save" + std::to_string(slot) + ".sav"; }
+
+	static bool fileExists(int slot) {
+		std::ifstream f(slotFilename(slot));
+		return f.good();
+	}
+
 	static void saveToSlot(int slot) {
-		const std::string filename = "Saves/save" + std::to_string(slot) + ".sav";
-		GAME_STATE.Save(filename.c_str());
+		GAME_STATE.Save(slotFilename(slot).c_str());
 
 		const std::string label = formatSaveLabel();
 		strncpy(GAME_STATE.saveNames[slot].name, label.c_str(), sizeof(GAME_STATE.saveNames[slot].name) - 1);
@@ -68,8 +70,9 @@ class SaveSlotService {
 	}
 
 	static void loadFromSlot(int slot) {
-		const std::string filename = "Saves/save" + std::to_string(slot) + ".sav";
-		GAME_STATE.LoadSave(filename.c_str());
+		if (!fileExists(slot))
+			return;
+		GAME_STATE.LoadSave(slotFilename(slot).c_str());
 	}
 };
 } // namespace
@@ -364,41 +367,47 @@ void MainMenu::DrawSave() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
+	auto slotLabel = [&](int slot) -> const char* {
+		if (loadD && !SaveSlotService::fileExists(slot))
+			return "-- empty --";
+		return GAME_STATE.saveNames[slot].name;
+	};
+
 	if (h1)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(6, 72, GAME_STATE.saveNames[0].name);
+	GAME_STATE.fonts.load_font.print(6, 72, slotLabel(0));
 
 	if (h2)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(6, 52, GAME_STATE.saveNames[1].name);
+	GAME_STATE.fonts.load_font.print(6, 52, slotLabel(1));
 
 	if (h3)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(6, 33, GAME_STATE.saveNames[2].name);
+	GAME_STATE.fonts.load_font.print(6, 33, slotLabel(2));
 
 	if (h4)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(56, 72, GAME_STATE.saveNames[3].name);
+	GAME_STATE.fonts.load_font.print(56, 72, slotLabel(3));
 
 	if (h5)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(56, 52, GAME_STATE.saveNames[4].name);
+	GAME_STATE.fonts.load_font.print(56, 52, slotLabel(4));
 
 	if (h6)
 		glColor3f(0, 1, 0);
 	else
 		glColor3f(1, 1, 1);
-	GAME_STATE.fonts.load_font.print(56, 33, GAME_STATE.saveNames[5].name);
+	GAME_STATE.fonts.load_font.print(56, 33, slotLabel(5));
 
 	if (h7)
 		glColor3f(0, 1, 0);

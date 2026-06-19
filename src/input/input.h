@@ -41,6 +41,8 @@ const float MOUSE_LOOK_SENSITIVITY = 0.08f;
 
 void Load();
 
+void Update();
+
 void Draw();
 
 void Idle();

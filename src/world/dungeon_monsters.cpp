@@ -54,7 +54,7 @@ void Dungeon::GetAttack(int damage, int attackRange) {
 	for (int i = 0; i < CMaxMonsters; i++) {
 		if (m[i].orX != -1 && m[i].orY != -1) {
 			SyncMonsterFromToken(i);
-			if (m[i].m->Alive() && m[i].m->Nearby(x, y, attackRange)) {
+			if (m[i].m->Alive() && m[i].m->Nearby(mapX, mapY, attackRange)) {
 				m[i].m->getHit(damage);
 				SyncTokenFromMonster(i, true);
 				break;
@@ -65,14 +65,14 @@ void Dungeon::GetAttack(int damage, int attackRange) {
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).b);
-	m[index].m->dungeonX = &x;
-	m[index].m->dungeonY = &y;
-	m[index].m->X = static_cast<float>(i);
-	m[index].m->Y = static_cast<float>(j);
+	m[index].m->dungeonCamX = &mapX;
+	m[index].m->dungeonCamY = &mapY;
+	m[index].m->tileOriginX = static_cast<float>(i);
+	m[index].m->tileOriginY = static_cast<float>(j);
 	m[index].orX = i;
 	m[index].orY = j;
 	m[index].HP = m[index].m->maxHealth;
-	m[index].m->GetCords(m[index].x, m[index].y);
+	m[index].m->GetCords(m[index].mapX, m[index].mapY);
 	m[index].state = 1;
 	m[index].facing_dir = 0;
 	m[index].frame = 1;

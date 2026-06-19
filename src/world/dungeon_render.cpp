@@ -9,247 +9,160 @@ inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2
 void normalize(VECTOR& v);
 void rotateVector(MATRIX& m, VECTOR& v, VECTOR& d);
 
-void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
-	GAME_STATE.textures.blackTex.Bind();
+void Dungeon::renderCartoonTile(int type, int left, int right, int up, int down) {
+	if (type == Wall)
+		return; // Wall tiles have no back-face geometry in cartoon mode
 
-	if (GAME_STATE.render.Cartoon) {
-		float tmpShade;
-		MATRIX tmpMatrix;
-		VECTOR tmpVector, tmpNormal;
+	MATRIX tmpMatrix;
+	VECTOR tmpVector, tmpNormal;
+	glGetFloatv(GL_MODELVIEW_MATRIX, tmpMatrix.Data);
+	glEnable(GL_TEXTURE_1D);
+	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
 
-		glGetFloatv(GL_MODELVIEW_MATRIX, tmpMatrix.Data);
+	auto shade = [&](float nx, float ny, float nz) -> float {
+		tmpNormal.X = nx;
+		tmpNormal.Y = ny;
+		tmpNormal.Z = nz;
+		rotateVector(tmpMatrix, tmpNormal, tmpVector);
+		normalize(tmpVector);
+		float s = dotProduct(tmpVector, lightAngle);
+		return s < 0.0f ? 0.0f : s;
+	};
 
-		glEnable(GL_TEXTURE_1D);
-		glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
+	// Back face with per-vertex normals for gradient shading
+	glBegin(GL_QUADS);
+	glTexCoord1f(shade(0, 0, 1));
+	glVertex3i(0, 0, -40);
+	glTexCoord1f(shade(0, 0.3f, 1));
+	glVertex3i(0, 40, -40);
+	glTexCoord1f(shade(0.2f, 0.3f, 1));
+	glVertex3i(40, 40, -40);
+	glTexCoord1f(shade(0.2f, 0.4f, 0.5f));
+	glVertex3i(40, 0, -40);
+	glEnd();
 
-		switch (type) {
-		case 0:
-			break;
+	auto renderWall = [&](float nx, float ny, float nz, int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3,
+						  int z3, int x4, int y4, int z4) {
+		float s = shade(nx, ny, nz);
+		glBegin(GL_QUADS);
+		glTexCoord1f(s);
+		glVertex3i(x1, y1, z1);
+		glVertex3i(x2, y2, z2);
+		glVertex3i(x3, y3, z3);
+		glVertex3i(x4, y4, z4);
+		glEnd();
+	};
 
-		default:
-			glBegin(GL_QUADS);
-			tmpNormal.X = 0;
-			tmpNormal.Y = 0;
-			tmpNormal.Z = 1;
+	if (!left)
+		renderWall(1, 0, 0, 0, 0, -40, 0, 40, -40, 0, 40, 0, 0, 0, 0);
+	if (!right)
+		renderWall(-1, 0, 0, 40, 0, -40, 40, 40, -40, 40, 40, 0, 40, 0, 0);
+	if (!up)
+		renderWall(0, -1, 0, 0, 40, -40, 40, 40, -40, 40, 40, 0, 0, 40, 0);
+	if (!down)
+		renderWall(0, 1, 0, 0, 0, -40, 40, 0, -40, 40, 0, 0, 0, 0, 0);
 
-			rotateVector(tmpMatrix, tmpNormal, tmpVector);
-			normalize(tmpVector);
-			tmpShade = dotProduct(tmpVector, lightAngle);
-			if (tmpShade < 0.0f)
-				tmpShade = 0.0f;
-			glTexCoord1f(tmpShade);
-			glVertex3i(0, 0, -40);
-
-			tmpNormal.X = 0;
-			tmpNormal.Y = 0.3;
-			tmpNormal.Z = 1;
-			rotateVector(tmpMatrix, tmpNormal, tmpVector);
-			normalize(tmpVector);
-			tmpShade = dotProduct(tmpVector, lightAngle);
-			if (tmpShade < 0.0f)
-				tmpShade = 0.0f;
-			glTexCoord1f(tmpShade);
-			glVertex3i(0, 40, -40);
-
-			tmpNormal.X = 0.2;
-			tmpNormal.Y = 0.3;
-			tmpNormal.Z = 1;
-			rotateVector(tmpMatrix, tmpNormal, tmpVector);
-			normalize(tmpVector);
-			tmpShade = dotProduct(tmpVector, lightAngle);
-			if (tmpShade < 0.0f)
-				tmpShade = 0.0f;
-			glTexCoord1f(tmpShade);
-			glVertex3i(40, 40, -40);
-
-			tmpNormal.X = 0.2;
-			tmpNormal.Y = 0.4;
-			tmpNormal.Z = 0.5;
-			rotateVector(tmpMatrix, tmpNormal, tmpVector);
-			normalize(tmpVector);
-			tmpShade = dotProduct(tmpVector, lightAngle);
-			if (tmpShade < 0.0f)
-				tmpShade = 0.0f;
-			glTexCoord1f(tmpShade);
-			glVertex3i(40, 0, -40);
-			glEnd();
-
-			if (!leftWallType) {
-				glBegin(GL_QUADS);
-				tmpNormal.X = 1;
-				tmpNormal.Y = 0;
-				tmpNormal.Z = 0;
-				rotateVector(tmpMatrix, tmpNormal, tmpVector);
-				normalize(tmpVector);
-				tmpShade = dotProduct(tmpVector, lightAngle);
-				if (tmpShade < 0.0f)
-					tmpShade = 0.0f;
-				glTexCoord1f(tmpShade);
-				glVertex3i(0, 0, -40);
-				glVertex3i(0, 40, -40);
-				glVertex3i(0, 40, 0);
-				glVertex3i(0, 0, 0);
-				glEnd();
-			}
-
-			if (!rightWallType) {
-				glBegin(GL_QUADS);
-				tmpNormal.X = -1;
-				tmpNormal.Y = 0;
-				tmpNormal.Z = 0;
-				rotateVector(tmpMatrix, tmpNormal, tmpVector);
-				normalize(tmpVector);
-				tmpShade = dotProduct(tmpVector, lightAngle);
-				if (tmpShade < 0.0f)
-					tmpShade = 0.0f;
-				glTexCoord1f(tmpShade);
-				glVertex3i(40, 0, -40);
-				glVertex3i(40, 40, -40);
-				glVertex3i(40, 40, 0);
-				glVertex3i(40, 0, 0);
-				glEnd();
-			}
-
-			if (!upWallType) {
-				glBegin(GL_QUADS);
-				tmpNormal.X = 0;
-				tmpNormal.Y = -1;
-				tmpNormal.Z = 0;
-				rotateVector(tmpMatrix, tmpNormal, tmpVector);
-				normalize(tmpVector);
-				tmpShade = dotProduct(tmpVector, lightAngle);
-				if (tmpShade < 0.0f)
-					tmpShade = 0.0f;
-				glTexCoord1f(tmpShade);
-				glVertex3i(0, 40, -40);
-				glVertex3i(40, 40, -40);
-				glVertex3i(40, 40, 0);
-				glVertex3i(0, 40, 0);
-				glEnd();
-			}
-
-			if (!downWallType) {
-				glBegin(GL_QUADS);
-				tmpNormal.X = 0;
-				tmpNormal.Y = 1;
-				tmpNormal.Z = 0;
-				rotateVector(tmpMatrix, tmpNormal, tmpVector);
-				normalize(tmpVector);
-				tmpShade = dotProduct(tmpVector, lightAngle);
-				if (tmpShade < 0.0f)
-					tmpShade = 0.0f;
-				glTexCoord1f(tmpShade);
-				glVertex3i(0, 0, -40);
-				glVertex3i(40, 0, -40);
-				glVertex3i(40, 0, 0);
-				glVertex3i(0, 0, 0);
-				glEnd();
-			}
-
-			break;
-		}
-
-		glDisable(GL_TEXTURE_1D);
+	glDisable(GL_TEXTURE_1D);
+}
+//======================================================================================
+void Dungeon::renderFlatTile(int type, int left, int right, int up, int down) {
+	if (GAME_STATE.render.Orig_model) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4f(1, 1, 1, 0.4f);
 	}
 
-	if (!GAME_STATE.render.Cartoon || GAME_STATE.render.Orig_model) {
-		if (GAME_STATE.render.Orig_model) {
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glEnable(GL_BLEND);
-			glColor4f(1, 1, 1, 0.4);
-		}
-		switch (type) {
-		case 0:
-			glDisable(GL_BLEND);
-			GAME_STATE.textures.black_t.Bind();
+	if (type == Wall) {
+		glDisable(GL_BLEND);
+		GAME_STATE.textures.black_t.Bind();
+		glBegin(GL_QUADS);
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0);
+		glVertex3i(0, 0, 0);
+		glTexCoord2f(0, 1);
+		glVertex3i(0, 40, 0);
+		glTexCoord2f(1, 1);
+		glVertex3i(40, 40, 0);
+		glTexCoord2f(1, 0);
+		glVertex3i(40, 0, 0);
+		glEnd();
+	} else {
+		glBegin(GL_QUADS);
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0);
+		glVertex3i(0, 0, -40);
+		glTexCoord2f(0, 1);
+		glVertex3i(0, 40, -40);
+		glTexCoord2f(1, 1);
+		glVertex3i(40, 40, -40);
+		glTexCoord2f(1, 0);
+		glVertex3i(40, 0, -40);
+		glEnd();
+
+		if (!left) {
 			glBegin(GL_QUADS);
-			glNormal3f(0, 0, 1);
+			glNormal3f(1, 0, 0);
 			glTexCoord2f(0, 0);
-			glVertex3i(0, 0, 0);
+			glVertex3i(0, 0, -40);
 			glTexCoord2f(0, 1);
+			glVertex3i(0, 40, -40);
+			glTexCoord2f(1, 1);
 			glVertex3i(0, 40, 0);
+			glTexCoord2f(1, 0);
+			glVertex3i(0, 0, 0);
+			glEnd();
+		}
+		if (!right) {
+			glBegin(GL_QUADS);
+			glNormal3f(-1, 0, 0);
+			glTexCoord2f(0, 0);
+			glVertex3i(40, 0, -40);
+			glTexCoord2f(0, 1);
+			glVertex3i(40, 40, -40);
 			glTexCoord2f(1, 1);
 			glVertex3i(40, 40, 0);
 			glTexCoord2f(1, 0);
 			glVertex3i(40, 0, 0);
 			glEnd();
-			break;
-
-		default:
-			glBegin(GL_QUADS);
-			glNormal3f(0, 0, 1);
-			glTexCoord2f(0, 0);
-			glVertex3i(0, 0, -40);
-			glTexCoord2f(0, 1);
-			glVertex3i(0, 40, -40);
-			glTexCoord2f(1, 1);
-			glVertex3i(40, 40, -40);
-			glTexCoord2f(1, 0);
-			glVertex3i(40, 0, -40);
-			glEnd();
-
-			if (!leftWallType) {
-				glBegin(GL_QUADS);
-				glNormal3f(1, 0, 0);
-				glTexCoord2f(0, 0);
-				glVertex3i(0, 0, -40);
-				glTexCoord2f(0, 1);
-				glVertex3i(0, 40, -40);
-				glTexCoord2f(1, 1);
-				glVertex3i(0, 40, 0);
-				glTexCoord2f(1, 0);
-				glVertex3i(0, 0, 0);
-				glEnd();
-			}
-
-			if (!rightWallType) {
-				glBegin(GL_QUADS);
-				glNormal3f(-1, 0, 0);
-				glTexCoord2f(0, 0);
-				glVertex3i(40, 0, -40);
-				glTexCoord2f(0, 1);
-				glVertex3i(40, 40, -40);
-				glTexCoord2f(1, 1);
-				glVertex3i(40, 40, 0);
-				glTexCoord2f(1, 0);
-				glVertex3i(40, 0, 0);
-				glEnd();
-			}
-
-			if (!upWallType) {
-				glBegin(GL_QUADS);
-				glNormal3f(0, -1, 0);
-				glTexCoord2f(0.3, 0.3);
-				glVertex3i(0, 40, -40);
-				glTexCoord2f(0.3, 0.7);
-				glVertex3i(40, 40, -40);
-				glTexCoord2f(0.7, 0.7);
-				glVertex3i(40, 40, 0);
-				glTexCoord2f(0.7, 0.3);
-				glVertex3i(0, 40, 0);
-				glEnd();
-			}
-
-			if (!downWallType) {
-				glBegin(GL_QUADS);
-				glNormal3f(0, 1, 0);
-				glTexCoord2f(0.3, 0.3);
-				glVertex3i(0, 0, -40);
-				glTexCoord2f(0.3, 0.7);
-				glVertex3i(40, 0, -40);
-				glTexCoord2f(0.7, 0.7);
-				glVertex3i(40, 0, 0);
-				glTexCoord2f(0.7, 0.3);
-				glVertex3i(0, 0, 0);
-				glEnd();
-			}
-
-			break;
 		}
-		if (GAME_STATE.render.Orig_model)
-			glDisable(GL_BLEND);
+		if (!up) {
+			glBegin(GL_QUADS);
+			glNormal3f(0, -1, 0);
+			glTexCoord2f(0.3f, 0.3f);
+			glVertex3i(0, 40, -40);
+			glTexCoord2f(0.3f, 0.7f);
+			glVertex3i(40, 40, -40);
+			glTexCoord2f(0.7f, 0.7f);
+			glVertex3i(40, 40, 0);
+			glTexCoord2f(0.7f, 0.3f);
+			glVertex3i(0, 40, 0);
+			glEnd();
+		}
+		if (!down) {
+			glBegin(GL_QUADS);
+			glNormal3f(0, 1, 0);
+			glTexCoord2f(0.3f, 0.3f);
+			glVertex3i(0, 0, -40);
+			glTexCoord2f(0.3f, 0.7f);
+			glVertex3i(40, 0, -40);
+			glTexCoord2f(0.7f, 0.7f);
+			glVertex3i(40, 0, 0);
+			glTexCoord2f(0.7f, 0.3f);
+			glVertex3i(0, 0, 0);
+			glEnd();
+		}
 	}
 
+	if (GAME_STATE.render.Orig_model)
+		glDisable(GL_BLEND);
+}
+//======================================================================================
+void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
+	GAME_STATE.textures.blackTex.Bind();
+	if (GAME_STATE.render.Cartoon)
+		renderCartoonTile(type, leftWallType, rightWallType, upWallType, downWallType);
+	if (!GAME_STATE.render.Cartoon || GAME_STATE.render.Orig_model)
+		renderFlatTile(type, leftWallType, rightWallType, upWallType, downWallType);
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
@@ -294,8 +207,8 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
 	trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
-	tileTrap->dungeonX = &x;
-	tileTrap->dungeonY = &y;
+	tileTrap->dungeonCamX = &mapX;
+	tileTrap->dungeonCamY = &mapY;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
 	tileTrap->Show();
 
@@ -307,12 +220,12 @@ void Dungeon::Draw() {
 	plasmaAni = aniT->TimePassed();
 
 	glPushMatrix();
-	glTranslatef(-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
-				 -RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))), 0.f);
+	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
+				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 
-	for (int j = static_cast<int>(y) - 3; j < static_cast<int>(y) + 3; j++) {
-		for (int i = static_cast<int>(x) - 3; i < static_cast<int>(x) + 5; i++) {
+	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
+		for (int i = static_cast<int>(mapX) - 3; i < static_cast<int>(mapX) + 5; i++) {
 			if (IsInBounds(i, j)) {
 				const Tint tile = MapAt(i, j);
 				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);

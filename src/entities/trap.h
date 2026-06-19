@@ -9,15 +9,15 @@
 class trap {
   private:
 	std::unique_ptr<AnimatedCartoonModel> mdl;
-	float x;
-	float y;
+	float tileX;
+	float tileY;
 	Textura tex;
 	std::unique_ptr<timer> Hurt_timer;
 
   public:
 	float scale;
-	float* dungeonY; // ne , ne isvestine :D. Kordinates pozemio
-	float* dungeonX;
+	float* dungeonCamY;
+	float* dungeonCamX;
 
 	trap();
 	~trap();

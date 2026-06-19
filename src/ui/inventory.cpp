@@ -536,7 +536,7 @@ void inventory::Dump(std::ofstream& f) {
 	f << rw.count << " ";
 	for (int i = 0; i < PotionId::COUNT; i++)
 		f << potions[i].count << " ";
-	f << "\n";
+	f << equipped.type << " " << equipped.id << "\n";
 }
 
 void inventory::LoadDump(std::ifstream& f) {
@@ -545,4 +545,5 @@ void inventory::LoadDump(std::ifstream& f) {
 	f >> rw.count;
 	for (int i = 0; i < PotionId::COUNT; i++)
 		f >> potions[i].count;
+	f >> equipped.type >> equipped.id;
 }

@@ -6,11 +6,52 @@ void processMouseActiveMotion(int x, int y);
 void processMousePassiveMotion(int x, int y);
 void processMouseEntry(int state);
 void GetEl(int x, int y);
+int ScreenToDesignCore(int sx, int sy, int vpX, int vpY, int vpW, int vpH, float scale, int *dx, int *dy);
+int ScreenToDesign(int sx, int sy, int *dx, int *dy);
 
-void processMouse(int button, int state, int x, int y) 
+// Pure core of the screen-to-design transform: takes the viewport rect and
+// scale explicitly (instead of reading globals) so it can be exercised by a
+// standalone offline test. See ScreenToDesign below for the real entry point.
+int ScreenToDesignCore(int sx, int sy, int vpX, int vpY, int vpW, int vpH, float scale, int *dx, int *dy)
 {
-     
-     
+     if (sx < vpX || sx >= vpX + vpW ||
+         sy < vpY || sy >= vpY + vpH)
+          return 0;
+
+     *dx = (int)((sx - vpX) / scale);
+     *dy = (int)((sy - vpY) / scale);
+     return 1;
+}
+
+// Converts a raw GLUT window-pixel mouse coordinate (top-left origin) into
+// the fixed DESIGN_WIDTH x DESIGN_HEIGHT coordinate space that all existing
+// hit-testing in this file assumes. Returns 0 (and leaves *dx/*dy untouched)
+// if the click falls outside the current letterboxed content area — callers
+// must check the return value before using *dx/*dy.
+int ScreenToDesign(int sx, int sy, int *dx, int *dy)
+{
+     // glViewport(ViewportX, ViewportY, ...) measures ViewportY from the
+     // window's BOTTOM edge (OpenGL window-coordinate convention), but GLUT
+     // mouse coordinates (sx, sy) are measured from the window's TOP edge.
+     // ViewportX needs no such conversion (both GLUT and OpenGL measure x
+     // from the left), but reusing ViewportY as-is for the y margin is only
+     // correct when the top and bottom letterbox bars are the same size,
+     // which integer rounding in ComputeContainViewport does not guarantee
+     // (WinHeight - ViewportH can be odd). Recompute the true top-down top
+     // margin here so the bounds check/subtraction line up with where the
+     // content actually renders on screen.
+     int topMarginY = WinHeight - ViewportY - ViewportH;
+     return ScreenToDesignCore(sx, sy, ViewportX, topMarginY, ViewportW, ViewportH, ViewportScale, dx, dy);
+}
+
+void processMouse(int button, int state, int x, int y)
+{
+     int dx, dy;
+     if (!ScreenToDesign(x, y, &dx, &dy))
+          return;
+     x = dx;
+     y = dy;
+
      if(state == GLUT_UP)
      {
 	   printf("x:%d , y:%d, btn %d\n",x,y,button);
@@ -78,9 +119,12 @@ if(x > 430)
      }
 }
 
-void processMouseActiveMotion(int x, int y) 
+void processMouseActiveMotion(int x, int y)
 {
-     GetEl(x,y);
+     int dx, dy;
+     if (!ScreenToDesign(x, y, &dx, &dy))
+          return;
+     GetEl(dx, dy);
 }
 
 void processMousePassiveMotion(int x, int y) 

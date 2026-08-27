@@ -41,7 +41,15 @@
      
      char AtText3[6] = {0};
      int  AtText3L = 0;
-     
+
+     //	status bar (save/load feedback)
+     #define StatusNone    0
+     #define StatusOk      1
+     #define StatusError   2
+     #define StatusBusy    3
+     char StatusMsg[64] = {0};
+     int  StatusColor = StatusNone;
+
      typedef struct 
      {
 	   int type;
@@ -67,6 +75,16 @@
      #define Ankh     9
     
      int mouseX, mouseY;
+
+     #define DESIGN_WIDTH  640
+     #define DESIGN_HEIGHT 480
+
+     int WinWidth  = DESIGN_WIDTH;
+     int WinHeight = DESIGN_HEIGHT;
+
+     int   ViewportX = 0, ViewportY = 0;
+     int   ViewportW = DESIGN_WIDTH, ViewportH = DESIGN_HEIGHT;
+     float ViewportScale = 1.0f;
 
      //end
      #define DegRad 0.0174532925

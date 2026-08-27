@@ -18,7 +18,7 @@ void Draw()
      glMatrixMode(GL_PROJECTION);					// Select The Projection Matrix
      glPushMatrix();							// Store The Projection Matrix
      glLoadIdentity();						// Reset The Projection Matrix
-     glOrtho(0,640,0,480,-1,1);					// Set Up An Ortho Screen
+     glOrtho(0,DESIGN_WIDTH,0,DESIGN_HEIGHT,-1,1);					// Set Up An Ortho Screen
      glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
      
      glColor3f(0,0.2,0);
@@ -218,7 +218,19 @@ void Draw()
      if(selMN)glColor3f(0,1,0);
      else glColor3f(1,1,1);
      glPrint(440,260,"DungeonName: %s", AtText3);
-     
+
+     if(StatusMsg[0])
+     {
+          switch(StatusColor)
+          {
+               case StatusOk:    glColor3f(0,1,0); break;
+               case StatusError: glColor3f(1,0,0); break;
+               case StatusBusy:  glColor3f(1,1,0); break;
+               default:          glColor3f(1,1,1); break;
+          }
+          glPrint(440,220,"%s", StatusMsg);
+     }
+
      glColor3f(1,1,1);
      glMatrixMode(GL_PROJECTION);				// Select The Projection Matrix
      glPopMatrix();						// Restore The Old Projection Matrix

@@ -20,7 +20,7 @@ DEPS=$(OBJECTS:.o=.d)
 EXECUTABLE=game
 CLANG_TIDY?=clang-tidy
 
-.PHONY: all clean format tidy
+.PHONY: all clean format tidy editor run-editor
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -44,5 +44,8 @@ tidy:
 
 editor:
 	(cd DungeonEditor && ./make)
+
+run-editor:
+	(cd DungeonEditor && ./editor)
 
 -include $(DEPS)

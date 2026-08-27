@@ -58,7 +58,44 @@ void InitGL(GLsizei Width, GLsizei Height)	// We call this right after our OpenG
 	BuildFont();
 }
 
-void ReSizeGLScene(GLsizei Width, GLsizei Height){}
+// Computes the largest axis-aligned rectangle of aspect ratio designW:designH
+// that fits centered inside a winW x winH window ("contain" fit / letterbox).
+// Guards against non-positive input so it can never divide by zero or produce
+// a negative-size viewport.
+void ComputeContainViewport(int winW, int winH, int designW, int designH,
+                             int *outX, int *outY, int *outW, int *outH,
+                             float *outScale)
+{
+	if (winW < 1) winW = 1;
+	if (winH < 1) winH = 1;
+
+	float scaleX = (float)winW / (float)designW;
+	float scaleY = (float)winH / (float)designH;
+	float scale  = (scaleX < scaleY) ? scaleX : scaleY;
+
+	int vpW = (int)(designW * scale);
+	int vpH = (int)(designH * scale);
+	if (vpW < 1) vpW = 1;
+	if (vpH < 1) vpH = 1;
+
+	*outX = (winW - vpW) / 2;
+	*outY = (winH - vpH) / 2;
+	*outW = vpW;
+	*outH = vpH;
+	*outScale = scale;
+}
+
+void ReSizeGLScene(GLsizei Width, GLsizei Height)
+{
+	WinWidth  = (int)Width;
+	WinHeight = (int)Height;
+
+	ComputeContainViewport(WinWidth, WinHeight, DESIGN_WIDTH, DESIGN_HEIGHT,
+	                        &ViewportX, &ViewportY, &ViewportW, &ViewportH,
+	                        &ViewportScale);
+
+	glViewport(ViewportX, ViewportY, ViewportW, ViewportH);
+}
 int main (int argc, char *argv[])
 {
 
@@ -75,14 +112,17 @@ int main (int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
 	
 	/* get a 640 x 480 window */
-	glutInitWindowSize(640, 480);  
+	glutInitWindowSize(DESIGN_WIDTH, DESIGN_HEIGHT);
 	
 	/* the window starts at the upper left corner of the screen */
 	glutInitWindowPosition(0, 0);  
 	
 	/* Open a window */  
-	window = glutCreateWindow("Map editor :: by Gedas");  
-	
+	window = glutCreateWindow("Map editor :: by Gedas");
+
+	/* Deterministic initial state, don't rely on freeglut's implicit first reshape call. */
+	ReSizeGLScene(DESIGN_WIDTH, DESIGN_HEIGHT);
+
 	/* Register the function to do all our OpenGL drawing. */
 	glutDisplayFunc(&Draw);  
 	
@@ -105,7 +145,7 @@ int main (int argc, char *argv[])
 	glutEntryFunc(processMouseEntry);
 	
 	/* Initialize our window. */
-	InitGL(640, 480);
+	InitGL(DESIGN_WIDTH, DESIGN_HEIGHT);
 	
 	/* Start Event Processing Engine */  
 	glutMainLoop();  

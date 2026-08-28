@@ -9,7 +9,9 @@ float clampRatio(float value) {
 		return 1.0f;
 	return value;
 }
+} // namespace
 
+namespace Hud {
 void drawBar(float left, float bottom, float width, float height, float ratio, float red, float green, float blue) {
 	glColor3f(1, 1, 1);
 	glBegin(GL_LINE_LOOP);
@@ -27,9 +29,7 @@ void drawBar(float left, float bottom, float width, float height, float ratio, f
 	glVertex3f(left, bottom + height, 0);
 	glEnd();
 }
-} // namespace
 
-namespace Hud {
 void drawPlayerBars(float healthRatio, float staminaRatio) {
 	healthRatio = clampRatio(healthRatio);
 	staminaRatio = clampRatio(staminaRatio);

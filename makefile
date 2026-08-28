@@ -20,7 +20,7 @@ DEPS=$(OBJECTS:.o=.d)
 EXECUTABLE=game
 CLANG_TIDY?=clang-tidy
 
-.PHONY: all clean format tidy editor run-editor
+.PHONY: all clean format tidy editor run-editor model-viewer run-model-viewer
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -47,5 +47,11 @@ editor:
 
 run-editor:
 	(cd DungeonEditor && ./editor)
+
+model-viewer:
+	(cd ModelViewer && ./make)
+
+run-model-viewer:
+	./ModelViewer/viewer $(ARGS)
 
 -include $(DEPS)

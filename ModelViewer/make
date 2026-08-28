@@ -1,0 +1,7 @@
+#!/bin/bash
+
+CXXFLAGS="-Wall -Wextra -pedantic -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP"
+LDFLAGS="-lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL"
+
+rm -f viewer
+g++ viewer.cpp ../src/graphics/ani.cpp ../src/graphics/textures.cpp ../src/graphics/hud.cpp ../src/graphics/font.cpp ../src/core/timer.cpp ../src/core/logger.cpp $CXXFLAGS -o viewer $LDFLAGS

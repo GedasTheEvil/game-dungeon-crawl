@@ -34,7 +34,12 @@ inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
 	case KEY_SPACE:
 		return GameplayAction::Jump;
 	case KEY_ENTER:
+	case KEY_ATTACK:
+	case KEY_ATTACK_UPPER:
 		return GameplayAction::Attack;
+	case KEY_INTERACT:
+	case KEY_INTERACT_UPPER:
+		return GameplayAction::Interact;
 	default:
 		return GameplayAction::None;
 	}

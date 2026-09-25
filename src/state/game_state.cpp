@@ -60,8 +60,6 @@ void GameState::Load() {
 	textures.blackTex.LoadPNG("Textures/dungeon/wallback.png");
 	textures.black_t.LoadPNG("Textures/dungeon/black.png");
 	DrawLoad(4, "Loading Textures");
-	textures.menu_bg.LoadPNG("Textures/ui/menu_main.png");
-	textures.menu_save_bg.LoadPNG("Textures/ui/menu_save.png");
 	textures.player_t.LoadPNG("Textures/characters/archeologist.png");
 	DrawLoad(5, "Loading Textures");
 	textures.anubis_t.LoadPNG("Textures/monsters/anubis.png");

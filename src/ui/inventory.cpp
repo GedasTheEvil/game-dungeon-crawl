@@ -135,21 +135,10 @@ Rect slotRect(int slot) {
 	return {x0 + static_cast<float>(column) * (W + GAP), POTION_ROW_Y, W, POTION_SLOT_H};
 }
 
-// Visible canvas area: the 160 x 100 layout plus the margins of a wider or taller window.
-Rect visibleArea() {
-	float aspect = static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY);
-	if (aspect >= CANVAS_W / CANVAS_H) {
-		float w = CANVAS_H * aspect;
-		return {(CANVAS_W - w) / 2, 0, w, CANVAS_H};
-	}
-	float h = CANVAS_W / aspect;
-	return {0, (CANVAS_H - h) / 2, CANVAS_W, h};
-}
+Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, GAME_STATE.render.resX, GAME_STATE.render.resY); }
 
 void toCanvas(int mouseX, int mouseY, float& x, float& y) {
-	Rect area = visibleArea();
-	x = area.x + area.w * static_cast<float>(mouseX) / static_cast<float>(GAME_STATE.render.resX);
-	y = area.y + area.h - area.h * static_cast<float>(mouseY) / static_cast<float>(GAME_STATE.render.resY);
+	ui::toCanvas(visibleArea(), GAME_STATE.render.resX, GAME_STATE.render.resY, mouseX, mouseY, x, y);
 }
 
 } // namespace

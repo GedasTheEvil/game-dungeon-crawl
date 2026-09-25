@@ -5,6 +5,21 @@
 
 namespace ui {
 
+Rect visibleArea(float canvasW, float canvasH, int resX, int resY) {
+	float aspect = static_cast<float>(resX) / static_cast<float>(resY);
+	if (aspect >= canvasW / canvasH) {
+		float w = canvasH * aspect;
+		return {(canvasW - w) / 2, 0, w, canvasH};
+	}
+	float h = canvasW / aspect;
+	return {0, (canvasH - h) / 2, canvasW, h};
+}
+
+void toCanvas(const Rect& area, int resX, int resY, int mouseX, int mouseY, float& x, float& y) {
+	x = area.x + area.w * static_cast<float>(mouseX) / static_cast<float>(resX);
+	y = area.y + area.h - area.h * static_cast<float>(mouseY) / static_cast<float>(resY);
+}
+
 void fillRect(const Rect& r, Color top, Color bottom, float alpha) {
 	glBegin(GL_QUADS);
 	glColor4f(bottom.r, bottom.g, bottom.b, alpha);
@@ -45,6 +60,15 @@ void diamond(float x, float y, float size, Color c, float alpha) {
 	glVertex2f(x, y - size);
 	glVertex2f(x + size, y);
 	glVertex2f(x, y + size);
+	glEnd();
+}
+
+void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color c, float alpha) {
+	glColor4f(c.r, c.g, c.b, alpha);
+	glBegin(GL_TRIANGLES);
+	glVertex2f(x0, y0);
+	glVertex2f(x1, y1);
+	glVertex2f(x2, y2);
 	glEnd();
 }
 

@@ -37,11 +37,18 @@ constexpr Color INK_RED = {0.62f, 0.17f, 0.08f};
 constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
 constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
 
+// Part of a `canvasW` x `canvasH` layout (y up) seen in a resX x resY window: the canvas keeps its aspect ratio and
+// is centred, the margins of a wider or taller window are added around it.
+Rect visibleArea(float canvasW, float canvasH, int resX, int resY);
+// Window pixel (y down) -> canvas point inside `area`.
+void toCanvas(const Rect& area, int resX, int resY, int mouseX, int mouseY, float& x, float& y);
+
 // ---- shapes (texturing off, see beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);
 void strokeRect(const Rect& r, Color c, float alpha, float width);
 void line(float x0, float y0, float x1, float y1, Color c, float alpha, float width);
 void diamond(float x, float y, float size, Color c, float alpha);
+void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color c, float alpha);
 // Band around `inner`, `grow` wide, fading from alphaIn at the rect to alphaOut at the outer edge.
 void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut);
 void ellipse(float x, float y, float rx, float ry, Color c, float alpha);

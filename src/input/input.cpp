@@ -133,8 +133,16 @@ void keyPressed(unsigned char key, int x, int y) {
 			return;
 		}
 
-		GAME_STATE.ui.menu.ResetSubScreens();
-		GAME_STATE.ui.menu.show = !GAME_STATE.ui.menu.show;
+		// In the menu Esc backs out of the save / load / options screens, then returns to the game (if there is one).
+		MainMenu& menu = GAME_STATE.ui.menu;
+		if (menu.show && menu.InSubScreen()) {
+			menu.ResetSubScreens();
+			return;
+		}
+		if (menu.show && !menu.inGame)
+			return;
+		menu.ResetSubScreens();
+		menu.show = !menu.show;
 		return;
 	}
 

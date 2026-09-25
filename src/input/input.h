@@ -15,6 +15,10 @@ const unsigned char KEY_MOVE_RIGHT_UPPER = 'D';
 const unsigned char KEY_MOVE_DOWN_UPPER = 'S';
 const unsigned char KEY_MOVE_UP_UPPER = 'W';
 const unsigned char KEY_INVENTORY = 'i';
+const unsigned char KEY_ATTACK = 'v';
+const unsigned char KEY_ATTACK_UPPER = 'V';
+const unsigned char KEY_INTERACT = 'e';
+const unsigned char KEY_INTERACT_UPPER = 'E';
 
 const int SPECIAL_TOGGLE_CARTOON = 1;
 const int SPECIAL_TOGGLE_ORIGINAL_MODEL = 2;

@@ -2,17 +2,44 @@
 #define MenuH
 
 #include <memory>
+#include <string>
 #include "../core/timer.h"
+#include "../graphics/font.h"
 
 /// @file menu.h
-/// Set of functions for showing the menu
+/// Main menu, in-game menu and its save / load / options screens.
 
 class MainMenu {
   private:
-	bool h1, h2, h3, h4, h5, h6, h7;
-	void NoHover();
+	static constexpr int NONE = -1;
+	// Click targets: menu buttons and save slots use their index.
+	static constexpr int BACK = 100;	 // Back button of the sub-screens
+	static constexpr int TAB_BASE = 200; // options tabs
+
+	int hovered = NONE;
+	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
 	bool credits;
 	std::unique_ptr<timer> creditsTimer;
+
+	bool fontsLoaded = false;
+	Font title, heading, body, small;
+	std::string toast;
+	int toastStartMs = 0;
+	int optionsTab = 0;
+
+	void LoadFonts();
+	void BeginCanvas();
+	void EndFrame();
+	void DrawBackground(const char* caption);
+	void DrawButtons();
+	void DrawSlots();
+	void DrawSlot(int slot);
+	void DrawOptions();
+	void DrawBackButton();
+	void DrawFooter(const char* hint);
+	int TargetAt(int x, int y);
+	void Activate(int target);
+	void ShowToast(const std::string& text);
 
   public:
 	MainMenu();
@@ -20,17 +47,12 @@ class MainMenu {
 	bool inGame;
 	bool saveD;
 	bool loadD;
+	bool optionsD = false;
 	bool show;
 	void Draw();
-	void DrawSave();
-	void DrawLoad();
-	void InGameDraw();
 	void MouseFunction(int button, int state, int x, int y);
-	void SaveMouseFunction(int button, int state, int x, int y);
-	void LoadMouseFunction(int button, int state, int x, int y);
-	void InGameMouseFunction(int button, int state, int x, int y);
-	void MousePassiveMotion(int a, int b);
-	void MousePassiveMotionSave(int a, int b);
+	void MousePassiveMotion(int x, int y);
+	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD; }
 	void ResetSubScreens();
 };
 

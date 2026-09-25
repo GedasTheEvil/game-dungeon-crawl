@@ -7,9 +7,13 @@
 #include "../graphics/particles.h"
 #include "../core/sound.h"
 #include "../core/timer.h"
+#include <array>
 #include <memory>
 
 enum class ModelState { Die = 0, Walk = 1, Attack = 2, Jump = 3 };
+
+// Playback of every clip, indexed by ModelState.
+using MonsterAnimations = std::array<AnimPlayback, 4>;
 
 class monster {
   private:
@@ -26,10 +30,14 @@ class monster {
 	int stat;
 	int facing_dir;
 	Textura nullTexture, tex;
-	std::unique_ptr<ParSys> blood;
+	std::unique_ptr<ParSys> ownBlood;
+	ParSys* blood; // ownBlood, or the particles of the dungeon token being processed
+	rgb bloodColour = {0.7f, 0.1f, 0.1f};
 	std::unique_ptr<timer> walk_timer;
 	ModelState currentState;
 	void applyModelState(ModelState state);
+	void selectModel(ModelState state); // no reset: used to restore a token's animation
+	[[nodiscard]] AnimatedCartoonModel* clip(ModelState state) const;
 
   public:
 	std::unique_ptr<timer> Att_timer;
@@ -64,10 +72,16 @@ class monster {
 	bool Nearby(float xx, float yy, int range);
 	void changeMDL(int id);
 	int Model_state();
-	void setModel(int state);
 	void setFacingDir(int dir);
 	int FacingDir();
 	void setBloodColor(float r, float g, float b);
+	// Monsters of one type share one object, so each dungeon token owns its own blood particles.
+	void initBlood(ParSys& tokenBlood) const;
+	void useBlood(ParSys* tokenBlood);
+	// Monsters of one type share one object, so each dungeon token keeps its own clip playback.
+	[[nodiscard]] MonsterAnimations spawnAnimations() const;
+	void restoreAnimations(int state, const MonsterAnimations& animations);
+	[[nodiscard]] MonsterAnimations animations() const;
 	float healthRatio() const;
 };
 
@@ -77,11 +91,12 @@ struct monsterToken {
 	int type;
 	int HP;
 	monster* m;
+	std::unique_ptr<ParSys> blood;
 	std::unique_ptr<timer> t;
 	std::unique_ptr<timer> at;
 	int state;
 	int facing_dir;
-	int frame;
+	MonsterAnimations anim;
 };
 
 #endif

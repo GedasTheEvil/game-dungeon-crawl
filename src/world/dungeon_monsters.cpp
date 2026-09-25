@@ -65,6 +65,9 @@ void Dungeon::GetAttack(int damage, int attackRange) {
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).b);
+	if (!m[index].blood)
+		m[index].blood = std::make_unique<ParSys>();
+	m[index].m->initBlood(*m[index].blood);
 	m[index].m->dungeonCamX = &mapX;
 	m[index].m->dungeonCamY = &mapY;
 	m[index].m->tileOriginX = static_cast<float>(i);
@@ -75,7 +78,7 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].m->GetCords(m[index].mapX, m[index].mapY);
 	m[index].state = 1;
 	m[index].facing_dir = 0;
-	m[index].frame = 1;
+	m[index].anim = m[index].m->spawnAnimations();
 	if (!m[index].t)
 		m[index].t = std::make_unique<timer>(70);
 	if (!m[index].at)

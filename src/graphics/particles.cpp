@@ -144,3 +144,5 @@ void ParSys::setBloodColor(float r, float g, float b) {
 void ParSys::Reset() {
 	life = CDefaultSystemLife; // default lifetime
 }
+
+void ParSys::Stop() { life = 0; }

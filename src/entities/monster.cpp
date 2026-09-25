@@ -27,6 +27,12 @@ std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, 
 
 void monster::applyModelState(ModelState state) {
 	const bool entering = state != currentState;
+	selectModel(state);
+	if (entering && !model->loop)
+		model->Reset(); // one-shot clips (die, jump) play from the start
+}
+//================================================================================
+void monster::selectModel(ModelState state) {
 	currentState = state;
 	switch (state) {
 	case ModelState::Walk:
@@ -43,8 +49,6 @@ void monster::applyModelState(ModelState state) {
 			model = walk.get();
 			break;
 		}
-		if (entering)
-			jumpAnim->Reset(); // every jump plays from the take-off
 		model = jumpAnim.get();
 		break;
 	}
@@ -67,7 +71,8 @@ monster::monster() {
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
 
-	blood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParSys>(100);
+	blood = ownBlood.get();
 }
 //================================================================================
 monster::monster(float dx, float dy) {
@@ -89,7 +94,8 @@ monster::monster(float dx, float dy) {
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
 
-	blood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParSys>(100);
+	blood = ownBlood.get();
 }
 //================================================================================
 monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) {
@@ -107,7 +113,8 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
 
-	blood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParSys>(100);
+	blood = ownBlood.get();
 }
 //================================================================================
 monster::~monster() {
@@ -316,7 +323,55 @@ void monster::setFacingDir(int dir) { facing_dir = dir; }
 //================================================================================
 int monster::FacingDir() { return facing_dir; }
 //================================================================================
-void monster::setBloodColor(float r, float g, float b) { blood->setBloodColor(r, g, b); }
+void monster::setBloodColor(float r, float g, float b) {
+	bloodColour = {r, g, b};
+	ownBlood->setBloodColor(r, g, b);
+}
+//================================================================================
+void monster::initBlood(ParSys& tokenBlood) const {
+	tokenBlood.setBloodColor(bloodColour.r, bloodColour.g, bloodColour.b);
+	tokenBlood.Stop(); // no splash until the first hit
+}
+//================================================================================
+void monster::useBlood(ParSys* tokenBlood) { blood = tokenBlood ? tokenBlood : ownBlood.get(); }
+//================================================================================
+AnimatedCartoonModel* monster::clip(ModelState state) const {
+	switch (state) {
+	case ModelState::Walk:
+		return walk.get();
+	case ModelState::Attack:
+		return attack.get();
+	case ModelState::Die:
+		return die.get();
+	case ModelState::Jump:
+		return jumpAnim.get();
+	}
+	return nullptr;
+}
+//================================================================================
+MonsterAnimations monster::spawnAnimations() const {
+	MonsterAnimations animations{};
+	// Random walk phase, so monsters spawned in the same tick don't march in step.
+	int walkFrames = walk->FrameCount() - 1;
+	if (walkFrames > 0)
+		animations[static_cast<int>(ModelState::Walk)].frame = static_cast<float>(rand() % walkFrames);
+	return animations;
+}
+//================================================================================
+void monster::restoreAnimations(int state, const MonsterAnimations& animations) {
+	for (int s = 0; s < static_cast<int>(animations.size()); s++)
+		if (AnimatedCartoonModel* c = clip(static_cast<ModelState>(s)))
+			c->SetPlayback(animations[s]);
+	selectModel(static_cast<ModelState>(state));
+}
+//================================================================================
+MonsterAnimations monster::animations() const {
+	MonsterAnimations animations{};
+	for (int s = 0; s < static_cast<int>(animations.size()); s++)
+		if (const AnimatedCartoonModel* c = clip(static_cast<ModelState>(s)))
+			animations[s] = c->Playback();
+	return animations;
+}
 //================================================================================
 float monster::healthRatio() const {
 	if (maxHealth <= 0)

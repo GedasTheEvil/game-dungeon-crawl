@@ -17,6 +17,12 @@ struct ModelNormalization {
 	float x = 0.0f, y = 0.0f, z = 0.0f;
 };
 
+// Playback position of one animation. Monsters of one type share one model, so each keeps its own.
+struct AnimPlayback {
+	float frame = 0.0f;
+	int stepStart = 0; // GameClock ms when the frame last advanced
+};
+
 class AnimatedModel {
   protected:
 	std::unique_ptr<timer> frameChange;
@@ -49,6 +55,9 @@ class AnimatedModel {
 	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
 	void Normalize(const ModelNormalization& n);
 	void Reset();
+	[[nodiscard]] int FrameCount() const;
+	[[nodiscard]] AnimPlayback Playback() const;
+	void SetPlayback(const AnimPlayback& playback);
 };
 
 #endif

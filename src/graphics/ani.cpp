@@ -360,5 +360,14 @@ void AnimatedModel::Scale(float sc) {
 //============================================================
 void AnimatedModel::Reset() { frame = 0.0; }
 //============================================================
+int AnimatedModel::FrameCount() const { return frameC; }
+//============================================================
+AnimPlayback AnimatedModel::Playback() const { return {frame, frameChange->StartTime()}; }
+//============================================================
+void AnimatedModel::SetPlayback(const AnimPlayback& playback) {
+	frame = playback.frame;
+	frameChange->SetStartTime(playback.stepStart);
+}
+//============================================================
 const float* AnimatedModel::frameNormals(int f) const { return Ver[f].n.data(); }
 //============================================================

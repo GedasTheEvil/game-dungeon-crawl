@@ -23,6 +23,8 @@ class timer {
 	[[nodiscard]] bool TimePassed();
 	[[nodiscard]] bool TimePassed(bool noRepeat);
 	void Reset();
+	[[nodiscard]] int StartTime() const;
+	void SetStartTime(int start);
 };
 
 #endif

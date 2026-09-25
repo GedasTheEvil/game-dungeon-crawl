@@ -69,5 +69,3 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 void monster::changeMDL(int id) { applyModelState(static_cast<ModelState>(id)); }
 
 int monster::Model_state() { return static_cast<int>(currentState); }
-
-void monster::setModel(int state) { applyModelState(static_cast<ModelState>(state)); }

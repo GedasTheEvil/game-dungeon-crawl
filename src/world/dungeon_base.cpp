@@ -33,9 +33,10 @@ void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->setCords(m[index].mapX, m[index].mapY);
 	m[index].m->tileOriginX = static_cast<float>(m[index].orX);
 	m[index].m->tileOriginY = static_cast<float>(m[index].orY);
-	m[index].m->setModel(m[index].state);
+	m[index].m->restoreAnimations(m[index].state, m[index].anim);
 	m[index].m->setFacingDir(m[index].facing_dir);
 	m[index].m->health = m[index].HP;
+	m[index].m->useBlood(m[index].blood.get());
 }
 //======================================================================================
 void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
@@ -44,7 +45,9 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 
 	m[index].HP = m[index].m->health;
 	m[index].state = m[index].m->Model_state();
+	m[index].anim = m[index].m->animations();
 	m[index].facing_dir = m[index].m->FacingDir();
+	m[index].m->useBlood(nullptr);
 }
 //======================================================================================
 Dungeon::Dungeon() {

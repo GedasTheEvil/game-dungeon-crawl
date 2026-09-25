@@ -1,6 +1,9 @@
 # Dungeon Crawl: A game for Linux, Windows and possibly OSX
 
-My bachelors degree work in 2011. Requirements to compile:
+My bachelors degree work in 2011.
+This is a 2.5D side-scroller game.
+
+## Requirements to compile:
 
 * Make
 * GCC
@@ -24,6 +27,10 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 * `Sounds/` - WAV effects, OGG soundtrack. `Levels/` - level files. `Saves/` - save games.
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [docs/remodeling.md](docs/remodeling.md).
+
+## Level editor
+
+Tile types, attributes, workflow and file format: [DungeonEditor/readme.md](DungeonEditor/readme.md).
 
 ## Code quality tools
 

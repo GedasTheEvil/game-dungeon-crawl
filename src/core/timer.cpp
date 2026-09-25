@@ -45,3 +45,7 @@ bool timer::TimePassed(bool noRepeat) {
 }
 
 void timer::Reset() { time_start = GameClock::now(); }
+
+int timer::StartTime() const { return time_start; }
+
+void timer::SetStartTime(int start) { time_start = start; }

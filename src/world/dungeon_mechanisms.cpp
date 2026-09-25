@@ -12,14 +12,14 @@
 namespace {
 // Placement in prop space (tile units, origin = floor centre of the tile on the back wall, z towards the camera),
 // from the extents mechanism.py prints.
-constexpr float KEY_HOVER = 0.35f;			   // key height above the floor
-constexpr float KEY_BOB = 0.04f;			   // up and down while it spins
+constexpr float KEY_HOVER = 0.35f;					  // key height above the floor
+constexpr float KEY_BOB = 0.04f;					  // up and down while it spins
 constexpr float LEVER_PIVOT[3] = {0.f, 0.42f, 0.05f}; // handle pivot on the plate
-constexpr float LEVER_ANGLE = 35.f;			   // degrees either side of upright; + tips the grip left
-constexpr float ROCK_START_Y = 0.65f;		   // rock bottom when it breaks loose (rock is 0.3 tall)
-constexpr float ROCK_DEPTH = 0.5f;			   // in the middle of the corridor, where the player walks
+constexpr float LEVER_ANGLE = 35.f;					  // degrees either side of upright; + tips the grip left
+constexpr float ROCK_START_Y = 0.65f;				  // rock bottom when it breaks loose (rock is 0.3 tall)
+constexpr float ROCK_DEPTH = 0.5f;					  // in the middle of the corridor, where the player walks
 
-constexpr float GATE_APPROACH = 0.45f;		   // tiles from the gate at which a held key opens it
+constexpr float GATE_APPROACH = 0.45f; // tiles from the gate at which a held key opens it
 
 int lockBit(int colour) { return 1 << (colour - 1); }
 
@@ -108,8 +108,10 @@ void Dungeon::updateRocks() {
 		}
 
 		// Landed: hits the player if they are still under it.
-		float centreX = static_cast<float>(it->cell % kMapWidth) + 0.5f;
-		float floorY = static_cast<float>(it->cell / kMapWidth);
+		int col = it->cell % kMapWidth;
+		int row = it->cell / kMapWidth;
+		float centreX = static_cast<float>(col) + 0.5f;
+		auto floorY = static_cast<float>(row);
 		GAME_STATE.sounds.rockCrash.Play();
 		if (std::fabs(mapX - centreX) < ROCK_HIT_HALF_WIDTH && mapY >= floorY - 0.2f &&
 			mapY < floorY + ROCK_HIT_HEIGHT && GAME_STATE.Player->Alive()) {
@@ -180,7 +182,7 @@ bool Dungeon::PullLever() {
 }
 //======================================================================================
 void Dungeon::drawKeyTile(int i, int j) {
-	const Tint tile = MapAt(i, j);
+	Tint tile = MapAt(i, j);
 	float t = static_cast<float>(GameClock::now());
 	glPushMatrix();
 	enterPropSpace();
@@ -191,7 +193,7 @@ void Dungeon::drawKeyTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawGateTile(int i, int j) {
-	const Tint tile = MapAt(i, j);
+	Tint tile = MapAt(i, j);
 	float lift = 0.f;
 	if (tile.c == 1)
 		lift = 1.f;
@@ -212,7 +214,7 @@ void Dungeon::drawGateTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawLeverTile(int i, int j) {
-	const Tint tile = MapAt(i, j);
+	Tint tile = MapAt(i, j);
 	glPushMatrix();
 	enterPropSpace();
 	showModel(colourModel(GAME_STATE.mechanisms.leverBase, tile.b));
@@ -223,7 +225,7 @@ void Dungeon::drawLeverTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawRockFallTile(int i, int j) {
-	const Tint tile = MapAt(i, j);
+	Tint tile = MapAt(i, j);
 	int cell = MapIndex(i, j);
 
 	glPushMatrix();
@@ -262,8 +264,10 @@ void Dungeon::drawMechanismEffects() {
 	int row0 = static_cast<int>(mapY) - 3;
 	for (const Motion& m : fallingRocks) {
 		int age = GameClock::now() - m.startMs;
-		float x = static_cast<float>(m.cell % kMapWidth - col0) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
-		float y = static_cast<float>(m.cell / kMapWidth - row0) * RenderConfig::TILE_SIZE;
+		int col = m.cell % kMapWidth;
+		int row = m.cell / kMapWidth;
+		float x = static_cast<float>(col - col0) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
+		float y = static_cast<float>(row - row0) * RenderConfig::TILE_SIZE;
 		float z = -RenderConfig::TILE_SIZE * (1.f - ROCK_DEPTH);
 		Dust::draw(x, y + RenderConfig::TILE_SIZE, z, static_cast<float>(age) / (ROCK_WARN_MS + ROCK_FALL_MS),
 				   static_cast<uint32_t>(m.cell));

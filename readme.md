@@ -19,12 +19,14 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 * Game: `make`, then `./Play` (or `./game` from the repo root; asset paths are relative).
 * Level editor: `make editor`, `make run-editor`.
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="Models/monsters/anubis.md3"`.
+* Level tools: `make level-tools`, then `./levelcheck Levels/lvl*` (validate, rank by difficulty) and
+  `./levelgen --seed 1 --difficulty 5 OUT` (random level). See [docs/levels.md](docs/levels.md).
 
 ## Assets
 
 * `Models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`). Monsters use `<name>.md3` (walk), `<name>_att.md3` (attack), `<name>_die.md3` (death).
 * `Textures/<category>/`, `Fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `Models/` plus `ui`, `dungeon`, `effects`. `Textures/Shader.txt` and `ShaderD.txt` are toon-shading ramps.
-* `Sounds/` - WAV effects, OGG soundtrack. `Levels/` - level files. `Saves/` - save games.
+* `Sounds/` - WAV effects, OGG soundtrack (`tools/audio/*.py` synthesize the jump, rat, key, gate, lever and rock sounds). `Levels/` - level files. `Saves/` - save games.
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [docs/remodeling.md](docs/remodeling.md).
 

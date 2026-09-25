@@ -60,10 +60,10 @@ class Dungeon {
 		int cell;	 // map index
 		int startMs; // GameClock time the motion began
 	};
-	int keysHeld = 0;				 // bit (colour - 1) per key picked up on this level
+	int keysHeld = 0;				  // bit (colour - 1) per key picked up on this level
 	std::vector<Motion> openingGates; // c = 2 while in here, then 1 (open)
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
-	int lockedHintMs = -1000000;	 // last "the gate is locked" message, to keep it from repeating every step
+	int lockedHintMs = -1000000;	  // last "the gate is locked" message, to keep it from repeating every step
 	void resetMechanisms();
 	void updateMechanisms();
 	void startOpeningGate(int cell);
@@ -74,7 +74,7 @@ class Dungeon {
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
 	void drawRockFallTile(int i, int j);
-	void drawMechanismEffects(); // dust, after the opaque scene
+	void drawMechanismEffects();  // dust, after the opaque scene
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin
 	bool mL;
 	int shaderTexture[1];

@@ -11,7 +11,7 @@ constexpr int MAX_ROW = LEVEL_HEIGHT - 2;
 constexpr int CELLS = LEVEL_WIDTH * LEVEL_HEIGHT;
 constexpr int MAX_ATTEMPTS = 80;
 constexpr int SEGMENT_TRIES = 60;
-constexpr int MONSTER_GAP = 3; // cells between monsters in a row
+constexpr int MONSTER_GAP = 3;		// cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
 
 // Item types and ids as in ui/inventory.h (not included: it pulls in GL).
@@ -37,14 +37,18 @@ class Rng { // splitmix64: the same sequence on every platform
 	uint64_t state;
 };
 
-enum class Link { None, LadderDown, LadderUp, Drop };
+enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
+
+// What fillSegment() puts at a corridor cell.
+enum class Feature : unsigned char { None, Pit, Spike, RockFall, Monster, Treasure };
+constexpr int FEATURE_COUNT = 6;
 
 struct Segment {
 	int row = 0;	// floor row (the player's row)
 	int height = 1; // 1 = corridor, 2 = hall
 	int x0 = 0, x1 = 0;
-	int entry = 0;	// column the player arrives at
-	int exit = -1;	// column the player leaves by
+	int entry = 0; // column the player arrives at
+	int exit = -1; // column the player leaves by
 	Link link = Link::None;
 };
 
@@ -226,13 +230,12 @@ class LevelBuilder {
 
 	// A dead-end side corridor off segment s, joined by a ladder at a column in [lo, hi], with `item` at its end.
 	bool tryBranch(int s, int lo, int hi, Tint item) {
-		const Segment seg = route[static_cast<size_t>(s)];
+		const Segment& seg = route[static_cast<size_t>(s)];
 		if (lo > hi)
 			std::swap(lo, hi);
 		for (int attempt = 0; attempt < SEGMENT_TRIES; attempt++) {
 			int col = rng.range(lo, hi);
-			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 ||
-				g.at(col, seg.row).a != Empty)
+			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 || g.at(col, seg.row).a != Empty)
 				continue;
 			bool up = rng.chance(0.5f);
 			Segment b;
@@ -320,8 +323,8 @@ class LevelBuilder {
 		struct Pick {
 			int type, minDifficulty, weight;
 		};
-		static const Pick PICKS[] = {{MonsterRat, 1, 6},	   {MonsterScarab, 1, 4}, {MonsterPlant, 3, 2},
-									 {MonsterWorm, 3, 2},	   {MonsterGiantRat, 4, 3}, {MonsterAnubis, 8, 1}};
+		static const Pick PICKS[] = {{MonsterRat, 1, 6},  {MonsterScarab, 1, 4},   {MonsterPlant, 3, 2},
+									 {MonsterWorm, 3, 2}, {MonsterGiantRat, 4, 3}, {MonsterAnubis, 8, 1}};
 		int total = 0;
 		for (const Pick& p : PICKS)
 			if (d >= p.minDifficulty)
@@ -366,6 +369,19 @@ class LevelBuilder {
 		return true;
 	}
 
+	Feature pickFeature(const float (&weights)[FEATURE_COUNT]) {
+		float total = 0.f;
+		for (float w : weights)
+			total += w;
+		float roll = static_cast<float>(rng.range(0, 9999)) / 10000.f * total;
+		for (int i = 0; i < FEATURE_COUNT; i++) {
+			roll -= weights[i];
+			if (roll < 0)
+				return static_cast<Feature>(i);
+		}
+		return Feature::Treasure;
+	}
+
 	// Hazards, monsters and loot along the part of the segment the player has to cross.
 	void fillSegment(const Segment& s) {
 		int from = s.entry;
@@ -375,38 +391,43 @@ class LevelBuilder {
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
 			if (busy[index(x, s.row)] != 0 || g.at(x, s.row).a != Empty)
 				continue;
-			float wNone = 2.5f;
-			float wPit = 0.2f + 0.08f * fd;
-			float wSpike = 0.35f + 0.05f * fd;
-			float wRock = s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f;
-			float wMonster = 0.6f + 0.25f * fd;
-			float wTreasure = 0.2f;
-			float total = wNone + wPit + wSpike + wRock + wMonster + wTreasure;
-			float roll = static_cast<float>(rng.range(0, 9999)) / 10000.f * total;
+			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
+			float weights[FEATURE_COUNT] = {2.5f,
+											0.2f + 0.08f * fd,
+											0.35f + 0.05f * fd,
+											s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f,
+											0.6f + 0.25f * fd,
+											0.2f};
 			int size = 1;
-			if ((roll -= wNone) < 0) {
+			switch (pickFeature(weights)) {
+			case Feature::None:
 				continue;
-			} else if ((roll -= wPit) < 0) {
+			case Feature::Pit:
 				if (!placePit(s, x + dir))
 					continue;
 				size = 3;
-			} else if ((roll -= wSpike) < 0) {
+				break;
+			case Feature::Spike:
 				size = d >= 5 && rng.chance(0.4f) ? 2 : 1;
 				for (int k = 0; k < size; k++)
 					if (floorCell(s, x + k * dir) && busy[index(x + k * dir, s.row)] == 0)
 						g.set(x + k * dir, s.row, Tint{Spike, 0, 0});
-			} else if ((roll -= wRock) < 0) {
+				break;
+			case Feature::RockFall:
 				size = rng.range(1, std::min(3, 1 + d / 3));
 				for (int k = 0; k < size; k++) {
 					int cx = x + k * dir;
 					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && g.at(cx, s.row + 1).a == Wall)
 						g.set(cx, s.row, Tint{RockFall, 0, 0});
 				}
-			} else if ((roll -= wMonster) < 0) {
+				break;
+			case Feature::Monster:
 				if (!placeMonster(x, s.row))
 					continue;
-			} else {
+				break;
+			case Feature::Treasure:
 				g.set(x, s.row, randomTreasure());
+				break;
 			}
 			x += dir * (size - 1 + rng.range(1, 2)); // a free cell after every feature
 		}

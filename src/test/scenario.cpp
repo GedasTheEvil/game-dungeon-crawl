@@ -438,7 +438,8 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::Expect;
 		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
 			!parseFloat(w[3], cmd.a))
-			return "usage: expect <x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|<item><id>[.level]> "
+			return "usage: expect "
+				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
 		return "";
 	}

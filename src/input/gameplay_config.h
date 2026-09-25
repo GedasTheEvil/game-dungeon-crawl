@@ -28,7 +28,7 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
 
 // Keys, gates and levers (dungeon_mechanisms.cpp).
-constexpr int GATE_OPEN_MS = 1200;			// the gate slides up into the ceiling, passable once it is up
+constexpr int GATE_OPEN_MS = 1200;			  // the gate slides up into the ceiling, passable once it is up
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 

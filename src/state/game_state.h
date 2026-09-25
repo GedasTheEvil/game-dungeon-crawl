@@ -83,8 +83,7 @@ struct DecorSet {
 struct MechanismSet {
 	Textura keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
 	Textura leverHandleTex, rockTex, crackTex;
-	std::unique_ptr<AnimatedCartoonModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT],
-		leverBase[LOCK_COLOUR_COUNT];
+	std::unique_ptr<AnimatedCartoonModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
 	std::unique_ptr<AnimatedCartoonModel> leverHandle, rock, crack;
 };
 

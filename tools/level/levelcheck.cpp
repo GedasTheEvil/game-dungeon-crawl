@@ -22,8 +22,8 @@ struct Entry {
 	LevelReport report;
 };
 
-constexpr float GRIP = 0.45f;		  // where in a cell the player stands to climb (Dungeon LADDER_GRIP_X)
-constexpr float GATE_STOP = 0.4f;	  // this close to a closed gate, a held key opens it (GATE_APPROACH is 0.45)
+constexpr float GRIP = 0.45f;	  // where in a cell the player stands to climb (Dungeon LADDER_GRIP_X)
+constexpr float GATE_STOP = 0.4f; // this close to a closed gate, a held key opens it (GATE_APPROACH is 0.45)
 constexpr float CLIMB_MARGIN = 0.03f;
 
 // Scenario commands for the path: walks are merged until something else has to happen.
@@ -144,7 +144,8 @@ void printReport(const Entry& e, bool map) {
 		printf("   error: %s\n", m.c_str());
 	for (const std::string& m : r.warnings)
 		printf("   warning: %s\n", m.c_str());
-	printf("   start (col %d, row %d), %s\n", r.start.col, r.start.row, r.finale ? "goal: ankh (finale)" : "goal: exit");
+	printf("   start (col %d, row %d), %s\n", r.start.col, r.start.row,
+		   r.finale ? "goal: ankh (finale)" : "goal: exit");
 	printf("   size: %d open cells, %d reachable, bounds %dx%d\n", r.openCells, r.reachableCells, r.boundsWidth,
 		   r.boundsHeight);
 	printf("   content: %d monsters (scarab %d, worm %d, plant %d, anubis %d, rat %d, giant rat %d), %d spikes, "
@@ -209,7 +210,7 @@ int main(int argc, char** argv) {
 			code = 1;
 		if (!scriptDir.empty() && e.report.valid) {
 			std::string name = std::filesystem::path(e.path).filename().string();
-			std::string file = scriptDir + "/" + name + ".txt";
+			std::string file = (std::filesystem::path(scriptDir) / (name + ".txt")).string();
 			std::ofstream script(file);
 			// The game starts on the entrance cell's left edge (Dungeon::Load).
 			script << PathScript(e.grid, e.path, static_cast<float>(e.report.start.col)).build(e.report);
@@ -220,6 +221,7 @@ int main(int argc, char** argv) {
 
 	// Ranking, easiest first. The finale stays last whatever its score.
 	std::vector<const Entry*> order;
+	order.reserve(entries.size());
 	for (const Entry& e : entries)
 		order.push_back(&e);
 	std::stable_sort(order.begin(), order.end(), [](const Entry* a, const Entry* b) {
@@ -227,8 +229,8 @@ int main(int argc, char** argv) {
 			return b->report.finale;
 		return a->report.difficulty < b->report.difficulty;
 	});
-	printf("\n%-4s %-28s %-7s %6s %5s %5s %8s %6s  %s\n", "rank", "level", "valid", "diff", "path", "reach",
-		   "monsters", "traps", "notes");
+	printf("\n%-4s %-28s %-7s %6s %5s %5s %8s %6s  %s\n", "rank", "level", "valid", "diff", "path", "reach", "monsters",
+		   "traps", "notes");
 	int rank = 1;
 	for (const Entry* e : order) {
 		const LevelReport& r = e->report;

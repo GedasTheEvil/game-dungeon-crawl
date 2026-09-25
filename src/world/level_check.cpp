@@ -380,8 +380,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 				example = cellOf(s);
 		}
 	if (r.softlockCells > 0)
-		r.warnings.push_back(std::to_string(r.softlockCells) + " cell(s) the player can reach but not leave for the exit, e.g. " +
-							 at(example));
+		r.warnings.push_back(std::to_string(r.softlockCells) +
+							 " cell(s) the player can reach but not leave for the exit, e.g. " + at(example));
 
 	// The path, entrance first.
 	std::vector<int> states;

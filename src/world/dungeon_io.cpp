@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 
-
 bool Dungeon::Load(const char* filename) {
 	LevelGrid grid;
 	std::string error = loadLevelFile(filename, grid);

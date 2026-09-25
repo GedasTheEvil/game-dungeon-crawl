@@ -22,9 +22,9 @@ struct GenOptions {
 struct GenResult {
 	LevelGrid grid;
 	LevelReport report;
-	int attempts = 0;	  // candidates built
-	float target = 0.f;	  // difficulty score aimed at
-	bool ok = false;	  // false only if no candidate passed the checks (should not happen)
+	int attempts = 0;	// candidates built
+	float target = 0.f; // difficulty score aimed at
+	bool ok = false;	// false only if no candidate passed the checks (should not happen)
 };
 
 constexpr int GEN_MIN_DIFFICULTY = 1;

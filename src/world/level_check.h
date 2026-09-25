@@ -29,7 +29,7 @@ struct LevelReport {
 
 	CellPos start;
 	int entrances = 0;
-	int exits = 0; // exit gates + ankhs
+	int exits = 0;		 // exit gates + ankhs
 	bool finale = false; // the goal is the ankh (wins the game) rather than an exit gate
 
 	// Size
@@ -48,7 +48,7 @@ struct LevelReport {
 	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)
 	std::vector<CellPos> path;
 	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull stays in the cell)
-	int pathLength = 0; // moves
+	int pathLength = 0;				 // moves
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0;
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathGates = 0, pathMonsters = 0;
 	int keysNeeded = 0; // colours the path has to collect before a gate

@@ -41,9 +41,9 @@ Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Ankh`; middle row `Mon
 | 8 | Treasure | Item type, see below | Item id, see below | Chest with the item on top. Interact to pick it up. The cell then becomes `Empty`. |
 | 9 | Ankh | - | - | Level goal. Interact with it to win the game. |
 | 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell then becomes `Empty`. |
-| 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. The key or a lever of the same colour opens it. |
+| 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. It opens when the player comes up to it with the key of its colour, or when a lever of its colour is pulled. It slides up in 1.2 s. |
 | 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
-| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, a rock falls after approx. 0.65 s + 0.3 s. Put a `Wall` above it. |
+| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s: 20 damage if the player is still under it. Sprint on, jump on or step back to get clear. The rock stays on the floor (walkable). Put a `Wall` above it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 

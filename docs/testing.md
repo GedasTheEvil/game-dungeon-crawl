@@ -30,7 +30,7 @@ One command per line. `#` starts a comment.
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | `srand` seed, applied at each `level`. Default 1. |
 | `god` | The player takes no damage (`stats::GetHit`). Death tiles still kill. |
-| `level N` / `level path` | Load `Levels/lvlN` or any map file. The player starts fresh, like New Game. Required before gameplay commands. |
+| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N ([levels.md](levels.md): 1-4 and the last are `Levels/lvl*`, the ones between are generated from the `seed`), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Move until the player is N tiles away on that axis. `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
@@ -43,7 +43,7 @@ One command per line. `#` starts a comment.
 | `mouse X Y` | Move the mouse to X% Y% of the window, Y from the bottom (hover). |
 | `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won) to the result. |
-| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id`, or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
+| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys` (`keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
 | `quit` | End the script. The end of the file also ends it. |
 
 A failed `walk` or `expect` is a soft failure: the script continues, but the exit code is 1.

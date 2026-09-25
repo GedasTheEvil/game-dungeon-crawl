@@ -52,7 +52,7 @@ void drawKeys(int keysHeld) {
 		{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
 	constexpr int SEGMENTS = 12;
 	float left = 26.5f;
-	const float bottom = 4.2f;
+	float bottom = 4.2f;
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++) {
 		if ((keysHeld & (1 << c)) == 0)
 			continue;

@@ -5,28 +5,43 @@
 ## Screen layout
 
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
-* Right, top: the tile palette (two rows of 5 tiles, one row of 4). The tile above the palette shows the selected tile.
-* Right, middle: the `Atribute`, `Value` and `DungeonName` text fields.
-* Right, bottom: the `Save` and `Load` buttons.
+  Above the grid: the column, row and contents of the cell under the mouse.
+* Right, top: the `Paint` / `Check` mode buttons.
+* Right, middle: the tile palette (two rows of 7 tiles), then the `Attribute` and `Value` fields.
+* Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
+  Numbers that mean nothing to the game show in red.
+* Right, bottom: the level name field and the `Save` and `Load` buttons.
+
+## Modes
+
+* `Paint` (key `P`): click or drag on the grid to write the brush (selected tile, attribute and value) into cells.
+  The cell under the mouse previews the brush.
+* `Check` (key `C`): clicking a cell does not change it. The papyrus explains the clicked cell.
+  The level check (see [docs/levels.md](../docs/levels.md)) runs on the map: the path from the entrance to the
+  goal is drawn with gold dots, the result shows under the grid.
+
+In both modes, a right click on a cell picks its tile, attribute and value into the brush.
 
 ## Workflow
 
 1. Click a tile in the palette.
 2. If the tile needs one, set the attribute and value (see [Tile reference](#tile-reference)):
-   click `Atribute`, type digits, press Enter. Do the same for `Value`.
-   The numbers apply only after you press Enter. The active field is green.
-3. Click or drag on the grid to paint. Each painted cell stores the selected tile and the current attribute and value.
-   Reset both fields to empty (0) before you paint plain tiles.
-4. Click `DungeonName`, type a name (max. 5 characters), press Enter.
-5. Click `Save`. The file goes to `DungeonEditor/Saved/<name>`. `Load` reads the same path.
+   click `Attribute` (or press `Tab`), type digits. `Tab` goes to the next field, `Enter` or `Esc` leaves it.
+   The numbers apply as you type. Reset both fields to empty (0) before you paint plain tiles.
+3. Paint on the grid.
+4. Click the name field, type a name (max. 32 characters: letters, digits, `_`, `-`, `.`).
+5. Click `Save` (`Ctrl+S`). The file goes to `DungeonEditor/Saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
 6. Copy the file to `Levels/lvlN`. The game starts on `Levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it.
 
+Tile icons are PNG files in `DungeonEditor/Textures/`, drawn by `DungeonEditor/Textures/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `Fonts/` and
+`Textures/ui/`.
+
 ## Tile reference
 
-Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Ankh`; middle row `Monster`, `Spike`, `Ladder`, `3D`, `Treasure`; bottom row `Key`, `Gate`, `Lever`, `RockFall`.
+Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`; bottom row `3D`, `Treasure`, `Ankh`, `Key`, `Gate`, `Lever`, `RockFall` (type 0 to 13).
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
@@ -87,7 +102,7 @@ Keys, gates and levers with the same colour belong together.
 |---|---|---|
 | 1 | Melee weapon | 0 club, 1 sword, 2 spear |
 | 2 | Ranged weapon | 0 bow |
-| 3 | Potion | 0 small health (+25 HP), 1 large health (+50 HP), 2 strength (+2 might), 3 armor (+2 armor), 4 life (+5% max. HP, full heal) |
+| 3 | Potion | 0 small health (+25 HP), 1 large health (+50 HP), 2 strength (+2 might), 3 armor (+2 armor), 4 life (+5% max. HP, full heal), 5 small stamina (50% stamina), 6 large stamina (full stamina) |
 | 0 | Empty chest | - |
 
 Invalid ids write an error to the log and give nothing.

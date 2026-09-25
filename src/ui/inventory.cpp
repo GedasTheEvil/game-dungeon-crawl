@@ -9,6 +9,7 @@
 #include "../test/scenario.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
+#include "ui_draw.h"
 #include <array>
 #include <cmath>
 #include <cstdio>
@@ -21,32 +22,8 @@ namespace {
 constexpr float CANVAS_W = 160.f;
 constexpr float CANVAS_H = 100.f;
 
-struct Rect {
-	float x, y, w, h;
-	[[nodiscard]] bool contains(float px, float py) const { return px >= x && px <= x + w && py >= y && py <= y + h; }
-	[[nodiscard]] float cx() const { return x + w / 2; }
-	[[nodiscard]] Rect inset(float d) const { return {x + d, y + d, w - 2 * d, h - 2 * d}; }
-};
+using namespace ui;
 
-struct Color {
-	float r, g, b;
-};
-
-// Egyptian palette: gold leaf, bronze, lapis lazuli, basalt, papyrus inks.
-constexpr Color GOLD = {0.95f, 0.76f, 0.38f};
-constexpr Color GOLD_DIM = {0.58f, 0.44f, 0.22f};
-constexpr Color BRONZE = {0.42f, 0.30f, 0.15f};
-constexpr Color LAPIS = {0.12f, 0.27f, 0.58f};
-constexpr Color LAPIS_DARK = {0.05f, 0.12f, 0.30f};
-constexpr Color STONE_TOP = {0.20f, 0.155f, 0.11f};
-constexpr Color STONE_BOTTOM = {0.12f, 0.09f, 0.065f};
-constexpr Color PANEL_TOP = {0.14f, 0.11f, 0.08f};
-constexpr Color PANEL_BOTTOM = {0.08f, 0.06f, 0.045f};
-constexpr Color BLACK = {0.f, 0.f, 0.f};
-constexpr Color INK = {0.24f, 0.14f, 0.07f};
-constexpr Color INK_RED = {0.62f, 0.17f, 0.08f};
-constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
-constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
 constexpr Color HEALTH = {0.72f, 0.14f, 0.09f};
 constexpr Color STAMINA = {0.78f, 0.68f, 0.16f};
 
@@ -175,116 +152,6 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 	y = area.y + area.h - area.h * static_cast<float>(mouseY) / static_cast<float>(GAME_STATE.render.resY);
 }
 
-// ---- drawing primitives (texturing off) ------------------------------------
-
-void fillRect(const Rect& r, Color top, Color bottom, float alpha) {
-	glBegin(GL_QUADS);
-	glColor4f(bottom.r, bottom.g, bottom.b, alpha);
-	glVertex2f(r.x, r.y);
-	glVertex2f(r.x + r.w, r.y);
-	glColor4f(top.r, top.g, top.b, alpha);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
-}
-
-void strokeRect(const Rect& r, Color c, float alpha, float width) {
-	glLineWidth(width);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(r.x, r.y);
-	glVertex2f(r.x + r.w, r.y);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
-	glLineWidth(1);
-}
-
-void line(float x0, float y0, float x1, float y1, Color c, float alpha, float width) {
-	glLineWidth(width);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_LINES);
-	glVertex2f(x0, y0);
-	glVertex2f(x1, y1);
-	glEnd();
-	glLineWidth(1);
-}
-
-void diamond(float x, float y, float size, Color c, float alpha) {
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_QUADS);
-	glVertex2f(x - size, y);
-	glVertex2f(x, y - size);
-	glVertex2f(x + size, y);
-	glVertex2f(x, y + size);
-	glEnd();
-}
-
-// Band around `inner`, `grow` wide, fading from alphaIn at the rect to alphaOut at the outer edge.
-void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut) {
-	glBegin(GL_QUAD_STRIP);
-	for (int corner = 0; corner <= 4; corner++) { // counter-clockwise from bottom left, back to the start
-		float sx = corner == 1 || corner == 2 ? 1.f : 0.f;
-		float sy = corner == 2 || corner == 3 ? 1.f : 0.f;
-		glColor4f(c.r, c.g, c.b, alphaIn);
-		glVertex2f(inner.x + sx * inner.w, inner.y + sy * inner.h);
-		glColor4f(c.r, c.g, c.b, alphaOut);
-		glVertex2f(inner.x + sx * inner.w + (2 * sx - 1) * grow, inner.y + sy * inner.h + (2 * sy - 1) * grow);
-	}
-	glEnd();
-}
-
-void ellipse(float x, float y, float rx, float ry, Color c, float alpha) {
-	constexpr int SEGMENTS = 32;
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glVertex2f(x, y);
-	glColor4f(c.r, c.g, c.b, 0.f);
-	for (int i = 0; i <= SEGMENTS; i++) {
-		float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
-		glVertex2f(x + rx * std::cos(a), y + ry * std::sin(a));
-	}
-	glEnd();
-}
-
-// Framed panel: gradient fill, bronze outer frame, thin gold inner line and gold corner studs.
-void panel(const Rect& r, float alpha) {
-	fillRect(r, PANEL_TOP, PANEL_BOTTOM, alpha);
-	strokeRect(r, BRONZE, 1.f, 3.f);
-	strokeRect(r.inset(1.1f), GOLD_DIM, 0.8f, 1.f);
-	diamond(r.x, r.y, 1.2f, GOLD, 1.f);
-	diamond(r.x + r.w, r.y, 1.2f, GOLD, 1.f);
-	diamond(r.x + r.w, r.y + r.h, 1.2f, GOLD, 1.f);
-	diamond(r.x, r.y + r.h, 1.2f, GOLD, 1.f);
-}
-
-// ---- text (texturing on) ---------------------------------------------------
-
-// The font sheets have no alpha, so the glyph brightness is used as coverage in two passes:
-// first cut the glyph out of what is below, then add the colour into the hole.
-void text(Font& font, float x, float y, const char* str, Color c, float alpha = 1.f) {
-	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(alpha, alpha, alpha);
-	font.print(x, y, "%s", str);
-	glBlendFunc(GL_ONE, GL_ONE);
-	glColor3f(c.r * alpha, c.g * alpha, c.b * alpha);
-	font.print(x, y, "%s", str);
-}
-
-void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha = 1.f) {
-	text(font, cx - font.TextWidth(str) / 2, y, str, c, alpha);
-}
-
-void beginShapes() {
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-void beginText() {
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-}
 } // namespace
 
 inventory::inventory() {

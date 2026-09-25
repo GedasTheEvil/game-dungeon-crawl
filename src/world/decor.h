@@ -16,6 +16,25 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",	  "pottery", "canopic",
 // The wall torch (Models/decor_torch.md3, also built by decor.py) is not in this list: Dungeon::scatterTorches
 // places it on its own.
 
+// Ladder pieces: one model per Ladder cell, Models/ladder_<style>_<piece>.md3 + Textures/ladder_<style>_<piece>.png,
+// built by tools/blender/models/ladder.py in the same tile units as the props. Pieces stack seamlessly in any
+// order; Dungeon::scatterLadders picks one style per shaft and a piece per cell.
+constexpr int LADDER_STYLE_COUNT = 2;
+constexpr int LADDER_MID_COUNT = 3; // interchangeable middle pieces, indices 0..2
+constexpr int LADDER_TOP = 3;		// highest cell of the shaft
+constexpr int LADDER_BOTTOM = 4;	// standing on the floor
+constexpr int LADDER_PIECE_COUNT = 5;
+constexpr const char* LADDER_STYLE_NAMES[LADDER_STYLE_COUNT] = {"wood", "vine"};
+constexpr const char* LADDER_PIECE_NAMES[LADDER_PIECE_COUNT] = {"a", "b", "c", "top", "bottom"};
+// Mirrored lianas would kink at the seams (their twist turns the other way), wooden pieces are symmetric enough.
+constexpr bool LADDER_MIRRORS[LADDER_STYLE_COUNT] = {true, false};
+
+struct LadderCell {
+	int8_t style = -1; // -1 = no ladder, else index into LADDER_STYLE_NAMES
+	int8_t piece = 0;  // index into LADDER_PIECE_NAMES
+	bool mirror = false;
+};
+
 struct DecorCell {
 	int8_t type = -1; // -1 = none, else index into DECOR_NAMES
 	bool mirror = false;

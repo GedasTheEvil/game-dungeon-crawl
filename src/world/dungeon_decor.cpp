@@ -16,6 +16,7 @@ constexpr uint32_t DECAL_CHANCE_PERCENT = 35;
 constexpr uint32_t DECAL_SALT = 0x51ed270bU;
 constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
+constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
 constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
@@ -87,6 +88,50 @@ void Dungeon::scatterDecorations(const char* levelName) {
 
 	scatterTorches(seed ^ TORCH_SALT);
 	scatterDecals(seed ^ DECAL_SALT);
+	scatterLadders(seed ^ LADDER_SALT);
+}
+//======================================================================================
+// Each vertical run of Ladder cells is one shaft with one style, keyed on its bottom cell: the bottom piece where it
+// stands on the floor, the top piece in its highest cell, middle pieces in between, never the same one twice in a row.
+void Dungeon::scatterLadders(uint32_t seed) {
+	int shafts = 0;
+
+	for (int i = 0; i < kMapWidth; i++) {
+		int style = 0;
+		int below = -1; // middle piece of the cell below
+		for (int j = 0; j < kMapHeight; j++) {
+			LadderCell& cell = ladder[MapIndex(i, j)];
+			cell = LadderCell{};
+			if (MapAt(i, j).a != Ladder)
+				continue;
+
+			bool first = !IsInBounds(i, j - 1) || MapAt(i, j - 1).a != Ladder;
+			bool last = !IsInBounds(i, j + 1) || MapAt(i, j + 1).a != Ladder;
+			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			if (first) {
+				style = static_cast<int>(h % LADDER_STYLE_COUNT);
+				below = -1;
+				shafts++;
+			}
+			h = mix(h);
+
+			int piece;
+			if (first && (!IsInBounds(i, j - 1) || MapAt(i, j - 1).a == Wall))
+				piece = LADDER_BOTTOM;
+			else if (last)
+				piece = LADDER_TOP;
+			else {
+				piece = static_cast<int>(h % LADDER_MID_COUNT);
+				if (piece == below)
+					piece = (piece + 1) % LADDER_MID_COUNT;
+			}
+			below = piece;
+			cell.style = static_cast<int8_t>(style);
+			cell.piece = static_cast<int8_t>(piece);
+			cell.mirror = LADDER_MIRRORS[style] && ((h >> 8) & 1U) != 0;
+		}
+	}
+	LOG_INFOF("world", "Ladder shafts: %d", shafts);
 }
 //======================================================================================
 // Torches hang on the back wall at head height, spaced along each row. Cells with a fire of their own
@@ -246,6 +291,23 @@ void Dungeon::drawTorchTile(int i, int j) {
 	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
 	GAME_STATE.decor.torchTex.Bind();
 	model->Show();
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawLadderTile(int i, int j) {
+	const LadderCell& cell = ladder[MapIndex(i, j)];
+	if (cell.style < 0)
+		return;
+	AnimatedCartoonModel* model = GAME_STATE.decor.ladder[cell.style][cell.piece].get();
+	if (model == nullptr)
+		return;
+
+	glPushMatrix();
+	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
+			 RenderConfig::TILE_SIZE);
+	GAME_STATE.decor.ladderTex[cell.style][cell.piece].Bind();
+	model->Show(); // textured only, like the props
 	glPopMatrix();
 }
 //======================================================================================

@@ -7,7 +7,6 @@ struct TextureRegistry {
 	Textura monsterTextures[4];
 	Textura nullTex;
 	Textura blackTex;
-	Textura column_t;
 	Textura anubis_t, scarab_t, plant_t, worm_t, chest_t, player_t;
 	Textura club_t, bow_t, sword_t, potion_t, spear_t, trap_t, sphinx_t;
 	Textura Dt[9];

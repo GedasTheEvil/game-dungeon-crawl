@@ -27,6 +27,14 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   drawn textured only (no toon pass, no Centrify). `-- --export` writes `Models/decor_<name>.md3` + `Textures/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
+* `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
+  (`wood`: acacia poles with rope-lashed rungs; `vine`: two twisted lianas with thin vines as holds), each with three
+  interchangeable middle pieces `a`/`b`/`c` plus `top` (wood: roped to a beam between the side walls; vine: roots creeping along
+  under the ceiling) and `bottom` (on the floor). Rails sit at x = +-0.1, y = -0.04 and match at z = 0 / 1, so pieces stack in any
+  order; holds every 1/12 tile (for the climbing animations to come). `-- --export` writes `Models/ladder_<style>_<piece>.md3` +
+  `Textures/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
+  Placement: `Dungeon::scatterLadders` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
+  lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/world/decor.h`.
 * `tools/textures/decals.py` - wall decal atlas `Textures/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
@@ -69,7 +77,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 | Scarab (monster) | `scarab{,_att,_die}.md3` | `scarab.png` | remodelled (giant golden Scarabaeus sacer) |
 | Plant (monster) | `plant{,_att,_die}.md3` | `plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `human{,_att,_die}.md3` | `player.png` | remodelled (archaeologist with fedora) |
-| Sphinx, ankh, columns, questionmark | `sphinx.md3`, `ankh.md3`, `columns.md3`, `questionmark.md3` | `sphinx.png`, `ankh.png`, `columns.png`, `gold.png` | old (static) |
+| Sphinx, ankh, questionmark | `sphinx.md3`, `ankh.md3`, `questionmark.md3` | `sphinx.png`, `ankh.png`, `gold.png` | old (static) |
+| Columns (old ladder, with a plasma quad) | `columns.md3` | `columns.png` | unused since the ladders |
+| Ladders (2 styles x 5 pieces) | `ladder_<style>_<piece>.md3` | `ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.png`, ..., `tchest.png` (bow uses `gold.png`, the old scarab texture) | old (static) |
 | Spikes trap | `spikes.md3` | `spikes.png` | old (static) |
 | Corridor decorations (10 props) | `decor_<name>.md3` | `decor_<name>.png` | new (static, `decor.py`) |

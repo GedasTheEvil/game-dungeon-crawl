@@ -61,7 +61,7 @@ struct TrapPair {
 };
 
 struct SceneModels {
-	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh, column, question;
+	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh, question;
 };
 
 struct DecorSet {
@@ -70,6 +70,9 @@ struct DecorSet {
 	Textura decalTex;										  // atlas, DECAL_DEFS order
 	Textura torchTex;
 	std::unique_ptr<AnimatedCartoonModel> torch; // null if the file failed to load
+	Textura ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
+	std::unique_ptr<AnimatedCartoonModel> ladder[LADDER_STYLE_COUNT]
+												[LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 
 struct GameTimers {

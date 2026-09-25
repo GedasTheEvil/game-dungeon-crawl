@@ -49,6 +49,7 @@ class Dungeon {
 	DecorCell decor[kMapCellCount];
 	DecalCell decal[kMapCellCount];
 	bool torch[kMapCellCount] = {};
+	LadderCell ladder[kMapCellCount];
 	float mapX, mapY;
 	int texC, *Tex;
 	bool IsInBounds(int col, int row) const;
@@ -67,6 +68,8 @@ class Dungeon {
 	void scatterDecals(uint32_t seed);
 	void scatterTorches(uint32_t seed);
 	void drawTorchTile(int i, int j);
+	void scatterLadders(uint32_t seed);
+	void drawLadderTile(int i, int j);
 	struct FlameSource;
 	int flamesAt(int i, int j, FlameSource* out) const;
 	void addLights();

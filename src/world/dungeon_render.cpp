@@ -316,39 +316,8 @@ void Dungeon::Draw() {
 						glPopMatrix();
 					}
 				}
-				if (tile.a == Ladder) {
-					glPushMatrix();
-					glTranslatef(20, 0, -25);
-					glPushMatrix();
-					glScalef(40, 40, 40);
-					GAME_STATE.textures.column_t.Bind();
-					if (GAME_STATE.render.Cartoon)
-						GAME_STATE.models.column->ShowC();
-					else
-						GAME_STATE.models.column->Show();
-					glPopMatrix();
-					glPopMatrix();
-
-					GAME_STATE.textures.plasma_t.Bind();
-					Lighting::setEmissive(true);
-					glBegin(GL_QUADS);
-
-					float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / static_cast<float>(200.0);
-
-					glNormal3f(0, 0, 1.0);
-					glTexCoord2f(px, 0);
-					glVertex3i(10, 0, -30);
-					glTexCoord2f(px, 1);
-					glVertex3i(10, 37, -30);
-					glTexCoord2f(px + 1, 1);
-					glVertex3i(30, 37, -30);
-					glTexCoord2f(px + 1, 0);
-					glVertex3i(30, 0, -30);
-					glEnd();
-					Lighting::setEmissive(false);
-					if (plasmaAni)
-						plasma += 0.012;
-				}
+				if (tile.a == Ladder)
+					drawLadderTile(i, j);
 			}
 			glTranslatef(40, 0, 0);
 		}

@@ -146,13 +146,6 @@ void GameState::Load() {
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
-	textures.column_t.LoadPNG("Textures/columns.png");
-	models.column = std::make_unique<AnimatedCartoonModel>();
-	models.column->Load("Models/columns.md3");
-	models.column->BindTexture(textures.column_t.ID());
-	models.column->Centrify();
-	models.column->Compile();
-
 	models.question = std::make_unique<AnimatedCartoonModel>();
 	models.question->Load("Models/questionmark.md3");
 	models.question->BindTexture(textures.gold_t.ID());
@@ -184,6 +177,20 @@ void GameState::Load() {
 		torchModel->Compile();
 		decor.torch = std::move(torchModel);
 	}
+	for (int s = 0; s < LADDER_STYLE_COUNT; s++)
+		for (int p = 0; p < LADDER_PIECE_COUNT; p++) {
+			char path[64];
+			snprintf(path, sizeof(path), "Textures/ladder_%s_%s.png", LADDER_STYLE_NAMES[s], LADDER_PIECE_NAMES[p]);
+			decor.ladderTex[s][p].LoadPNG(path);
+			snprintf(path, sizeof(path), "Models/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s], LADDER_PIECE_NAMES[p]);
+			auto model = std::make_unique<AnimatedCartoonModel>();
+			if (!model->Load(path))
+				continue;
+			model->BindTexture(decor.ladderTex[s][p].ID());
+			model->outline = false;
+			model->Compile();
+			decor.ladder[s][p] = std::move(model);
+		}
 
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();

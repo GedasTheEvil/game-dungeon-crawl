@@ -10,6 +10,27 @@
 
 int weaponRot = 0;
 
+namespace {
+constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
+// Towards the back wall so the fists close round the rungs: the ladder's rungs are 2.35 in front of the wall
+// (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in human.py).
+constexpr float PLAYER_CLIMB_DEPTH = -16.f;
+
+void drawWeapon() { // floats in front of the chest
+	glPushMatrix();
+	if (GAME_STATE.Player->rotA > 0) {
+		glTranslatef(GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
+		glRotatef(-45 - weaponRot, 0, 0, 1);
+	} else {
+		glTranslatef(-GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
+		glRotatef(45 + weaponRot, 0, 0, 1);
+	}
+	GAME_STATE.ui.invent->Equipped()->Draw();
+
+	glPopMatrix();
+}
+} // namespace
+
 void Update() {
 	if (!GAME_STATE.Cache_loaded) {
 		GAME_STATE.Load();
@@ -26,9 +47,14 @@ void Update() {
 	GAME_STATE.Player->rotA = GAME_STATE.camera.rotW;
 
 	if (GAME_STATE.Player->Alive()) {
+		bool climbing = !GAME_STATE.Player->jump.jumping && GAME_STATE.dungeon.PlayerOnLadder();
+		GAME_STATE.Player->depthOffset = climbing ? PLAYER_CLIMB_DEPTH : 0.f;
 		if (GAME_STATE.Player->jump.jumping)
 			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Jump));
-		else if (GAME_STATE.timers.mdlChange->TimePassed())
+		else if (climbing) {
+			GAME_STATE.Player->showClimb(GAME_STATE.dungeon.ClimbPhase());
+			GAME_STATE.Player->rotA = PLAYER_CLIMB_ROT;
+		} else if (GAME_STATE.timers.mdlChange->TimePassed())
 			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Walk)); // idle
 
 		GAME_STATE.ui.invent->Equipped()->rotA++;
@@ -103,18 +129,8 @@ void Draw() {
 	Lighting::setEmissive(false);
 
 	if (GAME_STATE.Player->Alive()) {
-		glPushMatrix(); // weapon
-
-		if (GAME_STATE.Player->rotA > 0) {
-			glTranslatef(GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
-			glRotatef(-45 - weaponRot, 0, 0, 1);
-		} else {
-			glTranslatef(-GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
-			glRotatef(45 + weaponRot, 0, 0, 1);
-		}
-		GAME_STATE.ui.invent->Equipped()->Draw();
-
-		glPopMatrix();
+		if (!GAME_STATE.Player->climbing()) // both hands on the ladder: no weapon
+			drawWeapon();
 	} else {
 		Lighting::setEmissive(true);
 		GAME_STATE.ui.wlc->DrawLoose();

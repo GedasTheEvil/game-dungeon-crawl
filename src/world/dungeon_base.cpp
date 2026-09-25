@@ -12,6 +12,15 @@
 
 void normalize(VECTOR& v);
 
+namespace {
+// Map x within a cell at which the drawn player (always at the screen centre) is in front of the ladder:
+// tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw).
+constexpr float LADDER_GRIP_X = 0.45f;
+constexpr float LADDER_REACH = 0.2f; // closer to LADDER_GRIP_X than this (tiles), the player holds on to the ladder
+constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this still counts as standing on it
+constexpr float CLIMB_SIDE_RATE = 0.5f;
+} // namespace
+
 bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < kMapWidth && row >= 0 && row < kMapHeight; }
 //======================================================================================
 int Dungeon::MapIndex(int col, int row) const {
@@ -172,7 +181,22 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 			mapY += dirY;
 	} else if (Map(mapX, mapY).a == Ladder && Map(mapX, mapY + dirY).a == Ladder)
 		mapY += dirY;
+
+	// Climbing pulls the player over to the ladder, so the hands reach the rungs.
+	if (dirY != 0 && Map(mapX, mapY).a == Ladder) {
+		float offset = std::floor(mapX) + LADDER_GRIP_X - mapX;
+		mapX += std::clamp(offset, -std::fabs(dirY), std::fabs(dirY));
+	}
 }
+//======================================================================================
+bool Dungeon::PlayerOnLadder() const {
+	if (Map(mapX, mapY).a != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
+		return false;
+	bool floorBelow = Map(mapX, mapY - 1).a == Wall;
+	return !floorBelow || mapY - std::floor(mapY) >= STANDING_EPSILON;
+}
+//======================================================================================
+float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }
 //======================================================================================
 int Dungeon::Type(float x, float y) { return Map(x, y).a; }
 //======================================================================================

@@ -10,17 +10,18 @@
 #include <array>
 #include <memory>
 
-enum class ModelState { Die = 0, Walk = 1, Attack = 2, Jump = 3 };
+enum class ModelState { Die = 0, Walk = 1, Attack = 2, Jump = 3, Climb = 4 };
 
 // Playback of every clip, indexed by ModelState.
-using MonsterAnimations = std::array<AnimPlayback, 4>;
+using MonsterAnimations = std::array<AnimPlayback, 5>;
 
 class monster {
   private:
 	std::unique_ptr<AnimatedCartoonModel> walk;
 	std::unique_ptr<AnimatedCartoonModel> attack;
 	std::unique_ptr<AnimatedCartoonModel> die;
-	std::unique_ptr<AnimatedCartoonModel> jumpAnim; // optional <name>_jump.md3 (player only); falls back to walk
+	std::unique_ptr<AnimatedCartoonModel> jumpAnim;	 // optional <name>_jump.md3 (player only); falls back to walk
+	std::unique_ptr<AnimatedCartoonModel> climbAnim; // optional <name>_climb.md3 (player only); falls back to walk
 	AnimatedCartoonModel* model;
 	float mapX;
 	float mapY;
@@ -61,6 +62,10 @@ class monster {
 	void setCords(float nX, float nY);
 	float rotA;
 	float scale;
+	float depthOffset = 0.f; // the player only: moved towards the back wall (world units) while climbing
+	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
+	void showClimb(float phase);
+	[[nodiscard]] bool climbing() const { return currentState == ModelState::Climb; }
 	// AI functions
 	int attackDirection();
 	bool getHit(int dmg);

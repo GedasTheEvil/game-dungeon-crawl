@@ -61,10 +61,16 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Single-file models (items, props) are centred on their own frame 0.
 * The player uses the files differently: `human.md3` = idle (standing), `human_att.md3` = walk cycle (while moving),
   `human_die.md3` = death, `human_jump.md3` = forward jump (optional `<name>_jump.md3`, `ModelState::Jump`; restarts on every
-  jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height). The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
+  jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height),
+  `human_climb.md3` = climbing a ladder (optional `<name>_climb.md3`, `ModelState::Climb`): back to the camera (drawn at rotA 180,
+  moved `PLAYER_CLIMB_DEPTH` towards the wall so the fists meet the rungs), hands and feet on IK targets in `human.py`. The engine sets
+  its frame from the height (`Dungeon::ClimbPhase`, one cycle per tile; the clock does not advance it), so it runs backwards going down
+  and holds when the player stops. Shown while `Dungeon::PlayerOnLadder` (a Ladder cell, off the floor, within reach of the ladder);
+  sideways moves on a ladder use the walk cycle. The weapon is hidden while climbing.
+  The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
   `ModelViewer` looks for `Textures/human.png`; the player texture is `player.png`.
 * Monsters need three files: `<name>.md3` walk (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame).
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, human 32/20/30 + jump 10); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, human 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, human 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
@@ -76,7 +82,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 | Worm (monster) | `worm{,_att,_die}.md3` | `worm.png` | remodelled (man-eating worm) |
 | Scarab (monster) | `scarab{,_att,_die}.md3` | `scarab.png` | remodelled (giant golden Scarabaeus sacer) |
 | Plant (monster) | `plant{,_att,_die}.md3` | `plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
-| Player | `human{,_att,_die}.md3` | `player.png` | remodelled (archaeologist with fedora) |
+| Player | `human{,_att,_die,_jump,_climb}.md3` | `player.png` | remodelled (archaeologist with fedora) |
 | Sphinx, ankh, questionmark | `sphinx.md3`, `ankh.md3`, `questionmark.md3` | `sphinx.png`, `ankh.png`, `gold.png` | old (static) |
 | Columns (old ladder, with a plasma quad) | `columns.md3` | `columns.png` | unused since the ladders |
 | Ladders (2 styles x 5 pieces) | `ladder_<style>_<piece>.md3` | `ladder_<style>_<piece>.png` | new (static, `ladder.py`) |

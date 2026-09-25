@@ -94,6 +94,11 @@ class Dungeon {
 	void Update();
 	void Draw();
 	void Move(float dirX, float dirY, bool jump = 0);
+	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
+	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
+	[[nodiscard]] bool PlayerOnLadder() const;
+	// Climb clip phase: one cycle per tile climbed, running on (at half rate) while moving sideways on the ladder.
+	[[nodiscard]] float ClimbPhase() const;
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
 	void GetAttack(int damage, int attackRange); // Redirects players attack to the nearest monster if in range

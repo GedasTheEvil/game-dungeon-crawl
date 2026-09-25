@@ -1,6 +1,7 @@
 #include "monster.h"
 #include <GL/gl.h>
 #include <cmath>
+#include <algorithm>
 #include <filesystem>
 
 #include "../state/game_state.h"
@@ -46,13 +47,21 @@ void monster::selectModel(ModelState state) {
 		model = die.get();
 		break;
 	case ModelState::Jump:
-		if (!jumpAnim) {
-			model = walk.get();
-			break;
-		}
-		model = jumpAnim.get();
+		model = jumpAnim ? jumpAnim.get() : walk.get();
+		break;
+	case ModelState::Climb:
+		model = climbAnim ? climbAnim.get() : walk.get();
 		break;
 	}
+}
+//================================================================================
+void monster::showClimb(float phase) {
+	if (!climbAnim)
+		return;
+	selectModel(ModelState::Climb);
+	int frames = climbAnim->FrameCount();
+	float frame = std::min(phase - std::floor(phase), 1.f) * static_cast<float>(frames);
+	climbAnim->SetPlayback({std::min(frame, static_cast<float>(frames) - 0.001f), 0});
 }
 //================================================================================
 monster::monster() {
@@ -131,7 +140,7 @@ bool monster::Draw() // needs to choose animation
 	if (this != GAME_STATE.Player.get())
 		glTranslatef(40 * mapX - 20, mapY, -30);
 	else
-		glTranslatef(0, 0, -30);
+		glTranslatef(0, 0, -30 + depthOffset);
 
 	glPushMatrix(); // will add rotation
 
@@ -218,7 +227,8 @@ bool monster::Draw() // needs to choose animation
 
 	glPopMatrix();
 	glPopMatrix();
-	model->Advance_Animation();
+	if (currentState != ModelState::Climb) // the climb frame follows the height (showClimb)
+		model->Advance_Animation();
 	return 1;
 }
 //================================================================================
@@ -230,7 +240,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		return 0;
 	}
 
-	char tmp1[255], tmp2[255], tmp3[255], tmp4[255], tmp5[255], tmp6[255];
+	char tmp1[255], tmp2[255], tmp3[255], tmp4[255], tmp5[255], tmp6[255], tmp7[255];
 
 	sprintf(tmp1, "Models/%s.md3", filename);
 	sprintf(tmp2, "Models/%s_att.md3", filename);
@@ -238,6 +248,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	sprintf(tmp4, "Sounds/%s_att.wav", filename);
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
 	sprintf(tmp6, "Models/%s_jump.md3", filename);
+	sprintf(tmp7, "Models/%s_climb.md3", filename);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp1);
 	walk = makeModel(tmp1, texture.ID(), 35);
@@ -259,6 +270,11 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		jumpAnim->Normalize(norm);
 		jumpAnim->loop = 0; // holds the landing pose until the next state change
 	}
+	if (std::filesystem::exists(tmp7)) {
+		LOG_INFOF("entities", "Loading model: %s", tmp7);
+		climbAnim = makeModel(tmp7, texture.ID(), 35);
+		climbAnim->Normalize(norm);
+	}
 
 	die_s.LoadWAV(tmp5);
 	att_s.LoadWAV(tmp4);
@@ -269,6 +285,8 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		die->Compile();
 		if (jumpAnim)
 			jumpAnim->Compile();
+		if (climbAnim)
+			climbAnim->Compile();
 	}
 	stat = 1;
 
@@ -348,6 +366,8 @@ AnimatedCartoonModel* monster::clip(ModelState state) const {
 		return die.get();
 	case ModelState::Jump:
 		return jumpAnim.get();
+	case ModelState::Climb:
+		return climbAnim.get();
 	}
 	return nullptr;
 }

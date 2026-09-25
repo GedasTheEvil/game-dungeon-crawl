@@ -4,6 +4,7 @@
 #include "../input/gameplay_config.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -109,11 +110,19 @@ void Dungeon::UpdateMovementState() {
 	if (Map(mapX, mapY).a != Ladder && !GAME_STATE.Player->jump.jumping) {
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			Map(mapX, mapY - 1).a != Wall) {
-			if (GAME_STATE.Player->jump.fall_inc->TimePassed())
-				mapY -= FALL_STEP;
-			GAME_STATE.Player->jump.falling = true;
+			JumpState& jump = GAME_STATE.Player->jump;
+			if (jump.fall_inc->TimePassed()) {
+				float floorY = std::floor(mapY);
+				mapY -= jump.fall_velocity;
+				if (mapY < floorY && Map(mapX, floorY - 1).a == Wall)
+					mapY = floorY; // landed: don't sink into the floor tile
+				jump.fall_velocity = std::min(jump.fall_velocity + FALL_GRAVITY_STEP, FALL_MAX_STEP);
+			}
+			jump.falling = true;
 		} else {
+			mapY = std::floor(mapY); // drop the sub-threshold remainder left by the last step
 			GAME_STATE.Player->jump.falling = false;
+			GAME_STATE.Player->jump.fall_velocity = FALL_STEP;
 		}
 	}
 

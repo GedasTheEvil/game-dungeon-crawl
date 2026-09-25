@@ -203,6 +203,7 @@ void GameState::Load() {
 	timers.AttTimer = std::make_unique<timer>(250);
 	Player->jump.jump_inc = std::make_unique<timer>(JUMP_TICK_MS);
 	Player->jump.fall_inc = std::make_unique<timer>(FALL_TICK_MS);
+	Player->jump.fall_velocity = FALL_STEP;
 	status_timer = std::make_unique<timer>(3000);
 
 	DrawLoad(95, "Loading game Map");

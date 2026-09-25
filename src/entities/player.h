@@ -11,6 +11,7 @@ struct JumpState {
 	float dir_x = 0.f;
 	float speed = 0.f;
 	float velocity = 0.f;
+	float fall_velocity = 0.f;
 	float start_y = 0.f;
 	int counter = 0;
 	std::unique_ptr<timer> jump_timer;

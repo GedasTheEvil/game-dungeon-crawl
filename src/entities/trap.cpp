@@ -5,6 +5,12 @@
 #include <cmath>
 #include "../input/gameplay_config.h"
 
+namespace {
+// Shared by all trap instances: the streak belongs to the player, not to one trap model.
+int gHitStreak = 0;
+int gLastHitMs = 0;
+} // namespace
+
 trap::trap() {
 	Hurt_timer = std::make_unique<timer>(TRAP_HURT_INTERVAL_MS);
 	mdl = std::make_unique<AnimatedCartoonModel>();
@@ -30,13 +36,19 @@ void trap::Show() {
 	Hurt();
 }
 void trap::Hurt() {
+	if (fabs(*dungeonCamX - tileX - 0.5) > TRAP_HITBOX_X_SCALE * scale ||
+		std::fabs(*dungeonCamY - tileY) > TRAP_HITBOX_Y_SCALE * scale)
+		return;
 	if (!Hurt_timer->TimePassed())
 		return;
 
-	if (fabs(*dungeonCamX - tileX - 0.5) <= TRAP_HITBOX_X_SCALE * scale &&
-		std::fabs(*dungeonCamY - tileY) <= TRAP_HITBOX_Y_SCALE * scale) {
-		GAME_STATE.ui.Stats->GetHit(1);
-	}
+	// Damage ramps up while the player stays in a trap; any gap resets it.
+	int now = GameClock::now();
+	if (now - gLastHitMs > TRAP_STREAK_RESET_MS)
+		gHitStreak = 0;
+	gLastHitMs = now;
+	GAME_STATE.ui.Stats->GetHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
+	gHitStreak++;
 }
 
 void trap::setCords(float nX, float nY) {

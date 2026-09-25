@@ -26,4 +26,10 @@ constexpr FireStyle OIL_LAMP = {14, 600.f, 0.4f, 5.f, 1.6f, 0.8f, 0.3f};
 void draw(const FireStyle& style, float x, float y, float z, uint32_t seed);
 } // namespace Fire
 
+// Dust and grit trickling from a loose ceiling (rock-fall warning). Stateless like the fire.
+namespace Dust {
+// (x, y, z) = the ceiling point in local space; progress 0..1 over the warning, the trickle thickens towards 1.
+void draw(float x, float y, float z, float progress, uint32_t seed);
+} // namespace Dust
+
 #endif

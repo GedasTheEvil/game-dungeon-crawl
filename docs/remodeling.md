@@ -17,6 +17,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (every frame keyed), hinged jaws, floor lift from jaw tips.
 * `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
   (tripod gait with planted feet, body-space targets when airborne), per-frame floor fix while rolling over in the die clip.
+* `tools/blender/models/rat.py` - quadruped example: one loft from rump to nose blended over hips/chest/head bones, trot gait
+  with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
+  per-frame floor fix from a numpy copy of the skinning. Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
@@ -35,6 +39,18 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `Textures/ladders/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
   Placement: `Dungeon::scatterLadders` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
   lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/world/decor.h`.
+* `tools/blender/models/mechanism.py` - level mechanics, same tile units and baked lighting as `decor.py`: `key` (upright ankh key,
+  oval gem in the loop), `gate` (bronze portcullis across the corridor: plane y-z at x = 0, 0.21 thick, full tile depth and height,
+  stone lintel and back stile, lock cartouche on the front face, gem medallion on both long sides, spiked feet; slides up into the
+  ceiling as a whole), `lever_base` (wall plate at z 0.23..0.57 with slot, bearing boss and gem) + `lever_handle` (origin = pivot, points
+  +Z; pivot at `LEVER_PIVOT` = (0, -0.05, 0.42) in the base frame, swung +-35 deg around the depth axis), `rock` (faceted sandstone
+  boulder ~0.38 across) and `ceiling_crack` (loose stones sagging out of the ceiling at z = 1, dark gaps, sand trickle). Gate, lever
+  and crack use the decor frame (origin on the back wall, `drawDecorTile`'s transform); key and rock are centred on their own
+  vertical axis with the lowest point at z = 0 (draw from the tile centre, like the old ankh item; the key spins around its shaft).
+  Key, gate and lever_base have one texture per lock colour on the same UVs (`red` carnelian, `blue` lapis, `green` turquoise,
+  `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `Models/mechanisms/<model>.md3` +
+  `Textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
+  (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
 * `tools/textures/decals.py` - wall decal atlas `Textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
@@ -70,10 +86,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
   `ModelViewer` looks for `Textures/<category>/<stem>.png` (the model's sub-directory under `Models/`).
 * Monsters need three files: `<name>.md3` walk (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame).
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
 
 ## Status
 Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, dungeon wall textures in `Textures/dungeon/`, `plasma.png` in `Textures/effects/`.
@@ -83,6 +99,7 @@ Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, d
 | Anubis (monster) | `monsters/anubis{,_att,_die}.md3` | `monsters/anubis.png` | remodelled |
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
 | Scarab (monster) | `monsters/scarab{,_att,_die}.md3` | `monsters/scarab.png` | remodelled (giant golden Scarabaeus sacer) |
+| Rat, giant rat (monsters) | `monsters/rat{,_att,_die}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_att,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Sphinx, ankh, questionmark | `props/{sphinx,ankh,questionmark}.md3` | `props/sphinx.png`, `props/ankh.png`, `items/gold.png` | old (static) |
@@ -92,4 +109,8 @@ Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, d
 | Spikes trap | `traps/spikes.md3` | `traps/spikes.png` | old (static) |
 | Corridor decorations (10 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
+| Keys (4 lock colours) | `mechanisms/key.md3` | `mechanisms/key_<colour>.png` | new (static, `mechanism.py`) |
+| Key gate (4 lock colours) | `mechanisms/gate.md3` | `mechanisms/gate_<colour>.png` | new (static, `mechanism.py`) |
+| Wall lever (4 lock colours) | `mechanisms/lever_base.md3`, `mechanisms/lever_handle.md3` | `mechanisms/lever_base_<colour>.png`, `mechanisms/lever_handle.png` | new (static, `mechanism.py`) |
+| Falling rock, ceiling crack | `mechanisms/rock.md3`, `mechanisms/ceiling_crack.md3` | `mechanisms/rock.png`, `mechanisms/ceiling_crack.png` | new (static, `mechanism.py`) |
 | Wall decals (16) | - | `decorations/decals.png` | new (generated, `tools/textures/decals.py`) |

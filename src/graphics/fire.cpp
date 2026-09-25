@@ -153,3 +153,53 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 	glColor4f(1, 1, 1, 1);
 	Lighting::setEmissive(false);
 }
+
+void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
+	constexpr int GRAINS = 48;
+	constexpr float FALL_MS = 700.f; // one grain from the ceiling to the floor
+	constexpr float DROP = 40.f;	 // ceiling to floor, world units
+	ensureSprite();
+
+	float m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
+	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
+	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
+	float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
+
+	float t = static_cast<float>(GameClock::now());
+	int alive = static_cast<int>(static_cast<float>(GRAINS) * std::fmin(1.f, 0.25f + progress));
+
+	Lighting::setEmissive(true);
+	glBindTexture(GL_TEXTURE_2D, gSprite);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
+	glBegin(GL_QUADS);
+	for (int i = 0; i < alive; i++) {
+		uint32_t base = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x85ebca6bU));
+		float u = t / FALL_MS + unit01(base);
+		float p = u - std::floor(u);
+		uint32_t h = mix(base ^ static_cast<uint32_t>(std::floor(u)));
+		float cx = x + (unit01(h) - 0.5f) * 22.f;
+		float cy = y - DROP * p * p; // accelerates
+		float cz = z + (unit01(h >> 16) - 0.5f) * 14.f;
+		float size = 0.8f + 1.6f * unit01(mix(h));
+		float a = 0.55f * (1.f - p);
+		float h2 = size / 2.f;
+		glColor4f(0.55f * a, 0.47f * a, 0.36f * a, a); // sandstone grit, premultiplied
+		glTexCoord2f(0, 0);
+		glVertex3f(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
+		glTexCoord2f(1, 0);
+		glVertex3f(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
+		glTexCoord2f(1, 1);
+		glVertex3f(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
+		glTexCoord2f(0, 1);
+		glVertex3f(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
+	}
+	glEnd();
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glColor4f(1, 1, 1, 1);
+	Lighting::setEmissive(false);
+}

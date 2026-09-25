@@ -2,36 +2,29 @@
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
+#include "loot.h"
+#include "campaign.h"
+#include "level_gen.h"
+#include <algorithm>
+#include <iterator>
 #include <fstream>
+#include <string>
+#include <vector>
 
-namespace {
-bool readMapCells(std::istream& in, Tint* map, int cellCount) {
-	for (int jj = 0; jj < cellCount; jj++) {
-		in >> map[jj].a;
-		in >> map[jj].b;
-		in >> map[jj].c;
-		if (!in)
-			return false;
-	}
-	return true;
-}
-} // namespace
 
 bool Dungeon::Load(const char* filename) {
-	std::ifstream f(filename);
-	if (!f)
-		return false;
-
-	int header;
-	f >> header;
-	if (header != kMapCellCount) {
-		LOG_ERRORF("world", "Wrong map header. Expected '%d', got %d", kMapCellCount, header);
+	LevelGrid grid;
+	std::string error = loadLevelFile(filename, grid);
+	if (!error.empty()) {
+		LOG_ERRORF("world", "Cannot load level %s: %s", filename, error.c_str());
 		return false;
 	}
-
-	if (!readMapCells(f, map, kMapCellCount))
-		return false;
-	f.close();
+	LoadGrid(grid, filename);
+	return true;
+}
+//======================================================================================
+void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
+	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
 	for (int j = 0; j < kMapHeight; j++)
 		for (int i = 0; i < kMapWidth; i++)
@@ -40,7 +33,28 @@ bool Dungeon::Load(const char* filename) {
 				mapY = static_cast<float>(j);
 			}
 
-	scatterDecorations(filename);
+	resetMechanisms();
+	scatterDecorations(levelName);
+}
+//======================================================================================
+bool Dungeon::LoadCampaignLevel(int number, uint32_t runSeed) {
+	CampaignLevel level = campaignLevel(number, runSeed);
+	if (!level.generated)
+		return Load(level.file.c_str());
+
+	GenOptions options;
+	options.seed = level.seed;
+	options.difficulty = level.difficulty;
+	GenResult result = generateLevel(options);
+	if (!result.ok) {
+		LOG_ERRORF("world", "No valid level from seed %d", static_cast<int>(level.seed));
+		return false;
+	}
+	char text[128];
+	snprintf(text, sizeof(text), "Generated level %d: seed %u, difficulty %d, score %.1f", number, level.seed,
+			 level.difficulty, static_cast<double>(result.report.difficulty));
+	LOG_INFOF("world", "%s", static_cast<const char*>(text));
+	LoadGrid(result.grid, level.name.c_str());
 	return true;
 }
 //======================================================================================
@@ -56,9 +70,14 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 		return false;
 	}
 
-	if (!readMapCells(f, map, kMapCellCount))
+	if (!readLevelCells(f, map, kMapCellCount))
 		return false;
 
+	resetMechanisms();
+	// Saves from before the keys end here.
+	int keys = 0;
+	if (f >> keys)
+		keysHeld = keys;
 	return true;
 }
 //======================================================================================
@@ -69,16 +88,27 @@ void Dungeon::Dump(std::ofstream& f) {
 
 	for (int l = 0; l < kMapCellCount; l++)
 		f << map[l].a << " " << map[l].b << " " << map[l].c << " ";
+
+	f << keysHeld << " ";
 }
 //======================================================================================
 void Dungeon::GetPickUp() {
 	if (Map(mapX, mapY).a == Treasure) {
-		GAME_STATE.ui.invent->GetItem(Map(mapX, mapY).b, Map(mapX, mapY).c);
+		int type = Map(mapX, mapY).b;
+		int id = Map(mapX, mapY).c;
 		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].a = Empty;
-		if (Map(mapX, mapY).b != 0) {
-			sprintf(GAME_STATE.status, "Picked up an item  \n");
-			GAME_STATE.status_timer->Reset();
+		if (type == 0) // empty chest
+			return;
+
+		// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
+		std::string found;
+		std::vector<LootItem> loot = RollChestLoot(type, id);
+		for (size_t i = 0; i < loot.size(); i++) {
+			GAME_STATE.ui.invent->GetItem(loot[i].type, loot[i].id);
+			found += std::string(i == 0 ? "Found: " : "\n+ ") + inventory::ItemName(loot[i].type, loot[i].id);
 		}
+		snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "%s", found.c_str());
+		GAME_STATE.status_timer->Reset();
 	}
 }
 //======================================================================================
@@ -94,11 +124,6 @@ void Dungeon::GetRiddle() {
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateExit) {
 		GAME_STATE.curMap++;
-
-		char mapName[40];
-
-		sprintf(mapName, "Levels/lvl%d", GAME_STATE.curMap);
-
-		Load(mapName);
+		LoadCampaignLevel(GAME_STATE.curMap, GAME_STATE.runSeed);
 	}
 }

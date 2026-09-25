@@ -5,9 +5,43 @@
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
+#include <ctime>
 #include "../input/gameplay_config.h"
+#include "../world/campaign.h"
 
-char mapName2[200];
+namespace {
+// Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
+std::unique_ptr<AnimatedCartoonModel> loadStaticModel(const char* path, Textura& tex) {
+	auto model = std::make_unique<AnimatedCartoonModel>();
+	if (!model->Load(path))
+		return nullptr;
+	model->BindTexture(tex.ID());
+	model->outline = false;
+	model->Compile();
+	return model;
+}
+
+void loadMechanisms(MechanismSet& set) {
+	char path[96];
+	for (int c = 0; c < LOCK_COLOUR_COUNT; c++) {
+		snprintf(path, sizeof(path), "Textures/mechanisms/key_%s.png", LOCK_COLOUR_NAMES[c]);
+		set.keyTex[c].LoadPNG(path);
+		snprintf(path, sizeof(path), "Textures/mechanisms/gate_%s.png", LOCK_COLOUR_NAMES[c]);
+		set.gateTex[c].LoadPNG(path);
+		snprintf(path, sizeof(path), "Textures/mechanisms/lever_base_%s.png", LOCK_COLOUR_NAMES[c]);
+		set.leverBaseTex[c].LoadPNG(path);
+		set.key[c] = loadStaticModel("Models/mechanisms/key.md3", set.keyTex[c]);
+		set.gate[c] = loadStaticModel("Models/mechanisms/gate.md3", set.gateTex[c]);
+		set.leverBase[c] = loadStaticModel("Models/mechanisms/lever_base.md3", set.leverBaseTex[c]);
+	}
+	set.leverHandleTex.LoadPNG("Textures/mechanisms/lever_handle.png");
+	set.rockTex.LoadPNG("Textures/mechanisms/rock.png");
+	set.crackTex.LoadPNG("Textures/mechanisms/ceiling_crack.png");
+	set.leverHandle = loadStaticModel("Models/mechanisms/lever_handle.md3", set.leverHandleTex);
+	set.rock = loadStaticModel("Models/mechanisms/rock.md3", set.rockTex);
+	set.crack = loadStaticModel("Models/mechanisms/ceiling_crack.md3", set.crackTex);
+}
+} // namespace
 
 GameState::GameState() = default;
 
@@ -56,6 +90,8 @@ void GameState::Load() {
 	textures.spear_t.LoadPNG("Textures/items/spear.png");
 	DrawLoad(17, "Loading Textures");
 	textures.plant_t.LoadPNG("Textures/monsters/plant.png");
+	textures.rat_t.LoadPNG("Textures/monsters/rat.png");
+	textures.giantRat_t.LoadPNG("Textures/monsters/rat_giant.png");
 	textures.riddle_bg.LoadPNG("Textures/ui/riddlebg.png");
 	ui.rid = std::make_unique<Riddle>();
 
@@ -98,6 +134,21 @@ void GameState::Load() {
 	monsters.plant->scale = 12;
 	monsters.plant->maxHealth = 30;
 	monsters.plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
+
+	DrawLoad(67, "Loading Monster Models [Rat]");
+	monsters.rat = std::make_unique<monster>(0, 0, 5, 12, 2, 300);
+	monsters.rat->loadModel("monsters/rat", textures.rat_t, textures.progBar, true);
+	monsters.rat->scale = 26;
+	monsters.rat->rotA = 180;
+	monsters.rat->maxHealth = 12;
+
+	// Same files as the rat, bigger and darker.
+	DrawLoad(68, "Loading Monster Models [Giant rat]");
+	monsters.giantRat = std::make_unique<monster>(0, 0, 2, 60, 8, 2000);
+	monsters.giantRat->loadModel("monsters/rat", textures.giantRat_t, textures.progBar, true);
+	monsters.giantRat->scale = 42;
+	monsters.giantRat->rotA = 180;
+	monsters.giantRat->maxHealth = 60;
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	items.club = std::make_unique<item>();
@@ -194,10 +245,19 @@ void GameState::Load() {
 			decor.ladder[s][p] = std::move(model);
 		}
 
+	DrawLoad(83, "Loading mechanisms");
+	loadMechanisms(mechanisms);
+
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();
 	sounds.drink_s.LoadWAV("Sounds/Drink.wav");
 	sounds.jump_s.LoadWAV("Sounds/Jump.wav");
+	sounds.keyPickup.LoadWAV("Sounds/key_pickup.wav");
+	sounds.gateOpen.LoadWAV("Sounds/gate_open.wav");
+	sounds.gateLocked.LoadWAV("Sounds/gate_locked.wav");
+	sounds.lever.LoadWAV("Sounds/lever.wav");
+	sounds.rockRumble.LoadWAV("Sounds/rock_rumble.wav");
+	sounds.rockCrash.LoadWAV("Sounds/rock_crash.wav");
 
 	DrawLoad(88, "Loading stats");
 	ui.Stats = std::make_unique<stats>();
@@ -213,6 +273,7 @@ void GameState::Load() {
 
 	DrawLoad(95, "Loading game font");
 	fonts.font.Load("Fonts/papyrus.png", 3, -0.3);
+	fonts.status.Load("Fonts/papyrus.png", 5, 0.3f, true);
 
 	Player->jump.jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
 	Player->jump.jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
@@ -225,8 +286,7 @@ void GameState::Load() {
 
 	DrawLoad(95, "Loading game Map");
 
-	snprintf(mapName2, sizeof(mapName2), "Levels/lvl%d", curMap);
-	if (!dungeon.Load(mapName2))
+	if (!dungeon.LoadCampaignLevel(curMap, runSeed))
 		LOG_WARNING("game", "Failed loading map");
 
 	DrawLoad(100, "Loading game soundtrack");
@@ -247,6 +307,14 @@ void GameState::Load() {
 	snprintf(status, sizeof(status), "%s", "");
 
 	Cache_loaded = true;
+}
+//==============================================================
+void GameState::NewGame() {
+	curMap = 1;
+	runSeed = static_cast<uint32_t>(time(nullptr));
+	dungeon.LoadCampaignLevel(curMap, runSeed);
+	IHaveWon = false;
+	Player->Reanimate();
 }
 //==============================================================
 void GameState::DrawLoad(float xxx, const char text[]) {
@@ -324,6 +392,7 @@ void GameState::Save(const char filename[]) {
 	ui.Stats->Dump(dump);
 	ui.invent->Dump(dump);
 	dungeon.Dump(dump);
+	dump << runSeed << " ";
 
 	dump.close();
 }
@@ -351,8 +420,10 @@ void GameState::LoadSave(const char filename[]) {
 	ui.invent->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
-	snprintf(mapName2, sizeof(mapName2), "Levels/lvl%d", curMap);
-	dungeon.scatterDecorations(mapName2);
+	uint32_t seed = 0;
+	if (dump >> seed) // older saves end before the run seed
+		runSeed = seed;
+	dungeon.scatterDecorations(campaignLevel(curMap, runSeed).name.c_str());
 	LOG_INFO("game", "Done loading map");
 	dump.close();
 }

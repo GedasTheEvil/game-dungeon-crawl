@@ -81,6 +81,15 @@ if(x > 430)
                selectedB = Area3D;
           if(x > 610 && x < 634 && y < 120 && y > 94)
                selectedB = Treasure;
+
+          if(x > 450 && x < 473 && y < 160 && y > 134)
+               selectedB = Key;
+          if(x > 491 && x < 515 && y < 160 && y > 134)
+               selectedB = Gate;
+          if(x > 530 && x < 554 && y < 160 && y > 134)
+               selectedB = Lever;
+          if(x > 570 && x < 594 && y < 160 && y > 134)
+               selectedB = RockFall;
           
           
           
@@ -90,21 +99,21 @@ if(x > 430)
                Load(); 
           
 	   
-	   if(x > 443 && x < 534 && y > 147 && y < 161) //Atribute
+	   if(x > 443 && x < 534 && y > 187 && y < 201) //Atribute
 	   {
 		 selA1 = !selA1;
 		 selA1V = 0;
 		 selMN =0;
 	   }
 	   
-	   if(x > 443 && x < 534 && y > 167 && y < 181) // Value
+	   if(x > 443 && x < 534 && y > 207 && y < 221) // Value
 	   {
 		 selA1V = !selA1V;
 		 selA1 = 0;
 		 selMN =0;
 	   }
 	   
-	   if(x > 443 && x < 534 && y > 207 && y < 221) // Map name
+	   if(x > 443 && x < 534 && y > 247 && y < 261) // Map name
 	   {
 // 		 printf("map was name%d\n",selMN);
 		 selMN = !selMN;

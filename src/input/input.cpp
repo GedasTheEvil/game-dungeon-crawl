@@ -94,6 +94,8 @@ class PlayerActionController {
 
 	static void interact() {
 		GAME_STATE.dungeon.GetPickUp();
+		if (GAME_STATE.dungeon.PullLever())
+			return;
 		GAME_STATE.dungeon.GetRiddle();
 	}
 
@@ -125,9 +127,8 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		// Esc backs out of the inventory / stats screen to the game; only from the game it opens the menu.
-		if (!GAME_STATE.ui.menu.show && (GAME_STATE.ui.Stats->show || GAME_STATE.ui.invent->show)) {
-			GAME_STATE.ui.Stats->show = false;
+		// Esc backs out of the inventory to the game; only from the game it opens the menu.
+		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.invent->show) {
 			GAME_STATE.ui.invent->show = false;
 			return;
 		}
@@ -140,7 +141,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
 		return; // jei rodomas meniu, tai reaguojam tik i [esc]
 
-	if (GAME_STATE.ui.invent->show && key != KEY_INVENTORY && key != KEY_STATS) {
+	if (GAME_STATE.ui.invent->show && key != KEY_INVENTORY) {
 		GAME_STATE.ui.invent->KeyPressed(key);
 		return;
 	}
@@ -149,17 +150,8 @@ void keyPressed(unsigned char key, int x, int y) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
-	if (key == KEY_INVENTORY) {
+	if (key == KEY_INVENTORY)
 		GAME_STATE.ui.invent->show = !GAME_STATE.ui.invent->show;
-		if (GAME_STATE.ui.invent->show)
-			GAME_STATE.ui.Stats->show = false;
-	}
-
-	if (key == KEY_STATS) {
-		GAME_STATE.ui.Stats->show = !GAME_STATE.ui.Stats->show;
-		if (GAME_STATE.ui.Stats->show)
-			GAME_STATE.ui.invent->show = false;
-	}
 
 	lastKey = key;
 }

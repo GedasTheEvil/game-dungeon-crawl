@@ -151,6 +151,28 @@ void Draw()
           
          
 	   glPopMatrix();
+
+	   // third row: mechanism tiles
+	   glPushMatrix();
+	   glTranslatef(-160,-80,0);
+	   {
+		 const int row3[4] = {Key, Gate, Lever, RockFall};
+		 int r;
+		 for(r = 0; r < 4; r++)
+		 {
+		      glBindTexture(GL_TEXTURE_2D,Mat[row3[r]].texID);
+		      glBegin(GL_QUADS);
+		      {
+			    glTexCoord2i(0, 1);   glVertex2i(0,0  );
+			    glTexCoord2i(1, 1);   glVertex2i(25,0 );
+			    glTexCoord2i(1, 0);   glVertex2i(25,25);
+			    glTexCoord2i(0, 0);   glVertex2i(0,25 );
+		      }
+		      glEnd();
+		      glTranslatef(40,0,0);
+		 }
+	   }
+	   glPopMatrix();
 	   
 	   
 	   
@@ -210,14 +232,14 @@ void Draw()
      glPrint(570,0,"(640,0)");
      if(selA1)glColor3f(0,1,0);
      else glColor3f(1,1,1);
-     glPrint(440,320,"Atribute: %s", AtText1);
+     glPrint(440,280,"Atribute: %s", AtText1);
      if(selA1V)glColor3f(0,1,0);
      else glColor3f(1,1,1);
-     glPrint(440,300,"Value: %s", AtText2);
+     glPrint(440,260,"Value: %s", AtText2);
      
      if(selMN)glColor3f(0,1,0);
      else glColor3f(1,1,1);
-     glPrint(440,260,"DungeonName: %s", AtText3);
+     glPrint(440,220,"DungeonName: %s", AtText3);
 
      if(StatusMsg[0])
      {
@@ -228,7 +250,7 @@ void Draw()
                case StatusBusy:  glColor3f(1,1,0); break;
                default:          glColor3f(1,1,1); break;
           }
-          glPrint(440,220,"%s", StatusMsg);
+          glPrint(440,180,"%s", StatusMsg);
      }
 
      glColor3f(1,1,1);
@@ -253,8 +275,9 @@ void DrawMap()
      {
 	   for(i = 0; i < 40; i++)
 	   {
-		 if(map[40*j + i].type != Empty)
-		      glBindTexture(GL_TEXTURE_2D,Mat[map[40*j + i].type].texID);
+		 int type = map[40*j + i].type;
+		 if(type != Empty && type >= 0 && type < TileCount)
+		      glBindTexture(GL_TEXTURE_2D,Mat[type].texID);
 		 else glBindTexture(GL_TEXTURE_2D,nullt.texID);
 		 glBegin(GL_QUADS);		
 		 {

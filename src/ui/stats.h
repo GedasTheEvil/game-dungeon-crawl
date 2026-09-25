@@ -18,11 +18,6 @@ class stats {
 	int HP;
 	int Might;
 
-	Font Impact;
-
-	float realPscale; // player scale
-	float realIscale; // item scale
-	std::unique_ptr<timer> stats_ani;
 	std::unique_ptr<timer> stamina_regen_timer;
 	std::unique_ptr<timer> stamina_sprint_drain_timer;
 	float stamina_regen_carry;
@@ -42,16 +37,17 @@ class stats {
 	[[nodiscard]] int CurrentArmor() const { return Armor; }
 	[[nodiscard]] int CurrentHP() const { return HP; }
 	[[nodiscard]] int CurrentMaxHP() const { return MaxHP; }
-	bool show;
+	[[nodiscard]] int CurrentLevel() const { return level; }
+	[[nodiscard]] double CurrentXP() const { return XP; }
+	// XP total at which the player reaches `lvl` (level 2 at 1000).
+	[[nodiscard]] static double LevelXP(int lvl);
 	void GetStronger(int ns = 1);
-	void Draw();
 	void GetXP(int xp);
 	void Heal(int hp_part);
 	stats();
 	~stats();
 	void GetArmored(int na = 1);
 	void GetHit(int dmg);
-	void MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY);
 	void GetTougher(int hp_part);
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);

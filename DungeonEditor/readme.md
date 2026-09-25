@@ -5,7 +5,7 @@
 ## Screen layout
 
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
-* Right, top: the tile palette (two rows of 5 tiles). The tile below the palette shows the selected tile.
+* Right, top: the tile palette (two rows of 5 tiles, one row of 4). The tile above the palette shows the selected tile.
 * Right, middle: the `Atribute`, `Value` and `DungeonName` text fields.
 * Right, bottom: the `Save` and `Load` buttons.
 
@@ -26,7 +26,7 @@ A new map is all `Wall`. You carve the playable space out of it.
 
 ## Tile reference
 
-Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Ankh`; bottom row `Monster`, `Spike`, `Ladder`, `3D`, `Treasure`.
+Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Ankh`; middle row `Monster`, `Spike`, `Ladder`, `3D`, `Treasure`; bottom row `Key`, `Gate`, `Lever`, `RockFall`.
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
@@ -40,6 +40,10 @@ Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Ankh`; bottom row `Mon
 | 7 | 3D (Area3D) | - | - | Not used by the game. Renders as open space. |
 | 8 | Treasure | Item type, see below | Item id, see below | Chest with the item on top. Interact to pick it up. The cell then becomes `Empty`. |
 | 9 | Ankh | - | - | Level goal. Interact with it to win the game. |
+| 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell then becomes `Empty`. |
+| 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. The key or a lever of the same colour opens it. |
+| 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
+| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, a rock falls after approx. 0.65 s + 0.3 s. Put a `Wall` above it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 
@@ -61,8 +65,21 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 2 | Worm |
 | 3 | Plant |
 | 4 | Anubis |
+| 5 | Rat |
+| 6 | Giant rat |
 
 Any other value spawns a copy of the player model. Max. 9 monsters are active at one time.
+
+### Key, Gate, Lever: lock colour (attribute)
+
+| Attribute | Colour | Gem |
+|---|---|---|
+| 1 | Red | Carnelian |
+| 2 | Blue | Lapis |
+| 3 | Green | Turquoise |
+| 4 | Gold | Amber |
+
+Keys, gates and levers with the same colour belong together.
 
 ### Treasure: item type (attribute) and item id (value)
 

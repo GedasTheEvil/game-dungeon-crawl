@@ -7,6 +7,7 @@
 #include "hud.h"
 #include "lighting.h"
 #include "gl_includes.h"
+#include <string>
 
 int weaponRot = 0;
 
@@ -28,6 +29,29 @@ void drawWeapon() { // floats in front of the chest
 	GAME_STATE.ui.invent->Equipped()->Draw();
 
 	glPopMatrix();
+}
+// The status message, centred, one line per '\n', in a projection that keeps the glyphs square.
+void drawStatus(const char* status) {
+	constexpr float TOP_LINE_Y = 74.f;
+	constexpr float LINE_H = 6.f;
+	float width = 100.f * static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, 0, 100, -21, 21);
+	glMatrixMode(GL_MODELVIEW);
+
+	std::string lines = status;
+	float y = TOP_LINE_Y;
+	for (size_t start = 0; start < lines.size(); y -= LINE_H) {
+		size_t end = lines.find('\n', start);
+		if (end == std::string::npos)
+			end = lines.size();
+		std::string line = lines.substr(start, end - start);
+		if (!line.empty())
+			GAME_STATE.fonts.status.print((width - GAME_STATE.fonts.status.TextWidth(line.c_str())) / 2, y, "%s",
+										  line.c_str());
+		start = end + 1;
+	}
 }
 } // namespace
 
@@ -83,9 +107,6 @@ void Draw() {
 		return;
 	case ScreenState::DrawScreen::Inventory:
 		GAME_STATE.ui.invent->Draw();
-		return;
-	case ScreenState::DrawScreen::Stats:
-		GAME_STATE.ui.Stats->Draw();
 		return;
 	case ScreenState::DrawScreen::Riddle:
 		GAME_STATE.ui.rid->Draw();
@@ -150,11 +171,12 @@ void Draw() {
 
 	GAME_STATE.textures.nullTex.Bind();
 	Hud::drawPlayerBars(GAME_STATE.Player->healthRatio(), GAME_STATE.Player->staminaRatio());
+	Hud::drawKeys(GAME_STATE.dungeon.KeysHeld());
 
 	glColor3f(1, 1, 1);
 
 	if (!GAME_STATE.status_timer->TimePassed(true))
-		GAME_STATE.fonts.load_font.print(25, 72, GAME_STATE.status);
+		drawStatus(GAME_STATE.status);
 
 	glFlush();
 

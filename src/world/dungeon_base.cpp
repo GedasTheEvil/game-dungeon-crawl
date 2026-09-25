@@ -121,12 +121,12 @@ Dungeon::Dungeon() {
 void Dungeon::UpdateMovementState() {
 	if (Map(mapX, mapY).a != Ladder && !GAME_STATE.Player->jump.jumping) {
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
-			Map(mapX, mapY - 1).a != Wall) {
+			!isSolidTile(Map(mapX, mapY - 1))) {
 			JumpState& jump = GAME_STATE.Player->jump;
 			if (jump.fall_inc->TimePassed()) {
 				float floorY = std::floor(mapY);
 				mapY -= jump.fall_velocity;
-				if (mapY < floorY && Map(mapX, floorY - 1).a == Wall)
+				if (mapY < floorY && isSolidTile(Map(mapX, floorY - 1)))
 					mapY = floorY; // landed: don't sink into the floor tile
 				jump.fall_velocity = std::min(jump.fall_velocity + FALL_GRAVITY_STEP, FALL_MAX_STEP);
 			}
@@ -157,6 +157,7 @@ void Dungeon::UpdateMovementState() {
 //======================================================================================
 void Dungeon::Update() {
 	UpdateMovementState();
+	updateMechanisms();
 	UpdateMonsters();
 }
 //======================================================================================
@@ -167,13 +168,14 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 		GAME_STATE.Player->jump.falling = true;
 	}
 
-	if (dirX > 0) {
-		if (Map(mapX, mapY).a != Wall &&
-			Map(mapX + dirX + static_cast<float>(GAME_STATE.Player->scale / 60.0), mapY).a != Wall)
+	if (dirX != 0) {
+		float halfWidth = static_cast<float>(GAME_STATE.Player->scale / 60.0);
+		float probeX = mapX + dirX + (dirX > 0 ? halfWidth : -halfWidth);
+		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
 			mapX += dirX;
-	} else if (Map(mapX, mapY).a != Wall &&
-			   Map(mapX + dirX - static_cast<float>(GAME_STATE.Player->scale / 60.0), mapY).a != Wall)
-		mapX += dirX;
+		else if (Map(probeX, mapY).a == Gate)
+			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
+	}
 
 	if (dirY > 0) {
 		if (Map(mapX, mapY).a == Ladder &&
@@ -192,7 +194,7 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 bool Dungeon::PlayerOnLadder() const {
 	if (Map(mapX, mapY).a != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
-	bool floorBelow = Map(mapX, mapY - 1).a == Wall;
+	bool floorBelow = isSolidTile(Map(mapX, mapY - 1));
 	return !floorBelow || mapY - std::floor(mapY) >= STANDING_EPSILON;
 }
 //======================================================================================

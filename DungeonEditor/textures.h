@@ -1,9 +1,9 @@
-short LoadTGA(TextureImage *texture, char *filename);
+short LoadTGA(TextureImage *texture, const char *filename);
 int ImageLoad(char *filename, Image *image);
 int ImageLoad32(char *filename, Image *image);
 
 
-short LoadTGA(TextureImage *texture, char *filename)			// Loads A TGA File Into Memory
+short LoadTGA(TextureImage *texture, const char *filename)			// Loads A TGA File Into Memory
 {
 	GLubyte		TGAheader[12]={0,0,2,0,0,0,0,0,0,0,0,0};	// Uncompressed TGA Header
 	GLubyte		TGAcompare[12];					// Used To Compare TGA Header

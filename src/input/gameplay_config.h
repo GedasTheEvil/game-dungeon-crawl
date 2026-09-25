@@ -27,4 +27,17 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
 
+// Keys, gates and levers (dungeon_mechanisms.cpp).
+constexpr int GATE_OPEN_MS = 1200;			// the gate slides up into the ceiling, passable once it is up
+constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
+constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
+
+// Rock fall: stepping into the cell starts the rumble, the rock drops after ROCK_WARN_MS and lands
+// ROCK_FALL_MS later. Sprinting, jumping on or stepping back gets the player clear; walking on does not.
+constexpr int ROCK_WARN_MS = 650;
+constexpr int ROCK_FALL_MS = 300;
+constexpr int ROCK_DAMAGE = 20;
+constexpr float ROCK_HIT_HALF_WIDTH = 0.55f; // tiles from the cell centre
+constexpr float ROCK_HIT_HEIGHT = 0.8f;		 // tiles above the floor the rock still hits (a jump does not dodge it)
+
 #endif

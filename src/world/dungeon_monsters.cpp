@@ -15,6 +15,10 @@ monster* getMbyType(int type) {
 		return GAME_STATE.monsters.plant.get();
 	if (type == 4)
 		return GAME_STATE.monsters.anubis.get();
+	if (type == 5)
+		return GAME_STATE.monsters.rat.get();
+	if (type == 6)
+		return GAME_STATE.monsters.giantRat.get();
 
 	return GAME_STATE.Player.get();
 }

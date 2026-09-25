@@ -230,11 +230,8 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		if (mY <= 82 && mY >= 71) // button1
 		{
 			show = false;
-			// 		 GAME_STATE.LoadSave("Saves/new.sav");
-			GAME_STATE.dungeon.Load("Levels/lvl1");
+			GAME_STATE.NewGame();
 			inGame = true;
-			GAME_STATE.IHaveWon = false;
-			GAME_STATE.Player->Reanimate();
 		}
 
 		if (mY <= 63 && mY >= 53) // button2

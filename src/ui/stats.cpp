@@ -1,101 +1,13 @@
 #include "stats.h"
 #include "../test/scenario.h"
 #include <cmath>
-#include <GL/gl.h>
-#include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
 
 void stats::GetStronger(int ns) { Might += ns; }
 
-void stats::Draw() {
-
-	bool rotItems = stats_ani->TimePassed();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);		// Select The Projection Matrix
-	glLoadIdentity();					// Reset The Projection Matrix
-	glOrtho(0, 100, 0, 100, -200, 200); // Set Up An Ortho Screen
-	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
-
-	// Background image
-	GAME_STATE.textures.bg.Bind();
-
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0);
-	glVertex3i(0, 0, -40);
-	glTexCoord2f(0, 1);
-	glVertex3i(0, 100, -40);
-	glTexCoord2f(1, 1);
-	glVertex3i(100, 100, -40);
-	glTexCoord2f(1, 0);
-	glVertex3i(100, 0, -40);
-	glEnd();
-
-	GAME_STATE.textures.progBar.Bind();
-	glColor3f(1, 1, 1);
-
-	realPscale = GAME_STATE.Player->scale;
-	realIscale = GAME_STATE.ui.invent->Equipped()->scale;
-
-	glBegin(GL_LINE_LOOP); // player slot
-	glVertex3i(4, 4, -38);
-	glVertex3i(4, 96, -38);
-	glVertex3i(48, 96, -38);
-	glVertex3i(48, 4, -38);
-	glEnd();
-
-	glPushMatrix();
-	glTranslatef(22, 54, 20);
-	GAME_STATE.Player->scale = 32;
-	GAME_STATE.Player->Draw();
-	if (rotItems)
-		GAME_STATE.Player->rotA--;
-	glPopMatrix();
-	GAME_STATE.Player->scale = realPscale;
-
-	glBegin(GL_LINE_LOOP); // item
-	glVertex3i(5, 5, -38);
-	glVertex3i(5, 50, -38);
-	glVertex3i(47, 50, -38);
-	glVertex3i(47, 5, -38);
-	glEnd();
-
-	glPushMatrix();
-	GAME_STATE.ui.invent->Equipped()->scale = 40;
-	glTranslatef(26, 5, 25);
-	GAME_STATE.ui.invent->Equipped()->Draw();
-	if (rotItems)
-		GAME_STATE.ui.invent->Equipped()->rotA++;
-	glPopMatrix();
-	GAME_STATE.ui.invent->Equipped()->scale = realIscale;
-
-	glColor3f(1, 1, 1);
-
-	// all text comes from this point on
-	glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_SRC_COLOR);
-	glEnable(GL_BLEND);
-
-	Impact.print(54, 90, "Level: %d ", level);
-	Impact.print(54, 80, "XP: %d ", static_cast<int>(XP));
-	Impact.print(54, 70, "Next level:%d ", static_cast<int>(1000 * (pow(level, 1.4))));
-	Impact.print(54, 60, "HP %d/%d", HP, MaxHP);
-	Impact.print(54, 50, "Might: %d", Might);
-	Impact.print(54, 40, "Armor: %d", Armor);
-	Impact.print(54, 30, "Damage: %d", Damage());
-	Impact.print(54, 20, "Range: %d", GAME_STATE.ui.invent->Equipped()->range);
-
-	glDisable(GL_BLEND);
-
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
-}
+double stats::LevelXP(int lvl) { return lvl <= 1 ? 0.0 : 1000 * pow(lvl - 1, 1.4); }
 
 void stats::GetXP(int xp) {
 	XP += xp;
@@ -186,13 +98,10 @@ stats::stats() {
 	stamina_sprint_drain_carry = 0.0f;
 	sprint_requested = false;
 	sprinting = false;
-	Impact.Load("Fonts/papyrus_i.png", 5, -0.6);
-	show = false;
 	GAME_STATE.Player->maxHealth = MaxHP;
 	GAME_STATE.Player->health = MaxHP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 	GAME_STATE.Player->SetStamina(GAME_STATE.Player->MaxStamina());
-	stats_ani = std::make_unique<timer>(10);
 	stamina_regen_timer = std::make_unique<timer>(1000);
 	stamina_sprint_drain_timer = std::make_unique<timer>(1000);
 }
@@ -217,15 +126,8 @@ void stats::GetHit(int dmg) {
 	HP = GAME_STATE.Player->health;
 }
 
-void stats::MouseFunction(int mouseButton, int buttonState, int mouseX, int mouseY) {
-	(void)mouseButton;
-	(void)buttonState;
-	(void)mouseX;
-	(void)mouseY;
-}
-
 bool stats::AdvanceLevel() {
-	if (XP >= 1000 * (pow(level, 1.4)))
+	if (XP >= LevelXP(level + 1))
 		level++;
 	else
 		return false;
@@ -250,7 +152,7 @@ bool stats::AdvanceLevel() {
 }
 
 int stats::Damage() const {
-	return Might + GAME_STATE.ui.invent->Equipped()->damage; // + weapon dmg
+	return Might + GAME_STATE.ui.invent->EquippedDamage(); // + weapon dmg, with its level bonus
 }
 
 void stats::GetTougher(int hpPart) {

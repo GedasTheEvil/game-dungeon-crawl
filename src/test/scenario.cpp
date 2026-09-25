@@ -8,6 +8,8 @@
 #include "../core/logger.h"
 #include "../ui/screen_state.h"
 #include "../ui/inventory.h"
+#include "../world/loot.h"
+#include "../world/level_gen.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <csignal>
@@ -55,6 +57,9 @@ enum class CommandType {
 	Expect,
 	Key,
 	Give,
+	Chest,
+	SaveGame,
+	LoadGame,
 	Mouse,
 	Press,
 	Release,
@@ -62,7 +67,7 @@ enum class CommandType {
 	Quit,
 };
 
-enum class Field { X, Y, Hp, Stamina, Level, Alive, Won, Might, Armor, EquipType, EquipId, ItemCount };
+enum class Field { X, Y, Hp, Stamina, Level, Alive, Won, Might, Armor, EquipType, EquipId, Keys, ItemCount, ItemLevel };
 enum class Op { Eq, Ne, Lt, Le, Gt, Ge };
 
 struct Command {
@@ -130,8 +135,6 @@ const char* screenName() {
 		return "menu";
 	case ScreenState::DrawScreen::Inventory:
 		return "inventory";
-	case ScreenState::DrawScreen::Stats:
-		return "stats";
 	case ScreenState::DrawScreen::Riddle:
 		return "riddle";
 	case ScreenState::DrawScreen::Gameplay:
@@ -179,8 +182,12 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(GAME_STATE.ui.invent->EquippedType());
 	case Field::EquipId:
 		return static_cast<float>(GAME_STATE.ui.invent->EquippedId());
+	case Field::Keys:
+		return static_cast<float>(GAME_STATE.dungeon.KeysHeld());
 	case Field::ItemCount:
 		return static_cast<float>(GAME_STATE.ui.invent->Count(cmd.item, cmd.itemId));
+	case Field::ItemLevel:
+		return static_cast<float>(GAME_STATE.ui.invent->Level(cmd.item, cmd.itemId));
 	}
 	return 0.f;
 }
@@ -290,13 +297,20 @@ bool parseItemType(const std::string& word, int& type) {
 	return true;
 }
 
-// Item counts are written as the type followed by the id: "potion2", "melee0".
+// Item counts are written as the type followed by the id: "potion2", "melee0"; ".level" gives the item level.
 bool parseItemCountField(const std::string& word, Command& cmd) {
 	size_t digits = word.find_first_of("0123456789");
 	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.item))
 		return false;
-	cmd.itemId = atoi(word.c_str() + digits);
-	cmd.field = Field::ItemCount;
+	char* end = nullptr;
+	cmd.itemId = static_cast<int>(strtol(word.c_str() + digits, &end, 10));
+	std::string suffix = end;
+	if (suffix.empty())
+		cmd.field = Field::ItemCount;
+	else if (suffix == ".level")
+		cmd.field = Field::ItemLevel;
+	else
+		return false;
 	return true;
 }
 
@@ -314,7 +328,8 @@ bool parseField(const std::string& word, Field& field) {
 				  {"might", Field::Might},
 				  {"armor", Field::Armor},
 				  {"equip_type", Field::EquipType},
-				  {"equip_id", Field::EquipId}};
+				  {"equip_id", Field::EquipId},
+				  {"keys", Field::Keys}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -423,7 +438,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::Expect;
 		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
 			!parseFloat(w[3], cmd.a))
-			return "usage: expect <x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|<item><id>> "
+			return "usage: expect <x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
 		return "";
 	}
@@ -444,15 +459,22 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			return "key expects one character or enter|esc|space|tab";
 		return "";
 	}
-	if (name == "give") {
-		cmd.type = CommandType::Give;
+	if (name == "give" || name == "chest") {
+		cmd.type = name == "give" ? CommandType::Give : CommandType::Chest;
 		float id = 0.f;
 		float count = 1.f;
 		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.item) || !parseFloat(w[2], id) ||
 			(argc == 3 && !parseFloat(w[3], count)))
-			return "usage: give <melee|ranged|potion> <id> [count]";
+			return "usage: " + name + " <melee|ranged|potion> <id> [count]";
 		cmd.itemId = static_cast<int>(id);
 		cmd.ticks = static_cast<int>(count);
+		return "";
+	}
+	if (name == "savegame" || name == "loadgame") {
+		cmd.type = name == "savegame" ? CommandType::SaveGame : CommandType::LoadGame;
+		if (argc != 1)
+			return "usage: " + name + " <path>";
+		cmd.arg = w[1];
 		return "";
 	}
 	if (name == "mouse" || name == "press" || name == "release" || name == "click") {
@@ -483,13 +505,33 @@ bool isSetupCommand(CommandType type) {
 
 // ---- execution -------------------------------------------------------------
 
-bool loadLevel(const Command& cmd) {
-	std::string path = cmd.arg;
-	if (cmd.a > 0.f)
-		path = "Levels/lvl" + cmd.arg;
+// "gen:SEED:DIFFICULTY" -> a generated level.
+bool loadGeneratedLevel(const std::string& spec) {
+	unsigned int seed = 0;
+	int difficulty = 0;
+	if (sscanf(spec.c_str(), "gen:%u:%d", &seed, &difficulty) != 2)
+		return false;
+	GenOptions options;
+	options.seed = seed;
+	options.difficulty = difficulty;
+	GenResult result = generateLevel(options);
+	if (!result.ok)
+		return false;
+	GAME_STATE.dungeon.LoadGrid(result.grid, spec.c_str());
+	return true;
+}
 
+bool loadLevel(const Command& cmd) {
 	srand(gRunner.seed);
-	if (!GAME_STATE.dungeon.Load(path.c_str()))
+	GAME_STATE.runSeed = gRunner.seed;
+	bool loaded = false;
+	if (cmd.a > 0.f)
+		loaded = GAME_STATE.dungeon.LoadCampaignLevel(static_cast<int>(cmd.a), GAME_STATE.runSeed);
+	else if (cmd.arg.rfind("gen:", 0) == 0)
+		loaded = loadGeneratedLevel(cmd.arg);
+	else
+		loaded = GAME_STATE.dungeon.Load(cmd.arg.c_str());
+	if (!loaded)
 		return false;
 
 	if (cmd.a > 0.f)
@@ -591,6 +633,31 @@ bool runInstant(const Command& cmd) {
 			GAME_STATE.ui.invent->GetItem(cmd.item, cmd.itemId);
 		report(cmd, true, "");
 		return true;
+	case CommandType::SaveGame: // relative paths land in the output directory
+		GAME_STATE.Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
+		report(cmd, true, "");
+		return true;
+	case CommandType::LoadGame: {
+		std::string path = cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
+		if (!std::filesystem::exists(path)) {
+			report(cmd, false, "no such file");
+			return true;
+		}
+		GAME_STATE.LoadSave(path.c_str());
+		report(cmd, true, stateLine());
+		return true;
+	}
+	case CommandType::Chest: { // opens N chests holding this item, like picking them up
+		int bonus = 0;
+		for (int i = 0; i < cmd.ticks; i++) {
+			std::vector<LootItem> loot = RollChestLoot(cmd.item, cmd.itemId);
+			bonus += static_cast<int>(loot.size()) - 1;
+			for (const LootItem& entry : loot)
+				GAME_STATE.ui.invent->GetItem(entry.type, entry.id);
+		}
+		report(cmd, true, std::to_string(bonus) + " bonus items");
+		return true;
+	}
 	case CommandType::Mouse:
 	case CommandType::Press:
 	case CommandType::Release:

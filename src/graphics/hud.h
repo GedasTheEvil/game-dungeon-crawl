@@ -4,6 +4,8 @@
 namespace Hud {
 void drawBar(float left, float bottom, float width, float height, float ratio, float red, float green, float blue);
 void drawPlayerBars(float healthRatio, float staminaRatio);
+// One small key per held lock colour (bit colour - 1), right of the bars.
+void drawKeys(int keysHeld);
 } // namespace Hud
 
 #endif

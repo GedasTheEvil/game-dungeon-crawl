@@ -318,6 +318,14 @@ void Dungeon::Draw() {
 				}
 				if (tile.a == Ladder)
 					drawLadderTile(i, j);
+				if (tile.a == Key)
+					drawKeyTile(i, j);
+				if (tile.a == Gate)
+					drawGateTile(i, j);
+				if (tile.a == Lever)
+					drawLeverTile(i, j);
+				if (tile.a == RockFall)
+					drawRockFallTile(i, j);
 			}
 			glTranslatef(40, 0, 0);
 		}
@@ -326,5 +334,6 @@ void Dungeon::Draw() {
 	glPopMatrix();
 
 	drawFires();
+	drawMechanismEffects();
 	glPopMatrix();
 }

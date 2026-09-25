@@ -73,6 +73,11 @@
      #define Area3D   7
      #define Treasure 8
      #define Ankh     9
+     #define Key      10   // attribute = lock colour
+     #define Gate     11   // attribute = lock colour, value 0 closed / 1 open
+     #define Lever    12   // attribute = lock colour
+     #define RockFall 13
+     #define TileCount 14  // number of tile types, size of Mat[]
     
      int mouseX, mouseY;
 
@@ -123,7 +128,7 @@
      
       TextureImage  texttex  =  {NULL, 1, 2, 3, 4};
       TextureImage  nullt    =  {NULL, 1, 2, 3, 4};
-      TextureImage  Mat[12]   = {{NULL, 1, 2, 3, 4}};
+      TextureImage  Mat[TileCount] = {{NULL, 1, 2, 3, 4}};
       TextureImage Button[2] = {{NULL, 1, 2, 3, 4}};
     
       int aaaa  ;// 0;

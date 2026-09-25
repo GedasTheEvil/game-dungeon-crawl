@@ -29,6 +29,10 @@ void InitGL(GLsizei Width, GLsizei Height)	// We call this right after our OpenG
        LoadTGA(&Mat[Area3D], "./Textures/3D.tga");
        LoadTGA(&Mat[Treasure], "./Textures/treasure.tga");
        LoadTGA(&Mat[Ankh], "./Textures/ankh.tga");
+       LoadTGA(&Mat[Key], "./Textures/key.tga");
+       LoadTGA(&Mat[Gate], "./Textures/gate_lock.tga");
+       LoadTGA(&Mat[Lever], "./Textures/lever.tga");
+       LoadTGA(&Mat[RockFall], "./Textures/rockfall.tga");
 	LoadTGA(&Button[0], "./Textures/Btn_save.tga");
        LoadTGA(&Button[1], "./Textures/Btn_load.tga");
 // 	memset(map[0].type, 0, 40*47);

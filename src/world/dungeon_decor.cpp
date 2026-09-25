@@ -2,6 +2,8 @@
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../graphics/render_config.h"
+#include "../graphics/fire.h"
+#include "../graphics/lighting.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
 #include <cstdint>
@@ -12,6 +14,14 @@ namespace {
 constexpr uint32_t DECOR_CHANCE_PERCENT = 30;
 constexpr uint32_t DECAL_CHANCE_PERCENT = 35;
 constexpr uint32_t DECAL_SALT = 0x51ed270bU;
+constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
+constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
+constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
+// Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
+constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
+constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
+constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
+constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the flame (world units)
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f, 0.12f, 0.06f, 0.1f, 0.f, 0.15f, 0.2f, 0.1f, 0.1f, 0.06f};
 
@@ -75,7 +85,36 @@ void Dungeon::scatterDecorations(const char* levelName) {
 		}
 	LOG_INFOF("world", "Decorations in %s: %d", levelName, placed);
 
+	scatterTorches(seed ^ TORCH_SALT);
 	scatterDecals(seed ^ DECAL_SALT);
+}
+//======================================================================================
+// Torches hang on the back wall at head height, spaced along each row. Cells with a fire of their own
+// (brazier, oil lamp) and the gates and ladders are skipped.
+void Dungeon::scatterTorches(uint32_t seed) {
+	int placed = 0;
+
+	for (int j = 0; j < kMapHeight; j++) {
+		int lastTorch = -TORCH_MIN_GAP - 1;
+		for (int i = 0; i < kMapWidth; i++) {
+			bool& cell = torch[MapIndex(i, j)];
+			cell = false;
+
+			int tile = MapAt(i, j).a;
+			int8_t prop = decor[MapIndex(i, j)].type;
+			if (tile == Wall || tile == Door || tile == Ladder || tile == Ankh || prop == DECOR_BRAZIER ||
+				prop == DECOR_LAMP || i - lastTorch <= TORCH_MIN_GAP)
+				continue;
+
+			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			if (h % 100 >= TORCH_CHANCE_PERCENT)
+				continue;
+			cell = true;
+			lastTorch = i;
+			placed++;
+		}
+	}
+	LOG_INFOF("world", "Torches: %d", placed);
 }
 //======================================================================================
 // One decal at most per cell with a visible back wall. Runs after the props so floor decals can
@@ -98,15 +137,18 @@ void Dungeon::scatterDecals(uint32_t seed) {
 
 			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).a == Wall;
 			bool floor = IsInBounds(i, j - 1) && MapAt(i, j - 1).a == Wall && decor[MapIndex(i, j)].type < 0;
+			bool free = !torch[MapIndex(i, j)]; // the torch covers the middle of the wall
 
 			int fits[DECAL_COUNT];
 			int fitCount = 0;
 			for (int d = 0; d < DECAL_COUNT; d++) {
 				DecalAnchor anchor = DECAL_DEFS[d].anchor;
-				if (anchor == DecalAnchor::Free || (anchor == DecalAnchor::Ceiling && ceiling) ||
+				if ((anchor == DecalAnchor::Free && free) || (anchor == DecalAnchor::Ceiling && ceiling) ||
 					(anchor == DecalAnchor::Floor && floor))
 					fits[fitCount++] = d;
 			}
+			if (fitCount == 0)
+				continue;
 
 			h = mix(h);
 			int type = fits[h % static_cast<uint32_t>(fitCount)];
@@ -192,4 +234,85 @@ void Dungeon::drawDecalTile(int i, int j) {
 	glEnd();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
+}
+//======================================================================================
+void Dungeon::drawTorchTile(int i, int j) {
+	AnimatedCartoonModel* model = GAME_STATE.decor.torch.get();
+	if (!torch[MapIndex(i, j)] || model == nullptr)
+		return;
+
+	glPushMatrix();
+	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
+	GAME_STATE.decor.torchTex.Bind();
+	model->Show();
+	glPopMatrix();
+}
+//======================================================================================
+struct Dungeon::FlameSource {
+	float x, y, z; // tile space (the frame drawDecorTile starts from), world units
+	const Lighting::LightDef* light;
+	const FireStyle* fire;
+	uint32_t seed;
+};
+
+// A cell holds at most a prop fire and a torch.
+int Dungeon::flamesAt(int i, int j, FlameSource* out) const {
+	int n = 0;
+	auto seed = static_cast<uint32_t>(MapIndex(i, j)) * 2654435761U;
+	auto at = [&](const float* p, float offsetX, bool mirror, const Lighting::LightDef& light, const FireStyle& fire) {
+		float t = RenderConfig::TILE_SIZE;
+		out[n] = {RenderConfig::TILE_HALF + (offsetX + (mirror ? -p[0] : p[0])) * t,
+				  p[1] * t,
+				  -t + p[2] * t,
+				  &light,
+				  &fire,
+				  seed + static_cast<uint32_t>(n)};
+		n++;
+	};
+
+	const DecorCell& cell = decor[MapIndex(i, j)];
+	if (cell.type == DECOR_BRAZIER)
+		at(BRAZIER_FIRE, cell.offsetX, cell.mirror, Lighting::BRAZIER, Fire::BRAZIER);
+	else if (cell.type == DECOR_LAMP)
+		at(LAMP_FIRE, cell.offsetX, cell.mirror, Lighting::OIL_LAMP, Fire::OIL_LAMP);
+	if (torch[MapIndex(i, j)])
+		at(TORCH_FIRE, 0.f, false, Lighting::TORCH, Fire::TORCH);
+	return n;
+}
+//======================================================================================
+// Lights from flames a little beyond the drawn window too, so light spills in before its source is visible.
+// Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
+void Dungeon::addLights() {
+	int col0 = static_cast<int>(mapX) - 3;
+	int row0 = static_cast<int>(mapY) - 3;
+	for (int j = row0 - 2; j < row0 + 8; j++)
+		for (int i = col0 - 2; i < col0 + 10; i++) {
+			if (!IsInBounds(i, j))
+				continue;
+			FlameSource flames[2];
+			int n = flamesAt(i, j, flames);
+			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
+			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
+			for (int k = 0; k < n; k++)
+				Lighting::add(ox + flames[k].x, oy + flames[k].y + LIGHT_LIFT, flames[k].z + LIGHT_LIFT,
+							  *flames[k].light, flames[k].seed);
+		}
+}
+//======================================================================================
+// After all opaque tiles: the sprites do not write depth, so later tiles would paint over them.
+void Dungeon::drawFires() {
+	int col0 = static_cast<int>(mapX) - 3;
+	int row0 = static_cast<int>(mapY) - 3;
+	for (int j = row0; j < row0 + 6; j++)
+		for (int i = col0; i < col0 + 8; i++) {
+			if (!IsInBounds(i, j))
+				continue;
+			FlameSource flames[2];
+			int n = flamesAt(i, j, flames);
+			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
+			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
+			for (int k = 0; k < n; k++)
+				Fire::draw(*flames[k].fire, ox + flames[k].x, oy + flames[k].y, flames[k].z, flames[k].seed);
+		}
 }

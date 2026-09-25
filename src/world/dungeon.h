@@ -48,6 +48,7 @@ class Dungeon {
 	Tint map[kMapCellCount];
 	DecorCell decor[kMapCellCount];
 	DecalCell decal[kMapCellCount];
+	bool torch[kMapCellCount] = {};
 	float mapX, mapY;
 	int texC, *Tex;
 	bool IsInBounds(int col, int row) const;
@@ -64,6 +65,12 @@ class Dungeon {
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
 	void scatterDecals(uint32_t seed);
+	void scatterTorches(uint32_t seed);
+	void drawTorchTile(int i, int j);
+	struct FlameSource;
+	int flamesAt(int i, int j, FlameSource* out) const;
+	void addLights();
+	void drawFires();
 	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
 	void renderCartoonTile(int type, int left, int right, int up, int down);
 	void renderFlatTile(int type, int left, int right, int up, int down);

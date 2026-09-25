@@ -22,7 +22,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
-  brazier, offerings, scrolls, ushabti) in tile units, lighting baked into the texture (sun from the camera side + AO),
+  brazier, offerings, scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
+  5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no toon pass, no Centrify). `-- --export` writes `Models/decor_<name>.md3` + `Textures/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
@@ -34,6 +35,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (writes `Models/<name>{,_att,_die}.md3`, `Textures/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
 * Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), `src/graphics/shader.cpp` (toon shading, ramp in `Textures/Shader.txt`), model/texture wiring in `src/state/game_state.cpp`.
+* Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
+  toon mode stays unlit) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
+  `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
 * `tools/audio/jump_sound.py` - synthesizes `Sounds/Jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `ModelViewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
 
@@ -69,4 +73,5 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 | Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.png`, ..., `tchest.png` (bow uses `gold.png`, the old scarab texture) | old (static) |
 | Spikes trap | `spikes.md3` | `spikes.png` | old (static) |
 | Corridor decorations (10 props) | `decor_<name>.md3` | `decor_<name>.png` | new (static, `decor.py`) |
+| Wall torch | `decor_torch.md3` | `decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
 | Wall decals (16) | - | `decals.png` | new (generated, `tools/textures/decals.py`) |

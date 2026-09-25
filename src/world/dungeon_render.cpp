@@ -4,6 +4,7 @@
 #include <GL/gl.h>
 #include <cmath>
 #include "../graphics/render_config.h"
+#include "../graphics/lighting.h"
 
 inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
 void normalize(VECTOR& v);
@@ -224,6 +225,10 @@ void Dungeon::Draw() {
 				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 
+	addLights();
+	Lighting::commit();
+
+	glPushMatrix(); // the loop walks the frame from tile to tile
 	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
 		for (int i = static_cast<int>(mapX) - 3; i < static_cast<int>(mapX) + 5; i++) {
 			if (IsInBounds(i, j)) {
@@ -231,6 +236,7 @@ void Dungeon::Draw() {
 				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
+				drawTorchTile(i, j);
 
 				if (tile.a == Monster)
 					DrawMonsterTile(i, j);
@@ -292,6 +298,7 @@ void Dungeon::Draw() {
 						float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / 200.0f;
 
 						GAME_STATE.textures.plasma_t.Bind();
+						Lighting::setEmissive(true);
 						glBegin(GL_QUADS);
 						glNormal3f(1, 0, 0);
 						glTexCoord2f(px, 0);
@@ -303,6 +310,7 @@ void Dungeon::Draw() {
 						glTexCoord2f(px + 1, 0);
 						glVertex3f(0.4, 0, -10);
 						glEnd();
+						Lighting::setEmissive(false);
 						if (plasmaAni)
 							plasma -= 0.022;
 						glPopMatrix();
@@ -322,6 +330,7 @@ void Dungeon::Draw() {
 					glPopMatrix();
 
 					GAME_STATE.textures.plasma_t.Bind();
+					Lighting::setEmissive(true);
 					glBegin(GL_QUADS);
 
 					float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / static_cast<float>(200.0);
@@ -336,6 +345,7 @@ void Dungeon::Draw() {
 					glTexCoord2f(px + 1, 0);
 					glVertex3i(30, 0, -30);
 					glEnd();
+					Lighting::setEmissive(false);
 					if (plasmaAni)
 						plasma += 0.012;
 				}
@@ -344,5 +354,8 @@ void Dungeon::Draw() {
 		}
 		glTranslatef(RenderConfig::HUD_OFFSET_X, RenderConfig::TILE_SIZE, 0);
 	}
+	glPopMatrix();
+
+	drawFires();
 	glPopMatrix();
 }

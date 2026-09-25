@@ -6,6 +6,7 @@
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
+#include "../graphics/lighting.h"
 
 #ifdef WIN32
 
@@ -148,6 +149,7 @@ bool monster::Draw() // needs to choose animation
 			nullTexture.Bind();
 
 			glColor4f(1, 1, 1, 0.9);
+			Lighting::setEmissive(true);
 
 			glBegin(GL_LINE_LOOP);
 			glVertex3f(-0.501, 1.101, 0);
@@ -172,6 +174,7 @@ bool monster::Draw() // needs to choose animation
 			glEnd();
 
 			glDisable(GL_BLEND);
+			Lighting::setEmissive(false);
 
 			glColor3f(1, 1, 1);
 		}

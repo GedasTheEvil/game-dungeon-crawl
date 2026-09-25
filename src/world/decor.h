@@ -8,8 +8,13 @@
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
 constexpr int DECOR_COUNT = 10;
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
+constexpr int DECOR_BRAZIER = 6;
+constexpr int DECOR_LAMP = 7;
 constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",	  "pottery", "canopic", "rubble",  "sand",
 												  "skeleton", "brazier", "lamp",	"scrolls", "ushabti"};
+
+// The wall torch (Models/decor_torch.md3, also built by decor.py) is not in this list: Dungeon::scatterTorches
+// places it on its own.
 
 struct DecorCell {
 	int8_t type = -1; // -1 = none, else index into DECOR_NAMES

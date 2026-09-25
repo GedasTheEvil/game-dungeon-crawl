@@ -5,6 +5,7 @@
 #include "../core/service_locator.h"
 #include "../ui/screen_state.h"
 #include "hud.h"
+#include "lighting.h"
 #include "gl_includes.h"
 
 int weaponRot = 0;
@@ -81,6 +82,10 @@ void Draw() {
 	glRotatef(GAME_STATE.camera.rotM, 0, 1, 0);
 	glRotatef(GAME_STATE.camera.rotN, 1, 0, 0);
 
+	Lighting::begin();
+	if (GAME_STATE.Player->Alive())
+		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
+
 	GAME_STATE.textures.Dt[0].Bind();
 
 	glPushMatrix();
@@ -92,8 +97,10 @@ void Draw() {
 
 	GAME_STATE.Player->Draw();
 
+	Lighting::setEmissive(true);
 	if (GAME_STATE.IHaveWon)
 		GAME_STATE.ui.wlc->DrawWin();
+	Lighting::setEmissive(false);
 
 	if (GAME_STATE.Player->Alive()) {
 		glPushMatrix(); // weapon
@@ -108,8 +115,11 @@ void Draw() {
 		GAME_STATE.ui.invent->Equipped()->Draw();
 
 		glPopMatrix();
-	} else
+	} else {
+		Lighting::setEmissive(true);
 		GAME_STATE.ui.wlc->DrawLoose();
+	}
+	Lighting::end();
 
 	glLoadIdentity();
 

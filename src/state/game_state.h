@@ -68,6 +68,8 @@ struct DecorSet {
 	Textura tex[DECOR_COUNT];
 	std::unique_ptr<AnimatedCartoonModel> model[DECOR_COUNT]; // null if the file failed to load
 	Textura decalTex;										  // atlas, DECAL_DEFS order
+	Textura torchTex;
+	std::unique_ptr<AnimatedCartoonModel> torch; // null if the file failed to load
 };
 
 struct GameTimers {

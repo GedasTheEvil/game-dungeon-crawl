@@ -176,6 +176,14 @@ void GameState::Load() {
 		model->Compile(); // no Centrify: the files are in tile units
 		decor.model[d] = std::move(model);
 	}
+	decor.torchTex.LoadPNG("Textures/decor_torch.png");
+	auto torchModel = std::make_unique<AnimatedCartoonModel>();
+	if (torchModel->Load("Models/decor_torch.md3")) {
+		torchModel->BindTexture(decor.torchTex.ID());
+		torchModel->outline = false;
+		torchModel->Compile();
+		decor.torch = std::move(torchModel);
+	}
 
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();

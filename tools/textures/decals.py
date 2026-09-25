@@ -1,4 +1,4 @@
-"""Generate the wall decal atlas Textures/decals.png (RGBA, 4 x 4 cells of 256 px).
+"""Generate the wall decal atlas Textures/decorations/decals.png (RGBA, 4 x 4 cells of 256 px).
 
     python3 tools/textures/decals.py [out.png]
 
@@ -505,4 +505,4 @@ def main(path):
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "Textures", "decals.png"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "Textures", "decorations", "decals.png"))

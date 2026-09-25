@@ -6,7 +6,7 @@ armatures and modifiers all bake down. Topology must not change between frames.
 Usage:
     MCP / Blender console:
         p = ".../tools/blender/md3_export.py"; g = {"__file__": p, "__name__": "md3_export"}
-        exec(open(p).read(), g); g["export_md3"](bpy.data.objects["anubis"], "Models/anubis.md3")
+        exec(open(p).read(), g); g["export_md3"](bpy.data.objects["anubis"], "Models/monsters/anubis.md3")
     CLI:
         blender -b file.blend --python tools/blender/md3_export.py -- ObjectName out.md3 [start end]
 """

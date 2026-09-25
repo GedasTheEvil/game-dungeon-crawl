@@ -13,7 +13,7 @@ int weaponRot = 0;
 namespace {
 constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // Towards the back wall so the fists close round the rungs: the ladder's rungs are 2.35 in front of the wall
-// (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in human.py).
+// (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
 
 void drawWeapon() { // floats in front of the chest

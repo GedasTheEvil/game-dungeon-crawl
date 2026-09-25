@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <filesystem>
+#include <string>
 
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
@@ -245,8 +246,10 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	sprintf(tmp1, "Models/%s.md3", filename);
 	sprintf(tmp2, "Models/%s_att.md3", filename);
 	sprintf(tmp3, "Models/%s_die.md3", filename);
-	sprintf(tmp4, "Sounds/%s_att.wav", filename);
-	sprintf(tmp5, "Sounds/%s_die.wav", filename);
+	// filename is "<category>/<name>" (under Models/); sounds are flat in Sounds/<name>_*.wav.
+	const std::string name = std::filesystem::path(filename).filename().string();
+	sprintf(tmp4, "Sounds/%s_att.wav", name.c_str());
+	sprintf(tmp5, "Sounds/%s_die.wav", name.c_str());
 	sprintf(tmp6, "Models/%s_jump.md3", filename);
 	sprintf(tmp7, "Models/%s_climb.md3", filename);
 

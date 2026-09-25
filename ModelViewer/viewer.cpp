@@ -98,7 +98,7 @@ std::size_t g_currentSiblingIndex = 0;
 int g_statAnimationStateCount = 0;
 
 // Returns the filename with its directory stripped but extension kept,
-// e.g. "Models/anubis.md3" -> "anubis.md3". Distinct from FileStem()
+// e.g. "Models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
 // (which also strips the extension, for the window title's own use).
 std::string Basename(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
@@ -106,7 +106,7 @@ std::string Basename(const std::string& path) {
 }
 
 // Returns the filename stem (no directory, no extension) of a path, e.g.
-// "Models/anubis.md3" -> "anubis". Used only for the best-effort
+// "Models/monsters/anubis.md3" -> "anubis". Used only for the best-effort
 // model-stem -> texture-stem convention described in step.md; this repo has
 // no general model->texture mapping to reuse.
 std::string FileStem(const std::string& path) {
@@ -182,7 +182,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 		// The loaded file is always a member of its own group, even if it
 		// would otherwise fail the extension or old-suffix filters below
 		// (e.g. the user explicitly names Models/columns.mdl_old or
-		// Models/sphinx_old.md3 on the command line -- both load fine via
+		// Models/props/sphinx_old.md3 on the command line -- both load fine via
 		// AnimatedModel::Load, which does not check extension). Those
 		// filters exist to keep OTHER candidates out of a group the user
 		// didn't ask to see; they must never evict the file the user
@@ -226,7 +226,9 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 }
 
 // Best-effort texture fallback chain (step.md):
-//   1. Textures/<texture-stem>.png
+//   1. Textures/<category>/<texture-stem>.png, where <category> is the model's
+//      sub-directory under Models/ (e.g. Models/monsters/anubis.md3 ->
+//      Textures/monsters/anubis.png)
 //   2. Textures/null.png
 //   3. untextured (id 0)
 // Every failure is logged as a warning, never fatal -- a missing/wrong
@@ -234,8 +236,9 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 // resolved by the caller (ParentStem(FileStem(path))) -- see step.md's
 // "Existing texture-fallback chain to extend, not duplicate": a variant's
 // texture always comes from its parent's stem, not its own.
-int LoadTextureForModel(const std::string& textureStem, Textura& tex) {
-	std::string guess = "Textures/" + textureStem + ".png";
+int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Textura& tex) {
+	std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
+	std::string guess = "Textures/" + category + "/" + textureStem + ".png";
 	if (tex.LoadPNG(guess.c_str())) {
 		return tex.ID();
 	}
@@ -256,7 +259,7 @@ int LoadTextureForModel(const std::string& textureStem, Textura& tex) {
 // step.md's "what carries over" section).
 void ApplyLoadedModel(const std::string& path) {
 	std::string textureStem = ParentStem(FileStem(path));
-	int texId = LoadTextureForModel(textureStem, g_texture);
+	int texId = LoadTextureForModel(path, textureStem, g_texture);
 
 	g_model->BindTexture(texId);
 	g_model->Centrify();
@@ -492,7 +495,7 @@ int main(int argc, char* argv[]) {
 	// the user actually typed, and never rescanned -- see architecture.md
 	// section 1. g_currentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
-	// identically (e.g. "./Models/anubis.md3" vs "Models/anubis.md3").
+	// identically (e.g. "./Models/monsters/anubis.md3" vs "Models/monsters/anubis.md3").
 	g_siblingModelPaths = ScanSiblingModels(modelPath);
 	g_currentSiblingIndex = 0;
 	for (std::size_t i = 0; i < g_siblingModelPaths.size(); ++i) {

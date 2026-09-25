@@ -113,6 +113,8 @@ class PlayerActionController {
 };
 } // namespace
 
+void executeGameplayAction(GameplayAction action) { PlayerActionController::execute(action); }
+
 void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {

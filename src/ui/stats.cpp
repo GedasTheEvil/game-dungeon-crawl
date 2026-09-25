@@ -1,4 +1,5 @@
 #include "stats.h"
+#include "../test/scenario.h"
 #include <cmath>
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
@@ -203,6 +204,9 @@ stats::~stats() {
 void stats::GetArmored(int na) { Armor += na; }
 
 void stats::GetHit(int dmg) {
+	if (Scenario::godMode())
+		return;
+
 	int damage = 1;
 
 	if (dmg - Armor > 0)

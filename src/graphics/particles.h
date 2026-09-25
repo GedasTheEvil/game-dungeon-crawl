@@ -19,7 +19,7 @@ class ParSys {
   private:
 	particle pt[CMaxPart];
 	rgb colour;
-	float x, y, z;
+	float x = 0.f, y = 0.f, z = 0.f;
 	int life;
 	std::unique_ptr<timer> frameTimer, decayTimer;
 

@@ -1,4 +1,5 @@
 #include "../input/input.h"
+#include "../test/scenario.h"
 #include <GL/gl.h>
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
@@ -131,5 +132,6 @@ void Draw() {
 
 	glFlush();
 
+	Scenario::onFrameRendered();
 	glutSwapBuffers();
 }

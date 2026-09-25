@@ -10,6 +10,8 @@
 #include "sound.h"
 #include "service_locator.h"
 #include "logger.h"
+#include "timer.h"
+#include "../test/scenario.h"
 
 int window = 1;
 int fs = 0;
@@ -18,6 +20,14 @@ static void UpdateTimerCallback(int) {
 	Update();
 	glutTimerFunc(16, UpdateTimerCallback, 0);
 }
+
+static void scenarioTickCallback(int) {
+	Scenario::tick();
+	glutTimerFunc(Scenario::TICK_MS, scenarioTickCallback, 0);
+}
+
+// Scenario frames are drawn from the tick, so window expose events must not render extra frames.
+static void noopDisplay() {}
 
 void initGl(GLsizei width, GLsizei height) // We call this right after our OpenGL window is created.
 {
@@ -58,6 +68,14 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 int main(int argc, char* argv[]) {
 	Logger::initialize();
 
+	if (argc > 1) {
+		if (!Scenario::load(argv[1]))
+			return 2;
+		setenv("SDL_AUDIODRIVER", "dummy", 1);
+		GameClock::enableVirtual();
+	}
+	bool isScenario = Scenario::active();
+
 	try {
 		if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 			LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
@@ -66,6 +84,10 @@ int main(int argc, char* argv[]) {
 
 		// Initialize game state
 		ServiceLocator::initialize(std::make_unique<GameState>());
+		if (isScenario) {
+			GAME_STATE.render.resX = Scenario::resolutionX();
+			GAME_STATE.render.resY = Scenario::resolutionY();
+		}
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
@@ -76,26 +98,32 @@ int main(int argc, char* argv[]) {
 
 		window = glutCreateWindow("Dungeon Crawl");
 
-		glutDisplayFunc(&Draw);
-
-		if (fs)
-			glutFullScreen();
-
-		glutIdleFunc(&Idle);
-
-		glutTimerFunc(16, UpdateTimerCallback, 0);
-
 		glutReshapeFunc(&reSizeGlScene);
 
-		glutKeyboardFunc(&keyPressed);
+		if (isScenario) {
+			// No idle redraws and no user input: the script drives every frame.
+			glutDisplayFunc(&noopDisplay);
+			glutTimerFunc(Scenario::TICK_MS, scenarioTickCallback, 0);
+		} else {
+			glutDisplayFunc(&Draw);
 
-		glutSpecialFunc(&specialKeyPressed);
-		glutSpecialUpFunc(&specialKeyReleased);
+			if (fs)
+				glutFullScreen();
 
-		glutMouseFunc(processMouse);
-		glutMotionFunc(processMouseActiveMotion);
-		glutPassiveMotionFunc(processMousePassiveMotion);
-		glutEntryFunc(processMouseEntry);
+			glutIdleFunc(&Idle);
+
+			glutTimerFunc(16, UpdateTimerCallback, 0);
+
+			glutKeyboardFunc(&keyPressed);
+
+			glutSpecialFunc(&specialKeyPressed);
+			glutSpecialUpFunc(&specialKeyReleased);
+
+			glutMouseFunc(processMouse);
+			glutMotionFunc(processMouseActiveMotion);
+			glutPassiveMotionFunc(processMousePassiveMotion);
+			glutEntryFunc(processMouseEntry);
+		}
 
 		initGl(GAME_STATE.render.resX, GAME_STATE.render.resY);
 

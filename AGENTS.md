@@ -4,6 +4,9 @@ Once in compiles, run the code style checks `make format` and `make tidy`.
 
 Never commit to git directly.
 
+## Scenario tests
+To check game behaviour or visuals, write a script in `tests/scenarios/` and run `make test SCENARIO=...`. Screenshots and results go to `tests/out/<name>/`. Reference: [docs/testing.md](docs/testing.md).
+
 ## Blender
 Always use Blender 5: `/home/gediminas.skucas/Apps/blender-5.2.2-linux-x64/blender`.
 Never use the system `blender` (v4.0).

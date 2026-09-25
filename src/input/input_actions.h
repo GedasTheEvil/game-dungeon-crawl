@@ -14,6 +14,9 @@ enum class GameplayAction {
 	Interact,
 };
 
+// Runs an action as if the player pressed its key (used by scenario tests).
+void executeGameplayAction(GameplayAction action);
+
 inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
 	switch (key) {
 	case KEY_MOVE_LEFT:

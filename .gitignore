@@ -7,3 +7,4 @@ src/*/*.d
 game
 Sounds/soundtrack.ogg
 game.log
+tests/out/

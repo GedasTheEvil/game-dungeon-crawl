@@ -1,4 +1,5 @@
 #include "riddle.h"
+#include "../test/scenario.h"
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
@@ -109,6 +110,7 @@ void Riddle::Draw() {
 
 	glFlush();
 
+	Scenario::onFrameRendered();
 	glutSwapBuffers();
 }
 

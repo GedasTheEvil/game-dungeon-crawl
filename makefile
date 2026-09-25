@@ -12,7 +12,8 @@ SOURCES=\
 	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp src/world/dungeon_decor.cpp \
 	src/ui/menu.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp \
 	src/input/input.cpp \
-	src/state/game_state.cpp
+	src/state/game_state.cpp \
+	src/test/scenario.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 DEPS=$(OBJECTS:.o=.d)
@@ -20,7 +21,7 @@ DEPS=$(OBJECTS:.o=.d)
 EXECUTABLE=game
 CLANG_TIDY?=clang-tidy
 
-.PHONY: all clean format tidy editor run-editor model-viewer run-model-viewer
+.PHONY: all clean format tidy editor run-editor model-viewer run-model-viewer test
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -53,5 +54,9 @@ model-viewer:
 
 run-model-viewer:
 	./ModelViewer/viewer $(ARGS)
+
+# Scenario tests: `make test` runs tests/scenarios/*.txt, `make test SCENARIO=path` runs one. HEADLESS=0 shows the window.
+test: $(EXECUTABLE)
+	./tools/run_scenarios.sh $(SCENARIO)
 
 -include $(DEPS)

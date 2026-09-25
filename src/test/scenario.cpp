@@ -7,6 +7,7 @@
 #include "../core/timer.h"
 #include "../core/logger.h"
 #include "../ui/screen_state.h"
+#include "../ui/inventory.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <csignal>
@@ -52,10 +53,16 @@ enum class CommandType {
 	Screenshot,
 	Dump,
 	Expect,
+	Key,
+	Give,
+	Mouse,
+	Press,
+	Release,
+	Click,
 	Quit,
 };
 
-enum class Field { X, Y, Hp, Stamina, Level, Alive, Won };
+enum class Field { X, Y, Hp, Stamina, Level, Alive, Won, Might, Armor, EquipType, EquipId, ItemCount };
 enum class Op { Eq, Ne, Lt, Le, Gt, Ge };
 
 struct Command {
@@ -67,6 +74,8 @@ struct Command {
 	GameplayAction action = GameplayAction::None;
 	float a = 0.f; // walk distance, camera rotM, expect value
 	float b = 0.f; // camera rotN
+	int item = 0;  // give / expect count: item type
+	int itemId = 0;
 	Field field = Field::X;
 	Op op = Op::Eq;
 };
@@ -142,7 +151,8 @@ std::string stateLine() {
 	return buf;
 }
 
-float fieldValue(Field field) {
+float fieldValue(const Command& cmd) {
+	Field field = cmd.field;
 	float x = 0.f;
 	float y = 0.f;
 	GAME_STATE.dungeon.getC(x, y);
@@ -161,6 +171,16 @@ float fieldValue(Field field) {
 		return GAME_STATE.Player->Alive() ? 1.f : 0.f;
 	case Field::Won:
 		return GAME_STATE.IHaveWon ? 1.f : 0.f;
+	case Field::Might:
+		return static_cast<float>(GAME_STATE.ui.Stats->CurrentMight());
+	case Field::Armor:
+		return static_cast<float>(GAME_STATE.ui.Stats->CurrentArmor());
+	case Field::EquipType:
+		return static_cast<float>(GAME_STATE.ui.invent->EquippedType());
+	case Field::EquipId:
+		return static_cast<float>(GAME_STATE.ui.invent->EquippedId());
+	case Field::ItemCount:
+		return static_cast<float>(GAME_STATE.ui.invent->Count(cmd.item, cmd.itemId));
 	}
 	return 0.f;
 }
@@ -257,12 +277,44 @@ bool parseWait(const std::string& word, int& ticks) {
 	return true;
 }
 
+// "melee", "ranged" or "potion" -> ItemType value.
+bool parseItemType(const std::string& word, int& type) {
+	if (word == "melee")
+		type = ItemType::MELEE_WEAPON;
+	else if (word == "ranged")
+		type = ItemType::RANGED_WEAPON;
+	else if (word == "potion")
+		type = ItemType::POTION;
+	else
+		return false;
+	return true;
+}
+
+// Item counts are written as the type followed by the id: "potion2", "melee0".
+bool parseItemCountField(const std::string& word, Command& cmd) {
+	size_t digits = word.find_first_of("0123456789");
+	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.item))
+		return false;
+	cmd.itemId = atoi(word.c_str() + digits);
+	cmd.field = Field::ItemCount;
+	return true;
+}
+
 bool parseField(const std::string& word, Field& field) {
 	static const struct {
 		const char* name;
 		Field field;
-	} FIELDS[] = {{"x", Field::X},		   {"y", Field::Y},			{"hp", Field::Hp},	{"stamina", Field::Stamina},
-				  {"level", Field::Level}, {"alive", Field::Alive}, {"won", Field::Won}};
+	} FIELDS[] = {{"x", Field::X},
+				  {"y", Field::Y},
+				  {"hp", Field::Hp},
+				  {"stamina", Field::Stamina},
+				  {"level", Field::Level},
+				  {"alive", Field::Alive},
+				  {"won", Field::Won},
+				  {"might", Field::Might},
+				  {"armor", Field::Armor},
+				  {"equip_type", Field::EquipType},
+				  {"equip_id", Field::EquipId}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -369,8 +421,47 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 	}
 	if (name == "expect") {
 		cmd.type = CommandType::Expect;
-		if (argc != 3 || !parseField(w[1], cmd.field) || !parseOp(w[2], cmd.op) || !parseFloat(w[3], cmd.a))
-			return "usage: expect <x|y|hp|stamina|level|alive|won> <==|!=|<|<=|>|>=> <number>";
+		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
+			!parseFloat(w[3], cmd.a))
+			return "usage: expect <x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|<item><id>> "
+				   "<==|!=|<|<=|>|>=> <number>";
+		return "";
+	}
+	if (name == "key") {
+		cmd.type = CommandType::Key;
+		if (argc != 1)
+			return "usage: key <char|enter|esc|space|tab>";
+		static const struct {
+			const char* name;
+			unsigned char key;
+		} NAMED[] = {{"enter", KEY_ENTER}, {"esc", KEY_ESCAPE}, {"space", KEY_SPACE}, {"tab", '\t'}};
+		for (const auto& entry : NAMED)
+			if (w[1] == entry.name)
+				cmd.a = entry.key;
+		if (cmd.a == 0.f && w[1].size() == 1)
+			cmd.a = static_cast<unsigned char>(w[1][0]);
+		if (cmd.a == 0.f)
+			return "key expects one character or enter|esc|space|tab";
+		return "";
+	}
+	if (name == "give") {
+		cmd.type = CommandType::Give;
+		float id = 0.f;
+		float count = 1.f;
+		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.item) || !parseFloat(w[2], id) ||
+			(argc == 3 && !parseFloat(w[3], count)))
+			return "usage: give <melee|ranged|potion> <id> [count]";
+		cmd.itemId = static_cast<int>(id);
+		cmd.ticks = static_cast<int>(count);
+		return "";
+	}
+	if (name == "mouse" || name == "press" || name == "release" || name == "click") {
+		cmd.type = name == "mouse"	   ? CommandType::Mouse
+				   : name == "press"   ? CommandType::Press
+				   : name == "release" ? CommandType::Release
+									   : CommandType::Click;
+		if (argc != 2 || !parseFloat(w[1], cmd.a) || !parseFloat(w[2], cmd.b))
+			return "usage: " + name + " <x%> <y%> (0..100, y from the bottom)";
 		return "";
 	}
 	if (name == "quit") {
@@ -378,6 +469,12 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		return needArgs(0);
 	}
 	return "unknown command '" + name + "'";
+}
+
+// Screen position in percent (y from the bottom, like the UI code) -> window pixels.
+void toPixels(const Command& cmd, int& x, int& y) {
+	x = static_cast<int>(cmd.a / 100.f * static_cast<float>(GAME_STATE.render.resX));
+	y = static_cast<int>((1.f - cmd.b / 100.f) * static_cast<float>(GAME_STATE.render.resY));
 }
 
 bool isSetupCommand(CommandType type) {
@@ -479,10 +576,34 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Expect: {
-		float actual = fieldValue(cmd.field);
+		float actual = fieldValue(cmd);
 		char detail[48];
 		snprintf(detail, sizeof(detail), "actual %.3f", actual);
 		report(cmd, compare(actual, cmd.op, cmd.a), detail);
+		return true;
+	}
+	case CommandType::Key:
+		keyPressed(static_cast<unsigned char>(cmd.a), 0, 0);
+		report(cmd, true, std::string("screen=") + screenName());
+		return true;
+	case CommandType::Give:
+		for (int i = 0; i < cmd.ticks; i++)
+			GAME_STATE.ui.invent->GetItem(cmd.item, cmd.itemId);
+		report(cmd, true, "");
+		return true;
+	case CommandType::Mouse:
+	case CommandType::Press:
+	case CommandType::Release:
+	case CommandType::Click: {
+		int x = 0;
+		int y = 0;
+		toPixels(cmd, x, y);
+		processMousePassiveMotion(x, y);
+		if (cmd.type == CommandType::Press || cmd.type == CommandType::Click)
+			processMouse(MOUSE_LEFT_BUTTON, GLUT_DOWN, x, y);
+		if (cmd.type == CommandType::Release || cmd.type == CommandType::Click)
+			processMouse(MOUSE_LEFT_BUTTON, GLUT_UP, x, y);
+		report(cmd, true, "");
 		return true;
 	}
 	case CommandType::Quit:

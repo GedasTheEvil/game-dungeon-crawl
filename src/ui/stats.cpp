@@ -93,6 +93,7 @@ void stats::Draw() {
 
 	glFlush();
 
+	Scenario::onFrameRendered();
 	glutSwapBuffers();
 }
 

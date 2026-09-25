@@ -36,8 +36,12 @@ One command per line. `#` starts a comment.
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
+| `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab` (`key i` opens the inventory). |
+| `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 sword, 2 spear), `ranged` (0 bow), `potion` (0..4). |
+| `mouse X Y` | Move the mouse to X% Y% of the window, Y from the bottom (hover). |
+| `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won) to the result. |
-| `expect F OP V` | Assert. F: `x y hp stamina level alive won`. OP: `== != < <= > >=`. |
+| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id`, or an item count written as type + id (`potion2`, `melee1`). OP: `== != < <= > >=`. |
 | `quit` | End the script. The end of the file also ends it. |
 
 A failed `walk` or `expect` is a soft failure: the script continues, but the exit code is 1.
@@ -62,4 +66,4 @@ Stdout has the summary and one `FAIL line L: ...` line per failure.
 
 ## Out of scope (v1)
 
-Menu interaction, save games, answering riddles, and the inventory and stats screens.
+Menu interaction, save games and answering riddles.

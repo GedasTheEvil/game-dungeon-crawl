@@ -1,11 +1,10 @@
 #ifndef InventoryH
 #define InventoryH
 
-#include <memory>
+#include <string>
 #include "../graphics/font.h"
 #include "../entities/item.h"
 #include "fstream"
-#include "../core/timer.h"
 
 namespace ItemType {
 constexpr int MELEE_WEAPON = 1;
@@ -29,43 +28,69 @@ constexpr int LIFE = 4;
 constexpr int COUNT = 5;
 } // namespace PotionId
 
-struct InvItem {
-	int id = 0;
-	int count = 0;
-	float realScale = 0.0f;
-};
-
-struct eq {
-	int type = 0;
-	int id = 0;
-	int count = 0;
-};
+// Inventory slots, in screen and save order: club, sword, spear, bow, then the five potions.
+namespace InvSlot {
+constexpr int FIRST_POTION = 4;
+constexpr int COUNT = FIRST_POTION + PotionId::COUNT;
+constexpr int NONE = -1;
+} // namespace InvSlot
 
 class inventory {
   private:
-	InvItem mw[3]; // melee weapon
-	InvItem rw;	   // ranged weapon
-	eq equipped;
-	eq view;
-	InvItem potions[PotionId::COUNT];
-	Font Impact, Scribe, small;
-	std::unique_ptr<timer> inv_ani;
+	// Clickable things on the screen.
+	enum class Target { None, Slot, Button };
 
-	void SelectItem(item* itemPtr, int type, int id, int count);
-	void DrawItemSlot(int x1, int y1, int x2, int y2);
-	void DrawItemModel(item* itemPtr, float posX, float posY, float scale, float& realScale, bool rotate);
-	void DrawWeaponInfo(int weaponId);
-	void DrawPotionInfo(int potionId);
+	int counts[InvSlot::COUNT] = {};
+	int equippedSlot = 0;
+	int selectedSlot = 0;
+	int hoveredSlot = InvSlot::NONE;
+	bool hoveredButton = false;
+	Target pressed = Target::None;
+	int pressedSlot = InvSlot::NONE;
+	int pressedMouseButton = 0;
+
+	float slotAngle[InvSlot::COUNT] = {}; // model turntable angle per slot
+	int lastFrameMs = 0;
+
+	std::string toast; // feedback line after an action
+	int toastStartMs = 0;
+
+	Font title, heading, body, small;
+
+	[[nodiscard]] static item* SlotItem(int slot);
+	[[nodiscard]] static int SlotFromItem(int type, int id);
+	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
+	void Use(int slot);
+	void DrinkPotion(int potionId);
+	void Select(int slot);
+	void MoveSelection(int dx, int dy);
+	void ShowToast(const std::string& text);
+	void UpdateHover(float x, float y);
+
+	void DrawBackground();
+	void DrawSlot(int slot);
+	void DrawSlotModel(int slot);
+	void DrawSlotLabels(int slot);
+	void DrawDetails();
+	void DrawDetailModel();
+	void DrawButton();
+	void DrawStatus();
+	void DrawFooter();
 
   public:
 	bool show; // if true, show inventory
 	inventory();
 	~inventory();
-	void UsePotion();
 	void GetItem(int type, int ID);
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
+	void MouseMotion(int x, int y);
+	void KeyPressed(unsigned char key);
+	void SpecialKeyPressed(int key);
 	item* Equipped();
+	[[nodiscard]] int EquippedType() const;
+	[[nodiscard]] int EquippedId() const;
+	[[nodiscard]] int Count(int type, int id) const;
 	void Dump(std::ofstream& f);
 	void LoadDump(std::ifstream& f);
 };

@@ -38,6 +38,10 @@ class stats {
 	void RegenerateStamina();
 	[[nodiscard]] int MaxStamina() const;
 	[[nodiscard]] int Damage() const;
+	[[nodiscard]] int CurrentMight() const { return Might; }
+	[[nodiscard]] int CurrentArmor() const { return Armor; }
+	[[nodiscard]] int CurrentHP() const { return HP; }
+	[[nodiscard]] int CurrentMaxHP() const { return MaxHP; }
 	bool show;
 	void GetStronger(int ns = 1);
 	void Draw();

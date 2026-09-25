@@ -125,9 +125,11 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		if (GAME_STATE.ui.Stats->show || GAME_STATE.ui.invent->show) {
+		// Esc backs out of the inventory / stats screen to the game; only from the game it opens the menu.
+		if (!GAME_STATE.ui.menu.show && (GAME_STATE.ui.Stats->show || GAME_STATE.ui.invent->show)) {
 			GAME_STATE.ui.Stats->show = false;
 			GAME_STATE.ui.invent->show = false;
+			return;
 		}
 
 		GAME_STATE.ui.menu.ResetSubScreens();
@@ -137,6 +139,11 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
 		return; // jei rodomas meniu, tai reaguojam tik i [esc]
+
+	if (GAME_STATE.ui.invent->show && key != KEY_INVENTORY && key != KEY_STATS) {
+		GAME_STATE.ui.invent->KeyPressed(key);
+		return;
+	}
 
 	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
@@ -163,6 +170,11 @@ void specialKeyPressed(int key, int x, int y) {
 
 	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
 		return;
+
+	if (GAME_STATE.ui.invent->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
+		GAME_STATE.ui.invent->SpecialKeyPressed(key);
+		return;
+	}
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
 		GAME_STATE.render.Cartoon = !GAME_STATE.render.Cartoon;
@@ -224,6 +236,13 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 
+	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
+		GAME_STATE.ui.invent->MouseMotion(a, b);
+		lastMx = a; // no camera jump when the inventory closes
+		lastMy = b;
+		return;
+	}
+
 	PlayerActionController::applyCameraDelta(-MOUSE_LOOK_SENSITIVITY * (lastMx - a),
 											 -MOUSE_LOOK_SENSITIVITY * (lastMy - b));
 
@@ -232,8 +251,8 @@ void processMousePassiveMotion(int a, int b) {
 }
 
 void processMouseActiveMotion(int a, int b) {
-	(void)a;
-	(void)b;
+	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE))
+		GAME_STATE.ui.invent->MouseMotion(a, b);
 }
 
 void processMouseEntry(int a) { (void)a; }

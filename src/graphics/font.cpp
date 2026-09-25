@@ -9,13 +9,13 @@ Font::Font() {}
 void Font::print(int x, int y, const char* fmt, ...) // Where The Printing Happens
 {
 	if (fmt == nullptr) // If There's No Text
-		return;			   // Do Nothing
+		return;			// Do Nothing
 
-	char text[256];		   // Holds Our String
-	va_list ap;			   // Pointer To List Of Arguments
-	va_start(ap, fmt);		// Parses The String For Variables
+	char text[256];			 // Holds Our String
+	va_list ap;				 // Pointer To List Of Arguments
+	va_start(ap, fmt);		 // Parses The String For Variables
 	vsprintf(text, fmt, ap); // And Converts Symbols To Actual Numbers
-	va_end(ap);					// Results Are Stored In Text
+	va_end(ap);				 // Results Are Stored In Text
 
 	t.Bind();										   // Select Our Font Texture
 	glPushMatrix();									   // Store The Modelview Matrix
@@ -37,8 +37,8 @@ void Font::Load(const char filename[], float size, float spacing) // Build Our F
 	for (int loop = 0; loop < 95; loop++) // Loop Through All 95 Lists
 	{
 		float cx = static_cast<float>(loop % 10) / 10.0f; // X Position Of Current Character
-		int row = loop / 10;                              // Integer row index 0..9
-		float cy = static_cast<float>(row) / 10.0f;       // Y Position Of Current Character
+		int row = loop / 10;							  // Integer row index 0..9
+		float cy = static_cast<float>(row) / 10.0f;		  // Y Position Of Current Character
 
 		glNewList(base + loop, GL_COMPILE); // Start Building A List
 		{

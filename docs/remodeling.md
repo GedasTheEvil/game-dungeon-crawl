@@ -1,0 +1,60 @@
+# Model remodelling
+
+Original Blender sources are lost; models are rebuilt procedurally in Python (the script is the source).
+
+## Files
+* `tools/blender/md3.py` - MD3 reader/writer (plain Python, no Blender needed); documents the game's MD3 conventions.
+* `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `Textures/<name>.bmp`).
+* `tools/blender/md3_export.py` - `export_md3(obj, path, start, end)`; bakes armature/shape keys per frame.
+* `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
+* `tools/blender/render_sheet.py` - headless review renders + per-frame lowest-z (floor penetration) check.
+  `blender -b --python tools/blender/render_sheet.py -- <model.py> /tmp/frames "worm_walk@90:0,8" "worm_attack@40#3~0,-0.6,1:9"`
+  (spec `action[@yaw][^elevation][#ortho][~x,y,z target]:frames`; camera defaults from the model's `REVIEW_VIEW`), tile with `montage`.
+* `tools/blender/models/common.py` - shared helpers: loft/tube/ellipsoid, chain_weights, Builder, make_material,
+  finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
+* `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
+* `tools/blender/models/worm.py` - creature example: surface of revolution body, spine posed from a parametric curve
+  (every frame keyed), hinged jaws, floor lift from jaw tips.
+* `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
+  (tripod gait with planted feet, body-space targets when airborne), per-frame floor fix while rolling over in the die clip.
+* `tools/blender/models/human.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
+  per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
+* `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
+  angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
+* Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
+  (writes `Models/<name>{,_att,_die}.md3`, `Textures/<name>.bmp`, saves `tools/blender/models/<name>.blend`).
+  In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
+* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/shader.cpp` (toon shading), model/texture wiring in `src/state/game_state.cpp`.
+* `tools/audio/jump_sound.py` - synthesizes `Sounds/Jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
+* `ModelViewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
+
+## Format and engine conventions
+* Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
+  exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
+  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `AnimatedModel::Load` in `src/graphics/ani.cpp`.
+* Blender space: Z-up. Facing depends on the monster's `rotA` in `game_state.cpp`: Anubis (180) faces +Y, worm (0) faces -Y.
+  Check the old model's facing before remodelling.
+* The engine normalizes a monster by the walk-slot file (`<name>.md3`) frame 0: largest dimension -> 1, centred in x/z,
+  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `monster::loadModel`),
+  so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
+  Single-file models (items, props) are centred on their own frame 0.
+* The player uses the files differently: `human.md3` = idle (standing), `human_att.md3` = walk cycle (while moving),
+  `human_die.md3` = death, `human_jump.md3` = forward jump (optional `<name>_jump.md3`, `ModelState::Jump`; restarts on every
+  jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height). The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
+  `ModelViewer` looks for `Textures/human.bmp`; the player texture is `player.bmp`.
+* Monsters need three files: `<name>.md3` walk (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame).
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, human 32/20/30 + jump 10); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+* Textures: 24-bit BMP (Blender `file_format="BMP"`, RGB), 1024x1024 used for Anubis.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, human 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
+
+## Status
+| Model | Files | Texture | Status |
+|---|---|---|---|
+| Anubis (monster) | `anubis{,_att,_die}.md3` | `anubis.bmp` | remodelled |
+| Worm (monster) | `worm{,_att,_die}.md3` | `worm.bmp` | remodelled (man-eating worm) |
+| Scarab (monster) | `scarab{,_att,_die}.md3` | `scarab.bmp` | remodelled (giant golden Scarabaeus sacer) |
+| Plant (monster) | `plant{,_att,_die}.md3` | `plant.bmp` | remodelled (tomb lotus in a painted jar; walk file = idle) |
+| Player | `human{,_att,_die}.md3` | `player.bmp` | remodelled (archaeologist with fedora) |
+| Sphinx, ankh, columns, questionmark | `sphinx.md3`, `ankh.md3`, `columns.md3`, `questionmark.md3` | `sphinx.bmp`, `ankh.bmp`, `columns.bmp`, `gold.bmp` | old (static) |
+| Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.bmp`, ..., `tchest.bmp` (bow uses `gold.bmp`, the old scarab texture) | old (static) |
+| Spikes trap | `spikes.md3` | `spikes.bmp` | old (static) |

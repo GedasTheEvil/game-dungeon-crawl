@@ -9,13 +9,14 @@
 #include "../core/timer.h"
 #include <memory>
 
-enum class ModelState { Die = 0, Walk = 1, Attack = 2 };
+enum class ModelState { Die = 0, Walk = 1, Attack = 2, Jump = 3 };
 
 class monster {
   private:
 	std::unique_ptr<AnimatedCartoonModel> walk;
 	std::unique_ptr<AnimatedCartoonModel> attack;
 	std::unique_ptr<AnimatedCartoonModel> die;
+	std::unique_ptr<AnimatedCartoonModel> jumpAnim; // optional <name>_jump.md3 (player only); falls back to walk
 	AnimatedCartoonModel* model;
 	float mapX;
 	float mapY;

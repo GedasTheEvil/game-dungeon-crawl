@@ -80,12 +80,14 @@ void AnimatedCartoonModel::ShowC() {
 	glEnable(GL_TEXTURE_1D);
 	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
 
+	const float* normals = frameNormals(static_cast<int>(frame));
+
 	glBegin(GL_TRIANGLES);
 
 	for (int i = 0; i < VCount * 3; i += 3) {
-		tmpNormal.X = Normals[i];
-		tmpNormal.Y = Normals[i + 1];
-		tmpNormal.Z = Normals[i + 2];
+		tmpNormal.X = normals[i];
+		tmpNormal.Y = normals[i + 1];
+		tmpNormal.Z = normals[i + 2];
 
 		rotateVector(tmpMatrix, tmpNormal, tmpVector);
 

@@ -24,8 +24,10 @@ void Update() {
 	GAME_STATE.Player->rotA = GAME_STATE.camera.rotW;
 
 	if (GAME_STATE.Player->Alive()) {
-		if (GAME_STATE.timers.mdlChange->TimePassed())
-			GAME_STATE.Player->changeMDL(1);
+		if (GAME_STATE.Player->jump.jumping)
+			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Jump));
+		else if (GAME_STATE.timers.mdlChange->TimePassed())
+			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Walk)); // idle
 
 		GAME_STATE.ui.invent->Equipped()->rotA++;
 

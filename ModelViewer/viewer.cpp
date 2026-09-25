@@ -1,13 +1,13 @@
 // ModelViewer :: viewer.cpp
 //
 // Steps 1-3 of the model-viewer-executable plan: open a GLUT window, load a
-// single .mdl file named on the command line via the existing AnimatedModel
+// single .md3 file named on the command line via the existing AnimatedModel
 // class, play its animation on a timed loop that restarts every [seconds],
 // and overlay a 2D progress bar (via the shared Hud::drawBar) showing how
 // far through the current loop the animation is.
 //
-// Usage: viewer <model.mdl> [seconds]
-//   <model.mdl>  required, path to a .mdl file (see src/graphics/ani.cpp)
+// Usage: viewer <model.md3> [seconds]
+//   <model.md3>  required, path to a .md3 file (see tools/blender/md3.py)
 //   [seconds]    optional, animation loop duration in seconds (default 5.0).
 
 #include <SDL/SDL.h>
@@ -98,7 +98,7 @@ std::size_t g_currentSiblingIndex = 0;
 int g_statAnimationStateCount = 0;
 
 // Returns the filename with its directory stripped but extension kept,
-// e.g. "Models/anubis.mdl" -> "anubis.mdl". Distinct from FileStem()
+// e.g. "Models/anubis.md3" -> "anubis.md3". Distinct from FileStem()
 // (which also strips the extension, for the window title's own use).
 std::string Basename(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
@@ -106,7 +106,7 @@ std::string Basename(const std::string& path) {
 }
 
 // Returns the filename stem (no directory, no extension) of a path, e.g.
-// "Models/anubis.mdl" -> "anubis". Used only for the best-effort
+// "Models/anubis.md3" -> "anubis". Used only for the best-effort
 // model-stem -> texture-stem convention described in step.md; this repo has
 // no general model->texture mapping to reuse.
 std::string FileStem(const std::string& path) {
@@ -127,11 +127,11 @@ std::string ParentStem(const std::string& stem) {
 	return (underscore == std::string::npos) ? stem : stem.substr(0, underscore);
 }
 
-// Finds every *.mdl file in modelPath's own directory that shares its parent
+// Finds every *.md3 file in modelPath's own directory that shares its parent
 // stem (see step.md's "Parent/variant detection rule"), sorted by filename.
 // Always includes modelPath itself. Excludes any candidate whose suffix
 // (text after its first '_') is the literal token "old" (case-insensitive)
-// -- a reserved marker for stray backup files, see step.md's sphinx_old.mdl
+// -- a reserved marker for stray backup files, see step.md's sphinx_old.md3
 // research. Directory listing failures (should not happen for a path that
 // already Load()-ed successfully) degrade to a group of one (just
 // modelPath) rather than throwing.
@@ -145,15 +145,15 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 	// the old-suffix filter (rule 3) were it being evaluated as a plain
 	// candidate, it is a reserved/stray file by those same rules and must
 	// not derive a shared parent stem that could pull in unrelated real
-	// family members -- e.g. sphinx_old.mdl's own stem reduces to parent
+	// family members -- e.g. sphinx_old.md3's own stem reduces to parent
 	// stem "sphinx" via ParentStem(), which would otherwise match the
-	// genuine sphinx.mdl and incorrectly merge them into one group; the
+	// genuine sphinx.md3 and incorrectly merge them into one group; the
 	// existing rule-3 exclusion only ever protects a *candidate* from being
 	// pulled into someone else's group, it never revisits the loaded file's
 	// own derived parent stem. Isolating here keeps the group symmetric:
 	// a reserved/stray file's group is always exactly {itself}.
 	std::string ownStem = FileStem(modelPath);
-	bool ownExtensionFailsRule1 = (path.extension() != ".mdl");
+	bool ownExtensionFailsRule1 = (path.extension() != ".md3");
 	bool ownStemFailsRule3 = false;
 	{
 		std::size_t ownUnderscore = ownStem.find('_');
@@ -182,7 +182,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 		// The loaded file is always a member of its own group, even if it
 		// would otherwise fail the extension or old-suffix filters below
 		// (e.g. the user explicitly names Models/columns.mdl_old or
-		// Models/sphinx_old.mdl on the command line -- both load fine via
+		// Models/sphinx_old.md3 on the command line -- both load fine via
 		// AnimatedModel::Load, which does not check extension). Those
 		// filters exist to keep OTHER candidates out of a group the user
 		// didn't ask to see; they must never evict the file the user
@@ -190,7 +190,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 		bool isLoadedFile = (entry.path().filename().string() == loadedBasename);
 
 		if (!isLoadedFile) {
-			if (entry.path().extension() != ".mdl")
+			if (entry.path().extension() != ".md3")
 				continue;
 
 			std::string candidateStem = entry.path().stem().string();
@@ -398,7 +398,7 @@ void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
 	// size() <= 1, not empty(): ScanSiblingModels never returns an empty
 	// vector (it degrades to {modelPath} on failure/no-match), so a bare
 	// empty() check would never actually fire, and a lone-model group
-	// (e.g. ankh.mdl, sphinx.mdl) would fall through to reloading the
+	// (e.g. ankh.md3, sphinx.md3) would fall through to reloading the
 	// exact same file on every press -- redundant I/O, a pointless
 	// Compile()/BindTexture() (leaking one GL texture + display-list set
 	// per press, see step.md's known-leak note), and a visible progress-
@@ -479,7 +479,7 @@ int main(int argc, char* argv[]) {
 	glutInitWindowSize(g_winWidth, g_winHeight);
 	glutInitWindowPosition(50, 50);
 
-	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".mdl";
+	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".md3";
 	glutCreateWindow(title.c_str());
 
 	InitGL(g_winWidth, g_winHeight);
@@ -492,7 +492,7 @@ int main(int argc, char* argv[]) {
 	// the user actually typed, and never rescanned -- see architecture.md
 	// section 1. g_currentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
-	// identically (e.g. "./Models/anubis.mdl" vs "Models/anubis.mdl").
+	// identically (e.g. "./Models/anubis.md3" vs "Models/anubis.md3").
 	g_siblingModelPaths = ScanSiblingModels(modelPath);
 	g_currentSiblingIndex = 0;
 	for (std::size_t i = 0; i < g_siblingModelPaths.size(); ++i) {

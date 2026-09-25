@@ -1,6 +1,7 @@
 #include "monster.h"
 #include <GL/gl.h>
 #include <cmath>
+#include <filesystem>
 
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
@@ -19,13 +20,13 @@ std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, 
 	auto m = std::make_unique<AnimatedCartoonModel>();
 	m->Load(path);
 	m->BindTexture(texId);
-	m->Centrify();
 	m->setSpeed(speed);
 	return m;
 }
 } // namespace
 
 void monster::applyModelState(ModelState state) {
+	const bool entering = state != currentState;
 	currentState = state;
 	switch (state) {
 	case ModelState::Walk:
@@ -36,6 +37,15 @@ void monster::applyModelState(ModelState state) {
 		break;
 	case ModelState::Die:
 		model = die.get();
+		break;
+	case ModelState::Jump:
+		if (!jumpAnim) {
+			model = walk.get();
+			break;
+		}
+		if (entering)
+			jumpAnim->Reset(); // every jump plays from the take-off
+		model = jumpAnim.get();
 		break;
 	}
 }
@@ -210,23 +220,35 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		return 0;
 	}
 
-	char tmp1[255], tmp2[255], tmp3[255], tmp4[255], tmp5[255];
+	char tmp1[255], tmp2[255], tmp3[255], tmp4[255], tmp5[255], tmp6[255];
 
-	sprintf(tmp1, "Models/%s.mdl", filename);
-	sprintf(tmp2, "Models/%s_att.mdl", filename);
-	sprintf(tmp3, "Models/%s_die.mdl", filename);
+	sprintf(tmp1, "Models/%s.md3", filename);
+	sprintf(tmp2, "Models/%s_att.md3", filename);
+	sprintf(tmp3, "Models/%s_die.md3", filename);
 	sprintf(tmp4, "Sounds/%s_att.wav", filename);
 	sprintf(tmp5, "Sounds/%s_die.wav", filename);
+	sprintf(tmp6, "Models/%s_jump.md3", filename);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp1);
 	walk = makeModel(tmp1, texture.ID(), 35);
+	// Attack and die use the walk file's normalization, so the model doesn't jump between animations.
+	const ModelNormalization norm = walk->Centrify();
 
 	LOG_INFOF("entities", "Loading model: %s", tmp2);
 	attack = makeModel(tmp2, texture.ID(), 35);
+	attack->Normalize(norm);
 
 	LOG_INFOF("entities", "Loading model: %s", tmp3);
 	die = makeModel(tmp3, texture.ID(), 35);
+	die->Normalize(norm);
 	die->loop = 0;
+
+	if (std::filesystem::exists(tmp6)) {
+		LOG_INFOF("entities", "Loading model: %s", tmp6);
+		jumpAnim = makeModel(tmp6, texture.ID(), 35);
+		jumpAnim->Normalize(norm);
+		jumpAnim->loop = 0; // holds the landing pose until the next state change
+	}
 
 	die_s.LoadWAV(tmp5);
 	att_s.LoadWAV(tmp4);
@@ -235,6 +257,8 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		walk->Compile();
 		attack->Compile();
 		die->Compile();
+		if (jumpAnim)
+			jumpAnim->Compile();
 	}
 	stat = 1;
 

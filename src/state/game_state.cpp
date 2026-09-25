@@ -36,7 +36,8 @@ void GameState::Load() {
 	DrawLoad(7, "Loading Textures");
 	textures.scarab_t.LoadBMP("Textures/scarab.bmp");
 	DrawLoad(8, "Loading Textures");
-	textures.bow_t.LoadBMP("Textures/scarab.bmp");
+	textures.bow_t.LoadBMP("Textures/gold.bmp");
+	textures.gold_t.LoadBMP("Textures/gold.bmp");
 	DrawLoad(9, "Loading Textures");
 	textures.chest_t.LoadBMP("Textures/tchest.bmp");
 	DrawLoad(10, "Loading Textures");
@@ -87,7 +88,7 @@ void GameState::Load() {
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
 	items.chest = std::make_unique<item>();
-	items.chest->loadModel("Models/tchest.mdl", textures.chest_t);
+	items.chest->loadModel("Models/tchest.md3", textures.chest_t);
 	items.chest->scale = 8;
 	items.chest->rotA = -90;
 
@@ -100,61 +101,61 @@ void GameState::Load() {
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	items.club = std::make_unique<item>();
-	items.club->loadModel("Models/club.mdl", textures.club_t);
+	items.club->loadModel("Models/club.md3", textures.club_t);
 	items.club->damage = 9;
 	items.club->scale = 6;
 	items.club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
 	items.sword = std::make_unique<item>();
-	items.sword->loadModel("Models/sword.mdl", textures.sword_t);
+	items.sword->loadModel("Models/sword.md3", textures.sword_t);
 	items.sword->scale = 9;
 	items.sword->damage = 35;
 	items.sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
 	items.bow = std::make_unique<item>();
-	items.bow->loadModel("Models/bow.mdl", textures.bow_t);
+	items.bow->loadModel("Models/bow.md3", textures.bow_t);
 	items.bow->scale = 12;
 	items.bow->damage = 12;
 	items.bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
 	items.spear = std::make_unique<item>();
-	items.spear->loadModel("Models/spear.mdl", textures.spear_t);
+	items.spear->loadModel("Models/spear.md3", textures.spear_t);
 	items.spear->scale = 15;
 	items.spear->damage = 15;
 	items.spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
 	items.potion = std::make_unique<item>();
-	items.potion->loadModel("Models/potion.mdl", textures.potion_t);
+	items.potion->loadModel("Models/potion.md3", textures.potion_t);
 	items.potion->scale = 5;
 
 	textures.sphinx_t.LoadBMP("Textures/sphinx.bmp");
 	models.sphinx = std::make_unique<AnimatedCartoonModel>();
-	models.sphinx->Load("Models/sphinx.mdl");
+	models.sphinx->Load("Models/sphinx.md3");
 	models.sphinx->BindTexture(textures.sphinx_t.ID());
 	models.sphinx->Centrify();
 	models.sphinx->Compile();
 
 	textures.ankh_t.LoadBMP("Textures/ankh.bmp");
 	models.ankh = std::make_unique<AnimatedCartoonModel>();
-	models.ankh->Load("Models/ankh.mdl");
+	models.ankh->Load("Models/ankh.md3");
 	models.ankh->BindTexture(textures.ankh_t.ID());
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
 	textures.column_t.LoadBMP("Textures/columns.bmp");
 	models.column = std::make_unique<AnimatedCartoonModel>();
-	models.column->Load("Models/columns.mdl");
+	models.column->Load("Models/columns.md3");
 	models.column->BindTexture(textures.column_t.ID());
 	models.column->Centrify();
 	models.column->Compile();
 
 	models.question = std::make_unique<AnimatedCartoonModel>();
-	models.question->Load("Models/questionmark.mdl");
-	models.question->BindTexture(textures.scarab_t.ID());
+	models.question->Load("Models/questionmark.md3");
+	models.question->BindTexture(textures.gold_t.ID());
 	models.question->Centrify();
 	models.question->Compile();
 
@@ -170,11 +171,11 @@ void GameState::Load() {
 
 	textures.trap_t.LoadBMP("Textures/spikes.bmp");
 	traps.TrapD = std::make_unique<trap>();
-	traps.TrapD->loadModel("Models/spikes.mdl", textures.trap_t);
+	traps.TrapD->loadModel("Models/spikes.md3", textures.trap_t);
 	traps.TrapD->scale = 16;
 
 	traps.DeathTrap = std::make_unique<trap>();
-	traps.DeathTrap->loadModel("Models/spikes.mdl", textures.trap_t);
+	traps.DeathTrap->loadModel("Models/spikes.md3", textures.trap_t);
 	traps.DeathTrap->scale = 40;
 
 	DrawLoad(95, "Loading game font");

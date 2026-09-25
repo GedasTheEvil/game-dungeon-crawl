@@ -47,12 +47,14 @@ class PlayerActionController {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = -110;
-			GAME_STATE.Player->changeMDL(2);
+			if (!GAME_STATE.Player->jump.jumping)
+				GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Attack)); // walk cycle
 			break;
 		case GameplayAction::MoveRight:
 			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = 70;
-			GAME_STATE.Player->changeMDL(2);
+			if (!GAME_STATE.Player->jump.jumping)
+				GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Attack)); // walk cycle
 			break;
 		case GameplayAction::MoveDown:
 			GAME_STATE.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);

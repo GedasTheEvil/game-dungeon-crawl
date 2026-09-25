@@ -29,8 +29,8 @@ struct Camera {
 };
 
 struct RenderSettings {
-	bool Cartoon = true;
-	bool Orig_model = true;
+	bool Cartoon = false;	 // toon shading off by default (F1 toggles)
+	bool Orig_model = false; // F2 toggles the translucent textured overlay used with toon shading
 	int resX = 800;
 	int resY = 500;
 };
@@ -64,6 +64,12 @@ struct SceneModels {
 	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh, column, question;
 };
 
+struct DecorSet {
+	Textura tex[DECOR_COUNT];
+	std::unique_ptr<AnimatedCartoonModel> model[DECOR_COUNT]; // null if the file failed to load
+	Textura decalTex;										  // atlas, DECAL_DEFS order
+};
+
 struct GameTimers {
 	std::unique_ptr<timer> mdlChange;
 	std::unique_ptr<timer> AttTimer;
@@ -94,6 +100,7 @@ class GameState {
 	std::unique_ptr<PlayerEntity> Player;
 	TrapPair traps;
 	SceneModels models;
+	DecorSet decor;
 	GameTimers timers;
 	UIContext ui;
 	Dungeon dungeon;

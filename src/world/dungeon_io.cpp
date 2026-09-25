@@ -40,6 +40,7 @@ bool Dungeon::Load(const char* filename) {
 				mapY = static_cast<float>(j);
 			}
 
+	scatterDecorations(filename);
 	return true;
 }
 //======================================================================================

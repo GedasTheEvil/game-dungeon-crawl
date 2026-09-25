@@ -1,5 +1,6 @@
 #include "textures.h"
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include "../core/logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -15,7 +16,7 @@
 
 Textura::Textura() { loaded = false; }
 //================================================================================================================================
-int Textura::LoadPNG(const char* filename) {
+int Textura::LoadPNG(const char* filename, bool mipmaps) {
 	int channels = 0;
 	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
 		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
@@ -41,12 +42,16 @@ int Textura::LoadPNG(const char* filename) {
 
 	glBindTexture(GL_TEXTURE_2D, texture.texID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 
 	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
-				 GL_UNSIGNED_BYTE, data);
+	if (mipmaps)
+		gluBuild2DMipmaps(GL_TEXTURE_2D, static_cast<GLint>(format), texture.width, texture.height, format,
+						  GL_UNSIGNED_BYTE, data);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
+					 GL_UNSIGNED_BYTE, data);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	// OpenGL has its own copy on the GPU.

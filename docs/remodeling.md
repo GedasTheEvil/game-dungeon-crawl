@@ -21,6 +21,15 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
+* `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
+  brazier, offerings, scrolls, ushabti) in tile units, lighting baked into the texture (sun from the camera side + AO),
+  drawn textured only (no toon pass, no Centrify). `-- --export` writes `Models/decor_<name>.md3` + `Textures/decor_<name>.png`;
+  `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
+  `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
+* `tools/textures/decals.py` - wall decal atlas `Textures/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
+  vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
+  `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
+  Placement: `Dungeon::scatterDecals` (35% of cells with a visible back wall, one decal per cell).
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `Models/<name>{,_att,_die}.md3`, `Textures/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
@@ -59,3 +68,5 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 | Sphinx, ankh, columns, questionmark | `sphinx.md3`, `ankh.md3`, `columns.md3`, `questionmark.md3` | `sphinx.png`, `ankh.png`, `columns.png`, `gold.png` | old (static) |
 | Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.png`, ..., `tchest.png` (bow uses `gold.png`, the old scarab texture) | old (static) |
 | Spikes trap | `spikes.md3` | `spikes.png` | old (static) |
+| Corridor decorations (10 props) | `decor_<name>.md3` | `decor_<name>.png` | new (static, `decor.py`) |
+| Wall decals (16) | - | `decals.png` | new (generated, `tools/textures/decals.py`) |

@@ -229,6 +229,8 @@ void Dungeon::Draw() {
 			if (IsInBounds(i, j)) {
 				const Tint tile = MapAt(i, j);
 				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);
+				drawDecalTile(i, j);
+				drawDecorTile(i, j);
 
 				if (tile.a == Monster)
 					DrawMonsterTile(i, j);

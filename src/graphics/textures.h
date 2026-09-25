@@ -17,7 +17,7 @@ class Textura {
 
   public:
 	Textura();
-	int LoadPNG(const char* filename);
+	int LoadPNG(const char* filename, bool mipmaps = false);
 	void Bind();
 	int ID();
 };

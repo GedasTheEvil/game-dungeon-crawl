@@ -9,7 +9,7 @@ SOURCES=\
 	src/core/game.cpp src/core/timer.cpp src/core/sound.cpp src/core/service_locator.cpp src/core/logger.cpp \
 	src/graphics/ani.cpp src/graphics/textures.cpp src/graphics/shader.cpp src/graphics/font.cpp src/graphics/particles.cpp src/graphics/draw.cpp src/graphics/hud.cpp \
 	src/entities/monster.cpp src/entities/player.cpp src/entities/monster_ai.cpp src/entities/item.cpp src/entities/trap.cpp \
-	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp \
+	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp src/world/dungeon_decor.cpp \
 	src/ui/menu.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp \
 	src/input/input.cpp \
 	src/state/game_state.cpp

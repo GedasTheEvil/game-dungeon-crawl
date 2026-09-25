@@ -4,6 +4,7 @@
 #include "../entities/monster.h"
 #include "fstream"
 #include "../core/timer.h"
+#include "decor.h"
 #include <memory>
 
 // Coordinate spaces used throughout the world system:
@@ -45,6 +46,8 @@ class Dungeon {
 	static constexpr int kMapHeight = 47;
 	static constexpr int kMapCellCount = kMapWidth * kMapHeight + 1;
 	Tint map[kMapCellCount];
+	DecorCell decor[kMapCellCount];
+	DecalCell decal[kMapCellCount];
 	float mapX, mapY;
 	int texC, *Tex;
 	bool IsInBounds(int col, int row) const;
@@ -58,6 +61,9 @@ class Dungeon {
 	void DrawMonsterTile(int i, int j);
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
+	void drawDecorTile(int i, int j);
+	void drawDecalTile(int i, int j);
+	void scatterDecals(uint32_t seed);
 	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
 	void renderCartoonTile(int type, int left, int right, int up, int down);
 	void renderFlatTile(int type, int left, int right, int up, int down);
@@ -86,6 +92,7 @@ class Dungeon {
 	void GetRiddle();
 	void Dump(std::ofstream& f);
 	bool LoadDump(std::ifstream& f);
+	void scatterDecorations(const char* levelName); // props and decals, seeded by the level's file name
 };
 
 #endif

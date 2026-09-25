@@ -161,6 +161,22 @@ void GameState::Load() {
 
 	textures.plasma_t.LoadPNG("Textures/plasma.png");
 
+	DrawLoad(80, "Loading decorations");
+	decor.decalTex.LoadPNG("Textures/decals.png", true);
+	for (int d = 0; d < DECOR_COUNT; d++) {
+		char path[64];
+		snprintf(path, sizeof(path), "Textures/decor_%s.png", DECOR_NAMES[d]);
+		decor.tex[d].LoadPNG(path);
+		snprintf(path, sizeof(path), "Models/decor_%s.md3", DECOR_NAMES[d]);
+		auto model = std::make_unique<AnimatedCartoonModel>();
+		if (!model->Load(path))
+			continue;
+		model->BindTexture(decor.tex[d].ID());
+		model->outline = false;
+		model->Compile(); // no Centrify: the files are in tile units
+		decor.model[d] = std::move(model);
+	}
+
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();
 	sounds.drink_s.LoadWAV("Sounds/Drink.wav");
@@ -317,6 +333,8 @@ void GameState::LoadSave(const char filename[]) {
 	ui.invent->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
+	snprintf(mapName2, sizeof(mapName2), "Levels/lvl%d", curMap);
+	dungeon.scatterDecorations(mapName2);
 	LOG_INFO("game", "Done loading map");
 	dump.close();
 }

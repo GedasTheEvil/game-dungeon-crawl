@@ -1,238 +1,60 @@
 #include "textures.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdexcept>
-#include <cstddef>
 #include <GL/gl.h>
 #include "../core/logger.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#include "../../external/stb/stb_image.h"
+#pragma GCC diagnostic pop
+
 Textura::Textura() { loaded = false; }
-
-Textura::~Textura() {
-	if (texture.data != nullptr) {
-		free(texture.data);
-		texture.data = nullptr;
-	}
-	loaded = false;
-}
-
-int Textura::LoadTGA(const char* filename) // Loads A TGA File Into Memory
-{
-	try {
-		char tgAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Uncompressed TGA Header
-		char tgAcompare[12];									   // Used To Compare TGA Header
-		char header[6];											   // First 6 Useful Bytes From The Header
-		int bytesPerPixel;	// Holds Number Of Bytes Per Pixel Used In The TGA File
-		size_t imageSize;	// Used To Store The Image Size When Setting Aside Ram
-		int temp;			// Temporary Variable
-		int type = GL_RGBA; // Set The Default GL Mode To RBGA (32 BPP)
-
-		FILE* file = fopen(filename, "rb"); // Open The TGA File
-
-		if (file == nullptr ||														// Does File Even Exist?
-			fread(tgAcompare, 1, sizeof(tgAcompare), file) != sizeof(tgAcompare) || // Are There 12 Bytes To Read?
-			memcmp(tgAheader, tgAcompare, sizeof(tgAheader)) != 0 ||  // Does The Header Match What We Want?
-			fread(header, 1, sizeof(header), file) != sizeof(header)) // If So Read Next 6 Header Bytes
-		{
-			if (file != nullptr) // Did The File Even Exist? *Added Jim Strong*
-				fclose(file);	 // If Anything Failed, Close The File
-
-			return 0; // Return False
-		}
-
-		texture.width = header[1] * 256 + header[0];  // Determine The TGA Width	(highbyte*256+lowbyte)
-		texture.height = header[3] * 256 + header[2]; // Determine The TGA Height	(highbyte*256+lowbyte)
-
-		if (texture.width <= 0 ||				  // Is The Width Less Than Or Equal To Zero
-			texture.height <= 0 ||				  // Is The Height Less Than Or Equal To Zero
-			(header[4] != 24 && header[4] != 32)) // Is The TGA 24 or 32 Bit?
-		{
-			fclose(file); // If Anything Failed, Close The File
-			return 0;	  // Return False
-		}
-		LOG_INFOF("texture", "%s:: \n\tHeight:%d\n\tWidth:%d", filename, texture.height, texture.width);
-
-		texture.bpp = static_cast<unsigned char>(header[4]); // Grab The TGA's Bits Per Pixel (24 or 32)
-		bytesPerPixel = texture.bpp / 8;					 // Divide By 8 To Get The Bytes Per Pixel
-		imageSize = static_cast<size_t>(texture.width) * texture.height *
-					bytesPerPixel; // Calculate The Memory Required For The TGA Data
-
-		texture.data = static_cast<char*>(malloc(imageSize)); // Reserve Memory To Hold The TGA Data
-
-		if (texture.data == nullptr) { // Does The Storage Memory Exist?
-			fclose(file);			   // Close The File
-			throw std::runtime_error("Failed to allocate memory for texture data");
-		}
-
-		if (fread(texture.data, 1, imageSize, file) !=
-			static_cast<size_t>(imageSize)) { // Does The Image Size Match The Memory Reserved?
-			free(texture.data);				  // If So, Release The Image Data
-			texture.data = nullptr;
-			fclose(file); // Close The File
-			throw std::runtime_error("Failed to read texture data from file");
-		}
-
-		LOG_INFOF("texture", "Size:%zu", imageSize);
-		size_t i;
-
-		for (i = 0; i < imageSize; i += bytesPerPixel)			// Loop Through The Image Data
-		{														// Swaps The 1st And 3rd Bytes ('R'ed and 'B'lue)
-			temp = static_cast<unsigned char>(texture.data[i]); // Temporarily Store The Value At Image Data 'i'
-			texture.data[i] = texture.data[i + 2];				// Set The 1st Byte To The Value Of The 3rd Byte
-			texture.data[i + 2] = static_cast<char>(temp); // Set The 3rd Byte To The Value In 'temp' (1st Byte Value)
-		}
-
-		fclose(file); // Close The File
-
-		// Build A Texture From The Data
-		glGenTextures(1, &texture.texID); // Generate OpenGL texture IDs
-
-		glBindTexture(GL_TEXTURE_2D, texture.texID);					  // Bind Our Texture
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtered
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtered
-
-		if (texture.bpp == 24) // Was The TGA 24 Bits
-		{
-			type = GL_RGB; // If So Set The 'type' To GL_RGB
-		}
-
-		glTexImage2D(GL_TEXTURE_2D, 0, type, texture.width, texture.height, 0, type, GL_UNSIGNED_BYTE, texture.data);
-
-		// Free CPU-side pixel data — OpenGL has its own copy on the GPU.
-		free(texture.data);
-		texture.data = nullptr;
-
-		loaded = true;
-
-		return 1; // Texture Building Went Ok, Return True
-	} catch (const std::exception& e) {
-		LOG_ERRORF("texture", "Error loading TGA %s: %s", filename, e.what());
-		return 0;
-	}
-}
 //================================================================================================================================
-int Textura::LoadBMP(const char* filename) {
-	try {
-		FILE* file;
-		unsigned long size;		   // size of the image in bytes.
-		unsigned long i;		   // standard counter.
-		unsigned short int planes; // number of planes in image (must be 1)
-		unsigned short int bpp;	   // number of bits per pixel (must be 24)
-
-		// Make sure the file exists
-		file = fopen(filename, "rb");
-		if (file == nullptr) {
-			LOG_WARNINGF("texture", "File Not Found : %s", filename);
-			return 0;
-		}
-
-		// Skip to bmp header
-		fseek(file, 18, SEEK_CUR);
-
-		// read width
-		i = fread(&texture.width, 4, 1, file);
-		if (i != 1) {
-			LOG_ERRORF("texture", "Error reading width from %s.", filename);
-			fclose(file);
-			return 0;
-		}
-		LOG_INFOF("texture", "Width of %s: %d", filename, texture.width);
-
-		// read the height
-		i = fread(&texture.height, 4, 1, file);
-		if (i != 1) {
-			LOG_ERRORF("texture", "Error reading height from %s.", filename);
-			fclose(file);
-			return 0;
-		}
-		LOG_INFOF("texture", "Height of %s: %d", filename, texture.height);
-
-		// calculate the size (assuming 24 bpp)
-		size = static_cast<unsigned long>(texture.width) * texture.height * 3;
-
-		// read the planes
-		if ((fread(&planes, 2, 1, file)) != 1) {
-			LOG_ERRORF("texture", "Error reading planes from %s.", filename);
-			fclose(file);
-			return 0;
-		}
-
-		if (planes != 1) {
-			LOG_WARNINGF("texture", "Planes from %s is not 1: %u", filename, planes);
-			fclose(file);
-			return 0;
-		}
-
-		// read the bpp
-		i = fread(&bpp, 2, 1, file);
-		if (i != 1) {
-			LOG_ERRORF("texture", "Error reading bpp from %s.", filename);
-			fclose(file);
-			return 0;
-		}
-
-		if (bpp != 24) {
-			LOG_WARNINGF("texture", "Bpp from %s is not 24: %u", filename, bpp);
-			fclose(file);
-			return 0;
-		}
-
-		// seek past the rest of the bitmap header
-		fseek(file, 24, SEEK_CUR);
-
-		// Read the data
-		LOG_INFOF("texture", "creating data array of size %lu", size);
-
-		texture.data = static_cast<char*>(malloc(size));
-
-		if (texture.data == nullptr) {
-			LOG_ERROR("texture", "Error allocating memory for texture data");
-			fclose(file);
-			throw std::runtime_error("Failed to allocate memory for texture data");
-		}
-
-		if (fread(&texture.data[0], size, 1, file) != 1) {
-			LOG_ERRORF("texture", "Error reading texture data from %s.", filename);
-			free(texture.data);
-			texture.data = nullptr;
-			fclose(file);
-			throw std::runtime_error("Failed to read texture data from file");
-		}
-
-		// windows neturi GL_BGR, darom savo
-		char tmpC;
-		for (unsigned long p = 0; p < size; p += 3) {
-			tmpC = texture.data[p];
-			texture.data[p] = texture.data[p + 2];
-			texture.data[p + 2] = tmpC;
-		}
-
-		glGenTextures(1, &texture.texID);
-
-		LOG_INFOF("texture", "Texture id=[%d]", texture.texID);
-
-		glBindTexture(GL_TEXTURE_2D, texture.texID); // 2d texture (x and y size)
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-						GL_LINEAR); // scale linearly when image bigger than texture
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-						GL_LINEAR); // scale linearly when image smalled than texture
-
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, texture.width, texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.data);
-
-		// Free CPU-side pixel data — OpenGL has its own copy on the GPU.
-		free(texture.data);
-		texture.data = nullptr;
-
-		loaded = true;
-		fclose(file);
-
-		return 1;
-	} catch (const std::exception& e) {
-		LOG_ERRORF("texture", "Error loading BMP %s: %s", filename, e.what());
+int Textura::LoadPNG(const char* filename) {
+	int channels = 0;
+	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
+		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
 		return 0;
 	}
+
+	// Grayscale PNGs are expanded to RGB; an alpha channel is kept.
+	bool hasAlpha = channels == 2 || channels == 4;
+	int components = hasAlpha ? 4 : 3;
+	GLenum format = hasAlpha ? GL_RGBA : GL_RGB;
+
+	// PNG rows run top-down, OpenGL expects the first row at the bottom (t = 0).
+	stbi_set_flip_vertically_on_load(1);
+	unsigned char* data = stbi_load(filename, &texture.width, &texture.height, &channels, components);
+	if (data == nullptr) {
+		LOG_ERRORF("texture", "Error loading PNG %s: %s", filename, stbi_failure_reason());
+		return 0;
+	}
+	LOG_INFOF("texture", "%s: %dx%d, %d channels", filename, texture.width, texture.height, components);
+
+	glGenTextures(1, &texture.texID);
+	LOG_INFOF("texture", "Texture id=[%d]", texture.texID);
+
+	glBindTexture(GL_TEXTURE_2D, texture.texID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
+				 GL_UNSIGNED_BYTE, data);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	// OpenGL has its own copy on the GPU.
+	stbi_image_free(data);
+
+	loaded = true;
+
+	return 1;
 }
 //----------------------------------------------------------------------------------
 void Textura::Bind() { glBindTexture(GL_TEXTURE_2D, texture.texID); }

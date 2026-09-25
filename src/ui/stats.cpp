@@ -184,7 +184,7 @@ stats::stats() {
 	stamina_sprint_drain_carry = 0.0f;
 	sprint_requested = false;
 	sprinting = false;
-	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
+	Impact.Load("Fonts/papyrus_i.png", 5, -0.6);
 	show = false;
 	GAME_STATE.Player->maxHealth = MaxHP;
 	GAME_STATE.Player->health = MaxHP;

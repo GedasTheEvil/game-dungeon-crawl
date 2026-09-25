@@ -226,8 +226,8 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 }
 
 // Best-effort texture fallback chain (step.md):
-//   1. Textures/<texture-stem>.bmp
-//   2. Textures/null.bmp
+//   1. Textures/<texture-stem>.png
+//   2. Textures/null.png
 //   3. untextured (id 0)
 // Every failure is logged as a warning, never fatal -- a missing/wrong
 // texture must never prevent seeing the animation. textureStem is already
@@ -235,17 +235,17 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 // "Existing texture-fallback chain to extend, not duplicate": a variant's
 // texture always comes from its parent's stem, not its own.
 int LoadTextureForModel(const std::string& textureStem, Textura& tex) {
-	std::string guess = "Textures/" + textureStem + ".bmp";
-	if (tex.LoadBMP(guess.c_str())) {
+	std::string guess = "Textures/" + textureStem + ".png";
+	if (tex.LoadPNG(guess.c_str())) {
 		return tex.ID();
 	}
 
-	LOG_WARNINGF("modelviewer", "No texture found at %s, falling back to Textures/null.bmp", guess.c_str());
-	if (tex.LoadBMP("Textures/null.bmp")) {
+	LOG_WARNINGF("modelviewer", "No texture found at %s, falling back to Textures/null.png", guess.c_str());
+	if (tex.LoadPNG("Textures/null.png")) {
 		return tex.ID();
 	}
 
-	LOG_WARNINGF("modelviewer", "%s", "Textures/null.bmp fallback also failed, continuing untextured");
+	LOG_WARNINGF("modelviewer", "%s", "Textures/null.png fallback also failed, continuing untextured");
 	return 0;
 }
 
@@ -341,7 +341,7 @@ void Display() {
 	// must come after the bar's glEnable(GL_TEXTURE_2D) above, not inside the
 	// disabled block. glColor3f(1,1,1) undoes Hud::drawBar's last fill color
 	// (blue) so the text isn't tinted; the blend func/enable is required
-	// because Fonts/papyrus_i.bmp has no alpha channel, so without blending
+	// because Fonts/papyrus_i.png has no alpha channel, so without blending
 	// each glyph quad would draw as a solid-colored box instead of legible
 	// text. glDisable(GL_BLEND) must run before this function returns so it
 	// doesn't leak into the next frame's opaque 3D model draw.
@@ -484,7 +484,7 @@ int main(int argc, char* argv[]) {
 
 	InitGL(g_winWidth, g_winHeight);
 
-	g_statsFont.Load("Fonts/papyrus_i.bmp", 5, -0.6); // matches src/ui/stats.cpp's
+	g_statsFont.Load("Fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
 	                                                    // Impact-font convention
 	g_statPlaySpeed = static_cast<int>(g_durationSeconds);
 

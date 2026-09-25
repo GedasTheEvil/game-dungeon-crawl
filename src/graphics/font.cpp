@@ -29,9 +29,8 @@ void Font::print(int x, int y, const char* fmt, ...) // Where The Printing Happe
 void Font::Load(const char filename[], float size, float spacing) // Build Our Font Display List
 {
 	base = glGenLists(95); // Creating 95 Display Lists
-	if (!t.LoadTGA(filename))
-		if (!t.LoadBMP(filename))
-			LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
+	if (!t.LoadPNG(filename))
+		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
 	t.Bind();
 
 	for (int loop = 0; loop < 95; loop++) // Loop Through All 95 Lists

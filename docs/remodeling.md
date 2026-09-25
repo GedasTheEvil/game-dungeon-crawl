@@ -4,7 +4,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 
 ## Files
 * `tools/blender/md3.py` - MD3 reader/writer (plain Python, no Blender needed); documents the game's MD3 conventions.
-* `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `Textures/<name>.bmp`).
+* `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `Textures/<name>.png`).
 * `tools/blender/md3_export.py` - `export_md3(obj, path, start, end)`; bakes armature/shape keys per frame.
 * `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
 * `tools/blender/render_sheet.py` - headless review renders + per-frame lowest-z (floor penetration) check.
@@ -22,9 +22,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
-  (writes `Models/<name>{,_att,_die}.md3`, `Textures/<name>.bmp`, saves `tools/blender/models/<name>.blend`).
+  (writes `Models/<name>{,_att,_die}.md3`, `Textures/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/shader.cpp` (toon shading), model/texture wiring in `src/state/game_state.cpp`.
+* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), `src/graphics/shader.cpp` (toon shading, ramp in `Textures/Shader.txt`), model/texture wiring in `src/state/game_state.cpp`.
 * `tools/audio/jump_sound.py` - synthesizes `Sounds/Jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `ModelViewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
 
@@ -41,20 +41,21 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * The player uses the files differently: `human.md3` = idle (standing), `human_att.md3` = walk cycle (while moving),
   `human_die.md3` = death, `human_jump.md3` = forward jump (optional `<name>_jump.md3`, `ModelState::Jump`; restarts on every
   jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height). The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
-  `ModelViewer` looks for `Textures/human.bmp`; the player texture is `player.bmp`.
+  `ModelViewer` looks for `Textures/human.png`; the player texture is `player.png`.
 * Monsters need three files: `<name>.md3` walk (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame).
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, human 32/20/30 + jump 10); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
-* Textures: 24-bit BMP (Blender `file_format="BMP"`, RGB), 1024x1024 used for Anubis.
+* Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
+  Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, human 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
 
 ## Status
 | Model | Files | Texture | Status |
 |---|---|---|---|
-| Anubis (monster) | `anubis{,_att,_die}.md3` | `anubis.bmp` | remodelled |
-| Worm (monster) | `worm{,_att,_die}.md3` | `worm.bmp` | remodelled (man-eating worm) |
-| Scarab (monster) | `scarab{,_att,_die}.md3` | `scarab.bmp` | remodelled (giant golden Scarabaeus sacer) |
-| Plant (monster) | `plant{,_att,_die}.md3` | `plant.bmp` | remodelled (tomb lotus in a painted jar; walk file = idle) |
-| Player | `human{,_att,_die}.md3` | `player.bmp` | remodelled (archaeologist with fedora) |
-| Sphinx, ankh, columns, questionmark | `sphinx.md3`, `ankh.md3`, `columns.md3`, `questionmark.md3` | `sphinx.bmp`, `ankh.bmp`, `columns.bmp`, `gold.bmp` | old (static) |
-| Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.bmp`, ..., `tchest.bmp` (bow uses `gold.bmp`, the old scarab texture) | old (static) |
-| Spikes trap | `spikes.md3` | `spikes.bmp` | old (static) |
+| Anubis (monster) | `anubis{,_att,_die}.md3` | `anubis.png` | remodelled |
+| Worm (monster) | `worm{,_att,_die}.md3` | `worm.png` | remodelled (man-eating worm) |
+| Scarab (monster) | `scarab{,_att,_die}.md3` | `scarab.png` | remodelled (giant golden Scarabaeus sacer) |
+| Plant (monster) | `plant{,_att,_die}.md3` | `plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
+| Player | `human{,_att,_die}.md3` | `player.png` | remodelled (archaeologist with fedora) |
+| Sphinx, ankh, columns, questionmark | `sphinx.md3`, `ankh.md3`, `columns.md3`, `questionmark.md3` | `sphinx.png`, `ankh.png`, `columns.png`, `gold.png` | old (static) |
+| Items: club, sword, spear, bow, potion, chest | `club.md3`, ..., `tchest.md3` | `club.png`, ..., `tchest.png` (bow uses `gold.png`, the old scarab texture) | old (static) |
+| Spikes trap | `spikes.md3` | `spikes.png` | old (static) |

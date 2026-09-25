@@ -1,6 +1,6 @@
 # Part 2 — Bool Literals
 
-**36 source locations** (each fires two paired warnings).
+**37 source locations** (each fires two paired warnings).
 Checks: `modernize-use-bool-literals` + `readability-implicit-bool-conversion`.
 
 ---
@@ -21,7 +21,7 @@ Both are fixed by the same change: replace `0` with `false` and `1` with `true`.
 |------|------------------------|
 | `src/core/sound.cpp` | 12 |
 | `src/entities/item.cpp` | 7 |
-| `src/entities/monster.cpp` | 6 |
+| `src/entities/monster.cpp` | 7 |
 | `src/graphics/ani.cpp` | 4 |
 | `src/core/timer.cpp` | 4 |
 | `src/entities/monster_ai.cpp` | 2 |

@@ -137,6 +137,10 @@ template void Logger::warningf<const char*, unsigned short>(const std::string&, 
 template void Logger::infof<unsigned int>(const std::string&, const std::string&, unsigned int);
 template void Logger::errorf<const char*, const char*>(const std::string&, const std::string&, const char*,
 													   const char*);
+template void Logger::warningf<const char*, const char*>(const std::string&, const std::string&, const char*,
+														 const char*);
+template void Logger::infof<const char*, int, int, int>(const std::string&, const std::string&, const char*, int, int,
+														int);
 
 // Additional instantiations for sound.cpp
 template void Logger::debugf<void*>(const std::string&, const std::string&, void*);

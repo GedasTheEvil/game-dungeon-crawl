@@ -1,6 +1,6 @@
 # Part 5 — Performance and Widening
 
-**6 warnings** across 2 files.
+**6 warnings** across 2 files originally; **2 left** (`particles.cpp`).
 Checks: `performance-type-promotion-in-math-fn`, `bugprone-implicit-widening-of-multiplication-result`.
 
 ---
@@ -32,6 +32,8 @@ pt[i].y += explosionForce * std::sin(randomAngle) * ...;
 
 ## 2. Implicit widening of multiplication result — `src/graphics/ani.cpp:35–37, 49`
 
+**Status (2026-09-25):** gone. The code was removed when `ani.cpp` switched from `.mdl` to MD3; no widening warnings remain.
+
 ```
 warning: performing an implicit widening conversion to type 'size_type' (aka 'unsigned long')
          of a multiplication performed in type 'int'
@@ -58,5 +60,4 @@ Only one operand needs the cast — the multiplication will be performed in `siz
 
 ## Notes
 
-- Both issues are in hot-path graphics code (`particles.cpp`, `ani.cpp`), so the performance fix (float math functions) is meaningful.
-- After fixing `ani.cpp`, re-run `make tidy` to confirm the widening warnings are gone — there are 4 of them clustered near each other and they may share a single expression that is computed in multiple sub-expressions.
+- `particles.cpp` is hot-path graphics code, so the performance fix (float math functions) is meaningful.

@@ -66,7 +66,7 @@ Dungeon::Dungeon() {
 	float shaderData[32][3];
 
 	FILE* in = nullptr;
-	in = fopen("Textures/ShaderD.bmp", "r");
+	in = fopen("Textures/ShaderD.txt", "r");
 
 	if (in) {
 		for (int i = 0; i < 32; i++) {

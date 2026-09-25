@@ -38,7 +38,7 @@ def _guess_texture(path):
     for suffix in ("_att", "_die"):
         if base.endswith(suffix):
             base = base[: -len(suffix)]
-    tex = os.path.join(REPO_ROOT, "Textures", base + ".bmp")
+    tex = os.path.join(REPO_ROOT, "Textures", base + ".png")
     return tex if os.path.exists(tex) else None
 
 

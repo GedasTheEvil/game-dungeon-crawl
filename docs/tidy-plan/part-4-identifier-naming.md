@@ -1,6 +1,6 @@
 # Part 4 — Identifier Naming
 
-**9 warnings** across 4 files.
+**12 warnings** across 6 files.
 Check: `readability-identifier-naming`.
 
 ---
@@ -11,7 +11,7 @@ The `.clang-tidy` config requires:
 - Local `const` variables → `UPPER_CASE`
 - Functions → `camelBack`
 
-All 9 violations are local `const` variables and one function that use `camelBack` instead of `UPPER_CASE`.
+All 12 violations are local `const` variables and one function that use `camelBack` instead of `UPPER_CASE`.
 
 ---
 
@@ -45,6 +45,21 @@ All are `const float` layout parameters in the HUD draw function. Rename declara
 | `tile` (line 230) | `TILE` |
 
 Two separate scopes, both `const Tint tile = MapAt(i, j)`. Rename each independently within its block.
+
+### `src/entities/monster.cpp` — 2 constants (lines 29, 235)
+
+| Current name | Required name |
+|-------------|--------------|
+| `entering` (line 29) | `ENTERING` |
+| `norm` (line 235) | `NORM` |
+
+### `src/graphics/ani.cpp` — 1 constant (line 103)
+
+| Current name | Required name |
+|-------------|--------------|
+| `xyzScale` | `XYZ_SCALE` |
+
+Added with the MD3 loader.
 
 ### `src/core/game.cpp` — 1 function (line 17)
 

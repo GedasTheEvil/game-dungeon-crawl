@@ -5,9 +5,9 @@
 #include "../core/service_locator.h"
 
 winL::winL() {
-	win.LoadBMP("Textures/win.bmp");
-	loose.LoadBMP("Textures/dead.bmp");
-	credits.LoadBMP("Textures/credits.bmp");
+	win.LoadPNG("Textures/win.png");
+	loose.LoadPNG("Textures/dead.png");
+	credits.LoadPNG("Textures/credits.png");
 }
 
 void winL::DrawQuad(float sx, float sy) {

@@ -35,7 +35,7 @@ AnimatedCartoonModel::AnimatedCartoonModel() {
 	float shaderData[32][3];
 
 	FILE* in = nullptr;
-	in = fopen("Textures/Shader.bmp", "r");
+	in = fopen("Textures/Shader.txt", "r");
 
 	if (in) {
 		for (int i = 0; i < 32; i++) {

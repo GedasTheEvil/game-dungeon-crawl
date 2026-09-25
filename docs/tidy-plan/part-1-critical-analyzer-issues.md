@@ -1,6 +1,9 @@
 # Part 1 — Critical Analyzer Issues
 
 **4 warnings** across 3 files.
+
+**Status (2026-09-25):** items 2 and 3 are fixed. Item 1 still reports at `font.cpp:17`
+(`va_start` is already called before `vsprintf`, so the remaining report needs a closer look — possibly a false positive).
 Checks: `clang-analyzer-valist.Uninitialized`, `clang-analyzer-deadcode.DeadStores`, `bugprone-integer-division`.
 
 These are the highest-priority issues because two are real bugs (not style).

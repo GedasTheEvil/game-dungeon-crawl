@@ -22,8 +22,8 @@ item* viewed; // only pointer
 
 inventory::inventory() {
 	inv_ani = std::make_unique<timer>(10);
-	Impact.Load("Fonts/papyrus_i.bmp", 5, -0.6);
-	small.Load("Fonts/impact_i.bmp", 3.5, -0.3);
+	Impact.Load("Fonts/papyrus_i.png", 5, -0.6);
+	small.Load("Fonts/impact_i.png", 3.5, -0.3);
 
 	equipped.type = ItemType::MELEE_WEAPON;
 	equipped.id = WeaponId::CLUB;

@@ -42,7 +42,10 @@ enum MonsterType {
 	MonsterAnubis = 4,
 	MonsterRat = 5,
 	MonsterGiantRat = 6,
+	MonsterBat = 7,
+	MonsterGiantBat = 8,
 };
+constexpr int MONSTER_TYPE_MAX = MonsterGiantBat;
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

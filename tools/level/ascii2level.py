@@ -8,7 +8,7 @@ Lines 'set COL ROW TYPE ATTR VALUE' override single cells (after the drawing), e
 
 Legend: # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D decoration gate  H ladder  $ treasure (small
 potion)  ^ spikes  X death trap  v rock fall  s scarab  w worm  p plant  n anubis  t rat  T giant rat
-r b g y keys  R B G Y gates  / lever (red, override with 'set')
+f bat  F giant bat  r b g y keys  R B G Y gates  / lever (red, override with 'set')
 """
 
 import sys
@@ -18,7 +18,7 @@ CELLS = W * H + 1
 LEGEND = {
     "#": (0, 0, 0), ".": (1, 0, 0), "S": (2, 1, 0), "E": (2, 2, 0), "?": (2, 3, 0), "D": (2, 0, 0),
     "X": (3, 0, 0), "^": (5, 0, 0), "H": (6, 0, 0), "$": (8, 3, 0), "A": (9, 0, 0), "v": (13, 0, 0),
-    "s": (4, 1, 0), "w": (4, 2, 0), "p": (4, 3, 0), "n": (4, 4, 0), "t": (4, 5, 0), "T": (4, 6, 0),
+    "s": (4, 1, 0), "w": (4, 2, 0), "p": (4, 3, 0), "n": (4, 4, 0), "t": (4, 5, 0), "T": (4, 6, 0), "f": (4, 7, 0), "F": (4, 8, 0),
     "r": (10, 1, 0), "b": (10, 2, 0), "g": (10, 3, 0), "y": (10, 4, 0),
     "R": (11, 1, 0), "B": (11, 2, 0), "G": (11, 3, 0), "Y": (11, 4, 0), "/": (12, 1, 0),
 }

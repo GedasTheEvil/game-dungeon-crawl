@@ -39,8 +39,10 @@ const Choices GATE_TYPES = {
 };
 
 const Choices MONSTER_TYPES = {
-	{MonsterScarab, "scarab", "Scarab"}, {MonsterWorm, "worm", "Worm"}, {MonsterPlant, "plant", "Plant"},
-	{MonsterAnubis, "anubis", "Anubis"}, {MonsterRat, "rat", "Rat"},	{MonsterGiantRat, "giant rat", "Giant rat"},
+	{MonsterScarab, "scarab", "Scarab"}, {MonsterWorm, "worm", "Worm"},
+	{MonsterPlant, "plant", "Plant"},	 {MonsterAnubis, "anubis", "Anubis"},
+	{MonsterRat, "rat", "Rat"},			 {MonsterGiantRat, "giant rat", "Giant rat"},
+	{MonsterBat, "bat", "Bat"},			 {MonsterGiantBat, "giant bat", "Giant bat"},
 };
 
 const Choices LOCK_COLOURS = {

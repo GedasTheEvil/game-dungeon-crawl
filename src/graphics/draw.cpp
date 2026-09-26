@@ -74,12 +74,12 @@ void Update() {
 		bool climbing = !GAME_STATE.Player->jump.jumping && GAME_STATE.dungeon.PlayerOnLadder();
 		GAME_STATE.Player->depthOffset = climbing ? PLAYER_CLIMB_DEPTH : 0.f;
 		if (GAME_STATE.Player->jump.jumping)
-			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Jump));
+			GAME_STATE.Player->setModelState(ModelState::Jump);
 		else if (climbing) {
 			GAME_STATE.Player->showClimb(GAME_STATE.dungeon.ClimbPhase());
 			GAME_STATE.Player->rotA = PLAYER_CLIMB_ROT;
 		} else if (GAME_STATE.timers.mdlChange->TimePassed())
-			GAME_STATE.Player->changeMDL(static_cast<int>(ModelState::Walk)); // idle
+			GAME_STATE.Player->setModelState(ModelState::Idle);
 
 		GAME_STATE.ui.invent->Equipped()->rotA++;
 

@@ -90,12 +90,14 @@ void GameState::Load() {
 	textures.plant_t.LoadPNG("Textures/monsters/plant.png");
 	textures.rat_t.LoadPNG("Textures/monsters/rat.png");
 	textures.giantRat_t.LoadPNG("Textures/monsters/rat_giant.png");
+	textures.bat_t.LoadPNG("Textures/monsters/bat.png");
+	textures.giantBat_t.LoadPNG("Textures/monsters/bat_giant.png");
 	textures.riddle_bg.LoadPNG("Textures/ui/riddlebg.png");
 	ui.rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
 	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
-	Player->loadModel("characters/archeologist", textures.player_t, textures.progBar, true);
+	Player->loadModel("characters/archeologist", textures.player_t, textures.progBar, true, PLAYER_CLIPS);
 	Player->scale = 15;
 	Player->setCords(0, 0);
 
@@ -147,6 +149,23 @@ void GameState::Load() {
 	monsters.giantRat->scale = 42;
 	monsters.giantRat->rotA = 180;
 	monsters.giantRat->maxHealth = 60;
+
+	// Flyers: roost on the ceiling, swoop through the player (monster::Fly). The giant bat uses the same files.
+	DrawLoad(69, "Loading Monster Models [Bat]");
+	monsters.bat = std::make_unique<monster>(0, 0, 5, 8, 3, 400);
+	monsters.bat->loadModel("monsters/bat", textures.bat_t, textures.progBar, true);
+	monsters.bat->scale = 18;
+	monsters.bat->rotA = 180;
+	monsters.bat->maxHealth = 8;
+	monsters.bat->flies = true;
+
+	monsters.giantBat = std::make_unique<monster>(0, 0, 4, 40, 10, 1800);
+	monsters.giantBat->loadModel("monsters/bat", textures.giantBat_t, textures.progBar, true);
+	monsters.giantBat->scale = 30;
+	monsters.giantBat->rotA = 180;
+	monsters.giantBat->maxHealth = 40;
+	monsters.giantBat->flies = true;
+	monsters.giantBat->setBloodColor(0.45f, 0.05f, 0.05f);
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	items.club = std::make_unique<item>();

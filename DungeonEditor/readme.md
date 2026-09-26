@@ -82,8 +82,10 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 4 | Anubis |
 | 5 | Rat |
 | 6 | Giant rat |
+| 7 | Bat |
+| 8 | Giant bat |
 
-Any other value spawns a copy of the player model. Max. 9 monsters are active at one time.
+Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through him (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. Any other value spawns a copy of the player model. Max. 9 monsters are active at one time.
 
 ### Key, Gate, Lever: lock colour (attribute)
 

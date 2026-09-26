@@ -24,9 +24,9 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 
 ## Assets
 
-* `Models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`). Monsters use `<name>.md3` (walk), `<name>_att.md3` (attack), `<name>_die.md3` (death).
+* `Models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
 * `Textures/<category>/`, `Fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `Models/` plus `ui`, `dungeon`, `effects`. `Textures/Shader.txt` and `ShaderD.txt` are toon-shading ramps.
-* `Sounds/` - WAV effects, OGG soundtrack (`tools/audio/*.py` synthesize the jump, rat, key, gate, lever and rock sounds). `Levels/` - level files. `Saves/` - save games.
+* `Sounds/` - WAV effects, OGG soundtrack (`tools/audio/*.py` synthesize the jump, rat, bat, key, gate, lever and rock sounds). `Levels/` - level files. `Saves/` - save games.
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [docs/remodeling.md](docs/remodeling.md).
 

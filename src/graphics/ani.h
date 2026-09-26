@@ -2,6 +2,7 @@
 #define ANI_c
 
 #include <memory>
+#include <utility>
 #include <vector>
 #include "../core/timer.h"
 
@@ -54,6 +55,7 @@ class AnimatedModel {
 	void Compile();
 	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
 	void Normalize(const ModelNormalization& n);
+	[[nodiscard]] std::pair<float, float> YRange(int f) const; // lowest and highest y of frame f
 	void Reset();
 	[[nodiscard]] int FrameCount() const;
 	[[nodiscard]] AnimPlayback Playback() const;

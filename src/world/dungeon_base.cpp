@@ -46,6 +46,7 @@ void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->setFacingDir(m[index].facing_dir);
 	m[index].m->health = m[index].HP;
 	m[index].m->useBlood(m[index].blood.get());
+	m[index].m->flight = m[index].flight;
 }
 //======================================================================================
 void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
@@ -56,6 +57,7 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 	m[index].state = m[index].m->Model_state();
 	m[index].anim = m[index].m->animations();
 	m[index].facing_dir = m[index].m->FacingDir();
+	m[index].flight = m[index].m->flight;
 	m[index].m->useBlood(nullptr);
 }
 //======================================================================================
@@ -71,7 +73,7 @@ Dungeon::Dungeon() {
 		m[i].orX = -1;
 		m[i].orY = -1;
 		m[i].HP = 0;
-		m[i].state = 1;
+		m[i].state = static_cast<int>(ModelState::Move);
 		m[i].facing_dir = 0;
 	}
 

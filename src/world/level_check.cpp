@@ -153,7 +153,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				r.finale = true;
 				break;
 			case Monster:
-				r.monsters[t.b >= 1 && t.b <= 6 ? t.b : 0]++;
+				r.monsters[t.b >= 1 && t.b <= MONSTER_TYPE_MAX ? t.b : 0]++;
 				r.monsterCount++;
 				break;
 			case Spike:
@@ -261,6 +261,10 @@ float monsterThreat(int type) {
 		return 0.6f;
 	case MonsterGiantRat:
 		return 3.f;
+	case MonsterBat:
+		return 1.2f; // weak, but only hit with good timing
+	case MonsterGiantBat:
+		return 3.5f;
 	default:
 		return 2.f;
 	}
@@ -428,7 +432,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 }
 
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
-	static const char MONSTER_CHARS[] = "mswpntT";
+	static const char MONSTER_CHARS[] = "mswpntTfF";
 	static const char KEY_CHARS[] = "rbgy";
 	static const char GATE_CHARS[] = "RBGY";
 	std::vector<char> onPath(CELLS, 0);
@@ -458,7 +462,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 				c = 'X';
 				break;
 			case Monster:
-				c = MONSTER_CHARS[t.b >= 1 && t.b <= 6 ? t.b : 0];
+				c = MONSTER_CHARS[t.b >= 1 && t.b <= MONSTER_TYPE_MAX ? t.b : 0];
 				break;
 			case Spike:
 				c = '^';

@@ -2,6 +2,7 @@
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include <GL/gl.h>
+#include <cmath>
 #include <memory>
 #include "../graphics/render_config.h"
 
@@ -19,6 +20,10 @@ monster* getMbyType(int type) {
 		return GAME_STATE.monsters.rat.get();
 	if (type == 6)
 		return GAME_STATE.monsters.giantRat.get();
+	if (type == MonsterBat)
+		return GAME_STATE.monsters.bat.get();
+	if (type == MonsterGiantBat)
+		return GAME_STATE.monsters.giantBat.get();
 
 	return GAME_STATE.Player.get();
 }
@@ -30,6 +35,15 @@ void Dungeon::UpdateMonsters() {
 			continue;
 
 		SyncMonsterFromToken(a);
+
+		if (m[a].m->flies) {
+			if (!GAME_STATE.IHaveWon) {
+				const auto col = static_cast<int>(std::floor(m[a].m->flightProbeX()));
+				m[a].m->Fly(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY)));
+			}
+			SyncTokenFromMonster(a, true);
+			continue;
+		}
 
 		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
 			if (!m[a].m->Seek())
@@ -80,8 +94,9 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].orY = j;
 	m[index].HP = m[index].m->maxHealth;
 	m[index].m->GetCords(m[index].mapX, m[index].mapY);
-	m[index].state = 1;
+	m[index].state = static_cast<int>(m[index].m->flies ? ModelState::Idle : ModelState::Move);
 	m[index].facing_dir = 0;
+	m[index].flight = Flight{};
 	m[index].anim = m[index].m->spawnAnimations();
 	if (!m[index].t)
 		m[index].t = std::make_unique<timer>(70);

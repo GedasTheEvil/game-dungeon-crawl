@@ -37,32 +37,18 @@ void monster::applyModelState(ModelState state) {
 //================================================================================
 void monster::selectModel(ModelState state) {
 	currentState = state;
-	switch (state) {
-	case ModelState::Walk:
-		model = walk.get();
-		break;
-	case ModelState::Attack:
-		model = attack.get();
-		break;
-	case ModelState::Die:
-		model = die.get();
-		break;
-	case ModelState::Jump:
-		model = jumpAnim ? jumpAnim.get() : walk.get();
-		break;
-	case ModelState::Climb:
-		model = climbAnim ? climbAnim.get() : walk.get();
-		break;
-	}
+	const auto& c = clips[static_cast<int>(state)];
+	model = c ? c.get() : clips[static_cast<int>(reference)].get();
 }
 //================================================================================
 void monster::showClimb(float phase) {
-	if (!climbAnim)
+	AnimatedCartoonModel* climb = clip(ModelState::Climb);
+	if (!climb)
 		return;
 	selectModel(ModelState::Climb);
-	int frames = climbAnim->FrameCount();
+	int frames = climb->FrameCount();
 	float frame = std::min(phase - std::floor(phase), 1.f) * static_cast<float>(frames);
-	climbAnim->SetPlayback({std::min(frame, static_cast<float>(frames) - 0.001f), 0});
+	climb->SetPlayback({std::min(frame, static_cast<float>(frames) - 0.001f), 0});
 }
 //================================================================================
 monster::monster() {
@@ -76,7 +62,7 @@ monster::monster() {
 	stat = -1;
 	facing_dir = 0;
 	scale = 1;
-	currentState = ModelState::Walk;
+	currentState = ModelState::Move;
 	model = nullptr;
 
 	Att_timer = std::make_unique<timer>(1000);
@@ -100,7 +86,7 @@ monster::monster(float dx, float dy) {
 	stat = -1;
 	facing_dir = 0;
 	scale = 1;
-	currentState = ModelState::Walk;
+	currentState = ModelState::Move;
 	model = nullptr;
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
@@ -119,7 +105,7 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	XP = nXP;
 	stat = -1;
 	facing_dir = 0;
-	currentState = ModelState::Walk;
+	currentState = ModelState::Move;
 	model = nullptr;
 	Att_timer = std::make_unique<timer>(1000);
 	walk_timer = std::make_unique<timer>(40);
@@ -139,7 +125,7 @@ bool monster::Draw() // needs to choose animation
 	glPushMatrix();
 
 	if (this != GAME_STATE.Player.get())
-		glTranslatef(40 * mapX - 20, mapY, -30);
+		glTranslatef(40 * mapX - 20, mapY + (flies ? flight.lift : 0.f), -30);
 	else
 		glTranslatef(0, 0, -30 + depthOffset);
 
@@ -149,14 +135,22 @@ bool monster::Draw() // needs to choose animation
 
 	if (Alive()) {
 		if (currentState == ModelState::Die) {
-			if (!attackDirection())
+			if (flies)
+				applyModelState(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
+			else if (!attackDirection())
 				applyModelState(ModelState::Attack);
 			else
-				applyModelState(ModelState::Walk);
+				applyModelState(ModelState::Move);
 		}
 
 		if (this != GAME_STATE.Player.get()) {
 			nullTexture.Bind();
+			// Above the model; a flyer's bar hangs under it while it roosts (the ceiling is above).
+			float barY = 1.1f;
+			if (flies)
+				barY = flight.phase == FlightPhase::Roost ? idleBottom - 0.2f : referenceTop + 0.1f;
+			glPushMatrix();
+			glTranslatef(0, barY - 1.1f, 0);
 
 			glColor4f(1, 1, 1, 0.9);
 			Lighting::setEmissive(true);
@@ -185,6 +179,7 @@ bool monster::Draw() // needs to choose animation
 
 			glDisable(GL_BLEND);
 			Lighting::setEmissive(false);
+			glPopMatrix();
 
 			glColor3f(1, 1, 1);
 		}
@@ -214,7 +209,10 @@ bool monster::Draw() // needs to choose animation
 
 	if (this != GAME_STATE.Player.get()) {
 		if (Alive()) {
-			facing_dir = attackDirection();
+			if (!flies)
+				facing_dir = attackDirection();
+			else
+				facing_dir = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
 		} else
 			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
@@ -233,7 +231,7 @@ bool monster::Draw() // needs to choose animation
 	return 1;
 }
 //================================================================================
-bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile) {
+bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile, const ClipFiles& files) {
 	nullTexture = nullT;
 
 	if (stat != -1) {
@@ -241,59 +239,40 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		return 0;
 	}
 
-	char tmp1[255], tmp2[255], tmp3[255], tmp4[255], tmp5[255], tmp6[255], tmp7[255];
+	reference = files.front().state;
+	ModelNormalization norm;
+	for (const ClipFile& file : files) {
+		const std::string path = std::string("Models/") + filename + file.suffix + ".md3";
+		if (!file.required && !std::filesystem::exists(path))
+			continue;
+		LOG_INFOF("entities", "Loading model: %s", path.c_str());
+		auto& c = clips[static_cast<int>(file.state)];
+		c = makeModel(path.c_str(), texture.ID(), 35);
+		// Every clip uses the reference clip's normalization, so the model doesn't jump between animations.
+		if (file.state == reference)
+			norm = c->Centrify();
+		else
+			c->Normalize(norm);
+		c->loop = file.loop;
+	}
+	referenceTop = clip(reference)->YRange(0).second;
+	if (const AnimatedCartoonModel* idle = clip(ModelState::Idle)) {
+		idleBottom = idle->YRange(0).first;
+		idleTop = idle->YRange(0).second;
+	}
 
-	sprintf(tmp1, "Models/%s.md3", filename);
-	sprintf(tmp2, "Models/%s_att.md3", filename);
-	sprintf(tmp3, "Models/%s_die.md3", filename);
 	// filename is "<category>/<name>" (under Models/); sounds are flat in Sounds/<name>_*.wav.
 	const std::string name = std::filesystem::path(filename).filename().string();
-	sprintf(tmp4, "Sounds/%s_att.wav", name.c_str());
-	sprintf(tmp5, "Sounds/%s_die.wav", name.c_str());
-	sprintf(tmp6, "Models/%s_jump.md3", filename);
-	sprintf(tmp7, "Models/%s_climb.md3", filename);
+	die_s.LoadWAV(("Sounds/" + name + "_die.wav").c_str());
+	att_s.LoadWAV(("Sounds/" + name + "_att.wav").c_str());
 
-	LOG_INFOF("entities", "Loading model: %s", tmp1);
-	walk = makeModel(tmp1, texture.ID(), 35);
-	// Attack and die use the walk file's normalization, so the model doesn't jump between animations.
-	const ModelNormalization norm = walk->Centrify();
-
-	LOG_INFOF("entities", "Loading model: %s", tmp2);
-	attack = makeModel(tmp2, texture.ID(), 35);
-	attack->Normalize(norm);
-
-	LOG_INFOF("entities", "Loading model: %s", tmp3);
-	die = makeModel(tmp3, texture.ID(), 35);
-	die->Normalize(norm);
-	die->loop = 0;
-
-	if (std::filesystem::exists(tmp6)) {
-		LOG_INFOF("entities", "Loading model: %s", tmp6);
-		jumpAnim = makeModel(tmp6, texture.ID(), 35);
-		jumpAnim->Normalize(norm);
-		jumpAnim->loop = 0; // holds the landing pose until the next state change
-	}
-	if (std::filesystem::exists(tmp7)) {
-		LOG_INFOF("entities", "Loading model: %s", tmp7);
-		climbAnim = makeModel(tmp7, texture.ID(), 35);
-		climbAnim->Normalize(norm);
-	}
-
-	die_s.LoadWAV(tmp5);
-	att_s.LoadWAV(tmp4);
-
-	if (compile) {
-		walk->Compile();
-		attack->Compile();
-		die->Compile();
-		if (jumpAnim)
-			jumpAnim->Compile();
-		if (climbAnim)
-			climbAnim->Compile();
-	}
+	if (compile)
+		for (auto& c : clips)
+			if (c)
+				c->Compile();
 	stat = 1;
 
-	applyModelState(ModelState::Walk);
+	applyModelState(reference);
 
 	return 1;
 }
@@ -339,7 +318,7 @@ bool monster::getHit(int dmg) {
 //================================================================================
 void monster::Reanimate() {
 	health = maxHealth;
-	applyModelState(ModelState::Walk);
+	applyModelState(reference);
 	facing_dir = 0;
 }
 //================================================================================
@@ -359,28 +338,14 @@ void monster::initBlood(ParSys& tokenBlood) const {
 //================================================================================
 void monster::useBlood(ParSys* tokenBlood) { blood = tokenBlood ? tokenBlood : ownBlood.get(); }
 //================================================================================
-AnimatedCartoonModel* monster::clip(ModelState state) const {
-	switch (state) {
-	case ModelState::Walk:
-		return walk.get();
-	case ModelState::Attack:
-		return attack.get();
-	case ModelState::Die:
-		return die.get();
-	case ModelState::Jump:
-		return jumpAnim.get();
-	case ModelState::Climb:
-		return climbAnim.get();
-	}
-	return nullptr;
-}
+AnimatedCartoonModel* monster::clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
 //================================================================================
 MonsterAnimations monster::spawnAnimations() const {
 	MonsterAnimations animations{};
-	// Random walk phase, so monsters spawned in the same tick don't march in step.
-	int walkFrames = walk->FrameCount() - 1;
-	if (walkFrames > 0)
-		animations[static_cast<int>(ModelState::Walk)].frame = static_cast<float>(rand() % walkFrames);
+	// Random move / idle phase, so monsters spawned in the same tick don't march in step.
+	for (ModelState state : {ModelState::Move, ModelState::Idle})
+		if (const AnimatedCartoonModel* c = clip(state); c && c->FrameCount() > 1)
+			animations[static_cast<int>(state)].frame = static_cast<float>(rand() % (c->FrameCount() - 1));
 	return animations;
 }
 //================================================================================

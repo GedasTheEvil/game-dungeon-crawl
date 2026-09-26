@@ -27,6 +27,21 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
 
+// Bats (monster::Fly). Distances in tiles along the row, heights in world units (a tile is 40) from the floor
+// to the model origin (the lowest point of the flying pose).
+constexpr float BAT_SIGHT = 1.75f;			 // a roosting bat wakes up when the player is this close
+constexpr float BAT_OVERSHOOT = 1.5f;		 // flies on this far past the player before it turns
+constexpr float BAT_BITE_REACH = 0.15f;		 // bites when this close in front of the player (it flies through him)
+constexpr float BAT_TILES_PER_SPEED = 0.25f; // flight speed: tiles per second per speed point
+constexpr float BAT_LOW_LIFT = 2.f;			 // height of the wing tips when passing the player (bites at head height)
+constexpr float BAT_WING_DIP = 0.25f;		 // the wing tips reach this far below the origin (wingspans, bat.py)
+constexpr float BAT_HIGH_LIFT = 19.f;		 // height at the turning point
+constexpr float BAT_LIFT_RATE = 5.f;		 // how fast the height follows its target (1/s)
+constexpr float BAT_CEILING = 40.f;			 // roosting bats hang from here
+constexpr float BAT_WALL_MARGIN = 0.35f;	 // turns this far before a wall
+constexpr int BAT_ATTACK_MS = 450;			 // attack clip after a bite
+constexpr float BAT_FALL_GRAVITY = 600.f;	 // dead bats fall to the floor (world units / s^2)
+
 // Keys, gates and levers (dungeon_mechanisms.cpp).
 constexpr int GATE_OPEN_MS = 1200;			  // the gate slides up into the ceiling, passable once it is up
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often

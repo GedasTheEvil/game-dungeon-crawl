@@ -323,8 +323,9 @@ class LevelBuilder {
 		struct Pick {
 			int type, minDifficulty, weight;
 		};
-		static const Pick PICKS[] = {{MonsterRat, 1, 6},  {MonsterScarab, 1, 4},   {MonsterPlant, 3, 2},
-									 {MonsterWorm, 3, 2}, {MonsterGiantRat, 4, 3}, {MonsterAnubis, 8, 1}};
+		static const Pick PICKS[] = {{MonsterRat, 1, 6},	  {MonsterScarab, 1, 4}, {MonsterBat, 2, 3},
+									 {MonsterPlant, 3, 2},	  {MonsterWorm, 3, 2},	 {MonsterGiantRat, 4, 3},
+									 {MonsterGiantBat, 5, 2}, {MonsterAnubis, 8, 1}};
 		int total = 0;
 		for (const Pick& p : PICKS)
 			if (d >= p.minDifficulty)

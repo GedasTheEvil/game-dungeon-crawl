@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -340,6 +341,15 @@ ModelNormalization AnimatedModel::Centrify() {
 void AnimatedModel::Normalize(const ModelNormalization& n) {
 	Scale(n.scale);
 	Translate(n.x, n.y, n.z);
+}
+//============================================================
+std::pair<float, float> AnimatedModel::YRange(int f) const {
+	std::pair<float, float> range{1000.0f, -1000.0f};
+	for (int i = 1; i < VCount * 3; i += 3) {
+		range.first = std::min(range.first, Ver[f].v[i]);
+		range.second = std::max(range.second, Ver[f].v[i]);
+	}
+	return range;
 }
 //============================================================
 void AnimatedModel::Translate(float x, float y, float z) {

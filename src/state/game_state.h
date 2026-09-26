@@ -50,7 +50,7 @@ struct FontPair {
 };
 
 struct MonsterPrototypes {
-	std::unique_ptr<monster> anubis, scarab, plant, worm, rat, giantRat;
+	std::unique_ptr<monster> anubis, scarab, plant, worm, rat, giantRat, bat, giantBat;
 };
 
 struct ItemPrototypes {

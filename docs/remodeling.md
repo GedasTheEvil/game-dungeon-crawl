@@ -21,6 +21,14 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
+* `tools/blender/models/bat.py` - flying monster example: wing arm + four finger bones posed by FK deformation matrices, double-sided
+  membrane grids between fingers / arm / leg with blended weights (they stretch and crumple when folding). Clips: fly (move, the
+  normalization reference; body height fixed, the engine flies it), attack, die (floor-fixed every frame to fly frame 0's lowest point),
+  idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
+  0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
+  `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`Sounds/bat_{att,die}.wav`).
+  Engine: `monster::Fly` (`flies = true`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
@@ -75,7 +83,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `monster::loadModel`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
-* The player uses the files differently: `archeologist.md3` = idle (standing), `archeologist_att.md3` = walk cycle (while moving),
+* Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, one file per clip. The file list (`ClipFiles` in
+  `src/entities/monster.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
+  clips and stands in for a missing optional clip. `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle.
+  `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`.
+* The player: `archeologist.md3` = idle (standing), `archeologist_walk.md3` = walk cycle (while moving),
   `archeologist_die.md3` = death, `archeologist_jump.md3` = forward jump (optional `<name>_jump.md3`, `ModelState::Jump`; restarts on every
   jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height),
   `archeologist_climb.md3` = climbing a ladder (optional `<name>_climb.md3`, `ModelState::Climb`): back to the camera (drawn at rotA 180,
@@ -85,11 +97,12 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   sideways moves on a ladder use the walk cycle. The weapon is hidden while climbing.
   The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
   `ModelViewer` looks for `Textures/<category>/<stem>.png` (the model's sub-directory under `Models/`).
-* Monsters need three files: `<name>.md3` walk (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame).
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+* Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
+  plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 27 models load in ~0.2 s.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 31 models load in ~0.2 s.
 
 ## Status
 Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, dungeon wall textures in `Textures/dungeon/`, `plasma.png` in `Textures/effects/`.
@@ -100,6 +113,7 @@ Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, d
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
 | Scarab (monster) | `monsters/scarab{,_att,_die}.md3` | `monsters/scarab.png` | remodelled (giant golden Scarabaeus sacer) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
+| Bat, giant bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png` | new (tomb bat; the giant bat uses the same files with its own texture) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_att,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Sphinx, ankh, questionmark | `props/{sphinx,ankh,questionmark}.md3` | `props/sphinx.png`, `props/ankh.png`, `items/gold.png` | old (static) |

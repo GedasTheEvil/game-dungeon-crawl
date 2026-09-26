@@ -39,7 +39,7 @@ struct LevelReport {
 	int boundsHeight = 0;
 
 	// Content, whole level
-	int monsters[7] = {}; // by MonsterType (index 0 = unknown type)
+	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterType (index 0 = unknown type)
 	int monsterCount = 0;
 	int spikes = 0, deathTraps = 0, rockFalls = 0, treasures = 0, keys = 0, gates = 0, levers = 0, riddles = 0;
 	int reachableTreasures = 0;
@@ -63,7 +63,8 @@ struct LevelReport {
 
 // The level as text, top row first (wall rows above and below the level are skipped). Legend:
 //   # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D other gate  H ladder  $ treasure
-//   ^ spikes  X death trap  v rock fall  monsters: s scarab w worm p plant n anubis t rat T giant rat m other
+//   ^ spikes  X death trap  v rock fall  monsters: s scarab w worm p plant n anubis t rat T giant rat
+//   f bat F giant bat m other
 //   keys r b g y, gates R B G Y (red, blue, green, gold), / lever
 // With a report, the path is drawn as '*' over open cells.
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);

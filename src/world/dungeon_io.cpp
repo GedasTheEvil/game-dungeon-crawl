@@ -4,7 +4,6 @@
 #include "../core/logger.h"
 #include "loot.h"
 #include "campaign.h"
-#include "level_gen.h"
 #include <algorithm>
 #include <iterator>
 #include <fstream>
@@ -36,26 +35,7 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	scatterDecorations(levelName);
 }
 //======================================================================================
-bool Dungeon::LoadCampaignLevel(int number, uint32_t runSeed) {
-	CampaignLevel level = campaignLevel(number, runSeed);
-	if (!level.generated)
-		return Load(level.file.c_str());
-
-	GenOptions options;
-	options.seed = level.seed;
-	options.difficulty = level.difficulty;
-	GenResult result = generateLevel(options);
-	if (!result.ok) {
-		LOG_ERRORF("world", "No valid level from seed %d", static_cast<int>(level.seed));
-		return false;
-	}
-	char text[128];
-	snprintf(text, sizeof(text), "Generated level %d: seed %u, difficulty %d, score %.1f", number, level.seed,
-			 level.difficulty, static_cast<double>(result.report.difficulty));
-	LOG_INFOF("world", "%s", static_cast<const char*>(text));
-	LoadGrid(result.grid, level.name.c_str());
-	return true;
-}
+bool Dungeon::LoadCampaignLevel(int number) { return Load(campaignLevelFile(number).c_str()); }
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {
 	f >> mapX >> mapY;
@@ -123,6 +103,6 @@ void Dungeon::GetRiddle() {
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateExit) {
 		GAME_STATE.curMap++;
-		LoadCampaignLevel(GAME_STATE.curMap, GAME_STATE.runSeed);
+		LoadCampaignLevel(GAME_STATE.curMap);
 	}
 }

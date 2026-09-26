@@ -30,7 +30,7 @@ One command per line. `#` starts a comment.
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | `srand` seed, applied at each `level`. Default 1. |
 | `god` | The player takes no damage (`stats::GetHit`). Death tiles still kill. |
-| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N ([levels.md](levels.md): 1-4 and the last are `Levels/lvl*`, the ones between are generated from the `seed`), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
+| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`Levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Move until the player is N tiles away on that axis. `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |

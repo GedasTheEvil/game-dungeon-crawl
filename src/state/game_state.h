@@ -108,7 +108,6 @@ class GameState {
 	bool Cache_loaded = false;
 	bool IHaveWon = false;
 	int curMap = 1;
-	uint32_t runSeed = 1; // generated levels of this game (campaign.h), new at New Game, kept in the save
 	char status[255] = {};
 	std::unique_ptr<timer> status_timer;
 	SoundBank sounds;

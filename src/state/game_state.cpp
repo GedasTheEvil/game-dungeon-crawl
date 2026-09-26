@@ -5,7 +5,6 @@
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
-#include <ctime>
 #include "../input/gameplay_config.h"
 #include "../world/campaign.h"
 
@@ -303,7 +302,7 @@ void GameState::Load() {
 
 	DrawLoad(95, "Loading game Map");
 
-	if (!dungeon.LoadCampaignLevel(curMap, runSeed))
+	if (!dungeon.LoadCampaignLevel(curMap))
 		LOG_WARNING("game", "Failed loading map");
 
 	DrawLoad(100, "Loading game soundtrack");
@@ -328,8 +327,7 @@ void GameState::Load() {
 //==============================================================
 void GameState::NewGame() {
 	curMap = 1;
-	runSeed = static_cast<uint32_t>(time(nullptr));
-	dungeon.LoadCampaignLevel(curMap, runSeed);
+	dungeon.LoadCampaignLevel(curMap);
 	IHaveWon = false;
 	Player->Reanimate();
 }
@@ -409,7 +407,6 @@ void GameState::Save(const char filename[]) {
 	ui.Stats->Dump(dump);
 	ui.invent->Dump(dump);
 	dungeon.Dump(dump);
-	dump << runSeed << " ";
 
 	dump.close();
 }
@@ -437,10 +434,7 @@ void GameState::LoadSave(const char filename[]) {
 	ui.invent->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
-	uint32_t seed = 0;
-	if (dump >> seed) // older saves end before the run seed
-		runSeed = seed;
-	dungeon.scatterDecorations(campaignLevel(curMap, runSeed).name.c_str());
+	dungeon.scatterDecorations(campaignLevelFile(curMap).c_str());
 	LOG_INFO("game", "Done loading map");
 	dump.close();
 }

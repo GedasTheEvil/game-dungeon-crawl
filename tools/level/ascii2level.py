@@ -5,6 +5,8 @@
 IN.txt: the drawing, top row first; rows are placed so the last drawn row is row 1 (row 0 and the rest stay wall),
 columns start at 0. Shorter lines are padded with wall. Lines starting with ';' are comments.
 Lines 'set COL ROW TYPE ATTR VALUE' override single cells (after the drawing), e.g. a lever's colour.
+Lines 'def CHAR TYPE ATTR VALUE' add a character to the legend for this file, e.g. 'def L 12 2 0' (blue lever),
+'def 1 8 1 1' (sword chest). Put them before the drawing.
 
 Legend: # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D decoration gate  H ladder  $ treasure (small
 potion)  ^ spikes  X death trap  v rock fall  s scarab  w worm  p plant  n anubis  t rat  T giant rat
@@ -26,11 +28,15 @@ LEGEND = {
 
 def main(src, dst):
     cells = [(0, 0, 0)] * CELLS
+    legend = dict(LEGEND)
     drawing, sets = [], []
     for line in open(src).read().splitlines():
         if line.startswith(";") or not line.strip():
             continue
-        if line.startswith("set "):
+        if line.startswith("def "):
+            ch, *tile = line.split()[1:]
+            legend[ch] = tuple(int(v) for v in tile)
+        elif line.startswith("set "):
             sets.append([int(v) for v in line.split()[1:]])
         else:
             drawing.append(line.rstrip())
@@ -39,9 +45,9 @@ def main(src, dst):
     for i, line in enumerate(drawing):
         row = len(drawing) - i
         for col, ch in enumerate(line[:W]):
-            if ch not in LEGEND:
+            if ch not in legend:
                 sys.exit(f"unknown character {ch!r} at row {row} col {col}")
-            cells[row * W + col] = LEGEND[ch]
+            cells[row * W + col] = legend[ch]
     for col, row, a, b, c in sets:
         cells[row * W + col] = (a, b, c)
     with open(dst, "w") as f:

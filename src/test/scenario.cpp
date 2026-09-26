@@ -524,10 +524,9 @@ bool loadGeneratedLevel(const std::string& spec) {
 
 bool loadLevel(const Command& cmd) {
 	srand(gRunner.seed);
-	GAME_STATE.runSeed = gRunner.seed;
 	bool loaded = false;
 	if (cmd.a > 0.f)
-		loaded = GAME_STATE.dungeon.LoadCampaignLevel(static_cast<int>(cmd.a), GAME_STATE.runSeed);
+		loaded = GAME_STATE.dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
 	else if (cmd.arg.rfind("gen:", 0) == 0)
 		loaded = loadGeneratedLevel(cmd.arg);
 	else

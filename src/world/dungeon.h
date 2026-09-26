@@ -88,8 +88,8 @@ class Dungeon {
 	~Dungeon();
 	bool Load(const char* filename);
 	void LoadGrid(const LevelGrid& grid, const char* levelName); // levelName seeds the decorations
-	// Level `number` of the campaign (campaign.h): a file, or generated from runSeed.
-	bool LoadCampaignLevel(int number, uint32_t runSeed);
+	// Level `number` of the campaign (campaign.h).
+	bool LoadCampaignLevel(int number);
 	void Update();
 	void Draw();
 	void Move(float dirX, float dirY, bool jump = 0);

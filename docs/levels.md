@@ -5,15 +5,26 @@ Tile types in code: `src/world/level.h`.
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays:
+`src/world/campaign.h`. A game plays `Levels/lvl1` to `Levels/lvl15` (`CAMPAIGN_LEVELS`). Each exit loads the
+next level. `Levels/lvl15` holds the ankh that wins the game.
 
-1. `Levels/lvl1` to `Levels/lvl4` (hand-made).
-2. Six generated levels, difficulty 3 to 8.
-3. `Levels/lvl5`, the ankh finale.
+| Levels | Content |
+|---|---|
+| 1-5 | The original levels: scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
+| 6 | Rats, a giant rat, scarabs. Red key and gate. |
+| 7 | Bats and giant bats in low tunnels. Blue lever and gate. |
+| 8 | Plants, worms, rats. Red key, then the green key behind the red gate. |
+| 9 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. |
+| 10 | The first Anubis, by the exit. Gold key and gate. |
+| 11 | Giant rats, bats, an Anubis. Two levers (red, blue) in two halls open two gates in a row. |
+| 12 | Plants, giant bats, two Anubis. Chain: red key, green lever, gold key. |
+| 13 | Rock falls, worms, giant rats, an Anubis. Blue key, gold lever. |
+| 14 | Every monster type, two Anubis. Red key, blue lever, green key. |
+| 15 | The finale: three Anubis, all four locks, riddles, the ankh. |
 
-New Game picks a run seed from the clock. The save keeps it after the map, so a loaded game gets the same
-generated levels. Saves from before the run seed load with seed 1.
-The constants `CAMPAIGN_OPENING`, `CAMPAIGN_GENERATED` and `CAMPAIGN_FIRST_DIFFICULTY` set the mix.
+Anubis only appears from level 10 on. The sources of levels 6 to 15 are ASCII drawings in `tools/level/campaign/`
+(see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
+`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt Levels/lvl9`.
 
 ## levelcheck: validate and rank
 
@@ -94,6 +105,8 @@ Scenario tests can load a generated level directly: `level gen:SEED:DIFFICULTY` 
 ## Test levels from ASCII
 
 `tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend.
+A `def CHAR TYPE ATTR VALUE` line adds a character to the legend for that file, for example `def L 12 2 0`
+(blue lever) or `def 1 8 3 1` (large health potion).
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).
 
 ## Tests
@@ -101,6 +114,6 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
 - `tests/scenarios/rats.txt`: rat and giant rat screenshots (size, attack, die).
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
-- `tests/scenarios/generated.txt`: generated levels load (`gen:SEED:D` and campaign level 5), campaign end.
+- `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.
 - `tests/scenarios/generated_path.txt`: plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
   Written by `levelcheck --script`.

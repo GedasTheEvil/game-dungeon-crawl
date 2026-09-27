@@ -5,7 +5,7 @@ namespace RenderConfig {
 constexpr float TILE_SIZE = 40.f;
 constexpr float TILE_HALF = TILE_SIZE / 2.f;
 constexpr float TILE_RENDER_Y = -120.f;
-constexpr float HUD_OFFSET_X = -320.f;
+constexpr float HUD_OFFSET_X = -400.f; // back to the row start: 10 drawn columns
 constexpr float PARTICLE_DRIFT = 0.1f;
 constexpr float MONSTER_OFFSET_X = 40.f;
 constexpr float MONSTER_OFFSET_Z = 10.f;

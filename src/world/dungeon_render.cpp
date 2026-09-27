@@ -228,9 +228,10 @@ void Dungeon::Draw() {
 	addLights();
 	Lighting::commit();
 
-	glPushMatrix(); // the loop walks the frame from tile to tile
+	glPushMatrix();								  // the loop walks the frame from tile to tile
+	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0); // one spare column each side of the (mapX - 3) origin
 	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
-		for (int i = static_cast<int>(mapX) - 3; i < static_cast<int>(mapX) + 5; i++) {
+		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++) {
 			if (IsInBounds(i, j)) {
 				const Tint tile = MapAt(i, j);
 				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);

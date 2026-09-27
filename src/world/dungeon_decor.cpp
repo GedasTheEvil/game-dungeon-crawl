@@ -349,7 +349,7 @@ void Dungeon::addLights() {
 	int col0 = static_cast<int>(mapX) - 3;
 	int row0 = static_cast<int>(mapY) - 3;
 	for (int j = row0 - 2; j < row0 + 8; j++)
-		for (int i = col0 - 2; i < col0 + 10; i++) {
+		for (int i = col0 - 3; i < col0 + 11; i++) {
 			if (!IsInBounds(i, j))
 				continue;
 			FlameSource flames[2];
@@ -367,7 +367,7 @@ void Dungeon::drawFires() {
 	int col0 = static_cast<int>(mapX) - 3;
 	int row0 = static_cast<int>(mapY) - 3;
 	for (int j = row0; j < row0 + 6; j++)
-		for (int i = col0; i < col0 + 8; i++) {
+		for (int i = col0 - 1; i < col0 + 9; i++) {
 			if (!IsInBounds(i, j))
 				continue;
 			FlameSource flames[2];

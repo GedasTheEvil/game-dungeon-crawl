@@ -1,0 +1,19 @@
+# Render window: at 1920x1200 with the camera turned to its limits, the corridor edges must show tiles, not black.
+resolution 1920 1200
+seed 1
+god
+level 1
+walk right 5
+wait 10
+camera 0 0
+screenshot centre
+camera 30 0
+screenshot left
+camera -30 0
+screenshot right
+camera 0 10
+screenshot up
+camera 0 -10
+screenshot down
+expect alive == 1
+quit

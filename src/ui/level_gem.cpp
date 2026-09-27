@@ -18,7 +18,7 @@ constexpr float BEZEL = 1.1f;	   // gold rim around the gem
 constexpr float TABLE = 0.55f;	   // flat top facet, relative to the gem
 constexpr float MARGIN_X = 10.f;   // from the right edge to the bezel
 constexpr float MARGIN_Y = 10.f;   // from the top edge to the bezel
-constexpr float NUMBER_DROP = 4.1f; // font pen y below the gem centre, so the digits sit in the middle
+constexpr float NUMBER_DROP = 5.4f; // font pen y below the gem centre, so the digits sit in the middle
 
 struct GemLook {
 	Color dark, base, light;

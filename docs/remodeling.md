@@ -70,7 +70,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode stays unlit) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
-* `tools/audio/jump_sound.py` - synthesizes `Sounds/Jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
+* `tools/audio/jump_sound.py` - synthesizes `Sounds/jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `ModelViewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
 
 ## Format and engine conventions

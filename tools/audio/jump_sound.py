@@ -1,6 +1,6 @@
 """Synthesize the player's jump sound: boot scuff on push-off, an effort "hup", and a cloth whoosh.
 
-    python3 tools/audio/jump_sound.py [out.wav]      (default: Sounds/Jump.wav)
+    python3 tools/audio/jump_sound.py [out.wav]      (default: Sounds/jump.wav)
 
 Everything is generated (no samples), so this script is the source of the sound.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -109,7 +109,7 @@ def render():
 
 
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "Sounds", "Jump.wav")
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "Sounds", "jump.wav")
     pcm = (render() * 32767).astype("<i2")
     with wave.open(path, "wb") as w:
         w.setnchannels(1)

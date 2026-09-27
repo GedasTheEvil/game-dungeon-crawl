@@ -266,8 +266,8 @@ void GameState::Load() {
 
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();
-	sounds.drink_s.LoadWAV("Sounds/Drink.wav");
-	sounds.jump_s.LoadWAV("Sounds/Jump.wav");
+	sounds.drink_s.LoadWAV("Sounds/drink.wav");
+	sounds.jump_s.LoadWAV("Sounds/jump.wav");
 	sounds.keyPickup.LoadWAV("Sounds/key_pickup.wav");
 	sounds.gateOpen.LoadWAV("Sounds/gate_open.wav");
 	sounds.gateLocked.LoadWAV("Sounds/gate_locked.wav");

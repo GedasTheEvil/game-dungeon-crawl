@@ -1,0 +1,35 @@
+# Draft map (M): cells within 1 of every tile visited, pencil on papyrus. Survives save / load; old saves still load.
+seed 1
+god
+level 1
+wait 30
+key m
+screenshot map_start
+key m
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+walk right 3.4
+walk down 8.4
+wait 10
+key m
+screenshot map_after_ladder
+key esc
+screenshot closed_by_esc
+savegame map.sav
+level 1
+key m
+screenshot map_fresh_level
+key m
+loadgame map.sav
+key m
+screenshot map_loaded
+key m
+loadgame saves/save0.sav
+key m
+screenshot map_legacy_save
+key m
+expect alive == 1
+quit

@@ -7,6 +7,7 @@ namespace ScreenState {
 enum class DrawScreen {
 	Menu,
 	Inventory,
+	Map,
 	Riddle,
 	Gameplay,
 };
@@ -20,6 +21,9 @@ inline DrawScreen GetDrawScreen(const GameState& c) {
 
 	if (c.ui.rid->show)
 		return DrawScreen::Riddle;
+
+	if (c.ui.map.show)
+		return DrawScreen::Map;
 
 	return DrawScreen::Gameplay;
 }

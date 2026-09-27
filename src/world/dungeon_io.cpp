@@ -35,6 +35,8 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	if (!entranceFound)
 		LOG_WARNINGF("world", "Level %s has no entrance (Door with attribute 1), player position not set", levelName);
 
+	std::fill(std::begin(explored), std::end(explored), false);
+	exploreAroundPlayer();
 	resetPlayerMotion();
 	resetMechanisms();
 	scatterDecorations(levelName);
@@ -63,6 +65,13 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	int keys = 0;
 	if (f >> keys)
 		keysHeld = keys;
+	// Saves from before the draft map end here: the map starts over from the player's position.
+	std::fill(std::begin(explored), std::end(explored), false);
+	std::string exploredBits;
+	if (f >> exploredBits && exploredBits.size() == static_cast<size_t>(kMapCellCount))
+		for (int l = 0; l < kMapCellCount; l++)
+			explored[l] = exploredBits[static_cast<size_t>(l)] == '1';
+	exploreAroundPlayer();
 	return true;
 }
 //======================================================================================
@@ -75,6 +84,10 @@ void Dungeon::Dump(std::ofstream& f) {
 		f << map[l].a << " " << map[l].b << " " << map[l].c << " ";
 
 	f << keysHeld << " ";
+
+	for (bool cell : explored)
+		f << (cell ? '1' : '0');
+	f << " ";
 }
 //======================================================================================
 void Dungeon::GetPickUp() {

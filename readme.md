@@ -20,6 +20,7 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Interact: pick up, lever, riddle | `E`, `F12`                | Middle |
 | Look around                      | `PgUp` `PgDn`, `Home` `End` | Move |
 | Inventory                        | `I`                       |        |
+| Draft map                        | `M`                       |        |
 | Menu / back                      | `Esc`                     |        |
 | Cartoon shading                  | `F1`                      |        |
 | Original models                  | `F2`                      |        |

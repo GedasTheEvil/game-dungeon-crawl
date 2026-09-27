@@ -25,6 +25,7 @@ class Dungeon {
 	DecorCell decor[kMapCellCount];
 	DecalCell decal[kMapCellCount];
 	bool torch[kMapCellCount] = {};
+	bool explored[kMapCellCount] = {}; // cells on the draft map (map_view.h)
 	LadderCell ladder[kMapCellCount];
 	float mapX, mapY;
 	int texC, *Tex;
@@ -33,6 +34,7 @@ class Dungeon {
 	Tint MapAt(int col, int row) const;
 	void SetMapBAtPlayer(int value);
 	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
+	void exploreAroundPlayer();
 	void SyncMonsterFromToken(int index);
 	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();
@@ -75,7 +77,7 @@ class Dungeon {
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
 	void drawRockFallTile(int i, int j);
-	void drawMechanismEffects();  // dust, after the opaque scene
+	void drawMechanismEffects(); // dust, after the opaque scene
 	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin
 	bool mL;
 	int shaderTexture[1];
@@ -107,6 +109,10 @@ class Dungeon {
 	void GetRiddle();
 	bool PullLever(); // interact on a lever cell; false if there is none
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
+	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.
+	static constexpr int EXPLORE_RADIUS = 1; // cells to each side: a 3 x 3 square
+	[[nodiscard]] bool Explored(int col, int row) const { return IsInBounds(col, row) && explored[MapIndex(col, row)]; }
+	[[nodiscard]] Tint Cell(int col, int row) const { return MapAt(col, row); }
 	void Dump(std::ofstream& f);
 	bool LoadDump(std::ifstream& f);
 	void scatterDecorations(const char* levelName); // props and decals, seeded by the level's file name

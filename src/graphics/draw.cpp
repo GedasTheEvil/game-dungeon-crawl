@@ -112,6 +112,9 @@ void Draw() {
 	case ScreenState::DrawScreen::Riddle:
 		GAME_STATE.ui.rid->Draw();
 		return;
+	case ScreenState::DrawScreen::Map:
+		GAME_STATE.ui.map.Draw();
+		return;
 	case ScreenState::DrawScreen::Gameplay:
 		break;
 	}

@@ -137,6 +137,8 @@ const char* screenName() {
 		return "inventory";
 	case ScreenState::DrawScreen::Riddle:
 		return "riddle";
+	case ScreenState::DrawScreen::Map:
+		return "map";
 	case ScreenState::DrawScreen::Gameplay:
 		return "gameplay";
 	}

@@ -55,7 +55,7 @@ constexpr Rect OPTIONS_PANEL = {12, 20, 136, 64};
 constexpr float TAB_W = 30.f;
 constexpr float TAB_H = 7.f;
 constexpr float TABLE_TOP = 68.8f; // header baseline
-constexpr float ROW_H = 4.05f;
+constexpr float ROW_H = 3.75f;
 constexpr float ACTION_X = OPTIONS_PANEL.x + 8;
 constexpr float KEYS_X = OPTIONS_PANEL.x + 52;
 constexpr float MOUSE_X = OPTIONS_PANEL.x + 100;
@@ -122,7 +122,7 @@ struct ControlRow {
 	MouseInput mouse;
 };
 
-constexpr std::array<ControlRow, 11> CONTROLS = {{
+constexpr std::array<ControlRow, 12> CONTROLS = {{
 	{"Move left / right", "A / D , Left / Right", MouseInput::None},
 	{"Climb up / down (ladders)", "W / S , Up / Down", MouseInput::None},
 	{"Jump", "Space", MouseInput::Right},
@@ -131,6 +131,7 @@ constexpr std::array<ControlRow, 11> CONTROLS = {{
 	{"Interact: pick up, lever, riddle", "E , F12", MouseInput::Middle},
 	{"Look around", "PgUp / PgDn , Home / End", MouseInput::Move},
 	{"Inventory", "I", MouseInput::None},
+	{"Draft map", "M", MouseInput::None},
 	{"Menu / back", "Esc", MouseInput::None},
 	{"Cartoon shading", "F1", MouseInput::None},
 	{"Original models", "F2", MouseInput::None},

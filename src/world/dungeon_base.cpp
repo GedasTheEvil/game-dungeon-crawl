@@ -44,6 +44,15 @@ void Dungeon::resetPlayerMotion() {
 	jump.fall_velocity = FALL_STEP;
 }
 //======================================================================================
+void Dungeon::exploreAroundPlayer() {
+	int col = static_cast<int>(mapX);
+	int row = static_cast<int>(mapY);
+	for (int j = row - EXPLORE_RADIUS; j <= row + EXPLORE_RADIUS; j++)
+		for (int i = col - EXPLORE_RADIUS; i <= col + EXPLORE_RADIUS; i++)
+			if (IsInBounds(i, j))
+				explored[MapIndex(i, j)] = true;
+}
+//======================================================================================
 void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->dungeonCamX = &mapX;
 	m[index].m->dungeonCamY = &mapY;
@@ -167,6 +176,7 @@ void Dungeon::UpdateMovementState() {
 //======================================================================================
 void Dungeon::Update() {
 	UpdateMovementState();
+	exploreAroundPlayer();
 	updateMechanisms();
 	UpdateMonsters();
 }

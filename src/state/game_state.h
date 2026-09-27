@@ -16,6 +16,7 @@
 #include "../ui/riddle.h"
 #include "../ui/menu.h"
 #include "../ui/winlose.h"
+#include "../ui/map_view.h"
 #include <memory>
 
 struct word {
@@ -99,6 +100,7 @@ struct UIContext {
 	std::unique_ptr<Riddle> rid;
 	MainMenu menu;
 	std::unique_ptr<winL> wlc;
+	DraftMap map;
 };
 
 class GameState {

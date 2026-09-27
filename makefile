@@ -10,7 +10,7 @@ SOURCES=\
 	src/graphics/ani.cpp src/graphics/textures.cpp src/graphics/shader.cpp src/graphics/font.cpp src/graphics/particles.cpp src/graphics/fire.cpp src/graphics/lighting.cpp src/graphics/draw.cpp src/graphics/hud.cpp \
 	src/entities/monster.cpp src/entities/player.cpp src/entities/monster_ai.cpp src/entities/item.cpp src/entities/trap.cpp \
 	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp src/world/dungeon_decor.cpp src/world/dungeon_mechanisms.cpp src/world/loot.cpp src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
-	src/ui/menu.cpp src/ui/ui_draw.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp src/ui/level_gem.cpp \
+	src/ui/menu.cpp src/ui/ui_draw.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp src/ui/level_gem.cpp src/ui/map_view.cpp \
 	src/input/input.cpp \
 	src/state/game_state.cpp \
 	src/test/scenario.cpp

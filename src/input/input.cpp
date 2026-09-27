@@ -127,9 +127,13 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		// Esc backs out of the inventory to the game; only from the game it opens the menu.
+		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
 		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.invent->show) {
 			GAME_STATE.ui.invent->show = false;
+			return;
+		}
+		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.map.show) {
+			GAME_STATE.ui.map.show = false;
 			return;
 		}
 
@@ -154,6 +158,15 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	}
 
+	// The map pauses the game: only M (or Esc, above) closes it.
+	if (key == KEY_MAP || key == KEY_MAP_UPPER) {
+		if (!GAME_STATE.ui.invent->show)
+			GAME_STATE.ui.map.show = !GAME_STATE.ui.map.show;
+		return;
+	}
+	if (GAME_STATE.ui.map.show)
+		return;
+
 	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
@@ -168,7 +181,7 @@ void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
+	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE) || GAME_STATE.ui.map.show)
 		return;
 
 	if (GAME_STATE.ui.invent->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
@@ -226,7 +239,7 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
-	if (state && ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
+	if (state && !GAME_STATE.ui.map.show && ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapMouseGameplayAction(button));
 	}
 }
@@ -239,6 +252,12 @@ void processMousePassiveMotion(int a, int b) {
 	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
 		GAME_STATE.ui.invent->MouseMotion(a, b);
 		lastMx = a; // no camera jump when the inventory closes
+		lastMy = b;
+		return;
+	}
+
+	if (GAME_STATE.ui.map.show) {
+		lastMx = a;
 		lastMy = b;
 		return;
 	}

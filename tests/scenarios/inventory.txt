@@ -1,0 +1,107 @@
+# Inventory screen: hover, select, press and use states; equip, drink, upgrade.
+# Mouse positions are window percent at 16:9. Slot centres: weapons y 63.5, x 14.6 26.9 39.3 51.7;
+# potions y 36.75, x 12.0 19.1 26.1 33.1 40.2 47.2 54.2.
+# Buttons y 19.5: weapons Equip x 70.0, Upgrade x 84.0; potions Drink x 77.0.
+seed 1
+god
+level 1
+wait 30
+give melee 1
+give ranged 0
+give potion 0 3
+give potion 2
+give potion 4 2
+give potion 5 2
+give potion 6
+key i
+wait 5
+screenshot open
+expect equip_id == 0
+
+# hover the sword (not selected yet), then select it and hover Equip
+mouse 26.9 63.5
+wait 20
+screenshot hover_sword
+click 26.9 63.5
+mouse 70 19.5
+wait 5
+screenshot selected_sword_hover_equip
+press 70 19.5
+wait 2
+screenshot equip_pressed
+release 70 19.5
+wait 5
+screenshot sword_equipped
+expect equip_type == 1
+expect equip_id == 1
+
+# unfound spear: silhouette, disabled buttons
+click 39.3 63.5
+wait 5
+screenshot spear_not_found
+click 70 19.5
+expect equip_id == 1
+
+# upgrade: one sword is not enough for level 2, the second copy is
+click 26.9 63.5
+click 84 19.5
+expect melee1.level == 1
+give melee 1
+mouse 84 19.5
+wait 5
+screenshot sword_upgrade_ready
+click 84 19.5
+wait 5
+screenshot sword_level2
+expect melee1.level == 2
+expect melee1 == 2
+key u
+expect melee1.level == 2
+
+# strength potion by keyboard: 7 selects, Enter drinks
+mouse 5 5
+key 7
+wait 5
+screenshot strength_selected
+key enter
+wait 5
+screenshot strength_drunk
+expect might == 2
+expect potion2 == 0
+
+# small health at full HP stays disabled
+click 12.0 36.75
+wait 5
+screenshot health_full
+expect potion0 == 3
+
+# stamina: full at first, so the potion waits; after jumping it restores
+click 47.2 36.75
+click 77 19.5
+expect potion5 == 2
+key i
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+dump
+key i
+click 47.2 36.75
+wait 5
+screenshot stamina_low
+click 77 19.5
+wait 5
+screenshot stamina_drunk
+expect potion5 == 1
+
+# arrows browse: up from the potion row goes to the weapons
+key w
+wait 5
+screenshot arrow_up
+key i
+wait 5
+expect equip_id == 1
+dump
+quit

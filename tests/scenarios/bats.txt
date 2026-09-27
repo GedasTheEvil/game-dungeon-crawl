@@ -1,0 +1,101 @@
+# Bat (col 6) and giant bat (col 15), tests/levels/bats (from tests/levels/bats.txt).
+# The bat hangs on the ceiling until the player is 1.75 tiles away, then swoops through him (bite),
+# flies on 1.5 tiles, turns and comes back. Screenshots: roosting, the passes, the kill, the giant bat.
+seed 1
+god
+level tests/levels/bats
+wait 5
+walk right 3.65
+screenshot bat_roost
+walk right 0.2
+wait 6
+screenshot bat_wake
+wait 12
+screenshot bat_swoop1
+wait 12
+screenshot bat_swoop2
+wait 12
+screenshot bat_swoop3
+wait 12
+screenshot bat_swoop4
+wait 12
+screenshot bat_swoop5
+wait 12
+screenshot bat_swoop6
+wait 12
+screenshot bat_swoop7
+wait 12
+screenshot bat_swoop8
+# Swing every 10 ticks: one of them catches the bat inside the club's reach.
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+attack
+wait 10
+screenshot bat_killed
+wait 30
+screenshot bat_fallen
+# Giant bat at col 15.
+walk right 9.2
+wait 25
+screenshot giant_bat_swoop1
+wait 15
+screenshot giant_bat_swoop2
+wait 15
+screenshot giant_bat_swoop3
+dump

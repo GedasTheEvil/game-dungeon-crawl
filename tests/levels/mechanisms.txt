@@ -1,0 +1,7 @@
+; Keys, gates, a lever and rock falls on one corridor (tests/scenarios/mechanisms.txt).
+; key red at col 5 opens the red gate at col 8; the lever at col 10 (blue) opens the blue gate at col 12;
+; rock falls at cols 15 and 19.
+########################################
+#S...r..R./.B..v...v...E################
+########################################
+set 10 2 12 2 0

@@ -1,12 +1,13 @@
-src/*.o
-src/*/*.o
-src/*.d
-src/*/*.d
-./game
-.idea
-game
-Sounds/soundtrack.ogg
+# Build output
+*.o
+*.d
+/game
+/levelcheck
+/levelgen
 game.log
 tests/out/
-levelcheck
-levelgen
+
+# Local
+.idea
+.directory
+Sounds/soundtrack.ogg

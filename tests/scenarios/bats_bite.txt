@@ -1,0 +1,10 @@
+# A bat bite hurts (no god mode): the bat at col 6 wakes up, flies through the player and comes back.
+seed 1
+level tests/levels/bats
+wait 5
+expect hp == 50
+walk right 3.85
+wait 120
+expect hp < 50
+expect alive == 1
+dump

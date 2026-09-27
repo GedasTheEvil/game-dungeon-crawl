@@ -1,0 +1,51 @@
+# Plays a generated level (levelgen --seed 81 --difficulty 8, saved as tests/levels/gen_d8) start to exit, in god mode:
+# key, lever, two gates, a jump, drops, rock falls. Regenerate with: ./levelcheck --script DIR tests/levels/gen_d8
+seed 1
+god
+level tests/levels/gen_d8
+wait 30
+walk right 4.450
+walk down 2.97
+walk right 1.000
+wait 1500ms
+walk right 4.000
+jump
+walk right 2.000
+wait 500ms
+walk right 1.000
+walk down 2.97
+walk right 1.000
+wait 1500ms
+walk right 4.000
+walk down 1.97
+walk left 4.000
+walk right 4.000
+walk up 2.03
+walk right 1.150
+wait 1400ms
+walk right 2.850
+walk down 3.97
+walk left 2.000
+walk down 1.97
+walk left 5.000
+interact
+wait 1400ms
+walk right 5.000
+walk up 2.03
+walk left 3.050
+wait 1400ms
+walk left 3.950
+wait 1500ms
+walk left 4.000
+walk down 3.97
+walk right 6.000
+wait 1500ms
+walk right 5.000
+walk down 2.97
+walk left 1.000
+wait 1500ms
+walk left 7.000
+dump
+interact
+wait 5
+expect level == 2

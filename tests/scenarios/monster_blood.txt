@@ -1,0 +1,18 @@
+# Two worms side by side (Levels/monste): hitting one must show blood only on that one.
+# Check 003_hit.png: blood on the damaged worm only, none on the full-HP worm to the right.
+seed 1
+god
+level Levels/monste
+wait 30
+walk right 2
+walk down 5.9
+walk left 2
+screenshot before_hit
+# club range is 0.2 tiles: stand on the worm centre (x=5.5)
+walk left 0.5
+attack
+wait 5
+screenshot hit
+wait 20
+screenshot hit_later
+quit

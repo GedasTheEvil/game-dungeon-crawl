@@ -1,0 +1,4 @@
+; A rat and a giant rat, a scarab further on for scale (tests/scenarios/rats.txt).
+########################################
+#S..t......T.....s....E#################
+########################################

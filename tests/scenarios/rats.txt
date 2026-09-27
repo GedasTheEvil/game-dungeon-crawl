@@ -1,0 +1,24 @@
+# Rat (col 4), giant rat (col 11) and a scarab (col 17) for scale (tests/levels/rats, from tests/levels/rats.txt).
+seed 1
+god
+level tests/levels/rats
+wait 5
+walk right 1.5
+wait 30
+screenshot rat_attack
+attack
+wait 20
+attack
+wait 20
+attack
+wait 20
+attack
+wait 60
+screenshot rat_die
+walk right 6
+wait 60
+screenshot giant_rat_attack
+walk right 3
+wait 30
+screenshot giant_rat_and_scarab
+dump

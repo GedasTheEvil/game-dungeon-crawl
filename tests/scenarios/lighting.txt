@@ -1,0 +1,23 @@
+# Lighting: dark ambient, point lights (player, torches, braziers, oil lamps) and fire particles.
+# Level 1 start corridor: torch, a jump over the pit to the brazier at x 13, then down the ladder at x 17
+# (oil lamp at (15, 34) on the left, portal columns stay unlit). Two frames of the same spot show the flicker.
+seed 1
+god
+level 1
+wait 30
+screenshot start
+walk right 3
+screenshot torch
+wait 10
+screenshot torch_later
+walk right 1.6
+jump
+walk right 2
+wait 1s
+screenshot brazier
+walk right 3.4
+walk down 8
+wait 10
+screenshot oil_lamp
+expect alive == 1
+quit

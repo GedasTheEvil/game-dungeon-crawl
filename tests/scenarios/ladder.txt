@@ -1,0 +1,32 @@
+# Ladders: level 1 shaft at x 17 (rows 33..42, floor to ceiling), top, middle and bottom of the climb.
+# Climbing: back to the camera, limbs follow the height (walk down / up), held still when stopped.
+seed 1
+god
+level 1
+wait 30
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+walk right 3.4
+wait 10
+screenshot ladder_top
+walk down 0.3
+screenshot climb_grab
+walk down 3.7
+wait 10
+screenshot ladder_middle
+walk down 0.25
+screenshot climb_down_a
+walk down 0.25
+screenshot climb_down_b
+wait 30
+screenshot climb_held
+walk down 4.4
+wait 10
+screenshot ladder_bottom
+walk up 2.3
+screenshot climb_up
+expect alive == 1
+quit

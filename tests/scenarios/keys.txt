@@ -1,0 +1,28 @@
+# Keyboard aliases: E interacts (chest pickup), V attacks (kills the level's first rat).
+seed 3
+god
+level 1
+wait 30
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+walk right 0.6
+key e
+wait 5
+expect melee1 == 1
+seed 1
+level tests/levels/rats
+wait 5
+walk right 1.5
+wait 30
+key v
+wait 20
+key v
+wait 20
+key v
+wait 20
+key v
+wait 60
+screenshot rat_killed_with_v

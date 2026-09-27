@@ -1,0 +1,50 @@
+# Keys, gates, lever, rock falls (tests/levels/mechanisms, built from tests/levels/mechanisms.txt):
+# key (col 5), red gate (col 8), blue lever (col 10), blue gate (col 12), rock falls (cols 15, 19), exit (col 23).
+seed 1
+level tests/levels/mechanisms
+wait 30
+screenshot start
+# The red key is picked up on touch.
+walk right 4
+expect keys == 1
+# Held keys survive a save and load.
+savegame keys.sav
+loadgame keys.sav
+expect keys == 1
+# With the key, the red gate opens as the player walks up to it, and blocks until it is up.
+walk right 2.65
+wait 20
+screenshot gate_opening
+expect x < 8
+wait 1200ms
+screenshot gate_open
+walk right 2.45
+expect x > 10
+# The lever opens the blue gate; without it the gate stays shut.
+interact
+wait 10
+screenshot lever_pulled
+wait 1300ms
+walk right 3
+expect x > 13
+# Rock fall at col 15: standing under it gets the player hit.
+expect hp == 50
+walk right 2
+wait 400ms
+screenshot rock_warning
+wait 450ms
+screenshot rock_falling
+wait 300ms
+screenshot rock_landed
+dump
+expect hp < 50
+expect hp > 0
+# Rock fall at col 19: jumping on and running gets the player clear.
+walk right 2.8
+jump
+walk right 3.2
+wait 1s
+screenshot rock_dodged
+dump
+expect x > 20.5
+expect hp == 30

@@ -1,0 +1,4 @@
+; A bat (col 6) and a giant bat (col 15) on the corridor ceiling, a rat (col 20) for scale (tests/scenarios/bats.txt).
+########################################
+#S....f........F....t.E#################
+########################################

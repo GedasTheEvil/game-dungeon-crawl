@@ -1,0 +1,43 @@
+# In-game menu, save / load / options screens (hover only: clicking a slot would write the real Saves/).
+level 1
+wait 10
+key esc
+mouse 50 50
+wait 2
+screenshot ingame
+mouse 50 62.5
+wait 2
+screenshot hover_save
+press 50 62.5
+wait 2
+screenshot save_pressed
+release 50 62.5
+wait 2
+screenshot save_screen
+mouse 30 71
+wait 2
+screenshot save_hover_slot1
+mouse 50 13
+wait 2
+screenshot save_hover_back
+click 50 13
+wait 2
+click 50 51
+wait 2
+screenshot load_screen
+mouse 30 51
+wait 2
+screenshot load_hover_slot2
+key esc
+wait 2
+click 50 39.5
+wait 2
+screenshot options
+key esc
+wait 2
+click 50 28
+wait 2
+screenshot main_menu
+mouse 50 51
+wait 2
+screenshot main_hover_options

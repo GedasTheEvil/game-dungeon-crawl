@@ -1,0 +1,16 @@
+# Smoke test: level 1 loads, player walks both ways, screenshots render.
+seed 1
+god
+level 1
+wait 30
+dump
+screenshot start
+walk right 2
+screenshot after_walk_right
+walk left 1
+jump
+wait 1s
+dump
+expect alive == 1
+expect level == 1
+quit

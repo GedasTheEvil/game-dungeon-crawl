@@ -1,0 +1,4 @@
+; A rat (col 4) behind a wall (col 3), then a quiet corridor (tests/scenarios/monster_walls.txt, monster_slots.txt).
+########################################
+#S.#t.................E#################
+########################################

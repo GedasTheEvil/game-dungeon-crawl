@@ -1,0 +1,4 @@
+; No monsters: the row of tests/levels/rats with nothing on it (tests/scenarios/monster_slots.txt).
+########################################
+#S....................E#################
+########################################

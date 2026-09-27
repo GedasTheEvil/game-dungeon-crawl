@@ -108,7 +108,9 @@ class monster {
 	int attackDirection();
 	bool getHit(int dmg);
 	bool Alive();
-	int Seek();
+	// Walkers: one step toward the player on its row; wallAhead: the cell in front of it blocks the walk.
+	bool Seek(bool wallAhead);
+	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
 	void Attack();
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	bool flies = false;

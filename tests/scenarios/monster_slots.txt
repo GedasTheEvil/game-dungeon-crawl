@@ -1,0 +1,17 @@
+# Loading a level or a save drops the monsters of the level before: the rat of tests/levels/rats
+# (col 4, the player's row) must not bite on a level without monsters.
+seed 1
+level tests/levels/empty_row
+savegame empty_row.sav
+level tests/levels/rats
+wait 30
+expect hp == 50
+level tests/levels/empty_row
+wait 15s
+expect hp == 50
+level tests/levels/rats
+wait 30
+loadgame empty_row.sav
+wait 15s
+expect hp == 50
+expect alive == 1

@@ -14,7 +14,7 @@
 //   World space:  map * TILE_SIZE, OpenGL units, used for rendering
 //   Screen space: projection of world space, origin top-left
 
-constexpr int CMaxMonsters = 9;
+constexpr int CMaxMonsters = 32; // live monster slots; the campaign's busiest level has 15
 
 class Dungeon {
   private:
@@ -39,7 +39,8 @@ class Dungeon {
 	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();
 	void UpdateMonsters();
-	void DrawMonsterTile(int i, int j);
+	void clearMonsters(); // a level or save was loaded: the old level's monsters are gone
+	void DrawMonsters();  // at their actual position, not their spawn tile
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
 	void drawDecorTile(int i, int j);
@@ -78,7 +79,7 @@ class Dungeon {
 	void drawLeverTile(int i, int j);
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	monsterToken m[CMaxMonsters]; // vienu metu tik 9 monstrai, nes lagin
+	monsterToken m[CMaxMonsters];
 	bool mL;
 	int shaderTexture[1];
 	VECTOR lightAngle;

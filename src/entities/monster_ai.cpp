@@ -25,19 +25,19 @@ int monster::attackDirection() {
 	return 0;
 }
 
-int monster::Seek() {
+bool monster::Seek(bool wallAhead) {
 	if (Alive()) {
-		mapX += MONSTER_SEEK_STEP * (attackDirection() * speed);
+		int dir = attackDirection();
+		if (dir == 0)
+			return false;
 
-		if (!attackDirection())
-			return 0;
-		else
-			applyModelState(ModelState::Move);
-
-		return 1;
+		if (!wallAhead)
+			mapX += MONSTER_SEEK_STEP * static_cast<float>(dir * speed);
+		applyModelState(ModelState::Move);
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
 void monster::Attack() {
@@ -70,6 +70,10 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 void monster::setModelState(ModelState state) { applyModelState(state); }
 
 int monster::Model_state() { return static_cast<int>(currentState); }
+
+float monster::seekProbeX(int dir) const {
+	return tileOriginX + mapX + 0.5f + static_cast<float>(dir) * MONSTER_WALL_MARGIN;
+}
 
 float monster::flightProbeX() const {
 	int dir = flight.dir;

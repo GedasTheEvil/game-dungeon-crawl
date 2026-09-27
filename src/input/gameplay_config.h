@@ -26,6 +26,7 @@ constexpr float TRAP_HITBOX_X_SCALE = 0.02f;
 constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
+constexpr float MONSTER_WALL_MARGIN = 0.5f; // a walker stops this far before a wall (its half width)
 
 // Bats (monster::Fly). Distances in tiles along the row, heights in world units (a tile is 40) from the floor
 // to the model origin (the lowest point of the flying pose).

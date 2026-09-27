@@ -1,0 +1,11 @@
+# A monster is drawn where it is, not only while its spawn tile is on screen: the rat spawns at col 4 and
+# follows the player to col 13, where col 4 is out of the drawn tiles (mapX - 4 .. mapX + 5).
+seed 1
+god
+level tests/levels/rat_corridor
+wait 10
+walk right 12
+wait 25s
+screenshot rat_followed
+dump
+expect alive == 1

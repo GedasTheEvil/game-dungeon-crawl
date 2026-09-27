@@ -240,7 +240,7 @@ void Dungeon::Draw() {
 				drawTorchTile(i, j);
 
 				if (tile.a == Monster)
-					DrawMonsterTile(i, j);
+					SpawnMonster(i, j);
 				if (tile.a == Treasure)
 					DrawTreasureTile(i, j);
 				if (tile.a == Spike)
@@ -332,6 +332,11 @@ void Dungeon::Draw() {
 		}
 		glTranslatef(RenderConfig::HUD_OFFSET_X, RenderConfig::TILE_SIZE, 0);
 	}
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
+	DrawMonsters();
 	glPopMatrix();
 
 	drawFires();

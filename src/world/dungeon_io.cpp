@@ -37,6 +37,7 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 
 	std::fill(std::begin(explored), std::end(explored), false);
 	exploreAroundPlayer();
+	clearMonsters();
 	resetPlayerMotion();
 	resetMechanisms();
 	scatterDecorations(levelName);
@@ -59,6 +60,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	if (!readLevelCells(f, map, kMapCellCount))
 		return false;
 
+	clearMonsters();
 	resetPlayerMotion();
 	resetMechanisms();
 	// Saves from before the keys end here.

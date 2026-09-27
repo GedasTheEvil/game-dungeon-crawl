@@ -46,7 +46,8 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
-			if (!m[a].m->Seek())
+			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(m[a].m->attackDirection())));
+			if (!m[a].m->Seek(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY))))
 				if (m[a].at->TimePassed())
 					m[a].m->Attack();
 			SyncTokenFromMonster(a, true);
@@ -54,17 +55,35 @@ void Dungeon::UpdateMonsters() {
 	}
 }
 //======================================================================================
-void Dungeon::DrawMonsterTile(int i, int j) {
-	SpawnMonster(i, j);
+void Dungeon::clearMonsters() {
+	for (auto& token : m) {
+		token.orX = -1;
+		token.orY = -1;
+		token.HP = 0;
+	}
+}
+//======================================================================================
+// Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
+// A monster walks away from its spawn tile, so it is culled and placed by where it is now.
+void Dungeon::DrawMonsters() {
+	int firstCol = static_cast<int>(mapX) - 4;
+	int firstRow = static_cast<int>(mapY) - 3;
 	for (int a = 0; a < CMaxMonsters; a++) {
-		if (m[a].orX == i && m[a].orY == j) {
-			SyncMonsterFromToken(a);
-			glPushMatrix();
-			glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-			m[a].m->Draw();
-			glPopMatrix();
-			SyncTokenFromMonster(a, false);
-		}
+		if (m[a].orX == -1 || m[a].orY == -1)
+			continue;
+		float centre = static_cast<float>(m[a].orX) + m[a].mapX + 0.5f; // the drawn tiles: 10 x 6
+		if (m[a].orY < firstRow || m[a].orY >= firstRow + 6 || centre < static_cast<float>(firstCol) ||
+			centre >= static_cast<float>(firstCol + 10))
+			continue;
+
+		SyncMonsterFromToken(a);
+		glPushMatrix();
+		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(m[a].orX - firstCol),
+					 RenderConfig::TILE_SIZE * static_cast<float>(m[a].orY - firstRow), 0);
+		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
+		m[a].m->Draw();
+		glPopMatrix();
+		SyncTokenFromMonster(a, false);
 	}
 }
 //======================================================================================

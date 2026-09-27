@@ -1,7 +1,7 @@
 #ifndef TILE_INFO_H
 #define TILE_INFO_H
 
-// What the tile types, attributes and values mean (DungeonEditor/readme.md), as text for the editor's hint panel.
+// What the tile types, attributes and values mean (dungeon-editor/readme.md), as text for the editor's hint panel.
 // No GL here.
 
 #include "../src/world/level.h"
@@ -11,7 +11,7 @@ constexpr int TILE_COUNT = 14; // DungeonTileType Wall .. RockFall
 
 struct TileInfo {
 	const char* name;
-	const char* icon; // PNG under DungeonEditor/Textures, nullptr: drawn as a flat colour
+	const char* icon; // PNG under dungeon-editor/Textures, nullptr: drawn as a flat colour
 	const char* description;
 };
 

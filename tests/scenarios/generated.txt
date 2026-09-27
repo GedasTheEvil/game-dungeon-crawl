@@ -1,4 +1,4 @@
-# A generated level loads directly (gen:SEED:DIFFICULTY). Campaign levels are the files Levels/lvl1 .. lvl15.
+# A generated level loads directly (gen:SEED:DIFFICULTY). Campaign levels are the files levels/lvl1 .. lvl15.
 seed 3
 level gen:3:4
 wait 30

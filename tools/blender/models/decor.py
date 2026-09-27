@@ -10,7 +10,7 @@ survive). Origin = floor level, horizontal centre of the tile, on the back wall 
 towards -Y (the camera). The spiderweb is modelled in the upper left corner (x = -0.5, z = 1); the engine
 mirrors it for the right corner. The player is ~0.37 tall.
 
-Textures: one 512 PNG per prop (Textures/decorations/decor_<name>.png) with the lighting baked in (a sun from the
+Textures: one 512 PNG per prop (textures/decorations/decor_<name>.png) with the lighting baked in (a sun from the
 camera side and above, plus ambient occlusion). The engine draws the props textured only, without the toon
 pass: they never turn relative to the camera, and the toon ramp would wash out dark details (eye sockets, charcoal).
 """
@@ -688,7 +688,7 @@ def build(bake=True, tex_dir=None, only=None):
 
 
 def export(objs, models_dir=None):
-    models_dir = models_dir or os.path.join(REPO, "Models", "decorations")
+    models_dir = models_dir or os.path.join(REPO, "models", "decorations")
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
     g = {"__file__": p, "__name__": "md3_export"}
     exec(open(p).read(), g)
@@ -745,7 +745,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     only = args[args.index("--only") + 1].split(",") if "--only" in args else None
     exporting = "--export" in args
-    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "Textures", "decorations") if exporting else None, only=only)
+    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "textures", "decorations") if exporting else None, only=only)
     if "--review" in args:
         review(args[args.index("--review") + 1], objs)
     if exporting:

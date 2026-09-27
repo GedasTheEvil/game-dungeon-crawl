@@ -320,7 +320,7 @@ Rect iconWell(const Rect& tile, float inset) {
 
 // ---- save slots ------------------------------------------------------------
 
-std::string slotFilename(int slot) { return "Saves/save" + std::to_string(slot) + ".sav"; }
+std::string slotFilename(int slot) { return "saves/save" + std::to_string(slot) + ".sav"; }
 
 struct SlotInfo {
 	bool used = false;
@@ -343,7 +343,7 @@ SlotInfo slotInfo(int slot) {
 }
 
 void persistSaveNameList() {
-	std::ofstream f("Saves/gamelist.dat");
+	std::ofstream f("saves/gamelist.dat");
 	for (int a = 0; a < SLOT_COUNT; a++)
 		f << GAME_STATE.saveNames[a].name << "\n";
 }
@@ -382,10 +382,10 @@ void MainMenu::LoadFonts() {
 	if (fontsLoaded)
 		return;
 	fontsLoaded = true;
-	title.Load("Fonts/papyrus.png", 8.f, 0.3f, true);
-	heading.Load("Fonts/papyrus.png", 5.f, 0.16f, true);
-	body.Load("Fonts/papyrus.png", 3.6f, 0.1f, true);
-	small.Load("Fonts/papyrus.png", 3.f, 0.08f, true);
+	title.Load("fonts/papyrus.png", 8.f, 0.3f, true);
+	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
+	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
+	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
 }
 
 void MainMenu::ShowToast(const std::string& text) {

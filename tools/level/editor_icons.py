@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Generate the level editor palette icons for the mechanism tiles.
 
-Writes key.tga, gate_lock.tga, lever.tga and rockfall.tga to DungeonEditor/Textures/.
+Writes key.tga, gate_lock.tga, lever.tga and rockfall.tga to dungeon-editor/textures/.
 Format matches the other small editor icons (ankh.tga, ladder.tga, ...):
 32x32, uncompressed 24-bit TGA (type 2), top-left origin (descriptor 0x20), BGR pixels,
-simple pictogram on a white background. LoadTGA in DungeonEditor/textures.h reads it.
+simple pictogram on a white background. LoadTGA in dungeon-editor/textures.h reads it.
 
 Usage: python3 tools/level/editor_icons.py
 """
@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 
 SIZE = 32
 SS = 8  # supersampling factor, drawn at SIZE*SS and downscaled for smooth edges
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "DungeonEditor", "Textures")
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "dungeon-editor", "textures")
 
 WHITE = (255, 255, 255)
 GOLD = (230, 170, 20)

@@ -1,6 +1,6 @@
 """Convert legacy text .mdl models to .md3 and verify the result (plain python3, Blender not needed).
 
-    python3 tools/blender/mdl2md3.py Models/*.mdl
+    python3 tools/blender/mdl2md3.py models/*.mdl
 
 Writes <name>.md3 next to each input. Legacy files without per-frame normals get their frame-0
 normals repeated, which is exactly how the old loader shaded them.

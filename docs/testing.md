@@ -30,7 +30,7 @@ One command per line. `#` starts a comment.
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | `srand` seed, applied at each `level`. Default 1. |
 | `god` | The player takes no damage (`stats::GetHit`). Death tiles still kill. |
-| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`Levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
+| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Move until the player is N tiles away on that axis. `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
@@ -38,7 +38,7 @@ One command per line. `#` starts a comment.
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab` (`key i` opens the inventory). |
 | `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 sword, 2 spear), `ranged` (0 bow), `potion` (0 small health, 1 large health, 2 might, 3 armor, 4 life, 5 small stamina, 6 large stamina). |
-| `savegame FILE` / `loadgame FILE` | Save / load the game. A bare file name is in the output directory; a path is taken as is (`Saves/save0.sav`). |
+| `savegame FILE` / `loadgame FILE` | Save / load the game. A bare file name is in the output directory; a path is taken as is (`saves/save0.sav`). |
 | `chest TYPE ID [N]` | Open N (default 1) treasure chests holding that item: the item plus the random bonus loot, like a pickup. |
 | `mouse X Y` | Move the mouse to X% Y% of the window, Y from the bottom (hover). |
 | `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |

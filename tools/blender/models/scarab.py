@@ -648,7 +648,7 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    build(tex_path=os.path.join(REPO, "Textures", "monsters", "scarab.png") if "--export" in args else None)
+    build(tex_path=os.path.join(REPO, "textures", "monsters", "scarab.png") if "--export" in args else None)
     if "--export" in args:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "scarab.blend"))

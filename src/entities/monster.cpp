@@ -242,7 +242,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	reference = files.front().state;
 	ModelNormalization norm;
 	for (const ClipFile& file : files) {
-		const std::string path = std::string("Models/") + filename + file.suffix + ".md3";
+		const std::string path = std::string("models/") + filename + file.suffix + ".md3";
 		if (!file.required && !std::filesystem::exists(path))
 			continue;
 		LOG_INFOF("entities", "Loading model: %s", path.c_str());
@@ -261,10 +261,10 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		idleTop = idle->YRange(0).second;
 	}
 
-	// filename is "<category>/<name>" (under Models/); sounds are flat in Sounds/<name>_*.wav.
+	// filename is "<category>/<name>" (under models/); sounds are flat in sounds/<name>_*.wav.
 	const std::string name = std::filesystem::path(filename).filename().string();
-	die_s.LoadWAV(("Sounds/" + name + "_die.wav").c_str());
-	att_s.LoadWAV(("Sounds/" + name + "_att.wav").c_str());
+	die_s.LoadWAV(("sounds/" + name + "_die.wav").c_str());
+	att_s.LoadWAV(("sounds/" + name + "_att.wav").c_str());
 
 	if (compile)
 		for (auto& c : clips)

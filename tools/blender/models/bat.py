@@ -750,7 +750,7 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    tex_dir = os.path.join(REPO, "Textures", "monsters")
+    tex_dir = os.path.join(REPO, "textures", "monsters")
     if "--export" in args:
         build(tex_path=os.path.join(tex_dir, "bat.png"), giant_path=os.path.join(tex_dir, "bat_giant.png"))
         export()

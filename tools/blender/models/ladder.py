@@ -516,7 +516,7 @@ def build(bake=True, tex_dir=None, only=None):
 
 
 def export(objs, models_dir=None):
-    models_dir = models_dir or os.path.join(REPO, "Models", "ladders")
+    models_dir = models_dir or os.path.join(REPO, "models", "ladders")
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
     g = {"__file__": p, "__name__": "md3_export"}
     exec(open(p).read(), g)
@@ -587,7 +587,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     only = args[args.index("--only") + 1].split(",") if "--only" in args else None
     exporting = "--export" in args
-    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "Textures", "ladders") if exporting else None, only=only)
+    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "textures", "ladders") if exporting else None, only=only)
     if "--review" in args:
         view = tuple(float(v) for v in args[args.index("--view") + 1].split(",")) if "--view" in args else (3.0, 6.2)
         review(args[args.index("--review") + 1], objs, view)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draws the editor's tile icons (64 x 64 PNG) in the game's UI palette: gold, bronze and lapis on dark open space.
 
-Run from anywhere: python3 DungeonEditor/Textures/make_icons.py
+Run from anywhere: python3 dungeon-editor/textures/make_icons.py
 """
 
 import math

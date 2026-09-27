@@ -19,7 +19,7 @@ expect potion5 == 2
 expect potion6 == 1
 expect equip_id == 1
 # legacy save written before the stamina potions: counts 1 1 1 0 2 2 1 1 0, spear equipped
-loadgame Saves/save0.sav
+loadgame saves/save0.sav
 expect melee1 == 1
 expect melee1.level == 1
 expect potion0 == 2

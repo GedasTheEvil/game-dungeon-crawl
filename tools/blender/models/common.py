@@ -403,8 +403,8 @@ def tri_count(obj):
 
 
 def export_files(obj, rig, base, clips, category, models_dir=None):
-    """clips = [(action_name, file_suffix, frame_count)]. Writes Models/<category>/<base><suffix>.md3."""
-    models_dir = models_dir or os.path.join(REPO, "Models", category)
+    """clips = [(action_name, file_suffix, frame_count)]. Writes models/<category>/<base><suffix>.md3."""
+    models_dir = models_dir or os.path.join(REPO, "models", category)
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
     g = {"__file__": p, "__name__": "md3_export"}
     exec(open(p).read(), g)

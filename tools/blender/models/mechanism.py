@@ -17,7 +17,7 @@ Free models, origin on their own axis (x = y = 0, lowest point z = 0), to be dra
 lever_handle origin = its pivot; draw it in the lever_base frame translated by LEVER_PIVOT, then rotated around
 the depth axis (game Z; +35 deg in glRotatef tips the grip to -x as seen by the camera). At 0 deg it points up (+Z).
 
-Textures: one PNG per model and lock colour (key, gate, lever_base: Textures/mechanisms/<model>_<colour>.png,
+Textures: one PNG per model and lock colour (key, gate, lever_base: textures/mechanisms/<model>_<colour>.png,
 same UV layout, only the gems / painted accents differ) or one per model (lever_handle, rock, ceiling_crack).
 Lighting is baked like decor.py (suns from the camera side and above + sky); the gate gets two suns from the
 left and right front so both its long sides read, the key a front and a back sun because it spins.
@@ -470,7 +470,7 @@ def build(bake=True, tex_dir=None, only=None):
 
 
 def export(objs, models_dir=None):
-    models_dir = models_dir or os.path.join(REPO, "Models", "mechanisms")
+    models_dir = models_dir or os.path.join(REPO, "models", "mechanisms")
     os.makedirs(models_dir, exist_ok=True)
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
     g = {"__file__": p, "__name__": "md3_export"}
@@ -520,7 +520,7 @@ def _instance(scene, src, variant, loc, rz=0.0, ry=0.0):
 
 def _corridor(scene, x0, x1):
     """Corridor from x0 to x1 in tile units: floor, back wall, ceiling, with the game's wall texture."""
-    path = os.path.join(REPO, "Textures", "dungeon", "wallback.png")
+    path = os.path.join(REPO, "textures", "dungeon", "wallback.png")
     img = bpy.data.images.load(path, check_existing=True)
     mesh = bpy.data.meshes.new("review_corridor")
     verts = [(x0, -1, 0), (x1, -1, 0), (x1, 0, 0), (x0, 0, 0), (x0, 0, 1), (x1, 0, 1), (x0, -1, 1), (x1, -1, 1)]
@@ -678,7 +678,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     only = args[args.index("--only") + 1].split(",") if "--only" in args else None
     exporting = "--export" in args
-    tex_dir = os.path.join(REPO, "Textures", "mechanisms")
+    tex_dir = os.path.join(REPO, "textures", "mechanisms")
     if exporting:
         os.makedirs(tex_dir, exist_ok=True)
     objs = build(bake=exporting or "--bake" in args, tex_dir=tex_dir if exporting else None, only=only)

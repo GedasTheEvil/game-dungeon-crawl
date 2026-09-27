@@ -23,22 +23,22 @@ std::unique_ptr<AnimatedCartoonModel> loadStaticModel(const char* path, Textura&
 void loadMechanisms(MechanismSet& set) {
 	char path[96];
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++) {
-		snprintf(path, sizeof(path), "Textures/mechanisms/key_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/key_%s.png", LOCK_COLOUR_NAMES[c]);
 		set.keyTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "Textures/mechanisms/gate_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/gate_%s.png", LOCK_COLOUR_NAMES[c]);
 		set.gateTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "Textures/mechanisms/lever_base_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/lever_base_%s.png", LOCK_COLOUR_NAMES[c]);
 		set.leverBaseTex[c].LoadPNG(path);
-		set.key[c] = loadStaticModel("Models/mechanisms/key.md3", set.keyTex[c]);
-		set.gate[c] = loadStaticModel("Models/mechanisms/gate.md3", set.gateTex[c]);
-		set.leverBase[c] = loadStaticModel("Models/mechanisms/lever_base.md3", set.leverBaseTex[c]);
+		set.key[c] = loadStaticModel("models/mechanisms/key.md3", set.keyTex[c]);
+		set.gate[c] = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[c]);
+		set.leverBase[c] = loadStaticModel("models/mechanisms/lever_base.md3", set.leverBaseTex[c]);
 	}
-	set.leverHandleTex.LoadPNG("Textures/mechanisms/lever_handle.png");
-	set.rockTex.LoadPNG("Textures/mechanisms/rock.png");
-	set.crackTex.LoadPNG("Textures/mechanisms/ceiling_crack.png");
-	set.leverHandle = loadStaticModel("Models/mechanisms/lever_handle.md3", set.leverHandleTex);
-	set.rock = loadStaticModel("Models/mechanisms/rock.md3", set.rockTex);
-	set.crack = loadStaticModel("Models/mechanisms/ceiling_crack.md3", set.crackTex);
+	set.leverHandleTex.LoadPNG("textures/mechanisms/lever_handle.png");
+	set.rockTex.LoadPNG("textures/mechanisms/rock.png");
+	set.crackTex.LoadPNG("textures/mechanisms/ceiling_crack.png");
+	set.leverHandle = loadStaticModel("models/mechanisms/lever_handle.md3", set.leverHandleTex);
+	set.rock = loadStaticModel("models/mechanisms/rock.md3", set.rockTex);
+	set.crack = loadStaticModel("models/mechanisms/ceiling_crack.md3", set.crackTex);
 }
 } // namespace
 
@@ -51,47 +51,47 @@ GameState::~GameState() {
 
 void GameState::Load() {
 	// init main load resourses
-	fonts.load_font.Load("Fonts/papyrus.png", 7, -1.0);
-	textures.load_bg.LoadPNG("Textures/ui/scarab_slate.png");
-	textures.bg.LoadPNG("Textures/ui/papyrus_sheet.png");
-	textures.progBar.LoadPNG("Textures/ui/loading.png");
-	textures.nullTex.LoadPNG("Textures/null.png");
-	textures.blackTex.LoadPNG("Textures/dungeon/wallback.png");
-	textures.black_t.LoadPNG("Textures/dungeon/black.png");
+	fonts.load_font.Load("fonts/papyrus.png", 7, -1.0);
+	textures.load_bg.LoadPNG("textures/ui/scarab_slate.png");
+	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png");
+	textures.progBar.LoadPNG("textures/ui/loading.png");
+	textures.nullTex.LoadPNG("textures/null.png");
+	textures.blackTex.LoadPNG("textures/dungeon/wallback.png");
+	textures.black_t.LoadPNG("textures/dungeon/black.png");
 	DrawLoad(4, "Loading Textures");
-	textures.player_t.LoadPNG("Textures/characters/archeologist.png");
+	textures.player_t.LoadPNG("textures/characters/archeologist.png");
 	DrawLoad(5, "Loading Textures");
-	textures.anubis_t.LoadPNG("Textures/monsters/anubis.png");
+	textures.anubis_t.LoadPNG("textures/monsters/anubis.png");
 	DrawLoad(6, "Loading Textures");
-	textures.worm_t.LoadPNG("Textures/monsters/worm.png");
+	textures.worm_t.LoadPNG("textures/monsters/worm.png");
 	DrawLoad(7, "Loading Textures");
-	textures.scarab_t.LoadPNG("Textures/monsters/scarab.png");
+	textures.scarab_t.LoadPNG("textures/monsters/scarab.png");
 	DrawLoad(8, "Loading Textures");
-	textures.bow_t.LoadPNG("Textures/items/gold.png");
-	textures.gold_t.LoadPNG("Textures/items/gold.png");
+	textures.bow_t.LoadPNG("textures/items/gold.png");
+	textures.gold_t.LoadPNG("textures/items/gold.png");
 	DrawLoad(9, "Loading Textures");
-	textures.chest_t.LoadPNG("Textures/items/tchest.png");
+	textures.chest_t.LoadPNG("textures/items/tchest.png");
 	DrawLoad(10, "Loading Textures");
-	textures.Dt[0].LoadPNG("Textures/sand.png");
+	textures.Dt[0].LoadPNG("textures/sand.png");
 	DrawLoad(11, "Loading Textures");
-	textures.Dt[1].LoadPNG("Textures/rock.png");
+	textures.Dt[1].LoadPNG("textures/rock.png");
 	DrawLoad(12, "Loading Textures");
-	textures.Dt[2].LoadPNG("Textures/vein.png");
+	textures.Dt[2].LoadPNG("textures/vein.png");
 	DrawLoad(13, "Loading Textures");
-	textures.club_t.LoadPNG("Textures/items/club.png");
+	textures.club_t.LoadPNG("textures/items/club.png");
 	DrawLoad(14, "Loading Textures");
-	textures.sword_t.LoadPNG("Textures/items/sword.png");
+	textures.sword_t.LoadPNG("textures/items/sword.png");
 	DrawLoad(15, "Loading Textures");
-	textures.potion_t.LoadPNG("Textures/items/potion.png");
+	textures.potion_t.LoadPNG("textures/items/potion.png");
 	DrawLoad(16, "Loading Textures");
-	textures.spear_t.LoadPNG("Textures/items/spear.png");
+	textures.spear_t.LoadPNG("textures/items/spear.png");
 	DrawLoad(17, "Loading Textures");
-	textures.plant_t.LoadPNG("Textures/monsters/plant.png");
-	textures.rat_t.LoadPNG("Textures/monsters/rat.png");
-	textures.giantRat_t.LoadPNG("Textures/monsters/rat_giant.png");
-	textures.bat_t.LoadPNG("Textures/monsters/bat.png");
-	textures.giantBat_t.LoadPNG("Textures/monsters/bat_giant.png");
-	textures.riddle_bg.LoadPNG("Textures/ui/riddlebg.png");
+	textures.plant_t.LoadPNG("textures/monsters/plant.png");
+	textures.rat_t.LoadPNG("textures/monsters/rat.png");
+	textures.giantRat_t.LoadPNG("textures/monsters/rat_giant.png");
+	textures.bat_t.LoadPNG("textures/monsters/bat.png");
+	textures.giantBat_t.LoadPNG("textures/monsters/bat_giant.png");
+	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png");
 	ui.rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
@@ -123,7 +123,7 @@ void GameState::Load() {
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
 	items.chest = std::make_unique<item>();
-	items.chest->loadModel("Models/items/tchest.md3", textures.chest_t);
+	items.chest->loadModel("models/items/tchest.md3", textures.chest_t);
 	items.chest->scale = 8;
 	items.chest->rotA = -90;
 
@@ -168,66 +168,66 @@ void GameState::Load() {
 
 	DrawLoad(70, "Loading Item Models [Club]");
 	items.club = std::make_unique<item>();
-	items.club->loadModel("Models/items/club.md3", textures.club_t);
+	items.club->loadModel("models/items/club.md3", textures.club_t);
 	items.club->damage = 9;
 	items.club->scale = 6;
 	items.club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
 	items.sword = std::make_unique<item>();
-	items.sword->loadModel("Models/items/sword.md3", textures.sword_t);
+	items.sword->loadModel("models/items/sword.md3", textures.sword_t);
 	items.sword->scale = 9;
 	items.sword->damage = 35;
 	items.sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
 	items.bow = std::make_unique<item>();
-	items.bow->loadModel("Models/items/bow.md3", textures.bow_t);
+	items.bow->loadModel("models/items/bow.md3", textures.bow_t);
 	items.bow->scale = 12;
 	items.bow->damage = 12;
 	items.bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
 	items.spear = std::make_unique<item>();
-	items.spear->loadModel("Models/items/spear.md3", textures.spear_t);
+	items.spear->loadModel("models/items/spear.md3", textures.spear_t);
 	items.spear->scale = 15;
 	items.spear->damage = 15;
 	items.spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
 	items.potion = std::make_unique<item>();
-	items.potion->loadModel("Models/items/potion.md3", textures.potion_t);
+	items.potion->loadModel("models/items/potion.md3", textures.potion_t);
 	items.potion->scale = 5;
 
-	textures.sphinx_t.LoadPNG("Textures/props/sphinx.png");
+	textures.sphinx_t.LoadPNG("textures/props/sphinx.png");
 	models.sphinx = std::make_unique<AnimatedCartoonModel>();
-	models.sphinx->Load("Models/props/sphinx.md3");
+	models.sphinx->Load("models/props/sphinx.md3");
 	models.sphinx->BindTexture(textures.sphinx_t.ID());
 	models.sphinx->Centrify();
 	models.sphinx->Compile();
 
-	textures.ankh_t.LoadPNG("Textures/props/ankh.png");
+	textures.ankh_t.LoadPNG("textures/props/ankh.png");
 	models.ankh = std::make_unique<AnimatedCartoonModel>();
-	models.ankh->Load("Models/props/ankh.md3");
+	models.ankh->Load("models/props/ankh.md3");
 	models.ankh->BindTexture(textures.ankh_t.ID());
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
 	models.question = std::make_unique<AnimatedCartoonModel>();
-	models.question->Load("Models/props/questionmark.md3");
+	models.question->Load("models/props/questionmark.md3");
 	models.question->BindTexture(textures.gold_t.ID());
 	models.question->Centrify();
 	models.question->Compile();
 
-	textures.plasma_t.LoadPNG("Textures/effects/plasma.png");
+	textures.plasma_t.LoadPNG("textures/effects/plasma.png");
 
 	DrawLoad(80, "Loading decorations");
-	decor.decalTex.LoadPNG("Textures/decorations/decals.png", true);
+	decor.decalTex.LoadPNG("textures/decorations/decals.png", true);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		char path[64];
-		snprintf(path, sizeof(path), "Textures/decorations/decor_%s.png", DECOR_NAMES[d]);
+		snprintf(path, sizeof(path), "textures/decorations/decor_%s.png", DECOR_NAMES[d]);
 		decor.tex[d].LoadPNG(path);
-		snprintf(path, sizeof(path), "Models/decorations/decor_%s.md3", DECOR_NAMES[d]);
+		snprintf(path, sizeof(path), "models/decorations/decor_%s.md3", DECOR_NAMES[d]);
 		auto model = std::make_unique<AnimatedCartoonModel>();
 		if (!model->Load(path))
 			continue;
@@ -236,9 +236,9 @@ void GameState::Load() {
 		model->Compile(); // no Centrify: the files are in tile units
 		decor.model[d] = std::move(model);
 	}
-	decor.torchTex.LoadPNG("Textures/decorations/decor_torch.png");
+	decor.torchTex.LoadPNG("textures/decorations/decor_torch.png");
 	auto torchModel = std::make_unique<AnimatedCartoonModel>();
-	if (torchModel->Load("Models/decorations/decor_torch.md3")) {
+	if (torchModel->Load("models/decorations/decor_torch.md3")) {
 		torchModel->BindTexture(decor.torchTex.ID());
 		torchModel->outline = false;
 		torchModel->Compile();
@@ -247,10 +247,10 @@ void GameState::Load() {
 	for (int s = 0; s < LADDER_STYLE_COUNT; s++)
 		for (int p = 0; p < LADDER_PIECE_COUNT; p++) {
 			char path[64];
-			snprintf(path, sizeof(path), "Textures/ladders/ladder_%s_%s.png", LADDER_STYLE_NAMES[s],
+			snprintf(path, sizeof(path), "textures/ladders/ladder_%s_%s.png", LADDER_STYLE_NAMES[s],
 					 LADDER_PIECE_NAMES[p]);
 			decor.ladderTex[s][p].LoadPNG(path);
-			snprintf(path, sizeof(path), "Models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
+			snprintf(path, sizeof(path), "models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
 					 LADDER_PIECE_NAMES[p]);
 			auto model = std::make_unique<AnimatedCartoonModel>();
 			if (!model->Load(path))
@@ -266,30 +266,30 @@ void GameState::Load() {
 
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();
-	sounds.drink_s.LoadWAV("Sounds/drink.wav");
-	sounds.jump_s.LoadWAV("Sounds/jump.wav");
-	sounds.keyPickup.LoadWAV("Sounds/key_pickup.wav");
-	sounds.gateOpen.LoadWAV("Sounds/gate_open.wav");
-	sounds.gateLocked.LoadWAV("Sounds/gate_locked.wav");
-	sounds.lever.LoadWAV("Sounds/lever.wav");
-	sounds.rockRumble.LoadWAV("Sounds/rock_rumble.wav");
-	sounds.rockCrash.LoadWAV("Sounds/rock_crash.wav");
+	sounds.drink_s.LoadWAV("sounds/drink.wav");
+	sounds.jump_s.LoadWAV("sounds/jump.wav");
+	sounds.keyPickup.LoadWAV("sounds/key_pickup.wav");
+	sounds.gateOpen.LoadWAV("sounds/gate_open.wav");
+	sounds.gateLocked.LoadWAV("sounds/gate_locked.wav");
+	sounds.lever.LoadWAV("sounds/lever.wav");
+	sounds.rockRumble.LoadWAV("sounds/rock_rumble.wav");
+	sounds.rockCrash.LoadWAV("sounds/rock_crash.wav");
 
 	DrawLoad(88, "Loading stats");
 	ui.Stats = std::make_unique<stats>();
 
-	textures.trap_t.LoadPNG("Textures/traps/spikes.png");
+	textures.trap_t.LoadPNG("textures/traps/spikes.png");
 	traps.TrapD = std::make_unique<trap>();
-	traps.TrapD->loadModel("Models/traps/spikes.md3", textures.trap_t);
+	traps.TrapD->loadModel("models/traps/spikes.md3", textures.trap_t);
 	traps.TrapD->scale = 16;
 
 	traps.DeathTrap = std::make_unique<trap>();
-	traps.DeathTrap->loadModel("Models/traps/spikes.md3", textures.trap_t);
+	traps.DeathTrap->loadModel("models/traps/spikes.md3", textures.trap_t);
 	traps.DeathTrap->scale = 40;
 
 	DrawLoad(95, "Loading game font");
-	fonts.font.Load("Fonts/papyrus.png", 3, -0.3);
-	fonts.status.Load("Fonts/papyrus.png", 5, 0.3f, true);
+	fonts.font.Load("fonts/papyrus.png", 3, -0.3);
+	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 
 	Player->jump.jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
 	Player->jump.jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
@@ -306,10 +306,10 @@ void GameState::Load() {
 		LOG_WARNING("game", "Failed loading map");
 
 	DrawLoad(100, "Loading game soundtrack");
-	sounds.soundtrack.LoadOGG("Sounds/soundtrack.ogg");
+	sounds.soundtrack.LoadOGG("sounds/soundtrack.ogg");
 	sounds.soundtrack.Play();
 
-	std::ifstream f("Saves/gamelist.dat");
+	std::ifstream f("saves/gamelist.dat");
 	if (f) {
 		for (int a = 0; a < 6; a++)
 			f >> saveNames[a].name;

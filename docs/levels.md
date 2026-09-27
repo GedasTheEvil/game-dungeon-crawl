@@ -1,12 +1,12 @@
 # Levels: validator, generator, campaign
 
-Level files, tile types and the editor: [DungeonEditor/readme.md](../DungeonEditor/readme.md).
+Level files, tile types and the editor: [dungeon-editor/readme.md](../dungeon-editor/readme.md).
 Tile types in code: `src/world/level.h`.
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays `Levels/lvl1` to `Levels/lvl15` (`CAMPAIGN_LEVELS`). Each exit loads the
-next level. `Levels/lvl15` holds the ankh that wins the game.
+`src/world/campaign.h`. A game plays `levels/lvl1` to `levels/lvl15` (`CAMPAIGN_LEVELS`). Each exit loads the
+next level. `levels/lvl15` holds the ankh that wins the game.
 
 | Levels | Content |
 |---|---|
@@ -24,15 +24,15 @@ next level. `Levels/lvl15` holds the ankh that wins the game.
 
 Anubis only appears from level 10 on. The sources of levels 6 to 15 are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
-`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt Levels/lvl9`.
+`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
 
 ## levelcheck: validate and rank
 
 ```
 make level-tools
-./levelcheck Levels/lvl*                   # report per level, then a ranking, easiest first
-./levelcheck --map Levels/lvl3             # plus the map with the path drawn as '*'
-./levelcheck --script tests/out/paths Levels/lvl*   # a scenario per level that plays the path
+./levelcheck levels/lvl*                   # report per level, then a ranking, easiest first
+./levelcheck --map levels/lvl3             # plus the map with the path drawn as '*'
+./levelcheck --script tests/out/paths levels/lvl*   # a scenario per level that plays the path
 ```
 
 Exit code: 0 if all levels are valid, 1 if one cannot be finished, 2 for a usage error or an unreadable file.
@@ -76,7 +76,7 @@ Monsters and damage do not stop it, so it proves that the level can be crossed, 
 ## levelgen: random levels
 
 ```
-./levelgen --seed 7 --difficulty 5 --map Levels/test1    # one level, print the map
+./levelgen --seed 7 --difficulty 5 --map levels/test1    # one level, print the map
 ./levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/gen5, seeds 1 .. 5
 ```
 

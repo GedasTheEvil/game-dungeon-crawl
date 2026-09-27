@@ -4,7 +4,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 
 ## Files
 * `tools/blender/md3.py` - MD3 reader/writer (plain Python, no Blender needed); documents the game's MD3 conventions.
-* `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `Textures/<category>/<name>.png`).
+* `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `textures/<category>/<name>.png`).
 * `tools/blender/md3_export.py` - `export_md3(obj, path, start, end)`; bakes armature/shape keys per frame.
 * `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
 * `tools/blender/render_sheet.py` - headless review renders + per-frame lowest-z (floor penetration) check.
@@ -26,7 +26,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   normalization reference; body height fixed, the engine flies it), attack, die (floor-fixed every frame to fly frame 0's lowest point),
   idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
-  `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`Sounds/bat_{att,die}.wav`).
+  `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/bat_{att,die}.wav`).
   Engine: `monster::Fly` (`flies = true`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
@@ -36,15 +36,15 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
   brazier, offerings, scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
-  drawn textured only (no toon pass, no Centrify). `-- --export` writes `Models/decorations/decor_<name>.md3` + `Textures/decorations/decor_<name>.png`;
+  drawn textured only (no toon pass, no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
 * `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
   (`wood`: acacia poles with rope-lashed rungs; `vine`: two twisted lianas with thin vines as holds), each with three
   interchangeable middle pieces `a`/`b`/`c` plus `top` (wood: roped to a beam between the side walls; vine: roots creeping along
   under the ceiling) and `bottom` (on the floor). Rails sit at x = +-0.1, y = -0.04 and match at z = 0 / 1, so pieces stack in any
-  order; holds every 1/12 tile (for the climbing animations to come). `-- --export` writes `Models/ladders/ladder_<style>_<piece>.md3` +
-  `Textures/ladders/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
+  order; holds every 1/12 tile (for the climbing animations to come). `-- --export` writes `models/ladders/ladder_<style>_<piece>.md3` +
+  `textures/ladders/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
   Placement: `Dungeon::scatterLadders` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
   lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/world/decor.h`.
 * `tools/blender/models/mechanism.py` - level mechanics, same tile units and baked lighting as `decor.py`: `key` (upright ankh key,
@@ -56,22 +56,22 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   and crack use the decor frame (origin on the back wall, `drawDecorTile`'s transform); key and rock are centred on their own
   vertical axis with the lowest point at z = 0 (draw from the tile centre, like the old ankh item; the key spins around its shaft).
   Key, gate and lever_base have one texture per lock colour on the same UVs (`red` carnelian, `blue` lapis, `green` turquoise,
-  `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `Models/mechanisms/<model>.md3` +
-  `Textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
+  `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
+  `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/textures/decals.py` - wall decal atlas `Textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
+* `tools/textures/decals.py` - wall decal atlas `textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
   Placement: `Dungeon::scatterDecals` (35% of cells with a visible back wall, one decal per cell).
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
-  (writes `Models/<category>/<name>{,_att,_die}.md3`, `Textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
+  (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), `src/graphics/shader.cpp` (toon shading, ramp in `Textures/Shader.txt`), model/texture wiring in `src/state/game_state.cpp`.
+* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), `src/graphics/shader.cpp` (toon shading, ramp in `textures/Shader.txt`), model/texture wiring in `src/state/game_state.cpp`.
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode stays unlit) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
-* `tools/audio/jump_sound.py` - synthesizes `Sounds/jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
-* `ModelViewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
+* `tools/audio/jump_sound.py` - synthesizes `sounds/jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
+* `model-viewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
 
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
@@ -96,7 +96,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   and holds when the player stops. Shown while `Dungeon::PlayerOnLadder` (a Ladder cell, off the floor, within reach of the ladder);
   sideways moves on a ladder use the walk cycle. The weapon is hidden while climbing.
   The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
-  `ModelViewer` looks for `Textures/<category>/<stem>.png` (the model's sub-directory under `Models/`).
+  `model-viewer` looks for `textures/<category>/<stem>.png` (the model's sub-directory under `models/`).
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
@@ -105,7 +105,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 31 models load in ~0.2 s.
 
 ## Status
-Paths relative to `Models/` and `Textures/`. UI screens are in `Textures/ui/`, dungeon wall textures in `Textures/dungeon/`, `plasma.png` in `Textures/effects/`.
+Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
 
 | Model | Files | Texture | Status |
 |---|---|---|---|

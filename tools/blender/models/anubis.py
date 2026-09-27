@@ -586,14 +586,14 @@ def build(bake=True, tex_path=None):
 
 
 def export(models_dir=None):
-    """Write Models/monsters/anubis{,_att,_die}.md3 from the built objects."""
+    """Write models/monsters/anubis{,_att,_die}.md3 from the built objects."""
     clips = [("anubis_walk", "", FRAMES), ("anubis_attack", "_att", FRAMES), ("anubis_die", "_die", FRAMES)]
     common.export_files(bpy.data.objects["anubis_new"], bpy.data.objects["anubis_rig"], "anubis", clips, "monsters", models_dir)
 
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    build(tex_path=os.path.join(REPO, "Textures", "monsters", "anubis.png") if "--export" in args else None)
+    build(tex_path=os.path.join(REPO, "textures", "monsters", "anubis.png") if "--export" in args else None)
     if "--export" in args:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "anubis.blend"))

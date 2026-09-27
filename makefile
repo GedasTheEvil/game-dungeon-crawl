@@ -20,11 +20,11 @@ DEPS=$(OBJECTS:.o=.d)
 
 EXECUTABLE=game
 
-# Level editor, runs from DungeonEditor/. Shares the game's texture, font, UI and level code.
-EDITOR_SOURCES=DungeonEditor/editor.cpp DungeonEditor/tile_info.cpp
+# Level editor, runs from dungeon-editor/. Shares the game's texture, font, UI and level code.
+EDITOR_SOURCES=dungeon-editor/editor.cpp dungeon-editor/tile_info.cpp
 EDITOR_OBJECTS=$(EDITOR_SOURCES:.cpp=.o) src/graphics/textures.o src/graphics/font.o src/core/logger.o src/ui/ui_draw.o \
 	src/world/level.o src/world/level_check.o
-EDITOR=DungeonEditor/editor
+EDITOR=dungeon-editor/editor
 CLANG_TIDY?=clang-tidy
 
 # Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
@@ -53,7 +53,7 @@ clean:
 	rm -f $(OBJECTS) $(EXECUTABLE) $(DEPS) $(LEVEL_TOOLS) $(EDITOR) $(EDITOR_SOURCES:.cpp=.o) $(EDITOR_SOURCES:.cpp=.d)
 
 format:
-	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp DungeonEditor/*.h DungeonEditor/*.cpp
+	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp dungeon-editor/*.h dungeon-editor/*.cpp
 
 tidy-fix:
 	$(CLANG_TIDY) $(SOURCES) $(EDITOR_SOURCES) --fix -- $(TIDY_CPPFLAGS)
@@ -67,13 +67,13 @@ $(EDITOR): $(EDITOR_OBJECTS)
 	$(CXX) $(EDITOR_OBJECTS) -o $@ $(LDFLAGS)
 
 run-editor:
-	(cd DungeonEditor && ./editor)
+	(cd dungeon-editor && ./editor)
 
 model-viewer:
-	(cd ModelViewer && ./make)
+	(cd model-viewer && ./make)
 
 run-model-viewer:
-	./ModelViewer/viewer $(ARGS)
+	./model-viewer/viewer $(ARGS)
 
 # Scenario tests: `make test` runs tests/scenarios/*.txt, `make test SCENARIO=path` runs one. HEADLESS=0 shows the window.
 test: $(EXECUTABLE)

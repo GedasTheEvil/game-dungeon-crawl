@@ -1,4 +1,4 @@
-// ModelViewer :: viewer.cpp
+// model-viewer :: viewer.cpp
 //
 // Steps 1-3 of the model-viewer-executable plan: open a GLUT window, load a
 // single .md3 file named on the command line via the existing AnimatedModel
@@ -98,7 +98,7 @@ std::size_t g_currentSiblingIndex = 0;
 int g_statAnimationStateCount = 0;
 
 // Returns the filename with its directory stripped but extension kept,
-// e.g. "Models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
+// e.g. "models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
 // (which also strips the extension, for the window title's own use).
 std::string Basename(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
@@ -106,7 +106,7 @@ std::string Basename(const std::string& path) {
 }
 
 // Returns the filename stem (no directory, no extension) of a path, e.g.
-// "Models/monsters/anubis.md3" -> "anubis". Used only for the best-effort
+// "models/monsters/anubis.md3" -> "anubis". Used only for the best-effort
 // model-stem -> texture-stem convention described in step.md; this repo has
 // no general model->texture mapping to reuse.
 std::string FileStem(const std::string& path) {
@@ -181,8 +181,8 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 
 		// The loaded file is always a member of its own group, even if it
 		// would otherwise fail the extension or old-suffix filters below
-		// (e.g. the user explicitly names Models/columns.mdl_old or
-		// Models/props/sphinx_old.md3 on the command line -- both load fine via
+		// (e.g. the user explicitly names models/columns.mdl_old or
+		// models/props/sphinx_old.md3 on the command line -- both load fine via
 		// AnimatedModel::Load, which does not check extension). Those
 		// filters exist to keep OTHER candidates out of a group the user
 		// didn't ask to see; they must never evict the file the user
@@ -226,10 +226,10 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 }
 
 // Best-effort texture fallback chain (step.md):
-//   1. Textures/<category>/<texture-stem>.png, where <category> is the model's
-//      sub-directory under Models/ (e.g. Models/monsters/anubis.md3 ->
-//      Textures/monsters/anubis.png)
-//   2. Textures/null.png
+//   1. textures/<category>/<texture-stem>.png, where <category> is the model's
+//      sub-directory under models/ (e.g. models/monsters/anubis.md3 ->
+//      textures/monsters/anubis.png)
+//   2. textures/null.png
 //   3. untextured (id 0)
 // Every failure is logged as a warning, never fatal -- a missing/wrong
 // texture must never prevent seeing the animation. textureStem is already
@@ -238,17 +238,17 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 // texture always comes from its parent's stem, not its own.
 int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Textura& tex) {
 	std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
-	std::string guess = "Textures/" + category + "/" + textureStem + ".png";
+	std::string guess = "textures/" + category + "/" + textureStem + ".png";
 	if (tex.LoadPNG(guess.c_str())) {
 		return tex.ID();
 	}
 
-	LOG_WARNINGF("modelviewer", "No texture found at %s, falling back to Textures/null.png", guess.c_str());
-	if (tex.LoadPNG("Textures/null.png")) {
+	LOG_WARNINGF("modelviewer", "No texture found at %s, falling back to textures/null.png", guess.c_str());
+	if (tex.LoadPNG("textures/null.png")) {
 		return tex.ID();
 	}
 
-	LOG_WARNINGF("modelviewer", "%s", "Textures/null.png fallback also failed, continuing untextured");
+	LOG_WARNINGF("modelviewer", "%s", "textures/null.png fallback also failed, continuing untextured");
 	return 0;
 }
 
@@ -344,7 +344,7 @@ void Display() {
 	// must come after the bar's glEnable(GL_TEXTURE_2D) above, not inside the
 	// disabled block. glColor3f(1,1,1) undoes Hud::drawBar's last fill color
 	// (blue) so the text isn't tinted; the blend func/enable is required
-	// because Fonts/papyrus_i.png has no alpha channel, so without blending
+	// because fonts/papyrus_i.png has no alpha channel, so without blending
 	// each glyph quad would draw as a solid-colored box instead of legible
 	// text. glDisable(GL_BLEND) must run before this function returns so it
 	// doesn't leak into the next frame's opaque 3D model draw.
@@ -487,7 +487,7 @@ int main(int argc, char* argv[]) {
 
 	InitGL(g_winWidth, g_winHeight);
 
-	g_statsFont.Load("Fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
+	g_statsFont.Load("fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
 	                                                    // Impact-font convention
 	g_statPlaySpeed = static_cast<int>(g_durationSeconds);
 
@@ -495,7 +495,7 @@ int main(int argc, char* argv[]) {
 	// the user actually typed, and never rescanned -- see architecture.md
 	// section 1. g_currentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
-	// identically (e.g. "./Models/monsters/anubis.md3" vs "Models/monsters/anubis.md3").
+	// identically (e.g. "./models/monsters/anubis.md3" vs "models/monsters/anubis.md3").
 	g_siblingModelPaths = ScanSiblingModels(modelPath);
 	g_currentSiblingIndex = 0;
 	for (std::size_t i = 0; i < g_siblingModelPaths.size(); ++i) {

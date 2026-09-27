@@ -1,8 +1,8 @@
-# Worms share one model object (Levels/monste): each must animate on its own, not in lockstep.
+# Worms share one model object (tests/levels/monsters): each must animate on its own, not in lockstep.
 # Check the frames: the two worms beside the player should show different poses.
 seed 1
 god
-level Levels/monste
+level tests/levels/monsters
 wait 30
 walk right 2
 walk down 5.9

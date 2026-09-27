@@ -18,7 +18,7 @@ constexpr int MODEL_STATE_COUNT = 6;
 // Playback of every clip, indexed by ModelState.
 using MonsterAnimations = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 
-// Models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
+// models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
 // it is required, sets the normalization of all clips (frame 0) and stands in for missing optional ones.
 struct ClipFile {
 	ModelState state;

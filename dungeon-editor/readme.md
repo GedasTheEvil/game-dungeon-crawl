@@ -1,6 +1,6 @@
 # Level editor
 
-`make editor`, then `make run-editor`. The editor runs from `DungeonEditor/`.
+`make editor`, then `make run-editor`. The editor runs from `dungeon-editor/`.
 
 ## Screen layout
 
@@ -30,14 +30,14 @@ In both modes, a right click on a cell picks its tile, attribute and value into 
    The numbers apply as you type. Reset both fields to empty (0) before you paint plain tiles.
 3. Paint on the grid.
 4. Click the name field, type a name (max. 32 characters: letters, digits, `_`, `-`, `.`).
-5. Click `Save` (`Ctrl+S`). The file goes to `DungeonEditor/Saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
-6. Copy the file to `Levels/lvlN`. The game starts on `Levels/lvl1` and each exit loads `lvl<N+1>`.
+5. Click `Save` (`Ctrl+S`). The file goes to `dungeon-editor/saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
+6. Copy the file to `levels/lvlN`. The game starts on `levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it.
 
-Tile icons are PNG files in `DungeonEditor/Textures/`, drawn by `DungeonEditor/Textures/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `Fonts/` and
-`Textures/ui/`.
+Tile icons are PNG files in `dungeon-editor/textures/`, drawn by `dungeon-editor/textures/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `fonts/` and
+`textures/ui/`.
 
 ## Tile reference
 
@@ -67,7 +67,7 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | Attribute | Gate | Behaviour |
 |---|---|---|
 | 1 | Entrance | Player start position. Shows a plasma portal. Use exactly one per level; if there are more, the last one in the file wins. |
-| 2 | Exit | Plasma portal. Interact to load the next level (`Levels/lvl<N+1>`). |
+| 2 | Exit | Plasma portal. Interact to load the next level (`levels/lvl<N+1>`). |
 | 3 | Riddle | Question mark above the sphinx. Interact to get a riddle; the gate then becomes type 4. |
 | 4 | Empty gate | Decoration only (also the state of a used riddle gate). |
 | 0 | - | Decoration only. |

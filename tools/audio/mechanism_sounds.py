@@ -1,6 +1,6 @@
 """Synthesize the sounds of the rats, keys, gates, levers and rock falls.
 
-    python3 tools/audio/mechanism_sounds.py [out_dir]      (default: Sounds/)
+    python3 tools/audio/mechanism_sounds.py [out_dir]      (default: sounds/)
 
 Writes rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
 key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
@@ -173,7 +173,7 @@ SOUNDS = {
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "Sounds")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds")
     for name, fn in SOUNDS.items():
         pcm = (fn() * 32767).astype("<i2")
         path = os.path.join(out_dir, name + ".wav")

@@ -1,8 +1,8 @@
-# Two worms side by side (Levels/monste): hitting one must show blood only on that one.
+# Two worms side by side (tests/levels/monsters): hitting one must show blood only on that one.
 # Check 003_hit.png: blood on the damaged worm only, none on the full-HP worm to the right.
 seed 1
 god
-level Levels/monste
+level tests/levels/monsters
 wait 30
 walk right 2
 walk down 5.9

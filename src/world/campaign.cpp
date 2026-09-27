@@ -1,3 +1,3 @@
 #include "campaign.h"
 
-std::string campaignLevelFile(int number) { return "Levels/lvl" + std::to_string(number); }
+std::string campaignLevelFile(int number) { return "levels/lvl" + std::to_string(number); }

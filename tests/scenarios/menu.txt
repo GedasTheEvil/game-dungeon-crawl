@@ -1,4 +1,4 @@
-# In-game menu, save / load / options screens (hover only: clicking a slot would write the real Saves/).
+# In-game menu, save / load / options screens (hover only: clicking a slot would write the real saves/).
 level 1
 wait 10
 key esc

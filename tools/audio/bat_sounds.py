@@ -1,6 +1,6 @@
 """Synthesize the bat sounds: the bite (chittering screech + leathery flap) and the death (falling squeal + soft thud).
 
-    python3 tools/audio/bat_sounds.py [out_dir]      (default: Sounds/, writes bat_att.wav and bat_die.wav)
+    python3 tools/audio/bat_sounds.py [out_dir]      (default: sounds/, writes bat_att.wav and bat_die.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds. The giant bat uses the same files.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -112,7 +112,7 @@ def write(path, x):
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "Sounds")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds")
     write(os.path.join(out_dir, "bat_att.wav"), attack())
     write(os.path.join(out_dir, "bat_die.wav"), die())
 

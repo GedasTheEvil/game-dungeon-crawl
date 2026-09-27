@@ -144,10 +144,10 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 } // namespace
 
 inventory::inventory() {
-	title.Load("Fonts/papyrus.png", 7.f, 0.3f, true);
-	heading.Load("Fonts/papyrus.png", 5.f, 0.16f, true);
-	body.Load("Fonts/papyrus.png", 3.6f, 0.1f, true);
-	small.Load("Fonts/papyrus.png", 3.f, 0.08f, true);
+	title.Load("fonts/papyrus.png", 7.f, 0.3f, true);
+	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
+	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
+	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
 
 	counts[0] = 1; // everyone starts with the club
 	for (int& level : levels)

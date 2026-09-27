@@ -5,9 +5,9 @@ The file layout and game conventions are in md3.py (game space is Y-up).
 Usage:
     MCP / Blender console:
         p = ".../tools/blender/md3_import.py"; g = {"__file__": p, "__name__": "md3_import"}
-        exec(open(p).read(), g); g["import_md3"]("Models/monsters/anubis.md3")
+        exec(open(p).read(), g); g["import_md3"]("models/monsters/anubis.md3")
     CLI:
-        blender -b --python tools/blender/md3_import.py -- Models/monsters/anubis.md3 [out.blend]
+        blender -b --python tools/blender/md3_import.py -- models/monsters/anubis.md3 [out.blend]
 """
 
 import os
@@ -38,9 +38,9 @@ def _guess_texture(path):
     for suffix in ("_att", "_die", "_jump", "_climb"):
         if base.endswith(suffix):
             base = base[: -len(suffix)]
-    # Models/<category>/<name>.md3 -> Textures/<category>/<name>.png
+    # models/<category>/<name>.md3 -> textures/<category>/<name>.png
     category = os.path.basename(os.path.dirname(os.path.abspath(path)))
-    tex = os.path.join(REPO_ROOT, "Textures", category, base + ".png")
+    tex = os.path.join(REPO_ROOT, "textures", category, base + ".png")
     return tex if os.path.exists(tex) else None
 
 

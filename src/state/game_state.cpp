@@ -290,6 +290,7 @@ void GameState::Load() {
 	DrawLoad(95, "Loading game font");
 	fonts.font.Load("fonts/papyrus.png", 3, -0.3);
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
+	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
 
 	Player->jump.jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
 	Player->jump.jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);

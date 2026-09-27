@@ -1,0 +1,10 @@
+# HUD level gem: carnelian for levels 1-5, turquoise for 6-10, lapis lazuli from 11.
+level 1
+wait 30
+screenshot level1
+level 7
+wait 30
+screenshot level7
+level 12
+wait 30
+screenshot level12

@@ -5,6 +5,7 @@
 #include "../core/service_locator.h"
 #include "../ui/screen_state.h"
 #include "hud.h"
+#include "../ui/level_gem.h"
 #include "lighting.h"
 #include "gl_includes.h"
 #include <string>
@@ -172,6 +173,7 @@ void Draw() {
 	GAME_STATE.textures.nullTex.Bind();
 	Hud::drawPlayerBars(GAME_STATE.Player->healthRatio(), GAME_STATE.Player->staminaRatio());
 	Hud::drawKeys(GAME_STATE.dungeon.KeysHeld());
+	LevelGem::draw(GAME_STATE.curMap, GAME_STATE.render.resX, GAME_STATE.render.resY, GAME_STATE.fonts.hud);
 
 	glColor3f(1, 1, 1);
 

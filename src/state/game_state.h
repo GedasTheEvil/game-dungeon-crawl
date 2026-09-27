@@ -47,6 +47,7 @@ struct FontPair {
 	Font font;
 	Font load_font;
 	Font status; // proportional, for the gameplay status message
+	Font hud;	 // bold digits for the HUD level gem
 };
 
 struct MonsterPrototypes {

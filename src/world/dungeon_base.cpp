@@ -36,6 +36,14 @@ Tint Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), st
 //======================================================================================
 void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].b = value; }
 //======================================================================================
+void Dungeon::resetPlayerMotion() {
+	JumpState& jump = GAME_STATE.Player->jump;
+	jump.jumping = false;
+	jump.falling = false;
+	jump.velocity = 0.f;
+	jump.fall_velocity = FALL_STEP;
+}
+//======================================================================================
 void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->dungeonCamX = &mapX;
 	m[index].m->dungeonCamY = &mapY;

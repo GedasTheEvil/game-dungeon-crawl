@@ -32,6 +32,7 @@ class Dungeon {
 	int MapIndex(int col, int row) const;
 	Tint MapAt(int col, int row) const;
 	void SetMapBAtPlayer(int value);
+	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
 	void SyncMonsterFromToken(int index);
 	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();

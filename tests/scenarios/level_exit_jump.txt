@@ -1,0 +1,23 @@
+# Leaving a level mid-jump (interact on the exit while in the air) must not carry the jump into the next level:
+# lvl2 exits at row 36, lvl3 starts at row 39, so a carried-over jump would end at row 36 inside the rock.
+seed 1
+god
+level 2
+wait 30
+walk right 3.450
+walk down 1.97
+walk left 4.000
+walk down 1.97
+walk right 7.000
+walk up 2.03
+walk right 9.000
+dump
+jump
+wait 3
+interact
+wait 2s
+dump
+screenshot arrived
+expect level == 3
+expect y == 39
+walk right 2

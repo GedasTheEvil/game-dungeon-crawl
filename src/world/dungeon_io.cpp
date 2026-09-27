@@ -24,13 +24,18 @@ bool Dungeon::Load(const char* filename) {
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
+	bool entranceFound = false;
 	for (int j = 0; j < kMapHeight; j++)
 		for (int i = 0; i < kMapWidth; i++)
 			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
 				mapX = static_cast<float>(i);
 				mapY = static_cast<float>(j);
+				entranceFound = true;
 			}
+	if (!entranceFound)
+		LOG_WARNINGF("world", "Level %s has no entrance (Door with attribute 1), player position not set", levelName);
 
+	resetPlayerMotion();
 	resetMechanisms();
 	scatterDecorations(levelName);
 }
@@ -52,6 +57,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	if (!readLevelCells(f, map, kMapCellCount))
 		return false;
 
+	resetPlayerMotion();
 	resetMechanisms();
 	// Saves from before the keys end here.
 	int keys = 0;

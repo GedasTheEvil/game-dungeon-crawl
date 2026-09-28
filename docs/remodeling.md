@@ -28,7 +28,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   normalization reference; body height fixed, the engine flies it), attack, die (floor-fixed every frame to fly frame 0's lowest point),
   idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
-  `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/bat_{att,die}.wav`).
+  `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
   Engine: `monster::Fly` (`locomotion = Locomotion::Fly`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
@@ -93,7 +93,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
-* `tools/audio/jump_sound.py` - synthesizes `sounds/jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
+* `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `model-viewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
 
 ## Format and engine conventions
@@ -122,7 +122,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `model-viewer` looks for `textures/<category>/<stem>.png` (the model's sub-directory under `models/`).
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
-  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<name>_jump.wav`.
+  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<category>/<name>_jump.wav`.
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.

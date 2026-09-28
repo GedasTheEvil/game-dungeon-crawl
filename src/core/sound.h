@@ -1,21 +1,41 @@
-#ifndef SoundH
-#define SoundH
+#ifndef SOUND_H
+#define SOUND_H
 
 #include <SDL/SDL_mixer.h>
 
-class Sound {
-  private:
-	Mix_Chunk* data;
-	Mix_Music* Mdata;
-	bool WAV;
-	bool OGG;
+// Opens the SDL_mixer device while at least one instance lives. Base of every sound and music object.
+class AudioUser {
+  protected:
+	AudioUser();
+	~AudioUser();
 
   public:
-	Sound();
+	AudioUser(const AudioUser&) = delete;
+	AudioUser& operator=(const AudioUser&) = delete;
+};
+
+// A WAV effect.
+class Sound : AudioUser {
+  private:
+	Mix_Chunk* chunk = nullptr;
+
+  public:
+	Sound() = default;
 	~Sound();
-	bool LoadWAV(const char filename[]);
-	bool LoadOGG(const char filename[]);
-	void Play();
+	bool Load(const char filename[]);
+	void Play() const;
+};
+
+// Looped background music (OGG).
+class Music : AudioUser {
+  private:
+	Mix_Music* music = nullptr;
+
+  public:
+	Music() = default;
+	~Music();
+	bool Load(const char filename[]);
+	void Play() const;
 };
 
 #endif

@@ -37,8 +37,7 @@ struct RenderSettings {
 
 struct SoundBank {
 	Sound drink_s;
-	Sound jump_s;
-	Sound soundtrack;
+	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash;
 };
 

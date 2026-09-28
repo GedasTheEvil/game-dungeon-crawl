@@ -26,16 +26,11 @@ class Logger {
 	static void warning(const std::string& category, const std::string& message);
 	static void error(const std::string& category, const std::string& message);
 
-	template <typename... Args>
-	static void debugf(const std::string& category, const std::string& format, Args... args);
-
-	template <typename... Args> static void infof(const std::string& category, const std::string& format, Args... args);
-
-	template <typename... Args>
-	static void warningf(const std::string& category, const std::string& format, Args... args);
-
-	template <typename... Args>
-	static void errorf(const std::string& category, const std::string& format, Args... args);
+	// printf-style.
+	[[gnu::format(printf, 2, 3)]] static void debugf(const std::string& category, const char* format, ...);
+	[[gnu::format(printf, 2, 3)]] static void infof(const std::string& category, const char* format, ...);
+	[[gnu::format(printf, 2, 3)]] static void warningf(const std::string& category, const char* format, ...);
+	[[gnu::format(printf, 2, 3)]] static void errorf(const std::string& category, const char* format, ...);
 };
 
 // Convenience macros for different categories

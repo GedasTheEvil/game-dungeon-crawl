@@ -36,7 +36,7 @@ void startJump() {
 	GAME_STATE.Player->jump.velocity = JUMP_INITIAL_VELOCITY;
 	GAME_STATE.Player->jump.jumping = true;
 	GAME_STATE.Player->jump.jump_up_timer->Reset();
-	GAME_STATE.sounds.jump_s.Play();
+	GAME_STATE.Player->jump_s.Play();
 }
 
 class PlayerActionController {

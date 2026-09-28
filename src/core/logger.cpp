@@ -1,4 +1,5 @@
 #include "logger.h"
+#include <cstdarg>
 #include <cstdio>
 #include <ctime>
 #include <iomanip>
@@ -83,81 +84,28 @@ void Logger::warning(const std::string& category, const std::string& message) {
 
 void Logger::error(const std::string& category, const std::string& message) { log(LogLevel::ERROR, category, message); }
 
-template <typename... Args> static std::string formatString(const std::string& format, Args... args) {
-	if constexpr (sizeof...(Args) == 0) {
-		return format; // no arguments: nothing to format (and no non-literal format string)
-	} else {
-		int size = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
-		if (size <= 0)
-			return format;
-
-		std::unique_ptr<char[]> buf(new char[size]);
-		std::snprintf(buf.get(), size, format.c_str(), args...);
-		return std::string(buf.get(), buf.get() + size - 1);
-	}
+namespace {
+std::string formatString(const char* format, va_list args) {
+	va_list copy;
+	va_copy(copy, args);
+	const int size = std::vsnprintf(nullptr, 0, format, copy);
+	va_end(copy);
+	if (size < 0)
+		return format;
+	std::string out(static_cast<std::size_t>(size), '\0');
+	std::vsnprintf(out.data(), out.size() + 1, format, args);
+	return out;
 }
+} // namespace
 
-template <typename... Args> void Logger::debugf(const std::string& category, const std::string& format, Args... args) {
-	debug(category, formatString(format, args...));
-}
+#define LOGGER_FORMATTED(level)                                                                                        \
+	va_list args;                                                                                                      \
+	va_start(args, format);                                                                                            \
+	std::string message = formatString(format, args);                                                                  \
+	va_end(args);                                                                                                      \
+	log(level, category, message);
 
-template <typename... Args> void Logger::infof(const std::string& category, const std::string& format, Args... args) {
-	info(category, formatString(format, args...));
-}
-
-template <typename... Args>
-void Logger::warningf(const std::string& category, const std::string& format, Args... args) {
-	warning(category, formatString(format, args...));
-}
-
-template <typename... Args> void Logger::errorf(const std::string& category, const std::string& format, Args... args) {
-	error(category, formatString(format, args...));
-}
-
-// Explicit template instantiations for common types
-template void Logger::debugf<>(const std::string&, const std::string&);
-template void Logger::infof<>(const std::string&, const std::string&);
-template void Logger::warningf<>(const std::string&, const std::string&);
-template void Logger::errorf<>(const std::string&, const std::string&);
-
-template void Logger::debugf<int>(const std::string&, const std::string&, int);
-template void Logger::infof<int>(const std::string&, const std::string&, int);
-template void Logger::warningf<int>(const std::string&, const std::string&, int);
-template void Logger::errorf<int>(const std::string&, const std::string&, int);
-
-template void Logger::debugf<int, int>(const std::string&, const std::string&, int, int);
-template void Logger::infof<int, int>(const std::string&, const std::string&, int, int);
-template void Logger::warningf<int, int>(const std::string&, const std::string&, int, int);
-template void Logger::errorf<int, int>(const std::string&, const std::string&, int, int);
-
-template void Logger::infof<int, int, int>(const std::string&, const std::string&, int, int, int);
-
-template void Logger::debugf<const char*>(const std::string&, const std::string&, const char*);
-template void Logger::infof<const char*>(const std::string&, const std::string&, const char*);
-template void Logger::warningf<const char*>(const std::string&, const std::string&, const char*);
-template void Logger::errorf<const char*>(const std::string&, const std::string&, const char*);
-
-// Additional instantiations for textures.cpp
-template void Logger::infof<const char*, int, int>(const std::string&, const std::string&, const char*, int, int);
-template void Logger::infof<unsigned long>(const std::string&, const std::string&, unsigned long);
-template void Logger::infof<const char*, int>(const std::string&, const std::string&, const char*, int);
-template void Logger::warningf<const char*, unsigned short>(const std::string&, const std::string&, const char*,
-															unsigned short);
-template void Logger::infof<unsigned int>(const std::string&, const std::string&, unsigned int);
-template void Logger::errorf<const char*, const char*>(const std::string&, const std::string&, const char*,
-													   const char*);
-template void Logger::warningf<const char*, const char*>(const std::string&, const std::string&, const char*,
-														 const char*);
-template void Logger::infof<const char*, int, int, int>(const std::string&, const std::string&, const char*, int, int,
-														int);
-
-// Additional instantiations for sound.cpp
-template void Logger::debugf<void*>(const std::string&, const std::string&, void*);
-template void Logger::errorf<char*>(const std::string&, const std::string&, char*);
-
-// Additional instantiations for monster.cpp (loading models with char[] arrays decaying to char*)
-template void Logger::infof<char*>(const std::string&, const std::string&, char*);
-
-// Additional instantiations for trap.cpp (debugText with 4 floats)
-template void Logger::debugf<float, float, float, float>(const std::string&, const std::string&, float, float, float,
-														 float);
+void Logger::debugf(const std::string& category, const char* format, ...) { LOGGER_FORMATTED(LogLevel::DEBUG) }
+void Logger::infof(const std::string& category, const char* format, ...) { LOGGER_FORMATTED(LogLevel::INFO) }
+void Logger::warningf(const std::string& category, const char* format, ...) { LOGGER_FORMATTED(LogLevel::WARNING) }
+void Logger::errorf(const std::string& category, const char* format, ...) { LOGGER_FORMATTED(LogLevel::ERROR) }

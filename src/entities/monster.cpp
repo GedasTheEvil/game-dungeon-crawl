@@ -281,12 +281,12 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		idleTop = idle->YRange(0).second;
 	}
 
-	// filename is "<category>/<name>" (under models/); sounds are flat in sounds/<name>_*.wav.
-	const std::string name = std::filesystem::path(filename).filename().string();
-	die_s.LoadWAV(("sounds/" + name + "_die.wav").c_str());
-	att_s.LoadWAV(("sounds/" + name + "_att.wav").c_str());
-	if (std::string jump = "sounds/" + name + "_jump.wav"; std::filesystem::exists(jump))
-		jump_s.LoadWAV(jump.c_str());
+	// filename is "<category>/<name>", under models/, textures/ and sounds/ alike.
+	const std::string sound = std::string("sounds/") + filename;
+	// Every sound is optional (the plant is silent).
+	for (auto [clip, target] : {std::pair{"_die.wav", &die_s}, {"_att.wav", &att_s}, {"_jump.wav", &jump_s}})
+		if (std::string path = sound + clip; std::filesystem::exists(path))
+			target->Load(path.c_str());
 
 	if (compile)
 		for (auto& c : clips)

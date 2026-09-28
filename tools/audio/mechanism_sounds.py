@@ -2,9 +2,9 @@
 
     python3 tools/audio/mechanism_sounds.py [out_dir]      (default: sounds/)
 
-Writes rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
+Writes monsters/rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
 rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
-key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
+mechanisms/key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
 lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
@@ -199,10 +199,12 @@ def rock_crash():
     return normalize(out + debris, -2)
 
 
+# Paths under sounds/.
 SOUNDS = {
-    "rat_att": rat_att, "rat_die": rat_die, "key_pickup": key_pickup, "gate_open": gate_open,
-    "gate_locked": gate_locked, "lever": lever, "rock_rumble": rock_rumble, "rock_crash": rock_crash,
-    "rat_jump": rat_jump,  # last: the fixed rng stream of the older sounds stays the same
+    "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
+    "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
+    "mechanisms/rock_rumble": rock_rumble, "mechanisms/rock_crash": rock_crash,
+    "monsters/rat_jump": rat_jump,  # last: the fixed rng stream of the older sounds stays the same
 }
 
 
@@ -211,6 +213,7 @@ def main():
     for name, fn in SOUNDS.items():
         pcm = (fn() * 32767).astype("<i2")
         path = os.path.join(out_dir, name + ".wav")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with wave.open(path, "wb") as w:
             w.setnchannels(1)
             w.setsampwidth(2)

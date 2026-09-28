@@ -266,14 +266,13 @@ void GameState::Load() {
 
 	DrawLoad(85, "Loading inventory");
 	ui.invent = std::make_unique<inventory>();
-	sounds.drink_s.LoadWAV("sounds/drink.wav");
-	sounds.jump_s.LoadWAV("sounds/jump.wav");
-	sounds.keyPickup.LoadWAV("sounds/key_pickup.wav");
-	sounds.gateOpen.LoadWAV("sounds/gate_open.wav");
-	sounds.gateLocked.LoadWAV("sounds/gate_locked.wav");
-	sounds.lever.LoadWAV("sounds/lever.wav");
-	sounds.rockRumble.LoadWAV("sounds/rock_rumble.wav");
-	sounds.rockCrash.LoadWAV("sounds/rock_crash.wav");
+	sounds.drink_s.Load("sounds/items/potion_drink.wav");
+	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
+	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
+	sounds.gateLocked.Load("sounds/mechanisms/gate_locked.wav");
+	sounds.lever.Load("sounds/mechanisms/lever.wav");
+	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
+	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 
 	DrawLoad(88, "Loading stats");
 	ui.Stats = std::make_unique<stats>();
@@ -307,7 +306,7 @@ void GameState::Load() {
 		LOG_WARNING("game", "Failed loading map");
 
 	DrawLoad(100, "Loading game soundtrack");
-	sounds.soundtrack.LoadOGG("sounds/soundtrack.ogg");
+	sounds.soundtrack.Load("sounds/music/soundtrack.ogg");
 	sounds.soundtrack.Play();
 
 	std::ifstream f("saves/gamelist.dat");

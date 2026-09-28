@@ -39,6 +39,8 @@ class Dungeon {
 	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();
 	void UpdateMonsters();
+	// A walker can't step into (col, row): a wall, a trap, or no floor under it (a pit or a drop).
+	[[nodiscard]] bool walkerBlocked(int col, int row) const;
 	void clearMonsters(); // a level or save was loaded: the old level's monsters are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	void DrawTreasureTile(int i, int j);

@@ -8,7 +8,7 @@
 #include "../core/service_locator.h"
 
 int monster::attackDirection() {
-	if (!speed) {
+	if (locomotion == Locomotion::Stationary) {
 		if (*dungeonCamX - tileOriginX - 0.5 > 0.2 + 0.02 * scale && std::fabs(tileOriginY - *dungeonCamY) < 0.8)
 			return 1;
 		else if (*dungeonCamX - tileOriginX - 0.5 < -0.2 - 0.02 * scale && std::fabs(tileOriginY - *dungeonCamY) < 0.8)
@@ -25,13 +25,13 @@ int monster::attackDirection() {
 	return 0;
 }
 
-bool monster::Seek(bool wallAhead) {
+bool monster::Seek(bool blocked) {
 	if (Alive()) {
 		int dir = attackDirection();
 		if (dir == 0)
 			return false;
 
-		if (!wallAhead)
+		if (!blocked)
 			mapX += MONSTER_SEEK_STEP * static_cast<float>(dir * speed);
 		applyModelState(ModelState::Move);
 		return true;

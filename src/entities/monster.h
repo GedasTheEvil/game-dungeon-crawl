@@ -39,6 +39,14 @@ inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Jump, "_jump", false, false},
 									   {ModelState::Climb, "_climb", false, true}};
 
+// How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
+enum class Locomotion {
+	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
+	Walk,		// follows the player along its row
+	WalkJump,	// walks; will jump pits (giant rat, not implemented yet: walks like Walk)
+	Fly,		// see Flight
+};
+
 // Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through him,
 // biting on the way, fly on, turn and come back. Kept per dungeon token, like the clip playback.
 enum class FlightPhase { Roost, Swoop, Return };
@@ -108,12 +116,13 @@ class monster {
 	int attackDirection();
 	bool getHit(int dmg);
 	bool Alive();
-	// Walkers: one step toward the player on its row; wallAhead: the cell in front of it blocks the walk.
-	bool Seek(bool wallAhead);
+	// Walkers: one step toward the player on its row; blocked: the cell in front of it blocks the walk.
+	bool Seek(bool blocked);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
 	void Attack();
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
-	bool flies = false;
+	Locomotion locomotion = Locomotion::Walk;
+	[[nodiscard]] bool flies() const { return locomotion == Locomotion::Fly; }
 	Flight flight;
 	void Fly(bool wallAhead);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls

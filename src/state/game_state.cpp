@@ -131,6 +131,7 @@ void GameState::Load() {
 	monsters.plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
 	monsters.plant->loadModel("monsters/plant", textures.plant_t, textures.progBar, true);
 	monsters.plant->scale = 12;
+	monsters.plant->locomotion = Locomotion::Stationary;
 	monsters.plant->maxHealth = 30;
 	monsters.plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
 
@@ -148,6 +149,7 @@ void GameState::Load() {
 	monsters.giantRat->scale = 42;
 	monsters.giantRat->rotA = 180;
 	monsters.giantRat->maxHealth = 60;
+	monsters.giantRat->locomotion = Locomotion::WalkJump;
 
 	// Flyers: roost on the ceiling, swoop through the player (monster::Fly). The giant bat uses the same files.
 	DrawLoad(69, "Loading Monster Models [Bat]");
@@ -156,14 +158,14 @@ void GameState::Load() {
 	monsters.bat->scale = 18;
 	monsters.bat->rotA = 180;
 	monsters.bat->maxHealth = 8;
-	monsters.bat->flies = true;
+	monsters.bat->locomotion = Locomotion::Fly;
 
 	monsters.giantBat = std::make_unique<monster>(0, 0, 4, 40, 10, 1800);
 	monsters.giantBat->loadModel("monsters/bat", textures.giantBat_t, textures.progBar, true);
 	monsters.giantBat->scale = 30;
 	monsters.giantBat->rotA = 180;
 	monsters.giantBat->maxHealth = 40;
-	monsters.giantBat->flies = true;
+	monsters.giantBat->locomotion = Locomotion::Fly;
 	monsters.giantBat->setBloodColor(0.45f, 0.05f, 0.05f);
 
 	DrawLoad(70, "Loading Item Models [Club]");

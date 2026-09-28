@@ -29,6 +29,15 @@ monster* getMbyType(int type) {
 }
 } // namespace
 
+bool Dungeon::walkerBlocked(int col, int row) const {
+	if (!IsInBounds(col, row))
+		return true;
+	Tint cell = MapAt(col, row);
+	if (isSolidTile(cell) || cell.a == Spike || cell.a == Death)
+		return true;
+	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom
+}
+//======================================================================================
 void Dungeon::UpdateMonsters() {
 	for (int a = 0; a < CMaxMonsters; a++) {
 		if (m[a].orX == -1 || m[a].orY == -1)
@@ -36,7 +45,7 @@ void Dungeon::UpdateMonsters() {
 
 		SyncMonsterFromToken(a);
 
-		if (m[a].m->flies) {
+		if (m[a].m->flies()) {
 			if (!GAME_STATE.IHaveWon) {
 				const auto col = static_cast<int>(std::floor(m[a].m->flightProbeX()));
 				m[a].m->Fly(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY)));
@@ -47,7 +56,7 @@ void Dungeon::UpdateMonsters() {
 
 		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
 			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(m[a].m->attackDirection())));
-			if (!m[a].m->Seek(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY))))
+			if (!m[a].m->Seek(walkerBlocked(col, m[a].orY)))
 				if (m[a].at->TimePassed())
 					m[a].m->Attack();
 			SyncTokenFromMonster(a, true);
@@ -113,7 +122,7 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].orY = j;
 	m[index].HP = m[index].m->maxHealth;
 	m[index].m->GetCords(m[index].mapX, m[index].mapY);
-	m[index].state = static_cast<int>(m[index].m->flies ? ModelState::Idle : ModelState::Move);
+	m[index].state = static_cast<int>(m[index].m->flies() ? ModelState::Idle : ModelState::Move);
 	m[index].facing_dir = 0;
 	m[index].flight = Flight{};
 	m[index].anim = m[index].m->spawnAnimations();

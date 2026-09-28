@@ -125,7 +125,7 @@ bool monster::Draw() // needs to choose animation
 	glPushMatrix();
 
 	if (this != GAME_STATE.Player.get())
-		glTranslatef(40 * mapX - 20, mapY + (flies ? flight.lift : 0.f), -30);
+		glTranslatef(40 * mapX - 20, mapY + (flies() ? flight.lift : 0.f), -30);
 	else
 		glTranslatef(0, 0, -30 + depthOffset);
 
@@ -135,7 +135,7 @@ bool monster::Draw() // needs to choose animation
 
 	if (Alive()) {
 		if (currentState == ModelState::Die) {
-			if (flies)
+			if (flies())
 				applyModelState(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
 			else if (!attackDirection())
 				applyModelState(ModelState::Attack);
@@ -147,7 +147,7 @@ bool monster::Draw() // needs to choose animation
 			nullTexture.Bind();
 			// Above the model; a flyer's bar hangs under it while it roosts (the ceiling is above).
 			float barY = 1.1f;
-			if (flies)
+			if (flies())
 				barY = flight.phase == FlightPhase::Roost ? idleBottom - 0.2f : referenceTop + 0.1f;
 			glPushMatrix();
 			glTranslatef(0, barY - 1.1f, 0);
@@ -209,7 +209,7 @@ bool monster::Draw() // needs to choose animation
 
 	if (this != GAME_STATE.Player.get()) {
 		if (Alive()) {
-			if (!flies)
+			if (!flies())
 				facing_dir = attackDirection();
 			else
 				facing_dir = flight.phase == FlightPhase::Roost ? 0 : flight.dir;

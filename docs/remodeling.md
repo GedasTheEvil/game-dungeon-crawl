@@ -27,7 +27,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/bat_{att,die}.wav`).
-  Engine: `monster::Fly` (`flies = true`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  Engine: `monster::Fly` (`locomotion = Locomotion::Fly`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.

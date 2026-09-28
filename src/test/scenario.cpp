@@ -3,7 +3,6 @@
 #include "../input/input.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../core/timer.h"
 #include "../core/logger.h"
 #include "../ui/screen_state.h"
@@ -146,12 +145,12 @@ bool isAxisX(GameplayAction action) {
 float playerPos(GameplayAction axisOf) {
 	float x = 0.f;
 	float y = 0.f;
-	GAME_STATE.dungeon.getC(x, y);
+	Game().dungeon.getC(x, y);
 	return isAxisX(axisOf) ? x : y;
 }
 
 const char* screenName() {
-	switch (ScreenState::GetDrawScreen(GAME_STATE)) {
+	switch (ScreenState::GetDrawScreen(Game())) {
 	case ScreenState::DrawScreen::Menu:
 		return "menu";
 	case ScreenState::DrawScreen::Inventory:
@@ -169,11 +168,11 @@ const char* screenName() {
 std::string stateLine() {
 	float x = 0.f;
 	float y = 0.f;
-	GAME_STATE.dungeon.getC(x, y);
+	Game().dungeon.getC(x, y);
 	char buf[256];
 	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
-			 GAME_STATE.player->stats.CurrentHP(), GAME_STATE.player->stats.Stamina(), GAME_STATE.curMap, screenName(),
-			 GAME_STATE.player->Alive() ? 1 : 0, GAME_STATE.hasWon ? 1 : 0);
+			 Game().player->stats.CurrentHP(), Game().player->stats.Stamina(), Game().curMap, screenName(),
+			 Game().player->Alive() ? 1 : 0, Game().hasWon ? 1 : 0);
 	return buf;
 }
 
@@ -181,40 +180,40 @@ float fieldValue(const Command& cmd) {
 	Field field = cmd.field;
 	float x = 0.f;
 	float y = 0.f;
-	GAME_STATE.dungeon.getC(x, y);
+	Game().dungeon.getC(x, y);
 	switch (field) {
 	case Field::X:
 		return x;
 	case Field::Y:
 		return y;
 	case Field::Hp:
-		return static_cast<float>(GAME_STATE.player->stats.CurrentHP());
+		return static_cast<float>(Game().player->stats.CurrentHP());
 	case Field::Stamina:
-		return static_cast<float>(GAME_STATE.player->stats.Stamina());
+		return static_cast<float>(Game().player->stats.Stamina());
 	case Field::Level:
-		return static_cast<float>(GAME_STATE.curMap);
+		return static_cast<float>(Game().curMap);
 	case Field::Alive:
-		return GAME_STATE.player->Alive() ? 1.f : 0.f;
+		return Game().player->Alive() ? 1.f : 0.f;
 	case Field::Won:
-		return GAME_STATE.hasWon ? 1.f : 0.f;
+		return Game().hasWon ? 1.f : 0.f;
 	case Field::Might:
-		return static_cast<float>(GAME_STATE.player->stats.CurrentMight());
+		return static_cast<float>(Game().player->stats.CurrentMight());
 	case Field::Armor:
-		return static_cast<float>(GAME_STATE.player->stats.CurrentArmor());
+		return static_cast<float>(Game().player->stats.CurrentArmor());
 	case Field::EquipType:
-		return static_cast<float>(GAME_STATE.ui.inventory->EquippedType());
+		return static_cast<float>(Game().ui.inventory->EquippedType());
 	case Field::EquipId:
-		return static_cast<float>(GAME_STATE.ui.inventory->EquippedId());
+		return static_cast<float>(Game().ui.inventory->EquippedId());
 	case Field::Keys:
-		return static_cast<float>(GAME_STATE.dungeon.KeysHeld());
+		return static_cast<float>(Game().dungeon.KeysHeld());
 	case Field::XpTotal:
-		return static_cast<float>(GAME_STATE.player->stats.CurrentXP());
+		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:
-		return GAME_STATE.ui.riddle->show ? 1.f : 0.f;
+		return Game().ui.riddle->show ? 1.f : 0.f;
 	case Field::ItemCount:
-		return static_cast<float>(GAME_STATE.ui.inventory->Count(cmd.Item, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Count(cmd.Item, cmd.itemId));
 	case Field::ItemLevel:
-		return static_cast<float>(GAME_STATE.ui.inventory->Level(cmd.Item, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Level(cmd.Item, cmd.itemId));
 	}
 	return 0.f;
 }
@@ -546,8 +545,8 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 
 // Screen position in percent (y from the bottom, like the UI code) -> window pixels.
 void toPixels(const Command& cmd, int& x, int& y) {
-	x = static_cast<int>(cmd.a / 100.f * static_cast<float>(GAME_STATE.render.resX));
-	y = static_cast<int>((1.f - cmd.b / 100.f) * static_cast<float>(GAME_STATE.render.resY));
+	x = static_cast<int>(cmd.a / 100.f * static_cast<float>(Game().render.resX));
+	y = static_cast<int>((1.f - cmd.b / 100.f) * static_cast<float>(Game().render.resY));
 }
 
 bool isSetupCommand(CommandType type) {
@@ -568,7 +567,7 @@ bool loadGeneratedLevel(const std::string& spec) {
 	GenResult result = generateLevel(options);
 	if (!result.ok)
 		return false;
-	GAME_STATE.dungeon.LoadGrid(result.grid, spec.c_str());
+	Game().dungeon.LoadGrid(result.grid, spec.c_str());
 	return true;
 }
 
@@ -576,20 +575,20 @@ bool loadLevel(const Command& cmd) {
 	srand(gRunner.seed);
 	bool loaded = false;
 	if (cmd.a > 0.f)
-		loaded = GAME_STATE.dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
+		loaded = Game().dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
 	else if (cmd.arg.rfind("gen:", 0) == 0)
 		loaded = loadGeneratedLevel(cmd.arg);
 	else
-		loaded = GAME_STATE.dungeon.Load(cmd.arg.c_str());
+		loaded = Game().dungeon.Load(cmd.arg.c_str());
 	if (!loaded)
 		return false;
 
 	if (cmd.a > 0.f)
-		GAME_STATE.curMap = static_cast<int>(cmd.a);
-	GAME_STATE.ui.menu.show = false;
-	GAME_STATE.ui.menu.inGame = true;
-	GAME_STATE.hasWon = false;
-	GAME_STATE.player->Reanimate();
+		Game().curMap = static_cast<int>(cmd.a);
+	Game().ui.menu.show = false;
+	Game().ui.menu.inGame = true;
+	Game().hasWon = false;
+	Game().player->Reanimate();
 	return true;
 }
 
@@ -624,7 +623,7 @@ bool stepWalk(const Command& cmd) {
 		return true;
 	}
 
-	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE))
+	if (ScreenState::IsGameplayInteractionAllowed(Game()))
 		executeGameplayAction(cmd.action);
 	walk.ticks++;
 	return false;
@@ -651,17 +650,17 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Jump:
 	case CommandType::Attack:
 	case CommandType::Interact:
-		if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE))
+		if (ScreenState::IsGameplayInteractionAllowed(Game()))
 			executeGameplayAction(cmd.action);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Camera:
-		GAME_STATE.camera.rotM = cmd.a;
-		GAME_STATE.camera.rotN = cmd.b;
+		Game().camera.rotM = cmd.a;
+		Game().camera.rotN = cmd.b;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Toon:
-		GAME_STATE.render.Cartoon = cmd.a > 0.5f;
+		Game().render.Cartoon = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Screenshot:
@@ -684,18 +683,18 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
-			GAME_STATE.ui.inventory->AddItem(cmd.Item, cmd.itemId);
+			Game().ui.inventory->AddItem(cmd.Item, cmd.itemId);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
-		GAME_STATE.player->stats.AddXP(static_cast<int>(cmd.a));
+		Game().player->stats.AddXP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Riddles:
-		report(cmd, true, std::to_string(GAME_STATE.ui.riddle->Load(cmd.arg)) + " riddles");
+		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
 		return true;
 	case CommandType::SaveGame: // relative paths land in the output directory
-		GAME_STATE.Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
+		Game().Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
 		report(cmd, true, "");
 		return true;
 	case CommandType::LoadGame: {
@@ -704,7 +703,7 @@ bool runInstant(const Command& cmd) {
 			report(cmd, false, "no such file");
 			return true;
 		}
-		GAME_STATE.LoadSave(path.c_str());
+		Game().LoadSave(path.c_str());
 		report(cmd, true, stateLine());
 		return true;
 	}
@@ -714,7 +713,7 @@ bool runInstant(const Command& cmd) {
 			std::vector<LootItem> loot = RollChestLoot(cmd.Item, cmd.itemId);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (const LootItem& entry : loot)
-				GAME_STATE.ui.inventory->AddItem(entry.type, entry.id);
+				Game().ui.inventory->AddItem(entry.type, entry.id);
 		}
 		report(cmd, true, std::to_string(bonus) + " bonus items");
 		return true;
@@ -781,9 +780,9 @@ void runCommands() {
 }
 
 void checkDeath() {
-	if (gRunner.deathReported || gRunner.deathExpected || GAME_STATE.player->Alive())
+	if (gRunner.deathReported || gRunner.deathExpected || Game().player->Alive())
 		return;
-	if (!GAME_STATE.ui.menu.inGame)
+	if (!Game().ui.menu.inGame)
 		return;
 	gRunner.deathReported = true;
 	reportEvent("player died: " + stateLine());
@@ -880,7 +879,7 @@ int Scenario::tickDelayMs() { return gRunner.drawAll ? TICK_MS : 0; }
 
 void Scenario::tick() {
 	try {
-		if (!GAME_STATE.cacheLoaded) {
+		if (!Game().cacheLoaded) {
 			Update(); // loads assets, draws the loading bar
 			return;
 		}
@@ -922,8 +921,8 @@ void Scenario::onFrameRendered() {
 	if (!gRunner.active || gRunner.pendingShot.empty())
 		return;
 
-	int width = GAME_STATE.render.resX;
-	int height = GAME_STATE.render.resY;
+	int width = Game().render.resX;
+	int height = Game().render.resY;
 	std::vector<unsigned char> pixels(static_cast<size_t>(width) * static_cast<size_t>(height) * 3);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadBuffer(GL_BACK);

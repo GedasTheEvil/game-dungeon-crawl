@@ -1,6 +1,5 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
 #include "../graphics/lighting.h"
@@ -234,7 +233,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 	if (cell.type < 0)
 		return;
 
-	AnimatedModel* model = GAME_STATE.decor.model[cell.type].get();
+	AnimatedModel* model = Game().decor.model[cell.type].get();
 	if (model == nullptr)
 		return;
 
@@ -244,7 +243,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 			 RenderConfig::TILE_SIZE);
 
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
-	GAME_STATE.decor.tex[cell.type].Bind();
+	Game().decor.tex[cell.type].Bind();
 	model->Show(); // no face culling, so the mirrored winding does not matter
 	glPopMatrix();
 }
@@ -274,7 +273,7 @@ void Dungeon::drawDecalTile(int i, int j) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 	glColor3f(1, 1, 1);
-	GAME_STATE.decor.decalTex.Bind();
+	Game().decor.decalTex.Bind();
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
 	glTexCoord2f(u0, v0);
@@ -291,14 +290,14 @@ void Dungeon::drawDecalTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {
-	AnimatedModel* model = GAME_STATE.decor.torch.get();
+	AnimatedModel* model = Game().decor.torch.get();
 	if (!torch[MapIndex(i, j)] || model == nullptr)
 		return;
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
 	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
-	GAME_STATE.decor.torchTex.Bind();
+	Game().decor.torchTex.Bind();
 	model->Show();
 	glPopMatrix();
 }
@@ -307,7 +306,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 	const LadderCell& cell = ladder[MapIndex(i, j)];
 	if (cell.style < 0)
 		return;
-	AnimatedModel* model = GAME_STATE.decor.ladder[cell.style][cell.piece].get();
+	AnimatedModel* model = Game().decor.ladder[cell.style][cell.piece].get();
 	if (model == nullptr)
 		return;
 
@@ -315,7 +314,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
 	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
 			 RenderConfig::TILE_SIZE);
-	GAME_STATE.decor.ladderTex[cell.style][cell.piece].Bind();
+	Game().decor.ladderTex[cell.style][cell.piece].Bind();
 	model->Show(); // textured only, like the props
 	glPopMatrix();
 }
@@ -394,7 +393,7 @@ void Dungeon::drawFires() {
 // stone on one side at most). Then a variant per cell, never the same uncommon one twice in a row.
 void Dungeon::scatterSurfaces(uint32_t seed) {
 	enum Family : uint8_t { Painted, Stone, Rough };
-	uint32_t level = static_cast<uint32_t>(std::max(GAME_STATE.curMap, 1)) - 1;
+	uint32_t level = static_cast<uint32_t>(std::max(Game().curMap, 1)) - 1;
 	uint32_t roughPercent = std::min(ROUGH_PERCENT_FIRST + ROUGH_PERCENT_STEP * level, ROUGH_PERCENT_MAX);
 	Family family[MAP_WIDTH];
 	int cells[3] = {};

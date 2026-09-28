@@ -4,7 +4,6 @@
 #include "input.h"
 #include "input_actions.h"
 #include "../ui/screen_state.h"
-#include "../core/service_locator.h"
 
 unsigned char lastKey;
 
@@ -13,54 +12,53 @@ int lastMy = 0;
 
 namespace {
 void startJump() {
-	if (GAME_STATE.player->jump.jumping || GAME_STATE.player->jump.falling || !GAME_STATE.player->Alive() ||
-		GAME_STATE.hasWon)
+	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().hasWon)
 		return;
 
-	if (GAME_STATE.player->stats.Stamina() < JUMP_STAMINA_COST)
+	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST)
 		return;
 
-	GAME_STATE.player->stats.ConsumeStamina(JUMP_STAMINA_COST);
+	Game().player->stats.ConsumeStamina(JUMP_STAMINA_COST);
 
 	float curX, curY;
-	GAME_STATE.dungeon.getC(curX, curY);
-	GAME_STATE.player->jump.start_y = curY;
+	Game().dungeon.getC(curX, curY);
+	Game().player->jump.start_y = curY;
 
-	GAME_STATE.player->jump.dir_x = 0;
-	if (lastKey == KEY_MOVE_LEFT || GAME_STATE.camera.rotW < 0)
-		GAME_STATE.player->jump.dir_x = -1;
-	else if (lastKey == KEY_MOVE_RIGHT || GAME_STATE.camera.rotW > 0)
-		GAME_STATE.player->jump.dir_x = 1;
+	Game().player->jump.dir_x = 0;
+	if (lastKey == KEY_MOVE_LEFT || Game().camera.rotW < 0)
+		Game().player->jump.dir_x = -1;
+	else if (lastKey == KEY_MOVE_RIGHT || Game().camera.rotW > 0)
+		Game().player->jump.dir_x = 1;
 
-	GAME_STATE.player->jump.speed = JUMP_FORWARD_SPEED;
-	GAME_STATE.player->jump.velocity = JUMP_INITIAL_VELOCITY;
-	GAME_STATE.player->jump.jumping = true;
-	GAME_STATE.player->jump.jump_up_timer->Reset();
-	GAME_STATE.player->PlayJumpSound();
+	Game().player->jump.speed = JUMP_FORWARD_SPEED;
+	Game().player->jump.velocity = JUMP_INITIAL_VELOCITY;
+	Game().player->jump.jumping = true;
+	Game().player->jump.jump_up_timer->Reset();
+	Game().player->PlayJumpSound();
 }
 
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
-		float moveMultiplier = GAME_STATE.player->stats.SprintMoveMultiplier();
+		float moveMultiplier = Game().player->stats.SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
-			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
-			GAME_STATE.camera.rotW = -110;
-			if (!GAME_STATE.player->jump.jumping)
-				GAME_STATE.player->setModelState(ModelState::Move);
+			Game().dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
+			Game().camera.rotW = -110;
+			if (!Game().player->jump.jumping)
+				Game().player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveRight:
-			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
-			GAME_STATE.camera.rotW = 70;
-			if (!GAME_STATE.player->jump.jumping)
-				GAME_STATE.player->setModelState(ModelState::Move);
+			Game().dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
+			Game().camera.rotW = 70;
+			if (!Game().player->jump.jumping)
+				Game().player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveDown:
-			GAME_STATE.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
+			Game().dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::MoveUp:
-			GAME_STATE.dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
+			Game().dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
 			startJump();
@@ -77,40 +75,40 @@ class PlayerActionController {
 	}
 
 	static void applyCameraDelta(float deltaX, float deltaY) {
-		GAME_STATE.camera.rotM += deltaX;
-		GAME_STATE.camera.rotN += deltaY;
+		Game().camera.rotM += deltaX;
+		Game().camera.rotN += deltaY;
 		clampCamera();
 	}
 
   private:
 	static void tryAttack() {
-		if (!GAME_STATE.player->attackTimer.TimePassed())
+		if (!Game().player->attackTimer.TimePassed())
 			return;
 
-		GAME_STATE.dungeon.AttackNearest(GAME_STATE.player->stats.Damage(), GAME_STATE.ui.inventory->Equipped()->range);
-		GAME_STATE.player->PlayAttackSound();
-		GAME_STATE.player->attacking = true;
+		Game().dungeon.AttackNearest(Game().player->stats.Damage(), Game().ui.inventory->Equipped()->range);
+		Game().player->PlayAttackSound();
+		Game().player->attacking = true;
 	}
 
 	static void interact() {
-		GAME_STATE.dungeon.PickUp();
-		if (GAME_STATE.dungeon.PullLever())
+		Game().dungeon.PickUp();
+		if (Game().dungeon.PullLever())
 			return;
-		GAME_STATE.dungeon.Interact();
+		Game().dungeon.Interact();
 	}
 
 	static void clampCamera() {
-		if (GAME_STATE.camera.rotM > CAMERA_ROTATE_LIMIT_X)
-			GAME_STATE.camera.rotM = CAMERA_ROTATE_LIMIT_X;
+		if (Game().camera.rotM > CAMERA_ROTATE_LIMIT_X)
+			Game().camera.rotM = CAMERA_ROTATE_LIMIT_X;
 
-		if (GAME_STATE.camera.rotM < -CAMERA_ROTATE_LIMIT_X)
-			GAME_STATE.camera.rotM = -CAMERA_ROTATE_LIMIT_X;
+		if (Game().camera.rotM < -CAMERA_ROTATE_LIMIT_X)
+			Game().camera.rotM = -CAMERA_ROTATE_LIMIT_X;
 
-		if (GAME_STATE.camera.rotN > CAMERA_ROTATE_LIMIT_Y)
-			GAME_STATE.camera.rotN = CAMERA_ROTATE_LIMIT_Y;
+		if (Game().camera.rotN > CAMERA_ROTATE_LIMIT_Y)
+			Game().camera.rotN = CAMERA_ROTATE_LIMIT_Y;
 
-		if (GAME_STATE.camera.rotN < -CAMERA_ROTATE_LIMIT_Y)
-			GAME_STATE.camera.rotN = -CAMERA_ROTATE_LIMIT_Y;
+		if (Game().camera.rotN < -CAMERA_ROTATE_LIMIT_Y)
+			Game().camera.rotN = -CAMERA_ROTATE_LIMIT_Y;
 	}
 };
 } // namespace
@@ -120,25 +118,25 @@ void executeGameplayAction(GameplayAction action) { PlayerActionController::exec
 void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {
-	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {
-		GAME_STATE.ui.riddle->KeyboardF(key, x, y);
+	if (ScreenState::ShouldRouteKeyboardToRiddle(Game())) {
+		Game().ui.riddle->KeyboardF(key, x, y);
 		return;
 	}
 
 	if (key == KEY_ESCAPE) // esc
 	{
 		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
-		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.inventory->show) {
-			GAME_STATE.ui.inventory->show = false;
+		if (!Game().ui.menu.show && Game().ui.inventory->show) {
+			Game().ui.inventory->show = false;
 			return;
 		}
-		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.map.show) {
-			GAME_STATE.ui.map.show = false;
+		if (!Game().ui.menu.show && Game().ui.map.show) {
+			Game().ui.map.show = false;
 			return;
 		}
 
 		// In the menu Esc backs out of the save / load / options screens, then returns to the game (if there is one).
-		MainMenu& menu = GAME_STATE.ui.menu;
+		MainMenu& menu = Game().ui.menu;
 		if (menu.show && menu.InSubScreen()) {
 			menu.ResetSubScreens();
 			return;
@@ -150,29 +148,29 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	}
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
+	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
 		return; // while the menu is shown, only [esc] is handled
 
-	if (GAME_STATE.ui.inventory->show && key != KEY_INVENTORY) {
-		GAME_STATE.ui.inventory->KeyPressed(key);
+	if (Game().ui.inventory->show && key != KEY_INVENTORY) {
+		Game().ui.inventory->KeyPressed(key);
 		return;
 	}
 
 	// The map pauses the game: only M (or Esc, above) closes it.
 	if (key == KEY_MAP || key == KEY_MAP_UPPER) {
-		if (!GAME_STATE.ui.inventory->show)
-			GAME_STATE.ui.map.show = !GAME_STATE.ui.map.show;
+		if (!Game().ui.inventory->show)
+			Game().ui.map.show = !Game().ui.map.show;
 		return;
 	}
-	if (GAME_STATE.ui.map.show)
+	if (Game().ui.map.show)
 		return;
 
-	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
+	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)
-		GAME_STATE.ui.inventory->show = !GAME_STATE.ui.inventory->show;
+		Game().ui.inventory->show = !Game().ui.inventory->show;
 
 	lastKey = key;
 }
@@ -181,18 +179,18 @@ void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE) || GAME_STATE.ui.map.show)
+	if (ScreenState::ShouldBlockKeyboardGameplay(Game()) || Game().ui.map.show)
 		return;
 
-	if (GAME_STATE.ui.inventory->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
-		GAME_STATE.ui.inventory->SpecialKeyPressed(key);
+	if (Game().ui.inventory->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
+		Game().ui.inventory->SpecialKeyPressed(key);
 		return;
 	}
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
-		GAME_STATE.render.Cartoon = !GAME_STATE.render.Cartoon;
+		Game().render.Cartoon = !Game().render.Cartoon;
 
-	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
+	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapSpecialGameplayAction(key));
 	}
 
@@ -214,7 +212,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.player->stats.SetSprintRequested(true);
+		Game().player->stats.SetSprintRequested(true);
 }
 
 void specialKeyReleased(int key, int x, int y) {
@@ -222,38 +220,38 @@ void specialKeyReleased(int key, int x, int y) {
 	(void)y;
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.player->stats.SetSprintRequested(false);
+		Game().player->stats.SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {
-	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
-		GAME_STATE.ui.menu.MouseFunction(button, state, x, y);
+	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
+		Game().ui.menu.MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
-		GAME_STATE.ui.inventory->MouseFunction(button, state, x, y);
+	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
+		Game().ui.inventory->MouseFunction(button, state, x, y);
 		return;
 	}
 
-	if (state && !GAME_STATE.ui.map.show && ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
+	if (state && !Game().ui.map.show && ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapMouseGameplayAction(button));
 	}
 }
 void processMousePassiveMotion(int a, int b) {
-	if (ScreenState::ShouldRouteMouseToMenu(GAME_STATE)) {
-		GAME_STATE.ui.menu.MousePassiveMotion(a, b);
+	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
+		Game().ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
 
-	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
-		GAME_STATE.ui.inventory->MouseMotion(a, b);
+	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
+		Game().ui.inventory->MouseMotion(a, b);
 		lastMx = a; // no camera jump when the inventory closes
 		lastMy = b;
 		return;
 	}
 
-	if (GAME_STATE.ui.map.show) {
+	if (Game().ui.map.show) {
 		lastMx = a;
 		lastMy = b;
 		return;
@@ -267,8 +265,8 @@ void processMousePassiveMotion(int a, int b) {
 }
 
 void processMouseActiveMotion(int a, int b) {
-	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE))
-		GAME_STATE.ui.inventory->MouseMotion(a, b);
+	if (ScreenState::ShouldRouteMouseToInventory(Game()))
+		Game().ui.inventory->MouseMotion(a, b);
 }
 
 void processMouseEntry(int a) { (void)a; }

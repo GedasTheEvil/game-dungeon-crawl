@@ -1,6 +1,5 @@
 #include "trap.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../core/logger.h"
 #include <cmath>
 #include "../input/gameplay_config.h"
@@ -44,7 +43,7 @@ void Trap::Hurt() {
 	if (now - gLastHitMs > TRAP_STREAK_RESET_MS)
 		gHitStreak = 0;
 	gLastHitMs = now;
-	GAME_STATE.player->TakeHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
+	Game().player->TakeHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
 	gHitStreak++;
 }
 

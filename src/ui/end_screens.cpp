@@ -2,7 +2,6 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 
 EndScreens::EndScreens() {
 	win.LoadPNG("textures/ui/win.png", TexFilter::Flat);
@@ -30,8 +29,8 @@ void EndScreens::DrawWin() {
 
 	glPushMatrix();
 
-	glRotatef(-GAME_STATE.camera.rotN, 1, 0, 0);
-	glRotatef(-GAME_STATE.camera.rotM, 0, 1, 0);
+	glRotatef(-Game().camera.rotN, 1, 0, 0);
+	glRotatef(-Game().camera.rotM, 0, 1, 0);
 
 	glTranslatef(0, 20, 0);
 
@@ -48,8 +47,8 @@ void EndScreens::DrawLose() {
 
 	glPushMatrix();
 
-	glRotatef(-GAME_STATE.camera.rotN, 1, 0, 0);
-	glRotatef(-GAME_STATE.camera.rotM, 0, 1, 0);
+	glRotatef(-Game().camera.rotN, 1, 0, 0);
+	glRotatef(-Game().camera.rotM, 0, 1, 0);
 
 	glTranslatef(0, 20, 0);
 

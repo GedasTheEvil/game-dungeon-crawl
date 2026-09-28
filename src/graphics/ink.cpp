@@ -4,7 +4,6 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include "../core/logger.h"
-#include "../core/service_locator.h"
 #include "../state/game_state.h"
 
 namespace {
@@ -182,9 +181,9 @@ bool ensureReady(int width, int height) {
 } // namespace
 
 void Ink::begin(float zNear, float zFar) {
-	const int width = GAME_STATE.render.resX;
-	const int height = GAME_STATE.render.resY;
-	gActive = GAME_STATE.render.Cartoon && width > 0 && height > 0 && ensureReady(width, height);
+	const int width = Game().render.resX;
+	const int height = Game().render.resY;
+	gActive = Game().render.Cartoon && width > 0 && height > 0 && ensureReady(width, height);
 	if (!gActive)
 		return;
 	glBindFramebuffer(GL_FRAMEBUFFER, gFbo);
@@ -196,7 +195,7 @@ void Ink::begin(float zNear, float zFar) {
 	glUseProgram(0);
 }
 
-float Ink::figureScale() { return GAME_STATE.render.Cartoon ? 1.2f : 1.f; }
+float Ink::figureScale() { return Game().render.Cartoon ? 1.2f : 1.f; }
 
 void Ink::end() {
 	if (!gActive)

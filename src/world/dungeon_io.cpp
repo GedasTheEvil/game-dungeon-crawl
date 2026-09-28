@@ -1,6 +1,5 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../core/logger.h"
 #include "loot.h"
 #include "campaign.h"
@@ -104,26 +103,25 @@ void Dungeon::PickUp() {
 		std::string found;
 		std::vector<LootItem> loot = RollChestLoot(type, id);
 		for (size_t i = 0; i < loot.size(); i++) {
-			GAME_STATE.ui.inventory->AddItem(loot[i].type, loot[i].id);
+			Game().ui.inventory->AddItem(loot[i].type, loot[i].id);
 			found += std::string(i == 0 ? "Found: " : "\n+ ") + Inventory::ItemName(loot[i].type, loot[i].id);
 		}
-		snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "%s", found.c_str());
-		GAME_STATE.status_timer->Reset();
+		Game().ShowStatus("%s", found.c_str());
 	}
 }
 //======================================================================================
 void Dungeon::Interact() {
 	if (Map(mapX, mapY).type == Ankh) {
-		GAME_STATE.hasWon = true;
+		Game().hasWon = true;
 		return;
 	}
 
 	if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateRiddle) {
-		GAME_STATE.ui.riddle->Ask();
-		GAME_STATE.ui.riddle->show = true;
+		Game().ui.riddle->Ask();
+		Game().ui.riddle->show = true;
 		SetMapBAtPlayer(GateEmpty);
 	} else if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateExit) {
-		GAME_STATE.curMap++;
-		LoadCampaignLevel(GAME_STATE.curMap);
+		Game().curMap++;
+		LoadCampaignLevel(Game().curMap);
 	}
 }

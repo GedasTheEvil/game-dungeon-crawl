@@ -3,7 +3,6 @@
 #include <cmath>
 #include "../state/game_state.h"
 #include "../input/gameplay_config.h"
-#include "../core/service_locator.h"
 
 int Monster::attackDirection(float px, float py) const {
 	const float scale = type->scale;
@@ -44,7 +43,7 @@ void Monster::Attack(float py) {
 
 	enter(ModelState::Attack);
 	if (sameRow(py)) {
-		GAME_STATE.player->TakeHit(type->damage);
+		Game().player->TakeHit(type->damage);
 		type->model.attackSound.Play();
 	}
 }
@@ -94,7 +93,7 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
 			if (sameRow(py)) {
-				GAME_STATE.player->TakeHit(type->damage);
+				Game().player->TakeHit(type->damage);
 				type->model.attackSound.Play();
 			}
 		}

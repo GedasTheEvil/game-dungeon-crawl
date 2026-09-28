@@ -2,7 +2,6 @@
 #include "../test/scenario.h"
 #include <GL/gl.h>
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../ui/screen_state.h"
 #include "hud.h"
 #include "../ui/level_gem.h"
@@ -22,16 +21,16 @@ constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
 
 void drawWeapon() { // floats in front of the chest
-	const float playerScale = GAME_STATE.player->scale * Ink::figureScale();
+	const float playerScale = Game().player->scale * Ink::figureScale();
 	glPushMatrix();
-	if (GAME_STATE.player->rotA > 0) {
+	if (Game().player->rotA > 0) {
 		glTranslatef(playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
 		glRotatef(-45.f - static_cast<float>(weaponRot), 0, 0, 1);
 	} else {
 		glTranslatef(-playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
 		glRotatef(45.f + static_cast<float>(weaponRot), 0, 0, 1);
 	}
-	GAME_STATE.ui.inventory->Equipped()->Draw();
+	Game().ui.inventory->Equipped()->Draw();
 
 	glPopMatrix();
 }
@@ -39,7 +38,7 @@ void drawWeapon() { // floats in front of the chest
 void drawStatus(const char* status) {
 	constexpr float TOP_LINE_Y = 74.f;
 	constexpr float LINE_H = 6.f;
-	float width = 100.f * static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY);
+	float width = 100.f * static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, 0, 100, -21, 21);
@@ -53,71 +52,70 @@ void drawStatus(const char* status) {
 			end = lines.size();
 		std::string line = lines.substr(start, end - start);
 		if (!line.empty())
-			GAME_STATE.fonts.status.print((width - GAME_STATE.fonts.status.TextWidth(line.c_str())) / 2, y, "%s",
-										  line.c_str());
+			Game().fonts.status.print((width - Game().fonts.status.TextWidth(line.c_str())) / 2, y, "%s", line.c_str());
 		start = end + 1;
 	}
 }
 } // namespace
 
 void Update() {
-	if (!GAME_STATE.cacheLoaded) {
-		GAME_STATE.Load();
+	if (!Game().cacheLoaded) {
+		Game().Load();
 		glutPostRedisplay();
 		return;
 	}
 
-	if (ScreenState::GetDrawScreen(GAME_STATE) != ScreenState::DrawScreen::Gameplay) {
+	if (ScreenState::GetDrawScreen(Game()) != ScreenState::DrawScreen::Gameplay) {
 		glutPostRedisplay();
 		return;
 	}
 
-	GAME_STATE.dungeon.Update();
-	GAME_STATE.player->rotA = GAME_STATE.camera.rotW;
+	Game().dungeon.Update();
+	Game().player->rotA = Game().camera.rotW;
 
-	if (GAME_STATE.player->Alive()) {
-		bool climbing = !GAME_STATE.player->jump.jumping && GAME_STATE.dungeon.PlayerOnLadder();
-		GAME_STATE.player->depthOffset = climbing ? PLAYER_CLIMB_DEPTH : 0.f;
-		if (GAME_STATE.player->jump.jumping)
-			GAME_STATE.player->setModelState(ModelState::Jump);
+	if (Game().player->Alive()) {
+		bool climbing = !Game().player->jump.jumping && Game().dungeon.PlayerOnLadder();
+		Game().player->depthOffset = climbing ? PLAYER_CLIMB_DEPTH : 0.f;
+		if (Game().player->jump.jumping)
+			Game().player->setModelState(ModelState::Jump);
 		else if (climbing) {
-			GAME_STATE.player->showClimb(GAME_STATE.dungeon.ClimbPhase());
-			GAME_STATE.player->rotA = PLAYER_CLIMB_ROT;
-		} else if (GAME_STATE.timers.mdlChange->TimePassed())
-			GAME_STATE.player->setModelState(ModelState::Idle);
+			Game().player->showClimb(Game().dungeon.ClimbPhase());
+			Game().player->rotA = PLAYER_CLIMB_ROT;
+		} else if (Game().timers.mdlChange->TimePassed())
+			Game().player->setModelState(ModelState::Idle);
 
-		GAME_STATE.ui.inventory->Equipped()->rotA++;
+		Game().ui.inventory->Equipped()->rotA++;
 
-		if (GAME_STATE.player->attacking) {
-			if (GAME_STATE.player->attackTimer.TimePassed() || weaponRot <= -40) {
+		if (Game().player->attacking) {
+			if (Game().player->attackTimer.TimePassed() || weaponRot <= -40) {
 				weaponRot = 70;
-				GAME_STATE.player->attacking = false;
+				Game().player->attacking = false;
 			} else
 				weaponRot -= 4;
-		} else if (GAME_STATE.timers.AttTimer->TimePassed())
+		} else if (Game().timers.AttTimer->TimePassed())
 			weaponRot = 0;
 	}
 
-	GAME_STATE.player->stats.UpdateStamina();
+	Game().player->stats.UpdateStamina();
 	glutPostRedisplay();
 }
 
 void Draw() {
-	if (!GAME_STATE.cacheLoaded)
+	if (!Game().cacheLoaded)
 		return;
 
-	switch (ScreenState::GetDrawScreen(GAME_STATE)) {
+	switch (ScreenState::GetDrawScreen(Game())) {
 	case ScreenState::DrawScreen::Menu:
-		GAME_STATE.ui.menu.Draw();
+		Game().ui.menu.Draw();
 		return;
 	case ScreenState::DrawScreen::Inventory:
-		GAME_STATE.ui.inventory->Draw();
+		Game().ui.inventory->Draw();
 		return;
 	case ScreenState::DrawScreen::Riddle:
-		GAME_STATE.ui.riddle->Draw();
+		Game().ui.riddle->Draw();
 		return;
 	case ScreenState::DrawScreen::Map:
-		GAME_STATE.ui.map.Draw();
+		Game().ui.map.Draw();
 		return;
 	case ScreenState::DrawScreen::Gameplay:
 		break;
@@ -129,39 +127,39 @@ void Draw() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY),
-				   SCENE_NEAR, SCENE_FAR);
+	gluPerspective(45.0f, static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY), SCENE_NEAR,
+				   SCENE_FAR);
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);
 
-	glRotatef(GAME_STATE.camera.rotM, 0, 1, 0);
-	glRotatef(GAME_STATE.camera.rotN, 1, 0, 0);
+	glRotatef(Game().camera.rotM, 0, 1, 0);
+	glRotatef(Game().camera.rotN, 1, 0, 0);
 
 	Lighting::begin();
-	if (GAME_STATE.player->Alive())
+	if (Game().player->Alive())
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
 
 	glPushMatrix();
 	glTranslatef(-202, 0.0, -10);
 
-	GAME_STATE.dungeon.Draw();
+	Game().dungeon.Draw();
 
 	glPopMatrix();
 
-	GAME_STATE.player->Draw();
+	Game().player->Draw();
 
 	Lighting::setEmissive(true);
-	if (GAME_STATE.hasWon)
-		GAME_STATE.ui.endScreens->DrawWin();
+	if (Game().hasWon)
+		Game().ui.endScreens->DrawWin();
 	Lighting::setEmissive(false);
 
-	if (GAME_STATE.player->Alive()) {
-		if (!GAME_STATE.player->climbing()) // both hands on the ladder: no weapon
+	if (Game().player->Alive()) {
+		if (!Game().player->climbing()) // both hands on the ladder: no weapon
 			drawWeapon();
 	} else {
 		Lighting::setEmissive(true);
-		GAME_STATE.ui.endScreens->DrawLose();
+		Game().ui.endScreens->DrawLose();
 	}
 	Lighting::end();
 	Ink::end();
@@ -177,15 +175,15 @@ void Draw() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
-	GAME_STATE.textures.nullTex.Bind();
-	Hud::drawPlayerBars(GAME_STATE.player->stats.HealthRatio(), GAME_STATE.player->stats.StaminaRatio());
-	Hud::drawKeys(GAME_STATE.dungeon.KeysHeld());
-	LevelGem::draw(GAME_STATE.curMap, GAME_STATE.render.resX, GAME_STATE.render.resY, GAME_STATE.fonts.hud);
+	Game().textures.nullTex.Bind();
+	Hud::drawPlayerBars(Game().player->stats.HealthRatio(), Game().player->stats.StaminaRatio());
+	Hud::drawKeys(Game().dungeon.KeysHeld());
+	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().fonts.hud);
 
 	glColor3f(1, 1, 1);
 
-	if (!GAME_STATE.status_timer->TimePassed(true))
-		drawStatus(GAME_STATE.status);
+	if (!Game().statusTimer.TimePassed(true))
+		drawStatus(Game().status.c_str());
 
 	glFlush();
 

@@ -1,6 +1,5 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <cmath>
 #include "../graphics/render_config.h"
@@ -24,7 +23,7 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 // back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
 void Dungeon::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
-	DecorSet& tex = GAME_STATE.decor;
+	DecorSet& tex = Game().decor;
 	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; };
 
 	if (rock(i, j)) {
@@ -83,31 +82,31 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
-	GAME_STATE.items.chest->Draw();
+	Game().items.chest->Draw();
 
 	if (tile.attr == 3) {
-		GAME_STATE.items.potion->Draw();
-		GAME_STATE.items.potion->rotA++;
+		Game().items.potion->Draw();
+		Game().items.potion->rotA++;
 	}
 
 	if (tile.attr == 2) {
-		GAME_STATE.items.bow->Draw();
-		GAME_STATE.items.bow->rotA++;
+		Game().items.bow->Draw();
+		Game().items.bow->rotA++;
 	}
 
 	if (tile.attr == 1) {
 		if (tile.value == 0) {
-			GAME_STATE.items.club->scale = 10;
-			GAME_STATE.items.club->Draw();
-			GAME_STATE.items.club->rotA++;
+			Game().items.club->scale = 10;
+			Game().items.club->Draw();
+			Game().items.club->rotA++;
 		}
 		if (tile.value == 1) {
-			GAME_STATE.items.sword->Draw();
-			GAME_STATE.items.sword->rotA++;
+			Game().items.sword->Draw();
+			Game().items.sword->rotA++;
 		}
 		if (tile.value == 2) {
-			GAME_STATE.items.spear->Draw();
-			GAME_STATE.items.spear->rotA++;
+			Game().items.spear->Draw();
+			Game().items.spear->rotA++;
 		}
 	}
 
@@ -118,7 +117,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
-	Trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
+	Trap* tileTrap = isDeathTrap ? Game().traps.DeathTrap.get() : Game().traps.TrapD.get();
 	tileTrap->dungeonCamX = &mapX;
 	tileTrap->dungeonCamY = &mapY;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
@@ -162,8 +161,8 @@ void Dungeon::Draw() {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
-					GAME_STATE.textures.ankh_t.Bind();
-					GAME_STATE.models.ankh->Show();
+					Game().textures.ankh_t.Bind();
+					Game().models.ankh->Show();
 					glPopMatrix();
 				}
 				if (tile.type == Door) {
@@ -173,8 +172,8 @@ void Dungeon::Draw() {
 					glScalef(40, 40, 40);
 					if (tile.attr != GateEntrance)
 						glRotatef(180, 0, 1, 0);
-					GAME_STATE.textures.sphinx_t.Bind();
-					GAME_STATE.models.sphinx->Show();
+					Game().textures.sphinx_t.Bind();
+					Game().models.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
 
@@ -183,10 +182,10 @@ void Dungeon::Draw() {
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
 						glScalef(10, 10, 10);
-						GAME_STATE.textures.question_t.Bind();
+						Game().textures.question_t.Bind();
 						glPushMatrix();
 						glRotatef(qRot, 0, 1, 0);
-						GAME_STATE.models.question->Show();
+						Game().models.question->Show();
 						qRot += 1.0;
 						glPopMatrix();
 						glPopMatrix();
@@ -200,7 +199,7 @@ void Dungeon::Draw() {
 
 						float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / 200.0f;
 
-						GAME_STATE.textures.plasma_t.Bind();
+						Game().textures.plasma_t.Bind();
 						Lighting::setEmissive(true);
 						glBegin(GL_QUADS);
 						glNormal3f(1, 0, 0);

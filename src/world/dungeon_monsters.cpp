@@ -1,6 +1,5 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <memory>
@@ -35,7 +34,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 
 		if (mon.flies()) {
-			if (!GAME_STATE.hasWon) {
+			if (!Game().hasWon) {
 				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
 				mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY);
 			}
@@ -47,7 +46,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (mon.Alive() && !GAME_STATE.hasWon && mon.StepDue()) {
+		if (mon.Alive() && !Game().hasWon && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
 			bool blocked = walkerBlocked(col, mon.Row());
@@ -129,6 +128,6 @@ bool Dungeon::SpawnMonster(int i, int j) {
 			}
 	if (!slot)
 		return false;
-	slot->Spawn(GAME_STATE.monsterTypes[typeId], i, j);
+	slot->Spawn(Game().monsterTypes[typeId], i, j);
 	return true;
 }

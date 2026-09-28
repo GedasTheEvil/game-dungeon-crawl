@@ -19,6 +19,7 @@
 #include "../ui/map_view.h"
 #include <array>
 #include <memory>
+#include <string>
 
 struct word {
 	char name[25];
@@ -104,8 +105,8 @@ class GameState {
 	bool cacheLoaded = false;
 	bool hasWon = false;
 	int curMap = 1;
-	char status[255] = {};
-	std::unique_ptr<Timer> status_timer;
+	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
+	Timer statusTimer{STATUS_MS};
 	SoundBank sounds;
 	FontPair fonts;
 	// By MonsterTypeId (level.h); index 0 is unused.
@@ -128,6 +129,13 @@ class GameState {
 	void Save(const char filename[]);
 	void LoadSave(const char filename[]);
 	void NewGame();
+	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);
+	static constexpr int STATUS_MS = 3000;
 };
+
+// The one game state, created in main() before the window and destroyed after the main loop.
+void CreateGame();
+void DestroyGame();
+GameState& Game();
 
 #endif

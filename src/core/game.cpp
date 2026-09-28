@@ -8,7 +8,7 @@
 #include "../input/input.h"
 #include "../graphics/textures.h"
 #include "sound.h"
-#include "service_locator.h"
+#include "../state/game_state.h"
 #include "logger.h"
 #include "timer.h"
 #include "../test/scenario.h"
@@ -58,8 +58,8 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	gluPerspective(45.0f, static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.1f, 10000.0f);
 	glMatrixMode(GL_MODELVIEW);
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
-	GAME_STATE.render.resX = width;
-	GAME_STATE.render.resY = height;
+	Game().render.resX = width;
+	Game().render.resY = height;
 }
 
 // SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
@@ -83,16 +83,16 @@ int main(int argc, char* argv[]) {
 		}
 
 		// Initialize game state
-		ServiceLocator::initialize(std::make_unique<GameState>());
+		CreateGame();
 		if (isScenario) {
-			GAME_STATE.render.resX = Scenario::resolutionX();
-			GAME_STATE.render.resY = Scenario::resolutionY();
+			Game().render.resX = Scenario::resolutionX();
+			Game().render.resY = Scenario::resolutionY();
 		}
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
 
-		glutInitWindowSize(GAME_STATE.render.resX, GAME_STATE.render.resY);
+		glutInitWindowSize(Game().render.resX, Game().render.resY);
 
 		glutInitWindowPosition(0, 0);
 
@@ -125,12 +125,12 @@ int main(int argc, char* argv[]) {
 			glutEntryFunc(processMouseEntry);
 		}
 
-		initGl(GAME_STATE.render.resX, GAME_STATE.render.resY);
+		initGl(Game().render.resX, Game().render.resY);
 
 		glutMainLoop();
 
 		// Cleanup
-		ServiceLocator::shutdown();
+		DestroyGame();
 		Logger::shutdown();
 		SDL_Quit();
 	} catch (const std::exception& e) {
@@ -138,5 +138,5 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	return 1;
+	return 0;
 }

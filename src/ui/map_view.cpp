@@ -2,7 +2,6 @@
 #include "ui_draw.h"
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../test/scenario.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -226,7 +225,7 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 void drawBackground(float canvasW) {
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	GAME_STATE.textures.load_bg.Bind();
+	Game().textures.load_bg.Bind();
 	glColor3f(0.30f, 0.24f, 0.18f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -248,7 +247,7 @@ void drawPaper(const Rect& r) {
 	beginShapes();
 	fillRect({r.x + 1.2f, r.y - 1.2f, r.w, r.h}, BLACK, BLACK, 0.45f); // shadow
 	glEnable(GL_TEXTURE_2D);
-	GAME_STATE.textures.bg.Bind();
+	Game().textures.bg.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(1, 0);
@@ -265,9 +264,9 @@ void drawPaper(const Rect& r) {
 } // namespace
 
 void DraftMap::Draw() {
-	const Dungeon& d = GAME_STATE.dungeon;
-	float canvasW = CANVAS_H * static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY);
-	float resScale = static_cast<float>(GAME_STATE.render.resY) / REFERENCE_RES_Y;
+	const Dungeon& d = Game().dungeon;
+	float canvasW = CANVAS_H * static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY);
+	float resScale = static_cast<float>(Game().render.resY) / REFERENCE_RES_Y;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -330,16 +329,16 @@ void DraftMap::Draw() {
 
 	// "You are here": a red ring round the archaeologist.
 	float px, py;
-	GAME_STATE.dungeon.getC(px, py);
+	Game().dungeon.getC(px, py);
 	sk.loop(px, py + 0.5f, 0.6f, 0.6f, 9, PENCIL_RED, 1.f, 7u);
 	sk.flush(2.f * pxScale);
 	diamond(originX + px * cell, originY + (py + 0.5f) * cell, cell * 0.22f, PENCIL_RED, 1.f);
 	glDisable(GL_LINE_SMOOTH);
 
-	std::string title = "Level " + std::to_string(GAME_STATE.curMap);
+	std::string title = "Level " + std::to_string(Game().curMap);
 	beginText();
-	textCentered(GAME_STATE.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
-	textCentered(GAME_STATE.fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);
+	textCentered(Game().fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
+	textCentered(Game().fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

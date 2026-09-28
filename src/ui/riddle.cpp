@@ -1,7 +1,6 @@
 #include "riddle.h"
 #include "../test/scenario.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../input/input.h"
@@ -38,7 +37,7 @@ constexpr int CARET_BLINK_MS = 500;
 constexpr unsigned char KEY_BACKSPACE = 8;
 constexpr unsigned char KEY_DELETE = 127;
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, GAME_STATE.render.resX, GAME_STATE.render.resY); }
+Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
 std::string trim(const std::string& s) {
 	size_t first = s.find_first_not_of(" \t\r\n");
@@ -241,16 +240,14 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 
 	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost
 		show = false;
-		snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "The riddle stays unanswered");
-		GAME_STATE.status_timer->Reset();
+		Game().ShowStatus("The riddle stays unanswered");
 	} else if (key == KEY_ENTER) {
 		if (NormalizeAnswer(answer).empty())
 			return;
 		if (CheckAnswer()) {
 			show = false;
-			snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "Riddle answered, got %d XP", XP_REWARD);
-			GAME_STATE.status_timer->Reset();
-			GAME_STATE.player->stats.AddXP(XP_REWARD);
+			Game().ShowStatus("Riddle answered, got %d XP", XP_REWARD);
+			Game().player->stats.AddXP(XP_REWARD);
 		} else {
 			misses++;
 			wrongAtMs = GameClock::now();
@@ -301,7 +298,7 @@ void Riddle::DrawBackground() {
 
 	// Carved tomb wall in torchlight, as behind the inventory.
 	glDisable(GL_BLEND);
-	texturedRect(area, GAME_STATE.textures.load_bg.ID(), {0.34f, 0.27f, 0.20f});
+	texturedRect(area, Game().textures.load_bg.ID(), {0.34f, 0.27f, 0.20f});
 
 	beginShapes();
 	constexpr float VIGNETTE = 22.f;
@@ -319,7 +316,7 @@ void Riddle::DrawBackground() {
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
-	texturedRect(GATE_PANEL, GAME_STATE.textures.riddle_bg.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
+	texturedRect(GATE_PANEL, Game().textures.riddle_bg.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
 	beginShapes();
 	ring(GATE_PANEL.inset(8.f), 8.f, BLACK, 0.f, 0.5f);
 	strokeRect(GATE_PANEL, BRONZE, 1.f, 3.f);
@@ -327,7 +324,7 @@ void Riddle::DrawBackground() {
 	cornerStuds(GATE_PANEL);
 
 	// Papyrus scroll for the riddle, framed like the inventory details.
-	texturedRect(SCROLL, GAME_STATE.textures.bg.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
+	texturedRect(SCROLL, Game().textures.bg.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
 	beginShapes();
 	strokeRect(SCROLL, BRONZE, 1.f, 3.f);
 	cornerStuds(SCROLL);

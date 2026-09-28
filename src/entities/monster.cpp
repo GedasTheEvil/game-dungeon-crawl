@@ -6,7 +6,6 @@
 #include <cstdlib>
 
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../graphics/lighting.h"
 #include "../graphics/ink.h"
 
@@ -62,9 +61,8 @@ bool Monster::takeHit(int dmg) {
 
 	if (!Alive() && state != ModelState::Die) {
 		enter(ModelState::Die);
-		sprintf(GAME_STATE.status, "Gained %d XP", type->xp);
-		GAME_STATE.status_timer->Reset();
-		GAME_STATE.player->stats.AddXP(type->xp);
+		Game().ShowStatus("Gained %d XP", type->xp);
+		Game().player->stats.AddXP(type->xp);
 		type->model.dieSound.Play();
 
 		// Death blood effect, stronger than a hit.
@@ -94,7 +92,7 @@ void Monster::drawHealthBar() {
 			mv[c * 4 + r] = c == r ? s : 0.f;
 	glLoadMatrixf(mv);
 
-	GAME_STATE.textures.progBar.Bind();
+	Game().textures.progBar.Bind();
 	Lighting::setEmissive(true);
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;
@@ -144,7 +142,7 @@ void Monster::Draw(float px, float py) {
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		GAME_STATE.textures.nullTex.Bind();
+		Game().textures.nullTex.Bind();
 		blood->Explode();
 		blood->Fall();
 		blood->Draw();

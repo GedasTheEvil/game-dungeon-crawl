@@ -11,7 +11,6 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../test/scenario.h"
 #include "ui_draw.h"
 
@@ -79,7 +78,7 @@ Rect tabRect(int tab) {
 	return {OPTIONS_PANEL.x + 5 + static_cast<float>(tab) * (TAB_W + 2), y, TAB_W, TAB_H};
 }
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, GAME_STATE.render.resX, GAME_STATE.render.resY); }
+Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
 // ---- icons -----------------------------------------------------------------
 
@@ -335,7 +334,7 @@ SlotInfo slotInfo(int slot) {
 	if (stat(slotFilename(slot).c_str(), &st) != 0)
 		return info;
 	info.used = true;
-	if (std::sscanf(GAME_STATE.saveNames[slot].name, "%d_", &info.level) != 1)
+	if (std::sscanf(Game().saveNames[slot].name, "%d_", &info.level) != 1)
 		info.level = 0;
 	time_t t = st.st_mtime;
 	std::strftime(info.when, sizeof(info.when), "%d %b %Y, %H:%M", std::localtime(&t));
@@ -345,21 +344,21 @@ SlotInfo slotInfo(int slot) {
 void persistSaveNameList() {
 	std::ofstream f("saves/gamelist.dat");
 	for (int a = 0; a < SLOT_COUNT; a++)
-		f << GAME_STATE.saveNames[a].name << "\n";
+		f << Game().saveNames[a].name << "\n";
 }
 
 std::string saveLabel() {
 	time_t t = time(nullptr);
 	struct tm* lt = localtime(&t);
 	char buf[25];
-	std::snprintf(buf, sizeof(buf), "%02d_%02d-%02d_%02d:%02d", GAME_STATE.curMap, lt->tm_mon + 1, lt->tm_mday,
-				  lt->tm_hour, lt->tm_min);
+	std::snprintf(buf, sizeof(buf), "%02d_%02d-%02d_%02d:%02d", Game().curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour,
+				  lt->tm_min);
 	return buf;
 }
 
 void saveToSlot(int slot) {
-	GAME_STATE.Save(slotFilename(slot).c_str());
-	auto& name = GAME_STATE.saveNames[slot].name;
+	Game().Save(slotFilename(slot).c_str());
+	auto& name = Game().saveNames[slot].name;
 	strncpy(name, saveLabel().c_str(), sizeof(name) - 1);
 	name[sizeof(name) - 1] = '\0';
 	persistSaveNameList();
@@ -397,7 +396,7 @@ void MainMenu::ShowToast(const std::string& text) {
 
 void MainMenu::Draw() {
 	if (credits) {
-		GAME_STATE.ui.endScreens->DrawCredits();
+		Game().ui.endScreens->DrawCredits();
 		if (creditsTimer->TimePassed())
 			credits = false;
 		return;
@@ -452,7 +451,7 @@ void MainMenu::DrawBackground(const char* caption) {
 	// Carved tomb wall in torchlight.
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	GAME_STATE.textures.load_bg.Bind();
+	Game().textures.load_bg.Bind();
 	glColor3f(0.34f, 0.27f, 0.20f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -661,7 +660,7 @@ void MainMenu::DrawFooter(const char* hint) {
 int MainMenu::TargetAt(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	ui::toCanvas(visibleArea(), GAME_STATE.render.resX, GAME_STATE.render.resY, x, y, cx, cy);
+	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
 
 	if (optionsD) {
 		for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++)
@@ -697,7 +696,7 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (loadD) {
-		GAME_STATE.LoadSave(slotFilename(target).c_str());
+		Game().LoadSave(slotFilename(target).c_str());
 		ResetSubScreens();
 		show = false;
 		inGame = true;
@@ -707,7 +706,7 @@ void MainMenu::Activate(int target) {
 	switch (menuButtons(inGame)[static_cast<size_t>(target)].action) {
 	case MenuAction::NewGame:
 		show = false;
-		GAME_STATE.NewGame();
+		Game().NewGame();
 		inGame = true;
 		break;
 	case MenuAction::Resume:

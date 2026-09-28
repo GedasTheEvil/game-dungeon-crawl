@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstdio>
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 
 namespace {
 float ratioOf(int value, int max) {
@@ -117,14 +116,13 @@ bool PlayerStats::AdvanceLevel() {
 	MaxHP += 20;
 	HP = MaxHP;
 
-	sprintf(GAME_STATE.status, "Now you are level %d\n", level);
-	GAME_STATE.status_timer->Reset();
+	Game().ShowStatus("Now you are level %d\n", level);
 
 	return true;
 }
 
 int PlayerStats::Damage() const {
-	return Might + GAME_STATE.ui.inventory->EquippedDamage(); // + weapon dmg, with its level bonus
+	return Might + Game().ui.inventory->EquippedDamage(); // + weapon dmg, with its level bonus
 }
 
 void PlayerStats::AddMaxHP(int hpPart) {

@@ -2,6 +2,8 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include <fstream>
+#include <cassert>
+#include <cstdarg>
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
@@ -117,7 +119,17 @@ void loadMechanisms(MechanismSet& set) {
 	set.rock = loadStaticModel("models/mechanisms/rock.md3", set.rockTex);
 	set.crack = loadStaticModel("models/mechanisms/ceiling_crack.md3", set.crackTex);
 }
+std::unique_ptr<GameState> gGame;
 } // namespace
+
+void CreateGame() { gGame = std::make_unique<GameState>(); }
+
+void DestroyGame() { gGame.reset(); }
+
+GameState& Game() {
+	assert(gGame && "CreateGame() not called");
+	return *gGame;
+}
 
 GameState::GameState() = default;
 
@@ -285,7 +297,7 @@ void GameState::Load() {
 	player->jump.jump_inc = std::make_unique<Timer>(JUMP_TICK_MS);
 	player->jump.fall_inc = std::make_unique<Timer>(FALL_TICK_MS);
 	player->jump.fall_velocity = FALL_STEP;
-	status_timer = std::make_unique<Timer>(3000);
+	statusTimer = Timer(STATUS_MS);
 
 	DrawLoad(95, "Loading game Map");
 
@@ -307,9 +319,19 @@ void GameState::Load() {
 
 	ui.endScreens = std::make_unique<EndScreens>();
 
-	snprintf(status, sizeof(status), "%s", "");
+	status.clear();
 
 	cacheLoaded = true;
+}
+//==============================================================
+void GameState::ShowStatus(const char* format, ...) {
+	char buf[256];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, sizeof(buf), format, args);
+	va_end(args);
+	status = buf;
+	statusTimer.Reset();
 }
 //==============================================================
 void GameState::NewGame() {

@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include "../state/game_state.h"
-#include "../core/service_locator.h"
 #include "../graphics/ink.h"
 #include "../test/scenario.h"
 
@@ -27,7 +26,7 @@ void Player::Draw() {
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		GAME_STATE.textures.nullTex.Bind();
+		Game().textures.nullTex.Bind();
 		blood.Explode();
 		blood.Fall();
 		blood.Draw();

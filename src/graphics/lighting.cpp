@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <cmath>
 #include "../core/logger.h"
-#include "../core/service_locator.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
 
@@ -156,7 +155,7 @@ void Lighting::begin() {
 	glUseProgram(gProgram);
 	glUniform3fv(gLocAmbient, 1, AMBIENT);
 	glUniform1f(gLocEmissive, 0.f);
-	glUniform1f(gLocToon, GAME_STATE.render.Cartoon ? 1.f : 0.f);
+	glUniform1f(gLocToon, Game().render.Cartoon ? 1.f : 0.f);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {

@@ -6,16 +6,7 @@
 #include <cstring>
 #include "../core/logger.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_ONLY_PNG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include "../../external/stb/stb_image.h"
-#pragma GCC diagnostic pop
 
 namespace {
 constexpr float MAX_ANISOTROPY = 8.f;

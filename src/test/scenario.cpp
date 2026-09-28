@@ -21,14 +21,7 @@
 #include <vector>
 #include <unistd.h>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include "../../external/stb/stb_image_write.h"
-#pragma GCC diagnostic pop
 
 namespace {
 constexpr int EXIT_OK = 0;

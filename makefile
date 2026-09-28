@@ -7,19 +7,21 @@ LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 BUILD=build
-OBJECTS=$(SOURCES:%.cpp=$(BUILD)/%.o)
+# Third-party implementations (stb), compiled without warnings and outside make tidy.
+EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
+OBJECTS=$(SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
 DEPS=$(OBJECTS:.o=.d)
 
 EXECUTABLE=game
 
 # Level editor, runs from the repo root. Shares the game's texture, font, UI and level code.
 EDITOR_SOURCES=$(wildcard tools/editor/*.cpp)
-EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(addprefix $(BUILD)/src/, graphics/textures.o graphics/font.o \
+EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS) $(addprefix $(BUILD)/src/, graphics/textures.o graphics/font.o \
 	core/logger.o ui/ui_draw.o world/level.o world/level_check.o)
 EDITOR=$(BUILD)/editor
 
 # MD3 model viewer, runs from the repo root.
-VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(addprefix $(BUILD)/src/, graphics/animated_model.o graphics/textures.o \
+VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(EXTERNAL_OBJECTS) $(addprefix $(BUILD)/src/, graphics/animated_model.o graphics/textures.o \
 	graphics/hud.o graphics/font.o core/timer.o core/logger.o)
 VIEWER=$(BUILD)/model-viewer
 
@@ -40,6 +42,10 @@ $(EXECUTABLE): $(OBJECTS)
 $(BUILD)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/external/%.o: external/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -w -c $< -o $@
 
 level-tools: $(LEVEL_TOOLS)
 

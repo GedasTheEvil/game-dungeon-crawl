@@ -87,6 +87,6 @@ int Texture::LoadPNG(const char* filename, TexFilter filter) {
 	return 1;
 }
 //----------------------------------------------------------------------------------
-void Texture::Bind() { glBindTexture(GL_TEXTURE_2D, texture.texID); }
+void Texture::Bind() const { glBindTexture(GL_TEXTURE_2D, texture.texID); }
 //----------------------------------------------------------------------------------
-int Texture::ID() { return static_cast<int>(texture.texID); }
+int Texture::ID() const { return static_cast<int>(texture.texID); }

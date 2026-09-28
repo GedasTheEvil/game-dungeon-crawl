@@ -218,7 +218,7 @@ const char* Inventory::ItemName(int type, int id) {
 bool Inventory::CanUse(int slot, const char** reason) const {
 	const PlayerStats* s = GAME_STATE.ui.stats.get();
 	const char* why = nullptr;
-	if (!GAME_STATE.Player->Alive())
+	if (!GAME_STATE.player->Alive())
 		why = "You are dead";
 	else if (counts[slot] <= 0)
 		why = isPotion(slot) ? "None left" : "Not found yet";
@@ -229,7 +229,7 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 		why = "Health is full";
 	else if (isPotion(slot) &&
 			 (SLOTS[slot].id == PotionId::SMALL_STAMINA || SLOTS[slot].id == PotionId::LARGE_STAMINA) &&
-			 GAME_STATE.Player->Stamina() >= GAME_STATE.Player->MaxStamina())
+			 GAME_STATE.player->Stamina() >= GAME_STATE.player->MaxStamina())
 		why = "Stamina is full";
 
 	if (reason != nullptr)
@@ -238,7 +238,7 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 }
 
 bool Inventory::CanUpgrade(int slot) const {
-	return !isPotion(slot) && GAME_STATE.Player->Alive() && levels[slot] < MAX_LEVEL &&
+	return !isPotion(slot) && GAME_STATE.player->Alive() && levels[slot] < MAX_LEVEL &&
 		   counts[slot] >= upgradeCost(levels[slot]);
 }
 
@@ -266,7 +266,7 @@ void Inventory::Use(int slot) {
 void Inventory::DrinkPotion(int potionId) {
 	PlayerStats* s = GAME_STATE.ui.stats.get();
 	int hpBefore = s->CurrentHP();
-	int staminaBefore = GAME_STATE.Player->Stamina();
+	int staminaBefore = GAME_STATE.player->Stamina();
 
 	GAME_STATE.sounds.drink_s.Play();
 	counts[InvSlot::FIRST_POTION + potionId]--;
@@ -291,8 +291,8 @@ void Inventory::DrinkPotion(int potionId) {
 		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
 		break;
 	default: // stamina
-		GAME_STATE.Player->AddStamina(GAME_STATE.Player->MaxStamina() / (potionId == PotionId::SMALL_STAMINA ? 2 : 1));
-		snprintf(buf, sizeof(buf), "Restored %d stamina", GAME_STATE.Player->Stamina() - staminaBefore);
+		GAME_STATE.player->AddStamina(GAME_STATE.player->MaxStamina() / (potionId == PotionId::SMALL_STAMINA ? 2 : 1));
+		snprintf(buf, sizeof(buf), "Restored %d stamina", GAME_STATE.player->Stamina() - staminaBefore);
 		break;
 	}
 	ShowToast(buf);
@@ -849,7 +849,7 @@ void Inventory::DrawStatus() {
 	double levelEnd = PlayerStats::LevelXP(s->CurrentLevel() + 1);
 	bar(22.f, ROW_A, 18.f, ratioOf(s->CurrentXP() - levelStart, levelEnd - levelStart), {1.f, 0.85f, 0.45f}, GOLD_DIM);
 	bar(22.f, ROW_B, 18.f, ratioOf(s->CurrentHP(), s->CurrentMaxHP()), {0.85f, 0.25f, 0.15f}, HEALTH);
-	bar(66.f, ROW_B, 14.f, ratioOf(GAME_STATE.Player->Stamina(), GAME_STATE.Player->MaxStamina()), {0.95f, 0.85f, 0.3f},
+	bar(66.f, ROW_B, 14.f, ratioOf(GAME_STATE.player->Stamina(), GAME_STATE.player->MaxStamina()), {0.95f, 0.85f, 0.3f},
 		STAMINA);
 
 	char buf[32];
@@ -873,7 +873,7 @@ void Inventory::DrawStatus() {
 	snprintf(buf, sizeof(buf), "%d/%d", s->CurrentHP(), s->CurrentMaxHP());
 	text(small, 41.5f, ROW_B, buf, GOLD);
 	text(small, 54.f, ROW_B, "Stamina", GOLD_DIM);
-	snprintf(buf, sizeof(buf), "%d/%d", GAME_STATE.Player->Stamina(), GAME_STATE.Player->MaxStamina());
+	snprintf(buf, sizeof(buf), "%d/%d", GAME_STATE.player->Stamina(), GAME_STATE.player->MaxStamina());
 	text(small, 81.5f, ROW_B, buf, GOLD);
 	beginShapes();
 }

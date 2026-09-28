@@ -35,7 +35,7 @@ Tile Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), st
 void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].attr = value; }
 //======================================================================================
 void Dungeon::resetPlayerMotion() {
-	JumpState& jump = GAME_STATE.Player->jump;
+	JumpState& jump = GAME_STATE.player->jump;
 	jump.jumping = false;
 	jump.falling = false;
 	jump.velocity = 0.f;
@@ -51,62 +51,18 @@ void Dungeon::exploreAroundPlayer() {
 				explored[MapIndex(i, j)] = true;
 }
 //======================================================================================
-void Dungeon::SyncMonsterFromToken(int index) {
-	m[index].m->dungeonCamX = &mapX;
-	m[index].m->dungeonCamY = &mapY;
-	m[index].m->setCords(m[index].mapX, m[index].mapY);
-	m[index].m->tileOriginX = static_cast<float>(m[index].orX);
-	m[index].m->tileOriginY = static_cast<float>(m[index].orY);
-	m[index].m->restoreAnimations(m[index].state, m[index].anim);
-	m[index].m->setFacingDir(m[index].facing_dir);
-	m[index].m->health = m[index].HP;
-	m[index].m->useBlood(m[index].blood.get());
-	m[index].m->flight = m[index].flight;
-	m[index].m->leap = m[index].leap;
-}
-//======================================================================================
-void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
-	if (includePosition)
-		m[index].m->GetCords(m[index].mapX, m[index].mapY);
-
-	m[index].HP = m[index].m->health;
-	m[index].state = m[index].m->Model_state();
-	m[index].anim = m[index].m->animations();
-	m[index].facing_dir = m[index].m->FacingDir();
-	m[index].flight = m[index].m->flight;
-	m[index].leap = m[index].m->leap;
-	m[index].m->useBlood(nullptr);
-}
-//======================================================================================
 Dungeon::Dungeon() {
 	mapX = 0;
 	mapY = 0;
-	// Don't access GAME_STATE during construction to avoid circular dependency
-	// GAME_STATE.falling will be set during proper initialization
-
 	mL = false;
-
-	for (int i = 0; i < MAX_MONSTERS; i++) {
-		m[i].orX = -1;
-		m[i].orY = -1;
-		m[i].HP = 0;
-		m[i].state = static_cast<int>(ModelState::Move);
-		m[i].facing_dir = 0;
-	}
-
 	aniT = std::make_unique<Timer>(50);
-
-	for (int i = 0; i < MAX_MONSTERS; i++) {
-		m[i].t.reset();
-		m[i].at.reset();
-	}
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(mapX, mapY).type != Ladder && !GAME_STATE.Player->jump.jumping) {
+	if (Map(mapX, mapY).type != Ladder && !GAME_STATE.player->jump.jumping) {
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			!isSolidTile(Map(mapX, mapY - 1))) {
-			JumpState& jump = GAME_STATE.Player->jump;
+			JumpState& jump = GAME_STATE.player->jump;
 			if (jump.fall_inc->TimePassed()) {
 				float floorY = std::floor(mapY);
 				mapY -= jump.fall_velocity;
@@ -117,23 +73,23 @@ void Dungeon::UpdateMovementState() {
 			jump.falling = true;
 		} else {
 			mapY = std::floor(mapY); // drop the sub-threshold remainder left by the last step
-			GAME_STATE.Player->jump.falling = false;
-			GAME_STATE.Player->jump.fall_velocity = FALL_STEP;
+			GAME_STATE.player->jump.falling = false;
+			GAME_STATE.player->jump.fall_velocity = FALL_STEP;
 		}
 	}
 
-	if (GAME_STATE.Player->jump.jumping) {
-		if (GAME_STATE.Player->jump.jump_inc->TimePassed()) {
-			if (GAME_STATE.Player->jump.dir_x != 0)
-				Move(GAME_STATE.Player->jump.dir_x * GAME_STATE.Player->jump.speed, 0);
+	if (GAME_STATE.player->jump.jumping) {
+		if (GAME_STATE.player->jump.jump_inc->TimePassed()) {
+			if (GAME_STATE.player->jump.dir_x != 0)
+				Move(GAME_STATE.player->jump.dir_x * GAME_STATE.player->jump.speed, 0);
 
-			mapY += GAME_STATE.Player->jump.velocity;
-			GAME_STATE.Player->jump.velocity -= JUMP_GRAVITY_STEP;
+			mapY += GAME_STATE.player->jump.velocity;
+			GAME_STATE.player->jump.velocity -= JUMP_GRAVITY_STEP;
 
-			if (GAME_STATE.Player->jump.velocity <= 0 && mapY <= GAME_STATE.Player->jump.start_y) {
-				mapY = GAME_STATE.Player->jump.start_y;
-				GAME_STATE.Player->jump.jumping = false;
-				GAME_STATE.Player->jump.falling = false;
+			if (GAME_STATE.player->jump.velocity <= 0 && mapY <= GAME_STATE.player->jump.start_y) {
+				mapY = GAME_STATE.player->jump.start_y;
+				GAME_STATE.player->jump.jumping = false;
+				GAME_STATE.player->jump.falling = false;
 			}
 		}
 	}
@@ -147,14 +103,14 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!GAME_STATE.Player->jump.falling && jump && Map(mapX, mapY).type != Ladder) {
+	if (!GAME_STATE.player->jump.falling && jump && Map(mapX, mapY).type != Ladder) {
 		mapY = mapY + dirY;
 		mapX = mapX + dirX;
-		GAME_STATE.Player->jump.falling = true;
+		GAME_STATE.player->jump.falling = true;
 	}
 
 	if (dirX != 0) {
-		float halfWidth = static_cast<float>(GAME_STATE.Player->scale / 60.0);
+		float halfWidth = static_cast<float>(GAME_STATE.player->scale / 60.0);
 		float probeX = mapX + dirX + (dirX > 0 ? halfWidth : -halfWidth);
 		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
 			mapX += dirX;
@@ -164,7 +120,7 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 
 	if (dirY > 0) {
 		if (Map(mapX, mapY).type == Ladder &&
-			Map(mapX, mapY + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).type == Ladder)
+			Map(mapX, mapY + dirY + static_cast<float>(GAME_STATE.player->scale / 40.0)).type == Ladder)
 			mapY += dirY;
 	} else if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY).type == Ladder)
 		mapY += dirY;

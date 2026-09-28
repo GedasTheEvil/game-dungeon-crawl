@@ -16,7 +16,7 @@ enum DungeonTileType : unsigned char {
 	Empty = 1,
 	Door = 2,
 	Death = 3,
-	Monster = 4,
+	MonsterSpawn = 4,
 	Spike = 5,
 	Ladder = 6,
 	Area3D = 7,
@@ -35,7 +35,7 @@ enum GateType : unsigned char {
 	GateEmpty = 4,
 };
 
-enum MonsterType : unsigned char {
+enum MonsterTypeId : unsigned char {
 	MonsterScarab = 1,
 	MonsterWorm = 2,
 	MonsterPlant = 3,

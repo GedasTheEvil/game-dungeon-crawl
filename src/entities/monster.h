@@ -1,43 +1,11 @@
 #ifndef MONSTER_H
 #define MONSTER_H
-#include "../graphics/animated_model.h"
-// #include "../world/Dungeon.h"
-#include "../graphics/textures.h"
+
+#include "character_model.h"
 #include "../graphics/particles.h"
-#include "../core/sound.h"
 #include "../core/timer.h"
-#include <array>
 #include <memory>
-#include <vector>
-
-// Animation clips. Each is one file, see ClipFile; a missing optional clip shows the reference clip.
-enum class ModelState : unsigned char { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5 };
-constexpr int MODEL_STATE_COUNT = 6;
-
-// Playback of every clip, indexed by ModelState.
-using MonsterAnimations = std::array<AnimPlayback, MODEL_STATE_COUNT>;
-
-// models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
-// it is required, sets the normalization of all clips (frame 0) and stands in for missing optional ones.
-struct ClipFile {
-	ModelState state;
-	const char* suffix;
-	bool required;
-	bool loop; // false: plays once and holds the last frame
-};
-using ClipFiles = std::vector<ClipFile>;
-// Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling) and _jump (a leap).
-inline const ClipFiles MONSTER_CLIPS = {{ModelState::Move, "", true, true},
-										{ModelState::Attack, "_att", true, true},
-										{ModelState::Die, "_die", true, false},
-										{ModelState::Idle, "_idle", false, true},
-										{ModelState::Jump, "_jump", false, false}};
-// The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
-inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
-									   {ModelState::Move, "_walk", true, true},
-									   {ModelState::Die, "_die", true, false},
-									   {ModelState::Jump, "_jump", false, false},
-									   {ModelState::Climb, "_climb", false, true}};
+#include <optional>
 
 // How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
 enum class Locomotion : unsigned char {
@@ -47,8 +15,8 @@ enum class Locomotion : unsigned char {
 	Fly,		// see Flight
 };
 
-// Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through him,
-// biting on the way, fly on, turn and come back. Kept per dungeon token, like the clip playback.
+// Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through them,
+// biting on the way, fly on, turn and come back.
 enum class FlightPhase : unsigned char { Roost, Swoop, Return };
 struct Flight {
 	FlightPhase phase = FlightPhase::Roost;
@@ -60,7 +28,7 @@ struct Flight {
 	int lastMs = -1; // GameClock time of the last update
 };
 
-// Walk-jumpers: a leap over a gap of pits and traps, x in tile-local map units like mapX. Kept per dungeon token.
+// Walk-jumpers: a leap over a gap of pits and traps, x in tile-local map units like Monster::x.
 struct Leap {
 	float fromX = 0.f, toX = 0.f;
 	int startMs = -1; // GameClock time of the take-off; < 0: on the ground
@@ -68,111 +36,76 @@ struct Leap {
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
-class monster {
-  private:
-	std::array<std::unique_ptr<AnimatedModel>, MODEL_STATE_COUNT> clips; // by ModelState, nullptr if no file
-	ModelState reference = ModelState::Move;							 // first clip of the ClipFiles
-	AnimatedModel* model;
-	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
-	float referenceTop = 1.f;
-	float idleBottom = 0.f, idleTop = 1.f;
-	float mapX;
-	float mapY;
-	int speed;
-	int damage;
-	int XP;
-	int stat;
-	int facing_dir;
-	Texture nullTexture, tex;
-	std::unique_ptr<ParticleSystem> ownBlood;
-	ParticleSystem* blood; // ownBlood, or the particles of the dungeon token being processed
-	Rgb bloodColour = {0.7f, 0.1f, 0.1f};
-	std::unique_ptr<Timer> walk_timer;
-	ModelState currentState;
-	void applyModelState(ModelState state);
-	void selectModel(ModelState state); // no reset: used to restore a token's animation
-	[[nodiscard]] AnimatedModel* clip(ModelState state) const;
-	void drawHealthBar(); // billboard above the model (below a roosting flyer), the same size for every monster
-
-  public:
-	std::unique_ptr<Timer> Att_timer;
-	Sound die_s, att_s, jump_s;
-
-	int health;
-	int maxHealth;
-
-	float* dungeonCamY;
-	float* dungeonCamX;
-
-	float tileOriginX;
-	float tileOriginY;
-
-	monster();
-	monster(float dx, float dy);
-	monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP);
-	~monster();
-	bool Draw();
-	bool loadModel(const char filename[], Texture& texture, Texture& nullT, bool compile = true,
-				   const ClipFiles& files = MONSTER_CLIPS);
-	void setCords(float nX, float nY);
-	float rotA;
-	float scale;
-	float depthOffset = 0.f; // the player only: moved towards the back wall (world units) while climbing
-	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
-	void showClimb(float phase);
-	[[nodiscard]] bool climbing() const { return currentState == ModelState::Climb; }
-	// AI functions
-	int attackDirection();
-	bool takeHit(int dmg);
-	bool Alive();
-	// Walkers: one step toward the player on its row; blocked: the cell in front of it blocks the walk.
-	bool Seek(bool blocked);
-	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
-	void Attack();
-	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
+// One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
+struct MonsterType {
+	CharacterModel model;
+	int speed = 1;
+	int maxHealth = 20;
+	int damage = 1;
+	int xp = 0; // gained for the kill
+	float scale = 1.f;
+	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
-	[[nodiscard]] bool flies() const { return locomotion == Locomotion::Fly; }
-	Flight flight;
-	void Fly(bool wallAhead);
-	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
-	// Walk-jumpers: leap to tile-local x toX (the centre of the landing cell), then move along the arc until landed.
-	Leap leap;
-	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
-	[[nodiscard]] bool canJump() const;
-	void Jump(float toX);
-	void UpdateJump();
-	void Reanimate();
-	void GetCords(float& xx, float& yy);
-	bool Nearby(float xx, float yy, int range);
-	void setModelState(ModelState state);
-	int Model_state();
-	void setFacingDir(int dir);
-	int FacingDir();
-	void setBloodColor(float r, float g, float b);
-	// Monsters of one type share one object, so each dungeon token owns its own blood particles.
-	void initBlood(ParticleSystem& tokenBlood) const;
-	void useBlood(ParticleSystem* tokenBlood);
-	// Monsters of one type share one object, so each dungeon token keeps its own clip playback.
-	[[nodiscard]] MonsterAnimations spawnAnimations() const;
-	void restoreAnimations(int state, const MonsterAnimations& animations);
-	[[nodiscard]] MonsterAnimations animations() const;
-	float healthRatio() const;
+	Rgb blood = {0.7f, 0.1f, 0.1f};
+	mutable float lastX = 0.f; // TEMP: x of the last monster of this type touched; a new one spawns there
 };
 
-struct monsterToken {
-	float mapX, mapY;
-	int orX, orY; // origin in map field
-	int type;
-	int HP;
-	monster* m;
-	std::unique_ptr<ParticleSystem> blood;
-	std::unique_ptr<Timer> t;
-	std::unique_ptr<Timer> at;
-	int state;
-	int facing_dir;
-	MonsterAnimations anim;
+// A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
+// The player position (px, py) is in map units, like Dungeon's.
+class Monster {
+  private:
+	const MonsterType* type = nullptr; // nullptr: an empty slot
+	int col = -1, row = -1;			   // spawn tile
+	float x = 0.f;
+	int health = 0;
+	ModelState state = ModelState::Move;
+	int facing = 0; // -1 left, 0 the camera, +1 right
+	ClipPlayback playback{};
 	Flight flight;
 	Leap leap;
+	// Created on the slot's first spawn, kept over respawns in it.
+	std::unique_ptr<ParticleSystem> blood;
+	std::optional<Timer> stepTimer, attackTimer;
+
+	void enter(ModelState s) { type->model.Enter(state, s, playback); }
+	void drawHealthBar();
+	[[nodiscard]] bool sameRow(float py) const;
+
+  public:
+	Monster() = default;
+	Monster(const Monster&) = delete;
+	Monster& operator=(const Monster&) = delete;
+	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
+	void Touch() const { type->lastX = x; } // TEMP
+	void Clear();							// the slot is empty
+	[[nodiscard]] bool Active() const { return type != nullptr; }
+	[[nodiscard]] int Col() const { return col; }
+	[[nodiscard]] int Row() const { return row; }
+	[[nodiscard]] int Health() const { return health; }
+	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
+	[[nodiscard]] bool Alive() const { return health > 0; }
+	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
+	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
+	[[nodiscard]] bool canJump() const;
+	[[nodiscard]] bool StepDue() { return stepTimer->TimePassed(); }
+	[[nodiscard]] bool AttackDue() { return attackTimer->TimePassed(); }
+
+	// -1 / +1: the player is to the left / right on this row, 0: in reach or not on this row.
+	[[nodiscard]] int attackDirection(float px, float py) const;
+	// Walkers: one step toward the player on its row; blocked: the cell in front of it blocks the walk.
+	bool Seek(bool blocked, float px, float py);
+	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
+	void Attack(float py);
+	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
+	void Fly(bool wallAhead, float px, float py);
+	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
+	// Walk-jumpers: leap to tile-local x toX (the centre of the landing cell), then move along the arc until landed.
+	void Jump(float toX);
+	void UpdateJump();
+	[[nodiscard]] bool Nearby(float px, float py, int range) const;
+	bool takeHit(int dmg);
+	// With the frame origin at the spawn tile.
+	void Draw(float px, float py);
 };
 
 #endif

@@ -11,7 +11,7 @@ struct VF {
 };
 
 // Scale, then offset, that Centrify applied. Shared by the files of one monster so its walk, attack
-// and die animations line up (see monster::loadModel).
+// and die animations line up (see CharacterModel::Load).
 struct ModelNormalization {
 	float scale = 1.0f;
 	float x = 0.0f, y = 0.0f, z = 0.0f;
@@ -25,8 +25,7 @@ struct AnimPlayback {
 
 class AnimatedModel {
   protected:
-	std::unique_ptr<Timer> frameChange;
-	float frame;
+	AnimPlayback playback; // of Show() / Advance() without an argument
 	int speed;
 	float scale;
 	int frameC;
@@ -39,17 +38,19 @@ class AnimatedModel {
 	void Scale(float sc);
 	void Translate(float x, float y, float z);
 	[[nodiscard]] const float* frameNormals(int f) const;
+	float getScale();
 
   public:
-	bool bounds;
+	static constexpr int FRAME_STEP_MS = 100;
 	bool loop;
 	AnimatedModel();
 	~AnimatedModel();
 	int Load(const char filename[]); // MD3 (see tools/blender/md3.py)
-	void Show();
-	void Advance_Animation();
+	void Show() const;
+	void Show(const AnimPlayback& p) const; // a shared model: the caller keeps the playback
+	void Advance();
+	void Advance(AnimPlayback& p) const;
 	void setSpeed(int nSpeed);
-	float getScale();
 	void BindTexture(int t);
 	void Compile();
 	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
@@ -57,8 +58,6 @@ class AnimatedModel {
 	[[nodiscard]] std::pair<float, float> YRange(int f) const; // lowest and highest y of frame f
 	void Reset();
 	[[nodiscard]] int FrameCount() const;
-	[[nodiscard]] AnimPlayback Playback() const;
-	void SetPlayback(const AnimPlayback& playback);
 };
 
 #endif

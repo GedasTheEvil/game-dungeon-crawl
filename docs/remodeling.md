@@ -21,7 +21,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
-  (`monster::UpdateJump`, `MONSTER_JUMP_*` in `src/input/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/input/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/bat.py` - flying monster example: wing arm + four finger bones posed by FK deformation matrices, double-sided
   membrane grids between fingers / arm / leg with blended weights (they stretch and crumple when folding). Clips: fly (move, the
@@ -29,7 +29,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
-  Engine: `monster::Fly` (`locomotion = Locomotion::Fly`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/game_state.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
@@ -62,11 +62,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
 * `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the potion flask and the treasure chest, real sizes in
-  metres (the engine centres each and scales its largest dimension to 1, `item::loadModel`). Weapons stand on +Z, grip at the
+  metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom (the held weapon is drawn from its lowest point, tilted 45 deg), flat faces in the x-z plane; the bow's back bulges to +x.
   The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in. The potion texture
   stays light grey: the engine tints the whole flask with the potion colour. Albedo x AO textures (no baked light), 512 px.
-  `-- --export` writes `models/items/{club,sword,spear,bow,potion,tchest}.md3` + `textures/items/<same>.png`; `--review out.png`
+  `-- --export` writes `models/items/{club,sword,spear,bow,potion,treasure_chest}.md3` + `textures/items/<same>.png`; `--review out.png`
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
@@ -103,7 +103,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Blender space: Z-up. Facing depends on the monster's `rotA` in `game_state.cpp`: Anubis (180) faces +Y, worm (0) faces -Y.
   Check the old model's facing before remodelling.
 * The engine normalizes a monster by the walk-slot file (`<name>.md3`) frame 0: largest dimension -> 1, centred in x/z,
-  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `monster::loadModel`),
+  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `CharacterModel::Load`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
 * Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, one file per clip. The file list (`ClipFiles` in
@@ -143,7 +143,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Columns (old ladder, with a plasma quad) | `props/columns.md3` | `props/columns.png` | unused since the ladders |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
-| Items: club, sword, spear, bow, potion, chest | `items/club.md3`, ..., `items/tchest.md3` | `items/club.png`, ..., `items/tchest.png` | remodelled (static, `items.py`) |
+| Items: club, sword, spear, bow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (10 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |

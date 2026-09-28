@@ -34,8 +34,6 @@ class Dungeon {
 	void SetMapBAtPlayer(int value);
 	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
 	void exploreAroundPlayer();
-	void SyncMonsterFromToken(int index);
-	void SyncTokenFromMonster(int index, bool includePosition);
 	void UpdateMovementState();
 	void UpdateMonsters();
 	// A walker can't step into (col, row): a wall, a trap, or no floor under it (a pit or a drop).
@@ -61,7 +59,6 @@ class Dungeon {
 	void drawFires();
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
 	Tile Map(float x, float y) const;
-	void InitializeMonsterSlot(int index, int i, int j);
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).
 	struct Motion {
 		int cell;	 // map index
@@ -82,7 +79,7 @@ class Dungeon {
 	void drawLeverTile(int i, int j);
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	monsterToken m[MAX_MONSTERS];
+	Monster monsters[MAX_MONSTERS];
 	bool mL;
 	std::unique_ptr<Timer> aniT;
 	float plasma = 0.f;

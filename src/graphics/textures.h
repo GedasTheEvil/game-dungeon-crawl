@@ -22,8 +22,8 @@ class Texture {
   public:
 	Texture();
 	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped);
-	void Bind();
-	int ID();
+	void Bind() const;
+	[[nodiscard]] int ID() const;
 };
 
 #endif

@@ -131,7 +131,7 @@ CellHint describeCell(const Tile& cell) {
 	case Door:
 		hint.attribute = field("gate type", GATE_TYPES, cell.attr, "unknown, decoration only");
 		break;
-	case Monster:
+	case MonsterSpawn:
 		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
 		break;
 	case Treasure:

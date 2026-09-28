@@ -16,7 +16,8 @@ class Item {
 	float rotA = 0;
 	float scale = 0;
 	void Draw();
-	bool loadModel(const char filename[], Texture& texture, bool compile = true);
+	// models/items/<name>.md3 with textures/items/<name>.png.
+	bool loadModel(const char* name);
 };
 
 #endif

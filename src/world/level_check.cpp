@@ -77,7 +77,7 @@ class Walker {
 			return COST_DEATH;
 		if (t.type == RockFall && t.value == 0)
 			return COST_ROCK_FALL;
-		if (t.type == Monster)
+		if (t.type == MonsterSpawn)
 			return COST_MONSTER;
 		return 0;
 	}
@@ -152,7 +152,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				r.exits++;
 				r.finale = true;
 				break;
-			case Monster:
+			case MonsterSpawn:
 				r.monsters[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0]++;
 				r.monsterCount++;
 				break;
@@ -224,12 +224,12 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	for (const CellPos& p : r.path)
 		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++) {
 			Tile t = grid.at(p.col + dx, p.row);
-			if (t.type == Monster)
+			if (t.type == MonsterSpawn)
 				near.insert(p.row * LEVEL_WIDTH + p.col + dx);
 		}
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if (t.type == Monster)
+		if (t.type == MonsterSpawn)
 			score += monsterThreat(t.attr) * (near.count(cell) != 0 ? 1.f : 0.25f);
 	}
 
@@ -419,7 +419,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	std::set<int> monstersNear;
 	for (const CellPos& p : r.path)
 		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++)
-			if (grid.at(p.col + dx, p.row).type == Monster)
+			if (grid.at(p.col + dx, p.row).type == MonsterSpawn)
 				monstersNear.insert(p.row * LEVEL_WIDTH + p.col + dx);
 	r.pathMonsters = static_cast<int>(monstersNear.size());
 
@@ -461,7 +461,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			case Death:
 				c = 'X';
 				break;
-			case Monster:
+			case MonsterSpawn:
 				c = MONSTER_CHARS[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0];
 				break;
 			case Spike:

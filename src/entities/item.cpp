@@ -1,6 +1,7 @@
 #include "item.h"
 #include <GL/gl.h>
 #include "../graphics/ink.h"
+#include <string>
 
 void Item::Draw() {
 	if (!mdl)
@@ -14,16 +15,16 @@ void Item::Draw() {
 	glRotatef(rotA, 0, 1, 0);
 	mdl->Show();
 	glPopMatrix();
-	mdl->Advance_Animation();
+	mdl->Advance();
 }
 
-bool Item::loadModel(const char filename[], Texture& texture, bool compile) {
-	tex = texture;
+bool Item::loadModel(const char* name) {
+	const std::string stem = std::string("items/") + name;
+	tex.LoadPNG(("textures/" + stem + ".png").c_str());
 	mdl = std::make_unique<AnimatedModel>();
-	mdl->Load(filename);
+	mdl->Load(("models/" + stem + ".md3").c_str());
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());
-	if (compile)
-		mdl->Compile();
+	mdl->Compile();
 	return true;
 }

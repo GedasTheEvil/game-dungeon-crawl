@@ -13,30 +13,30 @@ int lastMy = 0;
 
 namespace {
 void startJump() {
-	if (GAME_STATE.Player->jump.jumping || GAME_STATE.Player->jump.falling || !GAME_STATE.Player->Alive() ||
+	if (GAME_STATE.player->jump.jumping || GAME_STATE.player->jump.falling || !GAME_STATE.player->Alive() ||
 		GAME_STATE.hasWon)
 		return;
 
-	if (GAME_STATE.Player->Stamina() < JUMP_STAMINA_COST)
+	if (GAME_STATE.player->Stamina() < JUMP_STAMINA_COST)
 		return;
 
-	GAME_STATE.Player->ConsumeStamina(JUMP_STAMINA_COST);
+	GAME_STATE.player->ConsumeStamina(JUMP_STAMINA_COST);
 
 	float curX, curY;
 	GAME_STATE.dungeon.getC(curX, curY);
-	GAME_STATE.Player->jump.start_y = curY;
+	GAME_STATE.player->jump.start_y = curY;
 
-	GAME_STATE.Player->jump.dir_x = 0;
+	GAME_STATE.player->jump.dir_x = 0;
 	if (lastKey == KEY_MOVE_LEFT || GAME_STATE.camera.rotW < 0)
-		GAME_STATE.Player->jump.dir_x = -1;
+		GAME_STATE.player->jump.dir_x = -1;
 	else if (lastKey == KEY_MOVE_RIGHT || GAME_STATE.camera.rotW > 0)
-		GAME_STATE.Player->jump.dir_x = 1;
+		GAME_STATE.player->jump.dir_x = 1;
 
-	GAME_STATE.Player->jump.speed = JUMP_FORWARD_SPEED;
-	GAME_STATE.Player->jump.velocity = JUMP_INITIAL_VELOCITY;
-	GAME_STATE.Player->jump.jumping = true;
-	GAME_STATE.Player->jump.jump_up_timer->Reset();
-	GAME_STATE.Player->jump_s.Play();
+	GAME_STATE.player->jump.speed = JUMP_FORWARD_SPEED;
+	GAME_STATE.player->jump.velocity = JUMP_INITIAL_VELOCITY;
+	GAME_STATE.player->jump.jumping = true;
+	GAME_STATE.player->jump.jump_up_timer->Reset();
+	GAME_STATE.player->PlayJumpSound();
 }
 
 class PlayerActionController {
@@ -47,14 +47,14 @@ class PlayerActionController {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = -110;
-			if (!GAME_STATE.Player->jump.jumping)
-				GAME_STATE.Player->setModelState(ModelState::Move);
+			if (!GAME_STATE.player->jump.jumping)
+				GAME_STATE.player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveRight:
 			GAME_STATE.dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			GAME_STATE.camera.rotW = 70;
-			if (!GAME_STATE.Player->jump.jumping)
-				GAME_STATE.Player->setModelState(ModelState::Move);
+			if (!GAME_STATE.player->jump.jumping)
+				GAME_STATE.player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveDown:
 			GAME_STATE.dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
@@ -84,12 +84,12 @@ class PlayerActionController {
 
   private:
 	static void tryAttack() {
-		if (!GAME_STATE.Player->Att_timer->TimePassed())
+		if (!GAME_STATE.player->attackTimer.TimePassed())
 			return;
 
 		GAME_STATE.dungeon.AttackNearest(GAME_STATE.ui.stats->Damage(), GAME_STATE.ui.inventory->Equipped()->range);
-		GAME_STATE.Player->att_s.Play();
-		GAME_STATE.Player->attacking = true;
+		GAME_STATE.player->PlayAttackSound();
+		GAME_STATE.player->attacking = true;
 	}
 
 	static void interact() {

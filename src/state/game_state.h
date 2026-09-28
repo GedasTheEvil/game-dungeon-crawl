@@ -17,6 +17,7 @@
 #include "../ui/menu.h"
 #include "../ui/end_screens.h"
 #include "../ui/map_view.h"
+#include <array>
 #include <memory>
 
 struct word {
@@ -46,10 +47,6 @@ struct FontPair {
 	Font load_font;
 	Font status; // proportional, for the gameplay status message
 	Font hud;	 // bold digits for the HUD level gem
-};
-
-struct MonsterPrototypes {
-	std::unique_ptr<monster> anubis, scarab, plant, worm, rat, giantRat, bat, giantBat;
 };
 
 struct ItemPrototypes {
@@ -112,9 +109,10 @@ class GameState {
 	std::unique_ptr<Timer> status_timer;
 	SoundBank sounds;
 	FontPair fonts;
-	MonsterPrototypes monsters;
+	// By MonsterTypeId (level.h); index 0 is unused.
+	std::array<MonsterType, MONSTER_TYPE_MAX + 1> monsterTypes;
 	ItemPrototypes items;
-	std::unique_ptr<PlayerEntity> Player;
+	std::unique_ptr<Player> player;
 	TrapPair traps;
 	SceneModels models;
 	DecorSet decor;

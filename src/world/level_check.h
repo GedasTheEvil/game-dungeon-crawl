@@ -39,7 +39,7 @@ struct LevelReport {
 	int boundsHeight = 0;
 
 	// Content, whole level
-	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterType (index 0 = unknown type)
+	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterTypeId (index 0 = unknown type)
 	int monsterCount = 0;
 	int spikes = 0, deathTraps = 0, rockFalls = 0, treasures = 0, keys = 0, gates = 0, levers = 0, riddles = 0;
 	int reachableTreasures = 0;
@@ -58,7 +58,7 @@ struct LevelReport {
 
 [[nodiscard]] LevelReport checkLevel(const LevelGrid& grid);
 
-// Threat of one monster of this MonsterType in the difficulty score.
+// Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);
 
 // The level as text, top row first (wall rows above and below the level are skipped). Legend:

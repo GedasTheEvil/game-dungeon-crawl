@@ -150,7 +150,7 @@ void Dungeon::Draw() {
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);
 
-				if (tile.type == Monster)
+				if (tile.type == MonsterSpawn)
 					SpawnMonster(i, j);
 				if (tile.type == Treasure)
 					DrawTreasureTile(i, j);

@@ -36,7 +36,7 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
 ITEMS = ["club", "sword", "spear", "bow", "potion", "chest"]
-FILES = {"chest": "tchest"}  # model / texture stem when it differs from the item name
+FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
 

@@ -345,9 +345,9 @@ class LevelBuilder {
 		if (monsters >= 4 + 2 * d || g.at(col, row).type != Empty || g.at(col, row - 1).type != Wall)
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
-			if (g.at(x, row).type == Monster)
+			if (g.at(x, row).type == MonsterSpawn)
 				return false;
-		g.set(col, row, Tile{Monster, randomMonster(), 0});
+		g.set(col, row, Tile{MonsterSpawn, randomMonster(), 0});
 		busy[index(col, row)] = 1;
 		monsters++;
 		return true;

@@ -36,7 +36,7 @@ inline bool ShouldRouteMouseToMenu(const GameState& c) { return c.ui.menu.show; 
 
 inline bool ShouldRouteMouseToInventory(const GameState& c) { return c.ui.inventory->show; }
 
-inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.Player->Alive() && !c.hasWon; }
+inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.player->Alive() && !c.hasWon; }
 } // namespace ScreenState
 
 #endif

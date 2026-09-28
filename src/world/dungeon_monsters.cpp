@@ -7,29 +7,6 @@
 #include "../graphics/render_config.h"
 #include "../input/gameplay_config.h"
 
-namespace {
-monster* getMbyType(int type) {
-	if (type == 1)
-		return GAME_STATE.monsters.scarab.get();
-	if (type == 2)
-		return GAME_STATE.monsters.worm.get();
-	if (type == 3)
-		return GAME_STATE.monsters.plant.get();
-	if (type == 4)
-		return GAME_STATE.monsters.anubis.get();
-	if (type == 5)
-		return GAME_STATE.monsters.rat.get();
-	if (type == 6)
-		return GAME_STATE.monsters.giantRat.get();
-	if (type == MonsterBat)
-		return GAME_STATE.monsters.bat.get();
-	if (type == MonsterGiantBat)
-		return GAME_STATE.monsters.giantBat.get();
-
-	return GAME_STATE.Player.get();
-}
-} // namespace
-
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return true;
@@ -53,56 +30,52 @@ int Dungeon::leapLanding(int col, int row, int dir) const {
 }
 //======================================================================================
 void Dungeon::UpdateMonsters() {
-	for (int a = 0; a < MAX_MONSTERS; a++) {
-		if (m[a].orX == -1 || m[a].orY == -1)
+	for (Monster& mon : monsters) {
+		if (!mon.Active())
 			continue;
 
-		SyncMonsterFromToken(a);
-
-		if (m[a].m->flies()) {
+		if (mon.flies()) {
 			if (!GAME_STATE.hasWon) {
-				const auto col = static_cast<int>(std::floor(m[a].m->flightProbeX()));
-				m[a].m->Fly(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY)));
+				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
+				mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY);
 			}
-			SyncTokenFromMonster(a, true);
+			mon.Touch();
 			continue;
 		}
 
-		if (m[a].m->jumping()) { // lands even if killed in the air
-			m[a].m->UpdateJump();
-			SyncTokenFromMonster(a, true);
+		if (mon.jumping()) { // lands even if killed in the air
+			mon.UpdateJump();
+			mon.Touch();
 			continue;
 		}
 
-		if (m[a].m->Alive() && !GAME_STATE.hasWon && m[a].t->TimePassed()) {
-			int dir = m[a].m->attackDirection();
-			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(dir)));
-			bool blocked = walkerBlocked(col, m[a].orY);
-			if (blocked && dir != 0 && m[a].m->canJump()) {
-				int land = leapLanding(col, m[a].orY, dir);
-				// Not while the player is in the gap: the rat would leap over him.
+		mon.Touch();
+		if (mon.Alive() && !GAME_STATE.hasWon && mon.StepDue()) {
+			int dir = mon.attackDirection(mapX, mapY);
+			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
+			bool blocked = walkerBlocked(col, mon.Row());
+			if (blocked && dir != 0 && mon.canJump()) {
+				int land = leapLanding(col, mon.Row(), dir);
+				// Not while the player is in the gap: the rat would leap over them.
 				float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
 				float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
 				if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
-					m[a].m->Jump(static_cast<float>(land) - static_cast<float>(m[a].orX));
-					SyncTokenFromMonster(a, true);
+					mon.Jump(static_cast<float>(land) - static_cast<float>(mon.Col()));
+					mon.Touch();
 					continue;
 				}
 			}
-			if (!m[a].m->Seek(blocked))
-				if (m[a].at->TimePassed())
-					m[a].m->Attack();
-			SyncTokenFromMonster(a, true);
+			if (!mon.Seek(blocked, mapX, mapY))
+				if (mon.AttackDue())
+					mon.Attack(mapY);
+			mon.Touch();
 		}
 	}
 }
 //======================================================================================
 void Dungeon::clearMonsters() {
-	for (auto& token : m) {
-		token.orX = -1;
-		token.orY = -1;
-		token.HP = 0;
-	}
+	for (Monster& mon : monsters)
+		mon.Clear();
 }
 //======================================================================================
 // Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
@@ -110,97 +83,60 @@ void Dungeon::clearMonsters() {
 void Dungeon::DrawMonsters() {
 	int firstCol = static_cast<int>(mapX) - 4;
 	int firstRow = static_cast<int>(mapY) - 3;
-	for (int a = 0; a < MAX_MONSTERS; a++) {
-		if (m[a].orX == -1 || m[a].orY == -1)
+	for (Monster& mon : monsters) {
+		if (!mon.Active())
 			continue;
-		float centre = static_cast<float>(m[a].orX) + m[a].mapX + 0.5f; // the drawn tiles: 10 x 6
-		if (m[a].orY < firstRow || m[a].orY >= firstRow + 6 || centre < static_cast<float>(firstCol) ||
+		float centre = mon.CentreX(); // the drawn tiles: 10 x 6
+		if (mon.Row() < firstRow || mon.Row() >= firstRow + 6 || centre < static_cast<float>(firstCol) ||
 			centre >= static_cast<float>(firstCol + 10))
 			continue;
 
-		SyncMonsterFromToken(a);
+		mon.Touch();
 		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(m[a].orX - firstCol),
-					 RenderConfig::TILE_SIZE * static_cast<float>(m[a].orY - firstRow), 0);
+		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
+					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		m[a].m->Draw();
+		mon.Draw(mapX, mapY);
 		glPopMatrix();
-		SyncTokenFromMonster(a, false);
 	}
 }
 //======================================================================================
 void Dungeon::AttackNearest(int damage, int attackRange) {
-	for (int i = 0; i < MAX_MONSTERS; i++) {
-		if (m[i].orX != -1 && m[i].orY != -1) {
-			SyncMonsterFromToken(i);
-			if (m[i].m->Alive() && m[i].m->Nearby(mapX, mapY, attackRange)) {
-				m[i].m->takeHit(damage);
-				SyncTokenFromMonster(i, true);
+	for (Monster& mon : monsters) {
+		if (!mon.Active())
+			continue;
+		mon.Touch();
+		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange)) {
+			mon.takeHit(damage);
+			mon.Touch();
+			break;
+		}
+	}
+}
+//======================================================================================
+// A monster tile came into view: its monster appears, unless it is already there. Uses a free slot, else the slot
+// of a dead monster.
+bool Dungeon::SpawnMonster(int i, int j) {
+	const int typeId = Map(static_cast<float>(i), static_cast<float>(j)).attr;
+	if (typeId < 1 || typeId > MONSTER_TYPE_MAX)
+		return false;
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Col() == i && mon.Row() == j)
+			return false;
+	Monster* slot = nullptr;
+	for (Monster& mon : monsters)
+		if (!mon.Active()) {
+			slot = &mon;
+			break;
+		}
+	if (!slot)
+		for (Monster& mon : monsters)
+			if (mon.Health() < 1) {
+				slot = &mon;
 				break;
 			}
-		}
-	}
-}
-//======================================================================================
-void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
-	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).attr);
-	if (!m[index].blood)
-		m[index].blood = std::make_unique<ParticleSystem>();
-	m[index].m->initBlood(*m[index].blood);
-	m[index].m->dungeonCamX = &mapX;
-	m[index].m->dungeonCamY = &mapY;
-	m[index].m->tileOriginX = static_cast<float>(i);
-	m[index].m->tileOriginY = static_cast<float>(j);
-	m[index].orX = i;
-	m[index].orY = j;
-	m[index].HP = m[index].m->maxHealth;
-	m[index].m->GetCords(m[index].mapX, m[index].mapY);
-	m[index].state = static_cast<int>(m[index].m->flies() ? ModelState::Idle : ModelState::Move);
-	m[index].facing_dir = 0;
-	m[index].flight = Flight{};
-	m[index].leap = Leap{};
-	m[index].anim = m[index].m->spawnAnimations();
-	if (!m[index].t)
-		m[index].t = std::make_unique<Timer>(70);
-	if (!m[index].at)
-		m[index].at = std::make_unique<Timer>(800);
-}
-//======================================================================================
-bool Dungeon::SpawnMonster(int i, int j) {
-	int index = -1;
-
-	for (int a = 0; a < MAX_MONSTERS; a++)
-		if (m[a].orX == i && m[a].orY == j) {
-			index = a;
-			break;
-		}
-
-	if (index != -1)
+	if (!slot)
 		return false;
-
-	for (int a = 0; a < MAX_MONSTERS; a++)
-		if (m[a].orX == -1 && m[a].orY == -1) {
-			index = a;
-			break;
-		}
-
-	if (index != -1) {
-		InitializeMonsterSlot(index, i, j);
-		return true;
-	}
-
-	for (int a = 0; a < MAX_MONSTERS; a++)
-		if (m[a].HP < 1) {
-			index = a;
-			break;
-		}
-
-	if (index != -1) {
-		if (m[index].orX != i || m[index].orY != j) {
-			InitializeMonsterSlot(index, i, j);
-			return true;
-		}
-	}
-
-	return false;
+	slot->Spawn(GAME_STATE.monsterTypes[typeId], i, j);
+	return true;
 }

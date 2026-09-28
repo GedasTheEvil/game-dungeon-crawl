@@ -9,6 +9,84 @@
 #include "../world/campaign.h"
 
 namespace {
+struct MonsterDef {
+	MonsterTypeId id;
+	const char* label;
+	const char* model;	 // under models/ and sounds/
+	const char* texture; // under textures/: the giant rat and bat are the same model, bigger and darker
+	int speed, maxHealth, damage, xp;
+	float scale, rotA;
+	Locomotion locomotion;
+	Rgb blood;
+};
+
+constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
+
+// Flyers roost on the ceiling and swoop through the player (Monster::Fly).
+const MonsterDef MONSTER_DEFS[] = {
+	{MonsterWorm, "Worm", "monsters/worm", "monsters/worm", 1, 20, 15, 1500, 18, 0, Locomotion::Walk, RED_BLOOD},
+	{MonsterScarab,
+	 "Scarab",
+	 "monsters/scarab",
+	 "monsters/scarab",
+	 2,
+	 15,
+	 3,
+	 500,
+	 10,
+	 180,
+	 Locomotion::Walk,
+	 {0.6f, 0.1f, 0.8f}},
+	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 200, 50, 10000, 19, 180, Locomotion::Walk,
+	 RED_BLOOD},
+	{MonsterPlant,
+	 "Man-eater plant",
+	 "monsters/plant",
+	 "monsters/plant",
+	 0,
+	 30,
+	 5,
+	 1000,
+	 12,
+	 0,
+	 Locomotion::Stationary,
+	 {0.1f, 0.4f, 0.1f}},
+	{MonsterRat, "Rat", "monsters/rat", "monsters/rat", 5, 12, 2, 300, 13, 180, Locomotion::Walk, RED_BLOOD},
+	{MonsterGiantRat, "Giant rat", "monsters/rat", "monsters/rat_giant", 2, 60, 8, 2000, 42, 180, Locomotion::WalkJump,
+	 RED_BLOOD},
+	{MonsterBat, "Bat", "monsters/bat", "monsters/bat", 5, 8, 3, 400, 18, 180, Locomotion::Fly, RED_BLOOD},
+	{MonsterGiantBat,
+	 "Giant bat",
+	 "monsters/bat",
+	 "monsters/bat_giant",
+	 4,
+	 40,
+	 10,
+	 1800,
+	 30,
+	 180,
+	 Locomotion::Fly,
+	 {0.45f, 0.05f, 0.05f}},
+};
+
+struct ItemDef {
+	std::unique_ptr<Item> ItemPrototypes::*slot;
+	const char* label;
+	const char* name; // models/items/<name>.md3, textures/items/<name>.png
+	float scale;
+	int damage, range; // weapons only
+};
+
+// The chest faces the camera at rotA 0 (tools/blender/models/items.py).
+const ItemDef ITEM_DEFS[] = {
+	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1},
+	{&ItemPrototypes::club, "Club", "club", 6, 9, 2},
+	{&ItemPrototypes::sword, "Sword", "sword", 9, 35, 4},
+	{&ItemPrototypes::bow, "Bow", "bow", 12, 12, 16},
+	{&ItemPrototypes::spear, "Spear", "spear", 15, 15, 8},
+	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1},
+};
+
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
 std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
 	auto model = std::make_unique<AnimatedModel>();
@@ -55,140 +133,52 @@ void GameState::Load() {
 	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.progBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
 	textures.nullTex.LoadPNG("textures/null.png");
-	DrawLoad(4, "Loading Textures");
-	textures.player_t.LoadPNG("textures/characters/archeologist.png");
-	DrawLoad(5, "Loading Textures");
-	textures.anubis_t.LoadPNG("textures/monsters/anubis.png");
-	DrawLoad(6, "Loading Textures");
-	textures.worm_t.LoadPNG("textures/monsters/worm.png");
-	DrawLoad(7, "Loading Textures");
-	textures.scarab_t.LoadPNG("textures/monsters/scarab.png");
-	DrawLoad(8, "Loading Textures");
-	textures.bow_t.LoadPNG("textures/items/bow.png");
-	DrawLoad(9, "Loading Textures");
-	textures.chest_t.LoadPNG("textures/items/tchest.png");
-	DrawLoad(13, "Loading Textures");
-	textures.club_t.LoadPNG("textures/items/club.png");
-	DrawLoad(14, "Loading Textures");
-	textures.sword_t.LoadPNG("textures/items/sword.png");
-	DrawLoad(15, "Loading Textures");
-	textures.potion_t.LoadPNG("textures/items/potion.png");
-	DrawLoad(16, "Loading Textures");
-	textures.spear_t.LoadPNG("textures/items/spear.png");
-	DrawLoad(17, "Loading Textures");
-	textures.plant_t.LoadPNG("textures/monsters/plant.png");
-	textures.rat_t.LoadPNG("textures/monsters/rat.png");
-	textures.giantRat_t.LoadPNG("textures/monsters/rat_giant.png");
-	textures.bat_t.LoadPNG("textures/monsters/bat.png");
-	textures.giantBat_t.LoadPNG("textures/monsters/bat_giant.png");
 	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 	ui.riddle = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
-	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
-	Player->loadModel("characters/archeologist", textures.player_t, textures.progBar, true, PLAYER_CLIPS);
-	Player->scale = 15;
-	Player->setCords(0, 0);
+	{
+		Texture tex;
+		tex.LoadPNG("textures/characters/archeologist.png");
+		player = std::make_unique<Player>();
+		player->Load("characters/archeologist", tex);
+		player->scale = 15;
+	}
 
-	DrawLoad(30, "Loading Monster Models [Worm]");
-	monsters.worm = std::make_unique<monster>(0, 0, 1, 40, 15, 1500);
-	monsters.worm->loadModel("monsters/worm", textures.worm_t, textures.progBar, true);
-	monsters.worm->scale = 18;
-	monsters.worm->maxHealth = 20;
+	int progress = 30;
+	for (const MonsterDef& def : MONSTER_DEFS) {
+		char label[64];
+		snprintf(label, sizeof(label), "Loading Monster Models [%s]", def.label);
+		DrawLoad(static_cast<float>(progress), label);
+		progress += 5;
+		char texture[64];
+		snprintf(texture, sizeof(texture), "textures/%s.png", def.texture);
+		Texture tex;
+		tex.LoadPNG(texture);
+		MonsterType& type = monsterTypes[def.id];
+		type.model.Load(def.model, tex, MONSTER_CLIPS);
+		type.speed = def.speed;
+		type.maxHealth = def.maxHealth;
+		type.damage = def.damage;
+		type.xp = def.xp;
+		type.scale = def.scale;
+		type.rotA = def.rotA;
+		type.locomotion = def.locomotion;
+		type.blood = def.blood;
+	}
 
-	DrawLoad(40, "Loading Monster Models [Scarab]");
-	monsters.scarab = std::make_unique<monster>(0, 0, 2, 25, 3, 500);
-	monsters.scarab->loadModel("monsters/scarab", textures.scarab_t, textures.progBar, true);
-	monsters.scarab->scale = 10;
-	monsters.scarab->rotA = 180;
-	monsters.scarab->maxHealth = 15;
-	monsters.scarab->setBloodColor(0.6f, 0.1f, 0.8f); // Purple blood
-
-	DrawLoad(50, "Loading Monster Models [Anubis]");
-	monsters.anubis = std::make_unique<monster>(0, 0, 3, 200, 50, 10000);
-	monsters.anubis->loadModel("monsters/anubis", textures.anubis_t, textures.progBar, true);
-	monsters.anubis->scale = 19;
-	monsters.anubis->rotA = 180;
-	monsters.anubis->maxHealth = 200;
-
-	DrawLoad(60, "Loading Item Models [Treasure chest]");
-	items.chest = std::make_unique<Item>();
-	items.chest->loadModel("models/items/tchest.md3", textures.chest_t);
-	items.chest->scale = 8; // faces the camera at rotA 0 (tools/blender/models/items.py)
-
-	DrawLoad(65, "Loading Monster Models [Man-eater plant]");
-	monsters.plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
-	monsters.plant->loadModel("monsters/plant", textures.plant_t, textures.progBar, true);
-	monsters.plant->scale = 12;
-	monsters.plant->locomotion = Locomotion::Stationary;
-	monsters.plant->maxHealth = 30;
-	monsters.plant->setBloodColor(0.1f, 0.4f, 0.1f); // Dark green blood
-
-	DrawLoad(67, "Loading Monster Models [Rat]");
-	monsters.rat = std::make_unique<monster>(0, 0, 5, 12, 2, 300);
-	monsters.rat->loadModel("monsters/rat", textures.rat_t, textures.progBar, true);
-	monsters.rat->scale = 13;
-	monsters.rat->rotA = 180;
-	monsters.rat->maxHealth = 12;
-
-	// Same files as the rat, bigger and darker.
-	DrawLoad(68, "Loading Monster Models [Giant rat]");
-	monsters.giantRat = std::make_unique<monster>(0, 0, 2, 60, 8, 2000);
-	monsters.giantRat->loadModel("monsters/rat", textures.giantRat_t, textures.progBar, true);
-	monsters.giantRat->scale = 42;
-	monsters.giantRat->rotA = 180;
-	monsters.giantRat->maxHealth = 60;
-	monsters.giantRat->locomotion = Locomotion::WalkJump;
-
-	// Flyers: roost on the ceiling, swoop through the player (monster::Fly). The giant bat uses the same files.
-	DrawLoad(69, "Loading Monster Models [Bat]");
-	monsters.bat = std::make_unique<monster>(0, 0, 5, 8, 3, 400);
-	monsters.bat->loadModel("monsters/bat", textures.bat_t, textures.progBar, true);
-	monsters.bat->scale = 18;
-	monsters.bat->rotA = 180;
-	monsters.bat->maxHealth = 8;
-	monsters.bat->locomotion = Locomotion::Fly;
-
-	monsters.giantBat = std::make_unique<monster>(0, 0, 4, 40, 10, 1800);
-	monsters.giantBat->loadModel("monsters/bat", textures.giantBat_t, textures.progBar, true);
-	monsters.giantBat->scale = 30;
-	monsters.giantBat->rotA = 180;
-	monsters.giantBat->maxHealth = 40;
-	monsters.giantBat->locomotion = Locomotion::Fly;
-	monsters.giantBat->setBloodColor(0.45f, 0.05f, 0.05f);
-
-	DrawLoad(70, "Loading Item Models [Club]");
-	items.club = std::make_unique<Item>();
-	items.club->loadModel("models/items/club.md3", textures.club_t);
-	items.club->damage = 9;
-	items.club->scale = 6;
-	items.club->range = 2;
-
-	DrawLoad(74, "Loading Item Models [Sword]");
-	items.sword = std::make_unique<Item>();
-	items.sword->loadModel("models/items/sword.md3", textures.sword_t);
-	items.sword->scale = 9;
-	items.sword->damage = 35;
-	items.sword->range = 4;
-
-	DrawLoad(76, "Loading Item Models [Bow]");
-	items.bow = std::make_unique<Item>();
-	items.bow->loadModel("models/items/bow.md3", textures.bow_t);
-	items.bow->scale = 12;
-	items.bow->damage = 12;
-	items.bow->range = 16;
-
-	DrawLoad(77, "Loading Item Models [Bow]");
-	items.spear = std::make_unique<Item>();
-	items.spear->loadModel("models/items/spear.md3", textures.spear_t);
-	items.spear->scale = 15;
-	items.spear->damage = 15;
-	items.spear->range = 8;
-
-	DrawLoad(78, "Loading Item Models [Potion]");
-	items.potion = std::make_unique<Item>();
-	items.potion->loadModel("models/items/potion.md3", textures.potion_t);
-	items.potion->scale = 5;
+	for (const ItemDef& def : ITEM_DEFS) {
+		char label[64];
+		snprintf(label, sizeof(label), "Loading Item Models [%s]", def.label);
+		DrawLoad(static_cast<float>(progress), label);
+		progress += 2;
+		auto& item = items.*def.slot;
+		item = std::make_unique<Item>();
+		item->loadModel(def.name);
+		item->scale = def.scale;
+		item->damage = def.damage;
+		item->range = def.range;
+	}
 
 	textures.sphinx_t.LoadPNG("textures/props/sphinx.png");
 	models.sphinx = std::make_unique<AnimatedModel>();
@@ -291,13 +281,13 @@ void GameState::Load() {
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
 
-	Player->jump.jump_timer = std::make_unique<Timer>(JUMP_TIMER_MS);
-	Player->jump.jump_up_timer = std::make_unique<Timer>(JUMP_UP_TIMER_MS);
+	player->jump.jump_timer = std::make_unique<Timer>(JUMP_TIMER_MS);
+	player->jump.jump_up_timer = std::make_unique<Timer>(JUMP_UP_TIMER_MS);
 	timers.mdlChange = std::make_unique<Timer>(300);
 	timers.AttTimer = std::make_unique<Timer>(250);
-	Player->jump.jump_inc = std::make_unique<Timer>(JUMP_TICK_MS);
-	Player->jump.fall_inc = std::make_unique<Timer>(FALL_TICK_MS);
-	Player->jump.fall_velocity = FALL_STEP;
+	player->jump.jump_inc = std::make_unique<Timer>(JUMP_TICK_MS);
+	player->jump.fall_inc = std::make_unique<Timer>(FALL_TICK_MS);
+	player->jump.fall_velocity = FALL_STEP;
 	status_timer = std::make_unique<Timer>(3000);
 
 	DrawLoad(95, "Loading game Map");
@@ -329,7 +319,7 @@ void GameState::NewGame() {
 	curMap = 1;
 	dungeon.LoadCampaignLevel(curMap);
 	hasWon = false;
-	Player->Reanimate();
+	player->Reanimate();
 }
 //==============================================================
 void GameState::DrawLoad(float xxx, const char text[]) {
@@ -417,7 +407,7 @@ void GameState::LoadSave(const char filename[]) {
 		return;
 	}
 
-	Player->Reanimate();
+	player->Reanimate();
 
 	LOG_INFOF("game", "Loading save %s", filename);
 	std::ifstream dump(filename);

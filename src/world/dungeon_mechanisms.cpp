@@ -63,7 +63,7 @@ void Dungeon::updateMechanisms() {
 	int row = static_cast<int>(mapY);
 	Tile here = MapAt(col, row);
 
-	if (here.type == Key && isLockColour(here.attr) && GAME_STATE.Player->Alive()) {
+	if (here.type == Key && isLockColour(here.attr) && GAME_STATE.player->Alive()) {
 		keysHeld |= lockBit(here.attr);
 		map[MapIndex(col, row)] = Tile{Empty, 0, 0};
 		char text[64];
@@ -72,7 +72,7 @@ void Dungeon::updateMechanisms() {
 		GAME_STATE.sounds.keyPickup.Play();
 	}
 
-	if (here.type == RockFall && here.value == 0 && GAME_STATE.Player->Alive()) {
+	if (here.type == RockFall && here.value == 0 && GAME_STATE.player->Alive()) {
 		map[MapIndex(col, row)].value = 2;
 		fallingRocks.push_back({MapIndex(col, row), GameClock::now()});
 		GAME_STATE.sounds.rockRumble.Play();
@@ -115,7 +115,7 @@ void Dungeon::updateRocks() {
 		GAME_STATE.sounds.rockCrash.Play();
 		float dx = std::fabs(mapX - centreX);
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
-			GAME_STATE.Player->Alive()) {
+			GAME_STATE.player->Alive()) {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
 			GAME_STATE.ui.stats->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
 			showStatus(crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");

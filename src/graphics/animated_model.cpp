@@ -71,15 +71,13 @@ void decodeNormal(int16_t packed, float* out) {
 //============================================================
 AnimatedModel::AnimatedModel() {
 	VCount = 0;
-	frame = 0;
 	speed = 1;
 	scale = 0.0f;
 	frameC = 0;
 	compiled = false;
 	texture = 0;
-	bounds = false;
 	loop = true;
-	frameChange = std::make_unique<Timer>(100);
+	playback.stepStart = GameClock::now();
 }
 ////============================================================
 AnimatedModel::~AnimatedModel() {}
@@ -155,119 +153,52 @@ int AnimatedModel::Load(const char fileName[]) {
 	return 1;
 }
 //============================================================
-void AnimatedModel::Show() {
-
-	if (bounds) // debug:: Bounding cube
-	{
-		glBegin(GL_LINE_STRIP);
-		glVertex3f(-0.5, 1, -0.5);
-		glVertex3f(0.5, 1, -0.5);
-		glVertex3f(0.5, 0, -0.5);
-		glVertex3f(-0.5, 0, -0.5);
-
-		glVertex3f(-0.5, 0, 0.5);
-		glVertex3f(-0.5, 1, 0.5);
-		glVertex3f(0.5, 1, 0.5);
-		glVertex3f(0.5, 0, 0.5);
-		glVertex3f(-0.5, 0, 0.5);
-
-		glEnd();
-
-		glBegin(GL_LINE_STRIP);
-		glVertex3f(-0.5, 1, 0.5);
-		glVertex3f(-0.5, 1, -0.5);
-		glVertex3f(0.5, 1, -0.5);
-		glVertex3f(0.5, 1, 0.5);
-
-		glEnd();
-
-		glBegin(GL_LINE);
-		glVertex3f(-0.5, 0, -0.5);
-		glVertex3f(-0.5, 1, -0.5);
-
-		glEnd();
-	}
-
+void AnimatedModel::Show() const { Show(playback); }
+//============================================================
+void AnimatedModel::Show(const AnimPlayback& p) const {
+	const auto frame = static_cast<int>(p.frame);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	if (!compiled) {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, Ver[static_cast<int>(frame)].v.data());
-		glNormalPointer(GL_FLOAT, 0, frameNormals(static_cast<int>(frame)));
+		glVertexPointer(3, GL_FLOAT, 0, Ver[frame].v.data());
+		glNormalPointer(GL_FLOAT, 0, frameNormals(frame));
 		glTexCoordPointer(2, GL_FLOAT, 0, TexCords.data());
 		glDrawArrays(GL_TRIANGLES, 0, VCount);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 	} else
-		glCallList(List[static_cast<int>(frame)]);
+		glCallList(List[frame]);
 }
 //============================================================
-float AnimatedModel::getScale() {
-	if (fabs(scale) > 0.00000000001)
-		return scale;
-
-	float minX = 1000.0, maxX = -1000.0;
-	float minY = 1000.0, maxY = -1000.0;
-	float minZ = 1000.0, maxZ = -1000.0;
-
-	// find maximum dimensions of the model
-	for (int i = 0; i < VCount * 3; i += 3) {
-		if (Ver[static_cast<int>(frame)].v[i] > maxX)
-			maxX = Ver[static_cast<int>(frame)].v[i];
-		if (Ver[static_cast<int>(frame)].v[i] < minX)
-			minX = Ver[static_cast<int>(frame)].v[i];
-
-		if (Ver[static_cast<int>(frame)].v[i + 1] > maxY)
-			maxY = Ver[static_cast<int>(frame)].v[i + 1];
-		if (Ver[static_cast<int>(frame)].v[i + 1] < minY)
-			minY = Ver[static_cast<int>(frame)].v[i + 1];
-
-		if (Ver[static_cast<int>(frame)].v[i + 2] > maxZ)
-			maxZ = Ver[static_cast<int>(frame)].v[i + 2];
-		if (Ver[static_cast<int>(frame)].v[i + 2] < minZ)
-			minZ = Ver[static_cast<int>(frame)].v[i + 2];
-	}
-
-	// find the largest scale
-
-	float scX = maxX - minX;
-	float scY = maxY - minY;
-	float scZ = maxZ - minZ;
-
-	if (scX > scY && scX > scZ)
-		scale = scX;
-
-	else if (scY > scX && scY > scZ)
-		scale = scY;
-	else
-		scale = scZ;
-
-	return scale;
-}
 //============================================================
-void AnimatedModel::Advance_Animation() {
+void AnimatedModel::Advance() { Advance(playback); }
+//============================================================
+void AnimatedModel::Advance(AnimPlayback& p) const {
 	if (frameC == 1)
 		return;
 
-	if (!frameChange->TimePassed())
+	const int now = GameClock::now();
+	if (now - p.stepStart < FRAME_STEP_MS)
 		return;
+	p.stepStart = now;
 
 	const auto frames = static_cast<float>(frameC);
 	const float step = 0.04f * static_cast<float>(speed);
-	if (!loop && frame < frames)
-		frame += step;
+	if (!loop && p.frame < frames)
+		p.frame += step;
 
-	if (!loop && frame >= frames - 1)
-		frame = frames - 1;
+	if (!loop && p.frame >= frames - 1)
+		p.frame = frames - 1;
 
 	if (loop)
-		frame += step;
+		p.frame += step;
 
-	if (loop && frame >= (frameC - 0.2))
-		frame = 0.0;
+	if (loop && p.frame >= (frameC - 0.2))
+		p.frame = 0.0;
 }
 //============================================================
 void AnimatedModel::setSpeed(int nSpeed) {
@@ -308,6 +239,36 @@ void AnimatedModel::Compile() {
 }
 //============================================================
 void AnimatedModel::BindTexture(int t) { texture = t; }
+//============================================================
+// Largest extent of frame 0, cached.
+float AnimatedModel::getScale() {
+	if (fabs(scale) > 0.00000000001)
+		return scale;
+
+	float minX = 1000.0, maxX = -1000.0;
+	float minY = 1000.0, maxY = -1000.0;
+	float minZ = 1000.0, maxZ = -1000.0;
+	const std::vector<float>& v = Ver[0].v;
+	for (int i = 0; i < VCount * 3; i += 3) {
+		maxX = std::max(maxX, v[i]);
+		minX = std::min(minX, v[i]);
+		maxY = std::max(maxY, v[i + 1]);
+		minY = std::min(minY, v[i + 1]);
+		maxZ = std::max(maxZ, v[i + 2]);
+		minZ = std::min(minZ, v[i + 2]);
+	}
+
+	float scX = maxX - minX;
+	float scY = maxY - minY;
+	float scZ = maxZ - minZ;
+	if (scX > scY && scX > scZ)
+		scale = scX;
+	else if (scY > scX && scY > scZ)
+		scale = scY;
+	else
+		scale = scZ;
+	return scale;
+}
 //============================================================
 ModelNormalization AnimatedModel::Centrify() {
 	float scale = 1 / getScale();
@@ -370,16 +331,9 @@ void AnimatedModel::Scale(float sc) {
 			Ver[j].v[i] *= sc;
 }
 //============================================================
-void AnimatedModel::Reset() { frame = 0.0; }
+void AnimatedModel::Reset() { playback.frame = 0.0; }
 //============================================================
 int AnimatedModel::FrameCount() const { return frameC; }
-//============================================================
-AnimPlayback AnimatedModel::Playback() const { return {frame, frameChange->StartTime()}; }
-//============================================================
-void AnimatedModel::SetPlayback(const AnimPlayback& playback) {
-	frame = playback.frame;
-	frameChange->SetStartTime(playback.stepStart);
-}
 //============================================================
 const float* AnimatedModel::frameNormals(int f) const { return Ver[f].n.data(); }
 //============================================================

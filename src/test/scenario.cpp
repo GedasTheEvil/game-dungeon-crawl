@@ -172,8 +172,8 @@ std::string stateLine() {
 	GAME_STATE.dungeon.getC(x, y);
 	char buf[256];
 	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
-			 GAME_STATE.Player->health, GAME_STATE.Player->Stamina(), GAME_STATE.curMap, screenName(),
-			 GAME_STATE.Player->Alive() ? 1 : 0, GAME_STATE.hasWon ? 1 : 0);
+			 GAME_STATE.player->health, GAME_STATE.player->Stamina(), GAME_STATE.curMap, screenName(),
+			 GAME_STATE.player->Alive() ? 1 : 0, GAME_STATE.hasWon ? 1 : 0);
 	return buf;
 }
 
@@ -188,13 +188,13 @@ float fieldValue(const Command& cmd) {
 	case Field::Y:
 		return y;
 	case Field::Hp:
-		return static_cast<float>(GAME_STATE.Player->health);
+		return static_cast<float>(GAME_STATE.player->health);
 	case Field::Stamina:
-		return static_cast<float>(GAME_STATE.Player->Stamina());
+		return static_cast<float>(GAME_STATE.player->Stamina());
 	case Field::Level:
 		return static_cast<float>(GAME_STATE.curMap);
 	case Field::Alive:
-		return GAME_STATE.Player->Alive() ? 1.f : 0.f;
+		return GAME_STATE.player->Alive() ? 1.f : 0.f;
 	case Field::Won:
 		return GAME_STATE.hasWon ? 1.f : 0.f;
 	case Field::Might:
@@ -589,7 +589,7 @@ bool loadLevel(const Command& cmd) {
 	GAME_STATE.ui.menu.show = false;
 	GAME_STATE.ui.menu.inGame = true;
 	GAME_STATE.hasWon = false;
-	GAME_STATE.Player->Reanimate();
+	GAME_STATE.player->Reanimate();
 	return true;
 }
 
@@ -781,7 +781,7 @@ void runCommands() {
 }
 
 void checkDeath() {
-	if (gRunner.deathReported || gRunner.deathExpected || GAME_STATE.Player->Alive())
+	if (gRunner.deathReported || gRunner.deathExpected || GAME_STATE.player->Alive())
 		return;
 	if (!GAME_STATE.ui.menu.inGame)
 		return;

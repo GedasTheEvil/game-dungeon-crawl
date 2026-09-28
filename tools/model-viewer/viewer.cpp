@@ -28,24 +28,18 @@
 
 namespace {
 
-// Subclass of AnimatedModel that maps an external wall-clock ratio directly
-// onto the model's (protected) frame index, bypassing Advance_Animation()/
-// the internal frameChange timer entirely.
+// AnimatedModel whose frame follows an external wall-clock ratio instead of Advance().
 class LoopedAnimatedModel : public AnimatedModel {
   public:
-	// frameC is protected in AnimatedModel; this is read-only access to it.
-	int FrameCount() const { return frameC; }
-
 	// VCount is protected in AnimatedModel. AnimatedModel::Show()/Compile()
 	// both draw with glDrawArrays(GL_TRIANGLES, 0, VCount) -- a flat,
 	// non-indexed triangle list -- so every 3 vertices are one triangle.
 	int TriangleCount() const { return VCount / 3; }
 
-	// Maps ratio in [0, 1) onto frame in [0, frameC), bypassing
-	// Advance_Animation()/frameChange entirely.
+	// Maps ratio in [0, 1) onto frame in [0, frameC).
 	void SetProgress(float ratio) {
 		if (frameC <= 1) {
-			frame = 0.0f;
+			playback.frame = 0.0f;
 			return;
 		}
 		if (ratio < 0.0f)
@@ -53,9 +47,9 @@ class LoopedAnimatedModel : public AnimatedModel {
 		else if (ratio > 1.0f)
 			ratio = 1.0f;
 
-		frame = ratio * static_cast<float>(frameC);
-		if (frame >= static_cast<float>(frameC))
-			frame = static_cast<float>(frameC) - 1.0f;
+		playback.frame = ratio * static_cast<float>(frameC);
+		if (playback.frame >= static_cast<float>(frameC))
+			playback.frame = static_cast<float>(frameC) - 1.0f;
 	}
 };
 

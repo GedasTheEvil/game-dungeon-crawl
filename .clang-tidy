@@ -1,6 +1,7 @@
 Checks: >
   -*,
   clang-analyzer-*,
+  -clang-analyzer-optin.portability.UnixAPI,
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   performance-*,
@@ -24,6 +25,8 @@ Checks: >
   modernize-use-bool-literals,
   modernize-use-override
 WarningsAsErrors: ''
+# optin.portability.UnixAPI is off: it flags malloc(0) paths inside external/stb it cannot rule out (the scenario
+# screenshot sizes are checked before stbi_write_png).
 # Paths are absolute. Only the project's own headers: the last directory must be one of ours, which leaves out
 # external/stb (reached as src/graphics/../../external/stb/...). clang-tidy 18 has no ExcludeHeaderFilterRegex.
 HeaderFilterRegex: '.*/(src/(.*/)?(core|entities|graphics|input|state|test|ui|world)|tools/editor)/[a-z_]+\.h$'

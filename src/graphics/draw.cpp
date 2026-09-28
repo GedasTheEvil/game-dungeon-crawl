@@ -52,7 +52,8 @@ void drawStatus(const char* status) {
 			end = lines.size();
 		std::string line = lines.substr(start, end - start);
 		if (!line.empty())
-			Game().fonts.status.print((width - Game().fonts.status.TextWidth(line.c_str())) / 2, y, "%s", line.c_str());
+			Game().assets.fonts.status.print((width - Game().assets.fonts.status.TextWidth(line.c_str())) / 2, y, "%s",
+											 line.c_str());
 		start = end + 1;
 	}
 }
@@ -175,10 +176,10 @@ void Draw() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
-	Game().textures.nullTex.Bind();
+	Game().assets.textures.nullTex.Bind();
 	Hud::drawPlayerBars(Game().player->stats.HealthRatio(), Game().player->stats.StaminaRatio());
 	Hud::drawKeys(Game().dungeon.KeysHeld());
-	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().fonts.hud);
+	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 
 	glColor3f(1, 1, 1);
 

@@ -233,7 +233,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 	if (cell.type < 0)
 		return;
 
-	AnimatedModel* model = Game().decor.model[cell.type].get();
+	AnimatedModel* model = Game().assets.decor.model[cell.type].get();
 	if (model == nullptr)
 		return;
 
@@ -243,7 +243,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 			 RenderConfig::TILE_SIZE);
 
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
-	Game().decor.tex[cell.type].Bind();
+	Game().assets.decor.tex[cell.type].Bind();
 	model->Show(); // no face culling, so the mirrored winding does not matter
 	glPopMatrix();
 }
@@ -273,7 +273,7 @@ void Dungeon::drawDecalTile(int i, int j) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 	glColor3f(1, 1, 1);
-	Game().decor.decalTex.Bind();
+	Game().assets.decor.decalTex.Bind();
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
 	glTexCoord2f(u0, v0);
@@ -290,14 +290,14 @@ void Dungeon::drawDecalTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {
-	AnimatedModel* model = Game().decor.torch.get();
+	AnimatedModel* model = Game().assets.decor.torch.get();
 	if (!torch[MapIndex(i, j)] || model == nullptr)
 		return;
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
 	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
-	Game().decor.torchTex.Bind();
+	Game().assets.decor.torchTex.Bind();
 	model->Show();
 	glPopMatrix();
 }
@@ -306,7 +306,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 	const LadderCell& cell = ladder[MapIndex(i, j)];
 	if (cell.style < 0)
 		return;
-	AnimatedModel* model = Game().decor.ladder[cell.style][cell.piece].get();
+	AnimatedModel* model = Game().assets.decor.ladder[cell.style][cell.piece].get();
 	if (model == nullptr)
 		return;
 
@@ -314,7 +314,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
 	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
 			 RenderConfig::TILE_SIZE);
-	Game().decor.ladderTex[cell.style][cell.piece].Bind();
+	Game().assets.decor.ladderTex[cell.style][cell.piece].Bind();
 	model->Show(); // textured only, like the props
 	glPopMatrix();
 }

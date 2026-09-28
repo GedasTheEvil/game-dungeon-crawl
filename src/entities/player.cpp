@@ -26,7 +26,7 @@ void Player::Draw() {
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		Game().textures.nullTex.Bind();
+		Game().assets.textures.nullTex.Bind();
 		blood.Explode();
 		blood.Fall();
 		blood.Draw();

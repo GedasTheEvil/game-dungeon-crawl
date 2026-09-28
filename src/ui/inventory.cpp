@@ -170,15 +170,15 @@ Inventory::~Inventory() {}
 Item* Inventory::SlotItem(int slot) {
 	switch (slot) {
 	case 0:
-		return Game().items.club.get();
+		return Game().assets.items.club.get();
 	case 1:
-		return Game().items.sword.get();
+		return Game().assets.items.sword.get();
 	case 2:
-		return Game().items.spear.get();
+		return Game().assets.items.spear.get();
 	case 3:
-		return Game().items.bow.get();
+		return Game().assets.items.bow.get();
 	default:
-		return Game().items.potion.get();
+		return Game().assets.items.potion.get();
 	}
 }
 
@@ -276,7 +276,7 @@ void Inventory::DrinkPotion(int potionId) {
 	int hpBefore = s->CurrentHP();
 	int staminaBefore = Game().player->stats.Stamina();
 
-	Game().sounds.drink_s.Play();
+	Game().assets.sounds.drink_s.Play();
 	counts[InvSlot::FIRST_POTION + potionId]--;
 
 	char buf[64];
@@ -504,7 +504,7 @@ void Inventory::DrawBackground() {
 	// Carved tomb wall in torchlight.
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().textures.load_bg.Bind();
+	Game().assets.textures.load_bg.Bind();
 	glColor3f(0.34f, 0.27f, 0.20f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -541,7 +541,7 @@ void Inventory::DrawBackground() {
 
 	// Papyrus scroll for the details, in a frame matching the items panel.
 	glEnable(GL_TEXTURE_2D);
-	Game().textures.bg.Bind();
+	Game().assets.textures.bg.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.04f, 0.07f);

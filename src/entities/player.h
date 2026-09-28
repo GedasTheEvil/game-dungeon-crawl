@@ -14,7 +14,7 @@ struct JumpState {
 	float dir_x = 0.f;
 	float speed = 0.f;
 	float velocity = 0.f;
-	float fall_velocity = 0.f;
+	float fall_velocity = FALL_STEP;
 	float start_y = 0.f;
 	int counter = 0;
 	Timer jump_timer{JUMP_TIMER_MS};

@@ -93,7 +93,7 @@ void Monster::drawHealthBar() {
 			mv[c * 4 + r] = c == r ? s : 0.f;
 	glLoadMatrixf(mv);
 
-	Game().textures.progBar.Bind();
+	Game().assets.textures.progBar.Bind();
 	Lighting::setEmissive(true);
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;
@@ -143,7 +143,7 @@ void Monster::Draw(float px, float py) {
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		Game().textures.nullTex.Bind();
+		Game().assets.textures.nullTex.Bind();
 		blood->Explode();
 		blood->Fall();
 		blood->Draw();

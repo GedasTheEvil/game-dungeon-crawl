@@ -225,7 +225,7 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 void drawBackground(float canvasW) {
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().textures.load_bg.Bind();
+	Game().assets.textures.load_bg.Bind();
 	glColor3f(0.30f, 0.24f, 0.18f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -247,7 +247,7 @@ void drawPaper(const Rect& r) {
 	beginShapes();
 	fillRect({r.x + 1.2f, r.y - 1.2f, r.w, r.h}, BLACK, BLACK, 0.45f); // shadow
 	glEnable(GL_TEXTURE_2D);
-	Game().textures.bg.Bind();
+	Game().assets.textures.bg.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(1, 0);
@@ -337,8 +337,8 @@ void DraftMap::Draw() {
 
 	std::string title = "Level " + std::to_string(Game().curMap);
 	beginText();
-	textCentered(Game().fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
-	textCentered(Game().fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);
+	textCentered(Game().assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
+	textCentered(Game().assets.fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

@@ -63,13 +63,13 @@ void Dungeon::updateMechanisms() {
 		char text[64];
 		snprintf(text, sizeof(text), "Found the %s key", LOCK_GEM_NAMES[here.attr - 1]);
 		Game().ShowStatus("%s", text);
-		Game().sounds.keyPickup.Play();
+		Game().assets.sounds.keyPickup.Play();
 	}
 
 	if (here.type == RockFall && here.value == 0 && Game().player->Alive()) {
 		map[MapIndex(col, row)].value = 2;
 		fallingRocks.push_back({MapIndex(col, row), GameClock::now()});
-		Game().sounds.rockRumble.Play();
+		Game().assets.sounds.rockRumble.Play();
 	}
 
 	// A gate the player holds the key for opens as they come up to it.
@@ -79,7 +79,7 @@ void Dungeon::updateMechanisms() {
 		if (next.type == Gate && next.value == 0 && isLockColour(next.attr) && (keysHeld & lockBit(next.attr)) != 0 &&
 			gap < GATE_APPROACH) {
 			startOpeningGate(MapIndex(col + dir, row));
-			Game().sounds.gateOpen.Play();
+			Game().assets.sounds.gateOpen.Play();
 		}
 	}
 
@@ -106,7 +106,7 @@ void Dungeon::updateRocks() {
 		int row = it->cell / MAP_WIDTH;
 		float centreX = static_cast<float>(col) + 0.5f;
 		auto floorY = static_cast<float>(row);
-		Game().sounds.rockCrash.Play();
+		Game().assets.sounds.rockCrash.Play();
 		float dx = std::fabs(mapX - centreX);
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
 			Game().player->Alive()) {
@@ -134,7 +134,7 @@ void Dungeon::openGates(int colour) {
 			any = true;
 		}
 	if (any)
-		Game().sounds.gateOpen.Play();
+		Game().assets.sounds.gateOpen.Play();
 }
 //======================================================================================
 void Dungeon::bumpGate(int col, int row) {
@@ -144,7 +144,7 @@ void Dungeon::bumpGate(int col, int row) {
 
 	if ((keysHeld & lockBit(gate.attr)) != 0) {
 		startOpeningGate(MapIndex(col, row));
-		Game().sounds.gateOpen.Play();
+		Game().assets.sounds.gateOpen.Play();
 		return;
 	}
 
@@ -156,7 +156,7 @@ void Dungeon::bumpGate(int col, int row) {
 	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", LOCK_GEM_NAMES[gate.attr - 1],
 			 LOCK_GEM_NAMES[gate.attr - 1]);
 	Game().ShowStatus("%s", text);
-	Game().sounds.gateLocked.Play();
+	Game().assets.sounds.gateLocked.Play();
 }
 //======================================================================================
 bool Dungeon::PullLever() {
@@ -169,7 +169,7 @@ bool Dungeon::PullLever() {
 		return true; // pulled already: the gates stay open
 
 	map[MapIndex(col, row)].value = 1;
-	Game().sounds.lever.Play();
+	Game().assets.sounds.lever.Play();
 	openGates(lever.attr);
 	char text[64];
 	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", LOCK_GEM_NAMES[lever.attr - 1]);
@@ -184,7 +184,7 @@ void Dungeon::drawKeyTile(int i, int j) {
 	enterPropSpace();
 	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
 	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
-	showModel(colourModel(Game().mechanisms.key, tile.attr));
+	showModel(colourModel(Game().assets.mechanisms.key, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
@@ -205,7 +205,7 @@ void Dungeon::drawGateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, lift, 0);
-	showModel(colourModel(Game().mechanisms.gate, tile.attr));
+	showModel(colourModel(Game().assets.mechanisms.gate, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
@@ -213,10 +213,10 @@ void Dungeon::drawLeverTile(int i, int j) {
 	Tile tile = MapAt(i, j);
 	glPushMatrix();
 	enterPropSpace();
-	showModel(colourModel(Game().mechanisms.leverBase, tile.attr));
+	showModel(colourModel(Game().assets.mechanisms.leverBase, tile.attr));
 	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
 	glRotatef(tile.value != 0 ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
-	showModel(Game().mechanisms.leverHandle.get());
+	showModel(Game().assets.mechanisms.leverHandle.get());
 	glPopMatrix();
 }
 //======================================================================================
@@ -233,7 +233,7 @@ void Dungeon::drawRockFallTile(int i, int j) {
 			float t = static_cast<float>(GameClock::now());
 			glTranslatef(0.01f * std::sin(t * 0.09f), 0.f, 0.f);
 		}
-		showModel(Game().mechanisms.crack.get());
+		showModel(Game().assets.mechanisms.crack.get());
 		glPopMatrix();
 	}
 
@@ -249,7 +249,7 @@ void Dungeon::drawRockFallTile(int i, int j) {
 	if (rockY >= 0.f) {
 		glTranslatef(0, rockY, ROCK_DEPTH);
 		glRotatef(static_cast<float>(cell % 7) * 50.f, 0, 1, 0); // fallen rocks do not all look the same
-		showModel(Game().mechanisms.rock.get());
+		showModel(Game().assets.mechanisms.rock.get());
 	}
 	glPopMatrix();
 }

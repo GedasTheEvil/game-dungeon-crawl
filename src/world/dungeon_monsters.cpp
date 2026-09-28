@@ -128,6 +128,6 @@ bool Dungeon::SpawnMonster(int i, int j) {
 			}
 	if (!slot)
 		return false;
-	slot->Spawn(Game().monsterTypes[typeId], i, j);
+	slot->Spawn(Game().assets.monsterTypes[typeId], i, j);
 	return true;
 }

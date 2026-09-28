@@ -1,7 +1,7 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
-#include "../entities/monster.h"
+#include "assets.h"
 #include "../entities/player.h"
 #include "../graphics/texture_registry.h"
 #include "../graphics/animated_model.h"
@@ -37,53 +37,6 @@ struct RenderSettings {
 	int resY = 500;
 };
 
-struct SoundBank {
-	Sound drink_s;
-	Music soundtrack;
-	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash;
-};
-
-struct FontPair {
-	Font font;
-	Font load_font;
-	Font status; // proportional, for the gameplay status message
-	Font hud;	 // bold digits for the HUD level gem
-};
-
-struct ItemPrototypes {
-	std::unique_ptr<Item> chest, club, sword, bow, potion, spear;
-};
-
-struct TrapPair {
-	std::unique_ptr<Trap> TrapD;
-	std::unique_ptr<Trap> DeathTrap;
-};
-
-struct SceneModels {
-	std::unique_ptr<AnimatedModel> sphinx, ankh, question;
-};
-
-struct DecorSet {
-	Texture tex[DECOR_COUNT];
-	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
-	Texture decalTex;								   // atlas, DECAL_DEFS order
-	Texture torchTex;
-	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
-	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
-	Texture wallTex[WALL_STYLE_COUNT], floorTex[FLOOR_STYLE_COUNT], ceilingTex[CEILING_STYLE_COUNT], rockTex;
-	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
-};
-
-// Keys, gates, levers and rock falls: static models in tile units like the props (tools/blender/models/mechanism.py).
-// Keys, gates and lever plates have one texture per lock colour (index colour - 1). A compiled model keeps its
-// texture, so each colour is its own copy of the model. Null if the file failed to load.
-struct MechanismSet {
-	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Texture leverHandleTex, rockTex, crackTex;
-	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
-	std::unique_ptr<AnimatedModel> leverHandle, rock, crack;
-};
-
 struct GameTimers {
 	Timer idleModel{300};  // back to the idle clip after walking
 	Timer weaponRest{250}; // the weapon swings back after an attack
@@ -99,7 +52,7 @@ struct UIContext {
 
 class GameState {
   public:
-	TextureRegistry textures;
+	Assets assets;
 	Camera camera;
 	RenderSettings render;
 	bool cacheLoaded = false;
@@ -107,16 +60,7 @@ class GameState {
 	int curMap = 1;
 	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
 	Timer statusTimer{STATUS_MS};
-	SoundBank sounds;
-	FontPair fonts;
-	// By MonsterTypeId (level.h); index 0 is unused.
-	std::array<MonsterType, MONSTER_TYPE_MAX + 1> monsterTypes;
-	ItemPrototypes items;
 	std::unique_ptr<Player> player;
-	TrapPair traps;
-	SceneModels models;
-	DecorSet decor;
-	MechanismSet mechanisms;
 	GameTimers timers;
 	UIContext ui;
 	Dungeon dungeon;

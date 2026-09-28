@@ -13,9 +13,8 @@ AudioUser::AudioUser() {
 	int rate;
 	Uint16 format;
 	int channels;
-	if (Mix_QuerySpec(&rate, &format, &channels) != 0)
-		gAudioOpened = true; // already open
-	else if (Mix_OpenAudio(22050, AUDIO_S16, 2, 4096) != 0)
+	const bool alreadyOpen = Mix_QuerySpec(&rate, &format, &channels) != 0;
+	if (!alreadyOpen && Mix_OpenAudio(22050, AUDIO_S16, 2, 4096) != 0)
 		LOG_ERROR("audio", "Unable to open audio!");
 	else
 		gAudioOpened = true;

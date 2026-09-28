@@ -11,7 +11,7 @@
 #include "../world/campaign.h"
 
 namespace {
-struct MonsterDef {
+struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small table, ordered to read
 	MonsterTypeId id;
 	const char* label;
 	const char* model;	 // under models/ and sounds/

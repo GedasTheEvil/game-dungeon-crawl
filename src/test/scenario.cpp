@@ -96,9 +96,9 @@ struct Command {
 	std::string arg;  // level path / screenshot name
 	int ticks = 0;	  // wait
 	GameplayAction action = GameplayAction::None;
-	float a = 0.f; // walk distance, camera rotM, expect value
-	float b = 0.f; // camera rotN
-	int Item = 0;  // give / expect count: item type
+	float a = 0.f;	  // walk distance, camera rotM, expect value
+	float b = 0.f;	  // camera rotN
+	int itemType = 0; // give / expect count: item type
 	int itemId = 0;
 	Field field = Field::X;
 	Op op = Op::Eq;
@@ -211,9 +211,9 @@ float fieldValue(const Command& cmd) {
 	case Field::Riddle:
 		return Game().ui.riddle->show ? 1.f : 0.f;
 	case Field::ItemCount:
-		return static_cast<float>(Game().ui.inventory->Count(cmd.Item, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Count(cmd.itemType, cmd.itemId));
 	case Field::ItemLevel:
-		return static_cast<float>(Game().ui.inventory->Level(cmd.Item, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Level(cmd.itemType, cmd.itemId));
 	}
 	return 0.f;
 }
@@ -326,7 +326,7 @@ bool parseItemType(const std::string& word, int& type) {
 // Item counts are written as the type followed by the id: "potion2", "melee0"; ".level" gives the item level.
 bool parseItemCountField(const std::string& word, Command& cmd) {
 	size_t digits = word.find_first_of("0123456789");
-	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.Item))
+	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.itemType))
 		return false;
 	char* end = nullptr;
 	cmd.itemId = static_cast<int>(strtol(word.c_str() + digits, &end, 10));
@@ -500,7 +500,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = name == "give" ? CommandType::Give : CommandType::Chest;
 		float id = 0.f;
 		float count = 1.f;
-		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.Item) || !parseFloat(w[2], id) ||
+		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.itemType) || !parseFloat(w[2], id) ||
 			(argc == 3 && !parseFloat(w[3], count)))
 			return "usage: " + name + " <melee|ranged|potion> <id> [count]";
 		cmd.itemId = static_cast<int>(id);
@@ -683,7 +683,7 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
-			Game().ui.inventory->AddItem(cmd.Item, cmd.itemId);
+			Game().ui.inventory->AddItem(cmd.itemType, cmd.itemId);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
@@ -710,7 +710,7 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<LootItem> loot = RollChestLoot(cmd.Item, cmd.itemId);
+			std::vector<LootItem> loot = RollChestLoot(cmd.itemType, cmd.itemId);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (const LootItem& entry : loot)
 				Game().ui.inventory->AddItem(entry.type, entry.id);

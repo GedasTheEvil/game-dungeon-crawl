@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-struct word {
+struct SaveName {
 	char name[25];
 };
 
@@ -120,7 +120,7 @@ class GameState {
 	GameTimers timers;
 	UIContext ui;
 	Dungeon dungeon;
-	word saveNames[6] = {};
+	SaveName saveNames[6] = {};
 
 	GameState();
 	~GameState();

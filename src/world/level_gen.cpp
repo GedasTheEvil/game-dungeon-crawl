@@ -229,7 +229,7 @@ class LevelBuilder {
 	}
 
 	// A dead-end side corridor off segment s, joined by a ladder at a column in [lo, hi], with `item` at its end.
-	bool tryBranch(int s, int lo, int hi, Tile Item) {
+	bool tryBranch(int s, int lo, int hi, Tile item) {
 		const Segment& seg = route[static_cast<size_t>(s)];
 		if (lo > hi)
 			std::swap(lo, hi);
@@ -257,9 +257,9 @@ class LevelBuilder {
 				carveLadder(col, b.row, seg.row);
 			markBusy(seg, col);
 			int end = farEnd(b, col);
-			if (Item.type == Treasure)
-				Item = randomTreasure();
-			g.set(end, b.row, Item);
+			if (item.type == Treasure)
+				item = randomTreasure();
+			g.set(end, b.row, item);
 			busy[index(end, b.row)] = 1;
 			if (length >= 5 && rng.chance(0.3f + 0.05f * static_cast<float>(d)))
 				placeMonster((col + end) / 2, b.row);

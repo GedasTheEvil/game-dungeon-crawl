@@ -31,10 +31,11 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	flight = Flight{};
 	leap = Leap{};
 	playback = kind.model.SpawnPlayback();
-	if (!stepTimer)
-		stepTimer.emplace(70);
-	if (!attackTimer)
-		attackTimer.emplace(800);
+	if (!spawned) {
+		stepTimer.Reset();
+		attackTimer.Reset();
+		spawned = true;
+	}
 }
 
 void Monster::Clear() {

@@ -5,7 +5,6 @@
 #include "../graphics/particles.h"
 #include "../core/timer.h"
 #include <memory>
-#include <optional>
 
 // How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
 enum class Locomotion : unsigned char {
@@ -64,7 +63,8 @@ class Monster {
 	Leap leap;
 	// Created on the slot's first spawn, kept over respawns in it.
 	std::unique_ptr<ParticleSystem> blood;
-	std::optional<Timer> stepTimer, attackTimer;
+	Timer stepTimer{70}, attackTimer{800};
+	bool spawned = false; // the timers start on the first spawn
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void drawHealthBar();
@@ -85,8 +85,8 @@ class Monster {
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;
-	[[nodiscard]] bool StepDue() { return stepTimer->TimePassed(); }
-	[[nodiscard]] bool AttackDue() { return attackTimer->TimePassed(); }
+	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
+	[[nodiscard]] bool AttackDue() { return attackTimer.TimePassed(); }
 
 	// -1 / +1: the player is to the left / right on this row, 0: in reach or not on this row.
 	[[nodiscard]] int attackDirection(float px, float py) const;

@@ -1,0 +1,31 @@
+# Rock fall damage (tests/levels/rock_fall, built from tests/levels/rock_fall.txt): rocks at cols 5, 10, 15, 20, 25.
+# Level 2 player (70 HP). A graze deals 50, a direct hit 1000; armor does not help.
+seed 1
+level tests/levels/rock_fall
+wait 30
+xp 1000
+expect hp == 70
+# Col 5: walking on without stopping gets the player clear.
+walk right 3.9
+walk right 3
+wait 1200ms
+expect hp == 70
+# Col 10: stopping at the far edge of the cell, the rock clips a leg.
+walk right 3
+wait 1200ms
+screenshot rock_graze
+dump
+expect hp == 20
+# Col 15: stepping in and back gets the player clear.
+walk right 4.3
+walk left 1
+wait 1200ms
+expect hp == 20
+# Col 25 (walking through col 20): standing in the middle of the cell, the rock crushes the player.
+walk right 11.3
+wait 850ms
+screenshot rock_crush_falling
+wait 400ms
+screenshot rock_crushed
+dump
+expect alive == 0

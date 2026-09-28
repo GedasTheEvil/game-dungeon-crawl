@@ -47,7 +47,7 @@ class stats {
 	stats();
 	~stats();
 	void GetArmored(int na = 1);
-	void GetHit(int dmg);
+	void GetHit(int dmg, bool ignoreArmor = false);
 	void GetTougher(int hp_part);
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);

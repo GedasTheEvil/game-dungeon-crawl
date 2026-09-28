@@ -27,8 +27,9 @@ screenshot lever_pulled
 wait 1300ms
 walk right 3
 expect x > 13
-# Rock fall at col 15: standing under it gets the player hit.
-expect hp == 50
+# Rock fall at col 15: stopping at the far edge of the cell, the rock clips a leg (50 of the level 2 player's 70 HP).
+xp 1000
+expect hp == 70
 walk right 2
 wait 400ms
 screenshot rock_warning
@@ -37,8 +38,7 @@ screenshot rock_falling
 wait 300ms
 screenshot rock_landed
 dump
-expect hp < 50
-expect hp > 0
+expect hp == 20
 # Rock fall at col 19: jumping on and running gets the player clear.
 walk right 2.8
 jump
@@ -47,4 +47,4 @@ wait 1s
 screenshot rock_dodged
 dump
 expect x > 20.5
-expect hp == 30
+expect hp == 20

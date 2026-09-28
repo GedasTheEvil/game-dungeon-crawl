@@ -15,7 +15,7 @@ constexpr int COST_MOVE = 2;
 constexpr int COST_JUMP = 4;
 constexpr int COST_SPIKE = 6;
 constexpr int COST_DEATH = 30;
-constexpr int COST_ROCK_FALL = 6;
+constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_MONSTER = 2;
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
 
@@ -216,7 +216,7 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
-	score += 1.5f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
+	score += 3.f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
 	score += 0.8f * static_cast<float>(r.pathGates);
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).

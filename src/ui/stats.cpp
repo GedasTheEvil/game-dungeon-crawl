@@ -1,5 +1,6 @@
 #include "stats.h"
 #include "../test/scenario.h"
+#include <algorithm>
 #include <cmath>
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
@@ -113,14 +114,11 @@ stats::~stats() {
 
 void stats::GetArmored(int na) { Armor += na; }
 
-void stats::GetHit(int dmg) {
+void stats::GetHit(int dmg, bool ignoreArmor) {
 	if (Scenario::godMode())
 		return;
 
-	int damage = 1;
-
-	if (dmg - Armor > 0)
-		damage = dmg - Armor;
+	int damage = std::max(1, ignoreArmor ? dmg : dmg - Armor);
 
 	GAME_STATE.Player->getHit(damage);
 	HP = GAME_STATE.Player->health;

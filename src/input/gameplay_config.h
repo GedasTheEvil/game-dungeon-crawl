@@ -49,11 +49,14 @@ constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this 
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 
 // Rock fall: stepping into the cell starts the rumble, the rock drops after ROCK_WARN_MS and lands
-// ROCK_FALL_MS later. Sprinting, jumping on or stepping back gets the player clear; walking on does not.
+// ROCK_FALL_MS later. Walking on without stopping, sprinting, jumping on or stepping back gets the player clear.
 constexpr int ROCK_WARN_MS = 650;
 constexpr int ROCK_FALL_MS = 300;
-constexpr int ROCK_DAMAGE = 20;
-constexpr float ROCK_HIT_HALF_WIDTH = 0.55f; // tiles from the cell centre
-constexpr float ROCK_HIT_HEIGHT = 0.8f;		 // tiles above the floor the rock still hits (a jump does not dodge it)
+// Armor does not help against a boulder: a hit on the head crushes, the edge of it still breaks a leg.
+constexpr int ROCK_CRUSH_DAMAGE = 1000;
+constexpr int ROCK_GRAZE_DAMAGE = 50;
+constexpr float ROCK_CRUSH_HALF_WIDTH = 0.3f; // tiles from the cell centre
+constexpr float ROCK_GRAZE_HALF_WIDTH = 0.6f;
+constexpr float ROCK_HIT_HEIGHT = 0.8f; // tiles above the floor the rock still hits (a jump does not dodge it)
 
 #endif

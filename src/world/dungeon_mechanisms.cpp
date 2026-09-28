@@ -113,10 +113,12 @@ void Dungeon::updateRocks() {
 		float centreX = static_cast<float>(col) + 0.5f;
 		auto floorY = static_cast<float>(row);
 		GAME_STATE.sounds.rockCrash.Play();
-		if (std::fabs(mapX - centreX) < ROCK_HIT_HALF_WIDTH && mapY >= floorY - 0.2f &&
-			mapY < floorY + ROCK_HIT_HEIGHT && GAME_STATE.Player->Alive()) {
-			GAME_STATE.ui.Stats->GetHit(ROCK_DAMAGE);
-			showStatus("Crushed by a falling rock!");
+		float dx = std::fabs(mapX - centreX);
+		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
+			GAME_STATE.Player->Alive()) {
+			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
+			GAME_STATE.ui.Stats->GetHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
+			showStatus(crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
 		}
 		map[it->cell].c = 1;
 		it = fallingRocks.erase(it);

@@ -58,6 +58,7 @@ enum class CommandType {
 	Key,
 	Give,
 	Chest,
+	Xp,
 	SaveGame,
 	LoadGame,
 	Mouse,
@@ -473,6 +474,12 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.ticks = static_cast<int>(count);
 		return "";
 	}
+	if (name == "xp") {
+		cmd.type = CommandType::Xp;
+		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
+			return "usage: xp <non-negative number>";
+		return "";
+	}
 	if (name == "savegame" || name == "loadgame") {
 		cmd.type = name == "savegame" ? CommandType::SaveGame : CommandType::LoadGame;
 		if (argc != 1)
@@ -634,6 +641,10 @@ bool runInstant(const Command& cmd) {
 		for (int i = 0; i < cmd.ticks; i++)
 			GAME_STATE.ui.invent->GetItem(cmd.item, cmd.itemId);
 		report(cmd, true, "");
+		return true;
+	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
+		GAME_STATE.ui.Stats->GetXP(static_cast<int>(cmd.a));
+		report(cmd, true, stateLine());
 		return true;
 	case CommandType::SaveGame: // relative paths land in the output directory
 		GAME_STATE.Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());

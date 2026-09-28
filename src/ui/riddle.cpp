@@ -3,159 +3,411 @@
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 #include "../core/logger.h"
+#include "../core/timer.h"
+#include "../input/input.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
+#include "ui_draw.h"
+#include <algorithm>
+#include <cctype>
 #include <cmath>
-#include <ctime>
-
-#ifdef WIN32
-
+#include <cstdio>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 
-inline int random() { return rand(); }
+// Same 160 x 100 canvas (y up) as the inventory: the gate on the left, the riddle on a papyrus scroll on the right.
+namespace {
+constexpr float CANVAS_W = 160.f;
+constexpr float CANVAS_H = 100.f;
 
-#endif
+using namespace ui;
 
-Riddle::Riddle() {
-	RiddleCount = 5;
-	rid = new riddle[RiddleCount];
-	selected = 0;
+constexpr Rect GATE_PANEL = {6, 15, 68, 68};
+constexpr Rect SCROLL = {80, 13, 74, 72};
+constexpr Rect ANSWER_BOX = {86, 22, 62, 7.5f};
+constexpr float QUESTION_TOP = 65.f;
+constexpr float QUESTION_STEP = 4.4f;
+constexpr int MAX_QUESTION_LINES = 6;
+constexpr size_t MAX_TYPED = 32;
+constexpr int XP_REWARD = 500;
+constexpr int HINT_AFTER_MISSES = 2;
+constexpr int WRONG_MS = 1600;
+constexpr int SHAKE_MS = 400;
+constexpr int CARET_BLINK_MS = 500;
+constexpr unsigned char KEY_BACKSPACE = 8;
+constexpr unsigned char KEY_DELETE = 127;
 
-	show = false;
+Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, GAME_STATE.render.resX, GAME_STATE.render.resY); }
 
-	rid[0].question_l1 = "How many hounds guard this gate?";
-	rid[0].question_l2 = "";
-	rid[0].question_l3 = "";
-	rid[0].question_l4 = "";
-	rid[0].answer = "2";
-
-	rid[1].question_l1 = "What is the answer to the";
-	rid[1].question_l2 = "Ultimate question in the universe?";
-	rid[1].question_l3 = "";
-	rid[1].question_l4 = "";
-	rid[1].answer = "42";
-
-	rid[2].question_l1 = "God lived as a _____ dog";
-	rid[2].question_l2 = "";
-	rid[2].question_l3 = "";
-	rid[2].question_l4 = "";
-	rid[2].answer = "devil";
-
-	rid[3].question_l1 = "Maps, ___, and spam.";
-	rid[3].question_l2 = "";
-	rid[3].question_l3 = "";
-	rid[3].question_l4 = "";
-	rid[3].answer = "DNA";
-
-	rid[4].question_l1 = "Devil never ____ lived.";
-	rid[4].question_l2 = "";
-	rid[4].question_l3 = "";
-	rid[4].question_l4 = "";
-	rid[4].answer = "even";
-
-	YourAnswer[0] = 0;
-	ans_l = 0;
+std::string trim(const std::string& s) {
+	size_t first = s.find_first_not_of(" \t\r\n");
+	if (first == std::string::npos)
+		return "";
+	return s.substr(first, s.find_last_not_of(" \t\r\n") - first + 1);
 }
 
-Riddle::~Riddle() {
-	delete[] rid;
-	LOG_DEBUGF("ui", "Deleting Riddle %p", static_cast<void*>(this));
+// Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
+std::vector<std::string> wrap(const Font& font, const std::string& text, float width) {
+	std::vector<std::string> lines;
+	std::string line;
+	size_t pos = 0;
+	while (pos < text.size()) {
+		size_t end = text.find(' ', pos);
+		if (end == std::string::npos)
+			end = text.size();
+		std::string word = text.substr(pos, end - pos);
+		pos = end + 1;
+		if (word.empty())
+			continue;
+		std::string candidate = line;
+		if (!candidate.empty())
+			candidate += ' ';
+		candidate += word;
+		if (!line.empty() && font.TextWidth(candidate.c_str()) > width) {
+			lines.push_back(line);
+			line = word;
+		} else {
+			line = candidate;
+		}
+	}
+	if (!line.empty())
+		lines.push_back(line);
+	return lines;
+}
+} // namespace
+
+// ---- riddle files ----------------------------------------------------------
+
+std::string NormalizeAnswer(const std::string& text) {
+	std::string lower;
+	for (char c : text)
+		lower += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+	lower = trim(lower);
+	for (const char* article : {"a ", "an ", "the "}) {
+		std::string prefix(article);
+		if (lower.size() > prefix.size() && lower.compare(0, prefix.size(), prefix) == 0) {
+			lower = lower.substr(prefix.size());
+			break;
+		}
+	}
+	std::string out;
+	for (char c : lower)
+		if (std::isalnum(static_cast<unsigned char>(c)))
+			out += c;
+	return out;
+}
+
+void ParseRiddles(std::istream& in, const std::string& source, std::vector<RiddleEntry>& out,
+				  std::vector<std::string>& errors) {
+	std::string theme = std::filesystem::path(source).stem().string();
+	RiddleEntry current;
+	int lineNo = 0;
+	auto error = [&](const std::string& message) {
+		errors.push_back(source + ":" + std::to_string(lineNo) + ": " + message);
+	};
+	auto finish = [&]() {
+		if (!current.question.empty() && current.answers.empty())
+			errors.push_back(current.source + ": riddle has no A: line, skipped");
+		else if (!current.question.empty())
+			out.push_back(current);
+		current = RiddleEntry{};
+	};
+
+	std::string raw;
+	while (std::getline(in, raw)) {
+		lineNo++;
+		std::string line = trim(raw);
+		if (line.empty()) {
+			finish();
+			continue;
+		}
+		if (line[0] == '#')
+			continue;
+		// The fonts only have printable ASCII.
+		for (char& c : line)
+			if (static_cast<unsigned char>(c) < 32 || static_cast<unsigned char>(c) > 126) {
+				error("non-ASCII character, shown as '?'");
+				c = '?';
+			}
+
+		size_t colon = line.find(':');
+		std::string key = colon == std::string::npos ? "" : line.substr(0, colon);
+		std::string value = colon == std::string::npos ? "" : trim(line.substr(colon + 1));
+		if (key == "theme") {
+			finish();
+			theme = value;
+		} else if (key == "Q") {
+			if (!current.answers.empty())
+				finish();
+			if (current.question.empty()) {
+				current.theme = theme;
+				current.source = source + ":" + std::to_string(lineNo);
+			}
+			current.question.push_back(value);
+		} else if (key == "A" || key == "H") {
+			if (current.question.empty()) {
+				error(key + ": before any Q: line, ignored");
+				continue;
+			}
+			if (key == "H") {
+				current.hint = value;
+				continue;
+			}
+			std::string normalized = NormalizeAnswer(value);
+			if (normalized.empty())
+				error("answer has no letters or digits, ignored");
+			else if (value.size() > MAX_TYPED)
+				error("answer longer than " + std::to_string(MAX_TYPED) + " characters, ignored");
+			else
+				current.answers.push_back(normalized);
+		} else {
+			error("expected theme:, Q:, A: or H:, line ignored");
+		}
+	}
+	finish();
+}
+
+// ---- riddle screen ---------------------------------------------------------
+
+Riddle::Riddle() {
+	title.Load("fonts/papyrus.png", 7.f, 0.3f, true);
+	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
+	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
+	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	Load("riddles");
+}
+
+size_t Riddle::Load(const std::string& path) {
+	std::vector<std::string> files;
+	std::error_code ec;
+	if (std::filesystem::is_directory(path, ec)) {
+		for (const auto& entry : std::filesystem::directory_iterator(path, ec))
+			if (entry.path().extension() == ".txt")
+				files.push_back(entry.path().string());
+		std::sort(files.begin(), files.end()); // directory order is not stable across file systems
+	} else {
+		files.push_back(path);
+	}
+
+	riddles.clear();
+	deck.clear();
+	std::vector<std::string> errors;
+	for (const std::string& file : files) {
+		std::ifstream in(file);
+		if (!in) {
+			errors.push_back(file + ": cannot be read");
+			continue;
+		}
+		ParseRiddles(in, file, riddles, errors);
+	}
+	for (const std::string& message : errors)
+		LOG_WARNINGF("ui", "Riddles: %s", message.c_str());
+	if (riddles.empty()) {
+		LOG_ERRORF("ui", "No riddles found in %s, riddle gates ask a fallback one", path.c_str());
+		riddles.push_back({"The Gate", {"How many hounds guard this gate?"}, {"2", "two"}, "", "built-in"});
+	}
+	LOG_INFO("ui", "Loaded " + std::to_string(riddles.size()) + " riddles from " + std::to_string(files.size()) +
+					   " files in " + path);
+	return riddles.size();
 }
 
 void Riddle::GetRiddle() {
-	srand(static_cast<unsigned>(time(nullptr)));
-
-	selected = static_cast<int>(random() % RiddleCount);
-	YourAnswer[0] = '_';
-	YourAnswer[1] = 0;
+	if (deck.empty()) {
+		// rand(), not a private generator: scenario tests seed it and get the same riddles every run.
+		for (size_t i = 0; i < riddles.size(); i++)
+			deck.push_back(i);
+		for (size_t i = deck.size(); i > 1; i--)
+			std::swap(deck[i - 1], deck[static_cast<size_t>(rand()) % i]);
+		// A fresh deck should not start with the riddle that was just asked.
+		if (deck.size() > 1 && deck.back() == selected)
+			std::swap(deck.front(), deck.back());
+	}
+	selected = deck.back();
+	deck.pop_back();
+	answer.clear();
+	misses = 0;
+	wrongAtMs = -100000;
 }
 
-void Riddle::Draw() {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);	// Select The Projection Matrix
-	glLoadIdentity();				// Reset The Projection Matrix
-	glOrtho(0, 50, 0, 50, -20, 20); // Set Up An Ortho Screen
-	glMatrixMode(GL_MODELVIEW);		// Select The Modelview Matrix
-
-	GAME_STATE.textures.riddle_bg.Bind();
-	glColor3f(1, 1, 1);
-
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0);
-	glVertex3i(0, 0, -19);
-	glTexCoord2f(0, 1);
-	glVertex3i(0, 50, -19);
-	glTexCoord2f(1, 1);
-	glVertex3i(50, 50, -19);
-	glTexCoord2f(1, 0);
-	glVertex3i(50, 0, -19);
-	glEnd();
-
-	// text goes now
-	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR /*GL_ONE_MINUS_SRC_ALPHA*/);
-	glEnable(GL_BLEND);
-
-	glColor3f(1, 1, 1);
-	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(12.5), rid[selected].question_l1);
-	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(10), rid[selected].question_l2);
-	GAME_STATE.fonts.font.print(static_cast<int>(5), static_cast<int>(7.5), rid[selected].question_l3);
-	glColor3f(0, 1, 0);
-	GAME_STATE.fonts.font.print(5, 5, YourAnswer);
-
-	glDisable(GL_BLEND);
-
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
+bool Riddle::CheckAnswer() const {
+	const std::vector<std::string>& accepted = riddles[selected].answers;
+	return std::find(accepted.begin(), accepted.end(), NormalizeAnswer(answer)) != accepted.end();
 }
 
 void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	(void)mouseX;
 	(void)mouseY;
 
-	if (key != 8) // backspace,enter
-	{
-		if (key == 13) // enter
-		{
-			if (CheckAnswer()) {
-				show = false;
-				sprintf(GAME_STATE.status, "Riddle answered, got 500 XP \n");
-				GAME_STATE.status_timer->Reset();
-				GAME_STATE.ui.Stats->GetXP(500);
-			} else {
-				YourAnswer[0] = 'W';
-				YourAnswer[1] = 'r';
-				YourAnswer[2] = 'o';
-				YourAnswer[3] = 'n';
-				YourAnswer[4] = 'g';
-				ans_l = 4;
-			}
+	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost
+		show = false;
+		snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "The riddle stays unanswered");
+		GAME_STATE.status_timer->Reset();
+	} else if (key == KEY_ENTER) {
+		if (NormalizeAnswer(answer).empty())
+			return;
+		if (CheckAnswer()) {
+			show = false;
+			snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "Riddle answered, got %d XP", XP_REWARD);
+			GAME_STATE.status_timer->Reset();
+			GAME_STATE.ui.Stats->GetXP(XP_REWARD);
+		} else {
+			misses++;
+			wrongAtMs = GameClock::now();
+			answer.clear();
 		}
-
-		YourAnswer[ans_l] = static_cast<char>(key);
-		if (ans_l < 23)
-			ans_l++;
-		YourAnswer[ans_l] = 0;
-	}
-
-	else if (ans_l > 0) {
-		ans_l--;
-		YourAnswer[ans_l] = 0;
+	} else if (key == KEY_BACKSPACE || key == KEY_DELETE) {
+		if (!answer.empty())
+			answer.pop_back();
+	} else if (key >= 32 && key <= 126 && answer.size() < MAX_TYPED) {
+		answer += static_cast<char>(key);
 	}
 }
 
-bool Riddle::CheckAnswer() {
-	for (int i = 0; i < ans_l; i++) {
-		if (!rid[selected].answer[i])
-			return true;
-		if (rid[selected].answer[i] != YourAnswer[i])
-			return false;
+// ---- drawing ---------------------------------------------------------------
+
+void Riddle::Draw() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	Rect area = visibleArea();
+	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glDisable(GL_DEPTH_TEST);
+
+	DrawBackground();
+	DrawScroll();
+	DrawAnswer();
+
+	beginText();
+	textCentered(small, CANVAS_W / 2, 2.2f,
+				 "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)",
+				 {0.55f, 0.45f, 0.30f});
+
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glColor3f(1, 1, 1);
+	glFlush();
+
+	Scenario::onFrameRendered();
+	glutSwapBuffers();
+}
+
+void Riddle::DrawBackground() {
+	Rect area = visibleArea();
+	constexpr float CENTRE = CANVAS_W / 2;
+
+	// Carved tomb wall in torchlight, as behind the inventory.
+	glDisable(GL_BLEND);
+	texturedRect(area, GAME_STATE.textures.load_bg.ID(), {0.34f, 0.27f, 0.20f});
+
+	beginShapes();
+	constexpr float VIGNETTE = 22.f;
+	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
+
+	const char* titleText = "Riddle of the Gate";
+	float titleHalf = title.TextWidth(titleText) / 2 + 4;
+	constexpr float RULE_Y = 91.5f;
+	line(CENTRE - 72, RULE_Y, CENTRE - titleHalf, RULE_Y, GOLD_DIM, 1.f, 2.f);
+	line(CENTRE + titleHalf, RULE_Y, CENTRE + 72, RULE_Y, GOLD_DIM, 1.f, 2.f);
+	diamond(CENTRE - 72, RULE_Y, 1.1f, GOLD, 1.f);
+	diamond(CENTRE + 72, RULE_Y, 1.1f, GOLD, 1.f);
+	diamond(CENTRE - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+	diamond(CENTRE + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+
+	// The two hounds at the gate; the empty black bottom of the render is cropped off.
+	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
+	texturedRect(GATE_PANEL, GAME_STATE.textures.riddle_bg.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
+	beginShapes();
+	ring(GATE_PANEL.inset(8.f), 8.f, BLACK, 0.f, 0.5f);
+	strokeRect(GATE_PANEL, BRONZE, 1.f, 3.f);
+	strokeRect(GATE_PANEL.inset(1.1f), GOLD_DIM, 0.8f, 1.f);
+	cornerStuds(GATE_PANEL);
+
+	// Papyrus scroll for the riddle, framed like the inventory details.
+	texturedRect(SCROLL, GAME_STATE.textures.bg.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
+	beginShapes();
+	strokeRect(SCROLL, BRONZE, 1.f, 3.f);
+	cornerStuds(SCROLL);
+
+	beginText();
+	textCentered(title, CENTRE, 88.f, titleText, GOLD);
+	beginShapes();
+}
+
+void Riddle::DrawScroll() {
+	const RiddleEntry& r = riddles[selected];
+	float cx = SCROLL.cx();
+
+	beginText();
+	textCentered(heading, cx, 77.f, r.theme.c_str(), INK);
+	char reward[32];
+	snprintf(reward, sizeof(reward), "Reward %d XP", XP_REWARD);
+	textCentered(small, cx, 72.5f, reward, INK_RED);
+
+	std::vector<std::string> lines;
+	for (const std::string& q : r.question)
+		for (const std::string& l : wrap(body, q, SCROLL.w - 10))
+			lines.push_back(l);
+	if (lines.size() > MAX_QUESTION_LINES)
+		lines.resize(MAX_QUESTION_LINES);
+	// Short riddles sit in the middle of the space above the hint, long ones start at the top.
+	float y = QUESTION_TOP - static_cast<float>(MAX_QUESTION_LINES - lines.size()) * QUESTION_STEP / 2;
+	for (const std::string& l : lines) {
+		textCentered(body, cx, y, l.c_str(), INK);
+		y -= QUESTION_STEP;
 	}
 
-	return true; // nevykdomas
+	if (misses >= HINT_AFTER_MISSES) {
+		std::string hint = r.hint;
+		if (hint.empty())
+			hint = "the answer has " + std::to_string(r.answers.front().size()) + " characters";
+		std::vector<std::string> hintLines = wrap(small, "Hint: " + hint, SCROLL.w - 12);
+		float hy = 35.f + (hintLines.size() > 1 ? 1.7f : 0.f);
+		for (size_t i = 0; i < hintLines.size() && i < 2; i++)
+			textCentered(small, cx, hy - 3.4f * static_cast<float>(i), hintLines[i].c_str(), INK_FADED);
+	}
+
+	beginShapes();
+	line(SCROLL.x + 8, 70.5f, SCROLL.x + SCROLL.w - 8, 70.5f, INK_FADED, 0.8f, 1.f);
+	diamond(cx, 70.5f, 0.6f, INK_RED, 1.f);
+	line(SCROLL.x + 8, 40.2f, SCROLL.x + SCROLL.w - 8, 40.2f, INK_FADED, 0.5f, 1.f);
+}
+
+void Riddle::DrawAnswer() {
+	int age = GameClock::now() - wrongAtMs;
+	bool wrong = age >= 0 && age < WRONG_MS;
+	float shake = 0.f;
+	if (age >= 0 && age < SHAKE_MS)
+		shake = std::sin(static_cast<float>(age) * 0.07f) * 1.2f *
+				(1.f - static_cast<float>(age) / static_cast<float>(SHAKE_MS));
+	Rect box = ANSWER_BOX;
+	box.x += shake;
+
+	// Dark ink well with a gold rim, glowing red for a moment after a wrong answer.
+	if (wrong) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		ring(box, 2.f, INK_RED, 0.5f * (1.f - static_cast<float>(age) / static_cast<float>(WRONG_MS)), 0.f);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	fillRect({box.x + 0.5f, box.y - 0.7f, box.w, box.h}, BLACK, BLACK, 0.3f);
+	fillRect(box, PANEL_BOTTOM, PANEL_TOP, 1.f);
+	strokeRect(box, wrong ? INK_RED : GOLD, 1.f, 2.f);
+	strokeRect(box.inset(0.8f), GOLD_DIM, 0.6f, 1.f);
+
+	beginText();
+	text(small, box.x, box.y + box.h + 1.2f, "Your answer", INK_FADED);
+	float textX = box.x + 2.5f;
+	float textY = box.y + 2.f;
+	text(body, textX, textY, answer.c_str(), GOLD_BRIGHT);
+	if ((GameClock::now() / CARET_BLINK_MS) % 2 == 0)
+		text(body, textX + body.TextWidth(answer.c_str()) + 0.3f, textY, "_", GOLD);
+	if (wrong) {
+		float alpha =
+			age > WRONG_MS / 2 ? static_cast<float>(WRONG_MS - age) / (static_cast<float>(WRONG_MS) / 2) : 1.f;
+		textCentered(body, SCROLL.cx(), 16.f, "Wrong. The hounds stay silent.", INK_RED, alpha);
+	}
+	beginShapes();
 }

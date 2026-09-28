@@ -59,6 +59,7 @@ enum class CommandType : unsigned char {
 	Give,
 	Chest,
 	Xp,
+	Riddles,
 	SaveGame,
 	LoadGame,
 	Mouse,
@@ -81,6 +82,8 @@ enum class Field : unsigned char {
 	EquipType,
 	EquipId,
 	Keys,
+	XpTotal,
+	Riddle,
 	ItemCount,
 	ItemLevel
 };
@@ -202,6 +205,10 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(GAME_STATE.ui.invent->EquippedId());
 	case Field::Keys:
 		return static_cast<float>(GAME_STATE.dungeon.KeysHeld());
+	case Field::XpTotal:
+		return static_cast<float>(GAME_STATE.ui.Stats->CurrentXP());
+	case Field::Riddle:
+		return GAME_STATE.ui.rid->show ? 1.f : 0.f;
 	case Field::ItemCount:
 		return static_cast<float>(GAME_STATE.ui.invent->Count(cmd.item, cmd.itemId));
 	case Field::ItemLevel:
@@ -347,7 +354,9 @@ bool parseField(const std::string& word, Field& field) {
 				  {"armor", Field::Armor},
 				  {"equip_type", Field::EquipType},
 				  {"equip_id", Field::EquipId},
-				  {"keys", Field::Keys}};
+				  {"keys", Field::Keys},
+				  {"xp", Field::XpTotal},
+				  {"riddle", Field::Riddle}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -457,25 +466,26 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
 			!parseFloat(w[3], cmd.a))
 			return "usage: expect "
-				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|<item><id>[.level]> "
+				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
 		return "";
 	}
 	if (name == "key") {
 		cmd.type = CommandType::Key;
 		if (argc != 1)
-			return "usage: key <char|enter|esc|space|tab>";
+			return "usage: key <char|enter|esc|space|tab|backspace>";
 		static const struct {
 			const char* name;
 			unsigned char key;
-		} NAMED[] = {{"enter", KEY_ENTER}, {"esc", KEY_ESCAPE}, {"space", KEY_SPACE}, {"tab", '\t'}};
+		} NAMED[] = {
+			{"enter", KEY_ENTER}, {"esc", KEY_ESCAPE}, {"space", KEY_SPACE}, {"tab", '\t'}, {"backspace", '\b'}};
 		for (const auto& entry : NAMED)
 			if (w[1] == entry.name)
 				cmd.a = entry.key;
 		if (cmd.a == 0.f && w[1].size() == 1)
 			cmd.a = static_cast<unsigned char>(w[1][0]);
 		if (cmd.a == 0.f)
-			return "key expects one character or enter|esc|space|tab";
+			return "key expects one character or enter|esc|space|tab|backspace";
 		return "";
 	}
 	if (name == "give" || name == "chest") {
@@ -493,6 +503,13 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::Xp;
 		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
 			return "usage: xp <non-negative number>";
+		return "";
+	}
+	if (name == "riddles") {
+		cmd.type = CommandType::Riddles;
+		if (argc != 1)
+			return "usage: riddles <file|directory>";
+		cmd.arg = w[1];
 		return "";
 	}
 	if (name == "savegame" || name == "loadgame") {
@@ -660,6 +677,9 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
 		GAME_STATE.ui.Stats->GetXP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
+		return true;
+	case CommandType::Riddles:
+		report(cmd, true, std::to_string(GAME_STATE.ui.rid->Load(cmd.arg)) + " riddles");
 		return true;
 	case CommandType::SaveGame: // relative paths land in the output directory
 		GAME_STATE.Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());

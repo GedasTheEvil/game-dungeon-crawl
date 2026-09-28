@@ -1,0 +1,55 @@
+# Riddle gates (tests/levels/riddle, gates at cols 4 and 8) with the riddles of tests/riddles/test.txt:
+# wrong answers, the hint after two misses, backspace, a right answer for 500 XP, Esc to walk away.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/test.txt
+wait 30
+walk right 3
+interact
+wait 5
+expect riddle == 1
+screenshot riddle_open
+# Enter on an empty answer does nothing.
+key enter
+expect riddle == 1
+key 7
+key enter
+wait 5
+screenshot wrong_answer
+key 1
+key 3
+key enter
+wait 5
+expect riddle == 1
+wait 2s
+screenshot hint
+# "forty twoo", backspace, enter: punctuation and case are ignored.
+key F
+key o
+key r
+key t
+key y
+key -
+key T
+key w
+key o
+key o
+key backspace
+screenshot typed
+key enter
+wait 5
+expect riddle == 0
+expect xp == 500
+# Walking away from the second gate: no reward, and the gate is spent.
+walk right 4
+interact
+wait 5
+expect riddle == 1
+key esc
+wait 5
+expect riddle == 0
+expect xp == 500
+interact
+wait 5
+expect riddle == 0

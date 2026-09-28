@@ -1,0 +1,65 @@
+# Films, games and songs. Format: docs/riddles.md.
+theme: Tales of the Outer World
+
+Q: Snakes. Why did it have to be snakes?
+Q: Name the archaeologist who said it.
+A: indiana jones
+A: indiana
+A: indy
+A: jones
+
+Q: In The Mummy (1999), which lost city of the dead
+Q: did the explorers search for?
+A: hamunaptra
+H: It starts with Hamun...
+
+Q: Walk like an ________. (The Bangles, 1986)
+A: egyptian
+
+Q: A grey wizard stood on a narrow bridge and said:
+Q: You shall not ____!
+A: pass
+
+Q: Who you gonna call?
+A: ghostbusters
+
+Q: The cake is a ___.
+A: lie
+
+Q: It's dangerous to go alone! Take ____.
+A: this
+
+Q: All your base are belong to __.
+A: us
+
+Q: Winter is ______.
+A: coming
+
+Q: Leeroy _______!
+A: jenkins
+
+Q: Say my name. (Breaking Bad)
+A: heisenberg
+A: walter white
+A: walter
+
+Q: Frankly, my dear, I don't give a ____.
+A: damn
+
+Q: Never gonna ____ you up.
+A: give
+
+Q: Another one bites the ____.
+A: dust
+
+Q: What is the name of Mario's taller brother?
+A: luigi
+
+Q: Would you kindly name the city under the sea in BioShock?
+A: rapture
+
+Q: Here's looking at you, ___.
+A: kid
+
+Q: Which ring rules them all? The ___ Ring.
+A: one

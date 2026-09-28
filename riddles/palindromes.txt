@@ -1,0 +1,87 @@
+# Palindromes: the line reads the same backwards once the gap is filled. Format: docs/riddles.md.
+theme: Palindrome
+
+Q: A man, a plan, a canal: ______
+A: panama
+H: It reads the same backwards.
+
+Q: Was it a car or a cat I ___?
+A: saw
+H: It reads the same backwards.
+
+Q: Never odd or ____.
+A: even
+H: It reads the same backwards.
+
+Q: Devil never ____ lived.
+A: even
+H: It reads the same backwards.
+
+Q: God lived as a _____ dog.
+A: devil
+H: It reads the same backwards.
+
+Q: Maps, ___, and spam.
+A: dna
+H: It reads the same backwards.
+
+Q: Step on no ____.
+A: pets
+H: It reads the same backwards.
+
+Q: Madam, in Eden, I'm ____.
+A: adam
+H: It reads the same backwards.
+
+Q: No lemon, no _____.
+A: melon
+H: It reads the same backwards.
+
+Q: Mr. Owl ate my metal ____.
+A: worm
+H: It reads the same backwards.
+
+Q: Do geese see ___?
+A: god
+H: It reads the same backwards.
+
+Q: Rats live on no evil ____.
+A: star
+H: It reads the same backwards.
+
+Q: Borrow or ___?
+A: rob
+H: It reads the same backwards.
+
+Q: Too hot to ____.
+A: hoot
+H: It reads the same backwards.
+
+Q: Eva, can I see bees in a ____?
+A: cave
+H: It reads the same backwards.
+
+Q: Was it Eliot's ______ I saw?
+A: toilet
+H: It reads the same backwards.
+
+Q: A Santa at ____.
+A: nasa
+H: It reads the same backwards.
+
+Q: Dammit, I'm ___!
+A: mad
+H: It reads the same backwards.
+
+Q: Name the Swedish pop band whose name reads the same backwards.
+A: abba
+
+Q: Which small boat reads the same backwards?
+A: kayak
+
+Q: Which device finds ships in the fog by their echo,
+Q: and reads the same backwards?
+A: radar
+
+Q: Which time of day reads the same backwards?
+A: noon

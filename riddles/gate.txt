@@ -1,0 +1,72 @@
+# Old riddles, the kind a sphinx would ask. Format: docs/riddles.md.
+theme: Riddle of the Sphinx
+
+Q: How many hounds guard this gate?
+A: 2
+A: two
+
+Q: What walks on four legs in the morning,
+Q: two legs at noon, and three in the evening?
+A: man
+A: human
+A: people
+H: The morning, noon and evening of a life.
+
+Q: The more of me you take, the more you leave behind.
+Q: What am I?
+A: footsteps
+A: steps
+A: footprints
+
+Q: The one who makes it sells it. The one who buys it never uses it.
+Q: The one who uses it never knows.
+A: coffin
+A: sarcophagus
+A: tomb
+H: Every pharaoh ordered one.
+
+Q: I have cities but no houses, rivers but no water,
+Q: and roads that no one walks. What am I?
+A: map
+H: Press M.
+
+Q: What has keys but opens no locks?
+A: piano
+A: keyboard
+
+Q: What gets wetter the more it dries?
+A: towel
+
+Q: What has a neck but no head?
+A: bottle
+A: flask
+
+Q: Wrapped in linen, I wait for eternity. What am I?
+A: mummy
+
+Q: Speak my name and I am gone. What am I?
+A: silence
+
+Q: What has hands but cannot clap?
+A: clock
+A: watch
+
+Q: What is always coming but never arrives?
+A: tomorrow
+
+Q: You must break me before you can use me.
+A: egg
+
+Q: The more there is of me, the less you see.
+A: darkness
+A: dark
+
+Q: What can run but never walks, has a mouth but never talks,
+Q: and a bed but never sleeps? The pharaohs lived beside the longest one.
+A: river
+A: nile
+
+Q: What has one eye but cannot see?
+A: needle
+A: storm
+A: hurricane

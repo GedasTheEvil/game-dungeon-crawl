@@ -1,0 +1,10 @@
+# Riddle file for tests/scenarios/riddle.txt: one riddle with a hint, one without, one broken block.
+theme: Test Theme
+
+Q: What is the answer to the Ultimate Question
+Q: of Life, the Universe, and Everything? This line is long on purpose, so it wraps on the scroll.
+A: 42
+A: forty two
+H: Six times seven.
+
+A: an answer without a question

@@ -27,7 +27,7 @@ Asset paths are relative, so run the programs from the directory given here.
 * `dungeon-editor/` - level editor. `saved/` holds its work-in-progress levels (not tracked by git).
 * `model-viewer/` - MD3 model viewer.
 * `tools/` - level tools (`level/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
-* `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), results (`out/`, not tracked).
+* `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), test riddles (`riddles/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
 
 ## Assets
@@ -36,6 +36,7 @@ Asset paths are relative, so run the programs from the directory given here.
 * `textures/<category>/`, `fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `models/` plus `ui`, `dungeon`, `effects`. `textures/Shader.txt` and `ShaderD.txt` are toon-shading ramps.
 * `sounds/` - WAV effects, OGG soundtrack (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, key, gate, lever and rock sounds.
 * `levels/` - campaign levels, edited with the level editor.
+* `riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `saves/` - save games (not tracked by git).
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [remodeling.md](remodeling.md).

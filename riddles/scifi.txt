@@ -1,0 +1,84 @@
+# Science fiction. Format: docs/riddles.md.
+theme: Voices from the Stars
+
+Q: What is the answer to the Ultimate Question
+Q: of Life, the Universe, and Everything?
+A: 42
+A: forty two
+
+Q: The book's cover says, in large friendly letters:
+Q: Don't _____.
+A: panic
+
+Q: In Stargate, which Egyptian sun god
+Q: turned out to be an alien?
+A: ra
+A: re
+
+Q: Which gate to the stars was dug up at Giza in 1928?
+A: stargate
+
+Q: I'm sorry, Dave. I'm afraid I can't do that.
+Q: Name the speaker.
+A: hal
+A: hal 9000
+
+Q: Use the _____, Luke.
+A: force
+
+Q: Live long and _______.
+A: prosper
+
+Q: Resistance is ______.
+A: futile
+
+Q: The spice must ____.
+A: flow
+
+Q: Which desert planet is also called Dune?
+A: arrakis
+
+Q: Soylent Green is ______!
+A: people
+
+Q: In Blade Runner, what are the artificial humans called?
+A: replicants
+A: replicant
+
+Q: What was the name of the ship in Alien (1979)?
+A: nostromo
+
+Q: Which time machine is bigger on the inside?
+A: tardis
+
+Q: Exterminate! Who says it?
+A: dalek
+A: daleks
+
+Q: Roads? Where we're going, we don't need _____.
+A: roads
+
+Q: Great Scott! The flux capacitor needs 1.21 _________.
+A: gigawatts
+A: jigowatts
+
+Q: The truth is out _____.
+A: there
+
+Q: There is no _____. (The Matrix)
+A: spoon
+
+Q: Red pill or blue pill: which one shows
+Q: how deep the rabbit hole goes?
+A: red
+A: red pill
+
+Q: How many laws of robotics did Asimov first write?
+A: 3
+A: three
+
+Q: Klaatu barada _____.
+A: nikto
+
+Q: Beam me up, ______.
+A: scotty

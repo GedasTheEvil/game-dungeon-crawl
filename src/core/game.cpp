@@ -23,7 +23,7 @@ static void UpdateTimerCallback(int) {
 
 static void scenarioTickCallback(int) {
 	Scenario::tick();
-	glutTimerFunc(Scenario::TICK_MS, scenarioTickCallback, 0);
+	glutTimerFunc(Scenario::tickDelayMs(), scenarioTickCallback, 0);
 }
 
 // Scenario frames are drawn from the tick, so window expose events must not render extra frames.
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
 		if (isScenario) {
 			// No idle redraws and no user input: the script drives every frame.
 			glutDisplayFunc(&noopDisplay);
-			glutTimerFunc(Scenario::TICK_MS, scenarioTickCallback, 0);
+			glutTimerFunc(Scenario::tickDelayMs(), scenarioTickCallback, 0);
 		} else {
 			glutDisplayFunc(&Draw);
 

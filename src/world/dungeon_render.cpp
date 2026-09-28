@@ -6,73 +6,7 @@
 #include "../graphics/render_config.h"
 #include "../graphics/lighting.h"
 
-inline float dotProduct(VECTOR& v1, VECTOR& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
-void normalize(VECTOR& v);
-void rotateVector(MATRIX& m, VECTOR& v, VECTOR& d);
-
-void Dungeon::renderCartoonTile(int type, int left, int right, int up, int down) {
-	if (type == Wall)
-		return; // Wall tiles have no back-face geometry in cartoon mode
-
-	MATRIX tmpMatrix;
-	VECTOR tmpVector, tmpNormal;
-	glGetFloatv(GL_MODELVIEW_MATRIX, tmpMatrix.Data);
-	glEnable(GL_TEXTURE_1D);
-	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
-
-	auto shade = [&](float nx, float ny, float nz) -> float {
-		tmpNormal.X = nx;
-		tmpNormal.Y = ny;
-		tmpNormal.Z = nz;
-		rotateVector(tmpMatrix, tmpNormal, tmpVector);
-		normalize(tmpVector);
-		float s = dotProduct(tmpVector, lightAngle);
-		return s < 0.0f ? 0.0f : s;
-	};
-
-	// Back face with per-vertex normals for gradient shading
-	glBegin(GL_QUADS);
-	glTexCoord1f(shade(0, 0, 1));
-	glVertex3i(0, 0, -40);
-	glTexCoord1f(shade(0, 0.3f, 1));
-	glVertex3i(0, 40, -40);
-	glTexCoord1f(shade(0.2f, 0.3f, 1));
-	glVertex3i(40, 40, -40);
-	glTexCoord1f(shade(0.2f, 0.4f, 0.5f));
-	glVertex3i(40, 0, -40);
-	glEnd();
-
-	auto renderWall = [&](float nx, float ny, float nz, int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3,
-						  int z3, int x4, int y4, int z4) {
-		float s = shade(nx, ny, nz);
-		glBegin(GL_QUADS);
-		glTexCoord1f(s);
-		glVertex3i(x1, y1, z1);
-		glVertex3i(x2, y2, z2);
-		glVertex3i(x3, y3, z3);
-		glVertex3i(x4, y4, z4);
-		glEnd();
-	};
-
-	if (!left)
-		renderWall(1, 0, 0, 0, 0, -40, 0, 40, -40, 0, 40, 0, 0, 0, 0);
-	if (!right)
-		renderWall(-1, 0, 0, 40, 0, -40, 40, 40, -40, 40, 40, 0, 40, 0, 0);
-	if (!up)
-		renderWall(0, -1, 0, 0, 40, -40, 40, 40, -40, 40, 40, 0, 0, 40, 0);
-	if (!down)
-		renderWall(0, 1, 0, 0, 0, -40, 40, 0, -40, 40, 0, 0, 0, 0, 0);
-
-	glDisable(GL_TEXTURE_1D);
-}
-//======================================================================================
 void Dungeon::renderFlatTile(int type, int left, int right, int up, int down) {
-	if (GAME_STATE.render.Orig_model) {
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		glColor4f(1, 1, 1, 0.4f);
-	}
-
 	if (type == Wall) {
 		glDisable(GL_BLEND);
 		GAME_STATE.textures.black_t.Bind();
@@ -153,17 +87,11 @@ void Dungeon::renderFlatTile(int type, int left, int right, int up, int down) {
 			glEnd();
 		}
 	}
-
-	if (GAME_STATE.render.Orig_model)
-		glDisable(GL_BLEND);
 }
 //======================================================================================
 void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
 	GAME_STATE.textures.blackTex.Bind();
-	if (GAME_STATE.render.Cartoon)
-		renderCartoonTile(type, leftWallType, rightWallType, upWallType, downWallType);
-	if (!GAME_STATE.render.Cartoon || GAME_STATE.render.Orig_model)
-		renderFlatTile(type, leftWallType, rightWallType, upWallType, downWallType);
+	renderFlatTile(type, leftWallType, rightWallType, upWallType, downWallType);
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
@@ -252,10 +180,7 @@ void Dungeon::Draw() {
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
 					GAME_STATE.textures.ankh_t.Bind();
-					if (GAME_STATE.render.Cartoon)
-						GAME_STATE.models.ankh->ShowC();
-					else
-						GAME_STATE.models.ankh->Show();
+					GAME_STATE.models.ankh->Show();
 					glPopMatrix();
 				}
 				if (tile.a == Door) {
@@ -266,10 +191,7 @@ void Dungeon::Draw() {
 					if (tile.b != GateEntrance)
 						glRotatef(180, 0, 1, 0);
 					GAME_STATE.textures.sphinx_t.Bind();
-					if (GAME_STATE.render.Cartoon)
-						GAME_STATE.models.sphinx->ShowC();
-					else
-						GAME_STATE.models.sphinx->Show();
+					GAME_STATE.models.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
 
@@ -281,10 +203,7 @@ void Dungeon::Draw() {
 						GAME_STATE.textures.question_t.Bind();
 						glPushMatrix();
 						glRotatef(qRot, 0, 1, 0);
-						if (GAME_STATE.render.Cartoon)
-							GAME_STATE.models.question->ShowC();
-						else
-							GAME_STATE.models.question->Show();
+						GAME_STATE.models.question->Show();
 						qRot += 1.0;
 						glPopMatrix();
 						glPopMatrix();

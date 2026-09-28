@@ -52,6 +52,7 @@ enum class CommandType : unsigned char {
 	Attack,
 	Interact,
 	Camera,
+	Toon,
 	Screenshot,
 	Dump,
 	Expect,
@@ -130,6 +131,7 @@ struct Runner {
 	int waitLeft = 0;
 	WalkProgress walk;
 	std::string pendingShot;
+	bool drawAll = false; // SCENARIO_DRAW_ALL: full frames between screenshots, to watch a run
 	int shotCounter = 0;
 	int executed = 0;
 	std::vector<std::string> failures;
@@ -450,6 +452,13 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			return "usage: camera <rotM> <rotN>";
 		return "";
 	}
+	if (name == "toon") {
+		cmd.type = CommandType::Toon;
+		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
+			return "usage: toon <on|off>";
+		cmd.a = w[1] == "on" ? 1.f : 0.f;
+		return "";
+	}
 	if (name == "screenshot") {
 		cmd.type = CommandType::Screenshot;
 		if (argc != 1 || w[1].find_first_of("/\\") != std::string::npos)
@@ -651,6 +660,10 @@ bool runInstant(const Command& cmd) {
 		GAME_STATE.camera.rotN = cmd.b;
 		report(cmd, true, "");
 		return true;
+	case CommandType::Toon:
+		GAME_STATE.render.Cartoon = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return true;
 	case CommandType::Screenshot:
 		gRunner.pendingShot = cmd.arg;
 		report(cmd, true, "");
@@ -849,6 +862,8 @@ bool Scenario::load(const char* path) {
 	signal(SIGABRT, onCrashSignal);
 	signal(SIGFPE, onCrashSignal);
 
+	const char* drawAll = std::getenv("SCENARIO_DRAW_ALL");
+	gRunner.drawAll = drawAll != nullptr && std::string(drawAll) == "1";
 	gRunner.active = true;
 	return true;
 }
@@ -860,6 +875,8 @@ int Scenario::resolutionX() { return gRunner.resX; }
 int Scenario::resolutionY() { return gRunner.resY; }
 
 bool Scenario::godMode() { return gRunner.god; }
+
+int Scenario::tickDelayMs() { return gRunner.drawAll ? TICK_MS : 0; }
 
 void Scenario::tick() {
 	try {
@@ -877,7 +894,16 @@ void Scenario::tick() {
 
 		runCommands();
 		Update();
+		// Frames without a screenshot still run Draw (animations advance there) but fill one pixel: software GL
+		// under Xvfb spends nearly all its time on fill. SCENARIO_DRAW_ALL=1 (HEADLESS=0) draws them in full.
+		const bool blind = gRunner.pendingShot.empty() && !gRunner.drawAll;
+		if (blind) {
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(0, 0, 1, 1);
+		}
 		Draw();
+		if (blind)
+			glDisable(GL_SCISSOR_TEST);
 		checkDeath();
 
 		if (!gRunner.pendingShot.empty()) {

@@ -38,12 +38,12 @@ void enterPropSpace() {
 	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
 }
 
-void showModel(AnimatedCartoonModel* model) {
+void showModel(AnimatedModel* model) {
 	if (model != nullptr)
 		model->Show(); // textured only, lighting is baked in (like the props)
 }
 
-AnimatedCartoonModel* colourModel(std::unique_ptr<AnimatedCartoonModel> (&models)[LOCK_COLOUR_COUNT], int colour) {
+AnimatedModel* colourModel(std::unique_ptr<AnimatedModel> (&models)[LOCK_COLOUR_COUNT], int colour) {
 	return isLockColour(colour) ? models[colour - 1].get() : nullptr;
 }
 } // namespace

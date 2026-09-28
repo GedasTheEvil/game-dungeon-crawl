@@ -60,7 +60,6 @@ class Dungeon {
 	void addLights();
 	void drawFires();
 	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
-	void renderCartoonTile(int type, int left, int right, int up, int down);
 	void renderFlatTile(int type, int left, int right, int up, int down);
 	Tint Map(float x, float y) const;
 	void InitializeMonsterSlot(int index, int i, int j);
@@ -86,8 +85,6 @@ class Dungeon {
 	void drawMechanismEffects(); // dust, after the opaque scene
 	monsterToken m[MAX_MONSTERS];
 	bool mL;
-	int shaderTexture[1];
-	VECTOR lightAngle;
 	std::unique_ptr<timer> aniT;
 	float plasma = 0.f;
 	float qRot = 0.f;

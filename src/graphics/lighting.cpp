@@ -33,11 +33,21 @@ const int MAX_LIGHTS = 16;
 uniform sampler2D uTex;
 uniform vec3 uAmbient;
 uniform float uEmissive;
+uniform float uToon; // 1 = cel bands (see toonLight)
 uniform int uLightCount;
 uniform vec4 uLightPos[MAX_LIGHTS]; // eye space xyz, radius in w
 uniform vec3 uLightColor[MAX_LIGHTS];
 varying vec3 vPos;
 varying vec3 vNormal;
+// Snaps the light to three flat bands with thin soft steps; the dark band leans cool so shadows read as painted.
+vec3 toonLight(vec3 light) {
+	float i = max(max(light.r, light.g), light.b);
+	vec3 hue = light / max(i, 0.001);
+	float w = 0.03;
+	float band = 0.12 + 0.33 * smoothstep(0.15 - w, 0.15 + w, i) + 0.55 * smoothstep(0.5 - w, 0.5 + w, i);
+	float shade = 1.0 - smoothstep(0.12, 0.45, band);
+	return mix(hue, vec3(0.55, 0.6, 1.0), shade * 0.6) * band;
+}
 void main() {
 	vec4 base = texture2D(uTex, gl_TexCoord[0].st) * gl_Color;
 	if (uEmissive > 0.5) {
@@ -57,6 +67,11 @@ void main() {
 		float lambert = max(dot(n, d / max(dist, 0.001)), 0.0) * 0.7 + 0.3; // wrapped, so grazing walls still glow
 		light += uLightColor[i] * (k * k * lambert);
 	}
+	if (uToon > 0.5) {
+		float grey = dot(base.rgb, vec3(0.299, 0.587, 0.114));
+		base.rgb = clamp(mix(vec3(grey), base.rgb, 1.25), 0.0, 1.0); // livelier paint
+		light = toonLight(light);
+	}
 	gl_FragColor = vec4(base.rgb * light, base.a);
 }
 )";
@@ -69,7 +84,7 @@ struct Light {
 GLuint gProgram = 0;
 bool gFailed = false;
 bool gActive = false;
-GLint gLocAmbient = -1, gLocEmissive = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
+GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
 Light gLights[64];
 int gLightCount = 0;
 
@@ -121,6 +136,7 @@ bool ensureProgram() {
 	gFailed = false;
 	gLocAmbient = glGetUniformLocation(program, "uAmbient");
 	gLocEmissive = glGetUniformLocation(program, "uEmissive");
+	gLocToon = glGetUniformLocation(program, "uToon");
 	gLocCount = glGetUniformLocation(program, "uLightCount");
 	gLocPos = glGetUniformLocation(program, "uLightPos");
 	gLocColor = glGetUniformLocation(program, "uLightColor");
@@ -134,12 +150,13 @@ bool ensureProgram() {
 
 void Lighting::begin() {
 	gLightCount = 0;
-	gActive = !GAME_STATE.render.Cartoon && ensureProgram();
+	gActive = ensureProgram();
 	if (!gActive)
 		return;
 	glUseProgram(gProgram);
 	glUniform3fv(gLocAmbient, 1, AMBIENT);
 	glUniform1f(gLocEmissive, 0.f);
+	glUniform1f(gLocToon, GAME_STATE.render.Cartoon ? 1.f : 0.f);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {

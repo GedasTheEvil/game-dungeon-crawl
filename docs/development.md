@@ -33,7 +33,7 @@ Asset paths are relative, so run the programs from the directory given here.
 ## Assets
 
 * `models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
-* `textures/<category>/`, `fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `models/` plus `ui`, `dungeon`, `effects`. `textures/Shader.txt` and `ShaderD.txt` are toon-shading ramps.
+* `textures/<category>/`, `fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `models/` plus `ui`, `dungeon`, `effects`.
 * `sounds/` - WAV effects, OGG soundtrack (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, key, gate, lever and rock sounds.
 * `levels/` - campaign levels, edited with the level editor.
 * `riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).

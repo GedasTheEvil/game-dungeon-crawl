@@ -1,22 +1,52 @@
 #!/bin/bash
-# Runs scenario scripts through ./game. Usage: tools/run_scenarios.sh [scenario.txt ...]
-# Uses Xvfb when available (HEADLESS=0 forces a real window). Output: tests/out/<name>/.
+# Runs scenario scripts through ./game, JOBS at a time (default: nproc). Usage: tools/run_scenarios.sh [scenario.txt ...]
+# Uses Xvfb when available, one server per run. HEADLESS=0 (or no Xvfb) runs one real window at a time, every frame
+# drawn (SCENARIO_DRAW_ALL). Output: tests/out/<name>/.
 cd "$(dirname "$0")/.." || exit 2
 
 scenarios=("$@")
 [ ${#scenarios[@]} -eq 0 ] && scenarios=(tests/scenarios/*.txt)
 
-runner=()
+jobs=${JOBS:-$(nproc)}
+headless=0
 if [ "${HEADLESS:-1}" != 0 ] && command -v xvfb-run >/dev/null; then
-	runner=(xvfb-run -a -s "-screen 0 1920x1080x24")
+	headless=1
+else
+	export SCENARIO_DRAW_ALL=1
+	jobs=1
 fi
 
-failed=0
-for scenario in "${scenarios[@]}"; do
-	echo "== $scenario"
-	"${runner[@]}" ./game "$scenario"
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# $1 scenario, $2 its index (a distinct display number, so parallel xvfb-run -a does not race for the same one)
+run_one() {
+	local out code
+	if [ $headless = 1 ]; then
+		out=$(xvfb-run -a -n $((200 + $2 * 3)) -s "-screen 0 1920x1080x24" ./game "$1" 2>&1)
+	else
+		out=$(./game "$1" 2>&1)
+	fi
 	code=$?
-	[ $code -ne 0 ] && failed=$((failed + 1)) && echo "   exit $code"
+	[ $code -ne 0 ] && out+=$'\n'"   exit $code"
+	echo $code >"$tmp/$2.code"
+	{
+		flock 9
+		printf '== %s\n%s\n' "$1" "$out"
+	} 9>"$tmp/print.lock"
+}
+
+for i in "${!scenarios[@]}"; do
+	while [ "$(jobs -rp | wc -l)" -ge "$jobs" ]; do
+		wait -n
+	done
+	run_one "${scenarios[$i]}" "$i" &
+done
+wait
+
+failed=0
+for i in "${!scenarios[@]}"; do
+	[ "$(cat "$tmp/$i.code" 2>/dev/null)" = 0 ] || failed=$((failed + 1))
 done
 
 echo "== $((${#scenarios[@]} - failed))/${#scenarios[@]} scenarios passed"

@@ -2,13 +2,13 @@
 #define TrapsH
 
 #include <memory>
-#include "../graphics/shader.h"
+#include "../graphics/ani.h"
 #include "../graphics/textures.h"
 #include "../core/timer.h"
 
 class trap {
   private:
-	std::unique_ptr<AnimatedCartoonModel> mdl;
+	std::unique_ptr<AnimatedModel> mdl;
 	float tileX;
 	float tileY;
 	Textura tex;

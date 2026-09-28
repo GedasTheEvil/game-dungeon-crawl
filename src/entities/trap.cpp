@@ -13,7 +13,7 @@ int gLastHitMs = 0;
 
 trap::trap() {
 	Hurt_timer = std::make_unique<timer>(TRAP_HURT_INTERVAL_MS);
-	mdl = std::make_unique<AnimatedCartoonModel>();
+	mdl = std::make_unique<AnimatedModel>();
 	tileX = 0;
 	tileY = 0;
 	scale = 3;
@@ -27,10 +27,7 @@ void trap::Show() {
 	glPushMatrix();
 	glScalef(scale, scale, scale);
 	tex.Bind();
-	if (GAME_STATE.render.Cartoon)
-		mdl->ShowC();
-	else
-		mdl->Show();
+	mdl->Show();
 	glPopMatrix();
 	glPopMatrix();
 	Hurt();

@@ -6,11 +6,14 @@ fixed-step virtual clock, saves screenshots and state, then exits with a status 
 ```
 make test                                      # every tests/scenarios/*.txt
 make test SCENARIO=tests/scenarios/smoke.txt   # one script
-HEADLESS=0 make test                           # real window instead of Xvfb
+JOBS=4 make test                               # at most 4 at a time (default: nproc)
+HEADLESS=0 make test                           # real windows instead of Xvfb, one at a time
 ./game tests/scenarios/smoke.txt               # direct run, real window
+SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
-`tools/run_scenarios.sh` uses `xvfb-run` when it is installed. Run from the repo root.
+`tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
+Run from the repo root.
 
 ## Behaviour in test mode
 
@@ -19,6 +22,9 @@ HEADLESS=0 make test                           # real window instead of Xvfb
 - One tick = 16 ms of game time. Each tick runs due commands, then `Update()`, then `Draw()`.
   All `timer` objects read the virtual clock, so a script with the same seed gives the same
   frames on every run.
+- Ticks run back to back, not every 16 ms of real time. Only frames with a screenshot are drawn in full; the
+  others run `Draw()` with a 1x1 scissor (animations advance in `Draw()`), so the screenshots are the same.
+  `SCENARIO_DRAW_ALL=1` (set by `HEADLESS=0`) draws every frame at the normal pace, to watch a run.
 - Window size comes from `resolution` (default 1280x720).
 
 ## Commands
@@ -35,6 +41,7 @@ One command per line. `#` starts a comment.
 | `walk left\|right\|up\|down N` | Move until the player is N tiles away on that axis. `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
+| `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory). |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |

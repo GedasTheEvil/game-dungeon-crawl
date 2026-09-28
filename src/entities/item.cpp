@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
+#include "../graphics/ink.h"
 
 void item::Draw() {
 	if (!loaded)
@@ -17,15 +18,13 @@ void item::Draw() {
 
 	glPushMatrix(); // will add rotation
 
-	glScalef(scale, scale, scale);
+	const float drawScale = scale * Ink::figureScale();
+	glScalef(drawScale, drawScale, drawScale);
 
 	tex.Bind();
 	glRotatef(rotA, 0, 1, 0);
 
-	if (GAME_STATE.render.Cartoon)
-		mdl->ShowC();
-	else
-		mdl->Show();
+	mdl->Show();
 	glPopMatrix();
 	glPopMatrix();
 	mdl->Advance_Animation();
@@ -55,7 +54,7 @@ item::~item() { loaded = false; }
 
 bool item::loadModel(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
-	mdl = std::make_unique<AnimatedCartoonModel>();
+	mdl = std::make_unique<AnimatedModel>();
 	mdl->Load(filename);
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());

@@ -1,7 +1,7 @@
 #ifndef MonsterH
 #define MonsterH
 
-#include "../graphics/shader.h"
+#include "../graphics/ani.h"
 // #include "../world/Dungeon.h"
 #include "../graphics/textures.h"
 #include "../graphics/particles.h"
@@ -71,9 +71,9 @@ struct Leap {
 
 class monster {
   private:
-	std::array<std::unique_ptr<AnimatedCartoonModel>, MODEL_STATE_COUNT> clips; // by ModelState, nullptr if no file
-	ModelState reference = ModelState::Move;									// first clip of the ClipFiles
-	AnimatedCartoonModel* model;
+	std::array<std::unique_ptr<AnimatedModel>, MODEL_STATE_COUNT> clips; // by ModelState, nullptr if no file
+	ModelState reference = ModelState::Move;							 // first clip of the ClipFiles
+	AnimatedModel* model;
 	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
 	float referenceTop = 1.f;
 	float idleBottom = 0.f, idleTop = 1.f;
@@ -92,7 +92,7 @@ class monster {
 	ModelState currentState;
 	void applyModelState(ModelState state);
 	void selectModel(ModelState state); // no reset: used to restore a token's animation
-	[[nodiscard]] AnimatedCartoonModel* clip(ModelState state) const;
+	[[nodiscard]] AnimatedModel* clip(ModelState state) const;
 	void drawHealthBar(); // billboard above the model (below a roosting flyer), the same size for every monster
 
   public:

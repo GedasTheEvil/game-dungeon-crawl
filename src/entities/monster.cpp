@@ -9,6 +9,7 @@
 #include "../core/service_locator.h"
 #include "../core/logger.h"
 #include "../graphics/lighting.h"
+#include "../graphics/ink.h"
 
 #ifdef WIN32
 
@@ -24,8 +25,8 @@ constexpr float HEALTH_BAR_WIDTH = 14.f;
 constexpr float HEALTH_BAR_HEIGHT = 1.5f;
 constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
 
-std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, int speed) {
-	auto m = std::make_unique<AnimatedCartoonModel>();
+std::unique_ptr<AnimatedModel> makeModel(const char* path, GLuint texId, int speed) {
+	auto m = std::make_unique<AnimatedModel>();
 	m->Load(path);
 	m->BindTexture(static_cast<int>(texId));
 	m->setSpeed(speed);
@@ -42,9 +43,10 @@ void monster::applyModelState(ModelState state) {
 //================================================================================
 void monster::drawHealthBar() {
 	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
-	float y = referenceTop * scale + HEALTH_BAR_GAP;
+	const float drawScale = scale * Ink::figureScale();
+	float y = referenceTop * drawScale + HEALTH_BAR_GAP;
 	if (flies() && flight.phase == FlightPhase::Roost)
-		y = idleBottom * scale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
+		y = idleBottom * drawScale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
 	glPushMatrix();
 	glTranslatef(0, y, 0);
 	// Billboard: keep where the anchor is, drop the camera and model rotation, keep the scene's scale.
@@ -97,7 +99,7 @@ void monster::selectModel(ModelState state) {
 }
 //================================================================================
 void monster::showClimb(float phase) {
-	AnimatedCartoonModel* climb = clip(ModelState::Climb);
+	AnimatedModel* climb = clip(ModelState::Climb);
 	if (!climb)
 		return;
 	selectModel(ModelState::Climb);
@@ -238,10 +240,9 @@ bool monster::Draw() // needs to choose animation
 	} else
 		glRotatef(rotA, 0, 1, 0);
 
-	if (GAME_STATE.render.Cartoon)
-		model->ShowC();
-	else
-		model->Show();
+	const float figure = Ink::figureScale();
+	glScalef(figure, figure, figure);
+	model->Show();
 
 	glPopMatrix();
 	glPopMatrix();
@@ -275,7 +276,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 		c->loop = file.loop;
 	}
 	referenceTop = clip(reference)->YRange(0).second;
-	if (const AnimatedCartoonModel* idle = clip(ModelState::Idle)) {
+	if (const AnimatedModel* idle = clip(ModelState::Idle)) {
 		idleBottom = idle->YRange(0).first;
 		idleTop = idle->YRange(0).second;
 	}
@@ -356,20 +357,20 @@ void monster::initBlood(ParSys& tokenBlood) const {
 //================================================================================
 void monster::useBlood(ParSys* tokenBlood) { blood = tokenBlood ? tokenBlood : ownBlood.get(); }
 //================================================================================
-AnimatedCartoonModel* monster::clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
+AnimatedModel* monster::clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
 //================================================================================
 MonsterAnimations monster::spawnAnimations() const {
 	MonsterAnimations animations{};
 	// Random move / idle phase, so monsters spawned in the same tick don't march in step.
 	for (ModelState state : {ModelState::Move, ModelState::Idle})
-		if (const AnimatedCartoonModel* c = clip(state); c && c->FrameCount() > 1)
+		if (const AnimatedModel* c = clip(state); c && c->FrameCount() > 1)
 			animations[static_cast<int>(state)].frame = static_cast<float>(rand() % (c->FrameCount() - 1));
 	return animations;
 }
 //================================================================================
 void monster::restoreAnimations(int state, const MonsterAnimations& animations) {
 	for (int s = 0; s < static_cast<int>(animations.size()); s++)
-		if (AnimatedCartoonModel* c = clip(static_cast<ModelState>(s)))
+		if (AnimatedModel* c = clip(static_cast<ModelState>(s)))
 			c->SetPlayback(animations[s]);
 	selectModel(static_cast<ModelState>(state));
 }
@@ -377,7 +378,7 @@ void monster::restoreAnimations(int state, const MonsterAnimations& animations) 
 MonsterAnimations monster::animations() const {
 	MonsterAnimations animations{};
 	for (int s = 0; s < static_cast<int>(animations.size()); s++)
-		if (const AnimatedCartoonModel* c = clip(static_cast<ModelState>(s)))
+		if (const AnimatedModel* c = clip(static_cast<ModelState>(s)))
 			animations[s] = c->Playback();
 	return animations;
 }

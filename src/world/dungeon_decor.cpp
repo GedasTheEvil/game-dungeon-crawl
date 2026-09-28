@@ -225,7 +225,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 	if (cell.type < 0)
 		return;
 
-	AnimatedCartoonModel* model = GAME_STATE.decor.model[cell.type].get();
+	AnimatedModel* model = GAME_STATE.decor.model[cell.type].get();
 	if (model == nullptr)
 		return;
 
@@ -282,7 +282,7 @@ void Dungeon::drawDecalTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {
-	AnimatedCartoonModel* model = GAME_STATE.decor.torch.get();
+	AnimatedModel* model = GAME_STATE.decor.torch.get();
 	if (!torch[MapIndex(i, j)] || model == nullptr)
 		return;
 
@@ -298,7 +298,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 	const LadderCell& cell = ladder[MapIndex(i, j)];
 	if (cell.style < 0)
 		return;
-	AnimatedCartoonModel* model = GAME_STATE.decor.ladder[cell.style][cell.piece].get();
+	AnimatedModel* model = GAME_STATE.decor.ladder[cell.style][cell.piece].get();
 	if (model == nullptr)
 		return;
 

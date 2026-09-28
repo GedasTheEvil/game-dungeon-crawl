@@ -1,0 +1,40 @@
+# Toon shading review (F1): monsters, props, items, tiles side by side with the lit look.
+seed 1
+god
+level 1
+wait 30
+screenshot lit_start
+toon on
+wait 2
+screenshot toon_start
+walk right 3
+wait 5
+screenshot toon_torch
+camera 20 10
+wait 5
+screenshot toon_side
+camera 0 0
+toon off
+wait 2
+screenshot lit_torch
+level tests/levels/props
+toon on
+wait 30
+screenshot toon_props
+walk right 5
+wait 5
+screenshot toon_chests
+toon off
+wait 2
+screenshot lit_chests
+level tests/levels/monsters
+toon on
+wait 30
+walk right 2
+walk down 5.9
+walk left 2
+screenshot toon_monsters
+toon off
+wait 2
+screenshot lit_monsters
+quit

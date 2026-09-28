@@ -23,7 +23,6 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Draft map                        | `M`                       |        |
 | Menu / back                      | `Esc`                     |        |
 | Cartoon shading                  | `F1`                      |        |
-| Original models                  | `F2`                      |        |
 
 The same list is in the game under Options.
 

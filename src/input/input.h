@@ -23,7 +23,6 @@ const unsigned char KEY_INTERACT = 'e';
 const unsigned char KEY_INTERACT_UPPER = 'E';
 
 const int SPECIAL_TOGGLE_CARTOON = 1;
-const int SPECIAL_TOGGLE_ORIGINAL_MODEL = 2;
 const int SPECIAL_MOVE_LEFT = 100;
 const int SPECIAL_MOVE_UP = 101;
 const int SPECIAL_MOVE_RIGHT = 102;

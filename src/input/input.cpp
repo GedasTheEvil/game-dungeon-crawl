@@ -192,9 +192,6 @@ void specialKeyPressed(int key, int x, int y) {
 	if (key == SPECIAL_TOGGLE_CARTOON)
 		GAME_STATE.render.Cartoon = !GAME_STATE.render.Cartoon;
 
-	if (key == SPECIAL_TOGGLE_ORIGINAL_MODEL)
-		GAME_STATE.render.Orig_model = !GAME_STATE.render.Orig_model;
-
 	if (ScreenState::IsGameplayInteractionAllowed(GAME_STATE)) {
 		PlayerActionController::execute(MapSpecialGameplayAction(key));
 	}

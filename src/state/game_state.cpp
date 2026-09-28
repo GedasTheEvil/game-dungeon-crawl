@@ -10,12 +10,11 @@
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
-std::unique_ptr<AnimatedCartoonModel> loadStaticModel(const char* path, Textura& tex) {
-	auto model = std::make_unique<AnimatedCartoonModel>();
+std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Textura& tex) {
+	auto model = std::make_unique<AnimatedModel>();
 	if (!model->Load(path))
 		return nullptr;
 	model->BindTexture(tex.ID());
-	model->outline = false;
 	model->Compile();
 	return model;
 }
@@ -200,21 +199,21 @@ void GameState::Load() {
 	items.potion->scale = 5;
 
 	textures.sphinx_t.LoadPNG("textures/props/sphinx.png");
-	models.sphinx = std::make_unique<AnimatedCartoonModel>();
+	models.sphinx = std::make_unique<AnimatedModel>();
 	models.sphinx->Load("models/props/sphinx.md3");
 	models.sphinx->BindTexture(textures.sphinx_t.ID());
 	models.sphinx->Centrify();
 	models.sphinx->Compile();
 
 	textures.ankh_t.LoadPNG("textures/props/ankh.png");
-	models.ankh = std::make_unique<AnimatedCartoonModel>();
+	models.ankh = std::make_unique<AnimatedModel>();
 	models.ankh->Load("models/props/ankh.md3");
 	models.ankh->BindTexture(textures.ankh_t.ID());
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
 	textures.question_t.LoadPNG("textures/props/questionmark.png");
-	models.question = std::make_unique<AnimatedCartoonModel>();
+	models.question = std::make_unique<AnimatedModel>();
 	models.question->Load("models/props/questionmark.md3");
 	models.question->BindTexture(textures.question_t.ID());
 	models.question->Centrify();
@@ -229,19 +228,17 @@ void GameState::Load() {
 		snprintf(path, sizeof(path), "textures/decorations/decor_%s.png", DECOR_NAMES[d]);
 		decor.tex[d].LoadPNG(path);
 		snprintf(path, sizeof(path), "models/decorations/decor_%s.md3", DECOR_NAMES[d]);
-		auto model = std::make_unique<AnimatedCartoonModel>();
+		auto model = std::make_unique<AnimatedModel>();
 		if (!model->Load(path))
 			continue;
 		model->BindTexture(decor.tex[d].ID());
-		model->outline = false;
 		model->Compile(); // no Centrify: the files are in tile units
 		decor.model[d] = std::move(model);
 	}
 	decor.torchTex.LoadPNG("textures/decorations/decor_torch.png");
-	auto torchModel = std::make_unique<AnimatedCartoonModel>();
+	auto torchModel = std::make_unique<AnimatedModel>();
 	if (torchModel->Load("models/decorations/decor_torch.md3")) {
 		torchModel->BindTexture(decor.torchTex.ID());
-		torchModel->outline = false;
 		torchModel->Compile();
 		decor.torch = std::move(torchModel);
 	}
@@ -253,11 +250,10 @@ void GameState::Load() {
 			decor.ladderTex[s][p].LoadPNG(path);
 			snprintf(path, sizeof(path), "models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
 					 LADDER_PIECE_NAMES[p]);
-			auto model = std::make_unique<AnimatedCartoonModel>();
+			auto model = std::make_unique<AnimatedModel>();
 			if (!model->Load(path))
 				continue;
 			model->BindTexture(decor.ladderTex[s][p].ID());
-			model->outline = false;
 			model->Compile();
 			decor.ladder[s][p] = std::move(model);
 		}

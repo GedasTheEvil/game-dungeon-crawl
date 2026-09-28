@@ -38,7 +38,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
   brazier, offerings, scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
-  drawn textured only (no toon pass, no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
+  drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
 * `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
@@ -81,9 +81,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), `src/graphics/shader.cpp` (toon shading, ramp in `textures/Shader.txt`), model/texture wiring in `src/state/game_state.cpp`.
+* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/game_state.cpp`.
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
-  toon mode stays unlit) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
+  toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
+  lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `model-viewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.

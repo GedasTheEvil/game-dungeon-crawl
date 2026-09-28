@@ -122,7 +122,7 @@ struct ControlRow {
 	MouseInput mouse;
 };
 
-constexpr std::array<ControlRow, 12> CONTROLS = {{
+constexpr std::array<ControlRow, 11> CONTROLS = {{
 	{"Move left / right", "A / D , Left / Right", MouseInput::None},
 	{"Climb up / down (ladders)", "W / S , Up / Down", MouseInput::None},
 	{"Jump", "Space", MouseInput::Right},
@@ -134,7 +134,6 @@ constexpr std::array<ControlRow, 12> CONTROLS = {{
 	{"Draft map", "M", MouseInput::None},
 	{"Menu / back", "Esc", MouseInput::None},
 	{"Cartoon shading", "F1", MouseInput::None},
-	{"Original models", "F2", MouseInput::None},
 }};
 
 const char* mouseLabel(MouseInput m) {

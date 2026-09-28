@@ -4,7 +4,8 @@
 #include <cstdint>
 
 // Per-pixel point lights over a dark ambient for the gameplay scene (GLSL 1.20 program on top of the
-// fixed-function pipeline: texture x vertex colour x (ambient + lights)). Toon mode keeps the old unlit path.
+// fixed-function pipeline: texture x vertex colour x (ambient + lights)). Toon mode (F1) snaps the light to cel
+// bands; Ink draws the outlines.
 //
 // Per frame: begin() -> add() lights -> commit() -> draw the scene -> end(). add() takes positions in the
 // current modelview's local space, so callers can add lights from inside their own transforms.

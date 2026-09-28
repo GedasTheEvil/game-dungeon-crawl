@@ -7,24 +7,28 @@
 #include "hud.h"
 #include "../ui/level_gem.h"
 #include "lighting.h"
+#include "ink.h"
 #include "gl_includes.h"
 #include <string>
 
 int weaponRot = 0;
 
 namespace {
+constexpr float SCENE_NEAR = 10.f;
+constexpr float SCENE_FAR = 300.f;
 constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // Towards the back wall so the fists close round the rungs: the ladder's rungs are 2.35 in front of the wall
 // (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
 
 void drawWeapon() { // floats in front of the chest
+	const float playerScale = GAME_STATE.Player->scale * Ink::figureScale();
 	glPushMatrix();
 	if (GAME_STATE.Player->rotA > 0) {
-		glTranslatef(GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
+		glTranslatef(playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
 		glRotatef(-45.f - static_cast<float>(weaponRot), 0, 0, 1);
 	} else {
-		glTranslatef(-GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
+		glTranslatef(-playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
 		glRotatef(45.f + static_cast<float>(weaponRot), 0, 0, 1);
 	}
 	GAME_STATE.ui.invent->Equipped()->Draw();
@@ -119,13 +123,14 @@ void Draw() {
 		break;
 	}
 
+	Ink::begin(SCENE_NEAR, SCENE_FAR);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, static_cast<float>(GAME_STATE.render.resX) / static_cast<float>(GAME_STATE.render.resY),
-				   10.0f, 300.0f);
+				   SCENE_NEAR, SCENE_FAR);
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);
@@ -161,6 +166,7 @@ void Draw() {
 		GAME_STATE.ui.wlc->DrawLoose();
 	}
 	Lighting::end();
+	Ink::end();
 
 	glLoadIdentity();
 

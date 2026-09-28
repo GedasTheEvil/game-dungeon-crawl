@@ -10,8 +10,6 @@
 #include <cstdlib>
 #include <memory>
 
-void normalize(VECTOR& v);
-
 namespace {
 // Map x within a cell at which the drawn player (always at the screen centre) is in front of the ladder:
 // tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw).
@@ -95,41 +93,6 @@ Dungeon::Dungeon() {
 		m[i].state = static_cast<int>(ModelState::Move);
 		m[i].facing_dir = 0;
 	}
-
-	char line[255];
-	float shaderData[32][3];
-
-	FILE* in = nullptr;
-	in = fopen("textures/ShaderD.txt", "r");
-
-	if (in) {
-		for (int i = 0; i < 32; i++) {
-			if (feof(in))
-				break;
-
-			if (fgets(line, 255, in) == nullptr)
-				break;
-
-			shaderData[i][0] = shaderData[i][1] = shaderData[i][2] = float(atof(line));
-		}
-
-		fclose(in);
-	}
-
-	glGenTextures(1, reinterpret_cast<GLuint*>(&shaderTexture[0]));
-
-	glBindTexture(GL_TEXTURE_1D, shaderTexture[0]);
-
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 32, 0, GL_RGB, GL_FLOAT, shaderData);
-
-	lightAngle.X = 0.0f;
-	lightAngle.Y = 0.0f;
-	lightAngle.Z = 1.0f;
-
-	normalize(lightAngle);
 
 	aniT = std::make_unique<timer>(50);
 

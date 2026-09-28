@@ -4,7 +4,7 @@
 #include "../entities/monster.h"
 #include "../entities/player.h"
 #include "../graphics/texture_registry.h"
-#include "../graphics/shader.h"
+#include "../graphics/ani.h"
 #include "../world/dungeon.h"
 #include "../graphics/font.h"
 #include "../entities/item.h"
@@ -30,8 +30,7 @@ struct Camera {
 };
 
 struct RenderSettings {
-	bool Cartoon = false;	 // toon shading off by default (F1 toggles)
-	bool Orig_model = false; // F2 toggles the translucent textured overlay used with toon shading
+	bool Cartoon = false; // toon shading off by default (F1 toggles)
 	int resX = 800;
 	int resY = 500;
 };
@@ -65,18 +64,17 @@ struct TrapPair {
 };
 
 struct SceneModels {
-	std::unique_ptr<AnimatedCartoonModel> sphinx, ankh, question;
+	std::unique_ptr<AnimatedModel> sphinx, ankh, question;
 };
 
 struct DecorSet {
 	Textura tex[DECOR_COUNT];
-	std::unique_ptr<AnimatedCartoonModel> model[DECOR_COUNT]; // null if the file failed to load
-	Textura decalTex;										  // atlas, DECAL_DEFS order
+	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
+	Textura decalTex;								   // atlas, DECAL_DEFS order
 	Textura torchTex;
-	std::unique_ptr<AnimatedCartoonModel> torch; // null if the file failed to load
+	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
 	Textura ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
-	std::unique_ptr<AnimatedCartoonModel> ladder[LADDER_STYLE_COUNT]
-												[LADDER_PIECE_COUNT]; // null if the file failed to load
+	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 
 // Keys, gates, levers and rock falls: static models in tile units like the props (tools/blender/models/mechanism.py).
@@ -85,8 +83,8 @@ struct DecorSet {
 struct MechanismSet {
 	Textura keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
 	Textura leverHandleTex, rockTex, crackTex;
-	std::unique_ptr<AnimatedCartoonModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
-	std::unique_ptr<AnimatedCartoonModel> leverHandle, rock, crack;
+	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
+	std::unique_ptr<AnimatedModel> leverHandle, rock, crack;
 };
 
 struct GameTimers {

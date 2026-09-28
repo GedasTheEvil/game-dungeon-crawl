@@ -1,6 +1,9 @@
+#define GL_GLEXT_PROTOTYPES // glGenerateMipmap, exported by libGL on Linux
 #include "textures.h"
 #include <GL/gl.h>
-#include <GL/glu.h>
+#include <GL/glext.h>
+#include <algorithm>
+#include <cstring>
 #include "../core/logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,9 +17,30 @@
 #include "../../external/stb/stb_image.h"
 #pragma GCC diagnostic pop
 
+namespace {
+constexpr float MAX_ANISOTROPY = 8.f;
+
+// The anisotropy the driver allows, capped at MAX_ANISOTROPY; 1 (off) without the extension.
+float anisotropy() {
+	static float level = -1.f;
+	if (level < 0.f) {
+		level = 1.f;
+		const char* ext = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+		if (ext != nullptr && (strstr(ext, "GL_EXT_texture_filter_anisotropic") != nullptr ||
+							   strstr(ext, "GL_ARB_texture_filter_anisotropic") != nullptr)) {
+			float driverMax = 1.f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &driverMax);
+			level = std::clamp(driverMax, 1.f, MAX_ANISOTROPY);
+		}
+		LOG_INFOF("texture", "Anisotropic filtering: %dx", static_cast<int>(level));
+	}
+	return level;
+}
+} // namespace
+
 Textura::Textura() { loaded = false; }
 //================================================================================================================================
-int Textura::LoadPNG(const char* filename, bool mipmaps) {
+int Textura::LoadPNG(const char* filename, TexFilter filter) {
 	int channels = 0;
 	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
 		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
@@ -41,18 +65,19 @@ int Textura::LoadPNG(const char* filename, bool mipmaps) {
 	LOG_INFOF("texture", "Texture id=[%d]", texture.texID);
 
 	glBindTexture(GL_TEXTURE_2D, texture.texID);
+	bool mipmaps = filter == TexFilter::Mipmapped;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+	if (mipmaps)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy());
 
 	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	if (mipmaps)
-		gluBuild2DMipmaps(GL_TEXTURE_2D, static_cast<GLint>(format), texture.width, texture.height, format,
-						  GL_UNSIGNED_BYTE, data);
-	else
-		glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
-					 GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
+				 GL_UNSIGNED_BYTE, data);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	if (mipmaps)
+		glGenerateMipmap(GL_TEXTURE_2D); // keeps the real size; gluBuild2DMipmaps rescaled non-power-of-two images
 
 	// OpenGL has its own copy on the GPU.
 	stbi_image_free(data);

@@ -192,14 +192,14 @@ Editor::Editor() {
 	heading.Load("../fonts/papyrus.png", 3.6f, 0.12f, true);
 	body.Load("../fonts/papyrus.png", 2.7f, 0.08f, true);
 	small.Load("../fonts/papyrus.png", 2.3f, 0.06f, true);
-	wallTexture.LoadPNG("../textures/ui/scarab_slate.png");
-	papyrus.LoadPNG("../textures/ui/papyrus_sheet.png");
+	wallTexture.LoadPNG("../textures/ui/scarab_slate.png", TexFilter::Flat);
+	papyrus.LoadPNG("../textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	for (int type = 0; type < TILE_COUNT; type++) {
 		const char* icon = tileInfo(type).icon;
 		if (icon == nullptr)
 			continue;
 		std::string path = std::string("textures/") + icon;
-		hasIcon[type] = icons[type].LoadPNG(path.c_str()) != 0;
+		hasIcon[type] = icons[type].LoadPNG(path.c_str(), TexFilter::Flat) != 0;
 		if (!hasIcon[type])
 			fprintf(stderr, "Cannot load %s\n", path.c_str());
 	}

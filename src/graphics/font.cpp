@@ -86,7 +86,7 @@ float Font::TextWidth(const char* text) const {
 void Font::Load(const char filename[], float size, float spacing, bool proportional) // Build Our Font Display List
 {
 	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
-	if (!t.LoadPNG(filename))
+	if (!t.LoadPNG(filename, TexFilter::Flat))
 		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
 	t.Bind();
 

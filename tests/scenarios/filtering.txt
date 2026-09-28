@@ -1,0 +1,18 @@
+# Texture filtering review: floor and walls at grazing angles, where missing mipmaps shimmer and blur.
+seed 1
+god
+level 1
+wait 30
+screenshot default_view
+camera 0 60
+wait 5
+screenshot grazing_floor
+camera 45 70
+wait 5
+screenshot grazing_diagonal
+camera 0 0
+toon on
+camera 0 60
+wait 5
+screenshot toon_grazing_floor
+quit

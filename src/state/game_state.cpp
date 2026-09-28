@@ -51,9 +51,9 @@ GameState::~GameState() {
 void GameState::Load() {
 	// init main load resourses
 	fonts.load_font.Load("fonts/papyrus.png", 7, -1.0);
-	textures.load_bg.LoadPNG("textures/ui/scarab_slate.png");
-	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png");
-	textures.progBar.LoadPNG("textures/ui/loading.png");
+	textures.load_bg.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
+	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	textures.progBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.blackTex.LoadPNG("textures/dungeon/wallback.png");
 	textures.black_t.LoadPNG("textures/dungeon/black.png");
@@ -89,7 +89,7 @@ void GameState::Load() {
 	textures.giantRat_t.LoadPNG("textures/monsters/rat_giant.png");
 	textures.bat_t.LoadPNG("textures/monsters/bat.png");
 	textures.giantBat_t.LoadPNG("textures/monsters/bat_giant.png");
-	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png");
+	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 	ui.rid = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
@@ -222,7 +222,7 @@ void GameState::Load() {
 	textures.plasma_t.LoadPNG("textures/effects/plasma.png");
 
 	DrawLoad(80, "Loading decorations");
-	decor.decalTex.LoadPNG("textures/decorations/decals.png", true);
+	decor.decalTex.LoadPNG("textures/decorations/decals.png");
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		char path[64];
 		snprintf(path, sizeof(path), "textures/decorations/decor_%s.png", DECOR_NAMES[d]);

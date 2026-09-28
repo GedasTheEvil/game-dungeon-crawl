@@ -41,6 +41,23 @@ Asset paths are relative to the repo root: run every program from there.
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [remodeling.md](remodeling.md).
 
+## Code structure
+
+* `core/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
+  `GameState`, created before the window.
+* `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
+  monster types). Monsters and items are rows of the `MONSTER_DEFS` / `ITEM_DEFS` tables in `assets.cpp`.
+* `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
+  (`ShowStatus`), save / load.
+* `entities/` - `CharacterModel` (the clips, texture and sounds of a monster type or the player), `MonsterType`
+  (a `CharacterModel` plus stats, shared), `Monster` (one monster on the level: position, health, AI state, clip
+  playback), `Player` (with its `PlayerStats`), `Item`, `Trap`.
+* `graphics/` - `AnimatedModel` (MD3; shared models take the playback as an argument), textures, fonts, lighting,
+  toon ink, particles, the gameplay `Draw()` / `Update()`.
+* `world/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, rendering, save data) and the
+  GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`).
+* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling, the scenario runner.
+
 ## Tests
 
 Scenario scripts in `tests/scenarios/` drive the game and take screenshots. `make test` runs all, `make test SCENARIO=path` runs one.
@@ -53,9 +70,10 @@ See [testing.md](testing.md).
 
 `clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel
 (`TIDY_JOBS`, default `nproc`, under a minute) and checks the project's headers too, not `external/`. The build and
-`make tidy` are expected to print no warnings. Naming rules (only these are checked; class, method and function names
-are mixed in the code base and are not):
+`make tidy` are expected to print no warnings. Naming rules (only these are checked; method and function names are
+mixed in the code base and are not):
 
+* classes, structs and enums: `CamelCase` (`Monster`, `PlayerStats`, `TexFilter`)
 * variables and parameters: `camelBack`; local constants too (`const float dx`)
 * global, `constexpr` and `static` local constants: `UPPER_CASE` (`MAX_MONSTERS`, `static const char KEY_CHARS[]`)
 * enum values: `CamelCase` (`ModelState::Die`, `Locomotion::WalkJump`); enums take `: unsigned char` (`performance-enum-size`)

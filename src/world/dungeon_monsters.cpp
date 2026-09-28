@@ -39,17 +39,14 @@ void Dungeon::UpdateMonsters() {
 				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
 				mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY);
 			}
-			mon.Touch();
 			continue;
 		}
 
 		if (mon.jumping()) { // lands even if killed in the air
 			mon.UpdateJump();
-			mon.Touch();
 			continue;
 		}
 
-		mon.Touch();
 		if (mon.Alive() && !GAME_STATE.hasWon && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
@@ -61,14 +58,12 @@ void Dungeon::UpdateMonsters() {
 				float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
 				if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
 					mon.Jump(static_cast<float>(land) - static_cast<float>(mon.Col()));
-					mon.Touch();
 					continue;
 				}
 			}
 			if (!mon.Seek(blocked, mapX, mapY))
 				if (mon.AttackDue())
 					mon.Attack(mapY);
-			mon.Touch();
 		}
 	}
 }
@@ -91,7 +86,6 @@ void Dungeon::DrawMonsters() {
 			centre >= static_cast<float>(firstCol + 10))
 			continue;
 
-		mon.Touch();
 		glPushMatrix();
 		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
 					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
@@ -105,10 +99,8 @@ void Dungeon::AttackNearest(int damage, int attackRange) {
 	for (Monster& mon : monsters) {
 		if (!mon.Active())
 			continue;
-		mon.Touch();
 		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange)) {
 			mon.takeHit(damage);
-			mon.Touch();
 			break;
 		}
 	}

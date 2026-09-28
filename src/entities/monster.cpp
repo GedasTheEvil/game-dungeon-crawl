@@ -26,7 +26,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	col = spawnCol;
 	row = spawnRow;
 	health = kind.maxHealth;
-	x = kind.lastX;
+	x = 0.f;
 	state = flies() ? ModelState::Idle : ModelState::Move;
 	facing = 0;
 	flight = Flight{};

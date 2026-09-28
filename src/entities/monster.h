@@ -47,7 +47,6 @@ struct MonsterType {
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
 	Rgb blood = {0.7f, 0.1f, 0.1f};
-	mutable float lastX = 0.f; // TEMP: x of the last monster of this type touched; a new one spawns there
 };
 
 // A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
@@ -76,8 +75,7 @@ class Monster {
 	Monster(const Monster&) = delete;
 	Monster& operator=(const Monster&) = delete;
 	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
-	void Touch() const { type->lastX = x; } // TEMP
-	void Clear();							// the slot is empty
+	void Clear(); // the slot is empty
 	[[nodiscard]] bool Active() const { return type != nullptr; }
 	[[nodiscard]] int Col() const { return col; }
 	[[nodiscard]] int Row() const { return row; }

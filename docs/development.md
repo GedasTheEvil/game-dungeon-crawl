@@ -50,4 +50,11 @@ See [testing.md](testing.md).
 * Format source files: `make format`
 * Run static analysis (clang-tidy): `make tidy`
 
-`clang-tidy` uses the project configuration from `.clang-tidy`.
+`clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel
+(`TIDY_JOBS`, default `nproc`, under a minute) and checks the project's headers too, not `external/`. The build and
+`make tidy` are expected to print no warnings. Naming rules (only these are checked; class, method and function names
+are mixed in the code base and are not):
+
+* variables and parameters: `camelBack`; local constants too (`const float dx`)
+* global, `constexpr` and `static` local constants: `UPPER_CASE` (`MAX_MONSTERS`, `static const char KEY_CHARS[]`)
+* enum values: `CamelCase` (`ModelState::Die`, `Locomotion::WalkJump`); enums take `: unsigned char` (`performance-enum-size`)

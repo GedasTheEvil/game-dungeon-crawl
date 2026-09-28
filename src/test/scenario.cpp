@@ -41,7 +41,7 @@ constexpr int MAX_TICKS = 10 * 60 * 1000 / Scenario::TICK_MS; // 10 min of game 
 constexpr int WALK_STALL_TICKS = 30;						  // no movement this long = blocked
 constexpr float WALK_EPSILON = 0.0001f;
 
-enum class CommandType {
+enum class CommandType : unsigned char {
 	Resolution,
 	Seed,
 	God,
@@ -68,8 +68,23 @@ enum class CommandType {
 	Quit,
 };
 
-enum class Field { X, Y, Hp, Stamina, Level, Alive, Won, Might, Armor, EquipType, EquipId, Keys, ItemCount, ItemLevel };
-enum class Op { Eq, Ne, Lt, Le, Gt, Ge };
+enum class Field : unsigned char {
+	X,
+	Y,
+	Hp,
+	Stamina,
+	Level,
+	Alive,
+	Won,
+	Might,
+	Armor,
+	EquipType,
+	EquipId,
+	Keys,
+	ItemCount,
+	ItemLevel
+};
+enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 
 struct Command {
 	CommandType type = CommandType::Quit;

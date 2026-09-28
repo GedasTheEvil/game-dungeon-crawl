@@ -22,10 +22,10 @@ void drawWeapon() { // floats in front of the chest
 	glPushMatrix();
 	if (GAME_STATE.Player->rotA > 0) {
 		glTranslatef(GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
-		glRotatef(-45 - weaponRot, 0, 0, 1);
+		glRotatef(-45.f - static_cast<float>(weaponRot), 0, 0, 1);
 	} else {
 		glTranslatef(-GAME_STATE.Player->scale / 20, GAME_STATE.Player->scale / 4 * 3 + 0.27, 2);
-		glRotatef(45 + weaponRot, 0, 0, 1);
+		glRotatef(45.f + static_cast<float>(weaponRot), 0, 0, 1);
 	}
 	GAME_STATE.ui.invent->Equipped()->Draw();
 

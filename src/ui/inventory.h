@@ -41,7 +41,7 @@ constexpr int NONE = -1;
 class inventory {
   private:
 	// Clickable things on the screen.
-	enum class Target { None, Slot, UseButton, UpgradeButton };
+	enum class Target : unsigned char { None, Slot, UseButton, UpgradeButton };
 
 	int counts[InvSlot::COUNT] = {};
 	int levels[InvSlot::COUNT] = {}; // weapons only, from 1
@@ -88,7 +88,7 @@ class inventory {
 	bool show; // if true, show inventory
 	inventory();
 	~inventory();
-	void GetItem(int type, int ID);
+	void GetItem(int type, int id);
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);

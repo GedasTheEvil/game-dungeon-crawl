@@ -46,7 +46,7 @@ class AnimatedModel {
 	bool loop;
 	AnimatedModel();
 	~AnimatedModel();
-	int Load(const char FileName[]); // MD3 (see tools/blender/md3.py)
+	int Load(const char filename[]); // MD3 (see tools/blender/md3.py)
 	void Show();
 	void Advance_Animation();
 	void setSpeed(int nSpeed);

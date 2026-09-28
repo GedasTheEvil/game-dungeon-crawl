@@ -53,7 +53,7 @@ int Dungeon::leapLanding(int col, int row, int dir) const {
 }
 //======================================================================================
 void Dungeon::UpdateMonsters() {
-	for (int a = 0; a < CMaxMonsters; a++) {
+	for (int a = 0; a < MAX_MONSTERS; a++) {
 		if (m[a].orX == -1 || m[a].orY == -1)
 			continue;
 
@@ -110,7 +110,7 @@ void Dungeon::clearMonsters() {
 void Dungeon::DrawMonsters() {
 	int firstCol = static_cast<int>(mapX) - 4;
 	int firstRow = static_cast<int>(mapY) - 3;
-	for (int a = 0; a < CMaxMonsters; a++) {
+	for (int a = 0; a < MAX_MONSTERS; a++) {
 		if (m[a].orX == -1 || m[a].orY == -1)
 			continue;
 		float centre = static_cast<float>(m[a].orX) + m[a].mapX + 0.5f; // the drawn tiles: 10 x 6
@@ -130,7 +130,7 @@ void Dungeon::DrawMonsters() {
 }
 //======================================================================================
 void Dungeon::GetAttack(int damage, int attackRange) {
-	for (int i = 0; i < CMaxMonsters; i++) {
+	for (int i = 0; i < MAX_MONSTERS; i++) {
 		if (m[i].orX != -1 && m[i].orY != -1) {
 			SyncMonsterFromToken(i);
 			if (m[i].m->Alive() && m[i].m->Nearby(mapX, mapY, attackRange)) {
@@ -169,7 +169,7 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 bool Dungeon::SpawnMonster(int i, int j) {
 	int index = -1;
 
-	for (int a = 0; a < CMaxMonsters; a++)
+	for (int a = 0; a < MAX_MONSTERS; a++)
 		if (m[a].orX == i && m[a].orY == j) {
 			index = a;
 			break;
@@ -178,7 +178,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (index != -1)
 		return false;
 
-	for (int a = 0; a < CMaxMonsters; a++)
+	for (int a = 0; a < MAX_MONSTERS; a++)
 		if (m[a].orX == -1 && m[a].orY == -1) {
 			index = a;
 			break;
@@ -189,7 +189,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 		return true;
 	}
 
-	for (int a = 0; a < CMaxMonsters; a++)
+	for (int a = 0; a < MAX_MONSTERS; a++)
 		if (m[a].HP < 1) {
 			index = a;
 			break;

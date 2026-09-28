@@ -29,8 +29,8 @@ Sound::Sound() {
 		gAudioOpened = true;
 	}
 
-	OGG = 0;
-	WAV = 0;
+	OGG = false;
+	WAV = false;
 	data = nullptr;
 	Mdata = nullptr;
 }
@@ -40,8 +40,8 @@ Sound::~Sound() {
 		Mix_FreeChunk(data);
 	if (OGG)
 		Mix_FreeMusic(Mdata);
-	WAV = 0;
-	OGG = 0;
+	WAV = false;
+	OGG = false;
 
 	gSoundInstanceCount--;
 	if (gAudioOpened && gSoundInstanceCount == 0) {
@@ -56,7 +56,7 @@ Sound::~Sound() {
 bool Sound::LoadWAV(const char filename[]) {
 	if (WAV || OGG) {
 		LOG_ERROR("audio", "Sound load error:A sound file has already been loaded");
-		return 0;
+		return false;
 	}
 
 	data = Mix_LoadWAV(filename);
@@ -64,18 +64,18 @@ bool Sound::LoadWAV(const char filename[]) {
 	if (data == nullptr) {
 		LOG_ERRORF("audio", "Sound load error: failed loading [NULL, %s]", Mix_GetError());
 
-		return 0;
+		return false;
 	}
 
-	WAV = 1;
+	WAV = true;
 
-	return 1;
+	return true;
 }
 
 bool Sound::LoadOGG(const char filename[]) {
 	if (WAV || OGG) {
 		LOG_ERROR("audio", "Sound load error:A sound file has already been loaded");
-		return 0;
+		return false;
 	}
 
 	Mdata = Mix_LoadMUS(filename);
@@ -83,12 +83,12 @@ bool Sound::LoadOGG(const char filename[]) {
 	if (Mdata == nullptr) {
 		LOG_ERRORF("audio", "Sound load error: failed loading [NULL, %s]", Mix_GetError());
 
-		return 0;
+		return false;
 	}
 
-	OGG = 1;
+	OGG = true;
 
-	return 1;
+	return true;
 }
 
 void Sound::Play() {

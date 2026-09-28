@@ -75,10 +75,10 @@ AnimatedModel::AnimatedModel() {
 	speed = 1;
 	scale = 0.0f;
 	frameC = 0;
-	compiled = 0;
+	compiled = false;
 	texture = 0;
-	bounds = 0;
-	loop = 1;
+	bounds = false;
+	loop = true;
 	frameChange = std::make_unique<timer>(100);
 }
 ////============================================================
@@ -255,14 +255,16 @@ void AnimatedModel::Advance_Animation() {
 	if (!frameChange->TimePassed())
 		return;
 
-	if (!loop && frame < frameC)
-		frame += 0.04 * speed;
+	const auto frames = static_cast<float>(frameC);
+	const float step = 0.04f * static_cast<float>(speed);
+	if (!loop && frame < frames)
+		frame += step;
 
-	if (!loop && frame >= frameC - 1)
-		frame = frameC - 1;
+	if (!loop && frame >= frames - 1)
+		frame = frames - 1;
 
 	if (loop)
-		frame += 0.04 * speed;
+		frame += step;
 
 	if (loop && frame >= (frameC - 0.2))
 		frame = 0.0;
@@ -282,7 +284,7 @@ void AnimatedModel::Compile() {
 	List.resize(frameC);
 
 	for (int i = 0; i < frameC; i++) {
-		List[i] = glGenLists(1);
+		List[i] = static_cast<int>(glGenLists(1));
 
 		glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -302,7 +304,7 @@ void AnimatedModel::Compile() {
 		glEndList();
 	}
 
-	compiled = 1;
+	compiled = true;
 }
 //============================================================
 void AnimatedModel::BindTexture(int t) { texture = t; }

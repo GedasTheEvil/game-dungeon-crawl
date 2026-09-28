@@ -239,7 +239,7 @@ void Editor::updateHover(float x, float y) {
 			hoveredTile = type;
 			hoveredTarget = Target::Tile;
 		}
-	const std::pair<Rect, Target> TARGETS[] = {
+	static const std::pair<Rect, Target> TARGETS[] = {
 		{PAINT_BUTTON, Target::PaintMode}, {CHECK_BUTTON, Target::CheckMode}, {ATTRIBUTE_BOX, Target::Attribute},
 		{VALUE_BOX, Target::Value},		   {NAME_BOX, Target::Name},		  {SAVE_BUTTON, Target::Save},
 		{LOAD_BUTTON, Target::Load},

@@ -262,8 +262,8 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 
-	PlayerActionController::applyCameraDelta(-MOUSE_LOOK_SENSITIVITY * (lastMx - a),
-											 -MOUSE_LOOK_SENSITIVITY * (lastMy - b));
+	PlayerActionController::applyCameraDelta(-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMx - a),
+											 -MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMy - b));
 
 	lastMx = a;
 	lastMy = b;

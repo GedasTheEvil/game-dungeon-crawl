@@ -5,7 +5,7 @@
 #include <fstream>
 #include <memory>
 
-enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
+enum class LogLevel : unsigned char { DEBUG, INFO, WARNING, ERROR };
 
 class Logger {
   private:

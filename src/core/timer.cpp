@@ -15,7 +15,7 @@ int GameClock::now() { return gVirtualClock ? gVirtualMs : static_cast<int>(SDL_
 
 timer::timer() {
 	time_start = GameClock::now();
-	ticks = CDefTime;
+	ticks = DEFAULT_TIMER_MS;
 }
 
 timer::timer(int defT) {
@@ -29,9 +29,9 @@ bool timer::TimePassed() {
 	int xxx = GameClock::now();
 	if (xxx - time_start >= ticks) {
 		time_start = GameClock::now();
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 bool timer::TimePassed(bool noRepeat) {
@@ -39,9 +39,9 @@ bool timer::TimePassed(bool noRepeat) {
 	if (xxx - time_start >= ticks) {
 		if (!noRepeat)
 			time_start = GameClock::now();
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 void timer::Reset() { time_start = GameClock::now(); }

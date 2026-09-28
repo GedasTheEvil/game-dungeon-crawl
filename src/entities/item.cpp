@@ -33,11 +33,11 @@ void item::Draw() {
 
 bool item::getPickedUp() {
 	if (!loaded)
-		return 0;
+		return false;
 
-	in_inventory = 1;
+	in_inventory = true;
 
-	return 1;
+	return true;
 }
 
 item::item() {
@@ -45,13 +45,13 @@ item::item() {
 	itemY = 0;
 	scale = 0;
 	rotA = 0;
-	loaded = 0;
+	loaded = false;
 	heal = 1;
 	damage = 1;
 	range = 1;
 	type = 0;
 }
-item::~item() { loaded = 0; }
+item::~item() { loaded = false; }
 
 bool item::loadModel(const char filename[], Textura& texture, bool compile) {
 	tex = texture;
@@ -62,6 +62,6 @@ bool item::loadModel(const char filename[], Textura& texture, bool compile) {
 	if (compile)
 		mdl->Compile();
 
-	loaded = 1;
-	return 1;
+	loaded = true;
+	return true;
 }

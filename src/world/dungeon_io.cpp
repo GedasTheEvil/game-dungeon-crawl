@@ -25,8 +25,8 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
 	bool entranceFound = false;
-	for (int j = 0; j < kMapHeight; j++)
-		for (int i = 0; i < kMapWidth; i++)
+	for (int j = 0; j < MAP_HEIGHT; j++)
+		for (int i = 0; i < MAP_WIDTH; i++)
 			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
 				mapX = static_cast<float>(i);
 				mapY = static_cast<float>(j);
@@ -52,12 +52,12 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 
 	int header;
 	f >> header;
-	if (header != kMapCellCount) {
-		LOG_ERRORF("world", "Wrong dump header. Expected '%d', got %d", kMapCellCount, header);
+	if (header != MAP_CELL_COUNT) {
+		LOG_ERRORF("world", "Wrong dump header. Expected '%d', got %d", MAP_CELL_COUNT, header);
 		return false;
 	}
 
-	if (!readLevelCells(f, map, kMapCellCount))
+	if (!readLevelCells(f, map, MAP_CELL_COUNT))
 		return false;
 
 	clearMonsters();
@@ -70,8 +70,8 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	// Saves from before the draft map end here: the map starts over from the player's position.
 	std::fill(std::begin(explored), std::end(explored), false);
 	std::string exploredBits;
-	if (f >> exploredBits && exploredBits.size() == static_cast<size_t>(kMapCellCount))
-		for (int l = 0; l < kMapCellCount; l++)
+	if (f >> exploredBits && exploredBits.size() == static_cast<size_t>(MAP_CELL_COUNT))
+		for (int l = 0; l < MAP_CELL_COUNT; l++)
 			explored[l] = exploredBits[static_cast<size_t>(l)] == '1';
 	exploreAroundPlayer();
 	return true;
@@ -80,9 +80,9 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 void Dungeon::Dump(std::ofstream& f) {
 	f << mapX << " " << mapY << " ";
 
-	f << kMapCellCount << " ";
+	f << MAP_CELL_COUNT << " ";
 
-	for (int l = 0; l < kMapCellCount; l++)
+	for (int l = 0; l < MAP_CELL_COUNT; l++)
 		f << map[l].a << " " << map[l].b << " " << map[l].c << " ";
 
 	f << keysHeld << " ";

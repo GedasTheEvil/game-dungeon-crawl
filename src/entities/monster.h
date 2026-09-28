@@ -12,7 +12,7 @@
 #include <vector>
 
 // Animation clips. Each is one file, see ClipFile; a missing optional clip shows the reference clip.
-enum class ModelState { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5 };
+enum class ModelState : unsigned char { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5 };
 constexpr int MODEL_STATE_COUNT = 6;
 
 // Playback of every clip, indexed by ModelState.
@@ -41,7 +41,7 @@ inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Climb, "_climb", false, true}};
 
 // How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
-enum class Locomotion {
+enum class Locomotion : unsigned char {
 	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
 	Walk,		// follows the player along its row
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
@@ -50,7 +50,7 @@ enum class Locomotion {
 
 // Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through him,
 // biting on the way, fly on, turn and come back. Kept per dungeon token, like the clip playback.
-enum class FlightPhase { Roost, Swoop, Return };
+enum class FlightPhase : unsigned char { Roost, Swoop, Return };
 struct Flight {
 	FlightPhase phase = FlightPhase::Roost;
 	int dir = 1;		 // +1 flying right, -1 left
@@ -113,7 +113,7 @@ class monster {
 	monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP);
 	~monster();
 	bool Draw();
-	bool loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile = 1,
+	bool loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile = true,
 				   const ClipFiles& files = MONSTER_CLIPS);
 	void setCords(float nX, float nY);
 	float rotA;

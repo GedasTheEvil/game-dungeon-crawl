@@ -26,6 +26,7 @@ EDITOR_OBJECTS=$(EDITOR_SOURCES:.cpp=.o) src/graphics/textures.o src/graphics/fo
 	src/world/level.o src/world/level_check.o
 EDITOR=dungeon-editor/editor
 CLANG_TIDY?=clang-tidy
+TIDY_JOBS?=$(shell nproc)
 
 # Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
 LEVEL_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp
@@ -58,8 +59,12 @@ format:
 tidy-fix:
 	$(CLANG_TIDY) $(SOURCES) $(EDITOR_SOURCES) --fix -- $(TIDY_CPPFLAGS)
 
+# One clang-tidy per file, TIDY_JOBS at a time (a header's warnings show once per file that includes it), without
+# clang's "N warnings generated." lines (they count the warnings filtered out, e.g. in system headers).
+# tidy-fix stays one process, so a fix in a shared header is applied once.
 tidy:
-	$(CLANG_TIDY) $(SOURCES) $(EDITOR_SOURCES) -- $(TIDY_CPPFLAGS)
+	printf '%s\n' $(SOURCES) $(EDITOR_SOURCES) | xargs -P $(TIDY_JOBS) -I{} $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 \
+		| sed '/^[0-9]* warnings\? generated\.$$/d'
 
 editor: $(EDITOR)
 

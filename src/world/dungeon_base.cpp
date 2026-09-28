@@ -21,13 +21,13 @@ constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this s
 constexpr float CLIMB_SIDE_RATE = 0.5f;
 } // namespace
 
-bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < kMapWidth && row >= 0 && row < kMapHeight; }
+bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < MAP_WIDTH && row >= 0 && row < MAP_HEIGHT; }
 //======================================================================================
 int Dungeon::MapIndex(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return 0;
 
-	return kMapWidth * row + col;
+	return MAP_WIDTH * row + col;
 }
 //======================================================================================
 Tint Dungeon::MapAt(int col, int row) const { return map[MapIndex(col, row)]; }
@@ -88,7 +88,7 @@ Dungeon::Dungeon() {
 
 	mL = false;
 
-	for (int i = 0; i < CMaxMonsters; i++) {
+	for (int i = 0; i < MAX_MONSTERS; i++) {
 		m[i].orX = -1;
 		m[i].orY = -1;
 		m[i].HP = 0;
@@ -133,7 +133,7 @@ Dungeon::Dungeon() {
 
 	aniT = std::make_unique<timer>(50);
 
-	for (int i = 0; i < CMaxMonsters; i++) {
+	for (int i = 0; i < MAX_MONSTERS; i++) {
 		m[i].t.reset();
 		m[i].at.reset();
 	}

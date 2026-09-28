@@ -65,7 +65,7 @@ bool trap::loadModel(const char filename[], Textura& texture, bool compile) {
 
 	if (compile)
 		mdl->Compile();
-	return 1;
+	return true;
 }
 
 void trap::debugText() {

@@ -112,7 +112,7 @@ void AnimatedCartoonModel::ShowC() {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glPolygonMode(GL_BACK, GL_LINE);
-		glLineWidth(outlineWidth);
+		glLineWidth(static_cast<GLfloat>(outlineWidth));
 
 		glCullFace(GL_FRONT);
 

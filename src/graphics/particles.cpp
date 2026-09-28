@@ -79,17 +79,17 @@ void ParSys::Explode() {
 
 	for (int i = 0; i < CMaxPart; i++) {
 		// Chaotic explosion: completely random directions and forces
-		float explosionForce = ((rand() % 100) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
-		float randomAngle = (rand() % 360) * 3.14159f / 180.0f;			 // Completely random angle
+		float explosionForce = (static_cast<float>(rand() % 100) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
+		float randomAngle = static_cast<float>(rand() % 360) * 3.14159f / 180.0f;		   // Completely random angle
 
 		// Add multiple layers of randomness for chaotic explosion
-		float chaosX = ((rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
-		float chaosY = ((rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
-		float upwardBurst = ((rand() % 40) / 100.0f) * 0.25f; // Random upward burst
+		float chaosX = (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float chaosY = (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float upwardBurst = (static_cast<float>(rand() % 40) / 100.0f) * 0.25f; // Random upward burst
 
-		pt[i].x += explosionForce * cos(randomAngle) * ((rand() % 4) + 1) + chaosX;
-		pt[i].y += explosionForce * sin(randomAngle) * ((rand() % 4) + 1) + upwardBurst + chaosY;
-		pt[i].z += explosionForce * ((rand() % 100 - 50) / 100.0f) * 0.5f; // Random depth
+		pt[i].x += explosionForce * std::cos(randomAngle) * static_cast<float>(rand() % 4 + 1) + chaosX;
+		pt[i].y += explosionForce * std::sin(randomAngle) * static_cast<float>(rand() % 4 + 1) + upwardBurst + chaosY;
+		pt[i].z += explosionForce * (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.5f; // Random depth
 
 		pt[i].life--;
 		if (pt[i].life <= 0) {

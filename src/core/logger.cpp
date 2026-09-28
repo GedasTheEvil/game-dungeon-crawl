@@ -49,6 +49,9 @@ void Logger::log(LogLevel level, const std::string& category, const std::string&
 	case LogLevel::ERROR:
 		levelStr = "ERROR";
 		break;
+	default:
+		levelStr = "?";
+		break;
 	}
 
 	// Get timestamp
@@ -81,13 +84,17 @@ void Logger::warning(const std::string& category, const std::string& message) {
 void Logger::error(const std::string& category, const std::string& message) { log(LogLevel::ERROR, category, message); }
 
 template <typename... Args> static std::string formatString(const std::string& format, Args... args) {
-	int size = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
-	if (size <= 0)
-		return format;
+	if constexpr (sizeof...(Args) == 0) {
+		return format; // no arguments: nothing to format (and no non-literal format string)
+	} else {
+		int size = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
+		if (size <= 0)
+			return format;
 
-	std::unique_ptr<char[]> buf(new char[size]);
-	std::snprintf(buf.get(), size, format.c_str(), args...);
-	return std::string(buf.get(), buf.get() + size - 1);
+		std::unique_ptr<char[]> buf(new char[size]);
+		std::snprintf(buf.get(), size, format.c_str(), args...);
+		return std::string(buf.get(), buf.get() + size - 1);
+	}
 }
 
 template <typename... Args> void Logger::debugf(const std::string& category, const std::string& format, Args... args) {

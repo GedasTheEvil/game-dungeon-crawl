@@ -64,13 +64,13 @@ void Font::print(float x, float y, const char* fmt, ...) // Where The Printing H
 	vsprintf(text, fmt, ap); // And Converts Symbols To Actual Numbers
 	va_end(ap);				 // Results Are Stored In Text
 
-	t.Bind();										   // Select Our Font Texture
-	glPushMatrix();									   // Store The Modelview Matrix
-	glLoadIdentity();								   // Reset The Modelview Matrix
-	glTranslatef(x, y, 1);							   // Position The Text (0,0 - Bottom Left)
-	glListBase(base - 32);							   // Choose The Font Set
-	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text); // Draws The Display List Text
-	glPopMatrix();									   // Restore The Old Projection Matrix
+	t.Bind();																 // Select Our Font Texture
+	glPushMatrix();															 // Store The Modelview Matrix
+	glLoadIdentity();														 // Reset The Modelview Matrix
+	glTranslatef(x, y, 1);													 // Position The Text (0,0 - Bottom Left)
+	glListBase(base - 32);													 // Choose The Font Set
+	glCallLists(static_cast<GLsizei>(strlen(text)), GL_UNSIGNED_BYTE, text); // Draws The Display List Text
+	glPopMatrix();															 // Restore The Old Projection Matrix
 }
 //=================================================================================================================
 float Font::TextWidth(const char* text) const {
@@ -85,7 +85,7 @@ float Font::TextWidth(const char* text) const {
 //=================================================================================================================
 void Font::Load(const char filename[], float size, float spacing, bool proportional) // Build Our Font Display List
 {
-	base = glGenLists(GLYPHS); // Creating 95 Display Lists
+	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
 	if (!t.LoadPNG(filename))
 		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
 	t.Bind();
@@ -116,11 +116,11 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 		{
 			glBegin(GL_QUADS); // Use A Quad For Each Character
 			{
-				glTexCoord2f(cx, 1.0f - cy - 0.1);
+				glTexCoord2f(cx, 1.0f - cy - 0.1f);
 				glVertex2f(shift, 0); // Texture / Vertex Coord (Bottom Left)
-				glTexCoord2f(cx + 0.1, 1.0f - cy - 0.1);
+				glTexCoord2f(cx + 0.1f, 1.0f - cy - 0.1f);
 				glVertex2f(shift + quad, 0); // Texutre / Vertex Coord (Bottom Right)
-				glTexCoord2f(cx + 0.1, 1.0f - cy);
+				glTexCoord2f(cx + 0.1f, 1.0f - cy);
 				glVertex2f(shift + quad, quad); // Texture / Vertex Coord (Top Right)
 				glTexCoord2f(cx, 1.0f - cy);
 				glVertex2f(shift, quad); // Texture / Vertex Coord (Top Left)

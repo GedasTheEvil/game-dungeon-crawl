@@ -4,7 +4,7 @@
 #include "../state/game_state.h"
 
 namespace ScreenState {
-enum class DrawScreen {
+enum class DrawScreen : unsigned char {
 	Menu,
 	Inventory,
 	Map,

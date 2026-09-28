@@ -24,7 +24,7 @@ class trap {
 	void Show();
 	void Hurt();
 	void setCords(float nX, float nY);
-	bool loadModel(const char filename[], Textura& texture, bool compile = 1);
+	bool loadModel(const char filename[], Textura& texture, bool compile = true);
 	void debugText();
 };
 

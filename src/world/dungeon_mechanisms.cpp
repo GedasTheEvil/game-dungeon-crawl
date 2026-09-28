@@ -108,8 +108,8 @@ void Dungeon::updateRocks() {
 		}
 
 		// Landed: hits the player if they are still under it.
-		int col = it->cell % kMapWidth;
-		int row = it->cell / kMapWidth;
+		int col = it->cell % MAP_WIDTH;
+		int row = it->cell / MAP_WIDTH;
 		float centreX = static_cast<float>(col) + 0.5f;
 		auto floorY = static_cast<float>(row);
 		GAME_STATE.sounds.rockCrash.Play();
@@ -134,7 +134,7 @@ void Dungeon::startOpeningGate(int cell) {
 //======================================================================================
 void Dungeon::openGates(int colour) {
 	bool any = false;
-	for (int cell = 0; cell < kMapWidth * kMapHeight; cell++)
+	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++)
 		if (map[cell].a == Gate && map[cell].b == colour && map[cell].c == 0) {
 			startOpeningGate(cell);
 			any = true;
@@ -266,8 +266,8 @@ void Dungeon::drawMechanismEffects() {
 	int row0 = static_cast<int>(mapY) - 3;
 	for (const Motion& m : fallingRocks) {
 		int age = GameClock::now() - m.startMs;
-		int col = m.cell % kMapWidth;
-		int row = m.cell / kMapWidth;
+		int col = m.cell % MAP_WIDTH;
+		int row = m.cell / MAP_WIDTH;
 		float x = static_cast<float>(col - col0) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
 		float y = static_cast<float>(row - row0) * RenderConfig::TILE_SIZE;
 		float z = -RenderConfig::TILE_SIZE * (1.f - ROCK_DEPTH);

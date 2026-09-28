@@ -43,12 +43,12 @@ class stats {
 	[[nodiscard]] static double LevelXP(int lvl);
 	void GetStronger(int ns = 1);
 	void GetXP(int xp);
-	void Heal(int hp_part);
+	void Heal(int hpPart);
 	stats();
 	~stats();
 	void GetArmored(int na = 1);
 	void GetHit(int dmg, bool ignoreArmor = false);
-	void GetTougher(int hp_part);
+	void GetTougher(int hpPart);
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

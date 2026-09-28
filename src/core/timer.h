@@ -1,7 +1,7 @@
 #ifndef TimerH
 #define TimerH
 
-constexpr int CDefTime = 100;
+constexpr int DEFAULT_TIMER_MS = 100;
 
 // Time source for all game timers. Real SDL ticks by default; scenario tests switch
 // to a virtual clock that only moves when advanced, so runs are deterministic.

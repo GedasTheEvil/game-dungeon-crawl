@@ -27,7 +27,7 @@ constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
 std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, int speed) {
 	auto m = std::make_unique<AnimatedCartoonModel>();
 	m->Load(path);
-	m->BindTexture(texId);
+	m->BindTexture(static_cast<int>(texId));
 	m->setSpeed(speed);
 	return m;
 }
@@ -202,7 +202,7 @@ bool monster::Draw() // needs to choose animation
 		}
 
 		glPushMatrix();
-		glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
+		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
 
 		GAME_STATE.textures.nullTex.Bind();
 		blood->Explode();
@@ -214,7 +214,7 @@ bool monster::Draw() // needs to choose animation
 
 	// Draw blood particles even when monster is dead
 	glPushMatrix();
-	glScalef(0.5 / scale, 0.5 / scale, 0.5 / scale);
+	glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
 
 	GAME_STATE.textures.nullTex.Bind();
 	blood->Explode();
@@ -232,9 +232,9 @@ bool monster::Draw() // needs to choose animation
 				facing_dir = attackDirection();
 			else
 				facing_dir = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
-			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
+			glRotatef(rotA + 90.f * static_cast<float>(facing_dir), 0, 1, 0);
 		} else
-			glRotatef(rotA + 90 * facing_dir, 0, 1, 0);
+			glRotatef(rotA + 90.f * static_cast<float>(facing_dir), 0, 1, 0);
 	} else
 		glRotatef(rotA, 0, 1, 0);
 
@@ -247,7 +247,7 @@ bool monster::Draw() // needs to choose animation
 	glPopMatrix();
 	if (currentState != ModelState::Climb) // the climb frame follows the height (showClimb)
 		model->Advance_Animation();
-	return 1;
+	return true;
 }
 //================================================================================
 bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile, const ClipFiles& files) {
@@ -255,7 +255,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 
 	if (stat != -1) {
 		LOG_ERRORF("entities", "Object already loaded: error %d", stat);
-		return 0;
+		return false;
 	}
 
 	reference = files.front().state;
@@ -295,7 +295,7 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 
 	applyModelState(reference);
 
-	return 1;
+	return true;
 }
 //================================================================================
 void monster::setCords(float nX, float nY) {
@@ -303,17 +303,13 @@ void monster::setCords(float nX, float nY) {
 	mapY = nY;
 }
 //================================================================================
-bool monster::Alive() {
-	if (health > 0)
-		return 1;
-
-	return 0;
-}
+bool monster::Alive() { return health > 0; }
 //================================================================================
 bool monster::getHit(int dmg) {
 	if (Alive()) {
 		health -= dmg;
-		blood->setCords(random() % static_cast<int>(scale), random() % static_cast<int>(scale), 0);
+		blood->setCords(static_cast<float>(random() % static_cast<int>(scale)),
+						static_cast<float>(random() % static_cast<int>(scale)), 0);
 		blood->Reset();
 	}
 
@@ -325,7 +321,8 @@ bool monster::getHit(int dmg) {
 		die_s.Play();
 
 		// Death blood effect - 20% more intense than regular hit
-		blood->setCords(random() % static_cast<int>(scale), random() % static_cast<int>(scale), 0);
+		blood->setCords(static_cast<float>(random() % static_cast<int>(scale)),
+						static_cast<float>(random() % static_cast<int>(scale)), 0);
 		blood->Reset();
 
 		// Trigger 6 explosion cycles (20% more than the 5 cycles from regular hit + death)

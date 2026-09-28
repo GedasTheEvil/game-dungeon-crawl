@@ -11,7 +11,7 @@ constexpr int LEVEL_WIDTH = 40;
 constexpr int LEVEL_HEIGHT = 47;
 constexpr int LEVEL_CELL_COUNT = LEVEL_WIDTH * LEVEL_HEIGHT + 1; // + 1 spare cell, kept for the file format
 
-enum DungeonTileType {
+enum DungeonTileType : unsigned char {
 	Wall = 0,
 	Empty = 1,
 	Door = 2,
@@ -28,14 +28,14 @@ enum DungeonTileType {
 	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
 };
 
-enum GateType {
+enum GateType : unsigned char {
 	GateEntrance = 1,
 	GateExit = 2,
 	GateRiddle = 3,
 	GateEmpty = 4,
 };
 
-enum MonsterType {
+enum MonsterType : unsigned char {
 	MonsterScarab = 1,
 	MonsterWorm = 2,
 	MonsterPlant = 3,

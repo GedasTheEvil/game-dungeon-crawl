@@ -14,19 +14,19 @@
 //   World space:  map * TILE_SIZE, OpenGL units, used for rendering
 //   Screen space: projection of world space, origin top-left
 
-constexpr int CMaxMonsters = 32; // live monster slots; the campaign's busiest level has 15
+constexpr int MAX_MONSTERS = 32; // live monster slots; the campaign's busiest level has 15
 
 class Dungeon {
   private:
-	static constexpr int kMapWidth = LEVEL_WIDTH;
-	static constexpr int kMapHeight = LEVEL_HEIGHT;
-	static constexpr int kMapCellCount = LEVEL_CELL_COUNT;
-	Tint map[kMapCellCount];
-	DecorCell decor[kMapCellCount];
-	DecalCell decal[kMapCellCount];
-	bool torch[kMapCellCount] = {};
-	bool explored[kMapCellCount] = {}; // cells on the draft map (map_view.h)
-	LadderCell ladder[kMapCellCount];
+	static constexpr int MAP_WIDTH = LEVEL_WIDTH;
+	static constexpr int MAP_HEIGHT = LEVEL_HEIGHT;
+	static constexpr int MAP_CELL_COUNT = LEVEL_CELL_COUNT;
+	Tint map[MAP_CELL_COUNT];
+	DecorCell decor[MAP_CELL_COUNT];
+	DecalCell decal[MAP_CELL_COUNT];
+	bool torch[MAP_CELL_COUNT] = {};
+	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
+	LadderCell ladder[MAP_CELL_COUNT];
 	float mapX, mapY;
 	int texC, *Tex;
 	bool IsInBounds(int col, int row) const;
@@ -84,7 +84,7 @@ class Dungeon {
 	void drawLeverTile(int i, int j);
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	monsterToken m[CMaxMonsters];
+	monsterToken m[MAX_MONSTERS];
 	bool mL;
 	int shaderTexture[1];
 	VECTOR lightAngle;
@@ -101,7 +101,7 @@ class Dungeon {
 	bool LoadCampaignLevel(int number);
 	void Update();
 	void Draw();
-	void Move(float dirX, float dirY, bool jump = 0);
+	void Move(float dirX, float dirY, bool jump = false);
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

@@ -61,10 +61,7 @@ bool monster::Nearby(float xx, float yy, int rangei) {
 
 	float range = 0.1f * static_cast<float>(rangei);
 
-	if (fabs(tileOriginX + mapX + 0.5 - xx) <= range && std::fabs(tileOriginY - yy) < 0.7)
-		return 1;
-
-	return 0;
+	return std::fabs(tileOriginX + mapX + 0.5f - xx) <= range && std::fabs(tileOriginY - yy) < 0.7f;
 }
 
 void monster::setModelState(ModelState state) { applyModelState(state); }

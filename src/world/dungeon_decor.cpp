@@ -55,8 +55,8 @@ void Dungeon::scatterDecorations(const char* levelName) {
 	uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
 	int placed = 0;
 
-	for (int j = 0; j < kMapHeight; j++)
-		for (int i = 0; i < kMapWidth; i++) {
+	for (int j = 0; j < MAP_HEIGHT; j++)
+		for (int i = 0; i < MAP_WIDTH; i++) {
 			DecorCell& cell = decor[MapIndex(i, j)];
 			cell = DecorCell{};
 
@@ -96,10 +96,10 @@ void Dungeon::scatterDecorations(const char* levelName) {
 void Dungeon::scatterLadders(uint32_t seed) {
 	int shafts = 0;
 
-	for (int i = 0; i < kMapWidth; i++) {
+	for (int i = 0; i < MAP_WIDTH; i++) {
 		int style = 0;
 		int below = -1; // middle piece of the cell below
-		for (int j = 0; j < kMapHeight; j++) {
+		for (int j = 0; j < MAP_HEIGHT; j++) {
 			LadderCell& cell = ladder[MapIndex(i, j)];
 			cell = LadderCell{};
 			if (MapAt(i, j).a != Ladder)
@@ -139,9 +139,9 @@ void Dungeon::scatterLadders(uint32_t seed) {
 void Dungeon::scatterTorches(uint32_t seed) {
 	int placed = 0;
 
-	for (int j = 0; j < kMapHeight; j++) {
+	for (int j = 0; j < MAP_HEIGHT; j++) {
 		int lastTorch = -TORCH_MIN_GAP - 1;
-		for (int i = 0; i < kMapWidth; i++) {
+		for (int i = 0; i < MAP_WIDTH; i++) {
 			bool& cell = torch[MapIndex(i, j)];
 			cell = false;
 
@@ -167,8 +167,8 @@ void Dungeon::scatterTorches(uint32_t seed) {
 void Dungeon::scatterDecals(uint32_t seed) {
 	int placed = 0;
 
-	for (int j = 0; j < kMapHeight; j++)
-		for (int i = 0; i < kMapWidth; i++) {
+	for (int j = 0; j < MAP_HEIGHT; j++)
+		for (int i = 0; i < MAP_WIDTH; i++) {
 			DecalCell& cell = decal[MapIndex(i, j)];
 			cell = DecalCell{};
 

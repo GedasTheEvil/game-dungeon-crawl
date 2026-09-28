@@ -3,7 +3,7 @@
 
 #include "input.h"
 
-enum class GameplayAction {
+enum class GameplayAction : unsigned char {
 	None,
 	MoveLeft,
 	MoveRight,

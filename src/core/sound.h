@@ -13,8 +13,8 @@ class Sound {
   public:
 	Sound();
 	~Sound();
-	bool LoadWAV(const char Filename[]);
-	bool LoadOGG(const char Filename[]);
+	bool LoadWAV(const char filename[]);
+	bool LoadOGG(const char filename[]);
 	void Play();
 };
 

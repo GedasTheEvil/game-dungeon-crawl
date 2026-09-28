@@ -22,7 +22,7 @@ class item {
 	bool getPickedUp();
 	item();
 	~item();
-	bool loadModel(const char filename[], Textura& texture, bool compile = 1);
+	bool loadModel(const char filename[], Textura& texture, bool compile = true);
 };
 
 #endif

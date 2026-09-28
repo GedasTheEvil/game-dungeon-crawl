@@ -36,7 +36,6 @@ struct RenderSettings {
 };
 
 struct SoundBank {
-	Sound ss[2];
 	Sound drink_s;
 	Sound jump_s;
 	Sound soundtrack;

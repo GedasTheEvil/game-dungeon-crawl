@@ -105,10 +105,7 @@ std::string Basename(const std::string& path) {
 	return (slash == std::string::npos) ? path : path.substr(slash + 1);
 }
 
-// Returns the filename stem (no directory, no extension) of a path, e.g.
-// "models/monsters/anubis.md3" -> "anubis". Used only for the best-effort
-// model-stem -> texture-stem convention described in step.md; this repo has
-// no general model->texture mapping to reuse.
+// "models/monsters/anubis.md3" -> "anubis".
 std::string FileStem(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
 	std::string base = (slash == std::string::npos) ? path : path.substr(slash + 1);
@@ -120,112 +117,44 @@ std::string FileStem(const std::string& path) {
 
 // Returns the text before the first '_' in a stem, or the whole stem if it
 // has none, e.g. ParentStem("anubis_att") -> "anubis", ParentStem("anubis")
-// -> "anubis", ParentStem("ankh") -> "ankh". See step.md's "Parent/variant
-// detection rule".
+// -> "anubis", ParentStem("ankh") -> "ankh".
 std::string ParentStem(const std::string& stem) {
 	std::size_t underscore = stem.find('_');
 	return (underscore == std::string::npos) ? stem : stem.substr(0, underscore);
 }
 
-// Finds every *.md3 file in modelPath's own directory that shares its parent
-// stem (see step.md's "Parent/variant detection rule"), sorted by filename.
-// Always includes modelPath itself. Excludes any candidate whose suffix
-// (text after its first '_') is the literal token "old" (case-insensitive)
-// -- a reserved marker for stray backup files, see step.md's sphinx_old.md3
-// research. Directory listing failures (should not happen for a path that
-// already Load()-ed successfully) degrade to a group of one (just
-// modelPath) rather than throwing.
+// Every *.md3 in modelPath's directory with the same parent stem (its clips), sorted by filename.
+// Always includes modelPath itself.
 std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 	std::filesystem::path path(modelPath);
 	std::filesystem::path dir = path.parent_path();
 	if (dir.empty())
 		dir = ".";
-
-	// If the loaded file itself would fail the extension filter (rule 1) or
-	// the old-suffix filter (rule 3) were it being evaluated as a plain
-	// candidate, it is a reserved/stray file by those same rules and must
-	// not derive a shared parent stem that could pull in unrelated real
-	// family members -- e.g. sphinx_old.md3's own stem reduces to parent
-	// stem "sphinx" via ParentStem(), which would otherwise match the
-	// genuine sphinx.md3 and incorrectly merge them into one group; the
-	// existing rule-3 exclusion only ever protects a *candidate* from being
-	// pulled into someone else's group, it never revisits the loaded file's
-	// own derived parent stem. Isolating here keeps the group symmetric:
-	// a reserved/stray file's group is always exactly {itself}.
-	std::string ownStem = FileStem(modelPath);
-	bool ownExtensionFailsRule1 = (path.extension() != ".md3");
-	bool ownStemFailsRule3 = false;
-	{
-		std::size_t ownUnderscore = ownStem.find('_');
-		if (ownUnderscore != std::string::npos) {
-			std::string ownSuffix = ownStem.substr(ownUnderscore + 1);
-			for (char& c : ownSuffix) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-			if (ownSuffix == "old")
-				ownStemFailsRule3 = true;
-		}
-	}
-	if (ownExtensionFailsRule1 || ownStemFailsRule3)
-		return {modelPath};
-
-	std::string parentStem = ParentStem(FileStem(modelPath));
-	std::string loadedBasename = path.filename().string();
+	const std::string parentStem = ParentStem(FileStem(modelPath));
+	const std::string loadedBasename = path.filename().string();
 	std::vector<std::string> result;
 	bool foundLoadedFile = false;
 
 	std::error_code ec;
 	for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
-		if (ec)
-			break;
 		if (!entry.is_regular_file())
 			continue;
-
-		// The loaded file is always a member of its own group, even if it
-		// would otherwise fail the extension or old-suffix filters below
-		// (e.g. the user explicitly names models/columns.mdl_old or
-		// models/props/sphinx_old.md3 on the command line -- both load fine via
-		// AnimatedModel::Load, which does not check extension). Those
-		// filters exist to keep OTHER candidates out of a group the user
-		// didn't ask to see; they must never evict the file the user
-		// actually loaded.
-		bool isLoadedFile = (entry.path().filename().string() == loadedBasename);
-
-		if (!isLoadedFile) {
-			if (entry.path().extension() != ".md3")
-				continue;
-
-			std::string candidateStem = entry.path().stem().string();
-			if (ParentStem(candidateStem) != parentStem)
-				continue;
-
-			std::size_t underscore = candidateStem.find('_');
-			if (underscore != std::string::npos) {
-				std::string suffix = candidateStem.substr(underscore + 1);
-				for (char& c : suffix) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-				if (suffix == "old")
-					continue; // reserved backup-file marker, see step.md
-			}
-		}
-
-		if (isLoadedFile)
-			foundLoadedFile = true;
+		const bool isLoadedFile = entry.path().filename().string() == loadedBasename;
+		if (!isLoadedFile &&
+			(entry.path().extension() != ".md3" || ParentStem(entry.path().stem().string()) != parentStem))
+			continue;
+		foundLoadedFile |= isLoadedFile;
 		result.push_back((dir / entry.path().filename()).string());
 	}
-
+	if (ec)
+		return {modelPath};
 	if (!foundLoadedFile)
-		result.push_back(modelPath); // directory iteration somehow missed
-		                               // the loaded file (or excluded it) --
-		                               // add it back rather than silently
-		                               // dropping the model the user loaded
-
-	if (ec || result.empty())
-		return {modelPath}; // directory read failed or found nothing --
-		                     // degrade to a group of one rather than
-		                     // losing the model the user actually loaded
+		result.push_back(modelPath);
 	std::sort(result.begin(), result.end());
 	return result;
 }
 
-// Best-effort texture fallback chain (step.md):
+// Best-effort texture fallback chain:
 //   1. textures/<category>/<texture-stem>.png, where <category> is the model's
 //      sub-directory under models/ (e.g. models/monsters/anubis.md3 ->
 //      textures/monsters/anubis.png)
@@ -233,8 +162,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 //   3. untextured (id 0)
 // Every failure is logged as a warning, never fatal -- a missing/wrong
 // texture must never prevent seeing the animation. textureStem is already
-// resolved by the caller (ParentStem(FileStem(path))) -- see step.md's
-// "Existing texture-fallback chain to extend, not duplicate": a variant's
+// resolved by the caller (ParentStem(FileStem(path))): a variant's
 // texture always comes from its parent's stem, not its own.
 int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Textura& tex) {
 	std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
@@ -255,8 +183,7 @@ int LoadTextureForModel(const std::string& modelPath, const std::string& texture
 // g_model must already have a successful Load() by the time this runs --
 // called once from main() for the initial model, and again from
 // KeyPressed() on every [space] cycle. Resets the loop timer and stats;
-// deliberately leaves g_durationSeconds/g_yawDeg/g_pitchDeg untouched (see
-// step.md's "what carries over" section).
+// deliberately leaves g_durationSeconds/g_yawDeg/g_pitchDeg untouched.
 void ApplyLoadedModel(const std::string& path) {
 	std::string textureStem = ParentStem(FileStem(path));
 	int texId = LoadTextureForModel(path, textureStem, g_texture);
@@ -404,7 +331,7 @@ void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
 	// (e.g. ankh.md3, sphinx.md3) would fall through to reloading the
 	// exact same file on every press -- redundant I/O, a pointless
 	// Compile()/BindTexture() (leaking one GL texture + display-list set
-	// per press, see step.md's known-leak note), and a visible progress-
+	// per press), and a visible progress-
 	// bar reset the "Animation states: 0" line explicitly promises won't
 	// happen. size() <= 1 is what actually makes a lone-model group a
 	// true no-op.

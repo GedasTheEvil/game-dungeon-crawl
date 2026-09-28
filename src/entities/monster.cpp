@@ -64,7 +64,7 @@ bool Monster::takeHit(int dmg) {
 		enter(ModelState::Die);
 		sprintf(GAME_STATE.status, "Gained %d XP", type->xp);
 		GAME_STATE.status_timer->Reset();
-		GAME_STATE.ui.stats->AddXP(type->xp);
+		GAME_STATE.player->stats.AddXP(type->xp);
 		type->model.dieSound.Play();
 
 		// Death blood effect, stronger than a hit.

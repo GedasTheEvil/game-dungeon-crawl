@@ -44,7 +44,7 @@ void Monster::Attack(float py) {
 
 	enter(ModelState::Attack);
 	if (sameRow(py)) {
-		GAME_STATE.ui.stats->TakeHit(type->damage);
+		GAME_STATE.player->TakeHit(type->damage);
 		type->model.attackSound.Play();
 	}
 }
@@ -94,7 +94,7 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
 			if (sameRow(py)) {
-				GAME_STATE.ui.stats->TakeHit(type->damage);
+				GAME_STATE.player->TakeHit(type->damage);
 				type->model.attackSound.Play();
 			}
 		}

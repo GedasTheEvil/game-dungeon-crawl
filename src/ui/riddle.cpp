@@ -250,7 +250,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			show = false;
 			snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "Riddle answered, got %d XP", XP_REWARD);
 			GAME_STATE.status_timer->Reset();
-			GAME_STATE.ui.stats->AddXP(XP_REWARD);
+			GAME_STATE.player->stats.AddXP(XP_REWARD);
 		} else {
 			misses++;
 			wrongAtMs = GameClock::now();

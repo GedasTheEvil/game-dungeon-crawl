@@ -98,7 +98,7 @@ void Update() {
 			weaponRot = 0;
 	}
 
-	GAME_STATE.ui.stats->UpdateStamina();
+	GAME_STATE.player->stats.UpdateStamina();
 	glutPostRedisplay();
 }
 
@@ -178,7 +178,7 @@ void Draw() {
 	glEnable(GL_BLEND);
 
 	GAME_STATE.textures.nullTex.Bind();
-	Hud::drawPlayerBars(GAME_STATE.player->healthRatio(), GAME_STATE.player->staminaRatio());
+	Hud::drawPlayerBars(GAME_STATE.player->stats.HealthRatio(), GAME_STATE.player->stats.StaminaRatio());
 	Hud::drawKeys(GAME_STATE.dungeon.KeysHeld());
 	LevelGem::draw(GAME_STATE.curMap, GAME_STATE.render.resX, GAME_STATE.render.resY, GAME_STATE.fonts.hud);
 

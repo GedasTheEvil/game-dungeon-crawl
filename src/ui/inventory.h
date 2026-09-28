@@ -87,6 +87,7 @@ class Inventory {
 	bool show; // if true, show inventory
 	Inventory();
 	~Inventory();
+	void Reset(); // a new game: only the club
 	void AddItem(int type, int id);
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);

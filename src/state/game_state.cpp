@@ -264,9 +264,6 @@ void GameState::Load() {
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 
-	DrawLoad(88, "Loading stats");
-	ui.stats = std::make_unique<PlayerStats>();
-
 	textures.trap_t.LoadPNG("textures/traps/spikes.png");
 	traps.TrapD = std::make_unique<Trap>();
 	traps.TrapD->loadModel("models/traps/spikes.md3", textures.trap_t);
@@ -316,6 +313,8 @@ void GameState::Load() {
 }
 //==============================================================
 void GameState::NewGame() {
+	player->stats = PlayerStats{};
+	ui.inventory->Reset();
 	curMap = 1;
 	dungeon.LoadCampaignLevel(curMap);
 	hasWon = false;
@@ -394,7 +393,7 @@ void GameState::Save(const char filename[]) {
 
 	dump << curMap << " ";
 
-	ui.stats->Dump(dump);
+	player->stats.Dump(dump);
 	ui.inventory->Dump(dump);
 	dungeon.Dump(dump);
 
@@ -419,7 +418,7 @@ void GameState::LoadSave(const char filename[]) {
 	dump >> curMap;
 	LOG_INFOF("game", "Got MapNo : %d", curMap);
 
-	ui.stats->LoadDump(dump);
+	player->stats.LoadDump(dump);
 	LOG_INFO("game", "Done loading Stats");
 	ui.inventory->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");

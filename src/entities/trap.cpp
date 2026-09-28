@@ -44,7 +44,7 @@ void Trap::Hurt() {
 	if (now - gLastHitMs > TRAP_STREAK_RESET_MS)
 		gHitStreak = 0;
 	gLastHitMs = now;
-	GAME_STATE.ui.stats->TakeHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
+	GAME_STATE.player->TakeHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
 	gHitStreak++;
 }
 

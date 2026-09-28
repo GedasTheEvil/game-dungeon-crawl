@@ -117,7 +117,7 @@ void Dungeon::updateRocks() {
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
 			GAME_STATE.player->Alive()) {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
-			GAME_STATE.ui.stats->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
+			GAME_STATE.player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
 			showStatus(crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
 		}
 		map[it->cell].value = 1;

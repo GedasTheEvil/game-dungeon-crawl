@@ -172,7 +172,7 @@ std::string stateLine() {
 	GAME_STATE.dungeon.getC(x, y);
 	char buf[256];
 	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
-			 GAME_STATE.player->health, GAME_STATE.player->Stamina(), GAME_STATE.curMap, screenName(),
+			 GAME_STATE.player->stats.CurrentHP(), GAME_STATE.player->stats.Stamina(), GAME_STATE.curMap, screenName(),
 			 GAME_STATE.player->Alive() ? 1 : 0, GAME_STATE.hasWon ? 1 : 0);
 	return buf;
 }
@@ -188,9 +188,9 @@ float fieldValue(const Command& cmd) {
 	case Field::Y:
 		return y;
 	case Field::Hp:
-		return static_cast<float>(GAME_STATE.player->health);
+		return static_cast<float>(GAME_STATE.player->stats.CurrentHP());
 	case Field::Stamina:
-		return static_cast<float>(GAME_STATE.player->Stamina());
+		return static_cast<float>(GAME_STATE.player->stats.Stamina());
 	case Field::Level:
 		return static_cast<float>(GAME_STATE.curMap);
 	case Field::Alive:
@@ -198,9 +198,9 @@ float fieldValue(const Command& cmd) {
 	case Field::Won:
 		return GAME_STATE.hasWon ? 1.f : 0.f;
 	case Field::Might:
-		return static_cast<float>(GAME_STATE.ui.stats->CurrentMight());
+		return static_cast<float>(GAME_STATE.player->stats.CurrentMight());
 	case Field::Armor:
-		return static_cast<float>(GAME_STATE.ui.stats->CurrentArmor());
+		return static_cast<float>(GAME_STATE.player->stats.CurrentArmor());
 	case Field::EquipType:
 		return static_cast<float>(GAME_STATE.ui.inventory->EquippedType());
 	case Field::EquipId:
@@ -208,7 +208,7 @@ float fieldValue(const Command& cmd) {
 	case Field::Keys:
 		return static_cast<float>(GAME_STATE.dungeon.KeysHeld());
 	case Field::XpTotal:
-		return static_cast<float>(GAME_STATE.ui.stats->CurrentXP());
+		return static_cast<float>(GAME_STATE.player->stats.CurrentXP());
 	case Field::Riddle:
 		return GAME_STATE.ui.riddle->show ? 1.f : 0.f;
 	case Field::ItemCount:
@@ -688,7 +688,7 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
-		GAME_STATE.ui.stats->AddXP(static_cast<int>(cmd.a));
+		GAME_STATE.player->stats.AddXP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Riddles:

@@ -17,10 +17,10 @@ void startJump() {
 		GAME_STATE.hasWon)
 		return;
 
-	if (GAME_STATE.player->Stamina() < JUMP_STAMINA_COST)
+	if (GAME_STATE.player->stats.Stamina() < JUMP_STAMINA_COST)
 		return;
 
-	GAME_STATE.player->ConsumeStamina(JUMP_STAMINA_COST);
+	GAME_STATE.player->stats.ConsumeStamina(JUMP_STAMINA_COST);
 
 	float curX, curY;
 	GAME_STATE.dungeon.getC(curX, curY);
@@ -42,7 +42,7 @@ void startJump() {
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
-		float moveMultiplier = GAME_STATE.ui.stats->SprintMoveMultiplier();
+		float moveMultiplier = GAME_STATE.player->stats.SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
@@ -87,7 +87,7 @@ class PlayerActionController {
 		if (!GAME_STATE.player->attackTimer.TimePassed())
 			return;
 
-		GAME_STATE.dungeon.AttackNearest(GAME_STATE.ui.stats->Damage(), GAME_STATE.ui.inventory->Equipped()->range);
+		GAME_STATE.dungeon.AttackNearest(GAME_STATE.player->stats.Damage(), GAME_STATE.ui.inventory->Equipped()->range);
 		GAME_STATE.player->PlayAttackSound();
 		GAME_STATE.player->attacking = true;
 	}
@@ -214,7 +214,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.ui.stats->SetSprintRequested(true);
+		GAME_STATE.player->stats.SetSprintRequested(true);
 }
 
 void specialKeyReleased(int key, int x, int y) {
@@ -222,7 +222,7 @@ void specialKeyReleased(int key, int x, int y) {
 	(void)y;
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.ui.stats->SetSprintRequested(false);
+		GAME_STATE.player->stats.SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {

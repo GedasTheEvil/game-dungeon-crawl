@@ -10,7 +10,7 @@
 #include "../entities/item.h"
 #include "../ui/inventory.h"
 #include "../core/sound.h"
-#include "../ui/stats.h"
+#include "../entities/player_stats.h"
 #include "../core/timer.h"
 #include "../entities/trap.h"
 #include "../ui/riddle.h"
@@ -90,7 +90,6 @@ struct GameTimers {
 
 struct UIContext {
 	std::unique_ptr<Inventory> inventory;
-	std::unique_ptr<PlayerStats> stats;
 	std::unique_ptr<Riddle> riddle;
 	MainMenu menu;
 	std::unique_ptr<EndScreens> endScreens;

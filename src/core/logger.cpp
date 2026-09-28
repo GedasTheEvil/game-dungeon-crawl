@@ -130,6 +130,8 @@ template void Logger::infof<int, int>(const std::string&, const std::string&, in
 template void Logger::warningf<int, int>(const std::string&, const std::string&, int, int);
 template void Logger::errorf<int, int>(const std::string&, const std::string&, int, int);
 
+template void Logger::infof<int, int, int>(const std::string&, const std::string&, int, int, int);
+
 template void Logger::debugf<const char*>(const std::string&, const std::string&, const char*);
 template void Logger::infof<const char*>(const std::string&, const std::string&, const char*);
 template void Logger::warningf<const char*>(const std::string&, const std::string&, const char*);

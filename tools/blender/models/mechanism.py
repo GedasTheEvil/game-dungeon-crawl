@@ -520,7 +520,7 @@ def _instance(scene, src, variant, loc, rz=0.0, ry=0.0):
 
 def _corridor(scene, x0, x1):
     """Corridor from x0 to x1 in tile units: floor, back wall, ceiling, with the game's wall texture."""
-    path = os.path.join(REPO, "textures", "dungeon", "wallback.png")
+    path = os.path.join(REPO, "textures", "dungeon", "wall_stone.png")
     img = bpy.data.images.load(path, check_existing=True)
     mesh = bpy.data.meshes.new("review_corridor")
     verts = [(x0, -1, 0), (x1, -1, 0), (x1, 0, 0), (x0, 0, 0), (x0, 0, 1), (x1, 0, 1), (x0, -1, 1), (x1, -1, 1)]

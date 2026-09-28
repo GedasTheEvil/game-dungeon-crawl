@@ -142,8 +142,6 @@ void Draw() {
 	if (GAME_STATE.Player->Alive())
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
 
-	GAME_STATE.textures.Dt[0].Bind();
-
 	glPushMatrix();
 	glTranslatef(-202, 0.0, -10);
 

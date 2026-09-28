@@ -55,8 +55,6 @@ void GameState::Load() {
 	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.progBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
 	textures.nullTex.LoadPNG("textures/null.png");
-	textures.blackTex.LoadPNG("textures/dungeon/wallback.png");
-	textures.black_t.LoadPNG("textures/dungeon/black.png");
 	DrawLoad(4, "Loading Textures");
 	textures.player_t.LoadPNG("textures/characters/archeologist.png");
 	DrawLoad(5, "Loading Textures");
@@ -69,12 +67,6 @@ void GameState::Load() {
 	textures.bow_t.LoadPNG("textures/items/bow.png");
 	DrawLoad(9, "Loading Textures");
 	textures.chest_t.LoadPNG("textures/items/tchest.png");
-	DrawLoad(10, "Loading Textures");
-	textures.Dt[0].LoadPNG("textures/sand.png");
-	DrawLoad(11, "Loading Textures");
-	textures.Dt[1].LoadPNG("textures/rock.png");
-	DrawLoad(12, "Loading Textures");
-	textures.Dt[2].LoadPNG("textures/vein.png");
 	DrawLoad(13, "Loading Textures");
 	textures.club_t.LoadPNG("textures/items/club.png");
 	DrawLoad(14, "Loading Textures");
@@ -223,6 +215,17 @@ void GameState::Load() {
 
 	DrawLoad(80, "Loading decorations");
 	decor.decalTex.LoadPNG("textures/decorations/decals.png");
+	auto loadSurfaces = [](Textura* tex, const char* const* names, int count) {
+		for (int s = 0; s < count; s++) {
+			char path[64];
+			snprintf(path, sizeof(path), "textures/dungeon/%s.png", names[s]);
+			tex[s].LoadPNG(path);
+		}
+	};
+	loadSurfaces(decor.wallTex, WALL_STYLE_NAMES, WALL_STYLE_COUNT);
+	loadSurfaces(decor.floorTex, FLOOR_STYLE_NAMES, FLOOR_STYLE_COUNT);
+	loadSurfaces(decor.ceilingTex, CEILING_STYLE_NAMES, CEILING_STYLE_COUNT);
+	decor.rockTex.LoadPNG(ROCK_TEXTURE);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		char path[64];
 		snprintf(path, sizeof(path), "textures/decorations/decor_%s.png", DECOR_NAMES[d]);

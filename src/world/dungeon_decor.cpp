@@ -17,7 +17,15 @@ constexpr uint32_t DECAL_SALT = 0x51ed270bU;
 constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
-constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
+constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
+// Share of the rows of open cells that are rough-hewn rock, from the first level to the deepest.
+constexpr uint32_t ROUGH_PERCENT_FIRST = 15;
+constexpr uint32_t ROUGH_PERCENT_STEP = 4; // per level
+constexpr uint32_t ROUGH_PERCENT_MAX = 60;
+constexpr uint32_t PAINTED_PERCENT = 45; // of the stretches of a dressed-stone row
+constexpr int STRETCH_MIN = 3;			 // cells; a row of dressed stone is cut into stretches, painted or bare
+constexpr int STRETCH_SPAN = 6;			 // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
+constexpr int TORCH_MIN_GAP = 4;		 // cells between torches in a row
 // Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
 constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
 constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
@@ -89,6 +97,7 @@ void Dungeon::scatterDecorations(const char* levelName) {
 	scatterTorches(seed ^ TORCH_SALT);
 	scatterDecals(seed ^ DECAL_SALT);
 	scatterLadders(seed ^ LADDER_SALT);
+	scatterSurfaces(seed ^ SURFACE_SALT);
 }
 //======================================================================================
 // Each vertical run of Ladder cells is one shaft with one style, keyed on its bottom cell: the bottom piece where it
@@ -377,4 +386,79 @@ void Dungeon::drawFires() {
 			for (int k = 0; k < n; k++)
 				Fire::draw(*flames[k].fire, ox + flames[k].x, oy + flames[k].y, flames[k].z, flames[k].seed);
 		}
+}
+//======================================================================================
+// Each row of open cells between two solid ones is rough rock (more often deeper down) or dressed stone. Dressed
+// rows are cut into stretches, each painted or bare; a painted stretch ends in broken plaster where bare stone
+// follows (stretches are at least STRETCH_MIN long, so only the one clipped by the row's end can be shorter, and it has
+// stone on one side at most). Then a variant per cell, never the same uncommon one twice in a row.
+void Dungeon::scatterSurfaces(uint32_t seed) {
+	enum Family : uint8_t { Painted, Stone, Rough };
+	uint32_t level = static_cast<uint32_t>(std::max(GAME_STATE.curMap, 1)) - 1;
+	uint32_t roughPercent = std::min(ROUGH_PERCENT_FIRST + ROUGH_PERCENT_STEP * level, ROUGH_PERCENT_MAX);
+	Family family[MAP_WIDTH];
+	int cells[3] = {};
+
+	for (int j = 0; j < MAP_HEIGHT; j++)
+		for (int start = 0; start < MAP_WIDTH;) {
+			if (MapAt(start, j).a == Wall) {
+				start++;
+				continue;
+			}
+			int end = start;
+			while (end < MAP_WIDTH && MapAt(end, j).a != Wall)
+				end++;
+
+			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(start, j)) + 0x9e3779b9U));
+			bool rough = h % 100 < roughPercent;
+			for (int i = start; i < end;) {
+				h = mix(h);
+				int len = STRETCH_MIN + static_cast<int>(h % STRETCH_SPAN);
+				h = mix(h);
+				Family f = rough ? Rough : ((h >> 8) % 100 < PAINTED_PERCENT ? Painted : Stone);
+				for (int k = i; k < std::min(i + len, end); k++)
+					family[k] = f;
+				i += len;
+			}
+
+			int prevWall = -1;
+			for (int i = start; i < end; i++) {
+				SurfaceCell& cell = surface[MapIndex(i, j)];
+				h = mix(h ^ static_cast<uint32_t>(i));
+				uint32_t roll = h % 100;
+				cell.wallMirror = false; // a mirrored neighbour would show as a mirror line at the seam
+				switch (family[i]) {
+				case Painted:
+					cell.ceiling = CEILING_STARS;
+					if (i + 1 < end && family[i + 1] == Stone)
+						cell.wall = WALL_PLASTER_BROKEN;
+					else if (i > start && family[i - 1] == Stone) {
+						cell.wall = WALL_PLASTER_BROKEN;
+						cell.wallMirror = true;
+					} else
+						cell.wall = roll < 35 ? WALL_PLASTER_WORN : WALL_PLASTER;
+					break;
+				case Stone:
+					cell.ceiling = CEILING_SLABS;
+					cell.wall = roll < 25 ? WALL_STONE_CRACKED : (roll < 45 ? WALL_STONE_SAND : WALL_STONE);
+					break;
+				case Rough:
+					cell.ceiling = CEILING_ROUGH;
+					cell.wall = roll < 35 ? WALL_ROUGH_STRATA : WALL_ROUGH;
+					break;
+				}
+				bool common = cell.wall == WALL_PLASTER || cell.wall == WALL_STONE || cell.wall == WALL_ROUGH;
+				if (!common && cell.wall == prevWall && cell.wall != WALL_PLASTER_BROKEN)
+					cell.wall = family[i] == Painted ? WALL_PLASTER : (family[i] == Stone ? WALL_STONE : WALL_ROUGH);
+				prevWall = cell.wall;
+				cells[family[i]]++;
+
+				h = mix(h);
+				roll = h % 100;
+				uint32_t sandPercent = family[i] == Rough ? 60 : 30;
+				cell.floor = roll < sandPercent ? FLOOR_SAND : (roll < sandPercent + 20 ? FLOOR_CRACKED : FLOOR_SLABS);
+			}
+			start = end;
+		}
+	LOG_INFOF("world", "Surfaces: %d painted, %d stone, %d rough cells", cells[Painted], cells[Stone], cells[Rough]);
 }

@@ -78,6 +78,13 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
   Placement: `Dungeon::scatterDecals` (35% of cells with a visible back wall, one decal per cell).
+* `tools/textures/surfaces.py` - cell surfaces in `textures/dungeon/` (RGB 512 px, mipmapped): 8 walls (painted plaster, worn,
+  broken to stone; dressed stone, cracked, sand-drifted; rough rock, strata), 3 floors (slabs, sand, cracked), 3 ceilings (stars
+  over paint, slabs over stone, rough rock), `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
+  `src/world/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
+  order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `Dungeon::scatterSurfaces` (per row
+  of open cells: rough rock, more often deeper down, or dressed stone cut into painted / bare stretches). In-game check:
+  `make test SCENARIO=tests/scenarios/surfaces.txt`.
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
@@ -145,3 +152,4 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Wall lever (4 lock colours) | `mechanisms/lever_base.md3`, `mechanisms/lever_handle.md3` | `mechanisms/lever_base_<colour>.png`, `mechanisms/lever_handle.png` | new (static, `mechanism.py`) |
 | Falling rock, ceiling crack | `mechanisms/rock.md3`, `mechanisms/ceiling_crack.md3` | `mechanisms/rock.png`, `mechanisms/ceiling_crack.png` | new (static, `mechanism.py`) |
 | Wall decals (16) | - | `decorations/decals.png` | new (generated, `tools/textures/decals.py`) |
+| Walls, floors, ceilings, rock (15) | - | `dungeon/<style>.png` | new (generated, `tools/textures/surfaces.py`) |

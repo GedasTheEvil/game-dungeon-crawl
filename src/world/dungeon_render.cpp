@@ -6,92 +6,75 @@
 #include "../graphics/render_config.h"
 #include "../graphics/lighting.h"
 
-void Dungeon::renderFlatTile(int type, int left, int right, int up, int down) {
-	if (type == Wall) {
-		glDisable(GL_BLEND);
-		GAME_STATE.textures.black_t.Bind();
-		glBegin(GL_QUADS);
-		glNormal3f(0, 0, 1);
-		glTexCoord2f(0, 0);
-		glVertex3i(0, 0, 0);
-		glTexCoord2f(0, 1);
-		glVertex3i(0, 40, 0);
-		glTexCoord2f(1, 1);
-		glVertex3i(40, 40, 0);
-		glTexCoord2f(1, 0);
-		glVertex3i(40, 0, 0);
-		glEnd();
-	} else {
-		glBegin(GL_QUADS);
-		glNormal3f(0, 0, 1);
-		glTexCoord2f(0, 0);
-		glVertex3i(0, 0, -40);
-		glTexCoord2f(0, 1);
-		glVertex3i(0, 40, -40);
-		glTexCoord2f(1, 1);
-		glVertex3i(40, 40, -40);
-		glTexCoord2f(1, 0);
-		glVertex3i(40, 0, -40);
-		glEnd();
-
-		if (!left) {
-			glBegin(GL_QUADS);
-			glNormal3f(1, 0, 0);
-			glTexCoord2f(0, 0);
-			glVertex3i(0, 0, -40);
-			glTexCoord2f(0, 1);
-			glVertex3i(0, 40, -40);
-			glTexCoord2f(1, 1);
-			glVertex3i(0, 40, 0);
-			glTexCoord2f(1, 0);
-			glVertex3i(0, 0, 0);
-			glEnd();
-		}
-		if (!right) {
-			glBegin(GL_QUADS);
-			glNormal3f(-1, 0, 0);
-			glTexCoord2f(0, 0);
-			glVertex3i(40, 0, -40);
-			glTexCoord2f(0, 1);
-			glVertex3i(40, 40, -40);
-			glTexCoord2f(1, 1);
-			glVertex3i(40, 40, 0);
-			glTexCoord2f(1, 0);
-			glVertex3i(40, 0, 0);
-			glEnd();
-		}
-		if (!up) {
-			glBegin(GL_QUADS);
-			glNormal3f(0, -1, 0);
-			glTexCoord2f(0.3f, 0.3f);
-			glVertex3i(0, 40, -40);
-			glTexCoord2f(0.3f, 0.7f);
-			glVertex3i(40, 40, -40);
-			glTexCoord2f(0.7f, 0.7f);
-			glVertex3i(40, 40, 0);
-			glTexCoord2f(0.7f, 0.3f);
-			glVertex3i(0, 40, 0);
-			glEnd();
-		}
-		if (!down) {
-			glBegin(GL_QUADS);
-			glNormal3f(0, 1, 0);
-			glTexCoord2f(0.3f, 0.3f);
-			glVertex3i(0, 0, -40);
-			glTexCoord2f(0.3f, 0.7f);
-			glVertex3i(40, 0, -40);
-			glTexCoord2f(0.7f, 0.7f);
-			glVertex3i(40, 0, 0);
-			glTexCoord2f(0.7f, 0.3f);
-			glVertex3i(0, 0, 0);
-			glEnd();
-		}
+namespace {
+// One face of a cell, corners counter-clockwise from (s0, t0).
+void quad(const float n[3], const float v[4][3], const float st[4][2]) {
+	glBegin(GL_QUADS);
+	glNormal3fv(n);
+	for (int k = 0; k < 4; k++) {
+		glTexCoord2fv(st[k]);
+		glVertex3fv(v[k]);
 	}
+	glEnd();
 }
-//======================================================================================
-void Dungeon::DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType) {
-	GAME_STATE.textures.blackTex.Bind();
-	renderFlatTile(type, leftWallType, rightWallType, upWallType, downWallType);
+} // namespace
+
+// Solid cells show the rock face, one texture over 2 x 2 cells. An open cell is a box: its back wall, the side walls
+// against solid neighbours, the floor over a solid cell and the ceiling under one. On the side walls u runs from the
+// back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
+void Dungeon::drawCellSurfaces(int i, int j) {
+	constexpr float T = RenderConfig::TILE_SIZE;
+	DecorSet& tex = GAME_STATE.decor;
+	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).a == Wall; };
+
+	if (rock(i, j)) {
+		float u0 = static_cast<float>(i & 1) * 0.5f;
+		float t0 = static_cast<float>(j & 1) * 0.5f;
+		const float n[3] = {0, 0, 1};
+		const float v[4][3] = {{0, 0, 0}, {T, 0, 0}, {T, T, 0}, {0, T, 0}};
+		const float st[4][2] = {{u0, t0}, {u0 + 0.5f, t0}, {u0 + 0.5f, t0 + 0.5f}, {u0, t0 + 0.5f}};
+		glDisable(GL_BLEND);
+		tex.rockTex.Bind();
+		quad(n, v, st);
+		return;
+	}
+
+	const SurfaceCell& cell = surface[MapIndex(i, j)];
+	float w0 = cell.wallMirror ? 1.f : 0.f;
+	float w1 = 1.f - w0;
+	tex.wallTex[cell.wall].Bind();
+	{
+		const float n[3] = {0, 0, 1};
+		const float v[4][3] = {{0, 0, -T}, {T, 0, -T}, {T, T, -T}, {0, T, -T}};
+		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		quad(n, v, st);
+	}
+	if (rock(i - 1, j)) {
+		const float n[3] = {1, 0, 0};
+		const float v[4][3] = {{0, 0, -T}, {0, 0, 0}, {0, T, 0}, {0, T, -T}};
+		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		quad(n, v, st);
+	}
+	if (rock(i + 1, j)) {
+		const float n[3] = {-1, 0, 0};
+		const float v[4][3] = {{T, 0, -T}, {T, 0, 0}, {T, T, 0}, {T, T, -T}};
+		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		quad(n, v, st);
+	}
+	if (rock(i, j - 1)) {
+		const float n[3] = {0, 1, 0};
+		const float v[4][3] = {{0, 0, 0}, {T, 0, 0}, {T, 0, -T}, {0, 0, -T}};
+		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+		tex.floorTex[cell.floor].Bind();
+		quad(n, v, st);
+	}
+	if (rock(i, j + 1)) {
+		const float n[3] = {0, -1, 0};
+		const float v[4][3] = {{0, T, 0}, {T, T, 0}, {T, T, -T}, {0, T, -T}};
+		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+		tex.ceilingTex[cell.ceiling].Bind();
+		quad(n, v, st);
+	}
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
@@ -162,7 +145,7 @@ void Dungeon::Draw() {
 		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++) {
 			if (IsInBounds(i, j)) {
 				const Tint tile = MapAt(i, j);
-				DrawSegment(tile.a, MapAt(i - 1, j).a, MapAt(i + 1, j).a, MapAt(i, j + 1).a, MapAt(i, j - 1).a);
+				drawCellSurfaces(i, j);
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);

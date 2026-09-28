@@ -24,11 +24,11 @@ class Dungeon {
 	Tint map[MAP_CELL_COUNT];
 	DecorCell decor[MAP_CELL_COUNT];
 	DecalCell decal[MAP_CELL_COUNT];
+	SurfaceCell surface[MAP_CELL_COUNT];
 	bool torch[MAP_CELL_COUNT] = {};
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
 	LadderCell ladder[MAP_CELL_COUNT];
 	float mapX, mapY;
-	int texC, *Tex;
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;
 	Tint MapAt(int col, int row) const;
@@ -51,6 +51,7 @@ class Dungeon {
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
 	void scatterDecals(uint32_t seed);
+	void scatterSurfaces(uint32_t seed);
 	void scatterTorches(uint32_t seed);
 	void drawTorchTile(int i, int j);
 	void scatterLadders(uint32_t seed);
@@ -59,8 +60,7 @@ class Dungeon {
 	int flamesAt(int i, int j, FlameSource* out) const;
 	void addLights();
 	void drawFires();
-	void DrawSegment(int type, int leftWallType, int rightWallType, int upWallType, int downWallType);
-	void renderFlatTile(int type, int left, int right, int up, int down);
+	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
 	Tint Map(float x, float y) const;
 	void InitializeMonsterSlot(int index, int i, int j);
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).

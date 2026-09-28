@@ -1,0 +1,33 @@
+# Cell surfaces: wall, floor and ceiling variants (tools/textures/surfaces.py), rough rock deeper down.
+seed 1
+god
+level 1
+wait 30
+screenshot lvl1_start
+camera 0 35
+wait 5
+screenshot lvl1_floor
+camera 0 -25
+wait 5
+screenshot lvl1_ceiling
+camera 30 10
+wait 5
+screenshot lvl1_side
+camera 0 0
+walk right 5
+wait 10
+screenshot lvl1_right
+toon on
+wait 5
+screenshot lvl1_right_toon
+toon off
+level 8
+wait 30
+screenshot lvl8_start
+level 14
+wait 30
+screenshot lvl14_start
+camera 0 30
+wait 5
+screenshot lvl14_floor
+quit

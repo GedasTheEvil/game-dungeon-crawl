@@ -125,7 +125,7 @@ bool monster::Draw() // needs to choose animation
 	glPushMatrix();
 
 	if (this != GAME_STATE.Player.get())
-		glTranslatef(40 * mapX - 20, mapY + (flies() ? flight.lift : 0.f), -30);
+		glTranslatef(40 * mapX - 20, mapY + (flies() ? flight.lift : leap.lift), -30);
 	else
 		glTranslatef(0, 0, -30 + depthOffset);
 
@@ -209,7 +209,9 @@ bool monster::Draw() // needs to choose animation
 
 	if (this != GAME_STATE.Player.get()) {
 		if (Alive()) {
-			if (!flies())
+			if (jumping())
+				facing_dir = leap.toX > leap.fromX ? 1 : -1;
+			else if (!flies())
 				facing_dir = attackDirection();
 			else
 				facing_dir = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
@@ -265,6 +267,8 @@ bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT,
 	const std::string name = std::filesystem::path(filename).filename().string();
 	die_s.LoadWAV(("sounds/" + name + "_die.wav").c_str());
 	att_s.LoadWAV(("sounds/" + name + "_att.wav").c_str());
+	if (std::string jump = "sounds/" + name + "_jump.wav"; std::filesystem::exists(jump))
+		jump_s.LoadWAV(jump.c_str());
 
 	if (compile)
 		for (auto& c : clips)

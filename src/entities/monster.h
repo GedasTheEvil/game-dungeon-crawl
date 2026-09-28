@@ -27,11 +27,12 @@ struct ClipFile {
 	bool loop; // false: plays once and holds the last frame
 };
 using ClipFiles = std::vector<ClipFile>;
-// Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling).
+// Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling) and _jump (a leap).
 inline const ClipFiles MONSTER_CLIPS = {{ModelState::Move, "", true, true},
 										{ModelState::Attack, "_att", true, true},
 										{ModelState::Die, "_die", true, false},
-										{ModelState::Idle, "_idle", false, true}};
+										{ModelState::Idle, "_idle", false, true},
+										{ModelState::Jump, "_jump", false, false}};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Move, "_walk", true, true},
@@ -43,7 +44,7 @@ inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 enum class Locomotion {
 	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
 	Walk,		// follows the player along its row
-	WalkJump,	// walks; will jump pits (giant rat, not implemented yet: walks like Walk)
+	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
 };
 
@@ -58,6 +59,14 @@ struct Flight {
 	bool bitten = false; // this pass has bitten already
 	int attackUntilMs = 0;
 	int lastMs = -1; // GameClock time of the last update
+};
+
+// Walk-jumpers: a leap over a gap of pits and traps, x in tile-local map units like mapX. Kept per dungeon token.
+struct Leap {
+	float fromX = 0.f, toX = 0.f;
+	int startMs = -1; // GameClock time of the take-off; < 0: on the ground
+	int readyMs = 0;  // no new leap before this GameClock time
+	float lift = 0.f; // world units from the floor to the model origin
 };
 
 class monster {
@@ -87,7 +96,7 @@ class monster {
 
   public:
 	std::unique_ptr<timer> Att_timer;
-	Sound die_s, att_s;
+	Sound die_s, att_s, jump_s;
 
 	int health;
 	int maxHealth;
@@ -126,6 +135,12 @@ class monster {
 	Flight flight;
 	void Fly(bool wallAhead);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
+	// Walk-jumpers: leap to tile-local x toX (the centre of the landing cell), then move along the arc until landed.
+	Leap leap;
+	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
+	[[nodiscard]] bool canJump() const;
+	void Jump(float toX);
+	void UpdateJump();
 	void Reanimate();
 	void GetCords(float& xx, float& yy);
 	bool Nearby(float xx, float yy, int range);
@@ -157,6 +172,7 @@ struct monsterToken {
 	int facing_dir;
 	MonsterAnimations anim;
 	Flight flight;
+	Leap leap;
 };
 
 #endif

@@ -1,0 +1,18 @@
+# The giant rat (Locomotion::WalkJump) leaps over pits and traps, at most once per 2 s (tests/levels/giant_rat_jump):
+# it leaps the spikes at once, lands one cell short of the player, waits out the cooldown, leaps the pit and bites.
+seed 1
+level tests/levels/giant_rat_jump
+wait 300ms
+screenshot leap_spikes
+wait 1600ms
+expect hp == 50
+wait 400ms
+screenshot leap_pit
+wait 1600ms
+screenshot bite
+expect hp < 50
+expect alive == 1
+# A gap of three cells is too wide: it stays behind the spikes (tests/levels/giant_rat_wide).
+level tests/levels/giant_rat_wide
+wait 20s
+expect hp == 50

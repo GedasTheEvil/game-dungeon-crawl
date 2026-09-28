@@ -153,3 +153,33 @@ void monster::Fly(bool wallAhead) {
 	}
 	flight.lift += (targetLift - flight.lift) * std::min(1.f, BAT_LIFT_RATE * dt);
 }
+
+bool monster::canJump() const {
+	return locomotion == Locomotion::WalkJump && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;
+}
+
+void monster::Jump(float toX) {
+	int now = GameClock::now();
+	leap.fromX = mapX;
+	leap.toX = toX;
+	leap.startMs = now;
+	leap.readyMs = now + MONSTER_JUMP_COOLDOWN_MS;
+	leap.lift = 0.f;
+	applyModelState(ModelState::Jump);
+	jump_s.Play();
+}
+
+void monster::UpdateJump() {
+	float t = static_cast<float>(GameClock::now() - leap.startMs) / static_cast<float>(MONSTER_JUMP_MS);
+	if (t >= 1.f) {
+		mapX = leap.toX;
+		leap.lift = 0.f;
+		leap.startMs = -1;
+		if (Alive())
+			applyModelState(ModelState::Move);
+		return;
+	}
+	float air = std::clamp((t - MONSTER_JUMP_TAKEOFF) / (MONSTER_JUMP_TOUCHDOWN - MONSTER_JUMP_TAKEOFF), 0.f, 1.f);
+	mapX = leap.fromX + (leap.toX - leap.fromX) * air;
+	leap.lift = 4.f * MONSTER_JUMP_HEIGHT * air * (1.f - air);
+}

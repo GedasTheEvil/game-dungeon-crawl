@@ -1,4 +1,5 @@
-"""Procedural tomb rat (plus the giant rat texture): mesh, rig, baked textures and the three .md3 animations.
+"""Procedural tomb rat (plus the giant rat texture): mesh, rig, baked textures and the .md3 animations
+(walk, attack, die, and jump: the giant rat's leap over pits and traps, plays once, the game moves the body).
 
     MCP:  p = ".../tools/blender/models/rat.py"; g = {"__file__": p, "__name__": "rat"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
@@ -31,7 +32,7 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "rat_new"
-CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30)]
+CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30), ("rat_jump", "_jump", 10)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, -0.3, 0.3), "ortho": 2.4, "res": (560, 340)}
 
@@ -436,7 +437,7 @@ def build_rig(coll, tail):
 
 REST = dict(x=0.0, y=0.0, z=0.0, pitch=0.0, roll=0.0, yaw=0.0, flex_p=0.0, flex_y=0.0, hp=0.0, hy=0.0, hr=0.0, jaw=0.0,
             tsway=0.0, tphase=0.0, tlift=0.0, tcurl=0.0, tflop=0.0,
-            plant=1.0, fplant=1.0, fup=0.0, ffwd=0.0, curl=0.0, flail=0.0, fphase=0.0)
+            plant=1.0, fplant=1.0, fup=0.0, ffwd=0.0, hup=0.0, hfwd=0.0, curl=0.0, flail=0.0, fphase=0.0)
 STRIDE, STEP_H, CYCLES = 0.2, 0.06, 2  # gait cycles per walk clip
 
 
@@ -475,6 +476,8 @@ def leg_targets(p, mats_by_leg):
         free = planted.copy()
         if front:
             free += V((0, p["ffwd"], p["fup"]))
+        else:
+            free += V((0, p["hfwd"], p["hup"]))
         free = free.lerp(leg["curled"], p["curl"])
         ph = 2 * math.pi * (p["fphase"] + {"F": 0.0, "H": 0.4}[n[0]] + (0.23 if s > 0 else 0.0))
         free += V((0.10 * s * math.sin(ph * 1.7), 0.14 * math.cos(ph * 1.3), 0.12 * math.sin(ph + 1))) * p["flail"]
@@ -613,6 +616,23 @@ DIE = [
 ]
 
 
+# Leap (one-shot, holds the landing crouch). The game moves the body along the arc (monster::UpdateJump: feet leave
+# the floor at 22 %, touch it at 83 % of the clip), so the pose stays on the floor and ends where it started.
+JUMP = [
+    (0, {}),
+    (2, dict(z=-0.035, pitch=-5, flex_p=-8, hp=-5, tsway=6)),
+    (3, dict(y=0.04, pitch=14, flex_p=10, hp=8, fplant=0, fup=0.08, ffwd=0.08, tlift=10, tsway=4)),
+    (4, dict(y=0.05, pitch=8, flex_p=-4, hp=4, jaw=6, fplant=0, fup=0.06, ffwd=0.20, plant=0, hfwd=-0.26, hup=0.0,
+             tlift=20, tsway=2)),
+    (6, dict(y=0.04, pitch=-2, flex_p=-8, hp=0, jaw=10, fplant=0, fup=0.02, ffwd=0.22, plant=0, hfwd=-0.26, hup=0.10,
+             tlift=24, tsway=2)),
+    (7, dict(y=0.02, pitch=-10, flex_p=6, hp=-4, jaw=6, fplant=0, fup=0.0, ffwd=0.12, plant=0, hfwd=0.02, hup=0.09,
+             tlift=14, tsway=4)),
+    (8, dict(z=-0.02, pitch=-6, flex_p=-6, hp=-6, fplant=1, plant=0.4, hup=0.03, tlift=6, tsway=6)),
+    (9, dict(z=-0.03, pitch=-2, flex_p=-4, hp=-3, tsway=8)),
+]
+
+
 def make_actions(rig, skin):
     rig.animation_data_create()
     acts = {}
@@ -623,12 +643,12 @@ def make_actions(rig, skin):
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         rig.animation_data.action = act
-        last = frames if name != "rat_die" else frames - 1  # loops key frame N = frame 0
+        last = frames if name not in ("rat_die", "rat_jump") else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
             if name == "rat_walk":
                 p = walk_params(f / frames)
             else:
-                p = interpolate(ATTACK if name == "rat_attack" else DIE, f)
+                p = interpolate({"rat_attack": ATTACK, "rat_die": DIE, "rat_jump": JUMP}[name], f)
                 p["tphase"] = f / CLIPS[0][2]  # keeps the tail sway going from where the walk's frame 0 is
             key_frame(rig, skin, p, f)
         acts[name] = act

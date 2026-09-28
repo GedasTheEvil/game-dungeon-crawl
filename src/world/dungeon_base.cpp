@@ -64,6 +64,7 @@ void Dungeon::SyncMonsterFromToken(int index) {
 	m[index].m->health = m[index].HP;
 	m[index].m->useBlood(m[index].blood.get());
 	m[index].m->flight = m[index].flight;
+	m[index].m->leap = m[index].leap;
 }
 //======================================================================================
 void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
@@ -75,6 +76,7 @@ void Dungeon::SyncTokenFromMonster(int index, bool includePosition) {
 	m[index].anim = m[index].m->animations();
 	m[index].facing_dir = m[index].m->FacingDir();
 	m[index].flight = m[index].m->flight;
+	m[index].leap = m[index].m->leap;
 	m[index].m->useBlood(nullptr);
 }
 //======================================================================================

@@ -28,6 +28,14 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
 constexpr float MONSTER_WALL_MARGIN = 0.5f; // a walker stops this far before a wall (its half width)
 
+// Walk-jumpers (monster::Jump): the arc follows the _jump clip (10 frames at ~14 fps): crouch, air, landing crouch.
+constexpr int MONSTER_JUMP_MS = 650;
+constexpr float MONSTER_JUMP_TAKEOFF = 0.22f;	// fraction of the leap when the feet leave the floor
+constexpr float MONSTER_JUMP_TOUCHDOWN = 0.83f; // ... and touch it again
+constexpr float MONSTER_JUMP_HEIGHT = 12.f;		// world units at the top of the arc
+constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
+constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
+
 // Bats (monster::Fly). Distances in tiles along the row, heights in world units (a tile is 40) from the floor
 // to the model origin (the lowest point of the flying pose).
 constexpr float BAT_SIGHT = 1.75f;			 // a roosting bat wakes up when the player is this close

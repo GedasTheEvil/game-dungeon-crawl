@@ -5,6 +5,7 @@
 #include <cmath>
 #include <memory>
 #include "../graphics/render_config.h"
+#include "../input/gameplay_config.h"
 
 namespace {
 monster* getMbyType(int type) {
@@ -38,6 +39,19 @@ bool Dungeon::walkerBlocked(int col, int row) const {
 	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom
 }
 //======================================================================================
+int Dungeon::leapLanding(int col, int row, int dir) const {
+	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
+		return -1; // a wall, not a gap
+	for (int k = 1; k <= MONSTER_JUMP_MAX_GAP; k++) {
+		int c = col + dir * k;
+		if (!IsInBounds(c, row) || isSolidTile(MapAt(c, row)))
+			return -1;
+		if (!walkerBlocked(c, row))
+			return c;
+	}
+	return -1;
+}
+//======================================================================================
 void Dungeon::UpdateMonsters() {
 	for (int a = 0; a < CMaxMonsters; a++) {
 		if (m[a].orX == -1 || m[a].orY == -1)
@@ -54,9 +68,28 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
+		if (m[a].m->jumping()) { // lands even if killed in the air
+			m[a].m->UpdateJump();
+			SyncTokenFromMonster(a, true);
+			continue;
+		}
+
 		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
-			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(m[a].m->attackDirection())));
-			if (!m[a].m->Seek(walkerBlocked(col, m[a].orY)))
+			int dir = m[a].m->attackDirection();
+			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(dir)));
+			bool blocked = walkerBlocked(col, m[a].orY);
+			if (blocked && dir != 0 && m[a].m->canJump()) {
+				int land = leapLanding(col, m[a].orY, dir);
+				// Not while the player is in the gap: the rat would leap over him.
+				float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
+				float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
+				if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
+					m[a].m->Jump(static_cast<float>(land) - static_cast<float>(m[a].orX));
+					SyncTokenFromMonster(a, true);
+					continue;
+				}
+			}
+			if (!m[a].m->Seek(blocked))
 				if (m[a].at->TimePassed())
 					m[a].m->Attack();
 			SyncTokenFromMonster(a, true);
@@ -125,6 +158,7 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].state = static_cast<int>(m[index].m->flies() ? ModelState::Idle : ModelState::Move);
 	m[index].facing_dir = 0;
 	m[index].flight = Flight{};
+	m[index].leap = Leap{};
 	m[index].anim = m[index].m->spawnAnimations();
 	if (!m[index].t)
 		m[index].t = std::make_unique<timer>(70);

@@ -41,6 +41,9 @@ class Dungeon {
 	void UpdateMonsters();
 	// A walker can't step into (col, row): a wall, a trap, or no floor under it (a pit or a drop).
 	[[nodiscard]] bool walkerBlocked(int col, int row) const;
+	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
+	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
+	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	void clearMonsters(); // a level or save was loaded: the old level's monsters are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	void DrawTreasureTile(int i, int j);

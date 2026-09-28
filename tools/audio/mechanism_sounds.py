@@ -3,6 +3,7 @@
     python3 tools/audio/mechanism_sounds.py [out_dir]      (default: sounds/)
 
 Writes rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
+rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
 key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
 lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris).
 Everything is generated (no samples), so this script is the source of the sounds.
@@ -78,6 +79,38 @@ def rat_die():
     s *= 1 + 0.35 * np.sin(2 * np.pi * 28 * t)
     s *= np.exp(-t / 0.25) * (1 - np.exp(-t / 0.01))
     return normalize(s + 0.1 * band(rng.standard_normal(len(t)), 2000, 6000) * np.exp(-t / 0.1), -4)
+
+
+def claws(n, spread):
+    """n short gritty claw scrapes on stone within spread seconds."""
+    out = np.zeros(int((spread + 0.05) * SR))
+    for k in range(n):
+        t = t_axis(0.03)
+        tick = band(rng.standard_normal(len(t)), 2500, 8000) * env_ad(t, 0.0008, 0.007)
+        place(out, tick, k * spread / max(n - 1, 1) + rng.uniform(0, 0.008), rng.uniform(0.5, 1.0))
+    return out
+
+
+def rat_jump():
+    # Timed to the leap (MONSTER_JUMP_*): feet leave the floor at ~0.14 s, touch it again at ~0.54 s.
+    out = np.zeros(int(0.75 * SR))
+    place(out, claws(5, 0.08), 0.06, 0.5)
+    t = t_axis(0.15)
+    thump = np.sin(2 * np.pi * 95 * t) * env_ad(t, 0.002, 0.03)
+    place(out, thump, 0.12, 0.35)
+    place(out, squeak(2300, 0.08, wobble=30), 0.12, 0.35)
+    t = t_axis(0.4)
+    whoosh = band(rng.standard_normal(len(t)), 400, 2200) * np.sin(np.pi * t / 0.4) ** 2
+    place(out, whoosh, 0.14, 0.12)
+    for k, at in enumerate((0.53, 0.56, 0.6, 0.63)):  # front paws, then hind paws
+        t = t_axis(0.08)
+        pat = lowpass(rng.standard_normal(len(t)), 900) * env_ad(t, 0.001, 0.012) * 3
+        place(out, pat, at, 0.5 if k < 2 else 0.35)
+    place(out, claws(4, 0.1), 0.55, 0.3)
+    t = t_axis(0.2)
+    thud = np.sin(2 * np.pi * (80 - 30 * t / 0.2) * t) * env_ad(t, 0.003, 0.045)
+    place(out, thud, 0.56, 0.6)
+    return normalize(out, -5)
 
 
 def ring(freqs, dur, decay):
@@ -169,6 +202,7 @@ def rock_crash():
 SOUNDS = {
     "rat_att": rat_att, "rat_die": rat_die, "key_pickup": key_pickup, "gate_open": gate_open,
     "gate_locked": gate_locked, "lever": lever, "rock_rumble": rock_rumble, "rock_crash": rock_crash,
+    "rat_jump": rat_jump,  # last: the fixed rng stream of the older sounds stays the same
 }
 
 

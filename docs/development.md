@@ -56,7 +56,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   toon ink, particles, the gameplay `Draw()` / `Update()`.
 * `world/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, rendering, save data) and the
   GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`).
-* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling, the scenario runner.
+* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling, the scenario runner. UI look and layout conventions:
+  [ui.md](ui.md).
 
 ## Tests
 

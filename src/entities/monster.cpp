@@ -19,6 +19,11 @@ inline int random() { return rand(); }
 #endif
 
 namespace {
+// Health bar in world units (a tile is 40), the same for every monster.
+constexpr float HEALTH_BAR_WIDTH = 14.f;
+constexpr float HEALTH_BAR_HEIGHT = 1.5f;
+constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
+
 std::unique_ptr<AnimatedCartoonModel> makeModel(const char* path, GLuint texId, int speed) {
 	auto m = std::make_unique<AnimatedCartoonModel>();
 	m->Load(path);
@@ -33,6 +38,56 @@ void monster::applyModelState(ModelState state) {
 	selectModel(state);
 	if (entering && !model->loop)
 		model->Reset(); // one-shot clips (die, jump) play from the start
+}
+//================================================================================
+void monster::drawHealthBar() {
+	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
+	float y = referenceTop * scale + HEALTH_BAR_GAP;
+	if (flies() && flight.phase == FlightPhase::Roost)
+		y = idleBottom * scale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
+	glPushMatrix();
+	glTranslatef(0, y, 0);
+	// Billboard: keep where the anchor is, drop the camera and model rotation, keep the scene's scale.
+	GLfloat mv[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+	float s = std::sqrt(mv[0] * mv[0] + mv[1] * mv[1] + mv[2] * mv[2]);
+	for (int c = 0; c < 3; c++)
+		for (int r = 0; r < 3; r++)
+			mv[c * 4 + r] = c == r ? s : 0.f;
+	glLoadMatrixf(mv);
+
+	nullTexture.Bind();
+	Lighting::setEmissive(true);
+	float w = HEALTH_BAR_WIDTH / 2;
+	float h = HEALTH_BAR_HEIGHT;
+	float o = 0.1f; // outline just outside the bar
+	glColor4f(1, 1, 1, 0.9);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(-w - o, -o, 0);
+	glVertex3f(w + o, -o, 0);
+	glVertex3f(w + o, h + o, 0);
+	glVertex3f(-w - o, h + o, 0);
+	glEnd();
+
+	glEnable(GL_BLEND);
+	float ratio = healthRatio();
+	float right = -w + 2 * w * ratio;
+	glColor3f(3 * (1 - ratio), 3 * ratio, 0);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
+	glVertex3f(-w, 0, 0);
+	glTexCoord2f(1, 0);
+	glVertex3f(right, 0, 0);
+	glTexCoord2f(1, 1);
+	glVertex3f(right, h, 0);
+	glTexCoord2f(0, 1);
+	glVertex3f(-w, h, 0);
+	glEnd();
+	glDisable(GL_BLEND);
+
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
+	glPopMatrix();
 }
 //================================================================================
 void monster::selectModel(ModelState state) {
@@ -131,6 +186,9 @@ bool monster::Draw() // needs to choose animation
 
 	glPushMatrix(); // will add rotation
 
+	if (this != GAME_STATE.Player.get() && Alive())
+		drawHealthBar();
+
 	glScalef(scale, scale, scale);
 
 	if (Alive()) {
@@ -141,47 +199,6 @@ bool monster::Draw() // needs to choose animation
 				applyModelState(ModelState::Attack);
 			else
 				applyModelState(ModelState::Move);
-		}
-
-		if (this != GAME_STATE.Player.get()) {
-			nullTexture.Bind();
-			// Above the model; a flyer's bar hangs under it while it roosts (the ceiling is above).
-			float barY = 1.1f;
-			if (flies())
-				barY = flight.phase == FlightPhase::Roost ? idleBottom - 0.2f : referenceTop + 0.1f;
-			glPushMatrix();
-			glTranslatef(0, barY - 1.1f, 0);
-
-			glColor4f(1, 1, 1, 0.9);
-			Lighting::setEmissive(true);
-
-			glBegin(GL_LINE_LOOP);
-			glVertex3f(-0.501, 1.101, 0);
-			glVertex3f(0.501, 1.101, 0);
-			glVertex3f(0.501, 1.201, 0);
-			glVertex3f(-0.501, 1.201, 0);
-			glEnd();
-
-			glEnable(GL_BLEND);
-
-			float xxx = static_cast<float>(health) / static_cast<float>(maxHealth);
-			glColor3f(3 * (1 - xxx), 3 * xxx, 0);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0, 0);
-			glVertex3f(-0.5, 1.1, 0);
-			glTexCoord2f(1, 0);
-			glVertex3f(xxx - 0.5, 1.1, 0);
-			glTexCoord2f(1, 1);
-			glVertex3f(xxx - 0.5, 1.2, 0);
-			glTexCoord2f(0, 1);
-			glVertex3f(-0.5, 1.2, 0);
-			glEnd();
-
-			glDisable(GL_BLEND);
-			Lighting::setEmissive(false);
-			glPopMatrix();
-
-			glColor3f(1, 1, 1);
 		}
 
 		glPushMatrix();

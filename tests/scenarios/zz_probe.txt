@@ -1,7 +1,0 @@
-seed 1
-god
-level tests/levels/rats
-wait 5
-walk right 1.5
-wait 8s
-screenshot a

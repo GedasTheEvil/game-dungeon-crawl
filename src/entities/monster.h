@@ -93,6 +93,7 @@ class monster {
 	void applyModelState(ModelState state);
 	void selectModel(ModelState state); // no reset: used to restore a token's animation
 	[[nodiscard]] AnimatedCartoonModel* clip(ModelState state) const;
+	void drawHealthBar(); // billboard above the model (below a roosting flyer), the same size for every monster
 
   public:
 	std::unique_ptr<timer> Att_timer;

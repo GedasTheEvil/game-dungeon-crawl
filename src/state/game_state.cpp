@@ -138,7 +138,7 @@ void GameState::Load() {
 	DrawLoad(67, "Loading Monster Models [Rat]");
 	monsters.rat = std::make_unique<monster>(0, 0, 5, 12, 2, 300);
 	monsters.rat->loadModel("monsters/rat", textures.rat_t, textures.progBar, true);
-	monsters.rat->scale = 26;
+	monsters.rat->scale = 13;
 	monsters.rat->rotA = 180;
 	monsters.rat->maxHealth = 12;
 

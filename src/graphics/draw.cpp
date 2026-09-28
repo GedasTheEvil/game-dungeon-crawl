@@ -81,7 +81,7 @@ void Update() {
 		else if (climbing) {
 			Game().player->showClimb(Game().dungeon.ClimbPhase());
 			Game().player->rotA = PLAYER_CLIMB_ROT;
-		} else if (Game().timers.mdlChange->TimePassed())
+		} else if (Game().timers.idleModel.TimePassed())
 			Game().player->setModelState(ModelState::Idle);
 
 		Game().ui.inventory->Equipped()->rotA++;
@@ -92,7 +92,7 @@ void Update() {
 				Game().player->attacking = false;
 			} else
 				weaponRot -= 4;
-		} else if (Game().timers.AttTimer->TimePassed())
+		} else if (Game().timers.weaponRest.TimePassed())
 			weaponRot = 0;
 	}
 

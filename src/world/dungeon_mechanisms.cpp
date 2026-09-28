@@ -2,7 +2,7 @@
 #include "../state/game_state.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

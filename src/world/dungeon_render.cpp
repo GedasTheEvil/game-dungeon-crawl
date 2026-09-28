@@ -128,7 +128,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 //======================================================================================
 void Dungeon::Draw() {
 	bool plasmaAni;
-	plasmaAni = aniT->TimePassed();
+	plasmaAni = aniT.TimePassed();
 
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),

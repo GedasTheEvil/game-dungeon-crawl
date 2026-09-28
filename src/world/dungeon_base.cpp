@@ -1,6 +1,6 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -54,7 +54,6 @@ Dungeon::Dungeon() {
 	mapX = 0;
 	mapY = 0;
 	mL = false;
-	aniT = std::make_unique<Timer>(50);
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
@@ -62,7 +61,7 @@ void Dungeon::UpdateMovementState() {
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			!isSolidTile(Map(mapX, mapY - 1))) {
 			JumpState& jump = Game().player->jump;
-			if (jump.fall_inc->TimePassed()) {
+			if (jump.fall_inc.TimePassed()) {
 				float floorY = std::floor(mapY);
 				mapY -= jump.fall_velocity;
 				if (mapY < floorY && isSolidTile(Map(mapX, floorY - 1)))
@@ -78,7 +77,7 @@ void Dungeon::UpdateMovementState() {
 	}
 
 	if (Game().player->jump.jumping) {
-		if (Game().player->jump.jump_inc->TimePassed()) {
+		if (Game().player->jump.jump_inc.TimePassed()) {
 			if (Game().player->jump.dir_x != 0)
 				Move(Game().player->jump.dir_x * Game().player->jump.speed, 0);
 

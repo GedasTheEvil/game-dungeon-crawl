@@ -4,7 +4,7 @@
 #include <cmath>
 #include <memory>
 #include "../graphics/render_config.h"
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))

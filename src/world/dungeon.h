@@ -81,7 +81,7 @@ class Dungeon {
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];
 	bool mL;
-	std::unique_ptr<Timer> aniT;
+	Timer aniT{50};
 	float plasma = 0.f;
 	float qRot = 0.f;
 

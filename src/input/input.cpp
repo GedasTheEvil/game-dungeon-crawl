@@ -33,7 +33,7 @@ void startJump() {
 	Game().player->jump.speed = JUMP_FORWARD_SPEED;
 	Game().player->jump.velocity = JUMP_INITIAL_VELOCITY;
 	Game().player->jump.jumping = true;
-	Game().player->jump.jump_up_timer->Reset();
+	Game().player->jump.jump_up_timer.Reset();
 	Game().player->PlayJumpSound();
 }
 

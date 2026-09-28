@@ -21,7 +21,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
-  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/input/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/core/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/bat.py` - flying monster example: wing arm + four finger bones posed by FK deformation matrices, double-sided
   membrane grids between fingers / arm / leg with blended weights (they stretch and crumple when folding). Clips: fly (move, the
@@ -30,7 +30,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
   Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/game_state.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
-  (`BAT_*` in `src/input/gameplay_config.h`), falls to the floor on death.
+  (`BAT_*` in `src/core/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler

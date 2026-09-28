@@ -5,6 +5,7 @@
 #include "player_stats.h"
 #include "../graphics/particles.h"
 #include "../core/timer.h"
+#include "../core/gameplay_config.h"
 #include <memory>
 
 struct JumpState {
@@ -16,10 +17,10 @@ struct JumpState {
 	float fall_velocity = 0.f;
 	float start_y = 0.f;
 	int counter = 0;
-	std::unique_ptr<Timer> jump_timer;
-	std::unique_ptr<Timer> jump_up_timer;
-	std::unique_ptr<Timer> jump_inc;
-	std::unique_ptr<Timer> fall_inc;
+	Timer jump_timer{JUMP_TIMER_MS};
+	Timer jump_up_timer{JUMP_UP_TIMER_MS};
+	Timer jump_inc{JUMP_TICK_MS};
+	Timer fall_inc{FALL_TICK_MS};
 };
 
 // The player: stats, figure (model, animation, blood), jump and attack state. Drawn at the frame origin (the dungeon

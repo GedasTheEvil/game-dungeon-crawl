@@ -2,7 +2,7 @@
 #include "../state/game_state.h"
 #include "../core/logger.h"
 #include <cmath>
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 
 namespace {
 // Shared by all trap instances: the streak belongs to the player, not to one trap model.
@@ -11,7 +11,6 @@ int gLastHitMs = 0;
 } // namespace
 
 Trap::Trap() {
-	Hurt_timer = std::make_unique<Timer>(TRAP_HURT_INTERVAL_MS);
 	mdl = std::make_unique<AnimatedModel>();
 	tileX = 0;
 	tileY = 0;
@@ -35,7 +34,7 @@ void Trap::Hurt() {
 	if (fabs(*dungeonCamX - tileX - 0.5) > TRAP_HITBOX_X_SCALE * scale ||
 		std::fabs(*dungeonCamY - tileY) > TRAP_HITBOX_Y_SCALE * scale)
 		return;
-	if (!Hurt_timer->TimePassed())
+	if (!Hurt_timer.TimePassed())
 		return;
 
 	// Damage ramps up while the player stays in a trap; any gap resets it.

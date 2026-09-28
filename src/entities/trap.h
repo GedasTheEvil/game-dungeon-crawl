@@ -4,6 +4,7 @@
 #include "../graphics/animated_model.h"
 #include "../graphics/textures.h"
 #include "../core/timer.h"
+#include "../core/gameplay_config.h"
 
 class Trap {
   private:
@@ -11,7 +12,7 @@ class Trap {
 	float tileX;
 	float tileY;
 	Texture tex;
-	std::unique_ptr<Timer> Hurt_timer;
+	Timer Hurt_timer{TRAP_HURT_INTERVAL_MS};
 
   public:
 	float scale;

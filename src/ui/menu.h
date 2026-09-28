@@ -18,7 +18,7 @@ class MainMenu {
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
 	bool credits;
-	std::unique_ptr<Timer> creditsTimer;
+	Timer creditsTimer{10000};
 
 	bool fontsLoaded = false;
 	Font title, heading, body, small;

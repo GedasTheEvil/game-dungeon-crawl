@@ -85,8 +85,8 @@ struct MechanismSet {
 };
 
 struct GameTimers {
-	std::unique_ptr<Timer> mdlChange;
-	std::unique_ptr<Timer> AttTimer;
+	Timer idleModel{300};  // back to the idle clip after walking
+	Timer weaponRest{250}; // the weapon swings back after an attack
 };
 
 struct UIContext {

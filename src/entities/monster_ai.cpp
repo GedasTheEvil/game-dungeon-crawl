@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../state/game_state.h"
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 
 int Monster::attackDirection(float px, float py) const {
 	const float scale = type->scale;

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
-#include "../input/gameplay_config.h"
+#include "../core/gameplay_config.h"
 #include "../world/campaign.h"
 
 namespace {
@@ -290,12 +290,8 @@ void GameState::Load() {
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
 
-	player->jump.jump_timer = std::make_unique<Timer>(JUMP_TIMER_MS);
-	player->jump.jump_up_timer = std::make_unique<Timer>(JUMP_UP_TIMER_MS);
-	timers.mdlChange = std::make_unique<Timer>(300);
-	timers.AttTimer = std::make_unique<Timer>(250);
-	player->jump.jump_inc = std::make_unique<Timer>(JUMP_TICK_MS);
-	player->jump.fall_inc = std::make_unique<Timer>(FALL_TICK_MS);
+	timers.idleModel.Reset();
+	timers.weaponRest.Reset();
 	player->jump.fall_velocity = FALL_STEP;
 	statusTimer = Timer(STATUS_MS);
 

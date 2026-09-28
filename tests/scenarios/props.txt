@@ -1,0 +1,63 @@
+# Model review: item chests, spikes, the inventory (tests/levels/props), gateways, question mark, death trap, ankh
+# (tests/levels/props_gates).
+seed 1
+god
+level tests/levels/props
+wait 30
+screenshot entrance
+walk right 1
+wait 5
+screenshot chests_a
+walk right 4
+wait 5
+screenshot chests_b
+walk right 4
+wait 5
+screenshot potion_spikes
+walk right 3
+wait 5
+screenshot riddle
+camera 20 0
+wait 5
+screenshot riddle_side
+camera 0 0
+give melee 1
+give melee 2
+give ranged 0
+give potion 0
+key i
+wait 5
+screenshot inventory_club
+click 26.9 63.5
+wait 5
+screenshot inventory_sword
+click 39.3 63.5
+wait 5
+screenshot inventory_spear
+click 51.7 63.5
+wait 5
+screenshot inventory_bow
+click 12.0 36.75
+wait 5
+screenshot inventory_potion
+key i
+wait 5
+screenshot held_club
+# Gates, question mark, death trap, ankh (tests/levels/props_gates).
+level tests/levels/props_gates
+wait 30
+screenshot gates
+camera 25 0
+wait 5
+screenshot gates_left
+camera -25 0
+wait 5
+screenshot gates_right
+camera 0 0
+walk right 1.7
+wait 5
+screenshot ankh_trap
+camera -25 0
+wait 5
+screenshot ankh_trap_right
+quit

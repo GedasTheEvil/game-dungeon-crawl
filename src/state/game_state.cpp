@@ -67,8 +67,7 @@ void GameState::Load() {
 	DrawLoad(7, "Loading Textures");
 	textures.scarab_t.LoadPNG("textures/monsters/scarab.png");
 	DrawLoad(8, "Loading Textures");
-	textures.bow_t.LoadPNG("textures/items/gold.png");
-	textures.gold_t.LoadPNG("textures/items/gold.png");
+	textures.bow_t.LoadPNG("textures/items/bow.png");
 	DrawLoad(9, "Loading Textures");
 	textures.chest_t.LoadPNG("textures/items/tchest.png");
 	DrawLoad(10, "Loading Textures");
@@ -124,8 +123,7 @@ void GameState::Load() {
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
 	items.chest = std::make_unique<item>();
 	items.chest->loadModel("models/items/tchest.md3", textures.chest_t);
-	items.chest->scale = 8;
-	items.chest->rotA = -90;
+	items.chest->scale = 8; // faces the camera at rotA 0 (tools/blender/models/items.py)
 
 	DrawLoad(65, "Loading Monster Models [Man-eater plant]");
 	monsters.plant = std::make_unique<monster>(0, 0, 0, 50, 5, 1000);
@@ -215,9 +213,10 @@ void GameState::Load() {
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
+	textures.question_t.LoadPNG("textures/props/questionmark.png");
 	models.question = std::make_unique<AnimatedCartoonModel>();
 	models.question->Load("models/props/questionmark.md3");
-	models.question->BindTexture(textures.gold_t.ID());
+	models.question->BindTexture(textures.question_t.ID());
 	models.question->Centrify();
 	models.question->Compile();
 

@@ -1,0 +1,5 @@
+; Gateway models from the start (tests/scenarios/props.txt): entrance (col 2), ankh (4), death trap (5), riddle gate (8),
+; exit (10).
+########################################
+#.S..AX.?.E#############################
+########################################

@@ -278,7 +278,7 @@ void Dungeon::Draw() {
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
 						glScalef(10, 10, 10);
-						GAME_STATE.textures.gold_t.Bind();
+						GAME_STATE.textures.question_t.Bind();
 						glPushMatrix();
 						glRotatef(qRot, 0, 1, 0);
 						if (GAME_STATE.render.Cartoon)

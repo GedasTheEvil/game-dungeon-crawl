@@ -61,6 +61,19 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
   `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
+* `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the potion flask and the treasure chest, real sizes in
+  metres (the engine centres each and scales its largest dimension to 1, `item::loadModel`). Weapons stand on +Z, grip at the
+  bottom (the held weapon is drawn from its lowest point, tilted 45 deg), flat faces in the x-z plane; the bow's back bulges to +x.
+  The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in. The potion texture
+  stays light grey: the engine tints the whole flask with the potion colour. Albedo x AO textures (no baked light), 512 px.
+  `-- --export` writes `models/items/{club,sword,spear,bow,potion,tchest}.md3` + `textures/items/<same>.png`; `--review out.png`
+  renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
+* `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
+  `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
+  four obelisks), the question mark over riddle gates and the spike trap (also the death trap at scale 40). Gateway and ankh are
+  exactly 1 tile in their largest dimension, so Centrify keeps tile units. Albedo x AO textures. `-- --export` writes
+  `models/props/{sphinx,ankh,questionmark}.md3`, `models/traps/spikes.md3` + `textures/props/<name>.png`, `textures/traps/spikes.png`;
+  `--review out.png` as in `items.py`. In-game check: `make test SCENARIO=tests/scenarios/props.txt` (every item, prop and trap).
 * `tools/textures/decals.py` - wall decal atlas `textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
@@ -105,7 +118,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; all 31 models load in ~0.2 s.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; items 1.2-4.5k tris 32-143 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; all 31 models load in ~0.2 s.
 
 ## Status
 Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
@@ -119,11 +132,11 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Bat, giant bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png` | new (tomb bat; the giant bat uses the same files with its own texture) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_att,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
-| Sphinx, ankh, questionmark | `props/{sphinx,ankh,questionmark}.md3` | `props/sphinx.png`, `props/ankh.png`, `items/gold.png` | old (static) |
+| Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Columns (old ladder, with a plasma quad) | `props/columns.md3` | `props/columns.png` | unused since the ladders |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
-| Items: club, sword, spear, bow, potion, chest | `items/club.md3`, ..., `items/tchest.md3` | `items/club.png`, ..., `items/tchest.png` (bow uses `items/gold.png`, the old scarab texture) | old (static) |
-| Spikes trap | `traps/spikes.md3` | `traps/spikes.png` | old (static) |
+| Items: club, sword, spear, bow, potion, chest | `items/club.md3`, ..., `items/tchest.md3` | `items/club.png`, ..., `items/tchest.png` | remodelled (static, `items.py`) |
+| Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (10 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
 | Keys (4 lock colours) | `mechanisms/key.md3` | `mechanisms/key_<colour>.png` | new (static, `mechanism.py`) |

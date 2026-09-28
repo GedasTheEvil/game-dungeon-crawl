@@ -53,7 +53,6 @@ void Dungeon::exploreAroundPlayer() {
 Dungeon::Dungeon() {
 	mapX = 0;
 	mapY = 0;
-	mL = false;
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {

@@ -451,7 +451,7 @@ void MainMenu::DrawBackground(const char* caption) {
 	// Carved tomb wall in torchlight.
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().assets.textures.load_bg.Bind();
+	Game().assets.textures.loadingBackground.Bind();
 	glColor3f(0.34f, 0.27f, 0.20f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);

@@ -80,10 +80,9 @@ class Dungeon {
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];
-	bool mL;
-	Timer aniT{50};
-	float plasma = 0.f;
-	float qRot = 0.f;
+	Timer portalTimer{50}; // steps the portal texture scroll
+	float portalScroll = 0.f;
+	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
 
   public:
 	Dungeon();

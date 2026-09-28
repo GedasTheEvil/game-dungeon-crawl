@@ -93,7 +93,7 @@ void Monster::drawHealthBar() {
 			mv[c * 4 + r] = c == r ? s : 0.f;
 	glLoadMatrixf(mv);
 
-	Game().assets.textures.progBar.Bind();
+	Game().assets.textures.loadingBar.Bind();
 	Lighting::setEmissive(true);
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;

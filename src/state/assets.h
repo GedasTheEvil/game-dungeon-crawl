@@ -20,9 +20,9 @@ struct SoundBank {
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash;
 };
 
-struct FontPair {
+struct FontSet {
 	Font font;
-	Font load_font;
+	Font loading;
 	Font status; // proportional, for the gameplay status message
 	Font hud;	 // bold digits for the HUD level gem
 };
@@ -31,9 +31,9 @@ struct ItemPrototypes {
 	std::unique_ptr<Item> chest, club, sword, bow, potion, spear;
 };
 
-struct TrapPair {
-	std::unique_ptr<Trap> TrapD;
-	std::unique_ptr<Trap> DeathTrap;
+struct TrapSet {
+	std::unique_ptr<Trap> spikes;
+	std::unique_ptr<Trap> deathTrap; // big spikes on a death tile
 };
 
 struct SceneModels {
@@ -65,11 +65,11 @@ struct MechanismSet {
 struct Assets {
 	TextureRegistry textures;
 	SoundBank sounds;
-	FontPair fonts;
+	FontSet fonts;
 	// By MonsterTypeId (level.h); index 0 is unused.
 	std::array<MonsterType, MONSTER_TYPE_MAX + 1> monsterTypes;
 	ItemPrototypes items;
-	TrapPair traps;
+	TrapSet traps;
 	SceneModels models;
 	DecorSet decor;
 	MechanismSet mechanisms;

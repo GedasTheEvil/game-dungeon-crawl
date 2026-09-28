@@ -114,15 +114,15 @@ void loadMechanisms(MechanismSet& set) {
 } // namespace
 
 void Assets::LoadLoadingScreen() {
-	fonts.load_font.Load("fonts/papyrus.png", 7, -1.0);
-	textures.load_bg.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
-	textures.progBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
+	fonts.loading.Load("fonts/papyrus.png", 7, -1.0);
+	textures.loadingBackground.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
+	textures.loadingBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
 }
 
 void Assets::Load(const std::function<void(float, const char*)>& progress) {
-	textures.bg.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.nullTex.LoadPNG("textures/null.png");
-	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
+	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 
 	int percent = 30;
 	for (const MonsterDef& def : MONSTER_DEFS) {
@@ -159,28 +159,28 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		item->range = def.range;
 	}
 
-	textures.sphinx_t.LoadPNG("textures/props/sphinx.png");
+	textures.sphinx.LoadPNG("textures/props/sphinx.png");
 	models.sphinx = std::make_unique<AnimatedModel>();
 	models.sphinx->Load("models/props/sphinx.md3");
-	models.sphinx->BindTexture(textures.sphinx_t.ID());
+	models.sphinx->BindTexture(textures.sphinx.ID());
 	models.sphinx->Centrify();
 	models.sphinx->Compile();
 
-	textures.ankh_t.LoadPNG("textures/props/ankh.png");
+	textures.ankh.LoadPNG("textures/props/ankh.png");
 	models.ankh = std::make_unique<AnimatedModel>();
 	models.ankh->Load("models/props/ankh.md3");
-	models.ankh->BindTexture(textures.ankh_t.ID());
+	models.ankh->BindTexture(textures.ankh.ID());
 	models.ankh->Centrify();
 	models.ankh->Compile();
 
-	textures.question_t.LoadPNG("textures/props/questionmark.png");
+	textures.questionMark.LoadPNG("textures/props/questionmark.png");
 	models.question = std::make_unique<AnimatedModel>();
 	models.question->Load("models/props/questionmark.md3");
-	models.question->BindTexture(textures.question_t.ID());
+	models.question->BindTexture(textures.questionMark.ID());
 	models.question->Centrify();
 	models.question->Compile();
 
-	textures.plasma_t.LoadPNG("textures/effects/plasma.png");
+	textures.portal.LoadPNG("textures/effects/plasma.png");
 
 	progress(80, "Loading decorations");
 	decor.decalTex.LoadPNG("textures/decorations/decals.png");
@@ -241,14 +241,14 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 
-	textures.trap_t.LoadPNG("textures/traps/spikes.png");
-	traps.TrapD = std::make_unique<Trap>();
-	traps.TrapD->loadModel("models/traps/spikes.md3", textures.trap_t);
-	traps.TrapD->scale = 16;
+	textures.spikes.LoadPNG("textures/traps/spikes.png");
+	traps.spikes = std::make_unique<Trap>();
+	traps.spikes->loadModel("models/traps/spikes.md3", textures.spikes);
+	traps.spikes->scale = 16;
 
-	traps.DeathTrap = std::make_unique<Trap>();
-	traps.DeathTrap->loadModel("models/traps/spikes.md3", textures.trap_t);
-	traps.DeathTrap->scale = 40;
+	traps.deathTrap = std::make_unique<Trap>();
+	traps.deathTrap->loadModel("models/traps/spikes.md3", textures.spikes);
+	traps.deathTrap->scale = 40;
 
 	progress(95, "Loading game font");
 	fonts.font.Load("fonts/papyrus.png", 3, -0.3);

@@ -101,7 +101,7 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
 
 	// Background image
-	assets.textures.load_bg.Bind();
+	assets.textures.loadingBackground.Bind();
 
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, 1);
@@ -116,7 +116,7 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 	glEnd();
 
 	// progressbar
-	assets.textures.progBar.Bind();
+	assets.textures.loadingBar.Bind();
 
 	glColor3f(1.2, 0.6, 0);
 	glBegin(GL_QUADS);
@@ -134,7 +134,7 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
-	assets.fonts.load_font.print(10, 15, text);
+	assets.fonts.loading.print(10, 15, text);
 	glDisable(GL_BLEND);
 
 	glFlush();

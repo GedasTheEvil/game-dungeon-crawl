@@ -225,7 +225,7 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 void drawBackground(float canvasW) {
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().assets.textures.load_bg.Bind();
+	Game().assets.textures.loadingBackground.Bind();
 	glColor3f(0.30f, 0.24f, 0.18f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -247,7 +247,7 @@ void drawPaper(const Rect& r) {
 	beginShapes();
 	fillRect({r.x + 1.2f, r.y - 1.2f, r.w, r.h}, BLACK, BLACK, 0.45f); // shadow
 	glEnable(GL_TEXTURE_2D);
-	Game().assets.textures.bg.Bind();
+	Game().assets.textures.papyrus.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(1, 0);

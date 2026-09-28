@@ -117,7 +117,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
-	Trap* tileTrap = isDeathTrap ? Game().assets.traps.DeathTrap.get() : Game().assets.traps.TrapD.get();
+	Trap* tileTrap = isDeathTrap ? Game().assets.traps.deathTrap.get() : Game().assets.traps.spikes.get();
 	tileTrap->dungeonCamX = &mapX;
 	tileTrap->dungeonCamY = &mapY;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
@@ -127,8 +127,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 }
 //======================================================================================
 void Dungeon::Draw() {
-	bool plasmaAni;
-	plasmaAni = aniT.TimePassed();
+	const bool scrollPortals = portalTimer.TimePassed();
 
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
@@ -161,7 +160,7 @@ void Dungeon::Draw() {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
-					Game().assets.textures.ankh_t.Bind();
+					Game().assets.textures.ankh.Bind();
 					Game().assets.models.ankh->Show();
 					glPopMatrix();
 				}
@@ -172,7 +171,7 @@ void Dungeon::Draw() {
 					glScalef(40, 40, 40);
 					if (tile.attr != GateEntrance)
 						glRotatef(180, 0, 1, 0);
-					Game().assets.textures.sphinx_t.Bind();
+					Game().assets.textures.sphinx.Bind();
 					Game().assets.models.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
@@ -182,11 +181,11 @@ void Dungeon::Draw() {
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
 						glScalef(10, 10, 10);
-						Game().assets.textures.question_t.Bind();
+						Game().assets.textures.questionMark.Bind();
 						glPushMatrix();
-						glRotatef(qRot, 0, 1, 0);
+						glRotatef(riddleMarkYaw, 0, 1, 0);
 						Game().assets.models.question->Show();
-						qRot += 1.0;
+						riddleMarkYaw += 1.0;
 						glPopMatrix();
 						glPopMatrix();
 						glPopMatrix();
@@ -197,9 +196,9 @@ void Dungeon::Draw() {
 						if (tile.attr != GateEntrance)
 							glTranslatef(39, 0, 0);
 
-						float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / 200.0f;
+						float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 
-						Game().assets.textures.plasma_t.Bind();
+						Game().assets.textures.portal.Bind();
 						Lighting::setEmissive(true);
 						glBegin(GL_QUADS);
 						glNormal3f(1, 0, 0);
@@ -213,8 +212,8 @@ void Dungeon::Draw() {
 						glVertex3f(0.4, 0, -10);
 						glEnd();
 						Lighting::setEmissive(false);
-						if (plasmaAni)
-							plasma -= 0.022;
+						if (scrollPortals)
+							portalScroll -= 0.022;
 						glPopMatrix();
 					}
 				}

@@ -298,7 +298,7 @@ void Riddle::DrawBackground() {
 
 	// Carved tomb wall in torchlight, as behind the inventory.
 	glDisable(GL_BLEND);
-	texturedRect(area, Game().assets.textures.load_bg.ID(), {0.34f, 0.27f, 0.20f});
+	texturedRect(area, Game().assets.textures.loadingBackground.ID(), {0.34f, 0.27f, 0.20f});
 
 	beginShapes();
 	constexpr float VIGNETTE = 22.f;
@@ -316,7 +316,7 @@ void Riddle::DrawBackground() {
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
-	texturedRect(GATE_PANEL, Game().assets.textures.riddle_bg.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
+	texturedRect(GATE_PANEL, Game().assets.textures.riddleBackground.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
 	beginShapes();
 	ring(GATE_PANEL.inset(8.f), 8.f, BLACK, 0.f, 0.5f);
 	strokeRect(GATE_PANEL, BRONZE, 1.f, 3.f);
@@ -324,7 +324,7 @@ void Riddle::DrawBackground() {
 	cornerStuds(GATE_PANEL);
 
 	// Papyrus scroll for the riddle, framed like the inventory details.
-	texturedRect(SCROLL, Game().assets.textures.bg.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
+	texturedRect(SCROLL, Game().assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
 	beginShapes();
 	strokeRect(SCROLL, BRONZE, 1.f, 3.f);
 	cornerStuds(SCROLL);

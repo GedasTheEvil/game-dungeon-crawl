@@ -504,7 +504,7 @@ void Inventory::DrawBackground() {
 	// Carved tomb wall in torchlight.
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().assets.textures.load_bg.Bind();
+	Game().assets.textures.loadingBackground.Bind();
 	glColor3f(0.34f, 0.27f, 0.20f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -541,7 +541,7 @@ void Inventory::DrawBackground() {
 
 	// Papyrus scroll for the details, in a frame matching the items panel.
 	glEnable(GL_TEXTURE_2D);
-	Game().assets.textures.bg.Bind();
+	Game().assets.textures.papyrus.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.04f, 0.07f);

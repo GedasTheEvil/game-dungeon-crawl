@@ -923,6 +923,8 @@ void Scenario::onFrameRendered() {
 
 	int width = Game().render.resX;
 	int height = Game().render.resY;
+	if (width <= 0 || height <= 0)
+		return;
 	std::vector<unsigned char> pixels(static_cast<size_t>(width) * static_cast<size_t>(height) * 3);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadBuffer(GL_BACK);

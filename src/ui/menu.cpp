@@ -59,6 +59,10 @@ constexpr float ACTION_X = OPTIONS_PANEL.x + 8;
 constexpr float KEYS_X = OPTIONS_PANEL.x + 52;
 constexpr float MOUSE_X = OPTIONS_PANEL.x + 100;
 
+// The credits sheet is square; it sits in its own frame, not stretched over the window.
+constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
+constexpr Rect CREDITS_PANEL = {CREDITS_SHEET.x - 3, CREDITS_SHEET.y - 3, CREDITS_SHEET.w + 6, CREDITS_SHEET.h + 6};
+
 Rect buttonRect(int index) {
 	return {CENTRE - BUTTON_W / 2, FIRST_BUTTON_Y - static_cast<float>(index) * BUTTON_STEP, BUTTON_W, BUTTON_H};
 }
@@ -368,19 +372,18 @@ void saveToSlot(int slot) {
 MainMenu::MainMenu() {
 	show = true;
 	inGame = false;
-	credits = false;
 	saveD = false;
 	loadD = false;
-	creditsTimer = Timer(10000);
 }
 
 MainMenu::~MainMenu() {}
 
-// The menu exists before the GL context, so the font textures load on the first frame.
-void MainMenu::LoadFonts() {
-	if (fontsLoaded)
+// The menu exists before the GL context, so the fonts and the credits sheet load on the first frame.
+void MainMenu::LoadAssets() {
+	if (assetsLoaded)
 		return;
-	fontsLoaded = true;
+	assetsLoaded = true;
+	creditsSheet.LoadPNG("textures/ui/credits.png", TexFilter::Flat);
 	title.Load("fonts/papyrus.png", 8.f, 0.3f, true);
 	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
 	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
@@ -395,16 +398,14 @@ void MainMenu::ShowToast(const std::string& text) {
 // ---- drawing ---------------------------------------------------------------
 
 void MainMenu::Draw() {
-	if (credits) {
-		Game().ui.endScreens->DrawCredits();
-		if (creditsTimer.TimePassed())
-			credits = false;
-		return;
-	}
-
-	LoadFonts();
+	LoadAssets();
 	BeginCanvas();
-	if (optionsD) {
+	if (creditsD) {
+		DrawBackground("Credits");
+		DrawCredits();
+		DrawBackButton();
+		DrawFooter("Esc: back");
+	} else if (optionsD) {
 		DrawBackground("Options");
 		DrawOptions();
 		DrawBackButton();
@@ -479,7 +480,7 @@ void MainMenu::DrawBackground(const char* caption) {
 	diamond(CENTRE - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
 	diamond(CENTRE + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
 
-	panel(optionsD ? OPTIONS_PANEL : (wide ? SLOT_PANEL : MENU_PANEL), 0.9f);
+	panel(creditsD ? CREDITS_PANEL : optionsD ? OPTIONS_PANEL : (wide ? SLOT_PANEL : MENU_PANEL), 0.9f);
 
 	beginText();
 	textCentered(title, CENTRE, 88.f, caption, GOLD);
@@ -631,6 +632,12 @@ void MainMenu::DrawOptions() {
 	}
 }
 
+void MainMenu::DrawCredits() {
+	texturedRect(CREDITS_SHEET, creditsSheet.ID(), {1, 1, 1});
+	beginShapes();
+	strokeRect(CREDITS_SHEET, GOLD_DIM, 1.f, 1.f);
+}
+
 void MainMenu::DrawBackButton() {
 	bool isHovered = hovered == BACK;
 	Rect r = drawTile(BACK_BUTTON, TileStyle::Stone, isHovered, isHovered && pressed == BACK);
@@ -662,6 +669,8 @@ int MainMenu::TargetAt(int x, int y) {
 	float cy = 0.f;
 	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
 
+	if (creditsD)
+		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	if (optionsD) {
 		for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++)
 			if (tabRect(tab).contains(cx, cy))
@@ -722,8 +731,7 @@ void MainMenu::Activate(int target) {
 		optionsD = true;
 		break;
 	case MenuAction::Credits:
-		credits = true;
-		creditsTimer.Reset();
+		creditsD = true;
 		break;
 	case MenuAction::MainMenu:
 		inGame = false;
@@ -735,12 +743,6 @@ void MainMenu::Activate(int target) {
 
 void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	(void)button;
-	if (credits) { // a click skips the credits
-		if (state == GLUT_BUTTON_UP)
-			credits = false;
-		return;
-	}
-
 	int target = TargetAt(x, y);
 	hovered = target;
 	if (state != GLUT_BUTTON_UP) {
@@ -755,13 +757,10 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 }
 
-void MainMenu::MousePassiveMotion(int x, int y) {
-	if (!credits)
-		hovered = TargetAt(x, y);
-}
+void MainMenu::MousePassiveMotion(int x, int y) { hovered = TargetAt(x, y); }
 
 void MainMenu::ResetSubScreens() {
-	credits = false;
+	creditsD = false;
 	saveD = false;
 	loadD = false;
 	optionsD = false;

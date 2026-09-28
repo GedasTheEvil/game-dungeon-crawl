@@ -1,0 +1,16 @@
+# Credits screen from the main menu: framed sheet, Back button hover, Back returns to the menu.
+level 1
+wait 10
+key esc
+wait 2
+click 50 28
+wait 2
+click 50 39.5
+wait 2
+screenshot credits
+mouse 50 13
+wait 2
+screenshot credits_hover_back
+click 50 13
+wait 2
+screenshot back_to_menu

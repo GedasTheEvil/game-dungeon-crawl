@@ -6,7 +6,6 @@
 EndScreens::EndScreens() {
 	win.LoadPNG("textures/ui/win.png", TexFilter::Flat);
 	lose.LoadPNG("textures/ui/dead.png", TexFilter::Flat);
-	credits.LoadPNG("textures/ui/credits.png", TexFilter::Flat);
 }
 
 void EndScreens::DrawQuad(float sx, float sy) {
@@ -57,28 +56,4 @@ void EndScreens::DrawLose() {
 	glPopMatrix();
 
 	glDisable(GL_BLEND);
-}
-
-void EndScreens::DrawCredits() {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 100, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
-
-	glColor3f(1, 1, 1);
-
-	credits.Bind();
-
-	glPushMatrix();
-	glTranslatef(45, 45, 0);
-	DrawQuad(90, 90);
-	glPopMatrix();
-
-	glFlush();
-
-	glutSwapBuffers();
 }

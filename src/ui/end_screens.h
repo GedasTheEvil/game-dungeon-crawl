@@ -7,14 +7,12 @@ class EndScreens {
   private:
 	Texture win;
 	Texture lose;
-	Texture credits;
 	void DrawQuad(float sx, float sy);
 
   public:
 	EndScreens();
 	void DrawWin();
 	void DrawLose();
-	void DrawCredits();
 };
 
 #endif

@@ -2,11 +2,11 @@
 #define MENU_H
 #include <memory>
 #include <string>
-#include "../core/timer.h"
 #include "../graphics/font.h"
+#include "../graphics/textures.h"
 
 /// @file menu.h
-/// Main menu, in-game menu and its save / load / options screens.
+/// Main menu, in-game menu and its save / load / options / credits screens.
 
 class MainMenu {
   private:
@@ -17,16 +17,15 @@ class MainMenu {
 
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
-	bool credits;
-	Timer creditsTimer{10000};
 
-	bool fontsLoaded = false;
+	bool assetsLoaded = false;
 	Font title, heading, body, small;
+	Texture creditsSheet;
 	std::string toast;
 	int toastStartMs = 0;
 	int optionsTab = 0;
 
-	void LoadFonts();
+	void LoadAssets();
 	void BeginCanvas();
 	void EndFrame();
 	void DrawBackground(const char* caption);
@@ -34,6 +33,7 @@ class MainMenu {
 	void DrawSlots();
 	void DrawSlot(int slot);
 	void DrawOptions();
+	void DrawCredits();
 	void DrawBackButton();
 	void DrawFooter(const char* hint);
 	int TargetAt(int x, int y);
@@ -47,11 +47,12 @@ class MainMenu {
 	bool saveD;
 	bool loadD;
 	bool optionsD = false;
+	bool creditsD = false;
 	bool show;
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MousePassiveMotion(int x, int y);
-	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD; }
+	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD || creditsD; }
 	void ResetSubScreens();
 };
 

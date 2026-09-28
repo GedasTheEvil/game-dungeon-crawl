@@ -1,6 +1,6 @@
 # Levels: validator, generator, campaign
 
-Level files, tile types and the editor: [dungeon-editor/readme.md](../dungeon-editor/readme.md).
+Level files, tile types and the editor: [tools/editor/readme.md](../tools/editor/readme.md).
 Tile types in code: `src/world/level.h`.
 
 ## Campaign order

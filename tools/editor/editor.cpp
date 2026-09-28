@@ -1,11 +1,11 @@
-// Level editor. Runs from dungeon-editor/, levels go to saved/<name>. See readme.md.
+// Level editor. Runs from the repo root, levels go to tools/editor/saved/<name>. See readme.md.
 
 #include "tile_info.h"
-#include "../src/graphics/font.h"
-#include "../src/graphics/textures.h"
-#include "../src/ui/ui_draw.h"
-#include "../src/world/level.h"
-#include "../src/world/level_check.h"
+#include "../../src/graphics/font.h"
+#include "../../src/graphics/textures.h"
+#include "../../src/ui/ui_draw.h"
+#include "../../src/world/level.h"
+#include "../../src/world/level_check.h"
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <cmath>
@@ -188,17 +188,17 @@ class Editor {
 };
 
 Editor::Editor() {
-	title.Load("../fonts/papyrus.png", 6.f, 0.26f, true);
-	heading.Load("../fonts/papyrus.png", 3.6f, 0.12f, true);
-	body.Load("../fonts/papyrus.png", 2.7f, 0.08f, true);
-	small.Load("../fonts/papyrus.png", 2.3f, 0.06f, true);
-	wallTexture.LoadPNG("../textures/ui/scarab_slate.png", TexFilter::Flat);
-	papyrus.LoadPNG("../textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	title.Load("fonts/papyrus.png", 6.f, 0.26f, true);
+	heading.Load("fonts/papyrus.png", 3.6f, 0.12f, true);
+	body.Load("fonts/papyrus.png", 2.7f, 0.08f, true);
+	small.Load("fonts/papyrus.png", 2.3f, 0.06f, true);
+	wallTexture.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
+	papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	for (int type = 0; type < TILE_COUNT; type++) {
 		const char* icon = tileInfo(type).icon;
 		if (icon == nullptr)
 			continue;
-		std::string path = std::string("textures/") + icon;
+		std::string path = std::string("tools/editor/icons/") + icon;
 		hasIcon[type] = icons[type].LoadPNG(path.c_str(), TexFilter::Flat) != 0;
 		if (!hasIcon[type])
 			fprintf(stderr, "Cannot load %s\n", path.c_str());
@@ -397,7 +397,7 @@ void Editor::save() {
 		showStatus("Enter a level name first", true);
 		return;
 	}
-	std::string path = "saved/" + name;
+	std::string path = "tools/editor/saved/" + name;
 	if (saveLevelFile(path.c_str(), grid))
 		showStatus("Saved to " + path, false);
 	else
@@ -409,7 +409,7 @@ void Editor::load() {
 		showStatus("Enter a level name first", true);
 		return;
 	}
-	std::string path = "saved/" + name;
+	std::string path = "tools/editor/saved/" + name;
 	auto loaded = std::make_unique<LevelGrid>();
 	std::string error = loadLevelFile(path.c_str(), *loaded);
 	if (!error.empty()) {

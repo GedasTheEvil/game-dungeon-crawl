@@ -94,7 +94,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
-* `model-viewer/viewer <file.md3> [seconds]` (`make model-viewer`) - check exported files in the real engine.
+* `build/model-viewer <file.md3> [seconds]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
 
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,

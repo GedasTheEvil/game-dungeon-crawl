@@ -11,3 +11,4 @@ tests/out/
 .idea
 .directory
 sounds/music/soundtrack.ogg
+/build/

@@ -1,12 +1,7 @@
-// model-viewer :: viewer.cpp
+// Model viewer: loads a .md3 file with the game's AnimatedModel, plays its animation on a loop that restarts every
+// [seconds], with a progress bar of the loop. Space cycles through the model's clips. Runs from the repo root.
 //
-// Steps 1-3 of the model-viewer-executable plan: open a GLUT window, load a
-// single .md3 file named on the command line via the existing AnimatedModel
-// class, play its animation on a timed loop that restarts every [seconds],
-// and overlay a 2D progress bar (via the shared Hud::drawBar) showing how
-// far through the current loop the animation is.
-//
-// Usage: viewer <model.md3> [seconds]
+// Usage: build/model-viewer <model.md3> [seconds]
 //   <model.md3>  required, path to a .md3 file (see tools/blender/md3.py)
 //   [seconds]    optional, animation loop duration in seconds (default 5.0).
 
@@ -25,19 +20,17 @@
 #include <algorithm>
 #include <cctype>
 
-#include "../src/graphics/ani.h"
-#include "../src/graphics/textures.h"
-#include "../src/graphics/hud.h"
-#include "../src/graphics/font.h"
-#include "../src/core/logger.h"
+#include "../../src/graphics/ani.h"
+#include "../../src/graphics/textures.h"
+#include "../../src/graphics/hud.h"
+#include "../../src/graphics/font.h"
+#include "../../src/core/logger.h"
 
 namespace {
 
 // Subclass of AnimatedModel that maps an external wall-clock ratio directly
 // onto the model's (protected) frame index, bypassing Advance_Animation()/
-// the internal frameChange timer entirely. See
-// plan/model-viewer-executable/step-02-timed-loop-animation-playback/architecture.md
-// for the full rationale.
+// the internal frameChange timer entirely.
 class LoopedAnimatedModel : public AnimatedModel {
   public:
 	// frameC is protected in AnimatedModel; this is read-only access to it.

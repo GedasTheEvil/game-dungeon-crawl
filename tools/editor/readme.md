@@ -1,6 +1,6 @@
 # Level editor
 
-`make editor`, then `make run-editor`. The editor runs from `dungeon-editor/`.
+`make editor`, then `make run-editor`. The editor runs from the repo root.
 
 ## Screen layout
 
@@ -30,13 +30,13 @@ In both modes, a right click on a cell picks its tile, attribute and value into 
    The numbers apply as you type. Reset both fields to empty (0) before you paint plain tiles.
 3. Paint on the grid.
 4. Click the name field, type a name (max. 32 characters: letters, digits, `_`, `-`, `.`).
-5. Click `Save` (`Ctrl+S`). The file goes to `dungeon-editor/saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
+5. Click `Save` (`Ctrl+S`). The file goes to `tools/editor/saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
 6. Copy the file to `levels/lvlN`. The game starts on `levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it.
 
-Tile icons are PNG files in `dungeon-editor/textures/`, drawn by `dungeon-editor/textures/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `fonts/` and
+Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `fonts/` and
 `textures/ui/`.
 
 ## Tile reference

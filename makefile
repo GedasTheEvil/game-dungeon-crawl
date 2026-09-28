@@ -5,26 +5,24 @@ CXXFLAGS=-Wall -Wextra -pedantic -Wold-style-cast -O3 -march=native -I/usr/inclu
 TIDY_CPPFLAGS=-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
 
-SOURCES=\
-	src/core/game.cpp src/core/timer.cpp src/core/sound.cpp src/core/service_locator.cpp src/core/logger.cpp \
-	src/graphics/ani.cpp src/graphics/textures.cpp src/graphics/font.cpp src/graphics/particles.cpp src/graphics/fire.cpp src/graphics/lighting.cpp src/graphics/ink.cpp src/graphics/draw.cpp src/graphics/hud.cpp \
-	src/entities/monster.cpp src/entities/player.cpp src/entities/monster_ai.cpp src/entities/item.cpp src/entities/trap.cpp \
-	src/world/dungeon_base.cpp src/world/dungeon_io.cpp src/world/dungeon_monsters.cpp src/world/dungeon_render.cpp src/world/dungeon_decor.cpp src/world/dungeon_mechanisms.cpp src/world/loot.cpp src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
-	src/ui/menu.cpp src/ui/ui_draw.cpp src/ui/inventory.cpp src/ui/stats.cpp src/ui/riddle.cpp src/ui/winlose.cpp src/ui/level_gem.cpp src/ui/map_view.cpp \
-	src/input/input.cpp \
-	src/state/game_state.cpp \
-	src/test/scenario.cpp
-
-OBJECTS=$(SOURCES:.cpp=.o)
+SOURCES=$(sort $(wildcard src/*/*.cpp))
+BUILD=build
+OBJECTS=$(SOURCES:%.cpp=$(BUILD)/%.o)
 DEPS=$(OBJECTS:.o=.d)
 
 EXECUTABLE=game
 
-# Level editor, runs from dungeon-editor/. Shares the game's texture, font, UI and level code.
-EDITOR_SOURCES=dungeon-editor/editor.cpp dungeon-editor/tile_info.cpp
-EDITOR_OBJECTS=$(EDITOR_SOURCES:.cpp=.o) src/graphics/textures.o src/graphics/font.o src/core/logger.o src/ui/ui_draw.o \
-	src/world/level.o src/world/level_check.o
-EDITOR=dungeon-editor/editor
+# Level editor, runs from the repo root. Shares the game's texture, font, UI and level code.
+EDITOR_SOURCES=$(wildcard tools/editor/*.cpp)
+EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(addprefix $(BUILD)/src/, graphics/textures.o graphics/font.o \
+	core/logger.o ui/ui_draw.o world/level.o world/level_check.o)
+EDITOR=$(BUILD)/editor
+
+# MD3 model viewer, runs from the repo root.
+VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(addprefix $(BUILD)/src/, graphics/ani.o graphics/textures.o \
+	graphics/hud.o graphics/font.o core/timer.o core/logger.o)
+VIEWER=$(BUILD)/model-viewer
+
 CLANG_TIDY?=clang-tidy
 TIDY_JOBS?=$(shell nproc)
 
@@ -34,12 +32,13 @@ LEVEL_TOOLS=levelcheck levelgen
 
 .PHONY: all clean format tidy editor run-editor model-viewer run-model-viewer test level-tools
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS) 
+$(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
 
-%.o: %.cpp
+$(BUILD)/%.o: %.cpp
+	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 level-tools: $(LEVEL_TOOLS)
@@ -51,10 +50,10 @@ levelgen: tools/level/levelgen.cpp $(LEVEL_SOURCES) src/world/level.h src/world/
 	$(CXX) -std=c++17 -Wall -Wextra -pedantic -Wold-style-cast -O2 tools/level/levelgen.cpp $(LEVEL_SOURCES) -o $@
 
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE) $(DEPS) $(LEVEL_TOOLS) $(EDITOR) $(EDITOR_SOURCES:.cpp=.o) $(EDITOR_SOURCES:.cpp=.d)
+	rm -rf $(BUILD) $(EXECUTABLE) $(LEVEL_TOOLS)
 
 format:
-	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp dungeon-editor/*.h dungeon-editor/*.cpp
+	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp tools/model-viewer/*.cpp
 
 tidy-fix:
 	$(CLANG_TIDY) $(SOURCES) $(EDITOR_SOURCES) --fix -- $(TIDY_CPPFLAGS)
@@ -71,17 +70,19 @@ editor: $(EDITOR)
 $(EDITOR): $(EDITOR_OBJECTS)
 	$(CXX) $(EDITOR_OBJECTS) -o $@ $(LDFLAGS)
 
-run-editor:
-	(cd dungeon-editor && ./editor)
+run-editor: $(EDITOR)
+	./$(EDITOR)
 
-model-viewer:
-	(cd model-viewer && ./make)
+model-viewer: $(VIEWER)
 
-run-model-viewer:
-	./model-viewer/viewer $(ARGS)
+$(VIEWER): $(VIEWER_OBJECTS)
+	$(CXX) $(VIEWER_OBJECTS) -o $@ $(LDFLAGS)
+
+run-model-viewer: $(VIEWER)
+	./$(VIEWER) $(ARGS)
 
 # Scenario tests: `make test` runs tests/scenarios/*.txt, `make test SCENARIO=path` runs one. HEADLESS=0 shows the window.
 test: $(EXECUTABLE)
 	./tools/run_scenarios.sh $(SCENARIO)
 
--include $(DEPS) $(EDITOR_SOURCES:.cpp=.d)
+-include $(DEPS) $(EDITOR_OBJECTS:.o=.d) $(VIEWER_OBJECTS:.o=.d)

@@ -13,10 +13,10 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 
 ## Build and run
 
-Asset paths are relative, so run the programs from the directory given here.
+Asset paths are relative to the repo root: run every program from there.
 
 * Game: `make`, then `./Play` (or `./game` from the repo root).
-* Level editor: `make editor`, `make run-editor`. Runs from `dungeon-editor/`, see [dungeon-editor/readme.md](../dungeon-editor/readme.md).
+* Level editor: `make editor`, `make run-editor`. Runs from the repo root, see [tools/editor/readme.md](../tools/editor/readme.md).
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="models/monsters/anubis.md3"`.
 * Level tools: `make level-tools`, then `./levelcheck levels/lvl*` (validate, rank by difficulty) and
   `./levelgen --seed 1 --difficulty 5 OUT` (random level). See [levels.md](levels.md).
@@ -24,9 +24,9 @@ Asset paths are relative, so run the programs from the directory given here.
 ## Project layout
 
 * `src/` - game code: `core`, `graphics`, `entities`, `world`, `ui`, `input`, `state`, `test` (scenario runner).
-* `dungeon-editor/` - level editor. `saved/` holds its work-in-progress levels (not tracked by git).
-* `model-viewer/` - MD3 model viewer.
-* `tools/` - level tools (`level/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
+* `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
+* `build/` - object files and the editor / model viewer binaries (not tracked by git).
+* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
 * `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), test riddles (`riddles/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
 

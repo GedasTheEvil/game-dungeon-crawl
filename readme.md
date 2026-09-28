@@ -30,7 +30,7 @@ The same list is in the game under Options.
 
 The campaign has 15 levels. The gem in the top right corner shows the current level: carnelian for levels 1-5,
 turquoise for 6-10, lapis lazuli for 11-15. You can make your own with the level editor:
-[dungeon-editor/readme.md](dungeon-editor/readme.md).
+[tools/editor/readme.md](tools/editor/readme.md).
 
 ## Development
 

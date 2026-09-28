@@ -1,6 +1,5 @@
-#ifndef RiddleH
-#define RiddleH
-
+#ifndef RIDDLE_H
+#define RIDDLE_H
 #include "../graphics/font.h"
 #include <istream>
 #include <string>
@@ -41,7 +40,7 @@ class Riddle {
 	Riddle();
 	// Replaces the riddles with the ones from a file, or from every *.txt of a directory. Returns the count.
 	size_t Load(const std::string& path);
-	void GetRiddle();
+	void Ask(); // the next riddle of the shuffled deck
 	void Draw();
 	void KeyboardF(unsigned char key, int x, int y);
 };

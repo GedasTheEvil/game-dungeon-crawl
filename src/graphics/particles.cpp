@@ -9,7 +9,7 @@
 #define CDefaultSystemLife 100
 #define CDefaultParticleLife 100
 
-ParSys::ParSys() {
+ParticleSystem::ParticleSystem() {
 	life = CDefaultSystemLife; // default lifetime
 	for (int i = 0; i < CMaxPart; i++) {
 		pt[i].x = 0;
@@ -23,11 +23,11 @@ ParSys::ParSys() {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	frameTimer = std::make_unique<timer>(5);
-	decayTimer = std::make_unique<timer>(5);
+	frameTimer = std::make_unique<Timer>(5);
+	decayTimer = std::make_unique<Timer>(5);
 }
 
-ParSys::ParSys(int life) {
+ParticleSystem::ParticleSystem(int life) {
 	this->life = life;
 	for (int i = 0; i < CMaxPart; i++) {
 		pt[i].x = 0;
@@ -41,13 +41,13 @@ ParSys::ParSys(int life) {
 	colour.g = 0.1f;
 	colour.b = 0.1f;
 
-	frameTimer = std::make_unique<timer>(5);
-	decayTimer = std::make_unique<timer>(5);
+	frameTimer = std::make_unique<Timer>(5);
+	decayTimer = std::make_unique<Timer>(5);
 }
 
-ParSys::~ParSys() { life = 0; }
+ParticleSystem::~ParticleSystem() { life = 0; }
 
-void ParSys::Fall() {
+void ParticleSystem::Fall() {
 	if (!decayTimer->TimePassed())
 		return;
 
@@ -70,7 +70,7 @@ void ParSys::Fall() {
 	life--;
 }
 
-void ParSys::Explode() {
+void ParticleSystem::Explode() {
 	if (!frameTimer->TimePassed())
 		return;
 
@@ -103,7 +103,7 @@ void ParSys::Explode() {
 	life--;
 }
 
-void ParSys::Draw() {
+void ParticleSystem::Draw() {
 
 	glPointSize(8);
 
@@ -129,20 +129,20 @@ void ParSys::Draw() {
 	glDisable(GL_BLEND);
 }
 
-void ParSys::setCords(float x, float y, float z) {
+void ParticleSystem::setCords(float x, float y, float z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
 
-void ParSys::setBloodColor(float r, float g, float b) {
+void ParticleSystem::setBloodColor(float r, float g, float b) {
 	colour.r = r;
 	colour.g = g;
 	colour.b = b;
 }
 
-void ParSys::Reset() {
+void ParticleSystem::Reset() {
 	life = CDefaultSystemLife; // default lifetime
 }
 
-void ParSys::Stop() { life = 0; }
+void ParticleSystem::Stop() { life = 0; }

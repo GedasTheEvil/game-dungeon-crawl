@@ -7,7 +7,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
-#include "ani.h"
+#include "animated_model.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include <GL/glu.h>
@@ -79,7 +79,7 @@ AnimatedModel::AnimatedModel() {
 	texture = 0;
 	bounds = false;
 	loop = true;
-	frameChange = std::make_unique<timer>(100);
+	frameChange = std::make_unique<Timer>(100);
 }
 ////============================================================
 AnimatedModel::~AnimatedModel() {}

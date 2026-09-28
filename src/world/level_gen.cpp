@@ -55,8 +55,8 @@ struct Segment {
 class LevelBuilder {
   public:
 	LevelBuilder(uint32_t seed, int difficulty) : rng(seed), d(difficulty) {
-		for (Tint& t : g.cells)
-			t = Tint{Wall, 0, 0};
+		for (Tile& t : g.cells)
+			t = Tile{Wall, 0, 0};
 		used.assign(CELLS, 0);
 		busy.assign(CELLS, 0);
 	}
@@ -68,7 +68,7 @@ class LevelBuilder {
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
 			int s = rng.range(0, static_cast<int>(route.size()) - 1);
-			if (tryBranch(s, route[s].x0, route[s].x1, Tint{Treasure, 0, 0}))
+			if (tryBranch(s, route[s].x0, route[s].x1, Tile{Treasure, 0, 0}))
 				branches--;
 		}
 		for (Segment& s : route)
@@ -117,7 +117,7 @@ class LevelBuilder {
 		return true;
 	}
 
-	void carve(int col, int row, Tint t) {
+	void carve(int col, int row, Tile t) {
 		g.set(col, row, t);
 		used[index(col, row)] = 1;
 	}
@@ -125,12 +125,12 @@ class LevelBuilder {
 	void carveSegment(const Segment& s) {
 		for (int y = s.row; y < s.row + s.height; y++)
 			for (int x = s.x0; x <= s.x1; x++)
-				carve(x, y, Tint{Empty, 0, 0});
+				carve(x, y, Tile{Empty, 0, 0});
 	}
 
 	void carveLadder(int col, int yLow, int yHigh) {
 		for (int y = yLow; y <= yHigh; y++)
-			carve(col, y, Tint{Ladder, 0, 0});
+			carve(col, y, Tile{Ladder, 0, 0});
 		busy[index(col, yLow)] = busy[index(col, yHigh)] = 1;
 	}
 
@@ -161,13 +161,13 @@ class LevelBuilder {
 			return false;
 
 		Segment& first = route.front();
-		g.set(first.entry, first.row, Tint{Door, GateEntrance, 0});
+		g.set(first.entry, first.row, Tile{Door, GateEntrance, 0});
 		markBusy(first, first.entry);
 		busy[index(first.entry + (first.entry == first.x0 ? 2 : -2), first.row)] = 1; // a free step out of the door
 
 		Segment& last = route.back();
 		last.exit = farEnd(last, last.entry);
-		g.set(last.exit, last.row, Tint{Door, GateExit, 0});
+		g.set(last.exit, last.row, Tile{Door, GateExit, 0});
 		markBusy(last, last.exit);
 		return true;
 	}
@@ -217,7 +217,7 @@ class LevelBuilder {
 				carveLadder(exitCol, next.row, cur.row);
 			else
 				for (int y = cur.row - 1; y >= next.row + next.height; y--)
-					carve(exitCol, y, Tint{Empty, 0, 0});
+					carve(exitCol, y, Tile{Empty, 0, 0});
 			cur.exit = exitCol;
 			cur.link = link;
 			markBusy(cur, exitCol);
@@ -229,13 +229,13 @@ class LevelBuilder {
 	}
 
 	// A dead-end side corridor off segment s, joined by a ladder at a column in [lo, hi], with `item` at its end.
-	bool tryBranch(int s, int lo, int hi, Tint item) {
+	bool tryBranch(int s, int lo, int hi, Tile Item) {
 		const Segment& seg = route[static_cast<size_t>(s)];
 		if (lo > hi)
 			std::swap(lo, hi);
 		for (int attempt = 0; attempt < SEGMENT_TRIES; attempt++) {
 			int col = rng.range(lo, hi);
-			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 || g.at(col, seg.row).a != Empty)
+			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 || g.at(col, seg.row).type != Empty)
 				continue;
 			bool up = rng.chance(0.5f);
 			Segment b;
@@ -257,9 +257,9 @@ class LevelBuilder {
 				carveLadder(col, b.row, seg.row);
 			markBusy(seg, col);
 			int end = farEnd(b, col);
-			if (item.a == Treasure)
-				item = randomTreasure();
-			g.set(end, b.row, item);
+			if (Item.type == Treasure)
+				Item = randomTreasure();
+			g.set(end, b.row, Item);
 			busy[index(end, b.row)] = 1;
 			if (length >= 5 && rng.chance(0.3f + 0.05f * static_cast<float>(d)))
 				placeMonster((col + end) / 2, b.row);
@@ -283,23 +283,23 @@ class LevelBuilder {
 			if (span < 5)
 				continue;
 			int gate = seg.entry + dir * rng.range(3, span - 1);
-			if (busy[index(gate, seg.row)] != 0 || g.at(gate, seg.row).a != Empty)
+			if (busy[index(gate, seg.row)] != 0 || g.at(gate, seg.row).type != Empty)
 				continue;
 			int colour = colours[locksPlaced];
-			g.set(gate, seg.row, Tint{Gate, colour, 0});
+			g.set(gate, seg.row, Tile{Gate, colour, 0});
 			busy[index(gate, seg.row)] = 1;
-			Tint opener = rng.chance(0.35f) ? Tint{Lever, colour, 0} : Tint{Key, colour, 0};
+			Tile opener = rng.chance(0.35f) ? Tile{Lever, colour, 0} : Tile{Key, colour, 0};
 			if (tryBranch(s, seg.entry + dir, gate - 2 * dir, opener)) {
 				markBusy(seg, gate);
 				locksPlaced++;
 			} else {
-				g.set(gate, seg.row, Tint{Empty, 0, 0});
+				g.set(gate, seg.row, Tile{Empty, 0, 0});
 				busy[index(gate, seg.row)] = 0;
 			}
 		}
 	}
 
-	Tint randomTreasure() {
+	Tile randomTreasure() {
 		int roll = rng.range(0, 99);
 		if (roll < 62) {
 			// small health, large health, might, armour, life, small stamina, large stamina
@@ -310,13 +310,13 @@ class LevelBuilder {
 				pick -= WEIGHTS[id];
 				id++;
 			}
-			return Tint{Treasure, ITEM_POTION, id};
+			return Tile{Treasure, ITEM_POTION, id};
 		}
 		if (roll < 88) {
 			int id = rng.range(0, 99) < 20 + 6 * d ? rng.range(1, 2) : 0; // sword / spear more often later
-			return Tint{Treasure, ITEM_MELEE, id};
+			return Tile{Treasure, ITEM_MELEE, id};
 		}
-		return Tint{Treasure, ITEM_RANGED, 0};
+		return Tile{Treasure, ITEM_RANGED, 0};
 	}
 
 	int randomMonster() {
@@ -342,19 +342,19 @@ class LevelBuilder {
 	}
 
 	bool placeMonster(int col, int row) {
-		if (monsters >= 4 + 2 * d || g.at(col, row).a != Empty || g.at(col, row - 1).a != Wall)
+		if (monsters >= 4 + 2 * d || g.at(col, row).type != Empty || g.at(col, row - 1).type != Wall)
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
-			if (g.at(x, row).a == Monster)
+			if (g.at(x, row).type == Monster)
 				return false;
-		g.set(col, row, Tint{Monster, randomMonster(), 0});
+		g.set(col, row, Tile{Monster, randomMonster(), 0});
 		busy[index(col, row)] = 1;
 		monsters++;
 		return true;
 	}
 
 	[[nodiscard]] bool floorCell(const Segment& s, int col) const {
-		return col >= s.x0 && col <= s.x1 && g.at(col, s.row).a == Empty && g.at(col, s.row - 1).a == Wall;
+		return col >= s.x0 && col <= s.x1 && g.at(col, s.row).type == Empty && g.at(col, s.row - 1).type == Wall;
 	}
 
 	// A one-cell hole in the floor with a death trap in it: jump it or die.
@@ -362,10 +362,10 @@ class LevelBuilder {
 		if (!floorCell(s, col - 1) || !floorCell(s, col) || !floorCell(s, col + 1))
 			return false;
 		int below = s.row - 1;
-		if (used[index(col, below - 1)] != 0 || g.at(col, below - 1).a != Wall || g.at(col - 1, below).a != Wall ||
-			g.at(col + 1, below).a != Wall)
+		if (used[index(col, below - 1)] != 0 || g.at(col, below - 1).type != Wall ||
+			g.at(col - 1, below).type != Wall || g.at(col + 1, below).type != Wall)
 			return false;
-		carve(col, below, Tint{Death, 0, 0});
+		carve(col, below, Tile{Death, 0, 0});
 		busy[index(col - 1, s.row)] = busy[index(col, s.row)] = busy[index(col + 1, s.row)] = 1;
 		return true;
 	}
@@ -390,7 +390,7 @@ class LevelBuilder {
 		int dir = to >= from ? 1 : -1;
 		float fd = static_cast<float>(d);
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
-			if (busy[index(x, s.row)] != 0 || g.at(x, s.row).a != Empty)
+			if (busy[index(x, s.row)] != 0 || g.at(x, s.row).type != Empty)
 				continue;
 			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
 			float weights[FEATURE_COUNT] = {2.5f,
@@ -412,14 +412,14 @@ class LevelBuilder {
 				size = d >= 5 && rng.chance(0.4f) ? 2 : 1;
 				for (int k = 0; k < size; k++)
 					if (floorCell(s, x + k * dir) && busy[index(x + k * dir, s.row)] == 0)
-						g.set(x + k * dir, s.row, Tint{Spike, 0, 0});
+						g.set(x + k * dir, s.row, Tile{Spike, 0, 0});
 				break;
 			case Feature::RockFall:
 				size = rng.range(1, std::min(3, 1 + d / 3));
 				for (int k = 0; k < size; k++) {
 					int cx = x + k * dir;
-					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && g.at(cx, s.row + 1).a == Wall)
-						g.set(cx, s.row, Tint{RockFall, 0, 0});
+					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && g.at(cx, s.row + 1).type == Wall)
+						g.set(cx, s.row, Tile{RockFall, 0, 0});
 				}
 				break;
 			case Feature::Monster:

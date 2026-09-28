@@ -1,13 +1,12 @@
-#ifndef StatsH
-#define StatsH
-
+#ifndef STATS_H
+#define STATS_H
 #include "../entities/monster.h"
 #include "../entities/item.h"
 #include "inventory.h"
 #include "fstream"
 #include <memory>
 
-class stats {
+class PlayerStats {
   private:
 	int level;
 	double XP;
@@ -18,8 +17,8 @@ class stats {
 	int HP;
 	int Might;
 
-	std::unique_ptr<timer> stamina_regen_timer;
-	std::unique_ptr<timer> stamina_sprint_drain_timer;
+	std::unique_ptr<Timer> stamina_regen_timer;
+	std::unique_ptr<Timer> stamina_sprint_drain_timer;
 	float stamina_regen_carry;
 	float stamina_sprint_drain_carry;
 	bool sprint_requested;
@@ -41,14 +40,14 @@ class stats {
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	// XP total at which the player reaches `lvl` (level 2 at 1000).
 	[[nodiscard]] static double LevelXP(int lvl);
-	void GetStronger(int ns = 1);
-	void GetXP(int xp);
+	void AddMight(int ns = 1);
+	void AddXP(int xp);
 	void Heal(int hpPart);
-	stats();
-	~stats();
-	void GetArmored(int na = 1);
-	void GetHit(int dmg, bool ignoreArmor = false);
-	void GetTougher(int hpPart);
+	PlayerStats();
+	~PlayerStats();
+	void AddArmor(int na = 1);
+	void TakeHit(int dmg, bool ignoreArmor = false);
+	void AddMaxHP(int hpPart);
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

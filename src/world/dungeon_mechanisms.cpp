@@ -53,36 +53,36 @@ void Dungeon::resetMechanisms() {
 	openingGates.clear();
 	fallingRocks.clear();
 	// A save taken mid-motion finishes it on load.
-	for (Tint& t : map)
-		if ((t.a == Gate || t.a == RockFall) && t.c == 2)
-			t.c = 1;
+	for (Tile& t : map)
+		if ((t.type == Gate || t.type == RockFall) && t.value == 2)
+			t.value = 1;
 }
 //======================================================================================
 void Dungeon::updateMechanisms() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);
-	Tint here = MapAt(col, row);
+	Tile here = MapAt(col, row);
 
-	if (here.a == Key && isLockColour(here.b) && GAME_STATE.Player->Alive()) {
-		keysHeld |= lockBit(here.b);
-		map[MapIndex(col, row)] = Tint{Empty, 0, 0};
+	if (here.type == Key && isLockColour(here.attr) && GAME_STATE.Player->Alive()) {
+		keysHeld |= lockBit(here.attr);
+		map[MapIndex(col, row)] = Tile{Empty, 0, 0};
 		char text[64];
-		snprintf(text, sizeof(text), "Found the %s key", LOCK_GEM_NAMES[here.b - 1]);
+		snprintf(text, sizeof(text), "Found the %s key", LOCK_GEM_NAMES[here.attr - 1]);
 		showStatus(text);
 		GAME_STATE.sounds.keyPickup.Play();
 	}
 
-	if (here.a == RockFall && here.c == 0 && GAME_STATE.Player->Alive()) {
-		map[MapIndex(col, row)].c = 2;
+	if (here.type == RockFall && here.value == 0 && GAME_STATE.Player->Alive()) {
+		map[MapIndex(col, row)].value = 2;
 		fallingRocks.push_back({MapIndex(col, row), GameClock::now()});
 		GAME_STATE.sounds.rockRumble.Play();
 	}
 
 	// A gate the player holds the key for opens as they come up to it.
 	for (int dir : {-1, 1}) {
-		Tint next = MapAt(col + dir, row);
+		Tile next = MapAt(col + dir, row);
 		float gap = dir > 0 ? static_cast<float>(col + 1) - mapX : mapX - static_cast<float>(col);
-		if (next.a == Gate && next.c == 0 && isLockColour(next.b) && (keysHeld & lockBit(next.b)) != 0 &&
+		if (next.type == Gate && next.value == 0 && isLockColour(next.attr) && (keysHeld & lockBit(next.attr)) != 0 &&
 			gap < GATE_APPROACH) {
 			startOpeningGate(MapIndex(col + dir, row));
 			GAME_STATE.sounds.gateOpen.Play();
@@ -91,7 +91,7 @@ void Dungeon::updateMechanisms() {
 
 	for (auto it = openingGates.begin(); it != openingGates.end();) {
 		if (motionProgress(it->startMs, GATE_OPEN_MS) >= 1.f) {
-			map[it->cell].c = 1;
+			map[it->cell].value = 1;
 			it = openingGates.erase(it);
 		} else
 			++it;
@@ -117,25 +117,25 @@ void Dungeon::updateRocks() {
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
 			GAME_STATE.Player->Alive()) {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
-			GAME_STATE.ui.Stats->GetHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
+			GAME_STATE.ui.stats->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
 			showStatus(crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
 		}
-		map[it->cell].c = 1;
+		map[it->cell].value = 1;
 		it = fallingRocks.erase(it);
 	}
 }
 //======================================================================================
 void Dungeon::startOpeningGate(int cell) {
-	if (map[cell].a != Gate || map[cell].c != 0)
+	if (map[cell].type != Gate || map[cell].value != 0)
 		return;
-	map[cell].c = 2;
+	map[cell].value = 2;
 	openingGates.push_back({cell, GameClock::now()});
 }
 //======================================================================================
 void Dungeon::openGates(int colour) {
 	bool any = false;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++)
-		if (map[cell].a == Gate && map[cell].b == colour && map[cell].c == 0) {
+		if (map[cell].type == Gate && map[cell].attr == colour && map[cell].value == 0) {
 			startOpeningGate(cell);
 			any = true;
 		}
@@ -144,11 +144,11 @@ void Dungeon::openGates(int colour) {
 }
 //======================================================================================
 void Dungeon::bumpGate(int col, int row) {
-	Tint gate = MapAt(col, row);
-	if (gate.a != Gate || gate.c != 0 || !isLockColour(gate.b))
+	Tile gate = MapAt(col, row);
+	if (gate.type != Gate || gate.value != 0 || !isLockColour(gate.attr))
 		return;
 
-	if ((keysHeld & lockBit(gate.b)) != 0) {
+	if ((keysHeld & lockBit(gate.attr)) != 0) {
 		startOpeningGate(MapIndex(col, row));
 		GAME_STATE.sounds.gateOpen.Play();
 		return;
@@ -159,8 +159,8 @@ void Dungeon::bumpGate(int col, int row) {
 		return;
 	lockedHintMs = now;
 	char text[96];
-	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", LOCK_GEM_NAMES[gate.b - 1],
-			 LOCK_GEM_NAMES[gate.b - 1]);
+	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", LOCK_GEM_NAMES[gate.attr - 1],
+			 LOCK_GEM_NAMES[gate.attr - 1]);
 	showStatus(text);
 	GAME_STATE.sounds.gateLocked.Play();
 }
@@ -168,38 +168,38 @@ void Dungeon::bumpGate(int col, int row) {
 bool Dungeon::PullLever() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);
-	Tint lever = MapAt(col, row);
-	if (lever.a != Lever || !isLockColour(lever.b))
+	Tile lever = MapAt(col, row);
+	if (lever.type != Lever || !isLockColour(lever.attr))
 		return false;
-	if (lever.c != 0)
+	if (lever.value != 0)
 		return true; // pulled already: the gates stay open
 
-	map[MapIndex(col, row)].c = 1;
+	map[MapIndex(col, row)].value = 1;
 	GAME_STATE.sounds.lever.Play();
-	openGates(lever.b);
+	openGates(lever.attr);
 	char text[64];
-	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", LOCK_GEM_NAMES[lever.b - 1]);
+	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", LOCK_GEM_NAMES[lever.attr - 1]);
 	showStatus(text);
 	return true;
 }
 //======================================================================================
 void Dungeon::drawKeyTile(int i, int j) {
-	Tint tile = MapAt(i, j);
+	Tile tile = MapAt(i, j);
 	float t = static_cast<float>(GameClock::now());
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
 	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
-	showModel(colourModel(GAME_STATE.mechanisms.key, tile.b));
+	showModel(colourModel(GAME_STATE.mechanisms.key, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
 void Dungeon::drawGateTile(int i, int j) {
-	Tint tile = MapAt(i, j);
+	Tile tile = MapAt(i, j);
 	float lift = 0.f;
-	if (tile.c == 1)
+	if (tile.value == 1)
 		lift = 1.f;
-	else if (tile.c == 2)
+	else if (tile.value == 2)
 		for (const Motion& m : openingGates)
 			if (m.cell == MapIndex(i, j)) {
 				float p = motionProgress(m.startMs, GATE_OPEN_MS);
@@ -211,31 +211,31 @@ void Dungeon::drawGateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, lift, 0);
-	showModel(colourModel(GAME_STATE.mechanisms.gate, tile.b));
+	showModel(colourModel(GAME_STATE.mechanisms.gate, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
 void Dungeon::drawLeverTile(int i, int j) {
-	Tint tile = MapAt(i, j);
+	Tile tile = MapAt(i, j);
 	glPushMatrix();
 	enterPropSpace();
-	showModel(colourModel(GAME_STATE.mechanisms.leverBase, tile.b));
+	showModel(colourModel(GAME_STATE.mechanisms.leverBase, tile.attr));
 	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
-	glRotatef(tile.c != 0 ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
+	glRotatef(tile.value != 0 ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
 	showModel(GAME_STATE.mechanisms.leverHandle.get());
 	glPopMatrix();
 }
 //======================================================================================
 void Dungeon::drawRockFallTile(int i, int j) {
-	Tint tile = MapAt(i, j);
+	Tile tile = MapAt(i, j);
 	int cell = MapIndex(i, j);
 
 	glPushMatrix();
 	enterPropSpace();
-	if (tile.c != 1) {
+	if (tile.value != 1) {
 		// Loose stones in the ceiling; they shake while the rumble lasts.
 		glPushMatrix();
-		if (tile.c == 2) {
+		if (tile.value == 2) {
 			float t = static_cast<float>(GameClock::now());
 			glTranslatef(0.01f * std::sin(t * 0.09f), 0.f, 0.f);
 		}
@@ -244,9 +244,9 @@ void Dungeon::drawRockFallTile(int i, int j) {
 	}
 
 	float rockY = -1.f; // below the floor = not drawn
-	if (tile.c == 1)
+	if (tile.value == 1)
 		rockY = 0.f;
-	else if (tile.c == 2)
+	else if (tile.value == 2)
 		for (const Motion& m : fallingRocks)
 			if (m.cell == cell && GameClock::now() - m.startMs >= ROCK_WARN_MS) {
 				float p = motionProgress(m.startMs + ROCK_WARN_MS, ROCK_FALL_MS);

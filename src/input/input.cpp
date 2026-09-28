@@ -14,7 +14,7 @@ int lastMy = 0;
 namespace {
 void startJump() {
 	if (GAME_STATE.Player->jump.jumping || GAME_STATE.Player->jump.falling || !GAME_STATE.Player->Alive() ||
-		GAME_STATE.IHaveWon)
+		GAME_STATE.hasWon)
 		return;
 
 	if (GAME_STATE.Player->Stamina() < JUMP_STAMINA_COST)
@@ -42,7 +42,7 @@ void startJump() {
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
-		float moveMultiplier = GAME_STATE.ui.Stats->SprintMoveMultiplier();
+		float moveMultiplier = GAME_STATE.ui.stats->SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			GAME_STATE.dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
@@ -87,16 +87,16 @@ class PlayerActionController {
 		if (!GAME_STATE.Player->Att_timer->TimePassed())
 			return;
 
-		GAME_STATE.dungeon.GetAttack(GAME_STATE.ui.Stats->Damage(), GAME_STATE.ui.invent->Equipped()->range);
+		GAME_STATE.dungeon.AttackNearest(GAME_STATE.ui.stats->Damage(), GAME_STATE.ui.inventory->Equipped()->range);
 		GAME_STATE.Player->att_s.Play();
 		GAME_STATE.Player->attacking = true;
 	}
 
 	static void interact() {
-		GAME_STATE.dungeon.GetPickUp();
+		GAME_STATE.dungeon.PickUp();
 		if (GAME_STATE.dungeon.PullLever())
 			return;
-		GAME_STATE.dungeon.GetRiddle();
+		GAME_STATE.dungeon.Interact();
 	}
 
 	static void clampCamera() {
@@ -121,15 +121,15 @@ void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {
 	if (ScreenState::ShouldRouteKeyboardToRiddle(GAME_STATE)) {
-		GAME_STATE.ui.rid->KeyboardF(key, x, y);
+		GAME_STATE.ui.riddle->KeyboardF(key, x, y);
 		return;
 	}
 
 	if (key == KEY_ESCAPE) // esc
 	{
 		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
-		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.invent->show) {
-			GAME_STATE.ui.invent->show = false;
+		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.inventory->show) {
+			GAME_STATE.ui.inventory->show = false;
 			return;
 		}
 		if (!GAME_STATE.ui.menu.show && GAME_STATE.ui.map.show) {
@@ -151,16 +151,16 @@ void keyPressed(unsigned char key, int x, int y) {
 	}
 
 	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE))
-		return; // jei rodomas meniu, tai reaguojam tik i [esc]
+		return; // while the menu is shown, only [esc] is handled
 
-	if (GAME_STATE.ui.invent->show && key != KEY_INVENTORY) {
-		GAME_STATE.ui.invent->KeyPressed(key);
+	if (GAME_STATE.ui.inventory->show && key != KEY_INVENTORY) {
+		GAME_STATE.ui.inventory->KeyPressed(key);
 		return;
 	}
 
 	// The map pauses the game: only M (or Esc, above) closes it.
 	if (key == KEY_MAP || key == KEY_MAP_UPPER) {
-		if (!GAME_STATE.ui.invent->show)
+		if (!GAME_STATE.ui.inventory->show)
 			GAME_STATE.ui.map.show = !GAME_STATE.ui.map.show;
 		return;
 	}
@@ -172,7 +172,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)
-		GAME_STATE.ui.invent->show = !GAME_STATE.ui.invent->show;
+		GAME_STATE.ui.inventory->show = !GAME_STATE.ui.inventory->show;
 
 	lastKey = key;
 }
@@ -184,8 +184,8 @@ void specialKeyPressed(int key, int x, int y) {
 	if (ScreenState::ShouldBlockKeyboardGameplay(GAME_STATE) || GAME_STATE.ui.map.show)
 		return;
 
-	if (GAME_STATE.ui.invent->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
-		GAME_STATE.ui.invent->SpecialKeyPressed(key);
+	if (GAME_STATE.ui.inventory->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
+		GAME_STATE.ui.inventory->SpecialKeyPressed(key);
 		return;
 	}
 
@@ -214,7 +214,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.ui.Stats->SetSprintRequested(true);
+		GAME_STATE.ui.stats->SetSprintRequested(true);
 }
 
 void specialKeyReleased(int key, int x, int y) {
@@ -222,7 +222,7 @@ void specialKeyReleased(int key, int x, int y) {
 	(void)y;
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
-		GAME_STATE.ui.Stats->SetSprintRequested(false);
+		GAME_STATE.ui.stats->SetSprintRequested(false);
 }
 
 void processMouse(int button, int state, int x, int y) {
@@ -232,7 +232,7 @@ void processMouse(int button, int state, int x, int y) {
 	}
 
 	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
-		GAME_STATE.ui.invent->MouseFunction(button, state, x, y);
+		GAME_STATE.ui.inventory->MouseFunction(button, state, x, y);
 		return;
 	}
 
@@ -247,7 +247,7 @@ void processMousePassiveMotion(int a, int b) {
 	}
 
 	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE)) {
-		GAME_STATE.ui.invent->MouseMotion(a, b);
+		GAME_STATE.ui.inventory->MouseMotion(a, b);
 		lastMx = a; // no camera jump when the inventory closes
 		lastMy = b;
 		return;
@@ -268,7 +268,7 @@ void processMousePassiveMotion(int a, int b) {
 
 void processMouseActiveMotion(int a, int b) {
 	if (ScreenState::ShouldRouteMouseToInventory(GAME_STATE))
-		GAME_STATE.ui.invent->MouseMotion(a, b);
+		GAME_STATE.ui.inventory->MouseMotion(a, b);
 }
 
 void processMouseEntry(int a) { (void)a; }

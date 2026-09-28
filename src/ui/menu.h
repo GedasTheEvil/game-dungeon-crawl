@@ -1,6 +1,5 @@
-#ifndef MenuH
-#define MenuH
-
+#ifndef MENU_H
+#define MENU_H
 #include <memory>
 #include <string>
 #include "../core/timer.h"
@@ -19,7 +18,7 @@ class MainMenu {
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
 	bool credits;
-	std::unique_ptr<timer> creditsTimer;
+	std::unique_ptr<Timer> creditsTimer;
 
 	bool fontsLoaded = false;
 	Font title, heading, body, small;

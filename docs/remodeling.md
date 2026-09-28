@@ -88,7 +88,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/ani.cpp`/`ani.h` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/game_state.cpp`.
+* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/game_state.cpp`.
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
@@ -99,7 +99,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
-  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `AnimatedModel::Load` in `src/graphics/ani.cpp`.
+  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `AnimatedModel::Load` in `src/graphics/animated_model.cpp`.
 * Blender space: Z-up. Facing depends on the monster's `rotA` in `game_state.cpp`: Anubis (180) faces +Y, worm (0) faces -Y.
   Check the old model's facing before remodelling.
 * The engine normalizes a monster by the walk-slot file (`<name>.md3`) frame 0: largest dimension -> 1, centred in x/z,
@@ -125,7 +125,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<category>/<name>_jump.wav`.
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
-  Loaded by `Textura::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
+  Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; items 1.2-4.5k tris 32-143 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; all 31 models load in ~0.2 s.
 
 ## Status

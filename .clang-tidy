@@ -26,7 +26,7 @@ Checks: >
 WarningsAsErrors: ''
 # Paths are absolute. Only the project's own headers: the last directory must be one of ours, which leaves out
 # external/stb (reached as src/graphics/../../external/stb/...). clang-tidy 18 has no ExcludeHeaderFilterRegex.
-HeaderFilterRegex: '.*/(src/(.*/)?(core|entities|graphics|input|state|test|ui|world)|dungeon-editor)/[a-z_]+\.h$'
+HeaderFilterRegex: '.*/(src/(.*/)?(core|entities|graphics|input|state|test|ui|world)|tools/editor)/[a-z_]+\.h$'
 FormatStyle: file
 # Naming: only what the code base follows throughout. Class, method and function names are mixed (older
 # PascalCase methods and lower-case classes next to newer camelBack / CamelCase ones) and are not checked.

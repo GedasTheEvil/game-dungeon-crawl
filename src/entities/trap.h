@@ -1,30 +1,29 @@
-#ifndef TrapsH
-#define TrapsH
-
+#ifndef TRAP_H
+#define TRAP_H
 #include <memory>
-#include "../graphics/ani.h"
+#include "../graphics/animated_model.h"
 #include "../graphics/textures.h"
 #include "../core/timer.h"
 
-class trap {
+class Trap {
   private:
 	std::unique_ptr<AnimatedModel> mdl;
 	float tileX;
 	float tileY;
-	Textura tex;
-	std::unique_ptr<timer> Hurt_timer;
+	Texture tex;
+	std::unique_ptr<Timer> Hurt_timer;
 
   public:
 	float scale;
 	float* dungeonCamY;
 	float* dungeonCamX;
 
-	trap();
-	~trap();
+	Trap();
+	~Trap();
 	void Show();
 	void Hurt();
 	void setCords(float nX, float nY);
-	bool loadModel(const char filename[], Textura& texture, bool compile = true);
+	bool loadModel(const char filename[], Texture& texture, bool compile = true);
 	void debugText();
 };
 

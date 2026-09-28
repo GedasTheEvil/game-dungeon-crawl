@@ -4,7 +4,7 @@
 #include "../entities/monster.h"
 #include "../entities/player.h"
 #include "../graphics/texture_registry.h"
-#include "../graphics/ani.h"
+#include "../graphics/animated_model.h"
 #include "../world/dungeon.h"
 #include "../graphics/font.h"
 #include "../entities/item.h"
@@ -15,7 +15,7 @@
 #include "../entities/trap.h"
 #include "../ui/riddle.h"
 #include "../ui/menu.h"
-#include "../ui/winlose.h"
+#include "../ui/end_screens.h"
 #include "../ui/map_view.h"
 #include <memory>
 
@@ -53,12 +53,12 @@ struct MonsterPrototypes {
 };
 
 struct ItemPrototypes {
-	std::unique_ptr<item> chest, club, sword, bow, potion, spear;
+	std::unique_ptr<Item> chest, club, sword, bow, potion, spear;
 };
 
 struct TrapPair {
-	std::unique_ptr<trap> TrapD;
-	std::unique_ptr<trap> DeathTrap;
+	std::unique_ptr<Trap> TrapD;
+	std::unique_ptr<Trap> DeathTrap;
 };
 
 struct SceneModels {
@@ -66,13 +66,13 @@ struct SceneModels {
 };
 
 struct DecorSet {
-	Textura tex[DECOR_COUNT];
+	Texture tex[DECOR_COUNT];
 	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
-	Textura decalTex;								   // atlas, DECAL_DEFS order
-	Textura torchTex;
+	Texture decalTex;								   // atlas, DECAL_DEFS order
+	Texture torchTex;
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
-	Textura ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
-	Textura wallTex[WALL_STYLE_COUNT], floorTex[FLOOR_STYLE_COUNT], ceilingTex[CEILING_STYLE_COUNT], rockTex;
+	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
+	Texture wallTex[WALL_STYLE_COUNT], floorTex[FLOOR_STYLE_COUNT], ceilingTex[CEILING_STYLE_COUNT], rockTex;
 	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 
@@ -80,23 +80,23 @@ struct DecorSet {
 // Keys, gates and lever plates have one texture per lock colour (index colour - 1). A compiled model keeps its
 // texture, so each colour is its own copy of the model. Null if the file failed to load.
 struct MechanismSet {
-	Textura keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Textura leverHandleTex, rockTex, crackTex;
+	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
+	Texture leverHandleTex, rockTex, crackTex;
 	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack;
 };
 
 struct GameTimers {
-	std::unique_ptr<timer> mdlChange;
-	std::unique_ptr<timer> AttTimer;
+	std::unique_ptr<Timer> mdlChange;
+	std::unique_ptr<Timer> AttTimer;
 };
 
 struct UIContext {
-	std::unique_ptr<inventory> invent;
-	std::unique_ptr<stats> Stats;
-	std::unique_ptr<Riddle> rid;
+	std::unique_ptr<Inventory> inventory;
+	std::unique_ptr<PlayerStats> stats;
+	std::unique_ptr<Riddle> riddle;
 	MainMenu menu;
-	std::unique_ptr<winL> wlc;
+	std::unique_ptr<EndScreens> endScreens;
 	DraftMap map;
 };
 
@@ -105,11 +105,11 @@ class GameState {
 	TextureRegistry textures;
 	Camera camera;
 	RenderSettings render;
-	bool Cache_loaded = false;
-	bool IHaveWon = false;
+	bool cacheLoaded = false;
+	bool hasWon = false;
 	int curMap = 1;
 	char status[255] = {};
-	std::unique_ptr<timer> status_timer;
+	std::unique_ptr<Timer> status_timer;
 	SoundBank sounds;
 	FontPair fonts;
 	MonsterPrototypes monsters;

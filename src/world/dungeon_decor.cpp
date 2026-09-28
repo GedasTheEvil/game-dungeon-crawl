@@ -69,16 +69,16 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			cell = DecorCell{};
 
 			// Only empty cells the player can stand in (floor below).
-			if (MapAt(i, j).a != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).a != Wall)
+			if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
 				continue;
 
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
 			if (h % 100 >= DECOR_CHANCE_PERCENT)
 				continue;
 
-			bool wallLeft = !IsInBounds(i - 1, j) || MapAt(i - 1, j).a == Wall;
-			bool wallRight = !IsInBounds(i + 1, j) || MapAt(i + 1, j).a == Wall;
-			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).a == Wall;
+			bool wallLeft = !IsInBounds(i - 1, j) || MapAt(i - 1, j).type == Wall;
+			bool wallRight = !IsInBounds(i + 1, j) || MapAt(i + 1, j).type == Wall;
+			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type == Wall;
 			bool webFits = ceiling; // lies flat on the back wall, tucked into a side wall's corner if there is one
 
 			h = mix(h);
@@ -111,11 +111,11 @@ void Dungeon::scatterLadders(uint32_t seed) {
 		for (int j = 0; j < MAP_HEIGHT; j++) {
 			LadderCell& cell = ladder[MapIndex(i, j)];
 			cell = LadderCell{};
-			if (MapAt(i, j).a != Ladder)
+			if (MapAt(i, j).type != Ladder)
 				continue;
 
-			bool first = !IsInBounds(i, j - 1) || MapAt(i, j - 1).a != Ladder;
-			bool last = !IsInBounds(i, j + 1) || MapAt(i, j + 1).a != Ladder;
+			bool first = !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Ladder;
+			bool last = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type != Ladder;
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
 			if (first) {
 				style = static_cast<int>(h % LADDER_STYLE_COUNT);
@@ -125,7 +125,7 @@ void Dungeon::scatterLadders(uint32_t seed) {
 			h = mix(h);
 
 			int piece;
-			if (first && (!IsInBounds(i, j - 1) || MapAt(i, j - 1).a == Wall))
+			if (first && (!IsInBounds(i, j - 1) || MapAt(i, j - 1).type == Wall))
 				piece = LADDER_BOTTOM;
 			else if (last)
 				piece = LADDER_TOP;
@@ -154,7 +154,7 @@ void Dungeon::scatterTorches(uint32_t seed) {
 			bool& cell = torch[MapIndex(i, j)];
 			cell = false;
 
-			int tile = MapAt(i, j).a;
+			int tile = MapAt(i, j).type;
 			int8_t prop = decor[MapIndex(i, j)].type;
 			if (tile == Wall || tile == Door || tile == Ladder || tile == Ankh || prop == DECOR_BRAZIER ||
 				prop == DECOR_LAMP || i - lastTorch <= TORCH_MIN_GAP)
@@ -181,7 +181,7 @@ void Dungeon::scatterDecals(uint32_t seed) {
 			DecalCell& cell = decal[MapIndex(i, j)];
 			cell = DecalCell{};
 
-			int tile = MapAt(i, j).a;
+			int tile = MapAt(i, j).type;
 			if (tile == Wall || tile == Door || tile == Ladder)
 				continue;
 
@@ -189,8 +189,8 @@ void Dungeon::scatterDecals(uint32_t seed) {
 			if (h % 100 >= DECAL_CHANCE_PERCENT)
 				continue;
 
-			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).a == Wall;
-			bool floor = IsInBounds(i, j - 1) && MapAt(i, j - 1).a == Wall && decor[MapIndex(i, j)].type < 0;
+			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type == Wall;
+			bool floor = IsInBounds(i, j - 1) && MapAt(i, j - 1).type == Wall && decor[MapIndex(i, j)].type < 0;
 			bool free = !torch[MapIndex(i, j)]; // the torch covers the middle of the wall
 
 			int fits[DECAL_COUNT];
@@ -401,12 +401,12 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 
 	for (int j = 0; j < MAP_HEIGHT; j++)
 		for (int start = 0; start < MAP_WIDTH;) {
-			if (MapAt(start, j).a == Wall) {
+			if (MapAt(start, j).type == Wall) {
 				start++;
 				continue;
 			}
 			int end = start;
-			while (end < MAP_WIDTH && MapAt(end, j).a != Wall)
+			while (end < MAP_WIDTH && MapAt(end, j).type != Wall)
 				end++;
 
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(start, j)) + 0x9e3779b9U));

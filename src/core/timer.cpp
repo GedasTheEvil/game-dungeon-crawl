@@ -13,19 +13,19 @@ void GameClock::advance(int ms) { gVirtualMs += ms; }
 
 int GameClock::now() { return gVirtualClock ? gVirtualMs : static_cast<int>(SDL_GetTicks()); }
 
-timer::timer() {
+Timer::Timer() {
 	time_start = GameClock::now();
 	ticks = DEFAULT_TIMER_MS;
 }
 
-timer::timer(int defT) {
+Timer::Timer(int defT) {
 	time_start = GameClock::now();
 	ticks = defT;
 }
 
-timer::~timer() {}
+Timer::~Timer() {}
 
-bool timer::TimePassed() {
+bool Timer::TimePassed() {
 	int xxx = GameClock::now();
 	if (xxx - time_start >= ticks) {
 		time_start = GameClock::now();
@@ -34,7 +34,7 @@ bool timer::TimePassed() {
 	return false;
 }
 
-bool timer::TimePassed(bool noRepeat) {
+bool Timer::TimePassed(bool noRepeat) {
 	int xxx = GameClock::now();
 	if (xxx - time_start >= ticks) {
 		if (!noRepeat)
@@ -44,8 +44,8 @@ bool timer::TimePassed(bool noRepeat) {
 	return false;
 }
 
-void timer::Reset() { time_start = GameClock::now(); }
+void Timer::Reset() { time_start = GameClock::now(); }
 
-int timer::StartTime() const { return time_start; }
+int Timer::StartTime() const { return time_start; }
 
-void timer::SetStartTime(int start) { time_start = start; }
+void Timer::SetStartTime(int start) { time_start = start; }

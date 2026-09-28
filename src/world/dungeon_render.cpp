@@ -25,7 +25,7 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 void Dungeon::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	DecorSet& tex = GAME_STATE.decor;
-	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).a == Wall; };
+	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; };
 
 	if (rock(i, j)) {
 		float u0 = static_cast<float>(i & 1) * 0.5f;
@@ -79,33 +79,33 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 }
 //======================================================================================
 void Dungeon::DrawTreasureTile(int i, int j) {
-	const Tint tile = MapAt(i, j);
+	const Tile tile = MapAt(i, j);
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 	GAME_STATE.items.chest->Draw();
 
-	if (tile.b == 3) {
+	if (tile.attr == 3) {
 		GAME_STATE.items.potion->Draw();
 		GAME_STATE.items.potion->rotA++;
 	}
 
-	if (tile.b == 2) {
+	if (tile.attr == 2) {
 		GAME_STATE.items.bow->Draw();
 		GAME_STATE.items.bow->rotA++;
 	}
 
-	if (tile.b == 1) {
-		if (tile.c == 0) {
+	if (tile.attr == 1) {
+		if (tile.value == 0) {
 			GAME_STATE.items.club->scale = 10;
 			GAME_STATE.items.club->Draw();
 			GAME_STATE.items.club->rotA++;
 		}
-		if (tile.c == 1) {
+		if (tile.value == 1) {
 			GAME_STATE.items.sword->Draw();
 			GAME_STATE.items.sword->rotA++;
 		}
-		if (tile.c == 2) {
+		if (tile.value == 2) {
 			GAME_STATE.items.spear->Draw();
 			GAME_STATE.items.spear->rotA++;
 		}
@@ -118,7 +118,7 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
-	trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
+	Trap* tileTrap = isDeathTrap ? GAME_STATE.traps.DeathTrap.get() : GAME_STATE.traps.TrapD.get();
 	tileTrap->dungeonCamX = &mapX;
 	tileTrap->dungeonCamY = &mapY;
 	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
@@ -144,21 +144,21 @@ void Dungeon::Draw() {
 	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
 		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++) {
 			if (IsInBounds(i, j)) {
-				const Tint tile = MapAt(i, j);
+				const Tile tile = MapAt(i, j);
 				drawCellSurfaces(i, j);
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);
 
-				if (tile.a == Monster)
+				if (tile.type == Monster)
 					SpawnMonster(i, j);
-				if (tile.a == Treasure)
+				if (tile.type == Treasure)
 					DrawTreasureTile(i, j);
-				if (tile.a == Spike)
+				if (tile.type == Spike)
 					DrawTrapTile(i, j, false);
-				if (tile.a == Death)
+				if (tile.type == Death)
 					DrawTrapTile(i, j, true);
-				if (tile.a == Ankh) {
+				if (tile.type == Ankh) {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glScalef(40, 40, 40);
@@ -166,19 +166,19 @@ void Dungeon::Draw() {
 					GAME_STATE.models.ankh->Show();
 					glPopMatrix();
 				}
-				if (tile.a == Door) {
+				if (tile.type == Door) {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glPushMatrix();
 					glScalef(40, 40, 40);
-					if (tile.b != GateEntrance)
+					if (tile.attr != GateEntrance)
 						glRotatef(180, 0, 1, 0);
 					GAME_STATE.textures.sphinx_t.Bind();
 					GAME_STATE.models.sphinx->Show();
 					glPopMatrix();
 					glPopMatrix();
 
-					if (tile.b == GateRiddle) {
+					if (tile.attr == GateRiddle) {
 						glPushMatrix();
 						glTranslatef(20, 20, -20);
 						glPushMatrix();
@@ -193,9 +193,9 @@ void Dungeon::Draw() {
 						glPopMatrix();
 					}
 
-					if (tile.b == GateEntrance || tile.b == GateExit) {
+					if (tile.attr == GateEntrance || tile.attr == GateExit) {
 						glPushMatrix();
-						if (tile.b != GateEntrance)
+						if (tile.attr != GateEntrance)
 							glTranslatef(39, 0, 0);
 
 						float px = static_cast<float>((static_cast<int>(plasma * 100) % 100)) / 200.0f;
@@ -219,15 +219,15 @@ void Dungeon::Draw() {
 						glPopMatrix();
 					}
 				}
-				if (tile.a == Ladder)
+				if (tile.type == Ladder)
 					drawLadderTile(i, j);
-				if (tile.a == Key)
+				if (tile.type == Key)
 					drawKeyTile(i, j);
-				if (tile.a == Gate)
+				if (tile.type == Gate)
 					drawGateTile(i, j);
-				if (tile.a == Lever)
+				if (tile.type == Lever)
 					drawLeverTile(i, j);
-				if (tile.a == RockFall)
+				if (tile.type == RockFall)
 					drawRockFallTile(i, j);
 			}
 			glTranslatef(40, 0, 0);

@@ -1,6 +1,5 @@
-#ifndef InventoryH
-#define InventoryH
-
+#ifndef INVENTORY_H
+#define INVENTORY_H
 #include <string>
 #include "../graphics/font.h"
 #include "../entities/item.h"
@@ -38,7 +37,7 @@ constexpr int LEGACY_COUNT = 9; // saves from before the stamina potions and ite
 constexpr int NONE = -1;
 } // namespace InvSlot
 
-class inventory {
+class Inventory {
   private:
 	// Clickable things on the screen.
 	enum class Target : unsigned char { None, Slot, UseButton, UpgradeButton };
@@ -61,7 +60,7 @@ class inventory {
 
 	Font title, heading, body, small;
 
-	[[nodiscard]] static item* SlotItem(int slot);
+	[[nodiscard]] static Item* SlotItem(int slot);
 	[[nodiscard]] static int SlotFromItem(int type, int id);
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
 	[[nodiscard]] bool CanUpgrade(int slot) const;
@@ -86,15 +85,15 @@ class inventory {
 
   public:
 	bool show; // if true, show inventory
-	inventory();
-	~inventory();
-	void GetItem(int type, int id);
+	Inventory();
+	~Inventory();
+	void AddItem(int type, int id);
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
-	item* Equipped();
+	Item* Equipped();
 	[[nodiscard]] int EquippedType() const;
 	[[nodiscard]] int EquippedId() const;
 	[[nodiscard]] int Count(int type, int id) const;

@@ -10,7 +10,7 @@
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
-std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Textura& tex) {
+std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
 	auto model = std::make_unique<AnimatedModel>();
 	if (!model->Load(path))
 		return nullptr;
@@ -82,7 +82,7 @@ void GameState::Load() {
 	textures.bat_t.LoadPNG("textures/monsters/bat.png");
 	textures.giantBat_t.LoadPNG("textures/monsters/bat_giant.png");
 	textures.riddle_bg.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
-	ui.rid = std::make_unique<Riddle>();
+	ui.riddle = std::make_unique<Riddle>();
 
 	DrawLoad(20, "Loading Monster Models [Player]");
 	Player = std::make_unique<PlayerEntity>(0, 0, 1, 1, 1, 0);
@@ -112,7 +112,7 @@ void GameState::Load() {
 	monsters.anubis->maxHealth = 200;
 
 	DrawLoad(60, "Loading Item Models [Treasure chest]");
-	items.chest = std::make_unique<item>();
+	items.chest = std::make_unique<Item>();
 	items.chest->loadModel("models/items/tchest.md3", textures.chest_t);
 	items.chest->scale = 8; // faces the camera at rotA 0 (tools/blender/models/items.py)
 
@@ -158,35 +158,35 @@ void GameState::Load() {
 	monsters.giantBat->setBloodColor(0.45f, 0.05f, 0.05f);
 
 	DrawLoad(70, "Loading Item Models [Club]");
-	items.club = std::make_unique<item>();
+	items.club = std::make_unique<Item>();
 	items.club->loadModel("models/items/club.md3", textures.club_t);
 	items.club->damage = 9;
 	items.club->scale = 6;
 	items.club->range = 2;
 
 	DrawLoad(74, "Loading Item Models [Sword]");
-	items.sword = std::make_unique<item>();
+	items.sword = std::make_unique<Item>();
 	items.sword->loadModel("models/items/sword.md3", textures.sword_t);
 	items.sword->scale = 9;
 	items.sword->damage = 35;
 	items.sword->range = 4;
 
 	DrawLoad(76, "Loading Item Models [Bow]");
-	items.bow = std::make_unique<item>();
+	items.bow = std::make_unique<Item>();
 	items.bow->loadModel("models/items/bow.md3", textures.bow_t);
 	items.bow->scale = 12;
 	items.bow->damage = 12;
 	items.bow->range = 16;
 
 	DrawLoad(77, "Loading Item Models [Bow]");
-	items.spear = std::make_unique<item>();
+	items.spear = std::make_unique<Item>();
 	items.spear->loadModel("models/items/spear.md3", textures.spear_t);
 	items.spear->scale = 15;
 	items.spear->damage = 15;
 	items.spear->range = 8;
 
 	DrawLoad(78, "Loading Item Models [Potion]");
-	items.potion = std::make_unique<item>();
+	items.potion = std::make_unique<Item>();
 	items.potion->loadModel("models/items/potion.md3", textures.potion_t);
 	items.potion->scale = 5;
 
@@ -215,7 +215,7 @@ void GameState::Load() {
 
 	DrawLoad(80, "Loading decorations");
 	decor.decalTex.LoadPNG("textures/decorations/decals.png");
-	auto loadSurfaces = [](Textura* tex, const char* const* names, int count) {
+	auto loadSurfaces = [](Texture* tex, const char* const* names, int count) {
 		for (int s = 0; s < count; s++) {
 			char path[64];
 			snprintf(path, sizeof(path), "textures/dungeon/%s.png", names[s]);
@@ -265,7 +265,7 @@ void GameState::Load() {
 	loadMechanisms(mechanisms);
 
 	DrawLoad(85, "Loading inventory");
-	ui.invent = std::make_unique<inventory>();
+	ui.inventory = std::make_unique<Inventory>();
 	sounds.drink_s.Load("sounds/items/potion_drink.wav");
 	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
 	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
@@ -275,14 +275,14 @@ void GameState::Load() {
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 
 	DrawLoad(88, "Loading stats");
-	ui.Stats = std::make_unique<stats>();
+	ui.stats = std::make_unique<PlayerStats>();
 
 	textures.trap_t.LoadPNG("textures/traps/spikes.png");
-	traps.TrapD = std::make_unique<trap>();
+	traps.TrapD = std::make_unique<Trap>();
 	traps.TrapD->loadModel("models/traps/spikes.md3", textures.trap_t);
 	traps.TrapD->scale = 16;
 
-	traps.DeathTrap = std::make_unique<trap>();
+	traps.DeathTrap = std::make_unique<Trap>();
 	traps.DeathTrap->loadModel("models/traps/spikes.md3", textures.trap_t);
 	traps.DeathTrap->scale = 40;
 
@@ -291,14 +291,14 @@ void GameState::Load() {
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
 
-	Player->jump.jump_timer = std::make_unique<timer>(JUMP_TIMER_MS);
-	Player->jump.jump_up_timer = std::make_unique<timer>(JUMP_UP_TIMER_MS);
-	timers.mdlChange = std::make_unique<timer>(300);
-	timers.AttTimer = std::make_unique<timer>(250);
-	Player->jump.jump_inc = std::make_unique<timer>(JUMP_TICK_MS);
-	Player->jump.fall_inc = std::make_unique<timer>(FALL_TICK_MS);
+	Player->jump.jump_timer = std::make_unique<Timer>(JUMP_TIMER_MS);
+	Player->jump.jump_up_timer = std::make_unique<Timer>(JUMP_UP_TIMER_MS);
+	timers.mdlChange = std::make_unique<Timer>(300);
+	timers.AttTimer = std::make_unique<Timer>(250);
+	Player->jump.jump_inc = std::make_unique<Timer>(JUMP_TICK_MS);
+	Player->jump.fall_inc = std::make_unique<Timer>(FALL_TICK_MS);
 	Player->jump.fall_velocity = FALL_STEP;
-	status_timer = std::make_unique<timer>(3000);
+	status_timer = std::make_unique<Timer>(3000);
 
 	DrawLoad(95, "Loading game Map");
 
@@ -318,17 +318,17 @@ void GameState::Load() {
 		LOG_WARNING("game", "Failed loading save list");
 	}
 
-	ui.wlc = std::make_unique<winL>();
+	ui.endScreens = std::make_unique<EndScreens>();
 
 	snprintf(status, sizeof(status), "%s", "");
 
-	Cache_loaded = true;
+	cacheLoaded = true;
 }
 //==============================================================
 void GameState::NewGame() {
 	curMap = 1;
 	dungeon.LoadCampaignLevel(curMap);
-	IHaveWon = false;
+	hasWon = false;
 	Player->Reanimate();
 }
 //==============================================================
@@ -391,7 +391,7 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 }
 //==============================================================
 void GameState::Save(const char filename[]) {
-	if (!Cache_loaded) {
+	if (!cacheLoaded) {
 		LOG_ERROR("game", "can't save without loading cashe");
 		return;
 	}
@@ -404,15 +404,15 @@ void GameState::Save(const char filename[]) {
 
 	dump << curMap << " ";
 
-	ui.Stats->Dump(dump);
-	ui.invent->Dump(dump);
+	ui.stats->Dump(dump);
+	ui.inventory->Dump(dump);
 	dungeon.Dump(dump);
 
 	dump.close();
 }
 //==============================================================
 void GameState::LoadSave(const char filename[]) {
-	if (!Cache_loaded) {
+	if (!cacheLoaded) {
 		LOG_ERROR("game", "can't load without loading cashe");
 		return;
 	}
@@ -429,9 +429,9 @@ void GameState::LoadSave(const char filename[]) {
 	dump >> curMap;
 	LOG_INFOF("game", "Got MapNo : %d", curMap);
 
-	ui.Stats->LoadDump(dump);
+	ui.stats->LoadDump(dump);
 	LOG_INFO("game", "Done loading Stats");
-	ui.invent->LoadDump(dump);
+	ui.inventory->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
 	dungeon.scatterDecorations(campaignLevelFile(curMap).c_str());

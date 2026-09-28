@@ -33,8 +33,8 @@ monster* getMbyType(int type) {
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return true;
-	Tint cell = MapAt(col, row);
-	if (isSolidTile(cell) || cell.a == Spike || cell.a == Death)
+	Tile cell = MapAt(col, row);
+	if (isSolidTile(cell) || cell.type == Spike || cell.type == Death)
 		return true;
 	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom
 }
@@ -60,7 +60,7 @@ void Dungeon::UpdateMonsters() {
 		SyncMonsterFromToken(a);
 
 		if (m[a].m->flies()) {
-			if (!GAME_STATE.IHaveWon) {
+			if (!GAME_STATE.hasWon) {
 				const auto col = static_cast<int>(std::floor(m[a].m->flightProbeX()));
 				m[a].m->Fly(!IsInBounds(col, m[a].orY) || isSolidTile(MapAt(col, m[a].orY)));
 			}
@@ -74,7 +74,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (m[a].m->Alive() && !GAME_STATE.IHaveWon && m[a].t->TimePassed()) {
+		if (m[a].m->Alive() && !GAME_STATE.hasWon && m[a].t->TimePassed()) {
 			int dir = m[a].m->attackDirection();
 			auto col = static_cast<int>(std::floor(m[a].m->seekProbeX(dir)));
 			bool blocked = walkerBlocked(col, m[a].orY);
@@ -129,12 +129,12 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-void Dungeon::GetAttack(int damage, int attackRange) {
+void Dungeon::AttackNearest(int damage, int attackRange) {
 	for (int i = 0; i < MAX_MONSTERS; i++) {
 		if (m[i].orX != -1 && m[i].orY != -1) {
 			SyncMonsterFromToken(i);
 			if (m[i].m->Alive() && m[i].m->Nearby(mapX, mapY, attackRange)) {
-				m[i].m->getHit(damage);
+				m[i].m->takeHit(damage);
 				SyncTokenFromMonster(i, true);
 				break;
 			}
@@ -143,9 +143,9 @@ void Dungeon::GetAttack(int damage, int attackRange) {
 }
 //======================================================================================
 void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
-	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).b);
+	m[index].m = getMbyType(Map(static_cast<float>(i), static_cast<float>(j)).attr);
 	if (!m[index].blood)
-		m[index].blood = std::make_unique<ParSys>();
+		m[index].blood = std::make_unique<ParticleSystem>();
 	m[index].m->initBlood(*m[index].blood);
 	m[index].m->dungeonCamX = &mapX;
 	m[index].m->dungeonCamY = &mapY;
@@ -161,9 +161,9 @@ void Dungeon::InitializeMonsterSlot(int index, int i, int j) {
 	m[index].leap = Leap{};
 	m[index].anim = m[index].m->spawnAnimations();
 	if (!m[index].t)
-		m[index].t = std::make_unique<timer>(70);
+		m[index].t = std::make_unique<Timer>(70);
 	if (!m[index].at)
-		m[index].at = std::make_unique<timer>(800);
+		m[index].at = std::make_unique<Timer>(800);
 }
 //======================================================================================
 bool Dungeon::SpawnMonster(int i, int j) {

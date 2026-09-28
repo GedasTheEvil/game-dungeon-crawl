@@ -37,22 +37,22 @@ class Walker {
 	explicit Walker(const LevelGrid& grid) : grid(grid) {}
 
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
-		Tint t = grid.at(col, row);
-		if (t.a == Gate && t.c != 1)
-			return (mask & bitOf(t.b)) == 0;
+		Tile t = grid.at(col, row);
+		if (t.type == Gate && t.value != 1)
+			return (mask & bitOf(t.attr)) == 0;
 		return isSolidTile(t);
 	}
 
 	[[nodiscard]] bool standable(int col, int row, int mask) const {
 		if (!LevelGrid::inBounds(col, row) || solid(col, row, mask))
 			return false;
-		return grid.at(col, row).a == Ladder || solid(col, row - 1, mask);
+		return grid.at(col, row).type == Ladder || solid(col, row - 1, mask);
 	}
 
 	// Picks up what the player touches in this cell.
 	[[nodiscard]] int touch(int col, int row, int mask) const {
-		Tint t = grid.at(col, row);
-		return t.a == Key ? mask | bitOf(t.b) : mask;
+		Tile t = grid.at(col, row);
+		return t.type == Key ? mask | bitOf(t.attr) : mask;
 	}
 
 	// Falls from an open cell until a floor or a ladder stops the player. NONE if the fall leaves the level.
@@ -70,14 +70,14 @@ class Walker {
 	}
 
 	[[nodiscard]] int hazardCost(int cell) const {
-		Tint t = grid.cells[cell];
-		if (t.a == Spike)
+		Tile t = grid.cells[cell];
+		if (t.type == Spike)
 			return COST_SPIKE;
-		if (t.a == Death)
+		if (t.type == Death)
 			return COST_DEATH;
-		if (t.a == RockFall && t.c == 0)
+		if (t.type == RockFall && t.value == 0)
 			return COST_ROCK_FALL;
-		if (t.a == Monster)
+		if (t.type == Monster)
 			return COST_MONSTER;
 		return 0;
 	}
@@ -88,15 +88,15 @@ class Walker {
 		int mask = maskOf(state);
 		int col = cell % LEVEL_WIDTH;
 		int row = cell / LEVEL_WIDTH;
-		Tint here = grid.at(col, row);
+		Tile here = grid.at(col, row);
 
 		auto add = [&](int to, int base, Move move) {
 			if (to != NONE && to != state)
 				out.push_back({to, base + hazardCost(cellOf(to)), move});
 		};
 
-		if (here.a == Lever && isLockColour(here.b))
-			add(stateOf(col, row, mask | bitOf(here.b)), COST_MOVE, Move::Pull);
+		if (here.type == Lever && isLockColour(here.attr))
+			add(stateOf(col, row, mask | bitOf(here.attr)), COST_MOVE, Move::Pull);
 
 		for (int dir : {-1, 1}) {
 			int next = col + dir;
@@ -107,15 +107,15 @@ class Walker {
 			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
 			// Over a one-cell gap in the floor, from a floor (not from a ladder).
-			bool gap = fallen > 0 && here.a != Ladder && solid(col, row - 1, mask);
+			bool gap = fallen > 0 && here.type != Ladder && solid(col, row - 1, mask);
 			int far = col + 2 * dir;
 			if (gap && LevelGrid::inBounds(far, row) && standable(far, row, mask))
 				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
 		}
 
-		if (here.a == Ladder) {
+		if (here.type == Ladder) {
 			for (int dy : {-1, 1})
-				if (grid.at(col, row + dy).a == Ladder)
+				if (grid.at(col, row + dy).type == Ladder)
 					add(stateOf(col, row + dy, touch(col, row + dy, mask)), COST_MOVE, Move::Climb);
 		}
 	}
@@ -124,28 +124,28 @@ class Walker {
 	const LevelGrid& grid;
 };
 
-bool isGoal(const Tint& t) { return t.a == Ankh || (t.a == Door && t.b == GateExit); }
+bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
 
 void countContent(const LevelGrid& grid, LevelReport& r) {
 	int minCol = LEVEL_WIDTH, maxCol = -1, minRow = LEVEL_HEIGHT, maxRow = -1;
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			Tint t = grid.at(col, row);
-			if (t.a == Wall)
+			Tile t = grid.at(col, row);
+			if (t.type == Wall)
 				continue;
 			r.openCells++;
 			minCol = std::min(minCol, col);
 			maxCol = std::max(maxCol, col);
 			minRow = std::min(minRow, row);
 			maxRow = std::max(maxRow, row);
-			switch (t.a) {
+			switch (t.type) {
 			case Door:
-				if (t.b == GateEntrance) {
+				if (t.attr == GateEntrance) {
 					r.entrances++;
 					r.start = {col, row}; // the game takes the last one in file order
-				} else if (t.b == GateExit)
+				} else if (t.attr == GateExit)
 					r.exits++;
-				else if (t.b == GateRiddle)
+				else if (t.attr == GateRiddle)
 					r.riddles++;
 				break;
 			case Ankh:
@@ -153,7 +153,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				r.finale = true;
 				break;
 			case Monster:
-				r.monsters[t.b >= 1 && t.b <= MONSTER_TYPE_MAX ? t.b : 0]++;
+				r.monsters[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0]++;
 				r.monsterCount++;
 				break;
 			case Spike:
@@ -196,17 +196,17 @@ std::string at(int cell) {
 void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	int keyMask = 0, leverMask = 0, gateMask = 0;
 	for (int cell = 0; cell < CELLS; cell++) {
-		Tint t = grid.cells[cell];
-		if ((t.a == Key || t.a == Gate || t.a == Lever) && !isLockColour(t.b)) {
-			r.errors.push_back("bad lock colour " + std::to_string(t.b) + " at " + at(cell));
+		Tile t = grid.cells[cell];
+		if ((t.type == Key || t.type == Gate || t.type == Lever) && !isLockColour(t.attr)) {
+			r.errors.push_back("bad lock colour " + std::to_string(t.attr) + " at " + at(cell));
 			continue;
 		}
-		if (t.a == Key)
-			keyMask |= bitOf(t.b);
-		if (t.a == Lever)
-			leverMask |= bitOf(t.b);
-		if (t.a == Gate && t.c != 1)
-			gateMask |= bitOf(t.b);
+		if (t.type == Key)
+			keyMask |= bitOf(t.attr);
+		if (t.type == Lever)
+			leverMask |= bitOf(t.attr);
+		if (t.type == Gate && t.value != 1)
+			gateMask |= bitOf(t.attr);
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
 		if ((gateMask & bitOf(c)) != 0 && ((keyMask | leverMask) & bitOf(c)) == 0)
@@ -223,21 +223,21 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	std::set<int> near;
 	for (const CellPos& p : r.path)
 		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++) {
-			Tint t = grid.at(p.col + dx, p.row);
-			if (t.a == Monster)
+			Tile t = grid.at(p.col + dx, p.row);
+			if (t.type == Monster)
 				near.insert(p.row * LEVEL_WIDTH + p.col + dx);
 		}
 	for (int cell = 0; cell < CELLS; cell++) {
-		Tint t = grid.cells[cell];
-		if (t.a == Monster)
-			score += monsterThreat(t.b) * (near.count(cell) != 0 ? 1.f : 0.25f);
+		Tile t = grid.cells[cell];
+		if (t.type == Monster)
+			score += monsterThreat(t.attr) * (near.count(cell) != 0 ? 1.f : 0.25f);
 	}
 
 	// Jumps over spike pits hurt when missed.
 	for (size_t i = 1; i < r.path.size(); i++) {
 		const CellPos& a = r.path[i - 1];
 		const CellPos& b = r.path[i];
-		if (std::abs(b.col - a.col) == 2 && grid.at((a.col + b.col) / 2, a.row - 1).a == Death)
+		if (std::abs(b.col - a.col) == 2 && grid.at((a.col + b.col) / 2, a.row - 1).type == Death)
 			score += 1.f;
 	}
 
@@ -339,13 +339,13 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		if (cellReached[cell] == 0)
 			continue;
 		r.reachableCells++;
-		if (grid.cells[cell].a == Treasure)
+		if (grid.cells[cell].type == Treasure)
 			r.reachableTreasures++;
 	}
 	for (int cell = 0; cell < CELLS; cell++) {
-		Tint t = grid.cells[cell];
-		if (cellReached[cell] == 0 && (t.a == Key || t.a == Lever))
-			r.warnings.push_back(std::string(t.a == Key ? "key" : "lever") + " out of reach at " + at(cell));
+		Tile t = grid.cells[cell];
+		if (cellReached[cell] == 0 && (t.type == Key || t.type == Lever))
+			r.warnings.push_back(std::string(t.type == Key ? "key" : "lever") + " out of reach at " + at(cell));
 	}
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
@@ -377,7 +377,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	std::vector<char> softCell(CELLS, 0);
 	int example = NONE;
 	for (int s = 0; s < STATES; s++)
-		if (expanded[s] != 0 && canFinish[s] == 0 && grid.cells[cellOf(s)].a != Death && softCell[cellOf(s)] == 0) {
+		if (expanded[s] != 0 && canFinish[s] == 0 && grid.cells[cellOf(s)].type != Death && softCell[cellOf(s)] == 0) {
 			softCell[cellOf(s)] = 1;
 			r.softlockCells++;
 			if (example == NONE)
@@ -397,7 +397,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		int cell = cellOf(states[i]);
 		r.path.push_back({cell % LEVEL_WIDTH, cell / LEVEL_WIDTH});
 		r.pathMoves.push_back(prevMove[states[i]]);
-		Tint t = grid.cells[cell];
+		Tile t = grid.cells[cell];
 		if (i > 0) {
 			r.pathLength++;
 			Move m = prevMove[states[i]];
@@ -405,12 +405,12 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			r.pathDrops += m == Move::Drop ? 1 : 0;
 			r.pathClimb += m == Move::Climb ? 1 : 0;
 		}
-		r.pathSpikes += t.a == Spike ? 1 : 0;
-		r.pathDeathTraps += t.a == Death ? 1 : 0;
-		r.pathRockFalls += t.a == RockFall && t.c == 0 ? 1 : 0;
-		if (t.a == Gate && t.c != 1) {
+		r.pathSpikes += t.type == Spike ? 1 : 0;
+		r.pathDeathTraps += t.type == Death ? 1 : 0;
+		r.pathRockFalls += t.type == RockFall && t.value == 0 ? 1 : 0;
+		if (t.type == Gate && t.value != 1) {
 			r.pathGates++;
-			gateColours |= bitOf(t.b);
+			gateColours |= bitOf(t.attr);
 		}
 	}
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++)
@@ -419,7 +419,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	std::set<int> monstersNear;
 	for (const CellPos& p : r.path)
 		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++)
-			if (grid.at(p.col + dx, p.row).a == Monster)
+			if (grid.at(p.col + dx, p.row).type == Monster)
 				monstersNear.insert(p.row * LEVEL_WIDTH + p.col + dx);
 	r.pathMonsters = static_cast<int>(monstersNear.size());
 
@@ -445,9 +445,9 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 		std::string line;
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			Tint t = grid.at(col, row);
+			Tile t = grid.at(col, row);
 			char c = '?';
-			switch (t.a) {
+			switch (t.type) {
 			case Wall:
 				c = '#';
 				break;
@@ -456,13 +456,13 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 				c = '.';
 				break;
 			case Door:
-				c = t.b == GateEntrance ? 'S' : t.b == GateExit ? 'E' : t.b == GateRiddle ? '?' : 'D';
+				c = t.attr == GateEntrance ? 'S' : t.attr == GateExit ? 'E' : t.attr == GateRiddle ? '?' : 'D';
 				break;
 			case Death:
 				c = 'X';
 				break;
 			case Monster:
-				c = MONSTER_CHARS[t.b >= 1 && t.b <= MONSTER_TYPE_MAX ? t.b : 0];
+				c = MONSTER_CHARS[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0];
 				break;
 			case Spike:
 				c = '^';
@@ -477,10 +477,10 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 				c = 'A';
 				break;
 			case Key:
-				c = isLockColour(t.b) ? KEY_CHARS[t.b - 1] : 'k';
+				c = isLockColour(t.attr) ? KEY_CHARS[t.attr - 1] : 'k';
 				break;
 			case Gate:
-				c = isLockColour(t.b) ? GATE_CHARS[t.b - 1] : 'Q';
+				c = isLockColour(t.attr) ? GATE_CHARS[t.attr - 1] : 'Q';
 				break;
 			case Lever:
 				c = '/';
@@ -491,7 +491,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			default:
 				break;
 			}
-			if (t.a != Wall)
+			if (t.type != Wall)
 				any = true;
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';

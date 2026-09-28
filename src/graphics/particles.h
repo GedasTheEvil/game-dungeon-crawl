@@ -1,32 +1,31 @@
-#ifndef ParticlesH
-#define PArticlesH
-
+#ifndef PARTICLES_H
+#define PARTICLES_H
 #define CMaxPart 1000
 
-struct particle {
+struct BloodParticle {
 	float x, y, z;
 	float life;
 };
 
-struct rgb {
+struct Rgb {
 	float r, g, b;
 };
 
 #include <memory>
 #include "../core/timer.h"
 
-class ParSys {
+class ParticleSystem {
   private:
-	particle pt[CMaxPart];
-	rgb colour;
+	BloodParticle pt[CMaxPart];
+	Rgb colour;
 	float x = 0.f, y = 0.f, z = 0.f;
 	int life;
-	std::unique_ptr<timer> frameTimer, decayTimer;
+	std::unique_ptr<Timer> frameTimer, decayTimer;
 
   public:
-	ParSys();
-	ParSys(int life);
-	~ParSys();
+	ParticleSystem();
+	ParticleSystem(int life);
+	~ParticleSystem();
 	void Fall();
 	void Explode();
 	void Draw();

@@ -1,6 +1,5 @@
-#ifndef TimerH
-#define TimerH
-
+#ifndef TIMER_H
+#define TIMER_H
 constexpr int DEFAULT_TIMER_MS = 100;
 
 // Time source for all game timers. Real SDL ticks by default; scenario tests switch
@@ -11,15 +10,15 @@ void advance(int ms);
 int now();
 } // namespace GameClock
 
-class timer {
+class Timer {
   private:
 	int time_start;
 	int ticks;
 
   public:
-	timer();
-	timer(int defT);
-	~timer();
+	Timer();
+	Timer(int defT);
+	~Timer();
 	[[nodiscard]] bool TimePassed();
 	[[nodiscard]] bool TimePassed(bool noRepeat);
 	void Reset();

@@ -122,10 +122,10 @@ monster::monster() {
 	currentState = ModelState::Move;
 	model = nullptr;
 
-	Att_timer = std::make_unique<timer>(1000);
-	walk_timer = std::make_unique<timer>(40);
+	Att_timer = std::make_unique<Timer>(1000);
+	walk_timer = std::make_unique<Timer>(40);
 
-	ownBlood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParticleSystem>(100);
 	blood = ownBlood.get();
 }
 //================================================================================
@@ -145,10 +145,10 @@ monster::monster(float dx, float dy) {
 	scale = 1;
 	currentState = ModelState::Move;
 	model = nullptr;
-	Att_timer = std::make_unique<timer>(1000);
-	walk_timer = std::make_unique<timer>(40);
+	Att_timer = std::make_unique<Timer>(1000);
+	walk_timer = std::make_unique<Timer>(40);
 
-	ownBlood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParticleSystem>(100);
 	blood = ownBlood.get();
 }
 //================================================================================
@@ -164,10 +164,10 @@ monster::monster(float nX, float nY, int nSpeed, int nHP, int nDamage, int nXP) 
 	facing_dir = 0;
 	currentState = ModelState::Move;
 	model = nullptr;
-	Att_timer = std::make_unique<timer>(1000);
-	walk_timer = std::make_unique<timer>(40);
+	Att_timer = std::make_unique<Timer>(1000);
+	walk_timer = std::make_unique<Timer>(40);
 
-	ownBlood = std::make_unique<ParSys>(100);
+	ownBlood = std::make_unique<ParticleSystem>(100);
 	blood = ownBlood.get();
 }
 //================================================================================
@@ -251,7 +251,7 @@ bool monster::Draw() // needs to choose animation
 	return true;
 }
 //================================================================================
-bool monster::loadModel(const char filename[], Textura& texture, Textura& nullT, bool compile, const ClipFiles& files) {
+bool monster::loadModel(const char filename[], Texture& texture, Texture& nullT, bool compile, const ClipFiles& files) {
 	nullTexture = nullT;
 
 	if (stat != -1) {
@@ -306,7 +306,7 @@ void monster::setCords(float nX, float nY) {
 //================================================================================
 bool monster::Alive() { return health > 0; }
 //================================================================================
-bool monster::getHit(int dmg) {
+bool monster::takeHit(int dmg) {
 	if (Alive()) {
 		health -= dmg;
 		blood->setCords(static_cast<float>(random() % static_cast<int>(scale)),
@@ -318,7 +318,7 @@ bool monster::getHit(int dmg) {
 		applyModelState(ModelState::Die);
 		sprintf(GAME_STATE.status, "Gained %d XP", XP);
 		GAME_STATE.status_timer->Reset();
-		GAME_STATE.ui.Stats->GetXP(XP);
+		GAME_STATE.ui.stats->AddXP(XP);
 		die_s.Play();
 
 		// Death blood effect - 20% more intense than regular hit
@@ -350,12 +350,12 @@ void monster::setBloodColor(float r, float g, float b) {
 	ownBlood->setBloodColor(r, g, b);
 }
 //================================================================================
-void monster::initBlood(ParSys& tokenBlood) const {
+void monster::initBlood(ParticleSystem& tokenBlood) const {
 	tokenBlood.setBloodColor(bloodColour.r, bloodColour.g, bloodColour.b);
 	tokenBlood.Stop(); // no splash until the first hit
 }
 //================================================================================
-void monster::useBlood(ParSys* tokenBlood) { blood = tokenBlood ? tokenBlood : ownBlood.get(); }
+void monster::useBlood(ParticleSystem* tokenBlood) { blood = tokenBlood ? tokenBlood : ownBlood.get(); }
 //================================================================================
 AnimatedModel* monster::clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
 //================================================================================

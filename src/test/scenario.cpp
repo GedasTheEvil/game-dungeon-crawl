@@ -99,7 +99,7 @@ struct Command {
 	GameplayAction action = GameplayAction::None;
 	float a = 0.f; // walk distance, camera rotM, expect value
 	float b = 0.f; // camera rotN
-	int item = 0;  // give / expect count: item type
+	int Item = 0;  // give / expect count: item type
 	int itemId = 0;
 	Field field = Field::X;
 	Op op = Op::Eq;
@@ -173,7 +173,7 @@ std::string stateLine() {
 	char buf[256];
 	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
 			 GAME_STATE.Player->health, GAME_STATE.Player->Stamina(), GAME_STATE.curMap, screenName(),
-			 GAME_STATE.Player->Alive() ? 1 : 0, GAME_STATE.IHaveWon ? 1 : 0);
+			 GAME_STATE.Player->Alive() ? 1 : 0, GAME_STATE.hasWon ? 1 : 0);
 	return buf;
 }
 
@@ -196,25 +196,25 @@ float fieldValue(const Command& cmd) {
 	case Field::Alive:
 		return GAME_STATE.Player->Alive() ? 1.f : 0.f;
 	case Field::Won:
-		return GAME_STATE.IHaveWon ? 1.f : 0.f;
+		return GAME_STATE.hasWon ? 1.f : 0.f;
 	case Field::Might:
-		return static_cast<float>(GAME_STATE.ui.Stats->CurrentMight());
+		return static_cast<float>(GAME_STATE.ui.stats->CurrentMight());
 	case Field::Armor:
-		return static_cast<float>(GAME_STATE.ui.Stats->CurrentArmor());
+		return static_cast<float>(GAME_STATE.ui.stats->CurrentArmor());
 	case Field::EquipType:
-		return static_cast<float>(GAME_STATE.ui.invent->EquippedType());
+		return static_cast<float>(GAME_STATE.ui.inventory->EquippedType());
 	case Field::EquipId:
-		return static_cast<float>(GAME_STATE.ui.invent->EquippedId());
+		return static_cast<float>(GAME_STATE.ui.inventory->EquippedId());
 	case Field::Keys:
 		return static_cast<float>(GAME_STATE.dungeon.KeysHeld());
 	case Field::XpTotal:
-		return static_cast<float>(GAME_STATE.ui.Stats->CurrentXP());
+		return static_cast<float>(GAME_STATE.ui.stats->CurrentXP());
 	case Field::Riddle:
-		return GAME_STATE.ui.rid->show ? 1.f : 0.f;
+		return GAME_STATE.ui.riddle->show ? 1.f : 0.f;
 	case Field::ItemCount:
-		return static_cast<float>(GAME_STATE.ui.invent->Count(cmd.item, cmd.itemId));
+		return static_cast<float>(GAME_STATE.ui.inventory->Count(cmd.Item, cmd.itemId));
 	case Field::ItemLevel:
-		return static_cast<float>(GAME_STATE.ui.invent->Level(cmd.item, cmd.itemId));
+		return static_cast<float>(GAME_STATE.ui.inventory->Level(cmd.Item, cmd.itemId));
 	}
 	return 0.f;
 }
@@ -327,7 +327,7 @@ bool parseItemType(const std::string& word, int& type) {
 // Item counts are written as the type followed by the id: "potion2", "melee0"; ".level" gives the item level.
 bool parseItemCountField(const std::string& word, Command& cmd) {
 	size_t digits = word.find_first_of("0123456789");
-	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.item))
+	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.Item))
 		return false;
 	char* end = nullptr;
 	cmd.itemId = static_cast<int>(strtol(word.c_str() + digits, &end, 10));
@@ -501,7 +501,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = name == "give" ? CommandType::Give : CommandType::Chest;
 		float id = 0.f;
 		float count = 1.f;
-		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.item) || !parseFloat(w[2], id) ||
+		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.Item) || !parseFloat(w[2], id) ||
 			(argc == 3 && !parseFloat(w[3], count)))
 			return "usage: " + name + " <melee|ranged|potion> <id> [count]";
 		cmd.itemId = static_cast<int>(id);
@@ -588,7 +588,7 @@ bool loadLevel(const Command& cmd) {
 		GAME_STATE.curMap = static_cast<int>(cmd.a);
 	GAME_STATE.ui.menu.show = false;
 	GAME_STATE.ui.menu.inGame = true;
-	GAME_STATE.IHaveWon = false;
+	GAME_STATE.hasWon = false;
 	GAME_STATE.Player->Reanimate();
 	return true;
 }
@@ -684,15 +684,15 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
-			GAME_STATE.ui.invent->GetItem(cmd.item, cmd.itemId);
+			GAME_STATE.ui.inventory->AddItem(cmd.Item, cmd.itemId);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
-		GAME_STATE.ui.Stats->GetXP(static_cast<int>(cmd.a));
+		GAME_STATE.ui.stats->AddXP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Riddles:
-		report(cmd, true, std::to_string(GAME_STATE.ui.rid->Load(cmd.arg)) + " riddles");
+		report(cmd, true, std::to_string(GAME_STATE.ui.riddle->Load(cmd.arg)) + " riddles");
 		return true;
 	case CommandType::SaveGame: // relative paths land in the output directory
 		GAME_STATE.Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
@@ -711,10 +711,10 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<LootItem> loot = RollChestLoot(cmd.item, cmd.itemId);
+			std::vector<LootItem> loot = RollChestLoot(cmd.Item, cmd.itemId);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (const LootItem& entry : loot)
-				GAME_STATE.ui.invent->GetItem(entry.type, entry.id);
+				GAME_STATE.ui.inventory->AddItem(entry.type, entry.id);
 		}
 		report(cmd, true, std::to_string(bonus) + " bonus items");
 		return true;
@@ -880,7 +880,7 @@ int Scenario::tickDelayMs() { return gRunner.drawAll ? TICK_MS : 0; }
 
 void Scenario::tick() {
 	try {
-		if (!GAME_STATE.Cache_loaded) {
+		if (!GAME_STATE.cacheLoaded) {
 			Update(); // loads assets, draws the loading bar
 			return;
 		}

@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <cctype>
 
-#include "../../src/graphics/ani.h"
+#include "../../src/graphics/animated_model.h"
 #include "../../src/graphics/textures.h"
 #include "../../src/graphics/hud.h"
 #include "../../src/graphics/font.h"
@@ -65,13 +65,13 @@ int g_winHeight = 600;
 Uint32 g_startTicks = 0;
 double g_durationSeconds = 5.0;
 
-float g_yawDeg = 20.0f;   // matches the current fixed view exactly, so the
-float g_pitchDeg = 0.0f;  // initial frame on launch is unchanged
+float g_yawDeg = 20.0f;	 // matches the current fixed view exactly, so the
+float g_pitchDeg = 0.0f; // initial frame on launch is unchanged
 bool g_dragging = false;
 int g_lastMouseX = 0;
 int g_lastMouseY = 0;
 const float kDragSensitivityDegPerPx = 0.4f; // empirical; tune by feel
-const float kMaxPitchDeg = 89.0f;             // avoid flipping past vertical
+const float kMaxPitchDeg = 89.0f;			 // avoid flipping past vertical
 
 // Stats-panel state (step 6): loaded/computed once in main() after the model
 // finishes loading, since none of these values change after that point.
@@ -85,7 +85,7 @@ int g_statPolygonCount = 0;
 // scope so ApplyLoadedModel can reuse it across both the initial load and
 // every subsequent [space] switch; the sibling group is scanned once at
 // startup and never rescanned (see architecture.md section 1).
-Textura g_texture;
+Texture g_texture;
 std::vector<std::string> g_siblingModelPaths;
 std::size_t g_currentSiblingIndex = 0;
 int g_statAnimationStateCount = 0;
@@ -157,7 +157,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 // texture must never prevent seeing the animation. textureStem is already
 // resolved by the caller (ParentStem(FileStem(path))): a variant's
 // texture always comes from its parent's stem, not its own.
-int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Textura& tex) {
+int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Texture& tex) {
 	std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
 	std::string guess = "textures/" + category + "/" + textureStem + ".png";
 	if (tex.LoadPNG(guess.c_str())) {
@@ -190,9 +190,7 @@ void ApplyLoadedModel(const std::string& path) {
 	g_statModelName = Basename(path);
 	g_statFrameCount = g_model->FrameCount();
 	g_statPolygonCount = g_model->TriangleCount();
-	g_statAnimationStateCount = g_siblingModelPaths.empty()
-	    ? 0
-	    : static_cast<int>(g_siblingModelPaths.size()) - 1;
+	g_statAnimationStateCount = g_siblingModelPaths.empty() ? 0 : static_cast<int>(g_siblingModelPaths.size()) - 1;
 }
 
 void InitGL(int width, int height) {
@@ -305,12 +303,12 @@ void MouseMotion(int x, int y) {
 
 	g_yawDeg += dx * kDragSensitivityDegPerPx;
 	g_pitchDeg += dy * kDragSensitivityDegPerPx; // sign: adjust during
-	                                              // verification if the
-	                                              // up/down feel is
-	                                              // inverted -- not a
-	                                              // hard requirement,
-	                                              // pick whichever reads
-	                                              // as natural by eye
+												 // verification if the
+												 // up/down feel is
+												 // inverted -- not a
+												 // hard requirement,
+												 // pick whichever reads
+												 // as natural by eye
 	if (g_pitchDeg > kMaxPitchDeg)
 		g_pitchDeg = kMaxPitchDeg;
 	if (g_pitchDeg < -kMaxPitchDeg)
@@ -408,7 +406,7 @@ int main(int argc, char* argv[]) {
 	InitGL(g_winWidth, g_winHeight);
 
 	g_statsFont.Load("fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
-	                                                    // Impact-font convention
+													  // Impact-font convention
 	g_statPlaySpeed = static_cast<int>(g_durationSeconds);
 
 	// Sibling-group discovery (step 7): scanned exactly once, from the path

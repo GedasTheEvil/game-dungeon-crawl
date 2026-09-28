@@ -47,7 +47,7 @@ void monster::Attack() {
 	applyModelState(ModelState::Attack);
 
 	if (/*Att_timer -> TimePassed() &&*/ std::fabs(tileOriginY - *dungeonCamY) < 0.8) {
-		GAME_STATE.ui.Stats->GetHit(damage);
+		GAME_STATE.ui.stats->TakeHit(damage);
 		att_s.Play();
 	}
 }
@@ -114,7 +114,7 @@ void monster::Fly(bool wallAhead) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
 			if (std::fabs(tileOriginY - *dungeonCamY) < 0.8f) {
-				GAME_STATE.ui.Stats->GetHit(damage);
+				GAME_STATE.ui.stats->TakeHit(damage);
 				att_s.Play();
 			}
 		}

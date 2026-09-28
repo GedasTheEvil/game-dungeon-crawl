@@ -1,9 +1,9 @@
 #include "level.h"
 #include <fstream>
 
-bool readLevelCells(std::istream& in, Tint* cells, int cellCount) {
+bool readLevelCells(std::istream& in, Tile* cells, int cellCount) {
 	for (int i = 0; i < cellCount; i++) {
-		in >> cells[i].a >> cells[i].b >> cells[i].c;
+		in >> cells[i].type >> cells[i].attr >> cells[i].value;
 		if (!in)
 			return false;
 	}
@@ -30,7 +30,7 @@ bool saveLevelFile(const char* path, const LevelGrid& grid) {
 		return false;
 
 	out << LEVEL_CELL_COUNT << '\n';
-	for (const Tint& t : grid.cells)
-		out << t.a << ' ' << t.b << ' ' << t.c << " \n";
+	for (const Tile& t : grid.cells)
+		out << t.type << ' ' << t.attr << ' ' << t.value << " \n";
 	return static_cast<bool>(out);
 }

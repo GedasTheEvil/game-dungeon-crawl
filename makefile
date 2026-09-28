@@ -19,7 +19,7 @@ EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(addprefix $(BUILD)/src/, g
 EDITOR=$(BUILD)/editor
 
 # MD3 model viewer, runs from the repo root.
-VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(addprefix $(BUILD)/src/, graphics/ani.o graphics/textures.o \
+VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(addprefix $(BUILD)/src/, graphics/animated_model.o graphics/textures.o \
 	graphics/hud.o graphics/font.o core/timer.o core/logger.o)
 VIEWER=$(BUILD)/model-viewer
 

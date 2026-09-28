@@ -1,20 +1,19 @@
-#ifndef WinLooseH
-#define WinLooseH
-
+#ifndef END_SCREENS_H
+#define END_SCREENS_H
 #include "../graphics/textures.h"
 #include "../core/timer.h"
 
-class winL {
+class EndScreens {
   private:
-	Textura win;
-	Textura loose;
-	Textura credits;
+	Texture win;
+	Texture lose;
+	Texture credits;
 	void DrawQuad(float sx, float sy);
 
   public:
-	winL();
+	EndScreens();
 	void DrawWin();
-	void DrawLoose();
+	void DrawLose();
 	void DrawCredits();
 };
 

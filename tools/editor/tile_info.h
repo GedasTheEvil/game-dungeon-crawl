@@ -34,6 +34,6 @@ struct CellHint {
 	FieldHint value;
 };
 
-[[nodiscard]] CellHint describeCell(const Tint& cell);
+[[nodiscard]] CellHint describeCell(const Tile& cell);
 
 #endif

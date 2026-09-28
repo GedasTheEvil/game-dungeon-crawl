@@ -11,17 +11,17 @@ int gHitStreak = 0;
 int gLastHitMs = 0;
 } // namespace
 
-trap::trap() {
-	Hurt_timer = std::make_unique<timer>(TRAP_HURT_INTERVAL_MS);
+Trap::Trap() {
+	Hurt_timer = std::make_unique<Timer>(TRAP_HURT_INTERVAL_MS);
 	mdl = std::make_unique<AnimatedModel>();
 	tileX = 0;
 	tileY = 0;
 	scale = 3;
 }
 
-trap::~trap() {}
+Trap::~Trap() {}
 
-void trap::Show() {
+void Trap::Show() {
 	glPushMatrix();
 	glTranslatef(0, 0, -30);
 	glPushMatrix();
@@ -32,7 +32,7 @@ void trap::Show() {
 	glPopMatrix();
 	Hurt();
 }
-void trap::Hurt() {
+void Trap::Hurt() {
 	if (fabs(*dungeonCamX - tileX - 0.5) > TRAP_HITBOX_X_SCALE * scale ||
 		std::fabs(*dungeonCamY - tileY) > TRAP_HITBOX_Y_SCALE * scale)
 		return;
@@ -44,16 +44,16 @@ void trap::Hurt() {
 	if (now - gLastHitMs > TRAP_STREAK_RESET_MS)
 		gHitStreak = 0;
 	gLastHitMs = now;
-	GAME_STATE.ui.Stats->GetHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
+	GAME_STATE.ui.stats->TakeHit(1 + gHitStreak / TRAP_DAMAGE_RAMP_HITS);
 	gHitStreak++;
 }
 
-void trap::setCords(float nX, float nY) {
+void Trap::setCords(float nX, float nY) {
 	tileX = nX;
 	tileY = nY;
 }
 
-bool trap::loadModel(const char filename[], Textura& texture, bool compile) {
+bool Trap::loadModel(const char filename[], Texture& texture, bool compile) {
 	tex = texture;
 
 	mdl->Load(filename);
@@ -65,7 +65,7 @@ bool trap::loadModel(const char filename[], Textura& texture, bool compile) {
 	return true;
 }
 
-void trap::debugText() {
+void Trap::debugText() {
 	LOG_DEBUGF("entities", "trap tileX=%f tileY=%f dungeonCamX=%f dungeonCamY=%f", tileX, tileY, *dungeonCamX,
 			   *dungeonCamY);
 }

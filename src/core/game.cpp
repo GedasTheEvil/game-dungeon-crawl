@@ -62,7 +62,7 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	GAME_STATE.render.resY = height;
 }
 
-// sita eilute reikalinga, kad kompiliuojant per win nemestu erroro su "WinMain@16" undefined
+// SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
 #undef main
 
 int main(int argc, char* argv[]) {

@@ -120,47 +120,47 @@ const TileInfo& tileInfo(int type) {
 	return isTileType(type) ? TILES[static_cast<size_t>(type)] : UNKNOWN;
 }
 
-CellHint describeCell(const Tint& cell) {
+CellHint describeCell(const Tile& cell) {
 	CellHint hint;
-	hint.title = std::string(tileInfo(cell.a).name) + " (type " + std::to_string(cell.a) + ")";
-	hint.description = tileInfo(cell.a).description;
+	hint.title = std::string(tileInfo(cell.type).name) + " (type " + std::to_string(cell.type) + ")";
+	hint.description = tileInfo(cell.type).description;
 	hint.attribute = unusedField();
 	hint.value = unusedField();
 
-	switch (cell.a) {
+	switch (cell.type) {
 	case Door:
-		hint.attribute = field("gate type", GATE_TYPES, cell.b, "unknown, decoration only");
+		hint.attribute = field("gate type", GATE_TYPES, cell.attr, "unknown, decoration only");
 		break;
 	case Monster:
-		hint.attribute = field("monster type", MONSTER_TYPES, cell.b, "unknown, spawns a copy of the player");
+		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
 		break;
 	case Treasure:
-		hint.attribute = field("item type", ITEM_TYPES, cell.b, "unknown, gives nothing");
-		if (cell.b == ITEM_MELEE)
-			hint.value = field("weapon", MELEE_WEAPONS, cell.c, "unknown, gives nothing");
-		else if (cell.b == ITEM_RANGED)
-			hint.value = field("weapon", RANGED_WEAPONS, cell.c, "unknown, gives nothing");
-		else if (cell.b == ITEM_POTION)
-			hint.value = field("potion", POTIONS, cell.c, "unknown, gives nothing");
+		hint.attribute = field("item type", ITEM_TYPES, cell.attr, "unknown, gives nothing");
+		if (cell.attr == ITEM_MELEE)
+			hint.value = field("weapon", MELEE_WEAPONS, cell.value, "unknown, gives nothing");
+		else if (cell.attr == ITEM_RANGED)
+			hint.value = field("weapon", RANGED_WEAPONS, cell.value, "unknown, gives nothing");
+		else if (cell.attr == ITEM_POTION)
+			hint.value = field("potion", POTIONS, cell.value, "unknown, gives nothing");
 		break;
 	case Key:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.b, "no colour, opens nothing");
+		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, opens nothing");
 		break;
 	case Gate:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.b, "no colour, no key or lever opens it");
-		hint.value = field("state", GATE_STATES, cell.c, "not a start state, use 0 or 1");
+		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, no key or lever opens it");
+		hint.value = field("state", GATE_STATES, cell.value, "not a start state, use 0 or 1");
 		break;
 	case Lever:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.b, "no colour, opens nothing");
-		hint.value = field("state", ZERO_ONLY, cell.c, "keep it 0");
+		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, opens nothing");
+		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case RockFall:
-		hint.value = field("state", ZERO_ONLY, cell.c, "keep it 0");
+		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	default:
 		break;
 	}
-	checkUnused(hint.attribute, cell.b);
-	checkUnused(hint.value, cell.c);
+	checkUnused(hint.attribute, cell.attr);
+	checkUnused(hint.value, cell.value);
 	return hint;
 }

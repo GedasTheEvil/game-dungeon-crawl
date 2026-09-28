@@ -1,12 +1,11 @@
-#ifndef Font_H
-#define Font_H
-
+#ifndef FONT_H
+#define FONT_H
 #include "textures.h"
 
 class Font {
   private:
 	static constexpr int GLYPHS = 95; // printable ASCII from ' '
-	Textura t;
+	Texture t;
 	int base;
 	float advance[GLYPHS] = {};
 

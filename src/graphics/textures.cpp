@@ -38,9 +38,9 @@ float anisotropy() {
 }
 } // namespace
 
-Textura::Textura() { loaded = false; }
+Texture::Texture() { loaded = false; }
 //================================================================================================================================
-int Textura::LoadPNG(const char* filename, TexFilter filter) {
+int Texture::LoadPNG(const char* filename, TexFilter filter) {
 	int channels = 0;
 	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
 		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
@@ -87,6 +87,6 @@ int Textura::LoadPNG(const char* filename, TexFilter filter) {
 	return 1;
 }
 //----------------------------------------------------------------------------------
-void Textura::Bind() { glBindTexture(GL_TEXTURE_2D, texture.texID); }
+void Texture::Bind() { glBindTexture(GL_TEXTURE_2D, texture.texID); }
 //----------------------------------------------------------------------------------
-int Textura::ID() { return static_cast<int>(texture.texID); }
+int Texture::ID() { return static_cast<int>(texture.texID); }

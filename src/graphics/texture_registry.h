@@ -4,12 +4,12 @@
 #include "textures.h"
 
 struct TextureRegistry {
-	Textura nullTex;
-	Textura anubis_t, scarab_t, plant_t, worm_t, rat_t, giantRat_t, bat_t, giantBat_t, chest_t, player_t;
-	Textura club_t, bow_t, sword_t, potion_t, spear_t, trap_t, sphinx_t;
-	Textura bg, ankh_t, question_t;
-	Textura load_bg, riddle_bg, plasma_t;
-	Textura progBar;
+	Texture nullTex;
+	Texture anubis_t, scarab_t, plant_t, worm_t, rat_t, giantRat_t, bat_t, giantBat_t, chest_t, player_t;
+	Texture club_t, bow_t, sword_t, potion_t, spear_t, trap_t, sphinx_t;
+	Texture bg, ankh_t, question_t;
+	Texture load_bg, riddle_bg, plasma_t;
+	Texture progBar;
 };
 
 #endif

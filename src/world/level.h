@@ -53,34 +53,35 @@ constexpr const char* LOCK_COLOUR_NAMES[LOCK_COLOUR_COUNT] = {"red", "blue", "gr
 constexpr const char* LOCK_GEM_NAMES[LOCK_COLOUR_COUNT] = {"Carnelian", "Lapis", "Turquoise", "Amber"};
 inline bool isLockColour(int colour) { return colour >= 1 && colour <= LOCK_COLOUR_COUNT; }
 
-struct Tint {
-	int a; // DungeonTileType
-	int b; // attribute
-	int c; // value
+// One level cell, as in the level files and the editor: tile type, attribute and value.
+struct Tile {
+	int type;  // DungeonTileType
+	int attr;  // attribute: meaning depends on the type (monster type, lock colour, ...)
+	int value; // value: meaning depends on the type (gate state, ...)
 };
 
 // Blocks the player (walls and closed gates). Everything else is open space.
-inline bool isSolidTile(const Tint& t) { return t.a == Wall || (t.a == Gate && t.c != 1); }
+inline bool isSolidTile(const Tile& t) { return t.type == Wall || (t.type == Gate && t.value != 1); }
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
 struct LevelGrid {
-	Tint cells[LEVEL_CELL_COUNT] = {};
+	Tile cells[LEVEL_CELL_COUNT] = {};
 
 	[[nodiscard]] static bool inBounds(int col, int row) {
 		return col >= 0 && col < LEVEL_WIDTH && row >= 0 && row < LEVEL_HEIGHT;
 	}
 	// Out of bounds reads as Wall.
-	[[nodiscard]] Tint at(int col, int row) const {
-		return inBounds(col, row) ? cells[row * LEVEL_WIDTH + col] : Tint{Wall, 0, 0};
+	[[nodiscard]] Tile at(int col, int row) const {
+		return inBounds(col, row) ? cells[row * LEVEL_WIDTH + col] : Tile{Wall, 0, 0};
 	}
-	void set(int col, int row, Tint t) {
+	void set(int col, int row, Tile t) {
 		if (inBounds(col, row))
 			cells[row * LEVEL_WIDTH + col] = t;
 	}
 };
 
 // Cell list after the header, as in the level files and save games. False on a short read.
-bool readLevelCells(std::istream& in, Tint* cells, int cellCount);
+bool readLevelCells(std::istream& in, Tile* cells, int cellCount);
 // Error message, empty on success.
 std::string loadLevelFile(const char* path, LevelGrid& grid);
 bool saveLevelFile(const char* path, const LevelGrid& grid);

@@ -27,7 +27,7 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	bool entranceFound = false;
 	for (int j = 0; j < MAP_HEIGHT; j++)
 		for (int i = 0; i < MAP_WIDTH; i++)
-			if (map[MapIndex(i, j)].a == Door && map[MapIndex(i, j)].b == GateEntrance) {
+			if (map[MapIndex(i, j)].type == Door && map[MapIndex(i, j)].attr == GateEntrance) {
 				mapX = static_cast<float>(i);
 				mapY = static_cast<float>(j);
 				entranceFound = true;
@@ -83,7 +83,7 @@ void Dungeon::Dump(std::ofstream& f) {
 	f << MAP_CELL_COUNT << " ";
 
 	for (int l = 0; l < MAP_CELL_COUNT; l++)
-		f << map[l].a << " " << map[l].b << " " << map[l].c << " ";
+		f << map[l].type << " " << map[l].attr << " " << map[l].value << " ";
 
 	f << keysHeld << " ";
 
@@ -92,11 +92,11 @@ void Dungeon::Dump(std::ofstream& f) {
 	f << " ";
 }
 //======================================================================================
-void Dungeon::GetPickUp() {
-	if (Map(mapX, mapY).a == Treasure) {
-		int type = Map(mapX, mapY).b;
-		int id = Map(mapX, mapY).c;
-		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].a = Empty;
+void Dungeon::PickUp() {
+	if (Map(mapX, mapY).type == Treasure) {
+		int type = Map(mapX, mapY).attr;
+		int id = Map(mapX, mapY).value;
+		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].type = Empty;
 		if (type == 0) // empty chest
 			return;
 
@@ -104,25 +104,25 @@ void Dungeon::GetPickUp() {
 		std::string found;
 		std::vector<LootItem> loot = RollChestLoot(type, id);
 		for (size_t i = 0; i < loot.size(); i++) {
-			GAME_STATE.ui.invent->GetItem(loot[i].type, loot[i].id);
-			found += std::string(i == 0 ? "Found: " : "\n+ ") + inventory::ItemName(loot[i].type, loot[i].id);
+			GAME_STATE.ui.inventory->AddItem(loot[i].type, loot[i].id);
+			found += std::string(i == 0 ? "Found: " : "\n+ ") + Inventory::ItemName(loot[i].type, loot[i].id);
 		}
 		snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "%s", found.c_str());
 		GAME_STATE.status_timer->Reset();
 	}
 }
 //======================================================================================
-void Dungeon::GetRiddle() {
-	if (Map(mapX, mapY).a == Ankh) {
-		GAME_STATE.IHaveWon = true;
+void Dungeon::Interact() {
+	if (Map(mapX, mapY).type == Ankh) {
+		GAME_STATE.hasWon = true;
 		return;
 	}
 
-	if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateRiddle) {
-		GAME_STATE.ui.rid->GetRiddle();
-		GAME_STATE.ui.rid->show = true;
+	if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateRiddle) {
+		GAME_STATE.ui.riddle->Ask();
+		GAME_STATE.ui.riddle->show = true;
 		SetMapBAtPlayer(GateEmpty);
-	} else if (Map(mapX, mapY).a == Door && Map(mapX, mapY).b == GateExit) {
+	} else if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateExit) {
 		GAME_STATE.curMap++;
 		LoadCampaignLevel(GAME_STATE.curMap);
 	}

@@ -28,11 +28,11 @@ int Dungeon::MapIndex(int col, int row) const {
 	return MAP_WIDTH * row + col;
 }
 //======================================================================================
-Tint Dungeon::MapAt(int col, int row) const { return map[MapIndex(col, row)]; }
+Tile Dungeon::MapAt(int col, int row) const { return map[MapIndex(col, row)]; }
 //======================================================================================
-Tint Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), static_cast<int>(y)); }
+Tile Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), static_cast<int>(y)); }
 //======================================================================================
-void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].b = value; }
+void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].attr = value; }
 //======================================================================================
 void Dungeon::resetPlayerMotion() {
 	JumpState& jump = GAME_STATE.Player->jump;
@@ -94,7 +94,7 @@ Dungeon::Dungeon() {
 		m[i].facing_dir = 0;
 	}
 
-	aniT = std::make_unique<timer>(50);
+	aniT = std::make_unique<Timer>(50);
 
 	for (int i = 0; i < MAX_MONSTERS; i++) {
 		m[i].t.reset();
@@ -103,7 +103,7 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(mapX, mapY).a != Ladder && !GAME_STATE.Player->jump.jumping) {
+	if (Map(mapX, mapY).type != Ladder && !GAME_STATE.Player->jump.jumping) {
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			!isSolidTile(Map(mapX, mapY - 1))) {
 			JumpState& jump = GAME_STATE.Player->jump;
@@ -147,7 +147,7 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!GAME_STATE.Player->jump.falling && jump && Map(mapX, mapY).a != Ladder) {
+	if (!GAME_STATE.Player->jump.falling && jump && Map(mapX, mapY).type != Ladder) {
 		mapY = mapY + dirY;
 		mapX = mapX + dirX;
 		GAME_STATE.Player->jump.falling = true;
@@ -158,26 +158,26 @@ void Dungeon::Move(float dirX, float dirY, bool jump) {
 		float probeX = mapX + dirX + (dirX > 0 ? halfWidth : -halfWidth);
 		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
 			mapX += dirX;
-		else if (Map(probeX, mapY).a == Gate)
+		else if (Map(probeX, mapY).type == Gate)
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
 	}
 
 	if (dirY > 0) {
-		if (Map(mapX, mapY).a == Ladder &&
-			Map(mapX, mapY + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).a == Ladder)
+		if (Map(mapX, mapY).type == Ladder &&
+			Map(mapX, mapY + dirY + static_cast<float>(GAME_STATE.Player->scale / 40.0)).type == Ladder)
 			mapY += dirY;
-	} else if (Map(mapX, mapY).a == Ladder && Map(mapX, mapY + dirY).a == Ladder)
+	} else if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY).type == Ladder)
 		mapY += dirY;
 
 	// Climbing pulls the player over to the ladder, so the hands reach the rungs.
-	if (dirY != 0 && Map(mapX, mapY).a == Ladder) {
+	if (dirY != 0 && Map(mapX, mapY).type == Ladder) {
 		float offset = std::floor(mapX) + LADDER_GRIP_X - mapX;
 		mapX += std::clamp(offset, -std::fabs(dirY), std::fabs(dirY));
 	}
 }
 //======================================================================================
 bool Dungeon::PlayerOnLadder() const {
-	if (Map(mapX, mapY).a != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
+	if (Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
 	bool floorBelow = isSolidTile(Map(mapX, mapY - 1));
 	return !floorBelow || mapY - std::floor(mapY) >= STANDING_EPSILON;
@@ -185,7 +185,7 @@ bool Dungeon::PlayerOnLadder() const {
 //======================================================================================
 float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }
 //======================================================================================
-int Dungeon::Type(float x, float y) { return Map(x, y).a; }
+int Dungeon::Type(float x, float y) { return Map(x, y).type; }
 //======================================================================================
 void Dungeon::getC(float& outX, float& outY) {
 	outX = mapX;

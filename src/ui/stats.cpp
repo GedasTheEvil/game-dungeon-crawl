@@ -6,28 +6,28 @@
 #include "../core/service_locator.h"
 #include "../core/logger.h"
 
-void stats::GetStronger(int ns) { Might += ns; }
+void PlayerStats::AddMight(int ns) { Might += ns; }
 
-double stats::LevelXP(int lvl) { return lvl <= 1 ? 0.0 : 1000 * pow(lvl - 1, 1.4); }
+double PlayerStats::LevelXP(int lvl) { return lvl <= 1 ? 0.0 : 1000 * pow(lvl - 1, 1.4); }
 
-void stats::GetXP(int xp) {
+void PlayerStats::AddXP(int xp) {
 	XP += xp;
 	while (AdvanceLevel())
 		;
 }
 
-void stats::SetSprintRequested(bool requested) { sprint_requested = requested; }
+void PlayerStats::SetSprintRequested(bool requested) { sprint_requested = requested; }
 
-bool stats::IsSprinting() const { return sprinting; }
+bool PlayerStats::IsSprinting() const { return sprinting; }
 
-float stats::SprintMoveMultiplier() const {
+float PlayerStats::SprintMoveMultiplier() const {
 	if (sprinting)
 		return 3.0f;
 
 	return 1.0f;
 }
 
-void stats::UpdateStamina() {
+void PlayerStats::UpdateStamina() {
 	if (!GAME_STATE.Player->Alive()) {
 		sprinting = false;
 		sprint_requested = false;
@@ -60,7 +60,7 @@ void stats::UpdateStamina() {
 	}
 }
 
-void stats::RegenerateStamina() {
+void PlayerStats::RegenerateStamina() {
 	if (!stamina_regen_timer->TimePassed())
 		return;
 
@@ -74,9 +74,9 @@ void stats::RegenerateStamina() {
 	GAME_STATE.Player->AddStamina(staminaGain);
 }
 
-int stats::MaxStamina() const { return 100 + (level - 1) * 10; }
+int PlayerStats::MaxStamina() const { return 100 + (level - 1) * 10; }
 
-void stats::Heal(int hpPart) {
+void PlayerStats::Heal(int hpPart) {
 	if (HP == MaxHP)
 		return;
 
@@ -89,7 +89,7 @@ void stats::Heal(int hpPart) {
 	GAME_STATE.Player->health = HP;
 }
 
-stats::stats() {
+PlayerStats::PlayerStats() {
 	MaxHP = 50;
 	HP = MaxHP;
 	Might = 0;
@@ -103,28 +103,28 @@ stats::stats() {
 	GAME_STATE.Player->health = MaxHP;
 	GAME_STATE.Player->SetMaxStamina(MaxStamina());
 	GAME_STATE.Player->SetStamina(GAME_STATE.Player->MaxStamina());
-	stamina_regen_timer = std::make_unique<timer>(1000);
-	stamina_sprint_drain_timer = std::make_unique<timer>(1000);
+	stamina_regen_timer = std::make_unique<Timer>(1000);
+	stamina_sprint_drain_timer = std::make_unique<Timer>(1000);
 }
 
-stats::~stats() {
+PlayerStats::~PlayerStats() {
 	void* selfPtr = this;
 	LOG_DEBUGF("ui", "Deleting stats %p", selfPtr);
 }
 
-void stats::GetArmored(int na) { Armor += na; }
+void PlayerStats::AddArmor(int na) { Armor += na; }
 
-void stats::GetHit(int dmg, bool ignoreArmor) {
+void PlayerStats::TakeHit(int dmg, bool ignoreArmor) {
 	if (Scenario::godMode())
 		return;
 
 	int damage = std::max(1, ignoreArmor ? dmg : dmg - Armor);
 
-	GAME_STATE.Player->getHit(damage);
+	GAME_STATE.Player->takeHit(damage);
 	HP = GAME_STATE.Player->health;
 }
 
-bool stats::AdvanceLevel() {
+bool PlayerStats::AdvanceLevel() {
 	if (XP >= LevelXP(level + 1))
 		level++;
 	else
@@ -149,11 +149,11 @@ bool stats::AdvanceLevel() {
 	return true;
 }
 
-int stats::Damage() const {
-	return Might + GAME_STATE.ui.invent->EquippedDamage(); // + weapon dmg, with its level bonus
+int PlayerStats::Damage() const {
+	return Might + GAME_STATE.ui.inventory->EquippedDamage(); // + weapon dmg, with its level bonus
 }
 
-void stats::GetTougher(int hpPart) {
+void PlayerStats::AddMaxHP(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
 	HP = MaxHP;
@@ -161,12 +161,12 @@ void stats::GetTougher(int hpPart) {
 	GAME_STATE.Player->health = MaxHP;
 }
 
-void stats::Dump(std::ofstream& f) const {
+void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " "
 	  << GAME_STATE.Player->Stamina() << "\n";
 }
 
-void stats::LoadDump(std::ifstream& f) {
+void PlayerStats::LoadDump(std::ifstream& f) {
 	f >> level >> XP >> Armor >> MaxHP >> HP >> Might;
 
 	int loadedStamina = 100;

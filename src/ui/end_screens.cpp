@@ -1,16 +1,16 @@
-#include "winlose.h"
+#include "end_screens.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../core/service_locator.h"
 
-winL::winL() {
+EndScreens::EndScreens() {
 	win.LoadPNG("textures/ui/win.png", TexFilter::Flat);
-	loose.LoadPNG("textures/ui/dead.png", TexFilter::Flat);
+	lose.LoadPNG("textures/ui/dead.png", TexFilter::Flat);
 	credits.LoadPNG("textures/ui/credits.png", TexFilter::Flat);
 }
 
-void winL::DrawQuad(float sx, float sy) {
+void EndScreens::DrawQuad(float sx, float sy) {
 	glBegin(GL_QUADS);
 	glNormal3f(0, 0, -1);
 	glTexCoord2f(0, 0);
@@ -24,7 +24,7 @@ void winL::DrawQuad(float sx, float sy) {
 	glEnd();
 }
 
-void winL::DrawWin() {
+void EndScreens::DrawWin() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
@@ -42,7 +42,7 @@ void winL::DrawWin() {
 	glDisable(GL_BLEND);
 }
 
-void winL::DrawLoose() {
+void EndScreens::DrawLose() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
@@ -53,14 +53,14 @@ void winL::DrawLoose() {
 
 	glTranslatef(0, 20, 0);
 
-	loose.Bind();
+	lose.Bind();
 	DrawQuad(60, 40);
 	glPopMatrix();
 
 	glDisable(GL_BLEND);
 }
 
-void winL::DrawCredits() {
+void EndScreens::DrawCredits() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();

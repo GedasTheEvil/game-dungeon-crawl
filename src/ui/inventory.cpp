@@ -116,7 +116,7 @@ Color potionColor(int potionId) { return POTION_COLORS[static_cast<size_t>(potio
 // Copies needed to go from `level` to the next one.
 int upgradeCost(int level) { return 1 << level; }
 
-int weaponDamage(const item* weapon, int level) {
+int weaponDamage(const Item* weapon, int level) {
 	float bonus = 1.f + DAMAGE_PER_LEVEL * static_cast<float>(level - 1);
 	return static_cast<int>(std::lround(static_cast<float>(weapon->damage) * bonus));
 }
@@ -143,7 +143,7 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 
 } // namespace
 
-inventory::inventory() {
+Inventory::Inventory() {
 	title.Load("fonts/papyrus.png", 7.f, 0.3f, true);
 	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
 	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
@@ -157,9 +157,9 @@ inventory::inventory() {
 		angle = REST_ANGLE;
 }
 
-inventory::~inventory() {}
+Inventory::~Inventory() {}
 
-item* inventory::SlotItem(int slot) {
+Item* Inventory::SlotItem(int slot) {
 	switch (slot) {
 	case 0:
 		return GAME_STATE.items.club.get();
@@ -174,14 +174,14 @@ item* inventory::SlotItem(int slot) {
 	}
 }
 
-int inventory::SlotFromItem(int type, int id) {
+int Inventory::SlotFromItem(int type, int id) {
 	for (int slot = 0; slot < InvSlot::COUNT; slot++)
 		if (SLOTS[slot].type == type && SLOTS[slot].id == id)
 			return slot;
 	return InvSlot::NONE;
 }
 
-void inventory::GetItem(int type, int id) {
+void Inventory::AddItem(int type, int id) {
 	int slot = SlotFromItem(type, id);
 	if (slot == InvSlot::NONE) {
 		LOG_ERRORF("ui", "Unknown item type %d id %d", type, id);
@@ -190,33 +190,33 @@ void inventory::GetItem(int type, int id) {
 	counts[slot]++;
 }
 
-int inventory::Count(int type, int id) const {
+int Inventory::Count(int type, int id) const {
 	int slot = SlotFromItem(type, id);
 	return slot == InvSlot::NONE ? 0 : counts[slot];
 }
 
-item* inventory::Equipped() { return SlotItem(equippedSlot); }
+Item* Inventory::Equipped() { return SlotItem(equippedSlot); }
 
-int inventory::EquippedType() const { return SLOTS[equippedSlot].type; }
+int Inventory::EquippedType() const { return SLOTS[equippedSlot].type; }
 
-int inventory::EquippedId() const { return SLOTS[equippedSlot].id; }
+int Inventory::EquippedId() const { return SLOTS[equippedSlot].id; }
 
-int inventory::Level(int type, int id) const {
+int Inventory::Level(int type, int id) const {
 	int slot = SlotFromItem(type, id);
 	return slot == InvSlot::NONE ? 0 : levels[slot];
 }
 
-int inventory::EquippedDamage() const { return weaponDamage(SlotItem(equippedSlot), levels[equippedSlot]); }
+int Inventory::EquippedDamage() const { return weaponDamage(SlotItem(equippedSlot), levels[equippedSlot]); }
 
-const char* inventory::ItemName(int type, int id) {
+const char* Inventory::ItemName(int type, int id) {
 	int slot = SlotFromItem(type, id);
 	return slot == InvSlot::NONE ? "?" : INFO[slot].name;
 }
 
 // ---- actions ---------------------------------------------------------------
 
-bool inventory::CanUse(int slot, const char** reason) const {
-	const stats* s = GAME_STATE.ui.Stats.get();
+bool Inventory::CanUse(int slot, const char** reason) const {
+	const PlayerStats* s = GAME_STATE.ui.stats.get();
 	const char* why = nullptr;
 	if (!GAME_STATE.Player->Alive())
 		why = "You are dead";
@@ -237,12 +237,12 @@ bool inventory::CanUse(int slot, const char** reason) const {
 	return why == nullptr;
 }
 
-bool inventory::CanUpgrade(int slot) const {
+bool Inventory::CanUpgrade(int slot) const {
 	return !isPotion(slot) && GAME_STATE.Player->Alive() && levels[slot] < MAX_LEVEL &&
 		   counts[slot] >= upgradeCost(levels[slot]);
 }
 
-void inventory::Upgrade(int slot) {
+void Inventory::Upgrade(int slot) {
 	if (!CanUpgrade(slot))
 		return;
 	levels[slot]++;
@@ -251,7 +251,7 @@ void inventory::Upgrade(int slot) {
 	ShowToast(buf);
 }
 
-void inventory::Use(int slot) {
+void Inventory::Use(int slot) {
 	if (!CanUse(slot, nullptr))
 		return;
 
@@ -263,8 +263,8 @@ void inventory::Use(int slot) {
 	ShowToast(std::string(INFO[slot].name) + " equipped");
 }
 
-void inventory::DrinkPotion(int potionId) {
-	stats* s = GAME_STATE.ui.Stats.get();
+void Inventory::DrinkPotion(int potionId) {
+	PlayerStats* s = GAME_STATE.ui.stats.get();
 	int hpBefore = s->CurrentHP();
 	int staminaBefore = GAME_STATE.Player->Stamina();
 
@@ -279,15 +279,15 @@ void inventory::DrinkPotion(int potionId) {
 		snprintf(buf, sizeof(buf), "Healed %d health", s->CurrentHP() - hpBefore);
 		break;
 	case PotionId::STRENGTH:
-		s->GetStronger(2);
+		s->AddMight(2);
 		snprintf(buf, sizeof(buf), "Might rises to %d", s->CurrentMight());
 		break;
 	case PotionId::ARMOR:
-		s->GetArmored(2);
+		s->AddArmor(2);
 		snprintf(buf, sizeof(buf), "Armor rises to %d", s->CurrentArmor());
 		break;
 	case PotionId::LIFE:
-		s->GetTougher(5);
+		s->AddMaxHP(5);
 		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
 		break;
 	default: // stamina
@@ -298,13 +298,13 @@ void inventory::DrinkPotion(int potionId) {
 	ShowToast(buf);
 }
 
-void inventory::Select(int slot) {
+void Inventory::Select(int slot) {
 	if (slot >= 0 && slot < InvSlot::COUNT)
 		selectedSlot = slot;
 }
 
 // Arrow keys: left / right walk the slots in order, up / down jump between the weapon and potion rows.
-void inventory::MoveSelection(int dx, int dy) {
+void Inventory::MoveSelection(int dx, int dy) {
 	int slot = selectedSlot + dx;
 	if (dy != 0) {
 		bool onPotions = isPotion(selectedSlot);
@@ -318,14 +318,14 @@ void inventory::MoveSelection(int dx, int dy) {
 		selectedSlot = slot;
 }
 
-void inventory::ShowToast(const std::string& text) {
+void Inventory::ShowToast(const std::string& text) {
 	toast = text;
 	toastStartMs = GameClock::now();
 }
 
 // ---- input -----------------------------------------------------------------
 
-void inventory::UpdateHover(float x, float y) {
+void Inventory::UpdateHover(float x, float y) {
 	hoveredSlot = InvSlot::NONE;
 	for (int slot = 0; slot < InvSlot::COUNT; slot++)
 		if (slotRect(slot).contains(x, y))
@@ -341,7 +341,7 @@ void inventory::UpdateHover(float x, float y) {
 	}
 }
 
-void inventory::MouseMotion(int x, int y) {
+void Inventory::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
@@ -350,7 +350,7 @@ void inventory::MouseMotion(int x, int y) {
 
 // Left click selects a slot (on press) or presses a button (fires on release over it).
 // Right click on a slot selects and uses it straight away.
-void inventory::MouseFunction(int button, int state, int x, int y) {
+void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
@@ -382,7 +382,7 @@ void inventory::MouseFunction(int button, int state, int x, int y) {
 	pressedSlot = InvSlot::NONE;
 }
 
-void inventory::KeyPressed(unsigned char key) {
+void Inventory::KeyPressed(unsigned char key) {
 	switch (key) {
 	case KEY_ENTER:
 	case KEY_SPACE:
@@ -417,7 +417,7 @@ void inventory::KeyPressed(unsigned char key) {
 	}
 }
 
-void inventory::SpecialKeyPressed(int key) {
+void Inventory::SpecialKeyPressed(int key) {
 	switch (key) {
 	case SPECIAL_MOVE_LEFT:
 		MoveSelection(-1, 0);
@@ -438,7 +438,7 @@ void inventory::SpecialKeyPressed(int key) {
 
 // ---- drawing ---------------------------------------------------------------
 
-void inventory::Draw() {
+void Inventory::Draw() {
 	int now = GameClock::now();
 	int elapsed = now - lastFrameMs;
 	lastFrameMs = now;
@@ -489,7 +489,7 @@ void inventory::Draw() {
 	glutSwapBuffers();
 }
 
-void inventory::DrawBackground() {
+void Inventory::DrawBackground() {
 	Rect area = visibleArea();
 
 	// Carved tomb wall in torchlight.
@@ -558,7 +558,7 @@ void inventory::DrawBackground() {
 	beginShapes();
 }
 
-void inventory::DrawSlot(int slot) {
+void Inventory::DrawSlot(int slot) {
 	Rect r = slotRect(slot);
 	bool hovered = slot == hoveredSlot;
 	bool selected = slot == selectedSlot;
@@ -634,10 +634,10 @@ void inventory::DrawSlot(int slot) {
 	}
 }
 
-void inventory::DrawSlotModel(int slot) {
+void Inventory::DrawSlotModel(int slot) {
 	Rect r = slotRect(slot);
 	bool held = pressed == Target::Slot && pressedSlot == slot && slot == hoveredSlot;
-	item* model = SlotItem(slot);
+	Item* model = SlotItem(slot);
 
 	Color tint = {1, 1, 1};
 	if (isPotion(slot))
@@ -660,7 +660,7 @@ void inventory::DrawSlotModel(int slot) {
 	model->rotA = savedAngle;
 }
 
-void inventory::DrawSlotLabels(int slot) {
+void Inventory::DrawSlotLabels(int slot) {
 	Rect r = slotRect(slot);
 	bool owned = counts[slot] > 0;
 	bool lit = slot == selectedSlot || slot == hoveredSlot;
@@ -686,7 +686,7 @@ void inventory::DrawSlotLabels(int slot) {
 	}
 }
 
-void inventory::DrawDetails() {
+void Inventory::DrawDetails() {
 	const ItemInfo& info = INFO[selectedSlot];
 	bool owned = counts[selectedSlot] > 0;
 	float cx = DETAIL_PANEL.cx();
@@ -714,8 +714,8 @@ void inventory::DrawDetails() {
 	} else if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
 	} else {
-		item* shown = SlotItem(selectedSlot);
-		item* current = Equipped();
+		Item* shown = SlotItem(selectedSlot);
+		Item* current = Equipped();
 		int shownDamage = weaponDamage(shown, levels[selectedSlot]);
 		char buf[48];
 		float labelX = DETAIL_PANEL.x + 9;
@@ -759,8 +759,8 @@ void inventory::DrawDetails() {
 	line(DETAIL_PANEL.x + 8, 33.4f, DETAIL_PANEL.x + DETAIL_PANEL.w - 8, 33.4f, INK_FADED, 0.5f, 1.f);
 }
 
-void inventory::DrawDetailModel() {
-	item* model = SlotItem(selectedSlot);
+void Inventory::DrawDetailModel() {
+	Item* model = SlotItem(selectedSlot);
 	bool potion = isPotion(selectedSlot);
 	Color tint = potion ? potionColor(SLOTS[selectedSlot].id) : Color{1, 1, 1};
 	if (counts[selectedSlot] <= 0)
@@ -779,7 +779,7 @@ void inventory::DrawDetailModel() {
 	model->rotA = savedAngle;
 }
 
-void inventory::DrawButtons() {
+void Inventory::DrawButtons() {
 	const char* label = nullptr;
 	bool canUse = CanUse(selectedSlot, &label);
 	DrawButton(Target::UseButton, label, canUse);
@@ -787,7 +787,7 @@ void inventory::DrawButtons() {
 		DrawButton(Target::UpgradeButton, "Upgrade", CanUpgrade(selectedSlot));
 }
 
-void inventory::DrawButton(Target which, const char* label, bool enabled) {
+void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	bool hovered = enabled && hoveredButton == which;
 	bool held = hovered && pressed == which;
 	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (isPotion(selectedSlot) ? WIDE_BUTTON : EQUIP_BUTTON);
@@ -827,8 +827,8 @@ void inventory::DrawButton(Target which, const char* label, bool enabled) {
 }
 
 // Two rows under the potions: level and XP with the attributes, then the health and stamina bars.
-void inventory::DrawStatus() {
-	const stats* s = GAME_STATE.ui.Stats.get();
+void Inventory::DrawStatus() {
+	const PlayerStats* s = GAME_STATE.ui.stats.get();
 	constexpr float ROW_A = 20.2f;
 	constexpr float ROW_B = 15.4f;
 	constexpr float BAR_H = 2.4f;
@@ -845,8 +845,8 @@ void inventory::DrawStatus() {
 	};
 	auto ratioOf = [](double value, double max) { return static_cast<float>(max > 0 ? value / max : 0); };
 
-	double levelStart = stats::LevelXP(s->CurrentLevel());
-	double levelEnd = stats::LevelXP(s->CurrentLevel() + 1);
+	double levelStart = PlayerStats::LevelXP(s->CurrentLevel());
+	double levelEnd = PlayerStats::LevelXP(s->CurrentLevel() + 1);
 	bar(22.f, ROW_A, 18.f, ratioOf(s->CurrentXP() - levelStart, levelEnd - levelStart), {1.f, 0.85f, 0.45f}, GOLD_DIM);
 	bar(22.f, ROW_B, 18.f, ratioOf(s->CurrentHP(), s->CurrentMaxHP()), {0.85f, 0.25f, 0.15f}, HEALTH);
 	bar(66.f, ROW_B, 14.f, ratioOf(GAME_STATE.Player->Stamina(), GAME_STATE.Player->MaxStamina()), {0.95f, 0.85f, 0.3f},
@@ -878,7 +878,7 @@ void inventory::DrawStatus() {
 	beginShapes();
 }
 
-void inventory::DrawFooter() {
+void Inventory::DrawFooter() {
 	constexpr float CENTRE = CANVAS_W / 2;
 	int age = GameClock::now() - toastStartMs;
 	if (!toast.empty() && age < TOAST_MS) {
@@ -896,7 +896,7 @@ void inventory::DrawFooter() {
 
 // Current format: "INV2 <slots> <counts...> <levels...> <equipped type> <equipped id>".
 // Older saves start straight with the 9 counts of the original slots.
-void inventory::Dump(std::ofstream& f) {
+void Inventory::Dump(std::ofstream& f) {
 	f << "INV2 " << InvSlot::COUNT << " ";
 	for (int count : counts)
 		f << count << " ";
@@ -905,7 +905,7 @@ void inventory::Dump(std::ofstream& f) {
 	f << EquippedType() << " " << EquippedId() << "\n";
 }
 
-void inventory::LoadDump(std::ifstream& f) {
+void Inventory::LoadDump(std::ifstream& f) {
 	for (int& count : counts)
 		count = 0;
 	for (int& level : levels)

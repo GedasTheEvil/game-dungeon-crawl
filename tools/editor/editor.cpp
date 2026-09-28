@@ -154,12 +154,12 @@ class Editor {
 	int winW = START_WIDTH;
 	int winH = START_HEIGHT;
 
-	Textura icons[TILE_COUNT];
+	Texture icons[TILE_COUNT];
 	bool hasIcon[TILE_COUNT] = {};
-	Textura wallTexture, papyrus;
+	Texture wallTexture, papyrus;
 	Font title, heading, body, small;
 
-	[[nodiscard]] Tint brush() const { return {tile, parseNumber(attributeText), parseNumber(valueText)}; }
+	[[nodiscard]] Tile brush() const { return {tile, parseNumber(attributeText), parseNumber(valueText)}; }
 	[[nodiscard]] Rect visibleArea() const;
 	void toCanvas(int mouseX, int mouseY, float& x, float& y) const;
 	[[nodiscard]] static CellPos cellAt(float x, float y);
@@ -383,12 +383,13 @@ void Editor::paint(CellPos cell) {
 
 // Takes the cell's tile, attribute and value into the brush.
 void Editor::pick(CellPos cell) {
-	Tint t = grid.at(cell.col, cell.row);
-	if (isTileType(t.a))
-		tile = t.a;
-	attributeText = t.b != 0 ? std::to_string(t.b) : "";
-	valueText = t.c != 0 ? std::to_string(t.c) : "";
-	showStatus("Picked " + std::string(tileInfo(t.a).name) + " " + std::to_string(t.b) + " " + std::to_string(t.c),
+	Tile t = grid.at(cell.col, cell.row);
+	if (isTileType(t.type))
+		tile = t.type;
+	attributeText = t.attr != 0 ? std::to_string(t.attr) : "";
+	valueText = t.value != 0 ? std::to_string(t.value) : "";
+	showStatus("Picked " + std::string(tileInfo(t.type).name) + " " + std::to_string(t.attr) + " " +
+				   std::to_string(t.value),
 			   false);
 }
 
@@ -513,7 +514,7 @@ void Editor::drawMap() {
 	fillRect(MAP_AREA.inset(-0.4f), BLACK, BLACK, 1.f);
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++)
-			drawTileSwatch(grid.at(col, row).a, cellRect(col, row), 1.f);
+			drawTileSwatch(grid.at(col, row).type, cellRect(col, row), 1.f);
 
 	// Grid lines, every 5th a little stronger to help counting.
 	for (int col = 0; col <= LEVEL_WIDTH; col++) {
@@ -556,9 +557,9 @@ void Editor::drawMapOverlay() {
 	beginText();
 	char buf[96];
 	if (hovered.col >= 0) {
-		Tint t = grid.at(hovered.col, hovered.row);
-		snprintf(buf, sizeof(buf), "Column %d, row %d:  %s  %d  %d", hovered.col, hovered.row, tileInfo(t.a).name, t.b,
-				 t.c);
+		Tile t = grid.at(hovered.col, hovered.row);
+		snprintf(buf, sizeof(buf), "Column %d, row %d:  %s  %d  %d", hovered.col, hovered.row, tileInfo(t.type).name,
+				 t.attr, t.value);
 		text(small, MAP_PANEL.x + 1.f, 96.6f, buf, GOLD);
 	}
 	const char* modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
@@ -695,7 +696,7 @@ void Editor::drawFieldHint(float& y, const char* name, const FieldHint& hint) {
 
 void Editor::drawHint() {
 	bool checking = mode == Mode::Check && checked.col >= 0;
-	Tint cell = checking ? grid.at(checked.col, checked.row) : brush();
+	Tile cell = checking ? grid.at(checked.col, checked.row) : brush();
 	CellHint hint = describeCell(cell);
 	float cx = HINT_PANEL.cx();
 	float x = HINT_PANEL.x + 4.f;

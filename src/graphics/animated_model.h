@@ -1,6 +1,5 @@
-#ifndef ANI_c
-#define ANI_c
-
+#ifndef ANIMATED_MODEL_H
+#define ANIMATED_MODEL_H
 #include <memory>
 #include <utility>
 #include <vector>
@@ -26,7 +25,7 @@ struct AnimPlayback {
 
 class AnimatedModel {
   protected:
-	std::unique_ptr<timer> frameChange;
+	std::unique_ptr<Timer> frameChange;
 	float frame;
 	int speed;
 	float scale;

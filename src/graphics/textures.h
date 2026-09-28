@@ -1,6 +1,5 @@
-#ifndef TEXTUROS
-#define TEXTUROS
-
+#ifndef TEXTURES_H
+#define TEXTURES_H
 #include <GL/gl.h>
 #include <cstdint>
 
@@ -15,13 +14,13 @@ struct TextureImage // Create A Structure
 // Flat = plain linear, for screen-space UI and glyph atlases whose cells would bleed into each other in the mips.
 enum class TexFilter : std::uint8_t { Mipmapped, Flat };
 
-class Textura {
+class Texture {
   private:
 	TextureImage texture{};
 	bool loaded;
 
   public:
-	Textura();
+	Texture();
 	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped);
 	void Bind();
 	int ID();

@@ -115,7 +115,7 @@ void hatch(Sketch& sk, int i, int j) {
 void outline(Sketch& sk, const Dungeon& d, int i, int j) {
 	auto x = static_cast<float>(i);
 	auto y = static_cast<float>(j);
-	auto wall = [&](int ci, int cj) { return d.Explored(ci, cj) && d.Cell(ci, cj).a == Wall; };
+	auto wall = [&](int ci, int cj) { return d.Explored(ci, cj) && d.Cell(ci, cj).type == Wall; };
 	// Seeds come from the edge, not the cell, so a shared edge looks the same whichever side draws it.
 	if (wall(i - 1, j))
 		sk.pencil(x, y, x, y + 1, GRAPHITE, 0.85f, cellSeed(i, j, 10));
@@ -150,11 +150,11 @@ void zigzag(Sketch& sk, float x, float y, float height, Color c, uint32_t seed) 
 	}
 }
 
-void symbol(Sketch& sk, int i, int j, Tint t) {
+void symbol(Sketch& sk, int i, int j, Tile t) {
 	auto x = static_cast<float>(i);
 	auto y = static_cast<float>(j);
 	uint32_t seed = cellSeed(i, j, 20);
-	switch (t.a) {
+	switch (t.type) {
 	case Ladder:
 		sk.pencil(x + 0.3f, y, x + 0.3f, y + 1, GRAPHITE, 0.8f, seed);
 		sk.pencil(x + 0.7f, y, x + 0.7f, y + 1, GRAPHITE, 0.8f, seed + 1);
@@ -164,7 +164,7 @@ void symbol(Sketch& sk, int i, int j, Tint t) {
 		}
 		break;
 	case Door:
-		arch(sk, x, y, t.b == GateExit ? PENCIL_RED : (t.b == GateRiddle ? LOCK_PENCILS[1] : GRAPHITE), seed);
+		arch(sk, x, y, t.attr == GateExit ? PENCIL_RED : (t.attr == GateRiddle ? LOCK_PENCILS[1] : GRAPHITE), seed);
 		break;
 	case Treasure: // X marks the spot
 		sk.pencil(x + 0.25f, y + 0.2f, x + 0.75f, y + 0.7f, PENCIL_RED, 0.95f, seed);
@@ -177,7 +177,7 @@ void symbol(Sketch& sk, int i, int j, Tint t) {
 		zigzag(sk, x, y, 0.65f, PENCIL_RED, seed);
 		break;
 	case Key: {
-		Color c = lockPencil(t.b);
+		Color c = lockPencil(t.attr);
 		sk.loop(x + 0.3f, y + 0.5f, 0.14f, 0.14f, 6, c, 0.95f, seed);
 		sk.pencil(x + 0.44f, y + 0.5f, x + 0.85f, y + 0.5f, c, 0.95f, seed + 6);
 		sk.pencil(x + 0.72f, y + 0.5f, x + 0.72f, y + 0.35f, c, 0.95f, seed + 7);
@@ -185,10 +185,10 @@ void symbol(Sketch& sk, int i, int j, Tint t) {
 		break;
 	}
 	case Gate: {
-		Color c = lockPencil(t.b);
-		float bottom = t.c == 1 ? 0.75f : 0.f; // an open gate hangs up in the ceiling
+		Color c = lockPencil(t.attr);
+		float bottom = t.value == 1 ? 0.75f : 0.f; // an open gate hangs up in the ceiling
 		sk.pencil(x + 0.15f, y + 0.95f, x + 0.85f, y + 0.95f, c, 0.95f, seed);
-		if (t.c != 1)
+		if (t.value != 1)
 			sk.pencil(x + 0.15f, y + 0.05f, x + 0.85f, y + 0.05f, c, 0.95f, seed + 1);
 		for (int k = 0; k < 3; k++) {
 			float u = x + 0.3f + 0.2f * static_cast<float>(k);
@@ -197,15 +197,15 @@ void symbol(Sketch& sk, int i, int j, Tint t) {
 		break;
 	}
 	case Lever: {
-		Color c = lockPencil(t.b);
-		float tipX = t.c == 1 ? 0.25f : 0.75f;
+		Color c = lockPencil(t.attr);
+		float tipX = t.value == 1 ? 0.25f : 0.75f;
 		sk.pencil(x + 0.25f, y + 0.08f, x + 0.75f, y + 0.08f, c, 0.95f, seed);
 		sk.pencil(x + 0.5f, y + 0.08f, x + tipX, y + 0.55f, c, 0.95f, seed + 1);
 		sk.loop(x + tipX, y + 0.6f, 0.07f, 0.07f, 5, c, 0.95f, seed + 2);
 		break;
 	}
 	case RockFall:
-		if (t.c == 1) { // fallen: a boulder on the floor
+		if (t.value == 1) { // fallen: a boulder on the floor
 			sk.loop(x + 0.5f, y + 0.25f, 0.28f, 0.2f, 7, GRAPHITE, 0.9f, seed);
 		} else { // loose ceiling: a crack
 			sk.pencil(x + 0.15f, y + 0.95f, x + 0.35f, y + 0.78f, GRAPHITE, 0.9f, seed);
@@ -312,13 +312,13 @@ void DraftMap::Draw() {
 	Sketch sk(originX, originY, cell);
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j) && d.Cell(i, j).a == Wall)
+			if (d.Explored(i, j) && d.Cell(i, j).type == Wall)
 				hatch(sk, i, j);
 	sk.flush(1.f * pxScale);
 
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j) && d.Cell(i, j).a != Wall)
+			if (d.Explored(i, j) && d.Cell(i, j).type != Wall)
 				outline(sk, d, i, j);
 	sk.flush(2.f * pxScale);
 

@@ -212,7 +212,7 @@ size_t Riddle::Load(const std::string& path) {
 	return riddles.size();
 }
 
-void Riddle::GetRiddle() {
+void Riddle::Ask() {
 	if (deck.empty()) {
 		// rand(), not a private generator: scenario tests seed it and get the same riddles every run.
 		for (size_t i = 0; i < riddles.size(); i++)
@@ -250,7 +250,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			show = false;
 			snprintf(GAME_STATE.status, sizeof(GAME_STATE.status), "Riddle answered, got %d XP", XP_REWARD);
 			GAME_STATE.status_timer->Reset();
-			GAME_STATE.ui.Stats->GetXP(XP_REWARD);
+			GAME_STATE.ui.stats->AddXP(XP_REWARD);
 		} else {
 			misses++;
 			wrongAtMs = GameClock::now();

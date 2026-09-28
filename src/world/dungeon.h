@@ -1,6 +1,5 @@
-#ifndef DungEon
-#define DungEon
-
+#ifndef DUNGEON_H
+#define DUNGEON_H
 #include "../entities/monster.h"
 #include "fstream"
 #include "../core/timer.h"
@@ -21,7 +20,7 @@ class Dungeon {
 	static constexpr int MAP_WIDTH = LEVEL_WIDTH;
 	static constexpr int MAP_HEIGHT = LEVEL_HEIGHT;
 	static constexpr int MAP_CELL_COUNT = LEVEL_CELL_COUNT;
-	Tint map[MAP_CELL_COUNT];
+	Tile map[MAP_CELL_COUNT];
 	DecorCell decor[MAP_CELL_COUNT];
 	DecalCell decal[MAP_CELL_COUNT];
 	SurfaceCell surface[MAP_CELL_COUNT];
@@ -31,7 +30,7 @@ class Dungeon {
 	float mapX, mapY;
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;
-	Tint MapAt(int col, int row) const;
+	Tile MapAt(int col, int row) const;
 	void SetMapBAtPlayer(int value);
 	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
 	void exploreAroundPlayer();
@@ -61,7 +60,7 @@ class Dungeon {
 	void addLights();
 	void drawFires();
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
-	Tint Map(float x, float y) const;
+	Tile Map(float x, float y) const;
 	void InitializeMonsterSlot(int index, int i, int j);
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).
 	struct Motion {
@@ -85,7 +84,7 @@ class Dungeon {
 	void drawMechanismEffects(); // dust, after the opaque scene
 	monsterToken m[MAX_MONSTERS];
 	bool mL;
-	std::unique_ptr<timer> aniT;
+	std::unique_ptr<Timer> aniT;
 	float plasma = 0.f;
 	float qRot = 0.f;
 
@@ -106,16 +105,16 @@ class Dungeon {
 	[[nodiscard]] float ClimbPhase() const;
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
-	void GetAttack(int damage, int attackRange); // Redirects players attack to the nearest monster if in range
-	void GetPickUp();							 // not the car... just take an item away
+	void AttackNearest(int damage, int attackRange); // Redirects players attack to the nearest monster if in range
+	void PickUp();									 // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
-	void GetRiddle();
+	void Interact();
 	bool PullLever(); // interact on a lever cell; false if there is none
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.
 	static constexpr int EXPLORE_RADIUS = 1; // cells to each side: a 3 x 3 square
 	[[nodiscard]] bool Explored(int col, int row) const { return IsInBounds(col, row) && explored[MapIndex(col, row)]; }
-	[[nodiscard]] Tint Cell(int col, int row) const { return MapAt(col, row); }
+	[[nodiscard]] Tile Cell(int col, int row) const { return MapAt(col, row); }
 	void Dump(std::ofstream& f);
 	bool LoadDump(std::ifstream& f);
 	void scatterDecorations(const char* levelName); // props and decals, seeded by the level's file name

@@ -31,7 +31,7 @@ void drawWeapon() { // floats in front of the chest
 		glTranslatef(-playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
 		glRotatef(45.f + static_cast<float>(weaponRot), 0, 0, 1);
 	}
-	GAME_STATE.ui.invent->Equipped()->Draw();
+	GAME_STATE.ui.inventory->Equipped()->Draw();
 
 	glPopMatrix();
 }
@@ -61,7 +61,7 @@ void drawStatus(const char* status) {
 } // namespace
 
 void Update() {
-	if (!GAME_STATE.Cache_loaded) {
+	if (!GAME_STATE.cacheLoaded) {
 		GAME_STATE.Load();
 		glutPostRedisplay();
 		return;
@@ -86,7 +86,7 @@ void Update() {
 		} else if (GAME_STATE.timers.mdlChange->TimePassed())
 			GAME_STATE.Player->setModelState(ModelState::Idle);
 
-		GAME_STATE.ui.invent->Equipped()->rotA++;
+		GAME_STATE.ui.inventory->Equipped()->rotA++;
 
 		if (GAME_STATE.Player->attacking) {
 			if (GAME_STATE.Player->Att_timer->TimePassed() || weaponRot <= -40) {
@@ -98,12 +98,12 @@ void Update() {
 			weaponRot = 0;
 	}
 
-	GAME_STATE.ui.Stats->UpdateStamina();
+	GAME_STATE.ui.stats->UpdateStamina();
 	glutPostRedisplay();
 }
 
 void Draw() {
-	if (!GAME_STATE.Cache_loaded)
+	if (!GAME_STATE.cacheLoaded)
 		return;
 
 	switch (ScreenState::GetDrawScreen(GAME_STATE)) {
@@ -111,10 +111,10 @@ void Draw() {
 		GAME_STATE.ui.menu.Draw();
 		return;
 	case ScreenState::DrawScreen::Inventory:
-		GAME_STATE.ui.invent->Draw();
+		GAME_STATE.ui.inventory->Draw();
 		return;
 	case ScreenState::DrawScreen::Riddle:
-		GAME_STATE.ui.rid->Draw();
+		GAME_STATE.ui.riddle->Draw();
 		return;
 	case ScreenState::DrawScreen::Map:
 		GAME_STATE.ui.map.Draw();
@@ -152,8 +152,8 @@ void Draw() {
 	GAME_STATE.Player->Draw();
 
 	Lighting::setEmissive(true);
-	if (GAME_STATE.IHaveWon)
-		GAME_STATE.ui.wlc->DrawWin();
+	if (GAME_STATE.hasWon)
+		GAME_STATE.ui.endScreens->DrawWin();
 	Lighting::setEmissive(false);
 
 	if (GAME_STATE.Player->Alive()) {
@@ -161,7 +161,7 @@ void Draw() {
 			drawWeapon();
 	} else {
 		Lighting::setEmissive(true);
-		GAME_STATE.ui.wlc->DrawLoose();
+		GAME_STATE.ui.endScreens->DrawLose();
 	}
 	Lighting::end();
 	Ink::end();

@@ -372,7 +372,7 @@ MainMenu::MainMenu() {
 	credits = false;
 	saveD = false;
 	loadD = false;
-	creditsTimer = std::make_unique<timer>(10000);
+	creditsTimer = std::make_unique<Timer>(10000);
 }
 
 MainMenu::~MainMenu() {}
@@ -397,7 +397,7 @@ void MainMenu::ShowToast(const std::string& text) {
 
 void MainMenu::Draw() {
 	if (credits) {
-		GAME_STATE.ui.wlc->DrawCredits();
+		GAME_STATE.ui.endScreens->DrawCredits();
 		if (creditsTimer->TimePassed())
 			credits = false;
 		return;

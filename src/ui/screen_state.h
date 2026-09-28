@@ -16,10 +16,10 @@ inline DrawScreen GetDrawScreen(const GameState& c) {
 	if (c.ui.menu.show)
 		return DrawScreen::Menu;
 
-	if (c.ui.invent->show)
+	if (c.ui.inventory->show)
 		return DrawScreen::Inventory;
 
-	if (c.ui.rid->show)
+	if (c.ui.riddle->show)
 		return DrawScreen::Riddle;
 
 	if (c.ui.map.show)
@@ -28,15 +28,15 @@ inline DrawScreen GetDrawScreen(const GameState& c) {
 	return DrawScreen::Gameplay;
 }
 
-inline bool ShouldRouteKeyboardToRiddle(const GameState& c) { return c.ui.rid->show; }
+inline bool ShouldRouteKeyboardToRiddle(const GameState& c) { return c.ui.riddle->show; }
 
 inline bool ShouldBlockKeyboardGameplay(const GameState& c) { return c.ui.menu.show; }
 
 inline bool ShouldRouteMouseToMenu(const GameState& c) { return c.ui.menu.show; }
 
-inline bool ShouldRouteMouseToInventory(const GameState& c) { return c.ui.invent->show; }
+inline bool ShouldRouteMouseToInventory(const GameState& c) { return c.ui.inventory->show; }
 
-inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.Player->Alive() && !c.IHaveWon; }
+inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.Player->Alive() && !c.hasWon; }
 } // namespace ScreenState
 
 #endif

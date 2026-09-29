@@ -98,18 +98,18 @@ void ellipse(float x, float y, float rx, float ry, Color c, float alpha) {
 	glEnd();
 }
 
-void cornerStuds(const Rect& r) {
-	diamond(r.x, r.y, 1.2f, GOLD, 1.f);
-	diamond(r.x + r.w, r.y, 1.2f, GOLD, 1.f);
-	diamond(r.x + r.w, r.y + r.h, 1.2f, GOLD, 1.f);
-	diamond(r.x, r.y + r.h, 1.2f, GOLD, 1.f);
+void cornerStuds(const Rect& r, float alpha) {
+	diamond(r.x, r.y, 1.2f, GOLD, alpha);
+	diamond(r.x + r.w, r.y, 1.2f, GOLD, alpha);
+	diamond(r.x + r.w, r.y + r.h, 1.2f, GOLD, alpha);
+	diamond(r.x, r.y + r.h, 1.2f, GOLD, alpha);
 }
 
-void panel(const Rect& r, float alpha) {
+void panel(const Rect& r, float alpha, float frameAlpha) {
 	fillRect(r, PANEL_TOP, PANEL_BOTTOM, alpha);
-	strokeRect(r, BRONZE, 1.f, 3.f);
-	strokeRect(r.inset(1.1f), GOLD_DIM, 0.8f, 1.f);
-	cornerStuds(r);
+	strokeRect(r, BRONZE, frameAlpha, 3.f);
+	strokeRect(r.inset(1.1f), GOLD_DIM, 0.8f * frameAlpha, 1.f);
+	cornerStuds(r, frameAlpha);
 }
 
 void backdrop(const Rect& area, int textureId) {

@@ -5,6 +5,7 @@
 #include "../ui/screen_state.h"
 #include "hud.h"
 #include "../ui/level_gem.h"
+#include "../ui/status_box.h"
 #include "lighting.h"
 #include "ink.h"
 #include "fire.h"
@@ -46,29 +47,6 @@ void drawWeapon() { // floats in front of the chest
 	Game().ui.inventory->Equipped()->Draw();
 
 	glPopMatrix();
-}
-// The status message, centred, one line per '\n', in a projection that keeps the glyphs square.
-void drawStatus(const char* status) {
-	constexpr float TOP_LINE_Y = 74.f;
-	constexpr float LINE_H = 6.f;
-	float width = 100.f * static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, width, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
-
-	std::string lines = status;
-	float y = TOP_LINE_Y;
-	for (size_t start = 0; start < lines.size(); y -= LINE_H) {
-		size_t end = lines.find('\n', start);
-		if (end == std::string::npos)
-			end = lines.size();
-		std::string line = lines.substr(start, end - start);
-		if (!line.empty())
-			Game().assets.fonts.status.print((width - Game().assets.fonts.status.TextWidth(line.c_str())) / 2, y, "%s",
-											 line.c_str());
-		start = end + 1;
-	}
 }
 } // namespace
 
@@ -204,7 +182,8 @@ void Draw() {
 	glColor3f(1, 1, 1);
 
 	if (!Game().statusTimer.TimePassed(true))
-		drawStatus(Game().status.c_str());
+		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
+						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
 
 	glFlush();
 

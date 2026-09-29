@@ -120,7 +120,7 @@ bool PlayerStats::AdvanceLevel() {
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 
-	Game().ShowStatus("Now you are level %d\n", level);
+	Game().ShowStatus("Now you are level %d", level);
 
 	return true;
 }

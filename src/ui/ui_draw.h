@@ -63,10 +63,11 @@ void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color 
 // Band around `inner`, `grow` wide, fading from alphaIn at the rect to alphaOut at the outer edge.
 void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut);
 void ellipse(float x, float y, float rx, float ry, Color c, float alpha);
-// Framed panel: gradient fill, bronze outer frame, thin gold inner line and gold corner studs.
-void panel(const Rect& r, float alpha);
+// Framed panel: gradient fill, bronze outer frame, thin gold inner line and gold corner studs. frameAlpha fades
+// the frame and studs too (the gameplay status box fades out).
+void panel(const Rect& r, float alpha, float frameAlpha = 1.f);
 // Gold studs on the four corners.
-void cornerStuds(const Rect& r);
+void cornerStuds(const Rect& r, float alpha = 1.f);
 // Carved wall texture over the whole visible area, darkened towards the edges.
 void backdrop(const Rect& area, int textureId);
 // Screen title centred on `cx` at the top of the 100 high canvas, gold rules either side reaching `reach` from `cx`.

@@ -11,6 +11,7 @@ instead of drawing their own.
 | Riddle | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
+| Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 
 Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too.
 
@@ -138,6 +139,13 @@ Separators `/` and `,` are plain `LABEL_DIM` text.
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
   (`"Click a slot to load    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
+
+### Status box
+
+The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,
+min 40 wide, top edge at y 86, centred, with the picture-frame drop shadow. `status` font in `GOLD`, one line per
+`'\n'`, 6 apart. Fades in over 150 ms and out over the last 500 ms of `STATUS_MS`; `panel`'s `frameAlpha` fades the
+frame and studs with it.
 
 ## Colours
 

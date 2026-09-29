@@ -1,0 +1,23 @@
+# Gameplay status message in its framed box: several lines (chest loot), one line, fading out.
+seed 3
+god
+level 1
+wait 30
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+walk right 0.6
+interact
+wait 200ms
+screenshot lines
+expect potion5 == 1 # seed 3: "Found: Sword" + a small stamina bonus
+wait 3s
+xp 1000
+wait 2s
+screenshot one_line
+wait 600ms
+screenshot fading
+wait 400ms
+screenshot gone

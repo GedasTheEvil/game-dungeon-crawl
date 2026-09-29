@@ -10,7 +10,8 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 
 | Levels | Content |
 |---|---|
-| 1-5 | The original levels: rats, scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
+| 1-3, 5 | The original levels: rats, scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
+| 4 | The treasury: rats, scarabs, a worm, plants guarding side rooms, the first mimic among real chests. A riddle gate. |
 | 6 | Rats, a giant rat, the first giant scarab. Red key and gate. |
 | 7 | Bats and giant bats in low tunnels. Blue lever and gate. |
 | 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. |
@@ -23,7 +24,7 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 15 | The finale: three Anubis, all four locks, riddles, the ankh. |
 
 Anubis only appears from level 10 on. Weak monsters give way to their giant kin: no rats, scarabs or small bats
-after level 9, no small scarabs after level 5 (giant scarabs from 6). The sources of levels 6 to 15 are ASCII drawings in `tools/level/campaign/`
+after level 9, no small scarabs after level 5 (giant scarabs from 6). The sources of levels 4 and 6 to 15 are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
 

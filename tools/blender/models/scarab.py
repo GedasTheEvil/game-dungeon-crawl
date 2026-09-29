@@ -1,4 +1,6 @@
-"""Procedural giant golden scarab (Scarabaeus sacer): mesh, rig, baked texture and the three .md3 animations.
+"""Procedural golden scarab (Scarabaeus sacer, plus the giant scarab texture): mesh, rig, baked textures and the
+.md3 animations (walk, attack, die, and jump: the giant scarab's leap over pits and traps, plays once, the game
+moves the body).
 
     MCP:  p = ".../tools/blender/models/scarab.py"; g = {"__file__": p, "__name__": "scarab"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
@@ -8,6 +10,8 @@ Blender space: Z up, the beetle faces +Y (game uses rotA = 180), its right side 
 Rigid parts (body, head, elytra, antennae, leg segments) each follow one bone. Every frame is
 posed procedurally: the body moves as a rigid transform and the six legs are solved with
 two-bone IK towards foot targets (planted on the floor or given in body space).
+Two textures share one UV layout: scarab.png (gold and lapis) and scarab_giant.png (obsidian and carnelian, red eyes).
+Set SCARAB_TEX=giant to show the giant texture on the built object (review renders with --bake).
 """
 
 import importlib
@@ -27,7 +31,7 @@ importlib.reload(common)
 from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "scarab_new"
-CLIPS = [("scarab_walk", "", 24), ("scarab_attack", "_att", 26), ("scarab_die", "_die", 32)]
+CLIPS = [("scarab_walk", "", 24), ("scarab_attack", "_att", 26), ("scarab_die", "_die", 32), ("scarab_jump", "_jump", 10)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.45), "ortho": 3.6, "res": (520, 400)}
 
@@ -42,6 +46,16 @@ COL = {
     "eye": (0.30, 0.01, 0.005),
     "black": (0.01, 0.008, 0.005),
 }
+COL_GIANT = dict(COL, **{
+    "gold": (0.055, 0.045, 0.05),
+    "gold_hi": (0.32, 0.09, 0.035),
+    "gold_leg": (0.045, 0.035, 0.035),
+    "gold_dark": (0.018, 0.013, 0.016),
+    "bronze": (0.03, 0.01, 0.005),
+    "lapis": (0.42, 0.05, 0.02),
+    "carnelian": (0.75, 0.22, 0.02),
+    "eye": (0.85, 0.05, 0.01),
+})
 
 # Elytra: base (v = 0) behind the pronotum to the tip (v = 1).
 EL_Y0, EL_Y1, EL_W, EL_H, EL_Z = 0.27, -0.98, 0.76, 0.42, 0.52
@@ -122,7 +136,7 @@ def stripes(axis, period, bands, interp="CONSTANT"):
     return ("stripes", axis, period, bands, interp)
 
 
-def materials():
+def materials(pal=COL):
     ely = [(1.5, "lapis"), (1, "gold_dark")] + [(6, "gold"), (1, "gold_dark")] * 8 + [(3, "gold_hi"), (3, "lapis"), (10, "gold_dark")]
     specs = {
         "elytra": stripes("u", 1.0, ely),
@@ -139,7 +153,7 @@ def materials():
         "sun": ("solid", "carnelian"),
         "eye": ("solid", "eye"),
     }
-    return {name: common.make_material("scarab_" + name, spec, COL) for name, spec in specs.items()}
+    return {name: common.make_material("scarab_" + name, spec, pal) for name, spec in specs.items()}
 
 
 # ---------------------------------------------------------------- parts
@@ -568,6 +582,20 @@ DIE = [
     (31, dict(roll=180, x=0.5, y=-0.15, hp=-15, ely=12, plant=0, fplant=0, flail=0.0, fphase=4.5, curl=1.0, ant=-35)),
 ]
 
+# Leap (one-shot): crouch, spring off with the elytra flung open, legs tucked, reach down, landing crouch. The game
+# moves the body along the arc (Monster::UpdateJump: feet leave the floor at 22 %, touch it at 83 % of the clip),
+# so the pose stays on the floor and ends where it started.
+JUMP = [
+    (0, {}),
+    (2, dict(z=-0.06, pitch=-6, hp=-6, ely=6, ant=-10)),
+    (3, dict(z=0.02, pitch=12, hp=6, ely=16, ant=15, fplant=0, fup=0.10, ffwd=0.10, plant=0.3)),
+    (4, dict(pitch=6, ely=24, ant=25, fplant=0, fup=0.12, ffwd=0.18, plant=0, curl=0.3)),
+    (6, dict(pitch=0, ely=26, ant=25, fplant=0, fup=0.08, ffwd=0.18, plant=0, curl=0.35)),
+    (7, dict(pitch=-8, ely=16, ant=10, fplant=0, fup=0.02, ffwd=0.10, plant=0, curl=0.1)),
+    (8, dict(z=-0.05, pitch=-5, hp=-6, ely=10, fplant=1, plant=0.6)),
+    (9, dict(z=-0.03, pitch=-2, ely=3)),
+]
+
 
 def lowest_z(obj):
     ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
@@ -586,14 +614,12 @@ def make_actions(rig, obj):
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         rig.animation_data.action = act
-        last = frames if name != "scarab_die" else frames - 1  # loops key frame N = frame 0
+        last = frames if name not in ("scarab_die", "scarab_jump") else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
             if name == "scarab_walk":
                 key_frame(rig, walk_params(f / frames), f)
-            elif name == "scarab_attack":
-                key_frame(rig, interpolate(ATTACK, f), f)
             else:
-                key_frame(rig, interpolate(DIE, f), f)
+                key_frame(rig, interpolate({"scarab_attack": ATTACK, "scarab_die": DIE, "scarab_jump": JUMP}[name], f), f)
         acts[name] = act
     # Feet on the floor at frame 0 of the walk (shared by all files).
     rig.animation_data.action = acts["scarab_walk"]
@@ -608,13 +634,21 @@ def make_actions(rig, obj):
         if f > 2:
             root.location.z -= low
             root.keyframe_insert("location", frame=f)
+    # Leaping: the hanging tarsi would dip through the floor early in the arc, lift the root above it.
+    rig.animation_data.action = acts["scarab_jump"]
+    for f in range(CLIPS[3][2]):
+        scene.frame_set(f)
+        low = lowest_z(obj)
+        if low < 0:
+            root.location.z -= low
+            root.keyframe_insert("location", frame=f)
     return acts
 
 
 # ---------------------------------------------------------------- entry points
 
 
-def build(bake=True, tex_path=None):
+def build(bake=True, tex_path=None, giant_path=None):
     if bpy.context.object and bpy.context.object.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
     coll = common.clear_collection(COLL)
@@ -630,8 +664,11 @@ def build(bake=True, tex_path=None):
     obj = common.finish_mesh(b, coll, "scarab_new")
     common.uv_unwrap(obj, b.tags, {"head": (HEAD_C, 1.5)})
     if bake:
-        tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", "scarab_preview.png"), TEX_SIZE, "scarab", ao_distance=0.2)
-        common.use_baked_material(obj, tex)
+        tmp = bpy.app.tempdir or "/tmp"
+        tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "scarab_preview.png"), TEX_SIZE, "scarab", ao_distance=0.2)
+        materials(COL_GIANT)
+        giant = common.bake_texture(obj, giant_path or os.path.join(tmp, "scarab_giant_preview.png"), TEX_SIZE, "scarab_giant", ao_distance=0.2)
+        common.use_baked_material(obj, giant if os.environ.get("SCARAB_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     acts = make_actions(rig, obj)
     rig.animation_data.action = acts["scarab_walk"]
@@ -648,7 +685,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    build(tex_path=os.path.join(REPO, "textures", "monsters", "scarab.png") if "--export" in args else None)
+    tex_dir = os.path.join(REPO, "textures", "monsters")
+    if "--export" in args:
+        build(tex_path=os.path.join(tex_dir, "scarab.png"), giant_path=os.path.join(tex_dir, "scarab_giant.png"))
+    else:
+        build()
     if "--export" in args:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "scarab.blend"))

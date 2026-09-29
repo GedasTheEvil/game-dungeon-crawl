@@ -115,7 +115,7 @@ bool PlayerStats::AdvanceLevel() {
 	if (level % 8 == 0)
 		Might++;
 
-	MaxHP += 20;
+	MaxHP += HP_PER_LEVEL;
 	HP = MaxHP;
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();

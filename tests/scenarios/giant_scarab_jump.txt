@@ -1,0 +1,13 @@
+# The giant scarab (Locomotion::WalkJump, like the giant rat) leaps over pits and traps, at most once per 2 s
+# (tests/levels/giant_scarab_jump): it leaps the spikes, waits out the cooldown, leaps the pit and bites.
+seed 1
+level tests/levels/giant_scarab_jump
+wait 150ms
+screenshot takeoff
+wait 150ms
+screenshot leap_spikes
+wait 2000ms
+screenshot leap_pit
+wait 1500ms
+screenshot bite
+expect hp < 50

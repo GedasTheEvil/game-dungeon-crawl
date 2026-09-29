@@ -149,13 +149,14 @@ void printReport(const Entry& e, bool map) {
 	printf("   size: %d open cells, %d reachable, bounds %dx%d\n", r.openCells, r.reachableCells, r.boundsWidth,
 		   r.boundsHeight);
 	printf("   content: %d monsters (scarab %d, worm %d, plant %d, anubis %d, rat %d, giant rat %d, bat %d, giant bat "
-		   "%d, mimic %d), %d spikes, %d death traps, %d rock falls, %d treasures (%d reachable), %d keys, %d gates, "
+		   "%d, mimic %d, giant scarab %d), %d spikes, %d death traps, %d rock falls, %d treasures (%d reachable), %d "
+		   "keys, %d gates, "
 		   "%d levers, "
 		   "%d riddles\n",
 		   r.monsterCount, r.monsters[MonsterScarab], r.monsters[MonsterWorm], r.monsters[MonsterPlant],
 		   r.monsters[MonsterAnubis], r.monsters[MonsterRat], r.monsters[MonsterGiantRat], r.monsters[MonsterBat],
-		   r.monsters[MonsterGiantBat], r.monsters[MonsterMimic], r.spikes, r.deathTraps, r.rockFalls, r.treasures,
-		   r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles);
+		   r.monsters[MonsterGiantBat], r.monsters[MonsterMimic], r.monsters[MonsterGiantScarab], r.spikes,
+		   r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
 			   "%d gates (%d colours), %d monsters near\n",

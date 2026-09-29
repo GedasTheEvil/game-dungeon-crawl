@@ -1,0 +1,11 @@
+# Scarab, giant scarab and rat side by side for scale and texture (tests/levels/scarabs).
+seed 1
+god
+level tests/levels/scarabs
+wait 5
+walk right 3.5
+wait 9s
+screenshot scarab
+walk right 1.5
+wait 2s
+screenshot giant_scarab_and_rat

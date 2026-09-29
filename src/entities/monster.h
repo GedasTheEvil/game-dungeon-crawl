@@ -43,7 +43,8 @@ struct MonsterType {
 	int speed = 1;
 	int maxHealth = 20;
 	int damage = 1;
-	int xp = 0; // gained for the kill
+	int xp = 0;			// gained for the kill
+	int attackMs = 800; // between bites
 	float scale = 1.f;
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;

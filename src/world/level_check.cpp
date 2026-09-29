@@ -250,15 +250,17 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 float monsterThreat(int type) {
 	switch (type) {
 	case MonsterScarab:
-		return 1.0f;
+		return 0.8f;
+	case MonsterGiantScarab:
+		return 4.f; // jumps like a giant rat, hits harder
 	case MonsterWorm:
-		return 2.5f;
+		return 2.f;
 	case MonsterPlant:
 		return 1.5f; // does not move
 	case MonsterAnubis:
 		return 8.f;
 	case MonsterRat:
-		return 0.6f;
+		return 0.7f; // fast, but barely hurts
 	case MonsterGiantRat:
 		return 3.f;
 	case MonsterBat:
@@ -432,7 +434,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 }
 
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
-	static const char MONSTER_CHARS[] = "mswpntTfFM";
+	static const char MONSTER_CHARS[] = "mswpntTfFMk";
 	static const char KEY_CHARS[] = "rbgy";
 	static const char GATE_CHARS[] = "RBGY";
 	std::vector<char> onPath(CELLS, 0);

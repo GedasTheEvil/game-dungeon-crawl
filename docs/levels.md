@@ -10,19 +10,20 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 
 | Levels | Content |
 |---|---|
-| 1-5 | The original levels: scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
-| 6 | Rats, a giant rat, scarabs. Red key and gate. |
+| 1-5 | The original levels: rats, scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
+| 6 | Rats, a giant rat, the first giant scarab. Red key and gate. |
 | 7 | Bats and giant bats in low tunnels. Blue lever and gate. |
-| 8 | Plants, worms, rats. Red key, then the green key behind the red gate. |
+| 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. |
 | 9 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. |
 | 10 | The first Anubis, by the exit. Gold key and gate. |
-| 11 | Giant rats, bats, an Anubis. Two levers (red, blue) in two halls open two gates in a row. |
+| 11 | Giant rats, giant bats, giant scarabs, an Anubis. Two levers (red, blue) in two halls open two gates in a row. |
 | 12 | Plants, giant bats, two Anubis. Chain: red key, green lever, gold key. |
-| 13 | Rock falls, worms, giant rats, an Anubis. Blue key, gold lever. |
-| 14 | Every monster type, two Anubis. Red key, blue lever, green key. |
+| 13 | Rock falls, giant scarabs, giant rats, an Anubis. Blue key, gold lever. |
+| 14 | Giant scarabs, rats and bats, two Anubis. Red key, blue lever, green key. |
 | 15 | The finale: three Anubis, all four locks, riddles, the ankh. |
 
-Anubis only appears from level 10 on. The sources of levels 6 to 15 are ASCII drawings in `tools/level/campaign/`
+Anubis only appears from level 10 on. Weak monsters give way to their giant kin: no rats, scarabs or small bats
+after level 9, no small scarabs after level 5 (giant scarabs from 6). The sources of levels 6 to 15 are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
 
@@ -60,8 +61,8 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
-Monsters add their threat (`monsterThreat`: rat 0.6, scarab 1, bat 1.2, plant 1.5, worm 2.5, giant rat 3,
-giant bat 3.5, mimic 2, Anubis 8):
+Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
+giant bat 3.5, giant scarab 4, mimic 2, Anubis 8):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
@@ -92,12 +93,12 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
 3. **Branches.** Short dead-end side corridors off the route, joined by a ladder, with treasure at the end.
 4. **Content.** Along the part of each corridor the player has to cross: spike pits to jump, spikes, rock
    falls (only under a one-cell ceiling), monsters and treasure. The mix grows with the difficulty. Monster types
-   unlock with the difficulty: rat and scarab from 1, bat from 2, plant and worm from 3, giant rat from 4,
-   giant bat from 5, Anubis from 8.
+   unlock with the difficulty and the weak ones give way to their giant kin: rat and scarab 1-5, bat 2-6,
+   worm 3-7, plant from 3, giant rat from 4, giant scarab from 5, giant bat from 6, Anubis from 8.
    At most 4 + 2 × difficulty monsters.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose
@@ -119,6 +120,8 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/rats.txt`: rat and giant rat screenshots (size, attack, die).
 - `tests/scenarios/monster_hazards.txt`: walkers stop at floor spikes and a pit; only flyers cross them.
 - `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
+- `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
+- `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
 - `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.
 - `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.

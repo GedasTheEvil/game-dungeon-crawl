@@ -17,6 +17,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (every frame keyed), hinged jaws, floor lift from jaw tips.
 * `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
   (tripod gait with planted feet, body-space targets when airborne), per-frame floor fix while rolling over in the die clip.
+  The jump clip (`scarab_jump.md3`, 10 frames, plays once: crouch, spring off with the elytra lifted, legs tucked, landing
+  crouch; per-frame floor fix for the hanging tarsi) is the giant scarab's leap. Bakes `scarab.png` and `scarab_giant.png`
+  (obsidian and carnelian, red eyes) on the same UVs; `SCARAB_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/rat.py` - quadruped example: one loft from rump to nose blended over hips/chest/head bones, trot gait
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
@@ -134,7 +137,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<category>/<name>_jump.wav`.
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; items 1.2-4.5k tris 32-143 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; all 31 models load in ~0.2 s.
@@ -146,7 +149,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 |---|---|---|---|
 | Anubis (monster) | `monsters/anubis{,_att,_die}.md3` | `monsters/anubis.png` | remodelled |
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
-| Scarab (monster) | `monsters/scarab{,_att,_die}.md3` | `monsters/scarab.png` | remodelled (giant golden Scarabaeus sacer) |
+| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png` | new (tomb bat; the giant bat uses the same files with its own texture) |
 | Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |

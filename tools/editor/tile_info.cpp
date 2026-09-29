@@ -48,6 +48,7 @@ const Choices MONSTER_TYPES = {
 	{MonsterBat, "bat", "Bat"},
 	{MonsterGiantBat, "giant bat", "Giant bat"},
 	{MonsterMimic, "mimic", "Mimic, a treasure chest until the player comes near"},
+	{MonsterGiantScarab, "giant scarab", "Giant scarab, leaps over pits and traps"},
 };
 
 const Choices LOCK_COLOURS = {

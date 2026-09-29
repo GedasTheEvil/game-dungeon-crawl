@@ -1,0 +1,5 @@
+; A giant scarab (col 4), spikes (col 5), one floor cell, a pit (col 7), the player (col 8): two leaps, 2 s apart
+; (tests/scenarios/giant_scarab_jump.txt).
+################
+#...k^..S.....E#
+#######X########

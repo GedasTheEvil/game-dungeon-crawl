@@ -3,9 +3,9 @@ seed 1
 god
 level tests/levels/riddle
 riddles tests/riddles/test.txt
-# 21675 XP reaches level 10: nine level ups of +20 max HP.
+# 21675 XP reaches level 10: nine level ups of +12 max HP.
 xp 21675
-expect hp == 230
+expect hp == 158
 wait 30
 walk right 3
 interact

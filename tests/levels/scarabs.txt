@@ -1,0 +1,4 @@
+; A scarab (col 7), a giant scarab (col 8) and a rat (col 10) for scale (tests/scenarios/scarabs.txt).
+################
+#S.....sk.t...E#
+################

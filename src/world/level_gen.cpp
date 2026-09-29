@@ -331,19 +331,24 @@ class LevelBuilder {
 	}
 
 	int randomMonster() {
+		// Weak monsters give way to their giant kin deeper down.
 		struct Pick {
-			int type, minDifficulty, weight;
+			int type, minDifficulty, maxDifficulty, weight;
+			[[nodiscard]] bool allowed(int difficulty) const {
+				return difficulty >= minDifficulty && difficulty <= maxDifficulty;
+			}
 		};
-		static const Pick PICKS[] = {{MonsterRat, 1, 6},	  {MonsterScarab, 1, 4}, {MonsterBat, 2, 3},
-									 {MonsterPlant, 3, 2},	  {MonsterWorm, 3, 2},	 {MonsterGiantRat, 4, 3},
-									 {MonsterGiantBat, 5, 2}, {MonsterAnubis, 8, 1}};
+		static const Pick PICKS[] = {
+			{MonsterRat, 1, 5, 6},			{MonsterScarab, 1, 5, 4},	 {MonsterBat, 2, 6, 3},
+			{MonsterPlant, 3, 10, 2},		{MonsterWorm, 3, 7, 2},		 {MonsterGiantRat, 4, 10, 3},
+			{MonsterGiantScarab, 5, 10, 3}, {MonsterGiantBat, 6, 10, 2}, {MonsterAnubis, 8, 10, 1}};
 		int total = 0;
 		for (const Pick& p : PICKS)
-			if (d >= p.minDifficulty)
+			if (p.allowed(d))
 				total += p.weight;
 		int roll = rng.range(0, total - 1);
 		for (const Pick& p : PICKS) {
-			if (d < p.minDifficulty)
+			if (!p.allowed(d))
 				continue;
 			if (roll < p.weight)
 				return p.type;

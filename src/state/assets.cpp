@@ -7,31 +7,38 @@ struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small
 	MonsterTypeId id;
 	const char* label;
 	const char* model;	 // under models/ and sounds/
-	const char* texture; // under textures/: the giant rat and bat are the same model, bigger and darker
-	int speed, maxHealth, damage, xp;
+	const char* texture; // under textures/: the giant rat, bat and scarab are the same model, bigger and darker
+	int speed, maxHealth, damage, attackMs, xp;
 	float scale, rotA;
 	Locomotion locomotion;
 	Rgb blood;
 };
 
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
+constexpr Rgb SCARAB_BLOOD = {0.6f, 0.1f, 0.8f};
 
+// A walk-jumper lands on the centre of the player's cell: its reach (0.05 + 0.02 x scale tiles, attackDirection)
+// must be over half a tile, a scale over 22, or it leaps back and forth over the gap.
+// Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take long to kill.
 // Flyers roost on the ceiling and swoop through the player (Monster::Fly).
 const MonsterDef MONSTER_DEFS[] = {
-	{MonsterWorm, "Worm", "monsters/worm", "monsters/worm", 1, 20, 15, 1500, 18, 0, Locomotion::Walk, RED_BLOOD},
-	{MonsterScarab,
-	 "Scarab",
+	{MonsterWorm, "Worm", "monsters/worm", "monsters/worm", 1, 30, 9, 1000, 1200, 18, 0, Locomotion::Walk, RED_BLOOD},
+	{MonsterScarab, "Scarab", "monsters/scarab", "monsters/scarab", 4, 10, 2, 600, 300, 7, 180, Locomotion::Walk,
+	 SCARAB_BLOOD},
+	{MonsterGiantScarab,
+	 "Giant scarab",
 	 "monsters/scarab",
-	 "monsters/scarab",
+	 "monsters/scarab_giant",
 	 2,
-	 15,
-	 3,
-	 500,
-	 10,
+	 90,
+	 12,
+	 1000,
+	 2500,
+	 24,
 	 180,
-	 Locomotion::Walk,
-	 {0.6f, 0.1f, 0.8f}},
-	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 200, 50, 10000, 19, 180, Locomotion::Walk,
+	 Locomotion::WalkJump,
+	 {0.4f, 0.05f, 0.55f}},
+	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 350, 30, 1200, 10000, 19, 180, Locomotion::Walk,
 	 RED_BLOOD},
 	{MonsterPlant,
 	 "Man-eater plant",
@@ -40,15 +47,16 @@ const MonsterDef MONSTER_DEFS[] = {
 	 0,
 	 30,
 	 5,
+	 800,
 	 1000,
 	 12,
 	 0,
 	 Locomotion::Stationary,
 	 {0.1f, 0.4f, 0.1f}},
-	{MonsterRat, "Rat", "monsters/rat", "monsters/rat", 5, 12, 2, 300, 13, 180, Locomotion::Walk, RED_BLOOD},
-	{MonsterGiantRat, "Giant rat", "monsters/rat", "monsters/rat_giant", 2, 60, 8, 2000, 42, 180, Locomotion::WalkJump,
-	 RED_BLOOD},
-	{MonsterBat, "Bat", "monsters/bat", "monsters/bat", 5, 8, 3, 400, 18, 180, Locomotion::Fly, RED_BLOOD},
+	{MonsterRat, "Rat", "monsters/rat", "monsters/rat", 9, 12, 2, 400, 300, 13, 180, Locomotion::Walk, RED_BLOOD},
+	{MonsterGiantRat, "Giant rat", "monsters/rat", "monsters/rat_giant", 4, 60, 8, 700, 2000, 42, 180,
+	 Locomotion::WalkJump, RED_BLOOD},
+	{MonsterBat, "Bat", "monsters/bat", "monsters/bat", 5, 8, 3, 800, 400, 18, 180, Locomotion::Fly, RED_BLOOD},
 	{MonsterGiantBat,
 	 "Giant bat",
 	 "monsters/bat",
@@ -56,6 +64,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	 4,
 	 40,
 	 10,
+	 800,
 	 1800,
 	 30,
 	 180,
@@ -69,6 +78,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	 0,
 	 40,
 	 10,
+	 800,
 	 1500,
 	 8,
 	 0,
@@ -152,6 +162,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		type.speed = def.speed;
 		type.maxHealth = def.maxHealth;
 		type.damage = def.damage;
+		type.attackMs = def.attackMs;
 		type.xp = def.xp;
 		type.scale = def.scale;
 		type.rotA = def.rotA;

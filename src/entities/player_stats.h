@@ -5,6 +5,8 @@
 #include <fstream>
 #include <optional>
 
+constexpr int HP_PER_LEVEL = 12; // max HP gained per level up
+
 // The player's level, XP, might, armour, HP and stamina (sprint drains it, it regenerates). Saved with the game.
 class PlayerStats {
   private:

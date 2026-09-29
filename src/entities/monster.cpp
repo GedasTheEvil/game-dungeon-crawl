@@ -32,6 +32,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	flight = Flight{};
 	leap = Leap{};
 	playback = kind.model.SpawnPlayback();
+	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
 		stepTimer.Reset();
 		attackTimer.Reset();

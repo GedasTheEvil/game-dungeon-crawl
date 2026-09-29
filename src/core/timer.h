@@ -24,6 +24,7 @@ class Timer {
 	void Reset();
 	[[nodiscard]] int StartTime() const;
 	void SetStartTime(int start);
+	void SetInterval(int ms) { ticks = ms; }
 };
 
 #endif

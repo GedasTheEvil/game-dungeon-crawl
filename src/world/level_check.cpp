@@ -265,7 +265,7 @@ float monsterThreat(int type) {
 		return 1.2f; // weak, but only hit with good timing
 	case MonsterGiantBat:
 		return 3.5f;
-	default:
+	default: // mimic (hits hard, but does not move) and unknown types
 		return 2.f;
 	}
 }
@@ -432,7 +432,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 }
 
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
-	static const char MONSTER_CHARS[] = "mswpntTfF";
+	static const char MONSTER_CHARS[] = "mswpntTfFM";
 	static const char KEY_CHARS[] = "rbgy";
 	static const char GATE_CHARS[] = "RBGY";
 	std::vector<char> onPath(CELLS, 0);

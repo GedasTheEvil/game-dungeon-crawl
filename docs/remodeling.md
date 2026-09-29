@@ -31,6 +31,17 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
   Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/game_state.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/core/gameplay_config.h`), falls to the floor on death.
+* `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
+  `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
+  their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference
+  (`AMBUSH_CLIPS` in `src/entities/character_model.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
+  frame (fold down), tongue and a fleshy mouth floor under the gold heap (the heap sinks into the box). Rigid bones posed by deformation
+  matrices (as in `bat.py`), feet on a `base` bone so the legs shear under the twisting box, per-frame floor fix. Clips: walk 32 (loops on the awake
+  pose, the same as attack frame 0: four lid snaps, sways and twists), attack 22 (loops from the awake pose: gape, lunge
+  0.17 m towards -Y, the tongue lashing 0.77 normalized units past the chest front, snap, shake), die 30 (from the awake pose: shudders, tongue limp, lid
+  slams, the gold regrows under it, lid falls open; last frame = rest pose, swapped for the real chest), idle 42 (the reference: still chest,
+  the lid dips 4.5 deg and the box swells 1.2% once per loop).
+  Sounds: `tools/audio/mimic_sounds.py` (`sounds/monsters/mimic_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
@@ -123,7 +134,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<category>/<name>_jump.wav`.
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; items 1.2-4.5k tris 32-143 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; all 31 models load in ~0.2 s.
@@ -138,6 +149,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Scarab (monster) | `monsters/scarab{,_att,_die}.md3` | `monsters/scarab.png` | remodelled (giant golden Scarabaeus sacer) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png` | new (tomb bat; the giant bat uses the same files with its own texture) |
+| Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_att,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |

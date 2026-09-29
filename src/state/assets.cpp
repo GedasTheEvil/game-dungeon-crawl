@@ -61,6 +61,19 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Fly,
 	 {0.45f, 0.05f, 0.05f}},
+	// Scale and yaw of the treasure chest item: idle, it looks just like one.
+	{MonsterMimic,
+	 "Mimic",
+	 "monsters/mimic",
+	 "monsters/mimic",
+	 0,
+	 40,
+	 10,
+	 1500,
+	 8,
+	 0,
+	 Locomotion::Ambush,
+	 {0.5f, 0.05f, 0.1f}},
 };
 
 struct ItemDef {
@@ -135,7 +148,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		Texture tex;
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[def.id];
-		type.model.Load(def.model, tex, MONSTER_CLIPS);
+		type.model.Load(def.model, tex, def.locomotion == Locomotion::Ambush ? AMBUSH_CLIPS : MONSTER_CLIPS);
 		type.speed = def.speed;
 		type.maxHealth = def.maxHealth;
 		type.damage = def.damage;

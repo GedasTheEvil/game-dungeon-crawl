@@ -165,6 +165,10 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 	case Door:
 		arch(sk, x, y, t.attr == GateExit ? PENCIL_RED : (t.attr == GateRiddle ? LOCK_PENCILS[1] : GRAPHITE), seed);
 		break;
+	case MonsterSpawn: // only a mimic gets a symbol: the chest it pretends to be
+		if (t.attr != MonsterMimic)
+			break;
+		[[fallthrough]];
 	case Treasure: // X marks the spot
 		sk.pencil(x + 0.25f, y + 0.2f, x + 0.75f, y + 0.7f, PENCIL_RED, 0.95f, seed);
 		sk.pencil(x + 0.25f, y + 0.7f, x + 0.75f, y + 0.2f, PENCIL_RED, 0.95f, seed + 1);

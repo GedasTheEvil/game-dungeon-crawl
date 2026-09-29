@@ -27,7 +27,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	health = kind.maxHealth;
 	x = 0.f;
 	alerted = false;
-	state = flies() ? ModelState::Idle : ModelState::Move;
+	state = flies() || type->locomotion == Locomotion::Ambush ? ModelState::Idle : ModelState::Move;
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
@@ -44,6 +44,11 @@ void Monster::Clear() {
 	col = -1;
 	row = -1;
 	health = 0;
+}
+
+bool Monster::LeavesChest() const {
+	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
+		   type->model.Finished(state, playback);
 }
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
@@ -155,6 +160,8 @@ void Monster::Draw(float px, float py) {
 		if (state == ModelState::Die) {
 			if (flies())
 				enter(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
+			else if (lurking())
+				enter(ModelState::Idle);
 			else if (!attackDirection(px, py))
 				enter(ModelState::Attack);
 			else
@@ -169,6 +176,8 @@ void Monster::Draw(float px, float py) {
 	if (Alive()) {
 		if (jumping())
 			facing = leap.toX > leap.fromX ? 1 : -1;
+		else if (lurking())
+			facing = 0; // a chest doesn't turn to look at the player
 		else if (!flies())
 			facing = attackDirection(px, py);
 		else

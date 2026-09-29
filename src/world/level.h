@@ -44,8 +44,9 @@ enum MonsterTypeId : unsigned char {
 	MonsterGiantRat = 6,
 	MonsterBat = 7,
 	MonsterGiantBat = 8,
+	MonsterMimic = 9,
 };
-constexpr int MONSTER_TYPE_MAX = MonsterGiantBat;
+constexpr int MONSTER_TYPE_MAX = MonsterMimic;
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

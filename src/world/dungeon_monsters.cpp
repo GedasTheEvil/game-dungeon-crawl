@@ -5,6 +5,7 @@
 #include <memory>
 #include "../graphics/render_config.h"
 #include "../core/gameplay_config.h"
+#include "loot.h"
 
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))
@@ -45,6 +46,16 @@ void Dungeon::UpdateMonsters() {
 			mon.UpdateJump();
 			continue;
 		}
+
+		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
+			LootItem loot = RollMimicLoot();
+			map[MapIndex(mon.Col(), mon.Row())] = Tile{Treasure, loot.type, loot.id};
+			mon.Clear();
+			continue;
+		}
+
+		if (mon.Alive() && !Game().hasWon && mon.Lurk(mapX, mapY))
+			continue;
 
 		if (mon.Alive() && !Game().hasWon && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);

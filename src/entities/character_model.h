@@ -31,6 +31,11 @@ inline const ClipFiles MONSTER_CLIPS = {{ModelState::Move, "", true, true},
 										{ModelState::Die, "_die", true, false},
 										{ModelState::Idle, "_idle", false, true},
 										{ModelState::Jump, "_jump", false, false}};
+// Ambushers (the mimic): the idle clip is the disguise and the reference, so the awake loop never has to show it.
+inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
+									   {ModelState::Move, "", true, true},
+									   {ModelState::Attack, "_att", true, true},
+									   {ModelState::Die, "_die", true, false}};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Move, "_walk", true, true},
@@ -50,7 +55,7 @@ class CharacterModel {
 	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
 	float referenceTop = 1.f;
 	float idleBottom = 0.f, idleTop = 1.f;
-	Sound dieSound, attackSound, jumpSound; // sounds/<category>/<name>_{die,att,jump}.wav, all optional
+	Sound dieSound, attackSound, jumpSound, wakeSound; // sounds/<category>/<name>_{die,att,jump,wake}.wav, all optional
 
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
 	bool Load(const char* name, const Texture& tex, const ClipFiles& files);
@@ -65,6 +70,8 @@ class CharacterModel {
 	void BindTexture() const { texture.Bind(); }
 	void Show(ModelState state, const ClipPlayback& playback) const;
 	void Advance(ModelState state, ClipPlayback& playback) const;
+	// A one-shot clip (die, jump) has reached its last frame.
+	[[nodiscard]] bool Finished(ModelState state, const ClipPlayback& playback) const;
 };
 
 #endif

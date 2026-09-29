@@ -61,7 +61,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.6, scarab 1, bat 1.2, plant 1.5, worm 2.5, giant rat 3,
-giant bat 3.5, Anubis 8):
+giant bat 3.5, mimic 2, Anubis 8):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
@@ -95,6 +95,9 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    unlock with the difficulty: rat and scarab from 1, bat from 2, plant and worm from 3, giant rat from 4,
    giant bat from 5, Anubis from 8.
    At most 4 + 2 × difficulty monsters.
+   From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
+   keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
+   A mimic is `M` in the legend; the draft map shows it as a chest.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose

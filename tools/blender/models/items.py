@@ -135,16 +135,16 @@ def wrap(b, mat, z0, z1, r, turns, n=6, steps=10):
     b.add(tube([(p, 0.0035, 0.0035) for p in pts], sub=1, n=n, ref=V((0, 0, 1))), mat, "root")
 
 
-def gem(b, M, centre, normal, rx, rz, depth, bezel=0.003):
+def gem(b, M, centre, normal, rx, rz, depth, bezel=0.003, bone="root"):
     """Cabochon in an enamel bezel, domed along normal, with a glint (as in mechanism.gem)."""
     c, nrm = V(centre), V(normal).normalized()
     up = V((0, 0, 1)) if abs(nrm.z) < 0.9 else V((0, 1, 0))
-    b.add(ellipsoid(c, (rx + bezel, rz + bezel, depth * 0.5), n=12, rings=4, axis=nrm, ref=up), M["enamel"], "root", "gem")
-    b.add(ellipsoid(c, (rx, rz, depth), n=12, rings=5, axis=nrm, ref=up), M["gem"], "root", "gem")
+    b.add(ellipsoid(c, (rx + bezel, rz + bezel, depth * 0.5), n=12, rings=4, axis=nrm, ref=up), M["enamel"], bone, "gem")
+    b.add(ellipsoid(c, (rx, rz, depth), n=12, rings=5, axis=nrm, ref=up), M["gem"], bone, "gem")
     left = nrm.cross(up)
     g = c + nrm * (depth * 0.82) + up * (rz * 0.38) + left * (rx * 0.3)
     s = min(rx, rz) * 0.22
-    b.add(ellipsoid(g, (s, s * 1.3, s * 0.5), n=6, rings=3, axis=nrm, ref=up), M["glint"], "root", "gem")
+    b.add(ellipsoid(g, (s, s * 1.3, s * 0.5), n=6, rings=3, axis=nrm, ref=up), M["glint"], bone, "gem")
 
 
 # ---------------------------------------------------------------- weapons
@@ -308,9 +308,10 @@ LID_H = 0.09
 LID_OPEN = 105.0  # degrees
 
 
-def build_chest(b, M):
+def build_chest(b, M, lid_bone="root", heap_bone="root"):
     """Painted cedar chest on short legs, gold corner caps and studs, a blue-red-gold frieze and ankh plaques
-    on the front, red lining, the vaulted lid open towards the back, a heap of gold coins and a gem inside."""
+    on the front, red lining, the vaulted lid open towards the back, a heap of gold coins and a gem inside.
+    lid_bone / heap_bone: vertex weights of the lid and of the treasure (the mimic, mimic.py, rigs them)."""
     w, d, h, leg, t = CHEST_W, CHEST_D, CHEST_H, CHEST_LEG, CHEST_WALL
     z0, z1 = leg, leg + h
     # Walls as boxes (outside cedar, inside lining) and the floor.
@@ -360,26 +361,26 @@ def build_chest(b, M):
         return z1 - 0.07 + mh * max(0.0, 1 - q) ** 0.7 - 0.03 * q
 
     grid = decor.surface(lambda u, v: (mx * (2 * u - 1), my * (2 * v - 1), mound(mx * (2 * u - 1), my * (2 * v - 1))), 16, 8)
-    b.add(grid, M["gold_heap"], "root")
+    b.add(grid, M["gold_heap"], heap_bone)
     for k in range(60):
         x, y = rnd.uniform(-mx * 0.9, mx * 0.9), rnd.uniform(-my * 0.9, my * 0.9)
         tilt = rot(x=rnd.uniform(-30, 30), y=rnd.uniform(-30, 30))
-        b.add(place(spindle([(-0.002, 0.02), (0.002, 0.02)], n=10, sub=1), tilt, (x, y, mound(x, y) + 0.004)), M["gold"], "root")
-    gem(b, M, (0.22, -0.06, mound(0.22, -0.06) + 0.012), (0.3, -0.5, 1), 0.025, 0.02, 0.018)
-    gem(b, M, (-0.25, 0.05, mound(-0.25, 0.05) + 0.01), (-0.2, -0.4, 1), 0.02, 0.018, 0.015)
+        b.add(place(spindle([(-0.002, 0.02), (0.002, 0.02)], n=10, sub=1), tilt, (x, y, mound(x, y) + 0.004)), M["gold"], heap_bone)
+    gem(b, M, (0.22, -0.06, mound(0.22, -0.06) + 0.012), (0.3, -0.5, 1), 0.025, 0.02, 0.018, bone=heap_bone)
+    gem(b, M, (-0.25, 0.05, mound(-0.25, 0.05) + 0.01), (-0.2, -0.4, 1), 0.02, 0.018, 0.015, bone=heap_bone)
     # Lid: vaulted top over a flat frame, hinged on the back top edge and swung open.
     lid = Builder()
     lw, ld = w + 0.02, d + 0.02
-    lid.add(place(box(lw, ld, 0.03), loc=(0, 0, 0.015)), M["cedar_grain"], "root")
+    lid.add(place(box(lw, ld, 0.03), loc=(0, 0, 0.015)), M["cedar_grain"], lid_bone)
     arch = []
     for k in range(9):
         a = math.pi * k / 8
         arch.append((ld / 2 * math.cos(a), 0.03 + (LID_H - 0.03) * math.sin(a)))
-    lid.add(prism_x(arch, lw - 0.01), M["cedar"], "root")
-    lid.add(place(box(lw - 0.12, ld - 0.12, 0.004), loc=(0, 0, -0.002)), M["lining"], "root")
+    lid.add(prism_x(arch, lw - 0.01), M["cedar"], lid_bone)
+    lid.add(place(box(lw - 0.12, ld - 0.12, 0.004), loc=(0, 0, -0.002)), M["lining"], lid_bone)
     for x in (-lw / 2 + 0.02, 0, lw / 2 - 0.02):
-        lid.add(transform(prism_x([(p[0] * 1.03, p[1] * 1.03) for p in arch], 0.03), lambda v, x=x: V((v.x + x, v.y, v.z))), M["gold"], "root")
-    lid.add(place(box(lw - 0.06, 0.004, 0.022), loc=(0, -ld / 2 - 0.002, 0.015)), M["frieze"], "root")
+        lid.add(transform(prism_x([(p[0] * 1.03, p[1] * 1.03) for p in arch], 0.03), lambda v, x=x: V((v.x + x, v.y, v.z))), M["gold"], lid_bone)
+    lid.add(place(box(lw - 0.06, 0.004, 0.022), loc=(0, -ld / 2 - 0.002, 0.015)), M["frieze"], lid_bone)
     # Swing it open round the back top edge of the box: the lid's back edge on the hinge, the top turned to +Y.
     hinge = V((0, d / 2 + 0.01, z1))
     r = rot(x=-LID_OPEN)

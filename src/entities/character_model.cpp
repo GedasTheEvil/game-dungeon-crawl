@@ -40,8 +40,10 @@ bool CharacterModel::Load(const char* name, const Texture& tex, const ClipFiles&
 	}
 
 	const std::string sound = std::string("sounds/") + name;
-	for (auto [suffix, target] :
-		 {std::pair{"_die.wav", &dieSound}, {"_att.wav", &attackSound}, {"_jump.wav", &jumpSound}})
+	for (auto [suffix, target] : {std::pair{"_die.wav", &dieSound},
+								  {"_att.wav", &attackSound},
+								  {"_jump.wav", &jumpSound},
+								  {"_wake.wav", &wakeSound}})
 		if (std::string path = sound + suffix; std::filesystem::exists(path))
 			target->Load(path.c_str());
 
@@ -75,4 +77,9 @@ void CharacterModel::Show(ModelState state, const ClipPlayback& playback) const 
 void CharacterModel::Advance(ModelState state, ClipPlayback& playback) const {
 	const ModelState shown = Shown(state);
 	Clip(shown)->Advance(playback[static_cast<int>(shown)]);
+}
+
+bool CharacterModel::Finished(ModelState state, const ClipPlayback& playback) const {
+	const ModelState shown = Shown(state);
+	return playback[static_cast<int>(shown)].frame >= static_cast<float>(Clip(shown)->FrameCount() - 1);
 }

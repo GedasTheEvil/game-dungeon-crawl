@@ -50,3 +50,9 @@ std::vector<LootItem> RollChestLoot(int type, int id) {
 		loot.push_back(WEAPON_GRADES[static_cast<size_t>(rand() % grade)]);
 	return loot;
 }
+
+LootItem RollMimicLoot() {
+	if (chance(50))
+		return WEAPON_GRADES[static_cast<size_t>(rand()) % WEAPON_GRADES.size()];
+	return {ItemType::POTION, rand() % PotionId::COUNT};
+}

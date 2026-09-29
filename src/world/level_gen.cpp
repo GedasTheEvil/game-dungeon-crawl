@@ -13,6 +13,8 @@ constexpr int MAX_ATTEMPTS = 80;
 constexpr int SEGMENT_TRIES = 60;
 constexpr int MONSTER_GAP = 3;		// cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
+constexpr int MIMIC_MIN_DIFFICULTY = 2;
+constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_DIFFICULTY on
 
 // Item types and ids as in ui/inventory.h (not included: it pulls in GL).
 constexpr int ITEM_MELEE = 1;
@@ -54,7 +56,7 @@ struct Segment {
 
 class LevelBuilder {
   public:
-	LevelBuilder(uint32_t seed, int difficulty) : rng(seed), d(difficulty) {
+	LevelBuilder(uint32_t seed, int difficulty) : rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty) {
 		for (Tile& t : g.cells)
 			t = Tile{Wall, 0, 0};
 		used.assign(CELLS, 0);
@@ -79,6 +81,7 @@ class LevelBuilder {
 
   private:
 	Rng rng;
+	Rng mimicRng; // its own stream, so mimics leave the layout rolls of a seed alone
 	int d;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -299,7 +302,15 @@ class LevelBuilder {
 		}
 	}
 
+	// A treasure chest, or now and then a mimic in its place.
 	Tile randomTreasure() {
+		Tile chest = randomChest();
+		if (d >= MIMIC_MIN_DIFFICULTY && mimicRng.chance(MIMIC_CHANCE))
+			return Tile{MonsterSpawn, MonsterMimic, 0};
+		return chest;
+	}
+
+	Tile randomChest() {
 		int roll = rng.range(0, 99);
 		if (roll < 62) {
 			// small health, large health, might, armour, life, small stamina, large stamina

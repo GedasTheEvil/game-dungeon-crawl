@@ -9,7 +9,7 @@ int Monster::attackDirection(float px, float py) const {
 	const auto tileX = static_cast<float>(col);
 	if (!sameRow(py))
 		return 0;
-	if (type->locomotion == Locomotion::Stationary) {
+	if (rooted()) {
 		if (px - tileX - 0.5 > 0.2 + 0.02 * scale)
 			return 1;
 		if (px - tileX - 0.5 < -0.2 - 0.02 * scale)
@@ -31,7 +31,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (dir == 0)
 		return false;
 
-	if (type->locomotion != Locomotion::Stationary)
+	if (!rooted())
 		alerted = true; // chasing the player
 	if (!blocked)
 		x += MONSTER_SEEK_STEP * static_cast<float>(dir * type->speed);
@@ -49,6 +49,19 @@ void Monster::Attack(float py) {
 		Game().player->TakeHit(type->damage);
 		type->model.attackSound.Play();
 	}
+}
+
+bool Monster::Lurk(float px, float py) {
+	if (!lurking())
+		return false;
+	if (!sameRow(py) || std::fabs(px - CentreX()) > MIMIC_WAKE_RANGE) {
+		enter(ModelState::Idle);
+		return true;
+	}
+	alerted = true;
+	enter(ModelState::Move);
+	type->model.wakeSound.Play();
+	return false;
 }
 
 float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * MONSTER_WALL_MARGIN; }

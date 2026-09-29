@@ -12,4 +12,7 @@ struct LootItem {
 // Uses rand(), so scenario runs with a fixed seed get the same loot every time.
 std::vector<LootItem> RollChestLoot(int type, int id);
 
+// The item in the chest a killed mimic leaves: any weapon or potion, even odds for weapon or potion.
+LootItem RollMimicLoot();
+
 #endif

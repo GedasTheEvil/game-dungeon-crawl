@@ -9,6 +9,8 @@
 // How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
 enum class Locomotion : unsigned char {
 	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
+	Ambush,		// rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
+				// killed, it leaves a real treasure chest on its tile
 	Walk,		// follows the player along its row
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
@@ -86,6 +88,12 @@ class Monster {
 	[[nodiscard]] bool Alive() const { return health > 0; }
 	[[nodiscard]] bool Alerted() const { return alerted; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
+	[[nodiscard]] bool rooted() const {
+		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
+	}
+	[[nodiscard]] bool lurking() const { return type->locomotion == Locomotion::Ambush && !alerted; }
+	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
+	[[nodiscard]] bool LeavesChest() const;
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
@@ -97,6 +105,8 @@ class Monster {
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
 	void Attack(float py);
+	// Ambushers: true while still disguised; wakes (and returns false) once the player is MIMIC_WAKE_RANGE close.
+	bool Lurk(float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls

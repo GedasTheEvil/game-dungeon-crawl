@@ -1,0 +1,4 @@
+; A treasure chest (col 5) and a mimic (col 8) side by side (tests/scenarios/mimic.txt).
+########################################
+#S...$..M.....E#########################
+########################################

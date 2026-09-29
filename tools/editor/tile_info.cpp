@@ -39,10 +39,15 @@ const Choices GATE_TYPES = {
 };
 
 const Choices MONSTER_TYPES = {
-	{MonsterScarab, "scarab", "Scarab"}, {MonsterWorm, "worm", "Worm"},
-	{MonsterPlant, "plant", "Plant"},	 {MonsterAnubis, "anubis", "Anubis"},
-	{MonsterRat, "rat", "Rat"},			 {MonsterGiantRat, "giant rat", "Giant rat"},
-	{MonsterBat, "bat", "Bat"},			 {MonsterGiantBat, "giant bat", "Giant bat"},
+	{MonsterScarab, "scarab", "Scarab"},
+	{MonsterWorm, "worm", "Worm"},
+	{MonsterPlant, "plant", "Plant"},
+	{MonsterAnubis, "anubis", "Anubis"},
+	{MonsterRat, "rat", "Rat"},
+	{MonsterGiantRat, "giant rat", "Giant rat"},
+	{MonsterBat, "bat", "Bat"},
+	{MonsterGiantBat, "giant bat", "Giant bat"},
+	{MonsterMimic, "mimic", "Mimic, a treasure chest until the player comes near"},
 };
 
 const Choices LOCK_COLOURS = {

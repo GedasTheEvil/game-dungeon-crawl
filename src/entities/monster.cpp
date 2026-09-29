@@ -26,6 +26,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	row = spawnRow;
 	health = kind.maxHealth;
 	x = 0.f;
+	alerted = false;
 	state = flies() ? ModelState::Idle : ModelState::Move;
 	facing = 0;
 	flight = Flight{};
@@ -54,6 +55,7 @@ bool Monster::Nearby(float px, float py, int range) const {
 
 bool Monster::takeHit(int dmg) {
 	const int scale = static_cast<int>(type->scale);
+	alerted = true;
 	if (Alive()) {
 		health -= dmg;
 		blood->setCords(static_cast<float>(random() % scale), static_cast<float>(random() % scale), 0);
@@ -135,7 +137,7 @@ void Monster::Draw(float px, float py) {
 	glTranslatef(40 * x - 20, flies() ? flight.lift : leap.lift, -30);
 	glPushMatrix(); // will add rotation
 
-	if (Alive())
+	if (Alive() && alerted) // idle monsters keep up the disguise
 		drawHealthBar();
 
 	glScalef(scale, scale, scale);

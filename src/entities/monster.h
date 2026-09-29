@@ -65,6 +65,8 @@ class Monster {
 	std::unique_ptr<ParticleSystem> blood;
 	Timer stepTimer{70}, attackTimer{800};
 	bool spawned = false; // the timers start on the first spawn
+	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
+	bool alerted = false;
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void drawHealthBar();
@@ -82,6 +84,7 @@ class Monster {
 	[[nodiscard]] int Health() const { return health; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
 	[[nodiscard]] bool Alive() const { return health > 0; }
+	[[nodiscard]] bool Alerted() const { return alerted; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;

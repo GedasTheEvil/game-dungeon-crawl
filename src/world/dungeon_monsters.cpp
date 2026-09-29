@@ -67,6 +67,14 @@ void Dungeon::UpdateMonsters() {
 	}
 }
 //======================================================================================
+int Dungeon::MonsterBarsShown() const {
+	int n = 0;
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && mon.Alerted())
+			n++;
+	return n;
+}
+//======================================================================================
 void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();

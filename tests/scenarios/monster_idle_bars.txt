@@ -1,0 +1,17 @@
+# Health bars stay hidden until a monster acts on the player (tests/levels/idle_monsters): the roosting bat
+# shows its bar when it swoops, the plant when it bites, the scarab on a corridor out of reach never.
+seed 1
+god
+level tests/levels/idle_monsters
+wait 30
+walk right 3.6
+expect bars == 0
+screenshot bat_roost
+walk right 0.25
+wait 6
+expect bars == 1
+screenshot bat_awake
+walk right 7.4
+wait 3s
+expect bars == 2
+screenshot plant_bites

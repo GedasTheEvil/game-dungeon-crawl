@@ -31,6 +31,8 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (dir == 0)
 		return false;
 
+	if (type->locomotion != Locomotion::Stationary)
+		alerted = true; // chasing the player
 	if (!blocked)
 		x += MONSTER_SEEK_STEP * static_cast<float>(dir * type->speed);
 	enter(ModelState::Move);
@@ -43,6 +45,7 @@ void Monster::Attack(float py) {
 
 	enter(ModelState::Attack);
 	if (sameRow(py)) {
+		alerted = true;
 		Game().player->TakeHit(type->damage);
 		type->model.attackSound.Play();
 	}
@@ -86,6 +89,7 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		flight.phase = FlightPhase::Swoop;
 		flight.dir = dx >= 0 ? 1 : -1;
 		flight.bitten = false;
+		alerted = true;
 		[[fallthrough]];
 	case FlightPhase::Swoop: {
 		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front

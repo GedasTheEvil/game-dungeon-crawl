@@ -107,6 +107,7 @@ class Dungeon {
 	void Interact();
 	bool PullLever(); // interact on a lever cell; false if there is none
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
+	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.
 	static constexpr int EXPLORE_RADIUS = 1; // cells to each side: a 3 x 3 square
 	[[nodiscard]] bool Explored(int col, int row) const { return IsInBounds(col, row) && explored[MapIndex(col, row)]; }

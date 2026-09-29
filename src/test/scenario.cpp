@@ -77,6 +77,7 @@ enum class Field : unsigned char {
 	Keys,
 	XpTotal,
 	Riddle,
+	Bars,
 	ItemCount,
 	ItemLevel
 };
@@ -203,6 +204,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:
 		return Game().ui.riddle->show ? 1.f : 0.f;
+	case Field::Bars:
+		return static_cast<float>(Game().dungeon.MonsterBarsShown());
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.itemType, cmd.itemId));
 	case Field::ItemLevel:
@@ -350,7 +353,8 @@ bool parseField(const std::string& word, Field& field) {
 				  {"equip_id", Field::EquipId},
 				  {"keys", Field::Keys},
 				  {"xp", Field::XpTotal},
-				  {"riddle", Field::Riddle}};
+				  {"riddle", Field::Riddle},
+				  {"bars", Field::Bars}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;

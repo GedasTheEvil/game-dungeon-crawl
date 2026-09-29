@@ -56,7 +56,9 @@ void PlayerStats::RegenerateStamina() {
 	if (!stamina_regen_timer.TimePassed())
 		return;
 
-	stamina_regen_carry += 0.02f * static_cast<float>(MaxStamina());
+	// 5% of max per second at level 1, +0.5% per level, up to 15%
+	const float regenRate = std::min(0.05f + 0.005f * static_cast<float>(level - 1), 0.15f);
+	stamina_regen_carry += regenRate * static_cast<float>(MaxStamina());
 
 	int staminaGain = static_cast<int>(stamina_regen_carry);
 	if (staminaGain <= 0)
@@ -115,6 +117,7 @@ bool PlayerStats::AdvanceLevel() {
 
 	MaxHP += 20;
 	HP = MaxHP;
+	SetStamina(MaxStamina());
 
 	Game().ShowStatus("Now you are level %d\n", level);
 

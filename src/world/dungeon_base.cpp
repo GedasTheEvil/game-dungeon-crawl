@@ -57,6 +57,11 @@ Dungeon::Dungeon() {
 //======================================================================================
 void Dungeon::UpdateMovementState() {
 	if (Map(mapX, mapY).type != Ladder && !Game().player->jump.jumping) {
+		// Climbing steps leave float drift (38.9999 for 39): without the snap a jump off the ladder lands a hair
+		// below the floor top, falls and ends up inside the floor tile.
+		float nearestRow = std::round(mapY);
+		if (std::fabs(mapY - nearestRow) < FALL_START_THRESHOLD)
+			mapY = nearestRow;
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			!isSolidTile(Map(mapX, mapY - 1))) {
 			JumpState& jump = Game().player->jump;

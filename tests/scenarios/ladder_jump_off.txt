@@ -1,0 +1,22 @@
+# Jump sideways off the ladder (level 1 shaft at x 17) onto the row 39 ledge. Climbing leaves float drift in y
+# (38.9999 for 39): the landing must stand on the ledge, not sink into the floor tile below.
+seed 1
+god
+level 1
+wait 30
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+walk right 3.4
+wait 10
+walk down 3.0
+walk right 0.3
+jump
+wait 2s
+expect y == 39
+walk right 1
+expect x > 19.5
+expect alive == 1
+quit

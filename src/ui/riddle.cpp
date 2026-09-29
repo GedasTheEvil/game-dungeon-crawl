@@ -293,26 +293,8 @@ void Riddle::Draw() {
 }
 
 void Riddle::DrawBackground() {
-	Rect area = visibleArea();
-	constexpr float CENTRE = CANVAS_W / 2;
-
-	// Carved tomb wall in torchlight, as behind the inventory.
-	glDisable(GL_BLEND);
-	texturedRect(area, Game().assets.textures.loadingBackground.ID(), {0.34f, 0.27f, 0.20f});
-
-	beginShapes();
-	constexpr float VIGNETTE = 22.f;
-	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
-
-	const char* titleText = "Riddle of the Gate";
-	float titleHalf = title.TextWidth(titleText) / 2 + 4;
-	constexpr float RULE_Y = 91.5f;
-	line(CENTRE - 72, RULE_Y, CENTRE - titleHalf, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	line(CENTRE + titleHalf, RULE_Y, CENTRE + 72, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	diamond(CENTRE - 72, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE + 72, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
-	diamond(CENTRE + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	titleBar(title, CANVAS_W / 2, "Riddle of the Gate", 72.f);
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
@@ -328,10 +310,6 @@ void Riddle::DrawBackground() {
 	beginShapes();
 	strokeRect(SCROLL, BRONZE, 1.f, 3.f);
 	cornerStuds(SCROLL);
-
-	beginText();
-	textCentered(title, CENTRE, 88.f, titleText, GOLD);
-	beginShapes();
 }
 
 void Riddle::DrawScroll() {

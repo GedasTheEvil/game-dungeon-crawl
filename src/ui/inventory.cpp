@@ -447,6 +447,10 @@ void Inventory::SpecialKeyPressed(int key) {
 
 // ---- drawing ---------------------------------------------------------------
 
+bool Inventory::SlotHeld(int slot) const {
+	return pressed == Target::Slot && pressedSlot == slot && slot == hoveredSlot;
+}
+
 void Inventory::Draw() {
 	int now = GameClock::now();
 	int elapsed = now - lastFrameMs;
@@ -499,38 +503,8 @@ void Inventory::Draw() {
 }
 
 void Inventory::DrawBackground() {
-	Rect area = visibleArea();
-
-	// Carved tomb wall in torchlight.
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	Game().assets.textures.loadingBackground.Bind();
-	glColor3f(0.34f, 0.27f, 0.20f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex2f(area.x, area.y);
-	glTexCoord2f(1, 0);
-	glVertex2f(area.x + area.w, area.y);
-	glTexCoord2f(1, 1);
-	glVertex2f(area.x + area.w, area.y + area.h);
-	glTexCoord2f(0, 1);
-	glVertex2f(area.x, area.y + area.h);
-	glEnd();
-
-	beginShapes();
-	constexpr float VIGNETTE = 22.f;
-	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
-
-	// Title ornament: gold rules ending in diamonds either side of the title.
-	float titleHalf = title.TextWidth("Inventory") / 2 + 4;
-	constexpr float RULE_Y = 91.5f;
-	constexpr float CENTRE = CANVAS_W / 2;
-	line(CENTRE - 58, RULE_Y, CENTRE - titleHalf, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	line(CENTRE + titleHalf, RULE_Y, CENTRE + 58, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	diamond(CENTRE - 58, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE + 58, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
-	diamond(CENTRE + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	titleBar(title, CANVAS_W / 2, "Inventory", 58.f);
 
 	panel(ITEMS_PANEL, 0.9f);
 
@@ -561,7 +535,6 @@ void Inventory::DrawBackground() {
 	diamond(DETAIL_PANEL.x, DETAIL_PANEL.y + DETAIL_PANEL.h, 1.2f, GOLD, 1.f);
 
 	beginText();
-	textCentered(title, CENTRE, 88.f, "Inventory", GOLD);
 	text(heading, ITEMS_PANEL.x + 5, 77.f, "Arms", GOLD);
 	text(heading, ITEMS_PANEL.x + 5, ELIXIRS_Y, "Elixirs", GOLD);
 	beginShapes();
@@ -571,7 +544,7 @@ void Inventory::DrawSlot(int slot) {
 	Rect r = slotRect(slot);
 	bool hovered = slot == hoveredSlot;
 	bool selected = slot == selectedSlot;
-	bool held = pressed == Target::Slot && pressedSlot == slot && hovered;
+	bool held = SlotHeld(slot);
 	bool owned = counts[slot] > 0;
 
 	if (selected) {
@@ -582,19 +555,7 @@ void Inventory::DrawSlot(int slot) {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	Color top = STONE_TOP;
-	Color bottom = STONE_BOTTOM;
-	if (held) {
-		top = STONE_BOTTOM;
-		bottom = {0.07f, 0.05f, 0.035f};
-	} else if (hovered || selected) {
-		top = {0.33f, 0.25f, 0.15f};
-		bottom = {0.17f, 0.13f, 0.08f};
-	}
-	fillRect(r, top, bottom, 1.f);
-
-	if (held) // inner shadow along the top edge: the tile looks pushed in
-		fillRect({r.x, r.y + r.h - 1.5f, r.w, 1.5f}, {0, 0, 0}, {0, 0, 0}, 0.45f);
+	r = tile(r, TileStyle::Stone, hovered || selected, held);
 
 	// Name band: lapis for the weapon in hand, dark stone otherwise.
 	Rect band = {r.x, r.y, r.w, NAME_BAND_H};
@@ -610,10 +571,8 @@ void Inventory::DrawSlot(int slot) {
 	if (selected) {
 		strokeRect(r, GOLD, 1.f, 3.f);
 		strokeRect(r.inset(0.9f), GOLD, 0.45f, 1.f);
-	} else if (hovered) {
-		strokeRect(r, {1.f, 0.88f, 0.55f}, 1.f, 2.f);
 	} else {
-		strokeRect(r, BRONZE, 1.f, 1.5f);
+		tileFrame(r, TileStyle::Stone, hovered);
 	}
 
 	// Count badge for stacks.
@@ -645,7 +604,7 @@ void Inventory::DrawSlot(int slot) {
 
 void Inventory::DrawSlotModel(int slot) {
 	Rect r = slotRect(slot);
-	bool held = pressed == Target::Slot && pressedSlot == slot && slot == hoveredSlot;
+	bool held = SlotHeld(slot);
 	Item* model = SlotItem(slot);
 
 	Color tint = {1, 1, 1};
@@ -662,7 +621,7 @@ void Inventory::DrawSlotModel(int slot) {
 	model->rotA = slotAngle[slot];
 	glColor3f(tint.r, tint.g, tint.b);
 	glPushMatrix();
-	glTranslatef(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? 0.4f : 0.f), 0);
+	glTranslatef(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? TILE_SINK : 0.f), 0);
 	model->Draw();
 	glPopMatrix();
 	model->scale = savedScale;
@@ -671,6 +630,8 @@ void Inventory::DrawSlotModel(int slot) {
 
 void Inventory::DrawSlotLabels(int slot) {
 	Rect r = slotRect(slot);
+	if (SlotHeld(slot))
+		r.y -= TILE_SINK;
 	bool owned = counts[slot] > 0;
 	bool lit = slot == selectedSlot || slot == hoveredSlot;
 
@@ -800,36 +761,11 @@ void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	bool hovered = enabled && hoveredButton == which;
 	bool held = hovered && pressed == which;
 	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (isPotion(selectedSlot) ? WIDE_BUTTON : EQUIP_BUTTON);
-	float sink = held ? 0.4f : 0.f;
-
-	if (enabled) {
-		// Drop shadow, then the lapis tile; it sinks onto the shadow while held.
-		fillRect({r.x + 0.5f, r.y - 0.7f, r.w, r.h}, BLACK, BLACK, held ? 0.f : 0.35f);
-		r.y -= sink;
-		if (hovered) {
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			ring(r, 2.f, GOLD, 0.4f, 0.f);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		Color top = hovered ? Color{0.20f, 0.40f, 0.78f} : LAPIS;
-		Color bottom = hovered ? Color{0.09f, 0.20f, 0.46f} : LAPIS_DARK;
-		if (held) {
-			top = LAPIS_DARK;
-			bottom = {0.03f, 0.07f, 0.18f};
-		}
-		fillRect(r, top, bottom, 1.f);
-		if (!held) // top highlight
-			fillRect({r.x, r.y + r.h - 1.f, r.w, 1.f}, {1, 1, 1}, {1, 1, 1}, hovered ? 0.18f : 0.1f);
-		strokeRect(r, hovered ? Color{1.f, 0.88f, 0.55f} : GOLD, 1.f, 2.5f);
-		strokeRect(r.inset(0.8f), GOLD_DIM, 0.6f, 1.f);
-	} else {
-		fillRect(r, {0.62f, 0.52f, 0.38f}, {0.55f, 0.45f, 0.32f}, 0.6f);
-		strokeRect(r, INK_FADED, 0.9f, 1.5f);
-	}
+	r = tile(r, enabled ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 
 	beginText();
 	if (enabled)
-		textCentered(heading, r.cx(), r.y + 1.3f, label, hovered ? Color{1.f, 0.92f, 0.65f} : GOLD);
+		textCentered(heading, r.cx(), r.y + 1.3f, label, hovered ? TEXT_HOVER : GOLD);
 	else
 		textCentered(body, r.cx(), r.y + 1.9f, label, INK_FADED);
 	beginShapes();

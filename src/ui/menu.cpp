@@ -29,10 +29,6 @@ constexpr int GLUT_BUTTON_UP = 1;
 
 constexpr Color LABEL = {0.86f, 0.72f, 0.47f};
 constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f};
-constexpr Color LAPIS_HOVER_TOP = {0.20f, 0.40f, 0.78f};
-constexpr Color LAPIS_HOVER_BOTTOM = {0.09f, 0.20f, 0.46f};
-constexpr Color STONE_HOVER_TOP = {0.33f, 0.25f, 0.15f};
-constexpr Color STONE_HOVER_BOTTOM = {0.17f, 0.13f, 0.08f};
 constexpr Color WELL = {0.07f, 0.055f, 0.04f};
 
 // ---- layout ----------------------------------------------------------------
@@ -271,56 +267,6 @@ void drawMouse(float x, float y, MouseInput m) {
 	strokeRect(body, GOLD_DIM, 1.f, 1.f);
 }
 
-// ---- tiles -----------------------------------------------------------------
-
-enum class TileStyle : std::uint8_t { Stone, Lapis, Disabled };
-
-// Raised tile shared by the buttons and the save slots; returns the rect as drawn (it sinks while held).
-Rect drawTile(Rect r, TileStyle style, bool hovered, bool held) {
-	if (style == TileStyle::Disabled) {
-		fillRect(r, {0.10f, 0.08f, 0.06f}, {0.07f, 0.055f, 0.04f}, 0.9f);
-		strokeRect(r, BRONZE, 0.6f, 1.f);
-		return r;
-	}
-
-	fillRect({r.x + 0.5f, r.y - 0.7f, r.w, r.h}, BLACK, BLACK, held ? 0.f : 0.4f);
-	if (held)
-		r.y -= 0.4f;
-	if (hovered) {
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		ring(r, 2.2f, GOLD, 0.4f, 0.f);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	bool lapis = style == TileStyle::Lapis;
-	Color top = lapis ? LAPIS : STONE_TOP;
-	Color bottom = lapis ? LAPIS_DARK : STONE_BOTTOM;
-	if (held) {
-		top = lapis ? LAPIS_DARK : STONE_BOTTOM;
-		bottom = lapis ? Color{0.03f, 0.07f, 0.18f} : Color{0.07f, 0.05f, 0.035f};
-	} else if (hovered) {
-		top = lapis ? LAPIS_HOVER_TOP : STONE_HOVER_TOP;
-		bottom = lapis ? LAPIS_HOVER_BOTTOM : STONE_HOVER_BOTTOM;
-	}
-	fillRect(r, top, bottom, 1.f);
-	if (!held) // top highlight
-		fillRect({r.x, r.y + r.h - 1.f, r.w, 1.f}, {1, 1, 1}, {1, 1, 1}, hovered ? 0.16f : 0.08f);
-
-	if (hovered)
-		strokeRect(r, GOLD_BRIGHT, 1.f, 2.5f);
-	else
-		strokeRect(r, lapis ? GOLD : BRONZE, 1.f, lapis ? 2.5f : 1.5f);
-	if (lapis || hovered)
-		strokeRect(r.inset(0.8f), GOLD_DIM, 0.6f, 1.f);
-	return r;
-}
-
-// Dark square on the left of a tile that holds its icon or number.
-Rect iconWell(const Rect& tile, float inset) {
-	float size = tile.h - 2 * inset;
-	return {tile.x + inset, tile.y + inset, size, size};
-}
-
 // ---- save slots ------------------------------------------------------------
 
 std::string slotFilename(int slot) { return "saves/save" + std::to_string(slot) + ".sav"; }
@@ -446,45 +392,10 @@ void MainMenu::EndFrame() {
 }
 
 void MainMenu::DrawBackground(const char* caption) {
-	Rect area = visibleArea();
 	bool wide = saveD || loadD || optionsD;
-
-	// Carved tomb wall in torchlight.
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	Game().assets.textures.loadingBackground.Bind();
-	glColor3f(0.34f, 0.27f, 0.20f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex2f(area.x, area.y);
-	glTexCoord2f(1, 0);
-	glVertex2f(area.x + area.w, area.y);
-	glTexCoord2f(1, 1);
-	glVertex2f(area.x + area.w, area.y + area.h);
-	glTexCoord2f(0, 1);
-	glVertex2f(area.x, area.y + area.h);
-	glEnd();
-
-	beginShapes();
-	constexpr float VIGNETTE = 22.f;
-	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
-
-	// Title ornament: gold rules ending in diamonds either side of the title.
-	float titleHalf = title.TextWidth(caption) / 2 + 4;
-	float reach = wide ? 58.f : 44.f;
-	constexpr float RULE_Y = 92.f;
-	line(CENTRE - reach, RULE_Y, CENTRE - titleHalf, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	line(CENTRE + titleHalf, RULE_Y, CENTRE + reach, RULE_Y, GOLD_DIM, 1.f, 2.f);
-	diamond(CENTRE - reach, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE + reach, RULE_Y, 1.1f, GOLD, 1.f);
-	diamond(CENTRE - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
-	diamond(CENTRE + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
-
+	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
 	panel(creditsD ? CREDITS_PANEL : optionsD ? OPTIONS_PANEL : (wide ? SLOT_PANEL : MENU_PANEL), 0.9f);
-
-	beginText();
-	textCentered(title, CENTRE, 88.f, caption, GOLD);
-	beginShapes();
 }
 
 void MainMenu::DrawButtons() {
@@ -493,15 +404,15 @@ void MainMenu::DrawButtons() {
 		const MenuButton& b = buttons[static_cast<size_t>(i)];
 		bool isHovered = hovered == i;
 		bool held = isHovered && pressed == i;
-		Rect r = drawTile(buttonRect(i), b.primary ? TileStyle::Lapis : TileStyle::Stone, isHovered, held);
+		Rect r = tile(buttonRect(i), b.primary ? TileStyle::Lapis : TileStyle::Stone, isHovered, held);
 
 		Rect well = iconWell(r, 1.3f);
-		fillRect(well, b.primary ? LAPIS_DARK : WELL, b.primary ? Color{0.03f, 0.07f, 0.18f} : WELL, 0.9f);
+		fillRect(well, b.primary ? LAPIS_DARK : WELL, b.primary ? LAPIS_HELD_BOTTOM : WELL, 0.9f);
 		strokeRect(well, isHovered ? GOLD : GOLD_DIM, 0.8f, 1.f);
 		drawIcon(b.icon, well.cx(), well.cy(), well.h * 0.3f, isHovered ? GOLD_BRIGHT : GOLD);
 
 		beginText();
-		Color c = isHovered ? Color{1.f, 0.92f, 0.65f} : (b.primary ? GOLD : LABEL);
+		Color c = isHovered ? TEXT_HOVER : (b.primary ? GOLD : LABEL);
 		text(heading, well.x + well.w + 4.f, r.y + 2.1f, b.label, c);
 		beginShapes();
 	}
@@ -518,7 +429,7 @@ void MainMenu::DrawSlot(int slot) {
 	bool isHovered = enabled && hovered == slot;
 	bool held = isHovered && pressed == slot;
 	TileStyle style = !enabled ? TileStyle::Disabled : TileStyle::Stone;
-	Rect r = drawTile(slotRect(slot), style, isHovered, held);
+	Rect r = tile(slotRect(slot), style, isHovered, held);
 
 	// Slot number on a lapis seal when the slot holds a save.
 	Rect well = iconWell(r, 2.f);
@@ -558,7 +469,7 @@ void MainMenu::DrawOptions() {
 	for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++) {
 		bool active = tab == optionsTab;
 		bool isHovered = hovered == TAB_BASE + tab;
-		Rect r = drawTile(tabRect(tab), active ? TileStyle::Lapis : TileStyle::Stone, isHovered && !active, false);
+		Rect r = tile(tabRect(tab), active ? TileStyle::Lapis : TileStyle::Stone, isHovered && !active, false);
 		beginText();
 		textCentered(heading, r.cx(), r.y + 1.4f, TABS[static_cast<size_t>(tab)], active ? GOLD : LABEL);
 		beginShapes();
@@ -640,7 +551,7 @@ void MainMenu::DrawCredits() {
 
 void MainMenu::DrawBackButton() {
 	bool isHovered = hovered == BACK;
-	Rect r = drawTile(BACK_BUTTON, TileStyle::Stone, isHovered, isHovered && pressed == BACK);
+	Rect r = tile(BACK_BUTTON, TileStyle::Stone, isHovered, isHovered && pressed == BACK);
 	Color c = isHovered ? GOLD_BRIGHT : LABEL;
 	float labelW = heading.TextWidth("Back");
 	float x0 = r.cx() - (labelW + 6.f) / 2;

@@ -1,8 +1,11 @@
 #ifndef UI_DRAW_H
 #define UI_DRAW_H
 
-// Flat 2D UI look shared by the inventory and the level editor: Egyptian palette, framed panels, two-pass text.
-// Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
+// Flat 2D UI look shared by the game screens and the level editor: Egyptian palette, framed panels, tiles,
+// two-pass text. Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
+// Conventions: docs/ui.md.
+
+#include <cstdint>
 
 class Font;
 
@@ -36,6 +39,14 @@ constexpr Color INK = {0.24f, 0.14f, 0.07f};
 constexpr Color INK_RED = {0.62f, 0.17f, 0.08f};
 constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
 constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
+// Tile states.
+constexpr Color LAPIS_HOVER_TOP = {0.20f, 0.40f, 0.78f};
+constexpr Color LAPIS_HOVER_BOTTOM = {0.09f, 0.20f, 0.46f};
+constexpr Color LAPIS_HELD_BOTTOM = {0.03f, 0.07f, 0.18f};
+constexpr Color STONE_HOVER_TOP = {0.33f, 0.25f, 0.15f};
+constexpr Color STONE_HOVER_BOTTOM = {0.17f, 0.13f, 0.08f};
+constexpr Color STONE_HELD_BOTTOM = {0.07f, 0.05f, 0.035f};
+constexpr Color TEXT_HOVER = {1.f, 0.92f, 0.65f};
 
 // Part of a `canvasW` x `canvasH` layout (y up) seen in a resX x resY window: the canvas keeps its aspect ratio and
 // is centred, the margins of a wider or taller window are added around it.
@@ -56,6 +67,26 @@ void ellipse(float x, float y, float rx, float ry, Color c, float alpha);
 void panel(const Rect& r, float alpha);
 // Gold studs on the four corners.
 void cornerStuds(const Rect& r);
+// Carved wall texture over the whole visible area, darkened towards the edges.
+void backdrop(const Rect& area, int textureId);
+// Screen title centred on `cx` at the top of the 100 high canvas, gold rules either side reaching `reach` from `cx`.
+void titleBar(Font& font, float cx, const char* caption, float reach);
+
+enum class TileStyle : std::uint8_t {
+	Stone,			 // any action, save slots
+	Lapis,			 // the primary action of a group
+	Disabled,		 // on a dark panel
+	PapyrusDisabled, // on a papyrus scroll
+};
+constexpr float TILE_SINK = 0.4f; // a held tile moves down this much
+// Raised tile of the buttons and slots; returns the rect as drawn (it sinks while held). Disabled tiles ignore
+// hovered / held.
+Rect tile(Rect r, TileStyle style, bool hovered, bool held);
+// Frame of an enabled tile, drawn by tile(); draw it again over content that covers the tile edges.
+void tileFrame(const Rect& r, TileStyle style, bool hovered);
+// Square on the left of a tile for its icon or number.
+Rect iconWell(const Rect& tile, float inset);
+
 // Textured quad; `u0..v1` pick the part of the texture. Leaves texturing off.
 void texturedRect(const Rect& r, int textureId, Color tint, float u0 = 0, float v0 = 0, float u1 = 1, float v1 = 1);
 

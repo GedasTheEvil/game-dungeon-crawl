@@ -29,7 +29,7 @@ Vertical bands used by every 160 x 100 screen:
 
 | y | Part |
 |---|---|
-| 91.5–92 | title rule |
+| 91.5 | title rule |
 | 88 | title baseline |
 | ~13–85 | panels |
 | 9.5–17.5 | Back button (menu sub-screens); toasts at y 7–12 |
@@ -51,14 +51,15 @@ A screen's `Draw()`:
 
 ### Backdrop
 
-`textures.loadingBackground` (carved wall) over the whole `area`, tinted `{0.34, 0.27, 0.20}`, then a black
-vignette: `ring(area.inset(22), 22, BLACK, 0, 0.85)`. The draft map uses 20.
+`ui::backdrop(area, textures.loadingBackground.ID())`: the carved wall over the whole `area`, tinted
+`{0.34, 0.27, 0.20}`, and a black vignette 22 wide. The editor passes its own wall texture; the draft map draws its
+own (vignette 20, canvas without margins).
 
 ### Title
 
-`title` font, `textCentered(title, 80, 88, caption, GOLD)`. Either side a `GOLD_DIM` 2 px rule at y 91.5 (menu: 92),
-from the title (text half width + 4) out to the reach. Big `GOLD` diamonds (1.1) at the rule ends, small ones (0.7)
-next to the title. Reach from centre: 44 for a narrow panel (main menu, credits), 58 for wide panels, 72 on the riddle.
+`ui::titleBar(title, 80, caption, reach)`: caption in `GOLD` at baseline 88, a `GOLD_DIM` 2 px rule either side
+at y 91.5 with big diamonds at the ends and small ones next to the text. Reach from centre: 44 for a narrow panel
+(main menu, credits), 58 for wide panels (sub-screens, inventory), 72 on the riddle.
 
 ### Panel
 
@@ -85,7 +86,8 @@ Light surface for text to read (inventory details, riddle): `textures.papyrus` w
 
 ### Tiles (buttons, slots)
 
-Raised tile, menu version `drawTile(rect, style, hovered, held)` in `menu.cpp`:
+`ui::tile(rect, style, hovered, held)` draws every button and slot and returns the rect as drawn (moved down
+`TILE_SINK` while held). Put the label on the returned rect:
 
 | State | Look |
 |---|---|
@@ -93,6 +95,7 @@ Raised tile, menu version `drawTile(rect, style, hovered, held)` in `menu.cpp`:
 | Hover | additive `GOLD` glow `ring(r, 2.2, GOLD, 0.4, 0)`, lighter fill, `GOLD_BRIGHT` 2.5 px frame, highlight 0.16 |
 | Held | no shadow, sinks 0.4, darker fill, no highlight |
 | Disabled | flat dark fill alpha 0.9, `BRONZE` frame alpha 0.6, no hover |
+| PapyrusDisabled | faded tan tile on a papyrus scroll, `INK_FADED` frame; label in `body` `INK_FADED` |
 
 Styles:
 
@@ -101,13 +104,16 @@ Styles:
 * **Stone**: all other actions and the save slots. `STONE_TOP`→`STONE_BOTTOM`, `BRONZE` 1.5 px frame.
 
 One lapis button per group. Menu buttons are 56 x 9, 11.5 apart; Back is `{63, 9.5, 34, 8}`.
+Label colour: `GOLD` (lapis) or `LABEL` (stone), `TEXT_HOVER` when hovered.
 An action fires on mouse **up** over the same target it went down on (`pressed` / `hovered`).
-The inventory has its own copies of the tile code (`DrawSlot`, `DrawButton`) with the same colours; on the papyrus a
-disabled button is a faded tan tile with `INK_FADED` text.
+
+Content that covers the tile edges (the inventory slots' name band) is followed by `ui::tileFrame()` to draw the
+frame again on top. Things drawn in a later pass (the slot models and labels) move down `TILE_SINK` too while held.
+The level editor still has its own smaller buttons (`Editor::drawButton`).
 
 ### Icon well
 
-Dark square on the left of a tile (`iconWell(tile, inset)`), `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
+Dark square on the left of a tile (`ui::iconWell(tile, inset)`), `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
 (`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back)
 or a number (save slots, lapis seal when the slot is used). Glyphs are shapes, not textures.
 
@@ -145,6 +151,8 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Outer frames, stone tile frame, section rules | `BRONZE` |
 | Primary tile fill | `LAPIS` → `LAPIS_DARK` |
 | Stone tile fill | `STONE_TOP` → `STONE_BOTTOM` |
+| Tile hover / held fills | `LAPIS_HOVER_*`, `STONE_HOVER_*`, `*_HELD_BOTTOM` |
+| Hovered label | `TEXT_HOVER` |
 | Panel fill | `PANEL_TOP` → `PANEL_BOTTOM` |
 | Text on papyrus | `INK`, `INK_RED` (warnings, reward), `INK_GREEN`, `INK_FADED` (hints, disabled) |
 

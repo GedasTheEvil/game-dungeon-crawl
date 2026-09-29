@@ -465,13 +465,7 @@ void Editor::draw() {
 }
 
 void Editor::drawBackground() {
-	Rect area = visibleArea();
-	glDisable(GL_BLEND);
-	texturedRect(area, wallTexture.ID(), {0.34f, 0.27f, 0.20f});
-
-	beginShapes();
-	constexpr float VIGNETTE = 22.f;
-	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
+	backdrop(visibleArea(), wallTexture.ID());
 
 	// Title ornament: gold rules ending in diamonds either side of the title.
 	constexpr float RULE_Y = 93.2f;

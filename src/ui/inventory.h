@@ -64,6 +64,8 @@ class Inventory {
 	[[nodiscard]] static int SlotFromItem(int type, int id);
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
 	[[nodiscard]] bool CanUpgrade(int slot) const;
+	// Mouse button down on the slot and still over it: the slot tile is pushed in.
+	[[nodiscard]] bool SlotHeld(int slot) const;
 	void Use(int slot);
 	void Upgrade(int slot);
 	void DrinkPotion(int potionId);

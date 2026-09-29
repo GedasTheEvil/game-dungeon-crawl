@@ -112,6 +112,83 @@ void panel(const Rect& r, float alpha) {
 	cornerStuds(r);
 }
 
+void backdrop(const Rect& area, int textureId) {
+	glDisable(GL_BLEND);
+	texturedRect(area, textureId, {0.34f, 0.27f, 0.20f});
+	beginShapes();
+	constexpr float VIGNETTE = 22.f;
+	ring(area.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
+}
+
+void titleBar(Font& font, float cx, const char* caption, float reach) {
+	constexpr float RULE_Y = 91.5f;
+	constexpr float BASELINE = 88.f;
+	float titleHalf = font.TextWidth(caption) / 2 + 4;
+	line(cx - reach, RULE_Y, cx - titleHalf, RULE_Y, GOLD_DIM, 1.f, 2.f);
+	line(cx + titleHalf, RULE_Y, cx + reach, RULE_Y, GOLD_DIM, 1.f, 2.f);
+	diamond(cx - reach, RULE_Y, 1.1f, GOLD, 1.f);
+	diamond(cx + reach, RULE_Y, 1.1f, GOLD, 1.f);
+	diamond(cx - titleHalf + 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+	diamond(cx + titleHalf - 1.5f, RULE_Y, 0.7f, GOLD, 1.f);
+	beginText();
+	textCentered(font, cx, BASELINE, caption, GOLD);
+	beginShapes();
+}
+
+Rect tile(Rect r, TileStyle style, bool hovered, bool held) {
+	if (style == TileStyle::Disabled) {
+		fillRect(r, {0.10f, 0.08f, 0.06f}, {0.07f, 0.055f, 0.04f}, 0.9f);
+		strokeRect(r, BRONZE, 0.6f, 1.f);
+		return r;
+	}
+	if (style == TileStyle::PapyrusDisabled) {
+		fillRect(r, {0.62f, 0.52f, 0.38f}, {0.55f, 0.45f, 0.32f}, 0.6f);
+		strokeRect(r, INK_FADED, 0.9f, 1.5f);
+		return r;
+	}
+
+	fillRect({r.x + 0.5f, r.y - 0.7f, r.w, r.h}, BLACK, BLACK, held ? 0.f : 0.4f);
+	if (held)
+		r.y -= TILE_SINK;
+	if (hovered) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		ring(r, 2.2f, GOLD, 0.4f, 0.f);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	bool lapis = style == TileStyle::Lapis;
+	Color top = lapis ? LAPIS : STONE_TOP;
+	Color bottom = lapis ? LAPIS_DARK : STONE_BOTTOM;
+	if (held) {
+		top = bottom;
+		bottom = lapis ? LAPIS_HELD_BOTTOM : STONE_HELD_BOTTOM;
+	} else if (hovered) {
+		top = lapis ? LAPIS_HOVER_TOP : STONE_HOVER_TOP;
+		bottom = lapis ? LAPIS_HOVER_BOTTOM : STONE_HOVER_BOTTOM;
+	}
+	fillRect(r, top, bottom, 1.f);
+	if (!held) // top highlight
+		fillRect({r.x, r.y + r.h - 1.f, r.w, 1.f}, {1, 1, 1}, {1, 1, 1}, hovered ? 0.16f : 0.08f);
+
+	tileFrame(r, style, hovered);
+	return r;
+}
+
+void tileFrame(const Rect& r, TileStyle style, bool hovered) {
+	bool lapis = style == TileStyle::Lapis;
+	if (hovered)
+		strokeRect(r, GOLD_BRIGHT, 1.f, 2.5f);
+	else
+		strokeRect(r, lapis ? GOLD : BRONZE, 1.f, lapis ? 2.5f : 1.5f);
+	if (lapis || hovered)
+		strokeRect(r.inset(0.8f), GOLD_DIM, 0.6f, 1.f);
+}
+
+Rect iconWell(const Rect& tile, float inset) {
+	float size = tile.h - 2 * inset;
+	return {tile.x + inset, tile.y + inset, size, size};
+}
+
 void texturedRect(const Rect& r, int textureId, Color tint, float u0, float v0, float u1, float v1) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));

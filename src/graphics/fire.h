@@ -32,4 +32,13 @@ namespace Dust {
 void draw(float x, float y, float z, float progress, uint32_t seed);
 } // namespace Dust
 
+// Level-up blessing: a shaft of sunlight falls on the player, gold motes rise through it. Stateless like the fire.
+namespace SunBeam {
+constexpr int DURATION_MS = 1600;
+// 0..1..0 brightness over the effect, progress 0..1.
+float strength(float progress);
+// (x, y, z) = the player's feet in local space. Call after the opaque scene, like the fire.
+void draw(float x, float y, float z, float progress);
+} // namespace SunBeam
+
 #endif

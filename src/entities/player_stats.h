@@ -3,6 +3,7 @@
 
 #include "../core/timer.h"
 #include <fstream>
+#include <optional>
 
 // The player's level, XP, might, armour, HP and stamina (sprint drains it, it regenerates). Saved with the game.
 class PlayerStats {
@@ -21,6 +22,7 @@ class PlayerStats {
 	float stamina_sprint_drain_carry = 0.f;
 	bool sprint_requested = false;
 	bool sprinting = false;
+	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
 
 	bool AdvanceLevel();
 	void RegenerateStamina();
@@ -44,6 +46,7 @@ class PlayerStats {
 	[[nodiscard]] int CurrentMaxHP() const { return MaxHP; }
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
+	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
 	[[nodiscard]] bool Alive() const { return HP > 0; }
 	[[nodiscard]] float HealthRatio() const;
 	// XP total at which the player reaches `lvl` (level 2 at 1000).

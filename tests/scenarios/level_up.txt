@@ -1,0 +1,21 @@
+# Level-up sun beam: opens, holds, fades over 1.6 s; gone afterwards.
+seed 1
+god
+level 1
+wait 30
+walk right 5
+wait 30
+screenshot before
+xp 1000
+wait 100ms
+screenshot opening
+wait 400ms
+screenshot full
+wait 500ms
+screenshot fading
+wait 800ms
+screenshot gone
+toon on
+xp 2000
+wait 500ms
+screenshot toon

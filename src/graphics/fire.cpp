@@ -203,3 +203,110 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 	glColor4f(1, 1, 1, 1);
 	Lighting::setEmissive(false);
 }
+
+float SunBeam::strength(float progress) {
+	if (progress <= 0.f || progress >= 1.f)
+		return 0.f;
+	if (progress < 0.15f) // opens fast
+		return progress / 0.15f;
+	if (progress < 0.5f)
+		return 1.f;
+	float f = (progress - 0.5f) / 0.5f; // then fades slowly
+	return 1.f - f * f * (3.f - 2.f * f);
+}
+
+void SunBeam::draw(float x, float y, float z, float progress) {
+	constexpr float HEIGHT = 160.f; // well above the top of the screen, the ceiling hides the rest
+	constexpr int MOTES = 40;
+	constexpr float RISE_MS = 1100.f;
+	constexpr float RISE = 45.f;
+	constexpr float R = 1.f, G = 0.83f, B = 0.45f; // warm sunlight
+	float s = strength(progress);
+	if (s <= 0.f)
+		return;
+	ensureSprite();
+
+	float m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
+	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
+	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
+	float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
+	// The beam stays upright: it turns only round the vertical axis to face the camera.
+	float hl = std::sqrt(rx * rx + rz * rz);
+	float bx = hl > 0.f ? rx / hl : 1.f, bz = hl > 0.f ? rz / hl : 0.f;
+
+	Lighting::setEmissive(true);
+	glBindTexture(GL_TEXTURE_2D, gSprite);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glDepthMask(GL_FALSE);
+	glBegin(GL_QUADS);
+
+	// Shaft: a wide soft glow and a narrow core. The sprite's middle row is the soft side-to-side falloff.
+	float narrow = progress < 0.5f ? 1.f : 1.f - 0.7f * (progress - 0.5f) / 0.5f; // closes as it fades
+	struct Layer {
+		float halfWidth, bright;
+	};
+	constexpr Layer LAYERS[] = {{15.f, 0.35f}, {5.5f, 0.75f}};
+	constexpr float ROW_Y[] = {0.f, 30.f, HEIGHT};
+	constexpr float ROW_K[] = {0.75f, 1.f, 0.3f}; // brightest round the chest, dims upwards
+	for (const Layer& l : LAYERS)
+		for (int r = 0; r < 2; r++) {
+			float w0 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r] / HEIGHT);
+			float w1 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r + 1] / HEIGHT);
+			float k0 = l.bright * ROW_K[r] * s, k1 = l.bright * ROW_K[r + 1] * s;
+			glColor4f(R * k0, G * k0, B * k0, 1);
+			glTexCoord2f(0, 0.5f);
+			glVertex3f(x - bx * w0, y + ROW_Y[r], z - bz * w0);
+			glTexCoord2f(1, 0.5f);
+			glVertex3f(x + bx * w0, y + ROW_Y[r], z + bz * w0);
+			glColor4f(R * k1, G * k1, B * k1, 1);
+			glTexCoord2f(1, 0.5f);
+			glVertex3f(x + bx * w1, y + ROW_Y[r + 1], z + bz * w1);
+			glTexCoord2f(0, 0.5f);
+			glVertex3f(x - bx * w1, y + ROW_Y[r + 1], z - bz * w1);
+		}
+
+	// Pool of light on the floor.
+	float pool = 0.6f * s;
+	float px = 18.f * narrow, pz = 9.f * narrow;
+	glColor4f(R * pool, G * pool, B * pool, 1);
+	glTexCoord2f(0, 0);
+	glVertex3f(x - px, y + 0.3f, z - pz);
+	glTexCoord2f(0, 1);
+	glVertex3f(x - px, y + 0.3f, z + pz);
+	glTexCoord2f(1, 1);
+	glVertex3f(x + px, y + 0.3f, z + pz);
+	glTexCoord2f(1, 0);
+	glVertex3f(x + px, y + 0.3f, z - pz);
+
+	// Gold motes rising through the shaft.
+	float t = static_cast<float>(GameClock::now());
+	for (int i = 0; i < MOTES; i++) {
+		uint32_t base = mix(static_cast<uint32_t>(i) * 0x27d4eb2dU + 0x165667b1U);
+		float u = t / RISE_MS + unit01(base);
+		float p = u - std::floor(u);
+		uint32_t h = mix(base ^ static_cast<uint32_t>(std::floor(u)));
+		float cx = x + (unit01(h) - 0.5f) * 14.f * narrow + 1.2f * std::sin(t * 0.004f + static_cast<float>(i));
+		float cy = y + RISE * p;
+		float cz = z + (unit01(h >> 16) - 0.5f) * 8.f;
+		float size = 0.7f + 1.1f * unit01(mix(h));
+		float a = s * std::fmin(1.f, p * 5.f) * (1.f - p); // fade in, then out towards the top
+		float h2 = size / 2.f;
+		glColor4f(R * a, G * a, B * 0.8f * a, 1);
+		glTexCoord2f(0, 0);
+		glVertex3f(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
+		glTexCoord2f(1, 0);
+		glVertex3f(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
+		glTexCoord2f(1, 1);
+		glVertex3f(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
+		glTexCoord2f(0, 1);
+		glVertex3f(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
+	}
+	glEnd();
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glColor4f(1, 1, 1, 1);
+	Lighting::setEmissive(false);
+}

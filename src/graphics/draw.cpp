@@ -7,7 +7,9 @@
 #include "../ui/level_gem.h"
 #include "lighting.h"
 #include "ink.h"
+#include "fire.h"
 #include "gl_includes.h"
+#include <optional>
 #include <string>
 
 int weaponRot = 0;
@@ -19,6 +21,17 @@ constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // Towards the back wall so the fists close round the rungs: the ladder's rungs are 2.35 in front of the wall
 // (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
+
+// Progress 0..1 of the level-up sun beam, or none when it is not showing.
+std::optional<float> sunBeamProgress() {
+	std::optional<int> at = Game().player->stats.LevelUpMs();
+	if (!at || !Game().player->Alive())
+		return std::nullopt;
+	float p = static_cast<float>(GameClock::now() - *at) / static_cast<float>(SunBeam::DURATION_MS);
+	if (p < 0.f || p >= 1.f)
+		return std::nullopt;
+	return p;
+}
 
 void drawWeapon() { // floats in front of the chest
 	const float playerScale = Game().player->scale * Ink::figureScale();
@@ -140,6 +153,11 @@ void Draw() {
 	Lighting::begin();
 	if (Game().player->Alive())
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
+	const std::optional<float> sunBeam = sunBeamProgress();
+	if (sunBeam) {
+		const float k = SunBeam::strength(*sunBeam);
+		Lighting::add(0, 45, -30, {1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f}, 0); // the beam lights the room
+	}
 
 	glPushMatrix();
 	glTranslatef(-202, 0.0, -10);
@@ -158,6 +176,8 @@ void Draw() {
 	if (Game().player->Alive()) {
 		if (!Game().player->climbing()) // both hands on the ladder: no weapon
 			drawWeapon();
+		if (sunBeam)
+			SunBeam::draw(0, 0, -30 + Game().player->depthOffset, *sunBeam);
 	} else {
 		Lighting::setEmissive(true);
 		Game().ui.endScreens->DrawLose();

@@ -118,6 +118,7 @@ bool PlayerStats::AdvanceLevel() {
 	MaxHP += 20;
 	HP = MaxHP;
 	SetStamina(MaxStamina());
+	level_up_ms = GameClock::now();
 
 	Game().ShowStatus("Now you are level %d\n", level);
 
@@ -150,6 +151,7 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	stamina_sprint_drain_carry = 0.0f;
 	sprint_requested = false;
 	sprinting = false;
+	level_up_ms.reset();
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
 	SetStamina(loadedStamina);

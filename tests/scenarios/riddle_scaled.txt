@@ -1,0 +1,20 @@
+# The riddle reward grows with the level: 30% of the XP from level 10 to 11 is 1033, above the 500 minimum.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/test.txt
+# 21675 XP reaches level 10: nine level ups of +20 max HP.
+xp 21675
+expect hp == 230
+wait 30
+walk right 3
+interact
+wait 5
+expect riddle == 1
+screenshot reward
+key 4
+key 2
+key enter
+wait 5
+expect riddle == 0
+expect xp == 22708

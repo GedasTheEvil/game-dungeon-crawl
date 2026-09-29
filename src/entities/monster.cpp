@@ -8,6 +8,8 @@
 #include "../state/game_state.h"
 #include "../graphics/lighting.h"
 #include "../graphics/ink.h"
+#include "../graphics/render_config.h"
+#include "../core/gameplay_config.h"
 
 namespace {
 // Health bar in world units (a tile is 40), the same for every monster.
@@ -54,9 +56,24 @@ bool Monster::LeavesChest() const {
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
 
-bool Monster::Nearby(float px, float py, int range) const {
-	return std::fabs(CentreX() - px) <= 0.1f * static_cast<float>(range) &&
+bool Monster::Nearby(float px, float py, int range, int dir) const {
+	const float ahead = (CentreX() - px) * static_cast<float>(dir);
+	return ahead >= -MELEE_REACH_BEHIND && ahead <= 0.1f * static_cast<float>(range) &&
 		   std::fabs(static_cast<float>(row) - py) < 0.7f;
+}
+
+float Monster::BottomY() const {
+	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
+	const float lift = flies() ? std::max(flight.lift, 0.f) : leap.lift;
+	const float bottom = roosting ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
+	return static_cast<float>(row) + (lift + bottom) / RenderConfig::TILE_SIZE;
+}
+
+float Monster::TopY() const {
+	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
+	const float lift = flies() ? std::max(flight.lift, 0.f) : leap.lift;
+	const float top = (roosting ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
+	return static_cast<float>(row) + (lift + top) / RenderConfig::TILE_SIZE;
 }
 
 bool Monster::takeHit(int dmg) {

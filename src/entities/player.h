@@ -40,6 +40,7 @@ class Player {
 	Timer attackTimer{1000};
 	JumpState jump;
 	bool attacking = false;
+	int bowDrawMs = -1; // GameClock time the bow draw began; < 0: not drawing. The arrow leaves at BOW_DRAW_MS.
 
 	bool Load(const char* name, const Texture& texture);
 	void Draw();

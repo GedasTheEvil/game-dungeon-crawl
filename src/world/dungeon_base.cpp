@@ -97,6 +97,7 @@ void Dungeon::Update() {
 	exploreAroundPlayer();
 	updateMechanisms();
 	UpdateMonsters();
+	updateArrows();
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {

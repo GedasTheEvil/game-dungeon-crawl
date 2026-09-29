@@ -1,0 +1,56 @@
+# The bow (tests/levels/archery): attack draws it, then an arrow flies on a parabola in the facing direction.
+# A shot with nothing in reach (3 tiles) lands on the floor ~2.5 tiles ahead: the plant (col 13) behind the
+# player is not hit. Facing it, the plant is aimed at and hit (its health bar shows, bars), then killed (xp).
+seed 1
+god
+level tests/levels/archery
+wait 30
+give ranged 0
+key i
+wait 5
+click 51.7 63.5
+wait 2
+click 70 19.5
+wait 5
+key i
+wait 5
+expect equip_type == 2
+
+# 2.7 tiles in front of the plant, facing away from it
+walk right 10
+walk left 0.2
+wait 5
+screenshot holding
+attack
+wait 12
+screenshot drawing
+wait 20
+screenshot released
+wait 10
+screenshot flying
+wait 20
+screenshot stuck
+expect bars == 0
+
+# turned round: the plant 2.5 tiles ahead
+walk right 0.2
+wait 70
+attack
+wait 36
+screenshot aimed_flying
+wait 30
+expect bars == 1
+screenshot hit
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
+wait 70
+screenshot killed
+expect xp > 0

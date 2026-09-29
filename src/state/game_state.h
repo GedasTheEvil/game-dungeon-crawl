@@ -26,9 +26,10 @@ struct SaveName {
 };
 
 struct Camera {
-	float rotW = -110.f;
+	float rotW = -110.f; // the player's yaw: 70 walking right, -110 left
 	float rotM = 0.f;
 	float rotN = 0.f;
+	[[nodiscard]] int Facing() const { return rotW > 0 ? 1 : -1; } // +1 right, -1 left
 };
 
 struct RenderSettings {

@@ -1,0 +1,4 @@
+; Archery range (tests/scenarios/bow.txt): a plant (rooted, calm until hit or touched) at col 13 on the player's row.
+########################################
+#S...........p........E#################
+########################################

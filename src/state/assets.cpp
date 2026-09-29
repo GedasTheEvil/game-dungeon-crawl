@@ -182,6 +182,8 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		item->damage = def.damage;
 		item->range = def.range;
 	}
+	items.arrowTex.LoadPNG("textures/items/arrow.png");
+	items.arrow = loadStaticModel("models/items/arrow.md3", items.arrowTex);
 
 	textures.sphinx.LoadPNG("textures/props/sphinx.png");
 	models.sphinx = std::make_unique<AnimatedModel>();

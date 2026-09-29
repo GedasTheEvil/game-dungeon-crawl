@@ -41,7 +41,7 @@ class Dungeon {
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
-	void clearMonsters(); // a level or save was loaded: the old level's monsters are gone
+	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
@@ -80,6 +80,21 @@ class Dungeon {
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];
+	// Arrows (dungeon_arrows.cpp): a parabola from the launch point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
+	struct Arrow {
+		float x0, y0, vx, vy;
+		int damage;
+		int startMs;	  // GameClock time of the shot
+		float t = 0.f;	  // seconds flown so far
+		int stuckMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
+		[[nodiscard]] float X() const { return x0 + vx * t; }
+		[[nodiscard]] float Y() const;
+	};
+	std::vector<Arrow> arrows;
+	void updateArrows();
+	void drawArrows(); // with the frame origin of DrawMonsters
+	// The centre of the nearest living monster ahead (dir -1 / +1) the bow can reach from (x, y), or false.
+	bool aimTarget(float x, float y, int dir, float& outX, float& outY) const;
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
@@ -101,8 +116,11 @@ class Dungeon {
 	[[nodiscard]] float ClimbPhase() const;
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
-	void AttackNearest(int damage, int attackRange); // Redirects players attack to the nearest monster if in range
-	void PickUp();									 // not the car... just take an item away
+	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1).
+	void AttackNearest(int damage, int attackRange, int dir);
+	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1).
+	void ShootArrow(int damage, int dir, float height);
+	void PickUp(); // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void Interact();
 	bool PullLever(); // interact on a lever cell; false if there is none

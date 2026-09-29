@@ -29,6 +29,9 @@ struct FontSet {
 
 struct ItemPrototypes {
 	std::unique_ptr<Item> chest, club, sword, bow, potion, spear;
+	// The bow's arrow in flight: not an inventory item, a static model in metres (items.py). Null if missing.
+	Texture arrowTex;
+	std::unique_ptr<AnimatedModel> arrow;
 };
 
 struct TrapSet {

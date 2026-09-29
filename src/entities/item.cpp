@@ -1,9 +1,10 @@
 #include "item.h"
 #include <GL/gl.h>
 #include "../graphics/ink.h"
+#include <algorithm>
 #include <string>
 
-void Item::Draw() {
+void Item::Draw(float pose) {
 	if (!mdl)
 		return;
 
@@ -13,9 +14,10 @@ void Item::Draw() {
 	glScalef(drawScale, drawScale, drawScale);
 	tex.Bind();
 	glRotatef(rotA, 0, 1, 0);
-	mdl->Show();
+	AnimPlayback playback;
+	playback.frame = std::clamp(pose, 0.f, 1.f) * static_cast<float>(mdl->FrameCount() - 1);
+	mdl->Show(playback);
 	glPopMatrix();
-	mdl->Advance();
 }
 
 bool Item::loadModel(const char* name) {

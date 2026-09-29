@@ -124,6 +124,8 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
 - `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
+- `tests/scenarios/bow.txt`: the bow draws and shoots; an arrow with nothing in reach lands on the floor, one in reach is
+  aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.
 - `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.
 - `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.
 - `tests/scenarios/generated_path.txt`: plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.

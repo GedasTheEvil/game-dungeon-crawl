@@ -75,12 +75,16 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
   `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the potion flask and the treasure chest, real sizes in
+* `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the bow's arrow, the potion flask and the treasure chest, real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom (the held weapon is drawn from its lowest point, tilted 45 deg), flat faces in the x-z plane; the bow's back bulges to +x.
+  The bow is held upright by its grip and has `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
+  with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
+  from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
+  (`bow_frames`). `arrow.md3` (tip at +Z) is the arrow in flight, drawn in metres, not centred (`Dungeon::drawArrows`).
   The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in. The potion texture
   stays light grey: the engine tints the whole flask with the potion colour. Albedo x AO textures (no baked light), 512 px.
-  `-- --export` writes `models/items/{club,sword,spear,bow,potion,treasure_chest}.md3` + `textures/items/<same>.png`; `--review out.png`
+  `-- --export` writes `models/items/{club,sword,spear,bow,arrow,potion,treasure_chest}.md3` + `textures/items/<same>.png`; `--review out.png`
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
@@ -158,7 +162,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Columns (old ladder, with a plasma quad) | `props/columns.md3` | `props/columns.png` | unused since the ladders |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
-| Items: club, sword, spear, bow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`) |
+| Items: club, sword, spear, bow, arrow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (10 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |

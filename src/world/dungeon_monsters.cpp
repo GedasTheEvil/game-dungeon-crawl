@@ -89,6 +89,7 @@ int Dungeon::MonsterBarsShown() const {
 void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
+	arrows.clear();
 }
 //======================================================================================
 // Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
@@ -113,11 +114,11 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-void Dungeon::AttackNearest(int damage, int attackRange) {
+void Dungeon::AttackNearest(int damage, int attackRange, int dir) {
 	for (Monster& mon : monsters) {
 		if (!mon.Active())
 			continue;
-		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange)) {
+		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange, dir)) {
 			mon.takeHit(damage);
 			break;
 		}

@@ -10,6 +10,8 @@
 #include "ink.h"
 #include "fire.h"
 #include "gl_includes.h"
+#include "render_config.h"
+#include <algorithm>
 #include <optional>
 #include <string>
 
@@ -22,6 +24,7 @@ constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // Towards the back wall so the fists close round the rungs: the ladder's rungs are 2.35 in front of the wall
 // (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
+constexpr float BOW_REACH = 0.25f; // player heights in front of the chest: the drawn bow
 
 // Progress 0..1 of the level-up sun beam, or none when it is not showing.
 std::optional<float> sunBeamProgress() {
@@ -34,19 +37,49 @@ std::optional<float> sunBeamProgress() {
 	return p;
 }
 
+// Fists height above the feet, world units: the weapon is held here.
+float handHeight() { return Game().player->scale * Ink::figureScale() / 4 * 3 + 0.27f; }
+
+// 0..1 through the bow draw, or none when the bow is not being drawn.
+std::optional<float> bowDraw() {
+	if (Game().player->bowDrawMs < 0)
+		return std::nullopt;
+	return std::min(1.f,
+					static_cast<float>(GameClock::now() - Game().player->bowDrawMs) / static_cast<float>(BOW_DRAW_MS));
+}
+
+bool holdingBow() { return Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON; }
+
 void drawWeapon() { // floats in front of the chest
 	const float playerScale = Game().player->scale * Ink::figureScale();
+	const auto facing = static_cast<float>(Game().camera.Facing());
+	Item* weapon = Game().ui.inventory->Equipped();
+	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
+	const float spin = weapon->rotA;
+	weapon->rotA = facing > 0 ? 0.f : 180.f;
 	glPushMatrix();
-	if (Game().player->rotA > 0) {
-		glTranslatef(playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
-		glRotatef(-45.f - static_cast<float>(weaponRot), 0, 0, 1);
+	if (holdingBow()) { // upright at arm's length, the grip in the fist; drawn on attack
+		glTranslatef(facing * playerScale * BOW_REACH, handHeight() - weapon->scale * Ink::figureScale() / 2, 2);
+		weapon->Draw(bowDraw().value_or(0.f));
 	} else {
-		glTranslatef(-playerScale / 20, playerScale / 4 * 3 + 0.27f, 2);
-		glRotatef(45.f + static_cast<float>(weaponRot), 0, 0, 1);
+		glTranslatef(facing * playerScale / 20, handHeight(), 2);
+		glRotatef(-facing * (45.f + static_cast<float>(weaponRot)), 0, 0, 1);
+		weapon->Draw();
 	}
-	Game().ui.inventory->Equipped()->Draw();
-
 	glPopMatrix();
+	weapon->rotA = spin;
+}
+
+// The bow is drawn: the arrow leaves. Climbing or a weapon change on the way puts it down.
+void releaseArrow(bool climbing) {
+	if (bowDraw().value_or(0.f) < 1.f)
+		return;
+	Game().player->bowDrawMs = -1;
+	if (climbing || !holdingBow())
+		return;
+	Game().dungeon.ShootArrow(Game().player->stats.Damage(), Game().camera.Facing(),
+							  handHeight() / RenderConfig::TILE_SIZE);
+	Game().player->PlayAttackSound();
 }
 } // namespace
 
@@ -76,7 +109,7 @@ void Update() {
 		} else if (Game().timers.idleModel.TimePassed())
 			Game().player->setModelState(ModelState::Idle);
 
-		Game().ui.inventory->Equipped()->rotA++;
+		releaseArrow(climbing);
 
 		if (Game().player->attacking) {
 			if (Game().player->attackTimer.TimePassed() || weaponRot <= -40) {

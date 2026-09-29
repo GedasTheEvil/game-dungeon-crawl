@@ -114,7 +114,11 @@ class Monster {
 	// Walk-jumpers: leap to tile-local x toX (the centre of the landing cell), then move along the arc until landed.
 	void Jump(float toX);
 	void UpdateJump();
-	[[nodiscard]] bool Nearby(float px, float py, int range) const;
+	// In reach of a melee attack: at most range / 10 tiles ahead of the player facing dir (-1 / +1), on its row.
+	[[nodiscard]] bool Nearby(float px, float py, int range, int dir) const;
+	// Body height in map y (row + height above its floor), for the arrows.
+	[[nodiscard]] float BottomY() const;
+	[[nodiscard]] float TopY() const;
 	bool takeHit(int dmg);
 	// With the frame origin at the spawn tile.
 	void Draw(float px, float py);

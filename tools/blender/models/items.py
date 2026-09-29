@@ -1,4 +1,4 @@
-"""Procedural items: the weapons (club, sword, spear, bow), the potion flask and the treasure chest.
+"""Procedural items: the weapons (club, sword, spear, bow), the bow's arrow, the potion flask and the treasure chest.
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -10,6 +10,11 @@ business end at the top (+Z): the engine draws the held weapon from its lowest p
 facing direction (drawWeapon), and upright in the inventory. Flat faces (sword blade, bow) lie in the x-z plane,
 so they face the camera (-Y); the bow's back bulges towards +x (the enemy when the player faces right).
 The chest faces -Y with its lid open towards +Y; the engine draws it at rotA 0 with the tile's item standing inside.
+
+The bow has BOW_FRAMES frames, the draw: frame 0 at rest (as the inventory and the pickups show it), then the string
+pulled further back each frame with an arrow on it (collapsed to the nock point in frame 0); the engine picks the frame
+from the draw time (Item::Draw pose). Texture and UVs come from the fully drawn bow. The arrow alone (arrow.md3,
+tip at +Z) is the one in flight; the engine draws it in metres, not centred (Dungeon::drawArrows).
 
 Textures: one 512 PNG per item (textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
 light, the engine lights them). The potion is drawn tinted with the potion colour (inventory POTION_COLORS), so its
@@ -35,7 +40,7 @@ from common import REPO, Builder, cone, ellipsoid, transform, tube  # noqa: E402
 from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
-ITEMS = ["club", "sword", "spear", "bow", "potion", "chest"]
+ITEMS = ["club", "sword", "spear", "bow", "arrow", "potion", "chest"]
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
@@ -72,6 +77,9 @@ COL = {
     "gem": (0.62, 0.05, 0.02),
     "glint": (1.0, 0.62, 0.5),
     "enamel": (0.02, 0.015, 0.01),
+    "reed": (0.62, 0.50, 0.28),
+    "reed_dark": (0.36, 0.26, 0.12),
+    "feather": (0.84, 0.80, 0.70),
 }
 
 
@@ -106,6 +114,8 @@ def materials():
         "gem": ("solid", "gem"),
         "glint": ("solid", "glint"),
         "enamel": ("solid", "enamel"),
+        "reed": stripes("v", 0.14, [(14, "reed"), (1, "reed_dark")], "LINEAR"),
+        "fletch": stripes("v", 0.025, [(2, "feather"), (1, "red")]),
     }
     return {name: common.make_material("item_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -230,23 +240,49 @@ def build_spear(b, M):
 
 
 BOW_H, BOW_DEPTH = 0.6, 0.15  # half height, belly depth
+BOW_FRAMES = 8  # the draw, frame 0 at rest
+BOW_FLEX = 0.1  # the tips bend back this far at full draw
+BOW_NOCK_DRAWN = -0.4  # x of the string's centre at full draw (the grip is at BOW_DEPTH)
+ARROW_REST = V((0, -0.03, 0.025))  # the nocked arrow passes the grip on the camera side, just above the fist
+ARROW_LEN = 0.75
 
 
-def bow_point(t):
-    """Limb centre line, t in -1..1 (bottom to top): an arc bulging to +x with tips recurving back."""
-    x = BOW_DEPTH * (1 - t * t) - 0.02 * t ** 8
-    return V((x, 0, BOW_H * t * (1 - 0.04 * t * t)))
+def bow_point(t, draw=0.0):
+    """Limb centre line, t in -1..1 (bottom to top): an arc bulging to +x with tips recurving back, bent further back
+    as the bow is drawn (draw 0..1)."""
+    x = BOW_DEPTH * (1 - t * t) - 0.02 * t ** 8 - BOW_FLEX * draw * t * t
+    return V((x, 0, BOW_H * t * (1 - 0.04 * t * t - 0.05 * draw * t * t)))
 
 
-def build_bow(b, M):
+def build_arrow(b, M):
+    """Reed arrow along +Z, nock at 0: a bronze leaf head on a sinew-bound foreshaft, three red-barred fletches.
+    Thicker than a real one so it reads at the game's zoom."""
+    L = ARROW_LEN
+    b.add(spindle([(0.0, 0.011), (0.3, 0.012), (L - 0.07, 0.011)], n=8), M["reed"], "root")
+    b.add(spindle([(-0.006, 0.007), (0.004, 0.013), (0.016, 0.013)], n=8, sub=1), M["ebony"], "root")  # the nock
+    for z in (0.03, 0.2, L - 0.085):
+        band(b, M["sinew"], z, 0.0135, 0.014, n=8)
+    b.add(spindle([(L - 0.08, 0.012, 0.007), (L - 0.055, 0.034, 0.007), (L - 0.03, 0.028, 0.005), (L, 0.001, 0.001)],
+                  n=8, shape=diamond, sub=2), M["blade"], "root")
+    for k in range(3):
+        a = math.radians(90 + 120 * k)
+        out = V((math.cos(a), math.sin(a), 0))
+        vane = []
+        for z, h in ((0.035, 0.005), (0.06, 0.02), (0.15, 0.024), (0.19, 0.005)):
+            vane.append((out * (0.011 + h / 2) + V((0, 0, z)), 0.002, h / 2))
+        b.add(tube(vane, sub=2, n=6, ref=out), M["fletch"], "root")
+
+
+def build_bow(b, M, draw=1.0):
     """Self bow of acacia: limbs tapering from a leather-wrapped grip to gold-capped nocks, gold bands on the limbs,
-    a sinew string between the tips."""
+    a sinew string between the tips, pulled back to BOW_NOCK_DRAWN at draw 1 with an arrow on it (no arrow at 0:
+    collapsed onto the nock point)."""
     keys = []
     for k in range(25):
         t = -1 + 2 * k / 24
         w = 0.016 - 0.009 * abs(t) ** 1.3  # across the bow (y)
         d = 0.012 - 0.006 * abs(t) ** 1.3  # front to back (x)
-        keys.append((bow_point(t), d, w))
+        keys.append((bow_point(t, draw), d, w))
     b.add(tube(keys, sub=2, n=10, ref=V((0, 1, 0))), M["wood"], "root")
     # Grip wrap and limb bands (short tubes along the curve).
     def along(t0, t1, grow, mat, n=10):
@@ -255,7 +291,7 @@ def build_bow(b, M):
             t = t0 + (t1 - t0) * k / 4
             w = 0.016 - 0.009 * abs(t) ** 1.3 + grow
             d = 0.012 - 0.006 * abs(t) ** 1.3 + grow
-            ks.append((bow_point(t), d, w))
+            ks.append((bow_point(t, draw), d, w))
         b.add(tube(ks, sub=1, n=n, ref=V((0, 1, 0))), mat, "root")
 
     along(-0.14, 0.14, 0.004, M["leather"])
@@ -263,10 +299,18 @@ def build_bow(b, M):
         along(t - 0.03, t + 0.03, 0.002, M["gold_band"])
     tips = []
     for t in (-1, 1):
-        p = bow_point(t)
+        p = bow_point(t, draw)
         b.add(ellipsoid(p + V((0, 0, 0.006 * t)), (0.009, 0.009, 0.014), n=10, rings=5), M["gold"], "root")
         tips.append(p + V((-0.004, 0, -0.006 * t)))
-    b.add(rod(tips[0], tips[1], 0.0022, n=6), M["sinew"], "root")
+    rest_x = (tips[0].x + tips[1].x) / 2
+    nock = V((rest_x + (BOW_NOCK_DRAWN - rest_x) * draw, 0, ARROW_REST.z))
+    for tip in tips:  # two halves, so the string can bend at the nock
+        b.add(rod(tip, nock, 0.0022, n=6), M["sinew"], "root")
+    arrow = Builder()
+    build_arrow(arrow, M)
+    # Lying along +x from the string; frame 0 has it collapsed on the nock (same vertex count in every frame).
+    arrow.verts = [nock + V((0, ARROW_REST.y, 0)) + (V((v.z, v.y, -v.x)) if draw > 0 else V((0, 0, 0))) for v in arrow.verts]
+    merge(b, arrow)
 
 
 # ---------------------------------------------------------------- potion and chest
@@ -413,6 +457,7 @@ BUILDERS = {
     "sword": build_sword,
     "spear": build_spear,
     "bow": build_bow,
+    "arrow": build_arrow,
     "potion": build_potion,
     "chest": build_chest,
 }
@@ -441,6 +486,7 @@ def build(bake=True, tex_dir=None, only=None):
         low = min(v.z for v in b.verts)
         b.verts = [V(v) - V((0, 0, low)) for v in b.verts]
         obj = common.finish_mesh(b, coll, "item_" + name)
+        obj["low"] = low  # the draw frames are shifted the same (bow_frames)
         obj.data.set_sharp_from_angle(angle=math.radians(50))
         obj.location = (xs[name], 0, 0)
         common.uv_unwrap(obj, b.tags, boost={"gem": ((0, 0, 0), 1.6)})
@@ -457,6 +503,34 @@ def build(bake=True, tex_dir=None, only=None):
     return objs
 
 
+def bow_frames(obj, path, g):
+    """Writes the bow's BOW_FRAMES draw frames to path: one shape key per frame on the baked (fully drawn) bow."""
+    M = materials()
+    obj.shape_key_add(name="Basis")
+    keys = []
+    for k in range(BOW_FRAMES):
+        b = Builder()
+        build_bow(b, M, draw=k / (BOW_FRAMES - 1))
+        key = obj.shape_key_add(name="draw%d" % k)
+        for i, v in enumerate(b.verts):
+            key.data[i].co = V(v) - V((0, 0, obj["low"]))
+        keys.append(key)
+    frames, normals, uvs = [], [], None
+    try:
+        for key in keys:
+            for other in keys:
+                other.value = 1.0 if other is key else 0.0
+            bpy.context.view_layer.update()
+            pos, nrm, uv = g["_sample"](obj, bpy.context.evaluated_depsgraph_get())
+            frames.append(pos)
+            normals.append(nrm)
+            uvs = uvs or uv
+    finally:
+        obj.shape_key_clear()
+    stats = g["md3"].write_md3(path, frames, normals, uvs, name=os.path.splitext(os.path.basename(path))[0])
+    print("Exported {} -> {}: {verts} verts, {tris} tris, {frames} frames, {bytes} bytes".format(obj.name, path, **stats))
+
+
 def export(objs, models_dir=None):
     models_dir = models_dir or os.path.join(REPO, "models", "items")
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
@@ -466,7 +540,11 @@ def export(objs, models_dir=None):
         loc = obj.location.copy()
         obj.location = (0, 0, 0)
         bpy.context.view_layer.update()
-        g["export_md3"](obj, os.path.join(models_dir, "%s.md3" % FILES.get(name, name)), 0, 0)
+        path = os.path.join(models_dir, "%s.md3" % FILES.get(name, name))
+        if name == "bow":
+            bow_frames(obj, path, g)
+        else:
+            g["export_md3"](obj, path, 0, 0)
         obj.location = loc
     bpy.context.view_layer.update()
 

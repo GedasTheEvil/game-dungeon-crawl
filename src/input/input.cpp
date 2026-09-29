@@ -85,7 +85,12 @@ class PlayerActionController {
 		if (!Game().player->attackTimer.TimePassed())
 			return;
 
-		Game().dungeon.AttackNearest(Game().player->stats.Damage(), Game().ui.inventory->Equipped()->range);
+		if (Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON) {
+			Game().player->bowDrawMs = GameClock::now(); // the arrow leaves when the bow is drawn (Update)
+			return;
+		}
+		Game().dungeon.AttackNearest(Game().player->stats.Damage(), Game().ui.inventory->Equipped()->range,
+									 Game().camera.Facing());
 		Game().player->PlayAttackSound();
 		Game().player->attacking = true;
 	}

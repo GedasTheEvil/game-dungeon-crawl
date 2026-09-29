@@ -18,6 +18,7 @@ struct SoundBank {
 	Sound drink_s;
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash;
+	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
 };
 
 struct FontSet {

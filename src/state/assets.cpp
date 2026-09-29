@@ -1,6 +1,7 @@
 #include "assets.h"
 #include <cstdio>
 #include "../core/logger.h"
+#include "../core/gameplay_config.h"
 
 namespace {
 struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small table, ordered to read
@@ -91,17 +92,45 @@ struct ItemDef {
 	const char* label;
 	const char* name; // models/items/<name>.md3, textures/items/<name>.png
 	float scale;
-	int damage, range; // weapons only
+	int damage, range; // weapons only; range in tenths of a tile (the bow's: how far it aims)
+	WeaponMotion motion;
+	const char* swingSound = nullptr;  // sounds/items/<name>.wav: the attack begins
+	const char* strikeSound = nullptr; // a melee hit lands, the arrow leaves
 };
 
-// The chest faces the camera at rotA 0 (tools/blender/models/items.py).
+// The chest faces the camera at rotA 0 (tools/blender/models/items.py). Motion: grip, rest / windup / strike tilt,
+// thrust, hit / swing / attack ms. The club is slow and heavy, the sword quick, the spear thrusts.
 const ItemDef ITEM_DEFS[] = {
-	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1},
-	{&ItemPrototypes::club, "Club", "club", 6, 9, 2},
-	{&ItemPrototypes::sword, "Sword", "sword", 9, 35, 4},
-	{&ItemPrototypes::bow, "Bow", "bow", 12, 12, 16},
-	{&ItemPrototypes::spear, "Spear", "spear", 15, 15, 8},
-	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1},
+	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}},
+	{&ItemPrototypes::club, "Club", "club", 6, 9, 2, {0.12f, 35, -40, 115, 0, 300, 560, 900}, "club_swing", "club_hit"},
+	{&ItemPrototypes::sword,
+	 "Sword",
+	 "sword",
+	 9,
+	 35,
+	 4,
+	 {0.1f, 40, -10, 120, 0, 180, 360, 550},
+	 "sword_swing",
+	 "sword_hit"},
+	{&ItemPrototypes::bow,
+	 "Bow",
+	 "bow",
+	 12,
+	 12,
+	 30,
+	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 1000},
+	 "bow_draw",
+	 "bow_release"},
+	{&ItemPrototypes::spear,
+	 "Spear",
+	 "spear",
+	 15,
+	 15,
+	 8,
+	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 750},
+	 "spear_swing",
+	 "spear_hit"},
+	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1, {}},
 };
 
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -181,6 +210,16 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		item->scale = def.scale;
 		item->damage = def.damage;
 		item->range = def.range;
+		item->motion = def.motion;
+		char sound[64];
+		if (def.swingSound) {
+			snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);
+			item->swingSound.Load(sound);
+		}
+		if (def.strikeSound) {
+			snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
+			item->strikeSound.Load(sound);
+		}
 	}
 	items.arrowTex.LoadPNG("textures/items/arrow.png");
 	items.arrow = loadStaticModel("models/items/arrow.md3", items.arrowTex);
@@ -266,6 +305,8 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	sounds.lever.Load("sounds/mechanisms/lever.wav");
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
+	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
+	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
 
 	textures.spikes.LoadPNG("textures/traps/spikes.png");
 	traps.spikes = std::make_unique<Trap>();

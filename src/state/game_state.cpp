@@ -45,7 +45,6 @@ void GameState::Load() {
 	player->scale = 15;
 
 	timers.idleModel.Reset();
-	timers.weaponRest.Reset();
 	statusTimer = Timer(STATUS_MS);
 
 	if (!dungeon.LoadCampaignLevel(curMap))

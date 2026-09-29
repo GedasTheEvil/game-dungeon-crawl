@@ -56,10 +56,9 @@ constexpr float BAT_FALL_GRAVITY = 600.f;	 // dead bats fall to the floor (world
 constexpr float MELEE_REACH_BEHIND = 0.1f; // tiles: a monster overlapping the player this far behind is still hit
 
 // Bow (Dungeon::ShootArrow): the draw takes BOW_DRAW_MS, then the arrow flies on a parabola aimed at the centre of
-// the nearest monster ahead within ARROW_AIM_RANGE, else at the floor ARROW_FREE_RANGE away. Map units (tiles).
+// the nearest monster ahead within the bow's range, else at the floor ARROW_FREE_RANGE away. Map units (tiles).
 constexpr int BOW_DRAW_MS = 450;
 constexpr float ARROW_GRAVITY = 10.f;	 // tiles / s^2
-constexpr float ARROW_AIM_RANGE = 3.f;	 // tiles along the row
 constexpr float ARROW_FREE_RANGE = 2.5f; // with nothing to aim at
 constexpr float ARROW_MAX_RISE = 0.6f;	 // a monster centre higher above the bow than this is out of reach
 // The arc rises this far above the higher end, more for a longer shot: a close shot flies flat.

@@ -114,15 +114,16 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-void Dungeon::AttackNearest(int damage, int attackRange, int dir) {
+bool Dungeon::AttackNearest(int damage, int attackRange, int dir) {
 	for (Monster& mon : monsters) {
 		if (!mon.Active())
 			continue;
 		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange, dir)) {
 			mon.takeHit(damage);
-			break;
+			return true;
 		}
 	}
+	return false;
 }
 //======================================================================================
 // A monster tile came into view: its monster appears, unless it is already there. Uses a free slot, else the slot

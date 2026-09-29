@@ -93,8 +93,9 @@ class Dungeon {
 	std::vector<Arrow> arrows;
 	void updateArrows();
 	void drawArrows(); // with the frame origin of DrawMonsters
-	// The centre of the nearest living monster ahead (dir -1 / +1) the bow can reach from (x, y), or false.
-	bool aimTarget(float x, float y, int dir, float& outX, float& outY) const;
+	// The centre of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the bow can reach,
+	// or false.
+	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
@@ -116,10 +117,11 @@ class Dungeon {
 	[[nodiscard]] float ClimbPhase() const;
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
-	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1).
-	void AttackNearest(int damage, int attackRange, int dir);
-	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1).
-	void ShootArrow(int damage, int dir, float height);
+	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
+	bool AttackNearest(int damage, int attackRange, int dir);
+	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1),
+	// aimed at a monster up to aimRange tiles ahead.
+	void ShootArrow(int damage, int dir, float height, float aimRange);
 	void PickUp(); // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void Interact();

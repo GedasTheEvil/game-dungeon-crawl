@@ -306,6 +306,12 @@ void AnimatedModel::Normalize(const ModelNormalization& n) {
 	Translate(n.x, n.y, n.z);
 }
 //============================================================
+std::array<float, 3> AnimatedModel::Vertex(int f, int i) const {
+	const std::vector<float>& v = Ver[f].v;
+	const size_t at = 3 * static_cast<size_t>(i);
+	return {v[at], v[at + 1], v[at + 2]};
+}
+//============================================================
 std::pair<float, float> AnimatedModel::YRange(int f) const {
 	std::pair<float, float> range{1000.0f, -1000.0f};
 	for (int i = 1; i < VCount * 3; i += 3) {

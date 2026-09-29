@@ -77,7 +77,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
 * `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the bow's arrow, the potion flask and the treasure chest, real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
-  bottom (the held weapon is drawn from its lowest point, tilted 45 deg), flat faces in the x-z plane; the bow's back bulges to +x.
+  bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
+  (`Player::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
+  up from the lowest point, tilted and swung per `ITEM_DEFS` in `src/state/assets.cpp`.
   The bow is held upright by its grip and has `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
   with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
   from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
@@ -111,6 +113,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
+* `tools/audio/weapon_sounds.py` - synthesizes `sounds/items/`: a swing and a hit per melee weapon (`<weapon>_swing`,
+  `<weapon>_hit`), the bow's draw and release, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`). Wired in
+  `ITEM_DEFS` (`src/state/assets.cpp`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `build/model-viewer <file.md3> [seconds]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
 

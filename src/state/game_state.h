@@ -39,8 +39,7 @@ struct RenderSettings {
 };
 
 struct GameTimers {
-	Timer idleModel{300};  // back to the idle clip after walking
-	Timer weaponRest{250}; // the weapon swings back after an attack
+	Timer idleModel{300}; // back to the idle clip after walking
 };
 
 struct UIContext {

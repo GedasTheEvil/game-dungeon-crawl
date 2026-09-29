@@ -81,18 +81,16 @@ class PlayerActionController {
 	}
 
   private:
+	// The swing (or the bow draw) begins; it hits when its hit time comes (updateAttack in draw.cpp).
 	static void tryAttack() {
-		if (!Game().player->attackTimer.TimePassed())
+		Player& player = *Game().player;
+		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
 			return;
-
-		if (Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON) {
-			Game().player->bowDrawMs = GameClock::now(); // the arrow leaves when the bow is drawn (Update)
-			return;
-		}
-		Game().dungeon.AttackNearest(Game().player->stats.Damage(), Game().ui.inventory->Equipped()->range,
-									 Game().camera.Facing());
-		Game().player->PlayAttackSound();
-		Game().player->attacking = true;
+		const Item* weapon = Game().ui.inventory->Equipped();
+		player.attackTimer.SetInterval(weapon->motion.attackMs);
+		player.attackStartMs = GameClock::now();
+		player.attackLanded = false;
+		weapon->swingSound.Play();
 	}
 
 	static void interact() {

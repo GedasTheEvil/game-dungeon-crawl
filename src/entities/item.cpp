@@ -9,7 +9,7 @@ void Item::Draw(float pose) {
 		return;
 
 	glPushMatrix();
-	glTranslatef(0, 0, -30);
+	glTranslatef(0, 0, -DRAW_DEPTH);
 	const float drawScale = scale * Ink::figureScale();
 	glScalef(drawScale, drawScale, drawScale);
 	tex.Bind();

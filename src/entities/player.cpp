@@ -8,13 +8,50 @@
 #include "../graphics/ink.h"
 #include "../test/scenario.h"
 
+namespace {
+constexpr float DEG_TO_RAD = 3.14159265f / 180.f;
+} // namespace
+
 bool Player::Load(const char* name, const Texture& texture) {
 	if (!model.Load(name, texture, PLAYER_CLIPS))
 		return false;
 	for (AnimPlayback& p : playback)
 		p.stepStart = GameClock::now();
 	state = model.Reference();
+	findFists();
 	return true;
+}
+
+// The fists are raised in front of the chest in every clip: the most forward corners (+z) at 50-85 % of the
+// idle height, one on each side.
+void Player::findFists() {
+	const AnimatedModel* idle = model.Clip(ModelState::Idle);
+	if (!idle)
+		return;
+	const auto [low, high] = idle->YRange(0);
+	std::array<float, 2> forward{-1e9f, -1e9f};
+	for (int i = 0; i < idle->VertexCount(); i++) {
+		const std::array<float, 3> v = idle->Vertex(0, i);
+		const float up = (v[1] - low) / (high - low);
+		const int side = v[0] < 0 ? 0 : 1;
+		if (up > 0.5f && up < 0.85f && v[2] > forward[side]) {
+			forward[side] = v[2];
+			fists[side] = i;
+		}
+	}
+}
+
+std::array<float, 3> Player::Fist(int dir) const {
+	const float s = scale * Ink::figureScale();
+	const int fist = fists[dir > 0 ? 0 : 1]; // turned right, the model's -x side is towards the camera
+	const AnimatedModel* clip = model.Clip(model.Shown(state));
+	std::array<float, 3> v{0, 0.75f, 0.2f}; // no fists found: in front of the chest (the model is 1 tall)
+	if (fist >= 0 && fist < clip->VertexCount() && shownFrame < clip->FrameCount())
+		v = clip->Vertex(shownFrame, fist);
+	// As Draw(): moved back, scaled, turned rotA round y.
+	const float a = rotA * DEG_TO_RAD;
+	return {s * (v[0] * std::cos(a) + v[2] * std::sin(a)), s * v[1],
+			-30.f + depthOffset + s * (-v[0] * std::sin(a) + v[2] * std::cos(a))};
 }
 
 void Player::Draw() {
@@ -45,6 +82,7 @@ void Player::Draw() {
 	const float figure = Ink::figureScale();
 	glScalef(figure, figure, figure);
 	model.Show(state, playback);
+	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 
 	glPopMatrix();
 	glPopMatrix();

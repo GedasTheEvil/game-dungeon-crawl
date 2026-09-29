@@ -1,0 +1,130 @@
+# Held weapons (tests/levels/archery): each weapon in the fist nearer the camera, standing and through its attack
+# (windup, strike, recovery), facing right and left. Check the grip sits in the fist in every shot.
+seed 1
+god
+level tests/levels/archery
+wait 30
+give melee 1
+give melee 2
+give ranged 0
+walk right 3
+key i
+wait 3
+click 14.6 63.5
+wait 2
+click 70 19.5
+wait 3
+key i
+wait 5
+walk right 0.1
+wait 20
+screenshot club_right
+attack
+wait 5
+screenshot club_right_windup
+wait 9
+screenshot club_right_strike
+wait 16
+screenshot club_right_recover
+wait 70
+walk left 0.1
+wait 20
+screenshot club_left
+attack
+wait 5
+screenshot club_left_windup
+wait 9
+screenshot club_left_strike
+wait 16
+screenshot club_left_recover
+wait 70
+key i
+wait 3
+click 26.9 63.5
+wait 2
+click 70 19.5
+wait 3
+key i
+wait 5
+walk right 0.1
+wait 20
+screenshot sword_right
+attack
+wait 4
+screenshot sword_right_windup
+wait 5
+screenshot sword_right_strike
+wait 9
+screenshot sword_right_recover
+wait 70
+walk left 0.1
+wait 20
+screenshot sword_left
+attack
+wait 4
+screenshot sword_left_windup
+wait 5
+screenshot sword_left_strike
+wait 9
+screenshot sword_left_recover
+wait 70
+key i
+wait 3
+click 39.3 63.5
+wait 2
+click 70 19.5
+wait 3
+key i
+wait 5
+walk right 0.1
+wait 20
+screenshot spear_right
+attack
+wait 4
+screenshot spear_right_windup
+wait 6
+screenshot spear_right_strike
+wait 10
+screenshot spear_right_recover
+wait 70
+walk left 0.1
+wait 20
+screenshot spear_left
+attack
+wait 4
+screenshot spear_left_windup
+wait 6
+screenshot spear_left_strike
+wait 10
+screenshot spear_left_recover
+wait 70
+key i
+wait 3
+click 51.7 63.5
+wait 2
+click 70 19.5
+wait 3
+key i
+wait 5
+walk right 0.1
+wait 20
+screenshot bow_right
+attack
+wait 10
+screenshot bow_right_windup
+wait 17
+screenshot bow_right_strike
+wait 5
+screenshot bow_right_recover
+wait 70
+walk left 0.1
+wait 20
+screenshot bow_left
+attack
+wait 10
+screenshot bow_left_windup
+wait 17
+screenshot bow_left_strike
+wait 5
+screenshot bow_left_recover
+wait 70

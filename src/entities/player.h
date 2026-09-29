@@ -31,16 +31,23 @@ class Player {
 	ModelState state = ModelState::Idle;
 	ClipPlayback playback{};
 	ParticleSystem blood{100};
+	// Corner indices of the two fists (model -x, +x), the same in every clip (one mesh); -1: not found.
+	std::array<int, 2> fists{-1, -1};
+	int shownFrame = 0; // of the clip Draw() showed last (it advances after showing)
+
+	void findFists();
 
   public:
 	PlayerStats stats;
 	float rotA = 0.f;
 	float scale = 1.f;
 	float depthOffset = 0.f; // moved towards the back wall (world units) while climbing
-	Timer attackTimer{1000};
+	Timer attackTimer{1000}; // the equipped weapon's WeaponMotion::attackMs between attacks
 	JumpState jump;
-	bool attacking = false;
-	int bowDrawMs = -1; // GameClock time the bow draw began; < 0: not drawing. The arrow leaves at BOW_DRAW_MS.
+	// The attack under way (the swing, or the bow draw): GameClock time it began, < 0: none. Landed: its hit time
+	// (WeaponMotion::hitMs) has passed.
+	int attackStartMs = -1;
+	bool attackLanded = false;
 
 	bool Load(const char* name, const Texture& texture);
 	void Draw();
@@ -52,7 +59,9 @@ class Player {
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);
 	[[nodiscard]] bool climbing() const { return state == ModelState::Climb; }
-	void PlayAttackSound() const { model.attackSound.Play(); }
+	// The fist nearer the camera facing dir (+1 right, -1 left), in the shown clip frame: where the weapon is held.
+	// In the frame Draw() is called in, world units.
+	[[nodiscard]] std::array<float, 3> Fist(int dir) const;
 	void PlayJumpSound() const { model.jumpSound.Play(); }
 };
 

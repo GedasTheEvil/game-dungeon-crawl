@@ -18,9 +18,9 @@ constexpr float RAD_TO_DEG = 57.29578f;
 
 float Dungeon::Arrow::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
 //======================================================================================
-bool Dungeon::aimTarget(float x, float y, int dir, float& outX, float& outY) const {
+bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const {
 	const auto row = static_cast<int>(std::floor(y));
-	float nearest = ARROW_AIM_RANGE;
+	float nearest = range;
 	bool found = false;
 	for (const Monster& mon : monsters) {
 		// A disguised mimic is left alone: aiming at it would give it away.
@@ -46,12 +46,12 @@ bool Dungeon::aimTarget(float x, float y, int dir, float& outX, float& outY) con
 	return found;
 }
 //======================================================================================
-void Dungeon::ShootArrow(int damage, int dir, float height) {
+void Dungeon::ShootArrow(int damage, int dir, float height, float aimRange) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height;
 	float targetX = x0 + static_cast<float>(dir) * ARROW_FREE_RANGE;
 	float targetY = mapY; // the floor
-	aimTarget(x0, y0, dir, targetX, targetY);
+	aimTarget(x0, y0, dir, aimRange, targetX, targetY);
 	// Rise to the top of the arc, then come down through the target.
 	const float dx = std::fabs(targetX - x0);
 	const float dy = targetY - y0;
@@ -81,12 +81,14 @@ void Dungeon::updateArrows() {
 			}
 			if (isSolidTile(MapAt(col, row))) {
 				a.stuckMs = now; // the tip in the wall or the floor
+				Game().assets.sounds.arrowWall.Play();
 				break;
 			}
 			for (Monster& mon : monsters)
 				if (mon.Active() && mon.Alive() && std::fabs(mon.CentreX() - x) <= ARROW_HIT_HALF_WIDTH &&
 					y >= mon.BottomY() && y <= mon.TopY()) {
 					mon.takeHit(a.damage);
+					Game().assets.sounds.arrowHit.Play();
 					gone = true;
 					break;
 				}

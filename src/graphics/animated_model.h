@@ -1,5 +1,6 @@
 #ifndef ANIMATED_MODEL_H
 #define ANIMATED_MODEL_H
+#include <array>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -56,6 +57,8 @@ class AnimatedModel {
 	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
 	void Normalize(const ModelNormalization& n);
 	[[nodiscard]] std::pair<float, float> YRange(int f) const; // lowest and highest y of frame f
+	[[nodiscard]] int VertexCount() const { return VCount; }
+	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const; // corner i of frame f
 	void Reset();
 	[[nodiscard]] int FrameCount() const;
 };

@@ -15,8 +15,9 @@ The player's files are used differently from monsters:
   archeologist_climb.md3 climbing a ladder, back to the camera (rotA = 180). The game sets the frame from the height,
                          one cycle per tile, so it runs backwards going down and holds when the player stops (see
                          CLIMB_GRIP_Y).
-The weapon is drawn floating in front of the chest at ~3/4 of the height, so the fists stay raised
-there in every clip. Every frame the root is moved so the lowest point (the hat excluded) touches the floor.
+The weapon is held in the fist nearer the camera (the engine finds the most forward corners at 50-85 % of the idle
+height, Player::findFists), so the fists stay raised in front of the chest at ~3/4 of the height
+in every clip. Every frame the root is moved so the lowest point (the hat excluded) touches the floor.
 """
 
 import importlib

@@ -3,10 +3,6 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <fstream>
-#include <sys/stat.h>
 #include <vector>
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
@@ -22,7 +18,6 @@ constexpr float CENTRE = CANVAS_W / 2;
 
 using namespace ui;
 
-constexpr int SLOT_COUNT = 6;
 constexpr int TOAST_MS = 2200;
 constexpr int TOAST_FADE_MS = 600;
 constexpr int GLUT_BUTTON_UP = 1;
@@ -271,49 +266,9 @@ void drawMouse(float x, float y, MouseInput m) {
 
 // ---- save slots ------------------------------------------------------------
 
-std::string slotFilename(int slot) { return "saves/save" + std::to_string(slot) + ".sav"; }
-
-struct SlotInfo {
-	bool used = false;
-	int level = 0;		// campaign level the save was made on, 0 if unknown
-	char when[40] = {}; // date and time of the save file
-};
-
-// The slot names list stores "<level>_<month>-<day>_<hh:mm>"; the file time gives the full date.
-SlotInfo slotInfo(int slot) {
-	SlotInfo info;
-	struct stat st = {};
-	if (stat(slotFilename(slot).c_str(), &st) != 0)
-		return info;
-	info.used = true;
-	if (std::sscanf(Game().saveNames[slot].name, "%d_", &info.level) != 1)
-		info.level = 0;
-	time_t t = st.st_mtime;
-	std::strftime(info.when, sizeof(info.when), "%d %b %Y, %H:%M", std::localtime(&t));
-	return info;
-}
-
-void persistSaveNameList() {
-	std::ofstream f("saves/gamelist.dat");
-	for (int a = 0; a < SLOT_COUNT; a++)
-		f << Game().saveNames[a].name << "\n";
-}
-
-std::string saveLabel() {
-	time_t t = time(nullptr);
-	struct tm* lt = localtime(&t);
-	char buf[25];
-	std::snprintf(buf, sizeof(buf), "%02d_%02d-%02d_%02d:%02d", Game().curMap, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour,
-				  lt->tm_min);
-	return buf;
-}
-
 void saveToSlot(int slot) {
-	Game().Save(slotFilename(slot).c_str());
-	auto& name = Game().saveNames[slot].name;
-	strncpy(name, saveLabel().c_str(), sizeof(name) - 1);
-	name[sizeof(name) - 1] = '\0';
-	persistSaveNameList();
+	Game().Save(SaveSlots::FileName(slot).c_str());
+	Game().saves.Record(slot, Game().curMap);
 }
 } // namespace
 
@@ -421,12 +376,12 @@ void MainMenu::DrawButtons() {
 }
 
 void MainMenu::DrawSlots() {
-	for (int slot = 0; slot < SLOT_COUNT; slot++)
+	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
 		DrawSlot(slot);
 }
 
 void MainMenu::DrawSlot(int slot) {
-	SlotInfo info = slotInfo(slot);
+	SaveSlots::Info info = Game().saves.Describe(slot);
 	bool enabled = saveD || info.used;
 	bool isHovered = enabled && hovered == slot;
 	bool held = isHovered && pressed == slot;
@@ -455,7 +410,7 @@ void MainMenu::DrawSlot(int slot) {
 		if (info.level > 0)
 			std::snprintf(level, sizeof(level), "Level %d", info.level);
 		text(heading, textX, r.y + 8.8f, level, isHovered ? GOLD_BRIGHT : GOLD);
-		text(body, textX, r.y + 3.f, info.when, isHovered ? LABEL : LABEL_DIM);
+		text(body, textX, r.y + 3.f, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
 		if (saveD && isHovered) {
 			const char* overwrite = "Overwrite";
 			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f, overwrite, {0.9f, 0.45f, 0.3f});
@@ -591,9 +546,9 @@ int MainMenu::TargetAt(int x, int y) {
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	if (saveD || loadD) {
-		for (int slot = 0; slot < SLOT_COUNT; slot++)
+		for (int slot = 0; slot < SaveSlots::COUNT; slot++)
 			if (slotRect(slot).contains(cx, cy))
-				return saveD || slotInfo(slot).used ? slot : NONE;
+				return saveD || Game().saves.Describe(slot).used ? slot : NONE;
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	for (int i = 0; i < BUTTON_COUNT; i++)
@@ -618,7 +573,7 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (loadD) {
-		Game().LoadSave(slotFilename(target).c_str());
+		Game().LoadSave(SaveSlots::FileName(target).c_str());
 		ResetSubScreens();
 		show = false;
 		inGame = true;
@@ -649,8 +604,8 @@ void MainMenu::Activate(int target) {
 	case MenuAction::MainMenu:
 		inGame = false;
 		break;
-	case MenuAction::Quit:
-		exit(666);
+	case MenuAction::Quit: // glutMainLoop returns, main cleans up
+		glutLeaveMainLoop();
 	}
 }
 

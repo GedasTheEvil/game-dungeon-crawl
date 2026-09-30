@@ -52,15 +52,7 @@ void GameState::Load() {
 
 	assets.sounds.soundtrack.Play();
 
-	std::ifstream f("saves/gamelist.dat");
-	if (f) {
-		std::string token; // one name per line, cut to fit (a long one would overrun the buffer)
-		for (auto& saveName : saveNames)
-			if (f >> token)
-				snprintf(saveName.name, sizeof(saveName.name), "%s", token.c_str());
-	} else {
-		LOG_WARNING("game", "Failed loading save list");
-	}
+	saves.LoadNames();
 
 	status.clear();
 	cacheLoaded = true;

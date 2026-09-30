@@ -17,13 +17,10 @@
 #include "../ui/menu.h"
 #include "../ui/end_screens.h"
 #include "../ui/map_view.h"
+#include "save_slots.h"
 #include <array>
 #include <memory>
 #include <string>
-
-struct SaveName {
-	char name[25];
-};
 
 struct Camera {
 	float rotW = -110.f; // the player's yaw: 70 walking right, -110 left
@@ -65,7 +62,7 @@ class GameState {
 	GameTimers timers;
 	UIContext ui;
 	Dungeon dungeon;
-	SaveName saveNames[6] = {};
+	SaveSlots saves;
 
 	GameState();
 	~GameState();

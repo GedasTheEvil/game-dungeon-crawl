@@ -127,6 +127,8 @@ int main(int argc, char* argv[]) {
 
 		initGl(Game().render.resX, Game().render.resY);
 
+		// Quit (and closing the window) return from the loop, so the cleanup below runs.
+		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 		glutMainLoop();
 
 		// Cleanup

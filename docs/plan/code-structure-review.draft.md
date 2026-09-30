@@ -1,6 +1,6 @@
 # Code structure review
 
-Status: all stages worked through 2026-09-30, not yet reviewed by the user. Done: 1, 2, 3 (verified in play), 4, 5,
+Status: all stages worked through 2026-09-30, verified in play. Done: 1, 2, 3 (verified in play), 4, 5,
 8, 10, 11, 12, the random streams of 9, part of 6. Waiting for a decision: held-key movement (9,
 [fixed-timestep.draft.md](fixed-timestep.draft.md)), how far `Game()` goes (6). Deferred with a reason: 7. See
 [Stages](#stages).
@@ -59,16 +59,16 @@ Rules for every stage:
 | 1 | **Layered build and shared libraries** | done: [solved/layered-build.md](solved/layered-build.md) | hand-listed objects, level tools recompiled, SDL via the timer | layered libraries |
 | 2 | **Ids and rules out of the UI**, unit tests set up | done: [solved/rules-out-of-ui.md](solved/rules-out-of-ui.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
 | 3 | **Tile and monster definition tables** | done: [solved/tile-table.md](solved/tile-table.md) | 12-20 places per tile kind, two boss sources, lossy glyph round trip, raw 0/1/2 states | type object, data-driven |
-| 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | done: [movement-model.md](movement-model.md) | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
-| 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | done: [sim-render-split.md](sim-render-split.md) | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
-| 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
-| 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
+| 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | done: [movement-model.md](solved/movement-model.md) | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
+| 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | done: [sim-render-split.md](solved/sim-render-split.md) | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
+| 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](solved/dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
+| 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](solved/screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
 | 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | not now (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
-| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
-| 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](cleanups.md)); how far to go stays open | 438 calls, the `game_state.h` hub | explicit dependencies |
-| 11 | **RAII for GL resources** | done: [gl-resources.md](gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
-| 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | done: [cleanups.md](cleanups.md) | see the audit | |
-| 13 | **Unit tests for pure logic** | 44 test cases so far: [cleanups.md](cleanups.md) | only GL scenario tests | testability |
+| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](solved/random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
+| 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](solved/cleanups.md)); how far to go stays open | 438 calls, the `game_state.h` hub | explicit dependencies |
+| 11 | **RAII for GL resources** | done: [gl-resources.md](solved/gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
+| 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | done: [cleanups.md](solved/cleanups.md) | see the audit | |
+| 13 | **Unit tests for pure logic** | 44 test cases so far: [cleanups.md](solved/cleanups.md) | only GL scenario tests | testability |
 
 Why this order:
 

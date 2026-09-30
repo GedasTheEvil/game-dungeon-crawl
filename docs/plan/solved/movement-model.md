@@ -1,8 +1,8 @@
 # Stage 10: one movement model
 
-Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 10 of
-the [code structure review](code-structure-review.draft.md). The 14 differences between the checker's `Walker` and
-the game: [the audit](code-structure-review-audit.draft.md#walker-vs-game).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30. Stage 10 of
+the [code structure review](../code-structure-review.draft.md). The 14 differences between the checker's `Walker` and
+the game: [the audit](../code-structure-review-audit.draft.md#walker-vs-game).
 
 ## Why
 
@@ -54,7 +54,7 @@ levels with a path; unit tests; scenarios.
 
 Done 2026-09-30, as decided above:
 
-1. `2fd12b3`: scenario command `walk to X` ([../testing.md](../testing.md)); `levelcheck --script` walks to
+1. `2fd12b3`: scenario command `walk to X` ([../testing.md](../../testing.md)); `levelcheck --script` walks to
    absolute targets and takes `LADDER_GRIP_X`, `GATE_APPROACH` and `GATE_OPEN_MS` from `gameplay_config.h` (moved
    there from `dungeon_base.cpp` / `dungeon_mechanisms.cpp`). `make paths` plays every campaign level's path:
    15/15 pass (13 before: lvl6 and lvl8 stopped short of a gate); the 34 test levels with a path pass too.

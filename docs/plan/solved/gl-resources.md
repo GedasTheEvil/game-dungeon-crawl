@@ -1,7 +1,7 @@
 # Stage 11: GL resources own themselves
 
-Status: implemented 2026-09-30, not yet reviewed by the user. Stage 11 of the
-[code structure review](code-structure-review.draft.md).
+Status: implemented 2026-09-30, verified in play 2026-09-30. Stage 11 of the
+[code structure review](../code-structure-review.draft.md).
 
 ## Why
 

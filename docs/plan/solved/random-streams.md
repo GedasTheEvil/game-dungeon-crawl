@@ -1,7 +1,7 @@
 # Stage 9a: the game's random streams
 
-Status: implemented 2026-09-30 (`964ee27`), not yet reviewed by the user. Stage 9 of the
-[code structure review](code-structure-review.draft.md); the movement part: [fixed-timestep.draft.md](fixed-timestep.draft.md).
+Status: implemented 2026-09-30 (`964ee27`), verified in play 2026-09-30. Stage 9 of the [code structure
+review](../code-structure-review.draft.md); the movement part: [fixed-timestep.draft.md](../fixed-timestep.draft.md).
 
 ## Why
 
@@ -15,7 +15,7 @@ animate the monsters in view.
 * `src/world/rng.h`: `level_gen`'s splitmix64 `Rng`, shared (levelgen output unchanged).
 * `GameState::random` (`GameRandom`): `gameplay` (loot via `RollChestLoot` / `RollMimicLoot(Rng&)`, the riddle
   deck) and `effects` (`CharacterModel::SpawnPlayback(Rng&)`). A scenario seeds both at each `level`
-  ([../testing.md](../testing.md)); the game seeds them from the clock.
+  ([../testing.md](../../testing.md)); the game seeds them from the clock.
 * `ParticleSystem` has its own `Rng` and `Splash(extent)`; the player and monster hits use it.
 * `Dungeon::AnimateMonsters` animates every active monster: one killed out of view finishes dying, and a killed
   mimic leaves its chest even if the player looks away.

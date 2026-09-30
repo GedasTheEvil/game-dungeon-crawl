@@ -2,7 +2,7 @@
 
 Status: draft 2026-09-30, waits for the user's decision (it changes how walking feels). Stage 9 of the
 [code structure review](code-structure-review.draft.md); the random streams part is done
-([random-streams.md](random-streams.md)).
+([random-streams.md](solved/random-streams.md)).
 
 ## The problem, in numbers
 

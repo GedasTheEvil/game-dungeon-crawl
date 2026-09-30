@@ -1,7 +1,7 @@
 # Stage 8: one screen at a time, shared screen parts
 
-Status: implemented 2026-09-30, not yet reviewed by the user. Stage 8 of the
-[code structure review](code-structure-review.draft.md).
+Status: implemented 2026-09-30, verified in play 2026-09-30. Stage 8 of the
+[code structure review](../code-structure-review.draft.md).
 
 ## Why
 
@@ -16,7 +16,7 @@ the end of the frame (which pulled `test/scenario.h` into `ui/`); five HUD parts
   inventory exclude each other, the riddle takes all keys). Screenshots pixel-identical, all scenarios pass.
 * `8b` (`c051169`): `Draw()` ends the frame once for every screen; `ui::CANVAS_W` / `CANVAS_H`, `ui::Toast`,
   `ui::loadScreenFonts`, `ui::beginSquareCanvas`; GLUT's own `GLUT_DOWN` / `GLUT_UP`. `ui/` no longer includes the
-  scenario runner. [../ui.md](../ui.md) updated. Pixel-identical.
+  scenario runner. [../ui.md](../../ui.md) updated. Pixel-identical.
 
 ## Not done
 

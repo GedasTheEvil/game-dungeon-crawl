@@ -1,4 +1,4 @@
-# The level checker jumps over a trap on the floor (docs/plan/movement-model.md): so does the player, the way
+# The level checker jumps over a trap on the floor (docs/plan/solved/movement-model.md): so does the player, the way
 # levelcheck --script plays it: from the middle of the cell before, jump, walk on to the cell after.
 seed 1
 

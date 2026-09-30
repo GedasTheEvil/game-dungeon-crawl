@@ -122,7 +122,7 @@ Format:
    `tests/scenarios/boss.txt`. Levels 1, 2, 3 and 5 rebuilt as ASCII sources (lvl4 was already
    one and kept); lvl5 is the scarab king's level (`tests/scenarios/lvl5_boss.txt`). Difficulty curve 6.7, 11.2,
    14.3, 15.5, 19.5 into lvl6 at 21 (6.8, 11.3, 14.3, 15.7, 19.7 into 21.2 since the checker jumps traps,
-   [movement-model.md](movement-model.md)). The old lvl1 / lvl2 are test fixtures (`tests/levels/classic1`, `classic2`).
+   [movement-model.md](solved/movement-model.md)). The old lvl1 / lvl2 are test fixtures (`tests/levels/classic1`, `classic2`).
    Boss scarab: 320 HP, 40 damage (a full clear of levels 1-4 gives level 8, 134 HP), checker threat 10.
    Not yet: the dig-out summon effect (minions just appear).
 3. Vampire bat in lvl10 (giant bat model, scaled up, darker texture; life steal).

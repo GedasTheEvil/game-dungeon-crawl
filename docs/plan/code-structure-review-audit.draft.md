@@ -215,7 +215,7 @@ After stage 1, `liblevel` and `librender` are clean. The rest:
 ## Walker vs game
 
 The checker's `Walker` (`level_check.cpp:37-138`) against `Dungeon::Move` and the mechanisms. Decided and done in
-[stage 10](movement-model.md): 1, 2, 3, 4, 6, 7, 8, 9, 14 fixed; 5, 10, 12, 13 kept with a reason.
+[stage 10](solved/movement-model.md): 1, 2, 3, 4, 6, 7, 8, 9, 14 fixed; 5, 10, 12, 13 kept with a reason.
 
 1. Jumps only over a gap; the game can hop spikes and death cells that have a floor.
 2. Never jumps from a ladder; the game does.

@@ -31,7 +31,8 @@ constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
 constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
 constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the flame (world units)
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
-constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f, 0.12f, 0.06f, 0.1f, 0.f, 0.15f, 0.2f, 0.1f, 0.1f, 0.06f};
+constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f, 0.f,	 0.15f, 0.2f, 0.1f,
+											 0.1f, 0.06f, 0.14f, 0.2f, 0.1f, 0.2f,	0.1f};
 
 uint32_t hashName(const char* s) { // FNV-1a
 	uint32_t h = 2166136261U;
@@ -156,7 +157,7 @@ void Dungeon::scatterTorches(uint32_t seed) {
 			int tile = MapAt(i, j).type;
 			int8_t prop = decor[MapIndex(i, j)].type;
 			if (tile == Wall || tile == Door || tile == Ladder || tile == Ankh || prop == DECOR_BRAZIER ||
-				prop == DECOR_LAMP || i - lastTorch <= TORCH_MIN_GAP)
+				prop == DECOR_LAMP || prop == DECOR_BES || i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));

@@ -1,0 +1,5 @@
+; Corridor for the statue and mummy props (tests/scenarios/statues.txt). Props are picked by a hash of the file name:
+; "statues29063" puts the cat at col 2, the jackal shrine at 3, the sarcophagus at 6, Osiris at 8 and Bes at 10.
+########################################
+#S..........................E###########
+########################################

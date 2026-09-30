@@ -1,0 +1,23 @@
+# Statue and mummy props in the game (tests/levels/statues29063): the cat (col 2), the jackal shrine (3), the
+# sarcophagus (6), Osiris (8), Bes (10).
+seed 1
+god
+level tests/levels/statues29063
+wait 30
+walk right 1.8
+wait 10
+screenshot cat_jackal
+walk right 2.7
+wait 10
+screenshot sarcophagus
+camera -25 0
+wait 5
+screenshot sarcophagus_right
+camera 0 0
+walk right 4
+wait 10
+screenshot osiris_bes
+toon on
+wait 5
+screenshot osiris_bes_toon
+quit

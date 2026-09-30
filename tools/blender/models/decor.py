@@ -1,4 +1,4 @@
-"""Procedural corridor decorations: ten static props scattered along the back wall of empty floor cells, plus the
+"""Procedural corridor decorations: fifteen static props scattered along the back wall of empty floor cells, plus the
 wall torch (placed separately by the engine, see Dungeon::scatterTorches).
 
     MCP:  p = ".../tools/blender/models/decor.py"; g = {"__file__": p, "__name__": "decor"}
@@ -33,12 +33,14 @@ importlib.reload(common)
 from common import REPO, Builder, cone, ellipsoid, lathe, orient, perp, smoothstep, transform, tube  # noqa: E402
 
 COLL = "decor_new"
-PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "torch"]
+PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris", "bes",
+         "sarcophagus", "torch"]
 TEX_SIZE = 512
 # Enlargement per prop so it reads next to the player (~0.5 tile tall in game).
 # Kept inside x = +-0.42 and y >= -0.43 (the player walks at y = -0.5); the engine's DECOR_JITTER uses the slack.
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
-              "ushabti": 1.9}
+              "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4, "bes": 1.25,
+              "sarcophagus": 1.3}
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
 SPACING = 1.2  # props are spread along X in the scene (bake/review only; export is at the origin)
 
@@ -76,6 +78,17 @@ COL = {
     "iron": (0.07, 0.065, 0.06),
     "pitch": (0.05, 0.035, 0.02),
     "linen_burnt": (0.26, 0.17, 0.09),
+    "limestone": (0.70, 0.64, 0.51),
+    "limestone_fresh": (0.86, 0.82, 0.71),
+    "osiris_green": (0.10, 0.28, 0.15),
+    "paint_red": (0.50, 0.20, 0.12),
+    "paint_blue": (0.18, 0.30, 0.44),
+    "eye_white": (0.84, 0.80, 0.70),
+    "linen_mummy": (0.55, 0.47, 0.33),
+    "linen_mummy_dark": (0.33, 0.26, 0.16),
+    "coffin": (0.34, 0.19, 0.08),
+    "coffin_dark": (0.22, 0.12, 0.05),
+    "coffin_yellow": (0.70, 0.53, 0.17),
 }
 
 
@@ -115,6 +128,22 @@ def materials():
         "iron": ("solid", "iron"),
         "pitch": ("solid", "pitch"),
         "linen": stripes("v", 0.012, [(2, "linen_burnt"), (1, "pitch")], "LINEAR"),
+        "limestone": ("solid", "limestone"),
+        "limestone_fresh": ("solid", "limestone_fresh"),
+        "gold": ("solid", "gold"),
+        "osiris_green": ("solid", "osiris_green"),
+        "regalia": stripes("v", 0.008, [(1, "gold"), (1, "blue")]),
+        "paint_red": ("solid", "paint_red"),
+        "paint_blue": ("solid", "paint_blue"),
+        "plume": stripes("v", 0.01, [(3, "limestone"), (1, "ochre")], "LINEAR"),
+        "mane": ("solid", "ochre"),
+        "eye_white": ("solid", "eye_white"),
+        "wrap": stripes("v", 0.011, [(3, "linen_mummy"), (1, "linen_mummy_dark")], "LINEAR"),
+        "wrap_plain": ("solid", "linen_mummy"),
+        "coffin": stripes("v", 0.02, [(3, "coffin"), (1, "coffin_dark")], "LINEAR"),
+        "coffin_band": stripes("u", 0.008, [(2, "coffin_yellow"), (1, "ink")]),
+        "coffin_yellow": ("solid", "coffin_yellow"),
+        "coffin_dark": ("solid", "coffin_dark"),
     }
     return {name: common.make_material("decor_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -580,6 +609,293 @@ def build_ushabti(b, M):
     add(ushabti("upper"), rot(z=140) @ rot(x=-90), (0.2, -0.15, 0), lie=True)
 
 
+# ---------------------------------------------------------------- statues and the mummy
+
+
+def add_parts(b, M, parts, r=None, loc=(0, 0, 0), lie=False, scale=1.0):
+    """Add [(geo, mat)] rotated by r, then moved to loc; lie = drop the lowest point onto the floor first."""
+    geos = [(place(transform(geo, lambda v: V(v) * scale), r), mat) for geo, mat in parts]
+    low = min(v.z for geo, _ in geos for v in geo[0]) if lie else 0.0
+    for geo, mat in geos:
+        b.add(place(geo, None, V(loc) + V((0, 0, -low))), M[mat], "root")
+
+
+def ring(c, axis, rx, ry, thick, n=16):
+    """Closed band (collar, bracelet) of radii rx, ry around axis through c."""
+    c, axis = V(c), V(axis).normalized()
+    u = perp(axis)
+    w = axis.cross(u)
+    pts = [c + u * (rx * math.cos(2 * math.pi * k / n)) + w * (ry * math.sin(2 * math.pi * k / n)) for k in range(n)]
+    return tube([(p, thick, thick) for p in pts], sub=1, n=6, ref=axis, closed=True)
+
+
+def snap(c, r, seed):
+    """Fresh break surface: a rough lump of bright stone where a part broke off."""
+    return rock(c, r, seed, amp=0.35, n=8, rings=4), "limestone_fresh"
+
+
+def chips(b, M, spots, seed, mat="limestone"):
+    for k, (x, y, size) in enumerate(spots):
+        b.add(rock((x, y, size * 0.5), (size, size * 0.85, size * 0.6), seed + k, amp=0.3, n=7, rings=4), M[mat], "root")
+
+
+def slab(pts, h, r=None, loc=(0, 0, 0)):
+    """Convex polygon pts (x, y) from z = 0 to h, rotated and moved."""
+    return place(prism(pts, h), r, loc)
+
+
+def cat_statue(broken=True):
+    """Seated Bastet cat on z = 0, facing -Y, with a gold collar and earring. broken: the left ear snapped off.
+    Returns [(geo, mat)]."""
+    s = "limestone"
+    parts = [
+        (ellipsoid((0, 0.018, 0.042), (0.044, 0.05, 0.042), n=14, rings=7), s),
+        (tube([((0, 0.02, 0.03), 0.036, 0.036), ((0, 0.0, 0.1), 0.03, 0.028), ((0, -0.012, 0.15), 0.021, 0.02)], sub=3, n=14, ref=V((0, -1, 0))), s),
+        (ellipsoid((0, -0.016, 0.172), (0.027, 0.023, 0.021), n=14, rings=7), s),
+        (ellipsoid((0, -0.035, 0.162), (0.01, 0.009, 0.008), n=10, rings=5), s),
+        (ellipsoid((0, -0.044, 0.166), (0.0035, 0.0025, 0.0025), n=6, rings=3), "black"),
+        (curve([(0.0, 0.066, 0.01), (0.045, 0.04, 0.008), (0.052, -0.01, 0.007), (0.036, -0.045, 0.007)], 0.007, n=7), s),
+        (ring((0, -0.006, 0.138), (0, -0.25, 1), 0.024, 0.023, 0.0024), "gold"),
+        (ellipsoid((0, -0.031, 0.127), (0.005, 0.003, 0.007), n=8, rings=4), "gold"),
+        # A hairline crack down the chest.
+        (curve([(-0.014, -0.028, 0.125), (-0.004, -0.031, 0.1), (-0.009, -0.032, 0.075), (0.002, -0.033, 0.055)], 0.0012, n=4), "black"),
+    ]
+    for sx in (-1, 1):
+        parts.append((rod((sx * 0.013, -0.018, 0.11), (sx * 0.014, -0.03, 0.008), 0.0085, 0.0065, n=8), s))
+        parts.append((ellipsoid((sx * 0.014, -0.037, 0.007), (0.009, 0.013, 0.007), n=8, rings=4), s))
+        parts.append((ellipsoid((sx * 0.0105, -0.034, 0.178), (0.006, 0.003, 0.0033), n=8, rings=4), "black"))
+        if broken and sx < 0:
+            parts.append(snap((-0.015, -0.016, 0.191), (0.008, 0.007, 0.004), 81))
+        else:
+            parts.append((cone(V((sx * 0.015, -0.014, 0.184)), V((sx * 0.3, 0.1, 1)), 0.034, 0.013, n=6), s))
+    parts.append((ring((0.021, -0.02, 0.201), (0, 1, 0), 0.0045, 0.0045, 0.0012, n=10), "gold"))
+    return parts
+
+
+def build_cat(b, M):
+    """Bastet: a seated limestone cat on a chipped plinth, one ear snapped off and lying on the floor,
+    a small cat figurine toppled beside it."""
+    plinth = [(-0.07, -0.05), (0.045, -0.05), (0.068, -0.03), (0.07, 0.05), (-0.07, 0.05)]
+    b.add(slab(plinth, 0.035, loc=(-0.07, -0.08, 0)), M["limestone"], "root")
+    b.add(slab([(0.043, -0.05), (0.066, -0.028), (0.06, -0.035)], 0.034, loc=(-0.07, -0.08, 0.001)), M["limestone_fresh"], "root")
+    add_parts(b, M, cat_statue(), loc=(-0.07, -0.075, 0.035))
+    add_parts(b, M, [(cone(V((0, 0, 0)), V((1, 0, 0.1)), 0.03, 0.013, n=6), "limestone"), snap((0.0, 0, 0), (0.005, 0.011, 0.011), 82)],
+              rot(z=-35), (0.06, -0.19, 0), lie=True)
+    add_parts(b, M, cat_statue(broken=False), rot(z=-20) @ rot(y=95), (0.17, -0.1, 0), lie=True, scale=0.45)
+    chips(b, M, ((0.01, -0.16, 0.008), (0.035, -0.135, 0.006), (-0.02, -0.18, 0.005), (0.1, -0.24, 0.004)), 90)
+
+
+def jackal_statue(broken=True):
+    """Anubis as a black jackal lying on z = 0 along X, head towards -X, gold collar and eyes (Tutankhamun's shrine
+    guardian). broken: the ear on the camera side (-Y) snapped off. Returns [(geo, mat)]."""
+    k = "black"
+    ax, up = V((1, 0, 0)), V((0, 0, 1))
+    parts = [
+        (ellipsoid((0.02, 0, 0.036), (0.028, 0.034, 0.075), n=14, rings=8, axis=ax, ref=up), k),
+        (ellipsoid((0.066, 0, 0.034), (0.034, 0.034, 0.04), n=12, rings=6, axis=ax, ref=up), k),
+        (ellipsoid((-0.045, 0, 0.046), (0.026, 0.04, 0.032), n=12, rings=6, axis=ax, ref=up), k),
+        (rod((-0.05, 0, 0.055), (-0.076, 0, 0.1), 0.017, 0.013, n=10), k),
+        (ellipsoid((-0.083, 0, 0.11), (0.018, 0.019, 0.024), n=12, rings=6, axis=ax, ref=up), k),
+        (ellipsoid((-0.1, 0, 0.104), (0.012, 0.012, 0.018), n=10, rings=5, axis=V((-1, 0, -0.3)), ref=up), k),
+        (cone(V((-0.108, 0, 0.101)), V((-1, 0, -0.35)), 0.03, 0.011, n=8), k),
+        (curve([(0.1, 0, 0.03), (0.128, 0, 0.014), (0.138, -0.012, 0.005)], 0.008, n=6, ref=V((0, 1, 0)), r_end=0.005), k),
+        (ring((-0.063, 0, 0.078), (-0.026, 0, 0.045), 0.018, 0.017, 0.0026), "gold"),
+    ]
+    for sy in (-1, 1):
+        parts.append((rod((-0.05, sy * 0.014, 0.014), (-0.125, sy * 0.014, 0.008), 0.008, 0.007, n=8), k))
+        parts.append((ellipsoid((-0.13, sy * 0.014, 0.007), (0.009, 0.007, 0.012), n=8, rings=4, axis=ax, ref=up), k))
+        parts.append((rod((0.075, sy * 0.031, 0.008), (0.03, sy * 0.031, 0.006), 0.007, 0.006, n=8), k))
+        parts.append((ellipsoid((-0.092, sy * 0.0155, 0.117), (0.0025, 0.004, 0.0028), n=6, rings=3), "gold"))
+        if broken and sy < 0:
+            parts.append((rock((-0.078, -0.009, 0.126), (0.009, 0.007, 0.004), 83, amp=0.35, n=8, rings=4), "wood"))
+        else:
+            parts.append((cone(V((-0.078, sy * 0.009, 0.122)), V((0.12, sy * 0.12, 1)), 0.044, 0.0105, n=6), k))
+    return parts
+
+
+def build_jackal(b, M):
+    """Anubis couchant on a black shrine chest with gold trim and djed pillars; the cornice split at one corner, the jackal's
+    ear broken off and lying at the foot of the shrine."""
+    y = -0.08
+    b.add(place(box(0.29, 0.13, 0.012), loc=(0, y, 0.006)), M["black"], "root")
+    b.add(place(box(0.27, 0.115, 0.094), loc=(0, y, 0.059)), M["black"], "root")
+    b.add(place(box(0.276, 0.12, 0.008), loc=(0, y, 0.11)), M["gold"], "root")
+    cornice = [(-0.13, -0.065), (0.145, -0.065), (0.145, 0.065), (-0.145, 0.065), (-0.145, -0.045)]
+    b.add(slab(cornice, 0.014, loc=(0, y, 0.114)), M["black"], "root")
+    b.add(slab([(-0.145, -0.045), (-0.13, -0.065), (-0.141, -0.06)], 0.013, loc=(0, y, 0.1145)), M["wood"], "root")
+    front = y - 0.0575
+    for x in (-0.09, -0.03, 0.03, 0.09):  # djed pillars in gold on the front
+        b.add(rod((x, front - 0.001, 0.02), (x, front - 0.001, 0.088), 0.005, 0.0045, n=6), M["gold"], "root")
+        for z in (0.07, 0.078, 0.086):
+            b.add(ellipsoid((x, front - 0.002, z), (0.011, 0.002, 0.0022), n=8, rings=3), M["gold"], "root")
+    add_parts(b, M, jackal_statue(), loc=(0.0, y, 0.128))
+    add_parts(b, M, [(cone(V((0, 0, 0)), V((1, 0, 0.1)), 0.044, 0.0105, n=6), "black")], rot(z=25), (-0.2, -0.17, 0), lie=True)
+    add_parts(b, M, [(box(0.035, 0.026, 0.013), "black")], rot(x=8, z=30), (-0.17, -0.2, 0), lie=True)
+    chips(b, M, ((-0.155, -0.16, 0.005), (-0.12, -0.185, 0.004)), 95, "black")
+
+
+def osiris_statue():
+    """Osiris standing mummiform on z = 0, facing -Y, broken across the shins. Returns (stump, upper, crown) as
+    [(geo, mat)] each; the upper part starts at the break (z = 0 there) and has lost its atef crown."""
+    s = "limestone"
+    stump = [
+        (place(box(0.09, 0.085, 0.03), loc=(0, 0, 0.015)), s),
+        (tube([((0, 0, 0.03), 0.022, 0.02), ((0, 0, 0.07), 0.024, 0.02), ((0, 0, 0.135), 0.028, 0.022)], sub=3, n=14, ref=V((0, -1, 0))), s),
+        (ellipsoid((0, -0.019, 0.04), (0.018, 0.012, 0.011), n=10, rings=5), s),
+        snap((0, 0, 0.136), (0.027, 0.021, 0.007), 71),
+    ]
+    upper = [
+        (tube([((0, 0, 0.0), 0.027, 0.021), ((0, 0, 0.07), 0.03, 0.023), ((0, 0, 0.12), 0.037, 0.026), ((0, 0, 0.155), 0.041, 0.025),
+               ((0, 0, 0.172), 0.03, 0.02), ((0, 0, 0.18), 0.012, 0.011)], sub=3, n=14, ref=V((0, -1, 0))), s),
+        (ellipsoid((0, -0.017, 0.158), (0.034, 0.011, 0.02), n=14, rings=5), "regalia"),
+        snap((0, 0, 0.0), (0.028, 0.021, 0.007), 72),
+        (ellipsoid((0, -0.002, 0.195), (0.017, 0.017, 0.021), n=12, rings=6), "osiris_green"),
+        (curve([(0, -0.016, 0.182), (0, -0.021, 0.169), (0.0, -0.018, 0.156)], 0.0045, n=6), "regalia"),
+        snap((0, 0, 0.215), (0.012, 0.011, 0.004), 73),
+        (curve([(0.012, -0.034, 0.1), (-0.012, -0.037, 0.148), (-0.03, -0.036, 0.182), (-0.042, -0.034, 0.186), (-0.045, -0.033, 0.174)], 0.0034, n=6), "regalia"),
+        (rod((-0.012, -0.034, 0.1), (0.03, -0.037, 0.166), 0.003, n=6), "regalia"),
+    ]
+    for k in range(3):
+        top = V((0.03 + 0.003 * k, -0.037, 0.166))
+        upper.append((curve([top, top + V((0.008 + 0.004 * k, -0.002, -0.012)), top + V((0.01 + 0.006 * k, -0.001, -0.03))], 0.0022, n=4), "regalia"))
+    for sx in (-1, 1):
+        upper.append((rod((sx * 0.036, -0.012, 0.13), (sx * 0.012, -0.03, 0.12), 0.009, 0.008, n=8), s))
+        upper.append((ellipsoid((sx * 0.011, -0.031, 0.118), (0.009, 0.008, 0.01), n=8, rings=4), "osiris_green"))
+        upper.append((ellipsoid((sx * 0.007, -0.0175, 0.2), (0.0045, 0.002, 0.0022), n=6, rings=3), "black"))
+    crown = [
+        (revolve_geo([(0.0, 0.0), (0.016, 0.0), (0.018, 0.02), (0.015, 0.05), (0.009, 0.075), (0.006, 0.085), (0.0, 0.086)], 14), s),
+        (ellipsoid((0, 0, 0.089), (0.007, 0.007, 0.007), n=8, rings=4), "gold"),
+    ]
+    for sx in (-1, 1):
+        crown.append((ellipsoid((sx * 0.021, 0, 0.048), (0.004, 0.009, 0.042), n=8, rings=6), "plume"))
+        crown.append((curve([(sx * 0.012, -0.006, 0.006), (sx * 0.03, -0.01, 0.01), (sx * 0.034, -0.008, -0.004)], 0.003, n=5), "gold"))
+    return stump, upper, crown
+
+
+def build_osiris(b, M):
+    """Osiris toppled: the shins still stand on their base, the body lies on its side beside them, crook and flail
+    still in its green hands; the atef crown has rolled off."""
+    stump, upper, crown = osiris_statue()
+    add_parts(b, M, stump, rot(z=4), (-0.2, -0.07, 0))
+    add_parts(b, M, upper, rot(z=-6) @ rot(y=86), (-0.13, -0.14, 0), lie=True)
+    add_parts(b, M, crown, rot(z=25) @ rot(y=-100), (0.19, -0.13, 0), lie=True)
+    chips(b, M, ((-0.14, -0.2, 0.008), (-0.1, -0.23, 0.005), (-0.26, -0.15, 0.006), (0.08, -0.22, 0.004)), 100)
+
+
+def bes_statue():
+    """Bes, the household god: a bandy-legged dwarf with a lion's mane, lolling tongue and feathered crown, hands on the
+    hips, facing -Y on z = 0. His right forearm and two plumes are broken off. Returns [(geo, mat)]."""
+    s = "limestone"
+    parts = [
+        (place(box(0.12, 0.08, 0.025), loc=(0, 0, 0.0125)), s),
+        (ellipsoid((0, -0.012, 0.12), (0.045, 0.038, 0.042), n=14, rings=7), s),
+        (ellipsoid((0, -0.004, 0.16), (0.048, 0.032, 0.03), n=14, rings=6), s),
+        (ellipsoid((0, -0.01, 0.21), (0.034, 0.028, 0.032), n=14, rings=7), s),
+        (ellipsoid((0, -0.034, 0.222), (0.027, 0.008, 0.006), n=10, rings=4), s),
+        (ellipsoid((0, -0.04, 0.203), (0.011, 0.008, 0.007), n=10, rings=4), s),
+        (ellipsoid((0, -0.036, 0.19), (0.014, 0.004, 0.005), n=10, rings=4), "black"),
+        (ellipsoid((0, -0.04, 0.183), (0.0075, 0.005, 0.012), n=10, rings=5), "paint_red"),
+    ]
+    for k in range(13):  # mane around the face, the beard at the bottom
+        a = math.radians(-90 + 360 * k / 13)
+        rr = 0.036 if k else 0.03
+        parts.append((ellipsoid((rr * math.cos(a), -0.012, 0.207 + rr * math.sin(a) * 1.05), (0.011, 0.012, 0.011), n=8, rings=4), "mane"))
+    for sx in (-1, 1):
+        parts.append((ellipsoid((sx * 0.028, -0.02, 0.031), (0.014, 0.02, 0.008), n=8, rings=4), s))
+        parts.append((curve([(sx * 0.028, -0.012, 0.034), (sx * 0.043, -0.012, 0.065), (sx * 0.026, -0.008, 0.098)], 0.013, n=8), s))
+        parts.append((ellipsoid((sx * 0.013, -0.035, 0.213), (0.0068, 0.005, 0.006), n=8, rings=4), "eye_white"))
+        parts.append((ellipsoid((sx * 0.013, -0.04, 0.213), (0.003, 0.002, 0.003), n=6, rings=3), "black"))
+        parts.append((ellipsoid((sx * 0.03, -0.005, 0.24), (0.009, 0.005, 0.01), n=8, rings=4), s))
+        shoulder, elbow, hand = V((sx * 0.05, -0.004, 0.168)), V((sx * 0.068, -0.012, 0.13)), V((sx * 0.04, -0.038, 0.105))
+        parts.append((rod(shoulder, elbow, 0.011, 0.01, n=8), s))
+        if sx > 0:
+            parts.append(snap(elbow, (0.011, 0.011, 0.008), 75))
+        else:
+            parts.append((rod(elbow, hand, 0.01, 0.008, n=8), s))
+            parts.append((ellipsoid(hand, (0.01, 0.008, 0.011), n=8, rings=4), s))
+    top = 0.238
+    parts.append((revolve_geo([(0.0, top), (0.022, top), (0.024, top + 0.018), (0.0, top + 0.018)], 14), "paint_blue"))
+    for k in range(-2, 3):
+        if k > 0:
+            parts.append(snap((0.009 * k, 0, top + 0.02), (0.006, 0.004, 0.004), 76 + k))
+            continue
+        feather = ellipsoid((0, 0, 0.045), (0.0065, 0.003, 0.045), n=8, rings=6)
+        parts.append((place(feather, rot(y=14 * k), (0.009 * k, 0, top + 0.014)), "paint_red" if k % 2 else "plume"))
+    return parts
+
+
+def build_bes(b, M):
+    """Bes standing on his base, his broken forearm and a plume lying in front."""
+    add_parts(b, M, bes_statue(), loc=(0.0, -0.07, 0))
+    add_parts(b, M, [(rod((0, 0, 0), (0.042, 0, 0), 0.01, 0.008, n=8), "limestone"), (ellipsoid((0.048, 0, 0), (0.011, 0.01, 0.008), n=8, rings=4), "limestone")],
+              rot(z=-30), (0.11, -0.17, 0), lie=True)
+    add_parts(b, M, [(place(ellipsoid((0, 0, 0.045), (0.0065, 0.003, 0.045), n=8, rings=6), rot(x=90)), "plume")], rot(z=65), (-0.1, -0.16, 0), lie=True)
+    chips(b, M, ((0.08, -0.13, 0.005), (-0.06, -0.19, 0.004)), 105)
+
+
+def vault_lid(length):
+    """Vaulted coffin lid along X from x = 0 to length, flat underside at z = 0."""
+    h = [(0.0, -0.066), (0.0, 0.066), (-0.012, 0.066), (-0.026, 0.05), (-0.034, 0.025), (-0.036, 0.0), (-0.034, -0.025), (-0.026, -0.05), (-0.012, -0.066)]
+    return place(prism(h, length), rot(y=90))
+
+
+def build_sarcophagus(b, M):
+    """A commoner's plain box coffin against the wall, painted wedjat eyes on the side, its lid cracked in two: one half
+    slid askew, the other leaning at the end. Its mummy lies in front, the wrappings torn, one bony hand reaching out."""
+    y, half, depth, height = -0.072, 0.21, 0.115, 0.096
+    x0 = -0.03
+    b.add(place(box(2 * half, depth, height), loc=(x0, y, height / 2)), M["coffin"], "root")
+    b.add(place(box(2 * half - 0.024, depth - 0.024, 0.002), loc=(x0, y, height)), M["pitch"], "root")
+    front = y - depth / 2 - 0.0012
+    b.add(place(box(2 * half - 0.01, 0.002, 0.016), loc=(x0, front, height - 0.013)), M["coffin_band"], "root")
+    for x in (-0.12, 0.02, 0.12):
+        b.add(place(box(0.012, 0.002, height - 0.03), loc=(x0 + x, front, (height - 0.03) / 2 + 0.004)), M["coffin_band"], "root")
+    for ex in (-0.205, -0.16):  # wedjat eyes near the head end
+        c = V((x0 + ex + 0.02, front - 0.0012, 0.046))
+        b.add(ellipsoid(c, (0.014, 0.0015, 0.0065), n=12, rings=4, axis=V((0, 0, 1)), ref=V((0, 1, 0))), M["eye_white"], "root")
+        b.add(ellipsoid(c + V((0, -0.0012, 0)), (0.005, 0.0012, 0.0052), n=8, rings=3), M["black"], "root")
+        b.add(curve([c + V((-0.016, -0.001, 0.009)), c + V((0, -0.001, 0.014)), c + V((0.017, -0.001, 0.01))], 0.0016, n=4), M["black"], "root")
+        b.add(curve([c + V((-0.003, -0.001, -0.006)), c + V((-0.004, -0.001, -0.018)), c + V((-0.011, -0.001, -0.022))], 0.0014, n=4), M["black"], "root")
+        b.add(curve([c + V((0.004, -0.001, -0.006)), c + V((0.012, -0.001, -0.02)), c + V((0.02, -0.001, -0.017)), c + V((0.018, -0.001, -0.011))], 0.0014, n=4),
+              M["black"], "root")
+    # Lid: the head half slid towards the head end and askew, the foot half leaning against the foot end.
+    b.add(place(vault_lid(0.25), rot(z=-5), (x0 - half - 0.05, y - 0.004, height)), M["coffin"], "root")
+    foot = place(vault_lid(0.17), None, (-0.17, 0, 0))  # from x = -0.17 to 0: stood on its end at x = 0, leaning back
+    b.add(place(foot, rot(z=-10) @ rot(y=68), (x0 + half + 0.045, y - 0.01, 0.0)), M["coffin"], "root")
+    b.add(rock((x0 - half + 0.2, y, height + 0.004), (0.01, 0.05, 0.006), 110, amp=0.4, n=7, rings=3), M["coffin_dark"], "root")
+
+    # Mummy on its back along X, head towards -X, face turned to the camera.
+    my = -0.205
+    keys = [(0.19, 0.011, 0.016), (0.165, 0.013, 0.017), (0.11, 0.018, 0.022), (0.07, 0.017, 0.023), (0.01, 0.022, 0.032), (-0.03, 0.024, 0.038),
+            (-0.07, 0.022, 0.035), (-0.115, 0.026, 0.04), (-0.145, 0.022, 0.041), (-0.168, 0.011, 0.014)]
+    b.add(tube([((x, my, rz * 0.95), rz, ry) for x, rz, ry in keys], sub=2, n=12), M["wrap"], "root")
+    b.add(ellipsoid((0.196, my, 0.022), (0.016, 0.012, 0.013), n=8, rings=4), M["wrap"], "root")
+    b.add(ellipsoid((-0.188, my - 0.004, 0.02), (0.02, 0.019, 0.023), n=12, rings=6, axis=V((1, 0, 0)), ref=V((0, 0, 1))), M["wrap_plain"], "root")
+    face = V((-0.19, my - 0.019, 0.022))  # torn wrapping: dark shrunken face with empty sockets
+    b.add(ellipsoid(face, (0.012, 0.004, 0.011), n=10, rings=4), M["pitch"], "root")
+    for sx in (-1, 1):
+        b.add(ellipsoid(face + V((0.0045 * sx, -0.003, 0.003)), (0.003, 0.002, 0.0028), n=6, rings=3), M["black"], "root")
+    b.add(ellipsoid(face + V((0, -0.003, -0.006)), (0.005, 0.002, 0.0015), n=6, rings=3), M["bone"], "root")
+    # Left arm over the chest, right arm reaching out towards the camera with a bony hand.
+    b.add(curve([(-0.14, my + 0.02, 0.05), (-0.11, my - 0.005, 0.068), (-0.08, my - 0.02, 0.062)], 0.009, n=8), M["wrap"], "root")
+    shoulder, elbow, wrist = V((-0.14, my - 0.035, 0.03)), V((-0.115, my - 0.075, 0.014)), V((-0.085, my - 0.1, 0.008))
+    b.add(curve([shoulder, elbow, wrist], 0.009, n=8, r_end=0.007), M["wrap"], "root")
+    b.add(ellipsoid(wrist + V((0.008, -0.004, 0)), (0.008, 0.006, 0.004), n=8, rings=4), M["bone_dark"], "root")
+    for f in range(4):
+        a = math.radians(-70 + 22 * f)
+        knuckle = wrist + V((0.012 * math.cos(a) + 0.008, 0.012 * math.sin(a), 0.002))
+        tip = knuckle + V((0.014 * math.cos(a), 0.014 * math.sin(a), -0.004))
+        b.add(rod(wrist + V((0.008, -0.004, 0)), knuckle, 0.0016, n=4), M["bone"], "root")
+        b.add(rod(knuckle, tip, 0.0014, 0.001, n=4), M["bone"], "root")
+    # Loose strips: one trailing back over the coffin edge (it came out of there), two frayed on the floor.
+    strip = [(0.08, y + 0.02, height - 0.004), (0.085, front + 0.004, height + 0.004), (0.09, front - 0.004, height - 0.03),
+             (0.1, front - 0.008, 0.004), (0.115, my + 0.012, 0.004), (0.13, my, 0.02)]
+    b.add(tube([(V(p), 0.007, 0.0015) for p in strip], sub=3, n=6, ref=V((0, -1, 0.3))), M["wrap_plain"], "root")
+    for pts in (((0.02, my - 0.03, 0.02), (0.03, my - 0.06, 0.003), (0.07, my - 0.09, 0.0015), (0.1, my - 0.1, 0.0015)),
+                ((-0.05, my - 0.034, 0.025), (-0.045, my - 0.055, 0.003), (-0.02, my - 0.08, 0.0015))):
+        b.add(tube([(V(p), 0.006, 0.0014) for p in pts], sub=3, n=6, ref=V((0, 0, 1))), M["wrap_plain"], "root")
+
+
 BUILDERS = {
     "web": build_web,
     "pottery": build_pottery,
@@ -591,6 +907,11 @@ BUILDERS = {
     "lamp": build_lamp,
     "scrolls": build_scrolls,
     "ushabti": build_ushabti,
+    "cat": build_cat,
+    "jackal": build_jackal,
+    "osiris": build_osiris,
+    "bes": build_bes,
+    "sarcophagus": build_sarcophagus,
     "torch": build_torch,
 }
 

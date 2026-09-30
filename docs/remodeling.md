@@ -49,12 +49,17 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
-* `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
-  brazier, lamp (offerings: clay oil lamp), scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
+* `tools/blender/models/decor.py` - fifteen static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
+  brazier, lamp (offerings: clay oil lamp), scrolls, ushabti; broken statues: `cat` (Bastet on a chipped plinth, an ear and a
+  toppled figurine on the floor), `jackal` (Anubis couchant on a black and gold shrine), `osiris` (toppled, the shins still on the
+  base, atef crown rolled off), `bes` (dwarf household god, forearm and two plumes broken off); `sarcophagus` (a commoner's box
+  coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
+  In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (`tests/levels/statues29063`, whose
+  file name puts one of each in its first cells).
 * `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
   (`wood`: acacia poles with rope-lashed rungs; `vine`: two twisted lianas with thin vines as holds), each with three
   interchangeable middle pieces `a`/`b`/`c` plus `top` (wood: roped to a beam between the side walls; vine: roots creeping along
@@ -170,7 +175,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: club, sword, spear, bow, arrow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
-| Corridor decorations (10 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
+| Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
 | Keys (4 lock colours) | `mechanisms/key.md3` | `mechanisms/key_<colour>.png` | new (static, `mechanism.py`) |
 | Key gate (4 lock colours) | `mechanisms/gate.md3` | `mechanisms/gate_<colour>.png` | new (static, `mechanism.py`) |

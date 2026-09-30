@@ -1,7 +1,7 @@
 # Gameplay status message in its framed box: several lines (chest loot), one line, fading out.
 seed 3
 god
-level 1
+level tests/levels/classic1
 wait 30
 walk right 3
 walk right 1.6

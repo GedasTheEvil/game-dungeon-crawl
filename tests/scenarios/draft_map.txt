@@ -1,7 +1,7 @@
 # Draft map (M): cells within 1 of every tile visited, pencil on papyrus. Survives save / load.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 key m
 screenshot map_start
@@ -19,7 +19,7 @@ screenshot map_after_ladder
 key esc
 screenshot closed_by_esc
 savegame map.sav
-level 1
+level tests/levels/classic1
 key m
 screenshot map_fresh_level
 key m

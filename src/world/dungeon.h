@@ -77,9 +77,20 @@ class Dungeon {
 	void drawKeyTile(int i, int j);
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
+	void drawTeleporterTile(); // at the cell origin: the columns face the camera, plasma between them
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];
+	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
+	// The level's boss fight (at most one boss per level). Monsters are not saved: a load starts the fight over.
+	struct BossFight {
+		int slot = -1;		  // monsters[] index of the boss, -1: none in play
+		int summoned = 0;	  // minions summoned this fight, after the first ones
+		int nextSummonMs = 0; // GameClock time of the next summon
+	} bossFight;
+	void startBossFight(int slot); // the boss appeared: its first minions with it
+	void updateBoss();			   // summons while it lives; its death opens the boss gates, for good
+	bool summonMinion(const Monster& boss);
 	// Arrows (dungeon_arrows.cpp): a parabola from the launch point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
 	struct Arrow {
 		float x0, y0, vx, vy;
@@ -125,9 +136,17 @@ class Dungeon {
 	void PickUp(); // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void Interact();
+	void Teleport();  // on a teleporter: jump to its partner
 	bool PullLever(); // interact on a lever cell; false if there is none
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar
+	// The boss in a fight (alive and alerted), for the HUD bar; null if none.
+	[[nodiscard]] const Monster* Boss() const;
+	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
+	[[nodiscard]] int LivingMinions() const;
+	void SlayBoss(); // scenario tests: the boss in play takes a killing hit, as from the player
+	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
+	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.
 	static constexpr int EXPLORE_RADIUS = 1; // cells to each side: a 3 x 3 square
 	[[nodiscard]] bool Explored(int col, int row) const { return IsInBounds(col, row) && explored[MapIndex(col, row)]; }

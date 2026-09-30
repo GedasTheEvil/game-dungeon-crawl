@@ -1,5 +1,5 @@
 # In-game menu, save / load / options screens (hover only: clicking a slot would write the real saves/).
-level 1
+level tests/levels/classic1
 wait 10
 key esc
 mouse 50 50

@@ -1,7 +1,7 @@
 # Stamina: regenerates 5% of max per second at level 1; a level up refills it.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 expect stamina == 100
 jump

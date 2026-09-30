@@ -22,9 +22,9 @@ enum DungeonTileType : unsigned char {
 	Area3D = 7,
 	Treasure = 8,
 	Ankh = 9,
-	Key = 10,	   // b = lock colour; picked up on touch, then the cell is Empty
-	Gate = 11,	   // b = lock colour, c: 0 closed, 2 opening, 1 open; only open gates let the player through
-	Lever = 12,	   // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
+	Key = 10,	// b = lock colour; picked up on touch, then the cell is Empty
+	Gate = 11,	// b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
+	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
 	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
 };
 
@@ -33,6 +33,7 @@ enum GateType : unsigned char {
 	GateExit = 2,
 	GateRiddle = 3,
 	GateEmpty = 4,
+	GateTeleport = 5, // value = pair id: interact to jump to the other teleporter with the same id
 };
 
 enum MonsterTypeId : unsigned char {
@@ -46,14 +47,20 @@ enum MonsterTypeId : unsigned char {
 	MonsterGiantBat = 8,
 	MonsterMimic = 9,
 	MonsterGiantScarab = 10,
+	MonsterBossScarab = 11, // boss: summons scarabs; its death opens the boss gates
 };
-constexpr int MONSTER_TYPE_MAX = MonsterGiantScarab;
+constexpr int MONSTER_TYPE_MAX = MonsterBossScarab;
+// A boss summons minions and guards the boss gates (Gate with lock colour BOSS_LOCK). At most one per level.
+inline bool isBossMonster(int type) { return type == MonsterBossScarab; }
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;
 constexpr const char* LOCK_COLOUR_NAMES[LOCK_COLOUR_COUNT] = {"red", "blue", "green", "gold"};
 constexpr const char* LOCK_GEM_NAMES[LOCK_COLOUR_COUNT] = {"Carnelian", "Lapis", "Turquoise", "Amber"};
 inline bool isLockColour(int colour) { return colour >= 1 && colour <= LOCK_COLOUR_COUNT; }
+// A gate's colour can also be the boss lock: no key or lever, the level's boss dying opens it.
+constexpr int BOSS_LOCK = LOCK_COLOUR_COUNT + 1;
+inline bool isGateColour(int colour) { return isLockColour(colour) || colour == BOSS_LOCK; }
 
 // One level cell, as in the level files and the editor: tile type, attribute and value.
 struct Tile {
@@ -81,6 +88,12 @@ struct LevelGrid {
 			cells[row * LEVEL_WIDTH + col] = t;
 	}
 };
+
+// Where in the partner's cell the player arrives (Dungeon::Teleport), for the checker's path scripts too.
+constexpr float TELEPORT_ARRIVAL_X = 0.5f;
+inline bool isTeleporter(const Tile& t) { return t.type == Door && t.attr == GateTeleport; }
+// Cell index of the other teleporter with the same pair id, -1 if there is none. cells: a whole level.
+[[nodiscard]] int teleportPartner(const Tile* cells, int index);
 
 // Cell list after the header, as in the level files and save games. False on a short read.
 bool readLevelCells(std::istream& in, Tile* cells, int cellCount);

@@ -1,0 +1,8 @@
+; Boss room (tests/scenarios/boss.txt): the hall (row 2) has the entrance, a teleporter and the blue gate before the
+; exit. The sealed boss room (row 4) is only reached by the teleporter: the boss scarab, the boss gate, behind it the
+; blue key and two chests.
+########################################
+#O......K...Z.b$$#######################
+########################################
+#S..O....B..E###########################
+########################################

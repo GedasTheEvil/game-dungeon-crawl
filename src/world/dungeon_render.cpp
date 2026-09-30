@@ -126,8 +126,34 @@ void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
 	glPopMatrix();
 }
 //======================================================================================
+void Dungeon::drawTeleporterTile() {
+	glPushMatrix();
+	glTranslatef(20, 0, -25);
+	glScalef(40, 40, 40);
+	Game().assets.textures.columns.Bind();
+	Game().assets.models.columns->Show();
+	glPopMatrix();
+
+	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
+	Game().assets.textures.portal.Bind();
+	Lighting::setEmissive(true);
+	glBegin(GL_QUADS);
+	glNormal3f(0, 0, 1);
+	glTexCoord2f(px, 0);
+	glVertex3f(10, 0, -30);
+	glTexCoord2f(px, 1);
+	glVertex3f(10, 37, -30);
+	glTexCoord2f(px + 1, 1);
+	glVertex3f(30, 37, -30);
+	glTexCoord2f(px + 1, 0);
+	glVertex3f(30, 0, -30);
+	glEnd();
+	Lighting::setEmissive(false);
+}
+//======================================================================================
 void Dungeon::Draw() {
-	const bool scrollPortals = portalTimer.TimePassed();
+	if (portalTimer.TimePassed()) // once per frame, however many portals are in view
+		portalScroll -= 0.022;
 
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
@@ -164,7 +190,9 @@ void Dungeon::Draw() {
 					Game().assets.models.ankh->Show();
 					glPopMatrix();
 				}
-				if (tile.type == Door) {
+				if (isTeleporter(tile))
+					drawTeleporterTile();
+				else if (tile.type == Door) {
 					// The doorway stands against the side wall, plasma inside it; with no side wall it turns to the
 					// back wall and faces the camera. Unturned it is on the left.
 					auto rock = [this](int col, int row) {
@@ -203,8 +231,6 @@ void Dungeon::Draw() {
 						glVertex3f(-19.6, 0, 10);
 						glEnd();
 						Lighting::setEmissive(false);
-						if (scrollPortals)
-							portalScroll -= 0.022;
 					}
 					glPopMatrix();
 

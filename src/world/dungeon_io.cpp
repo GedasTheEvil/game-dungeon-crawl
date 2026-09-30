@@ -123,5 +123,22 @@ void Dungeon::Interact() {
 	} else if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateExit) {
 		Game().curMap++;
 		LoadCampaignLevel(Game().curMap);
-	}
+	} else if (isTeleporter(Map(mapX, mapY)))
+		Teleport();
+}
+//======================================================================================
+// The player steps out in the middle of the partner gate, in the plasma.
+void Dungeon::Teleport() {
+	const JumpState& jump = Game().player->jump;
+	if (jump.jumping || jump.falling)
+		return;
+	int to = teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY)));
+	if (to < 0)
+		return;
+	Game().assets.sounds.teleport.Play();
+	const int row = to / MAP_WIDTH;
+	mapX = static_cast<float>(to % MAP_WIDTH) + TELEPORT_ARRIVAL_X;
+	mapY = static_cast<float>(row);
+	resetPlayerMotion();
+	exploreAroundPlayer();
 }

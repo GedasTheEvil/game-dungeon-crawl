@@ -5,6 +5,7 @@
 #include "../ui/screen_state.h"
 #include "hud.h"
 #include "../ui/level_gem.h"
+#include "../ui/boss_bar.h"
 #include "../ui/status_box.h"
 #include "lighting.h"
 #include "ink.h"
@@ -231,6 +232,9 @@ void Draw() {
 	Hud::drawPlayerBars(Game().player->stats.HealthRatio(), Game().player->stats.StaminaRatio());
 	Hud::drawKeys(Game().dungeon.KeysHeld());
 	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
+	if (const Monster* boss = Game().dungeon.Boss())
+		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
+					  Game().render.resX, Game().render.resY, Game().assets.fonts.status);
 
 	glColor3f(1, 1, 1);
 

@@ -1,5 +1,5 @@
 # Credits screen from the main menu: framed sheet, Back button hover, Back returns to the menu.
-level 1
+level tests/levels/classic1
 wait 10
 key esc
 wait 2

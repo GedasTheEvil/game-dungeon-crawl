@@ -37,8 +37,19 @@ struct Leap {
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
+// A boss summons minions around itself while it lives (Dungeon::updateBoss).
+struct BossRules {
+	int minion = 0;		  // MonsterTypeId of its minions; 0: not a boss
+	int minAlive = 0;	  // minions around it when it appears
+	int maxAlive = 0;	  // no summon while this many are alive
+	int summonMs = 0;	  // between summons
+	int summonCap = 0;	  // summons per fight, after the first minAlive
+	int lifeStealPct = 0; // heals this share of the damage it deals
+};
+
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
 struct MonsterType {
+	const char* name = "";
 	CharacterModel model;
 	int speed = 1;
 	int maxHealth = 20;
@@ -49,6 +60,8 @@ struct MonsterType {
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
 	Rgb blood = {0.7f, 0.1f, 0.1f};
+	BossRules boss;
+	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }
 };
 
 // A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
@@ -70,6 +83,7 @@ class Monster {
 	bool spawned = false; // the timers start on the first spawn
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
+	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void drawHealthBar();
@@ -81,6 +95,14 @@ class Monster {
 	Monster& operator=(const Monster&) = delete;
 	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
 	void Clear(); // the slot is empty
+	// Summoned by a boss: chases the player at once.
+	void MakeMinion() {
+		minion = true;
+		alerted = true;
+	}
+	[[nodiscard]] bool Minion() const { return minion; }
+	[[nodiscard]] const MonsterType* Type() const { return type; }
+	[[nodiscard]] int MaxHealth() const { return type->maxHealth; }
 	[[nodiscard]] bool Active() const { return type != nullptr; }
 	[[nodiscard]] int Col() const { return col; }
 	[[nodiscard]] int Row() const { return row; }

@@ -1,7 +1,7 @@
 # Texture filtering review: floor and walls at grazing angles, where missing mipmaps shimmer and blur.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 screenshot default_view
 camera 0 60

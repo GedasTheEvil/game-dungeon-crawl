@@ -30,6 +30,7 @@ int Dungeon::leapLanding(int col, int row, int dir) const {
 }
 //======================================================================================
 void Dungeon::UpdateMonsters() {
+	updateBoss();
 	for (Monster& mon : monsters) {
 		if (!mon.Active())
 			continue;
@@ -90,6 +91,94 @@ void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
 	arrows.clear();
+	bossFight = BossFight{};
+}
+//======================================================================================
+const Monster* Dungeon::Boss() const {
+	if (bossFight.slot < 0)
+		return nullptr;
+	const Monster& boss = monsters[bossFight.slot];
+	return boss.Alive() && boss.Alerted() ? &boss : nullptr;
+}
+//======================================================================================
+int Dungeon::BossHealth() const { return bossFight.slot >= 0 ? monsters[bossFight.slot].Health() : 0; }
+//======================================================================================
+void Dungeon::SlayBoss() {
+	if (bossFight.slot >= 0)
+		monsters[bossFight.slot].takeHit(monsters[bossFight.slot].Health());
+}
+//======================================================================================
+int Dungeon::LivingMinions() const {
+	int n = 0;
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && mon.Minion())
+			n++;
+	return n;
+}
+//======================================================================================
+void Dungeon::startBossFight(int slot) {
+	bossFight = BossFight{slot, 0, 0};
+	const Monster& boss = monsters[slot];
+	const BossRules& rules = boss.Type()->boss;
+	bossFight.nextSummonMs = GameClock::now() + rules.summonMs;
+	for (int k = 0; k < rules.minAlive; k++)
+		summonMinion(boss);
+}
+//======================================================================================
+void Dungeon::updateBoss() {
+	if (bossFight.slot < 0)
+		return;
+	Monster& boss = monsters[bossFight.slot];
+	if (!boss.Active() || !boss.Type()->isBoss()) {
+		bossFight = BossFight{};
+		return;
+	}
+	if (!boss.Alive()) {
+		map[MapIndex(boss.Col(), boss.Row())] = Tile{Empty, 0, 0}; // it does not come back, not after a load either
+		bossFight = BossFight{};
+		openGates(BOSS_LOCK);
+		Game().ShowStatus("%s", "The guardian is slain!\nThe boss gate grinds open");
+		return;
+	}
+	const BossRules& rules = boss.Type()->boss;
+	int now = GameClock::now();
+	if (!boss.Alerted() || Game().hasWon || !Game().player->Alive() || now < bossFight.nextSummonMs)
+		return;
+	bossFight.nextSummonMs = now + rules.summonMs;
+	if (bossFight.summoned < rules.summonCap && LivingMinions() < rules.maxAlive && summonMinion(boss))
+		bossFight.summoned++;
+}
+//======================================================================================
+// Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can
+// stand in with no monster in it yet, else the boss's own cell.
+bool Dungeon::summonMinion(const Monster& boss) {
+	const MonsterType& kind = Game().assets.monsterTypes[boss.Type()->boss.minion];
+	const bool flyer = kind.locomotion == Locomotion::Fly;
+	const int row = boss.Row();
+	const auto bossCol = static_cast<int>(std::floor(boss.CentreX()));
+	const int away = boss.CentreX() < mapX ? -1 : 1;
+	auto taken = [this, row](int col) {
+		for (const Monster& mon : monsters)
+			if (mon.Active() && mon.Alive() && mon.Row() == row && static_cast<int>(std::floor(mon.CentreX())) == col)
+				return true;
+		return false;
+	};
+	int col = bossCol;
+	for (int k = 1; k <= MINION_SUMMON_REACH; k++) {
+		int c = bossCol + away * k;
+		if (!IsInBounds(c, row) || isSolidTile(MapAt(c, row)))
+			break;
+		if ((flyer || !walkerBlocked(c, row)) && !taken(c)) {
+			col = c;
+			break;
+		}
+	}
+	Monster* slot = freeMonsterSlot();
+	if (slot == nullptr)
+		return false;
+	slot->Spawn(kind, col, row);
+	slot->MakeMinion();
+	return true;
 }
 //======================================================================================
 // Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
@@ -133,22 +222,24 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (typeId < 1 || typeId > MONSTER_TYPE_MAX)
 		return false;
 	for (const Monster& mon : monsters)
-		if (mon.Active() && mon.Col() == i && mon.Row() == j)
+		if (mon.Active() && !mon.Minion() && mon.Col() == i && mon.Row() == j)
 			return false;
-	Monster* slot = nullptr;
-	for (Monster& mon : monsters)
-		if (!mon.Active()) {
-			slot = &mon;
-			break;
-		}
-	if (!slot)
-		for (Monster& mon : monsters)
-			if (mon.Health() < 1) {
-				slot = &mon;
-				break;
-			}
+	Monster* slot = freeMonsterSlot();
 	if (!slot)
 		return false;
 	slot->Spawn(Game().assets.monsterTypes[typeId], i, j);
+	if (slot->Type()->isBoss())
+		startBossFight(static_cast<int>(slot - monsters));
 	return true;
+}
+//======================================================================================
+// Never the boss's slot: its death is handled on the next update (updateBoss).
+Monster* Dungeon::freeMonsterSlot() {
+	for (Monster& mon : monsters)
+		if (!mon.Active())
+			return &mon;
+	for (Monster& mon : monsters)
+		if (mon.Health() < 1 && &mon - monsters != bossFight.slot)
+			return &mon;
+	return nullptr;
 }

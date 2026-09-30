@@ -2,7 +2,7 @@
 # Climbing: back to the camera, limbs follow the height (walk down / up), held still when stopped.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 walk right 3
 walk right 1.6

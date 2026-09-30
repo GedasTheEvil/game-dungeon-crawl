@@ -3,7 +3,7 @@
 # (oil lamp at (15, 34) on the left, portal columns stay unlit). Two frames of the same spot show the flicker.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 screenshot start
 walk right 3

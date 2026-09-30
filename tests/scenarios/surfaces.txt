@@ -1,7 +1,7 @@
 # Cell surfaces: wall, floor and ceiling variants (tools/textures/surfaces.py), rough rock deeper down.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 screenshot lvl1_start
 camera 0 35

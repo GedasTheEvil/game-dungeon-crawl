@@ -4,13 +4,14 @@ moves the body).
 
     MCP:  p = ".../tools/blender/models/scarab.py"; g = {"__file__": p, "__name__": "scarab"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/scarab.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/scarab.py -- [--export] [--boss-texture]
 
 Blender space: Z up, the beetle faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts (body, head, elytra, antennae, leg segments) each follow one bone. Every frame is
 posed procedurally: the body moves as a rigid transform and the six legs are solved with
 two-bone IK towards foot targets (planted on the floor or given in body space).
-Two textures share one UV layout: scarab.png (gold and lapis) and scarab_giant.png (obsidian and carnelian, red eyes).
+Three textures share one UV layout: scarab.png (gold and lapis), scarab_giant.png (obsidian and carnelian, red eyes)
+and scarab_boss.png (deep lapis and gold, gold eyes; bake it alone with --boss-texture).
 Set SCARAB_TEX=giant to show the giant texture on the built object (review renders with --bake).
 """
 
@@ -55,6 +56,17 @@ COL_GIANT = dict(COL, **{
     "lapis": (0.42, 0.05, 0.02),
     "carnelian": (0.75, 0.22, 0.02),
     "eye": (0.85, 0.05, 0.01),
+})
+# The boss scarab: a royal shell of deep lapis, bright gold trim, burning gold eyes.
+COL_BOSS = dict(COL, **{
+    "gold": (0.025, 0.06, 0.34),
+    "gold_hi": (0.95, 0.70, 0.18),
+    "gold_leg": (0.62, 0.40, 0.08),
+    "gold_dark": (0.012, 0.025, 0.14),
+    "bronze": (0.30, 0.18, 0.03),
+    "lapis": (0.85, 0.62, 0.12),
+    "carnelian": (0.03, 0.55, 0.42),
+    "eye": (1.0, 0.78, 0.05),
 })
 
 # Elytra: base (v = 0) behind the pronotum to the tip (v = 1).
@@ -686,7 +698,11 @@ def export(models_dir=None):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     tex_dir = os.path.join(REPO, "textures", "monsters")
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_BOSS)
+        common.bake_texture(obj, os.path.join(tex_dir, "scarab_boss.png"), TEX_SIZE, "scarab_boss", ao_distance=0.2)
+    elif "--export" in args:
         build(tex_path=os.path.join(tex_dir, "scarab.png"), giant_path=os.path.join(tex_dir, "scarab_giant.png"))
     else:
         build()

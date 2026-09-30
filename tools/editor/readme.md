@@ -70,6 +70,7 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 2 | Exit | Plasma portal. Interact to load the next level (`levels/lvl<N+1>`). |
 | 3 | Riddle | Question mark above the sphinx. Interact to get a riddle; the gate then becomes type 4. |
 | 4 | Empty gate | Decoration only (also the state of a used riddle gate). |
+| 5 | Teleporter | Two columns facing the camera, plasma between them (no sphinx). Interact to jump to the other teleporter with the same value (pair id); the player can go back the same way. Use exactly two per pair id. |
 | 0 | - | Decoration only. |
 
 ### Monster: monster type (attribute)
@@ -86,8 +87,15 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 8 | Giant bat |
 | 9 | Mimic |
 | 10 | Giant scarab |
+| 11 | Boss scarab (boss) |
 
 Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
+
+A boss (boss scarab) summons minions next to itself, on the side away from the player: some when it appears, then
+one every few seconds up to a limit. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
+gate (Gate with lock colour 5); the boss does not come back, also not after loading a save. Minions give 1 XP while
+the boss lives, half the normal XP after its death. Put at most one boss on a level, in a room only a teleporter
+leads to (`levelcheck` warns otherwise).
 
 ### Key, Gate, Lever: lock colour (attribute)
 
@@ -97,8 +105,10 @@ Bats hang on the ceiling of their cell until the player comes within 1.75 cells 
 | 2 | Blue | Lapis |
 | 3 | Green | Turquoise |
 | 4 | Gold | Amber |
+| 5 | Boss (gates only) | Obsidian |
 
-Keys, gates and levers with the same colour belong together.
+Keys, gates and levers with the same colour belong together. A boss gate (colour 5) has no key or lever: it opens
+when the level's boss dies.
 
 ### Treasure: item type (attribute) and item id (value)
 

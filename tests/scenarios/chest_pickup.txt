@@ -1,7 +1,7 @@
 # Level 1 chest at x 14 on the start row holds a sword (8 1 1): main item plus bonus rolls.
 seed 3
 god
-level 1
+level tests/levels/classic1
 wait 30
 walk right 3
 walk right 1.6

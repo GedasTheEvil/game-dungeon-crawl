@@ -4,7 +4,7 @@
 # Buttons y 19.5: weapons Equip x 70.0, Upgrade x 84.0; potions Drink x 77.0.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 give melee 1
 give ranged 0

@@ -1,7 +1,7 @@
 # Level-up sun beam: opens, holds, fades over 1.6 s; gone afterwards.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 walk right 5
 wait 30

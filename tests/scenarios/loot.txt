@@ -1,7 +1,7 @@
 # Treasure chest bonus loot (fixed seed): 30% small stamina, 20% large stamina, 5% lower weapon,
 # potion chests 5% same potion, large health chests 10% small health.
 seed 1
-level 1
+level tests/levels/classic1
 chest melee 1 1000
 expect melee1 == 1000
 expect potion5 >= 250

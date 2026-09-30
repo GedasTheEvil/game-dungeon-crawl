@@ -35,6 +35,7 @@ constexpr float MONSTER_JUMP_TOUCHDOWN = 0.83f; // ... and touch it again
 constexpr float MONSTER_JUMP_HEIGHT = 12.f;		// world units at the top of the arc
 constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
+constexpr int MINION_SUMMON_REACH = 3;			// cells from its boss a summoned minion may appear
 
 constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
 

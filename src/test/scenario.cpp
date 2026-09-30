@@ -59,6 +59,7 @@ enum class CommandType : unsigned char {
 	Press,
 	Release,
 	Click,
+	KillBoss,
 	Quit,
 };
 
@@ -78,6 +79,8 @@ enum class Field : unsigned char {
 	XpTotal,
 	Riddle,
 	Bars,
+	Boss,
+	Minions,
 	ItemCount,
 	ItemLevel
 };
@@ -206,6 +209,10 @@ float fieldValue(const Command& cmd) {
 		return Game().ui.riddle->show ? 1.f : 0.f;
 	case Field::Bars:
 		return static_cast<float>(Game().dungeon.MonsterBarsShown());
+	case Field::Boss:
+		return static_cast<float>(Game().dungeon.BossHealth());
+	case Field::Minions:
+		return static_cast<float>(Game().dungeon.LivingMinions());
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.itemType, cmd.itemId));
 	case Field::ItemLevel:
@@ -354,7 +361,9 @@ bool parseField(const std::string& word, Field& field) {
 				  {"keys", Field::Keys},
 				  {"xp", Field::XpTotal},
 				  {"riddle", Field::Riddle},
-				  {"bars", Field::Bars}};
+				  {"bars", Field::Bars},
+				  {"boss", Field::Boss},
+				  {"minions", Field::Minions}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -466,12 +475,17 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::Dump;
 		return needArgs(0);
 	}
+	if (name == "killboss") {
+		cmd.type = CommandType::KillBoss;
+		return needArgs(0);
+	}
 	if (name == "expect") {
 		cmd.type = CommandType::Expect;
 		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
 			!parseFloat(w[3], cmd.a))
 			return "usage: expect "
-				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|<item><id>[.level]> "
+				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|bars|boss|minions|"
+				   "<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
 		return "";
 	}
@@ -666,6 +680,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Dump:
 		report(cmd, true, stateLine());
+		return true;
+	case CommandType::KillBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.SlayBoss();
 		return true;
 	case CommandType::Expect: {
 		float actual = fieldValue(cmd);

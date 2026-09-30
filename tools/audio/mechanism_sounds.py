@@ -5,7 +5,7 @@
 Writes monsters/rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
 rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
 mechanisms/key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
-lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris).
+lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris), teleport.wav (rising plasma swell + shimmer).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -199,12 +199,28 @@ def rock_crash():
     return normalize(out + debris, -2)
 
 
+def teleport():
+    # The plasma swells and rises, the player is pulled through, a shimmer rings out at the other gate.
+    dur = 1.1
+    t = t_axis(dur)
+    swell = np.sin(np.pi * np.clip(t / 0.75, 0, 1)) ** 2
+    out = band(rng.standard_normal(len(t)), 600, 3500) * swell * 0.5
+    for k, f0 in enumerate((180, 270, 360)):
+        s, tt = chirp(f0, f0 * 5, 0.75, 1.8)
+        s *= np.sin(np.pi * tt / 0.75) ** 2 * (1 + 0.4 * np.sin(2 * np.pi * 9 * tt))
+        place(out, s, 0.0, 0.6 / (k + 1))
+    shimmer, ts = ring((1760, 2640, 3520), 0.4, 0.12)
+    place(out, shimmer * (1 - np.exp(-ts / 0.005)), 0.68, 0.5)
+    return normalize(out, -4)
+
+
 # Paths under sounds/.
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
     "mechanisms/rock_rumble": rock_rumble, "mechanisms/rock_crash": rock_crash,
-    "monsters/rat_jump": rat_jump,  # last: the fixed rng stream of the older sounds stays the same
+    "monsters/rat_jump": rat_jump,  # after the older sounds: their fixed rng stream stays the same
+    "mechanisms/teleport": teleport,
 }
 
 

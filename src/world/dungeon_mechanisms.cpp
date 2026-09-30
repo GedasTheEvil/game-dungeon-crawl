@@ -139,8 +139,18 @@ void Dungeon::openGates(int colour) {
 //======================================================================================
 void Dungeon::bumpGate(int col, int row) {
 	Tile gate = MapAt(col, row);
-	if (gate.type != Gate || gate.value != 0 || !isLockColour(gate.attr))
+	if (gate.type != Gate || gate.value != 0 || !isGateColour(gate.attr))
 		return;
+
+	if (gate.attr == BOSS_LOCK) {
+		int now = GameClock::now();
+		if (now - lockedHintMs < LOCKED_HINT_INTERVAL_MS)
+			return;
+		lockedHintMs = now;
+		Game().ShowStatus("%s", "Sealed. It opens when its guardian falls.");
+		Game().assets.sounds.gateLocked.Play();
+		return;
+	}
 
 	if ((keysHeld & lockBit(gate.attr)) != 0) {
 		startOpeningGate(MapIndex(col, row));
@@ -205,7 +215,8 @@ void Dungeon::drawGateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, lift, 0);
-	showModel(colourModel(Game().assets.mechanisms.gate, tile.attr));
+	showModel(tile.attr == BOSS_LOCK ? Game().assets.mechanisms.bossGate.get()
+									 : colourModel(Game().assets.mechanisms.gate, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================

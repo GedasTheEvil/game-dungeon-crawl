@@ -16,7 +16,9 @@ constexpr std::array<TileInfo, TILE_COUNT> TILES = {{
 	{"Treasure", "treasure.png", "Chest with an item on top. Interact to pick it up, the cell then becomes Empty."},
 	{"Ankh", "ankh.png", "Level goal. Interact with it to win the game."},
 	{"Key", "key.png", "Key on the floor, picked up on touch. Opens the gates of its colour."},
-	{"Gate", "gate_lock.png", "Portcullis. Opens with the key of its colour or when a lever of its colour is pulled."},
+	{"Gate", "gate_lock.png",
+	 "Portcullis. Opens with the key of its colour or when a lever of its colour is pulled; a boss gate when the boss "
+	 "dies."},
 	{"Lever", "lever.png", "Interact to pull it. Opens every gate of the same colour."},
 	{"RockFall", "rockfall.png",
 	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a Wall "
@@ -36,6 +38,7 @@ const Choices GATE_TYPES = {
 	{2, "exit", "Exit, loads the next level"},
 	{3, "riddle", "Riddle, asks a riddle, then becomes an empty gate"},
 	{4, "empty", "Empty gate, decoration only"},
+	{5, "teleporter", "Teleporter, interact to jump to the teleporter with the same value (pair id)"},
 	{0, "decoration", "Decoration only"},
 };
 
@@ -50,6 +53,8 @@ const Choices MONSTER_TYPES = {
 	{MonsterGiantBat, "giant bat", "Giant bat"},
 	{MonsterMimic, "mimic", "Mimic, a treasure chest until the player comes near"},
 	{MonsterGiantScarab, "giant scarab", "Giant scarab, leaps over pits and traps"},
+	{MonsterBossScarab, "boss scarab",
+	 "Boss scarab, summons scarabs; its death opens the boss gates. One boss per level"},
 };
 
 const Choices LOCK_COLOURS = {
@@ -62,6 +67,14 @@ const Choices LOCK_COLOURS = {
 constexpr int ITEM_MELEE = 1;
 constexpr int ITEM_RANGED = 2;
 constexpr int ITEM_POTION = 3;
+
+const Choices GATE_COLOURS = {
+	{1, "red", "Red (Carnelian)"},
+	{2, "blue", "Blue (Lapis)"},
+	{3, "green", "Green (Turquoise)"},
+	{4, "gold", "Gold (Amber)"},
+	{BOSS_LOCK, "boss", "Boss gate, opens when the level's boss dies"},
+};
 
 const Choices ITEM_TYPES = {
 	{ITEM_MELEE, "melee weapon", "Melee weapon"},
@@ -88,6 +101,16 @@ const Choices ZERO_ONLY = {{0, "only", "Set by the game while playing"}};
 FieldHint unusedField() {
 	FieldHint hint;
 	hint.label = "not used";
+	return hint;
+}
+
+// Any number is fine: an id that links tiles.
+FieldHint anyNumber(const char* label, int number, const char* meaning) {
+	FieldHint hint;
+	hint.used = true;
+	hint.label = label;
+	hint.current = std::to_string(number) + " = " + meaning;
+	hint.choices = "any number";
 	return hint;
 }
 
@@ -137,6 +160,8 @@ CellHint describeCell(const Tile& cell) {
 	switch (cell.type) {
 	case Door:
 		hint.attribute = field("gate type", GATE_TYPES, cell.attr, "unknown, decoration only");
+		if (cell.attr == GateTeleport)
+			hint.value = anyNumber("pair id", cell.value, "the other teleporter with this value is the target");
 		break;
 	case MonsterSpawn:
 		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
@@ -154,7 +179,7 @@ CellHint describeCell(const Tile& cell) {
 		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, opens nothing");
 		break;
 	case Gate:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, no key or lever opens it");
+		hint.attribute = field("lock colour", GATE_COLOURS, cell.attr, "no colour, no key or lever opens it");
 		hint.value = field("state", GATE_STATES, cell.value, "not a start state, use 0 or 1");
 		break;
 	case Lever:

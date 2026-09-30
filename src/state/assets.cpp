@@ -39,6 +39,21 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::WalkJump,
 	 {0.4f, 0.05f, 0.55f}},
+	// Bigger, faster and harder than the giant scarab; see BOSS_DEFS. A full clear of levels 1-4 makes the player
+	// level 8 (134 HP): 3-4 bites kill them.
+	{MonsterBossScarab,
+	 "Boss scarab",
+	 "monsters/scarab",
+	 "monsters/scarab_boss",
+	 3,
+	 320,
+	 40,
+	 900,
+	 6000,
+	 34,
+	 180,
+	 Locomotion::WalkJump,
+	 {0.1f, 0.2f, 0.75f}},
 	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 350, 30, 1200, 10000, 19, 180, Locomotion::Walk,
 	 RED_BLOOD},
 	{MonsterPlant,
@@ -85,6 +100,15 @@ const MonsterDef MONSTER_DEFS[] = {
 	 0,
 	 Locomotion::Ambush,
 	 {0.5f, 0.05f, 0.1f}},
+};
+
+// Minions per boss: type, alive on arrival, alive at most, ms between summons, summons per fight, life steal %.
+// Starting values, to tune from playthroughs (docs/plan/boss-rooms.draft.md).
+const struct {
+	MonsterTypeId id;
+	BossRules rules;
+} BOSS_DEFS[] = {
+	{MonsterBossScarab, {MonsterScarab, 3, 5, 1500, 12, 0}},
 };
 
 struct ItemDef {
@@ -156,6 +180,8 @@ void loadMechanisms(MechanismSet& set) {
 		set.gate[c] = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[c]);
 		set.leverBase[c] = loadStaticModel("models/mechanisms/lever_base.md3", set.leverBaseTex[c]);
 	}
+	set.bossGateTex.LoadPNG("textures/mechanisms/gate_boss.png");
+	set.bossGate = loadStaticModel("models/mechanisms/gate.md3", set.bossGateTex);
 	set.leverHandleTex.LoadPNG("textures/mechanisms/lever_handle.png");
 	set.rockTex.LoadPNG("textures/mechanisms/rock.png");
 	set.crackTex.LoadPNG("textures/mechanisms/ceiling_crack.png");
@@ -197,7 +223,10 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		type.rotA = def.rotA;
 		type.locomotion = def.locomotion;
 		type.blood = def.blood;
+		type.name = def.label;
 	}
+	for (const auto& def : BOSS_DEFS)
+		monsterTypes[def.id].boss = def.rules;
 
 	for (const ItemDef& def : ITEM_DEFS) {
 		char label[64];
@@ -244,6 +273,13 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	models.question->BindTexture(textures.questionMark.ID());
 	models.question->Centrify();
 	models.question->Compile();
+
+	textures.columns.LoadPNG("textures/props/columns.png");
+	models.columns = std::make_unique<AnimatedModel>();
+	models.columns->Load("models/props/columns.md3");
+	models.columns->BindTexture(textures.columns.ID());
+	models.columns->Centrify();
+	models.columns->Compile();
 
 	textures.portal.LoadPNG("textures/effects/plasma.png");
 
@@ -301,6 +337,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	sounds.drink_s.Load("sounds/items/potion_drink.wav");
 	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
 	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
+	sounds.teleport.Load("sounds/mechanisms/teleport.wav");
 	sounds.gateLocked.Load("sounds/mechanisms/gate_locked.wav");
 	sounds.lever.Load("sounds/mechanisms/lever.wav");
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");

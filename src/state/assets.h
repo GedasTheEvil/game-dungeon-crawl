@@ -17,7 +17,7 @@
 struct SoundBank {
 	Sound drink_s;
 	Music soundtrack;
-	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash;
+	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport;
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
 };
 
@@ -41,7 +41,7 @@ struct TrapSet {
 };
 
 struct SceneModels {
-	std::unique_ptr<AnimatedModel> sphinx, ankh, question;
+	std::unique_ptr<AnimatedModel> sphinx, ankh, question, columns; // columns: the teleporter
 };
 
 struct DecorSet {
@@ -60,8 +60,9 @@ struct DecorSet {
 // texture, so each colour is its own copy of the model. Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Texture leverHandleTex, rockTex, crackTex;
+	Texture leverHandleTex, rockTex, crackTex, bossGateTex;
 	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
+	std::unique_ptr<AnimatedModel> bossGate; // BOSS_LOCK: the gate model with its own texture
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack;
 };
 

@@ -1,7 +1,8 @@
 // levelcheck: validates level files and ranks them by difficulty. See docs/levels.md.
 //   levelcheck [--map] [--quiet] [--script DIR] FILE...
 // --script DIR writes DIR/<level name>.txt per valid level: a scenario (docs/testing.md) that plays the path the
-// check found in the real game, in god mode, and expects the level to be finished at the end.
+// check found in the real game, in god mode, and expects the level to be finished at the end. It kills the boss
+// (killboss) where the path reaches it.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
 #include "../../src/world/level.h"
@@ -67,8 +68,21 @@ class PathScript {
 				line("interact");
 				line("wait 1400ms");
 				break;
+			case PathMove::Teleport:
+				line("interact");
+				line("wait 5");
+				x = static_cast<float>(cur.col) + TELEPORT_ARRIVAL_X;
+				break;
 			case PathMove::Start:
 				break;
+			}
+			// The checker counts reaching the boss as killing it; in god mode the script kills it there.
+			Tile t = grid.at(cur.col, cur.row);
+			if (t.type == MonsterSpawn && isBossMonster(t.attr) && !bossKilled) {
+				bossKilled = true;
+				line("wait 500ms");
+				line("killboss");
+				line("wait 1s");
 			}
 		}
 		flushWalk();
@@ -87,6 +101,7 @@ class PathScript {
 	float walkLeft = 0.f;
 	int climbDir = 0;
 	int climbRows = 0;
+	bool bossKilled = false;
 
 	void line(const std::string& text) {
 		flushWalk();
@@ -149,19 +164,21 @@ void printReport(const Entry& e, bool map) {
 	printf("   size: %d open cells, %d reachable, bounds %dx%d\n", r.openCells, r.reachableCells, r.boundsWidth,
 		   r.boundsHeight);
 	printf("   content: %d monsters (scarab %d, worm %d, plant %d, anubis %d, rat %d, giant rat %d, bat %d, giant bat "
-		   "%d, mimic %d, giant scarab %d), %d spikes, %d death traps, %d rock falls, %d treasures (%d reachable), %d "
+		   "%d, mimic %d, giant scarab %d, boss scarab %d), %d spikes, %d death traps, %d rock falls, %d treasures (%d "
+		   "reachable), %d "
 		   "keys, %d gates, "
 		   "%d levers, "
-		   "%d riddles\n",
+		   "%d riddles, %d teleporters\n",
 		   r.monsterCount, r.monsters[MonsterScarab], r.monsters[MonsterWorm], r.monsters[MonsterPlant],
 		   r.monsters[MonsterAnubis], r.monsters[MonsterRat], r.monsters[MonsterGiantRat], r.monsters[MonsterBat],
-		   r.monsters[MonsterGiantBat], r.monsters[MonsterMimic], r.monsters[MonsterGiantScarab], r.spikes,
-		   r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles);
+		   r.monsters[MonsterGiantBat], r.monsters[MonsterMimic], r.monsters[MonsterGiantScarab],
+		   r.monsters[MonsterBossScarab], r.spikes, r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures,
+		   r.keys, r.gates, r.levers, r.riddles, r.teleporters);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
-			   "%d gates (%d colours), %d monsters near\n",
+			   "%d gates (%d colours), %d teleports, %d monsters near\n",
 			   r.pathLength, r.pathJumps, r.pathDrops, r.pathClimb, r.pathSpikes, r.pathDeathTraps, r.pathRockFalls,
-			   r.pathGates, r.keysNeeded, r.pathMonsters);
+			   r.pathGates, r.keysNeeded, r.pathTeleports, r.pathMonsters);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());

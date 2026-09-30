@@ -10,8 +10,11 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 
 | Levels | Content |
 |---|---|
-| 1-3, 5 | The original levels: rats, scarabs, worms, plants, riddles. `lvl5` has rats and bats instead of its Anubis. |
+| 1 | The way in: rats and a scarab, spikes, a spike pit to jump, ladders, the first chests. |
+| 2 | The scarab galleries: scarabs, bats, plants by the chests, a riddle room up a ladder, a drop shaft, two spike pits. |
+| 3 | The worm tunnels: worms, rats, a bat, a rock fall, the first key (red) and gate. A riddle gate in the exit hall. |
 | 4 | The treasury: rats, scarabs, a worm, plants guarding side rooms, the first mimic among real chests. A riddle gate. |
+| 5 | The scarab king, the first boss: a teleporter to the sealed boss room, the boss scarab and its scarabs. Behind the boss gate the blue key for the blue gate before the exit. A riddle room past a spike pit. |
 | 6 | Rats, a giant rat, the first giant scarab. Red key and gate. |
 | 7 | Bats and giant bats in low tunnels. Blue lever and gate. |
 | 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. |
@@ -24,7 +27,7 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 15 | The finale: three Anubis, all four locks, riddles, the ankh. |
 
 Anubis only appears from level 10 on. Weak monsters give way to their giant kin: no rats, scarabs or small bats
-after level 9, no small scarabs after level 5 (giant scarabs from 6). The sources of levels 4 and 6 to 15 are ASCII drawings in `tools/level/campaign/`
+after level 9, no small scarabs after level 5 (giant scarabs from 6). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
 
@@ -45,13 +48,15 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 - Climb between vertically adjacent `Ladder` cells.
 - Jump over a gap of one cell. The jump is about 0.45 tiles high, so the player cannot step up onto a ledge.
 - A key, or a pulled lever, opens every gate of its colour.
+- Reaching the boss counts as killing it: the boss gates (lock colour 5) open.
+- A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways.
 
 It reports:
 
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, softlock cells, a path that must cross a death trap. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |
@@ -63,7 +68,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, mimic 2, Anubis 8):
+giant bat 3.5, giant scarab 4, mimic 2, Anubis 8, boss scarab 10):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
@@ -99,7 +104,7 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    At most 4 + 2 × difficulty monsters.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, a boss gate `Z`, a teleporter `O`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose
@@ -131,6 +136,13 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and through its attack (windup, strike,
   recovery), both facings: screenshots.
 - `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.
+- `tests/scenarios/teleport.txt`: a teleporter pair (`tests/levels/teleport`): the jump there and back, the exit in
+  the room only the teleporter reaches.
+- `tests/scenarios/boss.txt`: the boss room (`tests/levels/boss`): minions on arrival and summoned up to the limit,
+  1 XP per minion while the boss lives, the sealed boss gate, the boss's death opens it, no boss after a load.
+- `tests/scenarios/lvl5_boss.txt`: lvl5 played through in god mode: teleporter, boss fight, blue key, exit.
+- `tests/levels/classic1`, `classic2`: the old hand-made levels 1 and 2, kept as fixtures for the scenarios that
+  depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.
 - `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.
 - `tests/scenarios/generated_path.txt`: plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
   Written by `levelcheck --script`.

@@ -29,6 +29,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	health = kind.maxHealth;
 	x = 0.f;
 	alerted = false;
+	minion = false;
 	state = flies() || type->locomotion == Locomotion::Ambush ? ModelState::Idle : ModelState::Move;
 	facing = 0;
 	flight = Flight{};
@@ -87,8 +88,9 @@ bool Monster::takeHit(int dmg) {
 
 	if (!Alive() && state != ModelState::Die) {
 		enter(ModelState::Die);
-		Game().ShowStatus("Gained %d XP", type->xp);
-		Game().player->stats.AddXP(type->xp);
+		const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
+		Game().ShowStatus("Gained %d XP", xp);
+		Game().player->stats.AddXP(xp);
 		type->model.dieSound.Play();
 
 		// Death blood effect, stronger than a hit.
@@ -160,7 +162,7 @@ void Monster::Draw(float px, float py) {
 	glTranslatef(40 * x - 20, flies() ? flight.lift : leap.lift, -30);
 	glPushMatrix(); // will add rotation
 
-	if (Alive() && alerted) // idle monsters keep up the disguise
+	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD
 		drawHealthBar();
 
 	glScalef(scale, scale, scale);

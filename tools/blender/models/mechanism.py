@@ -17,7 +17,8 @@ Free models, origin on their own axis (x = y = 0, lowest point z = 0), to be dra
 lever_handle origin = its pivot; draw it in the lever_base frame translated by LEVER_PIVOT, then rotated around
 the depth axis (game Z; +35 deg in glRotatef tips the grip to -x as seen by the camera). At 0 deg it points up (+Z).
 
-Textures: one PNG per model and lock colour (key, gate, lever_base: textures/mechanisms/<model>_<colour>.png,
+Textures: one PNG per model and lock colour (key, gate, lever_base: textures/mechanisms/<model>_<colour>.png;
+the gate also has gate_boss.png for the boss gate,
 same UV layout, only the gems / painted accents differ) or one per model (lever_handle, rock, ceiling_crack).
 Lighting is baked like decor.py (suns from the camera side and above + sky); the gate gets two suns from the
 left and right front so both its long sides read, the key a front and a back sun because it spins.
@@ -46,6 +47,7 @@ COLL = "mechanism_new"
 MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack"]
 COLOURED = {"key", "gate", "lever_base"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
+BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
@@ -60,6 +62,7 @@ GEMS = {
     "blue": {"gem": (0.05, 0.14, 0.70), "glint": (0.62, 0.74, 1.0), "accent": (0.05, 0.12, 0.50)},  # lapis lazuli
     "green": {"gem": (0.03, 0.62, 0.42), "glint": (0.62, 1.0, 0.84), "accent": (0.04, 0.42, 0.30)},  # turquoise
     "gold": {"gem": (1.0, 0.84, 0.08), "glint": (1.0, 0.97, 0.75), "accent": (0.92, 0.70, 0.05)},  # yellow amber
+    "boss": {"gem": (0.03, 0.02, 0.04), "glint": (0.80, 0.35, 0.95), "accent": (0.20, 0.04, 0.28)},  # obsidian
 }
 
 COL = {
@@ -422,6 +425,13 @@ def build_env(coll, xs):
     return obj
 
 
+def variants(name):
+    """Texture variants of a model: its lock colours, or None for one plain texture."""
+    if name not in COLOURED:
+        return [None]
+    return LOCK_COLOURS + (["boss"] if name in BOSS_COLOURED else [])
+
+
 def extents(obj):
     vs = obj.data.vertices
     return tuple((min(v.co[a] for v in vs), max(v.co[a] for v in vs)) for a in range(3))
@@ -453,7 +463,7 @@ def build(bake=True, tex_dir=None, only=None):
         if bake:
             suns, sky = LIGHT.get(name, ([(50, 0, 0.75)], 0.45))
             texs = {}
-            for colour in (LOCK_COLOURS if name in COLOURED else [None]):
+            for colour in variants(name):
                 if colour:
                     set_lock_colour(M, colour)
                 stem = name + ("_" + colour if colour else "")

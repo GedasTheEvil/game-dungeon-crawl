@@ -1,7 +1,7 @@
 # Keyboard aliases: E interacts (chest pickup), V attacks (kills the level's first rat).
 seed 3
 god
-level 1
+level tests/levels/classic1
 wait 30
 walk right 3
 walk right 1.6

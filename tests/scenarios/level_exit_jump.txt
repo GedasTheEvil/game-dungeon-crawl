@@ -1,8 +1,9 @@
 # Leaving a level mid-jump (interact on the exit while in the air) must not carry the jump into the next level:
-# lvl2 exits at row 36, lvl3 starts at row 39, so a carried-over jump would end at row 36 inside the rock.
+# tests/levels/classic2 (the old lvl2) exits at row 36; the next level, lvl2, starts at row 9 under a one-cell
+# ceiling, so a carried-over jump would end off the floor or in the rock.
 seed 1
 god
-level 2
+level tests/levels/classic2
 wait 30
 walk right 3.450
 walk down 1.97
@@ -18,6 +19,6 @@ interact
 wait 2s
 dump
 screenshot arrived
-expect level == 3
-expect y == 39
+expect level == 2
+expect y == 9
 walk right 2

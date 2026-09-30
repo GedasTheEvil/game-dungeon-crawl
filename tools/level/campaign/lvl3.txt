@@ -1,0 +1,14 @@
+; lvl3: the worm tunnels. Worms, rats and bats, a loose ceiling, the first key: the red key lies past a worm in the
+; lower hall, a chest past a spike pit beyond it, the red gate bars the way on. Behind it a shaft drops into the exit hall with a riddle gate.
+def 1 8 3 1
+########################################
+########################################
+#S...t....v.........H.......R....f...###
+####################H##############.####
+#$....r.....w.......H....t....$####.####
+###X###############################.####
+############E...........w.....?......p1#
+########################################
+########################################
+########################################
+########################################

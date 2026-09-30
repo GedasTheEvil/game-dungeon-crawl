@@ -1,6 +1,13 @@
 #include "level.h"
 #include <fstream>
 
+int teleportPartner(const Tile* cells, int index) {
+	for (int i = 0; i < LEVEL_WIDTH * LEVEL_HEIGHT; i++)
+		if (i != index && isTeleporter(cells[i]) && cells[i].value == cells[index].value)
+			return i;
+	return -1;
+}
+
 bool readLevelCells(std::istream& in, Tile* cells, int cellCount) {
 	for (int i = 0; i < cellCount; i++) {
 		in >> cells[i].type >> cells[i].attr >> cells[i].value;

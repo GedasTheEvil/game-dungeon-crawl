@@ -1,7 +1,7 @@
 # Toon shading review (F1): monsters, props, items, tiles side by side with the lit look.
 seed 1
 god
-level 1
+level tests/levels/classic1
 wait 30
 screenshot lit_start
 toon on

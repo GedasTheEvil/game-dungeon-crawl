@@ -2,7 +2,7 @@
 resolution 1920 1200
 seed 1
 god
-level 1
+level tests/levels/classic1
 walk right 5
 wait 10
 camera 0 0

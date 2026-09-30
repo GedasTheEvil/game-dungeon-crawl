@@ -7,7 +7,9 @@
 //     until there is one or a ladder catches the player;
 //   - climb up / down between vertically adjacent ladder cells;
 //   - jump over a one-cell gap in the floor (the jump is ~0.45 tiles high, so no step up onto a ledge);
-//   - touching a key, or pulling a lever, opens every gate of its colour from then on.
+//   - touching a key, or pulling a lever, opens every gate of its colour from then on;
+//   - interacting with a teleporter moves the player to its partner (both ways);
+//   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open.
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
@@ -20,7 +22,7 @@ struct CellPos {
 };
 
 // How the player gets into a path cell from the one before it.
-enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull };
+enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport };
 
 struct LevelReport {
 	bool valid = false;
@@ -42,6 +44,8 @@ struct LevelReport {
 	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterTypeId (index 0 = unknown type)
 	int monsterCount = 0;
 	int spikes = 0, deathTraps = 0, rockFalls = 0, treasures = 0, keys = 0, gates = 0, levers = 0, riddles = 0;
+	int teleporters = 0;
+	int bosses = 0;
 	int reachableTreasures = 0;
 	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)
 
@@ -49,9 +53,10 @@ struct LevelReport {
 	std::vector<CellPos> path;
 	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull stays in the cell)
 	int pathLength = 0;				 // moves
-	int pathJumps = 0, pathDrops = 0, pathClimb = 0;
+	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0;
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathGates = 0, pathMonsters = 0;
-	int keysNeeded = 0; // colours the path has to collect before a gate
+	int keysNeeded = 0;	   // colours the path has to collect before a gate
+	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 
 	float difficulty = 0.f; // see difficultyScore(); ~0 trivial, 10 hard, 20+ brutal
 };
@@ -62,10 +67,10 @@ struct LevelReport {
 [[nodiscard]] float monsterThreat(int type);
 
 // The level as text, top row first (wall rows above and below the level are skipped). Legend:
-//   # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D other gate  H ladder  $ treasure
+//   # wall  . open  S entrance  E exit  A ankh  ? riddle gate  O teleporter  D other gate  H ladder  $ treasure
 //   ^ spikes  X death trap  v rock fall  monsters: s scarab w worm p plant n anubis t rat T giant rat
-//   f bat F giant bat m other
-//   keys r b g y, gates R B G Y (red, blue, green, gold), / lever
+//   f bat F giant bat k giant scarab K boss scarab M mimic m other
+//   keys r b g y, gates R B G Y (red, blue, green, gold), Z boss gate, / lever
 // With a report, the path is drawn as '*' over open cells.
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 

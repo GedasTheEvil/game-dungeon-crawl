@@ -53,7 +53,8 @@ One command per line. `#` starts a comment.
 | `mouse X Y` | Move the mouse to X% Y% of the window, Y from the bottom (hover). |
 | `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won) to the result. |
-| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys xp riddle bars` (`keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8; `xp` = total XP; `riddle` = 1 while the riddle screen is open; `bars` = living monsters showing their health bar), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
+| `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
+| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys xp riddle bars boss minions` (`keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8; `xp` = total XP; `riddle` = 1 while the riddle screen is open; `bars` = living monsters showing their health bar; `boss` = HP of the boss in play, 0 if none; `minions` = living minions), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
 | `quit` | End the script. The end of the file also ends it. |
 
 A failed `walk` or `expect` is a soft failure: the script continues, but the exit code is 1.

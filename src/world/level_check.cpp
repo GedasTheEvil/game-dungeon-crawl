@@ -1,11 +1,12 @@
 #include "level_check.h"
 #include <algorithm>
 #include <cstdio>
+#include <map>
 #include <queue>
 #include <set>
 
 namespace {
-constexpr int MASKS = 1 << LOCK_COLOUR_COUNT; // lock colours opened so far
+constexpr int MASKS = 1 << BOSS_LOCK; // lock colours opened so far, the boss lock too
 constexpr int CELLS = LEVEL_WIDTH * LEVEL_HEIGHT;
 constexpr int STATES = CELLS * MASKS;
 constexpr int NONE = -1;
@@ -17,6 +18,7 @@ constexpr int COST_SPIKE = 6;
 constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_MONSTER = 2;
+constexpr int COST_TELEPORT = 4;
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
 
 using Move = PathMove;
@@ -30,11 +32,11 @@ struct Edge {
 int stateOf(int col, int row, int mask) { return (row * LEVEL_WIDTH + col) * MASKS + mask; }
 int cellOf(int state) { return state / MASKS; }
 int maskOf(int state) { return state % MASKS; }
-int bitOf(int colour) { return isLockColour(colour) ? 1 << (colour - 1) : 0; }
+int bitOf(int colour) { return isGateColour(colour) ? 1 << (colour - 1) : 0; }
 
 class Walker {
   public:
-	explicit Walker(const LevelGrid& grid) : grid(grid) {}
+	explicit Walker(const LevelGrid& grid, bool teleports = true) : grid(grid), teleports(teleports) {}
 
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
@@ -49,9 +51,11 @@ class Walker {
 		return grid.at(col, row).type == Ladder || solid(col, row - 1, mask);
 	}
 
-	// Picks up what the player touches in this cell.
+	// Picks up what the player touches in this cell. Reaching the boss counts as killing it: the boss gates open.
 	[[nodiscard]] int touch(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
+		if (t.type == MonsterSpawn && isBossMonster(t.attr))
+			return mask | bitOf(BOSS_LOCK);
 		return t.type == Key ? mask | bitOf(t.attr) : mask;
 	}
 
@@ -98,6 +102,14 @@ class Walker {
 		if (here.type == Lever && isLockColour(here.attr))
 			add(stateOf(col, row, mask | bitOf(here.attr)), COST_MOVE, Move::Pull);
 
+		if (teleports && isTeleporter(here)) {
+			int to = teleportPartner(grid.cells, cell);
+			if (to != NONE) {
+				int fallen = 0;
+				add(settle(to % LEVEL_WIDTH, to / LEVEL_WIDTH, mask, fallen), COST_TELEPORT, Move::Teleport);
+			}
+		}
+
 		for (int dir : {-1, 1}) {
 			int next = col + dir;
 			if (!LevelGrid::inBounds(next, row) || solid(next, row, mask))
@@ -122,7 +134,29 @@ class Walker {
 
   private:
 	const LevelGrid& grid;
+	bool teleports;
 };
+
+// Cells the walker reaches from the start state (any opened colours).
+std::vector<char> reachableCells(const Walker& walker, int startState) {
+	std::vector<char> seen(STATES, 0);
+	std::vector<char> cells(CELLS, 0);
+	std::vector<int> stack = {startState};
+	seen[startState] = 1;
+	std::vector<Edge> edges;
+	while (!stack.empty()) {
+		int state = stack.back();
+		stack.pop_back();
+		cells[cellOf(state)] = 1;
+		walker.successors(state, edges);
+		for (const Edge& e : edges)
+			if (seen[e.to] == 0) {
+				seen[e.to] = 1;
+				stack.push_back(e.to);
+			}
+	}
+	return cells;
+}
 
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
 
@@ -147,6 +181,8 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 					r.exits++;
 				else if (t.attr == GateRiddle)
 					r.riddles++;
+				else if (t.attr == GateTeleport)
+					r.teleporters++;
 				break;
 			case Ankh:
 				r.exits++;
@@ -155,6 +191,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case MonsterSpawn:
 				r.monsters[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0]++;
 				r.monsterCount++;
+				r.bosses += isBossMonster(t.attr) ? 1 : 0;
 				break;
 			case Spike:
 				r.spikes++;
@@ -197,7 +234,8 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	int keyMask = 0, leverMask = 0, gateMask = 0;
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if ((t.type == Key || t.type == Gate || t.type == Lever) && !isLockColour(t.attr)) {
+		if (((t.type == Key || t.type == Lever) && !isLockColour(t.attr)) ||
+			(t.type == Gate && !isGateColour(t.attr))) {
 			r.errors.push_back("bad lock colour " + std::to_string(t.attr) + " at " + at(cell));
 			continue;
 		}
@@ -211,15 +249,50 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
 		if ((gateMask & bitOf(c)) != 0 && ((keyMask | leverMask) & bitOf(c)) == 0)
 			r.warnings.push_back(std::string("no key or lever opens the ") + LOCK_COLOUR_NAMES[c - 1] + " gates");
+
+	bool bossGates = false;
+	for (const Tile& t : grid.cells)
+		bossGates = bossGates || (t.type == Gate && t.attr == BOSS_LOCK);
+	if (bossGates && r.bosses == 0)
+		r.warnings.emplace_back("boss gates, but no boss opens them");
+	if (r.bosses > 0 && !bossGates)
+		r.warnings.emplace_back("a boss without a boss gate");
+	if (r.bosses > 1)
+		r.warnings.push_back(std::to_string(r.bosses) + " bosses, a level has at most one");
+}
+
+// The boss room is only reached by teleporter: walking there skips the arrival.
+void checkBossRoom(const LevelGrid& grid, int startState, LevelReport& r) {
+	if (r.bosses == 0)
+		return;
+	std::vector<char> walked = reachableCells(Walker(grid, false), startState);
+	for (int cell = 0; cell < CELLS; cell++) {
+		Tile t = grid.cells[cell];
+		if (t.type == MonsterSpawn && isBossMonster(t.attr) && walked[cell] != 0)
+			r.warnings.push_back("the boss at " + at(cell) + " can be reached without a teleporter");
+	}
 }
 
 // Only the game makes a dead gate, from an answered riddle gate (GateEmpty); in level data it has no purpose.
 void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if (t.type == Door && t.attr != GateEntrance && t.attr != GateExit && t.attr != GateRiddle)
+		if (t.type == Door && t.attr != GateEntrance && t.attr != GateExit && t.attr != GateRiddle &&
+			t.attr != GateTeleport)
 			r.warnings.push_back("gate without a purpose (attribute " + std::to_string(t.attr) + ") at " + at(cell));
 	}
+}
+
+// Each teleporter pair id is used by exactly two teleporters.
+void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
+	std::map<int, std::vector<int>> pairs;
+	for (int cell = 0; cell < CELLS; cell++)
+		if (isTeleporter(grid.cells[cell]))
+			pairs[grid.cells[cell].value].push_back(cell);
+	for (const auto& [id, cells] : pairs)
+		if (cells.size() != 2)
+			r.warnings.push_back(std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) +
+								 ", e.g. at " + at(cells[0]) + ": a pair needs exactly two");
 }
 
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
@@ -268,6 +341,8 @@ float monsterThreat(int type) {
 		return 1.5f; // does not move
 	case MonsterAnubis:
 		return 8.f;
+	case MonsterBossScarab:
+		return 10.f; // a little weaker than an Anubis, plus its scarabs
 	case MonsterRat:
 		return 0.7f; // fast, but barely hurts
 	case MonsterGiantRat:
@@ -286,6 +361,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	countContent(grid, r);
 	checkLocks(grid, r);
 	checkDeadGates(grid, r);
+	checkTeleporters(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
@@ -308,6 +384,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 
 	// Dijkstra over (cell, opened colours), keeping the edges for the backward pass.
+	checkBossRoom(grid, startState, r);
+
 	std::vector<int> dist(STATES, NONE);
 	std::vector<int> prev(STATES, NONE);
 	std::vector<Move> prevMove(STATES, Move::Start);
@@ -416,6 +494,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			r.pathJumps += m == Move::Jump ? 1 : 0;
 			r.pathDrops += m == Move::Drop ? 1 : 0;
 			r.pathClimb += m == Move::Climb ? 1 : 0;
+			r.pathTeleports += m == Move::Teleport ? 1 : 0;
 		}
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
@@ -427,6 +506,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++)
 		r.keysNeeded += (gateColours >> c) & 1;
+	r.pathBoss = (gateColours & bitOf(BOSS_LOCK)) != 0;
 
 	std::set<int> monstersNear;
 	for (const CellPos& p : r.path)
@@ -444,7 +524,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 }
 
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
-	static const char MONSTER_CHARS[] = "mswpntTfFMk";
+	static const char MONSTER_CHARS[] = "mswpntTfFMkK";
 	static const char KEY_CHARS[] = "rbgy";
 	static const char GATE_CHARS[] = "RBGY";
 	std::vector<char> onPath(CELLS, 0);
@@ -468,7 +548,11 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 				c = '.';
 				break;
 			case Door:
-				c = t.attr == GateEntrance ? 'S' : t.attr == GateExit ? 'E' : t.attr == GateRiddle ? '?' : 'D';
+				c = t.attr == GateEntrance ? 'S'
+					: t.attr == GateExit   ? 'E'
+					: t.attr == GateRiddle ? '?'
+					: isTeleporter(t)	   ? 'O'
+										   : 'D';
 				break;
 			case Death:
 				c = 'X';
@@ -492,7 +576,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 				c = isLockColour(t.attr) ? KEY_CHARS[t.attr - 1] : 'k';
 				break;
 			case Gate:
-				c = isLockColour(t.attr) ? GATE_CHARS[t.attr - 1] : 'Q';
+				c = isLockColour(t.attr) ? GATE_CHARS[t.attr - 1] : t.attr == BOSS_LOCK ? 'Z' : 'Q';
 				break;
 			case Lever:
 				c = '/';

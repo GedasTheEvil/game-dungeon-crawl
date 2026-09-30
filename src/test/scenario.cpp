@@ -1,6 +1,8 @@
 #include "scenario.h"
 #include "../graphics/gl_includes.h"
 #include "../input/input.h"
+#include "../graphics/draw.h"
+#include "../state/game_loop.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
 #include "../core/timer.h"
@@ -955,8 +957,9 @@ void Scenario::tick() {
 
 		runCommands();
 		Update();
-		// Frames without a screenshot still run Draw (animations advance there) but fill one pixel: software GL
-		// under Xvfb spends nearly all its time on fill. SCENARIO_DRAW_ALL=1 (HEADLESS=0) draws them in full.
+		// Frames without a screenshot still run Draw (the UI screens advance their own animations there, such as the
+		// inventory's turntable; the game world does not) but fill one pixel: software GL under Xvfb spends nearly all
+		// its time on fill. SCENARIO_DRAW_ALL=1 (HEADLESS=0) draws them in full.
 		const bool blind = gRunner.pendingShot.empty() && !gRunner.drawAll;
 		if (blind) {
 			glEnable(GL_SCISSOR_TEST);

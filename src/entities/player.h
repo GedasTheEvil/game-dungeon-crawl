@@ -50,6 +50,7 @@ class Player {
 	bool attackLanded = false;
 
 	bool Load(const char* name, const Texture& texture);
+	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (Draw only shows them)
 	void Draw();
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }
 	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).

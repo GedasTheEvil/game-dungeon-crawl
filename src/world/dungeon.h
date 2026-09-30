@@ -45,6 +45,7 @@ class Dungeon {
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
+	[[nodiscard]] bool inView(const Monster& mon) const;
 	void drawHitboxes();
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(bool isDeathTrap);
@@ -129,6 +130,10 @@ class Dungeon {
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
+	float treasureSpin = 0.f;  // degrees: the item turning over a treasure chest
+	// The monster tiles in the drawn window (10 x 6 cells round the player) spawn their monsters (SpawnMonster).
+	void spawnInView();
+	void updateAnimations(); // the portal scroll, the riddle mark, the treasure items
 
   public:
 	Dungeon();
@@ -138,6 +143,7 @@ class Dungeon {
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	void Update();
+	void AnimateMonsters(); // once a tick, after Update: the monsters in view (Monster::Animate)
 	void Draw();
 	void Move(float dirX, float dirY);
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).

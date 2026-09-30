@@ -111,7 +111,7 @@ void barFrame(const Rect& bar) {
 
 void drawHealth(const PlayerHud::View& v, int now) {
 	float ratio = ratioOf(v.hp, v.maxHp);
-	float lost = trail.update(ratio, now);
+	float lost = std::max(trail.shown, ratio);
 	const Rect& bar = HEALTH_BAR;
 	if (ratio < LOW_HEALTH && v.hp > 0) {
 		float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(now) * 0.008f);
@@ -218,6 +218,10 @@ void drawXp(const PlayerHud::View& v) {
 } // namespace
 
 namespace PlayerHud {
+void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()); }
+
+void reset() { trail = DamageTrail{}; }
+
 void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons) {
 	int now = GameClock::now();
 	// Font::print resets the modelview, so the canvas is set through the projection.

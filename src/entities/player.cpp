@@ -59,6 +59,22 @@ float Player::HalfWidth() const { return model.HalfWidth() * scale * Ink::figure
 
 float Player::Height() const { return model.referenceTop * scale * Ink::figureScale() / RenderConfig::TILE_SIZE; }
 
+// The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.
+void Player::Animate() {
+	if (Alive()) {
+		if (state == ModelState::Die) // healed back to life
+			setModelState(ModelState::Idle);
+		blood.Explode();
+		blood.Fall();
+	} else
+		setModelState(ModelState::Die);
+	blood.Explode();
+	blood.Fall();
+	if (state != ModelState::Climb) // the climb frame follows the height (showClimb)
+		model.Advance(state, playback);
+	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
+}
+
 void Player::Draw() {
 	glPushMatrix();
 	glTranslatef(0, 0, -30 + depthOffset);
@@ -69,17 +85,11 @@ void Player::Draw() {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
 		Game().assets.textures.nullTex.Bind();
-		blood.Explode();
-		blood.Fall();
 		blood.Draw();
 		glPopMatrix();
 	};
-	if (Alive()) {
-		if (state == ModelState::Die) // healed back to life
-			setModelState(ModelState::Idle);
+	if (Alive())
 		drawBlood();
-	} else
-		setModelState(ModelState::Die);
 	drawBlood(); // even when dead
 
 	model.BindTexture();
@@ -87,12 +97,9 @@ void Player::Draw() {
 	const float figure = Ink::figureScale();
 	glScalef(figure, figure, figure);
 	model.Show(state, playback);
-	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 
 	glPopMatrix();
 	glPopMatrix();
-	if (state != ModelState::Climb) // the climb frame follows the height (showClimb)
-		model.Advance(state, playback);
 }
 
 void Player::TakeHit(int dmg, bool ignoreArmor) {

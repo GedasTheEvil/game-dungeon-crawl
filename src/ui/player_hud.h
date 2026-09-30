@@ -34,6 +34,11 @@ struct View {
 	Slot slots[3];					   // weapon, healing potion, stamina potion
 };
 
+// Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).
+void tick(int hp, int maxHp);
+// A new game or a loaded one: no lost part left over.
+void reset();
+
 // Sets its own square-pixel ortho projection (100 / SCALE high) for a resX x resY window. numbers: health numbers;
 // small: key caps and counts; icons: the icon atlas texture. Leaves texturing on and the HUD blend function
 // (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.

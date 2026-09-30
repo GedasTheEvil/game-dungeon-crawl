@@ -154,7 +154,9 @@ class Monster {
 	[[nodiscard]] float TopY() const;
 	bool takeHit(int dmg);
 	// With the frame origin at the spawn tile.
-	void Draw(float px, float py);
+	// Once a tick while in view: the pose for its state, the facing, the blood, the clip frame (Draw only shows them).
+	void Animate(float px, float py);
+	void Draw();
 };
 
 #endif

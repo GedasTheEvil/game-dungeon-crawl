@@ -47,12 +47,6 @@ const float CAMERA_ROTATE_LIMIT_X = 30.0f;
 const float CAMERA_ROTATE_LIMIT_Y = 10.0f;
 const float MOUSE_LOOK_SENSITIVITY = 0.08f;
 
-void Load();
-
-void Update();
-
-void Draw();
-
 void Idle();
 
 void keyPressed(unsigned char a, int x, int y);

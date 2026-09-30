@@ -207,24 +207,37 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	return true;
 }
 //======================================================================================
+// A monster walks away from its spawn tile, so it is culled by where it is now: in the drawn tiles, 10 x 6 from
+// column mapX - 4, row mapY - 3.
+bool Dungeon::inView(const Monster& mon) const {
+	int firstCol = static_cast<int>(mapX) - 4;
+	int firstRow = static_cast<int>(mapY) - 3;
+	float centre = mon.CentreX();
+	return mon.Active() && mon.Row() >= firstRow && mon.Row() < firstRow + 6 &&
+		   centre >= static_cast<float>(firstCol) && centre < static_cast<float>(firstCol + 10);
+}
+//======================================================================================
+// Only the monsters in view: their blood draws from the shared rand() (stage 9 of the code structure review gives
+// it its own), so animating the others would change every seeded roll after it.
+void Dungeon::AnimateMonsters() {
+	for (Monster& mon : monsters)
+		if (inView(mon))
+			mon.Animate(mapX, mapY);
+}
+//======================================================================================
 // Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
-// A monster walks away from its spawn tile, so it is culled and placed by where it is now.
 void Dungeon::DrawMonsters() {
 	int firstCol = static_cast<int>(mapX) - 4;
 	int firstRow = static_cast<int>(mapY) - 3;
 	for (Monster& mon : monsters) {
-		if (!mon.Active())
-			continue;
-		float centre = mon.CentreX(); // the drawn tiles: 10 x 6
-		if (mon.Row() < firstRow || mon.Row() >= firstRow + 6 || centre < static_cast<float>(firstCol) ||
-			centre >= static_cast<float>(firstCol + 10))
+		if (!inView(mon))
 			continue;
 
 		glPushMatrix();
 		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
 					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		mon.Draw(mapX, mapY);
+		mon.Draw();
 		glPopMatrix();
 	}
 }

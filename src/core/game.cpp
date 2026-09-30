@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include "../input/input.h"
+#include "../graphics/draw.h"
+#include "../state/game_loop.h"
 #include "../graphics/textures.h"
 #include "sound.h"
 #include "../state/game_state.h"

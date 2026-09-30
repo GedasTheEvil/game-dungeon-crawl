@@ -7,6 +7,8 @@
 #include "tile_defs.h"
 
 namespace {
+constexpr float CHEST_CLUB_SCALE = 10.f; // the club is small next to the chest at its own scale
+
 // One face of a cell, corners counter-clockwise from (s0, t0).
 void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 	glBegin(GL_QUADS);
@@ -85,13 +87,17 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 	Game().assets.items.chest->Draw();
 
-	// The item turns over the chest. Stage 4 of the code structure review takes the turning out of Draw.
+	// The item turns over the chest (treasureSpin). The prototype is shared: its angle and size are only borrowed.
 	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value)) {
 		Item* item = Game().assets.items.Of(*kind);
+		const float angle = item->rotA;
+		const float scale = item->scale;
+		item->rotA = treasureSpin;
 		if (*kind == ItemKind::Club)
-			item->scale = 10;
+			item->scale = CHEST_CLUB_SCALE;
 		item->Draw();
-		item->rotA++;
+		item->rotA = angle;
+		item->scale = scale;
 	}
 
 	glPopMatrix();
@@ -180,7 +186,6 @@ void Dungeon::drawDoorTile(int i, int j) {
 		Game().assets.textures.questionMark.Bind();
 		glRotatef(riddleMarkYaw, 0, 1, 0);
 		Game().assets.models.question->Show();
-		riddleMarkYaw += 1.0;
 		glPopMatrix();
 	}
 	glPopMatrix();
@@ -194,9 +199,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	case Wall:
 	case Empty:
 	case Area3D:
-		break;
-	case MonsterSpawn:
-		SpawnMonster(i, j); // stage 4 of the code structure review moves spawning out of Draw
+	case MonsterSpawn: // the monster is drawn where it is now (DrawMonsters)
 		break;
 	case Treasure:
 		DrawTreasureTile(i, j);
@@ -235,9 +238,6 @@ void Dungeon::drawTileContent(int i, int j) {
 }
 //======================================================================================
 void Dungeon::Draw() {
-	if (portalTimer.TimePassed()) // once per frame, however many portals are in view
-		portalScroll -= 0.022;
-
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
 				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);

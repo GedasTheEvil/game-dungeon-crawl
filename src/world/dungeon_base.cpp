@@ -101,6 +101,22 @@ void Dungeon::Update() {
 	UpdateMonsters();
 	updateArrows();
 	updateTraps();
+	spawnInView();
+	updateAnimations();
+}
+//======================================================================================
+void Dungeon::spawnInView() {
+	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++)
+		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++)
+			if (IsInBounds(i, j) && MapAt(i, j).type == MonsterSpawn)
+				SpawnMonster(i, j);
+}
+//======================================================================================
+void Dungeon::updateAnimations() {
+	if (portalTimer.TimePassed())
+		portalScroll -= 0.022f;
+	riddleMarkYaw += 1.f;
+	treasureSpin += 1.f;
 }
 //======================================================================================
 void Dungeon::updateTraps() {

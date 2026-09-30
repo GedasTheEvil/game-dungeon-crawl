@@ -164,7 +164,42 @@ void Monster::drawHealthBar() {
 	glPopMatrix();
 }
 
-void Monster::Draw(float px, float py) {
+// The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.
+void Monster::Animate(float px, float py) {
+	if (Alive()) {
+		if (state == ModelState::Die) {
+			if (flies())
+				enter(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
+			else if (lurking())
+				enter(ModelState::Idle);
+			else if (!attackDirection(px, py))
+				enter(ModelState::Attack);
+			else
+				enter(ModelState::Move);
+		}
+		blood->Explode();
+		blood->Fall();
+	} else
+		enter(ModelState::Die);
+	blood->Explode();
+	blood->Fall();
+
+	if (Alive()) {
+		if (jumping())
+			facing = leap.toX > leap.fromX ? 1 : -1;
+		else if (lurking())
+			facing = 0; // a chest doesn't turn to look at the player
+		else if (!flies()) {
+			facing = attackDirection(px, py);
+			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)
+				facing = px < CentreX() ? -1 : 1;
+		} else
+			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
+	}
+	type->model.Advance(state, playback);
+}
+
+void Monster::Draw() {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(40 * x - 20, flies() ? flight.lift : leap.lift, -30);
@@ -179,40 +214,14 @@ void Monster::Draw(float px, float py) {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
 		Game().assets.textures.nullTex.Bind();
-		blood->Explode();
-		blood->Fall();
 		blood->Draw();
 		glPopMatrix();
 	};
-	if (Alive()) {
-		if (state == ModelState::Die) {
-			if (flies())
-				enter(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
-			else if (lurking())
-				enter(ModelState::Idle);
-			else if (!attackDirection(px, py))
-				enter(ModelState::Attack);
-			else
-				enter(ModelState::Move);
-		}
+	if (Alive())
 		drawBlood();
-	} else
-		enter(ModelState::Die);
 	drawBlood(); // even when dead
 
 	type->model.BindTexture();
-	if (Alive()) {
-		if (jumping())
-			facing = leap.toX > leap.fromX ? 1 : -1;
-		else if (lurking())
-			facing = 0; // a chest doesn't turn to look at the player
-		else if (!flies()) {
-			facing = attackDirection(px, py);
-			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)
-				facing = px < CentreX() ? -1 : 1;
-		} else
-			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
-	}
 	glRotatef(type->rotA + 90.f * static_cast<float>(facing), 0, 1, 0);
 
 	const float figure = Ink::figureScale();
@@ -221,5 +230,4 @@ void Monster::Draw(float px, float py) {
 
 	glPopMatrix();
 	glPopMatrix();
-	type->model.Advance(state, playback);
 }

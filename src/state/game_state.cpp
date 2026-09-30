@@ -1,4 +1,5 @@
 #include "game_state.h"
+#include "../ui/player_hud.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include <fstream>
@@ -69,6 +70,7 @@ void GameState::ShowStatus(const char* format, ...) {
 }
 //==============================================================
 void GameState::NewGame() {
+	PlayerHud::reset();
 	player->stats = PlayerStats{};
 	ui.inventory->Reset();
 	curMap = 1;
@@ -182,5 +184,6 @@ void GameState::LoadSave(const char filename[]) {
 	dungeon.scatterDecorations(campaignLevelFile(curMap).c_str());
 	LOG_INFO("game", "Done loading map");
 	dump.close();
+	PlayerHud::reset();
 }
 //==============================================================

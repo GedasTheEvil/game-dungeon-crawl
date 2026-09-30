@@ -120,13 +120,26 @@ PlayerHud::Slot quickSlot(QuickKind kind, const char* key) {
 	slot.key = key;
 	int potion = inventory.QuickChoice(kind);
 	if (potion != NO_POTION) {
-		slot.model = Game().assets.items.potion.get();
+		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(potion);
 		slot.count = inventory.Count(ItemType::POTION, potion);
 	}
 	if (std::optional<int> drunk = inventory.QuickDrinkMs(kind))
 		slot.flashAgeMs = GameClock::now() - *drunk;
 	return slot;
+}
+
+PlayerHud::Icon weaponIcon(const Inventory& inventory) {
+	if (inventory.EquippedType() == ItemType::RANGED_WEAPON)
+		return PlayerHud::Icon::Bow;
+	switch (inventory.EquippedId()) {
+	case WeaponId::SWORD:
+		return PlayerHud::Icon::Sword;
+	case WeaponId::SPEAR:
+		return PlayerHud::Icon::Spear;
+	default:
+		return PlayerHud::Icon::Club;
+	}
 }
 
 PlayerHud::View playerHudView() {
@@ -143,7 +156,7 @@ PlayerHud::View playerHudView() {
 	view.xpRatio = static_cast<float>((stats.CurrentXP() - levelStart) / (levelEnd - levelStart));
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
-	view.slots[0].model = Game().ui.inventory->Equipped();
+	view.slots[0].icon = weaponIcon(*Game().ui.inventory);
 	view.slots[0].key = "1-4";
 	view.slots[1] = quickSlot(QuickKind::Health, "H");
 	view.slots[2] = quickSlot(QuickKind::Stamina, "0");
@@ -268,7 +281,7 @@ void Draw() {
 
 	Game().assets.textures.nullTex.Bind();
 	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
-					Game().assets.fonts.hudSmall);
+					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID());
 	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),

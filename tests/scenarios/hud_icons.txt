@@ -1,0 +1,23 @@
+# HUD quick slot icons (textures/ui/hud_icons.png): each weapon in hand, the potions tinted with their colour.
+seed 1
+god
+level tests/levels/classic1
+give melee 1
+give melee 2
+give ranged 0
+give potion 1 2
+give potion 6 4
+wait 30
+key 1
+wait 5
+screenshot club
+key 2
+wait 5
+screenshot sword
+key 3
+wait 5
+screenshot spear
+key 4
+wait 5
+screenshot bow
+expect equip_type == 2

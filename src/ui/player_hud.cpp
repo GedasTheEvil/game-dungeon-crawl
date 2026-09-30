@@ -1,6 +1,5 @@
 #include "player_hud.h"
 #include "../core/timer.h"
-#include "../entities/item.h"
 #include "../graphics/font.h"
 #include "../world/level.h"
 #include <GL/gl.h>
@@ -29,10 +28,9 @@ constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
 constexpr Rect XP_LINE = {4.f, 2.9f, 47.f, 0.7f};
-constexpr float WEAPON_SCALE = 7.f;
-constexpr float WEAPON_TILT = -40.f; // degrees // item models in the slots, like the inventory's
-constexpr float POTION_SCALE = 3.4f;
-constexpr float MODEL_ANGLE = 25.f;
+constexpr float ICON_INSET = 0.3f; // the icon in its slot
+constexpr int ICON_COLUMNS = 4;	   // atlas grid
+constexpr int ICON_ROWS = 2;
 
 // ---- timing ----
 constexpr int TRAIL_HOLD_MS = 500;			 // the lost part stays this long after the last hit...
@@ -157,7 +155,7 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	if (flash > 0.f)
 		additiveRing(r, 2.2f, GOLD, 0.8f * flash);
 	tile(r, TileStyle::Stone, flash > 0.f, false);
-	if (s.model != nullptr && s.count >= 0) {
+	if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
 		Rect badge = badgeRect(r);
 		fillRect(badge, BADGE, BADGE, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
@@ -168,32 +166,22 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	strokeRect(cap, GOLD_DIM, 1.f, 1.f);
 }
 
-void drawSlotModel(const PlayerHud::Slot& s, const Rect& r) {
-	if (s.model == nullptr)
+void drawSlotIcon(const PlayerHud::Slot& s, const Rect& r, int icons) {
+	if (s.icon == PlayerHud::Icon::None)
 		return;
-	float savedScale = s.model->scale;
-	float savedAngle = s.model->rotA;
-	s.model->scale = s.count >= 0 ? POTION_SCALE : WEAPON_SCALE;
-	s.model->rotA = MODEL_ANGLE;
-	glColor3f(s.tint.r, s.tint.g, s.tint.b);
-	glPushMatrix();
-	if (s.count < 0) { // the weapon lies across the slot, its middle at the centre
-		glTranslatef(r.cx(), r.cy(), 0);
-		glRotatef(WEAPON_TILT, 0, 0, 1);
-		glTranslatef(0, -WEAPON_SCALE * 0.5f, 0);
-	} else {
-		glTranslatef(r.cx(), r.y + 0.8f, 0);
-	}
-	s.model->Draw();
-	glPopMatrix();
-	s.model->scale = savedScale;
-	s.model->rotA = savedAngle;
+	int cell = static_cast<int>(s.icon);
+	int row = cell / ICON_COLUMNS;
+	float w = 1.f / ICON_COLUMNS;
+	float h = 1.f / ICON_ROWS;
+	float u = w * static_cast<float>(cell % ICON_COLUMNS);
+	float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
+	texturedRect(r.inset(ICON_INSET), icons, s.tint, u, v, u + w, v + h);
 }
 
 void drawSlotText(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	Rect cap = capRect(r, small, s.key);
 	textCentered(small, cap.cx(), cap.cy() - CAP_PEN_DROP + 0.5f, s.key, GOLD);
-	if (s.model != nullptr && s.count >= 0) {
+	if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
 		char count[12];
 		snprintf(count, sizeof(count), "%d", s.count);
 		Rect badge = badgeRect(r);
@@ -230,9 +218,9 @@ void drawXp(const PlayerHud::View& v) {
 } // namespace
 
 namespace PlayerHud {
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small) {
+void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons) {
 	int now = GameClock::now();
-	// Font::print resets the modelview, so the canvas is set through the projection. Deep enough for the item models.
+	// Font::print resets the modelview, so the canvas is set through the projection.
 	float canvasH = 100.f / SCALE;
 	float canvasW = canvasH * static_cast<float>(resX) / static_cast<float>(resY);
 	glMatrixMode(GL_PROJECTION);
@@ -250,17 +238,8 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small) {
 		drawSlot(view.slots[i], slotRect(i), small);
 	drawKeys(view);
 	drawXp(view);
-
-	// The models get a depth buffer of their own, so they never cut into the panel.
-	GLboolean depthWasOn = glIsEnabled(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < 3; i++)
-		drawSlotModel(view.slots[i], slotRect(i));
-	glDisable(GL_DEPTH_TEST);
-	glLoadIdentity();
+		drawSlotIcon(view.slots[i], slotRect(i), icons);
 
 	beginText();
 	char hp[24];
@@ -271,8 +250,6 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small) {
 	for (int i = 0; i < 3; i++)
 		drawSlotText(view.slots[i], slotRect(i), small);
 
-	if (depthWasOn == GL_TRUE)
-		glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glColor3f(1, 1, 1);
 }

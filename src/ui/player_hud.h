@@ -2,9 +2,9 @@
 #define PLAYER_HUD_H
 
 #include "ui_draw.h"
+#include <cstdint>
 
 class Font;
-class Item;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line.
@@ -13,8 +13,11 @@ namespace PlayerHud {
 constexpr float SCALE = 0.85f;
 constexpr ui::Rect PANEL = {1.5f, 1.5f, 53.f, 21.5f};
 
+// Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order.
+enum class Icon : std::uint8_t { Club, Sword, Spear, Bow, Potion, None };
+
 struct Slot {
-	Item* model = nullptr; // null: an empty slot (no potion of that kind left)
+	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
 	ui::Color tint = {1, 1, 1};
 	int count = -1;			  // badge; < 0: none (the weapon)
 	const char* key = "";	  // the key cap under the slot
@@ -32,9 +35,9 @@ struct View {
 };
 
 // Sets its own square-pixel ortho projection (100 / SCALE high) for a resX x resY window. numbers: health numbers;
-// small: key caps and counts. Leaves texturing on and the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR)
-// set.
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small);
+// small: key caps and counts; icons: the icon atlas texture. Leaves texturing on and the HUD blend function
+// (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
+void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons);
 } // namespace PlayerHud
 
 #endif

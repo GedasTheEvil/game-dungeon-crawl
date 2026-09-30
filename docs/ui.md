@@ -154,9 +154,10 @@ frame and studs with it.
 
 A `panel` bottom left (`PlayerHud::PANEL`) over the running game, with the status box's drop shadow. Bars: dark
 trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss bar's look). Quick slots are
-`TileStyle::Stone` tiles with the item model drawn small, a count badge like the inventory slots and a key cap under
-each like the options table. Flashes and pulses are additive rings (`ring` with `GL_SRC_ALPHA, GL_ONE`).
-Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md).
+`TileStyle::Stone` tiles with a flat item icon (`textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
+count badge like the inventory slots and a key cap under each like the options table. Flashes and pulses are additive
+rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
+icons: [plan/hud-icons.md](plan/hud-icons.md).
 
 ## Colours
 

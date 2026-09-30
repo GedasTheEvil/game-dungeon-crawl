@@ -80,7 +80,7 @@ Defaults picked during implementation (2026-09-30); change them after playing if
 * Quick slots: stone tiles with the item model drawn small (the inventory's models, not baked icons; weapons lie
   at -40 degrees), a count badge on the potions, key caps `1-4`, `H`, `0` like the options table. A quick drink
   flashes its slot gold for 500 ms.
-* Baked 2D icons instead of the models: for later, [../hud-baked-icons.draft.md](../hud-baked-icons.draft.md).
+* 2D icons instead of the models: [../hud-icons.md](../hud-icons.md).
 * Key sockets: `Dungeon::LevelKeys()`. XP: a thin gold line along the panel's bottom edge.
 * The boss bar moves up above the panel when they would overlap (narrow windows such as 4:3).
 * `src/graphics/hud.cpp` keeps only `Hud::drawBar`, for the model viewer.

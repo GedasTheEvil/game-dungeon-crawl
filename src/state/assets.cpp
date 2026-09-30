@@ -197,6 +197,7 @@ void Assets::LoadLoadingScreen() {
 
 void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 

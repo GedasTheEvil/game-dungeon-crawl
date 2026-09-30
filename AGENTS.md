@@ -2,8 +2,6 @@
 After writing the code, verify it compiles by running `make`.
 Once in compiles, run the code style checks `make format` and `make tidy`.
 
-Never commit to git directly.
-
 ## Scenario tests
 To check game behaviour or visuals, write a script in `tests/scenarios/` and run `make test SCENARIO=...`. Screenshots and results go to `tests/out/<name>/`. Reference: [docs/testing.md](docs/testing.md).
 

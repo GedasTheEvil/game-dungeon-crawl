@@ -9,12 +9,14 @@ Drink a potion in a fight without opening the inventory:
 | Key | Action |
 |---|---|
 | `1`-`4` | equip club / sword / spear / bow (exists) |
-| `Q` | drink the best fitting **healing** potion |
-| `R` | drink the best fitting **stamina** potion |
+| `H` | drink the best fitting **healing** potion (H for heal) |
+| `0` | drink the best fitting **stamina** potion |
 
-`Q` and `R` sit next to `W A S D` and `E` (interact), so the left hand never leaves the movement keys. Neither is
-bound today (`src/input/input.h`). Mouse alternative: none needed; the mouse buttons are attack, interact and jump.
-Add both to the options controls table (`CONTROLS` in `src/ui/menu.cpp`).
+Keys chosen by the user (2026-09-30). `H` is not bound today (`src/input/input.h`). `0` is the inventory's slot key
+of the small stamina potion (`HOTKEYS` in `src/ui/inventory.cpp`), so in the inventory it keeps selecting that slot;
+in game it drinks (today it does nothing there: `Inventory::EquipHotkey` ignores potion keys). Mouse alternative:
+none needed; the mouse buttons are attack, interact and jump. Add both to the options controls table (`CONTROLS` in
+`src/ui/menu.cpp`).
 
 ## Best fit
 
@@ -37,14 +39,15 @@ scenario can check the table of cases without a fight.
 
 ## HUD
 
-The quick slots in the [HUD redesign](hud-redesign.draft.md) show what `Q` / `R` would drink right now (the choice
-changes with the health), the count of that potion, and the key cap. Nothing to drink: the slot is dimmed. After a
+The quick slots in the [HUD redesign](hud-redesign.draft.md) show what `H` / `0` would drink right now (the choice
+changes with the health), the count of that potion, and the key to press as a key cap (`H`, `0`) under the slot.
+No potion of that kind left: the slot is shown empty (the tile without an icon or count), the key cap stays. After a
 drink the slot flashes and the status box says "Healed 25 health", like drinking from the inventory.
 
 ## Rules to keep
 
 * Drinking takes no extra time today (inventory use is instant). For quick potions consider a short cooldown (~1 s,
-  a `Timer`) so mashing `Q` does not drink the whole stack in one frame.
+  a `Timer`) so mashing `H` does not drink the whole stack in one frame.
 * Not while dead, not in menus, the map or the riddle screen (the same gate as the weapon hotkeys:
   `ScreenState::IsGameplayInteractionAllowed`).
 * Allowed during an attack (unlike the weapon switch): drinking does not change the swing.
@@ -52,12 +55,10 @@ drink the slot flashes and the status box says "Healed 25 health", like drinking
 ## Tests
 
 * The pure function against a table: counts none / small only / large only / both, health at 10%, 30%, 60%, 100%.
-* Scenario: `give potion 0 2`, `give potion 1 1`, take damage (a new `hurt N` command, or stand in a trap), `key q`,
-  expect the small potion used (`expect potion0 == 1`) and HP up by 25; lower HP, `key q`, expect the large one used.
-  The same for stamina with `key r`. Screenshots of the HUD slots before and after.
+* Scenario: `give potion 0 2`, `give potion 1 1`, take damage (a new `hurt N` command, or stand in a trap), `key h`,
+  expect the small potion used (`expect potion0 == 1`) and HP up by 25; lower HP, `key h`, expect the large one used.
+  The same for stamina with `key 0`. Screenshots of the HUD slots before and after.
 
 ## Open questions
 
-* `Q` / `R`, or `H` (heal) / `G`? Or the number row after the weapons (`5`, `6`)? The number row is already the
-  inventory's slot keys, where `5`-`0` select potions, so letters seem clearer.
 * Should the player be able to pin a potion for the hotkey in the inventory (overriding the best fit)?

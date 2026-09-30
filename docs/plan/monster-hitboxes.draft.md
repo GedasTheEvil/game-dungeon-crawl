@@ -75,9 +75,22 @@ weapon hits it.
 * Balance check afterwards: with real hits, the boss scarab (320 HP) and the giants may now die much faster. Replay
   lvl5 and a giant rat level, tune HP in `MONSTER_DEFS` and `BOSS_DEFS` if needed.
 
-## Open questions
+## Player hitbox
 
-* Should the player get a box too (monster bites and traps check the player's box, not the cell), or is "same row
-  and in reach" enough?
-* The spear's thrust (0.8 tiles) was presumably tuned against the old point hitbox. After this change the reach of all
-  three weapons may need a second look (club 0.4, sword 0.5).
+Decided (2026-09-30): the player gets a box too, measured from the archeologist model like the monsters'. Monster
+bites, bat swoops, arrows (if monsters ever shoot) and traps check the player's box instead of the player's point /
+cell. `Monster::attackDirection` then stops a monster when its box edge is `MONSTER_BITE_REACH` from the player's box
+edge, and the weapon reach is measured from the player's box edge (the hand), not the centre.
+
+## Weapon ranges
+
+Decided: revisit the reach of every weapon after the boxes are in (club 0.4, sword 0.5, spear 0.8 tiles, the bow's
+aim 3 tiles), so fights are neither too easy nor too hard:
+
+* Each weapon has a role: the club short and heavy, the sword quick with medium reach, the spear the longest melee
+  reach (it can hit a monster before its bite lands), the bow at range.
+* Check with the debug boxes (`hitboxes on`) that each reach looks right against the model in the hand.
+* Check in play and with scenarios: a small monster (scarab) and a big one (giant rat, boss scarab) against each
+  weapon. The player should land hits at the distance where the monster bites, and only the spear should outreach
+  the bite.
+* Retune monster HP (`MONSTER_DEFS`, `BOSS_DEFS`) after that, not before.

@@ -19,7 +19,7 @@ One HUD panel, bottom left, in the UI look. It holds everything about the player
  ┃ ♥ ███████████████████░░░░░   96 / 134     ┃
  ┃ ⚡ ██████████████░░░░░░░░░                 ┃
  ┃ [sword] [heal 3] [vigor 1]   ◆ ◆ ◆ ◆ keys ┃
- ┃   1-4     Q         R                     ┃
+ ┃   1-4     H         0                     ┃
  ◆━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━◆
 ```
 
@@ -32,7 +32,8 @@ One HUD panel, bottom left, in the UI look. It holds everything about the player
 * **Quick slots** (the icons [quick-potions.draft.md](quick-potions.draft.md) needs): the weapon in hand, the healing
   potion the hotkey would drink, the stamina potion the hotkey would drink. Each is a small stone tile
   (`ui::tile`, `TileStyle::Stone`) with the item icon, a count badge for potions (like the inventory slots) and the
-  key cap under it. Greyed out when there is nothing to drink.
+  key to press as a key cap under it (`1`-`4`, `H`, `0`, drawn like the options controls table's key caps). No potion
+  of that kind left: the slot is empty (no icon, no count), the key cap stays.
 * **Keys:** the four lock gems in their colours (the gems of `LevelGem` / the inventory), dim sockets for the ones
   not found yet on this level, so the player sees how many locks there are... or only the found ones, as today (open
   question).

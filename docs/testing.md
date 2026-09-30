@@ -17,7 +17,8 @@ Run from the repo root.
 
 ## Behaviour in test mode
 
-- The menu is skipped. User keyboard and mouse input is ignored.
+- The start menu is skipped. User keyboard and mouse input is ignored. `key esc` opens the in-game menu; drive it
+  with `mouse` / `click` (`tests/scenarios/menu.txt`, `credits.txt`).
 - Sound uses the SDL dummy driver (silent).
 - One tick = 16 ms of game time. Each tick runs due commands, then `Update()`, then `Draw()`.
   All `timer` objects read the virtual clock, so a script with the same seed gives the same
@@ -75,6 +76,3 @@ Stdout has the summary and one `FAIL line L: ...` line per failure.
 | 2 | Parse error, no `level` command, or the level could not be loaded. |
 | 3 | Crash (signal or exception). |
 
-## Out of scope (v1)
-
-Menu interaction.

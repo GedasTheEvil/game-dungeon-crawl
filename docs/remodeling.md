@@ -5,7 +5,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 ## Files
 * `tools/blender/md3.py` - MD3 reader/writer (plain Python, no Blender needed); documents the game's MD3 conventions.
 * `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `textures/<category>/<name>.png`).
-* `tools/blender/md3_export.py` - `export_md3(obj, path, start, end)`; bakes armature/shape keys per frame.
+* `tools/blender/md3_export.py` - `export_md3(obj, path, frame_start=None, frame_end=None)`; bakes armature/shape keys per frame.
 * `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
 * `tools/blender/render_sheet.py` - headless review renders + per-frame lowest-z (floor penetration) check.
   `blender -b --python tools/blender/render_sheet.py -- <model.py> /tmp/frames "worm_walk@90:0,8" "worm_attack@40#3~0,-0.6,1:9"`
@@ -32,7 +32,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   idle (`bat_idle.md3`, hanging head down by the feet, feet at a constant height 0.199 wingspans above the origin). The wing tips dip
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
-  Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/game_state.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/assets.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/core/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
@@ -50,7 +50,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * `tools/blender/models/decor.py` - ten static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
-  brazier, offerings, scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
+  brazier, lamp (offerings: clay oil lamp), scrolls, ushabti) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
@@ -108,7 +108,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/game_state.cpp`.
+* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/assets.cpp` (`MONSTER_DEFS`, `ITEM_DEFS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
@@ -123,14 +123,14 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
   (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `AnimatedModel::Load` in `src/graphics/animated_model.cpp`.
-* Blender space: Z-up. Facing depends on the monster's `rotA` in `game_state.cpp`: Anubis (180) faces +Y, worm (0) faces -Y.
+* Blender space: Z-up. Facing depends on the monster's `rotA` in `MONSTER_DEFS` (`src/state/assets.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
   Check the old model's facing before remodelling.
-* The engine normalizes a monster by the walk-slot file (`<name>.md3`) frame 0: largest dimension -> 1, centred in x/z,
+* The engine normalizes a monster by its reference clip's frame 0 (the walk-slot file `<name>.md3`; `_idle` for the mimic, `AMBUSH_CLIPS`): largest dimension -> 1, centred in x/z,
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `CharacterModel::Load`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
 * Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, one file per clip. The file list (`ClipFiles` in
-  `src/entities/monster.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
+  `src/entities/character_model.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
   clips and stands in for a missing optional clip. `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once).
   `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`.
 * The player: `archeologist.md3` = idle (standing), `archeologist_walk.md3` = walk cycle (while moving),
@@ -145,11 +145,12 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `model-viewer` looks for `textures/<category>/<stem>.png` (the model's sub-directory under `models/`).
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
-  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's leap) and `sounds/<category>/<name>_jump.wav`.
+  The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip.
+  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's and giant scarab's leap) and `sounds/<category>/<name>_jump.wav`.
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
-* Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player.
+* Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player (the mimic 1024x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file, plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file, bat 6.2k tris ~0.64-1.17 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file; items 1.2-4.5k tris 32-143 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; all 31 models load in ~0.2 s.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB); items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; 71 model files in total.
 
 ## Status
 Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
@@ -163,7 +164,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Bat, giant bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png` | new (tomb bat; the giant bat uses the same files with its own texture) |
 | Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
-| Player | `characters/archeologist{,_att,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
+| Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Columns (old ladder, with a plasma quad) | `props/columns.md3` | `props/columns.png` | unused since the ladders |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |

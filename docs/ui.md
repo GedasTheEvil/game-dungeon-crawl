@@ -12,6 +12,7 @@ instead of drawing their own.
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
+| Win / death screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`, `ui/dead.png`) in the 3D scene, not the shared look |
 
 Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too.
 
@@ -23,7 +24,7 @@ Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`too
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
 * Only the backdrop fills the margins (`area`); all panels, buttons and text sit inside 0..160 x 0..100.
 * Line widths are in pixels, sizes in canvas units.
-* Layout lives in `constexpr Rect` / `float` constants at the top of the file, in a `// ---- layout ----` block.
+* Layout lives in `constexpr Rect` / `float` constants at the top of the file (`menu.cpp` and `status_box.cpp` mark it with a `// ---- layout ----` comment).
   Repeated items get a `xxxRect(index)` function.
 
 Vertical bands used by every 160 x 100 screen:
@@ -102,7 +103,7 @@ Styles:
 
 * **Lapis**: primary action (New Game, Return to Game, active tab, inventory Equip / Upgrade / Drink).
   `LAPIS`→`LAPIS_DARK`, `GOLD` 2.5 px frame, `GOLD_DIM` inner line.
-* **Stone**: all other actions and the save slots. `STONE_TOP`→`STONE_BOTTOM`, `BRONZE` 1.5 px frame.
+* **Stone**: all other actions and the save slots. `STONE_TOP`→`STONE_BOTTOM`, `BRONZE` 1.5 px frame; the `GOLD_DIM` inner line only on hover.
 
 One lapis button per group. Menu buttons are 56 x 9, 11.5 apart; Back is `{63, 9.5, 34, 8}`.
 Label colour: `GOLD` (lapis) or `LABEL` (stone), `TEXT_HOVER` when hovered.
@@ -114,8 +115,8 @@ The level editor still has its own smaller buttons (`Editor::drawButton`).
 
 ### Icon well
 
-Dark square on the left of a tile (`ui::iconWell(tile, inset)`), `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
-(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back)
+Dark square on the left of a tile: `ui::iconWell(tile, inset)` returns its rect; `menu.cpp` draws the `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
+(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (`menu.cpp`, `enum class Icon`: Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back)
 or a number (save slots, lapis seal when the slot is used). Glyphs are shapes, not textures.
 
 ### Selection
@@ -154,7 +155,7 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Use | Constant |
 |---|---|
 | Titles, headings, primary text, lapis frame | `GOLD` |
-| Hover frame and text | `GOLD_BRIGHT` (text `{1, 0.92, 0.65}`) |
+| Hover frame and text | `GOLD_BRIGHT` frame, `TEXT_HOVER` text `{1, 0.92, 0.65}` |
 | Rules, inner frame lines | `GOLD_DIM` |
 | Outer frames, stone tile frame, section rules | `BRONZE` |
 | Primary tile fill | `LAPIS` → `LAPIS_DARK` |
@@ -164,7 +165,7 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Panel fill | `PANEL_TOP` → `PANEL_BOTTOM` |
 | Text on papyrus | `INK`, `INK_RED` (warnings, reward), `INK_GREEN`, `INK_FADED` (hints, disabled) |
 
-`menu.cpp` adds `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM` `{0.55, 0.45, 0.30}` for
+`menu.cpp` adds `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM` `{0.55, 0.45, 0.30}` for
 secondary text and footers.
 
 ## Fonts

@@ -123,6 +123,8 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
 - `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
 - `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
+- `tests/scenarios/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
+  a real chest when killed.
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
 - `tests/scenarios/bow.txt`: the bow draws and shoots; an arrow with nothing in reach lands on the floor, one in reach is
   aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.

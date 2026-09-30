@@ -1,7 +1,7 @@
 # Dungeon Crawl
 
 A 2.5D side-scroller set in the dungeons of ancient Egypt. You play an archaeologist who climbs, jumps and
-fights through tombs full of worms, scarabs, rats, bats, man-eater plants and Anubis guards. Find keys, pull
+fights through tombs full of worms, scarabs, rats, bats, man-eater plants, mimics and Anubis guards. Find keys, pull
 levers, avoid traps and collect the treasure.
 
 My bachelor's degree work from 2011.

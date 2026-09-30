@@ -58,7 +58,7 @@ Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Monster`, `Spike`, `La
 | 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell then becomes `Empty`. |
 | 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. It opens when the player comes up to it with the key of its colour, or when a lever of its colour is pulled. It slides up in 1.2 s. |
 | 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
-| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s: 20 damage if the player is still under it. Sprint on, jump on or step back to get clear. The rock stays on the floor (walkable). Put a `Wall` above it. |
+| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s. Under its centre (0.3 cells) it crushes (1000 damage), nearer its edge (0.6 cells) it grazes (50 damage); armor does not help. Walk on without stopping, sprint on or step back to get clear; a jump in place does not dodge it. The rock stays on the floor (walkable). Put a `Wall` above it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 
@@ -84,8 +84,10 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 6 | Giant rat |
 | 7 | Bat |
 | 8 | Giant bat |
+| 9 | Mimic |
+| 10 | Giant scarab |
 
-Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through him (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. Any other value spawns a copy of the player model. Max. 9 monsters are active at one time.
+Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
 ### Key, Gate, Lever: lock colour (attribute)
 

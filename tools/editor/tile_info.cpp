@@ -9,7 +9,7 @@ constexpr std::array<TileInfo, TILE_COUNT> TILES = {{
 	{"Empty", nullptr, "Open space. With no Wall below, the player falls."},
 	{"Door", "gate.png", "Sphinx statue. What it does depends on the gate type."},
 	{"Death", "death.png", "Large spike trap. Damages the player on contact."},
-	{"Monster", "monster.png", "Spawns a monster when the cell comes into view. Max. 9 monsters are active at a time."},
+	{"Monster", "monster.png", "Spawns a monster when the cell comes into view. Max. 32 monsters are live at a time."},
 	{"Spike", "spikes.png", "Small spike trap. Damages the player on contact."},
 	{"Ladder", "ladder.png", "The player climbs between vertically adjacent ladder cells and does not fall on them."},
 	{"3D", "3D.png", "Not used by the game. Renders as open space."},
@@ -19,7 +19,8 @@ constexpr std::array<TileInfo, TILE_COUNT> TILES = {{
 	{"Gate", "gate_lock.png", "Portcullis. Opens with the key of its colour or when a lever of its colour is pulled."},
 	{"Lever", "lever.png", "Interact to pull it. Opens every gate of the same colour."},
 	{"RockFall", "rockfall.png",
-	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: 20 damage. Put a Wall above it."},
+	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a Wall "
+	 "above it."},
 }};
 
 struct Choice {

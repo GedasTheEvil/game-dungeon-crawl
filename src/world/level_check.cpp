@@ -42,10 +42,11 @@ class Walker {
 	explicit Walker(const LevelGrid& grid, bool teleports = true)
 		: grid(grid), pairs(grid.cells), teleports(teleports) {}
 
+	// In level data a gate is closed (0) or open: the game opens one saved mid-motion (2) on load.
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
-		if (t.type == Gate && gateState(t) != GateState::Open)
-			return (mask & bitOf(t.attr)) == 0;
+		if (t.type == Gate)
+			return gateState(t) == GateState::Closed && (mask & bitOf(t.attr)) == 0;
 		return isSolidTile(t);
 	}
 
@@ -60,7 +61,7 @@ class Walker {
 		Tile t = grid.at(col, row);
 		if (t.type == MonsterSpawn && isBossMonster(t.attr))
 			return mask | bitOf(BOSS_LOCK);
-		return t.type == Key ? mask | bitOf(t.attr) : mask;
+		return t.type == Key && isLockColour(t.attr) ? mask | bitOf(t.attr) : mask; // no key opens the boss lock
 	}
 
 	// Falls from an open cell until a floor or a ladder stops the player. NONE if the fall leaves the level.
@@ -103,7 +104,7 @@ class Walker {
 				out.push_back({to, base + hazardCost(cellOf(to)), move});
 		};
 
-		if (here.type == Lever && isLockColour(here.attr))
+		if (here.type == Lever && isLockColour(here.attr) && !leverPulled(here)) // a pulled lever opens nothing
 			add(stateOf(col, row, mask | bitOf(here.attr)), COST_MOVE, Move::Pull);
 
 		if (teleports && isTeleporter(here)) {
@@ -248,7 +249,7 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 			keyMask |= bitOf(t.attr);
 		if (t.type == Lever)
 			leverMask |= bitOf(t.attr);
-		if (t.type == Gate && gateState(t) != GateState::Open)
+		if (t.type == Gate && gateState(t) == GateState::Closed)
 			gateMask |= bitOf(t.attr);
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
@@ -482,7 +483,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
 		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
-		if (t.type == Gate && gateState(t) != GateState::Open) {
+		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);
 		}

@@ -1,7 +1,7 @@
 # Weapon ranges and HP balance
 
-Status: reach review done 2026-09-30 (see [Reach](#reach)); HP retune open, waits for a playthrough. Follow-up of
-[monster hitboxes](solved/monster-hitboxes.md), whose bug fix is verified.
+Status: reach review done and verified in play 2026-09-30 (see [Reach](#reach)); HP retune open, waits for a
+playthrough. Follow-up of [monster hitboxes](solved/monster-hitboxes.md), whose bug fix is verified.
 
 ## What
 

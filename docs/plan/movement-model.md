@@ -1,7 +1,8 @@
 # Stage 10: one movement model
 
-Status: planned 2026-09-30. Stage 10 of the [code structure review](code-structure-review.draft.md). The 14
-differences between the checker's `Walker` and the game: [the audit](code-structure-review-audit.draft.md#walker-vs-game).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 10 of
+the [code structure review](code-structure-review.draft.md). The 14 differences between the checker's `Walker` and
+the game: [the audit](code-structure-review-audit.draft.md#walker-vs-game).
 
 ## Why
 
@@ -48,3 +49,28 @@ player stops short of a gate's opening distance. The checker's constants are cop
 
 `./levelcheck levels/lvl*` without warnings; `levelcheck --script` replays pass for all 15 levels and the test
 levels with a path; unit tests; scenarios.
+
+## Implementation
+
+Done 2026-09-30, as decided above:
+
+1. `2fd12b3`: scenario command `walk to X` ([../testing.md](../testing.md)); `levelcheck --script` walks to
+   absolute targets and takes `LADDER_GRIP_X`, `GATE_APPROACH` and `GATE_OPEN_MS` from `gameplay_config.h` (moved
+   there from `dungeon_base.cpp` / `dungeon_mechanisms.cpp`). `make paths` plays every campaign level's path:
+   15/15 pass (13 before: lvl6 and lvl8 stopped short of a gate); the 34 test levels with a path pass too.
+2. `025efd0`: `src/world/movement.h`, `Jump::ARC` from the game's constants (18 ticks, 0.405 tiles high, 0.97 tiles
+   of drift; the game may take a 19th tick from low rows, float rounding), with `static_assert`s on the walker's
+   assumptions. The dead `jump` parameter of `Dungeon::Move` is gone; the docs' "~0.45 tiles" fixed.
+3. `e09546e`: rules 7, 8, 9 (opening gates open, pulled levers inert, no boss key). No level uses those values;
+   output unchanged.
+4. `99c526d`: rules 1, 2. The walker jumps one spike or death trap cell on a floor, and from a ladder's foot. Rock
+   falls stay walked (the rock drops when the player passes through its cell either way). Campaign difficulty
+   +0.1 to +0.4 (a jump scores 1.2, a spike 1.0), the ranking keeps the campaign order, no warnings, the replays
+   pass, levelgen output unchanged. `tests/scenarios/trap_hop.txt` (new level `tests/levels/death_one`): in the game
+   the hop clears spikes with no damage, a death trap for 1 HP.
+5. `tests/unit/walker_test.cpp`: each rule on a small level drawn in the ASCII legend; each case fails with the old
+   rules.
+
+Kept as they were, with the reason in the table: stamina (5), the boss kill (10), trap reach into the next cells
+(12), rock timing (13). Mid-ladder jumps are not modelled: their reach depends on the held walk key, which is stage
+9 (fixed timestep, held-key movement).

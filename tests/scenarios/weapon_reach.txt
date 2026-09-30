@@ -1,0 +1,52 @@
+# Weapon reach against the model (docs/plan/weapon-ranges-and-balance.draft.md): each melee weapon at its hit frame, with
+# the debug boxes, next to a giant rat stopped where it bites. The reach (yellow) should end near the weapon's tip.
+seed 1
+god
+
+# club
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+wait 30
+key 1
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 300ms
+screenshot club_hit
+wait 60
+expect nearest < 60
+
+# sword
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+wait 30
+key 2
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 180ms
+screenshot sword_hit
+wait 60
+expect nearest < 60
+
+# spear
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+wait 30
+key 3
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 200ms
+screenshot spear_hit
+wait 60
+expect nearest < 60

@@ -4,6 +4,7 @@
 #include <cmath>
 #include "../graphics/render_config.h"
 #include "../graphics/lighting.h"
+#include "tile_defs.h"
 
 namespace {
 // One face of a cell, corners counter-clockwise from (s0, t0).
@@ -106,6 +107,21 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPopMatrix();
 }
 //======================================================================================
+void Dungeon::drawPortal(const float normal[3], const float v[4][3]) const {
+	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
+	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
+	Game().assets.textures.portal.Bind();
+	Lighting::setEmissive(true);
+	glBegin(GL_QUADS);
+	glNormal3fv(normal);
+	for (int k = 0; k < 4; k++) {
+		glTexCoord2fv(st[k]);
+		glVertex3fv(v[k]);
+	}
+	glEnd();
+	Lighting::setEmissive(false);
+}
+//======================================================================================
 void Dungeon::drawTeleporterTile() {
 	glPushMatrix();
 	glTranslatef(20, 0, -25);
@@ -114,21 +130,107 @@ void Dungeon::drawTeleporterTile() {
 	Game().assets.models.columns->Show();
 	glPopMatrix();
 
-	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
-	Game().assets.textures.portal.Bind();
-	Lighting::setEmissive(true);
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(px, 0);
-	glVertex3f(10, 0, -30);
-	glTexCoord2f(px, 1);
-	glVertex3f(10, 37, -30);
-	glTexCoord2f(px + 1, 1);
-	glVertex3f(30, 37, -30);
-	glTexCoord2f(px + 1, 0);
-	glVertex3f(30, 0, -30);
-	glEnd();
-	Lighting::setEmissive(false);
+	const float normal[3] = {0, 0, 1};
+	const float v[4][3] = {{10, 0, -30}, {10, 37, -30}, {30, 37, -30}, {30, 0, -30}};
+	drawPortal(normal, v);
+}
+//======================================================================================
+void Dungeon::drawAnkhTile() {
+	glPushMatrix();
+	glTranslatef(20, 0, -20);
+	glScalef(40, 40, 40);
+	Game().assets.textures.ankh.Bind();
+	Game().assets.models.ankh->Show();
+	glPopMatrix();
+}
+//======================================================================================
+// The doorway stands against the side wall, plasma inside it; with no side wall it turns to the back wall and faces
+// the camera. Unturned it is on the left.
+void Dungeon::drawDoorTile(int i, int j) {
+	const Tile tile = MapAt(i, j);
+	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; };
+	float yaw = 0;
+	if (rock(i + 1, j) && !rock(i - 1, j))
+		yaw = 180;
+	else if (!rock(i + 1, j) && !rock(i - 1, j))
+		yaw = -90;
+
+	glPushMatrix();
+	glTranslatef(20, 0, -20);
+	glPushMatrix();
+	glRotatef(yaw, 0, 1, 0);
+	glPushMatrix();
+	glScalef(40, 40, 40);
+	Game().assets.textures.sphinx.Bind();
+	Game().assets.models.sphinx->Show();
+	glPopMatrix();
+
+	if (tile.attr == GateEntrance || tile.attr == GateExit) {
+		const float normal[3] = {1, 0, 0};
+		const float v[4][3] = {{-19.6f, 0, -10}, {-19.6f, 35, -10}, {-19.6f, 35, 10}, {-19.6f, 0, 10}};
+		drawPortal(normal, v);
+	}
+	glPopMatrix();
+
+	if (tile.attr == GateRiddle) {
+		glPushMatrix();
+		glTranslatef(0, 20, 0);
+		glScalef(10, 10, 10);
+		Game().assets.textures.questionMark.Bind();
+		glRotatef(riddleMarkYaw, 0, 1, 0);
+		Game().assets.models.question->Show();
+		riddleMarkYaw += 1.0;
+		glPopMatrix();
+	}
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawTileContent(int i, int j) {
+	const Tile tile = MapAt(i, j);
+	if (!isTileType(tile.type))
+		return; // the game treats an unknown type as open space
+	switch (static_cast<DungeonTileType>(tile.type)) {
+	case Wall:
+	case Empty:
+	case Area3D:
+		break;
+	case MonsterSpawn:
+		SpawnMonster(i, j); // stage 4 of the code structure review moves spawning out of Draw
+		break;
+	case Treasure:
+		DrawTreasureTile(i, j);
+		break;
+	case Spike:
+		DrawTrapTile(false);
+		break;
+	case Death:
+		DrawTrapTile(true);
+		break;
+	case Ankh:
+		drawAnkhTile();
+		break;
+	case Door:
+		if (isTeleporter(tile))
+			drawTeleporterTile();
+		else
+			drawDoorTile(i, j);
+		break;
+	case Ladder:
+		drawLadderTile(i, j);
+		break;
+	case Key:
+		drawKeyTile(i, j);
+		break;
+	case Gate:
+		drawGateTile(i, j);
+		break;
+	case Lever:
+		drawLeverTile(i, j);
+		break;
+	case RockFall:
+		drawRockFallTile(i, j);
+		break;
+	}
 }
 //======================================================================================
 void Dungeon::Draw() {
@@ -148,94 +250,11 @@ void Dungeon::Draw() {
 	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
 		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++) {
 			if (IsInBounds(i, j)) {
-				const Tile tile = MapAt(i, j);
 				drawCellSurfaces(i, j);
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);
-
-				if (tile.type == MonsterSpawn)
-					SpawnMonster(i, j);
-				if (tile.type == Treasure)
-					DrawTreasureTile(i, j);
-				if (tile.type == Spike)
-					DrawTrapTile(false);
-				if (tile.type == Death)
-					DrawTrapTile(true);
-				if (tile.type == Ankh) {
-					glPushMatrix();
-					glTranslatef(20, 0, -20);
-					glScalef(40, 40, 40);
-					Game().assets.textures.ankh.Bind();
-					Game().assets.models.ankh->Show();
-					glPopMatrix();
-				}
-				if (isTeleporter(tile))
-					drawTeleporterTile();
-				else if (tile.type == Door) {
-					// The doorway stands against the side wall, plasma inside it; with no side wall it turns to the
-					// back wall and faces the camera. Unturned it is on the left.
-					auto rock = [this](int col, int row) {
-						return !IsInBounds(col, row) || MapAt(col, row).type == Wall;
-					};
-					float yaw = 0;
-					if (rock(i + 1, j) && !rock(i - 1, j))
-						yaw = 180;
-					else if (!rock(i + 1, j) && !rock(i - 1, j))
-						yaw = -90;
-
-					glPushMatrix();
-					glTranslatef(20, 0, -20);
-					glPushMatrix();
-					glRotatef(yaw, 0, 1, 0);
-					glPushMatrix();
-					glScalef(40, 40, 40);
-					Game().assets.textures.sphinx.Bind();
-					Game().assets.models.sphinx->Show();
-					glPopMatrix();
-
-					if (tile.attr == GateEntrance || tile.attr == GateExit) {
-						float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
-
-						Game().assets.textures.portal.Bind();
-						Lighting::setEmissive(true);
-						glBegin(GL_QUADS);
-						glNormal3f(1, 0, 0);
-						glTexCoord2f(px, 0);
-						glVertex3f(-19.6, 0, -10);
-						glTexCoord2f(px, 1);
-						glVertex3f(-19.6, 35, -10);
-						glTexCoord2f(px + 1, 1);
-						glVertex3f(-19.6, 35, 10);
-						glTexCoord2f(px + 1, 0);
-						glVertex3f(-19.6, 0, 10);
-						glEnd();
-						Lighting::setEmissive(false);
-					}
-					glPopMatrix();
-
-					if (tile.attr == GateRiddle) {
-						glPushMatrix();
-						glTranslatef(0, 20, 0);
-						glScalef(10, 10, 10);
-						Game().assets.textures.questionMark.Bind();
-						glRotatef(riddleMarkYaw, 0, 1, 0);
-						Game().assets.models.question->Show();
-						riddleMarkYaw += 1.0;
-						glPopMatrix();
-					}
-					glPopMatrix();
-				}
-				if (tile.type == Ladder)
-					drawLadderTile(i, j);
-				if (tile.type == Key)
-					drawKeyTile(i, j);
-				if (tile.type == Gate)
-					drawGateTile(i, j);
-				if (tile.type == Lever)
-					drawLeverTile(i, j);
-				if (tile.type == RockFall)
-					drawRockFallTile(i, j);
+				drawTileContent(i, j);
 			}
 			glTranslatef(40, 0, 0);
 		}

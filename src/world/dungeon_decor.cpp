@@ -1,4 +1,5 @@
 #include "dungeon.h"
+#include "tile_defs.h"
 #include "../state/game_state.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
@@ -156,8 +157,8 @@ void Dungeon::scatterTorches(uint32_t seed) {
 
 			int tile = MapAt(i, j).type;
 			int8_t prop = decor[MapIndex(i, j)].type;
-			if (tile == Wall || tile == Door || tile == Ladder || tile == Ankh || prop == DECOR_BRAZIER ||
-				prop == DECOR_LAMP || prop == DECOR_BES || i - lastTorch <= TORCH_MIN_GAP)
+			if (!tileDef(tile).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP || prop == DECOR_BES ||
+				i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
@@ -182,7 +183,7 @@ void Dungeon::scatterDecals(uint32_t seed) {
 			cell = DecalCell{};
 
 			int tile = MapAt(i, j).type;
-			if (tile == Wall || tile == Door || tile == Ladder)
+			if (!tileDef(tile).decals)
 				continue;
 
 			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));

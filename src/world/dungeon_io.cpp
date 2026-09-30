@@ -110,21 +110,31 @@ void Dungeon::PickUp() {
 	}
 }
 //======================================================================================
+// Keys, treasure and levers are picked up or pulled elsewhere (PickUp, the mechanisms).
 void Dungeon::Interact() {
-	if (Map(mapX, mapY).type == Ankh) {
+	const Tile here = Map(mapX, mapY);
+	if (here.type == Ankh) {
 		Game().hasWon = true;
 		return;
 	}
-
-	if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateRiddle) {
+	if (here.type != Door)
+		return;
+	switch (here.attr) {
+	case GateRiddle:
 		Game().ui.riddle->Ask();
 		Game().ui.riddle->show = true;
 		SetMapBAtPlayer(GateEmpty);
-	} else if (Map(mapX, mapY).type == Door && Map(mapX, mapY).attr == GateExit) {
+		break;
+	case GateExit:
 		Game().curMap++;
 		LoadCampaignLevel(Game().curMap);
-	} else if (isTeleporter(Map(mapX, mapY)))
+		break;
+	case GateTeleport:
 		Teleport();
+		break;
+	default: // the entrance, an answered riddle gate
+		break;
+	}
 }
 //======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.

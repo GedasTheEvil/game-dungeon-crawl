@@ -81,7 +81,13 @@ class Dungeon {
 	void drawKeyTile(int i, int j);
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
-	void drawTeleporterTile(); // at the cell origin: the columns face the camera, plasma between them
+	void drawTeleporterTile();			// at the cell origin: the columns face the camera, plasma between them
+	void drawTileContent(int i, int j); // what stands in the cell, by tile type
+	void drawAnkhTile();
+	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
+	// The scrolling plasma of the gates, over the quad v (its corners take the texture's (0, 0), (0, 1), (1, 1), (1,
+	// 0)).
+	void drawPortal(const float normal[3], const float v[4][3]) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];

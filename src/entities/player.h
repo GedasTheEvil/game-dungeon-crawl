@@ -49,7 +49,7 @@ class Player {
 	int attackStartMs = -1;
 	bool attackLanded = false;
 
-	bool Load(const char* name, const Texture& texture);
+	bool Load(const char* name, Texture&& texture);
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (Draw only shows them)
 	void Draw();
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }

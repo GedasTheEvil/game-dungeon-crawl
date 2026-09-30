@@ -9,8 +9,8 @@ namespace {
 constexpr int CLIP_SPEED = 35;
 } // namespace
 
-bool CharacterModel::Load(const char* name, const Texture& tex, const ClipFiles& files) {
-	texture = tex;
+bool CharacterModel::Load(const char* name, Texture&& tex, const ClipFiles& files) {
+	texture = std::move(tex);
 	reference = files.front().state;
 	ModelNormalization norm;
 	for (const ClipFile& file : files) {

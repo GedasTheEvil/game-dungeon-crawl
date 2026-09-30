@@ -1,5 +1,6 @@
 #define GL_GLEXT_PROTOTYPES // glGenerateMipmap, exported by libGL on Linux
 #include "textures.h"
+#include <GL/glx.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <algorithm>
@@ -29,7 +30,29 @@ float anisotropy() {
 }
 } // namespace
 
+bool glContextCurrent() { return glXGetCurrentContext() != nullptr; }
+
 Texture::Texture() { loaded = false; }
+
+Texture::~Texture() { free(); }
+
+Texture::Texture(Texture&& other) noexcept : texture(other.texture), loaded(other.loaded) { other.loaded = false; }
+
+Texture& Texture::operator=(Texture&& other) noexcept {
+	if (this != &other) {
+		free();
+		texture = other.texture;
+		loaded = other.loaded;
+		other.loaded = false;
+	}
+	return *this;
+}
+
+void Texture::free() {
+	if (loaded && glContextCurrent())
+		glDeleteTextures(1, &texture.texID);
+	loaded = false;
+}
 //================================================================================================================================
 int Texture::LoadPNG(const char* filename, TexFilter filter) {
 	int channels = 0;
@@ -52,6 +75,7 @@ int Texture::LoadPNG(const char* filename, TexFilter filter) {
 	}
 	LOG_INFOF("texture", "%s: %dx%d, %d channels", filename, texture.width, texture.height, components);
 
+	free();
 	glGenTextures(1, &texture.texID);
 	LOG_INFOF("texture", "Texture id=[%d]", texture.texID);
 

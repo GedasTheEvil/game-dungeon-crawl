@@ -42,7 +42,7 @@ void GameState::Load() {
 	Texture playerTexture;
 	playerTexture.LoadPNG("textures/characters/archeologist.png");
 	player = std::make_unique<Player>();
-	player->Load("characters/archeologist", playerTexture);
+	player->Load("characters/archeologist", std::move(playerTexture));
 	player->scale = PLAYER_SCALE;
 
 	timers.idleModel.Reset();

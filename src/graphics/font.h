@@ -12,6 +12,8 @@ class Font {
   public:
 	Font();
 	~Font();
+	Font(const Font&) = delete; // owns display lists: a copy would free them twice
+	Font& operator=(const Font&) = delete;
 	// Monospaced: every glyph advances size / 2 + spacing.
 	// Proportional: each glyph advances its own inked width + spacing (measured from the texture).
 	void Load(const char filename[], float size = 12, float spacing = 0, bool proportional = false);

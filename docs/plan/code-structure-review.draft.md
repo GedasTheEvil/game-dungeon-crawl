@@ -65,7 +65,7 @@ Rules for every stage:
 | 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | not now (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
 | 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
 | 6 | **Replace `Game()` step by step** | | 438 calls, the `game_state.h` hub | explicit dependencies |
-| 11 | **RAII for GL resources** | | copyable `Texture` / `Font`, nothing freed | RAII |
+| 11 | **RAII for GL resources** | done: [gl-resources.md](gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
 | 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | | see the audit | |
 | 13 | **Unit tests for pure logic** | with every stage from 2 on | only GL scenario tests | testability |
 

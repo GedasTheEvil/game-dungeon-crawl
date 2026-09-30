@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "animated_model.h"
+#include "textures.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include <GL/glu.h>
@@ -80,7 +81,11 @@ AnimatedModel::AnimatedModel() {
 	playback.stepStart = GameClock::now();
 }
 ////============================================================
-AnimatedModel::~AnimatedModel() {}
+AnimatedModel::~AnimatedModel() {
+	if (glContextCurrent())
+		for (int list : List)
+			glDeleteLists(static_cast<GLuint>(list), 1);
+}
 //============================================================
 int AnimatedModel::Load(const char fileName[]) {
 	ifstream in(fileName, ios::binary);

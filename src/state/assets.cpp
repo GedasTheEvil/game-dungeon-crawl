@@ -228,7 +228,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		Texture tex;
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[def.id];
-		type.model.Load(def.model, tex, def.locomotion == Locomotion::Ambush ? AMBUSH_CLIPS : MONSTER_CLIPS);
+		type.model.Load(def.model, std::move(tex), def.locomotion == Locomotion::Ambush ? AMBUSH_CLIPS : MONSTER_CLIPS);
 		type.speed = def.speed;
 		type.maxHealth = def.maxHealth;
 		type.damage = def.damage;

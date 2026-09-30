@@ -9,14 +9,14 @@
 class Trap {
   private:
 	std::unique_ptr<AnimatedModel> mdl;
-	Texture tex;
+	const Texture* tex = nullptr; // shared (TextureRegistry): the spikes and the death trap use one
 
   public:
 	float scale = 3;
 
 	Trap();
 	void Show();
-	bool loadModel(const char filename[], Texture& texture, bool compile = true);
+	bool loadModel(const char filename[], const Texture& texture, bool compile = true);
 };
 
 #endif

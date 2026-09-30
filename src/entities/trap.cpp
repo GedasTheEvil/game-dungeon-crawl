@@ -8,14 +8,15 @@ void Trap::Show() {
 	glTranslatef(0, 0, -30);
 	glPushMatrix();
 	glScalef(scale, scale, scale);
-	tex.Bind();
+	if (tex != nullptr)
+		tex->Bind();
 	mdl->Show();
 	glPopMatrix();
 	glPopMatrix();
 }
 
-bool Trap::loadModel(const char filename[], Texture& texture, bool compile) {
-	tex = texture;
+bool Trap::loadModel(const char filename[], const Texture& texture, bool compile) {
+	tex = &texture;
 
 	mdl->Load(filename);
 	mdl->BindTexture(texture.ID());

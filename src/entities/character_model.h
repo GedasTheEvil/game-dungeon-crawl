@@ -62,7 +62,7 @@ class CharacterModel {
 	Sound dieSound, attackSound, jumpSound, wakeSound; // sounds/<category>/<name>_{die,att,jump,wake}.wav, all optional
 
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
-	bool Load(const char* name, const Texture& tex, const ClipFiles& files);
+	bool Load(const char* name, Texture&& tex, const ClipFiles& files); // takes the texture over
 	[[nodiscard]] ModelState Reference() const { return reference; }
 	[[nodiscard]] AnimatedModel* Clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
 	// The clip a state shows: its own, or the reference clip standing in.

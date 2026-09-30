@@ -13,8 +13,8 @@ namespace {
 constexpr float DEG_TO_RAD = 3.14159265f / 180.f;
 } // namespace
 
-bool Player::Load(const char* name, const Texture& texture) {
-	if (!model.Load(name, texture, PLAYER_CLIPS))
+bool Player::Load(const char* name, Texture&& texture) {
+	if (!model.Load(name, std::move(texture), PLAYER_CLIPS))
 		return false;
 	for (AnimPlayback& p : playback)
 		p.stepStart = GameClock::now();

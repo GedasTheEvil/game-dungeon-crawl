@@ -133,7 +133,8 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 }
 //=================================================================================================================
 Font::~Font() {
-	glDeleteLists(base, GLYPHS); // Delete All 95 Font Display Lists
+	if (glContextCurrent())
+		glDeleteLists(base, GLYPHS); // Delete All 95 Font Display Lists
 	void* selfPtr = this;
 	LOG_DEBUGF("graphics", "Deleting font %p", selfPtr);
 }

@@ -19,4 +19,4 @@ their near edge, not their centre). Review the reach of every weapon, then retun
 ## Related
 
 * Traps still check the player's point (`Trap::Hurt`), not the player box: left out on purpose in
-  [trap-and-font-bugs.md](trap-and-font-bugs.md). Revisit only if trap hits feel off.
+  [trap-and-font-bugs.md](solved/trap-and-font-bugs.md). Revisit only if trap hits feel off.

@@ -130,6 +130,6 @@ Done 2026-09-30, as planned except where noted:
 Not done:
 
 * Traps still check the player's point (`Trap::Hurt`); move them to the player box with the
-  [trap bug fix](../trap-and-font-bugs.md).
+  [trap bug fix](trap-and-font-bugs.md).
 * [Weapon ranges](#weapon-ranges) review and the HP balance (boss scarab, giants): moved to
   [weapon-ranges-and-balance.draft.md](../weapon-ranges-and-balance.draft.md).

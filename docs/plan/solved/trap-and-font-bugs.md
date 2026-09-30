@@ -1,8 +1,8 @@
 # Trap and font bugs
 
-Status: found in the [code structure audit](code-structure-review-audit.draft.md) (2026-09-30). Fixed 2026-09-30 (see
-[Implementation](#implementation)); not yet verified in play. Small and
-independent of the [code structure review](code-structure-review.draft.md); can be fixed any time.
+Status: found in the [code structure audit](../code-structure-review-audit.draft.md) (2026-09-30). Fixed 2026-09-30 (see
+[Implementation](#implementation)); verified in play 2026-09-30. Small and
+independent of the [code structure review](../code-structure-review.draft.md); can be fixed any time.
 
 ## 1. Trap damage depends on drawing, and one hurt timer is shared per trap kind
 
@@ -49,5 +49,5 @@ Done 2026-09-30:
   order. The test pins the behaviour.
 
 Not done: the traps still use the player's point, not the player's hitbox (`Player::HalfWidth`,
-[monster hitboxes](solved/monster-hitboxes.md)). A box would widen every trap by 0.06 tiles; left out so as not to change
+[monster hitboxes](monster-hitboxes.md)). A box would widen every trap by 0.06 tiles; left out so as not to change
 the jump timings over spikes.

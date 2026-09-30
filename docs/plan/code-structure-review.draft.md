@@ -36,7 +36,7 @@ Rules for every stage:
 
 * **First stages: 1, 2, 3** (layered build and shared library, then ids and rules out of the UI, then the tile
   definition table). They unblock the others. Re-check the audit for these areas before writing their sub-plans.
-* **Bugs found in the audit are fixed on their own**, outside this plan: [trap-and-font-bugs.md](trap-and-font-bugs.md).
+* **Bugs found in the audit are fixed on their own**, outside this plan: [trap-and-font-bugs.md](solved/trap-and-font-bugs.md).
 * **Game and tools share one library** (or one library per layer). The editor, levelcheck, levelgen and model-viewer
   link it instead of listing objects or recompiling sources.
 

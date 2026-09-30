@@ -6,7 +6,7 @@ fixed-step virtual clock, saves screenshots and state, then exits with a status 
 ```
 make test                                      # every tests/scenarios/*.txt
 make test SCENARIO=tests/scenarios/smoke.txt   # one script
-JOBS=4 make test                               # at most 4 at a time (default: nproc)
+JOBS=4 make test                               # at most 4 at a time (default: nproc - 4, at least 1)
 HEADLESS=0 make test                           # real windows instead of Xvfb, one at a time
 ./game tests/scenarios/smoke.txt               # direct run, real window
 SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable

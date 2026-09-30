@@ -70,9 +70,9 @@ See [testing.md](testing.md).
 * Run static analysis (clang-tidy): `make tidy`
 
 `clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel
-(`TIDY_JOBS`, default `nproc`, under a minute) and checks the project's headers too, not `external/`. The build and
-`make tidy` are expected to print no warnings. Naming rules (only these are checked; method and function names are
-mixed in the code base and are not):
+(`TIDY_JOBS`, default `nproc - 4`, at least 1, under a minute) and checks the project's headers too, not `external/`.
+The build and `make tidy` are expected to print no warnings. Naming rules (only these are checked; method and function
+names are mixed in the code base and are not):
 
 * classes, structs and enums: `CamelCase` (`Monster`, `PlayerStats`, `TexFilter`)
 * variables and parameters: `camelBack`; local constants too (`const float dx`)

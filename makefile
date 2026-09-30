@@ -26,7 +26,8 @@ VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(EXTERNAL_OBJECTS) $(addpre
 VIEWER=$(BUILD)/model-viewer
 
 CLANG_TIDY?=clang-tidy
-TIDY_JOBS?=$(shell nproc)
+# nproc - 4, at least 1: four cores stay free for the desktop
+TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
 
 # Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
 LEVEL_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp

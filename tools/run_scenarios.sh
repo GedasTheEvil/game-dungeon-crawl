@@ -1,5 +1,6 @@
 #!/bin/bash
-# Runs scenario scripts through ./game, JOBS at a time (default: nproc). Usage: tools/run_scenarios.sh [scenario.txt ...]
+# Runs scenario scripts through ./game, JOBS at a time (default: nproc - 4, at least 1, so four cores stay free).
+# Usage: tools/run_scenarios.sh [scenario.txt ...]
 # Uses Xvfb when available, one server per run. HEADLESS=0 (or no Xvfb) runs one real window at a time, every frame
 # drawn (SCENARIO_DRAW_ALL). Output: tests/out/<name>/.
 cd "$(dirname "$0")/.." || exit 2
@@ -7,7 +8,8 @@ cd "$(dirname "$0")/.." || exit 2
 scenarios=("$@")
 [ ${#scenarios[@]} -eq 0 ] && scenarios=(tests/scenarios/*.txt)
 
-jobs=${JOBS:-$(nproc)}
+jobs=${JOBS:-$(($(nproc) - 4))}
+[ "$jobs" -lt 1 ] && jobs=1
 headless=0
 if [ "${HEADLESS:-1}" != 0 ] && command -v xvfb-run >/dev/null; then
 	headless=1

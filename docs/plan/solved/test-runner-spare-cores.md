@@ -1,6 +1,6 @@
 # Test runner and tidy: leave CPU cores free
 
-Status: idea (2026-09-30). Not started.
+Status: solved (2026-09-30). Four cores stay free (`nproc - 4`, 12 of 16), not two as first planned. `nice` not added.
 
 ## Problem
 
@@ -18,7 +18,7 @@ jobs=${JOBS:-$(($(nproc) - 2))}
 ```
 
 * `JOBS=16 make test` still uses all cores.
-* Update the header comment of `tools/run_scenarios.sh` and the `make test` notes in [docs/testing.md](../testing.md).
+* Update the header comment of `tools/run_scenarios.sh` and the `make test` notes in [docs/testing.md](../../testing.md).
 * Same for `make tidy`: the makefile has `TIDY_JOBS?=$(shell nproc)` (clang-tidy via `xargs -P`). Change it to
   `nproc - 2`, at least 1; `TIDY_JOBS=16 make tidy` still uses all cores.
 * Optional: run the jobs under `nice` so the desktop stays responsive even at full width.

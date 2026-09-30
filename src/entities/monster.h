@@ -146,9 +146,9 @@ class Monster {
 	void UpdateJump();
 	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.
 	[[nodiscard]] float MeleeGap(float px, int dir) const;
-	// In reach of a melee attack: MeleeGap at most range / 10 tiles, not behind the player (MELEE_REACH_BEHIND), on
+	// In reach of a melee attack: MeleeGap at most reach tiles, not behind the player (MELEE_REACH_BEHIND), on
 	// its row.
-	[[nodiscard]] bool Nearby(float px, float py, int range, int dir) const;
+	[[nodiscard]] bool Nearby(float px, float py, float reach, int dir) const;
 	// Body height in map y (row + height above its floor), for the arrows.
 	[[nodiscard]] float BottomY() const;
 	[[nodiscard]] float TopY() const;

@@ -367,11 +367,11 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.spikes.LoadPNG("textures/traps/spikes.png");
 	traps.spikes = std::make_unique<Trap>();
 	traps.spikes->loadModel("models/traps/spikes.md3", textures.spikes);
-	traps.spikes->scale = 16;
+	traps.spikes->scale = SPIKES_SCALE;
 
 	traps.deathTrap = std::make_unique<Trap>();
 	traps.deathTrap->loadModel("models/traps/spikes.md3", textures.spikes);
-	traps.deathTrap->scale = 40;
+	traps.deathTrap->scale = DEATH_TRAP_SCALE;
 
 	progress(95, "Loading game font");
 	fonts.font.Load("fonts/papyrus.png", 3, -0.3);

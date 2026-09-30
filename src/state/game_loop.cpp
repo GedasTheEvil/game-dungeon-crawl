@@ -24,12 +24,12 @@ void updateAttack() {
 	if (!player.attackLanded && t >= weapon->motion.hitMs) {
 		player.attackLanded = true;
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
-		const float aimRange = 0.1f * static_cast<float>(weapon->range);
+		const float aimRange = weapon->Reach();
 		if (holdingBow()) {
 			Game().dungeon.ShootArrow(damage, Game().camera.Facing(),
 									  player.Fist(Game().camera.Facing())[1] / RenderConfig::TILE_SIZE, aimRange);
 			weapon->strikeSound.Play();
-		} else if (Game().dungeon.AttackNearest(damage, weapon->range, Game().camera.Facing()))
+		} else if (Game().dungeon.AttackNearest(damage, weapon->Reach(), Game().camera.Facing()))
 			weapon->strikeSound.Play();
 	}
 	if (t >= weapon->motion.swingMs)

@@ -136,7 +136,12 @@ void Draw() {
 	glPushMatrix();
 	glTranslatef(-200, 0.0, -10); // the player (drawn at x 0) at mapX
 
-	Game().dungeon.Draw();
+	std::optional<HitboxView> hitboxes;
+	if (Game().render.Hitboxes) {
+		const Item* weapon = Game().ui.inventory->Equipped();
+		hitboxes = HitboxView{weapon->Reach(), !isRanged(Game().ui.inventory->EquippedKind())};
+	}
+	Game().dungeon.Draw(hitboxes ? &*hitboxes : nullptr);
 
 	glPopMatrix();
 

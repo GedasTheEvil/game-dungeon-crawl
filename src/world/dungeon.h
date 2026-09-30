@@ -16,6 +16,27 @@
 
 constexpr int MAX_MONSTERS = 32; // live monster slots; the campaign's busiest level has 15
 
+// The part of the level drawn round the player: WIDTH x HEIGHT cells from (firstCol(), originRow). Dungeon::Draw's
+// frame puts cell (originCol, originRow) at the origin; the column left of it is drawn too, for the view's edge.
+struct ViewWindow {
+	static constexpr int WIDTH = 10;
+	static constexpr int HEIGHT = 6;
+	int originCol = 0;
+	int originRow = 0;
+	[[nodiscard]] int firstCol() const { return originCol - 1; }
+	[[nodiscard]] bool contains(float x, int row) const {
+		return row >= originRow && row < originRow + HEIGHT && x >= static_cast<float>(firstCol()) &&
+			   x < static_cast<float>(firstCol() + WIDTH);
+	}
+};
+
+// What the hitbox debug view (F3, scenario 'hitboxes on') shows of the weapon: its reach in tiles, measured from the
+// player's box edge (melee) or the centre (the bow).
+struct HitboxView {
+	float reach = 0.f;
+	bool fromEdge = true;
+};
+
 class Dungeon {
   private:
 	static constexpr int MAP_WIDTH = LEVEL_WIDTH;
@@ -29,6 +50,7 @@ class Dungeon {
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
 	LadderCell ladder[MAP_CELL_COUNT];
 	float mapX, mapY;
+	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;
 	Tile MapAt(int col, int row) const;
@@ -46,7 +68,7 @@ class Dungeon {
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;
-	void drawHitboxes();
+	void drawHitboxes(const HitboxView& weapon);
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
@@ -144,7 +166,7 @@ class Dungeon {
 	bool LoadCampaignLevel(int number);
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: the monsters in view (Monster::Animate)
-	void Draw();
+	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
 	void Move(float dirX, float dirY);
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
@@ -154,7 +176,7 @@ class Dungeon {
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
 	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
-	bool AttackNearest(int damage, int attackRange, int dir);
+	bool AttackNearest(int damage, float reach, int dir); // reach in tiles (Item::Reach)
 	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1),
 	// aimed at a monster up to aimRange tiles ahead.
 	void ShootArrow(int damage, int dir, float height, float aimRange);

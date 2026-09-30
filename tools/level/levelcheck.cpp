@@ -32,6 +32,7 @@ constexpr float GRIP = LADDER_GRIP_X;
 // script waits until it is up.
 constexpr float GATE_STOP = GATE_APPROACH - 2 * PLAYER_MOVE_STEP;
 constexpr int GATE_WAIT_MS = GATE_OPEN_MS + 200;
+static_assert(GATE_STOP > PLAYER_BODY_HALF_WIDTH + PLAYER_MOVE_STEP, "the walk to GATE_STOP must not bump the gate");
 constexpr float CLIMB_MARGIN = 0.03f;
 
 // Scenario commands for the path: walks are merged until something else has to happen.

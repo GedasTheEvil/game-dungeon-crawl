@@ -106,8 +106,9 @@ void Dungeon::Update() {
 }
 //======================================================================================
 void Dungeon::spawnInView() {
-	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++)
-		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++)
+	const ViewWindow v = view();
+	for (int j = v.originRow; j < v.originRow + ViewWindow::HEIGHT; j++)
+		for (int i = v.firstCol(); i < v.firstCol() + ViewWindow::WIDTH; i++)
 			if (IsInBounds(i, j) && MapAt(i, j).type == MonsterSpawn)
 				SpawnMonster(i, j);
 }
@@ -126,7 +127,7 @@ void Dungeon::updateTraps() {
 		const int type = MapAt(col, row).type;
 		if (type != Spike && type != Death)
 			return false;
-		const float scale = (type == Death ? Game().assets.traps.deathTrap : Game().assets.traps.spikes)->scale;
+		const float scale = type == Death ? DEATH_TRAP_SCALE : SPIKES_SCALE;
 		return std::fabs(mapX - static_cast<float>(col) - 0.5f) <= TRAP_HITBOX_X_SCALE * scale &&
 			   std::fabs(mapY - static_cast<float>(row)) <= TRAP_HITBOX_Y_SCALE * scale;
 	};
@@ -149,8 +150,7 @@ void Dungeon::updateTraps() {
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY) {
 	if (dirX != 0) {
-		float halfWidth = static_cast<float>(Game().player->scale / 60.0);
-		float probeX = mapX + dirX + (dirX > 0 ? halfWidth : -halfWidth);
+		float probeX = mapX + dirX + (dirX > 0 ? PLAYER_BODY_HALF_WIDTH : -PLAYER_BODY_HALF_WIDTH);
 		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
 			mapX += dirX;
 		else if (Map(probeX, mapY).type == Gate)
@@ -158,8 +158,7 @@ void Dungeon::Move(float dirX, float dirY) {
 	}
 
 	if (dirY > 0) {
-		if (Map(mapX, mapY).type == Ladder &&
-			Map(mapX, mapY + dirY + static_cast<float>(Game().player->scale / 40.0)).type == Ladder)
+		if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY + PLAYER_CLIMB_HEADROOM).type == Ladder)
 			mapY += dirY;
 	} else if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY).type == Ladder)
 		mapY += dirY;

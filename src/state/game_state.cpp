@@ -43,7 +43,7 @@ void GameState::Load() {
 	playerTexture.LoadPNG("textures/characters/archeologist.png");
 	player = std::make_unique<Player>();
 	player->Load("characters/archeologist", playerTexture);
-	player->scale = 15;
+	player->scale = PLAYER_SCALE;
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);

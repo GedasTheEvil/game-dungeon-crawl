@@ -102,8 +102,8 @@ void Dungeon::drawArrows() {
 	AnimatedModel* model = Game().assets.items.arrow.get();
 	if (!model)
 		return;
-	const float firstCol = static_cast<float>(static_cast<int>(mapX) - 4);
-	const float firstRow = static_cast<float>(static_cast<int>(mapY) - 3);
+	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
+	const auto firstRow = static_cast<float>(view().originRow);
 	const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale();
 	const float length = model->YRange(0).second * scale;
 	for (const Arrow& a : arrows) {

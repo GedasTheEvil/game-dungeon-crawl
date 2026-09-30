@@ -356,8 +356,8 @@ int Dungeon::flamesAt(int i, int j, FlameSource* out) const {
 // Lights from flames a little beyond the drawn window too, so light spills in before its source is visible.
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void Dungeon::addLights() {
-	int col0 = static_cast<int>(mapX) - 3;
-	int row0 = static_cast<int>(mapY) - 3;
+	const int col0 = view().originCol;
+	const int row0 = view().originRow;
 	for (int j = row0 - 2; j < row0 + 8; j++)
 		for (int i = col0 - 3; i < col0 + 11; i++) {
 			if (!IsInBounds(i, j))
@@ -374,8 +374,8 @@ void Dungeon::addLights() {
 //======================================================================================
 // After all opaque tiles: the sprites do not write depth, so later tiles would paint over them.
 void Dungeon::drawFires() {
-	int col0 = static_cast<int>(mapX) - 3;
-	int row0 = static_cast<int>(mapY) - 3;
+	const int col0 = view().originCol;
+	const int row0 = view().originRow;
 	for (int j = row0; j < row0 + 6; j++)
 		for (int i = col0 - 1; i < col0 + 9; i++) {
 			if (!IsInBounds(i, j))

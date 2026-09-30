@@ -25,9 +25,10 @@ class Item {
 
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
-	int damage = 1, range = 1;				  // weapons only
-	WeaponMotion motion;					  // weapons only
-	Sound swingSound, strikeSound;			  // weapons: the attack begins; it hits (melee) or the arrow leaves
+	int damage = 1, range = 1;				  // weapons only; range in tenths of a tile (ITEM_DEFS)
+	[[nodiscard]] float Reach() const { return 0.1f * static_cast<float>(range); } // tiles: melee reach, bow aim
+	WeaponMotion motion;														   // weapons only
+	Sound swingSound, strikeSound; // weapons: the attack begins; it hits (melee) or the arrow leaves
 	float rotA = 0;
 	float scale = 0;
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.

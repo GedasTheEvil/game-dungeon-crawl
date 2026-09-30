@@ -271,8 +271,8 @@ void Dungeon::drawRockFallTile(int i, int j) {
 //======================================================================================
 // Same window and frame as the tile loop in Draw(): cell (col0, row0) sits at the origin.
 void Dungeon::drawMechanismEffects() {
-	int col0 = static_cast<int>(mapX) - 3;
-	int row0 = static_cast<int>(mapY) - 3;
+	const int col0 = view().originCol;
+	const int row0 = view().originRow;
 	for (const Motion& m : fallingRocks) {
 		int age = GameClock::now() - m.startMs;
 		int col = m.cell % MAP_WIDTH;

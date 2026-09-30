@@ -237,7 +237,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	}
 }
 //======================================================================================
-void Dungeon::Draw() {
+void Dungeon::Draw(const HitboxView* hitboxes) {
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
 				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);
@@ -247,9 +247,10 @@ void Dungeon::Draw() {
 	Lighting::commit();
 
 	glPushMatrix();								  // the loop walks the frame from tile to tile
-	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0); // one spare column each side of the (mapX - 3) origin
-	for (int j = static_cast<int>(mapY) - 3; j < static_cast<int>(mapY) + 3; j++) {
-		for (int i = static_cast<int>(mapX) - 4; i < static_cast<int>(mapX) + 6; i++) {
+	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0); // from the view's first column, left of the origin
+	const ViewWindow v = view();
+	for (int j = v.originRow; j < v.originRow + ViewWindow::HEIGHT; j++) {
+		for (int i = v.firstCol(); i < v.firstCol() + ViewWindow::WIDTH; i++) {
 			if (IsInBounds(i, j)) {
 				drawCellSurfaces(i, j);
 				drawDecalTile(i, j);
@@ -267,11 +268,47 @@ void Dungeon::Draw() {
 	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
 	DrawMonsters();
 	drawArrows();
-	if (Game().render.Hitboxes)
-		drawHitboxes();
+	if (hitboxes != nullptr)
+		drawHitboxes(*hitboxes);
 	glPopMatrix();
 
 	drawFires();
 	drawMechanismEffects();
 	glPopMatrix();
+}
+//======================================================================================
+// Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
+// of the equipped weapon yellow.
+void Dungeon::drawHitboxes(const HitboxView& weapon) {
+	const auto firstCol = static_cast<float>(view().firstCol());
+	const auto firstRow = static_cast<float>(view().originRow);
+	constexpr float DEPTH = -20.f; // the monsters' and the player's
+	auto box = [&](float left, float right, float bottom, float top) {
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		glEnd();
+	};
+	Game().assets.textures.nullTex.Bind();
+	Lighting::setEmissive(true);
+	glDisable(GL_DEPTH_TEST);
+	glLineWidth(2.f);
+	glColor3f(1, 0.2f, 0.2f);
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive())
+			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
+	const Player& player = *Game().player;
+	const float half = player.HalfWidth();
+	glColor3f(0.2f, 1, 0.2f);
+	box(mapX - half, mapX + half, mapY, mapY + player.Height());
+	const auto dir = static_cast<float>(Game().camera.Facing());
+	const float from = weapon.fromEdge ? half : 0.f;
+	glColor3f(1, 1, 0.2f);
+	box(mapX + dir * from, mapX + dir * (from + weapon.reach), mapY, mapY + player.Height() / 2.f);
+	glLineWidth(1.f);
+	glEnable(GL_DEPTH_TEST);
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
 }

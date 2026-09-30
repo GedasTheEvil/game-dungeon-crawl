@@ -65,9 +65,9 @@ float Monster::MeleeGap(float px, int dir) const {
 	return (NearEdge(dir) - px) * static_cast<float>(dir) - Game().player->HalfWidth();
 }
 
-bool Monster::Nearby(float px, float py, int range, int dir) const {
+bool Monster::Nearby(float px, float py, float reach, int dir) const {
 	const float behind = (FarEdge(dir) - px) * static_cast<float>(dir); // < 0: the far edge is behind the player
-	return MeleeGap(px, dir) <= 0.1f * static_cast<float>(range) && behind >= -MELEE_REACH_BEHIND &&
+	return MeleeGap(px, dir) <= reach && behind >= -MELEE_REACH_BEHIND &&
 		   std::fabs(static_cast<float>(row) - py) < 0.7f;
 }
 

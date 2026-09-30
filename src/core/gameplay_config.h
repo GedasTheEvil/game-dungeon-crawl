@@ -1,6 +1,13 @@
 #ifndef GAMEPLAY_CONFIG_H
 #define GAMEPLAY_CONFIG_H
 
+constexpr float PLAYER_SCALE = 15.f; // the archeologist model's scale
+// Walls and closed gates stop the player's centre this far off: wider than the hitbox the monsters and traps use
+// (Player::HalfWidth, 0.06 tiles, from the model), so the drawn figure never sinks into a wall.
+constexpr float PLAYER_BODY_HALF_WIDTH = PLAYER_SCALE / 60.f;
+// Climbing up needs ladder this far above the player's feet (their height, roughly), so they stop with the head
+// below the top rung.
+constexpr float PLAYER_CLIMB_HEADROOM = PLAYER_SCALE / 40.f;
 constexpr float PLAYER_MOVE_STEP = 0.025f;
 constexpr float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
 
@@ -29,6 +36,10 @@ constexpr int TRAP_DAMAGE_RAMP_HITS = 3; // damage grows by 1 every N consecutiv
 constexpr int TRAP_STREAK_RESET_MS = 2 * TRAP_HURT_INTERVAL_MS;
 constexpr float TRAP_HITBOX_X_SCALE = 0.02f;
 constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
+// The traps' size: their drawn scale (assets.cpp) and, through the factors above, their hitboxes
+// (Dungeon::updateTraps).
+constexpr float SPIKES_SCALE = 16.f;
+constexpr float DEATH_TRAP_SCALE = 40.f;
 
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
 // Monster and player hitboxes (Monster::HalfWidth, Player::HalfWidth) are measured from the models. Gaps are in tiles

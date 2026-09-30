@@ -8,7 +8,6 @@
 #include "../core/gameplay_config.h"
 #include "loot.h"
 #include "../graphics/lighting.h"
-#include "../ui/inventory.h"
 
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))
@@ -109,113 +108,8 @@ void Dungeon::clearMonsters() {
 	bossFight = BossFight{};
 }
 //======================================================================================
-const Monster* Dungeon::Boss() const {
-	if (bossFight.slot < 0)
-		return nullptr;
-	const Monster& boss = monsters[bossFight.slot];
-	return boss.Alive() && boss.Alerted() ? &boss : nullptr;
-}
-//======================================================================================
-int Dungeon::BossHealth() const { return bossFight.slot >= 0 ? monsters[bossFight.slot].Health() : 0; }
-//======================================================================================
-void Dungeon::SlayBoss() {
-	if (bossFight.slot >= 0)
-		monsters[bossFight.slot].takeHit(monsters[bossFight.slot].Health());
-}
-//======================================================================================
-int Dungeon::LivingMinions() const {
-	int n = 0;
-	for (const Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && mon.Minion())
-			n++;
-	return n;
-}
-//======================================================================================
-int Dungeon::NearestMonsterHealth() const {
-	const Monster* nearest = nullptr;
-	auto distance = [this](const Monster& mon) {
-		return std::fabs(mon.CentreX() - mapX) + std::fabs(static_cast<float>(mon.Row()) - mapY);
-	};
-	for (const Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && (!nearest || distance(mon) < distance(*nearest)))
-			nearest = &mon;
-	return nearest ? nearest->Health() : 0;
-}
-//======================================================================================
-void Dungeon::startBossFight(int slot) {
-	bossFight = BossFight{slot, 0, 0};
-	const Monster& boss = monsters[slot];
-	const BossRules& rules = boss.Type()->boss;
-	bossFight.nextSummonMs = GameClock::now() + rules.summonMs;
-	for (int k = 0; k < rules.minAlive; k++)
-		summonMinion(boss);
-}
-//======================================================================================
-void Dungeon::updateBoss() {
-	if (bossFight.slot < 0)
-		return;
-	Monster& boss = monsters[bossFight.slot];
-	if (!boss.Active() || !boss.Type()->isBoss()) {
-		bossFight = BossFight{};
-		return;
-	}
-	if (!boss.Alive()) {
-		map[MapIndex(boss.Col(), boss.Row())] = Tile{Empty, 0, 0}; // it does not come back, not after a load either
-		bossFight = BossFight{};
-		openGates(BOSS_LOCK);
-		Game().ShowStatus("%s", "The guardian is slain!\nThe boss gate grinds open");
-		return;
-	}
-	const BossRules& rules = boss.Type()->boss;
-	int now = GameClock::now();
-	if (!boss.Alerted() || Game().hasWon || !Game().player->Alive() || now < bossFight.nextSummonMs)
-		return;
-	bossFight.nextSummonMs = now + rules.summonMs;
-	if (bossFight.summoned < rules.summonCap && LivingMinions() < rules.maxAlive && summonMinion(boss))
-		bossFight.summoned++;
-}
-//======================================================================================
-// Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can
-// stand in with no monster in it yet, else the boss's own cell.
-bool Dungeon::summonMinion(const Monster& boss) {
-	const MonsterType& kind = Game().assets.monsterTypes[boss.Type()->boss.minion];
-	const bool flyer = kind.locomotion == Locomotion::Fly;
-	const int row = boss.Row();
-	const auto bossCol = static_cast<int>(std::floor(boss.CentreX()));
-	const int away = boss.CentreX() < mapX ? -1 : 1;
-	auto taken = [this, row](int col) {
-		for (const Monster& mon : monsters)
-			if (mon.Active() && mon.Alive() && mon.Row() == row && static_cast<int>(std::floor(mon.CentreX())) == col)
-				return true;
-		return false;
-	};
-	int col = bossCol;
-	for (int k = 1; k <= MINION_SUMMON_REACH; k++) {
-		int c = bossCol + away * k;
-		if (!IsInBounds(c, row) || isSolidTile(MapAt(c, row)))
-			break;
-		if ((flyer || !walkerBlocked(c, row)) && !taken(c)) {
-			col = c;
-			break;
-		}
-	}
-	Monster* slot = freeMonsterSlot();
-	if (slot == nullptr)
-		return false;
-	slot->Spawn(kind, col, row);
-	slot->MakeMinion();
-	return true;
-}
-//======================================================================================
-// A monster walks away from its spawn tile, so it is culled by where it is now: in the drawn tiles, 10 x 6 from
-// column mapX - 4, row mapY - 3.
-bool Dungeon::inView(const Monster& mon) const {
-	int firstCol = static_cast<int>(mapX) - 4;
-	int firstRow = static_cast<int>(mapY) - 3;
-	float centre = mon.CentreX();
-	return mon.Active() && mon.Row() >= firstRow && mon.Row() < firstRow + 6 &&
-		   centre >= static_cast<float>(firstCol) && centre < static_cast<float>(firstCol + 10);
-}
+// A monster walks away from its spawn tile, so it is culled by where it is now.
+bool Dungeon::inView(const Monster& mon) const { return mon.Active() && view().contains(mon.CentreX(), mon.Row()); }
 //======================================================================================
 // Only the monsters in view: their blood draws from the shared rand() (stage 9 of the code structure review gives
 // it its own), so animating the others would change every seeded roll after it.
@@ -225,10 +119,10 @@ void Dungeon::AnimateMonsters() {
 			mon.Animate(mapX, mapY);
 }
 //======================================================================================
-// Called in Draw() with the frame origin at the first drawn tile: column mapX - 4, row mapY - 3.
+// Called in Draw() with the frame origin at the view's first column (ViewWindow::firstCol).
 void Dungeon::DrawMonsters() {
-	int firstCol = static_cast<int>(mapX) - 4;
-	int firstRow = static_cast<int>(mapY) - 3;
+	const int firstCol = view().firstCol();
+	const int firstRow = view().originRow;
 	for (Monster& mon : monsters) {
 		if (!inView(mon))
 			continue;
@@ -242,49 +136,10 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-// Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
-// of the equipped weapon yellow.
-void Dungeon::drawHitboxes() {
-	const auto firstCol = static_cast<float>(static_cast<int>(mapX) - 4);
-	const auto firstRow = static_cast<float>(static_cast<int>(mapY) - 3);
-	constexpr float DEPTH = -20.f; // the monsters' and the player's
-	auto box = [&](float left, float right, float bottom, float top) {
-		glBegin(GL_LINE_LOOP);
-		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
-		glEnd();
-	};
-	Game().assets.textures.nullTex.Bind();
-	Lighting::setEmissive(true);
-	glDisable(GL_DEPTH_TEST);
-	glLineWidth(2.f);
-	glColor3f(1, 0.2f, 0.2f);
-	for (const Monster& mon : monsters)
-		if (mon.Active() && mon.Alive())
-			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
-	const Player& player = *Game().player;
-	const float half = player.HalfWidth();
-	glColor3f(0.2f, 1, 0.2f);
-	box(mapX - half, mapX + half, mapY, mapY + player.Height());
-	if (const Item* weapon = Game().ui.inventory->Equipped()) {
-		const auto dir = static_cast<float>(Game().camera.Facing());
-		const float reach = 0.1f * static_cast<float>(weapon->range);
-		const float from = isRanged(Game().ui.inventory->EquippedKind()) ? 0.f : half;
-		glColor3f(1, 1, 0.2f);
-		box(mapX + dir * from, mapX + dir * (from + reach), mapY, mapY + player.Height() / 2.f);
-	}
-	glLineWidth(1.f);
-	glEnable(GL_DEPTH_TEST);
-	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
-}
-//======================================================================================
-bool Dungeon::AttackNearest(int damage, int attackRange, int dir) {
+bool Dungeon::AttackNearest(int damage, float reach, int dir) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && mon.Nearby(mapX, mapY, attackRange, dir) &&
+		if (mon.Active() && mon.Alive() && mon.Nearby(mapX, mapY, reach, dir) &&
 			(!nearest || mon.MeleeGap(mapX, dir) < nearest->MeleeGap(mapX, dir)))
 			nearest = &mon;
 	if (!nearest)

@@ -1,0 +1,5 @@
+; A giant rat (col 7) behind three cells of spikes it cannot leap; the player shoots it from the spikes, 2 tiles
+; from its near edge (tests/scenarios/monster_hitboxes.txt).
+############
+#S..^^^T..E#
+############

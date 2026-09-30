@@ -1,11 +1,14 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include "../graphics/render_config.h"
 #include "../core/gameplay_config.h"
 #include "loot.h"
+#include "../graphics/lighting.h"
+#include "../ui/inventory.h"
 
 bool Dungeon::walkerBlocked(int col, int row) const {
 	if (!IsInBounds(col, row))
@@ -27,6 +30,18 @@ int Dungeon::leapLanding(int col, int row, int dir) const {
 			return c;
 	}
 	return -1;
+}
+//======================================================================================
+// The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
+// and leap back over the gap.
+float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
+	const float centre = static_cast<float>(land) + 0.5f;
+	if (static_cast<int>(std::floor(mapX)) != land)
+		return centre;
+	const float stop = mon.HalfWidth() + Game().player->HalfWidth() + MONSTER_BITE_REACH / 2.f;
+	const float bite = mapX - static_cast<float>(dir) * stop;
+	return dir > 0 ? std::clamp(bite, static_cast<float>(land), centre)
+				   : std::clamp(bite, centre, static_cast<float>(land + 1));
 }
 //======================================================================================
 void Dungeon::UpdateMonsters() {
@@ -68,7 +83,7 @@ void Dungeon::UpdateMonsters() {
 				float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
 				float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
 				if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
-					mon.Jump(static_cast<float>(land) - static_cast<float>(mon.Col()));
+					mon.Jump(leapTarget(mon, land, dir) - static_cast<float>(mon.Col()) - 0.5f);
 					continue;
 				}
 			}
@@ -114,6 +129,17 @@ int Dungeon::LivingMinions() const {
 		if (mon.Active() && mon.Alive() && mon.Minion())
 			n++;
 	return n;
+}
+//======================================================================================
+int Dungeon::NearestMonsterHealth() const {
+	const Monster* nearest = nullptr;
+	auto distance = [this](const Monster& mon) {
+		return std::fabs(mon.CentreX() - mapX) + std::fabs(static_cast<float>(mon.Row()) - mapY);
+	};
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && (!nearest || distance(mon) < distance(*nearest)))
+			nearest = &mon;
+	return nearest ? nearest->Health() : 0;
 }
 //======================================================================================
 void Dungeon::startBossFight(int slot) {
@@ -203,16 +229,55 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-bool Dungeon::AttackNearest(int damage, int attackRange, int dir) {
-	for (Monster& mon : monsters) {
-		if (!mon.Active())
-			continue;
-		if (mon.Alive() && mon.Nearby(mapX, mapY, attackRange, dir)) {
-			mon.takeHit(damage);
-			return true;
-		}
+// Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
+// of the equipped weapon yellow.
+void Dungeon::drawHitboxes() {
+	const auto firstCol = static_cast<float>(static_cast<int>(mapX) - 4);
+	const auto firstRow = static_cast<float>(static_cast<int>(mapY) - 3);
+	constexpr float DEPTH = -20.f; // the monsters' and the player's
+	auto box = [&](float left, float right, float bottom, float top) {
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		glEnd();
+	};
+	Game().assets.textures.nullTex.Bind();
+	Lighting::setEmissive(true);
+	glDisable(GL_DEPTH_TEST);
+	glLineWidth(2.f);
+	glColor3f(1, 0.2f, 0.2f);
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive())
+			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
+	const Player& player = *Game().player;
+	const float half = player.HalfWidth();
+	glColor3f(0.2f, 1, 0.2f);
+	box(mapX - half, mapX + half, mapY, mapY + player.Height());
+	if (const Item* weapon = Game().ui.inventory->Equipped()) {
+		const auto dir = static_cast<float>(Game().camera.Facing());
+		const float reach = 0.1f * static_cast<float>(weapon->range);
+		const float from = Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON ? 0.f : half;
+		glColor3f(1, 1, 0.2f);
+		box(mapX + dir * from, mapX + dir * (from + reach), mapY, mapY + player.Height() / 2.f);
 	}
-	return false;
+	glLineWidth(1.f);
+	glEnable(GL_DEPTH_TEST);
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
+}
+//======================================================================================
+bool Dungeon::AttackNearest(int damage, int attackRange, int dir) {
+	Monster* nearest = nullptr;
+	for (Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && mon.Nearby(mapX, mapY, attackRange, dir) &&
+			(!nearest || mon.MeleeGap(mapX, dir) < nearest->MeleeGap(mapX, dir)))
+			nearest = &mon;
+	if (!nearest)
+		return false;
+	nearest->takeHit(damage);
+	return true;
 }
 //======================================================================================
 // A monster tile came into view: its monster appears, unless it is already there. Uses a free slot, else the slot

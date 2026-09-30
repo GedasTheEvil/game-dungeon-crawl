@@ -45,6 +45,7 @@ enum class CommandType : unsigned char {
 	Interact,
 	Camera,
 	Toon,
+	Hitboxes,
 	Screenshot,
 	Dump,
 	Expect,
@@ -81,6 +82,7 @@ enum class Field : unsigned char {
 	Bars,
 	Boss,
 	Minions,
+	Nearest,
 	ItemCount,
 	ItemLevel
 };
@@ -213,6 +215,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.BossHealth());
 	case Field::Minions:
 		return static_cast<float>(Game().dungeon.LivingMinions());
+	case Field::Nearest:
+		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.itemType, cmd.itemId));
 	case Field::ItemLevel:
@@ -363,7 +367,8 @@ bool parseField(const std::string& word, Field& field) {
 				  {"riddle", Field::Riddle},
 				  {"bars", Field::Bars},
 				  {"boss", Field::Boss},
-				  {"minions", Field::Minions}};
+				  {"minions", Field::Minions},
+				  {"nearest", Field::Nearest}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -461,6 +466,13 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::Toon;
 		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
 			return "usage: toon <on|off>";
+		cmd.a = w[1] == "on" ? 1.f : 0.f;
+		return "";
+	}
+	if (name == "hitboxes") {
+		cmd.type = CommandType::Hitboxes;
+		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
+			return "usage: hitboxes <on|off>";
 		cmd.a = w[1] == "on" ? 1.f : 0.f;
 		return "";
 	}
@@ -672,6 +684,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Toon:
 		Game().render.Cartoon = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return true;
+	case CommandType::Hitboxes:
+		Game().render.Hitboxes = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Screenshot:

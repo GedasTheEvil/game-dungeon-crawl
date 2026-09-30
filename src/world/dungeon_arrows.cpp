@@ -26,12 +26,13 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 		// A disguised mimic is left alone: aiming at it would give it away.
 		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Row() != row)
 			continue;
-		const float ahead = (mon.CentreX() - x) * static_cast<float>(dir);
+		const float near = mon.NearEdge(dir);
+		const float ahead = (near - x) * static_cast<float>(dir);
 		const float centreY = (mon.BottomY() + mon.TopY()) / 2.f;
 		if (ahead <= 0.f || ahead > nearest || centreY - y > ARROW_MAX_RISE)
 			continue;
 		bool clear = true; // no wall between the bow and the monster
-		for (auto col = static_cast<int>(std::floor(x)); col != static_cast<int>(std::floor(mon.CentreX())); col += dir)
+		for (auto col = static_cast<int>(std::floor(x)); col != static_cast<int>(std::floor(near)); col += dir)
 			if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row))) {
 				clear = false;
 				break;
@@ -39,7 +40,7 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 		if (!clear)
 			continue;
 		nearest = ahead;
-		outX = mon.CentreX();
+		outX = near;
 		outY = centreY;
 		found = true;
 	}
@@ -85,8 +86,8 @@ void Dungeon::updateArrows() {
 				break;
 			}
 			for (Monster& mon : monsters)
-				if (mon.Active() && mon.Alive() && std::fabs(mon.CentreX() - x) <= ARROW_HIT_HALF_WIDTH &&
-					y >= mon.BottomY() && y <= mon.TopY()) {
+				if (mon.Active() && mon.Alive() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
+					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
 					mon.takeHit(a.damage);
 					Game().assets.sounds.arrowHit.Play();
 					gone = true;

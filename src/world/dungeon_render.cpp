@@ -267,6 +267,8 @@ void Dungeon::Draw() {
 	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
 	DrawMonsters();
 	drawArrows();
+	if (Game().render.Hitboxes)
+		drawHitboxes();
 	glPopMatrix();
 
 	drawFires();

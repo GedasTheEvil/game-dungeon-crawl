@@ -192,7 +192,7 @@ void Draw() {
 	}
 
 	glPushMatrix();
-	glTranslatef(-202, 0.0, -10);
+	glTranslatef(-200, 0.0, -10); // the player (drawn at x 0) at mapX
 
 	Game().dungeon.Draw();
 

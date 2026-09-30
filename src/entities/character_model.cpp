@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <string>
+#include <tuple>
 #include "../core/logger.h"
 
 namespace {
@@ -34,6 +35,7 @@ bool CharacterModel::Load(const char* name, const Texture& tex, const ClipFiles&
 		return false;
 	}
 	referenceTop = Clip(reference)->YRange(0).second;
+	std::tie(halfX, halfZ) = Clip(reference)->HalfXZ(0);
 	if (const AnimatedModel* idle = Clip(ModelState::Idle)) {
 		idleBottom = idle->YRange(0).first;
 		idleTop = idle->YRange(0).second;

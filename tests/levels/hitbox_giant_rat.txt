@@ -1,0 +1,4 @@
+; A giant rat (col 3) walks up to the player (tests/scenarios/monster_hitboxes.txt).
+########
+#S.T..E#
+########

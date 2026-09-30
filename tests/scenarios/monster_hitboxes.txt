@@ -1,0 +1,301 @@
+# Monster hitboxes (Monster::HalfWidth): every size of walker walks up to the player and stops where it bites
+# (MONSTER_BITE_REACH between the boxes); the player, not moving, lands a hit with every melee weapon. Then an arrow
+# hits a giant rat 2 tiles away. Levels: tests/levels/hitbox_*. Screenshots with the debug boxes (hitboxes on).
+seed 1
+god
+
+# scarab, club
+level tests/levels/hitbox_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 8s
+expect nearest == 10
+screenshot scarab
+attack
+wait 60
+expect nearest < 10
+
+# scarab, sword
+level tests/levels/hitbox_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 8s
+expect nearest == 10
+attack
+wait 60
+expect nearest < 10
+
+# scarab, spear
+level tests/levels/hitbox_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 8s
+expect nearest == 10
+attack
+wait 60
+expect nearest < 10
+
+# rat, club
+level tests/levels/hitbox_rat
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 8s
+expect nearest == 12
+screenshot rat
+attack
+wait 60
+expect nearest < 12
+
+# rat, sword
+level tests/levels/hitbox_rat
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 8s
+expect nearest == 12
+attack
+wait 60
+expect nearest < 12
+
+# rat, spear
+level tests/levels/hitbox_rat
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 8s
+expect nearest == 12
+attack
+wait 60
+expect nearest < 12
+
+# worm, club
+level tests/levels/hitbox_worm
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 25s
+expect nearest == 30
+screenshot worm
+attack
+wait 60
+expect nearest < 30
+
+# worm, sword
+level tests/levels/hitbox_worm
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 25s
+expect nearest == 30
+attack
+wait 60
+expect nearest < 30
+
+# worm, spear
+level tests/levels/hitbox_worm
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 25s
+expect nearest == 30
+attack
+wait 60
+expect nearest < 30
+
+# giant scarab, club
+level tests/levels/hitbox_giant_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 12s
+expect nearest == 90
+screenshot giant_scarab
+attack
+wait 60
+expect nearest < 90
+
+# giant scarab, sword
+level tests/levels/hitbox_giant_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 12s
+expect nearest == 90
+attack
+wait 60
+expect nearest < 90
+
+# giant scarab, spear
+level tests/levels/hitbox_giant_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 12s
+expect nearest == 90
+attack
+wait 60
+expect nearest < 90
+
+# boss scarab, club
+level tests/levels/hitbox_boss_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 12s
+expect boss == 320
+screenshot boss_scarab
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+expect boss < 320
+
+# boss scarab, sword
+level tests/levels/hitbox_boss_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 12s
+expect boss == 320
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+expect boss < 320
+
+# boss scarab, spear
+level tests/levels/hitbox_boss_scarab
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 12s
+expect boss == 320
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+expect boss < 320
+
+# giant rat, club
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 8s
+expect nearest == 60
+screenshot giant_rat
+attack
+wait 60
+expect nearest < 60
+
+# giant rat, sword
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+key 2
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 60
+expect nearest < 60
+
+# giant rat, spear
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 1
+give melee 2
+key 3
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 60
+expect nearest < 60
+
+# bow: the giant rat stays behind the spikes, its near edge 2 tiles ahead
+level tests/levels/hitbox_bow
+hitboxes on
+give ranged 0
+key 4
+walk right 3.5
+wait 30
+expect nearest == 60
+attack
+wait 30
+screenshot bow_flying
+wait 60
+expect nearest < 60

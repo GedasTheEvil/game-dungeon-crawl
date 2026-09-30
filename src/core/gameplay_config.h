@@ -26,7 +26,10 @@ constexpr float TRAP_HITBOX_X_SCALE = 0.02f;
 constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
-constexpr float MONSTER_WALL_MARGIN = 0.5f; // a walker stops this far before a wall (its half width)
+// Monster and player hitboxes (Monster::HalfWidth, Player::HalfWidth) are measured from the models. Gaps are in tiles
+// between the box edges.
+constexpr float MONSTER_BITE_REACH = 0.1f; // a walker stops and bites this far from the player
+constexpr float ROOTED_BITE_REACH = 0.25f; // a rooted monster (plant, mimic) bites the player this close
 
 // Walk-jumpers (Monster::Jump): the arc follows the _jump clip (10 frames at ~14 fps): crouch, air, landing crouch.
 constexpr int MONSTER_JUMP_MS = 650;
@@ -54,18 +57,21 @@ constexpr float BAT_WALL_MARGIN = 0.35f;	 // turns this far before a wall
 constexpr int BAT_ATTACK_MS = 450;			 // attack clip after a bite
 constexpr float BAT_FALL_GRAVITY = 600.f;	 // dead bats fall to the floor (world units / s^2)
 
-constexpr float MELEE_REACH_BEHIND = 0.1f; // tiles: a monster overlapping the player this far behind is still hit
+// Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
+// whose far edge is this far behind the player's centre is still hit.
+constexpr float MELEE_REACH_BEHIND = 0.1f;
 
-// Bow (Dungeon::ShootArrow): the draw takes BOW_DRAW_MS, then the arrow flies on a parabola aimed at the centre of
-// the nearest monster ahead within the bow's range, else at the floor ARROW_FREE_RANGE away. Map units (tiles).
+// Bow (Dungeon::ShootArrow): the draw takes BOW_DRAW_MS, then the arrow flies on a parabola aimed at the near edge of
+// the nearest monster ahead within the bow's range (half its height), else at the floor ARROW_FREE_RANGE away. Map
+// units (tiles).
 constexpr int BOW_DRAW_MS = 450;
 constexpr float ARROW_GRAVITY = 10.f;	 // tiles / s^2
 constexpr float ARROW_FREE_RANGE = 2.5f; // with nothing to aim at
-constexpr float ARROW_MAX_RISE = 0.6f;	 // a monster centre higher above the bow than this is out of reach
+constexpr float ARROW_MAX_RISE = 0.6f;	 // a monster's mid height higher above the bow than this is out of reach
 // The arc rises this far above the higher end, more for a longer shot: a close shot flies flat.
 constexpr float ARROW_ARC_BASE = 0.05f;
 constexpr float ARROW_ARC_PER_TILE = 0.1f;
-constexpr float ARROW_HIT_HALF_WIDTH = 0.3f; // tiles either side of a monster's centre
+constexpr float ARROW_HIT_TOLERANCE = 0.05f; // tiles outside a monster's box an arrow still hits
 constexpr int ARROW_STUCK_MS = 1500;		 // an arrow in a wall or the floor stays this long
 
 // Keys, gates and levers (dungeon_mechanisms.cpp).

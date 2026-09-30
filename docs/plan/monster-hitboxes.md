@@ -1,6 +1,7 @@
 # Monster hitboxes
 
-Status: bug found in play (lvl5, the boss scarab, 2026-09-30). Not started.
+Status: bug found in play (lvl5, the boss scarab, 2026-09-30). Implemented 2026-09-30 (see
+[Implementation](#implementation)); not yet verified in play. Weapon ranges and HP balance still open.
 
 ## The bug
 
@@ -94,3 +95,39 @@ aim 3 tiles), so fights are neither too easy nor too hard:
   weapon. The player should land hits at the distance where the monster bites, and only the spear should outreach
   the bite.
 * Retune monster HP (`MONSTER_DEFS`, `BOSS_DEFS`) after that, not before.
+
+## Implementation
+
+Done 2026-09-30, as planned except where noted:
+
+* **Box size.** `AnimatedModel::HalfXZ` measures frame 0 of the reference clip; `CharacterModel::HalfWidth` takes the
+  larger of the X and Z half extents (the body length, Z for every walker; the wingspan, X, for bats).
+  `Monster::HalfWidth` / `Player::HalfWidth` scale it like the drawing. Half widths (tiles, toon off): scarab 0.09,
+  rat 0.16, worm 0.23, giant scarab 0.30, boss scarab 0.43, giant rat 0.53, bat 0.23, player 0.06 (height 0.375).
+* **Drawn centre.** Monsters were drawn at `CentreX()`, like the tiles, but the player 0.05 tiles off `mapX`: the
+  dungeon offset in `draw.cpp` was -202, now -200.
+* **Facing.** A walker used to turn to the camera while biting (`attackDirection` 0), so its body-length box stuck
+  out past the narrow front view. It now stays turned to the player while biting, the jaws at them. Rooted monsters
+  (plant, mimic) still face the camera.
+* **Monster reach.** `MONSTER_BITE_REACH` 0.1 between the boxes for walkers, `ROOTED_BITE_REACH` 0.25 for the plant
+  and the mimic (about their old reach). Stop distance, centre to centre: scarab 0.25, rat 0.33, worm 0.39, giant
+  scarab 0.46, boss 0.59, giant rat 0.69.
+* **Melee.** `Monster::MeleeGap` (player's box edge to the near edge) and `Nearby`; `AttackNearest` hits the smallest
+  gap. Note: boss minions stop at the same gap as the boss, so a swing may hit a minion instead.
+* **Arrows.** Hit inside the box plus `ARROW_HIT_TOLERANCE` (0.05); aim at the near edge at mid height.
+* **Walls.** `seekProbeX` probes at the box edge (`MONSTER_WALL_MARGIN` removed): small monsters walk nearer to
+  walls, spikes and pits, big ones stop further off.
+* **Leaps.** `Dungeon::leapTarget`: a leap onto the player's cell lands in reach of the player, never past them (the
+  old rule, scale over 22, is gone). Landing on other cells: the cell centre, as before.
+* **Bats.** Box follows the lift already (`BottomY` / `TopY`); swoop bite unchanged (it flies through the player).
+* **Debug view.** `hitboxes on|off` scenario command, F3 in game: monster boxes red, player green, weapon reach
+  yellow.
+* **Tests.** `tests/scenarios/monster_hitboxes.txt` (new `expect nearest`): every size, every melee weapon, plus the
+  bow at 2 tiles. With the old code it fails for worm / club, giant scarab / club and sword, boss / club and sword,
+  giant rat / all. `giant_scarab_jump.txt` retimed (the scarab walks nearer the spikes before its leap).
+
+Not done:
+
+* Traps still check the player's point (`Trap::Hurt`); move them to the player box with the
+  [trap bug fix](trap-and-font-bugs.draft.md).
+* [Weapon ranges](#weapon-ranges) review and the HP balance (boss scarab, giants) after play testing.

@@ -1,0 +1,4 @@
+; A giant scarab (col 3) walks up to the player (tests/scenarios/monster_hitboxes.txt).
+########
+#S.k..E#
+########

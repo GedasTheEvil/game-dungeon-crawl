@@ -199,6 +199,8 @@ void specialKeyPressed(int key, int x, int y) {
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
 		Game().render.Cartoon = !Game().render.Cartoon;
+	if (key == SPECIAL_TOGGLE_HITBOXES)
+		Game().render.Hitboxes = !Game().render.Hitboxes;
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapSpecialGameplayAction(key));

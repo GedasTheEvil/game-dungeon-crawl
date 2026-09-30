@@ -18,8 +18,6 @@ struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
 constexpr Rgb SCARAB_BLOOD = {0.6f, 0.1f, 0.8f};
 
-// A walk-jumper lands on the centre of the player's cell: its reach (0.05 + 0.02 x scale tiles, attackDirection)
-// must be over half a tile, a scale over 22, or it leaps back and forth over the gap.
 // Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take long to kill.
 // Flyers roost on the ceiling and swoop through the player (Monster::Fly).
 const MonsterDef MONSTER_DEFS[] = {

@@ -57,9 +57,17 @@ bool Monster::LeavesChest() const {
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
 
+float Monster::HalfWidth() const {
+	return type->model.HalfWidth() * type->scale * Ink::figureScale() / RenderConfig::TILE_SIZE;
+}
+
+float Monster::MeleeGap(float px, int dir) const {
+	return (NearEdge(dir) - px) * static_cast<float>(dir) - Game().player->HalfWidth();
+}
+
 bool Monster::Nearby(float px, float py, int range, int dir) const {
-	const float ahead = (CentreX() - px) * static_cast<float>(dir);
-	return ahead >= -MELEE_REACH_BEHIND && ahead <= 0.1f * static_cast<float>(range) &&
+	const float behind = (FarEdge(dir) - px) * static_cast<float>(dir); // < 0: the far edge is behind the player
+	return MeleeGap(px, dir) <= 0.1f * static_cast<float>(range) && behind >= -MELEE_REACH_BEHIND &&
 		   std::fabs(static_cast<float>(row) - py) < 0.7f;
 }
 
@@ -198,9 +206,11 @@ void Monster::Draw(float px, float py) {
 			facing = leap.toX > leap.fromX ? 1 : -1;
 		else if (lurking())
 			facing = 0; // a chest doesn't turn to look at the player
-		else if (!flies())
+		else if (!flies()) {
 			facing = attackDirection(px, py);
-		else
+			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)
+				facing = px < CentreX() ? -1 : 1;
+		} else
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 	}
 	glRotatef(type->rotA + 90.f * static_cast<float>(facing), 0, 1, 0);

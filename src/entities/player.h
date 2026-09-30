@@ -52,6 +52,9 @@ class Player {
 	bool Load(const char* name, const Texture& texture);
 	void Draw();
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }
+	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).
+	[[nodiscard]] float HalfWidth() const;
+	[[nodiscard]] float Height() const;
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost). No damage in the scenario god mode.
 	void TakeHit(int dmg, bool ignoreArmor = false);
 	void Reanimate(); // full HP, standing

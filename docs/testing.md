@@ -43,6 +43,7 @@ One command per line. `#` starts a comment.
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
+| `hitboxes on\|off` | Debug outlines (F3): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory). |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |
@@ -54,7 +55,7 @@ One command per line. `#` starts a comment.
 | `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won) to the result. |
 | `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
-| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys xp riddle bars boss minions` (`keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8; `xp` = total XP; `riddle` = 1 while the riddle screen is open; `bars` = living monsters showing their health bar; `boss` = HP of the boss in play, 0 if none; `minions` = living minions), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
+| `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys xp riddle bars boss minions nearest` (`keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8; `xp` = total XP; `riddle` = 1 while the riddle screen is open; `bars` = living monsters showing their health bar; `boss` = HP of the boss in play, 0 if none; `minions` = living minions; `nearest` = HP of the living monster nearest the player, 0 if none), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
 | `quit` | End the script. The end of the file also ends it. |
 
 A failed `walk` or `expect` is a soft failure: the script continues, but the exit code is 1.

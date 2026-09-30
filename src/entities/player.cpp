@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "../state/game_state.h"
 #include "../graphics/ink.h"
+#include "../graphics/render_config.h"
 #include "../test/scenario.h"
 
 namespace {
@@ -53,6 +54,10 @@ std::array<float, 3> Player::Fist(int dir) const {
 	return {s * (v[0] * std::cos(a) + v[2] * std::sin(a)), s * v[1],
 			-30.f + depthOffset + s * (-v[0] * std::sin(a) + v[2] * std::cos(a))};
 }
+
+float Player::HalfWidth() const { return model.HalfWidth() * scale * Ink::figureScale() / RenderConfig::TILE_SIZE; }
+
+float Player::Height() const { return model.referenceTop * scale * Ink::figureScale() / RenderConfig::TILE_SIZE; }
 
 void Player::Draw() {
 	glPushMatrix();

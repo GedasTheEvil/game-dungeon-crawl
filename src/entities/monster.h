@@ -108,6 +108,13 @@ class Monster {
 	[[nodiscard]] int Row() const { return row; }
 	[[nodiscard]] int Health() const { return health; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
+	// Hitbox: the model's half width (CharacterModel::HalfWidth) at its drawn scale, map units. Height: BottomY, TopY.
+	[[nodiscard]] float HalfWidth() const;
+	[[nodiscard]] float Left() const { return CentreX() - HalfWidth(); }
+	[[nodiscard]] float Right() const { return CentreX() + HalfWidth(); }
+	// The box edge facing the player looking dir (-1 / +1), and the one away from them.
+	[[nodiscard]] float NearEdge(int dir) const { return dir > 0 ? Left() : Right(); }
+	[[nodiscard]] float FarEdge(int dir) const { return dir > 0 ? Right() : Left(); }
 	[[nodiscard]] bool Alive() const { return health > 0; }
 	[[nodiscard]] bool Alerted() const { return alerted; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
@@ -122,21 +129,25 @@ class Monster {
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
 	[[nodiscard]] bool AttackDue() { return attackTimer.TimePassed(); }
 
-	// -1 / +1: the player is to the left / right on this row, 0: in reach or not on this row.
+	// -1 / +1: the player is to the left / right on this row, 0: in reach (MONSTER_BITE_REACH or ROOTED_BITE_REACH
+	// between the boxes) or not on this row.
 	[[nodiscard]] int attackDirection(float px, float py) const;
 	// Walkers: one step toward the player on its row; blocked: the cell in front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
-	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls, dir from attackDirection
+	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
 	void Attack(float py);
 	// Ambushers: true while still disguised; wakes (and returns false) once the player is MIMIC_WAKE_RANGE close.
 	bool Lurk(float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
-	// Walk-jumpers: leap to tile-local x toX (the centre of the landing cell), then move along the arc until landed.
+	// Walk-jumpers: leap to tile-local x toX (see Dungeon::leapTarget), then move along the arc until landed.
 	void Jump(float toX);
 	void UpdateJump();
-	// In reach of a melee attack: at most range / 10 tiles ahead of the player facing dir (-1 / +1), on its row.
+	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.
+	[[nodiscard]] float MeleeGap(float px, int dir) const;
+	// In reach of a melee attack: MeleeGap at most range / 10 tiles, not behind the player (MELEE_REACH_BEHIND), on
+	// its row.
 	[[nodiscard]] bool Nearby(float px, float py, int range, int dir) const;
 	// Body height in map y (row + height above its floor), for the arrows.
 	[[nodiscard]] float BottomY() const;

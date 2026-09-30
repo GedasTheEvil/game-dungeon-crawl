@@ -5,21 +5,13 @@
 #include "../core/gameplay_config.h"
 
 int Monster::attackDirection(float px, float py) const {
-	const float scale = type->scale;
-	const auto tileX = static_cast<float>(col);
 	if (!sameRow(py))
 		return 0;
-	if (rooted()) {
-		if (px - tileX - 0.5 > 0.2 + 0.02 * scale)
-			return 1;
-		if (px - tileX - 0.5 < -0.2 - 0.02 * scale)
-			return -1;
-		return 0;
-	}
-
-	if ((x + tileX + 0.5) - px > 0.05 + 0.02 * scale)
+	const float reach = rooted() ? ROOTED_BITE_REACH : MONSTER_BITE_REACH;
+	const float player = Game().player->HalfWidth();
+	if (Left() - (px + player) > reach)
 		return -1;
-	if ((x + tileX + 0.5) - px < -0.05 - 0.02 * scale)
+	if ((px - player) - Right() > reach)
 		return 1;
 	return 0;
 }
@@ -64,7 +56,7 @@ bool Monster::Lurk(float px, float py) {
 	return false;
 }
 
-float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * MONSTER_WALL_MARGIN; }
+float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * HalfWidth(); }
 
 float Monster::flightProbeX() const {
 	int dir = flight.dir;

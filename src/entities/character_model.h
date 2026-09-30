@@ -54,6 +54,9 @@ class CharacterModel {
   public:
 	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
 	float referenceTop = 1.f;
+	float halfX = 0.5f, halfZ = 0.5f; // of the reference clip, round the centre (Centrify)
+	// Half width of the hitbox: the larger of the two, the body length whichever way the model is turned.
+	[[nodiscard]] float HalfWidth() const { return halfX > halfZ ? halfX : halfZ; }
 	float idleBottom = 0.f, idleTop = 1.f;
 	Sound dieSound, attackSound, jumpSound, wakeSound; // sounds/<category>/<name>_{die,att,jump,wake}.wav, all optional
 

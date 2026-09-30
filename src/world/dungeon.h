@@ -41,8 +41,10 @@ class Dungeon {
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
+	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
+	void drawHitboxes();
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(int i, int j, bool isDeathTrap);
 	void drawDecorTile(int i, int j);
@@ -144,6 +146,7 @@ class Dungeon {
 	[[nodiscard]] const Monster* Boss() const;
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
+	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
 	void SlayBoss(); // scenario tests: the boss in play takes a killing hit, as from the player
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }

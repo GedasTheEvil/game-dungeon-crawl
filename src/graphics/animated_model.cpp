@@ -321,6 +321,15 @@ std::pair<float, float> AnimatedModel::YRange(int f) const {
 	return range;
 }
 //============================================================
+std::pair<float, float> AnimatedModel::HalfXZ(int f) const {
+	std::pair<float, float> half{0.0f, 0.0f};
+	for (int i = 0; i < VCount * 3; i += 3) {
+		half.first = std::max(half.first, std::fabs(Ver[f].v[i]));
+		half.second = std::max(half.second, std::fabs(Ver[f].v[i + 2]));
+	}
+	return half;
+}
+//============================================================
 void AnimatedModel::Translate(float x, float y, float z) {
 	for (int j = 0; j < frameC; j++) {
 		for (int i = 0; i < VCount * 3; i += 3) {

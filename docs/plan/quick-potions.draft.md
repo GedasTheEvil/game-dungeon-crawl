@@ -26,7 +26,8 @@ they are rare and permanent; keep them inventory only.)
 
 Rule: **drink the weakest potion that is not wasted; the stronger one only when it is needed.**
 
-1. Missing = max - current (HP or stamina). Nothing missing: do nothing, show "Health is full" like the inventory.
+1. Missing = max - current (HP or stamina). Nothing missing: drink nothing, the status box says "You are at full
+   health" (`H`) or "You are at full energy" (`0`).
 2. Candidates: the potions of that kind the player has.
 3. Pick the weakest candidate. Take the stronger one only if the weakest would leave the player in danger:
    health still below `QUICK_HEAL_DANGER` (e.g. 35% of max) after the small one while the large one exists.
@@ -58,7 +59,9 @@ drink the slot flashes and the status box says "Healed 25 health", like drinking
 * Scenario: `give potion 0 2`, `give potion 1 1`, take damage (a new `hurt N` command, or stand in a trap), `key h`,
   expect the small potion used (`expect potion0 == 1`) and HP up by 25; lower HP, `key h`, expect the large one used.
   The same for stamina with `key 0`. Screenshots of the HUD slots before and after.
+* At full health / stamina: `key h` / `key 0` drinks nothing (counts unchanged), the status message shows.
 
-## Open questions
+## Decided
 
-* Should the player be able to pin a potion for the hotkey in the inventory (overriding the best fit)?
+* No pinning (2026-09-30): the hotkeys only ever drink health (`H`) or stamina (`0`) potions, always the best
+  fitting one by the rule above.

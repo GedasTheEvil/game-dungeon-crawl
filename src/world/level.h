@@ -123,6 +123,16 @@ inline bool isTeleporter(const Tile& t) { return t.type == Door && t.attr == Gat
 // Cell index of the other teleporter with the same pair id, -1 if there is none. cells: a whole level.
 [[nodiscard]] int teleportPartner(const Tile* cells, int index);
 
+// teleportPartner for every cell, found once (it scans the whole level): for code that asks often, like the checker.
+class TeleportPairs {
+  public:
+	explicit TeleportPairs(const Tile* cells);
+	[[nodiscard]] int Partner(int index) const { return partners[index]; }
+
+  private:
+	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
+};
+
 // Cell list after the header, as in the level files and save games. False on a short read.
 bool readLevelCells(std::istream& in, Tile* cells, int cellCount);
 // Error message, empty on success.

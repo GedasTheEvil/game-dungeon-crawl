@@ -38,7 +38,8 @@ int bitOf(int colour) { return isGateColour(colour) ? 1 << (colour - 1) : 0; }
 
 class Walker {
   public:
-	explicit Walker(const LevelGrid& grid, bool teleports = true) : grid(grid), teleports(teleports) {}
+	explicit Walker(const LevelGrid& grid, bool teleports = true)
+		: grid(grid), pairs(grid.cells), teleports(teleports) {}
 
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
@@ -105,7 +106,7 @@ class Walker {
 			add(stateOf(col, row, mask | bitOf(here.attr)), COST_MOVE, Move::Pull);
 
 		if (teleports && isTeleporter(here)) {
-			int to = teleportPartner(grid.cells, cell);
+			int to = pairs.Partner(cell);
 			if (to != NONE) {
 				int fallen = 0;
 				add(settle(to % LEVEL_WIDTH, to / LEVEL_WIDTH, mask, fallen), COST_TELEPORT, Move::Teleport);
@@ -136,6 +137,7 @@ class Walker {
 
   private:
 	const LevelGrid& grid;
+	TeleportPairs pairs;
 	bool teleports;
 };
 

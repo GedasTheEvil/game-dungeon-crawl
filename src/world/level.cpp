@@ -8,6 +8,11 @@ int teleportPartner(const Tile* cells, int index) {
 	return -1;
 }
 
+TeleportPairs::TeleportPairs(const Tile* cells) {
+	for (int i = 0; i < LEVEL_WIDTH * LEVEL_HEIGHT; i++)
+		partners[i] = isTeleporter(cells[i]) ? teleportPartner(cells, i) : -1;
+}
+
 bool readLevelCells(std::istream& in, Tile* cells, int cellCount) {
 	for (int i = 0; i < cellCount; i++) {
 		in >> cells[i].type >> cells[i].attr >> cells[i].value;

@@ -70,3 +70,14 @@ TEST_CASE("tile states keep their numbers on disk") {
 	CHECK(lever.value == 1);
 	CHECK(teleportPair({Door, GateTeleport, 7}) == 7);
 }
+
+TEST_CASE("the teleporter index agrees with the scan") {
+	LevelGrid grid;
+	grid.set(2, 1, {Door, GateTeleport, 7});
+	grid.set(30, 20, {Door, GateTeleport, 7});
+	grid.set(10, 5, {Door, GateTeleport, 8});
+	grid.set(11, 5, {Door, GateTeleport, 7}); // a third one of pair 7: the checker warns, the scan picks the first
+	TeleportPairs pairs(grid.cells);
+	for (int i = 0; i < LEVEL_WIDTH * LEVEL_HEIGHT; i++)
+		CHECK(pairs.Partner(i) == (isTeleporter(grid.cells[i]) ? teleportPartner(grid.cells, i) : -1));
+}

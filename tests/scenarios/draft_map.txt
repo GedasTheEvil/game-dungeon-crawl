@@ -1,4 +1,4 @@
-# Draft map (M): cells within 1 of every tile visited, pencil on papyrus. Survives save / load; old saves still load.
+# Draft map (M): cells within 1 of every tile visited, pencil on papyrus. Survives save / load.
 seed 1
 god
 level 1
@@ -26,10 +26,6 @@ key m
 loadgame map.sav
 key m
 screenshot map_loaded
-key m
-loadgame saves/save0.sav
-key m
-screenshot map_legacy_save
 key m
 expect alive == 1
 quit

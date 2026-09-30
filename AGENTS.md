@@ -25,3 +25,7 @@ These commands do need confirmation to run
 * make format
 * make clean
 * make
+
+## Plans
+The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
+For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.

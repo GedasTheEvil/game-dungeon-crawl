@@ -1,8 +1,8 @@
 # Code structure review
 
 Status: audit re-checked and stage order decided 2026-09-30; stages [1](solved/layered-build.md),
-[2](solved/rules-out-of-ui.md), [3](solved/tile-table.md), [4](sim-render-split.md), [5](dungeon-split.md) and
-[10](movement-model.md) implemented. See [Stages](#stages).
+[2](solved/rules-out-of-ui.md), [3](solved/tile-table.md), [4](sim-render-split.md), [5](dungeon-split.md), [8](screens.md)
+and [10](movement-model.md) implemented. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -57,7 +57,7 @@ Rules for every stage:
 | 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | done: [movement-model.md](movement-model.md) | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
 | 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | done: [sim-render-split.md](sim-render-split.md) | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
 | 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
-| 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
+| 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
 | 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
 | 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
 | 6 | **Replace `Game()` step by step** | | 438 calls, the `game_state.h` hub | explicit dependencies |

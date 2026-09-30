@@ -20,6 +20,10 @@ const unsigned char KEY_ATTACK = 'v';
 const unsigned char KEY_ATTACK_UPPER = 'V';
 const unsigned char KEY_INTERACT = 'e';
 const unsigned char KEY_INTERACT_UPPER = 'E';
+const unsigned char KEY_QUICK_HEAL = 'h';
+const unsigned char KEY_QUICK_HEAL_UPPER = 'H';
+const unsigned char KEY_QUICK_STAMINA = '0';
+const unsigned char KEY_EQUIP_FIRST = '1'; // '1' to '4': club, sword, spear, bow (the inventory slot hotkeys)
 
 const int SPECIAL_TOGGLE_CARTOON = 1;
 const int SPECIAL_TOGGLE_HITBOXES = 3;

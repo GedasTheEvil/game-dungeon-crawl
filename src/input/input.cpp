@@ -71,23 +71,27 @@ class PlayerActionController {
 		case GameplayAction::Interact:
 			interact();
 			break;
+		case GameplayAction::QuickHeal: // allowed during a swing: drinking does not change it
+			Game().ui.inventory->QuickDrink(QuickKind::Health);
+			break;
+		case GameplayAction::QuickStamina:
+			Game().ui.inventory->QuickDrink(QuickKind::Stamina);
+			break;
+		case GameplayAction::EquipClub:
+			equip(ItemKind::Club);
+			break;
+		case GameplayAction::EquipSword:
+			equip(ItemKind::Sword);
+			break;
+		case GameplayAction::EquipSpear:
+			equip(ItemKind::Spear);
+			break;
+		case GameplayAction::EquipBow:
+			equip(ItemKind::Bow);
+			break;
 		case GameplayAction::None:
 			break;
 		}
-	}
-
-	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
-	static void equipHotkey(unsigned char key) {
-		if (Game().player->attackStartMs < 0)
-			Game().ui.inventory->EquipHotkey(key);
-	}
-
-	// Allowed during a swing: drinking does not change it.
-	static void quickDrink(unsigned char key) {
-		if (Inventory::IsQuickHealKey(key))
-			Game().ui.inventory->QuickDrink(QuickKind::Health);
-		else if (Inventory::IsQuickStaminaKey(key))
-			Game().ui.inventory->QuickDrink(QuickKind::Stamina);
 	}
 
 	static void applyCameraDelta(float deltaX, float deltaY) {
@@ -97,6 +101,12 @@ class PlayerActionController {
 	}
 
   private:
+	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
+	static void equip(ItemKind weapon) {
+		if (Game().player->attackStartMs < 0)
+			Game().ui.inventory->Equip(weapon);
+	}
+
 	// The swing (or the bow draw) begins; it hits when its hit time comes (updateAttack in draw.cpp).
 	static void tryAttack() {
 		Player& player = *Game().player;
@@ -186,8 +196,6 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
-		PlayerActionController::equipHotkey(key);
-		PlayerActionController::quickDrink(key);
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)

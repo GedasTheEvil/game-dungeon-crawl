@@ -12,6 +12,12 @@ enum class GameplayAction : unsigned char {
 	Jump,
 	Attack,
 	Interact,
+	QuickHeal,	  // drink the best fitting healing potion (Inventory::QuickDrink)
+	QuickStamina, // the same for stamina
+	EquipClub,	  // the four weapons, in ItemKind order
+	EquipSword,
+	EquipSpear,
+	EquipBow,
 };
 
 // Runs an action as if the player pressed its key (used by scenario tests).
@@ -40,10 +46,28 @@ inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
 	case KEY_INTERACT:
 	case KEY_INTERACT_UPPER:
 		return GameplayAction::Interact;
+	case KEY_QUICK_HEAL:
+	case KEY_QUICK_HEAL_UPPER:
+		return GameplayAction::QuickHeal;
+	case KEY_QUICK_STAMINA:
+		return GameplayAction::QuickStamina;
+	case KEY_EQUIP_FIRST:
+		return GameplayAction::EquipClub;
+	case KEY_EQUIP_FIRST + 1:
+		return GameplayAction::EquipSword;
+	case KEY_EQUIP_FIRST + 2:
+		return GameplayAction::EquipSpear;
+	case KEY_EQUIP_FIRST + 3:
+		return GameplayAction::EquipBow;
 	default:
 		return GameplayAction::None;
 	}
 }
+
+// Key cap labels for the HUD.
+constexpr const char* QUICK_HEAL_KEY_LABEL = "H";
+constexpr const char* QUICK_STAMINA_KEY_LABEL = "0";
+constexpr const char* EQUIP_KEYS_LABEL = "1-4";
 
 inline GameplayAction MapSpecialGameplayAction(int key) {
 	switch (key) {

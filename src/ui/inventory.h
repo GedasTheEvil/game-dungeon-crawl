@@ -71,8 +71,8 @@ class Inventory {
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
-	// In game, the number row equips a weapon (its slot hotkey); a potion hotkey or a missing weapon does nothing.
-	void EquipHotkey(unsigned char key);
+	// In game, the weapon keys (1-4): equips it if it was found, with the toast. A potion does nothing.
+	void Equip(ItemKind weapon);
 	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
 	// left: nothing is drunk, the status box says why.
 	void QuickDrink(QuickKind kind);
@@ -81,8 +81,6 @@ class Inventory {
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind) const;
 	// Game clock time of the last quick drink of that kind, for the HUD flash.
 	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
-	[[nodiscard]] static bool IsQuickHealKey(unsigned char key) { return key == 'h' || key == 'H'; }
-	[[nodiscard]] static bool IsQuickStaminaKey(unsigned char key) { return key == '0'; }
 	Item* Equipped() { return Model(bag.Equipped()); }
 	[[nodiscard]] ItemKind EquippedKind() const { return bag.Equipped(); }
 	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // tint of the shared potion model

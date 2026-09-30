@@ -48,7 +48,7 @@ One command per line. `#` starts a comment.
 | Command | Meaning |
 |---|---|
 | `resolution W H` | Window size. Only before `level`. |
-| `seed N` | `srand` seed, applied at each `level`. Default 1. |
+| `seed N` | Seed of the game's random streams (`GameRandom`: loot, the riddle deck, clip start frames), applied at each `level`. Default 1. Each blood effect has its own stream. |
 | `god` | The player takes no damage (`Player::TakeHit`). Death tiles still kill. |
 | `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |

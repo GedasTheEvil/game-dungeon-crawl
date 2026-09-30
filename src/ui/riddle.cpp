@@ -206,11 +206,12 @@ size_t Riddle::Load(const std::string& path) {
 
 void Riddle::Ask() {
 	if (deck.empty()) {
-		// rand(), not a private generator: scenario tests seed it and get the same riddles every run.
+		// The gameplay stream: scenario tests seed it and get the same riddles every run.
+		Rng& rng = Game().random.gameplay;
 		for (size_t i = 0; i < riddles.size(); i++)
 			deck.push_back(i);
 		for (size_t i = deck.size(); i > 1; i--)
-			std::swap(deck[i - 1], deck[static_cast<size_t>(rand()) % i]);
+			std::swap(deck[i - 1], deck[static_cast<size_t>(rng.below(static_cast<int>(i)))]);
 		// A fresh deck should not start with the riddle that was just asked.
 		if (deck.size() > 1 && deck.back() == selected)
 			std::swap(deck.front(), deck.back());

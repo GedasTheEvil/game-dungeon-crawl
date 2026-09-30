@@ -4,6 +4,7 @@
 #include "../graphics/animated_model.h"
 #include "../graphics/textures.h"
 #include "../core/sound.h"
+#include "../world/rng.h"
 #include <array>
 #include <memory>
 #include <vector>
@@ -67,7 +68,7 @@ class CharacterModel {
 	// The clip a state shows: its own, or the reference clip standing in.
 	[[nodiscard]] ModelState Shown(ModelState state) const { return Clip(state) ? state : reference; }
 	// Random move / idle phase, so monsters spawned in the same tick don't march in step.
-	[[nodiscard]] ClipPlayback SpawnPlayback() const;
+	[[nodiscard]] ClipPlayback SpawnPlayback(Rng& rng) const;
 	// Enters state: a one-shot clip (die, jump) plays from the start.
 	void Enter(ModelState& current, ModelState state, ClipPlayback& playback) const;
 	void BindTexture() const { texture.Bind(); }

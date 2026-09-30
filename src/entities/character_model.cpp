@@ -55,11 +55,11 @@ bool CharacterModel::Load(const char* name, const Texture& tex, const ClipFiles&
 	return true;
 }
 
-ClipPlayback CharacterModel::SpawnPlayback() const {
+ClipPlayback CharacterModel::SpawnPlayback(Rng& rng) const {
 	ClipPlayback playback{};
 	for (ModelState state : {ModelState::Move, ModelState::Idle})
 		if (const AnimatedModel* c = Clip(state); c && c->FrameCount() > 1)
-			playback[static_cast<int>(state)].frame = static_cast<float>(rand() % (c->FrameCount() - 1));
+			playback[static_cast<int>(state)].frame = static_cast<float>(rng.below(c->FrameCount() - 1));
 	return playback;
 }
 

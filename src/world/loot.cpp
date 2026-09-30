@@ -1,6 +1,5 @@
 #include "loot.h"
 #include <array>
-#include <cstdlib>
 
 namespace {
 // Independent rolls, in percent.
@@ -14,8 +13,6 @@ constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 constexpr std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = {
 	{ItemKind::Club, ItemKind::Bow, ItemKind::Spear, ItemKind::Sword}};
 
-bool chance(int percent) { return rand() % 100 < percent; }
-
 int weaponGrade(ItemKind kind) {
 	for (size_t grade = 0; grade < WEAPON_GRADES.size(); grade++)
 		if (WEAPON_GRADES[grade] == kind)
@@ -24,30 +21,30 @@ int weaponGrade(ItemKind kind) {
 }
 } // namespace
 
-std::vector<ItemKind> RollChestLoot(ItemKind placed) {
+std::vector<ItemKind> RollChestLoot(ItemKind placed, Rng& rng) {
 	std::vector<ItemKind> loot = {placed};
 
-	if (chance(SMALL_STAMINA_CHANCE))
+	if (rng.percent(SMALL_STAMINA_CHANCE))
 		loot.push_back(ItemKind::SmallStamina);
-	if (chance(LARGE_STAMINA_CHANCE))
+	if (rng.percent(LARGE_STAMINA_CHANCE))
 		loot.push_back(ItemKind::LargeStamina);
 
 	if (isPotion(placed)) {
-		if (chance(SAME_POTION_CHANCE))
+		if (rng.percent(SAME_POTION_CHANCE))
 			loot.push_back(placed);
-		if (placed == ItemKind::LargeHealth && chance(SMALL_HEALTH_CHANCE))
+		if (placed == ItemKind::LargeHealth && rng.percent(SMALL_HEALTH_CHANCE))
 			loot.push_back(ItemKind::SmallHealth);
 		return loot;
 	}
 
 	int grade = weaponGrade(placed);
-	if (grade > 0 && chance(LOWER_WEAPON_CHANCE))
-		loot.push_back(WEAPON_GRADES[static_cast<size_t>(rand() % grade)]);
+	if (grade > 0 && rng.percent(LOWER_WEAPON_CHANCE))
+		loot.push_back(WEAPON_GRADES[static_cast<size_t>(rng.below(grade))]);
 	return loot;
 }
 
-ItemKind RollMimicLoot() {
-	if (chance(50))
-		return WEAPON_GRADES[static_cast<size_t>(rand()) % WEAPON_GRADES.size()];
-	return itemAt(WEAPON_KIND_COUNT + rand() % POTION_KIND_COUNT);
+ItemKind RollMimicLoot(Rng& rng) {
+	if (rng.percent(50))
+		return WEAPON_GRADES[static_cast<size_t>(rng.below(WEAPON_KIND_COUNT))];
+	return itemAt(WEAPON_KIND_COUNT + rng.below(POTION_KIND_COUNT));
 }

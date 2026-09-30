@@ -1,5 +1,6 @@
 #include "level_gen.h"
 #include "items.h"
+#include "rng.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -16,24 +17,6 @@ constexpr int MONSTER_GAP = 3;		// cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
 constexpr int MIMIC_MIN_DIFFICULTY = 2;
 constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_DIFFICULTY on
-
-class Rng { // splitmix64: the same sequence on every platform
-  public:
-	explicit Rng(uint64_t seed) : state(seed * 0x9e3779b97f4a7c15ULL + 0x632be59bd9b4e019ULL) {}
-	uint32_t next() {
-		uint64_t z = (state += 0x9e3779b97f4a7c15ULL);
-		z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
-		z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
-		return static_cast<uint32_t>((z ^ (z >> 31)) >> 32);
-	}
-	int range(int lo, int hi) { // inclusive
-		return hi <= lo ? lo : lo + static_cast<int>(next() % static_cast<uint32_t>(hi - lo + 1));
-	}
-	bool chance(float p) { return static_cast<float>(next() % 10000U) < p * 10000.f; }
-
-  private:
-	uint64_t state;
-};
 
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 

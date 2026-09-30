@@ -2,6 +2,7 @@
 #define PARTICLES_H
 
 #include "../core/timer.h"
+#include "../world/rng.h"
 
 struct Rgb {
 	float r, g, b;
@@ -21,9 +22,13 @@ class ParticleSystem {
 	float x = 0.f, y = 0.f, z = 0.f;
 	int life;
 	Timer frameTimer{5}, decayTimer{5};
+	Rng rng; // its own stream: the splashes never shift the game's rolls (loot, riddles)
+	static inline uint64_t instances = 0;
 
   public:
-	explicit ParticleSystem(int life = DEFAULT_LIFE) : life(life) {}
+	explicit ParticleSystem(int life = DEFAULT_LIFE) : life(life), rng(++instances) {}
+	// A new splash at a random point within `extent` of the origin (x and y), at full life.
+	void Splash(int extent);
 	void Fall();
 	void Explode();
 	void Draw();

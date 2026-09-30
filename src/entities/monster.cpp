@@ -34,7 +34,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
-	playback = kind.model.SpawnPlayback();
+	playback = kind.model.SpawnPlayback(Game().random.effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
 		stepTimer.Reset();
@@ -90,8 +90,7 @@ bool Monster::takeHit(int dmg) {
 	alerted = true;
 	if (Alive()) {
 		health -= dmg;
-		blood->setCords(static_cast<float>(random() % scale), static_cast<float>(random() % scale), 0);
-		blood->Reset();
+		blood->Splash(scale);
 	}
 
 	if (!Alive() && state != ModelState::Die) {
@@ -102,8 +101,7 @@ bool Monster::takeHit(int dmg) {
 		type->model.dieSound.Play();
 
 		// Death blood effect, stronger than a hit.
-		blood->setCords(static_cast<float>(random() % scale), static_cast<float>(random() % scale), 0);
-		blood->Reset();
+		blood->Splash(scale);
 		for (int i = 0; i < 6; i++)
 			blood->Explode();
 	}

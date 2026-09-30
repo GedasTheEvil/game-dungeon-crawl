@@ -1,5 +1,5 @@
 # Level 1 chest at x 14 on the start row holds a sword (8 1 1): main item plus bonus rolls.
-seed 3
+seed 4
 god
 level tests/levels/classic1
 wait 30
@@ -13,6 +13,6 @@ interact
 wait 5
 screenshot picked_up
 expect melee1 == 1
-expect potion5 == 1 # seed 3 rolls a small stamina bonus
+expect potion5 == 1 # seed 4 rolls a small stamina bonus (the gameplay Rng)
 dump
 quit

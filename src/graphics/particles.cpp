@@ -36,17 +36,17 @@ void ParticleSystem::Explode() {
 
 	for (int i = 0; i < PARTICLE_COUNT; i++) {
 		// Chaotic explosion: completely random directions and forces
-		float explosionForce = (static_cast<float>(rand() % 100) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
-		float randomAngle = static_cast<float>(rand() % 360) * 3.14159f / 180.0f;		   // Completely random angle
+		float explosionForce = (static_cast<float>(rng.below(100)) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
+		float randomAngle = static_cast<float>(rng.below(360)) * 3.14159f / 180.0f;			 // Completely random angle
 
 		// Add multiple layers of randomness for chaotic explosion
-		float chaosX = (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
-		float chaosY = (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.3f; // ±0.3 chaos
-		float upwardBurst = (static_cast<float>(rand() % 40) / 100.0f) * 0.25f; // Random upward burst
+		float chaosX = (static_cast<float>(rng.below(100) - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float chaosY = (static_cast<float>(rng.below(100) - 50) / 100.0f) * 0.3f; // ±0.3 chaos
+		float upwardBurst = (static_cast<float>(rng.below(40)) / 100.0f) * 0.25f; // Random upward burst
 
-		pt[i].x += explosionForce * std::cos(randomAngle) * static_cast<float>(rand() % 4 + 1) + chaosX;
-		pt[i].y += explosionForce * std::sin(randomAngle) * static_cast<float>(rand() % 4 + 1) + upwardBurst + chaosY;
-		pt[i].z += explosionForce * (static_cast<float>(rand() % 100 - 50) / 100.0f) * 0.5f; // Random depth
+		pt[i].x += explosionForce * std::cos(randomAngle) * static_cast<float>(rng.below(4) + 1) + chaosX;
+		pt[i].y += explosionForce * std::sin(randomAngle) * static_cast<float>(rng.below(4) + 1) + upwardBurst + chaosY;
+		pt[i].z += explosionForce * (static_cast<float>(rng.below(100) - 50) / 100.0f) * 0.5f; // Random depth
 
 		pt[i].life--;
 		if (pt[i].life <= 0) {
@@ -96,6 +96,11 @@ void ParticleSystem::setBloodColor(float r, float g, float b) {
 	colour.r = r;
 	colour.g = g;
 	colour.b = b;
+}
+
+void ParticleSystem::Splash(int extent) {
+	setCords(static_cast<float>(rng.below(extent)), static_cast<float>(rng.below(extent)), 0);
+	Reset();
 }
 
 void ParticleSystem::Reset() {

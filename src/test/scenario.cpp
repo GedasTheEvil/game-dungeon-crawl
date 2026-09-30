@@ -620,7 +620,7 @@ bool loadGeneratedLevel(const std::string& spec) {
 }
 
 bool loadLevel(const Command& cmd) {
-	srand(gRunner.seed);
+	Game().random.Seed(static_cast<uint64_t>(gRunner.seed));
 	bool loaded = false;
 	if (cmd.a > 0.f)
 		loaded = Game().dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
@@ -774,7 +774,7 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<ItemKind> loot = RollChestLoot(cmd.item);
+			std::vector<ItemKind> loot = RollChestLoot(cmd.item, Game().random.gameplay);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
 				Game().ui.inventory->AddItem(entry);

@@ -165,7 +165,7 @@ class Dungeon {
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	void Update();
-	void AnimateMonsters(); // once a tick, after Update: the monsters in view (Monster::Animate)
+	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
 	void Move(float dirX, float dirY);
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).

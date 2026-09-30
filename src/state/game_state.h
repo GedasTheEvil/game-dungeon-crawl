@@ -10,6 +10,7 @@
 #include "../entities/item.h"
 #include "../ui/inventory.h"
 #include "../ui/screen.h"
+#include "../world/rng.h"
 #include "../core/sound.h"
 #include "../entities/player_stats.h"
 #include "../core/timer.h"
@@ -41,6 +42,17 @@ struct GameTimers {
 	Timer idleModel{300}; // back to the idle clip after walking
 };
 
+// The game's random streams. Gameplay: loot, the riddle deck; effects: what only shows (a clip's start frame). The
+// blood splashes have their own (ParticleSystem). A scenario seeds them per level; the game from the clock.
+struct GameRandom {
+	Rng gameplay{1};
+	Rng effects{2};
+	void Seed(uint64_t seed) {
+		gameplay = Rng(seed);
+		effects = Rng(seed ^ 0x5bd1e995U);
+	}
+};
+
 struct UIContext {
 	Screen screen = Screen::Menu; // the game starts in the main menu
 	std::unique_ptr<Inventory> inventory;
@@ -62,6 +74,7 @@ class GameState {
 	Timer statusTimer{STATUS_MS};
 	std::unique_ptr<Player> player;
 	GameTimers timers;
+	GameRandom random;
 	UIContext ui;
 	Dungeon dungeon;
 	SaveSlots saves;

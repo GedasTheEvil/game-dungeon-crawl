@@ -108,16 +108,14 @@ void Player::TakeHit(int dmg, bool ignoreArmor) {
 	const int s = static_cast<int>(scale);
 	if (Alive()) {
 		stats.LoseHP(stats.HitDamage(dmg, ignoreArmor));
-		blood.setCords(static_cast<float>(random() % s), static_cast<float>(random() % s), 0);
-		blood.Reset();
+		blood.Splash(s);
 	}
 
 	if (!Alive() && state != ModelState::Die) {
 		setModelState(ModelState::Die);
 		model.dieSound.Play();
 
-		blood.setCords(static_cast<float>(random() % s), static_cast<float>(random() % s), 0);
-		blood.Reset();
+		blood.Splash(s);
 		for (int i = 0; i < 6; i++)
 			blood.Explode();
 	}

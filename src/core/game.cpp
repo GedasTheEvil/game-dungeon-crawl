@@ -5,6 +5,7 @@
 #include <SDL/SDL.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <ctime>
 #include "../input/input.h"
 #include "../graphics/draw.h"
 #include "../state/game_loop.h"
@@ -89,6 +90,8 @@ int main(int argc, char* argv[]) {
 		if (isScenario) {
 			Game().render.resX = Scenario::resolutionX();
 			Game().render.resY = Scenario::resolutionY();
+		} else {
+			Game().random.Seed(static_cast<uint64_t>(std::time(nullptr))); // a scenario seeds per level instead
 		}
 
 		glutInit(&argc, argv);

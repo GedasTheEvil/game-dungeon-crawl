@@ -17,7 +17,7 @@ New static corridor props:
 ## Where it fits
 
 * Models: `tools/blender/models/decor.py` (`PROPS` list, one `build_<name>` each, output `models/decorations/decor_<name>.md3`).
-  See [../remodeling.md](../remodeling.md).
+  See [../../remodeling.md](../../remodeling.md).
 * Engine: `src/world/decor.h` (`DECOR_COUNT`, `DECOR_NAMES`); placement in `src/world/dungeon_decor.cpp`.
 * Size limits from `decor.py`: about 0.5 tile tall, within x = +-0.42 and y >= -0.43, so the props stay clear of the
   player's walk line. The sarcophagus is long, so it may need its own size or a place along the back wall.
@@ -27,4 +27,4 @@ New static corridor props:
 
 * Statues: 1-4 separate props (for example a cat and one to three deities), not one model with variants.
 * The mummy here is a decoration only. A mummy monster is a separate idea:
-  [mummy-minion-monster.draft.md](mummy-minion-monster.draft.md).
+  [mummy-minion-monster.draft.md](../mummy-minion-monster.draft.md).

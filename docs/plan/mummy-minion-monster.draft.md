@@ -5,7 +5,7 @@ Status: idea, not started.
 ## What
 
 * A mummy monster that serves as a minion to an Anubis guard acting as a "boss".
-* Separate from the decorative mummy by the sarcophagus: [statue-and-mummy-decorations.md](statue-and-mummy-decorations.md).
+* Separate from the decorative mummy by the sarcophagus: [statue-and-mummy-decorations.md](solved/statue-and-mummy-decorations.md).
 
 ## Where it fits
 

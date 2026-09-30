@@ -34,7 +34,7 @@ Status: refined, ready to plan. Start with the boss scarab in lvl5 (see [Order o
   * They appear next to the boss, never behind the player.
   * When the boss dies, summoning stops and the boss gate opens; the minions left stay and fight on.
   * Each boss summons in its own way: scarabs dig out of the sand, bats drop from the ceiling, mummies rise from the
-    broken sarcophagi ([statue-and-mummy-decorations.md](statue-and-mummy-decorations.md)).
+    broken sarcophagi ([statue-and-mummy-decorations.md](solved/statue-and-mummy-decorations.md)).
 * One big boss per boss room. In its level it kills the player in about 3-4 hits.
 * **Boss gate:** the boss room has its own gate. Killing the boss opens it. Behind it are 2-3 treasure chests and a
   floating key (for example the blue/lapis key) for a gate further on in the level. So the player fights the boss

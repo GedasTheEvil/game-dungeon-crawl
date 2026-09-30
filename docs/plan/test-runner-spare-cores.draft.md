@@ -1,4 +1,4 @@
-# Test runner: leave CPU cores free
+# Test runner and tidy: leave CPU cores free
 
 Status: idea (2026-09-30). Not started.
 
@@ -19,5 +19,6 @@ jobs=${JOBS:-$(($(nproc) - 2))}
 
 * `JOBS=16 make test` still uses all cores.
 * Update the header comment of `tools/run_scenarios.sh` and the `make test` notes in [docs/testing.md](../testing.md).
-* Optional: do the same for `TIDY_JOBS` in the makefile (`make tidy` runs `xargs -P $(nproc)` clang-tidy).
+* Same for `make tidy`: the makefile has `TIDY_JOBS?=$(shell nproc)` (clang-tidy via `xargs -P`). Change it to
+  `nproc - 2`, at least 1; `TIDY_JOBS=16 make tidy` still uses all cores.
 * Optional: run the jobs under `nice` so the desktop stays responsive even at full width.

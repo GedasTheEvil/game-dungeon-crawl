@@ -44,7 +44,7 @@ class PlayerStats {
 	void RefuseStamina(); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 
-	[[nodiscard]] int Damage() const; // might plus the equipped weapon's damage
+	[[nodiscard]] int Damage(int weaponDamage) const { return Might + weaponDamage; }
 	[[nodiscard]] int CurrentMight() const { return Might; }
 	[[nodiscard]] int CurrentArmor() const { return Armor; }
 	[[nodiscard]] int CurrentHP() const { return HP; }
@@ -56,6 +56,8 @@ class PlayerStats {
 	[[nodiscard]] float HealthRatio() const;
 	// XP total at which the player reaches `lvl` (level 2 at 1000).
 	[[nodiscard]] static double LevelXP(int lvl);
+	[[nodiscard]] float LevelProgress() const; // 0..1 of the way from this level to the next
+	[[nodiscard]] int RiddleXP() const;		   // a riddle answered: about a third of a level
 	void AddMight(int ns = 1);
 	void AddXP(int xp);
 	void Heal(int hpPart); // percent of max HP

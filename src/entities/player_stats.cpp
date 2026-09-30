@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include "../state/game_state.h"
+#include "../world/progression.h"
 
 namespace {
 float ratioOf(int value, int max) {
@@ -12,7 +13,11 @@ float ratioOf(int value, int max) {
 
 void PlayerStats::AddMight(int ns) { Might += ns; }
 
-double PlayerStats::LevelXP(int lvl) { return lvl <= 1 ? 0.0 : 1000 * pow(lvl - 1, 1.4); }
+double PlayerStats::LevelXP(int lvl) { return levelXP(lvl); }
+
+float PlayerStats::LevelProgress() const { return levelProgress(level, XP); }
+
+int PlayerStats::RiddleXP() const { return riddleXP(level); }
 
 void PlayerStats::AddXP(int xp) {
 	XP += xp;
@@ -127,10 +132,6 @@ bool PlayerStats::AdvanceLevel() {
 	Game().ShowStatus("Now you are level %d", level);
 
 	return true;
-}
-
-int PlayerStats::Damage() const {
-	return Might + Game().ui.inventory->EquippedDamage(); // + weapon dmg, with its level bonus
 }
 
 void PlayerStats::AddMaxHP(int hpPart) {

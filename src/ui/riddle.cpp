@@ -29,21 +29,12 @@ constexpr float QUESTION_TOP = 65.f;
 constexpr float QUESTION_STEP = 4.4f;
 constexpr int MAX_QUESTION_LINES = 6;
 constexpr size_t MAX_TYPED = 32;
-constexpr int MIN_XP_REWARD = 500;
-constexpr double XP_REWARD_LEVEL_PART = 0.3; // of the XP from the current level to the next
 constexpr int HINT_AFTER_MISSES = 2;
 constexpr int WRONG_MS = 1600;
 constexpr int SHAKE_MS = 400;
 constexpr int CARET_BLINK_MS = 500;
 constexpr unsigned char KEY_BACKSPACE = 8;
 constexpr unsigned char KEY_DELETE = 127;
-
-// Keeps a riddle worth about a third of a level as the level gaps grow.
-int xpReward() {
-	int lvl = Game().player->stats.CurrentLevel();
-	double gap = PlayerStats::LevelXP(lvl + 1) - PlayerStats::LevelXP(lvl);
-	return std::max(MIN_XP_REWARD, static_cast<int>(gap * XP_REWARD_LEVEL_PART));
-}
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
@@ -254,7 +245,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			return;
 		if (CheckAnswer()) {
 			show = false;
-			int xp = xpReward();
+			int xp = Game().player->stats.RiddleXP();
 			Game().ShowStatus("Riddle answered, got %d XP", xp);
 			Game().player->stats.AddXP(xp);
 		} else {
@@ -328,7 +319,7 @@ void Riddle::DrawScroll() {
 	beginText();
 	textCentered(heading, cx, 77.f, r.theme.c_str(), INK);
 	char reward[32];
-	snprintf(reward, sizeof(reward), "Reward %d XP", xpReward());
+	snprintf(reward, sizeof(reward), "Reward %d XP", Game().player->stats.RiddleXP());
 	textCentered(small, cx, 72.5f, reward, INK_RED);
 
 	std::vector<std::string> lines;

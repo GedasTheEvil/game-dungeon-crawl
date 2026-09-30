@@ -727,9 +727,8 @@ void Inventory::DrawStatus() {
 	};
 	auto ratioOf = [](double value, double max) { return static_cast<float>(max > 0 ? value / max : 0); };
 
-	double levelStart = PlayerStats::LevelXP(s->CurrentLevel());
 	double levelEnd = PlayerStats::LevelXP(s->CurrentLevel() + 1);
-	bar(22.f, ROW_A, 18.f, ratioOf(s->CurrentXP() - levelStart, levelEnd - levelStart), {1.f, 0.85f, 0.45f}, GOLD_DIM);
+	bar(22.f, ROW_A, 18.f, s->LevelProgress(), {1.f, 0.85f, 0.45f}, GOLD_DIM);
 	bar(22.f, ROW_B, 18.f, ratioOf(s->CurrentHP(), s->CurrentMaxHP()), {0.85f, 0.25f, 0.15f}, HEALTH);
 	bar(66.f, ROW_B, 14.f, ratioOf(Game().player->stats.Stamina(), Game().player->stats.MaxStamina()),
 		{0.95f, 0.85f, 0.3f}, STAMINA);
@@ -748,7 +747,7 @@ void Inventory::DrawStatus() {
 	labelValue(62.f, ROW_A, "Might", buf);
 	snprintf(buf, sizeof(buf), "%d", s->CurrentArmor());
 	labelValue(74.f, ROW_A, "Armor", buf);
-	snprintf(buf, sizeof(buf), "%d", s->Damage());
+	snprintf(buf, sizeof(buf), "%d", s->Damage(EquippedDamage()));
 	labelValue(86.f, ROW_A, "Dmg", buf);
 
 	text(small, x0, ROW_B, "Health", GOLD_DIM);

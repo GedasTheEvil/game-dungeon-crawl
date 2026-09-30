@@ -100,7 +100,7 @@ void updateAttack() {
 	const int t = GameClock::now() - player.attackStartMs;
 	if (!player.attackLanded && t >= weapon->motion.hitMs) {
 		player.attackLanded = true;
-		const int damage = player.stats.Damage();
+		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
 		const float aimRange = 0.1f * static_cast<float>(weapon->range);
 		if (holdingBow()) {
 			Game().dungeon.ShootArrow(damage, Game().camera.Facing(),
@@ -150,9 +150,7 @@ PlayerHud::View playerHudView() {
 	view.maxStamina = stats.MaxStamina();
 	if (std::optional<int> refused = stats.StaminaRefusedMs())
 		view.staminaRefusedAgeMs = GameClock::now() - *refused;
-	double levelStart = PlayerStats::LevelXP(stats.CurrentLevel());
-	double levelEnd = PlayerStats::LevelXP(stats.CurrentLevel() + 1);
-	view.xpRatio = static_cast<float>((stats.CurrentXP() - levelStart) / (levelEnd - levelStart));
+	view.xpRatio = stats.LevelProgress();
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
 	view.slots[0].icon = weaponIcon(*Game().ui.inventory);

@@ -74,6 +74,12 @@ class PlayerActionController {
 		}
 	}
 
+	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
+	static void equipHotkey(unsigned char key) {
+		if (Game().player->attackStartMs < 0)
+			Game().ui.inventory->EquipHotkey(key);
+	}
+
 	static void applyCameraDelta(float deltaX, float deltaY) {
 		Game().camera.rotM += deltaX;
 		Game().camera.rotN += deltaY;
@@ -170,6 +176,7 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
+		PlayerActionController::equipHotkey(key);
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)

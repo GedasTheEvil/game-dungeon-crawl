@@ -1,0 +1,67 @@
+# Number keys 1-4 equip club / sword / spear / bow in game. A weapon not found yet, a potion key, the inventory
+# open (the key only selects there) and a swing or bow draw under way leave the weapon in hand as it is.
+seed 1
+god
+level tests/levels/archery
+wait 30
+expect equip_type == 1
+expect equip_id == 0
+
+# not found yet
+key 2
+wait 2
+expect equip_id == 0
+key 4
+wait 2
+expect equip_type == 1
+
+give melee 1
+give melee 2
+give ranged 0
+give potion 0
+key 2
+wait 2
+expect equip_id == 1
+key 3
+wait 2
+expect equip_id == 2
+key 4
+wait 2
+expect equip_type == 2
+expect equip_id == 0
+
+# a potion key does nothing
+key 5
+wait 2
+expect equip_type == 2
+expect potion0 == 1
+
+# during the bow draw: no switch
+wait 70
+attack
+wait 5
+key 1
+wait 2
+expect equip_type == 2
+wait 120
+key 1
+wait 2
+expect equip_type == 1
+expect equip_id == 0
+
+# in the inventory the key only selects
+key i
+wait 5
+key 2
+wait 2
+screenshot inventory_selected
+key i
+wait 5
+expect equip_id == 0
+
+# options: the controls table lists the hotkeys
+key esc
+wait 2
+click 50 39.5
+wait 2
+screenshot options

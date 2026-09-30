@@ -426,6 +426,15 @@ void Inventory::KeyPressed(unsigned char key) {
 	}
 }
 
+void Inventory::EquipHotkey(unsigned char key) {
+	const char* hotkey = key != 0 ? strchr(HOTKEYS, key) : nullptr;
+	if (hotkey == nullptr)
+		return;
+	int slot = static_cast<int>(hotkey - HOTKEYS);
+	if (!isPotion(slot))
+		Use(slot);
+}
+
 void Inventory::SpecialKeyPressed(int key) {
 	switch (key) {
 	case SPECIAL_MOVE_LEFT:

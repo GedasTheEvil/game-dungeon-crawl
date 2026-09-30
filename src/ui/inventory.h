@@ -96,6 +96,8 @@ class Inventory {
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
+	// In game, the number row equips a weapon (its slot hotkey); a potion hotkey or a missing weapon does nothing.
+	void EquipHotkey(unsigned char key);
 	Item* Equipped();
 	[[nodiscard]] int EquippedType() const;
 	[[nodiscard]] int EquippedId() const;

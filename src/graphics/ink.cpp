@@ -1,5 +1,6 @@
 #define GL_GLEXT_PROTOTYPES // GL 2.0 shader and 3.0 framebuffer entry points, exported by libGL on Linux
 #include "ink.h"
+#include "shader.h"
 
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -73,42 +74,10 @@ int gWidth = 0, gHeight = 0;
 bool gFailed = false;
 bool gActive = false;
 
-GLuint compile(GLenum type, const char* src) {
-	GLuint shader = glCreateShader(type);
-	glShaderSource(shader, 1, &src, nullptr);
-	glCompileShader(shader);
-	GLint ok = GL_FALSE;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-	if (ok != GL_TRUE) {
-		char log[1024];
-		glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
-		LOG_ERRORF("graphics", "Ink shader compile failed: %s", log);
-		glDeleteShader(shader);
-		return 0;
-	}
-	return shader;
-}
-
 bool buildProgram() {
-	GLuint vs = compile(GL_VERTEX_SHADER, VERTEX_SRC);
-	GLuint fs = compile(GL_FRAGMENT_SHADER, FRAGMENT_SRC);
-	if (vs == 0 || fs == 0)
+	GLuint program = linkProgram("Ink", VERTEX_SRC, FRAGMENT_SRC);
+	if (program == 0)
 		return false;
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-	GLint ok = GL_FALSE;
-	glGetProgramiv(program, GL_LINK_STATUS, &ok);
-	if (ok != GL_TRUE) {
-		char log[1024];
-		glGetProgramInfoLog(program, sizeof(log), nullptr, log);
-		LOG_ERRORF("graphics", "Ink shader link failed: %s", log);
-		glDeleteProgram(program);
-		return false;
-	}
 	gProgram = program;
 	gLocPixel = glGetUniformLocation(program, "uPixel");
 	gLocWidth = glGetUniformLocation(program, "uWidth");

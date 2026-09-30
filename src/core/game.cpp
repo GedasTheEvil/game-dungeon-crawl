@@ -17,7 +17,6 @@
 #include "../test/scenario.h"
 
 int window = 1;
-int fs = 0;
 
 static void UpdateTimerCallback(int) {
 	Update();
@@ -53,13 +52,8 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	if (height == 0) // Prevent A Divide By Zero If The Window Is Too Small
 		height = 1;
 
-	glViewport(0, 0, width, height); // Reset The Current Viewport And Perspective Transformation
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	gluPerspective(45.0f, static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.1f, 10000.0f);
-	glMatrixMode(GL_MODELVIEW);
+	// Every screen sets its own projection each frame (the scene's in graphics/draw.cpp), so only the viewport here.
+	glViewport(0, 0, width, height);
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
 	Game().render.resX = width;
 	Game().render.resY = height;
@@ -111,9 +105,6 @@ int main(int argc, char* argv[]) {
 			glutTimerFunc(Scenario::tickDelayMs(), scenarioTickCallback, 0);
 		} else {
 			glutDisplayFunc(&Draw);
-
-			if (fs)
-				glutFullScreen();
 
 			glutIdleFunc(&Idle);
 

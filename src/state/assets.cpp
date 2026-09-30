@@ -211,13 +211,11 @@ void Assets::LoadLoadingScreen() {
 	textures.loadingBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
 }
 
-void Assets::Load(const std::function<void(float, const char*)>& progress) {
-	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
-	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
-	textures.nullTex.LoadPNG("textures/null.png");
-	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
+namespace {
+using Progress = std::function<void(float, const char*)>;
 
-	int percent = 30;
+void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes, const Progress& progress,
+					  int& percent) {
 	for (const MonsterDef& def : MONSTER_DEFS) {
 		char label[64];
 		snprintf(label, sizeof(label), "Loading Monster Models [%s]", def.label);
@@ -246,7 +244,9 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,
 					   isBossMonster(id) ? "monster_kinds" : "BOSS_DEFS");
+}
 
+void loadItems(ItemPrototypes& items, const Progress& progress, int& percent) {
 	for (const ItemDef& def : ITEM_DEFS) {
 		char label[64];
 		snprintf(label, sizeof(label), "Loading Item Models [%s]", def.label);
@@ -271,38 +271,19 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	}
 	items.arrowTex.LoadPNG("textures/items/arrow.png");
 	items.arrow = loadStaticModel("models/items/arrow.md3", items.arrowTex);
+}
 
-	textures.sphinx.LoadPNG("textures/props/sphinx.png");
-	models.sphinx = std::make_unique<AnimatedModel>();
-	models.sphinx->Load("models/props/sphinx.md3");
-	models.sphinx->BindTexture(textures.sphinx.ID());
-	models.sphinx->Centrify();
-	models.sphinx->Compile();
+// A prop model in tile units, centred, with its texture.
+void loadProp(Texture& tex, std::unique_ptr<AnimatedModel>& model, const char* texturePath, const char* modelPath) {
+	tex.LoadPNG(texturePath);
+	model = std::make_unique<AnimatedModel>();
+	model->Load(modelPath);
+	model->BindTexture(tex.ID());
+	model->Centrify();
+	model->Compile();
+}
 
-	textures.ankh.LoadPNG("textures/props/ankh.png");
-	models.ankh = std::make_unique<AnimatedModel>();
-	models.ankh->Load("models/props/ankh.md3");
-	models.ankh->BindTexture(textures.ankh.ID());
-	models.ankh->Centrify();
-	models.ankh->Compile();
-
-	textures.questionMark.LoadPNG("textures/props/questionmark.png");
-	models.question = std::make_unique<AnimatedModel>();
-	models.question->Load("models/props/questionmark.md3");
-	models.question->BindTexture(textures.questionMark.ID());
-	models.question->Centrify();
-	models.question->Compile();
-
-	textures.columns.LoadPNG("textures/props/columns.png");
-	models.columns = std::make_unique<AnimatedModel>();
-	models.columns->Load("models/props/columns.md3");
-	models.columns->BindTexture(textures.columns.ID());
-	models.columns->Centrify();
-	models.columns->Compile();
-
-	textures.portal.LoadPNG("textures/effects/plasma.png");
-
-	progress(80, "Loading decorations");
+void loadDecor(DecorSet& decor) {
 	decor.decalTex.LoadPNG("textures/decorations/decals.png");
 	auto loadSurfaces = [](Texture* tex, const char* const* names, int count) {
 		for (int s = 0; s < count; s++) {
@@ -349,10 +330,9 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 			model->Compile();
 			decor.ladder[s][p] = std::move(model);
 		}
+}
 
-	progress(83, "Loading mechanisms");
-	loadMechanisms(mechanisms);
-
+void loadSounds(SoundBank& sounds) {
 	sounds.drink_s.Load("sounds/items/potion_drink.wav");
 	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
 	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
@@ -363,7 +343,9 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
+}
 
+void loadTraps(TrapSet& traps, TextureRegistry& textures) {
 	textures.spikes.LoadPNG("textures/traps/spikes.png");
 	traps.spikes = std::make_unique<Trap>();
 	traps.spikes->loadModel("models/traps/spikes.md3", textures.spikes);
@@ -372,13 +354,44 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	traps.deathTrap = std::make_unique<Trap>();
 	traps.deathTrap->loadModel("models/traps/spikes.md3", textures.spikes);
 	traps.deathTrap->scale = DEATH_TRAP_SCALE;
+}
 
-	progress(95, "Loading game font");
+void loadFonts(FontSet& fonts) {
 	fonts.font.Load("fonts/papyrus.png", 3, -0.3);
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
 	fonts.hudBody.Load("fonts/papyrus.png", 4.2f, 0.12f, true);
 	fonts.hudSmall.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+}
+} // namespace
+
+void Assets::Load(const std::function<void(float, const char*)>& progress) {
+	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
+	textures.nullTex.LoadPNG("textures/null.png");
+	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
+
+	int percent = 30;
+	loadMonsterTypes(monsterTypes, progress, percent);
+	loadItems(items, progress, percent);
+
+	loadProp(textures.sphinx, models.sphinx, "textures/props/sphinx.png", "models/props/sphinx.md3");
+	loadProp(textures.ankh, models.ankh, "textures/props/ankh.png", "models/props/ankh.md3");
+	loadProp(textures.questionMark, models.question, "textures/props/questionmark.png",
+			 "models/props/questionmark.md3");
+	loadProp(textures.columns, models.columns, "textures/props/columns.png", "models/props/columns.md3");
+	textures.portal.LoadPNG("textures/effects/plasma.png");
+
+	progress(80, "Loading decorations");
+	loadDecor(decor);
+
+	progress(83, "Loading mechanisms");
+	loadMechanisms(mechanisms);
+	loadSounds(sounds);
+	loadTraps(traps, textures);
+
+	progress(95, "Loading game font");
+	loadFonts(fonts);
 
 	progress(100, "Loading game soundtrack");
 	sounds.soundtrack.Load("sounds/music/soundtrack.ogg");

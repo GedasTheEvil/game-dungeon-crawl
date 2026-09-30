@@ -1,5 +1,6 @@
 #define GL_GLEXT_PROTOTYPES // GL 2.0 shader entry points, exported by libGL on Linux
 #include "lighting.h"
+#include "shader.h"
 
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -87,22 +88,6 @@ GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPo
 Light gLights[64];
 int gLightCount = 0;
 
-GLuint compile(GLenum type, const char* src) {
-	GLuint shader = glCreateShader(type);
-	glShaderSource(shader, 1, &src, nullptr);
-	glCompileShader(shader);
-	GLint ok = GL_FALSE;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-	if (ok != GL_TRUE) {
-		char log[1024];
-		glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
-		LOG_ERRORF("graphics", "Lighting shader compile failed: %s", log);
-		glDeleteShader(shader);
-		return 0;
-	}
-	return shader;
-}
-
 // Lazy, so it runs with a current GL context. On failure the scene stays unlit (fixed pipeline).
 bool ensureProgram() {
 	if (gProgram != 0)
@@ -111,25 +96,9 @@ bool ensureProgram() {
 		return false;
 	gFailed = true;
 
-	GLuint vs = compile(GL_VERTEX_SHADER, VERTEX_SRC);
-	GLuint fs = compile(GL_FRAGMENT_SHADER, FRAGMENT_SRC);
-	if (vs == 0 || fs == 0)
+	GLuint program = linkProgram("Lighting", VERTEX_SRC, FRAGMENT_SRC);
+	if (program == 0)
 		return false;
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-	GLint ok = GL_FALSE;
-	glGetProgramiv(program, GL_LINK_STATUS, &ok);
-	if (ok != GL_TRUE) {
-		char log[1024];
-		glGetProgramInfoLog(program, sizeof(log), nullptr, log);
-		LOG_ERRORF("graphics", "Lighting shader link failed: %s", log);
-		glDeleteProgram(program);
-		return false;
-	}
 
 	gProgram = program;
 	gFailed = false;

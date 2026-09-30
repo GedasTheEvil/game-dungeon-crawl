@@ -55,6 +55,9 @@ uint32_t mix(uint32_t h) { // lowbias32 integer hash
 	h ^= h >> 16;
 	return h;
 }
+
+// A cell's own random number for this level's decoration pass (seed): the same cell, the same number.
+uint32_t cellHash(uint32_t seed, int cell) { return mix(seed ^ mix(static_cast<uint32_t>(cell) + 0x9e3779b9U)); }
 } // namespace
 
 // Every cell rolls independently from (level name, cell index), so the layout is the same on every
@@ -73,7 +76,7 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
 				continue;
 
-			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (h % 100 >= DECOR_CHANCE_PERCENT)
 				continue;
 
@@ -117,7 +120,7 @@ void Dungeon::scatterLadders(uint32_t seed) {
 
 			bool first = !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Ladder;
 			bool last = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type != Ladder;
-			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (first) {
 				style = static_cast<int>(h % LADDER_STYLE_COUNT);
 				below = -1;
@@ -161,7 +164,7 @@ void Dungeon::scatterTorches(uint32_t seed) {
 				i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
-			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (h % 100 >= TORCH_CHANCE_PERCENT)
 				continue;
 			cell = true;
@@ -186,7 +189,7 @@ void Dungeon::scatterDecals(uint32_t seed) {
 			if (!tileDef(tile).decals)
 				continue;
 
-			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(i, j)) + 0x9e3779b9U));
+			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (h % 100 >= DECAL_CHANCE_PERCENT)
 				continue;
 
@@ -410,7 +413,7 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 			while (end < MAP_WIDTH && MapAt(end, j).type != Wall)
 				end++;
 
-			uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(MapIndex(start, j)) + 0x9e3779b9U));
+			uint32_t h = cellHash(seed, MapIndex(start, j));
 			bool rough = h % 100 < roughPercent;
 			for (int i = start; i < end;) {
 				h = mix(h);

@@ -200,7 +200,7 @@ void Monster::Animate(float px, float py) {
 void Monster::Draw() {
 	const float scale = type->scale;
 	glPushMatrix();
-	glTranslatef(40 * x - 20, flies() ? flight.lift : leap.lift, -30);
+	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF, flies() ? flight.lift : leap.lift, -30);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

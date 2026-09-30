@@ -50,6 +50,8 @@ class Dungeon {
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
 	LadderCell ladder[MAP_CELL_COUNT];
 	float mapX, mapY;
+	// Solid rock for the drawing: a wall, or outside the level.
+	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; }
 	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;

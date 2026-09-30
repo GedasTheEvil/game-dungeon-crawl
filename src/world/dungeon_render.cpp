@@ -27,9 +27,8 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 void Dungeon::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	DecorSet& tex = Game().assets.decor;
-	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; };
 
-	if (rock(i, j)) {
+	if (isRock(i, j)) {
 		float u0 = static_cast<float>(i & 1) * 0.5f;
 		float t0 = static_cast<float>(j & 1) * 0.5f;
 		const float n[3] = {0, 0, 1};
@@ -51,26 +50,26 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
 		quad(n, v, st);
 	}
-	if (rock(i - 1, j)) {
+	if (isRock(i - 1, j)) {
 		const float n[3] = {1, 0, 0};
 		const float v[4][3] = {{0, 0, -T}, {0, 0, 0}, {0, T, 0}, {0, T, -T}};
 		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
 		quad(n, v, st);
 	}
-	if (rock(i + 1, j)) {
+	if (isRock(i + 1, j)) {
 		const float n[3] = {-1, 0, 0};
 		const float v[4][3] = {{T, 0, -T}, {T, 0, 0}, {T, T, 0}, {T, T, -T}};
 		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
 		quad(n, v, st);
 	}
-	if (rock(i, j - 1)) {
+	if (isRock(i, j - 1)) {
 		const float n[3] = {0, 1, 0};
 		const float v[4][3] = {{0, 0, 0}, {T, 0, 0}, {T, 0, -T}, {0, 0, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.floorTex[cell.floor].Bind();
 		quad(n, v, st);
 	}
-	if (rock(i, j + 1)) {
+	if (isRock(i, j + 1)) {
 		const float n[3] = {0, -1, 0};
 		const float v[4][3] = {{0, T, 0}, {T, T, 0}, {T, T, -T}, {0, T, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
@@ -144,7 +143,7 @@ void Dungeon::drawTeleporterTile() {
 //======================================================================================
 void Dungeon::drawAnkhTile() {
 	glPushMatrix();
-	glTranslatef(20, 0, -20);
+	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
 	glScalef(40, 40, 40);
 	Game().assets.textures.ankh.Bind();
 	Game().assets.models.ankh->Show();
@@ -155,15 +154,14 @@ void Dungeon::drawAnkhTile() {
 // the camera. Unturned it is on the left.
 void Dungeon::drawDoorTile(int i, int j) {
 	const Tile tile = MapAt(i, j);
-	auto rock = [this](int col, int row) { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; };
 	float yaw = 0;
-	if (rock(i + 1, j) && !rock(i - 1, j))
+	if (isRock(i + 1, j) && !isRock(i - 1, j))
 		yaw = 180;
-	else if (!rock(i + 1, j) && !rock(i - 1, j))
+	else if (!isRock(i + 1, j) && !isRock(i - 1, j))
 		yaw = -90;
 
 	glPushMatrix();
-	glTranslatef(20, 0, -20);
+	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
 	glPushMatrix();
 	glRotatef(yaw, 0, 1, 0);
 	glPushMatrix();
@@ -258,9 +256,9 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 				drawTorchTile(i, j);
 				drawTileContent(i, j);
 			}
-			glTranslatef(40, 0, 0);
+			glTranslatef(RenderConfig::TILE_SIZE, 0, 0);
 		}
-		glTranslatef(RenderConfig::HUD_OFFSET_X, RenderConfig::TILE_SIZE, 0);
+		glTranslatef(-RenderConfig::TILE_SIZE * ViewWindow::WIDTH, RenderConfig::TILE_SIZE, 0); // the next row's start
 	}
 	glPopMatrix();
 

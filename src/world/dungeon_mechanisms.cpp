@@ -146,29 +146,23 @@ void Dungeon::bumpGate(int col, int row) {
 	if (gate.type != Gate || gateState(gate) != GateState::Closed || !isGateColour(gate.attr))
 		return;
 
-	if (gate.attr == BOSS_LOCK) {
-		int now = GameClock::now();
-		if (now - lockedHintMs < LOCKED_HINT_INTERVAL_MS)
-			return;
-		lockedHintMs = now;
-		Game().ShowStatus("%s", "Sealed. It opens when its guardian falls.");
-		Game().assets.sounds.gateLocked.Play();
-		return;
-	}
-
-	if ((keysHeld & lockBit(gate.attr)) != 0) {
+	if (gate.attr != BOSS_LOCK && (keysHeld & lockBit(gate.attr)) != 0) {
 		startOpeningGate(MapIndex(col, row));
 		Game().assets.sounds.gateOpen.Play();
 		return;
 	}
 
+	// Locked: say why, at most every LOCKED_HINT_INTERVAL_MS while the player keeps pushing.
 	int now = GameClock::now();
 	if (now - lockedHintMs < LOCKED_HINT_INTERVAL_MS)
 		return;
 	lockedHintMs = now;
 	char text[96];
-	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", lockColour(gate.attr).gem,
-			 lockColour(gate.attr).gem);
+	if (gate.attr == BOSS_LOCK)
+		snprintf(text, sizeof(text), "%s", "Sealed. It opens when its guardian falls.");
+	else
+		snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", lockColour(gate.attr).gem,
+				 lockColour(gate.attr).gem);
 	Game().ShowStatus("%s", text);
 	Game().assets.sounds.gateLocked.Play();
 }

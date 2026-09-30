@@ -112,6 +112,22 @@ void panel(const Rect& r, float alpha, float frameAlpha) {
 	cornerStuds(r, frameAlpha);
 }
 
+float beginSquareCanvas(float height, int resX, int resY, float depth) {
+	const float width = height * static_cast<float>(resX) / static_cast<float>(resY);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, 0, height, -depth, depth);
+	glMatrixMode(GL_MODELVIEW);
+	return width;
+}
+
+void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize) {
+	title.Load("fonts/papyrus.png", titleSize, 0.3f, true);
+	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
+	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
+	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+}
+
 void backdrop(const Rect& area, int textureId) {
 	glDisable(GL_BLEND);
 	texturedRect(area, textureId, {0.34f, 0.27f, 0.20f});

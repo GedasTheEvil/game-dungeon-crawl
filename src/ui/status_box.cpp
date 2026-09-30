@@ -43,11 +43,7 @@ void draw(const std::string& message, int ageMs, int shownMs, int resX, int resY
 		return;
 
 	// Font::print resets the modelview, so the canvas is set through the projection.
-	float canvasW = 100.f * static_cast<float>(resX) / static_cast<float>(resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, canvasW, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
+	float canvasW = beginSquareCanvas(100.f, resX, resY);
 
 	float textW = 0.f;
 	for (const std::string& line : lines)

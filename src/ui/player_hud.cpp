@@ -226,11 +226,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	int now = GameClock::now();
 	// Font::print resets the modelview, so the canvas is set through the projection.
 	float canvasH = 100.f / SCALE;
-	float canvasW = canvasH * static_cast<float>(resX) / static_cast<float>(resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, canvasW, 0, canvasH, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
+	beginSquareCanvas(canvasH, resX, resY, 200.f);
 	glLoadIdentity();
 
 	beginShapes();

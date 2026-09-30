@@ -19,11 +19,7 @@ constexpr Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 
 namespace BossBar {
 void draw(const char* name, float ratio, int resX, int resY, Font& font) {
-	float canvasW = 100.f * static_cast<float>(resX) / static_cast<float>(resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, canvasW, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
+	float canvasW = beginSquareCanvas(100.f, resX, resY);
 
 	Rect bar = {(canvasW - WIDTH) / 2, BAR_BOTTOM, WIDTH, BAR_H};
 	const Rect& hud = PlayerHud::PANEL;

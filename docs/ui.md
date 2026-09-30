@@ -20,9 +20,14 @@ Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`too
 
 ## Canvas
 
-* Layout is in canvas units on a **160 x 100 canvas, y up**. It keeps its aspect ratio and is centred;
+* Layout is in canvas units on a **160 x 100 canvas, y up** (`ui::CANVAS_W`, `ui::CANVAS_H`). It keeps its aspect
+  ratio and is centred;
   `ui::visibleArea()` returns the part the window shows, margins included. Set it up with
   `glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200)`.
+* The HUD parts and the draft map use a canvas of fixed height and the window's aspect instead:
+  `ui::beginSquareCanvas(height, resX, resY)` sets it up and returns its width.
+* Fonts: `ui::loadScreenFonts()` loads a screen's title, heading, body and small fonts. The feedback line under a
+  screen is a `ui::Toast` (`Show`, `Alpha`).
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
 * Only the backdrop fills the margins (`area`); all panels, buttons and text sit inside 0..160 x 0..100.
 * Line widths are in pixels, sizes in canvas units.
@@ -48,8 +53,10 @@ A screen's `Draw()`:
 3. Contents: shapes and text, switching with `beginShapes()` / `beginText()`.
 4. 3D models, if any (inventory): `glClear(GL_DEPTH_BUFFER_BIT)` first, so models never cut into the flat UI.
 5. Footer (hint + toast).
-6. Restore state (`glDisable(GL_BLEND)`, `glEnable(GL_TEXTURE_2D)`, `glEnable(GL_DEPTH_TEST)`, white colour),
-   `Scenario::onFrameRendered()`, `glutSwapBuffers()`.
+6. Restore state (`glDisable(GL_BLEND)`, `glEnable(GL_TEXTURE_2D)`, `glEnable(GL_DEPTH_TEST)`, white colour).
+
+The screen does not end the frame: `Draw()` (`graphics/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
+one at a time) and then flushes, lets the scenario runner take its screenshot and swaps the buffers.
 
 ## Parts
 

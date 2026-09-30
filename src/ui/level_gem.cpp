@@ -71,11 +71,7 @@ void draw(int level, int resX, int resY, Font& font) {
 	const GemLook& gem = GEMS[std::clamp((level - 1) / LEVELS_PER_GEM, 0, GEM_COUNT - 1)];
 	// Font::print resets the modelview, so the badge is scaled through the projection.
 	float canvasH = 100.f / SCALE;
-	float canvasW = canvasH * static_cast<float>(resX) / static_cast<float>(resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, canvasW, 0, canvasH, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
+	float canvasW = beginSquareCanvas(canvasH, resX, resY);
 
 	float outer = RADIUS + BEZEL;
 	float cx = canvasW - MARGIN_X - outer;

@@ -88,6 +88,11 @@ void drawWeapon() { // in the fist nearer the camera
 
 } // namespace
 
+namespace {
+void drawGameplay();
+} // namespace
+
+// Whatever the screen, the frame ends here: the scenario runner takes its screenshot, then the buffers swap.
 void Draw() {
 	if (!Game().cacheLoaded)
 		return;
@@ -95,19 +100,27 @@ void Draw() {
 	switch (ScreenState::GetDrawScreen(Game())) {
 	case Screen::Menu:
 		Game().ui.menu.Draw();
-		return;
+		break;
 	case Screen::Inventory:
 		Game().ui.inventory->Draw();
-		return;
+		break;
 	case Screen::Riddle:
 		Game().ui.riddle->Draw();
-		return;
+		break;
 	case Screen::Map:
 		Game().ui.map.Draw();
-		return;
+		break;
 	case Screen::Gameplay:
+		drawGameplay();
 		break;
 	}
+	glFlush();
+	Scenario::onFrameRendered();
+	glutSwapBuffers();
+}
+
+namespace {
+void drawGameplay() {
 
 	Ink::begin(SCENE_NEAR, SCENE_FAR);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -188,9 +201,5 @@ void Draw() {
 	if (!Game().statusTimer.TimePassed(true))
 		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
 						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
-
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
 }
+} // namespace

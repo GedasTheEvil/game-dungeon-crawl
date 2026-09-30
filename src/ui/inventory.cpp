@@ -5,7 +5,6 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../input/input.h"
-#include "../test/scenario.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "ui_draw.h"
@@ -18,8 +17,6 @@
 // Layout works on a 160 x 100 canvas (y up) that keeps its aspect ratio and is centred on the window;
 // the backdrop fills whatever the window adds around it.
 namespace {
-constexpr float CANVAS_W = 160.f;
-constexpr float CANVAS_H = 100.f;
 
 using namespace ui;
 
@@ -45,11 +42,6 @@ constexpr float POTION_DETAIL_SCALE = 16.f;
 constexpr float PLINTH_Y = 47.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
-constexpr int TOAST_MS = 2200;
-constexpr int TOAST_FADE_MS = 600;
-
-constexpr int GLUT_BUTTON_DOWN = 0; // GLUT_DOWN / GLUT_UP
-constexpr int GLUT_BUTTON_UP = 1;
 
 constexpr const char* HOTKEYS = "1234567890-"; // one per slot, the keyboard's number row
 
@@ -116,10 +108,7 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 } // namespace
 
 Inventory::Inventory() {
-	title.Load("fonts/papyrus.png", 7.f, 0.3f, true);
-	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
-	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
-	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	loadScreenFonts(title, heading, body, small, 7.f);
 
 	Reset();
 	for (float& angle : slotAngle)
@@ -129,7 +118,7 @@ Inventory::Inventory() {
 void Inventory::Reset() {
 	bag.Reset();
 	selectedSlot = 0;
-	toast.clear();
+	toast = ui::Toast{};
 	quickDrinkMs.reset();
 }
 
@@ -255,10 +244,7 @@ void Inventory::MoveSelection(int dx, int dy) {
 		selectedSlot = slot;
 }
 
-void Inventory::ShowToast(const std::string& text) {
-	toast = text;
-	toastStartMs = GameClock::now();
-}
+void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
 // ---- input -----------------------------------------------------------------
 
@@ -293,7 +279,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	toCanvas(x, y, cx, cy);
 	UpdateHover(cx, cy);
 
-	if (state == GLUT_BUTTON_DOWN) {
+	if (state == GLUT_DOWN) {
 		pressedMouseButton = button;
 		pressed = Target::None;
 		if (hoveredSlot != NO_SLOT) {
@@ -306,7 +292,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 
-	if (state != GLUT_BUTTON_UP || button != pressedMouseButton)
+	if (state != GLUT_UP || button != pressedMouseButton)
 		return;
 
 	if (pressed == Target::UseButton && hoveredButton == pressed)
@@ -429,10 +415,6 @@ void Inventory::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1, 1, 1);
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
 }
 
 void Inventory::DrawBackground() {
@@ -756,13 +738,8 @@ void Inventory::DrawStatus() {
 
 void Inventory::DrawFooter() {
 	constexpr float CENTRE = CANVAS_W / 2;
-	int age = GameClock::now() - toastStartMs;
-	if (!toast.empty() && age < TOAST_MS) {
-		float alpha = age > TOAST_MS - TOAST_FADE_MS
-						  ? static_cast<float>(TOAST_MS - age) / static_cast<float>(TOAST_FADE_MS)
-						  : 1.f;
-		textCentered(body, CENTRE, 7.2f, toast.c_str(), {1.f, 0.9f, 0.6f}, alpha);
-	}
+	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
+		textCentered(body, CENTRE, 7.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
 	textCentered(small, CENTRE, 2.2f,
 				 "Click: select    Right click / Enter: use    U: upgrade    Arrows / 1-0: browse    I / Esc: close",
 				 {0.55f, 0.45f, 0.30f});

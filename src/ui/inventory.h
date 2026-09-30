@@ -27,8 +27,7 @@ class Inventory {
 	float slotAngle[ITEM_KIND_COUNT] = {}; // model turntable angle per slot
 	int lastFrameMs = 0;
 
-	std::string toast; // feedback line after an action
-	int toastStartMs = 0;
+	ui::Toast toast; // feedback line after an action
 
 	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
 	std::optional<int> quickDrinkMs;

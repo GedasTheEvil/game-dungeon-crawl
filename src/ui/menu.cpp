@@ -7,20 +7,13 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../test/scenario.h"
 #include "ui_draw.h"
 
 // Same 160 x 100 canvas (y up) and look as the inventory: a framed panel on the carved slate, lapis and stone tiles.
 namespace {
-constexpr float CANVAS_W = 160.f;
-constexpr float CANVAS_H = 100.f;
-constexpr float CENTRE = CANVAS_W / 2;
-
 using namespace ui;
 
-constexpr int TOAST_MS = 2200;
-constexpr int TOAST_FADE_MS = 600;
-constexpr int GLUT_BUTTON_UP = 1;
+constexpr float CENTRE = CANVAS_W / 2;
 
 constexpr Color LABEL = {0.86f, 0.72f, 0.47f};
 constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f};
@@ -286,16 +279,10 @@ void MainMenu::LoadAssets() {
 		return;
 	assetsLoaded = true;
 	creditsSheet.LoadPNG("textures/ui/credits.png", TexFilter::Flat);
-	title.Load("fonts/papyrus.png", 8.f, 0.3f, true);
-	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
-	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
-	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	loadScreenFonts(title, heading, body, small, 8.f);
 }
 
-void MainMenu::ShowToast(const std::string& text) {
-	toast = text;
-	toastStartMs = GameClock::now();
-}
+void MainMenu::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
 // ---- drawing ---------------------------------------------------------------
 
@@ -341,10 +328,6 @@ void MainMenu::EndFrame() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1, 1, 1);
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
 }
 
 void MainMenu::DrawBackground(const char* caption) {
@@ -519,13 +502,8 @@ void MainMenu::DrawBackButton() {
 
 void MainMenu::DrawFooter(const char* hint) {
 	beginText();
-	int age = GameClock::now() - toastStartMs;
-	if (!toast.empty() && age < TOAST_MS) {
-		float alpha = age > TOAST_MS - TOAST_FADE_MS
-						  ? static_cast<float>(TOAST_MS - age) / static_cast<float>(TOAST_FADE_MS)
-						  : 1.f;
-		textCentered(body, CENTRE, 12.f, toast.c_str(), {1.f, 0.9f, 0.6f}, alpha);
-	}
+	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
+		textCentered(body, CENTRE, 12.f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
 	textCentered(small, CENTRE, 2.2f, hint, LABEL_DIM);
 }
 
@@ -612,7 +590,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	(void)button;
 	int target = TargetAt(x, y);
 	hovered = target;
-	if (state != GLUT_BUTTON_UP) {
+	if (state != GLUT_UP) {
 		pressed = target;
 		return;
 	}

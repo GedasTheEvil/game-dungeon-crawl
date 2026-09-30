@@ -1,5 +1,4 @@
 #include "riddle.h"
-#include "../test/scenario.h"
 #include "../state/game_state.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
@@ -17,8 +16,6 @@
 
 // Same 160 x 100 canvas (y up) as the inventory: the gate on the left, the riddle on a papyrus scroll on the right.
 namespace {
-constexpr float CANVAS_W = 160.f;
-constexpr float CANVAS_H = 100.f;
 
 using namespace ui;
 
@@ -169,10 +166,7 @@ void ParseRiddles(std::istream& in, const std::string& source, std::vector<Riddl
 // ---- riddle screen ---------------------------------------------------------
 
 Riddle::Riddle() {
-	title.Load("fonts/papyrus.png", 7.f, 0.3f, true);
-	heading.Load("fonts/papyrus.png", 5.f, 0.16f, true);
-	body.Load("fonts/papyrus.png", 3.6f, 0.1f, true);
-	small.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	loadScreenFonts(title, heading, body, small, 7.f);
 	Load("riddles");
 }
 
@@ -286,10 +280,6 @@ void Riddle::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1, 1, 1);
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
 }
 
 void Riddle::DrawBackground() {

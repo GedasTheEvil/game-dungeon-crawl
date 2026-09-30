@@ -6,10 +6,42 @@
 // Conventions: docs/ui.md.
 
 #include <cstdint>
+#include <string>
 
 class Font;
 
 namespace ui {
+
+// The menu, inventory and riddle screens lay out on this canvas (y up); the draft map uses its height.
+constexpr float CANVAS_W = 160.f;
+constexpr float CANVAS_H = 100.f;
+
+// The feedback line under a screen ("Saved to slot 2"): shown for MS, fading out over the last FADE_MS.
+struct Toast {
+	static constexpr int MS = 2200;
+	static constexpr int FADE_MS = 600;
+	std::string text;
+	int startMs = 0;
+	void Show(const std::string& line, int now) {
+		text = line;
+		startMs = now;
+	}
+	// 0 when not showing.
+	[[nodiscard]] float Alpha(int now) const {
+		const int age = now - startMs;
+		if (text.empty() || age < 0 || age >= MS)
+			return 0.f;
+		return age > MS - FADE_MS ? static_cast<float>(MS - age) / static_cast<float>(FADE_MS) : 1.f;
+	}
+};
+
+// A canvas `height` units tall and as wide as the window's aspect needs (square units, origin bottom left, y up), for
+// the HUD parts and the draft map: sets the projection, leaves the modelview matrix current, returns the width.
+// `depth`: the z range either side of 0.
+float beginSquareCanvas(float height, int resX, int resY, float depth = 21.f);
+
+// The four papyrus fonts of a UI screen; only the title's size differs between screens.
+void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize);
 
 struct Rect {
 	float x, y, w, h;

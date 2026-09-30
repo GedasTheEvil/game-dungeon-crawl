@@ -4,6 +4,7 @@
 #include <string>
 #include "../graphics/font.h"
 #include "../graphics/textures.h"
+#include "ui_draw.h"
 
 /// @file menu.h
 /// Main menu, in-game menu and its save / load / options / credits screens.
@@ -21,8 +22,7 @@ class MainMenu {
 	bool assetsLoaded = false;
 	Font title, heading, body, small;
 	Texture creditsSheet;
-	std::string toast;
-	int toastStartMs = 0;
+	ui::Toast toast; // feedback line after an action
 	int optionsTab = 0;
 
 	void LoadAssets();

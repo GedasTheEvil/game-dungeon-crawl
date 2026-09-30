@@ -2,7 +2,6 @@
 #include "ui_draw.h"
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../test/scenario.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
@@ -13,7 +12,6 @@
 using namespace ui;
 
 namespace {
-constexpr float CANVAS_H = 100.f;
 constexpr float PAPER_H = 96.f;
 constexpr float PAPER_PAD_X = 6.f;
 constexpr float PAPER_PAD_TOP = 11.f; // room for the title
@@ -270,14 +268,10 @@ void drawPaper(const Rect& r) {
 
 void DraftMap::Draw() {
 	const Dungeon& d = Game().dungeon;
-	float canvasW = CANVAS_H * static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY);
 	float resScale = static_cast<float>(Game().render.resY) / REFERENCE_RES_Y;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, canvasW, 0, CANVAS_H, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
+	float canvasW = beginSquareCanvas(CANVAS_H, Game().render.resX, Game().render.resY);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
@@ -349,8 +343,4 @@ void DraftMap::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1, 1, 1);
-	glFlush();
-
-	Scenario::onFrameRendered();
-	glutSwapBuffers();
 }

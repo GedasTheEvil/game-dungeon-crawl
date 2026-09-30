@@ -40,6 +40,10 @@ Rules for every stage:
   definition table). They unblock the others.
 * **Order after that** (2026-09-30): 10, 4, 5, 8, 7, 9, 6, 11, 12, with 13 spread over all of them. Reasons in
   [Stages](#stages).
+* **Stage 7 (game events): not now** (2026-09-30). The world calls sound, the status line, XP and the UI directly
+  in 33 places. An event list pays off once the world has to run without `Game()` (headless simulation, unit tests
+  of `Dungeon`); before that it trades direct calls for indirection and moves XP and level-ups to the end of the
+  tick for no problem solved today. Revisit with stage 6.
 * **Unit tests: doctest** (one vendored header). Set up in stage 2, step 1; every later stage adds tests for the code
   it moves before it moves it.
 * **Bugs found in the audit are fixed on their own**, outside this plan: [trap-and-font-bugs.md](solved/trap-and-font-bugs.md).
@@ -58,8 +62,8 @@ Rules for every stage:
 | 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | done: [sim-render-split.md](sim-render-split.md) | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
 | 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
 | 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
-| 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
-| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
+| 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | not now (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
+| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
 | 6 | **Replace `Game()` step by step** | | 438 calls, the `game_state.h` hub | explicit dependencies |
 | 11 | **RAII for GL resources** | | copyable `Texture` / `Font`, nothing freed | RAII |
 | 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | | see the audit | |

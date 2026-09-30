@@ -1,0 +1,23 @@
+# The level checker jumps over a trap on the floor (docs/plan/movement-model.md): so does the player, the way
+# levelcheck --script plays it: from the middle of the cell before, jump, walk on to the cell after.
+seed 1
+
+# spikes (tests/levels/spikes_one, col 4): cleared without a scratch
+level tests/levels/spikes_one
+wait 5
+walk to 3.45
+jump
+walk to 5.45
+wait 500ms
+expect x >= 5
+expect hp == 50
+
+# a death trap (tests/levels/death_one, col 4): its wider hitbox still grazes the take-off, far less than walking
+level tests/levels/death_one
+wait 5
+walk to 3.45
+jump
+walk to 5.45
+wait 500ms
+expect x >= 5
+expect hp >= 45

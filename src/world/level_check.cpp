@@ -123,10 +123,15 @@ class Walker {
 			int to = settle(next, row, mask, fallen);
 			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
-			// Over a one-cell gap in the floor, from a floor (not from a ladder).
-			bool gap = fallen > 0 && here.type != Ladder && solid(col, row - 1, mask);
+			// Over one cell, a gap in the floor or a trap on it, from a floor (a ladder's foot too). A jump from
+			// mid-ladder is not modelled: its reach depends on the walk key held during the jump. A rock fall is not
+			// jumped: the player passes through its cell either way, and it drops all the same.
+			int nextType = grid.at(next, row).type;
+			bool overHazard = fallen == 0 && (nextType == Spike || nextType == Death);
+			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
-			if (gap && LevelGrid::inBounds(far, row) && standable(far, row, mask))
+			if ((overGap || overHazard) && solid(col, row - 1, mask) && LevelGrid::inBounds(far, row) &&
+				standable(far, row, mask))
 				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
 		}
 

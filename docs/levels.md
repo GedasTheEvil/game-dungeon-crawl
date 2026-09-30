@@ -47,10 +47,14 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 
 - Walk left or right into any open cell. With no floor below, fall straight down to a floor or a ladder.
 - Climb between vertically adjacent `Ladder` cells.
-- Jump over a gap of one cell. The jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's
-  jump constants), so the player cannot step up onto a ledge.
-- A key, or a pulled lever, opens every gate of its colour.
-- Reaching the boss counts as killing it: the boss gates (lock colour 5) open.
+- Jump over one cell: a gap in the floor, or spikes or a death trap on it, from a floor (a ladder's foot too). The
+  jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's jump constants), so the player
+  cannot step up onto a ledge. A rock fall is walked, not jumped (it drops all the same). Jumps from mid-ladder are
+  not modelled. Stamina is not counted: it comes back while the player waits.
+- A key, or pulling a lever, opens every gate of its colour. In the level file a gate is closed only with value 0
+  (the game opens one saved while opening), and a lever with value 1 is already pulled and opens nothing.
+- Reaching the boss counts as killing it (the checker cannot fight): the boss gates (lock colour 5) open. No key
+  opens them.
 - A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways.
 
 It reports:

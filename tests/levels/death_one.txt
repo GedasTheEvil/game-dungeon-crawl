@@ -1,0 +1,4 @@
+; One death trap on the floor (col 4) (tests/scenarios/trap_hop.txt).
+##########
+#S..X...E#
+##########

@@ -57,3 +57,27 @@ TEST_CASE("no key opens a boss gate") {
 	CHECK_FALSE(r.valid);
 	CHECK(r.path.empty());
 }
+
+TEST_CASE("the path jumps over a trap on the floor") {
+	for (const char* row : {"#S..^..E#", "#S..X..E#"}) {
+		LevelReport r = checkLevel(drawn({"#########", row, "#########"}));
+		REQUIRE(r.valid);
+		CHECK(r.pathJumps == 1);
+		CHECK(r.pathSpikes == 0);
+		CHECK(r.pathDeathTraps == 0);
+	}
+}
+
+TEST_CASE("a rock fall is walked, not jumped") {
+	LevelReport r = checkLevel(drawn({"#########", "#S..v..E#", "#########"}));
+	REQUIRE(r.valid);
+	CHECK(r.pathJumps == 0);
+	CHECK(r.pathRockFalls == 1);
+}
+
+TEST_CASE("a jump from a ladder's foot") {
+	// The ladder foot (col 3) stands on the floor with a gap after it.
+	LevelReport r = checkLevel(drawn({"#########", "###H#####", "#S.H.E###", "####.####", "#########"}));
+	REQUIRE(r.valid);
+	CHECK(r.pathJumps == 1);
+}

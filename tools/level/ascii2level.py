@@ -8,9 +8,10 @@ Lines 'set COL ROW TYPE ATTR VALUE' override single cells (after the drawing), e
 Lines 'def CHAR TYPE ATTR VALUE' add a character to the legend for this file, e.g. 'def L 12 2 0' (blue lever),
 'def 1 8 1 1' (sword chest). Put them before the drawing.
 
-Legend: # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D decoration gate  H ladder  $ treasure (small
-potion)  ^ spikes  X death trap  v rock fall  s scarab  w worm  p plant  n anubis  t rat  T giant rat
-f bat  F giant bat  M mimic  k giant scarab  r b g y keys  R B G Y gates  / lever (red, override with 'set')
+Legend: # wall  . open  S entrance  E exit  A ankh  ? riddle gate  D gate without a purpose (checker warns)  H ladder
+$ treasure (small potion)  ^ spikes  X death trap  v rock fall  s scarab  w worm  p plant  n anubis  t rat
+T giant rat  f bat  F giant bat  M mimic  k giant scarab  r b g y keys  R B G Y gates
+/ lever (red, override with 'set')
 """
 
 import sys

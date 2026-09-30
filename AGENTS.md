@@ -26,6 +26,11 @@ These commands do need confirmation to run
 * make clean
 * make
 
+## Campaign levels
+Every campaign level must pass the level checker with no warnings (`./levelcheck levels/lvl*`).
+When a checker change flags a level, fix the level, also the hand-made levels 1 to 5. Manual placement is no reason
+to keep a warning.
+
 ## Plans
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.

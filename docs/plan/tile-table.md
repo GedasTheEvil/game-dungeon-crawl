@@ -1,6 +1,7 @@
 # Stage 3: tile and monster definition tables
 
-Status: planned 2026-09-30, not started. Stage 3 of the [code structure review](code-structure-review.draft.md).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 3 of
+the [code structure review](code-structure-review.draft.md).
 Evidence: [the audit](code-structure-review-audit.draft.md) (Per-type if-chains, Tile descriptions, Duplication).
 Comes after [stage 2](solved/rules-out-of-ui.md) (unit tests, item ids GL-free).
 
@@ -55,8 +56,45 @@ with a compile-time check that every type is handled.
 `./levelcheck levels/lvl*` output byte-identical before and after each step; the campaign levels unchanged on disk;
 all scenarios; the new unit tests.
 
-## Open questions
+## Open questions (answered 2026-09-30, see Implementation)
 
 * Store the draw / interact functions in the table (a render-side table indexed by type) or keep a `switch`? The
   `switch` keeps GL out of `liblevel` and the compiler checks coverage; the table is one place to look.
 * Generate `docs/levels.md` tables from the code, or only check them in a test?
+
+## Implementation
+
+Done 2026-09-30. Answers: per-tile behaviour stays a **`switch`** (GL stays out of `liblevel`, `-Wswitch` checks
+coverage); the docs stay hand-written and a **unit test checks them**.
+
+1. Pinning: the unit tests of stage 2 (level round trip, `isSolidTile`, teleporter pairing), plus the baseline
+   `levelcheck` report and `--map` output for `levels/lvl*` and every test level, compared after each step.
+2. and 4. `8b585bd`: `src/world/tile_defs` (`TILE_TYPE_COUNT`, `TILES`: name, editor text, decor flags;
+   `tileGlyph`; `glyphLegend`), `src/world/monster_kinds` (label, editor text, glyph, threat, boss), and
+   `LOCK_COLOURS` in `level.h` (name, gem, glyphs, editor text; the boss lock has the gem Obsidian). The checker
+   (`monsterThreat`, `renderLevel`), levelcheck (the content line), the editor (tile, monster, colour lists;
+   `TILE_COUNT` gone) and the mechanisms' messages read them. The game logs an error if `BOSS_DEFS` and the kinds
+   table disagree on a boss (`isBossMonster` reads the table). A bad-colour key draws as `q` (it was `k`, the giant
+   scarab).
+5. Same commit: `levelcheck --legend`; `ascii2level.py` reads the legend and the level size from it. All 15 campaign
+   levels rebuilt from `tools/level/campaign/` are byte-identical to `levels/`.
+3. `8d26466`: `GateState`, `RockState` (`enum class`, same 0 / 1 / 2 on disk), `leverPulled` / `pullLever`,
+   `teleportPair`, used by the mechanisms, the draft map, the checker and levelcheck.
+6. `6f0b359`: `Dungeon::drawTileContent` (a `switch` over `DungeonTileType`), `drawDoorTile`, `drawAnkhTile`, one
+   `drawPortal` for both portal quads; `Interact` switches over the gate type; the torch and decal skip lists read
+   `TileDef::torch` / `decals`. All 290 scenario screenshots are pixel-identical to the build before.
+7. `328e256`: `TeleportPairs`, built once by the checker's walker. The game still calls `teleportPartner` (once per
+   interaction).
+8. `0151e3d`: `tests/unit/docs_test.cpp`: the editor readme lists every tile type, monster, lock colour and item id;
+   `docs/levels.md` every monster's threat (checked: changing one threat in the docs fails it). How to add a type:
+   [../development.md](../development.md).
+
+Checks: 31 unit test cases, 58/58 scenarios, `make tidy` clean, levelcheck and levelgen output unchanged.
+
+Not done (left for later, noted where they belong):
+
+* The draft map has no symbol for the teleporter and the boss gate yet (they fall back to graphite); a drawing
+  question, not structure.
+* `DrawTreasureTile` still turns the item and sets the club's scale inside Draw, and `SpawnMonster` still runs from
+  Draw: stage 4.
+* The checker's `Walker` still has its own movement rules: stage 10.

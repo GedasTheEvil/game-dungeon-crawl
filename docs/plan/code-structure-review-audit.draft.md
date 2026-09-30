@@ -1,7 +1,7 @@
 # Code structure audit
 
 Re-checked 2026-09-30 at `bfd0ec8` (after the teleporter, boss framework, hitboxes, trap fix and HUD redesign), then
-updated for [stage 1](layered-build.md) (`229f2fa`). First version: `743fff9`. Line numbers drift as the code changes,
+updated for [stage 1](solved/layered-build.md) (`229f2fa`). First version: `743fff9`. Line numbers drift as the code changes,
 so re-check an area before planning a change to it. Marks: **fixed**, **worse** (grew since the first audit),
 **new** (not in the first audit). Research to compare against: [the research](code-structure-review-patterns.draft.md).
 Back to [the plan](code-structure-review.draft.md).

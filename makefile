@@ -12,7 +12,7 @@ BUILD=build
 # Third-party implementations (stb), compiled without warnings and outside make tidy.
 EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 
-# Libraries shared by the game and the tools (docs/plan/layered-build.md). tools/check_layers.sh (make layers)
+# Libraries shared by the game and the tools (docs/plan/solved/layered-build.md). tools/check_layers.sh (make layers)
 # keeps them apart: level code has no GL, neither library has SDL or Game(), and each includes only its own headers.
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/loot.cpp \

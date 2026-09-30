@@ -1,7 +1,7 @@
 # Code structure review
 
-Status: audit re-checked and stage order decided 2026-09-30; stages [1](layered-build.md) and
-[2](rules-out-of-ui.md) implemented, stage 3 planned. See [Stages](#stages).
+Status: audit re-checked and stage order decided 2026-09-30; stages [1](solved/layered-build.md) and
+[2](solved/rules-out-of-ui.md) implemented, stage 3 planned. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -50,8 +50,8 @@ Rules for every stage:
 
 | # | Stage | Status | Main audit findings | Pattern |
 |---|---|---|---|---|
-| 1 | **Layered build and shared libraries** | done: [layered-build.md](layered-build.md) | hand-listed objects, level tools recompiled, SDL via the timer | layered libraries |
-| 2 | **Ids and rules out of the UI**, unit tests set up | done: [rules-out-of-ui.md](rules-out-of-ui.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
+| 1 | **Layered build and shared libraries** | done: [solved/layered-build.md](solved/layered-build.md) | hand-listed objects, level tools recompiled, SDL via the timer | layered libraries |
+| 2 | **Ids and rules out of the UI**, unit tests set up | done: [solved/rules-out-of-ui.md](solved/rules-out-of-ui.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
 | 3 | **Tile and monster definition tables** | planned: [tile-table.draft.md](tile-table.draft.md) | 12-20 places per tile kind, two boss sources, lossy glyph round trip, raw 0/1/2 states | type object, data-driven |
 | 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
 | 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |

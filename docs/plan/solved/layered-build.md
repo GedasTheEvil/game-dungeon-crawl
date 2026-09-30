@@ -1,7 +1,7 @@
 # Stage 1: layered build and shared libraries
 
-Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 1 of the
-[code structure review](code-structure-review.draft.md).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to level
+9). Stage 1 of the [code structure review](../code-structure-review.draft.md).
 
 ## Why
 
@@ -73,4 +73,4 @@ Done 2026-09-30, as planned:
 * Checks: `make` from clean with no warnings, `make tidy` clean, 58/58 scenarios, `./levelcheck levels/lvl*` output
   byte-identical to a binary built the old way (`-O2 -std=c++17`), `levelgen` output identical for seeds 1, 7, 42.
   Editor and viewer start under Xvfb.
-* Docs: [../development.md](../development.md) (Libraries).
+* Docs: [../development.md](../../development.md) (Libraries).

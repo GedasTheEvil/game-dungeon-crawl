@@ -2,7 +2,7 @@
 
 Status: planned 2026-09-30, not started. Stage 3 of the [code structure review](code-structure-review.draft.md).
 Evidence: [the audit](code-structure-review-audit.draft.md) (Per-type if-chains, Tile descriptions, Duplication).
-Comes after [stage 2](rules-out-of-ui.md) (unit tests, item ids GL-free).
+Comes after [stage 2](solved/rules-out-of-ui.md) (unit tests, item ids GL-free).
 
 ## Why
 

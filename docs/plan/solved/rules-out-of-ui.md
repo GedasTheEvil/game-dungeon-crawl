@@ -1,8 +1,8 @@
 # Stage 2: item ids and game rules out of the UI
 
-Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 2 of the
-[code structure review](code-structure-review.draft.md).
-Evidence: [the audit](code-structure-review-audit.draft.md) (Game logic in UI, Layering, Duplication).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to level
+9). Stage 2 of the [code structure review](../code-structure-review.draft.md).
+Evidence: [the audit](../code-structure-review-audit.draft.md) (Game logic in UI, Layering, Duplication).
 
 ## Why
 
@@ -75,7 +75,7 @@ Done 2026-09-30. Decisions on the open questions: **`enum class`, yes**, and **`
 Per step:
 
 1. doctest in `external/doctest/`, `make unit` (`build/unit`, links `liblevel.a` only), run by `make test`
-   (`2ee03a3`). Docs: [../testing.md](../testing.md).
+   (`2ee03a3`). Docs: [../testing.md](../../testing.md).
 2. to 4. `items`, `item_bag`, `quick_potion` (moved from `ui/`), `loot` in `liblevel` (`e08265a`). The editor's
    treasure choices and levelgen's potion weights come from the item table; the editor's potion texts are right
    again. `ItemPrototypes::Of(ItemKind)` gives an item's model; `DrawTreasureTile` uses it instead of the magic

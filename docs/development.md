@@ -32,7 +32,7 @@ Asset paths are relative to the repo root: run every program from there.
 ## Libraries
 
 The game and the tools share two static libraries, so every program builds the shared code the same way
-([plan/layered-build.md](plan/layered-build.md)):
+([plan/solved/layered-build.md](plan/solved/layered-build.md)):
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|

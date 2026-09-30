@@ -6,7 +6,8 @@
 //   - walk left / right into any open cell (not a wall, not a closed gate); without a floor below, fall straight down
 //     until there is one or a ladder catches the player;
 //   - climb up / down between vertically adjacent ladder cells;
-//   - jump over a one-cell gap in the floor (the jump is ~0.45 tiles high, so no step up onto a ledge);
+//   - jump over a one-cell gap in the floor (the jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step
+//     up onto a ledge);
 //   - touching a key, or pulling a lever, opens every gate of its colour from then on;
 //   - interacting with a teleporter moves the player to its partner (both ways);
 //   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open.

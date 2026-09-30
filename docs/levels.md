@@ -47,7 +47,8 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 
 - Walk left or right into any open cell. With no floor below, fall straight down to a floor or a ladder.
 - Climb between vertically adjacent `Ladder` cells.
-- Jump over a gap of one cell. The jump is about 0.45 tiles high, so the player cannot step up onto a ledge.
+- Jump over a gap of one cell. The jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's
+  jump constants), so the player cannot step up onto a ledge.
 - A key, or a pulled lever, opens every gate of its colour.
 - Reaching the boss counts as killing it: the boss gates (lock colour 5) open.
 - A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways.

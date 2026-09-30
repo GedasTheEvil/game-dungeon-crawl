@@ -139,7 +139,7 @@ class Dungeon {
 	bool LoadCampaignLevel(int number);
 	void Update();
 	void Draw();
-	void Move(float dirX, float dirY, bool jump = false);
+	void Move(float dirX, float dirY);
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

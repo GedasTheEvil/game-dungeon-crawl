@@ -122,16 +122,17 @@ void Dungeon::drawPortal(const float normal[3], const float v[4][3]) const {
 	Lighting::setEmissive(false);
 }
 //======================================================================================
+// The plasma fills the gap between the columns, in their centre plane (props.py, build_columns).
 void Dungeon::drawTeleporterTile() {
 	glPushMatrix();
-	glTranslatef(20, 0, -25);
+	glTranslatef(20, 0, -30);
 	glScalef(40, 40, 40);
 	Game().assets.textures.columns.Bind();
 	Game().assets.models.columns->Show();
 	glPopMatrix();
 
 	const float normal[3] = {0, 0, 1};
-	const float v[4][3] = {{10, 0, -30}, {10, 37, -30}, {30, 37, -30}, {30, 0, -30}};
+	const float v[4][3] = {{10, 0, -30}, {10, 36, -30}, {30, 36, -30}, {30, 0, -30}};
 	drawPortal(normal, v);
 }
 //======================================================================================

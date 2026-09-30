@@ -1,4 +1,5 @@
 #include "level_check.h"
+#include "movement.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
 #include <algorithm>

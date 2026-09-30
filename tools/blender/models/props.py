@@ -1,5 +1,5 @@
 """Procedural level props: the gateway at entrances, exits and riddle gates (sphinx.md3), the ankh shrine that wins
-the game, the question mark over riddle gates and the spike trap.
+the game, the question mark over riddle gates, the spike trap and the teleporter gate (columns.md3).
 
     MCP:  p = ".../tools/blender/models/props.py"; g = {"__file__": p, "__name__": "props"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -7,17 +7,20 @@ the game, the question mark over riddle gates and the spike trap.
 
 Blender space: Z up, 1 unit = 1 tile, the camera looks along +Y. The engine centres each model on its bounding box
 (x, y), puts its lowest point on the floor and scales its largest dimension to 1 (Centrify), then draws it at
-glScale 40 (one tile) for the gateway and the ankh, 10 for the question mark, 16 / 40 for spikes / death trap.
-So the gateway and the ankh are built with their largest dimension exactly 1 and stay in tile units:
+glScale 40 (one tile) for the gateway, the ankh and the teleporter, 10 for the question mark, 16 / 40 for spikes / death trap.
+So the gateway, the ankh and the teleporter are built with their largest dimension exactly 1 and stay in tile units:
   sphinx      - doorway in the y-z plane at the tile's left edge (x = -0.5..-0.42, the plasma portal quad of
                 Dungeon::Draw sits at x = -0.49, y +-0.25, z 0..0.875, inside the opening), two recumbent
                 jackals on shrine plinths flanking the aisle, facing +x. Exits are drawn turned 180 deg.
   ankh        - gold ankh on a stepped alabaster dais between four obelisks, 1 x 1 tile, 0.93 tall.
   questionmark - gold and lapis striped question mark with a carnelian dot, spins around its vertical axis.
   spikes      - bronze spikes in a sandstone frame, 1 wide, 0.56 deep.
+  columns     - teleporter gate: two papyrus columns (axes x = +-0.34) on a stepped threshold under an architrave with
+                a cornice and winged sun discs, 0.94 wide, 0.3 deep, 1 tall; symmetric in y so Centrify keeps y = 0 on
+                the plasma quad of Dungeon::drawTeleporterTile (x +-0.25, z 0..0.9, between the columns).
 
 Textures: albedo x ambient occlusion (no baked light: the engine lights the props like the monsters):
-textures/props/{sphinx,ankh,questionmark}.png, textures/traps/spikes.png.
+textures/props/{sphinx,ankh,questionmark,columns}.png, textures/traps/spikes.png.
 """
 
 import importlib
@@ -43,9 +46,9 @@ from decor import box, place, rod, rot, stripes  # noqa: E402
 from items import band, gem, prism_x, spindle  # noqa: E402
 
 COLL = "props_new"
-PROPS = ["sphinx", "ankh", "questionmark", "spikes"]
-CATEGORY = {"sphinx": "props", "ankh": "props", "questionmark": "props", "spikes": "traps"}
-TEX_SIZE = {"sphinx": 1024, "ankh": 1024, "questionmark": 256, "spikes": 512}
+PROPS = ["sphinx", "ankh", "questionmark", "spikes", "columns"]
+CATEGORY = {"sphinx": "props", "ankh": "props", "questionmark": "props", "spikes": "traps", "columns": "props"}
+TEX_SIZE = {"sphinx": 1024, "ankh": 1024, "questionmark": 256, "spikes": 512, "columns": 1024}
 SPACING = 1.6
 
 COL = {
@@ -94,6 +97,8 @@ def materials():
         "turquoise": ("solid", "turquoise"),
         "white": ("solid", "white"),
         "frieze": stripes("u", 0.04, [(2, "blue"), (1, "gold"), (2, "red"), (1, "gold"), (2, "turquoise"), (1, "gold")]),
+        "flutes": stripes("u", 1 / 8, [(1, "sandstone_light"), (1, "sandstone")], "LINEAR"),
+        "capital": stripes("u", 1 / 8, [(1, "turquoise"), (1, "blue")]),
         "nemes": stripes("v", 0.11, [(3, "gold"), (1, "blue")]),
         "bronze": stripes("v", 0.04, [(4, "bronze"), (1, "verdigris")], "LINEAR"),
         "bronze_dark": ("solid", "bronze_dark"),
@@ -404,7 +409,107 @@ def band_at(c, r, h, n=8):
     return tube([(c - V((0, 0, h / 2)), r, r), (c + V((0, 0, h / 2)), r, r)], sub=1, n=n, ref=V((0, 1, 0)))
 
 
-BUILDERS = {"sphinx": build_sphinx, "ankh": build_ankh, "questionmark": build_questionmark, "spikes": build_spikes}
+# ---------------------------------------------------------------- teleporter gate
+
+
+COLUMN_X = 0.34  # column axes at x = +-COLUMN_X, y = 0 (the portal quad is x +-0.25, y 0)
+ARCHITRAVE = 0.9  # underside of the architrave (portal quad top)
+SHAFT = 0.6
+STEP = 0.06  # top of the threshold
+
+
+def lobes(count, depth):
+    """Tube shape: count rounded lobes round the section (a papyrus bundle), the grooves at u = k / count; key a scales
+    the depth."""
+    return lambda th, a: 1.0 - depth * a * abs(math.cos(count * th / 2))
+
+
+def winged_disc(b, M, y, zc, s):
+    """Winged sun disc on the face y (facing s * y): a carnelian disc in a gold ring, two uraei hanging from it, and
+    tapering wings of three feather rows (lapis coverts, gold, turquoise primaries) curving down to the tips."""
+    fy = y + s * 0.004
+    nrm = V((0, s, 0))
+    b.add(ellipsoid((0, fy, zc), (0.026, 0.026, 0.008), n=16, rings=4, axis=nrm, ref=V((0, 0, 1))), M["red"], "root")
+    ring = [(V((0.028 * math.cos(2 * math.pi * k / 20), fy, zc + 0.028 * math.sin(2 * math.pi * k / 20))), 0.0045, 0.004) for k in range(20)]
+    b.add(tube(ring, sub=1, n=6, ref=nrm, closed=True), M["gold"], "root")
+    for side in (-1, 1):
+        # Rows: (material, height offset, half height at the root, length, droop at the tip).
+        for mat, dz, h, length, droop in (("blue", 0.013, 0.008, 0.33, 0.004), ("gold", 0.0, 0.007, 0.36, 0.008), ("turquoise", -0.014, 0.009, 0.4, 0.004)):
+            keys = []
+            for k in range(6):
+                t = k / 5
+                x = side * (0.022 + length * t)
+                keys.append((V((x, y + s * 0.0025, zc + dz - droop * t * t + 0.006 * math.sin(math.pi * t))), 0.0025, h * (1 - 0.7 * t)))
+            b.add(tube(keys, sub=2, n=8, ref=V((0, 0, 1))), M[mat], "root")
+        # Uraeus: a gold cobra rising from the ring beside the disc, its tail hanging below.
+        cobra = [(V((side * 0.03, fy, zc - 0.03)), 0.003, 0.003), (V((side * 0.033, fy, zc - 0.012)), 0.004, 0.004),
+                 (V((side * 0.031, fy, zc + 0.008)), 0.005, 0.006), (V((side * 0.028, fy, zc + 0.018)), 0.005, 0.004)]
+        b.add(tube(cobra, sub=2, n=8, ref=nrm), M["gold"], "root")
+
+
+def column(b, M, x):
+    """Papyrus bundle column: round base, eight-stem shaft drawn in at the foot, painted binding bands, open papyrus
+    capital (turquoise and lapis sepals, gold rim), square abacus; a lapis panel of gold signs on the front."""
+    c = V((x, 0, 0))
+    b.add(tube([(c + V((0, 0, STEP)), 0.088, 0.088), (c + V((0, 0, STEP + 0.022)), 0.085, 0.085)], sub=1, n=24), M["stone_dark"], "root")
+    z0 = STEP + 0.022
+    shaft = [(0.0, 0.056, 0.6), (0.05, 0.068, 1.0), (0.28, 0.066, 1.0), (0.5, 0.06, 1.0), (SHAFT, 0.058, 1.0)]
+    b.add(tube([(c + V((0, 0, z0 + dz)), r, r, a) for dz, r, a in shaft], sub=3, n=48, shape=lobes(8, 0.1)), M["flutes"], "root")
+    # Leaf sheaths round the foot: pointed turquoise leaves.
+    for k in range(8):
+        th = 2 * math.pi * (k + 0.5) / 8
+        d = V((math.cos(th), math.sin(th), 0))
+        base = c + d * 0.058 + V((0, 0, z0))
+        leaf = [(base, 0.022, 0.006), (base + d * 0.009 + V((0, 0, 0.04)), 0.017, 0.005), (base + d * 0.008 + V((0, 0, 0.075)), 0.001, 0.002)]
+        b.add(tube(leaf, sub=2, n=8, ref=d), M["turquoise"], "root")
+    # Binding bands under the capital.
+    zb = z0 + SHAFT
+    for k, mat in enumerate(("gold", "blue", "gold", "red", "gold")):
+        z = zb + k * 0.011
+        b.add(tube([(c + V((0, 0, z)), 0.063, 0.063), (c + V((0, 0, z + 0.011)), 0.063, 0.063)], sub=1, n=24), M[mat], "root")
+    zc = zb + 0.055
+    bell = [(0.0, 0.06, 0.0), (0.035, 0.078, 0.5), (0.07, 0.102, 1.0), (ARCHITRAVE - 0.04 - zc, 0.116, 1.0)]
+    b.add(tube([(c + V((0, 0, zc + dz)), r, r, a) for dz, r, a in bell], sub=3, n=64, shape=lobes(16, 0.06)), M["capital"], "root")
+    top = c + V((0, 0, ARCHITRAVE - 0.04))
+    b.add(tube([(top - V((0, 0, 0.008)), 0.118, 0.118), (top, 0.118, 0.118)], sub=1, n=32), M["gold"], "root")
+    b.add(xbox(x - 0.07, x + 0.07, -0.07, 0.07, ARCHITRAVE - 0.04, ARCHITRAVE), M["stone"], "root")
+    # Front panel: lapis strip with gold signs (as on the gateway jambs).
+    fy = -0.061
+    b.add(xbox(x - 0.02, x + 0.02, fy - 0.006, fy, z0 + 0.14, z0 + 0.56), M["blue"], "root")
+    for k in range(4):
+        z = z0 + 0.16 + k * 0.1
+        f0, f1 = fy - 0.009, fy - 0.006
+        kind = k % 3
+        if kind == 0:  # ankh-like: bar and stem
+            b.add(xbox(x - 0.013, x + 0.013, f0, f1, z + 0.04, z + 0.048), M["gold"], "root")
+            b.add(xbox(x - 0.004, x + 0.004, f0, f1, z, z + 0.04), M["gold"], "root")
+            b.add(ellipsoid((x, f1 - 0.0015, z + 0.062), (0.009, 0.013, 0.0015), n=10, rings=3, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["gold"], "root")
+        elif kind == 1:  # sun disc
+            b.add(ellipsoid((x, f1 - 0.001, z + 0.03), (0.013, 0.013, 0.003), n=12, rings=4, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["gold"], "root")
+            b.add(ellipsoid((x, f1 - 0.003, z + 0.03), (0.006, 0.006, 0.002), n=8, rings=3, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["red"], "root")
+        else:  # reeds
+            for j in range(3):
+                b.add(xbox(x - 0.014 + j * 0.011, x - 0.008 + j * 0.011, f0, f1, z, z + 0.055), M["gold"], "root")
+
+
+def build_columns(b, M):
+    """Teleporter gate: two papyrus columns on a stepped threshold carrying an architrave with a cavetto cornice and a
+    winged sun disc; the plasma of Dungeon::drawTeleporterTile fills the gap between the columns (x +-0.25, z 0..0.9, y = 0)."""
+    b.add(xbox(-0.47, 0.47, -0.15, 0.15, 0.0, 0.03), M["stone_dark"], "root")
+    b.add(xbox(-0.44, 0.44, -0.12, 0.12, 0.03, STEP), M["stone"], "root")
+    for s in (-1, 1):
+        fy = s * 0.121
+        b.add(xbox(-0.43, 0.43, min(fy, fy + s * 0.002), max(fy, fy + s * 0.002), 0.038, 0.052), M["frieze"], "root")
+    for s in (-1, 1):
+        column(b, M, s * COLUMN_X)
+    top = ARCHITRAVE + 0.066
+    b.add(xbox(-0.45, 0.45, -0.085, 0.085, ARCHITRAVE, top), M["stone"], "root")
+    cornice(b, M, -0.45, 0.45, -0.085, 0.085, top, 1.0 - top, 0.02)
+    for s in (-1, 1):
+        winged_disc(b, M, s * 0.085, (ARCHITRAVE + top) / 2, s)
+
+
+BUILDERS = {"sphinx": build_sphinx, "ankh": build_ankh, "questionmark": build_questionmark, "spikes": build_spikes, "columns": build_columns}
 
 
 # ---------------------------------------------------------------- entry points

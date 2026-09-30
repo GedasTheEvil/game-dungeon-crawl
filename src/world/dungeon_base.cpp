@@ -131,13 +131,7 @@ void Dungeon::updateTraps() {
 	trapHurt.streak++;
 }
 //======================================================================================
-void Dungeon::Move(float dirX, float dirY, bool jump) {
-	if (!Game().player->jump.falling && jump && Map(mapX, mapY).type != Ladder) {
-		mapY = mapY + dirY;
-		mapX = mapX + dirX;
-		Game().player->jump.falling = true;
-	}
-
+void Dungeon::Move(float dirX, float dirY) {
 	if (dirX != 0) {
 		float halfWidth = static_cast<float>(Game().player->scale / 60.0);
 		float probeX = mapX + dirX + (dirX > 0 ? halfWidth : -halfWidth);

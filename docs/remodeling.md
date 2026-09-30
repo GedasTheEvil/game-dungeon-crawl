@@ -95,9 +95,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
-  four obelisks), the question mark over riddle gates and the spike trap (also the death trap at scale 40). Gateway and ankh are
-  exactly 1 tile in their largest dimension, so Centrify keeps tile units. Albedo x AO textures. `-- --export` writes
-  `models/props/{sphinx,ankh,questionmark}.md3`, `models/traps/spikes.md3` + `textures/props/<name>.png`, `textures/traps/spikes.png`;
+  four obelisks), the question mark over riddle gates, the spike trap (also the death trap at scale 40) and the teleporter gate
+  (`columns.md3`: two papyrus columns on a threshold under an architrave with winged sun discs; the plasma quad of
+  `Dungeon::drawTeleporterTile` fills the gap in the columns' centre plane, the model symmetric in depth so Centrify keeps that plane).
+  Gateway, ankh and teleporter are exactly 1 tile in their largest dimension, so Centrify keeps tile units. Albedo x AO textures.
+  `-- --export` writes `models/props/{sphinx,ankh,questionmark,columns}.md3`, `models/traps/spikes.md3` + `textures/props/<name>.png`, `textures/traps/spikes.png`;
   `--review out.png` as in `items.py`. In-game check: `make test SCENARIO=tests/scenarios/props.txt` (every item, prop and trap).
 * `tools/textures/decals.py` - wall decal atlas `textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
@@ -155,7 +157,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player (the mimic 1024x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB); items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, other props 1.5-2.5k tris 37-89 KB; 71 model files in total.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB); items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 71 model files in total.
 
 ## Status
 Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
@@ -171,7 +173,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
-| Columns (old ladder, with a plasma quad) | `props/columns.md3` | `props/columns.png` | the teleporter gate (Door, gate type 5) |
+| Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: club, sword, spear, bow, arrow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |

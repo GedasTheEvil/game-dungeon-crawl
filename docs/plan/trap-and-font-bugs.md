@@ -1,6 +1,7 @@
 # Trap and font bugs
 
-Status: found in the [code structure audit](code-structure-review-audit.draft.md) (2026-09-30). Not fixed. Small and
+Status: found in the [code structure audit](code-structure-review-audit.draft.md) (2026-09-30). Fixed 2026-09-30 (see
+[Implementation](#implementation)); not yet verified in play. Small and
 independent of the [code structure review](code-structure-review.draft.md); can be fixed any time.
 
 ## 1. Trap damage depends on drawing, and one hurt timer is shared per trap kind
@@ -30,3 +31,23 @@ spike tiles, and also while a UI screen is open (if the world should pause then,
 * **Fix:** `vsnprintf(text, sizeof(text), fmt, ap)`, or format into a `std::string` sized by a first `vsnprintf`
   call if long strings must print in full.
 * Check other `vsprintf` / `sprintf` calls in `src/` and `tools/` in the same pass (`grep -rn 'v\?sprintf('`).
+
+## Implementation
+
+Done 2026-09-30:
+
+* **Traps.** `Trap` only draws (no timer, no camera pointers, no tile coordinates). `Dungeon::updateTraps`, called
+  from `Dungeon::Update`, checks the trap tiles round the player's cell (3 x 3: the death trap's hitbox reaches into
+  the next cells) with the same hitbox as before (`TRAP_HITBOX_X/Y_SCALE` x the trap's scale, round the player's point).
+  One hurt timer and damage streak for the player (`Dungeon::trapHurt`), shared by every trap: two traps never hurt
+  twice in one interval. Paused with the world (no damage on UI screens).
+* **Font.** `Font::print` uses `vsnprintf` (cut at 255 chars). It was the only `vsprintf` / `sprintf` in `src/` and
+  `tools/`.
+* **Test.** `tests/scenarios/spikes.txt` (`tests/levels/spikes_one`, `spikes_two`): the hitbox edge, the damage ramp,
+  no damage with the inventory open, two tiles side by side. The old code passes it too: in the scenarios every
+  tick draws and a trap in reach is always in view, so the old bugs only showed at a low frame rate or with draw
+  order. The test pins the behaviour.
+
+Not done: the traps still use the player's point, not the player's hitbox (`Player::HalfWidth`,
+[monster hitboxes](monster-hitboxes.md)). A box would widen every trap by 0.06 tiles; left out so as not to change
+the jump timings over spikes.

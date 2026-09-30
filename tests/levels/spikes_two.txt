@@ -1,0 +1,4 @@
+; Two spike tiles side by side (cols 4, 5) (tests/scenarios/spikes.txt).
+##########
+#S..^^..E#
+##########

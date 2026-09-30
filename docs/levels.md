@@ -127,6 +127,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/monster_hazards.txt`: walkers stop at floor spikes and a pit; only flyers cross them.
 - `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
 - `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
+- `tests/scenarios/spikes.txt`: spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.
 - `tests/scenarios/monster_hitboxes.txt`: scarab, rat, worm, giant scarab, boss scarab and giant rat walk up and stop
   where they bite; every melee weapon hits them there; an arrow hits a giant rat 2 tiles away (`tests/levels/hitbox_*`).
 - `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).

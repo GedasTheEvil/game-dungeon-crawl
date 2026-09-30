@@ -103,6 +103,35 @@ void Dungeon::Update() {
 	updateMechanisms();
 	UpdateMonsters();
 	updateArrows();
+	updateTraps();
+}
+//======================================================================================
+void Dungeon::updateTraps() {
+	auto inTrap = [this](int col, int row) {
+		if (!IsInBounds(col, row))
+			return false;
+		const int type = MapAt(col, row).type;
+		if (type != Spike && type != Death)
+			return false;
+		const float scale = (type == Death ? Game().assets.traps.deathTrap : Game().assets.traps.spikes)->scale;
+		return std::fabs(mapX - static_cast<float>(col) - 0.5f) <= TRAP_HITBOX_X_SCALE * scale &&
+			   std::fabs(mapY - static_cast<float>(row)) <= TRAP_HITBOX_Y_SCALE * scale;
+	};
+	const auto col = static_cast<int>(std::floor(mapX));
+	const auto row = static_cast<int>(std::floor(mapY));
+	bool hurt = false;
+	for (int j = row - 1; j <= row + 1 && !hurt; j++) // the death trap's hitbox reaches into the next cells
+		for (int i = col - 1; i <= col + 1 && !hurt; i++)
+			hurt = inTrap(i, j);
+	if (!hurt || !trapHurt.timer.TimePassed())
+		return;
+
+	const int now = GameClock::now();
+	if (now - trapHurt.lastHitMs > TRAP_STREAK_RESET_MS)
+		trapHurt.streak = 0;
+	trapHurt.lastHitMs = now;
+	Game().player->TakeHit(1 + trapHurt.streak / TRAP_DAMAGE_RAMP_HITS);
+	trapHurt.streak++;
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY, bool jump) {

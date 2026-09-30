@@ -71,7 +71,7 @@ About 14.3k lines of C++ in `src/` and `tools/`.
 * `Dungeon::Draw()` spawns monsters and advances `portalScroll` and `riddleMarkYaw`. It does `rotA++` on shared item
   assets and sets `club->scale = 10` every frame (`dungeon_render.cpp:89-178`).
 * **Trap damage is dealt inside `Trap::Show()`**, and one hurt timer is shared per trap kind. This bug has its own
-  plan: [trap-and-font-bugs.draft.md](trap-and-font-bugs.draft.md).
+  plan: [trap-and-font-bugs.md](trap-and-font-bugs.md).
 * `Monster::Draw` and `Player::Draw` advance model state and the blood particles.
 * The attack hit resolution `updateAttack` lives in `graphics/draw.cpp:93`.
 * `Update()`/`Draw()` live in `graphics/draw.cpp` but are declared in `input/input.h:47`.
@@ -187,7 +187,7 @@ Include direction today (arrow = "includes"):
   * The `AnimatedModel` display lists and the fire sprite, shader programs and ink FBO are never freed.
 * **No VBOs:** everything is immediate mode, client arrays or display lists.
 * **Unbounded buffer:** `font.cpp:64` `vsprintf`. This bug has its own plan:
-  [trap-and-font-bugs.draft.md](trap-and-font-bugs.draft.md).
+  [trap-and-font-bugs.md](trap-and-font-bugs.md).
 * **Fixed buffers:** many fixed `char[]` + `snprintf` (inventory, assets, scenario), and `SaveName{char name[25]}`
   with `strncpy`.
 

@@ -3,6 +3,7 @@
 #include "../entities/monster.h"
 #include "fstream"
 #include "../core/timer.h"
+#include "../core/gameplay_config.h"
 #include "decor.h"
 #include "level.h"
 #include <memory>
@@ -46,7 +47,7 @@ class Dungeon {
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	void drawHitboxes();
 	void DrawTreasureTile(int i, int j);
-	void DrawTrapTile(int i, int j, bool isDeathTrap);
+	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
 	void scatterDecals(uint32_t seed);
@@ -105,9 +106,18 @@ class Dungeon {
 	};
 	std::vector<Arrow> arrows;
 	void updateArrows();
+	// Spike and death trap tiles hurt the player standing in them (a hitbox of TRAP_HITBOX_X/Y_SCALE x the trap's
+	// scale round the tile's bottom centre), every TRAP_HURT_INTERVAL_MS, however many traps: one timer for the player.
+	// The damage grows while the player stays in (TRAP_DAMAGE_RAMP_HITS); a gap of TRAP_STREAK_RESET_MS resets it.
+	struct TrapHurt {
+		Timer timer{TRAP_HURT_INTERVAL_MS};
+		int streak = 0;
+		int lastHitMs = 0;
+	} trapHurt;
+	void updateTraps();
 	void drawArrows(); // with the frame origin of DrawMonsters
-	// The centre of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the bow can reach,
-	// or false.
+	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
+	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;

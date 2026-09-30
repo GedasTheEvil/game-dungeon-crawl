@@ -58,11 +58,11 @@ void Font::print(float x, float y, const char* fmt, ...) // Where The Printing H
 	if (fmt == nullptr) // If There's No Text
 		return;			// Do Nothing
 
-	char text[256];			 // Holds Our String
-	va_list ap;				 // Pointer To List Of Arguments
-	va_start(ap, fmt);		 // Parses The String For Variables
-	vsprintf(text, fmt, ap); // And Converts Symbols To Actual Numbers
-	va_end(ap);				 // Results Are Stored In Text
+	char text[256];							// Holds Our String
+	va_list ap;								// Pointer To List Of Arguments
+	va_start(ap, fmt);						// Parses The String For Variables
+	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
+	va_end(ap);								// Results Are Stored In Text
 
 	t.Bind();																 // Select Our Font Texture
 	glPushMatrix();															 // Store The Modelview Matrix

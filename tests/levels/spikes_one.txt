@@ -1,0 +1,4 @@
+; One spike tile (col 4) (tests/scenarios/spikes.txt).
+##########
+#S..^...E#
+##########

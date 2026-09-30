@@ -3,29 +3,20 @@
 #include <memory>
 #include "../graphics/animated_model.h"
 #include "../graphics/textures.h"
-#include "../core/timer.h"
-#include "../core/gameplay_config.h"
 
+// A trap model (spikes, the death trap's big spikes), shared by every tile of its kind. It only draws; the damage is
+// Dungeon::updateTraps.
 class Trap {
   private:
 	std::unique_ptr<AnimatedModel> mdl;
-	float tileX;
-	float tileY;
 	Texture tex;
-	Timer Hurt_timer{TRAP_HURT_INTERVAL_MS};
 
   public:
-	float scale;
-	float* dungeonCamY;
-	float* dungeonCamX;
+	float scale = 3;
 
 	Trap();
-	~Trap();
 	void Show();
-	void Hurt();
-	void setCords(float nX, float nY);
 	bool loadModel(const char filename[], Texture& texture, bool compile = true);
-	void debugText();
 };
 
 #endif

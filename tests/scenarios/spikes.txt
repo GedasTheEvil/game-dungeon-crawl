@@ -1,0 +1,37 @@
+# Spike damage (Dungeon::updateTraps): one hit every 100 ms while the player stands in a spike tile, growing by 1
+# every 3 hits (1 1 1 2 2 2 3 3 3 4 ... HP), reset once they step out for 200 ms. Two spike tiles side by side hurt
+# at the same rate as one. No damage while the inventory is open (the world is paused).
+# Levels: tests/levels/spikes_one, spikes_two.
+seed 1
+
+# the tile edge (x 4.0) is outside the hitbox (0.32 tiles round the centre); the centre hurts
+level tests/levels/spikes_one
+wait 5
+walk right 3
+wait 1s
+expect hp == 50
+walk right 0.5
+expect hp == 48
+wait 1s
+expect hp == 24
+
+# paused by the inventory, then hurt again, the streak reset
+level tests/levels/spikes_one
+wait 5
+walk right 3.5
+key i
+wait 1s
+expect hp == 48
+key i
+wait 500ms
+expect hp == 41
+
+# two spike tiles: one hit per 100 ms, never two; the 0.36 tiles between their hitboxes reset the streak
+level tests/levels/spikes_two
+wait 5
+walk right 3.5
+wait 500ms
+walk right 1
+wait 500ms
+expect x > 5.4
+expect hp == 20

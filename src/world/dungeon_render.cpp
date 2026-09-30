@@ -113,14 +113,11 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::DrawTrapTile(int i, int j, bool isDeathTrap) {
+void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
 	Trap* tileTrap = isDeathTrap ? Game().assets.traps.deathTrap.get() : Game().assets.traps.spikes.get();
-	tileTrap->dungeonCamX = &mapX;
-	tileTrap->dungeonCamY = &mapY;
-	tileTrap->setCords(static_cast<float>(i), static_cast<float>(j));
 	tileTrap->Show();
 
 	glPopMatrix();
@@ -179,9 +176,9 @@ void Dungeon::Draw() {
 				if (tile.type == Treasure)
 					DrawTreasureTile(i, j);
 				if (tile.type == Spike)
-					DrawTrapTile(i, j, false);
+					DrawTrapTile(false);
 				if (tile.type == Death)
-					DrawTrapTile(i, j, true);
+					DrawTrapTile(true);
 				if (tile.type == Ankh) {
 					glPushMatrix();
 					glTranslatef(20, 0, -20);

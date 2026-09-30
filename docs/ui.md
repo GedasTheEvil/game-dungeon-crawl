@@ -157,7 +157,7 @@ trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss
 `TileStyle::Stone` tiles with a flat item icon (`textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
 count badge like the inventory slots and a key cap under each like the options table. Flashes and pulses are additive
 rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
-icons: [plan/hud-icons.md](plan/hud-icons.md).
+icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
 
 ## Colours
 

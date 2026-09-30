@@ -1,6 +1,6 @@
 # HUD: item icons
 
-Status: implemented 2026-09-30, not yet verified in play. Follow-up of the [HUD redesign](solved/hud-redesign.md).
+Status: implemented 2026-09-30, verified in play 2026-09-30. Follow-up of the [HUD redesign](hud-redesign.md).
 
 ## Why
 

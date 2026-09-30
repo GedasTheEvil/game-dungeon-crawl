@@ -1,9 +1,9 @@
 # Stage 3: tile and monster definition tables
 
-Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 3 of
-the [code structure review](code-structure-review.draft.md).
-Evidence: [the audit](code-structure-review-audit.draft.md) (Per-type if-chains, Tile descriptions, Duplication).
-Comes after [stage 2](solved/rules-out-of-ui.md) (unit tests, item ids GL-free).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to the
+level 5 boss). Stage 3 of the [code structure review](../code-structure-review.draft.md).
+Evidence: [the audit](../code-structure-review-audit.draft.md) (Per-type if-chains, Tile descriptions, Duplication).
+Comes after [stage 2](rules-out-of-ui.md) (unit tests, item ids GL-free).
 
 ## Why
 
@@ -87,7 +87,7 @@ coverage); the docs stay hand-written and a **unit test checks them**.
    interaction).
 8. `0151e3d`: `tests/unit/docs_test.cpp`: the editor readme lists every tile type, monster, lock colour and item id;
    `docs/levels.md` every monster's threat (checked: changing one threat in the docs fails it). How to add a type:
-   [../development.md](../development.md).
+   [../development.md](../../development.md).
 
 Checks: 31 unit test cases, 58/58 scenarios, `make tidy` clean, levelcheck and levelgen output unchanged.
 

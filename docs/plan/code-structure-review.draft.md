@@ -1,6 +1,7 @@
 # Code structure review
 
-Status: audit and research done (2026-09-30). Not planned; other plans come first. Nothing is implemented from here.
+Status: audit re-checked and stage order decided 2026-09-30; [stage 1](layered-build.md) implemented, stages 2 and 3
+planned. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -16,9 +17,9 @@ This is a new plan. The old `docs/plan/optimization-plan/` was implemented long 
 
 ## Process
 
-1. **Now:** audit and research (done). This file lists candidate stages.
-2. **When there is time:** re-check the audit against the code (other plans will have changed it), then decide which
-   stages to do and in what order.
+1. Audit and research (done 2026-09-30).
+2. Re-check the audit against the code, decide the stages and their order (done 2026-09-30, at `bfd0ec8`: see the
+   audit's marks for what was fixed, what grew and what is new).
 3. **Per stage:** write a separate sub-plan `<stage-slug>.draft.md` in `docs/plan/` for one structure at a time.
    Implement it, rename it to `<stage-slug>.md`, and tick it off here.
 
@@ -35,33 +36,53 @@ Rules for every stage:
 ## Decided
 
 * **First stages: 1, 2, 3** (layered build and shared library, then ids and rules out of the UI, then the tile
-  definition table). They unblock the others. Re-check the audit for these areas before writing their sub-plans.
+  definition table). They unblock the others.
+* **Order after that** (2026-09-30): 10, 4, 5, 8, 7, 9, 6, 11, 12, with 13 spread over all of them. Reasons in
+  [Stages](#stages).
+* **Unit tests: doctest** (one vendored header). Set up in stage 2, step 1; every later stage adds tests for the code
+  it moves before it moves it.
 * **Bugs found in the audit are fixed on their own**, outside this plan: [trap-and-font-bugs.md](solved/trap-and-font-bugs.md).
 * **Game and tools share one library** (or one library per layer). The editor, levelcheck, levelgen and model-viewer
-  link it instead of listing objects or recompiling sources.
+  link it instead of listing objects or recompiling sources. Done in stage 1: `liblevel.a`, `librender.a`.
+* Also fixed on its own: the save list read overrunning `SaveName::name` (`480b4d6`).
 
-## Candidate stages
+## Stages
 
-Stages 1-3 go first (see Decided). The order of the rest is not final.
+| # | Stage | Status | Main audit findings | Pattern |
+|---|---|---|---|---|
+| 1 | **Layered build and shared libraries** | done: [layered-build.md](layered-build.md) | hand-listed objects, level tools recompiled, SDL via the timer | layered libraries |
+| 2 | **Ids and rules out of the UI**, unit tests set up | planned: [rules-out-of-ui.draft.md](rules-out-of-ui.draft.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
+| 3 | **Tile and monster definition tables** | planned: [tile-table.draft.md](tile-table.draft.md) | 12-20 places per tile kind, two boss sources, lossy glyph round trip, raw 0/1/2 states | type object, data-driven |
+| 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
+| 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
+| 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
+| 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
+| 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
+| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
+| 6 | **Replace `Game()` step by step** | | 438 calls, the `game_state.h` hub | explicit dependencies |
+| 11 | **RAII for GL resources** | | copyable `Texture` / `Font`, nothing freed | RAII |
+| 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | | see the audit | |
+| 13 | **Unit tests for pure logic** | with every stage from 2 on | only GL scenario tests | testability |
 
-| # | Stage | Main audit findings | Pattern |
-|---|---|---|---|
-| 1 | **Layered build and shared library.** Static libraries such as `core`, `world` (no GL), `graphics`, `ui`; tools link only what they need; `make tidy` covers all tools; a check that `world/` does not include `graphics/`, `ui/` or `state/` | object lists by hand, levelcheck recompiles, include cycle, SDL dragged in by timer | layered engine library |
-| 2 | **Move ids and rules out of UI.** Item/potion ids as `enum class` in a GL-free header; weapon math, `CanUse` and potion effects move to an item-rules module; the save I/O out of `MainMenu`; the XP reward out of `Riddle` | `loot.cpp` → `ui/inventory.h`, ids copied in tools | separation of concerns |
-| 3 | **Tile definition table.** One table per tile type (name, glyph, editor label, solid, interact kind, draw function, checker rules), used by the game, editor, checker and `ascii2level`; typed `attr`/`value` accessors | teleporter touched ~7 places, `TILE_COUNT = 14`, `GateType` vs `Gate` | type object, data-driven |
-| 4 | **Split sim from render.** Nothing in `Draw` changes game state (monster spawn, trap damage, `rotA++`, animation advance); `Update()`/`updateAttack` move out of `graphics/draw.cpp` | trap damage only when drawn, shared trap timer | update method, const render |
-| 5 | **Break up `Dungeon`.** Separate the grid, mechanisms, monsters, projectiles, decor and dungeon renderer; the player owns its position and physics; a shared view-window helper | 9 responsibilities, `player->jump` written 20× | composition |
-| 6 | **Replace `Game()` step by step.** Pass dependencies or a small context struct; graphics (`lighting`, `ink`) gets settings as parameters; `GameState` without GL drawing | ~400 `Game()` calls, state ↔ ui cycle | explicit dependencies |
-| 7 | **Game events.** A per-tick event list (monster died, gate opened, item picked); sound, status text, XP and scenario asserts read it | gameplay calls sound, UI and `AddXP` directly | event queue (light) |
-| 8 | **Screen stack.** One screen FSM or stack instead of 4 `show` bools and menu sub-bools; a shared screen base for canvas, fonts, toast, frame end, click handling | copies in 4 screens | pushdown automaton |
-| 9 | **Timestep and determinism.** Fixed-dt update with held-key movement (not key repeat); one seeded gameplay RNG in the world; goal: a headless sim for tests | movement tied to key repeat, global `rand()` | fixed timestep |
-| 10 | **One movement model.** The `Walker` in `level_check` uses the same movement rules and constants as the game | `GRIP`/`GATE_STOP` copies | shared sim |
-| 11 | **RAII for GL resources.** Move-only `Texture`, `Font`, display list, shader, FBO wrappers | leaks, copyable handles | RAII |
-| 12 | **Smaller cleanups.** Long functions (`checkLevel`, `Assets::Load`, scenario `parseLine`/`runInstant`, `Dungeon::Draw`); duplicated seed hash, portal quad, blood logic, shader compile; magic numbers; save format version tags | see audit | |
-| 13 | **Unit tests for pure logic** (riddle parsing, item rules, save round-trip, checker rules), once stages 1-2 make them possible | only GL scenario tests exist | testability |
+Why this order:
+
+* **2 and 3 first:** they are the most shotgun surgery per feature (every new item, tile or monster) and they give
+  `liblevel` the ids and tables the later stages build on. Stage 2 also brings the unit test runner.
+* **10 next:** the checker judges every campaign level; its divergences hide real problems (a chain of jumps the
+  player has no stamina for, a pulled lever that opens nothing). It needs the tables from stage 3 and is small.
+* **4 before 5:** once `Draw` is const, splitting `Dungeon` does not move hidden state changes around.
+  Do 4 and 5 before the next bosses ([boss-rooms.draft.md](boss-rooms.draft.md) steps 3-4), because the boss director
+  and minion spawning live in exactly that code.
+* **8 and 7:** screens and events are self-contained and get easier once `Game()` has fewer writers (after 2, 5).
+* **9 late:** the riskiest for game feel and for every scenario's timing; it needs 4 (sim apart from render).
+* **6 last among the big ones:** most of it falls out of 2, 4, 5, 7 and 8; what is left decides how far to go.
+* **11, 12:** any time, in small pieces, when an area is touched anyway.
 
 ## Open questions
 
-* Unit test framework, or a small hand-made runner in the makefile?
-* How far should `Game()` go: remove it fully, or keep a few services (log, audio) behind it?
-* Fixed timestep: is it worth the risk to feel and to the scenario test timings?
+* How far should `Game()` go: remove it fully, or keep a few services (log, audio) behind it? Decide later (stage 6).
+* Fixed timestep: is it worth the risk to feel and to the scenario test timings? Decide in stage 9.
+* Stage 2: item ids as `enum class`, and whether `Inventory` splits into a model and a screen.
+* Stage 3: per-type behaviour in a table or a `switch`; generate the level docs from the tables or only test them.
+
+Answered: unit test framework: doctest (2026-09-30).

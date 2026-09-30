@@ -5,7 +5,6 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include "../core/logger.h"
-#include "../state/game_state.h"
 
 namespace {
 const char* const VERTEX_SRC = R"(
@@ -73,6 +72,7 @@ GLuint gFbo = 0, gColorTex = 0, gDepthTex = 0;
 int gWidth = 0, gHeight = 0;
 bool gFailed = false;
 bool gActive = false;
+bool gToon = false;
 
 bool buildProgram() {
 	GLuint program = linkProgram("Ink", VERTEX_SRC, FRAGMENT_SRC);
@@ -149,10 +149,12 @@ bool ensureReady(int width, int height) {
 }
 } // namespace
 
-void Ink::begin(float zNear, float zFar) {
-	const int width = Game().render.resX;
-	const int height = Game().render.resY;
-	gActive = Game().render.Cartoon && width > 0 && height > 0 && ensureReady(width, height);
+bool Ink::toon() { return gToon; }
+
+void Ink::setToon(bool on) { gToon = on; }
+
+void Ink::begin(float zNear, float zFar, int width, int height) {
+	gActive = gToon && width > 0 && height > 0 && ensureReady(width, height);
 	if (!gActive)
 		return;
 	glBindFramebuffer(GL_FRAMEBUFFER, gFbo);
@@ -164,7 +166,7 @@ void Ink::begin(float zNear, float zFar) {
 	glUseProgram(0);
 }
 
-float Ink::figureScale() { return Game().render.Cartoon ? 1.2f : 1.f; }
+float Ink::figureScale() { return gToon ? 1.2f : 1.f; }
 
 void Ink::end() {
 	if (!gActive)

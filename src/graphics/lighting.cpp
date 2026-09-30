@@ -8,7 +8,7 @@
 #include <cmath>
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "../state/game_state.h"
+#include "ink.h"
 
 namespace {
 constexpr int MAX_LIGHTS = 16;
@@ -124,7 +124,7 @@ void Lighting::begin() {
 	glUseProgram(gProgram);
 	glUniform3fv(gLocAmbient, 1, AMBIENT);
 	glUniform1f(gLocEmissive, 0.f);
-	glUniform1f(gLocToon, Game().render.Cartoon ? 1.f : 0.f);
+	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {

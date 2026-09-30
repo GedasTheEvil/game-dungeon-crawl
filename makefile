@@ -19,7 +19,8 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/movement.h src/world/rng.h
 RENDER_LIB_SOURCES=src/core/logger.cpp src/core/timer.cpp src/graphics/textures.cpp src/graphics/font.cpp \
-	src/graphics/animated_model.cpp src/ui/ui_draw.cpp
+	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
+	src/graphics/lighting.cpp
 LEVEL_LIB=$(BUILD)/liblevel.a
 RENDER_LIB=$(BUILD)/librender.a
 LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)

@@ -32,7 +32,6 @@ struct Camera {
 };
 
 struct RenderSettings {
-	bool Cartoon = false;  // toon shading off by default (F1 toggles)
 	bool Hitboxes = false; // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
 	int resX = 800;
 	int resY = 500;

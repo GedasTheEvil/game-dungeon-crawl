@@ -122,7 +122,7 @@ void Draw() {
 namespace {
 void drawGameplay() {
 
-	Ink::begin(SCENE_NEAR, SCENE_FAR);
+	Ink::begin(SCENE_NEAR, SCENE_FAR, Game().render.resX, Game().render.resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 

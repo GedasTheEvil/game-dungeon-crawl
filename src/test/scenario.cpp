@@ -5,6 +5,7 @@
 #include "../state/game_loop.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
+#include "../graphics/ink.h"
 #include "../core/timer.h"
 #include "../core/logger.h"
 #include "../ui/screen_state.h"
@@ -712,7 +713,7 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	case CommandType::Toon:
-		Game().render.Cartoon = cmd.a > 0.5f;
+		Ink::setToon(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Hitboxes:

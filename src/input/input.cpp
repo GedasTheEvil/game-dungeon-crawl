@@ -1,6 +1,7 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
+#include "../graphics/ink.h"
 #include "input.h"
 #include "input_actions.h"
 #include "../ui/screen_state.h"
@@ -214,7 +215,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 
 	if (key == SPECIAL_TOGGLE_CARTOON)
-		Game().render.Cartoon = !Game().render.Cartoon;
+		Ink::setToon(!Ink::toon());
 	if (key == SPECIAL_TOGGLE_HITBOXES)
 		Game().render.Hitboxes = !Game().render.Hitboxes;
 

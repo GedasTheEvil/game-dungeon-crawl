@@ -36,12 +36,12 @@ The game and the tools share two static libraries, so every program builds the s
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
-| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign` | no GL | game, editor, levelcheck, levelgen |
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression` | no GL | game, editor, levelcheck, levelgen, unit tests |
 | `build/librender.a` | `core/logger`, `core/timer`, `graphics/textures`, `graphics/font`, `graphics/animated_model`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 Neither library uses SDL or `Game()`, and a library file only includes headers of its own library. `make layers`
 (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
-`LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile.
+`LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file to `LEVEL_LIB_HEADERS`).
 
 ## Assets
 

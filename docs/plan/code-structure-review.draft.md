@@ -1,7 +1,7 @@
 # Code structure review
 
-Status: audit re-checked and stage order decided 2026-09-30; [stage 1](layered-build.md) implemented, stages 2 and 3
-planned. See [Stages](#stages).
+Status: audit re-checked and stage order decided 2026-09-30; stages [1](layered-build.md) and
+[2](rules-out-of-ui.md) implemented, stage 3 planned. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -51,7 +51,7 @@ Rules for every stage:
 | # | Stage | Status | Main audit findings | Pattern |
 |---|---|---|---|---|
 | 1 | **Layered build and shared libraries** | done: [layered-build.md](layered-build.md) | hand-listed objects, level tools recompiled, SDL via the timer | layered libraries |
-| 2 | **Ids and rules out of the UI**, unit tests set up | planned: [rules-out-of-ui.draft.md](rules-out-of-ui.draft.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
+| 2 | **Ids and rules out of the UI**, unit tests set up | done: [rules-out-of-ui.md](rules-out-of-ui.md) | ids in `inventory.h` (GL), copies in tools, rules in screens, HUD view model in `draw.cpp`, keys outside `GameplayAction` | separation of concerns |
 | 3 | **Tile and monster definition tables** | planned: [tile-table.draft.md](tile-table.draft.md) | 12-20 places per tile kind, two boss sources, lossy glyph round trip, raw 0/1/2 states | type object, data-driven |
 | 10 | **One movement model:** the checker's `Walker` uses the game's rules and constants | | 14 divergences (jumps over spikes and from ladders, stamina, gate approach, pulled levers, ...) | shared sim |
 | 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
@@ -82,7 +82,7 @@ Why this order:
 
 * How far should `Game()` go: remove it fully, or keep a few services (log, audio) behind it? Decide later (stage 6).
 * Fixed timestep: is it worth the risk to feel and to the scenario test timings? Decide in stage 9.
-* Stage 2: item ids as `enum class`, and whether `Inventory` splits into a model and a screen.
 * Stage 3: per-type behaviour in a table or a `switch`; generate the level docs from the tables or only test them.
 
-Answered: unit test framework: doctest (2026-09-30).
+Answered: unit test framework: doctest (2026-09-30). Stage 2: `enum class ItemKind`, and `Inventory` split into
+`ItemBag` (model) and the screen (2026-09-30).

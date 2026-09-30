@@ -1,6 +1,7 @@
 # Stage 2: item ids and game rules out of the UI
 
-Status: planned 2026-09-30, not started. Stage 2 of the [code structure review](code-structure-review.draft.md).
+Status: implemented 2026-09-30 (see [Implementation](#implementation)), not yet reviewed by the user. Stage 2 of the
+[code structure review](code-structure-review.draft.md).
 Evidence: [the audit](code-structure-review-audit.draft.md) (Game logic in UI, Layering, Duplication).
 
 ## Why
@@ -51,9 +52,48 @@ Each step keeps `make`, `make tidy` (with `make layers`), `make test` and `./lev
 * Scenarios: the existing `inventory`, `quick_potions`, `player_hud*`, `menu`, `riddle*`, `loot` must pass unchanged
   (they cover the moved code). Screenshot diffs of `player_hud` before and after step 7.
 
-## Open questions
+## Open questions (answered, see Implementation)
 
 * `enum class` for the ids: safer (no mixing a weapon id with a potion id), but every save / level read needs a
   checked conversion. Do it in this stage, or leave the int constants?
 * Should `Inventory` split into an item model (counts, levels, equipped; in `liblevel`) and the screen? That is the
   bigger version of step 4; it also moves the save format out of the UI.
+
+## Implementation
+
+Done 2026-09-30. Decisions on the open questions: **`enum class`, yes**, and **`Inventory` split**:
+
+* An item is one of 11 things, so one `enum class ItemKind` (`src/world/items.h`) replaced `ItemType` + `WeaponId` /
+  `PotionId` + `InvSlot`. The `(type, id)` pairs, where the club and the bow are both id 0, stay only where they are
+  stored: treasure tiles, save games and scenario scripts, through `fileIdOf` / `itemFromFile`. The same header has
+  the item texts (names, effects, lore) and `PotionEffect`.
+* `ItemBag` (`src/world/item_bag.{h,cpp}`) is the model: counts, levels, the equipped weapon, `Block` (why an item
+  cannot be used), `Use`, `Upgrade`, `QuickChoice`, `potionGain`, `weaponDamage`, `upgradeCost` and the save format
+  with the legacy migration. It takes the player's `Vitals` instead of reading `Game()`. `Inventory` is the screen:
+  it applies a `PotionGain` to `PlayerStats` and shows the toasts.
+
+Per step:
+
+1. doctest in `external/doctest/`, `make unit` (`build/unit`, links `liblevel.a` only), run by `make test`
+   (`2ee03a3`). Docs: [../testing.md](../testing.md).
+2. to 4. `items`, `item_bag`, `quick_potion` (moved from `ui/`), `loot` in `liblevel` (`e08265a`). The editor's
+   treasure choices and levelgen's potion weights come from the item table; the editor's potion texts are right
+   again. `ItemPrototypes::Of(ItemKind)` gives an item's model; `DrawTreasureTile` uses it instead of the magic
+   `attr` / `value` numbers (its `rotA++` and club `scale = 10` stay for stage 4). The layer check accepts
+   header-only files (`LEVEL_LIB_HEADERS`: `gameplay_config.h`).
+5. `PlayerStats::Damage(weaponDamage)`; `levelXP`, `levelProgress`, `riddleXP` in `src/world/progression`
+   (`d309806`).
+6. `src/state/save_slots` (`b188cb4`): slot file names, the name list, the slot info. Also fixed: the name list was
+   read token by token, so an empty line would shift the later slot names; the 25-byte name buffer is gone. Quit
+   calls `glutLeaveMainLoop` (freeglut) instead of `exit(666)`, and the window close button returns from the loop
+   too, so `main`'s cleanup runs (checked: exit code 0, the log ends the session).
+7. and 8. `ui/player_hud_view` (`a806831`). `QuickHeal`, `QuickStamina`, `EquipClub` .. `EquipBow` in
+   `GameplayAction`; `Inventory::IsQuick*Key` / `EquipHotkey` are gone (`Inventory::Equip(ItemKind)`). Not done:
+   new scenario commands `drink` / `equip`; the `key` command reaches the same actions now.
+
+Checks: 21 unit test cases; 58/58 scenarios; `make tidy` clean; `./levelcheck levels/lvl*` output unchanged,
+levelgen output unchanged (seeds 1, 7, 42); two of the user's save games load and save back with the same inventory
+line.
+
+Left for later stages: the menu's controls table still spells "H / 0" by hand; `loot` still uses `rand()`
+(stage 9); `Dungeon::PickUp` still calls the inventory and the status box directly (stage 7).

@@ -37,6 +37,7 @@ after level 9, no small scarabs after level 5 (giant scarabs from 6). The source
 make level-tools
 ./levelcheck levels/lvl*                   # report per level, then a ranking, easiest first
 ./levelcheck --map levels/lvl3             # plus the map with the path drawn as '*'
+./levelcheck --legend                      # the map's characters, with the tile each one stands for
 ./levelcheck --script tests/out/paths levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -114,7 +115,10 @@ Scenario tests can load a generated level directly: `level gen:SEED:DIFFICULTY` 
 
 ## Test levels from ASCII
 
-`tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend.
+`tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend. It
+reads the legend from `levelcheck --legend`, which prints the game's tables (`src/world/tile_defs.cpp`,
+`monster_kinds.cpp`, the lock colours in `level.h`), so the drawing, the checker and the game cannot disagree.
+In `--map` output, `m`, `q` and `Q` mark a monster type, key colour or gate colour the game does not know.
 A `def CHAR TYPE ATTR VALUE` line adds a character to the legend for that file, for example `def L 12 2 0`
 (blue lever) or `def 1 8 3 1` (large health potion).
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).

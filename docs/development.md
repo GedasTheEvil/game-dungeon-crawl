@@ -36,12 +36,26 @@ The game and the tools share two static libraries, so every program builds the s
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
-| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression` | no GL | game, editor, levelcheck, levelgen, unit tests |
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds` | no GL | game, editor, levelcheck, levelgen, unit tests |
 | `build/librender.a` | `core/logger`, `core/timer`, `graphics/textures`, `graphics/font`, `graphics/animated_model`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 Neither library uses SDL or `Game()`, and a library file only includes headers of its own library. `make layers`
 (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
 `LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file to `LEVEL_LIB_HEADERS`).
+
+## Adding a tile type or a monster
+
+The facts live in one table each; the compiler and the unit tests point at the rest.
+
+* **Tile type:** a value in `DungeonTileType` (`src/world/level.h`) and a row in `TILES` (`src/world/tile_defs.cpp`:
+  name, editor text, decor flags), its glyph in `tileGlyph` and the legend. `-Wswitch` then flags
+  `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft map (`ui/map_view.cpp`) and the editor's
+  icon list (`tools/editor/tile_info.cpp`, `icons/make_icons.py`) need a look by hand.
+* **Monster:** a value in `MonsterTypeId`, a row in `KINDS` (`src/world/monster_kinds.cpp`: label, glyph, threat, boss),
+  a row in `MONSTER_DEFS` (`src/state/assets.cpp`: stats, model), and for a boss one in `BOSS_DEFS`.
+* **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
+* Then the docs: the unit tests (`tests/unit/docs_test.cpp`) fail until `tools/editor/readme.md` and
+  `docs/levels.md` list it.
 
 ## Assets
 

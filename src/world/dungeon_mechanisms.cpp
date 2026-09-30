@@ -18,8 +18,6 @@ constexpr float LEVER_ANGLE = 35.f;					  // degrees either side of upright; + t
 constexpr float ROCK_START_Y = 0.65f;				  // rock bottom when it breaks loose (rock is 0.3 tall)
 constexpr float ROCK_DEPTH = 0.5f;					  // in the middle of the corridor, where the player walks
 
-constexpr float GATE_APPROACH = 0.45f; // tiles from the gate at which a held key opens it
-
 int lockBit(int colour) { return 1 << (colour - 1); }
 
 float motionProgress(int startMs, int durationMs) {

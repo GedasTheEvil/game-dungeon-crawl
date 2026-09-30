@@ -78,7 +78,8 @@ The ranking keeps the finale (a level with the ankh) last.
 
 `--script DIR` writes `DIR/<level>.txt`, a [scenario](testing.md) that plays the path in god mode and expects the
 level to be finished (`expect level == 2`, or `expect won == 1` for the finale). Run it with
-`make test SCENARIO=DIR/<level>.txt`. It checks the movement model against the real physics.
+`make test SCENARIO=DIR/<level>.txt`; `make paths` does it for every campaign level. It checks the movement model
+against the real physics.
 Monsters and damage do not stop it, so it proves that the level can be crossed, not that it is fair.
 
 ## levelgen: random levels

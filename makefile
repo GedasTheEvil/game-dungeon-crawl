@@ -55,7 +55,7 @@ CLANG_TIDY?=clang-tidy
 # nproc - 4, at least 1: four cores stay free for the desktop
 TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
 
-.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit level-tools
+.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
@@ -130,6 +130,13 @@ $(UNIT): $(UNIT_OBJECTS) $(LEVEL_LIB)
 
 unit: $(UNIT)
 	./$(UNIT)
+
+# `make paths`: levelcheck's path through every campaign level, played in the game (checks the checker's movement
+# model against the real physics; docs/levels.md).
+paths: $(EXECUTABLE) levelcheck
+	rm -rf tests/out/paths && mkdir -p tests/out/paths
+	./levelcheck --quiet --script tests/out/paths levels/lvl* >/dev/null
+	./tools/run_scenarios.sh tests/out/paths/*.txt
 
 # `make test`: the unit tests, then tests/scenarios/*.txt; `make test SCENARIO=path` runs one scenario.
 # HEADLESS=0 shows the window.

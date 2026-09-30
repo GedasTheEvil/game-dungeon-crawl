@@ -4,6 +4,11 @@
 constexpr float PLAYER_MOVE_STEP = 0.025f;
 constexpr float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
 
+// Map x within a cell at which the drawn player (always at the screen centre) is in front of the ladder:
+// tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw). Climbing pulls the
+// player there.
+constexpr float LADDER_GRIP_X = 0.45f;
+
 constexpr float JUMP_FORWARD_SPEED = 0.054f;
 constexpr float JUMP_INITIAL_VELOCITY = 0.085f;
 constexpr float JUMP_GRAVITY_STEP = 0.01f;
@@ -76,6 +81,7 @@ constexpr int ARROW_STUCK_MS = 1500;		 // an arrow in a wall or the floor stays 
 
 // Keys, gates and levers (dungeon_mechanisms.cpp).
 constexpr int GATE_OPEN_MS = 1200;			  // the gate slides up into the ceiling, passable once it is up
+constexpr float GATE_APPROACH = 0.45f;		  // tiles from the gate at which a held key opens it
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 

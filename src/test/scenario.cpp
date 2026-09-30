@@ -96,6 +96,7 @@ struct Command {
 	std::string arg;  // level path / screenshot name
 	int ticks = 0;	  // wait
 	GameplayAction action = GameplayAction::None;
+	bool walkTo = false;			// walk to: a is the target map x
 	float a = 0.f;					// walk distance, camera rotM, expect value
 	float b = 0.f;					// camera rotN
 	ItemKind item = ItemKind::Club; // give / chest / expect count
@@ -105,6 +106,7 @@ struct Command {
 
 struct WalkProgress {
 	bool started = false;
+	GameplayAction action = GameplayAction::None; // walk to X: the way to the target, chosen at the start
 	float startPos = 0.f;
 	float lastPos = 0.f;
 	int stalledTicks = 0;
@@ -439,8 +441,14 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 	}
 	if (name == "walk") {
 		cmd.type = CommandType::Walk;
+		if (argc == 2 && w[1] == "to") { // walk to X: along the row to map x X, whichever way it is
+			cmd.walkTo = true;
+			if (!parseFloat(w[2], cmd.a))
+				return "usage: walk to <map x>";
+			return "";
+		}
 		if (argc != 2 || !parseFloat(w[2], cmd.a) || cmd.a <= 0)
-			return "usage: walk <left|right|up|down> <tiles>";
+			return "usage: walk <left|right|up|down> <tiles> | walk to <map x>";
 		if (w[1] == "left")
 			cmd.action = GameplayAction::MoveLeft;
 		else if (w[1] == "right")
@@ -633,15 +641,19 @@ bool loadLevel(const Command& cmd) {
 // Advances a walk by one tick. Returns true when the command is finished (either way).
 bool stepWalk(const Command& cmd) {
 	WalkProgress& walk = gRunner.walk;
-	float pos = playerPos(cmd.action);
+	float pos = playerPos(cmd.walkTo ? GameplayAction::MoveRight : cmd.action);
 	if (!walk.started) {
 		walk = WalkProgress{};
 		walk.started = true;
 		walk.startPos = pos;
 		walk.lastPos = pos;
+		walk.action = !cmd.walkTo ? cmd.action : cmd.a >= pos ? GameplayAction::MoveRight : GameplayAction::MoveLeft;
 	}
 
-	if (std::fabs(pos - walk.startPos) >= cmd.a - WALK_EPSILON) {
+	const bool arrived = cmd.walkTo ? (walk.action == GameplayAction::MoveRight ? pos >= cmd.a - WALK_EPSILON
+																				: pos <= cmd.a + WALK_EPSILON)
+									: std::fabs(pos - walk.startPos) >= cmd.a - WALK_EPSILON;
+	if (arrived) {
 		report(cmd, true, std::to_string(walk.ticks) + " ticks, " + stateLine());
 		walk.started = false;
 		return true;
@@ -662,7 +674,7 @@ bool stepWalk(const Command& cmd) {
 	}
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game()))
-		executeGameplayAction(cmd.action);
+		executeGameplayAction(walk.action);
 	walk.ticks++;
 	return false;
 }

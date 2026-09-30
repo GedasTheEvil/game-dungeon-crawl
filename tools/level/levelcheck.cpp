@@ -5,6 +5,7 @@
 // (killboss) where the path reaches it.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
+#include "../../src/core/gameplay_config.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/monster_kinds.h"
@@ -25,8 +26,12 @@ struct Entry {
 	LevelReport report;
 };
 
-constexpr float GRIP = 0.45f;	  // where in a cell the player stands to climb (Dungeon LADDER_GRIP_X)
-constexpr float GATE_STOP = 0.4f; // this close to a closed gate, a held key opens it (GATE_APPROACH is 0.45)
+// Where in a cell the player stands: in front of the ladder, where climbing pulls them anyway.
+constexpr float GRIP = LADDER_GRIP_X;
+// This close to a closed gate the held key opens it (under GATE_APPROACH, with room for the last walk step), and the
+// script waits until it is up.
+constexpr float GATE_STOP = GATE_APPROACH - 2 * PLAYER_MOVE_STEP;
+constexpr int GATE_WAIT_MS = GATE_OPEN_MS + 200;
 constexpr float CLIMB_MARGIN = 0.03f;
 
 // Scenario commands for the path: walks are merged until something else has to happen.
@@ -47,7 +52,7 @@ class PathScript {
 					gateState(grid.at(cur.col, cur.row)) == GateState::Closed) {
 					float dir = target > x ? 1.f : -1.f;
 					walkTo(static_cast<float>(cur.col) + (dir > 0 ? -GATE_STOP : 1.f + GATE_STOP));
-					line("wait 1400ms");
+					line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
 				}
 				walkTo(target);
 				break;
@@ -69,7 +74,7 @@ class PathScript {
 			case PathMove::Pull:
 				flushWalk();
 				line("interact");
-				line("wait 1400ms");
+				line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
 				break;
 			case PathMove::Teleport:
 				line("interact");
@@ -101,7 +106,6 @@ class PathScript {
 	float x;
 	std::string out;
 	float walkDir = 0.f;
-	float walkLeft = 0.f;
 	int climbDir = 0;
 	int climbRows = 0;
 	bool bossKilled = false;
@@ -120,18 +124,18 @@ class PathScript {
 		if (walkDir != 0.f && dir != walkDir)
 			flushWalk();
 		walkDir = dir;
-		walkLeft += std::fabs(target - x);
 		x = target;
 	}
 
 	void flushWalk() {
 		if (walkDir == 0.f)
 			return;
+		// To the absolute target: relative walks would add up the small differences between the path's cells and
+		// where the game's physics puts the player.
 		char buf[64];
-		snprintf(buf, sizeof(buf), "walk %s %.3f\n", walkDir > 0 ? "right" : "left", static_cast<double>(walkLeft));
+		snprintf(buf, sizeof(buf), "walk to %.3f\n", static_cast<double>(x));
 		out += buf;
 		walkDir = 0.f;
-		walkLeft = 0.f;
 	}
 
 	void climb(int dir) {

@@ -1,8 +1,9 @@
 # Code structure review
 
-Status: audit re-checked and stage order decided 2026-09-30; stages [1](solved/layered-build.md),
-[2](solved/rules-out-of-ui.md), [3](solved/tile-table.md), [4](sim-render-split.md), [5](dungeon-split.md), [8](screens.md)
-and [10](movement-model.md) implemented. See [Stages](#stages).
+Status: all stages worked through 2026-09-30, not yet reviewed by the user. Done: 1, 2, 3 (verified in play), 4, 5,
+8, 10, 11, 12, the random streams of 9, part of 6. Waiting for a decision: held-key movement (9,
+[fixed-timestep.draft.md](fixed-timestep.draft.md)), how far `Game()` goes (6). Deferred with a reason: 7. See
+[Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -64,10 +65,10 @@ Rules for every stage:
 | 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
 | 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | not now (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
 | 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
-| 6 | **Replace `Game()` step by step** | | 438 calls, the `game_state.h` hub | explicit dependencies |
+| 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](cleanups.md)); how far to go stays open | 438 calls, the `game_state.h` hub | explicit dependencies |
 | 11 | **RAII for GL resources** | done: [gl-resources.md](gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
-| 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | | see the audit | |
-| 13 | **Unit tests for pure logic** | with every stage from 2 on | only GL scenario tests | testability |
+| 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | done: [cleanups.md](cleanups.md) | see the audit | |
+| 13 | **Unit tests for pure logic** | 44 test cases so far: [cleanups.md](cleanups.md) | only GL scenario tests | testability |
 
 Why this order:
 

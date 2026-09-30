@@ -1,30 +1,29 @@
 #include "tile_info.h"
 #include "../../src/world/items.h"
+#include "../../src/world/monster_kinds.h"
 #include <string>
 #include <array>
 #include <vector>
 
 namespace {
 
-constexpr std::array<TileInfo, TILE_COUNT> TILES = {{
-	{"Wall", nullptr, "Solid block. The player stands on it and cannot walk through it."},
-	{"Empty", nullptr, "Open space. With no Wall below, the player falls."},
-	{"Door", "gate.png", "Sphinx statue. What it does depends on the gate type."},
-	{"Death", "death.png", "Large spike trap. Damages the player on contact."},
-	{"Monster", "monster.png", "Spawns a monster when the cell comes into view. Max. 32 monsters are live at a time."},
-	{"Spike", "spikes.png", "Small spike trap. Damages the player on contact."},
-	{"Ladder", "ladder.png", "The player climbs between vertically adjacent ladder cells and does not fall on them."},
-	{"3D", "3D.png", "Not used by the game. Renders as open space."},
-	{"Treasure", "treasure.png", "Chest with an item on top. Interact to pick it up, the cell then becomes Empty."},
-	{"Ankh", "ankh.png", "Level goal. Interact with it to win the game."},
-	{"Key", "key.png", "Key on the floor, picked up on touch. Opens the gates of its colour."},
-	{"Gate", "gate_lock.png",
-	 "Portcullis. Opens with the key of its colour or when a lever of its colour is pulled; a boss gate when the boss "
-	 "dies."},
-	{"Lever", "lever.png", "Interact to pull it. Opens every gate of the same colour."},
-	{"RockFall", "rockfall.png",
-	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a Wall "
-	 "above it."},
+// Icons under tools/editor/icons/ (make_icons.py), nullptr: drawn as a flat colour. Names and descriptions come from
+// the game's tile table (src/world/tile_defs.h).
+constexpr std::array<const char*, TILE_TYPE_COUNT> ICONS = {{
+	nullptr,
+	nullptr,
+	"gate.png",
+	"death.png",
+	"monster.png",
+	"spikes.png",
+	"ladder.png",
+	"3D.png",
+	"treasure.png",
+	"ankh.png",
+	"key.png",
+	"gate_lock.png",
+	"lever.png",
+	"rockfall.png",
 }};
 
 struct Choice {
@@ -44,35 +43,25 @@ const Choices GATE_TYPES = {
 	{0, "decoration", "Decoration only"},
 };
 
-const Choices MONSTER_TYPES = {
-	{MonsterScarab, "scarab", "Scarab"},
-	{MonsterWorm, "worm", "Worm"},
-	{MonsterPlant, "plant", "Plant"},
-	{MonsterAnubis, "anubis", "Anubis"},
-	{MonsterRat, "rat", "Rat"},
-	{MonsterGiantRat, "giant rat", "Giant rat"},
-	{MonsterBat, "bat", "Bat"},
-	{MonsterGiantBat, "giant bat", "Giant bat"},
-	{MonsterMimic, "mimic", "Mimic, a treasure chest until the player comes near"},
-	{MonsterGiantScarab, "giant scarab", "Giant scarab, leaps over pits and traps"},
-	{MonsterBossScarab, "boss scarab",
-	 "Boss scarab, summons scarabs; its death opens the boss gates. One boss per level"},
-};
+Choices monsterTypes() {
+	Choices types;
+	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
+		if (const MonsterKind* kind = monsterKind(type))
+			types.push_back({type, kind->label, kind->description});
+	return types;
+}
 
-const Choices LOCK_COLOURS = {
-	{1, "red", "Red (Carnelian)"},
-	{2, "blue", "Blue (Lapis)"},
-	{3, "green", "Green (Turquoise)"},
-	{4, "gold", "Gold (Amber)"},
-};
+// Key and lever colours; gates also take the boss lock.
+Choices lockColours(bool withBoss) {
+	Choices colours;
+	for (int colour = 1; colour <= (withBoss ? BOSS_LOCK : LOCK_COLOUR_COUNT); colour++)
+		colours.push_back({colour, lockColour(colour).name, lockColour(colour).choice});
+	return colours;
+}
 
-const Choices GATE_COLOURS = {
-	{1, "red", "Red (Carnelian)"},
-	{2, "blue", "Blue (Lapis)"},
-	{3, "green", "Green (Turquoise)"},
-	{4, "gold", "Gold (Amber)"},
-	{BOSS_LOCK, "boss", "Boss gate, opens when the level's boss dies"},
-};
+const Choices MONSTER_TYPES = monsterTypes();
+const Choices LOCK_CHOICES = lockColours(false);
+const Choices GATE_CHOICES = lockColours(true);
 
 const Choices ITEM_TYPES = {
 	{ItemType::MELEE_WEAPON, "melee weapon", "Melee weapon"},
@@ -150,11 +139,9 @@ void checkUnused(FieldHint& hint, int number) {
 
 } // namespace
 
-bool isTileType(int type) { return type >= 0 && type < TILE_COUNT; }
-
-const TileInfo& tileInfo(int type) {
-	static const TileInfo UNKNOWN = {"Unknown", nullptr, "Not a tile type. The game treats it as open space."};
-	return isTileType(type) ? TILES[static_cast<size_t>(type)] : UNKNOWN;
+TileInfo tileInfo(int type) {
+	const TileDef& def = tileDef(type);
+	return {def.name, isTileType(type) ? ICONS[static_cast<size_t>(type)] : nullptr, def.description};
 }
 
 CellHint describeCell(const Tile& cell) {
@@ -183,14 +170,14 @@ CellHint describeCell(const Tile& cell) {
 			hint.value = field("potion", POTIONS, cell.value, "unknown, gives nothing");
 		break;
 	case Key:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, opens nothing");
+		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
 		break;
 	case Gate:
-		hint.attribute = field("lock colour", GATE_COLOURS, cell.attr, "no colour, no key or lever opens it");
+		hint.attribute = field("lock colour", GATE_CHOICES, cell.attr, "no colour, no key or lever opens it");
 		hint.value = field("state", GATE_STATES, cell.value, "not a start state, use 0 or 1");
 		break;
 	case Lever:
-		hint.attribute = field("lock colour", LOCK_COLOURS, cell.attr, "no colour, opens nothing");
+		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case RockFall:

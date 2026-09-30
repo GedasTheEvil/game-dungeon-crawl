@@ -4,10 +4,8 @@
 // What the tile types, attributes and values mean (readme.md), as text for the editor's hint panel.
 // No GL here.
 
-#include "../../src/world/level.h"
+#include "../../src/world/tile_defs.h"
 #include <string>
-
-constexpr int TILE_COUNT = 14; // DungeonTileType Wall .. RockFall
 
 struct TileInfo {
 	const char* name;
@@ -15,8 +13,7 @@ struct TileInfo {
 	const char* description;
 };
 
-[[nodiscard]] const TileInfo& tileInfo(int type);
-[[nodiscard]] bool isTileType(int type);
+[[nodiscard]] TileInfo tileInfo(int type); // isTileType: tile_defs.h
 
 // One field (attribute or value) of a cell, explained.
 struct FieldHint {

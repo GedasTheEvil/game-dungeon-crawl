@@ -1,4 +1,6 @@
 #include "level_check.h"
+#include "monster_kinds.h"
+#include "tile_defs.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>
@@ -248,7 +250,7 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
 		if ((gateMask & bitOf(c)) != 0 && ((keyMask | leverMask) & bitOf(c)) == 0)
-			r.warnings.push_back(std::string("no key or lever opens the ") + LOCK_COLOUR_NAMES[c - 1] + " gates");
+			r.warnings.push_back(std::string("no key or lever opens the ") + lockColour(c).name + " gates");
 
 	bool bossGates = false;
 	for (const Tile& t : grid.cells)
@@ -330,30 +332,8 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 } // namespace
 
 float monsterThreat(int type) {
-	switch (type) {
-	case MonsterScarab:
-		return 0.8f;
-	case MonsterGiantScarab:
-		return 4.f; // jumps like a giant rat, hits harder
-	case MonsterWorm:
-		return 2.f;
-	case MonsterPlant:
-		return 1.5f; // does not move
-	case MonsterAnubis:
-		return 8.f;
-	case MonsterBossScarab:
-		return 10.f; // a little weaker than an Anubis, plus its scarabs
-	case MonsterRat:
-		return 0.7f; // fast, but barely hurts
-	case MonsterGiantRat:
-		return 3.f;
-	case MonsterBat:
-		return 1.2f; // weak, but only hit with good timing
-	case MonsterGiantBat:
-		return 3.5f;
-	default: // mimic (hits hard, but does not move) and unknown types
-		return 2.f;
-	}
+	const MonsterKind* kind = monsterKind(type);
+	return kind != nullptr ? kind->threat : UNKNOWN_MONSTER_THREAT;
 }
 
 LevelReport checkLevel(const LevelGrid& grid) {
@@ -524,9 +504,6 @@ LevelReport checkLevel(const LevelGrid& grid) {
 }
 
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
-	static const char MONSTER_CHARS[] = "mswpntTfFMkK";
-	static const char KEY_CHARS[] = "rbgy";
-	static const char GATE_CHARS[] = "RBGY";
 	std::vector<char> onPath(CELLS, 0);
 	if (report != nullptr)
 		for (const CellPos& p : report->path)
@@ -538,55 +515,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
-			char c = '?';
-			switch (t.type) {
-			case Wall:
-				c = '#';
-				break;
-			case Empty:
-			case Area3D:
-				c = '.';
-				break;
-			case Door:
-				c = t.attr == GateEntrance ? 'S'
-					: t.attr == GateExit   ? 'E'
-					: t.attr == GateRiddle ? '?'
-					: isTeleporter(t)	   ? 'O'
-										   : 'D';
-				break;
-			case Death:
-				c = 'X';
-				break;
-			case MonsterSpawn:
-				c = MONSTER_CHARS[t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX ? t.attr : 0];
-				break;
-			case Spike:
-				c = '^';
-				break;
-			case Ladder:
-				c = 'H';
-				break;
-			case Treasure:
-				c = '$';
-				break;
-			case Ankh:
-				c = 'A';
-				break;
-			case Key:
-				c = isLockColour(t.attr) ? KEY_CHARS[t.attr - 1] : 'k';
-				break;
-			case Gate:
-				c = isLockColour(t.attr) ? GATE_CHARS[t.attr - 1] : t.attr == BOSS_LOCK ? 'Z' : 'Q';
-				break;
-			case Lever:
-				c = '/';
-				break;
-			case RockFall:
-				c = 'v';
-				break;
-			default:
-				break;
-			}
+			char c = tileGlyph(t);
 			if (t.type != Wall)
 				any = true;
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)

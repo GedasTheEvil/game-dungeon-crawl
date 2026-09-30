@@ -8,29 +8,31 @@ Lines 'set COL ROW TYPE ATTR VALUE' override single cells (after the drawing), e
 Lines 'def CHAR TYPE ATTR VALUE' add a character to the legend for this file, e.g. 'def L 12 2 0' (blue lever),
 'def 1 8 1 1' (sword chest). Put them before the drawing.
 
-Legend: # wall  . open  S entrance  E exit  A ankh  ? riddle gate  O teleporter (pair id 1; more pairs: 'def')
-D gate without a purpose (checker warns)  H ladder
-$ treasure (small potion)  ^ spikes  X death trap  v rock fall  s scarab  w worm  p plant  n anubis  t rat
-T giant rat  f bat  F giant bat  M mimic  k giant scarab  K boss scarab  r b g y keys  R B G Y gates  Z boss gate
-/ lever (red, override with 'set')
+The legend (and the level size) come from the game: `levelcheck --legend` (make builds it).
 """
 
+import os
+import subprocess
 import sys
 
-W, H = 40, 47
-CELLS = W * H + 1
-LEGEND = {
-    "#": (0, 0, 0), ".": (1, 0, 0), "S": (2, 1, 0), "E": (2, 2, 0), "?": (2, 3, 0), "O": (2, 5, 1), "D": (2, 0, 0),
-    "X": (3, 0, 0), "^": (5, 0, 0), "H": (6, 0, 0), "$": (8, 3, 0), "A": (9, 0, 0), "v": (13, 0, 0),
-    "s": (4, 1, 0), "w": (4, 2, 0), "p": (4, 3, 0), "n": (4, 4, 0), "t": (4, 5, 0), "T": (4, 6, 0), "f": (4, 7, 0), "F": (4, 8, 0), "M": (4, 9, 0), "k": (4, 10, 0), "K": (4, 11, 0),
-    "r": (10, 1, 0), "b": (10, 2, 0), "g": (10, 3, 0), "y": (10, 4, 0),
-    "R": (11, 1, 0), "B": (11, 2, 0), "G": (11, 3, 0), "Y": (11, 4, 0), "Z": (11, 5, 0), "/": (12, 1, 0),
-}
+LEVELCHECK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "levelcheck")
+
+
+def game_legend():
+    """(width, height, cells, {char: (type, attr, value)}) from `levelcheck --legend`."""
+    try:
+        out = subprocess.run([LEVELCHECK, "--legend"], capture_output=True, text=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError) as e:
+        sys.exit(f"cannot run {LEVELCHECK} --legend ({e}); run make first")
+    lines = out.splitlines()
+    _, w, h, cells = lines[0].split()
+    legend = {line[0]: tuple(int(v) for v in line[2:].split()[:3]) for line in lines[1:]}
+    return int(w), int(h), int(cells), legend
 
 
 def main(src, dst):
+    W, H, CELLS, legend = game_legend()
     cells = [(0, 0, 0)] * CELLS
-    legend = dict(LEGEND)
     drawing, sets = [], []
     for line in open(src).read().splitlines():
         if line.startswith(";") or not line.strip():

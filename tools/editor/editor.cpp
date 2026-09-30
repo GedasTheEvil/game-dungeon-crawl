@@ -154,8 +154,8 @@ class Editor {
 	int winW = START_WIDTH;
 	int winH = START_HEIGHT;
 
-	Texture icons[TILE_COUNT];
-	bool hasIcon[TILE_COUNT] = {};
+	Texture icons[TILE_TYPE_COUNT];
+	bool hasIcon[TILE_TYPE_COUNT] = {};
 	Texture wallTexture, papyrus;
 	Font title, heading, body, small;
 
@@ -194,7 +194,7 @@ Editor::Editor() {
 	small.Load("fonts/papyrus.png", 2.3f, 0.06f, true);
 	wallTexture.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
 	papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
-	for (int type = 0; type < TILE_COUNT; type++) {
+	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
 		const char* icon = tileInfo(type).icon;
 		if (icon == nullptr)
 			continue;
@@ -234,7 +234,7 @@ void Editor::updateHover(float x, float y) {
 	hovered = cellAt(x, y);
 	hoveredTile = -1;
 	hoveredTarget = Target::None;
-	for (int type = 0; type < TILE_COUNT; type++)
+	for (int type = 0; type < TILE_TYPE_COUNT; type++)
 		if (slotRect(type).contains(x, y)) {
 			hoveredTile = type;
 			hoveredTarget = Target::Tile;
@@ -616,7 +616,7 @@ void Editor::drawTextBox(const Rect& r, const std::string& value, Field which, T
 
 void Editor::drawPalette() {
 	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.004f);
-	for (int type = 0; type < TILE_COUNT; type++) {
+	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
 		Rect r = slotRect(type);
 		bool selected = type == tile;
 		bool hover = type == hoveredTile;

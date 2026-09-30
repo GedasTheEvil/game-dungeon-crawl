@@ -1,4 +1,5 @@
 #include "assets.h"
+#include "../world/monster_kinds.h"
 #include <cstdio>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
@@ -168,11 +169,11 @@ std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
 void loadMechanisms(MechanismSet& set) {
 	char path[96];
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++) {
-		snprintf(path, sizeof(path), "textures/mechanisms/key_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/key_%s.png", LOCK_COLOURS[c].name);
 		set.keyTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "textures/mechanisms/gate_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/gate_%s.png", LOCK_COLOURS[c].name);
 		set.gateTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "textures/mechanisms/lever_base_%s.png", LOCK_COLOUR_NAMES[c]);
+		snprintf(path, sizeof(path), "textures/mechanisms/lever_base_%s.png", LOCK_COLOURS[c].name);
 		set.leverBaseTex[c].LoadPNG(path);
 		set.key[c] = loadStaticModel("models/mechanisms/key.md3", set.keyTex[c]);
 		set.gate[c] = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[c]);
@@ -241,6 +242,10 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	}
 	for (const auto& def : BOSS_DEFS)
 		monsterTypes[def.id].boss = def.rules;
+	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
+		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
+			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,
+					   isBossMonster(id) ? "monster_kinds" : "BOSS_DEFS");
 
 	for (const ItemDef& def : ITEM_DEFS) {
 		char label[64];

@@ -66,12 +66,9 @@ struct LevelReport {
 // Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);
 
-// The level as text, top row first (wall rows above and below the level are skipped). Legend:
-//   # wall  . open  S entrance  E exit  A ankh  ? riddle gate  O teleporter  D other gate  H ladder  $ treasure
-//   ^ spikes  X death trap  v rock fall  monsters: s scarab w worm p plant n anubis t rat T giant rat
-//   f bat F giant bat k giant scarab K boss scarab M mimic m other
-//   keys r b g y, gates R B G Y (red, blue, green, gold), Z boss gate, / lever
-// With a report, the path is drawn as '*' over open cells.
+// The level as text, top row first (wall rows above and below the level are skipped), one tileGlyph per cell
+// (legend: glyphLegend in tile_defs.h, `levelcheck --legend`; m, q, Q: a monster type, key or gate colour the game
+// does not know). With a report, the path is drawn as '*' over open cells.
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

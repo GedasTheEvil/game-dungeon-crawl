@@ -48,7 +48,7 @@ constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
 constexpr Color CAP_TOP = {0.19f, 0.15f, 0.10f}; // the options key caps
 constexpr Color CAP_BOTTOM = {0.10f, 0.08f, 0.055f};
 constexpr Color BADGE = {0.05f, 0.04f, 0.03f};
-// Key gems in LOCK_COLOUR_NAMES order: carnelian, lapis, turquoise, amber.
+// Key gems in LOCK_COLOURS order: carnelian, lapis, turquoise, amber.
 constexpr Color GEMS[LOCK_COLOUR_COUNT] = {
 	{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
 

@@ -49,18 +49,32 @@ enum MonsterTypeId : unsigned char {
 	MonsterGiantScarab = 10,
 	MonsterBossScarab = 11, // boss: summons scarabs; its death opens the boss gates
 };
-constexpr int MONSTER_TYPE_MAX = MonsterBossScarab;
-// A boss summons minions and guards the boss gates (Gate with lock colour BOSS_LOCK). At most one per level.
-inline bool isBossMonster(int type) { return type == MonsterBossScarab; }
+constexpr int MONSTER_TYPE_MAX = MonsterBossScarab; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;
-constexpr const char* LOCK_COLOUR_NAMES[LOCK_COLOUR_COUNT] = {"red", "blue", "green", "gold"};
-constexpr const char* LOCK_GEM_NAMES[LOCK_COLOUR_COUNT] = {"Carnelian", "Lapis", "Turquoise", "Amber"};
 inline bool isLockColour(int colour) { return colour >= 1 && colour <= LOCK_COLOUR_COUNT; }
 // A gate's colour can also be the boss lock: no key or lever, the level's boss dying opens it.
 constexpr int BOSS_LOCK = LOCK_COLOUR_COUNT + 1;
 inline bool isGateColour(int colour) { return isLockColour(colour) || colour == BOSS_LOCK; }
+
+struct LockColour {
+	const char* name; // texture names (key_<name>.png, ...), messages
+	const char* gem;  // the key's gem, in the game's messages
+	char keyGlyph;	  // levelcheck --map, ASCII level sources; the boss lock has no key
+	char gateGlyph;
+	const char* choice; // the editor's list
+};
+// By colour id - 1, the boss lock last.
+constexpr LockColour LOCK_COLOURS[BOSS_LOCK] = {
+	{"red", "Carnelian", 'r', 'R', "Red (Carnelian)"},
+	{"blue", "Lapis", 'b', 'B', "Blue (Lapis)"},
+	{"green", "Turquoise", 'g', 'G', "Green (Turquoise)"},
+	{"gold", "Amber", 'y', 'Y', "Gold (Amber)"},
+	{"boss", "Obsidian", '\0', 'Z', "Boss gate, opens when the level's boss dies"},
+};
+// colour must be isGateColour.
+inline const LockColour& lockColour(int colour) { return LOCK_COLOURS[colour - 1]; }
 
 // One level cell, as in the level files and the editor: tile type, attribute and value.
 struct Tile {

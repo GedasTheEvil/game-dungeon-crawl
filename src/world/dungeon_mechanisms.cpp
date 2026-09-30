@@ -65,7 +65,7 @@ void Dungeon::updateMechanisms() {
 		keysHeld |= lockBit(here.attr);
 		map[MapIndex(col, row)] = Tile{Empty, 0, 0};
 		char text[64];
-		snprintf(text, sizeof(text), "Found the %s key", LOCK_GEM_NAMES[here.attr - 1]);
+		snprintf(text, sizeof(text), "Found the %s key", lockColour(here.attr).gem);
 		Game().ShowStatus("%s", text);
 		Game().assets.sounds.keyPickup.Play();
 	}
@@ -167,8 +167,8 @@ void Dungeon::bumpGate(int col, int row) {
 		return;
 	lockedHintMs = now;
 	char text[96];
-	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", LOCK_GEM_NAMES[gate.attr - 1],
-			 LOCK_GEM_NAMES[gate.attr - 1]);
+	snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", lockColour(gate.attr).gem,
+			 lockColour(gate.attr).gem);
 	Game().ShowStatus("%s", text);
 	Game().assets.sounds.gateLocked.Play();
 }
@@ -186,7 +186,7 @@ bool Dungeon::PullLever() {
 	Game().assets.sounds.lever.Play();
 	openGates(lever.attr);
 	char text[64];
-	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", LOCK_GEM_NAMES[lever.attr - 1]);
+	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", lockColour(lever.attr).gem);
 	Game().ShowStatus("%s", text);
 	return true;
 }

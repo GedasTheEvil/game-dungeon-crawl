@@ -7,6 +7,8 @@
 
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
+#include "../../src/world/monster_kinds.h"
+#include "../../src/world/tile_defs.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>
@@ -163,16 +165,13 @@ void printReport(const Entry& e, bool map) {
 		   r.finale ? "goal: ankh (finale)" : "goal: exit");
 	printf("   size: %d open cells, %d reachable, bounds %dx%d\n", r.openCells, r.reachableCells, r.boundsWidth,
 		   r.boundsHeight);
-	printf("   content: %d monsters (scarab %d, worm %d, plant %d, anubis %d, rat %d, giant rat %d, bat %d, giant bat "
-		   "%d, mimic %d, giant scarab %d, boss scarab %d), %d spikes, %d death traps, %d rock falls, %d treasures (%d "
-		   "reachable), %d "
-		   "keys, %d gates, "
-		   "%d levers, "
-		   "%d riddles, %d teleporters\n",
-		   r.monsterCount, r.monsters[MonsterScarab], r.monsters[MonsterWorm], r.monsters[MonsterPlant],
-		   r.monsters[MonsterAnubis], r.monsters[MonsterRat], r.monsters[MonsterGiantRat], r.monsters[MonsterBat],
-		   r.monsters[MonsterGiantBat], r.monsters[MonsterMimic], r.monsters[MonsterGiantScarab],
-		   r.monsters[MonsterBossScarab], r.spikes, r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures,
+	std::string perType;
+	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
+		if (const MonsterKind* kind = monsterKind(type))
+			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
+	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d treasures (%d reachable), %d "
+		   "keys, %d gates, %d levers, %d riddles, %d teleporters\n",
+		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures,
 		   r.keys, r.gates, r.levers, r.riddles, r.teleporters);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
@@ -200,12 +199,19 @@ int main(int argc, char** argv) {
 			quiet = true;
 			continue;
 		}
+		// For tools/level/ascii2level.py: "size WIDTH HEIGHT CELLS", then "CHAR TYPE ATTR VALUE meaning" per glyph.
+		if (strcmp(argv[i], "--legend") == 0) {
+			printf("size %d %d %d\n", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_CELL_COUNT);
+			for (const GlyphDef& g : glyphLegend())
+				printf("%c %d %d %d %s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value, g.meaning);
+			return 0;
+		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {
 			scriptDir = argv[++i];
 			continue;
 		}
 		if (argv[i][0] == '-') {
-			fprintf(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE...\n");
+			fprintf(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE... | levelcheck --legend\n");
 			return 2;
 		}
 		Entry e;

@@ -1,0 +1,24 @@
+# Gate facing: the doorway and its plasma stand against the side wall, or turn to face the camera with no side wall
+# (tests/levels/gate_facing).
+seed 1
+god
+level tests/levels/gate_facing
+wait 30
+screenshot start
+walk right 3
+wait 5
+screenshot upper
+camera 25 0
+wait 5
+screenshot upper_left
+camera 0 0
+walk right 3
+wait 60
+screenshot lower
+walk right 3
+wait 5
+screenshot lower_exit
+camera -25 0
+wait 5
+screenshot lower_exit_right
+quit

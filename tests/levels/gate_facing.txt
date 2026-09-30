@@ -1,0 +1,8 @@
+; Gate facing (tests/scenarios/gate_facing.txt). Upper row: entrance against the left wall, exit and riddle gate with
+; no side wall. The player drops at col 7 onto the lower row: riddle gate against the left wall, a dead gate
+; (GateEmpty) with no side wall, exit against the right wall.
+def e 2 4 0
+########################################
+#S.E.?....##############################
+#######?.e.E############################
+########################################

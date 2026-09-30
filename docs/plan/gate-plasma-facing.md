@@ -1,6 +1,6 @@
 # Gate plasma faces the adjacent wall
 
-Status: idea, not refined. Small visual fix.
+Status: implemented. Test: `tests/scenarios/gate_facing.txt` (level `tests/levels/gate_facing`).
 
 ## Problem
 

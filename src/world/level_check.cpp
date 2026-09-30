@@ -213,6 +213,15 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 			r.warnings.push_back(std::string("no key or lever opens the ") + LOCK_COLOUR_NAMES[c - 1] + " gates");
 }
 
+// Only the game makes a dead gate, from an answered riddle gate (GateEmpty); in level data it has no purpose.
+void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		Tile t = grid.cells[cell];
+		if (t.type == Door && t.attr != GateEntrance && t.attr != GateExit && t.attr != GateRiddle)
+			r.warnings.push_back("gate without a purpose (attribute " + std::to_string(t.attr) + ") at " + at(cell));
+	}
+}
+
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
@@ -276,6 +285,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	LevelReport r;
 	countContent(grid, r);
 	checkLocks(grid, r);
+	checkDeadGates(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");

@@ -165,37 +165,28 @@ void Dungeon::Draw() {
 					glPopMatrix();
 				}
 				if (tile.type == Door) {
+					// The doorway stands against the side wall, plasma inside it; with no side wall it turns to the
+					// back wall and faces the camera. Unturned it is on the left.
+					auto rock = [this](int col, int row) {
+						return !IsInBounds(col, row) || MapAt(col, row).type == Wall;
+					};
+					float yaw = 0;
+					if (rock(i + 1, j) && !rock(i - 1, j))
+						yaw = 180;
+					else if (!rock(i + 1, j) && !rock(i - 1, j))
+						yaw = -90;
+
 					glPushMatrix();
 					glTranslatef(20, 0, -20);
 					glPushMatrix();
+					glRotatef(yaw, 0, 1, 0);
+					glPushMatrix();
 					glScalef(40, 40, 40);
-					if (tile.attr != GateEntrance)
-						glRotatef(180, 0, 1, 0);
 					Game().assets.textures.sphinx.Bind();
 					Game().assets.models.sphinx->Show();
 					glPopMatrix();
-					glPopMatrix();
-
-					if (tile.attr == GateRiddle) {
-						glPushMatrix();
-						glTranslatef(20, 20, -20);
-						glPushMatrix();
-						glScalef(10, 10, 10);
-						Game().assets.textures.questionMark.Bind();
-						glPushMatrix();
-						glRotatef(riddleMarkYaw, 0, 1, 0);
-						Game().assets.models.question->Show();
-						riddleMarkYaw += 1.0;
-						glPopMatrix();
-						glPopMatrix();
-						glPopMatrix();
-					}
 
 					if (tile.attr == GateEntrance || tile.attr == GateExit) {
-						glPushMatrix();
-						if (tile.attr != GateEntrance)
-							glTranslatef(39, 0, 0);
-
 						float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 
 						Game().assets.textures.portal.Bind();
@@ -203,19 +194,31 @@ void Dungeon::Draw() {
 						glBegin(GL_QUADS);
 						glNormal3f(1, 0, 0);
 						glTexCoord2f(px, 0);
-						glVertex3f(0.4, 0, -30);
+						glVertex3f(-19.6, 0, -10);
 						glTexCoord2f(px, 1);
-						glVertex3f(0.4, 35, -30);
+						glVertex3f(-19.6, 35, -10);
 						glTexCoord2f(px + 1, 1);
-						glVertex3f(0.4, 35, -10);
+						glVertex3f(-19.6, 35, 10);
 						glTexCoord2f(px + 1, 0);
-						glVertex3f(0.4, 0, -10);
+						glVertex3f(-19.6, 0, 10);
 						glEnd();
 						Lighting::setEmissive(false);
 						if (scrollPortals)
 							portalScroll -= 0.022;
+					}
+					glPopMatrix();
+
+					if (tile.attr == GateRiddle) {
+						glPushMatrix();
+						glTranslatef(0, 20, 0);
+						glScalef(10, 10, 10);
+						Game().assets.textures.questionMark.Bind();
+						glRotatef(riddleMarkYaw, 0, 1, 0);
+						Game().assets.models.question->Show();
+						riddleMarkYaw += 1.0;
 						glPopMatrix();
 					}
+					glPopMatrix();
 				}
 				if (tile.type == Ladder)
 					drawLadderTile(i, j);

@@ -155,43 +155,40 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (key == KEY_ESCAPE) // esc
 	{
 		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
-		if (!Game().ui.menu.show && Game().ui.inventory->show) {
-			Game().ui.inventory->show = false;
-			return;
-		}
-		if (!Game().ui.menu.show && Game().ui.map.show) {
-			Game().ui.map.show = false;
+		Screen& screen = Game().ui.screen;
+		if (screen == Screen::Inventory || screen == Screen::Map) {
+			screen = Screen::Gameplay;
 			return;
 		}
 
 		// In the menu Esc backs out of the save / load / options screens, then returns to the game (if there is one).
 		MainMenu& menu = Game().ui.menu;
-		if (menu.show && menu.InSubScreen()) {
+		if (screen == Screen::Menu && menu.InSubScreen()) {
 			menu.ResetSubScreens();
 			return;
 		}
-		if (menu.show && !menu.inGame)
+		if (screen == Screen::Menu && !menu.inGame)
 			return;
 		menu.ResetSubScreens();
-		menu.show = !menu.show;
+		screen = screen == Screen::Menu ? Screen::Gameplay : Screen::Menu;
 		return;
 	}
 
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
 		return; // while the menu is shown, only [esc] is handled
 
-	if (Game().ui.inventory->show && key != KEY_INVENTORY) {
+	if (Game().ui.screen == Screen::Inventory && key != KEY_INVENTORY) {
 		Game().ui.inventory->KeyPressed(key);
 		return;
 	}
 
 	// The map pauses the game: only M (or Esc, above) closes it.
 	if (key == KEY_MAP || key == KEY_MAP_UPPER) {
-		if (!Game().ui.inventory->show)
-			Game().ui.map.show = !Game().ui.map.show;
+		if (Game().ui.screen != Screen::Inventory)
+			Game().ui.screen = Game().ui.screen == Screen::Map ? Screen::Gameplay : Screen::Map;
 		return;
 	}
-	if (Game().ui.map.show)
+	if (Game().ui.screen == Screen::Map)
 		return;
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
@@ -199,7 +196,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)
-		Game().ui.inventory->show = !Game().ui.inventory->show;
+		Game().ui.screen = Game().ui.screen == Screen::Inventory ? Screen::Gameplay : Screen::Inventory;
 
 	lastKey = key;
 }
@@ -208,10 +205,10 @@ void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
 
-	if (ScreenState::ShouldBlockKeyboardGameplay(Game()) || Game().ui.map.show)
+	if (ScreenState::ShouldBlockKeyboardGameplay(Game()) || Game().ui.screen == Screen::Map)
 		return;
 
-	if (Game().ui.inventory->show && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
+	if (Game().ui.screen == Screen::Inventory && key != SPECIAL_SHIFT_LEFT && key != SPECIAL_SHIFT_RIGHT) {
 		Game().ui.inventory->SpecialKeyPressed(key);
 		return;
 	}
@@ -265,7 +262,7 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
-	if (state && !Game().ui.map.show && ScreenState::IsGameplayInteractionAllowed(Game())) {
+	if (state && Game().ui.screen != Screen::Map && ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapMouseGameplayAction(button));
 	}
 }
@@ -282,7 +279,7 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 
-	if (Game().ui.map.show) {
+	if (Game().ui.screen == Screen::Map) {
 		lastMx = a;
 		lastMy = b;
 		return;

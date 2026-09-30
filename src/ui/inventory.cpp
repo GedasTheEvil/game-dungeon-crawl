@@ -131,7 +131,6 @@ void Inventory::Reset() {
 	selectedSlot = 0;
 	toast.clear();
 	quickDrinkMs.reset();
-	show = false;
 }
 
 Inventory::~Inventory() {}

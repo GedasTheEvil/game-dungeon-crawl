@@ -154,15 +154,15 @@ float playerPos(GameplayAction axisOf) {
 
 const char* screenName() {
 	switch (ScreenState::GetDrawScreen(Game())) {
-	case ScreenState::DrawScreen::Menu:
+	case Screen::Menu:
 		return "menu";
-	case ScreenState::DrawScreen::Inventory:
+	case Screen::Inventory:
 		return "inventory";
-	case ScreenState::DrawScreen::Riddle:
+	case Screen::Riddle:
 		return "riddle";
-	case ScreenState::DrawScreen::Map:
+	case Screen::Map:
 		return "map";
-	case ScreenState::DrawScreen::Gameplay:
+	case Screen::Gameplay:
 		return "gameplay";
 	}
 	return "?";
@@ -212,7 +212,7 @@ float fieldValue(const Command& cmd) {
 	case Field::XpTotal:
 		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:
-		return Game().ui.riddle->show ? 1.f : 0.f;
+		return Game().ui.screen == Screen::Riddle ? 1.f : 0.f;
 	case Field::Bars:
 		return static_cast<float>(Game().dungeon.MonsterBarsShown());
 	case Field::Boss:
@@ -633,7 +633,7 @@ bool loadLevel(const Command& cmd) {
 
 	if (cmd.a > 0.f)
 		Game().curMap = static_cast<int>(cmd.a);
-	Game().ui.menu.show = false;
+	Game().ui.screen = Screen::Gameplay;
 	Game().ui.menu.inGame = true;
 	Game().hasWon = false;
 	Game().player->Reanimate();

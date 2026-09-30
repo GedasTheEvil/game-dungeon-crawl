@@ -48,7 +48,6 @@ class MainMenu {
 	bool loadD;
 	bool optionsD = false;
 	bool creditsD = false;
-	bool show;
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MousePassiveMotion(int x, int y);

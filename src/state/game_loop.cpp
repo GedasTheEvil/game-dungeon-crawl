@@ -45,7 +45,7 @@ void Update() {
 		return;
 	}
 
-	if (ScreenState::GetDrawScreen(Game()) != ScreenState::DrawScreen::Gameplay) {
+	if (ScreenState::GetDrawScreen(Game()) != Screen::Gameplay) {
 		glutPostRedisplay();
 		return;
 	}

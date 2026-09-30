@@ -4,37 +4,16 @@
 #include "../state/game_state.h"
 
 namespace ScreenState {
-enum class DrawScreen : unsigned char {
-	Menu,
-	Inventory,
-	Map,
-	Riddle,
-	Gameplay,
-};
+inline Screen GetDrawScreen(const GameState& c) { return c.ui.screen; }
+inline bool IsOpen(const GameState& c, Screen s) { return c.ui.screen == s; }
 
-inline DrawScreen GetDrawScreen(const GameState& c) {
-	if (c.ui.menu.show)
-		return DrawScreen::Menu;
+inline bool ShouldRouteKeyboardToRiddle(const GameState& c) { return IsOpen(c, Screen::Riddle); }
 
-	if (c.ui.inventory->show)
-		return DrawScreen::Inventory;
+inline bool ShouldBlockKeyboardGameplay(const GameState& c) { return IsOpen(c, Screen::Menu); }
 
-	if (c.ui.riddle->show)
-		return DrawScreen::Riddle;
+inline bool ShouldRouteMouseToMenu(const GameState& c) { return IsOpen(c, Screen::Menu); }
 
-	if (c.ui.map.show)
-		return DrawScreen::Map;
-
-	return DrawScreen::Gameplay;
-}
-
-inline bool ShouldRouteKeyboardToRiddle(const GameState& c) { return c.ui.riddle->show; }
-
-inline bool ShouldBlockKeyboardGameplay(const GameState& c) { return c.ui.menu.show; }
-
-inline bool ShouldRouteMouseToMenu(const GameState& c) { return c.ui.menu.show; }
-
-inline bool ShouldRouteMouseToInventory(const GameState& c) { return c.ui.inventory->show; }
+inline bool ShouldRouteMouseToInventory(const GameState& c) { return IsOpen(c, Screen::Inventory); }
 
 inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.player->Alive() && !c.hasWon; }
 } // namespace ScreenState

@@ -6,7 +6,6 @@
 // keys, gates and levers are drawn in their lock colour. The game is paused while it is open.
 class DraftMap {
   public:
-	bool show = false;
 	void Draw();
 };
 

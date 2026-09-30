@@ -61,7 +61,6 @@ class Inventory {
 	void DrawFooter();
 
   public:
-	bool show; // if true, show inventory
 	Inventory();
 	~Inventory();
 	void Reset(); // a new game: only the club

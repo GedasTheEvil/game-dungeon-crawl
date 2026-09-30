@@ -93,19 +93,19 @@ void Draw() {
 		return;
 
 	switch (ScreenState::GetDrawScreen(Game())) {
-	case ScreenState::DrawScreen::Menu:
+	case Screen::Menu:
 		Game().ui.menu.Draw();
 		return;
-	case ScreenState::DrawScreen::Inventory:
+	case Screen::Inventory:
 		Game().ui.inventory->Draw();
 		return;
-	case ScreenState::DrawScreen::Riddle:
+	case Screen::Riddle:
 		Game().ui.riddle->Draw();
 		return;
-	case ScreenState::DrawScreen::Map:
+	case Screen::Map:
 		Game().ui.map.Draw();
 		return;
-	case ScreenState::DrawScreen::Gameplay:
+	case Screen::Gameplay:
 		break;
 	}
 

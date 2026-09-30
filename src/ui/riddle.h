@@ -36,7 +36,6 @@ class Riddle {
 	void DrawAnswer();
 
   public:
-	bool show = false;
 	Riddle();
 	// Replaces the riddles with the ones from a file, or from every *.txt of a directory. Returns the count.
 	size_t Load(const std::string& path);

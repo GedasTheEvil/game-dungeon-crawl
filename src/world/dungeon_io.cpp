@@ -122,7 +122,7 @@ void Dungeon::Interact() {
 	switch (here.attr) {
 	case GateRiddle:
 		Game().ui.riddle->Ask();
-		Game().ui.riddle->show = true;
+		Game().ui.screen = Screen::Riddle;
 		SetMapBAtPlayer(GateEmpty);
 		break;
 	case GateExit:

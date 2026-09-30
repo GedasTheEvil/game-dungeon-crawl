@@ -9,6 +9,7 @@
 #include "../graphics/font.h"
 #include "../entities/item.h"
 #include "../ui/inventory.h"
+#include "../ui/screen.h"
 #include "../core/sound.h"
 #include "../entities/player_stats.h"
 #include "../core/timer.h"
@@ -41,6 +42,7 @@ struct GameTimers {
 };
 
 struct UIContext {
+	Screen screen = Screen::Menu; // the game starts in the main menu
 	std::unique_ptr<Inventory> inventory;
 	std::unique_ptr<Riddle> riddle;
 	MainMenu menu;

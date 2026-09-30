@@ -238,13 +238,13 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	(void)mouseY;
 
 	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost
-		show = false;
+		Game().ui.screen = Screen::Gameplay;
 		Game().ShowStatus("The riddle stays unanswered");
 	} else if (key == KEY_ENTER) {
 		if (NormalizeAnswer(answer).empty())
 			return;
 		if (CheckAnswer()) {
-			show = false;
+			Game().ui.screen = Screen::Gameplay;
 			int xp = Game().player->stats.RiddleXP();
 			Game().ShowStatus("Riddle answered, got %d XP", xp);
 			Game().player->stats.AddXP(xp);

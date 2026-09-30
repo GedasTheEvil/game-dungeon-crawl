@@ -273,7 +273,6 @@ void saveToSlot(int slot) {
 } // namespace
 
 MainMenu::MainMenu() {
-	show = true;
 	inGame = false;
 	saveD = false;
 	loadD = false;
@@ -575,19 +574,19 @@ void MainMenu::Activate(int target) {
 	if (loadD) {
 		Game().LoadSave(SaveSlots::FileName(target).c_str());
 		ResetSubScreens();
-		show = false;
+		Game().ui.screen = Screen::Gameplay;
 		inGame = true;
 		return;
 	}
 
 	switch (menuButtons(inGame)[static_cast<size_t>(target)].action) {
 	case MenuAction::NewGame:
-		show = false;
+		Game().ui.screen = Screen::Gameplay;
 		Game().NewGame();
 		inGame = true;
 		break;
 	case MenuAction::Resume:
-		show = false;
+		Game().ui.screen = Screen::Gameplay;
 		break;
 	case MenuAction::Save:
 		saveD = true;

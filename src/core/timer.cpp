@@ -1,17 +1,23 @@
 #include "timer.h"
-#include <SDL/SDL_timer.h>
-#include <SDL/SDL.h>
+#include <chrono>
 
 namespace {
 bool gVirtualClock = false;
 int gVirtualMs = 0;
+
+// Real time: ms since the first call (about program start).
+int realMs() {
+	using Clock = std::chrono::steady_clock;
+	static const Clock::time_point START = Clock::now();
+	return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - START).count());
+}
 } // namespace
 
 void GameClock::enableVirtual() { gVirtualClock = true; }
 
 void GameClock::advance(int ms) { gVirtualMs += ms; }
 
-int GameClock::now() { return gVirtualClock ? gVirtualMs : static_cast<int>(SDL_GetTicks()); }
+int GameClock::now() { return gVirtualClock ? gVirtualMs : realMs(); }
 
 Timer::Timer() {
 	time_start = GameClock::now();

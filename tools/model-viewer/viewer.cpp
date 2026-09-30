@@ -5,7 +5,6 @@
 //   <model.md3>  required, path to a .md3 file (see tools/blender/md3.py)
 //   [seconds]    optional, animation loop duration in seconds (default 5.0).
 
-#include <SDL/SDL.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
@@ -22,9 +21,10 @@
 
 #include "../../src/graphics/animated_model.h"
 #include "../../src/graphics/textures.h"
-#include "../../src/graphics/hud.h"
+#include "hud.h"
 #include "../../src/graphics/font.h"
 #include "../../src/core/logger.h"
+#include "../../src/core/timer.h"
 
 namespace {
 
@@ -53,36 +53,36 @@ class LoopedAnimatedModel : public AnimatedModel {
 	}
 };
 
-std::unique_ptr<LoopedAnimatedModel> g_model;
-int g_winWidth = 800;
-int g_winHeight = 600;
-Uint32 g_startTicks = 0;
-double g_durationSeconds = 5.0;
+std::unique_ptr<LoopedAnimatedModel> gModel;
+int gWinWidth = 800;
+int gWinHeight = 600;
+int gStartTicks = 0;
+double gDurationSeconds = 5.0;
 
-float g_yawDeg = 20.0f;	 // matches the current fixed view exactly, so the
-float g_pitchDeg = 0.0f; // initial frame on launch is unchanged
-bool g_dragging = false;
-int g_lastMouseX = 0;
-int g_lastMouseY = 0;
-const float kDragSensitivityDegPerPx = 0.4f; // empirical; tune by feel
-const float kMaxPitchDeg = 89.0f;			 // avoid flipping past vertical
+float gYawDeg = 20.0f;	// matches the current fixed view exactly, so the
+float gPitchDeg = 0.0f; // initial frame on launch is unchanged
+bool gDragging = false;
+int gLastMouseX = 0;
+int gLastMouseY = 0;
+const float DRAG_DEG_PER_PX = 0.4f; // empirical; tune by feel
+const float MAX_PITCH_DEG = 89.0f;	// avoid flipping past vertical
 
 // Stats-panel state (step 6): loaded/computed once in main() after the model
 // finishes loading, since none of these values change after that point.
-Font g_statsFont;
-std::string g_statModelName;
-int g_statFrameCount = 0;
-int g_statPlaySpeed = 0;
-int g_statPolygonCount = 0;
+Font gStatsFont;
+std::string gStatModelName;
+int gStatFrameCount = 0;
+int gStatPlaySpeed = 0;
+int gStatPolygonCount = 0;
 
 // Model-state discovery/switching (step 7): the texture object moves to file
 // scope so ApplyLoadedModel can reuse it across both the initial load and
 // every subsequent [space] switch; the sibling group is scanned once at
 // startup and never rescanned (see architecture.md section 1).
-Texture g_texture;
-std::vector<std::string> g_siblingModelPaths;
-std::size_t g_currentSiblingIndex = 0;
-int g_statAnimationStateCount = 0;
+Texture gTexture;
+std::vector<std::string> gSiblingModelPaths;
+std::size_t gCurrentSiblingIndex = 0;
+int gStatAnimationStateCount = 0;
 
 // Returns the filename with its directory stripped but extension kept,
 // e.g. "models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
@@ -167,24 +167,24 @@ int LoadTextureForModel(const std::string& modelPath, const std::string& texture
 	return 0;
 }
 
-// g_model must already have a successful Load() by the time this runs --
+// gModel must already have a successful Load() by the time this runs --
 // called once from main() for the initial model, and again from
 // KeyPressed() on every [space] cycle. Resets the loop timer and stats;
-// deliberately leaves g_durationSeconds/g_yawDeg/g_pitchDeg untouched.
+// deliberately leaves gDurationSeconds/gYawDeg/gPitchDeg untouched.
 void ApplyLoadedModel(const std::string& path) {
 	std::string textureStem = ParentStem(FileStem(path));
-	int texId = LoadTextureForModel(path, textureStem, g_texture);
+	int texId = LoadTextureForModel(path, textureStem, gTexture);
 
-	g_model->BindTexture(texId);
-	g_model->Centrify();
-	g_model->Compile();
+	gModel->BindTexture(texId);
+	gModel->Centrify();
+	gModel->Compile();
 
-	g_startTicks = SDL_GetTicks();
+	gStartTicks = GameClock::now();
 
-	g_statModelName = Basename(path);
-	g_statFrameCount = g_model->FrameCount();
-	g_statPolygonCount = g_model->TriangleCount();
-	g_statAnimationStateCount = g_siblingModelPaths.empty() ? 0 : static_cast<int>(g_siblingModelPaths.size()) - 1;
+	gStatModelName = Basename(path);
+	gStatFrameCount = gModel->FrameCount();
+	gStatPolygonCount = gModel->TriangleCount();
+	gStatAnimationStateCount = gSiblingModelPaths.empty() ? 0 : static_cast<int>(gSiblingModelPaths.size()) - 1;
 }
 
 void InitGL(int width, int height) {
@@ -203,10 +203,10 @@ void InitGL(int width, int height) {
 }
 
 void Display() {
-	double elapsedSeconds = (SDL_GetTicks() - g_startTicks) / 1000.0;
-	double loopRatio = std::fmod(elapsedSeconds, g_durationSeconds) / g_durationSeconds;
-	if (g_model)
-		g_model->SetProgress(static_cast<float>(loopRatio));
+	double elapsedSeconds = (GameClock::now() - gStartTicks) / 1000.0;
+	double loopRatio = std::fmod(elapsedSeconds, gDurationSeconds) / gDurationSeconds;
+	if (gModel)
+		gModel->SetProgress(static_cast<float>(loopRatio));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -216,7 +216,7 @@ void Display() {
 	// projection matrix to an orthographic one for the HUD bar.
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0, static_cast<double>(g_winWidth) / static_cast<double>(g_winHeight), 0.1, 100.0);
+	gluPerspective(45.0, static_cast<double>(gWinWidth) / static_cast<double>(gWinHeight), 0.1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -226,16 +226,15 @@ void Display() {
 	// it reasonably for any model. A static yaw gives a 3/4 view instead of
 	// a flat front-on silhouette; nothing here animates the model itself.
 	glTranslatef(-0.35f, -0.5f, -2.2f);
-	glRotatef(g_yawDeg, 0.0f, 1.0f, 0.0f);
-	glRotatef(g_pitchDeg, 1.0f, 0.0f, 0.0f);
+	glRotatef(gYawDeg, 0.0f, 1.0f, 0.0f);
+	glRotatef(gPitchDeg, 1.0f, 0.0f, 0.0f);
 
-	if (g_model)
-		g_model->Show();
+	if (gModel)
+		gModel->Show();
 
 	// 2D loop-progress bar overlay, using the same
 	// glOrtho(0, 100, 0, 100, -21, 21) 2D-overlay convention
-	// src/graphics/draw.cpp's Draw() uses for the in-game HUD, drawn via the
-	// same Hud::drawBar the shipped game's health/stamina bars use.
+	// src/graphics/draw.cpp's Draw() uses for the in-game HUD.
 	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
@@ -263,11 +262,11 @@ void Display() {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_SRC_COLOR);
 	glEnable(GL_BLEND);
-	g_statsFont.print(56, 92, "Name: %s", g_statModelName.c_str());
-	g_statsFont.print(56, 83, "Frames: %d", g_statFrameCount);
-	g_statsFont.print(56, 74, "Play Speed: %d s", g_statPlaySpeed);
-	g_statsFont.print(56, 65, "Polygon count: %d", g_statPolygonCount);
-	g_statsFont.print(56, 56, "Animation states: %d", g_statAnimationStateCount);
+	gStatsFont.print(56, 92, "Name: %s", gStatModelName.c_str());
+	gStatsFont.print(56, 83, "Frames: %d", gStatFrameCount);
+	gStatsFont.print(56, 74, "Play Speed: %d s", gStatPlaySpeed);
+	gStatsFont.print(56, 65, "Polygon count: %d", gStatPolygonCount);
+	gStatsFont.print(56, 56, "Animation states: %d", gStatAnimationStateCount);
 	glDisable(GL_BLEND);
 
 	glutSwapBuffers();
@@ -279,34 +278,34 @@ void MouseButton(int button, int state, int x, int y) {
 	if (button != GLUT_LEFT_BUTTON)
 		return;
 	if (state == GLUT_DOWN) {
-		g_dragging = true;
-		g_lastMouseX = x;
-		g_lastMouseY = y;
+		gDragging = true;
+		gLastMouseX = x;
+		gLastMouseY = y;
 	} else if (state == GLUT_UP) {
-		g_dragging = false;
+		gDragging = false;
 	}
 }
 
 void MouseMotion(int x, int y) {
-	if (!g_dragging)
+	if (!gDragging)
 		return;
-	int dx = x - g_lastMouseX;
-	int dy = y - g_lastMouseY;
-	g_lastMouseX = x;
-	g_lastMouseY = y;
+	int dx = x - gLastMouseX;
+	int dy = y - gLastMouseY;
+	gLastMouseX = x;
+	gLastMouseY = y;
 
-	g_yawDeg += dx * kDragSensitivityDegPerPx;
-	g_pitchDeg += dy * kDragSensitivityDegPerPx; // sign: adjust during
-												 // verification if the
-												 // up/down feel is
-												 // inverted -- not a
-												 // hard requirement,
-												 // pick whichever reads
-												 // as natural by eye
-	if (g_pitchDeg > kMaxPitchDeg)
-		g_pitchDeg = kMaxPitchDeg;
-	if (g_pitchDeg < -kMaxPitchDeg)
-		g_pitchDeg = -kMaxPitchDeg;
+	gYawDeg += static_cast<float>(dx) * DRAG_DEG_PER_PX;
+	gPitchDeg += static_cast<float>(dy) * DRAG_DEG_PER_PX; // sign: adjust during
+														   // verification if the
+														   // up/down feel is
+														   // inverted -- not a
+														   // hard requirement,
+														   // pick whichever reads
+														   // as natural by eye
+	if (gPitchDeg > MAX_PITCH_DEG)
+		gPitchDeg = MAX_PITCH_DEG;
+	if (gPitchDeg < -MAX_PITCH_DEG)
+		gPitchDeg = -MAX_PITCH_DEG;
 }
 
 void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
@@ -320,11 +319,11 @@ void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
 	// bar reset the "Animation states: 0" line explicitly promises won't
 	// happen. size() <= 1 is what actually makes a lone-model group a
 	// true no-op.
-	if (key != ' ' || g_siblingModelPaths.size() <= 1)
+	if (key != ' ' || gSiblingModelPaths.size() <= 1)
 		return;
 
-	std::size_t nextIndex = (g_currentSiblingIndex + 1) % g_siblingModelPaths.size();
-	const std::string& nextPath = g_siblingModelPaths[nextIndex];
+	std::size_t nextIndex = (gCurrentSiblingIndex + 1) % gSiblingModelPaths.size();
+	const std::string& nextPath = gSiblingModelPaths[nextIndex];
 
 	auto next = std::make_unique<LoopedAnimatedModel>();
 	if (!next->Load(nextPath.c_str())) {
@@ -332,8 +331,8 @@ void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
 		return; // keep showing the current model; do not disturb state
 	}
 
-	g_model = std::move(next);
-	g_currentSiblingIndex = nextIndex;
+	gModel = std::move(next);
+	gCurrentSiblingIndex = nextIndex;
 	ApplyLoadedModel(nextPath);
 }
 
@@ -341,8 +340,8 @@ void Reshape(int width, int height) {
 	if (height == 0)
 		height = 1;
 
-	g_winWidth = width;
-	g_winHeight = height;
+	gWinWidth = width;
+	gWinHeight = height;
 
 	glViewport(0, 0, width, height);
 
@@ -372,17 +371,10 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-	g_durationSeconds = seconds;
+	gDurationSeconds = seconds;
 
-	if (SDL_Init(SDL_INIT_TIMER) < 0) {
-		std::fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
-		return 1;
-	}
-
-	// AnimatedModel's constructor creates a timer internally, which calls
-	// SDL_GetTicks() -- SDL_Init must have already run before this point.
-	g_model = std::make_unique<LoopedAnimatedModel>();
-	if (!g_model->Load(modelPath.c_str())) {
+	gModel = std::make_unique<LoopedAnimatedModel>();
+	if (!gModel->Load(modelPath.c_str())) {
 		std::fprintf(stderr, "Failed to load model: %s\n", modelPath.c_str());
 		return 1;
 	}
@@ -391,28 +383,28 @@ int main(int argc, char* argv[]) {
 	// never gets as far as opening a window.
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
-	glutInitWindowSize(g_winWidth, g_winHeight);
+	glutInitWindowSize(gWinWidth, gWinHeight);
 	glutInitWindowPosition(50, 50);
 
 	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".md3";
 	glutCreateWindow(title.c_str());
 
-	InitGL(g_winWidth, g_winHeight);
+	InitGL(gWinWidth, gWinHeight);
 
-	g_statsFont.Load("fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
-													  // Impact-font convention
-	g_statPlaySpeed = static_cast<int>(g_durationSeconds);
+	gStatsFont.Load("fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
+													 // Impact-font convention
+	gStatPlaySpeed = static_cast<int>(gDurationSeconds);
 
 	// Sibling-group discovery (step 7): scanned exactly once, from the path
 	// the user actually typed, and never rescanned -- see architecture.md
-	// section 1. g_currentSiblingIndex is found by Basename comparison so it
+	// section 1. gCurrentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
 	// identically (e.g. "./models/monsters/anubis.md3" vs "models/monsters/anubis.md3").
-	g_siblingModelPaths = ScanSiblingModels(modelPath);
-	g_currentSiblingIndex = 0;
-	for (std::size_t i = 0; i < g_siblingModelPaths.size(); ++i) {
-		if (Basename(g_siblingModelPaths[i]) == Basename(modelPath)) {
-			g_currentSiblingIndex = i;
+	gSiblingModelPaths = ScanSiblingModels(modelPath);
+	gCurrentSiblingIndex = 0;
+	for (std::size_t i = 0; i < gSiblingModelPaths.size(); ++i) {
+		if (Basename(gSiblingModelPaths[i]) == Basename(modelPath)) {
+			gCurrentSiblingIndex = i;
 			break;
 		}
 	}

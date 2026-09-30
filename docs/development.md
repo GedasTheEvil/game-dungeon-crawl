@@ -6,8 +6,7 @@
 * GCC
 * OpenGL
 * GLUT
-* SDL
-* SDL Mixer
+* SDL, SDL Mixer (the game's audio; the tools do not need them)
 
 PNG loading uses the bundled single-header [stb_image](https://github.com/nothings/stb) (`external/stb/stb_image.h`), no extra library needed.
 
@@ -15,7 +14,7 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 
 Asset paths are relative to the repo root: run every program from there.
 
-* Game: `make`, then `./Play` (or `./game` from the repo root).
+* `make` builds the game and every tool. Game: `./Play` (or `./game` from the repo root).
 * Level editor: `make editor`, `make run-editor`. Runs from the repo root, see [tools/editor/readme.md](../tools/editor/readme.md).
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="models/monsters/anubis.md3"`.
 * Level tools: `make level-tools`, then `./levelcheck levels/lvl*` (validate, rank by difficulty) and
@@ -29,6 +28,20 @@ Asset paths are relative to the repo root: run every program from there.
 * `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
 * `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), test riddles (`riddles/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
+
+## Libraries
+
+The game and the tools share two static libraries, so every program builds the shared code the same way
+([plan/layered-build.md](plan/layered-build.md)):
+
+| Library | Sources | Rules | Linked by |
+|---|---|---|---|
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign` | no GL | game, editor, levelcheck, levelgen |
+| `build/librender.a` | `core/logger`, `core/timer`, `graphics/textures`, `graphics/font`, `graphics/animated_model`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
+
+Neither library uses SDL or `Game()`, and a library file only includes headers of its own library. `make layers`
+(`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
+`LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile.
 
 ## Assets
 

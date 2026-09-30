@@ -3,42 +3,65 @@ CXX=g++
 RM=rm -f
 CXXFLAGS=-Wall -Wextra -pedantic -Wold-style-cast -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
 TIDY_CPPFLAGS=-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
-LDFLAGS= -lX11  -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib -lSDL_mixer  -lSDL
+# Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
+GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
+SDL_LIBS=-lSDL_mixer -lSDL
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 BUILD=build
 # Third-party implementations (stb), compiled without warnings and outside make tidy.
 EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
-OBJECTS=$(SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
-DEPS=$(OBJECTS:.o=.d)
+
+# Libraries shared by the game and the tools (docs/plan/layered-build.md). tools/check_layers.sh (make layers)
+# keeps them apart: level code has no GL, neither library has SDL or Game(), and each includes only its own headers.
+LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp
+RENDER_LIB_SOURCES=src/core/logger.cpp src/core/timer.cpp src/graphics/textures.cpp src/graphics/font.cpp \
+	src/graphics/animated_model.cpp src/ui/ui_draw.cpp
+LEVEL_LIB=$(BUILD)/liblevel.a
+RENDER_LIB=$(BUILD)/librender.a
+LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
+RENDER_LIB_OBJECTS=$(RENDER_LIB_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
 
 EXECUTABLE=game
+APP_SOURCES=$(filter-out $(LEVEL_LIB_SOURCES) $(RENDER_LIB_SOURCES),$(SOURCES))
+APP_OBJECTS=$(APP_SOURCES:%.cpp=$(BUILD)/%.o)
 
-# Level editor, runs from the repo root. Shares the game's texture, font, UI and level code.
+# Level editor, runs from the repo root. Uses the game's texture, font, UI drawing and level code.
 EDITOR_SOURCES=$(wildcard tools/editor/*.cpp)
-EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS) $(addprefix $(BUILD)/src/, graphics/textures.o graphics/font.o \
-	core/logger.o ui/ui_draw.o world/level.o world/level_check.o)
+EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o)
 EDITOR=$(BUILD)/editor
 
 # MD3 model viewer, runs from the repo root.
-VIEWER_OBJECTS=$(BUILD)/tools/model-viewer/viewer.o $(EXTERNAL_OBJECTS) $(addprefix $(BUILD)/src/, graphics/animated_model.o graphics/textures.o \
-	graphics/hud.o graphics/font.o core/timer.o core/logger.o)
+VIEWER_SOURCES=$(wildcard tools/model-viewer/*.cpp)
+VIEWER_OBJECTS=$(VIEWER_SOURCES:%.cpp=$(BUILD)/%.o)
 VIEWER=$(BUILD)/model-viewer
+
+# Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
+LEVEL_TOOLS=levelcheck levelgen
+LEVEL_TOOL_SOURCES=$(LEVEL_TOOLS:%=tools/level/%.cpp)
+
+TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES)
+DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
 
 CLANG_TIDY?=clang-tidy
 # nproc - 4, at least 1: four cores stay free for the desktop
 TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
 
-# Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
-LEVEL_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp
-LEVEL_TOOLS=levelcheck levelgen
+.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test level-tools
 
-.PHONY: all clean format tidy editor run-editor model-viewer run-model-viewer test level-tools
+# The game and every tool, so a change to shared code cannot break a tool unseen.
+all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS)
 
-all: $(EXECUTABLE)
+$(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB)
+	$(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
+$(LEVEL_LIB): $(LEVEL_LIB_OBJECTS)
+	$(RM) $@
+	$(AR) rcs $@ $^
+
+$(RENDER_LIB): $(RENDER_LIB_OBJECTS)
+	$(RM) $@
+	$(AR) rcs $@ $^
 
 $(BUILD)/%.o: %.cpp
 	@mkdir -p $(@D)
@@ -50,40 +73,41 @@ $(BUILD)/external/%.o: external/%.cpp
 
 level-tools: $(LEVEL_TOOLS)
 
-levelcheck: tools/level/levelcheck.cpp $(LEVEL_SOURCES) src/world/level.h src/world/level_check.h
-	$(CXX) -std=c++17 -Wall -Wextra -pedantic -Wold-style-cast -O2 tools/level/levelcheck.cpp $(LEVEL_SOURCES) -o $@
-
-levelgen: tools/level/levelgen.cpp $(LEVEL_SOURCES) src/world/level.h src/world/level_check.h src/world/level_gen.h
-	$(CXX) -std=c++17 -Wall -Wextra -pedantic -Wold-style-cast -O2 tools/level/levelgen.cpp $(LEVEL_SOURCES) -o $@
+$(LEVEL_TOOLS): %: $(BUILD)/tools/level/%.o $(LEVEL_LIB)
+	$(CXX) $^ -o $@
 
 clean:
 	rm -rf $(BUILD) $(EXECUTABLE) $(LEVEL_TOOLS)
 
 format:
-	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp tools/model-viewer/*.cpp
+	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp tools/model-viewer/*.h \
+		tools/model-viewer/*.cpp
+
+layers:
+	./tools/check_layers.sh level $(LEVEL_LIB_SOURCES) -- render $(RENDER_LIB_SOURCES)
 
 tidy-fix:
-	$(CLANG_TIDY) $(SOURCES) $(EDITOR_SOURCES) --fix -- $(TIDY_CPPFLAGS)
+	$(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS)
 
 # One clang-tidy per file, TIDY_JOBS at a time (a header's warnings show once per file that includes it), without
 # clang's "N warnings generated." lines (they count the warnings filtered out, e.g. in system headers).
 # tidy-fix stays one process, so a fix in a shared header is applied once.
-tidy:
-	printf '%s\n' $(SOURCES) $(EDITOR_SOURCES) | xargs -P $(TIDY_JOBS) -I{} $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 \
+tidy: layers
+	printf '%s\n' $(TIDY_SOURCES) | xargs -P $(TIDY_JOBS) -I{} $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 \
 		| sed '/^[0-9]* warnings\? generated\.$$/d'
 
 editor: $(EDITOR)
 
-$(EDITOR): $(EDITOR_OBJECTS)
-	$(CXX) $(EDITOR_OBJECTS) -o $@ $(LDFLAGS)
+$(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB)
+	$(CXX) $^ -o $@ $(GL_LIBS)
 
 run-editor: $(EDITOR)
 	./$(EDITOR)
 
 model-viewer: $(VIEWER)
 
-$(VIEWER): $(VIEWER_OBJECTS)
-	$(CXX) $(VIEWER_OBJECTS) -o $@ $(LDFLAGS)
+$(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB)
+	$(CXX) $^ -o $@ $(GL_LIBS)
 
 run-model-viewer: $(VIEWER)
 	./$(VIEWER) $(ARGS)
@@ -92,4 +116,4 @@ run-model-viewer: $(VIEWER)
 test: $(EXECUTABLE)
 	./tools/run_scenarios.sh $(SCENARIO)
 
--include $(DEPS) $(EDITOR_OBJECTS:.o=.d) $(VIEWER_OBJECTS:.o=.d)
+-include $(DEPS)

@@ -29,3 +29,4 @@ These commands do need confirmation to run
 ## Plans
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.
+Once a draft plan is implemented, rename it without the "draft" part ("<idea-slug>.md") and update links to it.

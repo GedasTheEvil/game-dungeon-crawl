@@ -4,6 +4,7 @@
 // Level data without rendering: tile types, the cell grid and the file format.
 // Shared by the game (Dungeon) and the command line tools (levelcheck, levelgen), so no GL here.
 
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 
@@ -83,8 +84,21 @@ struct Tile {
 	int value; // value: meaning depends on the type (gate state, ...)
 };
 
-// Blocks the player (walls and closed gates). Everything else is open space.
-inline bool isSolidTile(const Tile& t) { return t.type == Wall || (t.type == Gate && t.value != 1); }
+// A Gate's and a RockFall's value: their state, as stored in level files and save games.
+enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
+enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
+[[nodiscard]] inline GateState gateState(const Tile& t) { return static_cast<GateState>(t.value); }
+[[nodiscard]] inline RockState rockState(const Tile& t) { return static_cast<RockState>(t.value); }
+inline void setGateState(Tile& t, GateState s) { t.value = static_cast<int>(s); }
+inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); }
+// A Lever's value: 0 up, 1 pulled.
+[[nodiscard]] inline bool leverPulled(const Tile& t) { return t.value != 0; }
+inline void pullLever(Tile& t) { t.value = 1; }
+// A teleporter's value: its pair id.
+[[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
+
+// Blocks the player (walls and gates not fully open). Everything else is open space.
+inline bool isSolidTile(const Tile& t) { return t.type == Wall || (t.type == Gate && gateState(t) != GateState::Open); }
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
 struct LevelGrid {

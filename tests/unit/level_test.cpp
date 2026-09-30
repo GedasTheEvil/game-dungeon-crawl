@@ -54,3 +54,19 @@ TEST_CASE("out of bounds reads as wall") {
 	CHECK(grid.at(LEVEL_WIDTH, 0).type == Wall);
 	CHECK(grid.at(0, LEVEL_HEIGHT).type == Wall);
 }
+
+TEST_CASE("tile states keep their numbers on disk") {
+	CHECK(gateState({Gate, 1, 0}) == GateState::Closed);
+	CHECK(gateState({Gate, 1, 1}) == GateState::Open);
+	CHECK(gateState({Gate, 1, 2}) == GateState::Opening);
+	CHECK(rockState({RockFall, 0, 1}) == RockState::Fallen);
+	CHECK(rockState({RockFall, 0, 2}) == RockState::Falling);
+	Tile gate{Gate, 1, 0};
+	setGateState(gate, GateState::Opening);
+	CHECK(gate.value == 2);
+	Tile lever{Lever, 1, 0};
+	CHECK_FALSE(leverPulled(lever));
+	pullLever(lever);
+	CHECK(lever.value == 1);
+	CHECK(teleportPair({Door, GateTeleport, 7}) == 7);
+}

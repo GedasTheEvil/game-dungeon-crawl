@@ -43,7 +43,8 @@ class PathScript {
 			float target = static_cast<float>(cur.col) + GRIP;
 			switch (r.pathMoves[i]) {
 			case PathMove::Walk:
-				if (grid.at(cur.col, cur.row).type == Gate && grid.at(cur.col, cur.row).value == 0) {
+				if (grid.at(cur.col, cur.row).type == Gate &&
+					gateState(grid.at(cur.col, cur.row)) == GateState::Closed) {
 					float dir = target > x ? 1.f : -1.f;
 					walkTo(static_cast<float>(cur.col) + (dir > 0 ? -GATE_STOP : 1.f + GATE_STOP));
 					line("wait 1400ms");

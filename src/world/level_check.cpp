@@ -42,7 +42,7 @@ class Walker {
 
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
-		if (t.type == Gate && t.value != 1)
+		if (t.type == Gate && gateState(t) != GateState::Open)
 			return (mask & bitOf(t.attr)) == 0;
 		return isSolidTile(t);
 	}
@@ -81,7 +81,7 @@ class Walker {
 			return COST_SPIKE;
 		if (t.type == Death)
 			return COST_DEATH;
-		if (t.type == RockFall && t.value == 0)
+		if (t.type == RockFall && rockState(t) == RockState::Armed)
 			return COST_ROCK_FALL;
 		if (t.type == MonsterSpawn)
 			return COST_MONSTER;
@@ -245,7 +245,7 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 			keyMask |= bitOf(t.attr);
 		if (t.type == Lever)
 			leverMask |= bitOf(t.attr);
-		if (t.type == Gate && t.value != 1)
+		if (t.type == Gate && gateState(t) != GateState::Open)
 			gateMask |= bitOf(t.attr);
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
@@ -290,7 +290,7 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 	std::map<int, std::vector<int>> pairs;
 	for (int cell = 0; cell < CELLS; cell++)
 		if (isTeleporter(grid.cells[cell]))
-			pairs[grid.cells[cell].value].push_back(cell);
+			pairs[teleportPair(grid.cells[cell])].push_back(cell);
 	for (const auto& [id, cells] : pairs)
 		if (cells.size() != 2)
 			r.warnings.push_back(std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) +
@@ -478,8 +478,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		}
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
-		r.pathRockFalls += t.type == RockFall && t.value == 0 ? 1 : 0;
-		if (t.type == Gate && t.value != 1) {
+		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
+		if (t.type == Gate && gateState(t) != GateState::Open) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);
 		}

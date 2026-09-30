@@ -189,9 +189,10 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 	}
 	case Gate: {
 		Color c = lockPencil(t.attr);
-		float bottom = t.value == 1 ? 0.75f : 0.f; // an open gate hangs up in the ceiling
+		bool open = gateState(t) == GateState::Open;
+		float bottom = open ? 0.75f : 0.f; // an open gate hangs up in the ceiling
 		sk.pencil(x + 0.15f, y + 0.95f, x + 0.85f, y + 0.95f, c, 0.95f, seed);
-		if (t.value != 1)
+		if (!open)
 			sk.pencil(x + 0.15f, y + 0.05f, x + 0.85f, y + 0.05f, c, 0.95f, seed + 1);
 		for (int k = 0; k < 3; k++) {
 			float u = x + 0.3f + 0.2f * static_cast<float>(k);
@@ -201,14 +202,14 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 	}
 	case Lever: {
 		Color c = lockPencil(t.attr);
-		float tipX = t.value == 1 ? 0.25f : 0.75f;
+		float tipX = leverPulled(t) ? 0.25f : 0.75f;
 		sk.pencil(x + 0.25f, y + 0.08f, x + 0.75f, y + 0.08f, c, 0.95f, seed);
 		sk.pencil(x + 0.5f, y + 0.08f, x + tipX, y + 0.55f, c, 0.95f, seed + 1);
 		sk.loop(x + tipX, y + 0.6f, 0.07f, 0.07f, 5, c, 0.95f, seed + 2);
 		break;
 	}
 	case RockFall:
-		if (t.value == 1) { // fallen: a boulder on the floor
+		if (rockState(t) == RockState::Fallen) { // a boulder on the floor
 			sk.loop(x + 0.5f, y + 0.25f, 0.28f, 0.2f, 7, GRAPHITE, 0.9f, seed);
 		} else { // loose ceiling: a crack
 			sk.pencil(x + 0.15f, y + 0.95f, x + 0.35f, y + 0.78f, GRAPHITE, 0.9f, seed);

@@ -3,7 +3,7 @@
 
 int teleportPartner(const Tile* cells, int index) {
 	for (int i = 0; i < LEVEL_WIDTH * LEVEL_HEIGHT; i++)
-		if (i != index && isTeleporter(cells[i]) && cells[i].value == cells[index].value)
+		if (i != index && isTeleporter(cells[i]) && teleportPair(cells[i]) == teleportPair(cells[index]))
 			return i;
 	return -1;
 }

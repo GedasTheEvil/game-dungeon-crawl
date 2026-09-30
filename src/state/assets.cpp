@@ -126,7 +126,7 @@ struct ItemDef {
 // thrust, hit / swing / attack ms. The club is slow and heavy, the sword quick, the spear thrusts.
 const ItemDef ITEM_DEFS[] = {
 	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}},
-	{&ItemPrototypes::club, "Club", "club", 6, 9, 3, {0.12f, 35, -40, 115, 0, 300, 560, 900}, "club_swing", "club_hit"},
+	{&ItemPrototypes::club, "Club", "club", 6, 9, 4, {0.12f, 35, -40, 115, 0, 300, 560, 900}, "club_swing", "club_hit"},
 	{&ItemPrototypes::sword,
 	 "Sword",
 	 "sword",

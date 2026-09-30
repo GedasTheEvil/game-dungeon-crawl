@@ -40,17 +40,22 @@ VIEWER=$(BUILD)/model-viewer
 LEVEL_TOOLS=levelcheck levelgen
 LEVEL_TOOL_SOURCES=$(LEVEL_TOOLS:%=tools/level/%.cpp)
 
+# Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
+UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
+UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o)
+UNIT=$(BUILD)/unit
+
 TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES)
-DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
+DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES) $(UNIT_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
 
 CLANG_TIDY?=clang-tidy
 # nproc - 4, at least 1: four cores stay free for the desktop
 TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
 
-.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test level-tools
+.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
-all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS)
+all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB)
 	$(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
@@ -67,6 +72,11 @@ $(BUILD)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# The doctest runner: doctest's own code, without our warnings.
+$(BUILD)/tests/unit/main.o: tests/unit/main.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -w -c $< -o $@
+
 $(BUILD)/external/%.o: external/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -w -c $< -o $@
@@ -81,7 +91,7 @@ clean:
 
 format:
 	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp tools/model-viewer/*.h \
-		tools/model-viewer/*.cpp
+		tools/model-viewer/*.cpp tests/unit/*.cpp
 
 layers:
 	./tools/check_layers.sh level $(LEVEL_LIB_SOURCES) -- render $(RENDER_LIB_SOURCES)
@@ -112,8 +122,15 @@ $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB)
 run-model-viewer: $(VIEWER)
 	./$(VIEWER) $(ARGS)
 
-# Scenario tests: `make test` runs tests/scenarios/*.txt, `make test SCENARIO=path` runs one. HEADLESS=0 shows the window.
-test: $(EXECUTABLE)
+$(UNIT): $(UNIT_OBJECTS) $(LEVEL_LIB)
+	$(CXX) $^ -o $@
+
+unit: $(UNIT)
+	./$(UNIT)
+
+# `make test`: the unit tests, then tests/scenarios/*.txt; `make test SCENARIO=path` runs one scenario.
+# HEADLESS=0 shows the window.
+test: $(EXECUTABLE) unit
 	./tools/run_scenarios.sh $(SCENARIO)
 
 -include $(DEPS)

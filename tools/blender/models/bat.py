@@ -2,7 +2,7 @@
 
     MCP:  p = ".../tools/blender/models/bat.py"; g = {"__file__": p, "__name__": "bat"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/bat.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/bat.py -- [--export] [--boss-texture]
 
 Blender space: Z up, the bat faces +Y (game uses rotA = 180), its right wing is +X. Rest pose = wings spread flat.
 Every bone is posed by a deformation matrix D (armature space, D = pose @ rest^-1) built by FK about the rest
@@ -11,7 +11,8 @@ body -> tail. The wing membranes are double-sided grids between the finger bones
 with blended weights so they stretch and crumple when the wing folds.
 Clips: bat_fly (move, the normalization reference), bat_attack, bat_die (lowest vertex every frame on the level of
 fly frame 0's lowest point = the engine's floor, computed with a numpy copy of the skinning) and bat_idle (hanging upside down by the feet, feet fixed).
-Two textures share one UV layout: bat.png (brown-grey) and bat_giant.png (near-black, red-brown, mangy, red eyes).
+Three textures share one UV layout: bat.png (brown-grey), bat_giant.png (near-black, red-brown, mangy, red eyes)
+and bat_vampire.png (the boss: blue-black, blood-red veins, crimson eyes; bake it alone with --boss-texture).
 Set BAT_TEX=giant to show the giant texture on the built object (review renders with --bake).
 """
 
@@ -68,6 +69,24 @@ COL_GIANT = dict(COL, **{
     "eye": (0.60, 0.03, 0.015),
     "tooth": (0.78, 0.70, 0.52),
     "scar": (0.26, 0.12, 0.10),
+})
+# The vampire bat (a boss): sleek blue-black fur over a wine-dark belly, wings of dark leather with blood-red
+# veins, crimson eyes, ivory fangs in a red maw.
+COL_VAMPIRE = dict(COL, **{
+    "fur_belly": (0.16, 0.02, 0.035),
+    "fur_flank": (0.05, 0.02, 0.05),
+    "fur_back": (0.025, 0.015, 0.035),
+    "fur_dark": (0.008, 0.006, 0.012),
+    "membrane": (0.07, 0.012, 0.02),
+    "membrane_vein": (0.45, 0.02, 0.03),
+    "bone": (0.06, 0.025, 0.04),
+    "skin": (0.24, 0.05, 0.07),
+    "ear_in": (0.40, 0.06, 0.09),
+    "nose": (0.22, 0.04, 0.06),
+    "eye": (0.95, 0.04, 0.02),
+    "tooth": (0.93, 0.89, 0.76),
+    "mouth": (0.62, 0.03, 0.04),
+    "claw": (0.02, 0.015, 0.02),
 })
 
 UP, FWD = V((0, 0, 1)), V((0, 1, 0))
@@ -751,7 +770,11 @@ def export(models_dir=None):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     tex_dir = os.path.join(REPO, "textures", "monsters")
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_VAMPIRE)
+        common.bake_texture(obj, os.path.join(tex_dir, "bat_vampire.png"), TEX_SIZE, "bat_vampire", ao_distance=0.06)
+    elif "--export" in args:
         build(tex_path=os.path.join(tex_dir, "bat.png"), giant_path=os.path.join(tex_dir, "bat_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "bat.blend"))

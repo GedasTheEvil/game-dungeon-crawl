@@ -38,9 +38,14 @@ void Monster::Attack(float py) {
 	enter(ModelState::Attack);
 	if (sameRow(py)) {
 		alerted = true;
-		Game().player->TakeHit(type->damage);
-		type->model.attackSound.Play();
+		bite();
 	}
+}
+
+void Monster::bite() {
+	const int lost = Game().player->TakeHit(type->damage);
+	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);
+	type->model.attackSound.Play();
 }
 
 bool Monster::Lurk(float px, float py) {
@@ -65,12 +70,14 @@ float Monster::flightProbeX() const {
 	return CentreX() + static_cast<float>(dir) * BAT_WALL_MARGIN;
 }
 
+float Monster::roostLift() const { return BAT_CEILING - type->model.idleTop * type->scale; }
+
 void Monster::Fly(bool wallAhead, float px, float py) {
 	const float scale = type->scale;
 	const int now = GameClock::now();
 	const float dt = flight.lastMs < 0 ? 0.f : static_cast<float>(std::min(now - flight.lastMs, 100)) / 1000.f;
 	flight.lastMs = now;
-	const float roost = BAT_CEILING - type->model.idleTop * scale;
+	const float roost = roostLift();
 	if (flight.lift < 0)
 		flight.lift = roost;
 
@@ -81,12 +88,18 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 	}
 
 	const float dx = px - CentreX(); // to the player
-	const bool sees = sameRow(py) && std::fabs(dx) <= BAT_SIGHT;
+	// A boss's minion, and a boss once it is roused, hunt the player along the whole row.
+	const bool hunts = minion || (alerted && type->isBoss());
+	const bool sees = sameRow(py) && (hunts || std::fabs(dx) <= BAT_SIGHT);
 	const float step = BAT_TILES_PER_SPEED * static_cast<float>(type->speed) * dt;
 	float targetLift = roost;
 
 	switch (flight.phase) {
 	case FlightPhase::Roost:
+		if (!sees && flight.lift < roost - 1.f) { // dropped from the ceiling, no one to hunt: back up
+			enter(ModelState::Move);
+			break;
+		}
 		if (!sees) {
 			enter(ModelState::Idle);
 			return;
@@ -101,10 +114,8 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
-			if (sameRow(py)) {
-				Game().player->TakeHit(type->damage);
-				type->model.attackSound.Play();
-			}
+			if (sameRow(py))
+				bite();
 		}
 		if (wallAhead || ahead < -BAT_OVERSHOOT) {
 			flight.dir = -flight.dir;

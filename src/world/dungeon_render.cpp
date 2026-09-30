@@ -272,6 +272,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 
 	drawFires();
 	drawMechanismEffects();
+	drawSummonEffects();
 	glPopMatrix();
 }
 //======================================================================================
@@ -280,7 +281,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 void Dungeon::drawHitboxes(const HitboxView& weapon) {
 	const auto firstCol = static_cast<float>(view().firstCol());
 	const auto firstRow = static_cast<float>(view().originRow);
-	constexpr float DEPTH = -20.f; // the monsters' and the player's
+	constexpr float DEPTH = RenderConfig::MONSTER_DEPTH;
 	auto box = [&](float left, float right, float bottom, float top) {
 		glBegin(GL_LINE_LOOP);
 		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);

@@ -1,0 +1,39 @@
+# Vampire bat boss (tests/levels/vampire): the teleporter leads to the sealed roost. The vampire bat appears with 2
+# bats that drop from the ceiling in a shower of grit, and summons more (at most 4 alive). Its bites heal it by 30%
+# of the HP the player loses. Its death opens the boss gate (gold key behind it).
+seed 1
+level tests/levels/vampire
+xp 70000
+wait 30
+walk right 3.5
+interact
+wait 5
+expect y > 3
+wait 10
+expect boss == 400
+expect minions == 2
+screenshot bats_dropping
+wait 500ms
+screenshot bats_roosting
+
+# wounded, it drinks the player's blood back to health
+hurtboss 100
+expect boss == 300
+walk right 5
+wait 4s
+screenshot swooping
+expect hp < 326
+expect boss > 300
+wait 4s
+expect minions >= 3
+screenshot summoned
+
+god
+killboss
+wait 5
+expect boss == 0
+wait 2s
+walk right 11
+wait 1s
+expect keys == 8
+screenshot gold_key

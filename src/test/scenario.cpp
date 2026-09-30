@@ -65,6 +65,7 @@ enum class CommandType : unsigned char {
 	Release,
 	Click,
 	KillBoss,
+	HurtBoss,
 	Quit,
 };
 
@@ -506,6 +507,12 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.type = CommandType::KillBoss;
 		return needArgs(0);
 	}
+	if (name == "hurtboss") {
+		cmd.type = CommandType::HurtBoss;
+		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 1)
+			return "usage: hurtboss <hp>";
+		return "";
+	}
 	if (name == "expect") {
 		cmd.type = CommandType::Expect;
 		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
@@ -729,7 +736,11 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::KillBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.SlayBoss();
+		Game().dungeon.HurtBoss(Game().dungeon.BossHealth());
+		return true;
+	case CommandType::HurtBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
 		return true;
 	case CommandType::Expect: {
 		float actual = fieldValue(cmd);

@@ -21,6 +21,11 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Threat: a little weaker than an Anubis, plus its scarabs.
 	{MonsterBossScarab, "boss scarab",
 	 "Boss scarab, summons scarabs; its death opens the boss gates. One boss per level", 'K', 10.f, true},
+	// Threat: a giant bat that hits like a boss and heals, plus its bats.
+	{MonsterVampireBat, "vampire bat",
+	 "Vampire bat, summons bats and heals by part of the damage it deals; its death opens the boss gates. One boss per "
+	 "level",
+	 'V', 12.f, true},
 }};
 } // namespace
 

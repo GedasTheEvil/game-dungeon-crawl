@@ -102,12 +102,15 @@ void Player::Draw() {
 	glPopMatrix();
 }
 
-void Player::TakeHit(int dmg, bool ignoreArmor) {
+int Player::TakeHit(int dmg, bool ignoreArmor) {
 	if (Scenario::godMode())
-		return;
+		return 0;
 	const int s = static_cast<int>(scale);
+	int lost = 0;
 	if (Alive()) {
-		stats.LoseHP(stats.HitDamage(dmg, ignoreArmor));
+		const int hit = stats.HitDamage(dmg, ignoreArmor);
+		lost = std::min(hit, stats.CurrentHP());
+		stats.LoseHP(hit);
 		blood.Splash(s);
 	}
 
@@ -119,6 +122,7 @@ void Player::TakeHit(int dmg, bool ignoreArmor) {
 		for (int i = 0; i < 6; i++)
 			blood.Explode();
 	}
+	return lost;
 }
 
 void Player::Reanimate() {

@@ -1,6 +1,7 @@
 # Bosses and boss rooms
 
-Status: refined, ready to plan. Start with the boss scarab in lvl5 (see [Order of work](#order-of-work)).
+Status: steps 1-3 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10), not yet verified in
+play; step 4 (Anubis) waits for the mummy. See [Order of work](#order-of-work).
 
 ## Boss room and teleporter
 
@@ -124,8 +125,21 @@ Format:
    14.3, 15.5, 19.5 into lvl6 at 21 (6.8, 11.3, 14.3, 15.7, 19.7 into 21.2 since the checker jumps traps,
    [movement-model.md](solved/movement-model.md)). The old lvl1 / lvl2 are test fixtures (`tests/levels/classic1`, `classic2`).
    Boss scarab: 320 HP, 40 damage (a full clear of levels 1-4 gives level 8, 134 HP), checker threat 10.
-   Not yet: the dig-out summon effect (minions just appear).
-3. Vampire bat in lvl10 (giant bat model, scaled up, darker texture; life steal).
+   **Done:** the summon effects (`Summon` in `BossRules`, `Monster::Emerging` / `emergeLift`,
+   `Dungeon::drawSummonEffects`, `Grit::burst` in `fire.cpp`, sounds `summon_dig.wav` / `summon_drop.wav` in
+   `tools/audio/mechanism_sounds.py`): a scarab rises out of the floor in a spray of sand over 0.7 s, then acts.
+   Test `tests/scenarios/summon_effects.txt`.
+3. Vampire bat in lvl10 (giant bat model, scaled up, darker texture; life steal). **Done:** `MonsterVampireBat` (12,
+   ASCII `V`), 400 HP, 80 damage, scale 42 (giant bat 30), 12000 XP, threat 12; bats 2-4 alive, every 2 s, cap 8,
+   heals 30% of the HP its bites take (`Monster::bite`, `Player::TakeHit` returns the HP lost). `bat_vampire.png`
+   (`bat.py --boss-texture`). Its bats drop out of the ceiling to swoop height (a roosting bat hangs behind the
+   ceiling's front edge, out of sight) in a trickle of grit. Minions, and a boss once roused, hunt the player along
+   the whole row (normal bats only see 1.75 tiles); a flyer with no one to hunt climbs back to the ceiling. lvl10:
+   the teleporter replaces the gold key at the east end of the upper hall, the roost is a new sealed row at the top
+   with the gold key and two chests behind the boss gate; two giant rats removed to keep the curve (30.8, 47.3,
+   48.5). Tests `tests/scenarios/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
+   The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
+   4 bats. Tune in play.
 4. Anubis boss in lvl15 once the mummy monster exists.
 
 ## Open questions

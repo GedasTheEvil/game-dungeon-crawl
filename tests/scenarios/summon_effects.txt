@@ -1,0 +1,43 @@
+# The summon effects: the boss scarab's scarabs dig out of the floor in a spray of sand, the vampire bat's bats drop
+# from the ceiling in a shower of grit (tests/levels/summon_dig, summon_drop).
+seed 1
+god
+level tests/levels/summon_dig
+wait 30
+walk right 3.5
+interact
+wait 120ms
+screenshot dig1
+wait 120ms
+screenshot dig2
+wait 120ms
+screenshot dig3
+wait 120ms
+screenshot dig4
+wait 120ms
+screenshot dig5
+wait 120ms
+screenshot dig6
+expect minions >= 3
+level tests/levels/summon_drop
+wait 30
+walk right 3.5
+interact
+wait 1500ms
+wait 120ms
+screenshot drop1
+wait 120ms
+screenshot drop2
+wait 120ms
+screenshot drop3
+wait 120ms
+screenshot drop4
+wait 120ms
+screenshot drop5
+wait 120ms
+screenshot drop6
+wait 120ms
+screenshot drop7
+wait 120ms
+screenshot drop8
+expect minions >= 2

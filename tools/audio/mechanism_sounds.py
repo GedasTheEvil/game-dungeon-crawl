@@ -5,7 +5,8 @@
 Writes monsters/rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
 rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
 mechanisms/key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
-lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris), teleport.wav (rising plasma swell + shimmer).
+lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris), teleport.wav (rising plasma swell + shimmer),
+monsters/summon_dig.wav (a boss's minion digs out of the sand), summon_drop.wav (a minion drops from the ceiling).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -214,6 +215,38 @@ def teleport():
     return normalize(out, -4)
 
 
+def summon_dig():
+    # A boss's minion digs out of the floor (Summon::DigOut, 0.7 s): sand hisses and scrabbles harder, then the
+    # grains patter back down.
+    dur = 1.0
+    t = t_axis(dur)
+    swell = np.clip(t / 0.6, 0, 1) ** 1.5 * np.clip((0.8 - t) / 0.2, 0, 1)
+    hiss = band(rng.standard_normal(len(t)), 1500, 6500) * swell * 0.5
+    rumble = lowpass(rng.standard_normal(len(t)), 140, 4) * swell * 3
+    out = hiss + rumble
+    place(out, claws(14, 0.6), 0.05, 0.8)
+    tt = 0.65
+    while tt < 0.95:
+        grain = band(rng.standard_normal(int(0.02 * SR)), 2500, 7000) * env_ad(t_axis(0.02), 0.0005, 0.004)
+        place(out, grain, tt, rng.uniform(0.1, 0.35) * (1 - tt))
+        tt += rng.exponential(0.018)
+    return normalize(out, -5)
+
+
+def summon_drop():
+    # A boss's minion drops from the ceiling (Summon::Drop, 0.7 s): grit trickles, wings snap open, a squeak.
+    dur = 0.9
+    t = t_axis(dur)
+    grit = band(rng.standard_normal(len(t)), 2200, 7500) * (rng.random(len(t)) > 0.97) * 3
+    out = grit * 0.4 * np.clip((0.6 - t) / 0.6, 0, 1)
+    for k in range(3):
+        ft = t_axis(0.12)
+        flap = band(rng.standard_normal(len(ft)), 250, 1400) * np.sin(np.pi * ft / 0.12) ** 2
+        place(out, flap, 0.3 + k * 0.11, 0.7 - 0.15 * k)
+    place(out, squeak(4200, 0.08, 60), 0.62, 0.35)
+    return normalize(out, -6)
+
+
 # Paths under sounds/.
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
@@ -221,6 +254,7 @@ SOUNDS = {
     "mechanisms/rock_rumble": rock_rumble, "mechanisms/rock_crash": rock_crash,
     "monsters/rat_jump": rat_jump,  # after the older sounds: their fixed rng stream stays the same
     "mechanisms/teleport": teleport,
+    "monsters/summon_dig": summon_dig, "monsters/summon_drop": summon_drop,
 }
 
 

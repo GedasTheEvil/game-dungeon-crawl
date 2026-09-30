@@ -1,0 +1,8 @@
+; Vampire bat boss (tests/scenarios/vampire.txt): the hall (row 2) has the entrance, a teleporter and the gold gate
+; before the exit. The sealed roost (row 4) is only reached by the teleporter: the vampire bat, the boss gate, behind
+; it the gold key and two chests.
+########################################
+#O.......V.....Z.y$$####################
+########################################
+#S..O....Y..E###########################
+########################################

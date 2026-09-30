@@ -3,6 +3,8 @@
 #include "dungeon.h"
 #include "../state/game_state.h"
 #include "../core/gameplay_config.h"
+#include "../graphics/fire.h"
+#include "../graphics/render_config.h"
 #include <algorithm>
 #include <cmath>
 
@@ -15,9 +17,9 @@ const Monster* Dungeon::Boss() const {
 //======================================================================================
 int Dungeon::BossHealth() const { return bossFight.slot >= 0 ? monsters[bossFight.slot].Health() : 0; }
 //======================================================================================
-void Dungeon::SlayBoss() {
+void Dungeon::HurtBoss(int dmg) {
 	if (bossFight.slot >= 0)
-		monsters[bossFight.slot].takeHit(monsters[bossFight.slot].Health());
+		monsters[bossFight.slot].takeHit(dmg);
 }
 //======================================================================================
 int Dungeon::LivingMinions() const {
@@ -72,6 +74,21 @@ void Dungeon::updateBoss() {
 		bossFight.summoned++;
 }
 //======================================================================================
+// Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.
+// Same window and frame as drawMechanismEffects.
+void Dungeon::drawSummonEffects() {
+	const int now = GameClock::now();
+	for (const Monster& mon : monsters) {
+		const int age = now - mon.SummonedMs();
+		if (!mon.Active() || mon.SummonedMs() < 0 || age >= Grit::BURST_MS)
+			continue;
+		const float x = (mon.CentreX() - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
+		const bool drop = mon.SummonedBy() == Summon::Drop;
+		const float y = static_cast<float>(mon.Row() - view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
+		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));
+	}
+}
+//======================================================================================
 // Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can
 // stand in with no monster in it yet, else the boss's own cell.
 bool Dungeon::summonMinion(const Monster& boss) {
@@ -100,6 +117,8 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	if (slot == nullptr)
 		return false;
 	slot->Spawn(kind, col, row);
-	slot->MakeMinion();
+	const Summon how = boss.Type()->boss.summon;
+	slot->MakeMinion(how);
+	(how == Summon::Drop ? Game().assets.sounds.summonDrop : Game().assets.sounds.summonDig).Play();
 	return true;
 }

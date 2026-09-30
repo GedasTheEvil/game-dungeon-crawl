@@ -30,6 +30,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	x = 0.f;
 	alerted = false;
 	minion = false;
+	summonMs = -1;
 	state = flies() || type->locomotion == Locomotion::Ambush ? ModelState::Idle : ModelState::Move;
 	facing = 0;
 	flight = Flight{};
@@ -48,6 +49,31 @@ void Monster::Clear() {
 	col = -1;
 	row = -1;
 	health = 0;
+}
+
+void Monster::MakeMinion(Summon how) {
+	minion = true;
+	alerted = true;
+	summonMs = GameClock::now();
+	summonedBy = how;
+	if (flies() && how == Summon::Drop) { // falls out of the ceiling to where bats turn, flapping (emergeLift)
+		flight.lift = BAT_HIGH_LIFT;
+		enter(ModelState::Move);
+	} else if (flies())
+		flight.lift = roostLift();
+}
+
+bool Monster::Emerging() const { return summonMs >= 0 && GameClock::now() - summonMs < MINION_EMERGE_MS; }
+
+// Digging out it rises from its full height under the floor, slowing at the top. Dropping it falls from the
+// ceiling, where a roosting flyer hangs out of sight, speeding up.
+float Monster::emergeLift() const {
+	if (!Emerging())
+		return 0.f;
+	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(MINION_EMERGE_MS);
+	if (summonedBy == Summon::Drop)
+		return (BAT_CEILING - flight.lift) * (1.f - p * p);
+	return -type->model.referenceTop * type->scale * Ink::figureScale() * (1.f - p) * (1.f - p);
 }
 
 bool Monster::LeavesChest() const {
@@ -73,14 +99,14 @@ bool Monster::Nearby(float px, float py, float reach, int dir) const {
 
 float Monster::BottomY() const {
 	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
-	const float lift = flies() ? std::max(flight.lift, 0.f) : leap.lift;
+	const float lift = (flies() ? std::max(flight.lift, 0.f) : leap.lift) + emergeLift();
 	const float bottom = roosting ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
 	return static_cast<float>(row) + (lift + bottom) / RenderConfig::TILE_SIZE;
 }
 
 float Monster::TopY() const {
 	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
-	const float lift = flies() ? std::max(flight.lift, 0.f) : leap.lift;
+	const float lift = (flies() ? std::max(flight.lift, 0.f) : leap.lift) + emergeLift();
 	const float top = (roosting ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
 	return static_cast<float>(row) + (lift + top) / RenderConfig::TILE_SIZE;
 }
@@ -200,7 +226,8 @@ void Monster::Animate(float px, float py) {
 void Monster::Draw() {
 	const float scale = type->scale;
 	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF, flies() ? flight.lift : leap.lift, -30);
+	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
+				 (flies() ? flight.lift : leap.lift) + emergeLift(), -30);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

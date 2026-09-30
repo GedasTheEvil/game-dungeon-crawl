@@ -4,6 +4,7 @@
 #include <cmath>
 #include "lighting.h"
 #include "../core/timer.h"
+#include "render_config.h"
 
 namespace {
 constexpr int MAX_PARTICLES = 128;
@@ -196,6 +197,79 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 		glVertex3f(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
 		glTexCoord2f(0, 1);
 		glVertex3f(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
+	}
+	glEnd();
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glColor4f(1, 1, 1, 1);
+	Lighting::setEmissive(false);
+}
+
+void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed) {
+	constexpr int GRAINS = 64;
+	constexpr int CLOUDS = 10;		// soft puffs of dust round the spot
+	constexpr float SPRAY_S = 0.5f; // grains leave the spot over this time, while the minion comes out
+	constexpr float GRAVITY = 260.f;
+	const float t = static_cast<float>(ageMs) / 1000.f;
+	const float end = static_cast<float>(BURST_MS) / 1000.f;
+	if (t < 0.f || t >= end)
+		return;
+	ensureSprite();
+
+	float m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
+	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
+	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
+	float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
+	auto quad = [&](float cx, float cy, float cz, float size, float r, float g, float b, float a) {
+		float h = size / 2.f;
+		glColor4f(r * a, g * a, b * a, a); // premultiplied
+		glTexCoord2f(0, 0);
+		glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
+		glTexCoord2f(1, 0);
+		glVertex3f(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
+		glTexCoord2f(1, 1);
+		glVertex3f(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
+		glTexCoord2f(0, 1);
+		glVertex3f(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
+	};
+	const float fade = 1.f - t / end;
+	// Pale sand thrown up from the floor; dark grit and old dust from the ceiling, to show against the lit walls.
+	const float r = fromCeiling ? 0.30f : 0.78f, g = fromCeiling ? 0.25f : 0.66f, b = fromCeiling ? 0.19f : 0.46f;
+
+	Lighting::setEmissive(true);
+	glBindTexture(GL_TEXTURE_2D, gSprite);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
+	glBegin(GL_QUADS);
+	for (int i = 0; i < CLOUDS; i++) { // spreads and thins out
+		uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x68e31da4U));
+		float grow = 1.f - (1.f - t / end) * (1.f - t / end);
+		float cx = x + (unit01(h) - 0.5f) * (8.f + 22.f * grow);
+		float cy = y + (fromCeiling ? -1.f : 1.f) * (1.5f + 5.f * unit01(h >> 16) * grow);
+		float cz = z + (unit01(mix(h)) - 0.5f) * 10.f;
+		quad(cx, cy, cz, 7.f + 9.f * grow, r, g, b, 0.35f * fade);
+	}
+	for (int i = 0; i < GRAINS; i++) {
+		uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x85ebca6bU));
+		float age = t - SPRAY_S * unit01(h);
+		if (age <= 0.f)
+			continue;
+		uint32_t h2 = mix(h);
+		float vx = (unit01(h2) - 0.5f) * 60.f;
+		float vz = (unit01(h2 >> 16) - 0.5f) * 30.f;
+		float vy = fromCeiling ? -20.f * unit01(h >> 16) : 45.f + 55.f * unit01(h >> 16);
+		float cx = x + vx * age * (fromCeiling ? 0.3f : 1.f);
+		float cy = y + vy * age - GRAVITY * age * age / 2.f;
+		float cz = z + vz * age;
+		if (!fromCeiling)
+			cy = std::fmax(cy, y); // settles on the floor
+		else if (cy < y - RenderConfig::TILE_SIZE)
+			continue; // reached the floor
+		float size = 1.2f + 2.f * unit01(mix(h2));
+		quad(cx, cy, cz, size, r, g, b, 0.9f * fade);
 	}
 	glEnd();
 	glDepthMask(GL_TRUE);

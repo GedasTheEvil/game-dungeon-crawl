@@ -57,7 +57,8 @@ class Player {
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Height() const;
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost). No damage in the scenario god mode.
-	void TakeHit(int dmg, bool ignoreArmor = false);
+	// Returns the HP lost (never more than it had): 0 in god mode or when already dead.
+	int TakeHit(int dmg, bool ignoreArmor = false);
 	void Reanimate(); // full HP, standing
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

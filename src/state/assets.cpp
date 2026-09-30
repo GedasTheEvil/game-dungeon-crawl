@@ -85,6 +85,21 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Fly,
 	 {0.45f, 0.05f, 0.05f}},
+	// A giant bat grown fat on blood; see BOSS_DEFS. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites
+	// kill them.
+	{MonsterVampireBat,
+	 "Vampire bat",
+	 "monsters/bat",
+	 "monsters/bat_vampire",
+	 4,
+	 400,
+	 80,
+	 800,
+	 12000,
+	 42,
+	 180,
+	 Locomotion::Fly,
+	 {0.5f, 0.02f, 0.08f}},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -101,13 +116,14 @@ const MonsterDef MONSTER_DEFS[] = {
 	 {0.5f, 0.05f, 0.1f}},
 };
 
-// Minions per boss: type, alive on arrival, alive at most, ms between summons, summons per fight, life steal %.
-// Starting values, to tune from playthroughs (docs/plan/boss-rooms.draft.md).
+// Minions per boss: type, alive on arrival, alive at most, ms between summons, summons per fight, life steal %, how
+// they come. Starting values, to tune from playthroughs (docs/plan/boss-rooms.draft.md).
 const struct {
 	MonsterTypeId id;
 	BossRules rules;
 } BOSS_DEFS[] = {
-	{MonsterBossScarab, {MonsterScarab, 3, 5, 1500, 12, 0}},
+	{MonsterBossScarab, {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
+	{MonsterVampireBat, {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
 };
 
 struct ItemDef {
@@ -337,6 +353,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
 	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
 	sounds.teleport.Load("sounds/mechanisms/teleport.wav");
+	sounds.summonDig.Load("sounds/monsters/summon_dig.wav");
+	sounds.summonDrop.Load("sounds/monsters/summon_drop.wav");
 	sounds.gateLocked.Load("sounds/mechanisms/gate_locked.wav");
 	sounds.lever.Load("sounds/mechanisms/lever.wav");
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");

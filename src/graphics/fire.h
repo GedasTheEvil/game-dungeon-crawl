@@ -32,6 +32,14 @@ namespace Dust {
 void draw(float x, float y, float z, float progress, uint32_t seed);
 } // namespace Dust
 
+// A boss's minion comes out: sand sprays up from the floor where it digs out, or grit and dust fall from the ceiling
+// where it drops. Stateless like the fire.
+namespace Grit {
+constexpr int BURST_MS = 1100;
+// (x, y, z) = the floor point (or the ceiling point, fromCeiling) in local space; ageMs since the summon, < BURST_MS.
+void burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed);
+} // namespace Grit
+
 // Level-up blessing: a shaft of sunlight falls on the player, gold motes rise through it. Stateless like the fire.
 namespace SunBeam {
 constexpr int DURATION_MS = 1600;

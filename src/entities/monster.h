@@ -37,6 +37,9 @@ struct Leap {
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
+// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging).
+enum class Summon : unsigned char { DigOut, Drop };
+
 // A boss summons minions around itself while it lives (Dungeon::updateBoss).
 struct BossRules {
 	int minion = 0;		  // MonsterTypeId of its minions; 0: not a boss
@@ -45,6 +48,7 @@ struct BossRules {
 	int summonMs = 0;	  // between summons
 	int summonCap = 0;	  // summons per fight, after the first minAlive
 	int lifeStealPct = 0; // heals this share of the damage it deals
+	Summon summon = Summon::DigOut;
 };
 
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
@@ -84,9 +88,14 @@ class Monster {
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
+	int summonMs = -1;	 // GameClock time a boss summoned it; < 0: not summoned
+	Summon summonedBy = Summon::DigOut;
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void drawHealthBar();
+	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
+	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
+	[[nodiscard]] float emergeLift() const; // world units off its place while Emerging: < 0 in the floor, > 0 above
 	[[nodiscard]] bool sameRow(float py) const;
 
   public:
@@ -95,12 +104,13 @@ class Monster {
 	Monster& operator=(const Monster&) = delete;
 	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
 	void Clear(); // the slot is empty
-	// Summoned by a boss: chases the player at once.
-	void MakeMinion() {
-		minion = true;
-		alerted = true;
-	}
+	// Summoned by a boss: comes out of the floor or the ceiling (Emerging), then chases the player at once.
+	void MakeMinion(Summon how);
 	[[nodiscard]] bool Minion() const { return minion; }
+	// Still coming out after a summon: it does not act yet, it is drawn rising or dropping into place.
+	[[nodiscard]] bool Emerging() const;
+	[[nodiscard]] int SummonedMs() const { return summonMs; } // < 0: not summoned
+	[[nodiscard]] Summon SummonedBy() const { return summonedBy; }
 	[[nodiscard]] const MonsterType* Type() const { return type; }
 	[[nodiscard]] int MaxHealth() const { return type->maxHealth; }
 	[[nodiscard]] bool Active() const { return type != nullptr; }

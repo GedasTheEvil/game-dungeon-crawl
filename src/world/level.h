@@ -49,8 +49,9 @@ enum MonsterTypeId : unsigned char {
 	MonsterMimic = 9,
 	MonsterGiantScarab = 10,
 	MonsterBossScarab = 11, // boss: summons scarabs; its death opens the boss gates
+	MonsterVampireBat = 12, // boss: summons bats, heals by part of the damage it deals
 };
-constexpr int MONSTER_TYPE_MAX = MonsterBossScarab; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterVampireBat; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

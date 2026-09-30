@@ -46,7 +46,7 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 void Dungeon::UpdateMonsters() {
 	updateBoss();
 	for (Monster& mon : monsters) {
-		if (!mon.Active())
+		if (!mon.Active() || mon.Emerging())
 			continue;
 
 		if (mon.flies()) {

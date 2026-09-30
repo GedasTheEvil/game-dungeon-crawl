@@ -88,11 +88,13 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 9 | Mimic |
 | 10 | Giant scarab |
 | 11 | Boss scarab (boss) |
+| 12 | Vampire bat (boss) |
 
 Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
-A boss (boss scarab) summons minions next to itself, on the side away from the player: some when it appears, then
-one every few seconds up to a limit. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
+A boss (boss scarab, vampire bat) summons minions next to itself, on the side away from the player: some when it
+appears, then one every few seconds up to a limit. The boss scarab's scarabs dig out of the floor, the vampire bat's
+bats drop from the ceiling. The vampire bat flies like a bat and heals by 30% of the HP its bites take. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
 gate (Gate with lock colour 5); the boss does not come back, also not after loading a save. Minions give 1 XP while
 the boss lives, half the normal XP after its death. Put at most one boss on a level, in a room only a teleporter
 leads to (`levelcheck` warns otherwise).

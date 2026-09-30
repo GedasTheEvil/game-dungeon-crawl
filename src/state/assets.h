@@ -19,7 +19,8 @@ struct SoundBank {
 	Sound drink_s;
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport;
-	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
+	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
+	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
 };
 
 struct FontSet {

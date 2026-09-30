@@ -15,7 +15,7 @@ TEST_CASE("every tile type has a row") {
 	CHECK(std::string(tileDef(-1).name) == "Unknown");
 }
 
-TEST_CASE("every monster type has a row, one boss") {
+TEST_CASE("every monster type has a row, two bosses") {
 	std::set<char> glyphs;
 	int bosses = 0;
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
@@ -26,8 +26,9 @@ TEST_CASE("every monster type has a row, one boss") {
 		bosses += kind->boss ? 1 : 0;
 	}
 	CHECK(glyphs.size() == static_cast<size_t>(MONSTER_TYPE_MAX));
-	CHECK(bosses == 1);
+	CHECK(bosses == 2);
 	CHECK(isBossMonster(MonsterBossScarab));
+	CHECK(isBossMonster(MonsterVampireBat));
 	CHECK_FALSE(isBossMonster(MonsterGiantScarab));
 	CHECK(monsterKind(0) == nullptr);
 	CHECK(monsterKind(MONSTER_TYPE_MAX + 1) == nullptr);

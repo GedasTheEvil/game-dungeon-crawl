@@ -126,6 +126,7 @@ class Dungeon {
 	void startBossFight(int slot); // the boss appeared: its first minions with it
 	void updateBoss();			   // summons while it lives; its death opens the boss gates, for good
 	bool summonMinion(const Monster& boss);
+	void drawSummonEffects(); // sand and dust where minions came out, after the opaque scene
 	// Arrows (dungeon_arrows.cpp): a parabola from the launch point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
 	struct Arrow {
 		float x0, y0, vx, vy;
@@ -195,7 +196,7 @@ class Dungeon {
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
-	void SlayBoss(); // scenario tests: the boss in play takes a killing hit, as from the player
+	void HurtBoss(int dmg);							// scenario tests: the boss in play takes a hit, as from the player
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.

@@ -49,5 +49,5 @@ Done 2026-09-30:
   order. The test pins the behaviour.
 
 Not done: the traps still use the player's point, not the player's hitbox (`Player::HalfWidth`,
-[monster hitboxes](monster-hitboxes.md)). A box would widen every trap by 0.06 tiles; left out so as not to change
+[monster hitboxes](solved/monster-hitboxes.md)). A box would widen every trap by 0.06 tiles; left out so as not to change
 the jump timings over spikes.

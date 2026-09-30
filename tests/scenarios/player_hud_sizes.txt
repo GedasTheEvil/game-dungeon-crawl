@@ -1,0 +1,13 @@
+# Player HUD and the boss bar at 4:3: the bar moves up over the panel instead of overlapping it.
+resolution 1024 768
+seed 1
+god
+level tests/levels/boss
+wait 30
+walk right 3.5
+interact
+wait 5
+walk right 5
+wait 5
+expect boss == 320
+screenshot boss_4x3

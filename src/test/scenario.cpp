@@ -53,6 +53,7 @@ enum class CommandType : unsigned char {
 	Give,
 	Chest,
 	Xp,
+	Hurt,
 	Riddles,
 	SaveGame,
 	LoadGame,
@@ -536,6 +537,12 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			return "usage: xp <non-negative number>";
 		return "";
 	}
+	if (name == "hurt") {
+		cmd.type = CommandType::Hurt;
+		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
+			return "usage: hurt <hp>";
+		return "";
+	}
 	if (name == "riddles") {
 		cmd.type = CommandType::Riddles;
 		if (argc != 1)
@@ -719,6 +726,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
 		Game().player->stats.AddXP(static_cast<int>(cmd.a));
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
+		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Riddles:

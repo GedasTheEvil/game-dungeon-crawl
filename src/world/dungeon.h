@@ -68,6 +68,7 @@ class Dungeon {
 		int startMs; // GameClock time the motion began
 	};
 	int keysHeld = 0;				  // bit (colour - 1) per key picked up on this level
+	int levelKeys = 0;				  // bit (colour - 1) per key the level has, picked up or not
 	std::vector<Motion> openingGates; // c = 2 while in here, then 1 (open)
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
 	int lockedHintMs = -1000000;	  // last "the gate is locked" message, to keep it from repeating every step
@@ -151,7 +152,8 @@ class Dungeon {
 	void Teleport();  // on a teleporter: jump to its partner
 	bool PullLever(); // interact on a lever cell; false if there is none
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
-	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar
+	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
+	[[nodiscard]] int MonsterBarsShown() const;				  // living monsters that show their health bar
 	// The boss in a fight (alive and alerted), for the HUD bar; null if none.
 	[[nodiscard]] const Monster* Boss() const;
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none

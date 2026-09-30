@@ -3,7 +3,8 @@
 #include <GL/gl.h>
 #include "../state/game_state.h"
 #include "../ui/screen_state.h"
-#include "hud.h"
+#include "../ui/player_hud.h"
+#include "../ui/inventory.h"
 #include "../ui/level_gem.h"
 #include "../ui/boss_bar.h"
 #include "../ui/status_box.h"
@@ -110,6 +111,43 @@ void updateAttack() {
 	}
 	if (t >= weapon->motion.swingMs)
 		player.attackStartMs = -1;
+}
+
+// A quick slot: the potion H / 0 would drink now, empty when none of that kind is left.
+PlayerHud::Slot quickSlot(QuickKind kind, const char* key) {
+	const Inventory& inventory = *Game().ui.inventory;
+	PlayerHud::Slot slot;
+	slot.key = key;
+	int potion = inventory.QuickChoice(kind);
+	if (potion != NO_POTION) {
+		slot.model = Game().assets.items.potion.get();
+		slot.tint = Inventory::PotionColor(potion);
+		slot.count = inventory.Count(ItemType::POTION, potion);
+	}
+	if (std::optional<int> drunk = inventory.QuickDrinkMs(kind))
+		slot.flashAgeMs = GameClock::now() - *drunk;
+	return slot;
+}
+
+PlayerHud::View playerHudView() {
+	const PlayerStats& stats = Game().player->stats;
+	PlayerHud::View view;
+	view.hp = stats.CurrentHP();
+	view.maxHp = stats.CurrentMaxHP();
+	view.stamina = stats.Stamina();
+	view.maxStamina = stats.MaxStamina();
+	if (std::optional<int> refused = stats.StaminaRefusedMs())
+		view.staminaRefusedAgeMs = GameClock::now() - *refused;
+	double levelStart = PlayerStats::LevelXP(stats.CurrentLevel());
+	double levelEnd = PlayerStats::LevelXP(stats.CurrentLevel() + 1);
+	view.xpRatio = static_cast<float>((stats.CurrentXP() - levelStart) / (levelEnd - levelStart));
+	view.keysHeld = Game().dungeon.KeysHeld();
+	view.levelKeys = Game().dungeon.LevelKeys();
+	view.slots[0].model = Game().ui.inventory->Equipped();
+	view.slots[0].key = "1-4";
+	view.slots[1] = quickSlot(QuickKind::Health, "H");
+	view.slots[2] = quickSlot(QuickKind::Stamina, "0");
+	return view;
 }
 } // namespace
 
@@ -229,8 +267,8 @@ void Draw() {
 	glEnable(GL_BLEND);
 
 	Game().assets.textures.nullTex.Bind();
-	Hud::drawPlayerBars(Game().player->stats.HealthRatio(), Game().player->stats.StaminaRatio());
-	Hud::drawKeys(Game().dungeon.KeysHeld());
+	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
+					Game().assets.fonts.hudSmall);
 	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),

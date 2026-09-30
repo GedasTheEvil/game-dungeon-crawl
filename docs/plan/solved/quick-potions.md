@@ -1,6 +1,7 @@
 # Quick potions: hotkeys for healing and stamina
 
-Status: idea, not started. After the [HUD redesign](hud-redesign.draft.md): the HUD shows the quick slots.
+Status: implemented 2026-09-30 (see [Implementation](#implementation)); verified in play 2026-09-30. The
+[HUD redesign](hud-redesign.md) shows the quick slots.
 
 ## What
 
@@ -20,8 +21,8 @@ none needed; the mouse buttons are attack, interact and jump. Add both to the op
 
 ## Best fit
 
-Potions today (`Inventory::DrinkPotion`, `src/ui/inventory.cpp`): small health +25 HP, large health +50 HP, small
-stamina +50% stamina, large stamina full stamina. (Life +5% max HP and full heal, might, armor: not quick potions,
+Potions today (`Inventory::DrinkPotion`, `src/ui/inventory.cpp`): small health +25% of max HP, large health +50% of
+max HP (`PlayerStats::Heal` takes a percent), small stamina +50% stamina, large stamina full stamina. (Life +5% max HP and full heal, might, armor: not quick potions,
 they are rare and permanent; keep them inventory only.)
 
 Rule: **drink the weakest potion that is not wasted; the stronger one only when it is needed.**
@@ -31,16 +32,18 @@ Rule: **drink the weakest potion that is not wasted; the stronger one only when 
 2. Candidates: the potions of that kind the player has.
 3. Pick the weakest candidate. Take the stronger one only if the weakest would leave the player in danger:
    health still below `QUICK_HEAL_DANGER` (e.g. 35% of max) after the small one while the large one exists.
-   Example: 134 max HP, at 30% (40 HP). The small potion takes them to 65 HP (49%): out of danger, drink the small
-   one; the large one is saved. At 10% (13 HP), the small one leaves 38 HP (28%): still in danger, drink the large one.
-4. Stamina: the same, with the danger line at the cost of the next jump or a short sprint (`JUMP_STAMINA_COST`).
+   Example: 134 max HP, at 30% (40 HP). The small potion (+33) takes them to 73 HP (54%): out of danger, drink the
+   small one; the large one is saved. At 5% (7 HP), the small one leaves 40 HP (30%): still in danger, drink the
+   large one.
+4. Stamina: the same, with the danger line at the cost of the next jump (`JUMP_STAMINA_COST`). The small potion
+   (+50%) always clears it, so the large one is drunk only when no small one is left.
 
 The rule lives in a pure function (`quickPotion(kind, current, max, counts) -> potion id or none`) so a unit test or
 scenario can check the table of cases without a fight.
 
 ## HUD
 
-The quick slots in the [HUD redesign](hud-redesign.draft.md) show what `H` / `0` would drink right now (the choice
+The quick slots in the [HUD redesign](hud-redesign.md) show what `H` / `0` would drink right now (the choice
 changes with the health), the count of that potion, and the key to press as a key cap (`H`, `0`) under the slot.
 No potion of that kind left: the slot is shown empty (the tile without an icon or count), the key cap stays. After a
 drink the slot flashes and the status box says "Healed 25 health", like drinking from the inventory.
@@ -65,3 +68,16 @@ drink the slot flashes and the status box says "Healed 25 health", like drinking
 
 * No pinning (2026-09-30): the hotkeys only ever drink health (`H`) or stamina (`0`) potions, always the best
   fitting one by the rule above.
+* Cooldown 1 s (`QUICK_DRINK_COOLDOWN_MS`) between quick drinks.
+* No potion of that kind left: nothing drunk, the status box says "No healing potion left" / "No stamina potion left".
+
+## Implementation
+
+* `src/ui/quick_potion.{h,cpp}`: `quickPotion(kind, current, max, smallCount, largeCount)`, the potion strengths
+  (`PotionEffect`, also used by `DrinkPotion`), `QUICK_HEAL_DANGER_PERCENT` (35), the cooldown.
+* `Inventory::QuickDrink` / `QuickChoice` / `QuickDrinkMs`; `DrinkPotion` returns its message (the inventory
+  toasts it, a quick drink puts it in the status box). Keys in `PlayerActionController::quickDrink`
+  (`src/input/input.cpp`), in the same gate as the weapon hotkeys but also during a swing.
+* Options controls table: "Drink healing / stamina potion: H / 0" (rows 3.5 high to fit 13).
+* No unit test framework yet: the rule is checked by `tests/scenarios/quick_potions.txt`, with the new scenario
+  command `hurt N`.

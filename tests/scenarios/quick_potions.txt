@@ -1,0 +1,82 @@
+# Quick potions: H drinks the best fitting healing potion, 0 the best fitting stamina potion (docs/plan/quick-potions.md).
+# Level 1: 50 max HP, the small potion heals 25% (12), the large 50% (25); danger line 35% (17 HP).
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give potion 0 2
+give potion 1 1
+# Full health: nothing drunk.
+key h
+expect potion0 == 2
+wait 5
+screenshot full_health
+# At 30% the small one gets the player out of danger (15 + 12 = 27).
+hurt 35
+key h
+expect potion0 == 1
+expect potion1 == 1
+expect hp == 27
+wait 5
+screenshot healed_small
+# The cooldown: a second press right away drinks nothing.
+hurt 23
+key h
+expect potion0 == 1
+expect potion1 == 1
+# At 8% (4 HP) the small one would leave 16, still in danger: the large one.
+wait 1s
+key h
+expect potion0 == 1
+expect potion1 == 0
+expect hp == 29
+# Only the small one left: it is drunk however low the health.
+wait 1100ms
+hurt 25
+key h
+expect potion0 == 0
+expect hp == 16
+# None left: nothing drunk, the slot is empty.
+wait 1100ms
+key h
+expect hp == 16
+wait 5
+screenshot none_left
+# Stamina: 100 max, small +50%, large all. The small one always leaves enough for a jump.
+give potion 5 1
+give potion 6 1
+key 0
+expect potion5 == 1
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+expect stamina < 60
+key 0
+expect potion5 == 0
+expect potion6 == 1
+wait 1100ms
+jump
+wait 1s
+jump
+wait 1s
+key 0
+expect potion6 == 0
+expect stamina == 100
+# Inventory open: 0 selects the slot there, nothing is drunk.
+give potion 5 1
+jump
+wait 1s
+key i
+key 0
+expect potion5 == 1
+key i
+# Allowed during a swing.
+attack
+wait 3
+key 0
+expect potion5 == 0
+wait 5
+screenshot drank_stamina

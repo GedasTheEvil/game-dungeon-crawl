@@ -44,6 +44,10 @@ AnimatedModel* colourModel(std::unique_ptr<AnimatedModel> (&models)[LOCK_COLOUR_
 
 void Dungeon::resetMechanisms() {
 	keysHeld = 0;
+	levelKeys = 0;
+	for (const Tile& t : map)
+		if (t.type == Key && isLockColour(t.attr))
+			levelKeys |= lockBit(t.attr);
 	openingGates.clear();
 	fallingRocks.clear();
 	// A save taken mid-motion finishes it on load.

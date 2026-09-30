@@ -15,8 +15,10 @@ void startJump() {
 	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().hasWon)
 		return;
 
-	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST)
+	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST) {
+		Game().player->stats.RefuseStamina();
 		return;
+	}
 
 	Game().player->stats.ConsumeStamina(JUMP_STAMINA_COST);
 
@@ -78,6 +80,14 @@ class PlayerActionController {
 	static void equipHotkey(unsigned char key) {
 		if (Game().player->attackStartMs < 0)
 			Game().ui.inventory->EquipHotkey(key);
+	}
+
+	// Allowed during a swing: drinking does not change it.
+	static void quickDrink(unsigned char key) {
+		if (Inventory::IsQuickHealKey(key))
+			Game().ui.inventory->QuickDrink(QuickKind::Health);
+		else if (Inventory::IsQuickStaminaKey(key))
+			Game().ui.inventory->QuickDrink(QuickKind::Stamina);
 	}
 
 	static void applyCameraDelta(float deltaX, float deltaY) {
@@ -177,6 +187,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
 		PlayerActionController::execute(MapKeyboardGameplayAction(key));
 		PlayerActionController::equipHotkey(key);
+		PlayerActionController::quickDrink(key);
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)

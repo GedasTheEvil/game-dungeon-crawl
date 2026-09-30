@@ -1,0 +1,10 @@
+# Player HUD in a small window.
+resolution 640 360
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give potion 0 2
+hurt 20
+wait 1s
+screenshot small

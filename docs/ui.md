@@ -11,6 +11,8 @@ instead of drawing their own.
 | Riddle | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
+| Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` | 100 / `SCALE` high, width follows the window; over the game |
+| Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Win / death screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`, `ui/dead.png`) in the 3D scene, not the shared look |
 
@@ -147,6 +149,14 @@ The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fil
 min 40 wide, top edge at y 86, centred, with the picture-frame drop shadow. `status` font in `GOLD`, one line per
 `'\n'`, 6 apart. Fades in over 150 ms and out over the last 500 ms of `STATUS_MS`; `panel`'s `frameAlpha` fades the
 frame and studs with it.
+
+### Player HUD
+
+A `panel` bottom left (`PlayerHud::PANEL`) over the running game, with the status box's drop shadow. Bars: dark
+trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss bar's look). Quick slots are
+`TileStyle::Stone` tiles with the item model drawn small, a count badge like the inventory slots and a key cap under
+each like the options table. Flashes and pulses are additive rings (`ring` with `GL_SRC_ALPHA, GL_ONE`).
+Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md).
 
 ## Colours
 

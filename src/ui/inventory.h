@@ -3,7 +3,10 @@
 #include <string>
 #include "../graphics/font.h"
 #include "../entities/item.h"
+#include "quick_potion.h"
+#include "ui_draw.h"
 #include "fstream"
+#include <optional>
 
 namespace ItemType {
 constexpr int MELEE_WEAPON = 1;
@@ -58,6 +61,10 @@ class Inventory {
 	std::string toast; // feedback line after an action
 	int toastStartMs = 0;
 
+	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
+	std::optional<int> quickDrinkMs;
+	QuickKind quickDrinkKind = QuickKind::Health;
+
 	Font title, heading, body, small;
 
 	[[nodiscard]] static Item* SlotItem(int slot);
@@ -68,7 +75,7 @@ class Inventory {
 	[[nodiscard]] bool SlotHeld(int slot) const;
 	void Use(int slot);
 	void Upgrade(int slot);
-	void DrinkPotion(int potionId);
+	std::string DrinkPotion(int potionId); // returns the feedback line
 	void Select(int slot);
 	void MoveSelection(int dx, int dy);
 	void ShowToast(const std::string& text);
@@ -98,7 +105,18 @@ class Inventory {
 	void SpecialKeyPressed(int key);
 	// In game, the number row equips a weapon (its slot hotkey); a potion hotkey or a missing weapon does nothing.
 	void EquipHotkey(unsigned char key);
+	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
+	// left: nothing is drunk, the status box says why.
+	void QuickDrink(QuickKind kind);
+	// The potion QuickDrink would drink now, ignoring whether anything is missing (the HUD slot); NO_POTION if none
+	// left.
+	[[nodiscard]] int QuickChoice(QuickKind kind) const;
+	// Game clock time of the last quick drink of that kind, for the HUD flash.
+	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
+	[[nodiscard]] static bool IsQuickHealKey(unsigned char key) { return key == 'h' || key == 'H'; }
+	[[nodiscard]] static bool IsQuickStaminaKey(unsigned char key) { return key == '0'; }
 	Item* Equipped();
+	[[nodiscard]] static ui::Color PotionColor(int potionId); // tint of the shared potion model
 	[[nodiscard]] int EquippedType() const;
 	[[nodiscard]] int EquippedId() const;
 	[[nodiscard]] int Count(int type, int id) const;

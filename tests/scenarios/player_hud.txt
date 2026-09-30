@@ -1,0 +1,53 @@
+# Player HUD panel (bottom left): health with the trailing lost part, stamina, quick slots, key sockets, XP line.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+screenshot full
+# Quick slots: the weapon in hand, the potion H / 0 would drink with its count; none left: an empty slot.
+give potion 0 3
+give potion 5 1
+give melee 1
+key 2
+xp 600
+wait 5
+screenshot slots
+# A hit: the lost part holds for 0.5 s, then drains.
+hurt 25
+wait 5
+screenshot hit_trail
+wait 1500ms
+screenshot half
+# Under 25%: the health bar pulses.
+hurt 15
+wait 1s
+screenshot low
+# Out of stamina: a refused jump flashes the bar.
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+jump
+wait 1s
+expect stamina < 20
+jump
+wait 3
+screenshot stamina_refused
+# Key sockets: one per key the level has (lvl15: two); the held key is set with its gem.
+seed 1
+level tests/levels/mechanisms
+wait 30
+screenshot key_socket_empty
+walk right 4
+expect keys == 1
+wait 5
+screenshot key_socket_held
+level 15
+wait 30
+screenshot lvl15_sockets

@@ -46,6 +46,7 @@ One command per line. `#` starts a comment.
 | `hitboxes on\|off` | Debug outlines (F3): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory). |
+| `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |
 | `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 sword, 2 spear), `ranged` (0 bow), `potion` (0 small health, 1 large health, 2 might, 3 armor, 4 life, 5 small stamina, 6 large stamina). |
 | `xp N` | Gain N XP, like killing monsters. Each level up adds max HP and refills HP and stamina (level 2 at 1000). |

@@ -112,6 +112,8 @@ constexpr std::array<Color, PotionId::COUNT> POTION_COLORS = {{
 
 Color potionColor(int potionId) { return POTION_COLORS[static_cast<size_t>(potionId)]; }
 
+int slotOfPotion(int potionId) { return InvSlot::FIRST_POTION + potionId; }
+
 // Copies needed to go from `level` to the next one.
 int upgradeCost(int level) { return 1 << level; }
 
@@ -162,6 +164,7 @@ void Inventory::Reset() {
 	equippedSlot = 0;
 	selectedSlot = 0;
 	toast.clear();
+	quickDrinkMs.reset();
 	show = false;
 }
 
@@ -264,26 +267,27 @@ void Inventory::Use(int slot) {
 		return;
 
 	if (isPotion(slot)) {
-		DrinkPotion(SLOTS[slot].id);
+		ShowToast(DrinkPotion(SLOTS[slot].id));
 		return;
 	}
 	equippedSlot = slot;
 	ShowToast(std::string(INFO[slot].name) + " equipped");
 }
 
-void Inventory::DrinkPotion(int potionId) {
+std::string Inventory::DrinkPotion(int potionId) {
 	PlayerStats* s = &Game().player->stats;
 	int hpBefore = s->CurrentHP();
 	int staminaBefore = Game().player->stats.Stamina();
 
 	Game().assets.sounds.drink_s.Play();
-	counts[InvSlot::FIRST_POTION + potionId]--;
+	counts[slotOfPotion(potionId)]--;
 
 	char buf[64];
 	switch (potionId) {
 	case PotionId::SMALL_HEALTH:
 	case PotionId::LARGE_HEALTH:
-		s->Heal(potionId == PotionId::SMALL_HEALTH ? 25 : 50);
+		s->Heal(potionId == PotionId::SMALL_HEALTH ? PotionEffect::SMALL_HEAL_PERCENT
+												   : PotionEffect::LARGE_HEAL_PERCENT);
 		snprintf(buf, sizeof(buf), "Healed %d health", s->CurrentHP() - hpBefore);
 		break;
 	case PotionId::STRENGTH:
@@ -299,13 +303,53 @@ void Inventory::DrinkPotion(int potionId) {
 		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
 		break;
 	default: // stamina
-		Game().player->stats.AddStamina(Game().player->stats.MaxStamina() /
-										(potionId == PotionId::SMALL_STAMINA ? 2 : 1));
+		Game().player->stats.AddStamina(Game().player->stats.MaxStamina() *
+										(potionId == PotionId::SMALL_STAMINA ? PotionEffect::SMALL_STAMINA_PERCENT
+																			 : PotionEffect::LARGE_STAMINA_PERCENT) /
+										100);
 		snprintf(buf, sizeof(buf), "Restored %d stamina", Game().player->stats.Stamina() - staminaBefore);
 		break;
 	}
-	ShowToast(buf);
+	return buf;
 }
+
+int Inventory::QuickChoice(QuickKind kind) const {
+	const PlayerStats& s = Game().player->stats;
+	bool health = kind == QuickKind::Health;
+	int small = counts[slotOfPotion(health ? PotionId::SMALL_HEALTH : PotionId::SMALL_STAMINA)];
+	int large = counts[slotOfPotion(health ? PotionId::LARGE_HEALTH : PotionId::LARGE_STAMINA)];
+	int current = health ? s.CurrentHP() : s.Stamina();
+	int max = health ? s.CurrentMaxHP() : s.MaxStamina();
+	// At full, still show what a hit would make it drink: the pick for one point missing.
+	return quickPotion(kind, std::min(current, max - 1), max, small, large);
+}
+
+void Inventory::QuickDrink(QuickKind kind) {
+	int now = GameClock::now();
+	if (quickDrinkMs && now - *quickDrinkMs < QUICK_DRINK_COOLDOWN_MS)
+		return;
+	const PlayerStats& s = Game().player->stats;
+	bool health = kind == QuickKind::Health;
+	bool full = health ? s.CurrentHP() >= s.CurrentMaxHP() : s.Stamina() >= s.MaxStamina();
+	int potion = QuickChoice(kind);
+	if (full) {
+		Game().ShowStatus(health ? "You are at full health" : "You are at full energy");
+		return;
+	}
+	if (potion == NO_POTION) {
+		Game().ShowStatus(health ? "No healing potion left" : "No stamina potion left");
+		return;
+	}
+	quickDrinkMs = now;
+	quickDrinkKind = kind;
+	Game().ShowStatus("%s", DrinkPotion(potion).c_str());
+}
+
+std::optional<int> Inventory::QuickDrinkMs(QuickKind kind) const {
+	return quickDrinkKind == kind ? quickDrinkMs : std::nullopt;
+}
+
+Color Inventory::PotionColor(int potionId) { return potionColor(potionId); }
 
 void Inventory::Select(int slot) {
 	if (slot >= 0 && slot < InvSlot::COUNT)

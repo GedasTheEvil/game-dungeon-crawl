@@ -356,6 +356,8 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	fonts.font.Load("fonts/papyrus.png", 3, -0.3);
 	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
 	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
+	fonts.hudBody.Load("fonts/papyrus.png", 4.2f, 0.12f, true);
+	fonts.hudSmall.Load("fonts/papyrus.png", 3.f, 0.08f, true);
 
 	progress(100, "Loading game soundtrack");
 	sounds.soundtrack.Load("sounds/music/soundtrack.ogg");

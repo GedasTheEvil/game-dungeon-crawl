@@ -1,5 +1,6 @@
 #include "boss_bar.h"
 #include "ui_draw.h"
+#include "player_hud.h"
 #include "../graphics/font.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -11,6 +12,7 @@ constexpr float WIDTH = 70.f;
 constexpr float BAR_BOTTOM = 5.f;
 constexpr float BAR_H = 2.4f;
 constexpr float NAME_GAP = 1.6f; // bar top to the name's pen y
+constexpr float HUD_GAP = 2.f;	 // to the player's HUD panel; closer and the bar moves up over the panel
 constexpr Color BLOOD_TOP = {0.85f, 0.14f, 0.08f};
 constexpr Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 } // namespace
@@ -24,6 +26,9 @@ void draw(const char* name, float ratio, int resX, int resY, Font& font) {
 	glMatrixMode(GL_MODELVIEW);
 
 	Rect bar = {(canvasW - WIDTH) / 2, BAR_BOTTOM, WIDTH, BAR_H};
+	const Rect& hud = PlayerHud::PANEL;
+	if (bar.x < (hud.x + hud.w) * PlayerHud::SCALE + HUD_GAP)
+		bar.y = (hud.y + hud.h) * PlayerHud::SCALE + HUD_GAP;
 	beginShapes();
 	fillRect({bar.x - 0.6f, bar.y - 0.6f, bar.w + 1.2f, bar.h + 1.2f}, BLACK, BLACK, 0.6f);
 	fillRect({bar.x, bar.y, bar.w * std::clamp(ratio, 0.f, 1.f), bar.h}, BLOOD_TOP, BLOOD_BOTTOM, 1.f);

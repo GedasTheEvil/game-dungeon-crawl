@@ -24,7 +24,8 @@ class PlayerStats {
 	float stamina_sprint_drain_carry = 0.f;
 	bool sprint_requested = false;
 	bool sprinting = false;
-	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
+	std::optional<int> level_up_ms;		   // game clock time of the last level up, for the sun beam
+	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
 	bool AdvanceLevel();
 	void RegenerateStamina();
@@ -40,6 +41,8 @@ class PlayerStats {
 	bool ConsumeStamina(int value); // false (and nothing spent) if there is not enough
 	void AddStamina(int value);
 	[[nodiscard]] float StaminaRatio() const;
+	void RefuseStamina(); // a jump or sprint wanted more stamina than there is
+	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 
 	[[nodiscard]] int Damage() const; // might plus the equipped weapon's damage
 	[[nodiscard]] int CurrentMight() const { return Might; }

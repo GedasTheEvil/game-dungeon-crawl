@@ -1,10 +1,11 @@
 # HUD redesign: player health, stamina and quick slots
 
-Status: idea, not started. Before [quick-potions.draft.md](quick-potions.draft.md), which puts its slots in this HUD.
+Status: implemented 2026-09-30 (see [Implementation](#implementation)); verified in play 2026-09-30. Together with
+[quick-potions.md](quick-potions.md), which puts its slots in this HUD.
 
 ## Why
 
-The boss health bar (`src/ui/boss_bar.cpp`) and the other UI screens share one look ([../ui.md](../ui.md)): dark
+The boss health bar (`src/ui/boss_bar.cpp`) and the other UI screens share one look ([../../ui.md](../../ui.md)): dark
 stone panels, gold frames, gold diamonds, gradient fills, the status font. The player's own bars do not. They are
 flat quads with a white line outline (`Hud::drawPlayerBars`, `src/graphics/hud.cpp`), bottom left, green health and
 yellow stamina, no numbers. The held keys (`Hud::drawKeys`) are flat coloured shapes next to them. It looks like
@@ -29,7 +30,7 @@ One HUD panel, bottom left, in the UI look. It holds everything about the player
 * **Stamina bar:** thinner, amber / gold gradient, under the health bar. It flashes when a jump or sprint is refused
   for lack of stamina.
 * **Low health:** under 25% the health bar pulses (like the inventory's selected slot halo).
-* **Quick slots** (the icons [quick-potions.draft.md](quick-potions.draft.md) needs): the weapon in hand, the healing
+* **Quick slots** (the icons [quick-potions.md](quick-potions.md) needs): the weapon in hand, the healing
   potion the hotkey would drink, the stamina potion the hotkey would drink. Each is a small stone tile
   (`ui::tile`, `TileStyle::Stone`) with the item icon, a count badge for potions (like the inventory slots) and the
   key to press as a key cap under it (`1`-`4`, `H`, `0`, drawn like the options controls table's key caps). No potion
@@ -58,8 +59,30 @@ One HUD panel, bottom left, in the UI look. It holds everything about the player
 * The existing HUD scenarios (`status_box.txt`, `level_gem.txt`, `stamina.txt`, `keys.txt`) still pass; check their
   screenshots for overlap with the new panel.
 
-## Open questions
+## Decided
 
-* Keys: show empty sockets for the lock colours the level has, or only the keys held?
-* Numbers on the stamina bar too, or health only?
-* Should the panel fade to half alpha when nothing changes for a while, or stay solid?
+Defaults picked during implementation (2026-09-30); change them after playing if they feel wrong:
+
+* Keys: a dim socket per key the level has (its Key tiles, plus the held ones after a load), the held ones set with
+  their gem. A colour opened only by a lever has no socket.
+* Numbers on the health bar only.
+* The panel stays solid, no fade.
+
+## Implementation
+
+* `src/ui/player_hud.{h,cpp}`: `PlayerHud::draw(View, ...)`. The layout is in panel units on a canvas
+  `100 / SCALE` high (`SCALE` 0.85), `PANEL` bottom left. `View` holds plain values; `playerHudView()` in
+  `src/graphics/draw.cpp` fills it from the game.
+* Health: blood gradient (the boss bar's colours), gold frame and end diamonds, `HP / max` in `fonts.hudBody`.
+  The lost part (`DamageTrail`) holds 500 ms after the last hit, then drains. Under 25% an additive red ring pulses.
+* Stamina: amber gradient. `PlayerStats::RefuseStamina()` (a jump without enough stamina, sprint held at 0)
+  flashes it red for 600 ms.
+* Quick slots: stone tiles with the item model drawn small (the inventory's models, not baked icons; weapons lie
+  at -40 degrees), a count badge on the potions, key caps `1-4`, `H`, `0` like the options table. A quick drink
+  flashes its slot gold for 500 ms.
+* Baked 2D icons instead of the models: for later, [../hud-baked-icons.draft.md](../hud-baked-icons.draft.md).
+* Key sockets: `Dungeon::LevelKeys()`. XP: a thin gold line along the panel's bottom edge.
+* The boss bar moves up above the panel when they would overlap (narrow windows such as 4:3).
+* `src/graphics/hud.cpp` keeps only `Hud::drawBar`, for the model viewer.
+* Tests: `tests/scenarios/player_hud.txt` (full, slots, hit trail, half, low, refused jump, key sockets),
+  `player_hud_sizes.txt` (4:3 with the boss bar), `player_hud_small.txt` (640 x 360).

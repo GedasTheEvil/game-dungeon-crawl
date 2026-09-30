@@ -66,6 +66,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	int keys = 0;
 	if (f >> keys)
 		keysHeld = keys;
+	levelKeys |= keysHeld; // their tiles are gone from the saved map
 	// Saves from before the draft map end here: the map starts over from the player's position.
 	std::fill(std::begin(explored), std::end(explored), false);
 	std::string exploredBits;

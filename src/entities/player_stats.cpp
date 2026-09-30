@@ -28,6 +28,8 @@ void PlayerStats::UpdateStamina() {
 	}
 
 	if (!sprint_requested || stamina <= 0) {
+		if (sprint_requested)
+			RefuseStamina();
 		sprinting = false;
 		RegenerateStamina();
 		return;
@@ -83,6 +85,8 @@ void PlayerStats::AddStamina(int value) {
 	if (value > 0)
 		SetStamina(stamina + value);
 }
+
+void PlayerStats::RefuseStamina() { stamina_refused_ms = GameClock::now(); }
 
 float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
 
@@ -152,6 +156,7 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	sprint_requested = false;
 	sprinting = false;
 	level_up_ms.reset();
+	stamina_refused_ms.reset();
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
 	SetStamina(loadedStamina);

@@ -24,8 +24,10 @@ struct SoundBank {
 struct FontSet {
 	Font font;
 	Font loading;
-	Font status; // proportional, for the gameplay status message
-	Font hud;	 // bold digits for the HUD level gem
+	Font status;   // proportional, for the gameplay status message
+	Font hud;	   // bold digits for the HUD level gem
+	Font hudBody;  // the player HUD's health numbers
+	Font hudSmall; // the player HUD's key caps and counts
 };
 
 struct ItemPrototypes {

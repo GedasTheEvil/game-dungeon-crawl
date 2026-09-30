@@ -36,4 +36,6 @@ Once a draft plan is implemented, rename it without the "draft" part ("<idea-slu
 Once the user confirms an implemented plan is solved (tested / verified), move it to "docs/plan/solved/" and update links to it.
 
 ## Git
-In this project, you are allowed to make git commits yourself.
+In this project, commit your changes yourself when a task is done, without asking.
+This overrides the global "no git actions" rule for commits only.
+Still ask before other git actions (branches, rebase, push, config).

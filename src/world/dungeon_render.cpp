@@ -84,30 +84,13 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 	Game().assets.items.chest->Draw();
 
-	if (tile.attr == 3) {
-		Game().assets.items.potion->Draw();
-		Game().assets.items.potion->rotA++;
-	}
-
-	if (tile.attr == 2) {
-		Game().assets.items.bow->Draw();
-		Game().assets.items.bow->rotA++;
-	}
-
-	if (tile.attr == 1) {
-		if (tile.value == 0) {
-			Game().assets.items.club->scale = 10;
-			Game().assets.items.club->Draw();
-			Game().assets.items.club->rotA++;
-		}
-		if (tile.value == 1) {
-			Game().assets.items.sword->Draw();
-			Game().assets.items.sword->rotA++;
-		}
-		if (tile.value == 2) {
-			Game().assets.items.spear->Draw();
-			Game().assets.items.spear->rotA++;
-		}
+	// The item turns over the chest. Stage 4 of the code structure review takes the turning out of Draw.
+	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value)) {
+		Item* item = Game().assets.items.Of(*kind);
+		if (*kind == ItemKind::Club)
+			item->scale = 10;
+		item->Draw();
+		item->rotA++;
 	}
 
 	glPopMatrix();

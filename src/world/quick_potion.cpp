@@ -1,16 +1,15 @@
 #include "quick_potion.h"
-#include "inventory.h"
 #include "../core/gameplay_config.h"
 #include <algorithm>
 
-int quickPotion(QuickKind kind, int current, int max, int smallCount, int largeCount) {
+std::optional<ItemKind> quickPotion(QuickKind kind, int current, int max, int smallCount, int largeCount) {
 	bool health = kind == QuickKind::Health;
-	int small = health ? PotionId::SMALL_HEALTH : PotionId::SMALL_STAMINA;
-	int large = health ? PotionId::LARGE_HEALTH : PotionId::LARGE_STAMINA;
+	ItemKind small = health ? ItemKind::SmallHealth : ItemKind::SmallStamina;
+	ItemKind large = health ? ItemKind::LargeHealth : ItemKind::LargeStamina;
 	if (current >= max)
-		return NO_POTION;
+		return std::nullopt;
 	if (smallCount <= 0)
-		return largeCount > 0 ? large : NO_POTION;
+		return largeCount > 0 ? std::optional(large) : std::nullopt;
 	if (largeCount <= 0)
 		return small;
 

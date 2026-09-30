@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Checks that the shared libraries stay apart from the game (docs/plan/layered-build.md).
 #
-#   tools/check_layers.sh NAME SOURCES... [-- NAME SOURCES...]...
+#   tools/check_layers.sh NAME FILES... [-- NAME FILES...]...
 #
-# For each library NAME and its .cpp SOURCES (plus the matching .h files):
+# For each library NAME and its FILES (.cpp with their matching .h, and header-only .h files):
 #   * quoted includes must be headers of the same library, or under external/
 #   * no SDL, no Game()
 #   * the library named "level" has no GL either
@@ -19,6 +19,10 @@ check_library() {
 	local files=() allowed=()
 	for source in "$@"; do
 		files+=("$source")
+		if [ "${source%.h}" != "$source" ]; then
+			allowed+=("$root/$source")
+			continue
+		fi
 		local header=${source%.cpp}.h
 		if [ -f "$header" ]; then
 			files+=("$header")

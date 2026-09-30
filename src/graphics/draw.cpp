@@ -39,7 +39,7 @@ std::optional<float> sunBeamProgress() {
 	return p;
 }
 
-bool holdingBow() { return Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON; }
+bool holdingBow() { return isRanged(Game().ui.inventory->EquippedKind()); }
 
 float smooth(float k) { return k * k * (3.f - 2.f * k); }
 
@@ -118,11 +118,10 @@ PlayerHud::Slot quickSlot(QuickKind kind, const char* key) {
 	const Inventory& inventory = *Game().ui.inventory;
 	PlayerHud::Slot slot;
 	slot.key = key;
-	int potion = inventory.QuickChoice(kind);
-	if (potion != NO_POTION) {
+	if (std::optional<ItemKind> potion = inventory.QuickChoice(kind)) {
 		slot.icon = PlayerHud::Icon::Potion;
-		slot.tint = Inventory::PotionColor(potion);
-		slot.count = inventory.Count(ItemType::POTION, potion);
+		slot.tint = Inventory::PotionColor(*potion);
+		slot.count = inventory.Count(*potion);
 	}
 	if (std::optional<int> drunk = inventory.QuickDrinkMs(kind))
 		slot.flashAgeMs = GameClock::now() - *drunk;
@@ -130,13 +129,13 @@ PlayerHud::Slot quickSlot(QuickKind kind, const char* key) {
 }
 
 PlayerHud::Icon weaponIcon(const Inventory& inventory) {
-	if (inventory.EquippedType() == ItemType::RANGED_WEAPON)
-		return PlayerHud::Icon::Bow;
-	switch (inventory.EquippedId()) {
-	case WeaponId::SWORD:
+	switch (inventory.EquippedKind()) {
+	case ItemKind::Sword:
 		return PlayerHud::Icon::Sword;
-	case WeaponId::SPEAR:
+	case ItemKind::Spear:
 		return PlayerHud::Icon::Spear;
+	case ItemKind::Bow:
+		return PlayerHud::Icon::Bow;
 	default:
 		return PlayerHud::Icon::Club;
 	}

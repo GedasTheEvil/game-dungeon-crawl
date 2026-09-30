@@ -94,18 +94,17 @@ void Dungeon::Dump(std::ofstream& f) {
 //======================================================================================
 void Dungeon::PickUp() {
 	if (Map(mapX, mapY).type == Treasure) {
-		int type = Map(mapX, mapY).attr;
-		int id = Map(mapX, mapY).value;
+		std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
 		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].type = Empty;
-		if (type == 0) // empty chest
+		if (!placed) // an empty chest (type 0), or an item the game does not know
 			return;
 
 		// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
 		std::string found;
-		std::vector<LootItem> loot = RollChestLoot(type, id);
+		std::vector<ItemKind> loot = RollChestLoot(*placed);
 		for (size_t i = 0; i < loot.size(); i++) {
-			Game().ui.inventory->AddItem(loot[i].type, loot[i].id);
-			found += std::string(i == 0 ? "Found: " : "\n+ ") + Inventory::ItemName(loot[i].type, loot[i].id);
+			Game().ui.inventory->AddItem(loot[i]);
+			found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;
 		}
 		Game().ShowStatus("%s", found.c_str());
 	}

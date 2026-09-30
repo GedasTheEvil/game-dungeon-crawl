@@ -189,6 +189,21 @@ void loadMechanisms(MechanismSet& set) {
 }
 } // namespace
 
+Item* ItemPrototypes::Of(ItemKind kind) const {
+	switch (kind) {
+	case ItemKind::Club:
+		return club.get();
+	case ItemKind::Sword:
+		return sword.get();
+	case ItemKind::Spear:
+		return spear.get();
+	case ItemKind::Bow:
+		return bow.get();
+	default:
+		return potion.get();
+	}
+}
+
 void Assets::LoadLoadingScreen() {
 	fonts.loading.Load("fonts/papyrus.png", 7, -1.0);
 	textures.loadingBackground.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);

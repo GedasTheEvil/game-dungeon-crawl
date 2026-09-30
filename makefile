@@ -14,7 +14,9 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 
 # Libraries shared by the game and the tools (docs/plan/layered-build.md). tools/check_layers.sh (make layers)
 # keeps them apart: level code has no GL, neither library has SDL or Game(), and each includes only its own headers.
-LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp
+LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
+	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/loot.cpp
+LEVEL_LIB_HEADERS=src/core/gameplay_config.h
 RENDER_LIB_SOURCES=src/core/logger.cpp src/core/timer.cpp src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp
 LEVEL_LIB=$(BUILD)/liblevel.a
@@ -94,7 +96,7 @@ format:
 		tools/model-viewer/*.cpp tests/unit/*.cpp
 
 layers:
-	./tools/check_layers.sh level $(LEVEL_LIB_SOURCES) -- render $(RENDER_LIB_SOURCES)
+	./tools/check_layers.sh level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
 
 tidy-fix:
 	$(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS)

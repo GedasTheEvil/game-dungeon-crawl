@@ -1,4 +1,6 @@
 #include "tile_info.h"
+#include "../../src/world/items.h"
+#include <string>
 #include <array>
 #include <vector>
 
@@ -28,7 +30,7 @@ constexpr std::array<TileInfo, TILE_COUNT> TILES = {{
 struct Choice {
 	int number;
 	const char* name;	 // in the choices list
-	const char* meaning; // after "n = "
+	std::string meaning; // after "n = "
 };
 
 using Choices = std::vector<Choice>;
@@ -64,10 +66,6 @@ const Choices LOCK_COLOURS = {
 	{4, "gold", "Gold (Amber)"},
 };
 
-constexpr int ITEM_MELEE = 1;
-constexpr int ITEM_RANGED = 2;
-constexpr int ITEM_POTION = 3;
-
 const Choices GATE_COLOURS = {
 	{1, "red", "Red (Carnelian)"},
 	{2, "blue", "Blue (Lapis)"},
@@ -77,23 +75,32 @@ const Choices GATE_COLOURS = {
 };
 
 const Choices ITEM_TYPES = {
-	{ITEM_MELEE, "melee weapon", "Melee weapon"},
-	{ITEM_RANGED, "ranged weapon", "Ranged weapon"},
-	{ITEM_POTION, "potion", "Potion"},
-	{0, "empty chest", "Empty chest"},
+	{ItemType::MELEE_WEAPON, "melee weapon", "Melee weapon"},
+	{ItemType::RANGED_WEAPON, "ranged weapon", "Ranged weapon"},
+	{ItemType::POTION, "potion", "Potion"},
+	{ItemType::EMPTY, "empty chest", "Empty chest"},
 };
 
-const Choices MELEE_WEAPONS = {{0, "club", "Club"}, {1, "sword", "Sword"}, {2, "spear", "Spear"}};
-const Choices RANGED_WEAPONS = {{0, "bow", "Bow"}};
-const Choices POTIONS = {
-	{0, "small health", "Small health, +25 HP"},
-	{1, "large health", "Large health, +50 HP"},
-	{2, "strength", "Strength, +2 might"},
-	{3, "armor", "Armor, +2 armor"},
-	{4, "life", "Life, +5% max. HP and full heal"},
-	{5, "small stamina", "Small stamina, 50% stamina"},
-	{6, "large stamina", "Large stamina, full stamina"},
-};
+// The ids of one item type, from the game's item table (src/world/items.h).
+Choices itemIds(int type) {
+	Choices ids;
+	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
+		ItemKind kind = itemAt(i);
+		ItemFileId file = fileIdOf(kind);
+		if (file.type != type)
+			continue;
+		const ItemText& text = itemText(kind);
+		std::string meaning = text.name;
+		if (*text.effect != '\0')
+			meaning += std::string(", ") + text.effect;
+		ids.push_back({file.id, text.label, meaning});
+	}
+	return ids;
+}
+
+const Choices MELEE_WEAPONS = itemIds(ItemType::MELEE_WEAPON);
+const Choices RANGED_WEAPONS = itemIds(ItemType::RANGED_WEAPON);
+const Choices POTIONS = itemIds(ItemType::POTION);
 
 const Choices GATE_STATES = {{0, "closed", "Closed"}, {1, "open", "Open"}};
 const Choices ZERO_ONLY = {{0, "only", "Set by the game while playing"}};
@@ -168,11 +175,11 @@ CellHint describeCell(const Tile& cell) {
 		break;
 	case Treasure:
 		hint.attribute = field("item type", ITEM_TYPES, cell.attr, "unknown, gives nothing");
-		if (cell.attr == ITEM_MELEE)
+		if (cell.attr == ItemType::MELEE_WEAPON)
 			hint.value = field("weapon", MELEE_WEAPONS, cell.value, "unknown, gives nothing");
-		else if (cell.attr == ITEM_RANGED)
+		else if (cell.attr == ItemType::RANGED_WEAPON)
 			hint.value = field("weapon", RANGED_WEAPONS, cell.value, "unknown, gives nothing");
-		else if (cell.attr == ITEM_POTION)
+		else if (cell.attr == ItemType::POTION)
 			hint.value = field("potion", POTIONS, cell.value, "unknown, gives nothing");
 		break;
 	case Key:

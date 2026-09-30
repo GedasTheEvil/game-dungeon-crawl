@@ -64,7 +64,7 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			LootItem loot = RollMimicLoot();
+			ItemFileId loot = fileIdOf(RollMimicLoot());
 			map[MapIndex(mon.Col(), mon.Row())] = Tile{Treasure, loot.type, loot.id};
 			mon.Clear();
 			continue;
@@ -258,7 +258,7 @@ void Dungeon::drawHitboxes() {
 	if (const Item* weapon = Game().ui.inventory->Equipped()) {
 		const auto dir = static_cast<float>(Game().camera.Facing());
 		const float reach = 0.1f * static_cast<float>(weapon->range);
-		const float from = Game().ui.inventory->EquippedType() == ItemType::RANGED_WEAPON ? 0.f : half;
+		const float from = isRanged(Game().ui.inventory->EquippedKind()) ? 0.f : half;
 		glColor3f(1, 1, 0.2f);
 		box(mapX + dir * from, mapX + dir * (from + reach), mapY, mapY + player.Height() / 2.f);
 	}

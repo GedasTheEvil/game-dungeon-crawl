@@ -96,10 +96,9 @@ struct Command {
 	std::string arg;  // level path / screenshot name
 	int ticks = 0;	  // wait
 	GameplayAction action = GameplayAction::None;
-	float a = 0.f;	  // walk distance, camera rotM, expect value
-	float b = 0.f;	  // camera rotN
-	int itemType = 0; // give / expect count: item type
-	int itemId = 0;
+	float a = 0.f;					// walk distance, camera rotM, expect value
+	float b = 0.f;					// camera rotN
+	ItemKind item = ItemKind::Club; // give / chest / expect count
 	Field field = Field::X;
 	Op op = Op::Eq;
 };
@@ -201,9 +200,9 @@ float fieldValue(const Command& cmd) {
 	case Field::Armor:
 		return static_cast<float>(Game().player->stats.CurrentArmor());
 	case Field::EquipType:
-		return static_cast<float>(Game().ui.inventory->EquippedType());
+		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).type);
 	case Field::EquipId:
-		return static_cast<float>(Game().ui.inventory->EquippedId());
+		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).id);
 	case Field::Keys:
 		return static_cast<float>(Game().dungeon.KeysHeld());
 	case Field::XpTotal:
@@ -219,9 +218,9 @@ float fieldValue(const Command& cmd) {
 	case Field::Nearest:
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::ItemCount:
-		return static_cast<float>(Game().ui.inventory->Count(cmd.itemType, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Count(cmd.item));
 	case Field::ItemLevel:
-		return static_cast<float>(Game().ui.inventory->Level(cmd.itemType, cmd.itemId));
+		return static_cast<float>(Game().ui.inventory->Level(cmd.item));
 	}
 	return 0.f;
 }
@@ -334,10 +333,14 @@ bool parseItemType(const std::string& word, int& type) {
 // Item counts are written as the type followed by the id: "potion2", "melee0"; ".level" gives the item level.
 bool parseItemCountField(const std::string& word, Command& cmd) {
 	size_t digits = word.find_first_of("0123456789");
-	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), cmd.itemType))
+	int type = 0;
+	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), type))
 		return false;
 	char* end = nullptr;
-	cmd.itemId = static_cast<int>(strtol(word.c_str() + digits, &end, 10));
+	std::optional<ItemKind> item = itemFromFile(type, static_cast<int>(strtol(word.c_str() + digits, &end, 10)));
+	if (!item)
+		return false;
+	cmd.item = *item;
 	std::string suffix = end;
 	if (suffix.empty())
 		cmd.field = Field::ItemCount;
@@ -522,12 +525,17 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 	}
 	if (name == "give" || name == "chest") {
 		cmd.type = name == "give" ? CommandType::Give : CommandType::Chest;
+		int type = 0;
 		float id = 0.f;
 		float count = 1.f;
-		if (argc < 2 || argc > 3 || !parseItemType(w[1], cmd.itemType) || !parseFloat(w[2], id) ||
+		std::string usage = "usage: " + name + " <melee|ranged|potion> <id> [count], with a known id";
+		if (argc < 2 || argc > 3 || !parseItemType(w[1], type) || !parseFloat(w[2], id) ||
 			(argc == 3 && !parseFloat(w[3], count)))
-			return "usage: " + name + " <melee|ranged|potion> <id> [count]";
-		cmd.itemId = static_cast<int>(id);
+			return usage;
+		std::optional<ItemKind> item = itemFromFile(type, static_cast<int>(id));
+		if (!item)
+			return usage;
+		cmd.item = *item;
 		cmd.ticks = static_cast<int>(count);
 		return "";
 	}
@@ -721,7 +729,7 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
-			Game().ui.inventory->AddItem(cmd.itemType, cmd.itemId);
+			Game().ui.inventory->AddItem(cmd.item);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
@@ -752,10 +760,10 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<LootItem> loot = RollChestLoot(cmd.itemType, cmd.itemId);
+			std::vector<ItemKind> loot = RollChestLoot(cmd.item);
 			bonus += static_cast<int>(loot.size()) - 1;
-			for (const LootItem& entry : loot)
-				Game().ui.inventory->AddItem(entry.type, entry.id);
+			for (ItemKind entry : loot)
+				Game().ui.inventory->AddItem(entry);
 		}
 		report(cmd, true, std::to_string(bonus) + " bonus items");
 		return true;

@@ -51,75 +51,46 @@ constexpr int TOAST_FADE_MS = 600;
 constexpr int GLUT_BUTTON_DOWN = 0; // GLUT_DOWN / GLUT_UP
 constexpr int GLUT_BUTTON_UP = 1;
 
-// Weapon levels: going from level L to L + 1 takes 2^L copies collected; each level adds 20% base damage.
-constexpr int MAX_LEVEL = 10;
-constexpr float DAMAGE_PER_LEVEL = 0.2f;
-
 constexpr const char* HOTKEYS = "1234567890-"; // one per slot, the keyboard's number row
 
-struct SlotDef {
-	int type;
-	int id;
-};
+ItemKind kindOf(int slot) { return itemAt(slot); }
+bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
 
-constexpr std::array<SlotDef, InvSlot::COUNT> SLOTS = {{
-	{ItemType::MELEE_WEAPON, WeaponId::CLUB},
-	{ItemType::MELEE_WEAPON, WeaponId::SWORD},
-	{ItemType::MELEE_WEAPON, WeaponId::SPEAR},
-	{ItemType::RANGED_WEAPON, WeaponId::BOW},
-	{ItemType::POTION, PotionId::SMALL_HEALTH},
-	{ItemType::POTION, PotionId::LARGE_HEALTH},
-	{ItemType::POTION, PotionId::STRENGTH},
-	{ItemType::POTION, PotionId::ARMOR},
-	{ItemType::POTION, PotionId::LIFE},
-	{ItemType::POTION, PotionId::SMALL_STAMINA},
-	{ItemType::POTION, PotionId::LARGE_STAMINA},
-}};
-
-struct ItemInfo {
-	const char* name;
-	const char* shortName; // fits the slot's name band
-	const char* effect;	   // potions only
-	const char* lore1;
-	const char* lore2;
-};
-
-constexpr std::array<ItemInfo, InvSlot::COUNT> INFO = {{
-	{"Club", "Club", "", "Good old club.", "Now with spikes."},
-	{"Sword", "Sword", "", "Bronze blade of a", "forgotten guard."},
-	{"Spear", "Spear", "", "Long reach.", "None shall pass!"},
-	{"Bow", "Bow", "", "The simple bow.", "For slow monsters."},
-	{"Small Health", "Heal", "Heals 25% of max health", "Bitter herbs from", "the Nile marshes."},
-	{"Large Health", "Heal+", "Heals 50% of max health", "Brewed by the priests", "of Sekhmet."},
-	{"Aphethamine", "Might", "Might +2, for good", "It tingles. Best not", "ask what is in it."},
-	{"Stone Skin", "Armor", "Armor +2, for good", "Skin as hard as", "temple granite."},
-	{"Elixir of Life", "Life", "Max health +5%, full heal", "The breath of Osiris,", "sealed in a flask."},
-	{"Small Stamina", "Vigor", "Restores 50% of stamina", "Date wine and honey.", "Mostly honey."},
-	{"Large Stamina", "Vigor+", "Restores all stamina", "Sun-steeped water", "from the temple of Ra."},
-}};
-
-bool isPotion(int slot) { return slot >= InvSlot::FIRST_POTION; }
-
-constexpr std::array<Color, PotionId::COUNT> POTION_COLORS = {{
+constexpr std::array<Color, POTION_KIND_COUNT> POTION_COLORS = {{
 	{1.f, 0.f, 0.f},	   // small health
 	{0.7f, 0.f, 0.3f},	   // large health
-	{0.4f, 0.f, 0.6f},	   // strength
+	{0.4f, 0.f, 0.6f},	   // might
 	{1.f, 0.6f, 0.f},	   // armor
 	{0.7f, 0.6f, 0.3f},	   // life
 	{0.45f, 0.85f, 0.25f}, // small stamina: green faience
 	{0.15f, 0.78f, 0.72f}, // large stamina: turquoise
 }};
 
-Color potionColor(int potionId) { return POTION_COLORS[static_cast<size_t>(potionId)]; }
+Color potionColor(ItemKind potion) { return POTION_COLORS[static_cast<size_t>(itemIndex(potion) - WEAPON_KIND_COUNT)]; }
 
-int slotOfPotion(int potionId) { return InvSlot::FIRST_POTION + potionId; }
+Vitals playerVitals() {
+	const PlayerStats& s = Game().player->stats;
+	return {Game().player->Alive(), s.CurrentHP(), s.CurrentMaxHP(), s.Stamina(), s.MaxStamina()};
+}
 
-// Copies needed to go from `level` to the next one.
-int upgradeCost(int level) { return 1 << level; }
-
-int weaponDamage(const Item* weapon, int level) {
-	float bonus = 1.f + DAMAGE_PER_LEVEL * static_cast<float>(level - 1);
-	return static_cast<int>(std::lround(static_cast<float>(weapon->damage) * bonus));
+const char* blockReason(UseBlock block) {
+	switch (block) {
+	case UseBlock::Dead:
+		return "You are dead";
+	case UseBlock::NotFound:
+		return "Not found yet";
+	case UseBlock::NoneLeft:
+		return "None left";
+	case UseBlock::Equipped:
+		return "Equipped";
+	case UseBlock::HealthFull:
+		return "Health is full";
+	case UseBlock::StaminaFull:
+		return "Stamina is full";
+	case UseBlock::None:
+		break;
+	}
+	return "";
 }
 
 Rect slotRect(int slot) {
@@ -131,8 +102,8 @@ Rect slotRect(int slot) {
 	}
 	constexpr float W = 11.2f;
 	constexpr float GAP = 1.3f;
-	float x0 = ITEMS_PANEL.cx() - (PotionId::COUNT * W + (PotionId::COUNT - 1) * GAP) / 2;
-	int column = slot - InvSlot::FIRST_POTION;
+	float x0 = ITEMS_PANEL.cx() - (POTION_KIND_COUNT * W + (POTION_KIND_COUNT - 1) * GAP) / 2;
+	int column = slot - WEAPON_KIND_COUNT;
 	return {x0 + static_cast<float>(column) * (W + GAP), POTION_ROW_Y, W, POTION_SLOT_H};
 }
 
@@ -156,12 +127,7 @@ Inventory::Inventory() {
 }
 
 void Inventory::Reset() {
-	for (int& count : counts)
-		count = 0;
-	counts[0] = 1; // everyone starts with the club
-	for (int& level : levels)
-		level = 1;
-	equippedSlot = 0;
+	bag.Reset();
 	selectedSlot = 0;
 	toast.clear();
 	quickDrinkMs.reset();
@@ -170,158 +136,77 @@ void Inventory::Reset() {
 
 Inventory::~Inventory() {}
 
-Item* Inventory::SlotItem(int slot) {
-	switch (slot) {
-	case 0:
-		return Game().assets.items.club.get();
-	case 1:
-		return Game().assets.items.sword.get();
-	case 2:
-		return Game().assets.items.spear.get();
-	case 3:
-		return Game().assets.items.bow.get();
-	default:
-		return Game().assets.items.potion.get();
-	}
-}
+Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
-int Inventory::SlotFromItem(int type, int id) {
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
-		if (SLOTS[slot].type == type && SLOTS[slot].id == id)
-			return slot;
-	return InvSlot::NONE;
-}
-
-void Inventory::AddItem(int type, int id) {
-	int slot = SlotFromItem(type, id);
-	if (slot == InvSlot::NONE) {
-		LOG_ERRORF("ui", "Unknown item type %d id %d", type, id);
-		return;
-	}
-	counts[slot]++;
-}
-
-int Inventory::Count(int type, int id) const {
-	int slot = SlotFromItem(type, id);
-	return slot == InvSlot::NONE ? 0 : counts[slot];
-}
-
-Item* Inventory::Equipped() { return SlotItem(equippedSlot); }
-
-int Inventory::EquippedType() const { return SLOTS[equippedSlot].type; }
-
-int Inventory::EquippedId() const { return SLOTS[equippedSlot].id; }
-
-int Inventory::Level(int type, int id) const {
-	int slot = SlotFromItem(type, id);
-	return slot == InvSlot::NONE ? 0 : levels[slot];
-}
-
-int Inventory::EquippedDamage() const { return weaponDamage(SlotItem(equippedSlot), levels[equippedSlot]); }
-
-const char* Inventory::ItemName(int type, int id) {
-	int slot = SlotFromItem(type, id);
-	return slot == InvSlot::NONE ? "?" : INFO[slot].name;
-}
+int Inventory::EquippedDamage() const { return weaponDamage(Model(bag.Equipped())->damage, bag.Level(bag.Equipped())); }
 
 // ---- actions ---------------------------------------------------------------
 
 bool Inventory::CanUse(int slot, const char** reason) const {
-	const PlayerStats* s = &Game().player->stats;
-	const char* why = nullptr;
-	if (!Game().player->Alive())
-		why = "You are dead";
-	else if (counts[slot] <= 0)
-		why = isPotion(slot) ? "None left" : "Not found yet";
-	else if (slot == equippedSlot)
-		why = "Equipped";
-	else if (isPotion(slot) && (SLOTS[slot].id == PotionId::SMALL_HEALTH || SLOTS[slot].id == PotionId::LARGE_HEALTH) &&
-			 s->CurrentHP() >= s->CurrentMaxHP())
-		why = "Health is full";
-	else if (isPotion(slot) &&
-			 (SLOTS[slot].id == PotionId::SMALL_STAMINA || SLOTS[slot].id == PotionId::LARGE_STAMINA) &&
-			 Game().player->stats.Stamina() >= Game().player->stats.MaxStamina())
-		why = "Stamina is full";
-
+	UseBlock block = bag.Block(kindOf(slot), playerVitals());
 	if (reason != nullptr)
-		*reason = why != nullptr ? why : (isPotion(slot) ? "Drink" : "Equip");
-	return why == nullptr;
+		*reason = block != UseBlock::None ? blockReason(block) : (isPotion(slot) ? "Drink" : "Equip");
+	return block == UseBlock::None;
 }
 
-bool Inventory::CanUpgrade(int slot) const {
-	return !isPotion(slot) && Game().player->Alive() && levels[slot] < MAX_LEVEL &&
-		   counts[slot] >= upgradeCost(levels[slot]);
-}
+bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive()); }
 
 void Inventory::Upgrade(int slot) {
-	if (!CanUpgrade(slot))
+	if (!bag.Upgrade(kindOf(slot), Game().player->Alive()))
 		return;
-	levels[slot]++;
 	char buf[64];
-	snprintf(buf, sizeof(buf), "%s reaches level %d", INFO[slot].name, levels[slot]);
+	snprintf(buf, sizeof(buf), "%s reaches level %d", itemText(kindOf(slot)).name, bag.Level(kindOf(slot)));
 	ShowToast(buf);
 }
 
 void Inventory::Use(int slot) {
+	ItemKind kind = kindOf(slot);
 	if (!CanUse(slot, nullptr))
 		return;
-
-	if (isPotion(slot)) {
-		ShowToast(DrinkPotion(SLOTS[slot].id));
+	if (::isPotion(kind)) {
+		ShowToast(DrinkPotion(kind));
 		return;
 	}
-	equippedSlot = slot;
-	ShowToast(std::string(INFO[slot].name) + " equipped");
+	bag.Use(kind, playerVitals());
+	ShowToast(std::string(itemText(kind).name) + " equipped");
 }
 
-std::string Inventory::DrinkPotion(int potionId) {
+std::string Inventory::DrinkPotion(ItemKind potion) {
 	PlayerStats* s = &Game().player->stats;
 	int hpBefore = s->CurrentHP();
-	int staminaBefore = Game().player->stats.Stamina();
+	int staminaBefore = s->Stamina();
 
 	Game().assets.sounds.drink_s.Play();
-	counts[slotOfPotion(potionId)]--;
+	bag.Use(potion, playerVitals());
 
+	PotionGain gain = potionGain(potion);
 	char buf[64];
-	switch (potionId) {
-	case PotionId::SMALL_HEALTH:
-	case PotionId::LARGE_HEALTH:
-		s->Heal(potionId == PotionId::SMALL_HEALTH ? PotionEffect::SMALL_HEAL_PERCENT
-												   : PotionEffect::LARGE_HEAL_PERCENT);
+	if (gain.healPercent > 0) {
+		s->Heal(gain.healPercent);
 		snprintf(buf, sizeof(buf), "Healed %d health", s->CurrentHP() - hpBefore);
-		break;
-	case PotionId::STRENGTH:
-		s->AddMight(2);
+	} else if (gain.might > 0) {
+		s->AddMight(gain.might);
 		snprintf(buf, sizeof(buf), "Might rises to %d", s->CurrentMight());
-		break;
-	case PotionId::ARMOR:
-		s->AddArmor(2);
+	} else if (gain.armor > 0) {
+		s->AddArmor(gain.armor);
 		snprintf(buf, sizeof(buf), "Armor rises to %d", s->CurrentArmor());
-		break;
-	case PotionId::LIFE:
-		s->AddMaxHP(5);
+	} else if (gain.maxHpPercent > 0) {
+		s->AddMaxHP(gain.maxHpPercent);
 		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
-		break;
-	default: // stamina
-		Game().player->stats.AddStamina(Game().player->stats.MaxStamina() *
-										(potionId == PotionId::SMALL_STAMINA ? PotionEffect::SMALL_STAMINA_PERCENT
-																			 : PotionEffect::LARGE_STAMINA_PERCENT) /
-										100);
-		snprintf(buf, sizeof(buf), "Restored %d stamina", Game().player->stats.Stamina() - staminaBefore);
-		break;
+	} else {
+		s->AddStamina(s->MaxStamina() * gain.staminaPercent / 100);
+		snprintf(buf, sizeof(buf), "Restored %d stamina", s->Stamina() - staminaBefore);
 	}
 	return buf;
 }
 
-int Inventory::QuickChoice(QuickKind kind) const {
+std::optional<ItemKind> Inventory::QuickChoice(QuickKind kind) const {
 	const PlayerStats& s = Game().player->stats;
 	bool health = kind == QuickKind::Health;
-	int small = counts[slotOfPotion(health ? PotionId::SMALL_HEALTH : PotionId::SMALL_STAMINA)];
-	int large = counts[slotOfPotion(health ? PotionId::LARGE_HEALTH : PotionId::LARGE_STAMINA)];
 	int current = health ? s.CurrentHP() : s.Stamina();
 	int max = health ? s.CurrentMaxHP() : s.MaxStamina();
 	// At full, still show what a hit would make it drink: the pick for one point missing.
-	return quickPotion(kind, std::min(current, max - 1), max, small, large);
+	return bag.QuickChoice(kind, std::min(current, max - 1), max);
 }
 
 void Inventory::QuickDrink(QuickKind kind) {
@@ -331,28 +216,28 @@ void Inventory::QuickDrink(QuickKind kind) {
 	const PlayerStats& s = Game().player->stats;
 	bool health = kind == QuickKind::Health;
 	bool full = health ? s.CurrentHP() >= s.CurrentMaxHP() : s.Stamina() >= s.MaxStamina();
-	int potion = QuickChoice(kind);
+	std::optional<ItemKind> potion = QuickChoice(kind);
 	if (full) {
 		Game().ShowStatus(health ? "You are at full health" : "You are at full energy");
 		return;
 	}
-	if (potion == NO_POTION) {
+	if (!potion) {
 		Game().ShowStatus(health ? "No healing potion left" : "No stamina potion left");
 		return;
 	}
 	quickDrinkMs = now;
 	quickDrinkKind = kind;
-	Game().ShowStatus("%s", DrinkPotion(potion).c_str());
+	Game().ShowStatus("%s", DrinkPotion(*potion).c_str());
 }
 
 std::optional<int> Inventory::QuickDrinkMs(QuickKind kind) const {
 	return quickDrinkKind == kind ? quickDrinkMs : std::nullopt;
 }
 
-Color Inventory::PotionColor(int potionId) { return potionColor(potionId); }
+Color Inventory::PotionColor(ItemKind potion) { return potionColor(potion); }
 
 void Inventory::Select(int slot) {
-	if (slot >= 0 && slot < InvSlot::COUNT)
+	if (slot >= 0 && slot < ITEM_KIND_COUNT)
 		selectedSlot = slot;
 }
 
@@ -361,13 +246,13 @@ void Inventory::MoveSelection(int dx, int dy) {
 	int slot = selectedSlot + dx;
 	if (dy != 0) {
 		bool onPotions = isPotion(selectedSlot);
-		int column = onPotions ? selectedSlot - InvSlot::FIRST_POTION : selectedSlot;
+		int column = onPotions ? selectedSlot - WEAPON_KIND_COUNT : selectedSlot;
 		if (dy < 0 && !onPotions)
-			slot = InvSlot::FIRST_POTION + column;
+			slot = WEAPON_KIND_COUNT + column;
 		else if (dy > 0 && onPotions)
-			slot = column < InvSlot::FIRST_POTION ? column : InvSlot::FIRST_POTION - 1;
+			slot = column < WEAPON_KIND_COUNT ? column : WEAPON_KIND_COUNT - 1;
 	}
-	if (slot >= 0 && slot < InvSlot::COUNT)
+	if (slot >= 0 && slot < ITEM_KIND_COUNT)
 		selectedSlot = slot;
 }
 
@@ -379,8 +264,8 @@ void Inventory::ShowToast(const std::string& text) {
 // ---- input -----------------------------------------------------------------
 
 void Inventory::UpdateHover(float x, float y) {
-	hoveredSlot = InvSlot::NONE;
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
+	hoveredSlot = NO_SLOT;
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		if (slotRect(slot).contains(x, y))
 			hoveredSlot = slot;
 	hoveredButton = Target::None;
@@ -412,7 +297,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	if (state == GLUT_BUTTON_DOWN) {
 		pressedMouseButton = button;
 		pressed = Target::None;
-		if (hoveredSlot != InvSlot::NONE) {
+		if (hoveredSlot != NO_SLOT) {
 			pressed = Target::Slot;
 			pressedSlot = hoveredSlot;
 			Select(hoveredSlot);
@@ -432,7 +317,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	else if (pressed == Target::Slot && button == MOUSE_RIGHT_BUTTON && hoveredSlot == pressedSlot)
 		Use(pressedSlot);
 	pressed = Target::None;
-	pressedSlot = InvSlot::NONE;
+	pressedSlot = NO_SLOT;
 }
 
 void Inventory::KeyPressed(unsigned char key) {
@@ -510,7 +395,7 @@ void Inventory::Draw() {
 	lastFrameMs = now;
 	if (elapsed < 0 || elapsed > 100)
 		elapsed = 0;
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		if (slot == selectedSlot || slot == hoveredSlot)
 			slotAngle[slot] = std::fmod(slotAngle[slot] + SPIN_DEG_PER_MS * static_cast<float>(elapsed), 360.f);
 
@@ -524,7 +409,7 @@ void Inventory::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	DrawBackground();
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		DrawSlot(slot);
 	DrawDetails();
 	DrawButtons();
@@ -535,13 +420,13 @@ void Inventory::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		DrawSlotModel(slot);
 	DrawDetailModel();
 	glDisable(GL_DEPTH_TEST);
 
 	beginText();
-	for (int slot = 0; slot < InvSlot::COUNT; slot++)
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		DrawSlotLabels(slot);
 	DrawFooter();
 
@@ -598,7 +483,7 @@ void Inventory::DrawSlot(int slot) {
 	bool hovered = slot == hoveredSlot;
 	bool selected = slot == selectedSlot;
 	bool held = SlotHeld(slot);
-	bool owned = counts[slot] > 0;
+	bool owned = bag.Count(kindOf(slot)) > 0;
 
 	if (selected) {
 		// Soft gold halo that breathes.
@@ -612,7 +497,7 @@ void Inventory::DrawSlot(int slot) {
 
 	// Name band: lapis for the weapon in hand, dark stone otherwise.
 	Rect band = {r.x, r.y, r.w, NAME_BAND_H};
-	if (slot == equippedSlot)
+	if (kindOf(slot) == bag.Equipped())
 		fillRect(band, LAPIS, LAPIS_DARK, 1.f);
 	else
 		fillRect(band, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
@@ -658,12 +543,12 @@ void Inventory::DrawSlot(int slot) {
 void Inventory::DrawSlotModel(int slot) {
 	Rect r = slotRect(slot);
 	bool held = SlotHeld(slot);
-	Item* model = SlotItem(slot);
+	Item* model = Model(kindOf(slot));
 
 	Color tint = {1, 1, 1};
 	if (isPotion(slot))
-		tint = potionColor(SLOTS[slot].id);
-	if (counts[slot] <= 0)
+		tint = potionColor(kindOf(slot));
+	if (bag.Count(kindOf(slot)) <= 0)
 		tint = {0.07f, 0.055f, 0.04f};
 	else if (slot != selectedSlot && slot != hoveredSlot)
 		tint = {tint.r * 0.8f, tint.g * 0.8f, tint.b * 0.8f};
@@ -685,33 +570,33 @@ void Inventory::DrawSlotLabels(int slot) {
 	Rect r = slotRect(slot);
 	if (SlotHeld(slot))
 		r.y -= TILE_SINK;
-	bool owned = counts[slot] > 0;
+	bool owned = bag.Count(kindOf(slot)) > 0;
 	bool lit = slot == selectedSlot || slot == hoveredSlot;
 
 	Color nameColor = lit ? GOLD : Color{0.78f, 0.64f, 0.40f};
 	if (!owned)
 		nameColor = {0.36f, 0.29f, 0.20f};
-	textCentered(small, r.cx(), r.y + 0.7f, INFO[slot].shortName, nameColor);
+	textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
 
 	char key[2] = {HOTKEYS[slot], '\0'};
 	text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
 
 	if (isPotion(slot) && owned) {
 		char count[8];
-		snprintf(count, sizeof(count), "%d", counts[slot]);
+		snprintf(count, sizeof(count), "%d", bag.Count(kindOf(slot)));
 		textCentered(small, r.x + r.w - 2.55f, r.y + r.h - 3.7f, count, GOLD);
 	}
 
 	if (!isPotion(slot) && owned) {
 		char level[8];
-		snprintf(level, sizeof(level), "Lv %d", levels[slot]);
+		snprintf(level, sizeof(level), "Lv %d", bag.Level(kindOf(slot)));
 		text(small, r.x + r.w - small.TextWidth(level) - 1.f, r.y + r.h - 3.8f, level, lit ? GOLD : GOLD_DIM);
 	}
 }
 
 void Inventory::DrawDetails() {
-	const ItemInfo& info = INFO[selectedSlot];
-	bool owned = counts[selectedSlot] > 0;
+	const ItemText& info = itemText(kindOf(selectedSlot));
+	bool owned = bag.Count(kindOf(selectedSlot)) > 0;
 	float cx = DETAIL_PANEL.cx();
 
 	// Shadow under the model on its plinth line.
@@ -721,10 +606,9 @@ void Inventory::DrawDetails() {
 	textCentered(heading, cx, 77.5f, info.name, owned ? INK : INK_FADED);
 	char kind[48] = "Potion";
 	if (!isPotion(selectedSlot)) {
-		const char* weaponKind =
-			SLOTS[selectedSlot].type == ItemType::MELEE_WEAPON ? "Close combat weapon" : "Ranged weapon";
+		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat weapon" : "Ranged weapon";
 		if (owned)
-			snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, levels[selectedSlot]);
+			snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
 		else
 			snprintf(kind, sizeof(kind), "%s", weaponKind);
 	}
@@ -737,9 +621,9 @@ void Inventory::DrawDetails() {
 	} else if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
 	} else {
-		Item* shown = SlotItem(selectedSlot);
+		Item* shown = Model(kindOf(selectedSlot));
 		Item* current = Equipped();
-		int shownDamage = weaponDamage(shown, levels[selectedSlot]);
+		int shownDamage = weaponDamage(shown->damage, bag.Level(kindOf(selectedSlot)));
 		char buf[48];
 		float labelX = DETAIL_PANEL.x + 9;
 		float valueX = DETAIL_PANEL.x + 30;
@@ -747,7 +631,7 @@ void Inventory::DrawDetails() {
 			text(body, labelX, y, label, INK_FADED);
 			snprintf(buf, sizeof(buf), "%d", value);
 			text(body, valueX, y, buf, INK);
-			if (selectedSlot == equippedSlot || value == currentValue)
+			if (kindOf(selectedSlot) == bag.Equipped() || value == currentValue)
 				return;
 			snprintf(buf, sizeof(buf), "%+d", value - currentValue);
 			text(body, valueX + body.TextWidth("000") + 1, y, buf, value > currentValue ? INK_GREEN : INK_RED);
@@ -756,15 +640,15 @@ void Inventory::DrawDetails() {
 		statRow(STAT_Y, "Range", shown->range, current->range);
 
 		// Progress towards the next level: copies collected / copies needed.
-		int level = levels[selectedSlot];
+		int level = bag.Level(kindOf(selectedSlot));
 		text(body, labelX, STAT_Y - 3.5f, "Copies", INK_FADED);
-		if (level >= MAX_LEVEL) {
+		if (level >= MAX_WEAPON_LEVEL) {
 			text(body, valueX, STAT_Y - 3.5f, "Max level", INK);
 		} else {
 			int cost = upgradeCost(level);
-			snprintf(buf, sizeof(buf), "%d / %d", counts[selectedSlot], cost);
-			text(body, valueX, STAT_Y - 3.5f, buf, counts[selectedSlot] >= cost ? INK_GREEN : INK);
-			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(shown, level + 1));
+			snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
+			text(body, valueX, STAT_Y - 3.5f, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
+			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(shown->damage, level + 1));
 			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, STAT_Y - 3.3f, buf, INK_FADED);
 		}
 	}
@@ -783,10 +667,10 @@ void Inventory::DrawDetails() {
 }
 
 void Inventory::DrawDetailModel() {
-	Item* model = SlotItem(selectedSlot);
+	Item* model = Model(kindOf(selectedSlot));
 	bool potion = isPotion(selectedSlot);
-	Color tint = potion ? potionColor(SLOTS[selectedSlot].id) : Color{1, 1, 1};
-	if (counts[selectedSlot] <= 0)
+	Color tint = potion ? potionColor(kindOf(selectedSlot)) : Color{1, 1, 1};
+	if (bag.Count(kindOf(selectedSlot)) <= 0)
 		tint = {0.12f, 0.08f, 0.05f};
 
 	float savedScale = model->scale;
@@ -892,60 +776,7 @@ void Inventory::DrawFooter() {
 
 // ---- saves -----------------------------------------------------------------
 
-// Current format: "INV2 <slots> <counts...> <levels...> <equipped type> <equipped id>".
-// Older saves start straight with the 9 counts of the original slots.
-void Inventory::Dump(std::ofstream& f) {
-	f << "INV2 " << InvSlot::COUNT << " ";
-	for (int count : counts)
-		f << count << " ";
-	for (int level : levels)
-		f << level << " ";
-	f << EquippedType() << " " << EquippedId() << "\n";
-}
-
-void Inventory::LoadDump(std::ifstream& f) {
-	for (int& count : counts)
-		count = 0;
-	for (int& level : levels)
-		level = 1;
-
-	std::string tok;
-	f >> tok;
-	int type = ItemType::MELEE_WEAPON;
-	int id = WeaponId::CLUB;
-	if (tok == "INV2") {
-		int slots = 0;
-		f >> slots;
-		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
-		for (int& count : saved)
-			f >> count;
-		for (size_t slot = 0; slot < saved.size() && slot < InvSlot::COUNT; slot++)
-			counts[slot] = saved[slot];
-		for (int& level : saved)
-			f >> level;
-		for (size_t slot = 0; slot < saved.size() && slot < InvSlot::COUNT; slot++)
-			levels[slot] = saved[slot] < 1 ? 1 : saved[slot];
-		f >> type >> id;
-	} else {
-		counts[0] = std::stoi(tok);
-		for (int slot = 1; slot < InvSlot::LEGACY_COUNT; slot++)
-			f >> counts[slot];
-
-		// equipped.type/id were added after older saves were written.
-		// Old saves have mapX (a float like "3.32501") at this position.
-		// Peek at the next token: if it contains '.', it's mapX — rewind and skip.
-		auto pos = f.tellg();
-		if ((f >> tok) && tok.find('.') == std::string::npos) {
-			type = std::stoi(tok);
-			if (!(f >> id))
-				f.clear();
-		} else {
-			f.clear();
-			f.seekg(pos);
-		}
-	}
-
-	int slot = SlotFromItem(type, id);
-	equippedSlot = slot != InvSlot::NONE && !isPotion(slot) ? slot : 0;
-	selectedSlot = equippedSlot;
+void Inventory::LoadDump(std::istream& f) {
+	bag.Load(f);
+	selectedSlot = itemIndex(bag.Equipped());
 }

@@ -1,4 +1,5 @@
 #include "level_gen.h"
+#include "items.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -15,11 +16,6 @@ constexpr int MONSTER_GAP = 3;		// cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
 constexpr int MIMIC_MIN_DIFFICULTY = 2;
 constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_DIFFICULTY on
-
-// Item types and ids as in ui/inventory.h (not included: it pulls in GL).
-constexpr int ITEM_MELEE = 1;
-constexpr int ITEM_RANGED = 2;
-constexpr int ITEM_POTION = 3;
 
 class Rng { // splitmix64: the same sequence on every platform
   public:
@@ -313,21 +309,21 @@ class LevelBuilder {
 	Tile randomChest() {
 		int roll = rng.range(0, 99);
 		if (roll < 62) {
-			// small health, large health, might, armour, life, small stamina, large stamina
-			static const int WEIGHTS[7] = {30, 15, 10, 10, 5, 20, 10};
+			// small health, large health, might, armour, life, small stamina, large stamina (the potion ids)
+			static const int WEIGHTS[POTION_KIND_COUNT] = {30, 15, 10, 10, 5, 20, 10};
 			int pick = rng.range(0, 99);
 			int id = 0;
 			while (pick >= WEIGHTS[id]) {
 				pick -= WEIGHTS[id];
 				id++;
 			}
-			return Tile{Treasure, ITEM_POTION, id};
+			return Tile{Treasure, ItemType::POTION, id};
 		}
 		if (roll < 88) {
 			int id = rng.range(0, 99) < 20 + 6 * d ? rng.range(1, 2) : 0; // sword / spear more often later
-			return Tile{Treasure, ITEM_MELEE, id};
+			return Tile{Treasure, ItemType::MELEE_WEAPON, id};
 		}
-		return Tile{Treasure, ITEM_RANGED, 0};
+		return Tile{Treasure, ItemType::RANGED_WEAPON, 0};
 	}
 
 	int randomMonster() {

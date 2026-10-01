@@ -53,6 +53,9 @@ void Dungeon::UpdateMonsters() {
 		if (!mon.Active() || mon.Emerging())
 			continue;
 
+		if (std::optional<ItemKind> drop = mon.TakeDrop())
+			dropChest(mon, *drop);
+
 		if (mon.flies()) {
 			if (!Game().hasWon) {
 				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
@@ -95,6 +98,41 @@ void Dungeon::UpdateMonsters() {
 					mon.Attack(mapY);
 		}
 	}
+}
+//======================================================================================
+// A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
+// free floor cell beside it; lost if there is none (a kill over a pit or a trap).
+void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
+	constexpr int MAX_FALL = 12;
+	constexpr int MAX_SIDE = 3;
+	const auto deathCol = static_cast<int>(std::floor(mon.CentreX()));
+	auto floorCell = [this](int col, int row) {
+		for (int fall = 0; fall < MAX_FALL && IsInBounds(col, row - 1); fall++) {
+			if (MapAt(col, row).type != Empty)
+				return -1;
+			if (isSolidTile(MapAt(col, row - 1)))
+				return row;
+			row--;
+		}
+		return -1;
+	};
+	for (int side = 0; side <= MAX_SIDE; side++)
+		for (int dir : {1, -1}) {
+			const int col = deathCol + side * dir;
+			const int row = IsInBounds(col, mon.Row()) ? floorCell(col, mon.Row()) : -1;
+			if (row < 0)
+				continue;
+			const ItemFileId loot = fileIdOf(weapon);
+			map[MapIndex(col, row)] = Tile{Treasure, loot.type, loot.id};
+			return;
+		}
+}
+//======================================================================================
+int Dungeon::ChestCount() const {
+	int n = 0;
+	for (const Tile& t : map)
+		n += t.type == Treasure ? 1 : 0;
+	return n;
 }
 //======================================================================================
 int Dungeon::MonsterBarsShown() const {

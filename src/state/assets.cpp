@@ -164,11 +164,11 @@ const struct {
 	{MonsterScarab, {NORMAL, RESISTS, WEAK}},	   // the shell turns a blade, a point goes between the plates
 	{MonsterGiantScarab, {NORMAL, RESISTS, WEAK}}, //
 	{MonsterBossScarab, {NORMAL, RESISTS, WEAK}},  //
-	{MonsterPlant, {RESISTS, WEAK, TOUGH}},		   // stems: cut them; a point goes through, a blow bends them
+	{MonsterPlant, {TOUGH, WEAK, TOUGH}}, // stems: only a blade cuts them; points and blows go astray
 	{MonsterBat, {WEAK, RESISTS, TOUGH}},		   // swat it; an arrow goes through the wing
 	{MonsterGiantBat, {WEAK, RESISTS, TOUGH}},	   //
 	{MonsterVampireBat, {WEAK, RESISTS, TOUGH}},   //
-	{MonsterMimic, {WEAK, RESISTS, RESISTS}},	   // wood: crack it
+	{MonsterMimic, {WEAK, RESISTS, TOUGH}}, // wood: crack it; a point only sticks in it
 	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},	   // bronze armour dents, a blade glances off it
 	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
 	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
@@ -195,7 +195,7 @@ const ItemDef ITEM_DEFS[] = {
 	 "Club",
 	 "club",
 	 6,
-	 16,
+	 10,
 	 2,
 	 {85, 15, 0},
 	 {0.12f, 35, -40, 115, 0, 300, 560, 900},
@@ -225,7 +225,7 @@ const ItemDef ITEM_DEFS[] = {
 	 "Spear",
 	 "spear",
 	 15,
-	 26,
+	 20,
 	 5,
 	 {0, 15, 85},
 	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 750},

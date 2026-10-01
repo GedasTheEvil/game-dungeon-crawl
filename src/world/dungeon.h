@@ -143,6 +143,7 @@ class Dungeon {
 	};
 	std::vector<Arrow> arrows;
 	void updateArrows();
+	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
 	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
 	TrapHurt trapHurt; // the player's
 	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the
@@ -197,6 +198,7 @@ class Dungeon {
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
+	[[nodiscard]] int ChestCount() const;			// treasure chests not opened yet
 	[[nodiscard]] int CoffinCount() const;			// coffins standing on the level (decorations)
 	void HurtBoss(int dmg);							// scenario tests: the boss in play takes a hit, as from the player
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.

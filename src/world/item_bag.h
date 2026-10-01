@@ -10,11 +10,12 @@
 #include <iosfwd>
 #include <optional>
 
-// Weapon levels: going from level L to L + 1 takes 2^L copies collected; each level adds 20% base damage.
-constexpr int MAX_WEAPON_LEVEL = 10;
-constexpr float DAMAGE_PER_LEVEL = 0.2f;
+// Weapon levels: going from level L to L + 1 takes 1 + L(L + 1)/2 copies collected (2, 4, 7, 11). Each level adds
+// the weapon's growth share of its base damage: the club grows most, the sword least (it starts strongest).
+constexpr int MAX_WEAPON_LEVEL = 5;
 [[nodiscard]] int upgradeCost(int level); // copies needed to go from `level` to the next one
-[[nodiscard]] int weaponDamage(int baseDamage, int level);
+[[nodiscard]] int weaponGrowthPercent(ItemKind weapon);
+[[nodiscard]] int weaponDamage(ItemKind weapon, int baseDamage, int level);
 
 // The player as the rules see it.
 struct Vitals {

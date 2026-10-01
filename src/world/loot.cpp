@@ -48,3 +48,18 @@ ItemKind RollMimicLoot(Rng& rng) {
 		return WEAPON_GRADES[static_cast<size_t>(rng.below(WEAPON_KIND_COUNT))];
 	return itemAt(WEAPON_KIND_COUNT + rng.below(POTION_KIND_COUNT));
 }
+
+std::optional<ItemKind> RollKillDrop(bool boss, const std::array<bool, WEAPON_KIND_COUNT>& owned, Rng& rng) {
+	if (!boss && !rng.percent(KILL_DROP_CHANCE))
+		return std::nullopt;
+	int count = 0;
+	for (bool has : owned)
+		count += has ? 1 : 0;
+	if (count == 0)
+		return std::nullopt;
+	int pick = rng.below(count);
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		if (owned[static_cast<size_t>(i)] && pick-- == 0)
+			return itemAt(i);
+	return std::nullopt;
+}

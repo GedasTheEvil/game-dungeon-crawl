@@ -6,7 +6,9 @@
 #include "../core/timer.h"
 #include "trap_hurt.h"
 #include "../world/damage.h"
+#include "../world/items.h"
 #include <memory>
+#include <optional>
 
 // How a monster gets around. Only flyers cross pits; walkers stop at their edge, and at traps unless reckless
 // (Courage).
@@ -113,6 +115,7 @@ class Monster {
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
+	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -164,6 +167,8 @@ class Monster {
 	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
 	[[nodiscard]] bool LeavesChest() const;
+	// A killed monster's weapon chest (RollKillDrop), once its die clip has played; nullopt before and after.
+	[[nodiscard]] std::optional<ItemKind> TakeDrop();
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }

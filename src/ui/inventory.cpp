@@ -133,7 +133,9 @@ void Inventory::AddItem(ItemKind kind) {
 
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
-int Inventory::EquippedDamage() const { return weaponDamage(Model(bag.Equipped())->damage, bag.Level(bag.Equipped())); }
+int Inventory::EquippedDamage() const {
+	return weaponDamage(bag.Equipped(), Model(bag.Equipped())->damage, bag.Level(bag.Equipped()));
+}
 
 // ---- actions ---------------------------------------------------------------
 
@@ -610,7 +612,7 @@ void Inventory::DrawDetails() {
 	} else {
 		Item* shown = Model(kindOf(selectedSlot));
 		Item* current = Equipped();
-		int shownDamage = weaponDamage(shown->damage, bag.Level(kindOf(selectedSlot)));
+		int shownDamage = weaponDamage(kindOf(selectedSlot), shown->damage, bag.Level(kindOf(selectedSlot)));
 		char buf[48];
 		float labelX = DETAIL_PANEL.x + 9;
 		float valueX = DETAIL_PANEL.x + 30;
@@ -635,7 +637,7 @@ void Inventory::DrawDetails() {
 			int cost = upgradeCost(level);
 			snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
 			text(body, valueX, STAT_Y - 3.5f, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
-			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(shown->damage, level + 1));
+			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown->damage, level + 1));
 			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, STAT_Y - 3.3f, buf, INK_FADED);
 		}
 	}

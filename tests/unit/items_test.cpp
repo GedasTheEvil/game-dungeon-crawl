@@ -32,10 +32,12 @@ TEST_CASE("weapons before potions") {
 
 TEST_CASE("weapon levels") {
 	CHECK(upgradeCost(1) == 2);
-	CHECK(upgradeCost(3) == 8);
-	CHECK(weaponDamage(35, 1) == 35);
-	CHECK(weaponDamage(35, 2) == 42); // +20%
-	CHECK(weaponDamage(9, 10) == 25); // 9 x 2.8 = 25.2
+	CHECK(upgradeCost(3) == 7);
+	CHECK(upgradeCost(4) == 11);
+	CHECK(weaponDamage(ItemKind::Sword, 35, 1) == 35);
+	CHECK(weaponDamage(ItemKind::Sword, 35, 2) == 39); // +10%
+	CHECK(weaponDamage(ItemKind::Club, 10, 5) == 26);  // +40% a level: 10 x 2.6
+	CHECK(weaponDamage(ItemKind::Spear, 20, 3) == 28); // +20% a level
 }
 
 TEST_CASE("a new bag holds the club, in hand") {
@@ -84,7 +86,7 @@ TEST_CASE("upgrades take enough copies, up to the max level") {
 	CHECK(bag.Upgrade(ItemKind::Sword, true));
 	CHECK(bag.Level(ItemKind::Sword) == 2);
 	CHECK_FALSE(bag.CanUpgrade(ItemKind::Sword, true)); // 2 of 4
-	for (int i = 0; i < 2000; i++)
+	for (int i = 0; i < 20; i++)
 		bag.Add(ItemKind::Sword);
 	while (bag.Upgrade(ItemKind::Sword, true)) {
 	}

@@ -6,6 +6,8 @@
 #include <cstdlib>
 
 #include "../state/game_state.h"
+#include "../ui/inventory.h"
+#include "../world/loot.h"
 #include "../graphics/lighting.h"
 #include "../graphics/ink.h"
 #include "../graphics/render_config.h"
@@ -38,6 +40,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	leap = Leap{};
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
+	drop.reset();
 	playback = kind.model.SpawnPlayback(Game().random.effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -52,6 +55,7 @@ void Monster::Clear() {
 	col = -1;
 	row = -1;
 	health = 0;
+	drop.reset();
 }
 
 void Monster::MakeMinion(Summon how) {
@@ -88,6 +92,14 @@ float Monster::emergeLift() const {
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
 		   type->model.Finished(state, playback);
+}
+
+std::optional<ItemKind> Monster::TakeDrop() {
+	if (!drop || Alive() || state != ModelState::Die || !type->model.Finished(state, playback))
+		return std::nullopt;
+	std::optional<ItemKind> d = drop;
+	drop.reset();
+	return d;
 }
 
 bool Monster::Rising() const {
@@ -141,6 +153,12 @@ bool Monster::takeHit(int dmg, bool byPlayer) {
 			const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
 			Game().ShowStatus("Gained %d XP", xp);
 			Game().player->stats.AddXP(xp);
+			if (!minion && type->locomotion != Locomotion::Ambush) { // a mimic leaves its own chest
+				std::array<bool, WEAPON_KIND_COUNT> owned{};
+				for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+					owned[static_cast<size_t>(i)] = Game().ui.inventory->Count(itemAt(i)) > 0;
+				drop = RollKillDrop(type->isBoss(), owned, Game().random.gameplay);
+			}
 		}
 		type->model.dieSound.Play();
 

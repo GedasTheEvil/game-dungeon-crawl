@@ -34,8 +34,7 @@ Proposals, to confirm when the work starts:
 * Book: cloth cover (dark sand or grey, not the current bronze) with the cover edge showing, an elastic strap on the
   left edge, stacked page edges on the right, gutter shadow and page curve at the spine.
 * Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](journal-sections.md)) stay on the right edge; the
-  strap goes on the left. Each ribbon gets a letter: M (monsters / creatures), R (riddles), F (field notes, letter to
-  confirm). The letter shows only on the open section's ribbon and on the hovered one.
+  strap goes on the left. Each ribbon gets a letter: M (monsters / creatures), R (riddles), F (field notes). The letter shows only on the open section's ribbon and on the hovered one.
 * Paper: white-cream with the grid, as a texture (grain + grid + slight shading towards the spine) from a
   `tools/textures/` script, like the ribbon.
 * Creatures: the monster sketch becomes a pasted b/w "photo" with a white border and a small tilt, a red catalogue

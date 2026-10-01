@@ -94,6 +94,7 @@ enum class Field : unsigned char {
 	JournalSolved,
 	JournalNotes,
 	JournalTried,
+	Chests,
 	ItemCount,
 	ItemLevel
 };
@@ -233,6 +234,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::Coffins:
 		return static_cast<float>(Game().dungeon.CoffinCount());
+	case Field::Chests:
+		return static_cast<float>(Game().dungeon.ChestCount());
 	case Field::JournalRiddles:
 		return static_cast<float>(Game().journal.Riddles().size());
 	case Field::JournalNotes:
@@ -406,6 +409,7 @@ bool parseField(const std::string& word, Field& field) {
 				  {"minions", Field::Minions},
 				  {"nearest", Field::Nearest},
 				  {"coffins", Field::Coffins},
+				  {"chests", Field::Chests},
 				  {"journal", Field::JournalRiddles},
 				  {"journal_solved", Field::JournalSolved},
 				  {"journal_notes", Field::JournalNotes},

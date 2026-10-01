@@ -1,8 +1,9 @@
 ; lvl6: the rat warrens. Rats, a giant rat, the first giant scarab. The red key lies in the lower den, the red gate guards the exit.
 def 1 8 3 1
 def 2 8 3 5
+def c 8 1 0
 ########################################
-#S..t...^...H########1..?..t.H##########
+#S..t...^...H########1.c?..t.H##########
 ############H################H##########
 #$...t......H..k....v........H...t.2####
 ############################.###########

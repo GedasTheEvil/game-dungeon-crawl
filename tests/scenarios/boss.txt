@@ -1,6 +1,6 @@
 # Boss fight (tests/levels/boss): the teleporter leads to the sealed boss room. The boss scarab appears with 3
 # scarabs on its far side and summons more (at most 5 alive). Minions give 1 XP while it lives. Its death opens the
-# boss gate (blue key behind it) and it does not come back after a save and load.
+# boss gate (blue key behind it), it leaves a weapon chest and it does not come back after a save and load.
 seed 1
 god
 level tests/levels/boss
@@ -42,6 +42,7 @@ wait 1s
 expect x < 12
 screenshot boss_gate_sealed
 
+expect chests == 2
 killboss
 wait 5
 expect boss == 0
@@ -49,6 +50,9 @@ expect xp >= 6000
 screenshot boss_slain
 wait 2s
 screenshot gate_open
+wait 2s
+# a boss always leaves a chest with a copy of a weapon the player has, once its body has died away
+expect chests == 3
 
 savegame boss_dead.sav
 loadgame boss_dead.sav

@@ -1,4 +1,5 @@
 #include "item_bag.h"
+#include <algorithm>
 #include <cmath>
 #include <istream>
 #include <ostream>
@@ -12,11 +13,22 @@ bool heals(ItemKind kind) { return kind == ItemKind::SmallHealth || kind == Item
 bool restoresStamina(ItemKind kind) { return kind == ItemKind::SmallStamina || kind == ItemKind::LargeStamina; }
 } // namespace
 
-int upgradeCost(int level) { return 1 << level; }
+int upgradeCost(int level) { return 1 + level * (level + 1) / 2; }
 
-int weaponDamage(int baseDamage, int level) {
-	float bonus = 1.f + DAMAGE_PER_LEVEL * static_cast<float>(level - 1);
-	return static_cast<int>(std::lround(static_cast<float>(baseDamage) * bonus));
+int weaponGrowthPercent(ItemKind weapon) {
+	switch (weapon) {
+	case ItemKind::Club:
+		return 40;
+	case ItemKind::Sword:
+		return 10;
+	default: // spear, bow
+		return 20;
+	}
+}
+
+int weaponDamage(ItemKind weapon, int baseDamage, int level) {
+	const int percent = 100 + weaponGrowthPercent(weapon) * (level - 1);
+	return static_cast<int>(std::lround(static_cast<double>(baseDamage) * percent / 100.0));
 }
 
 PotionGain potionGain(ItemKind potion) {
@@ -134,7 +146,7 @@ void ItemBag::Load(std::istream& in) {
 		for (int& level : saved)
 			in >> level;
 		for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
-			levels[slot] = saved[slot] < 1 ? 1 : saved[slot];
+			levels[slot] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL); // saves from before the cap of 5
 		in >> type >> id;
 	} else {
 		counts[0] = std::stoi(tok);

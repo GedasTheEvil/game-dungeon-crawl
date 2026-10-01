@@ -1,5 +1,5 @@
 # A tall window: the vertical field of view is fixed, so it draws no more rows than a normal one
-# (docs/plan/aspect-render-distance.md).
+# (docs/plan/solved/aspect-render-distance.md).
 resolution 400 1000
 seed 1
 god

@@ -1,4 +1,4 @@
-# A wide window draws more cells (docs/plan/aspect-render-distance.md): no empty cells at the sides, also with the
+# A wide window draws more cells (docs/plan/solved/aspect-render-distance.md): no empty cells at the sides, also with the
 # camera turned. Outside the level is rock, not black.
 resolution 1920 300
 seed 1

@@ -140,7 +140,7 @@ Format:
    48.5). Tests `tests/scenarios/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
    The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
    4 bats. Tune in play.
-4. Anubis boss in lvl15 once the mummy monster exists.
+4. Anubis boss in lvl15 once the mummy monster exists. He walks through traps: [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md).
 
 ## Open questions
 

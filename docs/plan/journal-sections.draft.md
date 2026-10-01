@@ -23,6 +23,8 @@ Proposals, to confirm when the work starts:
 * Page turn: arrow keys / mouse wheel, page corner arrows to click, page number at the bottom.
 * Decided 2026-10-01: key J, an entry in the in-game menu; the game pauses while it is open, like the inventory
   and map. It opens on the last section and page looked at (creatures the first time).
+* Ribbon look (play test 2026-10-01: the flat drawn ribbons look meh): a ribbon texture (cloth weave, frayed
+  swallowtail end, shading) tinted per section, instead of shapes drawn in game. Not urgent.
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
 * Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.draft.md](handwritten-journal-font.draft.md),
   after stage 1. Until then the notes use papyrus.

@@ -58,6 +58,11 @@ constexpr int MINION_SUMMON_REACH = 3;			// cells from its boss a summoned minio
 constexpr int MINION_EMERGE_MS = 700;			// a summoned minion digs out or drops into place, then acts
 
 constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
+// The mummy (Locomotion::Entombed) lies in its coffin (decor_coffin, drawn on its spawn tile), its body drawn
+// MUMMY_COFFIN_DEPTH world units back from the walk line. Woken, its rise clip slides it out between the two fractions.
+constexpr float MUMMY_WAKE_RANGE = 2.5f; // tiles along the row
+constexpr float MUMMY_COFFIN_DEPTH = 14.4f;
+constexpr float MUMMY_CLIMB_FROM = 0.3f, MUMMY_CLIMB_TO = 0.75f;
 
 // Bats (Monster::Fly). Distances in tiles along the row, heights in world units (a tile is 40) from the floor
 // to the model origin (the lowest point of the flying pose).

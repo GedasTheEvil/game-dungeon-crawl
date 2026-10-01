@@ -69,7 +69,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (mon.Alive() && !Game().hasWon && mon.Lurk(mapX, mapY))
+		if (mon.Alive() && !Game().hasWon && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
 		if (mon.Alive() && !Game().hasWon && mon.StepDue()) {

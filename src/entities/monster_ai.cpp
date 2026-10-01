@@ -26,7 +26,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (!rooted())
 		alerted = true; // chasing the player
 	if (!blocked)
-		x += MONSTER_SEEK_STEP * static_cast<float>(dir * type->speed);
+		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed;
 	enter(ModelState::Move);
 	return true;
 }
@@ -51,14 +51,19 @@ void Monster::bite() {
 bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
-	if (!sameRow(py) || std::fabs(px - CentreX()) > MIMIC_WAKE_RANGE) {
+	const float range = entombed() ? MUMMY_WAKE_RANGE : MIMIC_WAKE_RANGE;
+	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
 		return true;
 	}
-	alerted = true;
-	enter(ModelState::Move);
-	type->model.wakeSound.Play();
+	wake();
 	return false;
+}
+
+void Monster::wake() {
+	alerted = true;
+	enter(entombed() ? ModelState::Rise : ModelState::Move);
+	type->model.wakeSound.Play();
 }
 
 float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * HalfWidth(); }
@@ -91,7 +96,7 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 	// A boss's minion, and a boss once it is roused, hunt the player along the whole row.
 	const bool hunts = minion || (alerted && type->isBoss());
 	const bool sees = sameRow(py) && (hunts || std::fabs(dx) <= BAT_SIGHT);
-	const float step = BAT_TILES_PER_SPEED * static_cast<float>(type->speed) * dt;
+	const float step = BAT_TILES_PER_SPEED * type->speed * dt;
 	float targetLift = roost;
 
 	switch (flight.phase) {

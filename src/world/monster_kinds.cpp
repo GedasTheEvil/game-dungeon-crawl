@@ -26,6 +26,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 "Vampire bat, summons bats and heals by part of the damage it deals; its death opens the boss gates. One boss per "
 	 "level",
 	 'V', 12.f, true},
+	// Threat: walks fast for its size and hits hard, but gives the player time to see it climb out.
+	{MonsterMummy, "mummy", "Mummy, lies in its coffin until the player comes near", 'u', 5.f, false},
 }};
 } // namespace
 

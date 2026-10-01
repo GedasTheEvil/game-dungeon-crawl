@@ -31,7 +31,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	alerted = false;
 	minion = false;
 	summonMs = -1;
-	state = flies() || type->locomotion == Locomotion::Ambush ? ModelState::Idle : ModelState::Move;
+	state = flies() || lurking() ? ModelState::Idle : ModelState::Move;
+	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
@@ -56,6 +57,8 @@ void Monster::MakeMinion(Summon how) {
 	alerted = true;
 	summonMs = GameClock::now();
 	summonedBy = how;
+	if (entombed()) // no coffin to climb out of
+		enter(ModelState::Move);
 	if (flies() && how == Summon::Drop) { // falls out of the ceiling to where bats turn, flapping (emergeLift)
 		flight.lift = BAT_HIGH_LIFT;
 		enter(ModelState::Move);
@@ -79,6 +82,10 @@ float Monster::emergeLift() const {
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
 		   type->model.Finished(state, playback);
+}
+
+bool Monster::Rising() const {
+	return entombed() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
 }
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
@@ -113,6 +120,8 @@ float Monster::TopY() const {
 
 bool Monster::takeHit(int dmg) {
 	const int scale = static_cast<int>(type->scale);
+	if (lurking())
+		wake();
 	alerted = true;
 	if (Alive()) {
 		health -= dmg;
@@ -211,8 +220,8 @@ void Monster::Animate(float px, float py) {
 	if (Alive()) {
 		if (jumping())
 			facing = leap.toX > leap.fromX ? 1 : -1;
-		else if (lurking())
-			facing = 0; // a chest doesn't turn to look at the player
+		else if (lurking() || Rising())
+			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
 		else if (!flies()) {
 			facing = attackDirection(px, py);
 			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)
@@ -221,13 +230,18 @@ void Monster::Animate(float px, float py) {
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 	}
 	type->model.Advance(state, playback);
+	if (Alive() && entombed() && !lurking()) { // climbing out; a mummy killed on the way stays where it fell
+		const float t = state == ModelState::Rise ? type->model.Progress(state, playback) : 1.f;
+		const float k = std::clamp((t - MUMMY_CLIMB_FROM) / (MUMMY_CLIMB_TO - MUMMY_CLIMB_FROM), 0.f, 1.f);
+		tomb = MUMMY_COFFIN_DEPTH * (1.f - k * k * (3.f - 2.f * k));
+	}
 }
 
 void Monster::Draw() {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
-				 (flies() ? flight.lift : leap.lift) + emergeLift(), -30);
+				 (flies() ? flight.lift : leap.lift) + emergeLift(), -30.f - tomb);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

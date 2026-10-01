@@ -12,6 +12,8 @@ enum class Locomotion : unsigned char {
 	Ambush,		// rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
 				// killed, it leaves a real treasure chest on its tile
 	Walk,		// follows the player along its row
+	Entombed,	// walks, but lies in its coffin (idle) until the player comes near or hits it, then climbs out (Rise)
+				// before it acts
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
 };
@@ -55,7 +57,7 @@ struct BossRules {
 struct MonsterType {
 	const char* name = "";
 	CharacterModel model;
-	int speed = 1;
+	float speed = 1.f;
 	int maxHealth = 20;
 	int damage = 1;
 	int xp = 0;			// gained for the kill
@@ -90,6 +92,9 @@ class Monster {
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
 	int summonMs = -1;	 // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
+	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
+
+	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void drawHealthBar();
@@ -131,7 +136,12 @@ class Monster {
 	[[nodiscard]] bool rooted() const {
 		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
 	}
-	[[nodiscard]] bool lurking() const { return type->locomotion == Locomotion::Ambush && !alerted; }
+	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
+	[[nodiscard]] bool lurking() const {
+		return (type->locomotion == Locomotion::Ambush || entombed()) && !alerted;
+	}
+	// Entombed: woken, still climbing out of its coffin; it does not act yet.
+	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
 	[[nodiscard]] bool LeavesChest() const;
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
@@ -146,7 +156,8 @@ class Monster {
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
 	void Attack(float py);
-	// Ambushers: true while still disguised; wakes (and returns false) once the player is MIMIC_WAKE_RANGE close.
+	// Ambushers and the entombed: true while still lurking; wakes (and returns false) once the player is close
+	// (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE).
 	bool Lurk(float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);

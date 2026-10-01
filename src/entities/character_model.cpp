@@ -1,4 +1,5 @@
 #include "character_model.h"
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <string>
@@ -84,4 +85,10 @@ void CharacterModel::Advance(ModelState state, ClipPlayback& playback) const {
 bool CharacterModel::Finished(ModelState state, const ClipPlayback& playback) const {
 	const ModelState shown = Shown(state);
 	return playback[static_cast<int>(shown)].frame >= static_cast<float>(Clip(shown)->FrameCount() - 1);
+}
+
+float CharacterModel::Progress(ModelState state, const ClipPlayback& playback) const {
+	const ModelState shown = Shown(state);
+	const int last = Clip(shown)->FrameCount() - 1;
+	return last <= 0 ? 1.f : std::min(playback[static_cast<int>(shown)].frame / static_cast<float>(last), 1.f);
 }

@@ -46,6 +46,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   slams, the gold regrows under it, lid falls open; last frame = rest pose, swapped for the real chest), idle 42 (the reference: still chest,
   the lid dips 4.5 deg and the box swells 1.2% once per loop).
   Sounds: `tools/audio/mimic_sounds.py` (`sounds/monsters/mimic_{wake,att,die}.wav`).
+  Mummy sounds: `tools/audio/mummy_sounds.py` (`sounds/monsters/mummy_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler

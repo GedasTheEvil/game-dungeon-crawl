@@ -10,7 +10,8 @@ struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small
 	const char* label;
 	const char* model;	 // under models/ and sounds/
 	const char* texture; // under textures/: the giant rat, bat and scarab are the same model, bigger and darker
-	int speed, maxHealth, damage, attackMs, xp;
+	float speed;
+	int maxHealth, damage, attackMs, xp;
 	float scale, rotA;
 	Locomotion locomotion;
 	Rgb blood;
@@ -100,6 +101,9 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Fly,
 	 {0.5f, 0.02f, 0.08f}},
+	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (boss-rooms.draft.md).
+	{MonsterMummy, "Mummy", "monsters/mummy", "monsters/mummy", 2.5f, 150, 20, 1600, 4500, 18, 180, Locomotion::Entombed,
+	 {0.35f, 0.25f, 0.12f}},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -242,7 +246,10 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		Texture tex;
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[def.id];
-		type.model.Load(def.model, std::move(tex), def.locomotion == Locomotion::Ambush ? AMBUSH_CLIPS : MONSTER_CLIPS);
+		const ClipFiles& clips = def.locomotion == Locomotion::Ambush	  ? AMBUSH_CLIPS
+								 : def.locomotion == Locomotion::Entombed ? ENTOMBED_CLIPS
+																		  : MONSTER_CLIPS;
+		type.model.Load(def.model, std::move(tex), clips);
 		type.speed = def.speed;
 		type.maxHealth = def.maxHealth;
 		type.damage = def.damage;

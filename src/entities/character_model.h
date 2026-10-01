@@ -10,8 +10,8 @@
 #include <vector>
 
 // Animation clips. Each is one file, see ClipFile; a missing optional clip shows the reference clip.
-enum class ModelState : unsigned char { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5 };
-constexpr int MODEL_STATE_COUNT = 6;
+enum class ModelState : unsigned char { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5, Rise = 6 };
+constexpr int MODEL_STATE_COUNT = 7;
 
 // Playback of every clip, indexed by ModelState. Kept by each monster / the player, the clips are shared.
 using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
@@ -37,6 +37,12 @@ inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
 									   {ModelState::Move, "", true, true},
 									   {ModelState::Attack, "_att", true, true},
 									   {ModelState::Die, "_die", true, false}};
+// Entombed (the mummy): walks like the MONSTER_CLIPS, lies in its coffin (_idle) until it climbs out (_rise, once).
+inline const ClipFiles ENTOMBED_CLIPS = {{ModelState::Move, "", true, true},
+										 {ModelState::Attack, "_att", true, true},
+										 {ModelState::Die, "_die", true, false},
+										 {ModelState::Idle, "_idle", true, true},
+										 {ModelState::Rise, "_rise", true, false}};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Move, "_walk", true, true},
@@ -76,6 +82,8 @@ class CharacterModel {
 	void Advance(ModelState state, ClipPlayback& playback) const;
 	// A one-shot clip (die, jump) has reached its last frame.
 	[[nodiscard]] bool Finished(ModelState state, const ClipPlayback& playback) const;
+	// Of a one-shot clip: 0 at its first frame, 1 at its last.
+	[[nodiscard]] float Progress(ModelState state, const ClipPlayback& playback) const;
 };
 
 #endif

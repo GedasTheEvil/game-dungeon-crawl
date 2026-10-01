@@ -21,9 +21,9 @@ player went through, and is kept per save game.
 ### Riddles
 
 * Solved: question and answer, ticked.
-* Missed (walked away, Esc): the question stays with an empty answer line. Open question: let the player answer it
-  later from the journal for part of the XP (e.g. half)? Gives a reason to think about it while playing, and the
-  journal becomes useful, not only a record.
+* Missed (walked away, Esc): decided 2026-10-01, the question stays with a "?" or an empty answer line, and the
+  player can come back to it and answer it from the journal later. Gives a reason to think about it while playing,
+  and the journal becomes useful, not only a record. Open: the XP for a late answer (full, or part like half).
 * The hint is written down only if it was shown.
 
 ### Potions

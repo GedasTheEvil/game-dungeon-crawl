@@ -20,24 +20,30 @@ notes, not a stats table. A 1920s archaeologist with a notebook and pencil fits 
 
 ## Unlocking
 
-Proposed, numbers open:
+Decided 2026-10-01: every note comes from what the archaeologist went through, never from a kill count. No
+grinding; each fact is learnt the way it would be in real life.
 
 | Trigger | Reveals |
 |---|---|
-| First seen | Sketch (blurred or outline only), "?" name |
-| 1st kill | Name, description, HP, XP |
-| 3 kills | Damage, speed, special moves (leap, summon, heal) |
+| First seen | Sketch (blurred or outline only), "?" name, where it was found (level number / name) |
+| 1st kill | Name, description, HP |
 | Hit with a damage type | That type's resistance: "weak", "normal" or "resists" |
+| Hit by it | How hard it hits (its damage) |
+| Sees it do a special move | That move (leap, summon, heal, climbs out of its coffin) |
 
-Resistances unlock by hitting, not by kill count: hitting a bat with the club writes down "the club works". This
-makes the player try other weapons, which is the goal of damage types. A kill count for resistances would only
-reward grinding.
+* Hitting a bat with the club writes down "the club works", so the player tries other weapons, which is the goal of
+  damage types.
+* The damage only shows once the monster has hit the player: kill it with the bow from afar and its bite stays
+  unknown.
+* No XP in the journal.
+* "Found on": first level seen, maybe all levels seen.
 
 Optional: a status box toast when a new note is written ("Journal: scarab, resists slash").
 
 ## What
 
-* Kill and hit counts per monster type and damage type, stored in the save game. Knowledge is per save game
+* Per monster type, flags stored in the save game: seen, killed, hit by it, each damage type tried, each special
+  move seen, levels found on. Knowledge is per save game
   (decided 2026-10-01): a new game starts with an empty journal.
 * Screen `src/ui/journal.cpp`, like `inventory.cpp` / `map_view.cpp`; a key and an entry in the in-game menu.
 * Note texts per monster type next to `monster_kinds.cpp`.
@@ -47,4 +53,4 @@ Optional: a status box toast when a new note is written ("Journal: scarab, resis
 
 * [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md): the journal is where the
   resistances show; do it with or right after the damage types.
-* [monster-strength.draft.md](monster-strength.draft.md): HP and stats shown in the journal follow its retune.
+* [monster-strength.draft.md](monster-strength.draft.md): HP and damage shown in the journal follow its retune.

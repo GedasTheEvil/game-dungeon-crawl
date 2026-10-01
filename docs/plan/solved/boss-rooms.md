@@ -153,7 +153,7 @@ Format:
    `tests/scenarios/anubis_boss.txt` (`tests/levels/anubis_boss`), the coffin part of `summon_effects.txt`
    (`tests/levels/summon_coffin`). A full clear of levels 1-14 brings the player to about level 49 (626 HP, 9 armour):
    6-7 blows. Tune in play, with [monster-xp-tuning.draft.md](../monster-xp-tuning.draft.md).
-   Left for later: he walks through traps ([trap-walking-monsters.draft.md](../trap-walking-monsters.draft.md)), the
+   Left for later: he walks through traps ([trap-walking-monsters.md](trap-walking-monsters.md)), the
    coffins after a load ([boss-coffins-after-load.md](boss-coffins-after-load.md)).
 
 ## Open questions

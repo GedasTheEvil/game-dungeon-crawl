@@ -61,8 +61,9 @@ class Dungeon {
 	void exploreAroundPlayer();
 	void UpdateMovementState();
 	void UpdateMonsters();
-	// A walker can't step into (col, row): a wall, a trap, or no floor under it (a pit or a drop).
-	[[nodiscard]] bool walkerBlocked(int col, int row) const;
+	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
+	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
+	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
@@ -102,6 +103,7 @@ class Dungeon {
 	void startOpeningGate(int cell);
 	void openGates(int colour);
 	void bumpGate(int col, int row); // the player walked into a closed gate
+	void startRockFall(int cell);	 // an armed rock fall cell was stepped into: the rumble starts
 	void updateRocks();
 	void drawKeyTile(int i, int j);
 	void drawGateTile(int i, int j);
@@ -139,14 +141,11 @@ class Dungeon {
 	};
 	std::vector<Arrow> arrows;
 	void updateArrows();
-	// Spike and death trap tiles hurt the player standing in them (a hitbox of TRAP_HITBOX_X/Y_SCALE x the trap's
-	// scale round the tile's bottom centre), every TRAP_HURT_INTERVAL_MS, however many traps: one timer for the player.
-	// The damage grows while the player stays in (TRAP_DAMAGE_RAMP_HITS); a gap of TRAP_STREAK_RESET_MS resets it.
-	struct TrapHurt {
-		Timer timer{TRAP_HURT_INTERVAL_MS};
-		int streak = 0;
-		int lastHitMs = 0;
-	} trapHurt;
+	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
+	TrapHurt trapHurt; // the player's
+	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the
+	// tile's bottom centre.
+	[[nodiscard]] bool inTrap(float x, float y) const;
 	void updateTraps();
 	void drawArrows(); // with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the

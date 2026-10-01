@@ -135,6 +135,10 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/rock_fall.txt`: rock fall walked through, graze, stepped back from, direct hit.
 - `tests/scenarios/rats.txt`: rat and giant rat screenshots (size, attack, die).
 - `tests/scenarios/monster_hazards.txt`: walkers stop at floor spikes and a pit; only flyers cross them.
+- `tests/scenarios/coward_rock.txt`: a rat stops at an armed rock fall, a giant rat leaps over it; neither sets it off.
+- `tests/scenarios/reckless_spikes.txt`, `reckless_rock.txt`: a reckless monster (the mummy; the Anubis boss too)
+  walks into spikes and a rock fall and takes its share of the damage (`Courage`, `trapDamagePct`); a trap's kill
+  gives no XP.
 - `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
 - `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
 - `tests/scenarios/spikes.txt`: spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.

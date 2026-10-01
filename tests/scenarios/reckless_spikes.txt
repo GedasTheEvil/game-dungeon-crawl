@@ -1,0 +1,20 @@
+# A reckless monster walks into traps (Courage::Reckless, tests/levels/reckless_spikes): the player wakes the mummy
+# across the spikes, it walks up and stands in them to strike. It takes half their damage (trapDamagePct 50), the
+# ramp kills it in the end, and a trap's kill gives no XP.
+seed 1
+god
+level tests/levels/reckless_spikes
+xp 200000
+wait 30
+walk to 3.95
+wait 2s
+expect nearest == 150
+wait 7s
+screenshot mummy_in_spikes
+dump
+expect nearest < 150
+expect nearest > 0
+wait 30s
+screenshot mummy_dead
+expect nearest == 0
+expect xp == 200000

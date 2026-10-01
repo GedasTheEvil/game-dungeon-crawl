@@ -9,11 +9,15 @@
 #include "loot.h"
 #include "../graphics/lighting.h"
 
-bool Dungeon::walkerBlocked(int col, int row) const {
+bool Dungeon::walkerBlocked(int col, int row, bool reckless) const {
 	if (!IsInBounds(col, row))
 		return true;
 	Tile cell = MapAt(col, row);
-	if (isSolidTile(cell) || cell.type == Spike || cell.type == Death)
+	if (isSolidTile(cell))
+		return true;
+	const bool trap =
+		cell.type == Spike || cell.type == Death || (cell.type == RockFall && rockState(cell) != RockState::Fallen);
+	if (trap && !reckless)
 		return true;
 	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom
 }
@@ -75,7 +79,7 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !Game().hasWon && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
-			bool blocked = walkerBlocked(col, mon.Row());
+			bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
 			if (blocked && dir != 0 && mon.canJump()) {
 				int land = leapLanding(col, mon.Row(), dir);
 				// Not while the player is in the gap: the rat would leap over them.

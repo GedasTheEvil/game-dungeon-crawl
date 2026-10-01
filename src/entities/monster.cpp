@@ -36,6 +36,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
+	trapHurt = TrapHurt{};
+	trapDamageCarry = 0;
 	playback = kind.model.SpawnPlayback(Game().random.effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -122,7 +124,7 @@ float Monster::TopY() const {
 	return static_cast<float>(row) + (lift + top) / RenderConfig::TILE_SIZE;
 }
 
-bool Monster::takeHit(int dmg) {
+bool Monster::takeHit(int dmg, bool byPlayer) {
 	const int scale = static_cast<int>(type->scale);
 	if (lurking())
 		wake();
@@ -134,9 +136,11 @@ bool Monster::takeHit(int dmg) {
 
 	if (!Alive() && state != ModelState::Die) {
 		enter(ModelState::Die);
-		const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
-		Game().ShowStatus("Gained %d XP", xp);
-		Game().player->stats.AddXP(xp);
+		if (byPlayer) {
+			const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
+			Game().ShowStatus("Gained %d XP", xp);
+			Game().player->stats.AddXP(xp);
+		}
 		type->model.dieSound.Play();
 
 		// Death blood effect, stronger than a hit.
@@ -146,6 +150,18 @@ bool Monster::takeHit(int dmg) {
 	}
 
 	return Alive();
+}
+
+void Monster::StandInTrap() {
+	if (const int dmg = trapHurt.hit(); dmg > 0)
+		TrapHit(dmg);
+}
+
+void Monster::TrapHit(int dmg) {
+	const int hundredths = dmg * type->trapDamagePct + trapDamageCarry;
+	trapDamageCarry = hundredths % 100;
+	if (hundredths >= 100)
+		takeHit(hundredths / 100, false);
 }
 
 void Monster::drawHealthBar() {

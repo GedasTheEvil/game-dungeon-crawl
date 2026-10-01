@@ -1,0 +1,5 @@
+; A giant rat (col 11) behind a rock fall (col 10), the player (col 8): it leaps over it
+; (tests/scenarios/coward_rock.txt).
+##################
+#.......S.vT.....E#
+##################

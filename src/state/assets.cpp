@@ -15,6 +15,8 @@ struct MonsterDef { // NOLINT(clang-analyzer-optin.performance.Padding): a small
 	float scale, rotA;
 	Locomotion locomotion;
 	Rgb blood;
+	Courage courage = Courage::Coward;
+	int trapDamagePct = 100;
 };
 
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
@@ -114,11 +116,14 @@ const MonsterDef MONSTER_DEFS[] = {
 	 18,
 	 180,
 	 Locomotion::Entombed,
-	 {0.35f, 0.25f, 0.12f}},
+	 {0.35f, 0.25f, 0.12f},
+	 Courage::Reckless, // a crushing rock (500) can kill it
+	 50},
 	// The finale's guardian, a head taller than an Anubis; see BOSS_DEFS. A level 30 player (398 HP, about 6 armour)
 	// dies to 4 blows.
+	// Reckless: the player cannot shake him off behind a row of traps.
 	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 1500, 110, 1400, 20000, 26, 180,
-	 Locomotion::Walk, RED_BLOOD},
+	 Locomotion::Walk, RED_BLOOD, Courage::Reckless, 10},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -284,6 +289,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		type.rotA = def.rotA;
 		type.locomotion = def.locomotion;
 		type.blood = def.blood;
+		type.courage = def.courage;
+		type.trapDamagePct = def.trapDamagePct;
 		type.name = def.label;
 	}
 	for (const auto& def : BOSS_DEFS)

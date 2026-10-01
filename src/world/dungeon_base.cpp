@@ -120,32 +120,33 @@ void Dungeon::updateAnimations() {
 	treasureSpin += 1.f;
 }
 //======================================================================================
+bool Dungeon::inTrap(float x, float y) const {
+	const auto col = static_cast<int>(std::floor(x));
+	const auto row = static_cast<int>(std::floor(y));
+	for (int j = row - 1; j <= row + 1; j++) // the death trap's hitbox reaches into the next cells
+		for (int i = col - 1; i <= col + 1; i++) {
+			if (!IsInBounds(i, j))
+				continue;
+			const int type = MapAt(i, j).type;
+			if (type != Spike && type != Death)
+				continue;
+			const float scale = type == Death ? DEATH_TRAP_SCALE : SPIKES_SCALE;
+			if (std::fabs(x - static_cast<float>(i) - 0.5f) <= TRAP_HITBOX_X_SCALE * scale &&
+				std::fabs(y - static_cast<float>(j)) <= TRAP_HITBOX_Y_SCALE * scale)
+				return true;
+		}
+	return false;
+}
+//======================================================================================
+// Only walkers on the ground stand in a trap: flyers pass over, a leaper is in the air.
 void Dungeon::updateTraps() {
-	auto inTrap = [this](int col, int row) {
-		if (!IsInBounds(col, row))
-			return false;
-		const int type = MapAt(col, row).type;
-		if (type != Spike && type != Death)
-			return false;
-		const float scale = type == Death ? DEATH_TRAP_SCALE : SPIKES_SCALE;
-		return std::fabs(mapX - static_cast<float>(col) - 0.5f) <= TRAP_HITBOX_X_SCALE * scale &&
-			   std::fabs(mapY - static_cast<float>(row)) <= TRAP_HITBOX_Y_SCALE * scale;
-	};
-	const auto col = static_cast<int>(std::floor(mapX));
-	const auto row = static_cast<int>(std::floor(mapY));
-	bool hurt = false;
-	for (int j = row - 1; j <= row + 1 && !hurt; j++) // the death trap's hitbox reaches into the next cells
-		for (int i = col - 1; i <= col + 1 && !hurt; i++)
-			hurt = inTrap(i, j);
-	if (!hurt || !trapHurt.timer.TimePassed())
-		return;
-
-	const int now = GameClock::now();
-	if (now - trapHurt.lastHitMs > TRAP_STREAK_RESET_MS)
-		trapHurt.streak = 0;
-	trapHurt.lastHitMs = now;
-	Game().player->TakeHit(1 + trapHurt.streak / TRAP_DAMAGE_RAMP_HITS);
-	trapHurt.streak++;
+	if (inTrap(mapX, mapY))
+		if (const int dmg = trapHurt.hit(); dmg > 0)
+			Game().player->TakeHit(dmg);
+	for (Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&
+			inTrap(mon.CentreX(), static_cast<float>(mon.Row())))
+			mon.StandInTrap();
 }
 //======================================================================================
 void Dungeon::Move(float dirX, float dirY) {

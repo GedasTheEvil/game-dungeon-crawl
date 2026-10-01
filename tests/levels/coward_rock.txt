@@ -1,0 +1,4 @@
+; A rat (col 5) behind a rock fall (col 6), the player (col 8): the rat stops at it (tests/scenarios/coward_rock.txt).
+##################
+#....tv.S........E#
+##################

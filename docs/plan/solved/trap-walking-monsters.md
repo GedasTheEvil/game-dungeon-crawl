@@ -1,6 +1,6 @@
 # Trap-walking monsters
 
-Status: draft 2026-10-01.
+Status: solved 2026-10-01, verified by scenarios (see [Done](#done)).
 
 ## Idea
 
@@ -16,9 +16,9 @@ Locomotion says what a monster *can* do (walk, leap, fly), courage says whether 
 
 Reckless monsters:
 
-* **Anubis** boss ([solved/boss-rooms.md](solved/boss-rooms.md)): the player cannot shake him off behind a row of traps.
+* **Anubis** boss ([boss-rooms.md](boss-rooms.md)): the player cannot shake him off behind a row of traps.
   He follows through spikes, death traps and rock falls.
-* **Mummy** ([solved/mummy-minion-monster.md](solved/mummy-minion-monster.md)).
+* **Mummy** ([mummy-minion-monster.md](mummy-minion-monster.md)).
 
 ## Trap damage
 
@@ -50,3 +50,27 @@ Reckless monsters:
 * Any other reckless monsters besides the mummy and Anubis?
 * A reckless jumper (none yet): walk through traps, or still leap over them to take no damage? Decide when one
   exists.
+
+## Done
+
+* `Courage` and `trapDamagePct` in `MonsterType`, set from two defaulted columns of `MONSTER_DEFS`: the mummy is
+  reckless at 50%, the Anubis boss at 10%. Everything else is a coward at 100%.
+* `Dungeon::walkerBlocked(col, row, reckless)`: cowards stop at spikes, death traps and armed or falling rock falls. A
+  `Fallen` cell is open to everyone. The reckless walk onto all of them, but they still stop at a pit. Jumpers leap
+  over an armed rock fall, because `leapLanding` uses the cowards' rule.
+* The spike/death-trap timer and ramp moved into a shared `TrapHurt` (`src/entities/trap_hurt.h`). The player has one
+  and each monster has its own. `Dungeon::updateTraps` hurts every monster on the ground (no flyers, no leaper in
+  mid-air) whose centre is in a trap's hitbox, using the same `inTrap` test as the player.
+* Rock falls: a walker whose centre is in an armed cell starts the rumble (`startRockFall`). The landing crushes or
+  grazes the monsters under it the same way it does the player.
+* `Monster::TrapHit` scales the damage by `trapDamagePct`, keeping the hundredths for the next hit. It hurts through
+  `takeHit(dmg, false)`, which gives blood but no XP. There are no damage numbers in the game, so the blood is the
+  only sign of the hit.
+* A walker sets off the rumble at the cell's edge, so at the mummy's speed it is only grazed (25 HP), never crushed,
+  like a player who walks on. The 500 crush needs it to be in the middle of the cell when the rock lands.
+* Not done: the checker's `monsterThreat` was not raised for reckless monsters. All campaign levels still pass with
+  no warnings.
+* Scenarios: `coward_rock.txt` (a rat stops at an armed rock fall, a giant rat leaps over it, neither sets it off),
+  `reckless_spikes.txt` (the mummy stands in spikes to strike, dies of the ramp, no XP), and `reckless_rock.txt`
+  (the mummy sets off a rock fall and is grazed for 25). Each check fails if its rule is removed. All 67 scenarios
+  pass.

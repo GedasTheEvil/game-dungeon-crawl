@@ -4,9 +4,11 @@
 #include "character_model.h"
 #include "../graphics/particles.h"
 #include "../core/timer.h"
+#include "trap_hurt.h"
 #include <memory>
 
-// How a monster gets around. Only flyers cross pits and traps; walkers stop at their edge.
+// How a monster gets around. Only flyers cross pits; walkers stop at their edge, and at traps unless reckless
+// (Courage).
 enum class Locomotion : unsigned char {
 	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
 	Ambush,		// rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
@@ -16,6 +18,13 @@ enum class Locomotion : unsigned char {
 				// before it acts
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
+};
+
+// Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
+enum class Courage : unsigned char {
+	Coward,	  // afraid of traps (spikes, death traps, a rock fall not yet fallen): a walker stops at their edge, a
+			  // walk-jumper leaps over them
+	Reckless, // walks straight through them and takes their damage, cut by MonsterType::trapDamagePct
 };
 
 // Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through them,
@@ -66,6 +75,8 @@ struct MonsterType {
 	float scale = 1.f;
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
+	Courage courage = Courage::Coward;
+	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Rgb blood = {0.7f, 0.1f, 0.1f};
 	BossRules boss;
 	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }
@@ -94,6 +105,8 @@ class Monster {
 	int summonMs = -1;	 // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
+	TrapHurt trapHurt;
+	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -139,6 +152,7 @@ class Monster {
 		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
 	}
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
+	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
 	[[nodiscard]] bool lurking() const { return (type->locomotion == Locomotion::Ambush || entombed()) && !alerted; }
 	// Entombed: woken, still climbing out of its coffin; it does not act yet.
 	[[nodiscard]] bool Rising() const;
@@ -173,7 +187,13 @@ class Monster {
 	// Body height in map y (row + height above its floor), for the arrows.
 	[[nodiscard]] float BottomY() const;
 	[[nodiscard]] float TopY() const;
-	bool takeHit(int dmg);
+	// From the player (byPlayer: their kill gains XP) or a trap.
+	bool takeHit(int dmg, bool byPlayer = true);
+	// Each tick it stands in a spike or death trap (see TrapHurt).
+	void StandInTrap();
+	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
+	// not farm kills with traps.
+	void TrapHit(int dmg);
 	// With the frame origin at the spawn tile.
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (Draw only shows them).
 	void Animate(float px, float py);

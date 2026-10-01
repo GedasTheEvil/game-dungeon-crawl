@@ -70,11 +70,15 @@ void Dungeon::updateMechanisms() {
 		Game().assets.sounds.keyPickup.Play();
 	}
 
-	if (here.type == RockFall && rockState(here) == RockState::Armed && Game().player->Alive()) {
-		setRockState(map[MapIndex(col, row)], RockState::Falling);
-		fallingRocks.push_back({MapIndex(col, row), GameClock::now()});
-		Game().assets.sounds.rockRumble.Play();
-	}
+	if (here.type == RockFall && Game().player->Alive())
+		startRockFall(MapIndex(col, row));
+	// A reckless walker sets one off too (cowards keep out, flyers pass over, a leaper is in the air).
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping()) {
+			const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
+			if (IsInBounds(monCol, mon.Row()) && MapAt(monCol, mon.Row()).type == RockFall)
+				startRockFall(MapIndex(monCol, mon.Row()));
+		}
 
 	// A gate the player holds the key for opens as they come up to it.
 	for (int dir : {-1, 1}) {
@@ -98,6 +102,14 @@ void Dungeon::updateMechanisms() {
 	updateRocks();
 }
 //======================================================================================
+void Dungeon::startRockFall(int cell) {
+	if (map[cell].type != RockFall || rockState(map[cell]) != RockState::Armed)
+		return;
+	setRockState(map[cell], RockState::Falling);
+	fallingRocks.push_back({cell, GameClock::now()});
+	Game().assets.sounds.rockRumble.Play();
+}
+//======================================================================================
 void Dungeon::updateRocks() {
 	for (auto it = fallingRocks.begin(); it != fallingRocks.end();) {
 		if (GameClock::now() - it->startMs < ROCK_WARN_MS + ROCK_FALL_MS) {
@@ -117,6 +129,11 @@ void Dungeon::updateRocks() {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
 			Game().player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
 			Game().ShowStatus("%s", crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
+		}
+		for (Monster& mon : monsters) { // walkers under it, a leaper in the air too (a jump does not dodge it)
+			const float monDx = std::fabs(mon.CentreX() - centreX);
+			if (mon.Active() && mon.Alive() && !mon.flies() && mon.Row() == row && monDx < ROCK_GRAZE_HALF_WIDTH)
+				mon.TrapHit(monDx < ROCK_CRUSH_HALF_WIDTH ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE);
 		}
 		setRockState(map[it->cell], RockState::Fallen);
 		it = fallingRocks.erase(it);

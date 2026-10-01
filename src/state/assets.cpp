@@ -152,10 +152,10 @@ const struct {
 	{MonsterAnubisBoss, {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 };
 
-// How each monster type takes blunt, slash and pierce damage (docs/plan/damage-types-and-resistances.md); a type
-// not listed takes all of it normally. Each weapon is the best against some: the club against bats, mimics and the
-// Anubis guard, the sword against worms, plants and mummies, the spear (and the bow) against scarabs and the Anubis
-// boss.
+// How each monster type takes blunt, slash and pierce damage (docs/plan/solved/damage-types-and-resistances.md); a
+// type not listed takes all of it normally. Each weapon is the best against some: the club against bats, mimics and
+// the Anubis guard, the sword against worms, plants and mummies, the spear (and the bow) against scarabs and the
+// Anubis boss.
 const struct {
 	MonsterTypeId id;
 	Resistances resist;

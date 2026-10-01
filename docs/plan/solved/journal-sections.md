@@ -87,7 +87,7 @@ The creatures section does not have to wait for damage types: their resistance n
 3. **Done.** Creatures without resistances ([monster-journal.md](monster-journal.md)): seen, kill, HP,
    its hit, special moves, pencil sketch (`tests/scenarios/journal_creatures.txt`, every type:
    `journal_all_creatures.txt`).
-4. **Done.** Resistance notes, with [damage-types-and-resistances.md](../damage-types-and-resistances.md): one line
+4. **Done.** Resistance notes, with [damage-types-and-resistances.md](damage-types-and-resistances.md): one line
    per creature, a type's rate once a weapon of that main type hit it (`JournalCreature::tried`).
 
 Order with the other plans (changed 2026-10-01 after the stage 1 play test): stage 1, the

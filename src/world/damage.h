@@ -1,8 +1,8 @@
 #ifndef DAMAGE_H
 #define DAMAGE_H
 
-// Damage types (docs/plan/damage-types-and-resistances.md): every weapon deals a mix of them, every monster type takes
-// each at its own rate, so each monster has a weapon that works best against it.
+// Damage types (docs/plan/solved/damage-types-and-resistances.md): every weapon deals a mix of them, every monster type
+// takes each at its own rate, so each monster has a weapon that works best against it.
 
 #include <algorithm>
 #include <array>

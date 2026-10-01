@@ -84,8 +84,9 @@ The creatures section does not have to wait for damage types: their resistance n
    special moves.
 4. Resistance notes, with or after [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md).
 
-Order with the other plans (2026-10-01): stage 1, then the [handwritten font](handwritten-journal-font.draft.md), then
-[screen-switch-tabs.draft.md](screen-switch-tabs.draft.md), then stages 2-4.
+Order with the other plans (changed 2026-10-01 after the stage 1 play test): stage 1, the
+[handwritten font](handwritten-journal-font.draft.md), stage 3 (creatures; the sketch is ink-tinted in the font's
+colour), then [screen-switch-tabs.draft.md](screen-switch-tabs.draft.md) and stage 2.
 
 ## Later, if the game grows
 
@@ -97,5 +98,3 @@ Order with the other plans (2026-10-01): stage 1, then the [handwritten font](ha
 
 ## Open
 
-* Sketch of a monster: the model rendered flat and ink-tinted, or a drawn texture per type
-  ([monster-journal.draft.md](monster-journal.draft.md)). Needed for stage 3 only.

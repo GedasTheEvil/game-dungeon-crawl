@@ -1,7 +1,7 @@
 # Handwritten journal font
 
-Status: draft 2026-10-01. Not blocking the journal: do it after [journal-sections.draft.md](journal-sections.draft.md)
-stage 1, then [screen-switch-tabs.draft.md](screen-switch-tabs.draft.md).
+Status: draft 2026-10-01. Next after [journal-sections.draft.md](journal-sections.draft.md) stage 1; the creatures
+section waits for it: the monster sketches are tinted in the handwriting's colour.
 
 ## Idea
 

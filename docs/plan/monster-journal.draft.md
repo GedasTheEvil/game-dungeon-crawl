@@ -14,7 +14,8 @@ An explorer's field journal: notes in the shared papyrus look ([docs/ui.md](../u
 notes, not a stats table. A 1920s archaeologist with a notebook and pencil fits the Egyptian tomb theme.
 
 * One page per monster type, a list or tabs of the seen types. Unseen types are not listed (or show "?").
-* A sketch of the monster: the model rendered flat and tinted like ink or pencil, or a hand-drawn texture per type.
+* A sketch of the monster: decided 2026-10-01, the 3D model rendered flat and ink-tinted, in the same colour as the
+  journal's handwriting ([handwritten-journal-font.draft.md](handwritten-journal-font.draft.md)).
 * Facts as short notes: "Tough shell, the sword glances off", "Club cracks it", "~40 HP".
 * Unknown facts are blank or "?", so the player can see what is still left to learn.
 

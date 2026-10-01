@@ -241,16 +241,30 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 
-	addLights();
+	const ViewWindow v = view();
+	float projection[16];
+	float modelview[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+	float clip[16];
+	for (int c = 0; c < 4; c++)
+		for (int r = 0; r < 4; r++) {
+			clip[c * 4 + r] = 0.f;
+			for (int k = 0; k < 4; k++)
+				clip[c * 4 + r] += projection[k * 4 + r] * modelview[c * 4 + k];
+		}
+	const CellRect drawn = drawnWindow(v, clip, RenderConfig::TILE_SIZE);
+
+	addLights(drawn);
 	Lighting::commit();
 
-	glPushMatrix();								  // the loop walks the frame from tile to tile
-	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0); // from the view's first column, left of the origin
-	const ViewWindow v = view();
-	for (int j = v.originRow; j < v.originRow + ViewWindow::HEIGHT; j++) {
-		for (int i = v.firstCol(); i < v.firstCol() + ViewWindow::WIDTH; i++) {
+	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
+	glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(drawn.col0 - v.originCol),
+				 RenderConfig::TILE_SIZE * static_cast<float>(drawn.row0 - v.originRow), 0);
+	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++) {
+		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
+			drawCellSurfaces(i, j); // outside the level: rock
 			if (IsInBounds(i, j)) {
-				drawCellSurfaces(i, j);
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);
@@ -258,19 +272,20 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 			}
 			glTranslatef(RenderConfig::TILE_SIZE, 0, 0);
 		}
-		glTranslatef(-RenderConfig::TILE_SIZE * ViewWindow::WIDTH, RenderConfig::TILE_SIZE, 0); // the next row's start
+		glTranslatef(-RenderConfig::TILE_SIZE * static_cast<float>(drawn.cols), RenderConfig::TILE_SIZE,
+					 0); // the next row's start
 	}
 	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
-	DrawMonsters();
+	DrawMonsters(drawn);
 	drawArrows();
 	if (hitboxes != nullptr)
 		drawHitboxes(*hitboxes);
 	glPopMatrix();
 
-	drawFires();
+	drawFires(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
 	glPopMatrix();

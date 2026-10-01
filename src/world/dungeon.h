@@ -6,6 +6,7 @@
 #include "../core/gameplay_config.h"
 #include "decor.h"
 #include "level.h"
+#include "view_window.h"
 #include <memory>
 #include <vector>
 
@@ -15,20 +16,6 @@
 //   Screen space: projection of world space, origin top-left
 
 constexpr int MAX_MONSTERS = 32; // live monster slots; the campaign's busiest level has 15
-
-// The part of the level drawn round the player: WIDTH x HEIGHT cells from (firstCol(), originRow). Dungeon::Draw's
-// frame puts cell (originCol, originRow) at the origin; the column left of it is drawn too, for the view's edge.
-struct ViewWindow {
-	static constexpr int WIDTH = 10;
-	static constexpr int HEIGHT = 6;
-	int originCol = 0;
-	int originRow = 0;
-	[[nodiscard]] int firstCol() const { return originCol - 1; }
-	[[nodiscard]] bool contains(float x, int row) const {
-		return row >= originRow && row < originRow + HEIGHT && x >= static_cast<float>(firstCol()) &&
-			   x < static_cast<float>(firstCol() + WIDTH);
-	}
-};
 
 // What the hitbox debug view (F3, scenario 'hitboxes on') shows of the weapon: its reach in tiles, measured from the
 // player's box edge (melee) or the centre (the bow).
@@ -69,7 +56,7 @@ class Dungeon {
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
-	void DrawMonsters();  // at their actual position, not their spawn tile
+	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;
 	void noteSeenMonsters(); // the monsters on screen go in the journal
 	void drawHitboxes(const HitboxView& weapon);
@@ -85,8 +72,8 @@ class Dungeon {
 	void drawLadderTile(int i, int j);
 	struct FlameSource;
 	int flamesAt(int i, int j, FlameSource* out) const;
-	void addLights();
-	void drawFires();
+	void addLights(const CellRect& drawn);
+	void drawFires(const CellRect& drawn);
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
 	Tile Map(float x, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).

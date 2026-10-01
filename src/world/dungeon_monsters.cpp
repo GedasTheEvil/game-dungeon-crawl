@@ -169,11 +169,12 @@ void Dungeon::AnimateMonsters() {
 }
 //======================================================================================
 // Called in Draw() with the frame origin at the view's first column (ViewWindow::firstCol).
-void Dungeon::DrawMonsters() {
+// A monster beyond the gameplay window but in the drawn one (a wide window) is drawn too.
+void Dungeon::DrawMonsters(const CellRect& drawn) {
 	const int firstCol = view().firstCol();
 	const int firstRow = view().originRow;
 	for (Monster& mon : monsters) {
-		if (!inView(mon))
+		if (!mon.Active() || !drawn.contains(mon.CentreX(), mon.Row()))
 			continue;
 
 		glPushMatrix();

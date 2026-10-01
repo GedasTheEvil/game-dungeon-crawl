@@ -4,7 +4,7 @@ Status: draft 2026-10-01, refined 2026-10-01 from the reference image and user f
 
 ## Idea
 
-The journal ([journal-sections.md](journal-sections.md)) reads as a flat board: two papyrus panels on a cover. It
+The journal ([journal-sections.md](solved/journal-sections.md)) reads as a flat board: two papyrus panels on a cover. It
 should feel like a real, used field notebook, the kind an archaeologist carries on a dig. Reference:
 [notebookstories.com example](https://www.notebookstories.com/wp-content/uploads/2020/03/001.jpg), an excavation
 notebook from 1997.
@@ -33,7 +33,7 @@ Proposals, to confirm when the work starts:
 
 * Book: cloth cover (dark sand or grey, not the current bronze) with the cover edge showing, an elastic strap on the
   left edge, stacked page edges on the right, gutter shadow and page curve at the spine.
-* Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](journal-sections.md)) stay on the right edge; the
+* Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](solved/journal-sections.md)) stay on the right edge; the
   strap goes on the left. Each ribbon gets a letter: M (monsters / creatures), R (riddles), F (field notes). The letter shows only on the open section's ribbon and on the hovered one.
 * Paper: white-cream with the grid, as a texture (grain + grid + slight shading towards the spine) from a
   `tools/textures/` script, like the ribbon.

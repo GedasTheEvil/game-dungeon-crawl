@@ -53,7 +53,7 @@ Spread the weaknesses so each weapon (club, sword, spear, bow) is the best choic
 * [weapon-ranges-and-balance.draft.md](weapon-ranges-and-balance.draft.md): weapon damage per second retune; do the
   resistances together with it (the club at 10 dps is too weak for any multiplier to save it).
 * [monster-strength.draft.md](monster-strength.draft.md): monster HP/stat readjustment.
-* [monster-journal.md](monster-journal.md): where the player learns the resistances.
+* [monster-journal.md](solved/monster-journal.md): where the player learns the resistances.
 
 ## Implemented
 
@@ -89,8 +89,11 @@ Decided 2026-10-01 while implementing:
 
   The finale switches weapons: the sword for the mummies, the spear or bow for the boss.
 * Feedback: the first hit of a weapon's main type on a monster type writes it down in the journal (creature page:
-  "blunt normal  slash resists  pierce ?") with a status line ("Journal: Giant scarab, weak to pierce"). The
-  inventory names the weapon's main type ("Close combat, slash, level 1"); the Weapons field note explains it.
+  "blunt normal  slash resists  pierce ?") with a status line ("Journal: Giant scarab, weak to pierce"). The Weapons
+  field note explains it.
+* Play test 2026-10-01: no weapon said what damage it does (the main type was only in the small red line under the
+  name). The inventory's weapon details now have a **Type** row with the whole mix, main type first ("slash 85%",
+  then "pierce 15%" smaller). To verify in play.
 * Saved in the journal (version 4). Scenarios: `tests/scenarios/damage_types.txt`, `boss.txt` (the boss's chest,
   scenario field `chests`); `bow.txt` needs ten arrows for the plant now.
 * Not done: a hit sound or number colour per rate; levelcheck threat does not look at resistances (every level

@@ -2,7 +2,7 @@
 
 Status: done 2026-10-01, verified in play 2026-10-01. Kalam (SIL OFL) in pencil grey (`ui::PENCIL`, the draft map's
 pencil) on the journal's pages. The creatures section's monster sketches use the same colour
-([journal-sections.md](../journal-sections.md)).
+([journal-sections.md](journal-sections.md)).
 
 ## Idea
 

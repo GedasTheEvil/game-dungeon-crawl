@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-// The archaeologist's notebook (docs/plan/journal-sections.md): what the player went through, kept per save
+// The archaeologist's notebook (docs/plan/solved/journal-sections.md): what the player went through, kept per save
 // game: creatures, riddles and field notes.
 
 // A riddle met at a gate. A copy, not an index into riddles/*.txt: those files can change between saves.
@@ -40,7 +40,7 @@ enum class CreatureMove : unsigned char {
 constexpr int CREATURE_MOVE_COUNT = 6;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
-// a kill count (docs/plan/monster-journal.md).
+// a kill count (docs/plan/solved/monster-journal.md).
 struct JournalCreature {
 	int type = 0;
 	int level = 0;		 // campaign level of the first meeting

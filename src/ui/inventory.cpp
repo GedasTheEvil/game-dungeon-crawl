@@ -40,7 +40,7 @@ constexpr float WEAPON_SLOT_SCALE = 14.5f;
 constexpr float POTION_SLOT_SCALE = 6.8f;
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float POTION_DETAIL_SCALE = 16.f;
-constexpr float PLINTH_Y = 47.f;		 // detail model base
+constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
@@ -591,16 +591,15 @@ void Inventory::DrawDetails() {
 	char kind[48] = "Potion";
 	if (!isPotion(selectedSlot)) {
 		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
-		const char* damageType = DAMAGE_TYPE_NAMES[static_cast<size_t>(mainType(Model(kindOf(selectedSlot))->mix))];
 		if (owned)
-			snprintf(kind, sizeof(kind), "%s, %s, level %d", weaponKind, damageType, bag.Level(kindOf(selectedSlot)));
+			snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
 		else
-			snprintf(kind, sizeof(kind), "%s, %s", weaponKind, damageType);
+			snprintf(kind, sizeof(kind), "%s", weaponKind);
 	}
 	textCentered(small, cx, 73.8f, kind, INK_RED);
 
-	constexpr float STAT_Y = 39.f;
-	constexpr float LORE_Y = 29.f;
+	constexpr float STAT_Y = 37.4f;
+	constexpr float LORE_Y = 28.2f;
 	if (!owned) {
 		textCentered(body, cx, STAT_Y, isPotion(selectedSlot) ? "Effect unknown" : "Strength unknown", INK_FADED);
 	} else if (isPotion(selectedSlot)) {
@@ -621,6 +620,20 @@ void Inventory::DrawDetails() {
 			snprintf(buf, sizeof(buf), "%+d", value - currentValue);
 			text(body, valueX + body.TextWidth("000") + 1, y, buf, value > currentValue ? INK_GREEN : INK_RED);
 		};
+		// The damage mix, the main type first: what the monsters' resistances work on.
+		const DamageMix& mix = shown->mix;
+		const auto main = static_cast<size_t>(mainType(mix));
+		text(body, labelX, STAT_Y + 7.f, "Type", INK_FADED);
+		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
+		text(body, valueX, STAT_Y + 7.f, buf, INK);
+		float minorX = valueX + body.TextWidth(buf) + 1.5f;
+		for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
+			if (t == main || mix[t] <= 0)
+				continue;
+			snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[t], mix[t]);
+			text(small, minorX, STAT_Y + 7.2f, buf, INK_FADED);
+			minorX += small.TextWidth(buf) + 1.5f;
+		}
 		statRow(STAT_Y + 3.5f, "Damage", shownDamage, EquippedDamage());
 		statRow(STAT_Y, "Range", shown->range, current->range);
 
@@ -648,7 +661,7 @@ void Inventory::DrawDetails() {
 	beginShapes();
 	line(DETAIL_PANEL.x + 8, 72.5f, DETAIL_PANEL.x + DETAIL_PANEL.w - 8, 72.5f, INK_FADED, 0.8f, 1.f);
 	diamond(cx, 72.5f, 0.6f, INK_RED, 1.f);
-	line(DETAIL_PANEL.x + 8, 33.4f, DETAIL_PANEL.x + DETAIL_PANEL.w - 8, 33.4f, INK_FADED, 0.5f, 1.f);
+	line(DETAIL_PANEL.x + 8, 31.6f, DETAIL_PANEL.x + DETAIL_PANEL.w - 8, 31.6f, INK_FADED, 0.5f, 1.f);
 }
 
 void Inventory::DrawDetailModel() {

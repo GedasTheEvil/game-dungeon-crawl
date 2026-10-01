@@ -1,23 +1,23 @@
 # Monster journal
 
 Status: draft 2026-10-01. Done 2026-10-01, verified in play; the resistances and the toast (only for resistance
-notes) followed with [damage-types-and-resistances.md](damage-types-and-resistances.md), to verify in play. Data: `Journal::Creatures()` (`src/world/journal.h`), notes: `MonsterKind::note`
+notes) followed with [damage-types-and-resistances.md](../damage-types-and-resistances.md), verified in play. Data: `Journal::Creatures()` (`src/world/journal.h`), notes: `MonsterKind::note`
 (`src/world/monster_kinds.cpp`), page: `JournalScreen::DrawCreature` (`src/ui/journal_view.cpp`).
 
 ## Idea
 
 A full-screen bestiary next to the map and the inventory. The player learns about a monster type by fighting it:
 entries start empty and fill in as the player kills and hits monsters. It is how the player finds out the
-resistances from [damage-types-and-resistances.md](damage-types-and-resistances.md) without a wiki.
+resistances from [damage-types-and-resistances.md](../damage-types-and-resistances.md) without a wiki.
 
 ## Look
 
-An explorer's field journal: notes in the shared papyrus look ([docs/ui.md](../ui.md)), written as handwritten
+An explorer's field journal: notes in the shared papyrus look ([docs/ui.md](../../ui.md)), written as handwritten
 notes, not a stats table. A 1920s archaeologist with a notebook and pencil fits the Egyptian tomb theme.
 
 * One page per monster type, a list or tabs of the seen types. Unseen types are not listed (or show "?").
 * A sketch of the monster: decided 2026-10-01, the 3D model rendered flat and ink-tinted, in the same colour as the
-  journal's handwriting ([handwritten-journal-font.md](solved/handwritten-journal-font.md)).
+  journal's handwriting ([handwritten-journal-font.md](handwritten-journal-font.md)).
 * Facts as short notes: "Tough shell, the sword glances off", "Club cracks it", "~40 HP".
 * Unknown facts are blank or "?", so the player can see what is still left to learn.
 
@@ -54,8 +54,8 @@ Optional: a status box toast when a new note is written ("Journal: scarab, resis
 
 ## Related
 
-* [damage-types-and-resistances.md](damage-types-and-resistances.md): the journal is where the
+* [damage-types-and-resistances.md](../damage-types-and-resistances.md): the journal is where the
   resistances show; do it with or right after the damage types.
-* [monster-strength.draft.md](monster-strength.draft.md): HP and damage shown in the journal follow its retune.
+* [monster-strength.draft.md](../monster-strength.draft.md): HP and damage shown in the journal follow its retune.
 * [journal-sections.md](journal-sections.md): the journal as a whole notebook (creatures, riddles,
   traps, expedition log).

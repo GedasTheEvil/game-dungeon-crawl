@@ -1,6 +1,6 @@
 # Render distance from the window's aspect ratio
 
-Status: draft 2026-10-01. Done 2026-10-01, to verify in play (see [Implemented](#implemented)).
+Status: draft 2026-10-01. Done 2026-10-01, verified in play (see [Implemented](#implemented)).
 
 ## The problem
 

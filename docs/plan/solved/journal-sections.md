@@ -2,12 +2,12 @@
 
 Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages). Stage 1 done 2026-10-01
 (`tests/scenarios/journal.txt`), verified in play. Stage 3 done 2026-10-01, verified in play. Stage 2 done
-2026-10-01, verified in play. Stage 4 and the ribbon texture done 2026-10-01, to verify in play.
+2026-10-01, verified in play. Stage 4 and the ribbon texture done 2026-10-01, verified in play.
 
 ## Idea
 
 The [monster journal](monster-journal.md) becomes the archaeologist's whole notebook, not only a bestiary.
-One screen (one tab in [screen-switch-tabs.md](solved/screen-switch-tabs.md)), split into sections. Same rules
+One screen (one tab in [screen-switch-tabs.md](screen-switch-tabs.md)), split into sections. Same rules
 as the monsters: everything written down comes from what the player went through, and is kept per save game.
 
 ## Look: a book with ribbon bookmarks
@@ -17,7 +17,7 @@ right edge, one per section; a click on a ribbon opens that section's first page
 
 Proposals, to confirm when the work starts:
 
-* Spread on the 160 x 100 canvas in the shared look ([docs/ui.md](../ui.md)): left and right page, a spine in the
+* Spread on the 160 x 100 canvas in the shared look ([docs/ui.md](../../ui.md)): left and right page, a spine in the
   middle. Creatures: sketch on the left, notes on the right. Riddles and field notes: text across both pages.
 * Ribbons: one colour per section (creatures red, riddles lapis, field notes ochre?). The open section's ribbon
   sticks out further. Hover shows the section name.
@@ -29,7 +29,7 @@ Proposals, to confirm when the work starts:
   `textures/ui/ribbon.png` from `tools/textures/ribbon.py` (silk warp threads, grosgrain rib, pressed creases,
   sheen, frayed cut, baked drop shadow).
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
-* Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.md](solved/handwritten-journal-font.md).
+* Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.md](handwritten-journal-font.md).
 
 ## Sections
 
@@ -47,7 +47,7 @@ Decided 2026-10-01, in this order:
 * Missed (walked away, Esc): decided 2026-10-01, the question stays with a "?" or an empty answer line, and the
   player can come back to it and answer it from the journal later. Gives a reason to think about it while playing,
   and the journal becomes useful, not only a record. A late answer gives one tenth of the gate's XP (decided
-  2026-10-01). The gate gives 30% of the XP to the next level, at least 500 ([docs/riddles.md](../riddles.md)), so a
+  2026-10-01). The gate gives 30% of the XP to the next level, at least 500 ([docs/riddles.md](../../riddles.md)), so a
   late answer gives 3%, at least 50. The XP is fixed when the gate is met and saved with the riddle, so holding a
   riddle back until a level up gives nothing extra.
 * The hint is written down only if it was shown.
@@ -87,12 +87,12 @@ The creatures section does not have to wait for damage types: their resistance n
 3. **Done.** Creatures without resistances ([monster-journal.md](monster-journal.md)): seen, kill, HP,
    its hit, special moves, pencil sketch (`tests/scenarios/journal_creatures.txt`, every type:
    `journal_all_creatures.txt`).
-4. **Done.** Resistance notes, with [damage-types-and-resistances.md](damage-types-and-resistances.md): one line
+4. **Done.** Resistance notes, with [damage-types-and-resistances.md](../damage-types-and-resistances.md): one line
    per creature, a type's rate once a weapon of that main type hit it (`JournalCreature::tried`).
 
 Order with the other plans (changed 2026-10-01 after the stage 1 play test): stage 1, the
-[handwritten font](solved/handwritten-journal-font.md), stage 3 (creatures; the sketch is ink-tinted in the font's
-colour), then [screen-switch-tabs.md](solved/screen-switch-tabs.md) and stage 2.
+[handwritten font](handwritten-journal-font.md), stage 3 (creatures; the sketch is ink-tinted in the font's
+colour), then [screen-switch-tabs.md](screen-switch-tabs.md) and stage 2.
 
 ## Later, if the game grows
 

@@ -37,6 +37,7 @@ class Texture {
 	// Replaces what it held.
 	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped, PixelFilter change = nullptr);
 	void Bind() const;
+	void ClampToEdge() const; // no wrapping: for an image drawn once, not tiled
 	[[nodiscard]] int ID() const;
 };
 

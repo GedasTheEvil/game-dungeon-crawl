@@ -25,7 +25,9 @@ Proposals, to confirm when the work starts:
 * Decided 2026-10-01: key J, an entry in the in-game menu; the game pauses while it is open, like the inventory
   and map. It opens on the last section and page looked at (creatures the first time).
 * Ribbon look (play test 2026-10-01: the flat drawn ribbons look meh): a ribbon texture (cloth weave, frayed
-  swallowtail end, shading) tinted per section, instead of shapes drawn in game. Not urgent.
+  swallowtail end, shading) tinted per section, instead of shapes drawn in game. Done 2026-10-01, to verify in play:
+  `textures/ui/ribbon.png` from `tools/textures/ribbon.py` (silk warp threads, grosgrain rib, pressed creases,
+  sheen, frayed cut, baked drop shadow).
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
 * Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.md](solved/handwritten-journal-font.md).
 

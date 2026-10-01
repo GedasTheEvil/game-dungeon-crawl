@@ -27,7 +27,8 @@ constexpr float RIBBON_OPEN_LEN = 16.f; // the open section's ribbon sticks out 
 constexpr float RIBBON_H = 6.f;
 constexpr float RIBBON_TOP = 76.f;
 constexpr float RIBBON_STEP = 9.f;
-constexpr float RIBBON_NOTCH = 2.f;
+constexpr float RIBBON_SHADOW = 1.f;							// texture margin right and below
+constexpr float RIBBON_TEX_W = RIBBON_OPEN_LEN + RIBBON_SHADOW; // the texture: the open ribbon and its shadow
 
 constexpr float CORNER = 7.f; // page turn corners
 constexpr float ANSWER_W = 36.f;
@@ -83,14 +84,13 @@ Rect answerRect(int side) {
 
 Color darker(Color c, float f) { return {c.r * f, c.g * f, c.b * f}; }
 
-// A ribbon with a swallowtail end.
+// A silk ribbon with a frayed swallowtail end (textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
+// RIBBON_TEX_LEN x RIBBON_H plus one unit right and below for its shadow; a shorter ribbon crops its left end.
 void ribbon(const Rect& r, Color c) {
-	float tail = r.x + r.w - RIBBON_NOTCH;
-	fillRect({r.x + 0.4f, r.y - 0.6f, r.w - RIBBON_NOTCH, r.h}, BLACK, BLACK, 0.35f); // shadow
-	fillRect({r.x, r.y, tail - r.x, r.h}, c, darker(c, 0.7f), 1.f);
-	triangle(tail, r.y + r.h, r.x + r.w, r.y + r.h, tail, r.y + r.h / 2, c, 1.f);
-	triangle(tail, r.y, r.x + r.w, r.y, tail, r.y + r.h / 2, darker(c, 0.7f), 1.f);
-	fillRect({r.x, r.y + r.h - 0.6f, tail - r.x, 0.6f}, {1, 1, 1}, {1, 1, 1}, 0.12f); // sheen along the top
+	float u0 = (RIBBON_OPEN_LEN - r.w) / RIBBON_TEX_W;
+	texturedRect({r.x, r.y - RIBBON_SHADOW, r.w + RIBBON_SHADOW, r.h + RIBBON_SHADOW},
+				 Game().assets.textures.ribbon.ID(), c, u0, 0.f, 1.f, 1.f);
+	beginShapes();
 }
 
 // Page turn arrow in a page corner; `left` points to the previous spread.

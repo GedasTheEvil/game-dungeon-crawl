@@ -106,4 +106,10 @@ int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change)
 //----------------------------------------------------------------------------------
 void Texture::Bind() const { glBindTexture(GL_TEXTURE_2D, texture.texID); }
 //----------------------------------------------------------------------------------
+void Texture::ClampToEdge() const {
+	Bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+//----------------------------------------------------------------------------------
 int Texture::ID() const { return static_cast<int>(texture.texID); }

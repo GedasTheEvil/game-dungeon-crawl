@@ -428,6 +428,8 @@ void loadFonts(FontSet& fonts) {
 void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
+	textures.ribbon.LoadPNG("textures/ui/ribbon.png");
+	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 

@@ -1,6 +1,6 @@
 # Journal as a real book
 
-Status: draft 2026-10-01, refined 2026-10-01 from the reference image.
+Status: draft 2026-10-01, refined 2026-10-01 from the reference image and user feedback.
 
 ## Idea
 
@@ -32,9 +32,10 @@ notebook from 1997.
 Proposals, to confirm when the work starts:
 
 * Book: cloth cover (dark sand or grey, not the current bronze) with the cover edge showing, an elastic strap on the
-  left edge, stacked page edges on the right, gutter shadow and page curve at the spine. The ribbon bookmarks
-  ([journal-sections.md](journal-sections.md)) stay; in the reference the strap sits where they would hang, so they
-  could move to the top or bottom edge, or the strap goes to the left.
+  left edge, stacked page edges on the right, gutter shadow and page curve at the spine.
+* Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](journal-sections.md)) stay on the right edge; the
+  strap goes on the left. Each ribbon gets a letter: M (monsters / creatures), R (riddles), F (field notes, letter to
+  confirm). The letter shows only on the open section's ribbon and on the hovered one.
 * Paper: white-cream with the grid, as a texture (grain + grid + slight shading towards the spine) from a
   `tools/textures/` script, like the ribbon.
 * Creatures: the monster sketch becomes a pasted b/w "photo" with a white border and a small tilt, a red catalogue
@@ -65,5 +66,4 @@ Open: flip speed, sound (paper rustle), flip several pages at once on a ribbon c
 ## Notes
 
 * Shared UI look and canvas: [docs/ui.md](../ui.md), "Book (journal)". Code: `src/ui/journal_view.cpp`.
-* The cloth-and-grid look leaves the shared Egyptian look on this one screen; check it still sits well next to the
-  inventory and map tabs.
+* Decided 2026-10-01: the journal comes from outside the tomb, so leaving the Egyptian look on this screen is fine.

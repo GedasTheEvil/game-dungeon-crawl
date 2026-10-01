@@ -3,8 +3,10 @@
 #include "../input/input.h"
 #include "../state/game_state.h"
 #include "../world/journal.h"
+#include "../world/monster_kinds.h"
 #include <GL/gl.h>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 using namespace ui;
@@ -33,6 +35,17 @@ constexpr float ANSWER_H = 7.f;
 
 constexpr const char* HAND_FONT = "fonts/kalam.png"; // Kalam (OFL, fonts/kalam-OFL.txt)
 constexpr float FADED = 0.7f;						 // alpha of pencil notes that matter less (level, hint)
+
+constexpr float SKETCH_TOP = 21.f; // below the page top
+constexpr float SKETCH_H = 20.f;
+constexpr float SKETCH_PAD_X = 9.f;
+constexpr float SKETCH_YAW = -25.f;	   // from the side, turned a little towards the reader
+constexpr float SKETCH_TILT = 12.f;	   // seen a little from above
+constexpr float SKETCH_WASH = 0.75f;   // how dark the texture's darkest part shades the paper
+constexpr float SKETCH_LINE_PX = 1.6f; // at 720 rows
+constexpr float NOTES_TOP = 45.5f;	   // first note's baseline below the page top
+constexpr float NOTE_STEP = 3.5f;
+constexpr size_t MAX_NOTE_LINES = 2; // of the description
 
 constexpr float QUESTION_STEP = 4.4f;
 constexpr size_t MAX_QUESTION_LINES = 7;
@@ -87,6 +100,50 @@ void cornerArrow(const Rect& r, bool left, Color c) {
 	triangle(tip, cy, base, cy + 2.f, base, cy - 2.f, c, 1.f);
 }
 
+// Monster textures as a pencil wash: the darker a texel, the more pencil grey it lays on the paper (drawn with a
+// multiply blend, white leaves the paper as it is).
+void pencilWash(unsigned char* data, int pixels, int components) {
+	for (int i = 0; i < pixels; i++) {
+		unsigned char* p = data + static_cast<ptrdiff_t>(i) * components;
+		auto channel = [p](int c) { return static_cast<float>(p[c]); };
+		float lum = (0.3f * channel(0) + 0.59f * channel(1) + 0.11f * channel(2)) / 255.f;
+		lum = std::clamp((lum - 0.5f) * 1.3f + 0.6f, 0.f, 1.f); // more contrast, a lighter middle
+		float ink = SKETCH_WASH * (1.f - lum);
+		const float pencil[3] = {PENCIL.r, PENCIL.g, PENCIL.b};
+		for (int c = 0; c < 3; c++)
+			p[c] = static_cast<unsigned char>(255.f * (1.f - ink * (1.f - pencil[c])));
+	}
+}
+
+// "~40 HP": the journal writes rough numbers, the way they are learnt.
+int rough(int n) { return n < 20 ? n : static_cast<int>(std::lround(n / 5.0)) * 5; }
+
+const char* moveNote(CreatureMove move, const MonsterType& t) {
+	switch (move) {
+	case CreatureMove::Leap:
+		return "Leaps over pits and traps.";
+	case CreatureMove::Swoop:
+		return "Hangs from the ceiling, swoops down to bite.";
+	case CreatureMove::Ambush:
+		return "Lies in wait as a treasure chest!";
+	case CreatureMove::Rise:
+		return "Lies in its coffin, climbs out when I come near.";
+	case CreatureMove::Summon:
+		switch (t.boss.summon) {
+		case Summon::DigOut:
+			return "Calls its brood up out of the sand.";
+		case Summon::Drop:
+			return "Calls its kind down from the ceiling.";
+		case Summon::Coffin:
+			return "The dead climb out of their coffins at its call.";
+		}
+		break;
+	case CreatureMove::Heal:
+		return "Heals as it bites.";
+	}
+	return "";
+}
+
 // A tick before a solved riddle's answer, from its bottom left at (x, y).
 void tick(float x, float y, Color c) {
 	line(x, y + 1.4f, x + 1.f, y, c, 1.f, 2.f);
@@ -100,7 +157,9 @@ void tick(float x, float y, Color c) {
 int JournalScreen::PageCount(Section s) const {
 	if (s == Section::Riddles)
 		return static_cast<int>(Game().journal.Riddles().size());
-	return 0; // creatures and field notes come in later stages
+	if (s == Section::Creatures)
+		return static_cast<int>(Game().journal.Creatures().size());
+	return 0; // field notes come in a later stage
 }
 
 int JournalScreen::SpreadCount(Section s) const { return std::max(1, (PageCount(s) + 1) / 2); }
@@ -110,12 +169,12 @@ void JournalScreen::Turn(int by) {
 	open = std::clamp(open + by, 0, SpreadCount(section) - 1);
 }
 
-int JournalScreen::RiddleOnPage(int side) const {
-	if (section != Section::Riddles)
-		return -1;
+int JournalScreen::EntryOnPage(int side) const {
 	int page = spread[static_cast<size_t>(section)] * 2 + side;
 	return page < PageCount(section) ? page : -1;
 }
+
+int JournalScreen::RiddleOnPage(int side) const { return section == Section::Riddles ? EntryOnPage(side) : -1; }
 
 bool JournalScreen::CanAnswer(int side) const {
 	int index = RiddleOnPage(side);
@@ -228,6 +287,7 @@ void JournalScreen::Draw() {
 	DrawBook();
 	DrawPage(0);
 	DrawPage(1);
+	DrawSketches();
 	DrawCorners();
 	DrawRibbons();
 	DrawFooter();
@@ -315,6 +375,8 @@ void JournalScreen::DrawPage(int side) {
 		textCentered(hand, p.cx(), p.cy(), "Nothing written yet", PENCIL, FADED);
 	beginShapes();
 
+	if (section == Section::Creatures && EntryOnPage(side) >= 0)
+		DrawCreature(p, EntryOnPage(side));
 	int riddle = RiddleOnPage(side);
 	if (riddle >= 0) {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
@@ -380,6 +442,124 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 		textCentered(body, b.cx(), b.y + 2.1f, label.c_str(), answerHovered ? TEXT_HOVER : GOLD);
 		beginShapes();
 	}
+}
+
+void JournalScreen::DrawCreature(const Rect& p, int index) {
+	const JournalCreature& c = Game().journal.Creatures()[static_cast<size_t>(index)];
+	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(c.type)];
+	const MonsterKind* kind = monsterKind(c.type);
+	float top = p.y + p.h;
+	float cx = p.cx();
+	float width = p.w - 2 * PAGE_PAD;
+
+	beginText();
+	textCentered(handHeading, cx, top - 13.f, c.killed ? t.name : "?", PENCIL);
+	std::string found = "Level " + std::to_string(c.level);
+	textCentered(handSmall, cx, top - 17.5f, found.c_str(), PENCIL, FADED);
+
+	// Notes under the sketch: what it is (after a kill), the numbers, the moves seen; "?" for what is still unknown.
+	std::vector<std::pair<std::string, float>> notes; // text, alpha
+	if (c.killed && kind != nullptr)
+		for (const std::string& l : wrap(handSmall, kind->note, width))
+			if (notes.size() < MAX_NOTE_LINES)
+				notes.emplace_back(l, 1.f);
+	std::string hp = c.killed ? "~" + std::to_string(rough(t.maxHealth)) + " HP" : "HP ?";
+	std::string hit = c.hitBy ? "hits for ~" + std::to_string(rough(t.damage)) : "its hit ?";
+	notes.emplace_back(hp + "     " + hit, 1.f);
+	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
+		if (c.Saw(static_cast<CreatureMove>(m)))
+			notes.emplace_back(moveNote(static_cast<CreatureMove>(m), t), 1.f);
+	float y = top - NOTES_TOP;
+	for (const auto& [line, alpha] : notes) {
+		textCentered(handSmall, cx, y, line.c_str(), PENCIL, alpha);
+		y -= NOTE_STEP;
+	}
+	beginShapes();
+	line(p.x + PAGE_PAD + 4, top - 20.f, p.x + p.w - PAGE_PAD - 4, top - 20.f, INK_FADED, 0.8f, 1.f);
+	diamond(cx, top - 20.f, 0.6f, INK_RED, 1.f);
+}
+
+// The model of each creature on the open pages, drawn flat in pencil: an outline, and once it was killed (seen up
+// close) a wash of its texture. A depth pass first, so only the front surfaces get lines and wash.
+void JournalScreen::DrawSketches() {
+	if (section != Section::Creatures)
+		return;
+	glClear(GL_DEPTH_BUFFER_BIT);
+	for (int side = 0; side < 2; side++) {
+		int index = EntryOnPage(side);
+		if (index < 0)
+			continue;
+		const JournalCreature& c = Game().journal.Creatures()[static_cast<size_t>(index)];
+		const Rect& p = pageRect(side);
+		DrawSketch(c.type, {p.x + SKETCH_PAD_X, p.y + p.h - SKETCH_TOP - SKETCH_H, p.w - 2 * SKETCH_PAD_X, SKETCH_H},
+				   c.killed);
+	}
+	glDisable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glLineWidth(1);
+	beginShapes();
+}
+
+void JournalScreen::DrawSketch(int type, const Rect& box, bool washed) {
+	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(type)];
+	const CharacterModel& model = t.model;
+	constexpr ModelState POSE =
+		ModelState::Move; // the mimic's idle clip is its disguise, the bat's hangs it upside down
+	const AnimatedModel* clip = model.Clip(model.Shown(POSE));
+	if (clip == nullptr)
+		return;
+	if (washed && !sketchTextures[static_cast<size_t>(type)].ID()) {
+		std::string file = std::string("textures/") + t.texture + ".png";
+		sketchTextures[static_cast<size_t>(type)].LoadPNG(file.c_str(), TexFilter::Mipmapped, pencilWash);
+	}
+
+	auto [bottom, top] = clip->YRange(0);
+	auto [halfX, halfZ] = clip->HalfXZ(0);
+	// Turned any way, the body stays within its longest half width; the tilt adds some of its depth to the height.
+	const float reach = 2.f * std::max(halfX, halfZ);
+	const float tilt = SKETCH_TILT * static_cast<float>(M_PI) / 180.f;
+	const float tall = (top - bottom) * std::cos(tilt) + reach * std::sin(tilt);
+	float size = std::min(box.w / reach, box.h / tall);
+	const AnimPlayback frame0{};
+
+	glPushMatrix();
+	glTranslatef(box.cx(), box.cy() - (top + bottom) / 2 * size * std::cos(tilt), 0);
+	glRotatef(SKETCH_TILT, 1, 0, 0);
+	glScalef(size, size, size);
+	glRotatef(t.rotA + 90.f + SKETCH_YAW, 0, 1, 0);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	clip->Show(frame0);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthFunc(GL_LEQUAL);
+
+	if (washed) {
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_DST_COLOR, GL_ZERO); // multiply onto the paper
+		glColor4f(1, 1, 1, 1);
+		clip->Show(frame0, sketchTextures[static_cast<size_t>(type)].ID());
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	// The outline: the back faces' edges show where the body ends (and at its folds).
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glPolygonMode(GL_BACK, GL_LINE);
+	glLineWidth(SKETCH_LINE_PX * static_cast<float>(Game().render.resY) / 720.f);
+	glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
+	clip->Show(frame0);
+	glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
 }
 
 void JournalScreen::DrawCorners() {

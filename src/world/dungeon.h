@@ -71,6 +71,7 @@ class Dungeon {
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
 	void DrawMonsters();  // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;
+	void noteSeenMonsters(); // the monsters on screen go in the journal
 	void drawHitboxes(const HitboxView& weapon);
 	void DrawTreasureTile(int i, int j);
 	void DrawTrapTile(bool isDeathTrap);

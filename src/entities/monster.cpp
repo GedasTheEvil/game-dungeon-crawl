@@ -137,6 +137,7 @@ bool Monster::takeHit(int dmg, bool byPlayer) {
 	if (!Alive() && state != ModelState::Die) {
 		enter(ModelState::Die);
 		if (byPlayer) {
+			Game().journal.KillCreature(type->id, Game().curMap);
 			const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
 			Game().ShowStatus("Gained %d XP", xp);
 			Game().player->stats.AddXP(xp);

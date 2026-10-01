@@ -79,3 +79,48 @@ TEST_CASE("a save from before the journal loads an empty journal") {
 	j.Load(old);
 	CHECK(j.Riddles().empty());
 }
+
+TEST_CASE("creatures are written down in the order they were met, once each") {
+	Journal j;
+	j.SeeCreature(5, 1);
+	j.HitByCreature(7, 2);
+	j.KillCreature(5, 3);
+	j.SeeMove(7, 4, CreatureMove::Swoop);
+	REQUIRE(j.Creatures().size() == 2);
+	const JournalCreature& rat = j.Creatures()[0];
+	CHECK(rat.type == 5);
+	CHECK(rat.level == 1); // the first meeting
+	CHECK(rat.killed);
+	CHECK_FALSE(rat.hitBy);
+	const JournalCreature& bat = j.Creatures()[1];
+	CHECK(bat.hitBy);
+	CHECK_FALSE(bat.killed);
+	CHECK(bat.Saw(CreatureMove::Swoop));
+	CHECK_FALSE(bat.Saw(CreatureMove::Leap));
+}
+
+TEST_CASE("creatures survive a save and load") {
+	Journal j;
+	j.KillCreature(10, 6);
+	j.SeeMove(10, 6, CreatureMove::Leap);
+	j.SeeMove(10, 6, CreatureMove::Heal);
+	std::stringstream s;
+	j.Dump(s);
+	Journal loaded;
+	loaded.Load(s);
+	REQUIRE(loaded.Creatures().size() == 1);
+	CHECK(loaded.Creatures()[0].type == 10);
+	CHECK(loaded.Creatures()[0].level == 6);
+	CHECK(loaded.Creatures()[0].killed);
+	CHECK(loaded.Creatures()[0].Saw(CreatureMove::Leap));
+	CHECK(loaded.Creatures()[0].Saw(CreatureMove::Heal));
+}
+
+TEST_CASE("a journal saved before the creatures loads its riddles") {
+	std::stringstream v1("journal 1 1\n\"T\" 1 \"Q\" 1 a \"\" 2 50 0 1 0 \"a\"\n");
+	Journal j;
+	j.Load(v1);
+	REQUIRE(j.Riddles().size() == 1);
+	CHECK(j.Riddles()[0].solved);
+	CHECK(j.Creatures().empty());
+}

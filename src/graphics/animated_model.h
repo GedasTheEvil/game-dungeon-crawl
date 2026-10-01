@@ -50,7 +50,8 @@ class AnimatedModel {
 	AnimatedModel& operator=(const AnimatedModel&) = delete;
 	int Load(const char filename[]); // MD3 (see tools/blender/md3.py)
 	void Show() const;
-	void Show(const AnimPlayback& p) const; // a shared model: the caller keeps the playback
+	void Show(const AnimPlayback& p) const;				   // a shared model: the caller keeps the playback
+	void Show(const AnimPlayback& p, int textureId) const; // with another texture on the same UVs
 	void Advance();
 	void Advance(AnimPlayback& p) const;
 	void setSpeed(int nSpeed);

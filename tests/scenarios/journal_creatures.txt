@@ -1,0 +1,55 @@
+# The journal's creatures (tests/levels/rats: rat col 4, giant rat col 11, scarab col 17): a monster on screen is
+# written down with a pencil outline, a kill adds its name, notes and a wash, a bite how hard it hits.
+seed 1
+god
+level tests/levels/rats
+wait 5
+key j
+wait 5
+screenshot seen
+key j
+wait 5
+walk right 1.5
+wait 30
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+attack
+wait 25
+wait 60
+expect xp >= 300
+walk right 6
+wait 60
+dump
+key j
+wait 5
+screenshot rat_killed
+# Next spread: the scarab.
+mouse 83.5 17
+wait 2
+click 83.5 17
+wait 5
+screenshot next_spread
+# Kept in the save game.
+savegame creatures.sav
+key j
+wait 5
+loadgame creatures.sav
+key j
+wait 5
+screenshot after_load

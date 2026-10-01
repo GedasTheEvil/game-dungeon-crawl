@@ -1,0 +1,27 @@
+# Every monster type's journal page (tests/saves/journal_all_creatures.sav: all killed and hit by, with their special
+# moves, but the worm only seen): the sketches of all models, the longest notes (vampire bat).
+seed 1
+god
+level tests/levels/rats
+loadgame tests/saves/journal_all_creatures.sav
+key j
+wait 5
+screenshot spread1
+click 83.5 17
+wait 3
+screenshot spread2
+click 83.5 17
+wait 3
+screenshot spread3
+click 83.5 17
+wait 3
+screenshot spread4
+click 83.5 17
+wait 3
+screenshot spread5
+click 83.5 17
+wait 3
+screenshot spread6
+click 83.5 17
+wait 3
+screenshot spread7

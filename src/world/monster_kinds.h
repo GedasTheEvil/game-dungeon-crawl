@@ -13,6 +13,7 @@ struct MonsterKind {
 	char glyph;				 // levelcheck --map and the ASCII level sources
 	float threat;			 // one of them in the checker's difficulty score
 	bool boss;				 // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
+	const char* note;		 // the journal's description, in the archaeologist's words, written after the first kill
 };
 
 // nullptr for an unknown type.

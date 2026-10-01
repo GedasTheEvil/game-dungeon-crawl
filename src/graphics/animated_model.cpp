@@ -160,9 +160,11 @@ int AnimatedModel::Load(const char fileName[]) {
 //============================================================
 void AnimatedModel::Show() const { Show(playback); }
 //============================================================
-void AnimatedModel::Show(const AnimPlayback& p) const {
+void AnimatedModel::Show(const AnimPlayback& p) const { Show(p, texture); }
+//============================================================
+void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
 	const auto frame = static_cast<int>(p.frame);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
 
 	if (!compiled) {
 		glEnableClientState(GL_VERTEX_ARRAY);

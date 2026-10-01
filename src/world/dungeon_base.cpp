@@ -99,6 +99,7 @@ void Dungeon::Update() {
 	exploreAroundPlayer();
 	updateMechanisms();
 	UpdateMonsters();
+	noteSeenMonsters();
 	updateArrows();
 	updateTraps();
 	spawnInView();

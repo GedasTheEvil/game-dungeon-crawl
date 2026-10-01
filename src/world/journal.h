@@ -7,7 +7,7 @@
 #include <vector>
 
 // The archaeologist's notebook (docs/plan/journal-sections.draft.md): what the player went through, kept per save
-// game. The riddles section so far.
+// game. The creatures and riddles sections so far.
 
 // A riddle met at a gate. A copy, not an index into riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
@@ -27,6 +27,28 @@ struct JournalRiddle {
 	}
 };
 
+// Special moves a monster type can be seen doing, written down the first time.
+enum class CreatureMove : unsigned char {
+	Leap,	// a walk-jumper's leap
+	Swoop,	// a bat drops from the ceiling
+	Ambush, // the mimic's chest opens
+	Rise,	// the mummy climbs out of its coffin
+	Summon, // a boss calls its minions
+	Heal,	// a life-stealing bite
+};
+constexpr int CREATURE_MOVE_COUNT = 6;
+
+// What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
+// a kill count (docs/plan/monster-journal.draft.md).
+struct JournalCreature {
+	int type = 0;
+	int level = 0;		 // campaign level of the first meeting
+	bool killed = false; // name, description and HP
+	bool hitBy = false;	 // how hard it hits
+	unsigned moves = 0;	 // CreatureMove bits
+	[[nodiscard]] bool Saw(CreatureMove m) const { return (moves & (1U << static_cast<unsigned>(m))) != 0; }
+};
+
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);
 
@@ -38,7 +60,20 @@ class Journal {
 	void ShowHint(size_t index) { riddles.at(index).hintShown = true; }
 	void Solve(size_t index, bool late, const std::string& typed);
 	[[nodiscard]] const std::vector<JournalRiddle>& Riddles() const { return riddles; }
-	void Clear() { riddles.clear(); }
+
+	// A monster seen on screen; each of the others sees it too. Creatures keep the order they were first seen in.
+	void SeeCreature(int type, int level) { creature(type, level); }
+	void KillCreature(int type, int level) { creature(type, level).killed = true; }
+	void HitByCreature(int type, int level) { creature(type, level).hitBy = true; }
+	void SeeMove(int type, int level, CreatureMove move) {
+		creature(type, level).moves |= 1U << static_cast<unsigned>(move);
+	}
+	[[nodiscard]] const std::vector<JournalCreature>& Creatures() const { return creatures; }
+
+	void Clear() {
+		riddles.clear();
+		creatures.clear();
+	}
 
 	// Saved after the dungeon. Saves from before the journal end before the tag: the journal stays empty.
 	void Dump(std::ostream& out) const;
@@ -46,6 +81,9 @@ class Journal {
 
   private:
 	std::vector<JournalRiddle> riddles;
+	std::vector<JournalCreature> creatures;
+
+	JournalCreature& creature(int type, int level);
 };
 
 #endif

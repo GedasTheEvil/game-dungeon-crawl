@@ -124,6 +124,7 @@ bool Dungeon::summonMinion(const Monster& boss) {
 			return false;
 		slot->Spawn(kind, best, row);
 		slot->MakeMinion(how);
+		Game().journal.SeeMove(boss.Type()->id, Game().curMap, CreatureMove::Summon);
 		return true;
 	}
 	int col = bossCol;
@@ -142,5 +143,6 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	slot->Spawn(kind, col, row);
 	slot->MakeMinion(how);
 	(how == Summon::Drop ? Game().assets.sounds.summonDrop : Game().assets.sounds.summonDig).Play();
+	Game().journal.SeeMove(boss.Type()->id, Game().curMap, CreatureMove::Summon);
 	return true;
 }

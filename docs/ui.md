@@ -159,6 +159,10 @@ spine. One ribbon bookmark per section hangs out of the right edge (`INK_RED` cr
 `GOLD_DIM` field notes, swallowtail end); the open one sticks out further, the hovered one shows its name on a dark
 label. Running head (section name) and page number in `small` `INK_FADED`, page turn arrows in the bottom corners.
 
+Monster sketches on the creature pages: the model's move clip, frame 0, from the side and a little above, fitted to
+the page. A depth pass, then (once killed) the texture as a pencil wash multiplied onto the paper (a grey copy loaded
+with `Texture::LoadPNG`'s pixel filter), then the outline: back-face edges as `PENCIL` lines, front faces culled.
+
 ### Status box
 
 The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,

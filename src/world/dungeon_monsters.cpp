@@ -115,6 +115,13 @@ void Dungeon::clearMonsters() {
 // A monster walks away from its spawn tile, so it is culled by where it is now.
 bool Dungeon::inView(const Monster& mon) const { return mon.Active() && view().contains(mon.CentreX(), mon.Row()); }
 //======================================================================================
+// A monster on screen goes in the journal; a lurker only once it gives itself away (the mimic looks like a chest).
+void Dungeon::noteSeenMonsters() {
+	for (const Monster& mon : monsters)
+		if (inView(mon) && mon.Alive() && !mon.lurking())
+			Game().journal.SeeCreature(mon.Type()->id, Game().curMap);
+}
+//======================================================================================
 // Every active monster, seen or not: a dead one finishes its death clip (a killed mimic leaves its chest) off screen
 // too. The blood has its own random stream, so this does not change the game's rolls.
 void Dungeon::AnimateMonsters() {

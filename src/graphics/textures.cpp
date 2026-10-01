@@ -54,7 +54,7 @@ void Texture::free() {
 	loaded = false;
 }
 //================================================================================================================================
-int Texture::LoadPNG(const char* filename, TexFilter filter) {
+int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change) {
 	int channels = 0;
 	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
 		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
@@ -74,6 +74,8 @@ int Texture::LoadPNG(const char* filename, TexFilter filter) {
 		return 0;
 	}
 	LOG_INFOF("texture", "%s: %dx%d, %d channels", filename, texture.width, texture.height, components);
+	if (change != nullptr)
+		change(data, texture.width * texture.height, components);
 
 	free();
 	glGenTextures(1, &texture.texID);

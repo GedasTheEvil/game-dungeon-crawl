@@ -32,7 +32,10 @@ class Texture {
 	Texture& operator=(const Texture&) = delete;
 	Texture(Texture&& other) noexcept;
 	Texture& operator=(Texture&& other) noexcept;
-	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped); // replaces what it held
+	// Changes the pixels before the upload: `components` (3 RGB, 4 RGBA) bytes per pixel, `pixels` of them.
+	using PixelFilter = void (*)(unsigned char* data, int pixels, int components);
+	// Replaces what it held.
+	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped, PixelFilter change = nullptr);
 	void Bind() const;
 	[[nodiscard]] int ID() const;
 };

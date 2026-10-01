@@ -4,7 +4,7 @@
 
 namespace {
 constexpr const char* TAG = "journal";
-constexpr int VERSION = 1;
+constexpr int VERSION = 2; // 1: riddles only
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -44,6 +44,17 @@ void Journal::Solve(size_t index, bool late, const std::string& typed) {
 	r.written = typed;
 }
 
+JournalCreature& Journal::creature(int type, int level) {
+	for (JournalCreature& c : creatures)
+		if (c.type == type)
+			return c;
+	JournalCreature c;
+	c.type = type;
+	c.level = level;
+	creatures.push_back(c);
+	return creatures.back();
+}
+
 void Journal::Dump(std::ostream& out) const {
 	out << TAG << ' ' << VERSION << ' ' << riddles.size() << '\n';
 	for (const JournalRiddle& r : riddles) {
@@ -54,14 +65,17 @@ void Journal::Dump(std::ostream& out) const {
 		out << ' ' << std::quoted(r.hint) << ' ' << r.level << ' ' << r.lateXP << ' ' << r.hintShown << ' ' << r.solved
 			<< ' ' << r.solvedLate << ' ' << std::quoted(r.written) << '\n';
 	}
+	out << creatures.size() << '\n';
+	for (const JournalCreature& c : creatures)
+		out << c.type << ' ' << c.level << ' ' << c.killed << ' ' << c.hitBy << ' ' << c.moves << '\n';
 }
 
 void Journal::Load(std::istream& in) {
-	riddles.clear();
+	Clear();
 	std::string tag;
 	int version = 0;
 	size_t count = 0;
-	if (!(in >> tag) || tag != TAG || !(in >> version >> count) || version != VERSION)
+	if (!(in >> tag) || tag != TAG || !(in >> version >> count) || version < 1 || version > VERSION)
 		return;
 	for (size_t i = 0; i < count; i++) {
 		JournalRiddle r;
@@ -70,5 +84,13 @@ void Journal::Load(std::istream& in) {
 			  std::quoted(r.written)))
 			return; // a broken tail: keep what was read
 		riddles.push_back(r);
+	}
+	if (version < 2 || !(in >> count))
+		return;
+	for (size_t i = 0; i < count; i++) {
+		JournalCreature c;
+		if (!(in >> c.type >> c.level >> c.killed >> c.hitBy >> c.moves))
+			return;
+		creatures.push_back(c);
 	}
 }

@@ -293,6 +293,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		type.courage = def.courage;
 		type.trapDamagePct = def.trapDamagePct;
 		type.name = def.label;
+		type.id = def.id;
+		type.texture = def.texture;
 	}
 	for (const auto& def : BOSS_DEFS)
 		monsterTypes[def.id].boss = def.rules;

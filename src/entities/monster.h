@@ -65,7 +65,9 @@ struct BossRules {
 
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
 struct MonsterType {
+	int id = 0; // MonsterTypeId
 	const char* name = "";
+	const char* texture = ""; // under textures/, without .png
 	CharacterModel model;
 	float speed = 1.f;
 	int maxHealth = 20;

@@ -1,6 +1,9 @@
 # Monster journal
 
-Status: draft 2026-10-01.
+Status: draft 2026-10-01. Done 2026-10-01 except the resistances (they wait for
+[damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md)) and the optional toast; not yet
+verified in play. Data: `Journal::Creatures()` (`src/world/journal.h`), notes: `MonsterKind::note`
+(`src/world/monster_kinds.cpp`), page: `JournalScreen::DrawCreature` (`src/ui/journal_view.cpp`).
 
 ## Idea
 

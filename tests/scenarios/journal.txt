@@ -1,0 +1,90 @@
+# The journal (J): riddles written down at the gates (tests/levels/riddle, gates at cols 4 and 8), the hint after
+# two misses, a riddle walked away from and answered later from the journal for its late XP, kept in a save game.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/journal.txt
+wait 30
+key j
+wait 5
+screenshot empty
+key j
+wait 5
+# First gate: two misses show the hint, then the right answer.
+walk right 3
+interact
+wait 5
+key x
+key enter
+key x
+key enter
+wait 5
+key n
+key i
+key l
+key e
+key enter
+wait 5
+expect xp == 500
+expect journal == 1
+expect journal_solved == 1
+# Second gate: walked away.
+walk right 4
+interact
+wait 5
+key esc
+wait 5
+expect journal == 2
+expect journal_solved == 1
+# The journal opens on the creatures (nothing yet); the blue ribbon opens the riddles.
+key j
+wait 5
+mouse 88.2 70
+wait 2
+screenshot ribbon_hover
+click 88.2 70
+wait 5
+screenshot riddles
+# The right page's Answer button: the riddle scroll, Esc goes back to the journal.
+mouse 67.4 25
+wait 2
+screenshot answer_hover
+click 67.4 25
+wait 5
+expect riddle == 1
+screenshot late_riddle
+key esc
+wait 5
+expect riddle == 0
+dump
+click 67.4 25
+wait 5
+key N
+key i
+key l
+key e
+key enter
+wait 5
+expect riddle == 0
+expect xp == 550
+expect journal_solved == 2
+screenshot answered_late
+# Kept in the save game; reopens on the riddles.
+savegame journal.sav
+key j
+wait 5
+loadgame journal.sav
+expect journal == 2
+expect journal_solved == 2
+key j
+wait 5
+screenshot after_load
+key j
+wait 5
+# The in-game menu has a Journal button.
+key esc
+wait 5
+screenshot menu
+click 50 66.3
+wait 5
+screenshot from_menu

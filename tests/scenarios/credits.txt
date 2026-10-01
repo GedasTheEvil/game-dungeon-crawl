@@ -3,7 +3,7 @@ level tests/levels/classic1
 wait 10
 key esc
 wait 2
-click 50 28
+click 50 25.5
 wait 2
 click 50 39.5
 wait 2

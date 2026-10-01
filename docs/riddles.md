@@ -4,6 +4,10 @@ A riddle gate (`?` in the [level legend](levels.md)) asks a riddle when the play
 gives 30% of the XP from the current level to the next, at least 500 XP. Wrong answers can be retried; after two
 misses the scroll shows the hint. Esc walks away without the reward, and the gate is spent either way.
 
+Every riddle met is written down in the journal (J, Riddles ribbon), with the hint once it was shown. A riddle
+walked away from can be answered from there later, for a tenth of the gate's reward (at least 50 XP), fixed when the
+gate was met. The save game keeps a copy of each riddle, so editing a riddle file does not change the journal.
+
 The game loads every `riddles/*.txt` file at start-up. Add a file or edit one; no rebuild is needed.
 Riddles are dealt from a shuffled deck, so none repeats until all of them were asked.
 

@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -25,7 +26,7 @@ constexpr Rect MENU_PANEL = {46, 19, 68, 64};
 constexpr float BUTTON_W = 56.f;
 constexpr float BUTTON_H = 9.f;
 constexpr float BUTTON_STEP = 11.5f;
-constexpr float FIRST_BUTTON_Y = 69.5f;
+constexpr float BUTTON_MARGIN = 2.f; // panel edge to the first and last button, when they are close
 
 constexpr Rect SLOT_PANEL = {12, 22, 136, 62};
 constexpr float SLOT_W = 62.f;
@@ -47,8 +48,11 @@ constexpr float MOUSE_X = OPTIONS_PANEL.x + 100;
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
 constexpr Rect CREDITS_PANEL = {CREDITS_SHEET.x - 3, CREDITS_SHEET.y - 3, CREDITS_SHEET.w + 6, CREDITS_SHEET.h + 6};
 
-Rect buttonRect(int index) {
-	return {CENTRE - BUTTON_W / 2, FIRST_BUTTON_Y - static_cast<float>(index) * BUTTON_STEP, BUTTON_W, BUTTON_H};
+// The buttons sit in the middle of the panel; more of them are closer together.
+Rect buttonRect(int index, int count) {
+	float step = std::min(BUTTON_STEP, (MENU_PANEL.h - 2 * BUTTON_MARGIN - BUTTON_H) / static_cast<float>(count - 1));
+	float first = MENU_PANEL.cy() + step * static_cast<float>(count - 1) / 2 - BUTTON_H / 2;
+	return {CENTRE - BUTTON_W / 2, first - static_cast<float>(index) * step, BUTTON_W, BUTTON_H};
 }
 
 // Slots 1-3 in the left column, 4-6 in the right one, top to bottom.
@@ -70,8 +74,8 @@ Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.re
 
 // ---- icons -----------------------------------------------------------------
 
-enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back };
-enum class MenuAction : std::uint8_t { NewGame, Resume, Save, Load, Options, Credits, MainMenu, Quit };
+enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book };
+enum class MenuAction : std::uint8_t { NewGame, Resume, Journal, Save, Load, Options, Credits, MainMenu, Quit };
 
 struct MenuButton {
 	const char* label;
@@ -80,16 +84,16 @@ struct MenuButton {
 	bool primary;
 };
 
-constexpr int BUTTON_COUNT = 5;
-constexpr std::array<MenuButton, BUTTON_COUNT> MAIN_BUTTONS = {{
+constexpr std::array<MenuButton, 5> MAIN_BUTTONS = {{
 	{"New Game", Icon::Play, MenuAction::NewGame, true},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
 	{"Credits", Icon::Ankh, MenuAction::Credits, false},
 	{"Exit", Icon::Exit, MenuAction::Quit, false},
 }};
-constexpr std::array<MenuButton, BUTTON_COUNT> IN_GAME_BUTTONS = {{
+constexpr std::array<MenuButton, 6> IN_GAME_BUTTONS = {{
 	{"Return to Game", Icon::Play, MenuAction::Resume, true},
+	{"Journal", Icon::Book, MenuAction::Journal, false},
 	{"Save Game", Icon::Save, MenuAction::Save, false},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
@@ -109,7 +113,7 @@ struct ControlRow {
 	MouseInput mouse;
 };
 
-constexpr std::array<ControlRow, 13> CONTROLS = {{
+constexpr std::array<ControlRow, 12> CONTROLS = {{
 	{"Move left / right", "A / D , Left / Right", MouseInput::None},
 	{"Climb up / down (ladders)", "W / S , Up / Down", MouseInput::None},
 	{"Jump", "Space", MouseInput::Right},
@@ -119,8 +123,7 @@ constexpr std::array<ControlRow, 13> CONTROLS = {{
 	{"Look around", "PgUp / PgDn , Home / End", MouseInput::Move},
 	{"Equip club / sword / spear / bow", "1 / 2 / 3 / 4", MouseInput::None},
 	{"Drink healing / stamina potion", "H / 0", MouseInput::None},
-	{"Inventory", "I", MouseInput::None},
-	{"Draft map", "M", MouseInput::None},
+	{"Inventory / draft map / journal", "I / M / J", MouseInput::None},
 	{"Menu / back", "Esc", MouseInput::None},
 	{"Cartoon shading", "F1", MouseInput::None},
 }};
@@ -141,7 +144,17 @@ const char* mouseLabel(MouseInput m) {
 	return "";
 }
 
-const std::array<MenuButton, BUTTON_COUNT>& menuButtons(bool inGame) { return inGame ? IN_GAME_BUTTONS : MAIN_BUTTONS; }
+struct ButtonList {
+	const MenuButton* buttons;
+	int count;
+	[[nodiscard]] const MenuButton& operator[](int i) const { return buttons[i]; }
+};
+
+ButtonList menuButtons(bool inGame) {
+	if (inGame)
+		return {IN_GAME_BUTTONS.data(), static_cast<int>(IN_GAME_BUTTONS.size())};
+	return {MAIN_BUTTONS.data(), static_cast<int>(MAIN_BUTTONS.size())};
+}
 
 void bar(float x0, float y0, float x1, float y1, Color c) { fillRect({x0, y0, x1 - x0, y1 - y0}, c, c, 1.f); }
 
@@ -232,6 +245,11 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 	case Icon::Back:
 		bar(cx - 0.3f * s, cy - 0.8f * t, cx + 0.9f * s, cy + 0.8f * t, c);
 		triangle(cx - 0.9f * s, cy, cx - 0.25f * s, cy - 0.6f * s, cx - 0.25f * s, cy + 0.6f * s, c, 1.f);
+		break;
+	case Icon::Book: // open book: two pages either side of the spine, with a ribbon hanging out
+		bar(cx - 0.95f * s, cy - 0.6f * s, cx - 0.1f * s, cy + 0.75f * s, c);
+		bar(cx + 0.1f * s, cy - 0.6f * s, cx + 0.95f * s, cy + 0.75f * s, c);
+		bar(cx + 0.45f * s, cy - 0.95f * s, cx + 0.45f * s + t, cy - 0.6f * s, c);
 		break;
 	}
 }
@@ -338,12 +356,12 @@ void MainMenu::DrawBackground(const char* caption) {
 }
 
 void MainMenu::DrawButtons() {
-	const auto& buttons = menuButtons(inGame);
-	for (int i = 0; i < BUTTON_COUNT; i++) {
-		const MenuButton& b = buttons[static_cast<size_t>(i)];
+	ButtonList buttons = menuButtons(inGame);
+	for (int i = 0; i < buttons.count; i++) {
+		const MenuButton& b = buttons[i];
 		bool isHovered = hovered == i;
 		bool held = isHovered && pressed == i;
-		Rect r = tile(buttonRect(i), b.primary ? TileStyle::Lapis : TileStyle::Stone, isHovered, held);
+		Rect r = tile(buttonRect(i, buttons.count), b.primary ? TileStyle::Lapis : TileStyle::Stone, isHovered, held);
 
 		Rect well = iconWell(r, 1.3f);
 		fillRect(well, b.primary ? LAPIS_DARK : WELL, b.primary ? LAPIS_HELD_BOTTOM : WELL, 0.9f);
@@ -528,8 +546,9 @@ int MainMenu::TargetAt(int x, int y) {
 				return saveD || Game().saves.Describe(slot).used ? slot : NONE;
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
-	for (int i = 0; i < BUTTON_COUNT; i++)
-		if (buttonRect(i).contains(cx, cy))
+	int count = menuButtons(inGame).count;
+	for (int i = 0; i < count; i++)
+		if (buttonRect(i, count).contains(cx, cy))
 			return i;
 	return NONE;
 }
@@ -557,7 +576,7 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 
-	switch (menuButtons(inGame)[static_cast<size_t>(target)].action) {
+	switch (menuButtons(inGame)[target].action) {
 	case MenuAction::NewGame:
 		Game().ui.screen = Screen::Gameplay;
 		Game().NewGame();
@@ -565,6 +584,9 @@ void MainMenu::Activate(int target) {
 		break;
 	case MenuAction::Resume:
 		Game().ui.screen = Screen::Gameplay;
+		break;
+	case MenuAction::Journal:
+		Game().ui.screen = Screen::Journal;
 		break;
 	case MenuAction::Save:
 		saveD = true;

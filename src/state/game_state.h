@@ -19,6 +19,8 @@
 #include "../ui/menu.h"
 #include "../ui/end_screens.h"
 #include "../ui/map_view.h"
+#include "../ui/journal_view.h"
+#include "../world/journal.h"
 #include "save_slots.h"
 #include <array>
 #include <memory>
@@ -59,6 +61,7 @@ struct UIContext {
 	MainMenu menu;
 	std::unique_ptr<EndScreens> endScreens;
 	DraftMap map;
+	JournalScreen journal;
 };
 
 class GameState {
@@ -76,6 +79,7 @@ class GameState {
 	GameRandom random;
 	UIContext ui;
 	Dungeon dungeon;
+	Journal journal; // what the archaeologist wrote down, kept per save game
 	SaveSlots saves;
 
 	GameState();

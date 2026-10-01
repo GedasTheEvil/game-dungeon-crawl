@@ -110,6 +110,9 @@ void Draw() {
 	case Screen::Map:
 		Game().ui.map.Draw();
 		break;
+	case Screen::Journal:
+		Game().ui.journal.Draw();
+		break;
 	case Screen::Gameplay:
 		drawGameplay();
 		break;

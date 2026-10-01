@@ -1,0 +1,16 @@
+# Riddle file for tests/scenarios/journal.txt: every riddle has the same answer, so the deck order does not matter.
+theme: River
+
+Q: I run but never walk, I have a mouth but never talk,
+Q: a bed but never sleep. Which river feeds the tomb's fields?
+A: nile
+A: the nile
+H: The longest river in Egypt.
+
+Q: Which river carried the stone for the pyramids?
+A: nile
+
+theme: Delta
+
+Q: Its seven mouths open into the sea. Name the river.
+A: nile

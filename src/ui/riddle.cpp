@@ -6,6 +6,7 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "ui_draw.h"
+#include "../world/journal.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -42,34 +43,6 @@ std::string trim(const std::string& s) {
 	return s.substr(first, s.find_last_not_of(" \t\r\n") - first + 1);
 }
 
-// Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
-std::vector<std::string> wrap(const Font& font, const std::string& text, float width) {
-	std::vector<std::string> lines;
-	std::string line;
-	size_t pos = 0;
-	while (pos < text.size()) {
-		size_t end = text.find(' ', pos);
-		if (end == std::string::npos)
-			end = text.size();
-		std::string word = text.substr(pos, end - pos);
-		pos = end + 1;
-		if (word.empty())
-			continue;
-		std::string candidate = line;
-		if (!candidate.empty())
-			candidate += ' ';
-		candidate += word;
-		if (!line.empty() && font.TextWidth(candidate.c_str()) > width) {
-			lines.push_back(line);
-			line = word;
-		} else {
-			line = candidate;
-		}
-	}
-	if (!line.empty())
-		lines.push_back(line);
-	return lines;
-}
 } // namespace
 
 // ---- riddle files ----------------------------------------------------------
@@ -218,13 +191,35 @@ void Riddle::Ask() {
 	}
 	selected = deck.back();
 	deck.pop_back();
+	shown = riddles[selected];
+	reward = Game().player->stats.RiddleXP();
+	late = false;
+	JournalRiddle note;
+	note.theme = shown.theme;
+	note.question = shown.question;
+	note.answers = shown.answers;
+	note.hint = shown.hint;
+	note.level = Game().curMap;
+	note.lateXP = lateRiddleXP(reward);
+	journalIndex = Game().journal.MeetRiddle(note);
 	answer.clear();
 	misses = 0;
 	wrongAtMs = -100000;
 }
 
+void Riddle::AskLate(size_t index) {
+	const JournalRiddle& note = Game().journal.Riddles().at(index);
+	shown = RiddleEntry{note.theme, note.question, note.answers, note.hint, "journal"};
+	reward = note.lateXP;
+	late = true;
+	journalIndex = index;
+	answer.clear();
+	misses = note.hintShown ? HINT_AFTER_MISSES : 0;
+	wrongAtMs = -100000;
+}
+
 bool Riddle::CheckAnswer() const {
-	const std::vector<std::string>& accepted = riddles[selected].answers;
+	const std::vector<std::string>& accepted = shown.answers;
 	return std::find(accepted.begin(), accepted.end(), NormalizeAnswer(answer)) != accepted.end();
 }
 
@@ -232,19 +227,30 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	(void)mouseX;
 	(void)mouseY;
 
-	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost
+	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost; the journal keeps the riddle
+		if (late) {
+			Game().ui.screen = Screen::Journal;
+			return;
+		}
 		Game().ui.screen = Screen::Gameplay;
 		Game().ShowStatus("The riddle stays unanswered");
 	} else if (key == KEY_ENTER) {
 		if (NormalizeAnswer(answer).empty())
 			return;
 		if (CheckAnswer()) {
+			Game().journal.Solve(journalIndex, late, answer);
+			Game().player->stats.AddXP(reward);
+			if (late) {
+				Game().ui.screen = Screen::Journal;
+				Game().ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");
+				return;
+			}
 			Game().ui.screen = Screen::Gameplay;
-			int xp = Game().player->stats.RiddleXP();
-			Game().ShowStatus("Riddle answered, got %d XP", xp);
-			Game().player->stats.AddXP(xp);
+			Game().ShowStatus("Riddle answered, got %d XP", reward);
 		} else {
 			misses++;
+			if (misses >= HINT_AFTER_MISSES)
+				Game().journal.ShowHint(journalIndex);
 			wrongAtMs = GameClock::now();
 			answer.clear();
 		}
@@ -274,7 +280,8 @@ void Riddle::Draw() {
 
 	beginText();
 	textCentered(small, CANVAS_W / 2, 2.2f,
-				 "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)",
+				 late ? "Type the answer    Enter: answer    Backspace: erase    Esc: back to the journal"
+					  : "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)",
 				 {0.55f, 0.45f, 0.30f});
 
 	glDisable(GL_BLEND);
@@ -285,7 +292,7 @@ void Riddle::Draw() {
 
 void Riddle::DrawBackground() {
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
-	titleBar(title, CANVAS_W / 2, "Riddle of the Gate", 72.f);
+	titleBar(title, CANVAS_W / 2, late ? "Riddle from the Journal" : "Riddle of the Gate", 72.f);
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
@@ -304,14 +311,14 @@ void Riddle::DrawBackground() {
 }
 
 void Riddle::DrawScroll() {
-	const RiddleEntry& r = riddles[selected];
+	const RiddleEntry& r = shown;
 	float cx = SCROLL.cx();
 
 	beginText();
 	textCentered(heading, cx, 77.f, r.theme.c_str(), INK);
-	char reward[32];
-	snprintf(reward, sizeof(reward), "Reward %d XP", Game().player->stats.RiddleXP());
-	textCentered(small, cx, 72.5f, reward, INK_RED);
+	char rewardText[32];
+	snprintf(rewardText, sizeof(rewardText), late ? "Late answer %d XP" : "Reward %d XP", reward);
+	textCentered(small, cx, 72.5f, rewardText, INK_RED);
 
 	std::vector<std::string> lines;
 	for (const std::string& q : r.question)

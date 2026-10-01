@@ -1,8 +1,8 @@
 # UI screens
 
-The full-screen UI (menu with its sub-screens, inventory, riddle, draft map) shares one Egyptian look: carved tomb
-wall, dark panels with bronze and gold frames, lapis and stone tiles, papyrus text. New screens reuse the parts below
-instead of drawing their own.
+The full-screen UI (menu with its sub-screens, inventory, riddle, draft map, journal) shares one Egyptian look:
+carved tomb wall, dark panels with bronze and gold frames, lapis and stone tiles, papyrus text. New screens reuse the
+parts below instead of drawing their own.
 
 | Screen | Code | Canvas |
 |---|---|---|
@@ -10,6 +10,7 @@ instead of drawing their own.
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
+| Journal | `src/ui/journal_view.cpp` (data: `src/world/journal.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
@@ -114,7 +115,8 @@ Styles:
   `LAPIS`→`LAPIS_DARK`, `GOLD` 2.5 px frame, `GOLD_DIM` inner line.
 * **Stone**: all other actions and the save slots. `STONE_TOP`→`STONE_BOTTOM`, `BRONZE` 1.5 px frame; the `GOLD_DIM` inner line only on hover.
 
-One lapis button per group. Menu buttons are 56 x 9, 11.5 apart; Back is `{63, 9.5, 34, 8}`.
+One lapis button per group. Menu buttons are 56 x 9, 11.5 apart, centred in the panel; the in-game menu's six are
+10.2 apart. Back is `{63, 9.5, 34, 8}`.
 Label colour: `GOLD` (lapis) or `LABEL` (stone), `TEXT_HOVER` when hovered.
 An action fires on mouse **up** over the same target it went down on (`pressed` / `hovered`).
 
@@ -149,6 +151,13 @@ Separators `/` and `,` are plain `LABEL_DIM` text.
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
   (`"Click a slot to load    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
+
+### Book (journal)
+
+A dark cover (`BRONZE` → `STONE_BOTTOM`, `GOLD_DIM` inner line) with two papyrus pages either side of a shaded
+spine. One ribbon bookmark per section hangs out of the right edge (`INK_RED` creatures, `LAPIS` riddles,
+`GOLD_DIM` field notes, swallowtail end); the open one sticks out further, the hovered one shows its name on a dark
+label. Running head (section name) and page number in `small` `INK_FADED`, page turn arrows in the bottom corners.
 
 ### Status box
 

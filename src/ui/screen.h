@@ -10,6 +10,7 @@ enum class Screen : std::uint8_t {
 	Inventory,
 	Map,
 	Riddle,
+	Journal,
 	Gameplay,
 };
 

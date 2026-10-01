@@ -1,6 +1,7 @@
 # Journal sections
 
-Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages).
+Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages). Stage 1 done 2026-10-01
+(`tests/scenarios/journal.txt`), not yet verified in play.
 
 ## Idea
 
@@ -74,7 +75,8 @@ Only worth more if potions become unidentified (unknown colour until drunk once)
 
 The creatures section does not have to wait for damage types: their resistance notes can come later.
 
-1. Book screen: spread, ribbons, page turn, its key (J?); the screen tab comes with the tabs plan. Riddles section (needs riddle state in the save game).
+1. **Done.** Book screen: spread, ribbons, page turn, key J, in-game menu button; the screen tab comes with the tabs
+   plan. Riddles section, kept in the save game (`src/world/journal.h`, `src/ui/journal_view.cpp`).
 2. Field notes.
 3. Creatures without resistances ([monster-journal.draft.md](monster-journal.draft.md)): seen, kill, HP, its hit,
    special moves.

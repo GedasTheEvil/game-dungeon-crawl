@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 class Font;
 
@@ -128,6 +129,8 @@ void texturedRect(const Rect& r, int textureId, Color tint, float u0 = 0, float 
 // first cut the glyph out of what is below, then add the colour into the hole.
 void text(Font& font, float x, float y, const char* str, Color c, float alpha = 1.f);
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha = 1.f);
+// Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
+std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 
 void beginShapes();
 void beginText();

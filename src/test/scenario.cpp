@@ -12,6 +12,7 @@
 #include "../ui/inventory.h"
 #include "../world/loot.h"
 #include "../world/level_gen.h"
+#include <algorithm>
 #include <GL/gl.h>
 #include <cmath>
 #include <csignal>
@@ -89,6 +90,8 @@ enum class Field : unsigned char {
 	Minions,
 	Nearest,
 	Coffins,
+	JournalRiddles,
+	JournalSolved,
 	ItemCount,
 	ItemLevel
 };
@@ -165,6 +168,8 @@ const char* screenName() {
 		return "riddle";
 	case Screen::Map:
 		return "map";
+	case Screen::Journal:
+		return "journal";
 	case Screen::Gameplay:
 		return "gameplay";
 	}
@@ -226,6 +231,13 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::Coffins:
 		return static_cast<float>(Game().dungeon.CoffinCount());
+	case Field::JournalRiddles:
+		return static_cast<float>(Game().journal.Riddles().size());
+	case Field::JournalSolved: {
+		const auto& riddles = Game().journal.Riddles();
+		return static_cast<float>(
+			std::count_if(riddles.begin(), riddles.end(), [](const JournalRiddle& r) { return r.solved; }));
+	}
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.item));
 	case Field::ItemLevel:
@@ -382,7 +394,9 @@ bool parseField(const std::string& word, Field& field) {
 				  {"boss", Field::Boss},
 				  {"minions", Field::Minions},
 				  {"nearest", Field::Nearest},
-				  {"coffins", Field::Coffins}};
+				  {"coffins", Field::Coffins},
+				  {"journal", Field::JournalRiddles},
+				  {"journal_solved", Field::JournalSolved}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;

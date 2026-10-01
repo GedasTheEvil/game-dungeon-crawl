@@ -62,6 +62,6 @@ expect equip_id == 0
 # options: the controls table lists the hotkeys
 key esc
 wait 2
-click 50 39.5
+click 50 35.7
 wait 2
 screenshot options

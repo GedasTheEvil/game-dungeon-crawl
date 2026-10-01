@@ -235,6 +235,34 @@ void textCentered(Font& font, float cx, float y, const char* str, Color c, float
 	text(font, cx - font.TextWidth(str) / 2, y, str, c, alpha);
 }
 
+std::vector<std::string> wrap(const Font& font, const std::string& text, float width) {
+	std::vector<std::string> lines;
+	std::string line;
+	size_t pos = 0;
+	while (pos < text.size()) {
+		size_t end = text.find(' ', pos);
+		if (end == std::string::npos)
+			end = text.size();
+		std::string word = text.substr(pos, end - pos);
+		pos = end + 1;
+		if (word.empty())
+			continue;
+		std::string candidate = line;
+		if (!candidate.empty())
+			candidate += ' ';
+		candidate += word;
+		if (!line.empty() && font.TextWidth(candidate.c_str()) > width) {
+			lines.push_back(line);
+			line = word;
+		} else {
+			line = candidate;
+		}
+	}
+	if (!line.empty())
+		lines.push_back(line);
+	return lines;
+}
+
 void beginShapes() {
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);

@@ -73,6 +73,7 @@ void GameState::NewGame() {
 	PlayerHud::reset();
 	player->stats = PlayerStats{};
 	ui.inventory->Reset();
+	journal.Clear();
 	curMap = 1;
 	dungeon.LoadCampaignLevel(curMap);
 	hasWon = false;
@@ -154,6 +155,7 @@ void GameState::Save(const char filename[]) {
 	player->stats.Dump(dump);
 	ui.inventory->Dump(dump);
 	dungeon.Dump(dump);
+	journal.Dump(dump);
 
 	dump.close();
 }
@@ -181,6 +183,7 @@ void GameState::LoadSave(const char filename[]) {
 	ui.inventory->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
+	journal.Load(dump);
 	dungeon.scatterDecorations(campaignLevelFile(curMap).c_str());
 	LOG_INFO("game", "Done loading map");
 	dump.close();

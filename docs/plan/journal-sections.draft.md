@@ -21,6 +21,8 @@ Proposals, to confirm when the work starts:
   sticks out further. Hover shows the section name.
 * Page turn: arrow keys / mouse wheel, page corner arrows to click, page number at the bottom.
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
+* Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.draft.md](handwritten-journal-font.draft.md),
+  after stage 1. Until then the notes use papyrus.
 
 ## Sections
 
@@ -60,11 +62,14 @@ Only worth more if potions become unidentified (unknown colour until drunk once)
 
 The creatures section does not have to wait for damage types: their resistance notes can come later.
 
-1. Book screen: spread, ribbons, page turn, tab and key. Riddles section (needs riddle state in the save game).
+1. Book screen: spread, ribbons, page turn, its key (J?); the screen tab comes with the tabs plan. Riddles section (needs riddle state in the save game).
 2. Field notes.
 3. Creatures without resistances ([monster-journal.draft.md](monster-journal.draft.md)): seen, kill, HP, its hit,
    special moves.
 4. Resistance notes, with or after [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md).
+
+Order with the other plans (2026-10-01): stage 1, then the [handwritten font](handwritten-journal-font.draft.md), then
+[screen-switch-tabs.draft.md](screen-switch-tabs.draft.md), then stages 2-4.
 
 ## Later, if the game grows
 

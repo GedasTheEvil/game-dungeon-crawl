@@ -37,9 +37,8 @@ Optional: a status box toast when a new note is written ("Journal: scarab, resis
 
 ## What
 
-* Kill and hit counts per monster type and damage type, stored in the save game.
-* Open question: knowledge per save game (campaign) or kept across all games (meta progress). Per save game is the
-  simple default.
+* Kill and hit counts per monster type and damage type, stored in the save game. Knowledge is per save game
+  (decided 2026-10-01): a new game starts with an empty journal.
 * Screen `src/ui/journal.cpp`, like `inventory.cpp` / `map_view.cpp`; a key and an entry in the in-game menu.
 * Note texts per monster type next to `monster_kinds.cpp`.
 * Scenario test: kill one monster, open the journal, screenshot.

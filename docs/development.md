@@ -94,6 +94,9 @@ See [testing.md](testing.md).
 ## Code quality tools
 
 * Format source files: `make format`
+* Check formatting without changing files: `make format-check`. It also fails on code clang-format does not leave
+  stable (a file that flips between two layouts on every `make format`, often a long trailing comment that wraps
+  onto a second line: move the comment above the line).
 * Run static analysis (clang-tidy): `make tidy`
 
 `clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel

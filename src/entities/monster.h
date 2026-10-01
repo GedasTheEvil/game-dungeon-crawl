@@ -22,9 +22,11 @@ enum class Locomotion : unsigned char {
 
 // Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
 enum class Courage : unsigned char {
-	Coward,	  // afraid of traps (spikes, death traps, a rock fall not yet fallen): a walker stops at their edge, a
-			  // walk-jumper leaps over them
-	Reckless, // walks straight through them and takes their damage, cut by MonsterType::trapDamagePct
+	// Afraid of traps (spikes, death traps, a rock fall not yet fallen): a walker stops at their edge, a walk-jumper
+	// leaps over them.
+	Coward,
+	// Walks straight through them and takes their damage, cut by MonsterType::trapDamagePct.
+	Reckless,
 };
 
 // Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through them,

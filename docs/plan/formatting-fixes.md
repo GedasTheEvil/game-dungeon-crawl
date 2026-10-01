@@ -1,6 +1,7 @@
 # Formatting fixes
 
-Status: draft 2026-10-01.
+Status: implemented 2026-10-01. `Courage` comments moved above the enumerators; `make format-check`
+(`tools/check_format.sh`) added, documented in AGENTS.md and docs/development.md. No other unstable spot found.
 
 ## Problem
 

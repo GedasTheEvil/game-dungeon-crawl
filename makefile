@@ -56,7 +56,7 @@ CLANG_TIDY?=clang-tidy
 # nproc - 4, at least 1: four cores stay free for the desktop
 TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
 
-.PHONY: all clean format layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
+.PHONY: all clean format format-check layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
@@ -93,9 +93,15 @@ $(LEVEL_TOOLS): %: $(BUILD)/tools/level/%.o $(LEVEL_LIB)
 clean:
 	rm -rf $(BUILD) $(EXECUTABLE) $(LEVEL_TOOLS)
 
+FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
+	tools/model-viewer/*.h tools/model-viewer/*.cpp tests/unit/*.cpp)
+
 format:
-	clang-format -i src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp tools/model-viewer/*.h \
-		tools/model-viewer/*.cpp tests/unit/*.cpp
+	clang-format -i $(FORMAT_FILES)
+
+# Fails on a file `make format` would change, or one clang-format does not leave stable (flips on every run).
+format-check:
+	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
 	./tools/check_layers.sh level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)

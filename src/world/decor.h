@@ -11,11 +11,11 @@ constexpr int DECOR_SCATTERED = 15; // the first ones; the rest are placed on pu
 constexpr int DECOR_WEB = 0;		// modelled in the upper left corner, needs a ceiling
 constexpr int DECOR_BRAZIER = 6;
 constexpr int DECOR_LAMP = 7;
-constexpr int DECOR_BES = 13;	  // his plumes reach up to a wall torch
+constexpr int DECOR_BES = 13;	 // his plumes reach up to a wall torch
 constexpr int DECOR_COFFIN = 15; // empty, on every mummy's spawn tile: it lies in there until it wakes
-constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",	  "pottery", "canopic", "rubble",  "sand",
-												  "skeleton", "brazier", "lamp",	"scrolls", "ushabti",
-												  "cat",	  "jackal",	 "osiris",	"bes",	   "sarcophagus", "coffin"};
+constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",	 "pottery", "canopic",	   "rubble",  "sand", "skeleton",
+												  "brazier", "lamp",	"scrolls",	   "ushabti", "cat",  "jackal",
+												  "osiris",	 "bes",		"sarcophagus", "coffin"};
 
 // The wall torch (models/decorations/decor_torch.md3, also built by decor.py) is not in this list:
 // Dungeon::scatterTorches places it on its own.

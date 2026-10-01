@@ -18,7 +18,7 @@ Reckless monsters:
 
 * **Anubis** boss ([boss-rooms.draft.md](boss-rooms.draft.md)): the player cannot shake him off behind a row of traps.
   He follows through spikes, death traps and rock falls.
-* **Mummy** ([mummy-minion-monster.draft.md](mummy-minion-monster.draft.md)).
+* **Mummy** ([mummy-minion-monster.md](mummy-minion-monster.md)).
 
 ## Trap damage
 

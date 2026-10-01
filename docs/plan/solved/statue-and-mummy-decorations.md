@@ -27,4 +27,4 @@ New static corridor props:
 
 * Statues: 1-4 separate props (for example a cat and one to three deities), not one model with variants.
 * The mummy here is a decoration only. A mummy monster is a separate idea:
-  [mummy-minion-monster.draft.md](../mummy-minion-monster.draft.md).
+  [mummy-minion-monster.md](../mummy-minion-monster.md).

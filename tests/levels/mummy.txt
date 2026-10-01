@@ -1,0 +1,4 @@
+; A mummy (col 10) in its coffin: wakes when the player comes 2.5 tiles near (tests/scenarios/mummy.txt).
+########################
+#S........u...........E#
+########################

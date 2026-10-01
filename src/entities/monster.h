@@ -137,9 +137,7 @@ class Monster {
 		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
 	}
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
-	[[nodiscard]] bool lurking() const {
-		return (type->locomotion == Locomotion::Ambush || entombed()) && !alerted;
-	}
+	[[nodiscard]] bool lurking() const { return (type->locomotion == Locomotion::Ambush || entombed()) && !alerted; }
 	// Entombed: woken, still climbing out of its coffin; it does not act yet.
 	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.

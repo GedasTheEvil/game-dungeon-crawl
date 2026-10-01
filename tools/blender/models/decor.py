@@ -1,5 +1,5 @@
 """Procedural corridor decorations: fifteen static props scattered along the back wall of empty floor cells, plus the
-wall torch (placed separately by the engine, see Dungeon::scatterTorches).
+wall torch (placed separately by the engine, see Dungeon::scatterTorches) and the mummy's coffin (only at mummy spawn tiles).
 
     MCP:  p = ".../tools/blender/models/decor.py"; g = {"__file__": p, "__name__": "decor"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"]()
@@ -34,13 +34,14 @@ from common import REPO, Builder, cone, ellipsoid, lathe, orient, perp, smoothst
 
 COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris", "bes",
-         "sarcophagus", "torch"]
+         "sarcophagus", "torch", "coffin"]
 TEX_SIZE = 512
 # Enlargement per prop so it reads next to the player (~0.5 tile tall in game).
 # Kept inside x = +-0.42 and y >= -0.43 (the player walks at y = -0.5); the engine's DECOR_JITTER uses the slack.
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
               "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4, "bes": 1.25,
               "sarcophagus": 1.3}
+# Not enlarged (exact tile units): coffin (the mummy's, placed by the engine at mummy spawn tiles, see mummy.py COFFIN).
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
 SPACING = 1.2  # props are spread along X in the scene (bake/review only; export is at the origin)
 
@@ -896,6 +897,69 @@ def build_sarcophagus(b, M):
         b.add(tube([(V(p), 0.006, 0.0014) for p in pts], sub=3, n=6, ref=V((0, 0, 1))), M["wrap_plain"], "root")
 
 
+# The mummy's coffin (mummy.py COFFIN): interior x +-0.30, y -0.22..-0.06 (centre -0.14 = the dormant mummy's body
+# centre), inner floor z = 0.012, walls 0.016 thick, rim z = 0.08. Head end (headrest, painted eyes) at -X.
+COFFIN = {"half_x": 0.30, "y0": -0.22, "y1": -0.06, "wall": 0.016, "floor": 0.012, "rim": 0.08}
+COFFIN_HEADREST = (-0.19, 0.036)  # x of the headrest under the dormant mummy's head, its height above the inner floor
+
+
+def build_coffin(b, M):
+    """The mummy's coffin: a commoner's painted box against the wall, empty and open, its lid shoved off and leaning
+    against the wall behind it, torn wrappings hanging over the front rim where the mummy climbed out."""
+    c = COFFIN
+    hx, w, rim, fl = c["half_x"], c["wall"], c["rim"], c["floor"]
+    yc, hy = (c["y0"] + c["y1"]) / 2, (c["y1"] - c["y0"]) / 2
+    ox, oy = hx + w, hy + w
+    b.add(place(box(2 * ox, 2 * oy, fl), loc=(0, yc, fl / 2)), M["coffin"], "root")
+    for sy in (-1, 1):  # front and back walls
+        b.add(place(box(2 * ox, w, rim), loc=(0, yc + sy * (hy + w / 2), rim / 2)), M["coffin"], "root")
+    for sx in (-1, 1):  # end walls
+        b.add(place(box(w, 2 * hy, rim), loc=(sx * (hx + w / 2), yc, rim / 2)), M["coffin"], "root")
+    # Pitch-black inside (resin poured over the body), a little proud of the boards.
+    e = 0.0008
+    b.add(place(box(2 * hx, 2 * hy, 0.001), loc=(0, yc, fl + 0.0005)), M["pitch"], "root")
+    for sy in (-1, 1):
+        b.add(place(box(2 * hx, 0.001, rim - fl - 0.004), loc=(0, yc + sy * (hy - e), (rim + fl) / 2 - 0.002)), M["pitch"], "root")
+    for sx in (-1, 1):
+        b.add(place(box(0.001, 2 * hy, rim - fl - 0.004), loc=(sx * (hx - e), yc, (rim + fl) / 2 - 0.002)), M["pitch"], "root")
+    # Headrest (wooden pillow: foot, column, curved top) under the head.
+    hr_x, hr_h = COFFIN_HEADREST
+    b.add(place(box(0.03, 0.05, 0.004), loc=(hr_x, yc, fl + 0.002)), M["coffin_dark"], "root")
+    b.add(place(box(0.012, 0.016, hr_h), loc=(hr_x, yc, fl + hr_h / 2)), M["coffin_dark"], "root")
+    cradle = [(V((hr_x, yc + 0.034 * math.sin(a), fl + hr_h + 0.012 * (1 - math.cos(a)))), 0.012, 0.0025) for a in (-1.2, -0.6, 0.0, 0.6, 1.2)]
+    b.add(tube(cradle, sub=2, n=6, ref=V((0, 0, 1))), M["coffin_dark"], "root")
+
+    # Painted front: a yellow band under the rim, three vertical bands, wedjat eyes near the head end.
+    front = c["y0"] - w - 0.0012
+    b.add(place(box(2 * ox - 0.01, 0.002, 0.014), loc=(0, front, rim - 0.011)), M["coffin_band"], "root")
+    for x in (-0.15, 0.0, 0.15):
+        b.add(place(box(0.012, 0.002, rim - 0.026), loc=(x, front, (rim - 0.026) / 2 + 0.004)), M["coffin_band"], "root")
+    for ex in (-0.27, -0.215):
+        ce = V((ex, front - 0.0012, 0.04))
+        b.add(ellipsoid(ce, (0.014, 0.0015, 0.0065), n=12, rings=4, axis=V((0, 0, 1)), ref=V((0, 1, 0))), M["eye_white"], "root")
+        b.add(ellipsoid(ce + V((0, -0.0012, 0)), (0.005, 0.0012, 0.0052), n=8, rings=3), M["black"], "root")
+        b.add(curve([ce + V((-0.016, -0.001, 0.009)), ce + V((0, -0.001, 0.014)), ce + V((0.017, -0.001, 0.01))], 0.0016, n=4), M["black"], "root")
+        b.add(curve([ce + V((-0.003, -0.001, -0.006)), ce + V((-0.004, -0.001, -0.018)), ce + V((-0.011, -0.001, -0.022))], 0.0014, n=4), M["black"], "root")
+        b.add(curve([ce + V((0.004, -0.001, -0.006)), ce + V((0.012, -0.001, -0.02)), ce + V((0.02, -0.001, -0.017)), ce + V((0.018, -0.001, -0.011))], 0.0014, n=4),
+              M["black"], "root")
+
+    # Lid shoved off: stood on the back wall, leaning against the tomb wall, slid towards the foot end and askew.
+    length = 2 * ox + 0.01
+    lid = transform(vault_lid(length), lambda v: V((v.x - length / 2, v.y * oy / 0.066, v.z)))
+    lean = rot(z=1.5) @ rot(y=-4) @ rot(x=78)
+    lid_geo = place(lid, lean, (0.045, -0.026, rim + oy * math.sin(math.radians(78)) + 0.004))
+    b.add(lid_geo, M["coffin"], "root")
+    lid_band = transform(place(box(length - 0.03, 0.022, 0.003), loc=(0, 0, 0.036)), lambda v: V(v))
+    b.add(place(lid_band, lean, (0.045, -0.026, rim + oy * math.sin(math.radians(78)) + 0.004)), M["coffin_band"], "root")
+
+    # Torn wrappings over the front rim: from the inner floor, over the rim, down the front, frayed on the floor.
+    y_in, y_out = c["y0"] + 0.01, c["y0"] - w
+    for x0, dx, end in ((0.04, 0.012, -0.30), (-0.09, -0.01, -0.27)):
+        pts = [(x0 - dx, y_in + 0.03, fl + 0.003), (x0 - dx * 0.5, y_in, rim * 0.6), (x0, c["y0"] - w / 2, rim + 0.003), (x0 + dx * 0.3, y_out - 0.003, rim - 0.006),
+               (x0 + dx * 0.7, y_out - 0.004, rim * 0.4), (x0 + dx, y_out - 0.01, 0.003), (x0 + dx * 1.6, end, 0.0015)]
+        b.add(tube([(V(p), 0.007, 0.0015) for p in pts], sub=3, n=6, ref=V((0, -1, 0.4))), M["wrap_plain"], "root")
+
+
 BUILDERS = {
     "web": build_web,
     "pottery": build_pottery,
@@ -913,6 +977,7 @@ BUILDERS = {
     "bes": build_bes,
     "sarcophagus": build_sarcophagus,
     "torch": build_torch,
+    "coffin": build_coffin,
 }
 
 

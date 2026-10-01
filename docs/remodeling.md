@@ -49,6 +49,14 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Mummy sounds: `tools/audio/mummy_sounds.py` (`sounds/monsters/mummy_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
+* `tools/blender/models/mummy.py` - entombed monster: anubis-style humanoid in spiral bandages (pattern-uv material), loose strips as
+  two-bone chains run by a verlet pass (gravity, lag, floor, coffin). Clips: walk (stiff shamble, arms reaching; frame 0 centred on
+  x = y = 0, the reference), attack (two-handed overhead smash), die (folds forward, root squashed into a heap), idle (`_idle`: on its
+  back in the coffin, head at +X = game left, arms crossed, centred, back 0.6 world units up), rise (`_rise`: sits up, legs over the
+  front rim, onto its feet, two steps, reaches; last frame = walk frame 0). Rise is authored in the coffin's frame: the engine draws
+  idle/rise 14.4 world units towards the wall and smoothsteps that to 0 over rise t 0.3..0.75, the script adds the inverse slide to the
+  root. `-- --coffin-check out_dir` builds `decor.py`'s coffin, places the dormant/rising mummy at the engine's offsets (tile units)
+  and counts mummy vertices inside the coffin's walls per frame and halfway between frames, plus game/side/close renders.
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * `tools/blender/models/decor.py` - fifteen static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
@@ -62,6 +70,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (`tests/levels/statues29063`, whose
   file name puts one of each in its first cells).
+  `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
+  interior x +-0.30, y -0.22..-0.06, inner floor z 0.012, walls 0.016 thick, rim z 0.08, headrest and wedjat eyes at the head end (-X),
+  lid leaning against the wall behind, torn wrappings over the front rim. `mummy.py` `COFFIN` uses the same numbers.
 * `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
   (`wood`: acacia poles with rope-lashed rungs; `vine`: two twisted lianas with thin vines as holds), each with three
   interchangeable middle pieces `a`/`b`/`c` plus `top` (wood: roped to a beam between the side walls; vine: roots creeping along
@@ -138,7 +149,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `CharacterModel::Load`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
-* Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, one file per clip. The file list (`ClipFiles` in
+* Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, Rise, one file per clip. The file list (`ClipFiles` in
   `src/entities/character_model.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
   clips and stands in for a missing optional clip. `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once).
   `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`.
@@ -156,10 +167,12 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
   The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip.
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's and giant scarab's leap) and `sounds/<category>/<name>_jump.wav`.
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  The mummy (`ENTOMBED_CLIPS`) adds a required `_idle` (dormant in its coffin) and `_rise` (`ModelState::Rise`, suffix `_rise`, plays once:
+  its wake clip, climbing out; the last frame is walk frame 0).
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player (the mimic 1024x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB); items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 71 model files in total.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 80 model files in total.
 
 ## Status
 Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
@@ -172,6 +185,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
 | Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
+| Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
@@ -180,6 +194,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Items: club, sword, spear, bow, arrow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
+| Mummy's coffin | `decorations/decor_coffin.md3` | `decorations/decor_coffin.png` | new (static, `decor.py`; only at mummy spawn tiles) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
 | Keys (4 lock colours) | `mechanisms/key.md3` | `mechanisms/key_<colour>.png` | new (static, `mechanism.py`) |
 | Key gate (4 lock colours) | `mechanisms/gate.md3` | `mechanisms/gate_<colour>.png` | new (static, `mechanism.py`) |

@@ -1,0 +1,107 @@
+# A mummy (col 10, tests/levels/mummy) lies in its coffin with no health bar; 1.6 tiles away it wakes, climbs out
+# (rise clip, the body slides out of the coffin), walks up and strikes; killed, its coffin stays, empty.
+god
+level tests/levels/mummy
+xp 200000 # a player of the levels mummies are in
+wait 30
+walk to 8.8
+wait 10
+expect bars == 0
+screenshot dormant
+toon on
+wait 2
+screenshot dormant_toon
+toon off
+walk to 9.1
+wait 2
+expect bars == 1
+screenshot rise_start
+wait 8
+screenshot rise_sit
+wait 8
+screenshot rise_climb
+wait 10
+screenshot rise_stand
+wait 2s
+wait 5s # it walks up (about 0.15 tiles a second)
+screenshot strike
+dump
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+dump
+wait 3s
+expect nearest == 0
+screenshot dead
+walk to 11.5
+wait 10
+screenshot coffin_empty

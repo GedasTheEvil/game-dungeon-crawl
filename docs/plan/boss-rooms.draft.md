@@ -1,7 +1,7 @@
 # Bosses and boss rooms
 
 Status: steps 1-3 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10), not yet verified in
-play; step 4 (Anubis) waits for the mummy. See [Order of work](#order-of-work).
+play; step 4 (Anubis) is next, the mummy is in. See [Order of work](#order-of-work).
 
 ## Boss room and teleporter
 
@@ -51,7 +51,7 @@ play; step 4 (Anubis) waits for the mummy. See [Order of work](#order-of-work).
 
 | Boss | Minions | Notes |
 |---|---|---|
-| Anubis (final boss) | Mummies ([mummy-minion-monster.draft.md](mummy-minion-monster.draft.md)) | |
+| Anubis (final boss) | Mummies ([mummy-minion-monster.md](mummy-minion-monster.md)) | |
 | Boss scarab | Scarabs | Like the giant scarab, but faster and stronger, with more HP. |
 | Vampire bat (a very large giant bat) | Small bats | Sucks blood: heals itself by part of the damage it deals. |
 
@@ -71,7 +71,7 @@ Tune from playthroughs.
 |---|---|---|
 | 5 | Boss scarab | Scarabs are native there; lvl5 had an Anubis once. |
 | 10 | Vampire bat | Bats and giant bats run through levels 7-9. |
-| 15 | Anubis | The finale. Needs the mummy ([mummy-minion-monster.draft.md](mummy-minion-monster.draft.md)). |
+| 15 | Anubis | The finale. Needs the mummy ([mummy-minion-monster.md](mummy-minion-monster.md)). |
 
 Bosses are campaign only; `levelgen` does not place them at first.
 
@@ -92,7 +92,7 @@ Format:
 
 * **Teleporter:** Door tile, new gate type `5`, `value` = pair id. The two Door-5 cells with the same id link to each
   other.
-* **Boss:** new monster types (boss scarab 11, vampire bat 12, Anubis boss 13): a row each in `MONSTER_DEFS` plus a
+* **Boss:** new monster types (boss scarab 11, vampire bat 12, Anubis boss 14; 13 is the mummy): a row each in `MONSTER_DEFS` plus a
   boss table (minion type, `min`, `max`, interval, cap, XP rules). When the boss dies, its tile is rewritten (for
   example to `Empty`), so it does not come back after a load or a slot reuse. The boss gate state is in the map
   anyway.
@@ -140,7 +140,7 @@ Format:
    48.5). Tests `tests/scenarios/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
    The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
    4 bats. Tune in play.
-4. Anubis boss in lvl15 once the mummy monster exists. He walks through traps: [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md).
+4. Anubis boss in lvl15. The mummy exists now ([mummy-minion-monster.md](mummy-minion-monster.md)); its minions should climb out of the boss room's coffins. He walks through traps: [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md).
 
 ## Open questions
 

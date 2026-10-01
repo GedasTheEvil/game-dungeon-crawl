@@ -185,8 +185,8 @@ std::string stateLine() {
 	Game().dungeon.getC(x, y);
 	char buf[256];
 	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
-			 Game().player->stats.CurrentHP(), Game().player->stats.Stamina(), Game().curMap, screenName(),
-			 Game().player->Alive() ? 1 : 0, Game().hasWon ? 1 : 0);
+			 Game().player->stats.CurrentHP(), Game().player->stats.Stamina(), Game().dungeon.LevelNumber(),
+			 screenName(), Game().player->Alive() ? 1 : 0, Game().dungeon.Won() ? 1 : 0);
 	return buf;
 }
 
@@ -205,11 +205,11 @@ float fieldValue(const Command& cmd) {
 	case Field::Stamina:
 		return static_cast<float>(Game().player->stats.Stamina());
 	case Field::Level:
-		return static_cast<float>(Game().curMap);
+		return static_cast<float>(Game().dungeon.LevelNumber());
 	case Field::Alive:
 		return Game().player->Alive() ? 1.f : 0.f;
 	case Field::Won:
-		return Game().hasWon ? 1.f : 0.f;
+		return Game().dungeon.Won() ? 1.f : 0.f;
 	case Field::Might:
 		return static_cast<float>(Game().player->stats.CurrentMight());
 	case Field::Armor:
@@ -675,11 +675,9 @@ bool loadLevel(const Command& cmd) {
 	if (!loaded)
 		return false;
 
-	if (cmd.a > 0.f)
-		Game().curMap = static_cast<int>(cmd.a);
 	Game().ui.screen = Screen::Gameplay;
 	Game().ui.menu.inGame = true;
-	Game().hasWon = false;
+	Game().dungeon.ClearWin();
 	Game().player->Reanimate();
 	return true;
 }
@@ -796,7 +794,7 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
-		Game().player->stats.AddXP(static_cast<int>(cmd.a));
+		Game().player->stats.AddXP(static_cast<int>(cmd.a), Game().events);
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
@@ -885,6 +883,7 @@ void runCommands() {
 			continue;
 		}
 		runInstant(cmd);
+		Game().ApplyWorldEvents(); // an expect on the next line sees what this command made the world do
 		gRunner.next++;
 	}
 	if (!gRunner.pendingShot.empty())

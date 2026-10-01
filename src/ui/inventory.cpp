@@ -125,11 +125,7 @@ void Inventory::Reset() {
 
 Inventory::~Inventory() {}
 
-void Inventory::AddItem(ItemKind kind) {
-	bag.Add(kind);
-	if (!::isPotion(kind))
-		Game().journal.LearnNote(FieldNote::Weapons);
-}
+void Inventory::AddItem(ItemKind kind) { bag.Find(kind, Game().journal); }
 
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 

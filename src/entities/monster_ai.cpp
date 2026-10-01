@@ -1,14 +1,15 @@
 #include "monster.h"
 #include <algorithm>
 #include <cmath>
-#include "../state/game_state.h"
+#include "player.h"
+#include "../world/journal.h"
 #include "../core/gameplay_config.h"
 
 int Monster::attackDirection(float px, float py) const {
 	if (!sameRow(py))
 		return 0;
 	const float reach = rooted() ? ROOTED_BITE_REACH : MONSTER_BITE_REACH;
-	const float player = Game().player->HalfWidth();
+	const float player = links.player->HalfWidth();
 	if (Left() - (px + player) > reach)
 		return -1;
 	if ((px - player) - Right() > reach)
@@ -43,11 +44,11 @@ void Monster::Attack(float py) {
 }
 
 void Monster::bite() {
-	const int lost = Game().player->TakeHit(type->damage);
+	const int lost = links.player->TakeHit(type->damage, *links.events);
 	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);
-	Game().journal.HitByCreature(type->id, Game().curMap);
+	links.journal->HitByCreature(type->id, links.level);
 	if (type->boss.lifeStealPct > 0 && lost > 0)
-		Game().journal.SeeMove(type->id, Game().curMap, CreatureMove::Heal);
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);
 	type->model.attackSound.Play();
 }
 
@@ -65,7 +66,7 @@ bool Monster::Lurk(float px, float py) {
 
 void Monster::wake() {
 	alerted = true;
-	Game().journal.SeeMove(type->id, Game().curMap, entombed() ? CreatureMove::Rise : CreatureMove::Ambush);
+	links.journal->SeeMove(type->id, links.level, entombed() ? CreatureMove::Rise : CreatureMove::Ambush);
 	enter(entombed() ? ModelState::Rise : ModelState::Move);
 	type->model.wakeSound.Play();
 }
@@ -117,7 +118,7 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		flight.dir = dx >= 0 ? 1 : -1;
 		flight.bitten = false;
 		alerted = true;
-		Game().journal.SeeMove(type->id, Game().curMap, CreatureMove::Swoop);
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Swoop);
 		[[fallthrough]];
 	case FlightPhase::Swoop: {
 		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front
@@ -173,7 +174,7 @@ void Monster::Jump(float toX) {
 	leap.lift = 0.f;
 	enter(ModelState::Jump);
 	type->model.jumpSound.Play();
-	Game().journal.SeeMove(type->id, Game().curMap, CreatureMove::Leap);
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Leap);
 }
 
 void Monster::UpdateJump() {

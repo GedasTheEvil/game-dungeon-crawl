@@ -6,6 +6,8 @@
 #include "../graphics/particles.h"
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
+#include "../graphics/texture_registry.h"
+#include "../world/world_events.h"
 #include <memory>
 
 struct JumpState {
@@ -51,14 +53,15 @@ class Player {
 
 	bool Load(const char* name, Texture&& texture);
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (Draw only shows them)
-	void Draw();
+	void Draw(const TextureRegistry& textures);
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }
 	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Height() const;
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost). No damage in the scenario god mode.
-	// Returns the HP lost (never more than it had): 0 in god mode or when already dead.
-	int TakeHit(int dmg, bool ignoreArmor = false);
+	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
+	// health note.
+	int TakeHit(int dmg, WorldEvents& events, bool ignoreArmor = false);
 	void Reanimate(); // full HP, standing
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

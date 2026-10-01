@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include <GL/gl.h>
 #include <cmath>
 #include "../graphics/render_config.h"
@@ -26,7 +31,7 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 // back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
 void Dungeon::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
-	DecorSet& tex = Game().assets.decor;
+	DecorSet& tex = sim.assets->decor;
 
 	if (isRock(i, j)) {
 		float u0 = static_cast<float>(i & 1) * 0.5f;
@@ -84,11 +89,11 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
-	Game().assets.items.chest->Draw();
+	sim.assets->items.chest->Draw();
 
 	// The item turns over the chest (treasureSpin). The prototype is shared: its angle and size are only borrowed.
 	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value)) {
-		Item* item = Game().assets.items.Of(*kind);
+		Item* item = sim.assets->items.Of(*kind);
 		const float angle = item->rotA;
 		const float scale = item->scale;
 		item->rotA = treasureSpin;
@@ -106,7 +111,7 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
-	Trap* tileTrap = isDeathTrap ? Game().assets.traps.deathTrap.get() : Game().assets.traps.spikes.get();
+	Trap* tileTrap = isDeathTrap ? sim.assets->traps.deathTrap.get() : sim.assets->traps.spikes.get();
 	tileTrap->Show();
 
 	glPopMatrix();
@@ -115,7 +120,7 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 void Dungeon::drawPortal(const float normal[3], const float v[4][3]) const {
 	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
-	Game().assets.textures.portal.Bind();
+	sim.assets->textures.portal.Bind();
 	Lighting::setEmissive(true);
 	glBegin(GL_QUADS);
 	glNormal3fv(normal);
@@ -132,8 +137,8 @@ void Dungeon::drawTeleporterTile() {
 	glPushMatrix();
 	glTranslatef(20, 0, -30);
 	glScalef(40, 40, 40);
-	Game().assets.textures.columns.Bind();
-	Game().assets.models.columns->Show();
+	sim.assets->textures.columns.Bind();
+	sim.assets->models.columns->Show();
 	glPopMatrix();
 
 	const float normal[3] = {0, 0, 1};
@@ -145,8 +150,8 @@ void Dungeon::drawAnkhTile() {
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
 	glScalef(40, 40, 40);
-	Game().assets.textures.ankh.Bind();
-	Game().assets.models.ankh->Show();
+	sim.assets->textures.ankh.Bind();
+	sim.assets->models.ankh->Show();
 	glPopMatrix();
 }
 //======================================================================================
@@ -166,8 +171,8 @@ void Dungeon::drawDoorTile(int i, int j) {
 	glRotatef(yaw, 0, 1, 0);
 	glPushMatrix();
 	glScalef(40, 40, 40);
-	Game().assets.textures.sphinx.Bind();
-	Game().assets.models.sphinx->Show();
+	sim.assets->textures.sphinx.Bind();
+	sim.assets->models.sphinx->Show();
 	glPopMatrix();
 
 	if (tile.attr == GateEntrance || tile.attr == GateExit) {
@@ -181,9 +186,9 @@ void Dungeon::drawDoorTile(int i, int j) {
 		glPushMatrix();
 		glTranslatef(0, 20, 0);
 		glScalef(10, 10, 10);
-		Game().assets.textures.questionMark.Bind();
+		sim.assets->textures.questionMark.Bind();
 		glRotatef(riddleMarkYaw, 0, 1, 0);
-		Game().assets.models.question->Show();
+		sim.assets->models.question->Show();
 		glPopMatrix();
 	}
 	glPopMatrix();
@@ -305,7 +310,7 @@ void Dungeon::drawHitboxes(const HitboxView& weapon) {
 		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
 		glEnd();
 	};
-	Game().assets.textures.nullTex.Bind();
+	sim.assets->textures.nullTex.Bind();
 	Lighting::setEmissive(true);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(2.f);
@@ -313,11 +318,11 @@ void Dungeon::drawHitboxes(const HitboxView& weapon) {
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Alive())
 			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
-	const Player& player = *Game().player;
+	const Player& player = *sim.player;
 	const float half = player.HalfWidth();
 	glColor3f(0.2f, 1, 0.2f);
 	box(mapX - half, mapX + half, mapY, mapY + player.Height());
-	const auto dir = static_cast<float>(Game().camera.Facing());
+	const auto dir = static_cast<float>(weapon.facing);
 	const float from = weapon.fromEdge ? half : 0.f;
 	glColor3f(1, 1, 0.2f);
 	box(mapX + dir * from, mapX + dir * (from + weapon.reach), mapY, mapY + player.Height() / 2.f);

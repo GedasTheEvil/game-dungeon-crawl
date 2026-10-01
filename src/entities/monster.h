@@ -7,6 +7,8 @@
 #include "trap_hurt.h"
 #include "../world/damage.h"
 #include "../world/items.h"
+#include "../graphics/texture_registry.h"
+#include "../world/rng.h"
 #include <memory>
 #include <optional>
 
@@ -90,12 +92,26 @@ struct MonsterType {
 	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }
 };
 
+class Player;
+class Journal;
+class WorldEvents;
+
+// What a monster touches of the world (Dungeon::SpawnMonster links it): the player it chases and bites, the journal
+// that notes its moves, the event list for the player's hits, the level it lives on.
+struct MonsterLinks {
+	Player* player = nullptr;
+	Journal* journal = nullptr;
+	WorldEvents* events = nullptr;
+	int level = 1;
+};
+
 // A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
 // The player position (px, py) is in map units, like Dungeon's.
 class Monster {
   private:
 	const MonsterType* type = nullptr; // nullptr: an empty slot
-	int col = -1, row = -1;			   // spawn tile
+	MonsterLinks links;
+	int col = -1, row = -1; // spawn tile
 	float x = 0.f;
 	int health = 0;
 	ModelState state = ModelState::Move;
@@ -120,7 +136,7 @@ class Monster {
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
-	void drawHealthBar();
+	void drawHealthBar(const Texture& bar);
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const; // world units off its place while Emerging: < 0 in the floor, > 0 above
@@ -130,7 +146,7 @@ class Monster {
 	Monster() = default;
 	Monster(const Monster&) = delete;
 	Monster& operator=(const Monster&) = delete;
-	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
+	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects);
 	void Clear(); // the slot is empty
 	// Summoned by a boss: comes out of the floor or the ceiling (Emerging) or climbs out of its coffin (Rising), then
 	// chases the player at once.
@@ -169,6 +185,7 @@ class Monster {
 	[[nodiscard]] bool LeavesChest() const;
 	// A killed monster's weapon chest (RollKillDrop), once its die clip has played; nullopt before and after.
 	[[nodiscard]] std::optional<ItemKind> TakeDrop();
+	void SetDrop(std::optional<ItemKind> weapon) { drop = weapon; } // the player killed it (Dungeon::rewardKill)
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
@@ -198,10 +215,9 @@ class Monster {
 	// Body height in map y (row + height above its floor), for the arrows.
 	[[nodiscard]] float BottomY() const;
 	[[nodiscard]] float TopY() const;
-	// From the player (byPlayer: their kill gains XP) or a trap.
-	bool takeHit(int dmg, bool byPlayer = true);
-	// A hit with a weapon: its damage after resistances (resistedDamage), the journal learns how the weapon's main
-	// type works on it.
+	// From the player or a trap. True: this hit killed it (the player's kill: Dungeon::rewardKill).
+	bool takeHit(int dmg);
+	// A hit with a weapon: its damage after resistances (resistedDamage). True: this hit killed it.
 	bool TakeWeaponHit(int dmg, const DamageMix& mix);
 	// Each tick it stands in a spike or death trap (see TrapHurt).
 	void StandInTrap();
@@ -211,7 +227,7 @@ class Monster {
 	// With the frame origin at the spawn tile.
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (Draw only shows them).
 	void Animate(float px, float py);
-	void Draw();
+	void Draw(const TextureRegistry& textures);
 };
 
 #endif

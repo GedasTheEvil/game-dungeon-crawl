@@ -2,7 +2,7 @@
 
 Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Implemented 2026-10-01, see [Done](#done),
 verified in play 2026-10-01. Stage 9 of the
-[code structure review](../code-structure-review.draft.md); the random streams part is done
+[code structure review](code-structure-review.md); the random streams part is done
 ([random-streams.md](random-streams.md)).
 
 ## The problem, in numbers

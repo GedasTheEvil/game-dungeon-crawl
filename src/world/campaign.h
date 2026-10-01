@@ -2,7 +2,7 @@
 #define CAMPAIGN_H
 
 // Order of the levels in a game: levels/lvl1 .. lvl<CAMPAIGN_LEVELS>. Each exit loads the next level,
-// the last one holds the ankh that wins the game. Level numbers start at 1 (GameState::curMap).
+// the last one holds the ankh that wins the game. Level numbers start at 1 (Dungeon::LevelNumber).
 
 #include <string>
 

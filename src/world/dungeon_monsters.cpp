@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
@@ -41,7 +46,7 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 	const float centre = static_cast<float>(land) + 0.5f;
 	if (static_cast<int>(std::floor(mapX)) != land)
 		return centre;
-	const float stop = mon.HalfWidth() + Game().player->HalfWidth() + MONSTER_BITE_REACH / 2.f;
+	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + MONSTER_BITE_REACH / 2.f;
 	const float bite = mapX - static_cast<float>(dir) * stop;
 	return dir > 0 ? std::clamp(bite, static_cast<float>(land), centre)
 				   : std::clamp(bite, centre, static_cast<float>(land + 1));
@@ -57,7 +62,7 @@ void Dungeon::UpdateMonsters() {
 			dropChest(mon, *drop);
 
 		if (mon.flies()) {
-			if (!Game().hasWon) {
+			if (!won) {
 				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
 				mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY);
 			}
@@ -70,16 +75,16 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			ItemFileId loot = fileIdOf(RollMimicLoot(Game().random.gameplay));
+			ItemFileId loot = fileIdOf(RollMimicLoot(sim.random->gameplay));
 			map[MapIndex(mon.Col(), mon.Row())] = Tile{Treasure, loot.type, loot.id};
 			mon.Clear();
 			continue;
 		}
 
-		if (mon.Alive() && !Game().hasWon && (mon.Lurk(mapX, mapY) || mon.Rising()))
+		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
-		if (mon.Alive() && !Game().hasWon && mon.StepDue()) {
+		if (mon.Alive() && !won && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
 			bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
@@ -157,7 +162,7 @@ bool Dungeon::inView(const Monster& mon) const { return mon.Active() && view().c
 void Dungeon::noteSeenMonsters() {
 	for (const Monster& mon : monsters)
 		if (inView(mon) && mon.Alive() && !mon.lurking())
-			Game().journal.SeeCreature(mon.Type()->id, Game().curMap);
+			sim.journal->SeeCreature(mon.Type()->id, levelNumber);
 }
 //======================================================================================
 // Every active monster, seen or not: a dead one finishes its death clip (a killed mimic leaves its chest) off screen
@@ -181,7 +186,7 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
 					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		mon.Draw();
+		mon.Draw(sim.assets->textures);
 		glPopMatrix();
 	}
 }
@@ -194,7 +199,7 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 			nearest = &mon;
 	if (!nearest)
 		return false;
-	nearest->TakeWeaponHit(damage, mix);
+	playerHit(*nearest, damage, &mix);
 	return true;
 }
 //======================================================================================
@@ -210,7 +215,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	Monster* slot = freeMonsterSlot();
 	if (!slot)
 		return false;
-	slot->Spawn(Game().assets.monsterTypes[typeId], i, j);
+	slot->Spawn(sim.assets->monsterTypes[typeId], i, j, monsterLinks(), sim.random->effects);
 	if (slot->Type()->isBoss())
 		startBossFight(static_cast<int>(slot - monsters));
 	return true;
@@ -225,4 +230,34 @@ Monster* Dungeon::freeMonsterSlot() {
 		if (mon.Health() < 1 && &mon - monsters != bossFight.slot)
 			return &mon;
 	return nullptr;
+}
+//======================================================================================
+void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
+	const MonsterType& type = *mon.Type();
+	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
+		const DamageType main = mainType(*mix);
+		const int rate = type.resist[static_cast<size_t>(main)];
+		const char* how = rate > NORMAL		? "weak to"
+						  : rate == NORMAL	? "no resistance to"
+						  : rate >= RESISTS ? "resists"
+											: "barely hurt by";
+		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
+	}
+	if (mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg))
+		rewardKill(mon);
+}
+//======================================================================================
+// A minion's XP depends on its boss (MinionXP). A mimic leaves its own chest, a minion none.
+void Dungeon::rewardKill(Monster& mon) {
+	const MonsterType& type = *mon.Type();
+	sim.journal->KillCreature(type.id, levelNumber);
+	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;
+	sim.events->Status("Gained %d XP", xp);
+	sim.player->stats.AddXP(xp, *sim.events);
+	if (mon.Minion() || type.locomotion == Locomotion::Ambush)
+		return;
+	std::array<bool, WEAPON_KIND_COUNT> owned{};
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		owned[static_cast<size_t>(i)] = sim.items->Count(itemAt(i)) > 0;
+	mon.SetDrop(RollKillDrop(type.isBoss(), owned, sim.random->gameplay));
 }

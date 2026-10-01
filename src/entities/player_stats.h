@@ -2,6 +2,7 @@
 #define PLAYER_STATS_H
 
 #include "../core/timer.h"
+#include "../world/world_events.h"
 #include <fstream>
 #include <optional>
 
@@ -27,21 +28,21 @@ class PlayerStats {
 	std::optional<int> level_up_ms;		   // game clock time of the last level up, for the sun beam
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
-	bool AdvanceLevel();
+	bool AdvanceLevel(WorldEvents& events);
 	void RegenerateStamina();
 
   public:
 	void SetSprintRequested(bool requested) { sprint_requested = requested; }
 	[[nodiscard]] bool IsSprinting() const { return sprinting; }
 	[[nodiscard]] float SprintMoveMultiplier() const { return sprinting ? 3.f : 1.f; }
-	void UpdateStamina();
+	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
 	[[nodiscard]] int MaxStamina() const { return 100 + (level - 1) * 10; }
 	void SetStamina(int value);
 	bool ConsumeStamina(int value); // false (and nothing spent) if there is not enough
 	void AddStamina(int value);
 	[[nodiscard]] float StaminaRatio() const;
-	void RefuseStamina(); // a jump or sprint wanted more stamina than there is
+	void RefuseStamina(WorldEvents& events); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 
 	[[nodiscard]] int Damage(int weaponDamage) const { return Might + weaponDamage; }
@@ -59,8 +60,8 @@ class PlayerStats {
 	[[nodiscard]] float LevelProgress() const; // 0..1 of the way from this level to the next
 	[[nodiscard]] int RiddleXP() const;		   // a riddle answered: about a third of a level
 	void AddMight(int ns = 1);
-	void AddXP(int xp);
-	void Heal(int hpPart); // percent of max HP
+	void AddXP(int xp, WorldEvents& events); // a level up shows its status line and writes the levels note
+	void Heal(int hpPart);					 // percent of max HP
 	void HealFully() { HP = MaxHP; }
 	void AddArmor(int na = 1);
 	// HP lost to a hit of dmg: armour absorbs some, unless ignoreArmor; at least 1.

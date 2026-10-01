@@ -1,7 +1,7 @@
 # Stage 8: one screen at a time, shared screen parts
 
 Status: implemented 2026-09-30, verified in play 2026-09-30. Stage 8 of the
-[code structure review](../code-structure-review.draft.md).
+[code structure review](code-structure-review.md).
 
 ## Why
 

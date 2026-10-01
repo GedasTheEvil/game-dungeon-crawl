@@ -155,16 +155,16 @@ void drawGameplay() {
 	std::optional<HitboxView> hitboxes;
 	if (Game().render.Hitboxes) {
 		const Item* weapon = Game().ui.inventory->Equipped();
-		hitboxes = HitboxView{weapon->Reach(), !isRanged(Game().ui.inventory->EquippedKind())};
+		hitboxes = HitboxView{weapon->Reach(), !isRanged(Game().ui.inventory->EquippedKind()), Game().camera.Facing()};
 	}
 	Game().dungeon.Draw(hitboxes ? &*hitboxes : nullptr);
 
 	glPopMatrix();
 
-	Game().player->Draw();
+	Game().player->Draw(Game().assets.textures);
 
 	Lighting::setEmissive(true);
-	if (Game().hasWon)
+	if (Game().dungeon.Won())
 		Game().ui.endScreens->DrawWin();
 	Lighting::setEmissive(false);
 
@@ -194,7 +194,7 @@ void drawGameplay() {
 	Game().assets.textures.nullTex.Bind();
 	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
 					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID());
-	LevelGem::draw(Game().curMap, Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
+	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
 					  Game().render.resX, Game().render.resY, Game().assets.fonts.status);

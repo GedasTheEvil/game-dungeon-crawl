@@ -22,6 +22,7 @@
 #include "../ui/journal_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/journal.h"
+#include "../world/world_events.h"
 #include "save_slots.h"
 #include <array>
 #include <memory>
@@ -44,17 +45,6 @@ struct GameTimers {
 	Timer idleModel{300}; // back to the idle clip after walking
 };
 
-// The game's random streams. Gameplay: loot, the riddle deck; effects: what only shows (a clip's start frame). The
-// blood splashes have their own (ParticleSystem). A scenario seeds them per level; the game from the clock.
-struct GameRandom {
-	Rng gameplay{1};
-	Rng effects{2};
-	void Seed(uint64_t seed) {
-		gameplay = Rng(seed);
-		effects = Rng(seed ^ 0x5bd1e995U);
-	}
-};
-
 struct UIContext {
 	Screen screen = Screen::Menu; // the game starts in the main menu
 	std::unique_ptr<Inventory> inventory;
@@ -72,8 +62,6 @@ class GameState {
 	Camera camera;
 	RenderSettings render;
 	bool cacheLoaded = false;
-	bool hasWon = false;
-	int curMap = 1;
 	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
 	Timer statusTimer{STATUS_MS};
 	std::unique_ptr<Player> player;
@@ -81,7 +69,8 @@ class GameState {
 	GameRandom random;
 	UIContext ui;
 	Dungeon dungeon;
-	Journal journal; // what the archaeologist wrote down, kept per save game
+	Journal journal;	// what the archaeologist wrote down, kept per save game
+	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	SaveSlots saves;
 
 	GameState();
@@ -92,6 +81,7 @@ class GameState {
 	void LoadSave(const char filename[]);
 	void NewGame();
 	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);
+	void ApplyWorldEvents(); // plays, shows and writes down what is in events; runs after input and each tick
 	static constexpr int STATUS_MS = 3000;
 };
 

@@ -1,8 +1,8 @@
 # Trap and font bugs
 
-Status: found in the [code structure audit](../code-structure-review-audit.draft.md) (2026-09-30). Fixed 2026-09-30 (see
+Status: found in the [code structure audit](code-structure-review-audit.md) (2026-09-30). Fixed 2026-09-30 (see
 [Implementation](#implementation)); verified in play 2026-09-30. Small and
-independent of the [code structure review](../code-structure-review.draft.md); can be fixed any time.
+independent of the [code structure review](code-structure-review.md); can be fixed any time.
 
 ## 1. Trap damage depends on drawing, and one hurt timer is shared per trap kind
 

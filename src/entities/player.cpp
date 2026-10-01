@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include "../state/game_state.h"
 #include "../graphics/ink.h"
 #include "../graphics/render_config.h"
 #include "../test/scenario.h"
@@ -75,7 +74,7 @@ void Player::Animate() {
 	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 }
 
-void Player::Draw() {
+void Player::Draw(const TextureRegistry& textures) {
 	glPushMatrix();
 	glTranslatef(0, 0, -30 + depthOffset);
 	glPushMatrix(); // will add rotation
@@ -84,7 +83,7 @@ void Player::Draw() {
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		Game().assets.textures.nullTex.Bind();
+		textures.nullTex.Bind();
 		blood.Draw();
 		glPopMatrix();
 	};
@@ -102,7 +101,7 @@ void Player::Draw() {
 	glPopMatrix();
 }
 
-int Player::TakeHit(int dmg, bool ignoreArmor) {
+int Player::TakeHit(int dmg, WorldEvents& events, bool ignoreArmor) {
 	if (Scenario::godMode())
 		return 0;
 	const int s = static_cast<int>(scale);
@@ -112,7 +111,7 @@ int Player::TakeHit(int dmg, bool ignoreArmor) {
 		lost = std::min(hit, stats.CurrentHP());
 		stats.LoseHP(hit);
 		blood.Splash(s);
-		Game().journal.LearnNote(FieldNote::Health);
+		events.Note(FieldNote::Health);
 	}
 
 	if (!Alive() && state != ModelState::Die) {

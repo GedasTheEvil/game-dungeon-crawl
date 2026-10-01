@@ -1,8 +1,8 @@
 # Stage 2: item ids and game rules out of the UI
 
 Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to level
-9). Stage 2 of the [code structure review](../code-structure-review.draft.md).
-Evidence: [the audit](../code-structure-review-audit.draft.md) (Game logic in UI, Layering, Duplication).
+9). Stage 2 of the [code structure review](code-structure-review.md).
+Evidence: [the audit](code-structure-review-audit.md) (Game logic in UI, Layering, Duplication).
 
 ## Why
 

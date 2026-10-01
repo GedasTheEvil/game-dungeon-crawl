@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include "../core/logger.h"
 #include "loot.h"
 #include "campaign.h"
@@ -42,7 +47,10 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	scatterDecorations(levelName);
 }
 //======================================================================================
-bool Dungeon::LoadCampaignLevel(int number) { return Load(campaignLevelFile(number).c_str()); }
+bool Dungeon::LoadCampaignLevel(int number) {
+	levelNumber = number;
+	return Load(campaignLevelFile(number).c_str());
+}
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {
 	f >> mapX >> mapY;
@@ -101,12 +109,12 @@ void Dungeon::PickUp() {
 
 		// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
 		std::string found;
-		std::vector<ItemKind> loot = RollChestLoot(*placed, Game().random.gameplay);
+		std::vector<ItemKind> loot = RollChestLoot(*placed, sim.random->gameplay);
 		for (size_t i = 0; i < loot.size(); i++) {
-			Game().ui.inventory->AddItem(loot[i]);
+			sim.items->Find(loot[i], *sim.journal);
 			found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;
 		}
-		Game().ShowStatus("%s", found.c_str());
+		sim.events->Status("%s", found.c_str());
 	}
 }
 //======================================================================================
@@ -114,20 +122,18 @@ void Dungeon::PickUp() {
 void Dungeon::Interact() {
 	const Tile here = Map(mapX, mapY);
 	if (here.type == Ankh) {
-		Game().hasWon = true;
+		won = true;
 		return;
 	}
 	if (here.type != Door)
 		return;
 	switch (here.attr) {
 	case GateRiddle:
-		Game().ui.riddle->Ask();
-		Game().ui.screen = Screen::Riddle;
+		sim.events->AskRiddle();
 		SetMapBAtPlayer(GateEmpty);
 		break;
 	case GateExit:
-		Game().curMap++;
-		LoadCampaignLevel(Game().curMap);
+		LoadCampaignLevel(levelNumber + 1);
 		break;
 	case GateTeleport:
 		Teleport();
@@ -139,13 +145,13 @@ void Dungeon::Interact() {
 //======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.
 void Dungeon::Teleport() {
-	const JumpState& jump = Game().player->jump;
+	const JumpState& jump = sim.player->jump;
 	if (jump.jumping || jump.falling)
 		return;
 	int to = teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY)));
 	if (to < 0)
 		return;
-	Game().assets.sounds.teleport.Play();
+	sim.events->Play(WorldSound::Teleport);
 	const int row = to / MAP_WIDTH;
 	mapX = static_cast<float>(to % MAP_WIDTH) + TELEPORT_ARRIVAL_X;
 	mapY = static_cast<float>(row);

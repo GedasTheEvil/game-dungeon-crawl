@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include "../core/gameplay_config.h"
 #include "../graphics/ink.h"
 #include "../graphics/render_config.h"
@@ -82,14 +87,14 @@ void Dungeon::updateArrows() {
 			}
 			if (isSolidTile(MapAt(col, row))) {
 				a.stuckMs = now; // the tip in the wall or the floor
-				Game().assets.sounds.arrowWall.Play();
+				sim.events->Play(WorldSound::ArrowWall);
 				break;
 			}
 			for (Monster& mon : monsters)
 				if (mon.Active() && mon.Alive() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
-					mon.TakeWeaponHit(a.damage, a.mix);
-					Game().assets.sounds.arrowHit.Play();
+					playerHit(mon, a.damage, &a.mix);
+					sim.events->Play(WorldSound::ArrowHit);
 					gone = true;
 					break;
 				}
@@ -99,7 +104,7 @@ void Dungeon::updateArrows() {
 }
 //======================================================================================
 void Dungeon::drawArrows() {
-	AnimatedModel* model = Game().assets.items.arrow.get();
+	AnimatedModel* model = sim.assets->items.arrow.get();
 	if (!model)
 		return;
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame

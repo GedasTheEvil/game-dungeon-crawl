@@ -26,4 +26,15 @@ class Rng {
 	uint64_t state;
 };
 
+// The game's random streams. Gameplay: loot, the riddle deck; effects: what only shows (a clip's start frame). The
+// blood splashes have their own (ParticleSystem). A scenario seeds them per level; the game from the clock.
+struct GameRandom {
+	Rng gameplay{1};
+	Rng effects{2};
+	void Seed(uint64_t seed) {
+		gameplay = Rng(seed);
+		effects = Rng(seed ^ 0x5bd1e995U);
+	}
+};
+
 #endif

@@ -334,7 +334,7 @@ void DraftMap::Draw() {
 	diamond(originX + px * cell, originY + (py + 0.5f) * cell, cell * 0.22f, PENCIL_RED, 1.f);
 	glDisable(GL_LINE_SMOOTH);
 
-	std::string title = "Level " + std::to_string(Game().curMap);
+	std::string title = "Level " + std::to_string(Game().dungeon.LevelNumber());
 	beginText();
 	textCentered(Game().assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
 	textCentered(Game().assets.fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);

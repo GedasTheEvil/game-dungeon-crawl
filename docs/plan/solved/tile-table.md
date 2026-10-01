@@ -1,8 +1,8 @@
 # Stage 3: tile and monster definition tables
 
 Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to the
-level 5 boss). Stage 3 of the [code structure review](../code-structure-review.draft.md).
-Evidence: [the audit](../code-structure-review-audit.draft.md) (Per-type if-chains, Tile descriptions, Duplication).
+level 5 boss). Stage 3 of the [code structure review](code-structure-review.md).
+Evidence: [the audit](code-structure-review-audit.md) (Per-type if-chains, Tile descriptions, Duplication).
 Comes after [stage 2](rules-out-of-ui.md) (unit tests, item ids GL-free).
 
 ## Why

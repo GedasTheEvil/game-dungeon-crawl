@@ -1,8 +1,8 @@
 # Stage 10: one movement model
 
 Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30. Stage 10 of
-the [code structure review](../code-structure-review.draft.md). The 14 differences between the checker's `Walker` and
-the game: [the audit](../code-structure-review-audit.draft.md#walker-vs-game).
+the [code structure review](code-structure-review.md). The 14 differences between the checker's `Walker` and
+the game: [the audit](code-structure-review-audit.md#walker-vs-game).
 
 ## Why
 

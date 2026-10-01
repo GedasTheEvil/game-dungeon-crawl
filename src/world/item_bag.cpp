@@ -1,4 +1,5 @@
 #include "item_bag.h"
+#include "journal.h"
 #include <algorithm>
 #include <cmath>
 #include <istream>
@@ -169,4 +170,10 @@ void ItemBag::Load(std::istream& in) {
 
 	std::optional<ItemKind> kind = itemFromFile(type, id);
 	equipped = kind && !isPotion(*kind) ? *kind : ItemKind::Club;
+}
+
+void ItemBag::Find(ItemKind kind, Journal& journal) {
+	Add(kind);
+	if (!isPotion(kind))
+		journal.LearnNote(FieldNote::Weapons);
 }

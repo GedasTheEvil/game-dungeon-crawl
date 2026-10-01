@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
 #include "../core/gameplay_config.h"
@@ -61,17 +66,17 @@ void Dungeon::updateMechanisms() {
 	int row = static_cast<int>(mapY);
 	Tile here = MapAt(col, row);
 
-	if (here.type == Key && isLockColour(here.attr) && Game().player->Alive()) {
+	if (here.type == Key && isLockColour(here.attr) && sim.player->Alive()) {
 		keysHeld |= lockBit(here.attr);
 		map[MapIndex(col, row)] = Tile{Empty, 0, 0};
 		char text[64];
 		snprintf(text, sizeof(text), "Found the %s key", lockColour(here.attr).gem);
-		Game().ShowStatus("%s", text);
-		Game().assets.sounds.keyPickup.Play();
-		Game().journal.LearnNote(FieldNote::Keys);
+		sim.events->Status("%s", text);
+		sim.events->Play(WorldSound::KeyPickup);
+		sim.journal->LearnNote(FieldNote::Keys);
 	}
 
-	if (here.type == RockFall && Game().player->Alive())
+	if (here.type == RockFall && sim.player->Alive())
 		startRockFall(MapIndex(col, row));
 	// A reckless walker sets one off too (cowards keep out, flyers pass over, a leaper is in the air).
 	for (const Monster& mon : monsters)
@@ -88,7 +93,7 @@ void Dungeon::updateMechanisms() {
 		if (next.type == Gate && gateState(next) == GateState::Closed && isLockColour(next.attr) &&
 			(keysHeld & lockBit(next.attr)) != 0 && gap < GATE_APPROACH) {
 			startOpeningGate(MapIndex(col + dir, row));
-			Game().assets.sounds.gateOpen.Play();
+			sim.events->Play(WorldSound::GateOpen);
 		}
 	}
 
@@ -108,7 +113,7 @@ void Dungeon::startRockFall(int cell) {
 		return;
 	setRockState(map[cell], RockState::Falling);
 	fallingRocks.push_back({cell, GameClock::now()});
-	Game().assets.sounds.rockRumble.Play();
+	sim.events->Play(WorldSound::RockRumble);
 }
 //======================================================================================
 void Dungeon::updateRocks() {
@@ -123,13 +128,13 @@ void Dungeon::updateRocks() {
 		int row = it->cell / MAP_WIDTH;
 		float centreX = static_cast<float>(col) + 0.5f;
 		auto floorY = static_cast<float>(row);
-		Game().assets.sounds.rockCrash.Play();
+		sim.events->Play(WorldSound::RockCrash);
 		float dx = std::fabs(mapX - centreX);
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
-			Game().player->Alive()) {
+			sim.player->Alive()) {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
-			Game().player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, true);
-			Game().ShowStatus("%s", crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
+			sim.player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, *sim.events, true);
+			sim.events->Status("%s", crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
 		}
 		for (Monster& mon : monsters) { // walkers under it, a leaper in the air too (a jump does not dodge it)
 			const float monDx = std::fabs(mon.CentreX() - centreX);
@@ -156,7 +161,7 @@ void Dungeon::openGates(int colour) {
 			any = true;
 		}
 	if (any)
-		Game().assets.sounds.gateOpen.Play();
+		sim.events->Play(WorldSound::GateOpen);
 }
 //======================================================================================
 void Dungeon::bumpGate(int col, int row) {
@@ -166,7 +171,7 @@ void Dungeon::bumpGate(int col, int row) {
 
 	if (gate.attr != BOSS_LOCK && (keysHeld & lockBit(gate.attr)) != 0) {
 		startOpeningGate(MapIndex(col, row));
-		Game().assets.sounds.gateOpen.Play();
+		sim.events->Play(WorldSound::GateOpen);
 		return;
 	}
 
@@ -181,8 +186,8 @@ void Dungeon::bumpGate(int col, int row) {
 	else
 		snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", lockColour(gate.attr).gem,
 				 lockColour(gate.attr).gem);
-	Game().ShowStatus("%s", text);
-	Game().assets.sounds.gateLocked.Play();
+	sim.events->Status("%s", text);
+	sim.events->Play(WorldSound::GateLocked);
 }
 //======================================================================================
 bool Dungeon::PullLever() {
@@ -195,11 +200,11 @@ bool Dungeon::PullLever() {
 		return true; // pulled already: the gates stay open
 
 	pullLever(map[MapIndex(col, row)]);
-	Game().assets.sounds.lever.Play();
+	sim.events->Play(WorldSound::Lever);
 	openGates(lever.attr);
 	char text[64];
 	snprintf(text, sizeof(text), "Somewhere a %s gate grinds open", lockColour(lever.attr).gem);
-	Game().ShowStatus("%s", text);
+	sim.events->Status("%s", text);
 	return true;
 }
 //======================================================================================
@@ -210,7 +215,7 @@ void Dungeon::drawKeyTile(int i, int j) {
 	enterPropSpace();
 	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
 	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
-	showModel(colourModel(Game().assets.mechanisms.key, tile.attr));
+	showModel(colourModel(sim.assets->mechanisms.key, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
@@ -231,8 +236,8 @@ void Dungeon::drawGateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, lift, 0);
-	showModel(tile.attr == BOSS_LOCK ? Game().assets.mechanisms.bossGate.get()
-									 : colourModel(Game().assets.mechanisms.gate, tile.attr));
+	showModel(tile.attr == BOSS_LOCK ? sim.assets->mechanisms.bossGate.get()
+									 : colourModel(sim.assets->mechanisms.gate, tile.attr));
 	glPopMatrix();
 }
 //======================================================================================
@@ -240,10 +245,10 @@ void Dungeon::drawLeverTile(int i, int j) {
 	Tile tile = MapAt(i, j);
 	glPushMatrix();
 	enterPropSpace();
-	showModel(colourModel(Game().assets.mechanisms.leverBase, tile.attr));
+	showModel(colourModel(sim.assets->mechanisms.leverBase, tile.attr));
 	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
 	glRotatef(leverPulled(tile) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
-	showModel(Game().assets.mechanisms.leverHandle.get());
+	showModel(sim.assets->mechanisms.leverHandle.get());
 	glPopMatrix();
 }
 //======================================================================================
@@ -260,7 +265,7 @@ void Dungeon::drawRockFallTile(int i, int j) {
 			float t = static_cast<float>(GameClock::now());
 			glTranslatef(0.01f * std::sin(t * 0.09f), 0.f, 0.f);
 		}
-		showModel(Game().assets.mechanisms.crack.get());
+		showModel(sim.assets->mechanisms.crack.get());
 		glPopMatrix();
 	}
 
@@ -276,7 +281,7 @@ void Dungeon::drawRockFallTile(int i, int j) {
 	if (rockY >= 0.f) {
 		glTranslatef(0, rockY, ROCK_DEPTH);
 		glRotatef(static_cast<float>(cell % 7) * 50.f, 0, 1, 0); // fallen rocks do not all look the same
-		showModel(Game().assets.mechanisms.rock.get());
+		showModel(sim.assets->mechanisms.rock.get());
 	}
 	glPopMatrix();
 }

@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
-#include "../state/game_state.h"
 #include "../world/progression.h"
 
 namespace {
@@ -19,13 +18,13 @@ float PlayerStats::LevelProgress() const { return levelProgress(level, XP); }
 
 int PlayerStats::RiddleXP() const { return riddleXP(level); }
 
-void PlayerStats::AddXP(int xp) {
+void PlayerStats::AddXP(int xp, WorldEvents& events) {
 	XP += xp;
-	while (AdvanceLevel())
+	while (AdvanceLevel(events))
 		;
 }
 
-void PlayerStats::UpdateStamina() {
+void PlayerStats::UpdateStamina(WorldEvents& events) {
 	if (!Alive()) {
 		sprinting = false;
 		sprint_requested = false;
@@ -34,7 +33,7 @@ void PlayerStats::UpdateStamina() {
 
 	if (!sprint_requested || stamina <= 0) {
 		if (sprint_requested)
-			RefuseStamina();
+			RefuseStamina(events);
 		sprinting = false;
 		RegenerateStamina();
 		return;
@@ -91,9 +90,9 @@ void PlayerStats::AddStamina(int value) {
 		SetStamina(stamina + value);
 }
 
-void PlayerStats::RefuseStamina() {
+void PlayerStats::RefuseStamina(WorldEvents& events) {
 	stamina_refused_ms = GameClock::now();
-	Game().journal.LearnNote(FieldNote::Stamina);
+	events.Note(FieldNote::Stamina);
 }
 
 float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
@@ -115,7 +114,7 @@ void PlayerStats::AddArmor(int na) { Armor += na; }
 
 int PlayerStats::HitDamage(int dmg, bool ignoreArmor) const { return std::max(1, ignoreArmor ? dmg : dmg - Armor); }
 
-bool PlayerStats::AdvanceLevel() {
+bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 	if (XP >= LevelXP(level + 1))
 		level++;
 	else
@@ -132,8 +131,8 @@ bool PlayerStats::AdvanceLevel() {
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 
-	Game().ShowStatus("Now you are level %d", level);
-	Game().journal.LearnNote(FieldNote::Levels);
+	events.Status("Now you are level %d", level);
+	events.Note(FieldNote::Levels);
 
 	return true;
 }

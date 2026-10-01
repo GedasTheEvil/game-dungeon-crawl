@@ -7,6 +7,7 @@
 #include "decor.h"
 #include "level.h"
 #include "view_window.h"
+#include "sim_links.h"
 #include <memory>
 #include <vector>
 
@@ -22,6 +23,7 @@ constexpr int MAX_MONSTERS = 32; // live monster slots; the campaign's busiest l
 struct HitboxView {
 	float reach = 0.f;
 	bool fromEdge = true;
+	int facing = 1; // the player looks -1 left, +1 right
 };
 
 class Dungeon {
@@ -36,7 +38,10 @@ class Dungeon {
 	bool torch[MAP_CELL_COUNT] = {};
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
 	LadderCell ladder[MAP_CELL_COUNT];
+	SimLinks sim; // the player, journal, assets, ... the world was given (Link)
 	float mapX, mapY;
+	int levelNumber = 1; // the campaign level loaded (campaign.h); a level loaded by path keeps the last number
+	bool won = false;	 // the ankh was taken
 	// Solid rock for the drawing: a wall, or outside the level.
 	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; }
 	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
@@ -56,6 +61,11 @@ class Dungeon {
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
+	[[nodiscard]] MonsterLinks monsterLinks() const { return {sim.player, sim.journal, sim.events, levelNumber}; }
+	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
+	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
+	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
+	void rewardKill(Monster& mon);			  // the player killed it: journal, XP, maybe a weapon chest
 	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;
 	void noteSeenMonsters(); // the monsters on screen go in the journal
@@ -145,17 +155,22 @@ class Dungeon {
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
 	float treasureSpin = 0.f;  // degrees: the item turning over a treasure chest
-	// The monster tiles in the drawn window (10 x 6 cells round the player) spawn their monsters (SpawnMonster).
+	// The monster tiles in the gameplay window (ViewWindow, 10 x 6 cells round the player) spawn their monsters.
 	void spawnInView();
 	void updateAnimations(); // the portal scroll, the riddle mark, the treasure items
 
   public:
 	Dungeon();
 	~Dungeon();
+	void Link(const SimLinks& links) { sim = links; } // once, before the first level
 	bool Load(const char* filename);
 	void LoadGrid(const LevelGrid& grid, const char* levelName); // levelName seeds the decorations
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
+	[[nodiscard]] int LevelNumber() const { return levelNumber; }
+	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
+	[[nodiscard]] bool Won() const { return won; }
+	void ClearWin() { won = false; } // a new game or a scenario level
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off

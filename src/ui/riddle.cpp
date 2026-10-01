@@ -199,7 +199,7 @@ void Riddle::Ask() {
 	note.question = shown.question;
 	note.answers = shown.answers;
 	note.hint = shown.hint;
-	note.level = Game().curMap;
+	note.level = Game().dungeon.LevelNumber();
 	note.lateXP = lateRiddleXP(reward);
 	journalIndex = Game().journal.MeetRiddle(note);
 	answer.clear();
@@ -239,7 +239,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			return;
 		if (CheckAnswer()) {
 			Game().journal.Solve(journalIndex, late, answer);
-			Game().player->stats.AddXP(reward);
+			Game().player->stats.AddXP(reward, Game().events);
 			if (late) {
 				Game().ui.screen = Screen::Journal;
 				Game().ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");

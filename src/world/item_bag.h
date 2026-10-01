@@ -10,6 +10,8 @@
 #include <iosfwd>
 #include <optional>
 
+class Journal;
+
 // Weapon levels: going from level L to L + 1 takes 1 + L(L + 1)/2 copies collected (2, 4, 7, 11). Each level adds
 // the weapon's growth share of its base damage: the club grows most, the sword least (it starts strongest).
 constexpr int MAX_WEAPON_LEVEL = 5;
@@ -48,6 +50,7 @@ class ItemBag {
 	ItemBag() { Reset(); }
 	void Reset(); // a new game: only the club, in hand
 	void Add(ItemKind kind) { counts[itemIndex(kind)]++; }
+	void Find(ItemKind kind, Journal& journal); // found in a chest: added, a weapon writes the journal's weapons note
 	[[nodiscard]] int Count(ItemKind kind) const { return counts[itemIndex(kind)]; }
 	[[nodiscard]] int Level(ItemKind kind) const { return levels[itemIndex(kind)]; }
 	[[nodiscard]] ItemKind Equipped() const { return equipped; }

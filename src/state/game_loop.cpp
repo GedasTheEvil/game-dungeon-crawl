@@ -37,9 +37,7 @@ void updateAttack() {
 		player.attackStartMs = -1;
 }
 
-} // namespace
-
-void Update() {
+void tick() {
 	if (!Game().cacheLoaded) {
 		Game().Load();
 		glutPostRedisplay();
@@ -69,9 +67,17 @@ void Update() {
 		updateAttack();
 	}
 
-	Game().player->stats.UpdateStamina();
+	Game().player->stats.UpdateStamina(Game().events);
 	Game().dungeon.AnimateMonsters();
 	Game().player->Animate();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());
 	glutPostRedisplay();
+}
+
+} // namespace
+
+void Update() {
+	tick();
+	if (Game().cacheLoaded)
+		Game().ApplyWorldEvents();
 }

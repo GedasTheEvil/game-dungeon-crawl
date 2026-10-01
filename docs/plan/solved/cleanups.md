@@ -1,7 +1,7 @@
 # Stages 6 (part), 12 and 13: Game() in the renderer, smaller cleanups, unit tests
 
 Status: implemented 2026-09-30, verified in play 2026-09-30. Stages 6, 12 and 13 of the
-[code structure review](../code-structure-review.draft.md).
+[code structure review](code-structure-review.md).
 
 ## Stage 12, smaller cleanups (`c2c8f15`)
 

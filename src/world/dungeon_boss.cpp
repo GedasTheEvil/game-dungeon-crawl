@@ -1,7 +1,12 @@
 // The boss fight (Dungeon::bossFight): the boss appears with its minions, summons more while it lives, and its death
 // opens the boss gates. docs/plan/solved/boss-rooms.md.
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include "../core/gameplay_config.h"
 #include "../graphics/fire.h"
 #include "../graphics/render_config.h"
@@ -19,7 +24,7 @@ int Dungeon::BossHealth() const { return bossFight.slot >= 0 ? monsters[bossFigh
 //======================================================================================
 void Dungeon::HurtBoss(int dmg) {
 	if (bossFight.slot >= 0)
-		monsters[bossFight.slot].takeHit(dmg);
+		playerHit(monsters[bossFight.slot], dmg, nullptr);
 }
 //======================================================================================
 int Dungeon::LivingMinions() const {
@@ -64,12 +69,12 @@ void Dungeon::updateBoss() {
 		spawn = slainBossTile(spawn.attr);
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
-		Game().ShowStatus("%s", "The guardian is slain!\nThe boss gate grinds open");
+		sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");
 		return;
 	}
 	const BossRules& rules = boss.Type()->boss;
 	int now = GameClock::now();
-	if (!boss.Alerted() || Game().hasWon || !Game().player->Alive() || now < bossFight.nextSummonMs)
+	if (!boss.Alerted() || won || !sim.player->Alive() || now < bossFight.nextSummonMs)
 		return;
 	bossFight.nextSummonMs = now + rules.summonMs;
 	if (bossFight.summoned < rules.summonCap && LivingMinions() < rules.maxAlive && summonMinion(boss))
@@ -95,7 +100,7 @@ void Dungeon::drawSummonEffects() {
 // stand in with no monster in it yet, else the boss's own cell. A minion summoned into a coffin takes the free coffin
 // nearest the boss, not behind the player and not beside them (on its row); with none free there is no summon.
 bool Dungeon::summonMinion(const Monster& boss) {
-	const MonsterType& kind = Game().assets.monsterTypes[boss.Type()->boss.minion];
+	const MonsterType& kind = sim.assets->monsterTypes[boss.Type()->boss.minion];
 	const bool flyer = kind.locomotion == Locomotion::Fly;
 	const int row = boss.Row();
 	const auto bossCol = static_cast<int>(std::floor(boss.CentreX()));
@@ -122,9 +127,9 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		Monster* slot = best >= 0 ? freeMonsterSlot() : nullptr;
 		if (slot == nullptr)
 			return false;
-		slot->Spawn(kind, best, row);
+		slot->Spawn(kind, best, row, monsterLinks(), sim.random->effects);
 		slot->MakeMinion(how);
-		Game().journal.SeeMove(boss.Type()->id, Game().curMap, CreatureMove::Summon);
+		sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 		return true;
 	}
 	int col = bossCol;
@@ -140,9 +145,9 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	Monster* slot = freeMonsterSlot();
 	if (slot == nullptr)
 		return false;
-	slot->Spawn(kind, col, row);
+	slot->Spawn(kind, col, row, monsterLinks(), sim.random->effects);
 	slot->MakeMinion(how);
-	(how == Summon::Drop ? Game().assets.sounds.summonDrop : Game().assets.sounds.summonDig).Play();
-	Game().journal.SeeMove(boss.Type()->id, Game().curMap, CreatureMove::Summon);
+	sim.events->Play(how == Summon::Drop ? WorldSound::SummonDrop : WorldSound::SummonDig);
+	sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 	return true;
 }

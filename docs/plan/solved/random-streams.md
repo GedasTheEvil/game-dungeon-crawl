@@ -1,7 +1,7 @@
 # Stage 9a: the game's random streams
 
 Status: implemented 2026-09-30 (`964ee27`), verified in play 2026-09-30. Stage 9 of the [code structure
-review](../code-structure-review.draft.md); the movement part: [fixed-timestep.md](fixed-timestep.md).
+review](code-structure-review.md); the movement part: [fixed-timestep.md](fixed-timestep.md).
 
 ## Why
 

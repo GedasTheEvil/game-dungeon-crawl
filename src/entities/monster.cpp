@@ -5,9 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "../state/game_state.h"
-#include "../ui/inventory.h"
-#include "../world/loot.h"
+#include "player.h"
 #include "../graphics/lighting.h"
 #include "../graphics/ink.h"
 #include "../graphics/render_config.h"
@@ -20,7 +18,8 @@ constexpr float HEALTH_BAR_HEIGHT = 1.5f;
 constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
 } // namespace
 
-void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
+void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects) {
+	links = world;
 	type = &kind;
 	if (!blood)
 		blood = std::make_unique<ParticleSystem>();
@@ -41,7 +40,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow) {
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
 	drop.reset();
-	playback = kind.model.SpawnPlayback(Game().random.effects);
+	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
 		stepTimer.Reset();
@@ -113,7 +112,7 @@ float Monster::HalfWidth() const {
 }
 
 float Monster::MeleeGap(float px, int dir) const {
-	return (NearEdge(dir) - px) * static_cast<float>(dir) - Game().player->HalfWidth();
+	return (NearEdge(dir) - px) * static_cast<float>(dir) - links.player->HalfWidth();
 }
 
 bool Monster::Nearby(float px, float py, float reach, int dir) const {
@@ -136,7 +135,7 @@ float Monster::TopY() const {
 	return static_cast<float>(row) + (lift + top) / RenderConfig::TILE_SIZE;
 }
 
-bool Monster::takeHit(int dmg, bool byPlayer) {
+bool Monster::takeHit(int dmg) {
 	const int scale = static_cast<int>(type->scale);
 	if (lurking())
 		wake();
@@ -146,43 +145,19 @@ bool Monster::takeHit(int dmg, bool byPlayer) {
 		blood->Splash(scale);
 	}
 
-	if (!Alive() && state != ModelState::Die) {
-		enter(ModelState::Die);
-		if (byPlayer) {
-			Game().journal.KillCreature(type->id, Game().curMap);
-			const int xp = minion ? Game().dungeon.MinionXP(type->xp) : type->xp;
-			Game().ShowStatus("Gained %d XP", xp);
-			Game().player->stats.AddXP(xp);
-			if (!minion && type->locomotion != Locomotion::Ambush) { // a mimic leaves its own chest
-				std::array<bool, WEAPON_KIND_COUNT> owned{};
-				for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-					owned[static_cast<size_t>(i)] = Game().ui.inventory->Count(itemAt(i)) > 0;
-				drop = RollKillDrop(type->isBoss(), owned, Game().random.gameplay);
-			}
-		}
-		type->model.dieSound.Play();
+	if (Alive() || state == ModelState::Die)
+		return false;
+	enter(ModelState::Die);
+	type->model.dieSound.Play();
 
-		// Death blood effect, stronger than a hit.
-		blood->Splash(scale);
-		for (int i = 0; i < 6; i++)
-			blood->Explode();
-	}
-
-	return Alive();
+	// Death blood effect, stronger than a hit.
+	blood->Splash(scale);
+	for (int i = 0; i < 6; i++)
+		blood->Explode();
+	return true;
 }
 
-bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
-	const DamageType main = mainType(mix);
-	if (Game().journal.TryDamage(type->id, Game().curMap, main)) {
-		const int rate = type->resist[static_cast<size_t>(main)];
-		const char* how = rate > NORMAL		? "weak to"
-						  : rate == NORMAL	? "no resistance to"
-						  : rate >= RESISTS ? "resists"
-											: "barely hurt by";
-		Game().ShowStatus("Journal: %s, %s %s", type->name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
-	}
-	return takeHit(resistedDamage(dmg, mix, type->resist));
-}
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) { return takeHit(resistedDamage(dmg, mix, type->resist)); }
 
 void Monster::StandInTrap() {
 	if (const int dmg = trapHurt.hit(); dmg > 0)
@@ -193,10 +168,10 @@ void Monster::TrapHit(int dmg) {
 	const int hundredths = dmg * type->trapDamagePct + trapDamageCarry;
 	trapDamageCarry = hundredths % 100;
 	if (hundredths >= 100)
-		takeHit(hundredths / 100, false);
+		takeHit(hundredths / 100); // no reward: the player must not farm kills with traps
 }
 
-void Monster::drawHealthBar() {
+void Monster::drawHealthBar(const Texture& bar) {
 	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
 	const float drawScale = type->scale * Ink::figureScale();
 	float y = type->model.referenceTop * drawScale + HEALTH_BAR_GAP;
@@ -213,7 +188,7 @@ void Monster::drawHealthBar() {
 			mv[c * 4 + r] = c == r ? s : 0.f;
 	glLoadMatrixf(mv);
 
-	Game().assets.textures.loadingBar.Bind();
+	bar.Bind();
 	Lighting::setEmissive(true);
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;
@@ -289,7 +264,7 @@ void Monster::Animate(float px, float py) {
 	}
 }
 
-void Monster::Draw() {
+void Monster::Draw(const TextureRegistry& textures) {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
@@ -297,14 +272,14 @@ void Monster::Draw() {
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD
-		drawHealthBar();
+		drawHealthBar(textures.loadingBar);
 
 	glScalef(scale, scale, scale);
 
 	auto drawBlood = [&] {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
-		Game().assets.textures.nullTex.Bind();
+		textures.nullTex.Bind();
 		blood->Draw();
 		glPopMatrix();
 	};

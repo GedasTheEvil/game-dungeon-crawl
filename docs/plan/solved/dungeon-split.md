@@ -1,7 +1,7 @@
 # Stage 5: break up Dungeon
 
 Status: implemented 2026-09-30 (the parts that pay off now, see below), verified in play 2026-09-30. Stage 5 of the
-[code structure review](../code-structure-review.draft.md).
+[code structure review](code-structure-review.md).
 
 ## Why
 

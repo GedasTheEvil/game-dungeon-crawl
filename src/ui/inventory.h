@@ -83,6 +83,7 @@ class Inventory {
 	[[nodiscard]] ItemKind EquippedKind() const { return bag.Equipped(); }
 	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // tint of the shared potion model
 	[[nodiscard]] int Count(ItemKind kind) const { return bag.Count(kind); }
+	ItemBag& Bag() { return bag; } // what the world adds to (SimLinks)
 	[[nodiscard]] int Level(ItemKind kind) const { return bag.Level(kind); }
 	// Weapon damage with its level bonus.
 	[[nodiscard]] int EquippedDamage() const;

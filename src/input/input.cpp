@@ -14,11 +14,11 @@ int lastMy = 0;
 
 namespace {
 void startJump() {
-	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().hasWon)
+	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().dungeon.Won())
 		return;
 
 	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST) {
-		Game().player->stats.RefuseStamina();
+		Game().player->stats.RefuseStamina(Game().events);
 		return;
 	}
 
@@ -52,6 +52,11 @@ bool isMove(GameplayAction action) {
 class PlayerActionController {
   public:
 	static void execute(GameplayAction action) {
+		run(action);
+		Game().ApplyWorldEvents(); // the riddle opens, a status line shows, before the next tick
+	}
+
+	static void run(GameplayAction action) {
 		float moveMultiplier = Game().player->stats.SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:

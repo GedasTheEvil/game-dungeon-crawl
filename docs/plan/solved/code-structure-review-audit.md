@@ -1,10 +1,10 @@
 # Code structure audit
 
 Re-checked 2026-09-30 at `bfd0ec8` (after the teleporter, boss framework, hitboxes, trap fix and HUD redesign), then
-updated for [stage 1](solved/layered-build.md) (`229f2fa`). First version: `743fff9`. Line numbers drift as the code changes,
+updated for [stage 1](layered-build.md) (`229f2fa`). First version: `743fff9`. Line numbers drift as the code changes,
 so re-check an area before planning a change to it. Marks: **fixed**, **worse** (grew since the first audit),
-**new** (not in the first audit). Research to compare against: [the research](code-structure-review-patterns.draft.md).
-Back to [the plan](code-structure-review.draft.md).
+**new** (not in the first audit). Research to compare against: [the research](code-structure-review-patterns.md).
+Back to [the plan](code-structure-review.md).
 
 ## Size
 
@@ -197,7 +197,7 @@ After stage 1, `liblevel` and `librender` are clean. The rest:
 * `font.cpp` `vsprintf`: **fixed** (`vsnprintf`).
 * Fixed `char[]` buffers with `snprintf`; `SaveName{char name[25]}` with `strncpy`. **New bug:** `Game().Load()`
   reads `f >> saveName.name` into the 25-byte buffer with no width limit (`game_state.cpp:58`); fixed on its own, see
-  [the plan](code-structure-review.draft.md#decided).
+  [the plan](code-structure-review.md#decided).
 
 ### Save format
 
@@ -215,7 +215,7 @@ After stage 1, `liblevel` and `librender` are clean. The rest:
 ## Walker vs game
 
 The checker's `Walker` (`level_check.cpp:37-138`) against `Dungeon::Move` and the mechanisms. Decided and done in
-[stage 10](solved/movement-model.md): 1, 2, 3, 4, 6, 7, 8, 9, 14 fixed; 5, 10, 12, 13 kept with a reason.
+[stage 10](movement-model.md): 1, 2, 3, 4, 6, 7, 8, 9, 14 fixed; 5, 10, 12, 13 kept with a reason.
 
 1. Jumps only over a gap; the game can hop spikes and death cells that have a floor.
 2. Never jumps from a ladder; the game does.
@@ -235,7 +235,7 @@ The checker's `Walker` (`level_check.cpp:37-138`) against `Dungeon::Move` and th
 
 ## Tile descriptions
 
-Where tile types are described today (input for [stage 3](code-structure-review.draft.md#stages)):
+Where tile types are described today (input for [stage 3](code-structure-review.md#stages)):
 
 | Place | Per-type data |
 |---|---|

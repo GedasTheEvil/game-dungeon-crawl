@@ -1,7 +1,7 @@
 # Stage 1: layered build and shared libraries
 
 Status: implemented 2026-09-30 (see [Implementation](#implementation)), verified in play 2026-09-30 (up to level
-9). Stage 1 of the [code structure review](../code-structure-review.draft.md).
+9). Stage 1 of the [code structure review](code-structure-review.md).
 
 ## Why
 

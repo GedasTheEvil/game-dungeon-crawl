@@ -1,5 +1,10 @@
 #include "dungeon.h"
-#include "../state/game_state.h"
+#include "../state/assets.h"
+#include "../entities/player.h"
+#include "item_bag.h"
+#include "journal.h"
+#include "rng.h"
+#include "world_events.h"
 #include "../core/gameplay_config.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
@@ -31,7 +36,7 @@ Tile Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), st
 void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].attr = value; }
 //======================================================================================
 void Dungeon::resetPlayerMotion() {
-	JumpState& jump = Game().player->jump;
+	JumpState& jump = sim.player->jump;
 	jump.jumping = false;
 	jump.falling = false;
 	jump.velocity = 0.f;
@@ -53,7 +58,7 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(mapX, mapY).type != Ladder && !Game().player->jump.jumping) {
+	if (Map(mapX, mapY).type != Ladder && !sim.player->jump.jumping) {
 		// Climbing steps leave float drift (38.9999 for 39): without the snap a jump off the ladder lands a hair
 		// below the floor top, falls and ends up inside the floor tile.
 		float nearestRow = std::round(mapY);
@@ -61,7 +66,7 @@ void Dungeon::UpdateMovementState() {
 			mapY = nearestRow;
 		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
 			!isSolidTile(Map(mapX, mapY - 1))) {
-			JumpState& jump = Game().player->jump;
+			JumpState& jump = sim.player->jump;
 			if (jump.fall_inc.TimePassed()) {
 				float floorY = std::floor(mapY);
 				mapY -= jump.fall_velocity;
@@ -72,23 +77,23 @@ void Dungeon::UpdateMovementState() {
 			jump.falling = true;
 		} else {
 			mapY = std::floor(mapY); // drop the sub-threshold remainder left by the last step
-			Game().player->jump.falling = false;
-			Game().player->jump.fall_velocity = FALL_STEP;
+			sim.player->jump.falling = false;
+			sim.player->jump.fall_velocity = FALL_STEP;
 		}
 	}
 
-	if (Game().player->jump.jumping) {
-		if (Game().player->jump.jump_inc.TimePassed()) {
-			if (Game().player->jump.dir_x != 0)
-				Move(Game().player->jump.dir_x * Game().player->jump.speed, 0);
+	if (sim.player->jump.jumping) {
+		if (sim.player->jump.jump_inc.TimePassed()) {
+			if (sim.player->jump.dir_x != 0)
+				Move(sim.player->jump.dir_x * sim.player->jump.speed, 0);
 
-			mapY += Game().player->jump.velocity;
-			Game().player->jump.velocity -= JUMP_GRAVITY_STEP;
+			mapY += sim.player->jump.velocity;
+			sim.player->jump.velocity -= JUMP_GRAVITY_STEP;
 
-			if (Game().player->jump.velocity <= 0 && mapY <= Game().player->jump.start_y) {
-				mapY = Game().player->jump.start_y;
-				Game().player->jump.jumping = false;
-				Game().player->jump.falling = false;
+			if (sim.player->jump.velocity <= 0 && mapY <= sim.player->jump.start_y) {
+				mapY = sim.player->jump.start_y;
+				sim.player->jump.jumping = false;
+				sim.player->jump.falling = false;
 			}
 		}
 	}
@@ -143,7 +148,7 @@ bool Dungeon::inTrap(float x, float y) const {
 void Dungeon::updateTraps() {
 	if (inTrap(mapX, mapY))
 		if (const int dmg = trapHurt.hit(); dmg > 0)
-			Game().player->TakeHit(dmg);
+			sim.player->TakeHit(dmg, *sim.events);
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&
 			inTrap(mon.CentreX(), static_cast<float>(mon.Row())))

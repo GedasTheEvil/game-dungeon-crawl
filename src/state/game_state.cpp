@@ -44,11 +44,12 @@ void GameState::Load() {
 	player = std::make_unique<Player>();
 	player->Load("characters/archeologist", std::move(playerTexture));
 	player->scale = PLAYER_SCALE;
+	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events});
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);
 
-	if (!dungeon.LoadCampaignLevel(curMap))
+	if (!dungeon.LoadCampaignLevel(dungeon.LevelNumber()))
 		LOG_WARNING("game", "Failed loading map");
 
 	assets.sounds.soundtrack.Play();
@@ -69,14 +70,62 @@ void GameState::ShowStatus(const char* format, ...) {
 	statusTimer.Reset();
 }
 //==============================================================
+namespace {
+Sound& soundOf(SoundBank& sounds, WorldSound sound) {
+	switch (sound) {
+	case WorldSound::ArrowHit:
+		return sounds.arrowHit;
+	case WorldSound::ArrowWall:
+		return sounds.arrowWall;
+	case WorldSound::KeyPickup:
+		return sounds.keyPickup;
+	case WorldSound::GateOpen:
+		return sounds.gateOpen;
+	case WorldSound::GateLocked:
+		return sounds.gateLocked;
+	case WorldSound::Lever:
+		return sounds.lever;
+	case WorldSound::RockRumble:
+		return sounds.rockRumble;
+	case WorldSound::RockCrash:
+		return sounds.rockCrash;
+	case WorldSound::Teleport:
+		return sounds.teleport;
+	case WorldSound::SummonDig:
+		return sounds.summonDig;
+	case WorldSound::SummonDrop:
+		return sounds.summonDrop;
+	}
+	return sounds.arrowHit;
+}
+} // namespace
+
+void GameState::ApplyWorldEvents() {
+	for (const WorldEvent& event : events.Take())
+		switch (event.kind) {
+		case WorldEvent::Kind::Sound:
+			soundOf(assets.sounds, event.sound).Play();
+			break;
+		case WorldEvent::Kind::Status:
+			ShowStatus("%s", event.text.c_str());
+			break;
+		case WorldEvent::Kind::Note:
+			journal.LearnNote(event.note);
+			break;
+		case WorldEvent::Kind::AskRiddle:
+			ui.riddle->Ask();
+			ui.screen = Screen::Riddle;
+			break;
+		}
+}
+//==============================================================
 void GameState::NewGame() {
 	PlayerHud::reset();
 	player->stats = PlayerStats{};
 	ui.inventory->Reset();
 	journal.Clear();
-	curMap = 1;
-	dungeon.LoadCampaignLevel(curMap);
-	hasWon = false;
+	dungeon.LoadCampaignLevel(1);
+	dungeon.ClearWin();
 	player->Reanimate();
 }
 //==============================================================
@@ -150,7 +199,7 @@ void GameState::Save(const char filename[]) {
 		return;
 	}
 
-	dump << curMap << " ";
+	dump << dungeon.LevelNumber() << " ";
 
 	player->stats.Dump(dump);
 	ui.inventory->Dump(dump);
@@ -175,8 +224,10 @@ void GameState::LoadSave(const char filename[]) {
 		return;
 	}
 
-	dump >> curMap;
-	LOG_INFOF("game", "Got MapNo : %d", curMap);
+	int levelNumber = 1;
+	dump >> levelNumber;
+	dungeon.SetLevelNumber(levelNumber);
+	LOG_INFOF("game", "Got MapNo : %d", levelNumber);
 
 	player->stats.LoadDump(dump);
 	LOG_INFO("game", "Done loading Stats");
@@ -184,7 +235,7 @@ void GameState::LoadSave(const char filename[]) {
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
 	journal.Load(dump);
-	dungeon.scatterDecorations(campaignLevelFile(curMap).c_str());
+	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str());
 	LOG_INFO("game", "Done loading map");
 	dump.close();
 	PlayerHud::reset();

@@ -279,7 +279,7 @@ void drawMouse(float x, float y, MouseInput m) {
 
 void saveToSlot(int slot) {
 	Game().Save(SaveSlots::FileName(slot).c_str());
-	Game().saves.Record(slot, Game().curMap);
+	Game().saves.Record(slot, Game().dungeon.LevelNumber());
 }
 } // namespace
 

@@ -1,7 +1,7 @@
 # Game code patterns: research notes
 
 Web research, 2026-09-30. General guidance for a ~14k-line C++ grid dungeon crawler with tools. Not checked against
-our code; for that see [the audit](code-structure-review-audit.draft.md). Back to [the plan](code-structure-review.draft.md).
+our code; for that see [the audit](code-structure-review-audit.md). Back to [the plan](code-structure-review.md).
 
 ## Game Programming Patterns (Nystrom) catalogue
 

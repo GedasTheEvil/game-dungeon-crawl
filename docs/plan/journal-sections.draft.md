@@ -26,7 +26,7 @@ Proposals, to confirm when the work starts:
 * Ribbon look (play test 2026-10-01: the flat drawn ribbons look meh): a ribbon texture (cloth weave, frayed
   swallowtail end, shading) tinted per section, instead of shapes drawn in game. Not urgent.
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
-* Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.md](handwritten-journal-font.md).
+* Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.md](solved/handwritten-journal-font.md).
 
 ## Sections
 
@@ -84,7 +84,7 @@ The creatures section does not have to wait for damage types: their resistance n
 4. Resistance notes, with or after [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md).
 
 Order with the other plans (changed 2026-10-01 after the stage 1 play test): stage 1, the
-[handwritten font](handwritten-journal-font.md), stage 3 (creatures; the sketch is ink-tinted in the font's
+[handwritten font](solved/handwritten-journal-font.md), stage 3 (creatures; the sketch is ink-tinted in the font's
 colour), then [screen-switch-tabs.draft.md](screen-switch-tabs.draft.md) and stage 2.
 
 ## Later, if the game grows

@@ -1,12 +1,12 @@
 # Handwritten journal font
 
-Status: done 2026-10-01, not yet verified in play. Kalam (SIL OFL) in pencil grey (`ui::PENCIL`, the draft map's
+Status: done 2026-10-01, verified in play 2026-10-01. Kalam (SIL OFL) in pencil grey (`ui::PENCIL`, the draft map's
 pencil) on the journal's pages. The creatures section's monster sketches use the same colour
-([journal-sections.draft.md](journal-sections.draft.md)).
+([journal-sections.draft.md](../journal-sections.draft.md)).
 
 ## Idea
 
-All text uses `fonts/papyrus.png` ([docs/ui.md](../ui.md#fonts)), the game's ancient Egypt look. The journal is the
+All text uses `fonts/papyrus.png` ([docs/ui.md](../../ui.md#fonts)), the game's ancient Egypt look. The journal is the
 archaeologist's own notebook, written by hand in pencil or ink, not in an Egyptian style. Its notes get a
 handwriting font of their own. The rest of the journal screen (title, ribbon names, page numbers) can stay papyrus.
 
@@ -18,7 +18,7 @@ handwriting font of their own. The rest of the journal screen (title, ribbon nam
   were made first; if there is no tool, write one under `tools/`.
 * Load it in the journal's fonts next to `ui::loadScreenFonts()`; colour like pencil (graphite grey) or ink (dark
   brown) on the page.
-* Document it in [docs/ui.md](../ui.md#fonts): which text uses which font.
+* Document it in [docs/ui.md](../../ui.md#fonts): which text uses which font.
 * Scenario screenshot of a journal page to check readability.
 
 ## Done

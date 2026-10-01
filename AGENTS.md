@@ -34,6 +34,9 @@ The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.
 Once a draft plan is implemented, rename it without the "draft" part ("<idea-slug>.md") and update links to it.
 Once the user confirms an implemented plan is solved (tested / verified), move it to "docs/plan/solved/" and update links to it.
+Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
+levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to
+"docs/plan/solved/" in the same commit.
 New draft plans can arrive (and get committed) at any time, also in parallel with other work. They are not blocking:
 ignore them, don't stop or change the current task because of them, and don't include them in your own commits.
 

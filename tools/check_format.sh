@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Checks that the source files are formatted, and that clang-format is stable on them
-# (docs/plan/formatting-fixes.md).
+# (docs/plan/solved/formatting-fixes.md).
 #
 #   tools/check_format.sh FILES...
 #

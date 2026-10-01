@@ -6,7 +6,7 @@ Status: idea, not started.
 
 * Some monsters give too much XP for how hard they are to kill. Nerf them, so XP follows the real danger.
 * Found in play: the mummy gave too much at 4500 and was cut to 2500 (lvl11, beaten with a sword,
-  [mummy-minion-monster.md](mummy-minion-monster.md)). Others are likely off too.
+  [solved/mummy-minion-monster.md](solved/mummy-minion-monster.md)). Others are likely off too.
 
 ## Current values
 

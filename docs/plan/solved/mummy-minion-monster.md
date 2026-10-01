@@ -1,7 +1,7 @@
 # Mummy monster: minion of an Anubis boss
 
-Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis boss is in too (step 4 of
-[solved/boss-rooms.md](solved/boss-rooms.md)).
+Status: solved (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis boss is in too (step 4 of
+[boss-rooms.md](boss-rooms.md)).
 
 ## What
 
@@ -9,7 +9,7 @@ Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anu
 * It lies on its back in an open, empty coffin (decor prop `coffin`, drawn on its spawn tile). When the player comes
   within 1.6 tiles on its row, or hits it, it wakes: sits up, swings its legs over the rim, climbs out towards the
   walk line, stands, then walks to the player and strikes. The empty coffin stays.
-* Separate from the decorative mummy by the sarcophagus: [statue-and-mummy-decorations.md](solved/statue-and-mummy-decorations.md).
+* Separate from the decorative mummy by the sarcophagus: [statue-and-mummy-decorations.md](statue-and-mummy-decorations.md).
 
 ## Decisions
 
@@ -33,6 +33,6 @@ Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anu
 ## Open questions
 
 * Done: the Anubis boss's mummies climb out of the coffins round him (`Summon::Coffin`,
-  [solved/boss-rooms.md](solved/boss-rooms.md) step 4). A mummy summoned any other way still skips the coffin and walks
+  [boss-rooms.md](boss-rooms.md) step 4). A mummy summoned any other way still skips the coffin and walks
   at once (`Monster::MakeMinion`).
 * Tune the stats in play.

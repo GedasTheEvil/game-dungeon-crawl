@@ -52,7 +52,7 @@ more HP (1000 -> 1500). See [Order of work](#order-of-work).
 
 | Boss | Minions | Notes |
 |---|---|---|
-| Anubis (final boss) | Mummies ([mummy-minion-monster.md](../mummy-minion-monster.md)) | |
+| Anubis (final boss) | Mummies ([mummy-minion-monster.md](mummy-minion-monster.md)) | |
 | Boss scarab | Scarabs | Like the giant scarab, but faster and stronger, with more HP. |
 | Vampire bat (a very large giant bat) | Small bats | Sucks blood: heals itself by part of the damage it deals. |
 
@@ -72,7 +72,7 @@ Tune from playthroughs.
 |---|---|---|
 | 5 | Boss scarab | Scarabs are native there; lvl5 had an Anubis once. |
 | 10 | Vampire bat | Bats and giant bats run through levels 7-9. |
-| 15 | Anubis | The finale, with the mummies ([mummy-minion-monster.md](../mummy-minion-monster.md)). |
+| 15 | Anubis | The finale, with the mummies ([mummy-minion-monster.md](mummy-minion-monster.md)). |
 
 Bosses are campaign only; `levelgen` does not place them at first.
 

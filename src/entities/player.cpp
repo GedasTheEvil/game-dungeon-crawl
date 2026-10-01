@@ -112,6 +112,7 @@ int Player::TakeHit(int dmg, bool ignoreArmor) {
 		lost = std::min(hit, stats.CurrentHP());
 		stats.LoseHP(hit);
 		blood.Splash(s);
+		Game().journal.LearnNote(FieldNote::Health);
 	}
 
 	if (!Alive() && state != ModelState::Die) {

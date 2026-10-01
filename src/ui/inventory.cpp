@@ -125,6 +125,12 @@ void Inventory::Reset() {
 
 Inventory::~Inventory() {}
 
+void Inventory::AddItem(ItemKind kind) {
+	bag.Add(kind);
+	if (!::isPotion(kind))
+		Game().journal.LearnNote(FieldNote::Weapons);
+}
+
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
 int Inventory::EquippedDamage() const { return weaponDamage(Model(bag.Equipped())->damage, bag.Level(bag.Equipped())); }
@@ -167,6 +173,7 @@ std::string Inventory::DrinkPotion(ItemKind potion) {
 
 	Game().assets.sounds.drink_s.Play();
 	bag.Use(potion, playerVitals());
+	Game().journal.LearnNote(FieldNote::Potions);
 
 	PotionGain gain = potionGain(potion);
 	char buf[64];

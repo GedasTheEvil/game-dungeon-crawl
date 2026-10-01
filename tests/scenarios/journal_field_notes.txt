@@ -1,0 +1,92 @@
+# The journal's field notes, each written the first time it matters: a hit, a level up, a jump without the stamina
+# for it, a potion drunk, a weapon found, a key picked up (tests/levels/classic1, key on the first chest's way).
+seed 4
+level tests/levels/rats
+wait 5
+key j
+wait 2
+click 88.2 59.9
+wait 2
+screenshot none_yet
+key j
+wait 2
+# Bitten by the rat (god mode only after it).
+walk right 1.5
+wait 3s
+expect journal_notes == 1
+god
+xp 1000
+expect journal_notes == 2
+wait 5
+# Jumps until one has no stamina left (20 each; the level up has just filled the bar).
+walk left 1.2
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+jump
+wait 38
+wait 5
+expect journal_notes == 3
+give potion 0
+hurt 10
+key h
+wait 5
+expect journal_notes == 4
+chest melee 1
+expect journal_notes == 5
+key j
+wait 5
+screenshot notes_1
+click 83.5 17
+wait 3
+screenshot notes_2
+click 83.5 17
+wait 3
+screenshot notes_3

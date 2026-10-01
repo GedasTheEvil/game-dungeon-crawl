@@ -48,6 +48,7 @@ constexpr float NOTE_STEP = 3.5f;
 constexpr size_t MAX_NOTE_LINES = 2; // of the description
 
 constexpr float QUESTION_STEP = 4.4f;
+constexpr float FIELD_NOTE_STEP = 4.6f;
 constexpr size_t MAX_QUESTION_LINES = 7;
 constexpr size_t MAX_HINT_LINES = 2;
 
@@ -144,6 +145,31 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	return "";
 }
 
+struct FieldNoteText {
+	const char* title;
+	const char* text;
+};
+// By FieldNote. The rules as the game has them (PlayerStats, ItemBag, the mechanisms); keep them in step.
+constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
+	{"Hit points", "Every bite, blow and trap costs me health: the red bar in the corner. When it runs out, the "
+				   "expedition is over. A healing potion brings some back (H drinks the right one), and a new level "
+				   "fills it up."},
+	{"Experience", "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
+				   "a new level: more health and more stamina, both filled up at once. Every fifth level my skin gets "
+				   "tougher, every eighth my arm stronger."},
+	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running "
+				"drains it all the time. When I walk or stand, it comes back by itself. A stamina potion (0) helps in "
+				"a hurry."},
+	{"Potions", "Health draughts heal, stamina draughts give me my breath back. The rare ones work for good: "
+				"Aphethamine for might, Stone Skin for armour, the Elixir of Life for more health. In a hurry, H and 0 "
+				"drink the right one."},
+	{"Weapons", "Club, sword, spear and bow, on the keys 1 to 4. Every copy of a weapon I find adds to the one I "
+				"have; with enough copies it can be upgraded in the inventory (U) for more damage. Each upgrade needs "
+				"twice the copies of the last."},
+	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
+					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
+}};
+
 // A tick before a solved riddle's answer, from its bottom left at (x, y).
 void tick(float x, float y, Color c) {
 	line(x, y + 1.4f, x + 1.f, y, c, 1.f, 2.f);
@@ -159,7 +185,7 @@ int JournalScreen::PageCount(Section s) const {
 		return static_cast<int>(Game().journal.Riddles().size());
 	if (s == Section::Creatures)
 		return static_cast<int>(Game().journal.Creatures().size());
-	return 0; // field notes come in a later stage
+	return static_cast<int>(Game().journal.Notes().size());
 }
 
 int JournalScreen::SpreadCount(Section s) const { return std::max(1, (PageCount(s) + 1) / 2); }
@@ -378,6 +404,8 @@ void JournalScreen::DrawPage(int side) {
 
 	if (section == Section::Creatures && EntryOnPage(side) >= 0)
 		DrawCreature(p, EntryOnPage(side));
+	if (section == Section::FieldNotes && EntryOnPage(side) >= 0)
+		DrawFieldNote(p, EntryOnPage(side));
 	int riddle = RiddleOnPage(side);
 	if (riddle >= 0) {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
@@ -478,6 +506,22 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	beginShapes();
 	line(p.x + PAGE_PAD + 4, top - 20.f, p.x + p.w - PAGE_PAD - 4, top - 20.f, INK_FADED, 0.8f, 1.f);
 	diamond(cx, top - 20.f, 0.6f, INK_RED, 1.f);
+}
+
+void JournalScreen::DrawFieldNote(const Rect& p, int index) {
+	const FieldNoteText& note = FIELD_NOTES[static_cast<size_t>(Game().journal.Notes()[static_cast<size_t>(index)])];
+	float top = p.y + p.h;
+	float cx = p.cx();
+	beginText();
+	textCentered(handHeading, cx, top - 13.f, note.title, PENCIL);
+	float y = top - 26.f;
+	for (const std::string& l : wrap(hand, note.text, p.w - 2 * PAGE_PAD)) {
+		text(hand, p.x + PAGE_PAD, y, l.c_str(), PENCIL);
+		y -= FIELD_NOTE_STEP;
+	}
+	beginShapes();
+	line(p.x + PAGE_PAD + 4, top - 18.f, p.x + p.w - PAGE_PAD - 4, top - 18.f, INK_FADED, 0.8f, 1.f);
+	diamond(cx, top - 18.f, 0.6f, INK_RED, 1.f);
 }
 
 // The model of each creature on the open pages, drawn flat in pencil: an outline, and once it was killed (seen up

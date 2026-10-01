@@ -62,8 +62,8 @@ class Inventory {
   public:
 	Inventory();
 	~Inventory();
-	void Reset(); // a new game: only the club
-	void AddItem(ItemKind kind) { bag.Add(kind); }
+	void Reset();				 // a new game: only the club
+	void AddItem(ItemKind kind); // found: a weapon writes the journal's weapons note
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);

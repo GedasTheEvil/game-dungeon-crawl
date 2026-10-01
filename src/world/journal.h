@@ -7,7 +7,7 @@
 #include <vector>
 
 // The archaeologist's notebook (docs/plan/journal-sections.draft.md): what the player went through, kept per save
-// game. The creatures and riddles sections so far.
+// game: creatures, riddles and field notes.
 
 // A riddle met at a gate. A copy, not an index into riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
@@ -49,6 +49,17 @@ struct JournalCreature {
 	[[nodiscard]] bool Saw(CreatureMove m) const { return (moves & (1U << static_cast<unsigned>(m))) != 0; }
 };
 
+// Field notes: the game's rules in the archaeologist's words, each written the first time it matters.
+enum class FieldNote : unsigned char {
+	Health,	 // the first hit taken
+	Levels,	 // the first level up
+	Stamina, // the first jump or sprint without the stamina for it
+	Potions, // the first potion drunk
+	Weapons, // the first weapon found
+	Keys,	 // the first key picked up
+};
+constexpr int FIELD_NOTE_COUNT = 6;
+
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);
 
@@ -70,9 +81,14 @@ class Journal {
 	}
 	[[nodiscard]] const std::vector<JournalCreature>& Creatures() const { return creatures; }
 
+	// Written once; the notes keep the order they were learnt in.
+	void LearnNote(FieldNote note);
+	[[nodiscard]] const std::vector<FieldNote>& Notes() const { return notes; }
+
 	void Clear() {
 		riddles.clear();
 		creatures.clear();
+		notes.clear();
 	}
 
 	// Saved after the dungeon. Saves from before the journal end before the tag: the journal stays empty.
@@ -82,6 +98,7 @@ class Journal {
   private:
 	std::vector<JournalRiddle> riddles;
 	std::vector<JournalCreature> creatures;
+	std::vector<FieldNote> notes;
 
 	JournalCreature& creature(int type, int level);
 };

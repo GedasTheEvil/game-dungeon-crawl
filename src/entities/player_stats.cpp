@@ -91,7 +91,10 @@ void PlayerStats::AddStamina(int value) {
 		SetStamina(stamina + value);
 }
 
-void PlayerStats::RefuseStamina() { stamina_refused_ms = GameClock::now(); }
+void PlayerStats::RefuseStamina() {
+	stamina_refused_ms = GameClock::now();
+	Game().journal.LearnNote(FieldNote::Stamina);
+}
 
 float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
 
@@ -130,6 +133,7 @@ bool PlayerStats::AdvanceLevel() {
 	level_up_ms = GameClock::now();
 
 	Game().ShowStatus("Now you are level %d", level);
+	Game().journal.LearnNote(FieldNote::Levels);
 
 	return true;
 }

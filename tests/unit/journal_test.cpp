@@ -124,3 +124,19 @@ TEST_CASE("a journal saved before the creatures loads its riddles") {
 	CHECK(j.Riddles()[0].solved);
 	CHECK(j.Creatures().empty());
 }
+
+TEST_CASE("field notes are written once, in the order they were learnt, and saved") {
+	Journal j;
+	j.LearnNote(FieldNote::Stamina);
+	j.LearnNote(FieldNote::Health);
+	j.LearnNote(FieldNote::Stamina);
+	REQUIRE(j.Notes().size() == 2);
+	CHECK(j.Notes()[0] == FieldNote::Stamina);
+	CHECK(j.Notes()[1] == FieldNote::Health);
+
+	std::stringstream s;
+	j.Dump(s);
+	Journal loaded;
+	loaded.Load(s);
+	CHECK(loaded.Notes() == j.Notes());
+}

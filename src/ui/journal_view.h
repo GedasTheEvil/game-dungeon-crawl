@@ -57,6 +57,7 @@ class JournalScreen {
 	void DrawRibbons();
 	void DrawPage(int side);
 	void DrawCreature(const ui::Rect& page, int index);
+	void DrawFieldNote(const ui::Rect& page, int index);
 	void DrawSketches();
 	void DrawSketch(int type, const ui::Rect& box, bool washed);
 	void DrawRiddle(const ui::Rect& page, int index, bool answerHovered, bool answerHeld);

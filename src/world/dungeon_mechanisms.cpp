@@ -68,6 +68,7 @@ void Dungeon::updateMechanisms() {
 		snprintf(text, sizeof(text), "Found the %s key", lockColour(here.attr).gem);
 		Game().ShowStatus("%s", text);
 		Game().assets.sounds.keyPickup.Play();
+		Game().journal.LearnNote(FieldNote::Keys);
 	}
 
 	if (here.type == RockFall && Game().player->Alive())

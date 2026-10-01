@@ -32,6 +32,7 @@ class JournalScreen {
 
 	bool fontsLoaded = false;
 	Font title, heading, body, small;
+	Font handHeading, hand, handSmall; // the archaeologist's handwriting, for what is written on the pages
 	Section section = Section::Creatures;
 	std::array<int, SECTION_COUNT> spread{}; // the spread open in each section
 	Hit hovered;

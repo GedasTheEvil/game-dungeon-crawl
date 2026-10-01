@@ -21,7 +21,7 @@ constexpr float JITTER = 0.07f;			 // pencil wobble, in cells
 constexpr float REFERENCE_RES_Y = 720.f; // line widths are in pixels at this height and this cell size
 constexpr float REFERENCE_CELL = 2.f;
 
-constexpr Color GRAPHITE = {0.22f, 0.21f, 0.20f};
+constexpr Color GRAPHITE = PENCIL;
 constexpr Color PENCIL_RED = {0.72f, 0.14f, 0.08f};
 constexpr Color LOCK_PENCILS[LOCK_COLOUR_COUNT] = {
 	{0.75f, 0.16f, 0.10f}, // red

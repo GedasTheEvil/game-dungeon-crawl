@@ -191,13 +191,18 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Hovered label | `TEXT_HOVER` |
 | Panel fill | `PANEL_TOP` → `PANEL_BOTTOM` |
 | Text on papyrus | `INK`, `INK_RED` (warnings, reward), `INK_GREEN`, `INK_FADED` (hints, disabled) |
+| Pencil: draft map, journal handwriting | `PENCIL` (alpha 0.7 for minor notes) |
 
 `menu.cpp` adds `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM` `{0.55, 0.45, 0.30}` for
 secondary text and footers.
 
 ## Fonts
 
-All text uses `fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas").
+All text uses `fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas"), except what the
+archaeologist writes by hand on the journal's pages: `fonts/kalam.png` (Kalam, SIL OFL, `fonts/kalam-OFL.txt`) in
+`PENCIL`, at the `heading` / `body` / `small` sizes. Its running heads, page numbers and buttons stay papyrus. A font
+sheet comes from a TrueType font with `python3 tools/textures/font_sheet.py FONT.ttf fonts/NAME.png` (same grid,
+baseline and cap height as the papyrus sheet).
 Each screen loads four sizes on its first frame (fonts need the GL context):
 
 | Font | `Load(file, size, spacing, true)` | Use |

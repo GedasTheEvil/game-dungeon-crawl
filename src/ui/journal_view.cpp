@@ -31,6 +31,9 @@ constexpr float CORNER = 7.f; // page turn corners
 constexpr float ANSWER_W = 36.f;
 constexpr float ANSWER_H = 7.f;
 
+constexpr const char* HAND_FONT = "fonts/kalam.png"; // Kalam (OFL, fonts/kalam-OFL.txt)
+constexpr float FADED = 0.7f;						 // alpha of pencil notes that matter less (level, hint)
+
 constexpr float QUESTION_STEP = 4.4f;
 constexpr size_t MAX_QUESTION_LINES = 7;
 constexpr size_t MAX_HINT_LINES = 2;
@@ -203,6 +206,9 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 void JournalScreen::Draw() {
 	if (!fontsLoaded) {
 		loadScreenFonts(title, heading, body, small, 7.f);
+		handHeading.Load(HAND_FONT, 5.f, 0.12f, true);
+		hand.Load(HAND_FONT, 3.6f, 0.08f, true);
+		handSmall.Load(HAND_FONT, 3.f, 0.06f, true);
 		fontsLoaded = true;
 	}
 	spread[static_cast<size_t>(section)] =
@@ -306,7 +312,7 @@ void JournalScreen::DrawPage(int side) {
 	}
 
 	if (PageCount(section) == 0 && side == 0)
-		textCentered(body, p.cx(), p.cy(), "Nothing written yet", INK_FADED);
+		textCentered(hand, p.cx(), p.cy(), "Nothing written yet", PENCIL, FADED);
 	beginShapes();
 
 	int riddle = RiddleOnPage(side);
@@ -323,19 +329,19 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 	float width = p.w - 2 * PAGE_PAD;
 
 	beginText();
-	textCentered(heading, cx, top - 13.f, r.theme.c_str(), INK);
+	textCentered(handHeading, cx, top - 13.f, r.theme.c_str(), PENCIL);
 	std::string found = "Level " + std::to_string(r.level);
-	textCentered(small, cx, top - 17.5f, found.c_str(), INK_FADED);
+	textCentered(handSmall, cx, top - 17.5f, found.c_str(), PENCIL, FADED);
 
 	std::vector<std::string> lines;
 	for (const std::string& q : r.question)
-		for (const std::string& l : wrap(body, q, width))
+		for (const std::string& l : wrap(hand, q, width))
 			lines.push_back(l);
 	if (lines.size() > MAX_QUESTION_LINES)
 		lines.resize(MAX_QUESTION_LINES);
 	float y = top - 25.f;
 	for (const std::string& l : lines) {
-		textCentered(body, cx, y, l.c_str(), INK);
+		textCentered(hand, cx, y, l.c_str(), PENCIL);
 		y -= QUESTION_STEP;
 	}
 
@@ -343,24 +349,24 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 		std::string hint = r.hint;
 		if (hint.empty())
 			hint = "the answer has " + std::to_string(r.answers.front().size()) + " characters";
-		std::vector<std::string> hintLines = wrap(small, "Hint: " + hint, width);
+		std::vector<std::string> hintLines = wrap(handSmall, "Hint: " + hint, width);
 		y -= 1.f;
 		for (size_t i = 0; i < hintLines.size() && i < MAX_HINT_LINES; i++) {
-			textCentered(small, cx, y, hintLines[i].c_str(), INK_FADED);
+			textCentered(handSmall, cx, y, hintLines[i].c_str(), PENCIL, FADED);
 			y -= 3.4f;
 		}
 	}
 
 	if (r.solved) {
 		std::string answer = "Answer: " + r.written;
-		float w = body.TextWidth(answer.c_str());
-		text(body, cx - w / 2 + 2.f, p.y + 13.f, answer.c_str(), INK_GREEN);
+		float w = hand.TextWidth(answer.c_str());
+		text(hand, cx - w / 2 + 2.f, p.y + 13.f, answer.c_str(), INK_GREEN);
 		if (r.solvedLate)
-			textCentered(small, cx, p.y + 8.5f, "answered later", INK_FADED);
+			textCentered(handSmall, cx, p.y + 8.5f, "answered later", PENCIL, FADED);
 		beginShapes();
 		tick(cx - w / 2 - 2.5f, p.y + 13.f, INK_GREEN);
 	} else {
-		textCentered(body, cx, p.y + 19.f, "Answer: ?", INK);
+		textCentered(hand, cx, p.y + 19.f, "Answer: ?", PENCIL);
 		beginShapes();
 	}
 

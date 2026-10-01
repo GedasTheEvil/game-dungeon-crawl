@@ -72,6 +72,8 @@ constexpr Color INK = {0.24f, 0.14f, 0.07f};
 constexpr Color INK_RED = {0.62f, 0.17f, 0.08f};
 constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
 constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
+// The archaeologist's own pencil: the draft map's sketch, the journal's handwriting.
+constexpr Color PENCIL = {0.22f, 0.21f, 0.20f};
 // Tile states.
 constexpr Color LAPIS_HOVER_TOP = {0.20f, 0.40f, 0.78f};
 constexpr Color LAPIS_HOVER_BOTTOM = {0.09f, 0.20f, 0.46f};

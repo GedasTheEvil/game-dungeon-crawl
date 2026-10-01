@@ -1,7 +1,8 @@
 # Handwritten journal font
 
-Status: draft 2026-10-01. Next after [journal-sections.draft.md](journal-sections.draft.md) stage 1; the creatures
-section waits for it: the monster sketches are tinted in the handwriting's colour.
+Status: done 2026-10-01, not yet verified in play. Kalam (SIL OFL) in pencil grey (`ui::PENCIL`, the draft map's
+pencil) on the journal's pages. The creatures section's monster sketches use the same colour
+([journal-sections.draft.md](journal-sections.draft.md)).
 
 ## Idea
 
@@ -20,7 +21,17 @@ handwriting font of their own. The rest of the journal screen (title, ribbon nam
 * Document it in [docs/ui.md](../ui.md#fonts): which text uses which font.
 * Scenario screenshot of a journal page to check readability.
 
+## Done
+
+* Candidates compared at the in-game size on papyrus (2026-10-01): Kalam, Patrick Hand, Caveat, Architects
+  Daughter, Gochi Hand, Shadows Into Light Two, Covered By Your Grace, Nothing You Could Do. Kalam reads best at the
+  `small` size and looks most like pencil; Patrick Hand was second, Caveat too small at the same cap height.
+* `tools/textures/font_sheet.py` makes the sheet (`fonts/kalam.png`), licence in `fonts/kalam-OFL.txt`.
+* Pencil, not ink: decided by the agent, matches the draft map. One constant to change (`ui::PENCIL`).
+* Handwritten: the riddle pages' theme, level, question, hint and answer, "Nothing written yet". Papyrus: the running
+  head, page numbers, the Answer button.
+
 ## Open
 
-* Pencil or ink.
 * Also for other "written by the archaeologist" text later (notes on the map)?
+* The credits sheet is an image; Kalam's credit is the licence file only so far.

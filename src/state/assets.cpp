@@ -56,8 +56,9 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::WalkJump,
 	 {0.1f, 0.2f, 0.75f}},
+	// Reckless like the Anubis boss, at the mummy's trap share: a crushing rock (500) can kill it.
 	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 350, 30, 1200, 10000, 19, 180, Locomotion::Walk,
-	 RED_BLOOD},
+	 RED_BLOOD, Courage::Reckless, 50},
 	{MonsterPlant,
 	 "Man-eater plant",
 	 "monsters/plant",

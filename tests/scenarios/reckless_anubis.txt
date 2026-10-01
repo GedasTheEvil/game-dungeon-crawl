@@ -1,0 +1,15 @@
+# The Anubis is reckless like the Anubis boss (tests/levels/reckless_anubis): it walks through the spikes to the
+# player and takes half their damage (trapDamagePct 50).
+seed 1
+god
+level tests/levels/reckless_anubis
+xp 200000
+wait 30
+walk to 2.3
+wait 9s
+expect nearest == 350
+wait 5s
+screenshot anubis_through_spikes
+expect nearest < 350
+expect nearest > 0
+expect xp == 200000

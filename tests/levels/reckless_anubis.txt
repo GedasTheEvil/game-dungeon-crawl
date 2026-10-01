@@ -1,0 +1,5 @@
+; An Anubis (col 6) behind floor spikes (col 4), the player (col 1): it walks through the spikes to the player
+; (tests/scenarios/reckless_anubis.txt).
+##############
+#S..^.n.....E#
+##############

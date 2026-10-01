@@ -320,7 +320,8 @@ class LevelBuilder {
 		static const Pick PICKS[] = {
 			{MonsterRat, 1, 5, 6},			{MonsterScarab, 1, 5, 4},	 {MonsterBat, 2, 6, 3},
 			{MonsterPlant, 3, 10, 2},		{MonsterWorm, 3, 7, 2},		 {MonsterGiantRat, 4, 10, 3},
-			{MonsterGiantScarab, 5, 10, 3}, {MonsterGiantBat, 6, 10, 2}, {MonsterAnubis, 8, 10, 1}};
+			{MonsterGiantScarab, 5, 10, 3}, {MonsterGiantBat, 6, 10, 2}, {MonsterMummy, 7, 10, 2},
+			{MonsterAnubis, 9, 10, 1}};
 		int total = 0;
 		for (const Pick& p : PICKS)
 			if (p.allowed(d))

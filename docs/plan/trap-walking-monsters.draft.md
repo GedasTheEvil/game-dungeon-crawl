@@ -12,8 +12,7 @@ A new per-type trait, **courage**, separate from `Locomotion`:
 * **Reckless**: walks straight through traps. The traps hurt it the same way they hurt the player, but less, by a
   per-type **trap resistance**.
 
-Locomotion says what a monster *can* do (walk, leap, fly), courage says whether it *wants* to step on a trap. A
-reckless jumper (none yet) would walk through traps and leap only over pits.
+Locomotion says what a monster *can* do (walk, leap, fly), courage says whether it *wants* to step on a trap.
 
 Reckless monsters:
 
@@ -45,4 +44,6 @@ Reckless monsters:
 ## Open questions
 
 * Any other reckless monsters besides the mummy and Anubis?
+* A reckless jumper (none yet): walk through traps, or still leap over them to take no damage? Decide when one
+  exists.
 * Does the rock reset after it falls on a monster, or stay `Fallen` as for the player?

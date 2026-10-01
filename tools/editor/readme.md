@@ -89,8 +89,9 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 10 | Giant scarab |
 | 11 | Boss scarab (boss) |
 | 12 | Vampire bat (boss) |
+| 13 | Mummy |
 
-Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
+Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. A mummy lies in an open coffin on its cell until the player comes within 2.5 cells (or hits it), climbs out, then walks like the others. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
 A boss (boss scarab, vampire bat) summons minions next to itself, on the side away from the player: some when it
 appears, then one every few seconds up to a limit. The boss scarab's scarabs dig out of the floor, the vampire bat's

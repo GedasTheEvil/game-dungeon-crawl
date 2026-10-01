@@ -6,14 +6,16 @@
 // Static props and wall decals scattered on empty floor cells when a level loads (see Dungeon::scatterDecorations).
 // Models and textures: models/decorations/decor_<name>.md3, textures/decorations/decor_<name>.png, built by
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
-constexpr int DECOR_COUNT = 15;
-constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
+constexpr int DECOR_COUNT = 16;
+constexpr int DECOR_SCATTERED = 15; // the first ones; the rest are placed on purpose
+constexpr int DECOR_WEB = 0;		// modelled in the upper left corner, needs a ceiling
 constexpr int DECOR_BRAZIER = 6;
 constexpr int DECOR_LAMP = 7;
-constexpr int DECOR_BES = 13; // his plumes reach up to a wall torch
+constexpr int DECOR_BES = 13;	  // his plumes reach up to a wall torch
+constexpr int DECOR_COFFIN = 15; // empty, on every mummy's spawn tile: it lies in there until it wakes
 constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",	  "pottery", "canopic", "rubble",  "sand",
 												  "skeleton", "brazier", "lamp",	"scrolls", "ushabti",
-												  "cat",	  "jackal",	 "osiris",	"bes",	   "sarcophagus"};
+												  "cat",	  "jackal",	 "osiris",	"bes",	   "sarcophagus", "coffin"};
 
 // The wall torch (models/decorations/decor_torch.md3, also built by decor.py) is not in this list:
 // Dungeon::scatterTorches places it on its own.

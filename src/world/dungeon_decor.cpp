@@ -33,7 +33,7 @@ constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
 constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the flame (world units)
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f, 0.f,	 0.15f, 0.2f, 0.1f,
-											 0.1f, 0.06f, 0.14f, 0.2f, 0.1f, 0.2f,	0.1f};
+											 0.1f, 0.06f, 0.14f, 0.2f, 0.1f, 0.2f,	0.1f, 0.f};
 
 uint32_t hashName(const char* s) { // FNV-1a
 	uint32_t h = 2166136261U;
@@ -71,6 +71,10 @@ void Dungeon::scatterDecorations(const char* levelName) {
 		for (int i = 0; i < MAP_WIDTH; i++) {
 			DecorCell& cell = decor[MapIndex(i, j)];
 			cell = DecorCell{};
+			if (MapAt(i, j).type == MonsterSpawn && MapAt(i, j).attr == MonsterMummy) {
+				cell.type = DECOR_COFFIN;
+				continue;
+			}
 
 			// Only empty cells the player can stand in (floor below).
 			if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
@@ -86,7 +90,8 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			bool webFits = ceiling; // lies flat on the back wall, tucked into a side wall's corner if there is one
 
 			h = mix(h);
-			int type = webFits ? static_cast<int>(h % DECOR_COUNT) : 1 + static_cast<int>(h % (DECOR_COUNT - 1));
+			int type =
+				webFits ? static_cast<int>(h % DECOR_SCATTERED) : 1 + static_cast<int>(h % (DECOR_SCATTERED - 1));
 			h = mix(h);
 			cell.type = static_cast<int8_t>(type);
 			if (type == DECOR_WEB)

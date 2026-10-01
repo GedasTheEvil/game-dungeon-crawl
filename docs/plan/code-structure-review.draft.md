@@ -2,7 +2,7 @@
 
 Status: all stages worked through 2026-09-30, verified in play. Done: 1, 2, 3 (verified in play), 4, 5,
 8, 10, 11, 12, the random streams of 9, part of 6. All questions decided 2026-10-01: held-key movement at 1.0
-tiles/s (9, [fixed-timestep.md](fixed-timestep.md)), `Game()` out of the world only (6), stage 7 as
+tiles/s (9, [fixed-timestep.md](solved/fixed-timestep.md)), `Game()` out of the world only (6), stage 7 as
 part of 6. Left to do: 9 (movement), 6 with 7. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
@@ -73,7 +73,7 @@ Rules for every stage:
 | 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](solved/dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
 | 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](solved/screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
 | 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | with stage 6 (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
-| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](solved/random-streams.md); movement implemented, waits for a playthrough: [fixed-timestep.md](fixed-timestep.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
+| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](solved/random-streams.md); movement done, verified in play: [fixed-timestep.md](solved/fixed-timestep.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
 | 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](solved/cleanups.md)); the rest: the world and entities only (see Decided) | 438 calls, the `game_state.h` hub | explicit dependencies |
 | 11 | **RAII for GL resources** | done: [gl-resources.md](solved/gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
 | 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | done: [cleanups.md](solved/cleanups.md) | see the audit | |

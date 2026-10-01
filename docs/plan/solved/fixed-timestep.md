@@ -1,9 +1,9 @@
 # Stage 9b: held-key movement on the fixed tick
 
-Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Implemented 2026-10-01 (points 1-5 bar the
-playthrough), see [Done](#done); waits for a playthrough of a few levels for the feel. Stage 9 of the
-[code structure review](code-structure-review.draft.md); the random streams part is done
-([random-streams.md](solved/random-streams.md)).
+Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Implemented 2026-10-01, see [Done](#done),
+verified in play 2026-10-01. Stage 9 of the
+[code structure review](../code-structure-review.draft.md); the random streams part is done
+([random-streams.md](random-streams.md)).
 
 ## The problem, in numbers
 
@@ -36,7 +36,7 @@ the level checker (`movement.h`) cannot model it.
    clears from the middle of a cell.
 5. Re-run everything that depends on timing: all scenarios, `make paths`, and a playthrough of a few levels for the
    feel (jumps over pits, rock falls, monster chases). The player gets faster than today, so monster speeds change
-   relative to the player: do this before [monster-strength.draft.md](monster-strength.draft.md) tunes them.
+   relative to the player: do this before [monster-strength.draft.md](../monster-strength.draft.md) tunes them.
 
 ## Also in this stage (small)
 

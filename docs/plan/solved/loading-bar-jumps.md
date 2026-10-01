@@ -1,6 +1,6 @@
 # Loading bar jumps forward and back near the end
 
-Status: implemented 2026-10-01, waits for a check in play.
+Status: implemented 2026-10-01, verified in play.
 
 ## The problem
 

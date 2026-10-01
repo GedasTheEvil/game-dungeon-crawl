@@ -1,6 +1,6 @@
 # Mummy monster: minion of an Anubis boss
 
-Status: implemented (2026-10-01), not yet verified in play. The Anubis boss itself is step 4 of
+Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis boss itself is step 4 of
 [boss-rooms.draft.md](boss-rooms.draft.md).
 
 ## What
@@ -13,7 +13,7 @@ Status: implemented (2026-10-01), not yet verified in play. The Anubis boss itse
 
 ## Decisions
 
-* Stats: speed 2.5, 150 HP, 20 damage, a slow swing (1600 ms), 4500 XP, scale 18. Threat 5 in `monsterThreat`.
+* Stats: speed 2.5, 150 HP, 20 damage, a slow swing (1600 ms), 2500 XP (was 4500: too much for its strength in play), scale 18. Threat 5 in `monsterThreat`.
 * Campaign: mummies in levels 11-15. The Anubis guard moved to level 13 on (lvl10's became a giant scarab, lvl11's
   and lvl12's mummies). `levelgen`: mummy from difficulty 7, Anubis from 9.
 * Glyph `u`, monster type 13 (`MonsterMummy`). The Anubis boss becomes type 14.

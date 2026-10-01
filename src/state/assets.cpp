@@ -110,7 +110,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	 150,
 	 20,
 	 1600,
-	 4500,
+	 2500,
 	 18,
 	 180,
 	 Locomotion::Entombed,

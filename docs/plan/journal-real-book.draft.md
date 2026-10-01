@@ -43,20 +43,20 @@ Proposals, to confirm when the work starts:
 * Notes as the reference does them: underlined heading per monster, dated entries (day / level instead of a date),
   a margin column with short labels (`SEEN`, `HIT`, `KILLED`, resistances), and a form block filled in as learnt
   ("WEAPON = ..., WEAK TO: ..., RESISTS: ...", blank fields left empty, like "FINDS:" in the reference).
-* Inks: blue for the text, red for numbers / IDs / page numbers, pencil for guesses and minor notes. Font stays
-  Kalam ([solved/handwritten-journal-font.md](solved/handwritten-journal-font.md)); check if block capitals read
-  better on the 160 x 100 canvas.
-* Riddles and field notes: same layout; a riddle's inscription could be a pasted rubbing / photo of the wall.
+* Inks: blue for the text, red for numbers / IDs / page numbers, pencil for guesses and minor notes. Decided
+  2026-10-01: the font stays Kalam ([solved/handwritten-journal-font.md](solved/handwritten-journal-font.md)), no
+  block capitals.
+* Decided 2026-10-01: riddles and field notes are text only, on the same grid paper; no photo or rubbing.
 * Optional wear, light: a dog-ear or small smudge, not the stains-everywhere look; the reference is clean.
 
 ## Page flip
 
 A 3D page turn instead of an instant swap: the page lifts at the corner, curls over the spine and lands on the
-other side, showing its back on the way. Options:
+other side, showing its back on the way.
 
-* A mesh page (grid strip) bent around a cylinder that moves across the spread (classic page curl), rendered with
-  the page's texture front and back. Pages drawn into render targets first.
-* Cheaper fallback: 2D fake (page scaled in x with a shading gradient and a shadow on the page below).
+Decided 2026-10-01: a real 3D page, no 2D fake. A mesh page (grid strip) bent around a cylinder that moves across
+the spread (classic page curl), rendered with the page's texture front and back. Pages drawn into render targets
+first.
 
 The stacked page edges could shift from right to left as the player goes through the book.
 

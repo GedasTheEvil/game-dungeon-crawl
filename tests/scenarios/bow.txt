@@ -1,6 +1,7 @@
 # The bow (tests/levels/archery): attack draws it, then an arrow flies on a parabola in the facing direction.
 # A shot with nothing in reach (3 tiles) lands on the floor ~2.5 tiles ahead: the plant (col 13) behind the
-# player is not hit. Facing it, the plant is aimed at and hit (its health bar shows, bars), then killed (xp).
+# player is not hit. Facing it, the plant is aimed at and hit (its health bar shows, bars), then killed (xp): ten
+# arrows, a plant barely feels a point (damage types).
 seed 1
 god
 level tests/levels/archery
@@ -41,6 +42,16 @@ screenshot aimed_flying
 wait 30
 expect bars == 1
 screenshot hit
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
+wait 70
+attack
 wait 70
 attack
 wait 70

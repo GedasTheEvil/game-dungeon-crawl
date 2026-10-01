@@ -163,9 +163,10 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Potions", "Health draughts heal, stamina draughts give me my breath back. The rare ones work for good: "
 				"Aphethamine for might, Stone Skin for armour, the Elixir of Life for more health. In a hurry, H and 0 "
 				"drink the right one."},
-	{"Weapons", "Club, sword, spear and bow, on the keys 1 to 4. Every copy of a weapon I find adds to the one I "
-				"have; with enough copies it can be upgraded in the inventory (U) for more damage. Each upgrade needs "
-				"twice the copies of the last."},
+	{"Weapons", "Club, sword, spear and bow, on the keys 1 to 4. The club bludgeons, the sword slashes, the spear "
+				"and the arrows pierce, and every creature takes each of them differently: I note it down. Every copy "
+				"of a weapon I find adds to the one I have; with enough copies it can be upgraded in the inventory (U) "
+				"for more damage. Each upgrade needs twice the copies of the last."},
 	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
 }};
@@ -495,6 +496,14 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	std::string hp = c.killed ? "~" + std::to_string(rough(t.maxHealth)) + " HP" : "HP ?";
 	std::string hit = c.hitBy ? "hits for ~" + std::to_string(rough(t.damage)) : "its hit ?";
 	notes.emplace_back(hp + "     " + hit, 1.f);
+	// How it takes each damage type, once a weapon of that main type has hit it.
+	std::string resist;
+	for (int d = 0; d < DAMAGE_TYPE_COUNT; d++) {
+		const auto type = static_cast<DamageType>(d);
+		resist += std::string(d > 0 ? "     " : "") + DAMAGE_TYPE_NAMES[static_cast<size_t>(d)] + " " +
+				  (c.Tried(type) ? resistanceWord(t.resist[static_cast<size_t>(d)]) : "?");
+	}
+	notes.emplace_back(resist, 1.f);
 	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
 		if (c.Saw(static_cast<CreatureMove>(m)))
 			notes.emplace_back(moveNote(static_cast<CreatureMove>(m), t), 1.f);

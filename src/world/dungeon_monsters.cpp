@@ -147,7 +147,7 @@ void Dungeon::DrawMonsters() {
 	}
 }
 //======================================================================================
-bool Dungeon::AttackNearest(int damage, float reach, int dir) {
+bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && mon.Nearby(mapX, mapY, reach, dir) &&
@@ -155,7 +155,7 @@ bool Dungeon::AttackNearest(int damage, float reach, int dir) {
 			nearest = &mon;
 	if (!nearest)
 		return false;
-	nearest->takeHit(damage);
+	nearest->TakeWeaponHit(damage, mix);
 	return true;
 }
 //======================================================================================

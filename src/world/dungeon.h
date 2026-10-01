@@ -134,6 +134,7 @@ class Dungeon {
 	struct Arrow {
 		float x0, y0, vx, vy;
 		int damage;
+		DamageMix mix;
 		int startMs;	  // GameClock time of the shot
 		float t = 0.f;	  // seconds flown so far
 		int stuckMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
@@ -179,10 +180,10 @@ class Dungeon {
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
 	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
-	bool AttackNearest(int damage, float reach, int dir); // reach in tiles (Item::Reach)
+	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir); // reach in tiles (Item::Reach)
 	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1),
 	// aimed at a monster up to aimRange tiles ahead.
-	void ShootArrow(int damage, int dir, float height, float aimRange);
+	void ShootArrow(int damage, const DamageMix& mix, int dir, float height, float aimRange);
 	void PickUp(); // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void Interact();

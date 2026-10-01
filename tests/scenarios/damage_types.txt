@@ -1,0 +1,44 @@
+# Damage types (tests/levels/hitbox_giant_scarab): the giant scarab (90 HP) takes the club's blunt normally, turns
+# the sword's blade and is weak to the spear's point. Each weapon's first hit writes its type down in the journal,
+# with a status line; the second club hit writes nothing new. The spear's hit kills it. Club 16 * 0.925 = 15, sword 35 * 0.725 = 25, spear 26 * 1.775 = 46.
+seed 1
+god
+level tests/levels/hitbox_giant_scarab
+give melee 1
+give melee 2
+key 1
+walk right 1
+wait 12s
+expect nearest == 90
+attack
+wait 40
+expect nearest == 75
+expect journal_tried == 1
+screenshot club_note
+wait 60
+attack
+wait 60
+expect nearest == 60
+expect journal_tried == 1
+key 2
+wait 5
+attack
+wait 60
+expect nearest == 35
+expect journal_tried == 2
+key 3
+wait 5
+attack
+wait 60
+expect nearest == 0
+expect xp == 2500
+expect journal_tried == 3
+key j
+wait 5
+screenshot journal
+# Kept in the save game.
+savegame damage.sav
+key j
+wait 5
+loadgame damage.sav
+expect journal_tried == 3

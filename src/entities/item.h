@@ -5,6 +5,7 @@
 #include "../core/sound.h"
 #include "../graphics/animated_model.h"
 #include "../graphics/textures.h"
+#include "../world/damage.h"
 
 // How a weapon is held and swung (ITEM_DEFS in assets.cpp, drawWeapon). Tilts in degrees from upright, towards the
 // facing side. An attack raises the weapon back to windupTilt, brings it down through strikeTilt, where the hit
@@ -26,6 +27,7 @@ class Item {
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
 	int damage = 1, range = 1;				  // weapons only; range in tenths of a tile (ITEM_DEFS)
+	DamageMix mix = {100, 0, 0};			  // weapons only
 	[[nodiscard]] float Reach() const { return 0.1f * static_cast<float>(range); } // tiles: melee reach, bow aim
 	WeaponMotion motion;														   // weapons only
 	Sound swingSound, strikeSound; // weapons: the attack begins; it hits (melee) or the arrow leaves

@@ -1,15 +1,14 @@
 # Monster journal
 
-Status: draft 2026-10-01. Done 2026-10-01 except the resistances (they wait for
-[damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md)) and the optional toast; verified
-in play. Data: `Journal::Creatures()` (`src/world/journal.h`), notes: `MonsterKind::note`
+Status: draft 2026-10-01. Done 2026-10-01, verified in play; the resistances and the toast (only for resistance
+notes) followed with [damage-types-and-resistances.md](damage-types-and-resistances.md), to verify in play. Data: `Journal::Creatures()` (`src/world/journal.h`), notes: `MonsterKind::note`
 (`src/world/monster_kinds.cpp`), page: `JournalScreen::DrawCreature` (`src/ui/journal_view.cpp`).
 
 ## Idea
 
 A full-screen bestiary next to the map and the inventory. The player learns about a monster type by fighting it:
 entries start empty and fill in as the player kills and hits monsters. It is how the player finds out the
-resistances from [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md) without a wiki.
+resistances from [damage-types-and-resistances.md](damage-types-and-resistances.md) without a wiki.
 
 ## Look
 
@@ -55,7 +54,7 @@ Optional: a status box toast when a new note is written ("Journal: scarab, resis
 
 ## Related
 
-* [damage-types-and-resistances.draft.md](damage-types-and-resistances.draft.md): the journal is where the
+* [damage-types-and-resistances.md](damage-types-and-resistances.md): the journal is where the
   resistances show; do it with or right after the damage types.
 * [monster-strength.draft.md](monster-strength.draft.md): HP and damage shown in the journal follow its retune.
 * [journal-sections.draft.md](journal-sections.draft.md): the journal as a whole notebook (creatures, riddles,

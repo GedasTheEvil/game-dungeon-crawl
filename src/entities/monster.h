@@ -5,6 +5,7 @@
 #include "../graphics/particles.h"
 #include "../core/timer.h"
 #include "trap_hurt.h"
+#include "../world/damage.h"
 #include <memory>
 
 // How a monster gets around. Only flyers cross pits; walkers stop at their edge, and at traps unless reckless
@@ -80,7 +81,8 @@ struct MonsterType {
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
-	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
+	int trapDamagePct = 100;			 // share of a trap's damage it takes (traps ignore armour); 0: immune
+	Resistances resist = NO_RESISTANCES; // how it takes each type of a weapon's damage
 	Rgb blood = {0.7f, 0.1f, 0.1f};
 	BossRules boss;
 	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }
@@ -193,6 +195,9 @@ class Monster {
 	[[nodiscard]] float TopY() const;
 	// From the player (byPlayer: their kill gains XP) or a trap.
 	bool takeHit(int dmg, bool byPlayer = true);
+	// A hit with a weapon: its damage after resistances (resistedDamage), the journal learns how the weapon's main
+	// type works on it.
+	bool TakeWeaponHit(int dmg, const DamageMix& mix);
 	// Each tick it stands in a spike or death trap (see TrapHurt).
 	void StandInTrap();
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must

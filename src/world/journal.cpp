@@ -4,7 +4,7 @@
 
 namespace {
 constexpr const char* TAG = "journal";
-constexpr int VERSION = 3; // 1: riddles only, 2: and creatures
+constexpr int VERSION = 4; // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -55,6 +55,14 @@ JournalCreature& Journal::creature(int type, int level) {
 	return creatures.back();
 }
 
+bool Journal::TryDamage(int type, int level, DamageType damage) {
+	JournalCreature& c = creature(type, level);
+	if (c.Tried(damage))
+		return false;
+	c.tried |= 1U << static_cast<unsigned>(damage);
+	return true;
+}
+
 void Journal::LearnNote(FieldNote note) {
 	if (std::find(notes.begin(), notes.end(), note) == notes.end())
 		notes.push_back(note);
@@ -72,7 +80,8 @@ void Journal::Dump(std::ostream& out) const {
 	}
 	out << creatures.size() << '\n';
 	for (const JournalCreature& c : creatures)
-		out << c.type << ' ' << c.level << ' ' << c.killed << ' ' << c.hitBy << ' ' << c.moves << '\n';
+		out << c.type << ' ' << c.level << ' ' << c.killed << ' ' << c.hitBy << ' ' << c.moves << ' ' << c.tried
+			<< '\n';
 	out << notes.size();
 	for (FieldNote n : notes)
 		out << ' ' << static_cast<int>(n);
@@ -98,7 +107,7 @@ void Journal::Load(std::istream& in) {
 		return;
 	for (size_t i = 0; i < count; i++) {
 		JournalCreature c;
-		if (!(in >> c.type >> c.level >> c.killed >> c.hitBy >> c.moves))
+		if (!(in >> c.type >> c.level >> c.killed >> c.hitBy >> c.moves) || (version >= 4 && !(in >> c.tried)))
 			return;
 		creatures.push_back(c);
 	}

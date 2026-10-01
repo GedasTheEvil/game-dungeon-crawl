@@ -152,28 +152,62 @@ const struct {
 	{MonsterAnubisBoss, {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 };
 
+// How each monster type takes blunt, slash and pierce damage (docs/plan/damage-types-and-resistances.md); a type
+// not listed takes all of it normally. Each weapon is the best against some: the club against bats, mimics and the
+// Anubis guard, the sword against worms, plants and mummies, the spear (and the bow) against scarabs and the Anubis
+// boss.
+const struct {
+	MonsterTypeId id;
+	Resistances resist;
+} RESISTANCE_DEFS[] = {
+	{MonsterWorm, {RESISTS, WEAK, NORMAL}},		   // soft: a blow squashes, a blade cuts
+	{MonsterScarab, {NORMAL, RESISTS, WEAK}},	   // the shell turns a blade, a point goes between the plates
+	{MonsterGiantScarab, {NORMAL, RESISTS, WEAK}}, //
+	{MonsterBossScarab, {NORMAL, RESISTS, WEAK}},  //
+	{MonsterPlant, {RESISTS, WEAK, TOUGH}},		   // stems: cut them; a point goes through, a blow bends them
+	{MonsterBat, {WEAK, RESISTS, TOUGH}},		   // swat it; an arrow goes through the wing
+	{MonsterGiantBat, {WEAK, RESISTS, TOUGH}},	   //
+	{MonsterVampireBat, {WEAK, RESISTS, TOUGH}},   //
+	{MonsterMimic, {WEAK, RESISTS, RESISTS}},	   // wood: crack it
+	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},	   // bronze armour dents, a blade glances off it
+	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
+	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
+};
+
 struct ItemDef {
 	std::unique_ptr<Item> ItemPrototypes::*slot;
 	const char* label;
 	const char* name; // models/items/<name>.md3, textures/items/<name>.png
 	float scale;
 	int damage, range; // weapons only; range in tenths of a tile (the bow's: how far it aims)
+	DamageMix mix;	   // weapons only
 	WeaponMotion motion;
 	const char* swingSound = nullptr;  // sounds/items/<name>.wav: the attack begins
 	const char* strikeSound = nullptr; // a melee hit lands, the arrow leaves
 };
 
 // The chest faces the camera at rotA 0 (tools/blender/models/items.py). Motion: grip, rest / windup / strike tilt,
-// thrust, hit / swing / attack ms. The club is slow and heavy, the sword quick, the spear thrusts.
+// thrust, hit / swing / attack ms. The club is slow and heavy, the sword quick, the spear thrusts. Mix: blunt, slash,
+// pierce percent.
 const ItemDef ITEM_DEFS[] = {
-	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}},
-	{&ItemPrototypes::club, "Club", "club", 6, 9, 2, {0.12f, 35, -40, 115, 0, 300, 560, 900}, "club_swing", "club_hit"},
+	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}, {}},
+	{&ItemPrototypes::club,
+	 "Club",
+	 "club",
+	 6,
+	 16,
+	 2,
+	 {85, 15, 0},
+	 {0.12f, 35, -40, 115, 0, 300, 560, 900},
+	 "club_swing",
+	 "club_hit"},
 	{&ItemPrototypes::sword,
 	 "Sword",
 	 "sword",
 	 9,
 	 35,
 	 3,
+	 {0, 85, 15},
 	 {0.1f, 40, -10, 120, 0, 180, 360, 550},
 	 "sword_swing",
 	 "sword_hit"},
@@ -183,6 +217,7 @@ const ItemDef ITEM_DEFS[] = {
 	 12,
 	 12,
 	 30,
+	 {0, 0, 100},
 	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 1000},
 	 "bow_draw",
 	 "bow_release"},
@@ -190,12 +225,13 @@ const ItemDef ITEM_DEFS[] = {
 	 "Spear",
 	 "spear",
 	 15,
-	 15,
+	 26,
 	 5,
+	 {0, 15, 85},
 	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 750},
 	 "spear_swing",
 	 "spear_hit"},
-	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1, {}},
+	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1, {}, {}},
 };
 
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -298,6 +334,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 	}
 	for (const auto& def : BOSS_DEFS)
 		monsterTypes[def.id].boss = def.rules;
+	for (const auto& def : RESISTANCE_DEFS)
+		monsterTypes[def.id].resist = def.resist;
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,
@@ -316,6 +354,7 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		item->scale = def.scale;
 		item->damage = def.damage;
 		item->range = def.range;
+		item->mix = def.mix;
 		item->motion = def.motion;
 		char sound[64];
 		if (def.swingSound) {

@@ -153,6 +153,19 @@ bool Monster::takeHit(int dmg, bool byPlayer) {
 	return Alive();
 }
 
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
+	const DamageType main = mainType(mix);
+	if (Game().journal.TryDamage(type->id, Game().curMap, main)) {
+		const int rate = type->resist[static_cast<size_t>(main)];
+		const char* how = rate > NORMAL		? "weak to"
+						  : rate == NORMAL	? "no resistance to"
+						  : rate >= RESISTS ? "resists"
+											: "barely hurt by";
+		Game().ShowStatus("Journal: %s, %s %s", type->name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
+	}
+	return takeHit(resistedDamage(dmg, mix, type->resist));
+}
+
 void Monster::StandInTrap() {
 	if (const int dmg = trapHurt.hit(); dmg > 0)
 		TrapHit(dmg);

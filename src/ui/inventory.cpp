@@ -592,11 +592,12 @@ void Inventory::DrawDetails() {
 	textCentered(heading, cx, 77.5f, info.name, owned ? INK : INK_FADED);
 	char kind[48] = "Potion";
 	if (!isPotion(selectedSlot)) {
-		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat weapon" : "Ranged weapon";
+		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
+		const char* damageType = DAMAGE_TYPE_NAMES[static_cast<size_t>(mainType(Model(kindOf(selectedSlot))->mix))];
 		if (owned)
-			snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
+			snprintf(kind, sizeof(kind), "%s, %s, level %d", weaponKind, damageType, bag.Level(kindOf(selectedSlot)));
 		else
-			snprintf(kind, sizeof(kind), "%s", weaponKind);
+			snprintf(kind, sizeof(kind), "%s, %s", weaponKind, damageType);
 	}
 	textCentered(small, cx, 73.8f, kind, INK_RED);
 

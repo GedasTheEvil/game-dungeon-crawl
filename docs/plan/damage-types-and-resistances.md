@@ -1,6 +1,6 @@
 # Damage types and monster resistances
 
-Status: draft 2026-10-01.
+Status: draft 2026-10-01. Done 2026-10-01, to verify in play (see [Implemented](#implemented)).
 
 ## Idea
 
@@ -54,3 +54,36 @@ Spread the weaknesses so each weapon (club, sword, spear, bow) is the best choic
   resistances together with it (the club at 10 dps is too weak for any multiplier to save it).
 * [monster-strength.draft.md](monster-strength.draft.md): monster HP/stat readjustment.
 * [monster-journal.draft.md](monster-journal.draft.md): where the player learns the resistances.
+
+## Implemented
+
+Decided 2026-10-01 while implementing:
+
+* Types: `src/world/damage.h`. Rates: weak 200%, normal 100%, resists 50%, tough 25%. A hit deals
+  `sum(damage * share * rate)`, rounded, at least 1 (`resistedDamage`); traps stay untyped.
+* Weapon mix (`ITEM_DEFS`, blunt / slash / pierce %): club 85 / 15 / 0, sword 0 / 85 / 15, spear 0 / 15 / 85,
+  bow 0 / 0 / 100.
+* Weapon damage retune, so a weakness can beat the sword's 64 damage per second: club 9 -> 16 (18 dps), spear
+  15 -> 26 (35 dps, the [weapon plan](weapon-ranges-and-balance.draft.md)'s 25-30). Sword (35) and bow (12) stay.
+* Resistances (`RESISTANCE_DEFS` in `src/state/assets.cpp`), blunt / slash / pierce:
+
+| Monster | Blunt | Slash | Pierce | Best |
+|---|---|---|---|---|
+| Worm | resists | weak | normal | sword |
+| Scarab, giant, boss | normal | resists | weak | spear, bow |
+| Plant | resists | weak | tough | sword |
+| Bat, giant, vampire | weak | resists | tough | club |
+| Mimic | weak | resists | resists | club |
+| Anubis | weak | resists | normal | club |
+| Anubis boss | normal | resists | weak | spear, bow (from afar) |
+| Mummy | resists | weak | tough | sword |
+| Rat, giant rat | normal | normal | normal | sword |
+
+  The finale switches weapons: the sword for the mummies, the spear or bow for the boss.
+* Feedback: the first hit of a weapon's main type on a monster type writes it down in the journal (creature page:
+  "blunt normal  slash resists  pierce ?") with a status line ("Journal: Giant scarab, weak to pierce"). The
+  inventory names the weapon's main type ("Close combat, slash, level 1"); the Weapons field note explains it.
+* Saved in the journal (version 4). Scenario: `tests/scenarios/damage_types.txt`; `bow.txt` needs ten arrows for
+  the plant now.
+* Not done: a hit sound or number colour per rate; levelcheck threat does not look at resistances (every level
+  keeps the club, so a weak spot is always at hand for the bats and mimics).

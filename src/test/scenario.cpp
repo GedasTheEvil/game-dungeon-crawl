@@ -93,6 +93,7 @@ enum class Field : unsigned char {
 	JournalRiddles,
 	JournalSolved,
 	JournalNotes,
+	JournalTried,
 	ItemCount,
 	ItemLevel
 };
@@ -236,6 +237,13 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().journal.Riddles().size());
 	case Field::JournalNotes:
 		return static_cast<float>(Game().journal.Notes().size());
+	case Field::JournalTried: {
+		int known = 0;
+		for (const JournalCreature& c : Game().journal.Creatures())
+			for (int d = 0; d < DAMAGE_TYPE_COUNT; d++)
+				known += c.Tried(static_cast<DamageType>(d)) ? 1 : 0;
+		return static_cast<float>(known);
+	}
 	case Field::JournalSolved: {
 		const auto& riddles = Game().journal.Riddles();
 		return static_cast<float>(
@@ -400,7 +408,8 @@ bool parseField(const std::string& word, Field& field) {
 				  {"coffins", Field::Coffins},
 				  {"journal", Field::JournalRiddles},
 				  {"journal_solved", Field::JournalSolved},
-				  {"journal_notes", Field::JournalNotes}};
+				  {"journal_notes", Field::JournalNotes},
+				  {"journal_tried", Field::JournalTried}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;

@@ -47,7 +47,7 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 	return found;
 }
 //======================================================================================
-void Dungeon::ShootArrow(int damage, int dir, float height, float aimRange) {
+void Dungeon::ShootArrow(int damage, const DamageMix& mix, int dir, float height, float aimRange) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height;
 	float targetX = x0 + static_cast<float>(dir) * ARROW_FREE_RANGE;
@@ -59,7 +59,7 @@ void Dungeon::ShootArrow(int damage, int dir, float height, float aimRange) {
 	const float rise = std::max(dy, 0.f) + ARROW_ARC_BASE + ARROW_ARC_PER_TILE * dx;
 	const float vy = std::sqrt(2.f * ARROW_GRAVITY * rise);
 	const float flight = (vy + std::sqrt(2.f * ARROW_GRAVITY * (rise - dy))) / ARROW_GRAVITY;
-	arrows.push_back({x0, y0, static_cast<float>(dir) * dx / flight, vy, damage, GameClock::now()});
+	arrows.push_back({x0, y0, static_cast<float>(dir) * dx / flight, vy, damage, mix, GameClock::now()});
 }
 //======================================================================================
 void Dungeon::updateArrows() {
@@ -88,7 +88,7 @@ void Dungeon::updateArrows() {
 			for (Monster& mon : monsters)
 				if (mon.Active() && mon.Alive() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
-					mon.takeHit(a.damage);
+					mon.TakeWeaponHit(a.damage, a.mix);
 					Game().assets.sounds.arrowHit.Play();
 					gone = true;
 					break;

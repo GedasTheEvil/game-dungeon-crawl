@@ -250,13 +250,22 @@ void Assets::LoadLoadingScreen() {
 namespace {
 using Progress = std::function<void(float, const char*)>;
 
+// The share [from, to) of the loading bar a table fills, one equal step per entry, so it never overruns
+struct BarSpan {
+	float from;
+	float to;
+	float at(size_t i, size_t count) const {
+		return from + (to - from) * static_cast<float>(i) / static_cast<float>(count);
+	}
+};
+
 void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes, const Progress& progress,
-					  int& percent) {
-	for (const MonsterDef& def : MONSTER_DEFS) {
+					  BarSpan span) {
+	for (size_t i = 0; i < std::size(MONSTER_DEFS); i++) {
+		const MonsterDef& def = MONSTER_DEFS[i];
 		char label[64];
 		snprintf(label, sizeof(label), "Loading Monster Models [%s]", def.label);
-		progress(static_cast<float>(percent), label);
-		percent += 5;
+		progress(span.at(i, std::size(MONSTER_DEFS)), label);
 		char texture[64];
 		snprintf(texture, sizeof(texture), "textures/%s.png", def.texture);
 		Texture tex;
@@ -285,12 +294,12 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 					   isBossMonster(id) ? "monster_kinds" : "BOSS_DEFS");
 }
 
-void loadItems(ItemPrototypes& items, const Progress& progress, int& percent) {
-	for (const ItemDef& def : ITEM_DEFS) {
+void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
+	for (size_t i = 0; i < std::size(ITEM_DEFS); i++) {
+		const ItemDef& def = ITEM_DEFS[i];
 		char label[64];
 		snprintf(label, sizeof(label), "Loading Item Models [%s]", def.label);
-		progress(static_cast<float>(percent), label);
-		percent += 2;
+		progress(span.at(i, std::size(ITEM_DEFS)), label);
 		auto& item = items.*def.slot;
 		item = std::make_unique<Item>();
 		item->loadModel(def.name);
@@ -412,9 +421,8 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 
-	int percent = 30;
-	loadMonsterTypes(monsterTypes, progress, percent);
-	loadItems(items, progress, percent);
+	loadMonsterTypes(monsterTypes, progress, {30, 65});
+	loadItems(items, progress, {65, 80});
 
 	loadProp(textures.sphinx, models.sphinx, "textures/props/sphinx.png", "models/props/sphinx.md3");
 	loadProp(textures.ankh, models.ankh, "textures/props/ankh.png", "models/props/ankh.md3");

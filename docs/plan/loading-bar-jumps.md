@@ -1,6 +1,6 @@
 # Loading bar jumps forward and back near the end
 
-Status: draft 2026-10-01.
+Status: implemented 2026-10-01, waits for a check in play.
 
 ## The problem
 
@@ -27,3 +27,9 @@ items get added.
 
 Check: a scenario that records the `DrawLoad` percentages (the `loading` log has only the text now; add the value) and asserts they never go
 down.
+
+## Done
+
+`loadMonsterTypes` / `loadItems` (`src/state/assets.cpp`) take a `BarSpan` (monsters 30–65, items 65–80) and step
+by `span / std::size(DEFS)`. `DrawLoad` logs the percent (`DrawLoad 62%: ...` in `game.log`). Scenarios cannot read
+the log, so the check was by hand: one run, the percents in `game.log` only go up (30 … 62, 65 … 78, 80, 83, 95, 100).

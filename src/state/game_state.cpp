@@ -80,7 +80,7 @@ void GameState::NewGame() {
 }
 //==============================================================
 void GameState::DrawLoad(float xxx, const char text[]) {
-	LOG_INFOF("loading", "DrawLoad: %s", text);
+	LOG_INFOF("loading", "DrawLoad %.0f%%: %s", static_cast<double>(xxx), text);
 
 	if (xxx > 100)
 		xxx = 100;

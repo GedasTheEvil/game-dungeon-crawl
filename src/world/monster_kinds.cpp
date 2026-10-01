@@ -28,6 +28,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 'V', 12.f, true},
 	// Threat: walks fast for its size and hits hard, but gives the player time to see it climb out.
 	{MonsterMummy, "mummy", "Mummy, lies in its coffin until the player comes near", 'u', 5.f, false},
+	// Threat: the finale. Four hits kill a level 30 player, plus its mummies.
+	{MonsterAnubisBoss, "anubis boss",
+	 "Anubis boss, mummies climb out of the coffins round it; its death opens the boss gates. One boss per level", 'N',
+	 15.f, true},
 }};
 } // namespace
 

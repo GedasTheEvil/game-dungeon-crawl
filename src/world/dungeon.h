@@ -205,7 +205,8 @@ class Dungeon {
 	[[nodiscard]] Tile Cell(int col, int row) const { return MapAt(col, row); }
 	void Dump(std::ofstream& f);
 	bool LoadDump(std::ifstream& f);
-	void scatterDecorations(const char* levelName); // props and decals, seeded by the level's file name
+	void scatterDecorations(const char* levelName);	   // props and decals, seeded by the level's file name
+	[[nodiscard]] bool bossCoffin(int i, int j) const; // a coffin for the boss's minions stands there
 };
 
 #endif

@@ -80,7 +80,7 @@ void Dungeon::drawSummonEffects() {
 	const int now = GameClock::now();
 	for (const Monster& mon : monsters) {
 		const int age = now - mon.SummonedMs();
-		if (!mon.Active() || mon.SummonedMs() < 0 || age >= Grit::BURST_MS)
+		if (!mon.Active() || mon.SummonedMs() < 0 || mon.SummonedBy() == Summon::Coffin || age >= Grit::BURST_MS)
 			continue;
 		const float x = (mon.CentreX() - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
 		const bool drop = mon.SummonedBy() == Summon::Drop;
@@ -90,7 +90,8 @@ void Dungeon::drawSummonEffects() {
 }
 //======================================================================================
 // Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can
-// stand in with no monster in it yet, else the boss's own cell.
+// stand in with no monster in it yet, else the boss's own cell. A minion summoned into a coffin takes the free coffin
+// nearest the boss, not behind the player and not beside them (on its row); with none free there is no summon.
 bool Dungeon::summonMinion(const Monster& boss) {
 	const MonsterType& kind = Game().assets.monsterTypes[boss.Type()->boss.minion];
 	const bool flyer = kind.locomotion == Locomotion::Fly;
@@ -103,6 +104,26 @@ bool Dungeon::summonMinion(const Monster& boss) {
 				return true;
 		return false;
 	};
+	const Summon how = boss.Type()->boss.summon;
+	if (how == Summon::Coffin) {
+		const auto playerCol = static_cast<int>(std::floor(mapX));
+		const bool playerHere = std::fabs(mapY - static_cast<float>(row)) < 0.5f; // not on its way in from elsewhere
+		int best = -1;
+		for (int c = 0; c < MAP_WIDTH; c++) {
+			const bool besidePlayer = playerHere && std::abs(c - playerCol) <= 1;
+			const bool beyondPlayer = playerHere && (c - playerCol) * (bossCol - playerCol) < 0; // they are between
+			if (!bossCoffin(c, row) || besidePlayer || beyondPlayer || taken(c))
+				continue;
+			if (best < 0 || std::abs(c - bossCol) < std::abs(best - bossCol))
+				best = c;
+		}
+		Monster* slot = best >= 0 ? freeMonsterSlot() : nullptr;
+		if (slot == nullptr)
+			return false;
+		slot->Spawn(kind, best, row);
+		slot->MakeMinion(how);
+		return true;
+	}
 	int col = bossCol;
 	for (int k = 1; k <= MINION_SUMMON_REACH; k++) {
 		int c = bossCol + away * k;
@@ -117,7 +138,6 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	if (slot == nullptr)
 		return false;
 	slot->Spawn(kind, col, row);
-	const Summon how = boss.Type()->boss.summon;
 	slot->MakeMinion(how);
 	(how == Summon::Drop ? Game().assets.sounds.summonDrop : Game().assets.sounds.summonDig).Play();
 	return true;

@@ -24,7 +24,7 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 12 | Plants, giant bats, three mummies. Chain: red key, green lever, gold key. |
 | 13 | Rock falls, giant scarabs, giant rats, a mummy, the first Anubis. Blue key, gold lever. |
 | 14 | Giant scarabs, rats and bats, two mummies, two Anubis. Red key, blue lever, green key. |
-| 15 | The finale: three Anubis, two mummies, all four locks, riddles, the ankh. |
+| 15 | The finale: three Anubis, two mummies, all four locks, riddles. The teleporter at the east end of the bottom hall leads to the sealed ankh chamber, the last boss: the Anubis boss and the mummies that climb out of the coffins round him. Behind the boss gate the ankh. |
 
 Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
@@ -74,7 +74,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12):
+giant bat 3.5, giant scarab 4, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12, anubis boss 15):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
@@ -111,7 +111,7 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    At most 4 + 2 × difficulty monsters.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, a mummy `u`, a boss gate `Z`, a teleporter `O`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose
@@ -158,8 +158,10 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/lvl5_boss.txt`: lvl5 played through in god mode: teleporter, boss fight, blue key, exit.
 - `tests/scenarios/vampire.txt`: the vampire bat's roost (`tests/levels/vampire`): its bats, its bites heal it
   (`hurtboss`), more bats up to the limit, its death opens the boss gate to the gold key.
-- `tests/scenarios/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling
-  (`tests/levels/summon_dig`, `summon_drop`): screenshots.
+- `tests/scenarios/anubis_boss.txt`: the Anubis boss's chamber (`tests/levels/anubis_boss`): mummies climb out of
+  the coffins round him, more up to the limit, his blows on a level 30 player, his death opens the boss gate.
+- `tests/scenarios/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling,
+  mummies out of the Anubis boss's coffins (`tests/levels/summon_dig`, `summon_drop`, `summon_coffin`): screenshots.
 - `tests/levels/classic1`, `classic2`: the old hand-made levels 1 and 2, kept as fixtures for the scenarios that
   depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.
 - `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.

@@ -1,5 +1,7 @@
 ; lvl15: the ankh chamber, the finale. Three Anubis, two mummies, giant rats, bats and scarabs, all four locks: the red key, the blue
-; lever, the green key and the gold lever, each in its own hall. The ankh at the east end of the bottom hall wins the game.
+; lever, the green key and the gold lever, each in its own hall. The teleporter at the east end of the bottom hall leads to the
+; sealed ankh chamber: the Anubis boss among his coffins, his mummies climbing out of them, the boss gate, behind it the
+; ankh that wins the game and the treasure.
 def / 12 1 0
 def L 12 2 0
 def K 12 3 0
@@ -27,9 +29,9 @@ def 9 8 1 1
 ####J5...n....H.....T...G..........H.###
 ##############H###############X#########
 ##############H#########################
-######7..u....H.....Y..F..v.....n.?.A###
+######7..u....H.....Y..F..v.....n.?.O###
 #############################X##########
-########################################
+#####O.......N.......Z.$.A.8############
 ########################################
 ########################################
 ########################################

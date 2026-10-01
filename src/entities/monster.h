@@ -39,8 +39,9 @@ struct Leap {
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
-// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging).
-enum class Summon : unsigned char { DigOut, Drop };
+// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging), or climb out
+// of a coffin by the boss (entombed minions, Monster::Rising).
+enum class Summon : unsigned char { DigOut, Drop, Coffin };
 
 // A boss summons minions around itself while it lives (Dungeon::updateBoss).
 struct BossRules {
@@ -109,7 +110,8 @@ class Monster {
 	Monster& operator=(const Monster&) = delete;
 	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow);
 	void Clear(); // the slot is empty
-	// Summoned by a boss: comes out of the floor or the ceiling (Emerging), then chases the player at once.
+	// Summoned by a boss: comes out of the floor or the ceiling (Emerging) or climbs out of its coffin (Rising), then
+	// chases the player at once.
 	void MakeMinion(Summon how);
 	[[nodiscard]] bool Minion() const { return minion; }
 	// Still coming out after a summon: it does not act yet, it is drawn rising or dropping into place.

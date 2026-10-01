@@ -115,6 +115,10 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Entombed,
 	 {0.35f, 0.25f, 0.12f}},
+	// The finale's guardian, a head taller than an Anubis; see BOSS_DEFS. A level 30 player (398 HP, about 6 armour)
+	// dies to 4 blows.
+	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 3.5f, 1000, 110, 1400, 20000, 26, 180,
+	 Locomotion::Walk, RED_BLOOD},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -139,6 +143,7 @@ const struct {
 } BOSS_DEFS[] = {
 	{MonsterBossScarab, {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	{MonsterVampireBat, {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
+	{MonsterAnubisBoss, {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 };
 
 struct ItemDef {

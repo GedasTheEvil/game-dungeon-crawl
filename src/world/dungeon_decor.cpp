@@ -5,6 +5,7 @@
 #include "../graphics/fire.h"
 #include "../graphics/lighting.h"
 #include "../core/logger.h"
+#include "../core/gameplay_config.h"
 #include <GL/gl.h>
 #include <cstdint>
 #include <algorithm>
@@ -60,6 +61,22 @@ uint32_t mix(uint32_t h) { // lowbias32 integer hash
 uint32_t cellHash(uint32_t seed, int cell) { return mix(seed ^ mix(static_cast<uint32_t>(cell) + 0x9e3779b9U)); }
 } // namespace
 
+// An empty floor cell within MINION_SUMMON_REACH of a boss on its row whose minions climb out of coffins
+// (Summon::Coffin): a coffin for them stands there.
+bool Dungeon::bossCoffin(int i, int j) const {
+	if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
+		return false;
+	for (int k = -MINION_SUMMON_REACH; k <= MINION_SUMMON_REACH; k++) {
+		if (!IsInBounds(i + k, j))
+			continue;
+		const Tile& t = MapAt(i + k, j);
+		if (t.type == MonsterSpawn && t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX &&
+			Game().assets.monsterTypes[t.attr].boss.summon == Summon::Coffin)
+			return true;
+	}
+	return false;
+}
+
 // Every cell rolls independently from (level name, cell index), so the layout is the same on every
 // load of a level and does not depend on the rest of the map.
 void Dungeon::scatterDecorations(const char* levelName) {
@@ -71,7 +88,7 @@ void Dungeon::scatterDecorations(const char* levelName) {
 		for (int i = 0; i < MAP_WIDTH; i++) {
 			DecorCell& cell = decor[MapIndex(i, j)];
 			cell = DecorCell{};
-			if (MapAt(i, j).type == MonsterSpawn && MapAt(i, j).attr == MonsterMummy) {
+			if ((MapAt(i, j).type == MonsterSpawn && MapAt(i, j).attr == MonsterMummy) || bossCoffin(i, j)) {
 				cell.type = DECOR_COFFIN;
 				continue;
 			}

@@ -3,11 +3,13 @@
 Everything is generated from code, so this file is the model source. Run in Blender 5:
     MCP:  p = ".../tools/blender/models/anubis.py"; g = {"__file__": p, "__name__": "anubis"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]() to write game files
-    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--boss-texture]
 
 Blender space: Z up, the model faces +Y, its right side is +X. Units are metres (~2 m tall);
 the engine rescales by the largest dimension, so only proportions matter.
 Everything lives in the collection "anubis_new"; rebuilding replaces it.
+Two textures share one UV layout: anubis.png (gold and lapis) and anubis_boss.png (the finale's boss: obsidian skin,
+carnelian and gold, a blood-red kilt, burning eyes; bake it alone with --boss-texture).
 """
 
 import math
@@ -45,8 +47,20 @@ COL = {
     "bronze": (0.22, 0.12, 0.04),
 }
 
+# The Anubis boss: darker skin, carnelian where the lapis was, gold for the turquoise, a crimson kilt, fiery eyes.
+COL_BOSS = dict(COL, **{
+    "skin": (0.012, 0.010, 0.016),
+    "skin_hi": (0.030, 0.024, 0.036),
+    "lapis": (0.32, 0.03, 0.015),
+    "turq": (0.85, 0.55, 0.10),
+    "red": (0.02, 0.04, 0.30),
+    "linen": (0.26, 0.035, 0.03),
+    "linen_dark": (0.12, 0.015, 0.012),
+    "white": (1.0, 0.42, 0.04),
+})
 
-def materials():
+
+def materials(pal=COL):
     stripes = lambda axis, period, bands: ("stripes", axis, period, bands)  # noqa: E731
     specs = {
         "skin": ("solid", "skin"),
@@ -64,7 +78,7 @@ def materials():
         "band": stripes("v", 0.03, [(1, "gold"), (1, "lapis"), (1, "gold")]),
         "staff": stripes("v", 0.30, [(10, "bronze"), (1, "gold"), (1, "gold_dark"), (1, "gold")]),
     }
-    return {name: common.make_material("anubis_" + name, spec, COL) for name, spec in specs.items()}
+    return {name: common.make_material("anubis_" + name, spec, pal) for name, spec in specs.items()}
 
 
 # ---------------------------------------------------------------- skeleton
@@ -593,7 +607,13 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    build(tex_path=os.path.join(REPO, "textures", "monsters", "anubis.png") if "--export" in args else None)
+    tex_dir = os.path.join(REPO, "textures", "monsters")
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_BOSS)
+        common.bake_texture(obj, os.path.join(tex_dir, "anubis_boss.png"), TEX_SIZE, "anubis_boss")
+    else:
+        build(tex_path=os.path.join(tex_dir, "anubis.png") if "--export" in args else None)
     if "--export" in args:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "anubis.blend"))

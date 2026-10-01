@@ -1,7 +1,7 @@
 # Mummy monster: minion of an Anubis boss
 
-Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis boss itself is step 4 of
-[boss-rooms.draft.md](boss-rooms.draft.md).
+Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis boss is in too (step 4 of
+[boss-rooms.draft.md](boss-rooms.draft.md)).
 
 ## What
 
@@ -32,6 +32,7 @@ Status: implemented (2026-10-01), lvl11 played: looks right, XP lowered. The Anu
 
 ## Open questions
 
-* For the Anubis boss: summoned mummies climb out of the boss room's coffins (a new `Summon` kind) instead of digging
-  out. For now a summoned mummy skips the coffin and walks at once (`Monster::MakeMinion`).
+* Done: the Anubis boss's mummies climb out of the coffins round him (`Summon::Coffin`,
+  [boss-rooms.draft.md](boss-rooms.draft.md) step 4). A mummy summoned any other way still skips the coffin and walks
+  at once (`Monster::MakeMinion`).
 * Tune the stats in play.

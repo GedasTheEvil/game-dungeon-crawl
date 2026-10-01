@@ -1,0 +1,43 @@
+# Anubis boss (tests/levels/anubis_boss): the teleporter leads to the sealed chamber. Six coffins stand round the
+# boss (three each side). He appears with 2 mummies that climb out of the coffins nearest him, and summons more out
+# of the others (at most 4 alive). A level 30 player (398 HP, 6 armour) loses 104 HP to a blow: 4 kill them.
+# His death opens the boss gate (gold key behind it).
+seed 1
+level tests/levels/anubis_boss
+xp 112000
+wait 30
+expect hp == 398
+walk right 3.5
+interact
+wait 5
+expect y > 3
+walk to 9
+wait 10
+expect boss == 1000
+expect minions >= 2
+screenshot coffins_rise_start
+wait 20
+screenshot coffins_rise_climb
+wait 2s
+screenshot coffins_risen
+wait 4s
+expect minions >= 3
+screenshot summoned
+dump
+
+# he walks up and strikes: a blow takes 104 HP (a mummy's 14)
+wait 5s
+dump
+expect hp <= 294
+expect alive == 1
+screenshot struck
+
+god
+killboss
+wait 5
+expect boss == 0
+wait 2s
+walk to 23.5
+wait 1s
+expect keys == 8
+screenshot gold_key

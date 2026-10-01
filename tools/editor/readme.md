@@ -90,12 +90,15 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 11 | Boss scarab (boss) |
 | 12 | Vampire bat (boss) |
 | 13 | Mummy |
+| 14 | Anubis boss (boss) |
 
 Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. A mummy lies in an open coffin on its cell until the player comes within 1.6 cells (or hits it), climbs out, then walks like the others. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
-A boss (boss scarab, vampire bat) summons minions next to itself, on the side away from the player: some when it
+A boss (boss scarab, vampire bat, Anubis boss) summons minions next to itself, on the side away from the player: some when it
 appears, then one every few seconds up to a limit. The boss scarab's scarabs dig out of the floor, the vampire bat's
-bats drop from the ceiling. The vampire bat flies like a bat and heals by 30% of the HP its bites take. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
+bats drop from the ceiling. The vampire bat flies like a bat and heals by 30% of the HP its bites take. The Anubis
+boss's mummies climb out of coffins: one stands on every empty floor cell within 3 cells of the boss's tile on its
+row; a mummy rises from the free coffin nearest the boss, not beyond the player or next to them. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
 gate (Gate with lock colour 5); the boss does not come back, also not after loading a save. Minions give 1 XP while
 the boss lives, half the normal XP after its death. Put at most one boss on a level, in a room only a teleporter
 leads to (`levelcheck` warns otherwise).

@@ -13,6 +13,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/common.py` - shared helpers: loft/tube/ellipsoid, chain_weights, Builder, make_material,
   finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
+  `--boss-texture` bakes only `anubis_boss.png` (the Anubis boss: obsidian, carnelian and gold) on the same UV layout.
 * `tools/blender/models/worm.py` - creature example: surface of revolution body, spine posed from a parametric curve
   (every frame keyed), hinged jaws, floor lift from jaw tips.
 * `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
@@ -179,7 +180,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 
 | Model | Files | Texture | Status |
 |---|---|---|---|
-| Anubis (monster) | `monsters/anubis{,_att,_die}.md3` | `monsters/anubis.png` | remodelled |
+| Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
 | Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |

@@ -1,7 +1,7 @@
 # Bosses and boss rooms
 
-Status: steps 1-3 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10), not yet verified in
-play; step 4 (Anubis) is next, the mummy is in. See [Order of work](#order-of-work).
+Status: steps 1-4 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10, Anubis boss in lvl15),
+not yet verified in play. See [Order of work](#order-of-work).
 
 ## Boss room and teleporter
 
@@ -63,7 +63,7 @@ Tune from playthroughs.
 |---|---|---|---|---|
 | Boss scarab | scarab 3-5 | 1.5 s | 12 | |
 | Vampire bat | bat 2-4 | 2 s | 8 | heals 30% of the damage it deals |
-| Anubis | mummy 2-4 | 2 s | 10 | |
+| Anubis | mummy 2-4 | 2 s | 10 | his mummies climb out of the coffins round him |
 
 ## Campaign
 
@@ -71,7 +71,7 @@ Tune from playthroughs.
 |---|---|---|
 | 5 | Boss scarab | Scarabs are native there; lvl5 had an Anubis once. |
 | 10 | Vampire bat | Bats and giant bats run through levels 7-9. |
-| 15 | Anubis | The finale. Needs the mummy ([mummy-minion-monster.md](mummy-minion-monster.md)). |
+| 15 | Anubis | The finale, with the mummies ([mummy-minion-monster.md](mummy-minion-monster.md)). |
 
 Bosses are campaign only; `levelgen` does not place them at first.
 
@@ -140,7 +140,20 @@ Format:
    48.5). Tests `tests/scenarios/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
    The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
    4 bats. Tune in play.
-4. Anubis boss in lvl15. The mummy exists now ([mummy-minion-monster.md](mummy-minion-monster.md)); its minions should climb out of the boss room's coffins. He walks through traps: [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md).
+4. Anubis boss in lvl15. **Done:** `MonsterAnubisBoss` (14, ASCII `N`), the Anubis model at scale 26 (Anubis 19)
+   with `anubis_boss.png` (`anubis.py --boss-texture`: obsidian, carnelian and gold, fiery eyes), 1000 HP, 110 damage
+   (104 after a level 30 player's 6 armour: 4 blows kill their 398 HP), a 1400 ms swing, speed 3.5, 20000 XP,
+   threat 15. Mummies 2-4 alive, every 2 s, cap 10. They climb out of coffins (`Summon::Coffin`): a coffin stands on
+   every empty floor cell within `MINION_SUMMON_REACH` (3) of the boss's tile on its row (`Dungeon::bossCoffin`), a
+   minion takes the free coffin nearest the boss, not beyond the player or next to them while they are on its row
+   (`Dungeon::summonMinion`), and plays the mummy's rise (`Monster::MakeMinion` wakes it). No coffin free: no summon.
+   lvl15: the ankh moved into a sealed chamber under the bottom hall; the teleporter at that hall's east end leads
+   there, the ankh and two chests behind the boss gate (difficulty 93.4 -> 109.6, still last as the finale). Tests
+   `tests/scenarios/anubis_boss.txt` (`tests/levels/anubis_boss`), the coffin part of `summon_effects.txt`
+   (`tests/levels/summon_coffin`). A full clear of levels 1-14 brings the player to about level 49 (626 HP, 9 armour):
+   6-7 blows. Tune in play, with [monster-xp-tuning.draft.md](monster-xp-tuning.draft.md).
+   Left for later: he walks through traps ([trap-walking-monsters.draft.md](trap-walking-monsters.draft.md)). The
+   coffins come from the boss's tile, which turns `Empty` when he dies: after a load they are gone.
 
 ## Open questions
 

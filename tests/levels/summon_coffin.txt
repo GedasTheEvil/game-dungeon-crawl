@@ -1,0 +1,7 @@
+; Summon effects (tests/scenarios/summon_effects.txt): the Anubis boss near the teleporter among his coffins, so his
+; mummies climb out in view.
+########################################
+#O.N....Z.$#############################
+########################################
+#S..O...E###############################
+########################################

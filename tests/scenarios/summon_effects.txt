@@ -1,5 +1,6 @@
 # The summon effects: the boss scarab's scarabs dig out of the floor in a spray of sand, the vampire bat's bats drop
-# from the ceiling in a shower of grit (tests/levels/summon_dig, summon_drop).
+# from the ceiling in a shower of grit, the Anubis boss's mummies climb out of their coffins (tests/levels/summon_dig,
+# summon_drop, summon_coffin).
 seed 1
 god
 level tests/levels/summon_dig
@@ -40,4 +41,25 @@ wait 120ms
 screenshot drop7
 wait 120ms
 screenshot drop8
+expect minions >= 2
+level tests/levels/summon_coffin
+wait 30
+walk right 3.5
+interact
+wait 250ms
+screenshot coffin1
+wait 250ms
+screenshot coffin2
+wait 250ms
+screenshot coffin3
+wait 250ms
+screenshot coffin4
+wait 250ms
+screenshot coffin5
+wait 250ms
+screenshot coffin6
+wait 250ms
+screenshot coffin7
+wait 250ms
+screenshot coffin8
 expect minions >= 2

@@ -57,7 +57,9 @@ void Monster::MakeMinion(Summon how) {
 	alerted = true;
 	summonMs = GameClock::now();
 	summonedBy = how;
-	if (entombed()) // no coffin to climb out of
+	if (entombed() && how == Summon::Coffin) // lies in the coffin it was summoned into, climbs out (tomb, Rising)
+		wake();
+	else if (entombed()) // no coffin to climb out of
 		enter(ModelState::Move);
 	if (flies() && how == Summon::Drop) { // falls out of the ceiling to where bats turn, flapping (emergeLift)
 		flight.lift = BAT_HIGH_LIFT;
@@ -66,7 +68,9 @@ void Monster::MakeMinion(Summon how) {
 		flight.lift = roostLift();
 }
 
-bool Monster::Emerging() const { return summonMs >= 0 && GameClock::now() - summonMs < MINION_EMERGE_MS; }
+bool Monster::Emerging() const {
+	return summonMs >= 0 && summonedBy != Summon::Coffin && GameClock::now() - summonMs < MINION_EMERGE_MS;
+}
 
 // Digging out it rises from its full height under the floor, slowing at the top. Dropping it falls from the
 // ceiling, where a roosting flyer hangs out of sight, speeding up.

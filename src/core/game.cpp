@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <ctime>
 #include "../input/input.h"
+#include "gameplay_config.h"
 #include "../graphics/draw.h"
 #include "../state/game_loop.h"
 #include "../graphics/textures.h"
@@ -20,7 +21,7 @@ int window = 1;
 
 static void UpdateTimerCallback(int) {
 	Update();
-	glutTimerFunc(16, UpdateTimerCallback, 0);
+	glutTimerFunc(UPDATE_TICK_MS, UpdateTimerCallback, 0);
 }
 
 static void scenarioTickCallback(int) {
@@ -108,9 +109,10 @@ int main(int argc, char* argv[]) {
 
 			glutIdleFunc(&Idle);
 
-			glutTimerFunc(16, UpdateTimerCallback, 0);
+			glutTimerFunc(UPDATE_TICK_MS, UpdateTimerCallback, 0);
 
 			glutKeyboardFunc(&keyPressed);
+			glutKeyboardUpFunc(&keyReleased);
 
 			glutSpecialFunc(&specialKeyPressed);
 			glutSpecialUpFunc(&specialKeyReleased);

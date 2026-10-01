@@ -3,8 +3,10 @@
 
 // Scripted test runs: `./game tests/scenarios/foo.txt`.
 // Command reference and output layout: docs/testing.md.
+#include "../core/gameplay_config.h"
+
 namespace Scenario {
-constexpr int TICK_MS = 16;
+constexpr int TICK_MS = UPDATE_TICK_MS;
 
 // Parses the script. Prints errors and returns false on a parse error.
 bool load(const char* path);

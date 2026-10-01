@@ -25,8 +25,8 @@ expect minions >= 3
 screenshot summoned
 dump
 
-# he walks up and strikes: a blow takes 104 HP (a mummy's 14)
-wait 5s
+# he has walked up and struck by now: a blow takes 104 HP (a mummy's 14)
+wait 1s
 dump
 expect hp <= 294
 expect alive == 1

@@ -5,14 +5,14 @@ level tests/levels/mechanisms
 wait 30
 screenshot start
 # The red key is picked up on touch.
-walk right 4
+walk right 4.1
 expect keys == 1
 # Held keys survive a save and load.
 savegame keys.sav
 loadgame keys.sav
 expect keys == 1
 # With the key, the red gate opens as the player walks up to it, and blocks until it is up.
-walk right 2.65
+walk right 2.55
 wait 20
 screenshot gate_opening
 expect x < 8
@@ -33,7 +33,7 @@ expect hp == 62
 walk right 2
 wait 400ms
 screenshot rock_warning
-wait 450ms
+wait 500ms
 screenshot rock_falling
 wait 300ms
 screenshot rock_landed

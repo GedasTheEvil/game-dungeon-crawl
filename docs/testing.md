@@ -52,9 +52,8 @@ One command per line. `#` starts a comment.
 | `god` | The player takes no damage (`Player::TakeHit`). Death tiles still kill. |
 | `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
-| `walk left\|right\|up\|down N` | Move until the player is N tiles away on that axis. `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. |
+| `walk left\|right\|up\|down N` | Hold the walk key until the player is N tiles away on that axis: the play speed (`WALK_SPEED`, one step a tick, `stepHeldWalk`). `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. Float steps can stop a hair short (4.9999 for 5): walk a bit past a cell edge you need to be in. |
 | `walk to X` | Walk along the row until the player's map x reaches X, whichever way it is. Fails like `walk` when blocked. `levelcheck --script` uses it, so its steps do not add up errors. |
-| `walk to X` | Walk along the row until the player's map x reaches X, whichever way that is (`levelcheck --script` uses it, so small differences do not add up). Fails like `walk` when blocked. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |

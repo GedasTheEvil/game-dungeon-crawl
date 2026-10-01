@@ -8,8 +8,12 @@ constexpr float PLAYER_BODY_HALF_WIDTH = PLAYER_SCALE / 60.f;
 // Climbing up needs ladder this far above the player's feet (their height, roughly), so they stop with the head
 // below the top rung.
 constexpr float PLAYER_CLIMB_HEADROOM = PLAYER_SCALE / 40.f;
-constexpr float PLAYER_MOVE_STEP = 0.025f;
-constexpr float PLAYER_FORWARD_MOVE_STEP = 0.0225f;
+// Update() runs once a tick (game.cpp's timer, the scenario tick). A held walk key moves the player once a tick
+// (stepHeldWalk), so the walk speed is WALK_SPEED on every machine, not the key repeat rate.
+constexpr int UPDATE_TICK_MS = 16;
+constexpr float WALK_SPEED = 1.f; // tiles per second, sprint x3
+constexpr float PLAYER_MOVE_STEP = WALK_SPEED * static_cast<float>(UPDATE_TICK_MS) / 1000.f;
+constexpr float PLAYER_FORWARD_MOVE_STEP = 0.9f * PLAYER_MOVE_STEP; // climbing up
 
 // Map x within a cell at which the drawn player (always at the screen centre) is in front of the ladder:
 // tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw). Climbing pulls the
@@ -104,7 +108,7 @@ constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 
 // Rock fall: stepping into the cell starts the rumble, the rock drops after ROCK_WARN_MS and lands
 // ROCK_FALL_MS later. Walking on without stopping, sprinting, jumping on or stepping back gets the player clear.
-constexpr int ROCK_WARN_MS = 650;
+constexpr int ROCK_WARN_MS = 900;
 constexpr int ROCK_FALL_MS = 300;
 // Armor does not help against a boulder: a hit on the head crushes, the edge of it still breaks a leg.
 constexpr int ROCK_CRUSH_DAMAGE = 1000;
@@ -112,5 +116,8 @@ constexpr int ROCK_GRAZE_DAMAGE = 50;
 constexpr float ROCK_CRUSH_HALF_WIDTH = 0.3f; // tiles from the cell centre
 constexpr float ROCK_GRAZE_HALF_WIDTH = 0.6f;
 constexpr float ROCK_HIT_HEIGHT = 0.8f; // tiles above the floor the rock still hits (a jump does not dodge it)
+static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 1000.f >
+				  1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
+			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
 
 #endif

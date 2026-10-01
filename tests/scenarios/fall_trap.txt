@@ -7,6 +7,6 @@ screenshot falling
 wait 1s
 dump
 expect y == 36
-expect hp > 45
+expect hp > 40
 wait 2s
 expect alive == 0

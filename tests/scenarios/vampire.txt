@@ -24,11 +24,11 @@ wait 4s
 screenshot swooping
 expect hp < 326
 expect boss > 300
+god
 wait 4s
 expect minions >= 3
 screenshot summoned
 
-god
 killboss
 wait 5
 expect boss == 0

@@ -16,7 +16,7 @@ starts):
   cross pits and traps.
 * More HP or damage only if speed and the leap are not enough.
 
-Do it after the walk speed change ([fixed-timestep.draft.md](fixed-timestep.draft.md), 1.0 tiles/s): monster speeds
+Do it after the walk speed change ([fixed-timestep.md](fixed-timestep.md), 1.0 tiles/s): monster speeds
 are only meaningful against the final player speed.
 
 ## What

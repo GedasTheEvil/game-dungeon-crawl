@@ -1,4 +1,5 @@
 #include <GL/gl.h>
+#include <array>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../graphics/ink.h"
@@ -38,6 +39,14 @@ void startJump() {
 	Game().player->jump.jumping = true;
 	Game().player->jump.jump_up_timer.Reset();
 	Game().player->PlayJumpSound();
+}
+
+// The walk keys held down, in GameplayAction order from MoveLeft.
+std::array<bool, 4> walkHeld{};
+
+bool isMove(GameplayAction action) {
+	return action == GameplayAction::MoveLeft || action == GameplayAction::MoveRight ||
+		   action == GameplayAction::MoveDown || action == GameplayAction::MoveUp;
 }
 
 class PlayerActionController {
@@ -145,6 +154,22 @@ class PlayerActionController {
 
 void executeGameplayAction(GameplayAction action) { PlayerActionController::execute(action); }
 
+void setWalkHeld(GameplayAction move, bool held) {
+	if (isMove(move))
+		walkHeld[static_cast<size_t>(move) - static_cast<size_t>(GameplayAction::MoveLeft)] = held;
+}
+
+void releaseWalk() { walkHeld.fill(false); }
+
+void stepHeldWalk() {
+	if (!ScreenState::IsGameplayInteractionAllowed(Game()))
+		return;
+	for (size_t i = 0; i < walkHeld.size(); i++)
+		if (walkHeld[i])
+			PlayerActionController::execute(
+				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i));
+}
+
 void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -193,7 +218,11 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
-		PlayerActionController::execute(MapKeyboardGameplayAction(key));
+		GameplayAction action = MapKeyboardGameplayAction(key);
+		if (isMove(action))
+			setWalkHeld(action, true); // the key repeat only sends it again
+		else
+			PlayerActionController::execute(action);
 	} // eo Alive
 
 	if (key == KEY_INVENTORY)
@@ -219,9 +248,8 @@ void specialKeyPressed(int key, int x, int y) {
 	if (key == SPECIAL_TOGGLE_HITBOXES)
 		Game().render.Hitboxes = !Game().render.Hitboxes;
 
-	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
-		PlayerActionController::execute(MapSpecialGameplayAction(key));
-	}
+	if (ScreenState::IsGameplayInteractionAllowed(Game()))
+		setWalkHeld(MapSpecialGameplayAction(key), true);
 
 	if (key == SPECIAL_CAMERA_LEFT) {
 		PlayerActionController::applyCameraDelta(-CAMERA_ROTATE_STEP, 0);
@@ -244,9 +272,17 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().player->stats.SetSprintRequested(true);
 }
 
+// Released on every screen: a walk key let go in the inventory must not keep walking afterwards.
+void keyReleased(unsigned char key, int x, int y) {
+	(void)x;
+	(void)y;
+	setWalkHeld(MapKeyboardGameplayAction(key), false);
+}
+
 void specialKeyReleased(int key, int x, int y) {
 	(void)x;
 	(void)y;
+	setWalkHeld(MapSpecialGameplayAction(key), false);
 
 	if (key == SPECIAL_SHIFT_LEFT || key == SPECIAL_SHIFT_RIGHT)
 		Game().player->stats.SetSprintRequested(false);

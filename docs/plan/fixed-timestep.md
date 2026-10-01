@@ -1,6 +1,7 @@
 # Stage 9b: held-key movement on the fixed tick
 
-Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Not started. Stage 9 of the
+Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Implemented 2026-10-01 (points 1-5 bar the
+playthrough), see [Done](#done); waits for a playthrough of a few levels for the feel. Stage 9 of the
 [code structure review](code-structure-review.draft.md); the random streams part is done
 ([random-streams.md](solved/random-streams.md)).
 
@@ -42,3 +43,20 @@ the level checker (`movement.h`) cannot model it.
 * `GameClock::now()` is real time, `Update` runs on a 16 ms GLUT timer without a measured dt: a slow frame slows the
   game. A fixed-dt accumulator (run as many 16 ms updates as the clock says) is the usual fix; it matters little at
   this game's load, so it can wait for the walk change.
+
+## Done
+
+* `gameplay_config.h`: `UPDATE_TICK_MS` 16 (the game's timer and `Scenario::TICK_MS`), `WALK_SPEED` 1.0,
+  `PLAYER_MOVE_STEP` = one tick of it (0.016), climbing up 0.9 of it.
+* `input.cpp`: the walk keys set a held flag (`setWalkHeld`), `keyReleased` / `specialKeyReleased` clear it on every
+  screen. `Update` calls `stepHeldWalk` once a tick. The key repeat only re-sends the press.
+* Scenario `walk` holds the key the same way and releases it at the end.
+* `movement.h`: `Jump::WALKING_REACH` (drift 0.97 + walk 0.72 = 1.69 tiles), `static_assert` > 1.5.
+* Rock fall: at 1.0 tiles/s walking on no longer cleared the graze (0.95 tiles in 950 ms, 1.1 needed; it never did
+  at the old play speed either, only at the scenarios' 1.5). `ROCK_WARN_MS` 650 -> 900, with a `static_assert`.
+* Scenarios: 11 failed after the change. Float steps stopping at 4.9999 instead of 5 (monster_anim, monster_blood,
+  toon, mechanisms, player_hud, ladder_jump_off): walks go a bit further. More time in spike hitboxes (spikes,
+  fall_trap): expected HP updated. The bosses reach the player earlier (anubis_boss, vampire): shorter wait, `god`
+  earlier. All 63 pass, `make paths` 15/15, `levelcheck` no warnings.
+* Not done: the fixed-dt accumulator (see above, can wait). The real game's `Update` timer is still 16 ms without
+  a measured dt.

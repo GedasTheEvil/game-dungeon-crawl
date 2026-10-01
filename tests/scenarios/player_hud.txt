@@ -44,7 +44,7 @@ seed 1
 level tests/levels/mechanisms
 wait 30
 screenshot key_socket_empty
-walk right 4
+walk right 4.1
 expect keys == 1
 wait 5
 screenshot key_socket_held

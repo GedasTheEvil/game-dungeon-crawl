@@ -11,9 +11,9 @@ walk right 3
 wait 1s
 expect hp == 50
 walk right 0.5
-expect hp == 48
+expect hp == 45
 wait 1s
-expect hp == 24
+expect hp == 15
 
 # paused by the inventory, then hurt again, the streak reset
 level tests/levels/spikes_one
@@ -21,10 +21,10 @@ wait 5
 walk right 3.5
 key i
 wait 1s
-expect hp == 48
+expect hp == 47
 key i
 wait 500ms
-expect hp == 41
+expect hp == 40
 
 # two spike tiles: one hit per 100 ms, never two; the 0.36 tiles between their hitboxes reset the streak
 level tests/levels/spikes_two
@@ -34,4 +34,4 @@ wait 500ms
 walk right 1
 wait 500ms
 expect x > 5.4
-expect hp == 20
+expect hp == 9

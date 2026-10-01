@@ -2,6 +2,7 @@
 #include "game_state.h"
 #include "../graphics/gl_includes.h"
 #include "../graphics/render_config.h"
+#include "../input/input_actions.h"
 #include "../ui/inventory.h"
 #include "../ui/player_hud.h"
 #include "../ui/screen_state.h"
@@ -50,6 +51,7 @@ void Update() {
 		return;
 	}
 
+	stepHeldWalk();
 	Game().dungeon.Update();
 	Game().player->rotA = Game().camera.rotW;
 

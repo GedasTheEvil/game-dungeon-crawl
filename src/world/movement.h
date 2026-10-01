@@ -31,10 +31,14 @@ constexpr Arc arc() {
 }
 
 constexpr Arc ARC = arc();
+
+// Tiles a jump carries the player with the walk key held all the way: the drift plus the walk (stepHeldWalk).
+constexpr float WALKING_REACH = ARC.drift + WALK_SPEED * static_cast<float>(ARC.ms()) / 1000.f;
 } // namespace Jump
 
 // The checker's walker (level_check.cpp) moves by whole cells and relies on these.
 static_assert(Jump::ARC.peak < 1.f, "the checker assumes a jump cannot step up onto a ledge one cell high");
 static_assert(Jump::ARC.drift > 0.5f, "the checker assumes a jump clears a one-cell gap");
+static_assert(Jump::WALKING_REACH > 1.5f, "a walking jump from the middle of a cell clears a one-cell gap");
 
 #endif

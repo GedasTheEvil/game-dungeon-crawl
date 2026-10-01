@@ -20,8 +20,14 @@ enum class GameplayAction : unsigned char {
 	EquipBow,
 };
 
-// Runs an action as if the player pressed its key (used by scenario tests).
+// Runs an action as if the player pressed its key (used by scenario tests). A move action takes one step.
 void executeGameplayAction(GameplayAction action);
+
+// The walk keys held down (MoveLeft, MoveRight, MoveDown, MoveUp; other actions are ignored). Update() moves the
+// player one step a tick while one is held (stepHeldWalk).
+void setWalkHeld(GameplayAction move, bool held);
+void releaseWalk();
+void stepHeldWalk();
 
 inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
 	switch (key) {

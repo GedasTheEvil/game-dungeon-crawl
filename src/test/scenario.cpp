@@ -666,6 +666,7 @@ bool stepWalk(const Command& cmd) {
 	if (arrived) {
 		report(cmd, true, std::to_string(walk.ticks) + " ticks, " + stateLine());
 		walk.started = false;
+		releaseWalk();
 		return true;
 	}
 
@@ -680,11 +681,11 @@ bool stepWalk(const Command& cmd) {
 		snprintf(moved, sizeof(moved), "%.3f", std::fabs(pos - walk.startPos));
 		report(cmd, false, std::string("blocked after ") + moved + " tiles, " + stateLine());
 		walk.started = false;
+		releaseWalk();
 		return true;
 	}
 
-	if (ScreenState::IsGameplayInteractionAllowed(Game()))
-		executeGameplayAction(walk.action);
+	setWalkHeld(walk.action, true); // Update() takes the step, as for a held key in play
 	walk.ticks++;
 	return false;
 }

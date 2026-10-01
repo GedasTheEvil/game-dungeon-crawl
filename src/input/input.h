@@ -50,6 +50,7 @@ const float MOUSE_LOOK_SENSITIVITY = 0.08f;
 void Idle();
 
 void keyPressed(unsigned char a, int x, int y);
+void keyReleased(unsigned char a, int x, int y);
 
 void specialKeyPressed(int a, int x, int y);
 

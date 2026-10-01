@@ -60,7 +60,14 @@ first.
 
 The stacked page edges could shift from right to left as the player goes through the book.
 
-Open: flip speed, sound (paper rustle), flip several pages at once on a ribbon click, mouse drag to flip.
+Decided 2026-10-01:
+
+* Sound: a paper rustle per flip.
+* Mouse drag: grab a page corner and drag it over, the curl following the mouse; let go past the spine to finish
+  the flip, before it to let the page fall back. Do it if it comes easily with the curl mesh; if not, a click on
+  the page corner starts the flip animation (arrow keys / wheel as now).
+
+Open: flip speed, flip several pages at once on a ribbon click.
 
 ## Notes
 

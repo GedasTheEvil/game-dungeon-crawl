@@ -1,6 +1,6 @@
 # Stage 9b: held-key movement on the fixed tick
 
-Status: draft 2026-09-30, waits for the user's decision (it changes how walking feels). Stage 9 of the
+Status: draft 2026-09-30; decided 2026-10-01: `WALK_SPEED` 1.0 tiles/s. Not started. Stage 9 of the
 [code structure review](code-structure-review.draft.md); the random streams part is done
 ([random-streams.md](solved/random-streams.md)).
 
@@ -23,9 +23,9 @@ the level checker (`movement.h`) cannot model it.
 1. Track the walk keys as held (`glutKeyboardUpFunc` / `glutSpecialUpFunc`, already wired for Shift) and move once
    per game tick (`Update`, 16 ms) while held, `WALK_SPEED` tiles per second: no repeat delay, the same speed on
    every machine.
-2. Choose `WALK_SPEED`. Options:
-   * **1.0 tiles/s** (recommended to try first): between today's play (0.625) and the scenarios (1.5); a 40-cell
-     corridor takes 40 s instead of ~64 s.
+2. `WALK_SPEED`: **1.0 tiles/s** (decided 2026-10-01): between today's play (0.625) and the scenarios (1.5); a
+   40-cell corridor takes 40 s instead of ~64 s. Sprint stays x3. The options weighed:
+   * 1.0 tiles/s: chosen.
    * 0.625 tiles/s: today's feel without the start pause; scenario walks slow down 2.4x (their time limits and
      waits need a look).
    * 1.5 tiles/s: the scenarios' speed; play gets 2.4x faster, monster fights and jumps feel different.
@@ -34,7 +34,8 @@ the level checker (`movement.h`) cannot model it.
    `movement.h` can compute the reach (`Jump::ARC.drift` plus the walk), with a `static_assert` that a one-cell gap
    clears from the middle of a cell.
 5. Re-run everything that depends on timing: all scenarios, `make paths`, and a playthrough of a few levels for the
-   feel (jumps over pits, rock falls, monster chases).
+   feel (jumps over pits, rock falls, monster chases). The player gets faster than today, so monster speeds change
+   relative to the player: do this before [monster-strength.draft.md](monster-strength.draft.md) tunes them.
 
 ## Also in this stage (small)
 

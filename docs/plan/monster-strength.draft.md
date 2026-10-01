@@ -8,11 +8,16 @@ Some monsters are too weak for their place in the campaign, others too strong. R
 and readjust its stats so each one is a real fight at the levels it appears on.
 
 Example: the **giant scarab** (levels 5-10) is slow (speed 2) and easy to kite: the player backs off, shoots it with
-the bow and it never reaches them. Easy to tank in melee too. Options, not decided:
+the bow and it never reaches them. Easy to tank in melee too. Decided 2026-10-01 (numbers refined when the work
+starts):
 
-* Walk faster (3?), so the player cannot outwalk it.
-* Use its leap (`Locomotion::WalkJump`) to close the gap, not only to cross pits and traps.
-* More HP or damage, if speed alone is not enough.
+* Faster: it walks faster (3?), so the player cannot outwalk it.
+* Leaps more: it uses its leap (`Locomotion::WalkJump`) to close the gap on the player whenever it can, not only to
+  cross pits and traps.
+* More HP or damage only if speed and the leap are not enough.
+
+Do it after the walk speed change ([fixed-timestep.draft.md](fixed-timestep.draft.md), 1.0 tiles/s): monster speeds
+are only meaningful against the final player speed.
 
 ## What
 

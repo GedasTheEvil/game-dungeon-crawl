@@ -1,9 +1,9 @@
 # Code structure review
 
 Status: all stages worked through 2026-09-30, verified in play. Done: 1, 2, 3 (verified in play), 4, 5,
-8, 10, 11, 12, the random streams of 9, part of 6. Waiting for a decision: held-key movement (9,
-[fixed-timestep.draft.md](fixed-timestep.draft.md)), how far `Game()` goes (6). Deferred with a reason: 7. See
-[Stages](#stages).
+8, 10, 11, 12, the random streams of 9, part of 6. All questions decided 2026-10-01: held-key movement at 1.0
+tiles/s (9, [fixed-timestep.draft.md](fixed-timestep.draft.md)), `Game()` out of the world only (6), stage 7 as
+part of 6. Left to do: 9 (movement), 6 with 7. See [Stages](#stages).
 
 * [code-structure-review-audit.draft.md](code-structure-review-audit.draft.md): what the code has, what it lacks, anti-patterns.
 * [code-structure-review-patterns.draft.md](code-structure-review-patterns.draft.md): web research on good game code
@@ -41,7 +41,16 @@ Rules for every stage:
   definition table). They unblock the others.
 * **Order after that** (2026-09-30): 10, 4, 5, 8, 7, 9, 6, 11, 12, with 13 spread over all of them. Reasons in
   [Stages](#stages).
-* **Stage 7 (game events): not now** (2026-09-30). The world calls sound, the status line, XP and the UI directly
+* **Stage 6 (how far `Game()` goes), decided 2026-10-01:** out of `src/world` and `src/entities` only, so `Dungeon`
+  and the monsters run without the app (unit tests of the sim, headless scenario steps). `Game()` stays the app
+  root for `main`, input and the screens: removing it there trades one global for parameter threading through every
+  screen and solves no problem. Audio and the log may stay global services.
+* **Stage 7 (game events), decided 2026-10-01: with stage 6.** The 33 direct calls from the world to sound, the
+  status line, XP and the UI are exactly what keeps the world on `Game()`; a per-tick event list drained by the app
+  is how stage 6 cuts them. Not before.
+* **Stage 9 (fixed timestep), decided 2026-10-01: do it**, walk speed 1.0 tiles/s, with the fixed-dt accumulator.
+  Same speed on every machine and in the scenarios outweighs the retiming of the tests.
+* **Stage 7 (game events): not now** (2026-09-30, superseded above). The world calls sound, the status line, XP and the UI directly
   in 33 places. An event list pays off once the world has to run without `Game()` (headless simulation, unit tests
   of `Dungeon`); before that it trades direct calls for indirection and moves XP and level-ups to the end of the
   tick for no problem solved today. Revisit with stage 6.
@@ -63,9 +72,9 @@ Rules for every stage:
 | 4 | **Split sim from render:** nothing in `Draw` changes game state; `Update`/`updateAttack` out of `draw.cpp` | done: [sim-render-split.md](solved/sim-render-split.md) | monster spawn and the boss fight start in `Draw`, `rotA++` on prototypes, HUD damage trail, model advance in `Draw` | update method, const render |
 | 5 | **Break up `Dungeon`:** grid, mechanisms, monsters and boss director, projectiles, decor, renderer; the player owns its position and physics; one view-window helper; one player width | done (partly): [dungeon-split.md](solved/dungeon-split.md) | 10 responsibilities, 1785 lines, `jump` written 12 times, 7 view-window copies | composition |
 | 8 | **Screen stack** and a shared screen base (canvas, fonts, toast, frame end, clicks) | done: [screens.md](solved/screens.md) | 4 `show` bools, 5 frame-end copies, 5 square-canvas setups | pushdown automaton |
-| 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | not now (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
-| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](solved/random-streams.md); movement waits for a decision: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
-| 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](solved/cleanups.md)); how far to go stays open | 438 calls, the `game_state.h` hub | explicit dependencies |
+| 7 | **Game events:** a per-tick event list for sound, status text, XP and scenario asserts | with stage 6 (see Decided) | gameplay calls sound, `ShowStatus`, `AddXP` directly (also from `Monster::takeHit`) | event queue (light) |
+| 9 | **Timestep, input and RNG:** fixed-dt update, held-key movement, one seeded gameplay RNG (no `rand()` / `random()`) | RNG done: [random-streams.md](solved/random-streams.md); movement decided, not started: [fixed-timestep.draft.md](fixed-timestep.draft.md) | key-repeat movement, scripted walk speed differs, unseeded `random()` in scenarios | fixed timestep |
+| 6 | **Replace `Game()` step by step** | part: the renderer ([cleanups.md](solved/cleanups.md)); the rest: the world and entities only (see Decided) | 438 calls, the `game_state.h` hub | explicit dependencies |
 | 11 | **RAII for GL resources** | done: [gl-resources.md](solved/gl-resources.md) | copyable `Texture` / `Font`, nothing freed | RAII |
 | 12 | **Smaller cleanups:** long functions, duplicated helpers, magic numbers, save format version tags, the two scene projections | done: [cleanups.md](solved/cleanups.md) | see the audit | |
 | 13 | **Unit tests for pure logic** | 44 test cases so far: [cleanups.md](solved/cleanups.md) | only GL scenario tests | testability |
@@ -86,9 +95,8 @@ Why this order:
 
 ## Open questions
 
-* How far should `Game()` go: remove it fully, or keep a few services (log, audio) behind it? Decide later (stage 6).
-* Fixed timestep: is it worth the risk to feel and to the scenario test timings? Decide in stage 9.
+None left.
 
-Answered: unit test framework: doctest (2026-09-30). Stage 2: `enum class ItemKind`, and `Inventory` split into
-`ItemBag` (model) and the screen (2026-09-30). Stage 3: a `switch` per tile type, the docs checked by a unit test
-(2026-09-30).
+Answered: how far `Game()` goes, stage 7, the fixed timestep (2026-10-01). Unit test framework: doctest
+(2026-09-30). Stage 2: `enum class ItemKind`, and `Inventory` split into `ItemBag` (model) and the screen
+(2026-09-30). Stage 3: a `switch` per tile type, the docs checked by a unit test (2026-09-30).

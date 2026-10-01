@@ -1,37 +1,69 @@
 # Journal as a real book
 
-Status: draft 2026-10-01.
+Status: draft 2026-10-01, refined 2026-10-01 from the reference image.
 
 ## Idea
 
 The journal ([journal-sections.md](journal-sections.md)) reads as a flat board: two papyrus panels on a cover. It
 should feel like a real, used field notebook, the kind an archaeologist carries on a dig. Reference:
-[notebookstories.com example](https://www.notebookstories.com/wp-content/uploads/2020/03/001.jpg).
+[notebookstories.com example](https://www.notebookstories.com/wp-content/uploads/2020/03/001.jpg), an excavation
+notebook from 1997.
 
-## Look
+## What the reference shows
 
-Open, to decide when the work starts:
+* **Book:** grey cloth hardcover, a little larger than the pages, so a cover edge shows all round. A cream elastic
+  strap loops round the left cover edge. On the right the page block is visible as a stack of thin edges. The pages
+  dip into a dark gutter at the spine, with a red headband peeking out top and bottom.
+* **Paper:** white, a fine light blue-green grid (about 5 mm squares) over the whole page, no margin rule. Clean, not
+  aged: the realism comes from the grid, the slight curve and the stacked edges, not from stains.
+* **Page numbers:** stamped / typewriter numerals, top outer corner (`8160`, `8161`), with a small pencilled
+  cross-reference above (`363, 368`).
+* **Pasted photos:** black-and-white photos with a white border, slightly askew, taking most of a page. Each has a
+  red catalogue number above it (`97-34-25`) and a handwritten caption with an arrow below ("↑ FROM SOUTH-WEST").
+* **Handwriting:** block capitals in blue / black ink. A centred, underlined heading ("SE EXTENSION ..."). Dated
+  entries ("JULY 14, 1997. BEGIN TO DISMANTLE ...").
+* **Margin column:** short labels on the left of the right page ("PHOTO 8160", "CLOSED", `S2287` in red) next to
+  their entry, like an index.
+* **Form fields:** "POTTERY = ..., COINS: ..., FINDS: ..." filled in by hand, some blank.
+* **Two inks:** red for numbers and catalogue IDs, blue for the text, a pencil note squeezed in sideways.
 
-* Paper instead of papyrus: off-white / cream, a paper grain texture, faint ruled or grid lines, a margin line.
-* Wear: foxing spots, coffee rings, sand smudges, darker yellowed edges, dog-eared corners.
-* Depth: pages curve down into the spine (shading gradient, slight bend), page edges stacked on the outer side
-  (thicker on the left or right with progress through the book), cover leather visible around the pages.
-* Pasted-in things: sketches with pencil hatching, a "photo" or a pressed note held by tape or a paper clip, arrows
-  and annotations in the margin.
-* Elastic band or ribbon ties on the cover, in keeping with the [ribbon bookmarks](journal-sections.md).
+## Look for the game
+
+Proposals, to confirm when the work starts:
+
+* Book: cloth cover (dark sand or grey, not the current bronze) with the cover edge showing, an elastic strap on the
+  left edge, stacked page edges on the right, gutter shadow and page curve at the spine. The ribbon bookmarks
+  ([journal-sections.md](journal-sections.md)) stay; in the reference the strap sits where they would hang, so they
+  could move to the top or bottom edge, or the strap goes to the left.
+* Paper: white-cream with the grid, as a texture (grain + grid + slight shading towards the spine) from a
+  `tools/textures/` script, like the ribbon.
+* Creatures: the monster sketch becomes a pasted b/w "photo" with a white border and a small tilt, a red catalogue
+  number above (level and monster, e.g. `L07-03`), a caption with an arrow below. Before the kill a pencil sketch on
+  the grid instead (as now), so the photo is the reward for the kill.
+* Notes as the reference does them: underlined heading per monster, dated entries (day / level instead of a date),
+  a margin column with short labels (`SEEN`, `HIT`, `KILLED`, resistances), and a form block filled in as learnt
+  ("WEAPON = ..., WEAK TO: ..., RESISTS: ...", blank fields left empty, like "FINDS:" in the reference).
+* Inks: blue for the text, red for numbers / IDs / page numbers, pencil for guesses and minor notes. Font stays
+  Kalam ([solved/handwritten-journal-font.md](solved/handwritten-journal-font.md)); check if block capitals read
+  better on the 160 x 100 canvas.
+* Riddles and field notes: same layout; a riddle's inscription could be a pasted rubbing / photo of the wall.
+* Optional wear, light: a dog-ear or small smudge, not the stains-everywhere look; the reference is clean.
 
 ## Page flip
 
 A 3D page turn instead of an instant swap: the page lifts at the corner, curls over the spine and lands on the
 other side, showing its back on the way. Options:
 
-* A mesh page (grid strip) bent around a cylinder that moves across the spread (classic page-curl), rendered with
+* A mesh page (grid strip) bent around a cylinder that moves across the spread (classic page curl), rendered with
   the page's texture front and back. Pages drawn into render targets first.
 * Cheaper fallback: 2D fake (page scaled in x with a shading gradient and a shadow on the page below).
+
+The stacked page edges could shift from right to left as the player goes through the book.
 
 Open: flip speed, sound (paper rustle), flip several pages at once on a ribbon click, mouse drag to flip.
 
 ## Notes
 
 * Shared UI look and canvas: [docs/ui.md](../ui.md), "Book (journal)". Code: `src/ui/journal_view.cpp`.
-* The handwriting font stays ([solved/handwritten-journal-font.md](solved/handwritten-journal-font.md)).
+* The cloth-and-grid look leaves the shared Egyptian look on this one screen; check it still sits well next to the
+  inventory and map tabs.

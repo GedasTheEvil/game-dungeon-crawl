@@ -1,0 +1,30 @@
+# The tab strip of the inventory, the draft map and the journal: clicks and the keys I, M, J switch between them,
+# the open screen's key closes it to the game.
+seed 1
+god
+level tests/levels/classic1
+wait 10
+key i
+mouse 85.3 91.5
+wait 2
+screenshot inventory_hover_map
+click 85.3 91.5
+wait 2
+dump
+screenshot map
+click 91.2 91.5
+wait 2
+dump
+screenshot journal
+click 79.4 91.5
+wait 2
+dump
+# Keys: M from the inventory, J from the map, I from the journal, I again closes.
+key m
+dump
+key j
+dump
+key i
+dump
+key i
+dump

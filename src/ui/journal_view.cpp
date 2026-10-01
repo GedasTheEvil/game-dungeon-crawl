@@ -283,7 +283,7 @@ void JournalScreen::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	backdrop(area, Game().assets.textures.loadingBackground.ID());
-	titleBar(title, CANVAS_W / 2, "Journal", 58.f);
+	titleBar(title, CANVAS_W / 2, "Journal", SCREEN_TABS_TITLE_REACH);
 	DrawBook();
 	DrawPage(0);
 	DrawPage(1);
@@ -291,6 +291,7 @@ void JournalScreen::Draw() {
 	DrawCorners();
 	DrawRibbons();
 	DrawFooter();
+	ScreenTabs::Draw();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -484,6 +485,10 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 void JournalScreen::DrawSketches() {
 	if (section != Section::Creatures)
 		return;
+	// The sketches change depth func, culling, polygon mode, colour mask, line width and blending: all of it goes
+	// back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
+	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT |
+				 GL_CURRENT_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (int side = 0; side < 2; side++) {
 		int index = EntryOnPage(side);
@@ -494,9 +499,7 @@ void JournalScreen::DrawSketches() {
 		DrawSketch(c.type, {p.x + SKETCH_PAD_X, p.y + p.h - SKETCH_TOP - SKETCH_H, p.w - 2 * SKETCH_PAD_X, SKETCH_H},
 				   c.killed);
 	}
-	glDisable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glLineWidth(1);
+	glPopAttrib();
 	beginShapes();
 }
 
@@ -557,7 +560,7 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool washed) {
 	glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
 	clip->Show(frame0);
 	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE); // the next sketch's depth pass needs every face filled
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glPopMatrix();
 }

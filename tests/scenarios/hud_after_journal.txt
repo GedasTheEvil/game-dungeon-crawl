@@ -1,0 +1,15 @@
+# Regression: the journal's monster sketches once left GL_LESS depth behind; after them the HUD lost its bars and a
+# status message showed only its first letter. Look at the creatures page, close it, then the HUD and a status.
+seed 1
+god
+level tests/levels/rats
+wait 30
+key j
+wait 5
+screenshot journal_sketch
+key j
+wait 2
+hurt 20
+xp 1000
+wait 200ms
+screenshot hud_and_status

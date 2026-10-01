@@ -14,6 +14,7 @@ const unsigned char KEY_MOVE_RIGHT_UPPER = 'D';
 const unsigned char KEY_MOVE_DOWN_UPPER = 'S';
 const unsigned char KEY_MOVE_UP_UPPER = 'W';
 const unsigned char KEY_INVENTORY = 'i';
+const unsigned char KEY_INVENTORY_UPPER = 'I';
 const unsigned char KEY_MAP = 'm';
 const unsigned char KEY_MAP_UPPER = 'M';
 const unsigned char KEY_JOURNAL = 'j';

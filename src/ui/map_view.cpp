@@ -338,6 +338,7 @@ void DraftMap::Draw() {
 	beginText();
 	textCentered(Game().assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
 	textCentered(Game().assets.fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);
+	ScreenTabs::Draw();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

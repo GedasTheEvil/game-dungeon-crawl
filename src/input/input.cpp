@@ -203,27 +203,20 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
 		return; // while the menu is shown, only [esc] is handled
 
-	if (Game().ui.screen == Screen::Inventory && key != KEY_INVENTORY) {
+	// I, M and J open the inventory, the draft map and the journal from the game or from each other; the open
+	// screen's key closes it. All three pause the game.
+	Screen& screen = Game().ui.screen;
+	if (Screen target = ScreenTabs::ForKey(key);
+		target != Screen::Gameplay && (screen == Screen::Gameplay || ScreenTabs::Has(screen))) {
+		screen = screen == target ? Screen::Gameplay : target;
+		lastKey = key;
+		return;
+	}
+	if (screen == Screen::Inventory) {
 		Game().ui.inventory->KeyPressed(key);
 		return;
 	}
-
-	// The map pauses the game: only M (or Esc, above) closes it.
-	if (key == KEY_MAP || key == KEY_MAP_UPPER) {
-		if (Game().ui.screen != Screen::Inventory)
-			Game().ui.screen = Game().ui.screen == Screen::Map ? Screen::Gameplay : Screen::Map;
-		return;
-	}
-	if (Game().ui.screen == Screen::Map)
-		return;
-
-	// The journal pauses the game too: J (or Esc) closes it.
-	if (key == KEY_JOURNAL || key == KEY_JOURNAL_UPPER) {
-		if (Game().ui.screen != Screen::Inventory)
-			Game().ui.screen = Game().ui.screen == Screen::Journal ? Screen::Gameplay : Screen::Journal;
-		return;
-	}
-	if (Game().ui.screen == Screen::Journal)
+	if (screen == Screen::Map || screen == Screen::Journal)
 		return;
 
 	if (ScreenState::IsGameplayInteractionAllowed(Game())) {
@@ -233,9 +226,6 @@ void keyPressed(unsigned char key, int x, int y) {
 		else
 			PlayerActionController::execute(action);
 	} // eo Alive
-
-	if (key == KEY_INVENTORY)
-		Game().ui.screen = Game().ui.screen == Screen::Inventory ? Screen::Gameplay : Screen::Inventory;
 
 	lastKey = key;
 }
@@ -308,6 +298,9 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
+	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(button, state, x, y))
+		return;
+
 	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
 		Game().ui.inventory->MouseFunction(button, state, x, y);
 		return;
@@ -327,6 +320,8 @@ void processMousePassiveMotion(int a, int b) {
 		Game().ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
+	if (ScreenTabs::Has(Game().ui.screen))
+		ScreenTabs::Motion(a, b);
 
 	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
 		Game().ui.inventory->MouseMotion(a, b);
@@ -351,6 +346,8 @@ void processMousePassiveMotion(int a, int b) {
 }
 
 void processMouseActiveMotion(int a, int b) {
+	if (ScreenTabs::Has(Game().ui.screen))
+		ScreenTabs::Motion(a, b);
 	if (ScreenState::ShouldRouteMouseToInventory(Game()))
 		Game().ui.inventory->MouseMotion(a, b);
 	if (Game().ui.screen == Screen::Journal)

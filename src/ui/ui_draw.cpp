@@ -151,6 +151,79 @@ void titleBar(Font& font, float cx, const char* caption, float reach) {
 	beginShapes();
 }
 
+// ---- screen tabs ----
+
+namespace {
+constexpr float TAB_W = 9.5f;
+constexpr float TAB_H = 7.f;
+constexpr float TAB_GAP = 1.f;
+constexpr float TABS_RIGHT = 158.f;
+constexpr float TABS_Y = 88.f; // centred on the title rule
+constexpr const char* TAB_NAMES[SCREEN_TAB_COUNT] = {"Inventory", "Draft map", "Journal"};
+constexpr const char* TAB_KEYS[SCREEN_TAB_COUNT] = {"I", "M", "J"};
+
+void bar(float x0, float y0, float x1, float y1, Color c) { fillRect({x0, y0, x1 - x0, y1 - y0}, c, c, 1.f); }
+
+// Flat glyphs in a 2s x 2s box round (cx, cy), like the menu's icons.
+void tabIcon(ScreenTab tab, float cx, float cy, float s, Color c) {
+	switch (tab) {
+	case ScreenTab::Inventory: // a chest: lid, body and the lock between them
+		bar(cx - 0.9f * s, cy + 0.2f * s, cx + 0.9f * s, cy + 0.75f * s, c);
+		bar(cx - 0.9f * s, cy - 0.8f * s, cx + 0.9f * s, cy + 0.02f * s, c);
+		bar(cx - 0.18f * s, cy - 0.3f * s, cx + 0.18f * s, cy + 0.4f * s, c);
+		break;
+	case ScreenTab::Map: // a sheet with rolled ends
+		bar(cx - 0.6f * s, cy - 0.7f * s, cx + 0.6f * s, cy + 0.7f * s, c);
+		bar(cx - 0.85f * s, cy + 0.55f * s, cx + 0.85f * s, cy + 0.9f * s, c);
+		bar(cx - 0.85f * s, cy - 0.9f * s, cx + 0.85f * s, cy - 0.55f * s, c);
+		break;
+	case ScreenTab::Journal: // an open book
+		bar(cx - 0.95f * s, cy - 0.6f * s, cx - 0.1f * s, cy + 0.75f * s, c);
+		bar(cx + 0.1f * s, cy - 0.6f * s, cx + 0.95f * s, cy + 0.75f * s, c);
+		bar(cx + 0.45f * s, cy - 0.95f * s, cx + 0.62f * s, cy - 0.6f * s, c);
+		break;
+	}
+}
+} // namespace
+
+Rect screenTabRect(int tab) {
+	float x0 = TABS_RIGHT - SCREEN_TAB_COUNT * TAB_W - (SCREEN_TAB_COUNT - 1) * TAB_GAP;
+	return {x0 + static_cast<float>(tab) * (TAB_W + TAB_GAP), TABS_Y, TAB_W, TAB_H};
+}
+
+int screenTabAt(float x, float y) {
+	for (int tab = 0; tab < SCREEN_TAB_COUNT; tab++)
+		if (screenTabRect(tab).contains(x, y))
+			return tab;
+	return -1;
+}
+
+void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
+	beginShapes();
+	for (int tab = 0; tab < SCREEN_TAB_COUNT; tab++) {
+		bool active = static_cast<int>(open) == tab;
+		bool isHovered = hovered == tab && !active;
+		Rect r =
+			tile(screenTabRect(tab), active ? TileStyle::Lapis : TileStyle::Stone, isHovered, isHovered && held == tab);
+		Color c = isHovered ? GOLD_BRIGHT : GOLD;
+		tabIcon(static_cast<ScreenTab>(tab), r.x + 3.3f, r.cy(), 1.8f, c);
+		beginText();
+		text(small, r.x + 6.4f, r.y + 2.2f, TAB_KEYS[tab], isHovered ? TEXT_HOVER : GOLD);
+		beginShapes();
+	}
+	if (hovered < 0)
+		return;
+	const char* name = TAB_NAMES[hovered];
+	Rect first = screenTabRect(0);
+	float w = small.TextWidth(name) + 3.f;
+	Rect label = {first.x - w - 1.5f, first.y + 1.3f, w, 4.4f};
+	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
+	strokeRect(label, GOLD_DIM, 1.f, 1.f);
+	beginText();
+	text(small, label.x + 1.5f, label.y + 1.2f, name, GOLD);
+	beginShapes();
+}
+
 Rect tile(Rect r, TileStyle style, bool hovered, bool held) {
 	if (style == TileStyle::Disabled) {
 		fillRect(r, {0.10f, 0.08f, 0.06f}, {0.07f, 0.055f, 0.04f}, 0.9f);

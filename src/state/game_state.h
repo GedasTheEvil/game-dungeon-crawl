@@ -20,6 +20,7 @@
 #include "../ui/end_screens.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
+#include "../ui/screen_tabs.h"
 #include "../world/journal.h"
 #include "save_slots.h"
 #include <array>
@@ -62,6 +63,7 @@ struct UIContext {
 	std::unique_ptr<EndScreens> endScreens;
 	DraftMap map;
 	JournalScreen journal;
+	ScreenTabsState tabs;
 };
 
 class GameState {

@@ -8,6 +8,7 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "ui_draw.h"
+#include "screen_tabs.h"
 #include <array>
 #include <cmath>
 #include <cstdio>
@@ -410,6 +411,7 @@ void Inventory::Draw() {
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		DrawSlotLabels(slot);
 	DrawFooter();
+	ScreenTabs::Draw();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -419,7 +421,7 @@ void Inventory::Draw() {
 
 void Inventory::DrawBackground() {
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
-	titleBar(title, CANVAS_W / 2, "Inventory", 58.f);
+	titleBar(title, CANVAS_W / 2, "Inventory", SCREEN_TABS_TITLE_REACH);
 
 	panel(ITEMS_PANEL, 0.9f);
 

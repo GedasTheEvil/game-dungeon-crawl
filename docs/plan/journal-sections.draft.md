@@ -1,12 +1,12 @@
 # Journal sections
 
 Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages). Stage 1 done 2026-10-01
-(`tests/scenarios/journal.txt`), verified in play. Stage 3 done 2026-10-01, not yet verified in play.
+(`tests/scenarios/journal.txt`), verified in play. Stage 3 done 2026-10-01, verified in play.
 
 ## Idea
 
 The [monster journal](monster-journal.draft.md) becomes the archaeologist's whole notebook, not only a bestiary.
-One screen (one tab in [screen-switch-tabs.draft.md](screen-switch-tabs.draft.md)), split into sections. Same rules
+One screen (one tab in [screen-switch-tabs.md](screen-switch-tabs.md)), split into sections. Same rules
 as the monsters: everything written down comes from what the player went through, and is kept per save game.
 
 ## Look: a book with ribbon bookmarks
@@ -86,7 +86,7 @@ The creatures section does not have to wait for damage types: their resistance n
 
 Order with the other plans (changed 2026-10-01 after the stage 1 play test): stage 1, the
 [handwritten font](solved/handwritten-journal-font.md), stage 3 (creatures; the sketch is ink-tinted in the font's
-colour), then [screen-switch-tabs.draft.md](screen-switch-tabs.draft.md) and stage 2.
+colour), then [screen-switch-tabs.md](screen-switch-tabs.md) and stage 2.
 
 ## Later, if the game grows
 

@@ -134,6 +134,18 @@ void textCentered(Font& font, float cx, float y, const char* str, Color c, float
 // Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 
+// ---- screen tabs ----
+// The strip at the top right of the 160 x 100 canvas that switches between the in-game screens: one tile per screen
+// with its icon and key, the open one lapis. Screens with it keep their title rule short (SCREEN_TABS_TITLE_REACH).
+enum class ScreenTab : std::uint8_t { Inventory, Map, Journal };
+constexpr int SCREEN_TAB_COUNT = 3;
+constexpr float SCREEN_TABS_TITLE_REACH = 44.f;
+Rect screenTabRect(int tab);
+// -1 off the strip.
+int screenTabAt(float x, float y);
+// hovered / held: a tab index or -1. The hovered tab's name shows on a label to the left of the strip.
+void screenTabs(Font& small, ScreenTab open, int hovered, int held);
+
 void beginShapes();
 void beginText();
 

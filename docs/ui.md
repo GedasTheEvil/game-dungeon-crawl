@@ -71,7 +71,8 @@ own (vignette 20, canvas without margins).
 
 `ui::titleBar(title, 80, caption, reach)`: caption in `GOLD` at baseline 88, a `GOLD_DIM` 2 px rule either side
 at y 91.5 with big diamonds at the ends and small ones next to the text. Reach from centre: 44 for a narrow panel
-(main menu, credits), 58 for wide panels (sub-screens, inventory), 72 on the riddle.
+(main menu, credits) and the screens with tabs (inventory, journal), 58 for the menu's wide sub-screens, 72 on the
+riddle.
 
 ### Panel
 
@@ -162,6 +163,15 @@ label. Running head (section name) and page number in `small` `INK_FADED`, page 
 Monster sketches on the creature pages: the model's move clip, frame 0, from the side and a little above, fitted to
 the page. A depth pass, then (once killed) the texture as a pencil wash multiplied onto the paper (a grey copy loaded
 with `Texture::LoadPNG`'s pixel filter), then the outline: back-face edges as `PENCIL` lines, front faces culled.
+
+### Screen tabs
+
+Inventory, draft map and journal share a tab strip at the top right (`ui::screenTabs`, game side
+`src/ui/screen_tabs.cpp`): three tiles 9.5 x 7 centred on the title rule, x 127.5–158, a flat icon (chest, map sheet,
+open book) and the key (I, M, J) in `small` `GOLD`. The open screen's tile is lapis, the others stone; the hovered one
+shows the screen's name on a dark label to the left. Screens with the strip keep their title rule short
+(`SCREEN_TABS_TITLE_REACH`, 44). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
+window-wide one, so it stays in the same place. Its clicks are handled before the screen's own (`ScreenTabs::Mouse`).
 
 ### Status box
 

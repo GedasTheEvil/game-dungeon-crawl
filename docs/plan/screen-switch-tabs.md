@@ -1,6 +1,8 @@
 # Screen switch tabs
 
-Status: draft 2026-10-01.
+Status: done 2026-10-01, not yet verified in play (`tests/scenarios/screen_tabs.txt`). Tiles at the top right,
+centred on the title rule (the title rule is shorter on these screens); the inventory icon is a chest. Look:
+[docs/ui.md](../ui.md#screen-tabs).
 
 ## Idea
 
@@ -33,7 +35,7 @@ to jump between them with the mouse, without closing one and opening the next.
 * Mouse routing: each screen's click handler asks the strip first.
 * Scenario test: open inventory, click map tab, click journal tab, screenshot each.
 
-## Open
+## Decided
 
 * Riddle and menu stay out (riddle is modal, menu is a different flow).
-* Tab order: inventory, map, journal?
+* Tab order: inventory, map, journal.

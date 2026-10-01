@@ -20,6 +20,8 @@ Proposals, to confirm when the work starts:
 * Ribbons: one colour per section (creatures red, riddles lapis, field notes ochre?). The open section's ribbon
   sticks out further. Hover shows the section name.
 * Page turn: arrow keys / mouse wheel, page corner arrows to click, page number at the bottom.
+* Decided 2026-10-01: key J, an entry in the in-game menu; the game pauses while it is open, like the inventory
+  and map. It opens on the last section and page looked at (creatures the first time).
 * Empty sections (nothing learnt yet) keep their ribbon; the page says "Nothing written yet".
 * Notes in the archaeologist's handwriting, not papyrus: [handwritten-journal-font.draft.md](handwritten-journal-font.draft.md),
   after stage 1. Until then the notes use papyrus.
@@ -45,13 +47,23 @@ Decided 2026-10-01, in this order:
   riddle back until a level up gives nothing extra.
 * The hint is written down only if it was shown.
 
+Decided 2026-10-01:
+
+* The save keeps a copy of each riddle met (theme, question, answers, hint shown or not, solved, the late XP), not
+  an index into `riddles/*.txt`: those files can change between saves.
+* A late answer opens the riddle scroll over the journal: same typing, same hint after two misses, unlimited
+  retries.
+* A riddle met again at another gate keeps one journal entry; a right answer at the gate gives the gate's full XP.
+* One riddle per page, two per spread.
+* Old saves have no journal data: the journal starts empty, no migration.
+
 ### Field notes
 
 Idea only, refined later. Small descriptions in the archaeologist's voice of what the HUD numbers mean and how
 they work: hit points, XP and levelling, stamina (running, jumping), potions, weapon grades, keys and gates.
 
-Open: all notes there from the start (a help page), or each one written the first time it matters (first level
-up, first time out of stamina) like the rest of the journal. The second fits the journal's rule.
+Decided 2026-10-01: each note is written the first time it matters (first level up writes the XP note, first time
+out of stamina the stamina note), like the rest of the journal.
 
 ### Potions
 
@@ -83,4 +95,3 @@ Order with the other plans (2026-10-01): stage 1, then the [handwritten font](ha
 
 * Sketch of a monster: the model rendered flat and ink-tinted, or a drawn texture per type
   ([monster-journal.draft.md](monster-journal.draft.md)). Needed for stage 3 only.
-* Field notes: unlocked or all at once (see above).

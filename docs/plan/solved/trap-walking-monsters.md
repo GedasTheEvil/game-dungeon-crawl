@@ -73,5 +73,5 @@ Reckless monsters:
   no warnings.
 * Scenarios: `coward_rock.txt` (a rat stops at an armed rock fall, a giant rat leaps over it, neither sets it off),
   `reckless_spikes.txt` (the mummy stands in spikes to strike, dies of the ramp, no XP), and `reckless_rock.txt`
-  (the mummy sets off a rock fall and is grazed for 25), and `reckless_anubis.txt` (the Anubis walks through spikes). Each check fails if its rule is removed. All 67 scenarios
-  pass.
+  (the mummy sets off a rock fall and is grazed for 25), and `reckless_anubis.txt` (the Anubis walks through
+  spikes). Each check fails if its rule is removed. All 68 scenarios pass.

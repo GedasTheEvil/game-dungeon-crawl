@@ -1,5 +1,5 @@
 # The Anubis is reckless like the Anubis boss (tests/levels/reckless_anubis): it walks through the spikes to the
-# player and takes half their damage (trapDamagePct 50).
+# player and takes a quarter of their damage (trapDamagePct 25).
 seed 1
 god
 level tests/levels/reckless_anubis

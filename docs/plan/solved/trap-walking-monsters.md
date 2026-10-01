@@ -19,7 +19,7 @@ Reckless monsters:
 * **Anubis** boss ([boss-rooms.md](boss-rooms.md)): the player cannot shake him off behind a row of traps.
   He follows through spikes, death traps and rock falls.
 * **Mummy** ([mummy-minion-monster.md](mummy-minion-monster.md)).
-* **Anubis** (the plain one), added 2026-10-01: 50%, like the mummy.
+* **Anubis** (the plain one), added 2026-10-01: 25%, between the boss (10%) and the mummy (50%).
 
 ## Trap damage
 
@@ -54,8 +54,8 @@ Reckless monsters:
 
 ## Done
 
-* `Courage` and `trapDamagePct` in `MonsterType`, set from two defaulted columns of `MONSTER_DEFS`: the mummy and
-  the Anubis are reckless at 50%, the Anubis boss at 10%. Everything else is a coward at 100%.
+* `Courage` and `trapDamagePct` in `MonsterType`, set from two defaulted columns of `MONSTER_DEFS`: the mummy is
+  reckless at 50%, the Anubis at 25%, the Anubis boss at 10%. Everything else is a coward at 100%.
 * `Dungeon::walkerBlocked(col, row, reckless)`: cowards stop at spikes, death traps and armed or falling rock falls. A
   `Fallen` cell is open to everyone. The reckless walk onto all of them, but they still stop at a pit. Jumpers leap
   over an armed rock fall, because `leapLanding` uses the cowards' rule.

@@ -6,7 +6,7 @@ Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages). Stag
 
 ## Idea
 
-The [monster journal](monster-journal.draft.md) becomes the archaeologist's whole notebook, not only a bestiary.
+The [monster journal](monster-journal.md) becomes the archaeologist's whole notebook, not only a bestiary.
 One screen (one tab in [screen-switch-tabs.md](solved/screen-switch-tabs.md)), split into sections. Same rules
 as the monsters: everything written down comes from what the player went through, and is kept per save game.
 
@@ -84,7 +84,7 @@ The creatures section does not have to wait for damage types: their resistance n
 2. **Done.** Field notes: hit points, experience, stamina, potions, weapons, keys and gates, each written the
    first time it matters (`FieldNote` in `src/world/journal.h`, texts in `src/ui/journal_view.cpp`,
    `tests/scenarios/journal_field_notes.txt`). Keep the texts in step with the rules they describe.
-3. **Done.** Creatures without resistances ([monster-journal.draft.md](monster-journal.draft.md)): seen, kill, HP,
+3. **Done.** Creatures without resistances ([monster-journal.md](monster-journal.md)): seen, kill, HP,
    its hit, special moves, pencil sketch (`tests/scenarios/journal_creatures.txt`, every type:
    `journal_all_creatures.txt`).
 4. **Done.** Resistance notes, with [damage-types-and-resistances.md](damage-types-and-resistances.md): one line

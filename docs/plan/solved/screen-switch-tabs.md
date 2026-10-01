@@ -6,7 +6,7 @@ centred on the title rule (the title rule is shorter on these screens); the inve
 
 ## Idea
 
-The in-game screens (inventory, map, the upcoming [monster journal](../monster-journal.draft.md)) get a row of icons
+The in-game screens (inventory, map, the upcoming [monster journal](../monster-journal.md)) get a row of icons
 to jump between them with the mouse, without closing one and opening the next.
 
 ## Look

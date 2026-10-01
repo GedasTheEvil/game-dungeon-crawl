@@ -1,13 +1,13 @@
 # Bosses and boss rooms
 
-Status: steps 1-4 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10, Anubis boss in lvl15).
+Status: solved (2026-10-01). Steps 1-4 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10, Anubis boss in lvl15).
 Played to the end (2026-10-01): the Anubis boss and his mummies look right; he got faster (speed 3.5 -> 4.5) and 50%
 more HP (1000 -> 1500). See [Order of work](#order-of-work).
 
 ## Boss room and teleporter
 
 * The old `props/columns.md3` model (with its plasma quad, unused since the ladders, see
-  [../remodeling.md](../remodeling.md)) comes back as a **teleporter gate**. It links to another set of columns
+  [../remodeling.md](../../remodeling.md)) comes back as a **teleporter gate**. It links to another set of columns
   elsewhere on the same map, which is the boss room.
 * The teleporter faces the camera. The level's entrance/exit gates stand sideways, along the level.
 * Use it with the interact action (`E`, middle mouse button), like the other gates.
@@ -36,7 +36,7 @@ more HP (1000 -> 1500). See [Order of work](#order-of-work).
   * They appear next to the boss, never behind the player.
   * When the boss dies, summoning stops and the boss gate opens; the minions left stay and fight on.
   * Each boss summons in its own way: scarabs dig out of the sand, bats drop from the ceiling, mummies rise from the
-    broken sarcophagi ([statue-and-mummy-decorations.md](solved/statue-and-mummy-decorations.md)).
+    broken sarcophagi ([statue-and-mummy-decorations.md](statue-and-mummy-decorations.md)).
 * One big boss per boss room. In its level it kills the player in about 3-4 hits.
 * **Boss gate:** the boss room has its own gate. Killing the boss opens it. Behind it are 2-3 treasure chests and a
   floating key (for example the blue/lapis key) for a gate further on in the level. So the player fights the boss
@@ -52,7 +52,7 @@ more HP (1000 -> 1500). See [Order of work](#order-of-work).
 
 | Boss | Minions | Notes |
 |---|---|---|
-| Anubis (final boss) | Mummies ([mummy-minion-monster.md](mummy-minion-monster.md)) | |
+| Anubis (final boss) | Mummies ([mummy-minion-monster.md](../mummy-minion-monster.md)) | |
 | Boss scarab | Scarabs | Like the giant scarab, but faster and stronger, with more HP. |
 | Vampire bat (a very large giant bat) | Small bats | Sucks blood: heals itself by part of the damage it deals. |
 
@@ -72,7 +72,7 @@ Tune from playthroughs.
 |---|---|---|
 | 5 | Boss scarab | Scarabs are native there; lvl5 had an Anubis once. |
 | 10 | Vampire bat | Bats and giant bats run through levels 7-9. |
-| 15 | Anubis | The finale, with the mummies ([mummy-minion-monster.md](mummy-minion-monster.md)). |
+| 15 | Anubis | The finale, with the mummies ([mummy-minion-monster.md](../mummy-minion-monster.md)). |
 
 Bosses are campaign only; `levelgen` does not place them at first.
 
@@ -124,7 +124,7 @@ Format:
    `tests/scenarios/boss.txt`. Levels 1, 2, 3 and 5 rebuilt as ASCII sources (lvl4 was already
    one and kept); lvl5 is the scarab king's level (`tests/scenarios/lvl5_boss.txt`). Difficulty curve 6.7, 11.2,
    14.3, 15.5, 19.5 into lvl6 at 21 (6.8, 11.3, 14.3, 15.7, 19.7 into 21.2 since the checker jumps traps,
-   [movement-model.md](solved/movement-model.md)). The old lvl1 / lvl2 are test fixtures (`tests/levels/classic1`, `classic2`).
+   [movement-model.md](movement-model.md)). The old lvl1 / lvl2 are test fixtures (`tests/levels/classic1`, `classic2`).
    Boss scarab: 320 HP, 40 damage (a full clear of levels 1-4 gives level 8, 134 HP), checker threat 10.
    **Done:** the summon effects (`Summon` in `BossRules`, `Monster::Emerging` / `emergeLift`,
    `Dungeon::drawSummonEffects`, `Grit::burst` in `fire.cpp`, sounds `summon_dig.wav` / `summon_drop.wav` in
@@ -152,10 +152,10 @@ Format:
    there, the ankh and two chests behind the boss gate (difficulty 93.4 -> 109.6, still last as the finale). Tests
    `tests/scenarios/anubis_boss.txt` (`tests/levels/anubis_boss`), the coffin part of `summon_effects.txt`
    (`tests/levels/summon_coffin`). A full clear of levels 1-14 brings the player to about level 49 (626 HP, 9 armour):
-   6-7 blows. Tune in play, with [monster-xp-tuning.draft.md](monster-xp-tuning.draft.md).
-   Left for later: he walks through traps ([trap-walking-monsters.draft.md](trap-walking-monsters.draft.md)). The
-   coffins come from the boss's tile, which turns `Empty` when he dies: after a load they are gone.
+   6-7 blows. Tune in play, with [monster-xp-tuning.draft.md](../monster-xp-tuning.draft.md).
+   Left for later: he walks through traps ([trap-walking-monsters.draft.md](../trap-walking-monsters.draft.md)), the
+   coffins after a load ([boss-coffins-after-load.draft.md](../boss-coffins-after-load.draft.md)).
 
 ## Open questions
 
-* The other bosses, beyond the three above: later, once these three (one per 5 levels) are in and played.
+* The other bosses, beyond the three above: [more-bosses.draft.md](../more-bosses.draft.md).

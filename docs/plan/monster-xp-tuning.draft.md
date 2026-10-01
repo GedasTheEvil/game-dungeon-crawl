@@ -36,7 +36,7 @@ Boss minions get their XP from `Dungeon::MinionXP`.
   from that score.
 * Suspects: the plant and the mimic (they never move, so the player picks the fight), Anubis (10000 vs 350 HP).
 * Check the effect on the level curve: the player level when reaching lvl5 / lvl10 bosses is used in the boss tuning
-  (`boss-rooms.draft.md`). Rerun a full playthrough or a scenario that sums the XP per level.
+  (`solved/boss-rooms.md`). Rerun a full playthrough or a scenario that sums the XP per level.
 
 ## Open questions
 

@@ -101,7 +101,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Fly,
 	 {0.5f, 0.02f, 0.08f}},
-	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (boss-rooms.draft.md).
+	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (docs/plan/solved/boss-rooms.md).
 	{MonsterMummy,
 	 "Mummy",
 	 "monsters/mummy",
@@ -136,7 +136,7 @@ const MonsterDef MONSTER_DEFS[] = {
 };
 
 // Minions per boss: type, alive on arrival, alive at most, ms between summons, summons per fight, life steal %, how
-// they come. Starting values, to tune from playthroughs (docs/plan/boss-rooms.draft.md).
+// they come. Starting values, to tune from playthroughs (docs/plan/solved/boss-rooms.md).
 const struct {
 	MonsterTypeId id;
 	BossRules rules;

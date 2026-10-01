@@ -16,7 +16,7 @@ Locomotion says what a monster *can* do (walk, leap, fly), courage says whether 
 
 Reckless monsters:
 
-* **Anubis** boss ([boss-rooms.draft.md](boss-rooms.draft.md)): the player cannot shake him off behind a row of traps.
+* **Anubis** boss ([solved/boss-rooms.md](solved/boss-rooms.md)): the player cannot shake him off behind a row of traps.
   He follows through spikes, death traps and rock falls.
 * **Mummy** ([mummy-minion-monster.md](mummy-minion-monster.md)).
 

@@ -1,5 +1,5 @@
 // The boss fight (Dungeon::bossFight): the boss appears with its minions, summons more while it lives, and its death
-// opens the boss gates. docs/plan/boss-rooms.draft.md.
+// opens the boss gates. docs/plan/solved/boss-rooms.md.
 #include "dungeon.h"
 #include "../state/game_state.h"
 #include "../core/gameplay_config.h"

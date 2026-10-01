@@ -31,7 +31,7 @@ Rules for every stage:
 * Every change has a written reason: what it makes easier or what bug class it removes. No reason, no change.
 * Add scenario tests for an area before refactoring it, if it has none.
 * Prefer to refactor an area just before a feature needs it (for example `Dungeon` and monsters before
-  [boss-rooms.draft.md](boss-rooms.draft.md)).
+  [solved/boss-rooms.md](solved/boss-rooms.md)).
 * Skip what does not pay off at this size: ECS, a generic event bus, scripting VMs, plugin systems. See
   [the research](code-structure-review-patterns.draft.md#priority-for-this-game).
 
@@ -86,7 +86,7 @@ Why this order:
 * **10 next:** the checker judges every campaign level; its divergences hide real problems (a chain of jumps the
   player has no stamina for, a pulled lever that opens nothing). It needs the tables from stage 3 and is small.
 * **4 before 5:** once `Draw` is const, splitting `Dungeon` does not move hidden state changes around.
-  Do 4 and 5 before the next bosses ([boss-rooms.draft.md](boss-rooms.draft.md) steps 3-4), because the boss director
+  Do 4 and 5 before the next bosses ([solved/boss-rooms.md](solved/boss-rooms.md) steps 3-4), because the boss director
   and minion spawning live in exactly that code.
 * **8 and 7:** screens and events are self-contained and get easier once `Game()` has fewer writers (after 2, 5).
 * **9 late:** the riskiest for game feel and for every scenario's timing; it needs 4 (sim apart from render).

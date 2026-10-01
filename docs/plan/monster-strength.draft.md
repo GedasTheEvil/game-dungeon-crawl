@@ -31,4 +31,4 @@ are only meaningful against the final player speed.
 ## Related
 
 * [weapon-ranges-and-balance.draft.md](weapon-ranges-and-balance.draft.md): its HP retune is open; do both together.
-* [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md), [boss-rooms.draft.md](boss-rooms.draft.md).
+* [trap-walking-monsters.draft.md](trap-walking-monsters.draft.md), [solved/boss-rooms.md](solved/boss-rooms.md).

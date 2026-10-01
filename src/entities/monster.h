@@ -114,7 +114,7 @@ class Monster {
 	Summon summonedBy = Summon::DigOut;
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
 	TrapHurt trapHurt;
-	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
+	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out

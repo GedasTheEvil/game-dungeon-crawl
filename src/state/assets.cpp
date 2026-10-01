@@ -164,11 +164,11 @@ const struct {
 	{MonsterScarab, {NORMAL, RESISTS, WEAK}},	   // the shell turns a blade, a point goes between the plates
 	{MonsterGiantScarab, {NORMAL, RESISTS, WEAK}}, //
 	{MonsterBossScarab, {NORMAL, RESISTS, WEAK}},  //
-	{MonsterPlant, {TOUGH, WEAK, TOUGH}}, // stems: only a blade cuts them; points and blows go astray
+	{MonsterPlant, {TOUGH, WEAK, TOUGH}},		   // stems: only a blade cuts them; points and blows go astray
 	{MonsterBat, {WEAK, RESISTS, TOUGH}},		   // swat it; an arrow goes through the wing
 	{MonsterGiantBat, {WEAK, RESISTS, TOUGH}},	   //
 	{MonsterVampireBat, {WEAK, RESISTS, TOUGH}},   //
-	{MonsterMimic, {WEAK, RESISTS, TOUGH}}, // wood: crack it; a point only sticks in it
+	{MonsterMimic, {WEAK, RESISTS, TOUGH}},		   // wood: crack it; a point only sticks in it
 	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},	   // bronze armour dents, a blade glances off it
 	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
 	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab

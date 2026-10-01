@@ -164,9 +164,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 				"Aphethamine for might, Stone Skin for armour, the Elixir of Life for more health. In a hurry, H and 0 "
 				"drink the right one."},
 	{"Weapons", "Club, sword, spear and bow, on the keys 1 to 4. The club bludgeons, the sword slashes, the spear "
-				"and the arrows pierce, and every creature takes each of them differently: I note it down. Every copy "
-				"of a weapon I find adds to the one I have; with enough copies it can be upgraded in the inventory (U) "
-				"for more damage. Each upgrade needs twice the copies of the last."},
+				"and the arrows pierce, and every creature takes each of them differently: I note it down. Copies of "
+				"my weapons turn up in chests, and now and then a creature leaves one; with enough copies a weapon "
+				"can be upgraded in the inventory (U). The old club gains the most from it."},
 	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
 }};

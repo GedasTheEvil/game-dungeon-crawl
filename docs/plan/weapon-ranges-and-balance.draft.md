@@ -38,8 +38,8 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 ## HP balance (open)
 
 Not changed: needs a playthrough with the new reach. Numbers to start from, at weapon level 1, no Might (before
-[damage types](damage-types-and-resistances.md): since then the club deals 16 and the spear 26, and each monster
-takes them at its own rate):
+[damage types](damage-types-and-resistances.md): since then the club deals 10 and the spear 20, weapons grow per
+level at their own rate, and each monster takes each damage type at its own rate):
 
 | Weapon | Damage | ms per attack | Damage per s |
 |---|---:|---:|---:|

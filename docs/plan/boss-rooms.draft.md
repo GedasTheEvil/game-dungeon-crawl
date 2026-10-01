@@ -1,7 +1,8 @@
 # Bosses and boss rooms
 
-Status: steps 1-4 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10, Anubis boss in lvl15),
-not yet verified in play. See [Order of work](#order-of-work).
+Status: steps 1-4 done (teleporter, boss scarab in lvl5, summon effects, vampire bat in lvl10, Anubis boss in lvl15).
+Played to the end (2026-10-01): the Anubis boss and his mummies look right; he got faster (speed 3.5 -> 4.5) and 50%
+more HP (1000 -> 1500). See [Order of work](#order-of-work).
 
 ## Boss room and teleporter
 
@@ -141,8 +142,8 @@ Format:
    The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
    4 bats. Tune in play.
 4. Anubis boss in lvl15. **Done:** `MonsterAnubisBoss` (14, ASCII `N`), the Anubis model at scale 26 (Anubis 19)
-   with `anubis_boss.png` (`anubis.py --boss-texture`: obsidian, carnelian and gold, fiery eyes), 1000 HP, 110 damage
-   (104 after a level 30 player's 6 armour: 4 blows kill their 398 HP), a 1400 ms swing, speed 3.5, 20000 XP,
+   with `anubis_boss.png` (`anubis.py --boss-texture`: obsidian, carnelian and gold, fiery eyes), 1500 HP, 110 damage
+   (104 after a level 30 player's 6 armour: 4 blows kill their 398 HP), a 1400 ms swing, speed 4.5, 20000 XP,
    threat 15. Mummies 2-4 alive, every 2 s, cap 10. They climb out of coffins (`Summon::Coffin`): a coffin stands on
    every empty floor cell within `MINION_SUMMON_REACH` (3) of the boss's tile on its row (`Dungeon::bossCoffin`), a
    minion takes the free coffin nearest the boss, not beyond the player or next to them while they are on its row

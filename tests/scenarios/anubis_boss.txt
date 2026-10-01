@@ -13,7 +13,7 @@ wait 5
 expect y > 3
 walk to 9
 wait 10
-expect boss == 1000
+expect boss == 1500
 expect minions >= 2
 screenshot coffins_rise_start
 wait 20

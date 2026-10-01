@@ -23,7 +23,10 @@ player went through, and is kept per save game.
 * Solved: question and answer, ticked.
 * Missed (walked away, Esc): decided 2026-10-01, the question stays with a "?" or an empty answer line, and the
   player can come back to it and answer it from the journal later. Gives a reason to think about it while playing,
-  and the journal becomes useful, not only a record. Open: the XP for a late answer (full, or part like half).
+  and the journal becomes useful, not only a record. A late answer gives one tenth of the gate's XP (decided
+  2026-10-01). The gate gives 30% of the XP to the next level, at least 500 ([docs/riddles.md](../riddles.md)), so a
+  late answer gives 3%, at least 50. Open: take the XP from when the gate was met (store it with the riddle) or from
+  when the answer is given.
 * The hint is written down only if it was shown.
 
 ### Potions

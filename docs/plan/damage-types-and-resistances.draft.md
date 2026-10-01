@@ -53,3 +53,4 @@ Spread the weaknesses so each weapon (club, sword, spear, bow) is the best choic
 * [weapon-ranges-and-balance.draft.md](weapon-ranges-and-balance.draft.md): weapon damage per second retune; do the
   resistances together with it (the club at 10 dps is too weak for any multiplier to save it).
 * [monster-strength.draft.md](monster-strength.draft.md): monster HP/stat readjustment.
+* [monster-journal.draft.md](monster-journal.draft.md): where the player learns the resistances.

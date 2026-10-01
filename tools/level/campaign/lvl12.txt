@@ -1,6 +1,6 @@
-; lvl12: the garden of the dead. Plants, giant bats, two Anubis. A chain of locks: the red key opens the red gate to
-; the green lever, the green gate leads to the gold key (an Anubis guards it), the gold gate to the way down.
-; The second Anubis guards a life potion in the west of the lower hall.
+; lvl12: the garden of the dead. Plants, giant bats, three mummies. A chain of locks: the red key opens the red gate to
+; the green lever, the green gate leads to the gold key (a mummy guards it), the gold gate to the way down.
+; The second mummy guards a life potion in the west of the lower hall.
 def / 12 1 0
 def L 12 2 0
 def K 12 3 0
@@ -16,13 +16,13 @@ def 9 8 1 1
 #S....F......^......H###################
 ####################H###################
 ####################H###################
-###r....F.....p.....H...R...p..H....K###
+###r....F.....p.....H...R...p..H.u..K###
 ###############################H########
 ###############################H########
-####y....n......H.........G....H..6..###
+####y....u......H.........G....H..6..###
 ################H###########X###########
 ################H#######################
-###7.?...n......H.....Y...F..v....H#####
+###7.?...u......H.....Y...F..v....H#####
 ##################################H#####
 ##################################H#####
 ########E...p...........F.....k...H#####

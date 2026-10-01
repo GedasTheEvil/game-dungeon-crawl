@@ -1,4 +1,4 @@
-; lvl14: the long descent. Giant scarabs, rats and bats, two Anubis. The red key opens the way down, the blue lever at the
+; lvl14: the long descent. Giant scarabs, rats and bats, two mummies, two Anubis. The red key opens the way down, the blue lever at the
 ; west end of the third hall opens the blue gate, the green key beyond the ladder the green gate.
 ; The second Anubis guards a life potion at the west end of the bottom hall.
 def / 12 1 0
@@ -22,10 +22,10 @@ def 9 8 1 1
 ######L.....H...F...........F........9##
 ############H###########X###############
 ############H###########################
-####g..p....H.....B..k..k...v.....H..###
+####g..p....H.....B..k..u...v.....H..###
 ##################################H#####
 ##################################H#####
-##########......?.....n.....G.....H.8###
+##########...u..?.....n.....G.....H.8###
 ############.######X####################
 ############.###########################
 ###7..n.........T......F...k....E#######

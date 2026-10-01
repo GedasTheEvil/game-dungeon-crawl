@@ -36,8 +36,12 @@ Reckless monsters:
 * `enum class Courage : unsigned char { Coward, Reckless }` in `MonsterType`, a column in `MONSTER_DEFS` /
   `BOSS_DEFS`. For a reckless monster the movement code treats spike, death trap and rock-fall cells as open floor.
 * Spike pits (no floor below) stay a stop: a walker would fall in.
-* Rock fall: a monster stepping into the cell starts the rumble too, like the player. `updateRocks` checks the
-  monsters under the rock as well as the player.
+* Rock fall: a reckless monster stepping into the cell starts the rumble too, like the player. `updateRocks` checks
+  the monsters under the rock as well as the player. The rock falls once: after that the cell stays `Fallen`, whoever
+  set it off.
+* Cowards avoid an armed or falling rock-fall cell like spikes: today `Dungeon::walkerBlocked` stops walkers only at
+  `Spike` / `Death`, so they walk into `RockFall` cells. A `Fallen` cell is harmless and open to all. Jumpers leap
+  over an armed one (`leapLanding` must not land on it).
 * Damage numbers / blood on trap hits, so the player sees the trap hurt the monster.
 * Level checker: `monsterThreat` may need a bump for reckless monsters (the player cannot use traps as a wall).
 
@@ -46,4 +50,3 @@ Reckless monsters:
 * Any other reckless monsters besides the mummy and Anubis?
 * A reckless jumper (none yet): walk through traps, or still leap over them to take no damage? Decide when one
   exists.
-* Does the rock reset after it falls on a monster, or stay `Fallen` as for the player?

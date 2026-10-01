@@ -1,4 +1,4 @@
-; lvl13: the gallery of falling rocks. Loose ceilings everywhere, giant scarabs, giant bats, giant rats, an Anubis.
+; lvl13: the gallery of falling rocks. Loose ceilings everywhere, giant scarabs, giant bats, giant rats, a mummy, an Anubis.
 ; The blue key at the east end of the second hall opens the blue gate, the gold lever in the lower hall the gold gate.
 def / 12 1 0
 def L 12 2 0
@@ -18,7 +18,7 @@ def 9 8 1 1
 ####1...H..........v..k....B..H...T..b##
 ########H###############################
 ########H###############################
-########H..T....v......F..H...Y...H..###
+########H..T....v......F..H...Y.u.H..###
 ####################.#####H#######H#####
 ####################.#####H#######H#####
 #####J.2.k...F..v......k..H.######H#####

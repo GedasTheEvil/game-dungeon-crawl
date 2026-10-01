@@ -1,5 +1,5 @@
-; lvl10: the jackal's hall and the vampire's roost. The first Anubis waits by the exit. A giant rat, a giant scarab, a
-; plant. The teleporter at the east end of the upper hall leads to the sealed roost: the vampire bat and its bats,
+; lvl10: the jackal's hall and the vampire's roost. A giant scarab waits by the exit. A giant rat, another giant scarab,
+; a plant. The teleporter at the east end of the upper hall leads to the sealed roost: the vampire bat and its bats,
 ; the boss gate, behind it the gold key for the gold gate to the shaft down, and the treasure.
 def 1 8 3 1
 def 5 8 3 2
@@ -15,5 +15,5 @@ def 5 8 3 2
 ####....v...k.....v....T......H#########
 ###############X##############H#########
 ##############################H#########
-##E...n....^.......?..1.......H#########
+##E...k....^.......?..1.......H#########
 ########################################

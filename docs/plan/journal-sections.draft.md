@@ -25,8 +25,8 @@ player went through, and is kept per save game.
   player can come back to it and answer it from the journal later. Gives a reason to think about it while playing,
   and the journal becomes useful, not only a record. A late answer gives one tenth of the gate's XP (decided
   2026-10-01). The gate gives 30% of the XP to the next level, at least 500 ([docs/riddles.md](../riddles.md)), so a
-  late answer gives 3%, at least 50. Open: take the XP from when the gate was met (store it with the riddle) or from
-  when the answer is given.
+  late answer gives 3%, at least 50. The XP is fixed when the gate is met and saved with the riddle, so holding a
+  riddle back until a level up gives nothing extra.
 * The hint is written down only if it was shown.
 
 ### Potions

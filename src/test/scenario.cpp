@@ -88,6 +88,7 @@ enum class Field : unsigned char {
 	Boss,
 	Minions,
 	Nearest,
+	Coffins,
 	ItemCount,
 	ItemLevel
 };
@@ -223,6 +224,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.LivingMinions());
 	case Field::Nearest:
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
+	case Field::Coffins:
+		return static_cast<float>(Game().dungeon.CoffinCount());
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.item));
 	case Field::ItemLevel:
@@ -378,7 +381,8 @@ bool parseField(const std::string& word, Field& field) {
 				  {"bars", Field::Bars},
 				  {"boss", Field::Boss},
 				  {"minions", Field::Minions},
-				  {"nearest", Field::Nearest}};
+				  {"nearest", Field::Nearest},
+				  {"coffins", Field::Coffins}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -519,6 +523,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			!parseFloat(w[3], cmd.a))
 			return "usage: expect "
 				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|bars|boss|minions|"
+				   "coffins|"
 				   "<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
 		return "";

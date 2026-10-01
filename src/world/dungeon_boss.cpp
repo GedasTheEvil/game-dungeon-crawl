@@ -59,7 +59,9 @@ void Dungeon::updateBoss() {
 		return;
 	}
 	if (!boss.Alive()) {
-		map[MapIndex(boss.Col(), boss.Row())] = Tile{Empty, 0, 0}; // it does not come back, not after a load either
+		// It does not come back, not after a load either; its coffins stay.
+		Tile& spawn = map[MapIndex(boss.Col(), boss.Row())];
+		spawn = slainBossTile(spawn.attr);
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
 		Game().ShowStatus("%s", "The guardian is slain!\nThe boss gate grinds open");

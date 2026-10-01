@@ -95,7 +95,7 @@ void Dungeon::Dump(std::ofstream& f) {
 void Dungeon::PickUp() {
 	if (Map(mapX, mapY).type == Treasure) {
 		std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
-		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].type = Empty;
+		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))] = Tile{Empty, 0, 0};
 		if (!placed) // an empty chest (type 0), or an item the game does not know
 			return;
 

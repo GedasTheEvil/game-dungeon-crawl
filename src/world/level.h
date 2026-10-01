@@ -99,6 +99,10 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 inline void pullLever(Tile& t) { t.value = 1; }
 // A teleporter's value: its pair id.
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
+// An Empty cell's attr: 0, or the monster type of the boss slain there (its spawn tile), so its chamber keeps its
+// coffins after a load. Only save games have it.
+[[nodiscard]] inline Tile slainBossTile(int bossType) { return Tile{Empty, bossType, 0}; }
+[[nodiscard]] inline int slainBoss(const Tile& t) { return t.type == Empty ? t.attr : 0; }
 
 // Blocks the player (walls and gates not fully open). Everything else is open space.
 inline bool isSolidTile(const Tile& t) { return t.type == Wall || (t.type == Gate && gateState(t) != GateState::Open); }

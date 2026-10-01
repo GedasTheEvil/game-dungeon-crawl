@@ -62,19 +62,28 @@ uint32_t cellHash(uint32_t seed, int cell) { return mix(seed ^ mix(static_cast<u
 } // namespace
 
 // An empty floor cell within MINION_SUMMON_REACH of a boss on its row whose minions climb out of coffins
-// (Summon::Coffin): a coffin for them stands there.
+// (Summon::Coffin), alive or slain (slainBoss): a coffin for them stands there.
 bool Dungeon::bossCoffin(int i, int j) const {
-	if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
+	if (MapAt(i, j).type != Empty || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) ||
+		MapAt(i, j - 1).type != Wall)
 		return false;
 	for (int k = -MINION_SUMMON_REACH; k <= MINION_SUMMON_REACH; k++) {
 		if (!IsInBounds(i + k, j))
 			continue;
 		const Tile& t = MapAt(i + k, j);
-		if (t.type == MonsterSpawn && t.attr >= 1 && t.attr <= MONSTER_TYPE_MAX &&
-			Game().assets.monsterTypes[t.attr].boss.summon == Summon::Coffin)
+		const int boss = t.type == MonsterSpawn ? t.attr : slainBoss(t);
+		if (boss >= 1 && boss <= MONSTER_TYPE_MAX && Game().assets.monsterTypes[boss].boss.summon == Summon::Coffin)
 			return true;
 	}
 	return false;
+}
+
+int Dungeon::CoffinCount() const {
+	int n = 0;
+	for (const DecorCell& cell : decor)
+		if (cell.type == DECOR_COFFIN)
+			n++;
+	return n;
 }
 
 // Every cell rolls independently from (level name, cell index), so the layout is the same on every
@@ -93,8 +102,9 @@ void Dungeon::scatterDecorations(const char* levelName) {
 				continue;
 			}
 
-			// Only empty cells the player can stand in (floor below).
-			if (MapAt(i, j).type != Empty || !IsInBounds(i, j - 1) || MapAt(i, j - 1).type != Wall)
+			// Only empty cells the player can stand in (floor below). A slain boss's tile stays bare, as in his life.
+			if (MapAt(i, j).type != Empty || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) ||
+				MapAt(i, j - 1).type != Wall)
 				continue;
 
 			uint32_t h = cellHash(seed, MapIndex(i, j));

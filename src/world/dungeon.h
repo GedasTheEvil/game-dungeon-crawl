@@ -196,6 +196,7 @@ class Dungeon {
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
+	[[nodiscard]] int CoffinCount() const;			// coffins standing on the level (decorations)
 	void HurtBoss(int dmg);							// scenario tests: the boss in play takes a hit, as from the player
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }

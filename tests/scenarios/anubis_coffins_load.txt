@@ -1,0 +1,23 @@
+# Anubis boss (tests/levels/anubis_boss): his six coffins are placed round his tile when the level loads. Killed, he
+# leaves a slain-boss mark on his tile, so a game saved after his death loads with the coffins still there.
+seed 1
+level tests/levels/anubis_boss
+xp 112000
+god
+wait 30
+expect coffins == 6
+walk right 3.5
+interact
+wait 5
+walk to 9
+wait 10
+expect boss == 1500
+killboss
+wait 5
+expect boss == 0
+savegame after_boss
+loadgame after_boss
+wait 5
+expect boss == 0
+expect coffins == 6
+screenshot coffins_after_load

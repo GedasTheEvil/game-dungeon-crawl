@@ -82,10 +82,12 @@ class JournalScreen {
 	}
 	[[nodiscard]] int PagesTotal() const { return FirstPage(SECTION_COUNT); }
 	// Where a section's ribbon hangs out of the book open at `at`: left of the spine once its first page is open or
-	// turned, and how far out (canvas units), from the pages between it and the open spread.
+	// turned, and how far out (canvas units), from the pages between it and the open spread. Under the open page on
+	// its side, coming out of the page edge, but for the ribbon of the open left page: that one lies on top.
 	struct RibbonPlace {
 		bool left = false;
 		float depth = 0;
+		bool top = false;
 	};
 	[[nodiscard]] RibbonPlace PlaceOf(int ribbon, const Opening& at) const;
 	// The ribbon's first page goes over with the turning page.
@@ -111,8 +113,9 @@ class JournalScreen {
 	int RenderPage(PageSlot slot, Opening at, int side, bool live);
 	void DrawPageContent(Opening at, int side, bool live);
 	void DrawBook(const Opening& at);
-	// The ribbons lying still (not on a turning page) and the hovered one's name.
-	void DrawRibbons();
+	// The ribbons lying still (not on a turning page), under the open pages or on top of them (RibbonPlace::top);
+	// with the top ones the hovered one's name.
+	void DrawRibbons(bool top);
 	void DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered);
 	void DrawCreature(const ui::Rect& page, int index);
 	void DrawFieldNote(const ui::Rect& page, int index);

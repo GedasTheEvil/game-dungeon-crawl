@@ -269,7 +269,8 @@ JournalScreen::RibbonPlace JournalScreen::PlaceOf(int ribbon, const Opening& at)
 	int before = PagesBefore(at);
 	bool left = first <= before;
 	int between = left ? before - first : first - before - 2; // under the right page: from the one after it
-	return {left, static_cast<float>(between) / static_cast<float>(PagesTotal()) * RIBBON_DEPTH_MAX};
+	return {left, static_cast<float>(between) / static_cast<float>(PagesTotal()) * RIBBON_DEPTH_MAX,
+			left && between == 0};
 }
 
 bool JournalScreen::Riding(int ribbon) const {
@@ -376,7 +377,8 @@ JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
 		return {};
 	for (int i = 0; i < SECTION_COUNT; i++) {
 		RibbonPlace place = PlaceOf(i, Open());
-		if (ribbonRect(i, place.left, place.depth).contains(x, y))
+		bool underPage = !place.top && (place.left ? x > LEFT_PAGE.x : x < RIGHT_PAGE.x + RIGHT_PAGE.w);
+		if (!underPage && ribbonRect(i, place.left, place.depth).contains(x, y))
 			return {Target::Ribbon, i};
 	}
 	if (spread[static_cast<size_t>(section)] > 0 && cornerRect(0).contains(x, y))
@@ -556,6 +558,7 @@ void JournalScreen::Draw() {
 	backdrop(area, Game().assets.textures.loadingBackground.ID());
 	titleBar(title, CANVAS_W / 2, "Journal", SCREEN_TABS_TITLE_REACH);
 	DrawBook(open);
+	DrawRibbons(false);
 	if (pagesFailed) {
 		for (int side = 0; side < 2; side++) {
 			const Rect& p = pageRect(side);
@@ -570,7 +573,7 @@ void JournalScreen::Draw() {
 	}
 	beginShapes();
 	line(SPINE, LEFT_PAGE.y, SPINE, LEFT_PAGE.y + LEFT_PAGE.h, BLACK, 0.35f, 1.f); // the gutter
-	DrawRibbons();																   // under the turning page
+	DrawRibbons(true);															   // under the turning page
 
 	if (turning && !pagesFailed) {
 		PageCurlPlacement at;
@@ -615,17 +618,23 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	glLoadIdentity();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
+	// The ribbons riding on a turning page: under the paper, only hanging out past its edge, or on it as they lie
+	// on the book on this side (RibbonPlace::top).
+	auto riding = [&](bool top) {
+		if (!turning)
+			return;
+		beginShapes();
+		for (int i = 0; i < SECTION_COUNT; i++)
+			if (Riding(i) && PlaceOf(i, slot == PageSlot::Front ? turn.from : turn.to).top == top)
+				DrawRibbon(i, side == 0, RidingDepth(i), static_cast<int>(turn.to.section) == i, false);
+	};
+	riding(false);
 	glDisable(GL_BLEND);
 	// The paper texture has its spine on the left: the left page draws it mirrored.
 	texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
 				 side == 0 ? 0.f : 1.f, 1.f);
 	DrawPageContent(at, side, live);
-	if (turning) {
-		beginShapes();
-		for (int i = 0; i < SECTION_COUNT; i++)
-			if (Riding(i))
-				DrawRibbon(i, side == 0, RidingDepth(i), static_cast<int>(turn.to.section) == i, false);
-	}
+	riding(true);
 	target.End();
 	return target.TextureID();
 }
@@ -742,7 +751,7 @@ void JournalScreen::DrawRibbon(int ribbon, bool left, float depth, bool open, bo
 	}
 }
 
-void JournalScreen::DrawRibbons() {
+void JournalScreen::DrawRibbons(bool top) {
 	beginShapes();
 	Section shown = turn.active ? turn.to.section : section; // a turn to another section shows its letter at once
 	for (int i = 0; i < SECTION_COUNT; i++) {
@@ -750,13 +759,18 @@ void JournalScreen::DrawRibbons() {
 			continue; // drawn on the turning page
 		// Still, but the pages move under it: from where it lay to where it lands.
 		RibbonPlace place = PlaceOf(i, turn.active ? turn.from : Open());
-		if (turn.active)
-			place.depth += (PlaceOf(i, turn.to).depth - place.depth) * turn.progress;
+		if (turn.active) {
+			RibbonPlace to = PlaceOf(i, turn.to);
+			place.depth += (to.depth - place.depth) * turn.progress;
+			place.top = turn.progress < 0.5f ? place.top : to.top;
+		}
+		if (place.top != top)
+			continue;
 		bool isHovered = hovered.target == Target::Ribbon && hovered.ribbon == i;
 		DrawRibbon(i, place.left, place.depth, static_cast<int>(shown) == i, isHovered);
 	}
 	// The hovered ribbon's name, on a small dark label next to it on the page.
-	if (hovered.target != Target::Ribbon)
+	if (!top || hovered.target != Target::Ribbon)
 		return;
 	const char* name = SECTIONS[static_cast<size_t>(hovered.ribbon)].name;
 	RibbonPlace place = PlaceOf(hovered.ribbon, Open());

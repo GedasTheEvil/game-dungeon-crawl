@@ -16,6 +16,8 @@
 #include "logger.h"
 #include "timer.h"
 #include "../test/scenario.h"
+#include "../state/settings.h"
+#include <algorithm>
 
 int window = 1;
 
@@ -58,6 +60,12 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
 	Game().render.resX = width;
 	Game().render.resY = height;
+	// A window resized by hand opens at that size next time (saved on quit); fullscreen keeps the window's size.
+	Settings::Display& display = Game().settings.display;
+	if (!display.fullscreen && !Scenario::active()) {
+		display.width = std::clamp(static_cast<int>(width), MIN_WINDOW_W, MAX_WINDOW_W);
+		display.height = std::clamp(static_cast<int>(height), MIN_WINDOW_H, MAX_WINDOW_H);
+	}
 }
 
 // SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
@@ -87,7 +95,11 @@ int main(int argc, char* argv[]) {
 			Game().render.resY = Scenario::resolutionY();
 		} else {
 			Game().random.Seed(static_cast<uint64_t>(std::time(nullptr))); // a scenario seeds per level instead
+			SettingsFile::Load(Game().settings);
+			Game().render.resX = Game().settings.display.width;
+			Game().render.resY = Game().settings.display.height;
 		}
+		Game().ApplySettings(false);
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
@@ -97,6 +109,8 @@ int main(int argc, char* argv[]) {
 		glutInitWindowPosition(0, 0);
 
 		window = glutCreateWindow("Dungeon Crawl");
+		if (Game().settings.display.fullscreen)
+			glutFullScreen();
 
 		glutReshapeFunc(&reSizeGlScene);
 
@@ -130,6 +144,7 @@ int main(int argc, char* argv[]) {
 		glutMainLoop();
 
 		// Cleanup
+		SettingsFile::Save(Game().settings); // only writes when the window was resized
 		DestroyGame();
 		Logger::shutdown();
 		SDL_Quit();

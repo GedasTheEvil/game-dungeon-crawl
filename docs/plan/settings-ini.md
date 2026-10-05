@@ -1,6 +1,15 @@
 # Settings in an ini file
 
-Status: draft 2026-10-05, refined 2026-10-05: all settled, ready to implement.
+Status: implemented 2026-10-05, waiting for a play test. The file and its keys: [settings.md](../settings.md).
+
+Implemented as below, except:
+
+* Remapping is per cell, not per row: each action has two key cells and a mouse cell; a click on one waits for that
+  input. `Delete` clears the cell, `Esc` cancels.
+* Reserved: `Esc` and `F1`-`F11`; `F12` is bindable (interact's second key by default).
+* The window opens at 800 x 500 by default, as before. A window resized by hand is kept (saved on quit).
+* The inventory and the journal still walk their selection with `WASD` / the arrows, whatever the bindings.
+* Comments go on their own lines; `;` after a value is not a comment.
 
 ## Idea
 

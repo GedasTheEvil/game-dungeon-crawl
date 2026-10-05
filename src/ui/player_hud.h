@@ -3,6 +3,7 @@
 
 #include "ui_draw.h"
 #include <cstdint>
+#include <string>
 
 class Font;
 
@@ -20,7 +21,7 @@ struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
 	ui::Color tint = {1, 1, 1};
 	int count = -1;			  // badge; < 0: none (the weapon)
-	const char* key = "";	  // the key cap under the slot
+	std::string key;		  // the key cap under the slot (from the bindings)
 	int flashAgeMs = 1000000; // since the last use (a quick drink), for the flash
 };
 

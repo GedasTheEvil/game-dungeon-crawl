@@ -11,6 +11,9 @@
 #include <memory>
 #include "../core/gameplay_config.h"
 #include "../world/campaign.h"
+#include "../graphics/ink.h"
+#include "../graphics/lighting.h"
+#include "../graphics/particles.h"
 
 namespace {
 std::unique_ptr<GameState> gGame;
@@ -56,7 +59,6 @@ void GameState::Load() {
 	assets.sounds.soundtrack.Play();
 
 	saves.LoadNames();
-	Settings::Load(render);
 
 	status.clear();
 	cacheLoaded = true;
@@ -129,6 +131,15 @@ void GameState::NewGame() {
 	dungeon.LoadCampaignLevel(1);
 	dungeon.ClearWin();
 	player->Reanimate();
+}
+//==============================================================
+void GameState::ApplySettings(bool save) {
+	Ink::setToon(settings.graphics.toon);
+	ParticleSystem::shown = settings.graphics.blood;
+	Lighting::setFlicker(settings.graphics.lightFlicker);
+	Audio::SetVolumes(settings.sound.music, settings.sound.effects);
+	if (save)
+		SettingsFile::Save(settings);
 }
 //==============================================================
 void GameState::DrawLoad(float xxx, const char text[]) {

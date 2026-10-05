@@ -24,6 +24,7 @@
 #include "../world/journal.h"
 #include "../world/world_events.h"
 #include "save_slots.h"
+#include "settings_ini.h"
 #include <array>
 #include <memory>
 #include <string>
@@ -36,9 +37,9 @@ struct Camera {
 };
 
 struct RenderSettings {
-	bool Hitboxes = false;	   // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
-	bool MotionEffects = true; // sprint blur, FOV kick, vignette (Options > Display, saved in saves/settings.txt)
-	int resX = 800;
+	bool Hitboxes = false; // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
+	int resX = 800;		   // the window's size now; Settings::display holds the one it opens with
+
 	int resY = 500;
 };
 
@@ -62,6 +63,7 @@ class GameState {
 	Assets assets;
 	Camera camera;
 	RenderSettings render;
+	Settings settings; // the Options choices (saves/settings.ini)
 	bool cacheLoaded = false;
 	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
 	Timer statusTimer{STATUS_MS};
@@ -81,6 +83,8 @@ class GameState {
 	void Save(const char filename[]);
 	void LoadSave(const char filename[]);
 	void NewGame();
+	// Hands the graphics and sound choices to the renderer and the mixer; with `save`, writes the file too.
+	void ApplySettings(bool save);
 	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);
 	void ApplyWorldEvents(); // plays, shows and writes down what is in events; runs after input and each tick
 	static constexpr int STATUS_MS = 3000;

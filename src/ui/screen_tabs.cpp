@@ -29,16 +29,6 @@ namespace ScreenTabs {
 
 bool Has(Screen s) { return tabOf(s) >= 0; }
 
-Screen ForKey(unsigned char key) {
-	if (key == KEY_INVENTORY || key == KEY_INVENTORY_UPPER)
-		return Screen::Inventory;
-	if (key == KEY_MAP || key == KEY_MAP_UPPER)
-		return Screen::Map;
-	if (key == KEY_JOURNAL || key == KEY_JOURNAL_UPPER)
-		return Screen::Journal;
-	return Screen::Gameplay;
-}
-
 void Draw() {
 	const ScreenTabsState& tabs = Game().ui.tabs;
 	const int open = tabOf(Game().ui.screen);

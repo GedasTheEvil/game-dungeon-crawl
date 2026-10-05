@@ -160,7 +160,7 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 		fillRect(badge, BADGE, BADGE, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
 	}
-	Rect cap = capRect(r, small, s.key);
+	Rect cap = capRect(r, small, s.key.c_str());
 	fillRect({cap.x, cap.y - 0.25f, cap.w, cap.h}, BLACK, BLACK, 0.5f);
 	fillRect(cap, CAP_TOP, CAP_BOTTOM, 1.f);
 	strokeRect(cap, GOLD_DIM, 1.f, 1.f);
@@ -179,8 +179,8 @@ void drawSlotIcon(const PlayerHud::Slot& s, const Rect& r, int icons) {
 }
 
 void drawSlotText(const PlayerHud::Slot& s, const Rect& r, Font& small) {
-	Rect cap = capRect(r, small, s.key);
-	textCentered(small, cap.cx(), cap.cy() - CAP_PEN_DROP + 0.5f, s.key, GOLD);
+	Rect cap = capRect(r, small, s.key.c_str());
+	textCentered(small, cap.cx(), cap.cy() - CAP_PEN_DROP + 0.5f, s.key.c_str(), GOLD);
 	if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
 		char count[12];
 		snprintf(count, sizeof(count), "%d", s.count);

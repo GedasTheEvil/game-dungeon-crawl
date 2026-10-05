@@ -10,6 +10,9 @@
 #include "../state/game_state.h"
 #include "../state/settings.h"
 #include "ui_draw.h"
+#include "../input/input.h"
+#include <optional>
+#include <string>
 
 // Same 160 x 100 canvas (y up) and look as the inventory: a framed panel on the carved slate, lapis and stone tiles.
 namespace {
@@ -36,15 +39,31 @@ constexpr float SLOT_GAP_X = 4.f;
 constexpr float SLOT_GAP_Y = 3.5f;
 constexpr Rect BACK_BUTTON = {63, 9.5f, 34, 8};
 
-constexpr Rect OPTIONS_PANEL = {12, 20, 136, 64};
+constexpr Rect OPTIONS_PANEL = {6, 20, 148, 64};
 constexpr float TAB_W = 30.f;
 constexpr float TAB_H = 7.f;
-constexpr float TABLE_TOP = 68.8f; // header baseline
-constexpr float ROW_H = 3.5f;
-constexpr float ACTION_X = OPTIONS_PANEL.x + 8;
-constexpr float KEYS_X = OPTIONS_PANEL.x + 52;
-constexpr float MOUSE_X = OPTIONS_PANEL.x + 100;
-constexpr Rect MOTION_SWITCH = {OPTIONS_PANEL.x + 100, TABLE_TOP - 6.f, 22, 6}; // Display tab: on / off
+constexpr float OPTIONS_LEFT = OPTIONS_PANEL.x + 5; // the tab contents, the rule under the tabs
+constexpr float OPTIONS_RIGHT = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
+
+// Controls tab: two columns of rows; a row is the action, its two key cells and its mouse cell.
+constexpr float TABLE_TOP = 70.2f; // header baseline
+constexpr float TABLE_RULE = TABLE_TOP - 1.1f;
+constexpr float ROW_H = 3.8f;
+constexpr int ROWS_PER_COLUMN = 11;
+constexpr float COLUMN_W = 68.f;
+constexpr float COLUMN_GAP = 2.f;
+constexpr float CELL_X = 29.f; // from the column's left edge
+constexpr float CELL_STEP = 13.f;
+constexpr float CELL_W = 12.f;
+constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be changed
+
+// Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
+constexpr float OPTION_TOP = 71.5f;
+constexpr float OPTION_H = 8.f;
+constexpr float SWITCH_W = 22.f;
+constexpr float CHOICE_W = 30.f;
+constexpr float SLIDER_W = 44.f;
+constexpr float SLIDER_VALUE_W = 9.f; // the number right of the slider
 
 // The credits sheet is square; it sits in its own frame, not stretched over the window.
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
@@ -102,49 +121,122 @@ constexpr std::array<MenuButton, 6> IN_GAME_BUTTONS = {{
 	{"Main Menu", Icon::Pyramid, MenuAction::MainMenu, false},
 }};
 
-// ---- options: controls tab --------------------------------------------------
+// ---- options ----------------------------------------------------------------
 
-constexpr std::array<const char*, 2> TABS = {"Controls", "Display"};
+constexpr std::array<const char*, 3> TABS = {"Controls", "Display", "Sound"};
+constexpr int CONTROLS_TAB = 0;
 constexpr int DISPLAY_TAB = 1;
+constexpr int SOUND_TAB = 2;
 
-enum class MouseInput : std::uint8_t { None, Left, Middle, Right, Move };
+enum class MouseInput : std::uint8_t { None, Left, Middle, Right };
 
-// `keys`: space separated key caps; "/" and "," are drawn as plain separators between them.
-struct ControlRow {
-	const char* action;
-	const char* keys;
-	MouseInput mouse;
+MouseInput mouseInput(const InputKey& key) {
+	if (key.kind != InputKey::Kind::Mouse)
+		return MouseInput::None;
+	switch (key.code) {
+	case MOUSE_LEFT_BUTTON:
+		return MouseInput::Left;
+	case MOUSE_MIDDLE_BUTTON:
+		return MouseInput::Middle;
+	case MOUSE_RIGHT_BUTTON:
+		return MouseInput::Right;
+	default:
+		return MouseInput::None;
+	}
+}
+
+enum class OptionKind : std::uint8_t { Switch, Choice, Slider };
+enum class OptionId : std::uint8_t { WindowSize, Fullscreen, MotionEffects, Toon, Blood, LightFlicker, Music, Effects };
+
+struct OptionRow {
+	OptionId id;
+	OptionKind kind;
+	const char* name;
+	const char* hint;
 };
 
-constexpr std::array<ControlRow, 12> CONTROLS = {{
-	{"Move left / right", "A / D , Left / Right", MouseInput::None},
-	{"Climb up / down (ladders)", "W / S , Up / Down", MouseInput::None},
-	{"Jump", "Space", MouseInput::Right},
-	{"Sprint (hold)", "Shift", MouseInput::None},
-	{"Attack", "V , Enter", MouseInput::Left},
-	{"Interact: pick up, lever, riddle", "E , F12", MouseInput::Middle},
-	{"Look around", "PgUp / PgDn , Home / End", MouseInput::Move},
-	{"Equip club / sword / spear / bow", "1 / 2 / 3 / 4", MouseInput::None},
-	{"Drink healing / stamina potion", "H / 0", MouseInput::None},
-	{"Inventory / draft map / journal", "I / M / J", MouseInput::None},
-	{"Menu / back", "Esc", MouseInput::None},
-	{"Cartoon shading", "F1", MouseInput::None},
+constexpr std::array<OptionRow, 6> DISPLAY_ROWS = {{
+	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
+	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
+	{OptionId::MotionEffects, OptionKind::Switch, "Motion effects", "Sprint blur, wider view and darker edges"},
+	{OptionId::Toon, OptionKind::Switch, "Toon shading", "Cel bands and ink outlines (F1)"},
+	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
+	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
+}};
+constexpr std::array<OptionRow, 2> SOUND_ROWS = {{
+	{OptionId::Music, OptionKind::Slider, "Music volume", "The soundtrack"},
+	{OptionId::Effects, OptionKind::Slider, "Effects volume", "Hits, jumps, levers and gates"},
 }};
 
-const char* mouseLabel(MouseInput m) {
-	switch (m) {
-	case MouseInput::Left:
-		return "Left button";
-	case MouseInput::Middle:
-		return "Middle button";
-	case MouseInput::Right:
-		return "Right button";
-	case MouseInput::Move:
-		return "Move";
-	case MouseInput::None:
-		break;
+struct OptionRows {
+	const OptionRow* rows;
+	int count;
+	[[nodiscard]] const OptionRow& operator[](int i) const { return rows[i]; }
+};
+
+OptionRows optionRows(int tab) {
+	if (tab == SOUND_TAB)
+		return {SOUND_ROWS.data(), static_cast<int>(SOUND_ROWS.size())};
+	if (tab == DISPLAY_TAB)
+		return {DISPLAY_ROWS.data(), static_cast<int>(DISPLAY_ROWS.size())};
+	return {DISPLAY_ROWS.data(), 0}; // the Controls tab has its own table
+}
+
+// The window sizes the Window size row steps through.
+struct WindowSize {
+	int w, h;
+};
+constexpr std::array<WindowSize, 5> WINDOW_SIZES = {{{800, 500}, {1024, 640}, {1280, 720}, {1600, 900}, {1920, 1080}}};
+
+bool& switchOf(OptionId id) {
+	Settings& s = Game().settings;
+	switch (id) {
+	case OptionId::Fullscreen:
+		return s.display.fullscreen;
+	case OptionId::Toon:
+		return s.graphics.toon;
+	case OptionId::Blood:
+		return s.graphics.blood;
+	case OptionId::LightFlicker:
+		return s.graphics.lightFlicker;
+	default:
+		return s.graphics.motionEffects;
 	}
-	return "";
+}
+
+int& sliderOf(OptionId id) {
+	return id == OptionId::Music ? Game().settings.sound.music : Game().settings.sound.effects;
+}
+
+Rect optionBand(int row) {
+	float y = OPTION_TOP - static_cast<float>(row + 1) * OPTION_H;
+	return {OPTIONS_LEFT, y + 0.5f, OPTIONS_RIGHT - OPTIONS_LEFT, OPTION_H - 1.f};
+}
+
+// The switch, the choice or the slider's track (the mouse target) of a row.
+Rect optionControl(int row, OptionKind kind) {
+	Rect band = optionBand(row);
+	float w = kind == OptionKind::Switch ? SWITCH_W : kind == OptionKind::Choice ? CHOICE_W : SLIDER_W;
+	float right = band.x + band.w - 3.f - (kind == OptionKind::Slider ? SLIDER_VALUE_W : 0.f);
+	return {right - w, band.y + 0.5f, w, band.h - 1.f};
+}
+
+// Controls tab: row `index` (an action, or the reset button after the last) in its column.
+Rect controlRow(int index) {
+	const int column = index / ROWS_PER_COLUMN;
+	float x = OPTIONS_LEFT + static_cast<float>(column) * (COLUMN_W + COLUMN_GAP);
+	float y = TABLE_RULE - static_cast<float>(index % ROWS_PER_COLUMN + 1) * ROW_H;
+	return {x, y, COLUMN_W, ROW_H};
+}
+
+Rect controlCell(int action, int slot) {
+	Rect row = controlRow(action);
+	return {row.x + CELL_X + static_cast<float>(slot) * CELL_STEP, row.y + 0.45f, CELL_W, ROW_H - 0.9f};
+}
+
+Rect resetButton() {
+	Rect row = controlRow(BIND_ACTION_COUNT);
+	return {row.x + CELL_X, row.y + 0.2f, 2 * CELL_STEP + CELL_W, ROW_H - 0.4f};
 }
 
 struct ButtonList {
@@ -257,24 +349,27 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 	}
 }
 
-// Small mouse with the used button lit, bottom left corner at (x, y).
-void drawMouse(float x, float y, MouseInput m) {
-	constexpr float W = 2.6f;
-	constexpr float H = 3.6f;
+constexpr float MOUSE_W = 2.6f;
+constexpr float MOUSE_H = 3.6f;
+
+// Small mouse with the used button lit, bottom left corner at (x, y), `scale` times MOUSE_W x MOUSE_H.
+void drawMouse(float x, float y, MouseInput m, float scale) {
+	const float w = MOUSE_W * scale;
+	const float h = MOUSE_H * scale;
 	constexpr float SPLIT = 0.55f; // buttons take the top 45 %
-	Rect body = {x, y, W, H};
+	Rect body = {x, y, w, h};
 	fillRect(body, WELL, WELL, 1.f);
-	float by = y + H * SPLIT;
-	float third = W / 3;
+	float by = y + h * SPLIT;
+	float third = w / 3;
 	if (m == MouseInput::Left)
-		fillRect({x, by, third * 1.5f, H - H * SPLIT}, GOLD, GOLD, 1.f);
+		fillRect({x, by, third * 1.5f, h - h * SPLIT}, GOLD, GOLD, 1.f);
 	if (m == MouseInput::Right)
-		fillRect({x + third * 1.5f, by, third * 1.5f, H - H * SPLIT}, GOLD, GOLD, 1.f);
+		fillRect({x + third * 1.5f, by, third * 1.5f, h - h * SPLIT}, GOLD, GOLD, 1.f);
 	if (m == MouseInput::Middle)
-		fillRect({x + third * 1.1f, by + 0.2f, third * 0.8f, H * 0.3f}, GOLD, GOLD, 1.f);
-	line(x, by, x + W, by, GOLD_DIM, 1.f, 1.f);
+		fillRect({x + third * 1.1f, by + 0.2f, third * 0.8f, h * 0.3f}, GOLD, GOLD, 1.f);
+	line(x, by, x + w, by, GOLD_DIM, 1.f, 1.f);
 	if (m != MouseInput::Middle)
-		line(x + W / 2, by, x + W / 2, y + H, GOLD_DIM, 1.f, 1.f);
+		line(x + w / 2, by, x + w / 2, y + h, GOLD_DIM, 1.f, 1.f);
 	strokeRect(body, GOLD_DIM, 1.f, 1.f);
 }
 
@@ -319,7 +414,7 @@ void MainMenu::Draw() {
 		DrawBackground("Options");
 		DrawOptions();
 		DrawBackButton();
-		DrawFooter("Esc: back");
+		DrawFooterHint();
 	} else if (saveD || loadD) {
 		DrawBackground(saveD ? "Save Game" : "Load Game");
 		DrawSlots();
@@ -435,93 +530,128 @@ void MainMenu::DrawOptions() {
 		beginShapes();
 	}
 	float ruleY = tabRect(0).y;
-	float left = OPTIONS_PANEL.x + 5;
-	float right = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
-	line(left, ruleY, right, ruleY, GOLD_DIM, 1.f, 1.5f);
+	line(OPTIONS_LEFT, ruleY, OPTIONS_RIGHT, ruleY, GOLD_DIM, 1.f, 1.5f);
 
-	if (optionsTab == DISPLAY_TAB)
-		DrawDisplay(left, right);
+	if (optionsTab == CONTROLS_TAB)
+		DrawControls(OPTIONS_LEFT, OPTIONS_RIGHT);
 	else
-		DrawControls(left, right);
+		DrawRows();
 }
 
-// One row: the setting and what it does, its on / off switch on the right.
-void MainMenu::DrawDisplay(float left, float right) {
-	const bool on = Game().render.MotionEffects;
-	const bool isHovered = hovered == MOTION_TOGGLE;
-	fillRect({left, MOTION_SWITCH.y - 2.f, right - left, MOTION_SWITCH.h + 4.f}, {1, 1, 1}, {1, 1, 1}, 0.035f);
-	Rect r =
-		tile(MOTION_SWITCH, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, isHovered && pressed == MOTION_TOGGLE);
-	beginText();
-	text(body, ACTION_X, MOTION_SWITCH.y + 2.6f, "Motion effects", LABEL);
-	text(small, ACTION_X, MOTION_SWITCH.y - 0.6f, "Sprint blur, wider view and darker edges", LABEL_DIM);
-	textCentered(heading, r.cx(), r.y + 1.2f, on ? "On" : "Off", on ? GOLD : LABEL);
-	beginShapes();
+// One row a setting: its name and what it does, its switch, choice or slider on the right.
+void MainMenu::DrawRows() {
+	OptionRows rows = optionRows(optionsTab);
+	const Settings& settings = Game().settings;
+	for (int i = 0; i < rows.count; i++) {
+		const OptionRow& row = rows[i];
+		const int target = OPTION_BASE + i;
+		const bool isHovered = hovered == target || dragging == target;
+		Rect band = optionBand(i);
+		Rect control = optionControl(i, row.kind);
+		if (i % 2 == 0)
+			fillRect(band, {1, 1, 1}, {1, 1, 1}, 0.035f);
+
+		char value[24] = "";
+		bool on = false;
+		bool enabled = true;
+		if (row.kind == OptionKind::Switch) {
+			on = switchOf(row.id);
+			Rect r = tile(control, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, isHovered && pressed == target);
+			std::snprintf(value, sizeof(value), "%s", on ? "On" : "Off");
+			control = r;
+		} else if (row.kind == OptionKind::Choice) {
+			enabled = !settings.display.fullscreen; // the window size only matters in a window
+			Rect r = tile(control, enabled ? TileStyle::Stone : TileStyle::Disabled, enabled && isHovered,
+						  enabled && isHovered && pressed == target);
+			std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
+			control = r;
+		} else {
+			// Track, the filled part, the knob; the number to the right.
+			int level = sliderOf(row.id);
+			float t = static_cast<float>(level) / 100.f;
+			Rect track = {control.x, control.cy() - 0.6f, control.w, 1.2f};
+			fillRect(track, WELL, WELL, 1.f);
+			fillRect({track.x, track.y, track.w * t, track.h}, LAPIS_HOVER_TOP, LAPIS, 1.f);
+			strokeRect(track, GOLD_DIM, 1.f, 1.f);
+			Rect knob = {track.x + track.w * t - 1.f, control.cy() - 1.8f, 2.f, 3.6f};
+			fillRect(knob, isHovered ? GOLD_BRIGHT : GOLD, GOLD_DIM, 1.f);
+			strokeRect(knob, BRONZE, 1.f, 1.f);
+			std::snprintf(value, sizeof(value), "%d", level);
+		}
+
+		beginText();
+		text(body, band.x + 3.f, band.y + 3.4f, row.name, LABEL);
+		text(small, band.x + 3.f, band.y + 0.6f, row.hint, LABEL_DIM);
+		if (row.kind == OptionKind::Slider)
+			text(heading, control.x + control.w + 2.5f, control.y + 1.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
+		else
+			textCentered(heading, control.cx(), control.y + 1.2f, value,
+						 !enabled ? LABEL_DIM : (on || row.kind == OptionKind::Choice ? GOLD : LABEL));
+		beginShapes();
+	}
+}
+
+// A key cell: the key cap, or the mouse with its button lit; a dash when unbound; lapis while it waits for input.
+void MainMenu::DrawControlCell(int target, const Rect& r) {
+	const int action = (target - BIND_BASE) / BINDING_SLOTS;
+	const int slot = (target - BIND_BASE) % BINDING_SLOTS;
+	const InputKey& key = Game().settings.controls.Of(static_cast<BindAction>(action)).Slot(slot);
+	const bool waiting = capturing == target;
+	const bool isHovered = hovered == target;
+
+	fillRect({r.x, r.y - 0.25f, r.w, r.h}, BLACK, BLACK, 0.5f);
+	if (waiting) {
+		float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(GameClock::now()) * 0.008f);
+		fillRect(r, LAPIS_HOVER_TOP, LAPIS_DARK, 0.6f + 0.4f * pulse);
+	} else {
+		fillRect(r, {0.19f, 0.15f, 0.10f}, {0.10f, 0.08f, 0.055f}, 1.f);
+	}
+	strokeRect(r, waiting || isHovered ? GOLD : GOLD_DIM, 1.f, waiting || isHovered ? 1.5f : 1.f);
+
+	if (waiting) {
+		beginText();
+		textCentered(small, r.cx(), r.y + 0.6f, slot == MOUSE_SLOT ? "Click" : "Press", GOLD_BRIGHT);
+		beginShapes();
+	} else if (slot == MOUSE_SLOT && key.Bound()) {
+		constexpr float SCALE = 0.75f;
+		drawMouse(r.cx() - MOUSE_W * SCALE / 2, r.cy() - MOUSE_H * SCALE / 2, mouseInput(key), SCALE);
+	} else {
+		beginText();
+		textCentered(small, r.cx(), r.y + 0.6f, key.Bound() ? keyCap(key).c_str() : "-",
+					 key.Bound() ? (isHovered ? GOLD_BRIGHT : GOLD) : LABEL_DIM);
+		beginShapes();
+	}
 }
 
 void MainMenu::DrawControls(float left, float right) {
-	// Controls table: header, then one striped row per action.
-	float headerY = TABLE_TOP;
-	line(left, headerY - 1.1f, right, headerY - 1.1f, BRONZE, 1.f, 1.f);
-	for (size_t i = 0; i < CONTROLS.size(); i++) {
-		float y = headerY - 1.1f - static_cast<float>(i + 1) * ROW_H;
-		if (i % 2 == 0)
-			fillRect({left, y, right - left, ROW_H}, {1, 1, 1}, {1, 1, 1}, 0.035f);
-	}
-
-	beginText();
-	text(small, ACTION_X, headerY, "Action", LABEL);
-	text(small, KEYS_X, headerY, "Keyboard", LABEL);
-	text(small, MOUSE_X, headerY, "Mouse", LABEL);
-	beginShapes();
-
-	for (size_t i = 0; i < CONTROLS.size(); i++) {
-		const ControlRow& row = CONTROLS[i];
-		float rowY = headerY - 1.1f - static_cast<float>(i + 1) * ROW_H;
-		float baseline = rowY + 0.6f;
-
-		// Key caps: dark keys with a gold rim, separators as plain text.
-		struct Word {
-			std::string text;
-			float x;
-			bool cap;
-		};
-		std::vector<Word> words;
-		float x = KEYS_X;
-		std::string keys = row.keys;
-		for (size_t pos = 0; pos < keys.size();) {
-			size_t end = keys.find(' ', pos);
-			if (end == std::string::npos)
-				end = keys.size();
-			std::string word = keys.substr(pos, end - pos);
-			pos = end + 1;
-			bool cap = word != "/" && word != ",";
-			if (word == ",")
-				x -= 1.f; // the comma hugs the key before it
-			words.push_back({word, x, cap});
-			float w = small.TextWidth(word.c_str());
-			if (cap) {
-				Rect key = {x, rowY + 0.45f, w + 2.2f, ROW_H - 0.9f};
-				fillRect({key.x, key.y - 0.25f, key.w, key.h}, BLACK, BLACK, 0.5f);
-				fillRect(key, {0.19f, 0.15f, 0.10f}, {0.10f, 0.08f, 0.055f}, 1.f);
-				strokeRect(key, GOLD_DIM, 1.f, 1.f);
-				x += key.w + 1.2f;
-			} else {
-				x += w + 1.2f;
-			}
-		}
-
-		if (row.mouse != MouseInput::None)
-			drawMouse(MOUSE_X, rowY + 0.25f, row.mouse);
-
+	// Two columns: header, then one striped row per action; the reset button ends the right column.
+	for (int column = 0; column < 2; column++) {
+		Rect first = controlRow(column * ROWS_PER_COLUMN);
+		line(first.x, TABLE_RULE, first.x + first.w, TABLE_RULE, BRONZE, 1.f, 1.f);
 		beginText();
-		text(body, ACTION_X, baseline - 0.7f, row.action, LABEL);
-		for (const Word& word : words)
-			text(small, word.cap ? word.x + 1.1f : word.x, baseline, word.text.c_str(), word.cap ? GOLD : LABEL_DIM);
-		if (row.mouse != MouseInput::None)
-			text(small, MOUSE_X + 4.f, baseline, mouseLabel(row.mouse), GOLD);
+		text(small, first.x + 1.5f, TABLE_TOP, "Action", LABEL);
+		text(small, first.x + CELL_X + 0.5f, TABLE_TOP, "Keys", LABEL);
+		text(small, first.x + CELL_X + 2 * CELL_STEP + 0.5f, TABLE_TOP, "Mouse", LABEL);
 		beginShapes();
 	}
+	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
+		Rect row = controlRow(i);
+		if (i % 2 == 0)
+			fillRect(row, {1, 1, 1}, {1, 1, 1}, 0.035f);
+		beginText();
+		text(body, row.x + 1.5f, row.y + 0.5f, bindActionLabel(static_cast<BindAction>(i)), LABEL);
+		beginShapes();
+		for (int slot = 0; slot < BINDING_SLOTS; slot++)
+			DrawControlCell(BIND_BASE + i * BINDING_SLOTS + slot, controlCell(i, slot));
+	}
+
+	bool isHovered = hovered == RESET_CONTROLS;
+	Rect reset = tile(resetButton(), TileStyle::Stone, isHovered, isHovered && pressed == RESET_CONTROLS);
+	beginText();
+	textCentered(small, reset.cx(), reset.y + 0.7f, "Reset to defaults", isHovered ? GOLD_BRIGHT : LABEL);
+	textCentered(small, (left + right) / 2, FIXED_KEYS_Y,
+				 "Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    mouse movement looks around", LABEL_DIM);
+	beginShapes();
 }
 
 void MainMenu::DrawCredits() {
@@ -544,9 +674,21 @@ void MainMenu::DrawBackButton() {
 
 void MainMenu::DrawFooter(const char* hint) {
 	beginText();
-	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
-		textCentered(body, CENTRE, 12.f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
+	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f) // under the Back button where there is one
+		textCentered(body, CENTRE, optionsD ? 5.6f : 12.f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
 	textCentered(small, CENTRE, 2.2f, hint, LABEL_DIM);
+}
+
+void MainMenu::DrawFooterHint() {
+	if (capturing == NONE) {
+		DrawFooter(optionsTab == CONTROLS_TAB ? "Click a key to change it    Esc: back" : "Esc: back");
+		return;
+	}
+	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
+	bool mouse = (capturing - BIND_BASE) % BINDING_SLOTS == MOUSE_SLOT;
+	std::string hint = std::string(mouse ? "Click a mouse button for " : "Press a key for ") + bindActionLabel(action) +
+					   "    Delete: clear    Esc: cancel";
+	DrawFooter(hint.c_str());
 }
 
 // ---- input -----------------------------------------------------------------
@@ -562,8 +704,22 @@ int MainMenu::TargetAt(int x, int y) {
 		for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++)
 			if (tabRect(tab).contains(cx, cy))
 				return TAB_BASE + tab;
-		if (optionsTab == DISPLAY_TAB && MOTION_SWITCH.contains(cx, cy))
-			return MOTION_TOGGLE;
+		if (optionsTab == CONTROLS_TAB) {
+			for (int action = 0; action < BIND_ACTION_COUNT; action++)
+				for (int slot = 0; slot < BINDING_SLOTS; slot++)
+					if (controlCell(action, slot).contains(cx, cy))
+						return BIND_BASE + action * BINDING_SLOTS + slot;
+			if (resetButton().contains(cx, cy))
+				return RESET_CONTROLS;
+		}
+		OptionRows rows = optionRows(optionsTab);
+		for (int i = 0; i < rows.count; i++) {
+			Rect r = optionControl(i, rows[i].kind);
+			if (rows[i].kind == OptionKind::Slider) // the knob reaches past the ends
+				r = {r.x - 1.5f, r.y, r.w + 3.f, r.h};
+			if (r.contains(cx, cy))
+				return OPTION_BASE + i;
+		}
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	if (saveD || loadD) {
@@ -585,12 +741,16 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (optionsD) {
-		if (target == MOTION_TOGGLE) {
-			Game().render.MotionEffects = !Game().render.MotionEffects;
-			Settings::Save(Game().render);
-		} else {
+		if (target >= BIND_BASE)
+			StartCapture(target);
+		else if (target == RESET_CONTROLS) {
+			Game().settings.controls = Bindings{};
+			Game().ApplySettings(true);
+			ShowToast("Controls reset to the defaults");
+		} else if (target >= OPTION_BASE)
+			ActivateOption(target - OPTION_BASE);
+		else
 			optionsTab = target - TAB_BASE;
-		}
 		return;
 	}
 	if (saveD) {
@@ -639,10 +799,120 @@ void MainMenu::Activate(int target) {
 	}
 }
 
+void MainMenu::ActivateOption(int row) {
+	const OptionRow option = optionRows(optionsTab)[row];
+	Settings::Display& display = Game().settings.display;
+	if (option.id == OptionId::WindowSize) {
+		if (display.fullscreen) {
+			ShowToast("Leave fullscreen to pick a window size");
+			return;
+		}
+		// The next larger size, after the largest the smallest.
+		WindowSize next = WINDOW_SIZES[0];
+		for (const WindowSize& size : WINDOW_SIZES)
+			if (size.w > display.width || (size.w == display.width && size.h > display.height)) {
+				next = size;
+				break;
+			}
+		display.width = next.w;
+		display.height = next.h;
+		glutReshapeWindow(next.w, next.h);
+	} else if (option.kind == OptionKind::Switch) {
+		bool& on = switchOf(option.id);
+		on = !on;
+		if (option.id == OptionId::Fullscreen) {
+			if (on)
+				glutFullScreen();
+			else
+				glutLeaveFullScreen();
+		}
+	}
+	Game().ApplySettings(true);
+}
+
+void MainMenu::SetSlider(int row, int x) {
+	const OptionRow option = optionRows(optionsTab)[row];
+	float cx = 0.f;
+	float cy = 0.f;
+	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, 0, cx, cy);
+	Rect track = optionControl(row, option.kind);
+	float t = std::clamp((cx - track.x) / track.w, 0.f, 1.f);
+	sliderOf(option.id) = static_cast<int>(std::lround(t * 20.f)) * 5; // steps of 5
+	Game().ApplySettings(false);
+}
+
+void MainMenu::StartCapture(int target) { capturing = target; }
+
+void MainMenu::CaptureKey(const InputKey& key) {
+	const int slot = (capturing - BIND_BASE) % BINDING_SLOTS;
+	if (key == InputKey::Char(KEY_ESCAPE)) {
+		capturing = NONE;
+		return;
+	}
+	if (key == InputKey::Char(KEY_DELETE) || key == InputKey::Special(SPECIAL_KEYPAD_DELETE)) {
+		Game().settings.controls.Clear(static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS), slot);
+		Game().ApplySettings(true);
+		capturing = NONE;
+		return;
+	}
+	if (isReservedKey(key)) {
+		ShowToast(keyCap(key) + " is fixed, pick another key");
+		return;
+	}
+	if (slot == MOUSE_SLOT) {
+		ShowToast("Click a mouse button, or Esc to cancel");
+		return;
+	}
+	Bind(key);
+}
+
+void MainMenu::Bind(const InputKey& key) {
+	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
+	const int slot = (capturing - BIND_BASE) % BINDING_SLOTS;
+	capturing = NONE;
+	if (std::optional<BindAction> from = Game().settings.controls.Bind(action, slot, key))
+		ShowToast(keyCap(key) + " moved here from " + bindActionLabel(*from));
+	Game().ApplySettings(true);
+}
+
 void MainMenu::MouseFunction(int button, int state, int x, int y) {
-	(void)button;
 	int target = TargetAt(x, y);
 	hovered = target;
+
+	// Waiting for a binding: a mouse button binds the mouse cell; on a key cell a click cancels.
+	if (capturing != NONE) {
+		bool mouseCell = (capturing - BIND_BASE) % BINDING_SLOTS == MOUSE_SLOT;
+		bool isButton = button == MOUSE_LEFT_BUTTON || button == MOUSE_MIDDLE_BUTTON || button == MOUSE_RIGHT_BUTTON;
+		if (state == GLUT_DOWN && isButton) {
+			if (mouseCell)
+				Bind(InputKey::Mouse(button));
+			else
+				capturing = NONE;
+		}
+		pressed = NONE;
+		return;
+	}
+
+	// A slider follows the mouse while the button is down; the file is written when it comes up.
+	if (dragging != NONE) {
+		if (state == GLUT_UP) {
+			const OptionRow option = optionRows(optionsTab)[dragging - OPTION_BASE];
+			dragging = NONE;
+			Game().ApplySettings(true);
+			if (option.id == OptionId::Effects)
+				Game().assets.sounds.lever.Play(); // a sample at the new volume
+		}
+		return;
+	}
+	if (button != MOUSE_LEFT_BUTTON)
+		return;
+	if (state == GLUT_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
+		optionRows(optionsTab)[target - OPTION_BASE].kind == OptionKind::Slider) {
+		dragging = target;
+		SetSlider(target - OPTION_BASE, x);
+		return;
+	}
+
 	if (state != GLUT_UP) {
 		pressed = target;
 		return;
@@ -657,6 +927,13 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 
 void MainMenu::MousePassiveMotion(int x, int y) { hovered = TargetAt(x, y); }
 
+void MainMenu::MouseDrag(int x, int y) {
+	if (dragging != NONE)
+		SetSlider(dragging - OPTION_BASE, x);
+	else
+		hovered = TargetAt(x, y);
+}
+
 void MainMenu::ResetSubScreens() {
 	creditsD = false;
 	saveD = false;
@@ -664,4 +941,6 @@ void MainMenu::ResetSubScreens() {
 	optionsD = false;
 	hovered = NONE;
 	pressed = NONE;
+	capturing = NONE;
+	dragging = NONE;
 }

@@ -145,7 +145,7 @@ void drawGameplay() {
 
 	const int resX = Game().render.resX;
 	const int resY = Game().render.resY;
-	MotionFx::update(Game().render.MotionEffects && Game().player->stats.IsSprinting(), GameClock::now());
+	MotionFx::update(Game().settings.graphics.motionEffects && Game().player->stats.IsSprinting(), GameClock::now());
 	MotionFx::begin(resX, resY, !Ink::toon()); // toon mode: no blur over the ink lines (yet), the rest stays
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

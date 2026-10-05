@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <optional>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -588,7 +589,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 	if (name == "key") {
 		cmd.type = CommandType::Key;
 		if (argc != 1)
-			return "usage: key <char|enter|esc|space|tab|backspace>";
+			return "usage: key <char|enter|esc|space|tab|backspace|special key name>";
 		static const struct {
 			const char* name;
 			unsigned char key;
@@ -599,8 +600,13 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 				cmd.a = entry.key;
 		if (cmd.a == 0.f && w[1].size() == 1)
 			cmd.a = static_cast<unsigned char>(w[1][0]);
+		if (std::optional<InputKey> named = parseKeyName(w[1]);
+			cmd.a == 0.f && named && named->kind == InputKey::Kind::Special) {
+			cmd.a = static_cast<float>(named->code); // a special key (docs/settings.md names): `left`, `f12`
+			cmd.b = 1.f;
+		}
 		if (cmd.a == 0.f)
-			return "key expects one character or enter|esc|space|tab|backspace";
+			return "key expects one character, enter|esc|space|tab|backspace or a special key name";
 		return "";
 	}
 	if (name == "give" || name == "chest") {
@@ -785,10 +791,11 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	case CommandType::Motion: // Options > Display > Motion effects
-		Game().render.MotionEffects = cmd.a > 0.5f;
+		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Toon:
+		Game().settings.graphics.toon = cmd.a > 0.5f;
 		Ink::setToon(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
@@ -819,7 +826,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	}
 	case CommandType::Key:
-		keyPressed(static_cast<unsigned char>(cmd.a), 0, 0);
+		if (cmd.b > 0.f)
+			specialKeyPressed(static_cast<int>(cmd.a), 0, 0);
+		else
+			keyPressed(static_cast<unsigned char>(cmd.a), 0, 0);
 		report(cmd, true, std::string("screen=") + screenName());
 		return true;
 	case CommandType::Give:

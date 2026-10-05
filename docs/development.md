@@ -76,6 +76,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   monster types). Monsters and items are rows of the `MONSTER_DEFS` / `ITEM_DEFS` tables in `assets.cpp`.
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
   (`ShowStatus`), save / load.
+* `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`
+  ([settings.md](settings.md)).
 * `entities/` - `CharacterModel` (the clips, texture and sounds of a monster type or the player), `MonsterType`
   (a `CharacterModel` plus stats, shared), `Monster` (one monster on the level: position, health, AI state, clip
   playback), `Player` (with its `PlayerStats`), `Item`, `Trap`.
@@ -83,8 +85,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   toon ink, the sprint motion effects (`MotionFx`), particles, the gameplay `Draw()` / `Update()`.
 * `world/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, rendering, save data) and the
   GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`).
-* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling, the scenario runner. UI look and layout conventions:
-  [ui.md](ui.md).
+* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling (through the key bindings, `input/bindings.h`), the
+  scenario runner. UI look and layout conventions: [ui.md](ui.md).
 
 ## Tests
 

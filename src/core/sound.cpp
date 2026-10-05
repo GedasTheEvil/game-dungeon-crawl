@@ -72,3 +72,8 @@ void Music::Play() const {
 	if (music)
 		Mix_PlayMusic(music, -1);
 }
+
+void Audio::SetVolumes(int music, int effects) {
+	Mix_VolumeMusic(music * MIX_MAX_VOLUME / 100);
+	Mix_Volume(-1, effects * MIX_MAX_VOLUME / 100);
+}

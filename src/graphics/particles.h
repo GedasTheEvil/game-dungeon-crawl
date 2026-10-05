@@ -26,6 +26,7 @@ class ParticleSystem {
 	static inline uint64_t instances = 0;
 
   public:
+	static inline bool shown = true; // Options > Display > Blood: off draws no splashes (they still run)
 	explicit ParticleSystem(int life = DEFAULT_LIFE) : life(life), rng(++instances) {}
 	// A new splash at a random point within `extent` of the origin (x and y), at full life.
 	void Splash(int extent);

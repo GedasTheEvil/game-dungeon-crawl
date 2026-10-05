@@ -87,6 +87,7 @@ bool gActive = false;
 GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
 Light gLights[64];
 int gLightCount = 0;
+bool gFlicker = true;
 
 // Lazy, so it runs with a current GL context. On failure the scene stays unlit (fixed pipeline).
 bool ensureProgram() {
@@ -188,8 +189,10 @@ void Lighting::setEmissive(bool on) {
 		glUniform1f(gLocEmissive, on ? 1.f : 0.f);
 }
 
+void Lighting::setFlicker(bool on) { gFlicker = on; }
+
 float Lighting::flicker(uint32_t seed, float amount) {
-	if (amount <= 0.f)
+	if (amount <= 0.f || !gFlicker)
 		return 1.f;
 	float t = static_cast<float>(GameClock::now()) / 1000.f;
 	float s = static_cast<float>(seed % 997U);

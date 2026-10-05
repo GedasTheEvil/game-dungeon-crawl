@@ -38,4 +38,9 @@ class Music : AudioUser {
 	void Play() const;
 };
 
+// Music and effects volume, 0-100 each (Options > Sound).
+namespace Audio {
+void SetVolumes(int music, int effects);
+} // namespace Audio
+
 #endif

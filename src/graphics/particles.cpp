@@ -64,7 +64,7 @@ void ParticleSystem::Draw() {
 
 	glPointSize(8);
 
-	if (life <= 0)
+	if (life <= 0 || !shown)
 		return;
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);

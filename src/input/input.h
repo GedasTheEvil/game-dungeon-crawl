@@ -5,6 +5,7 @@
 const unsigned char KEY_ESCAPE = 27;
 const unsigned char KEY_ENTER = 13;
 const unsigned char KEY_SPACE = 32;
+const unsigned char KEY_DELETE = 127;
 const unsigned char KEY_MOVE_LEFT = 'a';
 const unsigned char KEY_MOVE_RIGHT = 'd';
 const unsigned char KEY_MOVE_DOWN = 's';
@@ -13,21 +14,9 @@ const unsigned char KEY_MOVE_LEFT_UPPER = 'A';
 const unsigned char KEY_MOVE_RIGHT_UPPER = 'D';
 const unsigned char KEY_MOVE_DOWN_UPPER = 'S';
 const unsigned char KEY_MOVE_UP_UPPER = 'W';
-const unsigned char KEY_INVENTORY = 'i';
-const unsigned char KEY_INVENTORY_UPPER = 'I';
-const unsigned char KEY_MAP = 'm';
-const unsigned char KEY_MAP_UPPER = 'M';
-const unsigned char KEY_JOURNAL = 'j';
-const unsigned char KEY_JOURNAL_UPPER = 'J';
-const unsigned char KEY_ATTACK = 'v';
-const unsigned char KEY_ATTACK_UPPER = 'V';
-const unsigned char KEY_INTERACT = 'e';
-const unsigned char KEY_INTERACT_UPPER = 'E';
-const unsigned char KEY_QUICK_HEAL = 'h';
-const unsigned char KEY_QUICK_HEAL_UPPER = 'H';
-const unsigned char KEY_QUICK_STAMINA = '0';
-const unsigned char KEY_EQUIP_FIRST = '1'; // '1' to '4': club, sword, spear, bow (the inventory slot hotkeys)
 
+// Key codes the screens read directly and the fixed keys; the gameplay keys are bindings (bindings.h, with GLUT's
+// special key codes).
 const int SPECIAL_TOGGLE_CARTOON = 1;
 const int SPECIAL_TOGGLE_HITBOXES = 3;
 const int SPECIAL_MOVE_LEFT = 100;
@@ -41,6 +30,7 @@ const int SPECIAL_CAMERA_RIGHT = 107;
 const int SPECIAL_INTERACT = 12;
 const int SPECIAL_SHIFT_LEFT = 112;
 const int SPECIAL_SHIFT_RIGHT = 113;
+const int SPECIAL_KEYPAD_DELETE = 111;
 
 const int MOUSE_LEFT_BUTTON = 0;
 const int MOUSE_MIDDLE_BUTTON = 1;

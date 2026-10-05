@@ -6,8 +6,8 @@
 #include <optional>
 
 namespace {
-// A quick slot: the potion H / 0 would drink now, empty when none of that kind is left.
-PlayerHud::Slot quickSlot(QuickKind kind, const char* key) {
+// A quick slot: the potion its key would drink now, empty when none of that kind is left.
+PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 	const Inventory& inventory = *Game().ui.inventory;
 	PlayerHud::Slot slot;
 	slot.key = key;
@@ -49,8 +49,8 @@ PlayerHud::View playerHudView() {
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
 	view.slots[0].icon = weaponIcon(*Game().ui.inventory);
-	view.slots[0].key = EQUIP_KEYS_LABEL;
-	view.slots[1] = quickSlot(QuickKind::Health, QUICK_HEAL_KEY_LABEL);
-	view.slots[2] = quickSlot(QuickKind::Stamina, QUICK_STAMINA_KEY_LABEL);
+	view.slots[0].key = equipKeysCap();
+	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
+	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));
 	return view;
 }

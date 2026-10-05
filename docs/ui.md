@@ -42,7 +42,7 @@ Vertical bands used by every 160 x 100 screen:
 | 91.5 | title rule |
 | 88 | title baseline |
 | ~13–85 | panels |
-| 9.5–17.5 | Back button (menu sub-screens); toasts at y 7–12 |
+| 9.5–17.5 | Back button (menu sub-screens); toasts at y 7–12 (Options: under the Back button, baseline 5.6) |
 | 2.2 | key hint footer |
 
 ## Frame order
@@ -81,7 +81,7 @@ riddle.
 
 * Menu buttons: `{46, 19, 68, 64}`
 * Save / Load slots: `{12, 22, 136, 62}`
-* Options: `{12, 20, 136, 64}`
+* Options: `{6, 20, 148, 64}`
 * Inventory items `{4, 13, 92, 72}` + details `{100, 13, 56, 72}`
 
 ### Picture frame
@@ -142,14 +142,25 @@ Selected, not just hovered, items (inventory slots) get a breathing gold halo
 inner edge (inventory "Arms" / "Elixirs"). Table headers: `small` font in `LABEL`, rule under them, rows striped
 with white alpha 0.035 (Options).
 
-### Key caps
+### Options rows and key cells
 
-Options tabs: Controls (the key table) and Display (one striped row a setting: name in `body` `LABEL`, what it does
-in `small` `LABEL_DIM`, an On / Off tile on the right, lapis when on). A setting lives in `RenderSettings` and is kept
-in `saves/settings.txt` (`src/state/settings.cpp`).
+Options tabs: Controls, Display and Sound.
 
-Options table: each key a dark gradient cap with a `GOLD_DIM` frame and a black shadow, key name in `small` `GOLD`.
-Separators `/` and `,` are plain `LABEL_DIM` text.
+* Display and Sound: one striped row a setting (`DISPLAY_ROWS`, `SOUND_ROWS` in `menu.cpp`): name in `body`
+  `LABEL`, what it does in `small` `LABEL_DIM`, the control on the right. A row's kind picks the control: a switch
+  (On / Off tile, lapis when on), a choice (stone tile with the value, a click steps to the next; disabled when it
+  does not apply) or a slider (dark track filled lapis up to a gold knob, the number in `heading` to its right; it
+  follows the mouse while the button is down and saves when it comes up). A new setting is a field in `Settings`
+  (`src/state/settings_ini.h`), a key in the parser and writer, and a row.
+* Controls: two columns of rows, an action and three cells (two keys, the mouse button); the "Reset to defaults"
+  stone tile ends the right column, the fixed keys are named in a `small` line under the table. A click on a cell
+  waits for the input: the cell pulses lapis with "Press" (or "Click"), the footer says what it waits for.
+
+The choices are `GameState::settings`, kept in `saves/settings.ini` ([settings.md](settings.md)).
+`GameState::ApplySettings(true)` hands them to the renderer and the mixer and writes the file.
+
+Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and a black shadow, the key cap name in
+`small` `GOLD`, a `LABEL_DIM` dash when unbound; the mouse cell shows a small mouse with its button lit.
 
 ### Footer and toast
 

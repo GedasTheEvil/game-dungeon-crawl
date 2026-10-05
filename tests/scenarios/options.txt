@@ -1,0 +1,47 @@
+# Options: the Controls tab with a key and a mouse button rebound, the Display and Sound tabs. Scenarios never write
+# saves/settings.ini, so the clicks change only this run.
+level tests/levels/classic1
+wait 10
+dump
+key esc
+click 50 35.7
+wait 2
+screenshot controls
+# Jump, first key cell: waits for a key, then takes Q
+click 30.9 52
+wait 2
+screenshot jump_waiting
+key q
+wait 2
+# Jump, mouse cell: a left click takes the button away from Attack
+click 45.5 52
+wait 2
+click 45.5 52
+wait 2
+screenshot jump_rebound
+# Escape cancels a wait, F1 is fixed
+click 30.9 52
+key f1
+wait 2
+screenshot fixed_key
+key esc
+# Display tab: blood off
+click 37.6 76.5
+wait 2
+click 80.9 35.5
+wait 2
+screenshot display
+# Sound tab: music to half
+click 55.6 76.5
+wait 2
+click 69.7 67.5
+wait 2
+screenshot sound
+key esc
+key esc
+wait 2
+# Q jumps now
+key q
+wait 8
+dump
+expect y > 42.1

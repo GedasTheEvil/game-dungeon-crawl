@@ -32,7 +32,6 @@ constexpr int WRONG_MS = 1600;
 constexpr int SHAKE_MS = 400;
 constexpr int CARET_BLINK_MS = 500;
 constexpr unsigned char KEY_BACKSPACE = 8;
-constexpr unsigned char KEY_DELETE = 127;
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 

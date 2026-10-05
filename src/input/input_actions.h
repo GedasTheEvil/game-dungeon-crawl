@@ -2,6 +2,8 @@
 #define INPUT_ACTIONS_H
 
 #include "input.h"
+#include "bindings.h"
+#include <string>
 
 enum class GameplayAction : unsigned char {
 	None,
@@ -29,78 +31,11 @@ void setWalkHeld(GameplayAction move, bool held);
 void releaseWalk();
 void stepHeldWalk();
 
-inline GameplayAction MapKeyboardGameplayAction(unsigned char key) {
-	switch (key) {
-	case KEY_MOVE_LEFT:
-	case KEY_MOVE_LEFT_UPPER:
-		return GameplayAction::MoveLeft;
-	case KEY_MOVE_RIGHT:
-	case KEY_MOVE_RIGHT_UPPER:
-		return GameplayAction::MoveRight;
-	case KEY_MOVE_DOWN:
-	case KEY_MOVE_DOWN_UPPER:
-		return GameplayAction::MoveDown;
-	case KEY_MOVE_UP:
-	case KEY_MOVE_UP_UPPER:
-		return GameplayAction::MoveUp;
-	case KEY_SPACE:
-		return GameplayAction::Jump;
-	case KEY_ENTER:
-	case KEY_ATTACK:
-	case KEY_ATTACK_UPPER:
-		return GameplayAction::Attack;
-	case KEY_INTERACT:
-	case KEY_INTERACT_UPPER:
-		return GameplayAction::Interact;
-	case KEY_QUICK_HEAL:
-	case KEY_QUICK_HEAL_UPPER:
-		return GameplayAction::QuickHeal;
-	case KEY_QUICK_STAMINA:
-		return GameplayAction::QuickStamina;
-	case KEY_EQUIP_FIRST:
-		return GameplayAction::EquipClub;
-	case KEY_EQUIP_FIRST + 1:
-		return GameplayAction::EquipSword;
-	case KEY_EQUIP_FIRST + 2:
-		return GameplayAction::EquipSpear;
-	case KEY_EQUIP_FIRST + 3:
-		return GameplayAction::EquipBow;
-	default:
-		return GameplayAction::None;
-	}
-}
+// The gameplay action a binding runs; None for the ones handled outside it (sprint, look, the screens).
+GameplayAction gameplayActionOf(BindAction action);
 
-// Key cap labels for the HUD.
-constexpr const char* QUICK_HEAL_KEY_LABEL = "H";
-constexpr const char* QUICK_STAMINA_KEY_LABEL = "0";
-constexpr const char* EQUIP_KEYS_LABEL = "1-4";
-
-inline GameplayAction MapSpecialGameplayAction(int key) {
-	switch (key) {
-	case SPECIAL_MOVE_LEFT:
-		return GameplayAction::MoveLeft;
-	case SPECIAL_MOVE_RIGHT:
-		return GameplayAction::MoveRight;
-	case SPECIAL_MOVE_DOWN:
-		return GameplayAction::MoveDown;
-	case SPECIAL_MOVE_UP:
-		return GameplayAction::MoveUp;
-	default:
-		return GameplayAction::None;
-	}
-}
-
-inline GameplayAction MapMouseGameplayAction(int button) {
-	switch (button) {
-	case MOUSE_LEFT_BUTTON:
-		return GameplayAction::Attack;
-	case MOUSE_MIDDLE_BUTTON:
-		return GameplayAction::Interact;
-	case MOUSE_RIGHT_BUTTON:
-		return GameplayAction::Jump;
-	default:
-		return GameplayAction::None;
-	}
-}
+// Key cap labels for the HUD, from the bindings: "H", "1-4"; empty when unbound.
+std::string keyCapOf(BindAction action);
+std::string equipKeysCap();
 
 #endif

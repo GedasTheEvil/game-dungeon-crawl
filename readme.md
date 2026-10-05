@@ -49,12 +49,17 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Attack                           | `V`, `Enter`              | Left   |
 | Interact: pick up, lever, riddle | `E`, `F12`                | Middle |
 | Look around                      | `PgUp` `PgDn`, `Home` `End` | Move |
+| Equip club / sword / spear / bow | `1` `2` `3` `4`           |        |
+| Drink healing / stamina potion   | `H` `0`                   |        |
 | Inventory                        | `I`                       |        |
 | Draft map                        | `M`                       |        |
+| Journal                          | `J`                       |        |
 | Menu / back                      | `Esc`                     |        |
 | Cartoon shading                  | `F1`                      |        |
 
-The same list is in the game under Options.
+These are the defaults: Options > Controls changes them (all but `Esc` and the F-keys). Options also has the
+window size, fullscreen, the graphics effects and the volumes. The choices are kept in `saves/settings.ini`
+([docs/settings.md](docs/settings.md)).
 
 ## Levels
 

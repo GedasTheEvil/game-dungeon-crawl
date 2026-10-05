@@ -2,21 +2,29 @@
 
 Status: draft 2026-10-05. Implementation still unclear, see [How to store water](#how-to-store-water).
 
-## Flooded cells
+## Water cells
 
-* A cell can be **flooded**: half filled with water.
-* The player moves at **50%** speed in a flooded cell (walk and sprint).
-* Look: a water surface at half the cell height, a slow ripple, the torch light reflected on it. The player and the
-  monsters are hidden up to the waist.
-* Sound: splashing steps.
+Two kinds:
+
+* **Half water**: half filled. The player walks in it at **50%** speed (walk and sprint).
+* **Deep water**: full of water, decoration only. It goes below half water and is the floor under it: nobody enters
+  it, it is solid like a wall for movement.
+
+Rules:
+
+* No drowning.
+* No jumping while in half water (open: or only no jumping into it?).
+* A ladder can start in half water and go up. No ladder goes down into water.
+
+Look: a water surface at half the cell height, a slow ripple, the torch light reflected on it. The player and the
+monsters are hidden up to the waist. Deep water is darker, no surface of its own. Sound: splashing steps.
 
 Open:
 
-* Jumps: lower, or the same height? Ladders standing in water?
-* Is flooding a cell ever dangerous by itself (drowning)? Proposal: no, only slow.
 * Do other monsters slow down in water too (rats, scarabs, mummies), or avoid it like a trap (`Courage`)?
   Flyers (bats) do not care.
 * Arrows, rock falls and traps in water.
+* Falling into half water from a height: lands like on a floor?
 
 ## Crocodile
 
@@ -33,9 +41,9 @@ the bank or with the bow from dry ground.
 
 ## How to store water
 
-A cell has one type (`Tile` in `src/world/level.h`: type, attr, value). Water has to sit on top of other cells: an empty
-cell, a monster spawn (the crocodile's own spawn), maybe a key or a treasure. So a new `Water` tile type is not
-enough on its own.
+A cell has one type (`Tile` in `src/world/level.h`: type, attr, value). Deep water is easy: a new tile type, solid like
+`Wall`. Half water has to sit on top of other cells: an empty cell, a monster spawn (the crocodile's own spawn), the foot
+of a ladder, maybe a key or a treasure. So a new tile type alone is not enough for half water.
 
 Options:
 
@@ -44,7 +52,7 @@ Options:
    [binary-level-format.draft.md](binary-level-format.draft.md)), the editor, `ascii2level.py` and `levelcheck`.
 2. **A flag bit in the tile**: for example a high bit in `attr` or `value`. Fits the current format, but those fields
    already mean different things per type.
-3. **A `Water` tile type** that only stands alone, with monster spawns allowed next to it (a crocodile spawns on the
+3. **A `HalfWater` tile type** that only stands alone, with monster spawns allowed next to it (a crocodile spawns on the
    bank and walks in). Simplest, the fewest places to touch, but no keys or treasure under water.
 
 Proposal: start with 3 to try the feel, move to 1 if water must hold other things.
@@ -55,6 +63,8 @@ data-driven.
 
 ## Checks
 
+* `levelcheck`: half water stands on deep water or a wall; deep water only under half water or other deep water; no
+  ladder goes down into water.
 * `levelcheck`: crocodiles only spawn in or next to water; the way to the exit must not need a long swim past a
   crocodile without dry ground nearby (open).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.

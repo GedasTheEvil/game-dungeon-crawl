@@ -74,7 +74,8 @@ constexpr Color WATER_TOP = {0.12f, 0.30f, 0.42f};
 constexpr Color WATER_BOTTOM = {0.07f, 0.18f, 0.28f};
 constexpr Color DEEP_TOP = {0.05f, 0.12f, 0.24f};
 constexpr Color DEEP_BOTTOM = {0.03f, 0.07f, 0.15f};
-constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layer not being painted, dimmed
+constexpr float OTHER_LAYER_ALPHA = 0.4f;	   // the layer not being painted, dimmed
+constexpr float HALF_WATER_OVER_OBJECT = 0.5f; // the water over the lower half of an object in it
 
 enum class Mode : unsigned char { Paint, Check };
 enum class Layer : unsigned char { Structure, Objects }; // which one the brush paints and the palette shows
@@ -604,8 +605,11 @@ void Editor::drawObjectIcon(int type, const Rect& r, float alpha) {
 
 void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float objectAlpha) {
 	drawStructureSwatch(t.structure, r, structureAlpha);
-	if (hasObject(t))
-		drawObjectIcon(t.type, r, objectAlpha);
+	if (!hasObject(t))
+		return;
+	drawObjectIcon(t.type, r, objectAlpha);
+	if (t.structure == Structure::HalfWater) // the object stands in the water: its lower half shows through it
+		fillRect({r.x, r.y, r.w, r.h / 2}, WATER_TOP, WATER_BOTTOM, HALF_WATER_OVER_OBJECT * structureAlpha);
 }
 
 void Editor::drawMap() {

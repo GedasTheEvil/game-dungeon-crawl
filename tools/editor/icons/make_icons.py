@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Draws the editor's tile icons (64 x 64 PNG) in the game's UI palette: gold, bronze and lapis on dark open space.
+"""Draws the editor's tile icons (64 x 64 PNG) in the game's UI palette: gold, bronze and lapis, on a transparent
+background (the editor draws the cell's open space or water under them).
 
 Run from anywhere: python3 tools/editor/icons/make_icons.py
 """
@@ -38,12 +39,13 @@ def p(*xy):
 
 
 def canvas(glow=GOLD, glow_alpha=40):
-    img = Image.new("RGB", (S, S), OPEN)
+    # Transparent, so the editor draws the cell's structure (open space, water) under the symbol.
+    img = Image.new("RGBA", (S, S), glow + (0,))
     # Soft glow behind the symbol, so it reads as an object lit in the dark.
     halo = Image.new("L", (S, S), 0)
     ImageDraw.Draw(halo).ellipse(p(10, 10, 54, 54), fill=glow_alpha)
     halo = halo.filter(ImageFilter.GaussianBlur(10 * SS))
-    img.paste(Image.new("RGB", (S, S), glow), (0, 0), halo)
+    img.paste(Image.new("RGBA", (S, S), glow + (255,)), (0, 0), halo)
     return img, ImageDraw.Draw(img)
 
 

@@ -32,14 +32,11 @@ A new per-type field in `MONSTER_DEFS`, how the monster moves in half water (for
 |---|---|---|
 | Slowed | 50%, like the player | scarab, giant scarab, boss scarab, worm, mummy (and the scorpions) |
 | Unaffected | 100% | rat, giant rat, Anubis, Anubis boss |
-| Swimmer | 125% | crocodile |
+| Swimmer | 125% | crocodile, cobra, Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)) |
 | Not walking | - | plant, mimic (rooted), bat, giant bat, vampire bat (fly) |
 
 Rooted monsters and flyers need no value: their `Locomotion` already says it. So the field may only need the first
 three.
-
-Open: the cobra and Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)), snakes swim well: Unaffected or
-Swimmer?
 
 ## Crocodile
 

@@ -1,6 +1,6 @@
 # Journal ribbons change sides
 
-Status: implemented 2026-10-05, to verify. Builds on [journal-real-book.md](solved/journal-real-book.md) (page curl,
+Status: solved 2026-10-05, verified in play. Builds on [journal-real-book.md](journal-real-book.md) (page curl,
 ribbons).
 
 ## Problem
@@ -61,6 +61,6 @@ A ribbon riding a forward turn lands on the left (real-book layout).
 ## Notes
 
 * Code: `src/ui/journal_view.cpp` (`ribbonRect`, `ribbon`, `DrawRibbons`, the page edges in the book drawing, `GoTo`,
-  `StartTurn`), `src/ui/page_curl.h`. Look: [docs/ui.md](../ui.md), "Book (journal)".
+  `StartTurn`), `src/ui/page_curl.h`. Look: [docs/ui.md](../../ui.md), "Book (journal)".
 * Scenario to update: `tests/scenarios/journal_page_turn.txt` (ribbons on both sides, mid-turn shot with a ribbon on
   the curl).

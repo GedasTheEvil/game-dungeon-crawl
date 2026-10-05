@@ -1,6 +1,6 @@
 # Crocodiles and flooded cells
 
-Status: draft 2026-10-05. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
+Status: draft 2026-10-05, open points decided 2026-10-05. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
 done).
 
 ## Water cells
@@ -14,16 +14,18 @@ Two kinds:
 Rules:
 
 * No drowning.
-* No jumping while in half water (open: or only no jumping into it?).
+* No jumping while standing in half water. Jumping into it is fine, so water acts as a trap: the player gets in but
+  cannot jump out (decided 2026-10-05). `levelcheck` models this.
+* Falling into half water from a height lands like on a floor: no extra damage, a splash sound.
 * A ladder can start in half water and go up. No ladder goes down into water.
+* Arrows: a target standing in half water takes reduced arrow damage (number open, for example 50%). Melee weapons
+  are not affected.
+* Traps (spikes, death traps, rock falls) work in half water as on dry ground and stay visible: the water is
+  semi-transparent.
 
-Look: a water surface at half the cell height, a slow ripple, the torch light reflected on it. The player and the
-monsters are hidden up to the waist. Deep water is darker, no surface of its own. Sound: splashing steps.
-
-Open:
-
-* Arrows, rock falls and traps in water.
-* Falling into half water from a height: lands like on a floor?
+Look: a semi-transparent water surface at half the cell height, a slow ripple, the torch light reflected on it. The
+player and the monsters show dimmed up to the waist. Deep water is darker, no surface of its own. Sound: splashing
+steps.
 
 ## Monsters in water
 
@@ -42,10 +44,12 @@ three.
 ## Crocodile
 
 * New monster, at home in the water: in a flooded cell it moves **125%** of its normal speed.
-* It can leave the water and keeps its normal speed on dry ground. Or it stays in the water (proposal: it may leave,
-  but goes back after losing the player).
+* Amphibious: it leaves the water freely and walks on dry ground at its normal speed, without the water bonus.
 * Idle, it lies under the surface with only the eyes and the back showing, like the mimic's ambush.
-* A bite with a hold? Open.
+* A plain bite, no hold. A bite with a hold is a separate idea:
+  [crocodile-hold-bite.draft.md](crocodile-hold-bite.draft.md).
+* Strength: between the giant rat and the mummy, with higher damage than both (numbers when the work starts, against
+  [monster-balance.draft.md](monster-balance.draft.md)). First crocodiles around lvl 7-9; those levels get water.
 * Model built in Blender ([../remodeling.md](../remodeling.md)). A Sobek boss could follow later
   ([more-bosses.draft.md](more-bosses.draft.md)).
 
@@ -70,6 +74,7 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
 
 * `levelcheck`: half water stands on deep water or a wall; deep water only under half water or other deep water; no
   ladder goes down into water.
-* `levelcheck`: crocodiles only spawn in or next to water; the way to the exit must not need a long swim past a
-  crocodile without dry ground nearby (open).
+* `levelcheck`: crocodiles only spawn in or next to water.
+* `levelcheck` treats a crocodile as a wall the path cannot swim past: separate draft,
+  [levelcheck-crocodile-wall.draft.md](levelcheck-crocodile-wall.draft.md).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.

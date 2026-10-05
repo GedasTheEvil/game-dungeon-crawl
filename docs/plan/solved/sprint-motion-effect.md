@@ -1,6 +1,6 @@
 # Sprint motion effect
 
-Status: implemented 2026-10-05, awaiting verification. Decided: FOV kick, radial blur + vignette; "Motion effects"
+Status: solved 2026-10-05 (play-tested). Decided: FOV kick, radial blur + vignette; "Motion effects"
 on/off in Options; toon blur and extras later.
 
 Done: `src/graphics/motion_fx.cpp` (`MotionFx`). Strength eases over 200 ms by the game clock, on while
@@ -29,16 +29,16 @@ blur would blur the player too, the one thing the eye follows. Better options:
   FBO, and gives most of the speed feel by itself. Could be step 1.
 * **Vignette** dimming the edges, which hides the blur's seams too.
 * Extras (dust puffs, footstep sound, camera lag): moved to
-  [sprint-toon-blur-and-extras.draft.md](sprint-toon-blur-and-extras.draft.md).
+  [sprint-toon-blur-and-extras.draft.md](../sprint-toon-blur-and-extras.draft.md).
 
 ## What to settle
 
 * Ease in and out over about 150-250 ms. No hard on/off, also when stamina runs out mid-sprint.
 * Strength scales with real movement: sprint held while standing still or blocked by a wall shows nothing. Same
-  "actually moving" signal as [sprint-drain-standing-still.md](solved/sprint-drain-standing-still.md).
+  "actually moving" signal as [sprint-drain-standing-still.md](sprint-drain-standing-still.md).
 * An Options toggle (motion sickness): "Motion effects" on/off, also for the FOV kick.
 * Toon mode: no blur for now (FOV kick and vignette only). Blur order vs the ink lines: moved to
-  [sprint-toon-blur-and-extras.draft.md](sprint-toon-blur-and-extras.draft.md).
+  [sprint-toon-blur-and-extras.draft.md](../sprint-toon-blur-and-extras.draft.md).
 * HUD and status lines are drawn after the scene pass, so they stay sharp.
 * Without FBOs (old driver): FOV kick only.
 * Scenario: sprint along a corridor, screenshots at rest, mid-sprint and after the stop.

@@ -6,7 +6,7 @@ Status: draft 2026-10-05.
 
 Options choices should stay between runs, in a file a player can also edit by hand. Today only "Motion effects" is
 kept, in `saves/settings.txt` as `name value` lines (`src/state/settings.cpp`, from
-[sprint-motion-effect.md](sprint-motion-effect.md)). Grow it into a proper settings file with sections, and put
+[sprint-motion-effect.md](solved/sprint-motion-effect.md)). Grow it into a proper settings file with sections, and put
 more options in the Options screen.
 
 ## Format

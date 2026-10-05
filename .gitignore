@@ -4,6 +4,7 @@
 /game
 /levelcheck
 /levelgen
+/levelconvert
 game.log
 tests/out/
 __pycache__/

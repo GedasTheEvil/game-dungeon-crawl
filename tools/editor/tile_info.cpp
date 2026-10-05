@@ -9,6 +9,7 @@ namespace {
 
 // Icons under tools/editor/icons/ (make_icons.py), nullptr: drawn as a flat colour. Names and descriptions come from
 // the game's tile table (src/world/tile_defs.h).
+// By type number; 0 and 7 are no type.
 constexpr std::array<const char*, TILE_TYPE_COUNT> ICONS = {{
 	nullptr,
 	nullptr,
@@ -17,7 +18,7 @@ constexpr std::array<const char*, TILE_TYPE_COUNT> ICONS = {{
 	"monster.png",
 	"spikes.png",
 	"ladder.png",
-	"3D.png",
+	nullptr,
 	"treasure.png",
 	"ankh.png",
 	"key.png",
@@ -142,6 +143,15 @@ void checkUnused(FieldHint& hint, int number) {
 TileInfo tileInfo(int type) {
 	const TileDef& def = tileDef(type);
 	return {def.name, isTileType(type) ? ICONS[static_cast<size_t>(type)] : nullptr, def.description};
+}
+
+CellHint describeStructure(Structure s) {
+	CellHint hint;
+	hint.title = std::string(structureDef(s).name) + " (structure " + std::to_string(static_cast<int>(s)) + ")";
+	hint.description = structureDef(s).description;
+	hint.attribute = unusedField();
+	hint.value = unusedField();
+	return hint;
 }
 
 CellHint describeCell(const Tile& cell) {

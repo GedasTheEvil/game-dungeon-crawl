@@ -57,15 +57,12 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	if (!f)
 		return false;
 
-	int header;
-	f >> header;
-	if (header != MAP_CELL_COUNT) {
-		LOG_ERRORF("world", "Wrong dump header. Expected '%d', got %d", MAP_CELL_COUNT, header);
+	// Saves from before the level format v2 hold a v1 map: it is converted.
+	std::string error = readLevel(f, map);
+	if (!error.empty()) {
+		LOG_ERRORF("world", "Cannot read the saved map: %s", error.c_str());
 		return false;
 	}
-
-	if (!readLevelCells(f, map, MAP_CELL_COUNT))
-		return false;
 
 	clearMonsters();
 	resetPlayerMotion();
@@ -88,10 +85,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 void Dungeon::Dump(std::ofstream& f) {
 	f << mapX << " " << mapY << " ";
 
-	f << MAP_CELL_COUNT << " ";
-
-	for (int l = 0; l < MAP_CELL_COUNT; l++)
-		f << map[l].type << " " << map[l].attr << " " << map[l].value << " ";
+	writeLevel(f, map);
 
 	f << keysHeld << " ";
 
@@ -103,7 +97,7 @@ void Dungeon::Dump(std::ofstream& f) {
 void Dungeon::PickUp() {
 	if (Map(mapX, mapY).type == Treasure) {
 		std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
-		map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))] = Tile{Empty, 0, 0};
+		clearObject(map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))]);
 		if (!placed) // an empty chest (type 0), or an item the game does not know
 			return;
 

@@ -199,9 +199,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	if (!isTileType(tile.type))
 		return; // the game treats an unknown type as open space
 	switch (static_cast<DungeonTileType>(tile.type)) {
-	case Wall:
-	case Empty:
-	case Area3D:
+	case NoObject:
 	case MonsterSpawn: // the monster is drawn where it is now (DrawMonsters)
 		break;
 	case Treasure:

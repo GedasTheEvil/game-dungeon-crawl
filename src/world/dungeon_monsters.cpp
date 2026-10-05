@@ -76,7 +76,7 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
 			ItemFileId loot = fileIdOf(RollMimicLoot(sim.random->gameplay));
-			map[MapIndex(mon.Col(), mon.Row())] = Tile{Treasure, loot.type, loot.id};
+			setObject(map[MapIndex(mon.Col(), mon.Row())], Tile{Treasure, loot.type, loot.id});
 			mon.Clear();
 			continue;
 		}
@@ -113,7 +113,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 	const auto deathCol = static_cast<int>(std::floor(mon.CentreX()));
 	auto floorCell = [this](int col, int row) {
 		for (int fall = 0; fall < MAX_FALL && IsInBounds(col, row - 1); fall++) {
-			if (MapAt(col, row).type != Empty)
+			if (MapAt(col, row).type != NoObject || isSolidTile(MapAt(col, row)))
 				return -1;
 			if (isSolidTile(MapAt(col, row - 1)))
 				return row;
@@ -128,7 +128,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 			if (row < 0)
 				continue;
 			const ItemFileId loot = fileIdOf(weapon);
-			map[MapIndex(col, row)] = Tile{Treasure, loot.type, loot.id};
+			setObject(map[MapIndex(col, row)], Tile{Treasure, loot.type, loot.id});
 			return;
 		}
 }

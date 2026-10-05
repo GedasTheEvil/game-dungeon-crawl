@@ -68,7 +68,7 @@ void Dungeon::updateMechanisms() {
 
 	if (here.type == Key && isLockColour(here.attr) && sim.player->Alive()) {
 		keysHeld |= lockBit(here.attr);
-		map[MapIndex(col, row)] = Tile{Empty, 0, 0};
+		clearObject(map[MapIndex(col, row)]);
 		char text[64];
 		snprintf(text, sizeof(text), "Found the %s key", lockColour(here.attr).gem);
 		sim.events->Status("%s", text);

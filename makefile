@@ -43,8 +43,9 @@ VIEWER_SOURCES=$(wildcard tools/model-viewer/*.cpp)
 VIEWER_OBJECTS=$(VIEWER_SOURCES:%.cpp=$(BUILD)/%.o)
 VIEWER=$(BUILD)/model-viewer
 
-# Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones. See docs/levels.md.
-LEVEL_TOOLS=levelcheck levelgen
+# Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones, levelconvert rewrites
+# old level files in the current format. See docs/levels.md.
+LEVEL_TOOLS=levelcheck levelgen levelconvert
 LEVEL_TOOL_SOURCES=$(LEVEL_TOOLS:%=tools/level/%.cpp)
 
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.

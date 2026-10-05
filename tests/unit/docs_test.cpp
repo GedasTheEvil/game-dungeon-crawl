@@ -30,10 +30,17 @@ std::string lower(std::string s) {
 bool has(const std::string& text, const std::string& part) { return text.find(lower(part)) != std::string::npos; }
 } // namespace
 
-TEST_CASE("the editor readme lists every tile type, monster, lock colour and item") {
+TEST_CASE("the editor readme lists every structure, tile type, monster, lock colour and item") {
 	const std::string readme = readLower("tools/editor/readme.md");
+	for (int s = 0; s < STRUCTURE_COUNT; s++) {
+		const Structure structure = static_cast<Structure>(s);
+		CHECK_MESSAGE(
+			has(readme, std::string("| `") + structureGlyph(structure) + "` | " + structureDef(structure).name),
+			structureDef(structure).name);
+	}
 	for (int type = 0; type < TILE_TYPE_COUNT; type++)
-		CHECK_MESSAGE(has(readme, "| " + std::to_string(type) + " | " + tileDef(type).name), tileDef(type).name);
+		if (isTileType(type))
+			CHECK_MESSAGE(has(readme, "| " + std::to_string(type) + " | " + tileDef(type).name), tileDef(type).name);
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		CHECK_MESSAGE(has(readme, "| " + std::to_string(type) + " | " + monsterKind(type)->label),
 					  monsterKind(type)->label);

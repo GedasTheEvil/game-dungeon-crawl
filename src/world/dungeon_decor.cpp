@@ -69,8 +69,7 @@ uint32_t cellHash(uint32_t seed, int cell) { return mix(seed ^ mix(static_cast<u
 // An empty floor cell within MINION_SUMMON_REACH of a boss on its row whose minions climb out of coffins
 // (Summon::Coffin), alive or slain (slainBoss): a coffin for them stands there.
 bool Dungeon::bossCoffin(int i, int j) const {
-	if (MapAt(i, j).type != Empty || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) ||
-		MapAt(i, j - 1).type != Wall)
+	if (!isEmptyCell(MapAt(i, j)) || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) || !isWall(MapAt(i, j - 1)))
 		return false;
 	for (int k = -MINION_SUMMON_REACH; k <= MINION_SUMMON_REACH; k++) {
 		if (!IsInBounds(i + k, j))
@@ -108,17 +107,17 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			}
 
 			// Only empty cells the player can stand in (floor below). A slain boss's tile stays bare, as in his life.
-			if (MapAt(i, j).type != Empty || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) ||
-				MapAt(i, j - 1).type != Wall)
+			if (!isEmptyCell(MapAt(i, j)) || slainBoss(MapAt(i, j)) != 0 || !IsInBounds(i, j - 1) ||
+				!isWall(MapAt(i, j - 1)))
 				continue;
 
 			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (h % 100 >= DECOR_CHANCE_PERCENT)
 				continue;
 
-			bool wallLeft = !IsInBounds(i - 1, j) || MapAt(i - 1, j).type == Wall;
-			bool wallRight = !IsInBounds(i + 1, j) || MapAt(i + 1, j).type == Wall;
-			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type == Wall;
+			bool wallLeft = !IsInBounds(i - 1, j) || isWall(MapAt(i - 1, j));
+			bool wallRight = !IsInBounds(i + 1, j) || isWall(MapAt(i + 1, j));
+			bool ceiling = !IsInBounds(i, j + 1) || isWall(MapAt(i, j + 1));
 			bool webFits = ceiling; // lies flat on the back wall, tucked into a side wall's corner if there is one
 
 			h = mix(h);
@@ -166,7 +165,7 @@ void Dungeon::scatterLadders(uint32_t seed) {
 			h = mix(h);
 
 			int piece;
-			if (first && (!IsInBounds(i, j - 1) || MapAt(i, j - 1).type == Wall))
+			if (first && (!IsInBounds(i, j - 1) || isWall(MapAt(i, j - 1))))
 				piece = LADDER_BOTTOM;
 			else if (last)
 				piece = LADDER_TOP;
@@ -195,10 +194,10 @@ void Dungeon::scatterTorches(uint32_t seed) {
 			bool& cell = torch[MapIndex(i, j)];
 			cell = false;
 
-			int tile = MapAt(i, j).type;
+			const Tile tile = MapAt(i, j);
 			int8_t prop = decor[MapIndex(i, j)].type;
-			if (!tileDef(tile).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP || prop == DECOR_BES ||
-				i - lastTorch <= TORCH_MIN_GAP)
+			if (isWall(tile) || !tileDef(tile.type).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP ||
+				prop == DECOR_BES || i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
 			uint32_t h = cellHash(seed, MapIndex(i, j));
@@ -222,16 +221,16 @@ void Dungeon::scatterDecals(uint32_t seed) {
 			DecalCell& cell = decal[MapIndex(i, j)];
 			cell = DecalCell{};
 
-			int tile = MapAt(i, j).type;
-			if (!tileDef(tile).decals)
+			const Tile tile = MapAt(i, j);
+			if (isWall(tile) || !tileDef(tile.type).decals)
 				continue;
 
 			uint32_t h = cellHash(seed, MapIndex(i, j));
 			if (h % 100 >= DECAL_CHANCE_PERCENT)
 				continue;
 
-			bool ceiling = !IsInBounds(i, j + 1) || MapAt(i, j + 1).type == Wall;
-			bool floor = IsInBounds(i, j - 1) && MapAt(i, j - 1).type == Wall && decor[MapIndex(i, j)].type < 0;
+			bool ceiling = !IsInBounds(i, j + 1) || isWall(MapAt(i, j + 1));
+			bool floor = IsInBounds(i, j - 1) && isWall(MapAt(i, j - 1)) && decor[MapIndex(i, j)].type < 0;
 			bool free = !torch[MapIndex(i, j)]; // the torch covers the middle of the wall
 
 			int fits[DECAL_COUNT];
@@ -443,12 +442,12 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 
 	for (int j = 0; j < MAP_HEIGHT; j++)
 		for (int start = 0; start < MAP_WIDTH;) {
-			if (MapAt(start, j).type == Wall) {
+			if (isWall(MapAt(start, j))) {
 				start++;
 				continue;
 			}
 			int end = start;
-			while (end < MAP_WIDTH && MapAt(end, j).type != Wall)
+			while (end < MAP_WIDTH && !isWall(MapAt(end, j)))
 				end++;
 
 			uint32_t h = cellHash(seed, MapIndex(start, j));

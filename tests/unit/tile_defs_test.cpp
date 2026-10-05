@@ -6,13 +6,28 @@
 
 TEST_CASE("every tile type has a row") {
 	std::set<std::string> names;
-	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
-		CHECK(std::string(tileDef(type).name) != "Unknown");
-		names.insert(tileDef(type).name);
-	}
-	CHECK(names.size() == static_cast<size_t>(TILE_TYPE_COUNT));
+	int types = 0;
+	for (int type = 0; type < TILE_TYPE_COUNT; type++)
+		if (isTileType(type)) {
+			CHECK(std::string(tileDef(type).name) != "Unknown");
+			names.insert(tileDef(type).name);
+			types++;
+		}
+	CHECK(names.size() == static_cast<size_t>(types));
+	CHECK(types == TILE_TYPE_COUNT - 2); // 0 (now the wall structure) and 7 (Area3D) are gone
+	CHECK(std::string(tileDef(0).name) == "Unknown");
+	CHECK(std::string(tileDef(7).name) == "Unknown");
 	CHECK(std::string(tileDef(TILE_TYPE_COUNT).name) == "Unknown");
 	CHECK(std::string(tileDef(-1).name) == "Unknown");
+}
+
+TEST_CASE("every structure has a row and its own glyph") {
+	std::set<char> glyphs;
+	for (int s = 0; s < STRUCTURE_COUNT; s++) {
+		CHECK(structureDef(static_cast<Structure>(s)).name != nullptr);
+		glyphs.insert(structureGlyph(static_cast<Structure>(s)));
+	}
+	CHECK(glyphs.size() == static_cast<size_t>(STRUCTURE_COUNT));
 }
 
 TEST_CASE("every monster type has a row, three bosses") {
@@ -53,7 +68,7 @@ TEST_CASE("every tile type and monster type has a glyph in the legend") {
 			monsters.insert(g.tile.attr);
 	}
 	for (int type = 0; type < TILE_TYPE_COUNT; type++)
-		if (type != Area3D) // unused by the game, drawn as open space
+		if (isTileType(type) && type != NoObject) // no object: '#' or '.', by the structure
 			CHECK_MESSAGE(types.count(type) == 1, tileDef(type).name);
 	CHECK(monsters.size() == static_cast<size_t>(MONSTER_TYPE_MAX));
 }

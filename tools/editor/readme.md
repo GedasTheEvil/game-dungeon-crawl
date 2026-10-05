@@ -6,8 +6,9 @@
 
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
   Above the grid: the column, row and contents of the cell under the mouse.
-* Right, top: the `Paint` / `Check` mode buttons.
-* Right, middle: the tile palette (two rows of 7 tiles), then the `Attribute` and `Value` fields.
+* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Objects` layer buttons.
+* Right, middle: the palette of the layer (structures, or the object tiles in two rows), then the `Attribute` and
+  `Value` fields (objects only).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   Numbers that mean nothing to the game show in red.
 * Right, bottom: the level name field and the `Save` and `Load` buttons.
@@ -20,11 +21,21 @@
   The level check (see [docs/levels.md](../docs/levels.md)) runs on the map: the path from the entrance to the
   goal is drawn with gold dots, the result shows under the grid.
 
-In both modes, a right click on a cell picks its tile, attribute and value into the brush.
+In both modes, a right click on a cell picks it into the brush: its structure, or its tile, attribute and value.
+
+## Layers
+
+A cell has two layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water) and at
+most one object in it (a ladder, a monster, a key, ...). Key `L` or the `Structure` / `Objects` buttons switch the
+layer the brush paints and the palette shows. The map shows both; the other layer stays visible, dimmed.
+
+* Painting an object into a wall or deep water carves the cell open (`Empty`).
+* Painting a wall or deep water over an object removes the object.
+* `None` in the objects palette removes the object and keeps the structure.
 
 ## Workflow
 
-1. Click a tile in the palette.
+1. Pick the layer, then click a structure or a tile in the palette.
 2. If the tile needs one, set the attribute and value (see [Tile reference](#tile-reference)):
    click `Attribute` (or press `Tab`), type digits. `Tab` goes to the next field, `Enter` or `Esc` leaves it.
    The numbers apply as you type. Reset both fields to empty (0) before you paint plain tiles.
@@ -34,31 +45,42 @@ In both modes, a right click on a cell picks its tile, attribute and value into 
 6. Copy the file to `levels/lvlN`. The game starts on `levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
-A new map is all `Wall`. You carve the playable space out of it.
+A new map is all `Wall`. You carve the playable space out of it: paint `Empty` structure, or paint objects (they
+carve their cell).
 
 Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `fonts/` and
 `textures/ui/`.
 
+## Structure reference
+
+| Glyph | Structure | Number | In game |
+|---|---|---|---|
+| `#` | Wall | 0 | Solid rock. The player stands on it and cannot walk through it. Holds no object. |
+| `.` | Empty | 1 | Open space. With no wall below, the player falls. |
+| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. No water rules yet (see [crocodiles-and-flooded-cells](../../docs/plan/crocodiles-and-flooded-cells.draft.md)). |
+| `=` | Deep water | 3 | Full of water, solid like a wall. Holds no object. |
+
+The glyph is the one in the level file's structure drawing and in `levelcheck --map`.
+
 ## Tile reference
 
-Palette order: top row `Wall`, `Empty`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`; bottom row `3D`, `Treasure`, `Ankh`, `Key`, `Gate`, `Lever`, `RockFall` (type 0 to 13).
+The object layer. Palette order: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`, `Treasure`; then `Ankh`,
+`Key`, `Gate`, `Lever`, `RockFall`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
-| 0 | Wall | - | - | Solid block. The player stands on it and cannot walk through it. |
-| 1 | Empty | - | - | Open space. With no `Wall` below, the player falls. |
+| 1 | None | - | - | No object: the cell is just its structure. |
 | 2 | Door (sphinx gate) | Gate type, see below | - | Sphinx statue. Behaviour depends on the gate type. |
 | 3 | Death | - | - | Large spike trap (scale 40). Damages the player on contact. |
 | 4 | Monster | Monster type, see below | - | Monster spawns on this cell when the cell is in view. |
 | 5 | Spike | - | - | Small spike trap (scale 16). Damages the player on contact. |
 | 6 | Ladder | - | - | Column. The player climbs up and down only between vertically adjacent ladder cells, and does not fall on it. |
-| 7 | 3D (Area3D) | - | - | Not used by the game. Renders as open space. |
-| 8 | Treasure | Item type, see below | Item id, see below | Chest with the item on top. Interact to pick it up. The cell then becomes `Empty`. |
+| 8 | Treasure | Item type, see below | Item id, see below | Chest with the item on top. Interact to pick it up. The cell is then left without an object. |
 | 9 | Ankh | - | - | Level goal. Interact with it to win the game. |
-| 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell then becomes `Empty`. |
+| 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell is then left without an object. |
 | 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. It opens when the player comes up to it with the key of its colour, or when a lever of its colour is pulled. It slides up in 1.2 s. |
 | 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
-| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s. Under its centre (0.3 cells) it crushes (1000 damage), nearer its edge (0.6 cells) it grazes (50 damage); armor does not help. Walk on without stopping, sprint on or step back to get clear; a jump in place does not dodge it. The rock stays on the floor (walkable). Put a `Wall` above it. |
+| 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s. Under its centre (0.3 cells) it crushes (1000 damage), nearer its edge (0.6 cells) it grazes (50 damage); armor does not help. Walk on without stopping, sprint on or step back to get clear; a jump in place does not dodge it. The rock stays on the floor (walkable). Put a wall above it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 
@@ -129,13 +151,24 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Plain text. The first line is the cell count, `1881` (40 x 47 + 1 spare cell).
-Then one line per cell: `type attribute value`. Cells go row by row, from the bottom row up, left to right in each row (index = `row * 40 + column`).
+Level format v2, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the object layer
+as a list:
 
 ```
-1881
-0 0 0
-1 0 0
-2 1 0
+DCLEVEL 2 40 47
+structure
+########################################
+#......................................#
+...                                       47 rows of 40 glyphs, the top row (46) first
+objects 3
+1 1 2 1 0                                 column row type attribute value
+4 1 6 0 0
 ...
 ```
+
+The structure glyphs are in the [Structure reference](#structure-reference). The object list holds only the cells
+with an object, row 0 (the bottom) first, left to right. Rows count from the bottom, columns from the left.
+
+The old format (v1: the cell count `1881`, then one `type attribute value` line per cell, type 0 a wall) still loads:
+the game, the editor and `levelcheck` convert it as they read it (`levelcheck` warns). `levelconvert FILE...`
+rewrites files in v2 for good.

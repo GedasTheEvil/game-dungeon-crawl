@@ -169,6 +169,9 @@ std::vector<char> reachableCells(const Walker& walker, int startState) {
 	return cells;
 }
 
+// Wall and deep water: no object may stand there.
+bool holdsNoObject(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
+
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
 
 void countContent(const LevelGrid& grid, LevelReport& r) {
@@ -176,7 +179,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
-			if (t.type == Wall)
+			if (holdsNoObject(t.structure))
 				continue;
 			r.openCells++;
 			minCol = std::min(minCol, col);
@@ -284,6 +287,15 @@ void checkBossRoom(const LevelGrid& grid, int startState, LevelReport& r) {
 	}
 }
 
+void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		Tile t = grid.cells[cell];
+		if (holdsNoObject(t.structure) && hasObject(t))
+			r.warnings.push_back(std::string(tileDef(t.type).name) + " in " + structureDef(t.structure).name + " at " +
+								 at(cell));
+	}
+}
+
 // Only the game makes a dead gate, from an answered riddle gate (GateEmpty); in level data it has no purpose.
 void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
@@ -349,6 +361,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	LevelReport r;
 	countContent(grid, r);
 	checkLocks(grid, r);
+	checkObjectsInRock(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 
@@ -518,24 +531,27 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 		for (const CellPos& p : report->path)
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
-	std::string out;
+	std::string objects, structure;
+	bool water = false;
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
-		std::string line;
+		std::string line, structureLine;
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
 			char c = tileGlyph(t);
-			if (t.type != Wall)
-				any = true;
+			any = any || !isWall(t) || hasObject(t);
+			water = water || t.structure == Structure::HalfWater || t.structure == Structure::DeepWater;
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
 			line += c;
+			structureLine += structureGlyph(t.structure);
 		}
 		if (any) {
 			char head[8];
 			snprintf(head, sizeof(head), "%2d ", row);
-			out += head + line + '\n';
+			objects += head + line + '\n';
+			structure += head + structureLine + '\n';
 		}
 	}
-	return out;
+	return water ? objects + "structure\n" + structure : objects;
 }

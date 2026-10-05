@@ -112,7 +112,7 @@ void hatch(Sketch& sk, int i, int j) {
 void outline(Sketch& sk, const Dungeon& d, int i, int j) {
 	auto x = static_cast<float>(i);
 	auto y = static_cast<float>(j);
-	auto wall = [&](int ci, int cj) { return d.Explored(ci, cj) && d.Cell(ci, cj).type == Wall; };
+	auto wall = [&](int ci, int cj) { return d.Explored(ci, cj) && isWall(d.Cell(ci, cj)); };
 	// Seeds come from the edge, not the cell, so a shared edge looks the same whichever side draws it.
 	if (wall(i - 1, j))
 		sk.pencil(x, y, x, y + 1, GRAPHITE, 0.85f, cellSeed(i, j, 10));
@@ -310,13 +310,13 @@ void DraftMap::Draw() {
 	Sketch sk(originX, originY, cell);
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j) && d.Cell(i, j).type == Wall)
+			if (d.Explored(i, j) && isWall(d.Cell(i, j)))
 				hatch(sk, i, j);
 	sk.flush(1.f * pxScale);
 
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j) && d.Cell(i, j).type != Wall)
+			if (d.Explored(i, j) && !isWall(d.Cell(i, j)))
 				outline(sk, d, i, j);
 	sk.flush(2.f * pxScale);
 

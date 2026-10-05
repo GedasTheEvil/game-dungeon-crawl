@@ -1,7 +1,8 @@
 # Level format v2: layers
 
-Status: draft 2026-10-01, rewritten 2026-10-05 (was the binary level format). Needed by
-[crocodiles-and-flooded-cells.draft.md](crocodiles-and-flooded-cells.draft.md).
+Status: draft 2026-10-01, rewritten 2026-10-05 (was the binary level format). Done 2026-10-05, see
+[Implemented](#implemented). Needed by
+[crocodiles-and-flooded-cells.draft.md](../crocodiles-and-flooded-cells.draft.md).
 
 ## Why
 
@@ -54,7 +55,7 @@ Check: convert, load both versions, compare cell by cell (a unit test), and play
 * The game: `loadLevelFile` / `saveLevelFile`, `Dungeon` (map access, collision, drawing), save games.
 * `levelcheck` (rules and `--map`), `levelgen`, `ascii2level.py` and the ASCII sources in `tools/level/campaign/`,
   the editor (`tools/editor`), `tile_defs` / `tile_info`, the scenario tests.
-* Docs: [../levels.md](../levels.md), [tools/editor/readme.md](../../tools/editor/readme.md).
+* Docs: [levels.md](../../levels.md), [tools/editor/readme.md](../../../tools/editor/readme.md).
 
 ## ASCII sources
 
@@ -67,3 +68,25 @@ structure follows from the object drawing (`#` wall, anything else empty), so th
 
 A layer switch: structure or objects. Each layer has its own buttons (structure: wall, empty, half water, deep water;
 objects: the rest). The other layer stays visible, dimmed.
+
+## Implemented
+
+* In memory a cell stays one `Tile` (`src/world/level.h`): the object's type, attr and value plus a `structure`
+  field. Object type 0 (`Wall`) and 7 (`Area3D`) are gone; the other numbers stay as in v1. "No object" is
+  `NoObject` (1, v1's `Empty`). `setObject` / `clearObject` change the object and keep the structure (pickups, keys,
+  chests from kills, a slain boss's tile).
+* File: `DCLEVEL 2 40 47`, `structure` and 47 rows of glyphs (top row first), `objects N` and one
+  `COL ROW TYPE ATTR VALUE` per cell with an object. `readLevel` / `writeLevel` in `level.cpp` read both versions and
+  write v2: used by level files, the editor, the tools and save games (a v1 save converts on load,
+  `tests/saves/journal_all_creatures.sav` stays v1 for that).
+* `levelconvert` (built by `make`) converted `levels/lvl*`, `tests/levels/*` and `tools/editor/saved/*`. lvl1 went from
+  13 KB to 2 KB. `levelcheck` warns about a v1 file and about an object in a wall or deep water.
+* `ascii2level.py` writes v2 and reads the optional structure drawing; `levelcheck --legend` prints the structure
+  glyphs and the format header too. All 58 ASCII sources rebuild byte for byte into the converted files.
+* Editor: `Structure` / `Objects` buttons (key `L`). An object painted into rock carves the cell; rock painted over
+  an object removes it.
+* Checks: unit tests (v1 conversion, v2 round trip with water, broken files); the levelcheck reports and maps of
+  every level are the same before and after; 81/81 scenarios and `make paths` (15/15) pass; the scenario
+  screenshots are pixel for pixel the ones of the old build (but the save menu, which lists the real saves).
+* Found on the way: torches and decals were placed by the tile type alone; walls now have the type `NoObject`, so
+  `scatterTorches` / `scatterDecals` check `isWall` first.

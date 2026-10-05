@@ -33,8 +33,10 @@ constexpr Rect MAP_PANEL = {4.f, 6.5f, 76.f, 88.8f};
 constexpr float RIGHT_X = 84.f;
 constexpr float RIGHT_W = 72.f;
 constexpr float RIGHT_CX = RIGHT_X + RIGHT_W / 2;
-constexpr Rect PAINT_BUTTON = {86.f, 82.f, 33.f, 5.5f};
-constexpr Rect CHECK_BUTTON = {121.f, 82.f, 33.f, 5.5f};
+constexpr Rect PAINT_BUTTON = {86.f, 82.f, 16.f, 5.5f};
+constexpr Rect CHECK_BUTTON = {103.5f, 82.f, 16.f, 5.5f};
+constexpr Rect STRUCTURE_BUTTON = {121.5f, 82.f, 16.f, 5.5f};
+constexpr Rect OBJECTS_BUTTON = {139.f, 82.f, 16.f, 5.5f};
 constexpr Rect TILES_PANEL = {RIGHT_X, 57.5f, RIGHT_W, 22.f};
 constexpr Rect BRUSH_PANEL = {RIGHT_X, 47.f, RIGHT_W, 8.5f};
 constexpr Rect ATTRIBUTE_BOX = {102.f, 49.f, 14.f, 4.5f};
@@ -68,16 +70,51 @@ constexpr unsigned char KEY_CTRL_S = 19;
 constexpr Color WALL_TOP = {0.40f, 0.31f, 0.21f};
 constexpr Color WALL_BOTTOM = {0.30f, 0.23f, 0.15f};
 constexpr Color OPEN_COLOR = {0.035f, 0.028f, 0.02f};
+constexpr Color WATER_TOP = {0.12f, 0.30f, 0.42f};
+constexpr Color WATER_BOTTOM = {0.07f, 0.18f, 0.28f};
+constexpr Color DEEP_TOP = {0.05f, 0.12f, 0.24f};
+constexpr Color DEEP_BOTTOM = {0.03f, 0.07f, 0.15f};
+constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layer not being painted, dimmed
 
 enum class Mode : unsigned char { Paint, Check };
+enum class Layer : unsigned char { Structure, Objects }; // which one the brush paints and the palette shows
 enum class Field : unsigned char { None, Attribute, Value, Name };
 // Clickable things besides the map.
-enum class Target : unsigned char { None, Tile, PaintMode, CheckMode, Attribute, Value, Name, Save, Load };
+enum class Target : unsigned char {
+	None,
+	Tile,
+	PaintMode,
+	CheckMode,
+	StructureLayer,
+	ObjectsLayer,
+	Attribute,
+	Value,
+	Name,
+	Save,
+	Load
+};
 
-Rect slotRect(int tile) {
+// The palette of a layer: structure numbers or tile types, in slot order.
+std::vector<int> paletteOf(Layer layer) {
+	std::vector<int> ids;
+	if (layer == Layer::Structure) {
+		for (int s = 0; s < STRUCTURE_COUNT; s++)
+			ids.push_back(s);
+		return ids;
+	}
+	for (int type = 0; type < TILE_TYPE_COUNT; type++)
+		if (isTileType(type))
+			ids.push_back(type);
+	return ids;
+}
+
+// Wall and deep water: no object may stand there.
+bool holdsNoObject(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
+
+Rect slotRect(int slot) {
 	float x0 = RIGHT_CX - (PALETTE_COLUMNS * SLOT_W + (PALETTE_COLUMNS - 1) * SLOT_GAP) / 2;
-	int column = tile % PALETTE_COLUMNS;
-	int row = tile / PALETTE_COLUMNS;
+	int column = slot % PALETTE_COLUMNS;
+	int row = slot / PALETTE_COLUMNS;
 	return {x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP),
 			TILES_PANEL.y + TILES_PANEL.h - 2.f - SLOT_H - static_cast<float>(row) * (SLOT_H + SLOT_GAP), SLOT_W,
 			SLOT_H};
@@ -132,17 +169,19 @@ class Editor {
 	void keyPressed(unsigned char key);
 
   private:
-	LevelGrid grid; // zero-initialised: all Wall, the rock the level is carved from
-	int tile = Empty;
+	LevelGrid grid; // all wall, the rock the level is carved from
+	int tile = NoObject;
+	Structure structure = Structure::Empty;
 	std::string attributeText, valueText, name;
 	Mode mode = Mode::Paint;
+	Layer layer = Layer::Objects;
 	Field field = Field::None;
 
 	CellPos hovered;
 	CellPos checked;
 	bool painting = false;
 	Target hoveredTarget = Target::None;
-	int hoveredTile = -1;
+	int hoveredSlot = -1;
 
 	LevelReport report;
 	bool reportStale = true;
@@ -160,12 +199,15 @@ class Editor {
 	Font title, heading, body, small;
 
 	[[nodiscard]] Tile brush() const { return {tile, parseNumber(attributeText), parseNumber(valueText)}; }
+	// The palette's id in the current layer: a tile type or a structure number.
+	[[nodiscard]] int selectedId() const { return layer == Layer::Structure ? static_cast<int>(structure) : tile; }
 	[[nodiscard]] Rect visibleArea() const;
 	void toCanvas(int mouseX, int mouseY, float& x, float& y) const;
 	[[nodiscard]] static CellPos cellAt(float x, float y);
 	void updateHover(float x, float y);
 
 	void setMode(Mode m);
+	void setLayer(Layer l);
 	void paint(CellPos cell);
 	void pick(CellPos cell);
 	void save();
@@ -184,7 +226,9 @@ class Editor {
 	void drawFooter();
 	void drawButton(const Rect& r, const char* label, bool active, Target target);
 	void drawTextBox(const Rect& r, const std::string& value, Field which, Target target);
-	void drawTileSwatch(int type, const Rect& r, float alpha);
+	void drawStructureSwatch(Structure s, const Rect& r, float alpha);
+	void drawObjectIcon(int type, const Rect& r, float alpha);
+	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float objectAlpha);
 };
 
 Editor::Editor() {
@@ -232,16 +276,23 @@ CellPos Editor::cellAt(float x, float y) {
 
 void Editor::updateHover(float x, float y) {
 	hovered = cellAt(x, y);
-	hoveredTile = -1;
+	hoveredSlot = -1;
 	hoveredTarget = Target::None;
-	for (int type = 0; type < TILE_TYPE_COUNT; type++)
-		if (slotRect(type).contains(x, y)) {
-			hoveredTile = type;
+	const size_t slots = paletteOf(layer).size();
+	for (size_t slot = 0; slot < slots; slot++)
+		if (slotRect(static_cast<int>(slot)).contains(x, y)) {
+			hoveredSlot = static_cast<int>(slot);
 			hoveredTarget = Target::Tile;
 		}
 	static const std::pair<Rect, Target> TARGETS[] = {
-		{PAINT_BUTTON, Target::PaintMode}, {CHECK_BUTTON, Target::CheckMode}, {ATTRIBUTE_BOX, Target::Attribute},
-		{VALUE_BOX, Target::Value},		   {NAME_BOX, Target::Name},		  {SAVE_BUTTON, Target::Save},
+		{PAINT_BUTTON, Target::PaintMode},
+		{CHECK_BUTTON, Target::CheckMode},
+		{STRUCTURE_BUTTON, Target::StructureLayer},
+		{OBJECTS_BUTTON, Target::ObjectsLayer},
+		{ATTRIBUTE_BOX, Target::Attribute},
+		{VALUE_BOX, Target::Value},
+		{NAME_BOX, Target::Name},
+		{SAVE_BUTTON, Target::Save},
 		{LOAD_BUTTON, Target::Load},
 	};
 	for (const auto& [rect, target] : TARGETS)
@@ -277,14 +328,25 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 		return;
 	field = Field::None;
 	switch (hoveredTarget) {
-	case Target::Tile:
-		tile = hoveredTile;
+	case Target::Tile: {
+		int id = paletteOf(layer)[static_cast<size_t>(hoveredSlot)];
+		if (layer == Layer::Structure)
+			structure = static_cast<Structure>(id);
+		else
+			tile = id;
 		break;
+	}
 	case Target::PaintMode:
 		setMode(Mode::Paint);
 		break;
 	case Target::CheckMode:
 		setMode(Mode::Check);
+		break;
+	case Target::StructureLayer:
+		setLayer(Layer::Structure);
+		break;
+	case Target::ObjectsLayer:
+		setLayer(Layer::Objects);
 		break;
 	case Target::Attribute:
 		field = Field::Attribute;
@@ -348,6 +410,8 @@ void Editor::keyPressed(unsigned char key) {
 			setMode(Mode::Paint);
 		else if (key == 'c' || key == 'C')
 			setMode(Mode::Check);
+		else if (key == 'l' || key == 'L')
+			setLayer(layer == Layer::Structure ? Layer::Objects : Layer::Structure);
 		else if (key == KEY_TAB)
 			field = Field::Attribute;
 		return;
@@ -376,14 +440,36 @@ void Editor::setMode(Mode m) {
 	painting = false;
 }
 
+void Editor::setLayer(Layer l) {
+	layer = l;
+	painting = false;
+	hoveredSlot = -1;
+}
+
+// Keeps the level valid: an object painted into rock carves the cell open, rock painted over an object removes it.
 void Editor::paint(CellPos cell) {
-	grid.set(cell.col, cell.row, brush());
+	Tile t = grid.at(cell.col, cell.row);
+	if (layer == Layer::Structure) {
+		t.structure = structure;
+		if (holdsNoObject(structure))
+			clearObject(t);
+	} else {
+		setObject(t, brush());
+		if (hasObject(t) && holdsNoObject(t.structure))
+			t.structure = Structure::Empty;
+	}
+	grid.set(cell.col, cell.row, t);
 	reportStale = true;
 }
 
-// Takes the cell's tile, attribute and value into the brush.
+// Takes the cell's structure, or its tile, attribute and value, into the brush: the layer being painted.
 void Editor::pick(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
+	if (layer == Layer::Structure) {
+		structure = t.structure;
+		showStatus("Picked " + std::string(structureDef(t.structure).name), false);
+		return;
+	}
 	if (isTileType(t.type))
 		tile = t.type;
 	attributeText = t.attr != 0 ? std::to_string(t.attr) : "";
@@ -491,24 +577,45 @@ void Editor::drawBackground() {
 	beginShapes();
 }
 
-void Editor::drawTileSwatch(int type, const Rect& r, float alpha) {
-	if (type == Wall) {
+void Editor::drawStructureSwatch(Structure s, const Rect& r, float alpha) {
+	switch (s) {
+	case Structure::Wall:
 		fillRect(r, WALL_TOP, WALL_BOTTOM, alpha);
-		return;
+		break;
+	case Structure::Empty:
+		fillRect(r, OPEN_COLOR, OPEN_COLOR, alpha);
+		break;
+	case Structure::HalfWater: // water up to half the cell
+		fillRect(r, OPEN_COLOR, OPEN_COLOR, alpha);
+		fillRect({r.x, r.y, r.w, r.h / 2}, WATER_TOP, WATER_BOTTOM, alpha);
+		break;
+	case Structure::DeepWater:
+		fillRect(r, DEEP_TOP, DEEP_BOTTOM, alpha);
+		break;
 	}
-	fillRect(r, OPEN_COLOR, OPEN_COLOR, alpha);
+}
+
+void Editor::drawObjectIcon(int type, const Rect& r, float alpha) {
 	if (isTileType(type) && hasIcon[type]) {
 		texturedRect(r, icons[type].ID(), {alpha, alpha, alpha});
 		beginShapes();
 	}
 }
 
+void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float objectAlpha) {
+	drawStructureSwatch(t.structure, r, structureAlpha);
+	if (hasObject(t))
+		drawObjectIcon(t.type, r, objectAlpha);
+}
+
 void Editor::drawMap() {
 	beginShapes();
 	fillRect(MAP_AREA.inset(-0.4f), BLACK, BLACK, 1.f);
+	const bool structures = layer == Layer::Structure;
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++)
-			drawTileSwatch(grid.at(col, row).type, cellRect(col, row), 1.f);
+			drawCell(grid.at(col, row), cellRect(col, row), structures ? 1.f : 0.7f,
+					 structures ? OTHER_LAYER_ALPHA : 1.f);
 
 	// Grid lines, every 5th a little stronger to help counting.
 	for (int col = 0; col <= LEVEL_WIDTH; col++) {
@@ -542,8 +649,13 @@ void Editor::drawMapOverlay() {
 
 	if (hovered.col >= 0) {
 		Rect r = cellRect(hovered.col, hovered.row);
-		if (mode == Mode::Paint)
-			drawTileSwatch(tile, r, 0.55f + 0.3f * pulse); // preview of the brush
+		if (mode == Mode::Paint) { // preview of the brush
+			const float alpha = 0.55f + 0.3f * pulse;
+			if (layer == Layer::Structure)
+				drawStructureSwatch(structure, r, alpha);
+			else
+				drawCell(brush(), r, alpha, alpha);
+		}
 		strokeRect(r.inset(-0.15f), GOLD_BRIGHT, 1.f, 1.5f);
 	}
 
@@ -552,8 +664,8 @@ void Editor::drawMapOverlay() {
 	char buf[96];
 	if (hovered.col >= 0) {
 		Tile t = grid.at(hovered.col, hovered.row);
-		snprintf(buf, sizeof(buf), "Column %d, row %d:  %s  %d  %d", hovered.col, hovered.row, tileInfo(t.type).name,
-				 t.attr, t.value);
+		snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d", hovered.col, hovered.row,
+				 structureDef(t.structure).name, tileInfo(t.type).name, t.attr, t.value);
 		text(small, MAP_PANEL.x + 1.f, 96.6f, buf, GOLD);
 	}
 	const char* modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
@@ -616,10 +728,12 @@ void Editor::drawTextBox(const Rect& r, const std::string& value, Field which, T
 
 void Editor::drawPalette() {
 	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.004f);
-	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
-		Rect r = slotRect(type);
-		bool selected = type == tile;
-		bool hover = type == hoveredTile;
+	const std::vector<int> palette = paletteOf(layer);
+	for (size_t slot = 0; slot < palette.size(); slot++) {
+		const int id = palette[slot];
+		Rect r = slotRect(static_cast<int>(slot));
+		bool selected = id == selectedId();
+		bool hover = static_cast<int>(slot) == hoveredSlot;
 		if (selected) {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			ring(r, 1.8f, GOLD, 0.35f + 0.25f * pulse, 0.f);
@@ -635,7 +749,13 @@ void Editor::drawPalette() {
 
 		constexpr float ICON = 5.2f;
 		Rect icon = {r.cx() - ICON / 2, r.y + NAME_BAND_H + (r.h - NAME_BAND_H - ICON) / 2, ICON, ICON};
-		drawTileSwatch(type, icon, selected || hover ? 1.f : 0.8f);
+		const float alpha = selected || hover ? 1.f : 0.8f;
+		if (layer == Layer::Structure) {
+			drawStructureSwatch(static_cast<Structure>(id), icon, alpha);
+		} else {
+			fillRect(icon, OPEN_COLOR, OPEN_COLOR, alpha);
+			drawObjectIcon(id, icon, alpha);
+		}
 		strokeRect(icon, BLACK, 0.6f, 1.f);
 
 		if (selected)
@@ -644,13 +764,16 @@ void Editor::drawPalette() {
 			strokeRect(r, hover ? GOLD_BRIGHT : BRONZE, 1.f, hover ? 2.f : 1.5f);
 
 		beginText();
-		textCentered(small, r.cx(), r.y + 0.45f, tileInfo(type).name,
-					 selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
+		const char* label =
+			layer == Layer::Structure ? structureDef(static_cast<Structure>(id)).name : tileInfo(id).name;
+		textCentered(small, r.cx(), r.y + 0.45f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
 		beginShapes();
 	}
 
 	drawButton(PAINT_BUTTON, "Paint", mode == Mode::Paint, Target::PaintMode);
 	drawButton(CHECK_BUTTON, "Check", mode == Mode::Check, Target::CheckMode);
+	drawButton(STRUCTURE_BUTTON, "Structure", layer == Layer::Structure, Target::StructureLayer);
+	drawButton(OBJECTS_BUTTON, "Objects", layer == Layer::Objects, Target::ObjectsLayer);
 }
 
 void Editor::drawBrush() {
@@ -691,7 +814,7 @@ void Editor::drawFieldHint(float& y, const char* name, const FieldHint& hint) {
 void Editor::drawHint() {
 	bool checking = mode == Mode::Check && checked.col >= 0;
 	Tile cell = checking ? grid.at(checked.col, checked.row) : brush();
-	CellHint hint = describeCell(cell);
+	CellHint hint = !checking && layer == Layer::Structure ? describeStructure(structure) : describeCell(cell);
 	float cx = HINT_PANEL.cx();
 	float x = HINT_PANEL.x + 4.f;
 	float width = HINT_PANEL.w - 8.f;
@@ -700,7 +823,8 @@ void Editor::drawHint() {
 	textCentered(heading, cx, HINT_PANEL.y + HINT_PANEL.h - 5.2f, hint.title.c_str(), INK);
 	char sub[64];
 	if (checking)
-		snprintf(sub, sizeof(sub), "Cell at column %d, row %d", checked.col, checked.row);
+		snprintf(sub, sizeof(sub), "Cell at column %d, row %d, %s", checked.col, checked.row,
+				 structureDef(cell.structure).name);
 	else
 		snprintf(sub, sizeof(sub), "%s", mode == Mode::Check ? "Brush. Click a cell to inspect it" : "Brush");
 	textCentered(small, cx, HINT_PANEL.y + HINT_PANEL.h - 8.2f, sub, INK_RED);
@@ -750,11 +874,10 @@ void Editor::drawFooter() {
 					 report.valid ? Color{0.55f, 0.85f, 0.4f} : Color{1.f, 0.45f, 0.3f});
 	}
 
-	textCentered(
-		small, CANVAS_W / 2, 0.8f,
-		"Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    Tab: next field    "
-		"Ctrl+S / Ctrl+O: save / load",
-		{0.55f, 0.45f, 0.30f});
+	textCentered(small, CANVAS_W / 2, 0.8f,
+				 "Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    "
+				 "Tab: next field    Ctrl+S / Ctrl+O: save / load",
+				 {0.55f, 0.45f, 0.30f});
 	beginShapes();
 }
 

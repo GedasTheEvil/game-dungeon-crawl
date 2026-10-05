@@ -43,7 +43,7 @@ class Dungeon {
 	int levelNumber = 1; // the campaign level loaded (campaign.h); a level loaded by path keeps the last number
 	bool won = false;	 // the ankh was taken
 	// Solid rock for the drawing: a wall, or outside the level.
-	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || MapAt(col, row).type == Wall; }
+	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || isWall(MapAt(col, row)); }
 	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;

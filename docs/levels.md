@@ -1,7 +1,21 @@
 # Levels: validator, generator, campaign
 
 Level files, tile types and the editor: [tools/editor/readme.md](../tools/editor/readme.md).
-Tile types in code: `src/world/level.h`.
+Tile types and structures in code: `src/world/level.h`.
+
+## Level format
+
+A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.md)):
+
+* **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`. A cell blocks when it is `Wall` or `DeepWater`.
+* **Object**: at most one thing in the cell, with attribute and value: ladder, door, gate, lever, key, treasure,
+  ankh, monster spawn, spike, death trap, rock fall. An object stands in `Empty` or `HalfWater`.
+
+Level files are text, version 2: a `DCLEVEL 2 40 47` header, the structure as a drawing, then the list of objects
+(format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the same block for the
+current level. Old (v1) level files and saves still load, converted as they are read; `levelcheck` warns about a v1
+file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water has no game rules yet
+([crocodiles-and-flooded-cells.draft.md](plan/crocodiles-and-flooded-cells.draft.md)).
 
 ## Campaign order
 
@@ -38,6 +52,7 @@ make level-tools
 ./levelcheck levels/lvl*                   # report per level, then a ranking, easiest first
 ./levelcheck --map levels/lvl3             # plus the map with the path drawn as '*'
 ./levelcheck --legend                      # the map's characters, with the tile each one stands for
+./levelconvert levels/lvl*                 # rewrite v1 level files as v2 (v2 files are left alone)
 ./levelcheck --script tests/out/paths levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -62,7 +77,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |
@@ -127,6 +142,10 @@ reads the legend from `levelcheck --legend`, which prints the game's tables (`sr
 In `--map` output, `m`, `q` and `Q` mark a monster type, key colour or gate colour the game does not know.
 A `def CHAR TYPE ATTR VALUE` line adds a character to the legend for that file, for example `def L 12 2 0`
 (blue lever) or `def 1 8 3 1` (large health potion).
+The drawing is the object layer. A line `structure` can follow it with a second drawing of the same rows, the
+structure: `#` wall, `.` empty, `~` half water, `=` deep water. Then `#` and `.` in the first drawing just mean no
+object. Without it, the structure follows from the object drawing: `#` wall, anything else empty. `levelcheck --map`
+prints the structure drawing after the map when the level has water.
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).
 
 ## Tests

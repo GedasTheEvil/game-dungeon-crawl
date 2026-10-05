@@ -70,7 +70,8 @@ struct LevelReport {
 
 // The level as text, top row first (wall rows above and below the level are skipped), one tileGlyph per cell
 // (legend: glyphLegend in tile_defs.h, `levelcheck --legend`; m, q, Q: a monster type, key or gate colour the game
-// does not know). With a report, the path is drawn as '*' over open cells.
+// does not know). With a report, the path is drawn as '*' over open cells. A level with water gets a second drawing
+// after a "structure" line, the same rows in structureGlyph (level.h).
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

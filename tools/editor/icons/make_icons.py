@@ -116,17 +116,6 @@ def ladder():
     save(img, "ladder.png")
 
 
-def area3d():  # unused tile: faded wireframe cube
-    img, d = canvas(GOLD, 15)
-    front = [(12, 24), (40, 24), (40, 52), (12, 52)]
-    back = [(x + 12, y - 12) for x, y in front]
-    for a, b in zip(front, back):
-        d.line(p(*a, *b), fill=GOLD_DIM, width=2 * SS)
-    for quad in (back, front):
-        d.line([v * SS for xy in quad + [quad[0]] for v in xy], fill=GOLD_DIM, width=2 * SS)
-    save(img, "3D.png")
-
-
 def treasure():
     img, d = canvas(GOLD, 70)
     d.rectangle(p(8, 30, 56, 56), fill=BRONZE, outline=BRONZE_DARK, width=SS)
@@ -204,7 +193,6 @@ if __name__ == "__main__":
     spikes("spikes.png", tall=False)
     monster()
     ladder()
-    area3d()
     treasure()
     ankh()
     key()

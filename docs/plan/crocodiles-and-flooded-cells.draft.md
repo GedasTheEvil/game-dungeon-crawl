@@ -1,6 +1,7 @@
 # Crocodiles and flooded cells
 
-Status: draft 2026-10-05. Needs [level-format-layers.draft.md](level-format-layers.draft.md) first.
+Status: draft 2026-10-05. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
+done).
 
 ## Water cells
 
@@ -58,8 +59,9 @@ A cell has one type (`Tile` in `src/world/level.h`: type, attr, value). Deep wat
 of a ladder, maybe a key or a treasure. So a new tile type alone is not enough for half water.
 
 Decided (2026-10-05): a structure layer under the objects, see
-[level-format-layers.draft.md](level-format-layers.draft.md). `HalfWater` and `DeepWater` are structure types, so a
-spawn, a ladder or a key can stand in half water. That plan comes first.
+[solved/level-format-layers.md](solved/level-format-layers.md). `HalfWater` and `DeepWater` are structure types, so a
+spawn, a ladder or a key can stand in half water. Done: the format, the editor and the checker know water; it has
+no game rules yet.
 
 Speed: the player and the monsters read whether the cell they stand in is half water, and scale their speed from
 their wading kind ([Monsters in water](#monsters-in-water)); the player wades like Slowed.

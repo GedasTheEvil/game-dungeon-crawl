@@ -37,7 +37,7 @@ class LevelBuilder {
   public:
 	LevelBuilder(uint32_t seed, int difficulty) : rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty) {
 		for (Tile& t : g.cells)
-			t = Tile{Wall, 0, 0};
+			t = wallTile();
 		used.assign(CELLS, 0);
 		busy.assign(CELLS, 0);
 	}
@@ -107,7 +107,7 @@ class LevelBuilder {
 	void carveSegment(const Segment& s) {
 		for (int y = s.row; y < s.row + s.height; y++)
 			for (int x = s.x0; x <= s.x1; x++)
-				carve(x, y, Tile{Empty, 0, 0});
+				carve(x, y, Tile{});
 	}
 
 	void carveLadder(int col, int yLow, int yHigh) {
@@ -199,7 +199,7 @@ class LevelBuilder {
 				carveLadder(exitCol, next.row, cur.row);
 			else
 				for (int y = cur.row - 1; y >= next.row + next.height; y--)
-					carve(exitCol, y, Tile{Empty, 0, 0});
+					carve(exitCol, y, Tile{});
 			cur.exit = exitCol;
 			cur.link = link;
 			markBusy(cur, exitCol);
@@ -217,7 +217,7 @@ class LevelBuilder {
 			std::swap(lo, hi);
 		for (int attempt = 0; attempt < SEGMENT_TRIES; attempt++) {
 			int col = rng.range(lo, hi);
-			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 || g.at(col, seg.row).type != Empty)
+			if (col < seg.x0 || col > seg.x1 || busy[index(col, seg.row)] != 0 || !isEmptyCell(g.at(col, seg.row)))
 				continue;
 			bool up = rng.chance(0.5f);
 			Segment b;
@@ -265,7 +265,7 @@ class LevelBuilder {
 			if (span < 5)
 				continue;
 			int gate = seg.entry + dir * rng.range(3, span - 1);
-			if (busy[index(gate, seg.row)] != 0 || g.at(gate, seg.row).type != Empty)
+			if (busy[index(gate, seg.row)] != 0 || !isEmptyCell(g.at(gate, seg.row)))
 				continue;
 			int colour = colours[locksPlaced];
 			g.set(gate, seg.row, Tile{Gate, colour, 0});
@@ -275,7 +275,7 @@ class LevelBuilder {
 				markBusy(seg, gate);
 				locksPlaced++;
 			} else {
-				g.set(gate, seg.row, Tile{Empty, 0, 0});
+				g.set(gate, seg.row, Tile{});
 				busy[index(gate, seg.row)] = 0;
 			}
 		}
@@ -338,7 +338,7 @@ class LevelBuilder {
 	}
 
 	bool placeMonster(int col, int row) {
-		if (monsters >= 4 + 2 * d || g.at(col, row).type != Empty || g.at(col, row - 1).type != Wall)
+		if (monsters >= 4 + 2 * d || !isEmptyCell(g.at(col, row)) || !isWall(g.at(col, row - 1)))
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
 			if (g.at(x, row).type == MonsterSpawn)
@@ -350,7 +350,7 @@ class LevelBuilder {
 	}
 
 	[[nodiscard]] bool floorCell(const Segment& s, int col) const {
-		return col >= s.x0 && col <= s.x1 && g.at(col, s.row).type == Empty && g.at(col, s.row - 1).type == Wall;
+		return col >= s.x0 && col <= s.x1 && isEmptyCell(g.at(col, s.row)) && isWall(g.at(col, s.row - 1));
 	}
 
 	// A one-cell hole in the floor with a death trap in it: jump it or die.
@@ -358,8 +358,8 @@ class LevelBuilder {
 		if (!floorCell(s, col - 1) || !floorCell(s, col) || !floorCell(s, col + 1))
 			return false;
 		int below = s.row - 1;
-		if (used[index(col, below - 1)] != 0 || g.at(col, below - 1).type != Wall ||
-			g.at(col - 1, below).type != Wall || g.at(col + 1, below).type != Wall)
+		if (used[index(col, below - 1)] != 0 || !isWall(g.at(col, below - 1)) || !isWall(g.at(col - 1, below)) ||
+			!isWall(g.at(col + 1, below)))
 			return false;
 		carve(col, below, Tile{Death, 0, 0});
 		busy[index(col - 1, s.row)] = busy[index(col, s.row)] = busy[index(col + 1, s.row)] = 1;
@@ -386,7 +386,7 @@ class LevelBuilder {
 		int dir = to >= from ? 1 : -1;
 		float fd = static_cast<float>(d);
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
-			if (busy[index(x, s.row)] != 0 || g.at(x, s.row).type != Empty)
+			if (busy[index(x, s.row)] != 0 || !isEmptyCell(g.at(x, s.row)))
 				continue;
 			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
 			float weights[FEATURE_COUNT] = {2.5f,
@@ -414,7 +414,7 @@ class LevelBuilder {
 				size = rng.range(1, std::min(3, 1 + d / 3));
 				for (int k = 0; k < size; k++) {
 					int cx = x + k * dir;
-					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && g.at(cx, s.row + 1).type == Wall)
+					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && isWall(g.at(cx, s.row + 1)))
 						g.set(cx, s.row, Tile{RockFall, 0, 0});
 				}
 				break;

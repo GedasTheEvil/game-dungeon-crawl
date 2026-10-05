@@ -205,11 +205,14 @@ int main(int argc, char** argv) {
 			quiet = true;
 			continue;
 		}
-		// For tools/level/ascii2level.py: "size WIDTH HEIGHT CELLS", then "CHAR TYPE ATTR VALUE meaning" per glyph.
+		// For tools/level/ascii2level.py: "size WIDTH HEIGHT", "format MAGIC VERSION", "structure GLYPHS" (by
+		// Structure number), then "CHAR TYPE ATTR VALUE STRUCTURE meaning" per glyph of the object drawing.
 		if (strcmp(argv[i], "--legend") == 0) {
-			printf("size %d %d %d\n", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_CELL_COUNT);
+			printf("size %d %d\nformat %s %d\nstructure %s\n", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_MAGIC, LEVEL_VERSION,
+				   STRUCTURE_GLYPHS);
 			for (const GlyphDef& g : glyphLegend())
-				printf("%c %d %d %d %s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value, g.meaning);
+				printf("%c %d %d %d %d %s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value,
+					   static_cast<int>(g.tile.structure), g.meaning);
 			return 0;
 		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {
@@ -222,13 +225,17 @@ int main(int argc, char** argv) {
 		}
 		Entry e;
 		e.path = argv[i];
-		std::string error = loadLevelFile(argv[i], e.grid);
+		int version = 0;
+		std::string error = loadLevelFile(argv[i], e.grid, &version);
 		if (!error.empty()) {
 			fprintf(stderr, "%s: %s\n", argv[i], error.c_str());
 			code = 2;
 			continue;
 		}
 		e.report = checkLevel(e.grid);
+		if (version != LEVEL_VERSION)
+			e.report.warnings.push_back("level format v" + std::to_string(version) + ", convert it: levelconvert " +
+										e.path);
 		entries.push_back(std::move(e));
 	}
 	if (entries.empty() && code == 0) {

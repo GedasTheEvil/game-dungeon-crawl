@@ -18,7 +18,8 @@ Asset paths are relative to the repo root: run every program from there.
 * Level editor: `make editor`, `make run-editor`. Runs from the repo root, see [tools/editor/readme.md](../tools/editor/readme.md).
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="models/monsters/anubis.md3"`.
 * Level tools: `make level-tools`, then `./levelcheck levels/lvl*` (validate, rank by difficulty) and
-  `./levelgen --seed 1 --difficulty 5 OUT` (random level). See [levels.md](levels.md).
+  `./levelgen --seed 1 --difficulty 5 OUT` (random level), `./levelconvert FILE...` (old level files to the current
+  format). See [levels.md](levels.md).
 
 ## Project layout
 

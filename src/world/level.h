@@ -2,6 +2,7 @@
 #define LEVEL_H
 
 // Level data without rendering: tile types, the cell grid and the file format.
+// A cell has two layers: its structure (what it is made of) and at most one object in it.
 // Shared by the game (Dungeon) and the command line tools (levelcheck, levelgen), so no GL here.
 
 #include <cstdint>
@@ -10,20 +11,29 @@
 
 constexpr int LEVEL_WIDTH = 40;
 constexpr int LEVEL_HEIGHT = 47;
-constexpr int LEVEL_CELL_COUNT = LEVEL_WIDTH * LEVEL_HEIGHT + 1; // + 1 spare cell, kept for the file format
+constexpr int LEVEL_CELL_COUNT = LEVEL_WIDTH * LEVEL_HEIGHT + 1; // + 1 spare cell, from the v1 file format
 
-enum DungeonTileType : unsigned char {
+// The structure layer. Wall and DeepWater block; objects stand in Empty or HalfWater cells.
+enum class Structure : std::uint8_t {
 	Wall = 0,
 	Empty = 1,
+	HalfWater = 2,
+	DeepWater = 3,
+};
+constexpr int STRUCTURE_COUNT = 4;
+[[nodiscard]] constexpr bool isStructure(int s) { return s >= 0 && s < STRUCTURE_COUNT; }
+
+// The object layer. The numbers are the v1 file's tile types: 0 was Wall (now a structure), 7 the unused Area3D.
+enum DungeonTileType : unsigned char {
+	NoObject = 1,
 	Door = 2,
 	Death = 3,
 	MonsterSpawn = 4,
 	Spike = 5,
 	Ladder = 6,
-	Area3D = 7,
 	Treasure = 8,
 	Ankh = 9,
-	Key = 10,	// b = lock colour; picked up on touch, then the cell is Empty
+	Key = 10,	// b = lock colour; picked up on touch, then the cell has no object
 	Gate = 11,	// b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
 	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
@@ -80,12 +90,27 @@ constexpr LockColour LOCK_COLOURS[BOSS_LOCK] = {
 // colour must be isGateColour.
 inline const LockColour& lockColour(int colour) { return LOCK_COLOURS[colour - 1]; }
 
-// One level cell, as in the level files and the editor: tile type, attribute and value.
+// One level cell: the object (tile type, attribute and value) and the structure it stands in.
+// Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a level with setObject,
+// which keeps its structure.
 struct Tile {
-	int type;  // DungeonTileType
-	int attr;  // attribute: meaning depends on the type (monster type, lock colour, ...)
-	int value; // value: meaning depends on the type (gate state, ...)
+	int type = NoObject; // DungeonTileType
+	int attr = 0;		 // attribute: meaning depends on the type (monster type, lock colour, ...)
+	int value = 0;		 // value: meaning depends on the type (gate state, ...)
+	Structure structure = Structure::Empty;
 };
+[[nodiscard]] inline Tile wallTile() { return Tile{NoObject, 0, 0, Structure::Wall}; }
+[[nodiscard]] inline bool isWall(const Tile& t) { return t.structure == Structure::Wall; }
+// Open, dry and nothing in it: what a v1 Empty cell was.
+[[nodiscard]] inline bool isEmptyCell(const Tile& t) { return t.structure == Structure::Empty && t.type == NoObject; }
+[[nodiscard]] inline bool hasObject(const Tile& t) { return t.type != NoObject || t.attr != 0 || t.value != 0; }
+// Puts object's type, attr and value in cell; the cell's structure stays.
+inline void setObject(Tile& cell, const Tile& object) {
+	cell.type = object.type;
+	cell.attr = object.attr;
+	cell.value = object.value;
+}
+inline void clearObject(Tile& cell) { setObject(cell, Tile{}); }
 
 // A Gate's and a RockFall's value: their state, as stored in level files and save games.
 enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
@@ -99,24 +124,29 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 inline void pullLever(Tile& t) { t.value = 1; }
 // A teleporter's value: its pair id.
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
-// An Empty cell's attr: 0, or the monster type of the boss slain there (its spawn tile), so its chamber keeps its
+// A NoObject cell's attr: 0, or the monster type of the boss slain there (its spawn tile), so its chamber keeps its
 // coffins after a load. Only save games have it.
-[[nodiscard]] inline Tile slainBossTile(int bossType) { return Tile{Empty, bossType, 0}; }
-[[nodiscard]] inline int slainBoss(const Tile& t) { return t.type == Empty ? t.attr : 0; }
+[[nodiscard]] inline Tile slainBossObject(int bossType) { return Tile{NoObject, bossType, 0}; }
+[[nodiscard]] inline int slainBoss(const Tile& t) { return t.type == NoObject ? t.attr : 0; }
 
-// Blocks the player (walls and gates not fully open). Everything else is open space.
-inline bool isSolidTile(const Tile& t) { return t.type == Wall || (t.type == Gate && gateState(t) != GateState::Open); }
+// Blocks the player (walls, deep water and gates not fully open). Everything else is open space.
+inline bool isSolidTile(const Tile& t) {
+	return t.structure == Structure::Wall || t.structure == Structure::DeepWater ||
+		   (t.type == Gate && gateState(t) != GateState::Open);
+}
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
 struct LevelGrid {
-	Tile cells[LEVEL_CELL_COUNT] = {};
+	Tile cells[LEVEL_CELL_COUNT];
+
+	LevelGrid(); // all wall, the rock a level is carved from
 
 	[[nodiscard]] static bool inBounds(int col, int row) {
 		return col >= 0 && col < LEVEL_WIDTH && row >= 0 && row < LEVEL_HEIGHT;
 	}
-	// Out of bounds reads as Wall.
+	// Out of bounds reads as wall.
 	[[nodiscard]] Tile at(int col, int row) const {
-		return inBounds(col, row) ? cells[row * LEVEL_WIDTH + col] : Tile{Wall, 0, 0};
+		return inBounds(col, row) ? cells[row * LEVEL_WIDTH + col] : wallTile();
 	}
 	void set(int col, int row, Tile t) {
 		if (inBounds(col, row))
@@ -140,10 +170,27 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// Cell list after the header, as in the level files and save games. False on a short read.
-bool readLevelCells(std::istream& in, Tile* cells, int cellCount);
+// The level format (docs/levels.md), in level files and save games. Version 2, text:
+//   DCLEVEL 2 WIDTH HEIGHT
+//   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
+//   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). It is read and
+// converted (convertV1Tile), never written.
+constexpr const char* LEVEL_MAGIC = "DCLEVEL";
+constexpr int LEVEL_VERSION = 2;
+constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~="; // by Structure
+[[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
+
+// A v1 cell in v2: type 0 is a wall without an object, anything else an object in an empty cell (the unused
+// Area3D, type 7, no object).
+[[nodiscard]] Tile convertV1Tile(int type, int attr, int value);
+
+// Reads either version into cells (LEVEL_CELL_COUNT of them; the spare cell is left as it is). Error message, empty
+// on success. version: the one read, if not null.
+std::string readLevel(std::istream& in, Tile* cells, int* version = nullptr);
+void writeLevel(std::ostream& out, const Tile* cells);
 // Error message, empty on success.
-std::string loadLevelFile(const char* path, LevelGrid& grid);
+std::string loadLevelFile(const char* path, LevelGrid& grid, int* version = nullptr);
 bool saveLevelFile(const char* path, const LevelGrid& grid);
 
 #endif

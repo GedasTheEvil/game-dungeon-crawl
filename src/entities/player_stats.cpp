@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <utility>
 #include "../world/progression.h"
 
 namespace {
@@ -25,14 +26,16 @@ void PlayerStats::AddXP(int xp, WorldEvents& events) {
 }
 
 void PlayerStats::UpdateStamina(WorldEvents& events) {
+	const bool moved = std::exchange(walked, false);
 	if (!Alive()) {
 		sprinting = false;
 		sprint_requested = false;
 		return;
 	}
 
-	if (!sprint_requested || stamina <= 0) {
-		if (sprint_requested)
+	// Standing still (or against a wall) with shift held is plain standing: no drain, no refusal.
+	if (!sprint_requested || !moved || stamina <= 0) {
+		if (sprint_requested && moved)
 			RefuseStamina(events);
 		sprinting = false;
 		RegenerateStamina();
@@ -158,6 +161,7 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	stamina_regen_carry = 0.0f;
 	stamina_sprint_drain_carry = 0.0f;
 	sprint_requested = false;
+	walked = false;
 	sprinting = false;
 	level_up_ms.reset();
 	stamina_refused_ms.reset();

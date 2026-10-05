@@ -1,0 +1,24 @@
+# Sprint (shift) drains stamina only while the player really moves. Shift held standing still or walking into a
+# wall costs nothing: stamina regenerates as when standing. Level 1: 5% of max per second either way.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+jump
+wait 1s
+jump
+wait 1s
+dump
+expect stamina <= 70
+sprint on
+wait 3s
+dump
+expect stamina >= 80
+hold left 3s
+dump
+expect stamina == 100
+expect x == 7
+hold right 1s
+dump
+expect stamina <= 95
+expect x >= 9.9

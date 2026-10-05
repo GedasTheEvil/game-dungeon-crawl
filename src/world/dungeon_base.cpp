@@ -155,7 +155,9 @@ void Dungeon::updateTraps() {
 			mon.StandInTrap();
 }
 //======================================================================================
-void Dungeon::Move(float dirX, float dirY) {
+bool Dungeon::Move(float dirX, float dirY) {
+	const float startX = mapX;
+	const float startY = mapY;
 	if (dirX != 0) {
 		float probeX = mapX + dirX + (dirX > 0 ? PLAYER_BODY_HALF_WIDTH : -PLAYER_BODY_HALF_WIDTH);
 		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
@@ -175,6 +177,7 @@ void Dungeon::Move(float dirX, float dirY) {
 		float offset = std::floor(mapX) + LADDER_GRIP_X - mapX;
 		mapX += std::clamp(offset, -std::fabs(dirY), std::fabs(dirY));
 	}
+	return mapX != startX || mapY != startY;
 }
 //======================================================================================
 bool Dungeon::PlayerOnLadder() const {

@@ -174,7 +174,7 @@ class Dungeon {
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
-	void Move(float dirX, float dirY);
+	bool Move(float dirX, float dirY);				 // false: blocked, the player did not move
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

@@ -1,6 +1,11 @@
 # Sprint drains stamina while standing still
 
-Status: draft 2026-10-05. Bug.
+Status: implemented 2026-10-05, awaiting verification. Bug.
+
+Done: `Dungeon::Move()` returns whether the player moved; walk steps that moved call `PlayerStats::NoteWalked()`;
+`UpdateStamina()` drains (and refuses) only with shift held and a real step this tick. `SprintMoveMultiplier()`
+looks at shift + stamina left, so the first step is already a sprint step. Jump and fall moves do not count.
+Scenario `tests/scenarios/sprint.txt` (new commands `sprint on|off`, `hold <dir> T`).
 
 ## Bug
 

@@ -44,6 +44,8 @@ enum class CommandType : unsigned char {
 	Level,
 	Wait,
 	Walk,
+	Hold,
+	Sprint,
 	Jump,
 	Attack,
 	Interact,
@@ -105,7 +107,7 @@ struct Command {
 	int line = 0;
 	std::string text; // source line, for reports
 	std::string arg;  // level path / screenshot name
-	int ticks = 0;	  // wait
+	int ticks = 0;	  // wait, hold
 	GameplayAction action = GameplayAction::None;
 	bool walkTo = false;			// walk to: a is the target map x
 	float a = 0.f;					// walk distance, camera rotM, expect value
@@ -441,6 +443,15 @@ bool parseFloat(const std::string& word, float& out) {
 	return end != word.c_str() && *end == '\0';
 }
 
+// A walk key by name, None if it is not one.
+GameplayAction walkAction(const std::string& word) {
+	return word == "left"	 ? GameplayAction::MoveLeft
+		   : word == "right" ? GameplayAction::MoveRight
+		   : word == "up"	 ? GameplayAction::MoveUp
+		   : word == "down"	 ? GameplayAction::MoveDown
+							 : GameplayAction::None;
+}
+
 // Returns an error message, empty on success.
 std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 	const std::string& name = w[0];
@@ -488,16 +499,23 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		}
 		if (argc != 2 || !parseFloat(w[2], cmd.a) || cmd.a <= 0)
 			return "usage: walk <left|right|up|down> <tiles> | walk to <map x>";
-		if (w[1] == "left")
-			cmd.action = GameplayAction::MoveLeft;
-		else if (w[1] == "right")
-			cmd.action = GameplayAction::MoveRight;
-		else if (w[1] == "up")
-			cmd.action = GameplayAction::MoveUp;
-		else if (w[1] == "down")
-			cmd.action = GameplayAction::MoveDown;
-		else
+		cmd.action = walkAction(w[1]);
+		if (cmd.action == GameplayAction::None)
 			return "walk direction must be left|right|up|down";
+		return "";
+	}
+	if (name == "hold") { // the walk key down for T ticks, moving or not (walk fails when blocked)
+		cmd.type = CommandType::Hold;
+		cmd.action = argc == 2 ? walkAction(w[1]) : GameplayAction::None;
+		if (cmd.action == GameplayAction::None || !parseWait(w[2], cmd.ticks))
+			return "usage: hold <left|right|up|down> <ticks|Nms|Ns>";
+		return "";
+	}
+	if (name == "sprint") {
+		cmd.type = CommandType::Sprint;
+		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
+			return "usage: sprint <on|off>";
+		cmd.a = w[1] == "on" ? 1.f : 0.f;
 		return "";
 	}
 	if (name == "jump" || name == "attack" || name == "interact") {
@@ -754,6 +772,10 @@ bool runInstant(const Command& cmd) {
 		Game().camera.rotN = cmd.b;
 		report(cmd, true, "");
 		return true;
+	case CommandType::Sprint: // shift down / up
+		Game().player->stats.SetSprintRequested(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return true;
 	case CommandType::Toon:
 		Ink::setToon(cmd.a > 0.5f);
 		report(cmd, true, "");
@@ -849,6 +871,7 @@ bool runInstant(const Command& cmd) {
 		finish(EXIT_OK);
 	case CommandType::Wait:
 	case CommandType::Walk:
+	case CommandType::Hold:
 		return false;
 	}
 	return true;
@@ -873,6 +896,22 @@ void runCommands() {
 			}
 			gRunner.waiting = false;
 			report(cmd, true, "");
+			gRunner.next++;
+			continue;
+		}
+		if (cmd.type == CommandType::Hold) {
+			if (!gRunner.waiting) {
+				gRunner.waiting = true;
+				gRunner.waitLeft = cmd.ticks;
+			}
+			if (gRunner.waitLeft > 0) {
+				gRunner.waitLeft--;
+				setWalkHeld(cmd.action, true); // Update() takes the step, as for a held key in play
+				return;
+			}
+			gRunner.waiting = false;
+			releaseWalk();
+			report(cmd, true, stateLine());
 			gRunner.next++;
 			continue;
 		}

@@ -23,8 +23,9 @@ class PlayerStats {
 	Timer stamina_sprint_drain_timer{1000};
 	float stamina_regen_carry = 0.f;
 	float stamina_sprint_drain_carry = 0.f;
-	bool sprint_requested = false;
-	bool sprinting = false;
+	bool sprint_requested = false;		   // shift held
+	bool walked = false;				   // the player took a walk step this tick (NoteWalked)
+	bool sprinting = false;				   // shift held and the player moved last tick: stamina drains
 	std::optional<int> level_up_ms;		   // game clock time of the last level up, for the sun beam
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
@@ -34,7 +35,9 @@ class PlayerStats {
   public:
 	void SetSprintRequested(bool requested) { sprint_requested = requested; }
 	[[nodiscard]] bool IsSprinting() const { return sprinting; }
-	[[nodiscard]] float SprintMoveMultiplier() const { return sprinting ? 3.f : 1.f; }
+	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved.
+	[[nodiscard]] float SprintMoveMultiplier() const { return sprint_requested && stamina > 0 ? 3.f : 1.f; }
+	void NoteWalked() { walked = true; } // a walk step really moved the player (not into a wall)
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
 	[[nodiscard]] int MaxStamina() const { return 100 + (level - 1) * 10; }

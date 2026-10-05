@@ -60,22 +60,22 @@ class PlayerActionController {
 		float moveMultiplier = Game().player->stats.SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
-			Game().dungeon.Move(-PLAYER_MOVE_STEP * moveMultiplier, 0);
+			walk(-PLAYER_MOVE_STEP * moveMultiplier, 0);
 			Game().camera.rotW = -110;
 			if (!Game().player->jump.jumping)
 				Game().player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveRight:
-			Game().dungeon.Move(PLAYER_MOVE_STEP * moveMultiplier, 0);
+			walk(PLAYER_MOVE_STEP * moveMultiplier, 0);
 			Game().camera.rotW = 70;
 			if (!Game().player->jump.jumping)
 				Game().player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveDown:
-			Game().dungeon.Move(0, -PLAYER_MOVE_STEP * moveMultiplier);
+			walk(0, -PLAYER_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::MoveUp:
-			Game().dungeon.Move(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
+			walk(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
 			startJump();
@@ -116,6 +116,12 @@ class PlayerActionController {
 	}
 
   private:
+	// Only a step that really moved the player counts for the sprint drain.
+	static void walk(float dirX, float dirY) {
+		if (Game().dungeon.Move(dirX, dirY))
+			Game().player->stats.NoteWalked();
+	}
+
 	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
 	static void equip(ItemKind weapon) {
 		if (Game().player->attackStartMs < 0)

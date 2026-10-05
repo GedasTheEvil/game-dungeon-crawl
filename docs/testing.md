@@ -54,6 +54,8 @@ One command per line. `#` starts a comment.
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Hold the walk key until the player is N tiles away on that axis: the play speed (`WALK_SPEED`, one step a tick, `stepHeldWalk`). `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. Float steps can stop a hair short (4.9999 for 5): walk a bit past a cell edge you need to be in. |
 | `walk to X` | Walk along the row until the player's map x reaches X, whichever way it is. Fails like `walk` when blocked. `levelcheck --script` uses it, so its steps do not add up errors. |
+| `hold left\|right\|up\|down T` | Hold the walk key for T (ticks, `500ms`, `2s`), whether the player moves or not. Never fails: for walking into a wall. |
+| `sprint on\|off` | Shift down / up (sprint). It stays down until `sprint off`. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |

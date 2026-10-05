@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.." || exit 2
 scenarios=("$@")
 [ ${#scenarios[@]} -eq 0 ] && scenarios=(tests/scenarios/*.txt)
 
-jobs=${JOBS:-$(($(nproc) - 4))}
+jobs=${JOBS:-$(($(nproc) - 6))}
 [ "$jobs" -lt 1 ] && jobs=1
 headless=0
 if [ "${HEADLESS:-1}" != 0 ] && command -v xvfb-run >/dev/null; then
@@ -25,7 +25,7 @@ trap 'rm -rf "$tmp"' EXIT
 run_one() {
 	local out code
 	if [ $headless = 1 ]; then
-		out=$(xvfb-run -a -n $((200 + $2 * 3)) -s "-screen 0 1920x1080x24" ./game "$1" 2>&1)
+		out=$(xvfb-run -a -n $((200 + $2 * 3)) -s "-screen 0 800x600x24" ./game "$1" 2>&1)
 	else
 		out=$(./game "$1" 2>&1)
 	fi

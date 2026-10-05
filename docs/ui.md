@@ -159,10 +159,12 @@ A cloth-bound field notebook ([plan/journal-real-book.md](plan/solved/journal-re
 (`textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left
 edge, red and white headbands at the spine, the page block's edges either side (more on the side the book is
 thicker). Two white grid pages (`textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left
-page); both textures come from `tools/textures/journal_book.py`. One ribbon bookmark per section hangs out of the
-right edge (`INK_RED` creatures, `LAPIS` riddles, `GOLD_DIM` field notes, swallowtail end), its letter (M, R, F) in
-`PAPER` on the open and the hovered one; the open one sticks out further, the hovered one shows its name on a dark
-label. Page turn arrows in `PENCIL` in the bottom corners.
+page); both textures come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`INK_RED` creatures,
+`LAPIS` riddles, `GOLD_DIM` field notes, swallowtail end) marks the section's first page
+([plan/journal-ribbons-change-sides.md](plan/journal-ribbons-change-sides.md)): it hangs out of the right edge while
+the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, further out the more
+pages lie between it and the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F) in `PAPER` on the open and
+the hovered one; the hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`fonts/courier.png`), the level pencilled
 above; underlined headings and the text in `INK_BLUE`; pencil (`PENCIL`, alpha 0.7) for what matters less (hints,
@@ -179,7 +181,9 @@ Page turn: each page is drawn into a `RenderTarget` (the page's size in window p
 by `drawPageCurl` (`src/ui/page_curl.h`): a mesh folded along the bisector of the bottom free corner and where it is
 pulled, round a cylinder, the back showing the next page, a shadow on the page under it. A click or key swings the
 corner over in 650 ms, a drag follows the mouse (let go past the spine: over, before it: back), a hovered corner
-lifts a little. A ribbon or Up / Down to another section turns one page in its direction. Sound:
+lifts a little. A ribbon or Up / Down to another section turns one page in its direction; the ribbons whose first
+page it crosses ride on it to the other side (drawn into the page's texture, which reaches `RIBBON_OVERHANG` past the
+free edge, `PageCurl::overhang`), bending with the curl. Sound:
 `sounds/ui/page_turn.wav` (`tools/audio/page_sound.py`).
 
 ### Screen tabs

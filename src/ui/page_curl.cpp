@@ -16,7 +16,10 @@ constexpr float SHADOW_REACH = 4.f;	  // beyond the curl, on the page under it
 constexpr float SHADOW_ALPHA = 0.32f;
 constexpr float PI = static_cast<float>(M_PI);
 
-size_t meshIndex(int i, int j) { return static_cast<size_t>(j) * (COLUMNS + 1) + static_cast<size_t>(i); }
+// Rows of `columns` + 1 vertices.
+size_t meshIndex(int i, int j, int columns) {
+	return static_cast<size_t>(j) * static_cast<size_t>(columns + 1) + static_cast<size_t>(i);
+}
 
 struct Vec2 {
 	float x, y;
@@ -170,14 +173,19 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 		glEnd();
 	}
 
-	std::vector<Vertex> mesh(meshIndex(COLUMNS, ROWS) + 1);
+	// Columns at the same step on into the overhang; column COLUMNS is the free edge.
+	const float step = c.w / COLUMNS;
+	const int columns = COLUMNS + static_cast<int>(std::ceil(c.overhang / step - 1e-3f));
+	const float reach = c.w + c.overhang;
+	std::vector<Vertex> mesh(meshIndex(columns, ROWS, columns) + 1, Vertex{0, 0, 0});
+	auto columnX = [&](int i) { return std::min(reach, step * static_cast<float>(i)); };
 	for (int j = 0; j <= ROWS; j++)
-		for (int i = 0; i <= COLUMNS; i++) {
-			float x = c.w * static_cast<float>(i) / COLUMNS;
+		for (int i = 0; i <= columns; i++) {
+			float x = columnX(i);
 			float y = c.h * static_cast<float>(j) / ROWS;
 			Vertex v = bend(fold, x, y);
 			toCanvas(v.x, v.y, v.z, v.x, v.y);
-			mesh[meshIndex(i, j)] = v;
+			mesh[meshIndex(i, j, columns)] = v;
 		}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -186,6 +194,8 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_ALPHA_TEST); // the overhang is clear but for what hangs out of the page
+	glAlphaFunc(GL_GREATER, 0.5f);
 	glFrontFace(at.mirror ? GL_CW : GL_CCW);
 	// Front: u runs left to right on the canvas, so from the spine on a right page. Back: laid out as the page on
 	// the other side of the spine, the spine at its other end.
@@ -195,11 +205,11 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 		glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(front ? at.front : at.back));
 		for (int j = 0; j < ROWS; j++) {
 			glBegin(GL_TRIANGLE_STRIP);
-			for (int i = 0; i <= COLUMNS; i++) {
-				float fromSpine = static_cast<float>(i) / COLUMNS;
+			for (int i = 0; i <= columns; i++) {
+				float fromSpine = columnX(i) / reach;
 				float u = (front != at.mirror) ? fromSpine : 1 - fromSpine;
 				for (int k = 1; k >= 0; k--) {
-					const Vertex& v = mesh[meshIndex(i, j + k)];
+					const Vertex& v = mesh[meshIndex(i, j + k, columns)];
 					glColor4f(v.shade, v.shade, v.shade, 1.f);
 					glTexCoord2f(u, static_cast<float>(j + k) / ROWS);
 					glVertex3f(v.x, v.y, v.z);
@@ -214,12 +224,13 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	// page covers itself.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
+	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_LINE_SMOOTH);
 	glColor4f(0, 0, 0, 0.18f);
 	auto edge = [&](int i, int j) {
-		const Vertex& v = mesh[meshIndex(i, j)];
+		const Vertex& v = mesh[meshIndex(i, j, columns)];
 		glVertex3f(v.x, v.y, v.z + 0.05f);
 	};
 	glBegin(GL_LINE_STRIP);

@@ -1,6 +1,6 @@
 # Journal ribbons change sides
 
-Status: draft 2026-10-05, all points decided. Builds on [journal-real-book.md](solved/journal-real-book.md) (page curl,
+Status: implemented 2026-10-05, to verify. Builds on [journal-real-book.md](solved/journal-real-book.md) (page curl,
 ribbons).
 
 ## Problem

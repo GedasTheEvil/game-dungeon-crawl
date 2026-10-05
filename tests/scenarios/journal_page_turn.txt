@@ -1,6 +1,7 @@
 # The journal's page turn (tests/saves/journal_all_creatures.sav): a click on the corner turns the page over the
 # spine in FLIP_MS (650 ms), a hovered corner lifts a little, a dragged corner follows the mouse and goes back when let
-# go of before the spine. Screenshots along the way.
+# go of before the spine. The section ribbons change sides with the page that carries them. Screenshots along the
+# way.
 seed 1
 god
 level tests/levels/rats
@@ -47,3 +48,27 @@ wait 10
 screenshot drag_falls_back
 wait 40
 screenshot drag_back_flat
+# Ribbons: a later section's ribbon hangs out on the right, an open or passed one on the left. A ribbon click turns
+# one page; the ribbons whose first page it is ride over on it.
+mouse 88.2 70
+wait 3
+screenshot ribbon_hover_right
+click 88.2 70
+wait 15
+screenshot ribbon_rides_over
+wait 30
+screenshot ribbons_riddles_open
+click 88.2 61
+wait 45
+screenshot ribbons_field_notes_open
+mouse 9.5 79
+wait 3
+screenshot ribbon_hover_left
+# Back to the creatures: one page, Riddles and Field notes ride back on it.
+click 9.5 79
+wait 10
+screenshot ribbons_ride_back_quarter
+wait 10
+screenshot ribbons_ride_back_half
+wait 30
+screenshot ribbons_creatures_open

@@ -11,9 +11,9 @@
 #include <string>
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
-// per section on its right edge. Pages turn over the spine (ui/page_curl.h): a click, a key or a drag of a page
-// corner. The data is Game().journal (world/journal.h); this is only the screen. The game is paused while it is open.
-// It opens on the section and pages looked at last.
+// in the first page of each section, hanging out on the left or right. Pages turn over the spine (ui/page_curl.h): a
+// click, a key or a drag of a page corner. The data is Game().journal (world/journal.h); this is only the screen. The
+// game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:
 	enum class Section : std::uint8_t { Creatures, Riddles, FieldNotes };
@@ -42,6 +42,7 @@ class JournalScreen {
 	// to the far side (pi); dragged, it follows the mouse instead.
 	struct PageTurn {
 		bool active = false;
+		Opening from;		   // open when it began
 		Opening to;			   // open here once the page is over
 		bool forward = true;   // the right page turns to the left
 		bool dragging = false; // held by the mouse
@@ -49,6 +50,7 @@ class JournalScreen {
 		float spread = 1;	   // of the corner from the ellipse's centre, 1 on it; a released drag eases back to it
 		float target = 0;	   // the angle it goes to: pi over, 0 back
 		float cornerX = 0, cornerY = 0; // page-local while dragging (PageCurl)
+		float progress = 0;				// 0 flat .. 1 over, this frame (curlProgress)
 		float pressX = 0, pressY = 0;	// canvas, where the drag began: a press let go nearby is a click
 		int lastMs = 0;
 	};
@@ -73,8 +75,23 @@ class JournalScreen {
 	[[nodiscard]] int PageCount(Section s) const;
 	[[nodiscard]] int SpreadCount(Section s) const;
 	[[nodiscard]] Opening Open() const { return {section, spread[static_cast<size_t>(section)]}; }
-	// Pages before the open spread, and in the whole book (all sections), for the page edges either side.
-	[[nodiscard]] float ReadFraction(const Opening& at) const;
+	// Pages before a section's first one, before the open spread's left page, in the whole book (all sections).
+	[[nodiscard]] int FirstPage(int s) const;
+	[[nodiscard]] int PagesBefore(const Opening& at) const {
+		return FirstPage(static_cast<int>(at.section)) + at.spread * 2;
+	}
+	[[nodiscard]] int PagesTotal() const { return FirstPage(SECTION_COUNT); }
+	// Where a section's ribbon hangs out of the book open at `at`: left of the spine once its first page is open or
+	// turned, and how far out (canvas units), from the pages between it and the open spread.
+	struct RibbonPlace {
+		bool left = false;
+		float depth = 0;
+	};
+	[[nodiscard]] RibbonPlace PlaceOf(int ribbon, const Opening& at) const;
+	// The ribbon's first page goes over with the turning page.
+	[[nodiscard]] bool Riding(int ribbon) const;
+	// How far out a riding ribbon hangs from the turning page: from where it lay, in, then out to where it lands.
+	[[nodiscard]] float RidingDepth(int ribbon) const;
 	void Turn(int by);
 	void GoTo(Opening to);
 	void StartTurn(Opening to, bool dragged);
@@ -94,7 +111,9 @@ class JournalScreen {
 	int RenderPage(PageSlot slot, Opening at, int side, bool live);
 	void DrawPageContent(Opening at, int side, bool live);
 	void DrawBook(const Opening& at);
+	// The ribbons lying still (not on a turning page) and the hovered one's name.
 	void DrawRibbons();
+	void DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered);
 	void DrawCreature(const ui::Rect& page, int index);
 	void DrawFieldNote(const ui::Rect& page, int index);
 	void DrawSketch(int type, const ui::Rect& box, bool photo, float tilt);

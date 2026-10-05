@@ -30,14 +30,17 @@ constexpr Rect STRAP_BAND = {8.1f, 8.8f, 1.8f, 77.4f}; // round the left cover e
 constexpr float HEADBAND_W = 2.6f;
 constexpr float HEADBAND_OUT = 0.9f; // past the pages' top and bottom
 
-constexpr float RIBBON_X = 141.f; // the ribbons lie over the page edge, then hang out of the book
+constexpr float RIBBON_IN = 3.f; // the ribbons lie over the page edge, then hang out of the book
 constexpr float RIBBON_LEN = 14.f;
-constexpr float RIBBON_OPEN_LEN = 16.f; // the open section's ribbon sticks out further
 constexpr float RIBBON_H = 6.f;
 constexpr float RIBBON_TOP = 76.f;
 constexpr float RIBBON_STEP = 9.f;
-constexpr float RIBBON_SHADOW = 1.f;							// texture margin right and below
-constexpr float RIBBON_TEX_W = RIBBON_OPEN_LEN + RIBBON_SHADOW; // the texture: the open ribbon and its shadow
+constexpr float RIBBON_SHADOW = 1.f;						   // texture margin right and below
+constexpr float RIBBON_TEX_LEN = 16.f;						   // the ribbon in the texture; shorter ones crop it
+constexpr float RIBBON_TEX_W = RIBBON_TEX_LEN + RIBBON_SHADOW; // the texture: the ribbon and its shadow
+constexpr float RIBBON_DEPTH_MAX = EDGE_LINES * EDGE_STEP;	   // the deepest page edge
+constexpr float RIBBON_OVERHANG = RIBBON_LEN - RIBBON_IN + RIBBON_DEPTH_MAX + RIBBON_SHADOW; // past a turning page
+constexpr float RIBBON_RIDE_EASE = 0.3f; // of a turn: a riding ribbon slides in to the page, and out at the end
 
 constexpr float CORNER = 7.f; // page turn corners
 constexpr float ANSWER_W = 36.f;
@@ -93,9 +96,10 @@ Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.re
 
 const Rect& pageRect(int side) { return side == 0 ? LEFT_PAGE : RIGHT_PAGE; }
 
-Rect ribbonRect(int index, bool open) {
-	return {RIBBON_X, RIBBON_TOP - static_cast<float>(index) * RIBBON_STEP, open ? RIBBON_OPEN_LEN : RIBBON_LEN,
-			RIBBON_H};
+// A ribbon hanging out of the right or left page edge, `depth` further out.
+Rect ribbonRect(int index, bool left, float depth) {
+	float x = left ? LEFT_PAGE.x + RIBBON_IN - RIBBON_LEN - depth : RIGHT_PAGE.x + RIGHT_PAGE.w - RIBBON_IN + depth;
+	return {x, RIBBON_TOP - static_cast<float>(index) * RIBBON_STEP, RIBBON_LEN, RIBBON_H};
 }
 
 Rect cornerRect(int side) {
@@ -113,11 +117,12 @@ Rect photoBox(const Rect& p) { return {p.cx() - PHOTO_W / 2, p.y + p.h - PHOTO_T
 Color darker(Color c, float f) { return {c.r * f, c.g * f, c.b * f}; }
 
 // A silk ribbon with a frayed swallowtail end (textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
-// RIBBON_TEX_LEN x RIBBON_H plus one unit right and below for its shadow; a shorter ribbon crops its left end.
-void ribbon(const Rect& r, Color c) {
-	float u0 = (RIBBON_OPEN_LEN - r.w) / RIBBON_TEX_W;
-	texturedRect({r.x, r.y - RIBBON_SHADOW, r.w + RIBBON_SHADOW, r.h + RIBBON_SHADOW},
-				 Game().assets.textures.ribbon.ID(), c, u0, 0.f, 1.f, 1.f);
+// RIBBON_TEX_LEN x RIBBON_H plus one unit right and below for its shadow; a shorter ribbon crops its inner end. A left
+// ribbon is mirrored, the swallowtail pointing left.
+void ribbon(const Rect& r, bool left, Color c) {
+	float u0 = (RIBBON_TEX_LEN - r.w) / RIBBON_TEX_W;
+	Rect tex = {left ? r.x - RIBBON_SHADOW : r.x, r.y - RIBBON_SHADOW, r.w + RIBBON_SHADOW, r.h + RIBBON_SHADOW};
+	texturedRect(tex, Game().assets.textures.ribbon.ID(), c, left ? 1.f : u0, 0.f, left ? u0 : 1.f, 1.f);
 	beginShapes();
 }
 
@@ -250,19 +255,41 @@ int JournalScreen::PageCount(Section s) const {
 
 int JournalScreen::SpreadCount(Section s) const { return std::max(1, (PageCount(s) + 1) / 2); }
 
-float JournalScreen::ReadFraction(const Opening& at) const {
-	int before = 0;
-	int total = 0;
-	for (int i = 0; i < SECTION_COUNT; i++) {
-		const auto s = static_cast<Section>(i);
-		int pages = SpreadCount(s) * 2;
-		if (i < static_cast<int>(at.section))
-			before += pages;
-		else if (s == at.section)
-			before += at.spread * 2;
-		total += pages;
-	}
-	return static_cast<float>(before) / static_cast<float>(total);
+int JournalScreen::FirstPage(int s) const {
+	int pages = 0;
+	for (int i = 0; i < s; i++)
+		pages += SpreadCount(static_cast<Section>(i)) * 2;
+	return pages;
+}
+
+// ---- ribbons ---------------------------------------------------------------
+
+JournalScreen::RibbonPlace JournalScreen::PlaceOf(int ribbon, const Opening& at) const {
+	int first = FirstPage(ribbon);
+	int before = PagesBefore(at);
+	bool left = first <= before;
+	int between = left ? before - first : first - before - 2; // under the right page: from the one after it
+	return {left, static_cast<float>(between) / static_cast<float>(PagesTotal()) * RIBBON_DEPTH_MAX};
+}
+
+bool JournalScreen::Riding(int ribbon) const {
+	if (!turn.active)
+		return false;
+	int first = FirstPage(ribbon);
+	int from = PagesBefore(turn.from);
+	int to = PagesBefore(turn.to);
+	return std::min(from, to) < first && first <= std::max(from, to);
+}
+
+float JournalScreen::RidingDepth(int ribbon) const {
+	float t = turn.progress;
+	auto smooth = [](float x) {
+		x = std::clamp(x, 0.f, 1.f);
+		return x * x * (3 - 2 * x);
+	};
+	if (t < 0.5f)
+		return PlaceOf(ribbon, turn.from).depth * (1 - smooth(t / RIBBON_RIDE_EASE));
+	return PlaceOf(ribbon, turn.to).depth * smooth((t - 1 + RIBBON_RIDE_EASE) / RIBBON_RIDE_EASE);
 }
 
 int JournalScreen::EntryOnPage(int side) const {
@@ -306,6 +333,7 @@ void JournalScreen::StartTurn(Opening to, bool dragged) {
 	}
 	turn = {};
 	turn.active = true;
+	turn.from = from;
 	turn.to = to;
 	turn.forward = to.section != from.section ? to.section > from.section : to.spread > from.spread;
 	turn.dragging = dragged;
@@ -346,9 +374,11 @@ float JournalScreen::CornerLocalX(float canvasX) const { return turn.forward ? c
 JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
 	if (turn.active)
 		return {};
-	for (int i = 0; i < SECTION_COUNT; i++)
-		if (ribbonRect(i, static_cast<int>(section) == i).contains(x, y))
+	for (int i = 0; i < SECTION_COUNT; i++) {
+		RibbonPlace place = PlaceOf(i, Open());
+		if (ribbonRect(i, place.left, place.depth).contains(x, y))
 			return {Target::Ribbon, i};
+	}
 	if (spread[static_cast<size_t>(section)] > 0 && cornerRect(0).contains(x, y))
 		return {Target::PrevPage, 0};
 	if (spread[static_cast<size_t>(section)] < SpreadCount(section) - 1 && cornerRect(1).contains(x, y))
@@ -487,6 +517,21 @@ void JournalScreen::Draw() {
 		to = open;
 		to.spread += forward ? 1 : -1;
 	}
+	PageCurl curl{RIGHT_PAGE.w, RIGHT_PAGE.h};
+	curl.overhang = RIBBON_OVERHANG;
+	if (turn.dragging) {
+		curl.cornerX = turn.cornerX;
+		curl.cornerY = turn.cornerY;
+	} else if (turn.active) {
+		curl.cornerX = RIGHT_PAGE.w * std::cos(turn.angle) * turn.spread;
+		curl.cornerY = CORNER_LIFT * std::sin(turn.angle) * turn.spread;
+	} else {
+		curl.cornerX = RIGHT_PAGE.w - PEEK_X;
+		curl.cornerY = PEEK_Y;
+	}
+	clampCorner(curl);
+	turn.progress = turn.active ? curlProgress(curl) : 0.f;
+
 	std::array<int, PAGE_SLOTS> tex{};
 	auto slot = [&tex](PageSlot k) -> int& { return tex[static_cast<size_t>(k)]; };
 	if (!turning) {
@@ -525,20 +570,9 @@ void JournalScreen::Draw() {
 	}
 	beginShapes();
 	line(SPINE, LEFT_PAGE.y, SPINE, LEFT_PAGE.y + LEFT_PAGE.h, BLACK, 0.35f, 1.f); // the gutter
+	DrawRibbons();																   // under the turning page
 
 	if (turning && !pagesFailed) {
-		PageCurl curl{RIGHT_PAGE.w, RIGHT_PAGE.h};
-		if (turn.dragging) {
-			curl.cornerX = turn.cornerX;
-			curl.cornerY = turn.cornerY;
-		} else if (turn.active) {
-			curl.cornerX = RIGHT_PAGE.w * std::cos(turn.angle) * turn.spread;
-			curl.cornerY = CORNER_LIFT * std::sin(turn.angle) * turn.spread;
-		} else {
-			curl.cornerX = RIGHT_PAGE.w - PEEK_X;
-			curl.cornerY = PEEK_Y;
-		}
-		clampCorner(curl);
 		PageCurlPlacement at;
 		at.spineX = SPINE;
 		at.bottomY = RIGHT_PAGE.y;
@@ -550,7 +584,6 @@ void JournalScreen::Draw() {
 		drawPageCurl(curl, at);
 	}
 	DrawCorners();
-	DrawRibbons();
 	DrawFooter();
 	ScreenTabs::Draw();
 
@@ -564,16 +597,20 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	if (pagesFailed)
 		return 0;
 	const Rect& p = pageRect(side);
+	// A turning page reaches past its free edge for the ribbons hanging out of it (PageCurl::overhang).
+	bool turning = slot == PageSlot::Front || slot == PageSlot::Back;
+	float overhang = turning ? RIBBON_OVERHANG : 0.f;
+	Rect r = {side == 0 ? p.x - overhang : p.x, p.y, p.w + overhang, p.h};
 	Rect area = visibleArea();
 	float perUnit = static_cast<float>(Game().render.resY) / area.h;
 	RenderTarget& target = pages[static_cast<size_t>(slot)];
-	if (!target.Begin(static_cast<int>(std::lround(p.w * perUnit)), static_cast<int>(std::lround(p.h * perUnit)))) {
+	if (!target.Begin(static_cast<int>(std::lround(r.w * perUnit)), static_cast<int>(std::lround(r.h * perUnit)))) {
 		pagesFailed = true;
 		return 0;
 	}
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(p.x, p.x + p.w, p.y, p.y + p.h, -200, 200);
+	glOrtho(r.x, r.x + r.w, r.y, r.y + r.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -583,6 +620,12 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
 				 side == 0 ? 0.f : 1.f, 1.f);
 	DrawPageContent(at, side, live);
+	if (turning) {
+		beginShapes();
+		for (int i = 0; i < SECTION_COUNT; i++)
+			if (Riding(i))
+				DrawRibbon(i, side == 0, RidingDepth(i), static_cast<int>(turn.to.section) == i, false);
+	}
 	target.End();
 	return target.TextureID();
 }
@@ -656,7 +699,8 @@ void JournalScreen::DrawBook(const Opening& at) {
 	}
 
 	// The page block: the edges of the pages under the open ones, more on the side the book is thicker.
-	int left = std::clamp(static_cast<int>(std::lround(ReadFraction(at) * EDGE_LINES)), 1, EDGE_LINES - 1);
+	float read = static_cast<float>(PagesBefore(at)) / static_cast<float>(PagesTotal());
+	int left = std::clamp(static_cast<int>(std::lround(read * EDGE_LINES)), 1, EDGE_LINES - 1);
 	int right = EDGE_LINES - left;
 	auto edges = [](const Rect& page, int count, float dir) {
 		for (int k = count; k >= 1; k--) {
@@ -684,30 +728,41 @@ void JournalScreen::DrawBook(const Opening& at) {
 	fillRect({s.x, s.y + s.h - 0.8f, s.w, 0.8f}, BLACK, BLACK, 0.25f);
 }
 
+void JournalScreen::DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered) {
+	Rect r = ribbonRect(ribbon, left, depth);
+	const SectionLook& look = SECTIONS[static_cast<size_t>(ribbon)];
+	::ribbon(r, left, hovered ? darker(look.colour, 1.25f) : look.colour);
+	if (open) // tucked in between the open pages
+		fillRect({left ? r.x + r.w - 1.f : r.x, r.y, 1.f, r.h}, BLACK, BLACK, 0.25f);
+	if (open || hovered) { // its letter, written on the ribbon end
+		beginText();
+		float x = left ? r.x + 6.2f - handSmall.TextWidth(look.letter) : r.x + r.w - 6.2f;
+		text(handSmall, x, r.y + 1.7f, look.letter, PAPER, 0.9f);
+		beginShapes();
+	}
+}
+
 void JournalScreen::DrawRibbons() {
 	beginShapes();
-	Section shown = turn.active ? turn.to.section : section; // a turn to another section moves the ribbon at once
+	Section shown = turn.active ? turn.to.section : section; // a turn to another section shows its letter at once
 	for (int i = 0; i < SECTION_COUNT; i++) {
-		bool open = static_cast<int>(shown) == i;
-		Rect r = ribbonRect(i, open);
-		Color c = SECTIONS[static_cast<size_t>(i)].colour;
+		if (Riding(i))
+			continue; // drawn on the turning page
+		// Still, but the pages move under it: from where it lay to where it lands.
+		RibbonPlace place = PlaceOf(i, turn.active ? turn.from : Open());
+		if (turn.active)
+			place.depth += (PlaceOf(i, turn.to).depth - place.depth) * turn.progress;
 		bool isHovered = hovered.target == Target::Ribbon && hovered.ribbon == i;
-		ribbon(r, isHovered ? darker(c, 1.25f) : c);
-		if (open)
-			fillRect({r.x, r.y, 1.f, r.h}, BLACK, BLACK, 0.25f); // tucked in between the open pages
-		if (open || isHovered) {								 // its letter, written on the ribbon end
-			beginText();
-			text(handSmall, r.x + r.w - 6.2f, r.y + 1.7f, SECTIONS[static_cast<size_t>(i)].letter, PAPER, 0.9f);
-			beginShapes();
-		}
+		DrawRibbon(i, place.left, place.depth, static_cast<int>(shown) == i, isHovered);
 	}
 	// The hovered ribbon's name, on a small dark label next to it on the page.
 	if (hovered.target != Target::Ribbon)
 		return;
 	const char* name = SECTIONS[static_cast<size_t>(hovered.ribbon)].name;
-	Rect r = ribbonRect(hovered.ribbon, static_cast<int>(shown) == hovered.ribbon);
+	RibbonPlace place = PlaceOf(hovered.ribbon, Open());
+	Rect r = ribbonRect(hovered.ribbon, place.left, place.depth);
 	float w = small.TextWidth(name) + 3.f;
-	Rect label = {r.x - w - 1.f, r.y + 0.8f, w, 4.4f};
+	Rect label = {place.left ? r.x + r.w + 1.f : r.x - w - 1.f, r.y + 0.8f, w, 4.4f};
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
 	strokeRect(label, GOLD_DIM, 1.f, 1.f);
 	beginText();

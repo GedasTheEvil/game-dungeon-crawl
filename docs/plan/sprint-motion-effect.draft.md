@@ -24,7 +24,8 @@ blur would blur the player too, the one thing the eye follows. Better options:
 ## What to settle
 
 * Ease in and out over about 150-250 ms. No hard on/off, also when stamina runs out mid-sprint.
-* Strength scales with real movement: sprint held while standing still or blocked by a wall shows nothing.
+* Strength scales with real movement: sprint held while standing still or blocked by a wall shows nothing. Same
+  "actually moving" signal as [sprint-drain-standing-still.draft.md](sprint-drain-standing-still.draft.md).
 * An Options toggle (motion sickness): "Motion effects" on/off, also for the FOV kick.
 * Toon mode: the blur goes before the ink lines or after them? Lines streaking may look wrong.
 * HUD and status lines are drawn after the scene pass, so they stay sharp.

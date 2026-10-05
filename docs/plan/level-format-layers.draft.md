@@ -18,7 +18,8 @@ Rules:
 
 * A cell blocks when its structure is `Wall` or `DeepWater`, or its object is a closed gate.
 * An object needs a structure that is `Empty` or `HalfWater`.
-* Which objects may stand in half water is up to `levelcheck` (ladder yes; spikes, death traps: open).
+* Every object may stand in half water, traps too. `levelcheck` adds no water rule for objects, even for one the
+  player cannot reach.
 * Two objects in one cell (a monster on a treasure) stay impossible, as today.
 * `Area3D` (type 7) is used by no level: drop it.
 
@@ -51,12 +52,18 @@ Check: convert, load both versions, compare cell by cell (a unit test), and play
 ## Everything that reads or writes cells
 
 * The game: `loadLevelFile` / `saveLevelFile`, `Dungeon` (map access, collision, drawing), save games.
-* `levelcheck` (rules and `--map`), `levelgen`, `ascii2level.py` and the ASCII sources in `tools/level/campaign/`
-  (glyphs for water, and a way to draw an object over water), the editor (`tools/editor`: pick the layer, show both),
-  `tile_defs` / `tile_info`, the scenario tests.
+* `levelcheck` (rules and `--map`), `levelgen`, `ascii2level.py` and the ASCII sources in `tools/level/campaign/`,
+  the editor (`tools/editor`), `tile_defs` / `tile_info`, the scenario tests.
 * Docs: [../levels.md](../levels.md), [tools/editor/readme.md](../../tools/editor/readme.md).
 
-## Open
+## ASCII sources
 
-* `ascii2level.py`: two drawings per level, or one drawing with water glyphs and a separate list for objects in water?
-* The editor: a layer switch, or place objects and the structure under them in one click?
+The sources in `tools/level/campaign/` are a helper for agents. A source keeps its one object drawing, as today, and
+gets an optional second drawing, the structure: `#` wall, `.` empty, `~` half water, `=` deep water. Without it the
+structure follows from the object drawing (`#` wall, anything else empty), so the 15 sources stay valid unchanged.
+`levelcheck --map` prints both drawings when the level has water.
+
+## Editor
+
+A layer switch: structure or objects. Each layer has its own buttons (structure: wall, empty, half water, deep water;
+objects: the rest). The other layer stays visible, dimmed.

@@ -21,6 +21,7 @@ struct SoundBank {
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport;
 	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
+	Sound pageTurn;				 // the journal's paper rustle
 };
 
 struct FontSet {

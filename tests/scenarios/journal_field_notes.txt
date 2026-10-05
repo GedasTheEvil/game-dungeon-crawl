@@ -6,7 +6,7 @@ wait 5
 key j
 wait 2
 click 88.2 59.9
-wait 2
+wait 45
 screenshot none_yet
 key j
 wait 2
@@ -85,8 +85,8 @@ key j
 wait 5
 screenshot notes_1
 click 83.5 17
-wait 3
+wait 45
 screenshot notes_2
 click 83.5 17
-wait 3
+wait 45
 screenshot notes_3

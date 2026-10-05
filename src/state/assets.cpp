@@ -442,6 +442,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
+	sounds.pageTurn.Load("sounds/ui/page_turn.wav");
 }
 
 void loadTraps(TrapSet& traps, TextureRegistry& textures) {
@@ -469,6 +470,9 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
 	textures.ribbon.LoadPNG("textures/ui/ribbon.png");
 	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side
+	textures.journalPaper.LoadPNG("textures/ui/journal_paper.png");
+	textures.journalPaper.ClampToEdge();
+	textures.journalCloth.LoadPNG("textures/ui/journal_cloth.png"); // tiles
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 

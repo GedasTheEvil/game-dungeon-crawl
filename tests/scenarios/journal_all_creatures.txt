@@ -8,20 +8,20 @@ key j
 wait 5
 screenshot spread1
 click 83.5 17
-wait 3
+wait 45
 screenshot spread2
 click 83.5 17
-wait 3
+wait 45
 screenshot spread3
 click 83.5 17
-wait 3
+wait 45
 screenshot spread4
 click 83.5 17
-wait 3
+wait 45
 screenshot spread5
 click 83.5 17
-wait 3
+wait 45
 screenshot spread6
 click 83.5 17
-wait 3
+wait 45
 screenshot spread7

@@ -1,6 +1,7 @@
 # Journal as a real book
 
-Status: draft 2026-10-01, refined 2026-10-01 from the reference image and user feedback.
+Status: implemented 2026-10-05, waits for a check in play. Draft 2026-10-01, refined 2026-10-01 from the reference
+image and user feedback. What was built: [Implementation](#implementation).
 
 ## Idea
 
@@ -67,9 +68,27 @@ Decided 2026-10-01:
   the flip, before it to let the page fall back. Do it if it comes easily with the curl mesh; if not, a click on
   the page corner starts the flip animation (arrow keys / wheel as now).
 
-Open: flip speed, flip several pages at once on a ribbon click.
+Open: flip speed, flip several pages at once on a ribbon click. Picked 2026-10-05: 650 ms a page; a ribbon turns one
+page in the direction of its section.
 
 ## Notes
 
 * Shared UI look and canvas: [docs/ui.md](../ui.md), "Book (journal)". Code: `src/ui/journal_view.cpp`.
 * Decided 2026-10-01: the journal comes from outside the tomb, so leaving the Egyptian look on this screen is fine.
+
+## Implementation
+
+Done 2026-10-05. Look and code: [docs/ui.md](../ui.md), "Book (journal)".
+
+* Textures: `tools/textures/journal_book.py` (grid paper with the spine shading, grey cloth). Typewriter numbers:
+  `fonts/courier.png` (Courier 10 Pitch, Bitstream licence). Sound: `tools/audio/page_sound.py`.
+* Book: cloth cover, strap, headbands, page edges that move from right to left through the book (all sections in
+  order: creatures, riddles, field notes).
+* Creatures: photo after the kill (b/w print, lit, askew, red `Lnn-pp` number, "from the side" caption with an
+  arrow), pencil sketch before it; margin labels `SEEN` / `SAW` / `KILLED` / `TRIED`; the form `HP`, `HITS`,
+  `BLUNT`, `SLASH`, `PIERCE` with blanks. The "date" of an entry is the level ("Level 7.").
+* Page turn: pages drawn into render targets (`src/graphics/render_target.h`), bent by `src/ui/page_curl.h`. Click,
+  arrow keys, wheel, ribbons; drag a bottom corner (back if let go before the spine); a hovered corner lifts. No
+  framebuffers: pages are drawn straight and turn at once.
+* Not done: wear (dog-ear, smudge), it was optional. Only the bottom corners can be grabbed.
+* Scenario: `tests/scenarios/journal_page_turn.txt`.

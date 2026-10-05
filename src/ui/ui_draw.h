@@ -74,6 +74,11 @@ constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
 constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
 // The archaeologist's own pencil: the draft map's sketch, the journal's handwriting.
 constexpr Color PENCIL = {0.22f, 0.21f, 0.20f};
+// The journal's field notebook: blue ink for what is written, white paper, the cream elastic strap, the grey cloth.
+constexpr Color INK_BLUE = {0.13f, 0.21f, 0.50f};
+constexpr Color PAPER = {0.96f, 0.95f, 0.91f};
+constexpr Color STRAP = {0.88f, 0.84f, 0.72f};
+constexpr Color CLOTH = {0.85f, 0.85f, 0.82f};
 // Tile states.
 constexpr Color LAPIS_HOVER_TOP = {0.20f, 0.40f, 0.78f};
 constexpr Color LAPIS_HOVER_BOTTOM = {0.09f, 0.20f, 0.46f};

@@ -43,7 +43,7 @@ screenshot rat_killed
 mouse 83.5 17
 wait 2
 click 83.5 17
-wait 5
+wait 45
 screenshot next_spread
 # Kept in the save game.
 savegame creatures.sav

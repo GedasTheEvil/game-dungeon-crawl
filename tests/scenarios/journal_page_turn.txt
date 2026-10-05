@@ -1,0 +1,49 @@
+# The journal's page turn (tests/saves/journal_all_creatures.sav): a click on the corner turns the page over the
+# spine in FLIP_MS (650 ms), a hovered corner lifts a little, a dragged corner follows the mouse and goes back when let
+# go of before the spine. Screenshots along the way.
+seed 1
+god
+level tests/levels/rats
+loadgame tests/saves/journal_all_creatures.sav
+key j
+wait 5
+# Hover: the corner lifts.
+mouse 83.5 17
+wait 3
+screenshot peek
+# Click: the turn, at a quarter, half and three quarters of the way.
+click 83.5 17
+wait 10
+screenshot turn_quarter
+wait 10
+screenshot turn_half
+wait 10
+screenshot turn_three_quarters
+wait 20
+screenshot turned
+# Back with the left corner: the left page turns to the right.
+mouse 14 17
+wait 3
+click 14 17
+wait 15
+screenshot back_half
+wait 30
+# Drag the right corner to the middle of the right page, then let go: it falls back.
+press 83.5 17
+wait 2
+mouse 70 30
+wait 2
+screenshot drag_right_page
+mouse 55 35
+wait 2
+screenshot drag_to_spine
+mouse 40 25
+wait 2
+screenshot drag_past_spine
+mouse 65 30
+wait 2
+release 65 30
+wait 10
+screenshot drag_falls_back
+wait 40
+screenshot drag_back_flat

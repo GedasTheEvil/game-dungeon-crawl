@@ -155,14 +155,32 @@ Separators `/` and `,` are plain `LABEL_DIM` text.
 
 ### Book (journal)
 
-A dark cover (`BRONZE` → `STONE_BOTTOM`, `GOLD_DIM` inner line) with two papyrus pages either side of a shaded
-spine. One ribbon bookmark per section hangs out of the right edge (`INK_RED` creatures, `LAPIS` riddles,
-`GOLD_DIM` field notes, swallowtail end); the open one sticks out further, the hovered one shows its name on a dark
-label. Running head (section name) and page number in `small` `INK_FADED`, page turn arrows in the bottom corners.
+A cloth-bound field notebook ([plan/journal-real-book.md](plan/journal-real-book.md)): grey cloth cover
+(`textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left
+edge, red and white headbands at the spine, the page block's edges either side (more on the side the book is
+thicker). Two white grid pages (`textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left
+page); both textures come from `tools/textures/journal_book.py`. One ribbon bookmark per section hangs out of the
+right edge (`INK_RED` creatures, `LAPIS` riddles, `GOLD_DIM` field notes, swallowtail end), its letter (M, R, F) in
+`PAPER` on the open and the hovered one; the open one sticks out further, the hovered one shows its name on a dark
+label. Page turn arrows in `PENCIL` in the bottom corners.
 
-Monster sketches on the creature pages: the model's move clip, frame 0, from the side and a little above, fitted to
-the page. A depth pass, then (once killed) the texture as a pencil wash multiplied onto the paper (a grey copy loaded
-with `Texture::LoadPNG`'s pixel filter), then the outline: back-face edges as `PENCIL` lines, front faces culled.
+On the pages: page numbers stamped in `INK_RED` in the top outer corner (`fonts/courier.png`), the level pencilled
+above; underlined headings and the text in `INK_BLUE`; pencil (`PENCIL`, alpha 0.7) for what matters less (hints,
+captions of sketches). Creature pages have a margin column of labels (`SEEN`, `SAW`, `KILLED` in red, `TRIED`) and a
+form filled in as it is learnt (`HP = ~40`, a blank line while unknown).
+
+Creature pictures: the model's move clip, frame 0, from the side and a little above. Before the kill a pencil sketch
+on the grid: a depth pass, then the back-face edges as `PENCIL` lines, front faces culled. After it a black and white
+photo pasted in a little askew: white border, dark backdrop, the model lit by a fixed-function light with a grey copy
+of its texture (`Texture::LoadPNG`'s pixel filter), a red catalogue number above (`L07-03`: level, page), a caption
+with an arrow below.
+
+Page turn: each page is drawn into a `RenderTarget` (the page's size in window pixels), then laid on the book or bent
+by `drawPageCurl` (`src/ui/page_curl.h`): a mesh folded along the bisector of the bottom free corner and where it is
+pulled, round a cylinder, the back showing the next page, a shadow on the page under it. A click or key swings the
+corner over in 650 ms, a drag follows the mouse (let go past the spine: over, before it: back), a hovered corner
+lifts a little. A ribbon or Up / Down to another section turns one page in its direction. Sound:
+`sounds/ui/page_turn.wav` (`tools/audio/page_sound.py`).
 
 ### Screen tabs
 
@@ -205,7 +223,8 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Hovered label | `TEXT_HOVER` |
 | Panel fill | `PANEL_TOP` → `PANEL_BOTTOM` |
 | Text on papyrus | `INK`, `INK_RED` (warnings, reward), `INK_GREEN`, `INK_FADED` (hints, disabled) |
-| Pencil: draft map, journal handwriting | `PENCIL` (alpha 0.7 for minor notes) |
+| Pencil: draft map, journal minor notes | `PENCIL` (alpha 0.7 for minor notes) |
+| Journal: ink, paper, strap, cover cloth | `INK_BLUE`, `PAPER`, `STRAP`, `CLOTH` |
 
 `menu.cpp` adds `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM` `{0.55, 0.45, 0.30}` for
 secondary text and footers.
@@ -214,7 +233,8 @@ secondary text and footers.
 
 All text uses `fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas"), except what the
 archaeologist writes by hand on the journal's pages: `fonts/kalam.png` (Kalam, SIL OFL, `fonts/kalam-OFL.txt`) in
-`PENCIL`, at the `heading` / `body` / `small` sizes. Its running heads, page numbers and buttons stay papyrus. A font
+`INK_BLUE` / `PENCIL`, and the journal's stamped page and catalogue numbers: `fonts/courier.png` (Courier 10 Pitch,
+Bitstream, `fonts/courier-LICENSE.txt`). The journal's buttons stay papyrus. A font
 sheet comes from a TrueType font with `python3 tools/textures/font_sheet.py FONT.ttf fonts/NAME.png` (same grid,
 baseline and cap height as the papyrus sheet).
 Each screen loads four sizes on its first frame (fonts need the GL context):

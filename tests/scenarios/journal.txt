@@ -43,7 +43,7 @@ mouse 88.2 70
 wait 2
 screenshot ribbon_hover
 click 88.2 70
-wait 5
+wait 45
 screenshot riddles
 # The right page's Answer button: the riddle scroll, Esc goes back to the journal.
 mouse 67.4 25

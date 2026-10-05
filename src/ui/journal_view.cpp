@@ -4,9 +4,12 @@
 #include "../state/game_state.h"
 #include "../world/journal.h"
 #include "../world/monster_kinds.h"
+#include "page_curl.h"
 #include <GL/gl.h>
 #include <algorithm>
+#include <cctype>
 #include <cmath>
+#include <cstdio>
 #include <vector>
 
 using namespace ui;
@@ -18,8 +21,14 @@ namespace {
 constexpr Rect COVER = {9, 10, 138, 75};
 constexpr Rect LEFT_PAGE = {12, 12.5f, 66, 70};
 constexpr Rect RIGHT_PAGE = {78, 12.5f, 66, 70};
+constexpr float SPINE = RIGHT_PAGE.x;
 constexpr float PAGE_PAD = 6.f;
-constexpr float SPINE_SHADE = 4.f; // width of the shadow either side of the spine
+constexpr float CLOTH_TILE = 20.f;					   // units per repeat of the cloth texture
+constexpr int EDGE_LINES = 7;						   // page edges showing, both sides together
+constexpr float EDGE_STEP = 0.24f;					   // how far each page under sticks out
+constexpr Rect STRAP_BAND = {8.1f, 8.8f, 1.8f, 77.4f}; // round the left cover edge, a little past top and bottom
+constexpr float HEADBAND_W = 2.6f;
+constexpr float HEADBAND_OUT = 0.9f; // past the pages' top and bottom
 
 constexpr float RIBBON_X = 141.f; // the ribbons lie over the page edge, then hang out of the book
 constexpr float RIBBON_LEN = 14.f;
@@ -34,33 +43,50 @@ constexpr float CORNER = 7.f; // page turn corners
 constexpr float ANSWER_W = 36.f;
 constexpr float ANSWER_H = 7.f;
 
-constexpr const char* HAND_FONT = "fonts/kalam.png"; // Kalam (OFL, fonts/kalam-OFL.txt)
-constexpr float FADED = 0.7f;						 // alpha of pencil notes that matter less (level, hint)
+constexpr float FLIP_MS = 650.f;	// a page over, clicked or let go of
+constexpr float CORNER_LIFT = 10.f; // how high the bottom corner swings on its way over
+constexpr float PEEK_X = 6.f;		// the hovered corner lifts this far in and up
+constexpr float PEEK_Y = 3.f;
+constexpr float CLICK_SLOP = 1.5f; // a press let go of within this is a click, not a drag
 
-constexpr float SKETCH_TOP = 21.f; // below the page top
-constexpr float SKETCH_H = 20.f;
-constexpr float SKETCH_PAD_X = 9.f;
+constexpr const char* HAND_FONT = "fonts/kalam.png";	// Kalam (OFL, fonts/kalam-OFL.txt)
+constexpr const char* STAMP_FONT = "fonts/courier.png"; // Courier 10 Pitch (Bitstream, fonts/courier-LICENSE.txt)
+constexpr float FADED = 0.7f;							// alpha of pencil notes that matter less
+
+constexpr float NUMBER_TOP = 5.8f; // page number baseline below the page top
+constexpr float XREF_TOP = 2.9f;   // the pencilled level above it
+constexpr float HEADING_TOP = 11.5f;
+constexpr float PHOTO_TOP = 16.f;
+constexpr float PHOTO_W = 40.f;
+constexpr float PHOTO_H = 17.f;
+constexpr float PHOTO_BORDER = 1.1f;
+constexpr float CAPTION_TOP = 36.6f;
+constexpr float ROWS_TOP = 40.8f; // first note's baseline below the page top
+constexpr float ROW_STEP = 3.2f;
+constexpr float MARGIN_W = 10.f; // the label column on the left of the notes
+constexpr float FORM_COLUMN = 22.f;
+constexpr float BLANK_W = 7.f; // the line of a field not filled in yet
+
 constexpr float SKETCH_YAW = -25.f;	   // from the side, turned a little towards the reader
 constexpr float SKETCH_TILT = 12.f;	   // seen a little from above
-constexpr float SKETCH_WASH = 0.75f;   // how dark the texture's darkest part shades the paper
 constexpr float SKETCH_LINE_PX = 1.6f; // at 720 rows
-constexpr float NOTES_TOP = 45.5f;	   // first note's baseline below the page top
-constexpr float NOTE_STEP = 3.5f;
-constexpr size_t MAX_NOTE_LINES = 2; // of the description
 
+constexpr float QUESTION_TOP = 19.f;
 constexpr float QUESTION_STEP = 4.4f;
+constexpr float FIELD_NOTE_TOP = 19.f;
 constexpr float FIELD_NOTE_STEP = 4.6f;
 constexpr size_t MAX_QUESTION_LINES = 7;
 constexpr size_t MAX_HINT_LINES = 2;
 
 struct SectionLook {
 	const char* name;
+	const char* letter; // on its ribbon
 	Color colour;
 };
 constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
-	{"Creatures", INK_RED},
-	{"Riddles", LAPIS},
-	{"Field notes", GOLD_DIM},
+	{"Creatures", "M", INK_RED},
+	{"Riddles", "R", LAPIS},
+	{"Field notes", "F", GOLD_DIM},
 }};
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -82,6 +108,8 @@ Rect answerRect(int side) {
 	return {p.cx() - ANSWER_W / 2, p.y + 9.f, ANSWER_W, ANSWER_H};
 }
 
+Rect photoBox(const Rect& p) { return {p.cx() - PHOTO_W / 2, p.y + p.h - PHOTO_TOP - PHOTO_H, PHOTO_W, PHOTO_H}; }
+
 Color darker(Color c, float f) { return {c.r * f, c.g * f, c.b * f}; }
 
 // A silk ribbon with a frayed swallowtail end (textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
@@ -101,19 +129,38 @@ void cornerArrow(const Rect& r, bool left, Color c) {
 	triangle(tip, cy, base, cy + 2.f, base, cy - 2.f, c, 1.f);
 }
 
-// Monster textures as a pencil wash: the darker a texel, the more pencil grey it lays on the paper (drawn with a
-// multiply blend, white leaves the paper as it is).
-void pencilWash(unsigned char* data, int pixels, int components) {
+// Monster textures as a black and white print: grey from the luminance, a little more contrast.
+void photoGrey(unsigned char* data, int pixels, int components) {
 	for (int i = 0; i < pixels; i++) {
 		unsigned char* p = data + static_cast<ptrdiff_t>(i) * components;
 		auto channel = [p](int c) { return static_cast<float>(p[c]); };
 		float lum = (0.3f * channel(0) + 0.59f * channel(1) + 0.11f * channel(2)) / 255.f;
-		lum = std::clamp((lum - 0.5f) * 1.3f + 0.6f, 0.f, 1.f); // more contrast, a lighter middle
-		float ink = SKETCH_WASH * (1.f - lum);
-		const float pencil[3] = {PENCIL.r, PENCIL.g, PENCIL.b};
+		lum = std::clamp((std::pow(lum, 0.6f) - 0.5f) * 1.25f + 0.55f, 0.f, 1.f); // opens up the dark ones (bats)
 		for (int c = 0; c < 3; c++)
-			p[c] = static_cast<unsigned char>(255.f * (1.f - ink * (1.f - pencil[c])));
+			p[c] = static_cast<unsigned char>(255.f * lum);
 	}
+}
+
+std::string upper(std::string s) {
+	for (char& ch : s)
+		ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+	return s;
+}
+
+// A heading in ink, underlined, centred on cx.
+void underlinedHeading(Font& font, float cx, float y, const char* str) {
+	float w = font.TextWidth(str);
+	beginText();
+	text(font, cx - w / 2, y, str, INK_BLUE);
+	beginShapes();
+	line(cx - w / 2 - 1.f, y + 0.4f, cx + w / 2 + 1.f, y + 0.4f, INK_BLUE, 0.85f, 1.5f);
+}
+
+// A small hand-drawn arrow pointing up, its foot at (x, y).
+void upArrow(float x, float y, Color c) {
+	line(x, y, x, y + 2.4f, c, 1.f, 1.2f);
+	line(x - 0.7f, y + 1.6f, x, y + 2.4f, c, 1.f, 1.2f);
+	line(x + 0.7f, y + 1.6f, x, y + 2.4f, c, 1.f, 1.2f);
 }
 
 // "~40 HP": the journal writes rough numbers, the way they are learnt.
@@ -177,6 +224,18 @@ void tick(float x, float y, Color c) {
 	line(x + 1.f, y, x + 3.f, y + 3.f, c, 1.f, 2.f);
 }
 
+// A field of the creature form: "HP = ~40", or the name and a blank line while it is not known.
+void formField(Font& font, float x, float y, const std::string& name, const std::string& value) {
+	std::string label = name + " = ";
+	beginText();
+	text(font, x, y, (label + value).c_str(), INK_BLUE);
+	beginShapes();
+	if (value.empty()) {
+		float from = x + font.TextWidth(label.c_str());
+		line(from, y + 0.5f, from + BLANK_W, y + 0.5f, PENCIL, 0.45f, 1.f);
+	}
+}
+
 } // namespace
 
 // ---- pages -----------------------------------------------------------------
@@ -191,9 +250,19 @@ int JournalScreen::PageCount(Section s) const {
 
 int JournalScreen::SpreadCount(Section s) const { return std::max(1, (PageCount(s) + 1) / 2); }
 
-void JournalScreen::Turn(int by) {
-	int& open = spread[static_cast<size_t>(section)];
-	open = std::clamp(open + by, 0, SpreadCount(section) - 1);
+float JournalScreen::ReadFraction(const Opening& at) const {
+	int before = 0;
+	int total = 0;
+	for (int i = 0; i < SECTION_COUNT; i++) {
+		const auto s = static_cast<Section>(i);
+		int pages = SpreadCount(s) * 2;
+		if (i < static_cast<int>(at.section))
+			before += pages;
+		else if (s == at.section)
+			before += at.spread * 2;
+		total += pages;
+	}
+	return static_cast<float>(before) / static_cast<float>(total);
 }
 
 int JournalScreen::EntryOnPage(int side) const {
@@ -210,9 +279,73 @@ bool JournalScreen::CanAnswer(int side) const {
 
 void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
+// ---- page turns ------------------------------------------------------------
+
+void JournalScreen::Turn(int by) {
+	Opening to = Open();
+	to.spread = std::clamp(to.spread + by, 0, SpreadCount(section) - 1);
+	GoTo(to);
+}
+
+void JournalScreen::GoTo(Opening to) {
+	if (turn.dragging)
+		return;
+	if (turn.active) // a turn under way lands first
+		FinishTurn();
+	if (to.section == section && to.spread == spread[static_cast<size_t>(section)])
+		return;
+	StartTurn(to, false);
+}
+
+void JournalScreen::StartTurn(Opening to, bool dragged) {
+	Opening from = Open();
+	if (pagesFailed) { // nothing to bend: straight there
+		section = to.section;
+		spread[static_cast<size_t>(section)] = to.spread;
+		return;
+	}
+	turn = {};
+	turn.active = true;
+	turn.to = to;
+	turn.forward = to.section != from.section ? to.section > from.section : to.spread > from.spread;
+	turn.dragging = dragged;
+	turn.target = static_cast<float>(M_PI);
+	turn.lastMs = GameClock::now();
+	hovered = {};
+	Game().assets.sounds.pageTurn.Play();
+}
+
+void JournalScreen::FinishTurn() {
+	if (turn.target > 0) {
+		section = turn.to.section;
+		spread[static_cast<size_t>(section)] = turn.to.spread;
+	}
+	turn = {};
+}
+
+void JournalScreen::AdvanceTurn() {
+	int now = GameClock::now();
+	auto dt = static_cast<float>(std::clamp(now - turn.lastMs, 0, 100));
+	turn.lastMs = now;
+	if (!turn.active || turn.dragging)
+		return;
+	float step = dt * static_cast<float>(M_PI) / FLIP_MS;
+	turn.angle =
+		turn.target > turn.angle ? std::min(turn.target, turn.angle + step) : std::max(turn.target, turn.angle - step);
+	float ease = dt / FLIP_MS * 3.f;
+	turn.spread += std::clamp(1.f - turn.spread, -ease, ease);
+	if (turn.angle == turn.target && std::abs(turn.spread - 1.f) < 0.01f)
+		FinishTurn();
+}
+
+// Canvas x -> page-local x of the turning page: from the spine outwards.
+float JournalScreen::CornerLocalX(float canvasX) const { return turn.forward ? canvasX - SPINE : SPINE - canvasX; }
+
 // ---- input -----------------------------------------------------------------
 
 JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
+	if (turn.active)
+		return {};
 	for (int i = 0; i < SECTION_COUNT; i++)
 		if (ribbonRect(i, static_cast<int>(section) == i).contains(x, y))
 			return {Target::Ribbon, i};
@@ -230,7 +363,7 @@ JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
 void JournalScreen::Activate(const Hit& hit) {
 	switch (hit.target) {
 	case Target::Ribbon:
-		section = static_cast<Section>(hit.ribbon);
+		GoTo({static_cast<Section>(hit.ribbon), spread[static_cast<size_t>(hit.ribbon)]});
 		break;
 	case Target::PrevPage:
 		Turn(-1);
@@ -249,20 +382,30 @@ void JournalScreen::Activate(const Hit& hit) {
 }
 
 void JournalScreen::SpecialKeyPressed(int key) {
+	auto other = [this](int by) {
+		auto s = static_cast<Section>((static_cast<int>(section) + SECTION_COUNT + by) % SECTION_COUNT);
+		GoTo({s, spread[static_cast<size_t>(s)]});
+	};
 	if (key == SPECIAL_MOVE_LEFT)
 		Turn(-1);
 	else if (key == SPECIAL_MOVE_RIGHT)
 		Turn(1);
 	else if (key == SPECIAL_MOVE_UP)
-		section = static_cast<Section>((static_cast<int>(section) + SECTION_COUNT - 1) % SECTION_COUNT);
+		other(-1);
 	else if (key == SPECIAL_MOVE_DOWN)
-		section = static_cast<Section>((static_cast<int>(section) + 1) % SECTION_COUNT);
+		other(1);
 }
 
 void JournalScreen::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	if (turn.dragging) {
+		// The corner moves with the mouse, from where it was grabbed.
+		turn.cornerX = RIGHT_PAGE.w + CornerLocalX(cx) - CornerLocalX(turn.pressX);
+		turn.cornerY = cy - turn.pressY;
+		return;
+	}
 	hovered = HitAt(cx, cy);
 }
 
@@ -275,8 +418,37 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
+	float cx = 0.f;
+	float cy = 0.f;
+	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
 	if (state == GLUT_DOWN) {
 		pressed = hovered;
+		bool corner = hovered.target == Target::PrevPage || hovered.target == Target::NextPage;
+		if (corner && !pagesFailed) { // grab the page by its corner
+			Opening to = Open();
+			to.spread += hovered.target == Target::NextPage ? 1 : -1;
+			StartTurn(to, true);
+			turn.pressX = cx;
+			turn.pressY = cy;
+			turn.cornerX = RIGHT_PAGE.w;
+			pressed = {};
+		}
+		return;
+	}
+	if (turn.dragging) {
+		// Let go: a click turns the page; a drag goes over if the corner is past the spine, back if not.
+		turn.dragging = false;
+		bool click = std::hypot(cx - turn.pressX, cy - turn.pressY) < CLICK_SLOP;
+		turn.target = click || turn.cornerX < 0 ? static_cast<float>(M_PI) : 0.f;
+		turn.lastMs = GameClock::now();
+		if (!click) { // from where the corner is, on to the ellipse
+			float ex = turn.cornerX / RIGHT_PAGE.w;
+			float ey = turn.cornerY / CORNER_LIFT;
+			turn.spread = std::hypot(ex, ey);
+			turn.angle = std::atan2(ey, ex);
+			if (turn.angle < 0)
+				turn.angle = turn.cornerX < 0 ? static_cast<float>(M_PI) : 0.f;
+		}
 		return;
 	}
 	Hit was = pressed;
@@ -295,10 +467,37 @@ void JournalScreen::Draw() {
 		handHeading.Load(HAND_FONT, 5.f, 0.12f, true);
 		hand.Load(HAND_FONT, 3.6f, 0.08f, true);
 		handSmall.Load(HAND_FONT, 3.f, 0.06f, true);
+		handTiny.Load(HAND_FONT, 2.5f, 0.05f, true);
+		stamp.Load(STAMP_FONT, 3.6f, 0.f, true);
+		stampSmall.Load(STAMP_FONT, 2.5f, 0.f, true);
 		fontsLoaded = true;
 	}
-	spread[static_cast<size_t>(section)] =
-		std::clamp(spread[static_cast<size_t>(section)], 0, SpreadCount(section) - 1);
+	for (int s = 0; s < SECTION_COUNT; s++)
+		spread[static_cast<size_t>(s)] =
+			std::clamp(spread[static_cast<size_t>(s)], 0, SpreadCount(static_cast<Section>(s)) - 1);
+	AdvanceTurn();
+
+	// The pages a turn shows; a hovered corner lifts a little, showing the page behind.
+	const Opening open = Open();
+	bool peek = !turn.active && (hovered.target == Target::PrevPage || hovered.target == Target::NextPage);
+	bool turning = turn.active || peek;
+	bool forward = turn.active ? turn.forward : hovered.target == Target::NextPage;
+	Opening to = turn.to;
+	if (peek) {
+		to = open;
+		to.spread += forward ? 1 : -1;
+	}
+	std::array<int, PAGE_SLOTS> tex{};
+	auto slot = [&tex](PageSlot k) -> int& { return tex[static_cast<size_t>(k)]; };
+	if (!turning) {
+		slot(PageSlot::Left) = RenderPage(PageSlot::Left, open, 0, true);
+		slot(PageSlot::Right) = RenderPage(PageSlot::Right, open, 1, true);
+	} else {
+		slot(PageSlot::Left) = RenderPage(PageSlot::Left, forward ? open : to, 0, false);
+		slot(PageSlot::Right) = RenderPage(PageSlot::Right, forward ? to : open, 1, false);
+		slot(PageSlot::Front) = RenderPage(PageSlot::Front, open, forward ? 1 : 0, false);
+		slot(PageSlot::Back) = RenderPage(PageSlot::Back, to, forward ? 0 : 1, false);
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -311,10 +510,45 @@ void JournalScreen::Draw() {
 
 	backdrop(area, Game().assets.textures.loadingBackground.ID());
 	titleBar(title, CANVAS_W / 2, "Journal", SCREEN_TABS_TITLE_REACH);
-	DrawBook();
-	DrawPage(0);
-	DrawPage(1);
-	DrawSketches();
+	DrawBook(open);
+	if (pagesFailed) {
+		for (int side = 0; side < 2; side++) {
+			const Rect& p = pageRect(side);
+			texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
+						 side == 0 ? 0.f : 1.f, 1.f);
+			DrawPageContent(open, side, true);
+		}
+	} else {
+		glDisable(GL_BLEND);
+		texturedRect(LEFT_PAGE, slot(PageSlot::Left), {1, 1, 1});
+		texturedRect(RIGHT_PAGE, slot(PageSlot::Right), {1, 1, 1});
+	}
+	beginShapes();
+	line(SPINE, LEFT_PAGE.y, SPINE, LEFT_PAGE.y + LEFT_PAGE.h, BLACK, 0.35f, 1.f); // the gutter
+
+	if (turning && !pagesFailed) {
+		PageCurl curl{RIGHT_PAGE.w, RIGHT_PAGE.h};
+		if (turn.dragging) {
+			curl.cornerX = turn.cornerX;
+			curl.cornerY = turn.cornerY;
+		} else if (turn.active) {
+			curl.cornerX = RIGHT_PAGE.w * std::cos(turn.angle) * turn.spread;
+			curl.cornerY = CORNER_LIFT * std::sin(turn.angle) * turn.spread;
+		} else {
+			curl.cornerX = RIGHT_PAGE.w - PEEK_X;
+			curl.cornerY = PEEK_Y;
+		}
+		clampCorner(curl);
+		PageCurlPlacement at;
+		at.spineX = SPINE;
+		at.bottomY = RIGHT_PAGE.y;
+		at.mirror = !forward;
+		at.front = slot(PageSlot::Front);
+		at.back = slot(PageSlot::Back);
+		at.eyeX = SPINE;
+		at.eyeY = RIGHT_PAGE.cy();
+		drawPageCurl(curl, at);
+	}
 	DrawCorners();
 	DrawRibbons();
 	DrawFooter();
@@ -326,53 +560,152 @@ void JournalScreen::Draw() {
 	glColor3f(1, 1, 1);
 }
 
-void JournalScreen::DrawBook() {
+int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
+	if (pagesFailed)
+		return 0;
+	const Rect& p = pageRect(side);
+	Rect area = visibleArea();
+	float perUnit = static_cast<float>(Game().render.resY) / area.h;
+	RenderTarget& target = pages[static_cast<size_t>(slot)];
+	if (!target.Begin(static_cast<int>(std::lround(p.w * perUnit)), static_cast<int>(std::lround(p.h * perUnit)))) {
+		pagesFailed = true;
+		return 0;
+	}
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(p.x, p.x + p.w, p.y, p.y + p.h, -200, 200);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	// The paper texture has its spine on the left: the left page draws it mirrored.
+	texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
+				 side == 0 ? 0.f : 1.f, 1.f);
+	DrawPageContent(at, side, live);
+	target.End();
+	return target.TextureID();
+}
+
+void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
+	const Rect& p = pageRect(side);
+	float top = p.y + p.h;
+	int count = PageCount(at.section);
+	int page = at.spread * 2 + side;
+	if (page >= count) {
+		if (count == 0 && side == 0) {
+			beginText();
+			textCentered(hand, p.cx(), p.cy(), "Nothing written yet", PENCIL, FADED);
+			beginShapes();
+		}
+		return;
+	}
+
+	// The page number stamped in the top outer corner, the level pencilled above it.
+	std::string number = std::to_string(page + 1);
+	std::string xref;
+	if (at.section == Section::Creatures)
+		xref = "lvl " + std::to_string(Game().journal.Creatures()[static_cast<size_t>(page)].level);
+	else if (at.section == Section::Riddles)
+		xref = "lvl " + std::to_string(Game().journal.Riddles()[static_cast<size_t>(page)].level);
+	auto outer = [&](const Font& f, const std::string& s) {
+		return side == 0 ? p.x + PAGE_PAD : p.x + p.w - PAGE_PAD - f.TextWidth(s.c_str());
+	};
+	beginText();
+	text(stamp, outer(stamp, number), top - NUMBER_TOP, number.c_str(), INK_RED);
+	if (!xref.empty())
+		text(handTiny, outer(handTiny, xref), top - XREF_TOP, xref.c_str(), PENCIL, FADED);
+	beginShapes();
+
+	switch (at.section) {
+	case Section::Creatures:
+		DrawCreature(p, page);
+		break;
+	case Section::FieldNotes:
+		DrawFieldNote(p, page);
+		break;
+	case Section::Riddles: {
+		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
+		bool over = live && hovered.target == answer;
+		DrawRiddle(p, page, over, over && pressed.target == answer);
+		break;
+	}
+	}
+}
+
+void JournalScreen::DrawBook(const Opening& at) {
 	beginShapes();
 	fillRect({COVER.x + 1.f, COVER.y - 1.2f, COVER.w, COVER.h}, BLACK, BLACK, 0.5f); // shadow
-	fillRect(COVER, BRONZE, STONE_BOTTOM, 1.f);
-	strokeRect(COVER, STONE_BOTTOM, 1.f, 3.f);
-	strokeRect(COVER.inset(1.f), GOLD_DIM, 0.6f, 1.f);
-
-	// The page block under the open pages: a few page edges showing at the bottom.
-	for (int k = 3; k >= 1; k--) {
-		auto d = static_cast<float>(k) * 0.35f;
-		fillRect({LEFT_PAGE.x - d, LEFT_PAGE.y - d, LEFT_PAGE.w + d, LEFT_PAGE.h}, INK_FADED, INK_FADED, 0.9f);
-		fillRect({RIGHT_PAGE.x, RIGHT_PAGE.y - d, RIGHT_PAGE.w + d, RIGHT_PAGE.h}, INK_FADED, INK_FADED, 0.9f);
-	}
-	const auto papyrus = Game().assets.textures.papyrus.ID();
-	texturedRect(LEFT_PAGE, papyrus, {1, 1, 1}, 0.06f, 0.09f, 0.5f, 0.93f);
-	texturedRect(RIGHT_PAGE, papyrus, {1, 1, 1}, 0.5f, 0.09f, 0.94f, 0.93f);
+	texturedRect(COVER, Game().assets.textures.journalCloth.ID(), CLOTH, 0.f, 0.f, COVER.w / CLOTH_TILE,
+				 COVER.h / CLOTH_TILE);
 	beginShapes();
+	// The boards' edges, worn lighter; the spine of the cover sinks between them.
+	strokeRect(COVER, darker(CLOTH, 0.35f), 1.f, 2.f);
+	strokeRect(COVER.inset(0.6f), darker(CLOTH, 1.25f), 0.25f, 1.f);
+	fillRect({SPINE - 3.f, COVER.y, 3.f, COVER.h}, BLACK, BLACK, 0.12f);
+	fillRect({SPINE - 1.f, COVER.y, 2.f, COVER.h}, BLACK, BLACK, 0.2f);
 
-	// The pages curve down into the spine.
-	constexpr int STRIPS = 8;
-	float spine = RIGHT_PAGE.x;
-	for (int k = 0; k < STRIPS; k++) {
-		float w = SPINE_SHADE / STRIPS;
-		float alpha = 0.28f * (1.f - static_cast<float>(k) / STRIPS);
-		float off = static_cast<float>(k) * w;
-		fillRect({spine - off - w, LEFT_PAGE.y, w, LEFT_PAGE.h}, BLACK, BLACK, alpha);
-		fillRect({spine + off, RIGHT_PAGE.y, w, RIGHT_PAGE.h}, BLACK, BLACK, alpha);
+	// Headbands: a striped red and white silk roll peeking out above and below the pages at the spine.
+	for (float y : {LEFT_PAGE.y + LEFT_PAGE.h - 0.3f, LEFT_PAGE.y - HEADBAND_OUT}) {
+		Rect band = {SPINE - HEADBAND_W / 2, y, HEADBAND_W, HEADBAND_OUT + 0.3f};
+		fillRect(band, INK_RED, darker(INK_RED, 0.6f), 1.f);
+		for (int k = 0; k < static_cast<int>(HEADBAND_W / 0.6f); k++) {
+			float x = band.x + 0.3f + static_cast<float>(k) * 0.6f;
+			line(x, band.y, x, band.y + band.h, PAPER, 0.55f, 1.f);
+		}
 	}
-	line(spine, LEFT_PAGE.y, spine, LEFT_PAGE.y + LEFT_PAGE.h, INK, 0.6f, 1.f);
+
+	// The page block: the edges of the pages under the open ones, more on the side the book is thicker.
+	int left = std::clamp(static_cast<int>(std::lround(ReadFraction(at) * EDGE_LINES)), 1, EDGE_LINES - 1);
+	int right = EDGE_LINES - left;
+	auto edges = [](const Rect& page, int count, float dir) {
+		for (int k = count; k >= 1; k--) {
+			auto d = static_cast<float>(k) * EDGE_STEP;
+			Rect r = {dir < 0 ? page.x - d : page.x, page.y - d * 0.5f, page.w + d, page.h + d * 0.2f};
+			fillRect(r, darker(PAPER, 0.80f), darker(PAPER, 0.72f), 1.f);
+			fillRect(dir < 0 ? Rect{r.x, r.y, 0.12f, r.h} : Rect{r.x + r.w - 0.12f, r.y, 0.12f, r.h}, BLACK, BLACK,
+					 0.25f);
+		}
+	};
+	edges(LEFT_PAGE, left, -1.f);
+	edges(RIGHT_PAGE, right, 1.f);
+
+	// The elastic strap round the left cover edge: cream, finely ribbed, rounder in the middle.
+	const Rect& s = STRAP_BAND;
+	fillRect({s.x + s.w, s.y + 0.6f, 0.5f, s.h - 1.2f}, BLACK, BLACK, 0.25f); // its shadow on the cover
+	fillRect(s, STRAP, darker(STRAP, 0.9f), 1.f);
+	fillRect({s.x, s.y, s.w * 0.25f, s.h}, BLACK, BLACK, 0.12f);
+	fillRect({s.x + s.w * 0.75f, s.y, s.w * 0.25f, s.h}, BLACK, BLACK, 0.18f);
+	for (int k = 0; k < static_cast<int>(s.h / 0.45f); k++) {
+		float y = s.y + 0.3f + static_cast<float>(k) * 0.45f;
+		line(s.x, y, s.x + s.w, y, BLACK, 0.06f, 1.f);
+	}
+	fillRect({s.x, s.y, s.w, 0.8f}, BLACK, BLACK, 0.25f); // where it wraps round behind the board
+	fillRect({s.x, s.y + s.h - 0.8f, s.w, 0.8f}, BLACK, BLACK, 0.25f);
 }
 
 void JournalScreen::DrawRibbons() {
 	beginShapes();
+	Section shown = turn.active ? turn.to.section : section; // a turn to another section moves the ribbon at once
 	for (int i = 0; i < SECTION_COUNT; i++) {
-		bool open = static_cast<int>(section) == i;
+		bool open = static_cast<int>(shown) == i;
 		Rect r = ribbonRect(i, open);
 		Color c = SECTIONS[static_cast<size_t>(i)].colour;
 		bool isHovered = hovered.target == Target::Ribbon && hovered.ribbon == i;
 		ribbon(r, isHovered ? darker(c, 1.25f) : c);
 		if (open)
 			fillRect({r.x, r.y, 1.f, r.h}, BLACK, BLACK, 0.25f); // tucked in between the open pages
+		if (open || isHovered) {								 // its letter, written on the ribbon end
+			beginText();
+			text(handSmall, r.x + r.w - 6.2f, r.y + 1.7f, SECTIONS[static_cast<size_t>(i)].letter, PAPER, 0.9f);
+			beginShapes();
+		}
 	}
 	// The hovered ribbon's name, on a small dark label next to it on the page.
 	if (hovered.target != Target::Ribbon)
 		return;
 	const char* name = SECTIONS[static_cast<size_t>(hovered.ribbon)].name;
-	Rect r = ribbonRect(hovered.ribbon, static_cast<int>(section) == hovered.ribbon);
+	Rect r = ribbonRect(hovered.ribbon, static_cast<int>(shown) == hovered.ribbon);
 	float w = small.TextWidth(name) + 3.f;
 	Rect label = {r.x - w - 1.f, r.y + 0.8f, w, 4.4f};
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
@@ -382,58 +715,23 @@ void JournalScreen::DrawRibbons() {
 	beginShapes();
 }
 
-void JournalScreen::DrawPage(int side) {
-	const Rect& p = pageRect(side);
-	float top = p.y + p.h;
-	const char* name = SECTIONS[static_cast<size_t>(section)].name;
-
-	// Running head and page number, like a printed notebook.
-	beginText();
-	if (side == 0)
-		text(small, p.x + PAGE_PAD, top - 5.f, name, INK_FADED);
-	else
-		text(small, p.x + p.w - PAGE_PAD - small.TextWidth(name), top - 5.f, name, INK_FADED);
-	int page = spread[static_cast<size_t>(section)] * 2 + side;
-	if (page < PageCount(section)) {
-		std::string number = std::to_string(page + 1);
-		textCentered(small, p.cx(), p.y + 3.f, number.c_str(), INK_FADED);
-	}
-
-	if (PageCount(section) == 0 && side == 0)
-		textCentered(hand, p.cx(), p.cy(), "Nothing written yet", PENCIL, FADED);
-	beginShapes();
-
-	if (section == Section::Creatures && EntryOnPage(side) >= 0)
-		DrawCreature(p, EntryOnPage(side));
-	if (section == Section::FieldNotes && EntryOnPage(side) >= 0)
-		DrawFieldNote(p, EntryOnPage(side));
-	int riddle = RiddleOnPage(side);
-	if (riddle >= 0) {
-		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
-		DrawRiddle(p, riddle, hovered.target == answer, hovered.target == answer && pressed.target == answer);
-	}
-}
-
 void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, bool answerHeld) {
 	const JournalRiddle& r = Game().journal.Riddles()[static_cast<size_t>(index)];
 	float top = p.y + p.h;
 	float cx = p.cx();
 	float width = p.w - 2 * PAGE_PAD;
 
+	underlinedHeading(handHeading, cx, top - HEADING_TOP, r.theme.c_str());
 	beginText();
-	textCentered(handHeading, cx, top - 13.f, r.theme.c_str(), PENCIL);
-	std::string found = "Level " + std::to_string(r.level);
-	textCentered(handSmall, cx, top - 17.5f, found.c_str(), PENCIL, FADED);
-
 	std::vector<std::string> lines;
 	for (const std::string& q : r.question)
 		for (const std::string& l : wrap(hand, q, width))
 			lines.push_back(l);
 	if (lines.size() > MAX_QUESTION_LINES)
 		lines.resize(MAX_QUESTION_LINES);
-	float y = top - 25.f;
+	float y = top - QUESTION_TOP;
 	for (const std::string& l : lines) {
-		textCentered(hand, cx, y, l.c_str(), PENCIL);
+		textCentered(hand, cx, y, l.c_str(), INK_BLUE);
 		y -= QUESTION_STEP;
 	}
 
@@ -452,20 +750,14 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 	if (r.solved) {
 		std::string answer = "Answer: " + r.written;
 		float w = hand.TextWidth(answer.c_str());
-		text(hand, cx - w / 2 + 2.f, p.y + 13.f, answer.c_str(), INK_GREEN);
+		text(hand, cx - w / 2 + 2.f, p.y + 13.f, answer.c_str(), INK_BLUE);
 		if (r.solvedLate)
 			textCentered(handSmall, cx, p.y + 8.5f, "answered later", PENCIL, FADED);
 		beginShapes();
-		tick(cx - w / 2 - 2.5f, p.y + 13.f, INK_GREEN);
+		tick(cx - w / 2 - 2.5f, p.y + 13.f, INK_RED);
 	} else {
 		textCentered(hand, cx, p.y + 19.f, "Answer: ?", PENCIL);
 		beginShapes();
-	}
-
-	line(p.x + PAGE_PAD + 4, top - 20.f, p.x + p.w - PAGE_PAD - 4, top - 20.f, INK_FADED, 0.8f, 1.f);
-	diamond(cx, top - 20.f, 0.6f, INK_RED, 1.f);
-
-	if (!r.solved) {
 		Rect b = tile(answerRect(p.x < RIGHT_PAGE.x ? 0 : 1), TileStyle::Lapis, answerHovered, answerHeld);
 		std::string label = "Answer  +" + std::to_string(r.lateXP) + " XP";
 		beginText();
@@ -480,83 +772,95 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	const MonsterKind* kind = monsterKind(c.type);
 	float top = p.y + p.h;
 	float cx = p.cx();
-	float width = p.w - 2 * PAGE_PAD;
 
+	underlinedHeading(handHeading, cx, top - HEADING_TOP, c.killed ? t.name : "?");
+
+	// A photograph once it was killed (seen up close), with its catalogue number and a caption; before that a
+	// pencil sketch from afar. Each photo is pasted in a little askew.
+	Rect box = photoBox(p);
+	float tilt = c.killed ? static_cast<float>((c.type * 5 + index * 3) % 7 - 3) * 0.8f : 0.f;
+	DrawSketch(c.type, box, c.killed, tilt);
 	beginText();
-	textCentered(handHeading, cx, top - 13.f, c.killed ? t.name : "?", PENCIL);
-	std::string found = "Level " + std::to_string(c.level);
-	textCentered(handSmall, cx, top - 17.5f, found.c_str(), PENCIL, FADED);
-
-	// Notes under the sketch: what it is (after a kill), the numbers, the moves seen; "?" for what is still unknown.
-	std::vector<std::pair<std::string, float>> notes; // text, alpha
-	if (c.killed && kind != nullptr)
-		for (const std::string& l : wrap(handSmall, kind->note, width))
-			if (notes.size() < MAX_NOTE_LINES)
-				notes.emplace_back(l, 1.f);
-	std::string hp = c.killed ? "~" + std::to_string(rough(t.maxHealth)) + " HP" : "HP ?";
-	std::string hit = c.hitBy ? "hits for ~" + std::to_string(rough(t.damage)) : "its hit ?";
-	notes.emplace_back(hp + "     " + hit, 1.f);
-	// How it takes each damage type, once a weapon of that main type has hit it.
-	std::string resist;
-	for (int d = 0; d < DAMAGE_TYPE_COUNT; d++) {
-		const auto type = static_cast<DamageType>(d);
-		resist += std::string(d > 0 ? "     " : "") + DAMAGE_TYPE_NAMES[static_cast<size_t>(d)] + " " +
-				  (c.Tried(type) ? resistanceWord(t.resist[static_cast<size_t>(d)]) : "?");
+	if (c.killed) {
+		char id[16];
+		std::snprintf(id, sizeof(id), "L%02d-%02d", c.level, index + 1);
+		text(stampSmall, box.x + 0.5f, box.y + box.h + 1.f, id, INK_RED);
+		const char* caption = "from the side";
+		float w = handSmall.TextWidth(caption);
+		text(handSmall, cx - w / 2 + 1.5f, top - CAPTION_TOP, caption, INK_BLUE);
+		beginShapes();
+		upArrow(cx - w / 2 - 1.f, top - CAPTION_TOP - 0.3f, INK_BLUE);
+	} else {
+		textCentered(handSmall, cx, top - CAPTION_TOP, "sketched from afar", PENCIL, FADED);
+		beginShapes();
 	}
-	notes.emplace_back(resist, 1.f);
+
+	// The notes: a label in the margin column, the text beside it. Blue ink for what was seen, blanks for what is
+	// still unknown.
+	float x = p.x + PAGE_PAD;
+	float textX = x + MARGIN_W;
+	float textW = p.x + p.w - PAGE_PAD - textX;
+	float y = top - ROWS_TOP;
+	auto label = [&](const char* s, Color ink) {
+		beginText();
+		text(handTiny, x, y, s, ink);
+		beginShapes();
+	};
+	auto entry = [&](const char* name, const std::string& s) {
+		label(name, PENCIL);
+		beginText();
+		for (const std::string& l : wrap(handSmall, s, textW)) {
+			text(handSmall, textX, y, l.c_str(), INK_BLUE);
+			y -= ROW_STEP;
+		}
+		beginShapes();
+	};
+	std::string seen = "Level " + std::to_string(c.level) + ".";
+	if (c.killed && kind != nullptr)
+		seen += std::string(" ") + kind->note;
+	entry("SEEN", seen);
+	std::string saw;
 	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
 		if (c.Saw(static_cast<CreatureMove>(m)))
-			notes.emplace_back(moveNote(static_cast<CreatureMove>(m), t), 1.f);
-	float y = top - NOTES_TOP;
-	for (const auto& [line, alpha] : notes) {
-		textCentered(handSmall, cx, y, line.c_str(), PENCIL, alpha);
-		y -= NOTE_STEP;
+			saw += std::string(saw.empty() ? "" : " ") + moveNote(static_cast<CreatureMove>(m), t);
+	if (!saw.empty())
+		entry("SAW", saw);
+
+	// The form, filled in as it is learnt.
+	if (c.killed)
+		label("KILLED", INK_RED);
+	formField(handSmall, textX, y, "HP", c.killed ? "~" + std::to_string(rough(t.maxHealth)) : "");
+	formField(handSmall, textX + FORM_COLUMN, y, "HITS", c.hitBy ? "~" + std::to_string(rough(t.damage)) : "");
+	y -= ROW_STEP;
+	if (c.tried != 0)
+		label("TRIED", PENCIL);
+	for (int d = 0; d < DAMAGE_TYPE_COUNT; d++) {
+		const auto type = static_cast<DamageType>(d);
+		std::string value = c.Tried(type) ? resistanceWord(t.resist[static_cast<size_t>(d)]) : "";
+		formField(handSmall, textX + static_cast<float>(d % 2) * FORM_COLUMN, y,
+				  upper(DAMAGE_TYPE_NAMES[static_cast<size_t>(d)]), value);
+		if (d % 2 == 1)
+			y -= ROW_STEP;
 	}
-	beginShapes();
-	line(p.x + PAGE_PAD + 4, top - 20.f, p.x + p.w - PAGE_PAD - 4, top - 20.f, INK_FADED, 0.8f, 1.f);
-	diamond(cx, top - 20.f, 0.6f, INK_RED, 1.f);
 }
 
 void JournalScreen::DrawFieldNote(const Rect& p, int index) {
 	const FieldNoteText& note = FIELD_NOTES[static_cast<size_t>(Game().journal.Notes()[static_cast<size_t>(index)])];
 	float top = p.y + p.h;
-	float cx = p.cx();
+	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, note.title);
 	beginText();
-	textCentered(handHeading, cx, top - 13.f, note.title, PENCIL);
-	float y = top - 26.f;
+	float y = top - FIELD_NOTE_TOP;
 	for (const std::string& l : wrap(hand, note.text, p.w - 2 * PAGE_PAD)) {
-		text(hand, p.x + PAGE_PAD, y, l.c_str(), PENCIL);
+		text(hand, p.x + PAGE_PAD, y, l.c_str(), INK_BLUE);
 		y -= FIELD_NOTE_STEP;
 	}
 	beginShapes();
-	line(p.x + PAGE_PAD + 4, top - 18.f, p.x + p.w - PAGE_PAD - 4, top - 18.f, INK_FADED, 0.8f, 1.f);
-	diamond(cx, top - 18.f, 0.6f, INK_RED, 1.f);
 }
 
-// The model of each creature on the open pages, drawn flat in pencil: an outline, and once it was killed (seen up
-// close) a wash of its texture. A depth pass first, so only the front surfaces get lines and wash.
-void JournalScreen::DrawSketches() {
-	if (section != Section::Creatures)
-		return;
-	// The sketches change depth func, culling, polygon mode, colour mask, line width and blending: all of it goes
-	// back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
-	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT |
-				 GL_CURRENT_BIT);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	for (int side = 0; side < 2; side++) {
-		int index = EntryOnPage(side);
-		if (index < 0)
-			continue;
-		const JournalCreature& c = Game().journal.Creatures()[static_cast<size_t>(index)];
-		const Rect& p = pageRect(side);
-		DrawSketch(c.type, {p.x + SKETCH_PAD_X, p.y + p.h - SKETCH_TOP - SKETCH_H, p.w - 2 * SKETCH_PAD_X, SKETCH_H},
-				   c.killed);
-	}
-	glPopAttrib();
-	beginShapes();
-}
-
-void JournalScreen::DrawSketch(int type, const Rect& box, bool washed) {
+// A creature's model, frame 0 of its move clip, from the side and a little above. As a pencil sketch: the outline
+// only (a depth pass first, so only the front surfaces get lines). As a photo: a black and white print, lit, on a
+// white-bordered card tilted by `tilt` degrees.
+void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt) {
 	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(type)];
 	const CharacterModel& model = t.model;
 	constexpr ModelState POSE =
@@ -564,67 +868,101 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool washed) {
 	const AnimatedModel* clip = model.Clip(model.Shown(POSE));
 	if (clip == nullptr)
 		return;
-	if (washed && !sketchTextures[static_cast<size_t>(type)].ID()) {
+	Texture& print = photoTextures[static_cast<size_t>(type)];
+	if (photo && !print.ID()) {
 		std::string file = std::string("textures/") + t.texture + ".png";
-		sketchTextures[static_cast<size_t>(type)].LoadPNG(file.c_str(), TexFilter::Mipmapped, pencilWash);
+		print.LoadPNG(file.c_str(), TexFilter::Mipmapped, photoGrey);
+	}
+
+	// The sketches change depth func, culling, polygon mode, colour mask, line width, lighting and blending: all of
+	// it goes back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
+	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT |
+				 GL_CURRENT_BIT | GL_LIGHTING_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glPushMatrix();
+	Rect fit = box;
+	if (photo) {
+		// Light from the upper left, in front: set while the modelview is the page's own.
+		const float lightDir[4] = {-0.5f, 0.7f, 1.f, 0.f};
+		const float ambient[4] = {0.5f, 0.5f, 0.5f, 1.f};
+		const float diffuse[4] = {0.85f, 0.85f, 0.85f, 1.f};
+		const float none[4] = {0.f, 0.f, 0.f, 1.f};
+		glLightfv(GL_LIGHT0, GL_POSITION, lightDir);
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, none);
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, none);
+
+		glTranslatef(box.cx(), box.cy(), 0);
+		glRotatef(tilt, 0, 0, 1);
+		glTranslatef(-box.cx(), -box.cy(), 0);
+		beginShapes();
+		fillRect({box.x + 0.35f, box.y - 0.45f, box.w, box.h}, BLACK, BLACK, 0.28f); // pasted on: a thin shadow
+		fillRect(box, {1, 1, 1}, darker(PAPER, 0.97f), 1.f);
+		Rect image = box.inset(PHOTO_BORDER);
+		fillRect(image, darker(PAPER, 0.24f), darker(PAPER, 0.46f), 1.f); // a dark room, the lit floor below
+		ring(image.inset(3.f), 3.f, BLACK, 0.f, 0.35f);
+		fit = image.inset(0.6f);
 	}
 
 	auto [bottom, top] = clip->YRange(0);
 	auto [halfX, halfZ] = clip->HalfXZ(0);
 	// Turned any way, the body stays within its longest half width; the tilt adds some of its depth to the height.
 	const float reach = 2.f * std::max(halfX, halfZ);
-	const float tilt = SKETCH_TILT * static_cast<float>(M_PI) / 180.f;
-	const float tall = (top - bottom) * std::cos(tilt) + reach * std::sin(tilt);
-	float size = std::min(box.w / reach, box.h / tall);
+	const float lean = SKETCH_TILT * static_cast<float>(M_PI) / 180.f;
+	const float tall = (top - bottom) * std::cos(lean) + reach * std::sin(lean);
+	float size = std::min(fit.w / reach, fit.h / tall);
 	const AnimPlayback frame0{};
 
-	glPushMatrix();
-	glTranslatef(box.cx(), box.cy() - (top + bottom) / 2 * size * std::cos(tilt), 0);
+	glTranslatef(fit.cx(), fit.cy() - (top + bottom) / 2 * size * std::cos(lean), 0);
 	glRotatef(SKETCH_TILT, 1, 0, 0);
 	glScalef(size, size, size);
 	glRotatef(t.rotA + 90.f + SKETCH_YAW, 0, 1, 0);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
 	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	clip->Show(frame0);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
-
-	if (washed) {
+	if (photo) {
+		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_DST_COLOR, GL_ZERO); // multiply onto the paper
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		glEnable(GL_NORMALIZE);
+		glEnable(GL_COLOR_MATERIAL);
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 		glColor4f(1, 1, 1, 1);
-		clip->Show(frame0, sketchTextures[static_cast<size_t>(type)].ID());
+		clip->Show(frame0, print.ID());
+	} else {
+		glDepthFunc(GL_LESS);
 		glDisable(GL_TEXTURE_2D);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		clip->Show(frame0);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthFunc(GL_LEQUAL);
+		// The outline: the back faces' edges show where the body ends (and at its folds).
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glPolygonMode(GL_BACK, GL_LINE);
+		glLineWidth(SKETCH_LINE_PX * static_cast<float>(Game().render.resY) / 720.f);
+		glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
+		clip->Show(frame0);
 	}
-
-	// The outline: the back faces' edges show where the body ends (and at its folds).
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glPolygonMode(GL_BACK, GL_LINE);
-	glLineWidth(SKETCH_LINE_PX * static_cast<float>(Game().render.resY) / 720.f);
-	glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
-	clip->Show(frame0);
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_CULL_FACE); // the next sketch's depth pass needs every face filled
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glPopMatrix();
+	glPopAttrib();
+	beginShapes();
 }
 
 void JournalScreen::DrawCorners() {
+	if (turn.active)
+		return;
 	beginShapes();
 	int open = spread[static_cast<size_t>(section)];
 	if (open > 0)
-		cornerArrow(cornerRect(0), true, hovered.target == Target::PrevPage ? INK_RED : INK);
+		cornerArrow(cornerRect(0), true, hovered.target == Target::PrevPage ? INK_RED : PENCIL);
 	if (open < SpreadCount(section) - 1)
-		cornerArrow(cornerRect(1), false, hovered.target == Target::NextPage ? INK_RED : INK);
+		cornerArrow(cornerRect(1), false, hovered.target == Target::NextPage ? INK_RED : PENCIL);
 }
 
 void JournalScreen::DrawFooter() {
@@ -632,7 +970,8 @@ void JournalScreen::DrawFooter() {
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CANVAS_W / 2, 6.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
 	textCentered(small, CANVAS_W / 2, 2.2f,
-				 "Ribbons, Up / Down: section    Corners, Left / Right, wheel: turn the page    J / Esc: close",
+				 "Ribbons, Up / Down: section    Corners (click or drag), Left / Right, wheel: turn the page    "
+				 "J / Esc: close",
 				 {0.55f, 0.45f, 0.30f});
 	beginShapes();
 }

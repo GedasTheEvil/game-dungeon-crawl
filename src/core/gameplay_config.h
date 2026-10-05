@@ -61,11 +61,10 @@ constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clea
 constexpr int MINION_SUMMON_REACH = 3;			// cells from its boss a summoned minion may appear
 constexpr int MINION_EMERGE_MS = 700;			// a summoned minion digs out or drops into place, then acts
 
-// Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed, a
-// swimmer (the crocodile) swims faster. No jump while standing in it. An arrow hits a monster standing in it for a
-// share of its damage; melee is not affected.
+// Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
+// monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster
+// standing in it for a share of its damage; melee is not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
-constexpr float SWIM_SPEED_FACTOR = 1.25f;
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
 constexpr int WADE_SPLASH_MS = 450;		 // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often

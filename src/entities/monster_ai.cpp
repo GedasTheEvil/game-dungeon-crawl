@@ -26,11 +26,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 
 	if (!rooted())
 		alerted = true; // chasing the player
-	float water = 1.f;
-	if (inWater && type->wading == Wading::Slowed)
-		water = WADE_SPEED_FACTOR;
-	else if (inWater && type->wading == Wading::Swimmer)
-		water = SWIM_SPEED_FACTOR;
+	const float water = inWater ? type->waterSpeed : 1.f;
 	if (!blocked)
 		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
 	enter(ModelState::Move);

@@ -36,7 +36,7 @@ A new per-type field in `MONSTER_DEFS`, how the monster moves in half water (for
 |---|---|---|
 | Slowed | 50%, like the player | scarab, giant scarab, boss scarab, worm, mummy (and the scorpions) |
 | Unaffected | 100% | rat, giant rat, Anubis, Anubis boss |
-| Swimmer | 125% | crocodile, cobra, Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)) |
+| Swimmer | faster, per monster (the crocodile 250%) | crocodile, cobra, Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)) |
 | Not walking | - | plant, mimic (rooted), bat, giant bat, vampire bat (fly) |
 
 Rooted monsters and flyers need no value: their `Locomotion` already says it. So the field may only need the first
@@ -44,7 +44,8 @@ three.
 
 ## Crocodile
 
-* New monster, at home in the water: in a flooded cell it moves **125%** of its normal speed.
+* New monster, at home in the water: in a flooded cell it moves **250%** of its speed on land (decided 2026-10-05,
+  was 125%: monsters are much slower than the player in this game, so it is slow on land and fast in the water).
 * Amphibious: it leaves the water freely and walks on dry ground at its normal speed, without the water bonus.
 * Idle, it lies under the surface with only the eyes and the back showing, like the mimic's ambush.
 * A plain bite, no hold. A bite with a hold is a separate idea:
@@ -54,10 +55,10 @@ three.
 * Model built in Blender ([../remodeling.md](../remodeling.md)). A Sobek boss could follow later
   ([more-bosses.draft.md](more-bosses.draft.md)).
 
-Gameplay: the player is at half speed and the crocodile 25% faster. Fight on the bank or with the bow from dry ground.
-Open (found in the implementation): monsters are much slower than the player in this game (`MONSTER_SEEK_STEP`), so at
-the giant rat's speed (4) the crocodile swims 0.3 tiles/s and the wading player still outruns it (0.5 tiles/s).
-Fleeing through water only fails from a land speed of about 7 (or a bigger swim bonus).
+Gameplay (decided 2026-10-05): on land the crocodile is slower than a rat or a bat, the player outwalks it (it walks
+0.42 tiles/s, the player 1 and sprints 3). In the water it swims 1.05 tiles/s, faster than the player walks on land
+and twice their wading (0.5, no sprint in water), so fleeing through water does not work. Fight on the bank or with
+the bow from dry ground.
 
 ## How to store water
 
@@ -84,19 +85,20 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
 
 ## Implemented
 
-* Rules (`src/core/gameplay_config.h`): `WADE_SPEED_FACTOR` 0.5 (the player's walk and climb in `input.cpp`, slowed
-  walkers in `Monster::Seek`), `SWIM_SPEED_FACTOR` 1.25, `ARROW_WATER_DAMAGE_PCT` 50 (an arrow into a monster whose centre
-  is in half water). No jump while wading (`Dungeon::JumpAllowed`, with a "too deep to jump" line); a fall or a jump into
+* Rules (`src/core/gameplay_config.h`): `WADE_SPEED_FACTOR` 0.5 (the player's walk and climb in `input.cpp`, and the
+  default `MonsterType::waterSpeed` of the slowed walkers in `Monster::Seek`), `ARROW_WATER_DAMAGE_PCT` 50 (an arrow
+  into a monster whose centre is in half water). No sprint while wading (no speed, no stamina drain). No jump while wading (`Dungeon::JumpAllowed`, with a "too deep to jump" line); a fall or a jump into
   water lands as on a floor, with a splash. Splashing steps every 450 ms while wading. `Dungeon::PlayerWading`.
-* Wading kinds: `Wading` in `src/entities/monster.h`, set per type in `WADING_DEFS` (`src/state/assets.cpp`): rats and
-  both Anubis unaffected, the crocodile a swimmer, everyone else slowed.
+* Wading kinds: `Wading` in `src/entities/monster.h` and the speed in water per type, in `WADING_DEFS`
+  (`src/state/assets.cpp`): rats and both Anubis unaffected (1), the crocodile a swimmer (2.5), everyone else slowed (0.5).
 * Look: `Dungeon::DrawWater`, after the player and the monsters, see-through without depth writes: half water a teal
   front up to half the cell, a surface with drifting glints and a bright waterline; deep water a dark front over the
   whole cell. Traps, the player and the monsters show dimmed under it. No floor decals under water.
 * Crocodile: `MonsterCrocodile` (15), glyph `C`, `Locomotion::Submerged`: lies still (idle clip) with only its top
   `SUBMERGED_SHOW` above the water, wakes when the player comes within `SUBMERGED_WAKE_RANGE` (1.4 tiles from its
   centre: the camera shows about 1.5 tiles ahead, so the lurk is seen first) or hits it. A swimmer floats with its back at
-  the surface while its head is over water, and walks on the floor once its head is over dry ground. Speed 4, 110 HP,
+  the surface while its head is over water, and walks on the floor once its head is over dry ground. Speed 7 (2.5 in
+  water), 110 HP,
   26 damage every 1100 ms, 2400 XP, the scutes resist the sword (slash). Journal: "Lies under the water, only its eyes
   show." Model, texture and sounds: `tools/blender/models/crocodile.py`, `tools/audio/crocodile_sounds.py`
   ([../remodeling.md](../remodeling.md)); water sounds `tools/audio/water_sounds.py`.
@@ -105,5 +107,6 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
 * Levels: lvl7 (a side pool in the west hall, the way to a chest), lvl8 (the hall to the red gate), lvl9 (the lower
   gallery past the pit), one crocodile each. All campaign levels pass `levelcheck` with no warnings, `make paths` passes.
 * Scenarios: `tests/scenarios/water.txt` (wade speed, no jump, spikes in water, a ladder out of it),
-  `tests/scenarios/crocodile.txt` (lurk, wake, swim, bite at the bank, half and full arrow damage, the kill).
+  `tests/scenarios/crocodile.txt` (lurk, wake, swim, bite at the bank, out onto the floor, the kill),
+  `tests/scenarios/water_arrow.txt` (half and full arrow damage, a giant scarab in and out of a pool).
 * Not done: a splash when a monster enters the water; the crocodile's sounds are synthesized, check them in play.

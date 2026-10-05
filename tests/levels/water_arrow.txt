@@ -1,0 +1,9 @@
+; A giant scarab (col 5) in a pool of half water (cols 4-7) over deep water, dry floor either side
+; (tests/scenarios/water_arrow.txt).
+############
+#S...k....E#
+############
+structure
+############
+#...~~~~...#
+####====####

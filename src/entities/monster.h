@@ -28,9 +28,9 @@ enum class Locomotion : unsigned char {
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
 enum class Wading : unsigned char {
-	Slowed,		// at WADE_SPEED_FACTOR, like the player
+	Slowed,		// slower, like the player (MonsterType::waterSpeed, WADE_SPEED_FACTOR unless set)
 	Unaffected, // full speed
-	Swimmer,	// at SWIM_SPEED_FACTOR, floating with its back at the surface (swimLift)
+	Swimmer,	// faster (waterSpeed), floating with its back at the surface (swimLift)
 };
 
 // Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
@@ -94,8 +94,9 @@ struct MonsterType {
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
 	Wading wading = Wading::Slowed;
-	int trapDamagePct = 100;			 // share of a trap's damage it takes (traps ignore armour); 0: immune
-	Resistances resist = NO_RESISTANCES; // how it takes each type of a weapon's damage
+	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
+	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
+	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
 	Rgb blood = {0.7f, 0.1f, 0.1f};
 	BossRules boss;
 	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }

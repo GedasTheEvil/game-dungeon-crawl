@@ -125,9 +125,9 @@ const MonsterDef MONSTER_DEFS[] = {
 	// Reckless: the player cannot shake him off behind a row of traps.
 	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 1500, 110, 1400, 20000, 26, 180,
 	 Locomotion::Walk, RED_BLOOD, Courage::Reckless, 10},
-	// Between the giant rat and the mummy, bites harder than both; in the water a quarter faster (Wading::Swimmer).
+	// HP between the giant rat and the mummy, bites harder than both. Slow on land, fast in the water (WADING_DEFS).
 	// Levels 7-9 (docs/plan/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
-	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 4, 110, 26, 1100, 2400, 60, 180,
+	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 7, 110, 26, 1100, 2400, 60, 180,
 	 Locomotion::Submerged, RED_BLOOD},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
@@ -179,14 +179,19 @@ const struct {
 	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}}, // the scutes turn a blade
 };
 
-// How the walkers move through half water; the others wade slowed (Wading::Slowed). Flyers and rooted monsters do
-// not wade.
+// How the walkers move through half water, and their speed in it times their speed on land; the others wade slowed
+// (Wading::Slowed, WADE_SPEED_FACTOR). Flyers and rooted monsters do not wade.
 const struct {
 	MonsterTypeId id;
 	Wading wading;
+	float waterSpeed;
 } WADING_DEFS[] = {
-	{MonsterRat, Wading::Unaffected},		 {MonsterGiantRat, Wading::Unaffected}, {MonsterAnubis, Wading::Unaffected},
-	{MonsterAnubisBoss, Wading::Unaffected}, {MonsterCrocodile, Wading::Swimmer},
+	{MonsterRat, Wading::Unaffected, 1.f},
+	{MonsterGiantRat, Wading::Unaffected, 1.f},
+	{MonsterAnubis, Wading::Unaffected, 1.f},
+	{MonsterAnubisBoss, Wading::Unaffected, 1.f},
+	// Slow on land (slower than a rat: the player outwalks it), in the water faster than the player walks on land.
+	{MonsterCrocodile, Wading::Swimmer, 2.5f},
 };
 
 struct ItemDef {
@@ -351,8 +356,10 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		monsterTypes[def.id].boss = def.rules;
 	for (const auto& def : RESISTANCE_DEFS)
 		monsterTypes[def.id].resist = def.resist;
-	for (const auto& def : WADING_DEFS)
+	for (const auto& def : WADING_DEFS) {
 		monsterTypes[def.id].wading = def.wading;
+		monsterTypes[def.id].waterSpeed = def.waterSpeed;
+	}
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,

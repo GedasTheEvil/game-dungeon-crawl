@@ -54,7 +54,8 @@ class PlayerActionController {
 	}
 
 	static void run(GameplayAction action) {
-		float moveMultiplier = Game().player->stats.SprintMoveMultiplier();
+		// No sprint while wading.
+		float moveMultiplier = Game().dungeon.PlayerWading() ? 1.f : Game().player->stats.SprintMoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			walk(-PLAYER_MOVE_STEP * moveMultiplier, 0);
@@ -113,10 +114,12 @@ class PlayerActionController {
 	}
 
   private:
-	// Only a step that really moved the player counts for the sprint drain. Wading slows it (PlayerWalkFactor).
+	// Only a step that really moved the player counts for the sprint drain, and none in the water: no sprint there.
+	// Wading slows it (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
+		const bool wading = Game().dungeon.PlayerWading();
 		const float factor = Game().dungeon.PlayerWalkFactor();
-		if (Game().dungeon.Move(dirX * factor, dirY * factor))
+		if (Game().dungeon.Move(dirX * factor, dirY * factor) && !wading)
 			Game().player->stats.NoteWalked();
 	}
 

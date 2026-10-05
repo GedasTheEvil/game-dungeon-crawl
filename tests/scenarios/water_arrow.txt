@@ -1,0 +1,25 @@
+# An arrow into a monster standing in half water hits for half its damage (ARROW_WATER_DAMAGE_PCT), on dry floor in
+# full (docs/plan/crocodiles-and-flooded-cells.md). tests/levels/water_arrow: a giant scarab (90 HP, slowed to half
+# speed in the water, weak to pierce: an arrow deals it 24 on dry floor) in a pool at cols 4-7.
+seed 1
+god
+level tests/levels/water_arrow
+give ranged 0
+key 4
+walk to 2.8
+hold right 2
+wait 10
+expect nearest == 90
+attack
+wait 1s
+screenshot shot_in_water
+expect nearest == 78
+walk to 1.5
+hold right 2
+# Out of the water (its centre past col 4), still three tiles off.
+wait 30s
+screenshot on_land
+attack
+wait 1s
+expect nearest == 54
+screenshot shot_on_land

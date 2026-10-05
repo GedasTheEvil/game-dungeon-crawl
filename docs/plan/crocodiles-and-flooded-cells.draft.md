@@ -21,10 +21,25 @@ monsters are hidden up to the waist. Deep water is darker, no surface of its own
 
 Open:
 
-* Do other monsters slow down in water too (rats, scarabs, mummies), or avoid it like a trap (`Courage`)?
-  Flyers (bats) do not care.
 * Arrows, rock falls and traps in water.
 * Falling into half water from a height: lands like on a floor?
+
+## Monsters in water
+
+A new per-type field in `MONSTER_DEFS`, how the monster moves in half water (for example `enum class Wading`):
+
+| Wading | Speed in half water | Monsters |
+|---|---|---|
+| Slowed | 50%, like the player | scarab, giant scarab, boss scarab, worm, mummy (and the scorpions) |
+| Unaffected | 100% | rat, giant rat, Anubis, Anubis boss |
+| Swimmer | 125% | crocodile |
+| Not walking | - | plant, mimic (rooted), bat, giant bat, vampire bat (fly) |
+
+Rooted monsters and flyers need no value: their `Locomotion` already says it. So the field may only need the first
+three.
+
+Open: the cobra and Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)), snakes swim well: Unaffected or
+Swimmer?
 
 ## Crocodile
 
@@ -57,9 +72,8 @@ Options:
 
 Proposal: start with 3 to try the feel, move to 1 if water must hold other things.
 
-Speed: the player and the monsters read a speed factor of the cell they stand in (water 0.5 for the player, 1.25
-for the crocodile, 1 otherwise). A per-monster-type factor in `MONSTER_DEFS` (or a new `Locomotion::Swim`) keeps it
-data-driven.
+Speed: the player and the monsters read whether the cell they stand in is half water, and scale their speed from
+their wading kind ([Monsters in water](#monsters-in-water)); the player wades like Slowed.
 
 ## Checks
 

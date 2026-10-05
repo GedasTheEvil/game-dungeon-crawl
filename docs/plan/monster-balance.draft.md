@@ -55,6 +55,8 @@ starts):
   cross pits and traps.
 * More HP or damage only if speed and the leap are not enough.
 
+The **giant rat** has the same problem: [giant-rat-speed.draft.md](giant-rat-speed.draft.md).
+
 ## HP balance
 
 Not changed: needs a playthrough with the new reach. Retune monster HP (`MONSTER_DEFS`, `BOSS_DEFS` in

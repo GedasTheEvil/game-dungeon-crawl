@@ -1,4 +1,4 @@
-# The crocodile (docs/plan/crocodiles-and-flooded-cells.md), tests/levels/crocodile: it lies in the pool (cols
+# The crocodile (docs/plan/solved/crocodiles-and-flooded-cells.md), tests/levels/crocodile: it lies in the pool (cols
 # 6-13, the crocodile at col 8), only the eyes and the back above the water, no health bar. It wakes when the player
 # wades in within 1.4 tiles of its centre, swims after them (faster than they wade), bites from the bank, follows them
 # out onto the dry floor and dies to the sword. Arrows into water: tests/scenarios/water_arrow.txt.

@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-01, rewritten 2026-10-05 (was the binary level format). Done 2026-10-05, see
 [Implemented](#implemented). Needed by
-[crocodiles-and-flooded-cells.md](../crocodiles-and-flooded-cells.md).
+[crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md).
 
 ## Why
 

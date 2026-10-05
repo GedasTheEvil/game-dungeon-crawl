@@ -126,7 +126,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 1500, 110, 1400, 20000, 26, 180,
 	 Locomotion::Walk, RED_BLOOD, Courage::Reckless, 10},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land, fast in the water (WADING_DEFS).
-	// Levels 7-9 (docs/plan/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
+	// Levels 7-9 (docs/plan/solved/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
 	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 7, 110, 26, 1100, 2400, 60, 180,
 	 Locomotion::Submerged, RED_BLOOD},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.

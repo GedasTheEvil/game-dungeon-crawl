@@ -1,6 +1,6 @@
 # levelcheck: a crocodile is a wall in the water
 
-Status: draft 2026-10-05. Split off [crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md).
+Status: draft 2026-10-05. Split off [crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md).
 
 ## Idea
 

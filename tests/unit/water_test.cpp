@@ -1,4 +1,4 @@
-// Half water and deep water in the checker (docs/plan/crocodiles-and-flooded-cells.md), on small levels.
+// Half water and deep water in the checker (docs/plan/solved/crocodiles-and-flooded-cells.md), on small levels.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/tile_defs.h"

@@ -1,7 +1,7 @@
 # Crocodiles and flooded cells
 
 Status: draft 2026-10-05, open points decided 2026-10-05. Implemented 2026-10-05, see [Implemented](#implemented);
-waits for a check in play. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
+half water sunk into a basin (thigh deep, stone lip at the dry edge) 2026-10-05. Verified in play 2026-10-05. Builds on the level format v2 ([level-format-layers.md](level-format-layers.md),
 done).
 
 ## Water cells
@@ -36,7 +36,7 @@ A new per-type field in `MONSTER_DEFS`, how the monster moves in half water (for
 |---|---|---|
 | Slowed | 50%, like the player | scarab, giant scarab, boss scarab, worm, mummy (and the scorpions) |
 | Unaffected | 100% | rat, giant rat, Anubis, Anubis boss |
-| Swimmer | faster, per monster (the crocodile 250%) | crocodile, cobra, Apep ([apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)) |
+| Swimmer | faster, per monster (the crocodile 250%) | crocodile, cobra, Apep ([apep-serpent-boss.draft.md](../apep-serpent-boss.draft.md)) |
 | Not walking | - | plant, mimic (rooted), bat, giant bat, vampire bat (fly) |
 
 Rooted monsters and flyers need no value: their `Locomotion` already says it. So the field may only need the first
@@ -49,11 +49,11 @@ three.
 * Amphibious: it leaves the water freely and walks on dry ground at its normal speed, without the water bonus.
 * Idle, it lies under the surface with only the eyes and the back showing, like the mimic's ambush.
 * A plain bite, no hold. A bite with a hold is a separate idea:
-  [crocodile-hold-bite.draft.md](crocodile-hold-bite.draft.md).
+  [crocodile-hold-bite.draft.md](../crocodile-hold-bite.draft.md).
 * Strength: between the giant rat and the mummy, with higher damage than both (numbers when the work starts, against
-  [monster-balance.draft.md](monster-balance.draft.md)). First crocodiles around lvl 7-9; those levels get water.
-* Model built in Blender ([../remodeling.md](../remodeling.md)). A Sobek boss could follow later
-  ([more-bosses.draft.md](more-bosses.draft.md)).
+  [monster-balance.draft.md](../monster-balance.draft.md)). First crocodiles around lvl 7-9; those levels get water.
+* Model built in Blender ([../remodeling.md](../../remodeling.md)). A Sobek boss could follow later
+  ([more-bosses.draft.md](../more-bosses.draft.md)).
 
 Gameplay (decided 2026-10-05): on land the crocodile is slower than a rat or a bat, the player outwalks it (it walks
 0.42 tiles/s, the player 1 and sprints 3). In the water it swims 1.05 tiles/s, faster than the player walks on land
@@ -67,7 +67,7 @@ A cell has one type (`Tile` in `src/world/level.h`: type, attr, value). Deep wat
 of a ladder, maybe a key or a treasure. So a new tile type alone is not enough for half water.
 
 Decided (2026-10-05): a structure layer under the objects, see
-[solved/level-format-layers.md](solved/level-format-layers.md). `HalfWater` and `DeepWater` are structure types, so a
+[level-format-layers.md](level-format-layers.md). `HalfWater` and `DeepWater` are structure types, so a
 spawn, a ladder or a key can stand in half water. Done: the format, the editor and the checker know water; it has
 no game rules yet.
 
@@ -80,7 +80,7 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
   ladder goes down into water.
 * `levelcheck`: crocodiles only spawn in or next to water.
 * `levelcheck` treats a crocodile as a wall the path cannot swim past: separate draft,
-  [levelcheck-crocodile-wall.draft.md](levelcheck-crocodile-wall.draft.md).
+  [levelcheck-crocodile-wall.draft.md](../levelcheck-crocodile-wall.draft.md).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.
 
 ## Implemented
@@ -101,7 +101,7 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
   water), 110 HP,
   26 damage every 1100 ms, 2400 XP, the scutes resist the sword (slash). Journal: "Lies under the water, only its eyes
   show." Model, texture and sounds: `tools/blender/models/crocodile.py`, `tools/audio/crocodile_sounds.py`
-  ([../remodeling.md](../remodeling.md)); water sounds `tools/audio/water_sounds.py`.
+  ([../remodeling.md](../../remodeling.md)); water sounds `tools/audio/water_sounds.py`.
 * `levelcheck`: no jump out of half water; warnings for half water not on deep water or a wall, deep water not under
   water, a ladder down into water, a crocodile not in or next to water. Unit tests `tests/unit/water_test.cpp`.
 * Levels: lvl7 (a side pool in the west hall, the way to a chest), lvl8 (the hall to the red gate), lvl9 (the lower

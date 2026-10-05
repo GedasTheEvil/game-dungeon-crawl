@@ -22,7 +22,7 @@ to water.
 Level files are text, version 2: a `DCLEVEL 2 40 47` header, the structure as a drawing, then the list of objects
 (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the same block for the
 current level. Old (v1) level files and saves still load, converted as they are read; `levelcheck` warns about a v1
-file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/crocodiles-and-flooded-cells.md).
+file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 

@@ -1,4 +1,4 @@
-# Half water (docs/plan/crocodiles-and-flooded-cells.md): the player wades at half speed, cannot sprint or jump while in
+# Half water (docs/plan/solved/crocodiles-and-flooded-cells.md): the player wades at half speed, cannot sprint or jump while in
 # it, the spikes under the surface still hurt, and a ladder leads up out of the water. tests/levels/water: dry floor
 # at x 1-5, half water over deep water at x 5-14, a ladder at x 9 in the water, spikes at x 11.
 seed 1

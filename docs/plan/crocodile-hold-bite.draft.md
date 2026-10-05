@@ -1,6 +1,6 @@
 # Crocodile bite with a hold
 
-Status: draft 2026-10-05. Split off [crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md);
+Status: draft 2026-10-05. Split off [crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md);
 the crocodile ships with a plain bite first.
 
 ## Idea

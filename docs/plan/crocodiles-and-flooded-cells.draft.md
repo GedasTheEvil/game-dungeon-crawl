@@ -61,7 +61,7 @@ Options:
 
 1. **A flood layer in `Level`**: one flag per cell next to `cells`. Saved in the level file, drawn in the editor as
    an overlay. Cleanest, but changes the level format (see
-   [binary-level-format.draft.md](binary-level-format.draft.md)), the editor, `ascii2level.py` and `levelcheck`.
+   [level-format-layers.draft.md](level-format-layers.draft.md)), the editor, `ascii2level.py` and `levelcheck`.
 2. **A flag bit in the tile**: for example a high bit in `attr` or `value`. Fits the current format, but those fields
    already mean different things per type.
 3. **A `HalfWater` tile type** that only stands alone, with monster spawns allowed next to it (a crocodile spawns on the

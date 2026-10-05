@@ -1,6 +1,6 @@
 # Settings in an ini file
 
-Status: implemented 2026-10-05, waiting for a play test. The file and its keys: [settings.md](../settings.md).
+Status: solved 2026-10-05, play tested. The file and its keys: [settings.md](../../settings.md).
 
 Implemented as below, except:
 
@@ -15,7 +15,7 @@ Implemented as below, except:
 
 Options choices should stay between runs, in a file a player can also edit by hand. Today only "Motion effects" is
 kept, in `saves/settings.txt` as `name value` lines (`src/state/settings.cpp`, from
-[sprint-motion-effect.md](solved/sprint-motion-effect.md)). Grow it into a proper settings file with sections, put
+[sprint-motion-effect.md](sprint-motion-effect.md)). Grow it into a proper settings file with sections, put
 more options in the Options screen, and let the player remap the controls.
 
 ## Format
@@ -118,7 +118,7 @@ Later, maybe: camera look speed, a graphics preset.
   sound, controls) would hold what the file holds, with `RenderSettings` reading from it.
 * The Options Display tab is one row (`MainMenu::DrawDisplay()` in `src/ui/menu.cpp`). More rows need a row list
   (name, hint, kind: on/off, choice, slider, key binding) instead of the single hard-coded switch. A slider and the
-  key prompt are new UI ([docs/ui.md](../ui.md)). The tabs may grow to Controls / Display / Sound.
+  key prompt are new UI ([docs/ui.md](../../ui.md)). The tabs may grow to Controls / Display / Sound.
 * Scenarios never read or write the file (`Scenario::active()`), so test runs stay the same on every machine.
   A scenario command could load a given ini to test the parser end to end.
 * Document the file and its keys in `docs/` (players may edit it).

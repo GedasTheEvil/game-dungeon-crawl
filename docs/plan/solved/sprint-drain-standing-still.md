@@ -1,6 +1,6 @@
 # Sprint drains stamina while standing still
 
-Status: implemented 2026-10-05, awaiting verification. Bug.
+Status: solved 2026-10-05 (play-tested). Bug.
 
 Done: `Dungeon::Move()` returns whether the player moved; walk steps that moved call `PlayerStats::NoteWalked()`;
 `UpdateStamina()` drains (and refuses) only with shift held and a real step this tick. `SprintMoveMultiplier()`
@@ -31,4 +31,4 @@ the player moved this tick.
 * Scenario: hold shift and walk into a wall, no drain.
 * Scenario: sprint along a corridor, drain as before.
 
-Related: [sprint-motion-effect.draft.md](sprint-motion-effect.draft.md) uses the same "actually moving" signal.
+Related: [sprint-motion-effect.draft.md](../sprint-motion-effect.draft.md) uses the same "actually moving" signal.

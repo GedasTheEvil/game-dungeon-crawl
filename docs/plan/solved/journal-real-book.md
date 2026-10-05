@@ -1,11 +1,11 @@
 # Journal as a real book
 
-Status: implemented 2026-10-05, waits for a check in play. Draft 2026-10-01, refined 2026-10-01 from the reference
+Status: solved 2026-10-05, verified in play. Draft 2026-10-01, refined 2026-10-01 from the reference
 image and user feedback. What was built: [Implementation](#implementation).
 
 ## Idea
 
-The journal ([journal-sections.md](solved/journal-sections.md)) reads as a flat board: two papyrus panels on a cover. It
+The journal ([journal-sections.md](journal-sections.md)) reads as a flat board: two papyrus panels on a cover. It
 should feel like a real, used field notebook, the kind an archaeologist carries on a dig. Reference:
 [notebookstories.com example](https://www.notebookstories.com/wp-content/uploads/2020/03/001.jpg), an excavation
 notebook from 1997.
@@ -34,7 +34,7 @@ Proposals, to confirm when the work starts:
 
 * Book: cloth cover (dark sand or grey, not the current bronze) with the cover edge showing, an elastic strap on the
   left edge, stacked page edges on the right, gutter shadow and page curve at the spine.
-* Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](solved/journal-sections.md)) stay on the right edge; the
+* Decided 2026-10-01: the ribbon bookmarks ([journal-sections.md](journal-sections.md)) stay on the right edge; the
   strap goes on the left. Each ribbon gets a letter: M (monsters / creatures), R (riddles), F (field notes). The letter shows only on the open section's ribbon and on the hovered one.
 * Paper: white-cream with the grid, as a texture (grain + grid + slight shading towards the spine) from a
   `tools/textures/` script, like the ribbon.
@@ -45,7 +45,7 @@ Proposals, to confirm when the work starts:
   a margin column with short labels (`SEEN`, `HIT`, `KILLED`, resistances), and a form block filled in as learnt
   ("WEAPON = ..., WEAK TO: ..., RESISTS: ...", blank fields left empty, like "FINDS:" in the reference).
 * Inks: blue for the text, red for numbers / IDs / page numbers, pencil for guesses and minor notes. Decided
-  2026-10-01: the font stays Kalam ([solved/handwritten-journal-font.md](solved/handwritten-journal-font.md)), no
+  2026-10-01: the font stays Kalam ([solved/handwritten-journal-font.md](handwritten-journal-font.md)), no
   block capitals.
 * Decided 2026-10-01: riddles and field notes are text only, on the same grid paper; no photo or rubbing.
 * Optional wear, light: a dog-ear or small smudge, not the stains-everywhere look; the reference is clean.
@@ -73,12 +73,12 @@ page in the direction of its section.
 
 ## Notes
 
-* Shared UI look and canvas: [docs/ui.md](../ui.md), "Book (journal)". Code: `src/ui/journal_view.cpp`.
+* Shared UI look and canvas: [docs/ui.md](../../ui.md), "Book (journal)". Code: `src/ui/journal_view.cpp`.
 * Decided 2026-10-01: the journal comes from outside the tomb, so leaving the Egyptian look on this screen is fine.
 
 ## Implementation
 
-Done 2026-10-05. Look and code: [docs/ui.md](../ui.md), "Book (journal)".
+Done 2026-10-05. Look and code: [docs/ui.md](../../ui.md), "Book (journal)".
 
 * Textures: `tools/textures/journal_book.py` (grid paper with the spine shading, grey cloth). Typewriter numbers:
   `fonts/courier.png` (Courier 10 Pitch, Bitstream licence). Sound: `tools/audio/page_sound.py`.

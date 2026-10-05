@@ -155,7 +155,7 @@ Separators `/` and `,` are plain `LABEL_DIM` text.
 
 ### Book (journal)
 
-A cloth-bound field notebook ([plan/journal-real-book.md](plan/journal-real-book.md)): grey cloth cover
+A cloth-bound field notebook ([plan/journal-real-book.md](plan/solved/journal-real-book.md)): grey cloth cover
 (`textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left
 edge, red and white headbands at the spine, the page block's edges either side (more on the side the book is
 thicker). Two white grid pages (`textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left

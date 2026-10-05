@@ -28,6 +28,10 @@ Decided 2026-10-05, real-book layout (a ribbon riding a forward turn lands on th
   target, bending with the curl) and lands on the other side with it. That is the point of the animation; no swap
   when the turn ends.
 * Each ribbon keeps its height, so it is the same ribbon on either side.
+* Decided 2026-10-05: depth. Now all ribbons come out of the book at the same x (`RIBBON_X`), as if they marked
+  the same page. Each ribbon sits at its section's depth in the page block instead: a section deeper in the stack
+  has its ribbon further out sideways (x), following the stacked page edges (`EDGE_STEP`, more pages under = further
+  out). Heights (y) stay as they are.
 
 ## Open
 

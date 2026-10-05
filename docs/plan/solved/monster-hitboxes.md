@@ -2,7 +2,7 @@
 
 Status: bug found in play (lvl5, the boss scarab, 2026-09-30). Implemented 2026-09-30 (see
 [Implementation](#implementation)); verified in play 2026-09-30 (the boss scarab fight). Weapon ranges and HP balance:
-[weapon-ranges-and-balance.draft.md](../weapon-ranges-and-balance.draft.md).
+[monster-balance.draft.md](../monster-balance.draft.md).
 
 ## The bug
 
@@ -132,4 +132,4 @@ Not done:
 * Traps still check the player's point (`Trap::Hurt`); move them to the player box with the
   [trap bug fix](trap-and-font-bugs.md).
 * [Weapon ranges](#weapon-ranges) review and the HP balance (boss scarab, giants): moved to
-  [weapon-ranges-and-balance.draft.md](../weapon-ranges-and-balance.draft.md).
+  [monster-balance.draft.md](../monster-balance.draft.md).

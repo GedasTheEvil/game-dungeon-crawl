@@ -36,7 +36,7 @@ the level checker (`movement.h`) cannot model it.
    clears from the middle of a cell.
 5. Re-run everything that depends on timing: all scenarios, `make paths`, and a playthrough of a few levels for the
    feel (jumps over pits, rock falls, monster chases). The player gets faster than today, so monster speeds change
-   relative to the player: do this before [monster-strength.draft.md](../monster-strength.draft.md) tunes them.
+   relative to the player: do this before [monster-balance.draft.md](../monster-balance.draft.md) tunes them.
 
 ## Also in this stage (small)
 

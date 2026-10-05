@@ -1,4 +1,4 @@
-# Weapon reach against the model (docs/plan/weapon-ranges-and-balance.draft.md): each melee weapon at its hit frame, with
+# Weapon reach against the model (docs/plan/monster-balance.draft.md): each melee weapon at its hit frame, with
 # the debug boxes, next to a giant rat stopped where it bites. The reach (yellow) should end near the weapon's tip.
 seed 1
 god

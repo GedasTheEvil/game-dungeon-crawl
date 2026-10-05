@@ -152,7 +152,7 @@ Format:
    there, the ankh and two chests behind the boss gate (difficulty 93.4 -> 109.6, still last as the finale). Tests
    `tests/scenarios/anubis_boss.txt` (`tests/levels/anubis_boss`), the coffin part of `summon_effects.txt`
    (`tests/levels/summon_coffin`). A full clear of levels 1-14 brings the player to about level 49 (626 HP, 9 armour):
-   6-7 blows. Tune in play, with [monster-xp-tuning.draft.md](../monster-xp-tuning.draft.md).
+   6-7 blows. Tune in play, with [monster-balance.draft.md](../monster-balance.draft.md).
    Left for later: he walks through traps ([trap-walking-monsters.md](trap-walking-monsters.md)), the
    coffins after a load ([boss-coffins-after-load.md](boss-coffins-after-load.md)).
 

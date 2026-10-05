@@ -54,17 +54,40 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 //======================================================================================
 void Dungeon::ShootArrow(int damage, const DamageMix& mix, int dir, float height, float aimRange) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
-	const float y0 = mapY + height;
+	const float y0 = mapY + height - PlayerSink() / RenderConfig::TILE_SIZE; // wading, the bow is down in the water
 	float targetX = x0 + static_cast<float>(dir) * ARROW_FREE_RANGE;
 	float targetY = mapY; // the floor
 	aimTarget(x0, y0, dir, aimRange, targetX, targetY);
 	// Rise to the top of the arc, then come down through the target.
 	const float dx = std::fabs(targetX - x0);
 	const float dy = targetY - y0;
-	const float rise = std::max(dy, 0.f) + ARROW_ARC_BASE + ARROW_ARC_PER_TILE * dx;
-	const float vy = std::sqrt(2.f * ARROW_GRAVITY * rise);
-	const float flight = (vy + std::sqrt(2.f * ARROW_GRAVITY * (rise - dy))) / ARROW_GRAVITY;
-	arrows.push_back({x0, y0, static_cast<float>(dir) * dx / flight, vy, damage, mix, GameClock::now()});
+	float rise = std::max(dy, 0.f) + ARROW_ARC_BASE + ARROW_ARC_PER_TILE * dx;
+	auto speeds = [&](float r, float& vx, float& vy) {
+		vy = std::sqrt(2.f * ARROW_GRAVITY * r);
+		const float flight = (vy + std::sqrt(2.f * ARROW_GRAVITY * (r - dy))) / ARROW_GRAVITY;
+		vx = dx / flight;
+	};
+	float vx = 0.f, vy = 0.f;
+	speeds(rise, vx, vy);
+	// A target down in a water basin, past dry floor: lob the arrow steeply enough to clear the basin's edge.
+	const auto row = static_cast<int>(std::floor(mapY));
+	const auto floorY = static_cast<float>(row);
+	if (targetY < floorY && !inHalfWater(MapAt(static_cast<int>(std::floor(x0)), row))) {
+		for (auto col = static_cast<int>(std::floor(x0)); col != static_cast<int>(std::floor(targetX)); col += dir) {
+			if (!inHalfWater(MapAt(col + dir, row)))
+				continue;
+			const float edge = std::fabs(static_cast<float>(dir > 0 ? col + 1 : col) - x0);
+			for (int k = 0; k < 40; k++) {
+				const float t = edge / vx;
+				if (y0 + vy * t - ARROW_GRAVITY * t * t / 2.f >= floorY + ARROW_EDGE_CLEARANCE)
+					break;
+				rise += ARROW_LOB_STEP;
+				speeds(rise, vx, vy);
+			}
+			break;
+		}
+	}
+	arrows.push_back({x0, y0, static_cast<float>(dir) * vx, vy, damage, mix, GameClock::now()});
 }
 //======================================================================================
 void Dungeon::updateArrows() {
@@ -85,7 +108,11 @@ void Dungeon::updateArrows() {
 				gone = true;
 				break;
 			}
-			if (isSolidTile(MapAt(col, row))) {
+			// Over half water the floor is the basin's, WATER_BASIN_DEPTH down into the cell below.
+			const bool inBasin =
+				inHalfWater(MapAt(col, row + 1)) &&
+				y >= static_cast<float>(row + 1) - RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
+			if (isSolidTile(MapAt(col, row)) && !inBasin) {
 				a.stuckMs = now; // the tip in the wall or the floor
 				sim.events->Play(WorldSound::ArrowWall);
 				break;

@@ -112,7 +112,11 @@ constexpr float ARROW_MAX_RISE = 0.6f;	 // a monster's mid height higher above t
 constexpr float ARROW_ARC_BASE = 0.05f;
 constexpr float ARROW_ARC_PER_TILE = 0.1f;
 constexpr float ARROW_HIT_TOLERANCE = 0.05f; // tiles outside a monster's box an arrow still hits
-constexpr int ARROW_STUCK_MS = 1500;		 // an arrow in a wall or the floor stays this long
+constexpr int ARROW_STUCK_MS = 1500;
+// An arrow at a monster down in a water basin is lobbed higher, ARROW_LOB_STEP tiles at a time, until it clears the
+// basin's dry edge by this much.
+constexpr float ARROW_EDGE_CLEARANCE = 0.02f;
+constexpr float ARROW_LOB_STEP = 0.05f; // an arrow in a wall or the floor stays this long
 
 // Keys, gates and levers (dungeon_mechanisms.cpp).
 constexpr int GATE_OPEN_MS = 1200;			  // the gate slides up into the ceiling, passable once it is up

@@ -143,6 +143,7 @@ class Monster {
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f;		  // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false;  // swim was set on the first Animate after the spawn
+	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::waterSink)
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
@@ -155,9 +156,10 @@ class Monster {
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const; // world units off its place while Emerging: < 0 in the floor, > 0 above
 	// A swimmer in half water floats with its back (the clip's top) at the surface, a lurker with only its top
-	// SUBMERGED_SHOW above it; 0 out of the water.
+	// SUBMERGED_SHOW above it; 0 out of the water. Off the basin floor (sink).
 	[[nodiscard]] float swimLift() const;
-	[[nodiscard]] float lift() const; // world units off the floor: a flyer's height, a leap, a summon, a swim
+	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
+	[[nodiscard]] float lift() const;
 	[[nodiscard]] bool sameRow(float py) const;
 
   public:
@@ -202,9 +204,11 @@ class Monster {
 	}
 	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
-	void SetInWater(bool water, bool head) {
+	// sink: world units it is drawn down into a water basin (Dungeon::waterSink).
+	void SetInWater(bool water, bool head, float basin) {
 		inWater = water;
 		headInWater = head;
+		sink = basin;
 	}
 	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
 	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }

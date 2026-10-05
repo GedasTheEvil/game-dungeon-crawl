@@ -183,6 +183,9 @@ void drawGameplay() {
 
 	glPopMatrix();
 
+	const float sink = Game().dungeon.PlayerSink(); // wading: down in the water's basin, the weapon with them
+	glPushMatrix();
+	glTranslatef(0, -sink, 0);
 	Game().player->Draw(Game().assets.textures);
 
 	Lighting::setEmissive(true);
@@ -192,6 +195,7 @@ void drawGameplay() {
 
 	if (Game().player->Alive() && !Game().player->climbing()) // both hands on the ladder: no weapon
 		drawWeapon();
+	glPopMatrix();
 	glPushMatrix(); // the water over the player and the monsters in it, as the level is drawn
 	glTranslatef(-200, 0.0, -10);
 	Game().dungeon.DrawWater();

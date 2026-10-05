@@ -36,6 +36,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
 	inWater = false;
 	headInWater = false;
+	sink = 0.f;
 	swim = 0.f;
 	swimPlaced = false;
 	facing = 0;
@@ -98,10 +99,10 @@ float Monster::swimLift() const {
 	const float drawScale = type->scale * Ink::figureScale();
 	const float top = lurking() ? type->model.idleTop * drawScale - SUBMERGED_SHOW
 								: type->model.referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
-	return std::max(0.f, RenderConfig::WATER_SURFACE - top);
+	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
 }
 
-float Monster::lift() const { return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim) + emergeLift(); }
+float Monster::lift() const { return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink) + emergeLift(); }
 
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
@@ -290,7 +291,7 @@ void Monster::Draw(const TextureRegistry& textures) {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
-				 (flies() ? flight.lift : leap.lift + swim) + emergeLift(), -30.f - tomb);
+				 (flies() ? flight.lift : leap.lift + swim - sink) + emergeLift(), -30.f - tomb);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

@@ -88,6 +88,10 @@ class Dungeon {
 	CellRect drawnCells;				 // the cells the last Draw drew, for DrawWater
 	void pushLevelFrame() const;		 // Draw's frame: the view's first cell at the origin, scrolled with the player
 	void drawWaterCell(int i, int j, float x, float y);
+	// World units to draw something standing at map x on row's floor down into a water basin: WATER_BASIN_DEPTH in
+	// half water, growing over WATER_SINK_RAMP from a dry edge, 0 elsewhere.
+	[[nodiscard]] float waterSink(float x, int row) const;
+	[[nodiscard]] bool dryOpen(int col, int row) const; // walkable and not water: a basin's edge
 	Tile Map(float x, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).
 	struct Motion {
@@ -187,6 +191,8 @@ class Dungeon {
 	[[nodiscard]] float PlayerWalkFactor() const { return PlayerWading() ? WADE_SPEED_FACTOR : 1.f; }
 	// False while wading: then the player is told why (at most every WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
+	// World units the player is drawn down into a water basin (waterSink, less while above the floor: a fall, a jump).
+	[[nodiscard]] float PlayerSink() const;
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

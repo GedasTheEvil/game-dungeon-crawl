@@ -6,6 +6,7 @@
 #include "rng.h"
 #include "world_events.h"
 #include "../core/gameplay_config.h"
+#include "../graphics/render_config.h"
 #include "../core/logger.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -193,6 +194,29 @@ bool Dungeon::Move(float dirX, float dirY) {
 bool Dungeon::PlayerWading() const {
 	const JumpState& jump = sim.player->jump;
 	return !jump.jumping && !jump.falling && inHalfWater(Map(mapX, mapY));
+}
+//======================================================================================
+bool Dungeon::dryOpen(int col, int row) const {
+	return IsInBounds(col, row) && !isSolidTile(MapAt(col, row)) && !inHalfWater(MapAt(col, row));
+}
+//======================================================================================
+float Dungeon::waterSink(float x, int row) const {
+	const auto col = static_cast<int>(std::floor(x));
+	if (!IsInBounds(col, row) || !inHalfWater(MapAt(col, row)))
+		return 0.f;
+	float in = 1.f; // how far in from a dry edge, in ramps
+	if (dryOpen(col - 1, row))
+		in = std::min(in, (x - static_cast<float>(col)) / RenderConfig::WATER_SINK_RAMP);
+	if (dryOpen(col + 1, row))
+		in = std::min(in, (static_cast<float>(col + 1) - x) / RenderConfig::WATER_SINK_RAMP);
+	in = std::clamp(in, 0.f, 1.f);
+	return RenderConfig::WATER_BASIN_DEPTH * in * in * (3.f - 2.f * in);
+}
+//======================================================================================
+float Dungeon::PlayerSink() const {
+	const auto row = static_cast<int>(std::floor(mapY));
+	const float above = mapY - static_cast<float>(row); // in the air over the floor: sinks as it comes down
+	return waterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f);
 }
 //======================================================================================
 bool Dungeon::JumpAllowed() {

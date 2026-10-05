@@ -11,7 +11,7 @@ hold right 2
 wait 10
 expect nearest == 90
 attack
-wait 1s
+wait 2s
 screenshot shot_in_water
 expect nearest == 78
 walk to 1.5

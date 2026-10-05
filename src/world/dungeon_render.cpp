@@ -48,28 +48,36 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 	const SurfaceCell& cell = surface[MapIndex(i, j)];
 	float w0 = cell.wallMirror ? 1.f : 0.f;
 	float w1 = 1.f - w0;
+	// Half water lies in a basin: its walls reach down to the basin floor, a stone wall faces a dry neighbour.
+	const bool basin = IsInBounds(i, j) && inHalfWater(MapAt(i, j));
+	const float b = basin ? -RenderConfig::WATER_BASIN_DEPTH : 0.f;
+	const float tb = b / T; // the wall texture runs on below the row
+	// Under a basin the walls stop at its floor, where the basin's own walls take over.
+	const float h = IsInBounds(i, j + 1) && inHalfWater(MapAt(i, j + 1)) ? T - RenderConfig::WATER_BASIN_DEPTH : T;
 	tex.wallTex[cell.wall].Bind();
 	{
 		const float n[3] = {0, 0, 1};
-		const float v[4][3] = {{0, 0, -T}, {T, 0, -T}, {T, T, -T}, {0, T, -T}};
-		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		const float v[4][3] = {{0, b, -T}, {T, b, -T}, {T, h, -T}, {0, h, -T}};
+		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, h / T}, {w0, h / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i - 1, j)) {
+	if (isRock(i - 1, j) || (basin && dryOpen(i - 1, j))) {
+		const float top = isRock(i - 1, j) ? h : 0.f;
 		const float n[3] = {1, 0, 0};
-		const float v[4][3] = {{0, 0, -T}, {0, 0, 0}, {0, T, 0}, {0, T, -T}};
-		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		const float v[4][3] = {{0, b, -T}, {0, b, 0}, {0, top, 0}, {0, top, -T}};
+		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, top / T}, {w0, top / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i + 1, j)) {
+	if (isRock(i + 1, j) || (basin && dryOpen(i + 1, j))) {
+		const float top = isRock(i + 1, j) ? h : 0.f;
 		const float n[3] = {-1, 0, 0};
-		const float v[4][3] = {{T, 0, -T}, {T, 0, 0}, {T, T, 0}, {T, T, -T}};
-		const float st[4][2] = {{w0, 0}, {w1, 0}, {w1, 1}, {w0, 1}};
+		const float v[4][3] = {{T, b, -T}, {T, b, 0}, {T, top, 0}, {T, top, -T}};
+		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, top / T}, {w0, top / T}};
 		quad(n, v, st);
 	}
 	if (isRock(i, j - 1)) {
 		const float n[3] = {0, 1, 0};
-		const float v[4][3] = {{0, 0, 0}, {T, 0, 0}, {T, 0, -T}, {0, 0, -T}};
+		const float v[4][3] = {{0, b, 0}, {T, b, 0}, {T, b, -T}, {0, b, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.floorTex[cell.floor].Bind();
 		quad(n, v, st);
@@ -276,7 +284,12 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 				drawDecalTile(i, j);
 				drawDecorTile(i, j);
 				drawTorchTile(i, j);
+				// What stands in half water stands on the basin floor; a ladder runs on up out of it.
+				const bool sunk = inHalfWater(MapAt(i, j)) && MapAt(i, j).type != Ladder;
+				glPushMatrix();
+				glTranslatef(0, sunk ? -RenderConfig::WATER_BASIN_DEPTH : 0.f, 0);
 				drawTileContent(i, j);
+				glPopMatrix();
 			}
 			glTranslatef(RenderConfig::TILE_SIZE, 0, 0);
 		}
@@ -351,34 +364,39 @@ constexpr float WATERLINE_HEIGHT = 0.4f; // world units
 void colour(const Rgba& c, float alpha) { glColor4f(c.r, c.g, c.b, c.a * alpha); }
 } // namespace
 
-// Half water: a see-through front up to WATER_SURFACE, a surface with drifting ripples and a bright waterline. Deep
-// water: a dark front over the whole cell, the half water above it is its surface.
+// Half water fills its basin (WATER_BASIN_DEPTH under the row's floor) up to WATER_SURFACE: a surface with drifting
+// glints; over deep water also a see-through front with a bright waterline (a rock cell below hides the basin's
+// front). Deep water: a dark front up to the basin of the half water above it.
 void Dungeon::drawWaterCell(int i, int j, float x, float y) {
 	constexpr float T = RenderConfig::TILE_SIZE;
+	constexpr float B = RenderConfig::WATER_BASIN_DEPTH;
 	const Structure s = MapAt(i, j).structure;
 	glBegin(GL_QUADS);
 	if (s == Structure::DeepWater) {
+		const float top = inHalfWater(MapAt(i, j + 1)) ? T - B : T;
 		glNormal3f(0, 0, 1);
 		colour(DEEP_FRONT, 1.f);
 		glVertex3f(x, y, 0);
 		glVertex3f(x + T, y, 0);
-		glVertex3f(x + T, y + T, 0);
-		glVertex3f(x, y + T, 0);
+		glVertex3f(x + T, y + top, 0);
+		glVertex3f(x, y + top, 0);
 		glEnd();
 		return;
 	}
 	constexpr float S = RenderConfig::WATER_SURFACE;
-	glNormal3f(0, 0, 1);
-	colour(WATER_FRONT, 1.f);
-	glVertex3f(x, y, 0);
-	glVertex3f(x + T, y, 0);
-	glVertex3f(x + T, y + S, 0);
-	glVertex3f(x, y + S, 0);
-	colour(WATERLINE, 1.f);
-	glVertex3f(x, y + S - WATERLINE_HEIGHT, 0.01f);
-	glVertex3f(x + T, y + S - WATERLINE_HEIGHT, 0.01f);
-	glVertex3f(x + T, y + S, 0.01f);
-	glVertex3f(x, y + S, 0.01f);
+	if (MapAt(i, j - 1).structure == Structure::DeepWater) {
+		glNormal3f(0, 0, 1);
+		colour(WATER_FRONT, 1.f);
+		glVertex3f(x, y - B, 0);
+		glVertex3f(x + T, y - B, 0);
+		glVertex3f(x + T, y + S, 0);
+		glVertex3f(x, y + S, 0);
+		colour(WATERLINE, 1.f);
+		glVertex3f(x, y + S - WATERLINE_HEIGHT, 0.01f);
+		glVertex3f(x + T, y + S - WATERLINE_HEIGHT, 0.01f);
+		glVertex3f(x + T, y + S, 0.01f);
+		glVertex3f(x, y + S, 0.01f);
+	}
 
 	glNormal3f(0, 1, 0);
 	colour(WATER_TOP, 1.f);

@@ -18,15 +18,16 @@ the book according to the open section.
   * Riddles open: Creatures, Riddles right; Field notes left.
   * Field notes open: all three right.
 * Clicking a ribbon on the left (a later section) turns the page forward; clicking one on the right (an earlier
-  section) turns it backward, the reverse animation. The ribbons settle on their new sides as the turn ends.
+  section) turns it backward, the reverse animation.
+* Decided 2026-10-05: a ribbon that changes sides travels with the turning page (drawn into the page's render
+  target, bending with the curl) and lands on the other side with it. That is the point of the animation; no swap
+  when the turn ends.
 * Each ribbon keeps its height, so it is the same ribbon on either side.
 
 ## Open
 
 * Direction: as described by the user. A physical book would be the mirror (bookmarks of read sections end up on the
   left page block, those ahead on the right). Confirm before building.
-* Does a moving ribbon ride on the turning page (drawn into the page's render target, bending with the curl), or
-  just swap sides when the turn lands? Riding with the page looks best.
 * Left-side ribbons: mirrored texture (swallowtail pointing left), hanging out past the strap?
 * Arrow keys / wheel / corner drag crossing a section boundary should move the ribbons the same way.
 * Hover label and letter (M / R / F) on left ribbons: label on the left page.

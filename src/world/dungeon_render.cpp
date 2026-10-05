@@ -238,11 +238,15 @@ void Dungeon::drawTileContent(int i, int j) {
 	}
 }
 //======================================================================================
-void Dungeon::Draw(const HitboxView* hitboxes) {
+void Dungeon::pushLevelFrame() const {
 	glPushMatrix();
 	glTranslatef(-RenderConfig::TILE_SIZE * (mapX - static_cast<float>(static_cast<int>(mapX))),
 				 -RenderConfig::TILE_SIZE * (mapY - static_cast<float>(static_cast<int>(mapY))), 0.f);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
+}
+//======================================================================================
+void Dungeon::Draw(const HitboxView* hitboxes) {
+	pushLevelFrame();
 
 	const ViewWindow v = view();
 	float projection[16];
@@ -257,6 +261,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 				clip[c * 4 + r] += projection[k * 4 + r] * modelview[c * 4 + k];
 		}
 	const CellRect drawn = drawnWindow(v, clip, RenderConfig::TILE_SIZE);
+	drawnCells = drawn;
 
 	addLights(drawn);
 	Lighting::commit();
@@ -328,4 +333,94 @@ void Dungeon::drawHitboxes(const HitboxView& weapon) {
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
+}
+//======================================================================================
+namespace {
+struct Rgba {
+	float r, g, b, a;
+};
+constexpr Rgba WATER_FRONT = {0.08f, 0.30f, 0.36f, 0.42f}; // the side of the water facing the camera
+constexpr Rgba WATER_TOP = {0.20f, 0.48f, 0.52f, 0.50f};
+constexpr Rgba WATER_GLINT = {0.80f, 0.90f, 0.85f, 0.25f}; // ripples on the surface, at most
+constexpr Rgba WATERLINE = {0.75f, 0.90f, 0.88f, 0.55f};   // the surface's front edge
+constexpr Rgba DEEP_FRONT = {0.03f, 0.10f, 0.15f, 0.80f};
+constexpr int RIPPLE_STRIPS = 6; // across the surface, front to back
+constexpr float RIPPLE_SPEED = 1.3f;
+constexpr float WATERLINE_HEIGHT = 0.4f; // world units
+
+void colour(const Rgba& c, float alpha) { glColor4f(c.r, c.g, c.b, c.a * alpha); }
+} // namespace
+
+// Half water: a see-through front up to WATER_SURFACE, a surface with drifting ripples and a bright waterline. Deep
+// water: a dark front over the whole cell, the half water above it is its surface.
+void Dungeon::drawWaterCell(int i, int j, float x, float y) {
+	constexpr float T = RenderConfig::TILE_SIZE;
+	const Structure s = MapAt(i, j).structure;
+	glBegin(GL_QUADS);
+	if (s == Structure::DeepWater) {
+		glNormal3f(0, 0, 1);
+		colour(DEEP_FRONT, 1.f);
+		glVertex3f(x, y, 0);
+		glVertex3f(x + T, y, 0);
+		glVertex3f(x + T, y + T, 0);
+		glVertex3f(x, y + T, 0);
+		glEnd();
+		return;
+	}
+	constexpr float S = RenderConfig::WATER_SURFACE;
+	glNormal3f(0, 0, 1);
+	colour(WATER_FRONT, 1.f);
+	glVertex3f(x, y, 0);
+	glVertex3f(x + T, y, 0);
+	glVertex3f(x + T, y + S, 0);
+	glVertex3f(x, y + S, 0);
+	colour(WATERLINE, 1.f);
+	glVertex3f(x, y + S - WATERLINE_HEIGHT, 0.01f);
+	glVertex3f(x + T, y + S - WATERLINE_HEIGHT, 0.01f);
+	glVertex3f(x + T, y + S, 0.01f);
+	glVertex3f(x, y + S, 0.01f);
+
+	glNormal3f(0, 1, 0);
+	colour(WATER_TOP, 1.f);
+	glVertex3f(x, y + S, 0);
+	glVertex3f(x, y + S, -T);
+	glVertex3f(x + T, y + S, -T);
+	glVertex3f(x + T, y + S, 0);
+	// Glints drifting along the row, a little above the surface so they do not fight it.
+	const float time = static_cast<float>(GameClock::now()) / 1000.f * RIPPLE_SPEED;
+	for (int k = 0; k < RIPPLE_STRIPS; k++) {
+		const float z0 = -T * static_cast<float>(k) / RIPPLE_STRIPS;
+		const float z1 = -T * static_cast<float>(k + 1) / RIPPLE_STRIPS;
+		const auto phase = static_cast<float>(i) * 1.7f + static_cast<float>(k) * 2.3f;
+		const float left = 0.5f + 0.5f * std::sin(time + phase);
+		const float right = 0.5f + 0.5f * std::sin(time + phase + 1.9f);
+		colour(WATER_GLINT, left * left);
+		glVertex3f(x, y + S + 0.05f, z0);
+		glVertex3f(x, y + S + 0.05f, z1);
+		colour(WATER_GLINT, right * right);
+		glVertex3f(x + T, y + S + 0.05f, z1);
+		glVertex3f(x + T, y + S + 0.05f, z0);
+	}
+	glEnd();
+}
+//======================================================================================
+void Dungeon::DrawWater() {
+	pushLevelFrame();
+	const ViewWindow v = view();
+	const CellRect& drawn = drawnCells;
+	sim.assets->textures.nullTex.Bind();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE); // see-through: it hides nothing behind it, and the ink draws no lines on it
+	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
+		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
+			const Structure s = IsInBounds(i, j) ? MapAt(i, j).structure : Structure::Wall;
+			if (s != Structure::HalfWater && s != Structure::DeepWater)
+				continue;
+			drawWaterCell(i, j, RenderConfig::TILE_SIZE * static_cast<float>(i - v.originCol),
+						  RenderConfig::TILE_SIZE * static_cast<float>(j - v.originRow));
+		}
+	glDepthMask(GL_TRUE);
+	glColor4f(1, 1, 1, 1);
+	glPopMatrix();
 }

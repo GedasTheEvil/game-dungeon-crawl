@@ -7,7 +7,8 @@
 //     until there is one or a ladder catches the player;
 //   - climb up / down between vertically adjacent ladder cells;
 //   - jump over one cell, a gap in the floor or a spike / death trap on it, from a floor (a ladder's foot too; the
-//     jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step up onto a ledge);
+//     jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step up onto a ledge), never out of half water
+//     (walking through it is slower, which the checker does not count);
 //   - touching a key, or pulling a lever not pulled yet, opens every gate of its colour from then on (in level data a
 //     gate is closed only with value 0);
 //   - interacting with a teleporter moves the player to its partner (both ways);

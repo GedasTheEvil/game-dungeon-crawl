@@ -70,8 +70,11 @@ void Dungeon::UpdateMovementState() {
 			if (jump.fall_inc.TimePassed()) {
 				float floorY = std::floor(mapY);
 				mapY -= jump.fall_velocity;
-				if (mapY < floorY && isSolidTile(Map(mapX, floorY - 1)))
+				if (mapY < floorY && isSolidTile(Map(mapX, floorY - 1))) {
 					mapY = floorY; // landed: don't sink into the floor tile
+					if (inHalfWater(Map(mapX, mapY)))
+						sim.events->Play(WorldSound::Splash);
+				}
 				jump.fall_velocity = std::min(jump.fall_velocity + FALL_GRAVITY_STEP, FALL_MAX_STEP);
 			}
 			jump.falling = true;
@@ -94,6 +97,8 @@ void Dungeon::UpdateMovementState() {
 				mapY = sim.player->jump.start_y;
 				sim.player->jump.jumping = false;
 				sim.player->jump.falling = false;
+				if (inHalfWater(Map(mapX, mapY)))
+					sim.events->Play(WorldSound::Splash);
 			}
 		}
 	}
@@ -177,7 +182,28 @@ bool Dungeon::Move(float dirX, float dirY) {
 		float offset = std::floor(mapX) + LADDER_GRIP_X - mapX;
 		mapX += std::clamp(offset, -std::fabs(dirY), std::fabs(dirY));
 	}
-	return mapX != startX || mapY != startY;
+	const bool moved = mapX != startX || mapY != startY;
+	if (moved && PlayerWading() && GameClock::now() - wadeSoundMs >= WADE_SPLASH_MS) {
+		wadeSoundMs = GameClock::now();
+		sim.events->Play(WorldSound::Wade);
+	}
+	return moved;
+}
+//======================================================================================
+bool Dungeon::PlayerWading() const {
+	const JumpState& jump = sim.player->jump;
+	return !jump.jumping && !jump.falling && inHalfWater(Map(mapX, mapY));
+}
+//======================================================================================
+bool Dungeon::JumpAllowed() {
+	if (!PlayerWading())
+		return true;
+	const int now = GameClock::now();
+	if (now - waterHintMs >= WATER_JUMP_HINT_MS) {
+		waterHintMs = now;
+		sim.events->Status("%s", "The water is too deep to jump");
+	}
+	return false;
 }
 //======================================================================================
 bool Dungeon::PlayerOnLadder() const {

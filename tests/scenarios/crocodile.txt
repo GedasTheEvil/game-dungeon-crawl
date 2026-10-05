@@ -1,0 +1,73 @@
+# The crocodile (docs/plan/crocodiles-and-flooded-cells.md), tests/levels/crocodile: it lies in the pool (cols
+# 6-13, the crocodile at col 8), only the eyes and the back above the water, no health bar. It wakes when the player
+# wades in within 1.4 tiles of its centre, swims after them, bites from the water, where an arrow hits it for half
+# (ARROW_WATER_DAMAGE_PCT), follows them out onto the dry floor, where an arrow hits it in full, and dies to the sword.
+seed 1
+god
+level tests/levels/crocodile
+give ranged 0
+give melee 1
+wait 30
+screenshot lurking_far
+walk to 6.8
+wait 10
+expect bars == 0
+screenshot lurking_near
+walk to 7.3
+wait 10
+expect bars == 1
+expect nearest == 110
+screenshot surfacing
+walk to 4.2
+hold right 2
+key 4
+wait 2s
+screenshot swimming
+# Shot while it swims up: half the arrow's damage (the bow's 12 on land, below).
+attack
+wait 1s
+screenshot shot_in_water
+expect nearest == 104
+wait 7s
+# At the bank it bites with its head on the dry floor, the rest of it still in the water.
+screenshot at_the_bank
+walk to 2.5
+hold right 2
+wait 7s
+screenshot on_land
+attack
+wait 1s
+expect nearest == 92
+screenshot shot_on_land
+toon on
+screenshot toon
+toon off
+key 2
+wait 10
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+attack
+wait 40
+screenshot dying
+wait 3s
+expect bars == 0

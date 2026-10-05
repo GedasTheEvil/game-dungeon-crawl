@@ -11,11 +11,18 @@ A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.
 * **Object**: at most one thing in the cell, with attribute and value: ladder, door, gate, lever, key, treasure,
   ankh, monster spawn, spike, death trap, rock fall. An object stands in `Empty` or `HalfWater`.
 
+Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
+cannot jump while standing in it (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
+floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (the crocodile, a
+swimmer, `Wading` in `src/entities/monster.h`). An arrow hits a monster standing in water for half its damage. Traps
+work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
+deep water not under water, a ladder that goes down into water (one may start in it) and a crocodile not in or next
+to water.
+
 Level files are text, version 2: a `DCLEVEL 2 40 47` header, the structure as a drawing, then the list of objects
 (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the same block for the
 current level. Old (v1) level files and saves still load, converted as they are read; `levelcheck` warns about a v1
-file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water has no game rules yet
-([crocodiles-and-flooded-cells.draft.md](plan/crocodiles-and-flooded-cells.draft.md)).
+file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -30,9 +37,9 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 4 | The treasury: rats, scarabs, a worm, plants guarding side rooms, the first mimic among real chests. A riddle gate. |
 | 5 | The scarab king, the first boss: a teleporter to the sealed boss room, the boss scarab and its scarabs. Behind the boss gate the blue key for the blue gate before the exit. A riddle room past a spike pit. |
 | 6 | Rats, a giant rat, the first giant scarab. Red key and gate. |
-| 7 | Bats and giant bats in low tunnels. Blue lever and gate. |
-| 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. |
-| 9 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. |
+| 7 | Bats and giant bats in low tunnels. Blue lever and gate. The first water: a flooded stretch of the west hall, the first crocodile in it, on the way to a chest. |
+| 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. The hall to the red gate is flooded, a crocodile in it. |
+| 9 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. Past the pit in the lower gallery a flooded stretch with a crocodile. |
 | 10 | The vampire's roost, the second boss: the teleporter at the east end of the upper hall leads to the sealed roost, the vampire bat and its bats. Behind the boss gate the gold key for the gold gate to the shaft down. A giant scarab by the exit. |
 | 11 | Giant rats, giant bats, giant scarabs, the first two mummies. Two levers (red, blue) in two halls open two gates in a row. |
 | 12 | Plants, giant bats, three mummies. Chain: red key, green lever, gold key. |
@@ -40,7 +47,7 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 14 | Giant scarabs, rats and bats, two mummies, two Anubis. Red key, blue lever, green key. |
 | 15 | The finale: three Anubis, two mummies, all four locks, riddles. The teleporter at the east end of the bottom hall leads to the sealed ankh chamber, the last boss: the Anubis boss and the mummies that climb out of the coffins round him. Behind the boss gate the ankh. |
 
-Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
+Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
@@ -89,7 +96,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12, anubis boss 15):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12, anubis boss 15):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.

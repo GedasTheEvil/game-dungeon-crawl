@@ -1,6 +1,7 @@
 # Crocodiles and flooded cells
 
-Status: draft 2026-10-05, open points decided 2026-10-05. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
+Status: draft 2026-10-05, open points decided 2026-10-05. Implemented 2026-10-05, see [Implemented](#implemented);
+waits for a check in play. Builds on the level format v2 ([solved/level-format-layers.md](solved/level-format-layers.md),
 done).
 
 ## Water cells
@@ -53,8 +54,10 @@ three.
 * Model built in Blender ([../remodeling.md](../remodeling.md)). A Sobek boss could follow later
   ([more-bosses.draft.md](more-bosses.draft.md)).
 
-Gameplay: the player is at half speed and the crocodile 25% faster, so fleeing through water does not work. Fight on
-the bank or with the bow from dry ground.
+Gameplay: the player is at half speed and the crocodile 25% faster. Fight on the bank or with the bow from dry ground.
+Open (found in the implementation): monsters are much slower than the player in this game (`MONSTER_SEEK_STEP`), so at
+the giant rat's speed (4) the crocodile swims 0.3 tiles/s and the wading player still outruns it (0.5 tiles/s).
+Fleeing through water only fails from a land speed of about 7 (or a bigger swim bonus).
 
 ## How to store water
 
@@ -78,3 +81,29 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
 * `levelcheck` treats a crocodile as a wall the path cannot swim past: separate draft,
   [levelcheck-crocodile-wall.draft.md](levelcheck-crocodile-wall.draft.md).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.
+
+## Implemented
+
+* Rules (`src/core/gameplay_config.h`): `WADE_SPEED_FACTOR` 0.5 (the player's walk and climb in `input.cpp`, slowed
+  walkers in `Monster::Seek`), `SWIM_SPEED_FACTOR` 1.25, `ARROW_WATER_DAMAGE_PCT` 50 (an arrow into a monster whose centre
+  is in half water). No jump while wading (`Dungeon::JumpAllowed`, with a "too deep to jump" line); a fall or a jump into
+  water lands as on a floor, with a splash. Splashing steps every 450 ms while wading. `Dungeon::PlayerWading`.
+* Wading kinds: `Wading` in `src/entities/monster.h`, set per type in `WADING_DEFS` (`src/state/assets.cpp`): rats and
+  both Anubis unaffected, the crocodile a swimmer, everyone else slowed.
+* Look: `Dungeon::DrawWater`, after the player and the monsters, see-through without depth writes: half water a teal
+  front up to half the cell, a surface with drifting glints and a bright waterline; deep water a dark front over the
+  whole cell. Traps, the player and the monsters show dimmed under it. No floor decals under water.
+* Crocodile: `MonsterCrocodile` (15), glyph `C`, `Locomotion::Submerged`: lies still (idle clip) with only its top
+  `SUBMERGED_SHOW` above the water, wakes when the player comes within `SUBMERGED_WAKE_RANGE` (1.4 tiles from its
+  centre: the camera shows about 1.5 tiles ahead, so the lurk is seen first) or hits it. A swimmer floats with its back at
+  the surface while its head is over water, and walks on the floor once its head is over dry ground. Speed 4, 110 HP,
+  26 damage every 1100 ms, 2400 XP, the scutes resist the sword (slash). Journal: "Lies under the water, only its eyes
+  show." Model, texture and sounds: `tools/blender/models/crocodile.py`, `tools/audio/crocodile_sounds.py`
+  ([../remodeling.md](../remodeling.md)); water sounds `tools/audio/water_sounds.py`.
+* `levelcheck`: no jump out of half water; warnings for half water not on deep water or a wall, deep water not under
+  water, a ladder down into water, a crocodile not in or next to water. Unit tests `tests/unit/water_test.cpp`.
+* Levels: lvl7 (a side pool in the west hall, the way to a chest), lvl8 (the hall to the red gate), lvl9 (the lower
+  gallery past the pit), one crocodile each. All campaign levels pass `levelcheck` with no warnings, `make paths` passes.
+* Scenarios: `tests/scenarios/water.txt` (wade speed, no jump, spikes in water, a ladder out of it),
+  `tests/scenarios/crocodile.txt` (lurk, wake, swim, bite at the bank, half and full arrow damage, the kill).
+* Not done: a splash when a monster enters the water; the crocodile's sounds are synthesized, check them in play.

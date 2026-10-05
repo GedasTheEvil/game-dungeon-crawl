@@ -57,7 +57,7 @@ Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/
 |---|---|---|---|
 | `#` | Wall | 0 | Solid rock. The player stands on it and cannot walk through it. Holds no object. |
 | `.` | Empty | 1 | Open space. With no wall below, the player falls. |
-| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. No water rules yet (see [crocodiles-and-flooded-cells](../../docs/plan/crocodiles-and-flooded-cells.draft.md)). |
+| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. The player wades at half speed and cannot jump in it; put deep water or a wall under it ([docs/levels.md](../../docs/levels.md#level-format)). |
 | `=` | Deep water | 3 | Full of water, solid like a wall. Holds no object. |
 
 The glyph is the one in the level file's structure drawing and in `levelcheck --map`.
@@ -113,8 +113,9 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 12 | Vampire bat (boss) |
 | 13 | Mummy |
 | 14 | Anubis boss (boss) |
+| 15 | Crocodile |
 
-Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. A mummy lies in an open coffin on its cell until the player comes within 1.6 cells (or hits it), climbs out, then walks like the others. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
+Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. A mummy lies in an open coffin on its cell until the player comes within 1.6 cells (or hits it), climbs out, then walks like the others. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. A crocodile lies in the water (only its eyes and back show) until the player comes within 1.4 cells of its centre in the same row, then walks like the others; in half water it is a quarter faster than on land. Put it in or next to water. Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
 A boss (boss scarab, vampire bat, Anubis boss) summons minions next to itself, on the side away from the player: some when it
 appears, then one every few seconds up to a limit. The boss scarab's scarabs dig out of the floor, the vampire bat's

@@ -4,6 +4,7 @@
 namespace RenderConfig {
 constexpr float TILE_SIZE = 40.f;
 constexpr float TILE_HALF = TILE_SIZE / 2.f;
+constexpr float WATER_SURFACE = TILE_HALF; // half water's surface above the floor
 constexpr float TILE_RENDER_Y = -120.f;
 constexpr float PARTICLE_DRIFT = 0.1f;
 constexpr float MONSTER_OFFSET_X = 40.f;

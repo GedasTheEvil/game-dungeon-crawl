@@ -60,6 +60,10 @@ void Dungeon::UpdateMonsters() {
 
 		if (std::optional<ItemKind> drop = mon.TakeDrop())
 			dropChest(mon, *drop);
+		auto waterAt = [&](float x) {
+			return !mon.flies() && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
+		};
+		mon.SetInWater(waterAt(mon.CentreX()), waterAt(mon.HeadX()));
 
 		if (mon.flies()) {
 			if (!won) {

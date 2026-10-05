@@ -1,0 +1,34 @@
+# Half water (docs/plan/crocodiles-and-flooded-cells.md): the player wades at half speed, cannot jump while in
+# it, the spikes under the surface still hurt, and a ladder leads up out of the water. tests/levels/water: dry floor
+# at x 1-5, half water over deep water at x 5-14, a ladder at x 9 in the water, spikes at x 11.
+seed 1
+level tests/levels/water
+wait 30
+screenshot start
+walk to 2
+hold right 1s
+# Dry: WALK_SPEED, a tile a second.
+expect x > 2.9
+expect x < 3.1
+walk to 6
+hold right 1s
+# In the water: half the speed.
+expect x > 6.4
+expect x < 6.6
+screenshot wading
+jump
+wait 500ms
+expect y == 2
+expect stamina == 100
+walk to 10.5
+walk to 11.5
+expect hp < 50
+screenshot spikes_in_water
+toon on
+screenshot toon
+toon off
+walk to 9.6
+walk up 2
+expect y >= 4
+walk to 15.5
+screenshot out_of_the_water

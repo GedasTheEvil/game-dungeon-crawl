@@ -123,15 +123,15 @@ class Walker {
 			int to = settle(next, row, mask, fallen);
 			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
-			// Over one cell, a gap in the floor or a trap on it, from a floor (a ladder's foot too). A jump from
-			// mid-ladder is not modelled: its reach depends on the walk key held during the jump. A rock fall is not
-			// jumped: the player passes through its cell either way, and it drops all the same.
+			// Over one cell, a gap in the floor or a trap on it, from a floor (a ladder's foot too), not out of half
+			// water. A jump from mid-ladder is not modelled: its reach depends on the walk key held during the jump.
+			// A rock fall is not jumped: the player passes through its cell either way, and it drops all the same.
 			int nextType = grid.at(next, row).type;
 			bool overHazard = fallen == 0 && (nextType == Spike || nextType == Death);
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
-			if ((overGap || overHazard) && solid(col, row - 1, mask) && LevelGrid::inBounds(far, row) &&
-				standable(far, row, mask))
+			if ((overGap || overHazard) && !inHalfWater(here) && solid(col, row - 1, mask) &&
+				LevelGrid::inBounds(far, row) && standable(far, row, mask))
 				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
 		}
 
@@ -169,9 +169,6 @@ std::vector<char> reachableCells(const Walker& walker, int startState) {
 	return cells;
 }
 
-// Wall and deep water: no object may stand there.
-bool holdsNoObject(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
-
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
 
 void countContent(const LevelGrid& grid, LevelReport& r) {
@@ -179,7 +176,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
-			if (holdsNoObject(t.structure))
+			if (isSolidStructure(t.structure))
 				continue;
 			r.openCells++;
 			minCol = std::min(minCol, col);
@@ -290,9 +287,31 @@ void checkBossRoom(const LevelGrid& grid, int startState, LevelReport& r) {
 void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if (holdsNoObject(t.structure) && hasObject(t))
+		if (isSolidStructure(t.structure) && hasObject(t))
 			r.warnings.push_back(std::string(tileDef(t.type).name) + " in " + structureDef(t.structure).name + " at " +
 								 at(cell));
+	}
+}
+
+// Half water stands on deep water or a wall, deep water only under water; a ladder starts in the water and goes up,
+// none goes down into it; a crocodile lives in or next to the water.
+void checkWater(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		const int col = cell % LEVEL_WIDTH;
+		const int row = cell / LEVEL_WIDTH;
+		const Tile t = grid.cells[cell];
+		const Tile below = grid.at(col, row - 1);
+		const Tile above = grid.at(col, row + 1);
+		if (inHalfWater(t) && !isSolidStructure(below.structure))
+			r.warnings.push_back("half water at " + at(cell) + " is not on deep water or a wall");
+		if (t.structure == Structure::DeepWater && above.structure != Structure::HalfWater &&
+			above.structure != Structure::DeepWater)
+			r.warnings.push_back("deep water at " + at(cell) + " is not under water");
+		if (t.type == Ladder && !inHalfWater(t) && inHalfWater(below) && below.type != Ladder)
+			r.warnings.push_back("the ladder at " + at(cell) + " goes down into the water");
+		if (t.type == MonsterSpawn && t.attr == MonsterCrocodile && !inHalfWater(t) &&
+			!inHalfWater(grid.at(col - 1, row)) && !inHalfWater(grid.at(col + 1, row)))
+			r.warnings.push_back("the crocodile at " + at(cell) + " is not in or next to water");
 	}
 }
 
@@ -362,6 +381,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	countContent(grid, r);
 	checkLocks(grid, r);
 	checkObjectsInRock(grid, r);
+	checkWater(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 

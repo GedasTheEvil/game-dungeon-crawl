@@ -125,6 +125,10 @@ const MonsterDef MONSTER_DEFS[] = {
 	// Reckless: the player cannot shake him off behind a row of traps.
 	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 1500, 110, 1400, 20000, 26, 180,
 	 Locomotion::Walk, RED_BLOOD, Courage::Reckless, 10},
+	// Between the giant rat and the mummy, bites harder than both; in the water a quarter faster (Wading::Swimmer).
+	// Levels 7-9 (docs/plan/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
+	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 4, 110, 26, 1100, 2400, 60, 180,
+	 Locomotion::Submerged, RED_BLOOD},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -172,6 +176,17 @@ const struct {
 	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},	   // bronze armour dents, a blade glances off it
 	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
 	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
+	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}}, // the scutes turn a blade
+};
+
+// How the walkers move through half water; the others wade slowed (Wading::Slowed). Flyers and rooted monsters do
+// not wade.
+const struct {
+	MonsterTypeId id;
+	Wading wading;
+} WADING_DEFS[] = {
+	{MonsterRat, Wading::Unaffected},		 {MonsterGiantRat, Wading::Unaffected}, {MonsterAnubis, Wading::Unaffected},
+	{MonsterAnubisBoss, Wading::Unaffected}, {MonsterCrocodile, Wading::Swimmer},
 };
 
 struct ItemDef {
@@ -336,6 +351,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		monsterTypes[def.id].boss = def.rules;
 	for (const auto& def : RESISTANCE_DEFS)
 		monsterTypes[def.id].resist = def.resist;
+	for (const auto& def : WADING_DEFS)
+		monsterTypes[def.id].wading = def.wading;
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,
@@ -443,6 +460,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
 	sounds.pageTurn.Load("sounds/ui/page_turn.wav");
+	sounds.wade.Load("sounds/water/wade.wav");
+	sounds.splash.Load("sounds/water/splash.wav");
 }
 
 void loadTraps(TrapSet& traps, TextureRegistry& textures) {

@@ -193,6 +193,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		break;
 	case CreatureMove::Heal:
 		return "Heals as it bites.";
+	case CreatureMove::Surface:
+		return "Lies under the water, only its eyes show.";
 	}
 	return "";
 }

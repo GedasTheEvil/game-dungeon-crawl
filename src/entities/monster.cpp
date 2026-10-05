@@ -34,6 +34,10 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	summonMs = -1;
 	state = flies() || lurking() ? ModelState::Idle : ModelState::Move;
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
+	inWater = false;
+	headInWater = false;
+	swim = 0.f;
+	swimPlaced = false;
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
@@ -88,6 +92,17 @@ float Monster::emergeLift() const {
 	return -type->model.referenceTop * type->scale * Ink::figureScale() * (1.f - p) * (1.f - p);
 }
 
+float Monster::swimLift() const {
+	if (!inWater || !headInWater || type->wading != Wading::Swimmer || !Alive())
+		return 0.f;
+	const float drawScale = type->scale * Ink::figureScale();
+	const float top = lurking() ? type->model.idleTop * drawScale - SUBMERGED_SHOW
+								: type->model.referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
+	return std::max(0.f, RenderConfig::WATER_SURFACE - top);
+}
+
+float Monster::lift() const { return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim) + emergeLift(); }
+
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
 		   type->model.Finished(state, playback);
@@ -121,18 +136,17 @@ bool Monster::Nearby(float px, float py, float reach, int dir) const {
 		   std::fabs(static_cast<float>(row) - py) < 0.7f;
 }
 
+// A roosting flyer and a lurker under the water show their idle clip.
 float Monster::BottomY() const {
-	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
-	const float lift = (flies() ? std::max(flight.lift, 0.f) : leap.lift) + emergeLift();
-	const float bottom = roosting ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
-	return static_cast<float>(row) + (lift + bottom) / RenderConfig::TILE_SIZE;
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || (submerged() && lurking());
+	const float bottom = idle ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
+	return static_cast<float>(row) + (lift() + bottom) / RenderConfig::TILE_SIZE;
 }
 
 float Monster::TopY() const {
-	const bool roosting = flies() && flight.phase == FlightPhase::Roost;
-	const float lift = (flies() ? std::max(flight.lift, 0.f) : leap.lift) + emergeLift();
-	const float top = (roosting ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
-	return static_cast<float>(row) + (lift + top) / RenderConfig::TILE_SIZE;
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || (submerged() && lurking());
+	const float top = (idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
+	return static_cast<float>(row) + (lift() + top) / RenderConfig::TILE_SIZE;
 }
 
 bool Monster::takeHit(int dmg) {
@@ -247,6 +261,8 @@ void Monster::Animate(float px, float py) {
 	if (Alive()) {
 		if (jumping())
 			facing = leap.toX > leap.fromX ? 1 : -1;
+		else if (submerged() && lurking())
+			facing = px < CentreX() ? -1 : 1; // lies along the row, watching the player
 		else if (lurking() || Rising())
 			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
 		else if (!flies()) {
@@ -257,6 +273,12 @@ void Monster::Animate(float px, float py) {
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 	}
 	type->model.Advance(state, playback);
+	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
+	const float swimTarget = swimLift();
+	if (!swimPlaced)
+		swim = swimTarget;
+	swimPlaced = true;
+	swim += (swimTarget - swim) * std::min(1.f, SWIM_LIFT_RATE * static_cast<float>(UPDATE_TICK_MS) / 1000.f);
 	if (Alive() && entombed() && !lurking()) { // climbing out; a mummy killed on the way stays where it fell
 		const float t = state == ModelState::Rise ? type->model.Progress(state, playback) : 1.f;
 		const float k = std::clamp((t - MUMMY_CLIMB_FROM) / (MUMMY_CLIMB_TO - MUMMY_CLIMB_FROM), 0.f, 1.f);
@@ -268,7 +290,7 @@ void Monster::Draw(const TextureRegistry& textures) {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
-				 (flies() ? flight.lift : leap.lift) + emergeLift(), -30.f - tomb);
+				 (flies() ? flight.lift : leap.lift + swim) + emergeLift(), -30.f - tomb);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

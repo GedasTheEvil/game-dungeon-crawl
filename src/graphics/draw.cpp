@@ -190,9 +190,14 @@ void drawGameplay() {
 		Game().ui.endScreens->DrawWin();
 	Lighting::setEmissive(false);
 
+	if (Game().player->Alive() && !Game().player->climbing()) // both hands on the ladder: no weapon
+		drawWeapon();
+	glPushMatrix(); // the water over the player and the monsters in it, as the level is drawn
+	glTranslatef(-200, 0.0, -10);
+	Game().dungeon.DrawWater();
+	glPopMatrix();
+
 	if (Game().player->Alive()) {
-		if (!Game().player->climbing()) // both hands on the ladder: no weapon
-			drawWeapon();
 		if (sunBeam)
 			SunBeam::draw(0, 0, -30 + Game().player->depthOffset, *sunBeam);
 	} else {

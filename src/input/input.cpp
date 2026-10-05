@@ -15,6 +15,8 @@ namespace {
 void startJump() {
 	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().dungeon.Won())
 		return;
+	if (!Game().dungeon.JumpAllowed())
+		return;
 
 	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST) {
 		Game().player->stats.RefuseStamina(Game().events);
@@ -111,9 +113,10 @@ class PlayerActionController {
 	}
 
   private:
-	// Only a step that really moved the player counts for the sprint drain.
+	// Only a step that really moved the player counts for the sprint drain. Wading slows it (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
-		if (Game().dungeon.Move(dirX, dirY))
+		const float factor = Game().dungeon.PlayerWalkFactor();
+		if (Game().dungeon.Move(dirX * factor, dirY * factor))
 			Game().player->stats.NoteWalked();
 	}
 

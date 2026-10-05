@@ -32,8 +32,9 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
 	{"Wall", "Solid rock. The player stands on it and cannot walk through it. Holds no object."},
 	{"Empty", "Open space. With no wall below, the player falls."},
-	{"Half water", "Open space, half filled with water."},
-	{"Deep water", "Full of water, solid like a wall. Holds no object."},
+	{"Half water", "Open space, half filled with water. The player wades at half speed and cannot jump in it. Put deep "
+				   "water or a wall under it."},
+	{"Deep water", "Full of water, solid like a wall, under half water. Holds no object."},
 }};
 
 char doorGlyph(const Tile& t) {
@@ -88,7 +89,7 @@ const StructureDef& structureDef(Structure s) { return STRUCTURES[static_cast<si
 char tileGlyph(const Tile& t) {
 	switch (t.type) {
 	case NoObject:
-		return isWall(t) ? '#' : '.';
+		return isSolidStructure(t.structure) ? '#' : '.';
 	case Door:
 		return doorGlyph(t);
 	case Death:

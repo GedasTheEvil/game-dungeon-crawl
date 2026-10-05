@@ -85,6 +85,9 @@ class Dungeon {
 	void addLights(const CellRect& drawn);
 	void drawFires(const CellRect& drawn);
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
+	CellRect drawnCells;				 // the cells the last Draw drew, for DrawWater
+	void pushLevelFrame() const;		 // Draw's frame: the view's first cell at the origin, scrolled with the player
+	void drawWaterCell(int i, int j, float x, float y);
 	Tile Map(float x, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).
 	struct Motion {
@@ -96,6 +99,8 @@ class Dungeon {
 	std::vector<Motion> openingGates; // c = 2 while in here, then 1 (open)
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
 	int lockedHintMs = -1000000;	  // last "the gate is locked" message, to keep it from repeating every step
+	int waterHintMs = -1000000;		  // last "too deep to jump" message
+	int wadeSoundMs = -1000000;		  // last splashing step
 	void resetMechanisms();
 	void updateMechanisms();
 	void startOpeningGate(int cell);
@@ -174,7 +179,14 @@ class Dungeon {
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
-	bool Move(float dirX, float dirY);				 // false: blocked, the player did not move
+	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
+	void DrawWater();
+	bool Move(float dirX, float dirY); // false: blocked, the player did not move
+	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR, no jump.
+	[[nodiscard]] bool PlayerWading() const;
+	[[nodiscard]] float PlayerWalkFactor() const { return PlayerWading() ? WADE_SPEED_FACTOR : 1.f; }
+	// False while wading: then the player is told why (at most every WATER_JUMP_HINT_MS).
+	bool JumpAllowed();
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

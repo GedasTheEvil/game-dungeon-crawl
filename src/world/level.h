@@ -22,6 +22,8 @@ enum class Structure : std::uint8_t {
 };
 constexpr int STRUCTURE_COUNT = 4;
 [[nodiscard]] constexpr bool isStructure(int s) { return s >= 0 && s < STRUCTURE_COUNT; }
+// Wall and deep water: they block, and no object may stand there.
+[[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
 // The object layer. The numbers are the v1 file's tile types: 0 was Wall (now a structure), 7 the unused Area3D.
 enum DungeonTileType : unsigned char {
@@ -62,8 +64,9 @@ enum MonsterTypeId : unsigned char {
 	MonsterVampireBat = 12, // boss: summons bats, heals by part of the damage it deals
 	MonsterMummy = 13,		// lies in its coffin until the player comes near
 	MonsterAnubisBoss = 14, // boss: mummies climb out of the coffins round it
+	MonsterCrocodile = 15,	// lies under the water until the player comes near, swims fast
 };
-constexpr int MONSTER_TYPE_MAX = MonsterAnubisBoss; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterCrocodile; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;
@@ -101,6 +104,8 @@ struct Tile {
 };
 [[nodiscard]] inline Tile wallTile() { return Tile{NoObject, 0, 0, Structure::Wall}; }
 [[nodiscard]] inline bool isWall(const Tile& t) { return t.structure == Structure::Wall; }
+// Half water: open, the player and the walkers wade through it (crocodiles-and-flooded-cells).
+[[nodiscard]] inline bool inHalfWater(const Tile& t) { return t.structure == Structure::HalfWater; }
 // Open, dry and nothing in it: what a v1 Empty cell was.
 [[nodiscard]] inline bool isEmptyCell(const Tile& t) { return t.structure == Structure::Empty && t.type == NoObject; }
 [[nodiscard]] inline bool hasObject(const Tile& t) { return t.type != NoObject || t.attr != 0 || t.value != 0; }
@@ -131,8 +136,7 @@ inline void pullLever(Tile& t) { t.value = 1; }
 
 // Blocks the player (walls, deep water and gates not fully open). Everything else is open space.
 inline bool isSolidTile(const Tile& t) {
-	return t.structure == Structure::Wall || t.structure == Structure::DeepWater ||
-		   (t.type == Gate && gateState(t) != GateState::Open);
+	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open);
 }
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.

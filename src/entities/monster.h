@@ -23,6 +23,14 @@ enum class Locomotion : unsigned char {
 				// before it acts
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
+	Submerged,	// walks, but lies idle in the water until the player comes near or hits it (the crocodile)
+};
+
+// How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
+enum class Wading : unsigned char {
+	Slowed,		// at WADE_SPEED_FACTOR, like the player
+	Unaffected, // full speed
+	Swimmer,	// at SWIM_SPEED_FACTOR, floating with its back at the surface (swimLift)
 };
 
 // Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
@@ -85,6 +93,7 @@ struct MonsterType {
 	float rotA = 0.f; // model yaw facing the camera
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
+	Wading wading = Wading::Slowed;
 	int trapDamagePct = 100;			 // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Resistances resist = NO_RESISTANCES; // how it takes each type of a weapon's damage
 	Rgb blood = {0.7f, 0.1f, 0.1f};
@@ -128,7 +137,11 @@ class Monster {
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
 	int summonMs = -1;	 // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
-	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
+	float tomb = 0.f;		  // entombed: world units its body is drawn back towards the wall, in its coffin
+	bool inWater = false;	  // standing in half water (Dungeon::UpdateMonsters sets it every tick)
+	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
+	float swim = 0.f;		  // a swimmer in the water: world units it floats up off the floor (swimLift), eased
+	bool swimPlaced = false;  // swim was set on the first Animate after the spawn
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
@@ -140,6 +153,10 @@ class Monster {
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const; // world units off its place while Emerging: < 0 in the floor, > 0 above
+	// A swimmer in half water floats with its back (the clip's top) at the surface, a lurker with only its top
+	// SUBMERGED_SHOW above it; 0 out of the water.
+	[[nodiscard]] float swimLift() const;
+	[[nodiscard]] float lift() const; // world units off the floor: a flyer's height, a leap, a summon, a swim
 	[[nodiscard]] bool sameRow(float py) const;
 
   public:
@@ -177,8 +194,20 @@ class Monster {
 		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
 	}
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
+	[[nodiscard]] bool submerged() const { return type->locomotion == Locomotion::Submerged; }
 	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
-	[[nodiscard]] bool lurking() const { return (type->locomotion == Locomotion::Ambush || entombed()) && !alerted; }
+	[[nodiscard]] bool lurking() const {
+		return (type->locomotion == Locomotion::Ambush || entombed() || submerged()) && !alerted;
+	}
+	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
+	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
+	void SetInWater(bool water, bool head) {
+		inWater = water;
+		headInWater = head;
+	}
+	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
+	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }
+	[[nodiscard]] bool InWater() const { return inWater; }
 	// Entombed: woken, still climbing out of its coffin; it does not act yet.
 	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
@@ -194,12 +223,13 @@ class Monster {
 	// -1 / +1: the player is to the left / right on this row, 0: in reach (MONSTER_BITE_REACH or ROOTED_BITE_REACH
 	// between the boxes) or not on this row.
 	[[nodiscard]] int attackDirection(float px, float py) const;
-	// Walkers: one step toward the player on its row; blocked: the cell in front of it blocks the walk.
+	// Walkers: one step toward the player on its row, slower or faster in half water (Wading); blocked: the cell in
+	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
 	void Attack(float py);
-	// Ambushers and the entombed: true while still lurking; wakes (and returns false) once the player is close
-	// (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE).
+	// Ambushers, the entombed and the submerged: true while still lurking; wakes (and returns false) once the player
+	// is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE).
 	bool Lurk(float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);

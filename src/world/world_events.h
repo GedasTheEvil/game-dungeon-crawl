@@ -18,6 +18,8 @@ enum class WorldSound : unsigned char {
 	Teleport,
 	SummonDig,	// a boss's minion digs out of the floor
 	SummonDrop, // a boss's minion drops from the ceiling
+	Wade,		// a splashing step in half water
+	Splash,		// the player lands in half water
 };
 
 // What the world, the monsters and the player tell the app: it drains the list at fixed points (after the input

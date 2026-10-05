@@ -165,7 +165,7 @@ void Dungeon::scatterLadders(uint32_t seed) {
 			h = mix(h);
 
 			int piece;
-			if (first && (!IsInBounds(i, j - 1) || isWall(MapAt(i, j - 1))))
+			if (first && (!IsInBounds(i, j - 1) || isSolidTile(MapAt(i, j - 1)))) // deep water under one in the water
 				piece = LADDER_BOTTOM;
 			else if (last)
 				piece = LADDER_TOP;
@@ -230,8 +230,9 @@ void Dungeon::scatterDecals(uint32_t seed) {
 				continue;
 
 			bool ceiling = !IsInBounds(i, j + 1) || isWall(MapAt(i, j + 1));
-			bool floor = IsInBounds(i, j - 1) && isWall(MapAt(i, j - 1)) && decor[MapIndex(i, j)].type < 0;
-			bool free = !torch[MapIndex(i, j)]; // the torch covers the middle of the wall
+			bool floor = IsInBounds(i, j - 1) && isWall(MapAt(i, j - 1)) && !inHalfWater(tile) &&
+						 decor[MapIndex(i, j)].type < 0; // no dry grass under the water
+			bool free = !torch[MapIndex(i, j)];			 // the torch covers the middle of the wall
 
 			int fits[DECAL_COUNT];
 			int fitCount = 0;

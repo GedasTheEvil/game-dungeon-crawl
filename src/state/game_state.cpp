@@ -99,6 +99,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.summonDig;
 	case WorldSound::SummonDrop:
 		return sounds.summonDrop;
+	case WorldSound::Wade:
+		return sounds.wade;
+	case WorldSound::Splash:
+		return sounds.splash;
 	}
 	return sounds.arrowHit;
 }

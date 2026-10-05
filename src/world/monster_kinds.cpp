@@ -36,6 +36,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	{MonsterAnubisBoss, "anubis boss",
 	 "Anubis boss, mummies climb out of the coffins round it; its death opens the boss gates. One boss per level", 'N',
 	 15.f, true, "The guardian of the last tomb. The dead rise at his word."},
+	// Threat: between the giant rat and the mummy, bites harder than both; in the water it outswims the player.
+	{MonsterCrocodile, "crocodile", "Crocodile, lies under the water until the player comes near, swims fast", 'C',
+	 4.5f, false, "Sobek's own. In the water I cannot outrun it."},
 }};
 } // namespace
 

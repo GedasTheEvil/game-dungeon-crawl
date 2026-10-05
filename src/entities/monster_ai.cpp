@@ -26,8 +26,13 @@ bool Monster::Seek(bool blocked, float px, float py) {
 
 	if (!rooted())
 		alerted = true; // chasing the player
+	float water = 1.f;
+	if (inWater && type->wading == Wading::Slowed)
+		water = WADE_SPEED_FACTOR;
+	else if (inWater && type->wading == Wading::Swimmer)
+		water = SWIM_SPEED_FACTOR;
 	if (!blocked)
-		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed;
+		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
 	enter(ModelState::Move);
 	return true;
 }
@@ -55,7 +60,7 @@ void Monster::bite() {
 bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
-	const float range = entombed() ? MUMMY_WAKE_RANGE : MIMIC_WAKE_RANGE;
+	const float range = entombed() ? MUMMY_WAKE_RANGE : submerged() ? SUBMERGED_WAKE_RANGE : MIMIC_WAKE_RANGE;
 	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
 		return true;
@@ -66,7 +71,10 @@ bool Monster::Lurk(float px, float py) {
 
 void Monster::wake() {
 	alerted = true;
-	links.journal->SeeMove(type->id, links.level, entombed() ? CreatureMove::Rise : CreatureMove::Ambush);
+	const CreatureMove move = entombed()	? CreatureMove::Rise
+							  : submerged() ? CreatureMove::Surface
+											: CreatureMove::Ambush;
+	links.journal->SeeMove(type->id, links.level, move);
 	enter(entombed() ? ModelState::Rise : ModelState::Move);
 	type->model.wakeSound.Play();
 }

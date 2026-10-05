@@ -61,6 +61,21 @@ constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clea
 constexpr int MINION_SUMMON_REACH = 3;			// cells from its boss a summoned minion may appear
 constexpr int MINION_EMERGE_MS = 700;			// a summoned minion digs out or drops into place, then acts
 
+// Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed, a
+// swimmer (the crocodile) swims faster. No jump while standing in it. An arrow hits a monster standing in it for a
+// share of its damage; melee is not affected.
+constexpr float WADE_SPEED_FACTOR = 0.5f;
+constexpr float SWIM_SPEED_FACTOR = 1.25f;
+constexpr int ARROW_WATER_DAMAGE_PCT = 50;
+constexpr int WADE_SPLASH_MS = 450;		 // a splashing step while the player wades
+constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
+
+// The crocodile (Locomotion::Submerged): lies in the water, its top SUBMERGED_SHOW world units above the surface, until
+// the player comes this close along its row. A swimmer's float height follows its target at SWIM_LIFT_RATE (1/s).
+constexpr float SUBMERGED_WAKE_RANGE = 1.4f; // from its centre: its head is then ~0.65 tiles off, in view
+constexpr float SUBMERGED_SHOW = 0.5f;		 // the eyes, the nostrils and the back ridge (crocodile.py)
+constexpr float SWIM_LIFT_RATE = 4.f;
+
 constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
 // The mummy (Locomotion::Entombed) lies in its coffin (decor_coffin, drawn on its spawn tile), its body drawn
 // MUMMY_COFFIN_DEPTH world units back from the walk line. Woken, its rise clip slides it out between the two fractions.

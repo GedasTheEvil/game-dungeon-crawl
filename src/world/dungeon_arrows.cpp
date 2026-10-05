@@ -93,7 +93,8 @@ void Dungeon::updateArrows() {
 			for (Monster& mon : monsters)
 				if (mon.Active() && mon.Alive() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
-					playerHit(mon, a.damage, &a.mix);
+					// The water takes the arrow's force: a monster in it is hit for a share.
+					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix);
 					sim.events->Play(WorldSound::ArrowHit);
 					gone = true;
 					break;

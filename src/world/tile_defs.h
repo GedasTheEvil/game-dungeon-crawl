@@ -30,7 +30,8 @@ struct StructureDef {
 [[nodiscard]] const StructureDef& structureDef(Structure s);
 
 // The level as text (levelcheck --map, the ASCII campaign sources): one character per cell, its object; a cell
-// without one is '#' in a wall, '.' anywhere else. The structure has its own drawing (structureGlyph, level.h).
+// without one is '#' in a wall or deep water, '.' anywhere else. The structure has its own drawing (structureGlyph,
+// level.h).
 [[nodiscard]] char tileGlyph(const Tile& t);
 
 // The characters an ASCII level source may use, each with the tile it stands for. Details the character does not say

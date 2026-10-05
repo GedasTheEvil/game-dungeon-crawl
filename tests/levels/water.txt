@@ -1,0 +1,13 @@
+; water: a pool of half water over deep water to wade through, spikes under the surface, a ladder that starts in the
+; water and leads up to the exit.
+##################
+#########H.....E##
+#########H########
+#S.......H.^.....#
+##################
+structure
+##################
+#########.......##
+#########.########
+#....~~~~~~~~~...#
+#####=========####

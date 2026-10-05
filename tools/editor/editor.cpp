@@ -109,9 +109,6 @@ std::vector<int> paletteOf(Layer layer) {
 	return ids;
 }
 
-// Wall and deep water: no object may stand there.
-bool holdsNoObject(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
-
 Rect slotRect(int slot) {
 	float x0 = RIGHT_CX - (PALETTE_COLUMNS * SLOT_W + (PALETTE_COLUMNS - 1) * SLOT_GAP) / 2;
 	int column = slot % PALETTE_COLUMNS;
@@ -452,11 +449,11 @@ void Editor::paint(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
 	if (layer == Layer::Structure) {
 		t.structure = structure;
-		if (holdsNoObject(structure))
+		if (isSolidStructure(structure))
 			clearObject(t);
 	} else {
 		setObject(t, brush());
-		if (hasObject(t) && holdsNoObject(t.structure))
+		if (hasObject(t) && isSolidStructure(t.structure))
 			t.structure = Structure::Empty;
 	}
 	grid.set(cell.col, cell.row, t);

@@ -80,7 +80,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   (a `CharacterModel` plus stats, shared), `Monster` (one monster on the level: position, health, AI state, clip
   playback), `Player` (with its `PlayerStats`), `Item`, `Trap`.
 * `graphics/` - `AnimatedModel` (MD3; shared models take the playback as an argument), textures, fonts, lighting,
-  toon ink, particles, the gameplay `Draw()` / `Update()`.
+  toon ink, the sprint motion effects (`MotionFx`), particles, the gameplay `Draw()` / `Update()`.
 * `world/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, rendering, save data) and the
   GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`).
 * `ui/`, `input/`, `test/` - screens, keyboard / mouse handling, the scenario runner. UI look and layout conventions:

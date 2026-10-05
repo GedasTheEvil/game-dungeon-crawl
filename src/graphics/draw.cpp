@@ -11,6 +11,7 @@
 #include "../ui/status_box.h"
 #include "lighting.h"
 #include "ink.h"
+#include "motion_fx.h"
 #include "fire.h"
 #include "gl_includes.h"
 #include "render_config.h"
@@ -24,6 +25,23 @@ constexpr float SCENE_FAR = 300.f;
 // Of a swing's time to its hit: raising the weapon back, the rest bringing it down (WeaponMotion).
 constexpr float WINDUP_SHARE = 0.6f;
 constexpr float WINDUP_PULL = 0.3f; // a thrust draws back this share of its reach first
+
+// A point of the current model view on the window, as a share of its size (y up).
+struct ScreenPoint {
+	float x, y;
+};
+ScreenPoint toScreen(double x, double y, double z) {
+	GLdouble model[16], projection[16];
+	GLint viewport[4];
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	GLdouble wx = 0, wy = 0, wz = 0;
+	if (gluProject(x, y, z, model, projection, viewport, &wx, &wy, &wz) == GL_FALSE || viewport[2] <= 0 ||
+		viewport[3] <= 0)
+		return {0.5f, 0.5f};
+	return {static_cast<float>((wx - viewport[0]) / viewport[2]), static_cast<float>((wy - viewport[1]) / viewport[3])};
+}
 
 // Progress 0..1 of the level-up sun beam, or none when it is not showing.
 std::optional<float> sunBeamProgress() {
@@ -125,20 +143,24 @@ void Draw() {
 namespace {
 void drawGameplay() {
 
-	Ink::begin(SCENE_NEAR, SCENE_FAR, Game().render.resX, Game().render.resY);
+	const int resX = Game().render.resX;
+	const int resY = Game().render.resY;
+	MotionFx::update(Game().render.MotionEffects && Game().player->stats.IsSprinting(), GameClock::now());
+	MotionFx::begin(resX, resY, !Ink::toon()); // toon mode: no blur over the ink lines (yet), the rest stays
+	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, static_cast<float>(Game().render.resX) / static_cast<float>(Game().render.resY), SCENE_NEAR,
-				   SCENE_FAR);
+	gluPerspective(MotionFx::fov(45.0f), static_cast<float>(resX) / static_cast<float>(resY), SCENE_NEAR, SCENE_FAR);
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);
 
 	glRotatef(Game().camera.rotM, 0, 1, 0);
 	glRotatef(Game().camera.rotN, 1, 0, 0);
+	const ScreenPoint chest = toScreen(0, 16, -22); // the player stays sharp in the blur
 
 	Lighting::begin();
 	if (Game().player->Alive())
@@ -179,6 +201,7 @@ void drawGameplay() {
 	}
 	Lighting::end();
 	Ink::end();
+	MotionFx::end(chest.x, chest.y);
 
 	glLoadIdentity();
 

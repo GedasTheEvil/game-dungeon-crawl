@@ -1,4 +1,5 @@
 #include "game_state.h"
+#include "settings.h"
 #include "../ui/player_hud.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
@@ -55,6 +56,7 @@ void GameState::Load() {
 	assets.sounds.soundtrack.Play();
 
 	saves.LoadNames();
+	Settings::Load(render);
 
 	status.clear();
 	cacheLoaded = true;

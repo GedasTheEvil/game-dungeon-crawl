@@ -36,7 +36,8 @@ struct Camera {
 };
 
 struct RenderSettings {
-	bool Hitboxes = false; // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
+	bool Hitboxes = false;	   // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
+	bool MotionEffects = true; // sprint blur, FOV kick, vignette (Options > Display, saved in saves/settings.txt)
 	int resX = 800;
 	int resY = 500;
 };

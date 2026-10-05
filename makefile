@@ -21,7 +21,7 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/movement.h src/world/rng.h src/world/damage.h
 RENDER_LIB_SOURCES=src/core/logger.cpp src/core/timer.cpp src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
-	src/graphics/lighting.cpp src/graphics/render_target.cpp
+	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp
 LEVEL_LIB=$(BUILD)/liblevel.a
 # The world and the entities: no Game(), no screens (tools/check_sim.sh, make layers).
 SIM_FILES=$(wildcard src/world/dungeon*.cpp src/world/dungeon.h src/world/sim_links.h src/entities/*.cpp src/entities/*.h)

@@ -1,6 +1,15 @@
 # Sprint motion effect
 
-Status: draft 2026-10-05.
+Status: implemented 2026-10-05, awaiting verification. Decided: FOV kick, radial blur + vignette; "Motion effects"
+on/off in Options; toon blur and extras later.
+
+Done: `src/graphics/motion_fx.cpp` (`MotionFx`). Strength eases over 200 ms by the game clock, on while
+`PlayerStats::IsSprinting()` (shift held and a real step) and the option is on. FOV 45° + up to 6°. Radial blur
+(12 samples, reach grows away from the player's chest, projected each frame) in a `RenderTarget` post pass, normal
+mode only. Vignette as a blended overlay, also in toon mode. No FBO: FOV kick and vignette; no shaders: FOV kick.
+Options > Display tab with the toggle, saved in `saves/settings.txt` (`src/state/settings.cpp`, not in scenarios).
+Fixed on the way: the HUD tested against stale window depth after an offscreen scene (toon mode showed a black box
+over the HUD); `Ink::end()` and `MotionFx::end()` clear it. Scenario `tests/scenarios/sprint_motion.txt`.
 
 ## Idea
 
@@ -19,7 +28,8 @@ blur would blur the player too, the one thing the eye follows. Better options:
 * **FOV kick**: the 45° of `gluPerspective` goes up a few degrees while sprinting and eases back after. Cheap, no
   FBO, and gives most of the speed feel by itself. Could be step 1.
 * **Vignette** dimming the edges, which hides the blur's seams too.
-* Optional extras: dust puffs at the feet, a faster footstep sound and a slight camera lag behind the player.
+* Extras (dust puffs, footstep sound, camera lag): moved to
+  [sprint-toon-blur-and-extras.draft.md](sprint-toon-blur-and-extras.draft.md).
 
 ## What to settle
 
@@ -27,7 +37,8 @@ blur would blur the player too, the one thing the eye follows. Better options:
 * Strength scales with real movement: sprint held while standing still or blocked by a wall shows nothing. Same
   "actually moving" signal as [sprint-drain-standing-still.md](solved/sprint-drain-standing-still.md).
 * An Options toggle (motion sickness): "Motion effects" on/off, also for the FOV kick.
-* Toon mode: the blur goes before the ink lines or after them? Lines streaking may look wrong.
+* Toon mode: no blur for now (FOV kick and vignette only). Blur order vs the ink lines: moved to
+  [sprint-toon-blur-and-extras.draft.md](sprint-toon-blur-and-extras.draft.md).
 * HUD and status lines are drawn after the scene pass, so they stay sharp.
 * Without FBOs (old driver): FOV kick only.
 * Scenario: sprint along a corridor, screenshots at rest, mid-sprint and after the stop.

@@ -144,6 +144,10 @@ with white alpha 0.035 (Options).
 
 ### Key caps
 
+Options tabs: Controls (the key table) and Display (one striped row a setting: name in `body` `LABEL`, what it does
+in `small` `LABEL_DIM`, an On / Off tile on the right, lapis when on). A setting lives in `RenderSettings` and is kept
+in `saves/settings.txt` (`src/state/settings.cpp`).
+
 Options table: each key a dark gradient cap with a `GOLD_DIM` frame and a black shadow, key name in `small` `GOLD`.
 Separators `/` and `,` are plain `LABEL_DIM` text.
 

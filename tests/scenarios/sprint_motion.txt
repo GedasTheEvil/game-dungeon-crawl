@@ -1,0 +1,39 @@
+# Sprint motion effects: FOV kick, radial blur (not in toon mode) and vignette ease in while sprinting and out after.
+# Shift held standing still shows nothing. Options > Display switches them off.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+walk right 1
+wait 30
+screenshot rest
+sprint on
+wait 30
+screenshot shift_standing
+hold right 400ms
+screenshot sprint
+sprint off
+wait 500ms
+screenshot after
+toon on
+sprint on
+hold right 400ms
+screenshot sprint_toon
+toon off
+motion off
+hold right 400ms
+screenshot sprint_motion_off
+sprint off
+key esc
+wait 2
+click 50 35.7
+wait 2
+click 40 76.5
+wait 2
+screenshot options_display
+mouse 76.9 65.8
+wait 2
+screenshot options_display_hover
+click 76.9 65.8
+wait 2
+screenshot options_display_on

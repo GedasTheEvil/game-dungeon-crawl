@@ -31,4 +31,4 @@ the player moved this tick.
 * Scenario: hold shift and walk into a wall, no drain.
 * Scenario: sprint along a corridor, drain as before.
 
-Related: [sprint-motion-effect.draft.md](../sprint-motion-effect.draft.md) uses the same "actually moving" signal.
+Related: [sprint-motion-effect.md](../sprint-motion-effect.md) uses the same "actually moving" signal.

@@ -58,6 +58,7 @@ One command per line. `#` starts a comment.
 | `sprint on\|off` | Shift down / up (sprint). It stays down until `sprint off`. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = pick up / riddle). |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
+| `motion on\|off` | Options > Display > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.txt`. |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
 | `hitboxes on\|off` | Debug outlines (F3): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |

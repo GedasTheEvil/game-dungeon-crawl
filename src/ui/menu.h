@@ -13,8 +13,9 @@ class MainMenu {
   private:
 	static constexpr int NONE = -1;
 	// Click targets: menu buttons and save slots use their index.
-	static constexpr int BACK = 100;	 // Back button of the sub-screens
-	static constexpr int TAB_BASE = 200; // options tabs
+	static constexpr int BACK = 100;		  // Back button of the sub-screens
+	static constexpr int TAB_BASE = 200;	  // options tabs
+	static constexpr int MOTION_TOGGLE = 300; // Options > Display: motion effects on / off
 
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
@@ -33,6 +34,8 @@ class MainMenu {
 	void DrawSlots();
 	void DrawSlot(int slot);
 	void DrawOptions();
+	void DrawControls(float left, float right);
+	void DrawDisplay(float left, float right);
 	void DrawCredits();
 	void DrawBackButton();
 	void DrawFooter(const char* hint);

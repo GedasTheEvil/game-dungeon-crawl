@@ -46,6 +46,7 @@ enum class CommandType : unsigned char {
 	Walk,
 	Hold,
 	Sprint,
+	Motion,
 	Jump,
 	Attack,
 	Interact,
@@ -511,6 +512,13 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			return "usage: hold <left|right|up|down> <ticks|Nms|Ns>";
 		return "";
 	}
+	if (name == "motion") {
+		cmd.type = CommandType::Motion;
+		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
+			return "usage: motion <on|off>";
+		cmd.a = w[1] == "on" ? 1.f : 0.f;
+		return "";
+	}
 	if (name == "sprint") {
 		cmd.type = CommandType::Sprint;
 		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
@@ -774,6 +782,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Sprint: // shift down / up
 		Game().player->stats.SetSprintRequested(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return true;
+	case CommandType::Motion: // Options > Display > Motion effects
+		Game().render.MotionEffects = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Toon:

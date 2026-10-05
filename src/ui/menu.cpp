@@ -8,6 +8,7 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
+#include "../state/settings.h"
 #include "ui_draw.h"
 
 // Same 160 x 100 canvas (y up) and look as the inventory: a framed panel on the carved slate, lapis and stone tiles.
@@ -43,6 +44,7 @@ constexpr float ROW_H = 3.5f;
 constexpr float ACTION_X = OPTIONS_PANEL.x + 8;
 constexpr float KEYS_X = OPTIONS_PANEL.x + 52;
 constexpr float MOUSE_X = OPTIONS_PANEL.x + 100;
+constexpr Rect MOTION_SWITCH = {OPTIONS_PANEL.x + 100, TABLE_TOP - 6.f, 22, 6}; // Display tab: on / off
 
 // The credits sheet is square; it sits in its own frame, not stretched over the window.
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
@@ -102,7 +104,8 @@ constexpr std::array<MenuButton, 6> IN_GAME_BUTTONS = {{
 
 // ---- options: controls tab --------------------------------------------------
 
-constexpr std::array<const char*, 1> TABS = {"Controls"};
+constexpr std::array<const char*, 2> TABS = {"Controls", "Display"};
+constexpr int DISPLAY_TAB = 1;
 
 enum class MouseInput : std::uint8_t { None, Left, Middle, Right, Move };
 
@@ -436,6 +439,27 @@ void MainMenu::DrawOptions() {
 	float right = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
 	line(left, ruleY, right, ruleY, GOLD_DIM, 1.f, 1.5f);
 
+	if (optionsTab == DISPLAY_TAB)
+		DrawDisplay(left, right);
+	else
+		DrawControls(left, right);
+}
+
+// One row: the setting and what it does, its on / off switch on the right.
+void MainMenu::DrawDisplay(float left, float right) {
+	const bool on = Game().render.MotionEffects;
+	const bool isHovered = hovered == MOTION_TOGGLE;
+	fillRect({left, MOTION_SWITCH.y - 2.f, right - left, MOTION_SWITCH.h + 4.f}, {1, 1, 1}, {1, 1, 1}, 0.035f);
+	Rect r =
+		tile(MOTION_SWITCH, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, isHovered && pressed == MOTION_TOGGLE);
+	beginText();
+	text(body, ACTION_X, MOTION_SWITCH.y + 2.6f, "Motion effects", LABEL);
+	text(small, ACTION_X, MOTION_SWITCH.y - 0.6f, "Sprint blur, wider view and darker edges", LABEL_DIM);
+	textCentered(heading, r.cx(), r.y + 1.2f, on ? "On" : "Off", on ? GOLD : LABEL);
+	beginShapes();
+}
+
+void MainMenu::DrawControls(float left, float right) {
 	// Controls table: header, then one striped row per action.
 	float headerY = TABLE_TOP;
 	line(left, headerY - 1.1f, right, headerY - 1.1f, BRONZE, 1.f, 1.f);
@@ -538,6 +562,8 @@ int MainMenu::TargetAt(int x, int y) {
 		for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++)
 			if (tabRect(tab).contains(cx, cy))
 				return TAB_BASE + tab;
+		if (optionsTab == DISPLAY_TAB && MOTION_SWITCH.contains(cx, cy))
+			return MOTION_TOGGLE;
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	if (saveD || loadD) {
@@ -559,7 +585,12 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (optionsD) {
-		optionsTab = target - TAB_BASE;
+		if (target == MOTION_TOGGLE) {
+			Game().render.MotionEffects = !Game().render.MotionEffects;
+			Settings::Save(Game().render);
+		} else {
+			optionsTab = target - TAB_BASE;
+		}
 		return;
 	}
 	if (saveD) {

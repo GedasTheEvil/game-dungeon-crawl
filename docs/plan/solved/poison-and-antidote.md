@@ -48,7 +48,7 @@ Decided 2026-10-06:
   poisoner yet: this lands with the scorpion / cobra placement.
 
 Not in scope: a poison resistance potion and amulets,
-[resistance-potion-and-amulets.draft.md](../resistance-potion-and-amulets.draft.md).
+[resistance-potion.draft.md](../resistance-potion.draft.md), [amulets.draft.md](../amulets.draft.md).
 
 ## Done
 

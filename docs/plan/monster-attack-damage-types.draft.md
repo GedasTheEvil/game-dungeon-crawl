@@ -11,38 +11,40 @@ flat amount (`PlayerStats::HitDamage`: `max(1, dmg - Armor)`). Nothing for a typ
 
 ## Idea
 
-* Each monster (and boss) gets a damage mix for its attack, like the weapons' mix in `ITEM_DEFS` (blunt, slash, pierce
-  percent, sum 100). A new table `ATTACK_MIX_DEFS` next to `RESISTANCE_DEFS` (`src/state/assets.cpp`); a type not
-  listed hits all blunt (or: a mix is required for every type, checked at load).
+* Each monster group (bosses included) and each trap gets a damage mix for its attack, like the weapons' mix in
+  `ITEM_DEFS` (blunt, slash, pierce percent, sum 100). A new table `ATTACK_MIX_DEFS` next to `RESISTANCE_DEFS`
+  (`src/state/assets.cpp`); a group not listed hits all blunt (or: a mix is required for every group, checked at load).
 * `TakeHit` takes the damage with its mix; the player's resistances (from the amulet) apply per type, then the armour.
 * The journal shows what a creature deals, written down when it first hits the player.
 
 ## Proposed mix
 
-Read from what each model attacks with. `damage` is today's `MONSTER_DEFS` value.
+One mix per monster group: the members of a group (the same model, bigger or darker) deal the same kinds of damage,
+only a different amount. Read from what the model attacks with. `damage` is today's `MONSTER_DEFS` value.
 
-| Monster | Damage | Attack | Blunt | Slash | Pierce |
+| Group | Members (damage) | Attack | Blunt | Slash | Pierce |
 |---|---|---|---|---|---|
-| Worm | 9 | grinding maw | 60 | 40 | 0 |
-| Scarab | 2 | mandibles | 0 | 70 | 30 |
-| Giant scarab | 12 | jumps and rams, mandibles | 50 | 50 | 0 |
-| Boss scarab | 40 | rams, mandibles | 60 | 40 | 0 |
-| Man-eater plant | 5 | bite, thorny vines | 0 | 40 | 60 |
-| Rat | 2 | teeth | 0 | 30 | 70 |
-| Giant rat | 8 | teeth | 0 | 30 | 70 |
-| Bat | 3 | fangs, claws | 0 | 20 | 80 |
-| Giant bat | 10 | fangs, claws | 0 | 20 | 80 |
-| Vampire bat | 80 | fangs | 0 | 0 | 100 |
-| Mummy | 20 | fists | 100 | 0 | 0 |
-| Anubis | 30 | was-sceptre | 100 | 0 | 0 |
-| Anubis boss | 110 | was-sceptre, its forked foot | 60 | 0 | 40 |
-| Crocodile | 26 | crushing jaws | 50 | 0 | 50 |
-| Scorpion | 3 | claws, sting (poison) | 0 | 30 | 70 |
-| Mimic | 10 | lid slam, teeth | 40 | 0 | 60 |
+| Worm | worm (9) | grinding maw | 60 | 40 | 0 |
+| Scarab | scarab (2), giant scarab (12), boss scarab (40) | rams, mandibles | 40 | 60 | 0 |
+| Plant | man-eater plant (5) | bite, thorny vines | 0 | 40 | 60 |
+| Rat | rat (2), giant rat (8) | teeth | 0 | 30 | 70 |
+| Bat | bat (3), giant bat (10), vampire bat (80) | fangs, claws | 0 | 20 | 80 |
+| Mummy | mummy (20) | fists | 100 | 0 | 0 |
+| Anubis | Anubis (30), Anubis boss (110) | was-sceptre, its forked foot | 80 | 0 | 20 |
+| Crocodile | crocodile (26) | crushing jaws | 50 | 0 | 50 |
+| Scorpion | scorpion (3) | claws, sting (poison) | 0 | 30 | 70 |
+| Mimic | mimic (10) | lid slam, teeth | 40 | 0 | 60 |
 
-What it means for the amulets: pierce is the most common (rats, bats, scorpions, plant, crocodile), blunt the big
-hitters (mummy, Anubis, boss scarab), slash rarely more than a share. A pierce amulet is the generalist, a blunt one
-the boss pick.
+The table keyed by group (the model), not by monster type, so a new member gets its group's mix. A new group
+(scorpion queen, Apep, cobra) brings its own row.
+
+| Trap | Blunt | Slash | Pierce |
+|---|---|---|---|
+| Spikes, death trap | 0 | 20 | 80 |
+| Crushing rock (graze and crush) | 100 | 0 | 0 |
+
+What it means for the amulets: pierce is the most common (rats, bats, scorpions, plant, crocodile, spikes), blunt the
+big hitters (mummy, Anubis, boss scarab, the rock). A pierce amulet is the generalist, a blunt one the boss pick.
 
 ## Rules (proposed)
 
@@ -53,8 +55,8 @@ the boss pick.
 * **Player resistances:** `Resistances` like the monsters' (`src/world/damage.h`), all `NORMAL` without an amulet. The
   amulet values (a share off one type) belong to [amulets.draft.md](amulets.draft.md).
 * **Poison** stays apart: the scorpion's sting typed as above, its poison untouched by type and armour, as today.
-* **Traps** stay untyped (`TakeHit` without a mix: no type resistance, armour as today; the crushing rock still ignores
-  armour). A trap type of its own for the trap amulet is for [amulets.draft.md](amulets.draft.md).
+* **Traps** are typed too (table above): a type resistance applies to them. Armour as today: the spikes take it, the
+  crushing rock still ignores it. The trap amulet ([amulets.draft.md](amulets.draft.md)) stacks on top.
 * **Without an amulet nothing changes:** all `NORMAL`, every hit deals what it does today. No balance pass needed.
 * **Journal:** like the resistances it learns per weapon tried (`src/ui/journal_view.cpp`), on a creature's first
   hit its page gets a line like "Hits: pierce, some slash" (the major part, then shares of 30% or more as "some").
@@ -62,6 +64,6 @@ the boss pick.
 
 ## Open
 
-* The mix per monster: the table above is a proposal.
+* The mix per group: the table above is a proposal.
 * A missing mix: default all blunt, or a load error?
 * The journal wording, and whether it shows exact percentages.

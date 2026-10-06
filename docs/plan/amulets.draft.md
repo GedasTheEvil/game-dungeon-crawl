@@ -11,9 +11,9 @@ Bonuses so far:
 
 | Amulet | Bonus | Kind |
 |---|---|---|
-| Poison | 50% chance to resist a poisoned hit (the poison, not the hit's damage) | chance |
+| Poison | a chance to resist a poisoned hit (the poison, not the hit's damage) | chance |
 | Traps | less trap damage | reduction |
-| Pierce (blunt, slash alike) | 50% off one damage type (dictated as "5%": confirm) | reduction |
+| Pierce (blunt, slash alike) | a share off one damage type | reduction |
 | Regeneration | slow HP regeneration | over time |
 
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
@@ -23,9 +23,9 @@ Bonuses so far:
 
 ## Open
 
-* Numbers: the share per amulet. Traps can be seen and walked around, so a trap amulet needs a big cut (75%?) or
+* Numbers: left for refinement (not now). Traps can be seen and walked around, so a trap amulet needs a big cut or
   immunity to be worth the slot.
-* Regeneration vs the potion economy: slow (1 HP every few s), only out of combat, or only up to 50% HP? Does poison
+* Regeneration vs the potion economy: slow, only out of combat, or only up to part of the HP? Does poison
   pause it?
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
 * Campaign: which amulet in which level / boss; each found once, no duplicates. Count them in `./levelcheck` (does a

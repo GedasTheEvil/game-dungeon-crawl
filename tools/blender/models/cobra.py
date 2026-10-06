@@ -7,6 +7,8 @@ rise, spit).
 
 Two textures share one UV layout: cobra.png (sand brown, Naja haje) and cobra_giant.png (black-necked: near black,
 pale cream throat band, amber eyes). Set COBRA_TEX=giant to show the giant texture on the built object.
+cobra_apep.png (Apep, the boss: red-black, gold-green scale edges, yellow eyes, a dark red hood with pale eye-spots):
+bake it alone with --boss-texture; COBRA_TEX=apep shows it.
 
 Blender space: Z up, the cobra faces +Y (game uses rotA = 180, as the scorpion), its right side is +X.
 The body is one tube along a chain of spine joints (tail tip to the back of the head), each joint a bone with its
@@ -73,6 +75,23 @@ COL_GIANT = {
     "mouth": (0.55, 0.30, 0.32),
     "fang": (0.85, 0.82, 0.70),
     "tongue": (0.05, 0.02, 0.025),
+}
+# Apep (cobra_apep.png, same UVs, a boss): deep red-black, gold-green scale edges ("edge"), glowing yellow eyes, a dark
+# red hood ("hood") with a pale eye-spot on its back ("spot").
+COL_APEP = {
+    "back": (0.07, 0.008, 0.007),
+    "flank": (0.11, 0.015, 0.012),
+    "band": (0.025, 0.004, 0.004),
+    "belly": (0.22, 0.06, 0.035),
+    "throat": (0.03, 0.006, 0.005),
+    "head": (0.08, 0.01, 0.008),
+    "eye": (1.0, 0.85, 0.08),
+    "mouth": (0.60, 0.12, 0.10),
+    "fang": (0.88, 0.80, 0.55),
+    "tongue": (0.04, 0.01, 0.01),
+    "edge": (0.55, 0.50, 0.12),
+    "hood": (0.30, 0.025, 0.02),
+    "spot": (0.85, 0.80, 0.62),
 }
 
 LB = 2.9  # body length, tail tip (s = 0) to the back of the head (s = LB)
@@ -188,6 +207,15 @@ def body_material(name, col_set, banded=True):
         win = _math(nt, "MULTIPLY", _smooth(nt, d, 0.10, 0.15), _math(nt, "SUBTRACT", 1.0, _smooth(nt, d, 0.30, 0.36)))
         under = _math(nt, "LESS_THAN", backness, 0.42)
         col = _mix(nt, _math(nt, "MULTIPLY", win, under), col, col_set["throat"])
+        if "hood" in col_set:  # the back of the hood in its own colour, a pale ring (the eye-spot) on it
+            top = _smooth(nt, backness, 0.45, 0.65)
+            col = _mix(nt, _math(nt, "MULTIPLY", win, top), col, col_set["hood"])
+            for side in (-1, 1):
+                du = _math(nt, "MULTIPLY", _math(nt, "SUBTRACT", u, 0.25 + side * 0.075), 1.4)
+                dd = _math(nt, "SUBTRACT", d, 0.21)
+                dist = _math(nt, "SQRT", _math(nt, "ADD", _math(nt, "MULTIPLY", du, du), _math(nt, "MULTIPLY", dd, dd)))
+                ring = _math(nt, "MULTIPLY", _math(nt, "SUBTRACT", 1.0, _smooth(nt, dist, 0.045, 0.055)), _smooth(nt, dist, 0.022, 0.03))
+                col = _mix(nt, ring, col, col_set["spot"])
     # Scale granulation.
     coord = nt.nodes.new("ShaderNodeTexCoord")
     vor = nt.nodes.new("ShaderNodeTexVoronoi")
@@ -204,7 +232,11 @@ def body_material(name, col_set, banded=True):
     for i in range(3):
         nt.links.new(gran, comb.inputs[i])
     nt.links.new(comb.outputs[0], m.inputs[1])
-    nt.links.new(m.outputs[0], bsdf.inputs["Base Color"])
+    out = m.outputs[0]
+    if "edge" in col_set:  # scale edges in their own colour
+        rim = _math(nt, "SUBTRACT", 1.0, _smooth(nt, vor.outputs["Distance"], 0.0, 0.025))
+        out = _mix(nt, _math(nt, "MULTIPLY", rim, 0.5), out, col_set["edge"])
+    nt.links.new(out, bsdf.inputs["Base Color"])
     return mat
 
 
@@ -660,6 +692,9 @@ def build(bake=True, tex_path=None, giant_path=None):
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "cobra_preview.png"), TEX_SIZE, "cobra", ao_distance=0.1)
         materials(COL_GIANT)
         giant = common.bake_texture(obj, giant_path or os.path.join(tmp, "cobra_giant_preview.png"), TEX_SIZE, "cobra_giant", ao_distance=0.1)
+        if os.environ.get("COBRA_TEX") == "apep":
+            materials(COL_APEP)
+            tex = common.bake_texture(obj, os.path.join(tmp, "cobra_apep_preview.png"), TEX_SIZE, "cobra_apep", ao_distance=0.1)
         common.use_baked_material(obj, giant if os.environ.get("COBRA_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     SKIN = Skin(b)
@@ -678,7 +713,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_APEP)
+        common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "cobra_apep.png"), TEX_SIZE, "cobra_apep", ao_distance=0.1)
+    elif "--export" in args:
         tex_dir = os.path.join(REPO, "textures", "monsters")
         build(tex_path=os.path.join(tex_dir, "cobra.png"), giant_path=os.path.join(tex_dir, "cobra_giant.png"))
         export()

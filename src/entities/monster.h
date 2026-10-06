@@ -28,6 +28,7 @@ enum class Locomotion : unsigned char {
 	// Walks, but lies coiled (idle) until the player comes near or hits it, then rears up (Rise) before it acts (the
 	// cobra).
 	Coiled,
+	Burrow, // walks, and now and then dives into the floor and comes up elsewhere on its row (Apep, see Burrow)
 };
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
@@ -67,9 +68,31 @@ struct Leap {
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
-// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging), or climb out
-// of a coffin by the boss (entombed minions, Monster::Rising).
-enum class Summon : unsigned char { DigOut, Drop, Coffin };
+// Burrowers (Apep): dive into the floor, stay under it, come up elsewhere on the row (Dungeon::burrowTarget picks
+// where). Hidden while diving and under: nothing hits it, it bites nothing.
+enum class BurrowPhase : unsigned char { Up, Dive, Under, Surface };
+struct Burrow {
+	BurrowPhase phase = BurrowPhase::Up;
+	int startMs = 0; // GameClock time the phase began
+	int nextMs = 0;	 // no dive before this GameClock time
+	float toX = 0.f; // tile-local x it comes up at
+};
+
+// Chargers (Sobek): from afar on its row it lowers its head (Windup), rushes along the row (Rush) through the player,
+// and on into a wall that stuns it (Stunned: it takes double damage). The player jumps over it or leaves the row.
+enum class ChargePhase : unsigned char { Ready, Windup, Rush, Stunned };
+struct Charge {
+	ChargePhase phase = ChargePhase::Ready;
+	int startMs = 0;
+	int nextMs = 0;	  // no charge before this GameClock time
+	int dir = 1;	  // -1 / +1 along the row
+	bool hit = false; // this rush has hit the player
+};
+
+// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging), climb out
+// of a coffin by the boss (entombed minions, Monster::Rising), or hatch out of a living egg cluster (MonsterEggCluster;
+// emerging like DigOut; none left, no summons).
+enum class Summon : unsigned char { DigOut, Drop, Coffin, Hatch };
 
 // A boss summons minions around itself while it lives (Dungeon::updateBoss).
 struct BossRules {
@@ -111,6 +134,7 @@ struct MonsterType {
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
 	std::optional<SpitRules> spit;		  // it spits venom from afar
+	bool charges = false;				  // it charges along its row (Charge)
 	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
 	DamageMix attackMix{};				  // what its bite deals; its group's (ATTACK_MIX_DEFS)
@@ -146,6 +170,8 @@ class Monster {
 	ClipPlayback playback{};
 	Flight flight;
 	Leap leap;
+	Burrow burrow;
+	Charge charge;
 	// Created on the slot's first spawn, kept over respawns in it.
 	std::unique_ptr<ParticleSystem> blood;
 	Timer stepTimer{70}, attackTimer{800};
@@ -173,7 +199,9 @@ class Monster {
 	void drawHealthBar(const Texture& bar);
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
-	[[nodiscard]] float emergeLift() const; // world units off its place while Emerging: < 0 in the floor, > 0 above
+	[[nodiscard]] float emergeLift() const;
+	[[nodiscard]] float burrowLift() const; // world units down in the floor while burrowing, <= 0 // world units off
+											// its place while Emerging: < 0 in the floor, > 0 above
 	// A swimmer in half water floats with its back (the clip's top) at the surface, a lurker with only its top
 	// SUBMERGED_SHOW above it; 0 out of the water. Off the basin floor (sink).
 	[[nodiscard]] float swimLift() const;
@@ -265,6 +293,26 @@ class Monster {
 	[[nodiscard]] bool Spitting() const; // the spit clip is playing: it does not walk or bite
 	// Once per spit, at the clip's release: true and the mouth (map units) the glob leaves from.
 	bool TakeSpit(float& outX, float& outY);
+	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
+	[[nodiscard]] bool canDive(float py) const;
+	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)
+	void DelayDive();	  // no place to come up: try again later
+	[[nodiscard]] bool Burrowing() const { return burrow.phase != BurrowPhase::Up; }
+	// Diving or under the floor: no weapon hits it, the arrows fly over it.
+	[[nodiscard]] bool Hidden() const {
+		return burrow.phase == BurrowPhase::Dive || burrow.phase == BurrowPhase::Under;
+	}
+	// Once a tick while burrowing: the phases run on the clock; true on the tick it comes up (the hole opens).
+	bool UpdateBurrow();
+	// Chargers: ready, alerted, the player on its row CHARGE_MIN..CHARGE_MAX tiles away (the caller checks for walls).
+	[[nodiscard]] bool canCharge(float px, float py) const;
+	void StartCharge(float px); // the windup, towards the player
+	[[nodiscard]] bool Charging() const { return charge.phase != ChargePhase::Ready; }
+	[[nodiscard]] bool Stunned() const { return charge.phase == ChargePhase::Stunned; }
+	[[nodiscard]] int ChargeDir() const { return charge.dir; }
+	// Once a tick while charging. wallAhead: the cell in front of its head blocks the rush (a wall, a pit). The rush
+	// hits the player (double damage) once if they are in its way on the floor.
+	void UpdateCharge(bool wallAhead, float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls

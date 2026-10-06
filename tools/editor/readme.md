@@ -118,14 +118,18 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | 17 | Cobra |
 | 18 | Giant cobra |
 | 19 | Giant scorpion |
+| 20 | Egg cluster |
+| 21 | Scorpion queen (boss) |
+| 22 | Apep (boss) |
+| 23 | Sobek (boss) |
 
 Bats hang on the ceiling of their cell until the player comes within 1.75 cells in the same row, then fly through the player (a bite on the way), 1.5 cells on, turn and come back. They fly over traps and turn at walls. A mimic looks like a treasure chest until the player comes within 1.5 cells, then bites; killed, it leaves a real chest with a random weapon or potion. A mummy lies in an open coffin on its cell until the player comes within 1.6 cells (or hits it), climbs out, then walks like the others. The giant rat and giant scarab leap over pits and traps up to 2 cells wide. A crocodile lies in the water (only its eyes and back show) until the player comes within 1.4 cells of its centre in the same row, then walks like the others; slow on land, in half water 2.5 times as fast (faster than the player walks). Put it in or next to water. A scorpion's sting poisons the player (weak poison: 1 HP a second for 20 s). A cobra lies coiled until the player comes within 1.8 cells in the same row, rears up, then walks like the others; from up to 2.5 cells it stops and spits venom at the player's chest (a jump dodges it). Its bite and its venom poison (medium: 3 HP a second for 25 s). The giant cobra does the same, bigger, from up to 3 cells. The giant scorpion's sting poisons (medium). Any other value spawns a copy of the player model. Max. 32 monsters are live at one time.
 
-A boss (boss scarab, vampire bat, Anubis boss) summons minions next to itself, on the side away from the player: some when it
+A boss (boss scarab, vampire bat, scorpion queen, Apep, Sobek, Anubis boss) summons minions next to itself, on the side away from the player: some when it
 appears, then one every few seconds up to a limit. The boss scarab's scarabs dig out of the floor, the vampire bat's
 bats drop from the ceiling. The vampire bat flies like a bat and heals by 30% of the HP its bites take. The Anubis
 boss's mummies climb out of coffins: one stands on every empty floor cell within 3 cells of the boss's tile on its
-row; a mummy rises from the free coffin nearest the boss, not beyond the player or next to them. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
+row; a mummy rises from the free coffin nearest the boss, not beyond the player or next to them. The scorpion queen's giant scorpions hatch from the egg clusters (monster 20: rooted, harmless, killable) placed in her room; with none left she summons no more. Apep dives into the floor and comes up 1.6 cells behind the player; his cobras dig out. Sobek lies in the water, wakes from 4 cells, charges along the row (a jump clears it) and is stunned by a wall; his crocodiles come out beside him. Its HP shows in a bar at the bottom of the screen. Its death opens every boss
 gate (Gate with lock colour 5); the boss does not come back, also not after loading a save. Minions give 1 XP while
 the boss lives, half the normal XP after its death. Put at most one boss on a level, in a room only a teleporter
 leads to (`levelcheck` warns otherwise).

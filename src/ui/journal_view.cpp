@@ -189,6 +189,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 			return "Calls its kind down from the ceiling.";
 		case Summon::Coffin:
 			return "The dead climb out of their coffins at its call.";
+		case Summon::Hatch:
+			return "Her brood hatches from the egg clusters round her.";
 		}
 		break;
 	case CreatureMove::Heal:
@@ -201,6 +203,10 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Lies coiled, rears up when I come near.";
 	case CreatureMove::Spit:
 		return "Spits venom from afar. A jump clears it.";
+	case CreatureMove::Burrow:
+		return "Dives into the sand and comes up behind me.";
+	case CreatureMove::Charge:
+		return "Charges along the hall. A wall stuns it.";
 	}
 	return "";
 }

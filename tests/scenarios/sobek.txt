@@ -1,0 +1,18 @@
+# Sobek (tests/levels/sobek): lies in the lake, wakes from afar (BOSS_WAKE_RANGE), charges along the row through the
+# player (double damage) and on into the west wall, which stuns him. A jump takes the player over a charge.
+seed 1
+god
+level tests/levels/sobek
+walk to 10.8
+wait 300ms
+screenshot sobek
+expect boss > 0
+expect bars >= 0
+wait 700ms
+screenshot windup
+wait 600ms
+screenshot rush
+wait 1s
+screenshot stunned
+camera 30 10
+screenshot stunned_side

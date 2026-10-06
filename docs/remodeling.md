@@ -69,6 +69,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   eyes at 0.95 and nostrils at 0.96 of the idle height, the smooth hide at most 0.91, so the engine floats it at the water surface with only
   eyes, nostrils and ridge showing). `-- --measure` prints these fractions per clip. Sounds: `tools/audio/crocodile_sounds.py`
   (`sounds/monsters/crocodile_{wake,att,die}.wav`: water surge + splash + hiss, jaw snap + hiss, bellow + splash).
+  `--boss-texture` bakes only `crocodile_sobek.png` (Sobek: green-black hide, gold scutes, red eyes, a gold-and-lapis collar band
+  painted round the neck at y 0.325-0.435, palette keys `collar`, `lapis`), `CROCODILE_TEX=sobek` (with `--bake`).
 * `tools/blender/models/scorpion.py` - Egyptian deathstalker (Leiurus quinquestriatus), built like `scarab.py` / `rat.py` (faces +Y, rotA 180):
   rigid parts per bone; carapace with median and lateral eyes and chelicerae, seven overlapping tergites on a `meso` flex bone, eight
   two-bone IK legs (alternating tetrapod gait L1 R2 L3 R4 / R1 L2 R3 L4 with planted feet, two strides per walk clip), pedipalps by
@@ -79,8 +81,17 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   frame 0: claws grab and pinch, tail cocks, strikes over the head with the sting stabbing down between the claws 0.18 in front of the
   carapace, recoil; the build prints the sting tip per frame), die 30 (convulses, rolls onto its side belly up, legs curl in, tail limp on
   the floor). Bakes `scorpion.png` and `scorpion_giant.png` (black-brown, a carnelian sheen on the claws and the tail, the telson
-  darker red) on the same UVs; `SCORPION_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
+  darker red) on the same UVs; `SCORPION_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only
+  `scorpion_queen.png` (Serket: pale gold, lapis-blue joints, rims and claw tips, a gold sting), `SCORPION_TEX=queen`. Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
   dry chitin rattle and scraping legs).
+* `tools/blender/models/egg_cluster.py` - the scorpion queen's egg cluster, a rooted "monster" (faces -Y, rotA 0; round): 19
+  leathery eggs (cream-amber, a net of dark red veins) in three rings and a top pair, tilted outwards, glued with resin blobs on a
+  low sand mound. Each egg is rigid on its own bone (pointing up from its centre); a resin blob is weighted half to each of its two
+  eggs. Clips: move 24 (the reference, loops: the eggs swell out of step, two twitch; 0.50 high x 0.88 wide), attack 16 (loops: a
+  heave runs down from the top, the root swells; up to 0.52 high), die 20 (once: the top eggs swell and burst first, every egg
+  collapses into a flat husk on the mound). Every frame stays at or above the floor (printed per clip).
+  Sounds: `tools/audio/egg_cluster_sounds.py` (`sounds/monsters/egg_cluster_{att,die}.wav`: squelches and a shell crack; bursts,
+  splatter, drips).
 * `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
   the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
   along the body integrated from the tail (the length never changes, as in `worm.py`), plus a hood amount that spreads the neck
@@ -96,7 +107,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   leaves at frame 7 (`SPIT_RELEASE`), the mouth then 0.84 high (0.87 of the move clip's height) and 1.20 forward of the reference
   centre; last frame = move frame 0). `-- --measure` prints every clip's frame 0 extents and the mouth per spit frame.
   Bakes `cobra.png` and `cobra_giant.png` (black-necked: near black, pale cream throat band, amber eyes) on the same UVs;
-  `COBRA_TEX=giant` shows the giant one in review renders.
+  `COBRA_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `cobra_apep.png` (Apep: red-black, gold-green
+  scale edges, yellow eyes, a dark red hood with two pale eye-spot rings; palette keys `edge`, `hood`, `spot`), `COBRA_TEX=apep`.
   Sounds: `tools/audio/cobra_sounds.py` (`sounds/monsters/cobra_{wake,att,spit,die}.wav`: swelling hiss; hiss, swish and jaw
   snap; hiss and a wet 'pff'; gasping hiss, thud of the body, last slither).
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler

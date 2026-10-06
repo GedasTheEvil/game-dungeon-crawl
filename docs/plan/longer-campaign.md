@@ -1,9 +1,9 @@
 # Longer campaign
 
-Status: draft 2026-10-05.
+Status: implemented 2026-10-06 except step 6 (balance, open in monster-balance.draft.md); not play tested. Draft 2026-10-05.
 
-New bosses ([scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md),
-[apep-serpent-boss.draft.md](apep-serpent-boss.draft.md)) need more boss slots than lvl5 / 10 / 15.
+New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
+[apep-serpent-boss.md](apep-serpent-boss.md)) need more boss slots than lvl5 / 10 / 15.
 
 * More campaign levels after lvl15 (`CAMPAIGN_LEVELS`, `src/world/campaign.h`), for example with `levelgen` as a start
   and hand-finished. Each must pass `./levelcheck` with no warnings.
@@ -17,11 +17,11 @@ New bosses ([scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md),
 ## Decided (2026-10-06)
 
 * **30 levels**, a boss every 5. **The Anubis boss is the last boss, for good**: every new boss comes before him.
-* Bosses: 5 boss scarab, 10 vampire bat, 15 [scorpion queen](scorpion-queen-boss.draft.md), 20
-  [Apep](apep-serpent-boss.draft.md), 25 **Sobek** (picked by the agent while the user was away; the giant crocodile,
+* Bosses: 5 boss scarab, 10 vampire bat, 15 [scorpion queen](scorpion-queen-boss.md), 20
+  [Apep](apep-serpent-boss.md), 25 **Sobek** (picked by the agent while the user was away; the giant crocodile,
   from [more-bosses.draft.md](more-bosses.draft.md); easy to swap), 30 the Anubis boss and the ankh.
 * The Anubis guards (`MonsterAnubis`) get stronger for the late levels: retuned with the curve below.
-* New monsters: [cobra](cobra.md) (16-19 and Apep's minion), [giant cobra](giant-cobra.draft.md) (21-29), giant
+* New monsters: [cobra](cobra.md) (16-19 and Apep's minion), [giant cobra](giant-cobra.md) (21-29), giant
   scorpion (the queen's minion).
 * New levels use the whole grid: [denser-levels.draft.md](denser-levels.draft.md).
 * The user is away; the agent works through it on its own, committing each step.
@@ -52,3 +52,12 @@ New bosses ([scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md),
 Open:
 
 * Does the player's level curve need a cap or a slower XP rate for the longer run?
+
+## Done (2026-10-06)
+
+* `CAMPAIGN_LEVELS` 30; levels 15-30 drawn new on the whole grid (sources in `tools/level/campaign/`), each without
+  `levelcheck` warnings and with its path scenario passing; the old lvl15 finale's idea moved to lvl30. Level table:
+  [../levels.md](../levels.md#campaign-order). Level gems for 16-30: malachite, amethyst, obsidian.
+* Bosses in place: the scorpion queen (15), Apep (20), Sobek (25).
+* Open: step 6, the balance over 30 levels (XP curve, the Anubis guards and the Anubis boss stronger than every other
+  boss): [monster-balance.draft.md](monster-balance.draft.md). Then a full playthrough.

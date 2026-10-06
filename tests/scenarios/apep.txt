@@ -1,0 +1,20 @@
+# Apep (tests/levels/apep): dives into the floor and comes up behind the player, a hole where he went down and came
+# up; cobras dig out round him. Nothing hits him while he is under.
+seed 1
+god
+level tests/levels/apep
+walk to 9.5
+wait 1s
+screenshot apep
+expect boss > 0
+camera 30 10
+screenshot apep_side
+camera 0 0
+wait 6s
+screenshot dive
+wait 700ms
+screenshot under
+wait 900ms
+screenshot surface
+wait 2s
+screenshot behind

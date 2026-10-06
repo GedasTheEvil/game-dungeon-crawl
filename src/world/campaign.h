@@ -6,7 +6,7 @@
 
 #include <string>
 
-constexpr int CAMPAIGN_LEVELS = 15;
+constexpr int CAMPAIGN_LEVELS = 30;
 
 // The level file, also the seed of its decorations.
 [[nodiscard]] std::string campaignLevelFile(int number);

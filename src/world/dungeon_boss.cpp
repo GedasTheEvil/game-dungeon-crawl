@@ -10,6 +10,8 @@
 #include "../core/gameplay_config.h"
 #include "../graphics/fire.h"
 #include "../graphics/render_config.h"
+#include "../graphics/lighting.h"
+#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 
@@ -51,6 +53,10 @@ void Dungeon::startBossFight(int slot) {
 	const Monster& boss = monsters[slot];
 	const BossRules& rules = boss.Type()->boss;
 	bossFight.nextSummonMs = GameClock::now() + rules.summonMs;
+	if (rules.summon == Summon::Hatch) {
+		bossFight.firstLeft = rules.minAlive; // on the next updates, once the egg clusters are in play
+		return;
+	}
 	for (int k = 0; k < rules.minAlive; k++)
 		summonMinion(boss);
 }
@@ -73,6 +79,8 @@ void Dungeon::updateBoss() {
 		return;
 	}
 	const BossRules& rules = boss.Type()->boss;
+	while (bossFight.firstLeft > 0 && summonMinion(boss))
+		bossFight.firstLeft--;
 	int now = GameClock::now();
 	if (!boss.Alerted() || won || !sim.player->Alive() || now < bossFight.nextSummonMs)
 		return;
@@ -94,6 +102,40 @@ void Dungeon::drawSummonEffects() {
 		const float y = static_cast<float>(mon.Row() - view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
 		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));
 	}
+	holes.erase(
+		std::remove_if(holes.begin(), holes.end(), [now](const Hole& h) { return now - h.startMs >= BURROW_HOLE_MS; }),
+		holes.end());
+	for (const Hole& h : holes) {
+		const float x = (h.x - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
+		const float y = static_cast<float>(h.row - view().originRow) * RenderConfig::TILE_SIZE;
+		const int age = now - h.startMs;
+		if (age < Grit::BURST_MS)
+			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, false,
+						static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(h.row));
+		drawHole(x, y + 0.3f, RenderConfig::MONSTER_DEPTH,
+				 1.f - static_cast<float>(age) / static_cast<float>(BURROW_HOLE_MS));
+	}
+}
+//======================================================================================
+// A dark pit in the floor, fading out (fade 1..0): a flat disc round (x, y, z), wider along the row.
+void Dungeon::drawHole(float x, float y, float z, float fade) const {
+	constexpr float RX = 16.f, RZ = 7.f; // world units
+	constexpr int SIDES = 20;
+	sim.assets->textures.nullTex.Bind();
+	Lighting::setEmissive(true);
+	glEnable(GL_BLEND);
+	glBegin(GL_TRIANGLE_FAN);
+	glColor4f(0.02f, 0.01f, 0.f, 0.9f * fade);
+	glVertex3f(x, y, z);
+	glColor4f(0.1f, 0.07f, 0.03f, 0.f);
+	for (int i = 0; i <= SIDES; i++) {
+		const float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SIDES;
+		glVertex3f(x + RX * std::cos(a), y, z + RZ * std::sin(a));
+	}
+	glEnd();
+	glDisable(GL_BLEND);
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
 }
 //======================================================================================
 // Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can
@@ -129,6 +171,27 @@ bool Dungeon::summonMinion(const Monster& boss) {
 			return false;
 		slot->Spawn(kind, best, row, monsterLinks(), sim.random->effects);
 		slot->MakeMinion(how);
+		sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
+		return true;
+	}
+	if (how == Summon::Hatch) {
+		const Monster* best = nullptr; // the living egg cluster nearest the boss, not right by the player
+		for (const Monster& mon : monsters) {
+			if (!mon.Active() || !mon.Alive() || mon.Type()->id != MonsterEggCluster ||
+				(std::fabs(mon.CentreX() - mapX) < 1.5f && std::fabs(static_cast<float>(mon.Row()) - mapY) < 0.5f))
+				continue;
+			auto distance = [&boss](const Monster& m) {
+				return std::fabs(m.CentreX() - boss.CentreX()) + std::fabs(static_cast<float>(m.Row() - boss.Row()));
+			};
+			if (!best || distance(mon) < distance(*best))
+				best = &mon;
+		}
+		Monster* slot = best ? freeMonsterSlot() : nullptr;
+		if (slot == nullptr)
+			return false;
+		slot->Spawn(kind, best->Col(), best->Row(), monsterLinks(), sim.random->effects);
+		slot->MakeMinion(how);
+		sim.events->Play(WorldSound::SummonDig);
 		sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 		return true;
 	}

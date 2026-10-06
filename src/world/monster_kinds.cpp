@@ -53,11 +53,30 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Threat: a giant rat's, the poison on top.
 	{MonsterGiantScorpion, "giant scorpion", "Giant scorpion, its sting poisons (medium)", 'J', 3.5f, false,
 	 "Dark as old blood and as big as a dog. Its sting does not wear off quickly."},
+	// Threat: none of its own, but the queen's brood hatches from it.
+	{MonsterEggCluster, "egg cluster", "Egg cluster, harmless; the scorpion queen's brood hatches from it", 'e', 0.5f,
+	 false, "Leathery eggs glued in resin. Something moves inside. Smash them before they hatch."},
+	// Threat: between the vampire bat and the anubis boss, plus her brood.
+	{MonsterScorpionQueen, "scorpion queen",
+	 "Scorpion queen, giant scorpions hatch from the egg clusters in her room; her sting poisons (strong); her death "
+	 "opens the boss gates. One boss per level",
+	 'U', 13.f, true, "Serket herself, or her daughter. Her sting burns like fire, and her eggs are everywhere."},
+	// Threat: hard to pin down, plus his cobras.
+	{MonsterApep, "apep",
+	 "Apep, dives into the floor and comes up behind the player; cobras dig out round him; his death opens the boss "
+	 "gates. One boss per level",
+	 'P', 14.f, true, "The serpent of chaos, who swallows the sun each night. The sand is his road."},
+	// Threat: a charge that hits like a cart, plus his crocodiles.
+	{MonsterSobek, "sobek",
+	 "Sobek, lies in the water, charges along the row (a wall stuns him); crocodiles come out round him; his death "
+	 "opens the boss gates. One boss per level",
+	 'W', 14.5f, true, "The lord of the Nile, green as the river. He charges like a flood; let the wall stop him."},
 }};
 } // namespace
 
 bool isPoisoner(int type) {
-	return type == MonsterScorpion || type == MonsterCobra || type == MonsterGiantCobra || type == MonsterGiantScorpion;
+	return type == MonsterScorpion || type == MonsterCobra || type == MonsterGiantCobra ||
+		   type == MonsterGiantScorpion || type == MonsterScorpionQueen;
 }
 
 const MonsterKind* monsterKind(int type) {

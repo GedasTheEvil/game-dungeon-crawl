@@ -42,6 +42,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	facing = 0;
 	flight = Flight{};
 	leap = Leap{};
+	burrow = Burrow{};
+	charge = Charge{};
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
 	spitReadyMs = 0;
@@ -104,7 +106,29 @@ float Monster::swimLift() const {
 	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
 }
 
-float Monster::lift() const { return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink) + emergeLift(); }
+float Monster::burrowLift() const {
+	const float depth = -type->model.referenceTop * type->scale * Ink::figureScale();
+	const int age = GameClock::now() - burrow.startMs;
+	switch (burrow.phase) {
+	case BurrowPhase::Up:
+		return 0.f;
+	case BurrowPhase::Dive: {
+		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_DIVE_MS), 1.f);
+		return depth * p * p;
+	}
+	case BurrowPhase::Under:
+		return depth;
+	case BurrowPhase::Surface: {
+		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_SURFACE_MS), 1.f);
+		return depth * (1.f - p) * (1.f - p);
+	}
+	}
+	return 0.f;
+}
+
+float Monster::lift() const {
+	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink) + emergeLift() + burrowLift();
+}
 
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
@@ -174,7 +198,10 @@ bool Monster::takeHit(int dmg) {
 	return true;
 }
 
-bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) { return takeHit(resistedDamage(dmg, mix, type->resist)); }
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
+	const int hit = resistedDamage(dmg, mix, type->resist);
+	return takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
+}
 
 void Monster::StandInTrap() {
 	if (const int dmg = trapHurt.hit(); dmg > 0)
@@ -264,6 +291,8 @@ void Monster::Animate(float px, float py) {
 	if (Alive()) {
 		if (jumping())
 			facing = leap.toX > leap.fromX ? 1 : -1;
+		else if (Charging())
+			facing = charge.dir; // runs on past the player
 		else if ((submerged() && lurking()) || (coiled() && (lurking() || Rising())))
 			facing = px < CentreX() ? -1 : 1; // lies along the row (in its coil), watching the player
 		else if (lurking() || Rising())
@@ -293,7 +322,7 @@ void Monster::Draw(const TextureRegistry& textures) {
 	const float scale = type->scale;
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_SIZE * x - RenderConfig::TILE_HALF,
-				 (flies() ? flight.lift : leap.lift + swim - sink) + emergeLift(), -30.f - tomb);
+				 (flies() ? flight.lift : leap.lift + swim - sink) + emergeLift() + burrowLift(), -30.f - tomb);
 	glPushMatrix(); // will add rotation
 
 	if (Alive() && alerted && !type->isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD

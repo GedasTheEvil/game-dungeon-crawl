@@ -89,6 +89,30 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
+		if (mon.Burrowing()) {
+			if (mon.UpdateBurrow())
+				holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+			continue;
+		}
+		if (!won && mon.canDive(mapY)) {
+			if (float to = 0.f; burrowTarget(mon, to)) {
+				holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+				mon.Dive(to - static_cast<float>(mon.Col()) - 0.5f);
+			} else
+				mon.DelayDive();
+			continue;
+		}
+
+		if (mon.Charging()) {
+			const auto col = static_cast<int>(std::floor(mon.HeadX() + 0.05f * static_cast<float>(mon.ChargeDir())));
+			mon.UpdateCharge(walkerBlocked(col, mon.Row(), true), mapX, mapY);
+			continue;
+		}
+		if (!won && mon.canCharge(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
+			mon.StartCharge(mapX);
+			continue;
+		}
+
 		if (float sx = 0.f, sy = 0.f; mon.TakeSpit(sx, sy))
 			spitVenom(mon, sx, sy);
 		if (mon.Spitting())
@@ -117,6 +141,18 @@ void Dungeon::UpdateMonsters() {
 					mon.Attack(mapY);
 		}
 	}
+}
+//======================================================================================
+bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
+	const int side = mon.CentreX() < mapX ? 1 : -1;
+	for (int s : {side, -side}) {
+		const float x = mapX + static_cast<float>(s) * BURROW_BEHIND;
+		if (!walkerBlocked(static_cast<int>(std::floor(x)), mon.Row(), true)) {
+			outX = x;
+			return true;
+		}
+	}
+	return false;
 }
 //======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
@@ -167,6 +203,7 @@ void Dungeon::clearMonsters() {
 		mon.Clear();
 	arrows.clear();
 	venoms.clear();
+	holes.clear();
 	bossFight = BossFight{};
 }
 //======================================================================================
@@ -209,7 +246,7 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && mon.Nearby(mapX, mapY, reach, dir) &&
+		if (mon.Active() && mon.Alive() && !mon.Hidden() && mon.Nearby(mapX, mapY, reach, dir) &&
 			(!nearest || mon.MeleeGap(mapX, dir) < nearest->MeleeGap(mapX, dir)))
 			nearest = &mon;
 	if (!nearest)

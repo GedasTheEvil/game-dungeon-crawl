@@ -14,10 +14,10 @@ Open:
 
 Picked (2026-10-05):
 
-* [Scorpion queen](scorpion-queen-boss.draft.md): before the Anubis boss, scorpion minions from egg clusters, poison
+* [Scorpion queen](scorpion-queen-boss.md): before the Anubis boss, scorpion minions from egg clusters, poison
   ([poison-and-antidote.md](solved/poison-and-antidote.md)).
-* [Apep serpent](apep-serpent-boss.draft.md): dives between floor holes, cobra minions from baskets.
-* Placement: [longer-campaign.draft.md](longer-campaign.draft.md).
+* [Apep serpent](apep-serpent-boss.md): dives between floor holes, cobra minions from baskets.
+* Placement: [longer-campaign.md](longer-campaign.md).
 
 Other candidates, not picked:
 

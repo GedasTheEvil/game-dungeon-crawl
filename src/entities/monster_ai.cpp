@@ -36,7 +36,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 }
 
 void Monster::Attack(float py) {
-	if (!Alive())
+	if (!Alive() || type->damage <= 0) // harmless (an egg cluster)
 		return;
 
 	enter(ModelState::Attack);
@@ -63,7 +63,7 @@ bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
 	const float range = entombed()	  ? MUMMY_WAKE_RANGE
-						: submerged() ? SUBMERGED_WAKE_RANGE
+						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE : SUBMERGED_WAKE_RANGE)
 						: coiled()	  ? COILED_WAKE_RANGE
 									  : MIMIC_WAKE_RANGE;
 	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
@@ -116,6 +116,115 @@ bool Monster::TakeSpit(float& outX, float& outY) {
 		   (lift() + type->spit->mouthY * type->model.referenceTop * type->scale * Ink::figureScale()) /
 			   RenderConfig::TILE_SIZE;
 	return true;
+}
+
+bool Monster::canDive(float py) const {
+	return type->locomotion == Locomotion::Burrow && Alive() && alerted && !Burrowing() && sameRow(py) &&
+		   GameClock::now() >= burrow.nextMs;
+}
+
+void Monster::Dive(float toX) {
+	burrow.phase = BurrowPhase::Dive;
+	burrow.startMs = GameClock::now();
+	burrow.toX = toX;
+	enter(ModelState::Move);
+	type->model.wakeSound.Play();
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Burrow);
+}
+
+void Monster::DelayDive() { burrow.nextMs = GameClock::now() + BURROW_RETRY_MS; }
+
+bool Monster::UpdateBurrow() {
+	const int now = GameClock::now();
+	const int age = now - burrow.startMs;
+	switch (burrow.phase) {
+	case BurrowPhase::Up:
+		return false;
+	case BurrowPhase::Dive:
+		if (age >= BURROW_DIVE_MS) {
+			burrow.phase = BurrowPhase::Under;
+			burrow.startMs = now;
+		}
+		return false;
+	case BurrowPhase::Under:
+		if (age < BURROW_UNDER_MS)
+			return false;
+		x = burrow.toX;
+		burrow.phase = BurrowPhase::Surface;
+		burrow.startMs = now;
+		type->model.wakeSound.Play();
+		return true;
+	case BurrowPhase::Surface:
+		if (age >= BURROW_SURFACE_MS) {
+			burrow.phase = BurrowPhase::Up;
+			burrow.nextMs = now + BURROW_EVERY_MS;
+		}
+		return false;
+	}
+	return false;
+}
+
+bool Monster::canCharge(float px, float py) const {
+	if (!type->charges || !Alive() || !alerted || Charging() || !sameRow(py) || GameClock::now() < charge.nextMs)
+		return false;
+	const float d = std::fabs(px - CentreX());
+	return d >= CHARGE_MIN && d <= CHARGE_MAX;
+}
+
+void Monster::StartCharge(float px) {
+	charge.phase = ChargePhase::Windup;
+	charge.startMs = GameClock::now();
+	charge.dir = px < CentreX() ? -1 : 1;
+	charge.hit = false;
+	enter(ModelState::Attack);
+	type->model.wakeSound.Play();
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Charge);
+}
+
+void Monster::UpdateCharge(bool wallAhead, float px, float py) {
+	const int now = GameClock::now();
+	const int age = now - charge.startMs;
+	switch (charge.phase) {
+	case ChargePhase::Ready:
+		return;
+	case ChargePhase::Windup:
+		if (age >= CHARGE_WINDUP_MS) {
+			charge.phase = ChargePhase::Rush;
+			charge.startMs = now;
+			enter(ModelState::Move);
+		}
+		return;
+	case ChargePhase::Rush: {
+		if (wallAhead) {
+			charge.phase = ChargePhase::Stunned;
+			charge.startMs = now;
+			enter(ModelState::Idle);
+			type->model.dieSound.Play();
+			return;
+		}
+		x += static_cast<float>(charge.dir) * CHARGE_SPEED * static_cast<float>(UPDATE_TICK_MS) / 1000.f;
+		const float head = HeadX();
+		const bool onFloor = py - static_cast<float>(row) < CHARGE_JUMP_CLEAR; // a jump takes the player over it
+		if (!charge.hit && sameRow(py) && onFloor && std::fabs(px - head) <= links.player->HalfWidth() + 0.1f) {
+			charge.hit = true;
+			links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
+			links.journal->HitByCreature(type->id, links.level);
+			type->model.attackSound.Play();
+		}
+		if ((px - head) * static_cast<float>(charge.dir) < -CHARGE_OVERRUN) { // far past the player: it stops
+			charge.phase = ChargePhase::Ready;
+			charge.nextMs = now + CHARGE_COOLDOWN_MS;
+		}
+		return;
+	}
+	case ChargePhase::Stunned:
+		if (age >= CHARGE_STUN_MS) {
+			charge.phase = ChargePhase::Ready;
+			charge.nextMs = now + CHARGE_COOLDOWN_MS;
+			enter(ModelState::Move);
+		}
+		return;
+	}
 }
 
 float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * HalfWidth(); }

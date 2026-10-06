@@ -1,8 +1,8 @@
 # Cobra: a regular monster
 
-Status: implemented 2026-10-06 (not placed in any level yet). Draft 2026-10-06. The minion of [apep-serpent-boss.draft.md](apep-serpent-boss.draft.md), built first as a
+Status: implemented 2026-10-06 (not placed in any level yet). Draft 2026-10-06. The minion of [apep-serpent-boss.md](apep-serpent-boss.md), built first as a
 regular monster. Placement in the campaign comes later (with the boss or
-[longer-campaign.draft.md](longer-campaign.draft.md)).
+[longer-campaign.md](longer-campaign.md)).
 
 ## Decided (2026-10-06)
 

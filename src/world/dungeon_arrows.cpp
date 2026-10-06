@@ -31,7 +31,7 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 	bool found = false;
 	for (const Monster& mon : monsters) {
 		// A disguised mimic is left alone: aiming at it would give it away.
-		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Row() != row)
+		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Hidden() || mon.Row() != row)
 			continue;
 		const float near = mon.NearEdge(dir);
 		const float ahead = (near - x) * static_cast<float>(dir);
@@ -120,7 +120,7 @@ void Dungeon::updateArrows() {
 				break;
 			}
 			for (Monster& mon : monsters)
-				if (mon.Active() && mon.Alive() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
+				if (mon.Active() && mon.Alive() && !mon.Hidden() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
 					// The water takes the arrow's force: a monster in it is hit for a share.
 					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix);

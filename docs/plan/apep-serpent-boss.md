@@ -1,6 +1,6 @@
 # Apep serpent boss
 
-Status: draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
 
 Apep (Apophis), the serpent of chaos, a giant snake boss.
 
@@ -30,7 +30,7 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 * Attack damage mix ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)): the bite
   pierce, Apep and the cobra alike? Apep's coils crushing (blunt)?
 * Placement and its rank against the scorpion queen and the Anubis boss:
-  [longer-campaign.draft.md](longer-campaign.draft.md).
+  [longer-campaign.md](longer-campaign.md).
 * New tile or prop for the holes, and how `levelcheck` checks them.
 * Numbers.
 
@@ -44,3 +44,10 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 * Minions: cobras that dig out of the sand (`Summon::DigOut`); the baskets are a later upgrade.
 * No poison himself. Bite: pierce (the cobras' mix). Starting numbers: speed 6, 1100 HP, 60 damage every 1200 ms,
   20000 XP; minions 2 / 4 / every 3 s / 10 per fight.
+
+## Done (2026-10-06)
+
+* `MonsterApep` (22, glyph `P`), `Locomotion::Burrow` (`Monster::Dive`, `UpdateBurrow`, `Dungeon::burrowTarget`,
+  `BURROW_*` in `gameplay_config.h`), holes drawn with the dig-out grit (`Dungeon::drawHole`), hidden from weapons
+  and arrows while down. Cobras dig out. In lvl20's boss room.
+* Not done: the baskets, a segmented body, a hole tile. Check: `tests/scenarios/apep.txt`. Not play tested.

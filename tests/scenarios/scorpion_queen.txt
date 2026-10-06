@@ -1,0 +1,30 @@
+# The scorpion queen (tests/levels/scorpion_queen): giant scorpions hatch from the egg clusters round her (Summon::Hatch);
+# with the clusters smashed she summons no more. Her sting poisons (strong).
+seed 1
+god
+level tests/levels/scorpion_queen
+give melee 1
+walk to 8.5
+wait 2s
+screenshot clusters
+expect boss > 0
+expect minions >= 1
+walk to 7.5
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+screenshot cluster_smashed
+wait 3s
+screenshot queen
+camera 30 10
+screenshot queen_side
+camera 0 0
+wait 6s
+expect poison >= 4

@@ -131,11 +131,23 @@ class Dungeon {
 		int slot = -1;		  // monsters[] index of the boss, -1: none in play
 		int summoned = 0;	  // minions summoned this fight, after the first ones
 		int nextSummonMs = 0; // GameClock time of the next summon
+		int firstLeft = 0;	  // hatchers: first minions still to come (the egg clusters spawn in view after the boss)
 	} bossFight;
 	void startBossFight(int slot); // the boss appeared: its first minions with it
 	void updateBoss();			   // summons while it lives; its death opens the boss gates, for good
 	bool summonMinion(const Monster& boss);
-	void drawSummonEffects(); // sand and dust where minions came out, after the opaque scene
+	void drawSummonEffects(); // sand and dust where minions came out, the burrowers' holes, after the opaque scene
+	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
+	struct Hole {
+		float x; // map x
+		int row;
+		int startMs;
+	};
+	std::vector<Hole> holes;
+	void drawHole(float x, float y, float z, float fade) const;
+	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
+	// them. False: neither is floor it can stand on.
+	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
 	// Arrows (dungeon_arrows.cpp): a parabola from the launch point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
 	struct Arrow {
 		float x0, y0, vx, vy;

@@ -30,7 +30,7 @@ TEST_CASE("every structure has a row and its own glyph") {
 	CHECK(glyphs.size() == static_cast<size_t>(STRUCTURE_COUNT));
 }
 
-TEST_CASE("every monster type has a row, three bosses") {
+TEST_CASE("every monster type has a row, six bosses") {
 	std::set<char> glyphs;
 	int bosses = 0;
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
@@ -41,7 +41,7 @@ TEST_CASE("every monster type has a row, three bosses") {
 		bosses += kind->boss ? 1 : 0;
 	}
 	CHECK(glyphs.size() == static_cast<size_t>(MONSTER_TYPE_MAX));
-	CHECK(bosses == 3);
+	CHECK(bosses == 6);
 	CHECK(isBossMonster(MonsterBossScarab));
 	CHECK(isBossMonster(MonsterVampireBat));
 	CHECK(isBossMonster(MonsterAnubisBoss));

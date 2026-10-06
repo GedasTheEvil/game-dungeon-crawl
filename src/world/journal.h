@@ -40,8 +40,10 @@ enum class CreatureMove : unsigned char {
 	Poison,	 // a poisoned bite or sting
 	Rear,	 // the cobra rears up out of its coil
 	Spit,	 // venom spat from afar
+	Burrow,	 // Apep dives into the floor and comes up elsewhere
+	Charge,	 // Sobek charges along the row
 };
-constexpr int CREATURE_MOVE_COUNT = 10;
+constexpr int CREATURE_MOVE_COUNT = 12;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
 // a kill count (docs/plan/solved/monster-journal.md).

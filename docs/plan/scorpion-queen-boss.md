@@ -1,6 +1,6 @@
 # Scorpion queen boss
 
-Status: draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
 
 A boss for the Egyptian setting (Serket, the scorpion goddess). She ranks below the Anubis boss: she comes before him
 in the campaign, and he stays the last boss.
@@ -41,7 +41,7 @@ every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are se
 * Attack damage mix ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)): her own group,
   not the scorpions'; maybe all three types (claws slash, sting pierce, a blow of the tail blunt).
 * Placement: the queen needs a boss level before the Anubis boss. Today the bosses sit at lvl5 / 10 / 15 and lvl15
-  holds the ankh. See [longer-campaign.draft.md](longer-campaign.draft.md).
+  holds the ankh. See [longer-campaign.md](longer-campaign.md).
 * Numbers (HP, damage, summon counts), after the poison numbers are settled.
 * `levelcheck` rules for egg clusters (inside the boss room, reachable).
 
@@ -56,3 +56,10 @@ every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are se
   living egg cluster (a dig-out effect on its cell); with no cluster left she summons no more.
 * Starting numbers: speed 5, 700 HP, 45 damage every 1100 ms, strong poison, 15000 XP; minions: 2 on arrival, at most
   4, one every 3 s, 10 per fight. Egg cluster: 60 HP, 0 damage, 300 XP.
+
+## Done (2026-10-06)
+
+* `MonsterScorpionQueen` (21, glyph `U`), `MonsterEggCluster` (20, `e`, model `tools/blender/models/egg_cluster.py`),
+  `MonsterGiantScorpion` (19, `J`, the minion), `Summon::Hatch` (`Dungeon::summonMinion`; the first minions wait for a
+  cluster in play). Numbers as decided above. In lvl15's boss room with two egg clusters.
+* Check: `tests/scenarios/scorpion_queen.txt`. Not play tested.

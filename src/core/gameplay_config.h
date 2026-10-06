@@ -72,6 +72,7 @@ constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most thi
 // The crocodile (Locomotion::Submerged): lies in the water, its top SUBMERGED_SHOW world units above the surface, until
 // the player comes this close along its row. A swimmer's float height follows its target at SWIM_LIFT_RATE (1/s).
 constexpr float SUBMERGED_WAKE_RANGE = 1.4f; // from its centre: its head is then ~0.65 tiles off, in view
+constexpr float BOSS_WAKE_RANGE = 4.f;		 // a lurking boss (Sobek) wakes from farther, across its room
 constexpr float SUBMERGED_SHOW = 0.5f;		 // the eyes, the nostrils and the back ridge (crocodile.py)
 constexpr float SWIM_LIFT_RATE = 4.f;
 
@@ -83,6 +84,30 @@ constexpr float VENOM_SPEED = 3.f;	// tiles per second
 constexpr float VENOM_CHEST = 0.6f; // of the player's height
 constexpr float VENOM_MAX_FLIGHT = 4.f;
 constexpr int VENOM_SPLAT_MS = 400; // a splat on a wall or the floor stays this long
+
+// Burrowers (Apep, Monster::Dive): sink into the floor, stay under, come up BURROW_BEHIND tiles past the player (the
+// side away from where it dived), then walk and bite for BURROW_EVERY_MS before the next dive. A hole stays drawn
+// where it went down and came up for BURROW_HOLE_MS.
+constexpr int BURROW_DIVE_MS = 700;
+constexpr int BURROW_UNDER_MS = 900;
+constexpr int BURROW_SURFACE_MS = 700;
+constexpr int BURROW_EVERY_MS = 6000;
+constexpr int BURROW_RETRY_MS = 1000;
+constexpr float BURROW_BEHIND = 1.6f;
+constexpr int BURROW_HOLE_MS = 3000;
+
+// Chargers (Sobek, Monster::StartCharge): from CHARGE_MIN..CHARGE_MAX tiles along its row it winds up, then rushes
+// at CHARGE_SPEED. Its rush hits the player on the floor (not more than CHARGE_JUMP_CLEAR tiles up) for
+// CHARGE_HIT_FACTOR x its damage; into a wall it is stunned and takes CHARGE_STUN_DAMAGE_FACTOR x the weapons' damage.
+constexpr float CHARGE_MIN = 2.5f, CHARGE_MAX = 6.f;
+constexpr int CHARGE_WINDUP_MS = 700;
+constexpr float CHARGE_SPEED = 4.f; // tiles per second
+constexpr float CHARGE_JUMP_CLEAR = 0.15f;
+constexpr int CHARGE_HIT_FACTOR = 2;
+constexpr int CHARGE_STUN_MS = 2500;
+constexpr int CHARGE_STUN_DAMAGE_FACTOR = 2;
+constexpr int CHARGE_COOLDOWN_MS = 4000;
+constexpr float CHARGE_OVERRUN = 3.f; // tiles past the player a rush with no wall ahead stops
 
 constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
 // The mummy (Locomotion::Entombed) lies in its coffin (decor_coffin, drawn on its spawn tile), its body drawn

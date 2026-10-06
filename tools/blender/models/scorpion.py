@@ -7,6 +7,8 @@ animations (walk, attack, die).
 
 Two textures share one UV layout: scorpion.png (straw, the deathstalker) and scorpion_giant.png (black-brown, a
 carnelian sheen on the claws and the tail). Set SCORPION_TEX=giant to show the giant texture on the built object.
+scorpion_queen.png (Serket, the boss: pale gold, lapis joints and claw tips, a gold sting): bake it alone with
+--boss-texture; SCORPION_TEX=queen shows it.
 
 Blender space: Z up, the scorpion faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts follow one bone each: prosoma (carapace, chelicerae, eyes), mesosoma (seven overlapping tergites, a flex
@@ -70,6 +72,22 @@ COL_GIANT = {
     "tail": (0.26, 0.06, 0.03),
     "tail_end": (0.20, 0.035, 0.02),
     "telson": (0.16, 0.025, 0.015),
+}
+# The scorpion queen (scorpion_queen.png, same UVs, a boss; Serket): pale gold carapace, lapis-blue joints, rims and claw
+# tips, a gold sting.
+COL_QUEEN = {
+    "straw": (0.78, 0.58, 0.20),
+    "straw_hi": (0.92, 0.76, 0.36),
+    "straw_pale": (0.84, 0.68, 0.30),
+    "amber": (0.62, 0.40, 0.08),
+    "amber_dark": (0.03, 0.07, 0.36),
+    "rim": (0.04, 0.10, 0.42),
+    "black": (0.55, 0.36, 0.05),
+    "eye": (0.004, 0.004, 0.02),
+    "claw": (0.80, 0.60, 0.22),
+    "tail": (0.80, 0.60, 0.22),
+    "tail_end": (0.70, 0.48, 0.12),
+    "telson": (0.86, 0.66, 0.22),
 }
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))
@@ -719,6 +737,9 @@ def build(bake=True, tex_path=None, giant_path=None):
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "scorpion_preview.png"), TEX_SIZE, "scorpion", ao_distance=0.12)
         materials(COL_GIANT)
         giant = common.bake_texture(obj, giant_path or os.path.join(tmp, "scorpion_giant_preview.png"), TEX_SIZE, "scorpion_giant", ao_distance=0.12)
+        if os.environ.get("SCORPION_TEX") == "queen":
+            materials(COL_QUEEN)
+            tex = common.bake_texture(obj, os.path.join(tmp, "scorpion_queen_preview.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
         common.use_baked_material(obj, giant if os.environ.get("SCORPION_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
@@ -740,7 +761,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_QUEEN)
+        common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "scorpion_queen.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
+    elif "--export" in args:
         tex_dir = os.path.join(REPO, "textures", "monsters")
         build(tex_path=os.path.join(tex_dir, "scorpion.png"), giant_path=os.path.join(tex_dir, "scorpion_giant.png"))
         export()

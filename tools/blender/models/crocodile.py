@@ -3,7 +3,10 @@
 
     MCP:  p = ".../tools/blender/models/crocodile.py"; g = {"__file__": p, "__name__": "crocodile"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/crocodile.py -- [--export] [--measure]
+    CLI:  blender -b --python tools/blender/models/crocodile.py -- [--export] [--measure] [--boss-texture]
+
+crocodile_sobek.png (Sobek, the boss: green-black hide, gold scutes, red eyes, a gold-and-lapis collar band behind the
+head) shares the UVs: bake it alone with --boss-texture; CROCODILE_TEX=sobek shows it (with --bake).
 
 Blender space: Z up, the crocodile faces +Y (game uses rotA = 180, as the rat), its right side is +X.
 Built like rat.py: one loft for the body blended over hips / chest / head bones (plus a leaf 'breath' bone that
@@ -52,6 +55,25 @@ COL = {
     "tooth": (0.80, 0.76, 0.62),
     "mouth": (0.72, 0.40, 0.38),
     "throat": (0.45, 0.16, 0.15),
+}
+# Sobek (crocodile_sobek.png, same UVs, a boss): dark green-black hide, gold scutes, red eyes, a gold-and-lapis collar
+# band painted behind the head ("collar", "lapis").
+COL_SOBEK = {
+    "belly": (0.16, 0.17, 0.08),
+    "flank": (0.05, 0.07, 0.035),
+    "back": (0.025, 0.04, 0.02),
+    "dark": (0.012, 0.018, 0.01),
+    "band": (0.01, 0.012, 0.008),
+    "scute": (0.55, 0.40, 0.10),
+    "claw": (0.40, 0.30, 0.08),
+    "eye": (0.80, 0.06, 0.03),
+    "pupil": (0.01, 0.005, 0.004),
+    "nostril": (0.01, 0.01, 0.008),
+    "tooth": (0.85, 0.78, 0.55),
+    "mouth": (0.62, 0.25, 0.22),
+    "throat": (0.30, 0.10, 0.08),
+    "collar": (0.75, 0.55, 0.15),
+    "lapis": (0.04, 0.10, 0.45),
 }
 
 UP, FWD = V((0, 0, 1)), V((0, 1, 0))
@@ -249,6 +271,30 @@ def hide_material(pal):
         link(out, m.inputs[0])
         link(f, m.inputs[1])
         out = m.outputs[0]
+    if "collar" in pal:  # a band round the neck: gold edges, lapis between, by the object's y
+        cr = new("ShaderNodeValToRGB")
+        cr.color_ramp.interpolation = "CONSTANT"
+        ce = cr.color_ramp.elements
+        ce[0].position, ce[0].color = 0.0, (0, 0, 0, 1)
+        ce[1].position, ce[1].color = 0.80, (0, 0, 0, 1)
+        for pos, c in ((0.20, "collar"), (0.30, "lapis"), (0.45, "collar"), (0.55, "lapis"), (0.70, "collar")):
+            ce.new(pos).color = (*pal[c], 1)
+        span = new("ShaderNodeMapRange")
+        span.inputs["From Min"].default_value, span.inputs["From Max"].default_value = 0.28, 0.48
+        link(osep.outputs["Y"], span.inputs["Value"])
+        link(span.outputs["Result"], cr.inputs["Fac"])
+        inband = new("ShaderNodeMath")
+        inband.operation = "MULTIPLY"
+        lo = clamp_lin(osep.outputs["Y"], 200.0, -0.32 * 200.0)  # 1 from y 0.325 on
+        hi = clamp_lin(osep.outputs["Y"], -200.0, 0.44 * 200.0)  # 1 up to y 0.435
+        link(lo, inband.inputs[0])
+        link(hi, inband.inputs[1])
+        cm = new("ShaderNodeMix")
+        cm.data_type = "RGBA"
+        link(inband.outputs[0], socket(cm.inputs, "Factor_Float"))
+        link(out, socket(cm.inputs, "A_Color"))
+        link(cr.outputs["Color"], socket(cm.inputs, "B_Color"))
+        out = socket(cm.outputs, "Result_Color")
     link(out, bsdf.inputs["Base Color"])
     return mat
 
@@ -800,6 +846,9 @@ def build(bake=True, tex_path=None):
     if bake:
         tmp = bpy.app.tempdir or "/tmp"
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "crocodile_preview.png"), TEX_SIZE, "crocodile", ao_distance=0.12)
+        if os.environ.get("CROCODILE_TEX") == "sobek":
+            materials(COL_SOBEK)
+            tex = common.bake_texture(obj, os.path.join(tmp, "crocodile_sobek_preview.png"), TEX_SIZE, "crocodile_sobek", ao_distance=0.12)
         common.use_baked_material(obj, tex)
     common.rig_object(obj, rig)
     rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
@@ -843,7 +892,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_SOBEK)
+        common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "crocodile_sobek.png"), TEX_SIZE, "crocodile_sobek", ao_distance=0.12)
+    elif "--export" in args:
         build(tex_path=os.path.join(REPO, "textures", "monsters", "crocodile.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "crocodile.blend"))

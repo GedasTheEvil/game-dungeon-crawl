@@ -148,13 +148,13 @@ const MonsterDef MONSTER_DEFS[] = {
 	 Locomotion::Walk,
 	 {0.45f, 0.62f, 0.55f}},
 	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar (SPIT_DEFS); lies coiled
-	// until the player comes near (docs/plan/cobra.draft.md).
+	// until the player comes near (docs/plan/cobra.md).
 	{MonsterCobra, "Cobra", "monsters/cobra", "monsters/cobra", 6, 35, 6, 1100, 1200, 24, 180, Locomotion::Coiled,
 	 RED_BLOOD},
-	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.draft.md).
+	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.md).
 	{MonsterGiantCobra, "Giant cobra", "monsters/cobra", "monsters/cobra_giant", 8, 110, 16, 1300, 2600, 36, 180,
 	 Locomotion::Coiled, RED_BLOOD},
-	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.draft.md).
+	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.md).
 	{MonsterGiantScorpion,
 	 "Giant scorpion",
 	 "monsters/scorpion",
@@ -168,6 +168,55 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Walk,
 	 {0.45f, 0.62f, 0.55f}},
+	// Rooted and harmless: the scorpion queen's brood hatches from it (Summon::Hatch). Dies to a few blows.
+	{MonsterEggCluster,
+	 "Egg cluster",
+	 "monsters/egg_cluster",
+	 "monsters/egg_cluster",
+	 0,
+	 60,
+	 0,
+	 1000,
+	 300,
+	 16,
+	 0,
+	 Locomotion::Stationary,
+	 {0.85f, 0.75f, 0.35f}},
+	// The lvl15 boss on the scorpion model, the size of a cart; see BOSS_DEFS (docs/plan/scorpion-queen-boss.md).
+	{MonsterScorpionQueen,
+	 "Scorpion queen",
+	 "monsters/scorpion",
+	 "monsters/scorpion_queen",
+	 5,
+	 700,
+	 45,
+	 1100,
+	 15000,
+	 48,
+	 180,
+	 Locomotion::Walk,
+	 {0.5f, 0.7f, 0.6f},
+	 Courage::Reckless,
+	 10},
+	// The lvl20 boss on the cobra model, long as the hall; see BOSS_DEFS (docs/plan/apep-serpent-boss.md).
+	{MonsterApep,
+	 "Apep",
+	 "monsters/cobra",
+	 "monsters/cobra_apep",
+	 6,
+	 1100,
+	 60,
+	 1200,
+	 20000,
+	 70,
+	 180,
+	 Locomotion::Burrow,
+	 {0.35f, 0.05f, 0.1f},
+	 Courage::Reckless,
+	 10},
+	// The lvl25 boss on the crocodile model; see BOSS_DEFS (docs/plan/sobek-boss.md).
+	{MonsterSobek, "Sobek", "monsters/crocodile", "monsters/crocodile_sobek", 6, 1600, 70, 1300, 25000, 100, 180,
+	 Locomotion::Submerged, RED_BLOOD, Courage::Reckless, 10},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -193,6 +242,9 @@ const struct {
 	{MonsterBossScarab, {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	{MonsterVampireBat, {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
 	{MonsterAnubisBoss, {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
+	{MonsterScorpionQueen, {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch}},
+	{MonsterApep, {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
+	{MonsterSobek, {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
 };
 
 // How each monster type takes blunt, slash and pierce damage (docs/plan/solved/damage-types-and-resistances.md); a
@@ -220,6 +272,10 @@ const struct {
 	{MonsterCobra, {RESISTS, WEAK, NORMAL}},		 // the coils give under a blow; a blade cuts the thin body
 	{MonsterGiantCobra, {RESISTS, WEAK, NORMAL}},	 //
 	{MonsterGiantScorpion, {WEAK, NORMAL, RESISTS}}, //
+	{MonsterScorpionQueen, {WEAK, NORMAL, RESISTS}}, // the club cracks her shell
+	{MonsterEggCluster, {NORMAL, WEAK, RESISTS}},	 // a blade slits the leathery eggs
+	{MonsterApep, {RESISTS, WEAK, NORMAL}},			 // as the cobras
+	{MonsterSobek, {NORMAL, RESISTS, NORMAL}},		 // as the crocodiles
 };
 
 // What each monster group's bite or blow deals (docs/plan/solved/monster-attack-damage-types.md), read from what the
@@ -229,17 +285,18 @@ const struct {
 	const char* model;
 	DamageMix mix;
 } ATTACK_MIX_DEFS[] = {
-	{"monsters/worm", {60, 40, 0}},		 // grinding maw
-	{"monsters/scarab", {40, 60, 0}},	 // rams, mandibles
-	{"monsters/plant", {0, 40, 60}},	 // bite, thorny vines
-	{"monsters/rat", {0, 30, 70}},		 // teeth
-	{"monsters/bat", {0, 20, 80}},		 // fangs, claws
-	{"monsters/mummy", {100, 0, 0}},	 // fists
-	{"monsters/anubis", {80, 0, 20}},	 // was-sceptre, its forked foot
-	{"monsters/crocodile", {50, 0, 50}}, // crushing jaws
-	{"monsters/scorpion", {0, 30, 70}},	 // claws, sting
-	{"monsters/mimic", {40, 0, 60}},	 // lid slam, teeth
-	{"monsters/cobra", {0, 0, 100}},	 // fangs
+	{"monsters/worm", {60, 40, 0}},		   // grinding maw
+	{"monsters/scarab", {40, 60, 0}},	   // rams, mandibles
+	{"monsters/plant", {0, 40, 60}},	   // bite, thorny vines
+	{"monsters/rat", {0, 30, 70}},		   // teeth
+	{"monsters/bat", {0, 20, 80}},		   // fangs, claws
+	{"monsters/mummy", {100, 0, 0}},	   // fists
+	{"monsters/anubis", {80, 0, 20}},	   // was-sceptre, its forked foot
+	{"monsters/crocodile", {50, 0, 50}},   // crushing jaws
+	{"monsters/scorpion", {0, 30, 70}},	   // claws, sting
+	{"monsters/mimic", {40, 0, 60}},	   // lid slam, teeth
+	{"monsters/cobra", {0, 0, 100}},	   // fangs
+	{"monsters/egg_cluster", {100, 0, 0}}, // never bites
 };
 
 // How the walkers move through half water, and their speed in it times their speed on land; the others wade slowed
@@ -257,6 +314,8 @@ const struct {
 	{MonsterCrocodile, Wading::Swimmer, 2.5f},
 	{MonsterCobra, Wading::Swimmer, 1.25f},
 	{MonsterGiantCobra, Wading::Swimmer, 1.25f},
+	{MonsterApep, Wading::Swimmer, 1.25f},
+	{MonsterSobek, Wading::Swimmer, 2.5f},
 };
 
 // The monsters whose bite or sting poisons the player, and the tier (docs/plan/solved/poison-and-antidote.md).
@@ -264,10 +323,9 @@ const struct {
 	MonsterTypeId id;
 	PoisonTier tier;
 } POISON_DEFS[] = {
-	{MonsterScorpion, PoisonTier::Weak},
-	{MonsterCobra, PoisonTier::Medium},
-	{MonsterGiantCobra, PoisonTier::Medium},
-	{MonsterGiantScorpion, PoisonTier::Medium},
+	{MonsterScorpion, PoisonTier::Weak},		{MonsterCobra, PoisonTier::Medium},
+	{MonsterGiantCobra, PoisonTier::Medium},	{MonsterGiantScorpion, PoisonTier::Medium},
+	{MonsterScorpionQueen, PoisonTier::Strong},
 };
 
 // The monsters that spit venom at the player from afar (Monster::Spit, Dungeon::Venom); the release and the mouth
@@ -421,8 +479,9 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		MonsterType& type = monsterTypes[def.id];
 		const ClipFiles& clips = def.locomotion == Locomotion::Ambush	  ? AMBUSH_CLIPS
 								 : def.locomotion == Locomotion::Entombed ? ENTOMBED_CLIPS
-								 : def.locomotion == Locomotion::Coiled	  ? COILED_CLIPS
-																		  : MONSTER_CLIPS;
+								 : def.locomotion == Locomotion::Coiled || def.locomotion == Locomotion::Burrow
+									 ? COILED_CLIPS
+									 : MONSTER_CLIPS;
 		type.model.Load(def.model, std::move(tex), clips);
 		type.speed = def.speed;
 		type.maxHealth = def.maxHealth;
@@ -457,6 +516,7 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		monsterTypes[def.id].poison = def.tier;
 	for (const auto& def : SPIT_DEFS)
 		monsterTypes[def.id].spit = def.rules;
+	monsterTypes[MonsterSobek].charges = true;	   // Monster::StartCharge
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the checker's poisoners and POISON_DEFS must agree
 		if (monsterTypes[static_cast<size_t>(id)].poison.has_value() != isPoisoner(id))
 			LOG_ERRORF("assets", "Monster type %d: poisoner in %s only", id,

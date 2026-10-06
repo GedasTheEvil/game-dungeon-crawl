@@ -1,0 +1,5 @@
+; The scorpion queen (col 12) with egg clusters on both sides of her (cols 6, 18) in a long hall
+; (tests/scenarios/scorpion_queen.txt).
+##########################
+#S....e.....U.....e.....E#
+##########################

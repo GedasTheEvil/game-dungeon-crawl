@@ -1,0 +1,9 @@
+; Sobek (col 14) in a lake of half water (cols 10-19) over deep water, a short dry floor west of it up to the wall
+; (cols 8-9), dry floor east of it (tests/scenarios/sobek.txt).
+##########################
+########S.....W.........E#
+##########################
+structure
+##########################
+########..~~~~~~~~~~.....#
+##########==========######

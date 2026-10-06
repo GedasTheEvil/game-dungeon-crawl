@@ -46,7 +46,8 @@ bool CharacterModel::Load(const char* name, Texture&& tex, const ClipFiles& file
 	for (auto [suffix, target] : {std::pair{"_die.wav", &dieSound},
 								  {"_att.wav", &attackSound},
 								  {"_jump.wav", &jumpSound},
-								  {"_wake.wav", &wakeSound}})
+								  {"_wake.wav", &wakeSound},
+								  {"_spit.wav", &spitSound}})
 		if (std::string path = sound + suffix; std::filesystem::exists(path))
 			target->Load(path.c_str());
 

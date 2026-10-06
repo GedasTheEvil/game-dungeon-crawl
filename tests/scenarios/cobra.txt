@@ -1,0 +1,41 @@
+# The cobra (tests/levels/cobra): lies coiled until the player comes near, rears up, spits venom (medium poison) from
+# afar, then comes on and bites. Coiled, it shows no health bar.
+seed 1
+level tests/levels/cobra
+walk right 3
+screenshot coiled
+expect bars == 0
+camera 30 10
+screenshot coiled_side
+camera 0 0
+walk right 2
+wait 300ms
+screenshot rise
+expect bars == 1
+wait 1s
+screenshot spit
+wait 1s
+screenshot spat
+expect poison == 2
+expect hp < 100
+wait 2s
+screenshot bite
+god
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+screenshot die
+expect nearest == 0

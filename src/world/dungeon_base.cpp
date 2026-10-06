@@ -112,6 +112,7 @@ void Dungeon::Update() {
 	UpdateMonsters();
 	noteSeenMonsters();
 	updateArrows();
+	updateVenoms();
 	updateTraps();
 	spawnInView();
 	updateAnimations();

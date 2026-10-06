@@ -197,6 +197,10 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Lies under the water, only its eyes show.";
 	case CreatureMove::Poison:
 		return "Its poison burns on long after the bite.";
+	case CreatureMove::Rear:
+		return "Lies coiled, rears up when I come near.";
+	case CreatureMove::Spit:
+		return "Spits venom from afar. A jump clears it.";
 	}
 	return "";
 }

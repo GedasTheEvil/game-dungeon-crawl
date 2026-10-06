@@ -60,7 +60,7 @@ class Dungeon {
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
-	void clearMonsters(); // a level or save was loaded: the old level's monsters and arrows are gone
+	void clearMonsters(); // a level or save was loaded: the old level's monsters, arrows and venom are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const { return {sim.player, sim.journal, sim.events, levelNumber}; }
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
@@ -149,7 +149,20 @@ class Dungeon {
 	};
 	std::vector<Arrow> arrows;
 	void updateArrows();
-	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
+	// Venom a spitter spat at the player (dungeon_arrows.cpp): a straight line from its mouth, map units.
+	struct Venom {
+		float x, y, vx, vy;
+		const MonsterType* from; // its damage, mix and poison
+		int lastMs;				 // GameClock time of the last update
+		float flown = 0.f;		 // tiles
+		int splatMs = -1;		 // GameClock time it hit a wall or the floor; < 0: flying
+	};
+	std::vector<Venom> venoms;
+	void spitVenom(const Monster& mon, float x, float y);
+	void updateVenoms();
+	void drawVenoms();													// with the frame origin of DrawMonsters
+	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
+	void dropChest(const Monster& mon, ItemKind weapon);				// RollKillDrop
 	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
 	TrapHurt trapHurt; // the player's
 	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the

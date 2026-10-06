@@ -89,6 +89,15 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
+		if (float sx = 0.f, sy = 0.f; mon.TakeSpit(sx, sy))
+			spitVenom(mon, sx, sy);
+		if (mon.Spitting())
+			continue;
+		if (!won && mon.canSpit(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
+			mon.Spit();
+			continue;
+		}
+
 		if (mon.Alive() && !won && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
@@ -157,6 +166,7 @@ void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
 	arrows.clear();
+	venoms.clear();
 	bossFight = BossFight{};
 }
 //======================================================================================

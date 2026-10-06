@@ -4,6 +4,8 @@
 #include "player.h"
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
+#include "../graphics/ink.h"
+#include "../graphics/render_config.h"
 
 int Monster::attackDirection(float px, float py) const {
 	if (!sameRow(py))
@@ -60,7 +62,10 @@ void Monster::bite() {
 bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
-	const float range = entombed() ? MUMMY_WAKE_RANGE : submerged() ? SUBMERGED_WAKE_RANGE : MIMIC_WAKE_RANGE;
+	const float range = entombed()	  ? MUMMY_WAKE_RANGE
+						: submerged() ? SUBMERGED_WAKE_RANGE
+						: coiled()	  ? COILED_WAKE_RANGE
+									  : MIMIC_WAKE_RANGE;
 	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
 		return true;
@@ -73,10 +78,44 @@ void Monster::wake() {
 	alerted = true;
 	const CreatureMove move = entombed()	? CreatureMove::Rise
 							  : submerged() ? CreatureMove::Surface
+							  : coiled()	? CreatureMove::Rear
 											: CreatureMove::Ambush;
 	links.journal->SeeMove(type->id, links.level, move);
-	enter(entombed() ? ModelState::Rise : ModelState::Move);
+	enter(rises() ? ModelState::Rise : ModelState::Move);
 	type->model.wakeSound.Play();
+}
+
+bool Monster::canSpit(float px, float py) const {
+	if (!type->spit || !Alive() || !alerted || lurking() || GameClock::now() < spitReadyMs)
+		return false;
+	const int dir = attackDirection(px, py); // 0: in bite reach or not on its row
+	const float gap = dir > 0 ? (px - links.player->HalfWidth()) - Right() : Left() - (px + links.player->HalfWidth());
+	return dir != 0 && gap <= type->spit->range;
+}
+
+void Monster::Spit() {
+	if (!type->spit)
+		return;
+	enter(ModelState::Spit);
+	spitReadyMs = GameClock::now() + type->spit->cooldownMs;
+	spitReleased = false;
+	type->model.spitSound.Play();
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Spit);
+}
+
+bool Monster::Spitting() const {
+	return Alive() && state == ModelState::Spit && !type->model.Finished(state, playback);
+}
+
+bool Monster::TakeSpit(float& outX, float& outY) {
+	if (!type->spit || spitReleased || !Spitting() || type->model.Progress(state, playback) < type->spit->release)
+		return false;
+	spitReleased = true;
+	outX = HeadX();
+	outY = static_cast<float>(row) +
+		   (lift() + type->spit->mouthY * type->model.referenceTop * type->scale * Ink::figureScale()) /
+			   RenderConfig::TILE_SIZE;
+	return true;
 }
 
 float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * HalfWidth(); }

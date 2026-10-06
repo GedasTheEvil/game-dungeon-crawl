@@ -1,0 +1,4 @@
+; A coiled cobra (col 8) in front of the player (col 2) (tests/scenarios/cobra.txt).
+##################
+#.S.....c.......E#
+##################

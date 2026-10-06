@@ -8,6 +8,7 @@
 #include "../core/gameplay_config.h"
 #include "../graphics/ink.h"
 #include "../graphics/render_config.h"
+#include "../graphics/lighting.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
@@ -19,6 +20,7 @@ constexpr float ARROW_STEP_S = 0.005f;	   // hit test interval along the flight
 constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;
+constexpr float PI = 3.14159265f;
 } // namespace
 
 float Dungeon::Arrow::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
@@ -150,4 +152,107 @@ void Dungeon::drawArrows() {
 		model->Show();
 		glPopMatrix();
 	}
+}
+//======================================================================================
+bool Dungeon::clearRow(float fromX, float toX, int row) const {
+	const int dir = toX > fromX ? 1 : -1;
+	for (auto col = static_cast<int>(std::floor(fromX)); col != static_cast<int>(std::floor(toX)) + dir; col += dir)
+		if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
+			return false;
+	return true;
+}
+//======================================================================================
+// At the player's chest as they stand at the spit: a jump takes them out of its line.
+void Dungeon::spitVenom(const Monster& mon, float x, float y) {
+	const float dx = mapX - x;
+	const float dy = mapY + VENOM_CHEST * sim.player->Height() - y;
+	const float len = std::max(std::hypot(dx, dy), 0.01f);
+	venoms.push_back({x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), GameClock::now()});
+}
+//======================================================================================
+void Dungeon::updateVenoms() {
+	const int now = GameClock::now();
+	const float half = sim.player->HalfWidth();
+	const float height = sim.player->Height();
+	for (auto it = venoms.begin(); it != venoms.end();) {
+		Venom& v = *it;
+		if (v.splatMs >= 0) {
+			it = now - v.splatMs >= VENOM_SPLAT_MS ? venoms.erase(it) : it + 1;
+			continue;
+		}
+		float left = static_cast<float>(std::min(now - v.lastMs, 100)) / 1000.f;
+		v.lastMs = now;
+		bool gone = false;
+		while (left > 0.f && v.splatMs < 0 && !gone) {
+			const float dt = std::min(left, ARROW_STEP_S);
+			left -= dt;
+			v.x += v.vx * dt;
+			v.y += v.vy * dt;
+			v.flown += VENOM_SPEED * dt;
+			const auto col = static_cast<int>(std::floor(v.x)), row = static_cast<int>(std::floor(v.y));
+			if (!IsInBounds(col, row) || v.flown > VENOM_MAX_FLIGHT) {
+				gone = true;
+				break;
+			}
+			if (isSolidTile(MapAt(col, row))) {
+				v.splatMs = now;
+				break;
+			}
+			if (sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
+				const SpitRules& spit = *v.from->spit;
+				sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
+				sim.player->Poison(spit.poison, *sim.events);
+				sim.journal->HitByCreature(v.from->id, levelNumber);
+				sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Poison);
+				gone = true;
+			}
+		}
+		it = gone ? venoms.erase(it) : it + 1;
+	}
+}
+//======================================================================================
+// A glob of venom: a small green ball stretched along its flight; on a wall or the floor a flattening splat.
+void Dungeon::drawVenoms() {
+	if (venoms.empty())
+		return;
+	constexpr float RADIUS = 1.6f; // world units
+	constexpr int SLICES = 8, STACKS = 6;
+	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
+	const auto firstRow = static_cast<float>(view().originRow);
+	const int now = GameClock::now();
+	sim.assets->textures.nullTex.Bind(); // texture x colour: plain colour
+	glEnable(GL_BLEND);
+	Lighting::setEmissive(true);
+	for (const Venom& v : venoms) {
+		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
+		if (v.splatMs >= 0) {
+			const float k = std::min(static_cast<float>(now - v.splatMs) / static_cast<float>(VENOM_SPLAT_MS), 1.f);
+			stretch = 1.f + 1.5f * k;
+			squash = 1.f - 0.7f * k;
+			alpha *= 1.f - k;
+		}
+		glPushMatrix();
+		glTranslatef(RenderConfig::TILE_SIZE * (v.x - firstCol), RenderConfig::TILE_SIZE * (v.y - firstRow),
+					 ARROW_DEPTH);
+		glRotatef(std::atan2(v.vy, v.vx) * RAD_TO_DEG, 0, 0, 1);
+		glScalef(RADIUS * stretch, RADIUS * squash, RADIUS);
+		glColor4f(0.45f, 0.75f, 0.15f, alpha);
+		for (int i = 0; i < STACKS; i++) {
+			const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
+			glBegin(GL_TRIANGLE_STRIP);
+			for (int j = 0; j <= SLICES; j++) {
+				const float b = 2 * PI * static_cast<float>(j) / SLICES;
+				for (float a : {a0, a1}) {
+					const float nx = std::cos(a) * std::cos(b), ny = std::cos(a) * std::sin(b), nz = std::sin(a);
+					glNormal3f(nz, ny, nx);
+					glVertex3f(nz, ny, nx); // the poles along x, the flight
+				}
+			}
+			glEnd();
+		}
+		glPopMatrix();
+	}
+	Lighting::setEmissive(false);
+	glDisable(GL_BLEND);
+	glColor3f(1, 1, 1);
 }

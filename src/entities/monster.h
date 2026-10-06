@@ -25,6 +25,9 @@ enum class Locomotion : unsigned char {
 	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
 	Fly,		// see Flight
 	Submerged,	// walks, but lies idle in the water until the player comes near or hits it (the crocodile)
+	// Walks, but lies coiled (idle) until the player comes near or hits it, then rears up (Rise) before it acts (the
+	// cobra).
+	Coiled,
 };
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
@@ -79,6 +82,16 @@ struct BossRules {
 	Summon summon = Summon::DigOut;
 };
 
+// A spitter's venom (SPIT_DEFS): from afar along its row, it stops and spits a glob at the player (Dungeon::Venom).
+struct SpitRules {
+	int damage = 0; // on a hit, of the type's attack mix
+	PoisonTier poison = PoisonTier::Medium;
+	float range = 0.f;	  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
+	int cooldownMs = 0;	  // from one spit to the next
+	float release = 0.5f; // of the spit clip: the glob leaves the mouth
+	float mouthY = 0.5f;  // of the reference clip's height: the mouth at the release
+};
+
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
 struct MonsterType {
 	int id = 0; // MonsterTypeId
@@ -97,6 +110,7 @@ struct MonsterType {
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
+	std::optional<SpitRules> spit;		  // it spits venom from afar
 	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
 	DamageMix attackMix{};				  // what its bite deals; its group's (ATTACK_MIX_DEFS)
@@ -149,6 +163,8 @@ class Monster {
 	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::waterSink)
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
+	int spitReadyMs = 0;		  // spitters: no new spit before this GameClock time
+	bool spitReleased = true;	  // the spit clip's glob has left the mouth (TakeSpit)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
@@ -201,9 +217,12 @@ class Monster {
 	}
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
 	[[nodiscard]] bool submerged() const { return type->locomotion == Locomotion::Submerged; }
+	[[nodiscard]] bool coiled() const { return type->locomotion == Locomotion::Coiled; }
+	// Woken, it plays its rise clip before it acts: the mummy climbs out of its coffin, the cobra rears up.
+	[[nodiscard]] bool rises() const { return entombed() || coiled(); }
 	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
 	[[nodiscard]] bool lurking() const {
-		return (type->locomotion == Locomotion::Ambush || entombed() || submerged()) && !alerted;
+		return (type->locomotion == Locomotion::Ambush || rises() || submerged()) && !alerted;
 	}
 	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
@@ -216,7 +235,7 @@ class Monster {
 	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
 	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }
 	[[nodiscard]] bool InWater() const { return inWater; }
-	// Entombed: woken, still climbing out of its coffin; it does not act yet.
+	// Entombed or coiled: woken, still climbing out of its coffin or rearing up; it does not act yet.
 	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
 	[[nodiscard]] bool LeavesChest() const;
@@ -236,9 +255,16 @@ class Monster {
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
 	void Attack(float py);
-	// Ambushers, the entombed and the submerged: true while still lurking; wakes (and returns false) once the player
-	// is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE).
+	// Ambushers, the entombed, the submerged and the coiled: true while still lurking; wakes (and returns false) once
+	// the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE).
 	bool Lurk(float px, float py);
+	// Spitters: the player is on its row, out of bite reach but within the spit's range, and the spit is ready.
+	// The caller checks there is no wall between them.
+	[[nodiscard]] bool canSpit(float px, float py) const;
+	void Spit();						 // stands still and plays the spit clip; the glob leaves at its release
+	[[nodiscard]] bool Spitting() const; // the spit clip is playing: it does not walk or bite
+	// Once per spit, at the clip's release: true and the mouth (map units) the glob leaves from.
+	bool TakeSpit(float& outX, float& outY);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py);
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls

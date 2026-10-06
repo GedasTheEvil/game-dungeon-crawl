@@ -10,8 +10,17 @@
 #include <vector>
 
 // Animation clips. Each is one file, see ClipFile; a missing optional clip shows the reference clip.
-enum class ModelState : unsigned char { Die = 0, Idle = 1, Move = 2, Attack = 3, Jump = 4, Climb = 5, Rise = 6 };
-constexpr int MODEL_STATE_COUNT = 7;
+enum class ModelState : unsigned char {
+	Die = 0,
+	Idle = 1,
+	Move = 2,
+	Attack = 3,
+	Jump = 4,
+	Climb = 5,
+	Rise = 6,
+	Spit = 7
+};
+constexpr int MODEL_STATE_COUNT = 8;
 
 // Playback of every clip, indexed by ModelState. Kept by each monster / the player, the clips are shared.
 using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
@@ -43,6 +52,11 @@ inline const ClipFiles ENTOMBED_CLIPS = {{ModelState::Move, "", true, true},
 										 {ModelState::Die, "_die", true, false},
 										 {ModelState::Idle, "_idle", true, true},
 										 {ModelState::Rise, "_rise", true, false}};
+// Coiled (the cobra): lies coiled (_idle) until it rears up (_rise, once), then walks; spits venom (_spit, once).
+inline const ClipFiles COILED_CLIPS = {
+	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false}, {ModelState::Spit, "_spit", true, false}};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Move, "_walk", true, true},
@@ -65,7 +79,8 @@ class CharacterModel {
 	// Half width of the hitbox: the larger of the two, the body length whichever way the model is turned.
 	[[nodiscard]] float HalfWidth() const { return halfX > halfZ ? halfX : halfZ; }
 	float idleBottom = 0.f, idleTop = 1.f;
-	Sound dieSound, attackSound, jumpSound, wakeSound; // sounds/<category>/<name>_{die,att,jump,wake}.wav, all optional
+	// sounds/<category>/<name>_{die,att,jump,wake,spit}.wav, all optional
+	Sound dieSound, attackSound, jumpSound, wakeSound, spitSound;
 
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
 	bool Load(const char* name, Texture&& tex, const ClipFiles& files); // takes the texture over

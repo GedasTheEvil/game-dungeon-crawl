@@ -80,6 +80,22 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   carapace, recoil; the build prints the sting tip per frame), die 30 (convulses, rolls onto its side belly up, legs curl in, tail limp on
   the floor). Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
   dry chitin rattle and scraping legs).
+* `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
+  the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
+  along the body integrated from the tail (the length never changes, as in `worm.py`), plus a hood amount that spreads the neck
+  joints sideways and flattens them (bone scale). Rigid head with eyes and fangs, hinged lower jaw, forked tongue sliding out
+  of the mouth. Every frame the base joint of the raised front stays at y 0.15 (blended towards the coil's centre in the idle),
+  lifted so the lowest vertex touches the floor (numpy copy of the skinning). Clips: move 24 (the reference: waves run back along
+  the body on the floor, the front 1.05 raised in a column, the head level, hood half open; about 0.96 high x 2.19 long x 0.55
+  wide, halfX 0.27, halfZ 1.10), attack 22 (loops from move frame 0: rears back with the hood spread, strikes forward and down
+  with the mouth wide open, the head about 0.5 high, snaps, recoils), die 30 (writhes, the front falls to its side and rolls
+  belly up), idle 32 (`_idle`: coiled flat, the tail inside, the head resting on the outer coil, hood closed, breath swell and a
+  tongue flick; 0.23 high), rise 24 (`_rise`, once: from idle frame 0 the body unwinds, the front rears up and the hood spreads; last
+  frame = move frame 0), spit 18 (`_spit`, once: hood flared, the head draws back and jerks forward with the mouth open; the venom
+  leaves at frame 7 (`SPIT_RELEASE`), the mouth then 0.84 high (0.87 of the move clip's height) and 1.20 forward of the reference
+  centre; last frame = move frame 0). `-- --measure` prints every clip's frame 0 extents and the mouth per spit frame.
+  Sounds: `tools/audio/cobra_sounds.py` (`sounds/monsters/cobra_{wake,att,spit,die}.wav`: swelling hiss; hiss, swish and jaw
+  snap; hiss and a wet 'pff'; gasping hiss, thud of the body, last slither).
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * `tools/blender/models/decor.py` - fifteen static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,

@@ -147,6 +147,10 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::Walk,
 	 {0.45f, 0.62f, 0.55f}},
+	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar (SPIT_DEFS); lies coiled
+	// until the player comes near (docs/plan/cobra.draft.md).
+	{MonsterCobra, "Cobra", "monsters/cobra", "monsters/cobra", 6, 35, 6, 1100, 1200, 24, 180, Locomotion::Coiled,
+	 RED_BLOOD},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -196,6 +200,7 @@ const struct {
 	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
 	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}}, // the scutes turn a blade
 	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},	   // a blow cracks the thin shell; a point glances off the plates
+	{MonsterCobra, {RESISTS, WEAK, NORMAL}},	   // the coils give under a blow; a blade cuts the thin body
 };
 
 // What each monster group's bite or blow deals (docs/plan/solved/monster-attack-damage-types.md), read from what the
@@ -215,6 +220,7 @@ const struct {
 	{"monsters/crocodile", {50, 0, 50}}, // crushing jaws
 	{"monsters/scorpion", {0, 30, 70}},	 // claws, sting
 	{"monsters/mimic", {40, 0, 60}},	 // lid slam, teeth
+	{"monsters/cobra", {0, 0, 100}},	 // fangs
 };
 
 // How the walkers move through half water, and their speed in it times their speed on land; the others wade slowed
@@ -230,6 +236,7 @@ const struct {
 	{MonsterAnubisBoss, Wading::Unaffected, 1.f},
 	// Slow on land (slower than a rat: the player outwalks it), in the water faster than the player walks on land.
 	{MonsterCrocodile, Wading::Swimmer, 2.5f},
+	{MonsterCobra, Wading::Swimmer, 1.25f},
 };
 
 // The monsters whose bite or sting poisons the player, and the tier (docs/plan/solved/poison-and-antidote.md).
@@ -238,6 +245,16 @@ const struct {
 	PoisonTier tier;
 } POISON_DEFS[] = {
 	{MonsterScorpion, PoisonTier::Weak},
+	{MonsterCobra, PoisonTier::Medium},
+};
+
+// The monsters that spit venom at the player from afar (Monster::Spit, Dungeon::Venom); the release and the mouth
+// height come from the model's spit clip (tools/blender/models/cobra.py).
+const struct {
+	MonsterTypeId id;
+	SpitRules rules;
+} SPIT_DEFS[] = {
+	{MonsterCobra, {2, PoisonTier::Medium, 2.5f, 3500, 0.41f, 0.87f}}, // release: frame 7 of 18
 };
 
 struct ItemDef {
@@ -381,6 +398,7 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		MonsterType& type = monsterTypes[def.id];
 		const ClipFiles& clips = def.locomotion == Locomotion::Ambush	  ? AMBUSH_CLIPS
 								 : def.locomotion == Locomotion::Entombed ? ENTOMBED_CLIPS
+								 : def.locomotion == Locomotion::Coiled	  ? COILED_CLIPS
 																		  : MONSTER_CLIPS;
 		type.model.Load(def.model, std::move(tex), clips);
 		type.speed = def.speed;
@@ -414,6 +432,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 	}
 	for (const auto& def : POISON_DEFS)
 		monsterTypes[def.id].poison = def.tier;
+	for (const auto& def : SPIT_DEFS)
+		monsterTypes[def.id].spit = def.rules;
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the checker's poisoners and POISON_DEFS must agree
 		if (monsterTypes[static_cast<size_t>(id)].poison.has_value() != isPoisoner(id))
 			LOG_ERRORF("assets", "Monster type %d: poisoner in %s only", id,

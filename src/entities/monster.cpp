@@ -44,6 +44,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	leap = Leap{};
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
+	spitReadyMs = 0;
+	spitReleased = true;
 	drop.reset();
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
@@ -69,7 +71,7 @@ void Monster::MakeMinion(Summon how) {
 	summonedBy = how;
 	if (entombed() && how == Summon::Coffin) // lies in the coffin it was summoned into, climbs out (tomb, Rising)
 		wake();
-	else if (entombed()) // no coffin to climb out of
+	else if (rises()) // no coffin to climb out of; a cobra summoned comes out reared up
 		enter(ModelState::Move);
 	if (flies() && how == Summon::Drop) { // falls out of the ceiling to where bats turn, flapping (emergeLift)
 		flight.lift = BAT_HIGH_LIFT;
@@ -118,7 +120,7 @@ std::optional<ItemKind> Monster::TakeDrop() {
 }
 
 bool Monster::Rising() const {
-	return entombed() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
+	return rises() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
 }
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
@@ -137,15 +139,15 @@ bool Monster::Nearby(float px, float py, float reach, int dir) const {
 		   std::fabs(static_cast<float>(row) - py) < 0.7f;
 }
 
-// A roosting flyer and a lurker under the water show their idle clip.
+// A roosting flyer, a lurker under the water and a coiled one show their idle clip.
 float Monster::BottomY() const {
-	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || (submerged() && lurking());
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
 	const float bottom = idle ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
 	return static_cast<float>(row) + (lift() + bottom) / RenderConfig::TILE_SIZE;
 }
 
 float Monster::TopY() const {
-	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || (submerged() && lurking());
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
 	const float top = (idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
 	return static_cast<float>(row) + (lift() + top) / RenderConfig::TILE_SIZE;
 }
@@ -262,8 +264,8 @@ void Monster::Animate(float px, float py) {
 	if (Alive()) {
 		if (jumping())
 			facing = leap.toX > leap.fromX ? 1 : -1;
-		else if (submerged() && lurking())
-			facing = px < CentreX() ? -1 : 1; // lies along the row, watching the player
+		else if ((submerged() && lurking()) || (coiled() && (lurking() || Rising())))
+			facing = px < CentreX() ? -1 : 1; // lies along the row (in its coil), watching the player
 		else if (lurking() || Rising())
 			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
 		else if (!flies()) {

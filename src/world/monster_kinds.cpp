@@ -45,10 +45,20 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Threat: a giant rat's, the poison on top, and it spits from afar.
 	{MonsterCobra, "cobra", "Cobra, lies coiled until the player comes near; its bite and spit poison (medium)", 'c',
 	 3.f, false, "The uraeus of the crowns, alive. It spits before it bites, and both burn."},
+	// Threat: between the giant scarab and the crocodile, the poison and the spit on top.
+	{MonsterGiantCobra, "giant cobra",
+	 "Giant cobra, lies coiled until the player comes near; its bite and spit poison "
+	 "(medium)",
+	 'Q', 5.f, false, "Black as the night of Apep, long as a boat. It spits farther than I can jump."},
+	// Threat: a giant rat's, the poison on top.
+	{MonsterGiantScorpion, "giant scorpion", "Giant scorpion, its sting poisons (medium)", 'J', 3.5f, false,
+	 "Dark as old blood and as big as a dog. Its sting does not wear off quickly."},
 }};
 } // namespace
 
-bool isPoisoner(int type) { return type == MonsterScorpion || type == MonsterCobra; }
+bool isPoisoner(int type) {
+	return type == MonsterScorpion || type == MonsterCobra || type == MonsterGiantCobra || type == MonsterGiantScorpion;
+}
 
 const MonsterKind* monsterKind(int type) {
 	for (const MonsterKind& kind : KINDS)

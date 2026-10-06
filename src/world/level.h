@@ -60,15 +60,17 @@ enum MonsterTypeId : unsigned char {
 	MonsterGiantBat = 8,
 	MonsterMimic = 9,
 	MonsterGiantScarab = 10,
-	MonsterBossScarab = 11, // boss: summons scarabs; its death opens the boss gates
-	MonsterVampireBat = 12, // boss: summons bats, heals by part of the damage it deals
-	MonsterMummy = 13,		// lies in its coffin until the player comes near
-	MonsterAnubisBoss = 14, // boss: mummies climb out of the coffins round it
-	MonsterCrocodile = 15,	// lies under the water until the player comes near, swims fast
-	MonsterScorpion = 16,	// its sting poisons (weak)
-	MonsterCobra = 17,		// lies coiled until the player comes near; its bite and spit poison (medium)
+	MonsterBossScarab = 11,	   // boss: summons scarabs; its death opens the boss gates
+	MonsterVampireBat = 12,	   // boss: summons bats, heals by part of the damage it deals
+	MonsterMummy = 13,		   // lies in its coffin until the player comes near
+	MonsterAnubisBoss = 14,	   // boss: mummies climb out of the coffins round it
+	MonsterCrocodile = 15,	   // lies under the water until the player comes near, swims fast
+	MonsterScorpion = 16,	   // its sting poisons (weak)
+	MonsterCobra = 17,		   // lies coiled until the player comes near; its bite and spit poison (medium)
+	MonsterGiantCobra = 18,	   // the cobra's giant kin
+	MonsterGiantScorpion = 19, // the scorpion's giant kin, its sting poisons (medium); the scorpion queen's minion
 };
-constexpr int MONSTER_TYPE_MAX = MonsterCobra; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterGiantScorpion; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

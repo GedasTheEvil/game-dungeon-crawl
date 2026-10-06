@@ -78,7 +78,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   sting would dip below the floor. Clips: walk 24 (the reference, about 1.95 long x 0.93 high x 1.23 wide), attack 24 (loops from walk
   frame 0: claws grab and pinch, tail cocks, strikes over the head with the sting stabbing down between the claws 0.18 in front of the
   carapace, recoil; the build prints the sting tip per frame), die 30 (convulses, rolls onto its side belly up, legs curl in, tail limp on
-  the floor). Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
+  the floor). Bakes `scorpion.png` and `scorpion_giant.png` (black-brown, a carnelian sheen on the claws and the tail, the telson
+  darker red) on the same UVs; `SCORPION_TEX=giant` shows the giant one in review renders. Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
   dry chitin rattle and scraping legs).
 * `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
   the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
@@ -94,6 +95,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   frame = move frame 0), spit 18 (`_spit`, once: hood flared, the head draws back and jerks forward with the mouth open; the venom
   leaves at frame 7 (`SPIT_RELEASE`), the mouth then 0.84 high (0.87 of the move clip's height) and 1.20 forward of the reference
   centre; last frame = move frame 0). `-- --measure` prints every clip's frame 0 extents and the mouth per spit frame.
+  Bakes `cobra.png` and `cobra_giant.png` (black-necked: near black, pale cream throat band, amber eyes) on the same UVs;
+  `COBRA_TEX=giant` shows the giant one in review renders.
   Sounds: `tools/audio/cobra_sounds.py` (`sounds/monsters/cobra_{wake,att,spit,die}.wav`: swelling hiss; hiss, swish and jaw
   snap; hiss and a wet 'pff'; gasping hiss, thud of the body, last slither).
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler

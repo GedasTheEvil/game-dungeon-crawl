@@ -5,6 +5,9 @@ animations (walk, attack, die).
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
     CLI:  blender -b --python tools/blender/models/scorpion.py -- [--export]
 
+Two textures share one UV layout: scorpion.png (straw, the deathstalker) and scorpion_giant.png (black-brown, a
+carnelian sheen on the claws and the tail). Set SCORPION_TEX=giant to show the giant texture on the built object.
+
 Blender space: Z up, the scorpion faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts follow one bone each: prosoma (carapace, chelicerae, eyes), mesosoma (seven overlapping tergites, a flex
 bone behind the carapace), eight walking legs (femur, tibia, tarsus; two-bone IK, alternating tetrapod gait with
@@ -46,6 +49,27 @@ COL = {
     "rim": (0.42, 0.25, 0.06),
     "black": (0.012, 0.008, 0.005),
     "eye": (0.004, 0.004, 0.004),
+    # Claws, tail and telson: the straw / amber of the body here; their own colours in the giant's palette.
+    "claw": (0.72, 0.50, 0.16),
+    "tail": (0.72, 0.50, 0.16),
+    "tail_end": (0.50, 0.28, 0.06),
+    "telson": (0.72, 0.50, 0.16),
+}
+# The giant scorpion (scorpion_giant.png, same UVs): black-brown, a carnelian sheen on the claws and the tail, the
+# telson darker red.
+COL_GIANT = {
+    "straw": (0.06, 0.035, 0.022),
+    "straw_hi": (0.10, 0.06, 0.035),
+    "straw_pale": (0.08, 0.05, 0.03),
+    "amber": (0.08, 0.035, 0.02),
+    "amber_dark": (0.10, 0.02, 0.012),
+    "rim": (0.025, 0.014, 0.01),
+    "black": (0.01, 0.006, 0.004),
+    "eye": (0.004, 0.004, 0.004),
+    "claw": (0.30, 0.07, 0.035),
+    "tail": (0.26, 0.06, 0.03),
+    "tail_end": (0.20, 0.035, 0.02),
+    "telson": (0.16, 0.025, 0.015),
 }
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))
@@ -170,9 +194,9 @@ def materials(pal=COL):
         "leg": ("solid", "straw_pale"),
         "joint": ("solid", "rim"),
         "tarsus": ("stripes", "v", 0.12, [(3, "straw_pale"), (2, "amber")], "LINEAR"),
-        "palp": ("solid", "straw"),
-        "finger": ("stripes", "v", 0.25, [(3, "straw"), (3, "amber"), (2, "amber_dark")], "LINEAR"),
-        "telson": ("solid", "straw"),
+        "palp": ("solid", "claw"),
+        "finger": ("stripes", "v", 0.25, [(3, "claw"), (3, "amber"), (2, "amber_dark")], "LINEAR"),
+        "telson": ("solid", "telson"),
         "aculeus": ("stripes", "v", 0.16, [(1, "amber"), (2, "amber_dark"), (3, "black")], "LINEAR"),
         "chelicera": ("stripes", "v", 0.08, [(3, "straw_hi"), (2, "amber_dark")], "LINEAR"),
         "eye": ("solid", "eye"),
@@ -180,7 +204,7 @@ def materials(pal=COL):
     }
     for k, length in enumerate(TAIL_LEN[:5]):
         # Each metasoma segment darkens towards its rear joint; segment V is amber overall.
-        body = "amber" if k == 4 else "straw"
+        body = "tail_end" if k == 4 else "tail"
         specs["tail%d" % k] = ("stripes", "v", length + 0.06, [(3, body), (5, body), (2, "rim" if k < 4 else "amber_dark")], "LINEAR")
     M = {name: common.make_material("scorpion_" + name, spec, pal) for name, spec in specs.items()}
     for name in ("carapace", "tergite", "last_tergite", "leg", "palp", "telson") + tuple("tail%d" % k for k in range(5)):
@@ -672,7 +696,7 @@ STING_REST = V()
 # ---------------------------------------------------------------- entry points
 
 
-def build(bake=True, tex_path=None):
+def build(bake=True, tex_path=None, giant_path=None):
     global STING_REST
     if bpy.context.object and bpy.context.object.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -693,7 +717,9 @@ def build(bake=True, tex_path=None):
     if bake:
         tmp = bpy.app.tempdir or "/tmp"
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "scorpion_preview.png"), TEX_SIZE, "scorpion", ao_distance=0.12)
-        common.use_baked_material(obj, tex)
+        materials(COL_GIANT)
+        giant = common.bake_texture(obj, giant_path or os.path.join(tmp, "scorpion_giant_preview.png"), TEX_SIZE, "scorpion_giant", ao_distance=0.12)
+        common.use_baked_material(obj, giant if os.environ.get("SCORPION_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
     acts = make_actions(rig, (Skin(b, rest), Skin(b, rest, tail=True)))
@@ -715,7 +741,8 @@ def export(models_dir=None):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     if "--export" in args:
-        build(tex_path=os.path.join(REPO, "textures", "monsters", "scorpion.png"))
+        tex_dir = os.path.join(REPO, "textures", "monsters")
+        build(tex_path=os.path.join(tex_dir, "scorpion.png"), giant_path=os.path.join(tex_dir, "scorpion_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "scorpion.blend"))
     else:

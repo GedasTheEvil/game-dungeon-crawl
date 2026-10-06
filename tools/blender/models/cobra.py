@@ -5,6 +5,9 @@ rise, spit).
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
     CLI:  blender -b --python tools/blender/models/cobra.py -- [--export] [--measure]
 
+Two textures share one UV layout: cobra.png (sand brown, Naja haje) and cobra_giant.png (black-necked: near black,
+pale cream throat band, amber eyes). Set COBRA_TEX=giant to show the giant texture on the built object.
+
 Blender space: Z up, the cobra faces +Y (game uses rotA = 180, as the scorpion), its right side is +X.
 The body is one tube along a chain of spine joints (tail tip to the back of the head), each joint a bone with its
 own frame (the vertices blend between the two joints round them). A pose is the heading (yaw), elevation and roll
@@ -56,6 +59,20 @@ COL = {
     "mouth": (0.70, 0.38, 0.38),
     "fang": (0.85, 0.82, 0.70),
     "tongue": (0.08, 0.03, 0.035),
+}
+# The giant cobra (cobra_giant.png, same UVs): black-necked, near black with faint darker bands, a pale cream throat
+# band under the hood, amber eyes.
+COL_GIANT = {
+    "back": (0.035, 0.03, 0.026),
+    "flank": (0.06, 0.05, 0.04),
+    "band": (0.012, 0.01, 0.009),
+    "belly": (0.30, 0.27, 0.21),
+    "throat": (0.78, 0.72, 0.56),
+    "head": (0.03, 0.025, 0.02),
+    "eye": (0.75, 0.42, 0.04),
+    "mouth": (0.55, 0.30, 0.32),
+    "fang": (0.85, 0.82, 0.70),
+    "tongue": (0.05, 0.02, 0.025),
 }
 
 LB = 2.9  # body length, tail tip (s = 0) to the back of the head (s = LB)
@@ -130,7 +147,7 @@ def _mix(nt, fac, c1, c2):
     return m.outputs[2]
 
 
-def body_material(name, banded=True):
+def body_material(name, col_set, banded=True):
     """Pattern u = angle round the body (0.25 the back, 0.75 the belly), v = arc length from the tail tip: sand brown
     back with darker cross bands, a pale belly with transverse scutes, a dark throat band under the hood."""
     mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
@@ -150,9 +167,9 @@ def body_material(name, banded=True):
     backness.node.inputs[2].default_value = 0.5
     tone = nt.nodes.new("ShaderNodeValToRGB")
     els = tone.color_ramp.elements
-    els[0].position, els[0].color = 0.22, (*COL["belly"], 1)
-    els[1].position, els[1].color = 0.62, (*COL["back"], 1)
-    els.new(0.40).color = (*COL["flank"], 1)
+    els[0].position, els[0].color = 0.22, (*col_set["belly"], 1)
+    els[1].position, els[1].color = 0.62, (*col_set["back"], 1)
+    els.new(0.40).color = (*col_set["flank"], 1)
     nt.links.new(backness, tone.inputs["Fac"])
     col = tone.outputs["Color"]
     belly = _math(nt, "LESS_THAN", backness, 0.3)
@@ -161,16 +178,16 @@ def body_material(name, banded=True):
         ph = _math(nt, "FRACT", _math(nt, "MULTIPLY", v, 1 / 0.21))
         tri = _math(nt, "ABSOLUTE", _math(nt, "SUBTRACT", ph, 0.5))
         bandf = _math(nt, "MULTIPLY", _math(nt, "SUBTRACT", 1.0, _smooth(nt, tri, 0.12, 0.22)), _math(nt, "SUBTRACT", 1.0, belly))
-        col = _mix(nt, _math(nt, "MULTIPLY", bandf, 0.6), col, COL["band"])
+        col = _mix(nt, _math(nt, "MULTIPLY", bandf, 0.6), col, col_set["band"])
         # Transverse belly scutes.
         sc = _math(nt, "FRACT", _math(nt, "MULTIPLY", v, 1 / 0.028))
         seam = _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", sc, 0.82), belly)
-        col = _mix(nt, _math(nt, "MULTIPLY", seam, 0.35), col, COL["band"])
+        col = _mix(nt, _math(nt, "MULTIPLY", seam, 0.35), col, col_set["band"])
         # The dark throat band: under the neck, behind the hood's broadest part.
         d = _math(nt, "SUBTRACT", LB, v)
         win = _math(nt, "MULTIPLY", _smooth(nt, d, 0.10, 0.15), _math(nt, "SUBTRACT", 1.0, _smooth(nt, d, 0.30, 0.36)))
         under = _math(nt, "LESS_THAN", backness, 0.42)
-        col = _mix(nt, _math(nt, "MULTIPLY", win, under), col, COL["throat"])
+        col = _mix(nt, _math(nt, "MULTIPLY", win, under), col, col_set["throat"])
     # Scale granulation.
     coord = nt.nodes.new("ShaderNodeTexCoord")
     vor = nt.nodes.new("ShaderNodeTexVoronoi")
@@ -201,16 +218,16 @@ def _smooth(nt, x, e0, e1):
     return mr.outputs["Result"]
 
 
-def materials():
+def materials(col_set=COL):
     specs = {
         "eye": ("solid", "eye"),
         "mouth": ("solid", "mouth"),
         "fang": ("solid", "fang"),
         "tongue": ("solid", "tongue"),
     }
-    M = {k: common.make_material("cobra_" + k, spec, COL) for k, spec in specs.items()}
-    M["body"] = body_material("cobra_body")
-    M["head"] = body_material("cobra_head", banded=False)
+    M = {k: common.make_material("cobra_" + k, spec, col_set) for k, spec in specs.items()}
+    M["body"] = body_material("cobra_body", col_set)
+    M["head"] = body_material("cobra_head", col_set, banded=False)
     return M
 
 
@@ -626,7 +643,7 @@ def measure(skin):
 SKIN = None
 
 
-def build(bake=True, tex_path=None):
+def build(bake=True, tex_path=None, giant_path=None):
     global SKIN
     if bpy.context.object and bpy.context.object.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -641,7 +658,9 @@ def build(bake=True, tex_path=None):
     if bake:
         tmp = bpy.app.tempdir or "/tmp"
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "cobra_preview.png"), TEX_SIZE, "cobra", ao_distance=0.1)
-        common.use_baked_material(obj, tex)
+        materials(COL_GIANT)
+        giant = common.bake_texture(obj, giant_path or os.path.join(tmp, "cobra_giant_preview.png"), TEX_SIZE, "cobra_giant", ao_distance=0.1)
+        common.use_baked_material(obj, giant if os.environ.get("COBRA_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     SKIN = Skin(b)
     acts = make_actions(rig, SKIN)
@@ -660,7 +679,8 @@ def export(models_dir=None):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     if "--export" in args:
-        build(tex_path=os.path.join(REPO, "textures", "monsters", "cobra.png"))
+        tex_dir = os.path.join(REPO, "textures", "monsters")
+        build(tex_path=os.path.join(tex_dir, "cobra.png"), giant_path=os.path.join(tex_dir, "cobra_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "cobra.blend"))
     else:

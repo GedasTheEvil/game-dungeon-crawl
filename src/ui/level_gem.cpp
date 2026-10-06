@@ -23,13 +23,16 @@ constexpr float NUMBER_DROP = 5.4f; // font pen y below the gem centre, so the d
 struct GemLook {
 	Color dark, base, light;
 	int beads;	 // gold beads on the bezel
-	bool flecks; // lapis lazuli has golden pyrite flecks
+	bool flecks; // golden flecks: pyrite in lapis lazuli, gold dust on obsidian
 };
 
 constexpr GemLook GEMS[] = {
-	{{0.35f, 0.06f, 0.02f}, {0.78f, 0.22f, 0.08f}, {1.f, 0.55f, 0.30f}, 0, false},	 // carnelian
-	{{0.04f, 0.30f, 0.30f}, {0.18f, 0.70f, 0.66f}, {0.60f, 0.95f, 0.88f}, 4, false}, // turquoise
-	{{0.04f, 0.07f, 0.28f}, {0.14f, 0.24f, 0.66f}, {0.45f, 0.58f, 1.f}, 8, true},	 // lapis lazuli
+	{{0.35f, 0.06f, 0.02f}, {0.78f, 0.22f, 0.08f}, {1.f, 0.55f, 0.30f}, 0, false},	  // carnelian
+	{{0.04f, 0.30f, 0.30f}, {0.18f, 0.70f, 0.66f}, {0.60f, 0.95f, 0.88f}, 4, false},  // turquoise
+	{{0.04f, 0.07f, 0.28f}, {0.14f, 0.24f, 0.66f}, {0.45f, 0.58f, 1.f}, 8, true},	  // lapis lazuli
+	{{0.02f, 0.20f, 0.10f}, {0.08f, 0.52f, 0.30f}, {0.50f, 0.90f, 0.62f}, 10, false}, // malachite
+	{{0.20f, 0.05f, 0.28f}, {0.48f, 0.20f, 0.66f}, {0.82f, 0.62f, 1.f}, 12, false},	  // amethyst
+	{{0.02f, 0.02f, 0.03f}, {0.12f, 0.11f, 0.14f}, {0.48f, 0.46f, 0.55f}, 16, true},  // obsidian
 };
 constexpr int GEM_COUNT = sizeof(GEMS) / sizeof(GEMS[0]);
 

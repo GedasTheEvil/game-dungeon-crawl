@@ -151,6 +151,23 @@ const MonsterDef MONSTER_DEFS[] = {
 	// until the player comes near (docs/plan/cobra.draft.md).
 	{MonsterCobra, "Cobra", "monsters/cobra", "monsters/cobra", 6, 35, 6, 1100, 1200, 24, 180, Locomotion::Coiled,
 	 RED_BLOOD},
+	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.draft.md).
+	{MonsterGiantCobra, "Giant cobra", "monsters/cobra", "monsters/cobra_giant", 8, 110, 16, 1300, 2600, 36, 180,
+	 Locomotion::Coiled, RED_BLOOD},
+	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.draft.md).
+	{MonsterGiantScorpion,
+	 "Giant scorpion",
+	 "monsters/scorpion",
+	 "monsters/scorpion_giant",
+	 9,
+	 70,
+	 12,
+	 1000,
+	 2000,
+	 26,
+	 180,
+	 Locomotion::Walk,
+	 {0.45f, 0.62f, 0.55f}},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -186,21 +203,23 @@ const struct {
 	MonsterTypeId id;
 	Resistances resist;
 } RESISTANCE_DEFS[] = {
-	{MonsterWorm, {RESISTS, WEAK, NORMAL}},		   // soft: a blow squashes, a blade cuts
-	{MonsterScarab, {NORMAL, RESISTS, WEAK}},	   // the shell turns a blade, a point goes between the plates
-	{MonsterGiantScarab, {NORMAL, RESISTS, WEAK}}, //
-	{MonsterBossScarab, {NORMAL, RESISTS, WEAK}},  //
-	{MonsterPlant, {TOUGH, WEAK, TOUGH}},		   // stems: only a blade cuts them; points and blows go astray
-	{MonsterBat, {WEAK, RESISTS, TOUGH}},		   // swat it; an arrow goes through the wing
-	{MonsterGiantBat, {WEAK, RESISTS, TOUGH}},	   //
-	{MonsterVampireBat, {WEAK, RESISTS, TOUGH}},   //
-	{MonsterMimic, {WEAK, RESISTS, TOUGH}},		   // wood: crack it; a point only sticks in it
-	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},	   // bronze armour dents, a blade glances off it
-	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
-	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
-	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}}, // the scutes turn a blade
-	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},	   // a blow cracks the thin shell; a point glances off the plates
-	{MonsterCobra, {RESISTS, WEAK, NORMAL}},	   // the coils give under a blow; a blade cuts the thin body
+	{MonsterWorm, {RESISTS, WEAK, NORMAL}},			 // soft: a blow squashes, a blade cuts
+	{MonsterScarab, {NORMAL, RESISTS, WEAK}},		 // the shell turns a blade, a point goes between the plates
+	{MonsterGiantScarab, {NORMAL, RESISTS, WEAK}},	 //
+	{MonsterBossScarab, {NORMAL, RESISTS, WEAK}},	 //
+	{MonsterPlant, {TOUGH, WEAK, TOUGH}},			 // stems: only a blade cuts them; points and blows go astray
+	{MonsterBat, {WEAK, RESISTS, TOUGH}},			 // swat it; an arrow goes through the wing
+	{MonsterGiantBat, {WEAK, RESISTS, TOUGH}},		 //
+	{MonsterVampireBat, {WEAK, RESISTS, TOUGH}},	 //
+	{MonsterMimic, {WEAK, RESISTS, TOUGH}},			 // wood: crack it; a point only sticks in it
+	{MonsterAnubis, {WEAK, RESISTS, NORMAL}},		 // bronze armour dents, a blade glances off it
+	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},	 // armoured too well to dent, but open at the joints
+	{MonsterMummy, {RESISTS, WEAK, TOUGH}},			 // dry linen tears; nothing inside to stab
+	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}},	 // the scutes turn a blade
+	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},		 // a blow cracks the thin shell; a point glances off the plates
+	{MonsterCobra, {RESISTS, WEAK, NORMAL}},		 // the coils give under a blow; a blade cuts the thin body
+	{MonsterGiantCobra, {RESISTS, WEAK, NORMAL}},	 //
+	{MonsterGiantScorpion, {WEAK, NORMAL, RESISTS}}, //
 };
 
 // What each monster group's bite or blow deals (docs/plan/solved/monster-attack-damage-types.md), read from what the
@@ -237,6 +256,7 @@ const struct {
 	// Slow on land (slower than a rat: the player outwalks it), in the water faster than the player walks on land.
 	{MonsterCrocodile, Wading::Swimmer, 2.5f},
 	{MonsterCobra, Wading::Swimmer, 1.25f},
+	{MonsterGiantCobra, Wading::Swimmer, 1.25f},
 };
 
 // The monsters whose bite or sting poisons the player, and the tier (docs/plan/solved/poison-and-antidote.md).
@@ -246,6 +266,8 @@ const struct {
 } POISON_DEFS[] = {
 	{MonsterScorpion, PoisonTier::Weak},
 	{MonsterCobra, PoisonTier::Medium},
+	{MonsterGiantCobra, PoisonTier::Medium},
+	{MonsterGiantScorpion, PoisonTier::Medium},
 };
 
 // The monsters that spit venom at the player from afar (Monster::Spit, Dungeon::Venom); the release and the mouth
@@ -255,6 +277,7 @@ const struct {
 	SpitRules rules;
 } SPIT_DEFS[] = {
 	{MonsterCobra, {2, PoisonTier::Medium, 2.5f, 3500, 0.41f, 0.87f}}, // release: frame 7 of 18
+	{MonsterGiantCobra, {5, PoisonTier::Medium, 3.f, 3000, 0.41f, 0.87f}},
 };
 
 struct ItemDef {

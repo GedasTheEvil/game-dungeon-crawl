@@ -115,7 +115,9 @@ void PlayerStats::Heal(int hpPart) {
 
 void PlayerStats::AddArmor(int na) { Armor += na; }
 
-int PlayerStats::HitDamage(int dmg, bool ignoreArmor) const { return std::max(1, ignoreArmor ? dmg : dmg - Armor); }
+int PlayerStats::HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const {
+	return playerHitDamage(dmg, mix, resist, Armor, ignoreArmor);
+}
 
 bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 	if (XP >= LevelXP(level + 1))

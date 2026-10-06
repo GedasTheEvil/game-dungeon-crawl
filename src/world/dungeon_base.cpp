@@ -154,7 +154,7 @@ bool Dungeon::inTrap(float x, float y) const {
 void Dungeon::updateTraps() {
 	if (inTrap(mapX, mapY))
 		if (const int dmg = trapHurt.hit(); dmg > 0)
-			sim.player->TakeHit(dmg, *sim.events);
+			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&
 			inTrap(mon.CentreX(), static_cast<float>(mon.Row())))

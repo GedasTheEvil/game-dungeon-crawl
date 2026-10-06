@@ -2,6 +2,7 @@
 #define PLAYER_STATS_H
 
 #include "../core/timer.h"
+#include "../world/damage.h"
 #include "../world/poison.h"
 #include "../world/world_events.h"
 #include <fstream>
@@ -68,11 +69,12 @@ class PlayerStats {
 	void Heal(int hpPart);					 // percent of max HP
 	void HealFully() { HP = MaxHP; }
 	void AddArmor(int na = 1);
-	// HP lost to a hit of dmg: armour absorbs some, unless ignoreArmor; at least 1.
-	[[nodiscard]] int HitDamage(int dmg, bool ignoreArmor) const;
+	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
+	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const;
 	void LoseHP(int hp) { HP -= hp; }
 	void AddMaxHP(int hpPart); // percent, heals fully
 	Poison poison;
+	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken; an amulet will change it
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

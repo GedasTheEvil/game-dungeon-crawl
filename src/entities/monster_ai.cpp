@@ -45,7 +45,7 @@ void Monster::Attack(float py) {
 }
 
 void Monster::bite() {
-	const int lost = links.player->TakeHit(type->damage, *links.events);
+	const int lost = links.player->TakeHit(type->damage, type->attackMix, *links.events);
 	if (type->poison) {
 		links.player->Poison(*type->poison, *links.events);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);

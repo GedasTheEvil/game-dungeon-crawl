@@ -99,6 +99,7 @@ struct MonsterType {
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
 	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
+	DamageMix attackMix{};				  // what its bite deals; its group's (ATTACK_MIX_DEFS)
 	Rgb blood = {0.7f, 0.1f, 0.1f};
 	BossRules boss;
 	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }

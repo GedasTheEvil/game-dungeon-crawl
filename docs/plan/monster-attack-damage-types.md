@@ -1,7 +1,7 @@
 # Monster attack damage types
 
-Status: draft 2026-10-06, refined 2026-10-06, ready. Needed by the typed damage amulets
-([amulets.draft.md](amulets.draft.md)).
+Status: implemented 2026-10-06, waiting for a play test. Draft 2026-10-06, refined 2026-10-06. Needed by the typed
+damage amulets ([amulets.draft.md](amulets.draft.md)).
 
 ## Problem
 
@@ -99,3 +99,11 @@ to the bone, with a hint of cutting pain.") only if the general ones read badly 
 
 Nothing; ready to implement. The mix values get revisited in play, together with
 [monster-balance.draft.md](monster-balance.draft.md).
+
+## Done
+
+* `ATTACK_MIX_DEFS` (`src/state/assets.cpp`), keyed by the model; a monster type without a row logs an error.
+* `SPIKE_ATTACK_MIX`, `ROCK_ATTACK_MIX`, `playerHitDamage` and `attackSentence` in `src/world/damage.h`.
+* `Player::TakeHit(dmg, mix, ...)`; `PlayerStats::resist` all `NORMAL`, not saved until the amulets set it.
+* The journal's SAW entry starts with the sentence once the creature has hit the player.
+* Unit tests: `tests/unit/damage_test.cpp`.

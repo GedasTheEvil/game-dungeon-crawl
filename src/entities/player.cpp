@@ -102,13 +102,13 @@ void Player::Draw(const TextureRegistry& textures) {
 	glPopMatrix();
 }
 
-int Player::TakeHit(int dmg, WorldEvents& events, bool ignoreArmor) {
+int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor) {
 	if (Scenario::godMode())
 		return 0;
 	const int s = static_cast<int>(scale);
 	int lost = 0;
 	if (Alive()) {
-		const int hit = stats.HitDamage(dmg, ignoreArmor);
+		const int hit = stats.HitDamage(dmg, mix, ignoreArmor);
 		lost = std::min(hit, stats.CurrentHP());
 		stats.LoseHP(hit);
 		blood.Splash(s);

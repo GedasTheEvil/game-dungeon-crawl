@@ -133,7 +133,7 @@ void Dungeon::updateRocks() {
 		if (dx < ROCK_GRAZE_HALF_WIDTH && mapY >= floorY - 0.2f && mapY < floorY + ROCK_HIT_HEIGHT &&
 			sim.player->Alive()) {
 			bool crushed = dx < ROCK_CRUSH_HALF_WIDTH;
-			sim.player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, *sim.events, true);
+			sim.player->TakeHit(crushed ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE, ROCK_ATTACK_MIX, *sim.events, true);
 			sim.events->Status("%s", crushed ? "Crushed by a falling rock!" : "The rock clips your leg!");
 		}
 		for (Monster& mon : monsters) { // walkers under it, a leaper in the air too (a jump does not dodge it)

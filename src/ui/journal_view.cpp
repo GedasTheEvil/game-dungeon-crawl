@@ -896,7 +896,7 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	if (c.killed && kind != nullptr)
 		seen += std::string(" ") + kind->note;
 	entry("SEEN", seen);
-	std::string saw;
+	std::string saw = c.hitBy ? attackSentence(t.attackMix) : ""; // what its bite deals, from the first one
 	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
 		if (c.Saw(static_cast<CreatureMove>(m)))
 			saw += std::string(saw.empty() ? "" : " ") + moveNote(static_cast<CreatureMove>(m), t);

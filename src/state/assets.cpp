@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "../world/monster_kinds.h"
 #include <cstdio>
+#include <string_view>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
 
@@ -197,6 +198,25 @@ const struct {
 	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},	   // a blow cracks the thin shell; a point glances off the plates
 };
 
+// What each monster group's bite or blow deals (docs/plan/monster-attack-damage-types.md), read from what the model
+// attacks with. Keyed by the model: the members of a group (bigger or darker) deal the same kinds, only more. A new
+// group needs its row.
+const struct {
+	const char* model;
+	DamageMix mix;
+} ATTACK_MIX_DEFS[] = {
+	{"monsters/worm", {60, 40, 0}},		 // grinding maw
+	{"monsters/scarab", {40, 60, 0}},	 // rams, mandibles
+	{"monsters/plant", {0, 40, 60}},	 // bite, thorny vines
+	{"monsters/rat", {0, 30, 70}},		 // teeth
+	{"monsters/bat", {0, 20, 80}},		 // fangs, claws
+	{"monsters/mummy", {100, 0, 0}},	 // fists
+	{"monsters/anubis", {80, 0, 20}},	 // was-sceptre, its forked foot
+	{"monsters/crocodile", {50, 0, 50}}, // crushing jaws
+	{"monsters/scorpion", {0, 30, 70}},	 // claws, sting
+	{"monsters/mimic", {40, 0, 60}},	 // lid slam, teeth
+};
+
 // How the walkers move through half water, and their speed in it times their speed on land; the others wade slowed
 // (Wading::Slowed, WADE_SPEED_FACTOR). Flyers and rooted monsters do not wade.
 const struct {
@@ -377,6 +397,12 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		type.name = def.label;
 		type.id = def.id;
 		type.texture = def.texture;
+		for (const auto& mix : ATTACK_MIX_DEFS)
+			if (std::string_view(mix.model) == def.model)
+				type.attackMix = mix.mix;
+		if (type.attackMix[0] + type.attackMix[1] + type.attackMix[2] != 100)
+			LOG_ERRORF("assets", "Monster type %d: no attack mix for %s in ATTACK_MIX_DEFS", static_cast<int>(def.id),
+					   def.model);
 	}
 	for (const auto& def : BOSS_DEFS)
 		monsterTypes[def.id].boss = def.rules;

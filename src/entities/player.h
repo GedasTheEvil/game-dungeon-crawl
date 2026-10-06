@@ -62,7 +62,7 @@ class Player {
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost). No damage in the scenario god mode.
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
 	// health note.
-	int TakeHit(int dmg, WorldEvents& events, bool ignoreArmor = false);
+	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false);
 	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
 	void Poison(PoisonTier tier, WorldEvents& events);
 	void UpdatePoison(); // once a tick: the running tiers' damage, which can kill

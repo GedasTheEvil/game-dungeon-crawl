@@ -1,6 +1,6 @@
 # Giant rat too slow
 
-Status: implemented 2026-10-06, to be confirmed in play. Draft 2026-10-05, from a playtest.
+Status: solved 2026-10-06, confirmed in play. Draft 2026-10-05, from a playtest.
 
 ## Problem
 
@@ -20,7 +20,7 @@ The giant rat walks too slowly. The player can stand still and shoot it with the
 * Make the giant rat faster than the player's walk (about 1.2 to 1.5 tiles/s), so the bow alone cannot kite it and
   the player has to sprint away or fight.
 * Maybe use the leap (`Locomotion::WalkJump`) to close the gap on the player, as planned for the giant scarab in
-  [monster-balance.draft.md](monster-balance.draft.md).
+  [monster-balance.draft.md](../monster-balance.draft.md).
 * Consider a `WALKER_TILES_PER_SPEED` constant, like the bats', so `speed` reads as tiles/s and the other walkers
   can be checked against the player's speed at the same time.
 * Verify with a scenario: the player stands still and shoots, the giant rat reaches and bites them.
@@ -34,7 +34,7 @@ The giant rat walks too slowly. The player can stand still and shoot it with the
 * `tests/scenarios/giant_rat_speed.txt` (`tests/levels/giant_rat_speed`): standing still and shooting it from 4 tiles,
   it bites after 3 arrows; walking away, it catches up within 12 tiles. The full suite passes unchanged.
 * Left out: `WALKER_TILES_PER_SPEED` (it would rescale every walker; do it with the monster review in
-  [monster-balance.draft.md](monster-balance.draft.md)), and the leap to close the gap (planned there for the giant
+  [monster-balance.draft.md](../monster-balance.draft.md)), and the leap to close the gap (planned there for the giant
   scarab too).
 * To watch in play: a step is now 0.1 tiles, every 80 ms. If the rat looks jerky, move walkers every tick (per-second
   speed, like the bats) instead of the 80 ms step.

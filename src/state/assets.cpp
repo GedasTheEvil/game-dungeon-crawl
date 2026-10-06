@@ -73,7 +73,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	 Locomotion::Stationary,
 	 {0.1f, 0.4f, 0.1f}},
 	{MonsterRat, "Rat", "monsters/rat", "monsters/rat", 9, 12, 2, 400, 300, 13, 180, Locomotion::Walk, RED_BLOOD},
-	// Faster than the player's walk (~1.25 tiles/s): the bow alone does not keep it off (docs/plan/giant-rat-speed.md).
+	// Faster than the player's walk (~1.25 tiles/s): the bow alone does not keep it off (docs/plan/solved/giant-rat-speed.md).
 	{MonsterGiantRat, "Giant rat", "monsters/rat", "monsters/rat_giant", 24, 60, 8, 700, 2000, 42, 180,
 	 Locomotion::WalkJump, RED_BLOOD},
 	{MonsterBat, "Bat", "monsters/bat", "monsters/bat", 5, 8, 3, 800, 400, 18, 180, Locomotion::Fly, RED_BLOOD},

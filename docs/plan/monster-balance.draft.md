@@ -55,7 +55,7 @@ starts):
   cross pits and traps.
 * More HP or damage only if speed and the leap are not enough.
 
-The **giant rat** had the same problem, now faster than the walk: [giant-rat-speed.md](giant-rat-speed.md). Its leap
+The **giant rat** had the same problem, now faster than the walk: [giant-rat-speed.md](solved/giant-rat-speed.md). Its leap
 to close the gap is still open, together with the giant scarab's.
 
 ## HP balance

@@ -1,4 +1,4 @@
-# The giant rat is faster than the player's walk (docs/plan/giant-rat-speed.md): standing still and shooting it with
+# The giant rat is faster than the player's walk (docs/plan/solved/giant-rat-speed.md): standing still and shooting it with
 # the bow does not keep it off, nor does walking away (tests/levels/giant_rat_speed: the rat 4 tiles behind).
 seed 1
 level tests/levels/giant_rat_speed

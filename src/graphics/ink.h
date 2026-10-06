@@ -20,7 +20,7 @@ void end();
 // hitboxes follow the drawing.
 float figureScale();
 // The weapon in the player's fist is drawn this much larger in toon mode, more than the figures: at their 1.2 it
-// looked too small next to them (docs/plan/toon-weapon-scale.md).
+// looked too small next to them (docs/plan/solved/toon-weapon-scale.md).
 float heldWeaponScale();
 
 } // namespace Ink

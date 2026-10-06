@@ -1,6 +1,6 @@
 # Held weapon in toon mode
 
-Status: implemented 2026-10-06, to be confirmed in play. Draft 2026-10-05.
+Status: solved 2026-10-06, confirmed in play. Draft 2026-10-05.
 
 ## Bug
 

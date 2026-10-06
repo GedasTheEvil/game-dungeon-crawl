@@ -1,6 +1,6 @@
 # Inventory keys with tabs
 
-Status: draft 2026-10-06. Split off [inventory-overhaul.draft.md](inventory-overhaul.draft.md), which keeps today's
+Status: draft 2026-10-06. Split off [inventory-overhaul.md](inventory-overhaul.md), which keeps today's
 keys.
 
 ## Problem

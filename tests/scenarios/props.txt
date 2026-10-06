@@ -28,16 +28,16 @@ give potion 0
 key i
 wait 5
 screenshot inventory_club
-click 26.9 63.5
+select sword
 wait 5
 screenshot inventory_sword
-click 39.3 63.5
+select spear
 wait 5
 screenshot inventory_spear
-click 51.7 63.5
+select bow
 wait 5
 screenshot inventory_bow
-click 12.0 36.75
+select small_health
 wait 5
 screenshot inventory_potion
 key i

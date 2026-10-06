@@ -8,20 +8,24 @@
 #include <iosfwd>
 #include <optional>
 
-// The inventory screen: the weapons and potions in the ItemBag, with their models, details and buttons.
+// The inventory screen: the items in the ItemBag, one tab per ItemGroup, with their models, details and buttons.
 class Inventory {
   private:
 	// Clickable things on the screen.
-	enum class Target : unsigned char { None, Slot, UseButton, UpgradeButton };
+	enum class Target : unsigned char { None, Slot, Tab, UseButton, UpgradeButton };
 
 	static constexpr int NO_SLOT = -1;
+	static constexpr int NO_TAB = -1;
 
 	ItemBag bag;
-	int selectedSlot = 0; // slots are the ItemKind order
+	int selectedSlot = 0;				// slots are the ItemKind order
+	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
+	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
 	int hoveredSlot = NO_SLOT;
+	int hoveredTab = NO_TAB;
 	Target hoveredButton = Target::None;
 	Target pressed = Target::None;
-	int pressedSlot = NO_SLOT;
+	int pressedSlot = NO_SLOT; // or the tab, when pressed is Target::Tab
 	int pressedMouseButton = 0;
 
 	float slotAngle[ITEM_KIND_COUNT] = {}; // model turntable angle per slot
@@ -44,11 +48,15 @@ class Inventory {
 	void Upgrade(int slot);
 	std::string DrinkPotion(ItemKind potion); // applies it to the player; returns the feedback line
 	void Select(int slot);
+	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
+	void SwitchTab(ItemGroup group); // to the slot it selected last
 	void MoveSelection(int dx, int dy);
 	void ShowToast(const std::string& text);
 	void UpdateHover(float x, float y);
 
 	void DrawBackground();
+	void DrawTabs();
+	void DrawTabHint();
 	void DrawSlot(int slot);
 	void DrawSlotModel(int slot);
 	void DrawSlotLabels(int slot);
@@ -68,6 +76,8 @@ class Inventory {
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
+	// Selects the item and opens its tab, like a click on its slot (scenario `select`).
+	void SelectItem(ItemKind kind) { Select(itemIndex(kind)); }
 	void SpecialKeyPressed(int key);
 	// In game, the weapon keys (1-4): equips it if it was found, with the toast. A potion does nothing.
 	void Equip(ItemKind weapon);

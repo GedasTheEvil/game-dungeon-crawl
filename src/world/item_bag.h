@@ -46,15 +46,21 @@ class ItemBag {
   private:
 	int counts[ITEM_KIND_COUNT] = {};
 	int levels[ITEM_KIND_COUNT] = {}; // weapons only, from 1
+	bool found[ITEM_KIND_COUNT] = {}; // ever had one, also when all are used up
 	ItemKind equipped = ItemKind::Club;
 
   public:
 	ItemBag() { Reset(); }
 	void Reset(); // a new game: only the club, in hand
-	void Add(ItemKind kind) { counts[itemIndex(kind)]++; }
+	void Add(ItemKind kind) {
+		counts[itemIndex(kind)]++;
+		found[itemIndex(kind)] = true;
+	}
 	void Find(ItemKind kind, Journal& journal); // found in a chest: added, a weapon writes the journal's weapons note
 	[[nodiscard]] int Count(ItemKind kind) const { return counts[itemIndex(kind)]; }
 	[[nodiscard]] int Level(ItemKind kind) const { return levels[itemIndex(kind)]; }
+	[[nodiscard]] bool Found(ItemKind kind) const { return found[itemIndex(kind)]; }
+	[[nodiscard]] bool AnyFound(ItemGroup group) const;
 	[[nodiscard]] ItemKind Equipped() const { return equipped; }
 
 	[[nodiscard]] UseBlock Block(ItemKind kind, const Vitals& player) const;
@@ -65,8 +71,8 @@ class ItemBag {
 	// The potion the quick-drink key would take (quickPotion), counting from `current` of `max`.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind, int current, int max) const;
 
-	// "INV2 <slots> <counts...> <levels...> <equipped type> <equipped id>". Load also reads the older saves, which
-	// start straight with the 9 counts of the original slots.
+	// "INV3 <slots> <counts...> <levels...> <found...> <equipped type> <equipped id>". Load also reads INV2 (no found
+	// flags: found is what is held) and the older saves, which start straight with the 9 counts of the original slots.
 	void Save(std::ostream& out) const;
 	void Load(std::istream& in);
 };

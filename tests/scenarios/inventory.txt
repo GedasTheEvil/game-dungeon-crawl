@@ -1,6 +1,6 @@
-# Inventory screen: hover, select, press and use states; equip, drink, upgrade.
-# Mouse positions are window percent at 16:9. Slot centres: weapons y 63.5, x 14.6 26.9 39.3 51.7;
-# potions y 36.75, x 12.0 19.1 26.1 33.1 40.2 47.2 54.2.
+# Inventory screen: tabs, hover, select, press and use states; equip, drink, upgrade.
+# Mouse positions are window percent at 16:9. Slot centres: x 14.6 26.9 39.3 51.7, rows y 63 and 38.
+# Tabs y 80.6: weapons x 14.8, potions 27.0, amulets 39.2, rings 51.5.
 # Buttons y 19.5: weapons Equip x 70.0, Upgrade x 84.0; potions Drink x 77.0.
 seed 1
 god
@@ -35,15 +35,15 @@ screenshot sword_equipped
 expect equip_type == 1
 expect equip_id == 1
 
-# unfound spear: silhouette, disabled buttons
-click 39.3 63.5
+# unfound spear: question mark, disabled buttons
+select spear
 wait 5
 screenshot spear_not_found
 click 70 19.5
 expect equip_id == 1
 
 # upgrade: one sword is not enough for level 2, the second copy is
-click 26.9 63.5
+select sword
 click 84 19.5
 expect melee1.level == 1
 give melee 1
@@ -58,7 +58,21 @@ expect melee1 == 2
 key u
 expect melee1.level == 2
 
-# strength potion by keyboard: 7 selects, Enter drinks
+# amulets: nothing found, the tab stays shut
+mouse 39.2 80.6
+wait 5
+screenshot amulets_none_yet
+click 39.2 80.6
+wait 5
+expect equip_id == 1
+screenshot still_weapons
+
+# the potions tab opens on its first potion
+click 27.0 80.6
+wait 5
+screenshot potions_tab
+
+# strength potion by keyboard: 7 selects, Enter drinks; used up, it shows none left
 mouse 5 5
 key 7
 wait 5
@@ -70,13 +84,13 @@ expect might == 2
 expect potion2 == 0
 
 # small health at full HP stays disabled
-click 12.0 36.75
+select small_health
 wait 5
 screenshot health_full
 expect potion0 == 3
 
 # stamina: full at first, so the potion waits; after jumping it restores
-click 42.3 36.75
+select small_stamina
 click 77 19.5
 expect potion5 == 2
 key i
@@ -88,7 +102,9 @@ jump
 wait 1s
 dump
 key i
-click 42.3 36.75
+wait 5
+screenshot reopens_potions
+select small_stamina
 wait 5
 screenshot stamina_low
 click 77 19.5
@@ -96,10 +112,13 @@ wait 5
 screenshot stamina_drunk
 expect potion5 == 1
 
-# arrows browse: up from the potion row goes to the weapons
+# arrows stay in the tab: up from the second potion row goes to the first one; the weapons tab keeps the sword
 key w
 wait 5
 screenshot arrow_up
+click 14.8 80.6
+wait 5
+screenshot back_to_weapons
 key i
 wait 5
 expect equip_id == 1

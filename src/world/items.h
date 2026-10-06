@@ -30,6 +30,19 @@ constexpr ItemKind itemAt(int index) { return static_cast<ItemKind>(index); } //
 constexpr bool isPotion(ItemKind kind) { return itemIndex(kind) >= WEAPON_KIND_COUNT; }
 constexpr bool isRanged(ItemKind kind) { return kind == ItemKind::Bow; }
 
+// The inventory's tabs, one per group of items. Amulets and rings have no items yet.
+enum class ItemGroup : std::uint8_t { Weapons, Potions, Amulets, Rings };
+constexpr int ITEM_GROUP_COUNT = 4;
+
+constexpr ItemGroup itemGroup(ItemKind kind) { return isPotion(kind) ? ItemGroup::Potions : ItemGroup::Weapons; }
+
+// A group's items are next to each other in ItemKind order: indexes first .. first + count - 1.
+struct ItemRange {
+	int first;
+	int count;
+};
+[[nodiscard]] ItemRange groupItems(ItemGroup group);
+
 // Level files (a treasure tile's attr and value), save games and scenario scripts name an item by a type and an id.
 // The weapon ids restart per type: the club and the bow are both 0.
 namespace ItemType {

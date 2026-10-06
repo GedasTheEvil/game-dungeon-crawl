@@ -71,17 +71,27 @@ PotionGain potionGain(ItemKind potion) {
 void ItemBag::Reset() {
 	for (int& count : counts)
 		count = 0;
-	counts[itemIndex(ItemKind::Club)] = 1; // everyone starts with the club
+	for (bool& f : found)
+		f = false;
+	Add(ItemKind::Club); // everyone starts with the club
 	for (int& level : levels)
 		level = 1;
 	equipped = ItemKind::Club;
+}
+
+bool ItemBag::AnyFound(ItemGroup group) const {
+	const ItemRange range = groupItems(group);
+	for (int i = range.first; i < range.first + range.count; i++)
+		if (found[i])
+			return true;
+	return false;
 }
 
 UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 	if (!player.alive)
 		return UseBlock::Dead;
 	if (Count(kind) <= 0)
-		return isPotion(kind) ? UseBlock::NoneLeft : UseBlock::NotFound;
+		return Found(kind) ? UseBlock::NoneLeft : UseBlock::NotFound;
 	if (kind == equipped)
 		return UseBlock::Equipped;
 	if (heals(kind) && player.hp >= player.maxHp)
@@ -122,11 +132,13 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV2 " << ITEM_KIND_COUNT << " ";
+	out << "INV3 " << ITEM_KIND_COUNT << " ";
 	for (int count : counts)
 		out << count << " ";
 	for (int level : levels)
 		out << level << " ";
+	for (bool f : found)
+		out << (f ? 1 : 0) << " ";
 	ItemFileId id = fileIdOf(equipped);
 	out << id.type << " " << id.id << "\n";
 }
@@ -136,12 +148,15 @@ void ItemBag::Load(std::istream& in) {
 		count = 0;
 	for (int& level : levels)
 		level = 1;
+	for (bool& f : found)
+		f = false;
 
 	std::string tok;
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	if (tok == "INV2") {
+	bool hasFound = tok == "INV3";
+	if (tok == "INV2" || tok == "INV3") {
 		int slots = 0;
 		in >> slots;
 		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
@@ -153,6 +168,12 @@ void ItemBag::Load(std::istream& in) {
 			in >> level;
 		for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
 			levels[slot] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL); // saves from before the cap of 5
+		if (hasFound) {
+			for (int& f : saved)
+				in >> f;
+			for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
+				found[slot] = saved[slot] != 0;
+		}
 		in >> type >> id;
 	} else {
 		counts[0] = std::stoi(tok);
@@ -172,6 +193,9 @@ void ItemBag::Load(std::istream& in) {
 			in.seekg(pos);
 		}
 	}
+
+	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
+		found[slot] = found[slot] || counts[slot] > 0;
 
 	std::optional<ItemKind> kind = itemFromFile(type, id);
 	equipped = kind && !isPotion(*kind) ? *kind : ItemKind::Club;

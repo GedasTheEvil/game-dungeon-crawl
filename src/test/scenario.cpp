@@ -60,6 +60,7 @@ enum class CommandType : unsigned char {
 	Key,
 	Give,
 	Chest,
+	Select,
 	Xp,
 	Hurt,
 	Poison,
@@ -165,6 +166,13 @@ float playerPos(GameplayAction axisOf) {
 	float y = 0.f;
 	Game().dungeon.getC(x, y);
 	return isAxisX(axisOf) ? x : y;
+}
+
+// The item's label with _ for its spaces: small_health, sword.
+std::string itemSlug(ItemKind kind) {
+	std::string slug = itemText(kind).label;
+	std::replace(slug.begin(), slug.end(), ' ', '_');
+	return slug;
 }
 
 const char* screenName() {
@@ -630,6 +638,15 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 		cmd.ticks = static_cast<int>(count);
 		return "";
 	}
+	if (name == "select") {
+		cmd.type = CommandType::Select;
+		for (int i = 0; argc == 1 && i < ITEM_KIND_COUNT; i++)
+			if (w[1] == itemSlug(itemAt(i))) {
+				cmd.item = itemAt(i);
+				return "";
+			}
+		return "usage: select <item>: club, sword, spear, bow, small_health, ... (its label, _ for spaces)";
+	}
 	if (name == "xp") {
 		cmd.type = CommandType::Xp;
 		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
@@ -850,6 +867,14 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
 			Game().ui.inventory->AddItem(cmd.item);
+		report(cmd, true, "");
+		return true;
+	case CommandType::Select: // like a click on its slot, also when it is on another tab
+		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
+			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
+			return true;
+		}
+		Game().ui.inventory->SelectItem(cmd.item);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed

@@ -1,6 +1,6 @@
 # Inventory overhaul: tabs
 
-Status: draft 2026-10-06, refined 2026-10-06, ready.
+Status: draft 2026-10-06, refined 2026-10-06, implemented 2026-10-06; waiting for a check in play.
 
 ## Problem
 
@@ -38,6 +38,17 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
   [inventory-keys.draft.md](inventory-keys.draft.md).
 * The detail panel on the right stays.
 
-## Open
+## Implemented
 
-Nothing; ready to implement.
+* `ItemGroup` and `groupItems` (`src/world/items.h`); the screen in `src/ui/inventory.cpp`, look in
+  [../ui.md](../ui.md#inventory-group-tabs).
+* "Found" per item in `ItemBag` (`Found`, `AnyFound`): a potion used up is found, one never had is not. Needed for
+  the question mark vs "None left" and for the disabled tabs. The save tag is `INV3` (found flags after the levels);
+  `INV2` saves load with found = held.
+* Icons: amulet and ring added to `tools/textures/hud_icons.py` (cells 5, 6); the potions tab tints the flask red.
+* A disabled tab on hover: a label under it, "Amulets: none yet".
+* The number row skips a slot whose tab is disabled (a potion key before any potion was found).
+* The detail panel of a used-up potion shows its effect and lore (before: "Effect unknown").
+* Scenario command `select ITEM` ([../testing.md](../testing.md)); `inventory.txt`, `props.txt`, `bow.txt`,
+  `weapons_held.txt` use it. `inventory.txt` still clicks one slot and the tabs by position, to test the mouse.
+* Scrolling: not built, as decided.

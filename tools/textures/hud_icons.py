@@ -1,4 +1,4 @@
-"""Generate the HUD quick slot icon atlas textures/ui/hud_icons.png (RGBA, 4 x 2 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 4 x 2 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
@@ -29,6 +29,7 @@ GOLD = (214, 160, 52, 255)
 GLASS = (200, 200, 200, 255)
 WHITE = (255, 255, 255, 255)
 STRING = (236, 226, 196, 255)
+LAPIS = (40, 78, 170, 255)
 
 ANGLE = -math.pi / 4  # the weapon axis, up to the right (image y points down)
 
@@ -122,8 +123,35 @@ def potion():
     d.rectangle([cx - 36, 44, cx + 36, 104], fill=WHITE, outline=INK, width=LINE)  # the cork
     return img
 
+def amulet():
+    """A cord hanging in a loop with a gold pendant: a lapis stone in a drop-shaped setting."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    cord = [(S / 2 + 150 * math.sin(a), 230 - 150 * math.cos(a)) for a in [math.pi * (i / 24 - 0.5) * 1.6 for i in range(25)]]
+    d.line(cord, fill=INK, width=26, joint="curve")
+    d.line(cord, fill=LEATHER, width=12, joint="curve")
+    cx, cy = S / 2, 330
+    drop = [(cx + 120 * math.sin(a) * (1 - 0.35 * math.cos(a)), cy + 120 * math.cos(a) * 0.95 - 20)
+            for a in [2 * math.pi * i / 48 for i in range(48)]]
+    d.polygon(drop, fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([cx - 52, cy - 52, cx + 52, cy + 52], fill=LAPIS, outline=INK, width=LINE)
+    d.rectangle([cx - 26, cy - 160, cx + 26, cy - 110], fill=GOLD, outline=INK, width=LINE)  # the bail
+    return img
+
+def ring():
+    """A gold band seen from a little above, a lapis stone on top."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    cx, cy, rx, ry, band = S / 2, 300, 170, 140, 44
+    d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([cx - rx + band, cy - ry + band, cx + rx - band, cy + ry - band], fill=(0, 0, 0, 0), outline=INK,
+              width=LINE)
+    d.polygon([(cx - 70, 170), (cx + 70, 170), (cx + 46, 90), (cx - 46, 90)], fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([cx - 62, 30, cx + 62, 130], fill=LAPIS, outline=INK, width=LINE)
+    return img
+
 # Order = atlas cell = PlayerHud::Icon.
-ICONS = [club, sword, spear, bow, potion]
+ICONS = [club, sword, spear, bow, potion, amulet, ring]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

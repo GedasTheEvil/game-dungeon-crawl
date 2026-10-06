@@ -16,8 +16,9 @@ namespace PlayerHud {
 constexpr float SCALE = 0.85f;
 constexpr ui::Rect PANEL = {1.5f, 1.5f, 53.f, 21.5f};
 
-// Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order.
-enum class Icon : std::uint8_t { Club, Sword, Spear, Bow, Potion, None };
+// Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
+// inventory's tabs.
+enum class Icon : std::uint8_t { Club, Sword, Spear, Bow, Potion, Amulet, Ring, None };
 
 struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
@@ -47,6 +48,8 @@ void reset();
 // small: key caps and counts; icons: the icon atlas texture. Leaves texturing on and the HUD blend function
 // (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
 void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons);
+// One atlas icon (not None) filling `r`, in the canvas set up. Leaves texturing off.
+void drawIcon(Icon icon, const ui::Rect& r, int icons, ui::Color tint);
 } // namespace PlayerHud
 
 #endif

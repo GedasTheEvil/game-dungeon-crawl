@@ -139,7 +139,7 @@ Selected, not just hovered, items (inventory slots) get a breathing gold halo
 ### Section heading
 
 `heading` font in `GOLD` at the top left of a panel section, a 1 px `BRONZE` rule from after the text to the panel's
-inner edge (inventory "Arms" / "Elixirs"). Table headers: `small` font in `LABEL`, rule under them, rows striped
+inner edge. Table headers: `small` font in `LABEL`, rule under them, rows striped
 with white alpha 0.035 (Options).
 
 ### Options rows and key cells
@@ -210,6 +210,19 @@ open book) and the key (I, M, J) in `small` `GOLD`. The open screen's tile is la
 shows the screen's name on a dark label to the left. Screens with the strip keep their title rule short
 (`SCREEN_TABS_TITLE_REACH`, 44). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
 window-wide one, so it stays in the same place. Its clicks are handled before the screen's own (`ScreenTabs::Mouse`).
+
+### Inventory group tabs
+
+The inventory's items panel has one tab per `ItemGroup` (weapons, potions, amulets, rings) across its top, in place
+of section headings: four tiles 19.75 x 6 at y 77.6, as wide as the slot grid. Each has a flat icon from the HUD atlas
+(`PlayerHud::drawIcon`: sword, flask tinted red, amulet, ring) and the group name in `small`. The open tab is lapis,
+the others stone. A group with nothing found yet (`ItemBag::AnyFound`) is `TileStyle::Disabled` with a dimmed icon,
+takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
+
+The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
+item count in `ItemKind` order. Two rows fit; a group with more needs scrolling by whole rows (not built yet). An
+item never found shows a grey question mark instead of its model (slot and details); one found and used up keeps the
+dark silhouette. The number row keys still pick a slot in `ItemKind` order and open its tab.
 
 ### Status box
 

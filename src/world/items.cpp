@@ -42,4 +42,15 @@ std::optional<ItemKind> itemFromFile(int type, int id) {
 	return std::nullopt;
 }
 
+ItemRange groupItems(ItemGroup group) {
+	ItemRange range = {ITEM_KIND_COUNT, 0};
+	for (int i = ITEM_KIND_COUNT - 1; i >= 0; i--) {
+		if (itemGroup(itemAt(i)) == group) {
+			range.first = i;
+			range.count++;
+		}
+	}
+	return range;
+}
+
 const ItemText& itemText(ItemKind kind) { return TEXTS[static_cast<size_t>(itemIndex(kind))]; }

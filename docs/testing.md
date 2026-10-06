@@ -72,6 +72,7 @@ One command per line. `#` starts a comment.
 | `poison weak\|medium\|strong` | The player is poisoned with that tier, as by a poisoned bite: it (re)starts that tier's timer ([poison](plan/solved/poison-and-antidote.md)). Works in `god` mode too, only the damage is not taken. |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |
 | `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 sword, 2 spear), `ranged` (0 bow), `potion` (0 small health, 1 large health, 2 might, 3 armor, 4 life, 5 small stamina, 6 large stamina, 7 antidote). |
+| `select ITEM` | In the open inventory, select the item and open its tab, like a click on its slot. ITEM: its label with `_` for spaces (`club`, `sword`, `spear`, `bow`, `small_health`, `large_health`, `might`, `armor`, `life`, `small_stamina`, `large_stamina`, `antidote`). Fails when the inventory is not open. Scenarios pick items with it, not by slot position. |
 | `xp N` | Gain N XP, like killing monsters. Each level up adds max HP and refills HP and stamina (level 2 at 1000). |
 | `savegame FILE` / `loadgame FILE` | Save / load the game. A bare file name is in the output directory; a path is taken as is. Never load from `saves/`: those are real games, not committed, overwritten by play. |
 | `chest TYPE ID [N]` | Open N (default 1) treasure chests holding that item: the item plus the random bonus loot, like a pickup. |

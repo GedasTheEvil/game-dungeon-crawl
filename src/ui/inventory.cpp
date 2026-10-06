@@ -9,6 +9,7 @@
 #include "../graphics/gl_includes.h"
 #include "ui_draw.h"
 #include "screen_tabs.h"
+#include "player_hud.h"
 #include <array>
 #include <cmath>
 #include <cstdio>
@@ -29,15 +30,25 @@ constexpr Rect DETAIL_PANEL = {100, 13, 56, 72};
 constexpr Rect WIDE_BUTTON = {107, 16, 42, 7}; // potions: Drink
 constexpr Rect EQUIP_BUTTON = {104, 16, 23, 7};
 constexpr Rect UPGRADE_BUTTON = {129, 16, 23, 7};
-constexpr float WEAPON_ROW_Y = 52.5f;
-constexpr float WEAPON_SLOT_H = 22.f;
-constexpr float POTION_ROW_Y = 29.f;
-constexpr float POTION_SLOT_H = 15.5f;
-constexpr float ELIXIRS_Y = 46.3f; // heading baseline
+// One grid for every tab: COLUMNS slots a row, as many rows as the group needs. VISIBLE_ROWS fit the panel; a group
+// with more needs scrolling by whole rows (not there yet: no group has more than VISIBLE_ROWS rows).
+constexpr int COLUMNS = 4;
+constexpr int VISIBLE_ROWS = 2;
+constexpr float SLOT_W = 19.f;
+constexpr float SLOT_H = 22.f;
+constexpr float SLOT_GAP = 3.f;
+constexpr float TOP_ROW_Y = 52.f;
 constexpr float NAME_BAND_H = 4.4f;
+constexpr float SLOT_SCALE = 14.5f;
 
-constexpr float WEAPON_SLOT_SCALE = 14.5f;
-constexpr float POTION_SLOT_SCALE = 6.8f;
+// The group tabs across the top of the items panel, the same width as the grid.
+constexpr float TAB_Y = 77.6f;
+constexpr float TAB_H = 6.f;
+constexpr float TAB_GAP = 2.f;
+constexpr const char* GROUP_NAMES[ITEM_GROUP_COUNT] = {"Weapons", "Potions", "Amulets", "Rings"};
+constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::Icon::Sword, PlayerHud::Icon::Potion,
+														   PlayerHud::Icon::Amulet, PlayerHud::Icon::Ring};
+
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float POTION_DETAIL_SCALE = 16.f;
 constexpr float PLINTH_Y = 49.f;		 // detail model base
@@ -48,6 +59,9 @@ constexpr const char* HOTKEYS = "1234567890-="; // one per slot, the keyboard's 
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
+ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
+int positionOf(int slot) { return slot - groupItems(groupOf(slot)).first; } // in its tab's grid
+ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
 
 constexpr std::array<Color, POTION_KIND_COUNT> POTION_COLORS = {{
 	{1.f, 0.f, 0.f},	   // small health
@@ -89,18 +103,27 @@ const char* blockReason(UseBlock block) {
 	return "";
 }
 
+constexpr float GRID_W = COLUMNS * SLOT_W + (COLUMNS - 1) * SLOT_GAP;
+
 Rect slotRect(int slot) {
-	if (!isPotion(slot)) {
-		constexpr float W = 19.f;
-		constexpr float GAP = 3.f;
-		float x0 = ITEMS_PANEL.cx() - (4 * W + 3 * GAP) / 2;
-		return {x0 + static_cast<float>(slot) * (W + GAP), WEAPON_ROW_Y, W, WEAPON_SLOT_H};
-	}
-	constexpr float W = 9.8f;
-	constexpr float GAP = 1.f;
-	float x0 = ITEMS_PANEL.cx() - (POTION_KIND_COUNT * W + (POTION_KIND_COUNT - 1) * GAP) / 2;
-	int column = slot - WEAPON_KIND_COUNT;
-	return {x0 + static_cast<float>(column) * (W + GAP), POTION_ROW_Y, W, POTION_SLOT_H};
+	const int position = positionOf(slot);
+	const float x0 = ITEMS_PANEL.cx() - GRID_W / 2;
+	const auto column = static_cast<float>(position % COLUMNS);
+	const int rowIndex = position / COLUMNS;
+	const auto row = static_cast<float>(rowIndex);
+	return {x0 + column * (SLOT_W + SLOT_GAP), TOP_ROW_Y - row * (SLOT_H + SLOT_GAP), SLOT_W, SLOT_H};
+}
+
+bool slotVisible(int slot) { return positionOf(slot) < COLUMNS * VISIBLE_ROWS; }
+
+// The question mark of an item not found yet, centred in `r`.
+void unknownMark(Font& font, const Rect& r, float alpha) {
+	textCentered(font, r.cx(), r.cy() - 2.5f, "?", {0.45f, 0.42f, 0.38f}, alpha);
+}
+
+Rect tabRect(int group) {
+	const float w = (GRID_W - (ITEM_GROUP_COUNT - 1) * TAB_GAP) / ITEM_GROUP_COUNT;
+	return {ITEMS_PANEL.cx() - GRID_W / 2 + static_cast<float>(group) * (w + TAB_GAP), TAB_Y, w, TAB_H};
 }
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -121,7 +144,9 @@ Inventory::Inventory() {
 
 void Inventory::Reset() {
 	bag.Reset();
-	selectedSlot = 0;
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
+		tabSlot[group] = groupItems(groupAt(group)).first;
+	Select(itemIndex(ItemKind::Club));
 	toast = ui::Toast{};
 	quickDrinkMs.reset();
 }
@@ -248,23 +273,30 @@ std::optional<int> Inventory::QuickDrinkMs(QuickKind kind) const {
 Color Inventory::PotionColor(ItemKind potion) { return potionColor(potion); }
 
 void Inventory::Select(int slot) {
-	if (slot >= 0 && slot < ITEM_KIND_COUNT)
-		selectedSlot = slot;
+	if (slot < 0 || slot >= ITEM_KIND_COUNT)
+		return;
+	selectedSlot = slot;
+	tab = groupOf(slot);
+	tabSlot[static_cast<int>(tab)] = slot;
 }
 
-// Arrow keys: left / right walk the slots in order, up / down jump between the weapon and potion rows.
+void Inventory::SwitchTab(ItemGroup group) {
+	if (TabEnabled(group))
+		Select(tabSlot[static_cast<int>(group)]);
+}
+
+// Arrow keys stay in the open tab: left / right walk its slots in order, up / down move a row (down onto a shorter
+// last row: its last slot).
 void Inventory::MoveSelection(int dx, int dy) {
-	int slot = selectedSlot + dx;
-	if (dy != 0) {
-		bool onPotions = isPotion(selectedSlot);
-		int column = onPotions ? selectedSlot - WEAPON_KIND_COUNT : selectedSlot;
-		if (dy < 0 && !onPotions)
-			slot = WEAPON_KIND_COUNT + column;
-		else if (dy > 0 && onPotions)
-			slot = column < WEAPON_KIND_COUNT ? column : WEAPON_KIND_COUNT - 1;
-	}
-	if (slot >= 0 && slot < ITEM_KIND_COUNT)
-		selectedSlot = slot;
+	const ItemRange range = groupItems(tab);
+	const int position = selectedSlot - range.first;
+	int target = position + dx;
+	if (dy > 0)
+		target = position - COLUMNS;
+	else if (dy < 0 && position / COLUMNS < (range.count - 1) / COLUMNS)
+		target = std::min(position + COLUMNS, range.count - 1);
+	if (target >= 0 && target < range.count)
+		Select(range.first + target);
 }
 
 void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
@@ -274,8 +306,12 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 void Inventory::UpdateHover(float x, float y) {
 	hoveredSlot = NO_SLOT;
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (slotRect(slot).contains(x, y))
+		if (groupOf(slot) == tab && slotVisible(slot) && slotRect(slot).contains(x, y))
 			hoveredSlot = slot;
+	hoveredTab = NO_TAB;
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
+		if (tabRect(group).contains(x, y))
+			hoveredTab = group;
 	hoveredButton = Target::None;
 	if (isPotion(selectedSlot)) {
 		if (WIDE_BUTTON.contains(x, y))
@@ -309,6 +345,11 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 			pressed = Target::Slot;
 			pressedSlot = hoveredSlot;
 			Select(hoveredSlot);
+		} else if (hoveredTab != NO_TAB && button == MOUSE_LEFT_BUTTON) {
+			if (TabEnabled(groupAt(hoveredTab))) {
+				pressed = Target::Tab;
+				pressedSlot = hoveredTab;
+			}
 		} else if (button == MOUSE_LEFT_BUTTON) {
 			pressed = hoveredButton;
 		}
@@ -322,6 +363,8 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		Use(selectedSlot);
 	else if (pressed == Target::UpgradeButton && hoveredButton == pressed)
 		Upgrade(selectedSlot);
+	else if (pressed == Target::Tab && hoveredTab == pressedSlot)
+		SwitchTab(groupAt(pressedSlot));
 	else if (pressed == Target::Slot && button == MOUSE_RIGHT_BUTTON && hoveredSlot == pressedSlot)
 		Use(pressedSlot);
 	pressed = Target::None;
@@ -357,8 +400,12 @@ void Inventory::KeyPressed(unsigned char key) {
 		MoveSelection(0, -1);
 		return;
 	default:
-		if (const char* hotkey = key != 0 ? strchr(HOTKEYS, key) : nullptr)
-			Select(static_cast<int>(hotkey - HOTKEYS));
+		// The number row picks a slot in ItemKind order on any tab, as long as that tab is open to the player.
+		if (const char* hotkey = key != 0 ? strchr(HOTKEYS, key) : nullptr) {
+			const int slot = static_cast<int>(hotkey - HOTKEYS);
+			if (TabEnabled(groupOf(slot)))
+				Select(slot);
+		}
 		return;
 	}
 }
@@ -412,8 +459,12 @@ void Inventory::Draw() {
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
+	const ItemRange shown = groupItems(tab);
+	const int shownEnd = shown.first + std::min(shown.count, COLUMNS * VISIBLE_ROWS);
+
 	DrawBackground();
-	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
+	DrawTabs();
+	for (int slot = shown.first; slot < shownEnd; slot++)
 		DrawSlot(slot);
 	DrawDetails();
 	DrawButtons();
@@ -424,14 +475,15 @@ void Inventory::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
+	for (int slot = shown.first; slot < shownEnd; slot++)
 		DrawSlotModel(slot);
 	DrawDetailModel();
 	glDisable(GL_DEPTH_TEST);
 
 	beginText();
-	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
+	for (int slot = shown.first; slot < shownEnd; slot++)
 		DrawSlotLabels(slot);
+	DrawTabHint();
 	DrawFooter();
 	ScreenTabs::Draw();
 
@@ -446,11 +498,6 @@ void Inventory::DrawBackground() {
 	titleBar(title, CANVAS_W / 2, "Inventory", SCREEN_TABS_TITLE_REACH);
 
 	panel(ITEMS_PANEL, 0.9f);
-
-	// Section rules under the "Arms" and "Elixirs" headings.
-	float headingRight = ITEMS_PANEL.x + 5 + heading.TextWidth("Elixirs") + 2;
-	line(headingRight, 78.2f, ITEMS_PANEL.x + ITEMS_PANEL.w - 5, 78.2f, BRONZE, 1.f, 1.f);
-	line(headingRight, ELIXIRS_Y + 1.2f, ITEMS_PANEL.x + ITEMS_PANEL.w - 5, ELIXIRS_Y + 1.2f, BRONZE, 1.f, 1.f);
 
 	// Papyrus scroll for the details, in a frame matching the items panel.
 	glEnable(GL_TEXTURE_2D);
@@ -472,11 +519,45 @@ void Inventory::DrawBackground() {
 	diamond(DETAIL_PANEL.x + DETAIL_PANEL.w, DETAIL_PANEL.y, 1.2f, GOLD, 1.f);
 	diamond(DETAIL_PANEL.x + DETAIL_PANEL.w, DETAIL_PANEL.y + DETAIL_PANEL.h, 1.2f, GOLD, 1.f);
 	diamond(DETAIL_PANEL.x, DETAIL_PANEL.y + DETAIL_PANEL.h, 1.2f, GOLD, 1.f);
+}
 
-	beginText();
-	text(heading, ITEMS_PANEL.x + 5, 77.f, "Arms", GOLD);
-	text(heading, ITEMS_PANEL.x + 5, ELIXIRS_Y, "Elixirs", GOLD);
+// One tile per group: its icon and name. The open one lapis, the others stone; a group with nothing found yet is
+// dimmed and does not take clicks.
+void Inventory::DrawTabs() {
+	const int icons = Game().assets.textures.hudIcons.ID();
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
+		const bool enabled = TabEnabled(groupAt(group));
+		const bool active = groupAt(group) == tab;
+		const bool hovered = enabled && !active && hoveredTab == group;
+		const bool held = hovered && pressed == Target::Tab && pressedSlot == group;
+		TileStyle style = !enabled ? TileStyle::Disabled : (active ? TileStyle::Lapis : TileStyle::Stone);
+		Rect r = tile(tabRect(group), style, hovered, held);
+
+		Color tint = groupAt(group) == ItemGroup::Potions ? potionColor(ItemKind::SmallHealth) : Color{1, 1, 1};
+		if (!enabled)
+			tint = {0.3f, 0.26f, 0.22f};
+		PlayerHud::drawIcon(GROUP_ICONS[group], {r.x + 0.6f, r.y + 0.3f, r.h - 0.6f, r.h - 0.6f}, icons, tint);
+		beginText();
+		Color c = !enabled ? Color{0.36f, 0.29f, 0.20f} : (hovered ? TEXT_HOVER : GOLD);
+		text(small, r.x + r.h + 0.6f, r.y + 1.7f, GROUP_NAMES[group], c);
+		beginShapes();
+	}
+}
+
+// Over a dimmed tab: why it does not open.
+void Inventory::DrawTabHint() {
+	if (hoveredTab == NO_TAB || TabEnabled(groupAt(hoveredTab)))
+		return;
+	char hint[32];
+	snprintf(hint, sizeof(hint), "%s: none yet", GROUP_NAMES[hoveredTab]);
+	const Rect tabR = tabRect(hoveredTab);
+	const float w = small.TextWidth(hint) + 3.f;
+	const Rect label = {std::min(tabR.cx() - w / 2, ITEMS_PANEL.x + ITEMS_PANEL.w - 2 - w), tabR.y - 5.4f, w, 4.4f};
 	beginShapes();
+	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
+	strokeRect(label, GOLD_DIM, 1.f, 1.f);
+	beginText();
+	text(small, label.x + 1.5f, label.y + 1.2f, hint, GOLD);
 }
 
 void Inventory::DrawSlot(int slot) {
@@ -542,6 +623,8 @@ void Inventory::DrawSlot(int slot) {
 }
 
 void Inventory::DrawSlotModel(int slot) {
+	if (!bag.Found(kindOf(slot)))
+		return; // a question mark instead (DrawSlotLabels)
 	Rect r = slotRect(slot);
 	bool held = SlotHeld(slot);
 	Item* model = Model(kindOf(slot));
@@ -556,7 +639,7 @@ void Inventory::DrawSlotModel(int slot) {
 
 	float savedScale = model->scale;
 	float savedAngle = model->rotA;
-	model->scale = isPotion(slot) ? POTION_SLOT_SCALE : WEAPON_SLOT_SCALE;
+	model->scale = SLOT_SCALE;
 	model->rotA = slotAngle[slot];
 	glColor3f(tint.r, tint.g, tint.b);
 	glPushMatrix();
@@ -578,6 +661,8 @@ void Inventory::DrawSlotLabels(int slot) {
 	if (!owned)
 		nameColor = {0.36f, 0.29f, 0.20f};
 	textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
+	if (!bag.Found(kindOf(slot)))
+		unknownMark(title, {r.x, r.y + NAME_BAND_H, r.w, r.h - NAME_BAND_H}, lit ? 0.9f : 0.6f);
 
 	char key[2] = {HOTKEYS[slot], '\0'};
 	text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
@@ -597,13 +682,15 @@ void Inventory::DrawSlotLabels(int slot) {
 
 void Inventory::DrawDetails() {
 	const ItemText& info = itemText(kindOf(selectedSlot));
-	bool owned = bag.Count(kindOf(selectedSlot)) > 0;
+	bool owned = bag.Found(kindOf(selectedSlot)); // a potion used up still shows what it does
 	float cx = DETAIL_PANEL.cx();
 
 	// Shadow under the model on its plinth line.
 	ellipse(cx, PLINTH_Y, 12.f, 1.8f, INK, 0.45f);
 
 	beginText();
+	if (!bag.Found(kindOf(selectedSlot)))
+		textCentered(title, cx, PLINTH_Y + 3.f, "?", INK_FADED);
 	textCentered(heading, cx, 77.5f, info.name, owned ? INK : INK_FADED);
 	char kind[48] = "Potion";
 	if (!isPotion(selectedSlot)) {
@@ -682,6 +769,8 @@ void Inventory::DrawDetails() {
 }
 
 void Inventory::DrawDetailModel() {
+	if (!bag.Found(kindOf(selectedSlot)))
+		return; // a question mark instead (DrawDetails)
 	Item* model = Model(kindOf(selectedSlot));
 	bool potion = isPotion(selectedSlot);
 	Color tint = potion ? potionColor(kindOf(selectedSlot)) : Color{1, 1, 1};

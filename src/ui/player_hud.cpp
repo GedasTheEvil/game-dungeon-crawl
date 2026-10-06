@@ -228,15 +228,8 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 }
 
 void drawSlotIcon(const PlayerHud::Slot& s, const Rect& r, int icons) {
-	if (s.icon == PlayerHud::Icon::None)
-		return;
-	int cell = static_cast<int>(s.icon);
-	int row = cell / ICON_COLUMNS;
-	float w = 1.f / ICON_COLUMNS;
-	float h = 1.f / ICON_ROWS;
-	float u = w * static_cast<float>(cell % ICON_COLUMNS);
-	float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
-	texturedRect(r.inset(ICON_INSET), icons, s.tint, u, v, u + w, v + h);
+	if (s.icon != PlayerHud::Icon::None)
+		PlayerHud::drawIcon(s.icon, r.inset(ICON_INSET), icons, s.tint);
 }
 
 void drawSlotText(const PlayerHud::Slot& s, const Rect& r, Font& small) {
@@ -282,6 +275,16 @@ namespace PlayerHud {
 void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()); }
 
 void reset() { trail = DamageTrail{}; }
+
+void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
+	int cell = static_cast<int>(icon);
+	int row = cell / ICON_COLUMNS;
+	float w = 1.f / ICON_COLUMNS;
+	float h = 1.f / ICON_ROWS;
+	float u = w * static_cast<float>(cell % ICON_COLUMNS);
+	float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
+	texturedRect(r, icons, tint, u, v, u + w, v + h);
+}
 
 void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons) {
 	int now = GameClock::now();

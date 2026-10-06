@@ -55,7 +55,7 @@ TEST_CASE("what can be used") {
 	Vitals hurt{true, 50, 100, 100, 100};
 	CHECK(bag.Block(ItemKind::Club, hurt) == UseBlock::Equipped);
 	CHECK(bag.Block(ItemKind::Sword, hurt) == UseBlock::NotFound);
-	CHECK(bag.Block(ItemKind::SmallHealth, hurt) == UseBlock::NoneLeft);
+	CHECK(bag.Block(ItemKind::SmallHealth, hurt) == UseBlock::NotFound); // never had one
 
 	bag.Add(ItemKind::SmallHealth);
 	bag.Add(ItemKind::SmallStamina);
@@ -121,6 +121,35 @@ TEST_CASE("the antidote is drunk only while poisoned") {
 	CHECK(bag.Count(ItemKind::Antidote) == 0);
 }
 
+TEST_CASE("a potion used up is found, not one never had") {
+	ItemBag bag;
+	Vitals player{true, 10, 50, 100, 100};
+	CHECK(bag.Block(ItemKind::SmallHealth, player) == UseBlock::NotFound);
+	CHECK_FALSE(bag.AnyFound(ItemGroup::Potions));
+	bag.Add(ItemKind::SmallHealth);
+	CHECK(bag.Use(ItemKind::SmallHealth, player));
+	CHECK(bag.Block(ItemKind::SmallHealth, player) == UseBlock::NoneLeft);
+	CHECK(bag.AnyFound(ItemGroup::Potions));
+	CHECK(bag.AnyFound(ItemGroup::Weapons)); // the club
+	CHECK_FALSE(bag.AnyFound(ItemGroup::Amulets));
+
+	std::stringstream file;
+	bag.Save(file);
+	ItemBag loaded;
+	loaded.Load(file);
+	CHECK(loaded.Found(ItemKind::SmallHealth));
+	CHECK(loaded.Count(ItemKind::SmallHealth) == 0);
+	CHECK_FALSE(loaded.Found(ItemKind::LargeHealth));
+}
+
+TEST_CASE("the item groups follow the ItemKind order") {
+	CHECK(groupItems(ItemGroup::Weapons).first == 0);
+	CHECK(groupItems(ItemGroup::Weapons).count == WEAPON_KIND_COUNT);
+	CHECK(groupItems(ItemGroup::Potions).first == WEAPON_KIND_COUNT);
+	CHECK(groupItems(ItemGroup::Potions).count == POTION_KIND_COUNT);
+	CHECK(groupItems(ItemGroup::Rings).count == 0);
+}
+
 TEST_CASE("a save from before the antidote loads with none") {
 	std::stringstream old("INV2 11 1 0 0 0 2 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0\n");
 	ItemBag bag;
@@ -128,6 +157,8 @@ TEST_CASE("a save from before the antidote loads with none") {
 	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
 	CHECK(bag.Count(ItemKind::LargeStamina) == 1);
 	CHECK(bag.Count(ItemKind::Antidote) == 0);
+	CHECK(bag.Found(ItemKind::SmallHealth));
+	CHECK_FALSE(bag.Found(ItemKind::Antidote));
 	CHECK(bag.Equipped() == ItemKind::Club);
 }
 
@@ -151,13 +182,14 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::Bow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV2 12 ", 0) == 0);
+	CHECK(file.str().rfind("INV3 12 ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
 		CHECK(loaded.Count(itemAt(i)) == bag.Count(itemAt(i)));
 		CHECK(loaded.Level(itemAt(i)) == bag.Level(itemAt(i)));
+		CHECK(loaded.Found(itemAt(i)) == bag.Found(itemAt(i)));
 	}
 	CHECK(loaded.Equipped() == ItemKind::Bow);
 }

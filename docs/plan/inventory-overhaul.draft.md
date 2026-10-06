@@ -1,29 +1,37 @@
-# Inventory overhaul: sliders
+# Inventory overhaul: tabs
 
-Status: draft 2026-10-06.
+Status: draft 2026-10-06, refined 2026-10-06.
 
 ## Problem
 
 The inventory (`src/ui/inventory.cpp`, [../ui.md](../ui.md)) shows every item at once in fixed rows: four weapons,
 then the potions. The potion row is full: with the antidote
-([poison-and-antidote.md](solved/poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)) and a resistance
-potion ([resistance-potion.draft.md](resistance-potion.draft.md)), maybe more weapons.
+([poison-and-antidote.md](solved/poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
+kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance potion
+([resistance-potion.draft.md](resistance-potion.draft.md)), rings maybe, and many more weapons
+([egyptian-weapons.draft.md](egyptian-weapons.draft.md)).
 
-## Idea
+## Decided
 
-* **Groups:** the item kinds sorted into groups (weapons, potions, amulets, ...), picked with a horizontal slider or
-  with tabs (not decided).
-* **Items:** the items of the chosen group in a vertical slider, scrolled with the wheel, the arrows or a drag.
+* **Tabs** pick the group: weapons, potions, amulets, rings. Four tiles across the top of the items panel, in place of
+  the "Arms" / "Elixirs" headings. Look of the screen tabs (`ui::screenTabs`): lapis active, stone the others.
+* **Tab icons:** flat, pre-rendered into a texture, like the HUD icons (`tools/textures/hud_icons.py`, sword and flask
+  are there already; amulet and ring are new).
+* **Disabled tab:** a group the player has no item of yet is dimmed and cannot be clicked; on hover its name and
+  "none yet". This also covers groups with no item kinds in the game (amulets, rings today), so they can ship as tabs
+  now.
+* **Grid:** the same for every tab, 4 columns x 2 rows, every slot the size of today's weapon slot (19 x 22). One
+  `slotRect`, one model scale, one name band. Potions (8 kinds) fill it; their models grow from 9.8 x 15.5 slots.
+* **More than 8 in a group:** scroll by whole rows (wheel, arrow down past the last row, a thin scroll bar shown only
+  then). Rows computed from the item count. Needed once the weapons grow
+  ([egyptian-weapons.draft.md](egyptian-weapons.draft.md)); may wait until then.
+* **Opening tab:** the last one used, weapons the first time.
+* **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
+  click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.
 * The detail panel on the right stays.
 
 ## Open
 
-* Groups: a horizontal slider or tabs.
-* The groups themselves, and where a kind goes (the antidote: potions, or a group of its own with the resistance
-  potion?).
-* How many items show at once in the vertical slider; what a slot shows (model, name, count, level).
-* Keys: the number row picks a slot today (`HOTKEYS`, `1234567890-=`). With more items than keys, what do the keys
-  pick: the weapon and potion hotkeys in game stay as they are.
-* Mouse: wheel scrolls the items, drag, scrollbar.
-* Scenarios that click slots by screen position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...)
-  need new positions, or a scenario command that picks an item by kind.
+* Keys in the inventory: the number row picks one of 12 slots today (`HOTKEYS`, `1234567890-=`). What they pick with
+  tabs, and the keys that switch tabs (Q / E, Tab / Shift+Tab). Deferred. The in-game weapon and potion hotkeys stay.
+* Which group the antidote and the resistance potion go to (potions, or one of their own).

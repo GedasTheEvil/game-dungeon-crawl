@@ -1,6 +1,6 @@
 # Inventory overhaul: tabs
 
-Status: draft 2026-10-06, refined 2026-10-06.
+Status: draft 2026-10-06, refined 2026-10-06, ready.
 
 ## Problem
 
@@ -29,10 +29,15 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
 * **Opening tab:** the last one used, weapons the first time.
 * **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
   click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.
+* **Items not found yet:** a greyed-out question mark, "Not found yet". Found and used up (count 0): today's empty
+  look, "None left".
+* **Antidote and resistance potion** stay in the potions group.
+* **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.draft.md](inventory-sorting.draft.md).
+* **Arrow keys:** left / right stay inside the current tab (up / down between its rows), as today within a row.
+* **Keys:** the number row and the slot key labels keep today's function; tabs and keys are
+  [inventory-keys.draft.md](inventory-keys.draft.md).
 * The detail panel on the right stays.
 
 ## Open
 
-* Keys in the inventory: the number row picks one of 12 slots today (`HOTKEYS`, `1234567890-=`). What they pick with
-  tabs, and the keys that switch tabs (Q / E, Tab / Shift+Tab). Deferred. The in-game weapon and potion hotkeys stay.
-* Which group the antidote and the resistance potion go to (potions, or one of their own).
+Nothing; ready to implement.

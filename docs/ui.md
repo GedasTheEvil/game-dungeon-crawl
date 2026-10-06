@@ -221,8 +221,9 @@ takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 
 The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
 item count in `ItemKind` order. Two rows fit; a group with more needs scrolling by whole rows (not built yet). An
-item never found shows a grey question mark instead of its model (slot and details); one found and used up keeps the
-dark silhouette. The number row keys still pick a slot in `ItemKind` order and open its tab.
+item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
+is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
+silhouette. The number row keys still pick a slot in `ItemKind` order and open its tab.
 
 ### Status box
 

@@ -660,8 +660,9 @@ void Inventory::DrawSlotLabels(int slot) {
 	Color nameColor = lit ? GOLD : Color{0.78f, 0.64f, 0.40f};
 	if (!owned)
 		nameColor = {0.36f, 0.29f, 0.20f};
-	textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
-	if (!bag.Found(kindOf(slot)))
+	if (bag.Found(kindOf(slot)))
+		textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
+	else // not even its name: the player does not know it exists
 		unknownMark(title, {r.x, r.y + NAME_BAND_H, r.w, r.h - NAME_BAND_H}, lit ? 0.9f : 0.6f);
 
 	char key[2] = {HOTKEYS[slot], '\0'};
@@ -682,31 +683,32 @@ void Inventory::DrawSlotLabels(int slot) {
 
 void Inventory::DrawDetails() {
 	const ItemText& info = itemText(kindOf(selectedSlot));
-	bool owned = bag.Found(kindOf(selectedSlot)); // a potion used up still shows what it does
+	const bool found = bag.Found(kindOf(selectedSlot)); // a potion used up still shows what it does
 	float cx = DETAIL_PANEL.cx();
 
 	// Shadow under the model on its plinth line.
 	ellipse(cx, PLINTH_Y, 12.f, 1.8f, INK, 0.45f);
 
 	beginText();
-	if (!bag.Found(kindOf(selectedSlot)))
+	constexpr float LORE_Y = 28.2f;
+	if (!found) { // nothing that tells what it is
 		textCentered(title, cx, PLINTH_Y + 3.f, "?", INK_FADED);
-	textCentered(heading, cx, 77.5f, info.name, owned ? INK : INK_FADED);
+		textCentered(heading, cx, 77.5f, "Unknown", INK_FADED);
+		textCentered(small, cx, LORE_Y, "Still hidden somewhere", INK_FADED);
+		textCentered(small, cx, LORE_Y - 3.4f, "in the tomb...", INK_FADED);
+		DrawDetailRules();
+		return;
+	}
+	textCentered(heading, cx, 77.5f, info.name, INK);
 	char kind[48] = "Potion";
 	if (!isPotion(selectedSlot)) {
 		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
-		if (owned)
-			snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
-		else
-			snprintf(kind, sizeof(kind), "%s", weaponKind);
+		snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
 	}
 	textCentered(small, cx, 73.8f, kind, INK_RED);
 
 	constexpr float STAT_Y = 37.4f;
-	constexpr float LORE_Y = 28.2f;
-	if (!owned) {
-		textCentered(body, cx, STAT_Y, isPotion(selectedSlot) ? "Effect unknown" : "Strength unknown", INK_FADED);
-	} else if (isPotion(selectedSlot)) {
+	if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
 	} else {
 		Item* shown = Model(kindOf(selectedSlot));
@@ -754,14 +756,14 @@ void Inventory::DrawDetails() {
 			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, STAT_Y - 3.3f, buf, INK_FADED);
 		}
 	}
-	if (owned) {
-		textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);
-		textCentered(small, cx, LORE_Y - 3.4f, info.lore2, INK_FADED);
-	} else {
-		textCentered(small, cx, LORE_Y, "Still hidden somewhere", INK_FADED);
-		textCentered(small, cx, LORE_Y - 3.4f, "in the tomb...", INK_FADED);
-	}
+	textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);
+	textCentered(small, cx, LORE_Y - 3.4f, info.lore2, INK_FADED);
+	DrawDetailRules();
+}
 
+// The ruled lines of the details panel: under the name, above the lore.
+void Inventory::DrawDetailRules() {
+	const float cx = DETAIL_PANEL.cx();
 	beginShapes();
 	line(DETAIL_PANEL.x + 8, 72.5f, DETAIL_PANEL.x + DETAIL_PANEL.w - 8, 72.5f, INK_FADED, 0.8f, 1.f);
 	diamond(cx, 72.5f, 0.6f, INK_RED, 1.f);

@@ -29,8 +29,9 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
 * **Opening tab:** the last one used, weapons the first time.
 * **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
   click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.
-* **Items not found yet:** a greyed-out question mark, "Not found yet". Found and used up (count 0): today's empty
-  look, "None left".
+* **Items not found yet:** a greyed-out question mark, "Not found yet". No name, type, effect or lore either (play test:
+  the player must not learn it exists): the slot has an empty name band, the details say "Unknown" and "Still hidden
+  somewhere in the tomb...". Found and used up (count 0): today's empty look, "None left".
 * **Antidote and resistance potion** stay in the potions group.
 * **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.draft.md](inventory-sorting.draft.md).
 * **Arrow keys:** left / right stay inside the current tab (up / down between its rows), as today within a row.

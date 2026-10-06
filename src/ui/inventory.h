@@ -61,6 +61,7 @@ class Inventory {
 	void DrawSlotModel(int slot);
 	void DrawSlotLabels(int slot);
 	void DrawDetails();
+	void DrawDetailRules();
 	void DrawDetailModel();
 	void DrawButtons();
 	void DrawButton(Target which, const char* label, bool enabled);

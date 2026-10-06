@@ -1,7 +1,8 @@
 # Poison damage and the antidote
 
-Status: draft 2026-10-05, rules decided 2026-10-06. Needed by
-[scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md) and [apep-serpent-boss.draft.md](apep-serpent-boss.draft.md).
+Status: draft 2026-10-05, rules decided 2026-10-06. Needed by the
+[scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md) and
+[apep-serpent-boss.draft.md](apep-serpent-boss.draft.md).
 
 ## Poison
 

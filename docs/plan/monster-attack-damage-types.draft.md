@@ -59,11 +59,43 @@ big hitters (mummy, Anubis, boss scarab, the rock). A pierce amulet is the gener
   crushing rock still ignores it. The trap amulet ([amulets.draft.md](amulets.draft.md)) stacks on top.
 * **Without an amulet nothing changes:** all `NORMAL`, every hit deals what it does today. No balance pass needed.
 * **Journal:** like the resistances it learns per weapon tried (`src/ui/journal_view.cpp`), on a creature's first
-  hit its page gets a line like "Hits: pierce, some slash" (the major part, then shares of 30% or more as "some").
+  hit its page gets one sentence in the explorer's voice. It names the most hurting type; the smaller shares, if any,
+  only as "a hint of". No percentages. See [Journal wording](#journal-wording).
 * **levelcheck:** nothing to check.
+
+## Journal wording
+
+One sentence, built from the mix: the main phrase for the largest share, then "with a hint of ..." for each smaller
+share (joined with "and"). An even split names both as the main.
+
+| Type | Main phrase | Hint |
+|---|---|---|
+| Blunt | hits me bluntly hard | crushing pain |
+| Slash | cuts me deep | cutting pain |
+| Pierce | pierces me to the bone | piercing pain |
+
+Even split (blunt and pierce): "crushes and pierces me alike".
+
+What the groups would read:
+
+| Group | Sentence |
+|---|---|
+| Worm | It hits me bluntly hard, with a hint of cutting pain. |
+| Scarab | It cuts me deep, with a hint of crushing pain. |
+| Plant | It pierces me to the bone, with a hint of cutting pain. |
+| Rat | It pierces me to the bone, with a hint of cutting pain. |
+| Bat | It pierces me to the bone, with a hint of cutting pain. |
+| Mummy | It hits me bluntly hard. |
+| Anubis | It hits me bluntly hard, with a hint of piercing pain. |
+| Crocodile | It crushes and pierces me alike. |
+| Scorpion | It pierces me to the bone, with a hint of cutting pain. |
+| Mimic | It pierces me to the bone, with a hint of crushing pain. |
+
+Same mix, same sentence (rat, bat, scorpion, plant). A group may override it with its own line (the bat: "Its fangs
+pierce me to the bone, with a hint of cutting pain."), kept to the same main type and hints.
 
 ## Open
 
 * The mix per group: the table above is a proposal.
 * A missing mix: default all blunt, or a load error?
-* The journal wording, and whether it shows exact percentages.
+* Per-group override lines: write them for every group, or only where the built sentence repeats.

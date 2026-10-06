@@ -1,0 +1,16 @@
+# No blood splash when a game starts, nor after loading one (docs/plan/blood-at-game-start.md). The player
+# stands behind the entrance statue; a splash shows as red dots below its plinth (left of the screen centre).
+seed 1
+level tests/levels/classic1
+wait 8
+screenshot start_130ms
+wait 22
+screenshot start_480ms
+savegame start.sav
+wait 60
+loadgame start.sav
+wait 8
+screenshot load_130ms
+wait 22
+screenshot load_480ms
+expect hp == 50

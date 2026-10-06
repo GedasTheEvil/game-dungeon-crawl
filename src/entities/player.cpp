@@ -128,6 +128,7 @@ int Player::TakeHit(int dmg, WorldEvents& events, bool ignoreArmor) {
 void Player::Reanimate() {
 	stats.HealFully();
 	setModelState(model.Reference());
+	blood.Stop(); // a new or loaded game starts without the last game's splash
 }
 
 void Player::showClimb(float phase) {

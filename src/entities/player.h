@@ -32,7 +32,7 @@ class Player {
 	CharacterModel model;
 	ModelState state = ModelState::Idle;
 	ClipPlayback playback{};
-	ParticleSystem blood{100};
+	ParticleSystem blood{0}; // stopped: no splash until the first hit
 	// Corner indices of the two fists (model -x, +x), the same in every clip (one mesh); -1: not found.
 	std::array<int, 2> fists{-1, -1};
 	int shownFrame = 0; // of the clip Draw() showed last (it advances after showing)

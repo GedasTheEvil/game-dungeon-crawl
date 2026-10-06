@@ -33,3 +33,14 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
   [longer-campaign.draft.md](longer-campaign.draft.md).
 * New tile or prop for the holes, and how `levelcheck` checks them.
 * Numbers.
+
+## Decided by the agent (2026-10-06, the user away; easy to change)
+
+* Model: the cobra's (all clips), scale ~70, his own texture `cobra_apep` (deep red-black with gold-green scale
+  edges, glowing yellow eyes). A segmented body is a later upgrade.
+* Holes without a new tile: Apep dives (sinks into the floor like a dig-out minion, reversed) every few seconds,
+  then comes up 2 cells behind the player on his row (or in front if there is no floor behind), with the sand / dust
+  effect and a dark hole drawn where he dived and where he comes up. He bites only while up.
+* Minions: cobras that dig out of the sand (`Summon::DigOut`); the baskets are a later upgrade.
+* No poison himself. Bite: pierce (the cobras' mix). Starting numbers: speed 6, 1100 HP, 60 damage every 1200 ms,
+  20000 XP; minions 2 / 4 / every 3 s / 10 per fight.

@@ -44,3 +44,15 @@ every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are se
   holds the ankh. See [longer-campaign.draft.md](longer-campaign.draft.md).
 * Numbers (HP, damage, summon counts), after the poison numbers are settled.
 * `levelcheck` rules for egg clusters (inside the boss room, reachable).
+
+## Decided by the agent (2026-10-06, the user away; easy to change)
+
+* Model: the scorpion's, scale ~48, her own texture `scorpion_queen` (Serket: pale gold carapace, lapis-blue
+  joints, gold sting). Like the boss scarab on the scarab model.
+* Strong poison on her sting. Attack mix: her own group row is not possible (keyed by model): she deals the
+  scorpions' mix (claws, sting).
+* Egg clusters: a new rooted monster, the **egg cluster** (`Locomotion::Stationary`, never bites, some HP, killable
+  with any weapon). Placed in the boss room by the level. `Summon::Hatch`: her minions (giant scorpions) come out of a
+  living egg cluster (a dig-out effect on its cell); with no cluster left she summons no more.
+* Starting numbers: speed 5, 700 HP, 45 damage every 1100 ms, strong poison, 15000 XP; minions: 2 on arrival, at most
+  4, one every 3 s, 10 per fight. Egg cluster: 60 HP, 0 damage, 300 XP.

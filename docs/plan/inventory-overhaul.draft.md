@@ -20,11 +20,12 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
 * **Disabled tab:** a group the player has no item of yet is dimmed and cannot be clicked; on hover its name and
   "none yet". This also covers groups with no item kinds in the game (amulets, rings today), so they can ship as tabs
   now.
-* **Grid:** the same for every tab, 4 columns x 2 rows, every slot the size of today's weapon slot (19 x 22). One
-  `slotRect`, one model scale, one name band. Potions (8 kinds) fill it; their models grow from 9.8 x 15.5 slots.
-* **More than 8 in a group:** scroll by whole rows (wheel, arrow down past the last row, a thin scroll bar shown only
-  then). Rows computed from the item count. Needed once the weapons grow
-  ([egyptian-weapons.draft.md](egyptian-weapons.draft.md)); may wait until then.
+* **Grid:** the same for every tab, 4 items per row, as many rows as the group needs (rows computed from the item
+  count). Every slot the size of today's weapon slot (19 x 22). One `slotRect`, one model scale, one name band. Two
+  rows fit the panel at once; potions (8 kinds) fill them, their models grow from 9.8 x 15.5 slots.
+* **Scrolling:** a group with more rows than fit scrolls by whole rows (wheel, arrow down past the last visible row, a
+  thin scroll bar shown only then). Keep the layout open for it, but implement it later, when a group first passes two
+  rows (the weapons, [egyptian-weapons.draft.md](egyptian-weapons.draft.md)).
 * **Opening tab:** the last one used, weapons the first time.
 * **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
   click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.

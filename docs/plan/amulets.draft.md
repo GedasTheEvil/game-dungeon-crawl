@@ -30,7 +30,7 @@ Bonuses so far:
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
 * Campaign: which amulet in which level / boss; each found once, no duplicates. Count them in `./levelcheck` (does a
   poison amulet count toward the antidote rule?).
-* UI: an amulet group or slot in the inventory ([inventory-overhaul.md](inventory-overhaul.md)), the
+* UI: an amulet group or slot in the inventory ([inventory-overhaul.md](solved/inventory-overhaul.md)), the
   worn amulet on the HUD, the details panel text. Save / load of the worn one.
 * Models and icons.
 * More bonuses: slower sprint drain, a faster escape from the crocodile's hold, more damage of one type.

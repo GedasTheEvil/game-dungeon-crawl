@@ -1,6 +1,6 @@
 # Inventory sorting options
 
-Status: draft 2026-10-06. Split off [inventory-overhaul.md](inventory-overhaul.md), which keeps the
+Status: draft 2026-10-06. Split off [inventory-overhaul.md](solved/inventory-overhaul.md), which keeps the
 `ItemKind` order.
 
 ## Idea

@@ -1,6 +1,6 @@
 # More Egyptian weapons
 
-Status: draft 2026-10-06. Depends on [inventory-overhaul.md](inventory-overhaul.md): the weapons group
+Status: draft 2026-10-06. Depends on [inventory-overhaul.md](solved/inventory-overhaul.md): the weapons group
 passes the 8 slots of one tab page.
 
 ## Idea

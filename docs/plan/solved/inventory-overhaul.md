@@ -4,12 +4,12 @@ Status: draft 2026-10-06, refined 2026-10-06, implemented 2026-10-06; waiting fo
 
 ## Problem
 
-The inventory (`src/ui/inventory.cpp`, [../ui.md](../ui.md)) shows every item at once in fixed rows: four weapons,
+The inventory (`src/ui/inventory.cpp`, [../ui.md](../../ui.md)) shows every item at once in fixed rows: four weapons,
 then the potions. The potion row is full: with the antidote
-([poison-and-antidote.md](solved/poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
-kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance potion
-([resistance-potion.draft.md](resistance-potion.draft.md)), rings maybe, and many more weapons
-([egyptian-weapons.draft.md](egyptian-weapons.draft.md)).
+([poison-and-antidote.md](poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
+kinds are planned: amulets ([amulets.draft.md](../amulets.draft.md)), a resistance potion
+([resistance-potion.draft.md](../resistance-potion.draft.md)), rings maybe, and many more weapons
+([egyptian-weapons.draft.md](../egyptian-weapons.draft.md)).
 
 ## Decided
 
@@ -25,7 +25,7 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
   rows fit the panel at once; potions (8 kinds) fill them, their models grow from 9.8 x 15.5 slots.
 * **Scrolling:** a group with more rows than fit scrolls by whole rows (wheel, arrow down past the last visible row, a
   thin scroll bar shown only then). Keep the layout open for it, but implement it later, when a group first passes two
-  rows (the weapons, [egyptian-weapons.draft.md](egyptian-weapons.draft.md)).
+  rows (the weapons, [egyptian-weapons.draft.md](../egyptian-weapons.draft.md)).
 * **Opening tab:** the last one used, weapons the first time.
 * **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
   click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.
@@ -33,16 +33,16 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
   the player must not learn it exists): the slot has an empty name band, the details say "Unknown" and "Still hidden
   somewhere in the tomb...". Found and used up (count 0): today's empty look, "None left".
 * **Antidote and resistance potion** stay in the potions group.
-* **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.draft.md](inventory-sorting.draft.md).
+* **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.draft.md](../inventory-sorting.draft.md).
 * **Arrow keys:** left / right stay inside the current tab (up / down between its rows), as today within a row.
 * **Keys:** the number row and the slot key labels keep today's function; tabs and keys are
-  [inventory-keys.draft.md](inventory-keys.draft.md).
+  [inventory-keys.draft.md](../inventory-keys.draft.md).
 * The detail panel on the right stays.
 
 ## Implemented
 
 * `ItemGroup` and `groupItems` (`src/world/items.h`); the screen in `src/ui/inventory.cpp`, look in
-  [../ui.md](../ui.md#inventory-group-tabs).
+  [../ui.md](../../ui.md#inventory-group-tabs).
 * "Found" per item in `ItemBag` (`Found`, `AnyFound`): a potion used up is found, one never had is not. Needed for
   the question mark vs "None left" and for the disabled tabs. The save tag is `INV3` (found flags after the levels);
   `INV2` saves load with found = held.
@@ -50,6 +50,6 @@ kinds are planned: amulets ([amulets.draft.md](amulets.draft.md)), a resistance 
 * A disabled tab on hover: a label under it, "Amulets: none yet".
 * The number row skips a slot whose tab is disabled (a potion key before any potion was found).
 * The detail panel of a used-up potion shows its effect and lore (before: "Effect unknown").
-* Scenario command `select ITEM` ([../testing.md](../testing.md)); `inventory.txt`, `props.txt`, `bow.txt`,
+* Scenario command `select ITEM` ([../testing.md](../../testing.md)); `inventory.txt`, `props.txt`, `bow.txt`,
   `weapons_held.txt` use it. `inventory.txt` still clicks one slot and the tabs by position, to test the mouse.
 * Scrolling: not built, as decided.

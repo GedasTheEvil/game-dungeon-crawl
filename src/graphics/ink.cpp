@@ -168,6 +168,8 @@ void Ink::begin(float zNear, float zFar, int width, int height) {
 
 float Ink::figureScale() { return gToon ? 1.2f : 1.f; }
 
+float Ink::heldWeaponScale() { return gToon ? 1.5f : 1.f; }
+
 void Ink::end() {
 	if (!gActive)
 		return;

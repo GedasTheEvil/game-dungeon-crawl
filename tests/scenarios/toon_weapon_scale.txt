@@ -1,0 +1,44 @@
+# Held weapons in toon mode (docs/plan/toon-weapon-scale.md): each one drawn 1.5 times its size with toon off (the
+# figures only 1.2), still in the fist. Club, sword, spear and bow, toon off then on; the bow drawn too.
+seed 1
+god
+level tests/levels/classic1
+give melee 1
+give melee 2
+give ranged 0
+walk right 3
+wait 5
+key 1
+wait 5
+screenshot club_off
+key 2
+wait 5
+screenshot sword_off
+key 3
+wait 5
+screenshot spear_off
+key 4
+wait 5
+screenshot bow_off
+attack
+wait 20
+screenshot bow_drawn_off
+wait 60
+toon on
+wait 2
+key 1
+wait 5
+screenshot club_toon
+key 2
+wait 5
+screenshot sword_toon
+key 3
+wait 5
+screenshot spear_toon
+key 4
+wait 5
+screenshot bow_toon
+attack
+wait 20
+screenshot bow_drawn_toon
+expect equip_type == 2

@@ -24,6 +24,8 @@ class Item {
 	std::unique_ptr<AnimatedModel> mdl;
 	Texture tex;
 
+	void drawScaled(float drawScale, float pose);
+
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
 	int damage = 1, range = 1;				  // weapons only; range in tenths of a tile (ITEM_DEFS)
@@ -35,6 +37,7 @@ class Item {
 	float scale = 0;
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.
 	void Draw(float pose = 0.f);
+	void DrawHeld(float pose); // in the player's fist: Ink::heldWeaponScale instead of the figures' scale
 	// models/items/<name>.md3 with textures/items/<name>.png.
 	bool loadModel(const char* name);
 };

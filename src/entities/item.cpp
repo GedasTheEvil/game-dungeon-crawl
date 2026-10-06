@@ -4,13 +4,16 @@
 #include <algorithm>
 #include <string>
 
-void Item::Draw(float pose) {
+void Item::Draw(float pose) { drawScaled(scale * Ink::figureScale(), pose); }
+
+void Item::DrawHeld(float pose) { drawScaled(scale * Ink::heldWeaponScale(), pose); }
+
+void Item::drawScaled(float drawScale, float pose) {
 	if (!mdl)
 		return;
 
 	glPushMatrix();
 	glTranslatef(0, 0, -DRAW_DEPTH);
-	const float drawScale = scale * Ink::figureScale();
 	glScalef(drawScale, drawScale, drawScale);
 	tex.Bind();
 	glRotatef(rotA, 0, 1, 0);

@@ -91,7 +91,7 @@ void drawWeapon() { // in the fist nearer the camera
 	Item* weapon = Game().ui.inventory->Equipped();
 	const SwingPose pose = swingPose(weapon->motion);
 	const std::array<float, 3> fist = Game().player->Fist(facing);
-	const float length = weapon->scale * Ink::figureScale(); // Centrify: the largest dimension is 1
+	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
 	const float spin = weapon->rotA;
 	weapon->rotA = facing > 0 ? 0.f : 180.f;
@@ -99,7 +99,7 @@ void drawWeapon() { // in the fist nearer the camera
 	glTranslatef(fist[0], fist[1], fist[2] + Item::DRAW_DEPTH);
 	glRotatef(-dir * pose.tilt, 0, 0, 1);
 	glTranslatef(0, (pose.thrust - weapon->motion.grip) * length, 0);
-	weapon->Draw(pose.draw);
+	weapon->DrawHeld(pose.draw);
 	glPopMatrix();
 	weapon->rotA = spin;
 }

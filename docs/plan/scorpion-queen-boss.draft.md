@@ -18,8 +18,10 @@ in the campaign, and he stays the last boss.
 
 * New regular monster, the **scorpion**: small, quick, its sting gives **weak poison**. Built 2026-10-06
   ([poison-and-antidote.md](poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
-* Also used outside the boss room, in the levels around the queen.
-* Maybe a giant scorpion later (medium poison), like the giant rat / scarab / bat.
+* Scorpions are no stranger to Egypt: the plain scorpion lives in the early levels 3-6 (2026-10-06), not only
+  around the queen.
+* Her minions are a stronger scorpion (decided 2026-10-06): a giant scorpion, like the giant rat / scarab / bat, on the
+  same model with its own texture, medium poison.
 
 ## Summon: egg clusters
 

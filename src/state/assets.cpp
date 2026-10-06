@@ -388,6 +388,10 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 	}
 	for (const auto& def : POISON_DEFS)
 		monsterTypes[def.id].poison = def.tier;
+	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the checker's poisoners and POISON_DEFS must agree
+		if (monsterTypes[static_cast<size_t>(id)].poison.has_value() != isPoisoner(id))
+			LOG_ERRORF("assets", "Monster type %d: poisoner in %s only", id,
+					   isPoisoner(id) ? "monster_kinds" : "POISON_DEFS");
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,

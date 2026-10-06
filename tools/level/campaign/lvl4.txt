@@ -1,16 +1,17 @@
-; lvl4: the treasury. Rats and scarabs in the vaults, a worm in the lower hall, plants guard the side rooms.
+; lvl4: the treasury. Rats, scarabs and a scorpion in the vaults (an antidote at the lower hall's east end), a worm in the lower hall, plants guard the side rooms.
 ; Not every chest is a chest: a mimic waits among the real ones. A riddle gate before the exit.
 def 1 8 3 1
 def 2 8 3 3
 def 3 8 3 5
 def 4 8 3 2
 def c 8 1 0
+def a 8 3 7
 ########################################
 #S...t.....^....H######1.cp...H#########
 ##########X#####H#############H#########
-################H...s.....$.M.H..4.#####
+################H...s.j...$.M.H..4.#####
 ##################################.#####
-#2.p..H....s............t...........####
+#2.p..H....s............t...........a###
 ######H#################################
 ######H#################################
 ######H...w....^......3..?.E############

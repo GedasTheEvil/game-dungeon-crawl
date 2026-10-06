@@ -1,6 +1,11 @@
 #include "../../external/doctest/doctest.h"
+#include "../../src/world/items.h"
+#include "../../src/world/level_check.h"
 #include "../../src/world/poison.h"
+#include "../../src/world/tile_defs.h"
 #include <sstream>
+#include <string>
+#include <vector>
 
 TEST_CASE("a tier deals its damage once a second for its duration") {
 	Poison p;
@@ -80,4 +85,33 @@ TEST_CASE("poison is saved and loaded; an old save has none") {
 	CHECK_FALSE(q.Any());
 	old >> rest;
 	CHECK(rest == "INV2");
+}
+
+namespace {
+// One corridor drawn in the levelcheck legend, top row first.
+LevelGrid corridor(const std::vector<std::string>& rows) {
+	LevelGrid grid;
+	for (size_t i = 0; i < rows.size(); i++)
+		for (size_t col = 0; col < rows[i].size(); col++)
+			for (const GlyphDef& g : glyphLegend())
+				if (g.glyph == rows[i][col])
+					grid.set(static_cast<int>(col), static_cast<int>(rows.size() - 1 - i), g.tile);
+	return grid;
+}
+
+bool warnsNoAntidote(const LevelGrid& grid) {
+	for (const std::string& w : checkLevel(grid).warnings)
+		if (w.find("no antidote") != std::string::npos)
+			return true;
+	return false;
+}
+} // namespace
+
+TEST_CASE("the checker wants an antidote in reach where something poisons") {
+	const ItemFileId antidote = fileIdOf(ItemKind::Antidote);
+	LevelGrid scorpion = corridor({"########", "#S.j..E#", "########"});
+	CHECK(warnsNoAntidote(scorpion));
+	scorpion.set(2, 1, Tile{Treasure, antidote.type, antidote.id});
+	CHECK_FALSE(warnsNoAntidote(scorpion));
+	CHECK_FALSE(warnsNoAntidote(corridor({"########", "#S.t..E#", "########"})));
 }

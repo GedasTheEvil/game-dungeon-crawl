@@ -33,10 +33,10 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 |---|---|
 | 1 | The way in: rats and a scarab, spikes, a spike pit to jump, ladders, the first chests. |
 | 2 | The scarab galleries: scarabs, bats, plants by the chests, a riddle room up a ladder, a drop shaft, two spike pits. |
-| 3 | The worm tunnels: worms, rats, a bat, a rock fall, the first key (red) and gate. A riddle gate in the exit hall. |
-| 4 | The treasury: rats, scarabs, a worm, plants guarding side rooms, the first mimic among real chests. A riddle gate. |
-| 5 | The scarab king, the first boss: a teleporter to the sealed boss room, the boss scarab and its scarabs. Behind the boss gate the blue key for the blue gate before the exit. A riddle room past a spike pit. |
-| 6 | Rats, a giant rat, the first giant scarab. Red key and gate. |
+| 3 | The worm tunnels: worms, rats, a bat, the first scorpion, a rock fall, the first key (red) and gate. A riddle gate in the exit hall. An antidote in a niche past the shaft at the east end of the upper hall. |
+| 4 | The treasury: rats, scarabs, a scorpion, a worm, plants guarding side rooms, the first mimic among real chests. A riddle gate. An antidote at the east end of the lower hall. |
+| 5 | The scarab king, the first boss: a teleporter to the sealed boss room, the boss scarab and its scarabs. Behind the boss gate the blue key for the blue gate before the exit. A riddle room past a spike pit. A scorpion in the exit hall, an antidote beside the ladder down to it. |
+| 6 | Rats, a giant rat, the first giant scarab, two scorpions. Red key and gate. An antidote where the shaft lands in the lower den. |
 | 7 | Bats and giant bats in low tunnels. Blue lever and gate. The first water: a flooded stretch of the west hall, the first crocodile in it, on the way to a chest. |
 | 8 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. The hall to the red gate is flooded, a crocodile in it. |
 | 9 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. Past the pit in the lower gallery a flooded stretch with a crocodile. |
@@ -47,7 +47,7 @@ next level. `levels/lvl15` holds the ankh that wins the game.
 | 14 | Giant scarabs, rats and bats, two mummies, two Anubis. Red key, blue lever, green key. |
 | 15 | The finale: three Anubis, two mummies, all four locks, riddles. The teleporter at the east end of the bottom hall leads to the sealed ankh chamber, the last boss: the Anubis boss and the mummies that climb out of the coffins round him. Behind the boss gate the ankh. |
 
-Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
+Scorpions live in levels 3-6, each of those levels has an antidote in reach (the checker warns otherwise). Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
@@ -84,7 +84,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion) without an antidote in reach. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |

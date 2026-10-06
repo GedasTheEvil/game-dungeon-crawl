@@ -45,6 +45,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 }};
 } // namespace
 
+bool isPoisoner(int type) { return type == MonsterScorpion; }
+
 const MonsterKind* monsterKind(int type) {
 	for (const MonsterKind& kind : KINDS)
 		if (kind.id == type)

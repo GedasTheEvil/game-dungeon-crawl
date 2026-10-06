@@ -76,3 +76,6 @@ In this order (2026-10-06):
    `tools/audio/scorpion_sounds.py`. Check: `tests/scenarios/scorpions.txt`. Not placed in any level yet.
 2. Then the levels: the scorpions' places in the campaign and antidote chests in those levels (a short side passage
    where a level has no chest to spare), each level still without `levelcheck` warnings.
+   Done 2026-10-06: scorpions in levels 3-6 (one each in 3-5, two in 6), each level with an antidote chest in a new
+   one-cell niche ([../levels.md](../levels.md#campaign-order)). `levelcheck` warns about a level with a poisoner
+   (`isPoisoner`, `src/world/monster_kinds.h`) and no antidote in reach.

@@ -1,5 +1,6 @@
 #include "level_check.h"
 #include "movement.h"
+#include "items.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
 #include <algorithm>
@@ -447,13 +448,21 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		if (isGoal(grid.cells[cellOf(s)]) && (goal == NONE || dist[s] < dist[goal]))
 			goal = s;
 	}
+	bool poisoners = false;
+	bool antidote = false; // in reach
 	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile t = grid.cells[cell];
+		poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr));
 		if (cellReached[cell] == 0)
 			continue;
 		r.reachableCells++;
-		if (grid.cells[cell].type == Treasure)
+		if (t.type == Treasure) {
 			r.reachableTreasures++;
+			antidote = antidote || itemFromFile(t.attr, t.value) == ItemKind::Antidote;
+		}
 	}
+	if (poisoners && !antidote)
+		r.warnings.emplace_back("poisoners but no antidote in reach");
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
 		if (cellReached[cell] == 0 && (t.type == Key || t.type == Lever))

@@ -1,15 +1,16 @@
-; lvl5: the scarab king. Scarabs and bats in the halls; the exit lies behind the blue gate. A teleporter leads to
+; lvl5: the scarab king. Scarabs, bats and a scorpion in the halls (an antidote by the ladder); the exit lies behind the blue gate. A teleporter leads to
 ; the sealed boss room: the boss scarab and its brood, the boss gate, behind it the blue key and the treasure.
 ; A riddle room past a spike pit at the east end.
 def 1 8 3 1
 def 2 8 3 2
+def a 8 3 7
 ########################################
 ########################################
 ###O.........K....Z.b12$################
 ########################################
-#S....s...^.....f.........H#############
+#S....s...^.....f.........Ha############
 ##########################H#############
-###E........B....s........H...O.....?p$#
+###E........B....s....j...H...O.....?p$#
 #################################X######
 ########################################
 ########################################

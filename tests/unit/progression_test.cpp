@@ -7,6 +7,15 @@ TEST_CASE("level XP") {
 	CHECK(levelXP(3) > 2 * levelXP(2)); // the gaps grow
 }
 
+TEST_CASE("past level 25 the curve is steeper, and it does not jump there") {
+	const double gap = levelXP(26) - levelXP(25);
+	CHECK(gap > levelXP(25) - levelXP(24));
+	CHECK(gap < 2 * (levelXP(25) - levelXP(24)));
+	for (int level = 26; level < 80; level++)
+		CHECK(levelXP(level + 1) - levelXP(level) > levelXP(level) - levelXP(level - 1));
+	CHECK(levelXP(60) > 2.0e6); // the whole 30-level campaign gives about 2.7 million
+}
+
 TEST_CASE("progress through a level") {
 	CHECK(levelProgress(1, 0) == 0.f);
 	CHECK(levelProgress(1, 500) == doctest::Approx(0.5f));

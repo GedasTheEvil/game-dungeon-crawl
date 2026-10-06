@@ -5,9 +5,19 @@
 namespace {
 constexpr int MIN_RIDDLE_XP = 500;
 constexpr double RIDDLE_XP_LEVEL_PART = 0.3; // of the XP from the current level to the next
+constexpr int STEEP_FROM = 25;
+constexpr double STEEP_RAMP = 0.0064;
 } // namespace
 
-double levelXP(int level) { return level <= 1 ? 0.0 : 1000 * std::pow(level - 1, 1.4); }
+// Up to STEEP_FROM the curve the first 15 campaign levels were tuned on; past it the gaps grow faster (a factor
+// 1 + STEEP_RAMP (level - STEEP_FROM)^2, no jump at STEEP_FROM), so the 30 levels end at about player level 60, not
+// 200+ (docs/plan/longer-campaign.md).
+double levelXP(int level) {
+	if (level <= 1)
+		return 0.0;
+	const double past = std::max(level - STEEP_FROM, 0);
+	return 1000 * std::pow(level - 1, 1.4) * (1 + STEEP_RAMP * past * past);
+}
 
 float levelProgress(int level, double xp) {
 	double start = levelXP(level);

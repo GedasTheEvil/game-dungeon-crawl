@@ -33,10 +33,26 @@ From `MONSTER_DEFS` (`src/state/assets.cpp`). Speed, HP, damage, ms between atta
 | Giant scarab | 2 | 90 | 12 | 1000 | 2500 | leaps |
 | Mummy | 2.5 | 150 | 20 | 1600 | 2500 | slow to wake, telegraphed |
 | Boss scarab | 3 | 320 | 40 | 900 | 6000 | boss |
-| Anubis | 3 | 350 | 30 | 1200 | 10000 | |
+| Anubis | 3 | 600 | 55 | 1100 | 10000 | buffed 2026-10-06 for the 30 levels |
 | Vampire bat | 4 | 400 | 80 | 800 | 12000 | boss, heals |
+| Crocodile | 7 | 110 | 26 | 1100 | 2400 | swims |
+| Scorpion | 10 | 14 | 3 | 900 | 450 | weak poison |
+| Cobra | 6 | 35 | 6 | 1100 | 1200 | medium poison, spits |
+| Giant cobra | 8 | 160 | 26 | 1300 | 2600 | medium poison, spits |
+| Giant scorpion | 9 | 70 | 12 | 1000 | 2000 | medium poison |
+| Scorpion queen | 5 | 700 | 45 | 1100 | 15000 | boss lvl15, strong poison |
+| Apep | 6 | 1100 | 60 | 1200 | 20000 | boss lvl20, burrows |
+| Sobek | 6 | 1600 | 70 | 1300 | 25000 | boss lvl25, charges (x2) |
+| Anubis boss | 4.5 | 2400 | 140 | 1300 | 30000 | boss lvl30, buffed 2026-10-06 |
 
 Boss minions get their XP from `Dungeon::MinionXP`.
+
+## The 30-level curve (2026-10-06)
+
+The XP curve is steeper past player level 25 (`levelXP`, `src/world/progression.cpp`). Summing every monster's XP
+per level (no respawns, no riddles), the player starts lvl15 at about level 35, lvl20 at 43, lvl25 at 49, lvl30 at 55
+and ends at about 60 (HP 50 + 12 per level, armour +1 every 5 levels, Might +1 every 8). Before, 30 levels would
+have made them level 200+. Needs a playthrough.
 
 ## Monster strength
 

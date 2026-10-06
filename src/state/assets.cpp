@@ -57,8 +57,9 @@ const MonsterDef MONSTER_DEFS[] = {
 	 180,
 	 Locomotion::WalkJump,
 	 {0.1f, 0.2f, 0.75f}},
-	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%).
-	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 350, 30, 1200, 10000, 19, 180, Locomotion::Walk,
+	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Strong enough for
+	// the late levels (13-30): a level 55 player (about 700 HP, 11 armour) takes about 15 blows.
+	{MonsterAnubis, "Anubis", "monsters/anubis", "monsters/anubis", 3, 600, 55, 1100, 10000, 19, 180, Locomotion::Walk,
 	 RED_BLOOD, Courage::Reckless, 25},
 	{MonsterPlant,
 	 "Man-eater plant",
@@ -123,10 +124,10 @@ const MonsterDef MONSTER_DEFS[] = {
 	 {0.35f, 0.25f, 0.12f},
 	 Courage::Reckless, // a crushing rock (500) can kill it
 	 50},
-	// The finale's guardian, a head taller than an Anubis; see BOSS_DEFS. A level 30 player (398 HP, about 6 armour)
-	// dies to 4 blows.
+	// The finale's guardian, a head taller than an Anubis, the strongest boss; see BOSS_DEFS. The player comes to lvl30
+	// at about level 55 (about 700 HP, 11 armour): 6 blows kill them.
 	// Reckless: the player cannot shake him off behind a row of traps.
-	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 1500, 110, 1400, 20000, 26, 180,
+	{MonsterAnubisBoss, "Anubis boss", "monsters/anubis", "monsters/anubis_boss", 4.5f, 2400, 140, 1300, 30000, 26, 180,
 	 Locomotion::Walk, RED_BLOOD, Courage::Reckless, 10},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land, fast in the water (WADING_DEFS).
 	// Levels 7-9 (docs/plan/solved/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
@@ -152,7 +153,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	{MonsterCobra, "Cobra", "monsters/cobra", "monsters/cobra", 6, 35, 6, 1100, 1200, 24, 180, Locomotion::Coiled,
 	 RED_BLOOD},
 	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.md).
-	{MonsterGiantCobra, "Giant cobra", "monsters/cobra", "monsters/cobra_giant", 8, 110, 16, 1300, 2600, 36, 180,
+	{MonsterGiantCobra, "Giant cobra", "monsters/cobra", "monsters/cobra_giant", 8, 160, 26, 1300, 2600, 36, 180,
 	 Locomotion::Coiled, RED_BLOOD},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.md).
 	{MonsterGiantScorpion,

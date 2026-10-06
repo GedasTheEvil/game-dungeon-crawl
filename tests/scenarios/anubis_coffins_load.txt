@@ -11,7 +11,7 @@ interact
 wait 5
 walk to 9
 wait 10
-expect boss == 1500
+expect boss == 2400
 killboss
 wait 5
 expect boss == 0

@@ -1,0 +1,23 @@
+# The giant rat is faster than the player's walk (docs/plan/giant-rat-speed.md): standing still and shooting it with
+# the bow does not keep it off, nor does walking away (tests/levels/giant_rat_speed: the rat 4 tiles behind).
+seed 1
+level tests/levels/giant_rat_speed
+give ranged 0
+key 4
+walk left 0.1
+attack
+wait 1s
+screenshot first_arrow
+attack
+wait 1s
+attack
+wait 1s
+screenshot reached
+expect nearest > 0
+expect hp < 50
+# Walking away: it catches up within 12 tiles (it gains a quarter tile a second).
+level tests/levels/giant_rat_speed
+walk right 12
+screenshot caught
+expect hp < 50
+expect alive == 1

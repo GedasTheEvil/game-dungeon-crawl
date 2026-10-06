@@ -29,7 +29,7 @@ From `MONSTER_DEFS` (`src/state/assets.cpp`). Speed, HP, damage, ms between atta
 | Worm | 1 | 30 | 9 | 1000 | 1200 | |
 | Mimic | 0 | 40 | 10 | 800 | 1500 | does not move, leaves a chest |
 | Giant bat | 4 | 40 | 10 | 800 | 1800 | |
-| Giant rat | 4 | 60 | 8 | 700 | 2000 | leaps |
+| Giant rat | 24 | 60 | 8 | 700 | 2000 | leaps, faster than the walk |
 | Giant scarab | 2 | 90 | 12 | 1000 | 2500 | leaps |
 | Mummy | 2.5 | 150 | 20 | 1600 | 2500 | slow to wake, telegraphed |
 | Boss scarab | 3 | 320 | 40 | 900 | 6000 | boss |
@@ -55,7 +55,8 @@ starts):
   cross pits and traps.
 * More HP or damage only if speed and the leap are not enough.
 
-The **giant rat** has the same problem: [giant-rat-speed.draft.md](giant-rat-speed.draft.md).
+The **giant rat** had the same problem, now faster than the walk: [giant-rat-speed.md](giant-rat-speed.md). Its leap
+to close the gap is still open, together with the giant scarab's.
 
 ## HP balance
 

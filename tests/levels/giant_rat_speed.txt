@@ -1,0 +1,4 @@
+; A giant rat (col 2) behind the player (col 6) on one long floor (tests/scenarios/giant_rat_speed.txt).
+##############################
+#.T...S.....................E#
+##############################

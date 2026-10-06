@@ -39,6 +39,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Threat: between the giant rat and the mummy, bites harder than both; in the water it outswims the player.
 	{MonsterCrocodile, "crocodile", "Crocodile, lies under the water until the player comes near, swims fast", 'C',
 	 4.5f, false, "Sobek's own. In the water I cannot outrun it."},
+	// Threat: a little above the rat and the scarab: the poison burns on after the fight.
+	{MonsterScorpion, "scorpion", "Scorpion, its sting poisons (weak)", 'j', 1.f, false,
+	 "Pale as straw, quick on its eight legs. The sting burns for a long while."},
 }};
 } // namespace
 

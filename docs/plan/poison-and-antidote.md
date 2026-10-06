@@ -70,5 +70,9 @@ Not in scope: a poison resistance potion and amulets,
 In this order (2026-10-06):
 
 1. The scorpion: a regular monster with weak poison, from [scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md).
+   Done 2026-10-06: `MonsterScorpion` (16, glyph `j`), speed 10, 14 HP, 3 damage every 900 ms, 450 XP, scale 15;
+   weak to blows, resists points (the bow does little: it has to be fought up close); weak poison (`POISON_DEFS` in
+   `src/state/assets.cpp`). Model `tools/blender/models/scorpion.py` (deathstalker), sounds
+   `tools/audio/scorpion_sounds.py`. Check: `tests/scenarios/scorpions.txt`. Not placed in any level yet.
 2. Then the levels: the scorpions' places in the campaign and antidote chests in those levels (a short side passage
    where a level has no chest to spare), each level still without `levelcheck` warnings.

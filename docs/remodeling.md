@@ -69,6 +69,17 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   eyes at 0.95 and nostrils at 0.96 of the idle height, the smooth hide at most 0.91, so the engine floats it at the water surface with only
   eyes, nostrils and ridge showing). `-- --measure` prints these fractions per clip. Sounds: `tools/audio/crocodile_sounds.py`
   (`sounds/monsters/crocodile_{wake,att,die}.wav`: water surge + splash + hiss, jaw snap + hiss, bellow + splash).
+* `tools/blender/models/scorpion.py` - Egyptian deathstalker (Leiurus quinquestriatus), built like `scarab.py` / `rat.py` (faces +Y, rotA 180):
+  rigid parts per bone; carapace with median and lateral eyes and chelicerae, seven overlapping tergites on a `meso` flex bone, eight
+  two-bone IK legs (alternating tetrapod gait L1 R2 L3 R4 / R1 L2 R3 L4 with planted feet, two strides per walk clip), pedipalps by
+  two-bone IK towards a wrist target with a hinged movable finger, and the metasoma (five segments + telson) as an FK chain whose segment
+  directions are absolute angles in the body's mid plane, blended between the curled rest pose, the strike and the limp pose (limp joints
+  sag and are laid onto the floor, as in `rat.py`). Per-frame floor fix from a numpy copy of the skinning (tail excluded), plus a lift if the
+  sting would dip below the floor. Clips: walk 24 (the reference, about 1.95 long x 0.93 high x 1.23 wide), attack 24 (loops from walk
+  frame 0: claws grab and pinch, tail cocks, strikes over the head with the sting stabbing down between the claws 0.18 in front of the
+  carapace, recoil; the build prints the sting tip per frame), die 30 (convulses, rolls onto its side belly up, legs curl in, tail limp on
+  the floor). Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
+  dry chitin rattle and scraping legs).
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.
 * `tools/blender/models/decor.py` - fifteen static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
@@ -181,10 +192,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's and giant scarab's leap) and `sounds/<category>/<name>_jump.wav`.
   The mummy (`ENTOMBED_CLIPS`) adds a required `_idle` (dormant in its coffin) and `_rise` (`ModelState::Rise`, suffix `_rise`, plays once:
   its wake clip, climbing out; the last frame is walk frame 0).
-  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, crocodile 24/22/30 + idle 32); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
+  Any frame count per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, crocodile 24/22/30 + idle 32, scorpion 24/24/30); engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for the remodelled monsters and player (the mimic 1024x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 84 model files in total.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 87 model files in total.
 
 ## Status
 Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, dungeon wall textures in `textures/dungeon/`, `plasma.png` in `textures/effects/`.
@@ -199,6 +210,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
 | Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
+| Scorpion (monster) | `monsters/scorpion{,_att,_die}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |

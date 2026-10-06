@@ -1,0 +1,26 @@
+# The scorpion (tests/levels/scorpions): it walks up, its sting poisons (weak), the club kills it (it is weak to
+# blows).
+seed 1
+level tests/levels/scorpions
+walk right 1.5
+wait 1s
+screenshot walk
+wait 4s
+screenshot sting
+expect poison == 1
+expect hp < 50
+camera 30 10
+wait 2
+screenshot sting_side
+camera 0 0
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+screenshot die
+expect nearest == 0
+expect alive == 1

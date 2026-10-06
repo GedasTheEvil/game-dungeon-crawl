@@ -131,6 +131,21 @@ const MonsterDef MONSTER_DEFS[] = {
 	// Levels 7-9 (docs/plan/solved/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
 	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 7, 110, 26, 1100, 2400, 60, 180,
 	 Locomotion::Submerged, RED_BLOOD},
+	// Small and quick like the rat, a slower sting that poisons (POISON_DEFS); levels from the scorpion queen's
+	// (docs/plan/poison-and-antidote.md).
+	{MonsterScorpion,
+	 "Scorpion",
+	 "monsters/scorpion",
+	 "monsters/scorpion",
+	 10,
+	 14,
+	 3,
+	 900,
+	 450,
+	 15,
+	 180,
+	 Locomotion::Walk,
+	 {0.45f, 0.62f, 0.55f}},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{MonsterMimic,
 	 "Mimic",
@@ -179,6 +194,7 @@ const struct {
 	{MonsterAnubisBoss, {NORMAL, RESISTS, WEAK}},  // armoured too well to dent, but open at the joints
 	{MonsterMummy, {RESISTS, WEAK, TOUGH}},		   // dry linen tears; nothing inside to stab
 	{MonsterCrocodile, {NORMAL, RESISTS, NORMAL}}, // the scutes turn a blade
+	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},	   // a blow cracks the thin shell; a point glances off the plates
 };
 
 // How the walkers move through half water, and their speed in it times their speed on land; the others wade slowed
@@ -194,6 +210,14 @@ const struct {
 	{MonsterAnubisBoss, Wading::Unaffected, 1.f},
 	// Slow on land (slower than a rat: the player outwalks it), in the water faster than the player walks on land.
 	{MonsterCrocodile, Wading::Swimmer, 2.5f},
+};
+
+// The monsters whose bite or sting poisons the player, and the tier (docs/plan/poison-and-antidote.md).
+const struct {
+	MonsterTypeId id;
+	PoisonTier tier;
+} POISON_DEFS[] = {
+	{MonsterScorpion, PoisonTier::Weak},
 };
 
 struct ItemDef {
@@ -362,6 +386,8 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		monsterTypes[def.id].wading = def.wading;
 		monsterTypes[def.id].waterSpeed = def.waterSpeed;
 	}
+	for (const auto& def : POISON_DEFS)
+		monsterTypes[def.id].poison = def.tier;
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) // the minion rules and the kinds table must agree
 		if (monsterTypes[static_cast<size_t>(id)].isBoss() != isBossMonster(id))
 			LOG_ERRORF("assets", "Monster type %d: boss in %s only", id,

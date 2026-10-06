@@ -96,7 +96,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12, anubis boss 15):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 8, boss scarab 10, vampire bat 12, anubis boss 15, scorpion 1):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.

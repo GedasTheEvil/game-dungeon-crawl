@@ -16,7 +16,8 @@ in the campaign, and he stays the last boss.
 
 ## Minions: scorpions
 
-* New regular monster, the **scorpion**: small, quick, its sting gives **weak poison**.
+* New regular monster, the **scorpion**: small, quick, its sting gives **weak poison**. Built 2026-10-06
+  ([poison-and-antidote.md](poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
 * Also used outside the boss room, in the levels around the queen.
 * Maybe a giant scorpion later (medium poison), like the giant rat / scarab / bat.
 

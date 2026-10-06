@@ -27,6 +27,8 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 
 ## Open
 
+* Attack damage mix ([monster-attack-damage-types.draft.md](monster-attack-damage-types.draft.md)): the bite
+  pierce, Apep and the cobra alike? Apep's coils crushing (blunt)?
 * Placement and its rank against the scorpion queen and the Anubis boss:
   [longer-campaign.draft.md](longer-campaign.draft.md).
 * New tile or prop for the holes, and how `levelcheck` checks them.

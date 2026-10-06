@@ -13,7 +13,7 @@ flat amount (`PlayerStats::HitDamage`: `max(1, dmg - Armor)`). Nothing for a typ
 
 * Each monster group (bosses included) and each trap gets a damage mix for its attack, like the weapons' mix in
   `ITEM_DEFS` (blunt, slash, pierce percent, sum 100). A new table `ATTACK_MIX_DEFS` next to `RESISTANCE_DEFS`
-  (`src/state/assets.cpp`); a group not listed hits all blunt (or: a mix is required for every group, checked at load).
+  (`src/state/assets.cpp`). Every group has one: a new group's mix is part of its design, written in its plan.
 * `TakeHit` takes the damage with its mix; the player's resistances (from the amulet) apply per type, then the armour.
 * The journal shows what a creature deals, written down when it first hits the player.
 
@@ -35,8 +35,9 @@ only a different amount. Read from what the model attacks with. `damage` is toda
 | Scorpion | scorpion (3) | claws, sting (poison) | 0 | 30 | 70 |
 | Mimic | mimic (10) | lid slam, teeth | 40 | 0 | 60 |
 
-The table keyed by group (the model), not by monster type, so a new member gets its group's mix. A new group
-(scorpion queen, Apep, cobra) brings its own row.
+The table keyed by group (the model), not by monster type, so a new member gets its group's mix. A new group brings
+its own row, defined in its plan: the cobra and Apep bite (pierce), the scorpion queen maybe all three (claws, sting,
+a crushing tail).
 
 | Trap | Blunt | Slash | Pierce |
 |---|---|---|---|
@@ -97,5 +98,4 @@ pierce me to the bone, with a hint of cutting pain."), kept to the same main typ
 ## Open
 
 * The mix per group: the table above is a proposal.
-* A missing mix: default all blunt, or a load error?
 * Per-group override lines: write them for every group, or only where the built sentence repeats.

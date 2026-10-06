@@ -90,6 +90,8 @@ for i in "${!scenarios[@]}"; do
 	[ "$(cat "$tmp/$i.code" 2>/dev/null)" = 0 ] || failed=$((failed + 1))
 done
 
-echo "== load: peak $peak/$jobs at once, held back ${held}s, min idle $((min_idle_x10 / 10)).$((min_idle_x10 % 10))/$cores cores, min free ${min_free_seen} MB"
+samples="min idle $((min_idle_x10 / 10)).$((min_idle_x10 % 10))/$cores cores, min free ${min_free_seen} MB"
+[ "$min_free_seen" = 999999 ] && samples="no load samples"
+echo "== load: peak $peak/$jobs at once, held back ${held}s, $samples"
 echo "== $((${#scenarios[@]} - failed))/${#scenarios[@]} scenarios passed"
 [ $failed -eq 0 ]

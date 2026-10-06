@@ -18,13 +18,18 @@ fixed-step virtual clock, saves screenshots and state, then exits with a status 
 ```
 make test                                      # every tests/scenarios/*.txt
 make test SCENARIO=tests/scenarios/smoke.txt   # one script
-JOBS=4 make test                               # at most 4 at a time (default: nproc - 4, at least 1)
+JOBS=4 make test                               # at most 4 at a time (default: nproc - RESERVE_CORES, at least 1)
+RESERVE_CORES=6 MIN_FREE_MB=4096 make test     # start a new one only while 6 cores idle and 4 GB free (default 4, 4096)
 HEADLESS=0 make test                           # real windows instead of Xvfb, one at a time
 ./game tests/scenarios/smoke.txt               # direct run, real window
 SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
+It is load-aware: before each start it samples CPU idle (1 s) and available memory, and waits while either is short.
+After each start it waits 2 s, so the next sample sees the new game's load.
+Each game runs niced with one llvmpipe thread (`LP_NUM_THREADS=1`). The last lines report peak parallel runs,
+seconds held back, minimum idle cores and minimum free memory.
 Run from the repo root.
 
 ## Behaviour in test mode

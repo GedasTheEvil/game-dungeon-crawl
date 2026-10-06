@@ -52,5 +52,7 @@ PlayerHud::View playerHudView() {
 	view.slots[0].key = equipKeysCap();
 	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
 	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));
+	for (int t = 0; t < POISON_TIER_COUNT; t++)
+		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
 	return view;
 }

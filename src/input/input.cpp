@@ -90,6 +90,9 @@ class PlayerActionController {
 		case GameplayAction::QuickStamina:
 			Game().ui.inventory->QuickDrink(QuickKind::Stamina);
 			break;
+		case GameplayAction::QuickAntidote:
+			Game().ui.inventory->QuickAntidote();
+			break;
 		case GameplayAction::EquipClub:
 			equip(ItemKind::Club);
 			break;
@@ -202,6 +205,8 @@ GameplayAction gameplayActionOf(BindAction action) {
 		return GameplayAction::QuickHeal;
 	case BindAction::QuickStamina:
 		return GameplayAction::QuickStamina;
+	case BindAction::QuickAntidote:
+		return GameplayAction::QuickAntidote;
 	case BindAction::EquipClub:
 		return GameplayAction::EquipClub;
 	case BindAction::EquipSword:

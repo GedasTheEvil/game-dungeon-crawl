@@ -9,7 +9,7 @@ in the campaign, and he stays the last boss.
 
 * Big scorpion: segmented body, two claws, a raised tail with a sting. Built in Blender like the other monsters
   ([../remodeling.md](../remodeling.md)).
-* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.draft.md](poison-and-antidote.draft.md)).
+* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.md](poison-and-antidote.md)).
 * Resistances: open. Idea: the club cracks her shell (unlike the scarabs, where the spear wins), so the club gets a boss
   of its own.
 * A row in `MONSTER_DEFS` and `BOSS_DEFS`, like the other bosses.

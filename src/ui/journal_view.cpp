@@ -195,6 +195,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Heals as it bites.";
 	case CreatureMove::Surface:
 		return "Lies under the water, only its eyes show.";
+	case CreatureMove::Poison:
+		return "Its poison burns on long after the bite.";
 	}
 	return "";
 }
@@ -223,6 +225,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 				"can be upgraded in the inventory (U). The old club gains the most from it."},
 	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
+	{"Poison", "Some stings and bites poison me: the health bar turns green and drains on after the fight, armour "
+			   "or not, and it can kill me. The same poison again only starts over; a stronger or weaker one burns "
+			   "beside it. An antidote (=) cures them all."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

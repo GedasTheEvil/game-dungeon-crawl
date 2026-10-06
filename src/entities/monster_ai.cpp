@@ -46,6 +46,10 @@ void Monster::Attack(float py) {
 
 void Monster::bite() {
 	const int lost = links.player->TakeHit(type->damage, *links.events);
+	if (type->poison) {
+		links.player->Poison(*type->poison, *links.events);
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);
+	}
 	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);
 	links.journal->HitByCreature(type->id, links.level);
 	if (type->boss.lifeStealPct > 0 && lost > 0)

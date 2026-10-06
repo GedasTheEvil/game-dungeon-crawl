@@ -44,6 +44,7 @@ enum class BindAction : std::uint8_t {
 	EquipBow,
 	QuickHeal,
 	QuickStamina,
+	QuickAntidote,
 	Inventory,
 	Map,
 	Journal,

@@ -292,8 +292,9 @@ class LevelBuilder {
 	Tile randomChest() {
 		int roll = rng.range(0, 99);
 		if (roll < 62) {
-			// small health, large health, might, armour, life, small stamina, large stamina (the potion ids)
-			static const int WEIGHTS[POTION_KIND_COUNT] = {30, 15, 10, 10, 5, 20, 10};
+			// small health, large health, might, armour, life, small stamina, large stamina, antidote (the potion
+			// ids). No antidote: generated levels have no poisoners.
+			static const int WEIGHTS[POTION_KIND_COUNT] = {30, 15, 10, 10, 5, 20, 10, 0};
 			int pick = rng.range(0, 99);
 			int id = 0;
 			while (pick >= WEIGHTS[id]) {

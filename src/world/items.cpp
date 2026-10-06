@@ -14,6 +14,7 @@ constexpr std::array<ItemFileId, ITEM_KIND_COUNT> FILE_IDS = {{
 	{ItemType::POTION, 4},
 	{ItemType::POTION, 5},
 	{ItemType::POTION, 6},
+	{ItemType::POTION, 7},
 }};
 
 constexpr std::array<ItemText, ITEM_KIND_COUNT> TEXTS = {{
@@ -28,6 +29,7 @@ constexpr std::array<ItemText, ITEM_KIND_COUNT> TEXTS = {{
 	{"Elixir of Life", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,", "sealed in a flask."},
 	{"Small Stamina", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.", "Mostly honey."},
 	{"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water", "from the temple of Ra."},
+	{"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
 }};
 } // namespace
 

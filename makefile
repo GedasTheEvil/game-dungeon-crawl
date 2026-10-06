@@ -15,7 +15,7 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 # Libraries shared by the game and the tools (docs/plan/solved/layered-build.md). tools/check_layers.sh (make layers)
 # keeps them apart: level code has no GL, neither library has SDL or Game(), and each includes only its own headers.
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
-	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/loot.cpp \
+	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/input/bindings.cpp src/state/settings_ini.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/movement.h src/world/rng.h src/world/damage.h

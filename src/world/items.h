@@ -19,8 +19,9 @@ enum class ItemKind : std::uint8_t {
 	Life,
 	SmallStamina,
 	LargeStamina,
+	Antidote,
 };
-constexpr int ITEM_KIND_COUNT = 11;
+constexpr int ITEM_KIND_COUNT = 12;
 constexpr int WEAPON_KIND_COUNT = 4;
 constexpr int POTION_KIND_COUNT = ITEM_KIND_COUNT - WEAPON_KIND_COUNT;
 

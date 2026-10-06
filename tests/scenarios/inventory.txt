@@ -76,7 +76,7 @@ screenshot health_full
 expect potion0 == 3
 
 # stamina: full at first, so the potion waits; after jumping it restores
-click 47.2 36.75
+click 42.3 36.75
 click 77 19.5
 expect potion5 == 2
 key i
@@ -88,7 +88,7 @@ jump
 wait 1s
 dump
 key i
-click 47.2 36.75
+click 42.3 36.75
 wait 5
 screenshot stamina_low
 click 77 19.5

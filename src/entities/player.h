@@ -38,6 +38,7 @@ class Player {
 	int shownFrame = 0; // of the clip Draw() showed last (it advances after showing)
 
 	void findFists();
+	void die(); // the death pose and sound; the poison ends
 
   public:
 	PlayerStats stats;
@@ -62,7 +63,10 @@ class Player {
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
 	// health note.
 	int TakeHit(int dmg, WorldEvents& events, bool ignoreArmor = false);
-	void Reanimate(); // full HP, standing
+	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
+	void Poison(PoisonTier tier, WorldEvents& events);
+	void UpdatePoison(); // once a tick: the running tiers' damage, which can kill
+	void Reanimate();	 // full HP, standing, no poison
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);

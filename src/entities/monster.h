@@ -7,6 +7,7 @@
 #include "trap_hurt.h"
 #include "../world/damage.h"
 #include "../world/items.h"
+#include "../world/poison.h"
 #include "../graphics/texture_registry.h"
 #include "../world/rng.h"
 #include <memory>
@@ -95,6 +96,7 @@ struct MonsterType {
 	Courage courage = Courage::Coward;
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
+	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
 	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
 	Rgb blood = {0.7f, 0.1f, 0.1f};

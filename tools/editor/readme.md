@@ -145,7 +145,7 @@ when the level's boss dies.
 |---|---|---|
 | 1 | Melee weapon | 0 club, 1 sword, 2 spear |
 | 2 | Ranged weapon | 0 bow |
-| 3 | Potion | 0 small health (25% of max. HP), 1 large health (50% of max. HP), 2 might (+2 might), 3 armor (+2 armor), 4 life (+5% max. HP, full heal), 5 small stamina (50% stamina), 6 large stamina (full stamina) |
+| 3 | Potion | 0 small health (25% of max. HP), 1 large health (50% of max. HP), 2 might (+2 might), 3 armor (+2 armor), 4 life (+5% max. HP, full heal), 5 small stamina (50% stamina), 6 large stamina (full stamina), 7 antidote (cures all poison) |
 | 0 | Empty chest | - |
 
 Invalid ids write an error to the log and give nothing.

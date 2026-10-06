@@ -148,6 +148,7 @@ void PlayerStats::AddMaxHP(int hpPart) {
 
 void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
+	poison.Save(f);
 }
 
 void PlayerStats::LoadDump(std::ifstream& f) {
@@ -168,4 +169,5 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
 	SetStamina(loadedStamina);
+	poison.Load(f);
 }

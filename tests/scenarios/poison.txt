@@ -1,0 +1,65 @@
+# Poison (docs/plan/poison-and-antidote.md): tiers stack, each on its own timer; armour does not help; the antidote
+# (=) cures all of it; the poison survives a save; it can kill.
+seed 1
+level tests/levels/classic1
+walk right 3
+xp 12000
+expect armor >= 1
+expect hp == 110
+poison weak
+expect poison == 1
+expect journal_notes == 2
+# the journal's field note (the game stands still behind the journal and the inventory)
+key j
+wait 2
+click 88.2 59.9
+wait 45
+screenshot journal_note
+key j
+wait 2
+wait 1s
+expect hp == 109
+poison medium
+expect poison == 3
+screenshot weak_medium
+wait 1s
+expect hp == 105
+poison strong
+expect poison == 7
+wait 2s
+screenshot all_three
+expect hp == 87
+# the antidote key: none yet, then one
+key =
+expect poison == 7
+give potion 7
+key =
+expect poison == 0
+expect potion7 == 0
+wait 2s
+expect hp == 87
+screenshot cured
+give potion 7
+key =
+expect potion7 == 1
+key i
+wait 5
+screenshot inventory
+key i
+wait 2
+# saved and loaded with the time left
+poison strong
+wait 2s
+savegame poisoned.sav
+key =
+expect poison == 0
+loadgame poisoned.sav
+expect poison == 4
+wait 1s
+screenshot loaded
+# it kills
+hurt 70
+poison strong
+wait 5s
+expect alive == 0
+expect poison == 0

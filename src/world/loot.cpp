@@ -46,7 +46,8 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, Rng& rng) {
 ItemKind RollMimicLoot(Rng& rng) {
 	if (rng.percent(50))
 		return WEAPON_GRADES[static_cast<size_t>(rng.below(WEAPON_KIND_COUNT))];
-	return itemAt(WEAPON_KIND_COUNT + rng.below(POTION_KIND_COUNT));
+	// Not the antidote: it lies only in the chests of the levels with poisoners.
+	return itemAt(WEAPON_KIND_COUNT + rng.below(itemIndex(ItemKind::Antidote) - WEAPON_KIND_COUNT));
 }
 
 std::optional<ItemKind> RollKillDrop(bool boss, const std::array<bool, WEAPON_KIND_COUNT>& owned, Rng& rng) {

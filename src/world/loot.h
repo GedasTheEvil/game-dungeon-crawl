@@ -11,7 +11,7 @@
 // gameplay stream, which a scenario seeds).
 std::vector<ItemKind> RollChestLoot(ItemKind placed, Rng& rng);
 
-// The item in the chest a killed mimic leaves: any weapon or potion, even odds for weapon or potion.
+// The item in the chest a killed mimic leaves: any weapon or potion but the antidote, even odds for weapon or potion.
 ItemKind RollMimicLoot(Rng& rng);
 
 // Percent of the kills (minions and mimics excepted) that leave a weapon chest; a boss always leaves one.

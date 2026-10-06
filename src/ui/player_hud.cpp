@@ -28,6 +28,10 @@ constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
 constexpr Rect XP_LINE = {4.f, 2.9f, 47.f, 0.7f};
+constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
+constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
+constexpr float POISON_SIZE = 6.f;
+constexpr float POISON_STEP = 9.f;
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
 constexpr int ICON_COLUMNS = 4;	   // atlas grid
 constexpr int ICON_ROWS = 2;
@@ -42,6 +46,10 @@ constexpr int DRINK_FLASH_MS = 500;
 constexpr Color BLOOD_TOP = {0.85f, 0.14f, 0.08f}; // the boss bar's
 constexpr Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
+constexpr Color POISON_TOP = {0.45f, 0.82f, 0.2f}; // the health bar while poisoned
+constexpr Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
+// The drops, weak to strong: pale lime, venom green, deep malachite.
+constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
@@ -109,20 +117,73 @@ void barFrame(const Rect& bar) {
 	diamond(bar.x + bar.w, bar.cy(), 0.9f, GOLD, 1.f);
 }
 
+bool poisoned(const PlayerHud::View& v) {
+	for (int left : v.poisonLeftMs)
+		if (left > 0)
+			return true;
+	return false;
+}
+
 void drawHealth(const PlayerHud::View& v, int now) {
+	const bool poison = poisoned(v);
+	const Color top = poison ? POISON_TOP : BLOOD_TOP;
+	const Color bottom = poison ? POISON_BOTTOM : BLOOD_BOTTOM;
 	float ratio = ratioOf(v.hp, v.maxHp);
 	float lost = std::max(trail.shown, ratio);
 	const Rect& bar = HEALTH_BAR;
 	if (ratio < LOW_HEALTH && v.hp > 0) {
 		float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(now) * 0.008f);
-		additiveRing(bar, 1.8f, BLOOD_TOP, 0.25f + 0.45f * pulse);
+		additiveRing(bar, 1.8f, top, 0.25f + 0.45f * pulse);
 	}
 	fillRect(bar, TROUGH, TROUGH, 1.f);
 	fillRect({bar.x + bar.w * ratio, bar.y, bar.w * (lost - ratio), bar.h}, LOST, LOST, 0.9f);
-	fillRect({bar.x, bar.y, bar.w * ratio, bar.h}, BLOOD_TOP, BLOOD_BOTTOM, 1.f);
+	fillRect({bar.x, bar.y, bar.w * ratio, bar.h}, top, bottom, 1.f);
 	fillRect({bar.x, bar.y + bar.h - 0.6f, bar.w * ratio, 0.6f}, {1, 1, 1}, {1, 1, 1}, 0.12f); // shine
 	barFrame(bar);
-	heart(ICON_X, bar.cy(), BLOOD_TOP);
+	heart(ICON_X, bar.cy(), top);
+}
+
+// A drop of poison, its round belly at (x, y): solid (ellipse() is a soft glow).
+void drop(float x, float y, float r, Color c) {
+	constexpr int SEGMENTS = 16;
+	for (int i = 0; i < SEGMENTS; i++) {
+		const float a0 = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
+		const float a1 = 2.f * static_cast<float>(M_PI) * static_cast<float>(i + 1) / SEGMENTS;
+		triangle(x, y, x + r * std::cos(a0), y + r * std::sin(a0), x + r * std::cos(a1), y + r * std::sin(a1), c, 1.f);
+	}
+	triangle(x - r * 0.92f, y + r * 0.4f, x + r * 0.92f, y + r * 0.4f, x, y + r * 2.1f, c, 1.f);
+	ellipse(x - r * 0.35f, y + r * 0.2f, r * 0.28f, r * 0.28f, {1, 1, 1}, 0.55f); // glint
+}
+
+Rect poisonRect(int i) { return {POISON_X + POISON_STEP * static_cast<float>(i), POISON_Y, POISON_SIZE, POISON_SIZE}; }
+
+// The running tiers left to right, weak first: a stone tile with the drop and one pip per tier step.
+void drawPoison(const PlayerHud::View& v) {
+	int shown = 0;
+	for (int t = 0; t < POISON_TIER_COUNT; t++) {
+		if (v.poisonLeftMs[t] <= 0)
+			continue;
+		const Rect r = poisonRect(shown++);
+		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+		tile(r, TileStyle::Stone, false, false);
+		drop(r.cx(), r.y + 2.8f, 1.3f, POISON_DROPS[t]);
+		for (int p = 0; p <= t; p++)
+			diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(t) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
+					GOLD_BRIGHT, 1.f);
+	}
+}
+
+void drawPoisonText(const PlayerHud::View& v, Font& small) {
+	int shown = 0;
+	for (int t = 0; t < POISON_TIER_COUNT; t++) {
+		if (v.poisonLeftMs[t] <= 0)
+			continue;
+		const Rect r = poisonRect(shown++);
+		char secs[12];
+		snprintf(secs, sizeof(secs), "%ds", (v.poisonLeftMs[t] + 999) / 1000);
+		textCentered(small, r.cx() + 0.2f, r.y - 3.4f - 0.2f, secs, BLACK);
+		textCentered(small, r.cx(), r.y - 3.4f, secs, GOLD_BRIGHT);
+	}
 }
 
 void drawStamina(const PlayerHud::View& v) {
@@ -238,6 +299,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 		drawSlot(view.slots[i], slotRect(i), small);
 	drawKeys(view);
 	drawXp(view);
+	drawPoison(view);
 	for (int i = 0; i < 3; i++)
 		drawSlotIcon(view.slots[i], slotRect(i), icons);
 
@@ -249,6 +311,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	text(numbers, NUMBERS_X, y, hp, GOLD_BRIGHT);
 	for (int i = 0; i < 3; i++)
 		drawSlotText(view.slots[i], slotRect(i), small);
+	drawPoisonText(view, small);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glColor3f(1, 1, 1);

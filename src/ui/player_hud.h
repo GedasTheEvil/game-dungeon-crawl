@@ -2,13 +2,15 @@
 #define PLAYER_HUD_H
 
 #include "ui_draw.h"
+#include "../world/poison.h"
 #include <cstdint>
 #include <string>
 
 class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
-// (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line.
+// (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line. Above it, one
+// poison drop per running tier (one, two or three pips) with its seconds left.
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -28,11 +30,12 @@ struct Slot {
 struct View {
 	int hp = 0, maxHp = 1;
 	int stamina = 0, maxStamina = 1;
-	int staminaRefusedAgeMs = 1000000; // since the last jump or sprint refused for lack of stamina
-	float xpRatio = 0.f;			   // progress to the next level, 0..1
-	int keysHeld = 0;				   // bit (colour - 1) per key held
-	int levelKeys = 0;				   // bit (colour - 1) per key on the level: one socket each
-	Slot slots[3];					   // weapon, healing potion, stamina potion
+	int staminaRefusedAgeMs = 1000000;		  // since the last jump or sprint refused for lack of stamina
+	float xpRatio = 0.f;					  // progress to the next level, 0..1
+	int keysHeld = 0;						  // bit (colour - 1) per key held
+	int levelKeys = 0;						  // bit (colour - 1) per key on the level: one socket each
+	Slot slots[3];							  // weapon, healing potion, stamina potion
+	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 };
 
 // Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).

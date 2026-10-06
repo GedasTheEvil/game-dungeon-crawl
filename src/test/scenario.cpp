@@ -62,6 +62,7 @@ enum class CommandType : unsigned char {
 	Chest,
 	Xp,
 	Hurt,
+	Poison,
 	Riddles,
 	SaveGame,
 	LoadGame,
@@ -87,6 +88,7 @@ enum class Field : unsigned char {
 	EquipType,
 	EquipId,
 	Keys,
+	Poison,
 	XpTotal,
 	Riddle,
 	Bars,
@@ -224,6 +226,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).id);
 	case Field::Keys:
 		return static_cast<float>(Game().dungeon.KeysHeld());
+	case Field::Poison:
+		return static_cast<float>(Game().player->stats.poison.Mask());
 	case Field::XpTotal:
 		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:
@@ -406,6 +410,7 @@ bool parseField(const std::string& word, Field& field) {
 				  {"equip_type", Field::EquipType},
 				  {"equip_id", Field::EquipId},
 				  {"keys", Field::Keys},
+				  {"poison", Field::Poison},
 				  {"xp", Field::XpTotal},
 				  {"riddle", Field::Riddle},
 				  {"bars", Field::Bars},
@@ -637,6 +642,16 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			return "usage: hurt <hp>";
 		return "";
 	}
+	if (name == "poison") {
+		cmd.type = CommandType::Poison;
+		static const char* const TIERS[POISON_TIER_COUNT] = {"weak", "medium", "strong"};
+		for (int t = 0; argc == 1 && t < POISON_TIER_COUNT; t++)
+			if (w[1] == TIERS[t]) {
+				cmd.ticks = t;
+				return "";
+			}
+		return "usage: poison weak|medium|strong";
+	}
 	if (name == "riddles") {
 		cmd.type = CommandType::Riddles;
 		if (argc != 1)
@@ -843,6 +858,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::Poison: // as from a poisoned bite: the status line and the field note too
+		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events);
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Riddles:

@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "../graphics/ink.h"
+#include "../core/gameplay_config.h"
 #include "../graphics/render_config.h"
 #include "../test/scenario.h"
 
@@ -115,9 +116,7 @@ int Player::TakeHit(int dmg, WorldEvents& events, bool ignoreArmor) {
 	}
 
 	if (!Alive() && state != ModelState::Die) {
-		setModelState(ModelState::Die);
-		model.dieSound.Play();
-
+		die();
 		blood.Splash(s);
 		for (int i = 0; i < 6; i++)
 			blood.Explode();
@@ -125,8 +124,33 @@ int Player::TakeHit(int dmg, WorldEvents& events, bool ignoreArmor) {
 	return lost;
 }
 
+void Player::die() {
+	setModelState(ModelState::Die);
+	model.dieSound.Play();
+	stats.poison.Cure();
+}
+
+void Player::Poison(PoisonTier tier, WorldEvents& events) {
+	if (!Alive())
+		return;
+	if (!stats.poison.Any())
+		events.Status("You are poisoned!");
+	stats.poison.Apply(tier);
+	events.Note(FieldNote::Poison);
+}
+
+void Player::UpdatePoison() {
+	const int hp = stats.poison.Advance(UPDATE_TICK_MS);
+	if (hp <= 0 || !Alive() || Scenario::godMode())
+		return;
+	stats.LoseHP(hp); // armour does not help
+	if (!Alive())
+		die();
+}
+
 void Player::Reanimate() {
 	stats.HealFully();
+	stats.poison.Cure();
 	setModelState(model.Reference());
 	blood.Stop(); // a new or loaded game starts without the last game's splash
 }

@@ -74,6 +74,8 @@ class Inventory {
 	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
 	// left: nothing is drunk, the status box says why.
 	void QuickDrink(QuickKind kind);
+	// In game, = drinks an antidote. Not poisoned or none left: nothing is drunk, the status box says why.
+	void QuickAntidote();
 	// The potion QuickDrink would drink now, ignoring whether anything is missing (the HUD slot); nullopt if none
 	// left.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind) const;

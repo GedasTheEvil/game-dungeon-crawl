@@ -31,11 +31,11 @@ TEST_CASE("a weapon chest may add a weaker weapon, never a better one") {
 			CHECK(item != ItemKind::Sword);
 }
 
-TEST_CASE("the mimic's chest holds any item") {
+TEST_CASE("the mimic's chest holds any item but the antidote") {
 	Rng rng(5);
 	bool seen[ITEM_KIND_COUNT] = {};
 	for (int i = 0; i < 2000; i++)
 		seen[itemIndex(RollMimicLoot(rng))] = true;
-	for (bool s : seen)
-		CHECK(s);
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		CHECK(seen[i] == (itemAt(i) != ItemKind::Antidote));
 }

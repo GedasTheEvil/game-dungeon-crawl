@@ -19,7 +19,8 @@ TEST_CASE("file ids as the level files use them") {
 	CHECK(*itemFromFile(ItemType::POTION, 0) == ItemKind::SmallHealth);
 	CHECK(*itemFromFile(ItemType::POTION, 6) == ItemKind::LargeStamina);
 	CHECK_FALSE(itemFromFile(ItemType::EMPTY, 0).has_value());
-	CHECK_FALSE(itemFromFile(ItemType::POTION, 7).has_value());
+	CHECK(*itemFromFile(ItemType::POTION, 7) == ItemKind::Antidote);
+	CHECK_FALSE(itemFromFile(ItemType::POTION, 8).has_value());
 	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 1).has_value());
 }
 
@@ -104,7 +105,30 @@ TEST_CASE("potion gains") {
 	CHECK(potionGain(ItemKind::Life).maxHpPercent == 5);
 	CHECK(potionGain(ItemKind::SmallStamina).staminaPercent == 50);
 	CHECK(potionGain(ItemKind::LargeStamina).staminaPercent == 100);
+	CHECK(potionGain(ItemKind::Antidote).cure);
+	CHECK(potionGain(ItemKind::Antidote).healPercent == 0);
 	CHECK(potionGain(ItemKind::Sword).healPercent == 0);
+}
+
+TEST_CASE("the antidote is drunk only while poisoned") {
+	ItemBag bag;
+	bag.Add(ItemKind::Antidote);
+	Vitals healthy{true, 50, 50, 100, 100};
+	CHECK(bag.Block(ItemKind::Antidote, healthy) == UseBlock::NotPoisoned);
+	Vitals poisoned = healthy;
+	poisoned.poisoned = true;
+	CHECK(bag.Use(ItemKind::Antidote, poisoned));
+	CHECK(bag.Count(ItemKind::Antidote) == 0);
+}
+
+TEST_CASE("a save from before the antidote loads with none") {
+	std::stringstream old("INV2 11 1 0 0 0 2 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0\n");
+	ItemBag bag;
+	bag.Load(old);
+	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
+	CHECK(bag.Count(ItemKind::LargeStamina) == 1);
+	CHECK(bag.Count(ItemKind::Antidote) == 0);
+	CHECK(bag.Equipped() == ItemKind::Club);
 }
 
 TEST_CASE("the quick heal takes the weakest potion that gets the player out of danger") {
@@ -127,7 +151,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::Bow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV2 11 ", 0) == 0);
+	CHECK(file.str().rfind("INV2 12 ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);

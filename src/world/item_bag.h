@@ -24,10 +24,11 @@ struct Vitals {
 	bool alive = true;
 	int hp = 0, maxHp = 0;
 	int stamina = 0, maxStamina = 0;
+	bool poisoned = false;
 };
 
 // Why an item cannot be used (equipped or drunk) now.
-enum class UseBlock : std::uint8_t { None, Dead, NotFound, NoneLeft, Equipped, HealthFull, StaminaFull };
+enum class UseBlock : std::uint8_t { None, Dead, NotFound, NoneLeft, Equipped, HealthFull, StaminaFull, NotPoisoned };
 
 // What drinking a potion does to the player. Percentages of max health / max stamina; maxHpPercent grows max health,
 // then heals fully.
@@ -37,6 +38,7 @@ struct PotionGain {
 	int might = 0;
 	int armor = 0;
 	int maxHpPercent = 0;
+	bool cure = false; // ends all poison
 };
 [[nodiscard]] PotionGain potionGain(ItemKind potion);
 

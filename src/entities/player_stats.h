@@ -2,6 +2,7 @@
 #define PLAYER_STATS_H
 
 #include "../core/timer.h"
+#include "../world/poison.h"
 #include "../world/world_events.h"
 #include <fstream>
 #include <optional>
@@ -71,6 +72,7 @@ class PlayerStats {
 	[[nodiscard]] int HitDamage(int dmg, bool ignoreArmor) const;
 	void LoseHP(int hp) { HP -= hp; }
 	void AddMaxHP(int hpPart); // percent, heals fully
+	Poison poison;
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

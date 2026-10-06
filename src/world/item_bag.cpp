@@ -56,6 +56,9 @@ PotionGain potionGain(ItemKind potion) {
 	case ItemKind::LargeStamina:
 		gain.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT;
 		break;
+	case ItemKind::Antidote:
+		gain.cure = true;
+		break;
 	case ItemKind::Club:
 	case ItemKind::Sword:
 	case ItemKind::Spear:
@@ -85,6 +88,8 @@ UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 		return UseBlock::HealthFull;
 	if (restoresStamina(kind) && player.stamina >= player.maxStamina)
 		return UseBlock::StaminaFull;
+	if (kind == ItemKind::Antidote && !player.poisoned)
+		return UseBlock::NotPoisoned;
 	return UseBlock::None;
 }
 

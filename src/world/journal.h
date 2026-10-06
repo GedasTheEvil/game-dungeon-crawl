@@ -37,8 +37,9 @@ enum class CreatureMove : unsigned char {
 	Summon,	 // a boss calls its minions
 	Heal,	 // a life-stealing bite
 	Surface, // the crocodile comes up out of the water
+	Poison,	 // a poisoned bite or sting
 };
-constexpr int CREATURE_MOVE_COUNT = 7;
+constexpr int CREATURE_MOVE_COUNT = 8;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
 // a kill count (docs/plan/solved/monster-journal.md).
@@ -61,8 +62,9 @@ enum class FieldNote : unsigned char {
 	Potions, // the first potion drunk
 	Weapons, // the first weapon found
 	Keys,	 // the first key picked up
+	Poison,	 // the first time poisoned
 };
-constexpr int FIELD_NOTE_COUNT = 6;
+constexpr int FIELD_NOTE_COUNT = 7;
 
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);

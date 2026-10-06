@@ -44,7 +44,7 @@ constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
-constexpr const char* HOTKEYS = "1234567890-"; // one per slot, the keyboard's number row
+constexpr const char* HOTKEYS = "1234567890-="; // one per slot, the keyboard's number row
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
@@ -57,13 +57,14 @@ constexpr std::array<Color, POTION_KIND_COUNT> POTION_COLORS = {{
 	{0.7f, 0.6f, 0.3f},	   // life
 	{0.45f, 0.85f, 0.25f}, // small stamina: green faience
 	{0.15f, 0.78f, 0.72f}, // large stamina: turquoise
+	{0.05f, 0.45f, 0.2f},  // antidote: dark malachite
 }};
 
 Color potionColor(ItemKind potion) { return POTION_COLORS[static_cast<size_t>(itemIndex(potion) - WEAPON_KIND_COUNT)]; }
 
 Vitals playerVitals() {
 	const PlayerStats& s = Game().player->stats;
-	return {Game().player->Alive(), s.CurrentHP(), s.CurrentMaxHP(), s.Stamina(), s.MaxStamina()};
+	return {Game().player->Alive(), s.CurrentHP(), s.CurrentMaxHP(), s.Stamina(), s.MaxStamina(), s.poison.Any()};
 }
 
 const char* blockReason(UseBlock block) {
@@ -80,6 +81,8 @@ const char* blockReason(UseBlock block) {
 		return "Health is full";
 	case UseBlock::StaminaFull:
 		return "Stamina is full";
+	case UseBlock::NotPoisoned:
+		return "You are not poisoned";
 	case UseBlock::None:
 		break;
 	}
@@ -93,8 +96,8 @@ Rect slotRect(int slot) {
 		float x0 = ITEMS_PANEL.cx() - (4 * W + 3 * GAP) / 2;
 		return {x0 + static_cast<float>(slot) * (W + GAP), WEAPON_ROW_Y, W, WEAPON_SLOT_H};
 	}
-	constexpr float W = 11.2f;
-	constexpr float GAP = 1.3f;
+	constexpr float W = 9.8f;
+	constexpr float GAP = 1.f;
 	float x0 = ITEMS_PANEL.cx() - (POTION_KIND_COUNT * W + (POTION_KIND_COUNT - 1) * GAP) / 2;
 	int column = slot - WEAPON_KIND_COUNT;
 	return {x0 + static_cast<float>(column) * (W + GAP), POTION_ROW_Y, W, POTION_SLOT_H};
@@ -184,6 +187,9 @@ std::string Inventory::DrinkPotion(ItemKind potion) {
 	} else if (gain.armor > 0) {
 		s->AddArmor(gain.armor);
 		snprintf(buf, sizeof(buf), "Armor rises to %d", s->CurrentArmor());
+	} else if (gain.cure) {
+		s->poison.Cure();
+		snprintf(buf, sizeof(buf), "The poison is gone");
 	} else if (gain.maxHpPercent > 0) {
 		s->AddMaxHP(gain.maxHpPercent);
 		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
@@ -222,6 +228,17 @@ void Inventory::QuickDrink(QuickKind kind) {
 	quickDrinkMs = now;
 	quickDrinkKind = kind;
 	Game().ShowStatus("%s", DrinkPotion(*potion).c_str());
+}
+
+void Inventory::QuickAntidote() {
+	const UseBlock block = bag.Block(ItemKind::Antidote, playerVitals());
+	if (block == UseBlock::Dead)
+		return;
+	if (block != UseBlock::None) {
+		Game().ShowStatus("%s", block == UseBlock::NotPoisoned ? "You are not poisoned" : "No antidote left");
+		return;
+	}
+	Game().ShowStatus("%s", DrinkPotion(ItemKind::Antidote).c_str());
 }
 
 std::optional<int> Inventory::QuickDrinkMs(QuickKind kind) const {

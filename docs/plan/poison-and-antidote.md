@@ -1,6 +1,7 @@
 # Poison damage and the antidote
 
-Status: draft 2026-10-05, all decided 2026-10-06, ready to implement. Needed by the
+Status: implemented 2026-10-06 (all but the antidote chests, see [Next](#next)), to be confirmed in play. Draft
+2026-10-05. Needed by the
 [scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md) and
 [apep-serpent-boss.draft.md](apep-serpent-boss.draft.md).
 
@@ -47,3 +48,27 @@ Decided 2026-10-06:
 
 Not in scope: a poison resistance potion and amulets,
 [resistance-potion-and-amulets.draft.md](resistance-potion-and-amulets.draft.md).
+
+## Done
+
+* `Poison` (`src/world/poison.h`, unit tests in `tests/unit/poison_test.cpp`): a timer per tier, a tick of damage per
+  full second. Owned by `PlayerStats`, saved after its line (`POISON`; older saves load with none).
+* `Player::Poison` (status line "You are poisoned!", the field note), `Player::UpdatePoison` once a tick from the game
+  loop (stands still behind the screens, like everything else), no damage in `god` mode. Death ends the poison;
+  New Game and Load too.
+* Monsters: `MonsterType::poison` (an optional tier); a bite applies it and writes the journal's "poison" move. No
+  monster has it yet.
+* `ItemKind::Antidote` (potion id 7, "Cure", dark malachite), blocked while not poisoned. Not in the mimic's loot
+  nor in generated chests (weight 0). Inventory slot key and in-game key `=` (`quick_antidote`).
+* HUD: green health bar and heart; above the panel one stone tile per running tier, a drop in the tier's green with
+  one to three pips, and its seconds left.
+* Journal: field note "Poison" (the first time poisoned).
+* Scenario: `poison weak|medium|strong`, `expect poison` (bit mask); `tests/scenarios/poison.txt`.
+
+## Next
+
+In this order (2026-10-06):
+
+1. The scorpion: a regular monster with weak poison, from [scorpion-queen-boss.draft.md](scorpion-queen-boss.draft.md).
+2. Then the levels: the scorpions' places in the campaign and antidote chests in those levels (a short side passage
+   where a level has no chest to spare), each level still without `levelcheck` warnings.

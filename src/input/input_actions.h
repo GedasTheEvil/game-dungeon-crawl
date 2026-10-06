@@ -14,9 +14,10 @@ enum class GameplayAction : unsigned char {
 	Jump,
 	Attack,
 	Interact,
-	QuickHeal,	  // drink the best fitting healing potion (Inventory::QuickDrink)
-	QuickStamina, // the same for stamina
-	EquipClub,	  // the four weapons, in ItemKind order
+	QuickHeal,	   // drink the best fitting healing potion (Inventory::QuickDrink)
+	QuickStamina,  // the same for stamina
+	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
+	EquipClub,	   // the four weapons, in ItemKind order
 	EquipSword,
 	EquipSpear,
 	EquipBow,

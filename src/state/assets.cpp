@@ -198,9 +198,9 @@ const struct {
 	{MonsterScorpion, {WEAK, NORMAL, RESISTS}},	   // a blow cracks the thin shell; a point glances off the plates
 };
 
-// What each monster group's bite or blow deals (docs/plan/monster-attack-damage-types.md), read from what the model
-// attacks with. Keyed by the model: the members of a group (bigger or darker) deal the same kinds, only more. A new
-// group needs its row.
+// What each monster group's bite or blow deals (docs/plan/solved/monster-attack-damage-types.md), read from what the
+// model attacks with. Keyed by the model: the members of a group (bigger or darker) deal the same kinds, only more. A
+// new group needs its row.
 const struct {
 	const char* model;
 	DamageMix mix;

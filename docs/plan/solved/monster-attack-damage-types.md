@@ -1,11 +1,11 @@
 # Monster attack damage types
 
-Status: implemented 2026-10-06, waiting for a play test. Draft 2026-10-06, refined 2026-10-06. Needed by the typed
-damage amulets ([amulets.draft.md](amulets.draft.md)).
+Status: solved 2026-10-06 (play tested). Draft 2026-10-06, refined 2026-10-06. Needed by the typed
+damage amulets ([amulets.draft.md](../amulets.draft.md)).
 
 ## Problem
 
-Since [solved/damage-types-and-resistances.md](solved/damage-types-and-resistances.md) monsters resist or are weak to
+Since [damage-types-and-resistances.md](damage-types-and-resistances.md) monsters resist or are weak to
 blunt / slash / pierce, but their own hits on the player are untyped: `Player::TakeHit(int dmg, ...)`, armour takes a
 flat amount (`PlayerStats::HitDamage`: `max(1, dmg - Armor)`). Nothing for a typed resistance to act on.
 
@@ -54,10 +54,10 @@ big hitters (mummy, Anubis, boss scarab, the rock). A pierce amulet is the gener
   after keeps a resistance worth the same share on weak and strong hits; armour first would make it worth almost
   nothing against small biters.
 * **Player resistances:** `Resistances` like the monsters' (`src/world/damage.h`), all `NORMAL` without an amulet. The
-  amulet values (a share off one type) belong to [amulets.draft.md](amulets.draft.md).
+  amulet values (a share off one type) belong to [amulets.draft.md](../amulets.draft.md).
 * **Poison** stays apart: the scorpion's sting typed as above, its poison untouched by type and armour, as today.
 * **Traps** are typed too (table above): a type resistance applies to them. Armour as today: the spikes take it, the
-  crushing rock still ignores it. The trap amulet ([amulets.draft.md](amulets.draft.md)) stacks on top.
+  crushing rock still ignores it. The trap amulet ([amulets.draft.md](../amulets.draft.md)) stacks on top.
 * **Without an amulet nothing changes:** all `NORMAL`, every hit deals what it does today. No balance pass needed.
 * **Journal:** like the resistances it learns per weapon tried (`src/ui/journal_view.cpp`), on a creature's first
   hit its page gets one sentence in the explorer's voice. It names the most hurting type; the smaller shares, if any,
@@ -98,7 +98,7 @@ to the bone, with a hint of cutting pain.") only if the general ones read badly 
 ## Open
 
 Nothing; ready to implement. The mix values get revisited in play, together with
-[monster-balance.draft.md](monster-balance.draft.md).
+[monster-balance.draft.md](../monster-balance.draft.md).
 
 ## Done
 

@@ -38,7 +38,7 @@ every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are se
 
 ## Open
 
-* Attack damage mix ([monster-attack-damage-types.md](monster-attack-damage-types.md)): her own group,
+* Attack damage mix ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)): her own group,
   not the scorpions'; maybe all three types (claws slash, sting pierce, a blow of the tail blunt).
 * Placement: the queen needs a boss level before the Anubis boss. Today the bosses sit at lvl5 / 10 / 15 and lvl15
   holds the ankh. See [longer-campaign.draft.md](longer-campaign.draft.md).

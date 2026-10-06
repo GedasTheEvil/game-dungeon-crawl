@@ -19,7 +19,7 @@ Bonuses so far:
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
 * **Typed instead of "physical":** a cut of all monster damage is stronger than every other amulet. One amulet per
   damage type instead (blunt, slash, pierce). Needs the monsters to deal typed damage:
-  [monster-attack-damage-types.md](monster-attack-damage-types.md).
+  [monster-attack-damage-types.md](solved/monster-attack-damage-types.md).
 
 ## Open
 

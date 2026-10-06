@@ -1,6 +1,6 @@
 # Monster attack damage types
 
-Status: draft 2026-10-06, proposal for review 2026-10-06. Needed by the typed damage amulets
+Status: draft 2026-10-06, refined 2026-10-06, ready. Needed by the typed damage amulets
 ([amulets.draft.md](amulets.draft.md)).
 
 ## Problem
@@ -17,7 +17,7 @@ flat amount (`PlayerStats::HitDamage`: `max(1, dmg - Armor)`). Nothing for a typ
 * `TakeHit` takes the damage with its mix; the player's resistances (from the amulet) apply per type, then the armour.
 * The journal shows what a creature deals, written down when it first hits the player.
 
-## Proposed mix
+## Mix
 
 One mix per monster group: the members of a group (the same model, bigger or darker) deal the same kinds of damage,
 only a different amount. Read from what the model attacks with. `damage` is today's `MONSTER_DEFS` value.
@@ -47,7 +47,7 @@ a crushing tail).
 What it means for the amulets: pierce is the most common (rats, bats, scorpions, plant, crocodile, spikes), blunt the
 big hitters (mummy, Anubis, boss scarab, the rock). A pierce amulet is the generalist, a blunt one the boss pick.
 
-## Rules (proposed)
+## Rules
 
 * **Order:** type resistance first, then armour. The resistance scales the raw hit per part of the mix
   (`dmg * sum(mix_i * resist_i) / 10000`, rounded), armour then takes its flat amount, at least 1 as today. Armour
@@ -92,10 +92,10 @@ What the groups would read:
 | Scorpion | It pierces me to the bone, with a hint of cutting pain. |
 | Mimic | It pierces me to the bone, with a hint of crushing pain. |
 
-Same mix, same sentence (rat, bat, scorpion, plant). A group may override it with its own line (the bat: "Its fangs
-pierce me to the bone, with a hint of cutting pain."), kept to the same main type and hints.
+Same mix, same sentence (rat, bat, scorpion, plant): accepted for now. Per-group lines (the bat: "Its fangs pierce me
+to the bone, with a hint of cutting pain.") only if the general ones read badly in play.
 
 ## Open
 
-* The mix per group: the table above is a proposal.
-* Per-group override lines: write them for every group, or only where the built sentence repeats.
+Nothing; ready to implement. The mix values get revisited in play, together with
+[monster-balance.draft.md](monster-balance.draft.md).

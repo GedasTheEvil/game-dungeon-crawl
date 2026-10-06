@@ -95,6 +95,8 @@ XP follows the new threat.
 
 * Which monsters to nerf, by how much?
 * Should the bosses keep their XP (they are the payoff)?
+* The attack damage mix per monster group ([monster-attack-damage-types.draft.md](monster-attack-damage-types.draft.md)),
+  if it plays wrong.
 
 ## Reach (done)
 

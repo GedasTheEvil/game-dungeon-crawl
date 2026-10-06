@@ -64,7 +64,7 @@ One command per line. `#` starts a comment.
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |
-| `poison weak\|medium\|strong` | The player is poisoned with that tier, as by a poisoned bite: it (re)starts that tier's timer ([poison](plan/poison-and-antidote.md)). Works in `god` mode too, only the damage is not taken. |
+| `poison weak\|medium\|strong` | The player is poisoned with that tier, as by a poisoned bite: it (re)starts that tier's timer ([poison](plan/solved/poison-and-antidote.md)). Works in `god` mode too, only the damage is not taken. |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |
 | `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 sword, 2 spear), `ranged` (0 bow), `potion` (0 small health, 1 large health, 2 might, 3 armor, 4 life, 5 small stamina, 6 large stamina, 7 antidote). |
 | `xp N` | Gain N XP, like killing monsters. Each level up adds max HP and refills HP and stamina (level 2 at 1000). |

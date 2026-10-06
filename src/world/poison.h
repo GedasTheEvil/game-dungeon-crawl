@@ -2,8 +2,8 @@
 #define POISON_H
 
 // The player's poison, without the player: three tiers, each running on its own timer
-// (docs/plan/poison-and-antidote.md). A hit of a running tier restarts its timer at the same strength; a hit of another
-// tier runs beside it. Armour does not help and poison can kill. The antidote cures every tier.
+// (docs/plan/solved/poison-and-antidote.md). A hit of a running tier restarts its timer at the same strength; a hit of
+// another tier runs beside it. Armour does not help and poison can kill. The antidote cures every tier.
 
 #include <array>
 #include <cstdint>

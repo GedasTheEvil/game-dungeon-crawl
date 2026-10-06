@@ -132,7 +132,7 @@ const MonsterDef MONSTER_DEFS[] = {
 	{MonsterCrocodile, "Crocodile", "monsters/crocodile", "monsters/crocodile", 7, 110, 26, 1100, 2400, 60, 180,
 	 Locomotion::Submerged, RED_BLOOD},
 	// Small and quick like the rat, a slower sting that poisons (POISON_DEFS); levels from the scorpion queen's
-	// (docs/plan/poison-and-antidote.md).
+	// (docs/plan/solved/poison-and-antidote.md).
 	{MonsterScorpion,
 	 "Scorpion",
 	 "monsters/scorpion",
@@ -212,7 +212,7 @@ const struct {
 	{MonsterCrocodile, Wading::Swimmer, 2.5f},
 };
 
-// The monsters whose bite or sting poisons the player, and the tier (docs/plan/poison-and-antidote.md).
+// The monsters whose bite or sting poisons the player, and the tier (docs/plan/solved/poison-and-antidote.md).
 const struct {
 	MonsterTypeId id;
 	PoisonTier tier;

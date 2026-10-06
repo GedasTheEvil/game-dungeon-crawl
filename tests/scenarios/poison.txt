@@ -1,4 +1,4 @@
-# Poison (docs/plan/poison-and-antidote.md): tiers stack, each on its own timer; armour does not help; the antidote
+# Poison (docs/plan/solved/poison-and-antidote.md): tiers stack, each on its own timer; armour does not help; the antidote
 # (=) cures all of it; the poison survives a save; it can kill.
 seed 1
 level tests/levels/classic1
@@ -57,8 +57,12 @@ loadgame poisoned.sav
 expect poison == 4
 wait 1s
 screenshot loaded
+# a level up cures it
+poison medium
+xp 30000
+expect poison == 0
 # it kills
-hurt 70
+hurt 200
 poison strong
 wait 5s
 expect alive == 0

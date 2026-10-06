@@ -24,7 +24,7 @@ struct MonsterKind {
 }
 
 // Its bite or sting poisons the player (the tier: POISON_DEFS in state/assets.cpp). The checker wants an antidote in
-// reach on a level with one (docs/plan/poison-and-antidote.md).
+// reach on a level with one (docs/plan/solved/poison-and-antidote.md).
 [[nodiscard]] bool isPoisoner(int type);
 
 constexpr char UNKNOWN_MONSTER_GLYPH = 'm';

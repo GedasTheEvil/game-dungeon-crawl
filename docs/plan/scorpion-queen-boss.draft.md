@@ -9,7 +9,7 @@ in the campaign, and he stays the last boss.
 
 * Big scorpion: segmented body, two claws, a raised tail with a sting. Built in Blender like the other monsters
   ([../remodeling.md](../remodeling.md)).
-* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.md](poison-and-antidote.md)).
+* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.md](solved/poison-and-antidote.md)).
 * Resistances: open. Idea: the club cracks her shell (unlike the scarabs, where the spear wins), so the club gets a boss
   of its own.
 * A row in `MONSTER_DEFS` and `BOSS_DEFS`, like the other bosses.
@@ -17,7 +17,7 @@ in the campaign, and he stays the last boss.
 ## Minions: scorpions
 
 * New regular monster, the **scorpion**: small, quick, its sting gives **weak poison**. Built 2026-10-06
-  ([poison-and-antidote.md](poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
+  ([poison-and-antidote.md](solved/poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
 * Scorpions are no stranger to Egypt: the plain scorpion lives in the early levels 3-6 (2026-10-06), not only
   around the queen.
 * Her minions are a stronger scorpion (decided 2026-10-06): a giant scorpion, like the giant rat / scarab / bat, on the

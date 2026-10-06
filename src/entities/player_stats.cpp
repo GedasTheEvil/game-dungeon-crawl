@@ -131,6 +131,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 
 	MaxHP += HP_PER_LEVEL;
 	HP = MaxHP;
+	poison.Cure(); // a new level heals fully, poison too
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 

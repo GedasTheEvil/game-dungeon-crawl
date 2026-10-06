@@ -211,7 +211,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 				   "expedition is over. A healing potion brings some back (H drinks the right one), and a new level "
 				   "fills it up."},
 	{"Experience", "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
-				   "a new level: more health and more stamina, both filled up at once. Every fifth level my skin gets "
+				   "a new level: more health and more stamina, both filled up at once, and any poison gone. Every "
+				   "fifth level my skin gets "
 				   "tougher, every eighth my arm stronger."},
 	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running "
 				"drains it all the time. When I walk or stand, it comes back by itself. A stamina potion (0) helps in "
@@ -227,7 +228,7 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
 	{"Poison", "Some stings and bites poison me: the health bar turns green and drains on after the fight, armour "
 			   "or not, and it can kill me. The same poison again only starts over; a stronger or weaker one burns "
-			   "beside it. An antidote (=) cures them all."},
+			   "beside it. An antidote (=) cures them all, and so does a new level."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

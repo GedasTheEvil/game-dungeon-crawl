@@ -5,8 +5,8 @@ Status: draft 2026-10-06.
 ## Problem
 
 The inventory (`src/ui/inventory.cpp`, [../ui.md](../ui.md)) shows every item at once in fixed rows: four weapons,
-then the potions. The potion row is full: with the antidote ([poison-and-antidote.md](poison-and-antidote.md)) it holds
-8 slots, already narrowed to fit the panel. More item kinds are planned: amulets and a resistance potion
+then the potions. The potion row is full: with the antidote
+([poison-and-antidote.md](solved/poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item kinds are planned: amulets and a resistance potion
 ([resistance-potion-and-amulets.draft.md](resistance-potion-and-amulets.draft.md)), maybe more weapons.
 
 ## Idea

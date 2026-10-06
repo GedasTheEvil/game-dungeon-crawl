@@ -1,6 +1,6 @@
 # Resistance potion and amulets
 
-Status: draft 2026-10-06. Split off [poison-and-antidote.md](poison-and-antidote.md): the antidote only
+Status: draft 2026-10-06. Split off [poison-and-antidote.md](solved/poison-and-antidote.md): the antidote only
 cures, it gives no protection afterwards.
 
 ## Idea

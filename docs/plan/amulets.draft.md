@@ -6,6 +6,10 @@ Status: draft 2026-10-06. Split off [resistance-potion.draft.md](resistance-poti
 
 * A new item kind. **One amulet worn at a time**; each gives one bonus for as long as it is on.
 * Where found: lesser and minor from chests (a random chance), normal and grand only from bosses (random amulet).
+* Swapping: anytime in the inventory, no cooldown (kept simple for now).
+* Poison vs antidote: the antidote cures poison; the poison amulet only lowers the chance of being poisoned in the
+  first place (today a poisoner's hit always poisons). So the poison amulet does not count toward the level checker's
+  antidote rule.
 * Duplicates allowed: the player can have more than one amulet of the same type and tier.
 * Later: [amulet upgrades](amulet-upgrades.draft.md) (combine or boost), [amulet of venom](venom-amulet.draft.md)
   (poison monsters on hit).
@@ -49,10 +53,12 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Chest chance per tier and depth (minor deeper than lesser?); does every boss drop one, or a chance? Which amulet
-  types can drop where.
-* Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
-* `./levelcheck`: count the amulets a level can give? Does a poison amulet count toward the antidote rule (it is only a
-  chance)?
+* Chest chance per tier and depth (minor deeper than lesser?). Which amulet types can drop where.
+* `./levelcheck`: count the amulets a level can give?
+* Boss drops: every boss, or a chance? Chest chance per depth; the mimic's chest; amulet chests in generated levels.
+* Health amulet with max HP potions: the bonus as a % of the base max HP, so a potion drunk while wearing it is not
+  counted twice (suggested).
+* Balance of grand strength (+6 might) against weapon damage and monster HP: [monster balance](monster-balance.draft.md).
+* A sound for putting one on; a journal note per amulet?
 * Models and icons: one model per amulet type (strength: an animal tooth on a string), tiers share it; the others open.
 * More bonuses: slower sprint drain, a faster escape from the crocodile's hold, more damage of one type.

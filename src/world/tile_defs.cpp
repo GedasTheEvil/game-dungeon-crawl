@@ -9,24 +9,27 @@ constexpr TileDef UNKNOWN = {"Unknown", "Not a tile type. The game treats it as 
 constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	UNKNOWN,
 	{"None", "No object: the cell is just its structure.", true, true},
-	{"Door", "Sphinx statue. What it does depends on the gate type.", false, false},
-	{"Death", "Large spike trap. Damages the player on contact.", true, true},
-	{"Monster", "Spawns a monster when the cell comes into view. Max. 32 monsters are live at a time.", true, true},
-	{"Spike", "Small spike trap. Damages the player on contact.", true, true},
-	{"Ladder", "The player climbs between vertically adjacent ladder cells and does not fall on them.", false, false},
+	{"Door", "Sphinx statue. What it does depends on the gate type.", false, false, '\0', "gate.png"},
+	{"Death", "Large spike trap. Damages the player on contact.", true, true, 'X', "death.png"},
+	{"Monster", "Spawns a monster when the cell comes into view. Max. 32 monsters are live at a time.", true, true,
+	 '\0', "monster.png"},
+	{"Spike", "Small spike trap. Damages the player on contact.", true, true, '^', "spikes.png"},
+	{"Ladder", "The player climbs between vertically adjacent ladder cells and does not fall on them.", false, false,
+	 'H', "ladder.png"},
 	UNKNOWN,
-	{"Treasure", "Chest with an item on top. Interact to pick it up, the cell then becomes Empty.", true, true},
-	{"Ankh", "Level goal. Interact with it to win the game.", true, false}, // the statue hides a torch
-	{"Key", "Key on the floor, picked up on touch. Opens the gates of its colour.", true, true},
+	{"Treasure", "Chest with an item on top. Interact to pick it up, the cell then becomes Empty.", true, true, '$',
+	 "treasure.png"},
+	{"Ankh", "Level goal. Interact with it to win the game.", true, false, 'A', "ankh.png"}, // the statue hides a torch
+	{"Key", "Key on the floor, picked up on touch. Opens the gates of its colour.", true, true, '\0', "key.png"},
 	{"Gate",
 	 "Portcullis. Opens with the key of its colour or when a lever of its colour is pulled; a boss gate when the boss "
 	 "dies.",
-	 true, true},
-	{"Lever", "Interact to pull it. Opens every gate of the same colour.", true, true},
+	 true, true, '\0', "gate_lock.png"},
+	{"Lever", "Interact to pull it. Opens every gate of the same colour.", true, true, '/', "lever.png"},
 	{"RockFall",
 	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a wall "
 	 "above it.",
-	 true, true},
+	 true, true, 'v', "rockfall.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -92,30 +95,16 @@ char tileGlyph(const Tile& t) {
 		return isSolidStructure(t.structure) ? '#' : '.';
 	case Door:
 		return doorGlyph(t);
-	case Death:
-		return 'X';
 	case MonsterSpawn: {
 		const MonsterKind* kind = monsterKind(t.attr);
 		return kind != nullptr ? kind->glyph : UNKNOWN_MONSTER_GLYPH;
 	}
-	case Spike:
-		return '^';
-	case Ladder:
-		return 'H';
-	case Treasure:
-		return '$';
-	case Ankh:
-		return 'A';
 	case Key:
 		return isLockColour(t.attr) ? lockColour(t.attr).keyGlyph : 'q';
 	case Gate:
 		return isGateColour(t.attr) ? lockColour(t.attr).gateGlyph : 'Q';
-	case Lever:
-		return '/';
-	case RockFall:
-		return 'v';
 	default:
-		return '?';
+		return tileDef(t.type).glyph != '\0' ? tileDef(t.type).glyph : '?';
 	}
 }
 

@@ -2,30 +2,9 @@
 #include "../../src/world/items.h"
 #include "../../src/world/monster_kinds.h"
 #include <string>
-#include <array>
 #include <vector>
 
 namespace {
-
-// Icons under tools/editor/icons/ (make_icons.py), nullptr: drawn as a flat colour. Names and descriptions come from
-// the game's tile table (src/world/tile_defs.h).
-// By type number; 0 and 7 are no type.
-constexpr std::array<const char*, TILE_TYPE_COUNT> ICONS = {{
-	nullptr,
-	nullptr,
-	"gate.png",
-	"death.png",
-	"monster.png",
-	"spikes.png",
-	"ladder.png",
-	nullptr,
-	"treasure.png",
-	"ankh.png",
-	"key.png",
-	"gate_lock.png",
-	"lever.png",
-	"rockfall.png",
-}};
 
 struct Choice {
 	int number;
@@ -142,7 +121,7 @@ void checkUnused(FieldHint& hint, int number) {
 
 TileInfo tileInfo(int type) {
 	const TileDef& def = tileDef(type);
-	return {def.name, isTileType(type) ? ICONS[static_cast<size_t>(type)] : nullptr, def.description};
+	return {def.name, def.icon, def.description};
 }
 
 CellHint describeStructure(Structure s) {

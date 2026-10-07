@@ -16,9 +16,11 @@ constexpr int TILE_TYPE_COUNT = RockFall + 1; // type numbers 0 and 7 are free (
 
 struct TileDef {
 	const char* name;
-	const char* description; // the editor's hint panel
-	bool decals;			 // the back wall shows and is free: wall decals may go there (not in a wall cell)
-	bool torch;				 // a wall torch may hang there (not in a wall cell)
+	const char* description;	// the editor's hint panel
+	bool decals;				// the back wall shows and is free: wall decals may go there (not in a wall cell)
+	bool torch;					// a wall torch may hang there (not in a wall cell)
+	char glyph = '\0';			// tileGlyph; '\0': it depends on the attribute (doors, monsters, keys, gates)
+	const char* icon = nullptr; // the editor's, under tools/editor/icons/ (make_icons.py); nullptr: a flat colour
 };
 // Unknown types get a row that says so (the game treats them as open space).
 [[nodiscard]] const TileDef& tileDef(int type);

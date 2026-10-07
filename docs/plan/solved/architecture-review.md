@@ -29,7 +29,7 @@ Largest files: `test/scenario.cpp` (~1180), `ui/journal_view.cpp` (~1070), `ui/m
   the checker all live there. Split it?
 * Dependencies: which way do they point? Does `world/` know about `ui/` or `graphics/`? Draw the include graph.
 * Large files: split `journal_view`, `menu`, `inventory`, `scenario` by sub-screen or command?
-* Data in code vs data files: split off to [data-tables.draft.md](../data-tables.draft.md).
+* Data in code vs data files: split off to [data-tables.md](data-tables.md).
 * Per-kind `switch`es spread over many files: adding one monster or item kind touches how many places?
 * Game state: one owner, or spread over globals/singletons?
 * Tests: what is unit-testable without a window? What only runs as a scenario?
@@ -69,7 +69,7 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
    weapon: 9-11 places; a potion: ~11, with per-kind `switch`es (`potionGain`, `potionNote`, `weaponGrowthPercent`,
    `missileOf`) and implicit orders (save slots, HUD icon index, the mimic loot range ending at `Antidote`, hand-typed
    kind counts). Balance stats sit in `assets.cpp` (the file with the most churn: 57 commits in 60 days) next to model
-   loading, so they are not unit-testable. Covered by [data-tables](../data-tables.draft.md) (its scatter list is now
+   loading, so they are not unit-testable. Covered by [data-tables](data-tables.md) (its scatter list is now
    corrected).
 2. **Potion effects live in the inventory screen.** `Inventory::DrinkPotion` / `QuickDrink` (`ui/inventory.cpp:201-315`)
    apply gains to `PlayerStats`, play sounds and build the toast. Amulets and the resistance potion would land there
@@ -99,7 +99,7 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
 | # | Refactor | Cost | Gain for queued work |
 |---|---|---|---|
 | 1 | [item-effects-out-of-ui](item-effects-out-of-ui.md) | small | amulets, resistance potion land in the rules (done: in `PlayerStats`) |
-| 2 | [data-tables](../data-tables.draft.md): one row per monster / item kind | medium | every new monster, boss, weapon, potion, amulet; monster balance tuning |
+| 2 | [data-tables](data-tables.md): one row per monster / item kind | medium | every new monster, boss, weapon, potion, amulet; monster balance tuning |
 | 3 | [sim-unit-tests](sim-unit-tests.md): clock into the level lib, then rules out of the GL files | small first step, medium after | player stats, AI, scatter tested without a window; faster than scenarios |
 | 4 | [scenario-split](scenario-split.md) | small-medium | every feature adds scenario commands |
 

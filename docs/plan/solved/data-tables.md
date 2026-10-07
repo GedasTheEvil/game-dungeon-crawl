@@ -1,6 +1,6 @@
 # Data tables: one record per kind
 
-Status: draft 2026-10-07. Split off [architecture-review.md](solved/architecture-review.md).
+Status: done 2026-10-07 (code only, no gameplay change). Split off [architecture-review.md](architecture-review.md).
 
 ## Decision
 
@@ -27,11 +27,16 @@ Status: draft 2026-10-07. Split off [architecture-review.md](solved/architecture
   amulet types got their model name. `ITEM_KIND_COUNT` / `WEAPON_KIND_COUNT` come from the enum. Left as they are:
   `OLD_SLOTS` (a frozen old save format), the HUD icon atlas in `ItemKind` order (`tools/textures/hud_icons.py`),
   the missile models (per `MissileKind`, not per item).
-* Tiles: open.
+* **Tiles: done.** `TILES` was one row per type already; the fixed glyphs (`tileGlyph`) and the editor icons
+  (`ICONS` in `tools/editor/tile_info.cpp`) joined the row. The glyphs that depend on the attribute (doors,
+  monsters, keys, gates), the editor's attribute hints (`describeCell`) and the drawing switches are behaviour and
+  stay code.
+* Side effect: levelgen picks monsters and weapons in kind order now, so a seed gives other levels than before (same
+  odds).
 
 ## Today (before the monsters were done)
 
-Re-checked 2026-10-07 in the [architecture review](solved/architecture-review.md). One kind's data is spread over
+Re-checked 2026-10-07 in the [architecture review](architecture-review.md). One kind's data is spread over
 several tables in several files:
 
 * Monsters: `MONSTER_DEFS` (balance stats next to model paths), `BOSS_DEFS`, `RESISTANCE_DEFS`, `WADING_DEFS`,
@@ -51,7 +56,7 @@ several tables in several files:
 Cost today: a monster variant 4-6 places in 3 files, a weapon 9-11, a potion ~11, a tile ~10.
 
 So the problem is mostly the **scatter**, not the format. Moving the monster balance stats out of `assets.cpp` into the
-level library also makes them unit-testable and helps [monster balance](monster-balance.draft.md).
+level library also makes them unit-testable and helps [monster balance](../monster-balance.draft.md).
 
 ## Format comparison
 
@@ -65,6 +70,6 @@ level library also makes them unit-testable and helps [monster balance](monster-
 | Modding | no | yes |
 
 * Data files pay off with a concrete need: translations, modding, or tuning balance without rebuilds
-  ([monster-balance](monster-balance.draft.md)).
+  ([monster-balance](../monster-balance.draft.md)).
 * If data files: texts first (pure data, no behaviour). Keep enums for kinds in code, load by string id. A check
   (level checker or new one) validates the files.

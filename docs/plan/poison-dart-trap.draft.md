@@ -18,7 +18,14 @@ Monsters get a weight, and the plate goes off only under a heavy one.
 * Small monsters do not set it off: rats, scarabs, bats (bats fly anyway).
 * Large monsters do, and the arrows hit them. Cowards (`Courage::Coward`) do not step on traps, so in practice the
   reckless ones: mummies, the Anubis guard, the bosses.
-* Where it goes: a weight (or a "heavy" flag) in the monster row, `MonsterKind` in `src/world/monster_kinds.cpp`.
+* Weight is a tier, a small whole number, in the monster row (`MonsterKind::weight`,
+  `src/world/monster_kinds.cpp`):
+  * 0: flyers (bats), they never touch the floor;
+  * 1: small monsters (rats, scarabs);
+  * 2-3: large monsters;
+  * above 3 is fine and expected (bosses, later traps that need more weight).
+* The plate goes off at weight 2 and above. The player sets it off too, so the player counts as at least 2.
+* Other traps later may use the same tiers with their own threshold.
 * Does the plate count as a trap for the cowards' fear (they stop at its edge), or is it hidden from them?
 * Damage and poison on a monster: monsters cannot be poisoned yet. The venom amulet needs the same
   ([venom-amulet](venom-amulet.draft.md)); build monster poison once for both, or the arrows only hurt monsters.
@@ -30,7 +37,7 @@ Monsters get a weight, and the plate goes off only under a heavy one.
   of its own? How many arrows, how fast, how much damage on top of the poison.
 * Can the player dodge after the trigger (jump the arrow, duck behind something), or is every step a sure hit?
 * Once or every time: does the plate re-arm, and after how long?
-* Weights: which monsters count as heavy; a number with a threshold, or a flag.
+* Weights: the tier of each monster type; the player's own weight (2?).
 * Level format: a new tile type (`DungeonTileType`, a row in `TILES`, [data-tables](solved/data-tables.md)), its
   attribute and value (direction, wall cell).
 * Level checker: a plate on the only path means certain poison, so it wants an antidote in reach, as on levels with

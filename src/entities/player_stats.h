@@ -87,6 +87,9 @@ class PlayerStats {
 	// already the worn one's.
 	void Wear(const AmuletBonus& bonus, bool keepShare);
 	[[nodiscard]] int PoisonResistPercent() const { return amulet.poisonResistPercent; }
+	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
+	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
+	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }
 	// The share of a spike or death trap's damage the amulet lets through; the hundredths left over carry to the
 	// next hit, so the small spike hits are cut too (as Monster::StandInTrap).
 	int TrapDamage(int dmg);

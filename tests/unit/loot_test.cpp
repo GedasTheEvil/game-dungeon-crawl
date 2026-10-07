@@ -65,6 +65,7 @@ TEST_CASE("chests give lesser amulets, minor ones only deeper down, never regene
 	Rng rng(13);
 	int amulets = 0;
 	int minors = 0;
+	int venoms = 0; // the last type, after regeneration: the roll skips regeneration, not it
 	for (int level : {1, 10, 11, 30})
 		for (int i = 0; i < 4000; i++) {
 			std::optional<ItemKind> amulet = RollChestAmulet(level, rng);
@@ -73,6 +74,7 @@ TEST_CASE("chests give lesser amulets, minor ones only deeper down, never regene
 			amulets++;
 			const Amulet a = amuletOf(*amulet);
 			CHECK(a.type != AmuletType::Regeneration);
+			venoms += a.type == AmuletType::Venom ? 1 : 0;
 			CHECK((a.tier == AmuletTier::Lesser || a.tier == AmuletTier::Minor));
 			if (a.tier == AmuletTier::Minor) {
 				CHECK(level >= MINOR_AMULET_LEVEL);
@@ -84,6 +86,7 @@ TEST_CASE("chests give lesser amulets, minor ones only deeper down, never regene
 	CHECK(amulets < 1120);
 	CHECK(minors > 130);
 	CHECK(minors < 260);
+	CHECK(venoms > 60); // a ninth: about 107
 }
 
 TEST_CASE("an amulet chest holds only its amulet") {

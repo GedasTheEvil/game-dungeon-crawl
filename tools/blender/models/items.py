@@ -1,7 +1,7 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
 flight (arrow, sling stone), the potion flask, the treasure chest and the amulets (one per AmuletType, its tiers
-share it: amulet_strength, ..., amulet_regeneration).
+share it: amulet_strength, ..., amulet_regeneration, amulet_venom).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -47,7 +47,7 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
          "potion", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
-                                                          "pierce", "regeneration")]
+                                                          "pierce", "regeneration", "venom")]
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
@@ -698,6 +698,28 @@ def build_amulet_regeneration(b, M):
     b.add(rod((0, 0, -0.012), (0, 0, -0.03), 0.0022, n=6), M["gold"], "root")  # from the bail to the bloom
 
 
+def build_amulet_venom(b, M):
+    """Wadjet's uraeus in gold, from the front: the flared hood with a carnelian inlay and lapis bands, the head on
+    top, the tail coiled below the hood."""
+    amulet_cord(b, M)
+    b.add(ellipsoid((0, -0.002, -0.011), (0.0062, 0.0055, 0.0068), n=12, rings=5), M["gold"], "root")  # the head
+    for side in (-1, 1):
+        b.add(ellipsoid((side * 0.0028, -0.007, -0.0095), (0.0012, 0.001, 0.0012), n=6, rings=3), M["enamel"], "root")
+    hood = [(0.0, -0.011), (0.011, -0.014), (0.018, -0.022), (0.0175, -0.031), (0.011, -0.043), (0.0025, -0.053),
+            (-0.0025, -0.053), (-0.011, -0.043), (-0.0175, -0.031), (-0.018, -0.022), (-0.011, -0.014)]
+    b.add(slab(hood[::-1], 0.005), M["gold"], "root")
+    inlay = [(x * 0.62, -0.03 + (z + 0.03) * 0.7) for x, z in hood]
+    b.add(slab(inlay[::-1], 0.0016, (0, -0.0028, 0)), M["carnelian"], "root")
+    for k in range(3):
+        z = -0.024 - 0.0055 * k
+        w = 0.0055 - 0.001 * k
+        b.add(slab([(-w, z - 0.0012), (w, z - 0.0012), (w, z), (-w, z)][::-1], 0.0012, (0, -0.0037, 0)), M["blue"],
+              "root")
+    tail = [(-0.002, -0.05), (0.011, -0.056), (0.008, -0.066), (-0.006, -0.068), (-0.013, -0.061)]
+    b.add(tube([(V((x, 0, z)), 0.0042 - 0.0006 * k, 0.0036 - 0.0005 * k) for k, (x, z) in enumerate(tail)], sub=2, n=8,
+               ref=V((0, 1, 0))), M["gold"], "root")
+
+
 CHEST_W, CHEST_D, CHEST_H = 0.8, 0.46, 0.36  # box outside (without legs and lid)
 CHEST_LEG = 0.05
 CHEST_WALL = 0.025
@@ -832,6 +854,7 @@ BUILDERS = {
     "amulet_slash": build_amulet_slash,
     "amulet_pierce": build_amulet_pierce,
     "amulet_regeneration": build_amulet_regeneration,
+    "amulet_venom": build_amulet_venom,
 }
 
 

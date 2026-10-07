@@ -2,7 +2,7 @@
 # amulet keeps the HP's share of the max, the save keeps the worn one; trap warding cuts spike damage (grand: none);
 # regeneration heals 1 HP a second while no monster chases the player and no poison runs; poison warding wards off
 # some poisonings. The Amulets tab and the HUD slot.
-# Amulet ids (give amulet N): 0-3 strength, 4-7 armour, 8-11 health, 12-15 poison, 16-19 traps, 32-33 regeneration.
+# Amulet ids (give amulet N): 0-3 strength, 4-7 armour, 8-11 health, 12-15 poison, 16-19 traps, 32-33 regeneration, 34-37 venom.
 seed 1
 level tests/levels/empty_row
 wait 10

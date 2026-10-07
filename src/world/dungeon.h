@@ -63,6 +63,7 @@ class Dungeon {
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
 	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
+	void venomHit(Monster& mon);			  // the venom amulet's roll after a weapon hit
 	void rewardKill(Monster& mon);			  // the player killed it: journal, XP, maybe a weapon chest
 	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;

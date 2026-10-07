@@ -937,6 +937,9 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 		if (d % 2 == 1)
 			y -= ROW_STEP;
 	}
+	// In the free cell after PIERCE, once the venom amulet's poison was tried on it.
+	formField(handSmall, textX + FORM_COLUMN, y, "POISON",
+			  c.TriedPoison() ? poisonResistanceWord(t.poisonResistPercent) : "");
 }
 
 void JournalScreen::DrawFieldNote(const Rect& p, int index) {

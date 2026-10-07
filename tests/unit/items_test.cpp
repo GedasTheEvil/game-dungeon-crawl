@@ -236,7 +236,8 @@ TEST_CASE("an older save: 9 counts, then the map position") {
 }
 
 TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
-	CHECK(AMULET_KIND_COUNT == 8 * AMULET_TIER_COUNT + 2);
+	CHECK(AMULET_KIND_COUNT == 9 * AMULET_TIER_COUNT + 2);
+	CHECK(*amuletKind(AmuletType::Venom, AmuletTier::Lesser) == ItemKind::VenomLesser);
 	CHECK(isAmulet(ItemKind::StrengthLesser));
 	CHECK_FALSE(isPotion(ItemKind::StrengthLesser));
 	CHECK_FALSE(isWeapon(ItemKind::StrengthLesser));
@@ -261,6 +262,8 @@ TEST_CASE("amulet names and effects") {
 	CHECK(std::string(itemText(ItemKind::StrengthNormal).effect) == "Might +4 while worn");
 	CHECK(std::string(itemText(ItemKind::TrapWardGrand).effect) == "Immune to traps");
 	CHECK(std::string(itemText(ItemKind::HealthMinor).label) == "minor amulet of health");
+	CHECK(std::string(itemText(ItemKind::VenomGrand).effect) == "30% of hits poison (strong)");
+	CHECK(std::string(itemText(ItemKind::VenomLesser).label) == "lesser amulet of venom");
 }
 
 TEST_CASE("the bonus of each amulet") {
@@ -273,6 +276,12 @@ TEST_CASE("the bonus of each amulet") {
 	CHECK(amuletBonus(ItemKind::TrapWardGrand).trapCutPercent == 100);
 	CHECK(amuletBonus(ItemKind::RegenerationNormal).regenHpPerSecond == 1);
 	CHECK(amuletBonus(ItemKind::RegenerationGrand).regenHpPerSecond == 2);
+	CHECK(amuletBonus(ItemKind::VenomLesser).venomPercent == 10);
+	CHECK(amuletBonus(ItemKind::VenomLesser).venomTier == PoisonTier::Weak);
+	CHECK(amuletBonus(ItemKind::VenomNormal).venomTier == PoisonTier::Medium);
+	CHECK(amuletBonus(ItemKind::VenomGrand).venomPercent == 30);
+	CHECK(amuletBonus(ItemKind::VenomGrand).venomTier == PoisonTier::Strong);
+	CHECK(amuletBonus(ItemKind::StrengthGrand).venomPercent == 0);
 	const Resistances pierce = amuletBonus(ItemKind::PierceWardGrand).resist;
 	CHECK(pierce[static_cast<size_t>(DamageType::Pierce)] == 60);
 	CHECK(pierce[static_cast<size_t>(DamageType::Blunt)] == NORMAL);

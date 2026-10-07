@@ -74,9 +74,11 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().dungeon.PlayerSafe() ? 1.f : 0.f;
 	case Field::JournalTried: {
 		int known = 0;
-		for (const JournalCreature& c : Game().journal.Creatures())
+		for (const JournalCreature& c : Game().journal.Creatures()) {
 			for (int d = 0; d < DAMAGE_TYPE_COUNT; d++)
 				known += c.Tried(static_cast<DamageType>(d)) ? 1 : 0;
+			known += c.TriedPoison() ? 1 : 0;
+		}
 		return static_cast<float>(known);
 	}
 	case Field::JournalSolved: {

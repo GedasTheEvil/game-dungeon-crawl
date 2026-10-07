@@ -4,6 +4,7 @@
 // The items the player can carry, without rendering: shared by the game, the editor, levelgen and the unit tests.
 
 #include "damage.h"
+#include "poison.h"
 #include "rgb.h"
 #include <array>
 #include <cstdint>
@@ -68,8 +69,12 @@ enum class ItemKind : std::uint8_t {
 	PierceWardGrand,
 	RegenerationNormal, // regeneration has no lesser or minor tier
 	RegenerationGrand,
+	VenomLesser, // docs/plan/venom-amulet.md
+	VenomMinor,
+	VenomNormal,
+	VenomGrand,
 };
-constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::RegenerationGrand) + 1;
+constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::VenomGrand) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
@@ -229,8 +234,9 @@ enum class AmuletType : std::uint8_t {
 	SlashWard,
 	PierceWard,
 	Regeneration,
+	Venom, // the player's hits poison
 };
-constexpr int AMULET_TYPE_COUNT = 9;
+constexpr int AMULET_TYPE_COUNT = 10;
 enum class AmuletTier : std::uint8_t { Lesser, Minor, Normal, Grand };
 constexpr int AMULET_TIER_COUNT = 4;
 
@@ -252,6 +258,8 @@ struct AmuletBonus {
 	int poisonResistPercent = 0; // chance that a poisoned hit does not poison
 	int trapCutPercent = 0;		 // less spike and death trap damage; 100: immune
 	int regenHpPerSecond = 0;	 // while no monster chases the player and no poison runs
+	int venomPercent = 0;		 // chance that a weapon hit poisons the monster (Monster::TakePoison)
+	PoisonTier venomTier = PoisonTier::Weak;
 	Resistances resist = NO_RESISTANCES;
 };
 [[nodiscard]] AmuletBonus amuletBonus(std::optional<ItemKind> worn);

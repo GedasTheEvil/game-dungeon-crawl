@@ -283,6 +283,24 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	}
 	if (mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg))
 		rewardKill(mon);
+	else if (mix)
+		venomHit(mon);
+}
+//======================================================================================
+// The venom amulet: a weapon hit that did not kill may poison (docs/plan/venom-amulet.md).
+void Dungeon::venomHit(Monster& mon) {
+	const PlayerStats& stats = sim.player->stats;
+	if (stats.VenomPercent() <= 0 || !mon.Alive() || !sim.random->gameplay.percent(stats.VenomPercent()))
+		return;
+	const MonsterType& type = *mon.Type();
+	const bool took = mon.TakePoison(stats.VenomTier(), true, sim.random->gameplay);
+	if (sim.journal->TryPoison(type.id, levelNumber))
+		sim.events->Status("Journal: %s, %s", type.name,
+						   type.poisonResistPercent >= 100 ? "immune to poison"
+						   : type.poisonResistPercent > 0  ? "resists poison"
+														   : "no resistance to poison");
+	else if (took)
+		sim.events->Status("%s is poisoned", type.name);
 }
 //======================================================================================
 // A minion's XP depends on its boss (MinionXP). A mimic leaves its own chest, a minion none.

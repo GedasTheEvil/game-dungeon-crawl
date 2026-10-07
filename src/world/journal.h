@@ -54,9 +54,13 @@ struct JournalCreature {
 	bool killed = false; // name, description and HP
 	bool hitBy = false;	 // how hard it hits
 	unsigned moves = 0;	 // CreatureMove bits
-	unsigned tried = 0;	 // DamageType bits: hit with a weapon of that main type, its resistance is known
+	// DamageType bits: hit with a weapon of that main type, its resistance is known. TRIED_POISON: the venom amulet's
+	// poison tried on it, its poison resistance is known.
+	unsigned tried = 0;
+	static constexpr unsigned TRIED_POISON = 1U << DAMAGE_TYPE_COUNT;
 	[[nodiscard]] bool Saw(CreatureMove m) const { return (moves & (1U << static_cast<unsigned>(m))) != 0; }
 	[[nodiscard]] bool Tried(DamageType t) const { return (tried & (1U << static_cast<unsigned>(t))) != 0; }
+	[[nodiscard]] bool TriedPoison() const { return (tried & TRIED_POISON) != 0; }
 };
 
 // Field notes: the game's rules in the archaeologist's words, each written the first time it matters. A note covers
@@ -105,6 +109,8 @@ class Journal {
 	}
 	// Hit with a weapon of this main type. True the first time: a new note.
 	bool TryDamage(int type, int level, DamageType damage);
+	// Poisoned by the player (it took or not). True the first time: a new note.
+	bool TryPoison(int type, int level);
 	[[nodiscard]] const std::vector<JournalCreature>& Creatures() const { return creatures; }
 
 	// Written once; the notes keep the order they were learnt in.

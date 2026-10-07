@@ -66,6 +66,14 @@ bool Journal::TryDamage(int type, int level, DamageType damage) {
 	return true;
 }
 
+bool Journal::TryPoison(int type, int level) {
+	JournalCreature& c = creature(type, level);
+	if (c.TriedPoison())
+		return false;
+	c.tried |= JournalCreature::TRIED_POISON;
+	return true;
+}
+
 FieldNote damageNote(DamageType type) {
 	switch (type) {
 	case DamageType::Blunt:

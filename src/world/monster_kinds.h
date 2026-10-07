@@ -140,6 +140,11 @@ struct MonsterKind {
 	return kind != nullptr && kind->poison.has_value();
 }
 
+// How the journal writes a poison resistance down: "normal", "resists", "tough", "immune" (as resistanceWord).
+[[nodiscard]] constexpr const char* poisonResistanceWord(int percent) {
+	return percent <= 0 ? "normal" : percent <= 50 ? "resists" : percent < 100 ? "tough" : "immune";
+}
+
 constexpr char UNKNOWN_MONSTER_GLYPH = 'm';
 constexpr float UNKNOWN_MONSTER_THREAT = 2.f;
 

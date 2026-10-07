@@ -1,6 +1,6 @@
 # Poisoned monsters
 
-Status: done 2026-10-07, to be play-tested once a source poisons monsters (venom amulet, dart trap). Drafted 2026-10-07. Split off [venom-amulet](venom-amulet.draft.md) and
+Status: done 2026-10-07, to be play-tested with the [venom amulet](venom-amulet.md). Drafted 2026-10-07. Split off [venom-amulet](venom-amulet.md) and
 [poison-dart-trap](poison-dart-trap.draft.md): both need it, so it is built once, first.
 
 ## Idea
@@ -10,7 +10,7 @@ runs on the player so far (`PoisonTier`, `src/world/poison.h`).
 
 Used by:
 
-* [venom-amulet](venom-amulet.draft.md): the player's hits have a chance to poison.
+* [venom-amulet](venom-amulet.md): the player's hits have a chance to poison.
 * [poison-dart-trap](poison-dart-trap.draft.md): the plate's arrows poison a heavy monster that sets it off (medium).
 
 ## Rules
@@ -51,8 +51,7 @@ Used by:
 
 ## Left for later
 
-* Journal: the poison resistance on the creature page. Only once the player can poison (the
-  [venom amulet](venom-amulet.draft.md)): written down like a damage type, after the first try.
+* Journal: the poison resistance on the creature page: done with the [venom amulet](venom-amulet.md).
 * Unit tests: `Poison` is tested already; the monster side waits for
   [sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md).
 

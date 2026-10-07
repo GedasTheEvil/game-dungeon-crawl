@@ -438,8 +438,29 @@ def lotus(d, cx, cy):
     d.rectangle([cx - 14, cy + 70, cx + 14, cy + 160], fill=FAIENCE, outline=INK, width=LINE)
 
 
+def uraeus(d, cx, cy):
+    """Wadjet's rearing cobra in gold, from the front: the flared hood with a carnelian inlay and lapis bands, the head
+    on top, the tail coiled below."""
+    tail = [(cx - 10, cy + 130), (cx + 75, cy + 140), (cx + 50, cy + 168), (cx - 40, cy + 170), (cx - 75, cy + 150)]
+    d.line(tail, fill=INK, width=44, joint="curve")
+    d.line(tail, fill=GOLD, width=28, joint="curve")
+    # The model's outline (items.py build_amulet_venom), x and depth in mm.
+    shape = [(0, 11), (11, 14), (18, 22), (17.5, 31), (11, 43), (2.5, 53), (-2.5, 53), (-11, 43), (-17.5, 31),
+             (-18, 22), (-11, 14)]
+    hood = [(cx + 6 * x, cy - 165 + 6 * z) for x, z in shape]
+    d.polygon(hood, fill=GOLD, outline=INK, width=LINE)
+    inlay = [(cx + (x - cx) * 0.62, cy + 15 + (y - cy - 15) * 0.7) for x, y in hood]
+    d.polygon(inlay, fill=CARNELIAN, outline=INK, width=LINE)
+    for k in range(3):
+        y = cy - 15 + 32 * k
+        d.line([(cx - 34 + 7 * k, y), (cx + 34 - 7 * k, y)], fill=LAPIS, width=14)
+    d.ellipse([cx - 42, cy - 178, cx + 42, cy - 100], fill=GOLD, outline=INK, width=LINE)  # the head
+    for side in (-1, 1):
+        d.ellipse([cx + side * 18 - 8, cy - 148, cx + side * 18 + 8, cy - 132], fill=INK)
+
+
 # By AmuletType (src/world/items.h).
-AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus)]
+AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus)]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet).
 ICONS = [potion, amulet, ring, None, None, None, None, None,

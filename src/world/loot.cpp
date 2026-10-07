@@ -48,8 +48,11 @@ std::optional<ItemKind> RollChestAmulet(int level, Rng& rng) {
 	if (!rng.percent(CHEST_AMULET_CHANCE))
 		return std::nullopt;
 	const bool minor = level >= MINOR_AMULET_LEVEL && rng.percent(MINOR_AMULET_CHANCE);
-	// Every type but regeneration, the last one, has a lesser and a minor tier.
-	const auto type = static_cast<AmuletType>(rng.below(AMULET_TYPE_COUNT - 1));
+	// Every type but regeneration has a lesser and a minor tier.
+	int pick = rng.below(AMULET_TYPE_COUNT - 1);
+	if (pick >= static_cast<int>(AmuletType::Regeneration))
+		pick++;
+	const auto type = static_cast<AmuletType>(pick);
 	return amuletKind(type, minor ? AmuletTier::Minor : AmuletTier::Lesser);
 }
 

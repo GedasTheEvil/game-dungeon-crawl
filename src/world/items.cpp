@@ -251,8 +251,8 @@ constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 				amulets[static_cast<size_t>(i++)] = {static_cast<AmuletType>(type), static_cast<AmuletTier>(tier)};
 	return amulets;
 }();
-static_assert(AMULETS.back().type == AmuletType::Regeneration && AMULETS.back().tier == AmuletTier::Grand,
-			  "AMULETS ends with grand regeneration, the last ItemKind");
+static_assert(AMULETS.back().type == AmuletType::Venom && AMULETS.back().tier == AmuletTier::Grand,
+			  "AMULETS ends with grand venom, the last ItemKind");
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share.
 struct AmuletTypeDef {
@@ -328,7 +328,18 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Heals %d health a second when safe",
 	 "A faience lotus.",
 	 "It opens when all is calm."},
+	{"amulet_venom",
+	 {10, 15, 20, 30},
+	 "Venom",
+	 "Venom",
+	 "%d%% of hits poison (%s)",
+	 "Wadjet's rearing cobra.",
+	 "Your blade grows fangs."},
 }};
+// The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
+constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS = {PoisonTier::Weak, PoisonTier::Weak,
+																   PoisonTier::Medium, PoisonTier::Strong};
+constexpr const char* POISON_TIER_WORDS[POISON_TIER_COUNT] = {"weak", "medium", "strong"};
 constexpr const char* TIER_NUMERALS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 
 const AmuletTypeDef& typeDef(AmuletType type) { return AMULET_TYPES[static_cast<size_t>(type)]; }
@@ -368,6 +379,9 @@ struct AmuletTexts {
 			char effect[64];
 			if (a.type == AmuletType::TrapWard && amount(a) >= 100)
 				std::snprintf(effect, sizeof(effect), "Immune to traps");
+			else if (a.type == AmuletType::Venom)
+				std::snprintf(effect, sizeof(effect), def.effect, amount(a),
+							  POISON_TIER_WORDS[static_cast<size_t>(VENOM_TIERS[static_cast<size_t>(a.tier)])]);
 			else
 				std::snprintf(effect, sizeof(effect), def.effect, amount(a));
 			effects[i] = effect;
@@ -420,6 +434,10 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 		break;
 	case AmuletType::Regeneration:
 		bonus.regenHpPerSecond = n;
+		break;
+	case AmuletType::Venom:
+		bonus.venomPercent = n;
+		bonus.venomTier = VENOM_TIERS[static_cast<size_t>(a.tier)];
 		break;
 	}
 	return bonus;

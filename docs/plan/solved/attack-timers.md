@@ -1,6 +1,6 @@
 # Attack timers and weapon hotkeys per class
 
-Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, split from [egyptian-weapons.md](egyptian-weapons.md): needs no new weapons,
+Status: solved, play tested by the user 2026-10-07. Implemented 2026-10-07. Draft 2026-10-07, split from [egyptian-weapons.md](egyptian-weapons.md): needs no new weapons,
 works with today's club, sword, spear and bow, and comes before them.
 
 ## Attack timers
@@ -30,7 +30,7 @@ Today's weapons keep their timing, only split:
 
 ## Hotkeys per class
 
-Replaces the fixed keys of [weapon-hotkeys.md](solved/weapon-hotkeys.md) (`1` club, `2` sword, `3` spear, `4` bow):
+Replaces the fixed keys of [weapon-hotkeys.md](weapon-hotkeys.md) (`1` club, `2` sword, `3` spear, `4` bow):
 
 * `1` equips the next owned melee weapon, `2` the next owned ranged one, in inventory order, wrapping around.
 * The class's weapon not equipped yet: the key equips its first owned weapon of that class.

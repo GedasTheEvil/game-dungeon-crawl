@@ -1,4 +1,4 @@
-# Moving or sprinting does not cancel a recovery (docs/plan/attack-timers.md). The club: 300 ms frame delay, then
+# Moving or sprinting does not cancel a recovery (docs/plan/solved/attack-timers.md). The club: 300 ms frame delay, then
 # 600 ms recovery, so the next attack can begin 900 ms after the first, whatever the player does meanwhile.
 seed 1
 god

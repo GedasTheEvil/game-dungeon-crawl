@@ -129,7 +129,7 @@ wait 5
 screenshot bow_left_recover
 wait 70
 
-# the weapons added with docs/plan/egyptian-weapons.md: the same shots, from the scenario's equip command
+# the weapons added with docs/plan/solved/egyptian-weapons.md: the same shots, from the scenario's equip command
 give melee 3
 give melee 4
 give melee 5

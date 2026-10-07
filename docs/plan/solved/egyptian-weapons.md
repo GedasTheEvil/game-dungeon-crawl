@@ -1,13 +1,13 @@
 # More Egyptian weapons
 
-Status: implemented 2026-10-07, not play tested (see [Done](#done)). Draft 2026-10-06, refined 2026-10-07. Depends on [inventory-overhaul.md](solved/inventory-overhaul.md): the
+Status: solved, play tested by the user 2026-10-07 up to lvl10 (club, short sword, spear, self-bow, throwing stick). Implemented 2026-10-07 (see [Done](#done)). Draft 2026-10-06, refined 2026-10-07. Depends on [inventory-overhaul.md](inventory-overhaul.md): the
 weapons group passes the 8 slots of one tab page. Comes after [attack-timers.md](attack-timers.md): frame
 delay and recovery per weapon, hotkeys per class.
 
 ## Idea
 
 Ancient Egypt had many weapons. Put all of them from
-[screenshots/Egyptian-Weapons-Summary-Version-2.jpg](screenshots/Egyptian-Weapons-Summary-Version-2.jpg) into the game,
+[screenshots/Egyptian-Weapons-Summary-Version-2.jpg](../screenshots/Egyptian-Weapons-Summary-Version-2.jpg) into the game,
 except the war chariot. 13 weapons, 9 of them new: the weapons group fills two tab pages.
 
 ## Decisions
@@ -26,7 +26,7 @@ except the war chariot. 13 weapons, 9 of them new: the weapons group fills two t
 ## Roles
 
 Today's numbers (`ITEM_DEFS`, `src/state/assets.cpp`) for the kept weapons; the new ones are starting points beside
-them, tuned with [monster-balance.draft.md](monster-balance.draft.md).
+them, tuned with [monster-balance.draft.md](../monster-balance.draft.md).
 
 | Weapon | Status | Class | Mix blunt/slash/pierce | Damage | Reach (tenths) | Attack ms | Role |
 |---|---|---|---|---|---|---|---|
@@ -69,7 +69,7 @@ their own model, arc and wind-up motion.
 ## Campaign placement
 
 Weapons come in by depth, so the player keeps finding something new over the 30 levels
-([longer-campaign.md](longer-campaign.md)):
+([longer-campaign.md](../longer-campaign.md)):
 
 * Levels 1-5 (hand-made): club, dagger, short sword, self-bow, sling.
 * Middle: spear, khopesh, throwing stick, javelin, epsilon axe.
@@ -86,14 +86,14 @@ Each stage is committed and tested on its own.
    (model, arc, spin, the stick's return look). The weapons tab gets its second page here.
 3. **Melee family**: dagger, khopesh, epsilon axe, duckbill axe, mace.
 4. **Campaign**: chest placement by depth, levelcheck on all levels, balance pass with
-   [monster-balance.draft.md](monster-balance.draft.md).
+   [monster-balance.draft.md](../monster-balance.draft.md).
 
-Per new weapon: a Blender model ([../remodeling.md](../remodeling.md)), a `WEAPON_DEFS` row (mix, damage, reach,
+Per new weapon: a Blender model ([../remodeling.md](../../remodeling.md)), a `WEAPON_DEFS` row (mix, damage, reach,
 motion, sounds), `ItemKind` and `ItemText` entries, a file id, sounds.
 
 ## Open
 
-* Stamina cost per attack: none today; decide with [monster-balance.draft.md](monster-balance.draft.md).
+* Stamina cost per attack: none today; decide with [monster-balance.draft.md](../monster-balance.draft.md).
 * ~~The hand-made levels 1-5: which existing weapon chests swap to dagger or sling.~~ Lvl2 dagger, lvl3 sling
   (see Done).
 
@@ -127,8 +127,8 @@ Decided on the way (the user was away; easy to change):
 * **Bonus and mimic weapons.** A chest's bonus weapon and a mimic's weapon are now a weapon the player already holds,
   so a deep weapon never turns up early (13 weapons made the old "any weaker weapon" too wide).
 * **Inventory.** The weapons tab scrolls by rows (wheel, arrow keys, a thin bar), as planned in
-  [inventory-overhaul.md](solved/inventory-overhaul.md). The number row now picks the open tab's slots (the first 12):
-  with 21 items one key per item no longer fits. The rest of [inventory-keys.draft.md](inventory-keys.draft.md) stays
+  [inventory-overhaul.md](inventory-overhaul.md). The number row now picks the open tab's slots (the first 12):
+  with 21 items one key per item no longer fits. The rest of [inventory-keys.draft.md](../inventory-keys.draft.md) stays
   open.
 * **Reach.** The dagger's 0.1 tiles reaches a monster at bite distance (`melee_weapons.txt`).
 * Damage growth per level: the dagger 30%, the others 20% (club 40%, short sword 10% as before).
@@ -136,5 +136,5 @@ Decided on the way (the user was away; easy to change):
 Tests: `ranged_weapons.txt`, `melee_weapons.txt`, `weapons_held.txt` (every weapon in the fist), unit tests for the
 file ids, the old save and the loot.
 
-Still open: the balance pass with [monster-balance.draft.md](monster-balance.draft.md) (the new weapons only have the
+Still open: the balance pass with [monster-balance.draft.md](../monster-balance.draft.md) (the new weapons only have the
 starting numbers above), and the stamina cost per attack.

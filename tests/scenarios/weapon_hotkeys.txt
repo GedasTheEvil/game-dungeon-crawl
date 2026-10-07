@@ -1,4 +1,4 @@
-# Hotkeys per class (docs/plan/attack-timers.md): 1 equips the next melee weapon held, 2 the next ranged one, in
+# Hotkeys per class (docs/plan/solved/attack-timers.md): 1 equips the next melee weapon held, 2 the next ranged one, in
 # inventory order and wrapping round; the first of its class while the other class is in hand. None of that class
 # held, a free key (3, 4, a potion key), the inventory open (the key only selects there) and a swing or bow draw under
 # way leave the weapon in hand as it is.

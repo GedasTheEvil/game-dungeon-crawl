@@ -10,7 +10,8 @@ note already names stamina potions, Aphethamine, Stone Skin and the Elixir of Li
 
 Each note covers only what the player has met. Notes come in groups, and a whole group is learnt at once:
 
-**Potions:** one note per potion group, written the first time a potion of that group is drunk.
+**Potions:** one note per potion group, written the first time a potion of that group is picked up (decided
+2026-10-07: collected is enough, no need to drink it).
 
 | Group | Covers |
 |---|---|
@@ -39,9 +40,8 @@ note, whichever comes first, or into a note of its own.
 * The creature pages' resistance lines are already learnt per damage type (`journal_tried`). They match the weapon
   groups.
 
-## Open
+## Decided (2026-10-07)
 
-* Learnt on picking it up or on drinking it? Today the "Potions" note is written on the first drink. The user's
-  example ("if you bring a small health potion") reads like picking it up.
-* Save games: the field notes are a bit set (`FieldNote`, `src/world/journal.h`). New groups mean new bits. An old
-  save with "Potions" or "Weapons" set: keep those as all groups learnt, or learn them again.
+* A potion's note is written when it is picked up, not when it is drunk.
+* Old save games do not matter (they get removed): new `FieldNote` bits, no conversion of the old "Potions" /
+  "Weapons" bits.

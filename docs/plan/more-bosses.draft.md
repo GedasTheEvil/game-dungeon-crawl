@@ -1,27 +1,22 @@
 # More bosses
 
-Status: draft 2026-10-01. Split off [solved/boss-rooms.md](solved/boss-rooms.md).
+Status: draft 2026-10-01, cleaned up 2026-10-07. Split off [solved/boss-rooms.md](solved/boss-rooms.md).
 
-Three bosses are in, one every 5 levels: the boss scarab (lvl5), the vampire bat (lvl10) and the Anubis boss (lvl15).
-The boss framework (`BOSS_DEFS`, `Summon` kinds, boss gate, HUD bar, `levelcheck` rules) takes a new boss as a table
-row plus a model or texture.
+Six bosses are in, one every 5 levels of the [30-level campaign](longer-campaign.md): the boss scarab (lvl5), the
+vampire bat (lvl10), the [scorpion queen](scorpion-queen-boss.md) (lvl15), [Apep](apep-serpent-boss.md) (lvl20),
+[Sobek](sobek-boss.md) (lvl25) and the Anubis boss (lvl30, the last boss). The boss framework (`BOSS_DEFS`, `Summon`
+kinds, boss gate, HUD bar, `levelcheck` rules) takes a new boss as a table row plus a model or texture.
 
-Open:
+Every campaign boss slot is taken, so a new boss needs a new place.
 
-* Which other bosses, and where: more campaign levels, a mid-level boss between the current ones, or bosses in
-  generated levels (`levelgen` places none so far).
-* Each should summon its own way, like the sand, ceiling and coffin summons.
+## Open
 
-Picked (2026-10-05):
+* Where: a mid-level boss between the current ones, or bosses in generated levels (`levelgen` places none so far).
+* Each should summon its own way, like the sand, ceiling, coffin and egg summons (`Summon`, `src/entities/monster.h`).
 
-* [Scorpion queen](scorpion-queen-boss.md): before the Anubis boss, scorpion minions from egg clusters, poison
-  ([poison-and-antidote.md](solved/poison-and-antidote.md)).
-* [Apep serpent](apep-serpent-boss.md): dives between floor holes, cobra minions from baskets.
-* Placement: [longer-campaign.md](longer-campaign.md).
-
-Other candidates, not picked:
+## Candidates
 
 * Rat king: rats fused at the tails, reuses the rat model; rats tear loose at HP thresholds (a `Split` summon). Cheap
   boss for generated levels or a mid boss.
-* Sobek (crocodile): charges in a line, stunned when it hits a wall.
-* Sphinx: tied to the riddles, a right answer weakens it. A finale candidate.
+* Sphinx: tied to the riddles, a right answer weakens it. The Anubis boss stays the finale, so the sphinx would be a
+  mid boss or a guardian of a riddle room.

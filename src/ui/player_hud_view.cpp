@@ -39,6 +39,12 @@ PlayerHud::View playerHudView() {
 	view.slots[0].key = equipKeysCap();
 	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
 	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));
+	if (std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn()) {
+		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
+		const Amulet amulet = amuletOf(*worn);
+		view.slots[3].icon = PlayerHud::amuletIcon(amulet.type);
+		view.slots[3].badge = TIERS[static_cast<size_t>(amulet.tier)];
+	}
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
 	return view;

@@ -8,6 +8,7 @@
 #include "../core/gameplay_config.h"
 #include "../graphics/texture_registry.h"
 #include "../world/world_events.h"
+#include "../world/rng.h"
 #include <memory>
 
 struct JumpState {
@@ -64,7 +65,8 @@ class Player {
 	// health note.
 	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false);
 	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
-	void Poison(PoisonTier tier, WorldEvents& events);
+	// Poisons unless the worn amulet wards it off (PlayerStats::PoisonResistPercent, rolled on rng).
+	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
 	void UpdatePoison(); // once a tick: the running tiers' damage, which can kill
 	void Reanimate();	 // full HP, standing, no poison
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }

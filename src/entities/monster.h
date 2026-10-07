@@ -154,6 +154,7 @@ struct MonsterLinks {
 	Journal* journal = nullptr;
 	WorldEvents* events = nullptr;
 	int level = 1;
+	Rng* random = nullptr; // the gameplay stream: whether a poisoned bite poisons (the player's amulet)
 };
 
 // A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
@@ -278,6 +279,9 @@ class Monster {
 	// -1 / +1: the player is to the left / right on this row, 0: in reach (MONSTER_BITE_REACH or ROOTED_BITE_REACH
 	// between the boxes) or not on this row.
 	[[nodiscard]] int attackDirection(float px, float py) const;
+	// It has noticed the player, is awake and on their row, and can come at them (a rooted one: they are in its
+	// reach). The caller checks for walls between (Dungeon::PlayerSafe).
+	[[nodiscard]] bool Threatens(float px, float py) const;
 	// Walkers: one step toward the player on its row, slower or faster in half water (Wading); blocked: the cell in
 	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);

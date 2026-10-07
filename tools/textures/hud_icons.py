@@ -3,7 +3,8 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order, then from cell
+21 on the amulets by AmuletType. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -311,10 +312,139 @@ def ring():
     d.ellipse([cx - 62, 30, cx + 62, 130], fill=LAPIS, outline=INK, width=LINE)
     return img
 
-# Order = atlas cell = PlayerHud::Icon; None: an empty cell.
+# ---- the amulets, one per AmuletType: the cord of amulet(), a pendant of its own (tools/blender/models/amulets.py) ----
+BONE = (238, 228, 200, 255)
+BRONZE = (176, 120, 58, 255)
+CARNELIAN = (190, 52, 34, 255)
+TURQUOISE = (52, 168, 150, 255)
+FAIENCE = (70, 170, 110, 255)
+RED_JASPER = (160, 40, 40, 255)
+
+
+def pendant(draw):
+    """The cord loop, then draw(d, cx, cy): the pendant hanging at (cx, cy)."""
+    def fn():
+        img = Image.new("RGBA", (S, S))
+        d = ImageDraw.Draw(img)
+        cord = [(S / 2 + 150 * math.sin(a), 210 - 150 * math.cos(a))
+                for a in [math.pi * (i / 24 - 0.5) * 1.6 for i in range(25)]]
+        d.line(cord, fill=INK, width=26, joint="curve")
+        d.line(cord, fill=LEATHER, width=12, joint="curve")
+        draw(d, S / 2, 340)
+        return img
+    fn.__name__ = draw.__name__
+    return fn
+
+
+def tooth(d, cx, cy):
+    """A jackal's fang, point down, a gold cap at the root."""
+    pts = [(cx - 50, cy - 110), (cx + 50, cy - 110)]
+    pts += [(cx + 50 - 60 * (t / 10) ** 1.4 + 25 * math.sin(math.pi * t / 10), cy - 110 + 26 * t) for t in range(1, 11)]
+    pts += [(cx - 50 + 70 * (t / 10) ** 2.2, cy - 110 + 26 * t) for t in range(10, 0, -1)]
+    d.polygon(pts, fill=BONE, outline=INK, width=LINE)
+    d.rectangle([cx - 58, cy - 140, cx + 58, cy - 100], fill=GOLD, outline=INK, width=LINE)
+
+
+def scarab(d, cx, cy):
+    """A bronze scarab seen from above: head, thorax, the wing cases split down the middle."""
+    d.ellipse([cx - 95, cy - 70, cx + 95, cy + 140], fill=BRONZE, outline=INK, width=LINE)
+    d.ellipse([cx - 80, cy - 110, cx + 80, cy - 20], fill=BRONZE, outline=INK, width=LINE)
+    d.ellipse([cx - 45, cy - 150, cx + 45, cy - 95], fill=BRONZE, outline=INK, width=LINE)
+    d.line([(cx, cy - 20), (cx, cy + 138)], fill=INK, width=LINE)
+    for side in (-1, 1):
+        d.line([(cx + side * 70, cy - 60), (cx + side * 130, cy - 90)], fill=INK, width=14)
+        d.line([(cx + side * 85, cy + 30), (cx + side * 140, cy + 40)], fill=INK, width=14)
+
+
+def heart(d, cx, cy):
+    """The ib heart amulet: a carnelian jar with two lugs and a neck."""
+    d.ellipse([cx - 100, cy - 70, cx + 100, cy + 130], fill=CARNELIAN, outline=INK, width=LINE)
+    for side in (-1, 1):
+        d.ellipse([cx + side * 100 - 34, cy - 64, cx + side * 100 + 34, cy - 4], fill=CARNELIAN, outline=INK,
+                  width=LINE)
+    d.rectangle([cx - 48, cy - 130, cx + 48, cy - 64], fill=CARNELIAN, outline=INK, width=LINE)
+    d.rectangle([cx - 62, cy - 150, cx + 62, cy - 124], fill=GOLD, outline=INK, width=LINE)
+
+
+def scorpion(d, cx, cy):
+    """Serket's scorpion in gold, head up: claws forward, legs, the tail curled to one side."""
+    cy -= 40
+    for side in (-1, 1):
+        for k in range(3):
+            y = cy + 10 + 30 * k
+            d.line([(cx + side * 30, y), (cx + side * 105, y + 25)], fill=INK, width=12)
+        arm = [(cx + side * 30, cy - 20), (cx + side * 95, cy - 70), (cx + side * 75, cy - 115)]
+        d.line(arm, fill=INK, width=30)
+        d.line(arm, fill=GOLD, width=16)
+    tail = [(cx + 10, cy + 120), (cx + 50, cy + 150), (cx + 95, cy + 145), (cx + 120, cy + 110)]
+    for k, (x, y) in enumerate(tail):
+        r = 26 - 3 * k
+        d.ellipse([x - r, y - r, x + r, y + r], fill=GOLD, outline=INK, width=LINE)
+    d.polygon([(cx + 108, cy + 92), (cx + 140, cy + 70), (cx + 132, cy + 105)], fill=CARNELIAN, outline=INK,
+              width=LINE)
+    d.ellipse([cx - 45, cy - 50, cx + 45, cy + 125], fill=GOLD, outline=INK, width=LINE)
+
+
+def wedjat(d, cx, cy):
+    """The eye of Horus: lapis brow, the eye with its pupil, the falcon's cheek mark and spiral below."""
+    for path in ([(cx - 30, cy), (cx - 50, cy + 140)],
+                 [(cx + 40, cy)] + [(cx + 85 + (8 + 4 * t) * math.cos(t / 2.6), cy + 95 + (8 + 4 * t) * math.sin(t / 2.6))
+                                    for t in range(14, -1, -1)]):
+        d.line(path, fill=INK, width=30, joint="curve")
+        d.line(path, fill=LAPIS, width=16, joint="curve")
+    d.polygon([(cx - 140, cy - 40), (cx - 40, cy - 90), (cx + 80, cy - 80), (cx + 140, cy - 40), (cx + 60, cy + 20),
+               (cx - 60, cy + 20)], fill=WHITE, outline=INK, width=LINE)
+    d.ellipse([cx - 45, cy - 80, cx + 45, cy + 10], fill=LAPIS, outline=INK, width=LINE)
+    d.line([(cx - 150, cy - 110), (cx + 140, cy - 110)], fill=INK, width=30)
+    d.line([(cx - 150, cy - 110), (cx + 140, cy - 110)], fill=LAPIS, width=16)
+
+
+def djed(d, cx, cy):
+    """The djed pillar of Osiris in turquoise: a column with four bands at the top."""
+    d.rectangle([cx - 40, cy - 60, cx + 40, cy + 150], fill=TURQUOISE, outline=INK, width=LINE)
+    d.rectangle([cx - 70, cy + 130, cx + 70, cy + 160], fill=TURQUOISE, outline=INK, width=LINE)
+    for k in range(4):
+        y = cy - 140 + 30 * k
+        d.rectangle([cx - 90, y, cx + 90, y + 22], fill=TURQUOISE, outline=INK, width=LINE)
+
+
+def tyet(d, cx, cy):
+    """The knot of Isis in red jasper: a loop on top, arms hanging down, a long tied sash."""
+    d.ellipse([cx - 50, cy - 160, cx + 50, cy - 60], fill=RED_JASPER, outline=INK, width=LINE)
+    d.ellipse([cx - 20, cy - 130, cx + 20, cy - 90], fill=(0, 0, 0, 0), outline=INK, width=LINE)
+    for side in (-1, 1):
+        d.polygon([(cx, cy - 60), (cx + side * 120, cy - 30), (cx + side * 110, cy + 20), (cx + side * 30, cy - 10)],
+                  fill=RED_JASPER, outline=INK, width=LINE)
+    d.polygon([(cx - 30, cy - 50), (cx + 30, cy - 50), (cx + 60, cy + 160), (cx - 60, cy + 160)], fill=RED_JASPER,
+              outline=INK, width=LINE)
+
+
+def shen(d, cx, cy):
+    """The shen ring of eternity in gold: a rope circle tied to a bar below."""
+    d.ellipse([cx - 110, cy - 130, cx + 110, cy + 90], fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([cx - 64, cy - 84, cx + 64, cy + 44], fill=CARNELIAN, outline=INK, width=LINE)
+    d.rectangle([cx - 130, cy + 90, cx + 130, cy + 130], fill=GOLD, outline=INK, width=LINE)
+
+
+def lotus(d, cx, cy):
+    """A green faience lotus: a fan of petals on a short stalk."""
+    for k in range(5):
+        a = math.radians(-60 + 30 * k)
+        tip = (cx + 150 * math.sin(a), cy - 20 - 150 * math.cos(a))
+        side = (math.cos(a) * 38, math.sin(a) * 38)
+        d.polygon([(cx - side[0], cy + 40 - side[1]), tip, (cx + side[0], cy + 40 + side[1])], fill=FAIENCE,
+                  outline=INK, width=LINE)
+    d.ellipse([cx - 60, cy + 10, cx + 60, cy + 80], fill=FAIENCE, outline=INK, width=LINE)
+    d.rectangle([cx - 14, cy + 70, cx + 14, cy + 160], fill=FAIENCE, outline=INK, width=LINE)
+
+
+# By AmuletType (src/world/items.h).
+AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus)]
+
+# Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet).
 ICONS = [potion, amulet, ring, None, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
-         bow, composite_bow, sling, throwing_stick, javelin]
+         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

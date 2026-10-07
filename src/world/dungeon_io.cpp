@@ -103,7 +103,7 @@ void Dungeon::PickUp() {
 
 		// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
 		std::string found;
-		std::vector<ItemKind> loot = RollChestLoot(*placed, sim.items->Owned(), sim.random->gameplay);
+		std::vector<ItemKind> loot = RollChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay);
 		for (size_t i = 0; i < loot.size(); i++) {
 			sim.items->Find(loot[i], *sim.journal);
 			found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;

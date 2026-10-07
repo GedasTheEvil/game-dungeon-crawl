@@ -90,6 +90,9 @@ class Inventory {
 	// Equips the weapon like a click on its slot (scenario `equip`). False if it is not in hand afterwards (not
 	// held, a potion).
 	bool Equip(ItemKind weapon);
+	// Puts the amulet on like a click on its slot, or takes the worn one off (nullopt) (scenario `wear`). False if
+	// it is not held or not worn afterwards.
+	bool Wear(std::optional<ItemKind> amulet);
 	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
 	// left: nothing is drunk, the status box says why.
 	void QuickDrink(QuickKind kind);

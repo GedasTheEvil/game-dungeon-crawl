@@ -143,6 +143,13 @@ void Dungeon::UpdateMonsters() {
 	}
 }
 //======================================================================================
+bool Dungeon::PlayerSafe() const {
+	for (const Monster& mon : monsters)
+		if (mon.Threatens(mapX, mapY) && (mon.rooted() || clearRow(mon.CentreX(), mapX, mon.Row())))
+			return false;
+	return true;
+}
+//======================================================================================
 bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
 	const int side = mon.CentreX() < mapX ? 1 : -1;
 	for (int s : {side, -side}) {
@@ -308,5 +315,5 @@ void Dungeon::rewardKill(Monster& mon) {
 	sim.player->stats.AddXP(xp, *sim.events);
 	if (mon.Minion() || type.locomotion == Locomotion::Ambush)
 		return;
-	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), sim.random->gameplay));
+	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay));
 }

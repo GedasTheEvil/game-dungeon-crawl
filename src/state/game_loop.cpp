@@ -68,6 +68,7 @@ void tick() {
 
 	Game().player->stats.UpdateStamina(Game().events);
 	Game().player->UpdatePoison();
+	Game().player->stats.Regenerate(Game().dungeon.PlayerSafe(), UPDATE_TICK_MS);
 	Game().dungeon.AnimateMonsters();
 	Game().player->Animate();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());

@@ -15,20 +15,24 @@ class Font;
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
-constexpr ui::Rect PANEL = {1.5f, 1.5f, 53.f, 21.5f};
+constexpr ui::Rect PANEL = {1.5f, 1.5f, 58.f, 21.5f};
 
 // Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
 // inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon).
-enum class Icon : std::uint8_t { Potion, Amulet, Ring, FirstWeapon = 8, None = 0xff };
+enum class Icon : std::uint8_t { Potion, Amulet, Ring, FirstWeapon = 8, FirstAmulet = 21, None = 0xff };
 constexpr Icon weaponIcon(ItemKind weapon) {
 	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + itemIndex(weapon));
+}
+constexpr Icon amuletIcon(AmuletType type) {
+	return static_cast<Icon>(static_cast<int>(Icon::FirstAmulet) + static_cast<int>(type));
 }
 
 struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
 	ui::Color tint = {1, 1, 1};
 	int count = -1;			  // badge; < 0: none (the weapon)
-	std::string key;		  // the key cap under the slot (from the bindings)
+	std::string badge;		  // badge text instead of the count (the amulet's tier, I .. IV)
+	std::string key;		  // the key cap under the slot (from the bindings); empty: no cap (the amulet)
 	int flashAgeMs = 1000000; // since the last use (a quick drink), for the flash
 };
 
@@ -39,7 +43,7 @@ struct View {
 	float xpRatio = 0.f;					  // progress to the next level, 0..1
 	int keysHeld = 0;						  // bit (colour - 1) per key held
 	int levelKeys = 0;						  // bit (colour - 1) per key on the level: one socket each
-	Slot slots[3];							  // weapon, healing potion, stamina potion
+	Slot slots[4];							  // weapon, healing potion, stamina potion, worn amulet
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 };
 

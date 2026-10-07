@@ -17,10 +17,11 @@ constexpr ItemKind OLD_SLOTS[] = {ItemKind::Club,		  ItemKind::ShortSword,	  Ite
 								  ItemKind::SmallStamina, ItemKind::LargeStamina, ItemKind::Antidote};
 constexpr int OLD_SLOT_COUNT = 12;
 
-// The item a saved slot holds: a save with today's slot count is in ItemKind order, an older one in OLD_SLOTS order.
+// The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order (newer kinds were
+// added at the end), an older one in OLD_SLOTS order.
 std::optional<ItemKind> savedSlot(size_t slot, size_t slots) {
-	if (slots == ITEM_KIND_COUNT)
-		return itemAt(static_cast<int>(slot));
+	if (slots >= ORDERED_SAVE_SLOTS)
+		return slot < ITEM_KIND_COUNT ? std::optional(itemAt(static_cast<int>(slot))) : std::nullopt;
 	if (slot < OLD_SLOT_COUNT)
 		return OLD_SLOTS[slot];
 	return std::nullopt;
@@ -92,6 +93,7 @@ void ItemBag::Reset() {
 	for (int& level : levels)
 		level = 1;
 	equipped = ItemKind::Club;
+	worn.reset();
 }
 
 OwnedWeapons ItemBag::Owned() const {
@@ -114,6 +116,8 @@ UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 		return UseBlock::Dead;
 	if (Count(kind) <= 0)
 		return Found(kind) ? UseBlock::NoneLeft : UseBlock::NotFound;
+	if (isAmulet(kind)) // put on, or taken off when worn
+		return UseBlock::None;
 	if (kind == equipped)
 		return UseBlock::Equipped;
 	if (heals(kind) && player.hp >= player.maxHp)
@@ -130,13 +134,15 @@ bool ItemBag::Use(ItemKind kind, const Vitals& player) {
 		return false;
 	if (isPotion(kind))
 		counts[itemIndex(kind)]--;
+	else if (isAmulet(kind))
+		worn = worn == kind ? std::nullopt : std::optional(kind);
 	else
 		equipped = kind;
 	return true;
 }
 
 bool ItemBag::CanUpgrade(ItemKind kind, bool alive) const {
-	return !isPotion(kind) && alive && Level(kind) < MAX_WEAPON_LEVEL && Count(kind) >= upgradeCost(Level(kind));
+	return isWeapon(kind) && alive && Level(kind) < MAX_WEAPON_LEVEL && Count(kind) >= upgradeCost(Level(kind));
 }
 
 bool ItemBag::Upgrade(ItemKind kind, bool alive) {
@@ -154,7 +160,7 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV3 " << ITEM_KIND_COUNT << " ";
+	out << "INV4 " << ITEM_KIND_COUNT << " ";
 	for (int count : counts)
 		out << count << " ";
 	for (int level : levels)
@@ -162,7 +168,9 @@ void ItemBag::Save(std::ostream& out) const {
 	for (bool f : found)
 		out << (f ? 1 : 0) << " ";
 	ItemFileId id = fileIdOf(equipped);
-	out << id.type << " " << id.id << "\n";
+	out << id.type << " " << id.id << " ";
+	const ItemFileId on = worn ? fileIdOf(*worn) : ItemFileId{ItemType::EMPTY, 0};
+	out << on.type << " " << on.id << "\n";
 }
 
 void ItemBag::Load(std::istream& in) {
@@ -177,8 +185,10 @@ void ItemBag::Load(std::istream& in) {
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	bool hasFound = tok == "INV3";
-	if (tok == "INV2" || tok == "INV3") {
+	bool hasFound = tok == "INV3" || tok == "INV4";
+	int wornType = ItemType::EMPTY;
+	int wornId = 0;
+	if (tok == "INV2" || tok == "INV3" || tok == "INV4") {
 		int slots = 0;
 		in >> slots;
 		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
@@ -200,6 +210,8 @@ void ItemBag::Load(std::istream& in) {
 					found[itemIndex(*kind)] = saved[slot] != 0;
 		}
 		in >> type >> id;
+		if (tok == "INV4")
+			in >> wornType >> wornId;
 	} else {
 		counts[itemIndex(OLD_SLOTS[0])] = std::stoi(tok);
 		for (int slot = 1; slot < LEGACY_SLOT_COUNT; slot++)
@@ -223,11 +235,15 @@ void ItemBag::Load(std::istream& in) {
 		found[slot] = found[slot] || counts[slot] > 0;
 
 	std::optional<ItemKind> kind = itemFromFile(type, id);
-	equipped = kind && !isPotion(*kind) ? *kind : ItemKind::Club;
+	equipped = kind && isWeapon(*kind) ? *kind : ItemKind::Club;
+	std::optional<ItemKind> on = itemFromFile(wornType, wornId);
+	worn = on && isAmulet(*on) && counts[itemIndex(*on)] > 0 ? on : std::nullopt;
 }
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {
 	Add(kind);
+	if (isAmulet(kind)) // no journal note yet
+		return;
 	if (isPotion(kind)) {
 		journal.LearnNote(potionNote(kind));
 		return;

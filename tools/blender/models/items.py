@@ -1,6 +1,7 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
-flight (arrow, sling stone), the potion flask and the treasure chest.
+flight (arrow, sling stone), the potion flask, the treasure chest and the amulets (one per AmuletType, its tiers
+share it: amulet_strength, ..., amulet_regeneration).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -45,7 +46,8 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
-         "potion", "chest"]
+         "potion", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
+                                                          "pierce", "regeneration")]
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
@@ -95,6 +97,11 @@ COL = {
     "stone_dark": (0.28, 0.27, 0.25),
     "flax": (0.66, 0.52, 0.36),
     "flax_dark": (0.44, 0.32, 0.20),
+    "carnelian": (0.60, 0.11, 0.05),
+    "jasper": (0.42, 0.06, 0.05),
+    "turquoise": (0.10, 0.50, 0.42),
+    "faience": (0.16, 0.48, 0.26),
+    "faience_dark": (0.07, 0.26, 0.13),
 }
 
 
@@ -136,6 +143,10 @@ def materials():
         "bark": stripes("u", 1 / 5, [(3, "bark"), (1, "bark_dark")], "LINEAR"),
         "stone": stripes("v", 0.02, [(3, "stone"), (1, "stone_dark")], "LINEAR"),
         "flax": stripes("v", 0.008, [(2, "flax"), (1, "flax_dark")]),
+        "carnelian": ("solid", "carnelian"),
+        "jasper": ("solid", "jasper"),
+        "turquoise": ("solid", "turquoise"),
+        "faience": stripes("v", 0.01, [(3, "faience"), (1, "faience_dark")], "LINEAR"),
     }
     return {name: common.make_material("item_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -554,6 +565,139 @@ def build_potion(b, M):
         b.add(tube([(p, 0.0022, 0.0022) for p in pts], sub=2, n=6, ref=V((0, 0, 1))), M["cord"], "root")
 
 
+# ---------------------------------------------------------------- amulets
+# A short cord loop (stylised: it reads in the inventory slot) with a gold bail and a pendant of its own, all in the
+# x-z plane facing the camera (-Y), thickness along y. The pendant hangs from z = 0 down; the loop rises above it.
+AMULET_LOOP_W, AMULET_LOOP_H = 0.06, 0.06
+
+
+def slab(pts, thick, loc=(0, 0, 0)):
+    """Convex polygon pts (x, z) as a plate thick along y, centred on y = 0, moved by loc."""
+    return place(place(prism(pts, thick), rot(x=90), (0, thick / 2, 0)), None, loc)
+
+
+def amulet_cord(b, M):
+    pts = []
+    for k in range(24):
+        a = 2 * math.pi * k / 24
+        # A drop: wide at the top, pinched where it meets the bail.
+        x = AMULET_LOOP_W / 2 * math.sin(a) * (0.55 + 0.45 * (1 - math.cos(a)) / 2)
+        z = 0.012 + AMULET_LOOP_H * (1 - math.cos(a)) / 2
+        pts.append(V((x, 0.0, z)))
+    b.add(tube([(p, 0.0028, 0.0028) for p in pts], sub=2, n=6, ref=V((0, 1, 0)), closed=True), M["leather"], "root")
+    b.add(ellipsoid((0, 0, 0.006), (0.0075, 0.0055, 0.0085), n=10, rings=5), M["gold"], "root")  # the bail
+
+
+def build_amulet_strength(b, M):
+    """A jackal's fang, point down and curved, in a gold cap."""
+    amulet_cord(b, M)
+    keys = []
+    for k in range(9):
+        t = k / 8
+        keys.append((V((0.012 * math.sin(t * 1.9) - 0.004, 0, -0.008 - 0.055 * t)), 0.0085 * (1 - t) ** 0.8 + 0.0008,
+                     0.0065 * (1 - t) ** 0.8 + 0.0008))
+    b.add(tube(keys, sub=2, n=10, ref=V((0, 1, 0))), M["ivory"], "root")
+    band(b, M["gold"], -0.009, 0.0095, 0.007, n=12)
+
+
+def build_amulet_armor(b, M):
+    """A bronze scarab seen from above: wing cases split down the middle, thorax, head, six legs."""
+    amulet_cord(b, M)
+    b.add(ellipsoid((0, 0, -0.045), (0.022, 0.009, 0.026), n=14, rings=6), M["bronze_plain"], "root")
+    b.add(ellipsoid((0, 0, -0.018), (0.018, 0.008, 0.009), n=12, rings=5), M["bronze_plain"], "root")
+    b.add(ellipsoid((0, 0, -0.006), (0.009, 0.006, 0.006), n=10, rings=4), M["bronze_dark"], "root")
+    b.add(slab([(-0.0009, -0.068), (0.0009, -0.068), (0.0009, -0.025), (-0.0009, -0.025)], 0.004, (0, -0.0075, 0)),
+          M["bronze_dark"], "root")  # the split between the wing cases
+    for side in (-1, 1):
+        for z0, z1 in ((-0.02, -0.012), (-0.04, -0.036), (-0.058, -0.068)):
+            b.add(rod((side * 0.016, 0, z0), (side * 0.03, 0, z1), 0.0018, n=6), M["bronze_dark"], "root")
+
+
+def build_amulet_health(b, M):
+    """The ib heart amulet in carnelian: a round jar with two lugs, a neck and a gold rim."""
+    amulet_cord(b, M)
+    b.add(ellipsoid((0, 0, -0.04), (0.02, 0.011, 0.023), n=14, rings=6), M["carnelian"], "root")
+    for side in (-1, 1):
+        b.add(ellipsoid((side * 0.02, 0, -0.026), (0.006, 0.005, 0.006), n=8, rings=4), M["carnelian"], "root")
+    b.add(rod((0, 0, -0.021), (0, 0, -0.011), 0.0085, n=12), M["carnelian"], "root")
+    band(b, M["gold"], -0.011, 0.0105, 0.004, n=12)
+
+
+def build_amulet_poison(b, M):
+    """Serket's scorpion in gold, head up: claws, legs, the tail curled to the side."""
+    amulet_cord(b, M)
+    b.add(ellipsoid((0, 0, -0.035), (0.011, 0.006, 0.022), n=12, rings=6), M["gold"], "root")
+    for side in (-1, 1):
+        b.add(rod((side * 0.007, 0, -0.02), (side * 0.02, 0, -0.008), 0.0022, n=6), M["gold"], "root")
+        b.add(ellipsoid((side * 0.022, 0, -0.004), (0.0045, 0.003, 0.006), n=8, rings=4), M["gold"], "root")
+        for k in range(3):
+            z = -0.028 - 0.008 * k
+            b.add(rod((side * 0.008, 0, z), (side * 0.021, 0, z - 0.006), 0.0013, n=5), M["gold_band"], "root")
+    tail = [(0.002, -0.058), (0.01, -0.067), (0.021, -0.068), (0.028, -0.06), (0.029, -0.05)]
+    for k, (x, z) in enumerate(tail):
+        r = 0.0055 - 0.0006 * k
+        b.add(ellipsoid((x, 0, z), (r, r * 0.8, r), n=8, rings=4), M["gold"], "root")
+    b.add(cone(V((0.029, 0, -0.046)), V((-0.5, 0, 1)), 0.009, 0.003), M["carnelian"], "root")  # the sting
+
+
+def build_amulet_traps(b, M):
+    """The eye of Horus: the eye in white with a lapis pupil, the brow, the cheek mark and the spiral."""
+    amulet_cord(b, M)
+    b.add(ellipsoid((0, 0, -0.025), (0.026, 0.011, 0.004), n=16, rings=5, axis=V((0, -1, 0)), ref=V((0, 0, 1))),
+          M["ivory"], "root")
+    b.add(ellipsoid((0, -0.002, -0.025), (0.009, 0.009, 0.004), n=12, rings=5, axis=V((0, -1, 0)), ref=V((0, 0, 1))),
+          M["blue"], "root")
+    b.add(rod((-0.03, 0, -0.008), (0.028, 0, -0.008), 0.0028, n=6), M["blue"], "root")
+    b.add(rod((-0.005, 0, -0.035), (-0.009, 0, -0.065), 0.0026, n=6), M["blue"], "root")
+    spiral = [V((0.012 + (0.002 + 0.0012 * t) * math.cos(t / 2.4 + 1.2), 0, -0.048 + (0.002 + 0.0012 * t) * math.sin(t / 2.4 + 1.2)))
+              for t in range(12, -1, -1)]
+    b.add(tube([(V((0.008, 0, -0.035)), 0.0024, 0.0024)] + [(p, 0.0024, 0.0024) for p in spiral], sub=2, n=6,
+               ref=V((0, 1, 0))), M["blue"], "root")
+
+
+def build_amulet_blunt(b, M):
+    """The djed pillar of Osiris in turquoise: a column with four bands at the top, on a foot."""
+    amulet_cord(b, M)
+    b.add(slab([(-0.008, -0.068), (0.008, -0.068), (0.008, -0.026), (-0.008, -0.026)], 0.008), M["turquoise"], "root")
+    b.add(slab([(-0.014, -0.073), (0.014, -0.073), (0.014, -0.066), (-0.014, -0.066)], 0.01), M["turquoise"], "root")
+    for k in range(4):
+        z = -0.009 - 0.0055 * k
+        b.add(slab([(-0.019, z - 0.0035), (0.019, z - 0.0035), (0.019, z), (-0.019, z)], 0.01), M["turquoise"], "root")
+
+
+def build_amulet_slash(b, M):
+    """The knot of Isis (tyet) in red jasper: a loop on top, arms hanging down, a long sash."""
+    amulet_cord(b, M)
+    ring = [V((0.0085 * math.sin(2 * math.pi * k / 16), 0, -0.016 + 0.0085 * math.cos(2 * math.pi * k / 16))) for k in range(16)]
+    b.add(tube([(p, 0.0032, 0.0032) for p in ring], sub=2, n=6, ref=V((0, 1, 0)), closed=True), M["jasper"], "root")
+    for side in (-1, 1):
+        arm = [(0, -0.026), (side * 0.024, -0.026), (side * 0.022, -0.036), (side * 0.002, -0.034)]
+        b.add(slab(arm if side > 0 else arm[::-1], 0.007), M["jasper"], "root")
+    b.add(slab([(-0.006, -0.026), (0.006, -0.026), (0.013, -0.072), (-0.013, -0.072)], 0.008), M["jasper"], "root")
+
+
+def build_amulet_pierce(b, M):
+    """The shen ring in gold: a rope ring tied to a bar, a carnelian disc in it."""
+    amulet_cord(b, M)
+    ring = [V((0.019 * math.sin(2 * math.pi * k / 24), 0, -0.03 + 0.019 * math.cos(2 * math.pi * k / 24))) for k in range(24)]
+    b.add(tube([(p, 0.0045, 0.0045) for p in ring], sub=2, n=8, ref=V((0, 1, 0)), closed=True), M["gold"], "root")
+    b.add(rod((0, -0.003, -0.03), (0, 0.003, -0.03), 0.0145, n=16), M["carnelian"], "root")
+    b.add(slab([(-0.024, -0.058), (0.024, -0.058), (0.024, -0.05), (-0.024, -0.05)], 0.008), M["gold"], "root")
+
+
+def build_amulet_regeneration(b, M):
+    """A green faience lotus: a fan of petals on a cup and a short stalk."""
+    amulet_cord(b, M)
+    for k in range(5):
+        a = math.radians(-56 + 28 * k)
+        d = V((math.sin(a), 0, math.cos(a)))
+        c = V((0, 0, -0.045)) + d * 0.018
+        b.add(ellipsoid(c, (0.0065, 0.003, 0.016), n=10, rings=5, axis=d, ref=V((0, 1, 0))), M["faience"], "root")
+    b.add(ellipsoid((0, 0, -0.047), (0.012, 0.007, 0.007), n=12, rings=5), M["faience"], "root")
+    b.add(rod((0, 0, -0.052), (0, 0, -0.072), 0.0028, n=8), M["faience"], "root")
+    b.add(rod((0, 0, -0.012), (0, 0, -0.03), 0.0022, n=6), M["gold"], "root")  # from the bail to the bloom
+
+
 CHEST_W, CHEST_D, CHEST_H = 0.8, 0.46, 0.36  # box outside (without legs and lid)
 CHEST_LEG = 0.05
 CHEST_WALL = 0.025
@@ -679,6 +823,15 @@ BUILDERS = {
     "sling_stone": build_sling_stone,
     "potion": build_potion,
     "chest": build_chest,
+    "amulet_strength": build_amulet_strength,
+    "amulet_armor": build_amulet_armor,
+    "amulet_health": build_amulet_health,
+    "amulet_poison": build_amulet_poison,
+    "amulet_traps": build_amulet_traps,
+    "amulet_blunt": build_amulet_blunt,
+    "amulet_slash": build_amulet_slash,
+    "amulet_pierce": build_amulet_pierce,
+    "amulet_regeneration": build_amulet_regeneration,
 }
 
 

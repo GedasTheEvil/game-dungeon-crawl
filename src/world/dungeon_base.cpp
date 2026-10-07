@@ -154,7 +154,7 @@ bool Dungeon::inTrap(float x, float y) const {
 // Only walkers on the ground stand in a trap: flyers pass over, a leaper is in the air.
 void Dungeon::updateTraps() {
 	if (inTrap(mapX, mapY))
-		if (const int dmg = trapHurt.hit(); dmg > 0)
+		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0)
 			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&

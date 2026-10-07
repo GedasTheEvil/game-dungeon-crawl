@@ -1,6 +1,7 @@
 # Amulets
 
-Status: draft 2026-10-06. Split off [resistance-potion.draft.md](resistance-potion.draft.md).
+Status: implemented 2026-10-07, waiting for the user's check. Split off
+[resistance-potion.draft.md](resistance-potion.draft.md). See [Done](#done).
 
 ## Idea
 
@@ -67,6 +68,20 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
   a bronze scarab, health a carnelian heart (ib), poison a scorpion (Serket), traps the eye of Horus, blunt the djed
   pillar, slash the tyet knot, pierce the shen ring, regeneration a green lotus.
 * No journal note yet.
+
+## Done
+
+* Kinds: `ItemKind` `StrengthLesser` .. `RegenerationGrand` (34, after the potions; `AmuletType`, `AmuletTier`,
+  `amuletOf`, `amuletKind`, `amuletBonus` in `src/world/items.h`). Level files and saves: item type 4 (`ItemType::AMULET`),
+  id = the place among the amulets. Saves: `INV4` adds the worn amulet; older saves load (`ORDERED_SAVE_SLOTS`).
+* Rules: `ItemBag::Use` puts on / takes off (`Worn`); `PlayerStats::Wear` applies the bonus (might, armour, max HP with
+  the HP share kept, resistances), `TrapDamage` (with a hundredths carry), `Regenerate` (per tick, while
+  `Dungeon::PlayerSafe`: no `Monster::Threatens` with a clear row, no poison), `Player::Poison` rolls the ward on the
+  gameplay stream. Loot: `RollChestAmulet`, `RollBossAmulet` (`src/world/loot.h`).
+* UI: the Amulets tab (Wear / Take off, effect text, "Worn now"), the HUD's fourth slot with the type icon and the tier
+  numeral, `sounds/items/amulet.wav` (`tools/audio/amulet_sound.py`).
+* Models: `items.py` `amulet_<type>`; icons in `hud_icons.py` (cells 21-29).
+* Tests: `tests/unit/items_test.cpp`, `loot_test.cpp`; `tests/scenarios/amulets.txt`.
 
 ## Open
 

@@ -6,7 +6,7 @@ Status: done 2026-10-07 (refactor, no game change). From the [architecture revie
 
 `Inventory::DrinkPotion` and `QuickDrink` / `QuickDrinkMs` (`src/ui/inventory.cpp:201-315`) are game rules in a
 screen: they apply potion gains to `PlayerStats`, run the quick-drink cooldown, play the sound and build the toast
-text. The HUD and the hotkeys reach them through the inventory. Amulets ([amulets](../amulets.draft.md)) and the
+text. The HUD and the hotkeys reach them through the inventory. Amulets ([amulets](../amulets.md)) and the
 [resistance potion](../resistance-potion.draft.md) would add more rules there.
 
 ## Idea

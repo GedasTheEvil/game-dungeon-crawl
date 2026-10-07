@@ -100,15 +100,16 @@ void PlayerStats::RefuseStamina(WorldEvents& events) {
 
 float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
 
-float PlayerStats::HealthRatio() const { return ratioOf(HP, MaxHP); }
+float PlayerStats::HealthRatio() const { return ratioOf(HP, CurrentMaxHP()); }
 
 void PlayerStats::Heal(int hpPart) {
-	if (HP == MaxHP)
+	const int max = CurrentMaxHP();
+	if (HP == max)
 		return;
 
-	float heal = static_cast<float>(hpPart * MaxHP) / static_cast<float>(100.0);
-	if (static_cast<float>(HP) + heal > static_cast<float>(MaxHP))
-		HP = MaxHP;
+	float heal = static_cast<float>(hpPart * max) / static_cast<float>(100.0);
+	if (static_cast<float>(HP) + heal > static_cast<float>(max))
+		HP = max;
 	else
 		HP = static_cast<int>(heal + static_cast<float>(HP));
 }
@@ -116,7 +117,7 @@ void PlayerStats::Heal(int hpPart) {
 void PlayerStats::AddArmor(int na) { Armor += na; }
 
 int PlayerStats::HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const {
-	return playerHitDamage(dmg, mix, resist, Armor, ignoreArmor);
+	return playerHitDamage(dmg, mix, resist, CurrentArmor(), ignoreArmor);
 }
 
 bool PlayerStats::AdvanceLevel(WorldEvents& events) {
@@ -132,7 +133,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 		Might++;
 
 	MaxHP += HP_PER_LEVEL;
-	HP = MaxHP;
+	HP = CurrentMaxHP();
 	poison.Cure(); // a new level heals fully, poison too
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
@@ -146,7 +147,33 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 void PlayerStats::AddMaxHP(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
-	HP = MaxHP;
+	HP = CurrentMaxHP();
+}
+
+void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
+	const int oldMax = CurrentMaxHP();
+	amulet = bonus;
+	resist = bonus.resist;
+	regen_carry_ms = 0;
+	if (keepShare && HP > 0 && oldMax > 0)
+		HP = std::clamp(static_cast<int>(std::lround(static_cast<double>(HP) * CurrentMaxHP() / oldMax)), 1,
+						CurrentMaxHP());
+}
+
+int PlayerStats::TrapDamage(int dmg) {
+	const int hundredths = dmg * (100 - amulet.trapCutPercent) + trap_carry;
+	trap_carry = hundredths % 100;
+	return hundredths / 100;
+}
+
+void PlayerStats::Regenerate(bool safe, int tickMs) {
+	if (amulet.regenHpPerSecond <= 0 || !safe || poison.Any() || !Alive() || HP >= CurrentMaxHP()) {
+		regen_carry_ms = 0;
+		return;
+	}
+	regen_carry_ms += tickMs * amulet.regenHpPerSecond;
+	HP = std::min(CurrentMaxHP(), HP + regen_carry_ms / 1000);
+	regen_carry_ms %= 1000;
 }
 
 std::string PlayerStats::Drink(const PotionGain& gain) {

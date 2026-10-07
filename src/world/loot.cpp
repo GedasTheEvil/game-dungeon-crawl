@@ -39,8 +39,31 @@ std::optional<ItemKind> pickOwned(const OwnedWeapons& owned, int grades, Rng& rn
 }
 } // namespace
 
-std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, Rng& rng) {
+std::optional<ItemKind> RollChestAmulet(int level, Rng& rng) {
+	if (!rng.percent(CHEST_AMULET_CHANCE))
+		return std::nullopt;
+	const bool minor = level >= MINOR_AMULET_LEVEL && rng.percent(MINOR_AMULET_CHANCE);
+	// Every type but regeneration, the last one, has a lesser and a minor tier.
+	const auto type = static_cast<AmuletType>(rng.below(AMULET_TYPE_COUNT - 1));
+	return amuletKind(type, minor ? AmuletTier::Minor : AmuletTier::Lesser);
+}
+
+ItemKind RollBossAmulet(int level, Rng& rng) {
+	const bool grand = rng.percent(BOSS_GRAND_PERCENT_PER_LEVEL * level);
+	const auto type = static_cast<AmuletType>(rng.below(AMULET_TYPE_COUNT));
+	return amuletKind(type, grand ? AmuletTier::Grand : AmuletTier::Normal).value_or(ItemKind::StrengthNormal);
+}
+
+std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng) {
 	std::vector<ItemKind> loot = {placed};
+	if (isAmulet(placed))
+		return loot;
+	// Rolled last, so the other bonuses come out as they did before the amulets.
+	auto withAmulet = [&]() -> std::vector<ItemKind>& {
+		if (std::optional<ItemKind> amulet = RollChestAmulet(level, rng))
+			loot.push_back(*amulet);
+		return loot;
+	};
 
 	if (rng.percent(SMALL_STAMINA_CHANCE))
 		loot.push_back(ItemKind::SmallStamina);
@@ -52,14 +75,14 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, 
 			loot.push_back(placed);
 		if (placed == ItemKind::LargeHealth && rng.percent(SMALL_HEALTH_CHANCE))
 			loot.push_back(ItemKind::SmallHealth);
-		return loot;
+		return withAmulet();
 	}
 
 	int grade = weaponGrade(placed);
 	if (grade > 0 && rng.percent(LOWER_WEAPON_CHANCE))
 		if (std::optional<ItemKind> lower = pickOwned(owned, grade, rng))
 			loot.push_back(*lower);
-	return loot;
+	return withAmulet();
 }
 
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
@@ -69,8 +92,10 @@ ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 	return itemAt(WEAPON_KIND_COUNT + rng.below(itemIndex(ItemKind::Antidote) - WEAPON_KIND_COUNT));
 }
 
-std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, Rng& rng) {
-	if (!boss && !rng.percent(KILL_DROP_CHANCE))
+std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng) {
+	if (boss)
+		return RollBossAmulet(level, rng);
+	if (!rng.percent(KILL_DROP_CHANCE))
 		return std::nullopt;
 	return pickOwned(owned, WEAPON_KIND_COUNT, rng);
 }

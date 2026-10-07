@@ -224,6 +224,8 @@ item count in `ItemKind` order. Two rows fit; a group with more needs scrolling 
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
 silhouette. The number row keys still pick a slot in `ItemKind` order and open its tab.
+The Amulets tab has one row per amulet type (lesser, minor, normal, grand); the worn amulet's name band is lapis, like
+the weapon in hand, and its button reads "Take off" instead of "Wear".
 
 ### Status box
 
@@ -237,7 +239,9 @@ frame and studs with it.
 A `panel` bottom left (`PlayerHud::PANEL`) over the running game, with the status box's drop shadow. Bars: dark
 trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss bar's look). Quick slots are
 `TileStyle::Stone` tiles with a flat item icon (`textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
-count badge like the inventory slots and a key cap under each like the options table. Flashes and pulses are additive
+count badge like the inventory slots and a key cap under each like the options table. A fourth slot, without a key
+cap, shows the worn amulet (its type's icon, the tier I .. IV in the badge) while one is on; the key sockets sit right
+of it. Flashes and pulses are additive
 rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
 icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
 

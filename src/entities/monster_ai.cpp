@@ -19,6 +19,12 @@ int Monster::attackDirection(float px, float py) const {
 	return 0;
 }
 
+bool Monster::Threatens(float px, float py) const {
+	if (!Active() || !Alive() || !alerted || lurking() || Emerging() || !sameRow(py))
+		return false;
+	return !rooted() || attackDirection(px, py) == 0;
+}
+
 bool Monster::Seek(bool blocked, float px, float py) {
 	if (!Alive())
 		return false;
@@ -49,7 +55,7 @@ void Monster::Attack(float py) {
 void Monster::bite() {
 	const int lost = links.player->TakeHit(type->damage, type->attackMix, *links.events);
 	if (type->poison) {
-		links.player->Poison(*type->poison, *links.events);
+		links.player->Poison(*type->poison, *links.events, *links.random);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);
 	}
 	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);

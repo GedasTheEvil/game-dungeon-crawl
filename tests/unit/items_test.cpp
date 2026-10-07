@@ -3,6 +3,7 @@
 #include "../../src/world/items.h"
 #include "../../src/world/quick_potion.h"
 #include <sstream>
+#include <string>
 
 TEST_CASE("every item converts to its file id and back") {
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
@@ -149,6 +150,8 @@ TEST_CASE("the item groups follow the ItemKind order") {
 	CHECK(groupItems(ItemGroup::Weapons).count == WEAPON_KIND_COUNT);
 	CHECK(groupItems(ItemGroup::Potions).first == WEAPON_KIND_COUNT);
 	CHECK(groupItems(ItemGroup::Potions).count == POTION_KIND_COUNT);
+	CHECK(groupItems(ItemGroup::Amulets).first == FIRST_AMULET);
+	CHECK(groupItems(ItemGroup::Amulets).count == AMULET_KIND_COUNT);
 	CHECK(groupItems(ItemGroup::Rings).count == 0);
 }
 
@@ -184,7 +187,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV3 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().rfind("INV4 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -229,4 +232,96 @@ TEST_CASE("an older save: 9 counts, then the map position") {
 	float mapX = 0.f;
 	file >> mapX; // left for the dungeon to read
 	CHECK(mapX == doctest::Approx(3.32501f));
+}
+
+TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
+	CHECK(AMULET_KIND_COUNT == 8 * AMULET_TIER_COUNT + 2);
+	CHECK(isAmulet(ItemKind::StrengthLesser));
+	CHECK_FALSE(isPotion(ItemKind::StrengthLesser));
+	CHECK_FALSE(isWeapon(ItemKind::StrengthLesser));
+	CHECK(isPotion(ItemKind::Antidote));
+	CHECK(*amuletKind(AmuletType::Armor, AmuletTier::Normal) == ItemKind::ArmorNormal);
+	CHECK(*amuletKind(AmuletType::Regeneration, AmuletTier::Grand) == ItemKind::RegenerationGrand);
+	CHECK_FALSE(amuletKind(AmuletType::Regeneration, AmuletTier::Minor).has_value());
+	for (int i = FIRST_AMULET; i < ITEM_KIND_COUNT; i++) {
+		const Amulet a = amuletOf(itemAt(i));
+		CHECK(*amuletKind(a.type, a.tier) == itemAt(i));
+	}
+	CHECK(fileIdOf(ItemKind::StrengthLesser).type == ItemType::AMULET);
+	CHECK(fileIdOf(ItemKind::StrengthLesser).id == 0);
+	CHECK_FALSE(itemFromFile(ItemType::AMULET, AMULET_KIND_COUNT).has_value());
+}
+
+TEST_CASE("amulet names and effects") {
+	CHECK(std::string(itemText(ItemKind::StrengthLesser).name) == "Lesser Amulet of Strength");
+	CHECK(std::string(itemText(ItemKind::StrengthMinor).name) == "Amulet of Minor Strength");
+	CHECK(std::string(itemText(ItemKind::StrengthNormal).name) == "Amulet of Strength");
+	CHECK(std::string(itemText(ItemKind::StrengthGrand).name) == "Grand Amulet of Strength");
+	CHECK(std::string(itemText(ItemKind::StrengthNormal).effect) == "Might +4 while worn");
+	CHECK(std::string(itemText(ItemKind::TrapWardGrand).effect) == "Immune to traps");
+	CHECK(std::string(itemText(ItemKind::HealthMinor).label) == "minor amulet of health");
+}
+
+TEST_CASE("the bonus of each amulet") {
+	CHECK(amuletBonus(std::nullopt).might == 0);
+	CHECK(amuletBonus(ItemKind::StrengthLesser).might == 1);
+	CHECK(amuletBonus(ItemKind::StrengthGrand).might == 6);
+	CHECK(amuletBonus(ItemKind::ArmorNormal).armor == 4);
+	CHECK(amuletBonus(ItemKind::HealthGrand).maxHpPercent == 30);
+	CHECK(amuletBonus(ItemKind::PoisonWardNormal).poisonResistPercent == 50);
+	CHECK(amuletBonus(ItemKind::TrapWardGrand).trapCutPercent == 100);
+	CHECK(amuletBonus(ItemKind::RegenerationNormal).regenHpPerSecond == 1);
+	CHECK(amuletBonus(ItemKind::RegenerationGrand).regenHpPerSecond == 2);
+	const Resistances pierce = amuletBonus(ItemKind::PierceWardGrand).resist;
+	CHECK(pierce[static_cast<size_t>(DamageType::Pierce)] == 60);
+	CHECK(pierce[static_cast<size_t>(DamageType::Blunt)] == NORMAL);
+	CHECK(amuletBonus(ItemKind::BluntWardLesser).resist[static_cast<size_t>(DamageType::Blunt)] == 92);
+}
+
+TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {
+	ItemBag bag;
+	Vitals player{true, 10, 50, 100, 100};
+	CHECK(bag.Block(ItemKind::StrengthLesser, player) == UseBlock::NotFound);
+	bag.Add(ItemKind::StrengthLesser);
+	bag.Add(ItemKind::ArmorMinor);
+	CHECK(bag.AnyFound(ItemGroup::Amulets));
+	CHECK(bag.Use(ItemKind::StrengthLesser, player));
+	CHECK(bag.Worn() == ItemKind::StrengthLesser);
+	CHECK(bag.Equipped() == ItemKind::Club); // the weapon stays in hand
+	CHECK(bag.Use(ItemKind::ArmorMinor, player));
+	CHECK(bag.Worn() == ItemKind::ArmorMinor);
+	CHECK(bag.Use(ItemKind::ArmorMinor, player)); // again: off
+	CHECK_FALSE(bag.Worn().has_value());
+	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true));
+	CHECK(bag.Block(ItemKind::ArmorMinor, Vitals{false, 0, 50, 0, 100}) == UseBlock::Dead);
+}
+
+TEST_CASE("the worn amulet survives a save and a load") {
+	ItemBag bag;
+	bag.Add(ItemKind::HealthGrand);
+	bag.Add(ItemKind::HealthGrand);
+	CHECK(bag.Use(ItemKind::HealthGrand, Vitals{true, 1, 1, 1, 1}));
+	std::stringstream file;
+	bag.Save(file);
+	ItemBag loaded;
+	loaded.Load(file);
+	CHECK(loaded.Count(ItemKind::HealthGrand) == 2);
+	CHECK(loaded.Worn() == ItemKind::HealthGrand);
+}
+
+TEST_CASE("a save from before the amulets: 21 slots in ItemKind order, nothing worn") {
+	std::stringstream file;
+	file << "INV3 21 ";
+	for (int pass = 0; pass < 3; pass++) // counts, levels, found: one of each
+		for (int i = 0; i < 21; i++)
+			file << 1 << " ";
+	file << "2 1\n"; // the composite bow in hand
+	ItemBag bag;
+	bag.Load(file);
+	CHECK(bag.Count(ItemKind::Antidote) == 1);
+	CHECK(bag.Count(ItemKind::Javelin) == 1);
+	CHECK(bag.Count(ItemKind::StrengthLesser) == 0);
+	CHECK(bag.Equipped() == ItemKind::CompositeBow);
+	CHECK_FALSE(bag.Worn().has_value());
 }

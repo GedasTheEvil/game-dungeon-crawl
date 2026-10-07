@@ -52,6 +52,7 @@ constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float POTION_DETAIL_SCALE = 16.f;
+constexpr float AMULET_DETAIL_SCALE = 16.f;
 constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
@@ -62,6 +63,8 @@ constexpr float SCROLL_BAR_W = 1.f;
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
+bool isWeapon(int slot) { return ::isWeapon(kindOf(slot)); }
+bool isAmulet(int slot) { return ::isAmulet(kindOf(slot)); }
 ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
 int positionOf(int slot) { return slot - groupItems(groupOf(slot)).first; } // in its tab's grid
 ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
@@ -172,7 +175,10 @@ int Inventory::EquippedDamage() const {
 bool Inventory::CanUse(int slot, const char** reason) const {
 	UseBlock block = bag.Block(kindOf(slot), playerVitals());
 	if (reason != nullptr)
-		*reason = block != UseBlock::None ? blockReason(block) : (isPotion(slot) ? "Drink" : "Equip");
+		*reason = block != UseBlock::None ? blockReason(block)
+				  : isPotion(slot)		  ? "Drink"
+				  : isAmulet(slot)		  ? (bag.Worn() == kindOf(slot) ? "Take off" : "Wear")
+										  : "Equip";
 	return block == UseBlock::None;
 }
 
@@ -192,6 +198,13 @@ void Inventory::Use(int slot) {
 		return;
 	if (::isPotion(kind)) {
 		ShowToast(DrinkPotion(kind));
+		return;
+	}
+	if (::isAmulet(kind)) {
+		bag.Use(kind, playerVitals());
+		Game().player->stats.Wear(amuletBonus(bag.Worn()), true);
+		Game().assets.sounds.amulet_s.Play();
+		ShowToast(std::string(itemText(kind).name) + (bag.Worn() == kind ? " put on" : " taken off"));
 		return;
 	}
 	bag.Use(kind, playerVitals());
@@ -299,7 +312,7 @@ void Inventory::UpdateHover(float x, float y) {
 		if (tabRect(group).contains(x, y))
 			hoveredTab = group;
 	hoveredButton = Target::None;
-	if (isPotion(selectedSlot)) {
+	if (!isWeapon(selectedSlot)) {
 		if (WIDE_BUTTON.contains(x, y))
 			hoveredButton = Target::UseButton;
 	} else if (EQUIP_BUTTON.contains(x, y)) {
@@ -404,8 +417,21 @@ void Inventory::KeyPressed(unsigned char key) {
 	}
 }
 
+bool Inventory::Wear(std::optional<ItemKind> amulet) {
+	if (!amulet) {
+		if (std::optional<ItemKind> worn = bag.Worn())
+			Use(itemIndex(*worn));
+		return !bag.Worn();
+	}
+	if (!::isAmulet(*amulet) || bag.Count(*amulet) <= 0)
+		return false;
+	if (bag.Worn() != amulet)
+		Use(itemIndex(*amulet));
+	return bag.Worn() == amulet;
+}
+
 bool Inventory::Equip(ItemKind weapon) {
-	if (::isPotion(weapon))
+	if (!::isWeapon(weapon))
 		return false;
 	Use(itemIndex(weapon));
 	return bag.Equipped() == weapon;
@@ -608,7 +634,7 @@ void Inventory::DrawSlot(int slot) {
 
 	// Name band: lapis for the weapon in hand, dark stone otherwise.
 	Rect band = {r.x, r.y, r.w, NAME_BAND_H};
-	if (kindOf(slot) == bag.Equipped())
+	if (kindOf(slot) == bag.Equipped() || kindOf(slot) == bag.Worn()) // the weapon in hand, the amulet on
 		fillRect(band, LAPIS, LAPIS_DARK, 1.f);
 	else
 		fillRect(band, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
@@ -625,7 +651,7 @@ void Inventory::DrawSlot(int slot) {
 	}
 
 	// Count badge for stacks.
-	if (isPotion(slot) && owned) {
+	if (!isWeapon(slot) && owned) {
 		Rect badge = {r.x + r.w - 4.6f, r.y + r.h - 4.f, 4.1f, 3.5f};
 		fillRect(badge, {0.05f, 0.04f, 0.03f}, {0.05f, 0.04f, 0.03f}, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
@@ -699,13 +725,13 @@ void Inventory::DrawSlotLabels(int slot) {
 		text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
 	}
 
-	if (isPotion(slot) && owned) {
+	if (!isWeapon(slot) && owned) {
 		char count[8];
 		snprintf(count, sizeof(count), "%d", bag.Count(kindOf(slot)));
 		textCentered(small, r.x + r.w - 2.55f, r.y + r.h - 3.7f, count, GOLD);
 	}
 
-	if (!isPotion(slot) && owned) {
+	if (isWeapon(slot) && owned) {
 		char level[8];
 		snprintf(level, sizeof(level), "Lv %d", bag.Level(kindOf(slot)));
 		text(small, r.x + r.w - small.TextWidth(level) - 1.f, r.y + r.h - 3.8f, level, lit ? GOLD : GOLD_DIM);
@@ -732,7 +758,9 @@ void Inventory::DrawDetails() {
 	}
 	textCentered(heading, cx, 77.5f, info.name, INK);
 	char kind[48] = "Potion";
-	if (!isPotion(selectedSlot)) {
+	if (isAmulet(selectedSlot))
+		snprintf(kind, sizeof(kind), "%s", bag.Worn() == kindOf(selectedSlot) ? "Amulet, worn" : "Amulet");
+	if (isWeapon(selectedSlot)) {
 		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
 		snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
 	}
@@ -741,6 +769,15 @@ void Inventory::DrawDetails() {
 	constexpr float STAT_Y = 37.4f;
 	if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
+	} else if (isAmulet(selectedSlot)) {
+		textCentered(body, cx, STAT_Y + 3.5f, info.effect, INK);
+		// One amulet at a time: what putting this one on would take off.
+		const std::optional<ItemKind> worn = bag.Worn();
+		if (worn && *worn != kindOf(selectedSlot))
+			textCentered(small, cx, STAT_Y - 1.f, (std::string("Worn now: ") + itemText(*worn).name).c_str(),
+						 INK_FADED);
+		else if (!worn)
+			textCentered(small, cx, STAT_Y - 1.f, "One amulet at a time", INK_FADED);
 	} else {
 		Item* shown = Model(kindOf(selectedSlot));
 		Item* current = Equipped();
@@ -812,7 +849,7 @@ void Inventory::DrawDetailModel() {
 
 	float savedScale = model->scale;
 	float savedAngle = model->rotA;
-	model->scale = potion ? POTION_DETAIL_SCALE : WEAPON_DETAIL_SCALE;
+	model->scale = potion ? POTION_DETAIL_SCALE : isAmulet(selectedSlot) ? AMULET_DETAIL_SCALE : WEAPON_DETAIL_SCALE;
 	model->rotA = slotAngle[selectedSlot];
 	glColor3f(tint.r, tint.g, tint.b);
 	glPushMatrix();
@@ -827,14 +864,14 @@ void Inventory::DrawButtons() {
 	const char* label = nullptr;
 	bool canUse = CanUse(selectedSlot, &label);
 	DrawButton(Target::UseButton, label, canUse);
-	if (!isPotion(selectedSlot))
+	if (isWeapon(selectedSlot))
 		DrawButton(Target::UpgradeButton, "Upgrade", CanUpgrade(selectedSlot));
 }
 
 void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	bool hovered = enabled && hoveredButton == which;
 	bool held = hovered && pressed == which;
-	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (isPotion(selectedSlot) ? WIDE_BUTTON : EQUIP_BUTTON);
+	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (isWeapon(selectedSlot) ? EQUIP_BUTTON : WIDE_BUTTON);
 	r = tile(r, enabled ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 
 	beginText();

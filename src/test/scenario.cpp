@@ -63,6 +63,7 @@ enum class CommandType : unsigned char {
 	Chest,
 	Select,
 	Equip,
+	Wear,
 	Xp,
 	Hurt,
 	Poison,
@@ -108,7 +109,10 @@ enum class Field : unsigned char {
 	JournalTried,
 	Chests,
 	ItemCount,
-	ItemLevel
+	ItemLevel,
+	MaxHp,
+	Worn,
+	Safe
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 
@@ -265,6 +269,14 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().journal.Riddles().size());
 	case Field::JournalNotes:
 		return static_cast<float>(Game().journal.Notes().size());
+	case Field::MaxHp:
+		return static_cast<float>(Game().player->stats.CurrentMaxHP());
+	case Field::Worn: {
+		const std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn();
+		return worn ? static_cast<float>(fileIdOf(*worn).id) : -1.f;
+	}
+	case Field::Safe:
+		return Game().dungeon.PlayerSafe() ? 1.f : 0.f;
 	case Field::JournalTried: {
 		int known = 0;
 		for (const JournalCreature& c : Game().journal.Creatures())
@@ -377,7 +389,7 @@ bool parseWait(const std::string& word, int& ticks) {
 	return true;
 }
 
-// "melee", "ranged" or "potion" -> ItemType value.
+// "melee", "ranged", "potion" or "amulet" -> ItemType value.
 bool parseItemType(const std::string& word, int& type) {
 	if (word == "melee")
 		type = ItemType::MELEE_WEAPON;
@@ -385,6 +397,8 @@ bool parseItemType(const std::string& word, int& type) {
 		type = ItemType::RANGED_WEAPON;
 	else if (word == "potion")
 		type = ItemType::POTION;
+	else if (word == "amulet")
+		type = ItemType::AMULET;
 	else
 		return false;
 	return true;
@@ -441,7 +455,10 @@ bool parseField(const std::string& word, Field& field) {
 				  {"journal", Field::JournalRiddles},
 				  {"journal_solved", Field::JournalSolved},
 				  {"journal_notes", Field::JournalNotes},
-				  {"journal_tried", Field::JournalTried}};
+				  {"journal_tried", Field::JournalTried},
+				  {"maxhp", Field::MaxHp},
+				  {"worn", Field::Worn},
+				  {"safe", Field::Safe}};
 	for (const auto& entry : FIELDS)
 		if (word == entry.name) {
 			field = entry.field;
@@ -667,6 +684,18 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 				return "";
 			}
 		return "usage: equip <weapon>: club, short_sword, spear, self-bow, ...";
+	}
+	if (name == "wear") {
+		cmd.type = CommandType::Wear;
+		cmd.item = ItemKind::Club; // "off": the worn amulet comes off
+		for (int i = FIRST_AMULET; argc == 1 && i < ITEM_KIND_COUNT; i++)
+			if (w[1] == itemSlug(itemAt(i))) {
+				cmd.item = itemAt(i);
+				return "";
+			}
+		if (argc == 1 && w[1] == "off")
+			return "";
+		return "usage: wear <amulet>|off: lesser_amulet_of_strength, amulet_of_health, ...";
 	}
 	if (name == "xp") {
 		cmd.type = CommandType::Xp;
@@ -907,6 +936,13 @@ bool runInstant(const Command& cmd) {
 		Game().ui.inventory->SelectItem(cmd.item);
 		report(cmd, true, "");
 		return true;
+	case CommandType::Wear: // like a click on its slot in the inventory
+		if (!Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
+			report(cmd, false, "not held");
+			return true;
+		}
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::Equip: // like a click on its slot in the inventory
 		if (!Game().ui.inventory->Equip(cmd.item)) {
 			report(cmd, false, "not held");
@@ -922,8 +958,8 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
-	case CommandType::Poison: // as from a poisoned bite: the status line and the field note too
-		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events);
+	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
+		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Prop: { // on the player's row
@@ -955,8 +991,8 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<ItemKind> loot =
-				RollChestLoot(cmd.item, Game().ui.inventory->Bag().Owned(), Game().random.gameplay);
+			std::vector<ItemKind> loot = RollChestLoot(cmd.item, Game().ui.inventory->Bag().Owned(),
+													   Game().dungeon.LevelNumber(), Game().random.gameplay);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
 				Game().ui.inventory->AddItem(entry);

@@ -404,6 +404,8 @@ void loadMechanisms(MechanismSet& set) {
 } // namespace
 
 Item* ItemPrototypes::Of(ItemKind kind) const {
+	if (isAmulet(kind))
+		return amulets[static_cast<size_t>(amuletOf(kind).type)].get();
 	return isPotion(kind) ? potion.get() : weapons[static_cast<size_t>(itemIndex(kind))].get();
 }
 
@@ -494,6 +496,8 @@ std::unique_ptr<Item> loadItem(const char* name, float scale) {
 	return item;
 }
 
+constexpr float AMULET_SCALE = 4.f; // on a chest and in the inventory, like the potion (5)
+
 void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	constexpr size_t STEPS = WEAPON_KIND_COUNT + 1;
 	for (size_t i = 0; i < WEAPON_KIND_COUNT; i++) {
@@ -513,9 +517,17 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
-	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest and potion]");
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest, potion and amulets]");
 	items.chest = loadItem("treasure_chest", 8); // faces the camera at rotA 0 (tools/blender/models/items.py)
 	items.potion = loadItem("potion", 5);
+	// tools/blender/models/amulets.py, by AmuletType
+	constexpr const char* AMULETS[AMULET_TYPE_COUNT] = {"strength", "armor", "health", "poison",	  "traps",
+														"blunt",	"slash", "pierce", "regeneration"};
+	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++) {
+		char name[64];
+		snprintf(name, sizeof(name), "amulet_%s", AMULETS[i]);
+		items.amulets[i] = loadItem(name, AMULET_SCALE);
+	}
 	constexpr const char* MISSILES[MISSILE_KIND_COUNT] = {"arrow", "sling_stone", "throwing_stick", "javelin"};
 	for (size_t i = 0; i < MISSILE_KIND_COUNT; i++) {
 		char path[64];
@@ -587,6 +599,7 @@ void loadDecor(DecorSet& decor) {
 
 void loadSounds(SoundBank& sounds) {
 	sounds.drink_s.Load("sounds/items/potion_drink.wav");
+	sounds.amulet_s.Load("sounds/items/amulet.wav");
 	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
 	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
 	sounds.teleport.Load("sounds/mechanisms/teleport.wav");

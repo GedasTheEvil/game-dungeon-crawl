@@ -61,7 +61,9 @@ class Dungeon {
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone
-	[[nodiscard]] MonsterLinks monsterLinks() const { return {sim.player, sim.journal, sim.events, levelNumber}; }
+	[[nodiscard]] MonsterLinks monsterLinks() const {
+		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};
+	}
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
 	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
@@ -177,7 +179,8 @@ class Dungeon {
 	void updateVenoms();
 	void drawVenoms();													// with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
-	void dropChest(const Monster& mon, ItemKind weapon);				// RollKillDrop
+
+	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
 	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
 	TrapHurt trapHurt; // the player's
 	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the
@@ -206,6 +209,9 @@ class Dungeon {
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	[[nodiscard]] int LevelNumber() const { return levelNumber; }
+	// No monster can chase or attack the player now (Monster::Threatens, no wall between): the regeneration amulet
+	// heals. Out of combat, as the player feels it.
+	[[nodiscard]] bool PlayerSafe() const;
 	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
 	[[nodiscard]] bool Won() const { return won; }
 	void ClearWin() { won = false; } // a new game or a scenario level

@@ -130,9 +130,13 @@ void Player::die() {
 	stats.poison.Cure();
 }
 
-void Player::Poison(PoisonTier tier, WorldEvents& events) {
+void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 	if (!Alive())
 		return;
+	if (stats.PoisonResistPercent() > 0 && rng.percent(stats.PoisonResistPercent())) {
+		events.Status("Your amulet wards off the poison");
+		return;
+	}
 	if (!stats.poison.Any())
 		events.Status("You are poisoned!");
 	stats.poison.Apply(tier);

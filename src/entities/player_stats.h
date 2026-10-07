@@ -22,6 +22,9 @@ class PlayerStats {
 	int HP = 50;
 	int Might = 0;
 	int stamina = 100;
+	AmuletBonus amulet;		// the worn amulet's (Wear); Armor, MaxHP and Might above are without it
+	int regen_carry_ms = 0; // regeneration time not yet turned into HP
+	int trap_carry = 0;		// hundredths of trap damage not yet taken (TrapDamage)
 
 	Timer stamina_regen_timer{1000};
 	Timer stamina_sprint_drain_timer{1000};
@@ -52,11 +55,12 @@ class PlayerStats {
 	void RefuseStamina(WorldEvents& events); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 
-	[[nodiscard]] int Damage(int weaponDamage) const { return Might + weaponDamage; }
-	[[nodiscard]] int CurrentMight() const { return Might; }
-	[[nodiscard]] int CurrentArmor() const { return Armor; }
+	[[nodiscard]] int Damage(int weaponDamage) const { return CurrentMight() + weaponDamage; }
+	// With the worn amulet's bonus.
+	[[nodiscard]] int CurrentMight() const { return Might + amulet.might; }
+	[[nodiscard]] int CurrentArmor() const { return Armor + amulet.armor; }
 	[[nodiscard]] int CurrentHP() const { return HP; }
-	[[nodiscard]] int CurrentMaxHP() const { return MaxHP; }
+	[[nodiscard]] int CurrentMaxHP() const { return MaxHP + MaxHP * amulet.maxHpPercent / 100; }
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
@@ -69,7 +73,7 @@ class PlayerStats {
 	void AddMight(int ns = 1);
 	void AddXP(int xp, WorldEvents& events); // a level up shows its status line and writes the levels note
 	void Heal(int hpPart);					 // percent of max HP
-	void HealFully() { HP = MaxHP; }
+	void HealFully() { HP = CurrentMaxHP(); }
 	void AddArmor(int na = 1);
 	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const;
@@ -78,8 +82,19 @@ class PlayerStats {
 	// Applies a drunk potion's gain (ItemBag::Use took it out of the bag); returns the status line ("Healed 12
 	// health").
 	std::string Drink(const PotionGain& gain);
+	// Puts on the worn amulet's bonus (a default AmuletBonus: none). keepShare: the HP keeps its share of the max HP
+	// as the max changes (putting a health amulet on or off neither heals nor hurts); false after a load, whose HP is
+	// already the worn one's.
+	void Wear(const AmuletBonus& bonus, bool keepShare);
+	[[nodiscard]] int PoisonResistPercent() const { return amulet.poisonResistPercent; }
+	// The share of a spike or death trap's damage the amulet lets through; the hundredths left over carry to the
+	// next hit, so the small spike hits are cut too (as Monster::StandInTrap).
+	int TrapDamage(int dmg);
+	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
+	// no poison runs.
+	void Regenerate(bool safe, int tickMs);
 	Poison poison;
-	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken; an amulet will change it
+	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken: the worn amulet's (Wear)
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

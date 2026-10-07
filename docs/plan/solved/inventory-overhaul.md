@@ -7,7 +7,7 @@ Status: draft 2026-10-06, refined 2026-10-06, implemented 2026-10-06; waiting fo
 The inventory (`src/ui/inventory.cpp`, [../ui.md](../../ui.md)) shows every item at once in fixed rows: four weapons,
 then the potions. The potion row is full: with the antidote
 ([poison-and-antidote.md](poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
-kinds are planned: amulets ([amulets.draft.md](../amulets.draft.md)), a resistance potion
+kinds are planned: amulets ([amulets.md](../amulets.md)), a resistance potion
 ([resistance-potion.draft.md](../resistance-potion.draft.md)), rings maybe, and many more weapons
 ([egyptian-weapons.md](egyptian-weapons.md)).
 

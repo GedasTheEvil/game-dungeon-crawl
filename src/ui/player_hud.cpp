@@ -23,11 +23,11 @@ constexpr float SLOT_STEP = 8.2f;
 constexpr float CAP_Y = 4.6f; // key cap under each slot
 constexpr float CAP_H = 2.6f;
 constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
-constexpr float SOCKET_X = 34.f;	 // first key socket centre
+constexpr float SOCKET_X = 40.5f;	 // first key socket centre, right of the amulet slot
 constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
-constexpr Rect XP_LINE = {4.f, 2.9f, 47.f, 0.7f};
+constexpr Rect XP_LINE = {4.f, 2.9f, 52.f, 0.7f};
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
@@ -202,6 +202,11 @@ void drawStamina(const PlayerHud::View& v) {
 	bolt(ICON_X, bar.cy(), AMBER_TOP);
 }
 
+constexpr int SLOT_COUNT = 4;
+constexpr int AMULET_SLOT = 3;
+// The amulet slot only while one is worn; the others always (an empty potion slot shows none is left).
+bool shown(const PlayerHud::View& v, int i) { return i != AMULET_SLOT || v.slots[i].icon != PlayerHud::Icon::None; }
+
 Rect slotRect(int i) { return {SLOT_X + SLOT_STEP * static_cast<float>(i), SLOT_Y, SLOT_SIZE, SLOT_SIZE}; }
 
 Rect badgeRect(const Rect& slot) { return {slot.x + slot.w - 3.1f, slot.y + slot.h - 2.6f, 3.3f, 2.8f}; }
@@ -216,11 +221,16 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	if (flash > 0.f)
 		additiveRing(r, 2.2f, GOLD, 0.8f * flash);
 	tile(r, TileStyle::Stone, flash > 0.f, false);
-	if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
+	if (s.icon != PlayerHud::Icon::None && (s.count >= 0 || !s.badge.empty())) {
 		Rect badge = badgeRect(r);
+		if (!s.badge.empty()) // wider for "III"
+			badge = {badge.x + badge.w - small.TextWidth(s.badge.c_str()) - 1.6f, badge.y,
+					 small.TextWidth(s.badge.c_str()) + 1.6f, badge.h};
 		fillRect(badge, BADGE, BADGE, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
 	}
+	if (s.key.empty())
+		return;
 	Rect cap = capRect(r, small, s.key.c_str());
 	fillRect({cap.x, cap.y - 0.25f, cap.w, cap.h}, BLACK, BLACK, 0.5f);
 	fillRect(cap, CAP_TOP, CAP_BOTTOM, 1.f);
@@ -233,9 +243,15 @@ void drawSlotIcon(const PlayerHud::Slot& s, const Rect& r, int icons) {
 }
 
 void drawSlotText(const PlayerHud::Slot& s, const Rect& r, Font& small) {
-	Rect cap = capRect(r, small, s.key.c_str());
-	textCentered(small, cap.cx(), cap.cy() - CAP_PEN_DROP + 0.5f, s.key.c_str(), GOLD);
-	if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
+	if (!s.key.empty()) {
+		Rect cap = capRect(r, small, s.key.c_str());
+		textCentered(small, cap.cx(), cap.cy() - CAP_PEN_DROP + 0.5f, s.key.c_str(), GOLD);
+	}
+	if (s.icon != PlayerHud::Icon::None && !s.badge.empty()) {
+		Rect badge = badgeRect(r);
+		const float w = small.TextWidth(s.badge.c_str()) + 1.6f;
+		textCentered(small, badge.x + badge.w - w / 2, badge.cy() - CAP_PEN_DROP + 0.5f, s.badge.c_str(), GOLD);
+	} else if (s.icon != PlayerHud::Icon::None && s.count >= 0) {
 		char count[12];
 		snprintf(count, sizeof(count), "%d", s.count);
 		Rect badge = badgeRect(r);
@@ -298,13 +314,15 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	panel(PANEL, 0.9f);
 	drawHealth(view, now);
 	drawStamina(view);
-	for (int i = 0; i < 3; i++)
-		drawSlot(view.slots[i], slotRect(i), small);
+	for (int i = 0; i < SLOT_COUNT; i++)
+		if (shown(view, i))
+			drawSlot(view.slots[i], slotRect(i), small);
 	drawKeys(view);
 	drawXp(view);
 	drawPoison(view);
-	for (int i = 0; i < 3; i++)
-		drawSlotIcon(view.slots[i], slotRect(i), icons);
+	for (int i = 0; i < SLOT_COUNT; i++)
+		if (shown(view, i))
+			drawSlotIcon(view.slots[i], slotRect(i), icons);
 
 	beginText();
 	char hp[24];
@@ -312,8 +330,9 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	float y = HEALTH_BAR.cy() - NUMBERS_DROP;
 	text(numbers, NUMBERS_X + 0.3f, y - 0.3f, hp, BLACK);
 	text(numbers, NUMBERS_X, y, hp, GOLD_BRIGHT);
-	for (int i = 0; i < 3; i++)
-		drawSlotText(view.slots[i], slotRect(i), small);
+	for (int i = 0; i < SLOT_COUNT; i++)
+		if (shown(view, i))
+			drawSlotText(view.slots[i], slotRect(i), small);
 	drawPoisonText(view, small);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);

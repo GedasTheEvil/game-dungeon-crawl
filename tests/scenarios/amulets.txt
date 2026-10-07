@@ -1,0 +1,104 @@
+# Amulets (docs/plan/amulets.draft.md): one worn at a time, swapped freely; strength and armour add, the health
+# amulet keeps the HP's share of the max, the save keeps the worn one; trap warding cuts spike damage (grand: none);
+# regeneration heals 1 HP a second while no monster chases the player and no poison runs; poison warding wards off
+# some poisonings. The Amulets tab and the HUD slot.
+# Amulet ids (give amulet N): 0-3 strength, 4-7 armour, 8-11 health, 12-15 poison, 16-19 traps, 32-33 regeneration.
+seed 1
+level tests/levels/empty_row
+wait 10
+expect worn == -1
+give amulet 3
+give amulet 0
+expect might == 0
+wear grand_amulet_of_strength
+expect worn == 3
+expect might == 6
+wear lesser_amulet_of_strength
+expect worn == 0
+expect might == 1
+wear off
+expect worn == -1
+expect might == 0
+give amulet 6
+wear amulet_of_armor
+expect armor == 4
+
+# health: the HP keeps its share of the max, put on and taken off
+give amulet 11
+expect maxhp == 50
+hurt 25
+wear grand_amulet_of_health
+expect maxhp == 65
+expect hp == 33
+wear off
+expect maxhp == 50
+expect hp == 25
+wear grand_amulet_of_health
+savegame amulets.sav
+wear off
+loadgame amulets.sav
+expect worn == 11
+expect maxhp == 65
+expect hp == 33
+
+# the tab and the HUD
+give amulet 13
+give amulet 13
+give amulet 32
+key i
+wait 5
+select grand_amulet_of_health
+wait 5
+screenshot inventory_amulets
+select amulet_of_regeneration
+wait 5
+screenshot inventory_regeneration
+key i
+wait 5
+screenshot hud_amulet
+
+# regeneration: 1 HP a second while safe
+wear amulet_of_regeneration
+expect safe == 1
+expect maxhp == 50
+expect hp == 25
+wait 2s
+expect hp == 27
+# poisoned: none (the poison drains instead)
+poison weak
+wait 2s
+expect hp < 27
+
+# trap warding: without, 30 HP lost in a second; grand, no spike damage; lesser, about a quarter off (22)
+level tests/levels/spikes_one
+wait 5
+wear off
+walk right 3.5
+wait 1s
+expect hp == 20
+level tests/levels/spikes_one
+wait 5
+give amulet 19
+wear grand_amulet_of_trap_warding
+walk right 3.5
+wait 1s
+expect hp == 50
+level tests/levels/spikes_one
+wait 5
+give amulet 16
+wear lesser_amulet_of_trap_warding
+walk right 3.5
+wait 1s
+expect hp == 28
+
+# a rat chasing the player: not safe, no regeneration
+level tests/levels/rat_corridor
+god
+wait 10
+give amulet 33
+wear grand_amulet_of_regeneration
+hurt 20
+walk right 2
+wait 1s
+expect safe == 0
+expect hp == 30

@@ -1,7 +1,7 @@
 # Monster attack damage types
 
 Status: solved 2026-10-06 (play tested). Draft 2026-10-06, refined 2026-10-06. Needed by the typed
-damage amulets ([amulets.draft.md](../amulets.draft.md)).
+damage amulets ([amulets.md](../amulets.md)).
 
 ## Problem
 
@@ -54,10 +54,10 @@ big hitters (mummy, Anubis, boss scarab, the rock). A pierce amulet is the gener
   after keeps a resistance worth the same share on weak and strong hits; armour first would make it worth almost
   nothing against small biters.
 * **Player resistances:** `Resistances` like the monsters' (`src/world/damage.h`), all `NORMAL` without an amulet. The
-  amulet values (a share off one type) belong to [amulets.draft.md](../amulets.draft.md).
+  amulet values (a share off one type) belong to [amulets.md](../amulets.md).
 * **Poison** stays apart: the scorpion's sting typed as above, its poison untouched by type and armour, as today.
 * **Traps** are typed too (table above): a type resistance applies to them. Armour as today: the spikes take it, the
-  crushing rock still ignores it. The trap amulet ([amulets.draft.md](../amulets.draft.md)) stacks on top.
+  crushing rock still ignores it. The trap amulet ([amulets.md](../amulets.md)) stacks on top.
 * **Without an amulet nothing changes:** all `NORMAL`, every hit deals what it does today. No balance pass needed.
 * **Journal:** like the resistances it learns per weapon tried (`src/ui/journal_view.cpp`), on a creature's first
   hit its page gets one sentence in the explorer's voice. It names the most hurting type; the smaller shares, if any,

@@ -1,7 +1,8 @@
 # More Egyptian weapons
 
 Status: draft 2026-10-06, refined 2026-10-07. Depends on [inventory-overhaul.md](solved/inventory-overhaul.md): the
-weapons group passes the 8 slots of one tab page.
+weapons group passes the 8 slots of one tab page. Comes after [attack-timers.draft.md](attack-timers.draft.md): frame
+delay and recovery per weapon, hotkeys per class.
 
 ## Idea
 
@@ -18,8 +19,7 @@ except the war chariot. 13 weapons, 9 of them new: the weapons group fills two t
   fires, not from new types.
 * Javelin, throwing stick and sling stones are endless, like arrows: no ammo, no pick-up. The throwing stick flies
   back to the hand (a look only, it changes nothing).
-* Hotkeys cycle per class: `1` equips the next owned melee weapon, `2` the next owned ranged one, in inventory order.
-  Today's keys `3` and `4` are free again. Inventory slot hotkeys stay as they are.
+* Hotkeys cycle per class, `1` melee, `2` ranged ([attack-timers.draft.md](attack-timers.draft.md)).
 * New `ItemKind` values go in inventory order inside the weapons group; file ids (`ItemType`, `src/world/items.h`)
   only get new ids at the end of their type, so old saves and levels still read.
 
@@ -46,42 +46,22 @@ them, tuned with [monster-balance.draft.md](monster-balance.draft.md).
 
 ### Attack timers
 
-Every weapon has two timers instead of one attack time:
+Frame delay and recovery per weapon, as defined in [attack-timers.draft.md](attack-timers.draft.md). Attack ms in the
+table above is their sum. Melee: the dagger is quick on both, the spear thrusts fast and recovers long, the khopesh
+flows from swing to swing, the axes and the mace wind up long. Club, short sword, spear and self-bow keep their values
+from that plan.
 
-* **Frame delay**: from the attack key until the hit lands (melee) or the shot leaves (ranged): the wind-up, the
-  draw. The risk: a slow wind-up lets the monster strike first.
-* **Recovery**: from the hit or shot until the next attack can start. The opening: no attack meanwhile.
-
-Attack ms in the table above is their sum. Today both exist, only not named: `motion.hitMs` is the frame delay
-(the bow's is `BOW_DRAW_MS`, 450), and `motion.attackMs` counts from the key press, so recovery is `attackMs - hitMs`.
-Give every `ITEM_DEFS` row these two values directly, so one can be tuned without the other. `swingMs` stays the
-animation's return to rest and runs inside the recovery.
-
-Moving or sprinting does not cancel a recovery: a swing or shot is a commitment.
-
-Melee: the dagger is quick on both, the spear thrusts fast and recovers long, the khopesh flows from swing to swing,
-the axes and the mace wind up long. The club, sword and spear keep today's values.
-
-| Weapon | Frame delay ms | Recovery ms |
-|---|---|---|
-| Club | 300 | 600 |
-| Dagger | 150 | 250 |
-| Short sword | 180 | 370 |
-| Khopesh | 300 | 400 |
-| Epsilon axe | 550 | 400 |
-| Duckbill axe | 500 | 400 |
-| Mace | 600 | 400 |
-| Spear | 200 | 550 |
-
-Ranged:
-
-| Weapon | Frame delay ms | Recovery ms |
-|---|---|---|
-| Self-bow | 450 | 550 |
-| Composite bow | 650 | 650 |
-| Sling | 350 | 450 |
-| Throwing stick | 300 | 400 |
-| Javelin | 500 | 700 |
+| Weapon | Class | Frame delay ms | Recovery ms |
+|---|---|---|---|
+| Dagger | melee | 150 | 250 |
+| Khopesh | melee | 300 | 400 |
+| Epsilon axe | melee | 550 | 400 |
+| Duckbill axe | melee | 500 | 400 |
+| Mace | melee | 600 | 400 |
+| Composite bow | ranged | 650 | 650 |
+| Sling | ranged | 350 | 450 |
+| Throwing stick | ranged | 300 | 400 |
+| Javelin | ranged | 500 | 700 |
 
 Thrown weapons and sling stones reuse the arrow flight (`Dungeon::ShootArrow`, `src/world/dungeon_arrows.cpp`) with
 their own model, arc and wind-up motion.
@@ -97,12 +77,19 @@ Weapons come in by depth, so the player keeps finding something new over the 30 
 
 The levelcheck threat (`monster_kinds.cpp`) must still find a working weapon for each level's monsters.
 
-## Work
+## Stages
+
+Each stage is committed and tested on its own.
+
+1. **Renames**: sword to short sword, bow to self-bow: names, lore, models. Same ids.
+2. **Ranged family**: sling, throwing stick, javelin, composite bow. The arrow flight becomes a general projectile
+   (model, arc, spin, the stick's return look). The weapons tab gets its second page here.
+3. **Melee family**: dagger, khopesh, epsilon axe, duckbill axe, mace.
+4. **Campaign**: chest placement by depth, levelcheck on all levels, balance pass with
+   [monster-balance.draft.md](monster-balance.draft.md).
 
 Per new weapon: a Blender model ([../remodeling.md](../remodeling.md)), an `ITEM_DEFS` row (mix, damage, reach,
-motion, sounds), `ItemKind` and `ItemText` entries, a file id, sounds, a chest place. Plus: hotkey cycling
-(`Inventory::EquipHotkey`, `src/ui/inventory.cpp`; options controls table; `tests/scenarios/weapon_hotkeys.txt`),
-the ranged flight per weapon, the two-page weapons tab, the renames of sword and bow.
+motion, sounds), `ItemKind` and `ItemText` entries, a file id, sounds.
 
 ## Open
 

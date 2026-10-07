@@ -60,10 +60,8 @@ same input on two actions is a warning: the first action in the list below keeps
 | `look_right` | `end` | |
 | `look_up` | `page_up` | |
 | `look_down` | `page_down` | |
-| `equip_club` | `1` | Take the club |
-| `equip_sword` | `2` | Take the sword |
-| `equip_spear` | `3` | Take the spear |
-| `equip_bow` | `4` | Take the bow |
+| `equip_melee` | `1` | Take the next melee weapon held, in inventory order |
+| `equip_ranged` | `2` | Take the next ranged weapon held |
 | `quick_heal` | `h` | Drink a healing potion |
 | `quick_stamina` | `0` | Drink a stamina potion |
 | `quick_antidote` | `equals` | Drink an antidote (only while poisoned) |

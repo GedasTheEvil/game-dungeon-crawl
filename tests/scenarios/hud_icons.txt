@@ -8,16 +8,16 @@ give ranged 0
 give potion 1 2
 give potion 6 4
 wait 30
-key 1
+equip club
 wait 5
 screenshot club
-key 2
+equip sword
 wait 5
 screenshot sword
-key 3
+equip spear
 wait 5
 screenshot spear
-key 4
+equip bow
 wait 5
 screenshot bow
 expect equip_type == 2

@@ -8,7 +8,7 @@ screenshot full
 give potion 0 3
 give potion 5 1
 give melee 1
-key 2
+equip sword
 xp 600
 wait 5
 screenshot slots

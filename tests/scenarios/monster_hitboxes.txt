@@ -9,7 +9,7 @@ level tests/levels/hitbox_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 8s
 expect nearest == 10
@@ -23,7 +23,7 @@ level tests/levels/hitbox_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 8s
 expect nearest == 10
@@ -36,7 +36,7 @@ level tests/levels/hitbox_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 8s
 expect nearest == 10
@@ -49,7 +49,7 @@ level tests/levels/hitbox_rat
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 8s
 expect nearest == 12
@@ -63,7 +63,7 @@ level tests/levels/hitbox_rat
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 8s
 expect nearest == 12
@@ -76,7 +76,7 @@ level tests/levels/hitbox_rat
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 8s
 expect nearest == 12
@@ -89,7 +89,7 @@ level tests/levels/hitbox_worm
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 25s
 expect nearest == 30
@@ -103,7 +103,7 @@ level tests/levels/hitbox_worm
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 25s
 expect nearest == 30
@@ -116,7 +116,7 @@ level tests/levels/hitbox_worm
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 25s
 expect nearest == 30
@@ -129,7 +129,7 @@ level tests/levels/hitbox_giant_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 12s
 expect nearest == 90
@@ -143,7 +143,7 @@ level tests/levels/hitbox_giant_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 12s
 expect nearest == 90
@@ -156,7 +156,7 @@ level tests/levels/hitbox_giant_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 12s
 expect nearest == 90
@@ -169,7 +169,7 @@ level tests/levels/hitbox_boss_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 12s
 expect boss == 320
@@ -197,7 +197,7 @@ level tests/levels/hitbox_boss_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 12s
 expect boss == 320
@@ -224,7 +224,7 @@ level tests/levels/hitbox_boss_scarab
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 12s
 expect boss == 320
@@ -251,7 +251,7 @@ level tests/levels/hitbox_giant_rat
 hitboxes on
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 8s
 expect nearest == 60
@@ -265,7 +265,7 @@ level tests/levels/hitbox_giant_rat
 hitboxes on
 give melee 1
 give melee 2
-key 2
+equip sword
 walk right 1
 wait 8s
 expect nearest == 60
@@ -278,7 +278,7 @@ level tests/levels/hitbox_giant_rat
 hitboxes on
 give melee 1
 give melee 2
-key 3
+equip spear
 walk right 1
 wait 8s
 expect nearest == 60
@@ -290,7 +290,7 @@ expect nearest < 60
 level tests/levels/hitbox_bow
 hitboxes on
 give ranged 0
-key 4
+equip bow
 walk right 3.5
 wait 30
 expect nearest == 60

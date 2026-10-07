@@ -1,0 +1,18 @@
+# Moving or sprinting does not cancel a recovery (docs/plan/attack-timers.md). The club: 300 ms frame delay, then
+# 600 ms recovery, so the next attack can begin 900 ms after the first, whatever the player does meanwhile.
+seed 1
+god
+level tests/levels/archery
+wait 80
+attack
+expect attacking == 1
+sprint on
+hold right 700ms
+# the swing is over (560 ms), the recovery is not
+expect attacking == 0
+attack
+expect attacking == 0
+hold right 250ms
+sprint off
+attack
+expect attacking == 1

@@ -410,9 +410,27 @@ void Inventory::KeyPressed(unsigned char key) {
 	}
 }
 
-void Inventory::Equip(ItemKind weapon) {
-	if (!::isPotion(weapon))
-		Use(itemIndex(weapon));
+bool Inventory::Equip(ItemKind weapon) {
+	if (::isPotion(weapon))
+		return false;
+	Use(itemIndex(weapon));
+	return bag.Equipped() == weapon;
+}
+
+void Inventory::EquipNext(bool ranged) {
+	const ItemKind held = bag.Equipped();
+	const int from = isRanged(held) == ranged ? itemIndex(held) : -1;
+	for (int step = 1; step < WEAPON_KIND_COUNT + 1; step++) {
+		const ItemKind kind = itemAt((from + step) % WEAPON_KIND_COUNT);
+		if (isRanged(kind) != ranged)
+			continue;
+		if (kind == held) // round to it again: no other one of its class
+			return;
+		if (bag.Count(kind) > 0) {
+			Use(itemIndex(kind));
+			return;
+		}
+	}
 }
 
 void Inventory::SpecialKeyPressed(int key) {

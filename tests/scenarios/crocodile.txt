@@ -30,7 +30,7 @@ toon on
 screenshot toon
 toon off
 hold right 2
-key 2
+equip sword
 wait 10
 attack
 wait 40

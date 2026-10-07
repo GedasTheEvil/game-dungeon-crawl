@@ -93,17 +93,11 @@ class PlayerActionController {
 		case GameplayAction::QuickAntidote:
 			Game().ui.inventory->QuickAntidote();
 			break;
-		case GameplayAction::EquipClub:
-			equip(ItemKind::Club);
+		case GameplayAction::EquipMelee:
+			equipNext(false);
 			break;
-		case GameplayAction::EquipSword:
-			equip(ItemKind::Sword);
-			break;
-		case GameplayAction::EquipSpear:
-			equip(ItemKind::Spear);
-			break;
-		case GameplayAction::EquipBow:
-			equip(ItemKind::Bow);
+		case GameplayAction::EquipRanged:
+			equipNext(true);
 			break;
 		case GameplayAction::None:
 			break;
@@ -127,9 +121,9 @@ class PlayerActionController {
 	}
 
 	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
-	static void equip(ItemKind weapon) {
+	static void equipNext(bool ranged) {
 		if (Game().player->attackStartMs < 0)
-			Game().ui.inventory->Equip(weapon);
+			Game().ui.inventory->EquipNext(ranged);
 	}
 
 	// The swing (or the bow draw) begins; it hits when its hit time comes (updateAttack in draw.cpp).
@@ -138,7 +132,7 @@ class PlayerActionController {
 		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
 			return;
 		const Item* weapon = Game().ui.inventory->Equipped();
-		player.attackTimer.SetInterval(weapon->motion.attackMs);
+		player.attackTimer.SetInterval(weapon->motion.AttackMs());
 		player.attackStartMs = GameClock::now();
 		player.attackLanded = false;
 		weapon->swingSound.Play();
@@ -207,14 +201,10 @@ GameplayAction gameplayActionOf(BindAction action) {
 		return GameplayAction::QuickStamina;
 	case BindAction::QuickAntidote:
 		return GameplayAction::QuickAntidote;
-	case BindAction::EquipClub:
-		return GameplayAction::EquipClub;
-	case BindAction::EquipSword:
-		return GameplayAction::EquipSword;
-	case BindAction::EquipSpear:
-		return GameplayAction::EquipSpear;
-	case BindAction::EquipBow:
-		return GameplayAction::EquipBow;
+	case BindAction::EquipMelee:
+		return GameplayAction::EquipMelee;
+	case BindAction::EquipRanged:
+		return GameplayAction::EquipRanged;
 	case BindAction::Sprint:
 	case BindAction::LookLeft:
 	case BindAction::LookRight:
@@ -233,23 +223,15 @@ std::string keyCapOf(BindAction action) {
 	return key ? keyCap(*key) : "";
 }
 
-// "1-4" while the four weapons are on four keys in a row, else their first keys one after the other.
+// "1-2" while the melee and ranged keys are two keys in a row, else their first keys one after the other.
 std::string equipKeysCap() {
-	const BindAction weapons[] = {BindAction::EquipClub, BindAction::EquipSword, BindAction::EquipSpear,
-								  BindAction::EquipBow};
 	const Bindings& controls = Game().settings.controls;
-	const InputKey* first = controls.Of(weapons[0]).First();
-	bool run = first != nullptr && first->kind == InputKey::Kind::Char;
-	for (int i = 1; i < 4 && run; i++) {
-		const InputKey* key = controls.Of(weapons[i]).First();
-		run = key != nullptr && key->kind == InputKey::Kind::Char && key->code == first->code + i;
-	}
-	if (run)
-		return keyCap(*first) + "-" + keyCap(*controls.Of(weapons[3]).First());
-	std::string caps;
-	for (BindAction weapon : weapons)
-		caps += keyCapOf(weapon);
-	return caps;
+	const InputKey* melee = controls.Of(BindAction::EquipMelee).First();
+	const InputKey* ranged = controls.Of(BindAction::EquipRanged).First();
+	if (melee != nullptr && ranged != nullptr && melee->kind == InputKey::Kind::Char &&
+		ranged->kind == InputKey::Kind::Char && ranged->code == melee->code + 1)
+		return keyCap(*melee) + "-" + keyCap(*ranged);
+	return keyCapOf(BindAction::EquipMelee) + keyCapOf(BindAction::EquipRanged);
 }
 
 namespace {

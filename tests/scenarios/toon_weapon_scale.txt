@@ -8,16 +8,16 @@ give melee 2
 give ranged 0
 walk right 3
 wait 5
-key 1
+equip club
 wait 5
 screenshot club_off
-key 2
+equip sword
 wait 5
 screenshot sword_off
-key 3
+equip spear
 wait 5
 screenshot spear_off
-key 4
+equip bow
 wait 5
 screenshot bow_off
 attack
@@ -26,16 +26,16 @@ screenshot bow_drawn_off
 wait 60
 toon on
 wait 2
-key 1
+equip club
 wait 5
 screenshot club_toon
-key 2
+equip sword
 wait 5
 screenshot sword_toon
-key 3
+equip spear
 wait 5
 screenshot spear_toon
-key 4
+equip bow
 wait 5
 screenshot bow_toon
 attack

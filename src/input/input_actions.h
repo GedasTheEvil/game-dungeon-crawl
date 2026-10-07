@@ -17,10 +17,8 @@ enum class GameplayAction : unsigned char {
 	QuickHeal,	   // drink the best fitting healing potion (Inventory::QuickDrink)
 	QuickStamina,  // the same for stamina
 	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
-	EquipClub,	   // the four weapons, in ItemKind order
-	EquipSword,
-	EquipSpear,
-	EquipBow,
+	EquipMelee,	   // the next melee weapon held (Inventory::EquipNext)
+	EquipRanged,   // the next ranged one
 };
 
 // Runs an action as if the player pressed its key (used by scenario tests). A move action takes one step.
@@ -35,7 +33,7 @@ void stepHeldWalk();
 // The gameplay action a binding runs; None for the ones handled outside it (sprint, look, the screens).
 GameplayAction gameplayActionOf(BindAction action);
 
-// Key cap labels for the HUD, from the bindings: "H", "1-4"; empty when unbound.
+// Key cap labels for the HUD, from the bindings: "H", "1-2"; empty when unbound.
 std::string keyCapOf(BindAction action);
 std::string equipKeysCap();
 

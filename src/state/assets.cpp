@@ -352,8 +352,8 @@ struct ItemDef {
 };
 
 // The chest faces the camera at rotA 0 (tools/blender/models/items.py). Motion: grip, rest / windup / strike tilt,
-// thrust, hit / swing / attack ms. The club is slow and heavy, the sword quick, the spear thrusts. Mix: blunt, slash,
-// pierce percent.
+// thrust, hit (frame delay) / swing / recovery ms. The club is slow and heavy, the sword quick, the spear thrusts. Mix:
+// blunt, slash, pierce percent.
 const ItemDef ITEM_DEFS[] = {
 	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}, {}},
 	{&ItemPrototypes::club,
@@ -363,7 +363,7 @@ const ItemDef ITEM_DEFS[] = {
 	 10,
 	 2,
 	 {85, 15, 0},
-	 {0.12f, 35, -40, 115, 0, 300, 560, 900},
+	 {0.12f, 35, -40, 115, 0, 300, 560, 600},
 	 "club_swing",
 	 "club_hit"},
 	{&ItemPrototypes::sword,
@@ -373,7 +373,7 @@ const ItemDef ITEM_DEFS[] = {
 	 35,
 	 3,
 	 {0, 85, 15},
-	 {0.1f, 40, -10, 120, 0, 180, 360, 550},
+	 {0.1f, 40, -10, 120, 0, 180, 360, 370},
 	 "sword_swing",
 	 "sword_hit"},
 	{&ItemPrototypes::bow,
@@ -383,7 +383,7 @@ const ItemDef ITEM_DEFS[] = {
 	 12,
 	 30,
 	 {0, 0, 100},
-	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 1000},
+	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
 	 "bow_draw",
 	 "bow_release"},
 	{&ItemPrototypes::spear,
@@ -393,7 +393,7 @@ const ItemDef ITEM_DEFS[] = {
 	 20,
 	 5,
 	 {0, 15, 85},
-	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 750},
+	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 550},
 	 "spear_swing",
 	 "spear_hit"},
 	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1, {}, {}},

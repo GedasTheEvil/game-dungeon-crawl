@@ -1,6 +1,6 @@
 # Attack timers and weapon hotkeys per class
 
-Status: draft 2026-10-07. Split from [egyptian-weapons.draft.md](egyptian-weapons.draft.md): needs no new weapons,
+Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, split from [egyptian-weapons.draft.md](egyptian-weapons.draft.md): needs no new weapons,
 works with today's club, sword, spear and bow, and comes before them.
 
 ## Attack timers
@@ -48,3 +48,14 @@ With one ranged weapon today, `2` just equips the bow; the cycling pays off with
   the options controls table.
 * Tests: `tests/scenarios/weapon_hotkeys.txt` for the cycling; a scenario that sprints during a recovery and checks the
   next attack waits.
+
+## Done
+
+* `WeaponMotion::recoveryMs` replaces `attackMs`; `AttackMs()` (frame delay plus recovery) is the gate between
+  attacks. `hitMs` stays the frame delay's name.
+* Bindings `equip_melee` (`1`) and `equip_ranged` (`2`) replace `equip_club` .. `equip_bow`; `Inventory::EquipNext`
+  cycles. The HUD weapon slot shows `1-2`, the weapons field note names the two keys.
+* Scenarios equip with the new `equip WEAPON` command instead of the number keys; `expect attacking` reads whether a
+  swing or draw is under way.
+* Tests: `weapon_hotkeys.txt` (cycling, first of the class, free keys), `attack_recovery.txt` (sprinting through the
+  club's recovery; the next attack waits until 900 ms).

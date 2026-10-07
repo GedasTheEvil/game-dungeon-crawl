@@ -9,7 +9,7 @@ hitboxes on
 give melee 1
 give melee 2
 wait 30
-key 1
+equip club
 walk right 1
 wait 8s
 expect nearest == 60
@@ -25,7 +25,7 @@ hitboxes on
 give melee 1
 give melee 2
 wait 30
-key 2
+equip sword
 walk right 1
 wait 8s
 expect nearest == 60
@@ -41,7 +41,7 @@ hitboxes on
 give melee 1
 give melee 2
 wait 30
-key 3
+equip spear
 walk right 1
 wait 8s
 expect nearest == 60

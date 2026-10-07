@@ -1,6 +1,6 @@
 # Weapon hotkeys
 
-Status: done.
+Status: done. Replaced 2026-10-07 by the keys per class of [attack-timers.md](../attack-timers.md).
 
 Number keys equip a weapon directly, without opening the inventory:
 

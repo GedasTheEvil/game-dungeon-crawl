@@ -80,8 +80,12 @@ class Inventory {
 	// Selects the item and opens its tab, like a click on its slot (scenario `select`).
 	void SelectItem(ItemKind kind) { Select(itemIndex(kind)); }
 	void SpecialKeyPressed(int key);
-	// In game, the weapon keys (1-4): equips it if it was found, with the toast. A potion does nothing.
-	void Equip(ItemKind weapon);
+	// In game, the class keys (1 melee, 2 ranged): equips the next weapon of that class held, in ItemKind order and
+	// wrapping round, with the toast; the first one if the other class is in hand. None held: nothing.
+	void EquipNext(bool ranged);
+	// Equips the weapon like a click on its slot (scenario `equip`). False if it is not in hand afterwards (not
+	// held, a potion).
+	bool Equip(ItemKind weapon);
 	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
 	// left: nothing is drunk, the status box says why.
 	void QuickDrink(QuickKind kind);

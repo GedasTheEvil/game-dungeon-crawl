@@ -7,7 +7,7 @@ god
 level tests/levels/hitbox_giant_scarab
 give melee 1
 give melee 2
-key 1
+equip club
 walk right 1
 wait 12s
 expect nearest == 90
@@ -21,13 +21,13 @@ attack
 wait 60
 expect nearest == 72
 expect journal_tried == 1
-key 2
+equip sword
 wait 5
 attack
 wait 60
 expect nearest == 47
 expect journal_tried == 2
-key 3
+equip spear
 wait 5
 attack
 wait 60

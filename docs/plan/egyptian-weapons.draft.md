@@ -1,7 +1,7 @@
 # More Egyptian weapons
 
 Status: draft 2026-10-06, refined 2026-10-07. Depends on [inventory-overhaul.md](solved/inventory-overhaul.md): the
-weapons group passes the 8 slots of one tab page. Comes after [attack-timers.draft.md](attack-timers.draft.md): frame
+weapons group passes the 8 slots of one tab page. Comes after [attack-timers.md](attack-timers.md): frame
 delay and recovery per weapon, hotkeys per class.
 
 ## Idea
@@ -19,7 +19,7 @@ except the war chariot. 13 weapons, 9 of them new: the weapons group fills two t
   fires, not from new types.
 * Javelin, throwing stick and sling stones are endless, like arrows: no ammo, no pick-up. The throwing stick flies
   back to the hand (a look only, it changes nothing).
-* Hotkeys cycle per class, `1` melee, `2` ranged ([attack-timers.draft.md](attack-timers.draft.md)).
+* Hotkeys cycle per class, `1` melee, `2` ranged ([attack-timers.md](attack-timers.md)).
 * New `ItemKind` values go in inventory order inside the weapons group; file ids (`ItemType`, `src/world/items.h`)
   only get new ids at the end of their type, so old saves and levels still read.
 
@@ -46,7 +46,7 @@ them, tuned with [monster-balance.draft.md](monster-balance.draft.md).
 
 ### Attack timers
 
-Frame delay and recovery per weapon, as defined in [attack-timers.draft.md](attack-timers.draft.md). Attack ms in the
+Frame delay and recovery per weapon, as defined in [attack-timers.md](attack-timers.md). Attack ms in the
 table above is their sum. Melee: the dagger is quick on both, the spear thrusts fast and recovers long, the khopesh
 flows from swing to swing, the axes and the mace wind up long. Club, short sword, spear and self-bow keep their values
 from that plan.

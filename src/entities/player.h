@@ -45,7 +45,7 @@ class Player {
 	float rotA = 0.f;
 	float scale = 1.f;
 	float depthOffset = 0.f; // moved towards the back wall (world units) while climbing
-	Timer attackTimer{1000}; // the equipped weapon's WeaponMotion::attackMs between attacks
+	Timer attackTimer{1000}; // the equipped weapon's WeaponMotion::AttackMs() between attacks
 	JumpState jump;
 	// The attack under way (the swing, or the bow draw): GameClock time it began, < 0: none. Landed: its hit time
 	// (WeaponMotion::hitMs) has passed.

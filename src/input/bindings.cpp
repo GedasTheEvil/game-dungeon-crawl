@@ -86,10 +86,8 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 	{"look_right", "Look right"},
 	{"look_up", "Look up"},
 	{"look_down", "Look down"},
-	{"equip_club", "Club"},
-	{"equip_sword", "Sword"},
-	{"equip_spear", "Spear"},
-	{"equip_bow", "Bow"},
+	{"equip_melee", "Melee weapon"},
+	{"equip_ranged", "Ranged weapon"},
 	{"quick_heal", "Healing potion"},
 	{"quick_stamina", "Stamina potion"},
 	{"quick_antidote", "Antidote"},
@@ -135,10 +133,8 @@ Bindings::Bindings() {
 	set(BindAction::LookRight, sp(END), none(), none());
 	set(BindAction::LookUp, sp(PAGE_UP), none(), none());
 	set(BindAction::LookDown, sp(PAGE_DOWN), none(), none());
-	set(BindAction::EquipClub, ch('1'), none(), none());
-	set(BindAction::EquipSword, ch('2'), none(), none());
-	set(BindAction::EquipSpear, ch('3'), none(), none());
-	set(BindAction::EquipBow, ch('4'), none(), none());
+	set(BindAction::EquipMelee, ch('1'), none(), none());
+	set(BindAction::EquipRanged, ch('2'), none(), none());
 	set(BindAction::QuickHeal, ch('h'), none(), none());
 	set(BindAction::QuickStamina, ch('0'), none(), none());
 	set(BindAction::QuickAntidote, ch('='), none(), none());

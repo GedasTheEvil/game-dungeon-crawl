@@ -61,6 +61,7 @@ enum class CommandType : unsigned char {
 	Give,
 	Chest,
 	Select,
+	Equip,
 	Xp,
 	Hurt,
 	Poison,
@@ -95,6 +96,7 @@ enum class Field : unsigned char {
 	Bars,
 	Boss,
 	Minions,
+	Attacking,
 	Nearest,
 	Coffins,
 	JournalRiddles,
@@ -246,6 +248,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.BossHealth());
 	case Field::Minions:
 		return static_cast<float>(Game().dungeon.LivingMinions());
+	case Field::Attacking: // a swing or a bow draw under way
+		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
 	case Field::Nearest:
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::Coffins:
@@ -424,6 +428,7 @@ bool parseField(const std::string& word, Field& field) {
 				  {"bars", Field::Bars},
 				  {"boss", Field::Boss},
 				  {"minions", Field::Minions},
+				  {"attacking", Field::Attacking},
 				  {"nearest", Field::Nearest},
 				  {"coffins", Field::Coffins},
 				  {"chests", Field::Chests},
@@ -594,6 +599,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			!parseFloat(w[3], cmd.a))
 			return "usage: expect "
 				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|bars|boss|minions|"
+				   "attacking|"
 				   "coffins|"
 				   "<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
@@ -646,6 +652,15 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 				return "";
 			}
 		return "usage: select <item>: club, sword, spear, bow, small_health, ... (its label, _ for spaces)";
+	}
+	if (name == "equip") {
+		cmd.type = CommandType::Equip;
+		for (int i = 0; argc == 1 && i < WEAPON_KIND_COUNT; i++)
+			if (w[1] == itemSlug(itemAt(i))) {
+				cmd.item = itemAt(i);
+				return "";
+			}
+		return "usage: equip <weapon>: club, sword, spear, bow";
 	}
 	if (name == "xp") {
 		cmd.type = CommandType::Xp;
@@ -875,6 +890,13 @@ bool runInstant(const Command& cmd) {
 			return true;
 		}
 		Game().ui.inventory->SelectItem(cmd.item);
+		report(cmd, true, "");
+		return true;
+	case CommandType::Equip: // like a click on its slot in the inventory
+		if (!Game().ui.inventory->Equip(cmd.item)) {
+			report(cmd, false, "not held");
+			return true;
+		}
 		report(cmd, true, "");
 		return true;
 	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed

@@ -1,5 +1,7 @@
-# Number keys 1-4 equip club / sword / spear / bow in game. A weapon not found yet, a potion key, the inventory
-# open (the key only selects there) and a swing or bow draw under way leave the weapon in hand as it is.
+# Hotkeys per class (docs/plan/attack-timers.md): 1 equips the next melee weapon held, 2 the next ranged one, in
+# inventory order and wrapping round; the first of its class while the other class is in hand. None of that class
+# held, a free key (3, 4, a potion key), the inventory open (the key only selects there) and a swing or bow draw under
+# way leave the weapon in hand as it is.
 seed 1
 god
 level tests/levels/archery
@@ -7,36 +9,64 @@ wait 30
 expect equip_type == 1
 expect equip_id == 0
 
-# not found yet
+# no ranged weapon yet, and the club is the only melee one
 key 2
 wait 2
-expect equip_id == 0
-key 4
+expect equip_type == 1
+key 1
 wait 2
 expect equip_type == 1
+expect equip_id == 0
 
 give melee 1
 give melee 2
 give ranged 0
 give potion 0
-key 2
+
+# 1 cycles club, sword, spear, club
+key 1
 wait 2
 expect equip_id == 1
-key 3
+key 1
 wait 2
 expect equip_id == 2
-key 4
+key 1
+wait 2
+expect equip_type == 1
+expect equip_id == 0
+
+# 2 takes the bow, the only ranged weapon: again leaves it in hand
+key 2
 wait 2
 expect equip_type == 2
 expect equip_id == 0
-
-# a potion key does nothing
-key 5
+key 2
 wait 2
 expect equip_type == 2
+
+# from the bow, 1 takes the first melee weapon, the club, whatever was in hand before
+equip spear
+key 2
+wait 2
+expect equip_type == 2
+key 1
+wait 2
+expect equip_type == 1
+expect equip_id == 0
+
+# free keys and a potion key do nothing
+key 3
+wait 2
+key 4
+wait 2
+key 5
+wait 2
+expect equip_type == 1
+expect equip_id == 0
 expect potion0 == 1
 
 # during the bow draw: no switch
+equip bow
 wait 70
 attack
 wait 5
@@ -59,7 +89,7 @@ key i
 wait 5
 expect equip_id == 0
 
-# options: the controls table lists the hotkeys
+# options: the controls table lists the class keys
 key esc
 wait 2
 click 50 35.7

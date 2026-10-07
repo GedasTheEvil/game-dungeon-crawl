@@ -16,7 +16,8 @@ The Blender MCP (live GUI session) is optional: handy for quick live iteration, 
 
 ## Ideas (by payoff)
 
-1. **Reference images.** A folder per model, e.g. `docs/ref/<model>/`, with photos or concept art. The agent reads
+1. **Reference images.** `docs/plan/references/<model>/` with photos or concept art, kept out of git like
+   `docs/plan/screenshots/` (own `.gitignore` with `*`; the folder is already set up locally). The agent reads
    images and compares renders against them.
 2. **Model viewer screenshot mode.** `tools/model-viewer/viewer.cpp` CLI, e.g.
    `model-viewer --shot <md3> --clip walk --frames 0,4,8 --yaw 90 --out dir/`, which writes in-game-renderer
@@ -36,4 +37,3 @@ installed (ffmpeg for videos the user watches).
 ## Open
 
 * Which items to do first (suggestion: 2 and 3).
-* Reference image folder location and whether images go into git.

@@ -149,6 +149,32 @@ void PlayerStats::AddMaxHP(int hpPart) {
 	HP = MaxHP;
 }
 
+std::string PlayerStats::Drink(const PotionGain& gain) {
+	const int hpBefore = HP;
+	const int staminaBefore = stamina;
+	char buf[64];
+	if (gain.healPercent > 0) {
+		Heal(gain.healPercent);
+		snprintf(buf, sizeof(buf), "Healed %d health", HP - hpBefore);
+	} else if (gain.might > 0) {
+		AddMight(gain.might);
+		snprintf(buf, sizeof(buf), "Might rises to %d", CurrentMight());
+	} else if (gain.armor > 0) {
+		AddArmor(gain.armor);
+		snprintf(buf, sizeof(buf), "Armor rises to %d", CurrentArmor());
+	} else if (gain.cure) {
+		poison.Cure();
+		snprintf(buf, sizeof(buf), "The poison is gone");
+	} else if (gain.maxHpPercent > 0) {
+		AddMaxHP(gain.maxHpPercent);
+		snprintf(buf, sizeof(buf), "Max health rises to %d", CurrentMaxHP());
+	} else {
+		AddStamina(MaxStamina() * gain.staminaPercent / 100);
+		snprintf(buf, sizeof(buf), "Restored %d stamina", stamina - staminaBefore);
+	}
+	return buf;
+}
+
 void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);

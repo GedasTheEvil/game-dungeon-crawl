@@ -3,10 +3,12 @@
 
 #include "../core/timer.h"
 #include "../world/damage.h"
+#include "../world/item_bag.h"
 #include "../world/poison.h"
 #include "../world/world_events.h"
 #include <fstream>
 #include <optional>
+#include <string>
 
 constexpr int HP_PER_LEVEL = 12; // max HP gained per level up
 
@@ -73,6 +75,9 @@ class PlayerStats {
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const;
 	void LoseHP(int hp) { HP -= hp; }
 	void AddMaxHP(int hpPart); // percent, heals fully
+	// Applies a drunk potion's gain (ItemBag::Use took it out of the bag); returns the status line ("Healed 12
+	// health").
+	std::string Drink(const PotionGain& gain);
 	Poison poison;
 	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken; an amulet will change it
 	void Dump(std::ofstream& f) const;

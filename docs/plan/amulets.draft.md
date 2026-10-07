@@ -51,14 +51,25 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
   damage type instead (blunt, slash, pierce). Needs the monsters to deal typed damage:
   [monster-attack-damage-types.md](solved/monster-attack-damage-types.md).
 
+### Filled in by the implementer (2026-10-07, the user agreed to the suggestions)
+
+* Chests: an opened chest holds an extra amulet at 6%: lesser only up to level 10, from level 11 minor 40% / lesser
+  60%; any type but regeneration (it has no lesser or minor). The mimic's chest gives none.
+* Bosses: a boss leaves an amulet chest instead of its weapon chest: normal or grand (grand at 2% per level: 10% at
+  level 5, 60% at level 30), any of the nine types.
+* Generated levels get amulets the same way (chests, bosses). `./levelcheck` does not count them (random).
+* Health amulet: the bonus is a share of the base max HP (`PlayerStats::MaxHP`), so a max HP potion drunk while
+  wearing it is not counted twice.
+* Traps amulet: spike and death traps (`TrapHurt`), not falling rocks.
+* Order in the Amulets tab (rows of 4, one type a row): strength, armour, health, poison, traps, blunt, slash, pierce,
+  regeneration (normal, grand) last.
+* Models: one per type, all tiers share it. Strength: a jackal tooth on a cord. The others Egyptian pendants: armour
+  a bronze scarab, health a carnelian heart (ib), poison a scorpion (Serket), traps the eye of Horus, blunt the djed
+  pillar, slash the tyet knot, pierce the shen ring, regeneration a green lotus.
+* No journal note yet.
+
 ## Open
 
-* Chest chance per tier and depth (minor deeper than lesser?). Which amulet types can drop where.
-* `./levelcheck`: count the amulets a level can give?
-* Boss drops: every boss, or a chance? Chest chance per depth; the mimic's chest; amulet chests in generated levels.
-* Health amulet with max HP potions: the bonus as a % of the base max HP, so a potion drunk while wearing it is not
-  counted twice (suggested).
 * Balance of grand strength (+6 might) against weapon damage and monster HP: [monster balance](monster-balance.draft.md).
-* A sound for putting one on; a journal note per amulet?
-* Models and icons: one model per amulet type (strength: an animal tooth on a string), tiers share it; the others open.
+* A journal note per amulet.
 * More bonuses: slower sprint drain, a faster escape from the crocodile's hold, more damage of one type.

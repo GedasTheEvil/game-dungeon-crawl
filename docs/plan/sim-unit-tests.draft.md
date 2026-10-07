@@ -13,7 +13,9 @@ Monster AI, player stats, the decoration scatter and the mechanism / missile / b
 
 ## Steps (each worth it on its own)
 
-1. **Clock.** `core/timer.cpp` (`GameClock`) needs only `<chrono>`: move it into the level library. Then
+1. **Clock.** `core/timer.cpp` (`GameClock`) needs only `<chrono>`, but the render library uses it too, and
+   `check_layers.sh` lets a library include only its own headers: a small base library both link (or a check
+   exception for `core/timer.h`). Then
    `entities/player_stats.cpp` (stamina, heal, `HitDamage`, `AdvanceLevel`) can join it and get unit tests.
 2. **Decor scatter.** Split `dungeon_decor.cpp` into the scatter rules (seed + tier, no GL) and the drawing; the rules
    join the level library with tests.

@@ -199,35 +199,9 @@ void Inventory::Use(int slot) {
 }
 
 std::string Inventory::DrinkPotion(ItemKind potion) {
-	PlayerStats* s = &Game().player->stats;
-	int hpBefore = s->CurrentHP();
-	int staminaBefore = s->Stamina();
-
 	Game().assets.sounds.drink_s.Play();
 	bag.Use(potion, playerVitals());
-
-	PotionGain gain = potionGain(potion);
-	char buf[64];
-	if (gain.healPercent > 0) {
-		s->Heal(gain.healPercent);
-		snprintf(buf, sizeof(buf), "Healed %d health", s->CurrentHP() - hpBefore);
-	} else if (gain.might > 0) {
-		s->AddMight(gain.might);
-		snprintf(buf, sizeof(buf), "Might rises to %d", s->CurrentMight());
-	} else if (gain.armor > 0) {
-		s->AddArmor(gain.armor);
-		snprintf(buf, sizeof(buf), "Armor rises to %d", s->CurrentArmor());
-	} else if (gain.cure) {
-		s->poison.Cure();
-		snprintf(buf, sizeof(buf), "The poison is gone");
-	} else if (gain.maxHpPercent > 0) {
-		s->AddMaxHP(gain.maxHpPercent);
-		snprintf(buf, sizeof(buf), "Max health rises to %d", s->CurrentMaxHP());
-	} else {
-		s->AddStamina(s->MaxStamina() * gain.staminaPercent / 100);
-		snprintf(buf, sizeof(buf), "Restored %d stamina", s->Stamina() - staminaBefore);
-	}
-	return buf;
+	return Game().player->stats.Drink(potionGain(potion));
 }
 
 std::optional<ItemKind> Inventory::QuickChoice(QuickKind kind) const {

@@ -73,7 +73,7 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
    corrected).
 2. **Potion effects live in the inventory screen.** `Inventory::DrinkPotion` / `QuickDrink` (`ui/inventory.cpp:201-315`)
    apply gains to `PlayerStats`, play sounds and build the toast. Amulets and the resistance potion would land there
-   too. Draft: [item-effects-out-of-ui](../item-effects-out-of-ui.draft.md).
+   too. Draft: [item-effects-out-of-ui](item-effects-out-of-ui.md).
 3. **Drawing is still mixed into the sim files.** `draw*` functions in `dungeon_decor.cpp` (scatter rules + GL),
    `dungeon_mechanisms.cpp`, `dungeon_boss.cpp`, `dungeon_arrows.cpp`, `dungeon_monsters.cpp`; entities include GL.
    Known leftover ("its own stage", world-without-game). Effect: monster AI, player stats, decor scatter and mechanism
@@ -98,7 +98,7 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
 
 | # | Refactor | Cost | Gain for queued work |
 |---|---|---|---|
-| 1 | [item-effects-out-of-ui](../item-effects-out-of-ui.draft.md) | small | amulets, resistance potion land in the rules, unit-tested |
+| 1 | [item-effects-out-of-ui](item-effects-out-of-ui.md) | small | amulets, resistance potion land in the rules (done: in `PlayerStats`) |
 | 2 | [data-tables](../data-tables.draft.md): one row per monster / item kind | medium | every new monster, boss, weapon, potion, amulet; monster balance tuning |
 | 3 | [sim-unit-tests](../sim-unit-tests.draft.md): clock into the level lib, then rules out of the GL files | small first step, medium after | player stats, AI, scatter tested without a window; faster than scenarios |
 | 4 | [scenario-split](../scenario-split.draft.md) | small-medium | every feature adds scenario commands |

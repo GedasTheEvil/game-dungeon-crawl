@@ -20,7 +20,7 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 | Armour | tiered like strength | | | | adds to armour (`PlayerStats::Armor`); numbers open |
 | Health | +5% | +10% | +20% | +30% | more max HP |
 | Regeneration | - | - | 1 HP/s | 2 HP/s | normal and grand tiers only; out of combat only |
-| Poison | | | | | a chance to resist a poisoned hit (the poison, not the hit's damage); tiers open |
+| Poison | 10% | 25% | 50% | 80% | the chance to resist a poisoned hit (the poison, not the hit's damage) |
 | Traps | | | | | less trap damage; tiers open |
 | Pierce (blunt, slash alike) | | | | | a share off one damage type; tiers open |
 
@@ -32,7 +32,7 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Tier numbers for armour, poison, traps and the damage types. Traps can be seen and walked around, so a trap amulet
+* Tier numbers for armour, traps and the damage types. Traps can be seen and walked around, so a trap amulet
   needs a big cut or immunity to be worth the slot.
 * "Out of combat" for regeneration: how long after the last hit given or taken? Does poison pause it?
 * Health amulet: on taking it off, is the HP above the new max cut off?

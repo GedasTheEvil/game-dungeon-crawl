@@ -18,11 +18,11 @@ wait 5
 screenshot open
 expect equip_id == 0
 
-# hover the sword (not selected yet), then select it and hover Equip
-mouse 26.9 63.5
+# hover the short sword (the third slot, not selected yet), then select it and hover Equip
+mouse 39.3 63.5
 wait 20
 screenshot hover_sword
-click 26.9 63.5
+click 39.3 63.5
 mouse 70 19.5
 wait 5
 screenshot selected_sword_hover_equip

@@ -1,4 +1,5 @@
-"""Procedural items: the weapons (club, short sword, spear, the bows, sling, throwing stick, javelin), the missiles in
+"""Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
+bows, sling, throwing stick, javelin), the missiles in
 flight (arrow, sling stone), the potion flask and the treasure chest.
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
@@ -43,7 +44,7 @@ from common import REPO, Builder, cone, ellipsoid, transform, tube  # noqa: E402
 from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
-ITEMS = ["club", "sword", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
+ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
          "potion", "chest"]
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
@@ -231,6 +232,111 @@ def build_sword(b, M):
         taper = math.sin(math.radians(15 + 150 * k / 8))
         arc.append((V((0.034 * math.cos(a), 0, 0.034 * math.sin(a) - 0.004)), 0.004 + 0.007 * taper, 0.008 + 0.002 * taper))
     b.add(tube(arc, sub=2, n=8, ref=V((0, 1, 0)), bulge=(0.002, 0.002)), M["ivory"], "root")
+
+
+def build_dagger(b, M):
+    """Bronze dagger: a narrow leaf blade with a midrib, a cord-bound grip and a round bronze pommel."""
+    blade = [(0.12, 0.018, 0.0055), (0.15, 0.019, 0.0055), (0.24, 0.015, 0.005), (0.3, 0.008, 0.0035), (0.34, 0.0012, 0.0012)]
+    b.add(spindle(blade, n=8, shape=diamond, sub=3), M["blade"], "root")
+    for s in (-1, 1):
+        b.add(tube([(V((0, s * 0.003, 0.125)), 0.003, 0.0015), (V((0, s * 0.002, 0.3)), 0.0015, 0.001)], sub=2, n=6, ref=V((0, 1, 0))),
+              M["gold"], "root")
+    b.add(spindle([(0.1, 0.026, 0.006), (0.125, 0.028, 0.006)], n=8, sub=1), M["bronze_plain"], "root")  # the guard
+    b.add(spindle([(0.03, 0.01), (0.065, 0.012), (0.1, 0.01)], n=10), M["ebony"], "root")
+    wrap(b, M["cord"], 0.035, 0.095, 0.0115, 6)
+    b.add(ellipsoid((0, 0, 0.018), (0.02, 0.02, 0.018), n=12, rings=5), M["bronze_plain"], "root")
+
+
+def build_khopesh(b, M):
+    """The khopesh: an ebony grip with gold bands, a straight dark bronze shank and the hooked sickle blade curving
+    forward (+x) and down, the edge on the outer curve."""
+    b.add(spindle([(0.0, 0.012, 0.009), (0.06, 0.014, 0.011), (0.13, 0.012, 0.01)], n=12), M["ebony"], "root")
+    for z in (0.01, 0.05, 0.09, 0.125):
+        band(b, M["gold_band"], z, 0.0135, 0.008)
+    path = [(0.0, 0.13), (0.005, 0.22), (0.015, 0.3), (0.04, 0.38), (0.09, 0.45), (0.15, 0.49), (0.21, 0.5), (0.26, 0.47), (0.285, 0.42)]
+    widths = [0.012, 0.014, 0.02, 0.028, 0.034, 0.036, 0.034, 0.024, 0.003]
+    keys = [(V((x, 0, z)), w, 0.0055 if k < 2 else 0.004) for k, ((x, z), w) in enumerate(zip(path, widths))]
+    b.add(tube(keys, sub=3, n=8, ref=V((0, 1, 0)), shape=diamond), M["bronze_dark"], "root")
+    # The sharpened outer curve: a lighter strip along the blade's back edge.
+    edge = []
+    for k in range(3, len(path)):
+        x, z = path[k]
+        px, pz = path[k - 1]
+        tx, tz = x - px, z - pz
+        n = math.hypot(tx, tz)
+        nx, nz = -tz / n, tx / n  # left normal: out of the hook
+        edge.append((V((x + nx * widths[k] * 0.8, 0, z + nz * widths[k] * 0.8)), 0.004, 0.0045))
+    b.add(tube(edge, sub=3, n=6, ref=V((0, 1, 0))), M["blade"], "root")
+
+
+def axe_haft(b, M, length, lashings):
+    """Wooden haft along Z with a leather-wrapped grip and cord lashings at the given heights."""
+    b.add(spindle([(0.0, 0.016), (length * 0.5, 0.017), (length, 0.015)], n=10), M["wood"], "root")
+    wrap(b, M["leather"], 0.02, 0.16, 0.0175, 8)
+    for z in lashings:
+        wrap(b, M["cord"], z - 0.018, z + 0.018, 0.0175, 4)
+
+
+def build_epsilon_axe(b, M):
+    """Epsilon axe: a long haft, the bronze crescent blade on three tangs lashed to it near the top (the openings
+    between the tangs give it the shape of the letter)."""
+    axe_haft(b, M, 0.7, (0.5, 0.58, 0.66))
+    cx, cz, r = 0.035, 0.58, 0.12
+    arc = []
+    for k in range(13):
+        a = math.radians(-62 + 124 * k / 12)
+        w = 0.016 * (1 - 0.6 * abs(k - 6) / 6) + 0.004
+        arc.append((V((cx + r * math.cos(a), 0, cz + r * math.sin(a))), w, 0.005))
+    b.add(tube(arc, sub=2, n=8, ref=V((0, 1, 0)), shape=diamond), M["bronze_plain"], "root")
+    for z in (0.5, 0.58, 0.66):  # the tangs, from the haft to the blade
+        a = math.asin(max(-1, min(1, (z - cz) / r)))
+        x = cx + r * math.cos(a) - 0.012
+        b.add(place(box(x - 0.01, 0.007, 0.022), loc=((x + 0.01) / 2, 0, z)), M["bronze_plain"], "root")
+
+
+def build_duckbill_axe(b, M):
+    """Duckbill axe: a haft with a bronze blade at its top, reaching forward (+x) and narrowing like a bill, two long
+    openings through it."""
+    axe_haft(b, M, 0.62, (0.5, 0.6))
+    z0, z1 = 0.47, 0.63  # the blade's height at the haft
+    x0, x1 = 0.012, 0.14
+    t = 0.008
+
+    def zz(x, top):  # the blade narrows towards its edge
+        k = (x - x0) / (x1 - x0)
+        mid = (z0 + z1) / 2
+        half = (z1 - z0) / 2 * (1 - 0.35 * k)
+        return mid + half if top else mid - half
+
+    def bar(xa, xb, za, zb):
+        b.add(place(box(xb - xa, t, zb - za), loc=((xa + xb) / 2, 0, (za + zb) / 2)), M["bronze_plain"], "root")
+
+    # A frame round two openings: the back, the middle and the edge upright, the top and bottom rails.
+    bar(x0, x0 + 0.022, zz(x0, False), zz(x0, True))
+    xm = (x0 + x1) / 2
+    bar(xm - 0.008, xm + 0.008, zz(xm, False), zz(xm, True))
+    bar(x1 - 0.03, x1, zz(x1, False), zz(x1, True))
+    for top in (False, True):
+        pts = [(x, zz(x, top)) for x in (x0, xm, x1)]
+        for (xa, za), (xb, zb) in zip(pts, pts[1:]):
+            b.add(rod(V((xa, 0, za + (-0.012 if top else 0.012))), V((xb, 0, zb + (-0.012 if top else 0.012))), 0.012, n=4), M["bronze_plain"], "root")
+    b.add(place(box(0.008, t * 1.4, zz(x1, True) - zz(x1, False)), loc=(x1, 0, (z0 + z1) / 2)), M["blade"], "root")  # the edge
+
+
+def build_mace(b, M):
+    """Mace: a pear-shaped stone head bound with crossed leather straps on a cord-wrapped wooden haft."""
+    b.add(spindle([(0.0, 0.016), (0.25, 0.017), (0.46, 0.015)], n=10), M["wood"], "root")
+    wrap(b, M["cord"], 0.02, 0.2, 0.0175, 12)
+    wrap(b, M["leather"], 0.38, 0.45, 0.017, 5)
+    head = transform(decor.rock(V((0, 0, 0.53)), (0.07, 0.065, 0.075), seed=11, amp=0.06, n=14, rings=8),
+                     lambda v: V((v.x * (0.75 + 0.25 * (v.z - 0.455) / 0.15), v.y * (0.75 + 0.25 * (v.z - 0.455) / 0.15), v.z)))
+    b.add(head, M["stone"], "root")
+    for a in (0.0, math.pi / 2):  # two straps crossing over the top
+        pts = []
+        for k in range(11):
+            th = math.pi * k / 10
+            pts.append(V((0.074 * math.cos(th) * math.cos(a), 0.074 * math.cos(th) * math.sin(a), 0.53 + 0.077 * math.sin(th))))
+        b.add(tube([(p, 0.009, 0.003) for p in pts], sub=2, n=6, ref=V((0, 0, 1))), M["leather"], "root")
 
 
 def build_spear(b, M):
@@ -557,7 +663,12 @@ def merge(b, other):
 
 BUILDERS = {
     "club": build_club,
+    "dagger": build_dagger,
     "sword": build_sword,
+    "khopesh": build_khopesh,
+    "epsilon_axe": build_epsilon_axe,
+    "duckbill_axe": build_duckbill_axe,
+    "mace": build_mace,
     "spear": build_spear,
     "bow": build_bow,
     "composite_bow": build_composite_bow,

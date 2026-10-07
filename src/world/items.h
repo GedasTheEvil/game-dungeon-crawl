@@ -10,7 +10,12 @@
 // Every item, in inventory screen and save order: the melee weapons, the ranged ones, then the potions.
 enum class ItemKind : std::uint8_t {
 	Club,
+	Dagger,
 	ShortSword,
+	Khopesh,
+	EpsilonAxe,
+	DuckbillAxe,
+	Mace,
 	Spear,
 	SelfBow, // the first ranged weapon
 	CompositeBow,
@@ -26,8 +31,8 @@ enum class ItemKind : std::uint8_t {
 	LargeStamina,
 	Antidote,
 };
-constexpr int ITEM_KIND_COUNT = 16;
-constexpr int WEAPON_KIND_COUNT = 8;
+constexpr int ITEM_KIND_COUNT = 21;
+constexpr int WEAPON_KIND_COUNT = 13;
 constexpr int POTION_KIND_COUNT = ITEM_KIND_COUNT - WEAPON_KIND_COUNT;
 
 // The weapons the player holds, by itemIndex.

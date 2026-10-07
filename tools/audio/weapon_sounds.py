@@ -8,7 +8,8 @@ spear_hit.wav (stab: punch and tearing hiss), bow_draw.wav (the draw: creaking w
 bow_release.wav (string twang and snap, the arrow's whoosh), arrow_hit.wav (thunk into a body),
 arrow_wall.wav (tock into stone and the shaft buzzing), sling_swing.wav (the sling whirled round, faster each turn),
 sling_release.wav (the cord's snap, the stone whizzing off), throw.wav (an arm's throw: the throwing stick, the
-javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone).
+javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone),
+axe_hit.wav (a heavy chop: the blade bites in), mace_hit.wav (stone on bone: a deep crunch).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py.
 """
@@ -207,13 +208,30 @@ def stone_wall():
     return normalize(out, -7)
 
 
+def axe_hit():
+    out = np.zeros(int(0.45 * SR))
+    place(out, thud(120, 50, 0.3, 0.08), 0.0, 1.0)  # the weight
+    place(out, burst(0.09, 1200, 4500, 0.025, attack=0.003), 0.0, 0.7)  # the bite
+    place(out, ring([1700, 2600], 0.3, 0.09), 0.0, 0.1)
+    return normalize(out, -3)
+
+
+def mace_hit():
+    out = np.zeros(int(0.45 * SR))
+    place(out, thud(110, 40, 0.35, 0.1), 0.0, 1.0)
+    for k, at in enumerate((0.0, 0.012, 0.03)):  # the crunch
+        place(out, burst(0.04, 600, 2500, 0.01), at, 0.6 / (k + 1))
+    return normalize(out, -3)
+
+
 # Paths under sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
     "items/sword_hit": sword_hit, "items/spear_swing": spear_swing, "items/spear_hit": spear_hit,
     "items/bow_draw": bow_draw, "items/bow_release": bow_release, "items/arrow_hit": arrow_hit,
     "items/arrow_wall": arrow_wall, "items/sling_swing": sling_swing, "items/sling_release": sling_release,
-    "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall,
+    "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall, "items/axe_hit": axe_hit,
+    "items/mace_hit": mace_hit,
 }
 
 

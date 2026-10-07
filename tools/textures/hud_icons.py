@@ -199,6 +199,79 @@ def javelin():
     return img
 
 
+BRONZE = (196, 132, 58, 255)
+DARK = (60, 50, 40, 255)
+
+
+def dagger():
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    part(d, [(-60, -30), (170, -20), (245, 0), (170, 20), (-60, 30)], METAL)
+    d.line(to_image([(-50, 0), (190, 0)]), fill=INK, width=LINE)
+    part(d, box(-180, -80, 15), LEATHER)
+    part(d, box(-90, -60, 62), GOLD)
+    disc(d, -200, 0, 34, GOLD)
+    return img
+
+
+def khopesh():
+    """Grip bottom left, a straight shank, the hooked blade curving out and back."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    part(d, box(-280, -150, 17), (40, 34, 30, 255))
+    for x in (-260, -215, -170):
+        part(d, box(x, x + 14, 19), GOLD)
+    outer = [(-150, -16), (0, -18), (80, -40), (170, -95), (240, -110), (280, -80), (270, -40)]
+    inner = [(240, -60), (200, -60), (130, -25), (60, 6), (0, 14), (-150, 16)]
+    part(d, [(0.8 * x - 30, 0.8 * y) for x, y in outer + inner], BRONZE)
+    return img
+
+
+def axe_haft(d, length=240):
+    part(d, box(-280, length, 15), WOOD)
+    part(d, box(-280, -170, 18), LEATHER)
+
+
+def epsilon_axe():
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    axe_haft(d)
+    cx, r = 120, 105
+    for x in (50, 120, 190):  # the tangs, from the haft to the blade
+        part(d, [(x - 12, -14), (x + 12, -14), (x + 12, -60), (x - 12, -60)], BRONZE)
+    arc_o = [(cx + r * math.cos(a), -60 - 80 * math.sin(a)) for a in [math.pi * k / 16 for k in range(17)]]
+    arc_i = [(cx + (r - 30) * math.cos(a), -60 - 50 * math.sin(a)) for a in [math.pi * k / 16 for k in range(16, -1, -1)]]
+    part(d, arc_o + arc_i, BRONZE)
+    for x in (50, 120, 190):
+        part(d, box(x - 10, x + 10, 19), STRING)
+    return img
+
+
+def duckbill_axe():
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    axe_haft(d, 200)
+    part(d, [(95, -16), (190, -16), (180, -110), (110, -100)], BRONZE)
+    for x0 in (115, 148):
+        part(d, [(x0, -38), (x0 + 20, -38), (x0 + 20, -88), (x0, -86)], DARK)
+    for x in (105, 175):
+        part(d, box(x - 10, x + 10, 19), STRING)
+    return img
+
+
+def mace():
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    part(d, box(-280, 120, 16), WOOD)
+    for x in (-260, -230, -200, -170):
+        part(d, box(x, x + 14, 19), STRING)
+    head = [(110 + 105 * math.cos(a) * (1.25 if math.cos(a) > 0 else 0.9), 85 * math.sin(a)) for a in [2 * math.pi * k / 32 for k in range(32)]]
+    part(d, head, STONE)
+    d.line(to_image([(120, -82), (210, 0), (120, 82)]), fill=LEATHER, width=16)
+    d.line(to_image([(80, -80), (80, 80)]), fill=LEATHER, width=16)
+    return img
+
+
 def potion():
     img = Image.new("RGBA", (S, S))
     d = ImageDraw.Draw(img)
@@ -240,7 +313,8 @@ def ring():
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell.
 ICONS = [potion, amulet, ring, None, None, None, None, None,
-         club, sword, spear, bow, composite_bow, sling, throwing_stick, javelin]
+         club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
+         bow, composite_bow, sling, throwing_stick, javelin]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

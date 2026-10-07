@@ -38,7 +38,9 @@ int weaponGrowthPercent(ItemKind weapon) {
 		return 40;
 	case ItemKind::ShortSword:
 		return 10;
-	default: // spear, the bows
+	case ItemKind::Dagger:
+		return 30;
+	default:
 		return 20;
 	}
 }

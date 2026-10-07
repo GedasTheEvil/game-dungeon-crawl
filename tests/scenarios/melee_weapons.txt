@@ -1,0 +1,79 @@
+# The melee weapons beside club, short sword and spear (docs/plan/egyptian-weapons.draft.md), each at its hit frame
+# with the debug boxes, next to a giant rat stopped where it bites (as weapon_reach.txt): every one reaches it.
+seed 1
+god
+
+# dagger
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 3
+wait 30
+equip dagger
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 150ms
+screenshot dagger_hit
+wait 60
+expect nearest < 60
+
+# khopesh
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 4
+wait 30
+equip khopesh
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 300ms
+screenshot khopesh_hit
+wait 60
+expect nearest < 60
+
+# epsilon axe
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 5
+wait 30
+equip epsilon_axe
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 550ms
+screenshot epsilon_axe_hit
+wait 60
+expect nearest < 60
+
+# duckbill axe
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 6
+wait 30
+equip duckbill_axe
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 500ms
+screenshot duckbill_axe_hit
+wait 60
+expect nearest < 60
+
+# mace
+level tests/levels/hitbox_giant_rat
+hitboxes on
+give melee 7
+wait 30
+equip mace
+walk right 1
+wait 8s
+expect nearest == 60
+attack
+wait 600ms
+screenshot mace_hit
+wait 60
+expect nearest < 60

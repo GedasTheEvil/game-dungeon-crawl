@@ -6,7 +6,9 @@ Writes items/club_swing.wav (heavy, low whoosh), club_hit.wav (dull wooden thud 
 swish with a faint ring), sword_hit.wav (slash: cut, wet slap, blade ring), spear_swing.wav (short airy thrust),
 spear_hit.wav (stab: punch and tearing hiss), bow_draw.wav (the draw: creaking wood, string tension),
 bow_release.wav (string twang and snap, the arrow's whoosh), arrow_hit.wav (thunk into a body),
-arrow_wall.wav (tock into stone and the shaft buzzing).
+arrow_wall.wav (tock into stone and the shaft buzzing), sling_swing.wav (the sling whirled round, faster each turn),
+sling_release.wav (the cord's snap, the stone whizzing off), throw.wav (an arm's throw: the throwing stick, the
+javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py.
 """
@@ -168,12 +170,50 @@ def arrow_wall():
     return normalize(out, -6)
 
 
+def sling_swing():
+    """Whirled round for the frame delay (350 ms): three swoops, each one shorter and brighter."""
+    out = np.zeros(int(0.36 * SR))
+    at = 0.0
+    for k, dur in enumerate((0.14, 0.11, 0.09)):
+        place(out, whoosh(dur, 300 + 200 * k, 1200 + 500 * k, 500 + 200 * k, 2000 + 600 * k, peak=0.5), at, 0.6 + 0.2 * k)
+        at += dur * 0.85
+    return normalize(out, -7)
+
+
+def sling_release():
+    out = np.zeros(int(0.4 * SR))
+    place(out, burst(0.025, 1200, 4500, 0.005), 0.0, 0.8)  # the cord snaps
+    place(out, whoosh(0.3, 2500, 6000, 1500, 4000, peak=0.15), 0.005, 0.6)  # the stone whizzes off
+    return normalize(out, -5)
+
+
+def throw():
+    return normalize(whoosh(0.3, 250, 900, 700, 2600, peak=0.4), -5)
+
+
+def stone_hit():
+    out = np.zeros(int(0.3 * SR))
+    place(out, thud(170, 70, 0.22, 0.06), 0.0, 1.0)
+    place(out, burst(0.05, 400, 1400, 0.01), 0.0, 0.5)
+    return normalize(out, -4)
+
+
+def stone_wall():
+    out = np.zeros(int(0.35 * SR))
+    place(out, burst(0.03, 2000, 7000, 0.004), 0.0, 1.0)  # the clack
+    place(out, thud(1300, 1000, 0.05, 0.01), 0.0, 0.4)
+    for k, at in enumerate((0.07, 0.12, 0.155)):  # bouncing away
+        place(out, burst(0.02, 2200, 6500, 0.003), at, 0.4 / (k + 1))
+    return normalize(out, -7)
+
+
 # Paths under sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
     "items/sword_hit": sword_hit, "items/spear_swing": spear_swing, "items/spear_hit": spear_hit,
     "items/bow_draw": bow_draw, "items/bow_release": bow_release, "items/arrow_hit": arrow_hit,
-    "items/arrow_wall": arrow_wall,
+    "items/arrow_wall": arrow_wall, "items/sling_swing": sling_swing, "items/sling_release": sling_release,
+    "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall,
 }
 
 

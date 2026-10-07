@@ -111,7 +111,7 @@ void Dungeon::Update() {
 	updateMechanisms();
 	UpdateMonsters();
 	noteSeenMonsters();
-	updateArrows();
+	updateMissiles();
 	updateVenoms();
 	updateTraps();
 	spawnInView();

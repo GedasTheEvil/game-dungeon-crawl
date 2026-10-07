@@ -20,6 +20,7 @@ struct SoundBank {
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport;
 	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
+	Sound stoneHit, stoneWall;	 // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
 	Sound wade, splash;			 // a step in half water, landing in it
 	Sound pageTurn;				 // the journal's paper rustle
@@ -38,9 +39,9 @@ struct ItemPrototypes {
 	std::unique_ptr<Item> chest, potion;
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
 	[[nodiscard]] Item* Of(ItemKind kind) const;				  // every potion shares one model
-	// The bow's arrow in flight: not an inventory item, a static model in metres (items.py). Null if missing.
-	Texture arrowTex;
-	std::unique_ptr<AnimatedModel> arrow;
+	// The missiles in flight, by MissileKind: static models in metres (items.py), not centred. Null if missing.
+	std::array<Texture, MISSILE_KIND_COUNT> missileTex;
+	std::array<std::unique_ptr<AnimatedModel>, MISSILE_KIND_COUNT> missiles;
 };
 
 struct TrapSet {

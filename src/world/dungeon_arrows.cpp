@@ -21,9 +21,28 @@ constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;
 constexpr float PI = 3.14159265f;
+constexpr int STICK_RETURN_MS = 400; // the throwing stick flies back to the hand, a look only
+
+// How each missile flies (MissileKind order). Arc: a share of the arrow's (a flat sling shot, a lobbed stick). Spin
+// in degrees a second, drawn round its middle; a missile that does not spin is drawn tip first along its flight.
+struct MissileRules {
+	float arc;
+	float spinDegPerS;
+	bool sticks;  // stays in a wall or the floor for a while (ARROW_STUCK_MS); else gone at once
+	bool returns; // flies back to the player after a hit or a wall
+	float scale;  // drawn this many times its size in metres (the stone would be a speck)
+	WorldSound hit, wall;
+};
+constexpr MissileRules MISSILE_RULES[MISSILE_KIND_COUNT] = {
+	{1.f, 0.f, true, false, 1.f, WorldSound::ArrowHit, WorldSound::ArrowWall},	   // arrow
+	{0.35f, 0.f, false, false, 2.5f, WorldSound::StoneHit, WorldSound::StoneWall}, // sling stone
+	{0.6f, 900.f, false, true, 1.2f, WorldSound::StoneHit, WorldSound::StoneWall}, // throwing stick
+	{1.f, 0.f, true, false, 1.f, WorldSound::ArrowHit, WorldSound::ArrowWall},	   // javelin
+};
+const MissileRules& rulesOf(MissileKind kind) { return MISSILE_RULES[static_cast<size_t>(kind)]; }
 } // namespace
 
-float Dungeon::Arrow::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
+float Dungeon::Missile::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
 //======================================================================================
 bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const {
 	const auto row = static_cast<int>(std::floor(y));
@@ -54,16 +73,16 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 	return found;
 }
 //======================================================================================
-void Dungeon::ShootArrow(int damage, const DamageMix& mix, int dir, float height, float aimRange) {
+void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height - PlayerSink() / RenderConfig::TILE_SIZE; // wading, the bow is down in the water
-	float targetX = x0 + static_cast<float>(dir) * ARROW_FREE_RANGE;
+	float targetX = x0 + static_cast<float>(dir) * std::min(ARROW_FREE_RANGE, aimRange);
 	float targetY = mapY; // the floor
 	aimTarget(x0, y0, dir, aimRange, targetX, targetY);
 	// Rise to the top of the arc, then come down through the target.
 	const float dx = std::fabs(targetX - x0);
 	const float dy = targetY - y0;
-	float rise = std::max(dy, 0.f) + ARROW_ARC_BASE + ARROW_ARC_PER_TILE * dx;
+	float rise = std::max(dy, 0.f) + rulesOf(kind).arc * (ARROW_ARC_BASE + ARROW_ARC_PER_TILE * dx);
 	auto speeds = [&](float r, float& vx, float& vy) {
 		vy = std::sqrt(2.f * ARROW_GRAVITY * r);
 		const float flight = (vy + std::sqrt(2.f * ARROW_GRAVITY * (r - dy))) / ARROW_GRAVITY;
@@ -89,15 +108,17 @@ void Dungeon::ShootArrow(int damage, const DamageMix& mix, int dir, float height
 			break;
 		}
 	}
-	arrows.push_back({x0, y0, static_cast<float>(dir) * vx, vy, damage, mix, GameClock::now()});
+	missiles.push_back({kind, x0, y0, static_cast<float>(dir) * vx, vy, damage, mix, GameClock::now()});
 }
 //======================================================================================
-void Dungeon::updateArrows() {
+void Dungeon::updateMissiles() {
 	const int now = GameClock::now();
-	for (auto it = arrows.begin(); it != arrows.end();) {
-		Arrow& a = *it;
+	for (auto it = missiles.begin(); it != missiles.end();) {
+		Missile& a = *it;
+		const MissileRules& rules = rulesOf(a.kind);
 		if (a.stuckMs >= 0) {
-			it = now - a.stuckMs >= ARROW_STUCK_MS ? arrows.erase(it) : it + 1;
+			const int lasts = rules.returns ? STICK_RETURN_MS : ARROW_STUCK_MS;
+			it = now - a.stuckMs >= lasts ? missiles.erase(it) : it + 1;
 			continue;
 		}
 		const float flown = static_cast<float>(now - a.startMs) / 1000.f;
@@ -116,7 +137,8 @@ void Dungeon::updateArrows() {
 				y >= static_cast<float>(row + 1) - RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
 			if (isSolidTile(MapAt(col, row)) && !inBasin) {
 				a.stuckMs = now; // the tip in the wall or the floor
-				sim.events->Play(WorldSound::ArrowWall);
+				sim.events->Play(rules.wall);
+				gone = !rules.sticks && !rules.returns;
 				break;
 			}
 			for (Monster& mon : monsters)
@@ -124,30 +146,51 @@ void Dungeon::updateArrows() {
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
 					// The water takes the arrow's force: a monster in it is hit for a share.
 					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix);
-					sim.events->Play(WorldSound::ArrowHit);
-					gone = true;
+					sim.events->Play(rules.hit);
+					if (rules.returns)
+						a.stuckMs = now;
+					else
+						gone = true;
 					break;
 				}
 		}
-		it = gone ? arrows.erase(it) : it + 1;
+		if (a.stuckMs >= 0) {
+			a.endX = a.X();
+			a.endY = a.Y();
+		}
+		it = gone ? missiles.erase(it) : it + 1;
 	}
 }
 //======================================================================================
-void Dungeon::drawArrows() {
-	AnimatedModel* model = sim.assets->items.arrow.get();
-	if (!model)
-		return;
+void Dungeon::drawMissiles() {
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);
-	const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale();
-	const float length = model->YRange(0).second * scale;
-	for (const Arrow& a : arrows) {
-		const float heading = std::atan2(a.vy - ARROW_GRAVITY * a.t, a.vx) * RAD_TO_DEG;
+	const int now = GameClock::now();
+	for (const Missile& a : missiles) {
+		AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(a.kind)].get();
+		if (!model)
+			continue;
+		const MissileRules& rules = rulesOf(a.kind);
+		const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale() * rules.scale;
+		const auto [low, high] = model->YRange(0);
+		float x = a.X(), y = a.Y();
+		if (rules.returns && a.stuckMs >= 0) { // back to the player's hand
+			const float k = std::min(1.f, static_cast<float>(now - a.stuckMs) / static_cast<float>(STICK_RETURN_MS));
+			const float handY = mapY + 0.5f * sim.player->Height();
+			x = a.endX + (mapX - a.endX) * k;
+			y = a.endY + (handY - a.endY) * k;
+		}
 		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (a.X() - firstCol), RenderConfig::TILE_SIZE * (a.Y() - firstRow),
-					 ARROW_DEPTH);
-		glRotatef(heading - 90.f, 0, 0, 1); // the model points up (+y), the tip at the flight position
-		glTranslatef(0, -length, 0);
+		glTranslatef(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow), ARROW_DEPTH);
+		if (rules.spinDegPerS > 0.f) { // round its middle
+			const float turned = rules.spinDegPerS * static_cast<float>(now - a.startMs) / 1000.f;
+			glRotatef(a.vx > 0.f ? -turned : turned, 0, 0, 1);
+			glTranslatef(0, -(low + high) / 2.f * scale, 0);
+		} else { // the model points up (+y), the tip at the flight position
+			const float heading = std::atan2(a.vy - ARROW_GRAVITY * a.t, a.vx) * RAD_TO_DEG;
+			glRotatef(heading - 90.f, 0, 0, 1);
+			glTranslatef(0, -high * scale, 0);
+		}
 		glScalef(scale, scale, scale);
 		model->Show();
 		glPopMatrix();

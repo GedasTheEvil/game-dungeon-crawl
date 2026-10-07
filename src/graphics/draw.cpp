@@ -89,6 +89,9 @@ void drawWeapon() { // in the fist nearer the camera
 	const int facing = Game().camera.Facing();
 	const auto dir = static_cast<float>(facing);
 	Item* weapon = Game().ui.inventory->Equipped();
+	const Player& player = *Game().player;
+	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
+		return; // in the air: the hand is empty until the swing ends
 	const SwingPose pose = swingPose(weapon->motion);
 	const std::array<float, 3> fist = Game().player->Fist(facing);
 	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1

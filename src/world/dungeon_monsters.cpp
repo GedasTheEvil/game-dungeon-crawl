@@ -201,7 +201,7 @@ int Dungeon::MonsterBarsShown() const {
 void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
-	arrows.clear();
+	missiles.clear();
 	venoms.clear();
 	holes.clear();
 	bossFight = BossFight{};

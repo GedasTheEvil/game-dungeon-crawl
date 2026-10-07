@@ -13,6 +13,10 @@ enum class ItemKind : std::uint8_t {
 	ShortSword,
 	Spear,
 	SelfBow, // the first ranged weapon
+	CompositeBow,
+	Sling,
+	ThrowingStick,
+	Javelin,
 	SmallHealth,
 	LargeHealth,
 	Might,
@@ -22,8 +26,8 @@ enum class ItemKind : std::uint8_t {
 	LargeStamina,
 	Antidote,
 };
-constexpr int ITEM_KIND_COUNT = 12;
-constexpr int WEAPON_KIND_COUNT = 4;
+constexpr int ITEM_KIND_COUNT = 16;
+constexpr int WEAPON_KIND_COUNT = 8;
 constexpr int POTION_KIND_COUNT = ITEM_KIND_COUNT - WEAPON_KIND_COUNT;
 
 // The weapons the player holds, by itemIndex.
@@ -33,6 +37,25 @@ constexpr int itemIndex(ItemKind kind) { return static_cast<int>(kind); }
 constexpr ItemKind itemAt(int index) { return static_cast<ItemKind>(index); } // 0 .. ITEM_KIND_COUNT - 1
 constexpr bool isPotion(ItemKind kind) { return itemIndex(kind) >= WEAPON_KIND_COUNT; }
 constexpr bool isRanged(ItemKind kind) { return itemIndex(kind) >= itemIndex(ItemKind::SelfBow) && !isPotion(kind); }
+
+// What a ranged weapon shoots (Dungeon::Shoot): the bows an arrow, the sling a stone; the throwing stick and the
+// javelin fly themselves. Endless, like the arrows: no ammunition.
+enum class MissileKind : std::uint8_t { Arrow, Stone, Stick, Javelin };
+constexpr int MISSILE_KIND_COUNT = 4;
+constexpr MissileKind missileOf(ItemKind weapon) {
+	switch (weapon) {
+	case ItemKind::Sling:
+		return MissileKind::Stone;
+	case ItemKind::ThrowingStick:
+		return MissileKind::Stick;
+	case ItemKind::Javelin:
+		return MissileKind::Javelin;
+	default:
+		return MissileKind::Arrow;
+	}
+}
+// Thrown: the weapon itself leaves the hand (Dungeon::Shoot), so the hand is empty until the swing ends.
+constexpr bool isThrown(ItemKind weapon) { return weapon == ItemKind::ThrowingStick || weapon == ItemKind::Javelin; }
 
 // The inventory's tabs, one per group of items. Amulets and rings have no items yet.
 enum class ItemGroup : std::uint8_t { Weapons, Potions, Amulets, Rings };

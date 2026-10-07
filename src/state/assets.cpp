@@ -363,6 +363,11 @@ const WeaponDef WEAPON_DEFS[] = {
 	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
 	 "bow_draw",
 	 "bow_release"},
+	{"composite_bow", 11, 22, 40, {0, 0, 100}, {0.5f, 0, 0, 0, 0, 650, 750, 650}, "bow_draw", "bow_release"},
+	// Whirled overhead from hanging down, let go in front.
+	{"sling", 5, 10, 20, {100, 0, 0}, {0.05f, 160, -150, 45, 0, 350, 600, 450}, "sling_swing", "sling_release"},
+	{"throwing_stick", 5, 14, 12, {90, 10, 0}, {0.08f, 40, -60, 100, 0, 300, 500, 400}, "club_swing", "throw"},
+	{"javelin", 11, 30, 15, {0, 10, 90}, {0.45f, 60, 20, 80, 0, 500, 700, 700}, "spear_swing", "throw"},
 };
 static_assert(std::size(WEAPON_DEFS) == WEAPON_KIND_COUNT, "one WEAPON_DEFS row per weapon, in ItemKind order");
 
@@ -513,8 +518,14 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest and potion]");
 	items.chest = loadItem("treasure_chest", 8); // faces the camera at rotA 0 (tools/blender/models/items.py)
 	items.potion = loadItem("potion", 5);
-	items.arrowTex.LoadPNG("textures/items/arrow.png");
-	items.arrow = loadStaticModel("models/items/arrow.md3", items.arrowTex);
+	constexpr const char* MISSILES[MISSILE_KIND_COUNT] = {"arrow", "sling_stone", "throwing_stick", "javelin"};
+	for (size_t i = 0; i < MISSILE_KIND_COUNT; i++) {
+		char path[64];
+		snprintf(path, sizeof(path), "textures/items/%s.png", MISSILES[i]);
+		items.missileTex[i].LoadPNG(path);
+		snprintf(path, sizeof(path), "models/items/%s.md3", MISSILES[i]);
+		items.missiles[i] = loadStaticModel(path, items.missileTex[i]);
+	}
 }
 
 // A prop model in tile units, centred, with its texture.
@@ -589,6 +600,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
+	sounds.stoneHit.Load("sounds/items/stone_hit.wav");
+	sounds.stoneWall.Load("sounds/items/stone_wall.wav");
 	sounds.pageTurn.Load("sounds/ui/page_turn.wav");
 	sounds.wade.Load("sounds/water/wade.wav");
 	sounds.splash.Load("sounds/water/splash.wav");

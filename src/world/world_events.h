@@ -9,6 +9,8 @@
 enum class WorldSound : unsigned char {
 	ArrowHit,  // an arrow in a monster
 	ArrowWall, // an arrow in a wall or the floor
+	StoneHit,  // a sling stone or a throwing stick on a monster
+	StoneWall, // off a wall or the floor
 	KeyPickup,
 	GateOpen,
 	GateLocked,

@@ -81,6 +81,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.arrowHit;
 	case WorldSound::ArrowWall:
 		return sounds.arrowWall;
+	case WorldSound::StoneHit:
+		return sounds.stoneHit;
+	case WorldSound::StoneWall:
+		return sounds.stoneWall;
 	case WorldSound::KeyPickup:
 		return sounds.keyPickup;
 	case WorldSound::GateOpen:

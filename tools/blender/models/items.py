@@ -1,4 +1,5 @@
-"""Procedural items: the weapons (club, sword, spear, bow), the bow's arrow, the potion flask and the treasure chest.
+"""Procedural items: the weapons (club, short sword, spear, the bows, sling, throwing stick, javelin), the missiles in
+flight (arrow, sling stone), the potion flask and the treasure chest.
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -11,10 +12,12 @@ facing direction (drawWeapon), and upright in the inventory. Flat faces (sword b
 so they face the camera (-Y); the bow's back bulges towards +x (the enemy when the player faces right).
 The chest faces -Y with its lid open towards +Y; the engine draws it at rotA 0 with the tile's item standing inside.
 
-The bow has BOW_FRAMES frames, the draw: frame 0 at rest (as the inventory and the pickups show it), then the string
+The bows (bow, composite_bow) have BOW_FRAMES frames, the draw: frame 0 at rest (as the inventory and the pickups show it), then the string
 pulled further back each frame with an arrow on it (collapsed to the nock point in frame 0); the engine picks the frame
 from the draw time (Item::Draw pose). Texture and UVs come from the fully drawn bow. The arrow alone (arrow.md3,
-tip at +Z) is the one in flight; the engine draws it in metres, not centred (Dungeon::drawArrows).
+tip at +Z) is the one in flight; the engine draws it in metres, not centred (Dungeon::drawMissiles). The sling stone,
+the throwing stick and the javelin fly as models in metres too: the stone is its own model, the stick and the javelin
+fly as their held models (the engine loads those twice, once centred for the hand).
 
 Textures: one 512 PNG per item (textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
 light, the engine lights them). The potion is drawn tinted with the potion colour (inventory POTION_COLORS), so its
@@ -40,7 +43,9 @@ from common import REPO, Builder, cone, ellipsoid, transform, tube  # noqa: E402
 from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
-ITEMS = ["club", "sword", "spear", "bow", "arrow", "potion", "chest"]
+ITEMS = ["club", "sword", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
+         "potion", "chest"]
+BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
@@ -80,6 +85,15 @@ COL = {
     "reed": (0.62, 0.50, 0.28),
     "reed_dark": (0.36, 0.26, 0.12),
     "feather": (0.84, 0.80, 0.70),
+    "horn": (0.16, 0.10, 0.06),
+    "bark": (0.86, 0.80, 0.64),
+    "bark_dark": (0.55, 0.48, 0.36),
+    "redwood": (0.40, 0.14, 0.07),
+    "redwood_dark": (0.24, 0.07, 0.03),
+    "stone": (0.46, 0.44, 0.40),
+    "stone_dark": (0.28, 0.27, 0.25),
+    "flax": (0.66, 0.52, 0.36),
+    "flax_dark": (0.44, 0.32, 0.20),
 }
 
 
@@ -116,6 +130,11 @@ def materials():
         "enamel": ("solid", "enamel"),
         "reed": stripes("v", 0.14, [(14, "reed"), (1, "reed_dark")], "LINEAR"),
         "fletch": stripes("v", 0.025, [(2, "feather"), (1, "red")]),
+        "redwood": stripes("u", 1 / 8, [(3, "redwood"), (1, "redwood_dark")], "LINEAR"),
+        "horn": ("solid", "horn"),
+        "bark": stripes("u", 1 / 5, [(3, "bark"), (1, "bark_dark")], "LINEAR"),
+        "stone": stripes("v", 0.02, [(3, "stone"), (1, "stone_dark")], "LINEAR"),
+        "flax": stripes("v", 0.008, [(2, "flax"), (1, "flax_dark")]),
     }
     return {name: common.make_material("item_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -247,9 +266,17 @@ ARROW_REST = V((0, -0.03, 0.025))  # the nocked arrow passes the grip on the cam
 ARROW_LEN = 0.75
 
 
-def bow_point(t, draw=0.0):
+COMPOSITE_H = 0.55  # half height: shorter than the self-bow
+
+
+def bow_point(t, draw=0.0, composite=False):
     """Limb centre line, t in -1..1 (bottom to top): an arc bulging to +x with tips recurving back, bent further back
-    as the bow is drawn (draw 0..1)."""
+    as the bow is drawn (draw 0..1). The composite bow's grip sits back towards the string between two humps, its
+    tips recurve harder."""
+    if composite:
+        hump = 0.55 + 0.45 * (1 - math.exp(-(t / 0.32) ** 2))
+        x = 0.17 * (1 - t * t) * hump - 0.05 * t ** 10 - BOW_FLEX * draw * t * t
+        return V((x, 0, COMPOSITE_H * t * (1 - 0.04 * t * t - 0.05 * draw * t * t)))
     x = BOW_DEPTH * (1 - t * t) - 0.02 * t ** 8 - BOW_FLEX * draw * t * t
     return V((x, 0, BOW_H * t * (1 - 0.04 * t * t - 0.05 * draw * t * t)))
 
@@ -273,17 +300,18 @@ def build_arrow(b, M):
         b.add(tube(vane, sub=2, n=6, ref=out), M["fletch"], "root")
 
 
-def build_bow(b, M, draw=1.0):
+def build_bow(b, M, draw=1.0, composite=False):
     """Self bow of acacia: limbs tapering from a leather-wrapped grip to gold-capped nocks, gold bands on the limbs,
     a sinew string between the tips, pulled back to BOW_NOCK_DRAWN at draw 1 with an arrow on it (no arrow at 0:
-    collapsed onto the nock point)."""
+    collapsed onto the nock point). The composite bow: red-brown wood and horn under birch bark bands, horn tips,
+    the double curve of bow_point."""
     keys = []
     for k in range(25):
         t = -1 + 2 * k / 24
         w = 0.016 - 0.009 * abs(t) ** 1.3  # across the bow (y)
         d = 0.012 - 0.006 * abs(t) ** 1.3  # front to back (x)
-        keys.append((bow_point(t, draw), d, w))
-    b.add(tube(keys, sub=2, n=10, ref=V((0, 1, 0))), M["wood"], "root")
+        keys.append((bow_point(t, draw, composite), d, w))
+    b.add(tube(keys, sub=2, n=10, ref=V((0, 1, 0))), M["redwood" if composite else "wood"], "root")
     # Grip wrap and limb bands (short tubes along the curve).
     def along(t0, t1, grow, mat, n=10):
         ks = []
@@ -291,16 +319,20 @@ def build_bow(b, M, draw=1.0):
             t = t0 + (t1 - t0) * k / 4
             w = 0.016 - 0.009 * abs(t) ** 1.3 + grow
             d = 0.012 - 0.006 * abs(t) ** 1.3 + grow
-            ks.append((bow_point(t, draw), d, w))
+            ks.append((bow_point(t, draw, composite), d, w))
         b.add(tube(ks, sub=1, n=n, ref=V((0, 1, 0))), mat, "root")
 
     along(-0.14, 0.14, 0.004, M["leather"])
-    for t in (-0.62, -0.2, 0.2, 0.62):
-        along(t - 0.03, t + 0.03, 0.002, M["gold_band"])
+    if composite:
+        for t0, t1 in ((-0.5, -0.36), (0.36, 0.5), (-0.97, -0.84), (0.84, 0.97)):
+            along(t0, t1, 0.002, M["bark"])
+    else:
+        for t in (-0.62, -0.2, 0.2, 0.62):
+            along(t - 0.03, t + 0.03, 0.002, M["gold_band"])
     tips = []
     for t in (-1, 1):
-        p = bow_point(t, draw)
-        b.add(ellipsoid(p + V((0, 0, 0.006 * t)), (0.009, 0.009, 0.014), n=10, rings=5), M["gold"], "root")
+        p = bow_point(t, draw, composite)
+        b.add(ellipsoid(p + V((0, 0, 0.006 * t)), (0.009, 0.009, 0.014), n=10, rings=5), M["horn" if composite else "gold"], "root")
         tips.append(p + V((-0.004, 0, -0.006 * t)))
     rest_x = (tips[0].x + tips[1].x) / 2
     nock = V((rest_x + (BOW_NOCK_DRAWN - rest_x) * draw, 0, ARROW_REST.z))
@@ -311,6 +343,77 @@ def build_bow(b, M, draw=1.0):
     # Lying along +x from the string; frame 0 has it collapsed on the nock (same vertex count in every frame).
     arrow.verts = [nock + V((0, ARROW_REST.y, 0)) + (V((v.z, v.y, -v.x)) if draw > 0 else V((0, 0, 0))) for v in arrow.verts]
     merge(b, arrow)
+
+
+def build_composite_bow(b, M, draw=1.0):
+    build_bow(b, M, draw, composite=True)
+
+
+STONE_R = 0.05  # bigger than a real sling stone, so it reads in flight (the engine draws it bigger still)
+
+
+def build_sling_stone(b, M):
+    """A rounded river pebble."""
+    b.add(decor.rock(V((0, 0, STONE_R)), (STONE_R, STONE_R * 0.9, STONE_R * 0.8), seed=4, amp=0.08), M["stone"], "root")
+
+
+def build_sling(b, M):
+    """Shepherd's sling: a finger loop at the bottom (the grip), two plaited flax cords up to a leather pouch cradling
+    a stone. It hangs from the hand in the game (WeaponMotion tilts)."""
+    loop = [(V((0.016 * math.cos(2 * math.pi * k / 12), 0, 0.02 + 0.016 * math.sin(2 * math.pi * k / 12))), 0.0035, 0.0035)
+            for k in range(12)]
+    b.add(tube(loop, sub=1, n=6, ref=V((0, 1, 0)), closed=True), M["flax"], "root")
+    pouch_z = 0.44
+    for s in (-1, 1):
+        pts = [V((0.0, 0, 0.036)), V((s * 0.01, 0, 0.15)), V((s * 0.022, 0, 0.32)), V((s * 0.036, 0, pouch_z - 0.03))]
+        b.add(tube([(p, 0.0032, 0.0032) for p in pts], sub=3, n=6, ref=V((0, 1, 0))), M["flax"], "root")
+    # Pouch: a leather cradle, open towards the camera's back, a stone in it.
+    pouch = [(V((x, 0.0, pouch_z + 0.03 * (1 - (x / 0.042) ** 2) - 0.012)), 0.006, 0.026 * (1 - 0.5 * (x / 0.042) ** 2))
+             for x in (-0.042, -0.025, 0.0, 0.025, 0.042)]
+    b.add(tube(pouch, sub=2, n=8, ref=V((0, 1, 0))), M["leather"], "root")
+    b.add(decor.rock(V((0, 0, pouch_z + 0.03)), (0.026, 0.024, 0.022), seed=4, amp=0.08), M["stone"], "root")
+
+
+def build_throwing_stick(b, M):
+    """Hunting throwing stick of acacia, flat and gently bent, painted with red and blue bands and a gold tip band;
+    the grip at the bottom, the bend towards +x."""
+    keys = []
+    for k in range(13):
+        t = k / 12
+        a = t * 1.15  # radians of bend
+        r = 0.42
+        p = V((r * (1 - math.cos(a)) * 0.8, 0, r * math.sin(a) * 1.25))
+        w = 0.021 if 0.15 < t < 0.95 else 0.017
+        keys.append((p, 0.022 if t > 0.1 else 0.018, w * 0.45))
+    b.add(tube(keys, sub=2, n=10, ref=V((0, 1, 0))), M["wood"], "root")
+    for t0, mat in ((0.0, "leather"), (0.48, "red"), (0.55, "blue"), (0.62, "red"), (0.93, "gold")):
+        ks = []
+        for k in range(3):
+            t = t0 + 0.035 * k
+            a = t * 1.15
+            ks.append((V((0.42 * (1 - math.cos(a)) * 0.8, 0, 0.42 * math.sin(a) * 1.25)), 0.0245, 0.0115))
+        if mat == "leather":
+            ks = [(V((0, 0, z)), 0.021, 0.012) for z in (0.0, 0.05, 0.1)]
+        b.add(tube(ks, sub=1, n=10, ref=V((0, 1, 0))), M[mat], "root")
+
+
+JAVELIN_LEN = 1.3
+
+
+def build_javelin(b, M):
+    """Throwing javelin: a slim ash shaft, a long bronze head with a midrib on a socket, a cord grip at the balance
+    point, a small bronze butt cap."""
+    L = JAVELIN_LEN
+    b.add(spindle([(0.0, 0.007), (0.02, 0.0105)], n=10, sub=1), M["bronze_plain"], "root")
+    b.add(spindle([(0.015, 0.0105), (0.6, 0.0115), (L - 0.27, 0.0105)], n=10), M["ash"], "root")
+    wrap(b, M["cord"], 0.52, 0.68, 0.012, 9)
+    b.add(spindle([(L - 0.28, 0.0125), (L - 0.22, 0.011)], n=12), M["bronze"], "root")
+    band(b, M["bronze_dark"], L - 0.275, 0.0135, 0.01, n=12)
+    blade = [(L - 0.23, 0.01, 0.007), (L - 0.19, 0.03, 0.0075), (L - 0.12, 0.028, 0.0065), (L - 0.05, 0.015, 0.005), (L, 0.0015, 0.0015)]
+    b.add(spindle(blade, n=8, shape=diamond, sub=3), M["blade"], "root")
+    for s in (-1, 1):
+        b.add(tube([(V((0, s * 0.004, L - 0.22)), 0.005, 0.0025), (V((0, s * 0.003, L - 0.1)), 0.0035, 0.0018), (V((0, s * 0.001, L - 0.01)), 0.001, 0.001)],
+                   sub=2, n=6, ref=V((0, 1, 0))), M["bronze_dark"], "root")
 
 
 # ---------------------------------------------------------------- potion and chest
@@ -457,7 +560,12 @@ BUILDERS = {
     "sword": build_sword,
     "spear": build_spear,
     "bow": build_bow,
+    "composite_bow": build_composite_bow,
+    "sling": build_sling,
+    "throwing_stick": build_throwing_stick,
+    "javelin": build_javelin,
     "arrow": build_arrow,
+    "sling_stone": build_sling_stone,
     "potion": build_potion,
     "chest": build_chest,
 }
@@ -503,14 +611,14 @@ def build(bake=True, tex_dir=None, only=None):
     return objs
 
 
-def bow_frames(obj, path, g):
-    """Writes the bow's BOW_FRAMES draw frames to path: one shape key per frame on the baked (fully drawn) bow."""
+def bow_frames(obj, path, g, name="bow"):
+    """Writes a bow's BOW_FRAMES draw frames to path: one shape key per frame on the baked (fully drawn) bow."""
     M = materials()
     obj.shape_key_add(name="Basis")
     keys = []
     for k in range(BOW_FRAMES):
         b = Builder()
-        build_bow(b, M, draw=k / (BOW_FRAMES - 1))
+        BUILDERS[name](b, M, draw=k / (BOW_FRAMES - 1))
         key = obj.shape_key_add(name="draw%d" % k)
         for i, v in enumerate(b.verts):
             key.data[i].co = V(v) - V((0, 0, obj["low"]))
@@ -541,8 +649,8 @@ def export(objs, models_dir=None):
         obj.location = (0, 0, 0)
         bpy.context.view_layer.update()
         path = os.path.join(models_dir, "%s.md3" % FILES.get(name, name))
-        if name == "bow":
-            bow_frames(obj, path, g)
+        if name in BOWS:
+            bow_frames(obj, path, g, name)
         else:
             g["export_md3"](obj, path, 0, 0)
         obj.location = loc

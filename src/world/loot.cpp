@@ -11,7 +11,8 @@ constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 
 // Weapons from the weakest up (by base damage).
 constexpr std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = {
-	{ItemKind::Club, ItemKind::SelfBow, ItemKind::Spear, ItemKind::ShortSword}};
+	{ItemKind::Club, ItemKind::Sling, ItemKind::SelfBow, ItemKind::ThrowingStick, ItemKind::Spear,
+	 ItemKind::CompositeBow, ItemKind::Javelin, ItemKind::ShortSword}};
 
 int weaponGrade(ItemKind kind) {
 	for (size_t grade = 0; grade < WEAPON_GRADES.size(); grade++)

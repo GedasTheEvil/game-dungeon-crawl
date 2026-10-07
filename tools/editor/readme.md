@@ -152,7 +152,7 @@ when the level's boss dies.
 | Attribute | Item type | Value |
 |---|---|---|
 | 1 | Melee weapon | 0 club, 1 short sword, 2 spear |
-| 2 | Ranged weapon | 0 self-bow |
+| 2 | Ranged weapon | 0 self-bow, 1 composite bow, 2 sling, 3 throwing stick, 4 javelin |
 | 3 | Potion | 0 small health (25% of max. HP), 1 large health (50% of max. HP), 2 might (+2 might), 3 armor (+2 armor), 4 life (+5% max. HP, full heal), 5 small stamina (50% stamina), 6 large stamina (full stamina), 7 antidote (cures all poison) |
 | 0 | Empty chest | - |
 

@@ -60,7 +60,7 @@ class Dungeon {
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
-	void clearMonsters(); // a level or save was loaded: the old level's monsters, arrows and venom are gone
+	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const { return {sim.player, sim.journal, sim.events, levelNumber}; }
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
@@ -148,19 +148,22 @@ class Dungeon {
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
 	// them. False: neither is floor it can stand on.
 	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
-	// Arrows (dungeon_arrows.cpp): a parabola from the launch point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
-	struct Arrow {
+	// Missiles (dungeon_arrows.cpp): arrows, sling stones, throwing sticks and javelins. A parabola from the launch
+	// point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
+	struct Missile {
+		MissileKind kind;
 		float x0, y0, vx, vy;
 		int damage;
 		DamageMix mix;
 		int startMs;	  // GameClock time of the shot
 		float t = 0.f;	  // seconds flown so far
-		int stuckMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
+		int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
+		float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
 		[[nodiscard]] float X() const { return x0 + vx * t; }
 		[[nodiscard]] float Y() const;
 	};
-	std::vector<Arrow> arrows;
-	void updateArrows();
+	std::vector<Missile> missiles;
+	void updateMissiles();
 	// Venom a spitter spat at the player (dungeon_arrows.cpp): a straight line from its mouth, map units.
 	struct Venom {
 		float x, y, vx, vy;
@@ -181,7 +184,7 @@ class Dungeon {
 	// tile's bottom centre.
 	[[nodiscard]] bool inTrap(float x, float y) const;
 	void updateTraps();
-	void drawArrows(); // with the frame origin of DrawMonsters
+	void drawMissiles(); // with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
@@ -227,9 +230,9 @@ class Dungeon {
 	void getC(float& outX, float& outY);
 	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
 	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir); // reach in tiles (Item::Reach)
-	// The bow fires: an arrow leaves the bow, height above the player's feet in tiles, facing dir (-1 / +1),
-	// aimed at a monster up to aimRange tiles ahead.
-	void ShootArrow(int damage, const DamageMix& mix, int dir, float height, float aimRange);
+	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
+	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
+	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
 	void PickUp(); // not the car... just take an item away
 	bool SpawnMonster(int i, int j);
 	void Interact();

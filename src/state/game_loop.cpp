@@ -13,9 +13,7 @@ constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
 
-bool holdingBow() { return isRanged(Game().ui.inventory->EquippedKind()); }
-
-// The attack's hit time: a melee hit lands (its sound only if it hit something), or the arrow leaves.
+// The attack's hit time: a melee hit lands (its sound only if it hit something), or the shot leaves.
 void updateAttack() {
 	Player& player = *Game().player;
 	if (player.attackStartMs < 0)
@@ -26,9 +24,10 @@ void updateAttack() {
 		player.attackLanded = true;
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
 		const float aimRange = weapon->Reach();
-		if (holdingBow()) {
-			Game().dungeon.ShootArrow(damage, weapon->mix, Game().camera.Facing(),
-									  player.Fist(Game().camera.Facing())[1] / RenderConfig::TILE_SIZE, aimRange);
+		const ItemKind kind = Game().ui.inventory->EquippedKind();
+		if (isRanged(kind)) {
+			Game().dungeon.Shoot(missileOf(kind), damage, weapon->mix, Game().camera.Facing(),
+								 player.Fist(Game().camera.Facing())[1] / RenderConfig::TILE_SIZE, aimRange);
 			weapon->strikeSound.Play();
 		} else if (Game().dungeon.AttackNearest(damage, weapon->mix, weapon->Reach(), Game().camera.Facing()))
 			weapon->strikeSound.Play();

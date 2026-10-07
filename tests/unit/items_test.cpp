@@ -21,7 +21,9 @@ TEST_CASE("file ids as the level files use them") {
 	CHECK_FALSE(itemFromFile(ItemType::EMPTY, 0).has_value());
 	CHECK(*itemFromFile(ItemType::POTION, 7) == ItemKind::Antidote);
 	CHECK_FALSE(itemFromFile(ItemType::POTION, 8).has_value());
-	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 1).has_value());
+	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 1) == ItemKind::CompositeBow);
+	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 4) == ItemKind::Javelin);
+	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 5).has_value());
 }
 
 TEST_CASE("weapons before potions") {
@@ -182,7 +184,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV3 12 ", 0) == 0);
+	CHECK(file.str().rfind("INV3 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -192,6 +194,20 @@ TEST_CASE("the bag survives a save and a load") {
 		CHECK(loaded.Found(itemAt(i)) == bag.Found(itemAt(i)));
 	}
 	CHECK(loaded.Equipped() == ItemKind::SelfBow);
+}
+
+TEST_CASE("a save from before the Egyptian weapons: 12 slots in the old order") {
+	// club, sword, spear, bow, the 8 potions; levels; found; the bow in hand
+	std::stringstream file("INV3 12 1 0 1 1 2 0 0 0 0 0 0 1  1 1 2 1 1 1 1 1 1 1 1 1  1 0 1 1 1 0 0 0 0 0 0 1  2 0\n");
+	ItemBag bag;
+	bag.Load(file);
+	CHECK(bag.Count(ItemKind::Spear) == 1);
+	CHECK(bag.Level(ItemKind::Spear) == 2);
+	CHECK(bag.Count(ItemKind::SelfBow) == 1);
+	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
+	CHECK(bag.Count(ItemKind::Antidote) == 1);
+	CHECK(bag.Count(ItemKind::Sling) == 0);
+	CHECK(bag.Equipped() == ItemKind::SelfBow);
 }
 
 TEST_CASE("an old save: 9 counts, then the equipped weapon") {

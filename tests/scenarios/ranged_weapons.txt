@@ -1,0 +1,61 @@
+# The ranged weapons beside the self-bow (docs/plan/egyptian-weapons.draft.md), at the plant of tests/levels/archery,
+# each from inside its range: the composite bow (4 tiles), the sling (2, a flat shot), the throwing stick (1.2,
+# spins and flies back to the hand) and the javelin (1.5, the hand is empty while it flies). Each hits: the plant
+# loses health.
+seed 1
+god
+level tests/levels/archery
+wait 30
+give ranged 1
+equip composite_bow
+walk right 10
+wait 70
+attack
+wait 25
+screenshot composite_drawn
+wait 20
+screenshot composite_flying
+wait 60
+expect nearest < 30
+
+level tests/levels/archery
+wait 30
+give ranged 2
+equip sling
+walk right 11
+wait 70
+attack
+wait 12
+screenshot sling_whirl
+wait 12
+screenshot sling_flying
+wait 60
+expect nearest < 30
+
+level tests/levels/archery
+wait 30
+give ranged 3
+equip throwing_stick
+walk right 11.6
+wait 70
+attack
+wait 21
+screenshot stick_flying
+wait 8
+screenshot stick_returning
+wait 60
+expect nearest < 30
+screenshot stick_back
+
+level tests/levels/archery
+wait 30
+give ranged 4
+equip javelin
+walk right 11.4
+wait 70
+attack
+wait 33
+screenshot javelin_thrown
+wait 60
+expect nearest < 30
+screenshot javelin_stuck

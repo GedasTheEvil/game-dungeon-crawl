@@ -111,6 +111,94 @@ def bow():
         disc(d, s * tip, 0, 14, GOLD)
     return img
 
+HORN = (60, 40, 28, 255)
+BARK = (232, 218, 180, 255)
+REDWOOD = (138, 52, 30, 255)
+STONE = (150, 146, 138, 255)
+RED = (176, 40, 30, 255)
+
+
+def composite_bow():
+    """Like the bow, with the grip set back between two humps, horn tips and bark bands."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    tip, bulge = 250, 120
+    d.line(to_image([(-tip, 0), (tip, 0)]), fill=INK, width=22)
+    d.line(to_image([(-tip, 0), (tip, 0)]), fill=STRING, width=10)
+    n = 32
+
+    def depth(t):
+        hump = 0.5 + 0.5 * (1 - math.exp(-(t / 0.32) ** 2))
+        return bulge * (1 - t * t) * hump * 1.25
+
+    spine = [(tip * (2 * i / n - 1), -depth(2 * i / n - 1)) for i in range(n + 1)]
+    left, right = [], []
+    for i, (x, y) in enumerate(spine):
+        t = 2 * i / n - 1
+        j0, j1 = max(i - 1, 0), min(i + 1, n)
+        slope = (spine[j1][1] - spine[j0][1]) / (spine[j1][0] - spine[j0][0])
+        nx, ny = -slope / math.hypot(1, slope), 1 / math.hypot(1, slope)
+        half = 11 + 13 * (1 - t * t)
+        left.append((x + nx * half, y + ny * half))
+        right.append((x - nx * half, y - ny * half))
+    part(d, left + right[::-1], REDWOOD)
+    for t in (-0.43, 0.43):
+        x, y = spine[round((t + 1) / 2 * n)]
+        part(d, [(px + x, py + y) for px, py in box(-18, 18, 26)], BARK)
+    part(d, [(x, y - depth(0)) for x, y in box(-30, 30, 24)], LEATHER)
+    for s in (-1, 1):
+        disc(d, s * tip, 0, 16, HORN)
+    return img
+
+
+def sling():
+    """The finger loop bottom left, two cords up to a leather pouch with a stone."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    for s in (-1, 1):
+        cord = to_image([(-250, 0), (-60, s * 14), (150, s * 34)])
+        d.line(cord, fill=INK, width=24, joint="curve")
+        d.line(cord, fill=STRING, width=10, joint="curve")
+    (lx, ly), = to_image([(-262, 0)])
+    d.ellipse([lx - 34, ly - 34, lx + 34, ly + 34], outline=INK, width=24)
+    d.ellipse([lx - 34, ly - 34, lx + 34, ly + 34], outline=STRING, width=10)
+    part(d, [(130, -62), (230, -70), (282, 0), (230, 70), (130, 62)], LEATHER)
+    disc(d, 205, 0, 52, STONE)
+    return img
+
+
+def throwing_stick():
+    """A flat bent stick: leather grip, red and blue bands, a gold tip."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+
+    def pt(t, off):
+        x = -235 + 470 * t
+        y = -110 * math.sin(math.pi * t) + 50
+        return (x, y + off)
+
+    n = 24
+    outline = [pt(i / n, -24) for i in range(n + 1)] + [pt(i / n, 24) for i in range(n, -1, -1)]
+    part(d, outline, WOOD)
+    for t0, t1, col in ((0.0, 0.14, LEATHER), (0.44, 0.51, RED), (0.51, 0.58, LAPIS), (0.58, 0.65, RED), (0.92, 1.0, GOLD)):
+        seg = [pt(t0 + (t1 - t0) * k / 4, -24) for k in range(5)] + [pt(t0 + (t1 - t0) * k / 4, 24) for k in range(4, -1, -1)]
+        part(d, seg, col)
+    return img
+
+
+def javelin():
+    """Thinner and shorter than the spear, a long head, a cord grip in the middle."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    part(d, box(-280, 120, 12), WOOD)
+    part(d, box(-60, 20, 17), STRING)
+    part(d, box(-292, -270, 15), GOLD)
+    head = [(110, -16), (150, -44), (305, 0), (150, 44), (110, 16)]
+    part(d, head, METAL)
+    d.line(to_image([(125, 0), (285, 0)]), fill=INK, width=LINE)
+    return img
+
+
 def potion():
     img = Image.new("RGBA", (S, S))
     d = ImageDraw.Draw(img)
@@ -152,7 +240,7 @@ def ring():
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell.
 ICONS = [potion, amulet, ring, None, None, None, None, None,
-         club, sword, spear, bow]
+         club, sword, spear, bow, composite_bow, sling, throwing_stick, javelin]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

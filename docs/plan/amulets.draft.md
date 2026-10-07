@@ -27,6 +27,9 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 * **Health amulet:** putting it on or taking it off changes the max HP but keeps the HP at the same share of it: no
   heal, no loss (full stays full, half stays half). Unlike a max HP potion (`PlayerStats::AddMaxHP` heals fully).
 * **Regeneration:** the simplest rule: a flat number of HP per second, only out of combat. No cap, no % of max HP.
+  **Out of combat = no monster is chasing you:** as soon as a monster has noticed you and moves towards you,
+  regeneration stops (the fear of the monster). It starts again when none is chasing. Code note: `Monster::alerted`
+  stays set once a monster has acted (it drives the health bar), so "chasing now" needs its own per-tick state.
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
 * **Typed instead of "physical":** a cut of all monster damage is stronger than every other amulet. One amulet per
   damage type instead (blunt, slash, pierce). Needs the monsters to deal typed damage:
@@ -34,7 +37,7 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* "Out of combat" for regeneration: how long after the last hit given or taken? Does poison pause it?
+* Does poison pause regeneration? Does a monster that stopped (lost sight, rooted plant in reach) count as chasing?
 * Which tiers show up where (lesser early, grand late or from bosses); models for the other amulets.
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
 * Campaign: which amulet in which level / boss; each found once, no duplicates. Count them in `./levelcheck` (does a

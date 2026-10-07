@@ -21,7 +21,7 @@ The Blender MCP (live GUI session) is optional: handy for quick live iteration, 
    images and compares renders against them.
 2. **Model viewer screenshot mode.** `tools/model-viewer/viewer.cpp` CLI, e.g.
    `model-viewer --shot <md3> --clip walk --frames 0,4,8 --yaw 90 --out dir/`, which writes in-game-renderer
-   screenshots and exits. Fits with [model-viewer-speed-and-text.draft.md](model-viewer-speed-and-text.draft.md).
+   screenshots and exits. Fits with [model-viewer-speed-and-text.md](solved/model-viewer-speed-and-text.md).
 3. **Motion diagnostics as images** (extend `tools/blender/render_sheet.py`):
    * Onion skin: N frames alpha-blended into one image.
    * Joint trajectory plots (matplotlib or a plain PIL/ImageMagick plot): foot, hand and tail tip paths over the clip

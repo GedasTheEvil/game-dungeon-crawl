@@ -197,6 +197,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (`src/world/dungeon_arrows.cpp`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `build/model-viewer <file.md3> [seconds]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
+  Space cycles the model's clips, T its textures, + / - change the loop speed, left-drag turns the model.
 
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
@@ -221,7 +222,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   and holds when the player stops. Shown while `Dungeon::PlayerOnLadder` (a Ladder cell, off the floor, within reach of the ladder);
   sideways moves on a ladder use the walk cycle. The weapon is hidden while climbing.
   The weapon is drawn separately in front of the chest at ~3/4 height, so the fists stay raised there.
-  `model-viewer` looks for `textures/<category>/<stem>.png` (the model's sub-directory under `models/`).
+  `model-viewer` looks in `textures/<category>/` (the model's sub-directory under `models/`) for `<stem>.png`, then the
+  base model's `<base>.png` (`anubis_att` -> `anubis`; the base is the shortest `_` cut with its own `.md3`), then the
+  variants `<base>_*.png` (`anubis_boss`), which T cycles through.
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
   The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip.

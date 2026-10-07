@@ -1,6 +1,6 @@
 # Model viewer: texture lookup by the full name first
 
-Status: draft 2026-10-07, from the user.
+Status: done 2026-10-07, from the user.
 
 ## Problem
 
@@ -29,4 +29,14 @@ doesn't exist, fall back to the parent stem (before the first `_`), as today; th
 * Log which texture was picked, so a wrong one is easy to spot.
 
 A tooling plan: no user confirmation needed; once implemented and checked it goes straight to `solved/`. Fits with
-[model-viewer-speed-and-text.draft.md](model-viewer-speed-and-text.draft.md).
+[model-viewer-speed-and-text.md](model-viewer-speed-and-text.md).
+
+## Done
+
+* `BaseStem`: the shortest cut of the stem at a `_` that names a `.md3` in the same directory, else the whole stem.
+  Replaces `ParentStem` for clip grouping too, so `decor_*` models are one clip each and `egg_cluster_att` groups with
+  `egg_cluster` (the first-`_` cut made it `egg`).
+* `TextureCandidates`: `<stem>.png`, `<base>.png`, then the variants `<base>_*.png` (`anubis_boss`, `rat_giant`,
+  `key_blue`, `lever_base_gold`); `T` cycles them, which covers the shared-model monsters without a `--texture`
+  argument. The pick is kept across clip switches. Falls back to `textures/null.png`. The picked texture is logged and
+  shown in the stats panel.

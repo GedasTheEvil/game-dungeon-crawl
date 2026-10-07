@@ -1,9 +1,12 @@
 // Model viewer: loads a .md3 file with the game's AnimatedModel, plays its animation on a loop that restarts every
-// [seconds], with a progress bar of the loop. Space cycles through the model's clips. Runs from the repo root.
+// [seconds], with a progress bar of the loop and a stats panel. Runs from the repo root.
 //
 // Usage: build/model-viewer <model.md3> [seconds]
 //   <model.md3>  required, path to a .md3 file (see tools/blender/md3.py)
 //   [seconds]    optional, animation loop duration in seconds (default 5.0).
+//
+// Keys: space cycles through the model's clips, T through its textures, + / - speed the loop up / slow it down.
+// Drag with the left mouse button to turn the model.
 
 #include <GL/glut.h>
 #include <GL/glu.h>
@@ -23,6 +26,7 @@
 #include "../../src/graphics/textures.h"
 #include "hud.h"
 #include "../../src/graphics/font.h"
+#include "../../src/ui/ui_draw.h"
 #include "../../src/core/logger.h"
 #include "../../src/core/timer.h"
 
@@ -58,6 +62,9 @@ int gWinWidth = 800;
 int gWinHeight = 600;
 int gStartTicks = 0;
 double gDurationSeconds = 5.0;
+const double SPEED_STEP = 1.25; // + divides the loop duration by this, - multiplies it
+const double MIN_DURATION_SECONDS = 0.2;
+const double MAX_DURATION_SECONDS = 60.0;
 
 float gYawDeg = 20.0f;	// matches the current fixed view exactly, so the
 float gPitchDeg = 0.0f; // initial frame on launch is unchanged
@@ -67,22 +74,20 @@ int gLastMouseY = 0;
 const float DRAG_DEG_PER_PX = 0.4f; // empirical; tune by feel
 const float MAX_PITCH_DEG = 89.0f;	// avoid flipping past vertical
 
-// Stats-panel state (step 6): loaded/computed once in main() after the model
-// finishes loading, since none of these values change after that point.
+// Stats panel: set by ApplyLoadedModel for every loaded model.
 Font gStatsFont;
+Font gHintFont;
 std::string gStatModelName;
 int gStatFrameCount = 0;
-int gStatPlaySpeed = 0;
 int gStatPolygonCount = 0;
 
-// Model-state discovery/switching (step 7): the texture object moves to file
-// scope so ApplyLoadedModel can reuse it across both the initial load and
-// every subsequent [space] switch; the sibling group is scanned once at
-// startup and never rescanned (see architecture.md section 1).
+// The texture object lives at file scope so ApplyLoadedModel can reuse it across both the initial load and every
+// [space] / [T] switch; the sibling group is scanned once at startup and never rescanned.
 Texture gTexture;
+std::vector<std::string> gTexturePaths; // the model's texture candidates, see TextureCandidates
+std::size_t gTextureIndex = 0;
 std::vector<std::string> gSiblingModelPaths;
 std::size_t gCurrentSiblingIndex = 0;
-int gStatAnimationStateCount = 0;
 
 // Returns the filename with its directory stripped but extension kept,
 // e.g. "models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
@@ -102,22 +107,29 @@ std::string FileStem(const std::string& path) {
 	return base.substr(0, dot);
 }
 
-// Returns the text before the first '_' in a stem, or the whole stem if it
-// has none, e.g. ParentStem("anubis_att") -> "anubis", ParentStem("anubis")
-// -> "anubis", ParentStem("ankh") -> "ankh".
-std::string ParentStem(const std::string& stem) {
-	std::size_t underscore = stem.find('_');
-	return (underscore == std::string::npos) ? stem : stem.substr(0, underscore);
+// The stem of the model whose clip this file is: the shortest cut of the stem at a '_' that names a .md3 in the same
+// directory, or the whole stem. "anubis_att" -> "anubis", "egg_cluster_die" -> "egg_cluster",
+// "decor_osiris" -> "decor_osiris" (there is no decor.md3), "ankh" -> "ankh".
+std::string BaseStem(const std::string& modelPath) {
+	const std::filesystem::path dir = std::filesystem::path(modelPath).parent_path();
+	std::string stem = FileStem(modelPath);
+	for (std::size_t cut = stem.find('_'); cut != std::string::npos; cut = stem.find('_', cut + 1)) {
+		std::string prefix = stem.substr(0, cut);
+		std::error_code ec;
+		if (std::filesystem::is_regular_file(dir / (prefix + ".md3"), ec))
+			return prefix;
+	}
+	return stem;
 }
 
-// Every *.md3 in modelPath's directory with the same parent stem (its clips), sorted by filename.
+// Every *.md3 in modelPath's directory with the same base stem (its clips), sorted by filename.
 // Always includes modelPath itself.
 std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 	std::filesystem::path path(modelPath);
 	std::filesystem::path dir = path.parent_path();
 	if (dir.empty())
 		dir = ".";
-	const std::string parentStem = ParentStem(FileStem(modelPath));
+	const std::string baseStem = BaseStem(modelPath);
 	const std::string loadedBasename = path.filename().string();
 	std::vector<std::string> result;
 	bool foundLoadedFile = false;
@@ -128,7 +140,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 			continue;
 		const bool isLoadedFile = entry.path().filename().string() == loadedBasename;
 		if (!isLoadedFile &&
-			(entry.path().extension() != ".md3" || ParentStem(entry.path().stem().string()) != parentStem))
+			(entry.path().extension() != ".md3" || BaseStem((dir / entry.path().filename()).string()) != baseStem))
 			continue;
 		foundLoadedFile |= isLoadedFile;
 		result.push_back((dir / entry.path().filename()).string());
@@ -141,26 +153,53 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 	return result;
 }
 
-// Best-effort texture fallback chain:
-//   1. textures/<category>/<texture-stem>.png, where <category> is the model's
-//      sub-directory under models/ (e.g. models/monsters/anubis.md3 ->
-//      textures/monsters/anubis.png)
-//   2. textures/null.png
-//   3. untextured (id 0)
-// Every failure is logged as a warning, never fatal -- a missing/wrong
-// texture must never prevent seeing the animation. textureStem is already
-// resolved by the caller (ParentStem(FileStem(path))): a variant's
-// texture always comes from its parent's stem, not its own.
-int LoadTextureForModel(const std::string& modelPath, const std::string& textureStem, Texture& tex) {
-	std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
-	std::string guess = "textures/" + category + "/" + textureStem + ".png";
-	if (tex.LoadPNG(guess.c_str())) {
-		return tex.ID();
+// The textures that fit a model, in textures/<category>/ (<category>: the model's sub-directory under models/):
+//   1. <stem>.png, the file's own (decorations, items, a clip with a texture of its own)
+//   2. <base>.png, the texture its clips share (models/monsters/anubis_att.md3 -> textures/monsters/anubis.png)
+//   3. <base>_*.png, the variants that reuse the model (anubis_boss, rat_giant, key_blue), sorted
+// Empty when none exists.
+std::vector<std::string> TextureCandidates(const std::string& modelPath) {
+	const std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
+	const std::filesystem::path dir = std::filesystem::path("textures") / category;
+	const std::string stem = FileStem(modelPath);
+	const std::string baseStem = BaseStem(modelPath);
+	std::vector<std::string> result;
+	std::error_code ec;
+	for (const std::string& name : {stem, baseStem}) {
+		std::string path = (dir / (name + ".png")).string();
+		if (std::filesystem::is_regular_file(path, ec) && std::find(result.begin(), result.end(), path) == result.end())
+			result.push_back(path);
 	}
 
-	LOG_WARNINGF("modelviewer", "No texture found at %s, falling back to textures/null.png", guess.c_str());
-	if (tex.LoadPNG("textures/null.png")) {
-		return tex.ID();
+	std::vector<std::string> variants;
+	const std::string prefix = baseStem + "_";
+	for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
+		const std::string name = entry.path().filename().string();
+		std::string path = (dir / name).string();
+		if (entry.is_regular_file() && entry.path().extension() == ".png" && name.rfind(prefix, 0) == 0 &&
+			std::find(result.begin(), result.end(), path) == result.end())
+			variants.push_back(path);
+	}
+	std::sort(variants.begin(), variants.end());
+	result.insert(result.end(), variants.begin(), variants.end());
+	return result;
+}
+
+// Loads gTexturePaths[gTextureIndex], else textures/null.png, else nothing (id 0). Every failure is logged as a
+// warning, never fatal -- a missing/wrong texture must never prevent seeing the animation.
+int LoadCurrentTexture() {
+	if (gTextureIndex < gTexturePaths.size()) {
+		const std::string& path = gTexturePaths[gTextureIndex];
+		if (gTexture.LoadPNG(path.c_str())) {
+			LOG_INFOF("modelviewer", "Texture: %s", path.c_str());
+			return gTexture.ID();
+		}
+	} else {
+		LOG_WARNINGF("modelviewer", "No texture found for %s, falling back to textures/null.png",
+					 gStatModelName.c_str());
+	}
+	if (gTexture.LoadPNG("textures/null.png")) {
+		return gTexture.ID();
 	}
 
 	LOG_WARNINGF("modelviewer", "%s", "textures/null.png fallback also failed, continuing untextured");
@@ -171,20 +210,78 @@ int LoadTextureForModel(const std::string& modelPath, const std::string& texture
 // called once from main() for the initial model, and again from
 // KeyPressed() on every [space] cycle. Resets the loop timer and stats;
 // deliberately leaves gDurationSeconds/gYawDeg/gPitchDeg untouched.
+// Keeps the picked texture when the new clip has it too (anubis_boss stays on through the clips).
 void ApplyLoadedModel(const std::string& path) {
-	std::string textureStem = ParentStem(FileStem(path));
-	int texId = LoadTextureForModel(path, textureStem, gTexture);
+	const std::string previousTexture = gTextureIndex < gTexturePaths.size() ? gTexturePaths[gTextureIndex] : "";
+	gStatModelName = Basename(path);
+	gTexturePaths = TextureCandidates(path);
+	auto kept = std::find(gTexturePaths.begin(), gTexturePaths.end(), previousTexture);
+	gTextureIndex = kept == gTexturePaths.end() ? 0 : static_cast<std::size_t>(kept - gTexturePaths.begin());
 
-	gModel->BindTexture(texId);
+	gModel->BindTexture(LoadCurrentTexture());
 	gModel->Centrify();
 	gModel->Compile();
 
 	gStartTicks = GameClock::now();
 
-	gStatModelName = Basename(path);
 	gStatFrameCount = gModel->FrameCount();
 	gStatPolygonCount = gModel->TriangleCount();
-	gStatAnimationStateCount = gSiblingModelPaths.empty() ? 0 : static_cast<int>(gSiblingModelPaths.size()) - 1;
+}
+
+// Where the loop is, in [0, 1).
+double LoopRatio() {
+	double elapsedSeconds = (GameClock::now() - gStartTicks) / 1000.0;
+	return std::fmod(elapsedSeconds, gDurationSeconds) / gDurationSeconds;
+}
+
+// Changes the loop duration, clamped, and moves the loop start so the model keeps its pose.
+void SetDuration(double seconds) {
+	const double ratio = LoopRatio();
+	gDurationSeconds = std::clamp(seconds, MIN_DURATION_SECONDS, MAX_DURATION_SECONDS);
+	gStartTicks = GameClock::now() - static_cast<int>(ratio * gDurationSeconds * 1000.0);
+}
+
+// Stats panel at the top right, in the look of the game's status box (docs/ui.md): dark framed panel, gold text.
+void DrawStatsPanel() {
+	// ---- layout ----, on a canvas 100 high
+	constexpr float MARGIN = 2.f;  // panel to the window edges
+	constexpr float PAD = 3.f;	   // text to the frames
+	constexpr float LINE_H = 4.6f; // baseline to baseline
+	constexpr float HINT_H = 4.f;
+	constexpr float GLYPH_HIGH = 3.f; // the body font's letters reach this far above the pen y
+
+	char lines[5][160];
+	std::snprintf(lines[0], sizeof lines[0], "%s", gStatModelName.c_str());
+	std::snprintf(lines[1], sizeof lines[1], "Clip %zu / %zu", gCurrentSiblingIndex + 1, gSiblingModelPaths.size());
+	std::snprintf(lines[2], sizeof lines[2], "Frames: %d   Polygons: %d", gStatFrameCount, gStatPolygonCount);
+	std::snprintf(lines[3], sizeof lines[3], "Loop: %.2f s", gDurationSeconds);
+	if (gTextureIndex < gTexturePaths.size())
+		std::snprintf(lines[4], sizeof lines[4], "Texture %zu / %zu: %s", gTextureIndex + 1, gTexturePaths.size(),
+					  Basename(gTexturePaths[gTextureIndex]).c_str());
+	else
+		std::snprintf(lines[4], sizeof lines[4], "Texture: none");
+	const char* hint = "space clip   T texture   + / - speed   drag turn";
+
+	float canvasW = ui::beginSquareCanvas(100.f, gWinWidth, gWinHeight);
+	glLoadIdentity();
+	float textW = gHintFont.TextWidth(hint);
+	for (const auto& line : lines)
+		textW = std::max(textW, gStatsFont.TextWidth(line));
+	const float w = textW + 2 * PAD;
+	const float h = 2 * PAD + GLYPH_HIGH + LINE_H * 4 + HINT_H;
+	const ui::Rect box = {canvasW - MARGIN - w, 100.f - MARGIN - h, w, h};
+
+	ui::beginShapes();
+	ui::fillRect({box.x + 0.7f, box.y - 0.9f, box.w, box.h}, ui::BLACK, ui::BLACK, 0.45f); // drop shadow
+	ui::panel(box, 0.92f);
+
+	ui::beginText();
+	float y = box.y + box.h - PAD - GLYPH_HIGH;
+	for (std::size_t i = 0; i < std::size(lines); i++) {
+		ui::text(gStatsFont, box.x + PAD, y, lines[i], i == 0 ? ui::GOLD_BRIGHT : ui::GOLD);
+		y -= LINE_H;
+	}
+	ui::text(gHintFont, box.x + PAD, y + LINE_H - HINT_H, hint, ui::GOLD_DIM);
 }
 
 void InitGL(int width, int height) {
@@ -203,8 +300,7 @@ void InitGL(int width, int height) {
 }
 
 void Display() {
-	double elapsedSeconds = (GameClock::now() - gStartTicks) / 1000.0;
-	double loopRatio = std::fmod(elapsedSeconds, gDurationSeconds) / gDurationSeconds;
+	double loopRatio = LoopRatio();
 	if (gModel)
 		gModel->SetProgress(static_cast<float>(loopRatio));
 
@@ -251,23 +347,12 @@ void Display() {
 	Hud::drawBar(30.0f, 6.0f, 40.0f, 4.0f, static_cast<float>(loopRatio), 0.2f, 0.6f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
 
-	// Stats panel (step 6). Font::print draws textured glyph quads, so this
-	// must come after the bar's glEnable(GL_TEXTURE_2D) above, not inside the
-	// disabled block. glColor3f(1,1,1) undoes Hud::drawBar's last fill color
-	// (blue) so the text isn't tinted; the blend func/enable is required
-	// because fonts/papyrus_i.png has no alpha channel, so without blending
-	// each glyph quad would draw as a solid-colored box instead of legible
-	// text. glDisable(GL_BLEND) must run before this function returns so it
-	// doesn't leak into the next frame's opaque 3D model draw.
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_SRC_COLOR);
-	glEnable(GL_BLEND);
-	gStatsFont.print(56, 92, "Name: %s", gStatModelName.c_str());
-	gStatsFont.print(56, 83, "Frames: %d", gStatFrameCount);
-	gStatsFont.print(56, 74, "Play Speed: %d s", gStatPlaySpeed);
-	gStatsFont.print(56, 65, "Polygon count: %d", gStatPolygonCount);
-	gStatsFont.print(56, 56, "Animation states: %d", gStatAnimationStateCount);
+	glDisable(GL_DEPTH_TEST);
+	DrawStatsPanel();
 	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glColor3f(1.0f, 1.0f, 1.0f);
 
 	glutSwapBuffers();
 }
@@ -308,18 +393,14 @@ void MouseMotion(int x, int y) {
 		gPitchDeg = -MAX_PITCH_DEG;
 }
 
-void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
+// Loads the next clip of the model.
+void NextClip() {
 	// size() <= 1, not empty(): ScanSiblingModels never returns an empty
-	// vector (it degrades to {modelPath} on failure/no-match), so a bare
-	// empty() check would never actually fire, and a lone-model group
-	// (e.g. ankh.md3, sphinx.md3) would fall through to reloading the
-	// exact same file on every press -- redundant I/O, a pointless
-	// Compile()/BindTexture() (leaking one GL texture + display-list set
-	// per press), and a visible progress-
-	// bar reset the "Animation states: 0" line explicitly promises won't
-	// happen. size() <= 1 is what actually makes a lone-model group a
-	// true no-op.
-	if (key != ' ' || gSiblingModelPaths.size() <= 1)
+	// vector (it degrades to {modelPath} on failure/no-match), so a lone-model
+	// group (e.g. ankh.md3, sphinx.md3) would otherwise reload the same file on
+	// every press -- redundant I/O, a pointless Compile() (leaking a display-list
+	// set per press) and a visible progress-bar reset.
+	if (gSiblingModelPaths.size() <= 1)
 		return;
 
 	std::size_t nextIndex = (gCurrentSiblingIndex + 1) % gSiblingModelPaths.size();
@@ -334,6 +415,35 @@ void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
 	gModel = std::move(next);
 	gCurrentSiblingIndex = nextIndex;
 	ApplyLoadedModel(nextPath);
+}
+
+void NextTexture() {
+	if (gTexturePaths.size() <= 1)
+		return;
+	gTextureIndex = (gTextureIndex + 1) % gTexturePaths.size();
+	gModel->BindTexture(LoadCurrentTexture());
+}
+
+void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
+	switch (key) {
+	case ' ':
+		NextClip();
+		break;
+	case 't':
+	case 'T':
+		NextTexture();
+		break;
+	case '+':
+	case '=': // + without shift
+		SetDuration(gDurationSeconds / SPEED_STEP);
+		break;
+	case '-':
+	case '_':
+		SetDuration(gDurationSeconds * SPEED_STEP);
+		break;
+	default:
+		break;
+	}
 }
 
 void Reshape(int width, int height) {
@@ -371,7 +481,7 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-	gDurationSeconds = seconds;
+	gDurationSeconds = std::clamp(seconds, MIN_DURATION_SECONDS, MAX_DURATION_SECONDS);
 
 	gModel = std::make_unique<LoopedAnimatedModel>();
 	if (!gModel->Load(modelPath.c_str())) {
@@ -391,13 +501,11 @@ int main(int argc, char* argv[]) {
 
 	InitGL(gWinWidth, gWinHeight);
 
-	gStatsFont.Load("fonts/papyrus_i.png", 5, -0.6); // matches src/ui/stats.cpp's
-													 // Impact-font convention
-	gStatPlaySpeed = static_cast<int>(gDurationSeconds);
+	gStatsFont.Load("fonts/papyrus.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
+	gHintFont.Load("fonts/papyrus.png", 3.f, 0.08f, true);
 
-	// Sibling-group discovery (step 7): scanned exactly once, from the path
-	// the user actually typed, and never rescanned -- see architecture.md
-	// section 1. gCurrentSiblingIndex is found by Basename comparison so it
+	// Sibling-group discovery: scanned exactly once, from the path
+	// the user actually typed, and never rescanned. gCurrentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
 	// identically (e.g. "./models/monsters/anubis.md3" vs "models/monsters/anubis.md3").
 	gSiblingModelPaths = ScanSiblingModels(modelPath);

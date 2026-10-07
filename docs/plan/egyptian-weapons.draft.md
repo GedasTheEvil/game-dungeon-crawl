@@ -44,6 +44,25 @@ them, tuned with [monster-balance.draft.md](monster-balance.draft.md).
 | Throwing stick | new | ranged | 90/10/0 | 14 | 12 | 700 | short ranged blunt, spins, comes back |
 | Javelin | new | ranged | 0/10/90 | 30 | 15 | 1200 | short, hard pierce throw |
 
+### Ranged timers
+
+Each ranged weapon has two timers instead of one attack time:
+
+* **Frame delay**: from the attack key until the shot leaves (the draw, the wind-up). Short means it fires quickly.
+* **Recovery**: from the shot leaving until the next attack can start.
+
+Attack ms in the table above is their sum. Today the bow has both, only not named: `motion.hitMs` (`BOW_DRAW_MS`,
+450) is the frame delay, and `motion.attackMs` (1000) counts from the key press, so recovery is 550. Give the
+ranged rows these two values directly, so recovery can be tuned without touching the draw.
+
+| Weapon | Frame delay ms | Recovery ms |
+|---|---|---|
+| Self-bow | 450 | 550 |
+| Composite bow | 650 | 650 |
+| Sling | 350 | 450 |
+| Throwing stick | 300 | 400 |
+| Javelin | 500 | 700 |
+
 Thrown weapons and sling stones reuse the arrow flight (`Dungeon::ShootArrow`, `src/world/dungeon_arrows.cpp`) with
 their own model, arc and wind-up motion.
 

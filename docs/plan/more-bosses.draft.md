@@ -4,7 +4,7 @@ Status: draft 2026-10-01, cleaned up 2026-10-07. Split off [solved/boss-rooms.md
 
 Six bosses are in, one every 5 levels of the [30-level campaign](longer-campaign.md): the boss scarab (lvl5), the
 vampire bat (lvl10), the [scorpion queen](scorpion-queen-boss.md) (lvl15), [Apep](apep-serpent-boss.md) (lvl20),
-[Sobek](sobek-boss.md) (lvl25) and the Anubis boss (lvl30, the last boss). The boss framework (`BOSS_DEFS`, `Summon`
+[Sobek](sobek-boss.md) (lvl25) and the Anubis boss (lvl30, the last boss). The boss framework (`MonsterKind::boss`, `Summon`
 kinds, boss gate, HUD bar, `levelcheck` rules) takes a new boss as a table row plus a model or texture.
 
 Every campaign boss slot is taken, so a new boss needs a new place.

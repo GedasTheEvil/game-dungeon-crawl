@@ -12,7 +12,18 @@ Status: draft 2026-10-07. Split off [architecture-review.md](solved/architecture
 * **Timing:** after the queued content plans land (more bosses, Egyptian weapons, amulets, ...). Before starting,
   re-check the scatter list below against the code, then confirm with the user.
 
-## Today
+## Progress
+
+* **Format: C++ tables** (2026-10-07). No concrete need for data files yet (no translations, modding or tuning
+  without rebuilds). Built with C++20 for designated initializers: a row names only the fields that differ from the
+  record's defaults.
+* **Monsters: done.** One `MonsterKind` row per type in `KINDS` (`world/monster_kinds.cpp`, level library): names,
+  glyph, threat, stats, model, attack mix, resistances, wading, poison, spit, charge, boss summons (with the hatch
+  nest), levelgen weights. `MonsterType` (the game's) is the row plus the loaded model. The mimic, mummy and crocodile
+  checks read the locomotion; the decor scatter reads the boss table itself (no `CoffinBoss` callback).
+* Items and tiles: open.
+
+## Today (before the monsters were done)
 
 Re-checked 2026-10-07 in the [architecture review](solved/architecture-review.md). One kind's data is spread over
 several tables in several files:

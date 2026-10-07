@@ -7,45 +7,12 @@
 #include "trap_hurt.h"
 #include "../world/damage.h"
 #include "../world/items.h"
+#include "../world/monster_kinds.h"
 #include "../world/poison.h"
 #include "../graphics/texture_registry.h"
 #include "../world/rng.h"
 #include <memory>
 #include <optional>
-
-// How a monster gets around. Only flyers cross pits; walkers stop at their edge, and at traps unless reckless
-// (Courage).
-enum class Locomotion : unsigned char {
-	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
-	Ambush,		// rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
-				// killed, it leaves a real treasure chest on its tile
-	Walk,		// follows the player along its row
-	Entombed,	// walks, but lies in its coffin (idle) until the player comes near or hits it, then climbs out (Rise)
-				// before it acts
-	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
-	Fly,		// see Flight
-	Submerged,	// walks, but lies idle in the water until the player comes near or hits it (the crocodile)
-	// Walks, but lies coiled (idle) until the player comes near or hits it, then rears up (Rise) before it acts (the
-	// cobra).
-	Coiled,
-	Burrow, // walks, and now and then dives into the floor and comes up elsewhere on its row (Apep, see Burrow)
-};
-
-// How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
-enum class Wading : unsigned char {
-	Slowed,		// slower, like the player (MonsterType::waterSpeed, WADE_SPEED_FACTOR unless set)
-	Unaffected, // full speed
-	Swimmer,	// faster (waterSpeed), floating with its back at the surface (swimLift)
-};
-
-// Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
-enum class Courage : unsigned char {
-	// Afraid of traps (spikes, death traps, a rock fall not yet fallen): a walker stops at their edge, a walk-jumper
-	// leaps over them.
-	Coward,
-	// Walks straight through them and takes their damage, cut by MonsterType::trapDamagePct.
-	Reckless,
-};
 
 // Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through them,
 // biting on the way, fly on, turn and come back.
@@ -89,58 +56,10 @@ struct Charge {
 	bool hit = false; // this rush has hit the player
 };
 
-// How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging), climb out
-// of a coffin by the boss (entombed minions, Monster::Rising), or hatch out of a living egg cluster (MonsterEggCluster;
-// emerging like DigOut; none left, no summons).
-enum class Summon : unsigned char { DigOut, Drop, Coffin, Hatch };
-
-// A boss summons minions around itself while it lives (Dungeon::updateBoss).
-struct BossRules {
-	int minion = 0;		  // MonsterTypeId of its minions; 0: not a boss
-	int minAlive = 0;	  // minions around it when it appears
-	int maxAlive = 0;	  // no summon while this many are alive
-	int summonMs = 0;	  // between summons
-	int summonCap = 0;	  // summons per fight, after the first minAlive
-	int lifeStealPct = 0; // heals this share of the damage it deals
-	Summon summon = Summon::DigOut;
-};
-
-// A spitter's venom (SPIT_DEFS): from afar along its row, it stops and spits a glob at the player (Dungeon::Venom).
-struct SpitRules {
-	int damage = 0; // on a hit, of the type's attack mix
-	PoisonTier poison = PoisonTier::Medium;
-	float range = 0.f;	  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
-	int cooldownMs = 0;	  // from one spit to the next
-	float release = 0.5f; // of the spit clip: the glob leaves the mouth
-	float mouthY = 0.5f;  // of the reference clip's height: the mouth at the release
-};
-
-// One kind of monster (level tile attribute, MonsterTypeId in level.h): loaded once, shared by its monsters.
-struct MonsterType {
-	int id = 0; // MonsterTypeId
-	const char* name = "";
-	const char* texture = ""; // under textures/, without .png
+// One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and its model,
+// loaded once, shared by its monsters.
+struct MonsterType : MonsterKind {
 	CharacterModel model;
-	float speed = 1.f;
-	int maxHealth = 20;
-	int damage = 1;
-	int xp = 0;			// gained for the kill
-	int attackMs = 800; // between bites
-	float scale = 1.f;
-	float rotA = 0.f; // model yaw facing the camera
-	Locomotion locomotion = Locomotion::Walk;
-	Courage courage = Courage::Coward;
-	Wading wading = Wading::Slowed;
-	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
-	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
-	std::optional<SpitRules> spit;		  // it spits venom from afar
-	bool charges = false;				  // it charges along its row (Charge)
-	int trapDamagePct = 100;			  // share of a trap's damage it takes (traps ignore armour); 0: immune
-	Resistances resist = NO_RESISTANCES;  // how it takes each type of a weapon's damage
-	DamageMix attackMix{};				  // what its bite deals; its group's (ATTACK_MIX_DEFS)
-	Rgb blood = {0.7f, 0.1f, 0.1f};
-	BossRules boss;
-	[[nodiscard]] bool isBoss() const { return boss.minion != 0; }
 };
 
 class Player;

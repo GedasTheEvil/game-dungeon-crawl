@@ -1,8 +1,8 @@
 ##DungeonCrawl by Gedas The Evil
 CXX=g++
 RM=rm -f
-CXXFLAGS=-Wall -Wextra -pedantic -Wold-style-cast -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
-TIDY_CPPFLAGS=-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CXXFLAGS=-std=c++20 -Wall -Wextra -pedantic -Wold-style-cast -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
+TIDY_CPPFLAGS=-std=c++20 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 # Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
 GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
 SDL_LIBS=-lSDL_mixer -lSDL
@@ -21,7 +21,7 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/decor_scatter.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp
-LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
+LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
 RENDER_LIB_SOURCES=src/core/logger.cpp src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
 	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp

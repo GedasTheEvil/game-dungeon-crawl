@@ -57,8 +57,9 @@ The facts live in one table each; the compiler and the unit tests point at the r
   name, editor text, decor flags), its glyph in `tileGlyph` and the legend. `-Wswitch` then flags
   `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft map (`ui/map_view.cpp`) and the editor's
   icon list (`tools/editor/tile_info.cpp`, `icons/make_icons.py`) need a look by hand.
-* **Monster:** a value in `MonsterTypeId`, a row in `KINDS` (`src/world/monster_kinds.cpp`: label, glyph, threat, boss),
-  a row in `MONSTER_DEFS` (`src/state/assets.cpp`: stats, model), and for a boss one in `BOSS_DEFS`.
+* **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/world/monster_kinds.cpp`): names, glyph,
+  threat, stats, model, resistances, wading, poison, spit, boss summons, levelgen weights. Only the fields that differ
+  from the defaults in `MonsterKind`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
 * Then the docs: the unit tests (`tests/unit/docs_test.cpp`) fail until `tools/editor/readme.md` and
   `docs/levels.md` list it.
@@ -79,7 +80,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 * `core/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
   `GameState`, created before the window.
 * `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
-  monster types). Monsters and items are rows of the `MONSTER_DEFS` / `WEAPON_DEFS` tables in `assets.cpp`.
+  monster types). The monster rows are `KINDS` in `world/monster_kinds.cpp`; the weapons `WEAPON_DEFS` in `assets.cpp`.
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
   (`ShowStatus`), save / load.
 * `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`

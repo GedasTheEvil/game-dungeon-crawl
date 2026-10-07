@@ -1,4 +1,5 @@
 #include "decor_scatter.h"
+#include "monster_kinds.h"
 #include "tile_defs.h"
 #include "../core/gameplay_config.h"
 #include <algorithm>
@@ -75,14 +76,20 @@ uint32_t mix(uint32_t h) { // lowbias32 integer hash
 // A cell's own random number for this level's decoration pass (seed): the same cell, the same number.
 uint32_t cellHash(uint32_t seed, int cell) { return mix(seed ^ mix(static_cast<uint32_t>(cell) + 0x9e3779b9U)); }
 
-int scatterProps(const Tile* cells, uint32_t seed, int tier, const CoffinBoss& coffinBoss, DecorCell* decor) {
+// A monster that lies in its coffin until the player comes near (the mummy).
+bool entombed(int type) {
+	const MonsterKind* kind = monsterKind(type);
+	return kind != nullptr && kind->locomotion == Locomotion::Entombed;
+}
+
+int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++) {
 			DecorCell& cell = decor[cellIndex(i, j)];
 			cell = DecorCell{};
 			const Tile tile = at(cells, i, j);
-			if ((tile.type == MonsterSpawn && tile.attr == MonsterMummy) || bossCoffinCell(cells, i, j, coffinBoss)) {
+			if ((tile.type == MonsterSpawn && entombed(tile.attr)) || bossCoffinCell(cells, i, j)) {
 				cell.type = DECOR_COFFIN;
 				continue;
 			}
@@ -333,7 +340,7 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, SurfaceCell* su
 }
 } // namespace
 
-bool bossCoffinCell(const Tile* cells, int col, int row, const CoffinBoss& coffinBoss) {
+bool bossCoffinCell(const Tile* cells, int col, int row) {
 	const Tile tile = at(cells, col, row);
 	if (!isEmptyCell(tile) || slainBoss(tile) != 0 || !floorAt(cells, col, row - 1))
 		return false;
@@ -341,20 +348,19 @@ bool bossCoffinCell(const Tile* cells, int col, int row, const CoffinBoss& coffi
 		if (!inBounds(col + k, row))
 			continue;
 		const Tile& t = cells[cellIndex(col + k, row)];
-		const int boss = t.type == MonsterSpawn ? t.attr : slainBoss(t);
-		if (boss >= 1 && boss <= MONSTER_TYPE_MAX && coffinBoss(boss))
+		const MonsterKind* boss = monsterKind(t.type == MonsterSpawn ? t.attr : slainBoss(t));
+		if (boss != nullptr && boss->isBoss() && boss->boss.summon == Summon::Coffin)
 			return true;
 	}
 	return false;
 }
 
-DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, const CoffinBoss& coffinBoss,
-						 DecorLayout& layout) {
+DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, DecorLayout& layout) {
 	const char* slash = strrchr(levelName, '/');
 	const uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
 	const int tier = decorTier(depth);
 	DecorCounts counts;
-	counts.props = scatterProps(cells, seed, tier, coffinBoss, layout.decor);
+	counts.props = scatterProps(cells, seed, tier, layout.decor);
 	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, layout.decor, layout.torch);
 	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);

@@ -43,8 +43,6 @@ TEST_CASE("every scattered prop and decal has a tier, the first one a cave") {
 }
 
 namespace {
-bool noCoffinBoss(int /*monsterType*/) { return false; }
-
 Tile cellAt(const LevelGrid& grid, int col, int row) { return grid.cells[row * LEVEL_WIDTH + col]; }
 int idx(int col, int row) { return row * LEVEL_WIDTH + col; }
 
@@ -60,7 +58,7 @@ Scattered campaignLevel(int number) {
 	s.depth = number;
 	const std::string file = campaignLevelFile(number);
 	REQUIRE(loadLevelFile(file.c_str(), s.grid).empty());
-	scatterDecor(s.grid.cells, file.c_str(), number, noCoffinBoss, *s.layout);
+	scatterDecor(s.grid.cells, file.c_str(), number, *s.layout);
 	return s;
 }
 } // namespace
@@ -71,9 +69,9 @@ TEST_CASE("the scatter is the same on every load, keyed by the level's file name
 	auto a = std::make_unique<DecorLayout>();
 	auto b = std::make_unique<DecorLayout>();
 	auto c = std::make_unique<DecorLayout>();
-	const DecorCounts first = scatterDecor(grid.cells, "levels/lvl9", 9, noCoffinBoss, *a);
-	const DecorCounts again = scatterDecor(grid.cells, "elsewhere/lvl9", 9, noCoffinBoss, *b);
-	scatterDecor(grid.cells, "levels/lvl10", 9, noCoffinBoss, *c);
+	const DecorCounts first = scatterDecor(grid.cells, "levels/lvl9", 9, *a);
+	const DecorCounts again = scatterDecor(grid.cells, "elsewhere/lvl9", 9, *b);
+	scatterDecor(grid.cells, "levels/lvl10", 9, *c);
 	CHECK(first.props > 0);
 	CHECK(first.props == again.props);
 	CHECK(first.decals == again.decals);
@@ -105,7 +103,7 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(isEmptyCell(t));
 					CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
 					CHECK(DECOR_TIERS[prop.type] <= tier);
-					CHECK(prop.type < DECOR_SCATTERED);
+					CHECK((prop.type < DECOR_SCATTERED || bossCoffinCell(s.grid.cells, i, j)));
 				}
 				const DecalCell& decal = s.layout->decal[idx(i, j)];
 				if (decal.type >= 0) {
@@ -190,21 +188,22 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	for (int i = 1; i < 30; i++)
 		grid.set(i, 1, Tile{});
 	grid.set(10, 1, Tile{MonsterSpawn, MonsterAnubisBoss, 0});
-	auto anubis = [](int type) { return type == MonsterAnubisBoss; };
+	LevelGrid scarab = grid;
+	scarab.set(10, 1, Tile{MonsterSpawn, MonsterBossScarab, 0}); // its scarabs dig out of the floor
 	for (int i = 1; i < 30; i++) {
 		CAPTURE(i);
 		const bool near = i != 10 && i >= 10 - MINION_SUMMON_REACH && i <= 10 + MINION_SUMMON_REACH;
-		CHECK(bossCoffinCell(grid.cells, i, 1, anubis) == near);
-		CHECK_FALSE(bossCoffinCell(grid.cells, i, 1, noCoffinBoss));
+		CHECK(bossCoffinCell(grid.cells, i, 1) == near);
+		CHECK_FALSE(bossCoffinCell(scarab.cells, i, 1));
 	}
 	auto layout = std::make_unique<DecorLayout>();
-	scatterDecor(grid.cells, "coffins", 30, anubis, *layout);
+	scatterDecor(grid.cells, "coffins", 30, *layout);
 	CHECK(layout->decor[idx(10 - MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10, 1)].type == -1); // the boss's own tile stays bare
 
 	grid.set(10, 1, slainBossObject(MonsterAnubisBoss)); // after a load: the boss is dead, his chamber the same
-	CHECK(bossCoffinCell(grid.cells, 9, 1, anubis));
-	scatterDecor(grid.cells, "coffins", 30, anubis, *layout);
+	CHECK(bossCoffinCell(grid.cells, 9, 1));
+	scatterDecor(grid.cells, "coffins", 30, *layout);
 	CHECK(layout->decor[idx(10, 1)].type == -1);
 }

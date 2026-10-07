@@ -48,7 +48,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `bat_vampire.png` (the vampire bat
   boss: blue-black fur, blood-red veins, crimson eyes). Sounds: `tools/audio/bat_sounds.py` (`sounds/monsters/bat_{att,die}.wav`).
-  Engine: `Monster::Fly` (`Locomotion::Fly` in `MONSTER_DEFS`, `src/state/assets.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/world/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
   (`BAT_*` in `src/core/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
@@ -203,7 +203,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/assets.cpp` (`MONSTER_DEFS`, `WEAPON_DEFS`; the player in `game_state.cpp`).
+* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/state/assets.cpp` (`WEAPON_DEFS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
@@ -227,7 +227,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
   (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `AnimatedModel::Load` in `src/graphics/animated_model.cpp`.
-* Blender space: Z-up. Facing depends on the monster's `rotA` in `MONSTER_DEFS` (`src/state/assets.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
+* Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/world/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
   Check the old model's facing before remodelling.
 * The engine normalizes a monster by its reference clip's frame 0 (the walk-slot file `<name>.md3`; `_idle` for the mimic, `AMBUSH_CLIPS`): largest dimension -> 1, centred in x/z,
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `CharacterModel::Load`),

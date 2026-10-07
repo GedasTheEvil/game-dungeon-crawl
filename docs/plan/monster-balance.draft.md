@@ -18,7 +18,7 @@ be tuned against the final player speed.
 
 ## Current values
 
-From `MONSTER_DEFS` (`src/state/assets.cpp`). Speed, HP, damage, ms between attacks, XP.
+From `KINDS` (`src/world/monster_kinds.cpp`). Speed, HP, damage, ms between attacks, XP.
 
 | Monster | Speed | HP | Dmg | Attack ms | XP | Note |
 |---|---|---|---|---|---|---|
@@ -56,7 +56,7 @@ have made them level 200+. Needs a playthrough.
 
 ## Monster strength
 
-* Go through every type in `MONSTER_DEFS`: speed, HP, damage, attack interval, XP. Compare against the player's level
+* Go through every type in `KINDS`: speed, HP, damage, attack interval, XP. Compare against the player's level
   and gear at the levels it spawns on (`level_gen.cpp` picks, `docs/levels.md`).
 * For each, check three player tactics: tank it in melee, kite it with the bow, run past it.
   A monster that loses to all three at its own levels is too weak.
@@ -77,8 +77,8 @@ scarab's.
 
 ## HP balance
 
-Not changed: needs a playthrough with the new reach. Retune monster HP (`MONSTER_DEFS`, `BOSS_DEFS` in
-`src/state/assets.cpp`): replay lvl5 (boss scarab, 320 HP) and a giant rat level with each weapon.
+Not changed: needs a playthrough with the new reach. Retune monster HP (`KINDS` in
+`src/world/monster_kinds.cpp`): replay lvl5 (boss scarab, 320 HP) and a giant rat level with each weapon.
 
 Numbers to start from, at weapon level 1, no Might (before
 [damage types](solved/damage-types-and-resistances.md): since then the club deals 10 and the spear 20, weapons grow per

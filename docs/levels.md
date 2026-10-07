@@ -14,7 +14,7 @@ A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (the crocodile, a
-swimmer, 2.5 times its land speed; `Wading` in `src/entities/monster.h`, `WADING_DEFS` in `src/state/assets.cpp`). An arrow hits a monster standing in water for half its damage. Traps
+swimmer, 2.5 times its land speed; `Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
 deep water not under water, a ladder that goes down into water (one may start in it) and a crocodile not in or next
 to water.

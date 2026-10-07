@@ -2,12 +2,7 @@
 #include "../state/assets.h"
 #include "../core/logger.h"
 
-CoffinBoss Dungeon::coffinBoss() const {
-	const Assets* assets = sim.assets;
-	return [assets](int type) { return assets->monsterTypes[type].boss.summon == Summon::Coffin; };
-}
-
-bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j, coffinBoss()); }
+bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j); }
 
 int Dungeon::CoffinCount() const {
 	int n = 0;
@@ -27,7 +22,7 @@ bool Dungeon::PlaceDecor(int col, int row, int type) {
 int Dungeon::DecorTierUsed() const { return decorTierUsed(map, decoration); }
 
 void Dungeon::scatterDecorations(const char* levelName, int depth) {
-	const DecorCounts counts = scatterDecor(map, levelName, depth, coffinBoss(), decoration);
+	const DecorCounts counts = scatterDecor(map, levelName, depth, decoration);
 	LOG_INFOF("world", "Decorations in %s: %d", levelName, counts.props);
 	LOG_INFOF("world", "Torches: %d", counts.torches);
 	LOG_INFOF("world", "Wall decals: %d", counts.decals);

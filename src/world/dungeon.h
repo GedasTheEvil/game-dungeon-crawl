@@ -265,7 +265,6 @@ class Dungeon {
 	// depth unlocks (decor.h: the campaign level, DECOR_DEPTH_ALL outside the campaign).
 	void scatterDecorations(const char* levelName, int depth);
 	[[nodiscard]] bool bossCoffin(int i, int j) const; // a coffin for the boss's minions stands there
-	[[nodiscard]] CoffinBoss coffinBoss() const;	   // the bosses whose minions climb out of coffins
 };
 
 #endif

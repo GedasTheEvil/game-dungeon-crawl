@@ -44,7 +44,7 @@ FRAMES = {name: n for name, _, n in CLIPS}
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0.1, 0.9), "ortho": 2.4, "res": (360, 420)}
 
-SCALE = 18.0  # MONSTER_DEFS scale: world units of walk frame 0's largest dimension
+SCALE = 18.0  # KINDS scale (monster_kinds.cpp): world units of walk frame 0's largest dimension
 TILE = 40.0  # world units per tile
 TOMB_DEPTH = 14.4  # world units: the dormant body is drawn this far towards the back wall
 SLIDE = (0.3, 0.75)  # rise t over which the engine slides TOMB_DEPTH to 0 (smoothstep)

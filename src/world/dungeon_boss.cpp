@@ -124,7 +124,7 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	if (how == Summon::Hatch) {
 		const Monster* best = nullptr; // the living egg cluster nearest the boss, not right by the player
 		for (const Monster& mon : monsters) {
-			if (!mon.Active() || !mon.Alive() || mon.Type()->id != MonsterEggCluster ||
+			if (!mon.Active() || !mon.Alive() || mon.Type()->id != boss.Type()->boss.nest ||
 				(std::fabs(mon.CentreX() - mapX) < 1.5f && std::fabs(static_cast<float>(mon.Row()) - mapY) < 0.5f))
 				continue;
 			auto distance = [&boss](const Monster& m) {

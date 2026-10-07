@@ -2,11 +2,8 @@
 #define PARTICLES_H
 
 #include "../core/timer.h"
+#include "../world/rgb.h"
 #include "../world/rng.h"
-
-struct Rgb {
-	float r, g, b;
-};
 
 // A blood splash: particles burst from (x, y, z) and drift down while the system has life left.
 class ParticleSystem {

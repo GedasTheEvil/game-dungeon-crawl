@@ -38,7 +38,7 @@ TEST_CASE("every monster type has a row, six bosses") {
 		REQUIRE(kind != nullptr);
 		CHECK(kind->id == type);
 		glyphs.insert(kind->glyph);
-		bosses += kind->boss ? 1 : 0;
+		bosses += kind->isBoss() ? 1 : 0;
 	}
 	CHECK(glyphs.size() == static_cast<size_t>(MONSTER_TYPE_MAX));
 	CHECK(bosses == 6);

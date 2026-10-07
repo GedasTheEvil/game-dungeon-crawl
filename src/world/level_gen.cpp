@@ -1,5 +1,6 @@
 #include "level_gen.h"
 #include "items.h"
+#include "monster_kinds.h"
 #include "rng.h"
 #include <algorithm>
 #include <cmath>
@@ -315,29 +316,22 @@ class LevelBuilder {
 		return Tile{Treasure, ItemType::RANGED_WEAPON, RANGED[rng.range(0, kinds - 1)]};
 	}
 
+	// Weak monsters give way to their giant kin deeper down (MonsterKind::generated).
 	int randomMonster() {
-		// Weak monsters give way to their giant kin deeper down.
-		struct Pick {
-			int type, minDifficulty, maxDifficulty, weight;
-			[[nodiscard]] bool allowed(int difficulty) const {
-				return difficulty >= minDifficulty && difficulty <= maxDifficulty;
-			}
+		auto allowed = [this](const GenPick& p) {
+			return p.weight > 0 && d >= p.minDifficulty && d <= p.maxDifficulty;
 		};
-		static const Pick PICKS[] = {{MonsterRat, 1, 5, 6},			 {MonsterScarab, 1, 5, 4},
-									 {MonsterBat, 2, 6, 3},			 {MonsterPlant, 3, 10, 2},
-									 {MonsterWorm, 3, 7, 2},		 {MonsterGiantRat, 4, 10, 3},
-									 {MonsterGiantScarab, 5, 10, 3}, {MonsterGiantBat, 6, 10, 2},
-									 {MonsterMummy, 7, 10, 2},		 {MonsterAnubis, 9, 10, 1}};
 		int total = 0;
-		for (const Pick& p : PICKS)
-			if (p.allowed(d))
+		for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
+			if (const GenPick& p = monsterKind(type)->generated; allowed(p))
 				total += p.weight;
 		int roll = rng.range(0, total - 1);
-		for (const Pick& p : PICKS) {
-			if (!p.allowed(d))
+		for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
+			const GenPick& p = monsterKind(type)->generated;
+			if (!allowed(p))
 				continue;
 			if (roll < p.weight)
-				return p.type;
+				return type;
 			roll -= p.weight;
 		}
 		return MonsterRat;

@@ -310,9 +310,10 @@ void checkWater(const LevelGrid& grid, LevelReport& r) {
 			r.warnings.push_back("deep water at " + at(cell) + " is not under water");
 		if (t.type == Ladder && !inHalfWater(t) && inHalfWater(below) && below.type != Ladder)
 			r.warnings.push_back("the ladder at " + at(cell) + " goes down into the water");
-		if (t.type == MonsterSpawn && t.attr == MonsterCrocodile && !inHalfWater(t) &&
+		const MonsterKind* kind = t.type == MonsterSpawn ? monsterKind(t.attr) : nullptr;
+		if (kind != nullptr && kind->locomotion == Locomotion::Submerged && !inHalfWater(t) &&
 			!inHalfWater(grid.at(col - 1, row)) && !inHalfWater(grid.at(col + 1, row)))
-			r.warnings.push_back("the crocodile at " + at(cell) + " is not in or next to water");
+			r.warnings.push_back(std::string("the ") + kind->label + " at " + at(cell) + " is not in or next to water");
 	}
 }
 

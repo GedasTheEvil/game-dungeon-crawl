@@ -17,13 +17,15 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 | Amulet | Lesser | Minor | Normal | Grand | Notes |
 |---|---|---|---|---|---|
 | Strength | +1 | +2 | +4 | +6 | adds to might (`PlayerStats::Might`, added to every hit) |
-| Armour | tiered like strength | | | | adds to armour (`PlayerStats::Armor`); numbers open |
-| Health | +5% | +10% | +20% | +30% | more max HP |
+| Armour | +1 | +2 | +4 | +6 | adds to armour (`PlayerStats::Armor`), same numbers as strength |
+| Health | +5% | +10% | +20% | +30% | more max HP; HP keeps its share of the max when put on or taken off |
 | Regeneration | - | - | 1 HP/s | 2 HP/s | normal and grand tiers only; out of combat only |
 | Poison | 10% | 25% | 50% | 80% | the chance to resist a poisoned hit (the poison, not the hit's damage) |
 | Traps | | | | | less trap damage; tiers open |
 | Pierce (blunt, slash alike) | | | | | a share off one damage type; tiers open |
 
+* **Health amulet:** putting it on or taking it off changes the max HP but keeps the HP at the same share of it: no
+  heal, no loss (full stays full, half stays half). Unlike a max HP potion (`PlayerStats::AddMaxHP` heals fully).
 * **Regeneration:** the simplest rule: a flat number of HP per second, only out of combat. No cap, no % of max HP.
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
 * **Typed instead of "physical":** a cut of all monster damage is stronger than every other amulet. One amulet per
@@ -32,10 +34,9 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Tier numbers for armour, traps and the damage types. Traps can be seen and walked around, so a trap amulet
+* Tier numbers for traps and the damage types. Traps can be seen and walked around, so a trap amulet
   needs a big cut or immunity to be worth the slot.
 * "Out of combat" for regeneration: how long after the last hit given or taken? Does poison pause it?
-* Health amulet: on taking it off, is the HP above the new max cut off?
 * Which tiers show up where (lesser early, grand late or from bosses); models for the other amulets.
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
 * Campaign: which amulet in which level / boss; each found once, no duplicates. Count them in `./levelcheck` (does a

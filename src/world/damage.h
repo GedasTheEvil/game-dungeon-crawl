@@ -51,6 +51,7 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL};
 // How the traps hurt the player (docs/plan/solved/monster-attack-damage-types.md).
 constexpr DamageMix SPIKE_ATTACK_MIX = {0, 20, 80}; // spikes and the death trap
 constexpr DamageMix ROCK_ATTACK_MIX = {100, 0, 0};
+constexpr DamageMix DART_ATTACK_MIX = {0, 0, 100};
 
 // A hit on the player: the type resistances first, then the armour's flat amount (none if ignoreArmor); at least 1.
 // Resistance first keeps its share worth the same on weak and strong hits.

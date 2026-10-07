@@ -38,7 +38,8 @@ enum DungeonTileType : unsigned char {
 	Key = 10,	// b = lock colour; picked up on touch, then the cell has no object
 	Gate = 11,	// b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
-	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
+	RockFall = 13,	// loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
+	DartPlate = 14, // pressure plate in the floor: poison darts from the nearer wall on its row; c: 0 armed, 1 pressed
 };
 
 enum GateType : unsigned char {
@@ -130,6 +131,9 @@ enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
 enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
 [[nodiscard]] inline GateState gateState(const Tile& t) { return static_cast<GateState>(t.value); }
 [[nodiscard]] inline RockState rockState(const Tile& t) { return static_cast<RockState>(t.value); }
+// A DartPlate's value: pressed from the volley until it re-arms (docs/plan/poison-dart-trap.md).
+[[nodiscard]] inline bool platePressed(const Tile& t) { return t.type == DartPlate && t.value == 1; }
+inline void setPlatePressed(Tile& t, bool pressed) { t.value = pressed ? 1 : 0; }
 inline void setGateState(Tile& t, GateState s) { t.value = static_cast<int>(s); }
 inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); }
 // A Lever's value: 0 up, 1 pulled.

@@ -6,7 +6,9 @@ Writes monsters/rat_att.wav (squeak + hiss, also used by the giant rat), rat_die
 rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
 mechanisms/key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding + chain rattle), gate_locked.wav (dull rattle),
 lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris), teleport.wav (rising plasma swell + shimmer),
-monsters/summon_dig.wav (a boss's minion digs out of the sand), summon_drop.wav (a minion drops from the ceiling).
+monsters/summon_dig.wav (a boss's minion digs out of the sand), summon_drop.wav (a minion drops from the ceiling),
+mechanisms/plate_click.wav (a stone pressure plate sinks: grit, a hollow knock and a latch), dart.wav (a dart leaves
+its hole in the wall: a puff and a thin whistle).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -248,6 +250,30 @@ def summon_drop():
 
 
 # Paths under sounds/.
+def plate_click():
+    out = np.zeros(int(0.35 * SR))
+    t = t_axis(0.25)
+    grit = band(rng.standard_normal(int(0.06 * SR)), 1500, 6000) * env_ad(t_axis(0.06), 0.001, 0.02)
+    place(out, grit, 0.0, 0.5)
+    knock = lowpass(rng.standard_normal(len(t)), 300) * env_ad(t, 0.001, 0.03)
+    place(out, knock, 0.02, 2.4)
+    hollow, _ = ring((180, 410), 0.25, 0.05)
+    place(out, hollow, 0.02, 0.6)
+    latch, _ = ring((2400, 3700), 0.1, 0.012)
+    place(out, latch, 0.09, 0.35)
+    return normalize(out, -4)
+
+
+def dart():
+    out = np.zeros(int(0.3 * SR))
+    puff = band(rng.standard_normal(int(0.05 * SR)), 400, 2500) * env_ad(t_axis(0.05), 0.001, 0.012)
+    place(out, puff, 0.0, 1.0)
+    whistle, t = chirp(3200, 2100, 0.22, 0.7)
+    air = band(rng.standard_normal(len(t)), 2000, 6000)
+    place(out, (whistle * 0.35 + air * 0.5) * np.sin(np.pi * t / 0.22) ** 2, 0.01, 0.8)
+    return normalize(out, -6)
+
+
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
@@ -255,6 +281,7 @@ SOUNDS = {
     "monsters/rat_jump": rat_jump,  # after the older sounds: their fixed rng stream stays the same
     "mechanisms/teleport": teleport,
     "monsters/summon_dig": summon_dig, "monsters/summon_drop": summon_drop,
+    "mechanisms/plate_click": plate_click, "mechanisms/dart": dart,
 }
 
 

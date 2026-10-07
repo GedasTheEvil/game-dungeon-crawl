@@ -243,6 +243,9 @@ void Dungeon::drawTileContent(int i, int j) {
 	case RockFall:
 		drawRockFallTile(i, j);
 		break;
+	case DartPlate:
+		drawDartPlateTile(i, j);
+		break;
 	}
 }
 //======================================================================================
@@ -303,6 +306,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	DrawMonsters(drawn);
 	drawMissiles();
 	drawVenoms();
+	drawDarts();
 	if (hitboxes != nullptr)
 		drawHitboxes(*hitboxes);
 	glPopMatrix();

@@ -1,6 +1,7 @@
 // The checker's movement rules against the game's (docs/plan/movement-model.draft.md), on small levels.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/level_check.h"
+#include "../../src/world/items.h"
 #include "../../src/world/tile_defs.h"
 #include <string>
 #include <vector>
@@ -80,4 +81,28 @@ TEST_CASE("a jump from a ladder's foot") {
 	LevelReport r = checkLevel(drawn({"#########", "###H#####", "#S.H.E###", "####.####", "#########"}));
 	REQUIRE(r.valid);
 	CHECK(r.pathJumps == 1);
+}
+
+TEST_CASE("dart plates: an antidote wanted when walked, a wall to shoot from") {
+	auto has = [](const LevelReport& r, const std::string& text) {
+		for (const std::string& w : r.warnings)
+			if (w.find(text) != std::string::npos)
+				return true;
+		return false;
+	};
+	LevelGrid grid = drawn({"##########", "#S.____.E#", "##########"});
+	LevelReport walked = checkLevel(grid);
+	REQUIRE(walked.valid);
+	CHECK(walked.dartPlates == 4);
+	CHECK(walked.pathDartPlates > 0);
+	CHECK(has(walked, "dart trap on the path but no antidote"));
+	CHECK_FALSE(has(walked, "has no wall"));
+	const ItemFileId antidote = fileIdOf(ItemKind::Antidote);
+	cell(grid, 2, 1) = Tile{Treasure, antidote.type, antidote.id};
+	CHECK(checkLevel(grid).warnings.empty());
+
+	std::string row = "#S" + std::string(18, '.') + "_" + std::string(17, '.') + "E#";
+	REQUIRE(row.size() == 40);
+	LevelReport far = checkLevel(drawn({std::string(40, '#'), row, std::string(40, '#')}));
+	CHECK(has(far, "has no wall within 12 cells"));
 }

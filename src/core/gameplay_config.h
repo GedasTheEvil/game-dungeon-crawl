@@ -172,4 +172,21 @@ static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 100
 				  1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
 			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
 
+// Dart trap (docs/plan/poison-dart-trap.md): a pressure plate under the player or a heavy monster (weight
+// DART_PLATE_WEIGHT and up, MonsterKind::weight) clicks; DART_DELAY_MS later the nearer wall on its row shoots
+// DART_COUNT darts along the row, DART_GAP_MS apart. They fly at DART_HEIGHT over the floor: under a jump at its top,
+// over small monsters. Each one that hits deals DART_DAMAGE and poisons (medium). The plate re-arms DART_REARM_MS
+// after the click, once nothing heavy stands on it.
+constexpr int PLAYER_WEIGHT = 2;
+constexpr int DART_PLATE_WEIGHT = 2;
+constexpr int DART_RANGE = 12; // cells from the plate to the wall that shoots
+constexpr int DART_DELAY_MS = 200;
+constexpr int DART_COUNT = 3;
+constexpr int DART_GAP_MS = 160;
+constexpr float DART_SPEED = 9.f;	// tiles a second
+constexpr float DART_HEIGHT = 0.3f; // tiles over the floor
+constexpr int DART_DAMAGE = 2;
+constexpr int DART_REARM_MS = 3000;
+constexpr int DART_STICK_MS = 1500; // a dart in a wall stays this long
+
 #endif

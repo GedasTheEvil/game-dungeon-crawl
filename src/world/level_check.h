@@ -46,7 +46,8 @@ struct LevelReport {
 	// Content, whole level
 	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterTypeId (index 0 = unknown type)
 	int monsterCount = 0;
-	int spikes = 0, deathTraps = 0, rockFalls = 0, treasures = 0, keys = 0, gates = 0, levers = 0, riddles = 0;
+	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, treasures = 0, keys = 0, gates = 0, levers = 0,
+		riddles = 0;
 	int teleporters = 0;
 	int bosses = 0;
 	int reachableTreasures = 0;
@@ -57,7 +58,7 @@ struct LevelReport {
 	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull stays in the cell)
 	int pathLength = 0;				 // moves
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0;
-	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathGates = 0, pathMonsters = 0;
+	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathGates = 0, pathMonsters = 0;
 	int keysNeeded = 0;	   // colours the path has to collect before a gate
 	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 

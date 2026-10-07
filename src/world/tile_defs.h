@@ -8,7 +8,7 @@
 #include "level.h"
 #include <vector>
 
-constexpr int TILE_TYPE_COUNT = RockFall + 1; // type numbers 0 and 7 are free (level.h)
+constexpr int TILE_TYPE_COUNT = DartPlate + 1; // type numbers 0 and 7 are free (level.h)
 [[nodiscard]] constexpr bool isTileType(int type) {
 	constexpr int AREA3D = 7; // dropped in the level format v2
 	return type >= NoObject && type < TILE_TYPE_COUNT && type != AREA3D;

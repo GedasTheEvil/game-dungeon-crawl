@@ -265,6 +265,13 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 			sk.pencil(x + 0.55f, y + 0.9f, x + 0.8f, y + 0.72f, GRAPHITE, 0.9f, seed + 2);
 		}
 		break;
+	case DartPlate: // a slab in the floor and a dart over it
+		sk.pencil(x + 0.2f, y + 0.08f, x + 0.8f, y + 0.08f, GRAPHITE, 0.95f, seed);
+		sk.pencil(x + 0.2f, y + 0.16f, x + 0.8f, y + 0.16f, GRAPHITE, 0.95f, seed + 1);
+		sk.pencil(x + 0.15f, y + 0.45f, x + 0.85f, y + 0.45f, GRAPHITE, 0.9f, seed + 2);
+		sk.pencil(x + 0.85f, y + 0.45f, x + 0.72f, y + 0.53f, GRAPHITE, 0.9f, seed + 3);
+		sk.pencil(x + 0.85f, y + 0.45f, x + 0.72f, y + 0.37f, GRAPHITE, 0.9f, seed + 4);
+		break;
 	case Ankh:
 		sk.loop(x + 0.5f, y + 0.74f, 0.12f, 0.16f, 7, ANKH_GOLD, 0.95f, seed);
 		sk.pencil(x + 0.28f, y + 0.55f, x + 0.72f, y + 0.55f, ANKH_GOLD, 0.95f, seed + 7);

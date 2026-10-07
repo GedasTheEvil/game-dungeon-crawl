@@ -30,6 +30,10 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a wall "
 	 "above it.",
 	 true, true, 'v', "rockfall.png"},
+	{"DartPlate",
+	 "Pressure plate in the floor. The player or a heavy monster on it (not a jump) sets off 3 poison darts (medium) "
+	 "from the nearer wall on its row, within 12 cells. Re-arms 3 s after it is free.",
+	 true, true, '_', "dartplate.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -70,6 +74,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'^', {Spike, 0, 0}, "spikes"},
 		{'X', {Death, 0, 0}, "death trap"},
 		{'v', {RockFall, 0, 0}, "rock fall"},
+		{'_', {DartPlate, 0, 0}, "dart trap plate"},
 		{'/', {Lever, 1, 0}, "lever (red; other colours: 'set')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)

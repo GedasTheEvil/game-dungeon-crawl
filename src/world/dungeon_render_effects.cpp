@@ -73,6 +73,28 @@ void Dungeon::drawMissiles() {
 	}
 }
 //======================================================================================
+// The bow's arrow, smaller, level along the row, the tip ahead.
+void Dungeon::drawDarts() {
+	AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(MissileKind::Arrow)].get();
+	if (darts.empty() || !model)
+		return;
+	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
+	const auto firstRow = static_cast<float>(view().originRow);
+	constexpr float DART_SCALE = 0.8f; // of the arrow model
+	const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale() * DART_SCALE;
+	const float high = model->YRange(0).second;
+	for (const Dart& d : darts) {
+		glPushMatrix();
+		glTranslatef(RenderConfig::TILE_SIZE * (d.x - firstCol), RenderConfig::TILE_SIZE * (d.y - firstRow),
+					 ARROW_DEPTH);
+		glRotatef(d.dir > 0 ? -90.f : 90.f, 0, 0, 1); // the model points up (+y), the tip at the position
+		glTranslatef(0, -high * scale, 0);
+		glScalef(scale, scale, scale);
+		model->Show();
+		glPopMatrix();
+	}
+}
+//======================================================================================
 // A glob of venom: a small green ball stretched along its flight; on a wall or the floor a flattening splat.
 void Dungeon::drawVenoms() {
 	if (venoms.empty())

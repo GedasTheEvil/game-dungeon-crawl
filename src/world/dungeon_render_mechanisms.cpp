@@ -1,4 +1,5 @@
-// Drawing the keys, gates, levers and rock falls (dungeon_mechanisms.cpp has their rules).
+// Drawing the keys, gates, levers, rock falls and dart traps (dungeon_mechanisms.cpp and dungeon_darts.cpp have their
+// rules).
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
@@ -17,6 +18,7 @@ constexpr float LEVER_PIVOT[3] = {0.f, 0.42f, 0.05f}; // handle pivot on the pla
 constexpr float LEVER_ANGLE = 35.f;					  // degrees either side of upright; + tips the grip left
 constexpr float ROCK_START_Y = 0.65f;				  // rock bottom when it breaks loose (rock is 0.3 tall)
 constexpr float ROCK_DEPTH = 0.5f;					  // in the middle of the corridor, where the player walks
+constexpr float DART_PLATE_SINK = 0.025f;			  // a pressed plate is flush with the floor
 
 // Prop frame of the current tile (see Dungeon::drawDecorTile).
 void enterPropSpace() {
@@ -109,6 +111,15 @@ void Dungeon::drawRockFallTile(int i, int j) {
 		glRotatef(static_cast<float>(cell % 7) * 50.f, 0, 1, 0); // fallen rocks do not all look the same
 		showModel(sim.assets->mechanisms.rock.get());
 	}
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawDartPlateTile(int i, int j) {
+	glPushMatrix();
+	enterPropSpace();
+	if (platePressed(MapAt(i, j)))
+		glTranslatef(0, -DART_PLATE_SINK, 0);
+	showModel(sim.assets->mechanisms.plate.get());
 	glPopMatrix();
 }
 //======================================================================================

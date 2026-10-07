@@ -175,15 +175,15 @@ void printReport(const Entry& e, bool map) {
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
-	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d treasures (%d reachable), %d "
-		   "keys, %d gates, %d levers, %d riddles, %d teleporters\n",
-		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.treasures, r.reachableTreasures,
-		   r.keys, r.gates, r.levers, r.riddles, r.teleporters);
+	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d dart plates, %d treasures (%d "
+		   "reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters\n",
+		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.dartPlates, r.treasures,
+		   r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
-			   "%d gates (%d colours), %d teleports, %d monsters near\n",
+			   "%d dart plates, %d gates (%d colours), %d teleports, %d monsters near\n",
 			   r.pathLength, r.pathJumps, r.pathDrops, r.pathClimb, r.pathSpikes, r.pathDeathTraps, r.pathRockFalls,
-			   r.pathGates, r.keysNeeded, r.pathTeleports, r.pathMonsters);
+			   r.pathDartPlates, r.pathGates, r.keysNeeded, r.pathTeleports, r.pathMonsters);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());
@@ -282,8 +282,8 @@ int main(int argc, char** argv) {
 		if (!r.errors.empty())
 			notes += r.errors.front();
 		printf("%-4d %-28s %-7s %6.1f %5d %5d %8d %6d  %s\n", rank++, e->path.c_str(), r.valid ? "yes" : "NO",
-			   r.difficulty, r.pathLength, r.reachableCells, r.monsterCount, r.spikes + r.deathTraps + r.rockFalls,
-			   notes.c_str());
+			   r.difficulty, r.pathLength, r.reachableCells, r.monsterCount,
+			   r.spikes + r.deathTraps + r.rockFalls + r.dartPlates, notes.c_str());
 	}
 	return code;
 }

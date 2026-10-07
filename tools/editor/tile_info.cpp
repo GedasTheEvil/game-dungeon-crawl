@@ -170,6 +170,7 @@ CellHint describeCell(const Tile& cell) {
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case RockFall:
+	case DartPlate:
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	default:

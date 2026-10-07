@@ -110,6 +110,9 @@ struct MonsterKind {
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
 	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
+	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (docs/plan/poison-dart-trap.md): 0 flyers, 1 small
+	// ones (rats, scarabs), 2-3 large ones, more for bosses. Later traps may want more.
+	int weight = 2;
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player

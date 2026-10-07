@@ -19,7 +19,7 @@ struct SoundBank {
 	Sound drink_s;
 	Sound amulet_s; // an amulet put on or taken off
 	Music soundtrack;
-	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport;
+	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
 	Sound stoneHit, stoneWall;	 // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
@@ -71,10 +71,10 @@ struct DecorSet {
 // texture, so each colour is its own copy of the model. Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Texture leverHandleTex, rockTex, crackTex, bossGateTex;
+	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex;
 	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
 	std::unique_ptr<AnimatedModel> bossGate; // BOSS_LOCK: the gate model with its own texture
-	std::unique_ptr<AnimatedModel> leverHandle, rock, crack;
+	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate;
 };
 
 // Everything loaded once at start-up and only read afterwards: textures, models, sounds, fonts, monster types.

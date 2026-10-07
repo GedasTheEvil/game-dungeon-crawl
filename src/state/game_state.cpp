@@ -107,6 +107,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.wade;
 	case WorldSound::Splash:
 		return sounds.splash;
+	case WorldSound::PlateClick:
+		return sounds.plateClick;
+	case WorldSound::Dart:
+		return sounds.dart;
 	}
 	return sounds.arrowHit;
 }

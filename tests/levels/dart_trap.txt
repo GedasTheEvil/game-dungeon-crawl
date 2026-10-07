@@ -1,0 +1,5 @@
+; Dart traps (tests/scenarios/dart_trap.txt): plates at cols 4 and 12. The left wall (col 0) shoots over the first,
+; the right wall (col 23) over the second. An Anubis guard (col 14) walks over the second towards the player.
+########################
+#S.._......._.n.......E#
+########################

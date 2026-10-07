@@ -189,6 +189,20 @@ def rockfall():  # cracked ceiling slab, grit, a falling rock
     save(img, "rockfall.png")
 
 
+def dartplate():  # a slab in the floor, darts flying over it from the wall
+    img, d = canvas(GOLD, 25)
+    d.rectangle(p(0, 8, 8, 58), fill=STONE, outline=STONE_DARK, width=SS)  # the wall
+    for y in (24, 32, 40):
+        d.ellipse(p(4, y - 2, 8, y + 2), fill=OPEN)  # its holes
+    d.rectangle(p(16, 50, 56, 58), fill=STONE, outline=GOLD_DIM, width=SS)
+    d.line(p(22, 54, 28, 52, 34, 56, 40, 52, 46, 54), fill=GOLD, width=SS, joint="curve")  # the carved cobra
+    for x, y in ((40, 24), (26, 32), (48, 40)):
+        d.line(p(x - 12, y, x, y), fill=BRONZE, width=2 * SS)
+        poly(d, [(x, y - 2.5), (x + 5, y), (x, y + 2.5)], GOLD)
+        poly(d, [(x - 12, y), (x - 15, y - 3), (x - 10, y)], RED)  # the fletching
+    save(img, "dartplate.png")
+
+
 if __name__ == "__main__":
     door()
     spikes("death.png", tall=True)
@@ -201,3 +215,4 @@ if __name__ == "__main__":
     gate()
     lever()
     rockfall()
+    dartplate()

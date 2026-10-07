@@ -36,6 +36,8 @@ void loadMechanisms(MechanismSet& set) {
 	set.leverHandle = loadStaticModel("models/mechanisms/lever_handle.md3", set.leverHandleTex);
 	set.rock = loadStaticModel("models/mechanisms/rock.md3", set.rockTex);
 	set.crack = loadStaticModel("models/mechanisms/ceiling_crack.md3", set.crackTex);
+	set.plateTex.LoadPNG("textures/mechanisms/pressure_plate.png");
+	set.plate = loadStaticModel("models/mechanisms/pressure_plate.md3", set.plateTex);
 }
 } // namespace
 
@@ -199,6 +201,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.gateLocked.Load("sounds/mechanisms/gate_locked.wav");
 	sounds.lever.Load("sounds/mechanisms/lever.wav");
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
+	sounds.plateClick.Load("sounds/mechanisms/plate_click.wav");
+	sounds.dart.Load("sounds/mechanisms/dart.wav");
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");

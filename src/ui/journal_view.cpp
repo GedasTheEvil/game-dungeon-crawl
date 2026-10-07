@@ -247,6 +247,10 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Stone Skin", "My skin hardens like temple granite: every blow takes a little less, for good."},
 	{"Elixir of Life", "The breath of Osiris: more health for good, and every wound closed at once."},
 	{"Antidote", "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
+	{"Dart traps", "A slab with a cobra on it sank under my foot, and darts flew out of the wall at the end of the "
+				   "passage, tipped with venom. A rat is too light to press it, a mummy is not, and the darts take "
+				   "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "
+				   "them pass under me."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

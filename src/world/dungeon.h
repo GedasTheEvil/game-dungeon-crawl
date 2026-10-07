@@ -119,6 +119,30 @@ class Dungeon {
 	void drawPortal(const float normal[3], const float v[4][3]) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
+	// Dart traps (dungeon_darts.cpp, docs/plan/poison-dart-trap.md): a pressed plate makes the nearer wall on its row
+	// shoot a volley of poison darts along the row.
+	struct DartVolley {
+		int startMs; // the plate's click
+		float fromX; // map x of the wall face the darts leave
+		int row;
+		int dir;	   // -1 / +1 along the row
+		int fired = 0; // darts out so far
+	};
+	struct Dart {
+		float x, y;
+		int dir;
+		int lastMs;		  // GameClock time of the last update
+		int stuckMs = -1; // GameClock time it hit a wall; < 0: flying
+	};
+	std::vector<Motion> pressedPlates; // c = 1 while in here, until it re-arms
+	std::vector<DartVolley> volleys;
+	std::vector<Dart> darts;
+	void updateDartTraps();
+	[[nodiscard]] bool plateLoaded(int col, int row) const; // the player or a heavy monster stands on it
+	void pressPlate(int col, int row, bool byPlayer);
+	void updateDarts();
+	void drawDartPlateTile(int i, int j);
+	void drawDarts(); // with the frame origin of DrawMonsters
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
 	[[nodiscard]] Monster* freeMonsterSlot();			 // an empty slot, else the slot of a dead monster; null if none

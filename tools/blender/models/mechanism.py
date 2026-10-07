@@ -1,11 +1,12 @@
-"""Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks and the ceiling crack over a rock trap.
+"""Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks, the ceiling crack over a rock trap
+and the pressure plate of a dart trap.
 
     MCP:  p = ".../tools/blender/models/mechanism.py"; g = {"__file__": p, "__name__": "mechanism"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
     CLI:  blender -b --python tools/blender/models/mechanism.py -- [--export] [--bake] [--review out.png] [--only key,gate]
 
 Same space as decor.py: Z up, 1 unit = 1 tile, no Centrify (the engine draws them at glScale 40). Tile frame
-(gate, lever_base, ceiling_crack): origin = floor level, horizontal centre of the tile, on the back wall plane;
+(gate, lever_base, ceiling_crack, pressure_plate): origin = floor level, horizontal centre of the tile, on the back wall plane;
 the tile runs from y = 0 (back wall) to y = -1 (front opening, the camera side), the ceiling is at z = 1.
 Game space of the MD3 = (x, z, -y), so Dungeon::drawDecorTile's transform (translate TILE_HALF, 0, -TILE_SIZE;
 scale TILE_SIZE) puts these where they belong.
@@ -44,11 +45,12 @@ from common import REPO, Builder, ellipsoid, transform, tube  # noqa: E402
 from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E402
 
 COLL = "mechanism_new"
-MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack"]
+MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate"]
 COLOURED = {"key", "gate", "lever_base"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
-TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256}
+TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
+            "pressure_plate": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
 
@@ -338,6 +340,21 @@ def build_ceiling_crack(b, M):
                sub=2, n=6, ref=V((1, 0, 0)), caps=(True, True)), M["sand"], "root")
 
 
+def build_pressure_plate(b, M):
+    """A dressed sandstone slab in the floor where the player walks, a dark gap round it, a cobra carved on top as a
+    warning for those who can read it. Raised a little: the engine sinks it (DART_PLATE_SINK) while it is pressed."""
+    x0, x1, y0, y1, top = -0.27, 0.27, -0.24, -0.84, 0.028
+    b.add(slab([(x0 - 0.025, y0 + 0.025), (x1 + 0.025, y0 + 0.025), (x1 + 0.025, y1 - 0.025), (x0 - 0.025, y1 - 0.025)][::-1],
+               -0.002, 0.004), M["crack"], "root")
+    b.add(slab([(x0, y0), (x1, y0), (x1, y1), (x0, y1)][::-1], 0.0, top), M["stone_light"], "root")
+    b.add(slab([(x0 + 0.03, y0 - 0.03), (x1 - 0.03, y0 - 0.03), (x1 - 0.03, y1 + 0.03), (x0 + 0.03, y1 + 0.03)][::-1],
+               top, top + 0.003), M["stone"], "root")  # a raised frame line
+    # The carved cobra: a wavy body, the hood and head at the back end.
+    body = [V((0.14 * math.sin(k / 9 * 2.6 * math.pi) * (1 - k / 14), -0.75 + k * 0.042, top + 0.004)) for k in range(10)]
+    b.add(tube([(p, 0.012, 0.004) for p in body], sub=2, n=6, ref=V((0, 0, 1))), M["stone_dark"], "root")
+    b.add(ellipsoid((body[-1].x, -0.33, top + 0.004), (0.045, 0.04, 0.005), n=12, rings=4), M["stone_dark"], "root")
+
+
 BUILDERS = {
     "key": build_key,
     "gate": build_gate,
@@ -345,6 +362,7 @@ BUILDERS = {
     "lever_handle": build_lever_handle,
     "rock": build_rock,
     "ceiling_crack": build_ceiling_crack,
+    "pressure_plate": build_pressure_plate,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -353,6 +371,7 @@ LIGHT = {
     "gate": ([(50, 35, 0.5), (50, -35, 0.5)], 0.45),
     "rock": ([(50, 0, 0.7), (60, 150, 0.25)], 0.5),
     "ceiling_crack": ([(-30, 0, 0.5), (60, 0, 0.3)], 0.6),
+    "pressure_plate": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
 }
 
 

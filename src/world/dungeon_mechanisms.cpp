@@ -23,12 +23,17 @@ void Dungeon::resetMechanisms() {
 			levelKeys |= lockBit(t.attr);
 	openingGates.clear();
 	fallingRocks.clear();
+	pressedPlates.clear();
+	volleys.clear();
+	darts.clear();
 	// A save taken mid-motion finishes it on load.
 	for (Tile& t : map)
 		if (t.type == Gate && gateState(t) == GateState::Opening)
 			setGateState(t, GateState::Open);
 		else if (t.type == RockFall && rockState(t) == RockState::Falling)
 			setRockState(t, RockState::Fallen);
+		else if (platePressed(t))
+			setPlatePressed(t, false);
 }
 //======================================================================================
 void Dungeon::updateMechanisms() {
@@ -76,6 +81,7 @@ void Dungeon::updateMechanisms() {
 	}
 
 	updateRocks();
+	updateDartTraps();
 }
 //======================================================================================
 void Dungeon::startRockFall(int cell) {

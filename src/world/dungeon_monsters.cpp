@@ -17,8 +17,8 @@ bool Dungeon::walkerBlocked(int col, int row, bool reckless) const {
 	Tile cell = MapAt(col, row);
 	if (isSolidTile(cell))
 		return true;
-	const bool trap =
-		cell.type == Spike || cell.type == Death || (cell.type == RockFall && rockState(cell) != RockState::Fallen);
+	const bool trap = cell.type == Spike || cell.type == Death || cell.type == DartPlate ||
+					  (cell.type == RockFall && rockState(cell) != RockState::Fallen);
 	if (trap && !reckless)
 		return true;
 	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom

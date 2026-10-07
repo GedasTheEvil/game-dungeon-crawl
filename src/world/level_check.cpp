@@ -21,6 +21,7 @@ constexpr int COST_JUMP = 4;
 constexpr int COST_SPIKE = 6;
 constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
+constexpr int COST_DART_PLATE = 8;
 constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
@@ -87,6 +88,8 @@ class Walker {
 			return COST_DEATH;
 		if (t.type == RockFall && rockState(t) == RockState::Armed)
 			return COST_ROCK_FALL;
+		if (t.type == DartPlate)
+			return COST_DART_PLATE;
 		if (t.type == MonsterSpawn)
 			return COST_MONSTER;
 		return 0;
@@ -214,6 +217,9 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case RockFall:
 				r.rockFalls++;
 				break;
+			case DartPlate:
+				r.dartPlates++;
+				break;
 			case Treasure:
 				r.treasures++;
 				break;
@@ -294,6 +300,22 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
+// A dart plate shoots from the nearer wall on its row within DART_RANGE (Dungeon::pressPlate): with none it only
+// clicks.
+void checkDartPlates(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		if (grid.cells[cell].type != DartPlate)
+			continue;
+		const int col = cell % LEVEL_WIDTH, row = cell / LEVEL_WIDTH;
+		bool wall = false;
+		for (int k = 1; k <= DART_RANGE && !wall; k++)
+			wall = isSolidTile(grid.at(col - k, row)) || isSolidTile(grid.at(col + k, row));
+		if (!wall)
+			r.warnings.push_back("dart plate at " + at(cell) + " has no wall within " + std::to_string(DART_RANGE) +
+								 " cells on its row to shoot from");
+	}
+}
+
 // Half water stands on deep water or a wall, deep water only under water; a ladder starts in the water and goes up,
 // none goes down into it; a crocodile lives in or next to the water.
 void checkWater(const LevelGrid& grid, LevelReport& r) {
@@ -343,6 +365,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
 	score += 3.f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
+	score += 2.f * static_cast<float>(r.pathDartPlates);
 	score += 0.8f * static_cast<float>(r.pathGates);
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).
@@ -386,6 +409,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkWater(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
+	checkDartPlates(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
@@ -531,6 +555,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
 		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
+		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);
@@ -549,6 +574,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 
 	if (r.pathDeathTraps > 0)
 		r.warnings.emplace_back("the only way to the exit walks over a death trap");
+	if (r.pathDartPlates > 0 && !antidote)
+		r.warnings.emplace_back("a dart trap on the path but no antidote in reach");
 
 	r.difficulty = difficultyScore(r, grid);
 	r.valid = r.errors.empty();

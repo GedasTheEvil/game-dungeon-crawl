@@ -22,6 +22,8 @@ enum class WorldSound : unsigned char {
 	SummonDrop, // a boss's minion drops from the ceiling
 	Wade,		// a splashing step in half water
 	Splash,		// the player lands in half water
+	PlateClick, // a dart trap's plate sinks
+	Dart,		// a dart leaves the wall
 };
 
 // What the world, the monsters and the player tell the app: it drains the list at fixed points (after the input

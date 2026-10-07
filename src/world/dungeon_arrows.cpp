@@ -16,7 +16,7 @@
 namespace {
 constexpr float ARROW_LAUNCH_AHEAD = 0.1f; // tiles in front of the player's centre: the bow
 constexpr float ARROW_STEP_S = 0.005f;	   // hit test interval along the flight
-// The held bow is drawn 12 units tall for its 1.2 m (ITEM_DEFS in assets.cpp, items.py); arrow.md3 is in metres.
+// The held bow is drawn 12 units tall for its 1.2 m (WEAPON_DEFS in assets.cpp, items.py); arrow.md3 is in metres.
 constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;

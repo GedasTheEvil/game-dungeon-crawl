@@ -303,11 +303,16 @@ class LevelBuilder {
 			}
 			return Tile{Treasure, ItemType::POTION, id};
 		}
+		// The weapons come in by depth, like in the campaign (file ids, items.cpp): the deeper, the more kinds.
 		if (roll < 88) {
-			int id = rng.range(0, 99) < 20 + 6 * d ? rng.range(1, 2) : 0; // sword / spear more often later
-			return Tile{Treasure, ItemType::MELEE_WEAPON, id};
+			static const int MELEE[] = {0, 3, 1, 2,
+										4, 5, 6, 7}; // club, dagger, short sword, spear, khopesh, the axes, mace
+			const int kinds = d >= 7 ? 8 : d >= 5 ? 5 : d >= 3 ? 4 : 2;
+			return Tile{Treasure, ItemType::MELEE_WEAPON, MELEE[rng.range(0, kinds - 1)]};
 		}
-		return Tile{Treasure, ItemType::RANGED_WEAPON, 0};
+		static const int RANGED[] = {0, 2, 3, 4, 1}; // self-bow, sling, throwing stick, javelin, composite bow
+		const int kinds = d >= 7 ? 5 : d >= 4 ? 4 : 2;
+		return Tile{Treasure, ItemType::RANGED_WEAPON, RANGED[rng.range(0, kinds - 1)]};
 	}
 
 	int randomMonster() {

@@ -9,7 +9,7 @@ then the potions. The potion row is full: with the antidote
 ([poison-and-antidote.md](poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
 kinds are planned: amulets ([amulets.draft.md](../amulets.draft.md)), a resistance potion
 ([resistance-potion.draft.md](../resistance-potion.draft.md)), rings maybe, and many more weapons
-([egyptian-weapons.draft.md](../egyptian-weapons.draft.md)).
+([egyptian-weapons.md](../egyptian-weapons.md)).
 
 ## Decided
 
@@ -25,7 +25,7 @@ kinds are planned: amulets ([amulets.draft.md](../amulets.draft.md)), a resistan
   rows fit the panel at once; potions (8 kinds) fill them, their models grow from 9.8 x 15.5 slots.
 * **Scrolling:** a group with more rows than fit scrolls by whole rows (wheel, arrow down past the last visible row, a
   thin scroll bar shown only then). Keep the layout open for it, but implement it later, when a group first passes two
-  rows (the weapons, [egyptian-weapons.draft.md](../egyptian-weapons.draft.md)).
+  rows (the weapons, [egyptian-weapons.md](../egyptian-weapons.md)).
 * **Opening tab:** the last one used, weapons the first time.
 * **Scenarios** pick an item by its name or slug, not by screen position. A scenario command for it; the scenarios that
   click slots by position (`inventory.txt`, `props.txt`, `chest_pickup.txt`, `bow.txt`, ...) move to it.

@@ -74,7 +74,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 * `core/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
   `GameState`, created before the window.
 * `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
-  monster types). Monsters and items are rows of the `MONSTER_DEFS` / `ITEM_DEFS` tables in `assets.cpp`.
+  monster types). Monsters and items are rows of the `MONSTER_DEFS` / `WEAPON_DEFS` tables in `assets.cpp`.
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
   (`ShowStatus`), save / load.
 * `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`

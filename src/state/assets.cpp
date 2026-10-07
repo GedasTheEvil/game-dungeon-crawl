@@ -356,7 +356,7 @@ const WeaponDef WEAPON_DEFS[] = {
 	{"dagger", 4, 8, 1, {0, 30, 70}, {0.15f, 45, 15, 100, 0.25f, 150, 320, 250}, "sword_swing", "spear_hit"},
 	{"sword", 9, 35, 3, {0, 85, 15}, {0.1f, 40, -10, 120, 0, 180, 360, 370}, "sword_swing", "sword_hit"},
 	// The khopesh flows from swing to swing; the axes and the mace wind up long.
-	{"khopesh", 8, 45, 3, {0, 100, 0}, {0.12f, 40, -30, 125, 0, 300, 560, 400}, "sword_swing", "sword_hit"},
+	{"khopesh", 6.5f, 45, 3, {0, 100, 0}, {0.12f, 40, -30, 125, 0, 300, 560, 400}, "sword_swing", "sword_hit"},
 	{"epsilon_axe", 8, 55, 3, {30, 70, 0}, {0.1f, 35, -45, 120, 0, 550, 820, 400}, "club_swing", "axe_hit"},
 	{"duckbill_axe", 7, 50, 3, {20, 0, 80}, {0.1f, 35, -45, 115, 0, 500, 770, 400}, "club_swing", "axe_hit"},
 	{"mace", 7, 50, 2, {100, 0, 0}, {0.1f, 35, -50, 115, 0, 600, 870, 400}, "club_swing", "mace_hit"},

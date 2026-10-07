@@ -1,4 +1,4 @@
-# The melee weapons beside club, short sword and spear (docs/plan/egyptian-weapons.draft.md), each at its hit frame
+# The melee weapons beside club, short sword and spear (docs/plan/egyptian-weapons.md), each at its hit frame
 # with the debug boxes, next to a giant rat stopped where it bites (as weapon_reach.txt): every one reaches it.
 seed 1
 god

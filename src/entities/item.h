@@ -7,7 +7,7 @@
 #include "../graphics/textures.h"
 #include "../world/damage.h"
 
-// How a weapon is held and swung (ITEM_DEFS in assets.cpp, drawWeapon). Tilts in degrees from upright, towards the
+// How a weapon is held and swung (WEAPON_DEFS in assets.cpp, drawWeapon). Tilts in degrees from upright, towards the
 // facing side. An attack raises the weapon back to windupTilt, brings it down through strikeTilt, where the hit
 // lands (hitMs), and returns it to restTilt by swingMs. The bow is drawn until hitMs instead and the arrow leaves.
 // hitMs is the frame delay (the wind-up, the draw), recoveryMs the time from the hit until the next attack can begin;
@@ -31,7 +31,7 @@ class Item {
 
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
-	int damage = 1, range = 1;				  // weapons only; range in tenths of a tile (ITEM_DEFS)
+	int damage = 1, range = 1;				  // weapons only; range in tenths of a tile (WEAPON_DEFS)
 	DamageMix mix = {100, 0, 0};			  // weapons only
 	[[nodiscard]] float Reach() const { return 0.1f * static_cast<float>(range); } // tiles: melee reach, bow aim
 	WeaponMotion motion;														   // weapons only

@@ -128,3 +128,230 @@ screenshot bow_left_strike
 wait 5
 screenshot bow_left_recover
 wait 70
+
+# the weapons added with docs/plan/egyptian-weapons.md: the same shots, from the scenario's equip command
+give melee 3
+give melee 4
+give melee 5
+give melee 6
+give melee 7
+give ranged 1
+give ranged 2
+give ranged 3
+give ranged 4
+equip dagger
+walk right 0.1
+wait 20
+screenshot dagger_right
+attack
+wait 60ms
+screenshot dagger_right_windup
+wait 90ms
+screenshot dagger_right_strike
+wait 85ms
+screenshot dagger_right_recover
+wait 90
+equip dagger
+walk left 0.1
+wait 20
+screenshot dagger_left
+attack
+wait 60ms
+screenshot dagger_left_windup
+wait 90ms
+screenshot dagger_left_strike
+wait 85ms
+screenshot dagger_left_recover
+wait 90
+equip khopesh
+walk right 0.1
+wait 20
+screenshot khopesh_right
+attack
+wait 120ms
+screenshot khopesh_right_windup
+wait 180ms
+screenshot khopesh_right_strike
+wait 130ms
+screenshot khopesh_right_recover
+wait 90
+equip khopesh
+walk left 0.1
+wait 20
+screenshot khopesh_left
+attack
+wait 120ms
+screenshot khopesh_left_windup
+wait 180ms
+screenshot khopesh_left_strike
+wait 130ms
+screenshot khopesh_left_recover
+wait 90
+equip epsilon_axe
+walk right 0.1
+wait 20
+screenshot epsilon_axe_right
+attack
+wait 220ms
+screenshot epsilon_axe_right_windup
+wait 330ms
+screenshot epsilon_axe_right_strike
+wait 135ms
+screenshot epsilon_axe_right_recover
+wait 90
+equip epsilon_axe
+walk left 0.1
+wait 20
+screenshot epsilon_axe_left
+attack
+wait 220ms
+screenshot epsilon_axe_left_windup
+wait 330ms
+screenshot epsilon_axe_left_strike
+wait 135ms
+screenshot epsilon_axe_left_recover
+wait 90
+equip duckbill_axe
+walk right 0.1
+wait 20
+screenshot duckbill_axe_right
+attack
+wait 200ms
+screenshot duckbill_axe_right_windup
+wait 300ms
+screenshot duckbill_axe_right_strike
+wait 135ms
+screenshot duckbill_axe_right_recover
+wait 90
+equip duckbill_axe
+walk left 0.1
+wait 20
+screenshot duckbill_axe_left
+attack
+wait 200ms
+screenshot duckbill_axe_left_windup
+wait 300ms
+screenshot duckbill_axe_left_strike
+wait 135ms
+screenshot duckbill_axe_left_recover
+wait 90
+equip mace
+walk right 0.1
+wait 20
+screenshot mace_right
+attack
+wait 240ms
+screenshot mace_right_windup
+wait 360ms
+screenshot mace_right_strike
+wait 135ms
+screenshot mace_right_recover
+wait 90
+equip mace
+walk left 0.1
+wait 20
+screenshot mace_left
+attack
+wait 240ms
+screenshot mace_left_windup
+wait 360ms
+screenshot mace_left_strike
+wait 135ms
+screenshot mace_left_recover
+wait 90
+equip composite_bow
+walk right 0.1
+wait 20
+screenshot composite_bow_right
+attack
+wait 260ms
+screenshot composite_bow_right_windup
+wait 390ms
+screenshot composite_bow_right_strike
+wait 50ms
+screenshot composite_bow_right_recover
+wait 90
+equip composite_bow
+walk left 0.1
+wait 20
+screenshot composite_bow_left
+attack
+wait 260ms
+screenshot composite_bow_left_windup
+wait 390ms
+screenshot composite_bow_left_strike
+wait 50ms
+screenshot composite_bow_left_recover
+wait 90
+equip sling
+walk right 0.1
+wait 20
+screenshot sling_right
+attack
+wait 140ms
+screenshot sling_right_windup
+wait 210ms
+screenshot sling_right_strike
+wait 125ms
+screenshot sling_right_recover
+wait 90
+equip sling
+walk left 0.1
+wait 20
+screenshot sling_left
+attack
+wait 140ms
+screenshot sling_left_windup
+wait 210ms
+screenshot sling_left_strike
+wait 125ms
+screenshot sling_left_recover
+wait 90
+equip throwing_stick
+walk right 0.1
+wait 20
+screenshot throwing_stick_right
+attack
+wait 120ms
+screenshot throwing_stick_right_windup
+wait 180ms
+screenshot throwing_stick_right_strike
+wait 100ms
+screenshot throwing_stick_right_recover
+wait 90
+equip throwing_stick
+walk left 0.1
+wait 20
+screenshot throwing_stick_left
+attack
+wait 120ms
+screenshot throwing_stick_left_windup
+wait 180ms
+screenshot throwing_stick_left_strike
+wait 100ms
+screenshot throwing_stick_left_recover
+wait 90
+equip javelin
+walk right 0.1
+wait 20
+screenshot javelin_right
+attack
+wait 200ms
+screenshot javelin_right_windup
+wait 300ms
+screenshot javelin_right_strike
+wait 100ms
+screenshot javelin_right_recover
+wait 90
+equip javelin
+walk left 0.1
+wait 20
+screenshot javelin_left
+attack
+wait 200ms
+screenshot javelin_left_windup
+wait 300ms
+screenshot javelin_left_strike
+wait 100ms
+screenshot javelin_left_recover
+wait 90

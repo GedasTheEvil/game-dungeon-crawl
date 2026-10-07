@@ -1,4 +1,4 @@
-# The ranged weapons beside the self-bow (docs/plan/egyptian-weapons.draft.md), at the plant of tests/levels/archery,
+# The ranged weapons beside the self-bow (docs/plan/egyptian-weapons.md), at the plant of tests/levels/archery,
 # each from inside its range: the composite bow (4 tiles), the sling (2, a flat shot), the throwing stick (1.2,
 # spins and flies back to the hand) and the javelin (1.5, the hand is empty while it flies). Each hits: the plant
 # loses health.

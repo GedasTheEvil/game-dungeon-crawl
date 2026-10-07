@@ -147,18 +147,19 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
   `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/blender/models/items.py` - the weapons (club, sword, spear, bow), the bow's arrow, the potion flask and the treasure chest, real sizes in
+* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the potion flask and the treasure chest, real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
   (`Player::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
-  up from the lowest point, tilted and swung per `ITEM_DEFS` in `src/state/assets.cpp`.
-  The bow is held upright by its grip and has `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
+  up from the lowest point, tilted and swung per `WEAPON_DEFS` in `src/state/assets.cpp`.
+  The bows (`bow`, `composite_bow`) are held upright by their grip and have `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
   with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
   from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
-  (`bow_frames`). `arrow.md3` (tip at +Z) is the arrow in flight, drawn in metres, not centred (`Dungeon::drawArrows`).
+  (`bow_frames`). The missiles in flight are drawn in metres, not centred (`Dungeon::drawMissiles`): `arrow.md3` (tip at +Z),
+  `sling_stone.md3`, and the throwing stick and javelin models a second time (loaded uncentred for the flight).
   The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in. The potion texture
   stays light grey: the engine tints the whole flask with the potion colour. Albedo x AO textures (no baked light), 512 px.
-  `-- --export` writes `models/items/{club,sword,spear,bow,arrow,potion,treasure_chest}.md3` + `textures/items/<same>.png`; `--review out.png`
+  `-- --export` writes `models/items/<item>.md3` for every item in `ITEMS` (`{club,...,arrow,sling_stone,potion,treasure_chest}`) + `textures/items/<same>.png`; `--review out.png`
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
@@ -182,14 +183,16 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
-* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/assets.cpp` (`MONSTER_DEFS`, `ITEM_DEFS`; the player in `game_state.cpp`).
+* Engine side: `src/graphics/animated_model.cpp` (loader), `src/graphics/textures.cpp` (PNG textures), model/texture wiring in `src/state/assets.cpp` (`MONSTER_DEFS`, `WEAPON_DEFS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
   `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
 * `tools/audio/weapon_sounds.py` - synthesizes `sounds/items/`: a swing and a hit per melee weapon (`<weapon>_swing`,
-  `<weapon>_hit`), the bow's draw and release, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`). Wired in
-  `ITEM_DEFS` (`src/state/assets.cpp`); a melee hit sound plays only when the swing hits a monster.
+  `<weapon>_hit`, shared by the weapons alike: `axe_hit`, `mace_hit`), the bow's draw and release, the sling's whirl and
+  release, a throw, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`), a stone or stick on a body or off a wall
+  (`stone_hit`, `stone_wall`). Wired in `WEAPON_DEFS` (`src/state/assets.cpp`) and `MISSILE_RULES`
+  (`src/world/dungeon_arrows.cpp`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `build/model-viewer <file.md3> [seconds]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
 
@@ -247,7 +250,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
-| Items: club, sword, spear, bow, arrow, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
+| Items: the 13 weapons, arrow, sling stone, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Mummy's coffin | `decorations/decor_coffin.md3` | `decorations/decor_coffin.png` | new (static, `decor.py`; only at mummy spawn tiles) |

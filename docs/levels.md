@@ -146,7 +146,9 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    falls (only under a one-cell ceiling), monsters and treasure. The mix grows with the difficulty. Monster types
    unlock with the difficulty and the weak ones give way to their giant kin: rat and scarab 1-5, bat 2-6,
    worm 3-7, plant from 3, giant rat from 4, giant scarab from 5, giant bat from 6, mummy from 7, Anubis from 9.
-   At most 4 + 2 × difficulty monsters.
+   At most 4 + 2 × difficulty monsters. Weapon chests come in by depth like in the campaign: club and dagger, the
+   short sword and spear from difficulty 3, the khopesh from 5, the axes and the mace from 7; self-bow and sling, the
+   throwing stick and javelin from 4, the composite bow from 7.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
    A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`.
@@ -195,6 +197,10 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
 - `tests/scenarios/bow.txt`: the bow draws and shoots; an arrow with nothing in reach lands on the floor, one in reach is
   aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.
+- `tests/scenarios/ranged_weapons.txt`: composite bow, sling, throwing stick and javelin each hit the archery plant
+  from inside their range; screenshots of the draw, the whirl and the missiles in flight (the stick flying back).
+- `tests/scenarios/melee_weapons.txt`: dagger, khopesh, the axes and the mace each reach a giant rat at bite distance.
+- `tests/scenarios/attack_recovery.txt`: sprinting through a recovery does not cut it short.
 - `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and through its attack (windup, strike,
   recovery), both facings: screenshots.
 - `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.

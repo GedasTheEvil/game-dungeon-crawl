@@ -1,6 +1,6 @@
 # Attack timers and weapon hotkeys per class
 
-Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, split from [egyptian-weapons.draft.md](egyptian-weapons.draft.md): needs no new weapons,
+Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, split from [egyptian-weapons.md](egyptian-weapons.md): needs no new weapons,
 works with today's club, sword, spear and bow, and comes before them.
 
 ## Attack timers
@@ -38,7 +38,7 @@ Replaces the fixed keys of [weapon-hotkeys.md](solved/weapon-hotkeys.md) (`1` cl
 * `3` and `4` are free again. Inventory slot hotkeys stay as they are.
 
 With one ranged weapon today, `2` just equips the bow; the cycling pays off with the
-[Egyptian weapons](egyptian-weapons.draft.md).
+[Egyptian weapons](egyptian-weapons.md).
 
 ## Work
 

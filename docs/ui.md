@@ -215,7 +215,7 @@ window-wide one, so it stays in the same place. Its clicks are handled before th
 
 The inventory's items panel has one tab per `ItemGroup` (weapons, potions, amulets, rings) across its top, in place
 of section headings: four tiles 19.75 x 6 at y 77.6, as wide as the slot grid. Each has a flat icon from the HUD atlas
-(`PlayerHud::drawIcon`: sword, flask tinted red, amulet, ring) and the group name in `small`. The open tab is lapis,
+(`PlayerHud::drawIcon`: short sword, flask tinted red, amulet, ring) and the group name in `small`. The open tab is lapis,
 the others stone. A group with nothing found yet (`ItemBag::AnyFound`) is `TileStyle::Disabled` with a dimmed icon,
 takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 

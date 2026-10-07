@@ -34,6 +34,4 @@ The Blender MCP (live GUI session) is optional: handy for quick live iteration, 
 No Blender plugins needed (Rigify, Mixamo etc. do not fit procedural scripts). `ffmpeg` and ImageMagick are
 installed (ffmpeg for videos the user watches).
 
-## Open
-
-* Which items to do first (suggestion: 2 and 3).
+The implementing agent picks the order.

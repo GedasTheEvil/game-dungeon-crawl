@@ -128,7 +128,7 @@ Today (`KINDS`, `src/world/monster_kinds.cpp`; blunt, slash, pierce) these break
 | Apep | RESISTS, WEAK, NORMAL | cobra: same | slash WEAK -> NORMAL |
 | Sobek | NORMAL, RESISTS, NORMAL | crocodile: same | fine |
 
-* The Anubis boss keeps the guard's blunt weakness off (NORMAL), and gets pierce NORMAL: no weakness at all.
+* The Anubis boss: blunt stays NORMAL (the guard is weak to it, the boss is not), pierce goes to NORMAL.
 * Each boss fight then has no best weapon, only worse ones. Check the fights still feel fair (HP may need to come
   down a little, as a weak spot doubled the damage).
 * Enforce it in code: a `static_assert` in `monster_kinds.cpp` (no `WEAK` on a boss; each resistance at most its

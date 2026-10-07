@@ -50,6 +50,11 @@ Run from the repo root.
 
 One command per line. `#` starts a comment.
 
+A new command is a row in `commandDefs()` (`src/test/scenario_script.cpp`: name, argument parser, usage), its run in
+`runInstant` (`src/test/scenario.cpp`, `-Wswitch` asks for it), an example line in
+`tests/unit/scenario_script_test.cpp` and a row in the table below. A new `expect` field is a row in `fieldDefs()` and
+its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this page lists both.
+
 | Command | Meaning |
 |---|---|
 | `resolution W H` | Window size. Only before `level`. |
@@ -80,7 +85,7 @@ One command per line. `#` starts a comment.
 | `savegame FILE` / `loadgame FILE` | Save / load the game. A bare file name is in the output directory; a path is taken as is. Never load from `saves/`: those are real games, not committed, overwritten by play. |
 | `chest TYPE ID [N]` | Open N (default 1) treasure chests holding that item: the item plus the random bonus loot, like a pickup. |
 | `mouse X Y` | Move the mouse to X% Y% of the window, Y from the bottom (hover). |
-| `press X Y` / `release X Y` | Move there, then left button down / up. `click X Y` does both in one tick. |
+| `press X Y` / `release X Y` / `click X Y` | Move there, then left button down / up; `click` does both in one tick. |
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won; screen is `menu`, `inventory`, `riddle`, `map`, `journal` or `gameplay`) to the result. |
 | `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
 | `hurtboss N` | The boss in play takes an N HP hit, as from the player. Fails if no boss is in play. |

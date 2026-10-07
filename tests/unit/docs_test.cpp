@@ -1,5 +1,6 @@
 // The level docs are written by hand; these tests fail when a table in the code grows and the docs do not.
 #include "../../external/doctest/doctest.h"
+#include "../../src/test/scenario_script.h"
 #include "../../src/world/items.h"
 #include "../../src/world/monster_kinds.h"
 #include "../../src/world/tile_defs.h"
@@ -7,6 +8,7 @@
 #include <cctype>
 #include <cstdio>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -63,4 +65,45 @@ TEST_CASE("docs/levels.md gives every monster's threat") {
 		std::snprintf(entry, sizeof(entry), "%s %g", kind->label, static_cast<double>(kind->threat));
 		CHECK_MESSAGE(has(levels, entry), "missing \"", entry, "\" in the monsterThreat list");
 	}
+}
+
+TEST_CASE("docs/testing.md lists every scenario command and expect field, and no other") {
+	std::ifstream f("docs/testing.md");
+	REQUIRE(f);
+	std::set<std::string> documented; // the first word of each `...` in a commands table row's first cell
+	std::set<std::string> fields;	  // the expect row's `F` list
+	bool inCommands = false;
+	for (std::string line; std::getline(f, line);) {
+		if (line.rfind("## ", 0) == 0)
+			inCommands = line == "## Commands";
+		if (!inCommands || line.rfind("| `", 0) != 0)
+			continue;
+		const std::string cell = line.substr(2, line.find(" | ", 2) - 2);
+		for (size_t open = cell.find('`'); open != std::string::npos;
+			 open = cell.find('`', cell.find('`', open + 1) + 1)) {
+			const size_t close = cell.find('`', open + 1);
+			const std::string code = cell.substr(open + 1, close - open - 1);
+			documented.insert(code.substr(0, code.find(' ')));
+		}
+		if (cell.rfind("`expect", 0) == 0) {
+			const size_t from = line.find("F: `") + 4;
+			std::istringstream names(line.substr(from, line.find('`', from) - from));
+			for (std::string name; names >> name;)
+				fields.insert(name);
+		}
+	}
+	std::set<std::string> commands;
+	for (const Scenario::CommandDef& def : Scenario::commandDefs())
+		commands.insert(def.name);
+	std::set<std::string> named;
+	for (const Scenario::FieldDef& def : Scenario::fieldDefs())
+		named.insert(def.name);
+	auto sameAs = [](const std::set<std::string>& docs, const std::set<std::string>& code, const std::string& what) {
+		for (const std::string& name : code)
+			CHECK_MESSAGE(docs.count(name) == 1, what, " missing in docs/testing.md: ", name);
+		for (const std::string& name : docs)
+			CHECK_MESSAGE(code.count(name) == 1, what, " in docs/testing.md but not in the code: ", name);
+	};
+	sameAs(documented, commands, "command");
+	sameAs(fields, named, "expect field");
 }

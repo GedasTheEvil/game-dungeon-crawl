@@ -1,4 +1,6 @@
 #include "scenario.h"
+#include "scenario_fields.h"
+#include "scenario_script.h"
 #include "../graphics/gl_includes.h"
 #include "../input/input.h"
 #include "../graphics/draw.h"
@@ -12,9 +14,7 @@
 #include "../ui/inventory.h"
 #include "../world/loot.h"
 #include "../world/level_gen.h"
-#include <algorithm>
 #include <GL/gl.h>
-#include "../world/decor.h"
 #include <cmath>
 #include <csignal>
 #include <cstdio>
@@ -22,12 +22,13 @@
 #include <filesystem>
 #include <optional>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <unistd.h>
 
 #include "../../external/stb/stb_image_write.h"
+
+using namespace Scenario;
 
 namespace {
 constexpr int EXIT_OK = 0;
@@ -38,98 +39,6 @@ constexpr int EXIT_CRASH = 3;
 constexpr int MAX_TICKS = 10 * 60 * 1000 / Scenario::TICK_MS; // 10 min of game time
 constexpr int WALK_STALL_TICKS = 30;						  // no movement this long = blocked
 constexpr float WALK_EPSILON = 0.0001f;
-
-enum class CommandType : unsigned char {
-	Resolution,
-	Seed,
-	God,
-	Level,
-	Wait,
-	Walk,
-	Hold,
-	Sprint,
-	Motion,
-	Jump,
-	Attack,
-	Interact,
-	Camera,
-	Toon,
-	Hitboxes,
-	Screenshot,
-	Dump,
-	Expect,
-	Key,
-	Give,
-	Chest,
-	Select,
-	Equip,
-	Wear,
-	Xp,
-	Hurt,
-	Poison,
-	Riddles,
-	Prop,
-	SaveGame,
-	LoadGame,
-	Mouse,
-	Press,
-	Release,
-	Click,
-	KillBoss,
-	HurtBoss,
-	Quit,
-};
-
-enum class Field : unsigned char {
-	X,
-	Y,
-	Hp,
-	Stamina,
-	Level,
-	Alive,
-	Won,
-	Might,
-	Armor,
-	EquipType,
-	EquipId,
-	Keys,
-	Poison,
-	XpTotal,
-	Riddle,
-	Bars,
-	Boss,
-	Minions,
-	Attacking,
-	DecorTier,
-	Nearest,
-	Coffins,
-	JournalRiddles,
-	JournalSolved,
-	JournalNotes,
-	JournalTried,
-	Chests,
-	ItemCount,
-	ItemLevel,
-	MaxHp,
-	Worn,
-	Safe
-};
-enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
-
-struct Command {
-	CommandType type = CommandType::Quit;
-	int line = 0;
-	std::string text; // source line, for reports
-	std::string arg;  // level path / screenshot name
-	int ticks = 0;	  // wait, hold
-	GameplayAction action = GameplayAction::None;
-	bool walkTo = false;			// walk to: a is the target map x
-	float a = 0.f;					// walk distance, camera rotM, expect value
-	float b = 0.f;					// camera rotN
-	ItemKind item = ItemKind::Club; // give / chest / expect count
-	Field field = Field::X;
-	Op op = Op::Eq;
-};
 
 struct WalkProgress {
 	bool started = false;
@@ -142,13 +51,9 @@ struct WalkProgress {
 
 struct Runner {
 	bool active = false;
-	std::vector<Command> commands;
+	Script script;
 	size_t next = 0;
-	int resX = 1280;
-	int resY = 720;
-	unsigned int seed = 1;
 	bool god = false;
-	bool deathExpected = false; // script has `expect alive == 0`
 	bool deathReported = false;
 
 	std::string outDir;
@@ -166,6 +71,22 @@ struct Runner {
 
 Runner gRunner;
 
+GameplayAction moveAction(Move move) {
+	switch (move) {
+	case Move::Left:
+		return GameplayAction::MoveLeft;
+	case Move::Right:
+		return GameplayAction::MoveRight;
+	case Move::Down:
+		return GameplayAction::MoveDown;
+	case Move::Up:
+		return GameplayAction::MoveUp;
+	case Move::None:
+		break;
+	}
+	return GameplayAction::None;
+}
+
 bool isAxisX(GameplayAction action) {
 	return action == GameplayAction::MoveLeft || action == GameplayAction::MoveRight;
 }
@@ -175,13 +96,6 @@ float playerPos(GameplayAction axisOf) {
 	float y = 0.f;
 	Game().dungeon.getC(x, y);
 	return isAxisX(axisOf) ? x : y;
-}
-
-// The item's label with _ for its spaces: small_health, sword.
-std::string itemSlug(ItemKind kind) {
-	std::string slug = itemText(kind).label;
-	std::replace(slug.begin(), slug.end(), ' ', '_');
-	return slug;
 }
 
 const char* screenName() {
@@ -213,108 +127,6 @@ std::string stateLine() {
 	return buf;
 }
 
-float fieldValue(const Command& cmd) {
-	Field field = cmd.field;
-	float x = 0.f;
-	float y = 0.f;
-	Game().dungeon.getC(x, y);
-	switch (field) {
-	case Field::X:
-		return x;
-	case Field::Y:
-		return y;
-	case Field::Hp:
-		return static_cast<float>(Game().player->stats.CurrentHP());
-	case Field::Stamina:
-		return static_cast<float>(Game().player->stats.Stamina());
-	case Field::Level:
-		return static_cast<float>(Game().dungeon.LevelNumber());
-	case Field::Alive:
-		return Game().player->Alive() ? 1.f : 0.f;
-	case Field::Won:
-		return Game().dungeon.Won() ? 1.f : 0.f;
-	case Field::Might:
-		return static_cast<float>(Game().player->stats.CurrentMight());
-	case Field::Armor:
-		return static_cast<float>(Game().player->stats.CurrentArmor());
-	case Field::EquipType:
-		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).type);
-	case Field::EquipId:
-		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).id);
-	case Field::Keys:
-		return static_cast<float>(Game().dungeon.KeysHeld());
-	case Field::Poison:
-		return static_cast<float>(Game().player->stats.poison.Mask());
-	case Field::XpTotal:
-		return static_cast<float>(Game().player->stats.CurrentXP());
-	case Field::Riddle:
-		return Game().ui.screen == Screen::Riddle ? 1.f : 0.f;
-	case Field::Bars:
-		return static_cast<float>(Game().dungeon.MonsterBarsShown());
-	case Field::Boss:
-		return static_cast<float>(Game().dungeon.BossHealth());
-	case Field::Minions:
-		return static_cast<float>(Game().dungeon.LivingMinions());
-	case Field::DecorTier:
-		return static_cast<float>(Game().dungeon.DecorTierUsed());
-	case Field::Attacking: // a swing or a bow draw under way
-		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
-	case Field::Nearest:
-		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
-	case Field::Coffins:
-		return static_cast<float>(Game().dungeon.CoffinCount());
-	case Field::Chests:
-		return static_cast<float>(Game().dungeon.ChestCount());
-	case Field::JournalRiddles:
-		return static_cast<float>(Game().journal.Riddles().size());
-	case Field::JournalNotes:
-		return static_cast<float>(Game().journal.Notes().size());
-	case Field::MaxHp:
-		return static_cast<float>(Game().player->stats.CurrentMaxHP());
-	case Field::Worn: {
-		const std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn();
-		return worn ? static_cast<float>(fileIdOf(*worn).id) : -1.f;
-	}
-	case Field::Safe:
-		return Game().dungeon.PlayerSafe() ? 1.f : 0.f;
-	case Field::JournalTried: {
-		int known = 0;
-		for (const JournalCreature& c : Game().journal.Creatures())
-			for (int d = 0; d < DAMAGE_TYPE_COUNT; d++)
-				known += c.Tried(static_cast<DamageType>(d)) ? 1 : 0;
-		return static_cast<float>(known);
-	}
-	case Field::JournalSolved: {
-		const auto& riddles = Game().journal.Riddles();
-		return static_cast<float>(
-			std::count_if(riddles.begin(), riddles.end(), [](const JournalRiddle& r) { return r.solved; }));
-	}
-	case Field::ItemCount:
-		return static_cast<float>(Game().ui.inventory->Count(cmd.item));
-	case Field::ItemLevel:
-		return static_cast<float>(Game().ui.inventory->Level(cmd.item));
-	}
-	return 0.f;
-}
-
-bool compare(float lhs, Op op, float rhs) {
-	switch (op) {
-	case Op::Eq:
-		return std::fabs(lhs - rhs) < 0.001f;
-	case Op::Ne:
-		return std::fabs(lhs - rhs) >= 0.001f;
-	case Op::Lt:
-		return lhs < rhs;
-	case Op::Le:
-		return lhs <= rhs;
-	case Op::Gt:
-		return lhs > rhs;
-	case Op::Ge:
-		return lhs >= rhs;
-	}
-	return false;
-}
-
 // ---- reporting -------------------------------------------------------------
 
 void report(const Command& cmd, bool ok, const std::string& detail) {
@@ -340,7 +152,7 @@ void reportEvent(const std::string& text) {
 }
 
 [[noreturn]] void finish(int code) {
-	int total = static_cast<int>(gRunner.commands.size());
+	int total = static_cast<int>(gRunner.script.commands.size());
 	if (code == EXIT_OK && !gRunner.failures.empty())
 		code = EXIT_FAILED;
 
@@ -365,407 +177,10 @@ void onCrashSignal(int sig) {
 	_exit(EXIT_CRASH);
 }
 
-// ---- parsing ---------------------------------------------------------------
-
-bool parseWait(const std::string& word, int& ticks) {
-	char* end = nullptr;
-	double value = strtod(word.c_str(), &end);
-	std::string unit = end;
-	if (end == word.c_str() || value < 0)
-		return false;
-
-	double ms = 0;
-	if (unit.empty()) {
-		ticks = static_cast<int>(value);
-		return true;
-	}
-	if (unit == "ms")
-		ms = value;
-	else if (unit == "s")
-		ms = value * 1000.0;
-	else
-		return false;
-	ticks = static_cast<int>(std::ceil(ms / Scenario::TICK_MS));
-	return true;
-}
-
-// "melee", "ranged", "potion" or "amulet" -> ItemType value.
-bool parseItemType(const std::string& word, int& type) {
-	if (word == "melee")
-		type = ItemType::MELEE_WEAPON;
-	else if (word == "ranged")
-		type = ItemType::RANGED_WEAPON;
-	else if (word == "potion")
-		type = ItemType::POTION;
-	else if (word == "amulet")
-		type = ItemType::AMULET;
-	else
-		return false;
-	return true;
-}
-
-// Item counts are written as the type followed by the id: "potion2", "melee0"; ".level" gives the item level.
-bool parseItemCountField(const std::string& word, Command& cmd) {
-	size_t digits = word.find_first_of("0123456789");
-	int type = 0;
-	if (digits == std::string::npos || digits == 0 || !parseItemType(word.substr(0, digits), type))
-		return false;
-	char* end = nullptr;
-	std::optional<ItemKind> item = itemFromFile(type, static_cast<int>(strtol(word.c_str() + digits, &end, 10)));
-	if (!item)
-		return false;
-	cmd.item = *item;
-	std::string suffix = end;
-	if (suffix.empty())
-		cmd.field = Field::ItemCount;
-	else if (suffix == ".level")
-		cmd.field = Field::ItemLevel;
-	else
-		return false;
-	return true;
-}
-
-bool parseField(const std::string& word, Field& field) {
-	static const struct {
-		const char* name;
-		Field field;
-	} FIELDS[] = {{"x", Field::X},
-				  {"y", Field::Y},
-				  {"hp", Field::Hp},
-				  {"stamina", Field::Stamina},
-				  {"level", Field::Level},
-				  {"alive", Field::Alive},
-				  {"won", Field::Won},
-				  {"might", Field::Might},
-				  {"armor", Field::Armor},
-				  {"equip_type", Field::EquipType},
-				  {"equip_id", Field::EquipId},
-				  {"keys", Field::Keys},
-				  {"poison", Field::Poison},
-				  {"xp", Field::XpTotal},
-				  {"riddle", Field::Riddle},
-				  {"bars", Field::Bars},
-				  {"boss", Field::Boss},
-				  {"minions", Field::Minions},
-				  {"attacking", Field::Attacking},
-				  {"decor_tier", Field::DecorTier},
-				  {"nearest", Field::Nearest},
-				  {"coffins", Field::Coffins},
-				  {"chests", Field::Chests},
-				  {"journal", Field::JournalRiddles},
-				  {"journal_solved", Field::JournalSolved},
-				  {"journal_notes", Field::JournalNotes},
-				  {"journal_tried", Field::JournalTried},
-				  {"maxhp", Field::MaxHp},
-				  {"worn", Field::Worn},
-				  {"safe", Field::Safe}};
-	for (const auto& entry : FIELDS)
-		if (word == entry.name) {
-			field = entry.field;
-			return true;
-		}
-	return false;
-}
-
-bool parseOp(const std::string& word, Op& op) {
-	static const struct {
-		const char* name;
-		Op op;
-	} OPS[] = {{"==", Op::Eq}, {"!=", Op::Ne}, {"<", Op::Lt}, {"<=", Op::Le}, {">", Op::Gt}, {">=", Op::Ge}};
-	for (const auto& entry : OPS)
-		if (word == entry.name) {
-			op = entry.op;
-			return true;
-		}
-	return false;
-}
-
-bool parseFloat(const std::string& word, float& out) {
-	char* end = nullptr;
-	out = strtof(word.c_str(), &end);
-	return end != word.c_str() && *end == '\0';
-}
-
-// A walk key by name, None if it is not one.
-GameplayAction walkAction(const std::string& word) {
-	return word == "left"	 ? GameplayAction::MoveLeft
-		   : word == "right" ? GameplayAction::MoveRight
-		   : word == "up"	 ? GameplayAction::MoveUp
-		   : word == "down"	 ? GameplayAction::MoveDown
-							 : GameplayAction::None;
-}
-
-// Returns an error message, empty on success.
-std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
-	const std::string& name = w[0];
-	size_t argc = w.size() - 1;
-	auto needArgs = [&](size_t n) { return argc == n ? "" : name + " expects " + std::to_string(n) + " argument(s)"; };
-
-	if (name == "resolution") {
-		cmd.type = CommandType::Resolution;
-		if (argc != 2 || !parseFloat(w[1], cmd.a) || !parseFloat(w[2], cmd.b) || cmd.a < 64 || cmd.b < 64)
-			return "usage: resolution <width> <height>";
-		return "";
-	}
-	if (name == "seed") {
-		cmd.type = CommandType::Seed;
-		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
-			return "usage: seed <non-negative integer>";
-		return "";
-	}
-	if (name == "god") {
-		cmd.type = CommandType::God;
-		return needArgs(0);
-	}
-	if (name == "level") {
-		cmd.type = CommandType::Level;
-		if (argc != 1)
-			return "usage: level <number|path>";
-		float number = 0.f;
-		cmd.arg = w[1];
-		cmd.a = parseFloat(w[1], number) ? number : 0.f;
-		return "";
-	}
-	if (name == "wait") {
-		cmd.type = CommandType::Wait;
-		if (argc != 1 || !parseWait(w[1], cmd.ticks))
-			return "usage: wait <ticks|Nms|Ns>";
-		return "";
-	}
-	if (name == "walk") {
-		cmd.type = CommandType::Walk;
-		if (argc == 2 && w[1] == "to") { // walk to X: along the row to map x X, whichever way it is
-			cmd.walkTo = true;
-			if (!parseFloat(w[2], cmd.a))
-				return "usage: walk to <map x>";
-			return "";
-		}
-		if (argc != 2 || !parseFloat(w[2], cmd.a) || cmd.a <= 0)
-			return "usage: walk <left|right|up|down> <tiles> | walk to <map x>";
-		cmd.action = walkAction(w[1]);
-		if (cmd.action == GameplayAction::None)
-			return "walk direction must be left|right|up|down";
-		return "";
-	}
-	if (name == "hold") { // the walk key down for T ticks, moving or not (walk fails when blocked)
-		cmd.type = CommandType::Hold;
-		cmd.action = argc == 2 ? walkAction(w[1]) : GameplayAction::None;
-		if (cmd.action == GameplayAction::None || !parseWait(w[2], cmd.ticks))
-			return "usage: hold <left|right|up|down> <ticks|Nms|Ns>";
-		return "";
-	}
-	if (name == "motion") {
-		cmd.type = CommandType::Motion;
-		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
-			return "usage: motion <on|off>";
-		cmd.a = w[1] == "on" ? 1.f : 0.f;
-		return "";
-	}
-	if (name == "sprint") {
-		cmd.type = CommandType::Sprint;
-		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
-			return "usage: sprint <on|off>";
-		cmd.a = w[1] == "on" ? 1.f : 0.f;
-		return "";
-	}
-	if (name == "jump" || name == "attack" || name == "interact") {
-		cmd.type = name == "jump" ? CommandType::Jump : name == "attack" ? CommandType::Attack : CommandType::Interact;
-		cmd.action = name == "jump"		? GameplayAction::Jump
-					 : name == "attack" ? GameplayAction::Attack
-										: GameplayAction::Interact;
-		return needArgs(0);
-	}
-	if (name == "camera") {
-		cmd.type = CommandType::Camera;
-		if (argc != 2 || !parseFloat(w[1], cmd.a) || !parseFloat(w[2], cmd.b))
-			return "usage: camera <rotM> <rotN>";
-		return "";
-	}
-	if (name == "toon") {
-		cmd.type = CommandType::Toon;
-		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
-			return "usage: toon <on|off>";
-		cmd.a = w[1] == "on" ? 1.f : 0.f;
-		return "";
-	}
-	if (name == "hitboxes") {
-		cmd.type = CommandType::Hitboxes;
-		if (argc != 1 || (w[1] != "on" && w[1] != "off"))
-			return "usage: hitboxes <on|off>";
-		cmd.a = w[1] == "on" ? 1.f : 0.f;
-		return "";
-	}
-	if (name == "screenshot") {
-		cmd.type = CommandType::Screenshot;
-		if (argc != 1 || w[1].find_first_of("/\\") != std::string::npos)
-			return "usage: screenshot <name> (no slashes)";
-		cmd.arg = w[1];
-		return "";
-	}
-	if (name == "dump") {
-		cmd.type = CommandType::Dump;
-		return needArgs(0);
-	}
-	if (name == "killboss") {
-		cmd.type = CommandType::KillBoss;
-		return needArgs(0);
-	}
-	if (name == "hurtboss") {
-		cmd.type = CommandType::HurtBoss;
-		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 1)
-			return "usage: hurtboss <hp>";
-		return "";
-	}
-	if (name == "expect") {
-		cmd.type = CommandType::Expect;
-		if (argc != 3 || !(parseField(w[1], cmd.field) || parseItemCountField(w[1], cmd)) || !parseOp(w[2], cmd.op) ||
-			!parseFloat(w[3], cmd.a))
-			return "usage: expect "
-				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|bars|boss|minions|"
-				   "attacking|decor_tier|"
-				   "coffins|"
-				   "<item><id>[.level]> "
-				   "<==|!=|<|<=|>|>=> <number>";
-		return "";
-	}
-	if (name == "key") {
-		cmd.type = CommandType::Key;
-		if (argc != 1)
-			return "usage: key <char|enter|esc|space|tab|backspace|special key name>";
-		static const struct {
-			const char* name;
-			unsigned char key;
-		} NAMED[] = {
-			{"enter", KEY_ENTER}, {"esc", KEY_ESCAPE}, {"space", KEY_SPACE}, {"tab", '\t'}, {"backspace", '\b'}};
-		for (const auto& entry : NAMED)
-			if (w[1] == entry.name)
-				cmd.a = entry.key;
-		if (cmd.a == 0.f && w[1].size() == 1)
-			cmd.a = static_cast<unsigned char>(w[1][0]);
-		if (std::optional<InputKey> named = parseKeyName(w[1]);
-			cmd.a == 0.f && named && named->kind == InputKey::Kind::Special) {
-			cmd.a = static_cast<float>(named->code); // a special key (docs/settings.md names): `left`, `f12`
-			cmd.b = 1.f;
-		}
-		if (cmd.a == 0.f)
-			return "key expects one character, enter|esc|space|tab|backspace or a special key name";
-		return "";
-	}
-	if (name == "give" || name == "chest") {
-		cmd.type = name == "give" ? CommandType::Give : CommandType::Chest;
-		int type = 0;
-		float id = 0.f;
-		float count = 1.f;
-		std::string usage = "usage: " + name + " <melee|ranged|potion> <id> [count], with a known id";
-		if (argc < 2 || argc > 3 || !parseItemType(w[1], type) || !parseFloat(w[2], id) ||
-			(argc == 3 && !parseFloat(w[3], count)))
-			return usage;
-		std::optional<ItemKind> item = itemFromFile(type, static_cast<int>(id));
-		if (!item)
-			return usage;
-		cmd.item = *item;
-		cmd.ticks = static_cast<int>(count);
-		return "";
-	}
-	if (name == "select") {
-		cmd.type = CommandType::Select;
-		for (int i = 0; argc == 1 && i < ITEM_KIND_COUNT; i++)
-			if (w[1] == itemSlug(itemAt(i))) {
-				cmd.item = itemAt(i);
-				return "";
-			}
-		return "usage: select <item>: club, short_sword, spear, self-bow, small_health, ... (its label, _ for spaces)";
-	}
-	if (name == "equip") {
-		cmd.type = CommandType::Equip;
-		for (int i = 0; argc == 1 && i < WEAPON_KIND_COUNT; i++)
-			if (w[1] == itemSlug(itemAt(i))) {
-				cmd.item = itemAt(i);
-				return "";
-			}
-		return "usage: equip <weapon>: club, short_sword, spear, self-bow, ...";
-	}
-	if (name == "wear") {
-		cmd.type = CommandType::Wear;
-		cmd.item = ItemKind::Club; // "off": the worn amulet comes off
-		for (int i = FIRST_AMULET; argc == 1 && i < ITEM_KIND_COUNT; i++)
-			if (w[1] == itemSlug(itemAt(i))) {
-				cmd.item = itemAt(i);
-				return "";
-			}
-		if (argc == 1 && w[1] == "off")
-			return "";
-		return "usage: wear <amulet>|off: lesser_amulet_of_strength, amulet_of_health, ...";
-	}
-	if (name == "xp") {
-		cmd.type = CommandType::Xp;
-		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
-			return "usage: xp <non-negative number>";
-		return "";
-	}
-	if (name == "hurt") {
-		cmd.type = CommandType::Hurt;
-		if (argc != 1 || !parseFloat(w[1], cmd.a) || cmd.a < 0)
-			return "usage: hurt <hp>";
-		return "";
-	}
-	if (name == "poison") {
-		cmd.type = CommandType::Poison;
-		static const char* const TIERS[POISON_TIER_COUNT] = {"weak", "medium", "strong"};
-		for (int t = 0; argc == 1 && t < POISON_TIER_COUNT; t++)
-			if (w[1] == TIERS[t]) {
-				cmd.ticks = t;
-				return "";
-			}
-		return "usage: poison weak|medium|strong";
-	}
-	if (name == "prop") {
-		cmd.type = CommandType::Prop;
-		for (int d = 0; argc == 2 && parseFloat(w[1], cmd.a) && d < DECOR_COUNT; d++)
-			if (w[2] == DECOR_NAMES[d]) {
-				cmd.ticks = d;
-				return "";
-			}
-		return "usage: prop <col> <name>: a prop of DECOR_NAMES (web, pottery, ..., thoth_ibis_standing, ...)";
-	}
-	if (name == "riddles") {
-		cmd.type = CommandType::Riddles;
-		if (argc != 1)
-			return "usage: riddles <file|directory>";
-		cmd.arg = w[1];
-		return "";
-	}
-	if (name == "savegame" || name == "loadgame") {
-		cmd.type = name == "savegame" ? CommandType::SaveGame : CommandType::LoadGame;
-		if (argc != 1)
-			return "usage: " + name + " <path>";
-		cmd.arg = w[1];
-		return "";
-	}
-	if (name == "mouse" || name == "press" || name == "release" || name == "click") {
-		cmd.type = name == "mouse"	   ? CommandType::Mouse
-				   : name == "press"   ? CommandType::Press
-				   : name == "release" ? CommandType::Release
-									   : CommandType::Click;
-		if (argc != 2 || !parseFloat(w[1], cmd.a) || !parseFloat(w[2], cmd.b))
-			return "usage: " + name + " <x%> <y%> (0..100, y from the bottom)";
-		return "";
-	}
-	if (name == "quit") {
-		cmd.type = CommandType::Quit;
-		return needArgs(0);
-	}
-	return "unknown command '" + name + "'";
-}
-
 // Screen position in percent (y from the bottom, like the UI code) -> window pixels.
 void toPixels(const Command& cmd, int& x, int& y) {
 	x = static_cast<int>(cmd.a / 100.f * static_cast<float>(Game().render.resX));
 	y = static_cast<int>((1.f - cmd.b / 100.f) * static_cast<float>(Game().render.resY));
-}
-
-bool isSetupCommand(CommandType type) {
-	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God;
 }
 
 // ---- execution -------------------------------------------------------------
@@ -787,7 +202,7 @@ bool loadGeneratedLevel(const std::string& spec) {
 }
 
 bool loadLevel(const Command& cmd) {
-	Game().random.Seed(static_cast<uint64_t>(gRunner.seed));
+	Game().random.Seed(static_cast<uint64_t>(gRunner.script.seed));
 	bool loaded = false;
 	if (cmd.a > 0.f)
 		loaded = Game().dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
@@ -808,13 +223,15 @@ bool loadLevel(const Command& cmd) {
 // Advances a walk by one tick. Returns true when the command is finished (either way).
 bool stepWalk(const Command& cmd) {
 	WalkProgress& walk = gRunner.walk;
-	float pos = playerPos(cmd.walkTo ? GameplayAction::MoveRight : cmd.action);
+	float pos = playerPos(cmd.walkTo ? GameplayAction::MoveRight : moveAction(cmd.move));
 	if (!walk.started) {
 		walk = WalkProgress{};
 		walk.started = true;
 		walk.startPos = pos;
 		walk.lastPos = pos;
-		walk.action = !cmd.walkTo ? cmd.action : cmd.a >= pos ? GameplayAction::MoveRight : GameplayAction::MoveLeft;
+		walk.action = !cmd.walkTo	 ? moveAction(cmd.move)
+					  : cmd.a >= pos ? GameplayAction::MoveRight
+									 : GameplayAction::MoveLeft;
 	}
 
 	const bool arrived = cmd.walkTo ? (walk.action == GameplayAction::MoveRight ? pos >= cmd.a - WALK_EPSILON
@@ -869,7 +286,9 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Attack:
 	case CommandType::Interact:
 		if (ScreenState::IsGameplayInteractionAllowed(Game()))
-			executeGameplayAction(cmd.action);
+			executeGameplayAction(cmd.type == CommandType::Jump		? GameplayAction::Jump
+								  : cmd.type == CommandType::Attack ? GameplayAction::Attack
+																	: GameplayAction::Interact);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Camera:
@@ -1028,12 +447,12 @@ bool runInstant(const Command& cmd) {
 
 // Executes commands until one needs more ticks.
 void runCommands() {
-	while (gRunner.next < gRunner.commands.size()) {
+	while (gRunner.next < gRunner.script.commands.size()) {
 		// Screenshot must be taken from this tick's frame before the script moves on.
 		if (!gRunner.pendingShot.empty())
 			return;
 
-		const Command& cmd = gRunner.commands[gRunner.next];
+		const Command& cmd = gRunner.script.commands[gRunner.next];
 		if (cmd.type == CommandType::Wait) {
 			if (!gRunner.waiting) {
 				gRunner.waiting = true;
@@ -1055,7 +474,7 @@ void runCommands() {
 			}
 			if (gRunner.waitLeft > 0) {
 				gRunner.waitLeft--;
-				setWalkHeld(cmd.action, true); // Update() takes the step, as for a held key in play
+				setWalkHeld(moveAction(cmd.move), true); // Update() takes the step, as for a held key in play
 				return;
 			}
 			gRunner.waiting = false;
@@ -1080,7 +499,7 @@ void runCommands() {
 }
 
 void checkDeath() {
-	if (gRunner.deathReported || gRunner.deathExpected || Game().player->Alive())
+	if (gRunner.deathReported || gRunner.script.deathExpected || Game().player->Alive())
 		return;
 	if (!Game().ui.menu.inGame)
 		return;
@@ -1097,52 +516,10 @@ bool Scenario::load(const char* path) {
 		return false;
 	}
 
-	bool ok = true;
-	bool levelSeen = false;
-	std::string raw;
-	for (int lineNo = 1; std::getline(in, raw); lineNo++) {
-		std::string text = raw.substr(0, raw.find('#'));
-		std::istringstream words(text);
-		std::vector<std::string> w;
-		for (std::string word; words >> word;)
-			w.push_back(word);
-		if (w.empty())
-			continue;
-
-		Command cmd;
-		cmd.line = lineNo;
-		for (size_t i = 0; i < w.size(); i++)
-			cmd.text += (i ? " " : "") + w[i];
-
-		std::string error = parseLine(w, cmd);
-		if (error.empty() && !levelSeen && !isSetupCommand(cmd.type) && cmd.type != CommandType::Level)
-			error = "'level' must come before gameplay commands";
-		if (error.empty() && levelSeen && cmd.type == CommandType::Resolution)
-			error = "'resolution' must come before 'level'";
-		if (!error.empty()) {
-			fprintf(stderr, "%s:%d: %s\n", path, lineNo, error.c_str());
-			ok = false;
-			continue;
-		}
-
-		if (cmd.type == CommandType::Level)
-			levelSeen = true;
-		if (cmd.type == CommandType::Resolution) {
-			gRunner.resX = static_cast<int>(cmd.a);
-			gRunner.resY = static_cast<int>(cmd.b);
-		}
-		if (cmd.type == CommandType::Seed)
-			gRunner.seed = static_cast<unsigned int>(cmd.a);
-		if (cmd.type == CommandType::Expect && cmd.field == Field::Alive && cmd.op == Op::Eq && cmd.a == 0.f)
-			gRunner.deathExpected = true;
-		gRunner.commands.push_back(cmd);
-	}
-
-	if (ok && !levelSeen) {
-		fprintf(stderr, "%s: no 'level' command\n", path);
-		ok = false;
-	}
-	if (!ok)
+	const std::vector<std::string> errors = parseScript(in, path, gRunner.script);
+	for (const std::string& error : errors)
+		fprintf(stderr, "%s\n", error.c_str());
+	if (!errors.empty())
 		return false;
 
 	std::filesystem::path scriptPath(path);
@@ -1169,9 +546,9 @@ bool Scenario::load(const char* path) {
 
 bool Scenario::active() { return gRunner.active; }
 
-int Scenario::resolutionX() { return gRunner.resX; }
+int Scenario::resolutionX() { return gRunner.script.resX; }
 
-int Scenario::resolutionY() { return gRunner.resY; }
+int Scenario::resolutionY() { return gRunner.script.resY; }
 
 bool Scenario::godMode() { return gRunner.god; }
 

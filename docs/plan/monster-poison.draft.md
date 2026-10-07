@@ -13,13 +13,22 @@ Used by:
 * [venom-amulet](venom-amulet.draft.md): the player's hits have a chance to poison.
 * [poison-dart-trap](poison-dart-trap.draft.md): the plate's arrows poison a heavy monster that sets it off (medium).
 
+## Rules
+
+* Poison works on a monster as on the player: the same three tiers (`PoisonTier`: weak, medium, strong), the same
+  damage over time and length (`POISON_TIERS`, `src/world/poison.h`). The dart trap's arrows are medium.
+* The one difference: monsters have a built-in poison resistance, a chance to shrug a poisoning off, like the player's
+  poison warding amulet (`poisonResistPercent`). The player without an amulet has 0%: every poisoned hit poisons.
+* A field in the monster row: `MonsterKind::poisonResistPercent` (`src/world/monster_kinds.cpp`), default 0.
+* 100% (immune): the mummy, the Anubis guard, the plant, the mimic.
+
 ## Open
 
-* Damage over time per tier, how long, does it stack. The player's tiers (`POISON_TIERS`) as they are, or the
-  monster's own (monsters have far more HP: a share of max HP per tick?).
-* Immune monsters: the poisoners themselves, mummies, the egg cluster? A field in the monster row (`MonsterKind`,
-  `src/world/monster_kinds.cpp`), e.g. a poison resistance like the damage resistances.
+* The other types' resistance: the poisoners themselves (scorpions, cobras, the queen, Apep), the Anubis boss, the
+  egg cluster, the bosses in general.
 * Can poison kill, or does it stop at 1 HP? XP and the kill drop when it kills.
+* With the player's tier numbers a monster's poison is small next to its HP (a boss with 1000+ HP): fine as it is,
+  or scaled later with [monster-balance](monster-balance.draft.md)?
 * Shown how: a green tint or bubbles on the monster, its health bar, the boss bar.
-* Journal: a note on a creature's poison resistance in its creature page.
+* Journal: the poison resistance in the creature page, next to the damage resistances.
 * Unit-testable in the level library, apart from the model ([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)).

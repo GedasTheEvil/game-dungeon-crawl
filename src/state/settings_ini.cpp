@@ -2,9 +2,7 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
-#include <initializer_list>
 #include <sstream>
-#include <string_view>
 
 namespace {
 std::string trim(const std::string& s) {
@@ -38,14 +36,6 @@ bool parseInt(const std::string& value, int lo, int hi, int& out) {
 		return false;
 	out = v;
 	return true;
-}
-
-// a + b + c... without the temporaries of operator+.
-std::string join(std::initializer_list<std::string_view> parts) {
-	std::string out;
-	for (std::string_view part : parts)
-		out += part;
-	return out;
 }
 
 const char* onOff(bool on) { return on ? "on" : "off"; }
@@ -85,23 +75,23 @@ std::string readKey(Settings& settings, const std::string& section, const std::s
 			Binding binding = settings.controls.Of(action);
 			std::string error = parseBinding(value, binding);
 			if (!error.empty())
-				return join({name, ": ", error});
+				return name + ": " + error;
 			settings.controls.Set(action, binding);
 			return "";
 		}
-		return join({"unknown key '", name, "' in [controls]"});
+		return "unknown key '" + name + "' in [controls]";
 	}
 	for (const Key& key : keysOf(settings)) {
 		if (section != key.section || name != key.name)
 			continue;
 		if (key.kind == Key::Kind::Bool && !parseBool(value, *key.boolean))
-			return join({name, ": '", value, "' is not on / off"});
+			return name + ": '" + value + "' is not on / off";
 		if (key.kind == Key::Kind::Int && !parseInt(value, key.lo, key.hi, *key.integer))
-			return join({name, ": '", value, "' is not a number from ", std::to_string(key.lo), " to ",
-						 std::to_string(key.hi)});
+			return name + ": '" + value + "' is not a number from " + std::to_string(key.lo) + " to " +
+				   std::to_string(key.hi);
 		return "";
 	}
-	return join({"unknown key '", name, "' in [", section, "]"});
+	return "unknown key '" + name + "' in [" + section + "]";
 }
 } // namespace
 
@@ -121,7 +111,7 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 			}
 			section = lower(trim(line.substr(1, line.size() - 2)));
 			if (section != "display" && section != "graphics" && section != "sound" && section != "controls")
-				warnings.push_back(join({where, "unknown section [", section, "]"}));
+				warnings.push_back(where + "unknown section [" + section + "]");
 			continue;
 		}
 		size_t eq = line.find('=');

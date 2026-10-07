@@ -166,7 +166,7 @@ struct ItemText {
 };
 [[nodiscard]] const ItemText& itemText(ItemKind kind);
 
-struct WeaponDef {			// NOLINT(clang-analyzer-optin.performance.Padding): a table, ordered to read
+struct WeaponDef {
 	const char* model = ""; // models/items/<model>.md3, textures/items/<model>.png
 	float scale = 1.f;
 	int damage = 0;	 // at weapon level 1; the loot grades go by it (loot.cpp)

@@ -83,7 +83,7 @@ struct GenPick {
 
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
 
-struct MonsterKind { // NOLINT(clang-analyzer-optin.performance.Padding): a table, ordered to read
+struct MonsterKind {
 	MonsterTypeId id{};
 	char glyph = 'm';			  // levelcheck --map and the ASCII level sources
 	const char* name = "";		  // the game's and the journal's ("Man-eater plant")
@@ -111,10 +111,10 @@ struct MonsterKind { // NOLINT(clang-analyzer-optin.performance.Padding): a tabl
 	Courage courage = Courage::Coward;
 	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
 	Wading wading = Wading::Slowed;
-	float waterSpeed = WADE_SPEED_FACTOR;			 // its speed in half water, times its speed on land
-	std::optional<PoisonTier> poison = std::nullopt; // its bite or sting poisons the player
-	std::optional<SpitRules> spit = std::nullopt;	 // it spits venom from afar
-	bool charges = false;							 // it charges along its row (Charge)
+	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
+	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
+	std::optional<SpitRules> spit;		  // it spits venom from afar
+	bool charges = false;				  // it charges along its row (Charge)
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (docs/plan/boss-resistances.md).
 	int kin = 0;

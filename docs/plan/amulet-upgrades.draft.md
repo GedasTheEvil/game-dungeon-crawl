@@ -1,10 +1,10 @@
 # Amulet upgrades
 
-Status: draft 2026-10-07. Split off [amulets.md](amulets.md); for later, the way is not decided.
+Status: draft 2026-10-07. Split off [amulets.md](solved/amulets.md); for later, the way is not decided.
 
 ## Idea
 
-Duplicates are allowed ([amulets](amulets.md)), so spare amulets need a use. Two ways, decided later:
+Duplicates are allowed ([amulets](solved/amulets.md)), so spare amulets need a use. Two ways, decided later:
 
 * **Combine:** X amulets of one type and tier make one of the next tier (e.g. 3 lesser -> 1 minor).
 * **Boost:** like weapons (`weaponGrowthPercent` in `src/world/item_bag.cpp`), a duplicate adds to

@@ -1,7 +1,7 @@
 # Amulets
 
-Status: implemented 2026-10-07, waiting for the user's check. Split off
-[resistance-potion.draft.md](resistance-potion.draft.md). See [Done](#done).
+Status: done 2026-10-07, play-tested by the user. Split off
+[resistance-potion.draft.md](../resistance-potion.draft.md). See [Done](#done).
 
 ## Idea
 
@@ -12,12 +12,12 @@ Status: implemented 2026-10-07, waiting for the user's check. Split off
   first place (today a poisoner's hit always poisons). So the poison amulet does not count toward the level checker's
   antidote rule.
 * Duplicates allowed: the player can have more than one amulet of the same type and tier.
-* Later: [amulet upgrades](amulet-upgrades.draft.md) (combine or boost), [amulet of venom](venom-amulet.draft.md)
+* Later: [amulet upgrades](../amulet-upgrades.draft.md) (combine or boost), [amulet of venom](../venom-amulet.draft.md)
   (poison monsters on hit).
 
 ### UI (decided 2026-10-07)
 
-* Its own Amulets tab in the inventory ([inventory-overhaul.md](solved/inventory-overhaul.md)), the details panel
+* Its own Amulets tab in the inventory ([inventory-overhaul.md](inventory-overhaul.md)), the details panel
   text per amulet.
 * The worn amulet's icon on the HUD.
 * The worn amulet and the carried ones are saved with the game.
@@ -50,7 +50,7 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
 * **Typed instead of "physical":** a cut of all monster damage is stronger than every other amulet. One amulet per
   damage type instead (blunt, slash, pierce). Needs the monsters to deal typed damage:
-  [monster-attack-damage-types.md](solved/monster-attack-damage-types.md).
+  [monster-attack-damage-types.md](monster-attack-damage-types.md).
 
 ### Filled in by the implementer (2026-10-07, the user agreed to the suggestions)
 
@@ -85,6 +85,4 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Balance of grand strength (+6 might) against weapon damage and monster HP: [monster balance](monster-balance.draft.md).
-* A journal note per amulet.
-* More bonuses: slower sprint drain, a faster escape from the crocodile's hold, more damage of one type.
+Moved to [amulet-extras.draft.md](../amulet-extras.draft.md).

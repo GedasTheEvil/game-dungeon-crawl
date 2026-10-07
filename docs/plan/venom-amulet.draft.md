@@ -1,6 +1,6 @@
 # Amulet of venom: poison monsters on hit
 
-Status: draft 2026-10-07. Split off [amulets.md](amulets.md); for later.
+Status: draft 2026-10-07. Split off [amulets.md](solved/amulets.md); for later.
 
 ## Idea
 

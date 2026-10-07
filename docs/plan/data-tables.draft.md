@@ -1,6 +1,6 @@
 # Data tables: one record per kind
 
-Status: draft 2026-10-07. Split off [architecture-review.draft.md](architecture-review.draft.md).
+Status: draft 2026-10-07. Split off [architecture-review.md](solved/architecture-review.md).
 
 ## Decision
 
@@ -14,16 +14,27 @@ Status: draft 2026-10-07. Split off [architecture-review.draft.md](architecture-
 
 ## Today
 
-Already table-driven, as `constexpr std::array`s indexed by kind. One item's data is spread over several tables in
-several files, though:
+Re-checked 2026-10-07 in the [architecture review](solved/architecture-review.md). One kind's data is spread over
+several tables in several files:
 
-* `world/items.cpp`: `FILE_IDS` and `TEXTS`
-* `world/loot.cpp`: `WEAPON_GRADES`
-* `ui/inventory.cpp`: `POTION_COLORS`
-* `world/monster_kinds.cpp`, `world/tile_defs.cpp`, `world/damage.h`, `world/poison.h`: the same pattern
-* weapon stats and timers: somewhere else again
+* Monsters: `MONSTER_DEFS` (balance stats next to model paths), `BOSS_DEFS`, `RESISTANCE_DEFS`, `WADING_DEFS`,
+  `POISON_DEFS`, `SPIT_DEFS`, `ATTACK_MIX_DEFS` in `state/assets.cpp` (lists of rows keyed by id, not arrays by
+  kind); `KINDS` in `world/monster_kinds.cpp`; `PICKS` in `world/level_gen.cpp`. In code: `isPoisoner()` repeats
+  `POISON_DEFS`, Sobek's `charges = true` (`assets.cpp:479`), the egg cluster check (`dungeon_boss.cpp:180`), other
+  `== MonsterX` checks (mimic, crocodile, mummy).
+* Items: `FILE_IDS`, `TEXTS`, `WEAPON_MIXES` in `world/items.cpp`; `WEAPON_DEFS` and `MISSILES` in `state/assets.cpp`;
+  `WEAPON_GRADES` in `world/loot.cpp`; `POTION_COLORS` in `ui/inventory.cpp`; `MELEE` / `RANGED` / `WEIGHTS` in
+  `world/level_gen.cpp`. Per-kind switches: `potionGain`, `weaponGrowthPercent` (`item_bag.cpp`), `potionNote`
+  (`journal.cpp`), `missileOf` (`items.h`). Implicit orders: save slots (`OLD_SLOTS`), the HUD icon index, the mimic
+  loot range ending at `Antidote`, hand-typed `ITEM_KIND_COUNT` / `WEAPON_KIND_COUNT`.
+* Tiles: `TILES` (`world/tile_defs.cpp`) plus `tileGlyph`, the editor's `ICONS` and `describeCell`; the drawing
+  switches (`dungeon_render.cpp`, `map_view.cpp`) are real behaviour and stay.
+* `damage.h` and `poison.h` hold per-damage-type and per-tier constants, not per-kind tables.
 
-So the problem is mostly the **scatter**, not the format.
+Cost today: a monster variant 4-6 places in 3 files, a weapon 9-11, a potion ~11, a tile ~10.
+
+So the problem is mostly the **scatter**, not the format. Moving the monster balance stats out of `assets.cpp` into the
+level library also makes them unit-testable and helps [monster balance](monster-balance.draft.md).
 
 ## Format comparison
 

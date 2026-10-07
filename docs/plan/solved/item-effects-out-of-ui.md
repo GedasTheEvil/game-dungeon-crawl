@@ -17,7 +17,7 @@ text. The HUD and the hotkeys reach them through the inventory. Amulets ([amulet
 * The screen and the hotkeys call it, then play the sound and show the toast from the result (or via `WorldEvents`).
 * Unit tests for each potion's effect and the quick-drink cooldown.
 * `PlayerStats` is in `src/entities/` and uses `GameClock` (`core/timer`, render lib): see
-  [sim-unit-tests](../sim-unit-tests.draft.md) step 1, which this needs first or together.
+  [sim-unit-tests](sim-unit-tests.md) step 1, which this needs first or together.
 
 ## Open
 
@@ -29,5 +29,5 @@ text. The HUD and the hotkeys reach them through the inventory. Amulets ([amulet
   plays the sound and takes the potion out of the bag. The quick-drink cooldown stays in the inventory (it is the
   HUD's feedback state too).
 * Not in the level library: `PlayerStats` uses `GameClock`, and moving the clock out of the render library breaks the
-  layer check (the render library uses it as well). That stays with [sim-unit-tests](../sim-unit-tests.draft.md)
+  layer check (the render library uses it as well). That stays with [sim-unit-tests](sim-unit-tests.md)
   step 1, which needs a small shared base library for the clock.

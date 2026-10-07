@@ -77,10 +77,10 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
 3. **Drawing is still mixed into the sim files.** `draw*` functions in `dungeon_decor.cpp` (scatter rules + GL),
    `dungeon_mechanisms.cpp`, `dungeon_boss.cpp`, `dungeon_arrows.cpp`, `dungeon_monsters.cpp`; entities include GL.
    Known leftover ("its own stage", world-without-game). Effect: monster AI, player stats, decor scatter and mechanism
-   rules only run as scenarios (97 scenarios, ~7-8 min). Draft: [sim-unit-tests](../sim-unit-tests.draft.md).
+   rules only run as scenarios (97 scenarios, ~7-8 min). Draft: [sim-unit-tests](sim-unit-tests.md).
 4. **Scenario commands in three places.** Each new command touches `parseLine`, `runInstant` and often `fieldValue`
    in `test/scenario.cpp` (1207 lines, 44 commits in 60 days); the parser has no `Game()` but is not tested. Draft:
-   [scenario-split](../scenario-split.draft.md).
+   [scenario-split](scenario-split.md).
 
 ### Not worth it now
 
@@ -100,8 +100,8 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
 |---|---|---|---|
 | 1 | [item-effects-out-of-ui](item-effects-out-of-ui.md) | small | amulets, resistance potion land in the rules (done: in `PlayerStats`) |
 | 2 | [data-tables](../data-tables.draft.md): one row per monster / item kind | medium | every new monster, boss, weapon, potion, amulet; monster balance tuning |
-| 3 | [sim-unit-tests](../sim-unit-tests.draft.md): clock into the level lib, then rules out of the GL files | small first step, medium after | player stats, AI, scatter tested without a window; faster than scenarios |
-| 4 | [scenario-split](../scenario-split.draft.md) | small-medium | every feature adds scenario commands |
+| 3 | [sim-unit-tests](sim-unit-tests.md): clock into the level lib, then rules out of the GL files | small first step, medium after | player stats, AI, scatter tested without a window; faster than scenarios |
+| 4 | [scenario-split](scenario-split.md) | small-medium | every feature adds scenario commands |
 
 Order: 1 before amulets. 2 when the user confirms (its timing rule), best before more bosses. 3's first step (the clock,
 `PlayerStats` tests) is cheap and can go any time.

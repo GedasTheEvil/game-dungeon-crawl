@@ -1,5 +1,5 @@
 """Procedural corridor decorations: fifteen static props scattered along the back wall of empty floor cells, plus the
-wall torch (placed separately by the engine, see Dungeon::scatterTorches) and the mummy's coffin (only at mummy spawn tiles).
+wall torch (placed separately by the engine, see scatterTorches in src/world/decor_scatter.cpp) and the mummy's coffin (only at mummy spawn tiles).
 
     MCP:  p = ".../tools/blender/models/decor.py"; g = {"__file__": p, "__name__": "decor"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"]()

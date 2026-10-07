@@ -131,11 +131,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   brazier, lamp (offerings: clay oil lamp), scrolls, ushabti; broken statues: `cat` (Bastet on a chipped plinth, an ear and a
   toppled figurine on the floor), `jackal` (Anubis couchant on a black and gold shrine), `osiris` (toppled, the shins still on the
   base, atef crown rolled off), four of Thoth, one pick with a variant at even odds: `thoth_ibis_standing` (striding, palette and pen, beak snapped, moon crown on the floor), `thoth_ibis_seated` (enthroned, palette on the knees), `thoth_baboon_seated` (squatting, dark sandstone, crown fallen), `thoth_baboon_standing` (forepaws raised, one broken off); `sarcophagus` (a commoner's box
-  coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
+  coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `scatterTorches` in `src/world/decor_scatter.cpp`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
-  `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
-  `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name), from the
+  `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table `DECOR_JITTER` in
+  `src/world/decor_scatter.cpp`). Placement: `scatterDecor` in `src/world/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
   decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (puts them with the
   scenario's `prop` command); of the tiers: `tests/scenarios/decor_depth.txt`.
@@ -148,7 +148,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   under the ceiling) and `bottom` (on the floor). Rails sit at x = +-0.1, y = -0.04 and match at z = 0 / 1, so pieces stack in any
   order; holds every 1/12 tile (for the climbing animations to come). `-- --export` writes `models/ladders/ladder_<style>_<piece>.md3` +
   `textures/ladders/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
-  Placement: `Dungeon::scatterLadders` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
+  Placement: `scatterLadders` in `src/world/decor_scatter.cpp` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
   lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/world/decor.h`.
 * `tools/blender/models/mechanism.py` - level mechanics, same tile units and baked lighting as `decor.py`: `key` (upright ankh key,
   oval gem in the loop), `gate` (bronze portcullis across the corridor: plane y-z at x = 0, 0.21 thick, full tile depth and height,
@@ -191,12 +191,12 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/textures/decals.py` - wall decal atlas `textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
-  Placement: `Dungeon::scatterDecals` (35% of cells with a visible back wall, one decal per cell).
+  Placement: `scatterDecals` in `src/world/decor_scatter.cpp` (35% of cells with a visible back wall, one decal per cell).
 * `tools/textures/surfaces.py` - cell surfaces in `textures/dungeon/` (RGB 512 px, mipmapped): 8 walls (painted plaster, worn,
   broken to stone; dressed stone, cracked, sand-drifted; rough rock, strata), 3 floors (slabs, sand, cracked), 3 ceilings (stars
   over paint, slabs over stone, rough rock), `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
   `src/world/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
-  order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `Dungeon::scatterSurfaces` (per row
+  order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `scatterSurfaces` in `src/world/decor_scatter.cpp` (per row
   of open cells: rough rock, or dressed stone cut into painted / bare stretches; all rough in the cave tier, less and
   less deeper down, `ROUGH_PERCENT` / `PAINTED_PERCENT` in `decor.h`). In-game check:
   `make test SCENARIO=tests/scenarios/surfaces.txt`.

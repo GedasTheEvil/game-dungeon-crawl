@@ -38,7 +38,7 @@ The game and the tools share three static libraries, so every program builds the
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
 | `build/libbase.a` | `core/timer` (the game clock) | no GL; every library may include it | everything below |
-| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
 | `build/librender.a` | `core/logger`, `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the base one. `make layers`

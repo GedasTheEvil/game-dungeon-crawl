@@ -4,7 +4,7 @@
 #include "fstream"
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
-#include "decor.h"
+#include "decor_scatter.h"
 #include "level.h"
 #include "view_window.h"
 #include "sim_links.h"
@@ -32,13 +32,9 @@ class Dungeon {
 	static constexpr int MAP_HEIGHT = LEVEL_HEIGHT;
 	static constexpr int MAP_CELL_COUNT = LEVEL_CELL_COUNT;
 	Tile map[MAP_CELL_COUNT];
-	DecorCell decor[MAP_CELL_COUNT];
-	DecalCell decal[MAP_CELL_COUNT];
-	SurfaceCell surface[MAP_CELL_COUNT];
-	bool torch[MAP_CELL_COUNT] = {};
+	DecorLayout decoration;				// props, decals, torches, ladders and surfaces (scatterDecorations)
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
-	LadderCell ladder[MAP_CELL_COUNT];
-	SimLinks sim; // the player, journal, assets, ... the world was given (Link)
+	SimLinks sim;						// the player, journal, assets, ... the world was given (Link)
 	float mapX, mapY;
 	int levelNumber = 1; // the campaign level loaded (campaign.h); a level loaded by path keeps the last number
 	bool won = false;	 // the ankh was taken
@@ -76,11 +72,7 @@ class Dungeon {
 	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
-	void scatterDecals(uint32_t seed, int tier); // tier: decorTier of the level's depth (decor.h)
-	void scatterSurfaces(uint32_t seed, int tier);
-	void scatterTorches(uint32_t seed);
 	void drawTorchTile(int i, int j);
-	void scatterLadders(uint32_t seed);
 	void drawLadderTile(int i, int j);
 	struct FlameSource;
 	int flamesAt(int i, int j, FlameSource* out) const;
@@ -273,6 +265,7 @@ class Dungeon {
 	// depth unlocks (decor.h: the campaign level, DECOR_DEPTH_ALL outside the campaign).
 	void scatterDecorations(const char* levelName, int depth);
 	[[nodiscard]] bool bossCoffin(int i, int j) const; // a coffin for the boss's minions stands there
+	[[nodiscard]] CoffinBoss coffinBoss() const;	   // the bosses whose minions climb out of coffins
 };
 
 #endif

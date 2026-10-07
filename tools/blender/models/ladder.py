@@ -6,7 +6,7 @@
 
 Same space as decor.py: Z up, 1 unit = 1 tile, origin = floor level, horizontal centre of the tile, on the back
 wall plane, the ladder stands out towards -Y (the camera). Each file is one cell of a shaft; the engine picks a
-piece per cell (Dungeon::scatterLadders): the bottom piece on the floor, the top piece in the highest cell, mid
+piece per cell (scatterLadders in src/world/decor_scatter.cpp): the bottom piece on the floor, the top piece in the highest cell, mid
 pieces in between (wooden ones mirrored at random; a mirrored liana would kink at the seams, its helix turning
 the other way). Every piece meets its neighbours with the same rails at z = 0 and
 z = 1 (x = +-RAIL_X, y = RAIL_Y, same radius, whole helix turns for the lianas), so any piece stacks on any

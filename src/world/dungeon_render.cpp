@@ -46,7 +46,7 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		return;
 	}
 
-	const SurfaceCell& cell = surface[MapIndex(i, j)];
+	const SurfaceCell& cell = decoration.surface[MapIndex(i, j)];
 	float w0 = cell.wallMirror ? 1.f : 0.f;
 	float w1 = 1.f - w0;
 	// Half water lies in a basin: its walls reach down to the basin floor, a stone wall faces a dry neighbour.

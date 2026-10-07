@@ -1,60 +1,245 @@
 #include "items.h"
+#include "journal.h"
+#include "../core/gameplay_config.h"
 #include <array>
 #include <cstdio>
 #include <string>
 
 namespace {
-// The weapons and the potions; an amulet is {ItemType::AMULET, its place among the amulets}.
-constexpr std::array<ItemFileId, FIRST_AMULET> FILE_IDS = {{
-	{ItemType::MELEE_WEAPON, 0},  {ItemType::MELEE_WEAPON, 3},	{ItemType::MELEE_WEAPON, 1},
-	{ItemType::MELEE_WEAPON, 4},  {ItemType::MELEE_WEAPON, 5},	{ItemType::MELEE_WEAPON, 6},
-	{ItemType::MELEE_WEAPON, 7},  {ItemType::MELEE_WEAPON, 2},	{ItemType::RANGED_WEAPON, 0},
-	{ItemType::RANGED_WEAPON, 1}, {ItemType::RANGED_WEAPON, 2}, {ItemType::RANGED_WEAPON, 3},
-	{ItemType::RANGED_WEAPON, 4}, {ItemType::POTION, 0},		{ItemType::POTION, 1},
-	{ItemType::POTION, 2},		  {ItemType::POTION, 3},		{ItemType::POTION, 4},
-	{ItemType::POTION, 5},		  {ItemType::POTION, 6},		{ItemType::POTION, 7},
+// The weapons, then the potions, in ItemKind order. A weapon's motion: grip, rest / windup / strike tilt, thrust, hit
+// (frame delay) / swing / recovery ms. Levelgen: weapons by depth like in the campaign (the deeper, the more kinds),
+// potions by weight; no antidote, as generated levels have no poisoners.
+constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
+	// The club is slow and heavy, and grows most.
+	{.file = {ItemType::MELEE_WEAPON, 0},
+	 .text = {"Club", "Club", "club", "", "Good old club.", "Now with spikes."},
+	 .weapon = {.model = "club",
+				.scale = 6,
+				.damage = 10,
+				.range = 2,
+				.mix = {85, 15, 0},
+				.growthPercent = 40,
+				.motion = {0.12f, 35, -40, 115, 0, 300, 560, 600},
+				.swingSound = "club_swing",
+				.strikeSound = "club_hit"}},
+	{.file = {ItemType::MELEE_WEAPON, 3},
+	 .text = {"Dagger", "Dagger", "dagger", "", "Quick and close.", "Mind the fingers."},
+	 .weapon = {.model = "dagger",
+				.scale = 4,
+				.damage = 8,
+				.range = 1,
+				.mix = {0, 30, 70},
+				.growthPercent = 30,
+				.motion = {0.15f, 45, 15, 100, 0.25f, 150, 320, 250},
+				.swingSound = "sword_swing",
+				.strikeSound = "spear_hit"}},
+	// Quick; it starts strongest, so it grows least.
+	{.file = {ItemType::MELEE_WEAPON, 1},
+	 .text = {"Short Sword", "Sword", "short sword", "", "Bronze blade of a", "forgotten guard."},
+	 .weapon = {.model = "sword",
+				.scale = 9,
+				.damage = 35,
+				.range = 3,
+				.mix = {0, 85, 15},
+				.growthPercent = 10,
+				.motion = {0.1f, 40, -10, 120, 0, 180, 360, 370},
+				.swingSound = "sword_swing",
+				.strikeSound = "sword_hit",
+				.generatedFrom = 3}},
+	// The khopesh flows from swing to swing; the axes and the mace wind up long.
+	{.file = {ItemType::MELEE_WEAPON, 4},
+	 .text = {"Khopesh", "Khopesh", "khopesh", "", "The sickle sword", "of the pharaoh's guard."},
+	 .weapon = {.model = "khopesh",
+				.scale = 6.5f,
+				.damage = 45,
+				.range = 3,
+				.mix = {0, 100, 0},
+				.motion = {0.12f, 40, -30, 125, 0, 300, 560, 400},
+				.swingSound = "sword_swing",
+				.strikeSound = "sword_hit",
+				.generatedFrom = 5}},
+	{.file = {ItemType::MELEE_WEAPON, 5},
+	 .text = {"Epsilon Axe", "Ep. axe", "epsilon axe", "", "A broad bronze crescent.", "Swing it and wait."},
+	 .weapon = {.model = "epsilon_axe",
+				.scale = 8,
+				.damage = 55,
+				.range = 3,
+				.mix = {30, 70, 0},
+				.motion = {0.1f, 35, -45, 120, 0, 550, 820, 400},
+				.swingSound = "club_swing",
+				.strikeSound = "axe_hit",
+				.generatedFrom = 7}},
+	{.file = {ItemType::MELEE_WEAPON, 6},
+	 .text = {"Duckbill Axe", "Db. axe", "duckbill axe", "", "Narrow and heavy.", "It goes through shells."},
+	 .weapon = {.model = "duckbill_axe",
+				.scale = 7,
+				.damage = 50,
+				.range = 3,
+				.mix = {20, 0, 80},
+				.motion = {0.1f, 35, -45, 115, 0, 500, 770, 400},
+				.swingSound = "club_swing",
+				.strikeSound = "axe_hit",
+				.generatedFrom = 7}},
+	{.file = {ItemType::MELEE_WEAPON, 7},
+	 .text = {"Mace", "Mace", "mace", "", "A stone on a stick.", "The oldest argument."},
+	 .weapon = {.model = "mace",
+				.scale = 7,
+				.damage = 50,
+				.range = 2,
+				.mix = {100, 0, 0},
+				.motion = {0.1f, 35, -50, 115, 0, 600, 870, 400},
+				.swingSound = "club_swing",
+				.strikeSound = "mace_hit",
+				.generatedFrom = 7}},
+	// It thrusts.
+	{.file = {ItemType::MELEE_WEAPON, 2},
+	 .text = {"Spear", "Spear", "spear", "", "Long reach.", "None shall pass!"},
+	 .weapon = {.model = "spear",
+				.scale = 15,
+				.damage = 20,
+				.range = 5,
+				.mix = {0, 15, 85},
+				.motion = {0.35f, 70, 70, 70, 0.3f, 200, 420, 550},
+				.swingSound = "spear_swing",
+				.strikeSound = "spear_hit",
+				.generatedFrom = 3}},
+	{.file = {ItemType::RANGED_WEAPON, 0},
+	 .text = {"Self-Bow", "Bow", "self-bow", "", "One stave of acacia.", "For slow monsters."},
+	 .weapon = {.model = "bow",
+				.scale = 12,
+				.damage = 12,
+				.range = 30,
+				.mix = {0, 0, 100},
+				.motion = {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
+				.swingSound = "bow_draw",
+				.strikeSound = "bow_release"}},
+	{.file = {ItemType::RANGED_WEAPON, 1},
+	 .text = {"Composite Bow", "Comp. bow", "composite bow", "", "Wood, horn and sinew,", "glued by a master."},
+	 .weapon = {.model = "composite_bow",
+				.scale = 11,
+				.damage = 22,
+				.range = 40,
+				.mix = {0, 0, 100},
+				.motion = {0.5f, 0, 0, 0, 0, 650, 750, 650},
+				.swingSound = "bow_draw",
+				.strikeSound = "bow_release",
+				.generatedFrom = 7}},
+	// Whirled overhead from hanging down, let go in front.
+	{.file = {ItemType::RANGED_WEAPON, 2},
+	 .text = {"Sling", "Sling", "sling", "", "A shepherd's sling.", "Stones are everywhere."},
+	 .weapon = {.model = "sling",
+				.scale = 5,
+				.damage = 10,
+				.range = 20,
+				.mix = {100, 0, 0},
+				.motion = {0.05f, 160, -150, 45, 0, 350, 600, 450},
+				.swingSound = "sling_swing",
+				.strikeSound = "sling_release",
+				.missile = MissileKind::Stone}},
+	{.file = {ItemType::RANGED_WEAPON, 3},
+	 .text = {"Throwing Stick", "Stick", "throwing stick", "", "Brings down a duck.", "Comes back, mostly."},
+	 .weapon = {.model = "throwing_stick",
+				.scale = 5,
+				.damage = 14,
+				.range = 12,
+				.mix = {90, 10, 0},
+				.motion = {0.08f, 40, -60, 100, 0, 300, 500, 400},
+				.swingSound = "club_swing",
+				.strikeSound = "throw",
+				.missile = MissileKind::Stick,
+				.thrown = true,
+				.generatedFrom = 4}},
+	{.file = {ItemType::RANGED_WEAPON, 4},
+	 .text = {"Javelin", "Javelin", "javelin", "", "Light enough to throw,", "heavy enough to stay."},
+	 .weapon = {.model = "javelin",
+				.scale = 11,
+				.damage = 30,
+				.range = 15,
+				.mix = {0, 10, 90},
+				.motion = {0.45f, 60, 20, 80, 0, 500, 700, 700},
+				.swingSound = "spear_swing",
+				.strikeSound = "throw",
+				.missile = MissileKind::Javelin,
+				.thrown = true,
+				.generatedFrom = 4}},
+	{.file = {ItemType::POTION, 0},
+	 .text = {"Small Health", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from",
+			  "the Nile marshes."},
+	 .potion = {.gain = {.healPercent = PotionEffect::SMALL_HEAL_PERCENT},
+				.colour = {1.f, 0.f, 0.f},
+				.note = FieldNote::HealthPotions,
+				.generatedWeight = 30}},
+	{.file = {ItemType::POTION, 1},
+	 .text = {"Large Health", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests",
+			  "of Sekhmet."},
+	 .potion = {.gain = {.healPercent = PotionEffect::LARGE_HEAL_PERCENT},
+				.colour = {0.7f, 0.f, 0.3f},
+				.note = FieldNote::HealthPotions,
+				.generatedWeight = 15}},
+	{.file = {ItemType::POTION, 2},
+	 .text = {"Aphethamine", "Might", "might", "Might +2, for good", "It tingles. Best not", "ask what is in it."},
+	 .potion = {.gain = {.might = PotionEffect::MIGHT},
+				.colour = {0.4f, 0.f, 0.6f},
+				.note = FieldNote::Might,
+				.generatedWeight = 10}},
+	{.file = {ItemType::POTION, 3},
+	 .text = {"Stone Skin", "Armor", "armor", "Armor +2, for good", "Skin as hard as", "temple granite."},
+	 .potion = {.gain = {.armor = PotionEffect::ARMOR},
+				.colour = {1.f, 0.6f, 0.f},
+				.note = FieldNote::Armor,
+				.generatedWeight = 10}},
+	{.file = {ItemType::POTION, 4},
+	 .text = {"Elixir of Life", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,",
+			  "sealed in a flask."},
+	 .potion = {.gain = {.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT},
+				.colour = {0.7f, 0.6f, 0.3f},
+				.note = FieldNote::Life,
+				.generatedWeight = 5}},
+	// Small Stamina: green faience
+	{.file = {ItemType::POTION, 5},
+	 .text = {"Small Stamina", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.",
+			  "Mostly honey."},
+	 .potion = {.gain = {.staminaPercent = PotionEffect::SMALL_STAMINA_PERCENT},
+				.colour = {0.45f, 0.85f, 0.25f},
+				.note = FieldNote::StaminaPotions,
+				.generatedWeight = 20}},
+	// Large Stamina: turquoise
+	{.file = {ItemType::POTION, 6},
+	 .text = {"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water",
+			  "from the temple of Ra."},
+	 .potion = {.gain = {.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT},
+				.colour = {0.15f, 0.78f, 0.72f},
+				.note = FieldNote::StaminaPotions,
+				.generatedWeight = 10}},
+	// Antidote: dark malachite
+	{.file = {ItemType::POTION, 7},
+	 .text = {"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
+	 .potion = {.gain = {.cure = true},
+				.colour = {0.05f, 0.45f, 0.2f},
+				.note = FieldNote::Antidote,
+				.generatedWeight = 0,
+				.mimicLoot = false}},
 }};
 
-constexpr std::array<ItemText, FIRST_AMULET> TEXTS = {{
-	{"Club", "Club", "club", "", "Good old club.", "Now with spikes."},
-	{"Dagger", "Dagger", "dagger", "", "Quick and close.", "Mind the fingers."},
-	{"Short Sword", "Sword", "short sword", "", "Bronze blade of a", "forgotten guard."},
-	{"Khopesh", "Khopesh", "khopesh", "", "The sickle sword", "of the pharaoh's guard."},
-	{"Epsilon Axe", "Ep. axe", "epsilon axe", "", "A broad bronze crescent.", "Swing it and wait."},
-	{"Duckbill Axe", "Db. axe", "duckbill axe", "", "Narrow and heavy.", "It goes through shells."},
-	{"Mace", "Mace", "mace", "", "A stone on a stick.", "The oldest argument."},
-	{"Spear", "Spear", "spear", "", "Long reach.", "None shall pass!"},
-	{"Self-Bow", "Bow", "self-bow", "", "One stave of acacia.", "For slow monsters."},
-	{"Composite Bow", "Comp. bow", "composite bow", "", "Wood, horn and sinew,", "glued by a master."},
-	{"Sling", "Sling", "sling", "", "A shepherd's sling.", "Stones are everywhere."},
-	{"Throwing Stick", "Stick", "throwing stick", "", "Brings down a duck.", "Comes back, mostly."},
-	{"Javelin", "Javelin", "javelin", "", "Light enough to throw,", "heavy enough to stay."},
-	{"Small Health", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from", "the Nile marshes."},
-	{"Large Health", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests", "of Sekhmet."},
-	{"Aphethamine", "Might", "might", "Might +2, for good", "It tingles. Best not", "ask what is in it."},
-	{"Stone Skin", "Armor", "armor", "Armor +2, for good", "Skin as hard as", "temple granite."},
-	{"Elixir of Life", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,", "sealed in a flask."},
-	{"Small Stamina", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.", "Mostly honey."},
-	{"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water", "from the temple of Ra."},
-	{"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
-}};
+constexpr bool validItems() {
+	int weights = 0;
+	for (size_t i = 0; i < ITEMS.size(); i++) {
+		const ItemDef& def = ITEMS[i];
+		for (size_t j = 0; j < i; j++)
+			if (ITEMS[j].file.type == def.file.type && ITEMS[j].file.id == def.file.id)
+				return false;
+		const bool weapon = static_cast<int>(i) < WEAPON_KIND_COUNT;
+		if (weapon &&
+			(def.file.type == ItemType::POTION || def.weapon.mix[0] + def.weapon.mix[1] + def.weapon.mix[2] != 100))
+			return false;
+		if (!weapon && def.file.type != ItemType::POTION)
+			return false;
+		weights += weapon ? 0 : def.potion.generatedWeight;
+	}
+	return weights == 100;
+}
+static_assert(validItems(), "ITEMS: weapons then potions, unique file ids, damage mixes and potion weights of 100%");
 
-// Weapons only, in ItemKind order: blunt, slash, pierce percent.
-constexpr std::array<DamageMix, WEAPON_KIND_COUNT> WEAPON_MIXES = {{
-	{85, 15, 0}, // club
-	{0, 30, 70}, // dagger
-	{0, 85, 15}, // short sword
-	{0, 100, 0}, // khopesh
-	{30, 70, 0}, // epsilon axe
-	{20, 0, 80}, // duckbill axe
-	{100, 0, 0}, // mace
-	{0, 15, 85}, // spear
-	{0, 0, 100}, // self-bow
-	{0, 0, 100}, // composite bow
-	{100, 0, 0}, // sling
-	{90, 10, 0}, // throwing stick
-	{0, 10, 90}, // javelin
-}};
 // The amulets in ItemKind order.
 constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 	std::array<Amulet, AMULET_KIND_COUNT> amulets{};
@@ -71,6 +256,7 @@ static_assert(AMULETS.back().type == AmuletType::Regeneration && AMULETS.back().
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share.
 struct AmuletTypeDef {
+	const char* model; // models/items/<model>.md3
 	std::array<int, AMULET_TIER_COUNT> amount;
 	const char* noun;	   // "Amulet of <noun>"
 	const char* shortNoun; // the slot's name band, with the tier as I .. IV
@@ -79,20 +265,64 @@ struct AmuletTypeDef {
 	const char* lore2;
 };
 constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
-	{{1, 2, 4, 6}, "Strength", "Str.", "Might +%d while worn", "A jackal's tooth", "on a cord. Bite back."},
-	{{1, 2, 4, 6}, "Armor", "Arm.", "Armor +%d while worn", "A bronze scarab.", "Hard shell, soft heart."},
-	{{5, 10, 20, 30}, "Health", "Life", "Max health +%d%% while worn", "A carnelian heart.", "It beats with yours."},
-	{{10, 25, 50, 80},
+	{"amulet_strength",
+	 {1, 2, 4, 6},
+	 "Strength",
+	 "Str.",
+	 "Might +%d while worn",
+	 "A jackal's tooth",
+	 "on a cord. Bite back."},
+	{"amulet_armor",
+	 {1, 2, 4, 6},
+	 "Armor",
+	 "Arm.",
+	 "Armor +%d while worn",
+	 "A bronze scarab.",
+	 "Hard shell, soft heart."},
+	{"amulet_health",
+	 {5, 10, 20, 30},
+	 "Health",
+	 "Life",
+	 "Max health +%d%% while worn",
+	 "A carnelian heart.",
+	 "It beats with yours."},
+	{"amulet_poison",
+	 {10, 25, 50, 80},
 	 "Poison Warding",
 	 "Pois.",
 	 "Resists poison %d%% of the time",
 	 "Serket's scorpion.",
 	 "Her children spare you."},
-	{{25, 50, 75, 100}, "Trap Warding", "Trap", "Trap damage -%d%%", "The eye of Horus.", "It sees the spikes first."},
-	{{8, 16, 28, 40}, "Blunt Warding", "Blunt", "Blunt damage -%d%%", "The djed pillar.", "It does not bend."},
-	{{8, 16, 28, 40}, "Slash Warding", "Slash", "Slash damage -%d%%", "The knot of Isis.", "Blades slip on it."},
-	{{8, 16, 28, 40}, "Pierce Warding", "Pierce", "Pierce damage -%d%%", "The shen ring.", "Points glance off it."},
-	{{0, 0, 1, 2},
+	{"amulet_traps",
+	 {25, 50, 75, 100},
+	 "Trap Warding",
+	 "Trap",
+	 "Trap damage -%d%%",
+	 "The eye of Horus.",
+	 "It sees the spikes first."},
+	{"amulet_blunt",
+	 {8, 16, 28, 40},
+	 "Blunt Warding",
+	 "Blunt",
+	 "Blunt damage -%d%%",
+	 "The djed pillar.",
+	 "It does not bend."},
+	{"amulet_slash",
+	 {8, 16, 28, 40},
+	 "Slash Warding",
+	 "Slash",
+	 "Slash damage -%d%%",
+	 "The knot of Isis.",
+	 "Blades slip on it."},
+	{"amulet_pierce",
+	 {8, 16, 28, 40},
+	 "Pierce Warding",
+	 "Pierce",
+	 "Pierce damage -%d%%",
+	 "The shen ring.",
+	 "Points glance off it."},
+	{"amulet_regeneration",
+	 {0, 0, 1, 2},
 	 "Regeneration",
 	 "Regen",
 	 "Heals %d health a second when safe",
@@ -195,19 +425,23 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 	return bonus;
 }
 
-const DamageMix& weaponMix(ItemKind weapon) { return WEAPON_MIXES[static_cast<size_t>(itemIndex(weapon))]; }
+const char* amuletModel(AmuletType type) { return typeDef(type).model; }
+
+const WeaponDef& weaponDef(ItemKind weapon) { return ITEMS[static_cast<size_t>(itemIndex(weapon))].weapon; }
+
+const PotionDef& potionDef(ItemKind potion) { return ITEMS[static_cast<size_t>(itemIndex(potion))].potion; }
 
 ItemFileId fileIdOf(ItemKind kind) {
 	if (isAmulet(kind))
 		return {ItemType::AMULET, itemIndex(kind) - FIRST_AMULET};
-	return FILE_IDS[static_cast<size_t>(itemIndex(kind))];
+	return ITEMS[static_cast<size_t>(itemIndex(kind))].file;
 }
 
 std::optional<ItemKind> itemFromFile(int type, int id) {
 	if (type == ItemType::AMULET)
 		return id >= 0 && id < AMULET_KIND_COUNT ? std::optional(itemAt(FIRST_AMULET + id)) : std::nullopt;
 	for (int i = 0; i < FIRST_AMULET; i++)
-		if (FILE_IDS[static_cast<size_t>(i)].type == type && FILE_IDS[static_cast<size_t>(i)].id == id)
+		if (ITEMS[static_cast<size_t>(i)].file.type == type && ITEMS[static_cast<size_t>(i)].file.id == id)
 			return itemAt(i);
 	return std::nullopt;
 }
@@ -228,5 +462,5 @@ const ItemText& itemText(ItemKind kind) {
 		static const AmuletTexts AMULET_TEXTS;
 		return AMULET_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_AMULET)];
 	}
-	return TEXTS[static_cast<size_t>(itemIndex(kind))];
+	return ITEMS[static_cast<size_t>(itemIndex(kind))].text;
 }

@@ -1,4 +1,5 @@
 #include "loot.h"
+#include <algorithm>
 #include <array>
 
 namespace {
@@ -9,11 +10,15 @@ constexpr int LOWER_WEAPON_CHANCE = 5;	// weapon chests: one weapon of a lower g
 constexpr int SAME_POTION_CHANCE = 5;	// potion chests: a second one of the same potion
 constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 
-// Weapons from the weakest up (by base damage).
-constexpr std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = {
-	{ItemKind::Dagger, ItemKind::Club, ItemKind::Sling, ItemKind::SelfBow, ItemKind::ThrowingStick, ItemKind::Spear,
-	 ItemKind::CompositeBow, ItemKind::Javelin, ItemKind::ShortSword, ItemKind::Khopesh, ItemKind::DuckbillAxe,
-	 ItemKind::Mace, ItemKind::EpsilonAxe}};
+// Weapons from the weakest up, by base damage (WeaponDef::damage); equal ones in ItemKind order.
+const std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = [] {
+	std::array<ItemKind, WEAPON_KIND_COUNT> grades{};
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		grades[static_cast<size_t>(i)] = itemAt(i);
+	std::stable_sort(grades.begin(), grades.end(),
+					 [](ItemKind a, ItemKind b) { return weaponDef(a).damage < weaponDef(b).damage; });
+	return grades;
+}();
 
 int weaponGrade(ItemKind kind) {
 	for (size_t grade = 0; grade < WEAPON_GRADES.size(); grade++)
@@ -88,8 +93,14 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, 
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 	if (rng.percent(50))
 		return pickOwned(owned, WEAPON_KIND_COUNT, rng).value_or(ItemKind::Club);
-	// Not the antidote: it lies only in the chests of the levels with poisoners.
-	return itemAt(WEAPON_KIND_COUNT + rng.below(itemIndex(ItemKind::Antidote) - WEAPON_KIND_COUNT));
+	int count = 0;
+	for (int i = WEAPON_KIND_COUNT; i < FIRST_AMULET; i++)
+		count += potionDef(itemAt(i)).mimicLoot ? 1 : 0;
+	int pick = rng.below(count);
+	for (int i = WEAPON_KIND_COUNT; i < FIRST_AMULET; i++)
+		if (potionDef(itemAt(i)).mimicLoot && pick-- == 0)
+			return itemAt(i);
+	return ItemKind::SmallHealth;
 }
 
 std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng) {

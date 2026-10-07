@@ -21,7 +21,13 @@ Status: draft 2026-10-07. Split off [architecture-review.md](solved/architecture
   glyph, threat, stats, model, attack mix, resistances, wading, poison, spit, charge, boss summons (with the hatch
   nest), levelgen weights. `MonsterType` (the game's) is the row plus the loaded model. The mimic, mummy and crocodile
   checks read the locomotion; the decor scatter reads the boss table itself (no `CoffinBoss` callback).
-* Items and tiles: open.
+* **Items: done.** One `ItemDef` row per weapon and potion in `ITEMS` (`world/items.cpp`): file id, texts, and a
+  weapon part (model, scale, damage, reach, mix, growth, motion, sounds, missile, thrown, levelgen depth) or a potion
+  part (gain, colour, journal note, levelgen weight, mimic loot). The loot grades are derived from the damage; the
+  amulet types got their model name. `ITEM_KIND_COUNT` / `WEAPON_KIND_COUNT` come from the enum. Left as they are:
+  `OLD_SLOTS` (a frozen old save format), the HUD icon atlas in `ItemKind` order (`tools/textures/hud_icons.py`),
+  the missile models (per `MissileKind`, not per item).
+* Tiles: open.
 
 ## Today (before the monsters were done)
 

@@ -78,23 +78,7 @@ FieldNote damageNote(DamageType type) {
 	return FieldNote::Pierce;
 }
 
-FieldNote potionNote(ItemKind potion) {
-	switch (potion) {
-	case ItemKind::SmallStamina:
-	case ItemKind::LargeStamina:
-		return FieldNote::StaminaPotions;
-	case ItemKind::Might:
-		return FieldNote::Might;
-	case ItemKind::Armor:
-		return FieldNote::Armor;
-	case ItemKind::Life:
-		return FieldNote::Life;
-	case ItemKind::Antidote:
-		return FieldNote::Antidote;
-	default: // the health potions
-		return FieldNote::HealthPotions;
-	}
-}
+FieldNote potionNote(ItemKind potion) { return potionDef(potion).note; }
 
 void Journal::LearnNote(FieldNote note) {
 	if (std::find(notes.begin(), notes.end(), note) == notes.end())

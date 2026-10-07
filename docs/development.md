@@ -49,7 +49,7 @@ The world and the entities (`src/world/dungeon*`, `src/entities/`) have no `Game
 that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp`: its other files
 include no GL and no graphics header but `render_config.h`. Rules both sides need go in `src/world/dungeon_rules.h`.
 
-## Adding a tile type or a monster
+## Adding a tile type, a monster or an item
 
 The facts live in one table each; the compiler and the unit tests point at the rest.
 
@@ -60,6 +60,12 @@ The facts live in one table each; the compiler and the unit tests point at the r
 * **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/world/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, spit, boss summons, levelgen weights. Only the fields that differ
   from the defaults in `MonsterKind`.
+* **Weapon or potion:** a value in `ItemKind` at the end of its group (save slots go by that order) and a row in
+  `ITEMS` (`src/world/items.cpp`): file id, texts, and the weapon part (model, damage, reach, mix, growth, motion,
+  sounds, missile, levelgen depth) or the potion part (gain, colour, journal note, levelgen weight, mimic loot). A
+  weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
+* **Amulet type:** a value in `AmuletType`, its four `ItemKind` values and a row in `AMULET_TYPES`
+  (`src/world/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
 * Then the docs: the unit tests (`tests/unit/docs_test.cpp`) fail until `tools/editor/readme.md` and
   `docs/levels.md` list it.
@@ -80,7 +86,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 * `core/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
   `GameState`, created before the window.
 * `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
-  monster types). The monster rows are `KINDS` in `world/monster_kinds.cpp`; the weapons `WEAPON_DEFS` in `assets.cpp`.
+  monster types). The rows come from the level library: `KINDS` (`world/monster_kinds.cpp`), `ITEMS` (`world/items.cpp`).
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
   (`ShowStatus`), save / load.
 * `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`

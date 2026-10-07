@@ -13,7 +13,7 @@
 #include <cmath>
 
 namespace {
-// The held bow is drawn 12 units tall for its 1.2 m (WEAPON_DEFS in assets.cpp, items.py); arrow.md3 is in metres.
+// The held bow is drawn 12 units tall for its 1.2 m (ITEMS in world/items.cpp, items.py); arrow.md3 is in metres.
 constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;

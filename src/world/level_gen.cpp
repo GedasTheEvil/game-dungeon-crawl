@@ -292,28 +292,37 @@ class LevelBuilder {
 
 	Tile randomChest() {
 		int roll = rng.range(0, 99);
-		if (roll < 62) {
-			// small health, large health, might, armour, life, small stamina, large stamina, antidote (the potion
-			// ids). No antidote: generated levels have no poisoners.
-			static const int WEIGHTS[POTION_KIND_COUNT] = {30, 15, 10, 10, 5, 20, 10, 0};
+		if (roll < 62) { // a potion by its weight (PotionDef::generatedWeight)
 			int pick = rng.range(0, 99);
-			int id = 0;
-			while (pick >= WEIGHTS[id]) {
-				pick -= WEIGHTS[id];
-				id++;
+			int i = WEAPON_KIND_COUNT;
+			while (i < FIRST_AMULET - 1 && pick >= potionDef(itemAt(i)).generatedWeight) {
+				pick -= potionDef(itemAt(i)).generatedWeight;
+				i++;
 			}
-			return Tile{Treasure, ItemType::POTION, id};
+			return chestOf(itemAt(i));
 		}
-		// The weapons come in by depth, like in the campaign (file ids, items.cpp): the deeper, the more kinds.
-		if (roll < 88) {
-			static const int MELEE[] = {0, 3, 1, 2,
-										4, 5, 6, 7}; // club, dagger, short sword, spear, khopesh, the axes, mace
-			const int kinds = d >= 7 ? 8 : d >= 5 ? 5 : d >= 3 ? 4 : 2;
-			return Tile{Treasure, ItemType::MELEE_WEAPON, MELEE[rng.range(0, kinds - 1)]};
-		}
-		static const int RANGED[] = {0, 2, 3, 4, 1}; // self-bow, sling, throwing stick, javelin, composite bow
-		const int kinds = d >= 7 ? 5 : d >= 4 ? 4 : 2;
-		return Tile{Treasure, ItemType::RANGED_WEAPON, RANGED[rng.range(0, kinds - 1)]};
+		// The weapons come in by depth, like in the campaign (WeaponDef::generatedFrom): the deeper, the more kinds.
+		return chestOf(randomWeapon(roll < 88));
+	}
+
+	[[nodiscard]] ItemKind randomWeapon(bool melee) {
+		auto allowed = [this, melee](int i) {
+			const ItemKind kind = itemAt(i);
+			return isRanged(kind) != melee && weaponDef(kind).generatedFrom <= d;
+		};
+		int kinds = 0;
+		for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+			kinds += allowed(i) ? 1 : 0;
+		int pick = rng.range(0, kinds - 1);
+		for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+			if (allowed(i) && pick-- == 0)
+				return itemAt(i);
+		return ItemKind::Club;
+	}
+
+	static Tile chestOf(ItemKind kind) {
+		const ItemFileId file = fileIdOf(kind);
+		return Tile{Treasure, file.type, file.id};
 	}
 
 	// Weak monsters give way to their giant kin deeper down (MonsterKind::generated).

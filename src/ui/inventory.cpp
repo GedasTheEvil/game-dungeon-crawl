@@ -70,18 +70,10 @@ ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
 int positionOf(const ItemBag& bag, int slot) { return tabPosition(bag, kindOf(slot)); }
 ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
 
-constexpr std::array<Color, POTION_KIND_COUNT> POTION_COLORS = {{
-	{1.f, 0.f, 0.f},	   // small health
-	{0.7f, 0.f, 0.3f},	   // large health
-	{0.4f, 0.f, 0.6f},	   // might
-	{1.f, 0.6f, 0.f},	   // armor
-	{0.7f, 0.6f, 0.3f},	   // life
-	{0.45f, 0.85f, 0.25f}, // small stamina: green faience
-	{0.15f, 0.78f, 0.72f}, // large stamina: turquoise
-	{0.05f, 0.45f, 0.2f},  // antidote: dark malachite
-}};
-
-Color potionColor(ItemKind potion) { return POTION_COLORS[static_cast<size_t>(itemIndex(potion) - WEAPON_KIND_COUNT)]; }
+Color potionColor(ItemKind potion) {
+	const Rgb c = potionDef(potion).colour;
+	return {c.r, c.g, c.b};
+}
 
 Vitals playerVitals() {
 	const PlayerStats& s = Game().player->stats;

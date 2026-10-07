@@ -22,7 +22,7 @@ the throwing stick and the javelin fly as models in metres too: the stone is its
 fly as their held models (the engine loads those twice, once centred for the hand).
 
 Textures: one 512 PNG per item (textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
-light, the engine lights them). The potion is drawn tinted with the potion colour (inventory POTION_COLORS), so its
+light, the engine lights them). The potion is drawn tinted with the potion colour (PotionDef::colour, src/world/items.cpp), so its
 texture stays light and nearly grey: glass, liquid, cork and cord differ in brightness only.
 """
 

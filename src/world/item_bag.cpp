@@ -33,55 +33,11 @@ bool restoresStamina(ItemKind kind) { return kind == ItemKind::SmallStamina || k
 
 int upgradeCost(int level) { return 1 + level * (level + 1) / 2; }
 
-int weaponGrowthPercent(ItemKind weapon) {
-	switch (weapon) {
-	case ItemKind::Club:
-		return 40;
-	case ItemKind::ShortSword:
-		return 10;
-	case ItemKind::Dagger:
-		return 30;
-	default:
-		return 20;
-	}
-}
+int weaponGrowthPercent(ItemKind weapon) { return weaponDef(weapon).growthPercent; }
 
 int weaponDamage(ItemKind weapon, int baseDamage, int level) {
 	const int percent = 100 + weaponGrowthPercent(weapon) * (level - 1);
 	return static_cast<int>(std::lround(static_cast<double>(baseDamage) * percent / 100.0));
-}
-
-PotionGain potionGain(ItemKind potion) {
-	PotionGain gain;
-	switch (potion) {
-	case ItemKind::SmallHealth:
-		gain.healPercent = PotionEffect::SMALL_HEAL_PERCENT;
-		break;
-	case ItemKind::LargeHealth:
-		gain.healPercent = PotionEffect::LARGE_HEAL_PERCENT;
-		break;
-	case ItemKind::Might:
-		gain.might = PotionEffect::MIGHT;
-		break;
-	case ItemKind::Armor:
-		gain.armor = PotionEffect::ARMOR;
-		break;
-	case ItemKind::Life:
-		gain.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT;
-		break;
-	case ItemKind::SmallStamina:
-		gain.staminaPercent = PotionEffect::SMALL_STAMINA_PERCENT;
-		break;
-	case ItemKind::LargeStamina:
-		gain.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT;
-		break;
-	case ItemKind::Antidote:
-		gain.cure = true;
-		break;
-	default: // the weapons
-		break;
-	}
-	return gain;
 }
 
 void ItemBag::Reset() {

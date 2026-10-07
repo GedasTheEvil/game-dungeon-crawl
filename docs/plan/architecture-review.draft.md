@@ -29,12 +29,44 @@ Largest files: `test/scenario.cpp` (~1180), `ui/journal_view.cpp` (~1070), `ui/m
   the checker all live there. Split it?
 * Dependencies: which way do they point? Does `world/` know about `ui/` or `graphics/`? Draw the include graph.
 * Large files: split `journal_view`, `menu`, `inventory`, `scenario` by sub-screen or command?
-* Data vs code: monster, weapon, item and boss stats hard-coded or in tables? With more content coming
-  ([more-bosses](more-bosses.draft.md), [egyptian-weapons](egyptian-weapons.draft.md),
-  [amulets](amulets.draft.md)), would data tables pay off?
+* Data in code vs data files: see [Item and monster data](#item-and-monster-data).
 * Per-kind `switch`es spread over many files: adding one monster or item kind touches how many places?
 * Game state: one owner, or spread over globals/singletons?
 * Tests: what is unit-testable without a window? What only runs as a scenario?
+
+## Item and monster data
+
+Question (2026-10-07): item labels, texts and stats live in the source. Move them to JSON or a similar file?
+
+Today: already table-driven, as `constexpr std::array`s indexed by kind. One item's data is spread over several
+tables in several files, though:
+
+* `world/items.cpp`: `FILE_IDS` and `TEXTS`
+* `world/loot.cpp`: `WEAPON_GRADES`
+* `ui/inventory.cpp`: `POTION_COLORS`
+* `world/monster_kinds.cpp`, `world/tile_defs.cpp`, `world/damage.h`, `world/poison.h`: the same pattern
+* weapon stats and timers: somewhere else again
+
+So the problem is mostly the **scatter**, not the format.
+
+| | Tables in code (now) | JSON / data files |
+|---|---|---|
+| Checks | compiler: table size must match kind count | own validation at load: missing fields, typos, bad numbers |
+| Deps | none | parser lib (or hand-written; there is an INI parser for settings already) |
+| Edit loop | rebuild | edit and restart, no rebuild |
+| Behaviour | data and code side by side | data only; new behaviour still needs code, so a new kind touches both |
+| Translations | hard | easy (one file per language) |
+| Modding | no | yes |
+
+Leaning (to confirm in the review):
+
+* First step, whatever the format: **one record per kind** (`ItemDef`: name, short name, texts, file id, grade,
+  colour, stats) in one table instead of parallel arrays across files. Adding a kind then means one row.
+* Data files only pay off with a concrete need: translations, modding, or tuning balance without rebuilds
+  ([monster-balance](monster-balance.draft.md)). Without one, JSON brings a parser, load-time validation and
+  error handling for little gain.
+* If done: texts first (pure data, no behaviour). Keep enums for kinds in code, load by string id. The level checker
+  (or a new check) validates the data files.
 
 ## Output
 

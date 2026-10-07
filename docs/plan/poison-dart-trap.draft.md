@@ -27,8 +27,8 @@ Monsters get a weight, and the plate goes off only under a heavy one.
 * The plate goes off at weight 2 and above. The player sets it off too, so the player counts as at least 2.
 * Other traps later may use the same tiers with their own threshold.
 * Does the plate count as a trap for the cowards' fear (they stop at its edge), or is it hidden from them?
-* Damage and poison on a monster: monsters cannot be poisoned yet. The venom amulet needs the same
-  ([venom-amulet](venom-amulet.draft.md)); build monster poison once for both, or the arrows only hurt monsters.
+* Poison on a monster: **depends on** [monster-poison](monster-poison.draft.md) (shared with the venom amulet).
+  Without it the arrows only hurt monsters.
 * The player's luring a mummy over the plate: a feature to keep.
 
 ## Open

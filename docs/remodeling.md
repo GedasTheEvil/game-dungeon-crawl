@@ -207,12 +207,12 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
-  `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_decor.cpp`; keep them in sync with the geometry in `decor.py`.
+  `LAMP_FIRE`, `TORCH_FIRE` in `src/world/dungeon_render_decor.cpp`; keep them in sync with the geometry in `decor.py`.
 * `tools/audio/weapon_sounds.py` - synthesizes `sounds/items/`: a swing and a hit per melee weapon (`<weapon>_swing`,
   `<weapon>_hit`, shared by the weapons alike: `axe_hit`, `mace_hit`), the bow's draw and release, the sling's whirl and
   release, a throw, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`), a stone or stick on a body or off a wall
   (`stone_hit`, `stone_wall`). Wired in `WEAPON_DEFS` (`src/state/assets.cpp`) and `MISSILE_RULES`
-  (`src/world/dungeon_arrows.cpp`); a melee hit sound plays only when the swing hits a monster.
+  (`src/world/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `tools/audio/amulet_sound.py` - synthesizes `sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 * `build/model-viewer <file.md3> [seconds] [options]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.

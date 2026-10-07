@@ -8,7 +8,6 @@
 #include "../core/gameplay_config.h"
 #include "../graphics/render_config.h"
 #include "../core/logger.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>

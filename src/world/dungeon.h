@@ -87,7 +87,7 @@ class Dungeon {
 	[[nodiscard]] float waterSink(float x, int row) const;
 	[[nodiscard]] bool dryOpen(int col, int row) const; // walkable and not water: a basin's edge
 	Tile Map(float x, float y) const;
-	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp).
+	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
 	struct Motion {
 		int cell;	 // map index
 		int startMs; // GameClock time the motion began

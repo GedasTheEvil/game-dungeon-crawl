@@ -8,10 +8,6 @@
 #include "rng.h"
 #include "world_events.h"
 #include "../core/gameplay_config.h"
-#include "../graphics/fire.h"
-#include "../graphics/render_config.h"
-#include "../graphics/lighting.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 
@@ -87,55 +83,6 @@ void Dungeon::updateBoss() {
 	bossFight.nextSummonMs = now + rules.summonMs;
 	if (bossFight.summoned < rules.summonCap && LivingMinions() < rules.maxAlive && summonMinion(boss))
 		bossFight.summoned++;
-}
-//======================================================================================
-// Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.
-// Same window and frame as drawMechanismEffects.
-void Dungeon::drawSummonEffects() {
-	const int now = GameClock::now();
-	for (const Monster& mon : monsters) {
-		const int age = now - mon.SummonedMs();
-		if (!mon.Active() || mon.SummonedMs() < 0 || mon.SummonedBy() == Summon::Coffin || age >= Grit::BURST_MS)
-			continue;
-		const float x = (mon.CentreX() - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
-		const bool drop = mon.SummonedBy() == Summon::Drop;
-		const float y = static_cast<float>(mon.Row() - view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
-		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));
-	}
-	holes.erase(
-		std::remove_if(holes.begin(), holes.end(), [now](const Hole& h) { return now - h.startMs >= BURROW_HOLE_MS; }),
-		holes.end());
-	for (const Hole& h : holes) {
-		const float x = (h.x - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
-		const float y = static_cast<float>(h.row - view().originRow) * RenderConfig::TILE_SIZE;
-		const int age = now - h.startMs;
-		if (age < Grit::BURST_MS)
-			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, false,
-						static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(h.row));
-		drawHole(x, y + 0.3f, RenderConfig::MONSTER_DEPTH,
-				 1.f - static_cast<float>(age) / static_cast<float>(BURROW_HOLE_MS));
-	}
-}
-//======================================================================================
-// A dark pit in the floor, fading out (fade 1..0): a flat disc round (x, y, z), wider along the row.
-void Dungeon::drawHole(float x, float y, float z, float fade) const {
-	constexpr float RX = 16.f, RZ = 7.f; // world units
-	constexpr int SIDES = 20;
-	sim.assets->textures.nullTex.Bind();
-	Lighting::setEmissive(true);
-	glEnable(GL_BLEND);
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(0.02f, 0.01f, 0.f, 0.9f * fade);
-	glVertex3f(x, y, z);
-	glColor4f(0.1f, 0.07f, 0.03f, 0.f);
-	for (int i = 0; i <= SIDES; i++) {
-		const float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SIDES;
-		glVertex3f(x + RX * std::cos(a), y, z + RZ * std::sin(a));
-	}
-	glEnd();
-	glDisable(GL_BLEND);
-	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
 }
 //======================================================================================
 // Next to the boss on its row, on the side away from the player (never behind them): the nearest cell a minion can

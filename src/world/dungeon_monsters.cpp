@@ -5,14 +5,11 @@
 #include "journal.h"
 #include "rng.h"
 #include "world_events.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include "../graphics/render_config.h"
 #include "../core/gameplay_config.h"
 #include "loot.h"
-#include "../graphics/lighting.h"
 
 bool Dungeon::walkerBlocked(int col, int row, bool reckless) const {
 	if (!IsInBounds(col, row))
@@ -230,24 +227,6 @@ void Dungeon::AnimateMonsters() {
 	for (Monster& mon : monsters)
 		if (mon.Active())
 			mon.Animate(mapX, mapY);
-}
-//======================================================================================
-// Called in Draw() with the frame origin at the view's first column (ViewWindow::firstCol).
-// A monster beyond the gameplay window but in the drawn one (a wide window) is drawn too.
-void Dungeon::DrawMonsters(const CellRect& drawn) {
-	const int firstCol = view().firstCol();
-	const int firstRow = view().originRow;
-	for (Monster& mon : monsters) {
-		if (!mon.Active() || !drawn.contains(mon.CentreX(), mon.Row()))
-			continue;
-
-		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
-					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
-		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		mon.Draw(sim.assets->textures);
-		glPopMatrix();
-	}
 }
 //======================================================================================
 bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir) {

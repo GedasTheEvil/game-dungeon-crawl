@@ -522,7 +522,7 @@ def build_lamp(b, M):
     revolve(b, M, jug, ["clay", "clay", "clay_band", "clay", "clay", "clay", "clay", "clay_in", "clay_in"], n=14, loc=(-0.005, -0.045, 0))
 
 
-# Tip of the torch head (fire origin in the engine: TORCH_FIRE in src/world/dungeon_decor.cpp).
+# Tip of the torch head (fire origin in the engine: TORCH_FIRE in src/world/dungeon_render_decor.cpp).
 TORCH_TILT = 10.0  # degrees, top leans out of the wall (towards -Y)
 TORCH_BASE, TORCH_TOP = V((0.0, -0.045, 0.40)), V((0.0, -0.085, 0.63))
 

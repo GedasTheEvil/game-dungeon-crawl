@@ -1,4 +1,5 @@
 #include "dungeon.h"
+#include "dungeon_rules.h"
 #include "../state/assets.h"
 #include "../entities/player.h"
 #include "item_bag.h"
@@ -6,40 +7,13 @@
 #include "rng.h"
 #include "world_events.h"
 #include "../core/gameplay_config.h"
-#include "../graphics/ink.h"
 #include "../graphics/render_config.h"
-#include "../graphics/lighting.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 
 namespace {
 constexpr float ARROW_LAUNCH_AHEAD = 0.1f; // tiles in front of the player's centre: the bow
 constexpr float ARROW_STEP_S = 0.005f;	   // hit test interval along the flight
-// The held bow is drawn 12 units tall for its 1.2 m (WEAPON_DEFS in assets.cpp, items.py); arrow.md3 is in metres.
-constexpr float ARROW_WORLD_PER_METRE = 10.f;
-constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
-constexpr float RAD_TO_DEG = 57.29578f;
-constexpr float PI = 3.14159265f;
-constexpr int STICK_RETURN_MS = 400; // the throwing stick flies back to the hand, a look only
-
-// How each missile flies (MissileKind order). Arc: a share of the arrow's (a flat sling shot, a lobbed stick). Spin
-// in degrees a second, drawn round its middle; a missile that does not spin is drawn tip first along its flight.
-struct MissileRules {
-	float arc;
-	float spinDegPerS;
-	bool sticks;  // stays in a wall or the floor for a while (ARROW_STUCK_MS); else gone at once
-	bool returns; // flies back to the player after a hit or a wall
-	float scale;  // drawn this many times its size in metres (the stone would be a speck)
-	WorldSound hit, wall;
-};
-constexpr MissileRules MISSILE_RULES[MISSILE_KIND_COUNT] = {
-	{1.f, 0.f, true, false, 1.f, WorldSound::ArrowHit, WorldSound::ArrowWall},	   // arrow
-	{0.35f, 0.f, false, false, 2.5f, WorldSound::StoneHit, WorldSound::StoneWall}, // sling stone
-	{0.6f, 900.f, false, true, 1.2f, WorldSound::StoneHit, WorldSound::StoneWall}, // throwing stick
-	{1.f, 0.f, true, false, 1.f, WorldSound::ArrowHit, WorldSound::ArrowWall},	   // javelin
-};
-const MissileRules& rulesOf(MissileKind kind) { return MISSILE_RULES[static_cast<size_t>(kind)]; }
 } // namespace
 
 float Dungeon::Missile::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
@@ -162,41 +136,6 @@ void Dungeon::updateMissiles() {
 	}
 }
 //======================================================================================
-void Dungeon::drawMissiles() {
-	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
-	const auto firstRow = static_cast<float>(view().originRow);
-	const int now = GameClock::now();
-	for (const Missile& a : missiles) {
-		AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(a.kind)].get();
-		if (!model)
-			continue;
-		const MissileRules& rules = rulesOf(a.kind);
-		const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale() * rules.scale;
-		const auto [low, high] = model->YRange(0);
-		float x = a.X(), y = a.Y();
-		if (rules.returns && a.stuckMs >= 0) { // back to the player's hand
-			const float k = std::min(1.f, static_cast<float>(now - a.stuckMs) / static_cast<float>(STICK_RETURN_MS));
-			const float handY = mapY + 0.5f * sim.player->Height();
-			x = a.endX + (mapX - a.endX) * k;
-			y = a.endY + (handY - a.endY) * k;
-		}
-		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow), ARROW_DEPTH);
-		if (rules.spinDegPerS > 0.f) { // round its middle
-			const float turned = rules.spinDegPerS * static_cast<float>(now - a.startMs) / 1000.f;
-			glRotatef(a.vx > 0.f ? -turned : turned, 0, 0, 1);
-			glTranslatef(0, -(low + high) / 2.f * scale, 0);
-		} else { // the model points up (+y), the tip at the flight position
-			const float heading = std::atan2(a.vy - ARROW_GRAVITY * a.t, a.vx) * RAD_TO_DEG;
-			glRotatef(heading - 90.f, 0, 0, 1);
-			glTranslatef(0, -high * scale, 0);
-		}
-		glScalef(scale, scale, scale);
-		model->Show();
-		glPopMatrix();
-	}
-}
-//======================================================================================
 bool Dungeon::clearRow(float fromX, float toX, int row) const {
 	const int dir = toX > fromX ? 1 : -1;
 	for (auto col = static_cast<int>(std::floor(fromX)); col != static_cast<int>(std::floor(toX)) + dir; col += dir)
@@ -252,50 +191,4 @@ void Dungeon::updateVenoms() {
 		}
 		it = gone ? venoms.erase(it) : it + 1;
 	}
-}
-//======================================================================================
-// A glob of venom: a small green ball stretched along its flight; on a wall or the floor a flattening splat.
-void Dungeon::drawVenoms() {
-	if (venoms.empty())
-		return;
-	constexpr float RADIUS = 1.6f; // world units
-	constexpr int SLICES = 8, STACKS = 6;
-	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
-	const auto firstRow = static_cast<float>(view().originRow);
-	const int now = GameClock::now();
-	sim.assets->textures.nullTex.Bind(); // texture x colour: plain colour
-	glEnable(GL_BLEND);
-	Lighting::setEmissive(true);
-	for (const Venom& v : venoms) {
-		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
-		if (v.splatMs >= 0) {
-			const float k = std::min(static_cast<float>(now - v.splatMs) / static_cast<float>(VENOM_SPLAT_MS), 1.f);
-			stretch = 1.f + 1.5f * k;
-			squash = 1.f - 0.7f * k;
-			alpha *= 1.f - k;
-		}
-		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (v.x - firstCol), RenderConfig::TILE_SIZE * (v.y - firstRow),
-					 ARROW_DEPTH);
-		glRotatef(std::atan2(v.vy, v.vx) * RAD_TO_DEG, 0, 0, 1);
-		glScalef(RADIUS * stretch, RADIUS * squash, RADIUS);
-		glColor4f(0.45f, 0.75f, 0.15f, alpha);
-		for (int i = 0; i < STACKS; i++) {
-			const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
-			glBegin(GL_TRIANGLE_STRIP);
-			for (int j = 0; j <= SLICES; j++) {
-				const float b = 2 * PI * static_cast<float>(j) / SLICES;
-				for (float a : {a0, a1}) {
-					const float nx = std::cos(a) * std::cos(b), ny = std::cos(a) * std::sin(b), nz = std::sin(a);
-					glNormal3f(nz, ny, nx);
-					glVertex3f(nz, ny, nx); // the poles along x, the flight
-				}
-			}
-			glEnd();
-		}
-		glPopMatrix();
-	}
-	Lighting::setEmissive(false);
-	glDisable(GL_BLEND);
-	glColor3f(1, 1, 1);
 }

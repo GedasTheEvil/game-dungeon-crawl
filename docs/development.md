@@ -45,6 +45,10 @@ No library uses SDL or `Game()`, and a library file only includes headers of its
 (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
 `BASE_LIB_SOURCES`, `LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file to `LEVEL_LIB_HEADERS`).
 
+The world and the entities (`src/world/dungeon*`, `src/entities/`) have no `Game()` and no screens; `make layers` checks
+that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp`: its other files
+include no GL and no graphics header but `render_config.h`. Rules both sides need go in `src/world/dungeon_rules.h`.
+
 ## Adding a tile type or a monster
 
 The facts live in one table each; the compiler and the unit tests point at the rest.

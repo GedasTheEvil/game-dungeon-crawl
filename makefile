@@ -27,8 +27,9 @@ RENDER_LIB_SOURCES=src/core/logger.cpp src/graphics/textures.cpp src/graphics/fo
 	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp
 BASE_LIB=$(BUILD)/libbase.a
 LEVEL_LIB=$(BUILD)/liblevel.a
-# The world and the entities: no Game(), no screens (tools/check_sim.sh, make layers).
-SIM_FILES=$(wildcard src/world/dungeon*.cpp src/world/dungeon.h src/world/sim_links.h src/entities/*.cpp src/entities/*.h)
+# The world and the entities: no Game(), no screens; the dungeon's drawing only in dungeon_render*.cpp (tools/check_sim.sh,
+# make layers).
+SIM_FILES=$(wildcard src/world/dungeon*.cpp src/world/dungeon*.h src/world/sim_links.h src/entities/*.cpp src/entities/*.h)
 RENDER_LIB=$(BUILD)/librender.a
 BASE_LIB_OBJECTS=$(BASE_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)

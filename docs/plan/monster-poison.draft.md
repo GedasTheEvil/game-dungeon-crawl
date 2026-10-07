@@ -22,7 +22,7 @@ Used by:
 * A field in the monster row: `MonsterKind::poisonResistPercent` (`src/world/monster_kinds.cpp`), default 0.
 * 100% (immune): the mummy, the Anubis guard, the Anubis boss, the plant, the mimic.
 * A boss resists at least as well as its common kin (the Anubis boss as the guard, the scorpion queen as the
-  scorpions, ...): never less. See [boss resistances](monster-balance.draft.md#boss-resistances).
+  scorpions, ...): never less. See [boss resistances](boss-resistances.md).
 
 ## Open
 

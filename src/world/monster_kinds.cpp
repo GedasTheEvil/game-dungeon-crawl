@@ -22,19 +22,25 @@ constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 
 // How each group takes blunt, slash and pierce damage (docs/plan/solved/damage-types-and-resistances.md). Each weapon
 // is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants and
-// mummies, the spear (and the bow) against scarabs and the Anubis boss.
+// mummies, the spear (and the bow) against scarabs. A boss has no weak spot (bossResist).
 constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL};   // soft: a blow squashes, a blade cuts
 constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK}; // the shell turns a blade, a point goes between plates
 constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH};	   // stems: only a blade cuts; points and blows go astray
 constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH};	   // swat it; an arrow goes through the wing
 constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH};   // wood: crack it; a point only sticks in it
 constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL}; // bronze armour dents, a blade glances off it
-constexpr Resistances ANUBIS_BOSS_RESIST = {NORMAL, RESISTS, WEAK}; // armoured too well to dent, but open at the joints
-constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH};		// dry linen tears; nothing inside to stab
+constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH};   // dry linen tears; nothing inside to stab
 constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL}; // the scutes turn a blade
 constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS};	// a blow cracks the thin shell; a point glances off
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
+
+// A boss has no weakness: where its kin is weak, it takes the damage normally.
+constexpr Resistances bossResist(Resistances kin) {
+	for (int& rate : kin)
+		rate = rate > NORMAL ? NORMAL : rate;
+	return kin;
+}
 
 // By MonsterTypeId, from 1. Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take
 // long to kill. Flyers roost on the ceiling and swoop through the player (Monster::Fly). The boss summons are starting
@@ -263,8 +269,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 900,
 	 .xp = 6000,
 	 .attackMix = SCARAB_MIX,
-	 .resist = SCARAB_RESIST,
+	 .resist = bossResist(SCARAB_RESIST),
 	 .locomotion = Locomotion::WalkJump,
+	 .kin = MonsterScarab,
 	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.
 	{.id = MonsterVampireBat,
@@ -285,8 +292,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 800,
 	 .xp = 12000,
 	 .attackMix = BAT_MIX,
-	 .resist = BAT_RESIST,
+	 .resist = bossResist(BAT_RESIST),
 	 .locomotion = Locomotion::Fly,
+	 .kin = MonsterBat,
 	 .boss = {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
 	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (docs/plan/solved/boss-rooms.md).
 	{.id = MonsterMummy,
@@ -331,11 +339,12 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1300,
 	 .xp = 30000,
 	 .attackMix = ANUBIS_MIX,
-	 .resist = ANUBIS_BOSS_RESIST,
+	 .resist = bossResist(ANUBIS_RESIST),
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .kin = MonsterAnubis,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
 	// outwalks it), in the water faster than the player walks on land. Levels 7-9
@@ -488,10 +497,11 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1100,
 	 .xp = 15000,
 	 .attackMix = SCORPION_MIX,
-	 .resist = SCORPION_RESIST, // the club cracks her shell
+	 .resist = bossResist(SCORPION_RESIST),
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .poison = PoisonTier::Strong,
+	 .kin = MonsterScorpion,
 	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster}},
 	// The lvl20 boss on the cobra model, long as the hall (docs/plan/apep-serpent-boss.md).
 	{.id = MonsterApep,
@@ -512,12 +522,13 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1200,
 	 .xp = 20000,
 	 .attackMix = COBRA_MIX,
-	 .resist = COBRA_RESIST,
+	 .resist = bossResist(COBRA_RESIST),
 	 .locomotion = Locomotion::Burrow,
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
+	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
 	// The lvl25 boss on the crocodile model (docs/plan/sobek-boss.md).
 	{.id = MonsterSobek,
@@ -537,13 +548,14 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1300,
 	 .xp = 25000,
 	 .attackMix = CROCODILE_MIX,
-	 .resist = CROCODILE_RESIST,
+	 .resist = bossResist(CROCODILE_RESIST),
 	 .locomotion = Locomotion::Submerged,
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f,
 	 .charges = true,
+	 .kin = MonsterCrocodile,
 	 .boss = {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
 }};
 
@@ -555,10 +567,16 @@ constexpr bool validKinds() {
 		if (kind.boss.minion < 0 || kind.boss.minion > MONSTER_TYPE_MAX ||
 			(kind.boss.summon == Summon::Hatch) != (kind.boss.nest != 0))
 			return false;
+		if (kind.isBoss() != (kind.kin != 0) || kind.kin < 0 || kind.kin > MONSTER_TYPE_MAX)
+			return false;
+		for (size_t t = 0; kind.isBoss() && t < kind.resist.size(); t++)
+			if (kind.resist[t] > NORMAL || kind.resist[t] > KINDS[static_cast<size_t>(kind.kin - 1)].resist[t])
+				return false;
 	}
 	return true;
 }
-static_assert(validKinds(), "KINDS: one row per MonsterTypeId in order, attack mixes of 100%, hatchers with a nest");
+static_assert(validKinds(), "KINDS: one row per MonsterTypeId in order, attack mixes of 100%, hatchers with a nest, "
+							"bosses with a kin, no weakness and no resistance worse than the kin's");
 } // namespace
 
 const MonsterKind* monsterKind(int type) {

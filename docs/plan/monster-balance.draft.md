@@ -109,33 +109,7 @@ XP follows the new threat.
 
 ## Boss resistances
 
-From the user (2026-10-07): a boss is always stronger than its common kin.
-
-* A boss has no weakness. Where its kin is weak (`WEAK`) to a damage type, the boss takes it normally (`NORMAL`).
-* A boss never resists worse than its kin, for any damage type or poison
-  ([monster-poison](monster-poison.draft.md)): only the same or better.
-* Kin: boss scarab - scarab, vampire bat - bat, Anubis boss - Anubis guard, scorpion queen - scorpion, Apep - cobra,
-  Sobek - crocodile.
-
-Today (`KINDS`, `src/world/monster_kinds.cpp`; blunt, slash, pierce) these break it:
-
-| Boss | Today | Kin | Fix |
-|---|---|---|---|
-| Boss scarab | NORMAL, RESISTS, WEAK | scarab: same | pierce WEAK -> NORMAL |
-| Vampire bat | WEAK, RESISTS, TOUGH | bat: same | blunt WEAK -> NORMAL |
-| Anubis boss | NORMAL, RESISTS, WEAK | guard: WEAK, RESISTS, NORMAL | pierce WEAK -> NORMAL |
-| Scorpion queen | WEAK, NORMAL, RESISTS | scorpion: same | blunt WEAK -> NORMAL |
-| Apep | RESISTS, WEAK, NORMAL | cobra: same | slash WEAK -> NORMAL |
-| Sobek | NORMAL, RESISTS, NORMAL | crocodile: same | fine |
-
-* The Anubis boss: blunt stays NORMAL (the guard is weak to it, the boss is not), pierce goes to NORMAL.
-* Each boss fight then has no best weapon, only worse ones. Check the fights still feel fair (HP may need to come
-  down a little, as a weak spot doubled the damage).
-* Enforce it in code: a `static_assert` in `monster_kinds.cpp` (no `WEAK` on a boss; each resistance at most its
-  kin's), the kin taken from `boss.minion` where that is the kin (all but the Anubis boss, whose minion is the
-  mummy), or a `kin` field.
-* The journal's creature pages and the hint texts that name a boss's best weapon ("the club cracks her shell") change
-  with it.
+Split off to [boss-resistances](boss-resistances.md) (done): no boss has a weakness. Boss HP is left as it is for now.
 
 ## Open questions
 

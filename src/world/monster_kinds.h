@@ -115,6 +115,9 @@ struct MonsterKind { // NOLINT(clang-analyzer-optin.performance.Padding): a tabl
 	std::optional<PoisonTier> poison = std::nullopt; // its bite or sting poisons the player
 	std::optional<SpitRules> spit = std::nullopt;	 // it spits venom from afar
 	bool charges = false;							 // it charges along its row (Charge)
+	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
+	// type at least as well as its kin (docs/plan/boss-resistances.md).
+	int kin = 0;
 	BossRules boss{};	 // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters
 

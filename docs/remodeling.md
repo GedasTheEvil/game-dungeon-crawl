@@ -121,9 +121,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table in
-  `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name).
-  In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (`tests/levels/statues29063`, whose
-  file name puts one of each in its first cells).
+  `src/world/dungeon_decor.cpp`). Placement: `Dungeon::scatterDecorations` (30% of walkable empty floor cells, seeded by the level file name), from the
+  decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
+  In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (puts them with the
+  scenario's `prop` command); of the tiers: `tests/scenarios/decor_depth.txt`.
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
   interior x +-0.30, y -0.22..-0.06, inner floor z 0.012, walls 0.016 thick, rim z 0.08, headrest and wedjat eyes at the head end (-X),
   lid leaning against the wall behind, torn wrappings over the front rim. `mummy.py` `COFFIN` uses the same numbers.
@@ -178,7 +179,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   over paint, slabs over stone, rough rock), `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
   `src/world/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
   order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `Dungeon::scatterSurfaces` (per row
-  of open cells: rough rock, more often deeper down, or dressed stone cut into painted / bare stretches). In-game check:
+  of open cells: rough rock, or dressed stone cut into painted / bare stretches; all rough in the cave tier, less and
+  less deeper down, `ROUGH_PERCENT` / `PAINTED_PERCENT` in `decor.h`). In-game check:
   `make test SCENARIO=tests/scenarios/surfaces.txt`.
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).

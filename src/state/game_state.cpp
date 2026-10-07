@@ -256,7 +256,7 @@ void GameState::LoadSave(const char filename[]) {
 	LOG_INFO("game", "Done loading Inventory");
 	dungeon.LoadDump(dump);
 	journal.Load(dump);
-	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str());
+	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str(), levelNumber);
 	LOG_INFO("game", "Done loading map");
 	dump.close();
 	PlayerHud::reset();

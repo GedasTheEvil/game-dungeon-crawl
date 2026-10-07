@@ -99,6 +99,7 @@ enum class Field : unsigned char {
 	Boss,
 	Minions,
 	Attacking,
+	DecorTier,
 	Nearest,
 	Coffins,
 	JournalRiddles,
@@ -250,6 +251,8 @@ float fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.BossHealth());
 	case Field::Minions:
 		return static_cast<float>(Game().dungeon.LivingMinions());
+	case Field::DecorTier:
+		return static_cast<float>(Game().dungeon.DecorTierUsed());
 	case Field::Attacking: // a swing or a bow draw under way
 		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
 	case Field::Nearest:
@@ -431,6 +434,7 @@ bool parseField(const std::string& word, Field& field) {
 				  {"boss", Field::Boss},
 				  {"minions", Field::Minions},
 				  {"attacking", Field::Attacking},
+				  {"decor_tier", Field::DecorTier},
 				  {"nearest", Field::Nearest},
 				  {"coffins", Field::Coffins},
 				  {"chests", Field::Chests},
@@ -601,7 +605,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			!parseFloat(w[3], cmd.a))
 			return "usage: expect "
 				   "<x|y|hp|stamina|level|alive|won|might|armor|equip_type|equip_id|keys|xp|riddle|bars|boss|minions|"
-				   "attacking|"
+				   "attacking|decor_tier|"
 				   "coffins|"
 				   "<item><id>[.level]> "
 				   "<==|!=|<|<=|>|>=> <number>";
@@ -749,7 +753,7 @@ bool loadGeneratedLevel(const std::string& spec) {
 	GenResult result = generateLevel(options);
 	if (!result.ok)
 		return false;
-	Game().dungeon.LoadGrid(result.grid, spec.c_str());
+	Game().dungeon.LoadGrid(result.grid, spec.c_str(), genDecorDepth(difficulty));
 	return true;
 }
 

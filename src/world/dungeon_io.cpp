@@ -14,18 +14,18 @@
 #include <string>
 #include <vector>
 
-bool Dungeon::Load(const char* filename) {
+bool Dungeon::Load(const char* filename, int depth) {
 	LevelGrid grid;
 	std::string error = loadLevelFile(filename, grid);
 	if (!error.empty()) {
 		LOG_ERRORF("world", "Cannot load level %s: %s", filename, error.c_str());
 		return false;
 	}
-	LoadGrid(grid, filename);
+	LoadGrid(grid, filename, depth);
 	return true;
 }
 //======================================================================================
-void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
+void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
 	bool entranceFound = false;
@@ -44,12 +44,12 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName) {
 	clearMonsters();
 	resetPlayerMotion();
 	resetMechanisms();
-	scatterDecorations(levelName);
+	scatterDecorations(levelName, depth);
 }
 //======================================================================================
 bool Dungeon::LoadCampaignLevel(int number) {
 	levelNumber = number;
-	return Load(campaignLevelFile(number).c_str());
+	return Load(campaignLevelFile(number).c_str(), number);
 }
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {

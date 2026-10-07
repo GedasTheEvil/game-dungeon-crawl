@@ -74,8 +74,8 @@ class Dungeon {
 	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
-	void scatterDecals(uint32_t seed);
-	void scatterSurfaces(uint32_t seed);
+	void scatterDecals(uint32_t seed, int tier); // tier: decorTier of the level's depth (decor.h)
+	void scatterSurfaces(uint32_t seed, int tier);
 	void scatterTorches(uint32_t seed);
 	void drawTorchTile(int i, int j);
 	void scatterLadders(uint32_t seed);
@@ -200,8 +200,9 @@ class Dungeon {
 	Dungeon();
 	~Dungeon();
 	void Link(const SimLinks& links) { sim = links; } // once, before the first level
-	bool Load(const char* filename);
-	void LoadGrid(const LevelGrid& grid, const char* levelName); // levelName seeds the decorations
+	// depth: the decorations' (scatterDecorations); every tier for a level outside the campaign.
+	bool Load(const char* filename, int depth = DECOR_DEPTH_ALL);
+	void LoadGrid(const LevelGrid& grid, const char* levelName, int depth = DECOR_DEPTH_ALL); // levelName seeds them
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	[[nodiscard]] int LevelNumber() const { return levelNumber; }
@@ -211,6 +212,8 @@ class Dungeon {
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
 	// cell is outside the level.
 	bool PlaceDecor(int col, int row, int type);
+	// The highest decoration tier (decor.h) among the level's props, decals and surfaces; -1 for a bare level.
+	[[nodiscard]] int DecorTierUsed() const;
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
@@ -260,7 +263,9 @@ class Dungeon {
 	[[nodiscard]] Tile Cell(int col, int row) const { return MapAt(col, row); }
 	void Dump(std::ofstream& f);
 	bool LoadDump(std::ifstream& f);
-	void scatterDecorations(const char* levelName);	   // props and decals, seeded by the level's file name
+	// Props, decals, torches, ladders and surfaces, seeded by the level's file name, from the decoration tiers its
+	// depth unlocks (decor.h: the campaign level, DECOR_DEPTH_ALL outside the campaign).
+	void scatterDecorations(const char* levelName, int depth);
 	[[nodiscard]] bool bossCoffin(int i, int j) const; // a coffin for the boss's minions stands there
 };
 

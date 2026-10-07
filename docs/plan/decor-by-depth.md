@@ -1,6 +1,6 @@
 # Walls, decals and decorations by depth
 
-Status: draft 2026-10-07, from the user.
+Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
 
 Today every level draws from the same pool. The props (`DECOR_NAMES`, `src/world/decor.h`), the wall decals
 (`tools/textures/decals.py`) and the wall, floor and ceiling surfaces (`textures/dungeon/`) are all picked at random
@@ -40,3 +40,30 @@ in `dungeon_decor.cpp`. So the first level can already show an Anubis statue, a 
   water, eye), all glyphs from the tomb tier on, and the painted bands and scenes only in the temple tier.
 * **Generated levels:** `levelgen`'s difficulty 1-10 maps to a level, 1 + 1.5 x (difficulty - 1), which picks its
   tier. Test levels without a campaign number use the deepest tier, so scenarios keep seeing every prop.
+
+## Done (2026-10-07)
+
+* The tier table in one place, `src/world/decor.h`: `DECOR_TIER_FROM` (1, 4, 8, 13), `DECOR_TIERS` per prop,
+  `DECAL_TIERS` per decal, `ROUGH_PERCENT` / `PAINTED_PERCENT` per tier, and the tiers that unlock the cracked floor,
+  the slab floor and the starry ceiling. `decorTier(depth)`.
+* `Dungeon::scatterDecorations(levelName, depth)`: props and decals pick by weight among the unlocked tiers, the newest
+  one double (`tierWeight`, `weightedPick` in `dungeon_decor.cpp`). Thoth's four variants count as one pick.
+* Surfaces: all rough rock and sand in the cave tier (levels 1-3); dressed stone and cracked floors from 4; plaster,
+  slab floors and ceilings from 8; the starry ceiling over painted stretches from 13. The old "more rough rock deeper
+  down" (`ROUGH_PERCENT_FIRST` / `_STEP`) is reversed: 100%, 55%, 30%, 15% rough rows.
+* Depth: the campaign level (also for a loaded save); `genDecorDepth(difficulty)` in `level_gen.h` for a generated
+  level (1 + 1.5 x (difficulty - 1), rounded down); any other level (test levels) `DECOR_DEPTH_ALL`, every tier.
+* Tests: `tests/unit/decor_test.cpp`, `tests/scenarios/decor_depth.txt` (new `expect decor_tier`: the highest tier in
+  the level; lvl1 is all cave, lvl20 temple). `statues.txt` now places its props with the `prop` command, since the
+  hash no longer puts them where it did.
+
+Decided on the way (easy to change):
+
+* **Natural decals in every tier.** Cracks, vines, roots, seepage, moss, dry grass, creepers and the papyrus plant are
+  cave things too, so the cave keeps them; only the man-made ones wait for their tier. "None in the cave tier" read as
+  no glyphs.
+* **Glyphs:** the worked tunnels get the single eye of Horus (the ankh / reed / water glyphs named above are not
+  decals), the tombs the glyph columns, rows and cartouches, the temples the painted winged sun.
+* **Broken plaster from the tomb tier**, not the temple tier: it is the seam between a painted stretch and dressed
+  stone, needed wherever plaster is.
+* **Slab ceilings** come with the dressed stone (worked tunnel), not only with the tomb tier: the stone needs a ceiling.

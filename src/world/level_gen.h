@@ -19,6 +19,9 @@ struct GenOptions {
 	int difficulty = 3; // 1 (easy) .. 10 (brutal)
 };
 
+// The campaign level a difficulty stands for, for the decorations by depth (decor.h): 1 -> 1, 4 -> 5, 10 -> 14.
+constexpr int genDecorDepth(int difficulty) { return 1 + (3 * (difficulty - 1)) / 2; }
+
 struct GenResult {
 	LevelGrid grid;
 	LevelReport report;

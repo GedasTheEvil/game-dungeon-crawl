@@ -31,13 +31,13 @@ crown, pieces on the floor in front):
 * Frequency: `Dungeon::scatterDecorations` picks uniformly over `DECOR_SCATTERED`, so four variants would make
   Thoth four times as common as any other prop. Pick "a Thoth" as one slot, then the variant at random (equal odds)
   by a second hash. Thoth only turns up where his tier allows (tomb tier in
-  [decor-by-depth.draft.md](decor-by-depth.draft.md)); all four variants share that tier.
+  [decor-by-depth.md](decor-by-depth.md)); all four variants share that tier.
 * Height: up to Osiris' size (`osiris_statue`, scale 1.4; upright with the atef crown about 0.4 tile). The wall
   torch bracket sits at 0.40 (`TORCH_BASE`), so a tall Thoth reaches it: `Dungeon::scatterTorches` keeps the Bes
   rule (no torch on the cell) for all four variants.
 * Tests: `tests/scenarios/statues.txt` (screenshot `osiris_bes`), `tests/levels/statues29063.txt` (Bes at col 10):
   show all four variants.
-* Docs: [decor-by-depth.draft.md](decor-by-depth.draft.md) puts Bes in the tomb tier: swap in Thoth.
+* Docs: [decor-by-depth.md](decor-by-depth.md) puts Bes in the tomb tier: swap in Thoth.
   [solved/statue-and-mummy-decorations.md](solved/statue-and-mummy-decorations.md) explains why Bes was picked:
   leave it as history.
 
@@ -59,4 +59,4 @@ crown, pieces on the floor in front):
 * `decor_bes` model and texture deleted.
 * Scenario command `prop COL NAME` (put a prop on the player's row); `tests/scenarios/statues.txt` shows a scattered
   Thoth at col 10 and all four side by side.
-* The tier (tomb, from level 8) comes with [decor-by-depth.draft.md](decor-by-depth.draft.md).
+* The tier (tomb, from level 8) comes with [decor-by-depth.md](decor-by-depth.md).

@@ -24,14 +24,9 @@ constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
-// Share of the rows of open cells that are rough-hewn rock, from the first level to the deepest.
-constexpr uint32_t ROUGH_PERCENT_FIRST = 15;
-constexpr uint32_t ROUGH_PERCENT_STEP = 4; // per level
-constexpr uint32_t ROUGH_PERCENT_MAX = 60;
-constexpr uint32_t PAINTED_PERCENT = 45; // of the stretches of a dressed-stone row
-constexpr int STRETCH_MIN = 3;			 // cells; a row of dressed stone is cut into stretches, painted or bare
-constexpr int STRETCH_SPAN = 6;			 // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
-constexpr int TORCH_MIN_GAP = 4;		 // cells between torches in a row
+constexpr int STRETCH_MIN = 3;	 // cells; a row of dressed stone is cut into stretches, painted or bare
+constexpr int STRETCH_SPAN = 6;	 // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
+constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
 constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
 constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
@@ -40,8 +35,28 @@ constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the 
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f, 0.06f,
 											 0.14f, 0.2f,  0.1f,  0.2f, 0.2f, 0.2f,	 0.2f, 0.1f, 0.f};
-// The props a cell picks from: Thoth's variants count as one.
-constexpr int DECOR_PICKS = DECOR_SCATTERED - (DECOR_THOTH_VARIANTS - 1);
+// Weight of a prop or decal of `tier` at a level of `levelTier`: 0 if not unlocked, the newest tier double.
+uint32_t tierWeight(int tier, int levelTier) {
+	if (tier < 0 || tier > levelTier)
+		return 0;
+	return tier == levelTier ? 2 : 1;
+}
+
+// Index into `weights` (count of them) for the roll h: each entry as likely as its weight. -1 if all are 0.
+int weightedPick(const uint32_t* weights, int count, uint32_t h) {
+	uint32_t total = 0;
+	for (int k = 0; k < count; k++)
+		total += weights[k];
+	if (total == 0)
+		return -1;
+	uint32_t roll = h % total;
+	for (int k = 0; k < count; k++) {
+		if (roll < weights[k])
+			return k;
+		roll -= weights[k];
+	}
+	return -1;
+}
 
 uint32_t hashName(const char* s) { // FNV-1a
 	uint32_t h = 2166136261U;
@@ -101,9 +116,32 @@ bool Dungeon::PlaceDecor(int col, int row, int type) {
 	return true;
 }
 
-void Dungeon::scatterDecorations(const char* levelName) {
+int Dungeon::DecorTierUsed() const {
+	int used = -1;
+	for (int c = 0; c < MAP_CELL_COUNT; c++) {
+		if (decor[c].type >= 0)
+			used = std::max(used, static_cast<int>(DECOR_TIERS[decor[c].type]));
+		if (decal[c].type >= 0)
+			used = std::max(used, static_cast<int>(DECAL_TIERS[decal[c].type]));
+		if (isWall(map[c]))
+			continue;
+		const SurfaceCell& s = surface[c];
+		if (s.ceiling == CEILING_STARS)
+			used = std::max(used, STAR_CEILING_TIER);
+		else if (s.wall <= WALL_PLASTER_BROKEN || s.floor == FLOOR_SLABS)
+			used = std::max(used, SLAB_FLOOR_TIER);
+		else if (s.wall <= WALL_STONE_SAND || s.floor == FLOOR_CRACKED)
+			used = std::max(used, CRACKED_FLOOR_TIER);
+		else
+			used = std::max(used, 0);
+	}
+	return used;
+}
+
+void Dungeon::scatterDecorations(const char* levelName, int depth) {
 	const char* slash = strrchr(levelName, '/');
 	uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
+	const int tier = decorTier(depth);
 	int placed = 0;
 
 	for (int j = 0; j < MAP_HEIGHT; j++)
@@ -129,13 +167,19 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			bool ceiling = !IsInBounds(i, j + 1) || isWall(MapAt(i, j + 1));
 			bool webFits = ceiling; // lies flat on the back wall, tucked into a side wall's corner if there is one
 
+			// Thoth's variants count as one pick (the first), the variant comes after.
+			uint32_t weights[DECOR_SCATTERED];
+			for (int d = 0; d < DECOR_SCATTERED; d++)
+				weights[d] = (isThoth(d) && d != DECOR_THOTH) || (d == DECOR_WEB && !webFits)
+								 ? 0
+								 : tierWeight(DECOR_TIERS[d], tier);
 			h = mix(h);
-			int type = webFits ? static_cast<int>(h % DECOR_PICKS) : 1 + static_cast<int>(h % (DECOR_PICKS - 1));
+			int type = weightedPick(weights, DECOR_SCATTERED, h);
+			if (type < 0)
+				continue;
 			h = mix(h);
 			if (type == DECOR_THOTH)
 				type += static_cast<int>((h >> 3) % DECOR_THOTH_VARIANTS);
-			else if (type > DECOR_THOTH)
-				type += DECOR_THOTH_VARIANTS - 1;
 			cell.type = static_cast<int8_t>(type);
 			if (type == DECOR_WEB)
 				cell.mirror = wallLeft == wallRight ? (h & 1U) != 0 : wallRight;
@@ -147,9 +191,9 @@ void Dungeon::scatterDecorations(const char* levelName) {
 	LOG_INFOF("world", "Decorations in %s: %d", levelName, placed);
 
 	scatterTorches(seed ^ TORCH_SALT);
-	scatterDecals(seed ^ DECAL_SALT);
+	scatterDecals(seed ^ DECAL_SALT, tier);
 	scatterLadders(seed ^ LADDER_SALT);
-	scatterSurfaces(seed ^ SURFACE_SALT);
+	scatterSurfaces(seed ^ SURFACE_SALT, tier);
 }
 //======================================================================================
 // Each vertical run of Ladder cells is one shaft with one style, keyed on its bottom cell: the bottom piece where it
@@ -225,7 +269,7 @@ void Dungeon::scatterTorches(uint32_t seed) {
 //======================================================================================
 // One decal at most per cell with a visible back wall. Runs after the props so floor decals can
 // avoid cells that already have a prop.
-void Dungeon::scatterDecals(uint32_t seed) {
+void Dungeon::scatterDecals(uint32_t seed, int tier) {
 	int placed = 0;
 
 	for (int j = 0; j < MAP_HEIGHT; j++)
@@ -246,19 +290,18 @@ void Dungeon::scatterDecals(uint32_t seed) {
 						 decor[MapIndex(i, j)].type < 0; // no dry grass under the water
 			bool free = !torch[MapIndex(i, j)];			 // the torch covers the middle of the wall
 
-			int fits[DECAL_COUNT];
-			int fitCount = 0;
+			uint32_t weights[DECAL_COUNT];
 			for (int d = 0; d < DECAL_COUNT; d++) {
 				DecalAnchor anchor = DECAL_DEFS[d].anchor;
-				if ((anchor == DecalAnchor::Free && free) || (anchor == DecalAnchor::Ceiling && ceiling) ||
-					(anchor == DecalAnchor::Floor && floor))
-					fits[fitCount++] = d;
+				const bool fits = (anchor == DecalAnchor::Free && free) ||
+								  (anchor == DecalAnchor::Ceiling && ceiling) ||
+								  (anchor == DecalAnchor::Floor && floor);
+				weights[d] = fits ? tierWeight(DECAL_TIERS[d], tier) : 0;
 			}
-			if (fitCount == 0)
-				continue;
-
 			h = mix(h);
-			int type = fits[h % static_cast<uint32_t>(fitCount)];
+			int type = weightedPick(weights, DECAL_COUNT, h);
+			if (type < 0)
+				continue;
 			const DecalDef& def = DECAL_DEFS[type];
 			float half = def.size / 2.f;
 			cell.type = static_cast<int8_t>(type);
@@ -446,10 +489,12 @@ void Dungeon::drawFires(const CellRect& drawn) {
 // rows are cut into stretches, each painted or bare; a painted stretch ends in broken plaster where bare stone
 // follows (stretches are at least STRETCH_MIN long, so only the one clipped by the row's end can be shorter, and it has
 // stone on one side at most). Then a variant per cell, never the same uncommon one twice in a row.
-void Dungeon::scatterSurfaces(uint32_t seed) {
+// Rows of rough rock, dressed stone or painted plaster in the shares of the level's tier (ROUGH_PERCENT,
+// PAINTED_PERCENT); the floors and ceilings that tier has unlocked.
+void Dungeon::scatterSurfaces(uint32_t seed, int tier) {
 	enum Family : uint8_t { Painted, Stone, Rough };
-	uint32_t level = static_cast<uint32_t>(std::max(levelNumber, 1)) - 1;
-	uint32_t roughPercent = std::min(ROUGH_PERCENT_FIRST + ROUGH_PERCENT_STEP * level, ROUGH_PERCENT_MAX);
+	const uint32_t roughPercent = ROUGH_PERCENT[tier];
+	const uint32_t paintedPercent = PAINTED_PERCENT[tier];
 	Family family[MAP_WIDTH];
 	int cells[3] = {};
 
@@ -469,7 +514,7 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 				h = mix(h);
 				int len = STRETCH_MIN + static_cast<int>(h % STRETCH_SPAN);
 				h = mix(h);
-				Family f = rough ? Rough : ((h >> 8) % 100 < PAINTED_PERCENT ? Painted : Stone);
+				Family f = rough ? Rough : ((h >> 8) % 100 < paintedPercent ? Painted : Stone);
 				for (int k = i; k < std::min(i + len, end); k++)
 					family[k] = f;
 				i += len;
@@ -483,7 +528,7 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 				cell.wallMirror = false; // a mirrored neighbour would show as a mirror line at the seam
 				switch (family[i]) {
 				case Painted:
-					cell.ceiling = CEILING_STARS;
+					cell.ceiling = tier >= STAR_CEILING_TIER ? CEILING_STARS : CEILING_SLABS;
 					if (i + 1 < end && family[i + 1] == Stone)
 						cell.wall = WALL_PLASTER_BROKEN;
 					else if (i > start && family[i - 1] == Stone) {
@@ -507,10 +552,13 @@ void Dungeon::scatterSurfaces(uint32_t seed) {
 				prevWall = cell.wall;
 				cells[family[i]]++;
 
+				// Sand on rough rock and in the cave, cracked floors from the worked tunnels, slabs from the tombs.
 				h = mix(h);
-				roll = h % 100;
-				uint32_t sandPercent = family[i] == Rough ? 60 : 30;
-				cell.floor = roll < sandPercent ? FLOOR_SAND : (roll < sandPercent + 20 ? FLOOR_CRACKED : FLOOR_SLABS);
+				uint32_t floors[FLOOR_STYLE_COUNT] = {};
+				floors[FLOOR_SAND] = family[i] == Rough ? 6 : 2;
+				floors[FLOOR_CRACKED] = tier >= CRACKED_FLOOR_TIER ? 2 : 0;
+				floors[FLOOR_SLABS] = tier >= SLAB_FLOOR_TIER && family[i] != Rough ? 5 : 0;
+				cell.floor = weightedPick(floors, FLOOR_STYLE_COUNT, h);
 			}
 			start = end;
 		}

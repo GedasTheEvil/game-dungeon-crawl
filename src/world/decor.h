@@ -37,6 +37,31 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
 												  "sarcophagus",
 												  "coffin"};
 
+// Decorations by depth (docs/plan/decor-by-depth.md): the tiers add up, a level draws from every tier unlocked at its
+// depth, the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is
+// the campaign level; a generated level's comes from its difficulty (level_gen.h), any other level gets them all.
+constexpr int DECOR_TIER_COUNT = 4;
+constexpr int DECOR_TIER_FROM[DECOR_TIER_COUNT] = {1, 4, 8, 13}; // cave, worked tunnel, tomb, temple / necropolis
+constexpr int DECOR_DEPTH_ALL = 1000;							 // a level outside the campaign
+constexpr int decorTier(int depth) {
+	int tier = 0;
+	while (tier + 1 < DECOR_TIER_COUNT && depth >= DECOR_TIER_FROM[tier + 1])
+		tier++;
+	return tier;
+}
+// The tier each prop comes in with; the coffin (-1) stands wherever a mummy lies.
+constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0, 0, 1, 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
+											 1, 1, 1, 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
+											 3, 2, 2, 2, 2, 3, // osiris, Thoth x 4, sarcophagus
+											 -1};
+// Rows of rough rock (the rest dressed stone), and of the dressed stretches the painted ones, per tier, in percent:
+// all cave at first, less and less deeper down.
+constexpr uint32_t ROUGH_PERCENT[DECOR_TIER_COUNT] = {100, 55, 30, 15};
+constexpr uint32_t PAINTED_PERCENT[DECOR_TIER_COUNT] = {0, 0, 40, 55};
+constexpr int STAR_CEILING_TIER = 3; // painted stretches get the starry ceiling from here, slabs before
+constexpr int CRACKED_FLOOR_TIER = 1;
+constexpr int SLAB_FLOOR_TIER = 2;
+
 // The wall torch (models/decorations/decor_torch.md3, also built by decor.py) is not in this list:
 // Dungeon::scatterTorches places it on its own.
 
@@ -138,6 +163,9 @@ constexpr DecalDef DECAL_DEFS[DECAL_COUNT] = {
 	{DecalAnchor::Floor, 0.75f},   // creeper
 	{DecalAnchor::Free, 0.5f},	   // moss
 };
+// The tier each decal comes in with (DECOR_TIERS): cracks and growth anywhere, the single eye of Horus in the worked
+// tunnels, glyph columns, rows and cartouches in the tombs, the painted winged sun in the temples.
+constexpr int8_t DECAL_TIERS[DECAL_COUNT] = {0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 3, 0, 0, 0, 0};
 
 struct DecalCell {
 	int8_t type = -1; // -1 = none, else index into DECAL_DEFS

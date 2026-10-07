@@ -30,6 +30,9 @@ constexpr Color LOCK_PENCILS[LOCK_COLOUR_COUNT] = {
 	{0.80f, 0.58f, 0.08f}, // gold
 };
 constexpr Color ANKH_GOLD = {0.78f, 0.56f, 0.10f};
+constexpr Color WATER_BLUE = {0.16f, 0.38f, 0.70f};
+constexpr float WAVE_AMPLITUDE = 0.06f; // cells
+constexpr int WAVE_SEGMENTS = 8;		// per wave, two crests
 
 // Stable per-stroke randomness, so the sketch does not crawl from frame to frame.
 float noise(uint32_t seed) {
@@ -70,6 +73,24 @@ class Sketch {
 				   alpha, seed + static_cast<uint32_t>(i));
 		}
 	}
+	// A wavy line ("~~") from x0 to x1 round height y: two crests, the whole wave a little off as drawn by hand.
+	void wave(float x0, float x1, float y, Color c, float alpha, uint32_t seed) {
+		const float dx = JITTER * noise(seed) * 0.5f;
+		const float dy = JITTER * noise(seed + 1) * 0.5f;
+		for (uint32_t pass = 0; pass < 2; pass++) {
+			const float lift = pass == 0 ? 0.f : 0.012f;
+			for (int k = 0; k < WAVE_SEGMENTS; k++) {
+				const float t0 = static_cast<float>(k) / WAVE_SEGMENTS;
+				const float t1 = static_cast<float>(k + 1) / WAVE_SEGMENTS;
+				const auto yAt = [&](float t) {
+					return y + dy + lift + WAVE_AMPLITUDE * std::sin(t * 4.f * static_cast<float>(M_PI));
+				};
+				strokes.push_back({ox + (x0 + dx + (x1 - x0) * t0) * s, oy + yAt(t0) * s,
+								   ox + (x0 + dx + (x1 - x0) * t1) * s, oy + yAt(t1) * s, c,
+								   pass == 0 ? alpha : alpha * 0.45f});
+			}
+		}
+	}
 	void flush(float widthPx) {
 		glLineWidth(widthPx);
 		glBegin(GL_LINES);
@@ -106,6 +127,35 @@ void hatch(Sketch& sk, int i, int j) {
 		else
 			sk.pencil(x + 1, y + t - 1, x + t - 1, y + 1, GRAPHITE, 0.30f, cellSeed(i, j, k));
 	}
+}
+
+// Water: blue waves in the lower part of a half-water cell (its water line and below), three rows over a deep one.
+void water(Sketch& sk, int i, int j, Tile t) {
+	auto x = static_cast<float>(i);
+	auto y = static_cast<float>(j);
+	if (inHalfWater(t)) {
+		sk.wave(x + 0.1f, x + 0.9f, y + 0.4f, WATER_BLUE, 0.75f, cellSeed(i, j, 20));
+		sk.wave(x + 0.25f, x + 0.75f, y + 0.2f, WATER_BLUE, 0.5f, cellSeed(i, j, 21));
+	} else if (t.structure == Structure::DeepWater) {
+		for (int k = 0; k < 3; k++)
+			sk.wave(x + 0.1f, x + 0.9f, y + 0.22f + 0.28f * static_cast<float>(k), WATER_BLUE, 0.8f,
+					cellSeed(i, j, 22 + k));
+	}
+}
+
+// Deep water blocks like a wall: a blue line where an explored open cell meets it.
+void waterEdge(Sketch& sk, const Dungeon& d, int i, int j) {
+	auto x = static_cast<float>(i);
+	auto y = static_cast<float>(j);
+	auto deep = [&](int ci, int cj) { return d.Explored(ci, cj) && d.Cell(ci, cj).structure == Structure::DeepWater; };
+	if (deep(i - 1, j))
+		sk.pencil(x, y, x, y + 1, WATER_BLUE, 0.8f, cellSeed(i, j, 26));
+	if (deep(i + 1, j))
+		sk.pencil(x + 1, y, x + 1, y + 1, WATER_BLUE, 0.8f, cellSeed(i + 1, j, 26));
+	if (deep(i, j - 1))
+		sk.pencil(x, y, x + 1, y, WATER_BLUE, 0.8f, cellSeed(i, j, 27));
+	if (deep(i, j + 1))
+		sk.pencil(x, y + 1, x + 1, y + 1, WATER_BLUE, 0.8f, cellSeed(i, j + 1, 27));
 }
 
 // Outline between an explored open cell and the explored walls around it.
@@ -319,6 +369,15 @@ void DraftMap::Draw() {
 			if (d.Explored(i, j) && !isWall(d.Cell(i, j)))
 				outline(sk, d, i, j);
 	sk.flush(2.f * pxScale);
+
+	for (int j = 0; j < LEVEL_HEIGHT; j++)
+		for (int i = 0; i < LEVEL_WIDTH; i++)
+			if (d.Explored(i, j)) {
+				water(sk, i, j, d.Cell(i, j));
+				if (!isWall(d.Cell(i, j)) && d.Cell(i, j).structure != Structure::DeepWater)
+					waterEdge(sk, d, i, j);
+			}
+	sk.flush(1.5f * pxScale);
 
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)

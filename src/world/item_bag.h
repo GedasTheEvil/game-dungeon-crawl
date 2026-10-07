@@ -62,6 +62,7 @@ class ItemBag {
 	[[nodiscard]] bool Found(ItemKind kind) const { return found[itemIndex(kind)]; }
 	[[nodiscard]] bool AnyFound(ItemGroup group) const;
 	[[nodiscard]] ItemKind Equipped() const { return equipped; }
+	[[nodiscard]] OwnedWeapons Owned() const; // the weapons held (count > 0)
 
 	[[nodiscard]] UseBlock Block(ItemKind kind, const Vitals& player) const;
 	// Equips a weapon or takes a potion out of the bag (the caller applies its potionGain). False if Block says no.

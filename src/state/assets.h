@@ -35,8 +35,9 @@ struct FontSet {
 };
 
 struct ItemPrototypes {
-	std::unique_ptr<Item> chest, club, sword, bow, potion, spear;
-	[[nodiscard]] Item* Of(ItemKind kind) const; // every potion shares one model
+	std::unique_ptr<Item> chest, potion;
+	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
+	[[nodiscard]] Item* Of(ItemKind kind) const;				  // every potion shares one model
 	// The bow's arrow in flight: not an inventory item, a static model in metres (items.py). Null if missing.
 	Texture arrowTex;
 	std::unique_ptr<AnimatedModel> arrow;

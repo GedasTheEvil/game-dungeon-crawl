@@ -15,7 +15,7 @@ TEST_CASE("every item converts to its file id and back") {
 TEST_CASE("file ids as the level files use them") {
 	CHECK(*itemFromFile(ItemType::MELEE_WEAPON, 0) == ItemKind::Club);
 	CHECK(*itemFromFile(ItemType::MELEE_WEAPON, 2) == ItemKind::Spear);
-	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 0) == ItemKind::Bow);
+	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 0) == ItemKind::SelfBow);
 	CHECK(*itemFromFile(ItemType::POTION, 0) == ItemKind::SmallHealth);
 	CHECK(*itemFromFile(ItemType::POTION, 6) == ItemKind::LargeStamina);
 	CHECK_FALSE(itemFromFile(ItemType::EMPTY, 0).has_value());
@@ -25,9 +25,9 @@ TEST_CASE("file ids as the level files use them") {
 }
 
 TEST_CASE("weapons before potions") {
-	CHECK_FALSE(isPotion(ItemKind::Bow));
+	CHECK_FALSE(isPotion(ItemKind::SelfBow));
 	CHECK(isPotion(ItemKind::SmallHealth));
-	CHECK(isRanged(ItemKind::Bow));
+	CHECK(isRanged(ItemKind::SelfBow));
 	CHECK_FALSE(isRanged(ItemKind::Spear));
 }
 
@@ -35,17 +35,17 @@ TEST_CASE("weapon levels") {
 	CHECK(upgradeCost(1) == 2);
 	CHECK(upgradeCost(3) == 7);
 	CHECK(upgradeCost(4) == 11);
-	CHECK(weaponDamage(ItemKind::Sword, 35, 1) == 35);
-	CHECK(weaponDamage(ItemKind::Sword, 35, 2) == 39); // +10%
-	CHECK(weaponDamage(ItemKind::Club, 10, 5) == 26);  // +40% a level: 10 x 2.6
-	CHECK(weaponDamage(ItemKind::Spear, 20, 3) == 28); // +20% a level
+	CHECK(weaponDamage(ItemKind::ShortSword, 35, 1) == 35);
+	CHECK(weaponDamage(ItemKind::ShortSword, 35, 2) == 39); // +10%
+	CHECK(weaponDamage(ItemKind::Club, 10, 5) == 26);		// +40% a level: 10 x 2.6
+	CHECK(weaponDamage(ItemKind::Spear, 20, 3) == 28);		// +20% a level
 }
 
 TEST_CASE("a new bag holds the club, in hand") {
 	ItemBag bag;
 	CHECK(bag.Count(ItemKind::Club) == 1);
 	CHECK(bag.Equipped() == ItemKind::Club);
-	CHECK(bag.Level(ItemKind::Sword) == 1);
+	CHECK(bag.Level(ItemKind::ShortSword) == 1);
 	for (int i = 1; i < ITEM_KIND_COUNT; i++)
 		CHECK(bag.Count(itemAt(i)) == 0);
 }
@@ -54,7 +54,7 @@ TEST_CASE("what can be used") {
 	ItemBag bag;
 	Vitals hurt{true, 50, 100, 100, 100};
 	CHECK(bag.Block(ItemKind::Club, hurt) == UseBlock::Equipped);
-	CHECK(bag.Block(ItemKind::Sword, hurt) == UseBlock::NotFound);
+	CHECK(bag.Block(ItemKind::ShortSword, hurt) == UseBlock::NotFound);
 	CHECK(bag.Block(ItemKind::SmallHealth, hurt) == UseBlock::NotFound); // never had one
 
 	bag.Add(ItemKind::SmallHealth);
@@ -80,18 +80,18 @@ TEST_CASE("using takes a potion out and equips a weapon") {
 
 TEST_CASE("upgrades take enough copies, up to the max level") {
 	ItemBag bag;
-	bag.Add(ItemKind::Sword);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::Sword, true)); // 1 of 2
-	bag.Add(ItemKind::Sword);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::Sword, false)); // dead
-	CHECK(bag.Upgrade(ItemKind::Sword, true));
-	CHECK(bag.Level(ItemKind::Sword) == 2);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::Sword, true)); // 2 of 4
+	bag.Add(ItemKind::ShortSword);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true)); // 1 of 2
+	bag.Add(ItemKind::ShortSword);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, false)); // dead
+	CHECK(bag.Upgrade(ItemKind::ShortSword, true));
+	CHECK(bag.Level(ItemKind::ShortSword) == 2);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true)); // 2 of 4
 	for (int i = 0; i < 20; i++)
-		bag.Add(ItemKind::Sword);
-	while (bag.Upgrade(ItemKind::Sword, true)) {
+		bag.Add(ItemKind::ShortSword);
+	while (bag.Upgrade(ItemKind::ShortSword, true)) {
 	}
-	CHECK(bag.Level(ItemKind::Sword) == MAX_WEAPON_LEVEL);
+	CHECK(bag.Level(ItemKind::ShortSword) == MAX_WEAPON_LEVEL);
 	bag.Add(ItemKind::SmallHealth);
 	bag.Add(ItemKind::SmallHealth);
 	CHECK_FALSE(bag.CanUpgrade(ItemKind::SmallHealth, true)); // potions have no levels
@@ -107,7 +107,7 @@ TEST_CASE("potion gains") {
 	CHECK(potionGain(ItemKind::LargeStamina).staminaPercent == 100);
 	CHECK(potionGain(ItemKind::Antidote).cure);
 	CHECK(potionGain(ItemKind::Antidote).healPercent == 0);
-	CHECK(potionGain(ItemKind::Sword).healPercent == 0);
+	CHECK(potionGain(ItemKind::ShortSword).healPercent == 0);
 }
 
 TEST_CASE("the antidote is drunk only while poisoned") {
@@ -175,11 +175,11 @@ TEST_CASE("the quick heal takes the weakest potion that gets the player out of d
 
 TEST_CASE("the bag survives a save and a load") {
 	ItemBag bag;
-	bag.Add(ItemKind::Bow);
-	bag.Add(ItemKind::Bow);
+	bag.Add(ItemKind::SelfBow);
+	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::LargeStamina);
-	CHECK(bag.Upgrade(ItemKind::Bow, true));
-	CHECK(bag.Use(ItemKind::Bow, Vitals{true, 1, 1, 1, 1}));
+	CHECK(bag.Upgrade(ItemKind::SelfBow, true));
+	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
 	CHECK(file.str().rfind("INV3 12 ", 0) == 0);
@@ -191,7 +191,7 @@ TEST_CASE("the bag survives a save and a load") {
 		CHECK(loaded.Level(itemAt(i)) == bag.Level(itemAt(i)));
 		CHECK(loaded.Found(itemAt(i)) == bag.Found(itemAt(i)));
 	}
-	CHECK(loaded.Equipped() == ItemKind::Bow);
+	CHECK(loaded.Equipped() == ItemKind::SelfBow);
 }
 
 TEST_CASE("an old save: 9 counts, then the equipped weapon") {
@@ -199,10 +199,10 @@ TEST_CASE("an old save: 9 counts, then the equipped weapon") {
 	ItemBag bag;
 	bag.Load(file);
 	CHECK(bag.Count(ItemKind::Club) == 1);
-	CHECK(bag.Count(ItemKind::Sword) == 1);
+	CHECK(bag.Count(ItemKind::ShortSword) == 1);
 	CHECK(bag.Count(ItemKind::SmallHealth) == 3);
 	CHECK(bag.Count(ItemKind::SmallStamina) == 0);
-	CHECK(bag.Equipped() == ItemKind::Sword);
+	CHECK(bag.Equipped() == ItemKind::ShortSword);
 }
 
 TEST_CASE("an older save: 9 counts, then the map position") {

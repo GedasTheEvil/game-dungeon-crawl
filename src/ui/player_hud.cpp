@@ -33,8 +33,8 @@ constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
 constexpr float POISON_STEP = 9.f;
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
-constexpr int ICON_COLUMNS = 4;	   // atlas grid
-constexpr int ICON_ROWS = 2;
+constexpr int ICON_COLUMNS = 8;	   // atlas grid
+constexpr int ICON_ROWS = 4;
 
 // ---- timing ----
 constexpr int TRAIL_HOLD_MS = 500;			 // the lost part stays this long after the last hit...

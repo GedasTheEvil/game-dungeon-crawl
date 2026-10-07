@@ -21,7 +21,7 @@ screenshot boss_fight
 
 # the boss gate is sealed while it lives
 give melee 1
-equip sword
+equip short_sword
 wait 2
 attack
 wait 1s

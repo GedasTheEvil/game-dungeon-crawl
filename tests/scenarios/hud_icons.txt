@@ -11,13 +11,13 @@ wait 30
 equip club
 wait 5
 screenshot club
-equip sword
+equip short_sword
 wait 5
 screenshot sword
 equip spear
 wait 5
 screenshot spear
-equip bow
+equip self-bow
 wait 5
 screenshot bow
 expect equip_type == 2

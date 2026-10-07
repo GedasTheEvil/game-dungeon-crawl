@@ -25,7 +25,7 @@ hitboxes on
 give melee 1
 give melee 2
 wait 30
-equip sword
+equip short_sword
 walk right 1
 wait 8s
 expect nearest == 60

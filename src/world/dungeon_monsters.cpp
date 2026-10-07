@@ -80,7 +80,7 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			ItemFileId loot = fileIdOf(RollMimicLoot(sim.random->gameplay));
+			ItemFileId loot = fileIdOf(RollMimicLoot(sim.items->Owned(), sim.random->gameplay));
 			setObject(map[MapIndex(mon.Col(), mon.Row())], Tile{Treasure, loot.type, loot.id});
 			mon.Clear();
 			continue;
@@ -308,8 +308,5 @@ void Dungeon::rewardKill(Monster& mon) {
 	sim.player->stats.AddXP(xp, *sim.events);
 	if (mon.Minion() || type.locomotion == Locomotion::Ambush)
 		return;
-	std::array<bool, WEAPON_KIND_COUNT> owned{};
-	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		owned[static_cast<size_t>(i)] = sim.items->Count(itemAt(i)) > 0;
-	mon.SetDrop(RollKillDrop(type.isBoss(), owned, sim.random->gameplay));
+	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), sim.random->gameplay));
 }

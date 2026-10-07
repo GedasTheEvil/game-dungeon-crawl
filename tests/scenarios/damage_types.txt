@@ -21,7 +21,7 @@ attack
 wait 60
 expect nearest == 72
 expect journal_tried == 1
-equip sword
+equip short_sword
 wait 5
 attack
 wait 60

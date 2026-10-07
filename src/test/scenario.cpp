@@ -651,7 +651,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 				cmd.item = itemAt(i);
 				return "";
 			}
-		return "usage: select <item>: club, sword, spear, bow, small_health, ... (its label, _ for spaces)";
+		return "usage: select <item>: club, short_sword, spear, self-bow, small_health, ... (its label, _ for spaces)";
 	}
 	if (name == "equip") {
 		cmd.type = CommandType::Equip;
@@ -660,7 +660,7 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 				cmd.item = itemAt(i);
 				return "";
 			}
-		return "usage: equip <weapon>: club, sword, spear, bow";
+		return "usage: equip <weapon>: club, short_sword, spear, self-bow, ...";
 	}
 	if (name == "xp") {
 		cmd.type = CommandType::Xp;
@@ -931,7 +931,8 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<ItemKind> loot = RollChestLoot(cmd.item, Game().random.gameplay);
+			std::vector<ItemKind> loot =
+				RollChestLoot(cmd.item, Game().ui.inventory->Bag().Owned(), Game().random.gameplay);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
 				Game().ui.inventory->AddItem(entry);

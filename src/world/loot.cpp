@@ -11,7 +11,7 @@ constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 
 // Weapons from the weakest up (by base damage).
 constexpr std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = {
-	{ItemKind::Club, ItemKind::Bow, ItemKind::Spear, ItemKind::Sword}};
+	{ItemKind::Club, ItemKind::SelfBow, ItemKind::Spear, ItemKind::ShortSword}};
 
 int weaponGrade(ItemKind kind) {
 	for (size_t grade = 0; grade < WEAPON_GRADES.size(); grade++)
@@ -19,9 +19,25 @@ int weaponGrade(ItemKind kind) {
 			return static_cast<int>(grade);
 	return -1;
 }
+
+// One of the weapons `owned` whose grade is below `grades`, at random; nullopt if none.
+std::optional<ItemKind> pickOwned(const OwnedWeapons& owned, int grades, Rng& rng) {
+	int count = 0;
+	for (int grade = 0; grade < grades; grade++)
+		count += owned[static_cast<size_t>(itemIndex(WEAPON_GRADES[static_cast<size_t>(grade)]))] ? 1 : 0;
+	if (count == 0)
+		return std::nullopt;
+	int pick = rng.below(count);
+	for (int grade = 0; grade < grades; grade++) {
+		const ItemKind kind = WEAPON_GRADES[static_cast<size_t>(grade)];
+		if (owned[static_cast<size_t>(itemIndex(kind))] && pick-- == 0)
+			return kind;
+	}
+	return std::nullopt;
+}
 } // namespace
 
-std::vector<ItemKind> RollChestLoot(ItemKind placed, Rng& rng) {
+std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, Rng& rng) {
 	std::vector<ItemKind> loot = {placed};
 
 	if (rng.percent(SMALL_STAMINA_CHANCE))
@@ -39,28 +55,20 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, Rng& rng) {
 
 	int grade = weaponGrade(placed);
 	if (grade > 0 && rng.percent(LOWER_WEAPON_CHANCE))
-		loot.push_back(WEAPON_GRADES[static_cast<size_t>(rng.below(grade))]);
+		if (std::optional<ItemKind> lower = pickOwned(owned, grade, rng))
+			loot.push_back(*lower);
 	return loot;
 }
 
-ItemKind RollMimicLoot(Rng& rng) {
+ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 	if (rng.percent(50))
-		return WEAPON_GRADES[static_cast<size_t>(rng.below(WEAPON_KIND_COUNT))];
+		return pickOwned(owned, WEAPON_KIND_COUNT, rng).value_or(ItemKind::Club);
 	// Not the antidote: it lies only in the chests of the levels with poisoners.
 	return itemAt(WEAPON_KIND_COUNT + rng.below(itemIndex(ItemKind::Antidote) - WEAPON_KIND_COUNT));
 }
 
-std::optional<ItemKind> RollKillDrop(bool boss, const std::array<bool, WEAPON_KIND_COUNT>& owned, Rng& rng) {
+std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, Rng& rng) {
 	if (!boss && !rng.percent(KILL_DROP_CHANCE))
 		return std::nullopt;
-	int count = 0;
-	for (bool has : owned)
-		count += has ? 1 : 0;
-	if (count == 0)
-		return std::nullopt;
-	int pick = rng.below(count);
-	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		if (owned[static_cast<size_t>(i)] && pick-- == 0)
-			return itemAt(i);
-	return std::nullopt;
+	return pickOwned(owned, WEAPON_KIND_COUNT, rng);
 }

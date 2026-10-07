@@ -40,7 +40,7 @@ screenshot club_left_recover
 wait 70
 key i
 wait 3
-select sword
+select short_sword
 wait 2
 click 70 19.5
 wait 3
@@ -100,7 +100,7 @@ screenshot spear_left_recover
 wait 70
 key i
 wait 3
-select bow
+select self-bow
 wait 2
 click 70 19.5
 wait 3

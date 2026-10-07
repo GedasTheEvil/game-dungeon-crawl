@@ -3,15 +3,16 @@
 
 // The items the player can carry, without rendering: shared by the game, the editor, levelgen and the unit tests.
 
+#include <array>
 #include <cstdint>
 #include <optional>
 
-// Every item, in inventory screen and save order: the weapons, then the potions.
+// Every item, in inventory screen and save order: the melee weapons, the ranged ones, then the potions.
 enum class ItemKind : std::uint8_t {
 	Club,
-	Sword,
+	ShortSword,
 	Spear,
-	Bow,
+	SelfBow, // the first ranged weapon
 	SmallHealth,
 	LargeHealth,
 	Might,
@@ -25,10 +26,13 @@ constexpr int ITEM_KIND_COUNT = 12;
 constexpr int WEAPON_KIND_COUNT = 4;
 constexpr int POTION_KIND_COUNT = ITEM_KIND_COUNT - WEAPON_KIND_COUNT;
 
+// The weapons the player holds, by itemIndex.
+using OwnedWeapons = std::array<bool, WEAPON_KIND_COUNT>;
+
 constexpr int itemIndex(ItemKind kind) { return static_cast<int>(kind); }
 constexpr ItemKind itemAt(int index) { return static_cast<ItemKind>(index); } // 0 .. ITEM_KIND_COUNT - 1
 constexpr bool isPotion(ItemKind kind) { return itemIndex(kind) >= WEAPON_KIND_COUNT; }
-constexpr bool isRanged(ItemKind kind) { return kind == ItemKind::Bow; }
+constexpr bool isRanged(ItemKind kind) { return itemIndex(kind) >= itemIndex(ItemKind::SelfBow) && !isPotion(kind); }
 
 // The inventory's tabs, one per group of items. Amulets and rings have no items yet.
 enum class ItemGroup : std::uint8_t { Weapons, Potions, Amulets, Rings };
@@ -44,7 +48,8 @@ struct ItemRange {
 [[nodiscard]] ItemRange groupItems(ItemGroup group);
 
 // Level files (a treasure tile's attr and value), save games and scenario scripts name an item by a type and an id.
-// The weapon ids restart per type: the club and the bow are both 0.
+// The weapon ids restart per type: the club and the self-bow are both 0. A new weapon takes the next free id of its
+// type, so old levels and saves keep reading.
 namespace ItemType {
 constexpr int EMPTY = 0; // an empty treasure chest
 constexpr int MELEE_WEAPON = 1;

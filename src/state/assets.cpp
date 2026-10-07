@@ -339,46 +339,23 @@ const struct {
 	{MonsterGiantCobra, {5, PoisonTier::Medium, 3.f, 3000, 0.41f, 0.87f}},
 };
 
-struct ItemDef {
-	std::unique_ptr<Item> ItemPrototypes::*slot;
-	const char* label;
+struct WeaponDef {
 	const char* name; // models/items/<name>.md3, textures/items/<name>.png
 	float scale;
-	int damage, range; // weapons only; range in tenths of a tile (the bow's: how far it aims)
-	DamageMix mix;	   // weapons only
+	int damage, range; // range in tenths of a tile (a ranged weapon's: how far it aims)
+	DamageMix mix;
 	WeaponMotion motion;
-	const char* swingSound = nullptr;  // sounds/items/<name>.wav: the attack begins
-	const char* strikeSound = nullptr; // a melee hit lands, the arrow leaves
+	const char* swingSound;	 // sounds/items/<name>.wav: the attack begins
+	const char* strikeSound; // a melee hit lands, the shot leaves
 };
 
-// The chest faces the camera at rotA 0 (tools/blender/models/items.py). Motion: grip, rest / windup / strike tilt,
-// thrust, hit (frame delay) / swing / recovery ms. The club is slow and heavy, the sword quick, the spear thrusts. Mix:
-// blunt, slash, pierce percent.
-const ItemDef ITEM_DEFS[] = {
-	{&ItemPrototypes::chest, "Treasure chest", "treasure_chest", 8, 1, 1, {}, {}},
-	{&ItemPrototypes::club,
-	 "Club",
-	 "club",
-	 6,
-	 10,
-	 2,
-	 {85, 15, 0},
-	 {0.12f, 35, -40, 115, 0, 300, 560, 600},
-	 "club_swing",
-	 "club_hit"},
-	{&ItemPrototypes::sword,
-	 "Sword",
-	 "sword",
-	 9,
-	 35,
-	 3,
-	 {0, 85, 15},
-	 {0.1f, 40, -10, 120, 0, 180, 360, 370},
-	 "sword_swing",
-	 "sword_hit"},
-	{&ItemPrototypes::bow,
-	 "Bow",
-	 "bow",
+// In ItemKind order. Motion: grip, rest / windup / strike tilt, thrust, hit (frame delay) / swing / recovery ms. The
+// club is slow and heavy, the short sword quick, the spear thrusts. Mix: blunt, slash, pierce percent.
+const WeaponDef WEAPON_DEFS[] = {
+	{"club", 6, 10, 2, {85, 15, 0}, {0.12f, 35, -40, 115, 0, 300, 560, 600}, "club_swing", "club_hit"},
+	{"sword", 9, 35, 3, {0, 85, 15}, {0.1f, 40, -10, 120, 0, 180, 360, 370}, "sword_swing", "sword_hit"},
+	{"spear", 15, 20, 5, {0, 15, 85}, {0.35f, 70, 70, 70, 0.3f, 200, 420, 550}, "spear_swing", "spear_hit"},
+	{"bow",
 	 12,
 	 12,
 	 30,
@@ -386,18 +363,8 @@ const ItemDef ITEM_DEFS[] = {
 	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
 	 "bow_draw",
 	 "bow_release"},
-	{&ItemPrototypes::spear,
-	 "Spear",
-	 "spear",
-	 15,
-	 20,
-	 5,
-	 {0, 15, 85},
-	 {0.35f, 70, 70, 70, 0.3f, 200, 420, 550},
-	 "spear_swing",
-	 "spear_hit"},
-	{&ItemPrototypes::potion, "Potion", "potion", 5, 1, 1, {}, {}},
 };
+static_assert(std::size(WEAPON_DEFS) == WEAPON_KIND_COUNT, "one WEAPON_DEFS row per weapon, in ItemKind order");
 
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
 std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
@@ -434,18 +401,7 @@ void loadMechanisms(MechanismSet& set) {
 } // namespace
 
 Item* ItemPrototypes::Of(ItemKind kind) const {
-	switch (kind) {
-	case ItemKind::Club:
-		return club.get();
-	case ItemKind::Sword:
-		return sword.get();
-	case ItemKind::Spear:
-		return spear.get();
-	case ItemKind::Bow:
-		return bow.get();
-	default:
-		return potion.get();
-	}
+	return isPotion(kind) ? potion.get() : weapons[static_cast<size_t>(itemIndex(kind))].get();
 }
 
 void Assets::LoadLoadingScreen() {
@@ -528,30 +484,35 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 					   isBossMonster(id) ? "monster_kinds" : "BOSS_DEFS");
 }
 
+std::unique_ptr<Item> loadItem(const char* name, float scale) {
+	auto item = std::make_unique<Item>();
+	item->loadModel(name);
+	item->scale = scale;
+	return item;
+}
+
 void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
-	for (size_t i = 0; i < std::size(ITEM_DEFS); i++) {
-		const ItemDef& def = ITEM_DEFS[i];
+	constexpr size_t STEPS = WEAPON_KIND_COUNT + 1;
+	for (size_t i = 0; i < WEAPON_KIND_COUNT; i++) {
+		const WeaponDef& def = WEAPON_DEFS[i];
 		char label[64];
-		snprintf(label, sizeof(label), "Loading Item Models [%s]", def.label);
-		progress(span.at(i, std::size(ITEM_DEFS)), label);
-		auto& item = items.*def.slot;
-		item = std::make_unique<Item>();
-		item->loadModel(def.name);
-		item->scale = def.scale;
+		snprintf(label, sizeof(label), "Loading Item Models [%s]", itemText(itemAt(static_cast<int>(i))).name);
+		progress(span.at(i, STEPS), label);
+		auto& item = items.weapons[i];
+		item = loadItem(def.name, def.scale);
 		item->damage = def.damage;
 		item->range = def.range;
 		item->mix = def.mix;
 		item->motion = def.motion;
 		char sound[64];
-		if (def.swingSound) {
-			snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);
-			item->swingSound.Load(sound);
-		}
-		if (def.strikeSound) {
-			snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
-			item->strikeSound.Load(sound);
-		}
+		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);
+		item->swingSound.Load(sound);
+		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
+		item->strikeSound.Load(sound);
 	}
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest and potion]");
+	items.chest = loadItem("treasure_chest", 8); // faces the camera at rotA 0 (tools/blender/models/items.py)
+	items.potion = loadItem("potion", 5);
 	items.arrowTex.LoadPNG("textures/items/arrow.png");
 	items.arrow = loadStaticModel("models/items/arrow.md3", items.arrowTex);
 }

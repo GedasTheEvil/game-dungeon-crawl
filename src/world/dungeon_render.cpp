@@ -6,13 +6,14 @@
 #include "rng.h"
 #include "world_events.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include "../graphics/render_config.h"
 #include "../graphics/lighting.h"
 #include "tile_defs.h"
 
 namespace {
-constexpr float CHEST_CLUB_SCALE = 10.f; // the club is small next to the chest at its own scale
+constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the chest
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
 void quad(const float n[3], const float v[4][3], const float st[4][2]) {
@@ -105,8 +106,7 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		const float angle = item->rotA;
 		const float scale = item->scale;
 		item->rotA = treasureSpin;
-		if (*kind == ItemKind::Club)
-			item->scale = CHEST_CLUB_SCALE;
+		item->scale = std::max(scale, CHEST_MIN_SCALE);
 		item->Draw();
 		item->rotA = angle;
 		item->scale = scale;

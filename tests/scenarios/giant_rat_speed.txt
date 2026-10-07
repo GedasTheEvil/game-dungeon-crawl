@@ -3,7 +3,7 @@
 seed 1
 level tests/levels/giant_rat_speed
 give ranged 0
-equip bow
+equip self-bow
 walk left 0.1
 attack
 wait 1s

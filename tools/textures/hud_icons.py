@@ -1,9 +1,9 @@
-"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 4 x 2 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 8 x 4 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -17,7 +17,7 @@ from decals import bleed
 
 CELL = 128
 S = CELL * 4  # drawing resolution per cell
-GRID_X, GRID_Y = 4, 2
+GRID_X, GRID_Y = 8, 4
 OUTLINE = 18  # ink round the whole glyph, in drawing pixels
 LINE = 6  # ink between the parts
 
@@ -150,12 +150,15 @@ def ring():
     d.ellipse([cx - 62, 30, cx + 62, 130], fill=LAPIS, outline=INK, width=LINE)
     return img
 
-# Order = atlas cell = PlayerHud::Icon.
-ICONS = [club, sword, spear, bow, potion, amulet, ring]
+# Order = atlas cell = PlayerHud::Icon; None: an empty cell.
+ICONS = [potion, amulet, ring, None, None, None, None, None,
+         club, sword, spear, bow]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))
     for k, fn in enumerate(ICONS):
+        if fn is None:
+            continue
         cell = outlined(fn()).resize((CELL, CELL), Image.LANCZOS)
         atlas.paste(cell, ((k % GRID_X) * CELL, (k // GRID_X) * CELL))
     bleed(atlas).save(path)

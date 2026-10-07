@@ -19,9 +19,9 @@ constexpr std::array<ItemFileId, ITEM_KIND_COUNT> FILE_IDS = {{
 
 constexpr std::array<ItemText, ITEM_KIND_COUNT> TEXTS = {{
 	{"Club", "Club", "club", "", "Good old club.", "Now with spikes."},
-	{"Sword", "Sword", "sword", "", "Bronze blade of a", "forgotten guard."},
+	{"Short Sword", "Sword", "short sword", "", "Bronze blade of a", "forgotten guard."},
 	{"Spear", "Spear", "spear", "", "Long reach.", "None shall pass!"},
-	{"Bow", "Bow", "bow", "", "The simple bow.", "For slow monsters."},
+	{"Self-Bow", "Bow", "self-bow", "", "One stave of acacia.", "For slow monsters."},
 	{"Small Health", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from", "the Nile marshes."},
 	{"Large Health", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests", "of Sekhmet."},
 	{"Aphethamine", "Might", "might", "Might +2, for good", "It tingles. Best not", "ask what is in it."},

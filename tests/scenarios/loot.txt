@@ -1,15 +1,17 @@
-# Treasure chest bonus loot (fixed seed): 30% small stamina, 20% large stamina, 5% lower weapon,
-# potion chests 5% same potion, large health chests 10% small health.
+# Treasure chest bonus loot (fixed seed): 30% small stamina, 20% large stamina, 5% lower weapon (one the player
+# holds), potion chests 5% same potion, large health chests 10% small health.
 seed 1
 level tests/levels/classic1
+give melee 2
+give ranged 0
 chest melee 1 1000
 expect melee1 == 1000
 expect potion5 >= 250
 expect potion5 <= 350
 expect potion6 >= 150
 expect potion6 <= 250
-expect melee2 >= 5
-expect ranged0 >= 5
+expect melee2 >= 6
+expect ranged0 >= 6
 expect melee0 >= 6
 # the club is the weakest weapon: no weapon bonus
 chest melee 0 1000

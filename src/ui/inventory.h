@@ -18,9 +18,10 @@ class Inventory {
 	static constexpr int NO_TAB = -1;
 
 	ItemBag bag;
-	int selectedSlot = 0;				// slots are the ItemKind order
-	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
-	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
+	int selectedSlot = 0;				  // slots are the ItemKind order
+	ItemGroup tab = ItemGroup::Weapons;	  // the selected slot's group
+	int tabSlot[ITEM_GROUP_COUNT] = {};	  // the slot each tab selected last, for switching back to it
+	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
 	int hoveredSlot = NO_SLOT;
 	int hoveredTab = NO_TAB;
 	Target hoveredButton = Target::None;
@@ -50,6 +51,9 @@ class Inventory {
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
 	void SwitchTab(ItemGroup group); // to the slot it selected last
+	[[nodiscard]] int Scroll() const { return scrollRow[static_cast<int>(tab)]; }
+	void ScrollBy(int rows); // the open tab, within its rows
+	void DrawScrollBar();
 	void MoveSelection(int dx, int dy);
 	void ShowToast(const std::string& text);
 	void UpdateHover(float x, float y);

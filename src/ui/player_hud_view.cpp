@@ -21,19 +21,6 @@ PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 	return slot;
 }
 
-PlayerHud::Icon weaponIcon(const Inventory& inventory) {
-	switch (inventory.EquippedKind()) {
-	case ItemKind::Sword:
-		return PlayerHud::Icon::Sword;
-	case ItemKind::Spear:
-		return PlayerHud::Icon::Spear;
-	case ItemKind::Bow:
-		return PlayerHud::Icon::Bow;
-	default:
-		return PlayerHud::Icon::Club;
-	}
-}
-
 } // namespace
 
 PlayerHud::View playerHudView() {
@@ -48,7 +35,7 @@ PlayerHud::View playerHudView() {
 	view.xpRatio = stats.LevelProgress();
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
-	view.slots[0].icon = weaponIcon(*Game().ui.inventory);
+	view.slots[0].icon = PlayerHud::weaponIcon(Game().ui.inventory->EquippedKind());
 	view.slots[0].key = equipKeysCap();
 	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
 	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));

@@ -5,7 +5,7 @@ seed 1
 god
 level tests/levels/water_arrow
 give ranged 0
-equip bow
+equip self-bow
 walk to 2.8
 hold right 2
 wait 10

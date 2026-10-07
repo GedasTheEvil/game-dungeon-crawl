@@ -10,6 +10,22 @@
 namespace {
 constexpr int LEGACY_SLOT_COUNT = 9; // saves from before the stamina potions and item levels
 
+// The slots of the saves from before the Egyptian weapons, in their order; the older saves have the first 9 of them.
+constexpr ItemKind OLD_SLOTS[] = {ItemKind::Club,		  ItemKind::ShortSword,	  ItemKind::Spear,
+								  ItemKind::SelfBow,	  ItemKind::SmallHealth,  ItemKind::LargeHealth,
+								  ItemKind::Might,		  ItemKind::Armor,		  ItemKind::Life,
+								  ItemKind::SmallStamina, ItemKind::LargeStamina, ItemKind::Antidote};
+constexpr int OLD_SLOT_COUNT = 12;
+
+// The item a saved slot holds: a save with today's slot count is in ItemKind order, an older one in OLD_SLOTS order.
+std::optional<ItemKind> savedSlot(size_t slot, size_t slots) {
+	if (slots == ITEM_KIND_COUNT)
+		return itemAt(static_cast<int>(slot));
+	if (slot < OLD_SLOT_COUNT)
+		return OLD_SLOTS[slot];
+	return std::nullopt;
+}
+
 bool heals(ItemKind kind) { return kind == ItemKind::SmallHealth || kind == ItemKind::LargeHealth; }
 bool restoresStamina(ItemKind kind) { return kind == ItemKind::SmallStamina || kind == ItemKind::LargeStamina; }
 } // namespace
@@ -20,9 +36,9 @@ int weaponGrowthPercent(ItemKind weapon) {
 	switch (weapon) {
 	case ItemKind::Club:
 		return 40;
-	case ItemKind::Sword:
+	case ItemKind::ShortSword:
 		return 10;
-	default: // spear, bow
+	default: // spear, the bows
 		return 20;
 	}
 }
@@ -59,10 +75,7 @@ PotionGain potionGain(ItemKind potion) {
 	case ItemKind::Antidote:
 		gain.cure = true;
 		break;
-	case ItemKind::Club:
-	case ItemKind::Sword:
-	case ItemKind::Spear:
-	case ItemKind::Bow:
+	default: // the weapons
 		break;
 	}
 	return gain;
@@ -77,6 +90,13 @@ void ItemBag::Reset() {
 	for (int& level : levels)
 		level = 1;
 	equipped = ItemKind::Club;
+}
+
+OwnedWeapons ItemBag::Owned() const {
+	OwnedWeapons owned{};
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		owned[static_cast<size_t>(i)] = counts[i] > 0;
+	return owned;
 }
 
 bool ItemBag::AnyFound(ItemGroup group) const {
@@ -162,23 +182,26 @@ void ItemBag::Load(std::istream& in) {
 		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
 		for (int& count : saved)
 			in >> count;
-		for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
-			counts[slot] = saved[slot];
+		for (size_t slot = 0; slot < saved.size(); slot++)
+			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size()))
+				counts[itemIndex(*kind)] = saved[slot];
 		for (int& level : saved)
 			in >> level;
-		for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
-			levels[slot] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL); // saves from before the cap of 5
+		for (size_t slot = 0; slot < saved.size(); slot++)
+			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size())) // saves from before the cap of 5
+				levels[itemIndex(*kind)] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL);
 		if (hasFound) {
 			for (int& f : saved)
 				in >> f;
-			for (size_t slot = 0; slot < saved.size() && slot < ITEM_KIND_COUNT; slot++)
-				found[slot] = saved[slot] != 0;
+			for (size_t slot = 0; slot < saved.size(); slot++)
+				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size()))
+					found[itemIndex(*kind)] = saved[slot] != 0;
 		}
 		in >> type >> id;
 	} else {
-		counts[0] = std::stoi(tok);
+		counts[itemIndex(OLD_SLOTS[0])] = std::stoi(tok);
 		for (int slot = 1; slot < LEGACY_SLOT_COUNT; slot++)
-			in >> counts[slot];
+			in >> counts[itemIndex(OLD_SLOTS[slot])];
 
 		// equipped.type/id were added after older saves were written.
 		// Old saves have mapX (a float like "3.32501") at this position.

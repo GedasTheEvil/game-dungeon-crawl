@@ -31,7 +31,7 @@ constexpr Rect WIDE_BUTTON = {107, 16, 42, 7}; // potions: Drink
 constexpr Rect EQUIP_BUTTON = {104, 16, 23, 7};
 constexpr Rect UPGRADE_BUTTON = {129, 16, 23, 7};
 // One grid for every tab: COLUMNS slots a row, as many rows as the group needs. VISIBLE_ROWS fit the panel; a group
-// with more needs scrolling by whole rows (not there yet: no group has more than VISIBLE_ROWS rows).
+// with more scrolls by whole rows (the wheel, the arrow keys past the last row shown), with a thin bar at the side.
 constexpr int COLUMNS = 4;
 constexpr int VISIBLE_ROWS = 2;
 constexpr float SLOT_W = 19.f;
@@ -46,8 +46,9 @@ constexpr float TAB_Y = 77.6f;
 constexpr float TAB_H = 6.f;
 constexpr float TAB_GAP = 2.f;
 constexpr const char* GROUP_NAMES[ITEM_GROUP_COUNT] = {"Weapons", "Potions", "Amulets", "Rings"};
-constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::Icon::Sword, PlayerHud::Icon::Potion,
-														   PlayerHud::Icon::Amulet, PlayerHud::Icon::Ring};
+constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon(ItemKind::ShortSword),
+														   PlayerHud::Icon::Potion, PlayerHud::Icon::Amulet,
+														   PlayerHud::Icon::Ring};
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float POTION_DETAIL_SCALE = 16.f;
@@ -55,7 +56,9 @@ constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
-constexpr const char* HOTKEYS = "1234567890-="; // one per slot, the keyboard's number row
+constexpr const char* HOTKEYS = "1234567890-="; // the first slots of the open tab, the keyboard's number row
+constexpr int HOTKEY_COUNT = 12;
+constexpr float SCROLL_BAR_W = 1.f;
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
@@ -105,16 +108,19 @@ const char* blockReason(UseBlock block) {
 
 constexpr float GRID_W = COLUMNS * SLOT_W + (COLUMNS - 1) * SLOT_GAP;
 
-Rect slotRect(int slot) {
+int rowsOf(ItemGroup group) { return (groupItems(group).count + COLUMNS - 1) / COLUMNS; }
+int rowOf(int slot) { return positionOf(slot) / COLUMNS; }
+
+// Its tab scrolled down by `scroll` rows.
+Rect slotRect(int slot, int scroll) {
 	const int position = positionOf(slot);
 	const float x0 = ITEMS_PANEL.cx() - GRID_W / 2;
 	const auto column = static_cast<float>(position % COLUMNS);
-	const int rowIndex = position / COLUMNS;
-	const auto row = static_cast<float>(rowIndex);
+	const auto row = static_cast<float>(rowOf(slot) - scroll);
 	return {x0 + column * (SLOT_W + SLOT_GAP), TOP_ROW_Y - row * (SLOT_H + SLOT_GAP), SLOT_W, SLOT_H};
 }
 
-bool slotVisible(int slot) { return positionOf(slot) < COLUMNS * VISIBLE_ROWS; }
+bool slotVisible(int slot, int scroll) { return rowOf(slot) >= scroll && rowOf(slot) < scroll + VISIBLE_ROWS; }
 
 // The question mark of an item not found yet, centred in `r`.
 void unknownMark(Font& font, const Rect& r, float alpha) {
@@ -278,6 +284,13 @@ void Inventory::Select(int slot) {
 	selectedSlot = slot;
 	tab = groupOf(slot);
 	tabSlot[static_cast<int>(tab)] = slot;
+	int& scroll = scrollRow[static_cast<int>(tab)]; // the selected slot in view
+	scroll = std::clamp(scroll, rowOf(slot) - VISIBLE_ROWS + 1, rowOf(slot));
+}
+
+void Inventory::ScrollBy(int rows) {
+	int& scroll = scrollRow[static_cast<int>(tab)];
+	scroll = std::clamp(scroll + rows, 0, std::max(0, rowsOf(tab) - VISIBLE_ROWS));
 }
 
 void Inventory::SwitchTab(ItemGroup group) {
@@ -306,7 +319,7 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 void Inventory::UpdateHover(float x, float y) {
 	hoveredSlot = NO_SLOT;
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (groupOf(slot) == tab && slotVisible(slot) && slotRect(slot).contains(x, y))
+		if (groupOf(slot) == tab && slotVisible(slot, Scroll()) && slotRect(slot, Scroll()).contains(x, y))
 			hoveredSlot = slot;
 	hoveredTab = NO_TAB;
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
@@ -337,6 +350,13 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
 	UpdateHover(cx, cy);
+
+	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
+		if (state == GLUT_DOWN)
+			ScrollBy(button == MOUSE_WHEEL_UP ? -1 : 1);
+		UpdateHover(cx, cy);
+		return;
+	}
 
 	if (state == GLUT_DOWN) {
 		pressedMouseButton = button;
@@ -400,11 +420,12 @@ void Inventory::KeyPressed(unsigned char key) {
 		MoveSelection(0, -1);
 		return;
 	default:
-		// The number row picks a slot in ItemKind order on any tab, as long as that tab is open to the player.
+		// The number row picks one of the open tab's first slots, in ItemKind order.
 		if (const char* hotkey = key != 0 ? strchr(HOTKEYS, key) : nullptr) {
-			const int slot = static_cast<int>(hotkey - HOTKEYS);
-			if (TabEnabled(groupOf(slot)))
-				Select(slot);
+			const int position = static_cast<int>(hotkey - HOTKEYS);
+			const ItemRange range = groupItems(tab);
+			if (position < range.count)
+				Select(range.first + position);
 		}
 		return;
 	}
@@ -477,29 +498,31 @@ void Inventory::Draw() {
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
-	const ItemRange shown = groupItems(tab);
-	const int shownEnd = shown.first + std::min(shown.count, COLUMNS * VISIBLE_ROWS);
+	const ItemRange group = groupItems(tab);
+	const int shownFirst = group.first + Scroll() * COLUMNS;
+	const int shownEnd = std::min(group.first + group.count, shownFirst + COLUMNS * VISIBLE_ROWS);
 
 	DrawBackground();
 	DrawTabs();
-	for (int slot = shown.first; slot < shownEnd; slot++)
+	for (int slot = shownFirst; slot < shownEnd; slot++)
 		DrawSlot(slot);
 	DrawDetails();
 	DrawButtons();
 	DrawStatus();
+	DrawScrollBar();
 
 	// Models get their own depth buffer so they never cut into the flat UI drawn before them.
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	for (int slot = shown.first; slot < shownEnd; slot++)
+	for (int slot = shownFirst; slot < shownEnd; slot++)
 		DrawSlotModel(slot);
 	DrawDetailModel();
 	glDisable(GL_DEPTH_TEST);
 
 	beginText();
-	for (int slot = shown.first; slot < shownEnd; slot++)
+	for (int slot = shownFirst; slot < shownEnd; slot++)
 		DrawSlotLabels(slot);
 	DrawTabHint();
 	DrawFooter();
@@ -509,6 +532,21 @@ void Inventory::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1, 1, 1);
+}
+
+// Right of the grid, only for a tab with more rows than fit: the track over the rows shown, the thumb where they are.
+void Inventory::DrawScrollBar() {
+	const int rows = rowsOf(tab);
+	if (rows <= VISIBLE_ROWS)
+		return;
+	const float top = TOP_ROW_Y + SLOT_H;
+	const float bottom = TOP_ROW_Y - (VISIBLE_ROWS - 1) * (SLOT_H + SLOT_GAP);
+	const float x = ITEMS_PANEL.cx() + GRID_W / 2 +
+					(ITEMS_PANEL.x + ITEMS_PANEL.w - ITEMS_PANEL.cx() - GRID_W / 2) / 2 - SCROLL_BAR_W / 2;
+	fillRect({x, bottom, SCROLL_BAR_W, top - bottom}, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
+	const float rowH = (top - bottom) / static_cast<float>(rows);
+	const float thumbTop = top - rowH * static_cast<float>(Scroll());
+	fillRect({x, thumbTop - rowH * VISIBLE_ROWS, SCROLL_BAR_W, rowH * VISIBLE_ROWS}, GOLD, GOLD_DIM, 1.f);
 }
 
 void Inventory::DrawBackground() {
@@ -579,7 +617,7 @@ void Inventory::DrawTabHint() {
 }
 
 void Inventory::DrawSlot(int slot) {
-	Rect r = slotRect(slot);
+	Rect r = slotRect(slot, Scroll());
 	bool hovered = slot == hoveredSlot;
 	bool selected = slot == selectedSlot;
 	bool held = SlotHeld(slot);
@@ -643,7 +681,7 @@ void Inventory::DrawSlot(int slot) {
 void Inventory::DrawSlotModel(int slot) {
 	if (!bag.Found(kindOf(slot)))
 		return; // a question mark instead (DrawSlotLabels)
-	Rect r = slotRect(slot);
+	Rect r = slotRect(slot, Scroll());
 	bool held = SlotHeld(slot);
 	Item* model = Model(kindOf(slot));
 
@@ -669,7 +707,7 @@ void Inventory::DrawSlotModel(int slot) {
 }
 
 void Inventory::DrawSlotLabels(int slot) {
-	Rect r = slotRect(slot);
+	Rect r = slotRect(slot, Scroll());
 	if (SlotHeld(slot))
 		r.y -= TILE_SINK;
 	bool owned = bag.Count(kindOf(slot)) > 0;
@@ -683,8 +721,10 @@ void Inventory::DrawSlotLabels(int slot) {
 	else // not even its name: the player does not know it exists
 		unknownMark(title, {r.x, r.y + NAME_BAND_H, r.w, r.h - NAME_BAND_H}, lit ? 0.9f : 0.6f);
 
-	char key[2] = {HOTKEYS[slot], '\0'};
-	text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
+	if (positionOf(slot) < HOTKEY_COUNT) {
+		char key[2] = {HOTKEYS[positionOf(slot)], '\0'};
+		text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
+	}
 
 	if (isPotion(slot) && owned) {
 		char count[8];

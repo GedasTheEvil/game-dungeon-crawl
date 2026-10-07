@@ -11,13 +11,13 @@ wait 5
 equip club
 wait 5
 screenshot club_off
-equip sword
+equip short_sword
 wait 5
 screenshot sword_off
 equip spear
 wait 5
 screenshot spear_off
-equip bow
+equip self-bow
 wait 5
 screenshot bow_off
 attack
@@ -29,13 +29,13 @@ wait 2
 equip club
 wait 5
 screenshot club_toon
-equip sword
+equip short_sword
 wait 5
 screenshot sword_toon
 equip spear
 wait 5
 screenshot spear_toon
-equip bow
+equip self-bow
 wait 5
 screenshot bow_toon
 attack

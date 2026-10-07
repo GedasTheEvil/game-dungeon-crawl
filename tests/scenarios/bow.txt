@@ -9,7 +9,7 @@ wait 30
 give ranged 0
 key i
 wait 5
-select bow
+select self-bow
 wait 2
 click 70 19.5
 wait 5

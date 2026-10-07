@@ -2,6 +2,7 @@
 #define PLAYER_HUD_H
 
 #include "ui_draw.h"
+#include "../world/items.h"
 #include "../world/poison.h"
 #include <cstdint>
 #include <string>
@@ -17,8 +18,11 @@ constexpr float SCALE = 0.85f;
 constexpr ui::Rect PANEL = {1.5f, 1.5f, 53.f, 21.5f};
 
 // Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
-// inventory's tabs.
-enum class Icon : std::uint8_t { Club, Sword, Spear, Bow, Potion, Amulet, Ring, None };
+// inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon).
+enum class Icon : std::uint8_t { Potion, Amulet, Ring, FirstWeapon = 8, None = 0xff };
+constexpr Icon weaponIcon(ItemKind weapon) {
+	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + itemIndex(weapon));
+}
 
 struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)

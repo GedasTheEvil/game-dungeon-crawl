@@ -43,7 +43,7 @@ click 70 19.5
 expect equip_id == 1
 
 # upgrade: one sword is not enough for level 2, the second copy is
-select sword
+select short_sword
 click 84 19.5
 expect melee1.level == 1
 give melee 1
@@ -72,9 +72,9 @@ click 27.0 80.6
 wait 5
 screenshot potions_tab
 
-# strength potion by keyboard: 7 selects, Enter drinks; used up, it shows none left
+# strength potion by keyboard: 3 selects the open tab's third slot, Enter drinks; used up, it shows none left
 mouse 5 5
-key 7
+key 3
 wait 5
 screenshot strength_selected
 key enter

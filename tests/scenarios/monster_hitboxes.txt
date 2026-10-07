@@ -23,7 +23,7 @@ level tests/levels/hitbox_scarab
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 8s
 expect nearest == 10
@@ -63,7 +63,7 @@ level tests/levels/hitbox_rat
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 8s
 expect nearest == 12
@@ -103,7 +103,7 @@ level tests/levels/hitbox_worm
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 25s
 expect nearest == 30
@@ -143,7 +143,7 @@ level tests/levels/hitbox_giant_scarab
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 12s
 expect nearest == 90
@@ -197,7 +197,7 @@ level tests/levels/hitbox_boss_scarab
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 12s
 expect boss == 320
@@ -265,7 +265,7 @@ level tests/levels/hitbox_giant_rat
 hitboxes on
 give melee 1
 give melee 2
-equip sword
+equip short_sword
 walk right 1
 wait 8s
 expect nearest == 60
@@ -290,7 +290,7 @@ expect nearest < 60
 level tests/levels/hitbox_bow
 hitboxes on
 give ranged 0
-equip bow
+equip self-bow
 walk right 3.5
 wait 30
 expect nearest == 60

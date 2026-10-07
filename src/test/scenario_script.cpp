@@ -301,6 +301,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
+		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},
 		{"savegame", CommandType::SaveGame, oneWord, "<path>"},
@@ -311,6 +312,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"click", CommandType::Click, twoNumbers, "<x%> <y%> (0..100, y from the bottom)"},
 		{"killboss", CommandType::KillBoss, noArgs, ""},
 		{"hurtboss", CommandType::HurtBoss, numberAtLeast<1>, "<hp>"},
+		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;
@@ -338,6 +340,7 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"attacking", Field::Attacking},
 											   {"decor_tier", Field::DecorTier},
 											   {"nearest", Field::Nearest},
+											   {"nearest_poison", Field::NearestPoison},
 											   {"coffins", Field::Coffins},
 											   {"chests", Field::Chests},
 											   {"journal", Field::JournalRiddles},

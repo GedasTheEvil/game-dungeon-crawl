@@ -25,6 +25,11 @@ void Dungeon::HurtBoss(int dmg) {
 		playerHit(monsters[bossFight.slot], dmg, nullptr);
 }
 //======================================================================================
+void Dungeon::PoisonBoss(PoisonTier tier) {
+	if (bossFight.slot >= 0)
+		monsters[bossFight.slot].TakePoison(tier, true, sim.random->gameplay);
+}
+//======================================================================================
 int Dungeon::LivingMinions() const {
 	int n = 0;
 	for (const Monster& mon : monsters)
@@ -33,7 +38,7 @@ int Dungeon::LivingMinions() const {
 	return n;
 }
 //======================================================================================
-int Dungeon::NearestMonsterHealth() const {
+const Monster* Dungeon::nearestMonster() const {
 	const Monster* nearest = nullptr;
 	auto distance = [this](const Monster& mon) {
 		return std::fabs(mon.CentreX() - mapX) + std::fabs(static_cast<float>(mon.Row()) - mapY);
@@ -41,7 +46,22 @@ int Dungeon::NearestMonsterHealth() const {
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && (!nearest || distance(mon) < distance(*nearest)))
 			nearest = &mon;
+	return nearest;
+}
+//======================================================================================
+int Dungeon::NearestMonsterHealth() const {
+	const Monster* nearest = nearestMonster();
 	return nearest ? nearest->Health() : 0;
+}
+//======================================================================================
+int Dungeon::NearestMonsterPoison() const {
+	const Monster* nearest = nearestMonster();
+	return nearest ? nearest->PoisonMask() : 0;
+}
+//======================================================================================
+void Dungeon::PoisonNearestMonster(PoisonTier tier) {
+	if (const Monster* nearest = nearestMonster())
+		monsters[nearest - monsters].TakePoison(tier, true, sim.random->gameplay);
 }
 //======================================================================================
 void Dungeon::startBossFight(int slot) {

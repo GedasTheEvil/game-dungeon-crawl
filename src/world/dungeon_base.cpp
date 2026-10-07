@@ -113,6 +113,7 @@ void Dungeon::Update() {
 	updateMissiles();
 	updateVenoms();
 	updateTraps();
+	updateMonsterPoison();
 	spawnInView();
 	updateAnimations();
 }
@@ -159,6 +160,12 @@ void Dungeon::updateTraps() {
 		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&
 			inTrap(mon.CentreX(), static_cast<float>(mon.Row())))
 			mon.StandInTrap();
+}
+//======================================================================================
+void Dungeon::updateMonsterPoison() {
+	for (Monster& mon : monsters)
+		if (mon.Active() && mon.UpdatePoison())
+			rewardKill(mon);
 }
 //======================================================================================
 bool Dungeon::Move(float dirX, float dirY) {

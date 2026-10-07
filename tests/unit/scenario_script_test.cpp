@@ -39,6 +39,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"xp", "xp 1000"},
 	{"hurt", "hurt 5"},
 	{"poison", "poison medium"},
+	{"poisonmonster", "poisonmonster weak"},
 	{"riddles", "riddles tests/riddles"},
 	{"prop", "prop 4 cat"},
 	{"savegame", "savegame one.sav"},
@@ -49,6 +50,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"click", "click 10 90"},
 	{"killboss", "killboss"},
 	{"hurtboss", "hurtboss 100"},
+	{"poisonboss", "poisonboss strong"},
 	{"quit", "quit"},
 };
 

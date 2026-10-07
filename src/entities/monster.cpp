@@ -16,6 +16,10 @@ namespace {
 constexpr float HEALTH_BAR_WIDTH = 14.f;
 constexpr float HEALTH_BAR_HEIGHT = 1.5f;
 constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
+// While poisoned: a lime outline, the fill pulses from venom green to lime, whatever the health.
+constexpr Rgb POISON_BAR = {0.6f, 0.95f, 0.15f};
+constexpr Rgb POISON_BAR_DARK = {0.08f, 0.4f, 0.1f};
+constexpr int POISON_PULSE_MS = 800;
 } // namespace
 
 void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects) {
@@ -49,6 +53,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	spitReadyMs = 0;
 	spitReleased = true;
 	drop.reset();
+	poison.Cure();
+	poisonByPlayer = false;
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -215,6 +221,26 @@ void Monster::TrapHit(int dmg) {
 		takeHit(hundredths / 100); // no reward: the player must not farm kills with traps
 }
 
+bool Monster::TakePoison(PoisonTier tier, bool byPlayer, Rng& rng) {
+	if (!Alive() || (type->poisonResistPercent > 0 && rng.percent(type->poisonResistPercent)))
+		return false;
+	poisonByPlayer = byPlayer || (poisonByPlayer && poison.Any());
+	poison.Apply(tier);
+	return true;
+}
+
+bool Monster::UpdatePoison() {
+	if (!Alive()) {
+		poison.Cure();
+		return false;
+	}
+	const int hp = poison.Advance(UPDATE_TICK_MS);
+	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
+		return false;
+	poison.Cure();
+	return poisonByPlayer;
+}
+
 void Monster::drawHealthBar(const Texture& bar) {
 	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
 	const float drawScale = type->scale * Ink::figureScale();
@@ -237,7 +263,10 @@ void Monster::drawHealthBar(const Texture& bar) {
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;
 	float o = 0.1f; // outline just outside the bar
-	glColor4f(1, 1, 1, 0.9);
+	if (Poisoned())
+		glColor4f(POISON_BAR.r, POISON_BAR.g, POISON_BAR.b, 0.9);
+	else
+		glColor4f(1, 1, 1, 0.9);
 	glBegin(GL_LINE_LOOP);
 	glVertex3f(-w - o, -o, 0);
 	glVertex3f(w + o, -o, 0);
@@ -250,7 +279,14 @@ void Monster::drawHealthBar(const Texture& bar) {
 					  ? 0.f
 					  : std::clamp(static_cast<float>(health) / static_cast<float>(type->maxHealth), 0.f, 1.f);
 	float right = -w + 2 * w * ratio;
-	glColor3f(3 * (1 - ratio), 3 * ratio, 0);
+	if (Poisoned()) {
+		const float t = 0.5f + 0.5f * std::sin(static_cast<float>(GameClock::now() % POISON_PULSE_MS) /
+											   static_cast<float>(POISON_PULSE_MS) * 2.f * static_cast<float>(M_PI));
+		auto mix = [t](float dark, float lit) { return dark + (lit - dark) * t; };
+		glColor3f(mix(POISON_BAR_DARK.r, POISON_BAR.r), mix(POISON_BAR_DARK.g, POISON_BAR.g),
+				  mix(POISON_BAR_DARK.b, POISON_BAR.b));
+	} else
+		glColor3f(3 * (1 - ratio), 3 * ratio, 0);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
 	glVertex3f(-w, 0, 0);

@@ -35,6 +35,12 @@ constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS};	// a blow crack
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
 
+// Chance a poisoning does not take (docs/plan/monster-poison.md). The rest have none, like the player without an
+// amulet. Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
+constexpr int POISON_IMMUNE = 100;
+constexpr int POISONER_RESIST = 50;		 // scorpions and cobras: half used to venom
+constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
+
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {
 	for (int& rate : kin)
@@ -104,6 +110,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = PLANT_MIX,
 	 .resist = PLANT_RESIST,
 	 .locomotion = Locomotion::Stationary,
+	 .poisonResistPercent = POISON_IMMUNE,
 	 .generated = {3, 10, 2}},
 	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Strong enough for
 	// the late levels (13-30): a level 55 player (about 700 HP, 11 armour) takes about 15 blows.
@@ -128,6 +135,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 25,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .poisonResistPercent = POISON_IMMUNE,
 	 .generated = {9, 10, 1}},
 	{.id = MonsterRat,
 	 .glyph = 't',
@@ -229,7 +237,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 1500,
 	 .attackMix = MIMIC_MIX,
 	 .resist = MIMIC_RESIST,
-	 .locomotion = Locomotion::Ambush},
+	 .locomotion = Locomotion::Ambush,
+	 .poisonResistPercent = POISON_IMMUNE},
 	{.id = MonsterGiantScarab,
 	 .glyph = 'k',
 	 .name = "Giant scarab",
@@ -318,6 +327,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Entombed,
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
+	 .poisonResistPercent = POISON_IMMUNE,
 	 .generated = {7, 10, 2}},
 	// The finale's guardian, a head taller than an Anubis, the strongest boss. The player comes to lvl30 at about
 	// level 55 (about 700 HP, 11 armour): 6 blows kill them. Reckless: the player cannot shake him off behind a row of
@@ -344,6 +354,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .poisonResistPercent = POISON_IMMUNE,
 	 .kin = MonsterAnubis,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
@@ -389,7 +400,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 450,
 	 .attackMix = SCORPION_MIX,
 	 .resist = SCORPION_RESIST,
-	 .poison = PoisonTier::Weak},
+	 .poison = PoisonTier::Weak,
+	 .poisonResistPercent = POISONER_RESIST},
 	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar; lies coiled until the player
 	// comes near (docs/plan/cobra.md).
 	{.id = MonsterCobra,
@@ -413,6 +425,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
+	 .poisonResistPercent = POISONER_RESIST,
 	 .spit = SpitRules{2, PoisonTier::Medium, 2.5f, 3500, 0.41f, 0.87f}}, // release: frame 7 of 18
 	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.md).
 	{.id = MonsterGiantCobra,
@@ -436,6 +449,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
+	 .poisonResistPercent = POISONER_RESIST,
 	 .spit = SpitRules{5, PoisonTier::Medium, 3.f, 3000, 0.41f, 0.87f}},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.md).
 	{.id = MonsterGiantScorpion,
@@ -456,7 +470,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 2000,
 	 .attackMix = SCORPION_MIX,
 	 .resist = SCORPION_RESIST,
-	 .poison = PoisonTier::Medium},
+	 .poison = PoisonTier::Medium,
+	 .poisonResistPercent = POISONER_RESIST},
 	// Rooted and harmless: the scorpion queen's brood hatches from it (Summon::Hatch). Dies to a few blows.
 	{.id = MonsterEggCluster,
 	 .glyph = 'e',
@@ -477,7 +492,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 300,
 	 .attackMix = EGG_CLUSTER_MIX,
 	 .resist = EGG_CLUSTER_RESIST,
-	 .locomotion = Locomotion::Stationary},
+	 .locomotion = Locomotion::Stationary,
+	 .poisonResistPercent = POISON_IMMUNE},
 	// The lvl15 boss on the scorpion model, the size of a cart (docs/plan/scorpion-queen-boss.md).
 	{.id = MonsterScorpionQueen,
 	 .glyph = 'U',
@@ -501,6 +517,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .poison = PoisonTier::Strong,
+	 .poisonResistPercent = POISONER_BOSS_RESIST,
 	 .kin = MonsterScorpion,
 	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster}},
 	// The lvl20 boss on the cobra model, long as the hall (docs/plan/apep-serpent-boss.md).
@@ -528,6 +545,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
+	 .poisonResistPercent = POISONER_BOSS_RESIST,
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
 	// The lvl25 boss on the crocodile model (docs/plan/sobek-boss.md).
@@ -569,6 +587,9 @@ constexpr bool validKinds() {
 			return false;
 		if (kind.isBoss() != (kind.kin != 0) || kind.kin < 0 || kind.kin > MONSTER_TYPE_MAX)
 			return false;
+		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
+			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
+			return false;
 		for (size_t t = 0; kind.isBoss() && t < kind.resist.size(); t++)
 			if (kind.resist[t] > NORMAL || kind.resist[t] > KINDS[static_cast<size_t>(kind.kin - 1)].resist[t])
 				return false;
@@ -576,7 +597,7 @@ constexpr bool validKinds() {
 	return true;
 }
 static_assert(validKinds(), "KINDS: one row per MonsterTypeId in order, attack mixes of 100%, hatchers with a nest, "
-							"bosses with a kin, no weakness and no resistance worse than the kin's");
+							"bosses with a kin, no weakness and no resistance worse than the kin's, poison included");
 } // namespace
 
 const MonsterKind* monsterKind(int type) {

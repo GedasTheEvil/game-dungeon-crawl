@@ -13,12 +13,10 @@ constexpr float BAR_BOTTOM = 5.f;
 constexpr float BAR_H = 2.4f;
 constexpr float NAME_GAP = 1.6f; // bar top to the name's pen y
 constexpr float HUD_GAP = 2.f;	 // to the player's HUD panel; closer and the bar moves up over the panel
-constexpr Color BLOOD_TOP = {0.85f, 0.14f, 0.08f};
-constexpr Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 } // namespace
 
 namespace BossBar {
-void draw(const char* name, float ratio, int resX, int resY, Font& font) {
+void draw(const char* name, float ratio, bool poisoned, int resX, int resY, Font& font) {
 	float canvasW = beginSquareCanvas(100.f, resX, resY);
 
 	Rect bar = {(canvasW - WIDTH) / 2, BAR_BOTTOM, WIDTH, BAR_H};
@@ -27,7 +25,9 @@ void draw(const char* name, float ratio, int resX, int resY, Font& font) {
 		bar.y = (hud.y + hud.h) * PlayerHud::SCALE + HUD_GAP;
 	beginShapes();
 	fillRect({bar.x - 0.6f, bar.y - 0.6f, bar.w + 1.2f, bar.h + 1.2f}, BLACK, BLACK, 0.6f);
-	fillRect({bar.x, bar.y, bar.w * std::clamp(ratio, 0.f, 1.f), bar.h}, BLOOD_TOP, BLOOD_BOTTOM, 1.f);
+	using namespace PlayerHud;
+	fillRect({bar.x, bar.y, bar.w * std::clamp(ratio, 0.f, 1.f), bar.h}, poisoned ? POISON_TOP : BLOOD_TOP,
+			 poisoned ? POISON_BOTTOM : BLOOD_BOTTOM, 1.f);
 	strokeRect(bar, GOLD_DIM, 1.f, 1.5f);
 	diamond(bar.x, bar.cy(), 1.2f, GOLD, 1.f);
 	diamond(bar.x + bar.w, bar.cy(), 1.2f, GOLD, 1.f);

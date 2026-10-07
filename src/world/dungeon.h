@@ -119,7 +119,8 @@ class Dungeon {
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	Monster monsters[MAX_MONSTERS];
-	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
+	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
+	[[nodiscard]] Monster* freeMonsterSlot();			 // an empty slot, else the slot of a dead monster; null if none
 	// The level's boss fight (at most one boss per level). Monsters are not saved: a load starts the fight over.
 	struct BossFight {
 		int slot = -1;		  // monsters[] index of the boss, -1: none in play
@@ -179,7 +180,8 @@ class Dungeon {
 	// tile's bottom centre.
 	[[nodiscard]] bool inTrap(float x, float y) const;
 	void updateTraps();
-	void drawMissiles(); // with the frame origin of DrawMonsters
+	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
+	void drawMissiles();		// with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
@@ -250,9 +252,14 @@ class Dungeon {
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
+	[[nodiscard]] int NearestMonsterPoison() const; // its running poison tiers (Poison::Mask), 0 if none
 	[[nodiscard]] int ChestCount() const;			// treasure chests not opened yet
 	[[nodiscard]] int CoffinCount() const;			// coffins standing on the level (decorations)
 	void HurtBoss(int dmg);							// scenario tests: the boss in play takes a hit, as from the player
+	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
+	// may shrug it off).
+	void PoisonNearestMonster(PoisonTier tier);
+	void PoisonBoss(PoisonTier tier);
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.

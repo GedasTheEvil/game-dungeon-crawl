@@ -54,6 +54,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
 	case Field::Nearest:
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
+	case Field::NearestPoison:
+		return static_cast<float>(Game().dungeon.NearestMonsterPoison());
 	case Field::Coffins:
 		return static_cast<float>(Game().dungeon.CoffinCount());
 	case Field::Chests:

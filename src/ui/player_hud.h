@@ -16,6 +16,11 @@ namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
 constexpr ui::Rect PANEL = {1.5f, 1.5f, 58.f, 21.5f};
+// The health bar's fill, the boss bar's too: blood, green while poisoned.
+constexpr ui::Color BLOOD_TOP = {0.85f, 0.14f, 0.08f};
+constexpr ui::Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
+constexpr ui::Color POISON_TOP = {0.45f, 0.82f, 0.2f};
+constexpr ui::Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
 
 // Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
 // inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon).

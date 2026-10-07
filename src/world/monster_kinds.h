@@ -113,8 +113,10 @@ struct MonsterKind {
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
-	std::optional<SpitRules> spit;		  // it spits venom from afar
-	bool charges = false;				  // it charges along its row (Charge)
+	// Chance that a poisoning does not take (docs/plan/monster-poison.md); 100: immune. A boss's is at least its kin's.
+	int poisonResistPercent = 0;
+	std::optional<SpitRules> spit; // it spits venom from afar
+	bool charges = false;		   // it charges along its row (Charge)
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (docs/plan/boss-resistances.md).
 	int kin = 0;

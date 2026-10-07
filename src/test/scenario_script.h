@@ -39,6 +39,7 @@ enum class CommandType : unsigned char {
 	Xp,
 	Hurt,
 	Poison,
+	PoisonMonster,
 	Riddles,
 	Prop,
 	SaveGame,
@@ -49,6 +50,7 @@ enum class CommandType : unsigned char {
 	Click,
 	KillBoss,
 	HurtBoss,
+	PoisonBoss,
 	Quit,
 };
 
@@ -75,6 +77,7 @@ enum class Field : unsigned char {
 	Attacking,
 	DecorTier,
 	Nearest,
+	NearestPoison,
 	Coffins,
 	JournalRiddles,
 	JournalSolved,

@@ -1,0 +1,39 @@
+# Poisoned monsters (docs/plan/monster-poison.md): the poison runs on a monster as on the player and can kill it; the
+# player's poison kill gives the XP. Its health bar turns lime, the boss bar green. The mummy is immune.
+seed 1
+god
+
+# a rat (12 HP, no resistance), weak poison: 1 HP a second
+level tests/levels/hitbox_rat
+walk right 1
+wait 8s
+expect nearest == 12
+poisonmonster weak
+expect nearest_poison == 1
+wait 2s
+expect nearest == 10
+screenshot rat_poisoned
+expect xp == 0
+wait 11s
+expect nearest == 0
+expect nearest_poison == 0
+expect xp == 300
+
+# the mummy shrugs off any poison
+level tests/levels/mummy
+wait 30
+walk to 9.1
+wait 2s
+expect nearest > 0
+poisonmonster strong
+expect nearest_poison == 0
+
+# a boss (Sobek, no resistance): the boss bar turns green while it is poisoned
+level tests/levels/sobek
+walk to 10.8
+wait 300ms
+expect boss == 1600
+poisonboss strong
+wait 2s
+expect boss == 1590 # strong: 5 HP a second
+screenshot boss_poisoned

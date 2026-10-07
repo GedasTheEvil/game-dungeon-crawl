@@ -328,6 +328,10 @@ bool runInstant(const Command& cmd) {
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
 		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
 		return true;
+	case CommandType::PoisonBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.PoisonBoss(static_cast<PoisonTier>(cmd.ticks));
+		return true;
 	case CommandType::Expect: {
 		float actual = fieldValue(cmd);
 		char detail[48];
@@ -379,6 +383,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
 		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
+		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Prop: { // on the player's row

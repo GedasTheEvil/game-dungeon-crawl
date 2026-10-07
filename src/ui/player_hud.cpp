@@ -43,11 +43,11 @@ constexpr float LOW_HEALTH = 0.25f;			 // under this the health bar pulses
 constexpr int REFUSED_FLASH_MS = 600;
 constexpr int DRINK_FLASH_MS = 500;
 
-constexpr Color BLOOD_TOP = {0.85f, 0.14f, 0.08f}; // the boss bar's
-constexpr Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
+using PlayerHud::BLOOD_BOTTOM;
+using PlayerHud::BLOOD_TOP;
+using PlayerHud::POISON_BOTTOM;
+using PlayerHud::POISON_TOP;
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
-constexpr Color POISON_TOP = {0.45f, 0.82f, 0.2f}; // the health bar while poisoned
-constexpr Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
 // The drops, weak to strong: pale lime, venom green, deep malachite.
 constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};

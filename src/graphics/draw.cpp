@@ -232,7 +232,7 @@ void drawGameplay() {
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
-					  Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+					  boss->Poisoned(), Game().render.resX, Game().render.resY, Game().assets.fonts.status);
 
 	glColor3f(1, 1, 1);
 

@@ -30,9 +30,13 @@ in `dungeon_decor.cpp`. So the first level can already show an Anubis statue, a 
   cave bits still turn up deep down.
 * The tier table goes in one place, a data table like `MONSTER_DEFS`, so the level ranges are easy to tune.
 
-## Open
+## Decided (2026-10-07, the user let the agent pick; easy to change later)
 
-* The level ranges per tier, and which prop goes in which tier.
-* Decals: the current glyph set may need simpler ones for the early tiers (or none).
-* Generated levels (`levelgen`) and test levels have no campaign number: pick a tier from the generator's difficulty,
-  or use the deepest tier.
+* **Tiers and props:** as in the table above. Cave from level 1, worked tunnel from 4, tomb from 8, temple /
+  necropolis from 13. The tiers stop at 13: levels 13-30 get the whole set, weighted towards the temple tier.
+* **Weights:** the newest tier unlocked counts double, so each depth gets its own look and older things still turn
+  up.
+* **Decals:** none in the cave tier (bare rock), only the simple single glyphs in the worked tunnel (ankh, reed,
+  water, eye), all glyphs from the tomb tier on, and the painted bands and scenes only in the temple tier.
+* **Generated levels:** `levelgen`'s difficulty 1-10 maps to a level, 1 + 1.5 x (difficulty - 1), which picks its
+  tier. Test levels without a campaign number use the deepest tier, so scenarios keep seeing every prop.

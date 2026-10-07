@@ -4,7 +4,10 @@
 
 namespace {
 constexpr const char* TAG = "journal";
-constexpr int VERSION = 4; // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried
+// 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
+// damage type (older field notes are dropped: their numbers meant other notes)
+constexpr int VERSION = 5;
+constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -63,6 +66,36 @@ bool Journal::TryDamage(int type, int level, DamageType damage) {
 	return true;
 }
 
+FieldNote damageNote(DamageType type) {
+	switch (type) {
+	case DamageType::Blunt:
+		return FieldNote::Blunt;
+	case DamageType::Slash:
+		return FieldNote::Slash;
+	case DamageType::Pierce:
+		break;
+	}
+	return FieldNote::Pierce;
+}
+
+FieldNote potionNote(ItemKind potion) {
+	switch (potion) {
+	case ItemKind::SmallStamina:
+	case ItemKind::LargeStamina:
+		return FieldNote::StaminaPotions;
+	case ItemKind::Might:
+		return FieldNote::Might;
+	case ItemKind::Armor:
+		return FieldNote::Armor;
+	case ItemKind::Life:
+		return FieldNote::Life;
+	case ItemKind::Antidote:
+		return FieldNote::Antidote;
+	default: // the health potions
+		return FieldNote::HealthPotions;
+	}
+}
+
 void Journal::LearnNote(FieldNote note) {
 	if (std::find(notes.begin(), notes.end(), note) == notes.end())
 		notes.push_back(note);
@@ -112,6 +145,8 @@ void Journal::Load(std::istream& in) {
 		creatures.push_back(c);
 	}
 	if (version < 3 || !(in >> count))
+		return;
+	if (version < NOTES_PER_KIND_VERSION)
 		return;
 	for (size_t i = 0; i < count; i++) {
 		int note = 0;

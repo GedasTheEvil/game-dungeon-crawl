@@ -2,6 +2,7 @@
 #define JOURNAL_H
 
 #include "damage.h"
+#include "items.h"
 #include <istream>
 #include <ostream>
 #include <string>
@@ -58,17 +59,30 @@ struct JournalCreature {
 	[[nodiscard]] bool Tried(DamageType t) const { return (tried & (1U << static_cast<unsigned>(t))) != 0; }
 };
 
-// Field notes: the game's rules in the archaeologist's words, each written the first time it matters.
+// Field notes: the game's rules in the archaeologist's words, each written the first time it matters. A note covers
+// only what the player has met: one per potion group, written when the first potion of it is picked up, and one per
+// damage type, written when the first weapon of that main type is found (docs/plan/journal-notes-per-kind.md).
 enum class FieldNote : unsigned char {
-	Health,	 // the first hit taken
-	Levels,	 // the first level up
-	Stamina, // the first jump or sprint without the stamina for it
-	Potions, // the first potion drunk
-	Weapons, // the first weapon found
-	Keys,	 // the first key picked up
-	Poison,	 // the first time poisoned
+	Health,			// the first hit taken
+	Levels,			// the first level up
+	Stamina,		// the first jump or sprint without the stamina for it
+	Keys,			// the first key picked up
+	Poison,			// the first time poisoned
+	Weapons,		// the first weapon found: the weapon keys, copies and upgrades
+	Blunt,			// the first weapon found that deals mostly blunt damage (weaponMix)
+	Slash,			// ... slash
+	Pierce,			// ... pierce
+	HealthPotions,	// the first small or large health potion picked up
+	StaminaPotions, // the first small or large stamina potion
+	Might,			// the first Aphethamine
+	Armor,			// the first Stone Skin
+	Life,			// the first Elixir of Life
+	Antidote,		// the first antidote
 };
-constexpr int FIELD_NOTE_COUNT = 7;
+constexpr int FIELD_NOTE_COUNT = 15;
+// The note of a damage type, of a potion's group.
+[[nodiscard]] FieldNote damageNote(DamageType type);
+[[nodiscard]] FieldNote potionNote(ItemKind potion);
 
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);

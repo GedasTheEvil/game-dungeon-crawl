@@ -35,7 +35,26 @@ constexpr std::array<ItemText, ITEM_KIND_COUNT> TEXTS = {{
 	{"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water", "from the temple of Ra."},
 	{"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
 }};
+
+// Weapons only, in ItemKind order: blunt, slash, pierce percent.
+constexpr std::array<DamageMix, WEAPON_KIND_COUNT> WEAPON_MIXES = {{
+	{85, 15, 0}, // club
+	{0, 30, 70}, // dagger
+	{0, 85, 15}, // short sword
+	{0, 100, 0}, // khopesh
+	{30, 70, 0}, // epsilon axe
+	{20, 0, 80}, // duckbill axe
+	{100, 0, 0}, // mace
+	{0, 15, 85}, // spear
+	{0, 0, 100}, // self-bow
+	{0, 0, 100}, // composite bow
+	{100, 0, 0}, // sling
+	{90, 10, 0}, // throwing stick
+	{0, 10, 90}, // javelin
+}};
 } // namespace
+
+const DamageMix& weaponMix(ItemKind weapon) { return WEAPON_MIXES[static_cast<size_t>(itemIndex(weapon))]; }
 
 ItemFileId fileIdOf(ItemKind kind) { return FILE_IDS[static_cast<size_t>(itemIndex(kind))]; }
 

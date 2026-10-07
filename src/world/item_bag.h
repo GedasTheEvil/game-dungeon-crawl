@@ -56,7 +56,8 @@ class ItemBag {
 		counts[itemIndex(kind)]++;
 		found[itemIndex(kind)] = true;
 	}
-	void Find(ItemKind kind, Journal& journal); // found in a chest: added, a weapon writes the journal's weapons note
+	// Found in a chest: added; the journal's note of its potion group, or the weapons note and its damage type's.
+	void Find(ItemKind kind, Journal& journal);
 	[[nodiscard]] int Count(ItemKind kind) const { return counts[itemIndex(kind)]; }
 	[[nodiscard]] int Level(ItemKind kind) const { return levels[itemIndex(kind)]; }
 	[[nodiscard]] bool Found(ItemKind kind) const { return found[itemIndex(kind)]; }

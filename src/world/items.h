@@ -3,6 +3,7 @@
 
 // The items the player can carry, without rendering: shared by the game, the editor, levelgen and the unit tests.
 
+#include "damage.h"
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -103,6 +104,8 @@ struct ItemText {
 	const char* lore2;
 };
 [[nodiscard]] const ItemText& itemText(ItemKind kind);
+// A weapon's damage mix: blunt, slash, pierce percent. Its main type (mainType) is the journal's.
+[[nodiscard]] const DamageMix& weaponMix(ItemKind weapon);
 
 // Potion strengths, in percent of the player's max health or max stamina.
 namespace PotionEffect {

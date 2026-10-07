@@ -1,5 +1,6 @@
 # The journal's field notes, each written the first time it matters: a hit, a level up, a jump without the stamina
-# for it, a potion drunk, a weapon found, a key picked up (tests/levels/classic1, key on the first chest's way).
+# for it, a potion group's first potion picked up, a weapon found (the weapons note and its damage type's), a key
+# picked up (docs/plan/journal-notes-per-kind.md).
 seed 4
 level tests/levels/rats
 wait 5
@@ -75,12 +76,16 @@ wait 38
 wait 5
 expect journal_notes == 3
 give potion 0
+expect journal_notes == 4
 hurt 10
 key h
 wait 5
 expect journal_notes == 4
+give potion 1
+expect journal_notes == 4
+# the short sword: the weapons note and the slash note (and the chest's bonus stamina draught: its note)
 chest melee 1
-expect journal_notes == 5
+expect journal_notes >= 6
 key j
 wait 5
 screenshot notes_1

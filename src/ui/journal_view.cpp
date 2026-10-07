@@ -218,29 +218,35 @@ struct FieldNoteText {
 // By FieldNote. The rules as the game has them (PlayerStats, ItemBag, the mechanisms); keep them in step.
 constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Hit points", "Every bite, blow and trap costs me health: the red bar in the corner. When it runs out, the "
-				   "expedition is over. A healing potion brings some back (H drinks the right one), and a new level "
-				   "fills it up."},
+				   "expedition is over. A new level fills it up."},
 	{"Experience", "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
 				   "a new level: more health and more stamina, both filled up at once, and any poison gone. Every "
-				   "fifth level my skin gets "
-				   "tougher, every eighth my arm stronger."},
+				   "fifth level my skin gets tougher, every eighth my arm stronger."},
 	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running "
-				"drains it all the time. When I walk or stand, it comes back by itself. A stamina potion (0) helps in "
-				"a hurry."},
-	{"Potions", "Health draughts heal, stamina draughts give me my breath back. The rare ones work for good: "
-				"Aphethamine for might, Stone Skin for armour, the Elixir of Life for more health. In a hurry, H and 0 "
-				"drink the right one."},
-	{"Weapons", "Clubs, blades, axes and spears for close work; bows, slings and throwing weapons for the rest. 1 "
-				"takes up the next hand weapon, 2 the next one to shoot or throw. A club bludgeons, a blade slashes, "
-				"spear points and arrows pierce, and every creature takes each of them differently: I note it down. "
-				"Copies of "
-				"my weapons turn up in chests, and now and then a creature leaves one; with enough copies a weapon "
-				"can be upgraded in the inventory (U). The old club gains the most from it."},
+				"drains it all the time. When I walk or stand, it comes back by itself."},
 	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
 	{"Poison", "Some stings and bites poison me: the health bar turns green and drains on after the fight, armour "
 			   "or not, and it can kill me. The same poison again only starts over; a stronger or weaker one burns "
-			   "beside it. An antidote (=) cures them all, and so does a new level."},
+			   "beside it. A new level burns it all out."},
+	{"Weapons", "Copies of my weapons turn up in chests, and now and then a creature leaves one; with enough copies "
+				"a weapon can be upgraded in the inventory (U). The old club gains the most from it. 1 takes up the "
+				"next hand weapon, 2 the next one to shoot or throw. Every creature takes each kind of blow "
+				"differently: I note it down."},
+	{"Blunt", "A club bludgeons, and so do the mace, the sling's stones and the throwing stick: they crush rather "
+			  "than cut."},
+	{"Slash", "A blade slashes: the short sword, the khopesh, the epsilon axe. Long cuts, quick to follow one "
+			  "another."},
+	{"Pierce", "A point pierces: the dagger, the spear, the javelin, the duckbill axe, every arrow. It finds the "
+			   "gaps between scales and plates."},
+	{"Health draughts", "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. In a hurry, "
+						"H drinks the one that fits best."},
+	{"Stamina draughts", "Date wine and honey, or sun-steeped water: a stamina draught gives me my breath back. In "
+						 "a hurry, 0 drinks the one that fits best."},
+	{"Aphethamine", "It tingles. Whatever is in it, my arm hits harder after it, for good."},
+	{"Stone Skin", "My skin hardens like temple granite: every blow takes a little less, for good."},
+	{"Elixir of Life", "The breath of Osiris: more health for good, and every wound closed at once."},
+	{"Antidote", "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

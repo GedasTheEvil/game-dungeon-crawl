@@ -1,6 +1,6 @@
 # Journal notes per kind: potions and weapons
 
-Status: draft 2026-10-07, from the user.
+Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
 
 The field notes give away too much too early. Drinking the first health potion writes the "Potions" note, and that
 note already names stamina potions, Aphethamine, Stone Skin and the Elixir of Life. The first weapon found writes the
@@ -45,3 +45,25 @@ note, whichever comes first, or into a note of its own.
 * A potion's note is written when it is picked up, not when it is drunk.
 * Old save games do not matter (they get removed): new `FieldNote` bits, no conversion of the old "Potions" /
   "Weapons" bits.
+
+## Done (2026-10-07)
+
+* `FieldNote` (`src/world/journal.h`): `Potions` split into `HealthPotions`, `StaminaPotions`, `Might`, `Armor`,
+  `Life`, `Antidote`; `Weapons` kept for the general part (the keys 1 / 2, copies, upgrades) and joined by `Blunt`,
+  `Slash`, `Pierce`. `ItemBag::Find` writes them when an item is picked up (`potionNote`, `damageNote`); drinking no
+  longer writes anything.
+* A weapon teaches the note of the type it deals most of (`mainType`), the same rule the creature pages use. The
+  weapons' damage mixes moved from `WEAPON_DEFS` (`assets.cpp`) to `weaponMix` in `src/world/items.cpp`, so the world
+  can see them.
+* The other notes no longer name potions: "Hit points" and "Stamina" lost their potion sentence, "Poison" its
+  antidote one (the keys H, 0 and = are in the potion notes now).
+* Journal save version 5: the field notes of an older save are dropped (their numbers meant other notes); its riddles
+  and creatures stay.
+* Tests: unit (`world_events_test.cpp`, `journal_test.cpp`), `tests/scenarios/journal_field_notes.txt`.
+
+Decided on the way (easy to change):
+
+* **Mixed weapons:** only the main type's note (the club, 85% blunt, teaches blunt).
+* **The starting club** teaches nothing: it is held, not found. The blunt note comes with the first blunt weapon
+  picked up (the sling on lvl3 in the campaign).
+* The general weapons part is its own note ("Weapons"), written with the first weapon found, beside its type note.

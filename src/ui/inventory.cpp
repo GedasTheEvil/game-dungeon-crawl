@@ -205,7 +205,6 @@ std::string Inventory::DrinkPotion(ItemKind potion) {
 
 	Game().assets.sounds.drink_s.Play();
 	bag.Use(potion, playerVitals());
-	Game().journal.LearnNote(FieldNote::Potions);
 
 	PotionGain gain = potionGain(potion);
 	char buf[64];

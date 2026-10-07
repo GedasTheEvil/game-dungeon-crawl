@@ -21,14 +21,34 @@ TEST_CASE("world events come out in order, once") {
 	CHECK(events.Take().empty());
 }
 
-TEST_CASE("a weapon found writes the weapons note, a potion does not") {
+TEST_CASE("a potion found writes its group's note, a weapon the weapons note and its main type's") {
 	ItemBag bag;
 	Journal journal;
 	bag.Find(ItemKind::SmallHealth, journal);
 	CHECK(bag.Count(ItemKind::SmallHealth) == 1);
-	CHECK(journal.Notes().empty());
+	REQUIRE(journal.Notes().size() == 1);
+	CHECK(journal.Notes()[0] == FieldNote::HealthPotions);
+	bag.Find(ItemKind::LargeHealth, journal); // the same group: nothing new
+	CHECK(journal.Notes().size() == 1);
 	bag.Find(ItemKind::Spear, journal);
 	CHECK(bag.Count(ItemKind::Spear) == 1);
-	REQUIRE(journal.Notes().size() == 1);
-	CHECK(journal.Notes()[0] == FieldNote::Weapons);
+	REQUIRE(journal.Notes().size() == 3);
+	CHECK(journal.Notes()[1] == FieldNote::Weapons);
+	CHECK(journal.Notes()[2] == FieldNote::Pierce);
+	bag.Find(ItemKind::Club, journal); // 85% blunt, 15% slash: blunt only
+	REQUIRE(journal.Notes().size() == 4);
+	CHECK(journal.Notes()[3] == FieldNote::Blunt);
+	bag.Find(ItemKind::Antidote, journal);
+	CHECK(journal.Notes().back() == FieldNote::Antidote);
+}
+
+TEST_CASE("every weapon teaches the note of the type it deals most of") {
+	CHECK(damageNote(mainType(weaponMix(ItemKind::Dagger))) == FieldNote::Pierce);
+	CHECK(damageNote(mainType(weaponMix(ItemKind::EpsilonAxe))) == FieldNote::Slash);
+	CHECK(damageNote(mainType(weaponMix(ItemKind::DuckbillAxe))) == FieldNote::Pierce);
+	CHECK(damageNote(mainType(weaponMix(ItemKind::ThrowingStick))) == FieldNote::Blunt);
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++) {
+		const DamageMix& mix = weaponMix(itemAt(i));
+		CHECK(mix[0] + mix[1] + mix[2] == 100);
+	}
 }

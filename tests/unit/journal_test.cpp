@@ -140,3 +140,10 @@ TEST_CASE("field notes are written once, in the order they were learnt, and save
 	loaded.Load(s);
 	CHECK(loaded.Notes() == j.Notes());
 }
+
+TEST_CASE("field notes from before the notes per kind are dropped, the rest of the journal stays") {
+	std::stringstream v4("journal 4 0 0 2 3 4\n"); // no riddles, no creatures, two old notes
+	Journal j;
+	j.Load(v4);
+	CHECK(j.Notes().empty());
+}

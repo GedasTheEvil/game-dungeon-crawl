@@ -228,6 +228,10 @@ void ItemBag::Load(std::istream& in) {
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {
 	Add(kind);
-	if (!isPotion(kind))
-		journal.LearnNote(FieldNote::Weapons);
+	if (isPotion(kind)) {
+		journal.LearnNote(potionNote(kind));
+		return;
+	}
+	journal.LearnNote(FieldNote::Weapons);
+	journal.LearnNote(damageNote(mainType(weaponMix(kind))));
 }

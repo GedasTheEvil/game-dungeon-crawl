@@ -342,38 +342,30 @@ const struct {
 struct WeaponDef {
 	const char* name; // models/items/<name>.md3, textures/items/<name>.png
 	float scale;
-	int damage, range; // range in tenths of a tile (a ranged weapon's: how far it aims)
-	DamageMix mix;
+	int damage, range; // range in tenths of a tile (a ranged weapon's: how far it aims); the mix: weaponMix
 	WeaponMotion motion;
 	const char* swingSound;	 // sounds/items/<name>.wav: the attack begins
 	const char* strikeSound; // a melee hit lands, the shot leaves
 };
 
 // In ItemKind order. Motion: grip, rest / windup / strike tilt, thrust, hit (frame delay) / swing / recovery ms. The
-// club is slow and heavy, the short sword quick, the spear thrusts. Mix: blunt, slash, pierce percent.
+// club is slow and heavy, the short sword quick, the spear thrusts. The damage mix is in items.cpp (weaponMix).
 const WeaponDef WEAPON_DEFS[] = {
-	{"club", 6, 10, 2, {85, 15, 0}, {0.12f, 35, -40, 115, 0, 300, 560, 600}, "club_swing", "club_hit"},
-	{"dagger", 4, 8, 1, {0, 30, 70}, {0.15f, 45, 15, 100, 0.25f, 150, 320, 250}, "sword_swing", "spear_hit"},
-	{"sword", 9, 35, 3, {0, 85, 15}, {0.1f, 40, -10, 120, 0, 180, 360, 370}, "sword_swing", "sword_hit"},
+	{"club", 6, 10, 2, {0.12f, 35, -40, 115, 0, 300, 560, 600}, "club_swing", "club_hit"},
+	{"dagger", 4, 8, 1, {0.15f, 45, 15, 100, 0.25f, 150, 320, 250}, "sword_swing", "spear_hit"},
+	{"sword", 9, 35, 3, {0.1f, 40, -10, 120, 0, 180, 360, 370}, "sword_swing", "sword_hit"},
 	// The khopesh flows from swing to swing; the axes and the mace wind up long.
-	{"khopesh", 6.5f, 45, 3, {0, 100, 0}, {0.12f, 40, -30, 125, 0, 300, 560, 400}, "sword_swing", "sword_hit"},
-	{"epsilon_axe", 8, 55, 3, {30, 70, 0}, {0.1f, 35, -45, 120, 0, 550, 820, 400}, "club_swing", "axe_hit"},
-	{"duckbill_axe", 7, 50, 3, {20, 0, 80}, {0.1f, 35, -45, 115, 0, 500, 770, 400}, "club_swing", "axe_hit"},
-	{"mace", 7, 50, 2, {100, 0, 0}, {0.1f, 35, -50, 115, 0, 600, 870, 400}, "club_swing", "mace_hit"},
-	{"spear", 15, 20, 5, {0, 15, 85}, {0.35f, 70, 70, 70, 0.3f, 200, 420, 550}, "spear_swing", "spear_hit"},
-	{"bow",
-	 12,
-	 12,
-	 30,
-	 {0, 0, 100},
-	 {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
-	 "bow_draw",
-	 "bow_release"},
-	{"composite_bow", 11, 22, 40, {0, 0, 100}, {0.5f, 0, 0, 0, 0, 650, 750, 650}, "bow_draw", "bow_release"},
+	{"khopesh", 6.5f, 45, 3, {0.12f, 40, -30, 125, 0, 300, 560, 400}, "sword_swing", "sword_hit"},
+	{"epsilon_axe", 8, 55, 3, {0.1f, 35, -45, 120, 0, 550, 820, 400}, "club_swing", "axe_hit"},
+	{"duckbill_axe", 7, 50, 3, {0.1f, 35, -45, 115, 0, 500, 770, 400}, "club_swing", "axe_hit"},
+	{"mace", 7, 50, 2, {0.1f, 35, -50, 115, 0, 600, 870, 400}, "club_swing", "mace_hit"},
+	{"spear", 15, 20, 5, {0.35f, 70, 70, 70, 0.3f, 200, 420, 550}, "spear_swing", "spear_hit"},
+	{"bow", 12, 12, 30, {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550}, "bow_draw", "bow_release"},
+	{"composite_bow", 11, 22, 40, {0.5f, 0, 0, 0, 0, 650, 750, 650}, "bow_draw", "bow_release"},
 	// Whirled overhead from hanging down, let go in front.
-	{"sling", 5, 10, 20, {100, 0, 0}, {0.05f, 160, -150, 45, 0, 350, 600, 450}, "sling_swing", "sling_release"},
-	{"throwing_stick", 5, 14, 12, {90, 10, 0}, {0.08f, 40, -60, 100, 0, 300, 500, 400}, "club_swing", "throw"},
-	{"javelin", 11, 30, 15, {0, 10, 90}, {0.45f, 60, 20, 80, 0, 500, 700, 700}, "spear_swing", "throw"},
+	{"sling", 5, 10, 20, {0.05f, 160, -150, 45, 0, 350, 600, 450}, "sling_swing", "sling_release"},
+	{"throwing_stick", 5, 14, 12, {0.08f, 40, -60, 100, 0, 300, 500, 400}, "club_swing", "throw"},
+	{"javelin", 11, 30, 15, {0.45f, 60, 20, 80, 0, 500, 700, 700}, "spear_swing", "throw"},
 };
 static_assert(std::size(WEAPON_DEFS) == WEAPON_KIND_COUNT, "one WEAPON_DEFS row per weapon, in ItemKind order");
 
@@ -513,7 +505,7 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		item = loadItem(def.name, def.scale);
 		item->damage = def.damage;
 		item->range = def.range;
-		item->mix = def.mix;
+		item->mix = weaponMix(itemAt(static_cast<int>(i)));
 		item->motion = def.motion;
 		char sound[64];
 		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);

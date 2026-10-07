@@ -5,7 +5,17 @@ Status: draft 2026-10-06. Split off [resistance-potion.draft.md](resistance-poti
 ## Idea
 
 * A new item kind. **One amulet worn at a time**; each gives one bonus for as long as it is on.
-* Found in rare chests or dropped by a boss.
+* Where found: lesser and minor from chests (a random chance), normal and grand only from bosses (random amulet).
+* Duplicates allowed: the player can have more than one amulet of the same type and tier.
+* Later: [amulet upgrades](amulet-upgrades.draft.md) (combine or boost), [amulet of venom](venom-amulet.draft.md)
+  (poison monsters on hit).
+
+### UI (decided 2026-10-07)
+
+* Its own Amulets tab in the inventory ([inventory-overhaul.md](solved/inventory-overhaul.md)), the details panel
+  text per amulet.
+* The worn amulet's icon on the HUD.
+* The worn amulet and the carried ones are saved with the game.
 
 ### Tiers (decided 2026-10-07)
 
@@ -28,8 +38,10 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
   heal, no loss (full stays full, half stays half). Unlike a max HP potion (`PlayerStats::AddMaxHP` heals fully).
 * **Regeneration:** the simplest rule: a flat number of HP per second, only out of combat. No cap, no % of max HP.
   **Out of combat = no monster is chasing you:** as soon as a monster has noticed you and moves towards you,
-  regeneration stops (the fear of the monster). It starts again when none is chasing. Code note: `Monster::alerted`
-  stays set once a monster has acted (it drives the health bar), so "chasing now" needs its own per-tick state.
+  regeneration stops (the fear of the monster). It starts again when none is chasing. A monster that cannot chase or
+  attack you (rooted, stuck, lost you, out of reach) does not count: you are safe. Poisoned: no regeneration.
+  Code note: `Monster::alerted` stays set once a monster has acted (it drives the health bar), so "chasing now" needs
+  its own per-tick state.
 * **Chance vs reduction:** a chance for effects that are on or off (poison), a % off for damage.
 * **Typed instead of "physical":** a cut of all monster damage is stronger than every other amulet. One amulet per
   damage type instead (blunt, slash, pierce). Needs the monsters to deal typed damage:
@@ -37,12 +49,10 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Does poison pause regeneration? Does a monster that stopped (lost sight, rooted plant in reach) count as chasing?
-* Which tiers show up where (lesser early, grand late or from bosses); models for the other amulets.
+* Chest chance per tier and depth (minor deeper than lesser?); does every boss drop one, or a chance? Which amulet
+  types can drop where.
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?
-* Campaign: which amulet in which level / boss; each found once, no duplicates. Count them in `./levelcheck` (does a
-  poison amulet count toward the antidote rule?).
-* UI: an amulet group or slot in the inventory ([inventory-overhaul.md](solved/inventory-overhaul.md)), the
-  worn amulet on the HUD, the details panel text. Save / load of the worn one.
-* Models and icons.
+* `./levelcheck`: count the amulets a level can give? Does a poison amulet count toward the antidote rule (it is only a
+  chance)?
+* Models and icons: one model per amulet type (strength: an animal tooth on a string), tiers share it; the others open.
 * More bonuses: slower sprint drain, a faster escape from the crocodile's hold, more damage of one type.

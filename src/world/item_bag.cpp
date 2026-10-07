@@ -111,6 +111,22 @@ bool ItemBag::AnyFound(ItemGroup group) const {
 	return false;
 }
 
+std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group) {
+	const ItemRange range = groupItems(group);
+	std::vector<ItemKind> order;
+	order.reserve(static_cast<size_t>(range.count));
+	for (bool found : {true, false})
+		for (int i = range.first; i < range.first + range.count; i++)
+			if (bag.Found(itemAt(i)) == found)
+				order.push_back(itemAt(i));
+	return order;
+}
+
+int tabPosition(const ItemBag& bag, ItemKind kind) {
+	const std::vector<ItemKind> order = tabOrder(bag, itemGroup(kind));
+	return static_cast<int>(std::find(order.begin(), order.end(), kind) - order.begin());
+}
+
 UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 	if (!player.alive)
 		return UseBlock::Dead;

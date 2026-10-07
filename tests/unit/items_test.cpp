@@ -4,6 +4,7 @@
 #include "../../src/world/quick_potion.h"
 #include <sstream>
 #include <string>
+#include <vector>
 
 TEST_CASE("every item converts to its file id and back") {
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
@@ -324,4 +325,35 @@ TEST_CASE("a save from before the amulets: 21 slots in ItemKind order, nothing w
 	CHECK(bag.Count(ItemKind::StrengthLesser) == 0);
 	CHECK(bag.Equipped() == ItemKind::CompositeBow);
 	CHECK_FALSE(bag.Worn().has_value());
+}
+
+TEST_CASE("a tab shows the found items first, each part in ItemKind order") {
+	ItemBag bag; // the club only
+	const std::vector<ItemKind> potions = tabOrder(bag, ItemGroup::Potions);
+	REQUIRE(potions.size() == static_cast<size_t>(POTION_KIND_COUNT));
+	for (int i = 0; i < POTION_KIND_COUNT; i++) // nothing found: plain ItemKind order
+		CHECK(potions[static_cast<size_t>(i)] == itemAt(WEAPON_KIND_COUNT + i));
+
+	bag.Add(ItemKind::Antidote);
+	bag.Add(ItemKind::LargeHealth);
+	const std::vector<ItemKind> found = tabOrder(bag, ItemGroup::Potions);
+	CHECK(found[0] == ItemKind::LargeHealth);
+	CHECK(found[1] == ItemKind::Antidote);
+	CHECK(found[2] == ItemKind::SmallHealth);
+	CHECK(tabPosition(bag, ItemKind::Antidote) == 1);
+	CHECK(tabPosition(bag, ItemKind::SmallHealth) == 2);
+	CHECK(tabPosition(bag, ItemKind::SmallStamina) > tabPosition(bag, ItemKind::Might));
+
+	CHECK(tabOrder(bag, ItemGroup::Weapons).front() == ItemKind::Club);
+	CHECK(tabPosition(bag, ItemKind::Club) == 0);
+	CHECK(tabOrder(bag, ItemGroup::Amulets).size() == static_cast<size_t>(AMULET_KIND_COUNT));
+}
+
+TEST_CASE("an item used up stays in the found part") {
+	ItemBag bag;
+	bag.Add(ItemKind::Might);
+	const Vitals player{true, 50, 50, 100, 100, false};
+	REQUIRE(bag.Use(ItemKind::Might, player));
+	CHECK(bag.Count(ItemKind::Might) == 0);
+	CHECK(tabPosition(bag, ItemKind::Might) == 0);
 }

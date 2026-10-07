@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
+#include <vector>
 
 class Journal;
 
@@ -83,5 +84,11 @@ class ItemBag {
 	void Save(std::ostream& out) const;
 	void Load(std::istream& in);
 };
+
+// A tab's items in the order the inventory shows them (docs/plan/inventory-sorting.md): the ones found first, then
+// the ones not found yet, each in ItemKind order, so the found ones fill the first rows without gaps.
+[[nodiscard]] std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group);
+// kind's place in its tab's tabOrder.
+[[nodiscard]] int tabPosition(const ItemBag& bag, ItemKind kind);
 
 #endif

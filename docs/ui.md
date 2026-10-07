@@ -220,12 +220,14 @@ the others stone. A group with nothing found yet (`ItemBag::AnyFound`) is `TileS
 takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 
 The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
-item count in `ItemKind` order. Two rows fit; a group with more needs scrolling by whole rows (not built yet). An
+item count. The items found come first, then the ones not found yet, each part in `ItemKind` order (`tabOrder`,
+`src/world/item_bag.h`; [plan/inventory-sorting.md](plan/inventory-sorting.md)), so the found ones fill the first rows
+without gaps. Two rows fit; a group with more scrolls by whole rows. An
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
-silhouette. The number row keys still pick a slot in `ItemKind` order and open its tab.
-The Amulets tab has one row per amulet type (lesser, minor, normal, grand); the worn amulet's name band is lapis, like
-the weapon in hand, and its button reads "Take off" instead of "Wear".
+silhouette and its place among the found. The arrow keys and the number row keys follow the grid's order.
+In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand, and its button reads "Take off"
+instead of "Wear".
 
 ### Status box
 

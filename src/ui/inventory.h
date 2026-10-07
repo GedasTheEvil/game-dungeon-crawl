@@ -18,7 +18,7 @@ class Inventory {
 	static constexpr int NO_TAB = -1;
 
 	ItemBag bag;
-	int selectedSlot = 0;				  // slots are the ItemKind order
+	int selectedSlot = 0;				  // a slot is an ItemKind index; the grid shows them in tabOrder
 	ItemGroup tab = ItemGroup::Weapons;	  // the selected slot's group
 	int tabSlot[ITEM_GROUP_COUNT] = {};	  // the slot each tab selected last, for switching back to it
 	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down

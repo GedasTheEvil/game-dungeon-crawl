@@ -33,7 +33,7 @@ kinds are planned: amulets ([amulets.md](amulets.md)), a resistance potion
   the player must not learn it exists): the slot has an empty name band, the details say "Unknown" and "Still hidden
   somewhere in the tomb...". Found and used up (count 0): today's empty look, "None left".
 * **Antidote and resistance potion** stay in the potions group.
-* **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.draft.md](../inventory-sorting.draft.md).
+* **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.md](../inventory-sorting.md).
 * **Arrow keys:** left / right stay inside the current tab (up / down between its rows), as today within a row.
 * **Keys:** the number row and the slot key labels keep today's function; tabs and keys are
   [inventory-keys.draft.md](../inventory-keys.draft.md).

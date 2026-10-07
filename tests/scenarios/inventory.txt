@@ -18,11 +18,11 @@ wait 5
 screenshot open
 expect equip_id == 0
 
-# hover the short sword (the third slot, not selected yet), then select it and hover Equip
-mouse 39.3 63.5
+# hover the short sword (the second slot: the found items come first; not selected yet), then select it and hover Equip
+mouse 26.9 63.5
 wait 20
 screenshot hover_sword
-click 39.3 63.5
+click 26.9 63.5
 mouse 70 19.5
 wait 5
 screenshot selected_sword_hover_equip
@@ -72,9 +72,10 @@ click 27.0 80.6
 wait 5
 screenshot potions_tab
 
-# strength potion by keyboard: 3 selects the open tab's third slot, Enter drinks; used up, it shows none left
+# strength potion by keyboard: 2 selects the open tab's second slot (small health, might, life, the staminas found,
+# then the rest), Enter drinks; used up, it shows none left and keeps its place
 mouse 5 5
-key 3
+key 2
 wait 5
 screenshot strength_selected
 key enter
@@ -112,7 +113,9 @@ wait 5
 screenshot stamina_drunk
 expect potion5 == 1
 
-# arrows stay in the tab: up from the second potion row goes to the first one; the weapons tab keeps the sword
+# arrows stay in the tab: up from the second potion row (the large stamina) goes to the first one (small health); the
+# weapons tab keeps the sword
+select large_stamina
 key w
 wait 5
 screenshot arrow_up

@@ -4,19 +4,21 @@
 #   tools/check_layers.sh NAME FILES... [-- NAME FILES...]...
 #
 # For each library NAME and its FILES (.cpp with their matching .h, and header-only .h files):
-#   * quoted includes must be headers of the same library, or under external/
+#   * quoted includes must be headers of the same library, of the library named "base", or under external/
 #   * no SDL, no Game()
-#   * the library named "level" has no GL either
+#   * the libraries named "base" and "level" have no GL either
+# The base library (named first) sits under the others: its headers may be included by every library.
 # Prints one line per violation and exits 1 if there is any.
 set -u
 cd "$(dirname "$0")/.." || exit 2
 root=$(pwd)
 errors=0
+base_headers=()
 
 check_library() {
 	local name=$1
 	shift
-	local files=() allowed=()
+	local files=() allowed=("${base_headers[@]}")
 	for source in "$@"; do
 		files+=("$source")
 		if [ "${source%.h}" != "$source" ]; then
@@ -46,12 +48,13 @@ check_library() {
 			fi
 		done < <(grep -n '^#include "' "$file" | sed 's/^\([0-9]*\):#include "\([^"]*\)".*/\1:\2/')
 		local forbidden='#include <SDL|\bGame\(\)'
-		[ "$name" = level ] && forbidden="$forbidden|#include <GL"
+		case "$name" in base | level) forbidden="$forbidden|#include <GL" ;; esac
 		while IFS= read -r hit; do
 			echo "$file:${hit%%:*}: $name library uses ${hit#*:}"
 			errors=$((errors + 1))
 		done < <(grep -nE "$forbidden" "$file")
 	done
+	[ "$name" = base ] && base_headers=("${allowed[@]}")
 }
 
 args=()

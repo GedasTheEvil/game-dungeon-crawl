@@ -21,8 +21,8 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 | Health | +5% | +10% | +20% | +30% | more max HP; HP keeps its share of the max when put on or taken off |
 | Regeneration | - | - | 1 HP/s | 2 HP/s | normal and grand tiers only; out of combat only |
 | Poison | 10% | 25% | 50% | 80% | the chance to resist a poisoned hit (the poison, not the hit's damage) |
-| Traps | | | | | less trap damage; tiers open |
-| Pierce (blunt, slash alike) | | | | | a share off one damage type; tiers open |
+| Traps | 25% | 50% | 75% | immune | less trap damage |
+| Pierce (blunt, slash alike) | 8% | 16% | 28% | 40% | less damage of one type |
 
 * **Health amulet:** putting it on or taking it off changes the max HP but keeps the HP at the same share of it: no
   heal, no loss (full stays full, half stays half). Unlike a max HP potion (`PlayerStats::AddMaxHP` heals fully).
@@ -34,8 +34,6 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-* Tier numbers for traps and the damage types. Traps can be seen and walked around, so a trap amulet
-  needs a big cut or immunity to be worth the slot.
 * "Out of combat" for regeneration: how long after the last hit given or taken? Does poison pause it?
 * Which tiers show up where (lesser early, grand late or from bosses); models for the other amulets.
 * Swapping: free in the inventory (put on the poison amulet before the scorpion room), or only out of combat?

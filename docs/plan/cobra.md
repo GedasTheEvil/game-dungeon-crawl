@@ -1,8 +1,8 @@
 # Cobra: a regular monster
 
-Status: implemented 2026-10-06 (not placed in any level yet). Draft 2026-10-06. The minion of [apep-serpent-boss.md](apep-serpent-boss.md), built first as a
-regular monster. Placement in the campaign comes later (with the boss or
-[longer-campaign.md](longer-campaign.md)).
+Status: implemented 2026-10-06, placed in levels 16-20 (not play tested). Draft 2026-10-06. The minion of
+[apep-serpent-boss.md](apep-serpent-boss.md), built first as a regular monster, then placed with the
+[longer campaign](longer-campaign.md).
 
 ## Decided (2026-10-06)
 
@@ -52,8 +52,10 @@ Sounds: `cobra_{wake,att,die,spit}.wav`.
   of the reference height.
 * Journal moves `Rear` and `Spit`.
 * Model `tools/blender/models/cobra.py`, sounds `tools/audio/cobra_sounds.py`. Check: `tests/scenarios/cobra.txt`.
+* Placed (`./levelcheck`, 2026-10-07): lvl16 8, lvl17 10, lvl18 10, lvl19 7, lvl20 9 (besides the ones Apep summons).
+  The [giant cobra](giant-cobra.md) takes over from lvl21.
 
 ## Next
 
 * Play test: the look in game, the spit's timing, whether a jump really dodges it.
-* Placement in the campaign (with antidotes in reach: the checker wants them).
+* ~~Placement in the campaign~~ Done: levels 16-20, each with an antidote in reach (the checker passes).

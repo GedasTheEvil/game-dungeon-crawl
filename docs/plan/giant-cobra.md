@@ -26,9 +26,10 @@ Resistances as the cobra. Checker threat 5. Glyph `G` is taken (green gate): use
 
 ## Placement
 
-Levels 21-29 of the [longer campaign](longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
+Levels 21-30 of the [longer campaign](longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
 the weak monsters give way to their giant kin.
 
 ## Done (2026-10-06)
 
-* `MonsterGiantCobra` (18, glyph `Q`), texture `cobra_giant.png`, numbers as above. Placed in levels 21-30.
+* `MonsterGiantCobra` (18, glyph `Q`), texture `cobra_giant.png`, numbers as above. Placed in levels 21-30
+  (`./levelcheck`, 2026-10-07: 3 to 8 a level).

@@ -21,8 +21,8 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
   [Apep](apep-serpent-boss.md), 25 **Sobek** (picked by the agent while the user was away; the giant crocodile,
   from [more-bosses.draft.md](more-bosses.draft.md); easy to swap), 30 the Anubis boss and the ankh.
 * The Anubis guards (`MonsterAnubis`) get stronger for the late levels: retuned with the curve below.
-* New monsters: [cobra](cobra.md) (16-19 and Apep's minion), [giant cobra](giant-cobra.md) (21-29), giant
-  scorpion (the queen's minion).
+* New monsters: [cobra](cobra.md) (16-20 and Apep's minion), [giant cobra](giant-cobra.md) (21-30), giant
+  scorpion (the queen's minion in 15, placed again in 26-30).
 * New levels use the whole grid: [denser-levels.draft.md](denser-levels.draft.md).
 * The user is away; the agent works through it on its own, committing each step.
 
@@ -46,7 +46,7 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
 | 20 | Apep's pit |
 | 21-24 | The flooded halls: giant cobras, crocodiles, giant bats, mummies |
 | 25 | Sobek's lake |
-| 26-29 | The necropolis: Anubis guards, mummies, giant cobras, giant scarabs, every lock |
+| 26-29 | The necropolis: Anubis guards, mummies, giant cobras, giant scarabs, giant scorpions, every lock |
 | 30 | The ankh chamber: the Anubis boss |
 
 Open:

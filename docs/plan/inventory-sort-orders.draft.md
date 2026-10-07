@@ -1,6 +1,6 @@
 # Inventory sort orders
 
-Status: draft 2026-10-07. Left open by [inventory-sorting](inventory-sorting.md), which made "found first" the
+Status: draft 2026-10-07. Left open by [inventory-sorting](solved/inventory-sorting.md), which made "found first" the
 default.
 
 ## Open

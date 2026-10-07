@@ -221,7 +221,7 @@ takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 
 The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
 item count. The items found come first, then the ones not found yet, each part in `ItemKind` order (`tabOrder`,
-`src/world/item_bag.h`; [plan/inventory-sorting.md](plan/inventory-sorting.md)), so the found ones fill the first rows
+`src/world/item_bag.h`; [plan/solved/inventory-sorting.md](plan/solved/inventory-sorting.md)), so the found ones fill the first rows
 without gaps. Two rows fit; a group with more scrolls by whole rows. An
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark

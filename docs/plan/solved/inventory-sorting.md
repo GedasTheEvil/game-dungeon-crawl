@@ -1,8 +1,8 @@
 # Inventory sorting: found first
 
 Status: draft 2026-10-06, updated 2026-10-07. Implemented 2026-10-07 (see [Implementation](#implementation)), not
-play-tested yet. Split off [inventory-overhaul.md](solved/inventory-overhaul.md), which kept the `ItemKind` order.
-Further orders: [inventory-sort-orders](inventory-sort-orders.draft.md).
+play-tested yet. Split off [inventory-overhaul.md](inventory-overhaul.md), which kept the `ItemKind` order.
+Further orders: [inventory-sort-orders](../inventory-sort-orders.draft.md).
 
 ## New default: found first
 

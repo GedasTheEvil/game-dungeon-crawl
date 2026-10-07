@@ -7,9 +7,23 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/md3_import.py` - load a `.md3` into Blender (welded mesh, one shape key per frame, texture from `textures/<category>/<name>.png`).
 * `tools/blender/md3_export.py` - `export_md3(obj, path, frame_start=None, frame_end=None)`; bakes armature/shape keys per frame.
 * `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
-* `tools/blender/render_sheet.py` - headless review renders + per-frame lowest-z (floor penetration) check.
+* `tools/blender/render_sheet.py` - headless review renders and motion checks.
   `blender -b --python tools/blender/render_sheet.py -- <model.py> /tmp/frames "worm_walk@90:0,8" "worm_attack@40#3~0,-0.6,1:9"`
-  (spec `action[@yaw][^elevation][#ortho][~x,y,z target]:frames`; camera defaults from the model's `REVIEW_VIEW`), tile with `montage`.
+  (spec `action[@yaw][^elevation][#ortho][~x,y,z target]:frames`, frames `all` for the whole clip; camera defaults from the
+  model's `REVIEW_VIEW`), tile with `montage`. Motion as images (stills show poses, not timing):
+  `--onion` adds `<spec>_onion.png` (the spec's frames over each other, older ones bluer and fainter), `--paths[=bone,...]`
+  adds `<spec>_paths.png` (the bone tips' paths over the whole clip, a dot per frame so the spacing shows the speed, the
+  first frame dimmed under them; default the deforming leaf bones: feet, hands, tail tip, jaw). A top view (`^89`) shows
+  foot placement and sway. Printed per clip: `MINZ` (lowest point per frame: floor penetration), `SEAM` (last frame ->
+  frame 0 jump against the median frame step; about 1 for a loop, a die clip is expected high), `SLIDE` (median horizontal
+  step of the vertices on the floor per frame; an in-place walk wants an even step, `-` = nothing on the floor), with
+  `--intersect` also `INTERSECT` (self-intersecting face pairs per frame; rigid parts overlap by design, so watch the
+  jumps, not the baseline).
+* `tools/blender/md3_stats.py` - frames, triangles, bytes and extents (frame 0, all frames) of exported files; `--diff [REV]`
+  compares with the files at a git revision (default `HEAD`): extents change and the largest corner move.
+  `python3 tools/blender/md3_stats.py --diff models/monsters/rat*.md3` after an `--export`.
+* `docs/plan/references/<model>/` - reference images (photos, concept art) to compare renders against for shape and
+  proportions; kept out of git (its `.gitignore`), like `docs/plan/screenshots/`.
 * `tools/blender/models/common.py` - shared helpers: loft/tube/ellipsoid, chain_weights, Builder, make_material,
   finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
@@ -196,8 +210,13 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   (`stone_hit`, `stone_wall`). Wired in `WEAPON_DEFS` (`src/state/assets.cpp`) and `MISSILE_RULES`
   (`src/world/dungeon_arrows.cpp`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
-* `build/model-viewer <file.md3> [seconds]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
-  Space cycles the model's clips, T its textures, + / - change the loop speed, left-drag turns the model.
+* `build/model-viewer <file.md3> [seconds] [options]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
+  Space cycles the model's clips, T its textures, L the lighting (flat, the game's with the player's light, toon with
+  ink lines), + / - change the loop speed, left-drag turns the model. Screenshots in the game's renderer (texture
+  filtering, int16 steps, `Centrify`, lighting), headless: `xvfb-run -a -s "-screen 0 1280x1024x24" build/model-viewer
+  models/monsters/rat.md3 --shot /tmp/shots --frames 0,6,12 --yaw 90 --light toon --texture rat_giant --size 480x480`
+  writes `<stem>_<frame>.png` and exits (`--frames` default all; `--pitch`). The model in the dungeon, among walls and
+  torches: a scenario ([testing.md](testing.md)), e.g. `tests/scenarios/props.txt`.
 
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,

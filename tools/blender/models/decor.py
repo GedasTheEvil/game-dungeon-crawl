@@ -33,13 +33,14 @@ importlib.reload(common)
 from common import REPO, Builder, cone, ellipsoid, lathe, orient, perp, smoothstep, transform, tube  # noqa: E402
 
 COLL = "decor_new"
-PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris", "bes",
-         "sarcophagus", "torch", "coffin"]
+PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
+         "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin"]
 TEX_SIZE = 512
 # Enlargement per prop so it reads next to the player (~0.5 tile tall in game).
 # Kept inside x = +-0.42 and y >= -0.43 (the player walks at y = -0.5); the engine's DECOR_JITTER uses the slack.
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
-              "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4, "bes": 1.25,
+              "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4,
+              "thoth_ibis_standing": 1.4, "thoth_ibis_seated": 1.4, "thoth_baboon_seated": 1.4, "thoth_baboon_standing": 1.4,
               "sarcophagus": 1.3}
 # Not enlarged (exact tile units): coffin (the mummy's, placed by the engine at mummy spawn tiles, see mummy.py COFFIN).
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
@@ -138,6 +139,11 @@ def materials():
         "paint_blue": ("solid", "paint_blue"),
         "plume": stripes("v", 0.01, [(3, "limestone"), (1, "ochre")], "LINEAR"),
         "mane": ("solid", "ochre"),
+        "mane_stone": stripes("v", 0.005, [(2, "sandstone"), (1, "sandstone_dark")], "LINEAR"),
+        "thoth_wig": stripes("u", 1 / 12, [(1, "paint_blue"), (1, "limestone")]),
+        "kilt": stripes("u", 1 / 14, [(2, "eye_white"), (1, "limestone")]),
+        "collar": stripes("v", 0.004, [(1, "paint_blue"), (1, "gold"), (1, "paint_red")]),
+        "palette": stripes("u", 1 / 6, [(3, "limestone_fresh"), (1, "ink")]),
         "eye_white": ("solid", "eye_white"),
         "wrap": stripes("v", 0.011, [(3, "linen_mummy"), (1, "linen_mummy_dark")], "LINEAR"),
         "wrap_plain": ("solid", "linen_mummy"),
@@ -783,55 +789,171 @@ def build_osiris(b, M):
     chips(b, M, ((-0.14, -0.2, 0.008), (-0.1, -0.23, 0.005), (-0.26, -0.15, 0.006), (0.08, -0.22, 0.004)), 100)
 
 
-def bes_statue():
-    """Bes, the household god: a bandy-legged dwarf with a lion's mane, lolling tongue and feathered crown, hands on the
-    hips, facing -Y on z = 0. His right forearm and two plumes are broken off. Returns [(geo, mat)]."""
-    s = "limestone"
-    parts = [
-        (place(box(0.12, 0.08, 0.025), loc=(0, 0, 0.0125)), s),
-        (ellipsoid((0, -0.012, 0.12), (0.045, 0.038, 0.042), n=14, rings=7), s),
-        (ellipsoid((0, -0.004, 0.16), (0.048, 0.032, 0.03), n=14, rings=6), s),
-        (ellipsoid((0, -0.01, 0.21), (0.034, 0.028, 0.032), n=14, rings=7), s),
-        (ellipsoid((0, -0.034, 0.222), (0.027, 0.008, 0.006), n=10, rings=4), s),
-        (ellipsoid((0, -0.04, 0.203), (0.011, 0.008, 0.007), n=10, rings=4), s),
-        (ellipsoid((0, -0.036, 0.19), (0.014, 0.004, 0.005), n=10, rings=4), "black"),
-        (ellipsoid((0, -0.04, 0.183), (0.0075, 0.005, 0.012), n=10, rings=5), "paint_red"),
-    ]
-    for k in range(13):  # mane around the face, the beard at the bottom
-        a = math.radians(-90 + 360 * k / 13)
-        rr = 0.036 if k else 0.03
-        parts.append((ellipsoid((rr * math.cos(a), -0.012, 0.207 + rr * math.sin(a) * 1.05), (0.011, 0.012, 0.011), n=8, rings=4), "mane"))
-    for sx in (-1, 1):
-        parts.append((ellipsoid((sx * 0.028, -0.02, 0.031), (0.014, 0.02, 0.008), n=8, rings=4), s))
-        parts.append((curve([(sx * 0.028, -0.012, 0.034), (sx * 0.043, -0.012, 0.065), (sx * 0.026, -0.008, 0.098)], 0.013, n=8), s))
-        parts.append((ellipsoid((sx * 0.013, -0.035, 0.213), (0.0068, 0.005, 0.006), n=8, rings=4), "eye_white"))
-        parts.append((ellipsoid((sx * 0.013, -0.04, 0.213), (0.003, 0.002, 0.003), n=6, rings=3), "black"))
-        parts.append((ellipsoid((sx * 0.03, -0.005, 0.24), (0.009, 0.005, 0.01), n=8, rings=4), s))
-        shoulder, elbow, hand = V((sx * 0.05, -0.004, 0.168)), V((sx * 0.068, -0.012, 0.13)), V((sx * 0.04, -0.038, 0.105))
-        parts.append((rod(shoulder, elbow, 0.011, 0.01, n=8), s))
-        if sx > 0:
-            parts.append(snap(elbow, (0.011, 0.011, 0.008), 75))
-        else:
-            parts.append((rod(elbow, hand, 0.01, 0.008, n=8), s))
-            parts.append((ellipsoid(hand, (0.01, 0.008, 0.011), n=8, rings=4), s))
-    top = 0.238
-    parts.append((revolve_geo([(0.0, top), (0.022, top), (0.024, top + 0.018), (0.0, top + 0.018)], 14), "paint_blue"))
-    for k in range(-2, 3):
-        if k > 0:
-            parts.append(snap((0.009 * k, 0, top + 0.02), (0.006, 0.004, 0.004), 76 + k))
-            continue
-        feather = ellipsoid((0, 0, 0.045), (0.0065, 0.003, 0.045), n=8, rings=6)
-        parts.append((place(feather, rot(y=14 * k), (0.009 * k, 0, top + 0.014)), "paint_red" if k % 2 else "plume"))
+def moon_crown():
+    """Thoth's crown: a gold disc in an upturned crescent moon, on a short stand. Base at z = 0, facing -Y."""
+    parts = [(revolve_geo([(0.0, 0.0), (0.009, 0.0), (0.008, 0.008), (0.0, 0.008)], 12), "gold")]
+    arc = []
+    for k in range(11):
+        a = math.radians(200 + 140 * k / 10)
+        arc.append((0.022 * math.cos(a), 0.0, 0.03 + 0.022 * math.sin(a)))
+    parts.append((curve(arc, 0.0045, n=6, ref=V((0, -1, 0))), "limestone"))
+    parts.append((ellipsoid((0, 0, 0.032), (0.016, 0.004, 0.016), n=14, rings=5, axis=V((0, -1, 0)), ref=V((0, 0, 1))), "gold"))
     return parts
 
 
-def build_bes(b, M):
-    """Bes standing on his base, his broken forearm and a plume lying in front."""
-    add_parts(b, M, bes_statue(), loc=(0.0, -0.07, 0))
-    add_parts(b, M, [(rod((0, 0, 0), (0.042, 0, 0), 0.01, 0.008, n=8), "limestone"), (ellipsoid((0.048, 0, 0), (0.011, 0.01, 0.008), n=8, rings=4), "limestone")],
-              rot(z=-30), (0.11, -0.17, 0), lie=True)
-    add_parts(b, M, [(place(ellipsoid((0, 0, 0.045), (0.0065, 0.003, 0.045), n=8, rings=6), rot(x=90)), "plume")], rot(z=65), (-0.1, -0.16, 0), lie=True)
-    chips(b, M, ((0.08, -0.13, 0.005), (-0.06, -0.19, 0.004)), 105)
+def ibis_head(neck, broken_beak=False):
+    """Ibis head on a long neck from `neck` (the top of the shoulders), the curved beak towards -Y and down, a striped
+    wig whose lappets hang on the chest. Returns ([(geo, mat)], crown top point). broken_beak: snapped half way."""
+    n = V(neck)
+    head = n + V((0, -0.004, 0.05))
+    parts = [
+        (curve([n, n + V((0, -0.002, 0.025)), head + V((0, 0.004, -0.006))], 0.011, n=10, r_end=0.009), "limestone"),
+        (ellipsoid(head, (0.014, 0.017, 0.013), n=12, rings=6), "limestone"),
+        (ellipsoid(n + V((0, 0.006, 0.03)), (0.022, 0.016, 0.026), n=12, rings=6), "thoth_wig"),
+    ]
+    for sx in (-1, 1):
+        parts.append((place(box(0.01, 0.006, 0.026), loc=n + V((sx * 0.016, -0.012, 0.008))), "thoth_wig"))
+        parts.append((ellipsoid(head + V((sx * 0.012, -0.007, 0.003)), (0.0035, 0.0035, 0.0035), n=6, rings=3), "black"))
+    beak = [head + V((0, -0.014, -0.002)), head + V((0, -0.03, -0.008)), head + V((0, -0.045, -0.02)), head + V((0, -0.053, -0.036))]
+    if broken_beak:
+        parts.append((curve(beak[:2], 0.0045, n=6, r_end=0.0038), "black"))
+        parts.append(snap(beak[1], (0.004, 0.004, 0.003), 120))
+    else:
+        parts.append((curve(beak, 0.0045, n=6, r_end=0.0012), "black"))
+    return parts, head + V((0, 0.002, 0.012))
+
+
+def ibis_figure(seated, broken_beak):
+    """Thoth as an ibis-headed man facing -Y on z = 0, palette and reed pen in hand: striding on a base, or seated on
+    a block throne with the palette on his knees. Returns ([(geo, mat)], crown top point)."""
+    s = "limestone"
+    parts = []
+    if seated:
+        parts.append((place(box(0.075, 0.07, 0.07), loc=(0, 0.01, 0.035)), "stone"))  # the throne
+        parts.append((place(box(0.077, 0.004, 0.01), loc=(0, -0.026, 0.06)), "paint_blue"))
+        hip = 0.075
+        for sx in (-1, 1):
+            parts.append((rod((sx * 0.014, 0.0, hip), (sx * 0.014, -0.05, hip + 0.004), 0.012, 0.01, n=8), "kilt"))
+            parts.append((rod((sx * 0.014, -0.05, hip), (sx * 0.014, -0.052, 0.012), 0.009, 0.007, n=8), s))
+            parts.append((place(box(0.016, 0.026, 0.008), loc=(sx * 0.014, -0.058, 0.004)), s))
+        parts.append((place(box(0.05, 0.024, 0.005), rot(x=-8), (0, -0.04, hip + 0.016)), "palette"))  # palette on the knees
+        torso0 = hip
+    else:
+        parts.append((place(box(0.07, 0.09, 0.022), loc=(0, -0.01, 0.011)), "stone"))
+        for sx, fy in ((-1, -0.03), (1, 0.008)):  # striding: the left foot forward
+            parts.append((rod((sx * 0.012, 0.0, 0.11), (sx * 0.011, fy, 0.03), 0.011, 0.008, n=8), s))
+            parts.append((place(box(0.016, 0.03, 0.008), loc=(sx * 0.011, fy - 0.008, 0.026)), s))
+        parts.append((tube([((0, 0, 0.095), 0.03, 0.022), ((0, 0, 0.125), 0.024, 0.018)], sub=1, n=12), "kilt"))
+        torso0 = 0.12
+    t0 = torso0
+    parts.append((tube([((0, 0, t0), 0.023, 0.017), ((0, 0, t0 + 0.04), 0.026, 0.017), ((0, 0, t0 + 0.07), 0.03, 0.016)], sub=2, n=12), s))
+    parts.append((ellipsoid((0, -0.011, t0 + 0.062), (0.026, 0.006, 0.01), n=12, rings=4), "collar"))
+    sh = t0 + 0.068
+    for sx in (-1, 1):
+        shoulder, elbow = V((sx * 0.032, 0.0, sh)), V((sx * 0.034, -0.008, sh - 0.04))
+        hand = V((sx * 0.016, -0.04, sh - 0.05)) if seated else V((sx * 0.02, -0.032, sh - 0.045))
+        parts.append((rod(shoulder, elbow, 0.009, 0.008, n=8), s))
+        parts.append((rod(elbow, hand, 0.008, 0.007, n=8), s))
+        parts.append((ellipsoid(hand, (0.007, 0.007, 0.008), n=8, rings=4), s))
+        if sx > 0:  # the reed pen
+            parts.append((rod(hand + V((0, -0.002, -0.006)), hand + V((0.004, -0.012, 0.03)), 0.0018, n=5), "reed"))
+    if not seated:  # the palette in the left hand
+        parts.append((place(box(0.012, 0.006, 0.05), rot(x=-10), (-0.022, -0.04, sh - 0.05)), "palette"))
+    head, top = ibis_head((0, 0, sh + 0.004), broken_beak)
+    return parts + head, top
+
+
+def baboon_figure(standing):
+    """Thoth as a baboon facing -Y on z = 0: squatting on a plinth, hands on the knees, the mane a cape over the
+    shoulders; or upright, both forepaws raised in adoration. Dark sandstone, unlike the limestone gods. Returns
+    ([(geo, mat)], crown top point)."""
+    s = "stone"
+    parts = []
+    if standing:
+        parts.append((place(box(0.07, 0.07, 0.02), loc=(0, -0.005, 0.01)), "stone"))
+        for sx in (-1, 1):
+            parts.append((rod((sx * 0.015, 0.0, 0.085), (sx * 0.02, -0.008, 0.045), 0.013, 0.011, n=8), s))
+            parts.append((rod((sx * 0.02, -0.008, 0.045), (sx * 0.017, 0.0, 0.024), 0.01, 0.008, n=8), s))
+            parts.append((ellipsoid((sx * 0.017, -0.012, 0.024), (0.009, 0.016, 0.005), n=8, rings=4), s))
+        body = V((0, 0.002, 0.12))
+        parts.append((ellipsoid(body, (0.027, 0.022, 0.045), n=14, rings=7), s))
+        parts.append((curve([(0, 0.02, 0.08), (0.01, 0.045, 0.06), (0.03, 0.05, 0.028)], 0.006, n=6, r_end=0.004), s))  # tail
+        cape_c, shoulders = body + V((0, 0.002, 0.03)), body + V((0, 0, 0.038))
+    else:
+        parts.append((place(box(0.085, 0.075, 0.035), loc=(0, 0.0, 0.0175)), "stone"))
+        parts.append((place(box(0.087, 0.004, 0.008), loc=(0, -0.038, 0.028)), "paint_blue"))
+        base = 0.035
+        body = V((0, 0.004, base + 0.045))
+        parts.append((ellipsoid(body, (0.03, 0.026, 0.042), n=14, rings=7), s))
+        for sx in (-1, 1):  # knees drawn up in front, the feet under them
+            parts.append((ellipsoid((sx * 0.02, -0.026, base + 0.03), (0.011, 0.02, 0.022), n=10, rings=5), s))
+            parts.append((ellipsoid((sx * 0.02, -0.03, base + 0.004), (0.01, 0.016, 0.005), n=8, rings=4), s))
+        cape_c, shoulders = body + V((0, 0.0, 0.03)), body + V((0, 0, 0.036))
+    parts.append((ellipsoid(cape_c, (0.036, 0.03, 0.024), n=14, rings=6), "mane_stone"))
+    parts.append((ellipsoid(cape_c + V((0, -0.01, -0.012)), (0.03, 0.02, 0.016), n=12, rings=5), "mane_stone"))
+    for sx in (-1, 1):
+        shoulder = shoulders + V((sx * 0.028, -0.004, -0.006))
+        if standing:  # raised forepaws, palms to the front; the right one broken off at the elbow
+            elbow = shoulder + V((sx * 0.012, -0.018, 0.02))
+            parts.append((rod(shoulder, elbow, 0.009, 0.008, n=8), s))
+            if sx > 0:
+                parts.append(snap(elbow, (0.008, 0.008, 0.006), 121))
+            else:
+                paw = elbow + V((0.0, -0.006, 0.03))
+                parts.append((rod(elbow, paw, 0.008, 0.007, n=8), s))
+                parts.append((ellipsoid(paw + V((0, -0.002, 0.008)), (0.008, 0.004, 0.01), n=8, rings=4), s))
+        else:  # hands on the knees
+            hand = V((sx * 0.02, -0.04, shoulders.z - 0.04))
+            parts.append((curve([shoulder, shoulder + V((sx * 0.006, -0.02, -0.02)), hand], 0.008, n=8, r_end=0.007), s))
+            parts.append((ellipsoid(hand, (0.008, 0.008, 0.006), n=8, rings=4), s))
+    head = shoulders + V((0, -0.008, 0.026))
+    parts.append((ellipsoid(head, (0.018, 0.017, 0.017), n=12, rings=6), s))
+    parts.append((ellipsoid(head + V((0, -0.013, 0.008)), (0.017, 0.007, 0.005), n=10, rings=4), s))  # the brow
+    muzzle = [head + V((0, -0.01, -0.002)), head + V((0, -0.026, -0.008)), head + V((0, -0.04, -0.013))]
+    parts.append((curve(muzzle, 0.011, n=10, r_end=0.008), s))  # long, like a dog's
+    for sx in (-1, 1):
+        parts.append((ellipsoid(muzzle[-1] + V((sx * 0.003, -0.007, 0.002)), (0.0022, 0.0015, 0.0018), n=6, rings=3), "black"))
+        parts.append((ellipsoid(head + V((sx * 0.008, -0.015, 0.003)), (0.0035, 0.002, 0.0025), n=6, rings=3), "black"))
+        parts.append((ellipsoid(head + V((sx * 0.017, 0.004, 0.006)), (0.004, 0.003, 0.005), n=6, rings=3), s))
+    return parts, head + V((0, 0.0, 0.018))
+
+
+def build_thoth_ibis_standing(b, M):
+    """Thoth striding, ibis-headed, palette and pen in hand; his beak snapped, the moon crown fallen in front."""
+    parts, _ = ibis_figure(seated=False, broken_beak=True)
+    add_parts(b, M, parts, rot(z=-40), (-0.04, -0.07, 0))
+    add_parts(b, M, moon_crown(), rot(z=20) @ rot(x=80), (0.1, -0.16, 0), lie=True)
+    add_parts(b, M, [(curve([(0, 0, 0), (0, -0.015, -0.01), (0, -0.022, -0.026)], 0.004, n=6, r_end=0.0012), "black")],
+              rot(z=60) @ rot(x=70), (-0.11, -0.18, 0), lie=True)
+    chips(b, M, ((0.05, -0.2, 0.004), (-0.07, -0.21, 0.005)), 122)
+
+
+def build_thoth_ibis_seated(b, M):
+    """Thoth enthroned, ibis-headed, the palette on his knees, the moon crown still on his head; a corner of the
+    throne broken off."""
+    parts, top = ibis_figure(seated=True, broken_beak=False)
+    parts += [(place(geo, None, top), mat) for geo, mat in moon_crown()]
+    add_parts(b, M, parts, rot(z=-35), (0.0, -0.07, 0))
+    chips(b, M, ((0.07, -0.17, 0.008), (0.1, -0.13, 0.005), (-0.08, -0.19, 0.004)), 123)
+
+
+def build_thoth_baboon_seated(b, M):
+    """The baboon of Thoth squatting on his plinth, hands on the knees; the moon crown broken off and lying in front."""
+    parts, _ = baboon_figure(standing=False)
+    add_parts(b, M, parts, rot(z=-15), (0.0, -0.06, 0))
+    add_parts(b, M, moon_crown(), rot(z=-25) @ rot(x=-75), (-0.1, -0.17, 0), lie=True)
+    chips(b, M, ((0.07, -0.18, 0.005), (0.09, -0.15, 0.004)), 124)
+
+
+def build_thoth_baboon_standing(b, M):
+    """The baboon of Thoth upright, forepaws raised to the rising sun, the moon crown on his head; one forearm broken
+    off and lying at his feet."""
+    parts, top = baboon_figure(standing=True)
+    parts += [(place(geo, None, top), mat) for geo, mat in moon_crown()]
+    add_parts(b, M, parts, rot(z=-20), (0.0, -0.06, 0))
+    paw = [(rod((0, 0, 0), (0, 0, 0.03), 0.008, 0.007, n=8), "limestone"), (ellipsoid((0, 0, 0.038), (0.008, 0.004, 0.01), n=8, rings=4), "limestone")]
+    add_parts(b, M, paw, rot(z=50) @ rot(x=88), (0.09, -0.17, 0), lie=True)
+    chips(b, M, ((-0.07, -0.18, 0.005), (0.06, -0.21, 0.004)), 125)
 
 
 def vault_lid(length):
@@ -974,7 +1096,10 @@ BUILDERS = {
     "cat": build_cat,
     "jackal": build_jackal,
     "osiris": build_osiris,
-    "bes": build_bes,
+    "thoth_ibis_standing": build_thoth_ibis_standing,
+    "thoth_ibis_seated": build_thoth_ibis_seated,
+    "thoth_baboon_seated": build_thoth_baboon_seated,
+    "thoth_baboon_standing": build_thoth_baboon_standing,
     "sarcophagus": build_sarcophagus,
     "torch": build_torch,
     "coffin": build_coffin,

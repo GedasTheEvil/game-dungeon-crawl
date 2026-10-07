@@ -116,7 +116,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
 * `tools/blender/models/decor.py` - fifteen static corridor props (web, pottery, canopic jars, rubble, sand drift, skeleton,
   brazier, lamp (offerings: clay oil lamp), scrolls, ushabti; broken statues: `cat` (Bastet on a chipped plinth, an ear and a
   toppled figurine on the floor), `jackal` (Anubis couchant on a black and gold shrine), `osiris` (toppled, the shins still on the
-  base, atef crown rolled off), `bes` (dwarf household god, forearm and two plumes broken off); `sarcophagus` (a commoner's box
+  base, atef crown rolled off), four of Thoth, one pick with a variant at even odds: `thoth_ibis_standing` (striding, palette and pen, beak snapped, moon crown on the floor), `thoth_ibis_seated` (enthroned, palette on the knees), `thoth_baboon_seated` (squatting, dark sandstone, crown fallen), `thoth_baboon_standing` (forepaws raised, one broken off); `sarcophagus` (a commoner's box
   coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `Dungeon::scatterTorches`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `models/decorations/decor_<name>.md3` + `textures/decorations/decor_<name>.png`;

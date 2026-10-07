@@ -14,6 +14,7 @@
 #include "../world/level_gen.h"
 #include <algorithm>
 #include <GL/gl.h>
+#include "../world/decor.h"
 #include <cmath>
 #include <csignal>
 #include <cstdio>
@@ -66,6 +67,7 @@ enum class CommandType : unsigned char {
 	Hurt,
 	Poison,
 	Riddles,
+	Prop,
 	SaveGame,
 	LoadGame,
 	Mouse,
@@ -684,6 +686,15 @@ std::string parseLine(const std::vector<std::string>& w, Command& cmd) {
 			}
 		return "usage: poison weak|medium|strong";
 	}
+	if (name == "prop") {
+		cmd.type = CommandType::Prop;
+		for (int d = 0; argc == 2 && parseFloat(w[1], cmd.a) && d < DECOR_COUNT; d++)
+			if (w[2] == DECOR_NAMES[d]) {
+				cmd.ticks = d;
+				return "";
+			}
+		return "usage: prop <col> <name>: a prop of DECOR_NAMES (web, pottery, ..., thoth_ibis_standing, ...)";
+	}
 	if (name == "riddles") {
 		cmd.type = CommandType::Riddles;
 		if (argc != 1)
@@ -911,6 +922,15 @@ bool runInstant(const Command& cmd) {
 		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events);
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Prop: { // on the player's row
+		float x = 0.f;
+		float y = 0.f;
+		Game().dungeon.getC(x, y);
+		const bool placed =
+			Game().dungeon.PlaceDecor(static_cast<int>(cmd.a), static_cast<int>(std::floor(y)), cmd.ticks);
+		report(cmd, placed, placed ? "" : "outside the level");
+		return true;
+	}
 	case CommandType::Riddles:
 		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
 		return true;

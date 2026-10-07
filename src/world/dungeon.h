@@ -208,6 +208,9 @@ class Dungeon {
 	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
 	[[nodiscard]] bool Won() const { return won; }
 	void ClearWin() { won = false; } // a new game or a scenario level
+	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
+	// cell is outside the level.
+	bool PlaceDecor(int col, int row, int type);
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off

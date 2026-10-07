@@ -1,5 +1,6 @@
 # Statue and mummy props in the game (tests/levels/statues29063): the cat (col 2), the jackal shrine (3), the
-# sarcophagus (6), Osiris (8), Bes (10).
+# sarcophagus (6), Osiris (8), a Thoth (10). Then Thoth's four variants side by side (docs/plan/thoth-statue.md),
+# put there with the prop command.
 seed 1
 god
 level tests/levels/statues29063
@@ -16,8 +17,23 @@ screenshot sarcophagus_right
 camera 0 0
 walk right 4
 wait 10
-screenshot osiris_bes
+screenshot osiris_thoth
 toon on
 wait 5
-screenshot osiris_bes_toon
+screenshot osiris_thoth_toon
+toon off
+prop 15 thoth_ibis_standing
+prop 16 thoth_ibis_seated
+prop 17 thoth_baboon_seated
+prop 18 thoth_baboon_standing
+walk to 14.6
+walk right 0.1
+wait 10
+screenshot thoth_ibis
+walk to 16.6
+wait 10
+screenshot thoth_baboon
+toon on
+wait 5
+screenshot thoth_baboon_toon
 quit

@@ -20,7 +20,7 @@ in `dungeon_decor.cpp`. So the first level can already show an Anubis statue, a 
 |---|---|---|---|---|
 | Cave | 1 | web, rubble, sand, skeleton, pottery | rough walls, strata, sand floor, rough ceiling | none, or scratches |
 | Worked tunnel | 4 | canopic, lamp, brazier, scrolls | dressed stone, cracked stone, cracked floor | a few simple glyphs |
-| Tomb | 8 | ushabti, cat, Bes | plaster, worn plaster, slab floor, slab ceiling | glyph rows |
+| Tomb | 8 | ushabti, cat, Thoth (four variants) | plaster, worn plaster, slab floor, slab ceiling | glyph rows |
 | Temple / necropolis | 13 | jackal (Anubis), Osiris, sarcophagus | broken plaster, star ceiling, painted walls | full painted scenes |
 
 * The mummy's coffin (`DECOR_COFFIN`) stays where it is: it belongs to the mummy, not to the tier.

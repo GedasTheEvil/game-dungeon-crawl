@@ -38,8 +38,10 @@ constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
 constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
 constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the flame (world units)
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
-constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f, 0.f,	 0.15f, 0.2f, 0.1f,
-											 0.1f, 0.06f, 0.14f, 0.2f, 0.1f, 0.2f,	0.1f, 0.f};
+constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f, 0.06f,
+											 0.14f, 0.2f,  0.1f,  0.2f, 0.2f, 0.2f,	 0.2f, 0.1f, 0.f};
+// The props a cell picks from: Thoth's variants count as one.
+constexpr int DECOR_PICKS = DECOR_SCATTERED - (DECOR_THOTH_VARIANTS - 1);
 
 uint32_t hashName(const char* s) { // FNV-1a
 	uint32_t h = 2166136261U;
@@ -92,6 +94,13 @@ int Dungeon::CoffinCount() const {
 
 // Every cell rolls independently from (level name, cell index), so the layout is the same on every
 // load of a level and does not depend on the rest of the map.
+bool Dungeon::PlaceDecor(int col, int row, int type) {
+	if (!IsInBounds(col, row) || type < 0 || type >= DECOR_COUNT)
+		return false;
+	decor[MapIndex(col, row)] = DecorCell{static_cast<int8_t>(type), false, 0.f};
+	return true;
+}
+
 void Dungeon::scatterDecorations(const char* levelName) {
 	const char* slash = strrchr(levelName, '/');
 	uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
@@ -121,9 +130,12 @@ void Dungeon::scatterDecorations(const char* levelName) {
 			bool webFits = ceiling; // lies flat on the back wall, tucked into a side wall's corner if there is one
 
 			h = mix(h);
-			int type =
-				webFits ? static_cast<int>(h % DECOR_SCATTERED) : 1 + static_cast<int>(h % (DECOR_SCATTERED - 1));
+			int type = webFits ? static_cast<int>(h % DECOR_PICKS) : 1 + static_cast<int>(h % (DECOR_PICKS - 1));
 			h = mix(h);
+			if (type == DECOR_THOTH)
+				type += static_cast<int>((h >> 3) % DECOR_THOTH_VARIANTS);
+			else if (type > DECOR_THOTH)
+				type += DECOR_THOTH_VARIANTS - 1;
 			cell.type = static_cast<int8_t>(type);
 			if (type == DECOR_WEB)
 				cell.mirror = wallLeft == wallRight ? (h & 1U) != 0 : wallRight;
@@ -197,7 +209,7 @@ void Dungeon::scatterTorches(uint32_t seed) {
 			const Tile tile = MapAt(i, j);
 			int8_t prop = decor[MapIndex(i, j)].type;
 			if (isWall(tile) || !tileDef(tile.type).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP ||
-				prop == DECOR_BES || i - lastTorch <= TORCH_MIN_GAP)
+				isThoth(prop) || i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
 			uint32_t h = cellHash(seed, MapIndex(i, j));

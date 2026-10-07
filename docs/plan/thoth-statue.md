@@ -1,6 +1,6 @@
 # Replace the Bes statue with Thoth
 
-Status: draft 2026-10-07, from the user.
+Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
 
 The user does not like the Bes decoration. Remove it and add broken Thoth statues in its place, in several variants.
 
@@ -45,3 +45,18 @@ crown, pieces on the floor in front):
 
 * Four variants, picked at random with equal odds, all in Thoth's tier.
 * Size: as tall as Osiris at most.
+
+## Done (2026-10-07)
+
+* `tools/blender/models/decor.py`: `build_bes` gone; `moon_crown`, `ibis_head`, `ibis_figure`, `baboon_figure` and one
+  `build_thoth_*` per variant, scale 1.4, up to 0.36 tile tall (Osiris upright ~0.4). The ibis figures limestone with a
+  blue-striped wig, turned a little to the side so the beak shows; the baboons dark sandstone with a long muzzle and a
+  mane cape. Broken: the striding ibis's beak (the tip on the floor) and crown, a corner of the throne, the seated
+  baboon's crown, the standing baboon's right forearm.
+* `src/world/decor.h`: `DECOR_THOTH` (13) and `DECOR_THOTH_VARIANTS` (4), `isThoth`; `DECOR_COUNT` 19, the coffin
+  last. `Dungeon::scatterDecorations` picks among `DECOR_PICKS` (Thoth's variants as one), then the variant from the
+  cell's hash. No wall torch over any Thoth.
+* `decor_bes` model and texture deleted.
+* Scenario command `prop COL NAME` (put a prop on the player's row); `tests/scenarios/statues.txt` shows a scattered
+  Thoth at col 10 and all four side by side.
+* The tier (tomb, from level 8) comes with [decor-by-depth.draft.md](decor-by-depth.draft.md).

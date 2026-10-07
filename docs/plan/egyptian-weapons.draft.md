@@ -44,16 +44,36 @@ them, tuned with [monster-balance.draft.md](monster-balance.draft.md).
 | Throwing stick | new | ranged | 90/10/0 | 14 | 12 | 700 | short ranged blunt, spins, comes back |
 | Javelin | new | ranged | 0/10/90 | 30 | 15 | 1200 | short, hard pierce throw |
 
-### Ranged timers
+### Attack timers
 
-Each ranged weapon has two timers instead of one attack time:
+Every weapon has two timers instead of one attack time:
 
-* **Frame delay**: from the attack key until the shot leaves (the draw, the wind-up). Short means it fires quickly.
-* **Recovery**: from the shot leaving until the next attack can start.
+* **Frame delay**: from the attack key until the hit lands (melee) or the shot leaves (ranged): the wind-up, the
+  draw. The risk: a slow wind-up lets the monster strike first.
+* **Recovery**: from the hit or shot until the next attack can start. The opening: no attack meanwhile.
 
-Attack ms in the table above is their sum. Today the bow has both, only not named: `motion.hitMs` (`BOW_DRAW_MS`,
-450) is the frame delay, and `motion.attackMs` (1000) counts from the key press, so recovery is 550. Give the
-ranged rows these two values directly, so recovery can be tuned without touching the draw.
+Attack ms in the table above is their sum. Today both exist, only not named: `motion.hitMs` is the frame delay
+(the bow's is `BOW_DRAW_MS`, 450), and `motion.attackMs` counts from the key press, so recovery is `attackMs - hitMs`.
+Give every `ITEM_DEFS` row these two values directly, so one can be tuned without the other. `swingMs` stays the
+animation's return to rest and runs inside the recovery.
+
+Moving or sprinting does not cancel a recovery: a swing or shot is a commitment.
+
+Melee: the dagger is quick on both, the spear thrusts fast and recovers long, the khopesh flows from swing to swing,
+the axes and the mace wind up long. The club, sword and spear keep today's values.
+
+| Weapon | Frame delay ms | Recovery ms |
+|---|---|---|
+| Club | 300 | 600 |
+| Dagger | 150 | 250 |
+| Short sword | 180 | 370 |
+| Khopesh | 300 | 400 |
+| Epsilon axe | 550 | 400 |
+| Duckbill axe | 500 | 400 |
+| Mace | 600 | 400 |
+| Spear | 200 | 550 |
+
+Ranged:
 
 | Weapon | Frame delay ms | Recovery ms |
 |---|---|---|

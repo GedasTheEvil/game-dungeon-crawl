@@ -1,7 +1,10 @@
 #include "font.h"
+#include "textures.h"
 #include <GL/gl.h>
 #include <string.h>
 #include <stdarg.h>
+#include <map>
+#include <string>
 #include "../core/logger.h"
 
 #pragma GCC diagnostic push
@@ -16,6 +19,8 @@ namespace {
 constexpr int GRID = 10;				// the font sheet is 10 x 10 cells
 constexpr unsigned char INK_LEVEL = 60; // brighter than this counts as glyph
 constexpr float SPACE_WIDTH = 0.28f;	// of the glyph size, the space cell is empty
+
+constexpr int SHEET_GLYPHS = 95;
 
 // Left and right inked column of every glyph cell, as fractions of the cell width.
 // Returns false when the sheet cannot be read (the font stays monospaced).
@@ -50,6 +55,29 @@ bool measureGlyphs(const char* filename, int glyphs, float* left, float* right) 
 }
 } // namespace
 
+struct FontSheet {
+	Texture texture;
+	bool measured = false; // left / right hold the glyph edges (measureGlyphs)
+	float left[SHEET_GLYPHS] = {};
+	float right[SHEET_GLYPHS] = {};
+};
+
+namespace {
+// The sheet of a font file, loaded on first use and kept while a font holds it.
+std::shared_ptr<const FontSheet> loadSheet(const char* filename) {
+	static std::map<std::string, std::weak_ptr<const FontSheet>> sheets;
+	std::weak_ptr<const FontSheet>& cached = sheets[filename];
+	if (auto shared = cached.lock())
+		return shared;
+	auto sheet = std::make_shared<FontSheet>();
+	if (!sheet->texture.LoadPNG(filename, TexFilter::Flat))
+		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
+	sheet->measured = measureGlyphs(filename, SHEET_GLYPHS, sheet->left, sheet->right);
+	cached = sheet;
+	return sheet;
+}
+} // namespace
+
 //=================================================================================================================
 Font::Font() {}
 //=================================================================================================================
@@ -64,7 +92,7 @@ void Font::print(float x, float y, const char* fmt, ...) // Where The Printing H
 	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
 	va_end(ap);								// Results Are Stored In Text
 
-	t.Bind();																 // Select Our Font Texture
+	sheet->texture.Bind();													 // Select Our Font Texture
 	glPushMatrix();															 // Store The Modelview Matrix
 	glLoadIdentity();														 // Reset The Modelview Matrix
 	glTranslatef(x, y, 1);													 // Position The Text (0,0 - Bottom Left)
@@ -85,14 +113,12 @@ float Font::TextWidth(const char* text) const {
 //=================================================================================================================
 void Font::Load(const char filename[], float size, float spacing, bool proportional) // Build Our Font Display List
 {
+	static_assert(GLYPHS == SHEET_GLYPHS);
 	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
-	if (!t.LoadPNG(filename, TexFilter::Flat))
-		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
-	t.Bind();
-
-	float left[GLYPHS] = {};
-	float right[GLYPHS] = {};
-	if (proportional && !measureGlyphs(filename, GLYPHS, left, right)) {
+	sheet = loadSheet(filename);
+	const float* left = sheet->left;
+	const float* right = sheet->right;
+	if (proportional && !sheet->measured) {
 		LOG_ERRORF("graphics", "Could not measure font glyphs: %s", filename);
 		proportional = false;
 	}

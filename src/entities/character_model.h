@@ -64,13 +64,20 @@ inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Jump, "_jump", false, false},
 									   {ModelState::Climb, "_climb", false, true}};
 
+// The clips of one set of model files. Kin on one model (the scarab, the giant scarab, the boss scarab) share them and
+// only differ in their texture, bound at draw time.
+struct CharacterClips {
+	std::array<std::unique_ptr<AnimatedModel>, MODEL_STATE_COUNT> clips; // by ModelState, nullptr if no file
+	ModelState reference = ModelState::Move;							 // first clip of the ClipFiles
+};
+
 // The clips, texture and sounds of one character (a monster type or the player), loaded once and shared by every
 // instance. Instances keep their own ModelState and ClipPlayback.
 class CharacterModel {
   private:
-	std::array<std::unique_ptr<AnimatedModel>, MODEL_STATE_COUNT> clips; // by ModelState, nullptr if no file
-	ModelState reference = ModelState::Move;							 // first clip of the ClipFiles
+	std::shared_ptr<const CharacterClips> shape = std::make_shared<CharacterClips>(); // empty until Load
 	Texture texture;
+	void loadSounds(const char* name);
 
   public:
 	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
@@ -85,10 +92,12 @@ class CharacterModel {
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
 	// Takes the texture over. keepFrames: see AnimatedModel::Compile.
 	bool Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames = false);
-	[[nodiscard]] ModelState Reference() const { return reference; }
-	[[nodiscard]] AnimatedModel* Clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
+	// The clips (and measures) of `other`, loaded from the same model files, with its own texture and sounds.
+	void Share(const CharacterModel& other, const char* name, Texture&& tex);
+	[[nodiscard]] ModelState Reference() const { return shape->reference; }
+	[[nodiscard]] AnimatedModel* Clip(ModelState state) const { return shape->clips[static_cast<int>(state)].get(); }
 	// The clip a state shows: its own, or the reference clip standing in.
-	[[nodiscard]] ModelState Shown(ModelState state) const { return Clip(state) ? state : reference; }
+	[[nodiscard]] ModelState Shown(ModelState state) const { return Clip(state) ? state : Reference(); }
 	// Random move / idle phase, so monsters spawned in the same tick don't march in step.
 	[[nodiscard]] ClipPlayback SpawnPlayback(Rng& rng) const;
 	// Enters state: a one-shot clip (die, jump) plays from the start.

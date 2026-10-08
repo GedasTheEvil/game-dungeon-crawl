@@ -48,7 +48,7 @@ struct ItemPrototypes {
 
 struct TrapSet {
 	std::unique_ptr<Trap> spikes;
-	std::unique_ptr<Trap> deathTrap; // big spikes on a death tile
+	std::unique_ptr<Trap> deathTrap; // big spikes on a death tile: the spikes' model, scaled up
 };
 
 struct SceneModels {
@@ -67,13 +67,12 @@ struct DecorSet {
 };
 
 // Keys, gates, levers and rock falls: static models in tile units like the props (tools/blender/models/mechanism.py).
-// Keys, gates and lever plates have one texture per lock colour (index colour - 1). A compiled model keeps its
-// texture, so each colour is its own copy of the model. Null if the file failed to load.
+// Keys, gates and lever plates have one model and one texture per lock colour (index colour - 1), bound at draw
+// time; the boss gate (BOSS_LOCK) is the gate model with its own texture. Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
 	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex;
-	std::unique_ptr<AnimatedModel> key[LOCK_COLOUR_COUNT], gate[LOCK_COLOUR_COUNT], leverBase[LOCK_COLOUR_COUNT];
-	std::unique_ptr<AnimatedModel> bossGate; // BOSS_LOCK: the gate model with its own texture
+	std::unique_ptr<AnimatedModel> key, gate, leverBase;
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles;
 };
 

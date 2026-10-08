@@ -31,8 +31,10 @@ void showModel(AnimatedModel* model) {
 		model->Show(); // textured only, lighting is baked in (like the props)
 }
 
-AnimatedModel* colourModel(std::unique_ptr<AnimatedModel> (&models)[LOCK_COLOUR_COUNT], int colour) {
-	return isLockColour(colour) ? models[colour - 1].get() : nullptr;
+// A model shared by the lock colours, with the colour's texture. Nothing for a tile without a lock colour.
+void showColour(const std::unique_ptr<AnimatedModel>& model, const Texture (&textures)[LOCK_COLOUR_COUNT], int colour) {
+	if (model != nullptr && isLockColour(colour))
+		model->Show(AnimPlayback{}, textures[colour - 1].ID());
 }
 } // namespace
 
@@ -43,7 +45,7 @@ void Dungeon::drawKeyTile(int i, int j) {
 	enterPropSpace();
 	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
 	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
-	showModel(colourModel(sim.assets->mechanisms.key, tile.attr));
+	showColour(sim.assets->mechanisms.key, sim.assets->mechanisms.keyTex, tile.attr);
 	glPopMatrix();
 }
 //======================================================================================
@@ -64,8 +66,12 @@ void Dungeon::drawGateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	glTranslatef(0, lift, 0);
-	showModel(tile.attr == BOSS_LOCK ? sim.assets->mechanisms.bossGate.get()
-									 : colourModel(sim.assets->mechanisms.gate, tile.attr));
+	const MechanismSet& set = sim.assets->mechanisms;
+	if (tile.attr == BOSS_LOCK) {
+		if (set.gate != nullptr)
+			set.gate->Show(AnimPlayback{}, set.bossGateTex.ID());
+	} else
+		showColour(set.gate, set.gateTex, tile.attr);
 	glPopMatrix();
 }
 //======================================================================================
@@ -73,7 +79,7 @@ void Dungeon::drawLeverTile(int i, int j) {
 	Tile tile = MapAt(i, j);
 	glPushMatrix();
 	enterPropSpace();
-	showModel(colourModel(sim.assets->mechanisms.leverBase, tile.attr));
+	showColour(sim.assets->mechanisms.leverBase, sim.assets->mechanisms.leverBaseTex, tile.attr);
 	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
 	glRotatef(leverPulled(tile) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
 	showModel(sim.assets->mechanisms.leverHandle.get());

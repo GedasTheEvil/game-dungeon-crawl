@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "../world/monster_kinds.h"
 #include <cstdio>
+#include <cstring>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
 
@@ -24,12 +25,11 @@ void loadMechanisms(MechanismSet& set) {
 		set.gateTex[c].LoadPNG(path);
 		snprintf(path, sizeof(path), "textures/mechanisms/lever_base_%s.png", LOCK_COLOURS[c].name);
 		set.leverBaseTex[c].LoadPNG(path);
-		set.key[c] = loadStaticModel("models/mechanisms/key.md3", set.keyTex[c]);
-		set.gate[c] = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[c]);
-		set.leverBase[c] = loadStaticModel("models/mechanisms/lever_base.md3", set.leverBaseTex[c]);
 	}
+	set.key = loadStaticModel("models/mechanisms/key.md3", set.keyTex[0]);
+	set.gate = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[0]);
+	set.leverBase = loadStaticModel("models/mechanisms/lever_base.md3", set.leverBaseTex[0]);
 	set.bossGateTex.LoadPNG("textures/mechanisms/gate_boss.png");
-	set.bossGate = loadStaticModel("models/mechanisms/gate.md3", set.bossGateTex);
 	set.leverHandleTex.LoadPNG("textures/mechanisms/lever_handle.png");
 	set.rockTex.LoadPNG("textures/mechanisms/rock.png");
 	set.crackTex.LoadPNG("textures/mechanisms/ceiling_crack.png");
@@ -67,6 +67,20 @@ struct BarSpan {
 	}
 };
 
+const ClipFiles& clipFilesOf(Locomotion locomotion) {
+	switch (locomotion) {
+	case Locomotion::Ambush:
+		return AMBUSH_CLIPS;
+	case Locomotion::Entombed:
+		return ENTOMBED_CLIPS;
+	case Locomotion::Coiled:
+	case Locomotion::Burrow:
+		return COILED_CLIPS;
+	default:
+		return MONSTER_CLIPS;
+	}
+}
+
 void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes, const Progress& progress,
 					  BarSpan span) {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
@@ -80,12 +94,17 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[static_cast<size_t>(id)];
 		static_cast<MonsterKind&>(type) = kind;
-		const ClipFiles& clips = kind.locomotion == Locomotion::Ambush	   ? AMBUSH_CLIPS
-								 : kind.locomotion == Locomotion::Entombed ? ENTOMBED_CLIPS
-								 : kind.locomotion == Locomotion::Coiled || kind.locomotion == Locomotion::Burrow
-									 ? COILED_CLIPS
-									 : MONSTER_CLIPS;
-		type.model.Load(kind.model, std::move(tex), clips);
+		const ClipFiles& clips = clipFilesOf(kind.locomotion);
+		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
+		const MonsterType* kin = nullptr;
+		for (int k = 1; k < id && kin == nullptr; k++)
+			if (const MonsterKind& other = *monsterKind(k);
+				std::strcmp(other.model, kind.model) == 0 && &clipFilesOf(other.locomotion) == &clips)
+				kin = &monsterTypes[static_cast<size_t>(k)];
+		if (kin != nullptr)
+			type.model.Share(kin->model, kind.model, std::move(tex));
+		else
+			type.model.Load(kind.model, std::move(tex), clips);
 	}
 }
 
@@ -221,8 +240,7 @@ void loadTraps(TrapSet& traps, TextureRegistry& textures) {
 	traps.spikes->loadModel("models/traps/spikes.md3", textures.spikes);
 	traps.spikes->scale = SPIKES_SCALE;
 
-	traps.deathTrap = std::make_unique<Trap>();
-	traps.deathTrap->loadModel("models/traps/spikes.md3", textures.spikes);
+	traps.deathTrap = std::make_unique<Trap>(*traps.spikes);
 	traps.deathTrap->scale = DEATH_TRAP_SCALE;
 }
 

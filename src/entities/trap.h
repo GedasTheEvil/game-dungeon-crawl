@@ -8,8 +8,8 @@
 // Dungeon::updateTraps.
 class Trap {
   private:
-	std::unique_ptr<AnimatedModel> mdl;
-	const Texture* tex = nullptr; // shared (TextureRegistry): the spikes and the death trap use one
+	std::shared_ptr<AnimatedModel> mdl; // a copy of the trap draws the same model
+	const Texture* tex = nullptr;		// shared (TextureRegistry): the spikes and the death trap use one
 
   public:
 	float scale = 3;

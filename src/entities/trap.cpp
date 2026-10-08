@@ -1,7 +1,7 @@
 #include "trap.h"
 #include <GL/gl.h>
 
-Trap::Trap() : mdl(std::make_unique<AnimatedModel>()) {}
+Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 
 void Trap::Show() {
 	glPushMatrix();

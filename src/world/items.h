@@ -188,12 +188,26 @@ struct WeaponDef {
 	int generatedFrom = 0; // levelgen's weapon chests hold it from this difficulty on (0: from the start)
 };
 
+// The vessels the potions come in (tools/blender/models/items.py). Several potions share one, each with its own
+// texture: look-alikes differ by the colour of the liquid.
+enum class PotionModel : std::uint8_t { Flask, Lotus, Pilgrim, Canopic, Cobra, Ankh };
+constexpr int POTION_MODEL_COUNT = 6;
+
+struct PotionModelDef {
+	const char* model; // models/items/<model>.md3
+	float scale;	   // on a chest (Item::scale)
+	float detailScale; // the inventory's detail view
+};
+[[nodiscard]] const PotionModelDef& potionModelDef(PotionModel model);
+
 struct PotionDef {
 	PotionGain gain{};
-	Rgb colour{};			 // the inventory's flask
-	FieldNote note{};		 // the journal's, on the first one found
-	int generatedWeight = 0; // levelgen's potion chests, in percent
-	bool mimicLoot = true;	 // a mimic can leave it (not the antidote: it lies only on the levels with poisoners)
+	PotionModel model{};
+	const char* texture = ""; // textures/items/<texture>.png, on its model's UVs
+	Rgb colour{};			  // the icons' tint: the inventory's potions tab, the HUD quick slot
+	FieldNote note{};		  // the journal's, on the first one found
+	int generatedWeight = 0;  // levelgen's potion chests, in percent
+	bool mimicLoot = true;	  // a mimic can leave it (not the antidote: it lies only on the levels with poisoners)
 };
 
 // The weapons and the potions, one row each; an amulet's row is its type's (AmuletTypeDef in items.cpp).

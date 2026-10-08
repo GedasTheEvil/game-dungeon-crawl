@@ -51,7 +51,6 @@ constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon
 														   PlayerHud::Icon::Ring};
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
-constexpr float POTION_DETAIL_SCALE = 16.f;
 constexpr float AMULET_DETAIL_SCALE = 16.f;
 constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
@@ -686,8 +685,6 @@ void Inventory::DrawSlotModel(int slot) {
 	Item* model = Model(kindOf(slot));
 
 	Color tint = {1, 1, 1};
-	if (isPotion(slot))
-		tint = potionColor(kindOf(slot));
 	if (bag.Count(kindOf(slot)) <= 0)
 		tint = {0.07f, 0.055f, 0.04f};
 	else if (slot != selectedSlot && slot != hoveredSlot)
@@ -843,14 +840,15 @@ void Inventory::DrawDetailModel() {
 	if (!bag.Found(kindOf(selectedSlot)))
 		return; // a question mark instead (DrawDetails)
 	Item* model = Model(kindOf(selectedSlot));
-	bool potion = isPotion(selectedSlot);
-	Color tint = potion ? potionColor(kindOf(selectedSlot)) : Color{1, 1, 1};
+	Color tint = {1, 1, 1};
 	if (bag.Count(kindOf(selectedSlot)) <= 0)
 		tint = {0.12f, 0.08f, 0.05f};
 
 	float savedScale = model->scale;
 	float savedAngle = model->rotA;
-	model->scale = potion ? POTION_DETAIL_SCALE : isAmulet(selectedSlot) ? AMULET_DETAIL_SCALE : WEAPON_DETAIL_SCALE;
+	model->scale = isPotion(selectedSlot)	? potionModelDef(potionDef(kindOf(selectedSlot)).model).detailScale
+				   : isAmulet(selectedSlot) ? AMULET_DETAIL_SCALE
+											: WEAPON_DETAIL_SCALE;
 	model->rotA = slotAngle[selectedSlot];
 	glColor3f(tint.r, tint.g, tint.b);
 	glPushMatrix();

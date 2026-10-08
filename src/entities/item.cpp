@@ -19,17 +19,21 @@ void Item::drawScaled(float drawScale, float pose) {
 	glRotatef(rotA, 0, 1, 0);
 	AnimPlayback playback;
 	playback.frame = std::clamp(pose, 0.f, 1.f) * static_cast<float>(mdl->FrameCount() - 1);
-	mdl->Show(playback);
+	mdl->Show(playback, tex.ID());
 	glPopMatrix();
 }
 
-bool Item::loadModel(const char* name) {
-	const std::string stem = std::string("items/") + name;
-	tex.LoadPNG(("textures/" + stem + ".png").c_str());
-	mdl = std::make_unique<AnimatedModel>();
-	mdl->Load(("models/" + stem + ".md3").c_str());
+bool Item::loadModel(const char* name, const char* texture) {
+	tex.LoadPNG(("textures/items/" + std::string(texture != nullptr ? texture : name) + ".png").c_str());
+	mdl = std::make_shared<AnimatedModel>();
+	mdl->Load(("models/items/" + std::string(name) + ".md3").c_str());
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());
 	mdl->Compile();
 	return true;
+}
+
+void Item::shareModel(const Item& owner, const char* texture) {
+	tex.LoadPNG(("textures/items/" + std::string(texture) + ".png").c_str());
+	mdl = owner.mdl;
 }

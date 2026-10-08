@@ -105,7 +105,7 @@ class Inventory {
 	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
 	Item* Equipped() { return Model(bag.Equipped()); }
 	[[nodiscard]] ItemKind EquippedKind() const { return bag.Equipped(); }
-	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // tint of the shared potion model
+	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // the potion icons' tint (HUD quick slot)
 	[[nodiscard]] int Count(ItemKind kind) const { return bag.Count(kind); }
 	ItemBag& Bag() { return bag; } // what the world adds to (SimLinks)
 	[[nodiscard]] int Level(ItemKind kind) const { return bag.Level(kind); }

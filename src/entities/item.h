@@ -8,10 +8,11 @@
 #include "../world/damage.h"
 #include "../world/items.h"
 
-// A weapon, potion or the treasure chest: a static model, drawn where the caller has placed it.
+// A weapon, potion or the treasure chest: a static model, drawn where the caller has placed it. The potions that come
+// in one vessel share its model, each with its own texture (shareModel).
 class Item {
   private:
-	std::unique_ptr<AnimatedModel> mdl;
+	std::shared_ptr<AnimatedModel> mdl;
 	Texture tex;
 
 	void drawScaled(float drawScale, float pose);
@@ -28,8 +29,10 @@ class Item {
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.
 	void Draw(float pose = 0.f);
 	void DrawHeld(float pose); // in the player's fist: Ink::heldWeaponScale instead of the figures' scale
-	// models/items/<name>.md3 with textures/items/<name>.png.
-	bool loadModel(const char* name);
+	// models/items/<name>.md3 with textures/items/<texture>.png (default: the same name).
+	bool loadModel(const char* name, const char* texture = nullptr);
+	// owner's model with textures/items/<texture>.png, on the same UVs.
+	void shareModel(const Item& owner, const char* texture);
 };
 
 #endif

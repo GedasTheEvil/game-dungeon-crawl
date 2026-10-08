@@ -62,8 +62,9 @@ The facts live in one table each; the compiler and the unit tests point at the r
   from the defaults in `MonsterKind`.
 * **Weapon or potion:** a value in `ItemKind` at the end of its group (save slots go by that order) and a row in
   `ITEMS` (`src/world/items.cpp`): file id, texts, and the weapon part (model, damage, reach, mix, growth, motion,
-  sounds, missile, levelgen depth) or the potion part (gain, colour, journal note, levelgen weight, mimic loot). A
-  weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
+  sounds, missile, levelgen depth) or the potion part (gain, vessel model, texture, icon colour, journal note,
+  levelgen weight, mimic loot). A potion's texture is a row in `POTIONS` (`tools/blender/models/items.py`), baked on
+  its vessel. A weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
 * **Amulet type:** a value in `AmuletType`, its four `ItemKind` values and a row in `AMULET_TYPES`
   (`src/world/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.

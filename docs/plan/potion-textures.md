@@ -1,10 +1,10 @@
 # Potion textures
 
-Status: draft 2026-10-08.
+Status: implemented 2026-10-08, to be checked in play.
 
-## Now
+## Before
 
-Every potion shares one model and one texture: `models/items/potion.md3` + `textures/items/potion.png`, built by
+Every potion shared one model and one texture: `models/items/potion.md3` + `textures/items/potion.png`, built by
 `tools/blender/models/items.py` ([remodeling.md](../remodeling.md)). The texture stays light grey and the engine
 tints the whole flask with `PotionDef::colour` (`src/world/items.cpp`, `potionColor()` in `src/ui/inventory.cpp`,
 the HUD quick slot in `src/ui/player_hud_view.cpp`). `Assets::Of()` returns the same `Item` for every potion.
@@ -55,3 +55,23 @@ several potions. Set:
 * **Resistance potions** ([resistance-potion.draft.md](resistance-potion.draft.md)): lesser on the flask, greater on
   the cobra vial. Alternative: both on the cobra vial with different textures.
 * **Graphics only.** Saves and level files store the potion kind, not the model: no format change.
+
+## Done (2026-10-08)
+
+* `tools/blender/models/items.py`: six vessel builders (`build_potion_<model>`), one `.md3` each
+  (`models/items/potion_{flask,lotus,pilgrim,canopic,cobra,ankh}.md3`); `POTIONS` bakes one texture per potion on its
+  vessel (`textures/items/potion_<kind>.png`), overriding the palette keys `liquid` / `liquid_dark`. The vessels have
+  no texture of their own. `potion.md3` / `potion.png` are gone.
+* The liquid reaches the shoulder on the flask, the lotus jar and the cobra vial: a chest's gold heap hides the lower
+  half, a half-full flask showed only clear glass there.
+* Engine: `PotionModel` + `POTION_MODELS` (model file, chest scale, detail scale) and `PotionDef::model` / `texture`
+  (`src/world/items.{h,cpp}`). `loadPotions` (`src/state/assets.cpp`) loads each vessel once and gives every potion
+  its own `Item` with its texture (`Item::shareModel`, the model a `shared_ptr`). `ItemPrototypes::potions` replaces
+  the one `potion`.
+* No tint on the 3D model: the inventory slots, the detail view and the chests draw the texture as is. Note: the
+  inventory slots draw the model, not an icon, so they lost the tint too. `PotionDef::colour` tints only the potions
+  tab icon and the HUD quick slot.
+* Resistance potions: not in the game yet; when they come, a `POTIONS` row each (lesser on the flask, greater on the
+  cobra vial) and their `PotionDef` rows.
+* Check: `make test SCENARIO=tests/scenarios/potions.txt` (one chest per potion on `tests/levels/potions`, then each
+  potion in the inventory).

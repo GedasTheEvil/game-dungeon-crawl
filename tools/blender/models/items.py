@@ -1,6 +1,6 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
-flight (arrow, sling stone), the potion flask, the treasure chest and the amulets (one per AmuletType, its tiers
+flight (arrow, sling stone), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
 share it: amulet_strength, ..., amulet_regeneration, amulet_venom).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
@@ -22,8 +22,8 @@ the throwing stick and the javelin fly as models in metres too: the stone is its
 fly as their held models (the engine loads those twice, once centred for the hand).
 
 Textures: one 512 PNG per item (textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
-light, the engine lights them). The potion is drawn tinted with the potion colour (PotionDef::colour, src/world/items.cpp), so its
-texture stays light and nearly grey: glass, liquid, cork and cord differ in brightness only.
+light, the engine lights them). A potion vessel has no texture of its own: each potion bakes one on it (POTIONS,
+textures/items/potion_<kind>.png) with its liquid colour; the engine draws it untinted.
 """
 
 import importlib
@@ -46,11 +46,23 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
-         "potion", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
+         "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
                                                           "pierce", "regeneration", "venom")]
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
+# The potions, in ItemKind order: texture stem (textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
+# vessel model (POTION_MODELS there) and the palette keys its texture overrides.
+POTIONS = [
+    ("potion_small_health", "potion_flask", {"liquid": (0.70, 0.04, 0.03), "liquid_dark": (0.38, 0.02, 0.02)}),
+    ("potion_large_health", "potion_lotus", {"liquid": (0.55, 0.02, 0.20), "liquid_dark": (0.30, 0.01, 0.10)}),
+    ("potion_aphethamine", "potion_pilgrim", {"liquid": (0.32, 0.06, 0.50), "liquid_dark": (0.16, 0.03, 0.28)}),
+    ("potion_stone_skin", "potion_canopic", {"liquid": (0.85, 0.36, 0.04), "liquid_dark": (0.48, 0.18, 0.02)}),
+    ("potion_life", "potion_ankh", {"liquid": (0.85, 0.30, 0.06), "liquid_dark": (0.48, 0.15, 0.03)}),
+    ("potion_small_stamina", "potion_flask", {"liquid": (0.36, 0.68, 0.18), "liquid_dark": (0.18, 0.36, 0.08)}),
+    ("potion_large_stamina", "potion_lotus", {"liquid": (0.10, 0.60, 0.55), "liquid_dark": (0.05, 0.32, 0.30)}),
+    ("potion_antidote", "potion_cobra", {"liquid": (0.04, 0.36, 0.15), "liquid_dark": (0.02, 0.20, 0.08)}),
+]
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
 
 COL = {
@@ -76,12 +88,13 @@ COL = {
     "lining": (0.30, 0.05, 0.04),
     "cedar": (0.45, 0.22, 0.09),
     "cedar_dark": (0.26, 0.12, 0.05),
-    "glass": (0.93, 0.93, 0.93),
-    "liquid": (0.72, 0.72, 0.72),
-    "cork": (0.58, 0.55, 0.50),
-    "cork_dark": (0.44, 0.42, 0.38),
+    "glass": (0.78, 0.84, 0.82),
+    "liquid": (0.72, 0.72, 0.72),  # each potion its own (POTIONS)
+    "liquid_dark": (0.40, 0.40, 0.40),
+    "cork": (0.50, 0.36, 0.22),
+    "cork_dark": (0.34, 0.23, 0.13),
     "cord": (0.70, 0.68, 0.64),
-    "wax": (0.52, 0.50, 0.48),
+    "wax": (0.42, 0.08, 0.05),
     "gem": (0.62, 0.05, 0.02),
     "glint": (1.0, 0.62, 0.5),
     "enamel": (0.02, 0.015, 0.01),
@@ -102,10 +115,18 @@ COL = {
     "turquoise": (0.10, 0.50, 0.42),
     "faience": (0.16, 0.48, 0.26),
     "faience_dark": (0.07, 0.26, 0.13),
+    "ink": (0.04, 0.03, 0.025),
+    "lapis": (0.06, 0.12, 0.45),
+    "alabaster": (0.84, 0.78, 0.64),
+    "alabaster_dark": (0.68, 0.61, 0.47),
+    "falcon": (0.42, 0.28, 0.14),
+    "falcon_dark": (0.22, 0.14, 0.07),
 }
 
 
-def materials():
+def materials(palette=None):
+    """palette: colours that replace COL's (a potion's liquid)."""
+    pal = {**COL, **(palette or {})}
     specs = {
         "wood": stripes("u", 1 / 9, [(3, "wood"), (1, "wood_dark")], "LINEAR"),
         "ash": stripes("u", 1 / 7, [(3, "ash"), (1, "ash_dark")], "LINEAR"),
@@ -147,8 +168,17 @@ def materials():
         "jasper": ("solid", "jasper"),
         "turquoise": ("solid", "turquoise"),
         "faience": stripes("v", 0.01, [(3, "faience"), (1, "faience_dark")], "LINEAR"),
+        # The potion vessels.
+        "liquid_dark": ("solid", "liquid_dark"),
+        "glyphs": stripes("u", 1 / 40, [(3, "gold"), (1, "ink"), (2, "gold"), (1, "lapis"), (1, "gold"), (2, "ink")]),
+        "alabaster": stripes("v", 0.011, [(4, "alabaster"), (1, "alabaster_dark")], "LINEAR"),
+        "wig": stripes("u", 1 / 18, [(1, "lapis"), (1, "gold")]),
+        "feathers": stripes("v", 0.006, [(3, "falcon"), (1, "falcon_dark")], "LINEAR"),
+        "beak": ("solid", "gold_dark"),
+        "scales": stripes("v", 0.004, [(2, "gold"), (1, "gold_dark")]),
+        "hood": stripes("v", 0.005, [(2, "gold"), (1, "lapis"), (2, "gold"), (1, "carnelian")]),
     }
-    return {name: common.make_material("item_" + name, spec, COL) for name, spec in specs.items()}
+    return {name: common.make_material("item_" + name, spec, pal) for name, spec in specs.items()}
 
 
 # ---------------------------------------------------------------- helpers
@@ -536,11 +566,16 @@ def build_javelin(b, M):
 # ---------------------------------------------------------------- potion and chest
 
 
-def build_potion(b, M):
-    """Round-bottomed glass flask two-thirds full, a long neck with a rolled lip, a cork with a wax cap and a cord
-    tied round the neck. Only brightness varies: the engine tints the whole model with the potion colour."""
+# The potion vessels (POTION_MODELS), about the flask's size: up to 0.19 high, standing on z = 0. Several potions share
+# a vessel; each potion bakes its own texture on it (POTIONS): the liquid colour ("liquid", "liquid_dark") and any
+# palette key it overrides. Clear glass shows the liquid below the liquid line, "glass" above it.
+
+
+def build_potion_flask(b, M):
+    """Round-bottomed glass flask filled to the shoulder, a long neck with a rolled lip, a cork with a wax cap and a cord
+    tied round the neck. Plain: the lesser potions."""
     body_r, body_c = 0.05, 0.055
-    liquid_top = body_c + 0.018
+    liquid_top = body_c + 0.034  # high: a chest hides the bottom
     glass = []
     for k in range(13):  # bottom pole to the shoulder
         a = math.radians(-90 + 150 * k / 12)
@@ -558,11 +593,138 @@ def build_potion(b, M):
     b.add(spindle([(0.145, 0.0115), (0.175, 0.0125)], n=12, sub=1, bulge=(0, 0.002)), M["cork"], "root")
     b.add(transform(ellipsoid((0, 0, 0.176), (0.016, 0.016, 0.008), n=14, rings=4), lambda v: V((v.x, v.y, max(v.z, 0.169)))), M["wax"], "root")
     # Cord round the neck with two hanging ends.
-    band(b, M["cord"], 0.13, 0.0155, 0.004, n=14)
-    band(b, M["cord"], 0.136, 0.0152, 0.004, n=14)
+    band(b, M["flax"], 0.13, 0.0155, 0.004, n=14)
+    band(b, M["flax"], 0.136, 0.0152, 0.004, n=14)
     for s in (-1, 1):
         pts = [V((0.004 * s, -0.015, 0.132)), V((0.008 * s, -0.019, 0.12)), V((0.012 * s, -0.021, 0.105))]
-        b.add(tube([(p, 0.0022, 0.0022) for p in pts], sub=2, n=6, ref=V((0, 0, 1))), M["cord"], "root")
+        b.add(tube([(p, 0.0022, 0.0022) for p in pts], sub=2, n=6, ref=V((0, 0, 1))), M["flax"], "root")
+
+
+def build_potion_lotus(b, M):
+    """Tall glass jar on a gold foot: an ovoid belly full to the shoulder, a slim neck that opens into a lotus flower of faience
+    petals round a liquid mouth, two small gold handles, a band of glyphs on the shoulder. The larger potions."""
+    profile = [(0.0, 0.0), (0.03, 0.0), (0.031, 0.004), (0.026, 0.009), (0.02, 0.014),  # foot
+               (0.034, 0.026), (0.044, 0.045), (0.047, 0.062), (0.044, 0.08), (0.038, 0.092), (0.031, 0.1),  # belly
+               (0.022, 0.108), (0.013, 0.118), (0.011, 0.13), (0.011, 0.145),  # shoulder, neck
+               (0.016, 0.156), (0.025, 0.167), (0.032, 0.176), (0.028, 0.177), (0.0, 0.171)]  # flare, the mouth
+    mats = ["gold"] * 4 + ["liquid"] * 6 + ["glyphs"] + ["glass"] * 3 + ["faience"] * 3 + ["gold", "liquid"]
+    revolve(b, M, profile, mats, n=24)
+    band(b, M["gold"], 0.0145, 0.0205, 0.004, n=24)
+    band(b, M["gold"], 0.1, 0.0315, 0.003, n=24)  # the liquid line
+    band(b, M["gold"], 0.146, 0.0122, 0.004, n=16)
+    # Lotus petals: pointed leaves round the flare, leaning out, a second row between them.
+    for row, (n, z0, lean, length) in enumerate(((8, 0.146, 0.55, 0.036), (8, 0.15, 0.85, 0.03))):
+        for k in range(n):
+            a = 2 * math.pi * (k + 0.5 * row) / n
+            out = V((math.cos(a), math.sin(a), 0))
+            d = (out * math.sin(lean) + V((0, 0, math.cos(lean)))).normalized()
+            base = V((0, 0, z0)) + out * 0.012
+            keys = [(base, 0.004, 0.0012), (base + d * length * 0.45, 0.0075, 0.0016), (base + d * length, 0.001, 0.0008)]
+            nrm = out - out.dot(d) * d
+            b.add(tube(keys, sub=3, n=8, ref=nrm.normalized()), M["faience"], "root")
+    # Two small loop handles from the shoulder to the neck.
+    for s in (-1, 1):
+        pts = [V((s * 0.033, 0, 0.098)), V((s * 0.043, 0, 0.115)), V((s * 0.032, 0, 0.133)), V((s * 0.0115, 0, 0.136))]
+        b.add(tube([(p, 0.0032, 0.0032) for p in pts], sub=3, n=8, ref=V((0, 1, 0))), M["gold"], "root")
+
+
+def build_potion_pilgrim(b, M):
+    """Flat round faience "New Year flask", glazed in the potion's colour: gold rings and a gold boss on both faces,
+    a short neck with a lotus-bud stopper, two loop handles, a small oval foot."""
+    t, r = 0.026, 0.062
+    face = [(0.0, -t), (0.007, -t), (0.014, -0.0248), (0.02, -0.0236), (0.03, -0.0215), (0.036, -0.0196), (0.046, -0.0156),
+            (0.05, -0.0132), (0.057, -0.0082), (r, 0.0)]
+    face_mats = ["gold", "gold", "liquid", "liquid", "gold", "liquid", "liquid", "gold", "liquid"]
+    profile = face + [(pr, -pz) for pr, pz in reversed(face[:-1])]  # the back face, mirrored
+    mats = face_mats + list(reversed(face_mats))
+    cz = 0.074
+    revolve(b, M, profile, mats, n=32, r=rot(x=-90), loc=(0, 0, cz))
+    b.add(spindle([(0.0, 0.019, 0.013), (0.016, 0.021, 0.014)], n=16, sub=1), M["liquid_dark"], "root")  # the foot
+    b.add(spindle([(cz + r - 0.006, 0.0125), (cz + r + 0.02, 0.01), (cz + r + 0.024, 0.0135), (cz + r + 0.027, 0.0135)], n=14, sub=2), M["liquid"], "root")
+    top = cz + r + 0.027
+    b.add(ellipsoid((0, 0, top + 0.009), (0.0105, 0.0105, 0.013), n=12, rings=6), M["gold"], "root")
+    band(b, M["gold"], top + 0.001, 0.0128, 0.003, n=14)
+    for s in (-1, 1):
+        pts = [V((s * 0.012, 0, cz + r + 0.012)), V((s * 0.03, 0, cz + r + 0.014)), V((s * 0.038, 0, cz + r - 0.006)), V((s * 0.034, 0, cz + r - 0.02))]
+        b.add(tube([(p, 0.0042, 0.0042) for p in pts], sub=3, n=8, ref=V((0, 1, 0))), M["liquid_dark"], "root")
+
+
+def build_potion_canopic(b, M):
+    """Squat alabaster canopic jar, a band of glyphs between two glazed bands in the potion's colour round the belly,
+    the lid the falcon head of Qebehsenuef with a striped wig."""
+    profile = [(0.0, 0.0), (0.036, 0.0), (0.039, 0.004), (0.046, 0.02), (0.052, 0.04), (0.053, 0.05), (0.052, 0.06),
+               (0.05, 0.068), (0.047, 0.077), (0.042, 0.086), (0.038, 0.09), (0.04, 0.093), (0.0, 0.094)]
+    mats = ["alabaster"] * 4 + ["liquid", "glyphs", "liquid"] + ["alabaster"] * 3 + ["gold", "alabaster"]
+    revolve(b, M, profile, mats, n=28)
+    revolve(b, M, [(0.0, 0.093), (0.041, 0.093), (0.04, 0.099), (0.033, 0.106), (0.0, 0.108)], ["alabaster"] * 4, n=28)  # lid
+    head = V((0, 0, 0.134))
+    b.add(ellipsoid(head + V((0, 0.004, 0)), (0.028, 0.029, 0.03), n=16, rings=8), M["wig"], "root")
+    for s in (-1, 1):  # lappets down to the shoulders
+        keys = [(head + V((s * 0.02, -0.006, -0.002)), 0.008, 0.006), (head + V((s * 0.022, -0.012, -0.022)), 0.009, 0.005),
+                (head + V((s * 0.022, -0.014, -0.032)), 0.009, 0.004)]
+        b.add(tube(keys, sub=2, n=8, ref=V((0, 1, 0))), M["wig"], "root")
+    b.add(ellipsoid(head + V((0, -0.012, 0.002)), (0.019, 0.02, 0.022), n=14, rings=7), M["feathers"], "root")  # the face
+    beak = [(head + V((0, -0.03, 0.004)), 0.007, 0.006), (head + V((0, -0.041, -0.002)), 0.0045, 0.004),
+            (head + V((0, -0.043, -0.01)), 0.0012, 0.0012)]
+    b.add(tube(beak, sub=3, n=8, ref=V((0, 0, 1))), M["beak"], "root")
+    for s in (-1, 1):
+        eye = head + V((s * 0.012, -0.028, 0.008))
+        b.add(ellipsoid(eye, (0.0045, 0.0035, 0.0028), n=8, rings=4, axis=V((s * 0.35, -1, 0)), ref=V((0, 0, 1))), M["enamel"], "root")
+
+
+def build_potion_cobra(b, M):
+    """Slim glass vial on a gold foot, a gold rearing cobra coiled round it: its hood, spread over the mouth, is the
+    stopper. The snake potions (antidote, greater resistance)."""
+    profile = [(0.0, 0.0), (0.024, 0.0), (0.026, 0.004), (0.022, 0.009), (0.019, 0.012), (0.02, 0.03), (0.02, 0.1),
+               (0.017, 0.112), (0.011, 0.12), (0.011, 0.134), (0.0145, 0.137), (0.012, 0.139), (0.0, 0.138)]
+    mats = ["gold"] * 4 + ["liquid"] * 3 + ["glass", "glass", "gold", "gold", "liquid"]
+    revolve(b, M, profile, mats, n=20)
+    band(b, M["gold"], 0.112, 0.0172, 0.0025, n=20)  # the liquid line
+    # The coil: two turns up the vial, the tail thin at the foot, then up the back of the neck.
+    keys = []
+    turns, z0, z1, steps = 2.0, 0.016, 0.104, 28
+    for k in range(steps + 1):
+        u = k / steps
+        a = math.radians(90) + 2 * math.pi * turns * u
+        rr = 0.0245 - 0.0035 * u * u
+        th = 0.0012 + 0.0038 * min(1, u * 1.6)
+        keys.append((V((rr * math.cos(a), rr * math.sin(a), z0 + (z1 - z0) * u)), th, th * 0.85))
+    keys += [(V((0, 0.019, 0.115)), 0.0052, 0.0044), (V((0, 0.017, 0.13)), 0.0055, 0.0045), (V((0, 0.012, 0.143)), 0.0055, 0.0045)]
+    b.add(tube(keys, sub=2, n=8, ref=V((0.5, 0.5, 0.7))), M["scales"], "root")  # ref never along the coil
+    # The hood over the mouth (the stopper), the head in front of its top, eyes and a ruby on the hood.
+    b.add(ellipsoid((0, 0.004, 0.152), (0.021, 0.0055, 0.027), n=16, rings=8), M["hood"], "root")
+    b.add(ellipsoid((0, -0.004, 0.17), (0.008, 0.011, 0.0065), n=12, rings=6, axis=V((0, -1, 0.35)), ref=V((0, 0, 1))), M["gold"], "root")
+    for s in (-1, 1):
+        b.add(ellipsoid((s * 0.0055, -0.009, 0.173), (0.0018, 0.0018, 0.0018), n=6, rings=3), M["enamel"], "root")
+    gem(b, M, (0, -0.0035, 0.1555), (0, -1, 0), 0.0045, 0.006, 0.0025, bezel=0.0015)
+
+
+def build_potion_ankh(b, M):
+    """Ankh-shaped glass vessel full of liquid: the stem flares to a flat foot, the arms flare at the ends, the loop on
+    top is the neck with a gold mouth and stopper; gold caps, a band of glyphs, a gold knot where the arms cross."""
+    stem = [(V((0, 0, 0.0)), 0.026, 0.014), (V((0, 0, 0.012)), 0.021, 0.012), (V((0, 0, 0.05)), 0.0145, 0.0105),
+            (V((0, 0, 0.098)), 0.011, 0.0095)]
+    b.add(tube(stem, sub=4, n=16, ref=V((0, 1, 0))), M["liquid"], "root")
+    b.add(tube([(V((0, 0, -0.0001)), 0.0275, 0.0152), (V((0, 0, 0.005)), 0.0272, 0.015)], sub=1, n=16, ref=V((0, 1, 0))), M["gold"], "root")
+    b.add(tube([(V((0, 0, 0.03)), 0.0178, 0.012), (V((0, 0, 0.07)), 0.0133, 0.0103)], sub=1, n=16, ref=V((0, 1, 0))), M["glyphs"], "root")
+    za = 0.105
+    for s in (-1, 1):
+        arm = [(V((0, 0, za)), 0.0095, 0.011), (V((s * 0.03, 0, za)), 0.0095, 0.0115), (V((s * 0.05, 0, za)), 0.011, 0.018)]  # depth, height
+        b.add(tube(arm, sub=3, n=14, ref=V((0, 0, 1))), M["liquid"], "root")
+        b.add(tube([(V((s * 0.0495, 0, za)), 0.0115, 0.0185), (V((s * 0.0535, 0, za)), 0.0115, 0.0185)], sub=1, n=14, ref=V((0, 0, 1))), M["gold"], "root")
+    b.add(ellipsoid((0, 0, za), (0.016, 0.0125, 0.017), n=14, rings=7), M["gold"], "root")  # the knot
+    # The loop: an upright oval of glass, the liquid in its lower half.
+    lc, lw, lh = V((0, 0, 0.142)), 0.024, 0.03
+
+    def arc(a0, a1, steps=12):
+        return [(lc + V((lw * math.cos(a), 0, lh * math.sin(a))), 0.0085, 0.0085)
+                for a in (a0 + (a1 - a0) * k / steps for k in range(steps + 1))]
+
+    b.add(tube(arc(0, math.pi), sub=2, n=10, ref=V((0, 1, 0)), caps=(False, False)), M["glass"], "root")
+    b.add(tube(arc(math.pi, 2 * math.pi), sub=2, n=10, ref=V((0, 1, 0)), caps=(False, False)), M["liquid"], "root")
+    top = lc.z + lh  # the mouth on the loop's top and a gold stopper
+    b.add(spindle([(top - 0.004, 0.0095), (top + 0.007, 0.0085), (top + 0.009, 0.011), (top + 0.012, 0.011)], n=14, sub=1), M["gold"], "root")
+    b.add(ellipsoid((0, 0, top + 0.016), (0.008, 0.008, 0.008), n=12, rings=6), M["gold"], "root")
 
 
 # ---------------------------------------------------------------- amulets
@@ -843,7 +1005,12 @@ BUILDERS = {
     "javelin": build_javelin,
     "arrow": build_arrow,
     "sling_stone": build_sling_stone,
-    "potion": build_potion,
+    "potion_flask": build_potion_flask,
+    "potion_lotus": build_potion_lotus,
+    "potion_pilgrim": build_potion_pilgrim,
+    "potion_canopic": build_potion_canopic,
+    "potion_cobra": build_potion_cobra,
+    "potion_ankh": build_potion_ankh,
     "chest": build_chest,
     "amulet_strength": build_amulet_strength,
     "amulet_armor": build_amulet_armor,
@@ -886,9 +1053,19 @@ def build(bake=True, tex_dir=None, only=None):
         obj.location = (xs[name], 0, 0)
         common.uv_unwrap(obj, b.tags, boost={"gem": ((0, 0, 0), 1.6)})
         if bake:
-            stem = FILES.get(name, name)
-            tex = common.bake_texture(obj, os.path.join(tex_dir or bpy.app.tempdir or "/tmp", stem + ".png"), TEX_SIZE, "item_" + stem,
-                                      ao_distance=0.05 if name != "chest" else 0.15)
+            out = tex_dir or bpy.app.tempdir or "/tmp"
+            ao = 0.05 if name != "chest" else 0.15
+            potions = [(stem, palette) for stem, model, palette in POTIONS if model == name]
+            if potions:  # a texture per potion on the vessel, no texture of its own; it shows the first
+                texs = []
+                for stem, palette in potions:
+                    materials(palette)
+                    texs.append(common.bake_texture(obj, os.path.join(out, stem + ".png"), TEX_SIZE, "item_" + stem, ao_distance=ao))
+                materials()
+                tex = texs[0]
+            else:
+                stem = FILES.get(name, name)
+                tex = common.bake_texture(obj, os.path.join(out, stem + ".png"), TEX_SIZE, "item_" + stem, ao_distance=ao)
             common.use_baked_material(obj, tex)
             obj["texture"] = tex.name
         (x0, x1), (y0, y1), (z0, z1) = extents(obj)

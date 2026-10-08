@@ -37,10 +37,11 @@ struct FontSet {
 };
 
 struct ItemPrototypes {
-	std::unique_ptr<Item> chest, potion;
+	std::unique_ptr<Item> chest;
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
+	std::array<std::unique_ptr<Item>, POTION_KIND_COUNT> potions; // in ItemKind order; one vessel's share its model
 	std::array<std::unique_ptr<Item>, AMULET_TYPE_COUNT> amulets; // by AmuletType: its tiers share the model
-	[[nodiscard]] Item* Of(ItemKind kind) const;				  // every potion shares one model
+	[[nodiscard]] Item* Of(ItemKind kind) const;
 	// The missiles in flight, by MissileKind: static models in metres (items.py), not centred. Null if missing.
 	std::array<Texture, MISSILE_KIND_COUNT> missileTex;
 	std::array<std::unique_ptr<AnimatedModel>, MISSILE_KIND_COUNT> missiles;

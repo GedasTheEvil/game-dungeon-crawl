@@ -1,0 +1,13 @@
+; One chest per potion (tests/scenarios/potions.txt): small health (col 3), large health (5), might (7), armor (9),
+; life (11), small stamina (13), large stamina (15), antidote (17); exit (20).
+def 1 8 3 0
+def 2 8 3 1
+def 3 8 3 2
+def 4 8 3 3
+def 5 8 3 4
+def 6 8 3 5
+def 7 8 3 6
+def 8 8 3 7
+########################################
+#S.1.2.3.4.5.6.7.8..E###################
+########################################

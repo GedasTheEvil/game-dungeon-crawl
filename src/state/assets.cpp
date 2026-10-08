@@ -46,7 +46,9 @@ void loadMechanisms(MechanismSet& set) {
 Item* ItemPrototypes::Of(ItemKind kind) const {
 	if (isAmulet(kind))
 		return amulets[static_cast<size_t>(amuletOf(kind).type)].get();
-	return isPotion(kind) ? potion.get() : weapons[static_cast<size_t>(itemIndex(kind))].get();
+	if (isPotion(kind))
+		return potions[static_cast<size_t>(itemIndex(kind) - WEAPON_KIND_COUNT)].get();
+	return weapons[static_cast<size_t>(itemIndex(kind))].get();
 }
 
 void Assets::LoadLoadingScreen() {
@@ -115,7 +117,26 @@ std::unique_ptr<Item> loadItem(const char* name, float scale) {
 	return item;
 }
 
-constexpr float AMULET_SCALE = 4.f; // on a chest and in the inventory, like the potion (5)
+constexpr float AMULET_SCALE = 4.f; // on a chest and in the inventory, like the potions (about 5)
+
+// Each vessel loaded once, by its first potion; the others with it share the model.
+void loadPotions(ItemPrototypes& items) {
+	std::array<const Item*, POTION_MODEL_COUNT> vessels{};
+	for (size_t i = 0; i < POTION_KIND_COUNT; i++) {
+		const PotionDef& def = potionDef(itemAt(WEAPON_KIND_COUNT + static_cast<int>(i)));
+		const PotionModelDef& model = potionModelDef(def.model);
+		auto item = std::make_unique<Item>();
+		const Item*& vessel = vessels[static_cast<size_t>(def.model)];
+		if (vessel != nullptr)
+			item->shareModel(*vessel, def.texture);
+		else {
+			item->loadModel(model.model, def.texture);
+			vessel = item.get();
+		}
+		item->scale = model.scale;
+		items.potions[i] = std::move(item);
+	}
+}
 
 void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	constexpr size_t STEPS = WEAPON_KIND_COUNT + 1;
@@ -137,9 +158,9 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
-	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest, potion and amulets]");
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest, potions and amulets]");
 	items.chest = loadItem("treasure_chest", 8); // faces the camera at rotA 0 (tools/blender/models/items.py)
-	items.potion = loadItem("potion", 5);
+	loadPotions(items);
 	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++)
 		items.amulets[i] = loadItem(amuletModel(static_cast<AmuletType>(i)), AMULET_SCALE);
 	constexpr const char* MISSILES[MISSILE_KIND_COUNT] = {"arrow", "sling_stone", "throwing_stick", "javelin"};

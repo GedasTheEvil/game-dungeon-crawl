@@ -164,7 +164,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
   `textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the potion flask, the treasure chest and the ten amulets
+* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the six potion vessels, the treasure chest and the ten amulets
   (`amulet_<type>`, one per `AmuletType`, all its tiers share it: a short cord loop with a gold bail and a pendant in
   the x-z plane facing -Y; strength a jackal's fang, armor a bronze scarab, health a carnelian ib heart, poison a gold
   scorpion, traps the eye of Horus, blunt the djed pillar, slash the tyet knot, pierce the shen ring, regeneration a
@@ -178,9 +178,18 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
   (`bow_frames`). The missiles in flight are drawn in metres, not centred (`Dungeon::drawMissiles`): `arrow.md3` (tip at +Z),
   `sling_stone.md3`, and the throwing stick and javelin models a second time (loaded uncentred for the flight).
-  The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in. The potion texture
-  stays light grey: the engine tints the whole flask with the potion colour. Albedo x AO textures (no baked light), 512 px.
-  `-- --export` writes `models/items/<item>.md3` for every item in `ITEMS` (`{club,...,arrow,sling_stone,potion,treasure_chest}`) + `textures/items/<same>.png`; `--review out.png`
+  The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in.
+  The potion vessels (`potion_<model>`, `PotionModel` in `src/world/items.h`; each about the flask's 0.18 m height):
+  `flask` (round glass flask, cork and cord: small health, small stamina), `lotus` (glass jar on a gold foot, a lotus
+  flower of faience petals at the mouth, two handles: large health, large stamina), `pilgrim` (flat faience "New Year
+  flask" with gold rings: might), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
+  coiled round it, the hood is the stopper: antidote), `ankh` (ankh-shaped vessel, the loop is the neck: life). A vessel
+  has no texture of its own: each potion bakes one on its UVs (`POTIONS`: `textures/items/potion_<kind>.png`, the
+  palette keys `liquid` / `liquid_dark` it overrides), so look-alikes differ by the liquid only. The liquid reaches the
+  shoulder: a chest's gold heap hides the bottom. The engine loads each vessel once and gives every potion its own
+  texture (`loadPotions` in `src/state/assets.cpp`, `Item::shareModel`); no tint on the model, `PotionDef::colour`
+  tints the icons only. Albedo x AO textures (no baked light), 512 px.
+  `-- --export` writes `models/items/<item>.md3` for every item in `ITEMS` (`{club,...,arrow,sling_stone,potion_flask,...,treasure_chest}`) + `textures/items/<same>.png` (a potion vessel: its potions' textures); `--review out.png`
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between
@@ -281,7 +290,8 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
-| Items: the 13 weapons, arrow, sling stone, potion, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
+| Items: the 13 weapons, arrow, sling stone, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
+| Potions (6 vessels, 8 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/potion-textures.md)) |
 | Amulets (10 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |

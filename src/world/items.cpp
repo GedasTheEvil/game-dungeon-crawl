@@ -166,6 +166,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .text = {"Small Health", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from",
 			  "the Nile marshes."},
 	 .potion = {.gain = {.healPercent = PotionEffect::SMALL_HEAL_PERCENT},
+				.model = PotionModel::Flask,
+				.texture = "potion_small_health",
 				.colour = {1.f, 0.f, 0.f},
 				.note = FieldNote::HealthPotions,
 				.generatedWeight = 30}},
@@ -173,18 +175,24 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .text = {"Large Health", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests",
 			  "of Sekhmet."},
 	 .potion = {.gain = {.healPercent = PotionEffect::LARGE_HEAL_PERCENT},
+				.model = PotionModel::Lotus,
+				.texture = "potion_large_health",
 				.colour = {0.7f, 0.f, 0.3f},
 				.note = FieldNote::HealthPotions,
 				.generatedWeight = 15}},
 	{.file = {ItemType::POTION, 2},
 	 .text = {"Aphethamine", "Might", "might", "Might +2, for good", "It tingles. Best not", "ask what is in it."},
 	 .potion = {.gain = {.might = PotionEffect::MIGHT},
+				.model = PotionModel::Pilgrim,
+				.texture = "potion_aphethamine",
 				.colour = {0.4f, 0.f, 0.6f},
 				.note = FieldNote::Might,
 				.generatedWeight = 10}},
 	{.file = {ItemType::POTION, 3},
 	 .text = {"Stone Skin", "Armor", "armor", "Armor +2, for good", "Skin as hard as", "temple granite."},
 	 .potion = {.gain = {.armor = PotionEffect::ARMOR},
+				.model = PotionModel::Canopic,
+				.texture = "potion_stone_skin",
 				.colour = {1.f, 0.6f, 0.f},
 				.note = FieldNote::Armor,
 				.generatedWeight = 10}},
@@ -192,6 +200,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .text = {"Elixir of Life", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,",
 			  "sealed in a flask."},
 	 .potion = {.gain = {.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT},
+				.model = PotionModel::Ankh,
+				.texture = "potion_life",
 				.colour = {0.7f, 0.6f, 0.3f},
 				.note = FieldNote::Life,
 				.generatedWeight = 5}},
@@ -200,6 +210,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .text = {"Small Stamina", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.",
 			  "Mostly honey."},
 	 .potion = {.gain = {.staminaPercent = PotionEffect::SMALL_STAMINA_PERCENT},
+				.model = PotionModel::Flask,
+				.texture = "potion_small_stamina",
 				.colour = {0.45f, 0.85f, 0.25f},
 				.note = FieldNote::StaminaPotions,
 				.generatedWeight = 20}},
@@ -208,6 +220,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .text = {"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water",
 			  "from the temple of Ra."},
 	 .potion = {.gain = {.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT},
+				.model = PotionModel::Lotus,
+				.texture = "potion_large_stamina",
 				.colour = {0.15f, 0.78f, 0.72f},
 				.note = FieldNote::StaminaPotions,
 				.generatedWeight = 10}},
@@ -215,6 +229,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	{.file = {ItemType::POTION, 7},
 	 .text = {"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
 	 .potion = {.gain = {.cure = true},
+				.model = PotionModel::Cobra,
+				.texture = "potion_antidote",
 				.colour = {0.05f, 0.45f, 0.2f},
 				.note = FieldNote::Antidote,
 				.generatedWeight = 0,
@@ -448,6 +464,21 @@ const char* amuletModel(AmuletType type) { return typeDef(type).model; }
 const WeaponDef& weaponDef(ItemKind weapon) { return ITEMS[static_cast<size_t>(itemIndex(weapon))].weapon; }
 
 const PotionDef& potionDef(ItemKind potion) { return ITEMS[static_cast<size_t>(itemIndex(potion))].potion; }
+
+namespace {
+// By PotionModel. Each is about as tall as the flask; the scales keep the real sizes apart (Centrify fits the largest
+// dimension).
+constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
+	{"potion_flask", 5.f, 16.f},
+	{"potion_lotus", 5.f, 16.f},
+	{"potion_pilgrim", 5.2f, 16.5f},
+	{"potion_canopic", 4.6f, 15.f},
+	{"potion_cobra", 5.f, 16.f},
+	{"potion_ankh", 5.5f, 17.5f},
+}};
+} // namespace
+
+const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[static_cast<size_t>(model)]; }
 
 ItemFileId fileIdOf(ItemKind kind) {
 	if (isAmulet(kind))

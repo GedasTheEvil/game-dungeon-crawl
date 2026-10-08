@@ -1,0 +1,53 @@
+# Potion models (docs/plan/potion-textures.md): six vessels, a texture per potion with the liquid colour baked in, no
+# tint on the 3D model. The chests on tests/levels/potions, then the potions tab, each potion in the detail view.
+seed 1
+god
+level tests/levels/potions
+wait 30
+screenshot chests_a
+walk right 5
+wait 5
+screenshot chests_b
+walk right 6
+wait 5
+screenshot chests_c
+walk right 4
+wait 5
+screenshot chests_d
+give potion 0
+give potion 1
+give potion 2
+give potion 3
+give potion 4
+give potion 5
+give potion 6
+give potion 7
+key i
+wait 5
+select small_health
+wait 5
+screenshot inventory_small_health
+select large_health
+wait 5
+screenshot inventory_large_health
+select might
+wait 5
+screenshot inventory_might
+select armor
+wait 5
+screenshot inventory_armor
+select life
+wait 5
+screenshot inventory_life
+select small_stamina
+wait 5
+screenshot inventory_small_stamina
+select large_stamina
+wait 5
+screenshot inventory_large_stamina
+select antidote
+wait 5
+screenshot inventory_antidote
+key i
+wait 5
+screenshot hud

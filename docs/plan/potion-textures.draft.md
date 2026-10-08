@@ -11,7 +11,7 @@ the HUD quick slot in `src/ui/player_hud_view.cpp`). `Assets::Of()` returns the 
 
 ## Idea
 
-One texture per potion, the colour baked in, no tint. Frees the texture for detail the tint can't do:
+Textures with the colour baked in, no tint on the model. Frees the texture for detail the tint can't do:
 
 * Greater / stronger potions get richer decoration: gold patterns, hieroglyphs, symbols (e.g. ankh on the Elixir of
   Life, snake on the antidote and resistance potions).

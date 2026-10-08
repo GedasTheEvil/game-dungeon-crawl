@@ -45,6 +45,8 @@ several potions. Set:
   grow without a benefit.
 * **Look-alikes on one model.** Potions that share a model look alike on purpose: same vessel and decoration, only
   the colour of the liquid (or a similar small detail) differs.
+* **One texture per potion.** The liquid colour is baked into each potion's own texture
+  (`textures/items/potion_<kind>.png`), not tinted onto a liquid part of the model.
 * **Icons keep the tint.** The inventory slot, the potions tab and the HUD quick slot draw icons, not the model, and
   stay tinted with `PotionDef::colour`. Keep `colour` for the icons only. The 3D model (on the floor, in a chest,
   the inventory detail view) gets no tint any more.

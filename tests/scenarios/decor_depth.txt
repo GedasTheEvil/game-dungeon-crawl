@@ -1,4 +1,4 @@
-# Decorations by depth (docs/plan/decor-by-depth.md): each campaign level draws from the tiers its depth unlocks,
+# Decorations by depth (docs/plan/solved/decor-by-depth.md): each campaign level draws from the tiers its depth unlocks,
 # cave (1-3), worked tunnel (4-7), tomb (8-12), temple (13 on). A generated level maps its difficulty to a depth; a test
 # level outside the campaign gets every tier.
 seed 1

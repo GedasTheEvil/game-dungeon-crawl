@@ -1,6 +1,6 @@
 # Walls, decals and decorations by depth
 
-Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
+Status: solved 2026-10-08, play-tested. Implemented 2026-10-07. Draft 2026-10-07, from the user.
 
 Today every level draws from the same pool. The props (`DECOR_NAMES`, `src/world/decor.h`), the wall decals
 (`tools/textures/decals.py`) and the wall, floor and ceiling surfaces (`textures/dungeon/`) are all picked at random

@@ -37,9 +37,10 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
 												  "sarcophagus",
 												  "coffin"};
 
-// Decorations by depth (docs/plan/decor-by-depth.md): the tiers add up, a level draws from every tier unlocked at its
-// depth, the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is
-// the campaign level; a generated level's comes from its difficulty (level_gen.h), any other level gets them all.
+// Decorations by depth (docs/plan/solved/decor-by-depth.md): the tiers add up, a level draws from every tier unlocked
+// at its depth, the newest one counting double. The first levels are a natural cave, the deepest a painted temple.
+// Depth is the campaign level; a generated level's comes from its difficulty (level_gen.h), any other level gets them
+// all.
 constexpr int DECOR_TIER_COUNT = 4;
 constexpr int DECOR_TIER_FROM[DECOR_TIER_COUNT] = {1, 4, 8, 13}; // cave, worked tunnel, tomb, temple / necropolis
 constexpr int DECOR_DEPTH_ALL = 1000;							 // a level outside the campaign

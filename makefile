@@ -156,7 +156,7 @@ run-editor: $(EDITOR)
 
 model-viewer: $(VIEWER)
 
-$(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(BASE_LIB)
+$(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-model-viewer: $(VIEWER)

@@ -1,11 +1,11 @@
 # Potion textures
 
-Status: implemented 2026-10-08, to be checked in play.
+Status: done 2026-10-08, play-tested by the user.
 
 ## Before
 
 Every potion shared one model and one texture: `models/items/potion.md3` + `textures/items/potion.png`, built by
-`tools/blender/models/items.py` ([remodeling.md](../remodeling.md)). The texture stays light grey and the engine
+`tools/blender/models/items.py` ([remodeling.md](../../remodeling.md)). The texture stays light grey and the engine
 tints the whole flask with `PotionDef::colour` (`src/world/items.cpp`, `potionColor()` in `src/ui/inventory.cpp`,
 the HUD quick slot in `src/ui/player_hud_view.cpp`). `Assets::Of()` returns the same `Item` for every potion.
 
@@ -52,7 +52,7 @@ several potions. Set:
   the inventory detail view) gets no tint any more.
 * **Scale.** Refactor freely: each model can have its own scale (floor / chest and inventory detail) instead of the
   single `5` in `loadItem("potion", 5)` and `POTION_DETAIL_SCALE`.
-* **Resistance potions** ([resistance-potion.draft.md](resistance-potion.draft.md)): lesser on the flask, greater on
+* **Resistance potions** ([resistance-potion.draft.md](../resistance-potion.draft.md)): lesser on the flask, greater on
   the cobra vial. Alternative: both on the cobra vial with different textures.
 * **Graphics only.** Saves and level files store the potion kind, not the model: no format change.
 
@@ -75,3 +75,6 @@ several potions. Set:
   cobra vial) and their `PotionDef` rows.
 * Check: `make test SCENARIO=tests/scenarios/potions.txt` (one chest per potion on `tests/levels/potions`, then each
   potion in the inventory).
+* Model viewer: a vessel has no texture of its own, so the file-name lookup found none. `TextureCandidates`
+  (`tools/model-viewer/viewer.cpp`) now adds its potions' textures from the game's table (the viewer links
+  `liblevel`); T cycles them, `--texture potion_small_stamina` picks one.

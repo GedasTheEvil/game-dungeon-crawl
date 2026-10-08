@@ -38,6 +38,7 @@
 #include "../../src/graphics/ink.h"
 #include "hud.h"
 #include "../../src/graphics/font.h"
+#include "../../src/world/items.h"
 #include "../../src/ui/ui_draw.h"
 #include "../../src/core/logger.h"
 #include "../../src/core/timer.h"
@@ -188,6 +189,7 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 //   1. <stem>.png, the file's own (decorations, items, a clip with a texture of its own)
 //   2. <base>.png, the texture its clips share (models/monsters/anubis_att.md3 -> textures/monsters/anubis.png)
 //   3. <base>_*.png, the variants that reuse the model (anubis_boss, rat_giant, key_blue), sorted
+//   4. a potion vessel (items/potion_flask): its potions' textures, in ItemKind order (PotionDef::texture)
 // Empty when none exists.
 std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	const std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
@@ -213,6 +215,14 @@ std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	}
 	std::sort(variants.begin(), variants.end());
 	result.insert(result.end(), variants.begin(), variants.end());
+
+	if (category == "items")
+		for (int i = WEAPON_KIND_COUNT; i < FIRST_AMULET; i++) {
+			const PotionDef& potion = potionDef(itemAt(i));
+			std::string path = (dir / (std::string(potion.texture) + ".png")).string();
+			if (stem == potionModelDef(potion.model).model && std::filesystem::is_regular_file(path, ec))
+				result.push_back(path);
+		}
 	return result;
 }
 

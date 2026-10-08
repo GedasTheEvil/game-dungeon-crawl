@@ -116,8 +116,9 @@ Split off to [boss-resistances](solved/boss-resistances.md) (done): no boss has 
 * Which monsters to nerf, by how much?
 * Should the bosses keep their XP (they are the payoff)?
 * A crocodile in half water is a harder fight than on land: the player wades at half speed, cannot sprint, jump or
-  back off. Weight its `monsterThreat` in the checker score (e.g. x1.5 when it spawns in half water)? A wall in the
-  checker's walker was dropped: killing it opens the way, as with any monster.
+  back off. But by the first crocodile the player has a ranged weapon and can shoot it before it closes in. Weight its
+  `monsterThreat` in the checker score x1.1 when it spawns in half water (decided 2026-10-08). A wall in the checker's
+  walker was dropped: killing it opens the way, as with any monster.
 * The attack damage mix per monster group ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)),
   if it plays wrong.
 

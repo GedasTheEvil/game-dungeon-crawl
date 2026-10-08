@@ -21,7 +21,7 @@ One texture per potion, the colour baked in, no tint. Frees the texture for deta
 ## Models (decided 2026-10-08)
 
 Not one flask any more: up to **6 potion models** for now, shaped after Egyptian vessels. Models are shared by
-several potions, the texture tells them apart. Proposed set:
+several potions. Set:
 
 | # | Model | Shape | Potions |
 |---|---|---|---|
@@ -34,15 +34,22 @@ several potions, the texture tells them apart. Proposed set:
 
 * Lesser = model 1 plain; greater = a richer model and more gold / hieroglyphs on the texture.
 * Each model keeps about the flask's size and footprint, so it stands on a tile, in a chest and in the inventory slot
-  the same way (same scale constant, or one per model if needed).
-* Built in `tools/blender/models/items.py` like the flask, 512 px albedo x AO, one texture per potion
-  (`textures/items/potion_<kind>.png`), one `.md3` per model.
+  the same way.
+* Built in `tools/blender/models/items.py` like the flask, 512 px albedo x AO, one `.md3` per model.
 * New potions later reuse one of the 6 models; a 7th needs a new decision.
 
-## Open
+## Decided (2026-10-08)
 
-* Loading: one `Item` per potion kind instead of the shared `items.potion`, or one model with a texture swap.
-* Inventory tab icon and HUD slot: drop the tint, use the potion's own texture.
-* Keep `PotionDef::colour` for UI text / particles, or drop it.
-* Fits the new resistance potions ([resistance-potion.draft.md](resistance-potion.draft.md)), whose "one bottle in
-  two colours" would become two textures.
+* **One asset per model.** Load each of the 6 `.md3` files once, as one `Item` per model, and point each potion kind at
+  its model. Don't copy a model per potion. Extra textures only where they add something; the resources must not
+  grow without a benefit.
+* **Look-alikes on one model.** Potions that share a model look alike on purpose: same vessel and decoration, only
+  the colour of the liquid (or a similar small detail) differs.
+* **Icons keep the tint.** The inventory slot, the potions tab and the HUD quick slot draw icons, not the model, and
+  stay tinted with `PotionDef::colour`. Keep `colour` for the icons only. The 3D model (on the floor, in a chest,
+  the inventory detail view) gets no tint any more.
+* **Scale.** Refactor freely: each model can have its own scale (floor / chest and inventory detail) instead of the
+  single `5` in `loadItem("potion", 5)` and `POTION_DETAIL_SCALE`.
+* **Resistance potions** ([resistance-potion.draft.md](resistance-potion.draft.md)): lesser on the flask, greater on
+  the cobra vial. Alternative: both on the cobra vial with different textures.
+* **Graphics only.** Saves and level files store the potion kind, not the model: no format change.

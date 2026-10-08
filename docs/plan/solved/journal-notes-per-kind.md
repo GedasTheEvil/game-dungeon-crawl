@@ -1,6 +1,6 @@
 # Journal notes per kind: potions and weapons
 
-Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
+Status: done 2026-10-07, play-tested by the user 2026-10-08. Draft 2026-10-07, from the user.
 
 The field notes give away too much too early. Drinking the first health potion writes the "Potions" note, and that
 note already names stamina potions, Aphethamine, Stone Skin and the Elixir of Life. The first weapon found writes the

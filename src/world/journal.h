@@ -65,7 +65,7 @@ struct JournalCreature {
 
 // Field notes: the game's rules in the archaeologist's words, each written the first time it matters. A note covers
 // only what the player has met: one per potion group, written when the first potion of it is picked up, and one per
-// damage type, written when the first weapon of that main type is found (docs/plan/journal-notes-per-kind.md).
+// damage type, written when the first weapon of that main type is found (docs/plan/solved/journal-notes-per-kind.md).
 enum class FieldNote : unsigned char {
 	Health,			// the first hit taken
 	Levels,			// the first level up

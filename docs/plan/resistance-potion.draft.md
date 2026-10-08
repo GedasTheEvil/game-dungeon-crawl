@@ -16,13 +16,14 @@ amulet ([amulets.md](solved/amulets.md)) but for a while only. A poison that doe
 * With the amulet (10 / 25 / 50 / 80%, `AMULET_TYPES` in `src/world/items.cpp`): two separate rolls
   (`player.cpp`, the amulet's `rng.percent`, then the potion's). Poisoned only if both fail: grand amulet + greater
   potion = 20% x 5% = 1%, practically immune.
-* Differs from the antidote: the antidote ends a poison, the potion keeps one from landing.
+* Already poisoned when drunk: the greater potion also cures it (as the antidote); the lesser one does not, the
+  running poison goes on.
+* Differs from the antidote: the antidote only ends a poison, the potion keeps one from landing.
 
 ## Open (proposed defaults)
 
 * Drinking another: the timer restarts at 2 min; greater replaces lesser, lesser does not cut a running greater
   short.
-* Already poisoned when drunk: the running poison goes on (the antidote is for that).
 * Where they drop: lesser from the first poisoners on (scorpions), greater from the cobra / giant scorpion levels on.
   Chests and loot tables as the other potions. Does the level checker count them like the antidote?
 * HUD: an icon with the time left. Journal note per potion.

@@ -1,4 +1,4 @@
-# Poisoned monsters (docs/plan/monster-poison.md): the poison runs on a monster as on the player and can kill it; the
+# Poisoned monsters (docs/plan/solved/monster-poison.md): the poison runs on a monster as on the player and can kill it; the
 # player's poison kill gives the XP. Its health bar turns lime, the boss bar green. The mummy is immune.
 seed 1
 god

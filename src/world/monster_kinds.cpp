@@ -35,8 +35,8 @@ constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS};	// a blow crack
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
 
-// Chance a poisoning does not take (docs/plan/monster-poison.md). The rest have none, like the player without an
-// amulet. Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
+// Chance a poisoning does not take (docs/plan/solved/monster-poison.md). The rest have none, like the player without
+// an amulet. Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
 constexpr int POISON_IMMUNE = 100;
 constexpr int POISONER_RESIST = 50;		 // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin

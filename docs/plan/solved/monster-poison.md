@@ -1,17 +1,17 @@
 # Poisoned monsters
 
-Status: done 2026-10-07, to be play-tested with the [venom amulet](solved/venom-amulet.md). Drafted 2026-10-07. Split off [venom-amulet](solved/venom-amulet.md) and
-[poison-dart-trap](solved/poison-dart-trap.md): both need it, so it is built once, first.
+Status: solved 2026-10-08, play-tested with the [venom amulet](venom-amulet.md). Drafted 2026-10-07. Split off
+[venom-amulet](venom-amulet.md) and [poison-dart-trap](poison-dart-trap.md): both need it, so it is built once, first.
 
 ## Idea
 
-Monsters can be poisoned, as the player can today ([poison-and-antidote](solved/poison-and-antidote.md)). Poison only
+Monsters can be poisoned, as the player can today ([poison-and-antidote](poison-and-antidote.md)). Poison only
 runs on the player so far (`PoisonTier`, `src/world/poison.h`).
 
 Used by:
 
-* [venom-amulet](solved/venom-amulet.md): the player's hits have a chance to poison.
-* [poison-dart-trap](solved/poison-dart-trap.md): the plate's arrows poison a heavy monster that sets it off (medium).
+* [venom-amulet](venom-amulet.md): the player's hits have a chance to poison.
+* [poison-dart-trap](poison-dart-trap.md): the plate's arrows poison a heavy monster that sets it off (medium).
 
 ## Rules
 
@@ -22,7 +22,7 @@ Used by:
 * A field in the monster row: `MonsterKind::poisonResistPercent` (`src/world/monster_kinds.cpp`), default 0.
 * 100% (immune): the mummy, the Anubis guard, the Anubis boss, the plant, the mimic.
 * A boss resists at least as well as its common kin (the Anubis boss as the guard, the scorpion queen as the
-  scorpions, ...): never less. See [boss resistances](solved/boss-resistances.md).
+  scorpions, ...): never less. See [boss resistances](boss-resistances.md).
 
 ## Done
 
@@ -42,18 +42,18 @@ Used by:
 * Poison can kill, as on the player. The kill is the player's (XP, journal, kill drop) when any running tier came from
   them (`byPlayer`); a trap's poison (the dart trap) gives nothing, as a trap's kill.
 * The tier numbers stay the player's: small next to a boss's HP (strong: 150 HP of Sobek's 1600). Retune with
-  [monster-balance](monster-balance.draft.md) if needed.
+  [monster-balance](../monster-balance.draft.md) if needed.
 * Shown: the monster's health bar has a lime outline and its fill pulses venom green to lime; the boss bar is green,
   like the player's (`PlayerHud::POISON_TOP`, shared).
 * A respawn or a death clears the poison. Monsters are not saved, so neither is their poison.
-* Scenario commands `poisonmonster`, `poisonboss`, field `nearest_poison` ([testing](../testing.md));
+* Scenario commands `poisonmonster`, `poisonboss`, field `nearest_poison` ([testing](../../testing.md));
   `tests/scenarios/monster_poison.txt`.
 
 ## Left for later
 
-* Journal: the poison resistance on the creature page: done with the [venom amulet](solved/venom-amulet.md).
+* Journal: the poison resistance on the creature page: done with the [venom amulet](venom-amulet.md).
 * Unit tests: `Poison` is tested already; the monster side waits for
-  [sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md).
+  [sim-unit-tests-monster-rules](../sim-unit-tests-monster-rules.draft.md).
 
 ## To test
 

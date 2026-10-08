@@ -112,7 +112,7 @@ class Monster {
 	int spitReadyMs = 0;		  // spitters: no new spit before this GameClock time
 	bool spitReleased = true;	  // the spit clip's glob has left the mouth (TakeSpit)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
-	Poison poison;				  // docs/plan/monster-poison.md
+	Poison poison;				  // docs/plan/solved/monster-poison.md
 	bool poisonByPlayer = false;  // a running tier is the player's doing: its kill is theirs
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
@@ -256,9 +256,9 @@ class Monster {
 	bool takeHit(int dmg);
 	// A hit with a weapon: its damage after resistances (resistedDamage). True: this hit killed it.
 	bool TakeWeaponHit(int dmg, const DamageMix& mix);
-	// A poisoned hit (docs/plan/monster-poison.md): that tier (re)starts, as on the player, unless it shrugs it off
-	// (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it does
-	// not, as a trap's kill. True: the poison took.
+	// A poisoned hit (docs/plan/solved/monster-poison.md): that tier (re)starts, as on the player, unless it shrugs it
+	// off (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it
+	// does not, as a trap's kill. True: the poison took.
 	bool TakePoison(PoisonTier tier, bool byPlayer, Rng& rng);
 	// Once a tick: the running tiers' damage, which can kill. True: it killed and the player poisoned it
 	// (Dungeon::rewardKill).

@@ -1,7 +1,7 @@
 # Amulet of venom: poison monsters on hit
 
 Status: solved 2026-10-08, play-tested (the poison and the journal entry on a giant bat). Drafted 2026-10-07, split
-off [amulets.md](amulets.md). Built on [monster-poison](../monster-poison.md).
+off [amulets.md](amulets.md). Built on [monster-poison](monster-poison.md).
 
 ## Idea
 

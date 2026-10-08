@@ -117,7 +117,8 @@ struct MonsterKind {
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
-	// Chance that a poisoning does not take (docs/plan/monster-poison.md); 100: immune. A boss's is at least its kin's.
+	// Chance that a poisoning does not take (docs/plan/solved/monster-poison.md); 100: immune. A boss's is at least its
+	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<SpitRules> spit; // it spits venom from afar
 	bool charges = false;		   // it charges along its row (Charge)

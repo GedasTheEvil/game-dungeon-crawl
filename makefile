@@ -64,16 +64,23 @@ TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES
 DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES) $(UNIT_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
 
 CLANG_TIDY?=clang-tidy
-# nproc - 4, at least 1: four cores stay free for the desktop
-TIDY_JOBS?=$(shell n=$$(($$(nproc) - 4)); [ $$n -lt 1 ] && n=1; echo $$n)
+
+# Every compile, link, clang-tidy and scenario game goes through one load gate (tools/load_gate.sh): a job cap, an
+# idle-core, free-memory and free-swap floor, shared by all runs at once, also a make -j. Each heavy target ends with
+# the gate's summary line (peaks, wall time). The build's stats start fresh with every make.
+GATE=./tools/load_gate.sh run
+export GATE_STATS:=$(BUILD)/.gate-build
+$(shell rm -f $(GATE_STATS))
+GATE_REPORT=@./tools/load_gate.sh report build
 
 .PHONY: all clean format format-check layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
+	$(GATE_REPORT)
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
-	$(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
 # Each archive also depends on the makefile: a file moved into a library is older than the archive.
 $(BASE_LIB): $(BASE_LIB_OBJECTS) makefile
@@ -90,21 +97,21 @@ $(RENDER_LIB): $(RENDER_LIB_OBJECTS) makefile
 
 $(BUILD)/%.o: %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(GATE) $(CXX) $(CXXFLAGS) -c $< -o $@
 
 # The doctest runner: doctest's own code, without our warnings.
 $(BUILD)/tests/unit/main.o: tests/unit/main.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -w -c $< -o $@
+	$(GATE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
 
 $(BUILD)/external/%.o: external/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -w -c $< -o $@
+	$(GATE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
 
 level-tools: $(LEVEL_TOOLS)
 
 $(LEVEL_TOOLS): %: $(BUILD)/tools/level/%.o $(LEVEL_LIB) $(BASE_LIB)
-	$(CXX) $^ -o $@
+	$(GATE) $(CXX) $^ -o $@
 
 clean:
 	rm -rf $(BUILD) $(EXECUTABLE) $(LEVEL_TOOLS)
@@ -123,20 +130,26 @@ layers:
 	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
 	./tools/check_sim.sh $(SIM_FILES)
 
+tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy-fix:
-	$(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS)
+	@mkdir -p $(BUILD)
+	$(GATE) $(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS); \
+		code=$$?; ./tools/load_gate.sh report tidy-fix; exit $$code
 
-# One clang-tidy per file, TIDY_JOBS at a time (a header's warnings show once per file that includes it), without
-# clang's "N warnings generated." lines (they count the warnings filtered out, e.g. in system headers).
-# tidy-fix stays one process, so a fix in a shared header is applied once.
+# One clang-tidy per file, through the gate (a header's warnings show once per file that includes it), without
+# clang's "N warnings generated." lines (they count the warnings filtered out, e.g. in system headers). xargs keeps
+# one more than the cap: it waits at the gate. tidy-fix stays one process, so a fix in a shared header is applied once.
+tidy: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy: layers
-	printf '%s\n' $(TIDY_SOURCES) | xargs -P $(TIDY_JOBS) -I{} $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 \
-		| sed '/^[0-9]* warnings\? generated\.$$/d'
+	@mkdir -p $(BUILD) && rm -f $(GATE_STATS)
+	printf '%s\n' $(TIDY_SOURCES) | xargs -P $$(($$(./tools/load_gate.sh jobs) + 1)) -I{} \
+		$(GATE) $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 | sed '/^[0-9]* warnings\? generated\.$$/d'
+	@./tools/load_gate.sh report tidy
 
 editor: $(EDITOR)
 
 $(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
-	$(CXX) $^ -o $@ $(GL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-editor: $(EDITOR)
 	./$(EDITOR)
@@ -144,20 +157,22 @@ run-editor: $(EDITOR)
 model-viewer: $(VIEWER)
 
 $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(BASE_LIB)
-	$(CXX) $^ -o $@ $(GL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-model-viewer: $(VIEWER)
 	./$(VIEWER) $(ARGS)
 
 $(UNIT): $(UNIT_OBJECTS) $(LEVEL_LIB) $(BASE_LIB)
-	$(CXX) $^ -o $@
+	$(GATE) $(CXX) $^ -o $@
 
 unit: $(UNIT)
+	$(GATE_REPORT)
 	./$(UNIT)
 
 # `make paths`: levelcheck's path through every campaign level, played in the game (checks the checker's movement
 # model against the real physics; docs/levels.md).
 paths: $(EXECUTABLE) levelcheck
+	$(GATE_REPORT)
 	rm -rf tests/out/paths && mkdir -p tests/out/paths
 	./levelcheck --quiet --script tests/out/paths levels/lvl* >/dev/null
 	./tools/run_scenarios.sh tests/out/paths/*.txt

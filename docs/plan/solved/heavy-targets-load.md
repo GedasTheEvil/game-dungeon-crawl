@@ -1,6 +1,7 @@
 # Heavy make targets: lighter on the system
 
-Status: draft 2026-10-08, from the user: the full scenario suite (`make test`) still makes the system lag badly.
+Status: done 2026-10-08 (tooling, no gameplay change). From the user: the full scenario suite (`make test`) still
+made the system lag badly.
 
 ## Goal
 
@@ -37,3 +38,32 @@ min free 755 MB: the memory floor was crossed while games were running.
 * Measure before and after: the runner's summary line (peak, held back, min idle, min free) plus the wall time;
   "20% less" as the peak games and memory, with the wall time allowed to grow.
 
+
+## Done
+
+* `tools/load_gate.sh`: one gate for the scenario games (`run_scenarios.sh`, so `make test` and `make paths`), each
+  clang-tidy of `make tidy` / `tidy-fix`, and every compile and link (also under `make -j`). Slot files under
+  `GATE_DIR`, held by flock while a job runs, so all runs at once share the cap. `JOBS` default
+  `(nproc - RESERVE_CORES) * 4 / 5` (9 of 16), plus the idle-core, `MemAvailable` and `MIN_SWAP_FREE_MB` (4096)
+  floors. One always runs. A game started less than `GATE_LOAD_S` (15 s) ago counts as `GATE_LOAD_MB` (1500) still to
+  come. Jobs run on the last `GATE_CPUS` cores (default the job cap): the desktop keeps the first ones however much a
+  job grows after its start. `TIDY_JOBS` is gone.
+* Each heavy target ends with `== <label> load: peak, held back, min idle, min free (and at the start), min free swap,
+  wall time`: `make test` / `paths` (scenarios), `make tidy` / `tidy-fix`, the build (`make`, `make unit`, before
+  `make paths`).
+* Memory per game, 2971 -> 1513 MB peak RSS: the models kept every frame's vertex data after compiling it into display
+  lists (which hold their own copy), and grew it by push_back (up to 2x). Now the arrays are sized up front and
+  `AnimatedModel::Compile` drops frames 1.. (the player keeps them for `Player::Fist`).
+
+## Measured (full suite, 101 scenarios, independent 1 s sampler)
+
+| | baseline (HEAD 4eb929e) | after |
+|---|---|---|
+| games at once, peak | 11 (10 on a rerun) | 9 |
+| memory taken by the suite (start - min `MemAvailable`) | 18.8 GB, 17.5 GB | 11.5-12.3 GB (-35%) |
+| min free swap | 6.2 GB, 3.4 GB | 7.6-9.7 GB, the gate never needed |
+| suite CPU (game + Xvfb), peak | ~10-11 cores, uncapped | <= 9 cores, pinned |
+| wall time | 433-505 s | 445-529 s |
+
+System-wide CPU in use still peaks at 13-15 of 16 cores: the rest is the desktop (browser, IDE) on the free cores.
+`make -j16` from clean: 57 s, peak 6 compiles. `make tidy`: 153 s (under a minute before, 12 at once uncapped).

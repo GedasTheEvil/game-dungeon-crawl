@@ -83,7 +83,8 @@ class CharacterModel {
 	Sound dieSound, attackSound, jumpSound, wakeSound, spitSound;
 
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
-	bool Load(const char* name, Texture&& tex, const ClipFiles& files); // takes the texture over
+	// Takes the texture over. keepFrames: see AnimatedModel::Compile.
+	bool Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames = false);
 	[[nodiscard]] ModelState Reference() const { return reference; }
 	[[nodiscard]] AnimatedModel* Clip(ModelState state) const { return clips[static_cast<int>(state)].get(); }
 	// The clip a state shows: its own, or the reference clip standing in.

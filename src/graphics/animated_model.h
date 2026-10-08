@@ -56,13 +56,15 @@ class AnimatedModel {
 	void Advance(AnimPlayback& p) const;
 	void setSpeed(int nSpeed);
 	void BindTexture(int t);
-	void Compile();
+	// Draws from display lists from now on and frees frames 1.. of the vertex data, unless keepFrames (Vertex of
+	// any frame).
+	void Compile(bool keepFrames = false);
 	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
 	void Normalize(const ModelNormalization& n);
 	[[nodiscard]] std::pair<float, float> YRange(int f) const; // lowest and highest y of frame f
 	[[nodiscard]] std::pair<float, float> HalfXZ(int f) const; // farthest |x| and |z| of frame f from the origin
 	[[nodiscard]] int VertexCount() const { return VCount; }
-	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const; // corner i of frame f
+	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const; // corner i of frame f (see Compile)
 	void Reset();
 	[[nodiscard]] int FrameCount() const;
 };

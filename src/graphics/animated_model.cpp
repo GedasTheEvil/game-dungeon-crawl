@@ -109,6 +109,22 @@ int AnimatedModel::Load(const char fileName[]) {
 	Ver.assign(frameC, VF{});
 	TexCords.clear();
 
+	// Exact sizes up front: grown by push_back, every frame's arrays held up to twice their size.
+	size_t corners = 0;
+	for (size_t s = 0, ofs = static_cast<size_t>(header.ofsSurfaces); s < static_cast<size_t>(header.numSurfaces);
+		 s++) {
+		Md3Surface surf{};
+		if (!readAt(data, ofs, surf) || surf.ofsEnd <= 0)
+			break; // the loop below reports it
+		corners += static_cast<size_t>(surf.numTriangles) * 3;
+		ofs += static_cast<size_t>(surf.ofsEnd);
+	}
+	TexCords.reserve(corners * 2);
+	for (VF& frame : Ver) {
+		frame.v.reserve(corners * 3);
+		frame.n.reserve(corners * 3);
+	}
+
 	// Expand every surface's indexed triangles into the per-corner arrays the renderer draws.
 	size_t surfaceOfs = static_cast<size_t>(header.ofsSurfaces);
 	for (int s = 0; s < header.numSurfaces; s++) {
@@ -215,7 +231,7 @@ void AnimatedModel::setSpeed(int nSpeed) {
 		speed = nSpeed;
 }
 //============================================================
-void AnimatedModel::Compile() {
+void AnimatedModel::Compile(bool keepFrames) {
 	if (compiled)
 		return; // avoid too many compilations
 
@@ -243,6 +259,11 @@ void AnimatedModel::Compile() {
 	}
 
 	compiled = true;
+	// The lists hold their own copy. Frame 0 stays for the measures (YRange, HalfXZ, Vertex).
+	if (!keepFrames) {
+		Ver.resize(1);
+		Ver.shrink_to_fit();
+	}
 }
 //============================================================
 void AnimatedModel::BindTexture(int t) { texture = t; }
@@ -338,19 +359,19 @@ std::pair<float, float> AnimatedModel::HalfXZ(int f) const {
 }
 //============================================================
 void AnimatedModel::Translate(float x, float y, float z) {
-	for (int j = 0; j < frameC; j++) {
+	for (VF& frame : Ver) {
 		for (int i = 0; i < VCount * 3; i += 3) {
-			Ver[j].v[i] += x;
-			Ver[j].v[i + 1] += y;
-			Ver[j].v[i + 2] += z;
+			frame.v[i] += x;
+			frame.v[i + 1] += y;
+			frame.v[i + 2] += z;
 		}
 	}
 }
 //============================================================
 void AnimatedModel::Scale(float sc) {
-	for (int j = 0; j < frameC; j++)
+	for (VF& frame : Ver)
 		for (int i = 0; i < VCount * 3; i++)
-			Ver[j].v[i] *= sc;
+			frame.v[i] *= sc;
 }
 //============================================================
 void AnimatedModel::Reset() { playback.frame = 0.0; }

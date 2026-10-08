@@ -115,7 +115,9 @@ See [testing.md](testing.md).
 * Run static analysis (clang-tidy): `make tidy`
 
 `clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel
-(`TIDY_JOBS`, default `nproc - 4`, at least 1, under a minute) and checks the project's headers too, not `external/`.
+through the load gate (`tools/load_gate.sh`, as the scenario games and the build: `JOBS`, `RESERVE_CORES`,
+`MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md); about 2.5 minutes) and checks the project's headers
+too, not `external/`.
 The build and `make tidy` are expected to print no warnings. Naming rules (only these are checked; method and function
 names are mixed in the code base and are not):
 

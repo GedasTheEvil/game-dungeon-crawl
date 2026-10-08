@@ -14,7 +14,7 @@ constexpr float DEG_TO_RAD = 3.14159265f / 180.f;
 } // namespace
 
 bool Player::Load(const char* name, Texture&& texture) {
-	if (!model.Load(name, std::move(texture), PLAYER_CLIPS))
+	if (!model.Load(name, std::move(texture), PLAYER_CLIPS, true)) // Fist() reads any frame
 		return false;
 	for (AnimPlayback& p : playback)
 		p.stepStart = GameClock::now();

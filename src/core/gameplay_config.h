@@ -173,20 +173,23 @@ static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 100
 			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
 
 // Dart trap (docs/plan/poison-dart-trap.md): a pressure plate under the player or a heavy monster (weight
-// DART_PLATE_WEIGHT and up, MonsterKind::weight) clicks; DART_DELAY_MS later the nearer wall on its row shoots
-// DART_COUNT darts along the row, DART_GAP_MS apart. They fly at DART_HEIGHT over the floor: under a jump at its top,
-// over small monsters. Each one that hits deals DART_DAMAGE and poisons (medium). The plate re-arms DART_REARM_MS
-// after the click, once nothing heavy stands on it.
+// DART_PLATE_WEIGHT and up, MonsterKind::weight) clicks; DART_DELAY_MS later the holes in the back wall above it shoot
+// DART_COUNT darts out across the corridor, DART_GAP_MS apart, one per hole. At the walking line (DART_HIT_DEPTH)
+// they take the body in front of their hole at DART_HEIGHT over the floor: a jump at its top lets them pass under,
+// small monsters too. Each one that hits deals DART_DAMAGE and poisons (medium). The plate re-arms DART_REARM_MS after
+// the click, once nothing heavy stands on it.
 constexpr int PLAYER_WEIGHT = 2;
 constexpr int DART_PLATE_WEIGHT = 2;
-constexpr int DART_RANGE = 12; // cells from the plate to the wall that shoots
 constexpr int DART_DELAY_MS = 200;
-constexpr int DART_COUNT = 3;
+constexpr int DART_COUNT = 3; // one per hole
 constexpr int DART_GAP_MS = 160;
-constexpr float DART_SPEED = 9.f;	// tiles a second
-constexpr float DART_HEIGHT = 0.3f; // tiles over the floor
+constexpr float DART_SPEED = 6.f;	   // tiles a second
+constexpr float DART_HIT_DEPTH = 0.5f; // tiles out of the back wall: where the player and the monsters walk
+constexpr float DART_HOLE_X[3] = {-0.22f, 0.f, 0.22f}; // the holes, from the plate's centre, in firing order
+constexpr float DART_HEIGHT = 0.3f;					   // tiles over the floor
 constexpr int DART_DAMAGE = 2;
+constexpr float DART_PLATE_HALF_WIDTH = 0.27f; // the slab (mechanism.py): a centre over it presses it
+constexpr float DART_HALF_WIDTH = 0.1f;		   // a dart takes a body whose box comes this near its hole
 constexpr int DART_REARM_MS = 3000;
-constexpr int DART_STICK_MS = 1500; // a dart in a wall stays this long
 
 #endif

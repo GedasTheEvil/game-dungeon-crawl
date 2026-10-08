@@ -3,8 +3,7 @@
 ; The red key at the west end of the third hall opens the red gate, the blue lever beyond it the blue gate, the green key
 ; at the east end of the seventh hall the green gate, the gold lever past the drop shaft in the tenth hall the gold gate.
 ; Two ladders join the first two halls (a loop); the drop shafts have a ladder back beside them. An antidote at the east
-; end of the second hall. A dart trap in the blue lever's hall, east of the ladder: the west wall shoots, an Anubis comes
-; over it.
+; end of the second hall. A dart trap in the blue lever's hall, east of the ladder, an Anubis comes over it.
 def L 12 2 0
 def P 12 3 0
 def U 12 4 0

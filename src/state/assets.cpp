@@ -38,6 +38,8 @@ void loadMechanisms(MechanismSet& set) {
 	set.crack = loadStaticModel("models/mechanisms/ceiling_crack.md3", set.crackTex);
 	set.plateTex.LoadPNG("textures/mechanisms/pressure_plate.png");
 	set.plate = loadStaticModel("models/mechanisms/pressure_plate.md3", set.plateTex);
+	set.dartHolesTex.LoadPNG("textures/mechanisms/dart_holes.png");
+	set.dartHoles = loadStaticModel("models/mechanisms/dart_holes.md3", set.dartHolesTex);
 }
 } // namespace
 

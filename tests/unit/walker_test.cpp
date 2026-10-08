@@ -83,7 +83,7 @@ TEST_CASE("a jump from a ladder's foot") {
 	CHECK(r.pathJumps == 1);
 }
 
-TEST_CASE("dart plates: an antidote wanted when walked, a wall to shoot from") {
+TEST_CASE("a dart plate on the path wants an antidote in reach") {
 	auto has = [](const LevelReport& r, const std::string& text) {
 		for (const std::string& w : r.warnings)
 			if (w.find(text) != std::string::npos)
@@ -96,13 +96,7 @@ TEST_CASE("dart plates: an antidote wanted when walked, a wall to shoot from") {
 	CHECK(walked.dartPlates == 4);
 	CHECK(walked.pathDartPlates > 0);
 	CHECK(has(walked, "dart trap on the path but no antidote"));
-	CHECK_FALSE(has(walked, "has no wall"));
 	const ItemFileId antidote = fileIdOf(ItemKind::Antidote);
 	cell(grid, 2, 1) = Tile{Treasure, antidote.type, antidote.id};
 	CHECK(checkLevel(grid).warnings.empty());
-
-	std::string row = "#S" + std::string(18, '.') + "_" + std::string(17, '.') + "E#";
-	REQUIRE(row.size() == 40);
-	LevelReport far = checkLevel(drawn({std::string(40, '#'), row, std::string(40, '#')}));
-	CHECK(has(far, "has no wall within 12 cells"));
 }

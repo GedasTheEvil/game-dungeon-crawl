@@ -32,7 +32,7 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 true, true, 'v', "rockfall.png"},
 	{"DartPlate",
 	 "Pressure plate in the floor. The player or a heavy monster on it (not a jump) sets off 3 poison darts (medium) "
-	 "from the nearer wall on its row, within 12 cells. Re-arms 3 s after it is free.",
+	 "from the holes in the back wall above it. Re-arms 3 s after it is free.",
 	 true, true, '_', "dartplate.png"},
 }};
 

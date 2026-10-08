@@ -1,13 +1,14 @@
-# Dart traps (docs/plan/poison-dart-trap.md, tests/levels/dart_trap): the plate at col 4 makes the left wall shoot 3
-# darts along the row; walking on does not outrun them: each deals 2 and poisons (medium). A jump over the plate sets
-# nothing off. A heavy monster (the Anubis guard, weight 3) presses the plate at col 12: the right wall's darts hit it.
+# Dart traps (docs/plan/poison-dart-trap.md, tests/levels/dart_trap): the plate at col 4 makes the 3 holes in the
+# back wall above it shoot darts out across the corridor; walking on does not get the player clear: each dart deals 2
+# and poisons (medium). A jump over the plate sets nothing off. A heavy monster (the Anubis guard, weight 3) presses
+# the plate at col 12 and takes the darts.
 seed 1
 level tests/levels/dart_trap
 wait 30
 expect hp == 50
 expect journal_notes == 0
 walk to 4.5
-wait 300ms
+wait 240ms
 screenshot darts_flying
 walk right 1
 wait 1s
@@ -38,7 +39,7 @@ god
 walk to 10.3
 wait 2s
 expect nearest == 600
-wait 10s # slow: it takes this long to reach the plate
+wait 16s # slow: it takes this long to get onto the plate
 expect nearest < 600 # a quarter of the darts' damage (trapDamagePct 25); immune to the poison
 expect nearest > 590
 screenshot anubis_on_plate

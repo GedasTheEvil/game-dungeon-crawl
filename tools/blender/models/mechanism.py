@@ -1,12 +1,12 @@
 """Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks, the ceiling crack over a rock trap
-and the pressure plate of a dart trap.
+and the pressure plate of a dart trap with the dart holes in the back wall above it.
 
     MCP:  p = ".../tools/blender/models/mechanism.py"; g = {"__file__": p, "__name__": "mechanism"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
     CLI:  blender -b --python tools/blender/models/mechanism.py -- [--export] [--bake] [--review out.png] [--only key,gate]
 
 Same space as decor.py: Z up, 1 unit = 1 tile, no Centrify (the engine draws them at glScale 40). Tile frame
-(gate, lever_base, ceiling_crack, pressure_plate): origin = floor level, horizontal centre of the tile, on the back wall plane;
+(gate, lever_base, ceiling_crack, pressure_plate, dart_holes): origin = floor level, horizontal centre of the tile, on the back wall plane;
 the tile runs from y = 0 (back wall) to y = -1 (front opening, the camera side), the ceiling is at z = 1.
 Game space of the MD3 = (x, z, -y), so Dungeon::drawDecorTile's transform (translate TILE_HALF, 0, -TILE_SIZE;
 scale TILE_SIZE) puts these where they belong.
@@ -45,12 +45,12 @@ from common import REPO, Builder, ellipsoid, transform, tube  # noqa: E402
 from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E402
 
 COLL = "mechanism_new"
-MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate"]
+MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes"]
 COLOURED = {"key", "gate", "lever_base"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
-            "pressure_plate": 256}
+            "pressure_plate": 256, "dart_holes": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
 
@@ -355,6 +355,24 @@ def build_pressure_plate(b, M):
     b.add(ellipsoid((body[-1].x, -0.33, top + 0.004), (0.045, 0.04, 0.005), n=12, rings=4), M["stone_dark"], "root")
 
 
+DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/core/gameplay_config.h): where the darts leave
+DART_HOLE_X = (-0.22, 0.0, 0.22)
+
+
+def build_dart_holes(b, M):
+    """A dressed sandstone panel set into the back wall above a dart trap's plate: three dark holes in bronze rims at
+    the darts' height, a cobra's hood carved over the middle one."""
+    b.add(yz_box(-0.025, 0.0, DART_HEIGHT - 0.11, DART_HEIGHT + 0.13, 0.31), M["stone_light"], "root")
+    b.add(yz_box(-0.03, -0.02, DART_HEIGHT - 0.12, DART_HEIGHT - 0.1, 0.32), M["stone_dark"], "root")  # the sill
+    for x in DART_HOLE_X:
+        rim = [V((x + 0.032 * math.cos(2 * math.pi * k / 16), -0.027, DART_HEIGHT + 0.032 * math.sin(2 * math.pi * k / 16)))
+               for k in range(16)]
+        b.add(tube([(p, 0.007, 0.007) for p in rim], sub=1, n=6, ref=V((0, 1, 0)), closed=True), M["bronze_plain"], "root")
+        b.add(rod((x, -0.026, DART_HEIGHT), (x, -0.031, DART_HEIGHT), 0.026, n=14), M["enamel"], "root")
+    b.add(ellipsoid((0, -0.026, DART_HEIGHT + 0.08), (0.035, 0.004, 0.03), n=12, rings=4), M["stone_dark"], "root")
+    b.add(ellipsoid((0, -0.028, DART_HEIGHT + 0.105), (0.012, 0.004, 0.012), n=8, rings=4), M["stone_dark"], "root")
+
+
 BUILDERS = {
     "key": build_key,
     "gate": build_gate,
@@ -363,6 +381,7 @@ BUILDERS = {
     "rock": build_rock,
     "ceiling_crack": build_ceiling_crack,
     "pressure_plate": build_pressure_plate,
+    "dart_holes": build_dart_holes,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -372,6 +391,7 @@ LIGHT = {
     "rock": ([(50, 0, 0.7), (60, 150, 0.25)], 0.5),
     "ceiling_crack": ([(-30, 0, 0.5), (60, 0, 0.3)], 0.6),
     "pressure_plate": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
+    "dart_holes": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
 }
 
 

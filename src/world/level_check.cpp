@@ -300,22 +300,6 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
-// A dart plate shoots from the nearer wall on its row within DART_RANGE (Dungeon::pressPlate): with none it only
-// clicks.
-void checkDartPlates(const LevelGrid& grid, LevelReport& r) {
-	for (int cell = 0; cell < CELLS; cell++) {
-		if (grid.cells[cell].type != DartPlate)
-			continue;
-		const int col = cell % LEVEL_WIDTH, row = cell / LEVEL_WIDTH;
-		bool wall = false;
-		for (int k = 1; k <= DART_RANGE && !wall; k++)
-			wall = isSolidTile(grid.at(col - k, row)) || isSolidTile(grid.at(col + k, row));
-		if (!wall)
-			r.warnings.push_back("dart plate at " + at(cell) + " has no wall within " + std::to_string(DART_RANGE) +
-								 " cells on its row to shoot from");
-	}
-}
-
 // Half water stands on deep water or a wall, deep water only under water; a ladder starts in the water and goes up,
 // none goes down into it; a crocodile lives in or next to the water.
 void checkWater(const LevelGrid& grid, LevelReport& r) {
@@ -409,7 +393,6 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkWater(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
-	checkDartPlates(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");

@@ -32,14 +32,18 @@ Monsters get a weight, and the plate goes off only under a heavy one.
 
 ## Decided by the implementer (the user was away)
 
-* Where the darts come from: the nearer wall on the plate's row, within 12 cells (`DART_RANGE`); the left one on a
-  tie. No new attribute: the level designer picks the wall by placing the plate. With no wall in range it only
-  clicks, and the checker warns.
-* The volley: a click, then 3 darts 0.2 s later, 0.16 s apart, at 9 tiles a second along the row. Each takes the first
-  body in its way: 2 pierce damage (armour helps) and medium poison. The player walking or sprinting on cannot outrun
-  them.
-* Dodging: the darts fly 0.3 tiles over the floor, so a jump at its top lets one pass, and they fly over the small
-  monsters (rats, scarabs). A running jump over the plate does not press it.
+* Where the darts come from (changed 2026-10-08 after the user's play test of lvl16; first built from the nearer side
+  wall on the row, which was often off screen): three holes in a sandstone panel in the back wall right above the
+  plate (`mechanism.py` `dart_holes`, drawn with the plate), always visible, so a careful player sees the trap coming.
+  The darts fly out of them towards the camera, across the corridor. Works anywhere: every cell has a back wall.
+* Pressing: a centre over the slab (within `DART_PLATE_HALF_WIDTH` 0.27 of the cell's middle), not anywhere in the
+  cell.
+* The volley: a click, then 3 darts 0.2 s later, 0.16 s apart, one per hole (left, middle, right: `DART_HOLE_X`), at 6
+  tiles a second. At the walking line (half the corridor's depth) each takes the body in front of its hole (within
+  `DART_HALF_WIDTH` 0.1): 2 pierce damage (armour helps) and medium poison. Missed, it flies on out of the corridor.
+  Walking on does not get the player clear in time.
+* Dodging: the holes and darts are 0.3 tiles over the floor, so a jump at its top lets one pass, and they fly over the
+  small monsters (rats, scarabs). A running jump over the plate does not press it.
 * Re-arms 3 s after the click (`DART_REARM_MS`), once nothing heavy stands on it: a mummy standing on it fires one
   volley, not one a tick. A save keeps no pressed plate (it loads armed).
 * Weights (`MonsterKind::weight`, default 2): flyers 0; rat, scarab, scorpion, cobra 1; Anubis guard, crocodile 3;
@@ -49,10 +53,10 @@ Monsters get a weight, and the plate goes off only under a heavy one.
   ([monster-poison](monster-poison.md)), no XP for the kill.
 * Level format: tile type 14 `DartPlate`, value 0 armed / 1 pressed; glyph `_` in the ASCII sources.
 * Checker: a plate costs 8 on the path (it jumps one when it can); a plate on the path wants an antidote in reach,
-  like poisoners; a plate with no wall in range is a warning; the difficulty counts it (2 per plate on the path).
+  like poisoners; the difficulty counts it (2 per plate on the path).
 * Look and sound: a sandstone slab with a cobra carved on it, a dark gap round it, it sinks while pressed
-  (`mechanism.py` `pressure_plate`); the darts are the bow's arrow, smaller; `plate_click.wav` and `dart.wav`
-  (`tools/audio/mechanism_sounds.py`). The draft map sketches a slab and a dart. The editor icon `dartplate.png`.
+  (`mechanism.py` `pressure_plate`); the hole panel above it (`dart_holes`); the darts are the bow's arrow, smaller; `plate_click.wav` and `dart.wav`
+  (`tools/audio/mechanism_sounds.py`). The draft map sketches a slab and the three holes. The editor icon `dartplate.png`.
 * Journal: the field note "Dart traps" on the first plate the player presses.
 * Campaign: two to start with: lvl16 (the upper loop hall, a mummy east of it) and lvl23 (the blue lever's hall, an
   Anubis coming over it). Both have antidotes in reach; `./levelcheck` clean, `make paths` passes.
@@ -61,14 +65,12 @@ Monsters get a weight, and the plate goes off only under a heavy one.
 
 * `DartPlate` (`level.h`, `tile_defs.cpp`), `Dungeon::updateDartTraps`, `pressPlate`, `plateLoaded`, `updateDarts`
   (`src/world/dungeon_darts.cpp`), drawing in `dungeon_render_mechanisms.cpp` / `dungeon_render_effects.cpp`,
-  `MonsterKind::weight`, the dart constants in `gameplay_config.h`, `level_check.cpp` (`checkDartPlates`,
-  `pathDartPlates`), `FieldNote::DartTraps`.
+  `MonsterKind::weight`, the dart constants in `gameplay_config.h`, `level_check.cpp` (`pathDartPlates`), `FieldNote::DartTraps`.
 * Tests: `tests/scenarios/dart_trap.txt` (`tests/levels/dart_trap.txt`), `tests/unit/walker_test.cpp`.
 
 ## Left for later
 
 * Generated levels (`levelgen`) place none yet: it would need an antidote placed with it.
-* Dart holes in the shooting wall: the darts come out of the wall face, nothing marks it.
 * Other weight traps (a collapsing floor for the heaviest) can reuse `MonsterKind::weight`.
 
 ## To test

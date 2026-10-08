@@ -39,7 +39,7 @@ enum DungeonTileType : unsigned char {
 	Gate = 11,	// b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
 	RockFall = 13,	// loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
-	DartPlate = 14, // pressure plate in the floor: poison darts from the nearer wall on its row; c: 0 armed, 1 pressed
+	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
 };
 
 enum GateType : unsigned char {

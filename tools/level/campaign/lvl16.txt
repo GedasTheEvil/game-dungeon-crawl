@@ -5,7 +5,7 @@
 ; leads to a ladder down past a side gallery (spikes, the gold lever, a sword) to a flooded stretch, a riddle gate and
 ; the gold gate of the exit hall; two ladders down to the bottom gallery, a crocodile in its pool, the exit at the east end.
 ; A riddle chamber with a life potion up a ladder off the pillar loop. Antidotes at the west end of the top hall.
-; The first dart trap, in the upper loop hall between the ladders: the west wall shoots, a mummy waits east of it.
+; The first dart trap, in the upper loop hall between the ladders, a mummy waits east of it.
 def / 12 1 0
 def L 12 2 0
 def l 12 3 0

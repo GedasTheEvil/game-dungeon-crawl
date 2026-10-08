@@ -117,6 +117,7 @@ void Dungeon::drawRockFallTile(int i, int j) {
 void Dungeon::drawDartPlateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
+	showModel(sim.assets->mechanisms.dartHoles.get());
 	if (platePressed(MapAt(i, j)))
 		glTranslatef(0, -DART_PLATE_SINK, 0);
 	showModel(sim.assets->mechanisms.plate.get());

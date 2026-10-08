@@ -157,7 +157,8 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   +Z; pivot at `LEVER_PIVOT` = (0, -0.05, 0.42) in the base frame, swung +-35 deg around the depth axis), `rock` (faceted sandstone
   boulder ~0.38 across) and `ceiling_crack` (loose stones sagging out of the ceiling at z = 1, dark gaps, sand trickle), `pressure_plate`
   (a dart trap's sandstone slab in the floor, a dark gap round it, a cobra carved on top; the engine sinks it while
-  pressed). Gate, lever, crack and plate use the decor frame (origin on the back wall, `drawDecorTile`'s transform); key and rock are centred on their own
+  pressed), `dart_holes` (a panel of three bronze-rimmed holes in the back wall above the plate, at the darts' height).
+  Gate, lever, crack, plate and holes use the decor frame (origin on the back wall, `drawDecorTile`'s transform); key and rock are centred on their own
   vertical axis with the lowest point at z = 0 (draw from the tile centre, like the old ankh item; the key spins around its shaft).
   Key, gate and lever_base have one texture per lock colour on the same UVs (`red` carnelian, `blue` lapis, `green` turquoise,
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `models/mechanisms/<model>.md3` +
@@ -290,6 +291,6 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Key gate (4 lock colours) | `mechanisms/gate.md3` | `mechanisms/gate_<colour>.png` | new (static, `mechanism.py`) |
 | Wall lever (4 lock colours) | `mechanisms/lever_base.md3`, `mechanisms/lever_handle.md3` | `mechanisms/lever_base_<colour>.png`, `mechanisms/lever_handle.png` | new (static, `mechanism.py`) |
 | Falling rock, ceiling crack | `mechanisms/rock.md3`, `mechanisms/ceiling_crack.md3` | `mechanisms/rock.png`, `mechanisms/ceiling_crack.png` | new (static, `mechanism.py`) |
-| Dart trap plate | `mechanisms/pressure_plate.md3` | `mechanisms/pressure_plate.png` | new (static, `mechanism.py`; the darts are the arrow model) |
+| Dart trap plate, dart holes | `mechanisms/pressure_plate.md3`, `mechanisms/dart_holes.md3` | `mechanisms/pressure_plate.png`, `mechanisms/dart_holes.png` | new (static, `mechanism.py`; the darts are the arrow model) |
 | Wall decals (16) | - | `decorations/decals.png` | new (generated, `tools/textures/decals.py`) |
 | Walls, floors, ceilings, rock (15) | - | `dungeon/<style>.png` | new (generated, `tools/textures/surfaces.py`) |

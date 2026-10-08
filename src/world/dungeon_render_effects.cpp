@@ -73,7 +73,7 @@ void Dungeon::drawMissiles() {
 	}
 }
 //======================================================================================
-// The bow's arrow, smaller, level along the row, the tip ahead.
+// The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
 void Dungeon::drawDarts() {
 	AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(MissileKind::Arrow)].get();
 	if (darts.empty() || !model)
@@ -86,8 +86,8 @@ void Dungeon::drawDarts() {
 	for (const Dart& d : darts) {
 		glPushMatrix();
 		glTranslatef(RenderConfig::TILE_SIZE * (d.x - firstCol), RenderConfig::TILE_SIZE * (d.y - firstRow),
-					 ARROW_DEPTH);
-		glRotatef(d.dir > 0 ? -90.f : 90.f, 0, 0, 1); // the model points up (+y), the tip at the position
+					 -RenderConfig::TILE_SIZE * (1.f - d.depth));
+		glRotatef(90.f, 1, 0, 0); // the model points up (+y): now at the camera (+z), the tip at the position
 		glTranslatef(0, -high * scale, 0);
 		glScalef(scale, scale, scale);
 		model->Show();

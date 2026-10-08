@@ -2,7 +2,7 @@
 
 Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06, placed in levels 16-20 (not play tested). Draft 2026-10-06. The minion of
 [apep-serpent-boss.md](../apep-serpent-boss.md), built first as a regular monster, then placed with the
-[longer campaign](../longer-campaign.md).
+[longer campaign](longer-campaign.md).
 
 ## Decided (2026-10-06)
 

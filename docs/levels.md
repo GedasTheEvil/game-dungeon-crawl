@@ -27,7 +27,7 @@ file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water: 
 ## Campaign order
 
 `src/world/campaign.h`. A game plays `levels/lvl1` to `levels/lvl30` (`CAMPAIGN_LEVELS`), a boss every five
-levels ([longer-campaign.md](plan/longer-campaign.md)). Each exit loads the next level. `levels/lvl30` holds the ankh that wins the game; the Anubis boss there is always the last boss.
+levels ([longer-campaign.md](plan/solved/longer-campaign.md)). Each exit loads the next level. `levels/lvl30` holds the ankh that wins the game; the Anubis boss there is always the last boss.
 Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.md](plan/denser-levels.draft.md)).
 
 | Levels | Content |

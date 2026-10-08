@@ -1,6 +1,6 @@
 # Sobek boss
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. The lvl25 boss of the [longer campaign](longer-campaign.md), picked by the agent
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. The lvl25 boss of the [longer campaign](solved/longer-campaign.md), picked by the agent
 from [more-bosses.draft.md](more-bosses.draft.md) while the user was away (easy to swap for another).
 
 Sobek, the crocodile god of the Nile: a giant crocodile in a flooded boss room.

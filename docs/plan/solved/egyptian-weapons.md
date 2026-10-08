@@ -69,7 +69,7 @@ their own model, arc and wind-up motion.
 ## Campaign placement
 
 Weapons come in by depth, so the player keeps finding something new over the 30 levels
-([longer-campaign.md](../longer-campaign.md)):
+([longer-campaign.md](longer-campaign.md)):
 
 * Levels 1-5 (hand-made): club, dagger, short sword, self-bow, sling.
 * Middle: spear, khopesh, throwing stick, javelin, epsilon axe.

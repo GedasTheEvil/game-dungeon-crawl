@@ -26,7 +26,7 @@ Resistances as the cobra. Checker threat 5. Glyph `G` is taken (green gate): use
 
 ## Placement
 
-Levels 21-30 of the [longer campaign](longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
+Levels 21-30 of the [longer campaign](solved/longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
 the weak monsters give way to their giant kin.
 
 ## Done (2026-10-06)

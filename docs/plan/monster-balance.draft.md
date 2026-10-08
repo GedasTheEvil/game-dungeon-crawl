@@ -149,6 +149,6 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
 * New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss
   must stay stronger), [apep-serpent-boss.md](apep-serpent-boss.md),
-  [longer-campaign.md](longer-campaign.md).
+  [longer-campaign.md](solved/longer-campaign.md).
 * Traps still check the player's point (`Trap::Hurt`), not the player box: left out on purpose in
   [trap-and-font-bugs.md](solved/trap-and-font-bugs.md). Revisit only if trap hits feel off.

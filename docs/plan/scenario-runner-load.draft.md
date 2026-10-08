@@ -4,7 +4,10 @@ Status: draft 2026-10-08, from the user: the full scenario suite (`make test`) s
 
 ## Goal
 
-* Cut the suite's resource use by 20%.
+* Cut the suite's resource use by 20% compared to the last runs (decided 2026-10-08): the baseline is the last full
+  run's summary, peak 11 games at once, min idle 1.1/16 cores, min free 755 MB. Target: at most 9 games at once (20%
+  fewer), and CPU and memory in use at the peak 20% below that run's. Measure on a fresh baseline run first, then
+  after the change.
 * Start no new game process while the swap has less than 4 GB free: sleep and sample again instead.
 
 ## Today
@@ -28,5 +31,4 @@ min free 755 MB: the memory floor was crossed while games were running.
 
 ## Open
 
-* What "20%" is measured on: peak memory, CPU, or both.
 * Whether `make paths` (the 30 campaign replays) gets the same limits: it uses the same runner.

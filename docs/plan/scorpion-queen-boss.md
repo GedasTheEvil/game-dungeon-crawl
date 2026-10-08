@@ -22,6 +22,9 @@ in the campaign, and he stays the last boss.
   around the queen.
 * Her minions are a stronger scorpion (decided 2026-10-06): a giant scorpion, like the giant rat / scarab / bat, on the
   same model with its own texture, medium poison.
+* Play test 2026-10-08 (the user): no small scorpions among the minions. They hatch from the cluster nearest the queen,
+  behind her, and stood hidden inside her model. Now every other hatch is a small scorpion (`BossRules::smallMinion`),
+  and each hatch takes the next cluster (nearest the queen first), so the brood comes from both sides.
 
 ## Summon: egg clusters
 

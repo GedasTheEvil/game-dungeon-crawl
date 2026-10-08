@@ -531,7 +531,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
 	 .kin = MonsterScorpion,
-	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster}},
+	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster, MonsterScorpion}},
 	// The lvl20 boss on the cobra model, long as the hall (docs/plan/apep-serpent-boss.md).
 	{.id = MonsterApep,
 	 .glyph = 'P',
@@ -596,8 +596,8 @@ constexpr bool validKinds() {
 		const MonsterKind& kind = KINDS[i];
 		if (kind.id != static_cast<int>(i) + 1 || kind.attackMix[0] + kind.attackMix[1] + kind.attackMix[2] != 100)
 			return false;
-		if (kind.boss.minion < 0 || kind.boss.minion > MONSTER_TYPE_MAX ||
-			(kind.boss.summon == Summon::Hatch) != (kind.boss.nest != 0))
+		if (kind.boss.minion < 0 || kind.boss.minion > MONSTER_TYPE_MAX || kind.boss.smallMinion < 0 ||
+			kind.boss.smallMinion > MONSTER_TYPE_MAX || (kind.boss.summon == Summon::Hatch) != (kind.boss.nest != 0))
 			return false;
 		if (kind.isBoss() != (kind.kin != 0) || kind.kin < 0 || kind.kin > MONSTER_TYPE_MAX)
 			return false;

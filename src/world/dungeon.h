@@ -152,6 +152,7 @@ class Dungeon {
 		int summoned = 0;	  // minions summoned this fight, after the first ones
 		int nextSummonMs = 0; // GameClock time of the next summon
 		int firstLeft = 0;	  // hatchers: first minions still to come (the egg clusters spawn in view after the boss)
+		int hatched = 0;	  // minions of any kind so far: picks the kind (BossRules::smallMinion) and the nest
 	} bossFight;
 	void startBossFight(int slot); // the boss appeared: its first minions with it
 	void updateBoss();			   // summons while it lives; its death opens the boss gates, for good

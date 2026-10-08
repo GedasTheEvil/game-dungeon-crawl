@@ -10,6 +10,7 @@
 #include "../core/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 const Monster* Dungeon::Boss() const {
 	if (bossFight.slot < 0)
@@ -109,7 +110,9 @@ void Dungeon::updateBoss() {
 // stand in with no monster in it yet, else the boss's own cell. A minion summoned into a coffin takes the free coffin
 // nearest the boss, not behind the player and not beside them (on its row); with none free there is no summon.
 bool Dungeon::summonMinion(const Monster& boss) {
-	const MonsterType& kind = sim.assets->monsterTypes[boss.Type()->boss.minion];
+	const BossRules& rules = boss.Type()->boss;
+	const bool small = rules.smallMinion != 0 && bossFight.hatched % 2 == 1;
+	const MonsterType& kind = sim.assets->monsterTypes[small ? rules.smallMinion : rules.minion];
 	const bool flyer = kind.locomotion == Locomotion::Fly;
 	const int row = boss.Row();
 	const auto bossCol = static_cast<int>(std::floor(boss.CentreX()));
@@ -142,20 +145,23 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		return true;
 	}
 	if (how == Summon::Hatch) {
-		const Monster* best = nullptr; // the living egg cluster nearest the boss, not right by the player
-		for (const Monster& mon : monsters) {
-			if (!mon.Active() || !mon.Alive() || mon.Type()->id != boss.Type()->boss.nest ||
-				(std::fabs(mon.CentreX() - mapX) < 1.5f && std::fabs(static_cast<float>(mon.Row()) - mapY) < 0.5f))
-				continue;
-			auto distance = [&boss](const Monster& m) {
-				return std::fabs(m.CentreX() - boss.CentreX()) + std::fabs(static_cast<float>(m.Row() - boss.Row()));
-			};
-			if (!best || distance(mon) < distance(*best))
-				best = &mon;
-		}
+		// The living egg clusters not right by the player, nearest the boss first; each summon takes the next one, so
+		// the brood comes from every side, not only from behind the boss.
+		std::vector<const Monster*> nests;
+		for (const Monster& mon : monsters)
+			if (mon.Active() && mon.Alive() && mon.Type()->id == rules.nest &&
+				(std::fabs(mon.CentreX() - mapX) >= 1.5f || std::fabs(static_cast<float>(mon.Row()) - mapY) >= 0.5f))
+				nests.push_back(&mon);
+		auto distance = [&boss](const Monster* m) {
+			return std::fabs(m->CentreX() - boss.CentreX()) + std::fabs(static_cast<float>(m->Row() - boss.Row()));
+		};
+		std::sort(nests.begin(), nests.end(),
+				  [&distance](const Monster* a, const Monster* b) { return distance(a) < distance(b); });
+		const Monster* best = nests.empty() ? nullptr : nests[static_cast<size_t>(bossFight.hatched) % nests.size()];
 		Monster* slot = best ? freeMonsterSlot() : nullptr;
 		if (slot == nullptr)
 			return false;
+		bossFight.hatched++;
 		slot->Spawn(kind, best->Col(), best->Row(), monsterLinks(), sim.random->effects);
 		slot->MakeMinion(how);
 		sim.events->Play(WorldSound::SummonDig);

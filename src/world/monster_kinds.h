@@ -60,7 +60,8 @@ struct BossRules {
 	int summonCap = 0;	  // summons per fight, after the first minAlive
 	int lifeStealPct = 0; // heals this share of the damage it deals
 	Summon summon = Summon::DigOut;
-	int nest = 0; // Summon::Hatch: the MonsterTypeId its minions hatch out of
+	int nest = 0;		 // Summon::Hatch: the MonsterTypeId its minions hatch out of
+	int smallMinion = 0; // Summon::Hatch: a smaller kind every other hatch (the scorpion queen's scorpions); 0: none
 };
 
 // A spitter's venom: from afar along its row, it stops and spits a glob at the player (Dungeon::Venom). The release

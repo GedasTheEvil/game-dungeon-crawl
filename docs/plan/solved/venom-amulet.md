@@ -1,7 +1,7 @@
 # Amulet of venom: poison monsters on hit
 
-Status: done 2026-10-08, to be play-tested. Drafted 2026-10-07, split off [amulets.md](solved/amulets.md). Built on
-[monster-poison](monster-poison.md).
+Status: solved 2026-10-08, play-tested (the poison and the journal entry on a giant bat). Drafted 2026-10-07, split
+off [amulets.md](amulets.md). Built on [monster-poison](../monster-poison.md).
 
 ## Idea
 
@@ -42,4 +42,4 @@ An amulet, tiered like the others, that gives the player's weapon hits a chance 
 ## To test
 
 * The chances and tiers in play: grand strong poison on 30% of hits may be too much against mid-size monsters (150 HP
-  over 30 s), or too little against bosses (Sobek 1600). With [monster-balance](monster-balance.draft.md).
+  over 30 s), or too little against bosses (Sobek 1600). With [monster-balance](../monster-balance.draft.md).

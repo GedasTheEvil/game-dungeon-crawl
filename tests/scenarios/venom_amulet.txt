@@ -1,4 +1,4 @@
-# The amulet of venom (docs/plan/venom-amulet.md): a weapon hit that does not kill may poison the monster (grand: 30%,
+# The amulet of venom (docs/plan/solved/venom-amulet.md): a weapon hit that does not kill may poison the monster (grand: 30%,
 # strong). The first poisoning writes the creature's poison resistance into the journal. The Amulets tab and the HUD.
 seed 1
 god

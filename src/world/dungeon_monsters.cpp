@@ -287,7 +287,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		venomHit(mon);
 }
 //======================================================================================
-// The venom amulet: a weapon hit that did not kill may poison (docs/plan/venom-amulet.md).
+// The venom amulet: a weapon hit that did not kill may poison (docs/plan/solved/venom-amulet.md).
 void Dungeon::venomHit(Monster& mon) {
 	const PlayerStats& stats = sim.player->stats;
 	if (stats.VenomPercent() <= 0 || !mon.Alive() || !sim.random->gameplay.percent(stats.VenomPercent()))

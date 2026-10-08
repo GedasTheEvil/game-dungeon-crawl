@@ -69,7 +69,7 @@ enum class ItemKind : std::uint8_t {
 	PierceWardGrand,
 	RegenerationNormal, // regeneration has no lesser or minor tier
 	RegenerationGrand,
-	VenomLesser, // docs/plan/venom-amulet.md
+	VenomLesser, // docs/plan/solved/venom-amulet.md
 	VenomMinor,
 	VenomNormal,
 	VenomGrand,

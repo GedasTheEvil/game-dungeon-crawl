@@ -13,6 +13,10 @@ Status: draft 2026-10-08, from the user: the full scenario suite (`make test`) s
   runner), `make tidy` / `tidy-fix` (`xargs -P $(TIDY_JOBS)`, nproc - 4 clang-tidy processes, makefile), and any other
   parallel target (the build, if run with `-j`). One shared gate for all of them: the same job cap, the same idle-core
   and free-memory floor, the same swap check, ideally one helper script both the runner and the makefile call.
+* Measure every run (decided 2026-10-08), where it can be done: each heavy target ends with a summary of its peaks,
+  as `run_scenarios.sh` prints today (peak jobs at once, min idle cores, min free memory), plus min free swap and the
+  wall time. Tidy and the build get the same line. Then each run can be compared to the baseline without a separate
+  measuring run.
 
 ## Today
 

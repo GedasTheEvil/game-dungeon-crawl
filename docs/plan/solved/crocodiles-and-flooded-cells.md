@@ -79,8 +79,8 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
 * `levelcheck`: half water stands on deep water or a wall; deep water only under half water or other deep water; no
   ladder goes down into water.
 * `levelcheck`: crocodiles only spawn in or next to water.
-* `levelcheck` treats a crocodile as a wall the path cannot swim past: separate draft,
-  [levelcheck-crocodile-wall.draft.md](../levelcheck-crocodile-wall.draft.md).
+* `levelcheck` treats a crocodile as a wall the path cannot swim past: dropped (killing it opens the way, as with any
+  monster). Its harder fight in the water moved to [monster balance](../monster-balance.draft.md).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.
 
 ## Implemented

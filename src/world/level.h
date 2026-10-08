@@ -131,7 +131,7 @@ enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
 enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
 [[nodiscard]] inline GateState gateState(const Tile& t) { return static_cast<GateState>(t.value); }
 [[nodiscard]] inline RockState rockState(const Tile& t) { return static_cast<RockState>(t.value); }
-// A DartPlate's value: pressed from the volley until it re-arms (docs/plan/poison-dart-trap.md).
+// A DartPlate's value: pressed from the volley until it re-arms (docs/plan/solved/poison-dart-trap.md).
 [[nodiscard]] inline bool platePressed(const Tile& t) { return t.type == DartPlate && t.value == 1; }
 inline void setPlatePressed(Tile& t, bool pressed) { t.value = pressed ? 1 : 0; }
 inline void setGateState(Tile& t, GateState s) { t.value = static_cast<int>(s); }

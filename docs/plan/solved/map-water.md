@@ -1,6 +1,6 @@
 # Water on the draft map
 
-Status: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
+Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-07, not play tested. Draft 2026-10-07, from the user.
 
 The draft map (`src/ui/map_view.cpp`, `DraftMap::Draw`) shows no water. Half water and deep water cells
 (`Structure::HalfWater`, `Structure::DeepWater`, `src/world/level.h`) are drawn like open floor: only walls get

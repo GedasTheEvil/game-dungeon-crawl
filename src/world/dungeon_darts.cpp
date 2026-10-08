@@ -1,5 +1,5 @@
-// Dart traps (docs/plan/poison-dart-trap.md): the plate, the volley from the wall and the darts in flight. Drawn in
-// dungeon_render_mechanisms.cpp.
+// Dart traps (docs/plan/solved/poison-dart-trap.md): the plate, the volley from the wall and the darts in
+// flight. Drawn in dungeon_render_mechanisms.cpp.
 #include "dungeon.h"
 #include "../entities/player.h"
 #include "journal.h"

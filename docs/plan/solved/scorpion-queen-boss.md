@@ -1,6 +1,6 @@
 # Scorpion queen boss
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
+Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](../more-bosses.draft.md).
 
 A boss for the Egyptian setting (Serket, the scorpion goddess). She ranks below the Anubis boss: she comes before him
 in the campaign, and he stays the last boss.
@@ -8,8 +8,8 @@ in the campaign, and he stays the last boss.
 ## The boss
 
 * Big scorpion: segmented body, two claws, a raised tail with a sting. Built in Blender like the other monsters
-  ([../remodeling.md](../remodeling.md)).
-* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.md](solved/poison-and-antidote.md)).
+  ([../remodeling.md](../../remodeling.md)).
+* Claws for melee; the sting gives **strong poison** ([poison-and-antidote.md](poison-and-antidote.md)).
 * Resistances: open. Idea: the club cracks her shell (unlike the scarabs, where the spear wins), so the club gets a boss
   of its own.
 * A row in `MONSTER_DEFS` and `BOSS_DEFS`, like the other bosses.
@@ -17,7 +17,7 @@ in the campaign, and he stays the last boss.
 ## Minions: scorpions
 
 * New regular monster, the **scorpion**: small, quick, its sting gives **weak poison**. Built 2026-10-06
-  ([poison-and-antidote.md](solved/poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
+  ([poison-and-antidote.md](poison-and-antidote.md#next)); the queen can reuse its model with her own texture.
 * Scorpions are no stranger to Egypt: the plain scorpion lives in the early levels 3-6 (2026-10-06), not only
   around the queen.
 * Her minions are a stronger scorpion (decided 2026-10-06): a giant scorpion, like the giant rat / scarab / bat, on the
@@ -37,14 +37,14 @@ in the campaign, and he stays the last boss.
 
 The queen comes before the Anubis boss, so he must be the stronger fight. Today: speed 4.5, 1500 HP, 110 damage
 every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are set, in
-[monster-balance.draft.md](monster-balance.draft.md).
+[monster-balance.draft.md](../monster-balance.draft.md).
 
 ## Open
 
-* Attack damage mix ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)): her own group,
+* Attack damage mix ([monster-attack-damage-types.md](monster-attack-damage-types.md)): her own group,
   not the scorpions'; maybe all three types (claws slash, sting pierce, a blow of the tail blunt).
 * Placement: the queen needs a boss level before the Anubis boss. Today the bosses sit at lvl5 / 10 / 15 and lvl15
-  holds the ankh. See [longer-campaign.md](longer-campaign.md).
+  holds the ankh. See [longer-campaign.md](../longer-campaign.md).
 * Numbers (HP, damage, summon counts), after the poison numbers are settled.
 * `levelcheck` rules for egg clusters (inside the boss room, reachable).
 

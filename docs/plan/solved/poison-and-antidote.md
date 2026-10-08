@@ -2,7 +2,7 @@
 
 Status: solved 2026-10-06, confirmed in play (the level-up cure added after). Draft
 2026-10-05. Needed by the
-[scorpion-queen-boss.md](../scorpion-queen-boss.md) and
+[scorpion-queen-boss.md](scorpion-queen-boss.md) and
 [apep-serpent-boss.md](../apep-serpent-boss.md).
 
 ## Poison
@@ -70,7 +70,7 @@ Not in scope: a poison resistance potion and amulets,
 
 In this order (2026-10-06):
 
-1. The scorpion: a regular monster with weak poison, from [scorpion-queen-boss.md](../scorpion-queen-boss.md).
+1. The scorpion: a regular monster with weak poison, from [scorpion-queen-boss.md](scorpion-queen-boss.md).
    Done 2026-10-06: `MonsterScorpion` (16, glyph `j`), speed 10, 14 HP, 3 damage every 900 ms, 450 XP, scale 15;
    weak to blows, resists points (the bow does little: it has to be fought up close); weak poison (`POISON_DEFS` in
    `src/state/assets.cpp`). Model `tools/blender/models/scorpion.py` (deathstalker), sounds

@@ -119,8 +119,8 @@ class Dungeon {
 	void drawPortal(const float normal[3], const float v[4][3]) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	// Dart traps (dungeon_darts.cpp, docs/plan/poison-dart-trap.md): a pressed plate makes the holes in the back wall
-	// above it shoot a volley of poison darts out towards the camera, across the corridor.
+	// Dart traps (dungeon_darts.cpp, docs/plan/solved/poison-dart-trap.md): a pressed plate makes the holes in the back
+	// wall above it shoot a volley of poison darts out towards the camera, across the corridor.
 	struct DartVolley {
 		int startMs; // the plate's click
 		int col, row;

@@ -111,7 +111,7 @@ struct MonsterKind {
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
 	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
-	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (docs/plan/poison-dart-trap.md): 0 flyers, 1 small
+	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (docs/plan/solved/poison-dart-trap.md): 0 flyers, 1 small
 	// ones (rats, scarabs), 2-3 large ones, more for bosses. Later traps may want more.
 	int weight = 2;
 	Wading wading = Wading::Slowed;
@@ -122,7 +122,7 @@ struct MonsterKind {
 	std::optional<SpitRules> spit; // it spits venom from afar
 	bool charges = false;		   // it charges along its row (Charge)
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
-	// type at least as well as its kin (docs/plan/boss-resistances.md).
+	// type at least as well as its kin (docs/plan/solved/boss-resistances.md).
 	int kin = 0;
 	BossRules boss{};	 // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters

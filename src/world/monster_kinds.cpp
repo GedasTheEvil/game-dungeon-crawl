@@ -413,7 +413,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poison = PoisonTier::Weak,
 	 .poisonResistPercent = POISONER_RESIST},
 	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar; lies coiled until the player
-	// comes near (docs/plan/cobra.md).
+	// comes near (docs/plan/solved/cobra.md).
 	{.id = MonsterCobra,
 	 .glyph = 'c',
 	 .name = "Cobra",
@@ -462,7 +462,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .spit = SpitRules{5, PoisonTier::Medium, 3.f, 3000, 0.41f, 0.87f}},
-	// The scorpion's giant kin and the scorpion queen's minion: medium poison (docs/plan/scorpion-queen-boss.md).
+	// The scorpion's giant kin and the scorpion queen's minion: medium poison
+	// (docs/plan/solved/scorpion-queen-boss.md).
 	{.id = MonsterGiantScorpion,
 	 .glyph = 'J',
 	 .name = "Giant scorpion",
@@ -505,7 +506,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = EGG_CLUSTER_RESIST,
 	 .locomotion = Locomotion::Stationary,
 	 .poisonResistPercent = POISON_IMMUNE},
-	// The lvl15 boss on the scorpion model, the size of a cart (docs/plan/scorpion-queen-boss.md).
+	// The lvl15 boss on the scorpion model, the size of a cart (docs/plan/solved/scorpion-queen-boss.md).
 	{.id = MonsterScorpionQueen,
 	 .glyph = 'U',
 	 .name = "Scorpion queen",

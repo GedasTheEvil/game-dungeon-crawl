@@ -109,7 +109,7 @@ XP follows the new threat.
 
 ## Boss resistances
 
-Split off to [boss-resistances](boss-resistances.md) (done): no boss has a weakness. Boss HP is left as it is for now.
+Split off to [boss-resistances](solved/boss-resistances.md) (done): no boss has a weakness. Boss HP is left as it is for now.
 
 ## Open questions
 
@@ -143,7 +143,7 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 ## Related
 
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
-* New monsters and bosses to fit in: [scorpion-queen-boss.md](scorpion-queen-boss.md) (the Anubis boss
+* New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss
   must stay stronger), [apep-serpent-boss.md](apep-serpent-boss.md),
   [longer-campaign.md](longer-campaign.md).
 * Traps still check the player's point (`Trap::Hurt`), not the player box: left out on purpose in

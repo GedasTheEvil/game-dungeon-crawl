@@ -172,7 +172,7 @@ static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 100
 				  1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
 			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
 
-// Dart trap (docs/plan/poison-dart-trap.md): a pressure plate under the player or a heavy monster (weight
+// Dart trap (docs/plan/solved/poison-dart-trap.md): a pressure plate under the player or a heavy monster (weight
 // DART_PLATE_WEIGHT and up, MonsterKind::weight) clicks; DART_DELAY_MS later the holes in the back wall above it shoot
 // DART_COUNT darts out across the corridor, DART_GAP_MS apart, one per hole. At the walking line (DART_HIT_DEPTH)
 // they take the body in front of their hole at DART_HEIGHT over the floor: a jump at its top lets them pass under,

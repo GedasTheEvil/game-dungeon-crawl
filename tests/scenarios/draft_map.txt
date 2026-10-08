@@ -28,7 +28,7 @@ key m
 screenshot map_loaded
 key m
 expect alive == 1
-# Water (docs/plan/map-water.md): blue waves in the half water the player waded through, three rows over the deep
+# Water (docs/plan/solved/map-water.md): blue waves in the half water the player waded through, three rows over the deep
 # water under it, a blue line where the floor meets the deep water.
 level tests/levels/water
 wait 30

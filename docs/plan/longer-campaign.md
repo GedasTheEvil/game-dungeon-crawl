@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-06 except step 6 (balance, open in monster-balance.draft.md); not play tested. Draft 2026-10-05.
 
-New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
+New bosses ([scorpion-queen-boss.md](solved/scorpion-queen-boss.md),
 [apep-serpent-boss.md](apep-serpent-boss.md)) need more boss slots than lvl5 / 10 / 15.
 
 * More campaign levels after lvl15 (`CAMPAIGN_LEVELS`, `src/world/campaign.h`), for example with `levelgen` as a start
@@ -17,11 +17,11 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
 ## Decided (2026-10-06)
 
 * **30 levels**, a boss every 5. **The Anubis boss is the last boss, for good**: every new boss comes before him.
-* Bosses: 5 boss scarab, 10 vampire bat, 15 [scorpion queen](scorpion-queen-boss.md), 20
+* Bosses: 5 boss scarab, 10 vampire bat, 15 [scorpion queen](solved/scorpion-queen-boss.md), 20
   [Apep](apep-serpent-boss.md), 25 **Sobek** (picked by the agent while the user was away; the giant crocodile,
   from [more-bosses.draft.md](more-bosses.draft.md); easy to swap), 30 the Anubis boss and the ankh.
 * The Anubis guards (`MonsterAnubis`) get stronger for the late levels: retuned with the curve below.
-* New monsters: [cobra](cobra.md) (16-20 and Apep's minion), [giant cobra](giant-cobra.md) (21-30), giant
+* New monsters: [cobra](solved/cobra.md) (16-20 and Apep's minion), [giant cobra](giant-cobra.md) (21-30), giant
   scorpion (the queen's minion in 15, placed again in 26-30).
 * New levels use the whole grid: [denser-levels.draft.md](denser-levels.draft.md).
 * The user is away; the agent works through it on its own, committing each step.

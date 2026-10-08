@@ -1,13 +1,13 @@
 # Pressure plate with poison arrows
 
-Status: done 2026-10-08, to be play-tested. Drafted 2026-10-07, from the user.
+Status: solved, play-tested by the user 2026-10-08. Was: done 2026-10-08, to be play-tested. Drafted 2026-10-07, from the user.
 
 ## Idea
 
 A new trap: a pressure plate in the floor. A player who steps on it sets off poison arrows that fly out of the wall
 at them.
 
-* The arrows poison: medium tier (`PoisonTier::Medium`, [poison-and-antidote](solved/poison-and-antidote.md)).
+* The arrows poison: medium tier (`PoisonTier::Medium`, [poison-and-antidote](poison-and-antidote.md)).
 * Jumping over the plate sets off nothing.
 * Running (sprinting) across it does not help: the arrows still hit and poison.
 
@@ -27,7 +27,7 @@ Monsters get a weight, and the plate goes off only under a heavy one.
 * The plate goes off at weight 2 and above. The player sets it off too, so the player counts as at least 2.
 * Other traps later may use the same tiers with their own threshold.
 * Does the plate count as a trap for the cowards' fear (they stop at its edge), or is it hidden from them?
-* Poison on a monster: [monster-poison](monster-poison.md) (done): `Monster::TakePoison(PoisonTier::Medium, false, rng)`, no XP for its kill.
+* Poison on a monster: [monster-poison](../monster-poison.md) (done): `Monster::TakePoison(PoisonTier::Medium, false, rng)`, no XP for its kill.
 * The player's luring a mummy over the plate: a feature to keep.
 
 ## Decided by the implementer (the user was away)
@@ -50,7 +50,7 @@ Monsters get a weight, and the plate goes off only under a heavy one.
   bosses 4, Sobek 5; the rest 2. The player is 2 (`PLAYER_WEIGHT`), the plate goes off at 2 (`DART_PLATE_WEIGHT`).
 * Cowards treat the plate as a trap: they stop at its edge, a leaper leaps it (`Dungeon::walkerBlocked`).
 * Monsters: the darts' damage is cut by `trapDamagePct` (a trap's), the poison rolled against their resistance
-  ([monster-poison](monster-poison.md)), no XP for the kill.
+  ([monster-poison](../monster-poison.md)), no XP for the kill.
 * Level format: tile type 14 `DartPlate`, value 0 armed / 1 pressed; glyph `_` in the ASCII sources.
 * Checker: a plate costs 8 on the path (it jumps one when it can); a plate on the path wants an antidote in reach,
   like poisoners; the difficulty counts it (2 per plate on the path).

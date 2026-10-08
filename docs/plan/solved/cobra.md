@@ -1,19 +1,19 @@
 # Cobra: a regular monster
 
-Status: implemented 2026-10-06, placed in levels 16-20 (not play tested). Draft 2026-10-06. The minion of
-[apep-serpent-boss.md](apep-serpent-boss.md), built first as a regular monster, then placed with the
-[longer campaign](longer-campaign.md).
+Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06, placed in levels 16-20 (not play tested). Draft 2026-10-06. The minion of
+[apep-serpent-boss.md](../apep-serpent-boss.md), built first as a regular monster, then placed with the
+[longer campaign](../longer-campaign.md).
 
 ## Decided (2026-10-06)
 
 * **Egyptian cobra** (Naja haje): sand brown with darker bands, a hood.
 * **Idle: coiled.** Lies coiled on the floor, head on the coils, until the player comes near along its row (or hits
   it). Then it rears up, the hood spreads (a rise clip, once), and it hunts like a walker.
-* **Bite:** pierce, **medium poison** ([solved/poison-and-antidote.md](solved/poison-and-antidote.md)).
+* **Bite:** pierce, **medium poison** ([solved/poison-and-antidote.md](poison-and-antidote.md)).
 * **Venom spit** at range: a glob of venom flies at the player. A hit poisons (medium) and deals a little damage. It
   flies at chest height: a jump can dodge it. The cobra stands still while it spits.
 * **Swimmer:** 125% speed in half water
-  ([solved/crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md)).
+  ([solved/crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md)).
 
 ## Numbers (starting values)
 
@@ -53,7 +53,7 @@ Sounds: `cobra_{wake,att,die,spit}.wav`.
 * Journal moves `Rear` and `Spit`.
 * Model `tools/blender/models/cobra.py`, sounds `tools/audio/cobra_sounds.py`. Check: `tests/scenarios/cobra.txt`.
 * Placed (`./levelcheck`, 2026-10-07): lvl16 8, lvl17 10, lvl18 10, lvl19 7, lvl20 9 (besides the ones Apep summons).
-  The [giant cobra](giant-cobra.md) takes over from lvl21.
+  The [giant cobra](../giant-cobra.md) takes over from lvl21.
 
 ## Next
 

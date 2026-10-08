@@ -1,6 +1,6 @@
 # Bosses have no weakness
 
-Status: done 2026-10-07, to be play-tested. Split off [monster-balance](monster-balance.draft.md).
+Status: solved, play-tested by the user 2026-10-08. Was: done 2026-10-07, to be play-tested. Split off [monster-balance](../monster-balance.draft.md).
 
 ## Rule
 
@@ -8,9 +8,9 @@ From the user: a boss is always stronger than its common kin.
 
 * A boss has no weakness. Where its kin is weak (`WEAK`) to a damage type, the boss takes it normally (`NORMAL`).
 * A boss never resists worse than its kin, for any damage type, and for poison once monsters can be poisoned
-  ([monster-poison](monster-poison.md)).
+  ([monster-poison](../monster-poison.md)).
 * Boss HP is not changed for now, though a weak spot doubled the damage: the fights are harder. Retune later with
-  [monster-balance](monster-balance.draft.md) if needed.
+  [monster-balance](../monster-balance.draft.md) if needed.
 
 ## Done
 

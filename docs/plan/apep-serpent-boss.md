@@ -14,7 +14,7 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 
 ## Minions: cobras
 
-* New regular monster, the **cobra**: [cobra.md](cobra.md) (implemented, not placed yet).
+* New regular monster, the **cobra**: [cobra.md](solved/cobra.md) (implemented, not placed yet).
 * Bite or venom gives **medium poison** ([poison-and-antidote.md](solved/poison-and-antidote.md)).
 * Also used outside the boss room.
 * Cobras and Apep are swimmers: 125% speed in half water

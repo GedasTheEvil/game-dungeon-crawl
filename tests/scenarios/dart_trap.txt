@@ -1,4 +1,4 @@
-# Dart traps (docs/plan/poison-dart-trap.md, tests/levels/dart_trap): the plate at col 4 makes the 3 holes in the
+# Dart traps (docs/plan/solved/poison-dart-trap.md, tests/levels/dart_trap): the plate at col 4 makes the 3 holes in the
 # back wall above it shoot darts out across the corridor; walking on does not get the player clear: each dart deals 2
 # and poisons (medium). A jump over the plate sets nothing off. A heavy monster (the Anubis guard, weight 3) presses
 # the plate at col 12 and takes the darts.

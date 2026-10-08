@@ -1,4 +1,4 @@
-# Scenario runner: lighter on the system
+# Heavy make targets: lighter on the system
 
 Status: draft 2026-10-08, from the user: the full scenario suite (`make test`) still makes the system lag badly.
 
@@ -9,6 +9,10 @@ Status: draft 2026-10-08, from the user: the full scenario suite (`make test`) s
   fewer), and CPU and memory in use at the peak 20% below that run's. Measure on a fresh baseline run first, then
   after the change.
 * Start no new game process while the swap has less than 4 GB free: sleep and sample again instead.
+* Scope (decided 2026-10-08): every heavy process, not only the scenario suite. `make test`, `make paths` (the same
+  runner), `make tidy` / `tidy-fix` (`xargs -P $(TIDY_JOBS)`, nproc - 4 clang-tidy processes, makefile), and any other
+  parallel target (the build, if run with `-j`). One shared gate for all of them: the same job cap, the same idle-core
+  and free-memory floor, the same swap check, ideally one helper script both the runner and the makefile call.
 
 ## Today
 
@@ -29,6 +33,3 @@ min free 755 MB: the memory floor was crossed while games were running.
 * Measure before and after: the runner's summary line (peak, held back, min idle, min free) plus the wall time;
   "20% less" as the peak games and memory, with the wall time allowed to grow.
 
-## Open
-
-* Whether `make paths` (the 30 campaign replays) gets the same limits: it uses the same runner.

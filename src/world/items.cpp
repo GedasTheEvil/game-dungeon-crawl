@@ -1,6 +1,7 @@
 #include "items.h"
 #include "journal.h"
 #include "../core/gameplay_config.h"
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <string>
@@ -533,4 +534,31 @@ const ItemText& itemText(ItemKind kind) {
 		return AMULET_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_AMULET)];
 	}
 	return ITEMS[static_cast<size_t>(itemIndex(kind))].text;
+}
+
+namespace {
+float smooth(float k) { return k * k * (3.f - 2.f * k); }
+
+float mix(float a, float b, float k) { return a + (b - a) * k; }
+} // namespace
+
+SwingPose swingPose(const WeaponMotion& m, int elapsedMs) {
+	if (elapsedMs < 0)
+		return {m.restTilt, 0.f, 0.f};
+	const auto t = static_cast<float>(elapsedMs);
+	const auto hit = static_cast<float>(m.hitMs);
+	const float windup = hit * SWING_WINDUP_SHARE;
+	const float pull = -SWING_WINDUP_PULL * m.thrust;
+	if (t < windup) {
+		const float k = smooth(t / windup);
+		return {mix(m.restTilt, m.windupTilt, k), mix(0.f, pull, k), t / hit};
+	}
+	if (t < hit) {
+		float k = (t - windup) / (hit - windup);
+		k *= k; // gathering speed down to the strike
+		return {mix(m.windupTilt, m.strikeTilt, k), mix(pull, m.thrust, k), t / hit};
+	}
+	const auto recover = static_cast<float>(m.swingMs - m.hitMs);
+	const float k = recover > 0.f ? smooth(std::min(1.f, (t - hit) / recover)) : 1.f;
+	return {mix(m.strikeTilt, m.restTilt, k), mix(m.thrust, 0.f, k), 0.f};
 }

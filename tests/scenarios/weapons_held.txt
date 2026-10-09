@@ -1,5 +1,6 @@
-# Held weapons (tests/levels/archery): each weapon in the fist nearer the camera, standing and through its attack
-# (windup, strike, recovery), facing right and left. Check the grip sits in the fist in every shot.
+# Held weapons (tests/levels/archery): each weapon in the fist nearer the camera, standing and at its strike, facing
+# right and left. Check the grip sits in the fist in every shot. The swing itself (rest, windup, strike, recovery) is
+# tests/unit/swing_test.cpp.
 seed 1
 god
 level tests/levels/archery
@@ -20,24 +21,16 @@ walk right 0.1
 wait 20
 screenshot club_right
 attack
-wait 5
-screenshot club_right_windup
-wait 9
+wait 15
 screenshot club_right_strike
-wait 16
-screenshot club_right_recover
-wait 70
+wait 87
 walk left 0.1
 wait 20
 screenshot club_left
 attack
-wait 5
-screenshot club_left_windup
-wait 9
+wait 15
 screenshot club_left_strike
-wait 16
-screenshot club_left_recover
-wait 70
+wait 87
 key i
 wait 3
 select short_sword
@@ -50,24 +43,16 @@ walk right 0.1
 wait 20
 screenshot sword_right
 attack
-wait 4
-screenshot sword_right_windup
-wait 5
+wait 10
 screenshot sword_right_strike
-wait 9
-screenshot sword_right_recover
-wait 70
+wait 80
 walk left 0.1
 wait 20
 screenshot sword_left
 attack
-wait 4
-screenshot sword_left_windup
-wait 5
+wait 10
 screenshot sword_left_strike
-wait 9
-screenshot sword_left_recover
-wait 70
+wait 80
 key i
 wait 3
 select spear
@@ -80,24 +65,16 @@ walk right 0.1
 wait 20
 screenshot spear_right
 attack
-wait 4
-screenshot spear_right_windup
-wait 6
+wait 11
 screenshot spear_right_strike
-wait 10
-screenshot spear_right_recover
-wait 70
+wait 81
 walk left 0.1
 wait 20
 screenshot spear_left
 attack
-wait 4
-screenshot spear_left_windup
-wait 6
+wait 11
 screenshot spear_left_strike
-wait 10
-screenshot spear_left_recover
-wait 70
+wait 81
 key i
 wait 3
 select self-bow
@@ -110,24 +87,16 @@ walk right 0.1
 wait 20
 screenshot bow_right
 attack
-wait 10
-screenshot bow_right_windup
-wait 17
+wait 28
 screenshot bow_right_strike
-wait 5
-screenshot bow_right_recover
-wait 70
+wait 76
 walk left 0.1
 wait 20
 screenshot bow_left
 attack
-wait 10
-screenshot bow_left_windup
-wait 17
+wait 28
 screenshot bow_left_strike
-wait 5
-screenshot bow_left_recover
-wait 70
+wait 76
 
 # the weapons added with docs/plan/solved/egyptian-weapons.md: the same shots, from the scenario's equip command
 give melee 3
@@ -145,213 +114,195 @@ wait 20
 screenshot dagger_right
 attack
 wait 60ms
-screenshot dagger_right_windup
+wait 1
 wait 90ms
 screenshot dagger_right_strike
 wait 85ms
-screenshot dagger_right_recover
-wait 90
+wait 91
 equip dagger
 walk left 0.1
 wait 20
 screenshot dagger_left
 attack
 wait 60ms
-screenshot dagger_left_windup
+wait 1
 wait 90ms
 screenshot dagger_left_strike
 wait 85ms
-screenshot dagger_left_recover
-wait 90
+wait 91
 equip khopesh
 walk right 0.1
 wait 20
 screenshot khopesh_right
 attack
 wait 120ms
-screenshot khopesh_right_windup
+wait 1
 wait 180ms
 screenshot khopesh_right_strike
 wait 130ms
-screenshot khopesh_right_recover
-wait 90
+wait 91
 equip khopesh
 walk left 0.1
 wait 20
 screenshot khopesh_left
 attack
 wait 120ms
-screenshot khopesh_left_windup
+wait 1
 wait 180ms
 screenshot khopesh_left_strike
 wait 130ms
-screenshot khopesh_left_recover
-wait 90
+wait 91
 equip epsilon_axe
 walk right 0.1
 wait 20
 screenshot epsilon_axe_right
 attack
 wait 220ms
-screenshot epsilon_axe_right_windup
+wait 1
 wait 330ms
 screenshot epsilon_axe_right_strike
 wait 135ms
-screenshot epsilon_axe_right_recover
-wait 90
+wait 91
 equip epsilon_axe
 walk left 0.1
 wait 20
 screenshot epsilon_axe_left
 attack
 wait 220ms
-screenshot epsilon_axe_left_windup
+wait 1
 wait 330ms
 screenshot epsilon_axe_left_strike
 wait 135ms
-screenshot epsilon_axe_left_recover
-wait 90
+wait 91
 equip duckbill_axe
 walk right 0.1
 wait 20
 screenshot duckbill_axe_right
 attack
 wait 200ms
-screenshot duckbill_axe_right_windup
+wait 1
 wait 300ms
 screenshot duckbill_axe_right_strike
 wait 135ms
-screenshot duckbill_axe_right_recover
-wait 90
+wait 91
 equip duckbill_axe
 walk left 0.1
 wait 20
 screenshot duckbill_axe_left
 attack
 wait 200ms
-screenshot duckbill_axe_left_windup
+wait 1
 wait 300ms
 screenshot duckbill_axe_left_strike
 wait 135ms
-screenshot duckbill_axe_left_recover
-wait 90
+wait 91
 equip mace
 walk right 0.1
 wait 20
 screenshot mace_right
 attack
 wait 240ms
-screenshot mace_right_windup
+wait 1
 wait 360ms
 screenshot mace_right_strike
 wait 135ms
-screenshot mace_right_recover
-wait 90
+wait 91
 equip mace
 walk left 0.1
 wait 20
 screenshot mace_left
 attack
 wait 240ms
-screenshot mace_left_windup
+wait 1
 wait 360ms
 screenshot mace_left_strike
 wait 135ms
-screenshot mace_left_recover
-wait 90
+wait 91
 equip composite_bow
 walk right 0.1
 wait 20
 screenshot composite_bow_right
 attack
 wait 260ms
-screenshot composite_bow_right_windup
+wait 1
 wait 390ms
 screenshot composite_bow_right_strike
 wait 50ms
-screenshot composite_bow_right_recover
-wait 90
+wait 91
 equip composite_bow
 walk left 0.1
 wait 20
 screenshot composite_bow_left
 attack
 wait 260ms
-screenshot composite_bow_left_windup
+wait 1
 wait 390ms
 screenshot composite_bow_left_strike
 wait 50ms
-screenshot composite_bow_left_recover
-wait 90
+wait 91
 equip sling
 walk right 0.1
 wait 20
 screenshot sling_right
 attack
 wait 140ms
-screenshot sling_right_windup
+wait 1
 wait 210ms
 screenshot sling_right_strike
 wait 125ms
-screenshot sling_right_recover
-wait 90
+wait 91
 equip sling
 walk left 0.1
 wait 20
 screenshot sling_left
 attack
 wait 140ms
-screenshot sling_left_windup
+wait 1
 wait 210ms
 screenshot sling_left_strike
 wait 125ms
-screenshot sling_left_recover
-wait 90
+wait 91
 equip throwing_stick
 walk right 0.1
 wait 20
 screenshot throwing_stick_right
 attack
 wait 120ms
-screenshot throwing_stick_right_windup
+wait 1
 wait 180ms
 screenshot throwing_stick_right_strike
 wait 100ms
-screenshot throwing_stick_right_recover
-wait 90
+wait 91
 equip throwing_stick
 walk left 0.1
 wait 20
 screenshot throwing_stick_left
 attack
 wait 120ms
-screenshot throwing_stick_left_windup
+wait 1
 wait 180ms
 screenshot throwing_stick_left_strike
 wait 100ms
-screenshot throwing_stick_left_recover
-wait 90
+wait 91
 equip javelin
 walk right 0.1
 wait 20
 screenshot javelin_right
 attack
 wait 200ms
-screenshot javelin_right_windup
+wait 1
 wait 300ms
 screenshot javelin_right_strike
 wait 100ms
-screenshot javelin_right_recover
-wait 90
+wait 91
 equip javelin
 walk left 0.1
 wait 20
 screenshot javelin_left
 attack
 wait 200ms
-screenshot javelin_left_windup
+wait 1
 wait 300ms
 screenshot javelin_left_strike
 wait 100ms
-screenshot javelin_left_recover
-wait 90
+wait 91

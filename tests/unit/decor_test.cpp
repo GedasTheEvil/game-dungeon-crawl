@@ -5,6 +5,7 @@
 #include "../../src/world/decor_scatter.h"
 #include "../../src/world/level_gen.h"
 #include "../../src/world/tile_defs.h"
+#include <cmath>
 #include <memory>
 #include <string>
 
@@ -206,4 +207,30 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	CHECK(bossCoffinCell(grid.cells, 9, 1));
 	scatterDecor(grid.cells, "coffins", 30, *layout);
 	CHECK(layout->decor[idx(10, 1)].type == -1);
+}
+
+TEST_CASE("every fire of a campaign level burns inside its cell: braziers, oil lamps and torches") {
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		const Scattered s = campaignLevel(n);
+		for (int k = 0; k < LEVEL_CELL_COUNT; k++) {
+			Flame flames[MAX_CELL_FLAMES];
+			const int count = flamesAt(*s.layout, k, flames);
+			const int prop = s.layout->decor[k].type;
+			const bool propFire = prop == DECOR_BRAZIER || prop == DECOR_LAMP;
+			CHECK(count == (propFire ? 1 : 0) + (s.layout->torch[k] ? 1 : 0));
+			for (int f = 0; f < count; f++) {
+				const Flame& flame = flames[f];
+				CHECK(std::abs(flame.x) <= 0.5f); // from the cell's centre
+				CHECK(flame.y >= 0.f);
+				CHECK(flame.y <= 1.f);
+				CHECK(flame.z >= 0.f); // in front of the back wall, behind the front
+				CHECK(flame.z <= 1.f);
+			}
+			if (count == 2) // each its own flicker
+				CHECK(flames[0].seed != flames[1].seed);
+			if (s.layout->torch[k])
+				CHECK(flames[count - 1].kind == FlameKind::Torch);
+		}
+	}
 }

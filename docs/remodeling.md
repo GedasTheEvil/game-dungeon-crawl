@@ -138,7 +138,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `src/world/decor_scatter.cpp`). Placement: `scatterDecor` in `src/world/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
   decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (puts them with the
-  scenario's `prop` command); of the tiers: `tests/scenarios/decor_depth.txt`.
+  scenario's `prop` command); of the tiers: `tests/unit/sim_test.cpp` and the golden dumps (`tests/unit/golden/`).
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
   interior x +-0.30, y -0.22..-0.06, inner floor z 0.012, walls 0.016 thick, rim z 0.08, headrest and wedjat eyes at the head end (-X),
   lid leaning against the wall behind, torn wrappings over the front rim. `mummy.py` `COFFIN` uses the same numbers.

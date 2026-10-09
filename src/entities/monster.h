@@ -112,7 +112,7 @@ class Monster {
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f;		  // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false;  // swim was set on the first Animate after the spawn
-	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::waterSink)
+	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::WaterSink)
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	int spitReadyMs = 0;		  // spitters: no new spit before this GameClock time
@@ -182,7 +182,7 @@ class Monster {
 	}
 	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
-	// sink: world units it is drawn down into a water basin (Dungeon::waterSink).
+	// sink: world units it is drawn down into a water basin (Dungeon::WaterSink).
 	void SetInWater(bool water, bool head, float basin) {
 		inWater = water;
 		headInWater = head;

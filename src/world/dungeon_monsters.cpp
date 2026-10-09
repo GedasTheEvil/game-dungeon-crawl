@@ -60,7 +60,7 @@ void Dungeon::UpdateMonsters() {
 			return !mon.flies() && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
 		};
 		mon.SetInWater(waterAt(mon.CentreX()), waterAt(mon.HeadX()),
-					   mon.flies() ? 0.f : waterSink(mon.CentreX(), mon.Row()));
+					   mon.flies() ? 0.f : WaterSink(mon.CentreX(), mon.Row()));
 
 		if (mon.flies()) {
 			if (!won) {

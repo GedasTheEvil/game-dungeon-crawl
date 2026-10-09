@@ -6,6 +6,7 @@
 #include "../../src/entities/model_info.h"
 #include "../../src/entities/monster.h"
 #include "../../src/entities/player.h"
+#include "../../src/graphics/render_config.h"
 #include "../../src/world/dungeon.h"
 #include "../../src/world/item_bag.h"
 #include "../../src/world/journal.h"
@@ -79,6 +80,16 @@ class SimWorld {
 				return false;
 		}
 		return true;
+	}
+
+	// As `hold left|right T`: the walk key down for ms, whether the player moves or not; dir -1 / +1.
+	void HoldWalk(int dir, int ms) {
+		for (int t = 0; t < ms; t += UPDATE_TICK_MS) {
+			if (dungeon.Move(static_cast<float>(dir) * PLAYER_MOVE_STEP * dungeon.PlayerWalkFactor(), 0) &&
+				!dungeon.PlayerWading())
+				player.stats.NoteWalked();
+			Tick();
+		}
 	}
 
 	[[nodiscard]] float X() {

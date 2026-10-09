@@ -99,3 +99,19 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
 * **Measure, no target:** note the `make test` time and the scenario count before and after each batch here.
 * Tooling only (no change to the game): once done and checked, straight to `solved/`.
 
+## Progress
+
+* Start (2026-10-09, after [sim-library](solved/sim-library.md)): 106 scenarios, 602 screenshots, `make test` 6:22.
+* Batch 1 (techniques 1, 2, 3, 6):
+  * 1 swing pose: `swingPose(motion, elapsedMs)` in `world/items.cpp`, `tests/unit/swing_test.cpp` (rest, windup,
+    strike, recovery, the bow's draw, the thrust, for every weapon). `weapons_held` keeps the rest and strike shots
+    (104 to 52); each shot removed is a `wait 1` (a `screenshot` takes a tick), so the others stay byte-identical.
+  * 2 water sink: `Dungeon::WaterSink` public, tested on `tests/levels/water` in `tests/unit/sim_test.cpp` with the
+    wading speed and the spikes under water. `water` stays: its sprint and jump checks go through the input.
+  * 3 flames: `flamesAt` on the `DecorLayout` (done with sim-library step 5); `decor_test.cpp` checks every fire of
+    every campaign level burns inside its cell. The deep-water torch check waits for
+    [no-torches-under-water](no-torches-under-water.draft.md).
+  * 6 golden dumps: `tests/unit/golden_test.cpp`, `tests/unit/golden/decor_lvlNN.txt` (surfaces, props, decals,
+    torches, ladders, fires); `GOLDEN_UPDATE=1` writes them anew. `decor_depth` deleted: its tiers are checked
+    through the dungeon in `sim_test.cpp`.
+  * After: 105 scenarios, 546 screenshots, `make test` 6:12.

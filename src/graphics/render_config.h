@@ -6,7 +6,7 @@ constexpr float TILE_SIZE = 40.f;
 constexpr float TILE_HALF = TILE_SIZE / 2.f;
 // Half water lies in a basin: its floor WATER_BASIN_DEPTH below the row's floor, the surface at WATER_SURFACE (just
 // under the dry floor's edge, so a stone lip shows). Whatever stands in it is drawn sunk into the basin
-// (Dungeon::waterSink), the water up to the archaeologist's thighs.
+// (Dungeon::WaterSink), the water up to the archaeologist's thighs.
 constexpr float WATER_BASIN_DEPTH = 15.f;
 constexpr float WATER_SURFACE = -3.f;
 constexpr float WATER_DEPTH = WATER_BASIN_DEPTH + WATER_SURFACE; // from the basin floor to the surface

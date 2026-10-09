@@ -22,9 +22,6 @@
 namespace {
 constexpr float SCENE_NEAR = 10.f;
 constexpr float SCENE_FAR = 300.f;
-// Of a swing's time to its hit: raising the weapon back, the rest bringing it down (WeaponMotion).
-constexpr float WINDUP_SHARE = 0.6f;
-constexpr float WINDUP_PULL = 0.3f; // a thrust draws back this share of its reach first
 
 // A point of the current model view on the window, as a share of its size (y up).
 struct ScreenPoint {
@@ -54,37 +51,6 @@ std::optional<float> sunBeamProgress() {
 	return p;
 }
 
-float smooth(float k) { return k * k * (3.f - 2.f * k); }
-
-float mix(float a, float b, float k) { return a + (b - a) * k; }
-
-// Where the swing has the weapon (WeaponMotion): its tilt, its thrust in lengths and the bow's draw 0..1.
-struct SwingPose {
-	float tilt, thrust, draw;
-};
-
-SwingPose swingPose(const WeaponMotion& m) {
-	const int start = Game().player->attackStartMs;
-	if (start < 0)
-		return {m.restTilt, 0.f, 0.f};
-	const auto t = static_cast<float>(GameClock::now() - start);
-	const auto hit = static_cast<float>(m.hitMs);
-	const float windup = hit * WINDUP_SHARE;
-	const float pull = -WINDUP_PULL * m.thrust;
-	if (t < windup) {
-		const float k = smooth(t / windup);
-		return {mix(m.restTilt, m.windupTilt, k), mix(0.f, pull, k), t / hit};
-	}
-	if (t < hit) {
-		float k = (t - windup) / (hit - windup);
-		k *= k; // gathering speed down to the strike
-		return {mix(m.windupTilt, m.strikeTilt, k), mix(pull, m.thrust, k), t / hit};
-	}
-	const auto recover = static_cast<float>(m.swingMs - m.hitMs);
-	const float k = recover > 0.f ? smooth(std::min(1.f, (t - hit) / recover)) : 1.f;
-	return {mix(m.strikeTilt, m.restTilt, k), mix(m.thrust, 0.f, k), 0.f};
-}
-
 void drawWeapon() { // in the fist nearer the camera
 	const int facing = Game().camera.Facing();
 	const auto dir = static_cast<float>(facing);
@@ -93,7 +59,7 @@ void drawWeapon() { // in the fist nearer the camera
 	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
 	const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
-	const SwingPose pose = swingPose(motion);
+	const SwingPose pose = swingPose(motion, player.attackStartMs < 0 ? -1 : GameClock::now() - player.attackStartMs);
 	const std::array<float, 3> fist = Game().playerView.Fist(player, facing);
 	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.

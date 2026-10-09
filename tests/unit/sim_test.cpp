@@ -1,5 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/world/decor.h"
+#include "../../src/world/level_gen.h"
 
 TEST_CASE("a walker stops at a wall: the rat behind it never bites") {
 	SimWorld world;
@@ -85,4 +87,70 @@ TEST_CASE("a bat leaves its roost when the player comes near, swoops through and
 	world.Wait(2000);
 	CHECK(world.Saw(MonsterBat, CreatureMove::Swoop));
 	CHECK(world.Hp() < 50);
+}
+
+TEST_CASE("the water basin: things in half water are drawn down into it, eased in from a dry bank") {
+	// tests/levels/water: dry floor at x 1-5, half water at x 5-14 on the player's row, dry again from 14.
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/water"));
+	const Dungeon& d = world.dungeon;
+	const auto row = static_cast<int>(world.Y());
+	constexpr float DEPTH = RenderConfig::WATER_BASIN_DEPTH;
+	constexpr float RAMP = RenderConfig::WATER_SINK_RAMP;
+	CHECK(d.WaterSink(3.5f, row) == 0.f);									   // dry floor
+	CHECK(d.WaterSink(5.f, row) == 0.f);									   // the bank's edge
+	CHECK(d.WaterSink(5.f + RAMP / 2.f, row) == doctest::Approx(DEPTH / 2.f)); // half way down the ramp
+	CHECK(d.WaterSink(5.f + RAMP, row) == doctest::Approx(DEPTH));
+	CHECK(d.WaterSink(9.5f, row) == doctest::Approx(DEPTH));					// the middle of the pool
+	CHECK(d.WaterSink(14.f - RAMP / 2.f, row) == doctest::Approx(DEPTH / 2.f)); // up the far bank
+	CHECK(d.WaterSink(14.5f, row) == 0.f);
+	CHECK(d.WaterSink(9.5f, row + 2) == 0.f); // the ladder's row above the water
+	float last = 0.f;
+	for (float x = 5.f; x <= 5.f + RAMP; x += 0.01f) {
+		const float sink = d.WaterSink(x, row);
+		CHECK(sink >= last);
+		last = sink;
+	}
+}
+
+TEST_CASE("half water halves the walk, and the spikes under its surface still hurt") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/water"));
+	REQUIRE(world.WalkTo(2.f));
+	world.HoldWalk(1, 1000);
+	CHECK(world.X() == doctest::Approx(3.f).epsilon(0.04)); // WALK_SPEED, a tile a second
+	REQUIRE(world.WalkTo(6.f));
+	CHECK(world.dungeon.PlayerWading());
+	world.HoldWalk(1, 1000);
+	CHECK(world.X() == doctest::Approx(6.5f).epsilon(0.02));
+	CHECK(world.dungeon.PlayerSink() == doctest::Approx(RenderConfig::WATER_BASIN_DEPTH));
+	REQUIRE(world.WalkTo(11.5f));
+	CHECK(world.Hp() < 50);
+}
+
+TEST_CASE("a level's decorations come from the tiers its depth unlocks: cave, worked tunnel, tomb, temple") {
+	SimWorld world;
+	Dungeon& d = world.dungeon;
+	REQUIRE(d.LoadCampaignLevel(1));
+	CHECK(d.DecorTierUsed() == 0);
+	REQUIRE(d.LoadCampaignLevel(5));
+	CHECK(d.DecorTierUsed() <= 1);
+	REQUIRE(d.LoadCampaignLevel(9));
+	CHECK(d.DecorTierUsed() >= 1);
+	CHECK(d.DecorTierUsed() <= 2);
+	REQUIRE(d.LoadCampaignLevel(20));
+	CHECK(d.DecorTierUsed() == 3);
+	// A generated level maps its difficulty to a depth (the scenario's `level gen:7:D`).
+	for (const int difficulty : {1, 10}) {
+		GenOptions options;
+		options.seed = 7;
+		options.difficulty = difficulty;
+		const GenResult gen = generateLevel(options);
+		REQUIRE(gen.ok);
+		d.LoadGrid(gen.grid, difficulty == 1 ? "gen:7:1" : "gen:7:10", genDecorDepth(difficulty));
+		CHECK(d.DecorTierUsed() == (difficulty == 1 ? 0 : 3));
+	}
+	// A test level outside the campaign gets every tier.
+	REQUIRE(world.Load("tests/levels/statues29063"));
+	CHECK(d.DecorTierUsed() == 3);
 }

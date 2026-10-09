@@ -150,6 +150,17 @@ struct WeaponMotion {
 	[[nodiscard]] int AttackMs() const { return hitMs + recoveryMs; } // from one attack to the next
 };
 
+// Where the swing has the weapon (WeaponMotion): its tilt, its thrust in lengths and the bow's draw 0..1.
+struct SwingPose {
+	float tilt, thrust, draw;
+};
+// Of a swing's time to its hit: raising the weapon back, the rest bringing it down.
+constexpr float SWING_WINDUP_SHARE = 0.6f;
+constexpr float SWING_WINDUP_PULL = 0.3f; // a thrust draws back this share of its reach first
+// elapsedMs since the attack began; < 0: no attack, at rest. Smooth into the windup, gathering speed down to the
+// strike at hitMs, smooth back to rest by swingMs.
+[[nodiscard]] SwingPose swingPose(const WeaponMotion& m, int elapsedMs);
+
 // What drinking a potion does to the player. Percentages of max health / max stamina; maxHpPercent grows max health,
 // then heals fully.
 struct PotionGain {

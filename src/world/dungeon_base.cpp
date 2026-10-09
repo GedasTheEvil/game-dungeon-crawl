@@ -207,7 +207,7 @@ bool Dungeon::dryOpen(int col, int row) const {
 	return IsInBounds(col, row) && !isSolidTile(MapAt(col, row)) && !inHalfWater(MapAt(col, row));
 }
 //======================================================================================
-float Dungeon::waterSink(float x, int row) const {
+float Dungeon::WaterSink(float x, int row) const {
 	const auto col = static_cast<int>(std::floor(x));
 	if (!IsInBounds(col, row) || !inHalfWater(MapAt(col, row)))
 		return 0.f;
@@ -223,7 +223,7 @@ float Dungeon::waterSink(float x, int row) const {
 float Dungeon::PlayerSink() const {
 	const auto row = static_cast<int>(std::floor(mapY));
 	const float above = mapY - static_cast<float>(row); // in the air over the floor: sinks as it comes down
-	return waterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f);
+	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f);
 }
 //======================================================================================
 bool Dungeon::JumpAllowed() {

@@ -1,0 +1,106 @@
+2,2 surface 6/2/2 torch fire torch 0.000,0.680,0.098
+3,2 surface 6/1/2
+4,2 surface 6/2/2
+5,2 surface 7/1/2
+6,2 surface 6/1/2
+7,2 surface 7/1/2
+8,2 surface 6/1/2
+9,2 surface 7/1/2 prop lampm 0.090 decal 6 0.453,0.575 fire lamp 0.346,0.050,0.307
+10,2 surface 6/1/2 prop brazierm -0.134 fire brazier -0.134,0.220,0.160
+11,2 surface 6/1/2 decal 1 0.548,0.371
+12,2 surface 6/1/2
+13,2 surface 6/1/2
+14,2 surface 6/1/2 prop brazierm 0.076 fire brazier 0.076,0.220,0.160
+15,2 surface 7/1/2 torch fire torch 0.000,0.680,0.098
+16,2 surface 6/1/2
+2,3 surface 7/1/2
+18,3 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+1,4 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+2,4 surface 5/2/1
+3,4 surface 4/1/1
+4,4 surface 3/1/1 prop canopic -0.047 decal 6 0.457,0.575
+5,4 surface 3/1/1 decal 13m 0.373,0.225
+6,4 surface 3/2/1 prop scrollsm -0.074 decal 0 0.662,0.561
+7,4 surface 3/1/1
+8,4 surface 3/2/1 torch fire torch 0.000,0.680,0.098
+9,4 surface 3/1/1 decal 15 0.742,0.479
+10,4 surface 3/2/1 decal 15m 0.645,0.373
+11,4 surface 4/2/1 prop canopicm -0.028
+12,4 surface 3/1/1 prop brazierm 0.088 fire brazier 0.088,0.220,0.160
+13,4 surface 4/2/1 prop scrollsm 0.009 decal 1 0.702,0.531
+14,4 surface 3/2/1
+15,4 surface 3/2/1 decal 6m 0.513,0.575 torch fire torch 0.000,0.680,0.098
+16,4 surface 3/1/1 decal 4m 0.509,0.650
+17,4 surface 4/1/1 prop brazier -0.131 fire brazier -0.131,0.220,0.160
+18,4 surface 3/1/1
+19,4 surface 3/1/1
+20,4 surface 4/2/1 torch fire torch 0.000,0.680,0.098
+21,4 surface 3/1/1 decal 3m 0.552,0.600
+22,4 surface 4/1/1
+23,4 surface 3/1/1 prop scrolls 0.091
+24,4 surface 4/2/1 decal 10m 0.461,0.402
+25,4 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+26,4 surface 5/2/1 decal 14 0.592,0.375
+27,4 surface 4/1/1 prop brazier 0.175 fire brazier 0.175,0.220,0.160
+28,4 surface 3/1/1 prop canopic 0.055 decal 10m 0.656,0.417
+29,4 surface 3/1/1
+28,5 surface 7/2/2 torch fire torch 0.000,0.680,0.098
+28,6 surface 6/1/2 decal 15m 0.393,0.438
+1,7 surface 5/1/1 torch fire torch 0.000,0.680,0.098
+2,7 surface 3/1/1
+3,7 surface 3/2/1
+4,7 surface 3/1/1 decal 6 0.534,0.575
+5,7 surface 4/2/1
+6,7 surface 3/2/1 torch fire torch 0.000,0.680,0.098
+7,7 surface 4/1/1 decal 10m 0.379,0.600
+8,7 surface 3/1/1 prop brazier 0.187 fire brazier 0.187,0.220,0.160
+9,7 surface 3/2/1 decal 4m 0.618,0.650
+10,7 surface 3/1/1
+11,7 surface 3/1/1 prop lampm 0.078 decal 5 0.461,0.625 fire lamp 0.334,0.050,0.307
+12,7 surface 4/2/1 ladder 1/4
+13,7 surface 3/2/1
+14,7 surface 3/2/1 prop sand -0.000
+15,7 surface 5/2/1 decal 6 0.535,0.575
+16,7 surface 4/1/1 torch fire torch 0.000,0.680,0.098
+17,7 surface 3/2/1 prop lamp -0.078 decal 1 0.381,0.616 fire lamp -0.334,0.050,0.307
+18,7 surface 3/2/1 prop scrolls 0.082
+19,7 surface 3/2/1
+20,7 surface 4/2/1
+21,7 surface 3/2/1 prop lamp -0.005 fire lamp -0.261,0.050,0.307
+22,7 surface 3/1/1
+23,7 surface 4/2/1 prop rubblem -0.009 decal 1 0.698,0.613
+24,7 surface 3/2/1 decal 10m 0.299,0.379
+25,7 surface 3/2/1
+26,7 surface 3/2/1
+27,7 surface 3/1/1 prop lampm -0.061 decal 0m 0.486,0.452 fire lamp 0.195,0.050,0.307
+28,7 surface 4/1/1
+29,7 surface 3/2/1 ladder 0/4m
+30,7 surface 5/2/1 prop webm -0.000
+31,7 surface 3/1/1
+32,7 surface 3/1/1
+33,7 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+34,7 surface 5/1/1 decal 13 0.441,0.225
+35,7 surface 3/2/1 decal 6m 0.547,0.575
+12,8 surface 6/1/2 ladder 1/0
+29,8 surface 6/1/2 ladder 0/2
+1,9 surface 3/2/1
+2,9 surface 4/1/1 decal 6m 0.567,0.575 torch fire torch 0.000,0.680,0.098
+3,9 surface 5/2/1
+4,9 surface 3/1/1 decal 1m 0.332,0.541
+5,9 surface 4/1/1
+6,9 surface 5/1/1 decal 15m 0.313,0.406
+7,9 surface 4/1/1 decal 0m 0.470,0.376
+8,9 surface 3/1/1
+9,9 surface 3/2/1
+10,9 surface 3/1/1
+11,9 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+12,9 surface 3/2/1 ladder 1/3
+21,9 surface 4/1/1 decal 4 0.557,0.650
+22,9 surface 3/2/1
+23,9 surface 4/2/1
+24,9 surface 5/2/1
+25,9 surface 3/2/1 decal 14 0.616,0.375
+26,9 surface 3/1/1
+27,9 surface 3/1/1
+28,9 surface 4/1/1 torch fire torch 0.000,0.680,0.098
+29,9 surface 5/1/1 ladder 0/3m

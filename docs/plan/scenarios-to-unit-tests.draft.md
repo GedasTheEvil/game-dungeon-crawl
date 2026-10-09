@@ -1,6 +1,6 @@
 # Scenarios to unit tests
 
-Status: draft 2026-10-09 (idea, not decided). From the user: scenarios that don't need a screenshot move to unit
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: scenarios that don't need a screenshot move to unit
 tests. Expected result: a faster test run, fewer resources.
 
 ## Today
@@ -86,4 +86,18 @@ Techniques, by value:
    draw code calls GL directly everywhere. The pure-function splits above come first.
 
 The truly visual class (5) and a smoke screenshot per screen stay scenarios.
+
+## Decided (2026-10-09)
+
+* **Scope:** techniques 1-8. The draw-list recorder (9) is dropped.
+* **Order, by size and by what blocks them:**
+  1. Without the sim library: 1 swing pose, 2 water sink, 3 flames and lights, 6 golden dumps.
+  2. 5 UI layout as data.
+  3. After [sim-library](sim-library.draft.md): 4 hitbox and reach matrix (on `ModelInfo`, its step 1), 7 the sim
+     harness, 8 clip state.
+* One technique per commit. The game plays the same after each one.
+* **Moved scenarios:** delete a scenario once all its checks are unit tests. If something visual is left, trim it to
+  that, with one smoke screenshot.
+* **Measure, no target:** note the `make test` time and the scenario count before and after each batch here.
+* Tooling only (no change to the game): once done and checked, straight to `solved/`.
 

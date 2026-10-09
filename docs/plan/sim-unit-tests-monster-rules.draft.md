@@ -1,6 +1,6 @@
 # Unit tests for the monster rules
 
-Status: draft 2026-10-07. Step 4 of [sim-unit-tests](solved/sim-unit-tests.md), left open when steps 1-3 were done.
+Status: draft 2026-10-07, refined 2026-10-09: shelved until an AI change. Step 4 of [sim-unit-tests](solved/sim-unit-tests.md), left open when steps 1-3 were done.
 
 ## Idea
 
@@ -20,3 +20,8 @@ testable in the unit tests, without the model and the particles: the monster's s
   state struct, as the scatter.
 * What `MonsterLinks` gives the rules (the map, the player's box, the random stream) without the assets.
 * The biggest step of the four; worth it only with a concrete AI change coming (more bosses, monster balance).
+
+## Decided (2026-10-09)
+
+* Not on its own. The first step of the next AI change: the giant scarab's and giant rat's leap to close the gap in
+  [monster-balance](monster-balance.draft.md). The cut (sim class or free functions) is chosen then.

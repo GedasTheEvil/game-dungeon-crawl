@@ -1,18 +1,16 @@
 # Sprint blur in toon mode, sprint extras
 
-Status: draft 2026-10-05. Split off [sprint-motion-effect.md](solved/sprint-motion-effect.md).
+Status: draft 2026-10-05, refined 2026-10-09 (decided, not implemented). Split off [sprint-motion-effect.md](solved/sprint-motion-effect.md).
 
 ## Idea
 
 The sprint motion effect (FOV kick, radial blur, vignette) ships with the radial blur in normal mode only. Toon mode
 gets the FOV kick (and vignette) without the blur, until this is settled.
 
-## What to settle
+## Decided (2026-10-09)
 
-* Toon mode: the radial blur goes before the ink lines or after them? Blurring after the lines streaks them, which
-  may look wrong; before the lines keeps them crisp. Try both, compare screenshots mid-sprint.
-* Extras, decide together with the above:
-  * dust puffs at the feet,
-  * a faster footstep sound,
-  * a slight camera lag behind the player.
-* All of them under the "Motion effects" option, except perhaps the footstep sound.
+* **Toon mode blur:** try both orders, the radial blur before the ink lines and after them. A scenario takes
+  mid-sprint screenshots of each (`tests/scenarios/`), the user picks one; the other goes.
+* **Dust puffs at the feet:** a small puff on each step while sprinting on a dry floor, none in water. Under the
+  "Motion effects" option.
+* Dropped: a faster footstep sound, the camera lag.

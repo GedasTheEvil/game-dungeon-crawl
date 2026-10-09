@@ -1,8 +1,8 @@
 # Monster and weapon balance
 
 Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01), monster XP tuning, and weapon
-ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done));
-everything else is open.
+ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
+Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
 ## Idea
 
@@ -15,6 +15,24 @@ everything else is open.
 
 The walk speed change ([fixed-timestep.md](solved/fixed-timestep.md), 1.0 tiles/s) is done, so monster speeds can now
 be tuned against the final player speed.
+
+## Decided (2026-10-09)
+
+Order of work:
+
+1. **The sim cut** ([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)), so the leap AI below is
+   unit tested.
+2. **Close the gap:** the giant scarab walks at 3 (from 2). It and the giant rat leap (`Locomotion::WalkJump`) at the
+   player when 2-3 tiles away on the same row with a clear way, 3 s between leaps. HP and damage only if that is not
+   enough.
+3. **Spear** damage 20 -> 26: the longest melee reach, still behind the sword (35).
+4. **XP, hand-tuned suspects:** plant 1000 -> 500, mimic 1500 -> 900 (they never move, the player picks the fight);
+   Anubis stays 10000 (600 HP, 55 damage since the buff). No formula. Bosses keep their hand-set XP.
+5. **Strength by a sim pass:** score every monster against the player's level and gear on the levels it appears on
+   (tank in melee, kite with a bow, run past), with the player level from the XP sum per level. Propose a table of
+   changes to the user before touching `KINDS`.
+
+Recheck the XP sum per level after steps 4 and 5, and again after each [denser levels](denser-levels.draft.md) batch.
 
 ## Current values
 
@@ -101,7 +119,8 @@ XP follows the new threat.
 
 * Found in play: the mummy gave too much at 4500 and was cut to 2500 (lvl11, beaten with a sword,
   [solved/mummy-minion-monster.md](solved/mummy-minion-monster.md)). Others are likely off too.
-* Score each monster from HP, damage per second and mobility (the checker's `monsterThreat` is a start), and set its XP
+* Not taken (2026-10-09, hand-tuned instead): score each monster from HP, damage per second and mobility (the
+  checker's `monsterThreat` is a start), and set its XP
   from that score.
 * Suspects: the plant and the mimic (they never move, so the player picks the fight), Anubis (10000 vs 350 HP).
 * Check the effect on the level curve: the player level when reaching lvl5 / lvl10 bosses is used in the boss tuning
@@ -113,8 +132,8 @@ Split off to [boss-resistances](solved/boss-resistances.md) (done): no boss has 
 
 ## Open questions
 
-* Which monsters to nerf, by how much?
-* Should the bosses keep their XP (they are the payoff)?
+* Which monsters to nerf, by how much: the sim pass (step 5).
+* Bosses keep their XP (decided 2026-10-09).
 * A crocodile in half water is a harder fight than on land: the player wades at half speed, cannot sprint, jump or
   back off. But by the first crocodile the player has a ranged weapon and can shoot it before it closes in. Weight its
   `monsterThreat` in the checker score x1.1 when it spawns in half water (decided 2026-10-08). A wall in the checker's

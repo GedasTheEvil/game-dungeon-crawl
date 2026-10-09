@@ -1,6 +1,6 @@
 # No torches under water
 
-Status: draft 2026-10-09 (idea, not decided). From the user: no wall torches under water.
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: no wall torches under water.
 
 ## Today
 
@@ -14,13 +14,19 @@ Status: draft 2026-10-09 (idea, not decided). From the user: no wall torches und
 ## Idea
 
 * Skip deep water cells in `scatterTorches`.
-* Half water: open. The flame (y 0.68) may sit above the surface. Choose one: skip these cells too, or keep them
-  only when the torch head clears the water.
+* Half water: kept. The flame (y 0.68 of the cell, about 27 units above the floor) clears the surface
+  (`RenderConfig::WATER_SURFACE`, 3 under the floor) by far.
 * Moving the torches changes the scatter. `lastTorch` and the gap shift the torches further along the row, so
   flooded levels look different afterwards. Check them with screenshots.
-* Optional: a check (a unit test over the campaign levels, or `levelcheck`) that no torch stands in water.
+* A unit test over the campaign levels: no torch stands in deep water.
 
-## Open
+## Decided (2026-10-09)
 
-* Half water: skip or keep (see above).
-* Is a dark flooded stretch fine, or should the torch move to the nearest dry cell in the row?
+* **Deep water:** skipped in `scatterTorches`.
+* **Half water:** kept; the torch head clears the water.
+* **Dark stretch:** fine. No moving the torch to a dry cell; the gap puts the next torch on a dry cell nearby anyway.
+* **Check:** a unit test over the campaign levels' scatter: no torch in a `Structure::DeepWater` cell.
+
+## Open (for the implementer)
+
+* Screenshots of the flooded levels before and after: the scatter shifts along the rows.

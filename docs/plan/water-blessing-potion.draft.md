@@ -1,6 +1,6 @@
-# Potion of water blessing
+# Potion of water blessing (Blessing of Hapi)
 
-Status: draft 2026-10-09 (idea, not decided). From the user.
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user.
 
 ## Idea
 
@@ -29,17 +29,22 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
 * Drinking another restarts the 2 minutes.
 * HUD: a timer icon like the resistance potion's, if it has one; the status box line on the start and the end.
 * Model / texture: a potion vessel (`PotionModel`) with its own texture, a blue-green liquid; journal note.
-* Loot: chests on levels with water only, like the antidote on levels with poisoners (`mimicLoot`,
-  `generatedWeight`).
+* Loot: see [Decided](#decided-2026-10-09).
 * `levelcheck`: models "no jump out of half water". The potion is optional, so the checker keeps assuming none and
   levels stay passable without it.
 * Tests: unit (timer, death, save), a scenario in `tests/scenarios/` (wade speed, sprint and jump out of half water with
   and without it, it wears off).
 
-## Open
+## Decided (2026-10-09)
 
-* Name: "Potion of water blessing", or an Egyptian one (Hapi, the Nile god; Sobek, the crocodile god).
-* 2 minutes, one grade only, or a lesser / greater pair like the resistance potions?
-* Does it also make the crocodile's bite weaker, or let the player swim through deep water? (Today: only the limits
-  above.)
-* Where does it drop, and how often?
+* **Name:** "Blessing of Hapi" (the Nile god), short name "Hapi". Fits the Egyptian names (the antidote's
+  Renenutet). The journal text is open for the implementer.
+* **Grade:** one, 2 minutes. No lesser / greater pair.
+* **Effects:** only the three limits in the table (wade speed, sprint, jump in half water). The crocodile's bite stays
+  as it is; deep water stays blocked.
+* **Drops:** hand-placed in campaign chests on levels with half water, like the antidote on levels with poisoners.
+  `generatedWeight = 0`, `mimicLoot = false`.
+
+## Open (for the implementer)
+
+* How many per level: about one per water level; pick the levels and chests, and keep `levelcheck` clean.

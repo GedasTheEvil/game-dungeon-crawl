@@ -137,3 +137,9 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
   the scenarios. Stay scenarios: keys, amulets, weapon_hotkeys, quick_potions (the keys and the inventory), water
   (sprint and jump keys), smoke, riddle_scaled, chest_pickup, monster_follow (the drawing). After: 79 scenarios, 473
   screenshots, `make test` 5:01.
+  `chest_pickup` followed (the chest's item and bonus roll).
+* Technique 8, clip state: `tests/unit/clip_state_test.cpp`: monsters on one model walk out of step (`monster_anim`
+  deleted), the mummy's rise plays once from its start, a die clip holds its last frame, the cobra goes coiled, rise,
+  spit, the bat roosts until it swoops, the player's jump, climb (one cycle a tile) and die clips. The other
+  animation scenarios stay: they show the poses. After: 77 scenarios, 468 screenshots (`make test` 8:38 under an
+  outside load, no core idle; 5:01 for 79 the run before).

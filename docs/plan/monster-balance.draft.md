@@ -72,6 +72,26 @@ per level (no respawns, no riddles), the player starts lvl15 at about level 35, 
 and ends at about 60 (HP 50 + 12 per level, armour +1 every 5 levels, Might +1 every 8). Before, 30 levels would
 have made them level 200+. Needs a playthrough.
 
+## Playthrough reference data
+
+From the user's current playthrough. The curve above is the model; these are the real numbers.
+
+| Date | Map level | Player level | Max HP | Might | Armor | Weapon | Dmg shown | Notes |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-09 | 18 | 42 | 738 | 21 | 18 | Epsilon axe lvl 1 (base 55, 30 blunt / 70 slash) | 76 | crocodiles (110 HP) fall in 3 hits |
+
+Against the model (2026-10-09 entry):
+
+* Player level 42 on lvl18 is a little ahead of the curve: about 39-40 there (35 at lvl15, 43 at lvl20).
+* Max HP 738 is far above the curve's 50 + 12 x 41 = 542: with potions of life and / or a health amulet, add about 36%.
+  The curve's "about 700 HP at level 55" (the Anubis and Anubis boss tuning) is already reached at level 42.
+* Might 21 and armour 18 are far above level-only gains (about +5 might, +8 armour). Might and armour potions and
+  amulets add most of it. Monster damage tuned against "11 armour at level 55" hits softer than planned.
+* Crocodile: 3 hits at 76 shown. The scutes resist the axe's slash share, so a hit does about 40-75. Placed for
+  levels 7-9 but still met on lvl18, where it is no threat.
+* For step 5 (the sim pass): use the real gear growth (potions, amulets), not level-only stats. Ask for more data points
+  (lvl20 Apep, lvl25 Sobek, lvl30).
+
 ## Monster strength
 
 * Go through every type in `KINDS`: speed, HP, damage, attack interval, XP. Compare against the player's level

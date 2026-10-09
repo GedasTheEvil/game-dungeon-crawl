@@ -1,19 +1,19 @@
 # Inventory keys with tabs
 
-Status: draft 2026-10-06. Split off [inventory-overhaul.md](solved/inventory-overhaul.md), which keeps today's
-keys.
+Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented). Split off
+[inventory-overhaul.md](solved/inventory-overhaul.md), which keeps today's keys.
 
 ## Problem
 
-The number row picks one of 12 inventory slots (`HOTKEYS`, `1234567890-=`, `src/ui/inventory.cpp`) and each slot shows
-its key in the corner. With tabs and more items than keys, that no longer maps one to one.
+The number row (`HOTKEYS`, `1234567890-=`, `src/ui/inventory.cpp`) picks the open tab's first 12 slots, each of
+those slots shows its key in the corner. The grid shows 8 (4 x 2, `VISIBLE_ROWS`) and scrolls, so a key can pick a slot
+out of view, and the slots past the 12th have none. A stopgap since the [Egyptian weapons](solved/egyptian-weapons.md).
 
-Since the [Egyptian weapons](solved/egyptian-weapons.md) (21 items), the number row picks the open tab's first 12 slots and
-each of those slots shows its key; the weapons past the 12th have none. A stopgap until this is settled.
+## Decided (2026-10-09)
 
-## Open
-
-* What the number keys pick in the inventory: a slot in the current tab (1-8 for the visible rows), or nothing.
-* The slot key labels: kept, changed to match, or dropped.
-* Keys that switch tabs: Q / E, Tab / Shift+Tab; disabled tabs skipped.
+* **Number keys do nothing in the inventory.** Picking is by mouse and WASD; E / Enter / Space uses, U upgrades.
+* **No key labels on the slots.** `HOTKEYS`, `HOTKEY_COUNT` and the corner label go.
+* **Tab / Shift+Tab switch tabs**, next and previous, wrapping around, skipping disabled tabs (`TabEnabled`).
 * The in-game weapon and potion hotkeys stay as they are.
+* The help text and the inventory footer (if they name the number keys) follow; `docs/ui.md` too.
+* Tests: a scenario (Tab cycles, a disabled tab skipped, a number key leaves the selection alone).

@@ -1,6 +1,6 @@
 # Monsters that climb ladders
 
-Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters that use ladders as well.
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: climbers, monsters that use ladders as well.
 
 ## Today
 
@@ -32,6 +32,18 @@ Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters 
 * **Climb speed:** 80% of the monster's own walk `speed`. A boss walks faster, so it climbs faster too. Comes after
   [anubis-speed](anubis-speed.draft.md) (the Anubis guard walks faster, so it climbs faster).
 
-## Open
+* **Path-finding:** a climber that has seen the player (woken, chasing as in `Seek` today) keeps a path to the
+  player's cell across floors: walkable rows, ladders and, for jumpers (the giant rat), planned jumps over gaps.
+  Before it has seen the player it idles as today. Non-climbers keep today's AI.
+* **Range:** capped. Starting values, tuned in play: a path of at most 20 cells; out of view for 5 s, it gives up
+  and stays where it is.
+* **Mid-climb:** if the player steps off and walks away, the climber finishes the climb to the end it was heading
+  for, steps off, and chases on that floor (a new path).
+* **Clips:** a new climb clip per climber model, in Blender. The bosses share their kin's model and clip.
 
-* Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot).
+## Open (for the implementer)
+
+* The path search: on the map grid (`Level`), so it can live in the lib and be unit tested on its own. Replan when
+  the player's cell changes, not every tick.
+* Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot; a giant rat
+  plans a jump; it gives up past the cap).

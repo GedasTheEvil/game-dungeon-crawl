@@ -26,10 +26,11 @@ Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters 
   ladder). The same share for every climber: the rat 0.7 → 0.735, the giant rat 3 → 3.15, the Anubis 8 → 8.4, the
   Anubis boss 15 → 15.75.
   Re-run `./levelcheck levels/lvl*` and fix the levels it flags.
+* **No attacks on the rungs, for everyone:** a climber cannot attack while it climbs, as the player cannot
+  ([no-attack-on-ladder](no-attack-on-ladder.draft.md)). Depends on that draft: it ships first, or with this one. A
+  climber on the ladder only follows; it attacks once off the rungs.
 
 ## Open
 
-* A climber on the ladder with the player: it attacks the player on the rungs, who cannot attack back. Too harsh?
-  Options: a climber cannot attack while climbing either, or it waits at the end of the ladder.
 * Speed on the ladder: the player's climb speed, slower, or per monster.
 * Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot).

@@ -17,7 +17,7 @@ The crocodile's bite grabs the player: a hold, a death roll.
   (about 10), 3 ticks, 2.4 s in all. Armour counts on each tick. Then the crocodile lets go.
 * **While held:** the player can do nothing: no walking, jumping, sprinting, attacking or drinking (the quick-drink
   keys and the inventory too). No way to break free: the hold is short instead.
-* Killing the crocodile while held (another source: a venom tick, a second crocodile does not) ends it.
+* The crocodile dying while it holds (a venom tick) ends the hold.
 * No amulet against it.
 
 ## Open (for the implementer)

@@ -35,4 +35,4 @@ Three new types, the warding amulets' mirror: more damage of one type.
 ## Dropped
 
 * Endurance (sprint drain), for now.
-* A faster escape from the crocodile's hold: stays with [crocodile-hold-bite](crocodile-hold-bite.draft.md).
+* A faster escape from the crocodile's hold: the hold is short, no amulet ([crocodile-hold-bite](crocodile-hold-bite.draft.md)).

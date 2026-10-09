@@ -5,44 +5,19 @@
 #include <utility>
 #include <vector>
 #include "../core/timer.h"
-
-struct VF {
-	std::vector<float> v; // positions, 3 floats per corner
-	std::vector<float> n; // normals, 3 floats per corner
-};
-
-// Scale, then offset, that Centrify applied. Shared by the files of one monster so its walk, attack
-// and die animations line up (see CharacterModel::Load).
-struct ModelNormalization {
-	float scale = 1.0f;
-	float x = 0.0f, y = 0.0f, z = 0.0f;
-};
-
-// Playback position of one animation. Monsters of one type share one model, so each keeps its own.
-struct AnimPlayback {
-	float frame = 0.0f;
-	int stepStart = 0; // GameClock ms when the frame last advanced
-};
+#include "../entities/md3_mesh.h"
+#include "../entities/model_info.h"
 
 class AnimatedModel {
   protected:
 	AnimPlayback playback; // of Show() / Advance() without an argument
 	int speed;
-	float scale;
-	int frameC;
 	int texture;
 	bool compiled;
-	std::vector<VF> Ver;
-	std::vector<float> TexCords;
-	int VCount;
+	Md3Mesh mesh;
 	std::vector<int> List;
-	void Scale(float sc);
-	void Translate(float x, float y, float z);
-	[[nodiscard]] const float* frameNormals(int f) const;
-	float getScale();
 
   public:
-	static constexpr int FRAME_STEP_MS = 100;
 	bool loop;
 	AnimatedModel();
 	~AnimatedModel();
@@ -59,14 +34,19 @@ class AnimatedModel {
 	// Draws from display lists from now on and frees frames 1.. of the vertex data, unless keepFrames (Vertex of
 	// any frame).
 	void Compile(bool keepFrames = false);
-	ModelNormalization Centrify(); // frame 0 to unit size, centred in x/z, base at y = 0
-	void Normalize(const ModelNormalization& n);
-	[[nodiscard]] std::pair<float, float> YRange(int f) const; // lowest and highest y of frame f
-	[[nodiscard]] std::pair<float, float> HalfXZ(int f) const; // farthest |x| and |z| of frame f from the origin
-	[[nodiscard]] int VertexCount() const { return VCount; }
-	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const; // corner i of frame f (see Compile)
+	// A mesh already loaded (loadClips): its frames are taken over.
+	void Adopt(Md3Mesh&& loaded) { mesh = std::move(loaded); }
+	ModelNormalization Centrify() { return mesh.Centrify(); } // frame 0 to unit size, centred in x/z, base at y = 0
+	void Normalize(const ModelNormalization& n) { mesh.Normalize(n); }
+	// Lowest and highest y of frame f.
+	[[nodiscard]] std::pair<float, float> YRange(int f) const { return mesh.YRange(f); }
+	// Farthest |x| and |z| of frame f from the origin.
+	[[nodiscard]] std::pair<float, float> HalfXZ(int f) const { return mesh.HalfXZ(f); }
+	[[nodiscard]] int VertexCount() const { return mesh.cornerCount; }
+	// Corner i of frame f (see Compile).
+	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const { return mesh.Vertex(f, i); }
 	void Reset();
-	[[nodiscard]] int FrameCount() const;
+	[[nodiscard]] int FrameCount() const { return mesh.frameCount; }
 };
 
 #endif

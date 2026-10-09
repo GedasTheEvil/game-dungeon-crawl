@@ -69,20 +69,6 @@ struct BarSpan {
 	}
 };
 
-const ClipFiles& clipFilesOf(Locomotion locomotion) {
-	switch (locomotion) {
-	case Locomotion::Ambush:
-		return AMBUSH_CLIPS;
-	case Locomotion::Entombed:
-		return ENTOMBED_CLIPS;
-	case Locomotion::Coiled:
-	case Locomotion::Burrow:
-		return COILED_CLIPS;
-	default:
-		return MONSTER_CLIPS;
-	}
-}
-
 void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes, const Progress& progress,
 					  BarSpan span) {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
@@ -96,12 +82,12 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[static_cast<size_t>(id)];
 		static_cast<MonsterKind&>(type) = kind;
-		const ClipFiles& clips = clipFilesOf(kind.locomotion);
+		const ClipFiles& clips = ClipFilesOf(kind.locomotion);
 		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
 		const MonsterType* kin = nullptr;
 		for (int k = 1; k < id && kin == nullptr; k++)
 			if (const MonsterKind& other = *monsterKind(k);
-				std::strcmp(other.model, kind.model) == 0 && &clipFilesOf(other.locomotion) == &clips)
+				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other.locomotion) == &clips)
 				kin = &monsterTypes[static_cast<size_t>(k)];
 		if (kin != nullptr)
 			type.model.Share(kin->model, kind.model, std::move(tex));

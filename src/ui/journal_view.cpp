@@ -970,7 +970,7 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 	const CharacterModel& model = t.model;
 	constexpr ModelState POSE =
 		ModelState::Move; // the mimic's idle clip is its disguise, the bat's hangs it upside down
-	const AnimatedModel* clip = model.Clip(model.Shown(POSE));
+	const AnimatedModel* clip = model.Clip(model.Info().Shown(POSE));
 	if (clip == nullptr)
 		return;
 	Texture& print = photoTextures[static_cast<size_t>(type)];

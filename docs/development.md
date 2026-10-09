@@ -32,18 +32,21 @@ Asset paths are relative to the repo root: run every program from there.
 
 ## Libraries
 
-The game and the tools share three static libraries, so every program builds the shared code the same way
-([plan/solved/layered-build.md](plan/solved/layered-build.md)):
+The game and the tools share four static libraries, so every program builds the shared code the same way
+([plan/solved/layered-build.md](plan/solved/layered-build.md)). Each sits on top of the ones above it in the table:
+base, level, sim, render.
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
-| `build/libbase.a` | `core/timer` (the game clock) | no GL; every library may include it | everything below |
+| `build/libbase.a` | `core/timer` (the game clock), `core/logger` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
-| `build/librender.a` | `core/logger`, `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
+| `build/libsim.a` | `entities/md3_mesh` (the model files, no GL), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
+| `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
-No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the base one. `make layers`
-(`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
-`BASE_LIB_SOURCES`, `LEVEL_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file to `LEVEL_LIB_HEADERS`).
+No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
+`make layers` (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
+`BASE_LIB_SOURCES`, `LEVEL_LIB_SOURCES`, `SIM_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file
+to `LEVEL_LIB_HEADERS`).
 
 The world and the entities (`src/world/dungeon*`, `src/entities/`) have no `Game()` and no screens; `make layers` checks
 that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp`: its other files

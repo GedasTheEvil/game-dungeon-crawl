@@ -117,7 +117,7 @@ class Monster {
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
-	void enter(ModelState s) { type->model.Enter(state, s, playback); }
+	void enter(ModelState s) { type->model.Info().Enter(state, s, playback); }
 	void drawHealthBar(const Texture& bar);
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling

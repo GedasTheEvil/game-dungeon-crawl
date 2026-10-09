@@ -110,16 +110,17 @@ void Monster::Spit() {
 }
 
 bool Monster::Spitting() const {
-	return Alive() && state == ModelState::Spit && !type->model.Finished(state, playback);
+	return Alive() && state == ModelState::Spit && !type->model.Info().Finished(state, playback);
 }
 
 bool Monster::TakeSpit(float& outX, float& outY) {
-	if (!type->spit || spitReleased || !Spitting() || type->model.Progress(state, playback) < type->spit->release)
+	if (!type->spit || spitReleased || !Spitting() ||
+		type->model.Info().Progress(state, playback) < type->spit->release)
 		return false;
 	spitReleased = true;
 	outX = HeadX();
 	outY = static_cast<float>(row) +
-		   (lift() + type->spit->mouthY * type->model.referenceTop * type->scale * Ink::figureScale()) /
+		   (lift() + type->spit->mouthY * type->model.Info().referenceTop * type->scale * Ink::figureScale()) /
 			   RenderConfig::TILE_SIZE;
 	return true;
 }
@@ -242,7 +243,7 @@ float Monster::flightProbeX() const {
 	return CentreX() + static_cast<float>(dir) * BAT_WALL_MARGIN;
 }
 
-float Monster::roostLift() const { return BAT_CEILING - type->model.idleTop * type->scale; }
+float Monster::roostLift() const { return BAT_CEILING - type->model.Info().idleTop * type->scale; }
 
 void Monster::Fly(bool wallAhead, float px, float py) {
 	const float scale = type->scale;

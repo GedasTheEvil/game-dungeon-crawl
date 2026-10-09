@@ -6,7 +6,7 @@ Two kinds: unit tests of the GL-free library code, and scenario tests of the run
 ## Unit tests
 
 [doctest](https://github.com/doctest/doctest) (one header, `external/doctest/doctest.h`). `tests/unit/*_test.cpp`
-link `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs `build/unit`; `./build/unit -tc="*gate*"`
+link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs `build/unit`; `./build/unit -tc="*gate*"`
 runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
 a scenario is for what needs the game running (drawing, timing, input).
 

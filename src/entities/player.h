@@ -70,7 +70,7 @@ class Player {
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
 	void UpdatePoison(); // once a tick: the running tiers' damage, which can kill; the resistance potion's time
 	void Reanimate();	 // full HP, standing, no poison
-	void setModelState(ModelState s) { model.Enter(state, s, playback); }
+	void setModelState(ModelState s) { model.Info().Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);
 	[[nodiscard]] bool climbing() const { return state == ModelState::Climb; }

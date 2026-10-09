@@ -18,7 +18,7 @@ bool Player::Load(const char* name, Texture&& texture) {
 		return false;
 	for (AnimPlayback& p : playback)
 		p.stepStart = GameClock::now();
-	state = model.Reference();
+	state = model.Info().reference;
 	findFists();
 	return true;
 }
@@ -45,7 +45,7 @@ void Player::findFists() {
 std::array<float, 3> Player::Fist(int dir) const {
 	const float s = scale * Ink::figureScale();
 	const int fist = fists[dir > 0 ? 0 : 1]; // turned right, the model's -x side is towards the camera
-	const AnimatedModel* clip = model.Clip(model.Shown(state));
+	const AnimatedModel* clip = model.Clip(model.Info().Shown(state));
 	std::array<float, 3> v{0, 0.75f, 0.2f}; // no fists found: in front of the chest (the model is 1 tall)
 	if (fist >= 0 && fist < clip->VertexCount() && shownFrame < clip->FrameCount())
 		v = clip->Vertex(shownFrame, fist);
@@ -55,9 +55,13 @@ std::array<float, 3> Player::Fist(int dir) const {
 			-30.f + depthOffset + s * (-v[0] * std::sin(a) + v[2] * std::cos(a))};
 }
 
-float Player::HalfWidth() const { return model.HalfWidth() * scale * Ink::figureScale() / RenderConfig::TILE_SIZE; }
+float Player::HalfWidth() const {
+	return model.Info().HalfWidth() * scale * Ink::figureScale() / RenderConfig::TILE_SIZE;
+}
 
-float Player::Height() const { return model.referenceTop * scale * Ink::figureScale() / RenderConfig::TILE_SIZE; }
+float Player::Height() const {
+	return model.Info().referenceTop * scale * Ink::figureScale() / RenderConfig::TILE_SIZE;
+}
 
 // The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.
 void Player::Animate() {
@@ -71,8 +75,8 @@ void Player::Animate() {
 	blood.Explode();
 	blood.Fall();
 	if (state != ModelState::Climb) // the climb frame follows the height (showClimb)
-		model.Advance(state, playback);
-	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
+		model.Info().Advance(state, playback);
+	shownFrame = static_cast<int>(playback[static_cast<int>(model.Info().Shown(state))].frame);
 }
 
 void Player::Draw(const TextureRegistry& textures) {
@@ -158,7 +162,7 @@ void Player::Reanimate() {
 	stats.HealFully();
 	stats.poison.Cure();
 	stats.EndResistance();
-	setModelState(model.Reference());
+	setModelState(model.Info().reference);
 	blood.Stop(); // a new or loaded game starts without the last game's splash
 }
 

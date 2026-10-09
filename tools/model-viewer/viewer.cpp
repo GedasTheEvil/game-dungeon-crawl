@@ -49,16 +49,17 @@ namespace {
 // AnimatedModel whose frame follows an external wall-clock ratio instead of Advance().
 class LoopedAnimatedModel : public AnimatedModel {
   public:
-	// VCount is protected in AnimatedModel. AnimatedModel::Show()/Compile()
-	// both draw with glDrawArrays(GL_TRIANGLES, 0, VCount) -- a flat,
+	// AnimatedModel::Show()/Compile() both draw with glDrawArrays(GL_TRIANGLES, 0, VertexCount()) -- a flat,
 	// non-indexed triangle list -- so every 3 vertices are one triangle.
-	int TriangleCount() const { return VCount / 3; }
+	int TriangleCount() const { return VertexCount() / 3; }
 
-	void SetFrame(int frame) { playback.frame = static_cast<float>(std::clamp(frame, 0, std::max(frameC - 1, 0))); }
+	void SetFrame(int frame) {
+		playback.frame = static_cast<float>(std::clamp(frame, 0, std::max(FrameCount() - 1, 0)));
+	}
 
-	// Maps ratio in [0, 1) onto frame in [0, frameC).
+	// Maps ratio in [0, 1) onto frame in [0, FrameCount()).
 	void SetProgress(float ratio) {
-		if (frameC <= 1) {
+		if (FrameCount() <= 1) {
 			playback.frame = 0.0f;
 			return;
 		}
@@ -67,9 +68,9 @@ class LoopedAnimatedModel : public AnimatedModel {
 		else if (ratio > 1.0f)
 			ratio = 1.0f;
 
-		playback.frame = ratio * static_cast<float>(frameC);
-		if (playback.frame >= static_cast<float>(frameC))
-			playback.frame = static_cast<float>(frameC) - 1.0f;
+		playback.frame = ratio * static_cast<float>(FrameCount());
+		if (playback.frame >= static_cast<float>(FrameCount()))
+			playback.frame = static_cast<float>(FrameCount()) - 1.0f;
 	}
 };
 

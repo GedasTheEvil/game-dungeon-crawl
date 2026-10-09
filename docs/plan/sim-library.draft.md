@@ -78,3 +78,12 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
   `canCharge`, `UpdateCharge`, `Fly`. What the rules get through the links (the map, the player's box, the random
   stream), without the assets, is settled in step 5.
 * Tooling only (no change to the game): once done and checked, straight to `solved/`.
+
+## Progress
+
+* 2026-10-09: the user asked for the whole plan now, not with the first AI change.
+* Step 1 done: `build/libsim.a` with `entities/md3_mesh` (the MD3 parser and the frame measures, split from
+  `AnimatedModel`) and `entities/model_info` (`ModelInfo`: the clips' frame counts and loop flags, the frame 0
+  extents; `AnimPlayback`, `AdvancePlayback` and the clip state machine). `CharacterModel` loads through `LoadClips` and
+  hands out its `ModelInfo`. `core/logger` moved to the base library. `tests/unit/model_info_test.cpp`. Scenario
+  screenshots byte-identical (602).

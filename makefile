@@ -13,31 +13,36 @@ BUILD=build
 # Third-party implementations (stb), compiled without warnings and outside make tidy.
 EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 
-# Libraries shared by the game and the tools (docs/plan/solved/layered-build.md). tools/check_layers.sh (make layers)
-# keeps them apart: level code has no GL, no library has SDL or Game(), and each includes only its own headers and
-# the base library's. The base library (the game clock) sits under both and is linked by everything that links one.
-BASE_LIB_SOURCES=src/core/timer.cpp
+# Libraries shared by the game and the tools (docs/plan/solved/layered-build.md), each on top of the ones before it:
+# base <- level <- sim <- render <- the game and the tools. tools/check_layers.sh (make layers) keeps them apart:
+# base, level and sim have no GL, no library has SDL or Game(), and each includes only its own headers and those of
+# the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
+BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/decor_scatter.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
-RENDER_LIB_SOURCES=src/core/logger.cpp src/graphics/textures.cpp src/graphics/font.cpp \
+# The sim (docs/plan/sim-library.draft.md): what the world's rules read of the models, without GL.
+SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp
+RENDER_LIB_SOURCES=src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
 	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp
 BASE_LIB=$(BUILD)/libbase.a
 LEVEL_LIB=$(BUILD)/liblevel.a
+SIM_LIB=$(BUILD)/libsim.a
 # The world and the entities: no Game(), no screens; the dungeon's drawing only in dungeon_render*.cpp (tools/check_sim.sh,
 # make layers).
 SIM_FILES=$(wildcard src/world/dungeon*.cpp src/world/dungeon*.h src/world/sim_links.h src/entities/*.cpp src/entities/*.h)
 RENDER_LIB=$(BUILD)/librender.a
 BASE_LIB_OBJECTS=$(BASE_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
+SIM_LIB_OBJECTS=$(SIM_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 RENDER_LIB_OBJECTS=$(RENDER_LIB_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
 
 EXECUTABLE=game
-APP_SOURCES=$(filter-out $(BASE_LIB_SOURCES) $(LEVEL_LIB_SOURCES) $(RENDER_LIB_SOURCES),$(SOURCES))
+APP_SOURCES=$(filter-out $(BASE_LIB_SOURCES) $(LEVEL_LIB_SOURCES) $(SIM_LIB_SOURCES) $(RENDER_LIB_SOURCES),$(SOURCES))
 APP_OBJECTS=$(APP_SOURCES:%.cpp=$(BUILD)/%.o)
 
 # Level editor, runs from the repo root. Uses the game's texture, font, UI drawing and level code.
@@ -79,7 +84,7 @@ GATE_REPORT=@./tools/load_gate.sh report build
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
 	$(GATE_REPORT)
 
-$(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
+$(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
 # Each archive also depends on the makefile: a file moved into a library is older than the archive.
@@ -88,6 +93,10 @@ $(BASE_LIB): $(BASE_LIB_OBJECTS) makefile
 	$(AR) rcs $@ $(filter %.o,$^)
 
 $(LEVEL_LIB): $(LEVEL_LIB_OBJECTS) makefile
+	$(RM) $@
+	$(AR) rcs $@ $(filter %.o,$^)
+
+$(SIM_LIB): $(SIM_LIB_OBJECTS) makefile
 	$(RM) $@
 	$(AR) rcs $@ $(filter %.o,$^)
 
@@ -127,7 +136,7 @@ format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
-	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
+	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) -- render $(RENDER_LIB_SOURCES)
 	./tools/check_sim.sh $(SIM_FILES)
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy
@@ -148,7 +157,7 @@ tidy: layers
 
 editor: $(EDITOR)
 
-$(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
+$(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-editor: $(EDITOR)
@@ -156,13 +165,13 @@ run-editor: $(EDITOR)
 
 model-viewer: $(VIEWER)
 
-$(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(LEVEL_LIB) $(BASE_LIB)
+$(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-model-viewer: $(VIEWER)
 	./$(VIEWER) $(ARGS)
 
-$(UNIT): $(UNIT_OBJECTS) $(LEVEL_LIB) $(BASE_LIB)
+$(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@
 
 unit: $(UNIT)

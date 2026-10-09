@@ -55,7 +55,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	drop.reset();
 	poison.Cure();
 	poisonByPlayer = false;
-	playback = kind.model.SpawnPlayback(effects);
+	playback = kind.model.Info().SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
 		stepTimer.Reset();
@@ -100,20 +100,20 @@ float Monster::emergeLift() const {
 	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(MINION_EMERGE_MS);
 	if (summonedBy == Summon::Drop)
 		return (BAT_CEILING - flight.lift) * (1.f - p * p);
-	return -type->model.referenceTop * type->scale * Ink::figureScale() * (1.f - p) * (1.f - p);
+	return -type->model.Info().referenceTop * type->scale * Ink::figureScale() * (1.f - p) * (1.f - p);
 }
 
 float Monster::swimLift() const {
 	if (!inWater || !headInWater || type->wading != Wading::Swimmer || !Alive())
 		return 0.f;
 	const float drawScale = type->scale * Ink::figureScale();
-	const float top = lurking() ? type->model.idleTop * drawScale - SUBMERGED_SHOW
-								: type->model.referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
+	const float top = lurking() ? type->model.Info().idleTop * drawScale - SUBMERGED_SHOW
+								: type->model.Info().referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
 	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
 }
 
 float Monster::burrowLift() const {
-	const float depth = -type->model.referenceTop * type->scale * Ink::figureScale();
+	const float depth = -type->model.Info().referenceTop * type->scale * Ink::figureScale();
 	const int age = GameClock::now() - burrow.startMs;
 	switch (burrow.phase) {
 	case BurrowPhase::Up:
@@ -138,11 +138,11 @@ float Monster::lift() const {
 
 bool Monster::LeavesChest() const {
 	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
-		   type->model.Finished(state, playback);
+		   type->model.Info().Finished(state, playback);
 }
 
 std::optional<ItemKind> Monster::TakeDrop() {
-	if (!drop || Alive() || state != ModelState::Die || !type->model.Finished(state, playback))
+	if (!drop || Alive() || state != ModelState::Die || !type->model.Info().Finished(state, playback))
 		return std::nullopt;
 	std::optional<ItemKind> d = drop;
 	drop.reset();
@@ -150,13 +150,13 @@ std::optional<ItemKind> Monster::TakeDrop() {
 }
 
 bool Monster::Rising() const {
-	return rises() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
+	return rises() && Alive() && state == ModelState::Rise && !type->model.Info().Finished(state, playback);
 }
 
 bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
 
 float Monster::HalfWidth() const {
-	return type->model.HalfWidth() * type->scale * Ink::figureScale() / RenderConfig::TILE_SIZE;
+	return type->model.Info().HalfWidth() * type->scale * Ink::figureScale() / RenderConfig::TILE_SIZE;
 }
 
 float Monster::MeleeGap(float px, int dir) const {
@@ -172,13 +172,14 @@ bool Monster::Nearby(float px, float py, float reach, int dir) const {
 // A roosting flyer, a lurker under the water and a coiled one show their idle clip.
 float Monster::BottomY() const {
 	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
-	const float bottom = idle ? type->model.idleBottom * type->scale * Ink::figureScale() : 0.f;
+	const float bottom = idle ? type->model.Info().idleBottom * type->scale * Ink::figureScale() : 0.f;
 	return static_cast<float>(row) + (lift() + bottom) / RenderConfig::TILE_SIZE;
 }
 
 float Monster::TopY() const {
 	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
-	const float top = (idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Ink::figureScale();
+	const float top =
+		(idle ? type->model.Info().idleTop : type->model.Info().referenceTop) * type->scale * Ink::figureScale();
 	return static_cast<float>(row) + (lift() + top) / RenderConfig::TILE_SIZE;
 }
 
@@ -244,9 +245,9 @@ bool Monster::UpdatePoison() {
 void Monster::drawHealthBar(const Texture& bar) {
 	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
 	const float drawScale = type->scale * Ink::figureScale();
-	float y = type->model.referenceTop * drawScale + HEALTH_BAR_GAP;
+	float y = type->model.Info().referenceTop * drawScale + HEALTH_BAR_GAP;
 	if (flies() && flight.phase == FlightPhase::Roost)
-		y = type->model.idleBottom * drawScale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
+		y = type->model.Info().idleBottom * drawScale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
 	glPushMatrix();
 	glTranslatef(0, y, 0);
 	// Billboard: keep where the anchor is, drop the camera and model rotation, keep the scene's scale.
@@ -340,7 +341,7 @@ void Monster::Animate(float px, float py) {
 		} else
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 	}
-	type->model.Advance(state, playback);
+	type->model.Info().Advance(state, playback);
 	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
 	const float swimTarget = swimLift();
 	if (!swimPlaced)
@@ -348,7 +349,7 @@ void Monster::Animate(float px, float py) {
 	swimPlaced = true;
 	swim += (swimTarget - swim) * std::min(1.f, SWIM_LIFT_RATE * static_cast<float>(UPDATE_TICK_MS) / 1000.f);
 	if (Alive() && entombed() && !lurking()) { // climbing out; a mummy killed on the way stays where it fell
-		const float t = state == ModelState::Rise ? type->model.Progress(state, playback) : 1.f;
+		const float t = state == ModelState::Rise ? type->model.Info().Progress(state, playback) : 1.f;
 		const float k = std::clamp((t - MUMMY_CLIMB_FROM) / (MUMMY_CLIMB_TO - MUMMY_CLIMB_FROM), 0.f, 1.f);
 		tomb = MUMMY_COFFIN_DEPTH * (1.f - k * k * (3.f - 2.f * k));
 	}

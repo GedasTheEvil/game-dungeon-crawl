@@ -69,7 +69,8 @@ struct BarSpan {
 	}
 };
 
-void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes, const Progress& progress,
+void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes,
+					  std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels, const Progress& progress,
 					  BarSpan span) {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
 		const MonsterKind& kind = *monsterKind(id);
@@ -84,15 +85,17 @@ void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterType
 		static_cast<MonsterKind&>(type) = kind;
 		const ClipFiles& clips = ClipFilesOf(kind.locomotion);
 		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
-		const MonsterType* kin = nullptr;
+		CharacterModel& model = monsterModels[static_cast<size_t>(id)];
+		const CharacterModel* kin = nullptr;
 		for (int k = 1; k < id && kin == nullptr; k++)
 			if (const MonsterKind& other = *monsterKind(k);
 				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other.locomotion) == &clips)
-				kin = &monsterTypes[static_cast<size_t>(k)];
+				kin = &monsterModels[static_cast<size_t>(k)];
 		if (kin != nullptr)
-			type.model.Share(kin->model, kind.model, std::move(tex));
+			model.Share(*kin, kind.model, std::move(tex));
 		else
-			type.model.Load(kind.model, std::move(tex), clips);
+			model.Load(kind.model, std::move(tex), clips);
+		type.model = model.Info();
 	}
 }
 
@@ -271,7 +274,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.nullTex.LoadPNG("textures/null.png");
 	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
 
-	loadMonsterTypes(monsterTypes, progress, {30, 65});
+	loadMonsterTypes(monsterTypes, monsterModels, progress, {30, 65});
 	loadItems(items, progress, {65, 80});
 
 	loadProp(textures.sphinx, models.sphinx, "textures/props/sphinx.png", "models/props/sphinx.md3");

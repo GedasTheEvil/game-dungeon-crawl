@@ -89,7 +89,7 @@ void Player::Draw(const TextureRegistry& textures) {
 		glPushMatrix();
 		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
 		textures.nullTex.Bind();
-		blood.Draw();
+		Particles::Draw(blood);
 		glPopMatrix();
 	};
 	if (Alive())

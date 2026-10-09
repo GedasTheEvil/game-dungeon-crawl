@@ -3,6 +3,7 @@
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
+#include "../entities/monster_draw.h"
 #include "../entities/player.h"
 #include "../graphics/fire.h"
 #include "../graphics/ink.h"
@@ -33,7 +34,7 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
 					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		mon.Draw(sim.assets->textures);
+		DrawMonster(mon, sim.assets->monsterModels[mon.Type()->id], sim.assets->textures);
 		glPopMatrix();
 	}
 }

@@ -114,6 +114,21 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 	}
 	return sounds.arrowHit;
 }
+const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
+	switch (sound) {
+	case CharacterSound::Die:
+		return model.dieSound;
+	case CharacterSound::Attack:
+		return model.attackSound;
+	case CharacterSound::Jump:
+		return model.jumpSound;
+	case CharacterSound::Wake:
+		return model.wakeSound;
+	case CharacterSound::Spit:
+		return model.spitSound;
+	}
+	return model.dieSound;
+}
 } // namespace
 
 void GameState::ApplyWorldEvents() {
@@ -127,6 +142,9 @@ void GameState::ApplyWorldEvents() {
 			break;
 		case WorldEvent::Kind::Note:
 			journal.LearnNote(event.note);
+			break;
+		case WorldEvent::Kind::CharacterSound:
+			characterSound(assets.monsterModels[static_cast<size_t>(event.who)], event.character).Play();
 			break;
 		case WorldEvent::Kind::AskRiddle:
 			ui.riddle->Ask();
@@ -147,7 +165,7 @@ void GameState::NewGame() {
 //==============================================================
 void GameState::ApplySettings(bool save) {
 	Ink::setToon(settings.graphics.toon);
-	ParticleSystem::shown = settings.graphics.blood;
+	Particles::shown = settings.graphics.blood;
 	Lighting::setFlicker(settings.graphics.lightFlicker);
 	Audio::SetVolumes(settings.sound.music, settings.sound.effects);
 	if (save)

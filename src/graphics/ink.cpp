@@ -1,5 +1,6 @@
 #define GL_GLEXT_PROTOTYPES // GL 2.0 shader and 3.0 framebuffer entry points, exported by libGL on Linux
 #include "ink.h"
+#include "../entities/figures.h"
 #include "shader.h"
 
 #include <GL/gl.h>
@@ -151,7 +152,10 @@ bool ensureReady(int width, int height) {
 
 bool Ink::toon() { return gToon; }
 
-void Ink::setToon(bool on) { gToon = on; }
+void Ink::setToon(bool on) {
+	gToon = on;
+	Figures::SetToon(on);
+}
 
 void Ink::begin(float zNear, float zFar, int width, int height) {
 	gActive = gToon && width > 0 && height > 0 && ensureReady(width, height);
@@ -166,7 +170,7 @@ void Ink::begin(float zNear, float zFar, int width, int height) {
 	glUseProgram(0);
 }
 
-float Ink::figureScale() { return gToon ? 1.2f : 1.f; }
+float Ink::figureScale() { return Figures::Scale(); }
 
 float Ink::heldWeaponScale() { return gToon ? 1.5f : 1.f; }
 

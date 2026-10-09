@@ -1,16 +1,16 @@
 #ifndef MONSTER_H
 #define MONSTER_H
 
-#include "character_model.h"
-#include "../graphics/particles.h"
+#include "model_info.h"
+#include "particles.h"
 #include "../core/timer.h"
 #include "trap_hurt.h"
 #include "../world/damage.h"
 #include "../world/items.h"
 #include "../world/monster_kinds.h"
 #include "../world/poison.h"
-#include "../graphics/texture_registry.h"
 #include "../world/rng.h"
+#include "../world/world_events.h"
 #include <memory>
 #include <optional>
 
@@ -56,10 +56,10 @@ struct Charge {
 	bool hit = false; // this rush has hit the player
 };
 
-// One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and its model,
-// loaded once, shared by its monsters.
+// One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and what the sim
+// reads of its model, loaded once, shared by its monsters. The app draws it with its CharacterModel (Assets).
 struct MonsterType : MonsterKind {
-	CharacterModel model;
+	ModelInfo model;
 };
 
 class Player;
@@ -117,8 +117,8 @@ class Monster {
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
-	void enter(ModelState s) { type->model.Info().Enter(state, s, playback); }
-	void drawHealthBar(const Texture& bar);
+	void enter(ModelState s) { type->model.Enter(state, s, playback); }
+	void sound(CharacterSound s) const { links.events->PlayCharacter(type->id, s); }
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const;
@@ -270,10 +270,21 @@ class Monster {
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
 	// not farm kills with traps.
 	void TrapHit(int dmg);
-	// With the frame origin at the spawn tile.
-	// Once a tick: the pose for its state, the facing, the blood, the clip frame (Draw only shows them).
+	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).
 	void Animate(float px, float py);
-	void Draw(const TextureRegistry& textures);
+
+	// What DrawMonster (monster_draw.h) shows.
+	[[nodiscard]] float LocalX() const { return x; } // map units from the spawn tile's column
+	[[nodiscard]] ModelState State() const { return state; }
+	[[nodiscard]] const ClipPlayback& Playback() const { return playback; }
+	[[nodiscard]] int Facing() const { return facing; }
+	// World units off the row's floor it is drawn at: lift(), but a flyer not placed yet is drawn below the floor.
+	[[nodiscard]] float DrawnLift() const {
+		return (flies() ? flight.lift : leap.lift + swim - sink) + emergeLift() + burrowLift();
+	}
+	[[nodiscard]] float Tomb() const { return tomb; }
+	[[nodiscard]] bool Roosting() const { return flies() && flight.phase == FlightPhase::Roost; }
+	[[nodiscard]] const ParticleSystem& Blood() const { return *blood; }
 };
 
 #endif

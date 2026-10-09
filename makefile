@@ -25,7 +25,9 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/entities/player_stats.cpp src/test/scenario_script.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
 # The sim (docs/plan/sim-library.draft.md): what the world's rules read of the models, without GL.
-SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp
+SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp src/entities/figures.cpp src/entities/particles.cpp
+# The world's sizes in GL units (a tile is 40): the sim's lifts and depths, the drawing's frame.
+SIM_LIB_HEADERS=src/graphics/render_config.h
 RENDER_LIB_SOURCES=src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
 	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp
@@ -136,7 +138,7 @@ format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
-	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) -- render $(RENDER_LIB_SOURCES)
+	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
 	./tools/check_sim.sh $(SIM_FILES)
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy

@@ -3,7 +3,7 @@
 
 #include "character_model.h"
 #include "player_stats.h"
-#include "../graphics/particles.h"
+#include "../graphics/particles.h" // the blood, and its drawing
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
 #include "../graphics/texture_registry.h"

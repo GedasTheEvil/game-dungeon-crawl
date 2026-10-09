@@ -87,3 +87,9 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
   extents; `AnimPlayback`, `AdvancePlayback` and the clip state machine). `CharacterModel` loads through `LoadClips` and
   hands out its `ModelInfo`. `core/logger` moved to the base library. `tests/unit/model_info_test.cpp`. Scenario
   screenshots byte-identical (602).
+* Step 2 done: `MonsterType` holds the `ModelInfo`, the app's `CharacterModel` per type is `Assets::monsterModels`;
+  `DrawMonster` (`entities/monster_draw.cpp`) draws a monster. Two changes from the plan: the blood stays in the sim
+  (`entities/particles`: the splash motion, its own random stream, no GL; `Particles::Draw` in graphics), so the
+  splashes run in the same order as before; and the toon figure scale is `Figures::Scale()` in the sim library (set
+  by `Ink::setToon`), not a value in the links: toon mode changes at run time, and a monster copies its links when it
+  spawns. The monsters' sounds go out as `WorldEvents::PlayCharacter`.

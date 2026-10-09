@@ -967,7 +967,7 @@ void JournalScreen::DrawFieldNote(const Rect& p, int index) {
 // white-bordered card tilted by `tilt` degrees.
 void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt) {
 	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(type)];
-	const CharacterModel& model = t.model;
+	const CharacterModel& model = Game().assets.monsterModels[static_cast<size_t>(type)];
 	constexpr ModelState POSE =
 		ModelState::Move; // the mimic's idle clip is its disguise, the bat's hangs it upside down
 	const AnimatedModel* clip = model.Clip(model.Info().Shown(POSE));

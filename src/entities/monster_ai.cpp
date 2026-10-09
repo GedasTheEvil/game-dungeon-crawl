@@ -4,7 +4,7 @@
 #include "player.h"
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
-#include "../graphics/ink.h"
+#include "figures.h"
 #include "../graphics/render_config.h"
 
 int Monster::attackDirection(float px, float py) const {
@@ -62,7 +62,7 @@ void Monster::bite() {
 	links.journal->HitByCreature(type->id, links.level);
 	if (type->boss.lifeStealPct > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);
-	type->model.attackSound.Play();
+	sound(CharacterSound::Attack);
 }
 
 bool Monster::Lurk(float px, float py) {
@@ -88,7 +88,7 @@ void Monster::wake() {
 											: CreatureMove::Ambush;
 	links.journal->SeeMove(type->id, links.level, move);
 	enter(rises() ? ModelState::Rise : ModelState::Move);
-	type->model.wakeSound.Play();
+	sound(CharacterSound::Wake);
 }
 
 bool Monster::canSpit(float px, float py) const {
@@ -105,22 +105,22 @@ void Monster::Spit() {
 	enter(ModelState::Spit);
 	spitReadyMs = GameClock::now() + type->spit->cooldownMs;
 	spitReleased = false;
-	type->model.spitSound.Play();
+	sound(CharacterSound::Spit);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Spit);
 }
 
 bool Monster::Spitting() const {
-	return Alive() && state == ModelState::Spit && !type->model.Info().Finished(state, playback);
+	return Alive() && state == ModelState::Spit && !type->model.Finished(state, playback);
 }
 
 bool Monster::TakeSpit(float& outX, float& outY) {
 	if (!type->spit || spitReleased || !Spitting() ||
-		type->model.Info().Progress(state, playback) < type->spit->release)
+		type->model.Progress(state, playback) < type->spit->release)
 		return false;
 	spitReleased = true;
 	outX = HeadX();
 	outY = static_cast<float>(row) +
-		   (lift() + type->spit->mouthY * type->model.Info().referenceTop * type->scale * Ink::figureScale()) /
+		   (lift() + type->spit->mouthY * type->model.referenceTop * type->scale * Figures::Scale()) /
 			   RenderConfig::TILE_SIZE;
 	return true;
 }
@@ -135,7 +135,7 @@ void Monster::Dive(float toX) {
 	burrow.startMs = GameClock::now();
 	burrow.toX = toX;
 	enter(ModelState::Move);
-	type->model.wakeSound.Play();
+	sound(CharacterSound::Wake);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Burrow);
 }
 
@@ -159,7 +159,7 @@ bool Monster::UpdateBurrow() {
 		x = burrow.toX;
 		burrow.phase = BurrowPhase::Surface;
 		burrow.startMs = now;
-		type->model.wakeSound.Play();
+		sound(CharacterSound::Wake);
 		return true;
 	case BurrowPhase::Surface:
 		if (age >= BURROW_SURFACE_MS) {
@@ -184,7 +184,7 @@ void Monster::StartCharge(float px) {
 	charge.dir = px < CentreX() ? -1 : 1;
 	charge.hit = false;
 	enter(ModelState::Attack);
-	type->model.wakeSound.Play();
+	sound(CharacterSound::Wake);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Charge);
 }
 
@@ -206,7 +206,7 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 			charge.phase = ChargePhase::Stunned;
 			charge.startMs = now;
 			enter(ModelState::Idle);
-			type->model.dieSound.Play();
+			sound(CharacterSound::Die);
 			return;
 		}
 		x += static_cast<float>(charge.dir) * CHARGE_SPEED * static_cast<float>(UPDATE_TICK_MS) / 1000.f;
@@ -216,7 +216,7 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 			charge.hit = true;
 			links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
 			links.journal->HitByCreature(type->id, links.level);
-			type->model.attackSound.Play();
+			sound(CharacterSound::Attack);
 		}
 		if ((px - head) * static_cast<float>(charge.dir) < -CHARGE_OVERRUN) { // far past the player: it stops
 			charge.phase = ChargePhase::Ready;
@@ -243,7 +243,7 @@ float Monster::flightProbeX() const {
 	return CentreX() + static_cast<float>(dir) * BAT_WALL_MARGIN;
 }
 
-float Monster::roostLift() const { return BAT_CEILING - type->model.Info().idleTop * type->scale; }
+float Monster::roostLift() const { return BAT_CEILING - type->model.idleTop * type->scale; }
 
 void Monster::Fly(bool wallAhead, float px, float py) {
 	const float scale = type->scale;
@@ -336,7 +336,7 @@ void Monster::Jump(float toX) {
 	leap.readyMs = now + MONSTER_JUMP_COOLDOWN_MS;
 	leap.lift = 0.f;
 	enter(ModelState::Jump);
-	type->model.jumpSound.Play();
+	sound(CharacterSound::Jump);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Leap);
 }
 

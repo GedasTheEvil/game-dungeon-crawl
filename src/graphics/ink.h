@@ -17,7 +17,7 @@ void begin(float zNear, float zFar, int width, int height);
 void end();
 
 // Player, monsters and items are drawn this much larger in toon mode: the outlines eat into their silhouettes. Their
-// hitboxes follow the drawing.
+// hitboxes follow the drawing (Figures::Scale, the same value).
 float figureScale();
 // The weapon in the player's fist is drawn this much larger in toon mode, more than the figures: at their 1.2 it
 // looked too small next to them (docs/plan/solved/toon-weapon-scale.md).

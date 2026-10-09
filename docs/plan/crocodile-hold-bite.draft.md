@@ -19,3 +19,4 @@ The crocodile's bite grabs the player: a hold, like a death roll.
 * Look: the crocodile's grab and roll animation (Blender, [../remodeling.md](../remodeling.md)), the player's held
   pose.
 * Does the checker or the balance need to know (a held player near a trap)?
+* An amulet for a faster escape (from [amulet-extras](amulet-extras.draft.md)), once the hold is in.

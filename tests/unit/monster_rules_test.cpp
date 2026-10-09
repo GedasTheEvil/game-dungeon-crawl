@@ -1,5 +1,5 @@
-// Monster rules on the sim harness (docs/plan/scenarios-to-unit-tests.md technique 7), ported from the scenarios that
-// checked them with `expect` lines only: courage and traps, speed, leaps, poison, damage types, the health bars.
+// Monster rules on the sim harness (docs/plan/solved/scenarios-to-unit-tests.md technique 7), ported from the scenarios
+// that checked them with `expect` lines only: courage and traps, speed, leaps, poison, damage types, the health bars.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 

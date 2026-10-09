@@ -1,7 +1,7 @@
 # Sim library: Dungeon, monsters and the player without GL
 
 Status: implemented 2026-10-09 (tooling only, so solved without a play test; see [Progress](#progress)). From the
-user: solve the blocker of [scenarios-to-unit-tests](../scenarios-to-unit-tests.draft.md). It takes over step 4 of
+user: solve the blocker of [scenarios-to-unit-tests](scenarios-to-unit-tests.md). It takes over step 4 of
 [sim-unit-tests](sim-unit-tests.md) (the monster rules, merged in 2026-10-09 from its own draft) and goes
 further: the whole `Dungeon`, not only the monster AI.
 
@@ -96,7 +96,7 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
 * Step 3 done: `Player` keeps the stats, the pose (its `ModelInfo`, clip state, blood) and the jump and attack state;
   `PlayerView` (`entities/player_view.cpp`, held by `GameState`) loads the model, draws it and finds the fists. The
   god mode is `Player::god` (the scenario sets it), the die and jump sounds are world events. `swingPose` stays in
-  `draw.cpp` for now: [scenarios-to-unit-tests](../scenarios-to-unit-tests.draft.md) technique 1 moves it.
+  `draw.cpp` for now: [scenarios-to-unit-tests](scenarios-to-unit-tests.md) technique 1 moves it.
 * Step 4 done: `Item` keeps the model and the sounds; damage, range, mix and motion are read from `weaponDef`, the
   reach from `weaponReach` (`world/items.h`). `Trap` only draws, it stays as it is.
 * Step 5 done: the dungeon's rule files (`world/dungeon_{arrows,base,boss,darts,decor,io,mechanisms,monsters}.cpp`),

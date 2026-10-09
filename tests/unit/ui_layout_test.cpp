@@ -1,5 +1,5 @@
-// The UI layouts as data (docs/plan/scenarios-to-unit-tests.md technique 5): at 4:3, 16:9 and 21:9 every part fits
-// the canvas without overlap, a click on a part's centre hits it, and the fades run as they should.
+// The UI layouts as data (docs/plan/solved/scenarios-to-unit-tests.md technique 5): at 4:3, 16:9 and 21:9 every part
+// fits the canvas without overlap, a click on a part's centre hits it, and the fades run as they should.
 #include "../../external/doctest/doctest.h"
 #include "../../src/ui/inventory_layout.h"
 #include "../../src/ui/page_turn.h"

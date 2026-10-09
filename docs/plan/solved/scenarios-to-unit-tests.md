@@ -1,12 +1,12 @@
 # Scenarios to unit tests
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: scenarios that don't need a screenshot move to unit
-tests. Expected result: a faster test run, fewer resources.
+Status: implemented 2026-10-09 (tooling only, so solved without a play test; see [Progress](#progress)). From the
+user: scenarios that don't need a screenshot move to unit tests. Expected result: a faster test run, fewer resources.
 
 ## Today
 
-* 106 scenarios in `tests/scenarios/` ([../testing.md](../testing.md)). Each starts the game under Xvfb, so
-  `make test` is the slow part (~7-8 min for 97 at the time of [sim-unit-tests](solved/sim-unit-tests.md)) and
+* 106 scenarios in `tests/scenarios/` ([../../testing.md](../../testing.md)). Each starts the game under Xvfb, so
+  `make test` is the slow part (~7-8 min for 97 at the time of [sim-unit-tests](sim-unit-tests.md)) and
   loads the machine (`JOBS`, `RESERVE_CORES`, `MIN_FREE_MB`, `MIN_SWAP_FREE_MB`).
 * 19 doctest files in `tests/unit/` link `liblevel.a` and `libbase.a`: no window, no GL, fast.
 * 10 scenarios take no screenshot. Many others take one or two only as a debugging aid, and check the behaviour with
@@ -18,7 +18,7 @@ tests. Expected result: a faster test run, fewer resources.
   1. **Behaviour only:** no screenshot, or screenshots nobody needs to look at; all checks are `expect` lines on
      rules in the library (stats, items, damage, loot, water, progression). Move to a unit test, delete the scenario.
   2. **Behaviour over code still in the game binary:** monster AI, missiles, mechanisms, boss. Blocked until the rules
-     leave the GL files ([sim-library](solved/sim-library.md)). Stay scenarios for now.
+     leave the GL files ([sim-library](sim-library.md)). Stay scenarios for now.
   3. **Visual or whole-game:** HUD, screens, model / animation, filtering, aspect, smoke, input path end to end. Stay
      scenarios.
 * A moved test checks the same thing as the scenario's `expect` lines, through the library's public interface.
@@ -39,7 +39,7 @@ What the screenshots of the 96 scenarios confirm, by eye:
 
 The main blocker is that `Dungeon`, `Monster`, `Player` and `character_model` are not in `liblevel`. `dungeon.h`
 includes `monster.h`, which pulls in particles, textures and the model. Most of the debug-only class checks Dungeon or
-monster rules. The plan to solve it: [sim-library](solved/sim-library.md).
+monster rules. The plan to solve it: [sim-library](sim-library.md).
 
 Techniques, by value:
 
@@ -54,7 +54,7 @@ Techniques, by value:
    (`src/world/dungeon_render_decor.cpp:15, 118`) sit in a render file. Move them out with a plain light id instead of
    `Lighting::LightDef`. Then run a property test over `levels/lvl*`: every torch, brazier and lamp cell gives a flame
    inside its cell, and no torch stands in deep water
-   ([no-torches-under-water](no-torches-under-water.draft.md)). The scatter is already in the lib (`decor_test`).
+   ([no-torches-under-water](../no-torches-under-water.draft.md)). The scatter is already in the lib (`decor_test`).
 4. **Hitbox and reach matrix (M).** `Monster::HalfWidth` / `Player::HalfWidth` (`monster.cpp:158`, `player.cpp:58`)
    are model bbox × scale × `Ink::figureScale()`. Toon mode changes the hitboxes, which is worth a check of its own.
    MD3 parsing is GL-free until the display list compiles (`animated_model.cpp:241`). Either move the parser to a
@@ -91,7 +91,7 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
 * **Order, by size and by what blocks them:**
   1. Without the sim library: 1 swing pose, 2 water sink, 3 flames and lights, 6 golden dumps.
   2. 5 UI layout as data.
-  3. After [sim-library](solved/sim-library.md): 4 hitbox and reach matrix (on `ModelInfo`, its step 1), 7 the sim
+  3. After [sim-library](sim-library.md): 4 hitbox and reach matrix (on `ModelInfo`, its step 1), 7 the sim
      harness, 8 clip state.
 * One technique per commit. The game plays the same after each one.
 * **Moved scenarios:** delete a scenario once all its checks are unit tests. If something visual is left, trim it to
@@ -101,7 +101,7 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
 
 ## Progress
 
-* Start (2026-10-09, after [sim-library](solved/sim-library.md)): 106 scenarios, 602 screenshots, `make test` 6:22.
+* Start (2026-10-09, after [sim-library](sim-library.md)): 106 scenarios, 602 screenshots, `make test` 6:22.
 * Batch 1 (techniques 1, 2, 3, 6):
   * 1 swing pose: `swingPose(motion, elapsedMs)` in `world/items.cpp`, `tests/unit/swing_test.cpp` (rest, windup,
     strike, recovery, the bow's draw, the thrust, for every weapon). `weapons_held` keeps the rest and strike shots
@@ -110,7 +110,7 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
     wading speed and the spikes under water. `water` stays: its sprint and jump checks go through the input.
   * 3 flames: `flamesAt` on the `DecorLayout` (done with sim-library step 5); `decor_test.cpp` checks every fire of
     every campaign level burns inside its cell. The deep-water torch check waits for
-    [no-torches-under-water](no-torches-under-water.draft.md).
+    [no-torches-under-water](../no-torches-under-water.draft.md).
   * 6 golden dumps: `tests/unit/golden_test.cpp`, `tests/unit/golden/decor_lvlNN.txt` (surfaces, props, decals,
     torches, ladders, fires); `GOLDEN_UPDATE=1` writes them anew. `decor_depth` deleted: its tiers are checked
     through the dungeon in `sim_test.cpp`.
@@ -143,3 +143,6 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
   spit, the bat roosts until it swoops, the player's jump, climb (one cycle a tile) and die clips. The other
   animation scenarios stay: they show the poses. After: 77 scenarios, 468 screenshots (`make test` 8:38 under an
   outside load, no core idle; 5:01 for 79 the run before).
+* Done: 106 scenarios and 602 screenshots to 77 and 468; the unit tests from 145 test cases to 208, in about 6 s.
+  `make test` took 6:22 at the start and 5:01 after technique 7 (79 scenarios), with about a quarter less CPU time
+  (35.5 to 26.2 minutes of user time).

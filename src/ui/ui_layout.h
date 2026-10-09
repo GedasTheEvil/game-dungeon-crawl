@@ -1,8 +1,8 @@
 #ifndef UI_LAYOUT_H
 #define UI_LAYOUT_H
 
-// Where the UI parts go and how they fade, without GL (docs/plan/scenarios-to-unit-tests.md technique 5): the canvas,
-// its rects and the window-to-canvas mapping, the screen tabs, the status box and the level gem. The drawing is
+// Where the UI parts go and how they fade, without GL (docs/plan/solved/scenarios-to-unit-tests.md technique 5): the
+// canvas, its rects and the window-to-canvas mapping, the screen tabs, the status box and the level gem. The drawing is
 // ui_draw.h and the screens'; the unit tests check the layouts at any window size (tests/unit/ui_layout_test.cpp).
 
 #include <algorithm>

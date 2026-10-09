@@ -2,7 +2,7 @@
 #define INVENTORY_LAYOUT_H
 
 // Where the inventory screen's parts sit on the 160 x 100 canvas, and what a canvas point hits, without GL
-// (docs/plan/scenarios-to-unit-tests.md technique 5). Inventory draws them (ui/inventory.cpp).
+// (docs/plan/solved/scenarios-to-unit-tests.md technique 5). Inventory draws them (ui/inventory.cpp).
 
 #include "ui_layout.h"
 #include "../world/item_bag.h"

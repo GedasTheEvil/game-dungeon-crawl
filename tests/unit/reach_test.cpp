@@ -1,5 +1,5 @@
-// Hitboxes and weapon reach (docs/plan/scenarios-to-unit-tests.md technique 4): every size of walker stops where it
-// bites, MONSTER_BITE_REACH from the player's box, and every melee weapon reaches it there, in normal and toon mode
+// Hitboxes and weapon reach (docs/plan/solved/scenarios-to-unit-tests.md technique 4): every size of walker stops where
+// it bites, MONSTER_BITE_REACH from the player's box, and every melee weapon reaches it there, in normal and toon mode
 // (the figures and their boxes are larger). The look of the reach against the weapon:
 // tests/scenarios/melee_weapons.txt.
 #include "../../external/doctest/doctest.h"

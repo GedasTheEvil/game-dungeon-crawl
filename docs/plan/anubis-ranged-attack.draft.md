@@ -16,7 +16,7 @@ cooldown 3 s.
 
 | | Value |
 |---|---|
-| Range | 14: in the weapons' units (tenths of a tile, `WeaponDef::range`) that is 1.4 tiles. Spit ranges are in whole tiles, where 14 would cover most of a level. To confirm |
+| Range | 14 in the weapons' units (tenths of a tile, `WeaponDef::range`): 1.4 tiles, between the throwing stick (12) and the javelin (15). Decided 2026-10-09. As a `SpitRules::range` (whole tiles): 1.4f |
 | Damage | 50, of the Anubis's attack mix (or its own mix, see Open) |
 | Cooldown | 3 s |
 
@@ -29,7 +29,6 @@ cooldown 3 s.
 
 ## Open
 
-* Range: 1.4 tiles or 14 tiles?
 * The guard only, or the boss too (with its own numbers)?
 * Damage type: the melee mix (80 blunt / 20 pierce) or e.g. 100% pierce for a thrown spear?
 * Melee and ranged together: it shoots from afar and still hits 55 up close, as the cobras bite up close?

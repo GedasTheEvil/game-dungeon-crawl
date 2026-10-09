@@ -1,7 +1,7 @@
 # Cowards flee when they cannot reach the player
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: if a "coward" monster cannot reach the player, instead
-of going towards it, it runs away to avoid ranged attacks.
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: if a "coward" monster
+cannot reach the player, instead of going towards it, it runs away to avoid ranged attacks.
 
 ## Today
 

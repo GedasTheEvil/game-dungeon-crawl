@@ -183,7 +183,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `flask` (round glass flask, cork and cord: small health, small stamina), `lotus` (glass jar on a gold foot, a lotus
   flower of faience petals at the mouth, two handles: large health, large stamina), `pilgrim` (flat faience "New Year
   flask" with gold rings: might), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
-  coiled round it, the hood is the stopper: antidote), `ankh` (ankh-shaped vessel, the loop is the neck: life). A vessel
+  coiled round it, the hood is the stopper: antidote, lesser and greater resistance), `ankh` (ankh-shaped vessel, the loop is the neck: life). A vessel
   has no texture of its own: each potion bakes one on its UVs (`POTIONS`: `textures/items/potion_<kind>.png`, the
   palette keys `liquid` / `liquid_dark` it overrides), so look-alikes differ by the liquid only. The liquid reaches the
   shoulder: a chest's gold heap hides the bottom. The engine loads each vessel once and gives every potion its own
@@ -292,7 +292,7 @@ Paths relative to `models/` and `textures/`. UI screens are in `textures/ui/`, d
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: the 13 weapons, arrow, sling stone, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
-| Potions (6 vessels, 8 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/solved/potion-textures.md)) |
+| Potions (6 vessels, 10 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/solved/potion-textures.md)) |
 | Amulets (10 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |

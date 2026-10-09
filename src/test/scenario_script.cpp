@@ -332,6 +332,7 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"equip_id", Field::EquipId},
 											   {"keys", Field::Keys},
 											   {"poison", Field::Poison},
+											   {"resist", Field::Resist},
 											   {"xp", Field::XpTotal},
 											   {"riddle", Field::Riddle},
 											   {"bars", Field::Bars},

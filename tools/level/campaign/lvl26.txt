@@ -4,6 +4,7 @@
 ; blue gate the west wing with the green key, the green gate the way on down. Below, the gold lever at the east end
 ; of a hall opens the gold gate before the exit, past the coffin row. Side wings hold the treasure; a red gate guards
 ; a chest in the third hall. Antidotes at the east ends of the second and the second-last hall.
+; Resistance potions: a lesser one in the third hall, a greater one east of the green gate.
 def L 12 2 0
 def P 12 3 0
 def U 12 4 0
@@ -17,6 +18,8 @@ def a 8 3 7
 def x 8 1 1
 def z 8 1 6
 def o 8 2 0
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S...v...k.......n....?...v...J......H1#
 #############X#######################H##
@@ -27,7 +30,7 @@ def o 8 2 0
 #.H....k...vv...n..........J........HR6#
 ######################X#############H###
 ####################...........#####H###
-#x.H....^.............u....u.....v..H..#
+#x.H....^.....-.......u....u.....v..H..#
 ###H####################################
 ###H####################################
 #..H......n...v....H.....?............7#
@@ -45,7 +48,7 @@ def o 8 2 0
 #g...k..v...n.....BH...................#
 ###################H####################
 ###################H####################
-#z.................H.G.....n...v.....H.#
+#z.................H.G..+..n...v.....H.#
 #####################################H##
 #####################################H##
 #.H......................vv...k......H5#

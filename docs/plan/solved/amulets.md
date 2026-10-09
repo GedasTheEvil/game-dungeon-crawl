@@ -1,7 +1,7 @@
 # Amulets
 
 Status: done 2026-10-07, play-tested by the user. Split off
-[resistance-potion.draft.md](../resistance-potion.draft.md). See [Done](#done).
+[resistance-potion.md](../resistance-potion.md). See [Done](#done).
 
 ## Idea
 

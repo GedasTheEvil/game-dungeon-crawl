@@ -52,7 +52,7 @@ several potions. Set:
   the inventory detail view) gets no tint any more.
 * **Scale.** Refactor freely: each model can have its own scale (floor / chest and inventory detail) instead of the
   single `5` in `loadItem("potion", 5)` and `POTION_DETAIL_SCALE`.
-* **Resistance potions** ([resistance-potion.draft.md](../resistance-potion.draft.md)): lesser on the flask, greater on
+* **Resistance potions** ([resistance-potion.md](../resistance-potion.md)): lesser on the flask, greater on
   the cobra vial. Alternative: both on the cobra vial with different textures.
 * **Graphics only.** Saves and level files store the potion kind, not the model: no format change.
 

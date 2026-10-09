@@ -17,11 +17,17 @@ constexpr ItemKind OLD_SLOTS[] = {ItemKind::Club,		  ItemKind::ShortSword,	  Ite
 								  ItemKind::SmallStamina, ItemKind::LargeStamina, ItemKind::Antidote};
 constexpr int OLD_SLOT_COUNT = 12;
 
+// The resistance potions came in after the amulets: before INV5 the amulets follow the antidote.
+constexpr size_t RESISTANCE_POTIONS = itemIndex(ItemKind::GreaterResistance) - itemIndex(ItemKind::Antidote);
+
 // The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order (newer kinds were
-// added at the end), an older one in OLD_SLOTS order.
-std::optional<ItemKind> savedSlot(size_t slot, size_t slots) {
-	if (slots >= ORDERED_SAVE_SLOTS)
-		return slot < ITEM_KIND_COUNT ? std::optional(itemAt(static_cast<int>(slot))) : std::nullopt;
+// added at the end, but for the resistance potions before INV5), an older one in OLD_SLOTS order.
+std::optional<ItemKind> savedSlot(size_t slot, size_t slots, bool resistance) {
+	if (slots >= ORDERED_SAVE_SLOTS) {
+		const size_t index =
+			resistance || slot < static_cast<size_t>(ORDERED_SAVE_SLOTS) ? slot : slot + RESISTANCE_POTIONS;
+		return index < ITEM_KIND_COUNT ? std::optional(itemAt(static_cast<int>(index))) : std::nullopt;
+	}
 	if (slot < OLD_SLOT_COUNT)
 		return OLD_SLOTS[slot];
 	return std::nullopt;
@@ -98,6 +104,8 @@ UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 		return UseBlock::StaminaFull;
 	if (kind == ItemKind::Antidote && !player.poisoned)
 		return UseBlock::NotPoisoned;
+	if (potionGain(kind).resistPercent > 0 && potionGain(kind).resistPercent < player.resistPercent)
+		return UseBlock::StrongerResistance;
 	return UseBlock::None;
 }
 
@@ -132,7 +140,7 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV4 " << ITEM_KIND_COUNT << " ";
+	out << "INV5 " << ITEM_KIND_COUNT << " ";
 	for (int count : counts)
 		out << count << " ";
 	for (int level : levels)
@@ -157,32 +165,34 @@ void ItemBag::Load(std::istream& in) {
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	bool hasFound = tok == "INV3" || tok == "INV4";
+	bool hasFound = tok == "INV3" || tok == "INV4" || tok == "INV5";
+	const bool resistance = tok == "INV5";
 	int wornType = ItemType::EMPTY;
 	int wornId = 0;
-	if (tok == "INV2" || tok == "INV3" || tok == "INV4") {
+	if (tok == "INV2" || tok == "INV3" || hasFound) {
 		int slots = 0;
 		in >> slots;
 		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
 		for (int& count : saved)
 			in >> count;
 		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size()))
+			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), resistance))
 				counts[itemIndex(*kind)] = saved[slot];
 		for (int& level : saved)
 			in >> level;
 		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size())) // saves from before the cap of 5
+			if (std::optional<ItemKind> kind =
+					savedSlot(slot, saved.size(), resistance)) // saves from before the cap of 5
 				levels[itemIndex(*kind)] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL);
 		if (hasFound) {
 			for (int& f : saved)
 				in >> f;
 			for (size_t slot = 0; slot < saved.size(); slot++)
-				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size()))
+				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), resistance))
 					found[itemIndex(*kind)] = saved[slot] != 0;
 		}
 		in >> type >> id;
-		if (tok == "INV4")
+		if (tok == "INV4" || resistance)
 			in >> wornType >> wornId;
 	} else {
 		counts[itemIndex(OLD_SLOTS[0])] = std::stoi(tok);

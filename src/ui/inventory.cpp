@@ -76,7 +76,8 @@ Color potionColor(ItemKind potion) {
 
 Vitals playerVitals() {
 	const PlayerStats& s = Game().player->stats;
-	return {Game().player->Alive(), s.CurrentHP(), s.CurrentMaxHP(), s.Stamina(), s.MaxStamina(), s.poison.Any()};
+	return {Game().player->Alive(), s.CurrentHP(),	s.CurrentMaxHP(),		s.Stamina(),
+			s.MaxStamina(),			s.poison.Any(), s.PotionResistPercent()};
 }
 
 const char* blockReason(UseBlock block) {
@@ -95,6 +96,8 @@ const char* blockReason(UseBlock block) {
 		return "Stamina is full";
 	case UseBlock::NotPoisoned:
 		return "You are not poisoned";
+	case UseBlock::StrongerResistance:
+		return "A stronger resistance runs";
 	case UseBlock::None:
 		break;
 	}

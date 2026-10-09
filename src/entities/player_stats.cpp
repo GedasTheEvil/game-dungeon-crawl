@@ -176,6 +176,12 @@ void PlayerStats::Regenerate(bool safe, int tickMs) {
 	regen_carry_ms %= 1000;
 }
 
+int PlayerStats::PoisonResistPercent() const {
+	return std::min(100, amulet.poisonResistPercent + PotionResistPercent());
+}
+
+void PlayerStats::AdvanceResistance(int ms) { resist_left_ms = std::max(0, resist_left_ms - ms); }
+
 std::string PlayerStats::Drink(const PotionGain& gain) {
 	const int hpBefore = HP;
 	const int staminaBefore = stamina;
@@ -189,6 +195,14 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 	} else if (gain.armor > 0) {
 		AddArmor(gain.armor);
 		snprintf(buf, sizeof(buf), "Armor rises to %d", CurrentArmor());
+	} else if (gain.resistPercent > 0) {
+		const bool cured = gain.cure && poison.Any();
+		if (gain.cure)
+			poison.Cure();
+		resist_percent = gain.resistPercent;
+		resist_left_ms = PotionEffect::RESIST_MS;
+		snprintf(buf, sizeof(buf), "%sResists poison %d%% for %d min", cured ? "Cured. " : "", PoisonResistPercent(),
+				 PotionEffect::RESIST_MS / 60000);
 	} else if (gain.cure) {
 		poison.Cure();
 		snprintf(buf, sizeof(buf), "The poison is gone");
@@ -205,6 +219,7 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);
+	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 }
 
 void PlayerStats::LoadDump(std::ifstream& f) {
@@ -226,4 +241,14 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	stamina_sprint_drain_timer.Reset();
 	SetStamina(loadedStamina);
 	poison.Load(f);
+	resist_percent = 0;
+	resist_left_ms = 0;
+	const auto start = f.tellg();
+	std::string tag;
+	if (!(f >> tag) || tag != "RESIST") { // a save from before the resistance potions
+		f.clear();
+		f.seekg(start);
+		return;
+	}
+	f >> resist_percent >> resist_left_ms;
 }

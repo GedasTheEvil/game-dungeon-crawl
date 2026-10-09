@@ -22,7 +22,9 @@ TEST_CASE("file ids as the level files use them") {
 	CHECK(*itemFromFile(ItemType::POTION, 6) == ItemKind::LargeStamina);
 	CHECK_FALSE(itemFromFile(ItemType::EMPTY, 0).has_value());
 	CHECK(*itemFromFile(ItemType::POTION, 7) == ItemKind::Antidote);
-	CHECK_FALSE(itemFromFile(ItemType::POTION, 8).has_value());
+	CHECK(*itemFromFile(ItemType::POTION, 8) == ItemKind::LesserResistance);
+	CHECK(*itemFromFile(ItemType::POTION, 9) == ItemKind::GreaterResistance);
+	CHECK_FALSE(itemFromFile(ItemType::POTION, 10).has_value());
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 1) == ItemKind::CompositeBow);
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 4) == ItemKind::Javelin);
 	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 5).has_value());
@@ -111,6 +113,10 @@ TEST_CASE("potion gains") {
 	CHECK(potionGain(ItemKind::LargeStamina).staminaPercent == 100);
 	CHECK(potionGain(ItemKind::Antidote).cure);
 	CHECK(potionGain(ItemKind::Antidote).healPercent == 0);
+	CHECK(potionGain(ItemKind::LesserResistance).resistPercent == 50);
+	CHECK_FALSE(potionGain(ItemKind::LesserResistance).cure);
+	CHECK(potionGain(ItemKind::GreaterResistance).resistPercent == 95);
+	CHECK(potionGain(ItemKind::GreaterResistance).cure);
 	CHECK(potionGain(ItemKind::ShortSword).healPercent == 0);
 }
 
@@ -123,6 +129,20 @@ TEST_CASE("the antidote is drunk only while poisoned") {
 	poisoned.poisoned = true;
 	CHECK(bag.Use(ItemKind::Antidote, poisoned));
 	CHECK(bag.Count(ItemKind::Antidote) == 0);
+}
+
+TEST_CASE("a lesser resistance potion does not cut a greater one short") {
+	ItemBag bag;
+	bag.Add(ItemKind::LesserResistance);
+	bag.Add(ItemKind::GreaterResistance);
+	Vitals greater{true, 50, 50, 100, 100};
+	greater.resistPercent = 95;
+	CHECK(bag.Block(ItemKind::LesserResistance, greater) == UseBlock::StrongerResistance);
+	CHECK(bag.Block(ItemKind::GreaterResistance, greater) == UseBlock::None);
+	Vitals lesser = greater;
+	lesser.resistPercent = 50;
+	CHECK(bag.Block(ItemKind::LesserResistance, lesser) == UseBlock::None);
+	CHECK(bag.Block(ItemKind::GreaterResistance, lesser) == UseBlock::None);
 }
 
 TEST_CASE("a potion used up is found, not one never had") {
@@ -188,7 +208,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV4 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().rfind("INV5 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -198,6 +218,28 @@ TEST_CASE("the bag survives a save and a load") {
 		CHECK(loaded.Found(itemAt(i)) == bag.Found(itemAt(i)));
 	}
 	CHECK(loaded.Equipped() == ItemKind::SelfBow);
+}
+
+TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
+	std::stringstream old;
+	old << "INV4 " << ITEM_KIND_COUNT - 2 << " ";
+	for (int i = 0; i < ITEM_KIND_COUNT - 2; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
+		old << (i == itemIndex(ItemKind::Antidote) ? 1
+				: i == ORDERED_SAVE_SLOTS		   ? 2
+				: i == ITEM_KIND_COUNT - 3		   ? 3
+												   : 0)
+			<< " ";
+	for (int i = 0; i < 2 * (ITEM_KIND_COUNT - 2); i++) // levels, found
+		old << (i < ITEM_KIND_COUNT - 2 ? 1 : 0) << " ";
+	old << "1 0 " << ItemType::AMULET << " 0\n"; // the club, the lesser strength amulet on
+	ItemBag bag;
+	bag.Load(old);
+	CHECK(bag.Count(ItemKind::Antidote) == 1);
+	CHECK(bag.Count(ItemKind::LesserResistance) == 0);
+	CHECK(bag.Count(ItemKind::GreaterResistance) == 0);
+	CHECK(bag.Count(ItemKind::StrengthLesser) == 2);
+	CHECK(bag.Count(ItemKind::VenomGrand) == 3);
+	CHECK(bag.Worn() == ItemKind::StrengthLesser);
 }
 
 TEST_CASE("a save from before the Egyptian weapons: 12 slots in the old order") {

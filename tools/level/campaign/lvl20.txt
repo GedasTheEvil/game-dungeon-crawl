@@ -3,6 +3,7 @@
 ; pool below. Red key, blue lever, green lever; the teleporter in the east nook of the ninth hall leads to the sealed
 ; pit: a sunken floor between two ledges, the boss, the boss gate on the east ledge, behind it the gold key for the
 ; gold gate before the exit.
+; Resistance potions: a lesser one in the third hall, a greater one in the east of the blue lever's hall.
 def L 12 2 0
 def P 12 3 0
 def 1 8 3 1
@@ -15,6 +16,8 @@ def 8 8 3 6
 def 9 8 1 1
 def 0 8 1 7
 def & 4 22 0
+def - 8 3 8
+def + 8 3 9
 ########################################
 #.S.........c...............n..v....H.##
 ####################################H###
@@ -25,7 +28,7 @@ def & 4 22 0
 ###6H.........c............v.......H.3##
 ####################.##############H####
 ####################.##############H####
-###2.H.......n...............c.....H..##
+###2.H...-...n...............c.....H..##
 #####H##############.###################
 #####H##############.###################
 ###r.H.....u.............^....u...H...##
@@ -37,7 +40,7 @@ def & 4 22 0
 ###2H...v...R..c....H..............H..##
 ####################H##############H####
 ####################H##############H####
-##L.u..H.F.v........H..............H..##
+##L.u..H.F.v........H.......+......H..##
 #######H#######X########################
 #######H################################
 ###7...H......B...v...n....u.^...H...O##

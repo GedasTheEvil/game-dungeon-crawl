@@ -5,6 +5,7 @@
 ; Past the blue gate: the drain (rock falls, a large health potion), the green gate, a gallery with a mummy, the pool hall, the
 ; gold lever up a side passage, the exit corridor with two death pits and the gold gate. A shrine with a riddle gate and a
 ; snake pit lie between the wings; a bottom gallery with a mimic and a crocodile pool loops back to the exit.
+; Resistance potions: a lesser one by the red key, a greater one in the exit corridor before the gold gate.
 def / 12 1 0
 def L 12 2 0
 def l 12 3 0
@@ -19,6 +20,8 @@ def 9 8 1 1
 def 3 8 1 5
 def 4 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 ######H....c....v.H.S....F..H.....2#####
 ######H###########H#########H###########
@@ -26,7 +29,7 @@ def a 8 3 7
 ######H######7.?..H....H.###H###########
 ######H################H####H###########
 ######H################H####H###########
-##r...H..c..H##########H##..H..R..u.H.##
+##r.-.H..c..H##########H##..H..R..u.H.##
 ############H##########H############H###
 ############H##........H############H###
 ############H##3.c.c...H.###########H###
@@ -60,7 +63,7 @@ def a 8 3 7
 ########H##################P...c..H...##
 ########H###############################
 ########H###############################
-##?.H...H.^......u......v........n.HYE##
+##?.H...H.^......u......v...+....n.HYE##
 ####H#########X#####X##############H####
 ####H##############################H####
 ####H.......M...c.........C........H..##

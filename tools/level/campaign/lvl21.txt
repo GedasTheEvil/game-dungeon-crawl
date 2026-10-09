@@ -2,6 +2,7 @@
 ; the red lever opens the way into the flooded hall, the blue key at the east end of the fifth hall, the green key
 ; past the riddle, the gold lever by the last crocodile. A drop shaft down the middle, spike pits before the exit; the
 ; teleporter in the east nook of the sixth hall leads to a hidden cistern with treasure.
+; Resistance potions: a lesser one in the red lever's hall, a greater one west of the riddle gate.
 def W 12 4 0
 def 1 8 3 1
 def 2 8 3 5
@@ -12,11 +13,13 @@ def 7 8 3 4
 def 8 8 3 6
 def 9 8 1 1
 def 0 8 1 5
+def - 8 3 8
+def + 8 3 9
 ########################################
 #.S..........C..........Q.....v....H..##
 ###################################H####
 ###################################H####
-##/.H.....u.....^..........F.......H.3##
+##/.H.....u..-..^..........F.......H.3##
 ####H###################################
 ####H####......................#########
 ###2H.R.......C.........C.........H..###
@@ -34,7 +37,7 @@ def 0 8 1 5
 ###H.........C...........C.........H.8##
 ###################################H####
 ###################################H####
-##g..H......^.......n.......?......H..##
+##g..H......^...+...n.......?......H..##
 #####H##################################
 #####H##################################
 ###0.H......G.......u...v....Q......H.##

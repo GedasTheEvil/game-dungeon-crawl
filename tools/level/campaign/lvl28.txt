@@ -2,6 +2,7 @@
 ; The hall of coffins at the top, two ledges with treasure. The red lever opens the red gate to the blue key, the blue
 ; gate leads down to the flooded tomb. In the catacombs the green lever opens two green gates: the way on and a
 ; treasure tomb. The gold key lies on a ledge in the hall of Anubis, the gold gate before the stair to the exit.
+; Resistance potions: a lesser one in the green lever's hall, a greater one on the floor of the hall of Anubis.
 def L 12 2 0
 def % 12 3 0
 def & 12 4 0
@@ -15,6 +16,8 @@ def 9 8 1 5
 def z 8 1 2
 def o 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S..2...H###8.......v...J..H...^......5#
 ########H##################H############
@@ -36,7 +39,7 @@ def a 8 3 7
 ##############H#########################
 ##############H#########################
 ##############H#########################
-##%.......^...H.....G...v...n.........H#
+##%...-...^...H.....G...v...n.........H#
 ###############X######X###############H#
 ##########################8..M...v....H#
 ######################################H#
@@ -48,7 +51,7 @@ def a 8 3 7
 #####################################H##
 ##.........H.1..^...y................H.#
 ##.........H#########................H.#
-##H.......QH..........n....^.....n...H.#
+##H.......QH....+.....n....^.....n...H.#
 ##H######################X####X#########
 ##H.....v....u......6###################
 ##H#####################################

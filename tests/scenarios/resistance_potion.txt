@@ -1,0 +1,67 @@
+# Resistance potions (docs/plan/resistance-potion.md): for 2 minutes a poisoned hit does not poison, the lesser
+# one 50% of the time, the greater one 95% and it cures a running poison. The percent adds to the poison warding
+# amulet's, up to 100. A lesser one does not cut a greater one short. The HUD tile with the time left.
+seed 1
+level tests/levels/empty_row
+wait 10
+give potion 8 2
+give potion 9
+give amulet 13
+expect resist == 0
+poison weak
+expect poison == 1
+
+# the lesser one: 50%, the poison runs on
+key i
+wait 5
+select lesser_resistance
+wait 5
+screenshot inventory_lesser
+key e
+wait 2
+expect potion8 == 1
+expect resist == 50
+expect poison == 1
+# the minor poison warding amulet adds 25%
+wear minor_amulet_of_poison_warding
+expect resist == 75
+key i
+wait 5
+screenshot hud_lesser
+
+# the greater one: cures, and with the amulet nothing poisons
+key i
+wait 5
+select greater_resistance
+wait 5
+screenshot inventory_greater
+key e
+wait 2
+expect potion9 == 0
+expect poison == 0
+expect resist == 100
+# a lesser one now is refused
+select lesser_resistance
+key e
+wait 2
+expect potion8 == 1
+expect resist == 100
+key i
+wait 5
+poison strong
+poison medium
+expect poison == 0
+wait 1s
+screenshot hud_greater
+
+# saved and loaded with the time left
+savegame resistance.sav
+wear off
+expect resist == 95
+loadgame resistance.sav
+expect resist == 100
+
+# 2 minutes on, only the amulet's share is left
+wait 120s
+expect resist == 25
+screenshot hud_ended

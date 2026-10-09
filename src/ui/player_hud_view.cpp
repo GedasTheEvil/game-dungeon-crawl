@@ -47,5 +47,7 @@ PlayerHud::View playerHudView() {
 	}
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
+	view.resistLeftMs = stats.PotionResistLeftMs();
+	view.resistGreater = stats.PotionResistPercent() >= PotionEffect::GREATER_RESIST_PERCENT;
 	return view;
 }

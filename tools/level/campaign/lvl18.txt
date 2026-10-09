@@ -6,6 +6,7 @@
 ; gold gate in the upper hall; the top corridor with a death pit and a riddle gate to the exit. A mimic among the chests
 ; of the top gallery, dead ends with treasure off the ladders. Antidotes at the east end of the bottom hall and the
 ; west end of the pillar loop.
+; Resistance potions: a lesser one west of the blue gate, a greater one at the west end of the gold key's hall.
 def / 12 1 0
 def L 12 2 0
 def l 12 3 0
@@ -20,6 +21,8 @@ def 9 8 1 1
 def 3 8 1 2
 def 4 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 ##########H.........M....6....3#########
 ##########H#############################
@@ -34,7 +37,7 @@ def a 8 3 7
 ##########4..^..c.........H#############
 ##########################H#############
 ##########################H#############
-##7.H.....u...^...c...v...H......n...y##
+##7.H..+..u...^...c...v...H......n...y##
 ####H#########################.#########
 ####H#########################.#########
 ####H#########################.#########
@@ -58,7 +61,7 @@ def a 8 3 7
 ##6...H..u..v..#######..H..u....L#######
 ######H#################H###############
 ######H#################H###############
-###2..H...n.......B.R...H^....c..H..H.##
+###2..H...n...-...B.R...H^....c..H..H.##
 #################################H##H###
 #################################H##H###
 ##############1......./....n.....H5#H###

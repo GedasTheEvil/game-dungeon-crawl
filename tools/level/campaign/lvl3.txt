@@ -1,13 +1,15 @@
 ; lvl3: the worm tunnels. Worms, rats, bats and the first scorpion (an antidote past the shaft at the upper hall's end), a loose ceiling, the first key: the red key lies past a worm in the
 ; lower hall, a chest past a spike pit beyond it, the red gate bars the way on. Behind it a shaft drops into the exit hall with a riddle gate.
+; A lesser resistance potion in the lower hall, west of the ladder foot.
 def 1 8 3 1
 def c 8 2 2
 def a 8 3 7
+def - 8 3 8
 ########################################
 ########################################
 #S...t....v....j....H.......R....f...a##
 ####################H##############.####
-#$....r.....w.......H....t.c..$####.####
+#$....r.....w...-...H....t.c..$####.####
 ###X###############################.####
 ############E...........w.....?......p1#
 ########################################

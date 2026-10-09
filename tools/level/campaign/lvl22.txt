@@ -1,6 +1,7 @@
 ; lvl22: the cistern grid. Halls split by a central wall, joined by full-width passages; giant cobras, crocodiles,
 ; giant bats, mummies, Anubis. Red key, blue lever, green lever down a dead end, gold key behind a mummy. A rock-fall
 ; gauntlet, a two-high flooded hall, crocodile pools, a mimic by a chest, spike pits before the exit hall.
+; Resistance potions: a lesser one east of the red gate, a greater one west of the green gate.
 def L 12 2 0
 def P 12 3 0
 def 1 8 3 1
@@ -12,6 +13,8 @@ def 7 8 3 4
 def 8 8 3 6
 def 9 8 1 1
 def 0 8 1 6
+def - 8 3 8
+def + 8 3 9
 ########################################
 #.SH........F...............C.......H.##
 ###H################################H###
@@ -22,7 +25,7 @@ def 0 8 1 6
 #########3M.....H.####H......C......H.##
 ####################################H###
 ####################################H###
-##5.......v.....H...R.......n.......H.##
+##5.......v.....H...R...-...n.......H.##
 ################H#######################
 ################H#######################
 ##LH.....u......H.######################
@@ -37,7 +40,7 @@ def 0 8 1 6
 ######################H..v..v..v..Q.H6##
 ####################################H###
 ####################################H###
-##.H......n...^....G..H...?....u....H.##
+##.H...+..n...^....G..H...?....u....H.##
 ###H##################H#################
 ###H##################H#################
 ##7H.....F......H.####H..^....Q......P##

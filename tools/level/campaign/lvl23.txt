@@ -4,6 +4,7 @@
 ; at the east end of the seventh hall the green gate, the gold lever past the drop shaft in the tenth hall the gold gate.
 ; Two ladders join the first two halls (a loop); the drop shafts have a ladder back beside them. An antidote at the east
 ; end of the second hall. A dart trap in the blue lever's hall, east of the ladder, an Anubis comes over it.
+; Resistance potions: a lesser one in the red key's hall, a greater one west of the riddle gate.
 def L 12 2 0
 def P 12 3 0
 def U 12 4 0
@@ -17,6 +18,8 @@ def a 8 3 7
 def x 8 1 1
 def z 8 2 1
 def o 8 2 0
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S.....v....F...........Q....?....H.2H1#
 #################X################H##H##
@@ -24,7 +27,7 @@ def o 8 2 0
 ########.H............C........u..H..Ha#
 #########H########..........############
 #########H##############################
-#r..Q....H.....v....n........H.#########
+#r..Q....H..-..v....n........H.#########
 ########################X####H##########
 ############...........######H##########
 #####.H.......Q.........R....H....C...x#
@@ -42,7 +45,7 @@ def o 8 2 0
 ####6.......C.......H.....C.....Q.H.####
 ########.......................###H#####
 ##################################H#####
-#.H.......^...v.....?....u....G...H..2.#
+#.H.....+.^...v.....?....u....G...H..2.#
 ##H###X#################################
 ##H#####################################
 #.H..........vv...Q.................HU##

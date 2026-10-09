@@ -128,13 +128,14 @@ void Player::die() {
 	setModelState(ModelState::Die);
 	model.dieSound.Play();
 	stats.poison.Cure();
+	stats.EndResistance();
 }
 
 void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 	if (!Alive())
 		return;
 	if (stats.PoisonResistPercent() > 0 && rng.percent(stats.PoisonResistPercent())) {
-		events.Status("Your amulet wards off the poison");
+		events.Status(stats.PotionResistPercent() > 0 ? "You resist the poison" : "Your amulet wards off the poison");
 		return;
 	}
 	if (!stats.poison.Any())
@@ -144,6 +145,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 }
 
 void Player::UpdatePoison() {
+	stats.AdvanceResistance(UPDATE_TICK_MS);
 	const int hp = stats.poison.Advance(UPDATE_TICK_MS);
 	if (hp <= 0 || !Alive() || Scenario::godMode())
 		return;
@@ -155,6 +157,7 @@ void Player::UpdatePoison() {
 void Player::Reanimate() {
 	stats.HealFully();
 	stats.poison.Cure();
+	stats.EndResistance();
 	setModelState(model.Reference());
 	blood.Stop(); // a new or loaded game starts without the last game's splash
 }

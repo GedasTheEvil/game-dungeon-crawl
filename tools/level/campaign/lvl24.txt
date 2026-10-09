@@ -4,6 +4,7 @@
 ; end of the sunken crypt below it for the blue gate in the east wing; the gold gate higher up, the green key near the
 ; top for the green gate before the exit. A bridge over the well (a drop to the flooded hall) joins the wings behind
 ; a green gate. An antidote at the west end of the third west hall.
+; Resistance potions: a lesser one in the fifth west hall, a greater one in the east wing below the blue gate.
 def L 12 2 0
 def P 12 3 0
 def U 12 4 0
@@ -17,6 +18,8 @@ def a 8 3 7
 def x 8 1 1
 def z 8 1 7
 def o 8 2 0
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S....v...F..?..H.###.E.......G...v..H7#
 ################H####################H##
@@ -33,7 +36,7 @@ def o 8 2 0
 #.H...^..n..v...H.####.H......C......H.#
 ################H######H##.........#####
 ################H######H################
-#..H....F.......H1####.H....Q....Y...H.#
+#..H....F....-..H1####.H....Q....Y...H.#
 ###H#######X##############X##########H##
 ###H#################################H##
 #..H.....H...v....####..H.....n......H.#
@@ -42,7 +45,7 @@ def o 8 2 0
 #x.H.v...H..v.Q..8####..H.........^..H.#
 ###H#########################X#######H##
 ###H#################################H##
-#..H....u.......H.####.H..v...u......H.#
+#..H....u.......H.####.H..v...u..+...H.#
 ###########X####H######H################
 ################H######H################
 #.H....C......n.H.####.H....F....B...H.#

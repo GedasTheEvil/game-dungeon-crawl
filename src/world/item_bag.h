@@ -26,10 +26,21 @@ struct Vitals {
 	int hp = 0, maxHp = 0;
 	int stamina = 0, maxStamina = 0;
 	bool poisoned = false;
+	int resistPercent = 0; // a resistance potion's still running, 0: none
 };
 
 // Why an item cannot be used (equipped or drunk) now.
-enum class UseBlock : std::uint8_t { None, Dead, NotFound, NoneLeft, Equipped, HealthFull, StaminaFull, NotPoisoned };
+enum class UseBlock : std::uint8_t {
+	None,
+	Dead,
+	NotFound,
+	NoneLeft,
+	Equipped,
+	HealthFull,
+	StaminaFull,
+	NotPoisoned,
+	StrongerResistance
+};
 
 class ItemBag {
   private:
@@ -66,9 +77,10 @@ class ItemBag {
 	// The potion the quick-drink key would take (quickPotion), counting from `current` of `max`.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind, int current, int max) const;
 
-	// "INV4 <slots> <counts...> <levels...> <found...> <equipped type> <equipped id> <worn type> <worn id>" (worn type
-	// 0: none). Load also reads INV3 (no worn amulet), INV2 (no found flags: found is what is held) and the older
-	// saves, which start straight with the 9 counts of the original slots.
+	// "INV5 <slots> <counts...> <levels...> <found...> <equipped type> <equipped id> <worn type> <worn id>" (worn type
+	// 0: none). Load also reads INV4 (no resistance potions: the amulets right after the antidote), INV3 (no worn
+	// amulet), INV2 (no found flags: found is what is held) and the older saves, which start straight with the 9 counts
+	// of the original slots.
 	void Save(std::ostream& out) const;
 	void Load(std::istream& in);
 };

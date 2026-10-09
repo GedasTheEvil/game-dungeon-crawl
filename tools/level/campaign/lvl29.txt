@@ -3,6 +3,7 @@
 ; on the way back west. The great flooded hall: giant cobras in the water, the green key on the island. Behind the green
 ; gate the gold key in the east tomb, the gold gate at the end of the Anubis hall, then the rock-fall gauntlet down to
 ; the exit. A drop in the exit hall leads to a hidden tomb.
+; Resistance potions: a lesser one east of the blue gate, a greater one in the hall above the gold key's tomb.
 def L 12 2 0
 def % 12 3 0
 def & 12 4 0
@@ -16,6 +17,8 @@ def 9 8 1 1
 def z 8 1 7
 def o 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S.H.v...k..^..v.H#.8....v....^......H$#
 ###H#############H###################H##
@@ -25,7 +28,7 @@ def a 8 3 7
 #####################################H##
 ######################L...Q...^......H.#
 #####################################H##
-##H....v...u...v...B.........v...n...H.#
+##H....v...u...v...B....-....v...n...H.#
 ##H#####################################
 ##H....................................#
 ##H....................................#
@@ -37,7 +40,7 @@ def a 8 3 7
 ###H####################################
 ###H......v.....9#######################
 ###H####################################
-###H...v...Q.......v.H.n...v...^......H#
+###H...v...Q.....+.v.H.n...v...^......H#
 ###############X#####H################H#
 ########5....v...^...H##y..J..u...v...H#
 ######################################H#

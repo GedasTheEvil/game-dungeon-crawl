@@ -69,6 +69,7 @@ enum class Field : unsigned char {
 	EquipId,
 	Keys,
 	Poison,
+	Resist,
 	XpTotal,
 	Riddle,
 	Bars,

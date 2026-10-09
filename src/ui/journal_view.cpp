@@ -251,6 +251,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 				   "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts take "
 				   "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "
 				   "them pass under me."},
+	{"Resistance draughts", "Cobra venom, a drop at a time: for two minutes a poisoned bite or sting slides off me, "
+							"half the time after the lesser draught, nearly always after the greater one, which also "
+							"cures a poison already in me. A poison warding amulet adds its share."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

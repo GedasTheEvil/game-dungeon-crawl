@@ -8,7 +8,7 @@ The inventory (`src/ui/inventory.cpp`, [../ui.md](../../ui.md)) shows every item
 then the potions. The potion row is full: with the antidote
 ([poison-and-antidote.md](poison-and-antidote.md)) it holds 8 slots, already narrowed to fit the panel. More item
 kinds are planned: amulets ([amulets.md](amulets.md)), a resistance potion
-([resistance-potion.draft.md](../resistance-potion.draft.md)), rings maybe, and many more weapons
+([resistance-potion.md](../resistance-potion.md)), rings maybe, and many more weapons
 ([egyptian-weapons.md](egyptian-weapons.md)).
 
 ## Decided

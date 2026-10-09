@@ -1,6 +1,7 @@
 ; lvl19: the serpent sanctum. Cobras, giant bats, mummies, five Anubis, two crocodiles in the flooded hall. Four locks
 ; in a chain: the red key in the west den, the blue lever, the green key past the drop shaft, the gold lever beyond
 ; the loop round the central pillar; a spike-pit gauntlet before the exit hall. Two riddles, two mimics.
+; Resistance potions: a lesser one in the blue lever's hall, a greater one west of the gold gate.
 def L 12 2 0
 def P 12 3 0
 def W 12 4 0
@@ -13,6 +14,8 @@ def 7 8 3 4
 def 8 8 3 6
 def 9 8 1 1
 def 0 8 2 4
+def - 8 3 8
+def + 8 3 9
 ########################################
 #.S........c..^...n.....v......v....H.##
 ####################################H###
@@ -26,7 +29,7 @@ def 0 8 2 4
 ########.H........n.......R...H.....M5##
 #########H####X#########################
 #########H##############################
-###L..c..H......^...F......v.......H.###
+###L..c..H..-...^...F......v.......H.###
 ###################################H####
 ###########........................H.###
 ###.H...B........C........C........H.###
@@ -50,7 +53,7 @@ def 0 8 2 4
 ##########.H...F....v.....^...u...H..W##
 ###########H############################
 ###########H############################
-##9........H........Y......c.......H.###
+##9........H....+...Y......c.......H.###
 ###################################H####
 ###################################H####
 ####.H........F................?...H.###

@@ -34,6 +34,8 @@ enum class ItemKind : std::uint8_t {
 	SmallStamina,
 	LargeStamina,
 	Antidote,
+	LesserResistance, // docs/plan/resistance-potion.md
+	GreaterResistance,
 	// The amulets (docs/plan/amulets.draft.md), one inventory row per type: lesser, minor, normal, grand.
 	StrengthLesser, // the first amulet
 	StrengthMinor,
@@ -79,14 +81,14 @@ constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // th
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
 constexpr int AMULET_KIND_COUNT = ITEM_KIND_COUNT - FIRST_AMULET;
-// Saves from the Egyptian weapons on have their slots in ItemKind order: this many, or more since the amulets.
-constexpr int ORDERED_SAVE_SLOTS = FIRST_AMULET;
-
 // The weapons the player holds, by itemIndex.
 using OwnedWeapons = std::array<bool, WEAPON_KIND_COUNT>;
 
 constexpr int itemIndex(ItemKind kind) { return static_cast<int>(kind); }
 constexpr ItemKind itemAt(int index) { return static_cast<ItemKind>(index); } // 0 .. ITEM_KIND_COUNT - 1
+// Saves from the Egyptian weapons on have their slots in ItemKind order: this many (the weapons and the potions up to
+// the antidote), or more since the amulets.
+constexpr int ORDERED_SAVE_SLOTS = itemIndex(ItemKind::Antidote) + 1;
 constexpr bool isWeapon(ItemKind kind) { return itemIndex(kind) < WEAPON_KIND_COUNT; }
 constexpr bool isPotion(ItemKind kind) {
 	return itemIndex(kind) >= WEAPON_KIND_COUNT && itemIndex(kind) < FIRST_AMULET;
@@ -156,7 +158,8 @@ struct PotionGain {
 	int might = 0;
 	int armor = 0;
 	int maxHpPercent = 0;
-	bool cure = false; // ends all poison
+	bool cure = false;	   // ends all poison
+	int resistPercent = 0; // for PotionEffect::RESIST_MS, the chance a poisoned hit does not poison
 };
 
 enum class FieldNote : unsigned char; // journal.h
@@ -232,9 +235,12 @@ constexpr int SMALL_HEAL_PERCENT = 25;
 constexpr int LARGE_HEAL_PERCENT = 50;
 constexpr int SMALL_STAMINA_PERCENT = 50;
 constexpr int LARGE_STAMINA_PERCENT = 100;
-constexpr int MIGHT = 2;			   // might potion, for good
-constexpr int ARMOR = 2;			   // armour potion, for good
-constexpr int LIFE_MAX_HP_PERCENT = 5; // elixir of life: more max health, then a full heal
+constexpr int MIGHT = 2;				  // might potion, for good
+constexpr int ARMOR = 2;				  // armour potion, for good
+constexpr int LIFE_MAX_HP_PERCENT = 5;	  // elixir of life: more max health, then a full heal
+constexpr int LESSER_RESIST_PERCENT = 50; // resistance potions: added to the amulet's ward, up to 100%
+constexpr int GREATER_RESIST_PERCENT = 95;
+constexpr int RESIST_MS = 120000;
 } // namespace PotionEffect
 
 // One amulet is worn at a time; it gives its bonus while it is on. All tiers of a type share the model.

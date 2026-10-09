@@ -6,6 +6,7 @@
 ; the gold gate of the exit hall; two ladders down to the bottom gallery, a crocodile in its pool, the exit at the east end.
 ; A riddle chamber with a life potion up a ladder off the pillar loop. Antidotes at the west end of the top hall.
 ; The first dart trap, in the upper loop hall between the ladders, a mummy waits east of it.
+; Resistance potions: a lesser one in the red key's hall, a greater one in the green gate's hall.
 def / 12 1 0
 def L 12 2 0
 def l 12 3 0
@@ -20,6 +21,8 @@ def 9 8 1 1
 def 3 8 1 4
 def 4 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 ###a.H...................v....c.......S#
 #####H##################################
@@ -30,7 +33,7 @@ def a 8 3 7
 ##########H#################H#..H.?..7##
 ##########H#################H###H#######
 ##########H#################H###H#######
-####r.....H.......n.....c...H...HR.H####
+####r.....H.......n.-...c...H...HR.H####
 ###################################H####
 ##.................................H..##
 ##.................................H..##
@@ -45,7 +48,7 @@ def a 8 3 7
 ###############g...u.......H.#######H###
 ####################################H###
 ########.......................#####H###
-#..H..G.......F.......u.....c.......H.6#
+#..H..G.......F...+...u.....c.......H.6#
 ###H####################################
 ###H####################################
 ###H......^....F...9P###################

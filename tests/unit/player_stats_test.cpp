@@ -223,6 +223,31 @@ TEST_CASE("a potion's gain and its status line") {
 	CHECK(stats.Drink(stamina) == "Restored 25 stamina");
 }
 
+TEST_CASE("a resistance potion adds to the amulet's ward for 2 minutes, up to 100%") {
+	PlayerStats stats = freshStats();
+	AmuletBonus amulet;
+	amulet.poisonResistPercent = 20;
+	stats.Wear(amulet, true);
+	PotionGain lesser;
+	lesser.resistPercent = 50;
+	stats.poison.Apply(PoisonTier::Weak);
+	CHECK(stats.Drink(lesser) == "Resists poison 70% for 2 min");
+	CHECK(stats.poison.Any()); // the lesser one does not cure
+	CHECK(stats.PoisonResistPercent() == 70);
+	stats.AdvanceResistance(PotionEffect::RESIST_MS - 1);
+	CHECK(stats.PoisonResistPercent() == 70);
+	stats.AdvanceResistance(1);
+	CHECK(stats.PoisonResistPercent() == 20);
+	PotionGain greater;
+	greater.cure = true;
+	greater.resistPercent = 95;
+	CHECK(stats.Drink(greater) == "Cured. Resists poison 100% for 2 min");
+	CHECK_FALSE(stats.poison.Any());
+	CHECK(stats.PotionResistPercent() == 95);
+	stats.EndResistance();
+	CHECK(stats.PoisonResistPercent() == 20);
+}
+
 TEST_CASE("the stats survive a save and a load") {
 	PlayerStats stats = freshStats();
 	WorldEvents events;
@@ -230,6 +255,10 @@ TEST_CASE("the stats survive a save and a load") {
 	stats.LoseHP(7);
 	stats.SetStamina(33);
 	stats.poison.Apply(PoisonTier::Weak);
+	PotionGain lesser;
+	lesser.resistPercent = 50;
+	stats.Drink(lesser);
+	stats.AdvanceResistance(1000);
 	const std::filesystem::path path = std::filesystem::temp_directory_path() / "player_stats_test.sav";
 	{
 		std::ofstream out(path);
@@ -248,4 +277,6 @@ TEST_CASE("the stats survive a save and a load") {
 	CHECK(loaded.CurrentArmor() == stats.CurrentArmor());
 	CHECK(loaded.Stamina() == 33);
 	CHECK(loaded.poison.Any());
+	CHECK(loaded.PotionResistPercent() == 50);
+	CHECK(loaded.PotionResistLeftMs() == PotionEffect::RESIST_MS - 1000);
 }

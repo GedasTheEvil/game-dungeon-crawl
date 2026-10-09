@@ -62,6 +62,8 @@ POTIONS = [
     ("potion_small_stamina", "potion_flask", {"liquid": (0.36, 0.68, 0.18), "liquid_dark": (0.18, 0.36, 0.08)}),
     ("potion_large_stamina", "potion_lotus", {"liquid": (0.10, 0.60, 0.55), "liquid_dark": (0.05, 0.32, 0.30)}),
     ("potion_antidote", "potion_cobra", {"liquid": (0.04, 0.36, 0.15), "liquid_dark": (0.02, 0.20, 0.08)}),
+    ("potion_lesser_resistance", "potion_cobra", {"liquid": (0.20, 0.45, 0.80), "liquid_dark": (0.10, 0.24, 0.48)}),
+    ("potion_greater_resistance", "potion_cobra", {"liquid": (0.05, 0.12, 0.62), "liquid_dark": (0.02, 0.05, 0.34)}),
 ]
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
 
@@ -674,7 +676,7 @@ def build_potion_canopic(b, M):
 
 def build_potion_cobra(b, M):
     """Slim glass vial on a gold foot, a gold rearing cobra coiled round it: its hood, spread over the mouth, is the
-    stopper. The snake potions (antidote, greater resistance)."""
+    stopper. The snake potions (antidote, lesser and greater resistance)."""
     profile = [(0.0, 0.0), (0.024, 0.0), (0.026, 0.004), (0.022, 0.009), (0.019, 0.012), (0.02, 0.03), (0.02, 0.1),
                (0.017, 0.112), (0.011, 0.12), (0.011, 0.134), (0.0145, 0.137), (0.012, 0.139), (0.0, 0.138)]
     mats = ["gold"] * 4 + ["liquid"] * 3 + ["glass", "glass", "gold", "gold", "liquid"]

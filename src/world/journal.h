@@ -83,8 +83,9 @@ enum class FieldNote : unsigned char {
 	Life,			// the first Elixir of Life
 	Antidote,		// the first antidote
 	DartTraps,		// the first dart trap plate the player stepped on
+	Resistance,		// the first lesser or greater resistance potion
 };
-constexpr int FIELD_NOTE_COUNT = 16;
+constexpr int FIELD_NOTE_COUNT = 17;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);

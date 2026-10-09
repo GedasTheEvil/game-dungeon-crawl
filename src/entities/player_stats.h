@@ -25,6 +25,8 @@ class PlayerStats {
 	AmuletBonus amulet;		// the worn amulet's (Wear); Armor, MaxHP and Might above are without it
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
 	int trap_carry = 0;		// hundredths of trap damage not yet taken (TrapDamage)
+	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
+	int resist_left_ms = 0;
 
 	Timer stamina_regen_timer{1000};
 	Timer stamina_sprint_drain_timer{1000};
@@ -86,7 +88,12 @@ class PlayerStats {
 	// as the max changes (putting a health amulet on or off neither heals nor hurts); false after a load, whose HP is
 	// already the worn one's.
 	void Wear(const AmuletBonus& bonus, bool keepShare);
-	[[nodiscard]] int PoisonResistPercent() const { return amulet.poisonResistPercent; }
+	// The chance a poisoned hit does not poison: the amulet's and a running resistance potion's added up, at most 100.
+	[[nodiscard]] int PoisonResistPercent() const;
+	[[nodiscard]] int PotionResistPercent() const { return resist_left_ms > 0 ? resist_percent : 0; }
+	[[nodiscard]] int PotionResistLeftMs() const { return resist_left_ms; }
+	void AdvanceResistance(int ms); // the potion's time runs out
+	void EndResistance() { resist_left_ms = 0; }
 	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
 	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
 	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }

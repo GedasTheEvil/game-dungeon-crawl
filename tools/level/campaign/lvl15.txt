@@ -4,6 +4,7 @@
 ; The teleporter at the east end of the hall below leads to the sealed queen's chamber (stand-in boss: the boss scarab),
 ; behind the boss gate the gold key for the gold gate on the way down to the spike pits and the exit cavern.
 ; Antidotes at the west end of the second hall and past the pits. A mimic in the bottom gallery.
+; Resistance potions: a lesser one in the middle of the third hall, a greater one east of the gold gate.
 def / 12 1 0
 def L 12 2 0
 def l 12 3 0
@@ -19,6 +20,8 @@ def 3 8 1 2
 def 4 8 2 0
 def a 8 3 7
 def & 4 21 0
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S...j.....^....J....v........H.....$.##
 ########.#####################H#########
@@ -26,7 +29,7 @@ def & 4 21 0
 ##a.H.........k.....u.....j...H....H..##
 ####H##############################H####
 ####H#######.................######H####
-#9..H.......H.....F............J...H..2#
+#9..H.......H...-.F............J...H..2#
 ############H###########.###############
 ############H###########.###############
 #L....u.....H.......k.........B.....H..#
@@ -49,7 +52,7 @@ def & 4 21 0
 ##O....e...&..e..Zy.78###############H##
 #####################################H##
 ####################................#H##
-#$.H......Y.....J.......u.....F......H.#
+#$.H......Y..+..J.......u.....F......H.#
 ###H####################################
 ###H####################################
 ###H####################################

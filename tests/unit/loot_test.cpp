@@ -40,13 +40,13 @@ TEST_CASE("a weapon chest may add a weaker weapon, never a better one") {
 			CHECK(item != ItemKind::ShortSword);
 }
 
-TEST_CASE("the mimic's chest holds any weapon or potion but the antidote, never an amulet") {
+TEST_CASE("the mimic's chest holds any weapon or potion but the poison ones, never an amulet") {
 	Rng rng(5);
 	bool seen[ITEM_KIND_COUNT] = {};
 	for (int i = 0; i < 2000; i++)
 		seen[itemIndex(RollMimicLoot(allWeapons(), rng))] = true;
 	for (int i = 0; i < ITEM_KIND_COUNT; i++)
-		CHECK(seen[i] == (!isAmulet(itemAt(i)) && itemAt(i) != ItemKind::Antidote));
+		CHECK(seen[i] == (!isAmulet(itemAt(i)) && (isWeapon(itemAt(i)) || potionDef(itemAt(i)).mimicLoot)));
 }
 
 TEST_CASE("the bonus weapon and the mimic's weapon are ones the player holds") {

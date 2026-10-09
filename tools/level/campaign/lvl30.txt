@@ -3,6 +3,7 @@
 ; Below them the hall of coffins and two rock-fall gauntlets down to the teleporter at the west end of the bottom
 ; hall. It leads to the sealed ankh chamber: the Anubis boss among his coffins, his mummies climbing out of them, the
 ; boss gate, behind it the ankh that wins the game and the treasure.
+; Resistance potions: a lesser one in the blue lever's hall, a greater one in the hall of coffins.
 def L 12 2 0
 def % 12 3 0
 def & 12 4 0
@@ -16,6 +17,8 @@ def 9 8 1 6
 def z 8 1 2
 def o 8 2 0
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S......n.....v...^..n....v...H...Q..7##
 ##############################H#X#######
@@ -25,7 +28,7 @@ def a 8 3 7
 ######X#############################H###
 ########$..v..5.2...^.....H#########H###
 ##########################H#########H###
-##L...v......v....u.......Hv...n....HBH#
+##L...v...-..v....u.......Hv...n....HBH#
 #######################X##############H#
 ##########################2...v...^...H#
 ######################################H#
@@ -41,7 +44,7 @@ def a 8 3 7
 ####H########X##########X###############
 ####H###################################
 ##..H..................................#
-##..H....u...u...n...u.......n...^...H.#
+##..H....u...u...n...u...+...n...^...H.#
 ###########X#######X#################H##
 ########################6...5..?.....H.#
 #####################################H##

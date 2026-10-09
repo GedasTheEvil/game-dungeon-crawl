@@ -38,6 +38,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.KeysHeld());
 	case Field::Poison:
 		return static_cast<float>(Game().player->stats.poison.Mask());
+	case Field::Resist:
+		return static_cast<float>(Game().player->stats.PoisonResistPercent());
 	case Field::XpTotal:
 		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:

@@ -11,7 +11,8 @@ class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line. Above it, one
-// poison drop per running tier (one, two or three pips) with its seconds left.
+// poison drop per running tier (one, two or three pips) with its seconds left, and a running resistance potion's
+// (one pip lesser, two greater).
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -50,6 +51,8 @@ struct View {
 	int levelKeys = 0;						  // bit (colour - 1) per key on the level: one socket each
 	Slot slots[4];							  // weapon, healing potion, stamina potion, worn amulet
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
+	int resistLeftMs = 0;					  // a resistance potion's time left, 0: none
+	bool resistGreater = false;				  // the greater one
 };
 
 // Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).

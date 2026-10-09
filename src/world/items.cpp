@@ -235,6 +235,27 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::Antidote,
 				.generatedWeight = 0,
 				.mimicLoot = false}},
+	// The resistance potions: sky blue, deep lapis. Like the antidote, they lie only on the levels with poisoners.
+	{.file = {ItemType::POTION, 8},
+	 .text = {"Lesser Resistance", "Ward", "lesser resistance", "Resists poison 50% for 2 min",
+			  "Venom of a young cobra,", "taken drop by drop."},
+	 .potion = {.gain = {.resistPercent = PotionEffect::LESSER_RESIST_PERCENT},
+				.model = PotionModel::Cobra,
+				.texture = "potion_lesser_resistance",
+				.colour = {0.35f, 0.62f, 0.92f},
+				.note = FieldNote::Resistance,
+				.generatedWeight = 0,
+				.mimicLoot = false}},
+	{.file = {ItemType::POTION, 9},
+	 .text = {"Greater Resistance", "Ward+", "greater resistance", "Cures, resists poison 95% for 2 min",
+			  "Wadjet's own venom.", "The cobra spares her kin."},
+	 .potion = {.gain = {.cure = true, .resistPercent = PotionEffect::GREATER_RESIST_PERCENT},
+				.model = PotionModel::Cobra,
+				.texture = "potion_greater_resistance",
+				.colour = {0.12f, 0.22f, 0.78f},
+				.note = FieldNote::Resistance,
+				.generatedWeight = 0,
+				.mimicLoot = false}},
 }};
 
 constexpr bool validItems() {

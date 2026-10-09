@@ -2,6 +2,7 @@
 ; The red key in the tomb above the second hall opens the red gate past the loop round the pillar; the blue lever up
 ; the flooded crypt's side stair opens the blue gate; the green key below the rock-fall gauntlet the green gate; the
 ; gold lever in the pit under the lever hall opens both gold gates, the way down and a treasure tomb.
+; Resistance potions: a lesser one in the third hall, a greater one in the hall under the rock-fall gauntlet.
 def L 12 2 0
 def % 12 3 0
 def & 12 4 0
@@ -15,6 +16,8 @@ def 9 8 1 1
 def z 8 1 2
 def o 8 2 1
 def a 8 3 7
+def - 8 3 8
+def + 8 3 9
 ########################################
 #S..H..v..k...^....n...v....u.......H.5#
 ####H############X##################H###
@@ -22,7 +25,7 @@ def a 8 3 7
 ######################H#############H###
 ##H.......u.....v.....H....Q...v....H6M#
 ##H#####################################
-##H.......^...v..n............v.....H###
+##H.......^...v..n......-.....v.....H###
 ##H################.############X###H###
 ##H################.################H###
 ##H#######7..$..........Q...H#######H###
@@ -40,7 +43,7 @@ def a 8 3 7
 ####################################H###
 ##H....v....k..^.v...v...n...v...v..H.9#
 ##H#####################################
-##H...u....v......H.........v....^....H#
+##H...u....v..+...H.........v....^....H#
 ##################H##X################H#
 ###g.1........^...H###################H#
 ######################################H#

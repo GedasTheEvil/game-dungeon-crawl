@@ -50,6 +50,7 @@ using PlayerHud::POISON_TOP;
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
 // The drops, weak to strong: pale lime, venom green, deep malachite.
 constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
+constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
@@ -173,17 +174,42 @@ void drawPoison(const PlayerHud::View& v) {
 	}
 }
 
+int poisonTiles(const PlayerHud::View& v) {
+	int shown = 0;
+	for (int left : v.poisonLeftMs)
+		shown += left > 0 ? 1 : 0;
+	return shown;
+}
+
+// A running resistance potion, right of the poison tiles: a blue drop, one pip lesser, two greater.
+void drawResist(const PlayerHud::View& v) {
+	if (v.resistLeftMs <= 0)
+		return;
+	const Rect r = poisonRect(poisonTiles(v));
+	const int pips = v.resistGreater ? 2 : 1;
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	tile(r, TileStyle::Stone, false, false);
+	drop(r.cx(), r.y + 2.8f, 1.3f, RESIST_DROPS[pips - 1]);
+	for (int p = 0; p < pips; p++)
+		diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
+				GOLD_BRIGHT, 1.f);
+}
+
+// Seconds left over a status tile.
+void tileSeconds(const Rect& r, int leftMs, Font& small) {
+	char secs[12];
+	snprintf(secs, sizeof(secs), "%ds", (leftMs + 999) / 1000);
+	textCentered(small, r.cx() + 0.2f, r.y - 3.4f - 0.2f, secs, BLACK);
+	textCentered(small, r.cx(), r.y - 3.4f, secs, GOLD_BRIGHT);
+}
+
 void drawPoisonText(const PlayerHud::View& v, Font& small) {
 	int shown = 0;
-	for (int t = 0; t < POISON_TIER_COUNT; t++) {
-		if (v.poisonLeftMs[t] <= 0)
-			continue;
-		const Rect r = poisonRect(shown++);
-		char secs[12];
-		snprintf(secs, sizeof(secs), "%ds", (v.poisonLeftMs[t] + 999) / 1000);
-		textCentered(small, r.cx() + 0.2f, r.y - 3.4f - 0.2f, secs, BLACK);
-		textCentered(small, r.cx(), r.y - 3.4f, secs, GOLD_BRIGHT);
-	}
+	for (int t = 0; t < POISON_TIER_COUNT; t++)
+		if (v.poisonLeftMs[t] > 0)
+			tileSeconds(poisonRect(shown++), v.poisonLeftMs[t], small);
+	if (v.resistLeftMs > 0)
+		tileSeconds(poisonRect(shown), v.resistLeftMs, small);
 }
 
 void drawStamina(const PlayerHud::View& v) {
@@ -320,6 +346,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawKeys(view);
 	drawXp(view);
 	drawPoison(view);
+	drawResist(view);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotIcon(view.slots[i], slotRect(i), icons);

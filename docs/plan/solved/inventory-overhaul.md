@@ -36,7 +36,7 @@ kinds are planned: amulets ([amulets.md](amulets.md)), a resistance potion
 * **Order** in a tab: `ItemKind` order, as today. Other sorting: [inventory-sorting.md](inventory-sorting.md).
 * **Arrow keys:** left / right stay inside the current tab (up / down between its rows), as today within a row.
 * **Keys:** the number row and the slot key labels keep today's function; tabs and keys are
-  [inventory-keys.draft.md](../inventory-keys.draft.md).
+  [inventory-keys.md](../inventory-keys.md).
 * The detail panel on the right stays.
 
 ## Implemented

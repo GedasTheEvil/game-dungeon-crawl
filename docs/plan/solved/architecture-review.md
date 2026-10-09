@@ -88,7 +88,7 @@ Earlier stages already did the heavy lifting ([code-structure-review](code-struc
 * `graphics/draw.cpp` is the frame composer (includes ui, game state, scenario): an app-layer file in `graphics/`.
   Moving it to `state/` is cosmetic; do it in passing if the file is touched for other reasons.
 * `ui/menu.cpp`: the options + controls sub-screen (~350 lines) is a clean seam, but menu work is not queued. Split it
-  when [inventory-keys](../inventory-keys.draft.md) or a new options page touches it.
+  when [inventory-keys](../inventory-keys.md) or a new options page touches it.
 * `ui/journal_view.cpp`: the note text tables (`FIELD_NOTES`, `moveNote`) could move next to `world/journal`; small
   gain, do it with the next journal change.
 * `level_check.cpp`, `input/input.cpp`: one concern each, a split would only move lines.

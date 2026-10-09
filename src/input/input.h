@@ -5,6 +5,7 @@
 const unsigned char KEY_ESCAPE = 27;
 const unsigned char KEY_ENTER = 13;
 const unsigned char KEY_SPACE = 32;
+const unsigned char KEY_TAB = 9;
 const unsigned char KEY_DELETE = 127;
 const unsigned char KEY_MOVE_LEFT = 'a';
 const unsigned char KEY_MOVE_RIGHT = 'd';

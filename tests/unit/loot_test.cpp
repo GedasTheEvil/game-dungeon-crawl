@@ -28,9 +28,9 @@ TEST_CASE("a chest holds its item first, then bonuses") {
 			CHECK((isPotion(loot[k]) || isAmulet(loot[k]))); // a potion chest's bonuses are potions, or an amulet
 		bonuses += static_cast<int>(loot.size()) - 1;
 	}
-	// Small stamina 30%, large stamina 20%, the same potion 5%, a small health 10%, an amulet 6%: about 0.71 a chest.
-	CHECK(bonuses > 550);
-	CHECK(bonuses < 850);
+	// Small stamina 30%, large stamina 20%, the same potion 5%, a small health 10%, an amulet 10%: about 0.75 a chest.
+	CHECK(bonuses > 600);
+	CHECK(bonuses < 900);
 }
 
 TEST_CASE("a weapon chest may add a weaker weapon, never a better one") {
@@ -81,12 +81,12 @@ TEST_CASE("chests give lesser amulets, minor ones only deeper down, never regene
 				minors++;
 			}
 		}
-	// 6% of 16000 chests: about 960, of them about 40% minor on the two deep levels (about 190).
-	CHECK(amulets > 800);
-	CHECK(amulets < 1120);
-	CHECK(minors > 130);
-	CHECK(minors < 260);
-	CHECK(venoms > 60); // a ninth: about 107
+	// 10% of 16000 chests: about 1600, of them about 40% minor on the two deep levels (about 320).
+	CHECK(amulets > 1400);
+	CHECK(amulets < 1800);
+	CHECK(minors > 240);
+	CHECK(minors < 400);
+	CHECK(venoms > 120); // a ninth: about 178
 }
 
 TEST_CASE("an amulet chest holds only its amulet") {

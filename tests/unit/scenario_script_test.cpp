@@ -34,6 +34,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"give", "give potion 2 3"},
 	{"chest", "chest melee 1"},
 	{"select", "select small_health"},
+	{"sort", "sort strength"},
 	{"equip", "equip spear"},
 	{"wear", "wear amulet_of_health"},
 	{"xp", "xp 1000"},

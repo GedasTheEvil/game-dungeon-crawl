@@ -74,6 +74,10 @@ float Scenario::fieldValue(const Command& cmd) {
 	}
 	case Field::Safe:
 		return Game().dungeon.PlayerSafe() ? 1.f : 0.f;
+	case Field::Tab:
+		return static_cast<float>(Game().ui.inventory->OpenTab());
+	case Field::Selected:
+		return static_cast<float>(Game().ui.inventory->SelectedPosition());
 	case Field::JournalTried: {
 		int known = 0;
 		for (const JournalCreature& c : Game().journal.Creatures()) {

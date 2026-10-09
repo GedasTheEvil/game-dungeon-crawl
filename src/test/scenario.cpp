@@ -359,6 +359,14 @@ bool runInstant(const Command& cmd) {
 		Game().ui.inventory->SelectItem(cmd.item);
 		report(cmd, true, "");
 		return true;
+	case CommandType::Sort: // like a click on its button, for the open tab
+		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
+			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
+			return true;
+		}
+		Game().ui.inventory->SetSort(static_cast<SortOrder>(cmd.ticks));
+		report(cmd, true, "");
+		return true;
 	case CommandType::Wear: // like a click on its slot in the inventory
 		if (!Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
 			report(cmd, false, "not held");

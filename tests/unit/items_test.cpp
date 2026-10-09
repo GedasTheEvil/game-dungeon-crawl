@@ -208,7 +208,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV5 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().rfind("INV6 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -216,8 +216,41 @@ TEST_CASE("the bag survives a save and a load") {
 		CHECK(loaded.Count(itemAt(i)) == bag.Count(itemAt(i)));
 		CHECK(loaded.Level(itemAt(i)) == bag.Level(itemAt(i)));
 		CHECK(loaded.Found(itemAt(i)) == bag.Found(itemAt(i)));
+		CHECK(loaded.Stamp(itemAt(i)) == bag.Stamp(itemAt(i)));
 	}
 	CHECK(loaded.Equipped() == ItemKind::SelfBow);
+	loaded.Add(ItemKind::Club); // the stamps go on counting from the saved ones
+	CHECK(loaded.Stamp(ItemKind::Club) > loaded.Stamp(ItemKind::LargeStamina));
+}
+
+TEST_CASE("a save from before the stamps: nothing recent, found first among them") {
+	ItemBag bag;
+	bag.Add(ItemKind::Antidote);
+	bag.Add(ItemKind::SmallHealth);
+	std::stringstream file;
+	bag.Save(file);
+	std::string text = file.str();
+	// INV5: the same without the stamps
+	std::istringstream words(text.substr(5));
+	std::ostringstream old;
+	old << "INV5";
+	int slots = 0;
+	words >> slots;
+	old << " " << slots;
+	for (int i = 0; i < 4 * slots + 4; i++) {
+		std::string word;
+		words >> word;
+		if (i < 3 * slots || i >= 4 * slots)
+			old << " " << word;
+	}
+	std::stringstream oldFile(old.str());
+	ItemBag loaded;
+	loaded.Load(oldFile);
+	CHECK(loaded.Count(ItemKind::Antidote) == 1);
+	CHECK(loaded.Stamp(ItemKind::Antidote) == 0);
+	CHECK(tabOrder(loaded, ItemGroup::Potions, SortOrder::Recent).front() == ItemKind::SmallHealth);
+	loaded.Add(ItemKind::Antidote);
+	CHECK(tabOrder(loaded, ItemGroup::Potions, SortOrder::Recent).front() == ItemKind::Antidote);
 }
 
 TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
@@ -407,4 +440,179 @@ TEST_CASE("an item used up stays in the found part") {
 	REQUIRE(bag.Use(ItemKind::Might, player));
 	CHECK(bag.Count(ItemKind::Might) == 0);
 	CHECK(tabPosition(bag, ItemKind::Might) == 0);
+}
+
+TEST_CASE("sort by name: A to Z among the found, the rest after in ItemKind order") {
+	ItemBag bag; // the club
+	bag.Add(ItemKind::Spear);
+	bag.Add(ItemKind::Dagger);
+	bag.Add(ItemKind::SelfBow);
+	const std::vector<ItemKind> order = tabOrder(bag, ItemGroup::Weapons, SortOrder::Name);
+	CHECK(order[0] == ItemKind::Club);
+	CHECK(order[1] == ItemKind::Dagger);
+	CHECK(order[2] == ItemKind::SelfBow);
+	CHECK(order[3] == ItemKind::Spear);
+	CHECK(order[4] == ItemKind::ShortSword); // not found: ItemKind order
+	CHECK(order[5] == ItemKind::Khopesh);
+}
+
+TEST_CASE("sort by strength: weapons by damage now, amulets by tier, strong potions first") {
+	ItemBag bag;
+	bag.Add(ItemKind::ShortSword);
+	bag.Add(ItemKind::Dagger);
+	std::vector<ItemKind> weapons = tabOrder(bag, ItemGroup::Weapons, SortOrder::Strength);
+	CHECK(weapons[0] == ItemKind::ShortSword); // 35
+	CHECK(weapons[1] == ItemKind::Club);	   // 10
+	CHECK(weapons[2] == ItemKind::Dagger);	   // 8
+	// the dagger levelled up past the club: damage now, not the base
+	for (int copies = 0; copies < 30; copies++)
+		bag.Add(ItemKind::Dagger);
+	while (bag.Upgrade(ItemKind::Dagger, true)) {
+	}
+	weapons = tabOrder(bag, ItemGroup::Weapons, SortOrder::Strength);
+	CHECK(weapons[1] == ItemKind::Dagger);
+	CHECK(weapons[2] == ItemKind::Club);
+
+	bag.Add(ItemKind::ArmorLesser);
+	bag.Add(ItemKind::StrengthMinor);
+	bag.Add(ItemKind::VenomGrand);
+	bag.Add(ItemKind::HealthGrand);
+	const std::vector<ItemKind> amulets = tabOrder(bag, ItemGroup::Amulets, SortOrder::Strength);
+	CHECK(amulets[0] == ItemKind::HealthGrand); // grand first, then ItemKind order
+	CHECK(amulets[1] == ItemKind::VenomGrand);
+	CHECK(amulets[2] == ItemKind::StrengthMinor);
+	CHECK(amulets[3] == ItemKind::ArmorLesser);
+
+	bag.Add(ItemKind::SmallHealth);
+	bag.Add(ItemKind::Might);
+	bag.Add(ItemKind::GreaterResistance);
+	bag.Add(ItemKind::LargeHealth);
+	const std::vector<ItemKind> potions = tabOrder(bag, ItemGroup::Potions, SortOrder::Strength);
+	CHECK(potions[0] == ItemKind::LargeHealth);
+	CHECK(potions[1] == ItemKind::GreaterResistance);
+	CHECK(potions[2] == ItemKind::SmallHealth);
+	CHECK(potions[3] == ItemKind::Might);
+	CHECK_FALSE(bag.Found(potions[4]));
+}
+
+TEST_CASE("sort by recent: the last found first, a fresh copy comes up") {
+	ItemBag bag; // the club
+	bag.Add(ItemKind::Antidote);
+	bag.Add(ItemKind::SmallHealth);
+	bag.Add(ItemKind::Might);
+	std::vector<ItemKind> order = tabOrder(bag, ItemGroup::Potions, SortOrder::Recent);
+	CHECK(order[0] == ItemKind::Might);
+	CHECK(order[1] == ItemKind::SmallHealth);
+	CHECK(order[2] == ItemKind::Antidote);
+	bag.Add(ItemKind::Antidote);
+	CHECK(tabPosition(bag, ItemKind::Antidote, SortOrder::Recent) == 0);
+	CHECK(tabPosition(bag, ItemKind::Antidote, SortOrder::Found) == 2);
+	bag.Reset();
+	CHECK(bag.Stamp(ItemKind::Antidote) == 0);
+}
+
+TEST_CASE("amulet upgrade: each tier step takes its worth from same-type spares") {
+	ItemBag bag;
+	CHECK(amuletWorth(AmuletTier::Lesser) == 1);
+	CHECK(amuletWorth(AmuletTier::Grand) == 8);
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true)); // no spare
+	bag.Add(ItemKind::StrengthLesser);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true)); // another type pays nothing
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK(bag.UpgradePoints(ItemKind::ArmorLesser) == 1);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, false)); // dead
+	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true));		   // lesser -> minor: + 1 lesser
+	CHECK(bag.Count(ItemKind::ArmorLesser) == 0);
+	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
+	CHECK(bag.Found(ItemKind::ArmorMinor));
+
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true)); // 1 of 2 points
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK(bag.Upgrade(ItemKind::ArmorMinor, true)); // minor -> normal: 2 lessers
+	CHECK(bag.Count(ItemKind::ArmorLesser) == 0);
+	CHECK(bag.Count(ItemKind::ArmorNormal) == 1);
+
+	// normal -> grand: 1 minor + 2 lessers; the larger spare goes first, the normal spare is not wanted
+	bag.Add(ItemKind::ArmorMinor);
+	bag.Add(ItemKind::ArmorLesser);
+	bag.Add(ItemKind::ArmorLesser);
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK(bag.UpgradePoints(ItemKind::ArmorNormal) == 5);
+	CHECK(bag.Upgrade(ItemKind::ArmorNormal, true));
+	CHECK(bag.Count(ItemKind::ArmorGrand) == 1);
+	CHECK(bag.Count(ItemKind::ArmorNormal) == 0);
+	CHECK(bag.Count(ItemKind::ArmorMinor) == 0);
+	CHECK(bag.Count(ItemKind::ArmorLesser) == 1);
+
+	// grand is the top; a grand never pays for a lower one
+	bag.Add(ItemKind::ArmorGrand);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorGrand, true));
+	CHECK(bag.UpgradePoints(ItemKind::ArmorLesser) == 0);
+}
+
+TEST_CASE("amulet upgrade: largest spares first, the normal one before minors") {
+	ItemBag bag;
+	bag.Add(ItemKind::HealthNormal);
+	bag.Add(ItemKind::HealthNormal);
+	bag.Add(ItemKind::HealthMinor);
+	bag.Add(ItemKind::HealthMinor);
+	CHECK(bag.Upgrade(ItemKind::HealthNormal, true));
+	CHECK(bag.Count(ItemKind::HealthNormal) == 0);
+	CHECK(bag.Count(ItemKind::HealthMinor) == 2);
+	CHECK(bag.Count(ItemKind::HealthGrand) == 1);
+}
+
+TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spare") {
+	ItemBag bag;
+	const Vitals player{true, 10, 50, 100, 100};
+	bag.Add(ItemKind::StrengthLesser);
+	bag.Add(ItemKind::StrengthLesser);
+	REQUIRE(bag.Use(ItemKind::StrengthLesser, player));
+	CHECK(bag.Upgrade(ItemKind::StrengthLesser, true));
+	CHECK(bag.Worn() == ItemKind::StrengthMinor);
+	CHECK(bag.Count(ItemKind::StrengthLesser) == 0);
+
+	// two minors, one worn: the worn one goes up, the other pays
+	bag.Add(ItemKind::StrengthMinor);
+	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 2);
+	CHECK(bag.Upgrade(ItemKind::StrengthMinor, true));
+	CHECK(bag.Worn() == ItemKind::StrengthNormal);
+	CHECK(bag.Count(ItemKind::StrengthMinor) == 0);
+	CHECK(bag.Count(ItemKind::StrengthNormal) == 1);
+
+	// a worn lesser does not pay for a minor of its type
+	bag.Add(ItemKind::StrengthLesser);
+	bag.Add(ItemKind::StrengthMinor);
+	const Vitals alive{true, 10, 50, 100, 100};
+	REQUIRE(bag.Use(ItemKind::StrengthLesser, alive));
+	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 0);
+	bag.Add(ItemKind::StrengthLesser);
+	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 1);
+	bag.Add(ItemKind::StrengthLesser);
+	REQUIRE(bag.Upgrade(ItemKind::StrengthMinor, true));
+	CHECK(bag.Worn() == ItemKind::StrengthLesser);
+	CHECK(bag.Count(ItemKind::StrengthLesser) == 1); // the worn one
+	CHECK(bag.Count(ItemKind::StrengthNormal) == 2);
+
+	// the same with nothing else: no upgrade
+	ItemBag other;
+	other.Add(ItemKind::TrapWardLesser);
+	other.Add(ItemKind::TrapWardMinor);
+	REQUIRE(other.Use(ItemKind::TrapWardLesser, player));
+	CHECK(other.UpgradePoints(ItemKind::TrapWardMinor) == 0);
+	CHECK_FALSE(other.CanUpgrade(ItemKind::TrapWardMinor, true));
+}
+
+TEST_CASE("regeneration: normal + normal -> grand") {
+	ItemBag bag;
+	CHECK(*nextTier(ItemKind::RegenerationNormal) == ItemKind::RegenerationGrand);
+	CHECK_FALSE(nextTier(ItemKind::RegenerationGrand).has_value());
+	bag.Add(ItemKind::RegenerationNormal);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::RegenerationNormal, true));
+	bag.Add(ItemKind::RegenerationNormal);
+	CHECK(bag.Upgrade(ItemKind::RegenerationNormal, true));
+	CHECK(bag.Count(ItemKind::RegenerationGrand) == 1);
+	CHECK(bag.Count(ItemKind::RegenerationNormal) == 0);
 }

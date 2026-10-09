@@ -1,0 +1,61 @@
+# Inventory sort orders (docs/plan/inventory-sort-orders.md): the a-z, * and new buttons right of the group tabs, per
+# tab, a click on the lit one goes back to found first. The selection stays on its item.
+# Mouse positions are window percent at 16:9. Sort buttons y 80.6: a-z x 48.3, * 51.8, new 55.3.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give ranged 0
+give melee 3
+give melee 1
+key i
+wait 5
+# found first: club, dagger, short sword, self-bow
+select short_sword
+expect selected == 2
+
+# by name: club, dagger, self-bow, short sword
+mouse 48.3 80.6
+wait 5
+screenshot hover_name
+click 48.3 80.6
+wait 5
+screenshot by_name
+expect selected == 3
+
+# by strength: short sword 35, self-bow 12, club 10, dagger 8
+click 51.8 80.6
+wait 5
+screenshot by_strength
+expect selected == 0
+select club
+expect selected == 2
+
+# recent: the last found first (short sword, dagger, self-bow, club); a fresh club comes up
+click 55.3 80.6
+wait 5
+screenshot by_recent
+expect selected == 3
+give melee 0
+wait 2
+expect selected == 0
+
+# the lit button again: found first
+click 55.3 80.6
+wait 5
+screenshot back_to_found
+expect selected == 0
+select short_sword
+expect selected == 2
+
+# per tab: the potions keep found first while the weapons sort by name
+sort name
+give potion 0
+give potion 1
+select large_health
+expect selected == 1
+sort strength
+expect selected == 0
+select short_sword
+expect selected == 3
+quit

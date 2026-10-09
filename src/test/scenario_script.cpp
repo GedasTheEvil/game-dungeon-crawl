@@ -3,6 +3,7 @@
 #include "../input/bindings.h"
 #include "../input/input.h"
 #include "../world/decor.h"
+#include "../world/item_bag.h"
 #include "../world/poison.h"
 #include <algorithm>
 #include <cmath>
@@ -237,6 +238,17 @@ bool parseSelect(const Args& args, Command& cmd) {
 	return args.size() == 1 && parseItemSlug(args[0], 0, ITEM_KIND_COUNT, cmd.item);
 }
 
+// The order (ticks) by its name.
+bool parseSort(const Args& args, Command& cmd) {
+	static const char* const ORDERS[SORT_ORDER_COUNT] = {"found", "name", "strength", "recent"};
+	for (int o = 0; args.size() == 1 && o < SORT_ORDER_COUNT; o++)
+		if (args[0] == ORDERS[o]) {
+			cmd.ticks = o;
+			return true;
+		}
+	return false;
+}
+
 bool parseEquip(const Args& args, Command& cmd) {
 	return args.size() == 1 && parseItemSlug(args[0], 0, WEAPON_KIND_COUNT, cmd.item);
 }
@@ -296,6 +308,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"chest", CommandType::Chest, parseItemCount, "<melee|ranged|potion|amulet> <id> [count], with a known id"},
 		{"select", CommandType::Select, parseSelect,
 		 "<item>: club, short_sword, small_health, ... (its label, _ for spaces)"},
+		{"sort", CommandType::Sort, parseSort, "<found|name|strength|recent>"},
 		{"equip", CommandType::Equip, parseEquip, "<weapon>: club, short_sword, spear, self-bow, ..."},
 		{"wear", CommandType::Wear, parseWear, "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ..."},
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
@@ -350,7 +363,9 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"journal_tried", Field::JournalTried},
 											   {"maxhp", Field::MaxHp},
 											   {"worn", Field::Worn},
-											   {"safe", Field::Safe}};
+											   {"safe", Field::Safe},
+											   {"tab", Field::Tab},
+											   {"selected", Field::Selected}};
 	return DEFS;
 }
 

@@ -1,6 +1,6 @@
 # Inventory keys with tabs
 
-Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented). Split off
+Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-06, refined 2026-10-09. Split off
 [inventory-overhaul.md](solved/inventory-overhaul.md), which keeps today's keys.
 
 ## Problem
@@ -17,3 +17,12 @@ out of view, and the slots past the 12th have none. A stopgap since the [Egyptia
 * The in-game weapon and potion hotkeys stay as they are.
 * The help text and the inventory footer (if they name the number keys) follow; `docs/ui.md` too.
 * Tests: a scenario (Tab cycles, a disabled tab skipped, a number key leaves the selection alone).
+
+## Implemented (2026-10-09)
+
+* Tab opens the next enabled tab, wrapping round (`Inventory::NextTab`). **No Shift+Tab:** freeglut never delivers
+  it. X sends ISO_Left_Tab, which has no ASCII text, so the keyboard callback only sees the Shift special key (checked
+  with a small GLUT program under Xvfb + `xdotool key shift+Tab`). With three groups at most, Tab alone goes round fast.
+* Number keys fall through to nothing; `HOTKEYS`, `HOTKEY_COUNT` and the slot labels are gone; the footer reads
+  "Arrows: browse    Tab: next group".
+* Scenario `tests/scenarios/inventory_keys.txt`; new `expect` fields `tab` and `selected` ([testing](../testing.md)).

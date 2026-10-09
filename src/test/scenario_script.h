@@ -34,6 +34,7 @@ enum class CommandType : unsigned char {
 	Give,
 	Chest,
 	Select,
+	Sort,
 	Equip,
 	Wear,
 	Xp,
@@ -89,7 +90,9 @@ enum class Field : unsigned char {
 	ItemLevel, // the same + ".level"
 	MaxHp,
 	Worn,
-	Safe
+	Safe,
+	Tab,
+	Selected
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

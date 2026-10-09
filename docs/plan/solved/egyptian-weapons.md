@@ -128,7 +128,7 @@ Decided on the way (the user was away; easy to change):
   so a deep weapon never turns up early (13 weapons made the old "any weaker weapon" too wide).
 * **Inventory.** The weapons tab scrolls by rows (wheel, arrow keys, a thin bar), as planned in
   [inventory-overhaul.md](inventory-overhaul.md). The number row now picks the open tab's slots (the first 12):
-  with 21 items one key per item no longer fits. The rest of [inventory-keys.draft.md](../inventory-keys.draft.md) stays
+  with 21 items one key per item no longer fits. The rest of [inventory-keys.md](../inventory-keys.md) stays
   open.
 * **Reach.** The dagger's 0.1 tiles reaches a monster at bite distance (`melee_weapons.txt`).
 * Damage growth per level: the dagger 30%, the others 20% (club 40%, short sword 10% as before).

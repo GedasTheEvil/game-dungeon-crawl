@@ -1,0 +1,45 @@
+# Inventory keys (docs/plan/inventory-keys.md): Tab walks the enabled group tabs and wraps round, the number keys pick
+# nothing, the slots show no key labels.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give melee 1
+give potion 0 2
+give potion 2
+key i
+wait 5
+screenshot no_key_labels
+expect tab == 0
+expect selected == 0
+
+# the number keys leave the selection alone
+key 2
+key 3
+key -
+wait 2
+expect tab == 0
+expect selected == 0
+expect equip_id == 0
+
+# Tab: weapons -> potions -> (amulets: none yet, skipped) -> weapons
+key tab
+wait 2
+expect tab == 1
+screenshot potions_by_tab
+key tab
+wait 2
+expect tab == 0
+
+# with an amulet found its tab joins the round; the screen stays the inventory
+give amulet 0
+key tab
+key tab
+wait 2
+expect tab == 2
+screenshot amulets_by_tab
+key tab
+wait 2
+expect tab == 0
+dump
+quit

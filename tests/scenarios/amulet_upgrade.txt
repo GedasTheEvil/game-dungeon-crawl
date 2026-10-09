@@ -1,0 +1,62 @@
+# Amulet upgrades (docs/plan/amulet-upgrades.md): same-type spares pay the tier's worth, the Upgrade button shows only
+# when they do; the worn amulet is upgraded and stays worn.
+# Buttons y 19.5: Wear alone x 77.0; with Upgrade, Wear x 70.0, Upgrade x 84.0.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give amulet 8
+key i
+wait 5
+wear lesser_amulet_of_health
+select lesser_amulet_of_health
+wait 5
+screenshot one_lesser
+expect worn == 8
+expect amulet8 == 1
+
+# no spare: U does nothing
+key u
+expect amulet8 == 1
+
+# a second lesser: the button shows, a click upgrades the worn one, it stays worn and keeps the HP share
+give amulet 8
+wait 5
+screenshot upgrade_ready
+mouse 84 19.5
+wait 5
+screenshot upgrade_hover
+click 84 19.5
+wait 5
+screenshot upgraded_minor
+expect amulet8 == 0
+expect amulet9 == 1
+expect worn == 9
+expect maxhp == 55
+expect hp == 55
+
+# minor -> normal: two lessers pay
+give amulet 8 2
+select minor_amulet_of_health
+key u
+wait 5
+screenshot upgraded_normal
+expect amulet8 == 0
+expect amulet9 == 0
+expect amulet10 == 1
+expect worn == 10
+expect maxhp == 60
+
+# another type does not pay; a grand cannot go higher
+give amulet 0 3
+select amulet_of_health
+key u
+expect amulet10 == 1
+give amulet 11
+select grand_amulet_of_health
+wait 5
+screenshot grand_top
+key u
+expect amulet11 == 1
+dump
+quit

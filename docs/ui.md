@@ -214,20 +214,29 @@ window-wide one, so it stays in the same place. Its clicks are handled before th
 ### Inventory group tabs
 
 The inventory's items panel has one tab per `ItemGroup` (weapons, potions, amulets, rings) across its top, in place
-of section headings: four tiles 19.75 x 6 at y 77.6, as wide as the slot grid. Each has a flat icon from the HUD atlas
+of section headings: four tiles 14.6 x 6 at y 77.6, from the grid's left edge. Each has a flat icon from the HUD atlas
 (`PlayerHud::drawIcon`: short sword, flask tinted red, amulet, ring) and the group name in `small`. The open tab is lapis,
 the others stone. A group with nothing found yet (`ItemBag::AnyFound`) is `TileStyle::Disabled` with a dimmed icon,
-takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
+takes no clicks, and on hover shows "<name>: none yet" on a dark label under it. Tab opens the next enabled tab,
+wrapping round (freeglut drops Shift+Tab, so there is no previous-tab key).
+
+Right of the tabs, ending with the grid, three sort buttons 6, 4.5 and 6 wide (`a-z`, a gold diamond for strength,
+`new`; [plan/inventory-sort-orders.md](plan/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A
+click picks that order for the open tab, a click on the lit one goes back to found first; on hover each names its
+order on the same dark label. Each tab keeps its own order; not saved, a new game starts in found first.
 
 The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
-item count. The items found come first, then the ones not found yet, each part in `ItemKind` order (`tabOrder`,
-`src/world/item_bag.h`; [plan/solved/inventory-sorting.md](plan/solved/inventory-sorting.md)), so the found ones fill the first rows
-without gaps. Two rows fit; a group with more scrolls by whole rows. An
+item count. The items found come first, in the tab's sort order (default `ItemKind` order), then the ones not found yet in
+`ItemKind` order (`tabOrder`, `src/world/item_bag.h`; [plan/solved/inventory-sorting.md](plan/solved/inventory-sorting.md)),
+so the found ones fill the first rows without gaps. Two rows fit; a group with more scrolls by whole rows. An
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
-silhouette and its place among the found. The arrow keys and the number row keys follow the grid's order.
+silhouette and its place among the found. The arrow keys follow the grid's order; the number keys do nothing here
+and the slots show no key labels ([plan/inventory-keys.md](plan/inventory-keys.md)).
 In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand, and its button reads "Take off"
-instead of "Wear".
+instead of "Wear". Under the effect the details show "Upgrade: n / m points" (green once the spares pay, "Top tier" for
+a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the
+pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
 
 ### Status box
 

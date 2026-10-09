@@ -13,7 +13,6 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
-#include <cstring>
 #include <vector>
 
 // Layout works on a 160 x 100 canvas (y up) that keeps its aspect ratio and is centred on the window;
@@ -56,17 +55,22 @@ constexpr float PLINTH_Y = 49.f;		 // detail model base
 constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
-constexpr const char* HOTKEYS = "1234567890-="; // the first slots of the open tab, the keyboard's number row
-constexpr int HOTKEY_COUNT = 12;
 constexpr float SCROLL_BAR_W = 1.f;
+
+// The sort buttons right of the group tabs, one per SortOrder past Found (docs/plan/inventory-sort-orders.md).
+constexpr const char* SORT_LABELS[SORT_ORDER_COUNT] = {"", "a-z", "*", "new"};
+constexpr const char* SORT_HINTS[SORT_ORDER_COUNT] = {"", "Sort by name", "Strongest first", "Last found first"};
+constexpr float SORT_W[SORT_ORDER_COUNT] = {0.f, 6.f, 4.5f, 6.f};
+constexpr float SORT_GAP = 1.f;
+constexpr float SORTS_W = SORT_W[1] + SORT_W[2] + SORT_W[3] + 2 * SORT_GAP;
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
 bool isWeapon(int slot) { return ::isWeapon(kindOf(slot)); }
 bool isAmulet(int slot) { return ::isAmulet(kindOf(slot)); }
 ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
-// In its tab's grid: the found items first (tabOrder).
-int positionOf(const ItemBag& bag, int slot) { return tabPosition(bag, kindOf(slot)); }
+// In its tab's grid: the found items first, in `sort` order (tabOrder).
+int positionOf(const ItemBag& bag, SortOrder sort, int slot) { return tabPosition(bag, kindOf(slot), sort); }
 ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
 
 Color potionColor(ItemKind potion) {
@@ -107,19 +111,20 @@ const char* blockReason(UseBlock block) {
 constexpr float GRID_W = COLUMNS * SLOT_W + (COLUMNS - 1) * SLOT_GAP;
 
 int rowsOf(ItemGroup group) { return (groupItems(group).count + COLUMNS - 1) / COLUMNS; }
-int rowOf(const ItemBag& bag, int slot) { return positionOf(bag, slot) / COLUMNS; }
+int rowOf(const ItemBag& bag, SortOrder sort, int slot) { return positionOf(bag, sort, slot) / COLUMNS; }
 
 // Its tab scrolled down by `scroll` rows.
-Rect slotRect(const ItemBag& bag, int slot, int scroll) {
-	const int position = positionOf(bag, slot);
+Rect slotRect(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
+	const int position = positionOf(bag, sort, slot);
 	const float x0 = ITEMS_PANEL.cx() - GRID_W / 2;
 	const auto column = static_cast<float>(position % COLUMNS);
-	const auto row = static_cast<float>(rowOf(bag, slot) - scroll);
+	const auto row = static_cast<float>(rowOf(bag, sort, slot) - scroll);
 	return {x0 + column * (SLOT_W + SLOT_GAP), TOP_ROW_Y - row * (SLOT_H + SLOT_GAP), SLOT_W, SLOT_H};
 }
 
-bool slotVisible(const ItemBag& bag, int slot, int scroll) {
-	return rowOf(bag, slot) >= scroll && rowOf(bag, slot) < scroll + VISIBLE_ROWS;
+bool slotVisible(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
+	const int row = rowOf(bag, sort, slot);
+	return row >= scroll && row < scroll + VISIBLE_ROWS;
 }
 
 // The question mark of an item not found yet, centred in `r`.
@@ -127,9 +132,17 @@ void unknownMark(Font& font, const Rect& r, float alpha) {
 	textCentered(font, r.cx(), r.cy() - 2.5f, "?", {0.45f, 0.42f, 0.38f}, alpha);
 }
 
+// The tabs leave the right end of the row to the sort buttons.
 Rect tabRect(int group) {
-	const float w = (GRID_W - (ITEM_GROUP_COUNT - 1) * TAB_GAP) / ITEM_GROUP_COUNT;
+	const float w = (GRID_W - SORTS_W - ITEM_GROUP_COUNT * TAB_GAP) / ITEM_GROUP_COUNT;
 	return {ITEMS_PANEL.cx() - GRID_W / 2 + static_cast<float>(group) * (w + TAB_GAP), TAB_Y, w, TAB_H};
+}
+
+Rect sortRect(int order) {
+	float x = ITEMS_PANEL.cx() + GRID_W / 2 - SORTS_W;
+	for (int o = 1; o < order && o < SORT_ORDER_COUNT; o++)
+		x += SORT_W[o] + SORT_GAP;
+	return {x, TAB_Y, SORT_W[std::clamp(order, 0, SORT_ORDER_COUNT - 1)], TAB_H};
 }
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -150,8 +163,10 @@ Inventory::Inventory() {
 
 void Inventory::Reset() {
 	bag.Reset();
-	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
 		tabSlot[group] = groupItems(groupAt(group)).first;
+		sortOrder[group] = SortOrder::Found;
+	}
 	Select(itemIndex(ItemKind::Club));
 	toast = ui::Toast{};
 	quickDrinkMs.reset();
@@ -182,8 +197,18 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive()); }
 
 void Inventory::Upgrade(int slot) {
-	if (!bag.Upgrade(kindOf(slot), Game().player->Alive()))
+	const ItemKind kind = kindOf(slot);
+	if (!bag.Upgrade(kind, Game().player->Alive()))
 		return;
+	// An amulet: one of the next tier now; worn, it keeps the HP share.
+	if (const std::optional<ItemKind> upgraded = ::isAmulet(kind) ? nextTier(kind) : std::nullopt) {
+		if (bag.Worn() == upgraded)
+			Game().player->stats.Wear(amuletBonus(upgraded), true);
+		Game().assets.sounds.amulet_s.Play();
+		Select(itemIndex(*upgraded));
+		ShowToast(std::string("Upgraded: ") + itemText(*upgraded).name);
+		return;
+	}
 	char buf[64];
 	snprintf(buf, sizeof(buf), "%s reaches level %d", itemText(kindOf(slot)).name, bag.Level(kindOf(slot)));
 	ShowToast(buf);
@@ -268,7 +293,21 @@ void Inventory::Select(int slot) {
 	tab = groupOf(slot);
 	tabSlot[static_cast<int>(tab)] = slot;
 	int& scroll = scrollRow[static_cast<int>(tab)]; // the selected slot in view
-	scroll = std::clamp(scroll, rowOf(bag, slot) - VISIBLE_ROWS + 1, rowOf(bag, slot));
+	const int row = rowOf(bag, Sort(), slot);
+	scroll = std::clamp(scroll, row - VISIBLE_ROWS + 1, row);
+}
+
+void Inventory::SetSort(SortOrder order) {
+	sortOrder[static_cast<int>(tab)] = order;
+	Select(selectedSlot);
+}
+
+void Inventory::ToggleSort(SortOrder order) { SetSort(Sort() == order ? SortOrder::Found : order); }
+
+int Inventory::SelectedPosition() const { return positionOf(bag, Sort(), selectedSlot); }
+
+bool Inventory::TwoButtons() const {
+	return isWeapon(selectedSlot) || (isAmulet(selectedSlot) && CanUpgrade(selectedSlot));
 }
 
 void Inventory::ScrollBy(int rows) {
@@ -280,15 +319,27 @@ void Inventory::SwitchTab(ItemGroup group) {
 	if (!TabEnabled(group))
 		return;
 	const int last = tabSlot[static_cast<int>(group)];
-	Select(bag.Found(kindOf(last)) ? last : itemIndex(tabOrder(bag, group).front())); // a new game: the first found
+	// A new game: the first found.
+	Select(bag.Found(kindOf(last)) ? last
+								   : itemIndex(tabOrder(bag, group, sortOrder[static_cast<int>(group)]).front()));
+}
+
+void Inventory::NextTab() {
+	for (int step = 1; step < ITEM_GROUP_COUNT; step++) {
+		const ItemGroup next = groupAt((static_cast<int>(tab) + step) % ITEM_GROUP_COUNT);
+		if (TabEnabled(next)) {
+			SwitchTab(next);
+			return;
+		}
+	}
 }
 
 // Arrow keys stay in the open tab: left / right walk its slots in the grid's order, up / down move a row (down onto a
 // shorter last row: its last slot).
 void Inventory::MoveSelection(int dx, int dy) {
-	const std::vector<ItemKind> order = tabOrder(bag, tab);
+	const std::vector<ItemKind> order = tabOrder(bag, tab, Sort());
 	const int count = static_cast<int>(order.size());
-	const int position = positionOf(bag, selectedSlot);
+	const int position = positionOf(bag, Sort(), selectedSlot);
 	int target = position + dx;
 	if (dy > 0)
 		target = position - COLUMNS;
@@ -305,14 +356,19 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 void Inventory::UpdateHover(float x, float y) {
 	hoveredSlot = NO_SLOT;
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (groupOf(slot) == tab && slotVisible(bag, slot, Scroll()) && slotRect(bag, slot, Scroll()).contains(x, y))
+		if (groupOf(slot) == tab && slotVisible(bag, Sort(), slot, Scroll()) &&
+			slotRect(bag, Sort(), slot, Scroll()).contains(x, y))
 			hoveredSlot = slot;
 	hoveredTab = NO_TAB;
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
 		if (tabRect(group).contains(x, y))
 			hoveredTab = group;
+	hoveredSort = NO_SORT;
+	for (int order = 1; order < SORT_ORDER_COUNT; order++)
+		if (sortRect(order).contains(x, y))
+			hoveredSort = order;
 	hoveredButton = Target::None;
-	if (!isWeapon(selectedSlot)) {
+	if (!TwoButtons()) {
 		if (WIDE_BUTTON.contains(x, y))
 			hoveredButton = Target::UseButton;
 	} else if (EQUIP_BUTTON.contains(x, y)) {
@@ -356,6 +412,9 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 				pressed = Target::Tab;
 				pressedSlot = hoveredTab;
 			}
+		} else if (hoveredSort != NO_SORT && button == MOUSE_LEFT_BUTTON) {
+			pressed = Target::SortButton;
+			pressedSlot = hoveredSort;
 		} else if (button == MOUSE_LEFT_BUTTON) {
 			pressed = hoveredButton;
 		}
@@ -371,6 +430,8 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		Upgrade(selectedSlot);
 	else if (pressed == Target::Tab && hoveredTab == pressedSlot)
 		SwitchTab(groupAt(pressedSlot));
+	else if (pressed == Target::SortButton && hoveredSort == pressedSlot)
+		ToggleSort(static_cast<SortOrder>(pressedSlot));
 	else if (pressed == Target::Slot && button == MOUSE_RIGHT_BUTTON && hoveredSlot == pressedSlot)
 		Use(pressedSlot);
 	pressed = Target::None;
@@ -405,14 +466,10 @@ void Inventory::KeyPressed(unsigned char key) {
 	case KEY_MOVE_DOWN_UPPER:
 		MoveSelection(0, -1);
 		return;
-	default:
-		// The number row picks one of the open tab's first slots, in the grid's order.
-		if (const char* hotkey = key != 0 ? strchr(HOTKEYS, key) : nullptr) {
-			const auto position = static_cast<size_t>(hotkey - HOTKEYS);
-			const std::vector<ItemKind> order = tabOrder(bag, tab);
-			if (position < order.size())
-				Select(itemIndex(order[position]));
-		}
+	case KEY_TAB:
+		NextTab();
+		return;
+	default: // the number keys do nothing here: picking is by mouse and the move keys
 		return;
 	}
 }
@@ -498,7 +555,7 @@ void Inventory::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	// The slots of the rows in view, in the grid's order.
-	const std::vector<ItemKind> order = tabOrder(bag, tab);
+	const std::vector<ItemKind> order = tabOrder(bag, tab, Sort());
 	constexpr size_t SHOWN = static_cast<size_t>(COLUMNS) * VISIBLE_ROWS;
 	std::vector<int> shown;
 	for (size_t p = static_cast<size_t>(Scroll()) * COLUMNS; p < order.size() && shown.size() < SHOWN; p++)
@@ -506,6 +563,7 @@ void Inventory::Draw() {
 
 	DrawBackground();
 	DrawTabs();
+	DrawSortButtons();
 	for (int slot : shown)
 		DrawSlot(slot);
 	DrawDetails();
@@ -526,7 +584,7 @@ void Inventory::Draw() {
 	beginText();
 	for (int slot : shown)
 		DrawSlotLabels(slot);
-	DrawTabHint();
+	DrawHints();
 	DrawFooter();
 	ScreenTabs::Draw();
 
@@ -602,15 +660,39 @@ void Inventory::DrawTabs() {
 	}
 }
 
-// Over a dimmed tab: why it does not open.
-void Inventory::DrawTabHint() {
-	if (hoveredTab == NO_TAB || TabEnabled(groupAt(hoveredTab)))
+// Small tiles like the tabs, the open tab's order lapis; a click on the lit one goes back to found first.
+void Inventory::DrawSortButtons() {
+	for (int order = 1; order < SORT_ORDER_COUNT; order++) {
+		const bool active = static_cast<int>(Sort()) == order;
+		const bool hovered = hoveredSort == order;
+		const bool held = hovered && pressed == Target::SortButton && pressedSlot == order;
+		const Rect r = tile(sortRect(order), active ? TileStyle::Lapis : TileStyle::Stone, hovered, held);
+		if (static_cast<SortOrder>(order) == SortOrder::Strength) { // the fonts' '*' is a mere dot
+			diamond(r.cx(), r.cy(), 0.9f, hovered ? TEXT_HOVER : GOLD, 1.f);
+			continue;
+		}
+		beginText();
+		textCentered(small, r.cx(), r.y + 1.7f, SORT_LABELS[order], hovered ? TEXT_HOVER : GOLD);
+		beginShapes();
+	}
+}
+
+// Under a hovered dimmed tab: why it does not open; under a hovered sort button: its order.
+void Inventory::DrawHints() {
+	char hint[40] = "";
+	Rect anchor{};
+	if (hoveredTab != NO_TAB && !TabEnabled(groupAt(hoveredTab))) {
+		snprintf(hint, sizeof(hint), "%s: none yet", GROUP_NAMES[hoveredTab]);
+		anchor = tabRect(hoveredTab);
+	} else if (hoveredSort != NO_SORT) {
+		const bool active = static_cast<int>(Sort()) == hoveredSort;
+		snprintf(hint, sizeof(hint), "%s", active ? "Back to found first" : SORT_HINTS[hoveredSort]);
+		anchor = sortRect(hoveredSort);
+	} else {
 		return;
-	char hint[32];
-	snprintf(hint, sizeof(hint), "%s: none yet", GROUP_NAMES[hoveredTab]);
-	const Rect tabR = tabRect(hoveredTab);
+	}
 	const float w = small.TextWidth(hint) + 3.f;
-	const Rect label = {std::min(tabR.cx() - w / 2, ITEMS_PANEL.x + ITEMS_PANEL.w - 2 - w), tabR.y - 5.4f, w, 4.4f};
+	const Rect label = {std::min(anchor.cx() - w / 2, ITEMS_PANEL.x + ITEMS_PANEL.w - 2 - w), anchor.y - 5.4f, w, 4.4f};
 	beginShapes();
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
 	strokeRect(label, GOLD_DIM, 1.f, 1.f);
@@ -619,7 +701,7 @@ void Inventory::DrawTabHint() {
 }
 
 void Inventory::DrawSlot(int slot) {
-	Rect r = slotRect(bag, slot, Scroll());
+	Rect r = slotRect(bag, Sort(), slot, Scroll());
 	bool hovered = slot == hoveredSlot;
 	bool selected = slot == selectedSlot;
 	bool held = SlotHeld(slot);
@@ -683,7 +765,7 @@ void Inventory::DrawSlot(int slot) {
 void Inventory::DrawSlotModel(int slot) {
 	if (!bag.Found(kindOf(slot)))
 		return; // a question mark instead (DrawSlotLabels)
-	Rect r = slotRect(bag, slot, Scroll());
+	Rect r = slotRect(bag, Sort(), slot, Scroll());
 	bool held = SlotHeld(slot);
 	Item* model = Model(kindOf(slot));
 
@@ -707,7 +789,7 @@ void Inventory::DrawSlotModel(int slot) {
 }
 
 void Inventory::DrawSlotLabels(int slot) {
-	Rect r = slotRect(bag, slot, Scroll());
+	Rect r = slotRect(bag, Sort(), slot, Scroll());
 	if (SlotHeld(slot))
 		r.y -= TILE_SINK;
 	bool owned = bag.Count(kindOf(slot)) > 0;
@@ -720,11 +802,6 @@ void Inventory::DrawSlotLabels(int slot) {
 		textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
 	else // not even its name: the player does not know it exists
 		unknownMark(title, {r.x, r.y + NAME_BAND_H, r.w, r.h - NAME_BAND_H}, lit ? 0.9f : 0.6f);
-
-	if (positionOf(bag, slot) < HOTKEY_COUNT) {
-		char key[2] = {HOTKEYS[positionOf(bag, slot)], '\0'};
-		text(small, r.x + 1.f, r.y + r.h - 3.8f, key, lit ? GOLD : GOLD_DIM, owned ? 1.f : 0.5f);
-	}
 
 	if (!isWeapon(slot) && owned) {
 		char count[8];
@@ -771,14 +848,24 @@ void Inventory::DrawDetails() {
 	if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
 	} else if (isAmulet(selectedSlot)) {
-		textCentered(body, cx, STAT_Y + 3.5f, info.effect, INK);
+		textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
 		// One amulet at a time: what putting this one on would take off.
 		const std::optional<ItemKind> worn = bag.Worn();
 		if (worn && *worn != kindOf(selectedSlot))
-			textCentered(small, cx, STAT_Y - 1.f, (std::string("Worn now: ") + itemText(*worn).name).c_str(),
+			textCentered(small, cx, STAT_Y + 0.5f, (std::string("Worn now: ") + itemText(*worn).name).c_str(),
 						 INK_FADED);
 		else if (!worn)
-			textCentered(small, cx, STAT_Y - 1.f, "One amulet at a time", INK_FADED);
+			textCentered(small, cx, STAT_Y + 0.5f, "One amulet at a time", INK_FADED);
+		// Upgrade progress: the spares' points of the cost (docs/plan/amulet-upgrades.md).
+		char points[40] = "Top tier";
+		const bool top = !nextTier(kindOf(selectedSlot));
+		const int cost = amuletWorth(amuletOf(kindOf(selectedSlot)).tier);
+		const int have = bag.UpgradePoints(kindOf(selectedSlot));
+		if (!top)
+			snprintf(points, sizeof(points), "Upgrade: %d / %d %s", std::min(have, cost), cost,
+					 cost == 1 ? "point" : "points");
+		if (bag.Count(kindOf(selectedSlot)) > 0)
+			textCentered(small, cx, STAT_Y - 3.2f, points, !top && have >= cost ? INK_GREEN : INK_FADED);
 	} else {
 		Item* shown = Model(kindOf(selectedSlot));
 		Item* current = Equipped();
@@ -866,14 +953,14 @@ void Inventory::DrawButtons() {
 	const char* label = nullptr;
 	bool canUse = CanUse(selectedSlot, &label);
 	DrawButton(Target::UseButton, label, canUse);
-	if (isWeapon(selectedSlot))
+	if (TwoButtons())
 		DrawButton(Target::UpgradeButton, "Upgrade", CanUpgrade(selectedSlot));
 }
 
 void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	bool hovered = enabled && hoveredButton == which;
 	bool held = hovered && pressed == which;
-	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (isWeapon(selectedSlot) ? EQUIP_BUTTON : WIDE_BUTTON);
+	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (TwoButtons() ? EQUIP_BUTTON : WIDE_BUTTON);
 	r = tile(r, enabled ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 
 	beginText();
@@ -940,7 +1027,8 @@ void Inventory::DrawFooter() {
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CENTRE, 7.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
 	textCentered(small, CENTRE, 2.2f,
-				 "Click: select    Right click / Enter: use    U: upgrade    Arrows / 1-0: browse    I / Esc: close",
+				 "Click: select    Right click / Enter: use    U: upgrade    Arrows: browse    Tab: next group    I / "
+				 "Esc: close",
 				 {0.55f, 0.45f, 0.30f});
 }
 

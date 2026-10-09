@@ -14,7 +14,7 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, 
 
 // Percent of the chests that hold an extra amulet; minor ones only from MINOR_AMULET_LEVEL on, then MINOR_AMULET_CHANCE
 // percent of them.
-constexpr int CHEST_AMULET_CHANCE = 6;
+constexpr int CHEST_AMULET_CHANCE = 10;
 constexpr int MINOR_AMULET_LEVEL = 11;
 constexpr int MINOR_AMULET_CHANCE = 40;
 // A chest's extra amulet, if the roll gives one: lesser or minor, any type that has those tiers.

@@ -12,21 +12,24 @@
 class Inventory {
   private:
 	// Clickable things on the screen.
-	enum class Target : unsigned char { None, Slot, Tab, UseButton, UpgradeButton };
+	enum class Target : unsigned char { None, Slot, Tab, SortButton, UseButton, UpgradeButton };
 
 	static constexpr int NO_SLOT = -1;
 	static constexpr int NO_TAB = -1;
+	static constexpr int NO_SORT = -1;
 
 	ItemBag bag;
-	int selectedSlot = 0;				  // a slot is an ItemKind index; the grid shows them in tabOrder
-	ItemGroup tab = ItemGroup::Weapons;	  // the selected slot's group
-	int tabSlot[ITEM_GROUP_COUNT] = {};	  // the slot each tab selected last, for switching back to it
-	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
+	int selectedSlot = 0;						// a slot is an ItemKind index; the grid shows them in tabOrder
+	ItemGroup tab = ItemGroup::Weapons;			// the selected slot's group
+	int tabSlot[ITEM_GROUP_COUNT] = {};			// the slot each tab selected last, for switching back to it
+	int scrollRow[ITEM_GROUP_COUNT] = {};		// rows each tab is scrolled down
+	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab, not saved: found first at the start
 	int hoveredSlot = NO_SLOT;
 	int hoveredTab = NO_TAB;
+	int hoveredSort = NO_SORT; // a SortOrder past Found, by its button
 	Target hoveredButton = Target::None;
 	Target pressed = Target::None;
-	int pressedSlot = NO_SLOT; // or the tab, when pressed is Target::Tab
+	int pressedSlot = NO_SLOT; // or the tab, when pressed is Target::Tab, or the order, when Target::SortButton
 	int pressedMouseButton = 0;
 
 	float slotAngle[ITEM_KIND_COUNT] = {}; // model turntable angle per slot
@@ -51,6 +54,12 @@ class Inventory {
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
 	void SwitchTab(ItemGroup group); // to the slot it selected last
+	void NextTab();					 // Tab: the next enabled tab, wrapping round
+	[[nodiscard]] SortOrder Sort() const { return sortOrder[static_cast<int>(tab)]; }
+	// A click on a sort button: that order for the open tab, or found first again if it was on.
+	void ToggleSort(SortOrder order);
+	// Two buttons under the details (use and upgrade): a weapon, or an amulet the spares can upgrade.
+	[[nodiscard]] bool TwoButtons() const;
 	[[nodiscard]] int Scroll() const { return scrollRow[static_cast<int>(tab)]; }
 	void ScrollBy(int rows); // the open tab, within its rows
 	void DrawScrollBar();
@@ -60,7 +69,8 @@ class Inventory {
 
 	void DrawBackground();
 	void DrawTabs();
-	void DrawTabHint();
+	void DrawSortButtons();
+	void DrawHints();
 	void DrawSlot(int slot);
 	void DrawSlotModel(int slot);
 	void DrawSlotLabels(int slot);
@@ -83,6 +93,11 @@ class Inventory {
 	void KeyPressed(unsigned char key);
 	// Selects the item and opens its tab, like a click on its slot (scenario `select`).
 	void SelectItem(ItemKind kind) { Select(itemIndex(kind)); }
+	// The open tab's order (scenario `sort`); the selected item stays selected and in view.
+	void SetSort(SortOrder order);
+	[[nodiscard]] ItemGroup OpenTab() const { return tab; }
+	// The selected item's place in its tab's grid, in the open order (scenario `expect selected`).
+	[[nodiscard]] int SelectedPosition() const;
 	void SpecialKeyPressed(int key);
 	// In game, the class keys (1 melee, 2 ranged): equips the next weapon of that class held, in ItemKind order and
 	// wrapping round, with the toast; the first one if the other class is in hand. None held: nothing.

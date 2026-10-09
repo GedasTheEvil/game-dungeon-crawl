@@ -1,6 +1,6 @@
 # Amulet upgrades
 
-Status: draft 2026-10-07, refined 2026-10-09 (decided, not implemented). Split off [amulets.md](solved/amulets.md).
+Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Split off [amulets.md](solved/amulets.md).
 
 ## Why not "3 of a kind"
 
@@ -32,3 +32,14 @@ type and tier almost never meet; even a pair is rare. So spares of one type pool
 * `ItemBag::CanUpgrade` / `Upgrade` already exist for weapons: extend them for amulets, or a sibling pair.
 * Tests: unit (each tier step, mixed spares, the worn one upgraded and kept worn, not enough points, grand refused,
   regeneration), a scenario in `tests/scenarios/`.
+
+## Implemented (2026-10-09)
+
+* `amuletWorth`, `nextTier`, `ItemBag::UpgradePoints`; `CanUpgrade` / `Upgrade` take amulets too.
+* With two of the worn kind, the worn one goes up and the other pays. Only a worn amulet of another tier is kept out
+  of the spares.
+* Inventory: when the spares pay, the Wear button splits into Wear / Take off and Upgrade (the weapons' layout), and
+  the slot shows the pulsing arrow; U works too. Under the effect: "Upgrade: n / m points" (green when it pays), "Top
+  tier" for a grand. After an upgrade the new amulet is selected, the toast reads "Upgraded: <name>", the amulet sound
+  plays.
+* `CHEST_AMULET_CHANCE` 10. `loot_test.cpp`, unit tests in `items_test.cpp`, `tests/scenarios/amulet_upgrade.txt`.

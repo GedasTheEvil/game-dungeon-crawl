@@ -29,8 +29,9 @@ Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters 
 * **No attacks on the rungs, for everyone:** a climber cannot attack while it climbs, as the player cannot
   ([no-attack-on-ladder](no-attack-on-ladder.draft.md)). Depends on that draft: it ships first, or with this one. A
   climber on the ladder only follows; it attacks once off the rungs.
+* **Climb speed:** 80% of the monster's own walk `speed`. A boss walks faster, so it climbs faster too. Comes after
+  [anubis-speed](anubis-speed.draft.md) (the Anubis guard walks faster, so it climbs faster).
 
 ## Open
 
-* Speed on the ladder: the player's climb speed, slower, or per monster.
 * Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot).

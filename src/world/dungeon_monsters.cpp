@@ -1,5 +1,4 @@
 #include "dungeon.h"
-#include "../state/assets.h"
 #include "../entities/player.h"
 #include "item_bag.h"
 #include "journal.h"
@@ -253,7 +252,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	Monster* slot = freeMonsterSlot();
 	if (!slot)
 		return false;
-	slot->Spawn(sim.assets->monsterTypes[typeId], i, j, monsterLinks(), sim.random->effects);
+	slot->Spawn((*sim.monsterTypes)[typeId], i, j, monsterLinks(), sim.random->effects);
 	if (slot->Type()->isBoss())
 		startBossFight(static_cast<int>(slot - monsters));
 	return true;

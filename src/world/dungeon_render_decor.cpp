@@ -9,11 +9,7 @@
 #include <utility>
 
 namespace {
-// Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
-constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
-constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
-constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
-constexpr float LIGHT_LIFT = 4.f;						 // lights sit above and in front of the flame (world units)
+constexpr float LIGHT_LIFT = 4.f; // lights sit above and in front of the flame (world units)
 } // namespace
 
 void Dungeon::drawDecorTile(int i, int j) {
@@ -107,37 +103,29 @@ void Dungeon::drawLadderTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-struct Dungeon::FlameSource {
-	float x, y, z; // tile space (the frame drawDecorTile starts from), world units
+namespace {
+// A flame's spot in the frame drawDecorTile starts from (world units), its light and its fire sprite.
+struct FlameSource {
+	float x, y, z;
 	const Lighting::LightDef* light;
 	const FireStyle* fire;
 	uint32_t seed;
 };
 
-// A cell holds at most a prop fire and a torch.
-int Dungeon::flamesAt(int i, int j, FlameSource* out) const {
-	int n = 0;
-	auto seed = static_cast<uint32_t>(MapIndex(i, j)) * 2654435761U;
-	auto at = [&](const float* p, float offsetX, bool mirror, const Lighting::LightDef& light, const FireStyle& fire) {
-		float t = RenderConfig::TILE_SIZE;
-		out[n] = {RenderConfig::TILE_HALF + (offsetX + (mirror ? -p[0] : p[0])) * t,
-				  p[1] * t,
-				  -t + p[2] * t,
-				  &light,
-				  &fire,
-				  seed + static_cast<uint32_t>(n)};
-		n++;
-	};
-
-	const DecorCell& cell = decoration.decor[MapIndex(i, j)];
-	if (cell.type == DECOR_BRAZIER)
-		at(BRAZIER_FIRE, cell.offsetX, cell.mirror, Lighting::BRAZIER, Fire::BRAZIER);
-	else if (cell.type == DECOR_LAMP)
-		at(LAMP_FIRE, cell.offsetX, cell.mirror, Lighting::OIL_LAMP, Fire::OIL_LAMP);
-	if (decoration.torch[MapIndex(i, j)])
-		at(TORCH_FIRE, 0.f, false, Lighting::TORCH, Fire::TORCH);
-	return n;
+FlameSource flameSource(const Flame& f) {
+	const float t = RenderConfig::TILE_SIZE;
+	FlameSource out{RenderConfig::TILE_HALF + f.x * t, f.y * t, -t + f.z * t, &Lighting::TORCH, &Fire::TORCH, f.seed};
+	if (f.kind == FlameKind::Brazier) {
+		out.light = &Lighting::BRAZIER;
+		out.fire = &Fire::BRAZIER;
+	} else if (f.kind == FlameKind::OilLamp) {
+		out.light = &Lighting::OIL_LAMP;
+		out.fire = &Fire::OIL_LAMP;
+	}
+	return out;
 }
+} // namespace
+
 //======================================================================================
 // Lights from flames a little beyond the drawn window too, so light spills in before its source is visible.
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
@@ -149,13 +137,14 @@ void Dungeon::addLights(const CellRect& drawn) {
 		for (int i = lit.col0; i < lit.col0 + lit.cols; i++) {
 			if (!IsInBounds(i, j))
 				continue;
-			FlameSource flames[2];
-			int n = flamesAt(i, j, flames);
+			Flame flames[MAX_CELL_FLAMES];
+			int n = flamesAt(decoration, MapIndex(i, j), flames);
 			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
 			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
-			for (int k = 0; k < n; k++)
-				Lighting::add(ox + flames[k].x, oy + flames[k].y + LIGHT_LIFT, flames[k].z + LIGHT_LIFT,
-							  *flames[k].light, flames[k].seed);
+			for (int k = 0; k < n; k++) {
+				const FlameSource f = flameSource(flames[k]);
+				Lighting::add(ox + f.x, oy + f.y + LIGHT_LIFT, f.z + LIGHT_LIFT, *f.light, f.seed);
+			}
 		}
 }
 //======================================================================================
@@ -167,11 +156,13 @@ void Dungeon::drawFires(const CellRect& drawn) {
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
 			if (!IsInBounds(i, j))
 				continue;
-			FlameSource flames[2];
-			int n = flamesAt(i, j, flames);
+			Flame flames[MAX_CELL_FLAMES];
+			int n = flamesAt(decoration, MapIndex(i, j), flames);
 			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
 			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
-			for (int k = 0; k < n; k++)
-				Fire::draw(*flames[k].fire, ox + flames[k].x, oy + flames[k].y, flames[k].z, flames[k].seed);
+			for (int k = 0; k < n; k++) {
+				const FlameSource f = flameSource(flames[k]);
+				Fire::draw(*f.fire, ox + f.x, oy + f.y, f.z, f.seed);
+			}
 		}
 }

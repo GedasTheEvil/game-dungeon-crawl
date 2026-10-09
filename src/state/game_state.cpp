@@ -48,7 +48,7 @@ void GameState::Load() {
 	player = std::make_unique<Player>();
 	playerView.Load("characters/archeologist", std::move(playerTexture), *player);
 	player->scale = PLAYER_SCALE;
-	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events});
+	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes});
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);

@@ -84,7 +84,7 @@ struct Assets {
 	SoundBank sounds;
 	FontSet fonts;
 	// By MonsterTypeId (level.h); index 0 is unused. The sim's table (the kind and its ModelInfo) and the drawing's.
-	std::array<MonsterType, MONSTER_TYPE_MAX + 1> monsterTypes;
+	MonsterTypes monsterTypes;
 	std::array<CharacterModel, MONSTER_TYPE_MAX + 1> monsterModels;
 	ItemPrototypes items;
 	TrapSet traps;

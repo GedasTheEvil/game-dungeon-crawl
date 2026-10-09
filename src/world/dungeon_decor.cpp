@@ -1,5 +1,4 @@
 #include "dungeon.h"
-#include "../state/assets.h"
 #include "../core/logger.h"
 
 bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j); }

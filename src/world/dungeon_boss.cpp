@@ -1,7 +1,6 @@
 // The boss fight (Dungeon::bossFight): the boss appears with its minions, summons more while it lives, and its death
 // opens the boss gates. docs/plan/solved/boss-rooms.md.
 #include "dungeon.h"
-#include "../state/assets.h"
 #include "../entities/player.h"
 #include "item_bag.h"
 #include "journal.h"
@@ -112,7 +111,7 @@ void Dungeon::updateBoss() {
 bool Dungeon::summonMinion(const Monster& boss) {
 	const BossRules& rules = boss.Type()->boss;
 	const bool small = rules.smallMinion != 0 && bossFight.hatched % 2 == 1;
-	const MonsterType& kind = sim.assets->monsterTypes[small ? rules.smallMinion : rules.minion];
+	const MonsterType& kind = (*sim.monsterTypes)[small ? rules.smallMinion : rules.minion];
 	const bool flyer = kind.locomotion == Locomotion::Fly;
 	const int row = boss.Row();
 	const auto bossCol = static_cast<int>(std::floor(boss.CentreX()));

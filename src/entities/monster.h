@@ -7,10 +7,12 @@
 #include "trap_hurt.h"
 #include "../world/damage.h"
 #include "../world/items.h"
+#include "../world/level.h"
 #include "../world/monster_kinds.h"
 #include "../world/poison.h"
 #include "../world/rng.h"
 #include "../world/world_events.h"
+#include <array>
 #include <memory>
 #include <optional>
 
@@ -61,6 +63,10 @@ struct Charge {
 struct MonsterType : MonsterKind {
 	ModelInfo model;
 };
+using MonsterTypes = std::array<MonsterType, MONSTER_TYPE_MAX + 1>; // by MonsterTypeId (level.h); index 0 is unused
+// Every kind with the ModelInfo of its model files (LoadClips), for a sim without the app's Assets (the unit tests).
+// False: a model has no reference clip.
+bool LoadMonsterTypes(MonsterTypes& types);
 
 class Player;
 class Journal;

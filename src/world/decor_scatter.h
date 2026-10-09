@@ -7,6 +7,7 @@
 
 #include "decor.h"
 #include "level.h"
+#include <cstdint>
 
 // One entry per cell, indexed as LevelGrid (row * LEVEL_WIDTH + column).
 struct DecorLayout {
@@ -16,6 +17,20 @@ struct DecorLayout {
 	bool torch[LEVEL_CELL_COUNT] = {};
 	LadderCell ladder[LEVEL_CELL_COUNT];
 };
+
+// The fires among the decorations: a brazier's or an oil lamp's flame, a torch's. The drawing gives each its fire
+// sprite and its light.
+enum class FlameKind : unsigned char { Brazier, OilLamp, Torch };
+// A flame in its cell, tile units: x from the cell's centre (a mirrored prop's flipped), y up from the floor, z out
+// from the back wall. seed: its flicker.
+struct Flame {
+	float x, y, z;
+	FlameKind kind;
+	uint32_t seed;
+};
+constexpr int MAX_CELL_FLAMES = 2; // a prop's fire and a torch
+// The flames in cell (LevelGrid index): how many it wrote to out.
+int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES]);
 
 // What a scatter placed, for the log.
 struct DecorCounts {

@@ -69,9 +69,8 @@ struct BarSpan {
 	}
 };
 
-void loadMonsterTypes(std::array<MonsterType, MONSTER_TYPE_MAX + 1>& monsterTypes,
-					  std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels, const Progress& progress,
-					  BarSpan span) {
+void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels,
+					  const Progress& progress, BarSpan span) {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
 		const MonsterKind& kind = *monsterKind(id);
 		char label[64];

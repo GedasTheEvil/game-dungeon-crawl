@@ -275,3 +275,14 @@ void Monster::Animate(float px, float py) {
 		tomb = MUMMY_COFFIN_DEPTH * (1.f - k * k * (3.f - 2.f * k));
 	}
 }
+
+bool LoadMonsterTypes(MonsterTypes& types) {
+	bool loaded = true;
+	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
+		const MonsterKind& kind = *monsterKind(id);
+		MonsterType& type = types[static_cast<size_t>(id)];
+		static_cast<MonsterKind&>(type) = kind;
+		loaded = LoadClips(kind.model, ClipFilesOf(kind.locomotion), type.model) && loaded;
+	}
+	return loaded;
+}

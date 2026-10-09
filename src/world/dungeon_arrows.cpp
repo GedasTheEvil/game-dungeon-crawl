@@ -1,6 +1,5 @@
 #include "dungeon.h"
 #include "dungeon_rules.h"
-#include "../state/assets.h"
 #include "../entities/player.h"
 #include "item_bag.h"
 #include "journal.h"

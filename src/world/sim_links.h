@@ -1,6 +1,8 @@
 #ifndef SIM_LINKS_H
 #define SIM_LINKS_H
 
+#include "../entities/monster.h"
+
 struct Assets;
 class Player;
 class Journal;
@@ -16,8 +18,9 @@ struct SimLinks {
 	Journal* journal = nullptr;
 	ItemBag* items = nullptr; // the inventory's contents
 	GameRandom* random = nullptr;
-	Assets* assets = nullptr; // models, textures and the monster types
+	Assets* assets = nullptr; // models and textures: only the drawing (dungeon_render*.cpp) reads them
 	WorldEvents* events = nullptr;
+	const MonsterTypes* monsterTypes = nullptr; // the kinds and their ModelInfo, by MonsterTypeId
 };
 
 #endif

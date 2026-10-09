@@ -1,7 +1,7 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 #include "../entities/monster.h"
-#include "fstream"
+#include <fstream>
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
 #include "decor_scatter.h"
@@ -76,8 +76,6 @@ class Dungeon {
 	void drawDecalTile(int i, int j);
 	void drawTorchTile(int i, int j);
 	void drawLadderTile(int i, int j);
-	struct FlameSource;
-	int flamesAt(int i, int j, FlameSource* out) const;
 	void addLights(const CellRect& drawn);
 	void drawFires(const CellRect& drawn);
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one

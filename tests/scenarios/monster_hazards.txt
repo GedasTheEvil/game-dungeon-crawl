@@ -1,8 +1,0 @@
-# Walkers stop at pits and traps, only flyers cross them (tests/levels/monster_hazards): the rats on both sides
-# of the player stay behind the spikes and the pit, so the player is never hit.
-seed 1
-level tests/levels/monster_hazards
-wait 25s
-screenshot rats_at_hazards
-expect hp == 50
-expect alive == 1

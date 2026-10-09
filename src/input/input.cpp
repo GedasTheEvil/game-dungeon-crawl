@@ -12,32 +12,6 @@ int lastMx = 0;
 int lastMy = 0;
 
 namespace {
-void startJump() {
-	if (Game().player->jump.jumping || Game().player->jump.falling || !Game().player->Alive() || Game().dungeon.Won())
-		return;
-	if (!Game().dungeon.JumpAllowed())
-		return;
-
-	if (Game().player->stats.Stamina() < JUMP_STAMINA_COST) {
-		Game().player->stats.RefuseStamina(Game().events);
-		return;
-	}
-
-	Game().player->stats.ConsumeStamina(JUMP_STAMINA_COST);
-
-	float curX, curY;
-	Game().dungeon.getC(curX, curY);
-	Game().player->jump.start_y = curY;
-
-	Game().player->jump.dir_x = static_cast<float>(Game().camera.Facing());
-
-	Game().player->jump.speed = JUMP_FORWARD_SPEED;
-	Game().player->jump.velocity = JUMP_INITIAL_VELOCITY;
-	Game().player->jump.jumping = true;
-	Game().player->jump.jump_up_timer.Reset();
-	Game().events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Jump);
-}
-
 // The walk keys held down, in GameplayAction order from MoveLeft.
 std::array<bool, 4> walkHeld{};
 
@@ -76,13 +50,13 @@ class PlayerActionController {
 			walk(0, PLAYER_FORWARD_MOVE_STEP * moveMultiplier);
 			break;
 		case GameplayAction::Jump:
-			startJump();
+			Game().dungeon.StartJump(Game().camera.Facing());
 			break;
 		case GameplayAction::Attack:
 			tryAttack();
 			break;
 		case GameplayAction::Interact:
-			interact();
+			Game().dungeon.Interact();
 			break;
 		case GameplayAction::QuickHeal: // allowed during a swing: drinking does not change it
 			Game().ui.inventory->QuickDrink(QuickKind::Health);
@@ -136,13 +110,6 @@ class PlayerActionController {
 		player.attackStartMs = GameClock::now();
 		player.attackLanded = false;
 		weapon->swingSound.Play();
-	}
-
-	static void interact() {
-		Game().dungeon.PickUp();
-		if (Game().dungeon.PullLever())
-			return;
-		Game().dungeon.Interact();
 	}
 
 	static void clampCamera() {

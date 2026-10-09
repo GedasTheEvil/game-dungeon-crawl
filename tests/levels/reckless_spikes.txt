@@ -1,5 +1,5 @@
 ; A mummy (col 5) behind floor spikes (col 4), the player wakes it from col 3: it walks into the spikes and takes
-; half their damage (tests/scenarios/reckless_spikes.txt).
+; half their damage (tests/unit/monster_rules_test.cpp).
 ##############
 #S..^u......E#
 ##############

@@ -1,5 +1,5 @@
 ; A mummy (col 5) behind a rock fall (col 4), the player wakes it from col 3: it walks in, sets it off and is
-; crushed (tests/scenarios/reckless_rock.txt).
+; crushed (tests/unit/monster_rules_test.cpp).
 ##############
 #S..vu......E#
 ##############

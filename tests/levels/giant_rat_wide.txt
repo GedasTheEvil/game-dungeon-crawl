@@ -1,4 +1,4 @@
-; The player (col 6), three spike cells (cols 7-9, too wide to leap), a giant rat (col 10) (tests/scenarios/giant_rat_jump.txt).
+; The player (col 6), three spike cells (cols 7-9, too wide to leap), a giant rat (col 10) (tests/unit/monster_rules_test.cpp).
 ##################
 #.....S^^^T.....E#
 ##################

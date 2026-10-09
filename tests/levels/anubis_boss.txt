@@ -1,4 +1,4 @@
-; Anubis boss (tests/scenarios/anubis_boss.txt): the hall (row 2) has the entrance, a teleporter and the gold gate
+; Anubis boss (tests/unit/world_rules_test.cpp): the hall (row 2) has the entrance, a teleporter and the gold gate
 ; before the exit. The sealed chamber (row 4) is only reached by the teleporter: the Anubis boss among six coffins
 ; (three on each side), the boss gate, behind it the gold key and a chest.
 ########################################

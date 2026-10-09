@@ -1,5 +1,5 @@
 ; A rat (col 5) behind floor spikes (col 7), the player (col 9), a rat (col 13) behind a pit (col 11)
-; (tests/scenarios/monster_hazards.txt).
+; (tests/unit/monster_rules_test.cpp).
 ####################
 #....t.^.S...t....E#
 ###########X########

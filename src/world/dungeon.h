@@ -50,6 +50,9 @@ class Dungeon {
 	void exploreAroundPlayer();
 	void UpdateMovementState();
 	void UpdateMonsters();
+	void PickUp();	  // not the car... just take an item away
+	bool PullLever(); // interact on a lever cell; false if there is none
+	void useGate();	  // the exit, a teleporter, a riddle gate, the ankh
 	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
 	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -262,11 +265,14 @@ class Dungeon {
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
 	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
-	void PickUp(); // not the car... just take an item away
-	bool SpawnMonster(int i, int j);
+	// The interact key: picks up what lies here, else pulls the lever, else uses the gate (the exit, a teleporter, a
+	// riddle) or takes the ankh.
 	void Interact();
-	void Teleport();  // on a teleporter: jump to its partner
-	bool PullLever(); // interact on a lever cell; false if there is none
+	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, wading (JumpAllowed) or
+	// out of stamina (told why), or the level is won.
+	void StartJump(int dir);
+	bool SpawnMonster(int i, int j);
+	void Teleport(); // on a teleporter: jump to its partner
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
 	[[nodiscard]] int MonsterBarsShown() const;				  // living monsters that show their health bar
@@ -274,6 +280,10 @@ class Dungeon {
 	[[nodiscard]] const Monster* Boss() const;
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
 	[[nodiscard]] int LivingMinions() const;
+	// The living monster nearest the player; null if none.
+	[[nodiscard]] const Monster* NearestMonster() const { return nearestMonster(); }
+	// Every slot (MAX_MONSTERS), active or not (Monster::Active).
+	[[nodiscard]] const Monster* Monsters() const { return monsters; }
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
 	[[nodiscard]] int NearestMonsterPoison() const; // its running poison tiers (Poison::Mask), 0 if none
 	[[nodiscard]] int ChestCount() const;			// treasure chests not opened yet

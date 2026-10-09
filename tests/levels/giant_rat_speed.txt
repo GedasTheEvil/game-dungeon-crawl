@@ -1,4 +1,4 @@
-; A giant rat (col 2) behind the player (col 6) on one long floor (tests/scenarios/giant_rat_speed.txt).
+; A giant rat (col 2) behind the player (col 6) on one long floor (tests/unit/monster_rules_test.cpp).
 ##############################
 #.T...S.....................E#
 ##############################

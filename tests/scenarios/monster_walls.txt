@@ -1,7 +1,0 @@
-# A walker stops at a wall: the rat at col 4 is on the player's row but behind the wall at col 3.
-seed 1
-level tests/levels/monster_walls
-wait 15s
-screenshot rat_at_wall
-expect hp == 50
-expect alive == 1

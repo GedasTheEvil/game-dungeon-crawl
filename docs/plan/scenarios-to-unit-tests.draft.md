@@ -127,3 +127,13 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
   normal and toon mode; toon mode widens the boxes; an arrow hits a giant rat behind spikes. `monster_hitboxes`
   deleted; `melee_weapons` merged into `weapon_reach` (the look of each reach against its weapon). After: 103
   scenarios, 538 screenshots, `make test` 6:16.
+* Technique 7, the sim harness: `SimWorld` presses the keys as the scenario commands do; `Dungeon::StartJump` and
+  `Dungeon::Interact` (pick up, lever, gate) moved out of `input.cpp` into the library for it.
+  `tests/unit/monster_rules_test.cpp` and `tests/unit/world_rules_test.cpp` take over the checks of 22 scenarios,
+  deleted: reckless_rock, reckless_spikes, reckless_anubis, giant_rat_speed, monster_hazards, giant_rat_jump,
+  giant_scarab_jump, monster_poison, damage_types, venom_amulet, monster_idle_bars, teleport, level_exit_jump,
+  dart_trap, rock_fall, fall_trap, water_arrow, boss, lvl5_boss, anubis_boss, anubis_coffins_load, generated; and
+  coward_rock and monster_walls (in `sim_test.cpp` since sim-library step 6). The numbers came out the same as in
+  the scenarios. Stay scenarios: keys, amulets, weapon_hotkeys, quick_potions (the keys and the inventory), water
+  (sprint and jump keys), smoke, riddle_scaled, chest_pickup, monster_follow (the drawing). After: 79 scenarios, 473
+  screenshots, `make test` 5:01.

@@ -226,6 +226,28 @@ float Dungeon::PlayerSink() const {
 	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f);
 }
 //======================================================================================
+void Dungeon::StartJump(int dir) {
+	Player& player = *sim.player;
+	if (player.jump.jumping || player.jump.falling || !player.Alive() || won)
+		return;
+	if (!JumpAllowed())
+		return;
+
+	if (player.stats.Stamina() < JUMP_STAMINA_COST) {
+		player.stats.RefuseStamina(*sim.events);
+		return;
+	}
+
+	player.stats.ConsumeStamina(JUMP_STAMINA_COST);
+	player.jump.start_y = mapY;
+	player.jump.dir_x = static_cast<float>(dir);
+	player.jump.speed = JUMP_FORWARD_SPEED;
+	player.jump.velocity = JUMP_INITIAL_VELOCITY;
+	player.jump.jumping = true;
+	player.jump.jump_up_timer.Reset();
+	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Jump);
+}
+//======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;

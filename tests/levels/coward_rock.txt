@@ -1,4 +1,4 @@
-; A rat (col 5) behind a rock fall (col 6), the player (col 8): the rat stops at it (tests/scenarios/coward_rock.txt).
+; A rat (col 5) behind a rock fall (col 6), the player (col 8): the rat stops at it (tests/unit/sim_test.cpp).
 ##################
 #....tv.S........E#
 ##################

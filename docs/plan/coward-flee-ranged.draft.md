@@ -6,7 +6,7 @@ cannot reach the player, instead of going towards it, it runs away to avoid rang
 ## Today
 
 * `Courage::Coward` (`src/world/monster_kinds.h`): afraid of traps. A walker stops at a trap's edge, a walk-jumper
-  leaps over it (`tests/scenarios/coward_rock.txt`: the rat waits at an armed rock fall and never bites).
+  leaps over it (`tests/unit/sim_test.cpp`: the rat waits at an armed rock fall and never bites).
 * A coward that cannot get to the player (a trap, a gap, another floor) keeps seeking: it stands as near as it can,
   facing the player, an easy target for the bow and throwing weapons.
 

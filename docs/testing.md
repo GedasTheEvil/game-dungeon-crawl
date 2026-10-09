@@ -11,9 +11,13 @@ link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window,
 a scenario is for what needs the game running (drawing, timing, input).
 
 `tests/unit/sim_world.h` (`SimWorld`) runs the world without the game: it loads a level as `level path` does, steps
-it one tick at a time on the virtual clock as the game loop does (`Tick`, `Wait`, `WalkTo`), and reads the player,
-the monsters (`dungeon.Boss()`, `NearestMonsterHealth()`), the journal's moves (`Saw`) and the world events
-(`said`). Monster AI, missiles, mechanisms and the boss are tested there (`tests/unit/sim_test.cpp`).
+it one tick at a time on the virtual clock as the game loop does (`Tick`, `Wait`, `WaitTicks`), presses the keys as
+the scenario commands do (`Walk`, `WalkTo`, `HoldWalk`, `Climb`, `Jump`, `Interact`, `Attack` with the weapon `Equip`
+put in hand, `Wear` for an amulet, `SaveAndLoad`), and reads the player, the monsters (`dungeon.Boss()`,
+`NearestMonster()`, `Monsters()`), the journal (`Saw`, `JournalTried`) and the world events (`said`, `Told`). Monster
+AI, missiles, mechanisms, traps and the bosses are tested there (`sim_test.cpp`, `monster_rules_test.cpp`,
+`world_rules_test.cpp`, `reach_test.cpp`, `clip_state_test.cpp`). A scenario is for what needs the drawing or the
+input path.
 
 ## Scenario tests
 

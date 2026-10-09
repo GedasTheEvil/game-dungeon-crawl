@@ -1,4 +1,4 @@
-; Dart traps (tests/scenarios/dart_trap.txt): plates at cols 4 and 12, the dart holes in the back wall above them.
+; Dart traps (tests/unit/world_rules_test.cpp): plates at cols 4 and 12, the dart holes in the back wall above them.
 ; An Anubis guard (col 14) walks over the second towards the player.
 ########################
 #S.._......._.n.......E#

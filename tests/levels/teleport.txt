@@ -1,4 +1,4 @@
-; Teleporter pair (tests/scenarios/teleport.txt): the entrance hall (row 1) and a sealed room (row 3) with the exit,
+; Teleporter pair (tests/unit/world_rules_test.cpp): the entrance hall (row 1) and a sealed room (row 3) with the exit,
 ; joined only by the two teleporters (pair id 1).
 ########################################
 #......O.E##############################

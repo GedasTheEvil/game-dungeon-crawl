@@ -1,4 +1,4 @@
-; Idle monsters hide their health bars (tests/scenarios/monster_idle_bars.txt):
+; Idle monsters hide their health bars (tests/unit/monster_rules_test.cpp):
 ; a bat (col 6) and a plant (col 12) on the player's corridor, a scarab (col 5) on a corridor out of reach below.
 ########################################
 #S....f.....p.......E###################

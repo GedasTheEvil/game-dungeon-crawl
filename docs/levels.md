@@ -176,18 +176,21 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 ## Tests
 
 - `tests/scenarios/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
-- `tests/scenarios/rock_fall.txt`: rock fall walked through, graze, stepped back from, direct hit.
-- `tests/scenarios/dart_trap.txt`: a dart trap's volley outruns the walk and poisons, a running jump over the plate
-  sets nothing off, a heavy monster (the Anubis) presses it and takes the darts.
+- `tests/unit/world_rules_test.cpp` (on the sim harness, `tests/unit/sim_world.h`): a rock fall walked through,
+  grazed, stepped back from, a direct hit; a dart trap's volley outruns the walk and poisons, a running jump over the
+  plate sets nothing off, a heavy monster (the Anubis) presses it and takes the darts; the fall trap; an arrow into
+  half water; a teleporter pair and the exit only it reaches; leaving a level mid-jump; the boss room (minions on
+  arrival and up to the limit, 1 XP each while the boss lives, the sealed boss gate, no boss after a load); lvl5
+  played through; the Anubis boss's coffins, blows and gold key, his coffins after a load; a generated level and
+  campaign levels 6 and 15 load.
 - `tests/scenarios/rats.txt`: rat and giant rat screenshots (size, attack, die).
-- `tests/scenarios/monster_hazards.txt`: walkers stop at floor spikes and a pit; only flyers cross them.
-- `tests/scenarios/coward_rock.txt`: a rat stops at an armed rock fall, a giant rat leaps over it; neither sets it off.
-- `tests/scenarios/reckless_spikes.txt`, `reckless_rock.txt`: a reckless monster (the mummy; the Anubis and the Anubis boss too,
-  `reckless_anubis.txt`)
-  walks into spikes and a rock fall and takes its share of the damage (`Courage`, `trapDamagePct`); a trap's kill
-  gives no XP.
-- `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
-- `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
+- `tests/unit/monster_rules_test.cpp` and `tests/unit/sim_test.cpp` (on the sim harness): walkers stop at a wall,
+  floor spikes and a pit; a rat stops at an armed rock fall, a giant rat leaps over it, neither sets it off; a reckless
+  monster (the mummy, the Anubis) walks into spikes and a rock fall and takes its share of the damage (`Courage`,
+  `trapDamagePct`), a trap's kill gives no XP; the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap, and
+  outruns the player; the giant scarab leaps and bites; monster poison, damage types, the venom amulet; health bars
+  stay hidden until a monster chases, bites, swoops or is hit; the cobra's spit, Sobek's charge, Apep's dive, the
+  bat's swoop.
 - `tests/scenarios/spikes.txt`: spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.
 - `tests/unit/reach_test.cpp`: scarab, rat, worm, giant scarab, boss scarab and giant rat walk up and stop where they
   bite; every melee weapon hits them there, also in toon mode; an arrow hits a giant rat 2 tiles away
@@ -207,20 +210,11 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/attack_recovery.txt`: sprinting through a recovery does not cut it short.
 - `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and at its strike, both facings: screenshots.
   The swing's poses: `tests/unit/swing_test.cpp`.
-- `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.
-- `tests/scenarios/teleport.txt`: a teleporter pair (`tests/levels/teleport`): the jump there and back, the exit in
-  the room only the teleporter reaches.
-- `tests/scenarios/boss.txt`: the boss room (`tests/levels/boss`): minions on arrival and summoned up to the limit,
-  1 XP per minion while the boss lives, the sealed boss gate, the boss's death opens it, no boss after a load.
-- `tests/scenarios/lvl5_boss.txt`: lvl5 played through in god mode: teleporter, boss fight, blue key, exit.
 - `tests/scenarios/vampire.txt`: the vampire bat's roost (`tests/levels/vampire`): its bats, its bites heal it
   (`hurtboss`), more bats up to the limit, its death opens the boss gate to the gold key.
-- `tests/scenarios/anubis_boss.txt`: the Anubis boss's chamber (`tests/levels/anubis_boss`): mummies climb out of
-  the coffins round him, more up to the limit, his blows on a level 30 player, his death opens the boss gate.
 - `tests/scenarios/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling,
   mummies out of the Anubis boss's coffins (`tests/levels/summon_dig`, `summon_drop`, `summon_coffin`): screenshots.
 - `tests/levels/classic1`, `classic2`: the old hand-made levels 1 and 2, kept as fixtures for the scenarios that
   depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.
-- `tests/scenarios/generated.txt`: a generated level loads (`gen:SEED:D`), campaign levels 6 and 15 load.
 - `tests/scenarios/generated_path.txt`: plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
   Written by `levelcheck --script`.

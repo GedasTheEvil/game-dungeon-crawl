@@ -113,6 +113,13 @@ void Dungeon::PickUp() {
 //======================================================================================
 // Keys, treasure and levers are picked up or pulled elsewhere (PickUp, the mechanisms).
 void Dungeon::Interact() {
+	PickUp();
+	if (PullLever())
+		return;
+	useGate();
+}
+//======================================================================================
+void Dungeon::useGate() {
 	const Tile here = Map(mapX, mapY);
 	if (here.type == Ankh) {
 		won = true;

@@ -18,9 +18,11 @@ The cobra's giant kin, like the giant rat, bat and scarab: the same model and cl
 | Speed | 6 | 8 |
 | HP | 35 | 110 |
 | Bite | 6 / 1100 ms | 16 / 1300 ms |
-| Spit | 2, 2.5 tiles, 3.5 s | 5, 3 tiles, 3 s |
+| Spit | 2, 1.2 tiles, 3.5 s | 5, 1.5 tiles, 3 s |
 | XP | 1200 | 2600 |
 | Scale | 24 | 36 |
+
+Spit range nerfed 2026-10-09 (from 2.5 / 3): like the throwing stick (12) and the javelin (15).
 
 Resistances as the cobra. Checker threat 5. Glyph `G` is taken (green gate): use `Q`.
 

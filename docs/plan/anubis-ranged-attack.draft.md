@@ -9,7 +9,8 @@ cooldown 3 s.
   20% pierce (`ANUBIS_MIX`), reckless, levels 13-30. The Anubis boss (`MonsterAnubisBoss`) shares the model: 2400 HP,
   melee 140.
 * The only monster ranged attack is the spit (`SpitRules`, `Dungeon::Venom`, the cobras): from afar along its row it
-  stops and spits a glob. `range` is in tiles between the hitboxes (2.5 and 3), `cooldownMs` 3500 / 3000; nearer than
+  stops and spits a glob. `range` is in tiles between the hitboxes (1.2 and 1.5 since 2026-10-09, like the throwing
+  stick and the javelin), `cooldownMs` 3500 / 3000; nearer than
   `MONSTER_BITE_REACH` it bites. The decisions are in `canSpit` (`src/entities/monster_ai.cpp`).
 
 ## Idea

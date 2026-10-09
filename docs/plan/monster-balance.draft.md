@@ -20,7 +20,7 @@ be tuned against the final player speed.
 
 Order of work:
 
-1. **The sim cut** ([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)), so the leap AI below is
+1. **The sim cut** ([sim-library](sim-library.draft.md), steps 2-6), so the leap AI below is
    unit tested.
 2. **Close the gap:** the giant scarab walks at 3 (from 2). It and the giant rat leap (`Locomotion::WalkJump`) at the
    player when 2-3 tiles away on the same row with a clear way, 3 s between leaps. HP and damage only if that is not
@@ -101,26 +101,18 @@ Against the model (2026-10-09 entry):
 * Verify with scenarios (`tests/scenarios/`) and a playthrough.
 
 Example: the **giant scarab** (levels 5-10) is slow (speed 2) and easy to kite: the player backs off, shoots it with
-the bow and it never reaches them. Easy to tank in melee too. Decided 2026-10-01 (numbers refined when the work
-starts):
-
-* Faster: it walks faster (3?), so the player cannot outwalk it.
-* Leaps more: it uses its leap (`Locomotion::WalkJump`) to close the gap on the player whenever it can, not only to
-  cross pits and traps.
-* More HP or damage only if speed and the leap are not enough.
-
-The **giant rat** had the same problem, now faster than the walk:
-[giant-rat-speed.md](solved/giant-rat-speed.md). Its leap to close the gap is still open, together with the giant
-scarab's.
+the bow and it never reaches them. Easy to tank in melee too. The **giant rat** had the same problem and is now faster
+than the walk ([giant-rat-speed.md](solved/giant-rat-speed.md)). The fix for both: step 2 of
+[Decided](#decided-2026-10-09).
 
 ## HP balance
 
 Not changed: needs a playthrough with the new reach. Retune monster HP (`KINDS` in
 `src/world/monster_kinds.cpp`): replay lvl5 (boss scarab, 320 HP) and a giant rat level with each weapon.
 
-Numbers to start from, at weapon level 1, no Might (before
-[damage types](solved/damage-types-and-resistances.md): since then the club deals 10 and the spear 20, weapons grow per
-level at their own rate, and each monster takes each damage type at its own rate):
+Old numbers, at weapon level 1, no Might, from before
+[damage types](solved/damage-types-and-resistances.md). Since then the club deals 10 and the spear 20 (26 planned,
+step 3), weapons grow per level at their own rate, and each monster takes each damage type at its own rate:
 
 | Weapon | Damage | ms per attack | Damage per s |
 |---|---:|---:|---:|
@@ -128,8 +120,8 @@ level at their own rate, and each monster takes each damage type at its own rate
 | Sword | 35 | 550 | 64 |
 | Spear | 15 | 750 | 20 |
 
-* The sword deals 3x the spear's damage per second and 6x the club's. The spear's reach does not make up for that:
-  consider more spear damage (for example 25-30) before touching monster HP.
+* The sword dealt 3x the spear's damage per second and 6x the club's. The spear's reach does not make up for that:
+  hence the spear's 26 (step 3) before touching monster HP.
 * Boss scarab: 320 HP is ~5 s of sword swings, 16 s with the spear. Its bite (40 every 900 ms) kills a level 8
   player (134 HP) in ~3.6 s standing still, so the fight depends on potions, armour and backing off.
 
@@ -142,7 +134,8 @@ XP follows the new threat.
 * Not taken (2026-10-09, hand-tuned instead): score each monster from HP, damage per second and mobility (the
   checker's `monsterThreat` is a start), and set its XP
   from that score.
-* Suspects: the plant and the mimic (they never move, so the player picks the fight), Anubis (10000 vs 350 HP).
+* Suspects: the plant and the mimic (they never move, so the player picks the fight): cut in step 4. The Anubis keeps
+  10000 (600 HP since the buff).
 * Check the effect on the level curve: the player level when reaching lvl5 / lvl10 bosses is used in the boss tuning
   ([solved/boss-rooms.md](solved/boss-rooms.md)). Rerun a full playthrough or a scenario that sums the XP per level.
 
@@ -153,13 +146,17 @@ Split off to [boss-resistances](solved/boss-resistances.md) (done): no boss has 
 ## Open questions
 
 * Which monsters to nerf, by how much: the sim pass (step 5).
-* Bosses keep their XP (decided 2026-10-09).
-* A crocodile in half water is a harder fight than on land: the player wades at half speed, cannot sprint, jump or
-  back off. But by the first crocodile the player has a ranged weapon and can shoot it before it closes in. Weight its
-  `monsterThreat` in the checker score x1.1 when it spawns in half water (decided 2026-10-08). A wall in the checker's
-  walker was dropped: killing it opens the way, as with any monster.
 * The attack damage mix per monster group ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)),
   if it plays wrong.
+
+Settled on the way:
+
+* Bosses keep their XP (2026-10-09).
+* A crocodile in half water is a harder fight than on land: the player wades at half speed, cannot sprint, jump or
+  back off. But by the first crocodile the player has a ranged weapon and can shoot it before it closes in. Its
+  `monsterThreat` in the checker score gets x1.1 when it spawns in half water (decided 2026-10-08, not in the
+  checker yet: do it with step 5). A wall in the
+  checker's walker was dropped: killing it opens the way, as with any monster.
 
 ## Reach (done)
 
@@ -186,6 +183,10 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 ## Related
 
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
+* Changes that move the sim pass (step 5): [anubis-speed](anubis-speed.draft.md),
+  [anubis-ranged-attack](anubis-ranged-attack.draft.md), [monster-climbers](monster-climbers.draft.md) (threat
+  x1.05), [coward-flee-ranged](coward-flee-ranged.draft.md), [crocodile-hold-bite](crocodile-hold-bite.draft.md), the
+  cobra spit cut to 1.2 / 1.5 tiles (2026-10-09).
 * New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss
   must stay stronger), [apep-serpent-boss.md](apep-serpent-boss.md),
   [longer-campaign.md](solved/longer-campaign.md).

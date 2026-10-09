@@ -18,8 +18,7 @@ tests. Expected result: a faster test run, fewer resources.
   1. **Behaviour only:** no screenshot, or screenshots nobody needs to look at; all checks are `expect` lines on
      rules in the library (stats, items, damage, loot, water, progression). Move to a unit test, delete the scenario.
   2. **Behaviour over code still in the game binary:** monster AI, missiles, mechanisms, boss. Blocked until the rules
-     leave the GL files ([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)). Stay scenarios for
-     now.
+     leave the GL files ([sim-library](sim-library.draft.md)). Stay scenarios for now.
   3. **Visual or whole-game:** HUD, screens, model / animation, filtering, aspect, smoke, input path end to end. Stay
      scenarios.
 * A moved test checks the same thing as the scenario's `expect` lines, through the library's public interface.
@@ -39,8 +38,7 @@ What the screenshots of the 96 scenarios confirm, by eye:
 | Truly visual | 5 | filtering, surfaces, statues, props, toon_weapon_scale |
 
 The main blocker is that `Dungeon`, `Monster`, `Player` and `character_model` are not in `liblevel`. `dungeon.h`
-includes `monster.h`, which pulls in particles, textures and the model
-([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)). Most of the debug-only class checks Dungeon or
+includes `monster.h`, which pulls in particles, textures and the model. Most of the debug-only class checks Dungeon or
 monster rules. The plan to solve it: [sim-library](sim-library.draft.md).
 
 Techniques, by value:

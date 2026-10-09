@@ -1,9 +1,9 @@
 # Sim library: Dungeon, monsters and the player without GL
 
 Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: solve the blocker of
-[scenarios-to-unit-tests](scenarios-to-unit-tests.draft.md). It covers
-[sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md) (step 4 of
-[sim-unit-tests](solved/sim-unit-tests.md)) and goes further: the whole `Dungeon`, not only the monster AI.
+[scenarios-to-unit-tests](scenarios-to-unit-tests.draft.md). It takes over step 4 of
+[sim-unit-tests](solved/sim-unit-tests.md) (the monster rules, merged in 2026-10-09 from its own draft) and goes
+further: the whole `Dungeon`, not only the monster AI.
 
 ## Problem
 
@@ -72,6 +72,9 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
   read the real model files, so no generated table to drift from the models.
 * **Order:** step 1 (`ModelInfo`) on its own: it is small and unlocks the hitbox / reach matrix and the clip tests.
   Steps 2-6 together with the first AI change that comes ([monster-balance](monster-balance.draft.md)'s leap or
-  [monster-climbers](monster-climbers.draft.md)), as decided in
-  [sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md).
+  [monster-climbers](monster-climbers.draft.md)). Not on its own: the split is the biggest step and pays off only
+  with a concrete AI change to test.
+* **Monster rules to unit test first:** the decisions in `entities/monster_ai.cpp`: `Seek`, `canSpit`, `canDive`,
+  `canCharge`, `UpdateCharge`, `Fly`. What the rules get through the links (the map, the player's box, the random
+  stream), without the assets, is settled in step 5.
 * Tooling only (no change to the game): once done and checked, straight to `solved/`.

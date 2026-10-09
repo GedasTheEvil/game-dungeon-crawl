@@ -293,3 +293,22 @@ TEST_CASE("a generated level and the campaign levels load and play") {
 		CHECK(world.dungeon.LevelNumber() == level);
 	}
 }
+
+TEST_CASE("a chest holds its main item and bonus rolls on the gameplay stream") {
+	SimWorld world; // tests/levels/classic1: the chest at x 14 on the start row holds a sword
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/classic1", 4));
+	REQUIRE(world.Walk(3.f));
+	REQUIRE(world.Walk(1.6f));
+	world.facing = 1;
+	world.Jump();
+	REQUIRE(world.Walk(2.f));
+	REQUIRE(world.Walk(0.6f));
+	world.Interact();
+	CHECK(world.items.Count(ItemKind::ShortSword) == 1);
+	int smallStamina = 0; // seed 4 rolls a small stamina bonus (potion 5)
+	for (int k = 0; k < ITEM_KIND_COUNT; k++)
+		if (isPotion(itemAt(k)) && fileIdOf(itemAt(k)).id == 5)
+			smallStamina = world.items.Count(itemAt(k));
+	CHECK(smallStamina == 1);
+}

@@ -1,6 +1,6 @@
 # Cowards flee when they cannot reach the player
 
-Status: draft 2026-10-09 (idea, not decided). From the user: if a "coward" monster cannot reach the player, instead
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: if a "coward" monster cannot reach the player, instead
 of going towards it, it runs away to avoid ranged attacks.
 
 ## Today
@@ -16,13 +16,21 @@ of going towards it, it runs away to avoid ranged attacks.
   out of range) instead of waiting at the obstacle.
 * Once a way opens (the rock has fallen, the player comes down), it seeks again.
 
-## Open
+## Decided (2026-10-09)
 
-* "Cannot reach": how the AI knows. Blocked by a trap edge only, or a path search (the climbers' path-finding,
-  [monster-climbers](monster-climbers.draft.md))?
-* Where to: away along the row, a set distance, or to a cell out of the player's line of sight.
-* Only when the player has a ranged weapon in hand, or always?
-* Which monsters: all cowards, or only some (fliers and the stationary ones are out)?
-* Bosses are all reckless today, so the boss ability rule (`AGENTS.md`) likely does not apply; check.
+* **Unreachable:** by the path search of [monster-climbers](monster-climbers.draft.md), with the monster's own
+  abilities: walking, planned jumps for the walk-jumpers, ladders for the climbers; an armed trap blocks a coward
+  (a walk-jumper may leap it). No path within the cap = unreachable. So this comes after monster-climbers.
+* **Where to:** the nearest cell out of the player's line of fire (off the row, behind a corner). If none is near,
+  away along its row, out of bow range.
+* **When:** always when unreachable, whatever the player holds.
+* **Who:** the moving cowards: scarab, rat, worm, scorpion, giant scorpion, giant rat, giant scarab. Not the bosses
+  (the boss scarab holds its arena), so no boss ability rule here. Not the flyers, the stationary and ambush ones
+  (plant, mimic, egg cluster), the cobras or the crocodile.
+* **Back:** once a path opens (the rock has fallen, the player comes near), it seeks again.
+
+## Open (for the implementer)
+
 * Checker score: a coward that flees is harder to kill but no more dangerous; likely no `threat` change.
-* An AI change: it goes with the sim cut ([sim-library](sim-library.draft.md)) and gets unit tests.
+* An AI change: it goes with the sim cut ([sim-library](sim-library.draft.md)) and gets unit tests (an unreachable rat
+  leaves the row; a path opens, it comes back; a giant rat with a jump in reach does not flee).

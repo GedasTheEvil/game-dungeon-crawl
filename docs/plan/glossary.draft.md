@@ -1,6 +1,6 @@
 # Glossary
 
-Status: draft 2026-10-09 (idea, not decided). From the user: a `docs/glossary.md` with the common terms and their
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: a `docs/glossary.md` with the common terms and their
 meanings, used in development and in the game, so everyone uses the same language when working.
 
 ## Idea
@@ -22,9 +22,21 @@ meanings, used in development and in the game, so everyone uses the same languag
 * Tooling: scenario, unit test, sim (the sim library), checker (`levelcheck`), threat, gameplay stream vs effects
   stream, tick, draft / implemented / solved plan.
 
-## Open
+## Decided (2026-10-09)
 
-* Scope: all of the above, or only terms that were used two ways (level, range, gap, threat)?
-* Order: alphabetical, or grouped as above?
-* Keep it current: a doc test (`tests/unit/docs_test.cpp`) that every code name in the glossary still exists?
-* UK or US spelling (armour vs `Armor` in the code)?
+* **Readers:** people reading the docs (the user, devs, testers) and agents. Not in the game (no journal page).
+* **Scope:** the full list above. A term used two ways (level, range, gap, threat) says so in its row ("not the
+  player's level").
+* **Layout:** one file, grouped sections (map, monsters, combat, items, tooling) with an index at the top, A-Z within
+  a section. One table row per term, so a grep returns the whole entry:
+
+  | Term | In game | Meaning | Code |
+  |---|---|---|---|
+  | range | | how far a weapon or spit reaches, between the hitboxes; weapons in tenths of a tile, spit in tiles | `WeaponDef::range`, `SpitRules::range` |
+
+  "In game" holds the word the player sees, empty for dev-only terms.
+* **Agents:** one line in `AGENTS.md`: unsure of a term, or naming a new thing, grep `docs/glossary.md`; add new
+  terms there. No need to read the whole file.
+* **Spelling:** as the player sees it in the game; code names as they are in the code.
+* **Kept current:** a check in `tests/unit/docs_test.cpp`: every code name in the Code column still exists in `src/`.
+* Docs only (no change to the game): once done and checked, straight to `solved/`.

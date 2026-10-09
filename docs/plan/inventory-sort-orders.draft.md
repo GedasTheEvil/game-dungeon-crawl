@@ -16,8 +16,8 @@ Three orders on top of the default. Not found items stay at the end in all of th
 * **Control:** small buttons on the items panel, `[a-z] [*] [new]`, in the [UI](../ui.md) style. A click picks that
   order, the active one is lit; a click on the active one goes back to found first.
 * **Not saved:** every tab starts in found first when the game starts.
-* **Recently found** needs a stamp per item: a counter set by `ItemBag::Find` / `Add` (the first time only, or every
-  pickup: every pickup, so a fresh potion comes up). The stamps go in the bag's save (a new `INV` version, older saves
+* **Recently found** needs a stamp per item: a counter set by `ItemBag::Find` / `Add` on every pickup, so a fresh
+  potion comes up. The stamps go in the bag's save (a new `INV` version, older saves
   load with no stamps: found first among them).
 * `tabOrder` (`src/world/item_bag.h`) takes the order; the grid, the arrow keys and the scenario `select` follow it as
   today. A scenario command to pick an order, and unit tests per order.

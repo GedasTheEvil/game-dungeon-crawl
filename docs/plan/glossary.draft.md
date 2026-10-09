@@ -1,7 +1,8 @@
 # Glossary
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: a `docs/glossary.md` with the common terms and their
-meanings, used in development and in the game, so everyone uses the same language when working.
+Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: a `docs/glossary.md` with
+the common terms and their meanings, used in development and in the game, so everyone uses the same language when
+working.
 
 ## Idea
 

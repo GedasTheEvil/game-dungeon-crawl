@@ -26,10 +26,11 @@ cooldown 3 s.
   cobra's spit clip with its `release` and `mouthY`.
 * The player can dodge or block it like the venom glob (whatever `Dungeon::Venom` allows today), and it hits walls.
 * Journal note: the Anubis's line mentions the ranged attack.
+* The Anubis boss gets it too, stronger (the boss ability rule in `AGENTS.md`): its numbers are open, e.g. range 20
+  (the sling's), damage scaled like its melee (140 vs 55), a shorter cooldown.
 
 ## Open
 
-* The guard only, or the boss too (with its own numbers)?
 * Damage type: the melee mix (80 blunt / 20 pierce) or e.g. 100% pierce for a thrown spear?
 * Melee and ranged together: it shoots from afar and still hits 55 up close, as the cobras bite up close?
 * Balance: the Anubis is already tuned for "about 15 blows" on a level 55 player

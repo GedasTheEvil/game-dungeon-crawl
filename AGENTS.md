@@ -29,6 +29,11 @@ Every campaign level must pass the level checker with no warnings (`./levelcheck
 When a checker change flags a level, fix the level, also the hand-made levels 1 to 5. Manual placement is no reason
 to keep a warning.
 
+## Boss abilities
+When a base monster gets a new ability (jump, ranged attack, swimming, ...), its boss gets one too (the boss whose
+`kin` is that monster, `src/world/monster_kinds.cpp`). Make it stronger (farther, harder, faster) where that makes
+sense. The same goes for draft plans: a plan that gives a base monster an ability covers its boss too.
+
 ## Plans
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.

@@ -24,7 +24,7 @@ Three new types, the warding amulets' mirror: more damage of one type.
   (85% slash) with grand Cleaving about +42%, the club (85 blunt / 15 slash) with grand Cleaving about +8%.
 * Names: "Lesser Amulet of Crushing", "Amulet of Minor Crushing", ... (the usual tier pattern).
 * Found like the others: lesser and minor in chests, normal and grand from bosses. New ids after venom, so old saves
-  and levels keep theirs. Amulets tab: a row each, after the warding rows.
+  and levels keep theirs. In the Amulets tab after venom (the `ItemKind` order, found first).
 * Models: Egyptian pendants in the amulet style (`items.py`), icons in `hud_icons.py`.
 
 ### Grand strength

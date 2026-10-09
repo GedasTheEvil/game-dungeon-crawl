@@ -25,12 +25,65 @@ tests. Expected result: a faster test run, fewer resources.
 * A moved test checks the same thing as the scenario's `expect` lines, through the library's public interface.
 * Some scenarios mix both: split them (the rule to a unit test, the look stays a trimmed scenario).
 
-## Open
+## Measuring without a screenshot (survey 2026-10-09)
 
-* The input path: a scenario presses keys (`tryAttack`, hotkeys). A unit test calls the rule. Keep one end-to-end
-  scenario per input feature, or trust the unit test?
-* Scenario-only helpers (`src/test/scenario_fields.cpp` getters): if a unit test needs the same state, expose it
-  from the library, not via the scenario layer.
-* Measure: `make test` time and peak memory before and after.
-* Docs: [../testing.md](../testing.md) ("Test the rules there first") and `AGENTS.md` ("To check game behaviour ...
-  write a script in `tests/scenarios/`"): point behaviour checks to unit tests, scenarios to visuals.
+What the screenshots of the 96 scenarios confirm, by eye:
+
+| Class | Count | Scenarios |
+|---|---:|---|
+| Debug aid only (the `expect` lines check it) | 24 | amulets, weapon_hotkeys, anubis_coffins_load, anubis_boss, monster_poison, damage_types, keys, level_exit_jump, teleport, chest_pickup, reckless_rock, reckless_anubis, reckless_spikes, giant_rat_speed, quick_potions, venom_amulet, dart_trap, boss, lvl5_boss, monster_idle_bars, riddle_scaled, smoke, generated, decor_depth |
+| Position / geometry | 17 | monster_hitboxes, weapon_reach, melee_weapons, coward_rock, monster_walls, monster_hazards, monster_follow, water, water_arrow, rock_fall, fall_trap, giant_rat_jump, giant_scarab_jump, gate_facing, render_window, aspect_wide, aspect_tall |
+| Animation / pose | 18 | weapons_held (88 shots), bow, ranged_weapons, bats, cobra, mimic, mummy, scorpions, scorpion_queen, sobek, apep, crocodile, vampire, rats, scarabs, monster_anim, ladder, mechanisms |
+| Light / colour / particles | 6 | lighting, blood_at_start, monster_blood, summon_effects, sprint_motion, toon |
+| HUD / UI | 26 | menu, options, credits, inventory*, player_hud*, journal*, journal_page_turn, status_box, level_gem, level_up, draft_map, screen_tabs, riddle, ... |
+| Truly visual | 5 | filtering, surfaces, statues, props, toon_weapon_scale |
+
+The main blocker is that `Dungeon`, `Monster`, `Player` and `character_model` are not in `liblevel`. `dungeon.h`
+includes `monster.h`, which pulls in particles, textures and the model
+([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)). Most of the debug-only class checks Dungeon or
+monster rules.
+
+Techniques, by value:
+
+1. **Weapon swing pose (S).** `swingPose(WeaponMotion)` (`src/graphics/draw.cpp:62-87`) is pure apart from `Game()`
+   and the clock. Move it to `items.cpp` as `swingPose(m, elapsedMs)`, then assert tilt, thrust and draw at the
+   windup, hit, swing and recovery marks for every weapon. Replaces most of weapons_held (88 shots) and parts of bow
+   and ranged_weapons.
+2. **Water sink (S).** `Dungeon::waterSink` (`src/world/dungeon_base.cpp:211`) needs only the map. Make it a free
+   function on `Level`, then assert the depth at the bank edge, mid-ramp and the centre, and 0 on dry floor. Replaces
+   water, the crocodile's bank shots and the water_arrow geometry.
+3. **Flames and lights over all levels (S-M).** `Dungeon::flamesAt` and `TORCH_FIRE` / `BRAZIER_FIRE`
+   (`src/world/dungeon_render_decor.cpp:15, 118`) sit in a render file. Move them out with a plain light id instead of
+   `Lighting::LightDef`. Then run a property test over `levels/lvl*`: every torch, brazier and lamp cell gives a flame
+   inside its cell, and no torch stands in deep water
+   ([no-torches-under-water](no-torches-under-water.draft.md)). The scatter is already in the lib (`decor_test`).
+4. **Hitbox and reach matrix (M).** `Monster::HalfWidth` / `Player::HalfWidth` (`monster.cpp:158`, `player.cpp:58`)
+   are model bbox × scale × `Ink::figureScale()`. Toon mode changes the hitboxes, which is worth a check of its own.
+   MD3 parsing is GL-free until the display list compiles (`animated_model.cpp:241`). Either move the parser to a
+   lib, or store the half-widths in `MonsterKind` with a test against the md3 bbox. Then assert from
+   `MONSTER_BITE_REACH` and `Item::Reach()` that every weapon reaches a biting monster of every size. Replaces
+   monster_hitboxes, weapon_reach and melee_weapons.
+5. **UI layout as data (M).** `ui::visibleArea` / `toCanvas` (`ui_draw.cpp:8`) are pure but live in `librender`.
+   `playerHudView()` has no GL. Other UI rules are trapped inside `draw()`: the status box fade, the gem per level
+   (`level_gem.cpp:12`), the HUD trail (`player_hud.cpp:317`), the inventory slot and button rects. Pull out
+   `layout(resX, resY)` → rects and `alpha(ageMs)`. Assert that at 4:3, 16:9 and 21:9 everything fits the canvas
+   without overlap and that click points hit their targets. The page curl maths (`page_curl.h:19-21`) is already pure;
+   move it out of its GL file.
+6. **Golden dumps (S-M).** A per-level text dump of the scatter and the flames, diffed in a unit test. Replaces
+   decor_depth and the placement part of surfaces and props. Particles: `PARTICLE_COUNT` is fixed, so a test checks
+   the emitter triggers, which are already `WorldEvents` in the lib.
+7. **Fixed-step sim harness (L).** Most of the parts already exist: the virtual clock (`core/timer.h`),
+   `UPDATE_TICK_MS`, `GameRandom` with separate gameplay and effects streams (`world/rng.h:31`), `SimLinks`, and
+   `Dungeon::Dump` / `LoadDump`. What is missing is Dungeon and the monsters in a lib (the sim split). With that, a
+   test loads a level, steps N ticks and checks positions: the rat stops at the rock, the wall and the hazards, the
+   jump arc, the rock-fall graze against a crush. Covers the debug-only class and most of the geometry class.
+8. **Animation clip state (L, after 7).** `CharacterModel::Enter` / `Advance` / `Progress`
+   (`character_model.cpp:83-115`) and `AnimPlayback` (`animated_model.h:22`) need only each clip's frame count and
+   loop flag. Split out a GL-free playback core, then assert (state, frame) per tick: idle, rise, attack, die, and a
+   non-looping clip holding its last frame. Replaces the animation class.
+9. **Draw-list recorder (L, low priority).** A shim over the draw calls (`glTranslatef`, `Fire::draw`,
+   `Lighting::add`, `Model::Show`) records (kind, x, y, z, state, frame) for golden diffs. It is heavy, because the
+   draw code calls GL directly everywhere. The pure-function splits above come first.
+
+The truly visual class (5) and a smoke screenshot per screen stay scenarios.
+

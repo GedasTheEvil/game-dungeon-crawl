@@ -1,6 +1,6 @@
 # Scorpion queen boss
 
-Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](../more-bosses.draft.md).
+Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](../old/more-bosses.draft.md).
 
 A boss for the Egyptian setting (Serket, the scorpion goddess). She ranks below the Anubis boss: she comes before him
 in the campaign, and he stays the last boss.

@@ -158,4 +158,4 @@ Format:
 
 ## Open questions
 
-* The other bosses, beyond the three above: [more-bosses.draft.md](../more-bosses.draft.md).
+* The other bosses, beyond the three above: [more-bosses.draft.md](../old/more-bosses.draft.md).

@@ -1,6 +1,6 @@
 # Apep serpent boss
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](more-bosses.draft.md).
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](old/more-bosses.draft.md).
 
 Apep (Apophis), the serpent of chaos, a giant snake boss.
 

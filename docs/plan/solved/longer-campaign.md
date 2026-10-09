@@ -20,7 +20,7 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
 * **30 levels**, a boss every 5. **The Anubis boss is the last boss, for good**: every new boss comes before him.
 * Bosses: 5 boss scarab, 10 vampire bat, 15 [scorpion queen](scorpion-queen-boss.md), 20
   [Apep](../apep-serpent-boss.md), 25 **Sobek** (picked by the agent while the user was away; the giant crocodile,
-  from [more-bosses.draft.md](../more-bosses.draft.md); easy to swap), 30 the Anubis boss and the ankh.
+  from [more-bosses.draft.md](../old/more-bosses.draft.md); easy to swap), 30 the Anubis boss and the ankh.
 * The Anubis guards (`MonsterAnubis`) get stronger for the late levels: retuned with the curve below.
 * New monsters: [cobra](cobra.md) (16-20 and Apep's minion), [giant cobra](../giant-cobra.md) (21-30), giant
   scorpion (the queen's minion in 15, placed again in 26-30).

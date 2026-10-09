@@ -53,7 +53,7 @@ three.
 * Strength: between the giant rat and the mummy, with higher damage than both (numbers when the work starts, against
   [monster-balance.draft.md](../monster-balance.draft.md)). First crocodiles around lvl 7-9; those levels get water.
 * Model built in Blender ([../remodeling.md](../../remodeling.md)). A Sobek boss could follow later
-  ([more-bosses.draft.md](../more-bosses.draft.md)).
+  ([more-bosses.draft.md](../old/more-bosses.draft.md)).
 
 Gameplay (decided 2026-10-05): on land the crocodile is slower than a rat or a bat, the player outwalks it (it walks
 0.42 tiles/s, the player 1 and sprints 3). In the water it swims 1.05 tiles/s, faster than the player walks on land

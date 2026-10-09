@@ -1,6 +1,7 @@
 # Unit tests for the monster rules
 
 Status: draft 2026-10-07, refined 2026-10-09: shelved until an AI change. Step 4 of [sim-unit-tests](solved/sim-unit-tests.md), left open when steps 1-3 were done.
+Covered by the wider [sim-library](sim-library.draft.md) (Dungeon, monsters and the player without GL).
 
 ## Idea
 

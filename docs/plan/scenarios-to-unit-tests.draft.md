@@ -41,7 +41,7 @@ What the screenshots of the 96 scenarios confirm, by eye:
 The main blocker is that `Dungeon`, `Monster`, `Player` and `character_model` are not in `liblevel`. `dungeon.h`
 includes `monster.h`, which pulls in particles, textures and the model
 ([sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md)). Most of the debug-only class checks Dungeon or
-monster rules.
+monster rules. The plan to solve it: [sim-library](sim-library.draft.md).
 
 Techniques, by value:
 

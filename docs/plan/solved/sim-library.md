@@ -1,8 +1,8 @@
 # Sim library: Dungeon, monsters and the player without GL
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: solve the blocker of
-[scenarios-to-unit-tests](scenarios-to-unit-tests.draft.md). It takes over step 4 of
-[sim-unit-tests](solved/sim-unit-tests.md) (the monster rules, merged in 2026-10-09 from its own draft) and goes
+Status: implemented 2026-10-09 (tooling only, so solved without a play test; see [Progress](#progress)). From the
+user: solve the blocker of [scenarios-to-unit-tests](../scenarios-to-unit-tests.draft.md). It takes over step 4 of
+[sim-unit-tests](sim-unit-tests.md) (the monster rules, merged in 2026-10-09 from its own draft) and goes
 further: the whole `Dungeon`, not only the monster AI.
 
 ## Problem
@@ -38,7 +38,7 @@ What the sim reads from a model: the bbox (half widths: `Monster::HalfWidth`, `m
 ## Idea
 
 Steps, each its own commit. The game plays the same after each one (scenario screenshots byte-identical, as in
-[sim-unit-tests](solved/sim-unit-tests.md) step 2):
+[sim-unit-tests](sim-unit-tests.md) step 2):
 
 1. **Model facts as data.** A GL-free `ModelInfo` (bbox, clips: frame count, loop, fps, marks). Read from the md3 by
    a parser split from `animated_model.cpp` (the parsing is GL-free until the display list compiles,
@@ -71,8 +71,8 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
 * **`ModelInfo`:** parsed from the md3 at run time by a GL-free parser split from `animated_model.cpp`. The unit tests
   read the real model files, so no generated table to drift from the models.
 * **Order:** step 1 (`ModelInfo`) on its own: it is small and unlocks the hitbox / reach matrix and the clip tests.
-  Steps 2-6 together with the first AI change that comes ([monster-balance](monster-balance.draft.md)'s leap or
-  [monster-climbers](monster-climbers.draft.md)). Not on its own: the split is the biggest step and pays off only
+  Steps 2-6 together with the first AI change that comes ([monster-balance](../monster-balance.draft.md)'s leap or
+  [monster-climbers](../monster-climbers.draft.md)). Not on its own: the split is the biggest step and pays off only
   with a concrete AI change to test.
 * **Monster rules to unit test first:** the decisions in `entities/monster_ai.cpp`: `Seek`, `canSpit`, `canDive`,
   `canCharge`, `UpdateCharge`, `Fly`. What the rules get through the links (the map, the player's box, the random
@@ -96,6 +96,19 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
 * Step 3 done: `Player` keeps the stats, the pose (its `ModelInfo`, clip state, blood) and the jump and attack state;
   `PlayerView` (`entities/player_view.cpp`, held by `GameState`) loads the model, draws it and finds the fists. The
   god mode is `Player::god` (the scenario sets it), the die and jump sounds are world events. `swingPose` stays in
-  `draw.cpp` for now: [scenarios-to-unit-tests](scenarios-to-unit-tests.draft.md) technique 1 moves it.
+  `draw.cpp` for now: [scenarios-to-unit-tests](../scenarios-to-unit-tests.draft.md) technique 1 moves it.
 * Step 4 done: `Item` keeps the model and the sounds; damage, range, mix and motion are read from `weaponDef`, the
   reach from `weaponReach` (`world/items.h`). `Trap` only draws, it stays as it is.
+* Step 5 done: the dungeon's rule files (`world/dungeon_{arrows,base,boss,darts,decor,io,mechanisms,monsters}.cpp`),
+  `monster.cpp`, `monster_ai.cpp` and `player.cpp` are in `libsim.a`. The monster types come through
+  `SimLinks::monsterTypes` (`MonsterTypes`, `LoadMonsterTypes` for a sim without `Assets`); `SimLinks::assets` is
+  left for the drawing only. The flames are `flamesAt` on the `DecorLayout` (`world/decor_scatter.h`, tile units, a
+  `FlameKind`); `dungeon_render_decor.cpp` gives each its light and fire sprite. The cut differs from the decision:
+  the `Dungeon` owns its monster slots, so the sim classes keep the names `Monster` and `Player`, and the drawing is
+  a function (`DrawMonster`) or a view beside them (`PlayerView`), not a class that holds the sim.
+* Step 6 done: `tests/unit/sim_world.h` (`SimWorld`): a level, the player and the monsters stepped tick by tick as the
+  game loop does, with `WalkTo`, the journal's moves and the events. `tests/unit/sim_test.cpp`: the wall and the rock
+  fall stop a walker (the numbers of `monster_walls` and `coward_rock`), the cobra's spit (`canSpit`), Sobek's charge
+  and stun (`canCharge`, `UpdateCharge`), Apep's dive (`canDive`), the bat's swoop (`Fly`). The unit tests run in
+  about 4 s (most of it loading the models).
+* Every step: the scenario screenshots byte-identical to the start (602 of 106 scenarios).

@@ -32,5 +32,5 @@ cannot reach the player, instead of going towards it, it runs away to avoid rang
 ## Open (for the implementer)
 
 * Checker score: a coward that flees is harder to kill but no more dangerous; likely no `threat` change.
-* An AI change: it goes with the sim cut ([sim-library](sim-library.draft.md)) and gets unit tests (an unreachable rat
+* An AI change: it gets unit tests on the sim harness ([sim-library](solved/sim-library.md)) (an unreachable rat
   leaves the row; a path opens, it comes back; a giant rat with a jump in reach does not flee).

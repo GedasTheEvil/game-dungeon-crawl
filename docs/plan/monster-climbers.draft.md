@@ -13,8 +13,7 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
 
 * A `MonsterKind` flag: a climber follows the player up or down a ladder (`Dungeon::PlayerOnLadder`, `LADDER_REACH`),
   with a climb clip on its model (Blender, [../remodeling.md](../remodeling.md)).
-* An AI change, so it carries steps 2-6 of [sim-library](sim-library.draft.md) (the monster split and the test
-  harness), as decided there.
+* An AI change: unit tests on the sim harness ([sim-library](solved/sim-library.md), `tests/unit/sim_world.h`).
 
 ## Decided (2026-10-09)
 

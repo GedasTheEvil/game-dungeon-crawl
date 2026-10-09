@@ -6,9 +6,14 @@ Two kinds: unit tests of the GL-free library code, and scenario tests of the run
 ## Unit tests
 
 [doctest](https://github.com/doctest/doctest) (one header, `external/doctest/doctest.h`). `tests/unit/*_test.cpp`
-link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs `build/unit`; `./build/unit -tc="*gate*"`
-runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
+link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs
+`build/unit`; `./build/unit -tc="*gate*"` runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
 a scenario is for what needs the game running (drawing, timing, input).
+
+`tests/unit/sim_world.h` (`SimWorld`) runs the world without the game: it loads a level as `level path` does, steps
+it one tick at a time on the virtual clock as the game loop does (`Tick`, `Wait`, `WalkTo`), and reads the player,
+the monsters (`dungeon.Boss()`, `NearestMonsterHealth()`), the journal's moves (`Saw`) and the world events
+(`said`). Monster AI, missiles, mechanisms and the boss are tested there (`tests/unit/sim_test.cpp`).
 
 ## Scenario tests
 

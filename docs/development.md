@@ -40,7 +40,7 @@ base, level, sim, render.
 |---|---|---|---|
 | `build/libbase.a` | `core/timer` (the game clock), `core/logger` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
-| `build/libsim.a` | `entities/md3_mesh` (the model files, no GL), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
+| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
 | `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
@@ -49,8 +49,10 @@ No library uses SDL or `Game()`, and a library file only includes headers of its
 to `LEVEL_LIB_HEADERS`).
 
 The world and the entities (`src/world/dungeon*`, `src/entities/`) have no `Game()` and no screens; `make layers` checks
-that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp`: its other files
-include no GL and no graphics header but `render_config.h`. Rules both sides need go in `src/world/dungeon_rules.h`.
+that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp` (in the game, not
+the library): its other files include no GL and no graphics header but `render_config.h`. Rules both sides need go in
+`src/world/dungeon_rules.h`. A monster is drawn by `DrawMonster` (`entities/monster_draw.cpp`), the player by
+`PlayerView`; both only read the sim's state ([plan/solved/sim-library.md](plan/solved/sim-library.md)).
 
 ## Adding a tile type, a monster or an item
 

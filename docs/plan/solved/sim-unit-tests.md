@@ -1,7 +1,7 @@
 # Unit tests for the simulation: rules out of the GL files
 
 Status: draft 2026-10-07. Steps 1-3 done 2026-10-07 (see [Implementation](#implementation)); step 4 moved to
-[sim-library](../sim-library.draft.md). From the
+[sim-library](sim-library.md). From the
 [architecture review](architecture-review.md), refactor 3. The leftover that
 [world-without-game](world-without-game.md) left for "its own stage".
 

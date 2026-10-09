@@ -53,7 +53,7 @@ Used by:
 
 * Journal: the poison resistance on the creature page: done with the [venom amulet](venom-amulet.md).
 * Unit tests: `Poison` is tested already; the monster side waits for
-  [sim-library](../sim-library.draft.md).
+  [sim-library](sim-library.md).
 
 ## To test
 

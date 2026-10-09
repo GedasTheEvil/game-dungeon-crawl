@@ -18,7 +18,7 @@ tests. Expected result: a faster test run, fewer resources.
   1. **Behaviour only:** no screenshot, or screenshots nobody needs to look at; all checks are `expect` lines on
      rules in the library (stats, items, damage, loot, water, progression). Move to a unit test, delete the scenario.
   2. **Behaviour over code still in the game binary:** monster AI, missiles, mechanisms, boss. Blocked until the rules
-     leave the GL files ([sim-library](sim-library.draft.md)). Stay scenarios for now.
+     leave the GL files ([sim-library](solved/sim-library.md)). Stay scenarios for now.
   3. **Visual or whole-game:** HUD, screens, model / animation, filtering, aspect, smoke, input path end to end. Stay
      scenarios.
 * A moved test checks the same thing as the scenario's `expect` lines, through the library's public interface.
@@ -39,7 +39,7 @@ What the screenshots of the 96 scenarios confirm, by eye:
 
 The main blocker is that `Dungeon`, `Monster`, `Player` and `character_model` are not in `liblevel`. `dungeon.h`
 includes `monster.h`, which pulls in particles, textures and the model. Most of the debug-only class checks Dungeon or
-monster rules. The plan to solve it: [sim-library](sim-library.draft.md).
+monster rules. The plan to solve it: [sim-library](solved/sim-library.md).
 
 Techniques, by value:
 
@@ -91,7 +91,7 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
 * **Order, by size and by what blocks them:**
   1. Without the sim library: 1 swing pose, 2 water sink, 3 flames and lights, 6 golden dumps.
   2. 5 UI layout as data.
-  3. After [sim-library](sim-library.draft.md): 4 hitbox and reach matrix (on `ModelInfo`, its step 1), 7 the sim
+  3. After [sim-library](solved/sim-library.md): 4 hitbox and reach matrix (on `ModelInfo`, its step 1), 7 the sim
      harness, 8 clip state.
 * One technique per commit. The game plays the same after each one.
 * **Moved scenarios:** delete a scenario once all its checks are unit tests. If something visual is left, trim it to

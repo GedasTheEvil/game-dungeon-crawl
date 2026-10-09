@@ -20,7 +20,7 @@ be tuned against the final player speed.
 
 Order of work:
 
-1. **The sim cut** ([sim-library](sim-library.draft.md), steps 2-6), so the leap AI below is
+1. **The sim cut** ([sim-library](solved/sim-library.md), done 2026-10-09), so the leap AI below is
    unit tested.
 2. **Close the gap:** the giant scarab walks at 3 (from 2). It and the giant rat leap (`Locomotion::WalkJump`) at the
    player when 2-3 tiles away on the same row with a clear way, 3 s between leaps. HP and damage only if that is not

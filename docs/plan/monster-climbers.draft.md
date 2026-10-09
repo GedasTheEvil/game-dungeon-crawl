@@ -13,16 +13,21 @@ Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters 
 
 * A `MonsterKind` flag: a climber follows the player up or down a ladder (`Dungeon::PlayerOnLadder`, `LADDER_REACH`),
   with a climb clip on its model (Blender, [../remodeling.md](../remodeling.md)).
-* The boss of a climbing base monster climbs too, faster (the boss ability rule in `AGENTS.md`).
 * An AI change, so it carries steps 2-6 of [sim-library](sim-library.draft.md) (the monster split and the test
   harness), as decided in [sim-unit-tests-monster-rules](sim-unit-tests-monster-rules.draft.md).
 
+## Decided (2026-10-09)
+
+* **Climbers:** the rat, the giant rat, the scorpion, the giant scorpion, the mummy and the Anubis (hands or claws).
+  Not worms, plants, cobras or the crocodile; bats fly already.
+* **Bosses:** the bosses of climbers (the Scorpion Queen, the Anubis boss) can climb too, faster (the boss ability
+  rule in `AGENTS.md`). Their arenas rarely give them a ladder, but the AI must not rule it out.
+* **Checker score:** a climber's `threat` goes up by 1 (the player can no longer escape up a ladder). Bosses too.
+  Re-run `./levelcheck levels/lvl*` and fix the levels it flags.
+
 ## Open
 
-* Which monsters climb: e.g. rats, scorpions, the mummy and the Anubis (hands or claws); not worms, plants, cobras or
-  the crocodile. Bats fly already.
 * A climber on the ladder with the player: it attacks the player on the rungs, who cannot attack back. Too harsh?
   Options: a climber cannot attack while climbing either, or it waits at the end of the ladder.
 * Speed on the ladder: the player's climb speed, slower, or per monster.
-* `levelcheck`: does a climber change any level's score (the player can no longer escape up a ladder)?
 * Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot).

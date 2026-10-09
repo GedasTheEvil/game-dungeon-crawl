@@ -5,6 +5,7 @@
 // two-pass text. Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
 // Conventions: docs/ui.md.
 
+#include "ui_layout.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -13,29 +14,6 @@ class Font;
 
 namespace ui {
 
-// The menu, inventory and riddle screens lay out on this canvas (y up); the draft map uses its height.
-constexpr float CANVAS_W = 160.f;
-constexpr float CANVAS_H = 100.f;
-
-// The feedback line under a screen ("Saved to slot 2"): shown for MS, fading out over the last FADE_MS.
-struct Toast {
-	static constexpr int MS = 2200;
-	static constexpr int FADE_MS = 600;
-	std::string text;
-	int startMs = 0;
-	void Show(const std::string& line, int now) {
-		text = line;
-		startMs = now;
-	}
-	// 0 when not showing.
-	[[nodiscard]] float Alpha(int now) const {
-		const int age = now - startMs;
-		if (text.empty() || age < 0 || age >= MS)
-			return 0.f;
-		return age > MS - FADE_MS ? static_cast<float>(MS - age) / static_cast<float>(FADE_MS) : 1.f;
-	}
-};
-
 // A canvas `height` units tall and as wide as the window's aspect needs (square units, origin bottom left, y up), for
 // the HUD parts and the draft map: sets the projection, leaves the modelview matrix current, returns the width.
 // `depth`: the z range either side of 0.
@@ -43,14 +21,6 @@ float beginSquareCanvas(float height, int resX, int resY, float depth = 21.f);
 
 // The four papyrus fonts of a UI screen; only the title's size differs between screens.
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize);
-
-struct Rect {
-	float x, y, w, h;
-	[[nodiscard]] bool contains(float px, float py) const { return px >= x && px <= x + w && py >= y && py <= y + h; }
-	[[nodiscard]] float cx() const { return x + w / 2; }
-	[[nodiscard]] float cy() const { return y + h / 2; }
-	[[nodiscard]] Rect inset(float d) const { return {x + d, y + d, w - 2 * d, h - 2 * d}; }
-};
 
 struct Color {
 	float r, g, b;
@@ -87,12 +57,6 @@ constexpr Color STONE_HOVER_TOP = {0.33f, 0.25f, 0.15f};
 constexpr Color STONE_HOVER_BOTTOM = {0.17f, 0.13f, 0.08f};
 constexpr Color STONE_HELD_BOTTOM = {0.07f, 0.05f, 0.035f};
 constexpr Color TEXT_HOVER = {1.f, 0.92f, 0.65f};
-
-// Part of a `canvasW` x `canvasH` layout (y up) seen in a resX x resY window: the canvas keeps its aspect ratio and
-// is centred, the margins of a wider or taller window are added around it.
-Rect visibleArea(float canvasW, float canvasH, int resX, int resY);
-// Window pixel (y down) -> canvas point inside `area`.
-void toCanvas(const Rect& area, int resX, int resY, int mouseX, int mouseY, float& x, float& y);
 
 // ---- shapes (texturing off, see beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);
@@ -139,15 +103,7 @@ void textCentered(Font& font, float cx, float y, const char* str, Color c, float
 // Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 
-// ---- screen tabs ----
-// The strip at the top right of the 160 x 100 canvas that switches between the in-game screens: one tile per screen
-// with its icon and key, the open one lapis. Screens with it keep their title rule short (SCREEN_TABS_TITLE_REACH).
-enum class ScreenTab : std::uint8_t { Inventory, Map, Journal };
-constexpr int SCREEN_TAB_COUNT = 3;
-constexpr float SCREEN_TABS_TITLE_REACH = 44.f;
-Rect screenTabRect(int tab);
-// -1 off the strip.
-int screenTabAt(float x, float y);
+// ---- screen tabs (their layout: ui_layout.h) ----
 // hovered / held: a tab index or -1. The hovered tab's name shows on a label to the left of the strip.
 void screenTabs(Font& small, ScreenTab open, int hovered, int held);
 

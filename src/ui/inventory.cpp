@@ -7,6 +7,7 @@
 #include "../input/input.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
+#include "inventory_layout.h"
 #include "ui_draw.h"
 #include "screen_tabs.h"
 #include "player_hud.h"
@@ -20,30 +21,14 @@
 namespace {
 
 using namespace ui;
+using namespace InventoryLayout;
 
 constexpr Color HEALTH = {0.72f, 0.14f, 0.09f};
 constexpr Color STAMINA = {0.78f, 0.68f, 0.16f};
 
-constexpr Rect ITEMS_PANEL = {4, 13, 92, 72};
-constexpr Rect DETAIL_PANEL = {100, 13, 56, 72};
-constexpr Rect WIDE_BUTTON = {107, 16, 42, 7}; // potions: Drink
-constexpr Rect EQUIP_BUTTON = {104, 16, 23, 7};
-constexpr Rect UPGRADE_BUTTON = {129, 16, 23, 7};
-// One grid for every tab: COLUMNS slots a row, as many rows as the group needs. VISIBLE_ROWS fit the panel; a group
-// with more scrolls by whole rows (the wheel, the arrow keys past the last row shown), with a thin bar at the side.
-constexpr int COLUMNS = 4;
-constexpr int VISIBLE_ROWS = 2;
-constexpr float SLOT_W = 19.f;
-constexpr float SLOT_H = 22.f;
-constexpr float SLOT_GAP = 3.f;
-constexpr float TOP_ROW_Y = 52.f;
 constexpr float NAME_BAND_H = 4.4f;
 constexpr float SLOT_SCALE = 14.5f;
 
-// The group tabs across the top of the items panel, the same width as the grid.
-constexpr float TAB_Y = 77.6f;
-constexpr float TAB_H = 6.f;
-constexpr float TAB_GAP = 2.f;
 constexpr const char* GROUP_NAMES[ITEM_GROUP_COUNT] = {"Weapons", "Potions", "Amulets", "Rings"};
 constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon(ItemKind::ShortSword),
 														   PlayerHud::Icon::Potion, PlayerHud::Icon::Amulet,
@@ -57,20 +42,15 @@ constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
 constexpr float SCROLL_BAR_W = 1.f;
 
-// The sort buttons right of the group tabs, one per SortOrder past Found (docs/plan/inventory-sort-orders.md).
+// The sort buttons' faces (their places: inventory_layout.h).
 constexpr const char* SORT_LABELS[SORT_ORDER_COUNT] = {"", "a-z", "*", "new"};
 constexpr const char* SORT_HINTS[SORT_ORDER_COUNT] = {"", "Sort by name", "Strongest first", "Last found first"};
-constexpr float SORT_W[SORT_ORDER_COUNT] = {0.f, 6.f, 4.5f, 6.f};
-constexpr float SORT_GAP = 1.f;
-constexpr float SORTS_W = SORT_W[1] + SORT_W[2] + SORT_W[3] + 2 * SORT_GAP;
 
 ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
 bool isWeapon(int slot) { return ::isWeapon(kindOf(slot)); }
 bool isAmulet(int slot) { return ::isAmulet(kindOf(slot)); }
 ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
-// In its tab's grid: the found items first, in `sort` order (tabOrder).
-int positionOf(const ItemBag& bag, SortOrder sort, int slot) { return tabPosition(bag, kindOf(slot), sort); }
 ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
 
 Color potionColor(ItemKind potion) {
@@ -108,41 +88,9 @@ const char* blockReason(UseBlock block) {
 	return "";
 }
 
-constexpr float GRID_W = COLUMNS * SLOT_W + (COLUMNS - 1) * SLOT_GAP;
-
-int rowsOf(ItemGroup group) { return (groupItems(group).count + COLUMNS - 1) / COLUMNS; }
-int rowOf(const ItemBag& bag, SortOrder sort, int slot) { return positionOf(bag, sort, slot) / COLUMNS; }
-
-// Its tab scrolled down by `scroll` rows.
-Rect slotRect(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
-	const int position = positionOf(bag, sort, slot);
-	const float x0 = ITEMS_PANEL.cx() - GRID_W / 2;
-	const auto column = static_cast<float>(position % COLUMNS);
-	const auto row = static_cast<float>(rowOf(bag, sort, slot) - scroll);
-	return {x0 + column * (SLOT_W + SLOT_GAP), TOP_ROW_Y - row * (SLOT_H + SLOT_GAP), SLOT_W, SLOT_H};
-}
-
-bool slotVisible(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
-	const int row = rowOf(bag, sort, slot);
-	return row >= scroll && row < scroll + VISIBLE_ROWS;
-}
-
 // The question mark of an item not found yet, centred in `r`.
 void unknownMark(Font& font, const Rect& r, float alpha) {
 	textCentered(font, r.cx(), r.cy() - 2.5f, "?", {0.45f, 0.42f, 0.38f}, alpha);
-}
-
-// The tabs leave the right end of the row to the sort buttons.
-Rect tabRect(int group) {
-	const float w = (GRID_W - SORTS_W - ITEM_GROUP_COUNT * TAB_GAP) / ITEM_GROUP_COUNT;
-	return {ITEMS_PANEL.cx() - GRID_W / 2 + static_cast<float>(group) * (w + TAB_GAP), TAB_Y, w, TAB_H};
-}
-
-Rect sortRect(int order) {
-	float x = ITEMS_PANEL.cx() + GRID_W / 2 - SORTS_W;
-	for (int o = 1; o < order && o < SORT_ORDER_COUNT; o++)
-		x += SORT_W[o] + SORT_GAP;
-	return {x, TAB_Y, SORT_W[std::clamp(order, 0, SORT_ORDER_COUNT - 1)], TAB_H};
 }
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -354,28 +302,13 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 // ---- input -----------------------------------------------------------------
 
 void Inventory::UpdateHover(float x, float y) {
-	hoveredSlot = NO_SLOT;
-	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (groupOf(slot) == tab && slotVisible(bag, Sort(), slot, Scroll()) &&
-			slotRect(bag, Sort(), slot, Scroll()).contains(x, y))
-			hoveredSlot = slot;
-	hoveredTab = NO_TAB;
-	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
-		if (tabRect(group).contains(x, y))
-			hoveredTab = group;
-	hoveredSort = NO_SORT;
-	for (int order = 1; order < SORT_ORDER_COUNT; order++)
-		if (sortRect(order).contains(x, y))
-			hoveredSort = order;
-	hoveredButton = Target::None;
-	if (!TwoButtons()) {
-		if (WIDE_BUTTON.contains(x, y))
-			hoveredButton = Target::UseButton;
-	} else if (EQUIP_BUTTON.contains(x, y)) {
-		hoveredButton = Target::UseButton;
-	} else if (UPGRADE_BUTTON.contains(x, y)) {
-		hoveredButton = Target::UpgradeButton;
-	}
+	const Hit hit = hitAt(bag, tab, Sort(), Scroll(), TwoButtons(), x, y);
+	hoveredSlot = hit.slot;
+	hoveredTab = hit.tab;
+	hoveredSort = hit.sort;
+	hoveredButton = hit.button == Button::Use		? Target::UseButton
+					: hit.button == Button::Upgrade ? Target::UpgradeButton
+													: Target::None;
 }
 
 void Inventory::MouseMotion(int x, int y) {

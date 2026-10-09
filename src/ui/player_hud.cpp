@@ -37,9 +37,7 @@ constexpr int ICON_COLUMNS = 8;	   // atlas grid
 constexpr int ICON_ROWS = 4;
 
 // ---- timing ----
-constexpr int TRAIL_HOLD_MS = 500;			 // the lost part stays this long after the last hit...
-constexpr float TRAIL_DRAIN_PER_MS = 0.001f; // ...then drains at this ratio per ms
-constexpr float LOW_HEALTH = 0.25f;			 // under this the health bar pulses
+constexpr float LOW_HEALTH = 0.25f; // under this the health bar pulses
 constexpr int REFUSED_FLASH_MS = 600;
 constexpr int DRINK_FLASH_MS = 500;
 
@@ -61,30 +59,7 @@ constexpr Color BADGE = {0.05f, 0.04f, 0.03f};
 constexpr Color GEMS[LOCK_COLOUR_COUNT] = {
 	{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
 
-// The health bar's lost part: after a hit it holds the old health for TRAIL_HOLD_MS, then drains down.
-struct DamageTrail {
-	bool started = false;
-	float shown = 1.f; // the trail's end
-	float last = 1.f;  // health ratio of the last frame
-	int hitMs = 0;
-	int lastMs = 0;
-
-	float update(float ratio, int now) {
-		if (!started) {
-			started = true;
-			shown = last = ratio;
-			lastMs = now;
-		}
-		if (ratio < last)
-			hitMs = now;
-		if (now - hitMs > TRAIL_HOLD_MS)
-			shown -= TRAIL_DRAIN_PER_MS * static_cast<float>(now - lastMs);
-		shown = std::max(shown, ratio); // a heal jumps past it
-		last = ratio;
-		lastMs = now;
-		return shown;
-	}
-} trail;
+PlayerHud::DamageTrail trail;
 
 float ratioOf(int value, int max) {
 	return max > 0 ? std::clamp(static_cast<float>(value) / static_cast<float>(max), 0.f, 1.f) : 0.f;
@@ -316,7 +291,7 @@ void drawXp(const PlayerHud::View& v) {
 namespace PlayerHud {
 void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()); }
 
-void reset() { trail = DamageTrail{}; }
+void reset() { trail = PlayerHud::DamageTrail{}; }
 
 void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
 	int cell = static_cast<int>(icon);

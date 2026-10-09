@@ -1,4 +1,5 @@
-# Gameplay status message in its framed box: several lines (chest loot), one line, fading out.
+# Gameplay status message in its framed box: several lines (chest loot), one line, fading out. Its fade and layout:
+# tests/unit/ui_layout_test.cpp.
 seed 4
 god
 level tests/levels/classic1
@@ -19,5 +20,3 @@ wait 2s
 screenshot one_line
 wait 600ms
 screenshot fading
-wait 400ms
-screenshot gone

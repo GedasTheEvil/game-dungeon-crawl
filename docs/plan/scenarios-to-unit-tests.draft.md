@@ -115,3 +115,10 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
     torches, ladders, fires); `GOLDEN_UPDATE=1` writes them anew. `decor_depth` deleted: its tiers are checked
     through the dungeon in `sim_test.cpp`.
   * After: 105 scenarios, 546 screenshots, `make test` 6:12.
+* Technique 5, UI layout as data: `src/ui/ui_layout.{h,cpp}` (the canvas, `Rect`, `visibleArea`, `toCanvas` and
+  `toWindow`, the screen tabs, the status box's lines, box and fade, the level gem, the HUD's damage trail) and
+  `src/ui/inventory_layout.{h,cpp}` (panels, slots, tabs, sort and use buttons, `hitAt`) in the level library; the
+  page turn's maths in `src/ui/page_turn.{h,cpp}`. `tests/unit/ui_layout_test.cpp`: at 4:3, 16:9, 21:9 and a tall
+  window everything fits, nothing overlaps, a click on a part's centre hits it; the fades and the trail. `status_box`
+  drops its last (empty) shot. The other HUD and screen scenarios stay: they show the look. After: 105 scenarios, 545
+  screenshots.

@@ -5,21 +5,6 @@
 
 namespace ui {
 
-Rect visibleArea(float canvasW, float canvasH, int resX, int resY) {
-	float aspect = static_cast<float>(resX) / static_cast<float>(resY);
-	if (aspect >= canvasW / canvasH) {
-		float w = canvasH * aspect;
-		return {(canvasW - w) / 2, 0, w, canvasH};
-	}
-	float h = canvasW / aspect;
-	return {0, (canvasH - h) / 2, canvasW, h};
-}
-
-void toCanvas(const Rect& area, int resX, int resY, int mouseX, int mouseY, float& x, float& y) {
-	x = area.x + area.w * static_cast<float>(mouseX) / static_cast<float>(resX);
-	y = area.y + area.h - area.h * static_cast<float>(mouseY) / static_cast<float>(resY);
-}
-
 void fillRect(const Rect& r, Color top, Color bottom, float alpha) {
 	glBegin(GL_QUADS);
 	glColor4f(bottom.r, bottom.g, bottom.b, alpha);
@@ -154,11 +139,6 @@ void titleBar(Font& font, float cx, const char* caption, float reach) {
 // ---- screen tabs ----
 
 namespace {
-constexpr float TAB_W = 9.5f;
-constexpr float TAB_H = 7.f;
-constexpr float TAB_GAP = 1.f;
-constexpr float TABS_RIGHT = 158.f;
-constexpr float TABS_Y = 88.f; // centred on the title rule
 constexpr const char* TAB_NAMES[SCREEN_TAB_COUNT] = {"Inventory", "Draft map", "Journal"};
 constexpr const char* TAB_KEYS[SCREEN_TAB_COUNT] = {"I", "M", "J"};
 
@@ -185,18 +165,6 @@ void tabIcon(ScreenTab tab, float cx, float cy, float s, Color c) {
 	}
 }
 } // namespace
-
-Rect screenTabRect(int tab) {
-	float x0 = TABS_RIGHT - SCREEN_TAB_COUNT * TAB_W - (SCREEN_TAB_COUNT - 1) * TAB_GAP;
-	return {x0 + static_cast<float>(tab) * (TAB_W + TAB_GAP), TABS_Y, TAB_W, TAB_H};
-}
-
-int screenTabAt(float x, float y) {
-	for (int tab = 0; tab < SCREEN_TAB_COUNT; tab++)
-		if (screenTabRect(tab).contains(x, y))
-			return tab;
-	return -1;
-}
 
 void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
 	beginShapes();

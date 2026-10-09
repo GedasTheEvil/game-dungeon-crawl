@@ -21,7 +21,8 @@ BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp \
-	src/world/view_window.cpp src/world/world_events.cpp src/world/decor_scatter.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
+	src/world/view_window.cpp src/world/world_events.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp \
+	src/ui/inventory_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts

@@ -9,7 +9,6 @@
 using namespace ui;
 
 namespace {
-constexpr int LEVELS_PER_GEM = 5;
 constexpr float SCALE = 0.25f;	   // badge size on screen; everything below is in badge units (canvas 100 / SCALE high)
 constexpr int SIDES = 8;		   // octagonal cut
 constexpr float RADIUS = 5.5f;	   // gem
@@ -34,7 +33,7 @@ constexpr GemLook GEMS[] = {
 	{{0.20f, 0.05f, 0.28f}, {0.48f, 0.20f, 0.66f}, {0.82f, 0.62f, 1.f}, 12, false},	  // amethyst
 	{{0.02f, 0.02f, 0.03f}, {0.12f, 0.11f, 0.14f}, {0.48f, 0.46f, 0.55f}, 16, true},  // obsidian
 };
-constexpr int GEM_COUNT = sizeof(GEMS) / sizeof(GEMS[0]);
+static_assert(sizeof(GEMS) / sizeof(GEMS[0]) == LevelGem::GEM_COUNT);
 
 float cornerAngle(int i) { return 2.f * static_cast<float>(M_PI) * (static_cast<float>(i) + 0.5f) / SIDES; }
 
@@ -71,7 +70,7 @@ void facets(float cx, float cy, const GemLook& gem) {
 
 namespace LevelGem {
 void draw(int level, int resX, int resY, Font& font) {
-	const GemLook& gem = GEMS[std::clamp((level - 1) / LEVELS_PER_GEM, 0, GEM_COUNT - 1)];
+	const GemLook& gem = GEMS[LevelGem::GemOf(level)];
 	// Font::print resets the modelview, so the badge is scaled through the projection.
 	float canvasH = 100.f / SCALE;
 	float canvasW = beginSquareCanvas(canvasH, resX, resY);

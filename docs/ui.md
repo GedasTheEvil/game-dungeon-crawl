@@ -17,7 +17,10 @@ parts below instead of drawing their own.
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Win / death screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`, `ui/dead.png`) in the 3D scene, not the shared look |
 
-Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too.
+Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
+without GL is `src/ui/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
+status box, the level gem, the health trail) and `src/ui/inventory_layout.h` (the inventory's rects and `hitAt`), in
+the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 21:9.
 
 ## Canvas
 
@@ -32,8 +35,9 @@ Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`too
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
 * Only the backdrop fills the margins (`area`); all panels, buttons and text sit inside 0..160 x 0..100.
 * Line widths are in pixels, sizes in canvas units.
-* Layout lives in `constexpr Rect` / `float` constants at the top of the file (`menu.cpp` and `status_box.cpp` mark it with a `// ---- layout ----` comment).
-  Repeated items get a `xxxRect(index)` function.
+* Layout lives in `constexpr Rect` / `float` constants at the top of the file (`menu.cpp` marks it with a
+  `// ---- layout ----` comment), or in `ui_layout.h` / `inventory_layout.h` where a unit test checks it. Repeated
+  items get a `xxxRect(index)` function.
 
 Vertical bands used by every 160 x 100 screen:
 

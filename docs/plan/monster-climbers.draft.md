@@ -22,7 +22,10 @@ Status: draft 2026-10-09 (idea, not decided). From the user: climbers, monsters 
   Not worms, plants, cobras or the crocodile; bats fly already.
 * **Bosses:** the bosses of climbers (the Scorpion Queen, the Anubis boss) can climb too, faster (the boss ability
   rule in `AGENTS.md`). Their arenas rarely give them a ladder, but the AI must not rule it out.
-* **Checker score:** a climber's `threat` goes up by 1 (the player can no longer escape up a ladder). Bosses too.
+* **Checker score:** a climber's `threat` goes up by 0.25, bosses too (the player can no longer escape up a ladder).
+  A small, flat bump: the rat 0.7 → 0.95, the giant rat 3 → 3.25, the Anubis 8 → 8.25, the Anubis boss 15 → 15.25.
+  (The user's "+1" was on a scale of a rat at about 2 and an Anubis at about 50; the real threats are about a quarter
+  of that.)
   Re-run `./levelcheck levels/lvl*` and fix the levels it flags.
 
 ## Open

@@ -16,7 +16,8 @@
 //   World space:  map * TILE_SIZE, OpenGL units, used for rendering
 //   Screen space: projection of world space, origin top-left
 
-constexpr int MAX_MONSTERS = 32; // live monster slots; the campaign's busiest level has 15
+constexpr int MAX_MONSTERS =
+	32; // live monster slots; the campaign's busiest level has 15. No design limit: raise it at will
 
 // What the hitbox debug view (F3, scenario 'hitboxes on') shows of the weapon: its reach in tiles, measured from the
 // player's box edge (melee) or the centre (the bow).

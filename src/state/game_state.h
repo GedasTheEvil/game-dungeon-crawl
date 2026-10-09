@@ -3,6 +3,7 @@
 
 #include "assets.h"
 #include "../entities/player.h"
+#include "../entities/player_view.h"
 #include "../graphics/texture_registry.h"
 #include "../graphics/animated_model.h"
 #include "../world/dungeon.h"
@@ -68,6 +69,7 @@ class GameState {
 	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
 	Timer statusTimer{STATUS_MS};
 	std::unique_ptr<Player> player;
+	PlayerView playerView; // the player's model, drawn
 	GameTimers timers;
 	GameRandom random;
 	UIContext ui;

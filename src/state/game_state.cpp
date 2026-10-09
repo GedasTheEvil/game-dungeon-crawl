@@ -46,7 +46,7 @@ void GameState::Load() {
 	Texture playerTexture;
 	playerTexture.LoadPNG("textures/characters/archeologist.png");
 	player = std::make_unique<Player>();
-	player->Load("characters/archeologist", std::move(playerTexture));
+	playerView.Load("characters/archeologist", std::move(playerTexture), *player);
 	player->scale = PLAYER_SCALE;
 	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events});
 
@@ -144,7 +144,10 @@ void GameState::ApplyWorldEvents() {
 			journal.LearnNote(event.note);
 			break;
 		case WorldEvent::Kind::CharacterSound:
-			characterSound(assets.monsterModels[static_cast<size_t>(event.who)], event.character).Play();
+			characterSound(event.who == PLAYER_CHARACTER ? playerView.Model()
+														 : assets.monsterModels[static_cast<size_t>(event.who)],
+						   event.character)
+				.Play();
 			break;
 		case WorldEvent::Kind::AskRiddle:
 			ui.riddle->Ask();

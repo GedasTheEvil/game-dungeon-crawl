@@ -217,6 +217,7 @@ bool loadLevel(const Command& cmd) {
 	Game().ui.menu.inGame = true;
 	Game().dungeon.ClearWin();
 	Game().player->Reanimate();
+	Game().player->god = gRunner.god;
 	return true;
 }
 
@@ -273,6 +274,8 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::God:
 		gRunner.god = true;
+		if (Game().player)
+			Game().player->god = true;
 		report(cmd, true, "");
 		return true;
 	case CommandType::Level:
@@ -565,8 +568,6 @@ bool Scenario::active() { return gRunner.active; }
 int Scenario::resolutionX() { return gRunner.script.resX; }
 
 int Scenario::resolutionY() { return gRunner.script.resY; }
-
-bool Scenario::godMode() { return gRunner.god; }
 
 int Scenario::tickDelayMs() { return gRunner.drawAll ? TICK_MS : 0; }
 

@@ -89,7 +89,8 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	glTranslatef(RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF, mon.DrawnLift(), -30.f - mon.Tomb());
 	glPushMatrix(); // will add rotation
 
-	if (mon.Alive() && mon.Alerted() && !type.isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD
+	if (mon.Alive() && mon.Alerted() &&
+		!type.isBoss()) // idle monsters keep up the disguise; the boss's bar is on the HUD
 		drawHealthBar(mon, textures.loadingBar);
 
 	glScalef(scale, scale, scale);

@@ -35,7 +35,7 @@ void startJump() {
 	Game().player->jump.velocity = JUMP_INITIAL_VELOCITY;
 	Game().player->jump.jumping = true;
 	Game().player->jump.jump_up_timer.Reset();
-	Game().player->PlayJumpSound();
+	Game().events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Jump);
 }
 
 // The walk keys held down, in GameplayAction order from MoveLeft.

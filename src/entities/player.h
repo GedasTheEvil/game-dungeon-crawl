@@ -1,15 +1,13 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "character_model.h"
+#include "model_info.h"
+#include "particles.h"
 #include "player_stats.h"
-#include "../graphics/particles.h" // the blood, and its drawing
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
-#include "../graphics/texture_registry.h"
 #include "../world/world_events.h"
 #include "../world/rng.h"
-#include <memory>
 
 struct JumpState {
 	bool jumping = false;
@@ -26,20 +24,17 @@ struct JumpState {
 	Timer fall_inc{FALL_TICK_MS};
 };
 
-// The player: stats, figure (model, animation, blood), jump and attack state. Drawn at the frame origin (the dungeon
-// scrolls around it).
+// The player: stats, pose (clip state, blood), jump and attack state. PlayerView draws them at the frame origin (the
+// dungeon scrolls around it).
 class Player {
   private:
-	CharacterModel model;
+	ModelInfo model; // of the player's model files (PlayerView::Load)
 	ModelState state = ModelState::Idle;
 	ClipPlayback playback{};
 	ParticleSystem blood{0}; // stopped: no splash until the first hit
-	// Corner indices of the two fists (model -x, +x), the same in every clip (one mesh); -1: not found.
-	std::array<int, 2> fists{-1, -1};
-	int shownFrame = 0; // of the clip Draw() showed last (it advances after showing)
+	int shownFrame = 0;		 // of the clip shown, as of the last Animate (it advances after the drawing showed it)
 
-	void findFists();
-	void die(); // the death pose and sound; the poison ends
+	void die(WorldEvents& events); // the death pose and sound; the poison ends
 
   public:
 	PlayerStats stats;
@@ -52,10 +47,10 @@ class Player {
 	// (WeaponMotion::hitMs) has passed.
 	int attackStartMs = -1;
 	bool attackLanded = false;
+	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
 
-	bool Load(const char* name, Texture&& texture);
-	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (Draw only shows them)
-	void Draw(const TextureRegistry& textures);
+	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
+	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }
 	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).
 	[[nodiscard]] float HalfWidth() const;
@@ -68,16 +63,20 @@ class Player {
 	// Poisons unless the worn amulet and a resistance potion ward it off (PlayerStats::PoisonResistPercent, rolled on
 	// rng).
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
-	void UpdatePoison(); // once a tick: the running tiers' damage, which can kill; the resistance potion's time
-	void Reanimate();	 // full HP, standing, no poison
-	void setModelState(ModelState s) { model.Info().Enter(state, s, playback); }
+	// Once a tick: the running tiers' damage, which can kill; the resistance potion's time.
+	void UpdatePoison(WorldEvents& events);
+	void Reanimate(); // full HP, standing, no poison
+	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);
 	[[nodiscard]] bool climbing() const { return state == ModelState::Climb; }
-	// The fist nearer the camera facing dir (+1 right, -1 left), in the shown clip frame: where the weapon is held.
-	// In the frame Draw() is called in, world units.
-	[[nodiscard]] std::array<float, 3> Fist(int dir) const;
-	void PlayJumpSound() const { model.jumpSound.Play(); }
+
+	// What PlayerView shows.
+	[[nodiscard]] const ModelInfo& Model() const { return model; }
+	[[nodiscard]] ModelState State() const { return state; }
+	[[nodiscard]] const ClipPlayback& Playback() const { return playback; }
+	[[nodiscard]] int ShownFrame() const { return shownFrame; }
+	[[nodiscard]] const ParticleSystem& Blood() const { return blood; }
 };
 
 #endif

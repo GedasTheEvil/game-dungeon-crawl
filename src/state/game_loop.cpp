@@ -27,7 +27,8 @@ void updateAttack() {
 		const ItemKind kind = Game().ui.inventory->EquippedKind();
 		if (isRanged(kind)) {
 			Game().dungeon.Shoot(missileOf(kind), damage, weapon->mix, Game().camera.Facing(),
-								 player.Fist(Game().camera.Facing())[1] / RenderConfig::TILE_SIZE, aimRange);
+								 Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
+								 aimRange);
 			weapon->strikeSound.Play();
 		} else if (Game().dungeon.AttackNearest(damage, weapon->mix, weapon->Reach(), Game().camera.Facing()))
 			weapon->strikeSound.Play();
@@ -67,7 +68,7 @@ void tick() {
 	}
 
 	Game().player->stats.UpdateStamina(Game().events);
-	Game().player->UpdatePoison();
+	Game().player->UpdatePoison(Game().events);
 	Game().player->stats.Regenerate(Game().dungeon.PlayerSafe(), UPDATE_TICK_MS);
 	Game().dungeon.AnimateMonsters();
 	Game().player->Animate();

@@ -114,8 +114,7 @@ bool Monster::Spitting() const {
 }
 
 bool Monster::TakeSpit(float& outX, float& outY) {
-	if (!type->spit || spitReleased || !Spitting() ||
-		type->model.Progress(state, playback) < type->spit->release)
+	if (!type->spit || spitReleased || !Spitting() || type->model.Progress(state, playback) < type->spit->release)
 		return false;
 	spitReleased = true;
 	outX = HeadX();

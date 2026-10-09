@@ -14,7 +14,6 @@ bool active();
 
 int resolutionX();
 int resolutionY();
-bool godMode();
 // Real time between ticks: 0 (as fast as possible, the game clock is virtual), TICK_MS with SCENARIO_DRAW_ALL.
 int tickDelayMs();
 

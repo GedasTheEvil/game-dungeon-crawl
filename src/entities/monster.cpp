@@ -163,8 +163,7 @@ float Monster::BottomY() const {
 
 float Monster::TopY() const {
 	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
-	const float top =
-		(idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Figures::Scale();
+	const float top = (idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Figures::Scale();
 	return static_cast<float>(row) + (lift() + top) / RenderConfig::TILE_SIZE;
 }
 

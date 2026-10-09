@@ -93,7 +93,7 @@ void drawWeapon() { // in the fist nearer the camera
 	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
 	const SwingPose pose = swingPose(weapon->motion);
-	const std::array<float, 3> fist = Game().player->Fist(facing);
+	const std::array<float, 3> fist = Game().playerView.Fist(player, facing);
 	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
 	const float spin = weapon->rotA;
@@ -189,7 +189,7 @@ void drawGameplay() {
 	const float sink = Game().dungeon.PlayerSink(); // wading: down in the water's basin, the weapon with them
 	glPushMatrix();
 	glTranslatef(0, -sink, 0);
-	Game().player->Draw(Game().assets.textures);
+	Game().playerView.Draw(*Game().player, Game().assets.textures);
 
 	Lighting::setEmissive(true);
 	if (Game().dungeon.Won())

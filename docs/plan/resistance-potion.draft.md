@@ -13,9 +13,9 @@ amulet ([amulets.md](solved/amulets.md)) but for a while only. A poison that doe
 | Lesser resistance | 50% | 2 min |
 | Greater resistance | 95% | 2 min |
 
-* With the amulet (10 / 25 / 50 / 80%, `AMULET_TYPES` in `src/world/items.cpp`): two separate rolls
-  (`player.cpp`, the amulet's `rng.percent`, then the potion's). Poisoned only if both fail: grand amulet + greater
-  potion = 20% x 5% = 1%, practically immune.
+* With the amulet (10 / 25 / 50 / 80%, `AMULET_TYPES` in `src/world/items.cpp`): the percents add up, one roll
+  (`player.cpp`, the amulet's `rng.percent`). Lesser potion + an amulet of 20% = 70% to resist. Capped at 100%:
+  greater potion + any amulet, or lesser potion + grand amulet, makes the player immune while it lasts.
 * Already poisoned when drunk: the greater potion also cures it (as the antidote); the lesser one does not, the
   running poison goes on.
 * Differs from the antidote: the antidote only ends a poison, the potion keeps one from landing.

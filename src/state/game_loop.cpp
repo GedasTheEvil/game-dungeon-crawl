@@ -19,21 +19,22 @@ void updateAttack() {
 	if (player.attackStartMs < 0)
 		return;
 	Item* weapon = Game().ui.inventory->Equipped();
+	const ItemKind kind = Game().ui.inventory->EquippedKind();
+	const WeaponDef& def = weaponDef(kind);
 	const int t = GameClock::now() - player.attackStartMs;
-	if (!player.attackLanded && t >= weapon->motion.hitMs) {
+	if (!player.attackLanded && t >= def.motion.hitMs) {
 		player.attackLanded = true;
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
-		const float aimRange = weapon->Reach();
-		const ItemKind kind = Game().ui.inventory->EquippedKind();
+		const float aimRange = weaponReach(kind);
 		if (isRanged(kind)) {
-			Game().dungeon.Shoot(missileOf(kind), damage, weapon->mix, Game().camera.Facing(),
+			Game().dungeon.Shoot(missileOf(kind), damage, def.mix, Game().camera.Facing(),
 								 Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
 								 aimRange);
 			weapon->strikeSound.Play();
-		} else if (Game().dungeon.AttackNearest(damage, weapon->mix, weapon->Reach(), Game().camera.Facing()))
+		} else if (Game().dungeon.AttackNearest(damage, def.mix, weaponReach(kind), Game().camera.Facing()))
 			weapon->strikeSound.Play();
 	}
-	if (t >= weapon->motion.swingMs)
+	if (t >= def.motion.swingMs)
 		player.attackStartMs = -1;
 }
 

@@ -132,7 +132,7 @@ class PlayerActionController {
 		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
 			return;
 		const Item* weapon = Game().ui.inventory->Equipped();
-		player.attackTimer.SetInterval(weapon->motion.AttackMs());
+		player.attackTimer.SetInterval(weaponDef(Game().ui.inventory->EquippedKind()).motion.AttackMs());
 		player.attackStartMs = GameClock::now();
 		player.attackLanded = false;
 		weapon->swingSound.Play();

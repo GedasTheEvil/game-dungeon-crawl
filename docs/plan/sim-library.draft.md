@@ -97,3 +97,5 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
   `PlayerView` (`entities/player_view.cpp`, held by `GameState`) loads the model, draws it and finds the fists. The
   god mode is `Player::god` (the scenario sets it), the die and jump sounds are world events. `swingPose` stays in
   `draw.cpp` for now: [scenarios-to-unit-tests](scenarios-to-unit-tests.draft.md) technique 1 moves it.
+* Step 4 done: `Item` keeps the model and the sounds; damage, range, mix and motion are read from `weaponDef`, the
+  reach from `weaponReach` (`world/items.h`). `Trap` only draws, it stays as it is.

@@ -92,7 +92,8 @@ void drawWeapon() { // in the fist nearer the camera
 	const Player& player = *Game().player;
 	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
-	const SwingPose pose = swingPose(weapon->motion);
+	const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
+	const SwingPose pose = swingPose(motion);
 	const std::array<float, 3> fist = Game().playerView.Fist(player, facing);
 	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
@@ -101,7 +102,7 @@ void drawWeapon() { // in the fist nearer the camera
 	glPushMatrix();
 	glTranslatef(fist[0], fist[1], fist[2] + Item::DRAW_DEPTH);
 	glRotatef(-dir * pose.tilt, 0, 0, 1);
-	glTranslatef(0, (pose.thrust - weapon->motion.grip) * length, 0);
+	glTranslatef(0, (pose.thrust - motion.grip) * length, 0);
 	weapon->DrawHeld(pose.draw);
 	glPopMatrix();
 	weapon->rotA = spin;
@@ -179,8 +180,8 @@ void drawGameplay() {
 
 	std::optional<HitboxView> hitboxes;
 	if (Game().render.Hitboxes) {
-		const Item* weapon = Game().ui.inventory->Equipped();
-		hitboxes = HitboxView{weapon->Reach(), !isRanged(Game().ui.inventory->EquippedKind()), Game().camera.Facing()};
+		const ItemKind kind = Game().ui.inventory->EquippedKind();
+		hitboxes = HitboxView{weaponReach(kind), !isRanged(kind), Game().camera.Facing()};
 	}
 	Game().dungeon.Draw(hitboxes ? &*hitboxes : nullptr);
 

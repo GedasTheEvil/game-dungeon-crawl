@@ -137,10 +137,6 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		progress(span.at(i, STEPS), label);
 		auto& item = items.weapons[i];
 		item = loadItem(def.model, def.scale);
-		item->damage = def.damage;
-		item->range = def.range;
-		item->mix = def.mix;
-		item->motion = def.motion;
 		char sound[64];
 		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);
 		item->swingSound.Load(sound);

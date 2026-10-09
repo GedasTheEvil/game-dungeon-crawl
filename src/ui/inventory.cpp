@@ -179,7 +179,7 @@ void Inventory::AddItem(ItemKind kind) { bag.Find(kind, Game().journal); }
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
 int Inventory::EquippedDamage() const {
-	return weaponDamage(bag.Equipped(), Model(bag.Equipped())->damage, bag.Level(bag.Equipped()));
+	return weaponDamage(bag.Equipped(), weaponDef(bag.Equipped()).damage, bag.Level(bag.Equipped()));
 }
 
 // ---- actions ---------------------------------------------------------------
@@ -867,9 +867,9 @@ void Inventory::DrawDetails() {
 		if (bag.Count(kindOf(selectedSlot)) > 0)
 			textCentered(small, cx, STAT_Y - 3.2f, points, !top && have >= cost ? INK_GREEN : INK_FADED);
 	} else {
-		Item* shown = Model(kindOf(selectedSlot));
-		Item* current = Equipped();
-		int shownDamage = weaponDamage(kindOf(selectedSlot), shown->damage, bag.Level(kindOf(selectedSlot)));
+		const WeaponDef& shown = weaponDef(kindOf(selectedSlot));
+		const WeaponDef& current = weaponDef(bag.Equipped());
+		int shownDamage = weaponDamage(kindOf(selectedSlot), shown.damage, bag.Level(kindOf(selectedSlot)));
 		char buf[48];
 		float labelX = DETAIL_PANEL.x + 9;
 		float valueX = DETAIL_PANEL.x + 30;
@@ -883,7 +883,7 @@ void Inventory::DrawDetails() {
 			text(body, valueX + body.TextWidth("000") + 1, y, buf, value > currentValue ? INK_GREEN : INK_RED);
 		};
 		// The damage mix, the main type first: what the monsters' resistances work on.
-		const DamageMix& mix = shown->mix;
+		const DamageMix& mix = shown.mix;
 		const auto main = static_cast<size_t>(mainType(mix));
 		text(body, labelX, STAT_Y + 7.f, "Type", INK_FADED);
 		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
@@ -897,7 +897,7 @@ void Inventory::DrawDetails() {
 			minorX += small.TextWidth(buf) + 1.5f;
 		}
 		statRow(STAT_Y + 3.5f, "Damage", shownDamage, EquippedDamage());
-		statRow(STAT_Y, "Range", shown->range, current->range);
+		statRow(STAT_Y, "Range", shown.range, current.range);
 
 		// Progress towards the next level: copies collected / copies needed.
 		int level = bag.Level(kindOf(selectedSlot));
@@ -908,7 +908,7 @@ void Inventory::DrawDetails() {
 			int cost = upgradeCost(level);
 			snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
 			text(body, valueX, STAT_Y - 3.5f, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
-			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown->damage, level + 1));
+			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown.damage, level + 1));
 			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, STAT_Y - 3.3f, buf, INK_FADED);
 		}
 	}

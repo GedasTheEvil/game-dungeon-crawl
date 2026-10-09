@@ -1,4 +1,4 @@
-; A boss scarab (col 3) walks up to the player (tests/scenarios/monster_hitboxes.txt).
+; A boss scarab (col 3) walks up to the player (tests/unit/reach_test.cpp).
 ########
 #S.K..E#
 ########

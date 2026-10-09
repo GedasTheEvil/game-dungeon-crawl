@@ -189,8 +189,9 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/giant_rat_jump.txt`: the giant rat leaps spikes and a pit (2 s apart), not a 3-cell gap.
 - `tests/scenarios/giant_scarab_jump.txt`: the giant scarab leaps spikes and a pit and bites.
 - `tests/scenarios/spikes.txt`: spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.
-- `tests/scenarios/monster_hitboxes.txt`: scarab, rat, worm, giant scarab, boss scarab and giant rat walk up and stop
-  where they bite; every melee weapon hits them there; an arrow hits a giant rat 2 tiles away (`tests/levels/hitbox_*`).
+- `tests/unit/reach_test.cpp`: scarab, rat, worm, giant scarab, boss scarab and giant rat walk up and stop where they
+  bite; every melee weapon hits them there, also in toon mode; an arrow hits a giant rat 2 tiles away
+  (`tests/levels/hitbox_*`).
 - `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
 - `tests/scenarios/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
   a real chest when killed.
@@ -201,10 +202,11 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.
 - `tests/scenarios/ranged_weapons.txt`: composite bow, sling, throwing stick and javelin each hit the archery plant
   from inside their range; screenshots of the draw, the whirl and the missiles in flight (the stick flying back).
-- `tests/scenarios/melee_weapons.txt`: dagger, khopesh, the axes and the mace each reach a giant rat at bite distance.
+- `tests/scenarios/weapon_reach.txt`: every melee weapon at its hit frame next to a giant rat at bite distance, with the
+  debug boxes: the reach should end near the weapon's tip.
 - `tests/scenarios/attack_recovery.txt`: sprinting through a recovery does not cut it short.
-- `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and through its attack (windup, strike,
-  recovery), both facings: screenshots.
+- `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and at its strike, both facings: screenshots.
+  The swing's poses: `tests/unit/swing_test.cpp`.
 - `tests/scenarios/monster_idle_bars.txt`: health bars stay hidden until a monster chases, bites, swoops or is hit.
 - `tests/scenarios/teleport.txt`: a teleporter pair (`tests/levels/teleport`): the jump there and back, the exit in
   the room only the teleporter reaches.

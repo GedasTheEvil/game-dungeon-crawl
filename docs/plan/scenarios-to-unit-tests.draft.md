@@ -122,3 +122,8 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
   window everything fits, nothing overlaps, a click on a part's centre hits it; the fades and the trail. `status_box`
   drops its last (empty) shot. The other HUD and screen scenarios stay: they show the look. After: 105 scenarios, 545
   screenshots.
+* Technique 4, hitbox and reach matrix: `tests/unit/reach_test.cpp` on the sim harness: every size of walker (scarab,
+  rat, worm, giant scarab, boss scarab, giant rat) stops where it bites and every melee weapon hits it there, in
+  normal and toon mode; toon mode widens the boxes; an arrow hits a giant rat behind spikes. `monster_hitboxes`
+  deleted; `melee_weapons` merged into `weapon_reach` (the look of each reach against its weapon). After: 103
+  scenarios, 538 screenshots, `make test` 6:16.

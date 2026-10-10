@@ -17,7 +17,7 @@ The floors (weak 1, medium 2, strong 3 HP/s) keep poison biting at a low max HP:
 2 HP/s (120 HP in all, more than the max), strong 3 HP/s (57 HP). Above 200 max HP medium runs on its percent,
 above 60 strong does.
 
-A strong poison left alone takes the player to 5% HP; with any other damage on top it kills.
+Left alone, a strong poison takes the player to 5% HP (below 60 max HP the floor kills); any other damage on top kills.
 
 ## Sketch
 

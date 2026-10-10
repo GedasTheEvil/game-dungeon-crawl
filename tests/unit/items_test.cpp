@@ -106,8 +106,8 @@ TEST_CASE("upgrades take enough copies, up to the max level") {
 TEST_CASE("potion gains") {
 	CHECK(potionGain(ItemKind::SmallHealth).healPercent == 25);
 	CHECK(potionGain(ItemKind::LargeHealth).healPercent == 50);
-	CHECK(potionGain(ItemKind::Might).might == 2);
-	CHECK(potionGain(ItemKind::Armor).armor == 2);
+	CHECK(potionGain(ItemKind::Might).might == 1);
+	CHECK(potionGain(ItemKind::Armor).armor == 1);
 	CHECK(potionGain(ItemKind::Life).maxHpPercent == 5);
 	CHECK(potionGain(ItemKind::SmallStamina).staminaPercent == 50);
 	CHECK(potionGain(ItemKind::LargeStamina).staminaPercent == 100);

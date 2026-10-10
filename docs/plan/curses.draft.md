@@ -38,7 +38,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
   (`poisonLeftMs`) and the resistance potion (`resistLeftMs`). Curses go in the same row, with the same seconds
   label. A curse icon needs its own look (e.g. a dark purple frame) so it does not read as a potion.
 * Timers: the resistance potion's `resist_left_ms` in `PlayerStats` (advance, end, save line) is the model to copy.
-* Might starts at 0, +1 every 8 levels, +2 per might potion, plus the amulet's. Weapons deal 10..55. So weakness is
+* Might starts at 0, +1 every 8 levels, +1 per might potion (was +2 until 2026-10-10), plus the amulet's. Weapons deal 10..55. So weakness is
   mild (nothing at Might 0); greater weakness bites into the weapon damage. Clumsiness is the strong damage curse.
 * The club is the starting weapon, so the player always has one.
 

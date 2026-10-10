@@ -29,6 +29,8 @@ Left alone, a strong poison takes the player to 5% HP (below 60 max HP the floor
 
 ## Decisions
 
+* A lethal poison is intended: a strong (or, at low max HP, medium) poison left alone kills. The player must cure
+  it with an antidote or ward it off beforehand with a resistance potion.
 * Monsters scale the same way (by their own max HP, same floors): `Monster::TakePoison` / `UpdatePoison` share the
   `Poison` class (venom amulet, poison dart trap). Bosses are no worry: most will get a high poison resistance
   (`poisonResistPercent`).

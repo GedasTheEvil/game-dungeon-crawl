@@ -1,6 +1,6 @@
 # Stronger poisons
 
-Status: draft 2026-10-10 (not implemented). From the user.
+Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user.
 
 ## Idea
 
@@ -9,27 +9,30 @@ player's max HP, so poison is dangerous and the antidote is worth carrying.
 
 | Tier | Today (`POISON_TIERS`, `src/world/poison.h`) | Planned |
 |---|---|---|
-| Weak (scorpion) | 1 HP/s, 20 s: 20 HP | no change |
-| Medium (cobra) | 3 HP/s, 25 s: 75 HP | 1% of max HP per second, 60 s: 60% of max HP |
-| Strong (scorpion queen) | 5 HP/s, 30 s: 150 HP | 5% of max HP per second, 19 s: 95% of max HP |
+| Weak (scorpion) | 1 HP/s, 20 s: 20 HP | no change (1 HP/s) |
+| Medium (cobra) | 3 HP/s, 25 s: 75 HP | 1% of max HP per second, at least 2 HP/s, 60 s |
+| Strong (scorpion queen) | 5 HP/s, 30 s: 150 HP | 5% of max HP per second, at least 3 HP/s, 19 s |
+
+The floors (weak 1, medium 2, strong 3 HP/s) keep poison biting at a low max HP: at the base 50 HP medium does
+2 HP/s (120 HP in all, more than the max), strong 3 HP/s (57 HP). Above 200 max HP medium runs on its percent,
+above 60 strong does.
 
 A strong poison left alone takes the player to 5% HP; with any other damage on top it kills.
 
 ## Sketch
 
 * `PoisonTierDef` gets a percent-of-max-HP rate beside (or instead of) the flat `hpPerSecond`. `Poison::Advance`
-  needs the max HP (`PlayerStats::CurrentMaxHP()`, amulet bonus included) and a hundredths carry, as
-  `Monster::TrapHit` does, since 1% of a small max HP is under 1 HP a second.
+  needs the max HP (`PlayerStats::CurrentMaxHP()`, amulet bonus included). A second's damage is
+  `max(floor, maxHp * percent / 100)`, with a hundredths carry (as `Monster::TrapHit`) for the fraction above the
+  floor.
 * Max HP is read at each tick, so a max HP change mid-poison changes the rate.
 
-## Open questions
+## Decisions
 
-* Monsters: `Monster::TakePoison` / `UpdatePoison` use the same `Poison` class (venom amulet, poison dart trap).
-  Keep the flat HP for monsters, or scale them by their max HP too? 95% of a boss's HP from one strong poison is
-  likely too much; flat for monsters is the safe default.
-* Medium at low max HP: with the base 50 HP, 1%/s is 0.5 HP/s, 30 HP in all, weaker than today's 75. Fine (it grows
-  with the player), or add a floor?
-* Resistance potion / amulet: still a roll to resist the whole hit (`Player::Poison`), no change planned.
+* Monsters scale the same way (by their own max HP, same floors): `Monster::TakePoison` / `UpdatePoison` share the
+  `Poison` class (venom amulet, poison dart trap). Bosses are no worry: most will get a high poison resistance
+  (`poisonResistPercent`).
+* Resistance potion / amulet: still a roll to resist the whole hit (`Player::Poison`), no change.
 
 ## Related
 

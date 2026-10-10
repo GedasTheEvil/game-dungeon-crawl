@@ -92,7 +92,8 @@ class Monster {
 	float x = 0.f;
 	int health = 0;
 	ModelState state = ModelState::Move;
-	int facing = 0; // -1 left, 0 the camera, +1 right
+	int facing = 0;	 // -1 left, 0 the camera, +1 right
+	int fleeDir = 0; // a fleeing coward runs this way (Flee), -1 / +1; 0: not fleeing
 	ClipPlayback playback{};
 	Flight flight;
 	Leap leap;
@@ -213,6 +214,11 @@ class Monster {
 	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
+	// A walking coward, not a boss: it runs from a player it cannot reach (docs/plan/coward-flee-ranged.md).
+	[[nodiscard]] bool flees() const;
+	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
+	void Flee(bool blocked, int dir);
+	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
 	void Attack(float py);
 	// Ambushers, the entombed, the submerged and the coiled: true while still lurking; wakes (and returns false) once
 	// the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE).

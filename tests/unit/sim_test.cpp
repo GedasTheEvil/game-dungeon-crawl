@@ -25,6 +25,46 @@ TEST_CASE("a coward keeps out of an armed rock fall, a giant rat leaps over it")
 	CHECK(world.dungeon.NearestMonsterHealth() == 60);
 }
 
+namespace {
+const Monster* firstMonster(const SimWorld& world) {
+	for (int i = 0; i < MAX_MONSTERS; i++)
+		if (world.dungeon.Monsters()[i].Active())
+			return &world.dungeon.Monsters()[i];
+	return nullptr;
+}
+} // namespace
+
+TEST_CASE("a coward that cannot reach the player runs out of the bow's range") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/coward_flee_pit"));
+	world.Tick();
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	const float from = rat->CentreX();
+	world.Wait(1000);
+	CHECK(rat->CentreX() < from);
+	CHECK(rat->Facing() == -1); // runs away, its back to the player
+	world.Wait(20000);
+	const float gap = (world.X() - world.player.HalfWidth()) - rat->Right();
+	CHECK(gap >= COWARD_SAFE_GAP);
+	CHECK(gap < COWARD_SAFE_GAP + 0.1f); // no farther than it has to
+	CHECK(rat->Facing() == 1);			 // stands, watching the player
+	CHECK(world.Hp() == 50);
+}
+
+TEST_CASE("a fleeing coward comes back once it can reach the player") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/coward_flee_rock"));
+	world.Wait(3000);
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	CHECK(rat->CentreX() < 7.f); // ran from the rock fall's edge
+	const int hp = world.Hp();
+	REQUIRE(world.WalkTo(7.5f)); // past the rock fall: nothing between them
+	world.Wait(5000);
+	CHECK(world.Hp() < hp);
+}
+
 TEST_CASE("the cobra rears up and spits from afar: its venom poisons the player") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/cobra"));

@@ -1,0 +1,6 @@
+; A rat (col 10), a pit three cells wide (cols 11-13), the player (col 14): the rat cannot reach the player and runs
+; left, out of the bow's range (tests/unit/sim_test.cpp).
+######################
+#.........t...S.....E#
+###########...########
+######################

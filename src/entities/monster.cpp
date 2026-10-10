@@ -29,6 +29,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	swim = 0.f;
 	swimPlaced = false;
 	facing = 0;
+	fleeDir = 0;
 	flight = Flight{};
 	leap = Leap{};
 	burrow = Burrow{};
@@ -255,6 +256,8 @@ void Monster::Animate(float px, float py) {
 			facing = px < CentreX() ? -1 : 1; // lies along the row (in its coil), watching the player
 		else if (lurking() || Rising())
 			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
+		else if (fleeDir != 0)
+			facing = fleeDir; // runs from the player
 		else if (!flies()) {
 			facing = attackDirection(px, py);
 			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)

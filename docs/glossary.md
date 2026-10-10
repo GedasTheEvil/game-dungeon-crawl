@@ -54,6 +54,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | coward | | afraid of traps: a walker stops at their edge, a walk-jumper leaps over them | `Courage::Coward` |
 | creature | Creatures | the player's word for a monster; the journal's section | `Journal` |
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
+| flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
 | flyer | | flies along the row and crosses pits (bats) | `Locomotion::Fly`, `Flight` |
 | hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.md)) the crocodile grabs the player in water and rolls | |
 | kin | | a boss's common monster (the Anubis boss: the Anubis guard); a new ability for the kin goes to its boss too | `MonsterKind::kin` |

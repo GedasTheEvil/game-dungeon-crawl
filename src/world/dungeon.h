@@ -60,6 +60,10 @@ class Dungeon {
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
+	// A walker on the player's row can get to them that way (dir -1 / +1): walking, a walk-jumper leaping gaps.
+	[[nodiscard]] bool walkerReaches(const Monster& mon, int dir) const;
+	// A coward that cannot reach the player (Monster::flees): runs away along its row, out of the bow's range.
+	void fleeFrom(Monster& mon, int dir);
 	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const {
 		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};

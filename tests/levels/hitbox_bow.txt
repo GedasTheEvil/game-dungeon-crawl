@@ -1,5 +1,5 @@
-; A giant rat (col 7) behind three cells of spikes it cannot leap; the player shoots it from the spikes, 2 tiles
-; from its near edge (tests/unit/reach_test.cpp).
-############
-#S..^^^T..E#
-############
+; A giant rat (col 8) behind three cells of spikes it cannot leap, its back to a wall (no room to flee); the player
+; shoots it from the spikes, 2 tiles from its near edge (tests/unit/reach_test.cpp).
+###########
+#ES..^^^T##
+###########

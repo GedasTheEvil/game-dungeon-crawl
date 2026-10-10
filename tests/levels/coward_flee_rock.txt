@@ -1,0 +1,5 @@
+; A rat (col 7), an armed rock fall (col 8), the player (col 10): the rat runs left; once the player walks past the
+; rock fall it comes back and bites (tests/unit/sim_test.cpp).
+###################
+#......tv.S......E#
+###################

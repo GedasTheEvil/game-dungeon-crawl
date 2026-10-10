@@ -58,8 +58,10 @@ constexpr float MONSTER_JUMP_TOUCHDOWN = 0.83f; // ... and touch it again
 constexpr float MONSTER_JUMP_HEIGHT = 12.f;		// world units at the top of the arc
 constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
-constexpr int MINION_SUMMON_REACH = 3;			// cells from its boss a summoned minion may appear
-constexpr int MINION_EMERGE_MS = 700;			// a summoned minion digs out or drops into place, then acts
+// A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
+constexpr float COWARD_SAFE_GAP = 4.5f;
+constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
+constexpr int MINION_EMERGE_MS = 700;  // a summoned minion digs out or drops into place, then acts
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
 // monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster

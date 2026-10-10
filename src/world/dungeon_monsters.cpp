@@ -48,6 +48,32 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 				   : std::clamp(bite, centre, static_cast<float>(land + 1));
 }
 //======================================================================================
+bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
+	const auto to = static_cast<int>(std::floor(mapX));
+	const bool leaps = mon.Type()->locomotion == Locomotion::WalkJump;
+	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
+		if (!walkerBlocked(col, mon.Row(), mon.reckless()))
+			continue;
+		const int land = leaps ? leapLanding(col, mon.Row(), dir) : -1;
+		if (land < 0)
+			return false;
+		col = land;
+	}
+	return true;
+}
+//======================================================================================
+// No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
+void Dungeon::fleeFrom(Monster& mon, int dir) {
+	const float gap =
+		dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right() : mon.Left() - (mapX + sim.player->HalfWidth());
+	if (gap >= COWARD_SAFE_GAP || !clearRow(mon.CentreX(), mapX, mon.Row())) {
+		mon.Stand();
+		return;
+	}
+	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
+	mon.Flee(walkerBlocked(col, mon.Row(), mon.reckless()), -dir);
+}
+//======================================================================================
 void Dungeon::UpdateMonsters() {
 	updateBoss();
 	for (Monster& mon : monsters) {
@@ -122,6 +148,10 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.Alive() && !won && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
+			if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
+				fleeFrom(mon, dir);
+				continue;
+			}
 			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
 			bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
 			if (blocked && dir != 0 && mon.canJump()) {

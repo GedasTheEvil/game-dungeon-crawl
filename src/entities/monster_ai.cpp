@@ -34,6 +34,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 
 	if (!rooted())
 		alerted = true; // chasing the player
+	fleeDir = 0;
 	const float water = inWater ? type->waterSpeed : 1.f;
 	if (!blocked)
 		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
@@ -41,10 +42,35 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	return true;
 }
 
+bool Monster::flees() const {
+	const bool walks = type->locomotion == Locomotion::Walk || type->locomotion == Locomotion::WalkJump;
+	return walks && !reckless() && !type->isBoss();
+}
+
+void Monster::Flee(bool blocked, int dir) {
+	if (!Alive())
+		return;
+	alerted = true;
+	if (blocked) { // its own dead end: it waits there
+		Stand();
+		return;
+	}
+	fleeDir = dir;
+	const float water = inWater ? type->waterSpeed : 1.f;
+	x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
+	enter(ModelState::Move);
+}
+
+void Monster::Stand() {
+	fleeDir = 0;
+	enter(ModelState::Idle);
+}
+
 void Monster::Attack(float py) {
 	if (!Alive() || type->damage <= 0) // harmless (an egg cluster)
 		return;
 
+	fleeDir = 0;
 	enter(ModelState::Attack);
 	if (sameRow(py)) {
 		alerted = true;

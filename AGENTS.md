@@ -23,7 +23,7 @@ The `blender` MCP server needs Blender 5 running with the MCP add-on started (po
 Models are rebuilt procedurally in Blender Python scripts. Tools, format conventions and per-model status: [docs/remodeling.md](docs/remodeling.md).
 
 ## Command whitelist
-These commands do need confirmation to run
+These commands do not need confirmation to run
 * make tidy
 * make tidy-fix
 * make format

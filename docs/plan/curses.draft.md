@@ -12,10 +12,9 @@ out (and end on death).
 
 All curses last the same time: 2 minutes.
 
-First curse: **weakness**, applied by the mummy's hit with a 10% chance.
+First curse: **weakness**, applied by the mummy's hit with a 10% chance (greater weakness 2%, see Monster side).
 
-Grade roll: when a curse is applied, a second roll picks the grade: greater 10%, normal 90%. This holds for every
-curse that has a greater grade (so the mummy can give greater weakness).
+Grades: a greater grade is its own entry on the monster, with its own (lower) chance. No separate grade roll.
 
 ## Curses
 
@@ -31,7 +30,7 @@ curse that has a greater grade (so the mummy can give greater weakness).
 | Palsy (working name) | ranged and thrown weapons cannot be used (bow, sling, throwing stick, javelin...); melee works. Single grade |
 | Insanity ("caveman") | map, journal, inventory and the quick-drink keys locked; the club is put in hand and the weapon cannot be changed | |
 
-Palsy has no greater grade (skip the grade roll). Name ideas: Palsy (hands tremble), Unsteady Aim, Butterfingers,
+Palsy has no greater grade. Name ideas: Palsy (hands tremble), Unsteady Aim, Butterfingers,
 Fumbling Hands, Withered Grip. Pick one when implementing.
 
 A greater curse and its lesser one are the same curse at two grades (like the poison tiers).
@@ -59,16 +58,19 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * Insanity: the input / UI gates for map, journal, inventory, quick drink and weapon switch ask `PlayerStats::Cursed(Insanity)`; a
   status line says why ("Your mind is clouded"). On start, the weapon in hand is remembered and the club put in hand;
   on end, the old weapon comes back.
-* Monster side: `MonsterKind` gets `curse`, `curseGrade`, `cursePercent`, so new cursing monsters need no new code.
-  Mummy: weakness, 10%. Roll on the gameplay stream (`GameRandom`) on a hit that lands, then the grade roll.
+* Monster side: `MonsterKind` gets `std::array<CurseEntry, 2> meleeCurses, rangedCurses` (max 2 each, 4 in total),
+  `CurseEntry { Curse kind; Grade grade; float percent; }`, so new cursing monsters need no new code. Each entry has
+  its own chance. On a hit that lands (melee hit, or ranged bolt hit), roll the matching list on the gameplay stream
+  (`GameRandom`), strongest entry first; the first success applies, so one curse per hit. No separate grade roll.
+  Mummy: melee weakness 10%, greater weakness 2% (tunable; the stronger curse has the lower chance).
 * Boss rule: no boss has `kin = MonsterMummy`. The Anubis boss summons mummies, and they curse like any mummy. A
-  monster given another curse: its boss gets the greater grade (or a higher chance).
+  monster given another curse: its boss gets a higher chance, or the stronger grade.
 * Palsy: the ranged / thrown attack input checks `PlayerStats::Cursed(Palsy)`; status line says why ("Your hands
   shake too much to aim"). The weapon stays in hand, only the shot / throw is refused (no ammo spent, no cooldown).
-* **Trigger kind:** `MonsterKind` also gets `curseOn` (`Melee` default, `Ranged`). Palsy triggers only from the
-  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.draft.md](anubis-ranged-attack.draft.md)) when the
-  bolt hits the player, never from its melee. Anubis guard: 20%. Anubis boss: 40% (same curse, higher chance, per the
-  boss rule). So a monster can carry several curse entries (melee and ranged): make `curse` a small list. Needs the Anubis ranged attack first (a POC exists).
+* **Trigger kind:** the two lists are the trigger kind. Palsy sits in `rangedCurses`: it triggers only when the
+  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.draft.md](anubis-ranged-attack.draft.md)) hits the
+  player, never from melee. Anubis guard: 20%. Anubis boss: 40% (higher chance, per the boss rule). Needs the Anubis
+  ranged attack first (a POC exists).
 * Status box line on start, refresh and end ("You feel weak", "The weakness passes"); journal note on the first
   curse of each kind.
 * Glossary rows: curse and each curse name.
@@ -81,9 +83,9 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * A hit deals at least 1 damage (greater weakness can push it below).
 * Stamina potions work while fatigued.
 * Insanity locks the quick-drink keys too ("totally insane"). The club is always owned (starting weapon).
-* Grade roll after the curse roll: greater 10%, normal 90%.
+* Grades are separate entries with own chances (replaces the grade roll, 2026-10-11). Each monster: max 2 melee + 2 ranged curse entries.
 
-* Anubis applies two curses: Vulnerability from its melee hits (chance open), Palsy (guard 20%, boss 40%) from its
+* Anubis applies two curses: Vulnerability from its melee hits (guard 15%, boss 30%, `meleeCurses`), Palsy (guard 20%, boss 40%) from its
   ranged bolt only (2026-10-11).
 
 ## Open

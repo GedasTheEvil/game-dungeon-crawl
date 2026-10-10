@@ -41,7 +41,6 @@ Grep of scenario names in the plans; "shots" = `screenshot` lines.
   `water_ceiling` (water-ceiling), `weapon_reach` (monster-balance draft).
 - No screenshots at all, first unit-test candidates: `attack_recovery`, `bats_bite`, `generated_path`,
   `ladder_jump_off`, `loot`, `monster_slots`, `spikes`, `sprint`, `stamina`, `trap_hop`.
-  (`generated_path` is also used by `make paths`, `tests/out/paths/`; check before deleting.)
 - Likely parked (UI or visuals): `aspect_*`, `credits`, `draft_map`, `filtering`, `hud_*`, `player_hud*`, `menu`,
   `options`, `render_window`, `riddle*`, `screen_tabs`, `status_box`, `journal_page_turn`, `lighting`, `surfaces`,
   `toon*`, `props`, `weapons_held`, `blood_at_start`, `monster_blood`.

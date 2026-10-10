@@ -5,6 +5,9 @@ Once in compiles, run the code style checks `make format`, `make format-check` a
 ## Glossary
 Unsure of a term, or naming a new thing: grep [docs/glossary.md](docs/glossary.md) (one row per term, no need to read it all). Add new terms there.
 
+## Glyphs
+Level glyphs (monsters, tiles) are only read by tools and agents. Pick a free one yourself; never ask the user.
+
 ## Scenario tests
 To check game behaviour or visuals, write a script in `tests/scenarios/` and run `make test SCENARIO=...`. Screenshots and results go to `tests/out/<name>/`. Reference: [docs/testing.md](docs/testing.md).
 

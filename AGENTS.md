@@ -53,6 +53,9 @@ Once the user confirms an implemented plan is solved (tested / verified), move i
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to
 "docs/plan/solved/" in the same commit.
+When a plan moves to "docs/plan/solved/", turn the scenario tests it uses into unit tests (`tests/unit/`, docs/testing.md).
+A scenario that needs a screenshot moves to "tests/scenarios/solved/": `make test` skips it, `make test SCENARIO=...`
+still runs it as a slow regression check. Goal: lean, fast tests.
 New draft plans can arrive (and get committed) at any time, also in parallel with other work. They are not blocking:
 ignore them, don't stop or change the current task because of them, and don't include them in your own commits.
 

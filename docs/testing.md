@@ -27,6 +27,7 @@ fixed-step virtual clock, saves screenshots and state, then exits with a status 
 ```
 make test                                      # every tests/scenarios/*.txt
 make test SCENARIO=tests/scenarios/smoke.txt   # one script
+make test SCENARIO=tests/scenarios/solved/x.txt  # a parked one (not in `make test`)
 JOBS=4 make test                               # at most 4 at a time (default: (nproc - RESERVE_CORES) * 4 / 5, at least 1)
 RESERVE_CORES=6 MIN_FREE_MB=4096 make test     # start a new one only while 6 cores idle and 4 GB free (default 4, 4096)
 MIN_SWAP_FREE_MB=2048 make test                # and 2 GB of swap free (default 4096)
@@ -34,6 +35,9 @@ HEADLESS=0 make test                           # real windows instead of Xvfb, o
 ./game tests/scenarios/smoke.txt               # direct run, real window
 SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable
 ```
+
+`tests/scenarios/solved/` parks the scenarios of solved plans that need a screenshot (the rest became unit tests).
+`make test` skips them; run one by name for a slow regression check.
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a

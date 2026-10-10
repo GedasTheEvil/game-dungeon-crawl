@@ -64,15 +64,20 @@ struct BossRules {
 	int smallMinion = 0; // Summon::Hatch: a smaller kind every other hatch (the scorpion queen's scorpions); 0: none
 };
 
-// A spitter's venom: from afar along its row, it stops and spits a glob at the player (Dungeon::Venom). The release
-// and the mouth height come from the model's spit clip (tools/blender/models/cobra.py).
+constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};
+constexpr Rgb BOLT_RED = {0.95f, 0.15f, 0.1f};
+
+// A ranged attack: from afar along its row, it stops and spits a glob at the player (Dungeon::Venom): the cobras'
+// venom, the Anubis's bolt of light. The release and the mouth height come from the model's spit clip
+// (tools/blender/models/cobra.py).
 struct SpitRules {
-	int damage = 0; // on a hit, of the type's attack mix
-	PoisonTier poison = PoisonTier::Medium;
-	float range = 0.f;	  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
-	int cooldownMs = 0;	  // from one spit to the next
-	float release = 0.5f; // of the spit clip: the glob leaves the mouth
-	float mouthY = 0.5f;  // of the reference clip's height: the mouth at the release
+	int damage = 0;					  // on a hit, of the type's attack mix
+	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)
+	float range = 0.f;				  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
+	int cooldownMs = 0;				  // from one spit to the next
+	float release = 0.5f;			  // of the spit clip: the glob leaves the mouth
+	float mouthY = 0.5f;			  // of the reference clip's height: the mouth at the release
+	Rgb colour = VENOM_GREEN;
 };
 
 // Where levelgen puts it: levels of difficulty minDifficulty .. maxDifficulty, picked by weight. Weight 0: never.
@@ -120,7 +125,7 @@ struct MonsterKind {
 	// Chance that a poisoning does not take (docs/plan/solved/monster-poison.md); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
-	std::optional<SpitRules> spit; // it spits venom from afar
+	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
 	bool charges = false;		   // it charges along its row (Charge)
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (docs/plan/solved/boss-resistances.md).

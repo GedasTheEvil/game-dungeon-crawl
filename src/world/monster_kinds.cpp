@@ -138,6 +138,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 // A bolt of light from the was-sceptre (docs/plan/anubis-ranged-attack.md). POC: the attack clip stands in for the
+	 // spit clip; release and sceptre height guessed.
+	 .spit = SpitRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
 	 .generated = {9, 10, 1}},
 	{.id = MonsterRat,
 	 .glyph = 't',
@@ -363,6 +366,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .spit = SpitRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
 	 .kin = MonsterAnubis,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player

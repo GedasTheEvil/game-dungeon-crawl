@@ -50,6 +50,13 @@ inline const ClipFiles MONSTER_CLIPS = {{ModelState::Move, "", true, true},
 										{ModelState::Die, "_die", true, false},
 										{ModelState::Idle, "_idle", false, true},
 										{ModelState::Jump, "_jump", false, false}};
+// Walkers with a ranged attack (the Anubis): the spit clip. POC: the attack clip stands in for it, once, until a
+// _spit clip with a release frame (docs/plan/anubis-ranged-attack.md).
+inline const ClipFiles RANGED_CLIPS = {{ModelState::Move, "", true, true},
+									   {ModelState::Attack, "_att", true, true},
+									   {ModelState::Die, "_die", true, false},
+									   {ModelState::Idle, "_idle", false, true},
+									   {ModelState::Spit, "_att", true, false}};
 // Ambushers (the mimic): the idle clip is the disguise and the reference, so the awake loop never has to show it.
 inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
 									   {ModelState::Move, "", true, true},
@@ -73,8 +80,8 @@ inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Jump, "_jump", false, false},
 									   {ModelState::Climb, "_climb", false, true}};
 
-// The clip files of a monster that moves this way.
-const ClipFiles& ClipFilesOf(Locomotion locomotion);
+// The clip files of a monster kind: by how it moves, and whether it spits.
+const ClipFiles& ClipFilesOf(const MonsterKind& kind);
 
 // One clip of a model, as the sim sees it.
 struct ClipInfo {

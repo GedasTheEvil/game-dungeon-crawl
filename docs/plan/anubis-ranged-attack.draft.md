@@ -1,6 +1,7 @@
 # Anubis ranged attack
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: the Anubis gets a ranged attack, range 14, damage 50,
+Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)); the
+clip, its release and a sound still to do. From the user: the Anubis gets a ranged attack, range 14, damage 50,
 cooldown 3 s.
 
 ## Today
@@ -42,3 +43,15 @@ cooldown 3 s.
   ([monster-balance.draft.md](monster-balance.draft.md)). Check its threat (`threat` 8) and the sim with the new attack.
 * `levelcheck` does not model monster attacks; nothing to change there, likely.
 * Tests: a scenario in `tests/scenarios/` (an Anubis shoots from range, the cooldown holds, up close it hits in melee).
+
+## POC (2026-10-10)
+
+* `SpitRules` is the generic ranged attack: `poison` optional (none for the bolt), `colour` of the glob
+  (`VENOM_GREEN`, `BOLT_RED`). Anubis {50, 1.4 tiles, 3 s}, boss {125, 2.0 tiles, 2.5 s}, both red, both the melee mix.
+* Look: the venom glob, red (`Dungeon::drawVenoms`). The attack clip stands in for the spit clip, played once
+  (`RANGED_CLIPS`, `model_info.h`); `release` 0.5 and `mouthY` 0.6 are guesses. Sound: its attack sound.
+* Journal: the spit move reads "Hurls a bolt of red light from afar. A jump clears it." for a spit without poison.
+* Tests: `tests/unit/sim_test.cpp` (it shoots from afar, no poison, then comes on to hit), `tests/scenarios/anubis_bolt.txt`
+  (screenshots of the bolt in flight).
+* Still to do: the sceptre-thrust clip with a release frame (Blender), `release` / `mouthY` from it, a bolt sound,
+  maybe a glow instead of the glob; the balance check (`threat`).

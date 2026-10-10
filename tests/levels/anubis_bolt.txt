@@ -1,0 +1,5 @@
+; An Anubis (col 7) in front of the player (col 2): it walks up, shoots its bolt from afar, then hits up close
+; (tests/unit/sim_test.cpp, tests/scenarios/anubis_bolt.txt).
+##################
+#.S....n........E#
+##################

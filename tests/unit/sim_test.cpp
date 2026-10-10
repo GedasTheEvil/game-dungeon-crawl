@@ -78,6 +78,24 @@ TEST_CASE("the cobra rears up and spits from afar: its venom poisons the player"
 	CHECK(world.Hp() < hp);
 }
 
+TEST_CASE("the Anubis shoots a bolt from afar, no poison, then hits up close") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/anubis_bolt"));
+	world.player.stats.AddXP(1000000, world.events);
+	const int hp = world.Hp();
+	for (int t = 0; t < 1500 && world.Hp() >= hp; t++)
+		world.Tick();
+	REQUIRE(world.Saw(MonsterAnubis, CreatureMove::Spit));
+	CHECK(world.Hp() < hp);
+	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK_FALSE(world.Saw(MonsterAnubis, CreatureMove::Poison));
+	const Monster* anubis = firstMonster(world);
+	REQUIRE(anubis != nullptr);
+	CHECK(anubis->Left() - (world.X() + world.player.HalfWidth()) > MONSTER_BITE_REACH); // hit from afar
+	world.Wait(4000);
+	CHECK(anubis->Left() - (world.X() + world.player.HalfWidth()) <= MONSTER_BITE_REACH); // came on to hit
+}
+
 TEST_CASE("Sobek charges along the row through the player and is stunned by the wall") {
 	SimWorld world;
 	world.player.god = true;

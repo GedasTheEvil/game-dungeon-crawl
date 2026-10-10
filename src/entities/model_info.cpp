@@ -6,8 +6,8 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 
-const ClipFiles& ClipFilesOf(Locomotion locomotion) {
-	switch (locomotion) {
+const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
+	switch (kind.locomotion) {
 	case Locomotion::Ambush:
 		return AMBUSH_CLIPS;
 	case Locomotion::Entombed:
@@ -15,6 +15,8 @@ const ClipFiles& ClipFilesOf(Locomotion locomotion) {
 	case Locomotion::Coiled:
 	case Locomotion::Burrow:
 		return COILED_CLIPS;
+	case Locomotion::Walk:
+		return kind.spit ? RANGED_CLIPS : MONSTER_CLIPS;
 	default:
 		return MONSTER_CLIPS;
 	}

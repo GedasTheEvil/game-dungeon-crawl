@@ -198,6 +198,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
 - `tests/scenarios/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
   a real chest when killed.
+- `tests/scenarios/anubis_bolt.txt`: the Anubis walks up and shoots its red bolt from afar, then hits up close.
 - `tests/scenarios/mummy.txt`: a mummy in its coffin: no health bar, wakes 1.6 tiles away, climbs out (rise clip),
   strikes, dies; the empty coffin stays.
 - `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).

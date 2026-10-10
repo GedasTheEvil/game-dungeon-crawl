@@ -202,7 +202,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	case CreatureMove::Rear:
 		return "Lies coiled, rears up when I come near.";
 	case CreatureMove::Spit:
-		return "Spits venom from afar. A jump clears it.";
+		return t.spit && !t.spit->poison ? "Hurls a bolt of red light from afar. A jump clears it."
+										 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
 		return "Dives into the sand and comes up behind me.";
 	case CreatureMove::Charge:

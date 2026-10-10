@@ -82,13 +82,13 @@ void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MON
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[static_cast<size_t>(id)];
 		static_cast<MonsterKind&>(type) = kind;
-		const ClipFiles& clips = ClipFilesOf(kind.locomotion);
+		const ClipFiles& clips = ClipFilesOf(kind);
 		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
 		CharacterModel& model = monsterModels[static_cast<size_t>(id)];
 		const CharacterModel* kin = nullptr;
 		for (int k = 1; k < id && kin == nullptr; k++)
 			if (const MonsterKind& other = *monsterKind(k);
-				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other.locomotion) == &clips)
+				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other) == &clips)
 				kin = &monsterModels[static_cast<size_t>(k)];
 		if (kin != nullptr)
 			model.Share(*kin, kind.model, std::move(tex));

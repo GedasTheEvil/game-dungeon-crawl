@@ -11,8 +11,8 @@ TEST_CASE("every monster model has its clips, measured round its centre") {
 		const MonsterKind& kind = *monsterKind(id);
 		CAPTURE(std::string(kind.model));
 		ModelInfo info;
-		REQUIRE(LoadClips(kind.model, ClipFilesOf(kind.locomotion), info));
-		for (const ClipFile& file : ClipFilesOf(kind.locomotion)) {
+		REQUIRE(LoadClips(kind.model, ClipFilesOf(kind), info));
+		for (const ClipFile& file : ClipFilesOf(kind)) {
 			const ClipInfo& clip = info.Clip(file.state);
 			if (file.required)
 				CHECK(clip.present);

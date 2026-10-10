@@ -96,7 +96,8 @@ void Dungeon::drawDarts() {
 	}
 }
 //======================================================================================
-// A glob of venom: a small green ball stretched along its flight; on a wall or the floor a flattening splat.
+// A glob of venom (a bolt of light): a small ball in its spitter's colour, stretched along its flight; on a wall or the
+// floor a flattening splat.
 void Dungeon::drawVenoms() {
 	if (venoms.empty())
 		return;
@@ -121,7 +122,7 @@ void Dungeon::drawVenoms() {
 					 ARROW_DEPTH);
 		glRotatef(std::atan2(v.vy, v.vx) * RAD_TO_DEG, 0, 0, 1);
 		glScalef(RADIUS * stretch, RADIUS * squash, RADIUS);
-		glColor4f(0.45f, 0.75f, 0.15f, alpha);
+		glColor4f(v.colour.r, v.colour.g, v.colour.b, alpha);
 		for (int i = 0; i < STACKS; i++) {
 			const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
 			glBegin(GL_TRIANGLE_STRIP);

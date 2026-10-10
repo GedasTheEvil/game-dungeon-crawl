@@ -1,0 +1,51 @@
+# The Anubis's ranged attack (tests/levels/anubis_bolt, docs/plan/anubis-ranged-attack.md): it walks up, shoots a
+# red bolt of light from afar (its attack clip stands in for the throw), no poison, then hits up close.
+seed 1
+level tests/levels/anubis_bolt
+xp 1000000
+walk right 1
+screenshot start
+wait 150ms
+screenshot t01
+wait 150ms
+screenshot t02
+wait 150ms
+screenshot t03
+wait 150ms
+screenshot t04
+wait 150ms
+screenshot t05
+wait 150ms
+screenshot t06
+wait 150ms
+screenshot t07
+wait 150ms
+screenshot t08
+wait 150ms
+screenshot t09
+wait 150ms
+screenshot t10
+wait 150ms
+screenshot t11
+wait 150ms
+screenshot t12
+wait 150ms
+screenshot t13
+wait 150ms
+screenshot t14
+wait 150ms
+screenshot t15
+wait 150ms
+screenshot t16
+wait 150ms
+screenshot t17
+wait 150ms
+screenshot t18
+wait 150ms
+screenshot t19
+wait 150ms
+screenshot t20
+expect hp < 614
+expect poison == 0
+wait 3s
+screenshot melee

@@ -193,6 +193,7 @@ class Dungeon {
 	struct Venom {
 		float x, y, vx, vy;
 		const MonsterType* from; // its damage, mix and poison
+		Rgb colour;				 // SpitRules::colour
 		int lastMs;				 // GameClock time of the last update
 		float flown = 0.f;		 // tiles
 		int splatMs = -1;		 // GameClock time it hit a wall or the floor; < 0: flying

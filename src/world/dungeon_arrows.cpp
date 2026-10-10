@@ -145,10 +145,14 @@ bool Dungeon::clearRow(float fromX, float toX, int row) const {
 //======================================================================================
 // At the player's chest as they stand at the spit: a jump takes them out of its line.
 void Dungeon::spitVenom(const Monster& mon, float x, float y) {
+	const std::optional<SpitRules>& spit = mon.Type()->spit;
+	if (!spit)
+		return;
 	const float dx = mapX - x;
 	const float dy = mapY + VENOM_CHEST * sim.player->Height() - y;
 	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	venoms.push_back({x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), GameClock::now()});
+	venoms.push_back(
+		{x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), spit->colour, GameClock::now()});
 }
 //======================================================================================
 void Dungeon::updateVenoms() {
@@ -182,9 +186,11 @@ void Dungeon::updateVenoms() {
 			if (sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
 				const SpitRules& spit = *v.from->spit;
 				sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
-				sim.player->Poison(spit.poison, *sim.events, sim.random->gameplay);
 				sim.journal->HitByCreature(v.from->id, levelNumber);
-				sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Poison);
+				if (spit.poison) {
+					sim.player->Poison(*spit.poison, *sim.events, sim.random->gameplay);
+					sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Poison);
+				}
 				gone = true;
 			}
 		}

@@ -285,7 +285,7 @@ bool LoadMonsterTypes(MonsterTypes& types) {
 		const MonsterKind& kind = *monsterKind(id);
 		MonsterType& type = types[static_cast<size_t>(id)];
 		static_cast<MonsterKind&>(type) = kind;
-		loaded = LoadClips(kind.model, ClipFilesOf(kind.locomotion), type.model) && loaded;
+		loaded = LoadClips(kind.model, ClipFilesOf(kind), type.model) && loaded;
 	}
 	return loaded;
 }

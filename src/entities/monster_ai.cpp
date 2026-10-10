@@ -131,7 +131,7 @@ void Monster::Spit() {
 	enter(ModelState::Spit);
 	spitReadyMs = GameClock::now() + type->spit->cooldownMs;
 	spitReleased = false;
-	sound(CharacterSound::Spit);
+	sound(type->spit->poison ? CharacterSound::Spit : CharacterSound::Attack); // the bolt: no sound of its own yet
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Spit);
 }
 

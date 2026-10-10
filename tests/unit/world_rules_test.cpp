@@ -84,12 +84,13 @@ TEST_CASE(
 	CHECK(world.Hp() == 50);
 
 	world.player.god = true;
-	REQUIRE(world.WalkTo(10.3f));
-	world.Wait(2000);
-	CHECK(world.Nearest() == 600);
-	world.Wait(16000);			  // slow: it takes this long to get onto the plate
+	// Past the guard and back west: it follows, faster than the walk, onto the plate at col 12 behind the player.
+	REQUIRE(world.WalkTo(14.5f));
+	REQUIRE(world.WalkTo(11.2f));
+	world.Wait(18000);
 	CHECK(world.Nearest() < 600); // a quarter of the darts' damage (trapDamagePct 25); immune to the poison
-	CHECK(world.Nearest() > 590);
+	CHECK(world.Nearest() > 580);
+	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 }
 
 TEST_CASE("a rock fall: walk on and clear it, stop at its edge and get grazed, stand in its middle and be crushed") {
@@ -236,12 +237,17 @@ TEST_CASE(
 	world.WaitTicks(10);
 	CHECK(world.dungeon.BossHealth() == 2400);
 	CHECK(world.dungeon.LivingMinions() >= 2);
-	world.WaitTicks(20);
-	world.Wait(6000);
+	// He walks up and strikes: a blow takes 129 HP (his mummies' blows less).
+	int last = world.Hp();
+	bool blow = false;
+	for (int t = 0; t < 600 && world.player.Alive() && !blow; t++) {
+		world.Tick();
+		blow = last - world.Hp() == 129;
+		last = world.Hp();
+	}
+	CHECK(blow);
+	world.Wait(4000);
 	CHECK(world.dungeon.LivingMinions() >= 3);
-	world.Wait(1000); // he has walked up and struck by now
-	CHECK(world.Hp() <= 569);
-	CHECK(world.player.Alive());
 
 	world.player.god = true;
 	world.dungeon.HurtBoss(world.dungeon.BossHealth());

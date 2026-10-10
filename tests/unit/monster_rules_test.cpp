@@ -39,9 +39,8 @@ TEST_CASE("the Anubis walks through the spikes to the player, taking a quarter o
 	REQUIRE(world.Load("tests/levels/reckless_anubis"));
 	world.player.stats.AddXP(200000, world.events);
 	world.WaitTicks(30);
+	CHECK(world.Nearest() == 600); // before the spikes at col 4
 	REQUIRE(world.WalkTo(2.3f));
-	world.Wait(9000);
-	CHECK(world.Nearest() == 600);
 	world.Wait(5000);
 	CHECK(world.Nearest() < 600);
 	CHECK(world.Nearest() > 0);
@@ -213,4 +212,19 @@ TEST_CASE("health bars stay hidden until a monster acts on the player") {
 	REQUIRE(world.Walk(7.4f));
 	world.Wait(3000);
 	CHECK(world.dungeon.MonsterBarsShown() == 2); // the plant bites; never the scarab
+}
+
+TEST_CASE("the Anubis guard walks 20% faster than the player, the Anubis boss a little faster still") {
+	CHECK(monsterKind(MonsterAnubisBoss)->speed > monsterKind(MonsterAnubis)->speed);
+	// On the floor: tests/levels/reckless_anubis, the guard coming at the player standing still.
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/reckless_anubis"));
+	world.WaitTicks(30);
+	const Monster* anubis = world.dungeon.NearestMonster();
+	REQUIRE(anubis != nullptr);
+	world.WaitTicks(5);
+	const float from = anubis->CentreX();
+	world.Wait(1000);
+	CHECK(from - anubis->CentreX() == doctest::Approx(1.2f * WALK_SPEED).epsilon(0.05)); // tiles in a second
 }

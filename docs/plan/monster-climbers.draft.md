@@ -29,7 +29,7 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
   ([no-attack-on-ladder](no-attack-on-ladder.md)). Depends on that draft: it ships first, or with this one. A
   climber on the ladder only follows; it attacks once off the rungs.
 * **Climb speed:** 80% of the monster's own walk `speed`. A boss walks faster, so it climbs faster too. Comes after
-  [anubis-speed](anubis-speed.draft.md) (the Anubis guard walks faster, so it climbs faster).
+  [anubis-speed](anubis-speed.md) (the Anubis guard walks faster, so it climbs faster).
 
 * **Path-finding:** a climber that has seen the player (woken, chasing as in `Seek` today) keeps a path to the
   player's cell across floors: walkable rows, ladders and, for jumpers (the giant rat), planned jumps over gaps.

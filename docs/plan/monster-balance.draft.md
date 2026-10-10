@@ -183,7 +183,7 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 ## Related
 
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
-* Changes that move the sim pass (step 5): [anubis-speed](anubis-speed.draft.md),
+* Changes that move the sim pass (step 5): [anubis-speed](anubis-speed.md),
   [anubis-ranged-attack](anubis-ranged-attack.draft.md), [monster-climbers](monster-climbers.draft.md) (threat
   x1.05), [coward-flee-ranged](coward-flee-ranged.draft.md), [crocodile-hold-bite](crocodile-hold-bite.draft.md), the
   cobra spit cut to 1.2 / 1.5 tiles (2026-10-09).

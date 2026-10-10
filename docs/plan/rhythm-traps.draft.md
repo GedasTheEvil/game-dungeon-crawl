@@ -11,9 +11,9 @@ triggered. Sprinting and jumping do not beat it: the player must time the pass a
   (safe), and a short telegraph just before extending (spikes twitch, a click or scrape) so the player can read it.
 * **Placement:** spikes come out of a wall beside the corridor (a side wall, or a floor strip); a run of cells in
   front of the wall is the danger zone while extended. Sideways spikes cannot be jumped: the jump gives no
-  clearance, and sprint only cuts the time in the zone, not the hit. The zone hurts whoever stands in it
-  at the moment of extending, and while extended.
-* **Hit:** damage on the extend moment (a stab), plus weak poison ([stronger-poisons](stronger-poisons.md) tiers; the
+  clearance, and sprint only cuts the time in the zone, not the hit. While extended, the zone does
+  continuous damage to whoever stands in it (the `TrapHurt` tick, growing the longer it stays).
+* **Hit:** continuous damage while in the zone and extended, plus weak poison ([stronger-poisons](stronger-poisons.md) tiers; the
   tier is per trap, default weak). Resistance and `trapCutPercent` (trap ward) apply as for spikes
   (`SPIKE_ATTACK_MIX`, `TrapHurt` / `Dungeon::updateTraps` are the model).
 * **Combining:** every trap has its own `phase` and `period` (a "speed": fast, normal, slow). Two or three in a row
@@ -41,9 +41,8 @@ combination must be crossable with the player's walk speed: the checker simulate
 
 * Walk speed vs. safe window: how long the minimum safe window is (suggest at least 1.5x the time to cross
   the zone at walk speed).
-* Whether the zone hurts while merely extended, or only at the stab (suggest both: stab hit once, then the
-  `TrapHurt` tick while standing in it).
-* Whether levitation, speed or a dodge skill ([skill-dodge](skill-dodge.draft.md)) may bypass it. Default: no.
+* Dodge ([skill-dodge](skill-dodge.draft.md)): may avoid a single event (one stab or one tick), never sustained
+  time in the zone. Levitation and speed do not bypass it. Default as stated; exact rule is the implementer's choice.
 * Boss ability rule: no monster gains an ability here, so no boss change.
 
 ## Tests

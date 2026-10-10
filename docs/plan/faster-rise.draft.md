@@ -42,7 +42,8 @@ later, it rises at least as fast.
 
 * Which fallback if one hit is not reached (see above).
 * Exact 0.75 s (time-driven rise) or 0.8 s on the 100 ms step.
-* Whether the wake sound still fits the shorter clip.
+
+Decided: the wake sound stays as is (user, 2026-10-10).
 
 ## Tests
 

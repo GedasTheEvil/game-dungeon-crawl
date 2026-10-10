@@ -84,4 +84,4 @@ A greater curse and its lesser one are the same curse at two grades (like the po
    | Fatigue | vampire bat's kin, the bat / giant bat (boss: vampire bat) | drains |
    | Vulnerability | Anubis (boss: Anubis boss) | judge of the dead, weighs the heart |
    | Clumsiness | giant scarab (boss: scarab boss) | |
-   | Insanity | cursed chests / mimic, or a sarcophagus trap; not a common monster, it is the harshest | |
+   | Insanity | the [cursed mimic](cursed-mimic.draft.md), a mimic variant for the higher levels (decided) | none |

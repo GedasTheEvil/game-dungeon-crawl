@@ -15,13 +15,15 @@ class AnimatedModel {
 	int texture;
 	bool compiled;
 	Md3Mesh mesh;
-	std::vector<int> List;
+	unsigned vbo = 0;	 // the frames' distinct vertices, after Compile
+	unsigned ibo = 0;	 // a vertex per corner
+	int vertexCount = 0; // in vbo, per frame
 
   public:
 	bool loop;
 	AnimatedModel();
 	~AnimatedModel();
-	AnimatedModel(const AnimatedModel&) = delete; // owns display lists
+	AnimatedModel(const AnimatedModel&) = delete; // owns its buffers
 	AnimatedModel& operator=(const AnimatedModel&) = delete;
 	int Load(const char filename[]); // MD3 (see tools/blender/md3.py)
 	void Show() const;
@@ -31,7 +33,7 @@ class AnimatedModel {
 	void Advance(AnimPlayback& p) const;
 	void setSpeed(int nSpeed);
 	void BindTexture(int t);
-	// Draws from display lists from now on and frees frames 1.. of the vertex data, unless keepFrames (Vertex of
+	// Draws from a vertex buffer from now on and frees frames 1.. of the vertex data, unless keepFrames (Vertex of
 	// any frame).
 	void Compile(bool keepFrames = false);
 	// A mesh already loaded (loadClips): its frames are taken over.

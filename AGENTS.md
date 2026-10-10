@@ -43,6 +43,10 @@ sense. The same goes for draft plans: a plan that gives a base monster an abilit
 ## Plans
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.
+Drafts are written for agents to implement later. Every draft is ready to implement as is; only a link to another
+draft it needs first blocks it. Open points or several ideas in a draft are the implementer's choice.
+When writing a draft, optimize for agent reading: the first lines (status) say what it needs first, if anything,
+so readiness is clear without reading the whole file.
 Once a draft plan is implemented, rename it without the "draft" part ("<idea-slug>.md") and update links to it.
 Once the user confirms an implemented plan is solved (tested / verified), move it to "docs/plan/solved/" and update links to it.
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,

@@ -79,6 +79,7 @@ From the user's current playthrough. The curve above is the model; these are the
 | Date | Map level | Player level | Max HP | Might | Armor | Weapon | Dmg shown | Notes |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-09 | 18 | 42 | 738 | 21 | 18 | Epsilon axe lvl 1 (base 55, 30 blunt / 70 slash) | 76 | crocodiles (110 HP) fall in 3 hits |
+| 2026-10-10 | 23 | 50 | 1101 | 34 | 32 | Epsilon axe | 100 | the Anubis guard is hardly a threat |
 
 Against the model (2026-10-09 entry):
 
@@ -91,6 +92,23 @@ Against the model (2026-10-09 entry):
   levels 7-9 but still met on lvl18, where it is no threat.
 * For step 5 (the sim pass): use the real gear growth (potions, amulets), not level-only stats. Ask for more data points
   (lvl20 Apep, lvl25 Sobek, lvl30).
+
+Against the model (2026-10-10 entry):
+
+* Player level 50 on lvl23 is ahead again: the curve gives about 46-47 there (43 at lvl20, 49 at lvl25).
+* Max HP 1101 against the curve's 50 + 12 x 49 = 638: +73% (was +36% on lvl18). Gear growth outpaces the levels.
+* Might 34 and armour 32: level-only gains are about +6 and +10. From lvl18 to lvl23, +13 might and +14 armour.
+* Armour is subtracted from each hit (`playerHitDamage`, at least 1). At 32, every monster with 33 damage or less hits
+  for 1: all common monsters but the Anubis (crocodile and giant cobra 26, mummy 20, giant scarab 12 ...). The
+  checker's threat and the campaign's late levels count on them.
+* **Anubis guard** (600 HP, 55 melee every 1.1 s, bolt 50 every 3 s; blunt weak, slash resisted): the axe deals
+  100 x (0.3 x 2 + 0.7 x 0.5) = 95 a hit, about 7 hits. Its melee does 55 - 32 = 23, its bolt 18: about 48 hits to
+  kill this player, about 160 HP lost in the fight (15%). Tuned for 15 blows on "700 HP, 11 armour at level 55"
+  (44 a hit); now it needs three times that.
+* Bosses at armour 32: queen 45 -> 13, Apep 60 -> 28, Sobek 70 -> 38 (charge x2: 108), Anubis boss 140 -> 108.
+* For step 5: armour is the lever, not HP. Damage tuned against the curve's armour (about 11) is wiped out by the real
+  32. Options to weigh in the sim pass: monster damage up on the late levels, armour as a percentage cut instead of a
+  flat one, or fewer armour sources (potions, amulets).
 
 ## Monster strength
 

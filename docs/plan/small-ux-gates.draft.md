@@ -1,4 +1,4 @@
-# Small UX: exit gate plasma, teleporter sound
+# Small UX: exit gate plasma, teleporter sound, gate travel effect
 
 Status: draft 2026-10-10, ready (needs nothing first). From the user.
 
@@ -27,7 +27,20 @@ The user hears no sound when using a teleporter gate. A sound exists and is wire
 
 Done when a teleport is clearly audible at the default volumes.
 
+## 3. A short effect on gate travel
+
+Today going through a gate switches the view at once: the exit gate loads the next level (`LoadCampaignLevel`), a
+teleporter (also the ones into a boss room) moves the player to its partner (`Dungeon::Teleport`), both in
+`src/world/dungeon_io.cpp`. Add a short effect so the jump reads as travel:
+
+* Out: the view fades into the plasma colour (a bright swirl or a white-blue flash, ~0.3 s); in: fades back at the
+  arrival (~0.3 s). Red for the exit gate (as its plasma, section 1), blue for teleporters.
+* The game does not run during it (no monster hits mid-fade). A level load happens under the faded-out frame, so the
+  loading screen or bar follows the fade (check `loading-bar-jumps`).
+* Off with the motion effects option? Default: the fade stays (it is short), only the swirl goes. Implementer's choice.
+
 ## Tests
 
 * Scenario with screenshots of the exit gate (red) and an entrance (blue).
+* Scenario screenshots mid-fade, for a teleporter and for the exit gate.
 * Unit / sim: a teleport emits `WorldSound::Teleport` and the event reaches the sound queue.

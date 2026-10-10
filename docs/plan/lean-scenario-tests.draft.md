@@ -23,7 +23,9 @@ scenarios written before the rule. Keep tests lean and fast.
    - **Split.** Both: move the sim checks to a unit test, keep a trimmed scenario with the picture part (parked if its
      plans are solved).
    - **Keep.** Belongs to an unsolved plan (`docs/plan/*.md`, draft or implemented), or is a cheap whole-game guard
-     worth running every time (`smoke.txt`; at most a handful more, say why in the scenario's first comment).
+     worth running every time (`smoke.txt`; at most a handful more). List these always-run scenarios in
+     `docs/testing.md` (a short "Kept scenarios" section: name, what it guards, why a unit test can't), so later
+     agents don't solve them away; also a one-line why in each scenario's first comment.
 3. A scenario's plans: grep its file name in `docs/plan/` and `docs/plan/solved/`. One with no plan link counts as
    solved (it predates the plans), unless it tests something a draft is changing.
 4. Update links: docs, plans (also solved ones) and `docs/testing.md` that name a moved or deleted scenario. A deleted

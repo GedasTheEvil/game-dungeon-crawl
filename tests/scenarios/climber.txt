@@ -1,0 +1,25 @@
+# Climbers (docs/plan/monster-climbers.md), tests/levels/climb_up: the rat sees the player on the lower floor,
+# follows them up the ladder (col 6), its back to the camera on the rungs, and on along the upper floor.
+resolution 1600 1200
+seed 1
+god
+level tests/levels/climb_up
+wait 30
+walk to 6.45
+walk down 1.97
+walk to 9
+wait 500ms
+walk to 6.45
+walk up 2
+walk to 5.2
+wait 4s
+screenshot rat_at_foot
+wait 1500ms
+screenshot rat_climbing
+wait 2500ms
+screenshot rat_near_top
+toon on
+screenshot rat_near_top_toon
+toon off
+wait 2s
+screenshot rat_on_top

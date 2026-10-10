@@ -43,8 +43,9 @@ enum class CreatureMove : unsigned char {
 	Spit,	 // venom spat from afar
 	Burrow,	 // Apep dives into the floor and comes up elsewhere
 	Charge,	 // Sobek charges along the row
+	Climb,	 // a climber follows the player up or down a ladder
 };
-constexpr int CREATURE_MOVE_COUNT = 12;
+constexpr int CREATURE_MOVE_COUNT = 13;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
 // a kill count (docs/plan/solved/monster-journal.md).

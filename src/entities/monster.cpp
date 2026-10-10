@@ -15,6 +15,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	blood->setBloodColor(kind.blood.r, kind.blood.g, kind.blood.b);
 	blood->Stop(); // no splash until the first hit
 	col = spawnCol;
+	this->spawnRow = spawnRow;
 	row = spawnRow;
 	health = kind.maxHealth;
 	x = 0.f;
@@ -34,6 +35,9 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	leap = Leap{};
 	burrow = Burrow{};
 	charge = Charge{};
+	climb = Climb{};
+	rungs = false;
+	wayMs = -1;
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
 	spitReadyMs = 0;
@@ -53,6 +57,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 void Monster::Clear() {
 	type = nullptr;
 	col = -1;
+	spawnRow = -1;
 	row = -1;
 	health = 0;
 	drop.reset();
@@ -118,8 +123,10 @@ float Monster::burrowLift() const {
 	return 0.f;
 }
 
+float Monster::climbLift() const { return climb.y * RenderConfig::TILE_SIZE; }
+
 float Monster::lift() const {
-	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink) + emergeLift() + burrowLift();
+	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
 }
 
 bool Monster::LeavesChest() const {
@@ -139,7 +146,7 @@ bool Monster::Rising() const {
 	return rises() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
 }
 
-bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) - py) < 0.8f; }
+bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) + climb.y - py) < 0.8f; }
 
 float Monster::HalfWidth() const {
 	return type->model.HalfWidth() * type->scale * Figures::Scale() / RenderConfig::TILE_SIZE;
@@ -152,7 +159,7 @@ float Monster::MeleeGap(float px, int dir) const {
 bool Monster::Nearby(float px, float py, float reach, int dir) const {
 	const float behind = (FarEdge(dir) - px) * static_cast<float>(dir); // < 0: the far edge is behind the player
 	return MeleeGap(px, dir) <= reach && behind >= -MELEE_REACH_BEHIND &&
-		   std::fabs(static_cast<float>(row) - py) < 0.7f;
+		   std::fabs(static_cast<float>(row) + climb.y - py) < 0.7f;
 }
 
 // A roosting flyer, a lurker under the water and a coiled one show their idle clip.

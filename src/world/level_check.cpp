@@ -382,7 +382,9 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 
 float monsterThreat(int type) {
 	const MonsterKind* kind = monsterKind(type);
-	return kind != nullptr ? kind->threat : UNKNOWN_MONSTER_THREAT;
+	if (kind == nullptr)
+		return UNKNOWN_MONSTER_THREAT;
+	return kind->climbs ? kind->threat * CLIMBER_THREAT_FACTOR : kind->threat;
 }
 
 LevelReport checkLevel(const LevelGrid& grid) {

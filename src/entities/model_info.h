@@ -44,30 +44,28 @@ struct ClipFile {
 };
 using ClipFiles = std::vector<ClipFile>;
 
-// Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling) and _jump (a leap).
-inline const ClipFiles MONSTER_CLIPS = {{ModelState::Move, "", true, true},
-										{ModelState::Attack, "_att", true, true},
-										{ModelState::Die, "_die", true, false},
-										{ModelState::Idle, "_idle", false, true},
-										{ModelState::Jump, "_jump", false, false}};
+// Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling), _jump (a leap) and
+// _climb (a climber on a ladder, its back to the camera).
+inline const ClipFiles MONSTER_CLIPS = {
+	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", false, true},
+	{ModelState::Jump, "_jump", false, false}, {ModelState::Climb, "_climb", false, true}};
 // Walkers with a ranged attack (the Anubis): the spit clip. POC: the attack clip stands in for it, once, until a
 // _spit clip with a release frame (docs/plan/anubis-ranged-attack.md).
-inline const ClipFiles RANGED_CLIPS = {{ModelState::Move, "", true, true},
-									   {ModelState::Attack, "_att", true, true},
-									   {ModelState::Die, "_die", true, false},
-									   {ModelState::Idle, "_idle", false, true},
-									   {ModelState::Spit, "_att", true, false}};
+inline const ClipFiles RANGED_CLIPS = {
+	{ModelState::Move, "", true, true},		 {ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},	 {ModelState::Idle, "_idle", false, true},
+	{ModelState::Spit, "_att", true, false}, {ModelState::Climb, "_climb", false, true}};
 // Ambushers (the mimic): the idle clip is the disguise and the reference, so the awake loop never has to show it.
 inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
 									   {ModelState::Move, "", true, true},
 									   {ModelState::Attack, "_att", true, true},
 									   {ModelState::Die, "_die", true, false}};
 // Entombed (the mummy): walks like the MONSTER_CLIPS, lies in its coffin (_idle) until it climbs out (_rise, once).
-inline const ClipFiles ENTOMBED_CLIPS = {{ModelState::Move, "", true, true},
-										 {ModelState::Attack, "_att", true, true},
-										 {ModelState::Die, "_die", true, false},
-										 {ModelState::Idle, "_idle", true, true},
-										 {ModelState::Rise, "_rise", true, false}};
+inline const ClipFiles ENTOMBED_CLIPS = {
+	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false}, {ModelState::Climb, "_climb", false, true}};
 // Coiled (the cobra): lies coiled (_idle) until it rears up (_rise, once), then walks; spits venom (_spit, once).
 inline const ClipFiles COILED_CLIPS = {
 	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},

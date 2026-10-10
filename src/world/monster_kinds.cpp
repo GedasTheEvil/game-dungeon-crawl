@@ -141,6 +141,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // A bolt of light from the was-sceptre (docs/plan/anubis-ranged-attack.md). POC: the attack clip stands in for the
 	 // spit clip; release and sceptre height guessed.
 	 .spit = SpitRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
+	 .climbs = true,
 	 .generated = {9, 10, 1}},
 	{.id = MonsterRat,
 	 .glyph = 't',
@@ -161,6 +162,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .climbs = true,
 	 .generated = {1, 5, 6}},
 	// Faster than the player's walk (~1.25 tiles/s): the bow alone does not keep it off
 	// (docs/plan/solved/giant-rat-speed.md).
@@ -183,6 +185,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .climbs = true,
 	 .generated = {4, 10, 3}},
 	{.id = MonsterBat,
 	 .glyph = 'f',
@@ -338,6 +341,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .climbs = true,
 	 .generated = {7, 10, 2}},
 	// The finale's guardian, a head taller than an Anubis, the strongest boss. The player comes to lvl30 at about
 	// level 55 (about 700 HP, 11 armour): 6 blows kill them. Reckless: the player cannot shake him off behind a row of
@@ -367,6 +371,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .spit = SpitRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
+	 .climbs = true,
 	 .kin = MonsterAnubis,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
@@ -415,7 +420,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCORPION_RESIST,
 	 .weight = 1,
 	 .poison = PoisonTier::Weak,
-	 .poisonResistPercent = POISONER_RESIST},
+	 .poisonResistPercent = POISONER_RESIST,
+	 .climbs = true},
 	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar; lies coiled until the player
 	// comes near (docs/plan/solved/cobra.md).
 	{.id = MonsterCobra,
@@ -487,7 +493,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = SCORPION_MIX,
 	 .resist = SCORPION_RESIST,
 	 .poison = PoisonTier::Medium,
-	 .poisonResistPercent = POISONER_RESIST},
+	 .poisonResistPercent = POISONER_RESIST,
+	 .climbs = true},
 	// Rooted and harmless: the scorpion queen's brood hatches from it (Summon::Hatch). Dies to a few blows.
 	{.id = MonsterEggCluster,
 	 .glyph = 'e',
@@ -535,6 +542,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 .climbs = true,
 	 .kin = MonsterScorpion,
 	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster, MonsterScorpion}},
 	// The lvl20 boss on the cobra model, long as the hall (docs/plan/apep-serpent-boss.md).

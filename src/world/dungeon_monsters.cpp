@@ -9,32 +9,11 @@
 #include <memory>
 #include "../core/gameplay_config.h"
 #include "loot.h"
+#include "climb_path.h"
 
-bool Dungeon::walkerBlocked(int col, int row, bool reckless) const {
-	if (!IsInBounds(col, row))
-		return true;
-	Tile cell = MapAt(col, row);
-	if (isSolidTile(cell))
-		return true;
-	const bool trap = cell.type == Spike || cell.type == Death || cell.type == DartPlate ||
-					  (cell.type == RockFall && rockState(cell) != RockState::Fallen);
-	if (trap && !reckless)
-		return true;
-	return !IsInBounds(col, row - 1) || !isSolidTile(MapAt(col, row - 1)); // row 0 is the bottom
-}
+bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
 //======================================================================================
-int Dungeon::leapLanding(int col, int row, int dir) const {
-	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
-		return -1; // a wall, not a gap
-	for (int k = 1; k <= MONSTER_JUMP_MAX_GAP; k++) {
-		int c = col + dir * k;
-		if (!IsInBounds(c, row) || isSolidTile(MapAt(c, row)))
-			return -1;
-		if (!walkerBlocked(c, row))
-			return c;
-	}
-	return -1;
-}
+int Dungeon::leapLanding(int col, int row, int dir) const { return leapLandingAt(map, col, row, dir); }
 //======================================================================================
 // The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
 // and leap back over the gap.
@@ -74,6 +53,61 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 	mon.Flee(walkerBlocked(col, mon.Row(), mon.reckless()), -dir);
 }
 //======================================================================================
+// The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
+// leaves the ladder.
+int Dungeon::climbEnd(int col, int row) const {
+	int r = row, nc = 0, nr = 0;
+	while (climbPath.Next(col, r, nc, nr) && nc == col && nr != r)
+		r = nr;
+	return r;
+}
+//======================================================================================
+bool Dungeon::followPath(Monster& mon, int dir) {
+	if (!mon.climbs() || !mon.Alerted())
+		return false;
+	if (mon.Climbing()) { // a climb once started runs to its end
+		mon.UpdateClimb();
+		return true;
+	}
+	const auto playerCol = static_cast<int>(std::floor(mapX));
+	const auto playerRow = static_cast<int>(std::floor(mapY + STANDING_EPSILON));
+	if (mon.sameRow(mapY) && (dir == 0 || walkerReaches(mon, dir))) {
+		mon.SawWay(playerCol, playerRow);
+		return false; // the walker's rules: chase along the row and bite
+	}
+	const ClimbAbility how{mon.reckless(), mon.Type()->locomotion == Locomotion::WalkJump};
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
+	if (climbPath.Steps(col, mon.Row()) > 0)
+		mon.SawWay(playerCol, playerRow);
+	else if (int toCol = 0, toRow = 0; mon.HeadingFor(toCol, toRow))
+		climbPath.Build(map, toCol, toRow, how, CLIMB_PATH_MAX); // where the player was last
+	else
+		return false; // gave up: it stays where it is
+	int nextCol = 0, nextRow = 0;
+	if (!climbPath.Next(col, mon.Row(), nextCol, nextRow))
+		return false;
+	if (nextRow != mon.Row()) { // a rung: to the ladder's middle first
+		const float centre = static_cast<float>(col) + 0.5f;
+		if (std::fabs(mon.CentreX() - centre) > mon.WalkStep())
+			mon.WalkPath(centre > mon.CentreX() ? 1 : -1, false);
+		else
+			mon.StartClimb(col, climbEnd(col, mon.Row()));
+		return true;
+	}
+	const int step = nextCol > col ? 1 : -1;
+	if (std::abs(nextCol - col) > 1) { // a leap over a gap
+		if (mon.canJump())
+			mon.Jump(static_cast<float>(nextCol - mon.Col()));
+		else
+			mon.WalkPath(step, true);
+		return true;
+	}
+	const auto probe = static_cast<int>(std::floor(mon.seekProbeX(step)));
+	mon.WalkPath(step, probe != col && probe != nextCol && !climbPath.Stands(probe, mon.Row()));
+	return true;
+}
+//======================================================================================
 void Dungeon::UpdateMonsters() {
 	updateBoss();
 	for (Monster& mon : monsters) {
@@ -89,6 +123,9 @@ void Dungeon::UpdateMonsters() {
 		};
 		mon.SetInWater(waterAt(mon.CentreX()), waterAt(mon.HeadX()),
 					   mon.flies() ? 0.f : WaterSink(mon.CentreX(), mon.Row()));
+		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
+		mon.SetOnRungs(mon.Climbing() || (MapAt(monCol, mon.Row()).type == Ladder && IsInBounds(monCol, mon.Row()) &&
+										  !isSolidTile(MapAt(monCol, mon.Row() - 1))));
 
 		if (mon.flies()) {
 			if (!won) {
@@ -105,7 +142,7 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
 			ItemFileId loot = fileIdOf(RollMimicLoot(sim.items->Owned(), sim.random->gameplay));
-			setObject(map[MapIndex(mon.Col(), mon.Row())], Tile{Treasure, loot.type, loot.id});
+			setObject(map[MapIndex(mon.Col(), mon.SpawnRow())], Tile{Treasure, loot.type, loot.id});
 			mon.Clear();
 			continue;
 		}
@@ -141,13 +178,15 @@ void Dungeon::UpdateMonsters() {
 			spitVenom(mon, sx, sy);
 		if (mon.Spitting())
 			continue;
-		if (!won && mon.canSpit(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
+		if (!won && !mon.OnRungs() && mon.canSpit(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
 			mon.Spit();
 			continue;
 		}
 
 		if (mon.Alive() && !won && mon.StepDue()) {
 			int dir = mon.attackDirection(mapX, mapY);
+			if (followPath(mon, dir))
+				continue;
 			if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
 				fleeFrom(mon, dir);
 				continue;
@@ -165,7 +204,7 @@ void Dungeon::UpdateMonsters() {
 				}
 			}
 			if (!mon.Seek(blocked, mapX, mapY))
-				if (mon.AttackDue())
+				if (mon.AttackDue() && !mon.OnRungs())
 					mon.Attack(mapY);
 		}
 	}
@@ -280,7 +319,7 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (tile.type != MonsterSpawn || typeId < 1 || typeId > MONSTER_TYPE_MAX) // a slain one's tile spawns nothing
 		return false;
 	for (const Monster& mon : monsters)
-		if (mon.Active() && !mon.Minion() && mon.Col() == i && mon.Row() == j)
+		if (mon.Active() && !mon.Minion() && mon.Col() == i && mon.SpawnRow() == j)
 			return false;
 	Monster* slot = freeMonsterSlot();
 	if (!slot)
@@ -339,7 +378,7 @@ void Dungeon::venomHit(Monster& mon) {
 void Dungeon::markSlain(const Monster& mon) {
 	if (mon.Minion() || mon.Type()->locomotion == Locomotion::Ambush)
 		return;
-	Tile& spawn = map[MapIndex(mon.Col(), mon.Row())];
+	Tile& spawn = map[MapIndex(mon.Col(), mon.SpawnRow())];
 	if (spawn.type == MonsterSpawn)
 		setObject(spawn, slainObject(spawn.attr));
 }

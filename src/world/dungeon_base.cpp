@@ -15,7 +15,6 @@
 
 namespace {
 constexpr float LADDER_REACH = 0.2f; // closer to LADDER_GRIP_X than this (tiles), the player holds on to the ladder
-constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this still counts as standing on it
 constexpr float CLIMB_SIDE_RATE = 0.5f;
 } // namespace
 

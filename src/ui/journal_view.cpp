@@ -208,6 +208,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Dives into the sand and comes up behind me.";
 	case CreatureMove::Charge:
 		return "Charges along the hall. A wall stuns it.";
+	case CreatureMove::Climb:
+		return "Follows me up and down the ladders.";
 	}
 	return "";
 }

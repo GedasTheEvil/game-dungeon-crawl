@@ -6,6 +6,7 @@
 #include "../core/gameplay_config.h"
 #include "decor_scatter.h"
 #include "level.h"
+#include "climb_path.h"
 #include "view_window.h"
 #include "sim_links.h"
 #include <memory>
@@ -64,6 +65,11 @@ class Dungeon {
 	[[nodiscard]] bool walkerReaches(const Monster& mon, int dir) const;
 	// A coward that cannot reach the player (Monster::flees): runs away along its row, out of the bow's range.
 	void fleeFrom(Monster& mon, int dir);
+	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
+	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
+	bool followPath(Monster& mon, int dir);
+	[[nodiscard]] int climbEnd(int col, int row) const; // the row a climb from (col, row) runs to, along climbPath
+	ClimbMap climbPath;									// the last path followPath built
 	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const {
 		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};

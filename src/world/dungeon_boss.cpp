@@ -87,7 +87,7 @@ void Dungeon::updateBoss() {
 	}
 	if (!boss.Alive()) {
 		// It does not come back, not after a load either; its coffins stay.
-		Tile& spawn = map[MapIndex(boss.Col(), boss.Row())];
+		Tile& spawn = map[MapIndex(boss.Col(), boss.SpawnRow())];
 		setObject(spawn, slainObject(spawn.attr));
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);

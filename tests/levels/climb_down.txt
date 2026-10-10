@@ -1,0 +1,7 @@
+; Two floors joined by a ladder (col 6), a rat on the upper floor (col 9): it follows the player down the ladder
+; (tests/unit/climb_test.cpp).
+####################
+#S....H..t.....E...#
+######H#############
+#.....H............#
+####################

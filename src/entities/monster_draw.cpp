@@ -107,7 +107,8 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	drawBlood(); // even when dead
 
 	model.BindTexture();
-	glRotatef(type.rotA + 90.f * static_cast<float>(mon.Facing()), 0, 1, 0);
+	// On the rungs it faces the ladder, its back to the camera.
+	glRotatef(type.rotA + (mon.OnRungs() ? 180.f : 90.f * static_cast<float>(mon.Facing())), 0, 1, 0);
 
 	const float figure = Ink::figureScale();
 	glScalef(figure, figure, figure);

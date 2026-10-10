@@ -58,6 +58,13 @@ struct Charge {
 	bool hit = false; // this rush has hit the player
 };
 
+// Climbers on a ladder (docs/plan/monster-climbers.md): from its row up or down to toRow, y map units off the row's
+// floor on the way. A climb once started runs to its end.
+struct Climb {
+	int toRow = -1; // < 0: not climbing
+	float y = 0.f;
+};
+
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and what the sim
 // reads of its model, loaded once, shared by its monsters. The app draws it with its CharacterModel (Assets).
 struct MonsterType : MonsterKind {
@@ -88,7 +95,8 @@ class Monster {
   private:
 	const MonsterType* type = nullptr; // nullptr: an empty slot
 	MonsterLinks links;
-	int col = -1, row = -1; // spawn tile
+	int col = -1, spawnRow = -1; // spawn tile
+	int row = -1;				 // the row it is on: the spawn row, until it climbs
 	float x = 0.f;
 	int health = 0;
 	ModelState state = ModelState::Move;
@@ -99,6 +107,10 @@ class Monster {
 	Leap leap;
 	Burrow burrow;
 	Charge charge;
+	Climb climb;
+	bool rungs = false;			  // on a ladder off the floor, or climbing (Dungeon::UpdateMonsters sets it every tick)
+	int wayMs = -1;				  // GameClock time a climber last had a way to the player; < 0: never
+	int wayCol = -1, wayRow = -1; // the player's cell then: it heads there until it gives up (CLIMB_GIVE_UP_MS)
 	// Created on the slot's first spawn, kept over respawns in it.
 	std::unique_ptr<ParticleSystem> blood;
 	Timer stepTimer{70}, attackTimer{800};
@@ -136,7 +148,7 @@ class Monster {
 	[[nodiscard]] float swimLift() const;
 	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
 	[[nodiscard]] float lift() const;
-	[[nodiscard]] bool sameRow(float py) const;
+	[[nodiscard]] float climbLift() const; // world units up or down a ladder while climbing
 
   public:
 	Monster() = default;
@@ -157,6 +169,9 @@ class Monster {
 	[[nodiscard]] bool Active() const { return type != nullptr; }
 	[[nodiscard]] int Col() const { return col; }
 	[[nodiscard]] int Row() const { return row; }
+	[[nodiscard]] int SpawnRow() const { return spawnRow; }
+	// The player at map y py is on its row (a climber halfway up a ladder: by its height).
+	[[nodiscard]] bool sameRow(float py) const;
 	[[nodiscard]] int Health() const { return health; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
 	// Hitbox: the model's half width (CharacterModel::HalfWidth) at its drawn scale, map units. Height: BottomY, TopY.
@@ -199,6 +214,22 @@ class Monster {
 	// A killed monster's weapon chest (RollKillDrop), once its die clip has played; nullopt before and after.
 	[[nodiscard]] std::optional<ItemKind> TakeDrop();
 	void SetDrop(std::optional<ItemKind> weapon) { drop = weapon; } // the player killed it (Dungeon::rewardKill)
+	[[nodiscard]] bool climbs() const { return type->climbs; }
+	[[nodiscard]] bool Climbing() const { return climb.toRow >= 0; }
+	// On the rungs it does not attack, as the player cannot (docs/plan/solved/no-attack-on-ladder.md).
+	[[nodiscard]] bool OnRungs() const { return rungs; }
+	void SetOnRungs(bool onRungs) { rungs = onRungs; }
+	// Climbers: from the ladder in column ladderCol (its centre there) up or down to toRow, then UpdateClimb each
+	// step until there.
+	void StartClimb(int ladderCol, int toRow);
+	void UpdateClimb();
+	// Climbers: one step along its path, dir -1 / +1 (as Seek, but the way is the path's); blocked: it stands.
+	void WalkPath(int dir, bool blocked);
+	// Climbers: a way to the player in cell (col, row) now. HeadingFor: the cell of the last way, while it has not
+	// given up (CLIMB_GIVE_UP_MS); false: no way, or given up.
+	void SawWay(int toCol, int toRow);
+	[[nodiscard]] bool HeadingFor(int& outCol, int& outRow) const;
+	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool canJump() const;
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
@@ -292,7 +323,7 @@ class Monster {
 	[[nodiscard]] int Facing() const { return facing; }
 	// World units off the row's floor it is drawn at: lift(), but a flyer not placed yet is drawn below the floor.
 	[[nodiscard]] float DrawnLift() const {
-		return (flies() ? flight.lift : leap.lift + swim - sink) + emergeLift() + burrowLift();
+		return (flies() ? flight.lift : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
 	}
 	[[nodiscard]] float Tomb() const { return tomb; }
 	[[nodiscard]] bool Roosting() const { return flies() && flight.phase == FlightPhase::Roost; }

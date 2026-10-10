@@ -35,10 +35,60 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (!rooted())
 		alerted = true; // chasing the player
 	fleeDir = 0;
-	const float water = inWater ? type->waterSpeed : 1.f;
 	if (!blocked)
-		x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
+		x += WalkStep() * static_cast<float>(dir);
 	enter(ModelState::Move);
+	return true;
+}
+
+float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * (inWater ? type->waterSpeed : 1.f); }
+
+void Monster::WalkPath(int dir, bool blocked) {
+	if (!Alive())
+		return;
+	fleeDir = 0;
+	if (blocked) {
+		enter(ModelState::Idle);
+		return;
+	}
+	x += WalkStep() * static_cast<float>(dir);
+	enter(ModelState::Move);
+}
+
+void Monster::StartClimb(int ladderCol, int toRow) {
+	x = static_cast<float>(ladderCol - col);
+	climb.toRow = toRow;
+	climb.y = 0.f;
+	enter(ModelState::Climb);
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Climb);
+}
+
+void Monster::UpdateClimb() {
+	const int dir = climb.toRow > row ? 1 : -1;
+	const float factor = type->isBoss() ? BOSS_CLIMB_SPEED_FACTOR : CLIMB_SPEED_FACTOR;
+	climb.y += static_cast<float>(dir) * MONSTER_SEEK_STEP * type->speed * factor;
+	if (climb.y * static_cast<float>(dir) >= 1.f) {
+		row += dir;
+		climb.y -= static_cast<float>(dir);
+	}
+	if (row == climb.toRow && climb.y * static_cast<float>(dir) >= 0.f) {
+		climb.y = 0.f;
+		climb.toRow = -1;
+	}
+	enter(ModelState::Climb);
+}
+
+void Monster::SawWay(int toCol, int toRow) {
+	wayMs = GameClock::now();
+	wayCol = toCol;
+	wayRow = toRow;
+}
+
+bool Monster::HeadingFor(int& outCol, int& outRow) const {
+	if (wayMs < 0 || GameClock::now() - wayMs > CLIMB_GIVE_UP_MS)
+		return false;
+	outCol = wayCol;
+	outRow = wayRow;
 	return true;
 }
 
@@ -56,8 +106,7 @@ void Monster::Flee(bool blocked, int dir) {
 		return;
 	}
 	fleeDir = dir;
-	const float water = inWater ? type->waterSpeed : 1.f;
-	x += MONSTER_SEEK_STEP * static_cast<float>(dir) * type->speed * water;
+	x += WalkStep() * static_cast<float>(dir);
 	enter(ModelState::Move);
 }
 

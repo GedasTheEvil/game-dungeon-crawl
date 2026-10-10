@@ -127,6 +127,8 @@ struct MonsterKind {
 	int poisonResistPercent = 0;
 	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
 	bool charges = false;		   // it charges along its row (Charge)
+	// Follows the player up and down ladders once it has seen them (docs/plan/monster-climbers.md).
+	bool climbs = false;
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (docs/plan/solved/boss-resistances.md).
 	int kin = 0;

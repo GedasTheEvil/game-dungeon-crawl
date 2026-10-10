@@ -1,0 +1,10 @@
+; Three floors: ladders at col 2 (top to middle) and col 36 (middle to bottom), a rat by the lower foot (col 38). It
+; follows the player up to the middle floor and along it, then gives up once they are up top, more than
+; CLIMB_PATH_MAX steps away (tests/unit/climb_test.cpp).
+########################################
+#.H.S.........E#########################
+##H#####################################
+#.H.................................H..#
+####################################H###
+#...................................H.t#
+########################################

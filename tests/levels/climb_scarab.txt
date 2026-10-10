@@ -1,0 +1,7 @@
+; Two floors joined by a ladder (col 6), spikes on the upper floor (col 10), a scarab on the lower floor (col 12): it
+; does not climb (tests/unit/climb_test.cpp).
+####################
+#S....H...^....E...#
+######H#############
+#.....H.....s......#
+####################

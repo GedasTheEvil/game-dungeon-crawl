@@ -24,8 +24,7 @@ cobra or a mummy, the player has nearly killed it by the time it is up. The mumm
   model (e.g. `riseMs` on `MonsterKind`) and derive the clip speed from it and the clip's frame count. Mummy:
   25 frames in 1 s, speed ~62.5. Cobra: 23 frames in 0.75 s, speed ~77.
 * `AdvancePlayback` steps every `FRAME_STEP_MS` 100 ms, so a rise ends on a 100 ms step: 0.75 s comes out as 0.8 s.
-  For the exact time, drive the rise by elapsed ms (wake time + `riseMs`) instead of the stepped clip; the
-  implementer picks. 0.8 s is acceptable.
+  Decided (user, 2026-10-10): take the 0.8 s, keep the stepped clip; no time-driven rise for the exact 0.75 s.
 * "A chance to hit at least once": after the faster rise, a mummy / cobra woken by a jump attack still has to land
   one attack before the player kills it. Check it on the sim: player jumps on it with a typical weapon of the levels
   it appears in, keeps hitting; the monster attacks (or spits) at least once. If not, pick one (implementer's choice):
@@ -41,13 +40,12 @@ later, it rises at least as fast.
 ## Open (implementer's choice)
 
 * Which fallback if one hit is not reached (see above).
-* Exact 0.75 s (time-driven rise) or 0.8 s on the 100 ms step.
 
 Decided: the wake sound stays as is (user, 2026-10-10).
 
 ## Tests
 
 * Unit test (`tests/unit/`, e.g. `model_info_test.cpp` or `sim_test.cpp`): a woken mummy stops `Rising()` after
-  ~1 s (not ~1.8 s), a cobra after ~0.75 s (0.8 s on the step); the walk clip speed is unchanged.
+  ~1 s (not ~1.8 s), a cobra after ~0.8 s; the walk clip speed is unchanged.
 * Unit / sim test: jump attack on a mummy and on a cobra, the monster hits the player at least once before it dies.
 * Visual check: `make test SCENARIO=...` with a mummy and a cobra waking, the rise looks right at the new speed.

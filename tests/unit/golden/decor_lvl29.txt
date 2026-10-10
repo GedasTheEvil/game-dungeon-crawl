@@ -457,20 +457,20 @@
 29,31 surface 6/1/2
 30,31 surface 6/1/2
 38,31 surface 0/0/0 ladder 0/0
-8,32 surface 3/2/1 torch fire torch 0.000,0.680,0.098
+8,32 surface 3/2/1
 9,32 surface 4/0/1
 10,32 surface 3/2/1
 11,32 surface 3/0/1
 12,32 surface 4/0/1 decal 8m 0.574,0.580
 13,32 surface 3/2/1
-14,32 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+14,32 surface 3/1/1
 15,32 surface 4/2/1
 16,32 surface 2/0/0m decal 13 0.595,0.225
 23,32 surface 5/0/1
 24,32 surface 3/0/1
 25,32 surface 3/1/1 decal 9 0.552,0.365
 26,32 surface 3/0/1 decal 11 0.506,0.381
-27,32 surface 3/1/1 torch fire torch 0.000,0.680,0.098
+27,32 surface 3/1/1
 28,32 surface 4/0/1
 29,32 surface 2/0/0m
 30,32 surface 0/0/0 decal 1m 0.478,0.424

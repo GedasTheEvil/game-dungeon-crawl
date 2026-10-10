@@ -36,7 +36,7 @@
 7,5 surface 5/0/1 decal 8 0.589,0.470
 8,5 surface 3/0/1
 9,5 surface 3/0/1 decal 13m 0.492,0.225
-10,5 surface 4/1/1 decal 2 0.552,0.350 torch fire torch 0.000,0.680,0.098
+10,5 surface 4/1/1 decal 0 0.569,0.497
 11,5 surface 3/0/1 decal 7 0.489,0.508
 12,5 surface 4/2/1 decal 9m 0.570,0.474
 13,5 surface 2/0/1m decal 14m 0.513,0.375

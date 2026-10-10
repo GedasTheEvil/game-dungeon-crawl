@@ -54,7 +54,7 @@ Techniques, by value:
    (`src/world/dungeon_render_decor.cpp:15, 118`) sit in a render file. Move them out with a plain light id instead of
    `Lighting::LightDef`. Then run a property test over `levels/lvl*`: every torch, brazier and lamp cell gives a flame
    inside its cell, and no torch stands in deep water
-   ([no-torches-under-water](../no-torches-under-water.draft.md)). The scatter is already in the lib (`decor_test`).
+   ([no-torches-under-water](../no-torches-under-water.md)). The scatter is already in the lib (`decor_test`).
 4. **Hitbox and reach matrix (M).** `Monster::HalfWidth` / `Player::HalfWidth` (`monster.cpp:158`, `player.cpp:58`)
    are model bbox × scale × `Ink::figureScale()`. Toon mode changes the hitboxes, which is worth a check of its own.
    MD3 parsing is GL-free until the display list compiles (`animated_model.cpp:241`). Either move the parser to a
@@ -110,7 +110,7 @@ The truly visual class (5) and a smoke screenshot per screen stay scenarios.
     wading speed and the spikes under water. `water` stays: its sprint and jump checks go through the input.
   * 3 flames: `flamesAt` on the `DecorLayout` (done with sim-library step 5); `decor_test.cpp` checks every fire of
     every campaign level burns inside its cell. The deep-water torch check waits for
-    [no-torches-under-water](../no-torches-under-water.draft.md).
+    [no-torches-under-water](../no-torches-under-water.md).
   * 6 golden dumps: `tests/unit/golden_test.cpp`, `tests/unit/golden/decor_lvlNN.txt` (surfaces, props, decals,
     torches, ladders, fires); `GOLDEN_UPDATE=1` writes them anew. `decor_depth` deleted: its tiers are checked
     through the dungeon in `sim_test.cpp`.

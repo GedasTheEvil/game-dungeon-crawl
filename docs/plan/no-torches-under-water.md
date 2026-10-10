@@ -1,6 +1,6 @@
 # No torches under water
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: no wall torches under water.
+Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemented-2026-10-10)). From the user: no wall torches under water.
 
 ## Today
 
@@ -30,3 +30,12 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
 ## Open (for the implementer)
 
 * Screenshots of the flooded levels before and after: the scatter shifts along the rows.
+
+## Implemented (2026-10-10)
+
+* `scatterTorches` (`src/world/decor_scatter.cpp`) skips `Structure::DeepWater` cells.
+* `tests/unit/decor_test.cpp`: no torch in deep water on any campaign level, and some still over half water.
+* The scatter shifted on 16 levels (8, 9, 16-25, 27-30): `git diff` of the golden dumps
+  (`tests/unit/golden/decor_lvlNN.txt`, from [scenarios-to-unit-tests](solved/scenarios-to-unit-tests.md)) lists every
+  torch that went and every decal that moved into its place. No screenshots taken: the flooded cells are deep in the
+  levels, no scenario walks there; look at them in play.

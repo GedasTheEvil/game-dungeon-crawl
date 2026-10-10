@@ -427,7 +427,7 @@
 36,27 surface 0/1/0 decal 13m 0.773,0.225
 37,27 surface 0/1/0 prop jackalm -0.104
 4,28 surface 0/0/0 ladder 1/2
-15,28 surface 0/0/0 torch fire torch 0.000,0.680,0.098
+15,28 surface 0/0/0
 16,28 surface 1/2/0
 17,28 surface 0/0/0
 18,28 surface 0/2/0 decal 15m 0.410,0.519
@@ -439,12 +439,12 @@
 24,28 surface 0/0/0
 25,28 surface 0/0/0 decal 0m 0.513,0.572
 4,29 surface 0/0/0 ladder 1/1
-15,29 surface 3/2/1 torch fire torch 0.000,0.680,0.098
+15,29 surface 3/2/1
 16,29 surface 4/1/1
 17,29 surface 3/1/1 decal 8 0.567,0.465
 18,29 surface 3/2/1
 19,29 surface 5/1/1
-20,29 surface 4/2/1 torch fire torch 0.000,0.680,0.098
+20,29 surface 4/2/1 decal 1 0.346,0.381
 21,29 surface 3/0/1 decal 0m 0.381,0.537
 22,29 surface 4/2/1
 23,29 surface 3/2/1

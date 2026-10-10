@@ -234,3 +234,18 @@ TEST_CASE("every fire of a campaign level burns inside its cell: braziers, oil l
 		}
 	}
 }
+
+TEST_CASE("no torch burns under deep water; over half water it clears the surface") {
+	int halfWater = 0;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		const Scattered s = campaignLevel(n);
+		for (int k = 0; k < LEVEL_CELL_COUNT; k++) {
+			if (!s.layout->torch[k])
+				continue;
+			CHECK(s.grid.cells[k].structure != Structure::DeepWater);
+			halfWater += s.grid.cells[k].structure == Structure::HalfWater ? 1 : 0;
+		}
+	}
+	CHECK(halfWater > 0); // still lit over the shallows
+}

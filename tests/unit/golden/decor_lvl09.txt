@@ -1,6 +1,6 @@
 16,2 surface 3/0/1
 18,2 surface 7/2/2 decal 14 0.457,0.375
-19,2 surface 6/2/2 torch fire torch 0.000,0.680,0.098
+19,2 surface 6/2/2
 20,2 surface 7/1/2
 21,2 surface 6/1/2 decal 8m 0.412,0.592
 22,2 surface 6/1/2

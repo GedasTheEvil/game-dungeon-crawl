@@ -88,7 +88,7 @@ void Dungeon::updateBoss() {
 	if (!boss.Alive()) {
 		// It does not come back, not after a load either; its coffins stay.
 		Tile& spawn = map[MapIndex(boss.Col(), boss.Row())];
-		setObject(spawn, slainBossObject(spawn.attr));
+		setObject(spawn, slainObject(spawn.attr));
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
 		sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");

@@ -350,3 +350,38 @@ TEST_CASE("no attack on a ladder: both hands are on the rungs; at its foot the a
 	CHECK(world.dungeon.PlayerOnLadder());
 	CHECK(world.player.attackLanded);
 }
+
+TEST_CASE("a killed monster stays dead: after a save and load, and when its slot is reused") {
+	SimWorld world; // tests/levels/hitbox_rat: a rat walks up to the player
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/hitbox_rat"));
+	REQUIRE(world.Walk(1.f));
+	world.Wait(8000);
+	REQUIRE(world.Nearest() == 12);
+	world.dungeon.AttackNearest(1000, {100, 0, 0}, 1.f, 1);
+	world.Wait(3000);
+	CHECK(world.Nearest() == 0);
+	CHECK(slainMonster(world.dungeon.Cell(3, static_cast<int>(world.Y()))) == MonsterRat);
+	world.SaveAndLoad();
+	world.Wait(3000);
+	CHECK(world.Nearest() == 0);
+	// Its slot, freed for another monster, could not bring it back either: its tile spawns nothing.
+	CHECK_FALSE(world.dungeon.SpawnMonster(3, static_cast<int>(world.Y())));
+}
+
+TEST_CASE("a mummy killed by the spikes stays dead after a load, and its coffin stays") {
+	SimWorld world; // tests/levels/reckless_spikes: the spikes kill the mummy in the end
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/reckless_spikes"));
+	world.player.stats.AddXP(200000, world.events);
+	const int coffins = world.dungeon.CoffinCount();
+	CHECK(coffins > 0);
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(3.95f));
+	world.Wait(40000);
+	REQUIRE(world.Nearest() == 0);
+	world.SaveAndLoad();
+	world.Wait(5000);
+	CHECK(world.Nearest() == 0);
+	CHECK(world.dungeon.CoffinCount() == coffins);
+}

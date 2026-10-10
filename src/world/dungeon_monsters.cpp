@@ -54,6 +54,8 @@ void Dungeon::UpdateMonsters() {
 		if (!mon.Active() || mon.Emerging())
 			continue;
 
+		if (!mon.Alive())
+			markSlain(mon); // also a trap's or the poison's kill
 		if (std::optional<ItemKind> drop = mon.TakeDrop())
 			dropChest(mon, *drop);
 		auto waterAt = [&](float x) {
@@ -243,8 +245,9 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 // A monster tile came into view: its monster appears, unless it is already there. Uses a free slot, else the slot
 // of a dead monster.
 bool Dungeon::SpawnMonster(int i, int j) {
-	const int typeId = Map(static_cast<float>(i), static_cast<float>(j)).attr;
-	if (typeId < 1 || typeId > MONSTER_TYPE_MAX)
+	const Tile tile = Map(static_cast<float>(i), static_cast<float>(j));
+	const int typeId = tile.attr;
+	if (tile.type != MonsterSpawn || typeId < 1 || typeId > MONSTER_TYPE_MAX) // a slain one's tile spawns nothing
 		return false;
 	for (const Monster& mon : monsters)
 		if (mon.Active() && !mon.Minion() && mon.Col() == i && mon.Row() == j)
@@ -303,7 +306,16 @@ void Dungeon::venomHit(Monster& mon) {
 }
 //======================================================================================
 // A minion's XP depends on its boss (MinionXP). A mimic leaves its own chest, a minion none.
+void Dungeon::markSlain(const Monster& mon) {
+	if (mon.Minion() || mon.Type()->locomotion == Locomotion::Ambush)
+		return;
+	Tile& spawn = map[MapIndex(mon.Col(), mon.Row())];
+	if (spawn.type == MonsterSpawn)
+		setObject(spawn, slainObject(spawn.attr));
+}
+//======================================================================================
 void Dungeon::rewardKill(Monster& mon) {
+	markSlain(mon);
 	const MonsterType& type = *mon.Type();
 	sim.journal->KillCreature(type.id, levelNumber);
 	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;

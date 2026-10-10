@@ -89,13 +89,14 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			DecorCell& cell = decor[cellIndex(i, j)];
 			cell = DecorCell{};
 			const Tile tile = at(cells, i, j);
-			if ((tile.type == MonsterSpawn && entombed(tile.attr)) || bossCoffinCell(cells, i, j)) {
+			if (entombed(spawnType(tile)) || bossCoffinCell(cells, i, j)) {
 				cell.type = DECOR_COFFIN;
 				continue;
 			}
 
-			// Only empty cells the player can stand in (floor below). A slain boss's tile stays bare, as in his life.
-			if (!isEmptyCell(tile) || slainBoss(tile) != 0 || !floorAt(cells, i, j - 1))
+			// Only empty cells the player can stand in (floor below). A slain monster's tile stays bare, as in its
+			// life.
+			if (!isEmptyCell(tile) || slainMonster(tile) != 0 || !floorAt(cells, i, j - 1))
 				continue;
 
 			uint32_t h = cellHash(seed, cellIndex(i, j));
@@ -343,13 +344,13 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, SurfaceCell* su
 
 bool bossCoffinCell(const Tile* cells, int col, int row) {
 	const Tile tile = at(cells, col, row);
-	if (!isEmptyCell(tile) || slainBoss(tile) != 0 || !floorAt(cells, col, row - 1))
+	if (!isEmptyCell(tile) || slainMonster(tile) != 0 || !floorAt(cells, col, row - 1))
 		return false;
 	for (int k = -MINION_SUMMON_REACH; k <= MINION_SUMMON_REACH; k++) {
 		if (!inBounds(col + k, row))
 			continue;
 		const Tile& t = cells[cellIndex(col + k, row)];
-		const MonsterKind* boss = monsterKind(t.type == MonsterSpawn ? t.attr : slainBoss(t));
+		const MonsterKind* boss = monsterKind(spawnType(t));
 		if (boss != nullptr && boss->isBoss() && boss->boss.summon == Summon::Coffin)
 			return true;
 	}

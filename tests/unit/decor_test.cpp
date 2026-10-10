@@ -203,7 +203,7 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10, 1)].type == -1); // the boss's own tile stays bare
 
-	grid.set(10, 1, slainBossObject(MonsterAnubisBoss)); // after a load: the boss is dead, his chamber the same
+	grid.set(10, 1, slainObject(MonsterAnubisBoss)); // after a load: the boss is dead, his chamber the same
 	CHECK(bossCoffinCell(grid.cells, 9, 1));
 	scatterDecor(grid.cells, "coffins", 30, *layout);
 	CHECK(layout->decor[idx(10, 1)].type == -1);
@@ -248,4 +248,23 @@ TEST_CASE("no torch burns under deep water; over half water it clears the surfac
 		}
 	}
 	CHECK(halfWater > 0); // still lit over the shallows
+}
+
+TEST_CASE("a level whose monsters are all slain scatters the same decorations: a save loads as it looked") {
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		const Scattered alive = campaignLevel(n);
+		LevelGrid slain = alive.grid;
+		for (Tile& t : slain.cells)
+			if (t.type == MonsterSpawn)
+				setObject(t, slainObject(t.attr));
+		auto layout = std::make_unique<DecorLayout>();
+		scatterDecor(slain.cells, campaignLevelFile(n).c_str(), n, *layout);
+		bool same = true;
+		for (int k = 0; k < LEVEL_CELL_COUNT; k++)
+			same = same && layout->decor[k].type == alive.layout->decor[k].type &&
+				   layout->decal[k].type == alive.layout->decal[k].type && layout->torch[k] == alive.layout->torch[k] &&
+				   layout->surface[k].wall == alive.layout->surface[k].wall;
+		CHECK(same);
+	}
 }

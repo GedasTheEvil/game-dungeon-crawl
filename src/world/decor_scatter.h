@@ -42,7 +42,7 @@ struct DecorCounts {
 };
 
 // An empty floor cell within MINION_SUMMON_REACH of a boss whose minions climb out of coffins (Summon::Coffin) on its
-// row, alive or slain (slainBoss): a coffin for its minions stands there. cells: a whole level.
+// row, alive or slain (slainMonster): a coffin for its minions stands there. cells: a whole level.
 [[nodiscard]] bool bossCoffinCell(const Tile* cells, int col, int row);
 
 // Props, decals, torches, ladders and surfaces, seeded by the level's file name (the part after the last '/'), from

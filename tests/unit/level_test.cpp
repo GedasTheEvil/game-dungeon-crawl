@@ -26,7 +26,7 @@ TEST_CASE("a level survives a save and a load") {
 	grid.set(3, 2, {Gate, 2, 1});
 	grid.set(4, 2, water(Tile{Ladder, 0, 0}, Structure::HalfWater));
 	grid.set(5, 2, water(Tile{}, Structure::DeepWater));
-	grid.set(6, 2, slainBossObject(MonsterAnubisBoss)); // no type, but an attribute: still written
+	grid.set(6, 2, slainObject(MonsterAnubisBoss)); // no type, but an attribute: still written
 	grid.set(39, 46, {MonsterSpawn, MonsterBossScarab, 0});
 	const std::string path = "build/unit_level_roundtrip";
 	REQUIRE(saveLevelFile(path.c_str(), grid));
@@ -76,7 +76,7 @@ TEST_CASE("a v1 level converts: wall, open, objects in open cells, Area3D droppe
 	CHECK(gateState(grid.at(2, 1)) == GateState::Open);
 	CHECK(grid.at(2, 1).structure == Structure::Empty);
 	CHECK(isEmptyCell(grid.at(3, 1)));
-	CHECK(slainBoss(grid.at(4, 1)) == MonsterAnubisBoss);
+	CHECK(slainMonster(grid.at(4, 1)) == MonsterAnubisBoss);
 
 	// Written as v2 and read back: the same cells.
 	std::stringstream v2;

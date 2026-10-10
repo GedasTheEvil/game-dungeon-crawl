@@ -1,6 +1,6 @@
 # Dead monsters stay dead after a load
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: dead monsters don't respawn on level load.
+Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemented-2026-10-10)). From the user: dead monsters don't respawn on level load.
 
 ## Today
 
@@ -44,3 +44,21 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
   respawns, so nothing to retune. Players who farmed with loads will level more slowly.
 * Tests: a scenario in `tests/scenarios/` (kill a monster, `savegame`, `loadgame`, the monster is not back; the
   same for walking away and back).
+
+## Implemented (2026-10-10)
+
+* The marker is the slain boss's, for every monster: `slainObject(type)` / `slainMonster(tile)` (`src/world/level.h`,
+  renamed from `slainBossObject` / `slainBoss`), a `NoObject` cell whose attr is the type. `spawnType(tile)`: the type
+  a cell spawns or spawned.
+* `Dungeon::markSlain` (`src/world/dungeon_monsters.cpp`): in `rewardKill` (the player's kill, at once) and in
+  `UpdateMonsters` for any dead monster (a trap's or the poison's kill, the next tick). Not a minion (no tile), not a
+  mimic (its tile turns into its chest once its die clip has played; a save before that still brings it back, as
+  before). The spawn cell is kept: `Monster::Col()` / `Row()` are the spawn tile.
+* `SpawnMonster` spawns only from a `MonsterSpawn` tile (it read the attr alone), so a reused slot cannot bring a
+  slain monster back.
+* Readers: `decor_scatter.cpp` places a slain mummy's coffin (`spawnType`) and keeps a slain monster's tile bare, so a
+  save loads with the same decorations; the draft map shows no symbol for it (`NoObject`); `levelcheck` reads level
+  files, which have no markers.
+* Tests (on the sim harness, not a scenario): `tests/unit/world_rules_test.cpp` (a rat killed stays dead after a save
+  and load, its tile spawns nothing; a mummy killed by the spikes stays dead, its coffin stays),
+  `tests/unit/decor_test.cpp` (a level with every monster slain scatters the same decorations).

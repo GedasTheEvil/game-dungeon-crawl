@@ -141,10 +141,13 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 inline void pullLever(Tile& t) { t.value = 1; }
 // A teleporter's value: its pair id.
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
-// A NoObject cell's attr: 0, or the monster type of the boss slain there (its spawn tile), so its chamber keeps its
-// coffins after a load. Only save games have it.
-[[nodiscard]] inline Tile slainBossObject(int bossType) { return Tile{NoObject, bossType, 0}; }
-[[nodiscard]] inline int slainBoss(const Tile& t) { return t.type == NoObject ? t.attr : 0; }
+// A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, docs/plan/no-respawn-on-load.md): it does
+// not come back after a load, and the decorations stay as in its life (a mummy's coffin, a boss's coffins). Only save
+// games have it.
+[[nodiscard]] inline Tile slainObject(int monsterType) { return Tile{NoObject, monsterType, 0}; }
+[[nodiscard]] inline int slainMonster(const Tile& t) { return t.type == NoObject ? t.attr : 0; }
+// The monster type a cell spawns, or spawned before it was slain; 0 for none.
+[[nodiscard]] inline int spawnType(const Tile& t) { return t.type == MonsterSpawn ? t.attr : slainMonster(t); }
 
 // Blocks the player (walls, deep water and gates not fully open). Everything else is open space.
 inline bool isSolidTile(const Tile& t) {

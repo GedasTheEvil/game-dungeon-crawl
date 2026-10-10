@@ -38,6 +38,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | softlock | | a reachable cell from which the exit can no longer be reached; the checker warns | `LevelReport` |
 | tile | | (render) a cell's size in the 3D world, 40 GL units; distances in docs are in tiles ("1.4 tiles"). Often used for "cell" | `TILE_SIZE` |
 | wade | | walk through half water: half speed, no sprint, no jump ("too deep to jump") | `Dungeon::PlayerWading`, `Dungeon::JumpAllowed` |
+| water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 
 ## Monsters
 

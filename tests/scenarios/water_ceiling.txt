@@ -1,0 +1,22 @@
+# Rock between water and open cells (docs/plan/water-ceiling.md), tests/levels/water_ceiling: the corridor under the
+# deep water (cols 4-9) has a ceiling, the deep water sits on a rock slab and has slabs at its sides (cols 3 and 10
+# open); the open cell under the half water at cols 14-15 has a ceiling and a rock front over it.
+resolution 1600 1600
+seed 1
+god
+level tests/levels/water_ceiling
+wait 30
+walk to 9.5
+wait 10
+screenshot under_deep
+toon on
+screenshot under_deep_toon
+walk to 6.5
+wait 10
+toon off
+camera 20 -20
+screenshot under_deep_tilted
+camera 0 0
+walk to 14.5
+wait 10
+screenshot under_half

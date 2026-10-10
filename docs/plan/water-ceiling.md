@@ -1,6 +1,6 @@
 # Ceiling under deep water
 
-Status: draft 2026-10-10 (idea, not decided).
+Status: draft 2026-10-10, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test.
 
 ## Problem
 
@@ -21,3 +21,13 @@ ceiling is skipped.
 * Check the same for HalfWater above an open cell: the basin's floor (`isRock(i, j - 1)` test) is probably missing
   too, so the basin would show the corridor below through it.
 * Check the side walls: an open cell next to DeepWater on the left / right (water cut off at the side).
+
+## Implemented (2026-10-10)
+
+* A deep water cell meeting a cell that is neither rock nor deep water, below or beside it, gets a rock slab
+  `WATER_SLAB` (4 units) inside the cell: a rock front strip, its water box (`Dungeon::deepWaterBox`) shrinks to the
+  inside, and its floor and side walls are drawn on the slab. The dark front (`drawWaterCell`) covers only the box.
+* The cells around deep water treat it as rock: a ceiling under it, a side wall beside it.
+* Half water over an open cell (the checker flags it, so in tests only): the open cell gets a ceiling at the basin's
+  floor and a rock front over it, as a rock cell below would show.
+* Test: `tests/scenarios/water_ceiling.txt` on `tests/levels/water_ceiling` (screenshots, also tilted and toon).

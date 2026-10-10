@@ -27,22 +27,45 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 }
 } // namespace
 
+bool Dungeon::deepAt(int col, int row) const {
+	return IsInBounds(col, row) && MapAt(col, row).structure == Structure::DeepWater;
+}
+//======================================================================================
+// Deep water cannot hang in the air: where it meets a cell that is neither rock nor deep water, below it or beside it,
+// a rock slab holds it, inside the water cell.
+Dungeon::WaterBox Dungeon::deepWaterBox(int col, int row) const {
+	constexpr float T = RenderConfig::TILE_SIZE;
+	constexpr float S = RenderConfig::WATER_SLAB;
+	auto bare = [&](int c, int r) { return !isRock(c, r) && !deepAt(c, r); };
+	return {bare(col - 1, row) ? S : 0.f, bare(col + 1, row) ? T - S : T, bare(col, row - 1) ? S : 0.f};
+}
+//======================================================================================
+// The rock face over part of a cell, at its front, matching a solid cell's texture (one over 2 x 2 cells).
+void Dungeon::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const {
+	constexpr float T = RenderConfig::TILE_SIZE;
+	const float u0 = static_cast<float>(i & 1) * 0.5f;
+	const float t0 = static_cast<float>(j & 1) * 0.5f;
+	const float n[3] = {0, 0, 1};
+	const float v[4][3] = {{x0, y0, 0}, {x1, y0, 0}, {x1, y1, 0}, {x0, y1, 0}};
+	const float st[4][2] = {{u0 + x0 / T * 0.5f, t0 + y0 / T * 0.5f},
+							{u0 + x1 / T * 0.5f, t0 + y0 / T * 0.5f},
+							{u0 + x1 / T * 0.5f, t0 + y1 / T * 0.5f},
+							{u0 + x0 / T * 0.5f, t0 + y1 / T * 0.5f}};
+	glDisable(GL_BLEND);
+	sim.assets->decor.rockTex.Bind();
+	quad(n, v, st);
+}
+//======================================================================================
 // Solid cells show the rock face, one texture over 2 x 2 cells. An open cell is a box: its back wall, the side walls
 // against solid neighbours, the floor over a solid cell and the ceiling under one. On the side walls u runs from the
 // back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
+// Deep water counts as solid for the cells around it; its own box shrinks inside its slabs (deepWaterBox).
 void Dungeon::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	DecorSet& tex = sim.assets->decor;
 
 	if (isRock(i, j)) {
-		float u0 = static_cast<float>(i & 1) * 0.5f;
-		float t0 = static_cast<float>(j & 1) * 0.5f;
-		const float n[3] = {0, 0, 1};
-		const float v[4][3] = {{0, 0, 0}, {T, 0, 0}, {T, T, 0}, {0, T, 0}};
-		const float st[4][2] = {{u0, t0}, {u0 + 0.5f, t0}, {u0 + 0.5f, t0 + 0.5f}, {u0, t0 + 0.5f}};
-		glDisable(GL_BLEND);
-		tex.rockTex.Bind();
-		quad(n, v, st);
+		drawRockStrip(i, j, 0, T, 0, T);
 		return;
 	}
 
@@ -50,42 +73,62 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 	float w0 = cell.wallMirror ? 1.f : 0.f;
 	float w1 = 1.f - w0;
 	// Half water lies in a basin: its walls reach down to the basin floor, a stone wall faces a dry neighbour.
-	const bool basin = IsInBounds(i, j) && inHalfWater(MapAt(i, j));
-	const float b = basin ? -RenderConfig::WATER_BASIN_DEPTH : 0.f;
-	const float tb = b / T; // the wall texture runs on below the row
+	const bool basin = inHalfWater(MapAt(i, j));
+	const bool deep = deepAt(i, j);
+	const bool halfAbove = IsInBounds(i, j + 1) && inHalfWater(MapAt(i, j + 1));
 	// Under a basin the walls stop at its floor, where the basin's own walls take over.
-	const float h = IsInBounds(i, j + 1) && inHalfWater(MapAt(i, j + 1)) ? T - RenderConfig::WATER_BASIN_DEPTH : T;
+	const float h = halfAbove ? T - RenderConfig::WATER_BASIN_DEPTH : T;
+	const WaterBox box = deep ? deepWaterBox(i, j) : WaterBox{0.f, T, 0.f};
+	const float b = basin ? -RenderConfig::WATER_BASIN_DEPTH : box.bottom;
+	if (deep) {
+		if (box.bottom > 0.f)
+			drawRockStrip(i, j, 0, T, 0, box.bottom);
+		if (box.left > 0.f)
+			drawRockStrip(i, j, 0, box.left, box.bottom, h);
+		if (box.right < T)
+			drawRockStrip(i, j, box.right, T, box.bottom, h);
+	} else if (halfAbove) {
+		drawRockStrip(i, j, 0, T, h, T); // the basin's front, as a rock cell below it would show
+	}
+	const float tb = b / T; // the wall texture runs on below the row
+	const float u0 = w0 + (w1 - w0) * box.left / T;
+	const float u1 = w0 + (w1 - w0) * box.right / T;
 	tex.wallTex[cell.wall].Bind();
 	{
 		const float n[3] = {0, 0, 1};
-		const float v[4][3] = {{0, b, -T}, {T, b, -T}, {T, h, -T}, {0, h, -T}};
-		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, h / T}, {w0, h / T}};
+		const float v[4][3] = {{box.left, b, -T}, {box.right, b, -T}, {box.right, h, -T}, {box.left, h, -T}};
+		const float st[4][2] = {{u0, tb}, {u1, tb}, {u1, h / T}, {u0, h / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i - 1, j) || (basin && dryOpen(i - 1, j))) {
-		const float top = isRock(i - 1, j) ? h : 0.f;
+	// A side wall faces rock, deep water beside a dry cell, a dry cell beside a basin or deep water.
+	auto wallAt = [&](int c) { return isRock(c, j) || (!deep && deepAt(c, j)) || ((basin || deep) && dryOpen(c, j)); };
+	if (wallAt(i - 1) || box.left > 0.f) {
+		const float top = isRock(i - 1, j) || deep || deepAt(i - 1, j) ? h : 0.f;
+		const float x = box.left;
 		const float n[3] = {1, 0, 0};
-		const float v[4][3] = {{0, b, -T}, {0, b, 0}, {0, top, 0}, {0, top, -T}};
+		const float v[4][3] = {{x, b, -T}, {x, b, 0}, {x, top, 0}, {x, top, -T}};
 		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, top / T}, {w0, top / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i + 1, j) || (basin && dryOpen(i + 1, j))) {
-		const float top = isRock(i + 1, j) ? h : 0.f;
+	if (wallAt(i + 1) || box.right < T) {
+		const float top = isRock(i + 1, j) || deep || deepAt(i + 1, j) ? h : 0.f;
+		const float x = box.right;
 		const float n[3] = {-1, 0, 0};
-		const float v[4][3] = {{T, b, -T}, {T, b, 0}, {T, top, 0}, {T, top, -T}};
+		const float v[4][3] = {{x, b, -T}, {x, b, 0}, {x, top, 0}, {x, top, -T}};
 		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, top / T}, {w0, top / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i, j - 1)) {
+	if (isRock(i, j - 1) || box.bottom > 0.f) {
 		const float n[3] = {0, 1, 0};
-		const float v[4][3] = {{0, b, 0}, {T, b, 0}, {T, b, -T}, {0, b, -T}};
+		const float v[4][3] = {{box.left, b, 0}, {box.right, b, 0}, {box.right, b, -T}, {box.left, b, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.floorTex[cell.floor].Bind();
 		quad(n, v, st);
 	}
-	if (isRock(i, j + 1)) {
+	// The ceiling under rock, under the slab of deep water and under a basin's floor.
+	if (isRock(i, j + 1) || (!deep && (deepAt(i, j + 1) || halfAbove))) {
 		const float n[3] = {0, -1, 0};
-		const float v[4][3] = {{0, T, 0}, {T, T, 0}, {T, T, -T}, {0, T, -T}};
+		const float v[4][3] = {{0, h, 0}, {T, h, 0}, {T, h, -T}, {0, h, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.ceilingTex[cell.ceiling].Bind();
 		quad(n, v, st);
@@ -371,7 +414,7 @@ void colour(const Rgba& c, float alpha) { glColor4f(c.r, c.g, c.b, c.a * alpha);
 
 // Half water fills its basin (WATER_BASIN_DEPTH under the row's floor) up to WATER_SURFACE: a surface with drifting
 // glints; over deep water also a see-through front with a bright waterline (a rock cell below hides the basin's
-// front). Deep water: a dark front up to the basin of the half water above it.
+// front). Deep water: a dark front up to the basin of the half water above it, inside its slabs (deepWaterBox).
 void Dungeon::drawWaterCell(int i, int j, float x, float y) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	constexpr float B = RenderConfig::WATER_BASIN_DEPTH;
@@ -379,12 +422,13 @@ void Dungeon::drawWaterCell(int i, int j, float x, float y) {
 	glBegin(GL_QUADS);
 	if (s == Structure::DeepWater) {
 		const float top = inHalfWater(MapAt(i, j + 1)) ? T - B : T;
+		const WaterBox box = deepWaterBox(i, j);
 		glNormal3f(0, 0, 1);
 		colour(DEEP_FRONT, 1.f);
-		glVertex3f(x, y, 0);
-		glVertex3f(x + T, y, 0);
-		glVertex3f(x + T, y + top, 0);
-		glVertex3f(x, y + top, 0);
+		glVertex3f(x + box.left, y + box.bottom, 0);
+		glVertex3f(x + box.right, y + box.bottom, 0);
+		glVertex3f(x + box.right, y + top, 0);
+		glVertex3f(x + box.left, y + top, 0);
 		glEnd();
 		return;
 	}

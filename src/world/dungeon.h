@@ -93,6 +93,13 @@ class Dungeon {
 	void pushLevelFrame() const;		 // Draw's frame: the view's first cell at the origin, scrolled with the player
 	void drawWaterCell(int i, int j, float x, float y);
 	[[nodiscard]] bool dryOpen(int col, int row) const; // walkable and not water: a basin's edge
+	[[nodiscard]] bool deepAt(int col, int row) const;
+	// A deep water cell's water inside its rock slabs, in world units from the cell's corner (WATER_SLAB).
+	struct WaterBox {
+		float left, right, bottom;
+	};
+	[[nodiscard]] WaterBox deepWaterBox(int col, int row) const;
+	void drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const;
 	Tile Map(float x, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
 	struct Motion {

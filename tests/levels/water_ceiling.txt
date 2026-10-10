@@ -1,0 +1,13 @@
+; Deep water (cols 4-9) over a corridor and beside open cells, half water on it; half water (cols 14-15) over an
+; open cell, which the checker flags (tests/scenarios/water_ceiling.txt).
+######################
+#....................#
+#....................#
+#S..................E#
+######################
+structure
+######################
+#...~~~~~~...........#
+#...======....~~.....#
+#....................#
+######################

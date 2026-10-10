@@ -42,4 +42,4 @@ type and tier almost never meet; even a pair is rare. So spares of one type pool
   the slot shows the pulsing arrow; U works too. Under the effect: "Upgrade: n / m points" (green when it pays), "Top
   tier" for a grand. After an upgrade the new amulet is selected, the toast reads "Upgraded: <name>", the amulet sound
   plays.
-* `CHEST_AMULET_CHANCE` 10. `loot_test.cpp`, unit tests in `items_test.cpp`, `tests/scenarios/amulet_upgrade.txt`.
+* `CHEST_AMULET_CHANCE` 10. `loot_test.cpp`, unit tests in `items_test.cpp`, `tests/scenarios/solved/amulet_upgrade.txt`.

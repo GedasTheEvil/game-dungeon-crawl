@@ -34,5 +34,5 @@ amulet ([amulets.md](solved/amulets.md)) but for a while only. A poison that doe
   seconds left.
 * Journal: one note "Resistance draughts" for both (one note per potion group, as health and stamina).
 * Model: the cobra vial of the antidote, two liquid textures (`POTIONS` in `tools/blender/models/items.py`).
-* Tests: unit (gain, block, stacking, save, `INV4` load), scenario `tests/scenarios/resistance_potion.txt`
+* Tests: unit (gain, block, stacking, save, `INV4` load), scenario `tests/scenarios/solved/resistance_potion.txt`
   (`expect resist`).

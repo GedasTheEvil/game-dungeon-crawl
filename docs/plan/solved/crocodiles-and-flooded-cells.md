@@ -106,7 +106,7 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
   water, a ladder down into water, a crocodile not in or next to water. Unit tests `tests/unit/water_test.cpp`.
 * Levels: lvl7 (a side pool in the west hall, the way to a chest), lvl8 (the hall to the red gate), lvl9 (the lower
   gallery past the pit), one crocodile each. All campaign levels pass `levelcheck` with no warnings, `make paths` passes.
-* Scenarios: `tests/scenarios/water.txt` (wade speed, no jump, spikes in water, a ladder out of it),
-  `tests/scenarios/crocodile.txt` (lurk, wake, swim, bite at the bank, out onto the floor, the kill),
+* Scenarios: `tests/scenarios/solved/water.txt` (wade speed, no jump, spikes in water, a ladder out of it),
+  `tests/scenarios/solved/crocodile.txt` (lurk, wake, swim, bite at the bank, out onto the floor, the kill),
   `tests/scenarios/water_arrow.txt` (half and full arrow damage, a giant scarab in and out of a pool).
 * Not done: a splash when a monster enters the water; the crocodile's sounds are synthesized, check them in play.

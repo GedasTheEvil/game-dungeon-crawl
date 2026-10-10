@@ -24,5 +24,5 @@ A scenario (`tests/scenarios/`) that starts a game and takes screenshots over th
   first game. Monsters stop theirs on spawn (`blood->Stop()`); the player never did.
 * Fix: the player's blood starts stopped (`blood{0}`), and `Player::Reanimate` (New Game, Load) stops it, so a
   splash from the last game does not carry over. A level change keeps a running splash: that one is real.
-* Check: `tests/scenarios/blood_at_start.txt` (the player stands behind the entrance statue: before the fix red dots
+* Check: `tests/scenarios/solved/blood_at_start.txt` (the player stands behind the entrance statue: before the fix red dots
   showed below its plinth at 480 ms).

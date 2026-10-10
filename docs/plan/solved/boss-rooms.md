@@ -138,7 +138,7 @@ Format:
    the whole row (normal bats only see 1.75 tiles); a flyer with no one to hunt climbs back to the ceiling. lvl10:
    the teleporter replaces the gold key at the east end of the upper hall, the roost is a new sealed row at the top
    with the gold key and two chests behind the boss gate; two giant rats removed to keep the curve (30.8, 47.3,
-   48.5). Tests `tests/scenarios/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
+   48.5). Tests `tests/scenarios/solved/vampire.txt` (`tests/levels/vampire`), new scenario command `hurtboss N`.
    The player comes to lvl10 at about level 21 (290 HP); the first test run lost 290 -> 48 HP in 8 s to the boss and
    4 bats. Tune in play.
 4. Anubis boss in lvl15. **Done:** `MonsterAnubisBoss` (14, ASCII `N`), the Anubis model at scale 26 (Anubis 19)

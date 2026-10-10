@@ -41,4 +41,4 @@ The game log (`game.log`) lists every problem as `file:line: message` and the ri
 `Loaded 79 riddles from 4 files in riddles`. A riddle without an `A:` line is skipped.
 
 To see a file on screen, point a scenario at it with `riddles FILE` (see [testing.md](testing.md)), as
-`tests/scenarios/riddle.txt` does.
+`tests/scenarios/solved/riddle.txt` does.

@@ -1,7 +1,6 @@
 # Lean scenario tests: solve the old scenarios
 
-Status: draft 2026-10-10, needs nothing first. From the user. Tooling only (no gameplay, visuals, levels or balance):
-once done and `make test` passes, move it straight to `docs/plan/solved/`.
+Status: done 2026-10-11. Tooling only; moved straight to solved.
 
 ## Goal
 
@@ -53,3 +52,15 @@ Grep of scenario names in the plans; "shots" = `screenshot` lines.
 - Which few whole-game scenarios stay in `make test` beside `smoke.txt`.
 - Whether a pure-behaviour scenario whose screenshots show a model in motion (e.g. `sprint_motion`, `bats`) is unit
   or parked: unit if the behaviour is the point, parked if the look is.
+
+## Result (2026-10-11)
+
+80 scenarios sorted: 10 kept (`smoke` + 9 of unsolved plans, listed in [testing.md](../../testing.md)), 11 deleted
+(unit tests in `tests/unit/scen_*_test.cpp` or already covered), 59 parked in `tests/scenarios/solved/` (about 10
+of them also got unit cases for their sim checks: `scen_a/b/c_test.cpp`). Two stale expects fixed (`inventory`
+`might`, `poison` hp: the poison scaling commit). No `tests/levels` file became unused.
+
+| | before | after |
+|---|---|---|
+| `make test` wall time | 3m49 s (scenarios 194 s, 80 run, 78 passed) | 44 s (scenarios 39 s, 10 run, all passed) |
+| `make unit` | 4.8 s, 228 cases | 10.9 s, 254 cases |

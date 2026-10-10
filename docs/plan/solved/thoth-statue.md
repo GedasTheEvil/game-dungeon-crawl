@@ -35,7 +35,7 @@ crown, pieces on the floor in front):
 * Height: up to Osiris' size (`osiris_statue`, scale 1.4; upright with the atef crown about 0.4 tile). The wall
   torch bracket sits at 0.40 (`TORCH_BASE`), so a tall Thoth reaches it: `Dungeon::scatterTorches` keeps the Bes
   rule (no torch on the cell) for all four variants.
-* Tests: `tests/scenarios/statues.txt` (screenshot `osiris_bes`), `tests/levels/statues29063.txt` (Bes at col 10):
+* Tests: `tests/scenarios/solved/statues.txt` (screenshot `osiris_bes`), `tests/levels/statues29063.txt` (Bes at col 10):
   show all four variants.
 * Docs: [decor-by-depth.md](decor-by-depth.md) puts Bes in the tomb tier: swap in Thoth.
   [solved/statue-and-mummy-decorations.md](statue-and-mummy-decorations.md) explains why Bes was picked:
@@ -57,6 +57,6 @@ crown, pieces on the floor in front):
   last. `Dungeon::scatterDecorations` picks among `DECOR_PICKS` (Thoth's variants as one), then the variant from the
   cell's hash. No wall torch over any Thoth.
 * `decor_bes` model and texture deleted.
-* Scenario command `prop COL NAME` (put a prop on the player's row); `tests/scenarios/statues.txt` shows a scattered
+* Scenario command `prop COL NAME` (put a prop on the player's row); `tests/scenarios/solved/statues.txt` shows a scattered
   Thoth at col 10 and all four side by side.
 * The tier (tomb, from level 8) comes with [decor-by-depth.md](decor-by-depth.md).

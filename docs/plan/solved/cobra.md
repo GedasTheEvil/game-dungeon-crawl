@@ -51,7 +51,7 @@ Sounds: `cobra_{wake,att,die,spit}.wav`.
   `gameplay_config.h`): a green glob, a splat on walls. The spit clip releases at frame 7 of 18, the mouth at 0.87
   of the reference height.
 * Journal moves `Rear` and `Spit`.
-* Model `tools/blender/models/cobra.py`, sounds `tools/audio/cobra_sounds.py`. Check: `tests/scenarios/cobra.txt`.
+* Model `tools/blender/models/cobra.py`, sounds `tools/audio/cobra_sounds.py`. Check: `tests/scenarios/solved/cobra.txt`.
 * Placed (`./levelcheck`, 2026-10-07): lvl16 8, lvl17 10, lvl18 10, lvl19 7, lvl20 9 (besides the ones Apep summons).
   The [giant cobra](../giant-cobra.md) takes over from lvl21.
 

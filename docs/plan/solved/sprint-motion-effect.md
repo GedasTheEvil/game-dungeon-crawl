@@ -9,7 +9,7 @@ Done: `src/graphics/motion_fx.cpp` (`MotionFx`). Strength eases over 200 ms by t
 mode only. Vignette as a blended overlay, also in toon mode. No FBO: FOV kick and vignette; no shaders: FOV kick.
 Options > Display tab with the toggle, saved in `saves/settings.txt` (`src/state/settings.cpp`, not in scenarios).
 Fixed on the way: the HUD tested against stale window depth after an offscreen scene (toon mode showed a black box
-over the HUD); `Ink::end()` and `MotionFx::end()` clear it. Scenario `tests/scenarios/sprint_motion.txt`.
+over the HUD); `Ink::end()` and `MotionFx::end()` clear it. Scenario `tests/scenarios/solved/sprint_motion.txt`.
 
 ## Idea
 

@@ -79,5 +79,5 @@ drink the slot flashes and the status box says "Healed 25 health", like drinking
   toasts it, a quick drink puts it in the status box). Keys in `PlayerActionController::quickDrink`
   (`src/input/input.cpp`), in the same gate as the weapon hotkeys but also during a swing.
 * Options controls table: "Drink healing / stamina potion: H / 0" (rows 3.5 high to fit 13).
-* No unit test framework yet: the rule is checked by `tests/scenarios/quick_potions.txt`, with the new scenario
+* No unit test framework yet: the rule is checked by `tests/scenarios/solved/quick_potions.txt`, with the new scenario
   command `hurt N`.

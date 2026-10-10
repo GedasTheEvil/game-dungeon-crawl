@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): plan no-attack-on-ladder not solved; limb pose on rungs is a picture.
 # Ladders: level 1 shaft at x 17 (rows 33..42, floor to ceiling), top, middle and bottom of the climb.
 # Climbing: back to the camera, limbs follow the height (walk down / up), held still when stopped.
 seed 1

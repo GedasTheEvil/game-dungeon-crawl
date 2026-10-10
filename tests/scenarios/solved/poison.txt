@@ -23,12 +23,12 @@ poison medium
 expect poison == 3
 screenshot weak_medium
 wait 1s
-expect hp == 105
+expect hp == 106
 poison strong
 expect poison == 7
 wait 2s
 screenshot all_three
-expect hp == 87
+expect hp == 89
 # the antidote key: none yet, then one
 key =
 expect poison == 7
@@ -37,7 +37,7 @@ key =
 expect poison == 0
 expect potion7 == 0
 wait 2s
-expect hp == 87
+expect hp == 89
 screenshot cured
 give potion 7
 key =

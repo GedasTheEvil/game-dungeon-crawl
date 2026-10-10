@@ -32,4 +32,4 @@ Three orders on top of the default. Not found items stay at the end in all of th
   `ItemKind` order.
 * Stamps: `ItemBag::Add` counts up (`Stamp`), an amulet upgrade stamps the new one. Saves are `INV6` now (the stamps
   after the found flags); `INV5` loads with no stamps.
-* Scenario command `sort found|name|strength|recent`, unit tests per order, `tests/scenarios/inventory_sort.txt`.
+* Scenario command `sort found|name|strength|recent`, unit tests per order, `tests/scenarios/solved/inventory_sort.txt`.

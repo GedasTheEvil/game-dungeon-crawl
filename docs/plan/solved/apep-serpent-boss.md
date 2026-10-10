@@ -50,4 +50,4 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 * `MonsterApep` (22, glyph `P`), `Locomotion::Burrow` (`Monster::Dive`, `UpdateBurrow`, `Dungeon::burrowTarget`,
   `BURROW_*` in `gameplay_config.h`), holes drawn with the dig-out grit (`Dungeon::drawHole`), hidden from weapons
   and arrows while down. Cobras dig out. In lvl20's boss room.
-* Not done: the baskets, a segmented body, a hole tile. Check: `tests/scenarios/apep.txt`. Not play tested.
+* Not done: the baskets, a segmented body, a hole tile. Check: `tests/scenarios/solved/apep.txt`. Not play tested.

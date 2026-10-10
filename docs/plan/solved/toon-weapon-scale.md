@@ -30,4 +30,4 @@ with toon off, still in the fist (grip position, `WeaponMotion::grip`), and the 
   `drawWeapon` use it. Pickups on the floor keep `Item::Draw` (the figures' 1.2). The weapon's reach is a rule, not
   the drawing: unchanged.
 * The bow's nocked arrow is part of the bow model, so it grows with it. Flying arrows keep the figures' scale.
-* Check: `tests/scenarios/toon_weapon_scale.txt` (club, sword, spear, bow, drawn bow; toon off and on).
+* Check: `tests/scenarios/solved/toon_weapon_scale.txt` (club, sword, spear, bow, drawn bow; toon off and on).

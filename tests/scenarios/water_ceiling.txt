@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): plan water-ceiling not solved; rock between water and cells is drawn.
 # Rock between water and open cells (docs/plan/water-ceiling.md), tests/levels/water_ceiling: the corridor under the
 # deep water (cols 4-9) has a ceiling, the deep water sits on a rock slab and has slabs at its sides (cols 3 and 10
 # open); the open cell under the half water at cols 14-15 has a ceiling and a rock front over it.

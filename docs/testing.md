@@ -39,6 +39,24 @@ SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable
 `tests/scenarios/solved/` parks the scenarios of solved plans that need a screenshot (the rest became unit tests).
 `make test` skips them; run one by name for a slow regression check.
 
+### Kept scenarios
+
+What stays in `make test`. Do not solve these away while their plan is open; solving a plan turns its scenarios into
+unit tests or parks them (above). Each has a one-line why in its first comment.
+
+| Scenario | Guards | Why a unit test cannot |
+|---|---|---|
+| `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
+| `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.md)) | the bolt is drawn |
+| `inventory_keys` | Tab walks the inventory tabs, no key labels ([plan](plan/inventory-keys.md)) | the screen and its input path |
+| `keys` | E interacts, V attacks ([plan](plan/inventory-keys.md)) | the real key bindings |
+| `ladder` | limb pose on ladders ([plan](plan/no-attack-on-ladder.md)) | the pose is drawn |
+| `climber` | a rat follows the player up a ladder ([plan](plan/monster-climbers.md)) | the rungs pose is drawn |
+| `sobek` | Sobek wakes, charges, is stunned ([plan](plan/sobek-boss.md)) | the boss in the lake is drawn |
+| `summon_effects` | sand spray, grit shower, coffins ([plan](plan/anubis-speed.md)) | particle effects are drawn |
+| `water_ceiling` | rock between water and open cells ([plan](plan/water-ceiling.md)) | the rock is drawn |
+| `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.md)) | hit boxes are drawn |
+
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a
 start it samples CPU idle (1 s), available memory and free swap, and waits while any is short or `JOBS` jobs run.
@@ -52,7 +70,7 @@ Run from the repo root.
 ## Behaviour in test mode
 
 - The start menu is skipped. User keyboard and mouse input is ignored. `key esc` opens the in-game menu; drive it
-  with `mouse` / `click` (`tests/scenarios/menu.txt`, `credits.txt`).
+  with `mouse` / `click` (`tests/scenarios/solved/menu.txt`, `credits.txt`).
 - Sound uses the SDL dummy driver (silent).
 - One tick = 16 ms of game time. Each tick runs due commands, then `Update()`, then `Draw()`.
   All `timer` objects read the virtual clock, so a script with the same seed gives the same

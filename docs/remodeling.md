@@ -152,7 +152,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table `DECOR_JITTER` in
   `src/world/decor_scatter.cpp`). Placement: `scatterDecor` in `src/world/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
   decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
-  In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/statues.txt` (puts them with the
+  In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/solved/statues.txt` (puts them with the
   scenario's `prop` command); of the tiers: `tests/unit/sim_test.cpp` and the golden dumps (`tests/unit/golden/`).
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
   interior x +-0.30, y -0.22..-0.06, inner floor z 0.012, walls 0.016 thick, rim z 0.08, headrest and wedjat eyes at the head end (-X),
@@ -213,7 +213,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `Dungeon::drawTeleporterTile` fills the gap in the columns' centre plane, the model symmetric in depth so Centrify keeps that plane).
   Gateway, ankh and teleporter are exactly 1 tile in their largest dimension, so Centrify keeps tile units. Albedo x AO textures.
   `-- --export` writes `models/props/{sphinx,ankh,questionmark,columns}.md3`, `models/traps/spikes.md3` + `textures/props/<name>.png`, `textures/traps/spikes.png`;
-  `--review out.png` as in `items.py`. In-game check: `make test SCENARIO=tests/scenarios/props.txt` (every item, prop and trap).
+  `--review out.png` as in `items.py`. In-game check: `make test SCENARIO=tests/scenarios/solved/props.txt` (every item, prop and trap).
 * `tools/textures/decals.py` - wall decal atlas `textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
@@ -225,7 +225,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `scatterSurfaces` in `src/world/decor_scatter.cpp` (per row
   of open cells: rough rock, or dressed stone cut into painted / bare stretches; all rough in the cave tier, less and
   less deeper down, `ROUGH_PERCENT` / `PAINTED_PERCENT` in `decor.h`). In-game check:
-  `make test SCENARIO=tests/scenarios/surfaces.txt`.
+  `make test SCENARIO=tests/scenarios/solved/surfaces.txt`.
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `models/<category>/<name>{,_att,_die}.md3`, `textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
@@ -247,7 +247,7 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   filtering, int16 steps, `Centrify`, lighting), headless: `xvfb-run -a -s "-screen 0 1280x1024x24" build/model-viewer
   models/monsters/rat.md3 --shot /tmp/shots --frames 0,6,12 --yaw 90 --light toon --texture rat_giant --size 480x480`
   writes `<stem>_<frame>.png` and exits (`--frames` default all; `--pitch`). The model in the dungeon, among walls and
-  torches: a scenario ([testing.md](testing.md)), e.g. `tests/scenarios/props.txt`.
+  torches: a scenario ([testing.md](testing.md)), e.g. `tests/scenarios/solved/props.txt`.
 
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,

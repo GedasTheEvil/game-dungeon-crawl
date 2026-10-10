@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): cheap whole-game guard: level 1 loads, the player walks, frames render. A unit test has no window.
 # Smoke test: level 1 loads, player walks both ways, screenshots render.
 seed 1
 god

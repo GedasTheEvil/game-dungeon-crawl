@@ -56,7 +56,7 @@ One HUD panel, bottom left, in the UI look. It holds everything about the player
 
 * Scenario screenshots: full health, half, low (pulse), after a hit (delayed bar), empty stamina, keys held, each
   quick slot state (weapon, potion counts, none left). Also at 1280x720 and a small and a wide `resolution`.
-* The existing HUD scenarios (`status_box.txt`, `level_gem.txt`, `stamina.txt`, `keys.txt`) still pass; check their
+* The existing HUD scenarios (`status_box.txt`, `level_gem.txt`, `scen_u_test.cpp` stamina case, `keys.txt`) still pass; check their
   screenshots for overlap with the new panel.
 
 ## Decided
@@ -84,5 +84,5 @@ Defaults picked during implementation (2026-09-30); change them after playing if
 * Key sockets: `Dungeon::LevelKeys()`. XP: a thin gold line along the panel's bottom edge.
 * The boss bar moves up above the panel when they would overlap (narrow windows such as 4:3).
 * `src/graphics/hud.cpp` keeps only `Hud::drawBar`, for the model viewer (since moved to `tools/model-viewer/hud.cpp`).
-* Tests: `tests/scenarios/player_hud.txt` (full, slots, hit trail, half, low, refused jump, key sockets),
+* Tests: `tests/scenarios/solved/player_hud.txt` (full, slots, hit trail, half, low, refused jump, key sockets),
   `player_hud_sizes.txt` (4:3 with the boss bar), `player_hud_small.txt` (640 x 360).

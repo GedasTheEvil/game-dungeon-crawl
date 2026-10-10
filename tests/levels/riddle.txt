@@ -1,4 +1,4 @@
-; Two riddle gates on one corridor (tests/scenarios/riddle.txt): cols 4 and 8.
+; Two riddle gates on one corridor (tests/scenarios/solved/riddle.txt): cols 4 and 8.
 ########################################
 #S..?...?...E###########################
 ########################################

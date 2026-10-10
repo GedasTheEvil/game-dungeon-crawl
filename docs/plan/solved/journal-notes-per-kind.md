@@ -59,7 +59,7 @@ note, whichever comes first, or into a note of its own.
   antidote one (the keys H, 0 and = are in the potion notes now).
 * Journal save version 5: the field notes of an older save are dropped (their numbers meant other notes); its riddles
   and creatures stay.
-* Tests: unit (`world_events_test.cpp`, `journal_test.cpp`), `tests/scenarios/journal_field_notes.txt`.
+* Tests: unit (`world_events_test.cpp`, `journal_test.cpp`), `tests/scenarios/solved/journal_field_notes.txt`.
 
 Decided on the way (easy to change):
 

@@ -1,7 +1,7 @@
 # Journal sections
 
 Status: draft 2026-10-01, refined 2026-10-01 (sections, book look, stages). Stage 1 done 2026-10-01
-(`tests/scenarios/journal.txt`), verified in play. Stage 3 done 2026-10-01, verified in play. Stage 2 done
+(`tests/scenarios/solved/journal.txt`), verified in play. Stage 3 done 2026-10-01, verified in play. Stage 2 done
 2026-10-01, verified in play. Stage 4 and the ribbon texture done 2026-10-01, verified in play.
 
 ## Idea
@@ -83,9 +83,9 @@ The creatures section does not have to wait for damage types: their resistance n
    plan. Riddles section, kept in the save game (`src/world/journal.h`, `src/ui/journal_view.cpp`).
 2. **Done.** Field notes: hit points, experience, stamina, potions, weapons, keys and gates, each written the
    first time it matters (`FieldNote` in `src/world/journal.h`, texts in `src/ui/journal_view.cpp`,
-   `tests/scenarios/journal_field_notes.txt`). Keep the texts in step with the rules they describe.
+   `tests/scenarios/solved/journal_field_notes.txt`). Keep the texts in step with the rules they describe.
 3. **Done.** Creatures without resistances ([monster-journal.md](monster-journal.md)): seen, kill, HP,
-   its hit, special moves, pencil sketch (`tests/scenarios/journal_creatures.txt`, every type:
+   its hit, special moves, pencil sketch (`tests/scenarios/solved/journal_creatures.txt`, every type:
    `journal_all_creatures.txt`).
 4. **Done.** Resistance notes, with [damage-types-and-resistances.md](damage-types-and-resistances.md): one line
    per creature, a type's rate once a weapon of that main type hit it (`JournalCreature::tried`).

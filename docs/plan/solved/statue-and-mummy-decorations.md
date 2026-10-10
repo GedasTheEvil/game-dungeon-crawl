@@ -1,7 +1,7 @@
 # More corridor decorations: broken statues, mummy by a sarcophagus
 
 Status: done (2026-09-30). Props `cat`, `jackal`, `osiris`, `bes`, `sarcophagus` in `decor.py` / `decor.h`; in-game check
-`tests/scenarios/statues.txt`. Deities: Bastet (cat), Anubis (jackal on a shrine), Osiris, Bes (household god, instead of
+`tests/scenarios/solved/statues.txt`. Deities: Bastet (cat), Anubis (jackal on a shrine), Osiris, Bes (household god, instead of
 Ra: a distinct squat silhouette, and the falcon head is already on a canopic lid). The sarcophagus fits the normal prop
 limits (no exception needed).
 
@@ -21,7 +21,7 @@ New static corridor props:
 * Engine: `src/world/decor.h` (`DECOR_COUNT`, `DECOR_NAMES`); placement in `src/world/dungeon_decor.cpp`.
 * Size limits from `decor.py`: about 0.5 tile tall, within x = +-0.42 and y >= -0.43, so the props stay clear of the
   player's walk line. The sarcophagus is long, so it may need its own size or a place along the back wall.
-* Check: `tests/scenarios/props.txt` screenshots.
+* Check: `tests/scenarios/solved/props.txt` screenshots.
 
 ## Decisions
 

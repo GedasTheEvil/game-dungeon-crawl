@@ -62,5 +62,5 @@ A ribbon riding a forward turn lands on the left (real-book layout).
 
 * Code: `src/ui/journal_view.cpp` (`ribbonRect`, `ribbon`, `DrawRibbons`, the page edges in the book drawing, `GoTo`,
   `StartTurn`), `src/ui/page_curl.h`. Look: [docs/ui.md](../../ui.md), "Book (journal)".
-* Scenario to update: `tests/scenarios/journal_page_turn.txt` (ribbons on both sides, mid-turn shot with a ribbon on
+* Scenario to update: `tests/scenarios/solved/journal_page_turn.txt` (ribbons on both sides, mid-turn shot with a ribbon on
   the curl).

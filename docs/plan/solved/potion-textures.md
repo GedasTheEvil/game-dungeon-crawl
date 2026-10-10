@@ -73,7 +73,7 @@ several potions. Set:
   tab icon and the HUD quick slot.
 * Resistance potions: not in the game yet; when they come, a `POTIONS` row each (lesser on the flask, greater on the
   cobra vial) and their `PotionDef` rows.
-* Check: `make test SCENARIO=tests/scenarios/potions.txt` (one chest per potion on `tests/levels/potions`, then each
+* Check: `make test SCENARIO=tests/scenarios/solved/potions.txt` (one chest per potion on `tests/levels/potions`, then each
   potion in the inventory).
 * Model viewer: a vessel has no texture of its own, so the file-name lookup found none. `TextureCandidates`
   (`tools/model-viewer/viewer.cpp`) now adds its potions' textures from the game's table (the viewer links

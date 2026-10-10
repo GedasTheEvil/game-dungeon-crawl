@@ -65,4 +65,4 @@ every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are se
 * `MonsterScorpionQueen` (21, glyph `U`), `MonsterEggCluster` (20, `e`, model `tools/blender/models/egg_cluster.py`),
   `MonsterGiantScorpion` (19, `J`, the minion), `Summon::Hatch` (`Dungeon::summonMinion`; the first minions wait for a
   cluster in play). Numbers as decided above. In lvl15's boss room with two egg clusters.
-* Check: `tests/scenarios/scorpion_queen.txt`. Not play tested.
+* Check: `tests/scenarios/solved/scorpion_queen.txt`. Not play tested.

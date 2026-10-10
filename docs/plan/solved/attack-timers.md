@@ -46,7 +46,7 @@ With one ranged weapon today, `2` just equips the bow; the cycling pays off with
   recovery.
 * `Inventory::EquipHotkey` (`src/ui/inventory.cpp`), `PlayerActionController::equipHotkey` (`src/input/input.cpp`),
   the options controls table.
-* Tests: `tests/scenarios/weapon_hotkeys.txt` for the cycling; a scenario that sprints during a recovery and checks the
+* Tests: `tests/scenarios/solved/weapon_hotkeys.txt` for the cycling; a scenario that sprints during a recovery and checks the
   next attack waits.
 
 ## Done
@@ -57,5 +57,5 @@ With one ranged weapon today, `2` just equips the bow; the cycling pays off with
   cycles. The HUD weapon slot shows `1-2`, the weapons field note names the two keys.
 * Scenarios equip with the new `equip WEAPON` command instead of the number keys; `expect attacking` reads whether a
   swing or draw is under way.
-* Tests: `weapon_hotkeys.txt` (cycling, first of the class, free keys), `attack_recovery.txt` (sprinting through the
+* Tests: `solved/weapon_hotkeys.txt` (cycling, first of the class, free keys), `scen_u_test.cpp` attack recovery case (sprinting through the
   club's recovery; the next attack waits until 900 ms).

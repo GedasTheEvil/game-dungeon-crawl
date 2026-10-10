@@ -175,7 +175,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 
 ## Tests
 
-- `tests/scenarios/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
+- `tests/scenarios/solved/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
 - `tests/unit/world_rules_test.cpp` (on the sim harness, `tests/unit/sim_world.h`): a rock fall walked through,
   grazed, stepped back from, a direct hit; a dart trap's volley outruns the walk and poisons, a running jump over the
   plate sets nothing off, a heavy monster (the Anubis) presses it and takes the darts; the fall trap; an arrow into
@@ -183,7 +183,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   arrival and up to the limit, 1 XP each while the boss lives, the sealed boss gate, no boss after a load); lvl5
   played through; the Anubis boss's coffins, blows and gold key, his coffins after a load; a generated level and
   campaign levels 6 and 15 load.
-- `tests/scenarios/rats.txt`: rat and giant rat screenshots (size, attack, die).
+- `tests/scenarios/solved/rats.txt`: rat and giant rat screenshots (size, attack, die).
 - `tests/unit/monster_rules_test.cpp` and `tests/unit/sim_test.cpp` (on the sim harness): walkers stop at a wall,
   floor spikes and a pit; a rat stops at an armed rock fall, a giant rat leaps over it, neither sets it off; a reckless
   monster (the mummy, the Anubis) walks into spikes and a rock fall and takes its share of the damage (`Courage`,
@@ -191,31 +191,31 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   outruns the player; the giant scarab leaps and bites; monster poison, damage types, the venom amulet; health bars
   stay hidden until a monster chases, bites, swoops or is hit; the cobra's spit, Sobek's charge, Apep's dive, the
   bat's swoop.
-- `tests/scenarios/spikes.txt`: spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.
+- `tests/unit/scen_u_test.cpp` ("spikes: a hit every 100 ms ..."): spike damage rate and ramp, the hitbox edge, paused in the inventory, two tiles.
 - `tests/unit/reach_test.cpp`: scarab, rat, worm, giant scarab, boss scarab and giant rat walk up and stop where they
   bite; every melee weapon hits them there, also in toon mode; an arrow hits a giant rat 2 tiles away
   (`tests/levels/hitbox_*`).
-- `tests/scenarios/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
-- `tests/scenarios/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
+- `tests/scenarios/solved/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
+- `tests/scenarios/solved/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
   a real chest when killed.
 - `tests/scenarios/anubis_bolt.txt`: the Anubis walks up and shoots its red bolt from afar, then hits up close.
-- `tests/scenarios/mummy.txt`: a mummy in its coffin: no health bar, wakes 1.6 tiles away, climbs out (rise clip),
+- `tests/scenarios/solved/mummy.txt`: a mummy in its coffin: no health bar, wakes 1.6 tiles away, climbs out (rise clip),
   strikes, dies; the empty coffin stays.
-- `tests/scenarios/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
-- `tests/scenarios/bow.txt`: the bow draws and shoots; an arrow with nothing in reach lands on the floor, one in reach is
+- `tests/scenarios/solved/bats.txt`: bat and giant bat screenshots (roosting, swoops through the player, kill, fall).
+- `tests/scenarios/solved/bow.txt`: the bow draws and shoots; an arrow with nothing in reach lands on the floor, one in reach is
   aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.
-- `tests/scenarios/ranged_weapons.txt`: composite bow, sling, throwing stick and javelin each hit the archery plant
+- `tests/scenarios/solved/ranged_weapons.txt`: composite bow, sling, throwing stick and javelin each hit the archery plant
   from inside their range; screenshots of the draw, the whirl and the missiles in flight (the stick flying back).
 - `tests/scenarios/weapon_reach.txt`: every melee weapon at its hit frame next to a giant rat at bite distance, with the
   debug boxes: the reach should end near the weapon's tip.
-- `tests/scenarios/attack_recovery.txt`: sprinting through a recovery does not cut it short.
-- `tests/scenarios/weapons_held.txt`: every weapon in the fist, standing and at its strike, both facings: screenshots.
+- `tests/unit/scen_u_test.cpp` ("moving or sprinting does not cancel an attack recovery"): sprinting through a recovery does not cut it short.
+- `tests/scenarios/solved/weapons_held.txt`: every weapon in the fist, standing and at its strike, both facings: screenshots.
   The swing's poses: `tests/unit/swing_test.cpp`.
-- `tests/scenarios/vampire.txt`: the vampire bat's roost (`tests/levels/vampire`): its bats, its bites heal it
+- `tests/scenarios/solved/vampire.txt`: the vampire bat's roost (`tests/levels/vampire`): its bats, its bites heal it
   (`hurtboss`), more bats up to the limit, its death opens the boss gate to the gold key.
 - `tests/scenarios/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling,
   mummies out of the Anubis boss's coffins (`tests/levels/summon_dig`, `summon_drop`, `summon_coffin`): screenshots.
 - `tests/levels/classic1`, `classic2`: the old hand-made levels 1 and 2, kept as fixtures for the scenarios that
   depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.
-- `tests/scenarios/generated_path.txt`: plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
+- `tests/unit/scen_u_test.cpp` ("a generated level (seed 81, difficulty 8) plays from start to exit"): plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
   Written by `levelcheck --script`.

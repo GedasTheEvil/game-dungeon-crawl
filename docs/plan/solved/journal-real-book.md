@@ -91,4 +91,4 @@ Done 2026-10-05. Look and code: [docs/ui.md](../../ui.md), "Book (journal)".
   arrow keys, wheel, ribbons; drag a bottom corner (back if let go before the spine); a hovered corner lifts. No
   framebuffers: pages are drawn straight and turn at once.
 * Not done: wear (dog-ear, smudge), it was optional. Only the bottom corners can be grabbed.
-* Scenario: `tests/scenarios/journal_page_turn.txt`.
+* Scenario: `tests/scenarios/solved/journal_page_turn.txt`.

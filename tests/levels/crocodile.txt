@@ -1,4 +1,4 @@
-; A crocodile (col 8) in a pool of half water (cols 6-13) over deep water (tests/scenarios/crocodile.txt). Dry floor
+; A crocodile (col 8) in a pool of half water (cols 6-13) over deep water (tests/scenarios/solved/crocodile.txt). Dry floor
 ; on both sides of the pool.
 ##################
 #S......C.......E#

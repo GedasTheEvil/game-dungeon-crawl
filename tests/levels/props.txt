@@ -1,4 +1,4 @@
-; Every item, prop and trap model on one corridor (tests/scenarios/props.txt): chests with club (col 3), sword (5),
+; Every item, prop and trap model on one corridor (tests/scenarios/solved/props.txt): chests with club (col 3), sword (5),
 ; spear (7), bow (9), potion (11); spikes (13), riddle gate (15), death trap (18), ankh (20), exit (23).
 def 1 8 1 0
 def 2 8 1 1

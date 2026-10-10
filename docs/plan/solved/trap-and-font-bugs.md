@@ -43,7 +43,7 @@ Done 2026-09-30:
   twice in one interval. Paused with the world (no damage on UI screens).
 * **Font.** `Font::print` uses `vsnprintf` (cut at 255 chars). It was the only `vsprintf` / `sprintf` in `src/` and
   `tools/`.
-* **Test.** `tests/scenarios/spikes.txt` (`tests/levels/spikes_one`, `spikes_two`): the hitbox edge, the damage ramp,
+* **Test.** `tests/unit/scen_u_test.cpp` ("spikes: a hit every 100 ms ...") (`tests/levels/spikes_one`, `spikes_two`): the hitbox edge, the damage ramp,
   no damage with the inventory open, two tiles side by side. The old code passes it too: in the scenarios every
   tick draws and a trap in reach is always in view, so the old bugs only showed at a low frame rate or with draw
   order. The test pins the behaviour.

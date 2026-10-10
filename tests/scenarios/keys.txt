@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): plan inventory-keys not solved; needs the real key-binding input path.
 # Keyboard aliases: E interacts (chest pickup), V attacks (kills the level's first rat).
 seed 3
 god

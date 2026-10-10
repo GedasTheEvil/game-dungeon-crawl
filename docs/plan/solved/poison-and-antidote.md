@@ -64,7 +64,7 @@ Not in scope: a poison resistance potion and amulets,
 * HUD: green health bar and heart; above the panel one stone tile per running tier, a drop in the tier's green with
   one to three pips, and its seconds left.
 * Journal: field note "Poison" (the first time poisoned).
-* Scenario: `poison weak|medium|strong`, `expect poison` (bit mask); `tests/scenarios/poison.txt`.
+* Scenario: `poison weak|medium|strong`, `expect poison` (bit mask); `tests/scenarios/solved/poison.txt`.
 
 ## Next
 
@@ -74,7 +74,7 @@ In this order (2026-10-06):
    Done 2026-10-06: `MonsterScorpion` (16, glyph `j`), speed 10, 14 HP, 3 damage every 900 ms, 450 XP, scale 15;
    weak to blows, resists points (the bow does little: it has to be fought up close); weak poison (`POISON_DEFS` in
    `src/state/assets.cpp`). Model `tools/blender/models/scorpion.py` (deathstalker), sounds
-   `tools/audio/scorpion_sounds.py`. Check: `tests/scenarios/scorpions.txt`. Not placed in any level yet.
+   `tools/audio/scorpion_sounds.py`. Check: `tests/unit/scen_a_test.cpp` ("a scorpion walks up and stings"). Not placed in any level yet.
 2. Then the levels: the scorpions' places in the campaign and antidote chests in those levels (a short side passage
    where a level has no chest to spare), each level still without `levelcheck` warnings.
    Done 2026-10-06: scorpions in levels 3-6 (one each in 3-5, two in 6), each level with an antidote chest in a new

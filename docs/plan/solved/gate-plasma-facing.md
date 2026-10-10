@@ -1,6 +1,6 @@
 # Gate plasma faces the adjacent wall
 
-Status: implemented. Test: `tests/scenarios/gate_facing.txt` (level `tests/levels/gate_facing`).
+Status: implemented. Test: `tests/scenarios/solved/gate_facing.txt` (level `tests/levels/gate_facing`).
 
 ## Problem
 

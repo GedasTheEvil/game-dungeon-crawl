@@ -25,4 +25,4 @@ them. The options controls table lists them too.
 
 * `Inventory::EquipHotkey` (`src/ui/inventory.cpp`), called from `keyPressed` via
   `PlayerActionController::equipHotkey` (`src/input/input.cpp`).
-* Test: `tests/scenarios/weapon_hotkeys.txt`.
+* Test: `tests/scenarios/solved/weapon_hotkeys.txt`.

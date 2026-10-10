@@ -81,7 +81,7 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 * UI: the Amulets tab (Wear / Take off, effect text, "Worn now"), the HUD's fourth slot with the type icon and the tier
   numeral, `sounds/items/amulet.wav` (`tools/audio/amulet_sound.py`).
 * Models: `items.py` `amulet_<type>`; icons in `hud_icons.py` (cells 21-29).
-* Tests: `tests/unit/items_test.cpp`, `loot_test.cpp`; `tests/scenarios/amulets.txt`.
+* Tests: `tests/unit/items_test.cpp`, `loot_test.cpp`; `tests/scenarios/solved/amulets.txt`.
 
 ## Open
 

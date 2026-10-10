@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): plan anubis-ranged-attack (draft) not solved; the red bolt is a picture.
 # The Anubis's ranged attack (tests/levels/anubis_bolt, docs/plan/anubis-ranged-attack.md): it walks up, shoots a
 # red bolt of light from afar (its attack clip stands in for the throw), no poison, then hits up close.
 seed 1

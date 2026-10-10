@@ -1,3 +1,4 @@
+# Kept (docs/testing.md): plan inventory-keys not solved; drives the inventory screen's key path.
 # Inventory keys (docs/plan/inventory-keys.md): Tab walks the enabled group tabs and wraps round, the number keys pick
 # nothing, the slots show no key labels.
 seed 1

@@ -22,7 +22,7 @@ The inventory keeps its turning 3D models.
 * `PlayerHud::Slot` holds a `PlayerHud::Icon` (atlas cell, `None` = empty slot) instead of an `Item*`.
   `drawSlotIcon` draws a textured quad; the depth-buffer model pass in `PlayerHud::draw` is gone.
 * `weaponIcon` (`src/graphics/draw.cpp`) maps the equipped weapon to its icon. Texture: `TextureRegistry::hudIcons`.
-* Test: `tests/scenarios/hud_icons.txt`, one screenshot per weapon with two tinted potions.
+* Test: `tests/scenarios/solved/hud_icons.txt`, one screenshot per weapon with two tinted potions.
 
 ## Verify in play
 

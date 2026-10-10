@@ -28,7 +28,7 @@ Status: solved (2026-10-01), lvl11 played: looks right, XP lowered. The Anubis b
   units, so the toon figure scale does not move it out of the coffin.
 * Coffin: `DECOR_COFFIN`, set on every mummy spawn tile by `Dungeon::scatterDecorations`, never scattered at random
   (`DECOR_SCATTERED`).
-* Model `tools/blender/models/mummy.py`, sounds `tools/audio/mummy_sounds.py`. Test: `tests/scenarios/mummy.txt`.
+* Model `tools/blender/models/mummy.py`, sounds `tools/audio/mummy_sounds.py`. Test: `tests/scenarios/solved/mummy.txt`.
 
 ## Open questions
 

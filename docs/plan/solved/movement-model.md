@@ -66,7 +66,7 @@ Done 2026-09-30, as decided above:
 4. `99c526d`: rules 1, 2. The walker jumps one spike or death trap cell on a floor, and from a ladder's foot. Rock
    falls stay walked (the rock drops when the player passes through its cell either way). Campaign difficulty
    +0.1 to +0.4 (a jump scores 1.2, a spike 1.0), the ranking keeps the campaign order, no warnings, the replays
-   pass, levelgen output unchanged. `tests/scenarios/trap_hop.txt` (new level `tests/levels/death_one`): in the game
+   pass, levelgen output unchanged. `tests/unit/scen_u_test.cpp` ("a trap on the floor is jumped over") (new level `tests/levels/death_one`): in the game
    the hop clears spikes with no damage, a death trap for 1 HP.
 5. `tests/unit/walker_test.cpp`: each rule on a small level drawn in the ASCII legend; each case fails with the old
    rules.

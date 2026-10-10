@@ -1,6 +1,6 @@
 # Screen switch tabs
 
-Status: done 2026-10-01, verified in play (`tests/scenarios/screen_tabs.txt`). Tiles at the top right,
+Status: done 2026-10-01, verified in play (`tests/scenarios/solved/screen_tabs.txt`). Tiles at the top right,
 centred on the title rule (the title rule is shorter on these screens); the inventory icon is a chest. Look:
 [docs/ui.md](../../ui.md#screen-tabs).
 

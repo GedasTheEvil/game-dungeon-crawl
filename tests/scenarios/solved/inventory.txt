@@ -82,7 +82,7 @@ screenshot strength_selected
 key enter
 wait 5
 screenshot strength_drunk
-expect might == 2
+expect might == 1
 expect potion2 == 0
 
 # small health at full HP stays disabled

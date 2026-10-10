@@ -18,6 +18,8 @@ constexpr float PARTICLE_DRIFT = 0.1f;
 constexpr float MONSTER_OFFSET_X = 40.f;
 constexpr float MONSTER_OFFSET_Z = 10.f;
 constexpr float MONSTER_DEPTH = MONSTER_OFFSET_Z - 30.f; // z of the monsters' and the player's bodies (Monster::Draw)
+// z of the ladders' rails (tools/blender/models/ladder.py: 0.04 tile in front of the back wall); a climber grips there.
+constexpr float LADDER_RAIL_Z = -0.96f * TILE_SIZE;
 constexpr float ITEM_OFFSET_X = 20.f;
 constexpr float ITEM_OFFSET_Z = 10.f;
 } // namespace RenderConfig

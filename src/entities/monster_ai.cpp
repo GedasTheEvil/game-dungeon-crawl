@@ -63,19 +63,23 @@ void Monster::StartClimb(int ladderCol, int toRow) {
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Climb);
 }
 
+void Monster::DropTo(int floorRow) {
+	climb.toRow = floorRow;
+	climb.falls = true;
+}
+
 void Monster::UpdateClimb() {
 	const int dir = climb.toRow > row ? 1 : -1;
 	const float factor = type->isBoss() ? BOSS_CLIMB_SPEED_FACTOR : CLIMB_SPEED_FACTOR;
-	climb.y += static_cast<float>(dir) * MONSTER_SEEK_STEP * type->speed * factor;
+	climb.y += static_cast<float>(dir) * (climb.falls ? CLIMBER_FALL_STEP : MONSTER_SEEK_STEP * type->speed * factor);
 	if (climb.y * static_cast<float>(dir) >= 1.f) {
 		row += dir;
 		climb.y -= static_cast<float>(dir);
 	}
-	if (row == climb.toRow && climb.y * static_cast<float>(dir) >= 0.f) {
-		climb.y = 0.f;
-		climb.toRow = -1;
-	}
-	enter(ModelState::Climb);
+	if (row == climb.toRow && climb.y * static_cast<float>(dir) >= 0.f)
+		climb = Climb{};
+	if (Alive())
+		enter(ModelState::Climb);
 }
 
 void Monster::SawWay(int toCol, int toRow) {

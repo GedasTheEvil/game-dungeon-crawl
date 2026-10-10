@@ -63,6 +63,7 @@ struct Charge {
 struct Climb {
 	int toRow = -1; // < 0: not climbing
 	float y = 0.f;
+	bool falls = false; // killed on the rungs: it drops down the shaft to the floor (CLIMBER_FALL_STEP)
 };
 
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and what the sim
@@ -149,6 +150,7 @@ class Monster {
 	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
 	[[nodiscard]] float lift() const;
 	[[nodiscard]] float climbLift() const; // world units up or down a ladder while climbing
+	void showClimb();					   // the climb clip's frame from its height (climbRise), as the player's
 
   public:
 	Monster() = default;
@@ -216,6 +218,7 @@ class Monster {
 	void SetDrop(std::optional<ItemKind> weapon) { drop = weapon; } // the player killed it (Dungeon::rewardKill)
 	[[nodiscard]] bool climbs() const { return type->climbs; }
 	[[nodiscard]] bool Climbing() const { return climb.toRow >= 0; }
+	[[nodiscard]] bool Falling() const { return climb.falls; }
 	// On the rungs it does not attack, as the player cannot (docs/plan/solved/no-attack-on-ladder.md).
 	[[nodiscard]] bool OnRungs() const { return rungs; }
 	void SetOnRungs(bool onRungs) { rungs = onRungs; }
@@ -223,6 +226,7 @@ class Monster {
 	// step until there.
 	void StartClimb(int ladderCol, int toRow);
 	void UpdateClimb();
+	void DropTo(int floorRow); // killed on the rungs: falls down to the floor of floorRow
 	// Climbers: one step along its path, dir -1 / +1 (as Seek, but the way is the path's); blocked: it stands.
 	void WalkPath(int dir, bool blocked);
 	// Climbers: a way to the player in cell (col, row) now. HeadingFor: the cell of the last way, while it has not
@@ -326,6 +330,9 @@ class Monster {
 		return (flies() ? flight.lift : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
 	}
 	[[nodiscard]] float Tomb() const { return tomb; }
+	// Climbing: world units it is drawn towards the wall (< 0), so its grip meets the ladder's rails; 0 otherwise.
+	[[nodiscard]] float ClimbDepth() const;
+	[[nodiscard]] bool ShowsClimb() const { return Alive() && state == ModelState::Climb; } // back to the camera
 	[[nodiscard]] bool Roosting() const { return flies() && flight.phase == FlightPhase::Roost; }
 	[[nodiscard]] const ParticleSystem& Blood() const { return *blood; }
 };

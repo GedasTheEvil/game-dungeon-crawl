@@ -146,3 +146,25 @@ TEST_CASE("a climber gives up once the player is out of its path's reach") {
 	CHECK(rat->CentreX() == stopped);
 	CHECK(rat->CentreX() - world.X() > 8.f);
 }
+
+TEST_CASE("a climber killed on the rungs drops down the shaft to the floor") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_up"));
+	world.player.god = true;
+	const auto upper = static_cast<int>(world.Y());
+	showAndFlee(world, 9.f, 2.5f);
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	for (int t = 0; t < 1000 && !(rat->Climbing() && rat->DrawnLift() > 10.f); t++)
+		world.Tick();
+	REQUIRE(rat->Climbing());
+	world.dungeon.PoisonNearestMonster(PoisonTier::Strong);
+	for (int t = 0; t < 1000 && rat->Alive(); t++)
+		world.Tick();
+	REQUIRE(!rat->Alive());
+	REQUIRE(rat->DrawnLift() > 1.f); // still up the ladder
+	world.Wait(1000);
+	CHECK(rat->Row() == upper - 2);
+	CHECK(!rat->Climbing());
+	CHECK(rat->DrawnLift() == doctest::Approx(0.f));
+}

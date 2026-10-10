@@ -86,7 +86,8 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	const MonsterType& type = *mon.Type();
 	const float scale = type.scale;
 	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF, mon.DrawnLift(), -30.f - mon.Tomb());
+	glTranslatef(RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF, mon.DrawnLift(),
+				 -30.f - mon.Tomb() + mon.ClimbDepth());
 	glPushMatrix(); // will add rotation
 
 	if (mon.Alive() && mon.Alerted() &&
@@ -107,8 +108,8 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	drawBlood(); // even when dead
 
 	model.BindTexture();
-	// On the rungs it faces the ladder, its back to the camera.
-	glRotatef(type.rotA + (mon.OnRungs() ? 180.f : 90.f * static_cast<float>(mon.Facing())), 0, 1, 0);
+	// Climbing it faces the ladder, its back to the camera.
+	glRotatef(type.rotA + (mon.ShowsClimb() ? 180.f : 90.f * static_cast<float>(mon.Facing())), 0, 1, 0);
 
 	const float figure = Ink::figureScale();
 	glScalef(figure, figure, figure);

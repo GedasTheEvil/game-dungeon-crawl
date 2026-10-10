@@ -70,8 +70,9 @@ constexpr int CLIMB_GIVE_UP_MS = 5000;
 constexpr float CLIMB_SPEED_FACTOR = 0.8f;
 constexpr float BOSS_CLIMB_SPEED_FACTOR = 1.f;
 constexpr float CLIMBER_THREAT_FACTOR = 1.05f;
-constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
-constexpr int MINION_EMERGE_MS = 700;  // a summoned minion digs out or drops into place, then acts
+constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on the rungs drops
+constexpr int MINION_SUMMON_REACH = 3;	   // cells from its boss a summoned minion may appear
+constexpr int MINION_EMERGE_MS = 700;	   // a summoned minion digs out or drops into place, then acts
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
 // monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster

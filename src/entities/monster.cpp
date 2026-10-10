@@ -125,6 +125,26 @@ float Monster::burrowLift() const {
 
 float Monster::climbLift() const { return climb.y * RenderConfig::TILE_SIZE; }
 
+float Monster::ClimbDepth() const {
+	if (!ShowsClimb() || type->climbRise <= 0.f)
+		return 0.f;
+	const float grip = type->climbGrip * type->model.referenceTop * type->scale * Figures::Scale();
+	return RenderConfig::LADDER_RAIL_Z + grip - RenderConfig::MONSTER_DEPTH;
+}
+
+// One cycle of the clip per climbRise of height, so the gripping paws stay on the rungs; it runs backwards going down
+// and holds when it stops.
+void Monster::showClimb() {
+	const ClipInfo& clip = type->model.Clip(ModelState::Climb);
+	const float cycle = type->climbRise * type->model.referenceTop * type->scale * Figures::Scale();
+	if (!clip.present || clip.frames < 1 || cycle <= 0.f)
+		return;
+	const float height = static_cast<float>(row) * RenderConfig::TILE_SIZE + climbLift();
+	const float phase = height / cycle - std::floor(height / cycle);
+	const auto frames = static_cast<float>(clip.frames);
+	playback[static_cast<size_t>(ModelState::Climb)] = {std::min(phase * frames, frames - 0.001f), 0};
+}
+
 float Monster::lift() const {
 	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
 }
@@ -272,7 +292,10 @@ void Monster::Animate(float px, float py) {
 		} else
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
 	}
-	type->model.Advance(state, playback);
+	if (ShowsClimb() && type->climbRise > 0.f)
+		showClimb();
+	else
+		type->model.Advance(state, playback);
 	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
 	const float swimTarget = swimLift();
 	if (!swimPlaced)

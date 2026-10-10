@@ -129,6 +129,11 @@ struct MonsterKind {
 	bool charges = false;		   // it charges along its row (Charge)
 	// Follows the player up and down ladders once it has seen them (docs/plan/monster-climbers.md).
 	bool climbs = false;
+	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0
+	// height: how high it climbs in one cycle of the clip, and how far in front of its centre it grips the ladder.
+	// climbRise 0: no climb clip, the walk clip stands in on the clock.
+	float climbRise = 0.f;
+	float climbGrip = 0.f;
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (docs/plan/solved/boss-resistances.md).
 	int kin = 0;

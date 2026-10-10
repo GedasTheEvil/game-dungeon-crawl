@@ -127,6 +127,17 @@ void Dungeon::UpdateMonsters() {
 		mon.SetOnRungs(mon.Climbing() || (MapAt(monCol, mon.Row()).type == Ladder && IsInBounds(monCol, mon.Row()) &&
 										  !isSolidTile(MapAt(monCol, mon.Row() - 1))));
 
+		if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
+			if (!mon.Falling()) {
+				int floor = mon.Row();
+				while (floor > 0 && !isSolidTile(MapAt(monCol, floor - 1)))
+					floor--;
+				mon.DropTo(floor);
+			}
+			mon.UpdateClimb();
+			continue;
+		}
+
 		if (mon.flies()) {
 			if (!won) {
 				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));

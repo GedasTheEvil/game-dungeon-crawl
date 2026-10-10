@@ -14,6 +14,9 @@ spends it on a skill. Skills are permanent.
   Sobek. 1 heka to spend." The screen title: "Heka" or "Skills" (implementer's choice; the glossary gets the term).
 * Points: 1 per boss kill (lvl5, 10, 15, 20, 25; lvl30's boss ends the game, so 5 usable). Saved with the game.
 * Each skill costs 1 point. No ranks for now (a later draft may add ranks or a tree).
+* Scarce by design (user, 2026-10-10): there are more skills than points in a play-through, so each run picks a
+  different few and plays a little differently. Aim for about twice as many skills as points over time; the four
+  sub-drafts are the start. No respec, so a choice stays a choice.
 * A boss killed again after a load does not give a second point (`slainMonster`).
 
 ## Screen
@@ -33,10 +36,9 @@ spends it on a skill. Skills are permanent.
 * Field note on the first point, humour welcome: "Sobek's heka. It tastes of river mud."
 * Glossary rows: heka / skill point, skill.
 
-## Open (implementer's choice; warn when reporting)
+## Decided
 
-* 5 points over the campaign is few: also a point at some player levels (e.g. every 10th)? Default: bosses only.
-* Respec: none by default.
+* Points come from bosses only (decided, user 2026-10-10); none from player levels.
 
 ## Tests
 

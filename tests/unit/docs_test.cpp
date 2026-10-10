@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <set>
 #include <sstream>
@@ -106,4 +107,59 @@ TEST_CASE("docs/testing.md lists every scenario command and expect field, and no
 	};
 	sameAs(documented, commands, "command");
 	sameAs(fields, named, "expect field");
+}
+
+TEST_CASE("every code name in docs/glossary.md still exists in src/") {
+	// All of src/ as one text, to look the names up in.
+	std::string source;
+	for (const auto& entry : std::filesystem::recursive_directory_iterator("src")) {
+		const std::string ext = entry.path().extension().string();
+		if (ext != ".h" && ext != ".cpp")
+			continue;
+		std::ifstream f(entry.path());
+		std::stringstream text;
+		text << f.rdbuf();
+		source += text.str();
+	}
+	auto isWordChar = [](char c) { return std::isalnum(static_cast<unsigned char>(c)) != 0 || c == '_'; };
+	auto hasWord = [&](const std::string& word) {
+		for (size_t at = source.find(word); at != std::string::npos; at = source.find(word, at + 1))
+			if ((at == 0 || !isWordChar(source[at - 1])) &&
+				(at + word.size() == source.size() || !isWordChar(source[at + word.size()])))
+				return true;
+		return false;
+	};
+
+	std::ifstream f("docs/glossary.md");
+	REQUIRE(f);
+	int names = 0;
+	for (std::string line; std::getline(f, line);) {
+		// A term's row: | Term | In game | Meaning | Code |, not the header or the rule under it.
+		if (line.rfind("| ", 0) != 0 || line.rfind("| Term |", 0) == 0)
+			continue;
+		const size_t end = line.rfind(" |");
+		const size_t start = line.rfind(" | ", end - 1);
+		REQUIRE_MESSAGE(start != std::string::npos, "not a table row: ", line);
+		const std::string code = line.substr(start + 3, end - start - 3);
+		for (size_t open = code.find('`'); open != std::string::npos;
+			 open = code.find('`', code.find('`', open + 1) + 1)) {
+			const size_t close = code.find('`', open + 1);
+			const std::string name = code.substr(open + 1, close - open - 1);
+			names++;
+			if (name.find('/') != std::string::npos) {
+				CHECK_MESSAGE(std::filesystem::exists(name), "no such path: ", name);
+				continue;
+			}
+			// Monster::MeleeGap: each part has to be there.
+			for (size_t from = 0;;) {
+				const size_t sep = name.find("::", from);
+				const std::string part = name.substr(from, sep == std::string::npos ? std::string::npos : sep - from);
+				CHECK_MESSAGE(hasWord(part), "not in src/: ", name);
+				if (sep == std::string::npos)
+					break;
+				from = sep + 2;
+			}
+		}
+	}
+	CHECK(names > 50);
 }

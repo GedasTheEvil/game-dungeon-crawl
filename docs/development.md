@@ -1,5 +1,7 @@
 # Development
 
+Terms used in the game, the code and the docs: [glossary.md](glossary.md).
+
 ## Requirements
 
 * Make

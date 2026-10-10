@@ -1,6 +1,6 @@
 # Glossary
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: a `docs/glossary.md` with
+Status: solved 2026-10-10 (docs only, no game change). Draft 2026-10-09, refined 2026-10-09. From the user: a `docs/glossary.md` with
 the common terms and their meanings, used in development and in the game, so everyone uses the same language when
 working.
 
@@ -41,3 +41,12 @@ working.
 * **Spelling:** as the player sees it in the game; code names as they are in the code.
 * **Kept current:** a check in `tests/unit/docs_test.cpp`: every code name in the Code column still exists in `src/`.
 * Docs only (no change to the game): once done and checked, straight to `solved/`.
+
+## Implemented (2026-10-10)
+
+* [docs/glossary.md](../../glossary.md): five sections (map and levels, monsters, combat, items, tooling), about 75
+  terms. "level" has three rows (map, player, weapon), "gap" and "threat" two each. Climber and hold are marked as
+  planned, with no Code.
+* Linked from `AGENTS.md` (a Glossary section: grep, add new terms), `readme.md` and `docs/development.md`.
+* `tests/unit/docs_test.cpp`: every name in the Code column is a word in `src/` (`A::B`: each part), every path exists.
+  Checked against a made-up name and path: both fail.

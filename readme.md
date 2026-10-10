@@ -69,4 +69,5 @@ levels 1-5, turquoise for 6-10, lapis lazuli for 11-15, malachite for 16-20, ame
 
 ## Development
 
-Build steps, tools, asset formats and tests: [docs/development.md](docs/development.md).
+Build steps, tools, asset formats and tests: [docs/development.md](docs/development.md). Terms used in the game, the
+code and the docs: [docs/glossary.md](docs/glossary.md).

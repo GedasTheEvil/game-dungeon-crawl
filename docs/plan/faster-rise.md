@@ -1,6 +1,6 @@
 # Monsters rise faster
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user: monsters "rise" too slowly. Jumping on a
+Status: implemented 2026-10-11 (`MonsterKind::riseMs`: mummy 1000, cobra / giant cobra 750 -> 0.8 s stepped; unit tests in `clip_state_test.cpp`). Awaiting user check. From the user: monsters "rise" too slowly. Jumping on a
 cobra or a mummy, the player has nearly killed it by the time it is up. The mummy rises in 1 s, the cobra in 0.75 s
 (user, 2026-10-10; first asked 70% of the old time). The monster must get a chance to hit the player at least once.
 
@@ -49,3 +49,7 @@ Decided: the wake sound stays as is (user, 2026-10-10).
   ~1 s (not ~1.8 s), a cobra after ~0.8 s; the walk clip speed is unchanged.
 * Unit / sim test: jump attack on a mummy and on a cobra, the monster hits the player at least once before it dies.
 * Visual check: `make test SCENARIO=...` with a mummy and a cobra waking, the rise looks right at the new speed.
+
+## Done
+
+First hit: the attack timer is not reset on wake, so a lurker that waited has its attack (or spit) due as soon as the rise ends. No fallback needed.

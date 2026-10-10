@@ -109,6 +109,8 @@ struct ModelInfo {
 	// Enters state: a one-shot clip (die, jump) plays from the start.
 	void Enter(ModelState& current, ModelState state, ClipPlayback& playback) const;
 	void Advance(ModelState state, ClipPlayback& playback) const;
+	// Advance with the rise clip run in riseMs (rounded up to FRAME_STEP_MS steps); riseMs 0: CLIP_SPEED.
+	void Advance(ModelState state, ClipPlayback& playback, int riseMs) const;
 	// A one-shot clip (die, jump) has reached its last frame.
 	[[nodiscard]] bool Finished(ModelState state, const ClipPlayback& playback) const;
 	// Of a one-shot clip: 0 at its first frame, 1 at its last.

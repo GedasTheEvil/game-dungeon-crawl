@@ -295,7 +295,7 @@ void Monster::Animate(float px, float py) {
 	if (ShowsClimb() && type->climbRise > 0.f)
 		showClimb();
 	else
-		type->model.Advance(state, playback);
+		type->model.Advance(state, playback, type->riseMs);
 	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
 	const float swimTarget = swimLift();
 	if (!swimPlaced)

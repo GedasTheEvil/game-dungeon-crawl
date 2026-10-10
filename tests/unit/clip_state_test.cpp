@@ -61,6 +61,7 @@ TEST_CASE("a mummy lies still in its coffin, climbs out once (the rise clip from
 	CHECK(mummy->Rising());
 	float last = -1.f;
 	int ticks = 0;
+	const int riseStart = GameClock::now();
 	while (mummy->Rising() && ticks++ < 500) {
 		const float frame = frameOf(*mummy);
 		CHECK(frame >= last); // plays forward, once
@@ -68,6 +69,7 @@ TEST_CASE("a mummy lies still in its coffin, climbs out once (the rise clip from
 		world.Tick();
 	}
 	CHECK_FALSE(mummy->Rising());
+	CHECK(GameClock::now() - riseStart <= 1200); // 1 s, not the clip's 1.8 s (MonsterKind::riseMs)
 	CHECK(mummy->Type()->model.Finished(ModelState::Rise, mummy->Playback()));
 	world.Wait(1000);
 	CHECK(mummy->State() != ModelState::Rise); // it walks (or strikes)
@@ -105,11 +107,16 @@ TEST_CASE("the cobra lies coiled, rears up once, then spits its clip once and co
 	CHECK(cobra->State() == ModelState::Idle);
 	REQUIRE(world.Walk(2.f));
 	std::vector<ModelState> seen{ModelState::Idle};
+	int riseMs = 0;
 	for (int t = 0; t < 250; t++) {
 		if (seen.empty() || seen.back() != cobra->State())
 			seen.push_back(cobra->State());
+		if (cobra->Rising())
+			riseMs += UPDATE_TICK_MS;
 		world.Tick();
 	}
+	CHECK(riseMs <= 1000); // 0.8 s, not the clip's 1.65 s (MonsterKind::riseMs)
+	CHECK(riseMs > 0);
 	// Idle, then the rise, the spit, and its walk or bite after: in that order.
 	auto at = [&](ModelState s) {
 		for (size_t i = 0; i < seen.size(); i++)

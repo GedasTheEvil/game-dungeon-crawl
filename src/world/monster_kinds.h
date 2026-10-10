@@ -134,7 +134,10 @@ struct MonsterKind {
 	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
-	bool charges = false;		   // it charges along its row (Charge)
+	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
+	// player jumping on it does not kill it before it can hit once.
+	int riseMs = 0;
+	bool charges = false; // it charges along its row (Charge)
 	// Follows the player up and down ladders once it has seen them (docs/plan/monster-climbers.md).
 	bool climbs = false;
 	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0

@@ -350,6 +350,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .riseMs = 1000,
 	 .climbs = true,
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
 	 .climbGrip = 0.111f,
@@ -462,7 +463,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .spit = SpitRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}}, // release: frame 7 of 18
+	 .spit = SpitRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
+	 .riseMs = 750},
 	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.md).
 	{.id = MonsterGiantCobra,
 	 .glyph = 'Q',
@@ -486,7 +488,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .spit = SpitRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f}},
+	 .spit = SpitRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
+	 .riseMs = 750},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison
 	// (docs/plan/solved/scorpion-queen-boss.md).
 	{.id = MonsterGiantScorpion,

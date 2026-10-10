@@ -1,9 +1,9 @@
 """Procedural mummy: a linen-wrapped corpse that lies in an open coffin until the player comes near, climbs out and
-shambles after them. Mesh, rig, baked texture and five .md3 clips.
+shambles after them. Mesh, rig, baked texture and six .md3 clips.
 
     MCP:  p = ".../tools/blender/models/mummy.py"; g = {"__file__": p, "__name__": "mummy"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/mummy.py -- [--export] [--coffin-check out_dir]
+    CLI:  blender -b --python tools/blender/models/mummy.py -- [--export] [--export-climb] [--coffin-check out_dir]
 
 Built like anubis.py: Z up, facing +Y (game: towards the camera, drawn at rotA 180), right side +X (game -X).
 Clips (MONSTER_CLIPS + the entombed extras, ENTOMBED_CLIPS in src/entities/character_model.h):
@@ -16,6 +16,9 @@ Clips (MONSTER_CLIPS + the entombed extras, ENTOMBED_CLIPS in src/entities/chara
                   stiff steps, raises the arms; the last frame is walk frame 0. The engine draws idle and rise
                   TOMB_DEPTH world units towards the back wall and slides that to 0 over rise t = SLIDE (smoothstep);
                   the rise clip is authored in the coffin's frame (the slide undone), so the feet do not skate.
+  mummy_climb.md3 climbing a ladder (loops), back to the camera (drawn at rotA + 180): the engine sets the frame from
+                  the height, one cycle per CLIMB["rungs"] rungs; the gripping hand and foot slide down at that rate
+                  (see CLIMB). The build prints climbRise / climbGrip for KINDS.
 World units: the engine scales walk frame 0's largest dimension H (metres) to SCALE world units (a tile is 40), so
 1 world unit = H / SCALE metres (U below, set once the walk clip is built). The coffin (decor.py `coffin`, tile units)
 is laid out around the dormant body centre: COFFIN in tile units, see coffin_box().
@@ -39,7 +42,8 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "mummy_new"
-CLIPS = [("mummy_walk", "", 24), ("mummy_attack", "_att", 22), ("mummy_die", "_die", 30), ("mummy_idle", "_idle", 32), ("mummy_rise", "_rise", 26)]
+CLIPS = [("mummy_walk", "", 24), ("mummy_attack", "_att", 22), ("mummy_die", "_die", 30), ("mummy_idle", "_idle", 32), ("mummy_rise", "_rise", 26),
+         ("mummy_climb", "_climb", 24)]
 FRAMES = {name: n for name, _, n in CLIPS}
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0.1, 0.9), "ortho": 2.4, "res": (360, 420)}
@@ -529,6 +533,106 @@ def idle_pose(t):
     return p
 
 
+# Climbing a ladder (model +Y = the ladder; the engine draws it at rotA + 180, back to the camera). The engine sets the
+# frame from the height, one cycle per CLIMB["rungs"] rung spacings (a rung every tile / 12). Diagonal gait: a hand and
+# the opposite foot grip and slide down linearly by R per cycle (they stay on the rungs while the engine lifts the
+# body), the other pair lets go, draws back, rises stiffly and thrusts onto the rung R / 2 higher in the body frame.
+# Root at a fixed height; the lowest foot of frame 0 stands on the floor (rung 0). Positions in metres, body frame.
+CLIMB = {"rungs": 4, "grip_y": 0.40, "drop": 0.08}  # R in rungs; the hands' rung plane in front of the root
+CLIMB_HAND = {"x": 0.30, "top": 5, "lift": 0.12, "wrist": V((0, -0.05, 0.06)), "dir": V((0, 0.55, -0.83))}  # top: rung index
+CLIMB_FOOT = {"x": 0.17, "top": 2, "lift": 0.12, "back": 0.12}  # ankle `back` behind the rung plane (the ball of the foot on it)
+CLIMB_POLE = {"forearm": V((1.0, -0.2, -0.6)), "shin": V((0.35, 1.0, 0.6))}  # elbows out and down, knees forward and up
+CLIMB_PHASE = {"hand.L": 0.0, "foot.R": 0.0, "hand.R": 0.5, "foot.L": 0.5}  # v = 0: grips its top rung at frame 0
+REF = {}  # walk frame 0 (model space, metres): "H" height, "S" largest extent, "C" bounding box centre y, "rig_y"
+
+
+def rung():
+    return TILE * U["m"] / 12
+
+
+def climb_limb(v, top, lift):
+    """Body-frame height and draw-back (0..1) of a limb at its phase v: grip 0..0.5 sliding down by R / 2 at the
+    climbing rate, then let go, rise and thrust back in (0.5..1), a stiff three-part move."""
+    R = CLIMB["rungs"] * rung()
+    v %= 1.0
+    if v < 0.5:
+        return top - R * v, 0.0
+    t = (v - 0.5) / 0.5
+    return top - R / 2 + R / 2 * smoothstep(0.12, 0.85, t), smoothstep(0.0, 0.22, t) * (1 - smoothstep(0.72, 1.0, t))
+
+
+def climb_targets(p, ankle_lift):
+    """Body-frame wrist and ankle targets at cycle phase p, plus the reaching hands' draw-back / feet's toe droop."""
+    r, out = rung(), {}
+    for s in (1, -1):
+        hand, foot = side_name("hand", s), side_name("foot", s)
+        z, back = climb_limb(p + CLIMB_PHASE[hand], CLIMB_HAND["top"] * r, 1.0)
+        out[hand] = (V((CLIMB_HAND["x"] * s, CLIMB["grip_y"] - CLIMB_HAND["lift"] * back, z)) + CLIMB_HAND["wrist"], back)
+        z, back = climb_limb(p + CLIMB_PHASE[foot], CLIMB_FOOT["top"] * r, 1.0)
+        droop = back * smoothstep(0.0, 0.12, z - (CLIMB_FOOT["top"] - CLIMB["rungs"] / 2) * r)  # toes droop once off the rung
+        out[foot] = (V((CLIMB_FOOT["x"] * s, CLIMB["grip_y"] - CLIMB_FOOT["back"] - CLIMB_FOOT["lift"] * back, z + ankle_lift)), droop)
+    return out
+
+
+def two_bone(rig, upper, lower, target, pole):
+    """Analytic two-bone IK: aim upper at the joint (bent towards pole, a direction) and lower at target."""
+    bpy.context.view_layer.update()
+    pu, pl = rig.pose.bones[upper], rig.pose.bones[lower]
+    a, l1, l2 = pu.head.copy(), pu.bone.length, pl.bone.length
+    d = target - a
+    dist = min(max(d.length, abs(l1 - l2) + 1e-3), l1 + l2 - 1e-4)
+    dn = d.normalized()
+    x = (l1 * l1 + dist * dist - l2 * l2) / (2 * dist)
+    side = (pole - dn * pole.dot(dn)).normalized()
+    aim(rig, upper, a + dn * x + side * math.sqrt(max(l1 * l1 - x * x, 0.0)))
+    aim(rig, lower, target)
+
+
+def climb_pose(p):
+    """FK trunk of the climb at phase p: stiff, leaning a little into the ladder, the head cocked up towards it and
+    jerking towards the reaching hand."""
+    w = 2 * math.pi * p
+    q = pose({}, pelvis=(-4, 0, 3 * math.sin(w)), spine=(-3, 0, -1.5 * math.sin(w)), chest=(-4, 0, -2 * math.sin(w)),
+             neck=(4, 0, 0), head=(10, 5, 8 * math.cos(w)))
+    q["root_loc"] = (0, 0, -CLIMB["drop"])
+    return q
+
+
+def build_climb(rig, obj, act, skip):
+    """Key every frame: FK trunk, IK hands and feet on the rungs; frame N = frame 0."""
+    scene = bpy.context.scene
+    n = FRAMES["mummy_climb"]
+    rig.location = (0, REF["rig_y"], 0)
+    set_pose(rig, {})
+    bpy.context.view_layer.update()
+    ankle_lift = rig.pose.bones["foot.R"].head.z - lowest(obj, skip)  # ankle over the sole, rest pose
+    for f in range(n + 1):
+        p = f / n
+        set_pose(rig, climb_pose(p))
+        for name, (target, back) in climb_targets(p, ankle_lift).items():
+            s = 1 if name.endswith(".R") else -1
+            if name.startswith("hand"):
+                two_bone(rig, side_name("upperarm", s), side_name("forearm", s), target, CLIMB_POLE["forearm"] * V((s, 1, 1)))
+                d = CLIMB_HAND["dir"].lerp(V((0, 0.2, -1)), back)  # the claw hooks over the rung, hangs while reaching
+                aim(rig, name, target + d)
+            else:
+                two_bone(rig, side_name("thigh", s), side_name("shin", s), target, CLIMB_POLE["shin"] * V((s, 1, 1)))
+                aim(rig, name, target + V((0.002 * s, 0.16, -0.055 - 0.08 * back)))  # sole level on the rung, toes droop
+        for pb in rig.pose.bones:
+            if is_strip(pb.name):
+                continue
+            pb.keyframe_insert("rotation_euler", frame=f)
+            if pb.name == "root":
+                pb.keyframe_insert("location", frame=f)
+                pb.keyframe_insert("scale", frame=f)
+    scene.frame_set(0)
+    r, R, H = rung(), CLIMB["rungs"] * rung(), REF["H"]
+    G = CLIMB["grip_y"] + REF["rig_y"]  # model space
+    print("mummy climb: frames {}, tile {:.4f} m, rung {:.4f} m, R {:.4f} m ({} rungs), G {:.4f}, C {:.4f}, H {:.4f}, S_ref {:.4f}".format(
+        n, TILE * U["m"], r, R, CLIMB["rungs"], G, REF["C"], H, REF["S"]))
+    print("mummy climb: climbRise = {:.4f}, climbGrip = {:.4f}, frame 0 lowest {:.4f} m".format(R / H, (G - REF["C"]) / H, lowest(obj)))
+
+
 # ---------------------------------------------------------------- strip simulation
 
 
@@ -823,6 +927,7 @@ def make_actions(rig, obj):
     lo, hi = bbox(obj)
     H = max(hi - lo)
     U["m"] = H / SCALE
+    REF.update(H=hi.z - lo.z, S=H, C=(lo.y + hi.y) / 2, rig_y=rig.location.y)
     walk0 = walk_pose(0.0)
     walk0["root_loc"] = tuple(rig.pose.bones["root"].location)
     print("mummy: walk frame 0 {:.3f} x {:.3f} x {:.3f} m, H = {:.3f} m, 1 world unit = {:.4f} m".format(*(hi - lo), H, U["m"]))
@@ -863,6 +968,12 @@ def make_actions(rig, obj):
     act = acts["mummy_rise"] = new_action(rig, "mummy_rise")
     build_rise(rig, obj, act, idle0, walk0, skip)
     simulate_strips(rig, act, n, shift=lambda f: -slide(f), coffin=True, blend_to=(19, walk_strips[0]), state=state, start=idle_strips[0])
+
+    n = FRAMES["mummy_climb"]
+    act = acts["mummy_climb"] = new_action(rig, "mummy_climb")
+    build_climb(rig, obj, act, skip)
+    make_cyclic(rig, act)
+    simulate_strips(rig, act, n, cycles=3)
     return acts
 
 
@@ -1005,5 +1116,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     if "--export" in args:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "mummy.blend"))
+    if "--export-climb" in args:  # only mummy_climb.md3 (the UVs do not need the bake)
+        common.export_files(bpy.data.objects["mummy_new"], bpy.data.objects["mummy_rig"], "mummy", [c for c in CLIPS if c[0] == "mummy_climb"], "monsters")
     if "--coffin-check" in args:
         coffin_check(args[args.index("--coffin-check") + 1])

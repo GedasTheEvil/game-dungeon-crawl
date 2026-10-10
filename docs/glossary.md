@@ -49,7 +49,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
 | charge | | a rush along its row through the player after a wind-up (Sobek) | `Charge`, `MonsterKind::charges` |
-| climber | | (planned, [monster-climbers](plan/monster-climbers.draft.md)) a monster that follows the player up and down ladders | |
+| climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |
 | courage | | whether a monster sets foot on a trap: coward or reckless | `Courage` |
 | coward | | afraid of traps: a walker stops at their edge, a walk-jumper leaps over them | `Courage::Coward` |

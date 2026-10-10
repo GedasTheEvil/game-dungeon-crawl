@@ -1,6 +1,6 @@
 # Monsters that climb ladders
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user: climbers, monsters that use ladders as well.
+Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test. From the user: climbers, monsters that use ladders as well.
 
 ## Today
 
@@ -46,3 +46,29 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
   the player's cell changes, not every tick.
 * Tests: unit tests on the sim harness (a climber follows up and down; a non-climber stops at the foot; a giant rat
   plans a jump; it gives up past the cap).
+
+## Implemented (2026-10-10)
+
+* `MonsterKind::climbs` on the rat, giant rat, scorpion, giant scorpion, scorpion queen, mummy, Anubis and Anubis boss.
+  The checker scores them x1.05 (`CLIMBER_THREAT_FACTOR`, `monsterThreat`); `./levelcheck levels/lvl*` has no warnings.
+* Path: `ClimbMap` (`src/world/climb_path.h`, level lib): steps on the level's cells from the player's cell, walks along
+  floors, rungs, a walk-jumper's leaps (`walkerBlockedAt`, `leapLandingAt`, shared with `Dungeon::walkerBlocked`). Cap
+  `CLIMB_PATH_MAX` 20. Built each AI step of a following climber (cheap: one grid), not cached on the player's cell.
+* AI (`Dungeon::followPath`): an alerted climber follows the path while the player is off its row or out of its reach
+  along it; on its row and in reach, the walker's rules as before. It walks to the ladder's middle, climbs to where the
+  path leaves the ladder (`climbEnd`), and a climb once started runs to its end. Without a way it heads for the
+  player's last cell, and gives up after `CLIMB_GIVE_UP_MS` (5 s): the walker's rules, so it stays.
+* On the rungs no bite and no spit. Climb speed 80% of the walk (`CLIMB_SPEED_FACTOR`), a boss 100%
+  (`BOSS_CLIMB_SPEED_FACTOR`; the scorpion queen walks slower than her kin, so "faster" is relative to her own walk).
+* Killed on the rungs it drops down the shaft to the floor (`DropTo`, `CLIMBER_FALL_STEP`).
+* A monster's row is now its current row (`Row`); its spawn tile row is `SpawnRow` (slain marks, respawn check).
+* Journal: a new move, "Follows me up and down the ladders." (`CreatureMove::Climb`).
+* Clips: `<model>_climb.md3` for the rat, scorpion, mummy and Anubis ([remodeling](../remodeling.md)). Back to the camera,
+  drawn so the grip meets the ladder's rails (`LADDER_RAIL_Z`, `climbGrip`), the frame from the height
+  (`climbRise`, as the player's). The giant kin and the bosses share them at their bigger scale, so their paws miss
+  the rungs.
+* Tests: `tests/unit/climb_test.cpp` (the path, up, down, a non-climber stays, a giant rat leaps on its way, giving up,
+  killed on the rungs), `tests/scenarios/climber.txt` (each climber's clip on the ladder).
+
+To watch in play: the Anubis climbs about 1 tile a second, so its clip runs about 6 cycles a second; the mummy climbs
+very slowly (0.1 tile a second).

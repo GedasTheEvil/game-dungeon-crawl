@@ -23,7 +23,7 @@ player cannot attack while climbing a ladder.
 * **Mid-swing:** a swing or draw already under way when the player grabs the ladder finishes (and can hit). Only new
   attacks are refused.
 * **Feedback:** the status line "Hands on the rungs", once per press: a held key does not repeat it.
-* **Everyone:** the rule holds for monsters too, once they climb ([monster-climbers](monster-climbers.draft.md)).
+* **Everyone:** the rule holds for monsters too, once they climb ([monster-climbers](monster-climbers.md)).
 * **Ladder tops:** accepted. A monster waiting at the top gets the first hits; the player climbs down or waits. No
   checker rule, no change to the monsters.
 

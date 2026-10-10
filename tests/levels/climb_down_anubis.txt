@@ -1,0 +1,7 @@
+; Two floors joined by a ladder (col 6), a anubis on the upper floor (col 8): it follows the player down the ladder, the
+; camera on the lower floor sees its climb clip (tests/scenarios/climber.txt).
+####################
+#S....H.n......E...#
+######H#############
+#.....H............#
+####################

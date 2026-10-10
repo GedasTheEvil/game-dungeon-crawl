@@ -1,9 +1,9 @@
 """Procedural Egyptian deathstalker scorpion (Leiurus quinquestriatus): mesh, rig, baked texture and the .md3
-animations (walk, attack, die).
+animations (walk, attack, die, climb).
 
     MCP:  p = ".../tools/blender/models/scorpion.py"; g = {"__file__": p, "__name__": "scorpion"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/scorpion.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/scorpion.py -- [--export | --export-climb]
 
 Two textures share one UV layout: scorpion.png (straw, the deathstalker) and scorpion_giant.png (black-brown, a
 carnelian sheen on the claws and the tail). Set SCORPION_TEX=giant to show the giant texture on the built object.
@@ -38,7 +38,8 @@ importlib.reload(common)
 from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "scorpion_new"
-CLIPS = [("scorpion_walk", "", 24), ("scorpion_attack", "_att", 24), ("scorpion_die", "_die", 30)]
+CLIMB = ("scorpion_climb", "_climb", 24)
+CLIPS = [("scorpion_walk", "", 24), ("scorpion_attack", "_att", 24), ("scorpion_die", "_die", 30), CLIMB]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0.25, 0.4), "ortho": 2.5, "res": (560, 380)}
 
@@ -102,6 +103,7 @@ TAIL_REST = [58, 104, 146, 178, 208, 238]
 TAIL_STRIKE = [105, 140, 172, 196, 214, 238]
 TAIL_COCK = [-14, -10, -6, 0, 6, 12]  # added per unit of tcock: base leans back, tip curls in
 TAIL_LIMP = [12, 6, 10, 18, 30, 50]
+TAIL_CLIMB = [40, 85, 125, 160, 195, 225]  # climbing (body pitched up): hangs from the body, curls up on the camera side
 FOOT_Z = 0.045  # ankle height above the floor
 PALP_HIP = 0.125, 0.50, 0.165
 PALP_A, PALP_B, HAND_LEN, FINGER_LEN = 0.28, 0.29, 0.19, 0.21
@@ -446,7 +448,7 @@ def build_rig(coll, tail):
 
 REST = dict(x=0.0, y=0.0, z=0.0, pitch=0.0, roll=0.0, yaw=0.0, flex=0.0,
             preach=0.0, pspread=0.0, pup=0.0, popen=0.0, pyaw=0.0, plimp=0.0,
-            strike=0.0, tcock=0.0, tlimp=0.0, tflop=0.0, tsway=0.0, tphase=0.0, tbob=0.0,
+            strike=0.0, tcock=0.0, tlimp=0.0, tflop=0.0, tsway=0.0, tphase=0.0, tbob=0.0, tclimb=0.0,
             plant=1.0, curl=0.0, flail=0.0, fphase=0.0)
 STRIDE, STEP_H, CYCLES = 0.13, 0.07, 2  # gait cycles per walk clip
 
@@ -505,6 +507,7 @@ def tail_angles(p):
         e = TAIL_REST[k] + (TAIL_STRIKE[k] - TAIL_REST[k]) * p["strike"]
         e += TAIL_COCK[k] * p["tcock"] + p["tbob"] * (0.4 + 0.6 * k / (NT - 1))
         e += (TAIL_LIMP[k] - e) * p["tlimp"]
+        e += (TAIL_CLIMB[k] - e) * p["tclimb"]
         yaw = p["tsway"] * math.sin(2 * math.pi * (p["tphase"] - 0.07 * k)) * (0.3 + 0.7 * k / (NT - 1))
         out.append((e, yaw))
     return out
@@ -523,7 +526,7 @@ def tail_points(Ms, p):
         seg = TAIL_LEN[k]
         nxt = pts[-1] + d * seg
         floor = TAIL_R[k] * 1.05 + 0.004
-        if nxt.z < floor:
+        if nxt.z < floor and not p["tclimb"]:  # climbing, the body is held above the floor by the ladder
             dz = floor - pts[-1].z
             h = V((d.x, d.y, 0))
             h = h.normalized() if h.length > 1e-4 else V((0, -1, 0))
@@ -540,16 +543,19 @@ def palp_mats(rest, p, T, s, mats):
     hip0, wrist0, bend0, hdir0 = palp_rest(s)
     elbow0, normal0, wrist0 = solve_leg(hip0, wrist0, PALP_A, PALP_B, bend0)
     R = T.to_3x3()
-    limp = V((0.2 * s, 0.70, 0.08))
-    w_body = wrist0 + V((p["pspread"] * s, p["preach"], p["pup"]))
-    w_body = w_body.lerp(limp, p["plimp"])
-    target = T @ w_body
+    if "palps" in p:  # climbing: wrist target and hand direction in armature space, the claw's fingers above and below a rung
+        target, hd_arm, x_hint = p["palps"][s]
+    else:
+        limp = V((0.2 * s, 0.70, 0.08))
+        w_body = wrist0 + V((p["pspread"] * s, p["preach"], p["pup"]))
+        w_body = w_body.lerp(limp, p["plimp"])
+        target = T @ w_body
+        hd_arm, x_hint = R @ (euler(45 * p["pup"] - 20 * p["plimp"], 0, p["pyaw"] * s) @ hdir0), R @ UP
     hip = T @ hip0
     elbow, normal, wrist = solve_leg(hip, target, PALP_A, PALP_B, R @ bend0)
     mats["pfemur" + sfx] = frame(hip, elbow - hip, normal) @ frame(hip0, elbow0 - hip0, normal0).inverted() @ rest["pfemur" + sfx]
     mats["ppatella" + sfx] = frame(elbow, wrist - elbow, normal) @ frame(elbow0, wrist0 - elbow0, normal0).inverted() @ rest["ppatella" + sfx]
-    hd = euler(45 * p["pup"] - 20 * p["plimp"], 0, p["pyaw"] * s) @ hdir0
-    H = frame(wrist, R @ hd, R @ UP) @ frame(wrist0, hdir0, UP).inverted()
+    H = frame(wrist, hd_arm, x_hint) @ frame(wrist0, hdir0, UP).inverted()
     mats["phand" + sfx] = H @ rest["phand" + sfx]
     hinge0 = rest["pfinger" + sfx].translation
     mats["pfinger" + sfx] = H @ rot_about(hinge0, Matrix.Rotation(math.radians(-s * p["popen"]), 3, UP)) @ rest["pfinger" + sfx]
@@ -573,6 +579,8 @@ def pose_matrices(rest, p):
         body_td = R @ td0
         hang = (body_td + (foot - knee).normalized() * 0.8).normalized()
         planted = flat(body_td) * math.sqrt(1 - td0.z * td0.z) + V((0, 0, td0.z))
+        if "tdirs" in p:  # climbing: the tarsus hooks onto the rung
+            planted = p["tdirs"][n]
         td = planted.lerp(hang, min(1.0, swing * 1.5)).normalized()
         mats["tarsus" + n] = frame(foot, td, normal) @ frame(foot0, td0, normal0).inverted() @ rest["tarsus" + n]
     for s in (1, -1):
@@ -606,16 +614,26 @@ class Skin:
             z += self.W[:, j] * (self.P @ row)
         return float(z.min())
 
+    def points(self, mats, rows=(0, 1, 2)):
+        """Skinned vertex coordinates (the given axes) for pose matrices mats."""
+        np = self.np
+        out = np.zeros((len(self.P), len(rows)))
+        for j, n in enumerate(self.bones):
+            m = np.array(mats[n] @ self.inv[n])[list(rows)]
+            out += self.W[:, j : j + 1] * (self.P @ m.T)
+        return out
+
 
 STING = {}  # frame -> sting tip (armature space), filled while keying the attack
 
 
-def key_frame(rig, skins, p, frame_no, record=None):
+def frame_mats(rig, skins, p, lift=None):
+    """Armature-space matrices of every bone: floor-fixed, or raised by a fixed lift (the climb holds its height)."""
     skin, full = skins
     bones = rig.data.bones
     rest = {b.name: b.matrix_local.copy() for b in bones}
     mats, Ms = pose_matrices(rest, p)
-    S = Matrix.Translation(V((0, 0, -skin.lowest(mats))))
+    S = Matrix.Translation(V((0, 0, -skin.lowest(mats) if lift is None else lift)))
     mats = {n: S @ m for n, m in mats.items()}
     pts, xh = tail_points(S @ Ms, p)
     for k in range(NT):
@@ -623,9 +641,15 @@ def key_frame(rig, skins, p, frame_no, record=None):
         h0, t0 = bones[n].head_local, bones[n].tail_local
         mats[n] = frame(pts[k], pts[k + 1] - pts[k], xh) @ frame(h0, t0 - h0, X).inverted() @ rest[n]
     low = full.lowest(mats)
-    if low < 0:  # the sting (beyond the last tail joint) would dip below the floor: lift everything
+    if low < 0 and lift is None:  # the sting (beyond the last tail joint) would dip below the floor: lift everything
         S = Matrix.Translation(V((0, 0, -low)))
         mats = {n: S @ m for n, m in mats.items()}
+    return mats, rest
+
+
+def key_frame(rig, skins, p, frame_no, record=None, lift=None):
+    bones = rig.data.bones
+    mats, rest = frame_mats(rig, skins, p, lift)
     if record is not None:
         record[frame_no] = (mats["tail5"] @ rest["tail5"].inverted() @ STING_REST, mats["body"] @ rest["body"].inverted() @ V((0, 0.565, 0.16)))
     for b in bones:
@@ -682,10 +706,89 @@ DIE = [
 ]
 
 
+# Climbing a ladder (scorpion_climb.md3). The engine draws it at rotA + 180, so +Y points at the ladder and the back
+# faces the camera. It sets the frame from the climb height (one cycle per CLIMB_RUNGS rungs; the clock does not advance
+# it) and lifts the body, so here the body holds its height and a gripping tarsus slides down at the climb rate.
+# Alternating tetrapods as in the walk: one tetrapod grips and pulls (half a cycle, one rung) while the other swings
+# up one rung, off the ladder. The claws take turns pinching a rung above. Ladder sizes (rails at x = +-0.1 tile, a hold
+# every tile / 12) come from the walk's frame 0, which the engine scales to the kind's size (scorpion 15 units = 0.375 tile).
+CLIMB_SCALE = 15  # the scorpion's kind scale (world units, 40 = 1 tile); the giant and the queen share the clip
+CLIMB_RUNGS = 2  # rungs climbed per cycle (R)
+CLIMB_PITCH = 78  # body pitched head-up, the belly towards the ladder
+CLIMB_GRIP_Y = 0.50  # G: the ladder plane, where the tarsi and the claws grip
+CLIMB_OFF = 0.13  # a swinging tarsus comes this far off the ladder
+# Per leg: x of the grip, the wanted top of its stroke in the body's height (before the lift); snapped to a rung.
+CLIMB_LEGS = {"1": (0.40, 0.80), "2": (0.50, 0.36), "3": (0.58, 0.30), "4": (0.46, -0.10)}
+CLIMB_PALP = (0.20, 1.15)  # x of the claw's grip, its wanted top
+CLIMB_HAND = V((0, 0.45, 0.9)).normalized()  # claw direction while gripping: up, towards the ladder
+CLIMB_PINCH = HAND_LEN + 0.08  # wrist -> the rung between the fingers
+CLIMB_REF = {}  # walk frame 0 sizes, the ladder in authored units, the lift; filled by climb_setup
+
+
+def climb_stroke(u):
+    """Stroke position (1 = top, 0 = bottom) and lift at phase u: grip and pull down at the climb rate, swing up."""
+    u %= 1.0
+    if u < 0.5:
+        return 1 - u / 0.5, 0.0  # linear: the ladder rises at a constant rate against the body
+    k = (u - 0.5) / 0.5
+    return smoothstep(0, 1, k), math.sin(math.pi * k)
+
+
+def climb_params(t, ref):
+    """Pose at climb phase t; foot and wrist targets in armature space before the lift (ref["lift"])."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    p.update(pitch=CLIMB_PITCH + 0.8 * math.sin(2 * w), roll=2.5 * math.sin(w), yaw=2.0 * math.cos(w), flex=-3 + 2 * math.sin(2 * w),
+             tclimb=1.0, tsway=6, tphase=t, tbob=2.5 * math.sin(2 * w))
+    lift, rung, tops = ref["lift"], ref["rung"], ref["tops"]
+    feet, tdirs = {}, {}
+    for leg in LEGS:
+        n, s = leg["name"], leg["s"]
+        x, _ = CLIMB_LEGS[n[0]]
+        k, up = climb_stroke(t + leg["phase"])
+        tip = V((x * s, CLIMB_GRIP_Y - CLIMB_OFF * up, tops[n[0]] - rung + rung * k - lift))
+        td = V((0.25 * s, 1, -0.45)).normalized()
+        feet[n] = (tip - td * leg["tlen"], up)
+        tdirs[n] = td
+    p["feet"], p["tdirs"] = feet, tdirs
+    palps, popen = {}, []
+    for s, phase in ((1, 0.0), (-1, 0.5)):  # the right claw grips with L1 R2 L3 R4
+        k, up = climb_stroke(t + phase)
+        pinch = V((CLIMB_PALP[0] * s, CLIMB_GRIP_Y - 0.12 * up, tops["p"] - rung + rung * k - lift))
+        hd = (CLIMB_HAND + V((0.15 * s, -0.3, 0)) * up).normalized()
+        palps[s] = (pinch - hd * CLIMB_PINCH, hd, X)
+        popen.append(40 * up)
+    p["palps"], p["popen"] = palps, max(popen)  # one movable-finger angle for both claws: the swinging claw's
+    return p
+
+
+def climb_setup(rig, skins):
+    """Walk frame 0 sizes, the ladder in authored units, the lift (frame 0's lowest point on the floor) and the rungs."""
+    full = skins[1]
+    pts = full.points(frame_mats(rig, skins, walk_params(0.0))[0])
+    lo, hi = pts.min(axis=0), pts.max(axis=0)
+    size = float(max(hi - lo))
+    tile = 40 * size / CLIMB_SCALE
+    ref = dict(S=size, H=float(hi[2] - lo[2]), C=float(lo[1] + hi[1]) / 2, tile=tile, rung=tile / 12, R=CLIMB_RUNGS * tile / 12, lift=0.75)
+    rung = ref["rung"]
+    def lowest(f):
+        return full.lowest(frame_mats(rig, skins, climb_params(f / CLIMB[2], ref), ref["lift"])[0])
+
+    for _ in range(5):  # the tops snap to holds ((k + 0.5) rungs above the floor), the lift puts the clip's lowest point on it
+        tops = {n: top for n, (_, top) in CLIMB_LEGS.items()}
+        tops["p"] = CLIMB_PALP[1]
+        ref["tops"] = {n: (round((top + ref["lift"]) / rung - 0.5) + 0.5) * rung for n, top in tops.items()}
+        ref["lift"] -= min(lowest(f) for f in range(0, CLIMB[2], 2))
+    ref["low"] = lowest(0)
+    CLIMB_REF.update(ref)
+    return ref
+
+
 def make_actions(rig, skin):
     rig.animation_data_create()
     acts = {}
-    for name, suffix, frames in CLIPS:
+    # The climb is keyed first: keyed last it shifted the other clips' export by ~5e-5 (they stay byte-identical this way).
+    for name, suffix, frames in sorted(CLIPS, key=lambda c: c != CLIMB):
         act = bpy.data.actions.get(name)
         if act:
             bpy.data.actions.remove(act)
@@ -693,6 +796,12 @@ def make_actions(rig, skin):
         act.use_fake_user = True
         rig.animation_data.action = act
         last = frames if name != "scorpion_die" else frames - 1  # loops key frame N = frame 0
+        if name == CLIMB[0]:
+            ref = climb_setup(rig, skin)
+            for f in range(last + 1):
+                key_frame(rig, skin, climb_params(f / frames, ref), f, lift=ref["lift"])
+            acts[name] = act
+            continue
         for f in range(last + 1):
             if name == "scorpion_walk":
                 p = walk_params(f / frames)
@@ -752,7 +861,46 @@ def build(bake=True, tex_path=None, giant_path=None):
     for f in sorted(STING):
         tip, front = STING[f]
         print("sting f{:02d}: tip y {:.3f} z {:.3f} (carapace front y {:.3f})".format(f, tip.y, tip.z, front.y))
+    print_climb(rig)
+    if os.environ.get("SCORPION_LADDER"):
+        ladder_standin(coll)
     return obj, rig
+
+
+def print_climb(rig):
+    r = CLIMB_REF
+    print("climb: walk frame 0 S_ref {S:.4f} H {H:.4f} C {C:.4f}; tile {tile:.4f}, rung {rung:.4f}, R {R:.4f} ({n} rungs), G {G:.3f}, "
+          "lift {lift:.4f} (frame 0 lowest {low:+.4f}), {frames} frames".format(n=CLIMB_RUNGS, G=CLIMB_GRIP_Y, frames=CLIMB[2], **r))
+    print("climb: climbRise = R / H = {:.4f}, climbGrip = (G - C) / H = {:.4f}".format(r["R"] / r["H"], (CLIMB_GRIP_Y - r["C"]) / r["H"]))
+    print("climb: grip tops " + " ".join("{} {:.3f}".format(n, z) for n, z in sorted(r["tops"].items())))
+    # How far each IK chain falls short of its target over the clip.
+    short = {}
+    for f in range(CLIMB[2]):
+        p = climb_params(f / CLIMB[2], r)
+        for leg in LEGS:
+            target = p["feet"][leg["name"]][0]
+            T = body_mats(p)[0]
+            d = (target - T @ leg["hip"]).length - (leg["a"] + leg["b"]) * 0.999
+            short[leg["name"]] = max(short.get(leg["name"], 0.0), d)
+        for s in (1, -1):
+            d = (p["palps"][s][0] - body_mats(p)[0] @ V((PALP_HIP[0] * s, PALP_HIP[1], PALP_HIP[2]))).length - (PALP_A + PALP_B) * 0.999
+            short["palp%+d" % s] = max(short.get("palp%+d" % s, 0.0), d)
+    print("climb: IK short of target (max, <= 0 reaches) " + " ".join("{} {:+.3f}".format(n, d) for n, d in sorted(short.items())))
+
+
+def ladder_standin(coll):
+    """Review only (SCORPION_LADDER=1): rails at x = +-0.1 tile and a rung every tile / 12 in the plane y = G."""
+    r = CLIMB_REF
+    b = Builder()
+    mat = common.make_material("scorpion_ladder", ("solid", "rim"), COL)
+    for s in (1, -1):
+        b.add(tube([((0.1 * r["tile"] * s, CLIMB_GRIP_Y + 0.03, -0.1), 0.025, 0.025), ((0.1 * r["tile"] * s, CLIMB_GRIP_Y + 0.03, 2.6), 0.025, 0.025)], n=8, ref=FWD), mat, "body")
+    k = 0
+    while (k + 0.5) * r["rung"] < 2.6:
+        z = (k + 0.5) * r["rung"]
+        b.add(tube([((-0.1 * r["tile"], CLIMB_GRIP_Y + 0.01, z), 0.018, 0.018), ((0.1 * r["tile"], CLIMB_GRIP_Y + 0.01, z), 0.018, 0.018)], n=8, ref=UP), mat, "body")
+        k += 1
+    common.finish_mesh(b, coll, "scorpion_ladder")
 
 
 def export(models_dir=None):
@@ -765,6 +913,9 @@ if __name__ == "__main__" and "--" in sys.argv:
         obj, _ = build(bake=False)
         materials(COL_QUEEN)
         common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "scorpion_queen.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
+    elif "--export-climb" in args:  # the climb clip alone (no texture bake)
+        build(bake=False)
+        common.export_files(bpy.data.objects["scorpion_new"], bpy.data.objects["scorpion_rig"], "scorpion", [CLIMB], "monsters")
     elif "--export" in args:
         tex_dir = os.path.join(REPO, "textures", "monsters")
         build(tex_path=os.path.join(tex_dir, "scorpion.png"), giant_path=os.path.join(tex_dir, "scorpion_giant.png"))

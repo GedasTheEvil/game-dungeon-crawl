@@ -1,7 +1,7 @@
 # Anubis guard walks faster
 
 Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemented-2026-10-10)). From the user: the Anubis guard walks 20% faster than the
-player's normal walk. Before [monster-climbers](monster-climbers.draft.md).
+player's normal walk. Before [monster-climbers](monster-climbers.md).
 
 ## Today
 

@@ -3,7 +3,8 @@
 Everything is generated from code, so this file is the model source. Run in Blender 5:
     MCP:  p = ".../tools/blender/models/anubis.py"; g = {"__file__": p, "__name__": "anubis"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]() to write game files
-    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--boss-texture]
+    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--export-climb] [--boss-texture]
+          (--export-climb writes only anubis_climb.md3; ANUBIS_LADDER=1 adds a ladder stand-in for review renders)
 
 Blender space: Z up, the model faces +Y, its right side is +X. Units are metres (~2 m tall);
 the engine rescales by the largest dimension, so only proportions matter.
@@ -19,6 +20,7 @@ import sys
 import importlib
 
 import bpy
+from mathutils import Matrix
 from mathutils import Vector as V
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +31,8 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, loft, smoothstep, transform, tube  # noqa: E402
 COLL = "anubis_new"
 FRAMES = 26  # frames per animation file; engine plays ~14 fps
+CLIMB = ("anubis_climb", "_climb", 24)
+CLIPS = [("anubis_walk", "", FRAMES), ("anubis_attack", "_att", FRAMES), ("anubis_die", "_die", FRAMES), CLIMB]
 TEX_SIZE = 1024
 
 # Linear-space colours.
@@ -339,6 +343,8 @@ def build_props(b, M, rig):
 
     # Was-sceptre, vertical through the right fist.
     p = fist_centre(1)
+    pb = rig.pose.bones["hand.R"]
+    STAFF["hook"] = ((pb.bone.matrix_local @ pb.matrix.inverted()).to_3x3() @ V((0, 1, 0))).normalized()  # rest space
     bottom, top = 0.05, 1.90
     STAFF["grip"] = p.z - bottom
     staff_head = to_rest("hand.R", ([p, p + V((0, 0, 0.3))], [], []))[0]
@@ -375,7 +381,7 @@ READY = {
 }
 
 
-STAFF = {"grip": 0.9}  # distance from sceptre bottom to the fist, set by build_props
+STAFF = {"grip": 0.9, "hook": V((0, 1, 0))}  # sceptre bottom -> fist distance and rest-space hook direction (build_props)
 
 
 def pose(base=READY, **bones):
@@ -542,7 +548,230 @@ def drop_staff(rig):
         pb.keyframe_insert("location", frame=f)
 
 
-def make_actions(rig):
+# ---------------------------------------------------------------- climb
+# Climbing a ladder: hands and feet on IK targets (empties parented to the rig, rig space: the ladder is at +Y), the
+# root at a fixed height. The engine draws it turned 180 (back to the camera) and sets the frame from the climb height,
+# one cycle per CLIMB_RISE; a gripping hand or foot slides down by exactly that per cycle, so it holds still on the
+# ladder while the engine lifts the body. Diagonal gait: the right hand reaches with the left foot.
+# Ladder (ladder.py): rails at x = +-0.1 tile, holds every tile / 12, the lowest half a hold up. The clip is fitted
+# to the Anubis guard (kind scale 19, 1 tile = 40 world units, the walk frame 0's largest extent = 1 kind scale).
+GUARD_SCALE, TILE_WORLD, RUNGS = 19.0, 40.0, 12
+CLIMB_RISE_RUNGS = 2  # rise per cycle in holds (even: both hands land on holds)
+CLIMB_DUTY = 0.6  # share of the cycle a hand or foot grips (> 0.5: both hands hold for a moment)
+CLIMB_GRIP_Y = 0.30  # fist centres close round the rungs in this plane (m in front of the root)
+CLIMB_HAND = {"x": 0.30, "reach": 1.86, "lift": 0.09}  # fist height at the top of the stroke (arm nearly straight)
+CLIMB_FOOT = {"x": 0.14, "y": CLIMB_GRIP_Y - 0.13, "lift": 0.08}
+CLIMB_ROOT_Z = -0.04
+# Limb phase at frame 0. foot.R ends its grip at frame 0 (its lowest: on the floor); the hands' phase is set by
+# climb_layout so that they reach CLIMB_HAND["reach"] and grip on holds; each hand leads the opposite foot.
+CLIMB_PHASE = {"foot.L": 0.1, "foot.R": 0.6}
+# IK bone: (target, pole position, pole angle): elbows out and back, knees forward and out.
+IK_CHAINS = {"forearm": ("hand", (0.75, -0.25, 1.0), -90), "shin": ("foot", (0.8, 0.45, 0.6), 90)}
+CLIMB_LAYOUT = {}  # measured from walk frame 0 by climb_layout
+
+
+def build_ik(rig, coll):
+    """IK targets and poles for the climb; every action keys the IK influence (1 in the climb, 0 elsewhere)."""
+    for s in (1, -1):
+        for bone, (target, pole, pole_angle) in IK_CHAINS.items():
+            empties = []
+            for kind in ("target", "pole"):
+                name = "anubis_ik_{}_{}".format(side_name(target if kind == "target" else bone, s), kind)
+                e = bpy.data.objects.get(name) or bpy.data.objects.new(name, None)
+                if e.name not in coll.objects:
+                    coll.objects.link(e)
+                e.parent = rig
+                e.empty_display_size = 0.05
+                empties.append(e)
+            empties[1].location = (pole[0] * s, pole[1], pole[2])
+            pb = rig.pose.bones[side_name(bone, s)]
+            con = pb.constraints.get("IK") or pb.constraints.new("IK")
+            con.target, con.pole_target = empties
+            con.pole_angle = math.radians(pole_angle)
+            con.chain_count = 2
+            con.use_tail = True
+
+
+def key_ik(rig, on):
+    for pb in rig.pose.bones:
+        for con in pb.constraints:
+            if con.type == "IK":
+                con.influence = 1.0 if on else 0.0
+                con.keyframe_insert("influence", frame=0)
+
+
+def evaluated_coords(obj):
+    ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    return [ev.matrix_world @ v.co for v in ev.data.vertices]
+
+
+def climb_layout(obj, rig, walk):
+    """Engine numbers from walk frame 0 (the reference clip), the ladder in authored units, the stroke heights."""
+    rig.animation_data.action = walk
+    bpy.context.scene.frame_set(0)
+    co = evaluated_coords(obj)
+    lo = V([min(c[i] for c in co) for i in range(3)])
+    hi = V([max(c[i] for c in co) for i in range(3)])
+    size = max(hi - lo)
+    tile = TILE_WORLD * size / GUARD_SCALE
+    rung = tile / RUNGS
+    rise = CLIMB_RISE_RUNGS * rung
+    stroke = rise * CLIMB_DUTY
+    # Holds at lo.z + (k + 0.5) * rung. A hand at phase h grips at the top of its stroke when the body has risen
+    # (1 - h) * rise, so it lands on a hold when reach - lo.z - (k + 0.5) * rung = h * rise (mod rise).
+    hand_high = CLIMB_HAND["reach"]
+    h = ((hand_high - lo.z) / rung - 0.5) / CLIMB_RISE_RUNGS % 1.0
+    CLIMB_PHASE.update({"hand.R": h, "hand.L": (h + 0.5) % 1.0})
+    # foot.R ends its grip at frame 0 with the sole on the floor (walk frame 0's lowest point).
+    foot_high = lo.z + stroke
+    CLIMB_LAYOUT.update(size=size, height=hi.z - lo.z, centre_y=(lo.y + hi.y) / 2, floor=lo.z, tile=tile, rung=rung,
+                        rise=rise, stroke=stroke, hand_high=hand_high, foot_high=foot_high)
+    return CLIMB_LAYOUT
+
+
+def climb_stroke(u, high):
+    """Height and lift (0..1) at limb phase u: grip (slide down by CLIMB_RISE per cycle), then reach up clear of the ladder.
+    The reach is a cubic that leaves and lands at the grip speed, so the limb lets go and grips without a jerk."""
+    L = CLIMB_LAYOUT
+    u %= 1.0
+    if u < CLIMB_DUTY:
+        return high - L["rise"] * u, 0.0
+    t = (u - CLIMB_DUTY) / (1 - CLIMB_DUTY)
+    m = -L["rise"] * (1 - CLIMB_DUTY)
+    low = high - L["stroke"]
+    h00, h10, h01, h11 = 2 * t**3 - 3 * t**2 + 1, t**3 - 2 * t**2 + t, -2 * t**3 + 3 * t**2, t**3 - t**2
+    return h00 * low + h10 * m + h01 * high + h11 * m, math.sin(math.pi * t)
+
+
+def climb_targets(p):
+    """Rig-space fist centres and sole points at cycle phase p, with each limb's lift (0..1)."""
+    L = CLIMB_LAYOUT
+    out = {}
+    for s in (1, -1):
+        hand, foot = side_name("hand", s), side_name("foot", s)
+        z, lift = climb_stroke(p + CLIMB_PHASE[hand], L["hand_high"])
+        out[hand] = (V((CLIMB_HAND["x"] * s, CLIMB_GRIP_Y - CLIMB_HAND["lift"] * lift, z)), lift)
+        z, lift = climb_stroke(p + CLIMB_PHASE[foot], L["foot_high"])
+        out[foot] = (V((CLIMB_FOOT["x"] * s, CLIMB_FOOT["y"] - CLIMB_FOOT["lift"] * lift, z)), lift)
+    return out
+
+
+def fist(rig, s):
+    pb = rig.pose.bones[side_name("hand", s)]
+    return pb.head + (pb.tail - pb.head).normalized() * 0.06
+
+
+def sole(rig, s):
+    """Ball of the foot on the sole, in pose space (the foot is kept flat, as at rest)."""
+    pb = rig.pose.bones[side_name("foot", s)]
+    j = joints(s)
+    rest = V((j["ankle"].x, j["ankle"].y + 0.10, 0.0))
+    return pb.matrix @ pb.bone.matrix_local.inverted() @ rest
+
+
+def staff_on_back(rig):
+    """Sceptre bone matrix for the sceptre slung diagonally across the back, following the chest."""
+
+    def frame(hook, axis):
+        y = V(axis).normalized()
+        h = (V(hook) - V(hook).dot(y) * y).normalized()
+        return Matrix((h, y, h.cross(y))).transposed()
+
+    pb = rig.pose.bones["staff"]
+    rest = pb.bone.matrix_local
+    axis = V((0.30, 0.0, 1.0)).normalized()  # top over the right shoulder, the hook pointing out to the right
+    bottom = V((-0.27, -0.13, 0.36))
+    rot = frame(V((1, 0, 0)), axis) @ frame(STAFF["hook"], rest.col[1].to_3d()).inverted()
+    placed = rot.to_4x4() @ rest  # rest -> slung, in the standing body's space
+    placed.translation = bottom + axis * STAFF["grip"]
+    chest = rig.pose.bones["chest"]
+    return chest.matrix @ chest.bone.matrix_local.inverted() @ placed
+
+
+def climb_action(rig, frames):
+    """FK part (sway, head looking up the ladder, slung sceptre), then the IK targets solved so the fist centres and
+    the soles meet climb_targets, and the feet kept flat."""
+    scene = bpy.context.scene
+    for f in range(frames + 1):
+        p = f / frames
+        w = 2 * math.pi * p
+        sway = math.sin(w)
+        q = pose({}, pelvis=(-4, 0, 3 * sway), spine=(-2, 0, -1.5 * sway), chest=(-2, 0, -2 * sway),
+                 neck=(-12, 0, 0), head=(-20, 8 * math.cos(w), 0), hand_L=(-25, 0, 0), hand_R=(-25, 0, 0))
+        q["root_loc"] = (0.02 * sway, 0.0, CLIMB_ROOT_Z + 0.01 * math.cos(2 * w))
+        key_pose(rig, q, f)
+        want = climb_targets(p % 1.0)
+        empties = {b: bpy.data.objects["anubis_ik_{}_target".format(b)] for b in want}
+        offset = {b: V((0, 0, -0.06)) if b.startswith("hand") else V((0, -0.10, 0.085)) for b in want}
+        for _ in range(8):  # the IK aims the wrist / ankle: move it until the fist centre / sole lands on the target
+            for b, (pos, lift) in want.items():
+                empties[b].location = pos + offset[b]
+                empties[b].keyframe_insert("location", frame=f)
+            scene.frame_set(f)
+            for s in (1, -1):
+                for b, got in ((side_name("hand", s), fist(rig, s)), (side_name("foot", s), sole(rig, s))):
+                    offset[b] += want[b][0] - got
+            for s in (1, -1):  # feet flat on the rungs, the toes dipping a little in the reach
+                pb = rig.pose.bones[side_name("foot", s)]
+                tilt = Matrix.Rotation(math.radians(-25 * want[side_name("foot", s)][1]), 3, "X")
+                m = (tilt @ pb.bone.matrix_local.to_3x3()).to_4x4()
+                m.translation = pb.head
+                pb.matrix = m
+                bpy.context.view_layer.update()
+                pb.keyframe_insert("rotation_euler", frame=f)
+        pb = rig.pose.bones["staff"]
+        pb.matrix = staff_on_back(rig)
+        bpy.context.view_layer.update()
+        pb.keyframe_insert("rotation_euler", frame=f)
+        pb.keyframe_insert("location", frame=f)
+
+
+def make_climb(rig, obj, walk):
+    from bpy_extras import anim_utils
+
+    name, _, frames = CLIMB
+    act = bpy.data.actions.get(name)
+    if act:
+        bpy.data.actions.remove(act)
+    L = climb_layout(obj, rig, walk)
+    act = bpy.data.actions.new(name)
+    act.use_fake_user = True
+    rig.animation_data.action = act
+    key_ik(rig, True)
+    climb_action(rig, frames)
+    bag = anim_utils.action_get_channelbag_for_slot(act, rig.animation_data.action_slot)
+    for fc in bag.fcurves:
+        fc.modifiers.new("CYCLES")
+        fc.update()
+    print("anubis climb: frames {} R {:.4f} G {:.4f} C {:.4f} H {:.4f} S_ref {:.4f} tile {:.4f} rung {:.4f}".format(
+        frames, L["rise"], CLIMB_GRIP_Y, L["centre_y"], L["height"], L["size"], L["tile"], L["rung"]))
+    print("anubis climb: climbRise {:.4f} climbGrip {:.4f}".format(L["rise"] / L["height"], (CLIMB_GRIP_Y - L["centre_y"]) / L["height"]))
+    return act
+
+
+def add_review_ladder(coll):
+    """Ladder stand-in at the grip plane (rails at x = +-0.1 tile, rungs every tile / 12), sliding down by CLIMB_RISE
+    per cycle as the engine lifts the body: gripping fists and feet should stay on it. Review renders only."""
+    L = CLIMB_LAYOUT
+    b = Builder()
+    rail_x, top = 0.1 * L["tile"], 2.6 + L["rise"]
+    M = {"wood": common.make_material("anubis_ladder", ("solid", "bronze"), COL)}
+    for s in (1, -1):
+        b.add(tube([((rail_x * s, CLIMB_GRIP_Y + 0.02, L["floor"] - L["rise"]), 0.012, 0.012), ((rail_x * s, CLIMB_GRIP_Y + 0.02, top), 0.012, 0.012)],
+                   sub=1, n=8), M["wood"], "root")
+    k = 0
+    while L["floor"] + (k + 0.5) * L["rung"] - L["rise"] < top:
+        z = L["floor"] + (k + 0.5) * L["rung"] - L["rise"]
+        b.add(tube([((-rail_x - 0.02, CLIMB_GRIP_Y, z), 0.01, 0.01), ((rail_x + 0.02, CLIMB_GRIP_Y, z), 0.01, 0.01)], sub=1, n=8), M["wood"], "root")
+        k += 1
+    lad = common.finish_mesh(b, coll, "anubis_review_ladder")
+    fc = lad.driver_add("location", 2)
+    fc.driver.type = "SCRIPTED"
+    fc.driver.expression = "-{:.6f} * frame / {}".format(L["rise"], CLIMB[2])
+    return lad
+
+
+def make_actions(rig, obj):
     from bpy_extras import anim_utils
 
     rig.animation_data_create()
@@ -554,6 +783,7 @@ def make_actions(rig):
         act = bpy.data.actions.new("anubis_" + name)
         act.use_fake_user = True
         rig.animation_data.action = act
+        key_ik(rig, False)
         for f, p in poses:
             key_pose(rig, p, f)
         if name == "die":
@@ -564,6 +794,7 @@ def make_actions(rig):
                 fc.modifiers.new("CYCLES")
                 fc.update()
         acts[name] = act
+    acts["climb"] = make_climb(rig, obj, acts["walk"])
     return acts
 
 
@@ -590,7 +821,10 @@ def build(bake=True, tex_path=None):
         tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", "anubis_preview.png"), TEX_SIZE, "anubis")
         common.use_baked_material(obj, tex)
     common.rig_object(obj, rig)
-    acts = make_actions(rig)
+    build_ik(rig, coll)
+    acts = make_actions(rig, obj)
+    if os.environ.get("ANUBIS_LADDER"):
+        add_review_ladder(coll)
     rig.animation_data.action = acts["walk"]
     scene = bpy.context.scene
     scene.frame_start, scene.frame_end = 0, FRAMES - 1
@@ -599,9 +833,8 @@ def build(bake=True, tex_path=None):
     return obj, rig
 
 
-def export(models_dir=None):
-    """Write models/monsters/anubis{,_att,_die}.md3 from the built objects."""
-    clips = [("anubis_walk", "", FRAMES), ("anubis_attack", "_att", FRAMES), ("anubis_die", "_die", FRAMES)]
+def export(models_dir=None, clips=CLIPS):
+    """Write models/monsters/anubis{,_att,_die,_climb}.md3 from the built objects."""
     common.export_files(bpy.data.objects["anubis_new"], bpy.data.objects["anubis_rig"], "anubis", clips, "monsters", models_dir)
 
 
@@ -612,6 +845,9 @@ if __name__ == "__main__" and "--" in sys.argv:
         obj, _ = build(bake=False)
         materials(COL_BOSS)
         common.bake_texture(obj, os.path.join(tex_dir, "anubis_boss.png"), TEX_SIZE, "anubis_boss")
+    elif "--export-climb" in args:
+        build(bake=False)
+        export(clips=[CLIMB])
     else:
         build(tex_path=os.path.join(tex_dir, "anubis.png") if "--export" in args else None)
     if "--export" in args:

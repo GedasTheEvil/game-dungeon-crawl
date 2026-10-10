@@ -28,6 +28,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
   `--boss-texture` bakes only `anubis_boss.png` (the Anubis boss: obsidian, carnelian and gold) on the same UV layout.
+  Climb (`anubis_climb.md3`, 24 frames, loops, back to the camera): hands and feet on IK targets, root at a fixed height, diagonal gait;
+  a gripping fist or sole slides down `CLIMB_RISE` (2 holds) per cycle, fists on holds in the plane `CLIMB_GRIP_Y`, the jackal head
+  looking up, the was-sceptre slung across the back. Prints `climbRise` / `climbGrip` for `KINDS`; `-- --export-climb` writes only
+  it; `ANUBIS_LADDER=1` adds a ladder stand-in to review renders.
 * `tools/blender/models/worm.py` - creature example: surface of revolution body, spine posed from a parametric curve
   (every frame keyed), hinged jaws, floor lift from jaw tips.
 * `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
@@ -41,6 +45,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
   (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/core/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
+  Climb (`rat_climb.md3`, 16 frames, loops, back to the camera): a bound, the hind feet push together, then the forepaws reach and
+  pull (a rung is about a hind leg's reach); body pitched 82 deg nose up, belly to the ladder (+Y); gripping paw tips on IK targets
+  slide down one rung per cycle (`CLIMB_*`, `climb_params`); the tail hangs. Prints `climbRise` / `climbGrip`; `-- --export-climb`
+  writes only it; `RAT_LADDER=1` adds a ladder stand-in.
 * `tools/blender/models/bat.py` - flying monster example: wing arm + four finger bones posed by FK deformation matrices, double-sided
   membrane grids between fingers / arm / leg with blended weights (they stretch and crumple when folding). Clips: fly (move, the
   normalization reference; body height fixed, the engine flies it), attack, die (floor-fixed every frame to fly frame 0's lowest point),
@@ -72,6 +80,9 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   idle/rise 14.4 world units towards the wall and smoothsteps that to 0 over rise t 0.3..0.75, the script adds the inverse slide to the
   root. `-- --coffin-check out_dir` builds `decor.py`'s coffin, places the dormant/rising mummy at the engine's offsets (tile units)
   and counts mummy vertices inside the coffin's walls per frame and halfway between frames, plus game/side/close renders.
+  Climb (`mummy_climb.md3`, 24 frames, loops, back to the camera): stiff diagonal gait, one cycle per 4 rungs (1/3 tile); a hand and
+  the opposite foot grip and slide down linearly while the other pair reaches; analytic two-bone IK keyed as FK (`two_bone`,
+  `climb_targets`), claws hooked over rungs 0.40 in front of the root. Prints `climbRise` / `climbGrip`; `-- --export-climb` writes only it.
 * `tools/blender/models/crocodile.py` - Nile crocodile, built like `rat.py` (faces +Y, rotA 180): one flat loft for the body
   blended over hips / chest / head bones plus a leaf `breath` bone (uniform scale about the belly, swells the flanks in the idle),
   flat-topped head with the eyes and the nostril bump raised on it, lower jaw on a hinge, interlocking teeth along the jaw line,
@@ -98,6 +109,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   darker red) on the same UVs; `SCORPION_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only
   `scorpion_queen.png` (Serket: pale gold, lapis-blue joints, rims and claw tips, a gold sting), `SCORPION_TEX=queen`. Sounds: `tools/audio/scorpion_sounds.py` (`sounds/monsters/scorpion_{att,die}.wav`: claw clacks + tail hiss and whip,
   dry chitin rattle and scraping legs).
+  Climb (`scorpion_climb.md3`, 24 frames, loops, back to the camera): body pitched 78 deg head up, belly at the ladder plane, tail
+  curled up on the camera side; the tetrapods alternate as in the walk, one grips and pulls down a rung (linear in the frame) while
+  the other swings up; the claws take turns pinching a rung above the head. One cycle per 2 rungs. Prints `climbRise` / `climbGrip`;
+  `-- --export-climb` writes only it; `SCORPION_LADDER=1` adds a ladder stand-in.
 * `tools/blender/models/egg_cluster.py` - the scorpion queen's egg cluster, a rooted "monster" (faces -Y, rotA 0; round): 19
   leathery eggs (cream-amber, a net of dark red veins) in three rings and a top pair, tilted outwards, glued with resin blobs on a
   low sand mound. Each egg is rigid on its own bone (pointing up from its centre); a resin blob is weighted half to each of its two

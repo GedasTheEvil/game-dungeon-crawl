@@ -23,3 +23,57 @@ screenshot rat_near_top_toon
 toon off
 wait 2s
 screenshot rat_on_top
+# Each climber's clip (tests/levels/climb_down_*): it follows the player down the ladder, back to the camera, the
+# grip on the rails; the camera on the lower floor sees the shaft above.
+level tests/levels/climb_down_rat
+wait 30
+walk to 6.45
+wait 2s
+walk down 1.97
+walk to 5.4
+wait 1500ms
+screenshot rat_a
+wait 1s
+screenshot rat_b
+wait 1s
+screenshot rat_c
+level tests/levels/climb_down_scorpion
+wait 30
+walk to 6.45
+wait 2s
+walk down 1.97
+walk to 5.4
+wait 1500ms
+screenshot scorpion_a
+wait 1s
+screenshot scorpion_b
+wait 1s
+screenshot scorpion_c
+level tests/levels/climb_down_anubis
+wait 30
+walk to 6.45
+wait 1s
+walk down 1.97
+walk to 5.4
+wait 1500ms
+screenshot anubis_a
+wait 1s
+screenshot anubis_b
+wait 1s
+screenshot anubis_c
+level tests/levels/climb_down_mummy
+wait 30
+walk to 7.2
+wait 6s
+walk to 6.45
+walk down 1.97
+walk to 5.4
+wait 12s
+screenshot mummy_a
+wait 1s
+screenshot mummy_b
+wait 1s
+screenshot mummy_c
+toon on
+screenshot mummy_toon
+toon off

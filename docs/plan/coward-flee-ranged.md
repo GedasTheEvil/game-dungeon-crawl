@@ -18,7 +18,7 @@ cannot reach the player, instead of going towards it, it runs away to avoid rang
 
 ## Decided (2026-10-09)
 
-* **Unreachable:** by the path search of [monster-climbers](monster-climbers.draft.md), with the monster's own
+* **Unreachable:** by the path search of [monster-climbers](monster-climbers.md), with the monster's own
   abilities: walking, planned jumps for the walk-jumpers, ladders for the climbers; an armed trap blocks a coward
   (a walk-jumper may leap it). No path within the cap = unreachable. So this comes after monster-climbers.
 * **Where to:** the nearest cell out of the player's line of fire (off the row, behind a corner). If none is near,

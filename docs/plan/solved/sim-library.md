@@ -72,7 +72,7 @@ Checks: `check_layers.sh` gets a `sim` library between level and render. `check_
   read the real model files, so no generated table to drift from the models.
 * **Order:** step 1 (`ModelInfo`) on its own: it is small and unlocks the hitbox / reach matrix and the clip tests.
   Steps 2-6 together with the first AI change that comes ([monster-balance](../monster-balance.draft.md)'s leap or
-  [monster-climbers](../monster-climbers.draft.md)). Not on its own: the split is the biggest step and pays off only
+  [monster-climbers](../monster-climbers.md)). Not on its own: the split is the biggest step and pays off only
   with a concrete AI change to test.
 * **Monster rules to unit test first:** the decisions in `entities/monster_ai.cpp`: `Seek`, `canSpit`, `canDive`,
   `canCharge`, `UpdateCharge`, `Fly`. What the rules get through the links (the map, the player's box, the random

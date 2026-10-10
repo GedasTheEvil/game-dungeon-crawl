@@ -1,9 +1,10 @@
 """Procedural tomb rat (plus the giant rat texture): mesh, rig, baked textures and the .md3 animations
-(walk, attack, die, and jump: the giant rat's leap over pits and traps, plays once, the game moves the body).
+(walk, attack, die, jump: the giant rat's leap over pits and traps, plays once, the game moves the body; and climb:
+up a ladder, loops, the frame set from the climb height).
 
     MCP:  p = ".../tools/blender/models/rat.py"; g = {"__file__": p, "__name__": "rat"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/rat.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/rat.py -- [--export | --export-climb]
 
 Blender space: Z up, the rat faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts follow one bone each; the body blends between a hips and a chest bone. Every frame
@@ -13,6 +14,7 @@ floor. The whole pose is then lifted so the lowest vertex (tail excluded, it is 
 touches the floor, computed with a numpy copy of the skinning.
 Two textures share one UV layout: rat.png (brown-grey) and rat_giant.png (near-black, mangy, red eyes).
 Set RAT_TEX=giant to show the giant texture on the built object (review renders with --bake).
+RAT_LADDER=1 adds a ladder stand-in for review renders of the climb (scrolls down with the climb height).
 """
 
 import importlib
@@ -32,7 +34,7 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "rat_new"
-CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30), ("rat_jump", "_jump", 10)]
+CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30), ("rat_jump", "_jump", 10), ("rat_climb", "_climb", 16)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, -0.3, 0.3), "ortho": 2.4, "res": (560, 340)}
 
@@ -510,15 +512,20 @@ def pose_matrices(rest, p):
         knee0, normal0, foot0 = rest_leg(leg)
         target, swing = feet[n]
         hip = B @ leg["hip"]
-        knee, normal, foot = solve_leg(hip, target, leg["a"], leg["b"], R @ leg["bend"])
+        bend = R @ (p["bends"][n] if "bends" in p else leg["bend"])
+        knee, normal, foot = solve_leg(hip, target, leg["a"], leg["b"], bend)
         mats["upper" + n] = frame(hip, knee - hip, normal) @ frame(leg["hip"], knee0 - leg["hip"], normal0).inverted() @ rest["upper" + n]
         mats["lower" + n] = frame(knee, foot - knee, normal) @ frame(knee0, foot0 - knee0, normal0).inverted() @ rest["lower" + n]
         pd0 = leg["pdir"].normalized()
         body_pd = R @ pd0
         hang = (body_pd + (foot - knee).normalized() * 0.6).normalized()
         k = min(1.0, swing * 1.5)
-        pd = flat(body_pd).lerp(hang, k).normalized()
-        xh = flat(R @ V((1, 0, 0))).lerp(R @ V((1, 0, 0)), k)
+        if "pdirs" in p:  # climb: the paw lies on the rung in the given direction, curls in the swing
+            pd = p["pdirs"][n].lerp((foot - knee).normalized(), k * 0.5).normalized()
+            xh = V((1, 0, 0))
+        else:
+            pd = flat(body_pd).lerp(hang, k).normalized()
+            xh = flat(R @ V((1, 0, 0))).lerp(R @ V((1, 0, 0)), k)
         mats["paw" + n] = frame(foot, pd, xh) @ frame(foot0, pd0, V((1, 0, 0))).inverted() @ rest["paw" + n]
     return mats, T
 
@@ -550,11 +557,11 @@ class Skin:
         return float(z.min())
 
 
-def key_frame(rig, skin, p, frame_no):
+def key_frame(rig, skin, p, frame_no, floor_fix=True):
     bones = rig.data.bones
     rest = {b.name: b.matrix_local.copy() for b in bones}
     mats, T = pose_matrices(rest, p)
-    S = Matrix.Translation(V((0, 0, -skin.lowest(mats))))
+    S = Matrix.Translation(V((0, 0, -skin.lowest(mats) if floor_fix else 0.0)))
     mats = {n: S @ m for n, m in mats.items()}
     pts = tail_points(S @ T, p)
     xh = (S @ T).to_3x3() @ V((1, 0, 0))
@@ -633,7 +640,132 @@ JUMP = [
 ]
 
 
-def make_actions(rig, skin):
+# Ladder climb (loops). The engine draws the rat turned round (rotA + 180): +Y points at the ladder, the back faces the
+# camera. It sets the frame from the climb height, one cycle per CLIMB_RUNGS rungs (climbRise; the clock does not
+# advance it, it runs backwards going down). The body stays put; a gripping paw tip slides down at that rate, so it
+# holds still on its rung while the engine lifts the body. Gait: a bound, as rodents climb a trunk: the hind feet
+# push together, then the forepaws reach and pull together (a rung spacing is about a hind leg's whole reach, too
+# far for a paw-by-paw gait). The left paws lead the right ones a little.
+KIND_SCALE, TILE = 13, 40  # the rat's scale in KINDS (the giant rat, 42, shares the clip), world units per tile
+LADDER = dict(rungs=12, rung_front=0.013 + 0.7 * 0.0082, rung_r=0.0082)  # ladder.py, in tiles: holds every 1/12
+# (the lowest at 0.5/12), rung centres rung_front in front of the rail centre line (the engine puts it at y = G)
+CLIMB_RUNGS = 1  # rungs per cycle (R)
+CLIMB_PITCH, CLIMB_Z, CLIMB_BELLY = 82, 0.24, 0.215  # body pitch, lift, rung front this far in front of PIVOT (+Y)
+# Per leg: stance start, stance share, x, paw tip height above its hip or shoulder (stance middle), paw direction.
+CLIMB_LIMBS = {"F.R": (0.89, 0.5, 0.085, 0.0, V((0.15, 0.5, 1))), "F.L": (0.85, 0.5, -0.085, 0.0, V((-0.15, 0.5, 1))),
+               "H.R": (0.54, 0.55, 0.17, 0.12, V((0.3, 0.35, 1))), "H.L": (0.5, 0.55, -0.17, 0.12, V((-0.3, 0.35, 1)))}
+CLIMB_BENDS = {"F.R": V((0.7, -1, 0)), "F.L": V((-0.7, -1, 0)), "H.R": V((0.6, 1, 0.3)), "H.L": V((-0.6, 1, 0.3))}
+CLIMB_LIFT = 0.07  # a swinging paw clears the rungs by this much (towards -Y)
+
+
+def climb_body(u):
+    """Body, head and tail of the climb at cycle phase u: the spine gathers while the hind feet swing up (u 0..0.5)
+    and stretches while the forepaws reach (0.4..0.85)."""
+    w = 2 * math.pi * u
+    p = dict(REST)
+    p.update(z=CLIMB_Z + 0.01 * math.cos(w - 2.4), pitch=CLIMB_PITCH, roll=2 * math.sin(w), yaw=1.5 * math.cos(w),
+             flex_p=-2 + 5 * math.cos(w - 2.4), hp=2 - 4 * math.cos(w - 2.4), hy=3 * math.sin(w + 0.8),
+             hr=-2 * math.sin(w), tlift=42, tsway=8, tphase=u, tcurl=28)
+    return p
+
+
+def climb_setup(ref):
+    """Ladder metrics in authored units and every leg's hold height (its paw tip at the start of its stance)."""
+    tile = TILE * ref["S"] / KIND_SCALE
+    rs = tile / LADDER["rungs"]
+    c = dict(tile=tile, rs=rs, R=CLIMB_RUNGS * rs, r=LADDER["rung_r"] * tile)
+    c["y_rung"] = PIVOT.y + CLIMB_BELLY + c["r"]  # rung centre plane
+    c["G"] = c["y_rung"] + LADDER["rung_front"] * tile  # rail centre plane
+    rest = {leg["name"]: leg for leg in LEGS}
+    T, C, _, _ = body_mats(climb_body(0.0))
+    c["top"] = {}
+    for n, (u0, share, x, dz, pd) in CLIMB_LIMBS.items():
+        base = (T if n[0] == "H" else C) @ rest[n]["hip"]
+        off = 0.5 * rs - u0 * c["R"]  # world = phase * R + clip must be a hold: (k + 0.5) * rs
+        want = base.z + dz + share * c["R"] / 2
+        c["top"][n] = off + rs * round((want - off) / rs)
+    return c
+
+
+def climb_params(u, c):
+    p = climb_body(u)
+    feet, pdirs = {}, {}
+    a = math.radians(50)  # paw tip on the rung's front top
+    for leg in LEGS:
+        n = leg["name"]
+        u0, share, x, dz, pd = CLIMB_LIMBS[n]
+        ph = (u - u0) % 1.0
+        if ph < share:  # gripping: slides down at the climb rate, still on the ladder
+            z, lift = c["top"][n] - ph * c["R"], 0.0
+        else:  # reaching up to the next hold, clear of the rungs
+            k = (ph - share) / (1 - share)
+            z, lift = c["top"][n] - share * c["R"] * (1 - smoothstep(0, 1, k)), math.sin(math.pi * k)
+        tip = V((x, c["y_rung"] - (c["r"] + 0.012) * math.cos(a) - CLIMB_LIFT * lift, z + (c["r"] + 0.012) * math.sin(a) + 0.02 * lift))
+        pdirs[n] = pd.normalized()
+        feet[n] = (tip - pdirs[n] * leg["plen"], lift)
+    p.update(feet=feet, pdirs=pdirs, bends=CLIMB_BENDS)
+    return p
+
+
+def ref_box(obj, rig, act):
+    """Bounding box of the evaluated mesh at frame 0 of act (the engine's normalization reference)."""
+    import numpy as np
+
+    rig.animation_data.action = act
+    bpy.context.scene.frame_set(0)
+    ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    co = np.empty(len(ev.data.vertices) * 3)
+    ev.data.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3)
+    lo, hi = co.min(axis=0), co.max(axis=0)
+    return dict(S=float((hi - lo).max()), C=float((lo[1] + hi[1]) / 2), H=float(hi[2] - lo[2]), lo=lo, hi=hi)
+
+
+def climb_report(ref, c, frames):
+    rise, grip = c["R"] / ref["H"], (c["G"] - ref["C"]) / ref["H"]
+    print("rat_climb: frames {} R {:.4f} G {:.4f} C {:.4f} H {:.4f} S_ref {:.4f} tile {:.4f} rung {:.4f}".format(
+        frames, c["R"], c["G"], ref["C"], ref["H"], ref["S"], c["tile"], c["rs"]))
+    print("rat_climb: climbRise = {:.4f}f, climbGrip = {:.4f}f".format(rise, grip))
+    reach = {}
+    for f in range(frames):
+        p = climb_params(f / frames, c)
+        T, C, _, _ = body_mats(p)
+        for leg in LEGS:
+            n = leg["name"]
+            hip = (T if n[0] == "H" else C) @ leg["hip"]
+            reach[n] = max(reach.get(n, 0), (p["feet"][n][0] - hip).length / (leg["a"] + leg["b"]))
+    print("rat_climb: max reach share (>= 0.999 falls short) " + " ".join("{} {:.3f}".format(k, v) for k, v in reach.items()))
+
+
+def ladder_standin(coll, rig, c, frames):
+    """Review only (RAT_LADDER=1): rails and rungs as in ladder.py, scrolling down R per climb cycle."""
+    tile = c["tile"]
+    mesh = bpy.data.meshes.new("rat_ladder")
+    import bmesh
+
+    bm = bmesh.new()
+    for s in (1, -1):
+        m = Matrix.Translation(V((0.1 * tile * s, c["G"], 0.5 * tile)))
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=12, radius1=0.013 * tile, radius2=0.013 * tile, depth=2 * tile, matrix=m)
+    for k in range(-12, 24):
+        m = Matrix.Translation(V((0, c["y_rung"], (k + 0.5) * c["rs"]))) @ Matrix.Rotation(math.pi / 2, 4, "Y")
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=10, radius1=c["r"], radius2=c["r"], depth=0.24 * tile, matrix=m)
+    bm.to_mesh(mesh)
+    bm.free()
+    lad = bpy.data.objects.new("rat_ladder", mesh)
+    coll.objects.link(lad)
+    lad.data.materials.append(common.make_material("rat_ladder_wood", ("solid", "wood"), {"wood": (0.35, 0.24, 0.14)}))
+
+    def follow(scene, *_):
+        act = rig.animation_data.action
+        on = act is not None and act.name == "rat_climb"
+        lad.hide_render = lad.hide_viewport = not on
+        lad.location.z = -(scene.frame_current % frames) / frames * c["R"] if on else 0.0
+
+    bpy.app.handlers.frame_change_post.append(follow)
+
+
+def make_actions(rig, skin, obj):
     rig.animation_data_create()
     acts = {}
     for name, suffix, frames in CLIPS:
@@ -642,6 +774,17 @@ def make_actions(rig, skin):
             bpy.data.actions.remove(act)
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
+        if name == "rat_climb":  # authored in the walk's normalized space: measure the walk's frame 0 first
+            ref = ref_box(obj, rig, acts["rat_walk"])
+            c = climb_setup(ref)
+            climb_report(ref, c, frames)
+            if os.environ.get("RAT_LADDER"):
+                ladder_standin(obj.users_collection[0], rig, c, frames)
+            rig.animation_data.action = act
+            for f in range(frames + 1):
+                key_frame(rig, skin, climb_params(f / frames, c), f, floor_fix=False)
+            acts[name] = act
+            continue
         rig.animation_data.action = act
         last = frames if name not in ("rat_die", "rat_jump") else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
@@ -682,7 +825,7 @@ def build(bake=True, tex_path=None, giant_path=None):
         common.use_baked_material(obj, giant if os.environ.get("RAT_TEX") == "giant" else tex)
     common.rig_object(obj, rig)
     rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
-    acts = make_actions(rig, Skin(b, rest))
+    acts = make_actions(rig, Skin(b, rest), obj)
     rig.animation_data.action = acts["rat_walk"]
     scene = bpy.context.scene
     scene.frame_start, scene.frame_end = 0, CLIPS[0][2] - 1
@@ -702,5 +845,8 @@ if __name__ == "__main__" and "--" in sys.argv:
         build(tex_path=os.path.join(tex_dir, "rat.png"), giant_path=os.path.join(tex_dir, "rat_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "rat.blend"))
+    elif "--export-climb" in args:  # only rat_climb.md3 (the textures and the other clips stay as they are)
+        build(bake=False)
+        common.export_files(bpy.data.objects["rat_new"], bpy.data.objects["rat_rig"], "rat", [c for c in CLIPS if c[1] == "_climb"], "monsters")
     else:
         build()

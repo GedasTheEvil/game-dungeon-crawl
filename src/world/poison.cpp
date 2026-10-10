@@ -1,4 +1,5 @@
 #include "poison.h"
+#include <algorithm>
 #include <istream>
 #include <string>
 #include <ostream>
@@ -6,11 +7,11 @@
 void Poison::Apply(PoisonTier tier) {
 	TierTimer& t = tiers[static_cast<size_t>(tier)];
 	if (t.leftMs <= 0)
-		t.sinceTickMs = 0;
+		t = {};
 	t.leftMs = POISON_TIERS[static_cast<size_t>(tier)].durationMs;
 }
 
-int Poison::Advance(int ms) {
+int Poison::Advance(int ms, int maxHp) {
 	int hp = 0;
 	for (size_t i = 0; i < tiers.size(); i++) {
 		TierTimer& t = tiers[i];
@@ -21,7 +22,10 @@ int Poison::Advance(int ms) {
 		t.sinceTickMs += spent;
 		while (t.sinceTickMs >= 1000) {
 			t.sinceTickMs -= 1000;
-			hp += POISON_TIERS[i].hpPerSecond;
+			const PoisonTierDef& def = POISON_TIERS[i];
+			const int hundredths = std::max(def.floorHpPerSecond * 100, maxHp * def.percentOfMaxHp) + t.carryHundredths;
+			t.carryHundredths = hundredths % 100;
+			hp += hundredths / 100;
 		}
 		if (t.leftMs <= 0)
 			t = {};

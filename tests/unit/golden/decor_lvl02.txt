@@ -18,7 +18,7 @@
 17,3 surface 6/1/2 decal 15m 0.303,0.351
 18,3 surface 6/1/2 decal 0m 0.514,0.609
 19,3 surface 7/1/2 prop webm -0.000
-20,3 surface 6/1/2 prop pottery 0.015
+20,3 surface 6/1/2
 21,3 surface 7/1/2 decal 15 0.664,0.463
 22,3 surface 6/1/2 torch fire torch 0.000,0.680,0.098
 23,3 surface 6/1/2 decal 1m 0.578,0.488

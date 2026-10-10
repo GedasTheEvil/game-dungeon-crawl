@@ -77,8 +77,9 @@ class Dungeon {
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
 	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
-	void venomHit(Monster& mon);   // the venom amulet's roll after a weapon hit
-	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
+	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
+	void venomHit(Monster& mon);		  // the venom amulet's roll after a weapon hit
+	void rewardKill(Monster& mon);		  // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest).
 	void markSlain(const Monster& mon);

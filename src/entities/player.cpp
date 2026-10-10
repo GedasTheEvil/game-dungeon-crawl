@@ -76,7 +76,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 
 void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceResistance(UPDATE_TICK_MS);
-	const int hp = stats.poison.Advance(UPDATE_TICK_MS);
+	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP());
 	if (hp <= 0 || !Alive() || god)
 		return;
 	stats.LoseHP(hp); // armour does not help

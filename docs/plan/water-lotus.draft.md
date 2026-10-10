@@ -1,7 +1,7 @@
 # Water lotus
 
 Status: draft 2026-10-10, ready (needs nothing first). From the user, after a lore review: a man-eating plant fits
-a tomb better in the water. A new monster; the land plant stays (see [plant-poison](plant-poison.draft.md)).
+a tomb better in the water. A new monster; the land plant stays (see [plant-poison](plant-poison.md)).
 
 ## Idea
 

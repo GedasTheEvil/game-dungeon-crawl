@@ -25,7 +25,7 @@ items that do not fit the Egyptian tomb. Names only (and their journal notes / f
 | Vampire bat | Bat of Shezmu | Shezmu, the demon of the wine press and of blood. Note keeps "Grown fat on blood" |
 | Mimic | Chest of Set | Set shut Osiris in a chest made to his measure. Note e.g. "Not every chest in this tomb holds treasure. Ask Osiris." |
 | Worm | Sand worm | Dune joke welcome in the note ("Slow as sand..." can stay) |
-| Man-eater plant | Thorn acacia | The acacia: Osiris's tree, thorny. Note keeps "Never stand next to it." See [plant-poison](plant-poison.draft.md) for its new note |
+| Man-eater plant | Thorn acacia | The acacia: Osiris's tree, thorny. Note keeps "Never stand next to it." See [plant-poison](plant-poison.md) for its new note |
 
 The rest fit (rat, giant rat, bat, giant bat, scarab, giant scarab, mummy, crocodile, Sobek, scorpion, giant
 scorpion, scorpion queen, cobra, giant cobra, Apep, egg cluster). Optional: the egg cluster note can wink at real

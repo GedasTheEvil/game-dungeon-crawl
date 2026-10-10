@@ -319,6 +319,7 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 	if (!nearest)
 		return false;
 	playerHit(*nearest, damage, &mix);
+	touchPoison(*nearest);
 	return true;
 }
 //======================================================================================
@@ -367,6 +368,16 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		rewardKill(mon);
 	else if (mix)
 		venomHit(mon);
+}
+//======================================================================================
+// Thorns and sap: a melee hit on the plant may poison the player (docs/plan/plant-poison.md).
+void Dungeon::touchPoison(const Monster& mon) {
+	const MonsterType& type = *mon.Type();
+	if (!type.touch || !sim.random->gameplay.percent(type.touch->chancePercent))
+		return;
+	sim.events->Status("Its sap burns");
+	sim.player->Poison(type.touch->tier, *sim.events, sim.random->gameplay);
+	sim.journal->SeeMove(type.id, levelNumber, CreatureMove::Poison);
 }
 //======================================================================================
 // The venom amulet: a weapon hit that did not kill may poison (docs/plan/solved/venom-amulet.md).

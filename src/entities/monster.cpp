@@ -247,7 +247,7 @@ bool Monster::UpdatePoison() {
 		poison.Cure();
 		return false;
 	}
-	const int hp = poison.Advance(UPDATE_TICK_MS);
+	const int hp = poison.Advance(UPDATE_TICK_MS, MaxHealth());
 	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
 		return false;
 	poison.Cure();

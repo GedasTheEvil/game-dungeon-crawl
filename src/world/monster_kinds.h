@@ -81,6 +81,12 @@ struct SpitRules {
 };
 
 // Where levelgen puts it: levels of difficulty minDifficulty .. maxDifficulty, picked by weight. Weight 0: never.
+// Thorns and sap: a melee hit on the monster may poison the player; arrows and thrown weapons do not.
+struct TouchPoison {
+	PoisonTier tier = PoisonTier::Weak;
+	int chancePercent = 0;
+};
+
 struct GenPick {
 	int minDifficulty = 0;
 	int maxDifficulty = 0;
@@ -122,6 +128,8 @@ struct MonsterKind {
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
+	int poisonChancePercent = 100;		  // the share of its bites that poison
+	std::optional<TouchPoison> touch;	  // the player's melee hit on it poisons them (docs/plan/plant-poison.md)
 	// Chance that a poisoning does not take (docs/plan/solved/monster-poison.md); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
@@ -154,7 +162,7 @@ struct MonsterKind {
 // (docs/plan/solved/poison-and-antidote.md).
 [[nodiscard]] inline bool isPoisoner(int type) {
 	const MonsterKind* kind = monsterKind(type);
-	return kind != nullptr && kind->poison.has_value();
+	return kind != nullptr && (kind->poison.has_value() || kind->touch.has_value());
 }
 
 // How the journal writes a poison resistance down: "normal", "resists", "tough", "immune" (as resistanceWord).

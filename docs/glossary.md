@@ -85,7 +85,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | hitbox | | a body's box: half width from its model, used for reach and hits; F3 / `hitboxes on` shows them | `HalfWidth` |
 | might | Might | added to every hit the player deals | `PlayerStats::Might` |
 | player level | Level (stats) | the player's level from XP; raises HP, stamina, armour, might. Not the map level | `PlayerStats::CurrentLevel`, `levelXP` |
-| poison tier | | weak, medium or strong poison; ticks damage until it runs out | `PoisonTier` |
+| poison tier | | weak, medium or strong poison; ticks damage until it runs out; medium and strong scale with the victim's max HP above a floor | `PoisonTier`, `POISON_TIERS` |
+| touch poison | sap | a melee hit on the plant may poison the player; ranged hits do not | `TouchPoison` |
 | reach | | how far a melee weapon hits, from the player's box edge, in tiles | `weaponReach` |
 | range | | how far a weapon or spit reaches, between the hitboxes; weapons in tenths of a tile, spit in tiles | `WeaponDef::range`, `SpitRules::range` |
 | resistance | resists, tough | the share of a damage type a monster (or the player) takes: weak 200%, normal 100%, resists 50%, tough 25%. Also the resistance potion, against poison | `Resistances`, `resistedDamage` |

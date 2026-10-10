@@ -127,14 +127,14 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 	world.dungeon.PoisonNearestMonster(PoisonTier::Strong);
 	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 
-	// a boss (Sobek, no resistance): strong poison, 5 HP a second
+	// a boss (Sobek, no resistance): strong poison, 5% of 1600 HP a second
 	REQUIRE(world.Load("tests/levels/sobek"));
 	REQUIRE(world.WalkTo(10.8f));
 	world.Wait(300);
 	CHECK(world.dungeon.BossHealth() == 1600);
 	world.dungeon.PoisonBoss(PoisonTier::Strong);
 	world.Wait(2000);
-	CHECK(world.dungeon.BossHealth() == 1590);
+	CHECK(world.dungeon.BossHealth() == 1440);
 }
 
 TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the first hit of each is noted, and kept") {
@@ -194,7 +194,7 @@ TEST_CASE("the amulet of venom poisons on a weapon hit that does not kill; the p
 	REQUIRE(world.dungeon.NearestMonsterPoison() == 4); // strong
 	CHECK(world.Nearest() == 60 - 10 * hits);
 	CHECK(world.JournalTried() == 2); // blunt, and the poison
-	world.Wait(5000);
+	world.Wait(20000);				  // strong on 60 HP: the floor, 3 HP a second
 	CHECK(world.Nearest() == 0);
 	CHECK(world.Xp() > 0);
 }
@@ -212,6 +212,26 @@ TEST_CASE("health bars stay hidden until a monster acts on the player") {
 	REQUIRE(world.Walk(7.4f));
 	world.Wait(3000);
 	CHECK(world.dungeon.MonsterBarsShown() == 2); // the plant bites; never the scarab
+}
+
+TEST_CASE("the plant's bite poisons weakly on a share of bites; its sap on a share of melee hits only") {
+	const MonsterKind* plant = monsterKind(MonsterPlant);
+	CHECK(plant->poison == PoisonTier::Weak);
+	CHECK(plant->poisonChancePercent == 30);
+	REQUIRE(plant->touch.has_value());
+	CHECK(plant->touch->chancePercent == 20);
+	CHECK(monsterKind(MonsterScorpion)->poisonChancePercent == 100);
+	CHECK_FALSE(monsterKind(MonsterScorpion)->touch.has_value());
+
+	SimWorld world; // tests/levels/idle_monsters
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/idle_monsters"));
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(3.6f));
+	REQUIRE(world.Walk(0.25f));
+	REQUIRE(world.Walk(7.4f));
+	world.Wait(20000); // some 25 bites
+	CHECK(world.player.stats.poison.Mask() == 1);
 }
 
 TEST_CASE("the Anubis guard walks 20% faster than the player, the Anubis boss a little faster still") {

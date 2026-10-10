@@ -1,6 +1,6 @@
 # Stronger poisons
 
-Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user.
+Status: implemented 2026-10-10, awaiting user verification. From the user.
 
 ## Idea
 

@@ -248,6 +248,14 @@ void Dungeon::StartJump(int dir) {
 	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Jump);
 }
 //======================================================================================
+bool Dungeon::AttackAllowed(bool tell) {
+	if (!PlayerOnLadder())
+		return true;
+	if (tell)
+		sim.events->Status("%s", "Hands on the rungs");
+	return false;
+}
+//======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;

@@ -153,10 +153,10 @@ class SimWorld {
 		player.stats.Wear(amuletBonus(items.Worn()), true);
 	}
 
-	// The attack key with the equipped weapon (input.cpp tryAttack): false while a swing or its recovery runs. It
-	// hits (or shoots) at the weapon's hit time, in a later Tick.
+	// The attack key with the equipped weapon (input.cpp tryAttack): false while a swing or its recovery runs, or on a
+	// ladder. It hits (or shoots) at the weapon's hit time, in a later Tick.
 	bool Attack() {
-		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
+		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed() || !dungeon.AttackAllowed(true))
 			return false;
 		player.attackTimer.SetInterval(weaponDef(items.Equipped()).motion.AttackMs());
 		player.attackStartMs = GameClock::now();

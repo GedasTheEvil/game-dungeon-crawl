@@ -6,7 +6,7 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
 
 * No monster uses a ladder. The AI (`src/entities/monster_ai.cpp`) walks a row, jumps (giant rat, giant scarab) or
   flies (bats). A ladder is the player's way up and down, and so their way out of a fight.
-* The player cannot attack from the rungs ([no-attack-on-ladder](no-attack-on-ladder.draft.md)): a monster waiting at
+* The player cannot attack from the rungs ([no-attack-on-ladder](no-attack-on-ladder.md)): a monster waiting at
   a ladder top gets the first hits.
 
 ## Idea
@@ -26,7 +26,7 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From th
   Anubis boss 15 → 15.75.
   Re-run `./levelcheck levels/lvl*` and fix the levels it flags.
 * **No attacks on the rungs, for everyone:** a climber cannot attack while it climbs, as the player cannot
-  ([no-attack-on-ladder](no-attack-on-ladder.draft.md)). Depends on that draft: it ships first, or with this one. A
+  ([no-attack-on-ladder](no-attack-on-ladder.md)). Depends on that draft: it ships first, or with this one. A
   climber on the ladder only follows; it attacks once off the rungs.
 * **Climb speed:** 80% of the monster's own walk `speed`. A boss walks faster, so it climbs faster too. Comes after
   [anubis-speed](anubis-speed.draft.md) (the Anubis guard walks faster, so it climbs faster).

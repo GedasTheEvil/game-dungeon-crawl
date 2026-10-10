@@ -312,3 +312,35 @@ TEST_CASE("a chest holds its main item and bonus rolls on the gameplay stream") 
 			smallStamina = world.items.Count(itemAt(k));
 	CHECK(smallStamina == 1);
 }
+
+TEST_CASE("no attack on a ladder: both hands are on the rungs; at its foot the attack works, a swing under way ends") {
+	SimWorld world; // tests/levels/classic1: the ladder shaft at x 17
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/classic1"));
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(3.f));
+	REQUIRE(world.Walk(1.6f));
+	world.Jump();
+	REQUIRE(world.Walk(2.f));
+	world.Wait(1000);
+	REQUIRE(world.Walk(3.4f));
+	world.WaitTicks(10);
+	REQUIRE(world.Climb(-4.f)); // the middle of the shaft
+	REQUIRE(world.dungeon.PlayerOnLadder());
+	CHECK_FALSE(world.Attack());
+	world.Tick();
+	CHECK(world.player.attackStartMs < 0);
+	CHECK(world.Told("Hands on the rungs"));
+
+	world.Climb(-6.f); // down to its foot, on the floor (blocked there)
+	world.WaitTicks(10);
+	REQUIRE_FALSE(world.dungeon.PlayerOnLadder());
+	CHECK(world.Attack());
+	world.Wait(1500);
+
+	// A swing begun at the foot and carried up onto the rungs finishes.
+	CHECK(world.Attack());
+	REQUIRE(world.Climb(1.f));
+	CHECK(world.dungeon.PlayerOnLadder());
+	CHECK(world.player.attackLanded);
+}

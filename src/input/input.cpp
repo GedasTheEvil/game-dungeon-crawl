@@ -14,6 +14,8 @@ int lastMy = 0;
 namespace {
 // The walk keys held down, in GameplayAction order from MoveLeft.
 std::array<bool, 4> walkHeld{};
+// This press of the attack key was refused on a ladder and told so: the key repeat does not tell it again.
+bool attackRefusalTold = false;
 
 bool isMove(GameplayAction action) {
 	return action == GameplayAction::MoveLeft || action == GameplayAction::MoveRight ||
@@ -105,6 +107,10 @@ class PlayerActionController {
 		Player& player = *Game().player;
 		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
 			return;
+		if (!Game().dungeon.AttackAllowed(!attackRefusalTold)) {
+			attackRefusalTold = true;
+			return;
+		}
 		const Item* weapon = Game().ui.inventory->Equipped();
 		player.attackTimer.SetInterval(weaponDef(Game().ui.inventory->EquippedKind()).motion.AttackMs());
 		player.attackStartMs = GameClock::now();
@@ -268,6 +274,8 @@ bool pressBinding(BindAction action) {
 
 // Released on every screen: a walk key let go in the inventory must not keep walking afterwards.
 void releaseBinding(BindAction action) {
+	if (action == BindAction::Attack)
+		attackRefusalTold = false;
 	if (action == BindAction::Sprint)
 		Game().player->stats.SetSprintRequested(false);
 	else
@@ -391,9 +399,12 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
-	// Held actions start when the button goes down, the others run when it comes up.
-	if (action && Game().ui.screen == Screen::Gameplay && (state == GLUT_DOWN) == isHeld(*action))
+	// Held actions start when the button goes down, the others run when it comes up: each click is a press.
+	if (action && Game().ui.screen == Screen::Gameplay && (state == GLUT_DOWN) == isHeld(*action)) {
+		if (*action == BindAction::Attack)
+			attackRefusalTold = false;
 		pressBinding(*action);
+	}
 }
 void processMousePassiveMotion(int a, int b) {
 	if (ScreenState::ShouldRouteMouseToMenu(Game())) {

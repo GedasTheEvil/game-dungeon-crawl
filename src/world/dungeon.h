@@ -248,6 +248,9 @@ class Dungeon {
 	[[nodiscard]] float PlayerWalkFactor() const { return PlayerWading() ? WADE_SPEED_FACTOR : 1.f; }
 	// False while wading: then the player is told why (at most every WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
+	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs. A swing already under way
+	// finishes. tell: say why ("Hands on the rungs"), once per press of the key.
+	bool AttackAllowed(bool tell);
 	// World units to draw something standing at map x on row's floor down into a water basin: WATER_BASIN_DEPTH in
 	// half water, growing over WATER_SINK_RAMP from a dry edge, 0 elsewhere.
 	[[nodiscard]] float WaterSink(float x, int row) const;

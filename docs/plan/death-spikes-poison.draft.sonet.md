@@ -11,7 +11,7 @@ it and the level checker's poisoner antidote rule does not apply. The death trap
 * Applied by `Dungeon::updateTraps` on the damage tick, once per entry (not stacking per tick: re-applying
   refreshes at most, as `Player::Poison` does).
 * Resistance (potion, amulet) rolls as for any poisoning. Trap ward (`trapCutPercent`) cuts the damage as before;
-  decide whether 100% (immune) also blocks the poison (suggest yes).
+  whether 100% (immune) also blocks the poison does not matter (user, 2026-10-11): implementer's choice.
 * Monsters: reckless ones walking through get poisoned too (`Monster::Poison`, byPlayer false: no XP for the
   player's kill, as a trap's kill).
 * Status line, e.g. "The spike tips are wet with venom." Maybe a green tint on the death trap model.
@@ -24,5 +24,5 @@ it and the level checker's poisoner antidote rule does not apply. The death trap
 
 ## Tests
 
-* Unit: entering a death trap applies strong poison once; plain spikes do not; ward 100% blocks it.
+* Unit: entering a death trap applies strong poison once; plain spikes do not; the ward cuts the damage as on plain spikes.
 * Scenario: walk through a death trap, screenshot the poisoned status.

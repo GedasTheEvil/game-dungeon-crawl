@@ -13,9 +13,9 @@ A new mechanic: with the skill, the player has a 10% chance to avoid a monster's
 * Rolls on the gameplay stream.
 * Later ideas (not in this draft): a dodge amulet, dodge raised by agility.
 
-## Open (warn when reporting)
+## Decided (user, 2026-10-11)
 
-* Whether dodge works while wading, on a ladder or mid-jump. Default: everywhere.
+* Dodge works everywhere: wading, on a ladder, mid-jump.
 
 ## Tests
 

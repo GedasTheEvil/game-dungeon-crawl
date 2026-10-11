@@ -27,6 +27,7 @@ Grades: a greater grade is its own entry on the monster, with its own (lower) ch
 | Vulnerability | -60% armour | |
 | Fatigue | stamina set to 20% of max at the start; no stamina regeneration while it runs (stamina potions still work) | |
 | Disease | -30% max HP | -70% |
+| Slowness | walk (and climb) 1 → 0.5 tiles/s, sprint 3 → 1.25 tiles/s (`WALK_SPEED` 1, sprint x3) | |
 | Palsy (working name) | ranged and thrown weapons cannot be used (bow, sling, throwing stick, javelin...); melee works. Single grade |
 | Insanity ("caveman") | map, journal, inventory and the quick-drink keys locked; the club is put in hand and the weapon cannot be changed | |
 
@@ -47,7 +48,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 
 ## Sketch
 
-* `enum class Curse { Weakness, Clumsiness, Vulnerability, Fatigue, Disease, Insanity }`, per curse a grade and
+* `enum class Curse { Weakness, Clumsiness, Vulnerability, Fatigue, Slowness, Disease, Palsy, Insanity }`, per curse a grade and
   `left_ms` in `PlayerStats`; `Curse(kind, grade, ms)` sets the full time. Save line like `RESIST`.
 * Weakness / clumsiness: in `Damage()` (and the ranged / thrown damage paths). Clumsiness after Might and weapon are
   added; the venom amulet's poison is not cut. A hit deals at least 1.
@@ -55,6 +56,9 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * Disease: in `CurrentMaxHP()`; HP keeps its share on start and end, like `Wear(..., keepShare)` for the health
   amulet.
 * Fatigue: `RegenerateStamina` skips while it runs.
+* Slowness: the walk step (`PLAYER_MOVE_STEP`, `stepHeldWalk`) x0.5 and the sprint factor 3 → 2.5 (so 1.25 tiles/s)
+  while it runs. In half water the wade factor applies on top (0.25 tiles/s, no sprint there anyway). `levelcheck`
+  keeps assuming no curse (rock falls, rhythm traps are timed against the plain walk).
 * Insanity: the input / UI gates for map, journal, inventory, quick drink and weapon switch ask `PlayerStats::Cursed(Insanity)`; a
   status line says why ("Your mind is clouded"). On start, the weapon in hand is remembered and the club put in hand;
   on end, the old weapon comes back.
@@ -82,6 +86,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * No cure, no resistance. Same duration for all (2 minutes).
 * A hit deals at least 1 damage (greater weakness can push it below).
 * Stamina potions work while fatigued.
+* Slowness (user, 2026-10-11): walk 1 → 0.5, sprint 3 → 1.25 tiles/s. Single grade.
 * Insanity locks the quick-drink keys too ("totally insane"). The club is always owned (starting weapon).
 * Grades are separate entries with own chances (replaces the grade roll, 2026-10-11). Each monster: max 2 melee + 2 ranged curse entries.
 
@@ -96,6 +101,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
    | Curse | Candidate | Why |
    |---|---|---|
    | Disease | rat, giant rat (boss: none; a rat king later?) | plague carriers |
+   | Slowness | mummy (shuffling linen), worm, or Apep's coils (boss rule) | added by the user 2026-10-11, no source yet |
    | Fatigue | vampire bat's kin, the bat / giant bat (boss: vampire bat) | drains |
    | Vulnerability | Anubis (boss: Anubis boss), on melee hits | judge of the dead, weighs the heart |
    | Clumsiness | giant scarab (boss: scarab boss) | |

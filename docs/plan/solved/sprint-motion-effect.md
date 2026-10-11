@@ -29,7 +29,7 @@ blur would blur the player too, the one thing the eye follows. Better options:
   FBO, and gives most of the speed feel by itself. Could be step 1.
 * **Vignette** dimming the edges, which hides the blur's seams too.
 * Extras (dust puffs, footstep sound, camera lag): moved to
-  [sprint-toon-blur-and-extras.draft.md](../sprint-toon-blur-and-extras.draft.md).
+  [sprint-toon-blur-and-extras.draft.sonet.md](../sprint-toon-blur-and-extras.draft.sonet.md).
 
 ## What to settle
 
@@ -38,7 +38,7 @@ blur would blur the player too, the one thing the eye follows. Better options:
   "actually moving" signal as [sprint-drain-standing-still.md](sprint-drain-standing-still.md).
 * An Options toggle (motion sickness): "Motion effects" on/off, also for the FOV kick.
 * Toon mode: no blur for now (FOV kick and vignette only). Blur order vs the ink lines: moved to
-  [sprint-toon-blur-and-extras.draft.md](../sprint-toon-blur-and-extras.draft.md).
+  [sprint-toon-blur-and-extras.draft.sonet.md](../sprint-toon-blur-and-extras.draft.sonet.md).
 * HUD and status lines are drawn after the scene pass, so they stay sharp.
 * Without FBOs (old driver): FOV kick only.
 * Scenario: sprint along a corridor, screenshots at rest, mid-sprint and after the stop.

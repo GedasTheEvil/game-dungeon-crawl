@@ -57,7 +57,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
 | flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
 | flyer | | flies along the row and crosses pits (bats) | `Locomotion::Fly`, `Flight` |
-| hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.md)) the crocodile grabs the player in water and rolls | |
+| hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.opus.md)) the crocodile grabs the player in water and rolls | |
 | kin | | a boss's common monster (the Anubis boss: the Anubis guard); a new ability for the kin goes to its boss too | `MonsterKind::kin` |
 | kind | | a monster type: one row of stats, model and rules | `MonsterKind`, `monsterKind` |
 | leap | | a walk-jumper's jump over a pit or a trap | `Leap` |
@@ -112,7 +112,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | checker | | `./levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/world/level_check.h` |
-| draft plan | | an idea for later, `docs/plan/<slug>.draft.md` | `docs/plan` |
+| draft plan | | an idea for later, `docs/plan/<slug>.draft.<model>.md` (`sonet` simple, `opus` complex) | `docs/plan` |
 | effects stream | | the random stream for what only shows (a clip's start frame); never shifts the game's rolls | `GameRandom` |
 | gameplay stream | | the random stream for what changes the game: loot, riddles, poison rolls | `GameRandom` |
 | implemented plan | | a plan done but not confirmed by the user, `docs/plan/<slug>.md` | `docs/plan` |

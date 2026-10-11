@@ -56,7 +56,7 @@ several tables in several files:
 Cost today: a monster variant 4-6 places in 3 files, a weapon 9-11, a potion ~11, a tile ~10.
 
 So the problem is mostly the **scatter**, not the format. Moving the monster balance stats out of `assets.cpp` into the
-level library also makes them unit-testable and helps [monster balance](../monster-balance.draft.md).
+level library also makes them unit-testable and helps [monster balance](../monster-balance.draft.opus.md).
 
 ## Format comparison
 
@@ -70,6 +70,6 @@ level library also makes them unit-testable and helps [monster balance](../monst
 | Modding | no | yes |
 
 * Data files pay off with a concrete need: translations, modding, or tuning balance without rebuilds
-  ([monster-balance](../monster-balance.draft.md)).
+  ([monster-balance](../monster-balance.draft.opus.md)).
 * If data files: texts first (pure data, no behaviour). Keep enums for kinds in code, load by string id. A check
   (level checker or new one) validates the files.

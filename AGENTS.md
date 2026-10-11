@@ -42,13 +42,19 @@ sense. The same goes for draft plans: a plan that gives a base monster an abilit
 
 ## Plans
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
-For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.md" inside the plan directory.
+For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.<model>.md" inside the plan directory.
+The model tag says who can implement it:
+* `sonet`: simple, delegate to a Sonnet agent. Narrow and fully specified, follows an existing pattern (a potion,
+  an amulet, a rename, a skill rule), no new Blender model or clip, no level design, no balance judgement.
+* `opus`: complex, needs Opus. A new system or monster, new models or animation clips, level design, checker
+  modelling, balance work, or several systems at once.
+When refining a draft changes its size, rename it to the matching tag and update links to it.
 Drafts are written for agents to implement later. Every draft is ready to implement as is; only a link to another
 draft it needs first blocks it. Open points or several ideas in a draft are the implementer's choice.
 Still, when reporting on drafts, warn about their open questions; when asked to refine a draft, list them.
 When writing a draft, optimize for agent reading: the first lines (status) say what it needs first, if anything,
 so readiness is clear without reading the whole file.
-Once a draft plan is implemented, rename it without the "draft" part ("<idea-slug>.md") and update links to it.
+Once a draft plan is implemented, rename it without the "draft.<model>" part ("<idea-slug>.md") and update links to it.
 Once the user confirms an implemented plan is solved (tested / verified), move it to "docs/plan/solved/" and update links to it.
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to

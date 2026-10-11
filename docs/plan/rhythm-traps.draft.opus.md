@@ -41,7 +41,7 @@ combination must be crossable with the player's walk speed: the checker simulate
 
 * Walk speed vs. safe window: how long the minimum safe window is (suggest at least 1.5x the time to cross
   the zone at walk speed).
-* Dodge ([skill-dodge](skill-dodge.draft.md)): may avoid a single event (one stab or one tick), never sustained
+* Dodge ([skill-dodge](skill-dodge.draft.sonet.md)): may avoid a single event (one stab or one tick), never sustained
   time in the zone. Levitation and speed do not bypass it. Default as stated; exact rule is the implementer's choice.
 * Boss ability rule: no monster gains an ability here, so no boss change.
 

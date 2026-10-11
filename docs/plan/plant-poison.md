@@ -28,7 +28,7 @@ Status: implemented 2026-10-10, awaiting user verification. From the user: the m
 ## Related
 
 * [stronger-poisons](stronger-poisons.md) leaves the weak tier unchanged; no conflict.
-* [egyptian-names](egyptian-names.draft.md) renames the plant (Thorn acacia); whichever comes second uses the
+* [egyptian-names](egyptian-names.draft.sonet.md) renames the plant (Thorn acacia); whichever comes second uses the
   other's name.
 
 ## Tests

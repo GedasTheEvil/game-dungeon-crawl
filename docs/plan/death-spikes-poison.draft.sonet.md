@@ -15,7 +15,7 @@ it and the level checker's poisoner antidote rule does not apply. The death trap
 * Monsters: reckless ones walking through get poisoned too (`Monster::Poison`, byPlayer false: no XP for the
   player's kill, as a trap's kill).
 * Status line, e.g. "The spike tips are wet with venom." Maybe a green tint on the death trap model.
-* Rhythm traps ([rhythm-traps](rhythm-traps.draft.md)) stay weak by default; a strong variant is allowed per
+* Rhythm traps ([rhythm-traps](rhythm-traps.draft.opus.md)) stay weak by default; a strong variant is allowed per
   trap. Consistent with this draft.
 
 ## Open points

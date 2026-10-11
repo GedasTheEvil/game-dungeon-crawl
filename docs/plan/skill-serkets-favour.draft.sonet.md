@@ -1,11 +1,11 @@
 # Skill: Serket's favour
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.md) first. From the user.
+Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) first. From the user.
 
 ## Idea
 
 Serket, the scorpion goddess, shields the player from poison: **poisons last half as long** on the player (the same
-damage per second, half the time). A twin of [Blessing of Isis](skill-blessing-of-isis.draft.md) for curses.
+damage per second, half the time). A twin of [Blessing of Isis](skill-blessing-of-isis.draft.sonet.md) for curses.
 
 * Stacks with the resistance roll (amulet + potion, `PlayerStats::PoisonResistPercent`): that roll decides whether a
   poison takes; the skill halves the ones that do.

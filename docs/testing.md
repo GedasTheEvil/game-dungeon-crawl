@@ -47,7 +47,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | Scenario | Guards | Why a unit test cannot |
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
-| `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.md)) | the bolt is drawn |
+| `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.opus.md)) | the bolt is drawn |
 | `inventory_keys` | Tab walks the inventory tabs, no key labels ([plan](plan/inventory-keys.md)) | the screen and its input path |
 | `keys` | E interacts, V attacks ([plan](plan/inventory-keys.md)) | the real key bindings |
 | `ladder` | limb pose on ladders ([plan](plan/no-attack-on-ladder.md)) | the pose is drawn |
@@ -55,7 +55,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | `sobek` | Sobek wakes, charges, is stunned ([plan](plan/sobek-boss.md)) | the boss in the lake is drawn |
 | `summon_effects` | sand spray, grit shower, coffins ([plan](plan/anubis-speed.md)) | particle effects are drawn |
 | `water_ceiling` | rock between water and open cells ([plan](plan/water-ceiling.md)) | the rock is drawn |
-| `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.md)) | hit boxes are drawn |
+| `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a

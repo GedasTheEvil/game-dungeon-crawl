@@ -25,4 +25,4 @@ The crocodile's bite grabs the player: a hold, a death roll.
 * Look: the crocodile's open-jaws tell, the grab and the roll (Blender, [../remodeling.md](../remodeling.md)); the
   player's held view (camera shake or roll).
 * The checker and the balance: the hold is short and only in water, so likely nothing. Note it with the crocodile's
-  half-water weight in [monster-balance](monster-balance.draft.md).
+  half-water weight in [monster-balance](monster-balance.draft.opus.md).

@@ -30,4 +30,4 @@ cells, but most of it is solid wall.
 * The spawn window (monsters spawn when they come into view), `MAX_MONSTERS` (32 live slots), the draft map's size on
   screen, the load time.
 * The XP curve: more monsters on 1-14 means a higher player level at lvl15 (today about 35,
-  [monster-balance](monster-balance.draft.md)). Recheck the sum per level after each batch.
+  [monster-balance](monster-balance.draft.opus.md)). Recheck the sum per level after each batch.

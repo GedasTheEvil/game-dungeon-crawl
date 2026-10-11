@@ -98,7 +98,7 @@ to the bone, with a hint of cutting pain.") only if the general ones read badly 
 ## Open
 
 Nothing; ready to implement. The mix values get revisited in play, together with
-[monster-balance.draft.md](../monster-balance.draft.md).
+[monster-balance.draft.opus.md](../monster-balance.draft.opus.md).
 
 ## Done
 

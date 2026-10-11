@@ -37,7 +37,7 @@ in the campaign, and he stays the last boss.
 
 The queen comes before the Anubis boss, so he must be the stronger fight. Today: speed 4.5, 1500 HP, 110 damage
 every 1400 ms (`MonsterAnubisBoss`). Retune him after the queen's numbers are set, in
-[monster-balance.draft.md](../monster-balance.draft.md).
+[monster-balance.draft.opus.md](../monster-balance.draft.opus.md).
 
 ## Open
 

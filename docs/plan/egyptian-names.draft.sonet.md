@@ -96,9 +96,9 @@ line shows what it does.
 
 * Journal field notes and riddle hints that name a renamed thing.
 * `docs/glossary.md` (e.g. the kin row: "the Anubis boss: the Anubis guard"), `docs/levels.md` legend if it shows
-  names, and drafts that use the old names: [cursed-mimic](cursed-mimic.draft.md) (becomes a cursed Chest of Set),
-  [curses](curses.draft.md), [anubis-ranged-attack](anubis-ranged-attack.draft.md),
-  [monster-balance](monster-balance.draft.md).
+  names, and drafts that use the old names: [cursed-mimic](cursed-mimic.draft.opus.md) (becomes a cursed Chest of Set),
+  [curses](curses.draft.opus.md), [anubis-ranged-attack](anubis-ranged-attack.draft.opus.md),
+  [monster-balance](monster-balance.draft.opus.md).
 * Unit tests and scenarios that check names.
 
 ## Tests

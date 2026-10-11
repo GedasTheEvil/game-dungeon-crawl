@@ -21,7 +21,7 @@ player's normal walk. Before [monster-climbers](monster-climbers.md).
 * Threat: a faster guard is harder to kite with the bow. Check its `threat` (8) and the boss's (15), and re-run
   `./levelcheck levels/lvl*` (no warnings).
 * The walk clip: at 1.5x the speed the feet may slide; speed up the clip with the walk if needed.
-* Balance: the "about 15 blows" note on the guard ([monster-balance](monster-balance.draft.md)) assumed the old
+* Balance: the "about 15 blows" note on the guard ([monster-balance](monster-balance.draft.opus.md)) assumed the old
   speed; the sim pass checks it.
 * Tests: a unit test or a scenario that times the guard's walk over a few tiles.
 

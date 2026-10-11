@@ -40,7 +40,7 @@ cooldown 3 s.
 ## Open (for the implementer)
 
 * Balance: the Anubis is already tuned for "about 15 blows" on a level 55 player
-  ([monster-balance.draft.md](monster-balance.draft.md)). Check its threat (`threat` 8) and the sim with the new attack.
+  ([monster-balance.draft.opus.md](monster-balance.draft.opus.md)). Check its threat (`threat` 8) and the sim with the new attack.
 * `levelcheck` does not model monster attacks; nothing to change there, likely.
 * Tests: a scenario in `tests/scenarios/` (an Anubis shoots from range, the cooldown holds, up close it hits in melee).
 

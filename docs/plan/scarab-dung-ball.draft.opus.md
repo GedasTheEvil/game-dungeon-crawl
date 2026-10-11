@@ -12,7 +12,7 @@ sun across the sky, rolls a bigger one.
   then breaks. It falls into pits, stops at walls, rolls over traps. The player jumps over it.
 * Cooldown: default 4 s.
 * Khepri (the boss scarab): a bigger, faster ball, farther range, more damage (boss rule; its `kin` is the scarab,
-  but the user wants Khepri to have it). Optional: a burning sun ball with [fire-damage](fire-damage.draft.md).
+  but the user wants Khepri to have it). Optional: a burning sun ball with [fire-damage](fire-damage.draft.opus.md).
 * The small scarab does not roll balls.
 * Journal note: "It rolls its dinner at me. I am not sure whose dinner."
 * Sound: a rolling rumble, a wet thud.

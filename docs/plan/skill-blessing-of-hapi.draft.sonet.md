@@ -1,7 +1,7 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.md) first; the stacking part needs
-[water-blessing-potion](water-blessing-potion.draft.md) (skip that part if the potion is not in yet, add it with the
+Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) first; the stacking part needs
+[water-blessing-potion](water-blessing-potion.draft.sonet.md) (skip that part if the potion is not in yet, add it with the
 potion). From the user.
 
 ## Idea

@@ -85,4 +85,4 @@ similar) on a string. Names: "Lesser amulet of strength", "Amulet of minor stren
 
 ## Open
 
-Moved to [amulet-extras.draft.md](../amulet-extras.draft.md).
+Moved to [amulet-extras.draft.sonet.md](../amulet-extras.draft.sonet.md).

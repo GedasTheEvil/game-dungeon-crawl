@@ -38,7 +38,7 @@ Implementer's choice, at least one:
 | Anubis living statue (stone) | tough |
 | Bosses | normal or better |
 
-* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.draft.md), e.g. "the feather
+* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.draft.sonet.md), e.g. "the feather
   of Ma'at" or "the sun disc"), four tiers like the other wardings.
 
 ## Also

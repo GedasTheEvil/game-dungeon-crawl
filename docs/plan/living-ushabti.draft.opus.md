@@ -6,7 +6,7 @@ Status: draft 2026-10-10, ready (needs nothing first). From the lore review, pic
 
 Ushabti are the small servant figures buried to work for the dead. The `ushabti` decor (`DECOR_NAMES`,
 `src/world/decor.h`) comes alive: a new monster that looks like the decor until the player comes near, then stands
-up and walks. Same family as the Anubis living statue ([egyptian-names](egyptian-names.draft.md)).
+up and walks. Same family as the Anubis living statue ([egyptian-names](egyptian-names.draft.sonet.md)).
 
 * Kind: small, slow walker, a few HP. Glazed faience shatters: **weak to blunt**, resists pierce. Journal note with humour: "It says 'here I am' on its chest. It means it."
   (the ushabti spell, Book of the Dead ch. 6).

@@ -1,6 +1,6 @@
 # Skill: power hit
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.md) first. From the user; not fully refined.
+Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) first. From the user; not fully refined.
 
 ## Idea
 

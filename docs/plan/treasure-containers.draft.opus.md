@@ -26,7 +26,7 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
 * Level format unchanged if the look is derived (depth + effects roll); a level may force one with the tile's spare
   value if needed (implementer's choice).
 * Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/remodeling.md](../remodeling.md)).
-* [tomb-curse-triggers](tomb-curse-triggers.draft.md) may hook into opening canopic jars and coffers.
+* [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) may hook into opening canopic jars and coffers.
 
 ## Tests
 

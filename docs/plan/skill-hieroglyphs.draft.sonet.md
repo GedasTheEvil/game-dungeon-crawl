@@ -1,7 +1,7 @@
 # Skill: deep mystic knowledge (read hieroglyphs)
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.md) and
-[hieroglyph-cartouches](hieroglyph-cartouches.draft.md) first. From the user: an easy first choice.
+Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) and
+[hieroglyph-cartouches](hieroglyph-cartouches.draft.opus.md) first. From the user: an easy first choice.
 
 ## Idea
 
@@ -11,7 +11,7 @@ fills in).
 
 * Name on the card: "Deep mystic knowledge" (user's), or "Words of Thoth" (implementer's choice).
 * What it unlocks: the cartouche texts and their hints; optional extras, e.g. a riddle gate's hint shown at once, or
-  secret doors marked by an inscription (the [Stargate chamber](stargate-chamber.draft.md) hint).
+  secret doors marked by an inscription (the [Stargate chamber](stargate-chamber.draft.opus.md) hint).
 * An easy first choice: cheap in power, rich in story. Without it nothing on the exit path is lost (checker rule:
   hints only, never required).
 

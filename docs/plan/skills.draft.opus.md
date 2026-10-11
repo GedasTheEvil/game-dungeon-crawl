@@ -2,10 +2,10 @@
 
 Status: draft 2026-10-10, ready (needs nothing first). From the user. The framework only; each skill has its own
 sub-draft that needs this one first:
-[skill-stun](skill-stun.draft.md), [skill-hieroglyphs](skill-hieroglyphs.draft.md),
-[skill-dodge](skill-dodge.draft.md), [skill-power-hit](skill-power-hit.draft.md),
-[skill-sharp-eye](skill-sharp-eye.draft.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.md),
-[skill-serkets-favour](skill-serkets-favour.draft.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.md).
+[skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),
+[skill-dodge](skill-dodge.draft.sonet.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
+[skill-sharp-eye](skill-sharp-eye.draft.sonet.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md),
+[skill-serkets-favour](skill-serkets-favour.draft.sonet.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.sonet.md).
 
 ## Idea
 

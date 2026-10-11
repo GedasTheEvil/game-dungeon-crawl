@@ -1,6 +1,6 @@
 # Cursed mimic
 
-Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user. Needs [curses](curses.draft.md).
+Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user. Needs [curses](curses.draft.opus.md).
 
 ## Idea
 

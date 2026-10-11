@@ -87,6 +87,9 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * A hit deals at least 1 damage (greater weakness can push it below).
 * Stamina potions work while fatigued.
 * Slowness (user, 2026-10-11): walk 1 → 0.5, sprint 3 → 1.25 tiles/s. Single grade.
+* Slowness comes from melee bites (`meleeCurses`) of the worm (15%), the giant cobra (15%) and Apep (30%, boss of
+  the cobra kin, per the boss rule) (user, 2026-10-11; the chances are starting values). Not the plain cobra, not
+  the spit.
 * Insanity locks the quick-drink keys too ("totally insane"). The club is always owned (starting weapon).
 * Grades are separate entries with own chances (replaces the grade roll, 2026-10-11). Each monster: max 2 melee + 2 ranged curse entries.
 
@@ -101,7 +104,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
    | Curse | Candidate | Why |
    |---|---|---|
    | Disease | rat, giant rat (boss: none; a rat king later?) | plague carriers |
-   | Slowness | mummy (shuffling linen), worm, or Apep's coils (boss rule) | added by the user 2026-10-11, no source yet |
+   | Slowness | worm, giant cobra, Apep (decided, see above) | coils and sand |
    | Fatigue | vampire bat's kin, the bat / giant bat (boss: vampire bat) | drains |
    | Vulnerability | Anubis (boss: Anubis boss), on melee hits | judge of the dead, weighs the heart |
    | Clumsiness | giant scarab (boss: scarab boss) | |

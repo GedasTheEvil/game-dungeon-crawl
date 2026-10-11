@@ -122,6 +122,7 @@ constexpr int CHARGE_STUN_DAMAGE_FACTOR = 2;
 constexpr int CHARGE_COOLDOWN_MS = 4000;
 constexpr float CHARGE_OVERRUN = 3.f; // tiles past the player a rush with no wall ahead stops
 
+constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's plasma colour, then back in at the arrival
 constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
 // The mummy (Locomotion::Entombed) lies in its coffin (decor_coffin, drawn on its spawn tile), its body drawn
 // MUMMY_COFFIN_DEPTH world units back from the walk line. Woken, its rise clip slides it out between the two fractions.

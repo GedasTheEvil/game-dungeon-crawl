@@ -79,6 +79,8 @@ class SimWorld {
 		for (int t = 0; t < ms; t += UPDATE_TICK_MS)
 			Tick();
 	}
+	// Ticks that cover a gate's fade out and in (GATE_TRAVEL_FADE_MS each) after Interact on an exit or a teleporter.
+	static constexpr int GATE_TRAVEL_TICKS = 2 * GATE_TRAVEL_FADE_MS / UPDATE_TICK_MS + 3;
 	// As `wait N` (ticks).
 	void WaitTicks(int ticks) {
 		for (int t = 0; t < ticks; t++)

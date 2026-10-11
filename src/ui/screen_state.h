@@ -15,7 +15,9 @@ inline bool ShouldRouteMouseToMenu(const GameState& c) { return IsOpen(c, Screen
 
 inline bool ShouldRouteMouseToInventory(const GameState& c) { return IsOpen(c, Screen::Inventory); }
 
-inline bool IsGameplayInteractionAllowed(const GameState& c) { return c.player->Alive() && !c.dungeon.Won(); }
+inline bool IsGameplayInteractionAllowed(const GameState& c) {
+	return c.player->Alive() && !c.dungeon.Won() && !c.dungeon.Travelling();
+}
 } // namespace ScreenState
 
 #endif

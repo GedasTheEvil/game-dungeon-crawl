@@ -7,7 +7,8 @@
 struct TextureRegistry {
 	Texture nullTex; // plain white, for untextured quads and particles
 	Texture spikes, sphinx, ankh, questionMark, columns;
-	Texture portal; // the scrolling plasma of the entrance, exit and teleporter gates
+	Texture portal,
+		portalRed; // the scrolling plasma of the entrance and teleporter gates (blue), of the exit gate (red)
 	Texture papyrus, loadingBackground, riddleBackground;
 	Texture hudIcons;					// the player HUD's quick slot icons
 	Texture ribbon;						// the journal's bookmark ribbons, tinted per section

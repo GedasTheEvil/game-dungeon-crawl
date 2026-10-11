@@ -136,7 +136,7 @@ class Dungeon {
 	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
 	// The scrolling plasma of the gates, over the quad v (its corners take the texture's (0, 0), (0, 1), (1, 1), (1,
 	// 0)).
-	void drawPortal(const float normal[3], const float v[4][3]) const;
+	void drawPortal(const float normal[3], const float v[4][3], bool red = false) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	// Dart traps (dungeon_darts.cpp, docs/plan/solved/poison-dart-trap.md): a pressed plate makes the holes in the back
@@ -230,6 +230,14 @@ class Dungeon {
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
+	// Gate travel: the view fades out (Out), the jump happens under the faded frame, the view fades in (In). The world
+	// stands still meanwhile.
+	enum class Travel : unsigned char { None, Out, In };
+	Travel travel = Travel::None;
+	int travelStartMs = 0;
+	bool travelExit = false; // the exit gate (red), else a teleporter (blue)
+	void startTravel(bool exitGate);
+	void updateTravel();
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
@@ -297,7 +305,10 @@ class Dungeon {
 	// out of stamina (told why), or the level is won.
 	void StartJump(int dir);
 	bool SpawnMonster(int i, int j);
-	void Teleport(); // on a teleporter: jump to its partner
+	void Teleport(); // on a teleporter: jump to its partner (useGate starts it under a fade)
+	[[nodiscard]] bool Travelling() const { return travel != Travel::None; }
+	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
+	[[nodiscard]] bool TravelToExit() const { return travelExit; }
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
 	[[nodiscard]] int MonsterBarsShown() const;				  // living monsters that show their health bar

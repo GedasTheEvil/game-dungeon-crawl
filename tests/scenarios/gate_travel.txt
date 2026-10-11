@@ -1,0 +1,19 @@
+# Plan small-ux-gates: the blue entrance plasma, the fade into a teleporter's blue and the exit gate's red plasma and fade.
+god
+level tests/levels/teleport
+wait 30
+screenshot entrance_blue
+walk right 5.3
+wait 10
+key e
+wait 10
+screenshot teleport_fade_out
+wait 30
+screenshot teleport_arrived
+walk right 2
+screenshot exit_gate_red
+key e
+wait 10
+screenshot exit_fade_out
+wait 45
+expect level == 2

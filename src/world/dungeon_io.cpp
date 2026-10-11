@@ -7,6 +7,7 @@
 #include "../core/logger.h"
 #include "loot.h"
 #include "campaign.h"
+#include "dungeon_rules.h"
 #include <algorithm>
 #include <iterator>
 #include <fstream>
@@ -25,6 +26,7 @@ bool Dungeon::Load(const char* filename, int depth) {
 }
 //======================================================================================
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
+	travel = Travel::None;
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
 	bool entranceFound = false;
@@ -133,14 +135,46 @@ void Dungeon::useGate() {
 		SetMapBAtPlayer(GateEmpty);
 		break;
 	case GateExit:
-		LoadCampaignLevel(levelNumber + 1);
+		startTravel(true);
 		break;
 	case GateTeleport:
-		Teleport();
+		if (!sim.player->jump.jumping && !sim.player->jump.falling &&
+			teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
+			startTravel(false);
 		break;
 	default: // the entrance, an answered riddle gate
 		break;
 	}
+}
+//======================================================================================
+void Dungeon::startTravel(bool exitGate) {
+	travel = Travel::Out;
+	travelStartMs = GameClock::now();
+	travelExit = exitGate;
+	if (!exitGate)
+		sim.events->Play(WorldSound::Teleport);
+}
+//======================================================================================
+void Dungeon::updateTravel() {
+	updateAnimations();
+	if (GameClock::now() - travelStartMs < GATE_TRAVEL_FADE_MS)
+		return;
+	if (travel == Travel::Out) {
+		if (travelExit)
+			LoadCampaignLevel(levelNumber + 1);
+		else
+			Teleport();
+		travel = Travel::In;
+		travelStartMs = GameClock::now();
+	} else
+		travel = Travel::None;
+}
+//======================================================================================
+float Dungeon::TravelFade() const {
+	if (travel == Travel::None)
+		return 0.f;
+	const float t = motionProgress(travelStartMs, GATE_TRAVEL_FADE_MS);
+	return travel == Travel::Out ? t : 1.f - t;
 }
 //======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.
@@ -151,7 +185,6 @@ void Dungeon::Teleport() {
 	int to = teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY)));
 	if (to < 0)
 		return;
-	sim.events->Play(WorldSound::Teleport);
 	const int row = to / MAP_WIDTH;
 	mapX = static_cast<float>(to % MAP_WIDTH) + TELEPORT_ARRIVAL_X;
 	mapY = static_cast<float>(row);

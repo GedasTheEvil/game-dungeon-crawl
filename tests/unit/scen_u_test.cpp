@@ -191,6 +191,6 @@ TEST_CASE("a generated level (seed 81, difficulty 8) plays from start to exit: k
 	world.Wait(1500);
 	left(7.f);
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.dungeon.LevelNumber() == 2);
 }

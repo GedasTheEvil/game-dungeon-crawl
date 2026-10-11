@@ -14,20 +14,20 @@ TEST_CASE("a teleporter jumps the player to its partner and back; the sealed roo
 	world.WaitTicks(10);
 	CHECK(world.Y() < 3);
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() > 3);
 	CHECK(world.X() > 7.4f);
 	CHECK(world.X() < 8.f);
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() < 3);
 	CHECK(world.X() > 6.4f);
 	CHECK(world.X() < 7.f);
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	REQUIRE(world.Walk(2.f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.dungeon.LevelNumber() == 2);
 }
 
@@ -154,7 +154,7 @@ TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dea
 	world.WaitTicks(30);
 	REQUIRE(world.Walk(3.5f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() > 3);
 	REQUIRE(world.Walk(5.f));
 	world.WaitTicks(5);
@@ -197,7 +197,7 @@ TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, t
 	REQUIRE(world.Climb(-1.97f));
 	REQUIRE(world.Walk(4.f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	REQUIRE(world.Walk(7.f));
 	world.Wait(3000);
 	CHECK(world.dungeon.LivingMinions() >= 3);
@@ -213,12 +213,12 @@ TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, t
 	world.Wait(1400);
 	REQUIRE(world.Walk(-15.95f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	REQUIRE(world.Walk(-17.1f));
 	world.Wait(1400);
 	REQUIRE(world.Walk(-9.95f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.dungeon.LevelNumber() == 6);
 }
 
@@ -231,7 +231,7 @@ TEST_CASE(
 	CHECK(world.Hp() == 698);
 	REQUIRE(world.Walk(3.5f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() > 3);
 	REQUIRE(world.WalkTo(9.f));
 	world.WaitTicks(10);
@@ -384,4 +384,19 @@ TEST_CASE("a mummy killed by the spikes stays dead after a load, and its coffin 
 	world.Wait(5000);
 	CHECK(world.Nearest() == 0);
 	CHECK(world.dungeon.CoffinCount() == coffins);
+}
+
+TEST_CASE("using a teleporter emits the teleport sound") {
+	SimWorld world; // tests/levels/teleport: row 2 -> row 4
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/teleport"));
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(5.3f));
+	world.WaitTicks(10);
+	world.Interact();
+	world.WaitTicks(5);
+	const bool heard = std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Sound && e.sound == WorldSound::Teleport;
+	});
+	CHECK(heard);
 }

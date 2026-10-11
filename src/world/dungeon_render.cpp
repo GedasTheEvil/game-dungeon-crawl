@@ -168,10 +168,10 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawPortal(const float normal[3], const float v[4][3]) const {
+void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red) const {
 	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
-	sim.assets->textures.portal.Bind();
+	(red ? sim.assets->textures.portalRed : sim.assets->textures.portal).Bind();
 	Lighting::setEmissive(true);
 	glBegin(GL_QUADS);
 	glNormal3fv(normal);
@@ -229,7 +229,7 @@ void Dungeon::drawDoorTile(int i, int j) {
 	if (tile.attr == GateEntrance || tile.attr == GateExit) {
 		const float normal[3] = {1, 0, 0};
 		const float v[4][3] = {{-19.6f, 0, -10}, {-19.6f, 35, -10}, {-19.6f, 35, 10}, {-19.6f, 0, 10}};
-		drawPortal(normal, v);
+		drawPortal(normal, v, tile.attr == GateExit);
 	}
 	glPopMatrix();
 

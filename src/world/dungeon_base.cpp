@@ -103,6 +103,10 @@ void Dungeon::UpdateMovementState() {
 }
 //======================================================================================
 void Dungeon::Update() {
+	if (travel != Travel::None) {
+		updateTravel();
+		return;
+	}
 	UpdateMovementState();
 	exploreAroundPlayer();
 	updateMechanisms();

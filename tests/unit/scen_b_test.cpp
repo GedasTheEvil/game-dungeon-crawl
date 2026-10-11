@@ -125,7 +125,7 @@ TEST_CASE("the vampire bat's roost: two bats drop, wounded it heals on bites, su
 	world.WaitTicks(30);
 	REQUIRE(world.Walk(3.5f));
 	world.Interact();
-	world.WaitTicks(5);
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() > 3);
 	world.WaitTicks(10);
 	CHECK(world.dungeon.BossHealth() == 400);

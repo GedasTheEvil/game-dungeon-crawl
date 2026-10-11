@@ -278,6 +278,7 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 			 "models/props/questionmark.md3");
 	loadProp(textures.columns, models.columns, "textures/props/columns.png", "models/props/columns.md3");
 	textures.portal.LoadPNG("textures/effects/plasma.png");
+	textures.portalRed.LoadPNG("textures/effects/plasma_red.png");
 
 	progress(80, "Loading decorations");
 	loadDecor(decor);

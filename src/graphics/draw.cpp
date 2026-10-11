@@ -194,6 +194,21 @@ void drawGameplay() {
 	glEnable(GL_BLEND);
 
 	Game().assets.textures.nullTex.Bind();
+	if (const float fade = Game().dungeon.TravelFade(); fade > 0.f) { // gate travel: the view fades into the plasma
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		if (Game().dungeon.TravelToExit())
+			glColor4f(1.f, 0.35f, 0.25f, fade);
+		else
+			glColor4f(0.35f, 0.65f, 1.f, fade);
+		glBegin(GL_QUADS);
+		glVertex2f(0, 0);
+		glVertex2f(100, 0);
+		glVertex2f(100, 100);
+		glVertex2f(0, 100);
+		glEnd();
+		glColor3f(1, 1, 1);
+		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	}
 	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
 					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID());
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);

@@ -1,6 +1,6 @@
 # Curses
 
-Status: draft 2026-10-10, refined twice 2026-10-10 (decided except who applies curses, not implemented). From the user.
+Status: draft 2026-10-10, refined twice 2026-10-10 (decided, not implemented; who applies which curse decided 2026-10-11). From the user.
 
 ## Idea
 
@@ -96,16 +96,18 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * Anubis applies two curses: Vulnerability from its melee hits (guard 15%, boss 30%, `meleeCurses`), Palsy (guard 20%, boss 40%) from its
   ranged bolt only (2026-10-11).
 
-## Open
+## Who applies which curse (decided, user 2026-10-11)
 
-1. **Who applies which curse.** Only the mummy (weakness) is set; the rest is defined later. Ideas (each needs a
-   boss pairing, per the boss rule):
+All melee bites (`meleeCurses`) unless marked ranged. Chances are starting values: plain monster lower, its giant
+higher, the boss (per the boss rule) highest; a greater grade is its own entry with a low chance.
 
-   | Curse | Candidate | Why |
-   |---|---|---|
-   | Disease | rat, giant rat (boss: none; a rat king later?) | plague carriers |
-   | Slowness | worm, giant cobra, Apep (decided, see above) | coils and sand |
-   | Fatigue | vampire bat's kin, the bat / giant bat (boss: vampire bat) | drains |
-   | Vulnerability | Anubis (boss: Anubis boss), on melee hits | judge of the dead, weighs the heart |
-   | Clumsiness | giant scarab (boss: scarab boss) | |
-   | Insanity | the [cursed mimic](cursed-mimic.draft.opus.md), a mimic variant for the higher levels (decided) | none |
+| Curse | Monster: chance | Why |
+|---|---|---|
+| Weakness | mummy 10%, greater 2% | |
+| Disease | rat 10%; giant rat 15%, greater 3% (no boss has rat kin; a rat king later?) | plague carriers |
+| Slowness | worm 15%, giant cobra 15%, Apep 30% (boss of the cobra kin) | coils and sand |
+| Fatigue | bat 10%, giant bat 15%, vampire bat 30% (boss of the bat kin) | drains |
+| Vulnerability | Anubis 15%, Anubis boss 30% | judge of the dead, weighs the heart |
+| Palsy | Anubis 20%, Anubis boss 40%, ranged bolt only (`rangedCurses`) | |
+| Clumsiness | giant scarab 15%; scarab boss (Khepri) 30%, greater 6% | |
+| Insanity | the [cursed mimic](cursed-mimic.draft.opus.md) 25% | |

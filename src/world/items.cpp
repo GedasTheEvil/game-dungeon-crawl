@@ -13,7 +13,7 @@ namespace {
 constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	// The club is slow and heavy, and grows most.
 	{.file = {ItemType::MELEE_WEAPON, 0},
-	 .text = {"Club", "Club", "club", "", "Good old club.", "Now with spikes."},
+	 .text = {"Acacia Club", "Club", "club", "", "Good old club.", "Now with spikes."},
 	 .weapon = {.model = "club",
 				.scale = 6,
 				.damage = 10,
@@ -24,7 +24,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.swingSound = "club_swing",
 				.strikeSound = "club_hit"}},
 	{.file = {ItemType::MELEE_WEAPON, 3},
-	 .text = {"Dagger", "Dagger", "dagger", "", "Quick and close.", "Mind the fingers."},
+	 .text = {"Flint Knife", "Knife", "dagger", "", "Quick and close.", "Mind the fingers."},
 	 .weapon = {.model = "dagger",
 				.scale = 4,
 				.damage = 8,
@@ -36,7 +36,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.strikeSound = "spear_hit"}},
 	// Quick; it starts strongest, so it grows least.
 	{.file = {ItemType::MELEE_WEAPON, 1},
-	 .text = {"Short Sword", "Sword", "short sword", "", "Bronze blade of a", "forgotten guard."},
+	 .text = {"Bronze Sword", "Sword", "short sword", "", "Bronze blade of a", "forgotten guard."},
 	 .weapon = {.model = "sword",
 				.scale = 9,
 				.damage = 35,
@@ -82,7 +82,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.strikeSound = "axe_hit",
 				.generatedFrom = 7}},
 	{.file = {ItemType::MELEE_WEAPON, 7},
-	 .text = {"Mace", "Mace", "mace", "", "A stone on a stick.", "The oldest argument."},
+	 .text = {"Pear Mace", "Mace", "mace", "", "A stone on a stick.", "The oldest argument."},
 	 .weapon = {.model = "mace",
 				.scale = 7,
 				.damage = 50,
@@ -94,7 +94,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedFrom = 7}},
 	// It thrusts.
 	{.file = {ItemType::MELEE_WEAPON, 2},
-	 .text = {"Spear", "Spear", "spear", "", "Long reach.", "None shall pass!"},
+	 .text = {"Medjay Spear", "Spear", "spear", "", "Long reach.", "None shall pass!"},
 	 .weapon = {.model = "spear",
 				.scale = 15,
 				.damage = 20,
@@ -105,7 +105,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.strikeSound = "spear_hit",
 				.generatedFrom = 3}},
 	{.file = {ItemType::RANGED_WEAPON, 0},
-	 .text = {"Self-Bow", "Bow", "self-bow", "", "One stave of acacia.", "For slow monsters."},
+	 .text = {"Nubian Bow", "Bow", "self-bow", "", "One stave of acacia.", "For slow monsters."},
 	 .weapon = {.model = "bow",
 				.scale = 12,
 				.damage = 12,
@@ -115,7 +115,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.swingSound = "bow_draw",
 				.strikeSound = "bow_release"}},
 	{.file = {ItemType::RANGED_WEAPON, 1},
-	 .text = {"Composite Bow", "Comp. bow", "composite bow", "", "Wood, horn and sinew,", "glued by a master."},
+	 .text = {"Chariot Bow", "Ch. bow", "composite bow", "", "Wood, horn and sinew,", "glued by a master."},
 	 .weapon = {.model = "composite_bow",
 				.scale = 11,
 				.damage = 22,
@@ -127,7 +127,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedFrom = 7}},
 	// Whirled overhead from hanging down, let go in front.
 	{.file = {ItemType::RANGED_WEAPON, 2},
-	 .text = {"Sling", "Sling", "sling", "", "A shepherd's sling.", "Stones are everywhere."},
+	 .text = {"Nubian Sling", "Sling", "sling", "", "A shepherd's sling.", "Stones are everywhere."},
 	 .weapon = {.model = "sling",
 				.scale = 5,
 				.damage = 10,
@@ -151,7 +151,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.thrown = true,
 				.generatedFrom = 4}},
 	{.file = {ItemType::RANGED_WEAPON, 4},
-	 .text = {"Javelin", "Javelin", "javelin", "", "Light enough to throw,", "heavy enough to stay."},
+	 .text = {"Medjay Javelin", "Javelin", "javelin", "", "Light enough to throw,", "heavy enough to stay."},
 	 .weapon = {.model = "javelin",
 				.scale = 11,
 				.damage = 30,
@@ -164,7 +164,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.thrown = true,
 				.generatedFrom = 4}},
 	{.file = {ItemType::POTION, 0},
-	 .text = {"Small Health", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from",
+	 .text = {"Lesser Draught of Sekhmet", "Heal", "small health", "Heals 25% of max health", "Bitter herbs from",
 			  "the Nile marshes."},
 	 .potion = {.gain = {.healPercent = PotionEffect::SMALL_HEAL_PERCENT},
 				.model = PotionModel::Flask,
@@ -173,7 +173,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::HealthPotions,
 				.generatedWeight = 30}},
 	{.file = {ItemType::POTION, 1},
-	 .text = {"Large Health", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests",
+	 .text = {"Greater Draught of Sekhmet", "Heal+", "large health", "Heals 50% of max health", "Brewed by the priests",
 			  "of Sekhmet."},
 	 .potion = {.gain = {.healPercent = PotionEffect::LARGE_HEAL_PERCENT},
 				.model = PotionModel::Lotus,
@@ -182,7 +182,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::HealthPotions,
 				.generatedWeight = 15}},
 	{.file = {ItemType::POTION, 2},
-	 .text = {"Aphethamine", "Might", "might", "Might +1, for good", "It tingles. Best not", "ask what is in it."},
+	 .text = {"Blood of Montu", "Might", "might", "Might +1, for good", "It tingles. Best not", "ask what is in it."},
 	 .potion = {.gain = {.might = PotionEffect::MIGHT},
 				.model = PotionModel::Pilgrim,
 				.texture = "potion_aphethamine",
@@ -190,7 +190,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::Might,
 				.generatedWeight = 10}},
 	{.file = {ItemType::POTION, 3},
-	 .text = {"Stone Skin", "Armor", "armor", "Armor +1, for good", "Skin as hard as", "temple granite."},
+	 .text = {"Granite of Ptah", "Armor", "armor", "Armor +1, for good", "Skin as hard as", "temple granite."},
 	 .potion = {.gain = {.armor = PotionEffect::ARMOR},
 				.model = PotionModel::Canopic,
 				.texture = "potion_stone_skin",
@@ -198,7 +198,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::Armor,
 				.generatedWeight = 10}},
 	{.file = {ItemType::POTION, 4},
-	 .text = {"Elixir of Life", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,",
+	 .text = {"Breath of Osiris", "Life", "life", "Max health +5%, full heal", "The breath of Osiris,",
 			  "sealed in a flask."},
 	 .potion = {.gain = {.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT},
 				.model = PotionModel::Ankh,
@@ -208,7 +208,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedWeight = 5}},
 	// Small Stamina: green faience
 	{.file = {ItemType::POTION, 5},
-	 .text = {"Small Stamina", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.",
+	 .text = {"Date Wine", "Vigor", "small stamina", "Restores 50% of stamina", "Date wine and honey.",
 			  "Mostly honey."},
 	 .potion = {.gain = {.staminaPercent = PotionEffect::SMALL_STAMINA_PERCENT},
 				.model = PotionModel::Flask,
@@ -218,8 +218,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedWeight = 20}},
 	// Large Stamina: turquoise
 	{.file = {ItemType::POTION, 6},
-	 .text = {"Large Stamina", "Vigor+", "large stamina", "Restores all stamina", "Sun-steeped water",
-			  "from the temple of Ra."},
+	 .text = {"Beer of Hathor", "Vigor+", "large stamina", "Restores all stamina", "The red beer that calmed",
+			  "Sekhmet. It calms you."},
 	 .potion = {.gain = {.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT},
 				.model = PotionModel::Lotus,
 				.texture = "potion_large_stamina",
@@ -228,7 +228,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedWeight = 10}},
 	// Antidote: dark malachite
 	{.file = {ItemType::POTION, 7},
-	 .text = {"Antidote", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
+	 .text = {"Milk of Renenutet", "Cure", "antidote", "Cures all poison", "Milk of the snake", "goddess Renenutet."},
 	 .potion = {.gain = {.cure = true},
 				.model = PotionModel::Cobra,
 				.texture = "potion_antidote",
@@ -238,7 +238,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.mimicLoot = false}},
 	// The resistance potions: sky blue, deep lapis. Like the antidote, they lie only on the levels with poisoners.
 	{.file = {ItemType::POTION, 8},
-	 .text = {"Lesser Resistance", "Ward", "lesser resistance", "Resists poison 50% for 2 min",
+	 .text = {"Lesser Ward of Wadjet", "Ward", "lesser resistance", "Resists poison 50% for 2 min",
 			  "Venom of a young cobra,", "taken drop by drop."},
 	 .potion = {.gain = {.resistPercent = PotionEffect::LESSER_RESIST_PERCENT},
 				.model = PotionModel::Cobra,
@@ -248,7 +248,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.generatedWeight = 0,
 				.mimicLoot = false}},
 	{.file = {ItemType::POTION, 9},
-	 .text = {"Greater Resistance", "Ward+", "greater resistance", "Cures, resists poison 95% for 2 min",
+	 .text = {"Greater Ward of Wadjet", "Ward+", "greater resistance", "Cures, resists poison 95% for 2 min",
 			  "Wadjet's own venom.", "The cobra spares her kin."},
 	 .potion = {.gain = {.cure = true, .resistPercent = PotionEffect::GREATER_RESIST_PERCENT},
 				.model = PotionModel::Cobra,
@@ -296,7 +296,8 @@ static_assert(AMULETS.back().type == AmuletType::Venom && AMULETS.back().tier ==
 struct AmuletTypeDef {
 	const char* model; // models/items/<model>.md3
 	std::array<int, AMULET_TIER_COUNT> amount;
-	const char* noun;	   // "Amulet of <noun>"
+	const char* noun;	   // the amulet's object: "Jackal Tooth"; its name is the tier and the noun
+	const char* labelNoun; // what it does, for the label ("amulet of <labelNoun>"): editor, tools, scenarios
 	const char* shortNoun; // the slot's name band, with the tier as I .. IV
 	const char* effect;	   // printf format of the amount
 	const char* lore1;
@@ -305,6 +306,7 @@ struct AmuletTypeDef {
 constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	{"amulet_strength",
 	 {1, 2, 4, 6},
+	 "Jackal Tooth",
 	 "Strength",
 	 "Str.",
 	 "Might +%d while worn",
@@ -312,6 +314,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "on a cord. Bite back."},
 	{"amulet_armor",
 	 {1, 2, 4, 6},
+	 "Bronze Scarab",
 	 "Armor",
 	 "Arm.",
 	 "Armor +%d while worn",
@@ -319,6 +322,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Hard shell, soft heart."},
 	{"amulet_health",
 	 {5, 10, 20, 30},
+	 "Carnelian Heart",
 	 "Health",
 	 "Life",
 	 "Max health +%d%% while worn",
@@ -326,6 +330,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "It beats with yours."},
 	{"amulet_poison",
 	 {10, 25, 50, 80},
+	 "Serket's Scorpion",
 	 "Poison Warding",
 	 "Pois.",
 	 "Resists poison %d%% of the time",
@@ -333,6 +338,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Her children spare you."},
 	{"amulet_traps",
 	 {25, 50, 75, 100},
+	 "Eye of Horus",
 	 "Trap Warding",
 	 "Trap",
 	 "Trap damage -%d%%",
@@ -340,6 +346,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "It sees the spikes first."},
 	{"amulet_blunt",
 	 {8, 16, 28, 40},
+	 "Djed Pillar",
 	 "Blunt Warding",
 	 "Blunt",
 	 "Blunt damage -%d%%",
@@ -347,6 +354,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "It does not bend."},
 	{"amulet_slash",
 	 {8, 16, 28, 40},
+	 "Knot of Isis",
 	 "Slash Warding",
 	 "Slash",
 	 "Slash damage -%d%%",
@@ -354,6 +362,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Blades slip on it."},
 	{"amulet_pierce",
 	 {8, 16, 28, 40},
+	 "Shen Ring",
 	 "Pierce Warding",
 	 "Pierce",
 	 "Pierce damage -%d%%",
@@ -361,6 +370,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Points glance off it."},
 	{"amulet_regeneration",
 	 {0, 0, 1, 2},
+	 "Faience Lotus",
 	 "Regeneration",
 	 "Regen",
 	 "Heals %d health a second when safe",
@@ -368,6 +378,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "It opens when all is calm."},
 	{"amulet_venom",
 	 {10, 15, 20, 30},
+	 "Wadjet's Cobra",
 	 "Venom",
 	 "Venom",
 	 "%d%% of hits poison (%s)",
@@ -393,25 +404,26 @@ struct AmuletTexts {
 			const Amulet a = AMULETS[i];
 			const AmuletTypeDef& def = typeDef(a.type);
 			const std::string noun = def.noun;
+			const std::string labelNoun = def.labelNoun;
 			switch (a.tier) {
 			case AmuletTier::Lesser:
-				names[i] = "Lesser Amulet of " + noun;
+				names[i] = "Lesser " + noun;
 				break;
 			case AmuletTier::Minor:
-				names[i] = "Amulet of Minor " + noun;
+				names[i] = "Minor " + noun;
 				break;
 			case AmuletTier::Normal:
-				names[i] = "Amulet of " + noun;
+				names[i] = noun;
 				break;
 			case AmuletTier::Grand:
-				names[i] = "Grand Amulet of " + noun;
+				names[i] = "Grand " + noun;
 				break;
 			}
 			shortNames[i] = std::string(def.shortNoun) + " " + TIER_NUMERALS[static_cast<size_t>(a.tier)];
 			const std::string tierWord = TIER_WORDS[static_cast<size_t>(a.tier)];
 			labels[i] = tierWord.empty() ? "" : tierWord + " ";
 			labels[i] += "amulet of ";
-			labels[i] += noun;
+			labels[i] += labelNoun;
 			for (char& c : labels[i])
 				c = static_cast<char>(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
 			char effect[64];

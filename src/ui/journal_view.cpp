@@ -238,18 +238,20 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 				"differently: I note it down."},
 	{"Blunt", "A club bludgeons, and so do the mace, the sling's stones and the throwing stick: they crush rather "
 			  "than cut."},
-	{"Slash", "A blade slashes: the short sword, the khopesh, the epsilon axe. Long cuts, quick to follow one "
+	{"Slash", "A blade slashes: the bronze sword, the khopesh, the epsilon axe. Long cuts, quick to follow one "
 			  "another."},
-	{"Pierce", "A point pierces: the dagger, the spear, the javelin, the duckbill axe, every arrow. It finds the "
+	{"Pierce", "A point pierces: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the "
 			   "gaps between scales and plates."},
 	{"Health draughts", "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. In a hurry, "
 						"H drinks the one that fits best."},
-	{"Stamina draughts", "Date wine and honey, or sun-steeped water: a stamina draught gives me my breath back. In "
+	{"Stamina draughts", "Date wine, or the red beer of Hathor: a stamina draught gives me my breath back. In "
 						 "a hurry, 0 drinks the one that fits best."},
-	{"Aphethamine", "It tingles. Whatever is in it, my arm hits harder after it, for good."},
-	{"Stone Skin", "My skin hardens like temple granite: every blow takes a little less, for good."},
-	{"Elixir of Life", "The breath of Osiris: more health for good, and every wound closed at once."},
-	{"Antidote", "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
+	{"Blood of Montu", "It tingles. Whatever is in it, my arm hits harder after it, for good."},
+	{"Granite of Ptah",
+	 "Ptah's granite: my skin hardens like a temple wall, every blow takes a little less, for good."},
+	{"Breath of Osiris", "The breath of Osiris: more health for good, and every wound closed at once."},
+	{"Milk of Renenutet",
+	 "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
 	{"Dart traps", "A slab with a cobra on it sank under my foot, and darts shot out of three holes in the wall "
 				   "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts take "
 				   "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "

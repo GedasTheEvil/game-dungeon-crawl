@@ -1,6 +1,6 @@
 # Egyptian names
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user, after a lore review: rename the monsters and
+Status: implemented 2026-10-11, awaiting user verification. Labels and ids kept (editor, scenarios); amulets: tier word + object ("Lesser Jackal Tooth"), label by effect. Riddles: `riddles/stargate.txt`. From the user, after a lore review: rename the monsters and
 items that do not fit the Egyptian tomb. Names only (and their journal notes / flavour lines); no new behaviour.
 
 ## Rules (user, 2026-10-10)

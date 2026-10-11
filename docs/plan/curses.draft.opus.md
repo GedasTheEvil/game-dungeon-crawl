@@ -2,6 +2,8 @@
 
 Status: draft 2026-10-10, refined twice 2026-10-10 (decided, not implemented; who applies which curse decided 2026-10-11). From the user.
 
+Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+
 ## Idea
 
 Timed debuffs on the player, shown as small square icons above the HUD panel with the seconds left, like the poison

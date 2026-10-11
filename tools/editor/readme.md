@@ -101,19 +101,19 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | Attribute | Monster |
 |---|---|
 | 1 | Scarab |
-| 2 | Worm |
-| 3 | Plant |
-| 4 | Anubis |
+| 2 | Worm (game name: Sand worm) |
+| 3 | Plant (game name: Thorn acacia) |
+| 4 | Anubis (game name: Anubis living statue) |
 | 5 | Rat |
 | 6 | Giant rat |
 | 7 | Bat |
 | 8 | Giant bat |
-| 9 | Mimic |
+| 9 | Mimic (game name: Chest of Set) |
 | 10 | Giant scarab |
-| 11 | Boss scarab (boss) |
-| 12 | Vampire bat (boss) |
+| 11 | Boss scarab (boss; game name: Khepri) |
+| 12 | Vampire bat (boss; game name: Bat of Shezmu) |
 | 13 | Mummy |
-| 14 | Anubis boss (boss) |
+| 14 | Anubis boss (boss; game name: Anubis) |
 | 15 | Crocodile |
 | 16 | Scorpion |
 | 17 | Cobra |

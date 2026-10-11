@@ -2,6 +2,8 @@
 
 Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user. Needs [curses](curses.draft.opus.md).
 
+Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+
 ## Idea
 
 A variant of the mimic for the higher levels. Its bite can curse the player with **insanity** (map, journal,

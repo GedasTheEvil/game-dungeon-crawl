@@ -330,10 +330,10 @@ TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
 }
 
 TEST_CASE("amulet names and effects") {
-	CHECK(std::string(itemText(ItemKind::StrengthLesser).name) == "Lesser Amulet of Strength");
-	CHECK(std::string(itemText(ItemKind::StrengthMinor).name) == "Amulet of Minor Strength");
-	CHECK(std::string(itemText(ItemKind::StrengthNormal).name) == "Amulet of Strength");
-	CHECK(std::string(itemText(ItemKind::StrengthGrand).name) == "Grand Amulet of Strength");
+	CHECK(std::string(itemText(ItemKind::StrengthLesser).name) == "Lesser Jackal Tooth");
+	CHECK(std::string(itemText(ItemKind::StrengthMinor).name) == "Minor Jackal Tooth");
+	CHECK(std::string(itemText(ItemKind::StrengthNormal).name) == "Jackal Tooth");
+	CHECK(std::string(itemText(ItemKind::StrengthGrand).name) == "Grand Jackal Tooth");
 	CHECK(std::string(itemText(ItemKind::StrengthNormal).effect) == "Might +4 while worn");
 	CHECK(std::string(itemText(ItemKind::TrapWardGrand).effect) == "Immune to traps");
 	CHECK(std::string(itemText(ItemKind::HealthMinor).label) == "minor amulet of health");
@@ -450,8 +450,8 @@ TEST_CASE("sort by name: A to Z among the found, the rest after in ItemKind orde
 	const std::vector<ItemKind> order = tabOrder(bag, ItemGroup::Weapons, SortOrder::Name);
 	CHECK(order[0] == ItemKind::Club);
 	CHECK(order[1] == ItemKind::Dagger);
-	CHECK(order[2] == ItemKind::SelfBow);
-	CHECK(order[3] == ItemKind::Spear);
+	CHECK(order[2] == ItemKind::Spear); // Acacia Club, Flint Knife, Medjay Spear, Nubian Bow
+	CHECK(order[3] == ItemKind::SelfBow);
 	CHECK(order[4] == ItemKind::ShortSword); // not found: ItemKind order
 	CHECK(order[5] == ItemKind::Khopesh);
 }

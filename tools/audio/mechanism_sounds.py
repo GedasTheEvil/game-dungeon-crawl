@@ -203,18 +203,21 @@ def rock_crash():
 
 
 def teleport():
-    # The plasma swells and rises, the player is pulled through, a shimmer rings out at the other gate.
+    # A sharp zap as the plasma takes the player, a fast rising swell (peak ~0.3 s: the old slow one was missed), a bright
+    # shimmer ringing out at the other gate. One noise draw of the full length, so later sounds keep their rng stream.
     dur = 1.1
     t = t_axis(dur)
-    swell = np.sin(np.pi * np.clip(t / 0.75, 0, 1)) ** 2
-    out = band(rng.standard_normal(len(t)), 600, 3500) * swell * 0.5
+    swell = env_ad(t, 0.05, 0.35) * 2.5
+    out = band(rng.standard_normal(len(t)), 600, 4500) * swell * 0.6
     for k, f0 in enumerate((180, 270, 360)):
-        s, tt = chirp(f0, f0 * 5, 0.75, 1.8)
-        s *= np.sin(np.pi * tt / 0.75) ** 2 * (1 + 0.4 * np.sin(2 * np.pi * 9 * tt))
-        place(out, s, 0.0, 0.6 / (k + 1))
+        s, tt = chirp(f0, f0 * 6, 0.8, 1.6)
+        s *= np.sin(np.pi * tt / 0.8) ** 1.2 * (1 + 0.4 * np.sin(2 * np.pi * 11 * tt))
+        place(out, s, 0.0, 0.7 / (k + 1))
+    zap, tz = chirp(3200, 600, 0.12, 0.6)
+    place(out, zap * env_ad(tz, 0.002, 0.04), 0.0, 1.0)
     shimmer, ts = ring((1760, 2640, 3520), 0.4, 0.12)
-    place(out, shimmer * (1 - np.exp(-ts / 0.005)), 0.68, 0.5)
-    return normalize(out, -4)
+    place(out, shimmer * (1 - np.exp(-ts / 0.005)), 0.62, 0.7)
+    return normalize(out, -2)
 
 
 def summon_dig():

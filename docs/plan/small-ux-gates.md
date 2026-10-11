@@ -1,6 +1,6 @@
 # Small UX: exit gate plasma, teleporter sound, gate travel effect
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user.
+Status: implemented 2026-10-11, awaiting user verification, except 2: the teleport sound is rewritten in `tools/audio/mechanism_sounds.py` (faster, brighter) but `teleport.wav` is not regenerated yet (needs python3-scipy installed). The event was never lost (unit test), so the old sound was just too soft. Red plasma: `plasma_red.png` (R/B swapped). Fade: 0.3 s out and in, no swirl, world frozen (`Dungeon::Travel`), scenario `tests/scenarios/gate_travel.txt`. From the user.
 
 ## 1. Red plasma in the exit gate
 

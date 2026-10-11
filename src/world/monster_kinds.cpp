@@ -74,10 +74,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .generated = {1, 5, 4}},
 	{.id = MonsterWorm,
 	 .glyph = 'w',
-	 .name = "Worm",
+	 .name = "Sand worm",
 	 .label = "worm",
-	 .description = "Worm",
-	 .note = "Slow as sand, but its jaws close like a vice.",
+	 .description = "Sand worm",
+	 .note = "Slow as sand, but its jaws close like a vice. Whoever calls it Shai-Hulud gets no answer.",
 	 .threat = 2.f,
 	 .model = "monsters/worm",
 	 .texture = "monsters/worm",
@@ -93,9 +93,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .generated = {3, 7, 2}},
 	{.id = MonsterPlant,
 	 .glyph = 'p',
-	 .name = "Man-eater plant",
+	 .name = "Thorn acacia",
 	 .label = "plant",
-	 .description = "Man-eater plant, its bite and its sap poison (weak)",
+	 .description = "Thorn acacia, its bite and its sap poison (weak)",
 	 .note = "Rooted to the spot. Never stand next to it. Never touch it, and hitting it counts.",
 	 .threat = 1.5f, // does not move
 	 .model = "monsters/plant",
@@ -120,14 +120,15 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// the late levels (13-30): a level 55 player (about 700 HP, 11 armour) takes about 15 blows.
 	{.id = MonsterAnubis,
 	 .glyph = 'n',
-	 .name = "Anubis",
+	 .name = "Anubis living statue",
 	 .label = "anubis",
-	 .description = "Anubis",
-	 .note = "A jackal-headed guard. Traps do not stop him.",
+	 .description = "Anubis living statue",
+	 .note = "A statue of Anubis that forgot to stay on its plinth. Traps do not stop him.",
 	 .threat = 9.f, // walks faster than the player (docs/plan/anubis-speed.md): only a sprint gets away
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis",
 	 .scale = 19,
+	 .blood = {0.55f, 0.52f, 0.46f}, // stone chips
 	 .speed = 23, // 1.21 tiles a second, 120% of the player's walk (one point: MONSTER_SEEK_STEP each 80 ms step)
 	 .maxHealth = 600,
 	 .damage = 55,
@@ -240,10 +241,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{.id = MonsterMimic,
 	 .glyph = 'M',
-	 .name = "Mimic",
+	 .name = "Chest of Set",
 	 .label = "mimic",
-	 .description = "Mimic, a treasure chest until the player comes near",
-	 .note = "Not every chest in this tomb holds treasure.",
+	 .description = "Chest of Set, a treasure chest until the player comes near",
+	 .note = "Not every chest in this tomb holds treasure. Ask Osiris.",
 	 .threat = 2.f, // hits hard, but does not move
 	 .model = "monsters/mimic",
 	 .texture = "monsters/mimic",
@@ -283,9 +284,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// 3-4 bites kill them.
 	{.id = MonsterBossScarab,
 	 .glyph = 'K',
-	 .name = "Boss scarab",
+	 .name = "Khepri",
 	 .label = "boss scarab",
-	 .description = "Boss scarab, summons scarabs; its death opens the boss gates. One boss per level",
+	 .description = "Khepri, the boss scarab, summons scarabs; its death opens the boss gates. One boss per level",
 	 .note = "The mother of the scarabs. Her brood comes when she calls.",
 	 .threat = 10.f, // a little weaker than an Anubis, plus its scarabs
 	 .model = "monsters/scarab",
@@ -306,9 +307,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.
 	{.id = MonsterVampireBat,
 	 .glyph = 'V',
-	 .name = "Vampire bat",
+	 .name = "Bat of Shezmu",
 	 .label = "vampire bat",
-	 .description = "Vampire bat, summons bats and heals by part of the damage it deals; its death opens the boss "
+	 .description = "Bat of Shezmu, summons bats and heals by part of the damage it deals; its death opens the boss "
 					"gates. One boss per level",
 	 .note = "Grown fat on blood. Every bite makes it stronger.",
 	 .threat = 12.f, // a giant bat that hits like a boss and heals, plus its bats
@@ -360,10 +361,11 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// traps.
 	{.id = MonsterAnubisBoss,
 	 .glyph = 'N',
-	 .name = "Anubis boss",
+	 .name = "Anubis",
 	 .label = "anubis boss",
-	 .description = "Anubis boss, mummies climb out of the coffins round it; its death opens the boss gates. One boss "
-					"per level",
+	 .description =
+		 "Anubis, the god himself, mummies climb out of the coffins round it; its death opens the boss gates. One boss "
+		 "per level",
 	 .note = "The guardian of the last tomb. The dead rise at his word.",
 	 .threat = 15.f, // the finale: four hits kill a level 30 player, plus its mummies
 	 .model = "monsters/anubis",

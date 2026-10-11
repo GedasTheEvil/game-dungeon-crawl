@@ -1,0 +1,64 @@
+# Stargate. Format: docs/riddles.md.
+theme: Chevron Seven Locked
+
+Q: In Stargate, which Egyptian sun god
+Q: turned out to be a parasite in a human host?
+A: ra
+A: re
+H: He rode a golden pyramid ship.
+
+Q: Which System Lord is named after the serpent
+Q: that swallows the sun every night?
+A: apophis
+A: apep
+H: Sobek's old enemy in the Duat.
+
+Q: The warriors who serve the Goa'uld,
+Q: with a golden serpent mark on the brow, are the ______.
+A: jaffa
+H: They carry a larva in the belly pouch.
+
+Q: Which doctor, an archaeologist and linguist,
+Q: opened the gate on Abydos?
+A: daniel jackson
+A: jackson
+A: daniel
+H: He reads hieroglyphs for a living, like you.
+
+Q: How many chevrons must lock to dial
+Q: a gate on another world?
+A: 7
+A: seven
+H: Six give the place, the last one gives the origin.
+
+Q: Which desert planet, the first one the gate led to,
+Q: shares its name with an Egyptian city?
+A: abydos
+H: Ra mined its sand.
+
+Q: What is the rare mineral that powers the gate
+Q: and the ships of the Goa'uld?
+A: naquadah
+A: naqahdah
+H: Starts with N and powers the ships.
+
+Q: The control console that dials the gate
+Q: is called the D H D: Dial Home _______.
+A: device
+H: Not an alien, a gadget.
+
+Q: The Jaffa greet a god with one word: "_____!"
+Q: It means "attention" or "hail".
+A: kree
+H: Four letters, like a bird's call.
+
+Q: Teal'c answers most questions with one word
+Q: and a raised eyebrow. Which word?
+A: indeed
+H: Spelled like "in deed".
+
+Q: Which Goa'uld rules by wearing a hawk-headed
+Q: mask like the god Horus?
+A: horus
+A: heru-ur
+H: His eye is a symbol of protection, also on amulets.

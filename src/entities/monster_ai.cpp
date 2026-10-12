@@ -180,35 +180,37 @@ void Monster::wake() {
 	sound(CharacterSound::Wake);
 }
 
-bool Monster::canSpit(float px, float py) const {
-	if (!type->spit || !Alive() || !alerted || lurking() || GameClock::now() < spitReadyMs)
+bool Monster::canAttackRanged(float px, float py) const {
+	if (!type->ranged || !Alive() || !alerted || lurking() || GameClock::now() < rangedReadyMs)
 		return false;
 	const int dir = attackDirection(px, py); // 0: in bite reach or not on its row
 	const float gap = dir > 0 ? (px - links.player->HalfWidth()) - Right() : Left() - (px + links.player->HalfWidth());
-	return dir != 0 && gap <= type->spit->range;
+	return dir != 0 && gap <= type->ranged->range;
 }
 
-void Monster::Spit() {
-	if (!type->spit)
+void Monster::AttackRanged() {
+	if (!type->ranged)
 		return;
-	enter(ModelState::Spit);
-	spitReadyMs = GameClock::now() + type->spit->cooldownMs;
-	spitReleased = false;
-	sound(type->spit->poison ? CharacterSound::Spit : CharacterSound::Attack); // the bolt: no sound of its own yet
-	links.journal->SeeMove(type->id, links.level, CreatureMove::Spit);
+	enter(ModelState::AttackRanged);
+	rangedReadyMs = GameClock::now() + type->ranged->cooldownMs;
+	rangedReleased = false;
+	sound(type->ranged->poison ? CharacterSound::AttackRanged
+							   : CharacterSound::Attack); // the bolt: no sound of its own yet
+	links.journal->SeeMove(type->id, links.level, CreatureMove::AttackRanged);
 }
 
-bool Monster::Spitting() const {
-	return Alive() && state == ModelState::Spit && !type->model.Finished(state, playback);
+bool Monster::AttackingRanged() const {
+	return Alive() && state == ModelState::AttackRanged && !type->model.Finished(state, playback);
 }
 
-bool Monster::TakeSpit(float& outX, float& outY) {
-	if (!type->spit || spitReleased || !Spitting() || type->model.Progress(state, playback) < type->spit->release)
+bool Monster::TakeShot(float& outX, float& outY) {
+	if (!type->ranged || rangedReleased || !AttackingRanged() ||
+		type->model.Progress(state, playback) < type->ranged->release)
 		return false;
-	spitReleased = true;
+	rangedReleased = true;
 	outX = HeadX();
 	outY = static_cast<float>(row) +
-		   (lift() + type->spit->mouthY * type->model.referenceTop * type->scale * Figures::Scale()) /
+		   (lift() + type->ranged->releaseY * type->model.referenceTop * type->scale * Figures::Scale()) /
 			   RenderConfig::TILE_SIZE;
 	return true;
 }

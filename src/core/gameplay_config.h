@@ -90,12 +90,12 @@ constexpr float SWIM_LIFT_RATE = 4.f;
 
 // The cobra (Locomotion::Coiled) lies coiled until the player comes this close along its row, then rears up.
 constexpr float COILED_WAKE_RANGE = 1.8f;
-// Venom (Dungeon::Venom): flies straight at the player's chest as it was at the spit, on past it until it hits a
-// wall or the floor, or has flown VENOM_MAX_FLIGHT tiles.
-constexpr float VENOM_SPEED = 3.f;	// tiles per second
-constexpr float VENOM_CHEST = 0.6f; // of the player's height
-constexpr float VENOM_MAX_FLIGHT = 4.f;
-constexpr int VENOM_SPLAT_MS = 400; // a splat on a wall or the floor stays this long
+// A monster's shot (Dungeon::MonsterShot): flies straight at the player's chest as it was at the release, on past it
+// until it hits a wall or the floor, or has flown SHOT_MAX_FLIGHT tiles.
+constexpr float SHOT_SPEED = 3.f;  // tiles per second
+constexpr float SHOT_CHEST = 0.6f; // of the player's height
+constexpr float SHOT_MAX_FLIGHT = 4.f;
+constexpr int SHOT_SPLAT_MS = 400; // a splat on a wall or the floor stays this long
 
 // Burrowers (Apep, Monster::Dive): sink into the floor, stay under, come up BURROW_BEHIND tiles past the player (the
 // side away from where it dived), then walk and bite for BURROW_EVERY_MS before the next dive. A hole stays drawn

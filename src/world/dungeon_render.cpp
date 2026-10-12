@@ -349,7 +349,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
 	DrawMonsters(drawn);
 	drawMissiles();
-	drawVenoms();
+	drawShots();
 	drawDarts();
 	if (hitboxes != nullptr)
 		drawHitboxes(*hitboxes);

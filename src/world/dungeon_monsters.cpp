@@ -255,12 +255,12 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (float sx = 0.f, sy = 0.f; mon.TakeSpit(sx, sy))
-			spitVenom(mon, sx, sy);
-		if (mon.Spitting())
+		if (float sx = 0.f, sy = 0.f; mon.TakeShot(sx, sy))
+			shootAtPlayer(mon, sx, sy);
+		if (mon.AttackingRanged())
 			continue;
-		if (!won && !mon.OnRungs() && mon.canSpit(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
-			mon.Spit();
+		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
+			mon.AttackRanged();
 			continue;
 		}
 
@@ -357,7 +357,7 @@ void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
 	missiles.clear();
-	venoms.clear();
+	shots.clear();
 	holes.clear();
 	bossFight = BossFight{};
 }

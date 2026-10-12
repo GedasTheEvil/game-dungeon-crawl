@@ -73,7 +73,7 @@ TEST_CASE("the cobra rears up and spits from afar: its venom poisons the player"
 	for (int t = 0; t < 250 && !world.player.stats.poison.Any(); t++)
 		world.Tick();
 	CHECK(world.Saw(MonsterCobra, CreatureMove::Rear));
-	CHECK(world.Saw(MonsterCobra, CreatureMove::Spit));
+	CHECK(world.Saw(MonsterCobra, CreatureMove::AttackRanged));
 	CHECK(world.player.stats.poison.Mask() == 2); // medium
 	CHECK(world.Hp() < hp);
 }
@@ -85,7 +85,7 @@ TEST_CASE("the Anubis shoots a bolt from afar, no poison, then hits up close") {
 	const int hp = world.Hp();
 	for (int t = 0; t < 1500 && world.Hp() >= hp; t++)
 		world.Tick();
-	REQUIRE(world.Saw(MonsterAnubis, CreatureMove::Spit));
+	REQUIRE(world.Saw(MonsterAnubis, CreatureMove::AttackRanged));
 	CHECK(world.Hp() < hp);
 	CHECK_FALSE(world.player.stats.poison.Any());
 	CHECK_FALSE(world.Saw(MonsterAnubis, CreatureMove::Poison));

@@ -27,8 +27,8 @@ enum class WorldSound : unsigned char {
 	Dodge,		// the player sidesteps a blow (Dodge skill)
 };
 
-// A monster's or the player's own sound (CharacterModel: sounds/<model>_{die,att,jump,wake,spit}.wav).
-enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, Spit };
+// A monster's or the player's own sound (CharacterModel: sounds/<model>_{die,att,jump,wake,att_ranged}.wav).
+enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged };
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
 // What the world, the monsters and the player tell the app: it drains the list at fixed points (after the input

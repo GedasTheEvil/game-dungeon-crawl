@@ -126,8 +126,8 @@ const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
 		return model.jumpSound;
 	case CharacterSound::Wake:
 		return model.wakeSound;
-	case CharacterSound::Spit:
-		return model.spitSound;
+	case CharacterSound::AttackRanged:
+		return model.attackRangedSound;
 	}
 	return model.dieSound;
 }

@@ -143,9 +143,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). POC: the attack clip stands in for the spit
-	 // clip; release and sceptre height guessed.
-	 .spit = SpitRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
+	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). The melee swing is its ranged clip; release
+	 // and sceptre height guessed.
+	 .ranged = RangedRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
 	 .climbs = true,
@@ -397,7 +397,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 .spit = SpitRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
+	 .ranged = RangedRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
 	 .climbs = true,
@@ -480,7 +480,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .spit = SpitRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
+	 .ranged = RangedRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
 	 .riseMs = 750},
 	// The cobra's giant kin, levels after Apep (plan giant-cobra).
 	{.id = MonsterGiantCobra,
@@ -505,7 +505,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .spit = SpitRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
+	 .ranged = RangedRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .riseMs = 750},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison (plan scorpion-queen-boss).

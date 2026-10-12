@@ -40,8 +40,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	wayMs = -1;
 	trapHurt = TrapHurt{};
 	trapDamageCarry = 0;
-	spitReadyMs = 0;
-	spitReleased = true;
+	rangedReadyMs = 0;
+	rangedReleased = true;
 	drop.reset();
 	poison.Cure();
 	poisonByPlayer = false;

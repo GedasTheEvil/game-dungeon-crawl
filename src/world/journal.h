@@ -32,20 +32,20 @@ struct JournalRiddle {
 
 // Special moves a monster type can be seen doing, written down the first time.
 enum class CreatureMove : unsigned char {
-	Leap,	 // a walk-jumper's leap
-	Swoop,	 // a bat drops from the ceiling
-	Ambush,	 // the mimic's chest opens
-	Rise,	 // the mummy climbs out of its coffin
-	Summon,	 // a boss calls its minions
-	Heal,	 // a life-stealing bite
-	Surface, // the crocodile comes up out of the water
-	Poison,	 // a poisoned bite or sting
-	Rear,	 // the cobra rears up out of its coil
-	Spit,	 // venom spat from afar
-	Burrow,	 // Apep dives into the floor and comes up elsewhere
-	Charge,	 // Sobek charges along the row
-	Climb,	 // a climber follows the player up or down a ladder
-	Curse,	 // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
+	Leap,		  // a walk-jumper's leap
+	Swoop,		  // a bat drops from the ceiling
+	Ambush,		  // the mimic's chest opens
+	Rise,		  // the mummy climbs out of its coffin
+	Summon,		  // a boss calls its minions
+	Heal,		  // a life-stealing bite
+	Surface,	  // the crocodile comes up out of the water
+	Poison,		  // a poisoned bite or sting
+	Rear,		  // the cobra rears up out of its coil
+	AttackRanged, // a ranged attack from afar: venom spat, a bolt shot
+	Burrow,		  // Apep dives into the floor and comes up elsewhere
+	Charge,		  // Sobek charges along the row
+	Climb,		  // a climber follows the player up or down a ladder
+	Curse,		  // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
 };
 constexpr int CREATURE_MOVE_COUNT = 14;
 

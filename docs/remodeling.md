@@ -132,13 +132,13 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   with the mouth wide open, the head about 0.5 high, snaps, recoils), die 30 (writhes, the front falls to its side and rolls
   belly up), idle 32 (`_idle`: coiled flat, the tail inside, the head resting on the outer coil, hood closed, breath swell and a
   tongue flick; 0.23 high), rise 24 (`_rise`, once: from idle frame 0 the body unwinds, the front rears up and the hood spreads; last
-  frame = move frame 0), spit 18 (`_spit`, once: hood flared, the head draws back and jerks forward with the mouth open; the venom
+  frame = move frame 0), spit 18 (`_att_ranged`, the ranged clip, once: hood flared, the head draws back and jerks forward with the mouth open; the venom
   leaves at frame 7 (`SPIT_RELEASE`), the mouth then 0.84 high (0.87 of the move clip's height) and 1.20 forward of the reference
   centre; last frame = move frame 0). `-- --measure` prints every clip's frame 0 extents and the mouth per spit frame.
   Bakes `cobra.png` and `cobra_giant.png` (black-necked: near black, pale cream throat band, amber eyes) on the same UVs;
   `COBRA_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `cobra_apep.png` (Apep: red-black, gold-green
   scale edges, yellow eyes, a dark red hood with two pale eye-spot rings; palette keys `edge`, `hood`, `spot`), `COBRA_TEX=apep`.
-  Sounds: `tools/audio/cobra_sounds.py` (`sounds/monsters/cobra_{wake,att,spit,die}.wav`: swelling hiss; hiss, swish and jaw
+  Sounds: `tools/audio/cobra_sounds.py` (`sounds/monsters/cobra_{wake,att,att_ranged,die}.wav`: swelling hiss; hiss, swish and jaw
   snap; hiss and a wet 'pff'; gasping hiss, thud of the body, last slither).
 * `tools/blender/models/plant.py` - static monster example: lathed jar, FK bone chains (stalk, vines) with per-bone Euler
   angles from pose parameters, hinged petals, poses eased off by bisection so nothing sinks through the floor.

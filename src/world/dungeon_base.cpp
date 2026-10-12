@@ -113,7 +113,7 @@ void Dungeon::Update() {
 	UpdateMonsters();
 	noteSeenMonsters();
 	updateMissiles();
-	updateVenoms();
+	updateShots();
 	updateDarts();
 	updateTraps();
 	updateMonsterPoison();

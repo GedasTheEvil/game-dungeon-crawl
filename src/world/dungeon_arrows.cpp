@@ -143,27 +143,27 @@ bool Dungeon::clearRow(float fromX, float toX, int row) const {
 	return true;
 }
 //======================================================================================
-// At the player's chest as they stand at the spit: a jump takes them out of its line.
-void Dungeon::spitVenom(const Monster& mon, float x, float y) {
-	const std::optional<SpitRules>& spit = mon.Type()->spit;
-	if (!spit)
+// At the player's chest as they stand at the release: a jump takes them out of its line.
+void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
+	const std::optional<RangedRules>& ranged = mon.Type()->ranged;
+	if (!ranged)
 		return;
 	const float dx = mapX - x;
-	const float dy = mapY + VENOM_CHEST * sim.player->Height() - y;
+	const float dy = mapY + SHOT_CHEST * sim.player->Height() - y;
 	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	Venom v = {x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), spit->colour, GameClock::now()};
+	MonsterShot v = {x, y, SHOT_SPEED * dx / len, SHOT_SPEED * dy / len, mon.Type(), ranged->colour, GameClock::now()};
 	v.spawnMs = v.lastMs;
-	venoms.push_back(v);
+	shots.push_back(v);
 }
 //======================================================================================
-void Dungeon::updateVenoms() {
+void Dungeon::updateShots() {
 	const int now = GameClock::now();
 	const float half = sim.player->HalfWidth();
 	const float height = sim.player->Height();
-	for (auto it = venoms.begin(); it != venoms.end();) {
-		Venom& v = *it;
+	for (auto it = shots.begin(); it != shots.end();) {
+		MonsterShot& v = *it;
 		if (v.splatMs >= 0) {
-			it = now - v.splatMs >= VENOM_SPLAT_MS ? venoms.erase(it) : it + 1;
+			it = now - v.splatMs >= SHOT_SPLAT_MS ? shots.erase(it) : it + 1;
 			continue;
 		}
 		float left = static_cast<float>(std::min(now - v.lastMs, 100)) / 1000.f;
@@ -174,9 +174,9 @@ void Dungeon::updateVenoms() {
 			left -= dt;
 			v.x += v.vx * dt;
 			v.y += v.vy * dt;
-			v.flown += VENOM_SPEED * dt;
+			v.flown += SHOT_SPEED * dt;
 			const auto col = static_cast<int>(std::floor(v.x)), row = static_cast<int>(std::floor(v.y));
-			if (!IsInBounds(col, row) || v.flown > VENOM_MAX_FLIGHT) {
+			if (!IsInBounds(col, row) || v.flown > SHOT_MAX_FLIGHT) {
 				gone = true;
 				break;
 			}
@@ -184,22 +184,23 @@ void Dungeon::updateVenoms() {
 				v.splatMs = now;
 				break;
 			}
-			if (sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
-				const SpitRules& spit = *v.from->spit;
+			const std::optional<RangedRules>& rules = v.from->ranged;
+			if (rules && sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
+				const RangedRules& ranged = *rules;
 				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
 				if (!dodged) {
-					sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
+					sim.player->TakeHit(ranged.damage, v.from->attackMix, *sim.events);
 					sim.journal->HitByCreature(v.from->id, levelNumber);
 					if (sim.player->Curse(v.from->rangedCurses, *sim.events, sim.random->gameplay))
 						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Curse);
 				}
-				if (spit.poison && !dodged) {
-					sim.player->Poison(*spit.poison, *sim.events, sim.random->gameplay);
+				if (ranged.poison && !dodged) {
+					sim.player->Poison(*ranged.poison, *sim.events, sim.random->gameplay);
 					sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Poison);
 				}
 				gone = true;
 			}
 		}
-		it = gone ? venoms.erase(it) : it + 1;
+		it = gone ? shots.erase(it) : it + 1;
 	}
 }

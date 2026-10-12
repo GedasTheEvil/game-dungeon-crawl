@@ -225,9 +225,9 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Its poison burns on long after the bite.";
 	case CreatureMove::Rear:
 		return "Lies coiled, rears up when I come near.";
-	case CreatureMove::Spit:
-		return t.spit && !t.spit->poison ? "Hurls a bolt of red light from afar. A jump clears it."
-										 : "Spits venom from afar. A jump clears it.";
+	case CreatureMove::AttackRanged:
+		return t.ranged && !t.ranged->poison ? "Hurls a bolt of red light from afar. A jump clears it."
+											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
 		return "Dives into the sand and comes up behind me.";
 	case CreatureMove::Charge:

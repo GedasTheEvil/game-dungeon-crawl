@@ -126,7 +126,7 @@ TEST_CASE("the cobra lies coiled, rears up once, then spits its clip once and co
 	};
 	CHECK(at(ModelState::Idle) == 0);
 	CHECK(at(ModelState::Rise) > at(ModelState::Idle));
-	CHECK(at(ModelState::Spit) > at(ModelState::Rise));
+	CHECK(at(ModelState::AttackRanged) > at(ModelState::Rise));
 }
 
 TEST_CASE("a bat hangs on its roost clip until it swoops, then flies") {

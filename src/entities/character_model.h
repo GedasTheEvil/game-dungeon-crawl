@@ -26,8 +26,8 @@ class CharacterModel {
 	void loadSounds(const char* name);
 
   public:
-	// sounds/<category>/<name>_{die,att,jump,wake,spit}.wav, all optional
-	Sound dieSound, attackSound, jumpSound, wakeSound, spitSound;
+	// sounds/<category>/<name>_{die,att,jump,wake,att_ranged}.wav, all optional
+	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound;
 
 	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
 	// Takes the texture over. keepFrames: see AnimatedModel::Compile.

@@ -18,7 +18,7 @@ spreads the neck joints sideways and flattens them (bone scale). The head is rig
 on a hinge, the forked tongue slides out of the mouth. Every frame the pose is moved so a fixed spine joint (the base
 of the raised front) stays put, blended towards the coil's centre in the idle pose, and lifted so the lowest vertex
 touches the floor (numpy copy of the skinning).
---measure prints each clip's frame 0 extents and the spit clip's mouth position per frame.
+--measure prints each clip's frame 0 extents and the ranged (spit) clip's mouth position per frame.
 """
 
 import importlib
@@ -44,7 +44,7 @@ CLIPS = [
     ("cobra_die", "_die", 30),
     ("cobra_idle", "_idle", 32),
     ("cobra_rise", "_rise", 24),
-    ("cobra_spit", "_spit", 18),
+    ("cobra_att_ranged", "_att_ranged", 18),
 ]
 LOOPS = ("cobra_move", "cobra_attack", "cobra_idle")
 TEX_SIZE = 1024
@@ -621,7 +621,7 @@ def clip_params(name, f, frames):
         return move_params(f / frames)
     if name == "cobra_idle":
         return idle_params(f / frames)
-    keys = {"cobra_attack": ATTACK, "cobra_die": DIE, "cobra_rise": RISE, "cobra_spit": SPIT}[name]
+    keys = {"cobra_attack": ATTACK, "cobra_die": DIE, "cobra_rise": RISE, "cobra_att_ranged": SPIT}[name]
     if name == "cobra_rise":
         return interpolate(keys, f, linear=())
     return interpolate(keys, f)
@@ -640,14 +640,14 @@ def make_actions(rig, skin):
         last = frames if name in LOOPS else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
             D = key_frame(rig, skin, clip_params(name, f, frames), f)
-            if name == "cobra_spit":
+            if name == "cobra_att_ranged":
                 MOUTH_TRACK[f] = D["head"] @ MOUTH
         acts[name] = act
     return acts
 
 
 def measure(skin):
-    """Frame 0 extents of every clip, the reference clip's half sizes and the spit clip's mouth path."""
+    """Frame 0 extents of every clip, the reference clip's half sizes and the ranged (spit) clip's mouth path."""
     np = skin.np
     ref = None
     for name, _, frames in CLIPS:

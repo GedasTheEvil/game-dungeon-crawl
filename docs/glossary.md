@@ -67,7 +67,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | lurking | | ambush, entombed, submerged or coiled, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | reckless | | walks straight through traps and takes their damage | `Courage::Reckless` |
-| spit | | a ranged venom glob, from afar along its row (the cobras); range in tiles | `SpitRules`, `Dungeon::Venom` |
+| ranged attack | | a monster's shot from afar along its row: the cobras' spit, the Anubis's bolt; range in tiles; clip and sound suffix `_att_ranged` | `RangedRules`, `MonsterKind::ranged`, `Dungeon::MonsterShot`, `ModelState::AttackRanged` |
+| spit | | the cobras' ranged attack: a poisoned venom glob | `RangedRules::poison` |
 | fire ramp | | the colours of a fire over a particle's life, one per `FireStyle` (flame, venom green) | `FireRamp`, `Fire::VENOM_RAMP` |
 | glob with flames | | a spat glob drawn as a cloud of fire sprites with smaller clouds trailing, no ball; ramp per projectile (venom: green). Without flames: a plain ball | `drawGlobWithFlames` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
@@ -92,7 +93,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | poison tier | | weak, medium or strong poison; ticks damage until it runs out; medium and strong scale with the victim's max HP above a floor | `PoisonTier`, `POISON_TIERS` |
 | touch poison | sap | a melee hit on the plant may poison the player; ranged hits do not | `TouchPoison` |
 | reach | | how far a melee weapon hits, from the player's box edge, in tiles | `weaponReach` |
-| range | | how far a weapon or spit reaches, between the hitboxes; weapons in tenths of a tile, spit in tiles | `WeaponDef::range`, `SpitRules::range` |
+| range | | how far a weapon or ranged attack reaches, between the hitboxes; weapons in tenths of a tile, ranged attacks in tiles | `WeaponDef::range`, `RangedRules::range` |
 | resistance | resists, tough | the share of a damage type a monster (or the player) takes: weak 200%, normal 100%, resists 50%, tough 25%. Also the resistance potion, against poison | `Resistances`, `resistedDamage` |
 | weakness | weak; Weakness | (combat) a damage type a monster takes double from; no boss has one. Also a curse (see curse names) | `WEAK`, `Curse::Weakness` |
 | curse | A curse! | a timed debuff a monster's hit lays on the player: 2 minutes, several at once, the same again restarts it; no cure, no resistance, ends on death. Purple-framed HUD tiles | `Curses`, `Curse`, `CURSE_MS` |

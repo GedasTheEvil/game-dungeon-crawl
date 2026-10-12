@@ -151,30 +151,30 @@ void Dungeon::drawDarts() {
 //======================================================================================
 // A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; else a small ball in
 // its spitter's colour, stretched along its flight, flattening into a splat on a wall or the floor.
-void Dungeon::drawVenoms() {
+void Dungeon::drawShots() {
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);
 	const int now = GameClock::now();
-	for (const Venom& v : venoms) {
+	for (const MonsterShot& v : shots) {
 		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
 		if (v.splatMs >= 0) {
-			const float k = std::min(static_cast<float>(now - v.splatMs) / static_cast<float>(VENOM_SPLAT_MS), 1.f);
+			const float k = std::min(static_cast<float>(now - v.splatMs) / static_cast<float>(SHOT_SPLAT_MS), 1.f);
 			stretch = 1.f + 1.5f * k;
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
-		const std::optional<SpitRules>& spit = v.from->spit;
+		const std::optional<RangedRules>& ranged = v.from->ranged;
 		drawGlobWithFlames(sim.assets->textures.nullTex, v.colour,
-						   spit.has_value() && spit->poison.has_value() ? &Fire::VENOM : nullptr,
+						   ranged.has_value() && ranged->poison.has_value() ? &Fire::VENOM : nullptr,
 						   static_cast<uint32_t>(v.spawnMs), RenderConfig::TILE_SIZE * (v.x - firstCol),
 						   RenderConfig::TILE_SIZE * (v.y - firstRow), ARROW_DEPTH, v.vx, v.vy, stretch, squash, alpha);
 	}
 }
 // The light of each flying glob; same frame as addLights.
 void Dungeon::addVenomLights() {
-	for (const Venom& v : venoms) {
-		const std::optional<SpitRules>& spit = v.from->spit;
-		if (v.splatMs < 0 && spit.has_value() && spit->poison.has_value())
+	for (const MonsterShot& v : shots) {
+		const std::optional<RangedRules>& ranged = v.from->ranged;
+		if (v.splatMs < 0 && ranged.has_value() && ranged->poison.has_value())
 			Lighting::add(RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
 						  RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
 						  ARROW_DEPTH + GLOB_LIGHT_LIFT, VENOM_LIGHT, 0);

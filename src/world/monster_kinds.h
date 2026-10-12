@@ -68,16 +68,16 @@ struct BossRules {
 constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};
 constexpr Rgb BOLT_RED = {0.95f, 0.15f, 0.1f};
 
-// A ranged attack: from afar along its row, it stops and spits a glob at the player (Dungeon::Venom): the cobras'
-// venom, the Anubis's bolt of light. The release and the mouth height come from the model's spit clip
-// (tools/blender/models/cobra.py).
-struct SpitRules {
+// A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
+// spat venom, the Anubis's bolt of light. The release and its height come from the model's ranged clip, measured by
+// its script's --measure (tools/blender/models/cobra.py, anubis.py).
+struct RangedRules {
 	int damage = 0;					  // on a hit, of the type's attack mix
 	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)
 	float range = 0.f;				  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
-	int cooldownMs = 0;				  // from one spit to the next
-	float release = 0.5f;			  // of the spit clip: the glob leaves the mouth
-	float mouthY = 0.5f;			  // of the reference clip's height: the mouth at the release
+	int cooldownMs = 0;				  // from one shot to the next
+	float release = 0.5f;			  // of the ranged clip: the shot leaves
+	float releaseY = 0.5f;			  // of the reference clip's height: the mouth or sceptre head at the release
 	Rgb colour = VENOM_GREEN;
 };
 
@@ -134,7 +134,7 @@ struct MonsterKind {
 	// Chance that a poisoning does not take (plan monster-poison); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
-	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
+	std::optional<RangedRules> ranged; // a ranged attack from afar: it spits venom or shoots a bolt
 	// Curses its hits lay (plan curses): its bites and blows (a charge too), its spit or bolt. The strongest first; a
 	// boss's chances are higher than its kin's.
 	CurseEntries meleeCurses{};

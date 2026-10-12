@@ -137,8 +137,8 @@ class Monster {
 	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::WaterSink)
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
-	int spitReadyMs = 0;		  // spitters: no new spit before this GameClock time
-	bool spitReleased = true;	  // the spit clip's glob has left the mouth (TakeSpit)
+	int rangedReadyMs = 0;		  // ranged attackers: no new shot before this GameClock time
+	bool rangedReleased = true;	  // the ranged clip's shot has left (TakeShot)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 	Poison poison;				  // plan monster-poison
 	bool poisonByPlayer = false;  // a running tier is the player's doing: its kill is theirs
@@ -267,13 +267,13 @@ class Monster {
 	// Ambushers, the entombed, the submerged and the coiled: true while still lurking; wakes (and returns false) once
 	// the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE).
 	bool Lurk(float px, float py);
-	// Spitters: the player is on its row, out of bite reach but within the spit's range, and the spit is ready.
+	// Ranged attackers: the player is on its row, out of bite reach but within range, and the shot is ready.
 	// The caller checks there is no wall between them.
-	[[nodiscard]] bool canSpit(float px, float py) const;
-	void Spit();						 // stands still and plays the spit clip; the glob leaves at its release
-	[[nodiscard]] bool Spitting() const; // the spit clip is playing: it does not walk or bite
-	// Once per spit, at the clip's release: true and the mouth (map units) the glob leaves from.
-	bool TakeSpit(float& outX, float& outY);
+	[[nodiscard]] bool canAttackRanged(float px, float py) const;
+	void AttackRanged(); // stands still and plays the ranged clip; the shot leaves at its release
+	[[nodiscard]] bool AttackingRanged() const; // the ranged clip is playing: it does not walk or bite
+	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from.
+	bool TakeShot(float& outX, float& outY);
 	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
 	[[nodiscard]] bool canDive(float py) const;
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)

@@ -75,7 +75,7 @@ class Dungeon {
 	[[nodiscard]] int flightShaft(int col, int row, int toCol, int toRow, bool boxed) const;
 	[[nodiscard]] int climbEnd(int col, int row) const; // the row a climb from (col, row) runs to, along climbPath
 	ClimbMap climbPath;									// the last path followPath built
-	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone
+	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and shots are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const {
 		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};
 	}
@@ -208,21 +208,22 @@ class Dungeon {
 	};
 	std::vector<Missile> missiles;
 	void updateMissiles();
-	// Venom a spitter spat at the player (dungeon_arrows.cpp): a straight line from its mouth, map units.
-	struct Venom {
+	// A monster's ranged attack in flight, venom or bolt (dungeon_arrows.cpp): a straight line from its release point,
+	// map units.
+	struct MonsterShot {
 		float x, y, vx, vy;
 		const MonsterType* from; // its damage, mix and poison
-		Rgb colour;				 // SpitRules::colour
+		Rgb colour;				 // RangedRules::colour
 		int lastMs;				 // GameClock time of the last update
 		float flown = 0.f;		 // tiles
 		int splatMs = -1;		 // GameClock time it hit a wall or the floor; < 0: flying
-		int spawnMs = 0;		 // GameClock time it was spat: the seed of its flames
+		int spawnMs = 0;		 // GameClock time it was shot: the seed of its flames
 	};
-	std::vector<Venom> venoms;
-	void spitVenom(const Monster& mon, float x, float y);
-	void updateVenoms();
+	std::vector<MonsterShot> shots;
+	void shootAtPlayer(const Monster& mon, float x, float y);
+	void updateShots();
 	void addVenomLights();
-	void drawVenoms();													// with the frame origin of DrawMonsters
+	void drawShots();													// with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop

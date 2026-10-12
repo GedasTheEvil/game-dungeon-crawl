@@ -1,6 +1,6 @@
 # Inscriptions
 
-Hieroglyphs on the back wall of a cell that the player can read ([plan](plan/hieroglyph-cartouches.md)). An
+Hieroglyphs on the back wall of a cell that the player can read ([plan](plan/solved/hieroglyph-cartouches.md)). An
 `Inscription` tile (type 15, `i` in the [level legend](levels.md)) has a text id as its attribute. When the player
 interacts in that cell, the status line shows the inscription's title and the archaeologist's comment. The first time,
 the translation is written in the journal (J, Inscriptions ribbon): the hieroglyphs copied from the wall, the

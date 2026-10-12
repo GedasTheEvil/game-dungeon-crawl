@@ -1,7 +1,7 @@
 # Skill: deep mystic knowledge (read hieroglyphs)
 
 Status: draft 2026-10-10. Ready: [skills](solved/skills.md) is in, and so is
-[hieroglyph-cartouches](hieroglyph-cartouches.md) (2026-10-12; implemented, waits for the user's play-test). From the
+[hieroglyph-cartouches](solved/hieroglyph-cartouches.md) (solved 2026-10-12). From the
 user: an easy first choice.
 
 Where it hooks in: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`) reads every inscription today; gate

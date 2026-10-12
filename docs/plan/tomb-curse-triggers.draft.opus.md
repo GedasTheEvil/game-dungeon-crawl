@@ -13,7 +13,7 @@ answers part of the curses draft's open point ("who applies which curse") for ob
   * smashing pottery or an ushabti ([living-ushabti](living-ushabti.draft.opus.md)).
 * Which curse: by the object (implementer's choice from the curses list), e.g. canopic jars → disease, a sarcophagus →
   weakness or vulnerability.
-* A warning first: an inscription near the object ([hieroglyph-cartouches](hieroglyph-cartouches.md) if
+* A warning first: an inscription near the object ([hieroglyph-cartouches](solved/hieroglyph-cartouches.md) if
   present) or a status line ("A curse is written on the lid.").
 * Reward for the risk: the cursed objects hold better loot.
 * Journal humour: "The lid said 'cursed be he who opens this'. I opened it. The lid was right."

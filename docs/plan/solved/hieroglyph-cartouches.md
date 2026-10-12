@@ -1,7 +1,6 @@
 # Readable hieroglyph cartouches
 
-Status: implemented 2026-10-12, waits for the user's play-test: `./game --level 6` (the offering formula two steps
-east of the entrance). From the lore review, picked by the user. Reference: [inscriptions.md](../inscriptions.md).
+Status: solved 2026-10-12 (play-tested by the user). From the lore review, picked by the user. Reference: [inscriptions.md](../../inscriptions.md).
 
 ## Idea
 
@@ -15,7 +14,7 @@ journal ("Inscriptions" section). Atmosphere first, hints second.
   lines), plus hints: a riddle's hint, the way to a secret, a warning before a boss.
 * Humour in the archaeologist's comments: "Translation: 'Whoever reads this, beware.' Too late."
 * Level format: a decal object with a text id (`docs/levels.md`); texts in a data file like the riddles, no rebuild.
-* [stargate-chamber](stargate-chamber.draft.opus.md) and [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) can use them.
+* [stargate-chamber](../stargate-chamber.draft.opus.md) and [tomb-curse-triggers](../tomb-curse-triggers.draft.opus.md) can use them.
 
 ## Tests
 
@@ -32,7 +31,7 @@ journal ("Inscriptions" section). Atmosphere first, hints second.
   the archaeologist's comment on the status line; the first time, the text (a copy) into the journal's new
   Inscriptions section (green ribbon "I"): the glyphs, the translation, the comment. Journal save version 6.
 * Campaign: 32 inscriptions, one or two in each level 6 to 30 (the user: from 6 on, after the first heka; the
-  hieroglyph skill comes later, [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md)). Real texts (the offering formula, Meni's and
+  hieroglyph skill comes later, [skill-hieroglyphs](../skill-hieroglyphs.draft.sonet.md)). Real texts (the offering formula, Meni's and
   Khentika's curses, the ushabti spell, the harper's song, Ptahhotep, Amenemhat, the negative confession, spell 30B,
   the Hymn to Hapi, a tomb robber's testimony, Ahmose's graffito) and hints: the vampire bat heals by biting (10),
   the lock order (12), loose ceilings (13), the scorpion queen's eggs (15), the dart plates (16, 23), the green key in
@@ -41,4 +40,4 @@ journal ("Inscriptions" section). Atmosphere first, hints second.
 * `levelcheck`: an inscription out of reach or without a text id; with the files, a text id with no text, one before
   level 6, the same id twice. Map view: a pencilled cartouche. Editor: icon and text-id hint.
 * Tests: `tests/unit/inscriptions_test.cpp` (the file format, reading once, save and load, the campaign's
-  inscriptions), scenario `tests/scenarios/inscription.txt` (the wall, the status line, the journal page).
+  inscriptions), scenario `tests/scenarios/solved/inscription.txt` (parked) (the wall, the status line, the journal page).

@@ -37,9 +37,10 @@ comes second reuses the first one's drawing, with its own colours.
 
 ## Open (for the implementer)
 
-* Exact ramp values and the style numbers: tune by screenshots, keeping the look close to `VENOM_GREEN`.
+* Exact ramp values and the style numbers: the implementer picks them, close to `VENOM_GREEN`. No screenshot tuning:
+  the user checks the look in a play-test (decided 2026-10-12).
 
 ## Tests
 
-* Scenario with screenshots: a cobra spits, the glob in flight and its splat (`tests/scenarios/`, like
-  `anubis_bolt.txt`). Check a torch in the same shot still burns orange.
+* No screenshot scenario (decided 2026-10-12): the user verifies the look in a play-test.
+* `make` and the existing tests pass; torches, braziers and lamps keep today's ramp (the default).

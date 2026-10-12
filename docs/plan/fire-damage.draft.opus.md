@@ -26,6 +26,7 @@ Implementer's choice, at least one:
 
 * Default: the giant cobra's spit becomes partly fire (the uraeus spits fire at the pharaoh's enemies), and Apep, its
   boss, more so and longer (boss rule: the boss whose `kin` is the cobra).
+* Later: the Anubis's bolt becomes fire, with a fireball look ([anubis-fire-bolt](anubis-fire-bolt.draft.opus.md)).
 * Optional: the Bat of Shezmu / vampire bat, Sobek: no.
 
 ### Resistances

@@ -56,4 +56,5 @@ Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): 
 * Tests: `tests/unit/sim_test.cpp` (it shoots from afar, no poison, then comes on to hit), `tests/scenarios/anubis_bolt.txt`
   (screenshots of the bolt in flight).
 * Still to do: the sceptre-thrust clip with a release frame (Blender), `release` / `mouthY` from it, a bolt sound,
-  maybe a glow instead of the glob; the balance check (`threat`).
+  maybe a glow instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
+  [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).

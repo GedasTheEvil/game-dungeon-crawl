@@ -10,8 +10,9 @@ Level glyphs (monsters, tiles) are only read by tools and agents. Pick a free on
 
 ## Scenario tests
 To check game behaviour or visuals, write a script in `tests/scenarios/` and run `make test SCENARIO=...`. Screenshots and results go to `tests/out/<name>/`. Reference: [docs/testing.md](docs/testing.md).
-Any other run of `./game` by an agent (smoke checks, `--level`, `--play`) must be silent: set `SDL_AUDIODRIVER=dummy`
-and wrap it in `timeout -k 5 N` (the game may ignore SIGTERM), or the user hears its music.
+Any other run of `./game` by an agent (smoke checks, `--level`, `--play`) must be silent and bounded, or the user hears
+its music: `xvfb-run -a timeout -k 5 N ./game --no-sound ...`. Put `timeout` inside `xvfb-run` (outside, it kills only
+the wrapper and the game lives on), with `-k` (the game ignores SIGTERM).
 
 ## UI screens
 Menu, options, credits, inventory, riddle and map share one look. Canvas, parts, colours, fonts and how to add a menu sub-screen: [docs/ui.md](docs/ui.md).

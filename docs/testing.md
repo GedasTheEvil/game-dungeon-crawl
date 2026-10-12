@@ -93,7 +93,8 @@ keyboard and mouse, no main menu. Nothing is written to `saves/` unless you save
 ./game --level 7                       # campaign level 7, a fresh player
 ./game --level levels/lvl3             # a map file
 ./game --level gen:42:5                # a generated level (seed 42, difficulty 5)
-./game --play tests/scenarios/cobra.txt  # a scenario's setup, then you
+./game --play tests/scenarios/curses.txt  # a scenario's setup, then you
+./game --no-sound --level 7            # the same, silent (any flag combines with it)
 ```
 
 `--level` takes what the `level` command takes. The exit leads on as in the campaign (level N+1 by the level
@@ -104,7 +105,8 @@ number; after a map file or a generated level, whatever the dungeon's level numb
 `camera`, `motion`, `toon`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
-`./game SCENARIO.txt` (no flag) is the scenario run described above.
+`--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
+`./game SCENARIO.txt` (no flag) is the scenario run described above; it is always silent.
 
 ## Commands
 

@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cstdio>
 #include <string>
+#include <vector>
 #include "../input/input.h"
 #include "gameplay_config.h"
 #include "../graphics/draw.h"
@@ -77,18 +78,26 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 // The command line: a scenario run, a hand-played level or scenario (Scenario::loadPlay), or the plain game.
 // False: bad arguments, usage printed.
 static bool parseArgs(int argc, char* argv[]) {
-	const std::string flag = argc > 1 ? argv[1] : "";
+	std::vector<std::string> args;
+	for (int i = 1; i < argc; i++) {
+		if (std::string(argv[i]) == "--no-sound")
+			setenv("SDL_AUDIODRIVER", "dummy", 1); // no music or sound effects, for runs in the background
+		else
+			args.emplace_back(argv[i]);
+	}
+	const std::string flag = args.empty() ? "" : args[0];
 	bool ok = true;
-	if (argc == 3 && flag == "--level")
-		ok = Scenario::loadPlayLevel(argv[2]);
-	else if (argc == 3 && flag == "--play")
-		ok = Scenario::loadPlay(argv[2]);
-	else if (argc == 2 && flag.rfind("--", 0) != 0) {
-		ok = Scenario::load(argv[1]);
+	if (args.size() == 2 && flag == "--level")
+		ok = Scenario::loadPlayLevel(args[1].c_str());
+	else if (args.size() == 2 && flag == "--play")
+		ok = Scenario::loadPlay(args[1].c_str());
+	else if (args.size() == 1 && flag.rfind("--", 0) != 0) {
+		ok = Scenario::load(args[0].c_str());
 		setenv("SDL_AUDIODRIVER", "dummy", 1);
 		GameClock::enableVirtual();
-	} else if (argc > 1) {
-		fprintf(stderr, "usage: %s [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n", argv[0]);
+	} else if (!args.empty()) {
+		fprintf(stderr, "usage: %s [--no-sound] [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n",
+				argv[0]);
 		ok = false;
 	}
 	return ok;

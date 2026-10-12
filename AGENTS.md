@@ -48,6 +48,10 @@ The model tag says who can implement it:
   an amulet, a rename, a skill rule), no new Blender model or clip, no level design, no balance judgement.
 * `opus`: complex, needs Opus. A new system or monster, new models or animation clips, level design, checker
   modelling, balance work, or several systems at once.
+The default model stays Opus 5.5. When asked to implement a `sonet` draft, don't do it yourself and don't ask:
+delegate it to a Sonnet 5.5 agent (Agent tool, `model: sonnet`), then report its result. Tell the agent to follow
+AGENTS.md, run the checks, rename the plan when done and commit with a Sonnet 5.5 `Co-Authored-By` line.
+`opus` drafts you implement yourself.
 When refining a draft changes its size, rename it to the matching tag and update links to it.
 Drafts are written for agents to implement later. Every draft is ready to implement as is; only a link to another
 draft it needs first blocks it. Open points or several ideas in a draft are the implementer's choice.

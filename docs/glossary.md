@@ -50,13 +50,13 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
 | charge | | a rush along its row through the player after a wind-up (Sobek) | `Charge`, `MonsterKind::charges` |
-| climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
+| climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |
 | courage | | whether a monster sets foot on a trap: coward or reckless | `Courage` |
 | coward | | afraid of traps: a walker stops at their edge, a walk-jumper leaps over them | `Courage::Coward` |
 | creature | Creatures | the player's word for a monster; the journal's section | `Journal` |
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
-| flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
+| flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/solved/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
 | flyer | | flies along the row and crosses pits (bats); follows the player up or down to another row through open cells ([bats-high-ceiling](plan/bats-high-ceiling.md)) | `Locomotion::Fly`, `Flight`, `FlightGoal`, `Dungeon::flightGoal` |
 | hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.opus.md)) the crocodile grabs the player in water and rolls | |
 | kin | | a boss's common monster (the Anubis boss: the Anubis guard, in the game "Anubis living statue"); a new ability for the kin goes to its boss too | `MonsterKind::kin` |

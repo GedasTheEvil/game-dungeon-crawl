@@ -1,8 +1,6 @@
 # Cowards flee when they cannot reach the player
 
-Play-test: `./game --play tests/play/coward-flee-ranged.txt`
-
-Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented)), not play-tested. From the user: if a "coward" monster
+Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented)), solved (play-tested, user-confirmed 2026-10-12). From the user: if a "coward" monster
 cannot reach the player, instead of going towards it, it runs away to avoid ranged attacks.
 
 ## Today
@@ -34,7 +32,7 @@ cannot reach the player, instead of going towards it, it runs away to avoid rang
 ## Open (for the implementer)
 
 * Checker score: a coward that flees is harder to kill but no more dangerous; likely no `threat` change.
-* An AI change: it gets unit tests on the sim harness ([sim-library](solved/sim-library.md)) (an unreachable rat
+* An AI change: it gets unit tests on the sim harness ([sim-library](sim-library.md)) (an unreachable rat
   leaves the row; a path opens, it comes back; a giant rat with a jump in reach does not flee).
 
 ## Implemented

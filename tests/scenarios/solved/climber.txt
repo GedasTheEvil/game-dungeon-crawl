@@ -1,5 +1,4 @@
-# Kept (docs/testing.md): plan monster-climbers not solved; the climb on rungs is a picture.
-# Climbers (docs/plan/monster-climbers.md), tests/levels/climb_up: the rat sees the player on the lower floor,
+# Climbers (docs/plan/solved/monster-climbers.md), tests/levels/climb_up: the rat sees the player on the lower floor,
 # follows them up the ladder (col 6), its back to the camera on the rungs, and on along the upper floor.
 resolution 1600 1200
 seed 1

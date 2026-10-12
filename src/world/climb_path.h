@@ -1,9 +1,9 @@
 #ifndef CLIMB_PATH_H
 #define CLIMB_PATH_H
 
-// A climber's way to the player across floors (docs/plan/monster-climbers.md): the cells it can stand in, the ladders
-// between them and, for a walk-jumper, its leaps over gaps. On the level's cells (LEVEL_WIDTH x LEVEL_HEIGHT, row 0
-// the bottom), so the sim and the unit tests share it.
+// A climber's way to the player across floors (docs/plan/solved/monster-climbers.md): the cells it can stand in, the
+// ladders between them and, for a walk-jumper, its leaps over gaps. On the level's cells (LEVEL_WIDTH x
+// LEVEL_HEIGHT, row 0 the bottom), so the sim and the unit tests share it.
 
 #include "level.h"
 #include <array>

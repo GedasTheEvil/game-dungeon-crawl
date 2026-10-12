@@ -1,21 +1,19 @@
 # Monsters that climb ladders
 
-Play-test: `./game --play tests/play/monster-climbers.txt`
-
-Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test. From the user: climbers, monsters that use ladders as well.
+Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); solved (play-tested, user-confirmed 2026-10-12). From the user: climbers, monsters that use ladders as well.
 
 ## Today
 
 * No monster uses a ladder. The AI (`src/entities/monster_ai.cpp`) walks a row, jumps (giant rat, giant scarab) or
   flies (bats). A ladder is the player's way up and down, and so their way out of a fight.
-* The player cannot attack from the rungs ([no-attack-on-ladder](solved/no-attack-on-ladder.md)): a monster waiting at
+* The player cannot attack from the rungs ([no-attack-on-ladder](no-attack-on-ladder.md)): a monster waiting at
   a ladder top gets the first hits.
 
 ## Idea
 
 * A `MonsterKind` flag: a climber follows the player up or down a ladder (`Dungeon::PlayerOnLadder`, `LADDER_REACH`),
-  with a climb clip on its model (Blender, [../remodeling.md](../remodeling.md)).
-* An AI change: unit tests on the sim harness ([sim-library](solved/sim-library.md), `tests/unit/sim_world.h`).
+  with a climb clip on its model (Blender, [remodeling](../../remodeling.md)).
+* An AI change: unit tests on the sim harness ([sim-library](sim-library.md), `tests/unit/sim_world.h`).
 
 ## Decided (2026-10-09)
 
@@ -28,10 +26,10 @@ Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Imple
   Anubis boss 15 → 15.75.
   Re-run `./levelcheck levels/lvl*` and fix the levels it flags.
 * **No attacks on the rungs, for everyone:** a climber cannot attack while it climbs, as the player cannot
-  ([no-attack-on-ladder](solved/no-attack-on-ladder.md)). Depends on that draft: it ships first, or with this one. A
+  ([no-attack-on-ladder](no-attack-on-ladder.md)). Depends on that draft: it ships first, or with this one. A
   climber on the ladder only follows; it attacks once off the rungs.
 * **Climb speed:** 80% of the monster's own walk `speed`. A boss walks faster, so it climbs faster too. Comes after
-  [anubis-speed](solved/anubis-speed.md) (the Anubis guard walks faster, so it climbs faster).
+  [anubis-speed](anubis-speed.md) (the Anubis guard walks faster, so it climbs faster).
 
 * **Path-finding:** a climber that has seen the player (woken, chasing as in `Seek` today) keeps a path to the
   player's cell across floors: walkable rows, ladders and, for jumpers (the giant rat), planned jumps over gaps.
@@ -65,12 +63,12 @@ Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Imple
 * Killed on the rungs it drops down the shaft to the floor (`DropTo`, `CLIMBER_FALL_STEP`).
 * A monster's row is now its current row (`Row`); its spawn tile row is `SpawnRow` (slain marks, respawn check).
 * Journal: a new move, "Follows me up and down the ladders." (`CreatureMove::Climb`).
-* Clips: `<model>_climb.md3` for the rat, scorpion, mummy and Anubis ([remodeling](../remodeling.md)). Back to the camera,
+* Clips: `<model>_climb.md3` for the rat, scorpion, mummy and Anubis ([remodeling](../../remodeling.md)). Back to the camera,
   drawn so the grip meets the ladder's rails (`LADDER_RAIL_Z`, `climbGrip`), the frame from the height
   (`climbRise`, as the player's). The giant kin and the bosses share them at their bigger scale, so their paws miss
   the rungs.
 * Tests: `tests/unit/climb_test.cpp` (the path, up, down, a non-climber stays, a giant rat leaps on its way, giving up,
-  killed on the rungs), `tests/scenarios/climber.txt` (each climber's clip on the ladder).
+  killed on the rungs), `tests/scenarios/solved/climber.txt` (each climber's clip on the ladder).
 
 To watch in play: the Anubis climbs about 1 tile a second, so its clip runs about 6 cycles a second; the mummy climbs
 very slowly (0.1 tile a second).

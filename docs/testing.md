@@ -50,7 +50,6 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.opus.md)) | the bolt is drawn |
 | `skills` | the HUD's waiting heka, the Heka screen, a refused and a learnt skill ([plan](plan/skills.md)) | the screen and its input path are drawn |
 | `bats_high` | a bat dives from a high ceiling to the player's row ([plan](plan/bats-high-ceiling.md)) | the dive across the row is drawn |
-| `climber` | a rat follows the player up a ladder ([plan](plan/monster-climbers.md)) | the rungs pose is drawn |
 | `water_ceiling` | rock between water and open cells ([plan](plan/water-ceiling.md)) | the rock is drawn |
 | `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
 

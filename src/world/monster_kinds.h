@@ -143,7 +143,7 @@ struct MonsterKind {
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;
 	bool charges = false; // it charges along its row (Charge)
-	// Follows the player up and down ladders once it has seen them (docs/plan/monster-climbers.md).
+	// Follows the player up and down ladders once it has seen them (docs/plan/solved/monster-climbers.md).
 	bool climbs = false;
 	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0
 	// height: how high it climbs in one cycle of the clip, and how far in front of its centre it grips the ladder.

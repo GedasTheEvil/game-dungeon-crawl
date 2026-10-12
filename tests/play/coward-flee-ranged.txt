@@ -1,5 +1,0 @@
-# Play-test coward-flee-ranged: a rat behind a pit it cannot cross (tests/levels/coward_flee_pit). It runs west out
-# of the bow's range and stands there. Shoot at it with the composite bow.
-level tests/levels/coward_flee_pit
-give ranged 1
-equip composite_bow

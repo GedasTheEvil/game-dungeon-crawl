@@ -66,8 +66,8 @@ struct Charge {
 	bool hit = false; // this rush has hit the player
 };
 
-// Climbers on a ladder (docs/plan/monster-climbers.md): from its row up or down to toRow, y map units off the row's
-// floor on the way. A climb once started runs to its end.
+// Climbers on a ladder (docs/plan/solved/monster-climbers.md): from its row up or down to toRow, y map units off the
+// row's floor on the way. A climb once started runs to its end.
 struct Climb {
 	int toRow = -1; // < 0: not climbing
 	float y = 0.f;
@@ -258,7 +258,7 @@ class Monster {
 	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
-	// A walking coward, not a boss: it runs from a player it cannot reach (docs/plan/coward-flee-ranged.md).
+	// A walking coward, not a boss: it runs from a player it cannot reach (docs/plan/solved/coward-flee-ranged.md).
 	[[nodiscard]] bool flees() const;
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);

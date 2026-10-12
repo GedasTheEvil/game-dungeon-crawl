@@ -61,10 +61,10 @@ constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
-// Climbers (docs/plan/monster-climbers.md): once they have seen the player they follow a path to them across floors,
-// up to CLIMB_PATH_MAX steps; with no path for CLIMB_GIVE_UP_MS they stay where they are. They climb at a share of
-// their walk speed, a boss at all of it. The checker scores a climber a little higher (the player cannot escape up a
-// ladder).
+// Climbers (docs/plan/solved/monster-climbers.md): once they have seen the player they follow a path to them across
+// floors, up to CLIMB_PATH_MAX steps; with no path for CLIMB_GIVE_UP_MS they stay where they are. They climb at a
+// share of their walk speed, a boss at all of it. The checker scores a climber a little higher (the player cannot
+// escape up a ladder).
 constexpr int CLIMB_PATH_MAX = 20;
 constexpr int CLIMB_GIVE_UP_MS = 5000;
 constexpr float CLIMB_SPEED_FACTOR = 0.8f;

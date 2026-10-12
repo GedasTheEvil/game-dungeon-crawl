@@ -259,6 +259,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Resistance draughts", "Cobra venom, a drop at a time: for two minutes a poisoned bite or sting slides off me, "
 							"half the time after the lesser draught, nearly always after the greater one, which also "
 							"cures a poison already in me. A poison warding amulet adds its share."},
+	{"Heka", "The guardian's heka, the magic the gods hold, went into me. It tastes of river mud and old incense. "
+			 "Each guardian gives one; on the Heka page (K) I spend it on a skill, for good. There are more skills "
+			 "than guardians down here, so I choose with care."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

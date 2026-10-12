@@ -11,6 +11,7 @@ enum class Screen : std::uint8_t {
 	Map,
 	Riddle,
 	Journal,
+	Skills, // Heka: the skills bought with the bosses' heka
 	Gameplay,
 };
 

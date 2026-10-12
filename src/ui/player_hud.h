@@ -53,6 +53,8 @@ struct View {
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 	int resistLeftMs = 0;					  // a resistance potion's time left, 0: none
 	bool resistGreater = false;				  // the greater one
+	bool hekaWaiting = false;				  // a heka to spend on a skill: a pulsing tile with the Heka key
+	std::string hekaKey;
 };
 
 // Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).
@@ -61,9 +63,9 @@ void tick(int hp, int maxHp);
 void reset();
 
 // Sets its own square-pixel ortho projection (100 / SCALE high) for a resX x resY window. numbers: health numbers;
-// small: key caps and counts; icons: the icon atlas texture. Leaves texturing on and the HUD blend function
-// (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons);
+// small: key caps and counts; icons: the icon atlas texture; skillIcons: the skill atlas (the heka mark). Leaves
+// texturing on and the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
+void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons);
 // One atlas icon (not None) filling `r`, in the canvas set up. Leaves texturing off.
 void drawIcon(Icon icon, const ui::Rect& r, int icons, ui::Color tint);
 } // namespace PlayerHud

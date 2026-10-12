@@ -101,12 +101,15 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | amulet | Amulet | worn one at a time, gives its bonus while on; four tiers per type | `AmuletType`, `AmuletTier` |
 | bag | Inventory | what the player carries: counts, weapon levels, the worn amulet | `ItemBag` |
 | group | Weapons, Potions, Amulets, Rings | an inventory tab | `ItemGroup` |
+| heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
 | item kind | | one item: a weapon, a potion, an amulet tier; the save ids follow it | `ItemKind` |
 | journal | Journal | the archaeologist's notebook: creatures, riddles, field notes | `Journal` |
 | level | Lv | (weapon) a weapon's level, raised by copies found. Not the map level or the player's level | `ItemBag::Level`, `upgradeCost` |
 | note | Field notes | a journal entry on a game rule, written the first time it matters | `FieldNote` |
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
 | quick-drink | | the quick keys: drink the best fitting health or stamina potion | `Inventory::QuickDrink`, `quickPotion` |
+| sealed | Sealed | a skill shown on the Heka screen whose rules are not in the game yet: not learnable | `SkillDef::sealed` |
+| skill | | a permanent ability bought with one heka; no respec | `SkillId`, `SKILLS` |
 | tier | Lesser, Minor, Grand | an amulet's strength: lesser, minor, normal, grand ("Lesser Amulet of Armor", "Amulet of Minor Armor") | `AmuletTier` |
 
 ## Tooling

@@ -57,6 +57,9 @@ constexpr Color STONE_HOVER_TOP = {0.33f, 0.25f, 0.15f};
 constexpr Color STONE_HOVER_BOTTOM = {0.17f, 0.13f, 0.08f};
 constexpr Color STONE_HELD_BOTTOM = {0.07f, 0.05f, 0.035f};
 constexpr Color TEXT_HOVER = {1.f, 0.92f, 0.65f};
+constexpr Color LABEL = {0.86f, 0.72f, 0.47f};	   // body text on a dark panel
+constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f}; // secondary text, footers
+constexpr Color WELL = {0.07f, 0.055f, 0.04f};	   // icon well fill
 
 // ---- shapes (texturing off, see beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);
@@ -94,6 +97,8 @@ Rect iconWell(const Rect& tile, float inset);
 
 // Textured quad; `u0..v1` pick the part of the texture. Leaves texturing off.
 void texturedRect(const Rect& r, int textureId, Color tint, float u0 = 0, float v0 = 0, float u1 = 1, float v1 = 1);
+// One cell of an icon atlas of columns x rows cells, counted from the PNG's top left. Leaves texturing off.
+void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Color tint);
 
 // ---- text (texturing on, see beginText) ----
 // The font sheets have no alpha, so the glyph brightness is used as coverage in two passes:

@@ -5,6 +5,7 @@
 #include "../world/damage.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
+#include "../world/skills.h"
 #include "../world/world_events.h"
 #include <fstream>
 #include <optional>
@@ -105,6 +106,7 @@ class PlayerStats {
 	void Regenerate(bool safe, int tickMs);
 	Poison poison;
 	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken: the worn amulet's (Wear)
+	Heka heka;							 // bosses' points and the skills bought with them
 	void Dump(std::ofstream& f) const;
 	void LoadDump(std::ifstream& f);
 };

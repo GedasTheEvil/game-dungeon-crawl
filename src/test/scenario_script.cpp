@@ -5,7 +5,9 @@
 #include "../world/decor.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
+#include "../world/skills.h"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdlib>
 #include <optional>
@@ -278,6 +280,23 @@ bool parseProp(const Args& args, Command& cmd) {
 	return false;
 }
 
+// The skill (ticks) by its name: lower case, '_' for spaces, no apostrophes (serkets_favour).
+bool parseSkill(const Args& args, Command& cmd) {
+	for (int s = 0; args.size() == 1 && s < SKILL_COUNT; s++) {
+		std::string slug;
+		for (const char* c = SKILLS[static_cast<size_t>(s)].name; *c; c++)
+			if (*c == ' ')
+				slug += '_';
+			else if (*c != '\'')
+				slug += static_cast<char>(std::tolower(static_cast<unsigned char>(*c)));
+		if (args[0] == slug) {
+			cmd.ticks = s;
+			return true;
+		}
+	}
+	return false;
+}
+
 bool isSetupCommand(CommandType type) {
 	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God;
 }
@@ -326,6 +345,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"killboss", CommandType::KillBoss, noArgs, ""},
 		{"hurtboss", CommandType::HurtBoss, numberAtLeast<1>, "<hp>"},
 		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
+		{"learn", CommandType::Learn, parseSkill,
+		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;
@@ -365,7 +386,9 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"worn", Field::Worn},
 											   {"safe", Field::Safe},
 											   {"tab", Field::Tab},
-											   {"selected", Field::Selected}};
+											   {"selected", Field::Selected},
+											   {"heka", Field::Heka},
+											   {"skills", Field::Skills}};
 	return DEFS;
 }
 

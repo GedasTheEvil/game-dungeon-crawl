@@ -1,6 +1,9 @@
 # Skill: blessing of Isis
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) and [curses](curses.draft.opus.md) first. From the user.
+Status: draft 2026-10-10. [Skills](skills.md) is in; needs [curses](curses.draft.opus.md) first. From the user.
+
+The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
+(`src/world/skills.cpp`) and checks its card text there.
 
 ## Idea
 

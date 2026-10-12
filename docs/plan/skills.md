@@ -1,7 +1,7 @@
 # Skills (Heka)
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user. The framework only; each skill has its own
-sub-draft that needs this one first:
+Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for
+play-test. From the user. The framework only; each skill has its own sub-draft, built on this one:
 [skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),
 [skill-dodge](skill-dodge.draft.sonet.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
 [skill-sharp-eye](skill-sharp-eye.draft.sonet.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md),
@@ -46,3 +46,21 @@ spends it on a skill. Skills are permanent.
 
 * Unit: a boss kill gives one point, once; learning spends it; save and load keep both.
 * Scenario with a screenshot of the screen: points free, one skill learned.
+
+## Implemented (2026-10-12)
+
+* Model: `Heka` (`src/world/skills.h`): the boss levels that gave a heka (so a boss killed again after a load gives
+  none) and the skills learnt, saved after `PlayerStats`' RESIST line with a `HEKA` tag (old saves: none). The table
+  `SKILLS` (name, card line, lore, `sealed`), saved by `SkillId` place: append only.
+* A boss's death (`Dungeon::updateBoss`) gives the heka, a third status line "You take its heka" and the field note
+  "Heka" (what heka is, the K page, choose with care: more skills than guardians).
+* Screen: "Heka", the fourth screen tab (K, a flat ka glyph; tab label "Heka (skills)"; the four tabs shortened every
+  tabbed title rule to 33). Cards 2 x 4 on a panel (icon well, name, one line), the heka left over them, details on
+  papyrus with the Learn button: the first press asks ("Sure? Learn", "For good: no unlearning"), the second learns.
+  Learnt: lapis card with a gold diamond; sealed: dark card with a red wax dot. Layout: `src/ui/skills_layout.h`.
+* Icons baked: `textures/ui/skill_icons.png` from `tools/textures/skill_icons.py` (cell 0 the heka mark, then the
+  skills). HUD: a pulsing lapis tile with the heka mark and the key above the panel's right end while a heka waits.
+* Names picked: "Words of Thoth" (hieroglyphs), "Favour of Hapi" (the potion keeps "Blessing of Hapi").
+* Every skill is **sealed** for now (shown, not learnable): their rules are the sub-drafts'. Each sub-draft clears its
+  `sealed` flag. Scenario `learn` learns a sealed one for tests.
+* Tests: `tests/unit/skills_test.cpp`, scenario `tests/scenarios/skills.txt` (HUD tile, screen, refusal, learnt).

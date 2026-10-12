@@ -1,0 +1,28 @@
+# The Heka screen (docs/plan/skills.md): the HUD's waiting heka after a boss kill, the screen with a heka free, a
+# sealed skill refused, one learnt. Kept while the plan is open: the screen and its input path are drawn.
+god
+level tests/levels/sobek
+walk to 10.8
+wait 1s
+killboss
+wait 2
+expect heka == 1
+expect journal_notes >= 1
+screenshot hud_heka
+key k
+dump
+mouse 21.6 68.5
+screenshot screen
+click 78.7 19.5
+wait 2
+screenshot sealed_refused
+expect heka == 1
+learn sharp_eye
+expect heka == 0
+expect skills == 1
+key s
+key s
+mouse 44 54
+screenshot learnt
+key k
+dump

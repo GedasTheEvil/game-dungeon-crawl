@@ -68,6 +68,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `inventory` | `i` | Open / close the inventory |
 | `map` | `m` | Open / close the draft map |
 | `journal` | `j` | Open / close the journal |
+| `skills` | `k` | Open / close the Heka screen (skills) |
 
 Fixed, not in the file: `Esc` (menu / back, so a bad mapping can always be undone), `F1` (toon shading) to `F11`
 (`F3`: hitboxes), and mouse movement (looks around). The inventory and the journal move their selection with

@@ -49,5 +49,7 @@ PlayerHud::View playerHudView() {
 		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
 	view.resistLeftMs = stats.PotionResistLeftMs();
 	view.resistGreater = stats.PotionResistPercent() >= PotionEffect::GREATER_RESIST_PERCENT;
+	view.hekaWaiting = stats.heka.Free() > 0;
+	view.hekaKey = keyCapOf(BindAction::Skills);
 	return view;
 }

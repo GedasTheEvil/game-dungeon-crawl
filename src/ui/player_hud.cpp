@@ -2,6 +2,7 @@
 #include "../core/timer.h"
 #include "../graphics/font.h"
 #include "../world/level.h"
+#include "../world/skills.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
@@ -32,8 +33,11 @@ constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // th
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
 constexpr float POISON_STEP = 9.f;
-constexpr float ICON_INSET = 0.3f; // the icon in its slot
-constexpr int ICON_COLUMNS = 8;	   // atlas grid
+// The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
+constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
+constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
+constexpr float ICON_INSET = 0.3f;		  // the icon in its slot
+constexpr int ICON_COLUMNS = 8;			  // atlas grid
 constexpr int ICON_ROWS = 4;
 
 // ---- timing ----
@@ -170,6 +174,19 @@ void drawResist(const PlayerHud::View& v) {
 				GOLD_BRIGHT, 1.f);
 }
 
+// A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
+void drawHeka(const PlayerHud::View& v, int now, int skillIcons) {
+	if (!v.hekaWaiting)
+		return;
+	const Rect& r = HEKA_TILE;
+	const float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(now) * HEKA_PULSE_RATE);
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	additiveRing(r, 1.6f, GOLD, 0.25f + 0.35f * pulse);
+	tile(r, TileStyle::Lapis, false, false);
+	atlasIcon(r.inset(0.5f), skillIcons, HEKA_ICON, SKILL_ICON_COLUMNS, SKILL_ICON_ROWS, {1, 1, 1});
+	beginShapes();
+}
+
 // Seconds left over a status tile.
 void tileSeconds(const Rect& r, int leftMs, Font& small) {
 	char secs[12];
@@ -294,16 +311,10 @@ void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()
 void reset() { trail = PlayerHud::DamageTrail{}; }
 
 void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
-	int cell = static_cast<int>(icon);
-	int row = cell / ICON_COLUMNS;
-	float w = 1.f / ICON_COLUMNS;
-	float h = 1.f / ICON_ROWS;
-	float u = w * static_cast<float>(cell % ICON_COLUMNS);
-	float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
-	texturedRect(r, icons, tint, u, v, u + w, v + h);
+	atlasIcon(r, icons, static_cast<int>(icon), ICON_COLUMNS, ICON_ROWS, tint);
 }
 
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons) {
+void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons) {
 	int now = GameClock::now();
 	// Font::print resets the modelview, so the canvas is set through the projection.
 	float canvasH = 100.f / SCALE;
@@ -322,6 +333,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawXp(view);
 	drawPoison(view);
 	drawResist(view);
+	drawHeka(view, now, skillIcons);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotIcon(view.slots[i], slotRect(i), icons);
@@ -336,6 +348,10 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 		if (shown(view, i))
 			drawSlotText(view.slots[i], slotRect(i), small);
 	drawPoisonText(view, small);
+	if (view.hekaWaiting && !view.hekaKey.empty()) {
+		textCentered(small, HEKA_TILE.cx() + 0.2f, HEKA_TILE.y - 3.6f, view.hekaKey.c_str(), BLACK);
+		textCentered(small, HEKA_TILE.cx(), HEKA_TILE.y - 3.4f, view.hekaKey.c_str(), GOLD_BRIGHT);
+	}
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glColor3f(1, 1, 1);

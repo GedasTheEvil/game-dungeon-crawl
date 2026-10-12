@@ -62,9 +62,9 @@ void toWindow(const Rect& area, int resX, int resY, float x, float y, int& mouse
 // ---- screen tabs ----
 // The strip at the top right of the 160 x 100 canvas that switches between the in-game screens: one tile per screen
 // with its icon and key, the open one lapis. Screens with it keep their title rule short (SCREEN_TABS_TITLE_REACH).
-enum class ScreenTab : std::uint8_t { Inventory, Map, Journal };
-constexpr int SCREEN_TAB_COUNT = 3;
-constexpr float SCREEN_TABS_TITLE_REACH = 44.f;
+enum class ScreenTab : std::uint8_t { Inventory, Map, Journal, Skills };
+constexpr int SCREEN_TAB_COUNT = 4;
+constexpr float SCREEN_TABS_TITLE_REACH = 33.f;
 Rect screenTabRect(int tab);
 // -1 off the strip.
 int screenTabAt(float x, float y);

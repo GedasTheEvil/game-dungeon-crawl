@@ -91,7 +91,11 @@ void Dungeon::updateBoss() {
 		setObject(spawn, slainObject(spawn.attr));
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
-		sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");
+		if (sim.player->stats.heka.Earn(levelNumber)) { // docs/plan/skills.md
+			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open\nYou take its heka");
+			sim.events->Note(FieldNote::Heka);
+		} else
+			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");
 		return;
 	}
 	const BossRules& rules = boss.Type()->boss;

@@ -21,6 +21,7 @@
 #include "../ui/end_screens.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
+#include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/journal.h"
 #include "../world/world_events.h"
@@ -56,6 +57,7 @@ struct UIContext {
 	std::unique_ptr<EndScreens> endScreens;
 	DraftMap map;
 	JournalScreen journal;
+	SkillsScreen skills;
 	ScreenTabsState tabs;
 };
 

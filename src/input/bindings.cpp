@@ -94,6 +94,7 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 	{"inventory", "Inventory"},
 	{"map", "Draft map"},
 	{"journal", "Journal"},
+	{"skills", "Heka (skills)"},
 };
 
 InputKey ch(unsigned char c) { return InputKey::Char(c); }
@@ -141,6 +142,7 @@ Bindings::Bindings() {
 	set(BindAction::Inventory, ch('i'), none(), none());
 	set(BindAction::Map, ch('m'), none(), none());
 	set(BindAction::Journal, ch('j'), none(), none());
+	set(BindAction::Skills, ch('k'), none(), none());
 }
 
 std::optional<BindAction> Bindings::ActionFor(const InputKey& key) const {

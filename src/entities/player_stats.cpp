@@ -220,6 +220,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
+	heka.Dump(f);
 }
 
 void PlayerStats::LoadDump(std::ifstream& f) {
@@ -248,7 +249,7 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	if (!(f >> tag) || tag != "RESIST") { // a save from before the resistance potions
 		f.clear();
 		f.seekg(start);
-		return;
-	}
-	f >> resist_percent >> resist_left_ms;
+	} else
+		f >> resist_percent >> resist_left_ms;
+	heka.LoadDump(f);
 }

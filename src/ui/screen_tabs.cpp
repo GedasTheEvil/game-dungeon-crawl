@@ -6,7 +6,7 @@
 #include <GL/gl.h>
 
 namespace {
-constexpr Screen TAB_SCREENS[ui::SCREEN_TAB_COUNT] = {Screen::Inventory, Screen::Map, Screen::Journal};
+constexpr Screen TAB_SCREENS[ui::SCREEN_TAB_COUNT] = {Screen::Inventory, Screen::Map, Screen::Journal, Screen::Skills};
 
 int tabOf(Screen s) {
 	for (int tab = 0; tab < ui::SCREEN_TAB_COUNT; tab++)

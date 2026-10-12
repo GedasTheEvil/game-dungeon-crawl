@@ -1,7 +1,10 @@
 # Skill: deep mystic knowledge (read hieroglyphs)
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) and
+Status: draft 2026-10-10. [Skills](skills.md) is in; needs
 [hieroglyph-cartouches](hieroglyph-cartouches.draft.opus.md) first. From the user: an easy first choice.
+
+The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
+(`src/world/skills.cpp`) and checks its card text there.
 
 ## Idea
 

@@ -20,10 +20,6 @@ using namespace ui;
 
 constexpr float CENTRE = CANVAS_W / 2;
 
-constexpr Color LABEL = {0.86f, 0.72f, 0.47f};
-constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f};
-constexpr Color WELL = {0.07f, 0.055f, 0.04f};
-
 // ---- layout ----------------------------------------------------------------
 
 constexpr Rect MENU_PANEL = {46, 19, 68, 64};

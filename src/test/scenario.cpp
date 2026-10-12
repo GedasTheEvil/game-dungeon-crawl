@@ -110,6 +110,8 @@ const char* screenName() {
 		return "map";
 	case Screen::Journal:
 		return "journal";
+	case Screen::Skills:
+		return "skills";
 	case Screen::Gameplay:
 		return "gameplay";
 	}
@@ -368,6 +370,13 @@ bool runInstant(const Command& cmd) {
 			return true;
 		}
 		Game().ui.inventory->SetSort(static_cast<SortOrder>(cmd.ticks));
+		report(cmd, true, "");
+		return true;
+	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
+		if (!Game().player->stats.heka.Learn(static_cast<SkillId>(cmd.ticks), true)) {
+			report(cmd, false, "learnt already, or no heka to spend");
+			return true;
+		}
 		report(cmd, true, "");
 		return true;
 	case CommandType::Wear: // like a click on its slot in the inventory

@@ -1,6 +1,9 @@
 # Skill: stun
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) first. From the user; not fully refined.
+Status: draft 2026-10-10. Ready: [skills](skills.md) is in. From the user; not fully refined.
+
+The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
+(`src/world/skills.cpp`) and checks its card text there.
 
 ## Idea
 

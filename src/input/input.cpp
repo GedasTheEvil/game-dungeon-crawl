@@ -186,6 +186,7 @@ GameplayAction gameplayActionOf(BindAction action) {
 	case BindAction::Inventory:
 	case BindAction::Map:
 	case BindAction::Journal:
+	case BindAction::Skills:
 		break;
 	}
 	return GameplayAction::None;
@@ -239,6 +240,8 @@ Screen screenOf(BindAction action) {
 		return Screen::Map;
 	case BindAction::Journal:
 		return Screen::Journal;
+	case BindAction::Skills:
+		return Screen::Skills;
 	default:
 		return Screen::Gameplay;
 	}
@@ -303,7 +306,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	if (key == KEY_ESCAPE) // esc
 	{
 		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
-		if (screen == Screen::Inventory || screen == Screen::Map || screen == Screen::Journal) {
+		if (ScreenTabs::Has(screen)) {
 			screen = Screen::Gameplay;
 			return;
 		}
@@ -328,6 +331,8 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	if (screen == Screen::Inventory)
 		Game().ui.inventory->KeyPressed(key);
+	if (screen == Screen::Skills)
+		Game().ui.skills.KeyPressed(key);
 }
 
 void specialKeyPressed(int key, int x, int y) {
@@ -349,6 +354,8 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().ui.journal.SpecialKeyPressed(key);
 	if (Game().ui.screen == Screen::Inventory)
 		Game().ui.inventory->SpecialKeyPressed(key);
+	if (Game().ui.screen == Screen::Skills)
+		Game().ui.skills.SpecialKeyPressed(key);
 	if (Game().ui.screen != Screen::Gameplay)
 		return;
 
@@ -398,6 +405,10 @@ void processMouse(int button, int state, int x, int y) {
 		Game().ui.journal.MouseFunction(button, state, x, y);
 		return;
 	}
+	if (Game().ui.screen == Screen::Skills) {
+		Game().ui.skills.MouseFunction(button, state, x, y);
+		return;
+	}
 
 	// Held actions start when the button goes down, the others run when it comes up: each click is a press.
 	if (action && Game().ui.screen == Screen::Gameplay && (state == GLUT_DOWN) == isHeld(*action)) {
@@ -423,7 +434,9 @@ void processMousePassiveMotion(int a, int b) {
 
 	if (Game().ui.screen == Screen::Journal)
 		Game().ui.journal.MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Map || Game().ui.screen == Screen::Journal) {
+	if (Game().ui.screen == Screen::Skills)
+		Game().ui.skills.MouseMotion(a, b);
+	if (Game().ui.screen == Screen::Map || Game().ui.screen == Screen::Journal || Game().ui.screen == Screen::Skills) {
 		lastMx = a;
 		lastMy = b;
 		return;
@@ -447,6 +460,8 @@ void processMouseActiveMotion(int a, int b) {
 		Game().ui.inventory->MouseMotion(a, b);
 	if (Game().ui.screen == Screen::Journal)
 		Game().ui.journal.MouseMotion(a, b);
+	if (Game().ui.screen == Screen::Skills)
+		Game().ui.skills.MouseMotion(a, b);
 }
 
 void processMouseEntry(int a) { (void)a; }

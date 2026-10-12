@@ -139,8 +139,8 @@ void titleBar(Font& font, float cx, const char* caption, float reach) {
 // ---- screen tabs ----
 
 namespace {
-constexpr const char* TAB_NAMES[SCREEN_TAB_COUNT] = {"Inventory", "Draft map", "Journal"};
-constexpr const char* TAB_KEYS[SCREEN_TAB_COUNT] = {"I", "M", "J"};
+constexpr const char* TAB_NAMES[SCREEN_TAB_COUNT] = {"Inventory", "Draft map", "Journal", "Heka (skills)"};
+constexpr const char* TAB_KEYS[SCREEN_TAB_COUNT] = {"I", "M", "J", "K"};
 
 void bar(float x0, float y0, float x1, float y1, Color c) { fillRect({x0, y0, x1 - x0, y1 - y0}, c, c, 1.f); }
 
@@ -161,6 +161,11 @@ void tabIcon(ScreenTab tab, float cx, float cy, float s, Color c) {
 		bar(cx - 0.95f * s, cy - 0.6f * s, cx - 0.1f * s, cy + 0.75f * s, c);
 		bar(cx + 0.1f * s, cy - 0.6f * s, cx + 0.95f * s, cy + 0.75f * s, c);
 		bar(cx + 0.45f * s, cy - 0.95f * s, cx + 0.62f * s, cy - 0.6f * s, c);
+		break;
+	case ScreenTab::Skills: // the ka: two arms raised from a bar
+		bar(cx - 0.9f * s, cy - 0.9f * s, cx + 0.9f * s, cy - 0.6f * s, c);
+		bar(cx - 0.9f * s, cy - 0.6f * s, cx - 0.6f * s, cy + 0.9f * s, c);
+		bar(cx + 0.6f * s, cy - 0.6f * s, cx + 0.9f * s, cy + 0.9f * s, c);
 		break;
 	}
 }
@@ -244,6 +249,15 @@ void tileFrame(const Rect& r, TileStyle style, bool hovered) {
 Rect iconWell(const Rect& tile, float inset) {
 	float size = tile.h - 2 * inset;
 	return {tile.x + inset, tile.y + inset, size, size};
+}
+
+void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Color tint) {
+	const float w = 1.f / static_cast<float>(columns);
+	const float h = 1.f / static_cast<float>(rows);
+	const float u = w * static_cast<float>(cell % columns);
+	const int row = cell / columns;
+	const float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
+	texturedRect(r, textureId, tint, u, v, u + w, v + h);
 }
 
 void texturedRect(const Rect& r, int textureId, Color tint, float u0, float v0, float u1, float v1) {

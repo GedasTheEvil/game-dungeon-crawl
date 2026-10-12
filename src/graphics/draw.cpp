@@ -101,6 +101,9 @@ void Draw() {
 	case Screen::Journal:
 		Game().ui.journal.Draw();
 		break;
+	case Screen::Skills:
+		Game().ui.skills.Draw();
+		break;
 	case Screen::Gameplay:
 		drawGameplay();
 		break;
@@ -210,7 +213,8 @@ void drawGameplay() {
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	}
 	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
-					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID());
+					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
+					Game().assets.textures.skillIcons.ID());
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),

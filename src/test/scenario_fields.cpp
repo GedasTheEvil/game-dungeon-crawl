@@ -78,6 +78,10 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().ui.inventory->OpenTab());
 	case Field::Selected:
 		return static_cast<float>(Game().ui.inventory->SelectedPosition());
+	case Field::Heka:
+		return static_cast<float>(Game().player->stats.heka.Free());
+	case Field::Skills:
+		return static_cast<float>(Game().player->stats.heka.Spent());
 	case Field::JournalTried: {
 		int known = 0;
 		for (const JournalCreature& c : Game().journal.Creatures()) {

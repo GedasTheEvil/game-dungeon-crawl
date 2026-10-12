@@ -52,6 +52,7 @@ enum class CommandType : unsigned char {
 	KillBoss,
 	HurtBoss,
 	PoisonBoss,
+	Learn,
 	Quit,
 };
 
@@ -92,7 +93,9 @@ enum class Field : unsigned char {
 	Worn,
 	Safe,
 	Tab,
-	Selected
+	Selected,
+	Heka,
+	Skills
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

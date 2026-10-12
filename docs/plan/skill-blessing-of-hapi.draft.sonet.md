@@ -1,8 +1,11 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. Needs [skills](skills.draft.opus.md) first; the stacking part needs
+Status: draft 2026-10-10. [Skills](skills.md) is in. The stacking part needs
 [water-blessing-potion](water-blessing-potion.draft.sonet.md) (skip that part if the potion is not in yet, add it with the
 potion). From the user.
+
+The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
+(`src/world/skills.cpp`) and checks its card text there.
 
 ## Idea
 

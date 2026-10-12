@@ -11,6 +11,7 @@ parts below instead of drawing their own.
 | Riddle | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Journal | `src/ui/journal_view.cpp` (data: `src/world/journal.h`) | 160 x 100 |
+| Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/ui/skills_layout.h`, data: `src/world/skills.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
@@ -208,11 +209,11 @@ free edge, `PageCurl::overhang`), bending with the curl. Sound:
 
 ### Screen tabs
 
-Inventory, draft map and journal share a tab strip at the top right (`ui::screenTabs`, game side
-`src/ui/screen_tabs.cpp`): three tiles 9.5 x 7 centred on the title rule, x 127.5–158, a flat icon (chest, map sheet,
-open book) and the key (I, M, J) in `small` `GOLD`. The open screen's tile is lapis, the others stone; the hovered one
+Inventory, draft map, journal and Heka share a tab strip at the top right (`ui::screenTabs`, game side
+`src/ui/screen_tabs.cpp`): four tiles 9.5 x 7 centred on the title rule, x 117–158, a flat icon (chest, map sheet,
+open book, the ka's raised arms) and the key (I, M, J, K) in `small` `GOLD`. The open screen's tile is lapis, the others stone; the hovered one
 shows the screen's name on a dark label to the left. Screens with the strip keep their title rule short
-(`SCREEN_TABS_TITLE_REACH`, 44). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
+(`SCREEN_TABS_TITLE_REACH`, 33). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
 window-wide one, so it stays in the same place. Its clicks are handled before the screen's own (`ScreenTabs::Mouse`).
 
 ### Inventory group tabs
@@ -242,6 +243,19 @@ instead of "Wear". Under the effect the details show "Upgrade: n / m points" (gr
 a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the
 pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
 
+### Heka screen
+
+Skills bought with heka ([plan/skills.md](plan/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
+(`CARDS_PANEL`): the heka mark and "Heka to spend: n" (`heading` `GOLD`, `LABEL_DIM` "No heka to spend" at none) over
+the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 13, two a row, in `SkillId` order: an icon well
+with the baked icon (`textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in
+`body`, its one line in `small`. Learnt: lapis tile, `GOLD` name, a `GOLD_BRIGHT` diamond top right. Sealed (rules not
+in yet): `Disabled` tile, dim icon and text, a red wax dot. No heka left: the icons dimmed. The selected card has the
+inventory's breathing halo and gold frame. Right a papyrus scroll (`DETAIL_PANEL`): the icon at 20, the name, a rule,
+the line in `body` `INK`, the lore in `small` `INK_FADED`, a status line, and the Learn tile (lapis; papyrus-disabled
+when it cannot): the first press turns it to "Sure? Learn" with a pulsing ring, the second learns. A refused press says
+why in the toast.
+
 ### Status box
 
 The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,
@@ -256,7 +270,8 @@ trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss
 `TileStyle::Stone` tiles with a flat item icon (`textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
 count badge like the inventory slots and a key cap under each like the options table. A fourth slot, without a key
 cap, shows the worn amulet (its type's icon, the tier I .. IV in the badge) while one is on; the key sockets sit right
-of it. Flashes and pulses are additive
+of it. While a heka waits to be spent, a lapis tile with the heka mark and a breathing gold halo sits above the
+panel's right end, the Heka key under it. Flashes and pulses are additive
 rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
 icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
 
@@ -279,8 +294,8 @@ Palette constants in `ui_draw.h`; use them, don't write new RGB values.
 | Pencil: draft map, journal minor notes | `PENCIL` (alpha 0.7 for minor notes) |
 | Journal: ink, paper, strap, cover cloth | `INK_BLUE`, `PAPER`, `STRAP`, `CLOTH` |
 
-`menu.cpp` adds `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM` `{0.55, 0.45, 0.30}` for
-secondary text and footers.
+Also there: `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text on dark panels and `LABEL_DIM`
+`{0.55, 0.45, 0.30}` for secondary text and footers.
 
 ## Fonts
 

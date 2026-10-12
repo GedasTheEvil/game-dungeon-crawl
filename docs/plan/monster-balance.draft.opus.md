@@ -4,7 +4,7 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
-Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 
@@ -203,7 +203,7 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 ## Related
 
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
-* Changes that move the sim pass (step 5): [anubis-speed](anubis-speed.md),
+* Changes that move the sim pass (step 5): [anubis-speed](solved/anubis-speed.md),
   [anubis-ranged-attack](anubis-ranged-attack.draft.opus.md), [monster-climbers](monster-climbers.md) (threat
   x1.05), [coward-flee-ranged](coward-flee-ranged.md), [crocodile-hold-bite](crocodile-hold-bite.draft.opus.md), the
   cobra spit cut to 1.2 / 1.5 tiles (2026-10-09).

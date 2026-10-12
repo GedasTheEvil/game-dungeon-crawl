@@ -123,7 +123,7 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 	}
 }
 
-// docs/plan/death-spikes-poison.md
+// docs/plan/solved/death-spikes-poison.md
 TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; the ward cuts the damage only") {
 	{
 		SimWorld world;

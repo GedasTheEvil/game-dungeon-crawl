@@ -1,6 +1,6 @@
 # Stronger poisons
 
-Status: implemented 2026-10-10, awaiting user verification. From the user.
+Status: implemented 2026-10-10, solved (user-confirmed 2026-10-12). From the user.
 
 ## Idea
 
@@ -38,5 +38,5 @@ Left alone, a strong poison takes the player to 5% HP (below 60 max HP the floor
 
 ## Related
 
-* [poison-and-antidote](solved/poison-and-antidote.md), [monster-poison](solved/monster-poison.md),
-  [monster-balance](monster-balance.draft.opus.md)
+* [poison-and-antidote](poison-and-antidote.md), [monster-poison](monster-poison.md),
+  [monster-balance](../monster-balance.draft.opus.md)

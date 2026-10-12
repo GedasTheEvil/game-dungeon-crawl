@@ -1,6 +1,6 @@
 # Dead monsters stay dead after a load
 
-Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemented-2026-10-10)). From the user: dead monsters don't respawn on level load.
+Status: implemented 2026-10-10, solved (user-confirmed 2026-10-12) (see [Implemented](#implemented-2026-10-10)). From the user: dead monsters don't respawn on level load.
 
 ## Today
 
@@ -14,7 +14,7 @@ Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemen
   stays dead. A killed mimic's tile turns into a treasure tile. The minions have no tile.
 * Related, without a load: `freeMonsterSlot` reuses a dead monster's slot when no slot is free (`MAX_MONSTERS` 32, the
   busiest level has 15). The freed tile can then spawn its monster again when it comes back into view. That is rare
-  today; [denser levels](denser-levels.draft.opus.md) make it likelier.
+  today; [denser levels](../denser-levels.draft.opus.md) make it likelier.
 * `MAX_MONSTERS` 32 has no design meaning (user, 2026-10-09). It grew from the original code's limit and can go up
   when needed, e.g. for denser levels.
 
@@ -40,7 +40,7 @@ Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemen
 * The monster needs its spawn cell (it walks away from it): check whether it is kept.
 * Anything that reads spawn tiles after the kill: `decor_scatter.cpp` (entombed monsters' coffins, the boss coffins),
   `map_view.cpp` (the mimic's symbol), `levelcheck`. Each must treat the marker right.
-* XP: the curve ([monster-balance](monster-balance.draft.opus.md#the-30-level-curve-2026-10-06)) already assumes no
+* XP: the curve ([monster-balance](../monster-balance.draft.opus.md#the-30-level-curve-2026-10-06)) already assumes no
   respawns, so nothing to retune. Players who farmed with loads will level more slowly.
 * Tests: a scenario in `tests/scenarios/` (kill a monster, `savegame`, `loadgame`, the monster is not back; the
   same for walking away and back).

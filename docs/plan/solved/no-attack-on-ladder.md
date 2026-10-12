@@ -1,6 +1,6 @@
 # No attack while on a ladder
 
-Status: implemented 2026-10-09, not play-tested yet (see [Implemented](#implemented-2026-10-09)). From the user: the
+Status: implemented 2026-10-09, solved (user-confirmed 2026-10-12) (see [Implemented](#implemented-2026-10-09)). From the user: the
 player cannot attack while climbing a ladder.
 
 ## Today
@@ -23,7 +23,7 @@ player cannot attack while climbing a ladder.
 * **Mid-swing:** a swing or draw already under way when the player grabs the ladder finishes (and can hit). Only new
   attacks are refused.
 * **Feedback:** the status line "Hands on the rungs", once per press: a held key does not repeat it.
-* **Everyone:** the rule holds for monsters too, once they climb ([monster-climbers](monster-climbers.md)).
+* **Everyone:** the rule holds for monsters too, once they climb ([monster-climbers](../monster-climbers.md)).
 * **Ladder tops:** accepted. A monster waiting at the top gets the first hits; the player climbs down or waits. No
   checker rule, no change to the monsters.
 
@@ -44,5 +44,5 @@ player cannot attack while climbing a ladder.
   giant bat; a mummy 2 cells off), lvl26 (a mummy 3 cells off). None is a trap: the ladder leads back down, the
   mummies are slow, the plants rooted. No level changed.
 * Tests: `tests/unit/world_rules_test.cpp` (no attack mid-ladder, the status line, an attack at its foot, a swing
-  carried onto the rungs lands); `tests/scenarios/ladder.txt` checks the key path (`attack` on the rungs:
+  carried onto the rungs lands); `tests/scenarios/solved/ladder.txt` checks the key path (`attack` on the rungs:
   `attacking == 0`; at the foot: 1).

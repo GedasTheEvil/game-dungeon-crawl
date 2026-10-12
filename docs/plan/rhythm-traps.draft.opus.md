@@ -13,7 +13,7 @@ triggered. Sprinting and jumping do not beat it: the player must time the pass a
   front of the wall is the danger zone while extended. Sideways spikes cannot be jumped: the jump gives no
   clearance, and sprint only cuts the time in the zone, not the hit. While extended, the zone does
   continuous damage to whoever stands in it (the `TrapHurt` tick, growing the longer it stays).
-* **Hit:** continuous damage while in the zone and extended, plus weak poison ([stronger-poisons](stronger-poisons.md) tiers; the
+* **Hit:** continuous damage while in the zone and extended, plus weak poison ([stronger-poisons](solved/stronger-poisons.md) tiers; the
   tier is per trap, default weak). Resistance and `trapCutPercent` (trap ward) apply as for spikes
   (`SPIKE_ATTACK_MIX`, `TrapHurt` / `Dungeon::updateTraps` are the model).
 * **Combining:** every trap has its own `phase` and `period` (a "speed": fast, normal, slow). Two or three in a row

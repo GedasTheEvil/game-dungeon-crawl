@@ -38,7 +38,7 @@ Implementer's choice, at least one:
 | Anubis living statue (stone) | tough |
 | Bosses | normal or better |
 
-* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.md), e.g. "the feather
+* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](solved/egyptian-names.md), e.g. "the feather
   of Ma'at" or "the sun disc"), four tiers like the other wardings: fire damage -20 / 40 / 60 / 80%. Never more
   than 80% (decided 2026-10-12): fire always hurts a little.
 * **Fire ignores armour** (decided 2026-10-12): only the Fire Warding amulet (and a fire resistance) cuts it. Today

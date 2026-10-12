@@ -1,6 +1,6 @@
 # Egyptian names
 
-Status: implemented 2026-10-11, awaiting user verification. Labels and ids kept (editor, scenarios); amulets: tier word + object ("Lesser Jackal Tooth"), label by effect. Riddles: `riddles/stargate.txt`. From the user, after a lore review: rename the monsters and
+Status: implemented 2026-10-11, solved (user-confirmed 2026-10-12). Labels and ids kept (editor, scenarios); amulets: tier word + object ("Lesser Jackal Tooth"), label by effect. Riddles: `riddles/stargate.txt`. From the user, after a lore review: rename the monsters and
 items that do not fit the Egyptian tomb. Names only (and their journal notes / flavour lines); no new behaviour.
 
 ## Rules (user, 2026-10-10)
@@ -25,7 +25,7 @@ items that do not fit the Egyptian tomb. Names only (and their journal notes / f
 | Vampire bat | Bat of Shezmu | Shezmu, the demon of the wine press and of blood. Note keeps "Grown fat on blood" |
 | Mimic | Chest of Set | Set shut Osiris in a chest made to his measure. Note e.g. "Not every chest in this tomb holds treasure. Ask Osiris." |
 | Worm | Sand worm | Dune joke welcome in the note ("Slow as sand..." can stay) |
-| Man-eater plant | Thorn acacia | The acacia: Osiris's tree, thorny. Note keeps "Never stand next to it." See [plant-poison](plant-poison.md) for its new note |
+| Man-eater plant | Thorn acacia | The acacia: Osiris's tree, thorny. Note keeps "Never stand next to it." See [plant-poison](../plant-poison.md) for its new note |
 
 The rest fit (rat, giant rat, bat, giant bat, scarab, giant scarab, mummy, crocodile, Sobek, scorpion, giant
 scorpion, scorpion queen, cobra, giant cobra, Apep, egg cluster). Optional: the egg cluster note can wink at real
@@ -96,9 +96,9 @@ line shows what it does.
 
 * Journal field notes and riddle hints that name a renamed thing.
 * `docs/glossary.md` (e.g. the kin row: "the Anubis boss: the Anubis guard"), `docs/levels.md` legend if it shows
-  names, and drafts that use the old names: [cursed-mimic](cursed-mimic.draft.opus.md) (becomes a cursed Chest of Set),
-  [curses](solved/curses.md), [anubis-ranged-attack](anubis-ranged-attack.draft.opus.md),
-  [monster-balance](monster-balance.draft.opus.md).
+  names, and drafts that use the old names: [cursed-mimic](../cursed-mimic.draft.opus.md) (becomes a cursed Chest of Set),
+  [curses](curses.md), [anubis-ranged-attack](../anubis-ranged-attack.draft.opus.md),
+  [monster-balance](../monster-balance.draft.opus.md).
 * Unit tests and scenarios that check names.
 
 ## Tests

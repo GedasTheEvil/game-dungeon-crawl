@@ -1,4 +1,4 @@
-; Summon effects (tests/scenarios/summon_effects.txt): the boss scarab next to the teleporter, so its scarabs
+; Summon effects (tests/scenarios/solved/summon_effects.txt): the boss scarab next to the teleporter, so its scarabs
 ; dig out in view.
 ########################################
 #OK.....Z.$##########################

@@ -1,6 +1,6 @@
 # Monsters rise faster
 
-Status: implemented 2026-10-11 (`MonsterKind::riseMs`: mummy 1000, cobra / giant cobra 750 -> 0.8 s stepped; unit tests in `clip_state_test.cpp`). Awaiting user check. From the user: monsters "rise" too slowly. Jumping on a
+Status: implemented 2026-10-11 (`MonsterKind::riseMs`: mummy 1000, cobra / giant cobra 750 -> 0.8 s stepped; unit tests in `clip_state_test.cpp`). Solved (user-confirmed 2026-10-12). From the user: monsters "rise" too slowly. Jumping on a
 cobra or a mummy, the player has nearly killed it by the time it is up. The mummy rises in 1 s, the cobra in 0.75 s
 (user, 2026-10-10; first asked 70% of the old time). The monster must get a chance to hit the player at least once.
 

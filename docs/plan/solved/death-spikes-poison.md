@@ -1,6 +1,6 @@
 # Death spikes: strong poison
 
-Status: implemented 2026-10-12 (unit test in tests/unit/scen_a_test.cpp). Awaiting user check. Judgement: ward 100% does not block poison; ward only cuts damage.
+Status: implemented 2026-10-12 (unit test in tests/unit/scen_a_test.cpp). Solved (user-confirmed 2026-10-12). Judgement: ward 100% does not block poison; ward only cuts damage.
 
 ## Idea
 
@@ -15,7 +15,7 @@ it and the level checker's poisoner antidote rule does not apply. The death trap
 * Monsters: reckless ones walking through get poisoned too (`Monster::Poison`, byPlayer false: no XP for the
   player's kill, as a trap's kill).
 * Status line, e.g. "The spike tips are wet with venom." Maybe a green tint on the death trap model.
-* Rhythm traps ([rhythm-traps](rhythm-traps.draft.opus.md)) stay weak by default; a strong variant is allowed per
+* Rhythm traps ([rhythm-traps](../rhythm-traps.draft.opus.md)) stay weak by default; a strong variant is allowed per
   trap. Consistent with this draft.
 
 ## Open points

@@ -101,6 +101,13 @@ TEST_CASE("bindings") {
 		CHECK(b.Of(BindAction::Attack).mouse == InputKey::Mouse(MOUSE_LEFT_BUTTON));
 	}
 
+	SUBCASE("E interacts, V attacks, in both cases (docs/plan/solved/inventory-keys.md)") {
+		CHECK(b.ActionFor(InputKey::Char('e')) == BindAction::Interact);
+		CHECK(b.ActionFor(InputKey::Char('E')) == BindAction::Interact);
+		CHECK(b.ActionFor(InputKey::Char('v')) == BindAction::Attack);
+		CHECK(b.ActionFor(InputKey::Char('V')) == BindAction::Attack);
+	}
+
 	SUBCASE("a key bound elsewhere moves") {
 		std::optional<BindAction> from = b.Bind(BindAction::Jump, 1, InputKey::Char('E'));
 		CHECK(from == BindAction::Interact);

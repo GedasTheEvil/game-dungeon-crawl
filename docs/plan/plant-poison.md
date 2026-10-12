@@ -27,8 +27,8 @@ Status: implemented 2026-10-10, awaiting user verification. From the user: the m
 
 ## Related
 
-* [stronger-poisons](stronger-poisons.md) leaves the weak tier unchanged; no conflict.
-* [egyptian-names](egyptian-names.md) renames the plant (Thorn acacia); whichever comes second uses the
+* [stronger-poisons](solved/stronger-poisons.md) leaves the weak tier unchanged; no conflict.
+* [egyptian-names](solved/egyptian-names.md) renames the plant (Thorn acacia); whichever comes second uses the
   other's name.
 
 ## Tests

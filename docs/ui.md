@@ -237,7 +237,7 @@ so the found ones fill the first rows without gaps. Two rows fit; a group with m
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
 silhouette and its place among the found. The arrow keys follow the grid's order; the number keys do nothing here
-and the slots show no key labels ([plan/inventory-keys.md](plan/inventory-keys.md)).
+and the slots show no key labels ([plan/inventory-keys.md](plan/solved/inventory-keys.md)).
 In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand, and its button reads "Take off"
 instead of "Wear". Under the effect the details show "Upgrade: n / m points" (green once the spares pay, "Top tier" for
 a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the

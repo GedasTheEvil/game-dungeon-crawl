@@ -4,7 +4,7 @@ Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-
 clip, its release and a sound still to do. From the user: the Anubis gets a ranged attack, range 14, damage 50,
 cooldown 3 s.
 
-Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Today
 

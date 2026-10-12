@@ -1,4 +1,3 @@
-# Kept (docs/testing.md): plan anubis-speed not solved; spray / shower effects are pictures.
 # The summon effects: the boss scarab's scarabs dig out of the floor in a spray of sand, the vampire bat's bats drop
 # from the ceiling in a shower of grit, the Anubis boss's mummies climb out of their coffins (tests/levels/summon_dig,
 # summon_drop, summon_coffin).

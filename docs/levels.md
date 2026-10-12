@@ -213,7 +213,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   The swing's poses: `tests/unit/swing_test.cpp`.
 - `tests/scenarios/solved/vampire.txt`: the vampire bat's roost (`tests/levels/vampire`): its bats, its bites heal it
   (`hurtboss`), more bats up to the limit, its death opens the boss gate to the gold key.
-- `tests/scenarios/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling,
+- `tests/scenarios/solved/summon_effects.txt`: scarabs digging out in a spray of sand, bats dropping from the ceiling,
   mummies out of the Anubis boss's coffins (`tests/levels/summon_dig`, `summon_drop`, `summon_coffin`): screenshots.
 - `tests/levels/classic1`, `classic2`: the old hand-made levels 1 and 2, kept as fixtures for the scenarios that
   depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.

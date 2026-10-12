@@ -175,8 +175,8 @@ int scatterLadders(const Tile* cells, uint32_t seed, LadderCell* ladder) {
 }
 
 // Torches hang on the back wall at head height, spaced along each row. Cells with a fire of their own
-// (brazier, oil lamp), the gates and ladders and deep water (docs/plan/no-torches-under-water.md) are skipped; over
-// half water the flame clears the surface.
+// (brazier, oil lamp), the gates and ladders and deep water (docs/plan/solved/no-torches-under-water.md) are skipped;
+// over half water the flame clears the surface.
 int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, bool* torch) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++) {

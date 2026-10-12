@@ -1,4 +1,4 @@
-; Summon effects (tests/scenarios/summon_effects.txt): the vampire bat next to the teleporter, so its bats
+; Summon effects (tests/scenarios/solved/summon_effects.txt): the vampire bat next to the teleporter, so its bats
 ; drop from the ceiling in view.
 ########################################
 #OV.....Z.$##########################

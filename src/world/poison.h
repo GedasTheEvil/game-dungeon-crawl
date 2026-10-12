@@ -12,7 +12,7 @@
 enum class PoisonTier : std::uint8_t { Weak, Medium, Strong };
 constexpr int POISON_TIER_COUNT = 3;
 
-// A second's damage is max(floorHpPerSecond, percent of the victim's max HP), docs/plan/stronger-poisons.md.
+// A second's damage is max(floorHpPerSecond, percent of the victim's max HP), docs/plan/solved/stronger-poisons.md.
 struct PoisonTierDef {
 	int floorHpPerSecond;
 	int percentOfMaxHp;

@@ -1,7 +1,7 @@
 # Anubis guard walks faster
 
-Status: implemented 2026-10-10, not play-tested yet (see [Implemented](#implemented-2026-10-10)). From the user: the Anubis guard walks 20% faster than the
-player's normal walk. Before [monster-climbers](monster-climbers.md).
+Status: implemented 2026-10-10, solved (user-confirmed 2026-10-12) (see [Implemented](#implemented-2026-10-10)). From the user: the Anubis guard walks 20% faster than the
+player's normal walk. Before [monster-climbers](../monster-climbers.md).
 
 ## Today
 
@@ -21,7 +21,7 @@ player's normal walk. Before [monster-climbers](monster-climbers.md).
 * Threat: a faster guard is harder to kite with the bow. Check its `threat` (8) and the boss's (15), and re-run
   `./levelcheck levels/lvl*` (no warnings).
 * The walk clip: at 1.5x the speed the feet may slide; speed up the clip with the walk if needed.
-* Balance: the "about 15 blows" note on the guard ([monster-balance](monster-balance.draft.opus.md)) assumed the old
+* Balance: the "about 15 blows" note on the guard ([monster-balance](../monster-balance.draft.opus.md)) assumed the old
   speed; the sim pass checks it.
 * Tests: a unit test or a scenario that times the guard's walk over a few tiles.
 
@@ -37,6 +37,6 @@ player's normal walk. Before [monster-climbers](monster-climbers.md).
 * Threat: the guard 8 → 9 (only a sprint gets away; the bow cannot keep it off). The boss stays at 15. `levelcheck`:
   no warnings.
 * Not done: the walk clip still plays at its old pace, so the feet may slide; check in play
-  (`tests/scenarios/summon_effects.txt` and the levels with Anubis guards).
+  (`tests/scenarios/solved/summon_effects.txt` and the levels with Anubis guards).
 * Tests: `tests/unit/monster_rules_test.cpp` measures the guard's walk over a second on the sim harness. The tests
   that timed the old guard (the spikes, the dart plate, the Anubis boss's blow) now wait for the event instead.

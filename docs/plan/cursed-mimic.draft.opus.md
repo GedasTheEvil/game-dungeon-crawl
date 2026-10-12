@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-10, refined 2026-10-10 (decided, not implemented). From the user. Ready: [curses](solved/curses.md) is in (2026-10-12; insanity has no source yet, this draft adds it).
 
-Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 

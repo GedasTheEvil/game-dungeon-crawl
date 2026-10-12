@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-10, refined twice 2026-10-10 (who applies which curse decided 2026-10-11), implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), play-tested and solved 2026-10-12 (rat and bat curses, three at once). From the user.
 
-Names: the game now shows Egyptian names ([egyptian-names](../egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 

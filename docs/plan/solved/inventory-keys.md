@@ -1,13 +1,13 @@
 # Inventory keys with tabs
 
-Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-06, refined 2026-10-09. Split off
-[inventory-overhaul.md](solved/inventory-overhaul.md), which keeps today's keys.
+Status: implemented 2026-10-09, solved (user-confirmed 2026-10-12). Draft 2026-10-06, refined 2026-10-09. Split off
+[inventory-overhaul.md](inventory-overhaul.md), which keeps today's keys.
 
 ## Problem
 
 The number row (`HOTKEYS`, `1234567890-=`, `src/ui/inventory.cpp`) picks the open tab's first 12 slots, each of
 those slots shows its key in the corner. The grid shows 8 (4 x 2, `VISIBLE_ROWS`) and scrolls, so a key can pick a slot
-out of view, and the slots past the 12th have none. A stopgap since the [Egyptian weapons](solved/egyptian-weapons.md).
+out of view, and the slots past the 12th have none. A stopgap since the [Egyptian weapons](egyptian-weapons.md).
 
 ## Decided (2026-10-09)
 
@@ -25,4 +25,5 @@ out of view, and the slots past the 12th have none. A stopgap since the [Egyptia
   with a small GLUT program under Xvfb + `xdotool key shift+Tab`). With three groups at most, Tab alone goes round fast.
 * Number keys fall through to nothing; `HOTKEYS`, `HOTKEY_COUNT` and the slot labels are gone; the footer reads
   "Arrows: browse    Tab: next group".
-* Scenario `tests/scenarios/inventory_keys.txt`; new `expect` fields `tab` and `selected` ([testing](../testing.md)).
+* Scenario `tests/scenarios/solved/inventory_keys.txt` (parked on solving: the screen is drawn); new `expect` fields
+  `tab` and `selected` ([testing](../../testing.md)). The E / V aliases (once `keys.txt`): `tests/unit/settings_test.cpp`.

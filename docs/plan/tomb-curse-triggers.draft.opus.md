@@ -13,8 +13,8 @@ answers part of the curses draft's open point ("who applies which curse") for ob
 * Triggers (each a chance, default 25%):
   * opening a sarcophagus or a coffin (decor `sarcophagus`, `coffin`), if made interactive;
   * smashing pottery or an ushabti ([living-ushabti](living-ushabti.draft.opus.md)).
-* Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus → weakness or vulnerability,
-  pottery → disease.
+* Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus →
+  weakness or vulnerability, pottery → disease.
 * The tell: an execration text on the object, seen up close (no status line, no prompt text: the shared rule). With
   the [hieroglyph skill](skill-hieroglyphs.draft.sonet.md) it may read as a warning when looked at; implementer's
   choice.

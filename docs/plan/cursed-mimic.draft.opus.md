@@ -17,7 +17,8 @@ the harshest curse.
 * Look: the chest has to give a hint for an attentive player, e.g. dark wood, tarnished gold, faint purple glow in
   the keyhole or seams. Still has to read as a chest from afar.
 * Behaviour: a chest (ambush) until woken, like the mimic (on the interact key or a hit, once
-  [interact-prompt](interact-prompt.draft.opus.md) is in; until then on coming near). Unlike the mimic it then jumps: it hops
+  [interact-prompt](interact-prompt.draft.opus.md) is in; until then on coming near). Unlike the mimic it then jumps:
+  it hops
   after the player and leaps pits and traps, as the walk-jumpers do (giant rat, giant scarab, `Leap`). Needs an
   ambush-then-jump locomotion (or `Ambush` with a jump flag) and hop clips on the mimic model (lid snapping as it
   lands). Its speed is a starting value: about the giant rat's.

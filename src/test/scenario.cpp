@@ -401,6 +401,11 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Curse: // as from a cursing hit: the status line and the field note
+		Game().player->stats.LayCurse(static_cast<Curse>(cmd.ticks),
+									  cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser, Game().events);
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
 		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
 		report(cmd, true, stateLine());

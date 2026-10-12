@@ -118,6 +118,18 @@ void Inventory::Reset() {
 	Select(itemIndex(ItemKind::Club));
 	toast = ui::Toast{};
 	quickDrinkMs.reset();
+	saneWeapon.reset();
+}
+
+void Inventory::FollowInsanity(bool insane) {
+	if (insane && !saneWeapon) {
+		saneWeapon = bag.Equipped();
+		Equip(ItemKind::Club);
+	} else if (!insane && saneWeapon.has_value()) {
+		const ItemKind weapon = *saneWeapon;
+		saneWeapon.reset();
+		Equip(weapon);
+	}
 }
 
 Inventory::~Inventory() {}
@@ -970,4 +982,5 @@ void Inventory::DrawFooter() {
 void Inventory::LoadDump(std::istream& f) {
 	bag.Load(f);
 	selectedSlot = itemIndex(bag.Equipped());
+	saneWeapon.reset();
 }

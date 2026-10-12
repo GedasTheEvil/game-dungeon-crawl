@@ -38,7 +38,7 @@ constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISO
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
 constexpr float ICON_INSET = 0.3f;		  // the icon in its slot
 constexpr int ICON_COLUMNS = 8;			  // atlas grid
-constexpr int ICON_ROWS = 4;
+constexpr int ICON_ROWS = 5;
 
 // ---- timing ----
 constexpr float LOW_HEALTH = 0.25f; // under this the health bar pulses
@@ -52,6 +52,8 @@ using PlayerHud::POISON_TOP;
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
 // The drops, weak to strong: pale lime, venom green, deep malachite.
 constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
+constexpr Color CURSE_FRAME_TOP = {0.52f, 0.22f, 0.62f}; // a curse tile's frame, so it does not read as a potion
+constexpr Color CURSE_FRAME_BOTTOM = {0.22f, 0.06f, 0.3f};
 constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
@@ -174,6 +176,30 @@ void drawResist(const PlayerHud::View& v) {
 				GOLD_BRIGHT, 1.f);
 }
 
+// The poison and resistance tiles shown, left of the curses.
+int potionTiles(const PlayerHud::View& v) { return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0); }
+
+// The running curses right of the resistance, in Curse order: a stone tile in a purple frame with the curse's icon, one
+// pip lesser, two greater.
+void drawCurses(const PlayerHud::View& v, int icons) {
+	int shown = potionTiles(v);
+	for (int c = 0; c < CURSE_COUNT; c++) {
+		if (v.curseLeftMs[c] <= 0)
+			continue;
+		const Rect r = poisonRect(shown++);
+		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+		fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, CURSE_FRAME_TOP, CURSE_FRAME_BOTTOM, 1.f);
+		tile(r, TileStyle::Stone, false, false);
+		atlasIcon({r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f}, icons,
+				  static_cast<int>(PlayerHud::Icon::FirstCurse) + c, ICON_COLUMNS, ICON_ROWS, {1, 1, 1});
+		beginShapes();
+		const int pips = v.curseGreater[c] ? 2 : 1;
+		for (int p = 0; p < pips; p++)
+			diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
+					GOLD_BRIGHT, 1.f);
+	}
+}
+
 // A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
 void drawHeka(const PlayerHud::View& v, int now, int skillIcons) {
 	if (!v.hekaWaiting)
@@ -201,7 +227,10 @@ void drawPoisonText(const PlayerHud::View& v, Font& small) {
 		if (v.poisonLeftMs[t] > 0)
 			tileSeconds(poisonRect(shown++), v.poisonLeftMs[t], small);
 	if (v.resistLeftMs > 0)
-		tileSeconds(poisonRect(shown), v.resistLeftMs, small);
+		tileSeconds(poisonRect(shown++), v.resistLeftMs, small);
+	for (int c = 0; c < CURSE_COUNT; c++)
+		if (v.curseLeftMs[c] > 0)
+			tileSeconds(poisonRect(shown++), v.curseLeftMs[c], small);
 }
 
 void drawStamina(const PlayerHud::View& v) {
@@ -333,6 +362,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawXp(view);
 	drawPoison(view);
 	drawResist(view);
+	drawCurses(view, icons);
 	drawHeka(view, now, skillIcons);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))

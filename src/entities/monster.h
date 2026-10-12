@@ -148,6 +148,7 @@ class Monster {
 	void enter(ModelState s) { type->model.Enter(state, s, playback); }
 	void sound(CharacterSound s) const { links.events->PlayCharacter(type->id, s); }
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
+	void curse(const CurseEntries& entries); // its hit landed: it may lay a curse (Player::Curse), the journal sees it
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const;
 	[[nodiscard]] float burrowLift() const; // world units down in the floor while burrowing, <= 0 // world units off

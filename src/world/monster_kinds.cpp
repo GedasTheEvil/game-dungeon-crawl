@@ -90,6 +90,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 1200,
 	 .attackMix = WORM_MIX,
 	 .resist = WORM_RESIST,
+	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .generated = {3, 7, 2}},
 	{.id = MonsterPlant,
 	 .glyph = 'p',
@@ -145,6 +146,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // A bolt of light from the was-sceptre (docs/plan/anubis-ranged-attack.md). POC: the attack clip stands in for the
 	 // spit clip; release and sceptre height guessed.
 	 .spit = SpitRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
+	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
+	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
@@ -168,6 +171,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Lesser, 10}},
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
@@ -193,6 +197,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
+	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Greater, 3},
+					 CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
@@ -216,6 +222,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = BAT_RESIST,
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
+	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 10}},
 	 .generated = {2, 6, 3}},
 	{.id = MonsterGiantBat,
 	 .glyph = 'F',
@@ -237,6 +244,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = BAT_RESIST,
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
+	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 15}},
 	 .generated = {6, 10, 2}},
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{.id = MonsterMimic,
@@ -279,6 +287,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = SCARAB_MIX,
 	 .resist = SCARAB_RESIST,
 	 .locomotion = Locomotion::WalkJump,
+	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
 	 .generated = {5, 10, 3}},
 	// Bigger, faster and harder than the giant scarab. A full clear of levels 1-4 makes the player level 8 (134 HP):
 	// 3-4 bites kill them.
@@ -302,6 +311,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = bossResist(SCARAB_RESIST),
 	 .locomotion = Locomotion::WalkJump,
 	 .weight = 4,
+	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6},
+					 CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterScarab,
 	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.
@@ -326,6 +337,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = bossResist(BAT_RESIST),
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
+	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .kin = MonsterBat,
 	 .boss = {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
 	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (docs/plan/solved/boss-rooms.md).
@@ -351,6 +363,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .meleeCurses = {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2},
+					 CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
 	 .riseMs = 1000,
 	 .climbs = true,
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
@@ -385,6 +399,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .spit = SpitRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
+	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
+	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
@@ -491,6 +507,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .spit = SpitRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
+	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .riseMs = 750},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison
 	// (docs/plan/solved/scorpion-queen-boss.md).
@@ -596,6 +613,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
 	// The lvl25 boss on the crocodile model (docs/plan/sobek-boss.md).

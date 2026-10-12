@@ -2,6 +2,7 @@
 #define PLAYER_STATS_H
 
 #include "../core/timer.h"
+#include "../world/curses.h"
 #include "../world/damage.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
@@ -41,12 +42,16 @@ class PlayerStats {
 
 	bool AdvanceLevel(WorldEvents& events);
 	void RegenerateStamina();
+	void keepHpShare(int oldMax); // the HP keeps its share of the max HP as the max changed from oldMax
 
   public:
 	void SetSprintRequested(bool requested) { sprint_requested = requested; }
 	[[nodiscard]] bool IsSprinting() const { return sprinting; }
-	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved.
-	[[nodiscard]] float SprintMoveMultiplier() const { return sprint_requested && stamina > 0 ? 3.f : 1.f; }
+	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved. Slowness
+	// sprints less (SLOWNESS_SPRINT_MULTIPLIER).
+	[[nodiscard]] float SprintMoveMultiplier() const;
+	// Walk and climb steps: 1, SLOWNESS_WALK_FACTOR while slowed.
+	[[nodiscard]] float WalkCurseFactor() const;
 	void NoteWalked() { walked = true; } // a walk step really moved the player (not into a wall)
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
@@ -58,12 +63,13 @@ class PlayerStats {
 	void RefuseStamina(WorldEvents& events); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 
-	[[nodiscard]] int Damage(int weaponDamage) const { return CurrentMight() + weaponDamage; }
-	// With the worn amulet's bonus.
-	[[nodiscard]] int CurrentMight() const { return Might + amulet.might; }
-	[[nodiscard]] int CurrentArmor() const { return Armor + amulet.armor; }
+	// Might and weapon, cut by clumsiness; at least 1.
+	[[nodiscard]] int Damage(int weaponDamage) const { return cursedHit(CurrentMight() + weaponDamage, curses); }
+	// With the worn amulet's bonus and the running curses (weakness, vulnerability, disease).
+	[[nodiscard]] int CurrentMight() const { return cursedMight(Might + amulet.might, curses); }
+	[[nodiscard]] int CurrentArmor() const { return cursedArmor(Armor + amulet.armor, curses); }
 	[[nodiscard]] int CurrentHP() const { return HP; }
-	[[nodiscard]] int CurrentMaxHP() const { return MaxHP + MaxHP * amulet.maxHpPercent / 100; }
+	[[nodiscard]] int CurrentMaxHP() const { return cursedMaxHP(MaxHP + MaxHP * amulet.maxHpPercent / 100, curses); }
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
@@ -104,6 +110,12 @@ class PlayerStats {
 	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
 	// no poison runs.
 	void Regenerate(bool safe, int tickMs);
+	// Lays a curse (docs/plan/curses.md): its status line, the field note the first time. Disease keeps the HP's
+	// share of the max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
+	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);
+	void AdvanceCurses(int ms, WorldEvents& events); // the curses' time runs out, each with its status line
+	void EndCurses();								 // death or a new game: all gone
+	Curses curses;
 	Poison poison;
 	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken: the worn amulet's (Wear)
 	Heka heka;							 // bosses' points and the skills bought with them

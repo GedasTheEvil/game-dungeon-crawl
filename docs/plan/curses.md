@@ -1,6 +1,6 @@
 # Curses
 
-Status: draft 2026-10-10, refined twice 2026-10-10 (decided, not implemented; who applies which curse decided 2026-10-11). From the user.
+Status: draft 2026-10-10, refined twice 2026-10-10 (who applies which curse decided 2026-10-11), implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for play-test. From the user.
 
 Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
@@ -113,3 +113,35 @@ higher, the boss (per the boss rule) highest; a greater grade is its own entry w
 | Palsy | Anubis 20%, Anubis boss 40%, ranged bolt only (`rangedCurses`) | |
 | Clumsiness | giant scarab 15%; scarab boss (Khepri) 30%, greater 6% | |
 | Insanity | the [cursed mimic](cursed-mimic.draft.opus.md) 25% | |
+
+## Implemented (2026-10-12)
+
+* Model: `src/world/curses.h/.cpp`: `Curse` (saved by place, append only), `CurseGrade`, `CURSES` (names, status
+  lines on start, again and end), `Curses` (per curse a grade and the time left; `Lay`, `Advance`, save line
+  `CURSES n kind grade ms ...` after the `HEKA` line, old saves: none), the effect numbers (`WEAKNESS_MIGHT_CUT` ...)
+  and the pure helpers `cursedMight`, `cursedArmor`, `cursedMaxHP`, `cursedHit`.
+* Effects in `PlayerStats`: `CurrentMight`, `CurrentArmor`, `CurrentMaxHP` and `Damage` go through the helpers, so
+  the inventory and the HUD show the cursed values. Rounding: toward zero (`value * (100 - cut) / 100`); a hit deals
+  at least 1. `LayCurse` / `AdvanceCurses` / `EndCurses` keep the HP's share of the max HP (disease), fatigue drops
+  the stamina to 20% if above (it never raises it) and `RegenerateStamina` skips while it runs. Slowness:
+  `WalkCurseFactor` (0.5, on every walk and climb step in `input.cpp`) and `SprintMoveMultiplier` 2.5.
+* A greater curse over a running lesser one raises it; a lesser one over a running greater one only restarts the time.
+* Monster side: `MonsterKind::meleeCurses` / `rangedCurses` (`CurseEntries`, two each), filled per the table above.
+  `Player::Curse` rolls them in order on the gameplay stream after a hit that landed (not dodged, player alive):
+  `Monster::bite`, the charge hit (melee list) and the spit / bolt hit in `dungeon_arrows.cpp` (ranged list). The
+  journal gets `CreatureMove::Curse` ("Its blows curse: my arm goes weak.").
+* Palsy: `tryAttack` refuses a ranged weapon's attack (no shot, no ammo, no cooldown), "Your hands shake too much to
+  aim", once per key press. Insanity: the screen keys (inventory, map, journal and the Heka screen too), the quick
+  drinks and the weapon keys say "Your mind is clouded"; `Inventory::FollowInsanity` (each tick) puts the club in
+  hand and gives the old weapon back at the end. A load during insanity forgets the old weapon (the club stays).
+  No monster lays insanity yet: [cursed-mimic](cursed-mimic.draft.opus.md) adds it.
+* HUD: the curse tiles right of the poison and resistance tiles, in `Curse` order: stone tile in a purple frame, the
+  curse's icon (`hud_icons.png` grew a row: cells 32-39, `Icon::FirstCurse`, `tools/textures/hud_icons.py`), one pip
+  lesser, two greater, the seconds under it. Many tiles at once can run under the heka tile (rare).
+* Journal: a field note per curse kind (`FieldNote::CurseWeakness` ..., `curseNote`), written the first time.
+* Death and `Reanimate` end all curses.
+* Tests: `tests/unit/curses_test.cpp` (timers, refresh, grades, save, each effect, lines and notes, roll order, death,
+  the monster table, a mummy cursing in the sim, the Anubis bolt's palsy). Scenario `tests/scenarios/curses.txt`
+  (command `curse NAME [greater]`, field `curses`): the HUD tiles, palsy, insanity, all worn off after 2 minutes.
+
+Open (play-test): the chances, the numbers, the icons' look.

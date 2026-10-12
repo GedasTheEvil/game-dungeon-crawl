@@ -61,8 +61,16 @@ void PlayerStats::UpdateStamina(WorldEvents& events) {
 		sprinting = false;
 }
 
+float PlayerStats::SprintMoveMultiplier() const {
+	if (!sprint_requested || stamina <= 0)
+		return 1.f;
+	return curses.Has(Curse::Slowness) ? SLOWNESS_SPRINT_MULTIPLIER : SPRINT_MULTIPLIER;
+}
+
+float PlayerStats::WalkCurseFactor() const { return curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f; }
+
 void PlayerStats::RegenerateStamina() {
-	if (!stamina_regen_timer.TimePassed())
+	if (!stamina_regen_timer.TimePassed() || curses.Has(Curse::Fatigue))
 		return;
 
 	// 5% of max per second at level 1, +0.5% per level, up to 15%
@@ -155,9 +163,43 @@ void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 	amulet = bonus;
 	resist = bonus.resist;
 	regen_carry_ms = 0;
-	if (keepShare && HP > 0 && oldMax > 0)
+	if (keepShare)
+		keepHpShare(oldMax);
+}
+
+void PlayerStats::keepHpShare(int oldMax) {
+	if (HP > 0 && oldMax > 0)
 		HP = std::clamp(static_cast<int>(std::lround(static_cast<double>(HP) * CurrentMaxHP() / oldMax)), 1,
 						CurrentMaxHP());
+}
+
+bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
+	const int oldMax = CurrentMaxHP();
+	const bool fresh = curses.Lay(c, grade);
+	keepHpShare(oldMax);
+	if (c == Curse::Fatigue)
+		SetStamina(std::min(stamina, MaxStamina() * FATIGUE_STAMINA_PERCENT / 100));
+	const CurseDef& def = curseDef(c);
+	events.Status("%s", fresh ? def.startLine : def.againLine);
+	events.Note(curseNote(c));
+	return true;
+}
+
+void PlayerStats::AdvanceCurses(int ms, WorldEvents& events) {
+	const int oldMax = CurrentMaxHP();
+	const unsigned ended = curses.Advance(ms);
+	if (ended == 0)
+		return;
+	keepHpShare(oldMax);
+	for (int c = 0; c < CURSE_COUNT; c++)
+		if ((ended & (1U << c)) != 0)
+			events.Status("%s", CURSES[static_cast<size_t>(c)].endLine);
+}
+
+void PlayerStats::EndCurses() {
+	const int oldMax = CurrentMaxHP();
+	curses.EndAll();
+	keepHpShare(oldMax);
 }
 
 int PlayerStats::TrapDamage(int dmg) {
@@ -221,6 +263,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	heka.Dump(f);
+	curses.Dump(f);
 }
 
 void PlayerStats::LoadDump(std::ifstream& f) {
@@ -252,4 +295,5 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	} else
 		f >> resist_percent >> resist_left_ms;
 	heka.LoadDump(f);
+	curses.LoadDump(f);
 }

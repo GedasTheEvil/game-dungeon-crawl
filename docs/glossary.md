@@ -92,7 +92,11 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | reach | | how far a melee weapon hits, from the player's box edge, in tiles | `weaponReach` |
 | range | | how far a weapon or spit reaches, between the hitboxes; weapons in tenths of a tile, spit in tiles | `WeaponDef::range`, `SpitRules::range` |
 | resistance | resists, tough | the share of a damage type a monster (or the player) takes: weak 200%, normal 100%, resists 50%, tough 25%. Also the resistance potion, against poison | `Resistances`, `resistedDamage` |
-| weakness | weak | a damage type a monster takes double from; no boss has one | `WEAK` |
+| weakness | weak; Weakness | (combat) a damage type a monster takes double from; no boss has one. Also a curse (see curse names) | `WEAK`, `Curse::Weakness` |
+| curse | A curse! | a timed debuff a monster's hit lays on the player: 2 minutes, several at once, the same again restarts it; no cure, no resistance, ends on death. Purple-framed HUD tiles | `Curses`, `Curse`, `CURSE_MS` |
+| curse names | Weakness, Clumsiness, Vulnerability, Fatigue, Disease, Slowness, Palsy, Insanity | weakness -50% Might (greater -125%); clumsiness -20% hit damage (greater -50%); vulnerability -60% armour; fatigue stamina to 20%, no regeneration; disease -30% max HP (greater -70%); slowness half walk, sprint 1.25 tiles/s; palsy no ranged shot; insanity screens, quick drinks and weapon keys locked, club in hand | `CURSES`, `curseDef` |
+| greater curse | Greater weakness | a curse at its stronger grade: its own entry on a monster, with a lower chance | `CurseGrade` |
+| curse entry | | a monster's chance to lay one curse with a melee hit or with its spit / bolt; at most two each, the strongest first, one curse a hit | `CurseEntry`, `MonsterKind::meleeCurses`, `MonsterKind::rangedCurses` |
 
 ## Items
 

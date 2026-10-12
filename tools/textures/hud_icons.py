@@ -1,10 +1,10 @@
-"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 8 x 4 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 8 x 5 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
 src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order, then from cell
-21 on the amulets by AmuletType. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+21 on the amulets by AmuletType, from cell 32 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -18,7 +18,7 @@ from decals import bleed
 
 CELL = 128
 S = CELL * 4  # drawing resolution per cell
-GRID_X, GRID_Y = 8, 4
+GRID_X, GRID_Y = 8, 5
 OUTLINE = 18  # ink round the whole glyph, in drawing pixels
 LINE = 6  # ink between the parts
 
@@ -462,10 +462,110 @@ def uraeus(d, cx, cy):
 # By AmuletType (src/world/items.h).
 AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus)]
 
-# Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet).
+# ---- the curses, one per Curse (src/world/curses.h): what the curse takes from the player, with a purple taint ----
+CURSE = (128, 58, 160, 255)
+SICK = (120, 170, 60, 255)
+GREY = (205, 198, 184, 255)
+AMBER = (232, 170, 50, 255)
+
+
+def weakness():
+    """A stick snapped in two, the halves sagging."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.polygon([(70, 300), (236, 238), (250, 262), (228, 300), (258, 318), (84, 352)], fill=WOOD, outline=INK, width=LINE)
+    d.polygon([(442, 300), (276, 238), (268, 270), (292, 290), (256, 318), (428, 352)], fill=WOOD, outline=INK,
+              width=LINE)
+    for x in (140, 372):
+        d.line([(x, 150), (x, 230)], fill=CURSE, width=22)
+        d.polygon([(x - 30, 222), (x + 30, 222), (x, 262)], fill=CURSE)
+    return img
+
+
+def clumsiness():
+    """A sword falling point first, tumbling lines round it."""
+    img = sword().rotate(180)
+    d = ImageDraw.Draw(img)
+    for k, (x, y) in enumerate(((120, 120), (400, 380), (110, 400))):
+        d.arc([x - 60, y - 60, x + 60, y + 60], 200 + 60 * k, 340 + 60 * k, fill=CURSE, width=22)
+    return img
+
+
+def vulnerability():
+    """A bronze shield split by a crack."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    shield = [(256, 50), (430, 110), (410, 300), (256, 462), (102, 300), (82, 110)]
+    d.polygon(shield, fill=BRONZE, outline=INK, width=LINE)
+    crack = [(270, 56), (220, 160), (300, 230), (230, 320), (270, 452)]
+    d.line(crack, fill=INK, width=30, joint="curve")
+    d.line(crack, fill=CURSE, width=12, joint="curve")
+    return img
+
+
+def fatigue():
+    """The stamina bolt, grey and broken, an amber spark left at its foot."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.polygon([(300, 40), (150, 260), (240, 260), (220, 300), (130, 300)], fill=GREY, outline=INK, width=LINE)
+    d.polygon([(250, 330), (330, 330), (210, 480), (240, 380), (200, 380)], fill=GREY, outline=INK, width=LINE)
+    d.line([(150, 316), (360, 296)], fill=CURSE, width=20)
+    d.ellipse([340, 400, 400, 460], fill=AMBER, outline=INK, width=LINE)
+    return img
+
+
+def disease():
+    """A heart jar blotched with sickness."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    heart(d, S / 2, 260)
+    for x, y, r in ((210, 250, 30), (300, 300, 36), (240, 340, 22), (320, 220, 18)):
+        d.ellipse([x - r, y - r, x + r, y + r], fill=SICK, outline=INK, width=LINE)
+    return img
+
+
+def slowness():
+    """A snail: a purple spiral shell on a grey body."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.polygon([(60, 400), (420, 400), (470, 330), (440, 300), (400, 340), (90, 360)], fill=GREY, outline=INK,
+              width=LINE)
+    for side in (0, 1):
+        d.line([(430 + 20 * side, 320), (420 + 40 * side, 230)], fill=INK, width=14)
+    d.ellipse([110, 140, 370, 400], fill=CURSE, outline=INK, width=LINE)
+    spiral = [(240 + 9 * t * math.cos(t), 270 + 9 * t * math.sin(t)) for t in [i * 0.25 for i in range(52)]]
+    d.line(spiral, fill=INK, width=12, joint="curve")
+    return img
+
+
+def palsy():
+    """The bow, shaking: echoes of its curve."""
+    img = bow()
+    d = ImageDraw.Draw(img)
+    for r in (395, 440):
+        d.arc([400 - r, 400 - r, 400 + r, 400 + r], 200, 250, fill=CURSE, width=18)
+    return img
+
+
+def insanity():
+    """An eye with a spiral for a pupil."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    eye = [(40, 256), (140, 150), (256, 120), (372, 150), (472, 256), (372, 362), (256, 392), (140, 362)]
+    d.polygon(eye, fill=BONE, outline=INK, width=LINE)
+    d.ellipse([156, 156, 356, 356], fill=CURSE, outline=INK, width=LINE)
+    spiral = [(256 + 6.5 * t * math.cos(t), 256 + 6.5 * t * math.sin(t)) for t in [i * 0.25 for i in range(56)]]
+    d.line(spiral, fill=INK, width=12, joint="curve")
+    return img
+
+
+CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
+
+# Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
+# curses from cell 32 on (Icon::FirstCurse).
 ICONS = [potion, amulet, ring, None, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
-         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS
+         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + [None] + CURSE_ICONS
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

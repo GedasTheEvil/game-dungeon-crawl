@@ -171,6 +171,30 @@ void upArrow(float x, float y, Color c) {
 // "~40 HP": the journal writes rough numbers, the way they are learnt.
 int rough(int n) { return n < 20 ? n : static_cast<int>(std::lround(n / 5.0)) * 5; }
 
+// The curse its hits lay, the first one listed (melee first).
+const char* curseMoveNote(const MonsterType& t) {
+	const CurseEntry& e = t.meleeCurses[0].percent > 0 ? t.meleeCurses[0] : t.rangedCurses[0];
+	switch (e.kind) {
+	case Curse::Weakness:
+		return "Its blows curse: my arm goes weak.";
+	case Curse::Clumsiness:
+		return "Its bite curses: my blows go astray.";
+	case Curse::Vulnerability:
+		return "Its blows curse: my armour turns to papyrus.";
+	case Curse::Fatigue:
+		return "Its bite curses: my strength drains away.";
+	case Curse::Disease:
+		return "Its bite curses: a sickness eats my health.";
+	case Curse::Slowness:
+		return "Its bite curses: my legs turn to stone.";
+	case Curse::Palsy:
+		return "Its bolt curses: my hands shake too much to aim.";
+	case Curse::Insanity:
+		return "Its bite curses: my mind clouds over.";
+	}
+	return "Its touch curses.";
+}
+
 const char* moveNote(CreatureMove move, const MonsterType& t) {
 	switch (move) {
 	case CreatureMove::Leap:
@@ -210,6 +234,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Charges along the hall. A wall stuns it.";
 	case CreatureMove::Climb:
 		return "Follows me up and down the ladders.";
+	case CreatureMove::Curse:
+		return curseMoveNote(t);
 	}
 	return "";
 }
@@ -266,6 +292,23 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 						"on me burns for half as long, at the same sting a second."},
 	{"Sharp eye", "Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and "
 				  "the throwing stick all aim a third farther: a foe far off is still a foe in my sights."},
+	{"Weakness", "A curse sits on my arm: half my might is gone, and the greater curse takes more than all of it. "
+				 "Nothing I drink lifts a curse. Two minutes, then it fades. Another curse of the same kind starts "
+				 "the time again."},
+	{"Clumsiness", "Cursed with clumsy hands: every blow, shot and throw lands a fifth softer, half as hard under "
+				   "the greater curse. My venom does not care. Two minutes and it passes; no potion helps."},
+	{"Vulnerability", "Cursed: my armour feels like papyrus, it stops only two fifths of what it did. "
+					  "Two minutes, and nothing cures it. Best not be hit meanwhile."},
+	{"Fatigue", "A curse drained me: my stamina fell to a fifth and does not come back by itself for two minutes. "
+				"A stamina potion still works."},
+	{"Disease", "A cursed sickness: my body holds less health, a third less, much less under the greater curse. "
+				"It gives the health back when it passes, in two minutes. No antidote touches it."},
+	{"Slowness", "Cursed legs: I walk and climb at half speed and run little faster than I used to walk. Two minutes. "
+				 "Traps timed for a quick step are not my friends now."},
+	{"Palsy", "My hands shake from a curse: no bow, sling or throw finds its mark, so I do not try. My melee weapons "
+			  "still work. Two minutes."},
+	{"Insanity", "My mind is clouded. The club is in my hand and stays there; my map, journal, pack and potions mean "
+				 "nothing to me. Two minutes, if I live."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

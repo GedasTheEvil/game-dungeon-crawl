@@ -6,6 +6,7 @@
 // row into a MonsterType (entities/monster.h); levelgen picks from the rows.
 
 #include "../core/gameplay_config.h"
+#include "curses.h"
 #include "damage.h"
 #include "level.h"
 #include "poison.h"
@@ -134,6 +135,10 @@ struct MonsterKind {
 	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
+	// Curses its hits lay (docs/plan/curses.md): its bites and blows (a charge too), its spit or bolt. The strongest
+	// first; a boss's chances are higher than its kin's.
+	CurseEntries meleeCurses{};
+	CurseEntries rangedCurses{};
 	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;

@@ -40,6 +40,8 @@ class Inventory {
 	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
 	std::optional<int> quickDrinkMs;
 	QuickKind quickDrinkKind = QuickKind::Health;
+	// The weapon in hand when insanity put the club there (FollowInsanity); a load forgets it.
+	std::optional<ItemKind> saneWeapon;
 
 	Font title, heading, body, small;
 
@@ -113,6 +115,9 @@ class Inventory {
 	void QuickDrink(QuickKind kind);
 	// In game, = drinks an antidote. Not poisoned or none left: nothing is drunk, the status box says why.
 	void QuickAntidote();
+	// Once a tick: insanity's start puts the club in hand and remembers the weapon, its end gives the weapon back
+	// (docs/plan/curses.md).
+	void FollowInsanity(bool insane);
 	// The potion QuickDrink would drink now, ignoring whether anything is missing (the HUD slot); nullopt if none
 	// left.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind) const;

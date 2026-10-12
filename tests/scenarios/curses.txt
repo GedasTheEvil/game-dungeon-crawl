@@ -1,0 +1,38 @@
+# Curses (docs/plan/curses.md): the HUD's curse tiles (purple frame, icon, one pip lesser, two greater) with their
+# seconds beside a poison drop; the effects; palsy refuses a shot; insanity locks the screens and puts the club in hand;
+# all wear off after 2 minutes.
+god
+level tests/levels/classic1
+wait 30
+give ranged 0
+poison weak
+curse weakness greater
+curse fatigue
+curse disease
+curse slowness
+curse palsy
+expect curses == 121
+expect maxhp == 35
+expect stamina <= 20
+screenshot hud_curses
+equip self-bow
+key v
+wait 2
+expect attacking == 0
+walk right 1
+curse insanity
+wait 2
+expect equip_type == 1
+expect equip_id == 0
+key i
+wait 2
+dump
+screenshot insanity
+key 2
+wait 2
+expect equip_id == 0
+wait 121s
+expect curses == 0
+expect maxhp == 50
+expect equip_type == 2
+screenshot ended

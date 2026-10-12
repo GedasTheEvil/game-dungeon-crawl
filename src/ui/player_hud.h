@@ -3,6 +3,7 @@
 
 #include "ui_draw.h"
 #include "../world/items.h"
+#include "../world/curses.h"
 #include "../world/poison.h"
 #include <cstdint>
 #include <string>
@@ -11,8 +12,8 @@ class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line. Above it, one
-// poison drop per running tier (one, two or three pips) with its seconds left, and a running resistance potion's
-// (one pip lesser, two greater).
+// poison drop per running tier (one, two or three pips) with its seconds left, a running resistance potion's (one pip
+// lesser, two greater), then each running curse in a purple frame (one pip lesser, two greater).
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -24,8 +25,17 @@ constexpr ui::Color POISON_TOP = {0.45f, 0.82f, 0.2f};
 constexpr ui::Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
 
 // Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
-// inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon).
-enum class Icon : std::uint8_t { Potion, Amulet, Ring, FirstWeapon = 8, FirstAmulet = 21, None = 0xff };
+// inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon); the curses from
+// FirstCurse on, in Curse order.
+enum class Icon : std::uint8_t {
+	Potion,
+	Amulet,
+	Ring,
+	FirstWeapon = 8,
+	FirstAmulet = 21,
+	FirstCurse = 32,
+	None = 0xff
+};
 constexpr Icon weaponIcon(ItemKind weapon) {
 	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + itemIndex(weapon));
 }
@@ -53,6 +63,8 @@ struct View {
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 	int resistLeftMs = 0;					  // a resistance potion's time left, 0: none
 	bool resistGreater = false;				  // the greater one
+	int curseLeftMs[CURSE_COUNT] = {};		  // per curse, 0: not running
+	bool curseGreater[CURSE_COUNT] = {};	  // at the greater grade
 	bool hekaWaiting = false;				  // a heka to spend on a skill: a pulsing tile with the Heka key
 	std::string hekaKey;
 };

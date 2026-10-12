@@ -34,7 +34,7 @@ class Player {
 	ParticleSystem blood{0}; // stopped: no splash until the first hit
 	int shownFrame = 0;		 // of the clip shown, as of the last Animate (it advances after the drawing showed it)
 
-	void die(WorldEvents& events); // the death pose and sound; the poison ends
+	void die(WorldEvents& events); // the death pose and sound; the poison and the curses end
 
   public:
 	PlayerStats stats;
@@ -67,9 +67,12 @@ class Player {
 	// Poisons unless the worn amulet and a resistance potion ward it off (PlayerStats::PoisonResistPercent, rolled on
 	// rng).
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
-	// Once a tick: the running tiers' damage, which can kill; the resistance potion's time.
+	// A monster's hit landed: rolls its curse entries in order on rng, the first that takes is laid (one a hit).
+	// Laid in god mode too. True when one was laid.
+	bool Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng);
+	// Once a tick: the running tiers' damage, which can kill; the resistance potion's and the curses' time.
 	void UpdatePoison(WorldEvents& events);
-	void Reanimate(); // full HP, standing, no poison
+	void Reanimate(); // full HP, standing, no poison, no curse
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);

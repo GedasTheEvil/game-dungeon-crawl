@@ -67,6 +67,16 @@ void Player::die(WorldEvents& events) {
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Die);
 	stats.poison.Cure();
 	stats.EndResistance();
+	stats.EndCurses();
+}
+
+bool Player::Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng) {
+	if (!Alive())
+		return false;
+	for (const CurseEntry& e : entries)
+		if (e.percent > 0 && rng.percent(e.percent))
+			return stats.LayCurse(e.kind, e.grade, events);
+	return false;
 }
 
 void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
@@ -84,6 +94,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 
 void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceResistance(UPDATE_TICK_MS);
+	stats.AdvanceCurses(UPDATE_TICK_MS, events);
 	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP());
 	if (hp <= 0 || !Alive() || god)
 		return;
@@ -93,6 +104,7 @@ void Player::UpdatePoison(WorldEvents& events) {
 }
 
 void Player::Reanimate() {
+	stats.EndCurses();
 	stats.HealFully();
 	stats.poison.Cure();
 	stats.EndResistance();

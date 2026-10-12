@@ -82,6 +82,12 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:
 		return static_cast<float>(Game().player->stats.heka.Spent());
+	case Field::Curses: {
+		int mask = 0;
+		for (int c = 0; c < CURSE_COUNT; c++)
+			mask |= Game().player->stats.curses.Has(static_cast<Curse>(c)) ? 1 << c : 0;
+		return static_cast<float>(mask);
+	}
 	case Field::JournalTried: {
 		int known = 0;
 		for (const JournalCreature& c : Game().journal.Creatures()) {

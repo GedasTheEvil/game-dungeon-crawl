@@ -1,6 +1,7 @@
 #ifndef JOURNAL_H
 #define JOURNAL_H
 
+#include "curses.h"
 #include "damage.h"
 #include "items.h"
 #include <istream>
@@ -44,8 +45,9 @@ enum class CreatureMove : unsigned char {
 	Burrow,	 // Apep dives into the floor and comes up elsewhere
 	Charge,	 // Sobek charges along the row
 	Climb,	 // a climber follows the player up or down a ladder
+	Curse,	 // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
 };
-constexpr int CREATURE_MOVE_COUNT = 13;
+constexpr int CREATURE_MOVE_COUNT = 14;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
 // a kill count (docs/plan/solved/monster-journal.md).
@@ -88,11 +90,23 @@ enum class FieldNote : unsigned char {
 	Heka,			// the first boss's heka: the skills
 	SerketsFavour,	// Serket's favour learnt (written on learning, not on the first poison)
 	SharpEye,		// Sharp eye learnt (written on learning)
+	// The first curse of each kind, in Curse order (curseNote).
+	CurseWeakness,
+	CurseClumsiness,
+	CurseVulnerability,
+	CurseFatigue,
+	CurseDisease,
+	CurseSlowness,
+	CursePalsy,
+	CurseInsanity,
 };
-constexpr int FIELD_NOTE_COUNT = 20;
+constexpr int FIELD_NOTE_COUNT = 28;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);
+[[nodiscard]] constexpr FieldNote curseNote(Curse c) {
+	return static_cast<FieldNote>(static_cast<int>(FieldNote::CurseWeakness) + static_cast<int>(c));
+}
 
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);

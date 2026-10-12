@@ -137,6 +137,7 @@ void Monster::bite() {
 		return;
 	}
 	const int lost = links.player->TakeHit(type->damage, type->attackMix, *links.events);
+	curse(type->meleeCurses);
 	if (type->poison && (type->poisonChancePercent >= 100 || links.random->percent(type->poisonChancePercent))) {
 		links.player->Poison(*type->poison, *links.events, *links.random);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);
@@ -146,6 +147,11 @@ void Monster::bite() {
 	if (type->boss.lifeStealPct > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);
 	sound(CharacterSound::Attack);
+}
+
+void Monster::curse(const CurseEntries& entries) {
+	if (links.player->Curse(entries, *links.events, *links.random))
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Curse);
 }
 
 bool Monster::Lurk(float px, float py) {
@@ -298,6 +304,7 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 			charge.hit = true;
 			if (!links.player->Dodges(*links.events, *links.random)) {
 				links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
+				curse(type->meleeCurses);
 				links.journal->HitByCreature(type->id, links.level);
 			}
 			sound(CharacterSound::Attack);

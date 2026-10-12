@@ -2,6 +2,7 @@
 #include "../core/gameplay_config.h"
 #include "../input/bindings.h"
 #include "../input/input.h"
+#include "../world/curses.h"
 #include "../world/decor.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
@@ -297,6 +298,23 @@ bool parseSkill(const Args& args, Command& cmd) {
 	return false;
 }
 
+// The curse (ticks) by its name in lower case, `greater` after it for the greater grade (a = 1).
+bool parseCurse(const Args& args, Command& cmd) {
+	if (args.empty() || args.size() > 2 || (args.size() == 2 && args[1] != "greater"))
+		return false;
+	cmd.a = args.size() == 2 ? 1.f : 0.f;
+	for (int c = 0; c < CURSE_COUNT; c++) {
+		std::string slug;
+		for (const char* ch = CURSES[static_cast<size_t>(c)].name; *ch; ch++)
+			slug += static_cast<char>(std::tolower(static_cast<unsigned char>(*ch)));
+		if (args[0] == slug) {
+			cmd.ticks = c;
+			return true;
+		}
+	}
+	return false;
+}
+
 bool isSetupCommand(CommandType type) {
 	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God;
 }
@@ -347,6 +365,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
 		{"learn", CommandType::Learn, parseSkill,
 		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
+		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;
@@ -388,7 +407,8 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"tab", Field::Tab},
 											   {"selected", Field::Selected},
 											   {"heka", Field::Heka},
-											   {"skills", Field::Skills}};
+											   {"skills", Field::Skills},
+											   {"curses", Field::Curses}};
 	return DEFS;
 }
 

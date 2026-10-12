@@ -189,6 +189,8 @@ void Dungeon::updateVenoms() {
 				if (!dodged) {
 					sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
 					sim.journal->HitByCreature(v.from->id, levelNumber);
+					if (sim.player->Curse(v.from->rangedCurses, *sim.events, sim.random->gameplay))
+						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Curse);
 				}
 				if (spit.poison && !dodged) {
 					sim.player->Poison(*spit.poison, *sim.events, sim.random->gameplay);

@@ -71,6 +71,7 @@ void tick() {
 
 	Game().player->stats.UpdateStamina(Game().events);
 	Game().player->UpdatePoison(Game().events);
+	Game().ui.inventory->FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
 	Game().player->stats.Regenerate(Game().dungeon.PlayerSafe(), UPDATE_TICK_MS);
 	Game().dungeon.AnimateMonsters();
 	Game().player->Animate();

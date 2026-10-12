@@ -61,19 +61,24 @@ class PlayerActionController {
 			Game().dungeon.Interact();
 			break;
 		case GameplayAction::QuickHeal: // allowed during a swing: drinking does not change it
-			Game().ui.inventory->QuickDrink(QuickKind::Health);
+			if (!insane())
+				Game().ui.inventory->QuickDrink(QuickKind::Health);
 			break;
 		case GameplayAction::QuickStamina:
-			Game().ui.inventory->QuickDrink(QuickKind::Stamina);
+			if (!insane())
+				Game().ui.inventory->QuickDrink(QuickKind::Stamina);
 			break;
 		case GameplayAction::QuickAntidote:
-			Game().ui.inventory->QuickAntidote();
+			if (!insane())
+				Game().ui.inventory->QuickAntidote();
 			break;
 		case GameplayAction::EquipMelee:
-			equipNext(false);
+			if (!insane())
+				equipNext(false);
 			break;
 		case GameplayAction::EquipRanged:
-			equipNext(true);
+			if (!insane())
+				equipNext(true);
 			break;
 		case GameplayAction::None:
 			break;
@@ -86,12 +91,21 @@ class PlayerActionController {
 		clampCamera();
 	}
 
+	// Insanity (docs/plan/curses.md) locks the screens, the quick drinks and the weapon keys: true, with the status
+	// line why.
+	static bool insane() {
+		if (!Game().player->stats.curses.Has(Curse::Insanity))
+			return false;
+		Game().events.Status("Your mind is clouded");
+		return true;
+	}
+
   private:
 	// Only a step that really moved the player counts for the sprint drain, and none in the water: no sprint there.
 	// Wading slows it (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
 		const bool wading = Game().dungeon.PlayerWading();
-		const float factor = Game().dungeon.PlayerWalkFactor();
+		const float factor = Game().dungeon.PlayerWalkFactor() * Game().player->stats.WalkCurseFactor();
 		if (Game().dungeon.Move(dirX * factor, dirY * factor) && !wading)
 			Game().player->stats.NoteWalked();
 	}
@@ -109,6 +123,12 @@ class PlayerActionController {
 			return;
 		if (!Game().dungeon.AttackAllowed(!attackRefusalTold)) {
 			attackRefusalTold = true;
+			return;
+		}
+		if (player.stats.curses.Has(Curse::Palsy) && isRanged(Game().ui.inventory->EquippedKind())) {
+			if (!attackRefusalTold)
+				Game().events.Status("Your hands shake too much to aim");
+			attackRefusalTold = true; // no shot, no ammo, no cooldown
 			return;
 		}
 		const Item* weapon = Game().ui.inventory->Equipped();
@@ -256,6 +276,10 @@ bool pressBinding(BindAction action) {
 	if (Screen target = screenOf(action); target != Screen::Gameplay) {
 		if (screen != Screen::Gameplay && !ScreenTabs::Has(screen))
 			return false;
+		if (screen == Screen::Gameplay && PlayerActionController::insane()) {
+			Game().ApplyWorldEvents();
+			return true;
+		}
 		screen = screen == target ? Screen::Gameplay : target;
 		return true;
 	}

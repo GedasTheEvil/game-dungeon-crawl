@@ -1,0 +1,88 @@
+# Leaderboard
+
+Status: draft 2026-10-12. Ready: needs nothing first. From the user; not fully refined.
+
+Opus: a run statistics system (counters in the player state and the save file), a name entry on the win screen, a
+leaderboard file and a new menu sub-screen.
+
+## Idea
+
+The player wins the game (takes the ankh, `Dungeon::won`, `EndScreens::DrawWin`), types a name, and the run is added
+to a leaderboard. The leaderboard is a file in `saves/` and has its own screen in the main menu.
+
+## Run statistics
+
+Counted from New Game to the win. The current run's counters ride in the save game (not the leaderboard itself), so
+a run survives quitting, and a load puts them back to the saved values: a fight replayed after a load counts once.
+
+From the user:
+
+* Monsters slain, total and per kind (bosses too).
+* Potions drunk, total and per kind.
+* Player stats at the end: player level, XP, max HP, stamina, armour, might.
+* Skills learned at the end.
+* Play time (optional). Time in play only: paused, menus, the Heka screen and the inventory do not count. It is kept
+  in the save, so it adds up over sessions.
+
+Added (implementer picks; the first ones are cheap):
+
+* Loads: how many times a save was loaded during the run. Deaths undone by a load show here. An honest "no loads"
+  run stands out.
+* Deaths: deaths before a load (if a death leads to the load screen, this is close to loads; keep one of the two).
+* Damage dealt and damage taken.
+* Biggest single hit dealt.
+* Riddles solved, secrets / chests found (if the level data marks them).
+* Time per level (splits), shown on the run's detail view.
+* Date of the win and the game version (git hash at build time, or a version number). Balance changes make old
+  runs not comparable; the version tells.
+
+## Leaderboard file
+
+* Its own file, `saves/leaderboard.txt` (or `.ini`, like `saves/settings.ini`), never part of a save game (user,
+  2026-10-12): it outlives every save slot and a new game. Append only: one entry per win. A broken line logs a
+  warning and is skipped, the rest still loads.
+* An entry holds the name, the date, the version and every statistic above. A small `key=value` per entry keeps
+  old entries readable when new statistics arrive.
+* No cap on entries in the file; the screen shows the best 10 (or a scroll list).
+
+## Win flow
+
+1. The win screen shows a run summary (time, slain, potions, player level).
+2. A name field, the same text entry as save slot names (`SaveSlots`, `src/ui/menu.cpp`). Default: the last name
+   used. Esc skips the entry (no record).
+3. Enter writes the entry and opens the leaderboard with the new row marked.
+
+## Leaderboard screen
+
+* A main menu sub-screen in the shared look (docs/ui.md), e.g. "Hall of Records" (Egyptian flavour; the name is the
+  implementer's choice). Add the term to docs/glossary.md.
+* Columns: rank, name, time, slain, potions, player level, loads, date.
+* Default order: fastest time; without play time, fewest loads then most slain. Switching the sort column is a
+  nice extra.
+* Selecting a row shows the full run: per kind kills, potions, skills, end stats, splits.
+
+## Eligibility
+
+* Only a run from New Game on level 1 counts. A scenario, a level picked by a dev flag or a run started on a later
+  level is marked in the stats (a `campaign` flag) and the win screen offers no entry.
+* A save from before this change has no counters: on load, mark the run as not eligible (or start the counters at
+  zero and mark it "partial"). Implementer's choice.
+
+## Save format
+
+The save has no version number (`GameState::Save`, `src/state/game_state.cpp`): the counters are new fields, so old
+saves need a fallback when the fields are missing. Adding a version number at the start of the save is the clean fix;
+the implementer decides.
+
+## Open questions
+
+* Play time in or out (the user's "optional").
+* Loads and deaths: one counter or both.
+* Sort order of the board when play time is out.
+* Old saves: not eligible or partial.
+
+## Tests
+
+* Unit tests: the counters (a kill, a potion, a load restores the saved counts), the leaderboard file (write, read
+  back, a broken line skipped, sort order).
+* A scenario: win a small level, type a name, screenshot the leaderboard screen.

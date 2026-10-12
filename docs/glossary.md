@@ -57,7 +57,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | creature | Creatures | the player's word for a monster; the journal's section | `Journal` |
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
 | flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
-| flyer | | flies along the row and crosses pits (bats) | `Locomotion::Fly`, `Flight` |
+| flyer | | flies along the row and crosses pits (bats); follows the player up or down to another row through open cells ([bats-high-ceiling](plan/bats-high-ceiling.md)) | `Locomotion::Fly`, `Flight`, `FlightGoal`, `Dungeon::flightGoal` |
 | hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.opus.md)) the crocodile grabs the player in water and rolls | |
 | kin | | a boss's common monster (the Anubis boss: the Anubis guard, in the game "Anubis living statue"); a new ability for the kin goes to its boss too | `MonsterKind::kin` |
 | Egyptian names | | the game shows Egyptian names, the code and the editor keep the old ids and labels: guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia; amulets are named by their object (Jackal Tooth, Eye of Horus), labels by their effect | `MonsterKind::name`, `MonsterKind::label` |

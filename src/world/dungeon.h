@@ -68,6 +68,11 @@ class Dungeon {
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);
+	// Flyers (docs/plan/bats-high-ceiling.md): whether it sees the player, the row it heads for and the way there.
+	[[nodiscard]] FlightGoal flightGoal(const Monster& mon) const;
+	// A flyer's way from (col, row) to (toCol, toRow) through open cells, never up or down into half water; boxed: only
+	// inside the rectangle of the two cells. The column of its next step up or down; -1: no way (or the same row).
+	[[nodiscard]] int flightShaft(int col, int row, int toCol, int toRow, bool boxed) const;
 	[[nodiscard]] int climbEnd(int col, int row) const; // the row a climb from (col, row) runs to, along climbPath
 	ClimbMap climbPath;									// the last path followPath built
 	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and venom are gone

@@ -1,6 +1,21 @@
 # Bats under a high ceiling
 
-Status: draft 2026-10-12, refined 2026-10-12, ready (needs nothing first). From play-testing.
+Status: implemented 2026-10-12, awaiting the user's play-test. From play-testing.
+
+## Implemented (2026-10-12)
+
+* `Dungeon::flightGoal` (`src/world/dungeon_monsters.cpp`) tells the flyer each tick whether it sees the player, the
+  row it heads for and the column of its next step up or down (`Dungeon::flightShaft`: a search over open cells, never
+  up or down into half water; inside the box of the bat's and the player's cells while it hunts, the whole level on
+  the way back to the roost). A bat sees within `BAT_SIGHT` horizontally and vertically; the boss and its minions
+  along the whole row and `BAT_HUNT_ROWS` (3) rows up or down.
+* `Monster::Fly` flies along its row to that column, then lets `flight.lift` run past the floor or the ceiling and
+  moves `row` there, so the draw stays smooth and the bite, the player's hits and the wall probe use the new row.
+  On the player's row it swoops as before, down to their head up a ladder too; it bites a player whose feet are in
+  its row (on the rungs). A dead flyer falls on through open cells to the floor. Flyers no longer count as on rungs.
+* Tests: `tests/unit/sim_test.cpp` (dive, bite, melee kill and fall; return to the roost after a teleport away;
+  chase up the ladder, bite on the rungs), levels `tests/levels/bats_high`, `bats_ladder`; scenario
+  `tests/scenarios/bats_high.txt` (the dive drawn).
 
 ## Bug
 

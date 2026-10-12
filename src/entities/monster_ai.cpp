@@ -323,7 +323,7 @@ float Monster::flightProbeX() const {
 
 float Monster::roostLift() const { return BAT_CEILING - type->model.idleTop * type->scale; }
 
-void Monster::Fly(bool wallAhead, float px, float py) {
+void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 	const float scale = type->scale;
 	const int now = GameClock::now();
 	const float dt = flight.lastMs < 0 ? 0.f : static_cast<float>(std::min(now - flight.lastMs, 100)) / 1000.f;
@@ -332,18 +332,35 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 	if (flight.lift < 0)
 		flight.lift = roost;
 
-	if (!Alive()) { // drops to the floor
+	if (!Alive()) { // drops to the floor, on through open cells to the one under it
 		flight.fall += BAT_FALL_GRAVITY * dt;
-		flight.lift = std::max(0.f, flight.lift - flight.fall * dt);
+		flight.lift -= flight.fall * dt;
+		if (flight.lift < 0.f && goal.openBelow) {
+			row--;
+			flight.lift += RenderConfig::TILE_SIZE;
+		}
+		flight.lift = std::max(0.f, flight.lift);
 		return;
 	}
 
 	const float dx = px - CentreX(); // to the player
-	// A boss's minion, and a boss once it is roused, hunt the player along the whole row.
-	const bool hunts = minion || (alerted && type->isBoss());
-	const bool sees = sameRow(py) && (hunts || std::fabs(dx) <= BAT_SIGHT);
+	const bool sees = goal.sees;
 	const float step = BAT_TILES_PER_SPEED * type->speed * dt;
 	float targetLift = roost;
+	// On the way to another row: along this one to the shaft, then up or down it, facing the player.
+	auto changeRow = [&]() {
+		if (std::fabs(goal.shaftX - x) > step) {
+			flight.dir = goal.shaftX > x ? 1 : -1;
+			x += static_cast<float>(flight.dir) * step;
+			targetLift = BAT_HIGH_LIFT;
+		} else {
+			x = goal.shaftX;
+			flight.dir = dx >= 0 ? 1 : -1;
+			targetLift = goal.toRow < row ? -BAT_HIGH_LIFT : RenderConfig::TILE_SIZE + BAT_HIGH_LIFT;
+		}
+		flight.bitten = false;
+		enter(ModelState::Move);
+	};
 
 	switch (flight.phase) {
 	case FlightPhase::Roost:
@@ -362,11 +379,19 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Swoop);
 		[[fallthrough]];
 	case FlightPhase::Swoop: {
+		if (goal.toRow != row) {
+			if (sees)
+				changeRow();
+			else
+				flight.phase = FlightPhase::Return;
+			break;
+		}
 		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front
+		const float above = py - static_cast<float>(row);		 // the player's feet up the rungs of a ladder
 		if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
-			if (sameRow(py))
+			if (sameRow(py) || (above > 0.f && above < 1.f))
 				bite();
 		}
 		if (wallAhead || ahead < -BAT_OVERSHOOT) {
@@ -376,9 +401,10 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 				flight.phase = FlightPhase::Return;
 		} else
 			x += static_cast<float>(flight.dir) * step;
-		// Swoops down to the player, climbs away from them.
+		// Swoops down to the player (to their head up a ladder too), climbs away from them.
 		const float k = std::min(std::fabs(dx) / BAT_OVERSHOOT, 1.f);
-		const float low = BAT_LOW_LIFT + BAT_WING_DIP * scale;
+		const float low =
+			std::min(BAT_LOW_LIFT + BAT_WING_DIP * scale + std::max(above, 0.f) * RenderConfig::TILE_SIZE, roost);
 		targetLift = low + (std::max(BAT_HIGH_LIFT, low) - low) * k * k * (3 - 2 * k);
 		enter(now < flight.attackUntilMs ? ModelState::Attack : ModelState::Move);
 		break;
@@ -387,6 +413,10 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		if (sees) {
 			flight.phase = FlightPhase::Swoop;
 			flight.dir = dx >= 0 ? 1 : -1;
+			break;
+		}
+		if (goal.toRow != row) { // back to the roost's row first
+			changeRow();
 			break;
 		}
 		flight.dir = x > 0 ? -1 : 1;
@@ -400,6 +430,14 @@ void Monster::Fly(bool wallAhead, float px, float py) {
 		break;
 	}
 	flight.lift += (targetLift - flight.lift) * std::min(1.f, BAT_LIFT_RATE * dt);
+	// Through the floor into the row under it, or through the ceiling into the one above.
+	if (flight.lift < 0.f && goal.toRow < row) {
+		row--;
+		flight.lift += RenderConfig::TILE_SIZE;
+	} else if (flight.lift >= RenderConfig::TILE_SIZE && goal.toRow > row) {
+		row++;
+		flight.lift -= RenderConfig::TILE_SIZE;
+	}
 }
 
 bool Monster::canJump() const {

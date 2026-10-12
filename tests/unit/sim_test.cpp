@@ -147,6 +147,70 @@ TEST_CASE("a bat leaves its roost when the player comes near, swoops through and
 	CHECK(world.Hp() < 50);
 }
 
+// docs/plan/bats-high-ceiling.md, tests/levels/bats_high: the bat (col 8) roosts in the upper cell of a corridor two
+// cells high; a teleporter (col 3) leads out of its sight.
+TEST_CASE("a bat under a high ceiling dives to the player's row, bites, and falls to their melee") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/bats_high"));
+	REQUIRE(world.WalkTo(4.5f)); // the bat spawns in view
+	const Monster* bat = world.dungeon.NearestMonster();
+	REQUIRE(bat != nullptr);
+	const auto floor = static_cast<int>(world.Y());
+	CHECK(bat->Row() == floor + 1);
+	world.Equip(ItemKind::ShortSword);
+	REQUIRE(world.WalkTo(7.f));
+	world.Wait(1500);
+	CHECK(world.Saw(MonsterBat, CreatureMove::Swoop));
+	CHECK(bat->Row() == floor);
+	CHECK(world.Hp() < 50);
+	for (int t = 0; t < 10000 && bat->Alive(); t += 100) {
+		world.Attack();
+		world.Wait(100);
+	}
+	CHECK_FALSE(bat->Alive());
+	world.Wait(1000);
+	CHECK(bat->Row() == floor); // fell to the floor, not left hanging over the open cell
+}
+
+TEST_CASE("a bat under a high ceiling flies back up to its roost when the player leaves") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/bats_high"));
+	REQUIRE(world.WalkTo(4.5f)); // the bat spawns in view
+	const Monster* bat = world.dungeon.NearestMonster();
+	REQUIRE(bat != nullptr);
+	const int roost = bat->Row();
+	REQUIRE(world.WalkTo(7.f));
+	world.Wait(1000);
+	CHECK(bat->Row() == roost - 1);
+	REQUIRE(world.WalkTo(3.5f));
+	world.Interact(); // the teleporter: out of its sight
+	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
+	REQUIRE(world.Y() > 4.f);
+	world.Wait(5000);
+	CHECK(bat->Alive());
+	CHECK(bat->Row() == roost);
+	CHECK(bat->Roosting());
+	CHECK(bat->CentreX() == doctest::Approx(8.5f));
+}
+
+// tests/levels/bats_ladder: a ladder (col 6) up a shaft two cells wide, the bat (col 8) on the lower floor.
+TEST_CASE("a bat follows the player up a ladder and bites them on the rungs") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/bats_ladder"));
+	REQUIRE(world.WalkTo(4.5f)); // the bat spawns in view
+	const Monster* bat = world.dungeon.NearestMonster();
+	REQUIRE(bat != nullptr);
+	const auto floor = static_cast<int>(world.Y());
+	REQUIRE(world.WalkTo(7.f)); // wakes it
+	world.Wait(300);
+	REQUIRE(world.WalkTo(6.45f));
+	REQUIRE(world.Climb(1.f));
+	const int hp = world.Hp();
+	world.Wait(3000);
+	CHECK(bat->Row() == floor + 1);
+	CHECK(world.Hp() < hp);
+}
+
 TEST_CASE("the water basin: things in half water are drawn down into it, eased in from a dry bank") {
 	// tests/levels/water: dry floor at x 1-5, half water at x 5-14 on the player's row, dry again from 14.
 	SimWorld world;

@@ -144,6 +144,7 @@ constexpr float BAT_CEILING = 40.f;			 // roosting bats hang from here
 constexpr float BAT_WALL_MARGIN = 0.35f;	 // turns this far before a wall
 constexpr int BAT_ATTACK_MS = 450;			 // attack clip after a bite
 constexpr float BAT_FALL_GRAVITY = 600.f;	 // dead bats fall to the floor (world units / s^2)
+constexpr int BAT_HUNT_ROWS = 3; // a hunting flyer (the boss, its minions) follows the player this many rows up or down
 
 // Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
 // whose far edge is this far behind the player's centre is still hit.

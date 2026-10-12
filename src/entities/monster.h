@@ -28,6 +28,14 @@ struct Flight {
 	int attackUntilMs = 0;
 	int lastMs = -1; // GameClock time of the last update
 };
+// What a flyer knows of the level this tick (Dungeon::flightGoal): it follows the player to another row through open
+// cells (docs/plan/bats-high-ceiling.md).
+struct FlightGoal {
+	bool sees = false;		// the player is in sight: on its row as before, or in reach on another row with a way there
+	int toRow = -1;			// the row it heads for: the player's while it sees them, else its roost's
+	float shaftX = 0.f;		// tile-local x where it goes up or down a row next, on the way to toRow
+	bool openBelow = false; // the cell under it is open: a dead flyer falls on through it
+};
 
 // Walk-jumpers: a leap over a gap of pits and traps, x in tile-local map units like Monster::x.
 struct Leap {
@@ -286,7 +294,9 @@ class Monster {
 	// hits the player (double damage) once if they are in its way on the floor.
 	void UpdateCharge(bool wallAhead, float px, float py);
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
-	void Fly(bool wallAhead, float px, float py);
+	void Fly(bool wallAhead, float px, float py, const FlightGoal& goal);
+	// A boss's minion, and a boss once it is roused, hunt the player along the whole row and farther up and down.
+	[[nodiscard]] bool Hunts() const { return minion || (alerted && type->isBoss()); }
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
 	// Walk-jumpers: leap to tile-local x toX (see Dungeon::leapTarget), then move along the arc until landed.
 	void Jump(float toX);

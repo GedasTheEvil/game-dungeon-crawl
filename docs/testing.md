@@ -51,6 +51,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | `inventory_keys` | Tab walks the inventory tabs, no key labels ([plan](plan/inventory-keys.md)) | the screen and its input path |
 | `keys` | E interacts, V attacks ([plan](plan/inventory-keys.md)) | the real key bindings |
 | `ladder` | limb pose on ladders ([plan](plan/no-attack-on-ladder.md)) | the pose is drawn |
+| `bats_high` | a bat dives from a high ceiling to the player's row ([plan](plan/bats-high-ceiling.md)) | the dive across the row is drawn |
 | `climber` | a rat follows the player up a ladder ([plan](plan/monster-climbers.md)) | the rungs pose is drawn |
 | `sobek` | Sobek wakes, charges, is stunned ([plan](plan/sobek-boss.md)) | the boss in the lake is drawn |
 | `summon_effects` | sand spray, grit shower, coffins ([plan](plan/anubis-speed.md)) | particle effects are drawn |

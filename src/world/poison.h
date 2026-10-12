@@ -31,7 +31,8 @@ class Poison {
 	std::array<TierTimer, POISON_TIER_COUNT> tiers{};
 
   public:
-	void Apply(PoisonTier tier); // (re)starts that tier's timer
+	// (Re)starts that tier's timer; halved: half the time at the same damage a second (Serket's favour).
+	void Apply(PoisonTier tier, bool halved = false);
 	void Cure() { tiers = {}; }
 	// Time passes: the HP the running tiers take in it, the percent tiers by the victim's max HP.
 	int Advance(int ms, int maxHp);

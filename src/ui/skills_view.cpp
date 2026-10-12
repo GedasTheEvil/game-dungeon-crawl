@@ -92,6 +92,8 @@ void SkillsScreen::PressLearn() {
 	}
 	confirming = false;
 	points.Learn(id);
+	if (id == SkillId::SerketsFavour)
+		Game().journal.LearnNote(FieldNote::SerketsFavour);
 	Game().assets.sounds.amulet_s.Play();
 	toast.Show(std::string("Learnt: ") + def.name, now);
 }

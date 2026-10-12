@@ -5,7 +5,7 @@ play-test. From the user. The framework only; each skill has its own sub-draft, 
 [skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),
 [skill-dodge](skill-dodge.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
 [skill-sharp-eye](skill-sharp-eye.draft.sonet.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md),
-[skill-serkets-favour](skill-serkets-favour.draft.sonet.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.sonet.md).
+[skill-serkets-favour](skill-serkets-favour.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.sonet.md).
 
 ## Idea
 

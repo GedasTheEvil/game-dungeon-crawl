@@ -86,8 +86,9 @@ enum class FieldNote : unsigned char {
 	DartTraps,		// the first dart trap plate the player stepped on
 	Resistance,		// the first lesser or greater resistance potion
 	Heka,			// the first boss's heka: the skills
+	SerketsFavour,	// Serket's favour learnt (written on learning, not on the first poison)
 };
-constexpr int FIELD_NOTE_COUNT = 18;
+constexpr int FIELD_NOTE_COUNT = 19;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);

@@ -4,11 +4,12 @@
 #include <string>
 #include <ostream>
 
-void Poison::Apply(PoisonTier tier) {
+void Poison::Apply(PoisonTier tier, bool halved) {
 	TierTimer& t = tiers[static_cast<size_t>(tier)];
 	if (t.leftMs <= 0)
 		t = {};
-	t.leftMs = POISON_TIERS[static_cast<size_t>(tier)].durationMs;
+	const int duration = POISON_TIERS[static_cast<size_t>(tier)].durationMs;
+	t.leftMs = halved ? duration / 2 : duration;
 }
 
 int Poison::Advance(int ms, int maxHp) {

@@ -1,6 +1,6 @@
 # Skill: Serket's favour
 
-Status: draft 2026-10-10. Ready: [skills](skills.md) is in. From the user.
+Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for play-test. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.
@@ -21,3 +21,15 @@ damage per second, half the time). A twin of [Blessing of Isis](skill-blessing-o
 ## Tests
 
 * Unit: a poison's time is halved with the skill, damage per second unchanged; the resistance roll unchanged.
+
+## Implemented (2026-10-12)
+
+* `Poison::Apply(tier, halved)` (`src/world/poison.cpp`): halved gives half the tier's `durationMs`, same damage a
+  second. `Player::Poison` passes `stats.heka.Has(SkillId::SerketsFavour)` after the resistance roll (which is
+  unchanged, no extra roll). A restart of a running tier also gets the half time. Shown seconds on the HUD follow.
+* `sealed` cleared; card text unchanged ("Poisons last half as long").
+* Journal note: new `FieldNote::SerketsFavour` (appended, `FIELD_NOTE_COUNT` 19), text in `journal_view.cpp`. Default
+  picked: written when the skill is learnt on the Heka screen (`SkillsScreen::PressLearn`), not by the scenario
+  `learn` command.
+* Tests: `tests/unit/poison_test.cpp` (time halved, damage a second equal, totals about half),
+  `tests/unit/skills_test.cpp` (the player's poison with the skill, no extra random roll).

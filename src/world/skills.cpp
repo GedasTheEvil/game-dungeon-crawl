@@ -14,7 +14,7 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Favour of Hapi", "Wade faster, jump out of water", "Hapi, the Nile in flood, lets you through his shallows.",
 	 true},
 	{"Serket's favour", "Poisons last half as long", "Serket's children still bite, but they do not mean it as much.",
-	 true},
+	 false},
 	{"Blessing of Isis", "Curses last half as long", "Isis has a knot for every curse. She ties fast.", true},
 }};
 

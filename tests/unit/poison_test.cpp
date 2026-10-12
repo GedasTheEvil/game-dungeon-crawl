@@ -140,3 +140,26 @@ TEST_CASE("the checker wants an antidote in reach where something poisons") {
 	CHECK_FALSE(warnsNoAntidote(scorpion));
 	CHECK_FALSE(warnsNoAntidote(corridor({"########", "#S.t..E#", "########"})));
 }
+
+TEST_CASE("Serket's favour: a poison lasts half as long, at the same damage a second") {
+	for (auto [tier, maxHp, perSecond] :
+		 {std::tuple{PoisonTier::Weak, 50, 1}, {PoisonTier::Medium, 200, 2}, {PoisonTier::Strong, 1000, 50}}) {
+		Poison full;
+		Poison half;
+		full.Apply(tier);
+		half.Apply(tier, true);
+		CHECK(half.LeftMs(tier) == full.LeftMs(tier) / 2);
+		CHECK(half.Advance(1000, maxHp) == perSecond);
+		CHECK(half.Advance(1000, maxHp) == perSecond);
+		CHECK(full.Advance(1000, maxHp) == perSecond);
+		int hpHalf = 2 * perSecond;
+		for (int t = 0; t < 70000; t += 1000)
+			hpHalf += half.Advance(1000, maxHp);
+		int hpFull = perSecond;
+		for (int t = 0; t < 70000; t += 1000)
+			hpFull += full.Advance(1000, maxHp);
+		CHECK(hpHalf * 2 <= hpFull + 2 * perSecond);
+		CHECK(hpHalf * 2 >= hpFull - 2 * perSecond);
+		CHECK_FALSE(half.Any());
+	}
+}

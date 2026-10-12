@@ -162,3 +162,18 @@ TEST_CASE("Dodge: a plant's bites are sometimes dodged") {
 			  return e.kind == WorldEvent::Kind::Status && e.text == "Dodged";
 		  }) > 0);
 }
+
+TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long; the resistance roll is the same") {
+	WorldEvents events;
+	Player plain;
+	Player blessed;
+	blessed.stats.heka.Earn(5);
+	REQUIRE(blessed.stats.heka.Learn(SkillId::SerketsFavour, true));
+	Rng a(3);
+	Rng b(3);
+	plain.Poison(PoisonTier::Medium, events, a);
+	blessed.Poison(PoisonTier::Medium, events, b);
+	CHECK(plain.stats.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs);
+	CHECK(blessed.stats.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs / 2);
+	CHECK(a.next() == b.next()); // no extra roll
+}

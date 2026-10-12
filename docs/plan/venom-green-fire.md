@@ -1,6 +1,6 @@
 # Venom glob with green fire
 
-Status: draft 2026-10-12, refined 2026-10-12 (decided, not implemented), ready (needs nothing first). Look only:
+Status: implemented 2026-10-12, awaiting play-test. Look only:
 the cobras' venom glob trails green, toxic flames. The damage does not change: the spit stays a poison attack, not fire (decided 2026-10-12).
 
 ## Today

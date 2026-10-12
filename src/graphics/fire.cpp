@@ -11,21 +11,6 @@ constexpr int MAX_PARTICLES = 128;
 constexpr int SPRITE_SIZE = 32;
 constexpr float SMOKE_FROM = 0.55f; // life fraction where a particle counts as smoke (drawn in the first pass)
 
-// Colour over a particle's life. add = 1 blends additively (glowing flame), 0 blends over (smoke that darkens).
-struct Key {
-	float p, r, g, b, a, add;
-};
-constexpr Key RAMP[] = {
-	{0.00f, 1.00f, 0.92f, 0.55f, 0.00f, 1.f},  // born white-yellow, fades in
-	{0.06f, 1.00f, 0.85f, 0.35f, 0.90f, 1.f},  // yellow
-	{0.25f, 1.00f, 0.52f, 0.12f, 0.85f, 1.f},  // orange
-	{0.45f, 0.85f, 0.18f, 0.05f, 0.70f, 0.8f}, // red
-	{0.62f, 0.28f, 0.14f, 0.10f, 0.50f, 0.3f}, // embers turning to smoke
-	{0.80f, 0.16f, 0.15f, 0.15f, 0.35f, 0.f},  // dark grey
-	{1.00f, 0.12f, 0.12f, 0.12f, 0.00f, 0.f},  // gone
-};
-constexpr int RAMP_KEYS = sizeof(RAMP) / sizeof(RAMP[0]);
-
 struct Particle {
 	float x, y, z, size, p;
 	float r, g, b, a; // premultiplied colour, alpha = a * (1 - add)
@@ -65,12 +50,12 @@ void ensureSprite() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SPRITE_SIZE, SPRITE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
 }
 
-void colourAt(float p, float smoke, Particle& out) {
+void colourAt(const FireRamp& ramp, float p, float smoke, Particle& out) {
 	int k = 1;
-	while (k < RAMP_KEYS - 1 && RAMP[k].p < p)
+	while (k < ramp.count - 1 && ramp.keys[k].p < p)
 		k++;
-	const Key& lo = RAMP[k - 1];
-	const Key& hi = RAMP[k];
+	const FireKey& lo = ramp.keys[k - 1];
+	const FireKey& hi = ramp.keys[k];
 	float f = std::fmin(1.f, std::fmax(0.f, (p - lo.p) / (hi.p - lo.p)));
 	float add = lo.add + (hi.add - lo.add) * f;
 	float a = (lo.a + (hi.a - lo.a) * f) * (smoke + (1.f - smoke) * add);
@@ -106,11 +91,34 @@ int simulate(const FireStyle& style, uint32_t seed, Particle* out) {
 		q.z = std::sin(ang) * rad * converge * 0.6f + drift * 0.5f * std::cos(t * 0.0017f + swayPhase);
 		float grow = p < 0.5f ? 1.f - 0.5f * p : 0.75f + 1.6f * (p - 0.5f); // flame shrinks, smoke spreads
 		q.size = style.size * grow * (0.75f + 0.5f * unit01(h >> 16));
-		colourAt(p, style.smoke, q);
+		colourAt(*style.ramp, p, style.smoke, q);
 	}
 	return n;
 }
 } // namespace
+
+namespace {
+constexpr FireKey FLAME_KEYS[] = {
+	{0.00f, 1.00f, 0.92f, 0.55f, 0.00f, 1.f},  // born white-yellow, fades in
+	{0.06f, 1.00f, 0.85f, 0.35f, 0.90f, 1.f},  // yellow
+	{0.25f, 1.00f, 0.52f, 0.12f, 0.85f, 1.f},  // orange
+	{0.45f, 0.85f, 0.18f, 0.05f, 0.70f, 0.8f}, // red
+	{0.62f, 0.28f, 0.14f, 0.10f, 0.50f, 0.3f}, // embers turning to smoke
+	{0.80f, 0.16f, 0.15f, 0.15f, 0.35f, 0.f},  // dark grey
+	{1.00f, 0.12f, 0.12f, 0.12f, 0.00f, 0.f},  // gone
+};
+constexpr FireKey VENOM_KEYS[] = {
+	{0.00f, 0.75f, 0.95f, 0.50f, 0.00f, 1.f},  // born pale green, fades in
+	{0.06f, 0.68f, 0.90f, 0.38f, 0.90f, 1.f},  // light tint of VENOM_GREEN
+	{0.25f, 0.45f, 0.75f, 0.15f, 0.85f, 1.f},  // VENOM_GREEN
+	{0.45f, 0.25f, 0.50f, 0.08f, 0.70f, 0.8f}, // darker green
+	{0.62f, 0.15f, 0.28f, 0.08f, 0.50f, 0.3f}, // dying green
+	{0.80f, 0.18f, 0.22f, 0.15f, 0.35f, 0.f},  // sickly grey-green smoke
+	{1.00f, 0.13f, 0.15f, 0.12f, 0.00f, 0.f},  // gone
+};
+} // namespace
+const FireRamp Fire::FLAME_RAMP = {FLAME_KEYS, sizeof(FLAME_KEYS) / sizeof(FLAME_KEYS[0])};
+const FireRamp Fire::VENOM_RAMP = {VENOM_KEYS, sizeof(VENOM_KEYS) / sizeof(VENOM_KEYS[0])};
 
 void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed) {
 	Particle parts[MAX_PARTICLES];

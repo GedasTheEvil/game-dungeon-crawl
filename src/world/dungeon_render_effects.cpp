@@ -19,6 +19,45 @@ constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;
 constexpr float PI = 3.14159265f;
+constexpr float GLOB_RADIUS = 1.2f; // world units
+constexpr float GLOB_LIGHT_LIFT = 1.f;
+// Faint, steady and green: the glob's own light on the walls it passes.
+constexpr Lighting::LightDef VENOM_LIGHT = {0.45f, 0.75f, 0.15f, 40.f, 0.f};
+
+// A glob of light with flames trailing from it: a small ball in `colour`, stretched along its flight (vx, vy), and
+// `flames` (null: none) drawn at its position (the style carries the flame colours). Called with the frame origin of
+// its tile, the ball at (x, y, z); `plain` is the white texture. Shared by the venom and, later, the Anubis bolt.
+void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uint32_t seed, float x, float y, float z,
+						float vx, float vy, float stretch, float squash, float alpha) {
+	constexpr int SLICES = 8, STACKS = 6;
+	plain.Bind(); // texture x colour: plain colour
+	glEnable(GL_BLEND);
+	Lighting::setEmissive(true);
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glRotatef(std::atan2(vy, vx) * RAD_TO_DEG, 0, 0, 1);
+	glScalef(GLOB_RADIUS * stretch, GLOB_RADIUS * squash, GLOB_RADIUS);
+	glColor4f(colour.r, colour.g, colour.b, alpha);
+	for (int i = 0; i < STACKS; i++) {
+		const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
+		glBegin(GL_TRIANGLE_STRIP);
+		for (int j = 0; j <= SLICES; j++) {
+			const float b = 2 * PI * static_cast<float>(j) / SLICES;
+			for (float a : {a0, a1}) {
+				const float nx = std::cos(a) * std::cos(b), ny = std::cos(a) * std::sin(b), nz = std::sin(a);
+				glNormal3f(nz, ny, nx);
+				glVertex3f(nz, ny, nx); // the poles along x, the flight
+			}
+		}
+		glEnd();
+	}
+	glPopMatrix();
+	Lighting::setEmissive(false);
+	glDisable(GL_BLEND);
+	glColor3f(1, 1, 1);
+	if (flames != nullptr)
+		Fire::draw(*flames, x, y, z, seed); // billboards: no rotation in the modelview
+}
 } // namespace
 
 // Called in Draw() with the frame origin at the view's first column (ViewWindow::firstCol).
@@ -96,19 +135,12 @@ void Dungeon::drawDarts() {
 	}
 }
 //======================================================================================
-// A glob of venom (a bolt of light): a small ball in its spitter's colour, stretched along its flight; on a wall or the
-// floor a flattening splat.
+// A glob of venom (a bolt of light): a small ball in its spitter's colour, stretched along its flight; with poison it
+// trails green flames; on a wall or the floor a flattening splat with a green puff.
 void Dungeon::drawVenoms() {
-	if (venoms.empty())
-		return;
-	constexpr float RADIUS = 1.6f; // world units
-	constexpr int SLICES = 8, STACKS = 6;
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);
 	const int now = GameClock::now();
-	sim.assets->textures.nullTex.Bind(); // texture x colour: plain colour
-	glEnable(GL_BLEND);
-	Lighting::setEmissive(true);
 	for (const Venom& v : venoms) {
 		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
 		if (v.splatMs >= 0) {
@@ -117,30 +149,22 @@ void Dungeon::drawVenoms() {
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
-		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (v.x - firstCol), RenderConfig::TILE_SIZE * (v.y - firstRow),
-					 ARROW_DEPTH);
-		glRotatef(std::atan2(v.vy, v.vx) * RAD_TO_DEG, 0, 0, 1);
-		glScalef(RADIUS * stretch, RADIUS * squash, RADIUS);
-		glColor4f(v.colour.r, v.colour.g, v.colour.b, alpha);
-		for (int i = 0; i < STACKS; i++) {
-			const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
-			glBegin(GL_TRIANGLE_STRIP);
-			for (int j = 0; j <= SLICES; j++) {
-				const float b = 2 * PI * static_cast<float>(j) / SLICES;
-				for (float a : {a0, a1}) {
-					const float nx = std::cos(a) * std::cos(b), ny = std::cos(a) * std::sin(b), nz = std::sin(a);
-					glNormal3f(nz, ny, nx);
-					glVertex3f(nz, ny, nx); // the poles along x, the flight
-				}
-			}
-			glEnd();
-		}
-		glPopMatrix();
+		const std::optional<SpitRules>& spit = v.from->spit;
+		drawGlobWithFlames(sim.assets->textures.nullTex, v.colour,
+						   spit.has_value() && spit->poison.has_value() ? &Fire::VENOM : nullptr,
+						   static_cast<uint32_t>(v.spawnMs), RenderConfig::TILE_SIZE * (v.x - firstCol),
+						   RenderConfig::TILE_SIZE * (v.y - firstRow), ARROW_DEPTH, v.vx, v.vy, stretch, squash, alpha);
 	}
-	Lighting::setEmissive(false);
-	glDisable(GL_BLEND);
-	glColor3f(1, 1, 1);
+}
+// The light of each flying glob; same frame as addLights.
+void Dungeon::addVenomLights() {
+	for (const Venom& v : venoms) {
+		const std::optional<SpitRules>& spit = v.from->spit;
+		if (v.splatMs < 0 && spit.has_value() && spit->poison.has_value())
+			Lighting::add(RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
+						  RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
+						  ARROW_DEPTH + GLOB_LIGHT_LIFT, VENOM_LIGHT, 0);
+	}
 }
 //======================================================================================
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.

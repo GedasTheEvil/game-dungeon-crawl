@@ -151,8 +151,9 @@ void Dungeon::spitVenom(const Monster& mon, float x, float y) {
 	const float dx = mapX - x;
 	const float dy = mapY + VENOM_CHEST * sim.player->Height() - y;
 	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	venoms.push_back(
-		{x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), spit->colour, GameClock::now()});
+	Venom v = {x, y, VENOM_SPEED * dx / len, VENOM_SPEED * dy / len, mon.Type(), spit->colour, GameClock::now()};
+	v.spawnMs = v.lastMs;
+	venoms.push_back(v);
 }
 //======================================================================================
 void Dungeon::updateVenoms() {

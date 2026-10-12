@@ -216,10 +216,12 @@ class Dungeon {
 		int lastMs;				 // GameClock time of the last update
 		float flown = 0.f;		 // tiles
 		int splatMs = -1;		 // GameClock time it hit a wall or the floor; < 0: flying
+		int spawnMs = 0;		 // GameClock time it was spat: the seed of its flames
 	};
 	std::vector<Venom> venoms;
 	void spitVenom(const Monster& mon, float x, float y);
 	void updateVenoms();
+	void addVenomLights();
 	void drawVenoms();													// with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 

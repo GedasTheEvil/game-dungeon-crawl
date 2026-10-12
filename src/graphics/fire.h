@@ -6,20 +6,37 @@
 // Fire particle system: camera-facing sprites that rise from a point, yellow -> orange -> red -> dark grey smoke,
 // then fade out. Stateless: every particle is a function of (seed, index, game time), so any number of fires cost
 // no memory or update step, and scenario runs render the same frames.
+// One colour stop of a fire's ramp over a particle's life (0..1). add = 1 blends additively (glowing flame), 0 blends
+// over (smoke that darkens).
+struct FireKey {
+	float p, r, g, b, a, add;
+};
+struct FireRamp {
+	const FireKey* keys;
+	int count;
+};
+namespace Fire {
+extern const FireRamp FLAME_RAMP; // white-yellow, yellow, orange, red, embers, grey smoke
+extern const FireRamp VENOM_RAMP; // the same shape in greens, close to VENOM_GREEN
+} // namespace Fire
+
 struct FireStyle {
-	int count;		   // particles alive at once
-	float lifeMs;	   // average particle life
-	float spawnRadius; // world units around the origin
-	float height;	   // how far a particle rises over its life
-	float size;		   // sprite side at birth, world units
-	float sway;		   // sideways drift of the smoke
-	float smoke;	   // smoke opacity, 0..1
+	int count;								  // particles alive at once
+	float lifeMs;							  // average particle life
+	float spawnRadius;						  // world units around the origin
+	float height;							  // how far a particle rises over its life
+	float size;								  // sprite side at birth, world units
+	float sway;								  // sideways drift of the smoke
+	float smoke;							  // smoke opacity, 0..1
+	const FireRamp* ramp = &Fire::FLAME_RAMP; // colours over a particle's life
 };
 
 namespace Fire {
 constexpr FireStyle TORCH = {40, 900.f, 1.4f, 15.f, 3.4f, 2.5f, 0.75f};
 constexpr FireStyle BRAZIER = {72, 1100.f, 3.5f, 20.f, 4.4f, 3.5f, 0.9f};
 constexpr FireStyle OIL_LAMP = {14, 600.f, 0.4f, 5.f, 1.6f, 0.8f, 0.3f};
+// The cobras' venom glob: small, short-lived, a little more smoke than a flame, green.
+constexpr FireStyle VENOM = {16, 500.f, 0.5f, 6.f, 2.f, 1.f, 0.45f, &VENOM_RAMP};
 
 // Draws one fire at (x, y, z) in the current modelview's local space. Call after the opaque scene: the sprites
 // test depth but do not write it.

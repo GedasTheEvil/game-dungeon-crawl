@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)),
 spit -> ranged attack rename and sound decided 2026-10-12 ([rename](#decided-2026-10-12-spit-becomes-ranged-attack),
-[the sound](#decided-2026-10-12-the-sound)); the rename, the clip, its release and the sound still to do. From the
+[the sound](#decided-2026-10-12-the-sound)); the rename, the release point and the sound still to do. From the
 user: the Anubis gets a ranged attack, range 14, damage 50, cooldown 3 s.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
@@ -35,8 +35,8 @@ Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names
 
 * **Damage type:** the melee mix (`ANUBIS_MIX`, 80 blunt / 20 pierce). No own mix.
 * **Melee too:** it shoots from afar (gap 0.1-1.4 tiles) and still hits 55 up close, as the cobras do.
-* **Look:** a bolt of light from the was-sceptre; no new projectile mesh. A new attack clip: a sceptre thrust with a
-  `release` frame (Blender, [../remodeling.md](../remodeling.md)).
+* **Look:** a bolt of light from the was-sceptre; no new projectile mesh. The clip: see
+  [the clip](#decided-2026-10-12-the-clip) (the melee swing, no new clip).
 * **Boss:** range 2.0 tiles (the sling's 20), damage 125 (scaled like its melee, 140 vs 55), cooldown 2.5 s. Same bolt,
   same mix.
 
@@ -48,7 +48,8 @@ ranged attack, in files and code:
 * **Clip:** suffix `_spit` -> `_att_ranged`, beside `_att`. `models/monsters/cobra_spit.md3` ->
   `cobra_att_ranged.md3` (`tools/blender/models/cobra.py`: the action `cobra_spit` and its suffix; re-export, or
   rename the file and the script together), `ModelState::Spit` -> `ModelState::AttackRanged`, the clip tables in
-  `model_info.h`. The Anubis's new clip is `anubis_att_ranged.md3`; `RANGED_CLIPS` then loads it, not `_att`.
+  `model_info.h`. The Anubis has no `_att_ranged` clip: `RANGED_CLIPS` maps `AttackRanged` to `_att`
+  ([the clip](#decided-2026-10-12-the-clip)).
 * **Sound:** `_spit.wav` -> `_att_ranged.wav` (see [the sound](#decided-2026-10-12-the-sound)).
 * **Code ids:** `SpitRules` -> `RangedRules`, `MonsterKind::spit` -> `ranged`, `Monster::Spit` / `Spitting` /
   `canSpit` / `spitReleased` -> `AttackRanged` / `AttackingRanged` / `canAttackRanged` / `rangedReleased`,
@@ -57,7 +58,22 @@ ranged attack, in files and code:
   (`VENOM_GREEN`, the venom drawing). Where: `grep -rlw -i spit src tests tools`.
 * **Docs:** the `spit` and `range` rows in `docs/glossary.md` (a new `ranged attack` row; `spit` = the cobra's
   venom kind of it), `docs/remodeling.md` (cobra clip list, sounds), `docs/development.md` (monster fields).
+* `RangedRules::mouthY` -> `releaseY` (the sceptre head is no mouth).
 * A rename only: no behaviour change. Its own commit, before the clip and the sound, so the build and tests prove it.
+
+## Decided (2026-10-12): the clip
+
+* **No new clip.** The ranged attack plays the melee swing (`anubis_attack`, `_att`, `tools/blender/models/anubis.py`
+  `attack_poses`) once: wind-up overhead (frame 8 of 26), the sceptre swings down and forward (strike, frame 12). The
+  bolt leaves the sceptre head as it points at the player, mid swing. The wind-up is the player's cue to jump.
+* **Release point, measured, not guessed:** in `anubis.py`, a `-- --measure` option (like `cobra.py`'s) prints the
+  sceptre head's position per attack frame: its forward reach and its height as a share of the reference clip's
+  height (walk frame 0, `referenceTop`). Pick the frame where the head points most nearly forward, between wind-up
+  and strike (about frame 10-11, `release` about 0.4); `releaseY` = its height there. Set both for the Anubis and
+  the boss (same model) in `monster_kinds.cpp`, replacing the POC's 0.5 / 0.6.
+* The bolt starts at the hitbox front (`HeadX`), not at the sceptre's x. If the measure shows the head well ahead of
+  or behind that at the release, the implementer may add a forward offset beside `releaseY`; otherwise not.
+* Blender 5 headless (AGENTS.md path) for the measure; no re-export, the model files do not change.
 
 ## Decided (2026-10-12): the sound
 
@@ -91,10 +107,11 @@ ranged attack, in files and code:
 * `SpitRules` is the generic ranged attack: `poison` optional (none for the bolt), `colour` of the glob
   (`VENOM_GREEN`, `BOLT_RED`). Anubis {50, 1.4 tiles, 3 s}, boss {125, 2.0 tiles, 2.5 s}, both red, both the melee mix.
 * Look: the venom glob, red (`Dungeon::drawVenoms`). The attack clip stands in for the spit clip, played once
-  (`RANGED_CLIPS`, `model_info.h`); `release` 0.5 and `mouthY` 0.6 are guesses. Sound: its attack sound.
+  (`RANGED_CLIPS`, `model_info.h`); `release` 0.5 and `mouthY` 0.6 are guesses (now:
+  [the clip](#decided-2026-10-12-the-clip)). Sound: its attack sound.
 * Journal: the spit move reads "Hurls a bolt of red light from afar. A jump clears it." for a spit without poison.
 * Tests: `tests/unit/sim_test.cpp` (it shoots from afar, no poison, then comes on to hit), `tests/scenarios/anubis_bolt.txt`
   (screenshots of the bolt in flight).
-* Still to do: the sceptre-thrust clip with a release frame (Blender), `release` / `mouthY` from it, the bolt sound
-  (decided above), maybe a glow instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
+* Still to do: `release` / `mouthY` measured from the swing, the bolt sound (both decided above), maybe a glow
+  instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
   [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).

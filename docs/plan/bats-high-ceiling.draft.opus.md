@@ -39,8 +39,8 @@ The flyer AI follows the player to another row, down or up, when the cells betwe
   They hunt along the whole row (no horizontal radius); vertically they get a fixed reach, farther than a bat's
   (about 3 rows, a gameplay constant).
 
-Alternative (cheaper, implementer may add on top): a level checker warning for a bat whose cell has an open cell
-below in the same column, and fix such levels. Does not fix boss rooms or summons, so the AI fix is the main path.
+No level checker warning and no level changes (decided): with the AI fix a bat over an open cell is a valid,
+more dangerous placement, not a level error.
 
 ## Tests
 
@@ -48,7 +48,3 @@ below in the same column, and fix such levels. Does not fix boss rooms or summon
   wakes, dives, bites the player; player kills it with melee; a surviving bat returns to its roost.
 * Scenario: player climbs a ladder past a bat's row; the bat follows up and bites the player on the rungs.
 * Regression: a one-cell corridor bat behaves as before.
-
-## Open points
-
-* Whether to add the level checker warning as well.

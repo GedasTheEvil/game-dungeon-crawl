@@ -13,7 +13,7 @@
 #include "../world/campaign.h"
 #include "../graphics/ink.h"
 #include "../graphics/lighting.h"
-#include "../graphics/particles.h"
+#include "../graphics/particles_draw.h"
 
 namespace {
 std::unique_ptr<GameState> gGame;

@@ -2,7 +2,7 @@
 #include <GL/gl.h>
 #include <cmath>
 #include "../graphics/ink.h"
-#include "../graphics/particles.h"
+#include "../graphics/particles_draw.h"
 
 namespace {
 constexpr float DEG_TO_RAD = 3.14159265f / 180.f;

@@ -6,7 +6,7 @@
 #include "../world/rng.h"
 
 // A blood splash: particles burst from (x, y, z) and drift down while the system has life left. Only the motion, no
-// GL: Particles::Draw (graphics/particles.h) draws it.
+// GL: Particles::Draw (graphics/particles_draw.h) draws it.
 class ParticleSystem {
   public:
 	static constexpr int PARTICLE_COUNT = 1000;

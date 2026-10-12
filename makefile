@@ -26,10 +26,11 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/entities/player_stats.cpp src/test/scenario_script.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts
-# they read, without GL. The dungeon's drawing (dungeon_render*.cpp) and the views stay in the game.
+# they read, without GL: every dungeon_*.cpp but the dungeon's drawing (dungeon_render*.cpp), which stays in the game
+# with the views.
 SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp src/entities/figures.cpp \
 	src/entities/particles.cpp src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/player.cpp \
-	$(addprefix src/world/dungeon_,arrows.cpp base.cpp boss.cpp darts.cpp decor.cpp io.cpp mechanisms.cpp monsters.cpp)
+	$(filter-out src/world/dungeon_render%,$(sort $(wildcard src/world/dungeon_*.cpp)))
 # render_config.h: the world's sizes in GL units (a tile is 40), the sim's lifts and depths, the drawing's frame.
 SIM_LIB_HEADERS=src/world/dungeon.h src/world/dungeon_rules.h src/world/sim_links.h src/entities/trap_hurt.h \
 	src/graphics/render_config.h

@@ -1,4 +1,4 @@
-#include "particles.h"
+#include "particles_draw.h"
 #include <GL/gl.h>
 
 void Particles::Draw(const ParticleSystem& system) {

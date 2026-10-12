@@ -1,5 +1,5 @@
-#ifndef PARTICLES_H
-#define PARTICLES_H
+#ifndef PARTICLES_DRAW_H
+#define PARTICLES_DRAW_H
 
 #include "../entities/particles.h"
 

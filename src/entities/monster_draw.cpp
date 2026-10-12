@@ -4,7 +4,7 @@
 #include <cmath>
 #include "../graphics/ink.h"
 #include "../graphics/lighting.h"
-#include "../graphics/particles.h"
+#include "../graphics/particles_draw.h"
 #include "../graphics/render_config.h"
 
 namespace {

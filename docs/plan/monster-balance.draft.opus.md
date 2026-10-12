@@ -204,7 +204,7 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 
 * [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
 * Changes that move the sim pass (step 5): [anubis-speed](solved/anubis-speed.md),
-  [anubis-ranged-attack](anubis-ranged-attack.md), [monster-climbers](solved/monster-climbers.md) (threat
+  [anubis-ranged-attack](solved/anubis-ranged-attack.md), [monster-climbers](solved/monster-climbers.md) (threat
   x1.05), [coward-flee-ranged](solved/coward-flee-ranged.md), [crocodile-hold-bite](crocodile-hold-bite.draft.opus.md), the
   cobra spit cut to 1.2 / 1.5 tiles (2026-10-09).
 * New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss

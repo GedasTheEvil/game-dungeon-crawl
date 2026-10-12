@@ -1,5 +1,0 @@
-# Play-test of plan anubis-ranged-attack: an Anubis living statue a few steps ahead. Stand still: it walks up, swings
-# its was-sceptre and the red bolt leaves the sceptre head (the sound: grunt, rising hum, crack, hiss). Jump to clear
-# it; up close it hits in melee. A strong player (xp), so there is time to watch a few bolts.
-level tests/levels/anubis_bolt
-xp 1000000

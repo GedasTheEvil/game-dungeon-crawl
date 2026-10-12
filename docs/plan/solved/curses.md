@@ -74,7 +74,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * Palsy: the ranged / thrown attack input checks `PlayerStats::Cursed(Palsy)`; status line says why ("Your hands
   shake too much to aim"). The weapon stays in hand, only the shot / throw is refused (no ammo spent, no cooldown).
 * **Trigger kind:** the two lists are the trigger kind. Palsy sits in `rangedCurses`: it triggers only when the
-  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.md](../anubis-ranged-attack.md)) hits the
+  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.md](anubis-ranged-attack.md)) hits the
   player, never from melee. Anubis guard: 20%. Anubis boss: 40% (higher chance, per the boss rule). Needs the Anubis
   ranged attack first (a POC exists).
 * Status box line on start, refresh and end ("You feel weak", "The weakness passes"); journal note on the first

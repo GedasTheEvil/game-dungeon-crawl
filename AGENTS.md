@@ -1,6 +1,8 @@
 ## Process
-After writing the code, verify it compiles by running `make`.
-Once in compiles, run the code style checks `make format`, `make format-check` and `make tidy`.
+After writing the code, run `make check`: it builds, formats, checks the format, runs tidy on the changed files and
+the unit tests. Never format by hand: `make format` does it. The tree has no tidy warnings, so every warning
+`make tidy` prints is yours: fix it (or `NOLINTNEXTLINE(check): reason` for a false positive).
+Where is X: [docs/development.md](docs/development.md#where-is-x).
 
 ## Glossary
 Unsure of a term, or naming a new thing: grep [docs/glossary.md](docs/glossary.md) (one row per term, no need to read it all). Add new terms there.
@@ -27,8 +29,12 @@ Models are rebuilt procedurally in Blender Python scripts. Tools, format convent
 
 ## Command whitelist
 These commands do not need confirmation to run
+* make check
 * make tidy
+* make tidy-all
 * make tidy-fix
+* make format-check
+* make unit
 * make format
 * make clean
 * make

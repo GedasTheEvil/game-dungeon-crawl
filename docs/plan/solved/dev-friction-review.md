@@ -1,7 +1,7 @@
 # Dev friction review: tidy rules, code style, architecture
 
-Status: draft 2026-10-12, ready (needs nothing first). From the user. Tooling and structure only, no gameplay change:
-once implemented and its checks pass, it goes straight to `docs/plan/solved/` (AGENTS.md, Plans).
+Status: implemented 2026-10-12, solved (tooling and structure only, no user check needed). See
+[Implemented](#implemented-2026-10-12). Follow-up: [split-god-objects](../split-god-objects.draft.opus.md).
 
 ## Goal
 
@@ -113,3 +113,48 @@ down why in the plan when it is done:
 * `make`, `make format-check`, `make tidy` (silent on a clean tree), `make unit`, `make test`.
 * The whole-tree reformat commit changes whitespace only (`git diff -w` on it is empty).
 * No behaviour change: the unit tests and scenarios pass unchanged.
+
+## Implemented (2026-10-12)
+
+### Evidence (part 0)
+
+208 transcripts (161 sessions, 47 subagent threads), counted by a script. Only counts here.
+
+| Check | Runs (sessions) | Failed | Cost |
+|---|---|---|---|
+| `make tidy` | 467 (96) | 102 printed warnings | 452 timed runs: 16.6 h, median 83 s, p90 333 s, 5 hit the 600 s timeout; 405 tool calls in fix loops |
+| `make format-check` | 203 (46) | 6 (4 unstable) | each fixed by `make format`; 146 times run right after `make format` |
+| layers / sim | 424 (96, mostly via tidy) | 7 (4 sessions) | each a real layer break |
+
+* Warnings agents called "not mine" / pre-existing: 25 times in 17 sessions. The noise: `pragma once` in
+  `gl_includes.h` (6 sessions, 45 runs), the `LevelGrid::at` ArrayBound false positive (6 / 12), and three
+  more since fixed.
+* Per check (fires = unique file:line per session): identifier-naming 170 (21 sessions, cosmetic, fixed in about one
+  edit), narrowing-conversions 76 (16), implicit-bool-conversion 44 (9), use-bool-literals 40 (8),
+  enum-size 24 (12, never fixed), unchecked-optional-access 21 (12), implicit-widening 12, integer-division 11
+  (10), the rest under 10.
+* Hand-aligning whitespace: 2 edits in all sessions. Agents do not format by hand; the cost of alignment is diff
+  noise, not turns.
+* Search: median 21 searches per session. Most read-but-not-edited: `dungeon_io.cpp` and `input.cpp` (17 sessions
+  each). Most edited: `dungeon.h` 46, `game_state.cpp` 40, `monster.h` 39 of 101 sessions; top co-edits
+  `dungeon.h` + `dungeon_monsters.cpp` 29, `monster.h` + `dungeon.h` 28.
+
+### Decided
+
+* **Tidy fails on any warning, checks changed sources** (`tools/tidy.sh`). Run time was the cost, not the rules:
+  `make tidy` checks only the sources changed since the merge base with master and the ones that include a changed
+  header (through the build's `.d` files): 45 s for a header used everywhere, seconds for a `.cpp`. `make tidy-all`
+  checks all (~150 s). Fail on all warnings, not only new ones: the tree is clean, so all warnings are new.
+* **Checks dropped:** `performance-enum-size` only (fired in 12 sessions, never fixed, a byte per enum). Kept naming
+  (helps search, fixed in one edit), narrowing, implicit-bool, bool-literals: cheap to fix, and with tidy silent on a
+  clean tree they no longer pile up as "not mine".
+* **Format:** `AlignTrailingComments: Never`, `AlignEscapedNewlines: DontAlign`; consecutive assignments,
+  declarations and macros are not aligned in LLVM already. `AlignOperands` stays: it is continuation indent, not
+  neighbour noise. Whole-tree reformat in its own commit, in `.git-blame-ignore-revs`.
+* **`make check`** = build, format, format-check, tidy, unit. AGENTS.md's Process names that one command.
+* **Architecture:** a where-is-X map in [development.md](../../development.md#where-is-x). `dungeon_io.cpp` split:
+  loading and saving stay, interaction (pick-up, gates, travel, teleport) moves to `dungeon_interact.cpp`.
+  `graphics/particles.*` → `graphics/particles_draw.*`. The sim library takes `dungeon_*.cpp` by wildcard.
+  Splitting `Dungeon` and `Monster` by feature is its own draft: [split-god-objects](../split-god-objects.draft.opus.md).
+  The big UI files stay: each is one screen, not a search hot spot.
+* Layer checks kept; they no longer echo their file lists.

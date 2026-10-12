@@ -111,6 +111,39 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 * `ui/`, `input/`, `test/` - screens, keyboard / mouse handling (through the key bindings, `input/bindings.h`), the
   scenario runner. UI look and layout conventions: [ui.md](ui.md).
 
+## Where is X
+
+Feature → files, the first place to look (plan dev-friction-review). Keep it up to date in the commit that moves the
+code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config.h`; terms in [glossary.md](glossary.md).
+
+| Feature | Files |
+|---|---|
+| Monster type: stats, damage mix, resistances, abilities, threat | `world/monster_kinds.*` (one row per type) |
+| Monster AI decisions (chase, flee, dive, burrow, charge, dodge) | `entities/monster_ai.cpp` |
+| Monster state per locomotion (`Flight`, `Leap`, `Burrow`, `Charge`, `Climb`) | `entities/monster.h`, `monster.cpp` |
+| Monster update on the level (moves, landing, climbers' paths) | `world/dungeon_monsters.cpp`, `world/climb_path.*` |
+| Monster drawing | `entities/monster_draw.*`; in-level effects `world/dungeon_render_effects.cpp` |
+| Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
+| Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
+| Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |
+| Player stats, XP, levels | `entities/player_stats.*`, `world/progression.*` |
+| Items: weapons, potions, amulets (rows, rules) | `world/items.*`, `world/item_bag.*`; loot `world/loot.*` |
+| Curses, poison, skills | `world/curses.*`, `world/poison.*`, `world/skills.*` |
+| Interact: pick up treasure, use a gate (exit, teleport), travel | `world/dungeon_interact.cpp` |
+| Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
+| Dart traps | `world/dungeon_darts.cpp` |
+| Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |
+| Tile types, level file format, level grid | `world/tile_defs.*`, `world/level.*` |
+| Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |
+| Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
+| Models, textures, sounds loaded once | `state/assets.cpp` |
+| Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |
+| HUD | `ui/player_hud*`, `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
+| Keys and mouse | `input/input.cpp`, `input/bindings.*`, `input/input_actions.h` |
+| Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
+| Blood splashes | `entities/particles.*` (motion), `graphics/particles_draw.*` |
+| Scenario commands | `test/scenario*.cpp` |
+
 ## Tests
 
 Scenario scripts in `tests/scenarios/` drive the game and take screenshots. `make test` runs all, `make test SCENARIO=path` runs one.
@@ -118,20 +151,25 @@ See [testing.md](testing.md).
 
 ## Code quality tools
 
-* Format source files: `make format`
-* Check formatting without changing files: `make format-check`. It also fails on code clang-format does not leave
-  stable (a file that flips between two layouts on every `make format`, often a long trailing comment that wraps
-  onto a second line: move the comment above the line).
-* Run static analysis (clang-tidy): `make tidy`
+* `make check`: builds, then `format`, `format-check`, `tidy` and `unit`, in order. Run it before each commit.
+* `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
+  it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
+  lines that changed. The whole-tree reformat for that is in `.git-blame-ignore-revs`
+  (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
+* `make format-check` fails on a file `make format` would change, and on code clang-format does not leave stable (a
+  file that flips between two layouts on every `make format`, often a long trailing comment that wraps onto a second
+  line: move the comment above the line).
+* `make tidy` (clang-tidy, `.clang-tidy`, and the layer checks): the sources changed since the merge base with
+  master, and the ones that include a changed header. `make tidy-all` checks every source (about 2.5 minutes). Both
+  run one clang-tidy per file through the load gate (`tools/load_gate.sh`, as the scenario games and the build:
+  `JOBS`, `RESERVE_CORES`, `MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md)), check the project's
+  headers too, not `external/`, and fail on any warning (`tools/tidy.sh`).
 
-`clang-tidy` uses the project configuration from `.clang-tidy`. `make tidy` runs one clang-tidy per file in parallel
-through the load gate (`tools/load_gate.sh`, as the scenario games and the build: `JOBS`, `RESERVE_CORES`,
-`MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md); about 2.5 minutes) and checks the project's headers
-too, not `external/`.
-The build and `make tidy` are expected to print no warnings. Naming rules (only these are checked; method and function
+The tree is kept free of warnings: every warning `make tidy` prints is the change's own. Fix it; a false positive
+gets a `NOLINTNEXTLINE(check): reason`. Naming rules (only these are checked; method and function
 names are mixed in the code base and are not):
 
 * classes, structs and enums: `CamelCase` (`Monster`, `PlayerStats`, `TexFilter`)
 * variables and parameters: `camelBack`; local constants too (`const float dx`)
 * global, `constexpr` and `static` local constants: `UPPER_CASE` (`MAX_MONSTERS`, `static const char KEY_CHARS[]`)
-* enum values: `CamelCase` (`ModelState::Die`, `Locomotion::WalkJump`); enums take `: unsigned char` (`performance-enum-size`)
+* enum values: `CamelCase` (`ModelState::Die`, `Locomotion::WalkJump`)

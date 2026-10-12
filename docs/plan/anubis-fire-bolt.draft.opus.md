@@ -41,7 +41,8 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
 * Does the sceptre-thrust clip (still to do in anubis-ranged-attack) matter here? No; the release frame only moves the
   spawn point.
 * Sound: a whoosh / crackle for the bolt if a fire sound exists by then, else the attack sound stays.
-* The cobras' spit stays poison (green glob, no fire look); only a spit whose mix has fire draws as a fireball.
+* The cobras' spit stays poison; its green flame look is [venom-green-fire](venom-green-fire.draft.sonet.md) (a colour
+  ramp per `FireStyle`). Whichever comes second reuses the other's glob-with-flames drawing.
 
 ## Tests
 

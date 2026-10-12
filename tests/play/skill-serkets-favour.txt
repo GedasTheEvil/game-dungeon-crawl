@@ -1,0 +1,6 @@
+# Play-test skill-serkets-favour: Serket's favour learnt, poisoned (medium) at the start: the HUD timer runs half
+# the time. Level 3's scorpions poison you again.
+level 3
+heka 1
+learn serkets_favour
+poison medium

@@ -1,5 +1,7 @@
 # Cowards flee when they cannot reach the player
 
+Play-test: `./game --play tests/play/coward-flee-ranged.txt`
+
 Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented)), not play-tested. From the user: if a "coward" monster
 cannot reach the player, instead of going towards it, it runs away to avoid ranged attacks.
 

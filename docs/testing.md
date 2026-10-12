@@ -96,7 +96,7 @@ keyboard and mouse, no main menu. Nothing is written to `saves/` unless you save
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `learn`, `curse`, `poison`, `hurt`, `prop`, `riddles`, `chest`,
+`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `poison`, `hurt`, `prop`, `riddles`, `chest`,
 `camera`, `motion`, `toon`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
@@ -150,6 +150,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `dump` | Write the state line (x, y, hp, stamina, level, screen, alive, won; screen is `menu`, `inventory`, `riddle`, `map`, `journal`, `skills` or `gameplay`) to the result. |
 | `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
 | `hurtboss N` | The boss in play takes an N HP hit, as from the player. Fails if no boss is in play. |
+| `heka N` | The player earns N heka, as if the bosses of levels 5, 10, ... were slain (only heka, no kill, no field note); a boss of those levels slain later gives none. For `learn` and the Heka screen. |
 | `learn SKILL` | Spend a heka on the skill, like the Heka screen's Learn button, also on a sealed one (its rules not in the game yet). SKILL: its name in lower case, `_` for spaces, no apostrophes (`stun`, `words_of_thoth`, `sharp_eye`, `serkets_favour`). Fails when it is learnt already or no heka is free ([skills](plan/skills.md)). |
 | `curse CURSE [greater]` | Lay a curse on the player, as by a cursing hit (status line, field note): `weakness`, `clumsiness`, `vulnerability`, `fatigue`, `disease`, `slowness`, `palsy`, `insanity`; `greater` for the greater grade ([curses](plan/solved/curses.md)). It (re)starts its 2 minutes. |
 | `poisonboss weak\|medium\|strong` | The boss in play is poisoned with that tier, as by `poisonmonster`. Fails if no boss is in play. |

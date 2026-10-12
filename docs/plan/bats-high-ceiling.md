@@ -1,5 +1,7 @@
 # Bats under a high ceiling
 
+Play-test: `./game --play tests/play/bats-high-ceiling.txt`
+
 Status: implemented 2026-10-12, awaiting the user's play-test. From play-testing.
 
 ## Implemented (2026-10-12)

@@ -52,6 +52,7 @@ enum class CommandType : unsigned char {
 	KillBoss,
 	HurtBoss,
 	PoisonBoss,
+	Heka,
 	Learn,
 	Curse,
 	Quit,

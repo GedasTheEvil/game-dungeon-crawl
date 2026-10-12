@@ -1,5 +1,7 @@
 # Skills (Heka)
 
+Play-test: `./game --play tests/play/skills.txt`
+
 Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for
 play-test. From the user. The framework only; each skill has its own sub-draft, built on this one:
 [skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),

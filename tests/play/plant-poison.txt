@@ -1,0 +1,4 @@
+# Play-test plant-poison: level 2, a plant on the start row (col 24). Its bite, and your hit on it, may poison you
+# (weak). Antidotes in hand.
+level 2
+give potion 7 2

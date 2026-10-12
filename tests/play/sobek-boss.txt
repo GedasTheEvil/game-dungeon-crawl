@@ -1,0 +1,8 @@
+# Play-test sobek-boss: Sobek in his lake (tests/levels/sobek, col 14). Walk east: he wakes, charges along the row
+# (double damage; jump over him), hits the west wall and lies stunned (double damage to him). A khopesh, levels and
+# potions so you can fight him.
+level tests/levels/sobek
+xp 20000
+give melee 4
+equip khopesh
+give potion 1 3

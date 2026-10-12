@@ -1,0 +1,9 @@
+# Play-test skill-sharp-eye: sharp eye learnt, a plant to shoot at (tests/levels/archery). Ranged weapons reach 30%
+# farther (self-bow 3.9 tiles, composite bow 5.2); the yellow hitbox line shows the reach (F3 toggles).
+level tests/levels/archery
+heka 1
+learn sharp_eye
+give ranged 0
+give ranged 1
+equip composite_bow
+hitboxes on

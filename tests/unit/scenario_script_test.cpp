@@ -52,6 +52,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"killboss", "killboss"},
 	{"hurtboss", "hurtboss 100"},
 	{"poisonboss", "poisonboss strong"},
+	{"heka", "heka 2"},
 	{"learn", "learn sharp_eye"},
 	{"curse", "curse weakness greater"},
 	{"quit", "quit"},

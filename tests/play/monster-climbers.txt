@@ -1,0 +1,5 @@
+# Play-test monster-climbers: a rat on the lower floor (tests/levels/climb_up). Climb down the ladder (col 6) to let
+# it see you, then back up: it follows you up the rungs. Other climbers: tests/levels/climb_down_scorpion,
+# climb_down_mummy, climb_down_anubis (swap the level line).
+god
+level tests/levels/climb_up

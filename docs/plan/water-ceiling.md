@@ -1,5 +1,7 @@
 # Ceiling under deep water
 
+Play-test: `./game --play tests/play/water-ceiling.txt`
+
 Status: draft 2026-10-10, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test.
 
 ## Problem

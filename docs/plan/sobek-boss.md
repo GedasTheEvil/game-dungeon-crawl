@@ -1,5 +1,7 @@
 # Sobek boss
 
+Play-test: `./game --play tests/play/sobek-boss.txt`
+
 Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. The lvl25 boss of the [longer campaign](solved/longer-campaign.md), picked by the agent
 from [more-bosses.draft.md](old/more-bosses.draft.md) while the user was away (easy to swap for another).
 

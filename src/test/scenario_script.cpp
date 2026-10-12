@@ -328,6 +328,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Equip:
 	case CommandType::Wear:
 	case CommandType::Xp:
+	case CommandType::Heka:
 	case CommandType::Learn:
 	case CommandType::Curse:
 	case CommandType::Poison:
@@ -395,6 +396,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"killboss", CommandType::KillBoss, noArgs, ""},
 		{"hurtboss", CommandType::HurtBoss, numberAtLeast<1>, "<hp>"},
 		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
+		{"heka", CommandType::Heka, numberAtLeast<1>, "<count>"},
 		{"learn", CommandType::Learn, parseSkill,
 		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
 		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},

@@ -1,5 +1,7 @@
 # Plant poison: venomous and poisonous
 
+Play-test: `./game --play tests/play/plant-poison.txt`
+
 Status: implemented 2026-10-10, awaiting user verification. From the user: the man-eater plant (glyph `p`,
 `MonsterPlant`) gets a chance to poison the player, both when it bites (venomous) and when the player hits it
 (poisonous). Weak poison.

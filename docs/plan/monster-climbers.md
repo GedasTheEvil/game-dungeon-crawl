@@ -1,5 +1,7 @@
 # Monsters that climb ladders
 
+Play-test: `./game --play tests/play/monster-climbers.txt`
+
 Status: draft 2026-10-09, refined 2026-10-09, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test. From the user: climbers, monsters that use ladders as well.
 
 ## Today

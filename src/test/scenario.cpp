@@ -376,6 +376,11 @@ bool runInstant(const Command& cmd) {
 		Game().ui.inventory->SetSort(static_cast<SortOrder>(cmd.ticks));
 		report(cmd, true, "");
 		return true;
+	case CommandType::Heka: // as if the bosses of levels 5, 10, ... were slain: one heka each, the HUD tile waits
+		for (int boss = 1; boss <= static_cast<int>(cmd.a); boss++)
+			Game().player->stats.heka.Earn(boss * 5);
+		report(cmd, true, "");
+		return true;
 	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
 		if (!Game().player->stats.heka.Learn(static_cast<SkillId>(cmd.ticks), true)) {
 			report(cmd, false, "learnt already, or no heka to spend");

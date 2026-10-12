@@ -1,5 +1,7 @@
 # Skill: Serket's favour
 
+Play-test: `./game --play tests/play/skill-serkets-favour.txt`
+
 Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for play-test. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`

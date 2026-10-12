@@ -22,10 +22,10 @@
 #include <utility>
 #include <vector>
 
-// The game's world without the game (docs/plan/solved/sim-library.md): a level, its monsters and the player, stepped
-// on the virtual clock one UPDATE_TICK_MS tick at a time as the game loop does (game_loop.cpp), without the screens,
-// the camera or the drawing. The keys are its methods, as the scenario commands are (docs/testing.md): Walk, Climb,
-// Jump, Interact, Attack. The monster types and the player's measures come from the real model files.
+// The game's world without the game (plan sim-library): a level, its monsters and the player, stepped on the virtual
+// clock one UPDATE_TICK_MS tick at a time as the game loop does (game_loop.cpp), without the screens, the camera or the
+// drawing. The keys are its methods, as the scenario commands are (docs/testing.md): Walk, Climb, Jump, Interact,
+// Attack. The monster types and the player's measures come from the real model files.
 class SimWorld {
   public:
 	Player player;

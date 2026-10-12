@@ -1,4 +1,4 @@
-// Heka and the skills (docs/plan/solved/skills.md): a boss gives one heka, once; learning spends it; saves keep both.
+// Heka and the skills (plan skills): a boss gives one heka, once; learning spends it; saves keep both.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/ui/skills_layout.h"

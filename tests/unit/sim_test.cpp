@@ -147,8 +147,8 @@ TEST_CASE("a bat leaves its roost when the player comes near, swoops through and
 	CHECK(world.Hp() < 50);
 }
 
-// docs/plan/solved/bats-high-ceiling.md, tests/levels/bats_high: the bat (col 8) roosts in the upper cell of a corridor
-// two cells high; a teleporter (col 3) leads out of its sight.
+// plan bats-high-ceiling, tests/levels/bats_high: the bat (col 8) roosts in the upper cell of a corridor two cells
+// high; a teleporter (col 3) leads out of its sight.
 TEST_CASE("a bat under a high ceiling dives to the player's row, bites, and falls to their melee") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/bats_high"));

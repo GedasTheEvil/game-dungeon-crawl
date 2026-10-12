@@ -98,7 +98,7 @@ wait 28
 screenshot bow_left_strike
 wait 76
 
-# the weapons added with docs/plan/solved/egyptian-weapons.md: the same shots, from the scenario's equip command
+# the weapons added with plan egyptian-weapons: the same shots, from the scenario's equip command
 give melee 3
 give melee 4
 give melee 5

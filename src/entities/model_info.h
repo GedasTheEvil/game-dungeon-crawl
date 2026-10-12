@@ -50,8 +50,8 @@ inline const ClipFiles MONSTER_CLIPS = {
 	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", false, true},
 	{ModelState::Jump, "_jump", false, false}, {ModelState::Climb, "_climb", false, true}};
-// Walkers with a ranged attack (the Anubis): the spit clip. POC: the attack clip stands in for it, once, until a
-// _spit clip with a release frame (docs/plan/anubis-ranged-attack.md).
+// Walkers with a ranged attack (the Anubis): the spit clip. POC: the attack clip stands in for it, once, until a _spit
+// clip with a release frame (plan anubis-ranged-attack).
 inline const ClipFiles RANGED_CLIPS = {
 	{ModelState::Move, "", true, true},		 {ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},	 {ModelState::Idle, "_idle", false, true},

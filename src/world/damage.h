@@ -1,8 +1,8 @@
 #ifndef DAMAGE_H
 #define DAMAGE_H
 
-// Damage types (docs/plan/solved/damage-types-and-resistances.md): every weapon deals a mix of them, every monster type
-// takes each at its own rate, so each monster has a weapon that works best against it.
+// Damage types (plan damage-types-and-resistances): every weapon deals a mix of them, every monster type takes each at
+// its own rate, so each monster has a weapon that works best against it.
 
 #include <algorithm>
 #include <array>
@@ -48,7 +48,7 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL};
 	return std::max(1, static_cast<int>(std::lround(dealt)));
 }
 
-// How the traps hurt the player (docs/plan/solved/monster-attack-damage-types.md).
+// How the traps hurt the player (plan monster-attack-damage-types).
 constexpr DamageMix SPIKE_ATTACK_MIX = {0, 20, 80}; // spikes and the death trap
 constexpr DamageMix ROCK_ATTACK_MIX = {100, 0, 0};
 constexpr DamageMix DART_ATTACK_MIX = {0, 0, 100};

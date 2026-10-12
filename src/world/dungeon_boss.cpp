@@ -1,5 +1,5 @@
 // The boss fight (Dungeon::bossFight): the boss appears with its minions, summons more while it lives, and its death
-// opens the boss gates. docs/plan/solved/boss-rooms.md.
+// opens the boss gates. plan boss-rooms.
 #include "dungeon.h"
 #include "../entities/player.h"
 #include "item_bag.h"
@@ -91,7 +91,7 @@ void Dungeon::updateBoss() {
 		setObject(spawn, slainObject(spawn.attr));
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
-		if (sim.player->stats.heka.Earn(levelNumber)) { // docs/plan/solved/skills.md
+		if (sim.player->stats.heka.Earn(levelNumber)) { // plan skills
 			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open\nYou take its heka");
 			sim.events->Note(FieldNote::Heka);
 		} else

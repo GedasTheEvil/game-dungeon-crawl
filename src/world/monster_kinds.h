@@ -123,27 +123,27 @@ struct MonsterKind {
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
 	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
-	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (docs/plan/solved/poison-dart-trap.md): 0 flyers, 1 small
-	// ones (rats, scarabs), 2-3 large ones, more for bosses. Later traps may want more.
+	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (plan poison-dart-trap): 0 flyers, 1 small ones (rats,
+	// scarabs), 2-3 large ones, more for bosses. Later traps may want more.
 	int weight = 2;
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
 	int poisonChancePercent = 100;		  // the share of its bites that poison
-	std::optional<TouchPoison> touch;	  // a melee hit on it poisons the player (docs/plan/solved/plant-poison.md)
-	// Chance that a poisoning does not take (docs/plan/solved/monster-poison.md); 100: immune. A boss's is at least its
+	std::optional<TouchPoison> touch;	  // a melee hit on it poisons the player (plan plant-poison)
+	// Chance that a poisoning does not take (plan monster-poison); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<SpitRules> spit; // it spits venom (or shoots a bolt) from afar
-	// Curses its hits lay (docs/plan/solved/curses.md): its bites and blows (a charge too), its spit or bolt. The
-	// strongest first; a boss's chances are higher than its kin's.
+	// Curses its hits lay (plan curses): its bites and blows (a charge too), its spit or bolt. The strongest first; a
+	// boss's chances are higher than its kin's.
 	CurseEntries meleeCurses{};
 	CurseEntries rangedCurses{};
 	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;
 	bool charges = false; // it charges along its row (Charge)
-	// Follows the player up and down ladders once it has seen them (docs/plan/solved/monster-climbers.md).
+	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;
 	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0
 	// height: how high it climbs in one cycle of the clip, and how far in front of its centre it grips the ladder.
@@ -151,7 +151,7 @@ struct MonsterKind {
 	float climbRise = 0.f;
 	float climbGrip = 0.f;
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
-	// type at least as well as its kin (docs/plan/solved/boss-resistances.md).
+	// type at least as well as its kin (plan boss-resistances).
 	int kin = 0;
 	BossRules boss{};	 // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters
@@ -166,8 +166,8 @@ struct MonsterKind {
 	return kind != nullptr && kind->isBoss();
 }
 
-// Its bite or sting poisons the player. The checker wants an antidote in reach on a level with one
-// (docs/plan/solved/poison-and-antidote.md).
+// Its bite or sting poisons the player. The checker wants an antidote in reach on a level with one (plan
+// poison-and-antidote).
 [[nodiscard]] inline bool isPoisoner(int type) {
 	const MonsterKind* kind = monsterKind(type);
 	return kind != nullptr && (kind->poison.has_value() || kind->touch.has_value());

@@ -1,4 +1,4 @@
-// Sim checks of the old journal, HUD and start scenarios (docs/plan/solved/lean-scenario-tests.md).
+// Sim checks of the old journal, HUD and start scenarios (plan lean-scenario-tests).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 

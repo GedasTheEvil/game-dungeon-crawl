@@ -4,9 +4,9 @@
 #include "../graphics/font.h"
 #include "ui_draw.h"
 
-// The Heka screen ([K], docs/plan/solved/skills.md): a card per skill and the heka left to spend; the papyrus on the
-// right tells the selected skill and learns it, after a second press to confirm (no unlearning). Its layout:
-// skills_layout.h. The game is paused while it is open.
+// The Heka screen ([K], plan skills): a card per skill and the heka left to spend; the papyrus on the right tells the
+// selected skill and learns it, after a second press to confirm (no unlearning). Its layout: skills_layout.h. The game
+// is paused while it is open.
 class SkillsScreen {
   public:
 	void Draw();

@@ -1,5 +1,5 @@
-# Held weapons in toon mode (docs/plan/solved/toon-weapon-scale.md): each one drawn 1.5 times its size with toon off (the
-# figures only 1.2), still in the fist. Club, sword, spear and bow, toon off then on; the bow drawn too.
+# Held weapons in toon mode (plan toon-weapon-scale): each one drawn 1.5 times its size with toon off (the figures only
+# 1.2), still in the fist. Club, sword, spear and bow, toon off then on; the bow drawn too.
 seed 1
 god
 level tests/levels/classic1

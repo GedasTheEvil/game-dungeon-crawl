@@ -9,8 +9,8 @@
 #include <string>
 #include <vector>
 
-// The archaeologist's notebook (docs/plan/solved/journal-sections.md): what the player went through, kept per save
-// game: creatures, riddles and field notes.
+// The archaeologist's notebook (plan journal-sections): what the player went through, kept per save game: creatures,
+// riddles and field notes.
 
 // A riddle met at a gate. A copy, not an index into riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
@@ -49,8 +49,8 @@ enum class CreatureMove : unsigned char {
 };
 constexpr int CREATURE_MOVE_COUNT = 14;
 
-// What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from
-// a kill count (docs/plan/solved/monster-journal.md).
+// What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
+// kill count (plan monster-journal).
 struct JournalCreature {
 	int type = 0;
 	int level = 0;		 // campaign level of the first meeting
@@ -68,7 +68,7 @@ struct JournalCreature {
 
 // Field notes: the game's rules in the archaeologist's words, each written the first time it matters. A note covers
 // only what the player has met: one per potion group, written when the first potion of it is picked up, and one per
-// damage type, written when the first weapon of that main type is found (docs/plan/solved/journal-notes-per-kind.md).
+// damage type, written when the first weapon of that main type is found (plan journal-notes-per-kind).
 enum class FieldNote : unsigned char {
 	Health,			// the first hit taken
 	Levels,			// the first level up

@@ -801,7 +801,7 @@ void Inventory::DrawDetails() {
 						 INK_FADED);
 		else if (!worn)
 			textCentered(small, cx, STAT_Y + 0.5f, "One amulet at a time", INK_FADED);
-		// Upgrade progress: the spares' points of the cost (docs/plan/amulet-upgrades.md).
+		// Upgrade progress: the spares' points of the cost (plan amulet-upgrades).
 		char points[40] = "Top tier";
 		const bool top = !nextTier(kindOf(selectedSlot));
 		const int cost = amuletWorth(amuletOf(kindOf(selectedSlot)).tier);

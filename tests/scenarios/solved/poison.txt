@@ -1,5 +1,5 @@
-# Poison (docs/plan/solved/poison-and-antidote.md): tiers stack, each on its own timer; armour does not help; the antidote
-# (=) cures all of it; the poison survives a save; it can kill.
+# Poison (plan poison-and-antidote): tiers stack, each on its own timer; armour does not help; the antidote (=) cures
+# all of it; the poison survives a save; it can kill.
 seed 1
 level tests/levels/classic1
 walk right 3

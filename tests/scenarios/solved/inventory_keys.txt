@@ -1,5 +1,5 @@
-# Inventory keys (docs/plan/solved/inventory-keys.md): Tab walks the enabled group tabs and wraps round, the number
-# keys pick nothing, the slots show no key labels.
+# Inventory keys (plan inventory-keys): Tab walks the enabled group tabs and wraps round, the number keys pick nothing,
+# the slots show no key labels.
 seed 1
 god
 level tests/levels/classic1

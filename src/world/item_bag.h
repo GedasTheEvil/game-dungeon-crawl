@@ -20,8 +20,8 @@ constexpr int MAX_WEAPON_LEVEL = 5;
 [[nodiscard]] int weaponGrowthPercent(ItemKind weapon);
 [[nodiscard]] int weaponDamage(ItemKind weapon, int baseDamage, int level);
 
-// Amulet upgrades (docs/plan/amulet-upgrades.md): an amulet is worth lesser 1, minor 2, normal 4, grand 8 points.
-// Going up a tier costs the amulet's own worth again, paid by spares of its type of its tier or lower.
+// Amulet upgrades (plan amulet-upgrades): an amulet is worth lesser 1, minor 2, normal 4, grand 8 points. Going up a
+// tier costs the amulet's own worth again, paid by spares of its type of its tier or lower.
 [[nodiscard]] int amuletWorth(AmuletTier tier);
 [[nodiscard]] std::optional<ItemKind> nextTier(ItemKind amulet); // nullopt: grand, the top
 
@@ -100,14 +100,14 @@ class ItemBag {
 	void Load(std::istream& in);
 };
 
-// How a tab sorts its found items (docs/plan/inventory-sort-orders.md). Found: ItemKind order. Name: A to Z. Strength:
-// strongest first (weapons by damage at their level, amulets by tier, the large and greater potions before the
-// rest), ties in ItemKind order. Recent: the last added first, the ones never stamped after them in ItemKind order.
+// How a tab sorts its found items (plan inventory-sort-orders). Found: ItemKind order. Name: A to Z. Strength:
+// strongest first (weapons by damage at their level, amulets by tier, the large and greater potions before the rest),
+// ties in ItemKind order. Recent: the last added first, the ones never stamped after them in ItemKind order.
 enum class SortOrder : std::uint8_t { Found, Name, Strength, Recent };
 constexpr int SORT_ORDER_COUNT = 4;
 
-// A tab's items in the order the inventory shows them (docs/plan/solved/inventory-sorting.md): the ones found first,
-// in `sort` order, then the ones not found yet in ItemKind order, so the found ones fill the first rows without gaps.
+// A tab's items in the order the inventory shows them (plan inventory-sorting): the ones found first, in `sort` order,
+// then the ones not found yet in ItemKind order, so the found ones fill the first rows without gaps.
 [[nodiscard]] std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group, SortOrder sort = SortOrder::Found);
 // kind's place in its tab's tabOrder.
 [[nodiscard]] int tabPosition(const ItemBag& bag, ItemKind kind, SortOrder sort = SortOrder::Found);

@@ -101,7 +101,7 @@ TEST_CASE("bindings") {
 		CHECK(b.Of(BindAction::Attack).mouse == InputKey::Mouse(MOUSE_LEFT_BUTTON));
 	}
 
-	SUBCASE("E interacts, V attacks, in both cases (docs/plan/solved/inventory-keys.md)") {
+	SUBCASE("E interacts, V attacks, in both cases (plan inventory-keys)") {
 		CHECK(b.ActionFor(InputKey::Char('e')) == BindAction::Interact);
 		CHECK(b.ActionFor(InputKey::Char('E')) == BindAction::Interact);
 		CHECK(b.ActionFor(InputKey::Char('v')) == BindAction::Attack);

@@ -1,6 +1,6 @@
-// The animation clip state of the monsters and the player, tick by tick (docs/plan/solved/scenarios-to-unit-tests.md
-// technique 8): which clip each shows (ModelState) and its frame, on the sim harness with the real model files. The
-// look of the poses stays in the scenarios (mummy, cobra, bats, ...).
+// The animation clip state of the monsters and the player, tick by tick (plan scenarios-to-unit-tests technique 8):
+// which clip each shows (ModelState) and its frame, on the sim harness with the real model files. The look of the poses
+// stays in the scenarios (mummy, cobra, bats, ...).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include <vector>

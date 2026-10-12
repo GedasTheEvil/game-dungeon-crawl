@@ -1,4 +1,4 @@
-// The checker's movement rules against the game's (docs/plan/movement-model.draft.md), on small levels.
+// The checker's movement rules against the game's (plan movement-model), on small levels.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/items.h"

@@ -1,5 +1,4 @@
-// Sim checks of the old amulet, poison, scorpion, bow and ranged-weapon scenarios
-// (docs/plan/solved/lean-scenario-tests.md).
+// Sim checks of the old amulet, poison, scorpion, bow and ranged-weapon scenarios (plan lean-scenario-tests).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -123,7 +122,7 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 	}
 }
 
-// docs/plan/solved/death-spikes-poison.md
+// plan death-spikes-poison
 TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; the ward cuts the damage only") {
 	{
 		SimWorld world;

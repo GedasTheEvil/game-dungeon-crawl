@@ -5,8 +5,8 @@ namespace {
 constexpr Rgb SCARAB_BLOOD = {0.6f, 0.1f, 0.8f};
 constexpr Rgb SCORPION_BLOOD = {0.45f, 0.62f, 0.55f};
 
-// What each model group's bite or blow deals (docs/plan/solved/monster-attack-damage-types.md), read from what the
-// model attacks with. The members of a group (bigger or darker) deal the same kinds, only more.
+// What each model group's bite or blow deals (plan monster-attack-damage-types), read from what the model attacks with.
+// The members of a group (bigger or darker) deal the same kinds, only more.
 constexpr DamageMix WORM_MIX = {60, 40, 0};		   // grinding maw
 constexpr DamageMix SCARAB_MIX = {40, 60, 0};	   // rams, mandibles
 constexpr DamageMix PLANT_MIX = {0, 40, 60};	   // bite, thorny vines
@@ -20,9 +20,9 @@ constexpr DamageMix MIMIC_MIX = {40, 0, 60};	   // lid slam, teeth
 constexpr DamageMix COBRA_MIX = {0, 0, 100};	   // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 
-// How each group takes blunt, slash and pierce damage (docs/plan/solved/damage-types-and-resistances.md). Each weapon
-// is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants and
-// mummies, the spear (and the bow) against scarabs. A boss has no weak spot (bossResist).
+// How each group takes blunt, slash and pierce damage (plan damage-types-and-resistances). Each weapon is the best
+// against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants and mummies, the
+// spear (and the bow) against scarabs. A boss has no weak spot (bossResist).
 constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL};   // soft: a blow squashes, a blade cuts
 constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK}; // the shell turns a blade, a point goes between plates
 constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH};	   // stems: only a blade cuts; points and blows go astray
@@ -35,8 +35,8 @@ constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS};	// a blow crack
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
 
-// Chance a poisoning does not take (docs/plan/solved/monster-poison.md). The rest have none, like the player without
-// an amulet. Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
+// Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
+// Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
 constexpr int POISON_IMMUNE = 100;
 constexpr int POISONER_RESIST = 50;		 // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
@@ -50,7 +50,7 @@ constexpr Resistances bossResist(Resistances kin) {
 
 // By MonsterTypeId, from 1. Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take
 // long to kill. Flyers roost on the ceiling and swoop through the player (Monster::Fly). The boss summons are starting
-// values, to tune from playthroughs (docs/plan/solved/boss-rooms.md).
+// values, to tune from playthroughs (plan boss-rooms).
 constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	{.id = MonsterScarab,
 	 .glyph = 's',
@@ -125,7 +125,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .label = "anubis",
 	 .description = "Anubis living statue",
 	 .note = "A statue of Anubis that forgot to stay on its plinth. Traps do not stop him.",
-	 .threat = 9.f, // walks faster than the player (docs/plan/solved/anubis-speed.md): only a sprint gets away
+	 .threat = 9.f, // walks faster than the player (plan anubis-speed): only a sprint gets away
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis",
 	 .scale = 19,
@@ -143,8 +143,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 // A bolt of light from the was-sceptre (docs/plan/anubis-ranged-attack.md). POC: the attack clip stands in for the
-	 // spit clip; release and sceptre height guessed.
+	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). POC: the attack clip stands in for the spit
+	 // clip; release and sceptre height guessed.
 	 .spit = SpitRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
@@ -176,8 +176,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
 	 .generated = {1, 5, 6}},
-	// Faster than the player's walk (~1.25 tiles/s): the bow alone does not keep it off
-	// (docs/plan/solved/giant-rat-speed.md).
+	// Faster than the player's walk (~1.25 tiles/s): the bow alone does not keep it off (plan giant-rat-speed).
 	{.id = MonsterGiantRat,
 	 .glyph = 'T',
 	 .name = "Giant rat",
@@ -340,7 +339,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .kin = MonsterBat,
 	 .boss = {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
-	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (docs/plan/solved/boss-rooms.md).
+	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (plan boss-rooms).
 	{.id = MonsterMummy,
 	 .glyph = 'u',
 	 .name = "Mummy",
@@ -407,8 +406,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .kin = MonsterAnubis,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
-	// outwalks it), in the water faster than the player walks on land. Levels 7-9
-	// (docs/plan/solved/crocodiles-and-flooded-cells.md). A long, low body: 1.5 tiles nose to tail.
+	// outwalks it), in the water faster than the player walks on land. Levels 7-9 (plan crocodiles-and-flooded-cells).
+	// A long, low body: 1.5 tiles nose to tail.
 	{.id = MonsterCrocodile,
 	 .glyph = 'C',
 	 .name = "Crocodile",
@@ -430,8 +429,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 3,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f},
-	// Small and quick like the rat, a slower sting that poisons; levels from the scorpion queen's
-	// (docs/plan/solved/poison-and-antidote.md).
+	// Small and quick like the rat, a slower sting that poisons; levels from the scorpion queen's (plan
+	// poison-and-antidote).
 	{.id = MonsterScorpion,
 	 .glyph = 'j',
 	 .name = "Scorpion",
@@ -457,7 +456,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
 	 .climbGrip = 0.25f},
 	// Between the giant rat and the crocodile, a poisoned bite and a venom spit from afar; lies coiled until the player
-	// comes near (docs/plan/solved/cobra.md).
+	// comes near (plan cobra).
 	{.id = MonsterCobra,
 	 .glyph = 'c',
 	 .name = "Cobra",
@@ -483,7 +482,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISONER_RESIST,
 	 .spit = SpitRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
 	 .riseMs = 750},
-	// The cobra's giant kin, levels after Apep (docs/plan/giant-cobra.md).
+	// The cobra's giant kin, levels after Apep (plan giant-cobra).
 	{.id = MonsterGiantCobra,
 	 .glyph = 'Q',
 	 .name = "Giant cobra",
@@ -509,8 +508,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .spit = SpitRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .riseMs = 750},
-	// The scorpion's giant kin and the scorpion queen's minion: medium poison
-	// (docs/plan/solved/scorpion-queen-boss.md).
+	// The scorpion's giant kin and the scorpion queen's minion: medium poison (plan scorpion-queen-boss).
 	{.id = MonsterGiantScorpion,
 	 .glyph = 'J',
 	 .name = "Giant scorpion",
@@ -556,7 +554,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = EGG_CLUSTER_RESIST,
 	 .locomotion = Locomotion::Stationary,
 	 .poisonResistPercent = POISON_IMMUNE},
-	// The lvl15 boss on the scorpion model, the size of a cart (docs/plan/solved/scorpion-queen-boss.md).
+	// The lvl15 boss on the scorpion model, the size of a cart (plan scorpion-queen-boss).
 	{.id = MonsterScorpionQueen,
 	 .glyph = 'U',
 	 .name = "Scorpion queen",
@@ -586,7 +584,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.25f,
 	 .kin = MonsterScorpion,
 	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster, MonsterScorpion}},
-	// The lvl20 boss on the cobra model, long as the hall (docs/plan/apep-serpent-boss.md).
+	// The lvl20 boss on the cobra model, long as the hall (plan apep-serpent-boss).
 	{.id = MonsterApep,
 	 .glyph = 'P',
 	 .name = "Apep",
@@ -616,7 +614,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
-	// The lvl25 boss on the crocodile model (docs/plan/solved/sobek-boss.md).
+	// The lvl25 boss on the crocodile model (plan sobek-boss).
 	{.id = MonsterSobek,
 	 .glyph = 'W',
 	 .name = "Sobek",

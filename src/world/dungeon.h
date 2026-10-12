@@ -68,8 +68,7 @@ class Dungeon {
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);
-	// Flyers (docs/plan/solved/bats-high-ceiling.md): whether it sees the player, the row it heads for and the way
-	// there.
+	// Flyers (plan bats-high-ceiling): whether it sees the player, the row it heads for and the way there.
 	[[nodiscard]] FlightGoal flightGoal(const Monster& mon) const;
 	// A flyer's way from (col, row) to (toCol, toRow) through open cells, never up or down into half water; boxed: only
 	// inside the rectangle of the two cells. The column of its next step up or down; -1: no way (or the same row).
@@ -145,8 +144,8 @@ class Dungeon {
 	void drawPortal(const float normal[3], const float v[4][3], bool red = false) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	// Dart traps (dungeon_darts.cpp, docs/plan/solved/poison-dart-trap.md): a pressed plate makes the holes in the back
-	// wall above it shoot a volley of poison darts out towards the camera, across the corridor.
+	// Dart traps (dungeon_darts.cpp, plan poison-dart-trap): a pressed plate makes the holes in the back wall above it
+	// shoot a volley of poison darts out towards the camera, across the corridor.
 	struct DartVolley {
 		int startMs; // the plate's click
 		int col, row;

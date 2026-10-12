@@ -1,8 +1,8 @@
 #ifndef INVENTORY_LAYOUT_H
 #define INVENTORY_LAYOUT_H
 
-// Where the inventory screen's parts sit on the 160 x 100 canvas, and what a canvas point hits, without GL
-// (docs/plan/solved/scenarios-to-unit-tests.md technique 5). Inventory draws them (ui/inventory.cpp).
+// Where the inventory screen's parts sit on the 160 x 100 canvas, and what a canvas point hits, without GL (plan
+// scenarios-to-unit-tests technique 5). Inventory draws them (ui/inventory.cpp).
 
 #include "ui_layout.h"
 #include "../world/item_bag.h"
@@ -31,7 +31,7 @@ constexpr float TAB_Y = 77.6f;
 constexpr float TAB_H = 6.f;
 constexpr float TAB_GAP = 2.f;
 
-// The sort buttons right of the group tabs, one per SortOrder past Found (docs/plan/inventory-sort-orders.md).
+// The sort buttons right of the group tabs, one per SortOrder past Found (plan inventory-sort-orders).
 constexpr float SORT_W[SORT_ORDER_COUNT] = {0.f, 6.f, 4.5f, 6.f};
 constexpr float SORT_GAP = 1.f;
 constexpr float SORTS_W = SORT_W[1] + SORT_W[2] + SORT_W[3] + 2 * SORT_GAP;

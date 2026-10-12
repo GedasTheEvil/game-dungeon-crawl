@@ -1,5 +1,5 @@
-# Quick potions: H drinks the best fitting healing potion, 0 the best fitting stamina potion (docs/plan/quick-potions.md).
-# Level 1: 50 max HP, the small potion heals 25% (12), the large 50% (25); danger line 35% (17 HP).
+# Quick potions: H drinks the best fitting healing potion, 0 the best fitting stamina potion (plan quick-potions). Level
+# 1: 50 max HP, the small potion heals 25% (12), the large 50% (25); danger line 35% (17 HP).
 seed 1
 god
 level tests/levels/classic1

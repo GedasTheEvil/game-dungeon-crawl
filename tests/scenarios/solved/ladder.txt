@@ -29,7 +29,7 @@ screenshot ladder_bottom
 walk up 2.3
 screenshot climb_up
 expect alive == 1
-# No attack on the rungs (docs/plan/solved/no-attack-on-ladder.md), at the ladder's foot again.
+# No attack on the rungs (plan no-attack-on-ladder), at the ladder's foot again.
 attack
 expect attacking == 0
 hold down 3s

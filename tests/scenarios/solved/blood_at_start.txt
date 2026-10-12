@@ -1,5 +1,5 @@
-# No blood splash when a game starts, nor after loading one (docs/plan/solved/blood-at-game-start.md). The player
-# stands behind the entrance statue; a splash shows as red dots below its plinth (left of the screen centre).
+# No blood splash when a game starts, nor after loading one (plan blood-at-game-start). The player stands behind the
+# entrance statue; a splash shows as red dots below its plinth (left of the screen centre).
 seed 1
 level tests/levels/classic1
 wait 8

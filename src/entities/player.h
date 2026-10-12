@@ -59,9 +59,9 @@ class Player {
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
 	// health note.
 	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false);
-	// A monster's attack finds the player: with the Dodge skill (docs/plan/solved/skills.md) one in DODGE_PERCENT
-	// misses, rolled on rng. True: dodged (the "Dodged" line and a whoosh); the caller deals no damage, no poison. Also
-	// in god mode (scenarios).
+	// A monster's attack finds the player: with the Dodge skill (plan skills) one in DODGE_PERCENT misses, rolled on
+	// rng. True: dodged (the "Dodged" line and a whoosh); the caller deals no damage, no poison. Also in god mode
+	// (scenarios).
 	bool Dodges(WorldEvents& events, Rng& rng);
 	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
 	// Poisons unless the worn amulet and a resistance potion ward it off (PlayerStats::PoisonResistPercent, rolled on

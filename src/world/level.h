@@ -131,7 +131,7 @@ enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
 enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
 [[nodiscard]] inline GateState gateState(const Tile& t) { return static_cast<GateState>(t.value); }
 [[nodiscard]] inline RockState rockState(const Tile& t) { return static_cast<RockState>(t.value); }
-// A DartPlate's value: pressed from the volley until it re-arms (docs/plan/solved/poison-dart-trap.md).
+// A DartPlate's value: pressed from the volley until it re-arms (plan poison-dart-trap).
 [[nodiscard]] inline bool platePressed(const Tile& t) { return t.type == DartPlate && t.value == 1; }
 inline void setPlatePressed(Tile& t, bool pressed) { t.value = pressed ? 1 : 0; }
 inline void setGateState(Tile& t, GateState s) { t.value = static_cast<int>(s); }
@@ -141,9 +141,9 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 inline void pullLever(Tile& t) { t.value = 1; }
 // A teleporter's value: its pair id.
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
-// A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, docs/plan/solved/no-respawn-on-load.md):
-// it does not come back after a load, and the decorations stay as in its life (a mummy's coffin, a boss's coffins).
-// Only save games have it.
+// A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, plan no-respawn-on-load): it does not
+// come back after a load, and the decorations stay as in its life (a mummy's coffin, a boss's coffins). Only save games
+// have it.
 [[nodiscard]] inline Tile slainObject(int monsterType) { return Tile{NoObject, monsterType, 0}; }
 [[nodiscard]] inline int slainMonster(const Tile& t) { return t.type == NoObject ? t.attr : 0; }
 // The monster type a cell spawns, or spawned before it was slain; 0 for none.

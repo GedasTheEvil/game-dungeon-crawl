@@ -1,6 +1,6 @@
-# Inventory sort orders (docs/plan/inventory-sort-orders.md): the a-z, * and new buttons right of the group tabs, per
-# tab, a click on the lit one goes back to found first. The selection stays on its item.
-# Mouse positions are window percent at 16:9. Sort buttons y 80.6: a-z x 48.3, * 51.8, new 55.3.
+# Inventory sort orders (plan inventory-sort-orders): the a-z, * and new buttons right of the group tabs, per tab, a
+# click on the lit one goes back to found first. The selection stays on its item. Mouse positions are window percent at
+# 16:9. Sort buttons y 80.6: a-z x 48.3, * 51.8, new 55.3.
 seed 1
 god
 level tests/levels/classic1

@@ -1,9 +1,9 @@
 #ifndef POISON_H
 #define POISON_H
 
-// The player's poison, without the player: three tiers, each running on its own timer
-// (docs/plan/solved/poison-and-antidote.md). A hit of a running tier restarts its timer at the same strength; a hit of
-// another tier runs beside it. Armour does not help and poison can kill. The antidote cures every tier.
+// The player's poison, without the player: three tiers, each running on its own timer (plan poison-and-antidote). A hit
+// of a running tier restarts its timer at the same strength; a hit of another tier runs beside it. Armour does not help
+// and poison can kill. The antidote cures every tier.
 
 #include <array>
 #include <cstdint>
@@ -12,7 +12,7 @@
 enum class PoisonTier : std::uint8_t { Weak, Medium, Strong };
 constexpr int POISON_TIER_COUNT = 3;
 
-// A second's damage is max(floorHpPerSecond, percent of the victim's max HP), docs/plan/solved/stronger-poisons.md.
+// A second's damage is max(floorHpPerSecond, percent of the victim's max HP), plan stronger-poisons.
 struct PoisonTierDef {
 	int floorHpPerSecond;
 	int percentOfMaxHp;

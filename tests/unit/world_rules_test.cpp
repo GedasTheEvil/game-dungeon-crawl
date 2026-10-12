@@ -1,6 +1,6 @@
-// World rules on the sim harness (docs/plan/solved/scenarios-to-unit-tests.md technique 7), ported from the scenarios
-// that checked them with `expect` lines only: teleporters, the exit, dart traps, rock falls, the fall trap, arrows in
-// water, the boss fights and their saves.
+// World rules on the sim harness (plan scenarios-to-unit-tests technique 7), ported from the scenarios that checked
+// them with `expect` lines only: teleporters, the exit, dart traps, rock falls, the fall trap, arrows in water, the
+// boss fights and their saves.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/level_gen.h"
 #include "sim_world.h"

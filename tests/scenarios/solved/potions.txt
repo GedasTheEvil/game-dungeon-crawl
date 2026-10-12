@@ -1,5 +1,5 @@
-# Potion models (docs/plan/potion-textures.md): six vessels, a texture per potion with the liquid colour baked in, no
-# tint on the 3D model. The chests on tests/levels/potions, then the potions tab, each potion in the detail view.
+# Potion models (plan potion-textures): six vessels, a texture per potion with the liquid colour baked in, no tint on
+# the 3D model. The chests on tests/levels/potions, then the potions tab, each potion in the detail view.
 seed 1
 god
 level tests/levels/potions

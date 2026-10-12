@@ -9,9 +9,9 @@ constexpr int STEEP_FROM = 25;
 constexpr double STEEP_RAMP = 0.0064;
 } // namespace
 
-// Up to STEEP_FROM the curve the first 15 campaign levels were tuned on; past it the gaps grow faster (a factor
-// 1 + STEEP_RAMP (level - STEEP_FROM)^2, no jump at STEEP_FROM), so the 30 levels end at about player level 60, not
-// 200+ (docs/plan/solved/longer-campaign.md).
+// Up to STEEP_FROM the curve the first 15 campaign levels were tuned on; past it the gaps grow faster (a factor 1 +
+// STEEP_RAMP (level - STEEP_FROM)^2, no jump at STEEP_FROM), so the 30 levels end at about player level 60, not 200+
+// (plan longer-campaign).
 double levelXP(int level) {
 	if (level <= 1)
 		return 0.0;

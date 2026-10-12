@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Checks that the world and the entities stay off the app (docs/plan/solved/world-without-game.md): no Game(), no
-# game_state.h, no screens (ui/) or input. What they need comes in by SimLinks / MonsterLinks or a parameter, and what
-# they tell the app goes out by WorldEvents. The dungeon draws itself only in dungeon_render*.cpp: its other files
-# (src/world/dungeon*) include no GL and no graphics header but the constants of render_config.h
-# (docs/plan/solved/sim-unit-tests.md).
+# Checks that the world and the entities stay off the app (plan world-without-game): no Game(), no game_state.h, no
+# screens (ui/) or input. What they need comes in by SimLinks / MonsterLinks or a parameter, and what they tell the app
+# goes out by WorldEvents. The dungeon draws itself only in dungeon_render*.cpp: its other files (src/world/dungeon*)
+# include no GL and no graphics header but the constants of render_config.h (plan sim-unit-tests).
 #
 #   tools/check_sim.sh FILES...
 #

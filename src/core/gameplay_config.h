@@ -61,10 +61,9 @@ constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
-// Climbers (docs/plan/solved/monster-climbers.md): once they have seen the player they follow a path to them across
-// floors, up to CLIMB_PATH_MAX steps; with no path for CLIMB_GIVE_UP_MS they stay where they are. They climb at a
-// share of their walk speed, a boss at all of it. The checker scores a climber a little higher (the player cannot
-// escape up a ladder).
+// Climbers (plan monster-climbers): once they have seen the player they follow a path to them across floors, up to
+// CLIMB_PATH_MAX steps; with no path for CLIMB_GIVE_UP_MS they stay where they are. They climb at a share of their walk
+// speed, a boss at all of it. The checker scores a climber a little higher (the player cannot escape up a ladder).
 constexpr int CLIMB_PATH_MAX = 20;
 constexpr int CLIMB_GIVE_UP_MS = 5000;
 constexpr float CLIMB_SPEED_FACTOR = 0.8f;
@@ -188,12 +187,12 @@ static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 100
 				  1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
 			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
 
-// Dart trap (docs/plan/solved/poison-dart-trap.md): a pressure plate under the player or a heavy monster (weight
-// DART_PLATE_WEIGHT and up, MonsterKind::weight) clicks; DART_DELAY_MS later the holes in the back wall above it shoot
-// DART_COUNT darts out across the corridor, DART_GAP_MS apart, one per hole. At the walking line (DART_HIT_DEPTH)
-// they take the body in front of their hole at DART_HEIGHT over the floor: a jump at its top lets them pass under,
-// small monsters too. Each one that hits deals DART_DAMAGE and poisons (medium). The plate re-arms DART_REARM_MS after
-// the click, once nothing heavy stands on it.
+// Dart trap (plan poison-dart-trap): a pressure plate under the player or a heavy monster (weight DART_PLATE_WEIGHT and
+// up, MonsterKind::weight) clicks; DART_DELAY_MS later the holes in the back wall above it shoot DART_COUNT darts out
+// across the corridor, DART_GAP_MS apart, one per hole. At the walking line (DART_HIT_DEPTH) they take the body in
+// front of their hole at DART_HEIGHT over the floor: a jump at its top lets them pass under, small monsters too. Each
+// one that hits deals DART_DAMAGE and poisons (medium). The plate re-arms DART_REARM_MS after the click, once nothing
+// heavy stands on it.
 constexpr int PLAYER_WEIGHT = 2;
 constexpr int DART_PLATE_WEIGHT = 2;
 constexpr int DART_DELAY_MS = 200;

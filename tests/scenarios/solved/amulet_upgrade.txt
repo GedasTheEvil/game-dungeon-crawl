@@ -1,6 +1,6 @@
-# Amulet upgrades (docs/plan/amulet-upgrades.md): same-type spares pay the tier's worth, the Upgrade button shows only
-# when they do; the worn amulet is upgraded and stays worn.
-# Buttons y 19.5: Wear alone x 77.0; with Upgrade, Wear x 70.0, Upgrade x 84.0.
+# Amulet upgrades (plan amulet-upgrades): same-type spares pay the tier's worth, the Upgrade button shows only when they
+# do; the worn amulet is upgraded and stays worn. Buttons y 19.5: Wear alone x 77.0; with Upgrade, Wear x 70.0, Upgrade
+# x 84.0.
 seed 1
 god
 level tests/levels/classic1

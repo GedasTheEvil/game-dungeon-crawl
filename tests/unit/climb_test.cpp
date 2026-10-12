@@ -3,7 +3,7 @@
 #include "../../src/world/climb_path.h"
 #include <cmath>
 
-// Climbers (docs/plan/solved/monster-climbers.md): the path on the level's cells, and the climbers following it.
+// Climbers (plan monster-climbers): the path on the level's cells, and the climbers following it.
 
 namespace {
 const Monster* firstMonster(const SimWorld& world) {

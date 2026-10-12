@@ -110,8 +110,8 @@ class PlayerStats {
 	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
 	// no poison runs.
 	void Regenerate(bool safe, int tickMs);
-	// Lays a curse (docs/plan/solved/curses.md): its status line, the field note the first time. Disease keeps the HP's
-	// share of the max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
+	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
+	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
 	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);
 	void AdvanceCurses(int ms, WorldEvents& events); // the curses' time runs out, each with its status line
 	void EndCurses();								 // death or a new game: all gone

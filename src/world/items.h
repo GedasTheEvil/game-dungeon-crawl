@@ -35,9 +35,9 @@ enum class ItemKind : std::uint8_t {
 	SmallStamina,
 	LargeStamina,
 	Antidote,
-	LesserResistance, // docs/plan/resistance-potion.md
+	LesserResistance, // plan resistance-potion
 	GreaterResistance,
-	// The amulets (docs/plan/amulets.draft.md), one inventory row per type: lesser, minor, normal, grand.
+	// The amulets (plan amulets), one inventory row per type: lesser, minor, normal, grand.
 	StrengthLesser, // the first amulet
 	StrengthMinor,
 	StrengthNormal,
@@ -72,7 +72,7 @@ enum class ItemKind : std::uint8_t {
 	PierceWardGrand,
 	RegenerationNormal, // regeneration has no lesser or minor tier
 	RegenerationGrand,
-	VenomLesser, // docs/plan/solved/venom-amulet.md
+	VenomLesser, // plan venom-amulet
 	VenomMinor,
 	VenomNormal,
 	VenomGrand,
@@ -237,8 +237,8 @@ struct ItemDef {
 [[nodiscard]] inline const DamageMix& weaponMix(ItemKind weapon) { return weaponDef(weapon).mix; }
 // Tiles: the melee reach from the player's box edge, or how far the ranged weapon aims (WeaponDef::range).
 [[nodiscard]] inline float weaponReach(ItemKind weapon) { return 0.1f * static_cast<float>(weaponDef(weapon).range); }
-// With the Sharp eye skill a ranged weapon aims SHARP_EYE_RANGE_PERCENT % as far (docs/plan/solved/skill-sharp-eye.md);
-// melee reach is not changed.
+// With the Sharp eye skill a ranged weapon aims SHARP_EYE_RANGE_PERCENT % as far (plan skill-sharp-eye); melee reach is
+// not changed.
 constexpr int SHARP_EYE_RANGE_PERCENT = 130;
 [[nodiscard]] inline float weaponReach(ItemKind weapon, const Heka& heka) {
 	const float reach = weaponReach(weapon);

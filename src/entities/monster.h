@@ -29,7 +29,7 @@ struct Flight {
 	int lastMs = -1; // GameClock time of the last update
 };
 // What a flyer knows of the level this tick (Dungeon::flightGoal): it follows the player to another row through open
-// cells (docs/plan/solved/bats-high-ceiling.md).
+// cells (plan bats-high-ceiling).
 struct FlightGoal {
 	bool sees = false;		// the player is in sight: on its row as before, or in reach on another row with a way there
 	int toRow = -1;			// the row it heads for: the player's while it sees them, else its roost's
@@ -66,8 +66,8 @@ struct Charge {
 	bool hit = false; // this rush has hit the player
 };
 
-// Climbers on a ladder (docs/plan/solved/monster-climbers.md): from its row up or down to toRow, y map units off the
-// row's floor on the way. A climb once started runs to its end.
+// Climbers on a ladder (plan monster-climbers): from its row up or down to toRow, y map units off the row's floor on
+// the way. A climb once started runs to its end.
 struct Climb {
 	int toRow = -1; // < 0: not climbing
 	float y = 0.f;
@@ -140,7 +140,7 @@ class Monster {
 	int spitReadyMs = 0;		  // spitters: no new spit before this GameClock time
 	bool spitReleased = true;	  // the spit clip's glob has left the mouth (TakeSpit)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
-	Poison poison;				  // docs/plan/solved/monster-poison.md
+	Poison poison;				  // plan monster-poison
 	bool poisonByPlayer = false;  // a running tier is the player's doing: its kill is theirs
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
@@ -228,7 +228,7 @@ class Monster {
 	[[nodiscard]] bool climbs() const { return type->climbs; }
 	[[nodiscard]] bool Climbing() const { return climb.toRow >= 0; }
 	[[nodiscard]] bool Falling() const { return climb.falls; }
-	// On the rungs it does not attack, as the player cannot (docs/plan/solved/no-attack-on-ladder.md).
+	// On the rungs it does not attack, as the player cannot (plan no-attack-on-ladder).
 	[[nodiscard]] bool OnRungs() const { return rungs; }
 	void SetOnRungs(bool onRungs) { rungs = onRungs; }
 	// Climbers: from the ladder in column ladderCol (its centre there) up or down to toRow, then UpdateClimb each
@@ -258,7 +258,7 @@ class Monster {
 	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
-	// A walking coward, not a boss: it runs from a player it cannot reach (docs/plan/solved/coward-flee-ranged.md).
+	// A walking coward, not a boss: it runs from a player it cannot reach (plan coward-flee-ranged).
 	[[nodiscard]] bool flees() const;
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);
@@ -314,9 +314,9 @@ class Monster {
 	bool takeHit(int dmg);
 	// A hit with a weapon: its damage after resistances (resistedDamage). True: this hit killed it.
 	bool TakeWeaponHit(int dmg, const DamageMix& mix);
-	// A poisoned hit (docs/plan/solved/monster-poison.md): that tier (re)starts, as on the player, unless it shrugs it
-	// off (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it
-	// does not, as a trap's kill. True: the poison took.
+	// A poisoned hit (plan monster-poison): that tier (re)starts, as on the player, unless it shrugs it off
+	// (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it does
+	// not, as a trap's kill. True: the poison took.
 	bool TakePoison(PoisonTier tier, bool byPlayer, Rng& rng);
 	// Once a tick: the running tiers' damage, which can kill. True: it killed and the player poisoned it
 	// (Dungeon::rewardKill).

@@ -1,4 +1,4 @@
-// Curses (docs/plan/solved/curses.md): timed debuffs from monster hits, several at once, no stacking, no cure.
+// Curses (plan curses): timed debuffs from monster hits, several at once, no stacking, no cure.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/world/curses.h"

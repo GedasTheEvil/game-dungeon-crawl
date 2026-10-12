@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks that the shared libraries stay apart from the game (docs/plan/solved/layered-build.md).
+# Checks that the shared libraries stay apart from the game (plan layered-build).
 #
 #   tools/check_layers.sh NAME FILES... [-- NAME FILES...]...
 #

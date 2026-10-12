@@ -6,6 +6,7 @@
 #include "damage.h"
 #include "poison.h"
 #include "rgb.h"
+#include "skills.h"
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -236,6 +237,14 @@ struct ItemDef {
 [[nodiscard]] inline const DamageMix& weaponMix(ItemKind weapon) { return weaponDef(weapon).mix; }
 // Tiles: the melee reach from the player's box edge, or how far the ranged weapon aims (WeaponDef::range).
 [[nodiscard]] inline float weaponReach(ItemKind weapon) { return 0.1f * static_cast<float>(weaponDef(weapon).range); }
+// With the Sharp eye skill a ranged weapon aims SHARP_EYE_RANGE_PERCENT % as far (docs/plan/skill-sharp-eye.md);
+// melee reach is not changed.
+constexpr int SHARP_EYE_RANGE_PERCENT = 130;
+[[nodiscard]] inline float weaponReach(ItemKind weapon, const Heka& heka) {
+	const float reach = weaponReach(weapon);
+	return isRanged(weapon) && heka.Has(SkillId::SharpEye) ? reach * static_cast<float>(SHARP_EYE_RANGE_PERCENT) / 100.f
+														   : reach;
+}
 [[nodiscard]] inline MissileKind missileOf(ItemKind weapon) { return weaponDef(weapon).missile; }
 [[nodiscard]] inline bool isThrown(ItemKind weapon) { return isWeapon(weapon) && weaponDef(weapon).thrown; }
 [[nodiscard]] inline PotionGain potionGain(ItemKind potion) {

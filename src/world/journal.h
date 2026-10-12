@@ -87,8 +87,9 @@ enum class FieldNote : unsigned char {
 	Resistance,		// the first lesser or greater resistance potion
 	Heka,			// the first boss's heka: the skills
 	SerketsFavour,	// Serket's favour learnt (written on learning, not on the first poison)
+	SharpEye,		// Sharp eye learnt (written on learning)
 };
-constexpr int FIELD_NOTE_COUNT = 19;
+constexpr int FIELD_NOTE_COUNT = 20;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);

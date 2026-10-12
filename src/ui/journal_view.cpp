@@ -264,6 +264,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 			 "than guardians down here, so I choose with care."},
 	{"Serket's favour", "Serket likes me. Her children still bite, but they do not mean it as much: every poison "
 						"on me burns for half as long, at the same sting a second."},
+	{"Sharp eye", "Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and "
+				  "the throwing stick all aim a third farther: a foe far off is still a foe in my sights."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

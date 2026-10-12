@@ -177,3 +177,22 @@ TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long
 	CHECK(blessed.stats.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs / 2);
 	CHECK(a.next() == b.next()); // no extra roll
 }
+
+TEST_CASE("Sharp eye: ranged weapons reach 30% farther, melee ones the same") {
+	Heka plain;
+	Heka eye;
+	eye.Earn(5);
+	REQUIRE(eye.Learn(SkillId::SharpEye, true));
+	for (int k = 0; k < ITEM_KIND_COUNT; k++) {
+		const auto kind = static_cast<ItemKind>(k);
+		if (!isWeapon(kind))
+			continue;
+		CHECK(weaponReach(kind, plain) == weaponReach(kind));
+		if (isRanged(kind))
+			CHECK(weaponReach(kind, eye) == doctest::Approx(weaponReach(kind) * 1.3f));
+		else
+			CHECK(weaponReach(kind, eye) == weaponReach(kind));
+	}
+	CHECK(weaponReach(ItemKind::CompositeBow, eye) == doctest::Approx(5.2f));
+	CHECK(weaponReach(ItemKind::SelfBow, eye) == doctest::Approx(3.9f));
+}

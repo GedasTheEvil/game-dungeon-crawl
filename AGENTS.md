@@ -83,14 +83,14 @@ ignore them, don't stop or change the current task because of them, and don't in
 In this project, commit your changes yourself when a task is done, without asking.
 Trunk-based: `master` is the only long-lived branch and the only one that gets pushed.
 Parallel tasks may run in a git worktree on a short-lived task branch, without asking. When the task is done:
-1. Bring the branch up to date with `master` (merge or rebase the task branch), fix conflicts, rerun `make`, the
-   style checks and the tests there.
+1. Rebase the task branch onto `master` (no need to ask), fix conflicts, rerun `make`, the style checks and the
+   tests there.
 2. Merge it into `master` in this main folder, not in the worktree: the user play-tests here. If the merge would
    touch files with uncommitted changes in the main folder, stop and ask.
 3. Rebuild here (`make`), then remove the worktree and delete the task branch.
 
 This overrides the global "no git actions" and "no worktrees" rules for these steps only.
-Still ask before other git actions (push, rebase of `master`, config, other branches).
+Still ask before other git actions (push, rewriting `master` history, config, other branches).
 
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.

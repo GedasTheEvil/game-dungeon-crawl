@@ -16,7 +16,8 @@ While the player stands in a cell where the interact key does something, a small
 "[E] Open", "[E] Pull", "[E] Read", "[E] Enter", "[E] Answer", "[E] Take".
 
 * Which cells, from `Dungeon::Interact` (`src/world/dungeon_interact.cpp`) and its helpers, in the same order:
-  * `Treasure`: Open.
+  * `Treasure`: Open. With [treasure-containers](treasure-containers.draft.opus.md) (closed until opened): Open on a
+    closed one, Take once open and its item shows; whichever plan lands second adds the Take.
   * `Lever` not pulled yet: Pull (a pulled lever: none).
   * `Inscription`: Read (Copy without the hieroglyph skill, once
     [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) is in).
@@ -40,6 +41,10 @@ While the player stands in a cell where the interact key does something, a small
   would give it away. Show "[E] Open" in front of a mimic still lying in ambush too, and the key springs it (decided
   with the user, 2026-10-12: with [trapped-chests](trapped-chests.draft.opus.md) opening any chest is a gamble), so
   the prompt never tells them apart.
+  * Today the mimic wakes at `MIMIC_WAKE_RANGE` (1.5 tiles, `src/core/gameplay_config.h`), before the player can stand
+    in front of it. Change the wake: an idle mimic wakes on the interact key or a hit, not on coming near; drop
+    `MIMIC_WAKE_RANGE`. The [cursed mimic](cursed-mimic.draft.opus.md) wakes the same way. The checker's threat for
+    the mimic stays (the player opens chests anyway).
 
 ## Part 2: the glint on unread inscriptions
 
@@ -56,6 +61,6 @@ read it stops: the journal has the entry (`Journal::Inscriptions`).
 ## Tests
 
 * Unit: the verb per tile (each case above, the pulled lever, the spent riddle gate, the teleporter mid-jump, the
-  mimic); interact acts exactly when there is a verb.
+  mimic); interact acts exactly when there is a verb; a mimic in ambush wakes on the key, not on coming near.
 * Scenario with screenshots: the prompt at a chest, a lever and an inscription; an inscription's glint before and after
   reading it.

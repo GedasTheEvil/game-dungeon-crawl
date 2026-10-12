@@ -19,8 +19,7 @@ A permanent, weaker form of the water blessing potion, and a boost when both are
 | Skill + potion | 125%, faster than on land (a swimmer, like the crocodile) | yes, stamina drain halved | yes |
 
 * The potion lasts twice as long with the skill (4 minutes): the god knows his own.
-* Naming: the potion is "Blessing of Hapi" too. Rename one: the skill **"Favour of Hapi"** (default), or the potion
-  "Draught of Hapi" (implementer's choice; the card and the potion must not share a name).
+* Naming: the potion is "Blessing of Hapi"; the skill card is already "Favour of Hapi" (`SKILLS`). Keep both.
 * `levelcheck` keeps assuming neither (both are optional).
 * Journal note, humour welcome: "The water parts for me now. Not much, but enough to stop wading like a heron."
 

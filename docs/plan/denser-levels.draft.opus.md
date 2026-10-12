@@ -24,6 +24,10 @@ cells, but most of it is solid wall.
   monster mix follows what is unlocked by then (`docs/levels.md`). Update the level's line in `docs/levels.md`.
 * **Batches by boss block:** 1-5, 6-10, 11-14, one task each, play-tested in between.
 * Each level passes `./levelcheck` with no warnings.
+* **Keep what other plans placed:** a redesign carries over the content that is not layout: inscriptions
+  ([more-inscriptions](more-inscriptions.draft.opus.md)), level titles ([duat-hours](duat-hours.draft.sonet.md)),
+  Hapi potions ([water-blessing-potion](water-blessing-potion.draft.sonet.md)), expedition pages, mirror puzzles,
+  ring transporters, the Stargate chamber, trapped chests. Same count or more; the spots may move.
 
 ## Watch
 

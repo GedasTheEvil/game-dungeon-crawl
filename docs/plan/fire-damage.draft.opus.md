@@ -36,7 +36,7 @@ Implementer's choice, at least one:
 | Man-eater plant / thorn acacia, egg cluster, worm | weak |
 | Crocodile, Sobek, the water lotus (if it exists) | resists |
 | Anubis living statue (stone) | tough |
-| Bosses | normal or better |
+| Bosses | normal or better, and at least their kin's (`validKinds`): the Anubis boss tough, Sobek resists |
 
 * Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](solved/egyptian-names.md), e.g. "the feather
   of Ma'at" or "the sun disc"), four tiers like the other wardings: fire damage -20 / 40 / 60 / 80%. Never more
@@ -47,6 +47,8 @@ Implementer's choice, at least one:
   Anubis bolt, [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md): armour can soak its blunt / pierce part, never
   its fire). Burning ticks ignore armour too. The journal / amulet text can say so ("Armour does not stop fire").
   Unit test: a 100% fire hit on an armoured player deals the same as on an unarmoured one.
+  Write the split as "armour acts on the non-fire shares", whatever armour does: the
+  [monster-balance](monster-balance.draft.opus.md) sim may turn the flat cut into a percentage.
 
 ## Also
 

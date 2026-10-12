@@ -19,10 +19,13 @@ The crocodile's bite grabs the player: a hold, a death roll.
   keys and the inventory too). No way to break free: the hold is short instead.
 * The crocodile dying while it holds (a venom tick) ends the hold.
 * No amulet against it.
+* **Sobek** (boss rule, AGENTS.md: its `kin` is the crocodile): the same hold, stronger. A grab at 40%, the same 0.5 s
+  tell (shorter is unfair at its damage), 4 ticks of 40% of its bite, 3.2 s in all. Only while the player stands in
+  water, as the crocodile's. A charge (`Charge`) never grabs: only the bite does.
 
 ## Open (for the implementer)
 
-* Look: the crocodile's open-jaws tell, the grab and the roll (Blender, [../remodeling.md](../remodeling.md)); the
+* Look: the crocodile's and Sobek's open-jaws tell, the grab and the roll (Blender, [../remodeling.md](../remodeling.md)); the
   player's held view (camera shake or roll).
 * The checker and the balance: the hold is short and only in water, so likely nothing. Note it with the crocodile's
   half-water weight in [monster-balance](monster-balance.draft.opus.md).

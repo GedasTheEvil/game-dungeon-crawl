@@ -11,8 +11,8 @@ Some chests are trapped: opening one sets off a trap. Opening any chest becomes 
 * Traps, fired during the opening clip:
   * poison darts from the lock (medium poison, like the dart plate, `src/world/dungeon_darts.cpp`);
   * a puff of poison gas (a small cloud, weak poison, a few seconds);
-  * a curse (one of `Curse`, `src/world/curses.h`), framed as an execration text on the lid; ties in with
-    [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md);
+  * a curse (one of `Curse`, `src/world/curses.h`), framed as an execration text on the lid. A trapped canopic jar
+    ([treasure-containers](treasure-containers.draft.opus.md)) curses by default (disease);
   * optional: a scarab swarm crawling out (minions, like a boss's summons).
 * A tell for an attentive player, never obvious from afar (as the cursed mimic's): scratch marks round the lock, a
   broken seal, a darker lid. It must survive [treasure-containers](treasure-containers.draft.opus.md)'s looks and
@@ -20,6 +20,18 @@ Some chests are trapped: opening one sets off a trap. Opening any chest becomes 
 * The [interact prompt](interact-prompt.draft.opus.md) shows "[E] Open" on every chest, trapped or not, and on a
   mimic: it never tells them apart.
 * Journal: a field note the first time a trap goes off ("Some chests bite back."), per trap kind if it reads better.
+
+## Curses from objects: one rule
+
+This plan owns the rule for every curse an object sets off; [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md)
+uses it for the objects that are not treasure (a sarcophagus, a coffin, pottery, an ushabti):
+
+* One roll per object, on opening, from the gameplay stream. A container that is trapped rolls its trap only; no
+  second curse roll on top (a canopic jar is a container, its curse is its trap).
+* The tell: a close-up hint, never a status line or a prompt text, never obvious from afar.
+* The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](skill-blessing-of-isis.draft.sonet.md)
+  halves the curse's time, as any curse.
+* Loot in a cursed object follows [Contents](#contents-decided-with-the-user-2026-10-12).
 
 ## Contents (decided with the user, 2026-10-12)
 
@@ -46,7 +58,8 @@ No new skill: the trap-ward amulet (Eye of Horus, `AmuletType::TrapWard`, tiers 
 
 ## Level format
 
-A new tile type `TrappedTreasure` (16) with the same attribute and value as `Treasure` (the item type and id), a
+A new tile type `TrappedTreasure` (the next free type: 16 today; rhythm traps, sunlight mirrors or expedition pages
+may take it first) with the same attribute and value as `Treasure` (the item type and id), a
 legend character and an editor icon, like `Inscription` was added (`tile_defs.*`). No format change.
 
 * Many places test `t.type == Treasure` (`Dungeon::PickUp`, the chest count, the loot, the checker's treasure counts,

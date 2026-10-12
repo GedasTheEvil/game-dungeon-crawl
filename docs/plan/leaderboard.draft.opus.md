@@ -22,7 +22,8 @@ From the user:
 * Player stats at the end: player level, XP, max HP, stamina, armour, might.
 * Skills learned at the end.
 * Play time (optional). Time in play only: paused, menus, the Heka screen and the inventory do not count. It is kept
-  in the save, so it adds up over sessions.
+  in the save, so it adds up over sessions. A cut-scene ([cinematic-effects](cinematic-effects.draft.opus.md))
+  pauses the world: it does not count either.
 
 Added (implementer picks; the first ones are cheap):
 

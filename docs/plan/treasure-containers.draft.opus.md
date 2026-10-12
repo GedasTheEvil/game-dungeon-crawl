@@ -26,12 +26,14 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
 ## Notes
 
 * The mimic (Chest of Set) idles as a chest and must keep looking like one: it uses the chest kinds only, in any
-  orientation the real chests use. Optional: a mimic jar.
+  orientation the real chests use. So every depth's mix keeps chests (wooden chest or coffer, at least about a third
+  of the treasures): on a level of jars a lone chest would give the mimic away. Optional: a mimic jar.
 * Level format unchanged if the look is derived (depth + effects roll). A `Treasure` tile has no spare field (its
   attribute and value are the item type and id): forcing a look per chest needs new data, see the level format note
   in [trapped-chests](trapped-chests.draft.opus.md).
 * Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/remodeling.md](../remodeling.md)).
-* [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) may hook into opening canopic jars and coffers.
+* A trapped container's trap fires in its opening clip ([trapped-chests](trapped-chests.draft.opus.md)); a trapped
+  canopic jar curses by default. Its rule covers [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) too.
 
 ## Tests
 

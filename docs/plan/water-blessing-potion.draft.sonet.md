@@ -26,7 +26,8 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
   the bag save needs a new version, as `INV5` did for the resistance potions.
 * `PlayerStats`: time left (like the resistance potion's `RESIST` save line), ends on death. The checks above ask
   e.g. `PlayerStats::WaterBlessed()` / `Dungeon::PlayerWading` callers skip their limit.
-* Drinking another restarts the 2 minutes.
+* Drinking another restarts the 2 minutes (4 with the Favour of Hapi skill,
+  [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md)).
 * HUD: a timer icon like the resistance potion's, if it has one; the status box line on the start and the end.
 * Model / texture: a potion vessel (`PotionModel`) with its own texture, a blue-green liquid; journal note.
 * Loot: see [Decided](#decided-2026-10-09).

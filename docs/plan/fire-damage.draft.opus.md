@@ -24,9 +24,8 @@ Implementer's choice, at least one:
 
 ### Monsters deal fire
 
-* Default: the giant cobra's spit becomes partly fire (the uraeus spits fire at the pharaoh's enemies), and Apep, its
-  boss, more so and longer (boss rule: the boss whose `kin` is the cobra).
-* Later: the Anubis's bolt becomes fire, with a fireball look ([anubis-fire-bolt](anubis-fire-bolt.draft.opus.md)).
+* The cobras' spit stays poison, not fire (decided 2026-10-12).
+* The first monster fire is the Anubis's bolt, after this plan: [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).
 * Optional: the Bat of Shezmu / vampire bat, Sobek: no.
 
 ### Resistances
@@ -40,7 +39,8 @@ Implementer's choice, at least one:
 | Bosses | normal or better |
 
 * Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.md), e.g. "the feather
-  of Ma'at" or "the sun disc"), four tiers like the other wardings.
+  of Ma'at" or "the sun disc"), four tiers like the other wardings: fire damage -20 / 40 / 60 / 80%. Never more
+  than 80% (decided 2026-10-12): fire always hurts a little.
 
 ## Also
 

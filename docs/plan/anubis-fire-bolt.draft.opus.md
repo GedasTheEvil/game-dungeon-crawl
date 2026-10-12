@@ -17,7 +17,10 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
 
 ## Idea
 
-* **Damage:** the bolt is 100% fire. Melee stays `ANUBIS_MIX`. So `SpitRules` gets its own optional mix
+* **Damage:** the bolt is mostly fire with a stone knock: fire 100 : blunt 40 : pierce 20 (decided 2026-10-12), as a
+  `DamageMix` in percent (adds up to 100) fire 62 / blunt 25 / pierce 13. Fire warding tops at 80%
+  ([fire-damage](fire-damage.draft.opus.md)), and the physical share keeps the bolt a threat against it. Melee stays
+  `ANUBIS_MIX`. So `SpitRules` gets its own optional mix
   (`std::optional<DamageMix> mix`; nullopt: the type's `attackMix`, as the cobras keep), and the venom hit uses it.
   Damage numbers stay (50 / 125); the fire hit sets the player burning (fire-damage's rule).
 * **Boss:** same fire bolt, burning lasts longer (boss rule in `AGENTS.md`), e.g. 5 s vs the default 3 s.
@@ -34,13 +37,11 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
 
 ## Open (for the implementer)
 
-* Fire share: 100% fire is the default; a 70 fire / 30 blunt bolt is the fallback if fire warding makes it trivial.
-  Check with the `monster-balance` sim and the Anubis `threat` (8, boss 15).
+* Balance: check the bolt with the `monster-balance` sim and the Anubis `threat` (8, boss 15).
 * Does the sceptre-thrust clip (still to do in anubis-ranged-attack) matter here? No; the release frame only moves the
   spawn point.
 * Sound: a whoosh / crackle for the bolt if a fire sound exists by then, else the attack sound stays.
-* The cobra spit becoming partly fire (fire-damage's default) uses the same `SpitRules::mix` and the same fire look;
-  share the drawing (a glob is fire when its mix has fire).
+* The cobras' spit stays poison (green glob, no fire look); only a spit whose mix has fire draws as a fireball.
 
 ## Tests
 

@@ -37,8 +37,9 @@ While the player stands in a cell where the interact key does something, a small
   travelling through a gate (`Dungeon::Travelling`), dead, or the level won.
 * No setting to switch it off (agreed with the user: always on).
 * The mimic (Chest of Set) is a monster spawn, not a `Treasure`: it gets no prompt, and a chest without "[E] Open"
-  would give it away. Show "[E] Open" in front of a mimic still lying in ambush too (opening it springs the ambush as
-  walking up does today, or the prompt only; implementer's choice), so the prompt never tells the two apart.
+  would give it away. Show "[E] Open" in front of a mimic still lying in ambush too, and the key springs it (decided
+  with the user, 2026-10-12: with [trapped-chests](trapped-chests.draft.opus.md) opening any chest is a gamble), so
+  the prompt never tells them apart.
 
 ## Part 2: the glint on unread inscriptions
 
@@ -58,7 +59,3 @@ read it stops: the journal has the entry (`Journal::Inscriptions`).
   mimic); interact acts exactly when there is a verb.
 * Scenario with screenshots: the prompt at a chest, a lever and an inscription; an inscription's glint before and after
   reading it.
-
-## Open points
-
-* The mimic: a prompt that springs it, or only the prompt.

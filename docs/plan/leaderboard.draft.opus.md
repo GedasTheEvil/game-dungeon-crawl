@@ -65,21 +65,17 @@ Added (implementer picks; the first ones are cheap):
 
 * Only a run from New Game on level 1 counts. A scenario, a level picked by a dev flag or a run started on a later
   level is marked in the stats (a `campaign` flag) and the win screen offers no entry.
-* A save from before this change has no counters: on load, mark the run as not eligible (or start the counters at
-  zero and mark it "partial"). Implementer's choice.
 
 ## Save format
 
-The save has no version number (`GameState::Save`, `src/state/game_state.cpp`): the counters are new fields, so old
-saves need a fallback when the fields are missing. Adding a version number at the start of the save is the clean fix;
-the implementer decides.
+The counters are new fields in the save (`GameState::Save`, `src/state/game_state.cpp`). Old saves do not matter
+(user, 2026-10-12): no fallback, no version number needed; old saves may break.
 
 ## Open questions
 
 * Play time in or out (the user's "optional").
 * Loads and deaths: one counter or both.
 * Sort order of the board when play time is out.
-* Old saves: not eligible or partial.
 
 ## Tests
 

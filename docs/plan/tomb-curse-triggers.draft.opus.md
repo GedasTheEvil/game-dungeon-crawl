@@ -1,6 +1,6 @@
 # Tomb curses: who and what applies them
 
-Status: draft 2026-10-10. Ready: [curses](curses.md) is in (2026-10-12). From the lore review, picked by the user.
+Status: draft 2026-10-10. Ready: [curses](solved/curses.md) is in (2026-10-12). From the lore review, picked by the user.
 
 ## Idea
 

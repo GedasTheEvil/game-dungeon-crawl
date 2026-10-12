@@ -116,7 +116,7 @@ class Inventory {
 	// In game, = drinks an antidote. Not poisoned or none left: nothing is drunk, the status box says why.
 	void QuickAntidote();
 	// Once a tick: insanity's start puts the club in hand and remembers the weapon, its end gives the weapon back
-	// (docs/plan/curses.md).
+	// (docs/plan/solved/curses.md).
 	void FollowInsanity(bool insane);
 	// The potion QuickDrink would drink now, ignoring whether anything is missing (the HUD slot); nullopt if none
 	// left.

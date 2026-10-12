@@ -1,4 +1,4 @@
-# Curses (docs/plan/curses.md): the HUD's curse tiles (purple frame, icon, one pip lesser, two greater) with their
+# Curses (docs/plan/solved/curses.md): the HUD's curse tiles (purple frame, icon, one pip lesser, two greater) with their
 # seconds beside a poison drop; the effects; palsy refuses a shot; insanity locks the screens and puts the club in hand;
 # all wear off after 2 minutes.
 god

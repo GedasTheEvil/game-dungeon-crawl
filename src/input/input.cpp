@@ -91,7 +91,7 @@ class PlayerActionController {
 		clampCamera();
 	}
 
-	// Insanity (docs/plan/curses.md) locks the screens, the quick drinks and the weapon keys: true, with the status
+	// Insanity (docs/plan/solved/curses.md) locks the screens, the quick drinks and the weapon keys: true, with the status
 	// line why.
 	static bool insane() {
 		if (!Game().player->stats.curses.Has(Curse::Insanity))

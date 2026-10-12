@@ -6,7 +6,7 @@
 #include <istream>
 #include <ostream>
 
-// Curses (docs/plan/curses.md): timed debuffs a monster's hit lays on the player. Several run at once; the same curse
+// Curses (docs/plan/solved/curses.md): timed debuffs a monster's hit lays on the player. Several run at once; the same curse
 // again restarts its time (no stacking). No cure, no resistance: they run out, or end on death.
 
 // Saved by place: append only, never reorder. Cells of the HUD icon atlas from PlayerHud::Icon::FirstCurse on.

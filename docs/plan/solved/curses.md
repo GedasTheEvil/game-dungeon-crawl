@@ -1,8 +1,8 @@
 # Curses
 
-Status: draft 2026-10-10, refined twice 2026-10-10 (who applies which curse decided 2026-10-11), implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for play-test. From the user.
+Status: draft 2026-10-10, refined twice 2026-10-10 (who applies which curse decided 2026-10-11), implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), play-tested and solved 2026-10-12 (rat and bat curses, three at once). From the user.
 
-Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](../egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 
@@ -74,7 +74,7 @@ A greater curse and its lesser one are the same curse at two grades (like the po
 * Palsy: the ranged / thrown attack input checks `PlayerStats::Cursed(Palsy)`; status line says why ("Your hands
   shake too much to aim"). The weapon stays in hand, only the shot / throw is refused (no ammo spent, no cooldown).
 * **Trigger kind:** the two lists are the trigger kind. Palsy sits in `rangedCurses`: it triggers only when the
-  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.draft.opus.md](anubis-ranged-attack.draft.opus.md)) hits the
+  monster's ranged attack (`SpitRules`, see [anubis-ranged-attack.draft.opus.md](../anubis-ranged-attack.draft.opus.md)) hits the
   player, never from melee. Anubis guard: 20%. Anubis boss: 40% (higher chance, per the boss rule). Needs the Anubis
   ranged attack first (a POC exists).
 * Status box line on start, refresh and end ("You feel weak", "The weakness passes"); journal note on the first
@@ -112,7 +112,7 @@ higher, the boss (per the boss rule) highest; a greater grade is its own entry w
 | Vulnerability | Anubis 15%, Anubis boss 30% | judge of the dead, weighs the heart |
 | Palsy | Anubis 20%, Anubis boss 40%, ranged bolt only (`rangedCurses`) | |
 | Clumsiness | giant scarab 15%; scarab boss (Khepri) 30%, greater 6% | |
-| Insanity | the [cursed mimic](cursed-mimic.draft.opus.md) 25% | |
+| Insanity | the [cursed mimic](../cursed-mimic.draft.opus.md) 25% | |
 
 ## Implemented (2026-10-12)
 
@@ -134,14 +134,14 @@ higher, the boss (per the boss rule) highest; a greater grade is its own entry w
   aim", once per key press. Insanity: the screen keys (inventory, map, journal and the Heka screen too), the quick
   drinks and the weapon keys say "Your mind is clouded"; `Inventory::FollowInsanity` (each tick) puts the club in
   hand and gives the old weapon back at the end. A load during insanity forgets the old weapon (the club stays).
-  No monster lays insanity yet: [cursed-mimic](cursed-mimic.draft.opus.md) adds it.
+  No monster lays insanity yet: [cursed-mimic](../cursed-mimic.draft.opus.md) adds it.
 * HUD: the curse tiles right of the poison and resistance tiles, in `Curse` order: stone tile in a purple frame, the
   curse's icon (`hud_icons.png` grew a row: cells 32-39, `Icon::FirstCurse`, `tools/textures/hud_icons.py`), one pip
   lesser, two greater, the seconds under it. Many tiles at once can run under the heka tile (rare).
 * Journal: a field note per curse kind (`FieldNote::CurseWeakness` ..., `curseNote`), written the first time.
 * Death and `Reanimate` end all curses.
 * Tests: `tests/unit/curses_test.cpp` (timers, refresh, grades, save, each effect, lines and notes, roll order, death,
-  the monster table, a mummy cursing in the sim, the Anubis bolt's palsy). Scenario `tests/scenarios/curses.txt`
+  the monster table, a mummy cursing in the sim, the Anubis bolt's palsy). Scenario `tests/scenarios/solved/curses.txt`
   (command `curse NAME [greater]`, field `curses`): the HUD tiles, palsy, insanity, all worn off after 2 minutes.
 
 Open (play-test): the chances, the numbers, the icons' look.

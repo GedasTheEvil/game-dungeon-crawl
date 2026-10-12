@@ -50,7 +50,6 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.opus.md)) | the bolt is drawn |
 | `inventory_keys` | Tab walks the inventory tabs, no key labels ([plan](plan/inventory-keys.md)) | the screen and its input path |
 | `skills` | the HUD's waiting heka, the Heka screen, a refused and a learnt skill ([plan](plan/skills.md)) | the screen and its input path are drawn |
-| `curses` | the HUD's curse tiles, palsy refusing a shot, insanity locking the screens and the weapon, all worn off after 2 minutes ([plan](plan/curses.md)) | the HUD tiles are drawn, the input gates |
 | `keys` | E interacts, V attacks ([plan](plan/inventory-keys.md)) | the real key bindings |
 | `ladder` | limb pose on ladders ([plan](plan/no-attack-on-ladder.md)) | the pose is drawn |
 | `bats_high` | a bat dives from a high ceiling to the player's row ([plan](plan/bats-high-ceiling.md)) | the dive across the row is drawn |
@@ -93,7 +92,7 @@ keyboard and mouse, no main menu. Nothing is written to `saves/` unless you save
 ./game --level 7                       # campaign level 7, a fresh player
 ./game --level levels/lvl3             # a map file
 ./game --level gen:42:5                # a generated level (seed 42, difficulty 5)
-./game --play tests/scenarios/curses.txt  # a scenario's setup, then you
+./game --play tests/scenarios/skills.txt  # a scenario's setup, then you
 ./game --no-sound --level 7            # the same, silent (any flag combines with it)
 ```
 
@@ -154,7 +153,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
 | `hurtboss N` | The boss in play takes an N HP hit, as from the player. Fails if no boss is in play. |
 | `learn SKILL` | Spend a heka on the skill, like the Heka screen's Learn button, also on a sealed one (its rules not in the game yet). SKILL: its name in lower case, `_` for spaces, no apostrophes (`stun`, `words_of_thoth`, `sharp_eye`, `serkets_favour`). Fails when it is learnt already or no heka is free ([skills](plan/skills.md)). |
-| `curse CURSE [greater]` | Lay a curse on the player, as by a cursing hit (status line, field note): `weakness`, `clumsiness`, `vulnerability`, `fatigue`, `disease`, `slowness`, `palsy`, `insanity`; `greater` for the greater grade ([curses](plan/curses.md)). It (re)starts its 2 minutes. |
+| `curse CURSE [greater]` | Lay a curse on the player, as by a cursing hit (status line, field note): `weakness`, `clumsiness`, `vulnerability`, `fatigue`, `disease`, `slowness`, `palsy`, `insanity`; `greater` for the greater grade ([curses](plan/solved/curses.md)). It (re)starts its 2 minutes. |
 | `poisonboss weak\|medium\|strong` | The boss in play is poisoned with that tier, as by `poisonmonster`. Fails if no boss is in play. |
 | `expect F OP V` | Assert. F: `x y hp stamina level alive won might armor equip_type equip_id keys poison resist xp riddle bars boss minions attacking decor_tier nearest nearest_poison coffins chests journal journal_solved journal_notes journal_tried maxhp worn safe tab selected heka skills curses` (`tab` = the open inventory tab, 0 weapons, 1 potions, 2 amulets; `selected` = the selected item's place in its tab's grid, from 0, in the open sort order; `heka` = heka free to spend; `skills` = skills learnt; `curses` = bit mask of the curses running, in `Curse` order (weakness 1, clumsiness 2, vulnerability 4, fatigue 8, disease 16, slowness 32, palsy 64, insanity 128); `maxhp` = max HP with the worn amulet; `worn` = the worn amulet's id (as in `give amulet`), -1 if none; `safe` = 1 while no monster can chase or attack the player (the regeneration amulet heals); `keys` = bit mask of the lock colours held, red 1, blue 2, green 4, gold 8; `poison` = bit mask of the poison tiers running, weak 1, medium 2, strong 4; `resist` = the chance in percent that a poisoned hit does not poison (the amulet's and a resistance potion's, at most 100); `xp` = total XP; `riddle` = 1 while the riddle screen is open; `bars` = living monsters showing their health bar; `boss` = HP of the boss in play, 0 if none; `minions` = living minions; `attacking` = 1 while a swing or a bow draw is under way; `decor_tier` = the highest decoration tier (`decor.h`: 0 cave .. 3 temple) among the level's props, decals and surfaces; `nearest` = HP of the living monster nearest the player, 0 if none; `nearest_poison` = its poison tiers running, as `poison`; `coffins` = coffins standing on the level; `chests` = treasure chests not opened yet; `journal` = riddles written down in the journal, `journal_solved` = those of them solved, `journal_notes` = field notes written, `journal_tried` = damage types whose effect on a creature is written down, its poison resistance counted as one more, summed over the creatures), or an item count written as type + id (`potion2`, `melee1`); add `.level` for the item level (`melee1.level`). OP: `== != < <= > >=`. |
 | `quit` | End the script. The end of the file also ends it. |

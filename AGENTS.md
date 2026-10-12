@@ -69,3 +69,6 @@ ignore them, don't stop or change the current task because of them, and don't in
 In this project, commit your changes yourself when a task is done, without asking.
 This overrides the global "no git actions" rule for commits only.
 Still ask before other git actions (branches, rebase, push, config).
+
+## Old save games
+This game has no real players yet. Old saves can mostly be ignored.

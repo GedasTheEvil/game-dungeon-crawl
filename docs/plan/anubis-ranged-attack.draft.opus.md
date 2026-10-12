@@ -1,8 +1,9 @@
 # Anubis ranged attack
 
 Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)),
-sound decided 2026-10-12 ([the sound](#decided-2026-10-12-the-sound)); the clip, its release and the sound still to
-do. From the user: the Anubis gets a ranged attack, range 14, damage 50, cooldown 3 s.
+spit -> ranged attack rename and sound decided 2026-10-12 ([rename](#decided-2026-10-12-spit-becomes-ranged-attack),
+[the sound](#decided-2026-10-12-the-sound)); the rename, the clip, its release and the sound still to do. From the
+user: the Anubis gets a ranged attack, range 14, damage 50, cooldown 3 s.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
@@ -39,11 +40,30 @@ Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names
 * **Boss:** range 2.0 tiles (the sling's 20), damage 125 (scaled like its melee, 140 vs 55), cooldown 2.5 s. Same bolt,
   same mix.
 
+## Decided (2026-10-12): spit becomes ranged attack
+
+Spitting is no longer the only ranged attack, so "spit" names the cobra's venom only. The generic machinery is the
+ranged attack, in files and code:
+
+* **Clip:** suffix `_spit` -> `_att_ranged`, beside `_att`. `models/monsters/cobra_spit.md3` ->
+  `cobra_att_ranged.md3` (`tools/blender/models/cobra.py`: the action `cobra_spit` and its suffix; re-export, or
+  rename the file and the script together), `ModelState::Spit` -> `ModelState::AttackRanged`, the clip tables in
+  `model_info.h`. The Anubis's new clip is `anubis_att_ranged.md3`; `RANGED_CLIPS` then loads it, not `_att`.
+* **Sound:** `_spit.wav` -> `_att_ranged.wav` (see [the sound](#decided-2026-10-12-the-sound)).
+* **Code ids:** `SpitRules` -> `RangedRules`, `MonsterKind::spit` -> `ranged`, `Monster::Spit` / `Spitting` /
+  `canSpit` / `spitReleased` -> `AttackRanged` / `AttackingRanged` / `canAttackRanged` / `rangedReleased`,
+  `CharacterSound::Spit` / `spitSound` -> `AttackRanged` / `attackRangedSound`, the projectile `Dungeon::Venom` ->
+  `Dungeon::MonsterShot` (venom and bolt alike). Names that are about the poison glob itself stay venom
+  (`VENOM_GREEN`, the venom drawing). Where: `grep -rlw -i spit src tests tools`.
+* **Docs:** the `spit` and `range` rows in `docs/glossary.md` (a new `ranged attack` row; `spit` = the cobra's
+  venom kind of it), `docs/remodeling.md` (cobra clip list, sounds), `docs/development.md` (monster fields).
+* A rename only: no behaviour change. Its own commit, before the clip and the sound, so the build and tests prove it.
+
 ## Decided (2026-10-12): the sound
 
 * **File name:** a ranged attack's sound is `<model>_att_ranged.wav`, beside `<model>_att.wav`. Rename the spitters'
   `_spit.wav` with it: `cobra_spit.wav` -> `cobra_att_ranged.wav` (the `character_model.cpp` table,
-  `tools/audio/cobra_sounds.py`). The clip suffix `_spit` stays (models, `model_info.h`).
+  `tools/audio/cobra_sounds.py`).
 * **Who plays it:** the ranged sound whenever the model has one, not only for a poison spit
   (`monster_ai.cpp`, `Monster::Spit`: today a spit without poison plays the attack sound).
 * **The sound, `anubis_att_ranged.wav`, about 0.7 s:** magic, not a weapon. Over it, the Anubis grunt

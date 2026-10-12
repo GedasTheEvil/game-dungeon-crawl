@@ -20,8 +20,9 @@ the cobras' venom glob trails green, toxic flames. The damage does not change: t
   green, then sickly grey-green smoke (decided 2026-10-12: stay close to the current venom colour).
 * **Style:** `Fire::VENOM`: small (about `OIL_LAMP`), short life, a little more smoke than a flame, the vapour of the
   venom.
-* **Glob:** keep the ball, a bit smaller, and draw `Fire::draw(Fire::VENOM, ...)` at its position each frame; the
-  sprites rise and lag behind as it flies. Seed per venom (its spawn time). The splat: a short green puff over
+* **Glob:** no ball (play-test 2026-10-12: a ball under the flames read as a burning sphere, the user wants a fuzzy
+  fire shape). `Fire::draw(Fire::VENOM, ...)` at its position, a cloud of flames, and two smaller `Fire::VENOM_TRAIL`
+  clouds behind it along the flight. Seed per venom (its spawn time). The splat: a short green puff over
   `VENOM_SPLAT_MS`.
 * **Only the venom:** a glob with poison gets the green fire. The Anubis bolt (no poison) keeps its own look, and
   [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md) later gives it the normal fire ramp the same way.

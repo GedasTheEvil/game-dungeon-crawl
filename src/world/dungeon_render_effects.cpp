@@ -24,11 +24,27 @@ constexpr float GLOB_LIGHT_LIFT = 1.f;
 // Faint, steady and green: the glob's own light on the walls it passes.
 constexpr Lighting::LightDef VENOM_LIGHT = {0.45f, 0.75f, 0.15f, 40.f, 0.f};
 
-// A glob of light with flames trailing from it: a small ball in `colour`, stretched along its flight (vx, vy), and
-// `flames` (null: none) drawn at its position (the style carries the flame colours). Called with the frame origin of
-// its tile, the ball at (x, y, z); `plain` is the white texture. Shared by the venom and, later, the Anubis bolt.
+// Flame clouds trailing behind a fiery glob, in world units along its flight.
+constexpr float GLOB_TRAIL_STEP = 2.2f;
+constexpr int GLOB_TRAIL_CLOUDS = 2;
+
+// A glob of light or of flames, at (x, y, z) in the frame origin of its tile, flying along (vx, vy). With `flames`
+// (null: none) it is all fire, no ball: a fuzzy cloud in that style (the style carries the colours), smaller clouds
+// trailing behind. Without, a small ball in `colour`, stretched along its flight; `plain` is the white texture.
+// Shared by the venom and, later, the Anubis bolt.
 void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uint32_t seed, float x, float y, float z,
 						float vx, float vy, float stretch, float squash, float alpha) {
+	if (flames != nullptr) { // billboards: no rotation in the modelview
+		Fire::draw(*flames, x, y, z, seed);
+		const float speed = std::hypot(vx, vy);
+		if (speed <= 0.f || squash < 1.f) // no trail once it splats
+			return;
+		for (int i = 1; i <= GLOB_TRAIL_CLOUDS; i++) {
+			const float back = GLOB_TRAIL_STEP * static_cast<float>(i) / speed;
+			Fire::draw(Fire::VENOM_TRAIL, x - vx * back, y - vy * back, z, seed + static_cast<uint32_t>(i) * 7919u);
+		}
+		return;
+	}
 	constexpr int SLICES = 8, STACKS = 6;
 	plain.Bind(); // texture x colour: plain colour
 	glEnable(GL_BLEND);
@@ -55,8 +71,6 @@ void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uin
 	Lighting::setEmissive(false);
 	glDisable(GL_BLEND);
 	glColor3f(1, 1, 1);
-	if (flames != nullptr)
-		Fire::draw(*flames, x, y, z, seed); // billboards: no rotation in the modelview
 }
 } // namespace
 
@@ -135,8 +149,8 @@ void Dungeon::drawDarts() {
 	}
 }
 //======================================================================================
-// A glob of venom (a bolt of light): a small ball in its spitter's colour, stretched along its flight; with poison it
-// trails green flames; on a wall or the floor a flattening splat with a green puff.
+// A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; else a small ball in
+// its spitter's colour, stretched along its flight, flattening into a splat on a wall or the floor.
 void Dungeon::drawVenoms() {
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);

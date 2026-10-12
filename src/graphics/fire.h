@@ -35,8 +35,9 @@ namespace Fire {
 constexpr FireStyle TORCH = {40, 900.f, 1.4f, 15.f, 3.4f, 2.5f, 0.75f};
 constexpr FireStyle BRAZIER = {72, 1100.f, 3.5f, 20.f, 4.4f, 3.5f, 0.9f};
 constexpr FireStyle OIL_LAMP = {14, 600.f, 0.4f, 5.f, 1.6f, 0.8f, 0.3f};
-// The cobras' venom glob: small, short-lived, a little more smoke than a flame, green.
-constexpr FireStyle VENOM = {16, 500.f, 0.5f, 6.f, 2.f, 1.f, 0.45f, &VENOM_RAMP};
+// The cobras' venom glob: a fuzzy green cloud of short-lived flames (no ball), a little smoke; smaller ones trail it.
+constexpr FireStyle VENOM = {20, 420.f, 1.4f, 5.f, 2.8f, 1.2f, 0.35f, &VENOM_RAMP};
+constexpr FireStyle VENOM_TRAIL = {10, 320.f, 1.f, 3.5f, 2.2f, 1.f, 0.4f, &VENOM_RAMP};
 
 // Draws one fire at (x, y, z) in the current modelview's local space. Call after the opaque scene: the sprites
 // test depth but do not write it.

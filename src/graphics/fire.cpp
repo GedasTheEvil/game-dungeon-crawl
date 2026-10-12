@@ -108,8 +108,8 @@ constexpr FireKey FLAME_KEYS[] = {
 	{1.00f, 0.12f, 0.12f, 0.12f, 0.00f, 0.f},  // gone
 };
 constexpr FireKey VENOM_KEYS[] = {
-	{0.00f, 0.75f, 0.95f, 0.50f, 0.00f, 1.f},  // born pale green, fades in
-	{0.06f, 0.68f, 0.90f, 0.38f, 0.90f, 1.f},  // light tint of VENOM_GREEN
+	{0.00f, 0.60f, 0.88f, 0.30f, 0.00f, 1.f},  // born light green, fades in
+	{0.06f, 0.55f, 0.84f, 0.24f, 0.80f, 1.f},  // light tint of VENOM_GREEN
 	{0.25f, 0.45f, 0.75f, 0.15f, 0.85f, 1.f},  // VENOM_GREEN
 	{0.45f, 0.25f, 0.50f, 0.08f, 0.70f, 0.8f}, // darker green
 	{0.62f, 0.15f, 0.28f, 0.08f, 0.50f, 0.3f}, // dying green

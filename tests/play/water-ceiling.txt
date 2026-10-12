@@ -1,4 +1,0 @@
-# Play-test water-ceiling: a corridor under deep water (cols 4-9) with a rock ceiling and slabs at its sides, half
-# water over an open cell at cols 14-15 (tests/levels/water_ceiling). Walk east, tilt the camera.
-god
-level tests/levels/water_ceiling

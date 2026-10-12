@@ -1,6 +1,6 @@
 ; A shaft two cells wide (cols 5-6) with a ladder (col 6) joins two floors; a bat (col 8) roosts on the lower
 ; floor's ceiling. It follows the player up the ladder and bites them on the rungs (tests/unit/sim_test.cpp,
-; docs/plan/bats-high-ceiling.md).
+; docs/plan/solved/bats-high-ceiling.md).
 ####################
 #.....H.....E######
 #####.H############

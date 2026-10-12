@@ -245,7 +245,7 @@ pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
 
 ### Heka screen
 
-Skills bought with heka ([plan/skills.md](plan/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
+Skills bought with heka ([plan/skills.md](plan/solved/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
 (`CARDS_PANEL`): the heka mark and "Heka to spend: n" (`heading` `GOLD`, `LABEL_DIM` "No heka to spend" at none) over
 the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 13, two a row, in `SkillId` order: an icon well
 with the baked icon (`textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in

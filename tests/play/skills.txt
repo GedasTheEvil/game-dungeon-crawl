@@ -1,3 +1,0 @@
-# Play-test skills: two heka to spend. The HUD tile waits; open the Heka screen (K) and learn a skill.
-level 6
-heka 2

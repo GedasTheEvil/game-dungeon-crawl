@@ -7,8 +7,8 @@
 #include <ostream>
 #include <vector>
 
-// Skills and heka, the points that buy them (docs/plan/skills.md): each boss killed gives one heka, the player spends
-// it on a skill on the Heka screen. Skills are permanent, one heka each, no respec.
+// Skills and heka, the points that buy them (docs/plan/solved/skills.md): each boss killed gives one heka, the player
+// spends it on a skill on the Heka screen. Skills are permanent, one heka each, no respec.
 
 // Saved by place: append only, never reorder.
 enum class SkillId : std::uint8_t {

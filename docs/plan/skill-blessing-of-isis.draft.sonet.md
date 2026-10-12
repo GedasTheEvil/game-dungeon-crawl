@@ -1,6 +1,6 @@
 # Skill: blessing of Isis
 
-Status: draft 2026-10-10. [Skills](skills.md) is in; [curses](solved/curses.md) is in too (2026-10-12): ready. From the user.
+Status: draft 2026-10-10. [Skills](solved/skills.md) is in; [curses](solved/curses.md) is in too (2026-10-12): ready. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.
@@ -8,7 +8,7 @@ The skill is on the Heka screen already, sealed: implementing it clears its `sea
 ## Idea
 
 Isis, the great magician, shields the player from curses: **curses last half as long** (2 minutes → 1 minute). The
-twin of [Serket's favour](skill-serkets-favour.md) for poison.
+twin of [Serket's favour](solved/skill-serkets-favour.md) for poison.
 
 * Applies when a curse starts (`Curse(kind, grade, ms)` sets half the time); a repeat curse restarts at half too.
 * The HUD curse icon shows the halved seconds.

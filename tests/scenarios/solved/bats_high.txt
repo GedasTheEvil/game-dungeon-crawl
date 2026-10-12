@@ -1,4 +1,3 @@
-# Kept (docs/testing.md): plan bats-high-ceiling not solved; the dive across the row is drawn.
 # tests/levels/bats_high: the bat roosts in the upper cell of a corridor two cells high, dives to the player's row.
 seed 1
 god

@@ -1,13 +1,11 @@
 # Skills (Heka)
 
-Play-test: `./game --play tests/play/skills.txt`
-
-Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for
-play-test. From the user. The framework only; each skill has its own sub-draft, built on this one:
-[skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),
-[skill-dodge](solved/skill-dodge.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
-[skill-sharp-eye](skill-sharp-eye.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md),
-[skill-serkets-favour](skill-serkets-favour.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.sonet.md).
+Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), solved (play-tested, user-confirmed 2026-10-12).
+From the user. The framework only; each skill has its own sub-draft, built on this one:
+[skill-stun](../skill-stun.draft.opus.md), [skill-hieroglyphs](../skill-hieroglyphs.draft.sonet.md),
+[skill-dodge](skill-dodge.md), [skill-power-hit](../skill-power-hit.draft.sonet.md),
+[skill-sharp-eye](skill-sharp-eye.md), [skill-blessing-of-hapi](../skill-blessing-of-hapi.draft.sonet.md),
+[skill-serkets-favour](skill-serkets-favour.md), [skill-blessing-of-isis](../skill-blessing-of-isis.draft.sonet.md).
 
 ## Idea
 
@@ -25,7 +23,7 @@ spends it on a skill. Skills are permanent.
 
 ## Screen
 
-* A tab in the shared UI ([docs/ui.md](../ui.md)): opened with a key (default `K`) and from the screen tabs, like the
+* A tab in the shared UI ([docs/ui.md](../../ui.md)): opened with a key (default `K`) and from the screen tabs, like the
   map and the journal.
 * A grid or list of skill cards: icon, name, one-line effect, a "learned" mark. Points left at the top. Click (or
   Enter) on a card learns it, with a confirm (points are scarce).
@@ -65,4 +63,4 @@ spends it on a skill. Skills are permanent.
 * Names picked: "Words of Thoth" (hieroglyphs), "Favour of Hapi" (the potion keeps "Blessing of Hapi").
 * Every skill is **sealed** for now (shown, not learnable): their rules are the sub-drafts'. Each sub-draft clears its
   `sealed` flag. Scenario `learn` learns a sealed one for tests.
-* Tests: `tests/unit/skills_test.cpp`, scenario `tests/scenarios/skills.txt` (HUD tile, screen, refusal, learnt).
+* Tests: `tests/unit/skills_test.cpp`, scenario `tests/scenarios/solved/skills.txt` (HUD tile, screen, refusal, learnt).

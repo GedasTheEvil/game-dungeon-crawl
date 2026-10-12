@@ -1,5 +1,5 @@
 ; A corridor two cells high (cols 5-12): a bat (col 8) roosts in the upper cell, it dives to the player's row
-; (tests/unit/sim_test.cpp, docs/plan/bats-high-ceiling.md). A teleporter (col 3) leads out of its sight to the
+; (tests/unit/sim_test.cpp, docs/plan/solved/bats-high-ceiling.md). A teleporter (col 3) leads out of its sight to the
 ; exit room.
 ######################
 #O...E################

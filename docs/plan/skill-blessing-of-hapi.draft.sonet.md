@@ -1,6 +1,6 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. [Skills](skills.md) is in. The stacking part needs
+Status: draft 2026-10-10. [Skills](solved/skills.md) is in. The stacking part needs
 [water-blessing-potion](water-blessing-potion.draft.sonet.md) (skip that part if the potion is not in yet, add it with the
 potion). From the user.
 

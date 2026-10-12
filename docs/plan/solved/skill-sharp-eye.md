@@ -1,8 +1,6 @@
 # Skill: sharp eye
 
-Play-test: `./game --play tests/play/skill-sharp-eye.txt`
-
-Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for play-test. From the user.
+Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), solved (play-tested, user-confirmed 2026-10-12). From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.

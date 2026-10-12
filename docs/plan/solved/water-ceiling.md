@@ -1,8 +1,6 @@
 # Ceiling under deep water
 
-Play-test: `./game --play tests/play/water-ceiling.txt`
-
-Status: draft 2026-10-10, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); to play-test.
+Status: draft 2026-10-10, implemented 2026-10-10 (see [Implemented](#implemented-2026-10-10)); solved (play-tested, user-confirmed 2026-10-12).
 
 ## Problem
 
@@ -32,4 +30,4 @@ ceiling is skipped.
 * The cells around deep water treat it as rock: a ceiling under it, a side wall beside it.
 * Half water over an open cell (the checker flags it, so in tests only): the open cell gets a ceiling at the basin's
   floor and a rock front over it, as a rock cell below would show.
-* Test: `tests/scenarios/water_ceiling.txt` on `tests/levels/water_ceiling` (screenshots, also tilted and toon).
+* Test: `tests/scenarios/solved/water_ceiling.txt` on `tests/levels/water_ceiling` (screenshots, also tilted and toon).

@@ -29,7 +29,7 @@ struct Flight {
 	int lastMs = -1; // GameClock time of the last update
 };
 // What a flyer knows of the level this tick (Dungeon::flightGoal): it follows the player to another row through open
-// cells (docs/plan/bats-high-ceiling.md).
+// cells (docs/plan/solved/bats-high-ceiling.md).
 struct FlightGoal {
 	bool sees = false;		// the player is in sight: on its row as before, or in reach on another row with a way there
 	int toRow = -1;			// the row it heads for: the player's while it sees them, else its roost's

@@ -1,8 +1,6 @@
 # Bats under a high ceiling
 
-Play-test: `./game --play tests/play/bats-high-ceiling.txt`
-
-Status: implemented 2026-10-12, awaiting the user's play-test. From play-testing.
+Status: implemented 2026-10-12, solved (play-tested, user-confirmed 2026-10-12). From play-testing.
 
 ## Implemented (2026-10-12)
 
@@ -17,7 +15,7 @@ Status: implemented 2026-10-12, awaiting the user's play-test. From play-testing
   its row (on the rungs). A dead flyer falls on through open cells to the floor. Flyers no longer count as on rungs.
 * Tests: `tests/unit/sim_test.cpp` (dive, bite, melee kill and fall; return to the roost after a teleport away;
   chase up the ladder, bite on the rungs), levels `tests/levels/bats_high`, `bats_ladder`; scenario
-  `tests/scenarios/bats_high.txt` (the dive drawn).
+  `tests/scenarios/solved/bats_high.txt` (the dive drawn).
 
 ## Bug
 
@@ -47,7 +45,7 @@ The flyer AI follows the player to another row, down or up, when the cells betwe
   lower row. Drawing must stay smooth across the row change (lift in world units vs. row base).
 * Return: fly back up to the spawn row and roost there (`SpawnRow()`), climbing through the same open cells.
 * Up as well (user decision): a player above the bat (climbing a ladder, on a higher row of a tall shaft) is chased
-  through open cells and bitten there. A player on the rungs cannot attack ([no-attack-on-ladder](solved/no-attack-on-ladder.md)),
+  through open cells and bitten there. A player on the rungs cannot attack ([no-attack-on-ladder](no-attack-on-ladder.md)),
   so the bat gets free bites there; this is intended. The bite then needs the player's actual height (`py` on the
   ladder), not only the row.
 * Lost player (out of sight, no open path): return as today.

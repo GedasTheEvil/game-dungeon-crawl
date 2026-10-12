@@ -1,3 +1,0 @@
-# Play-test bats-high-ceiling: a bat roosts in the upper cell of a corridor two cells high (tests/levels/bats_high,
-# col 8). Walk east: it dives to your row. For the bat following you up a ladder: tests/levels/bats_ladder.
-level tests/levels/bats_high

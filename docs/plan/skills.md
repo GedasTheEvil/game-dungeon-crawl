@@ -5,7 +5,7 @@ Play-test: `./game --play tests/play/skills.txt`
 Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waiting for
 play-test. From the user. The framework only; each skill has its own sub-draft, built on this one:
 [skill-stun](skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md),
-[skill-dodge](skill-dodge.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
+[skill-dodge](solved/skill-dodge.md), [skill-power-hit](skill-power-hit.draft.sonet.md),
 [skill-sharp-eye](skill-sharp-eye.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md),
 [skill-serkets-favour](skill-serkets-favour.md), [skill-blessing-of-isis](skill-blessing-of-isis.draft.sonet.md).
 

@@ -1,8 +1,6 @@
 # Plant poison: venomous and poisonous
 
-Play-test: `./game --play tests/play/plant-poison.txt`
-
-Status: implemented 2026-10-10, awaiting user verification. From the user: the man-eater plant (glyph `p`,
+Status: implemented 2026-10-10, solved (play-tested, user-confirmed 2026-10-12). From the user: the man-eater plant (glyph `p`,
 `MonsterPlant`) gets a chance to poison the player, both when it bites (venomous) and when the player hits it
 (poisonous). Weak poison.
 
@@ -29,8 +27,8 @@ Status: implemented 2026-10-10, awaiting user verification. From the user: the m
 
 ## Related
 
-* [stronger-poisons](solved/stronger-poisons.md) leaves the weak tier unchanged; no conflict.
-* [egyptian-names](solved/egyptian-names.md) renames the plant (Thorn acacia); whichever comes second uses the
+* [stronger-poisons](stronger-poisons.md) leaves the weak tier unchanged; no conflict.
+* [egyptian-names](egyptian-names.md) renames the plant (Thorn acacia); whichever comes second uses the
   other's name.
 
 ## Tests

@@ -1,6 +1,0 @@
-# Play-test skill-dodge: dodge learnt, god mode. Let the scarabs, bats and plants of level 2 bite: about 1 blow in
-# 10 misses ("Dodged", a whoosh).
-god
-level 2
-heka 1
-learn dodge

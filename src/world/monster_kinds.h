@@ -130,7 +130,7 @@ struct MonsterKind {
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
 	int poisonChancePercent = 100;		  // the share of its bites that poison
-	std::optional<TouchPoison> touch;	  // the player's melee hit on it poisons them (docs/plan/plant-poison.md)
+	std::optional<TouchPoison> touch;	  // a melee hit on it poisons the player (docs/plan/solved/plant-poison.md)
 	// Chance that a poisoning does not take (docs/plan/solved/monster-poison.md); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;

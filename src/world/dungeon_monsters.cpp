@@ -440,7 +440,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		venomHit(mon);
 }
 //======================================================================================
-// Thorns and sap: a melee hit on the plant may poison the player (docs/plan/plant-poison.md).
+// Thorns and sap: a melee hit on the plant may poison the player (docs/plan/solved/plant-poison.md).
 void Dungeon::touchPoison(const Monster& mon) {
 	const MonsterType& type = *mon.Type();
 	if (!type.touch || !sim.random->gameplay.percent(type.touch->chancePercent))

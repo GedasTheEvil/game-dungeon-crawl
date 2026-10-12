@@ -18,7 +18,7 @@ class Item {
 
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
-	Sound swingSound, strikeSound;			  // weapons: the attack begins; it hits (melee) or the arrow leaves
+	Sound swingSound, strikeSound; // weapons: the attack begins; it hits (melee) or the arrow leaves
 	float rotA = 0;
 	float scale = 0;
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.

@@ -74,7 +74,7 @@ constexpr Color WATER_TOP = {0.12f, 0.30f, 0.42f};
 constexpr Color WATER_BOTTOM = {0.07f, 0.18f, 0.28f};
 constexpr Color DEEP_TOP = {0.05f, 0.12f, 0.24f};
 constexpr Color DEEP_BOTTOM = {0.03f, 0.07f, 0.15f};
-constexpr float OTHER_LAYER_ALPHA = 0.4f;	   // the layer not being painted, dimmed
+constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layer not being painted, dimmed
 constexpr float HALF_WATER_OVER_OBJECT = 0.5f; // the water over the lower half of an object in it
 
 enum class Mode : unsigned char { Paint, Check };

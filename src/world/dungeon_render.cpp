@@ -404,7 +404,7 @@ struct Rgba {
 constexpr Rgba WATER_FRONT = {0.08f, 0.30f, 0.36f, 0.42f}; // the side of the water facing the camera
 constexpr Rgba WATER_TOP = {0.20f, 0.48f, 0.52f, 0.50f};
 constexpr Rgba WATER_GLINT = {0.80f, 0.90f, 0.85f, 0.25f}; // ripples on the surface, at most
-constexpr Rgba WATERLINE = {0.75f, 0.90f, 0.88f, 0.55f};   // the surface's front edge
+constexpr Rgba WATERLINE = {0.75f, 0.90f, 0.88f, 0.55f}; // the surface's front edge
 constexpr Rgba DEEP_FRONT = {0.03f, 0.10f, 0.15f, 0.80f};
 constexpr int RIPPLE_STRIPS = 6; // across the surface, front to back
 constexpr float RIPPLE_SPEED = 1.3f;

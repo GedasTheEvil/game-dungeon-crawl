@@ -16,14 +16,14 @@
 struct JournalRiddle {
 	std::string theme;
 	std::vector<std::string> question; // one entry per Q: line
-	std::vector<std::string> answers;  // normalized (NormalizeAnswer)
+	std::vector<std::string> answers; // normalized (NormalizeAnswer)
 	std::string hint;
-	int level = 0;			// campaign level of the gate
-	int lateXP = 0;			// a late answer from the journal; fixed when the gate is met
+	int level = 0; // campaign level of the gate
+	int lateXP = 0; // a late answer from the journal; fixed when the gate is met
 	bool hintShown = false; // the hint is written down only once it was shown
 	bool solved = false;
 	bool solvedLate = false; // answered from the journal, not at the gate
-	std::string written;	 // the answer as the player typed it
+	std::string written; // the answer as the player typed it
 
 	[[nodiscard]] bool SameRiddle(const JournalRiddle& other) const {
 		return theme == other.theme && question == other.question;
@@ -32,20 +32,20 @@ struct JournalRiddle {
 
 // Special moves a monster type can be seen doing, written down the first time.
 enum class CreatureMove : unsigned char {
-	Leap,		  // a walk-jumper's leap
-	Swoop,		  // a bat drops from the ceiling
-	Ambush,		  // the mimic's chest opens
-	Rise,		  // the mummy climbs out of its coffin
-	Summon,		  // a boss calls its minions
-	Heal,		  // a life-stealing bite
-	Surface,	  // the crocodile comes up out of the water
-	Poison,		  // a poisoned bite or sting
-	Rear,		  // the cobra rears up out of its coil
+	Leap, // a walk-jumper's leap
+	Swoop, // a bat drops from the ceiling
+	Ambush, // the mimic's chest opens
+	Rise, // the mummy climbs out of its coffin
+	Summon, // a boss calls its minions
+	Heal, // a life-stealing bite
+	Surface, // the crocodile comes up out of the water
+	Poison, // a poisoned bite or sting
+	Rear, // the cobra rears up out of its coil
 	AttackRanged, // a ranged attack from afar: venom spat, a bolt shot
-	Burrow,		  // Apep dives into the floor and comes up elsewhere
-	Charge,		  // Sobek charges along the row
-	Climb,		  // a climber follows the player up or down a ladder
-	Curse,		  // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
+	Burrow, // Apep dives into the floor and comes up elsewhere
+	Charge, // Sobek charges along the row
+	Climb, // a climber follows the player up or down a ladder
+	Curse, // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
 };
 constexpr int CREATURE_MOVE_COUNT = 14;
 
@@ -53,10 +53,10 @@ constexpr int CREATURE_MOVE_COUNT = 14;
 // kill count (plan monster-journal).
 struct JournalCreature {
 	int type = 0;
-	int level = 0;		 // campaign level of the first meeting
+	int level = 0; // campaign level of the first meeting
 	bool killed = false; // name, description and HP
-	bool hitBy = false;	 // how hard it hits
-	unsigned moves = 0;	 // CreatureMove bits
+	bool hitBy = false; // how hard it hits
+	unsigned moves = 0; // CreatureMove bits
 	// DamageType bits: hit with a weapon of that main type, its resistance is known. TRIED_POISON: the venom amulet's
 	// poison tried on it, its poison resistance is known.
 	unsigned tried = 0;
@@ -70,26 +70,26 @@ struct JournalCreature {
 // only what the player has met: one per potion group, written when the first potion of it is picked up, and one per
 // damage type, written when the first weapon of that main type is found (plan journal-notes-per-kind).
 enum class FieldNote : unsigned char {
-	Health,			// the first hit taken
-	Levels,			// the first level up
-	Stamina,		// the first jump or sprint without the stamina for it
-	Keys,			// the first key picked up
-	Poison,			// the first time poisoned
-	Weapons,		// the first weapon found: the weapon keys, copies and upgrades
-	Blunt,			// the first weapon found that deals mostly blunt damage (weaponMix)
-	Slash,			// ... slash
-	Pierce,			// ... pierce
-	HealthPotions,	// the first small or large health potion picked up
+	Health, // the first hit taken
+	Levels, // the first level up
+	Stamina, // the first jump or sprint without the stamina for it
+	Keys, // the first key picked up
+	Poison, // the first time poisoned
+	Weapons, // the first weapon found: the weapon keys, copies and upgrades
+	Blunt, // the first weapon found that deals mostly blunt damage (weaponMix)
+	Slash, // ... slash
+	Pierce, // ... pierce
+	HealthPotions, // the first small or large health potion picked up
 	StaminaPotions, // the first small or large stamina potion
-	Might,			// the first Aphethamine
-	Armor,			// the first Stone Skin
-	Life,			// the first Elixir of Life
-	Antidote,		// the first antidote
-	DartTraps,		// the first dart trap plate the player stepped on
-	Resistance,		// the first lesser or greater resistance potion
-	Heka,			// the first boss's heka: the skills
-	SerketsFavour,	// Serket's favour learnt (written on learning, not on the first poison)
-	SharpEye,		// Sharp eye learnt (written on learning)
+	Might, // the first Aphethamine
+	Armor, // the first Stone Skin
+	Life, // the first Elixir of Life
+	Antidote, // the first antidote
+	DartTraps, // the first dart trap plate the player stepped on
+	Resistance, // the first lesser or greater resistance potion
+	Heka, // the first boss's heka: the skills
+	SerketsFavour, // Serket's favour learnt (written on learning, not on the first poison)
+	SharpEye, // Sharp eye learnt (written on learning)
 	// The first curse of each kind, in Curse order (curseNote).
 	CurseWeakness,
 	CurseClumsiness,

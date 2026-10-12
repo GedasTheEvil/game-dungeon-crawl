@@ -69,7 +69,7 @@ TEST_CASE("every size of walker stops where it bites, and every melee weapon hit
 				REQUIRE(world.WalkTo(world.X() + 1.f));
 				world.Wait(w.comesMs);
 				const int before = health(world, w);
-				CHECK(before == w.health);								// it came up to the player and stopped, unhurt
+				CHECK(before == w.health); // it came up to the player and stopped, unhurt
 				CHECK(world.X() == doctest::Approx(2.f).epsilon(0.01)); // the player did not move on
 				// A boss may have a minion in front of it: strike until one reaches it (as the scenario did).
 				for (int swing = 0; swing < (w.boss ? 16 : 1) && health(world, w) == before; swing++) {

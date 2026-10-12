@@ -109,12 +109,12 @@ struct Command {
 	CommandType type = CommandType::Quit;
 	int line = 0;
 	std::string text; // source line, for reports
-	std::string arg;  // level path / screenshot name
-	int ticks = 0;	  // wait, hold
+	std::string arg; // level path / screenshot name
+	int ticks = 0; // wait, hold
 	Move move = Move::None;
-	bool walkTo = false;			// walk to: a is the target map x
-	float a = 0.f;					// walk distance, camera rotM, expect value
-	float b = 0.f;					// camera rotN
+	bool walkTo = false; // walk to: a is the target map x
+	float a = 0.f; // walk distance, camera rotM, expect value
+	float b = 0.f; // camera rotN
 	ItemKind item = ItemKind::Club; // give / chest / expect count
 	Field field = Field::X;
 	Op op = Op::Eq;

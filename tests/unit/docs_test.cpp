@@ -72,7 +72,7 @@ TEST_CASE("docs/testing.md lists every scenario command and expect field, and no
 	std::ifstream f("docs/testing.md");
 	REQUIRE(f);
 	std::set<std::string> documented; // the first word of each `...` in a commands table row's first cell
-	std::set<std::string> fields;	  // the expect row's `F` list
+	std::set<std::string> fields; // the expect row's `F` list
 	bool inCommands = false;
 	for (std::string line; std::getline(f, line);) {
 		if (line.rfind("## ", 0) == 0)

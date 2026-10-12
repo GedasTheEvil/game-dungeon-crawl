@@ -170,7 +170,7 @@ TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dea
 		world.Wait(1000);
 	}
 	CHECK(world.Xp() < 10); // a minion gives 1 XP while the boss lives
-	world.Walk(4.4f);		// the boss gate is sealed while it lives
+	world.Walk(4.4f); // the boss gate is sealed while it lives
 	world.Wait(1000);
 	CHECK(world.X() < 12.f);
 

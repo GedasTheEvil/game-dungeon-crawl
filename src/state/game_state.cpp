@@ -188,10 +188,10 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();
 
-	glMatrixMode(GL_PROJECTION);		// Select The Projection Matrix
-	glLoadIdentity();					// Reset The Projection Matrix
+	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
+	glLoadIdentity(); // Reset The Projection Matrix
 	glOrtho(0, 140, 0, 140, -200, 200); // Set Up An Ortho Screen
-	glMatrixMode(GL_MODELVIEW);			// Select The Modelview Matrix
+	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
 
 	// Background image
 	assets.textures.loadingBackground.Bind();

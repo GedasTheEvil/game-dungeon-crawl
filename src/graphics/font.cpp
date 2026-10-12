@@ -16,9 +16,9 @@
 #pragma GCC diagnostic pop
 
 namespace {
-constexpr int GRID = 10;				// the font sheet is 10 x 10 cells
+constexpr int GRID = 10; // the font sheet is 10 x 10 cells
 constexpr unsigned char INK_LEVEL = 60; // brighter than this counts as glyph
-constexpr float SPACE_WIDTH = 0.28f;	// of the glyph size, the space cell is empty
+constexpr float SPACE_WIDTH = 0.28f; // of the glyph size, the space cell is empty
 
 constexpr int SHEET_GLYPHS = 95;
 
@@ -84,21 +84,21 @@ Font::Font() {}
 void Font::print(float x, float y, const char* fmt, ...) // Where The Printing Happens
 {
 	if (fmt == nullptr) // If There's No Text
-		return;			// Do Nothing
+		return; // Do Nothing
 
-	char text[256];							// Holds Our String
-	va_list ap;								// Pointer To List Of Arguments
-	va_start(ap, fmt);						// Parses The String For Variables
+	char text[256]; // Holds Our String
+	va_list ap; // Pointer To List Of Arguments
+	va_start(ap, fmt); // Parses The String For Variables
 	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
-	va_end(ap);								// Results Are Stored In Text
+	va_end(ap); // Results Are Stored In Text
 
-	sheet->texture.Bind();													 // Select Our Font Texture
-	glPushMatrix();															 // Store The Modelview Matrix
-	glLoadIdentity();														 // Reset The Modelview Matrix
-	glTranslatef(x, y, 1);													 // Position The Text (0,0 - Bottom Left)
-	glListBase(base - 32);													 // Choose The Font Set
+	sheet->texture.Bind(); // Select Our Font Texture
+	glPushMatrix(); // Store The Modelview Matrix
+	glLoadIdentity(); // Reset The Modelview Matrix
+	glTranslatef(x, y, 1); // Position The Text (0,0 - Bottom Left)
+	glListBase(base - 32); // Choose The Font Set
 	glCallLists(static_cast<GLsizei>(strlen(text)), GL_UNSIGNED_BYTE, text); // Draws The Display List Text
-	glPopMatrix();															 // Restore The Old Projection Matrix
+	glPopMatrix(); // Restore The Old Projection Matrix
 }
 //=================================================================================================================
 float Font::TextWidth(const char* text) const {
@@ -126,8 +126,8 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 	for (int loop = 0; loop < GLYPHS; loop++) // Loop Through All 95 Lists
 	{
 		float cx = static_cast<float>(loop % 10) / 10.0f; // X Position Of Current Character
-		int row = loop / 10;							  // Integer row index 0..9
-		float cy = static_cast<float>(row) / 10.0f;		  // Y Position Of Current Character
+		int row = loop / 10; // Integer row index 0..9
+		float cy = static_cast<float>(row) / 10.0f; // Y Position Of Current Character
 
 		// Proportional glyphs are shifted left so the ink starts at the pen position.
 		float shift = proportional ? -left[loop] * size : 0.f;
@@ -151,7 +151,7 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 				glTexCoord2f(cx, 1.0f - cy);
 				glVertex2f(shift, quad); // Texture / Vertex Coord (Top Left)
 			}
-			glEnd();						   // Done Building Our Quad (Character)
+			glEnd(); // Done Building Our Quad (Character)
 			glTranslatef(advance[loop], 0, 0); // Move To The Right Of The Character
 		}
 		glEndList(); // Done Building The Display List

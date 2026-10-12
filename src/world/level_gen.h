@@ -25,9 +25,9 @@ constexpr int genDecorDepth(int difficulty) { return 1 + (3 * (difficulty - 1)) 
 struct GenResult {
 	LevelGrid grid;
 	LevelReport report;
-	int attempts = 0;	// candidates built
+	int attempts = 0; // candidates built
 	float target = 0.f; // difficulty score aimed at
-	bool ok = false;	// false only if no candidate passed the checks (should not happen)
+	bool ok = false; // false only if no candidate passed the checks (should not happen)
 };
 
 constexpr int GEN_MIN_DIFFICULTY = 1;

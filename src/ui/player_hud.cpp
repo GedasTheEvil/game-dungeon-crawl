@@ -14,17 +14,17 @@ namespace {
 // ---- layout ----
 constexpr Rect HEALTH_BAR = {10.f, 18.4f, 27.f, 2.6f};
 constexpr Rect STAMINA_BAR = {10.f, 15.6f, 27.f, 1.6f};
-constexpr float ICON_X = 6.3f;		 // heart and bolt, left of the bars
-constexpr float NUMBERS_X = 39.f;	 // "96 / 134"
+constexpr float ICON_X = 6.3f; // heart and bolt, left of the bars
+constexpr float NUMBERS_X = 39.f; // "96 / 134"
 constexpr float NUMBERS_DROP = 2.5f; // pen y below the bar centre, so the digits sit in the middle
-constexpr float SLOT_X = 5.f;		 // first quick slot
+constexpr float SLOT_X = 5.f; // first quick slot
 constexpr float SLOT_Y = 8.2f;
 constexpr float SLOT_SIZE = 6.6f;
 constexpr float SLOT_STEP = 8.2f;
 constexpr float CAP_Y = 4.6f; // key cap under each slot
 constexpr float CAP_H = 2.6f;
 constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
-constexpr float SOCKET_X = 40.5f;	 // first key socket centre, right of the amulet slot
+constexpr float SOCKET_X = 40.5f; // first key socket centre, right of the amulet slot
 constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
@@ -36,8 +36,8 @@ constexpr float POISON_STEP = 9.f;
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
-constexpr float ICON_INSET = 0.3f;		  // the icon in its slot
-constexpr int ICON_COLUMNS = 8;			  // atlas grid
+constexpr float ICON_INSET = 0.3f; // the icon in its slot
+constexpr int ICON_COLUMNS = 8; // atlas grid
 constexpr int ICON_ROWS = 5;
 
 // ---- timing ----
@@ -314,7 +314,7 @@ void drawKeys(const PlayerHud::View& v) {
 		if (((v.levelKeys | v.keysHeld) & bit) == 0)
 			continue;
 		diamond(x + 0.25f, SOCKET_Y - 0.35f, SOCKET_SIZE + 0.5f, BLACK, 0.5f); // shadow
-		diamond(x, SOCKET_Y, SOCKET_SIZE + 0.5f, GOLD_DIM, 1.f);			   // bezel
+		diamond(x, SOCKET_Y, SOCKET_SIZE + 0.5f, GOLD_DIM, 1.f); // bezel
 		if ((v.keysHeld & bit) != 0) {
 			const Color& gem = GEMS[c];
 			diamond(x, SOCKET_Y, SOCKET_SIZE, {gem.r * 0.55f, gem.g * 0.55f, gem.b * 0.55f}, 1.f);

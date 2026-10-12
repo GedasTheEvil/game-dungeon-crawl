@@ -25,7 +25,7 @@ class Poison {
   private:
 	struct TierTimer {
 		int leftMs = 0;
-		int sinceTickMs = 0;	 // a tier deals its damage once a full second has passed
+		int sinceTickMs = 0; // a tier deals its damage once a full second has passed
 		int carryHundredths = 0; // the fraction of a HP of the percent rate not dealt yet (not saved)
 	};
 	std::array<TierTimer, POISON_TIER_COUNT> tiers{};

@@ -57,9 +57,9 @@ constexpr Color STONE_HOVER_TOP = {0.33f, 0.25f, 0.15f};
 constexpr Color STONE_HOVER_BOTTOM = {0.17f, 0.13f, 0.08f};
 constexpr Color STONE_HELD_BOTTOM = {0.07f, 0.05f, 0.035f};
 constexpr Color TEXT_HOVER = {1.f, 0.92f, 0.65f};
-constexpr Color LABEL = {0.86f, 0.72f, 0.47f};	   // body text on a dark panel
+constexpr Color LABEL = {0.86f, 0.72f, 0.47f}; // body text on a dark panel
 constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f}; // secondary text, footers
-constexpr Color WELL = {0.07f, 0.055f, 0.04f};	   // icon well fill
+constexpr Color WELL = {0.07f, 0.055f, 0.04f}; // icon well fill
 
 // ---- shapes (texturing off, see beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);
@@ -81,9 +81,9 @@ void backdrop(const Rect& area, int textureId);
 void titleBar(Font& font, float cx, const char* caption, float reach);
 
 enum class TileStyle : std::uint8_t {
-	Stone,			 // any action, save slots
-	Lapis,			 // the primary action of a group
-	Disabled,		 // on a dark panel
+	Stone, // any action, save slots
+	Lapis, // the primary action of a group
+	Disabled, // on a dark panel
 	PapyrusDisabled, // on a papyrus scroll
 };
 constexpr float TILE_SINK = 0.4f; // a held tile moves down this much

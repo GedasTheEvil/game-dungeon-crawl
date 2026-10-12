@@ -99,22 +99,22 @@ int simulate(const FireStyle& style, uint32_t seed, Particle* out) {
 
 namespace {
 constexpr FireKey FLAME_KEYS[] = {
-	{0.00f, 1.00f, 0.92f, 0.55f, 0.00f, 1.f},  // born white-yellow, fades in
-	{0.06f, 1.00f, 0.85f, 0.35f, 0.90f, 1.f},  // yellow
-	{0.25f, 1.00f, 0.52f, 0.12f, 0.85f, 1.f},  // orange
+	{0.00f, 1.00f, 0.92f, 0.55f, 0.00f, 1.f}, // born white-yellow, fades in
+	{0.06f, 1.00f, 0.85f, 0.35f, 0.90f, 1.f}, // yellow
+	{0.25f, 1.00f, 0.52f, 0.12f, 0.85f, 1.f}, // orange
 	{0.45f, 0.85f, 0.18f, 0.05f, 0.70f, 0.8f}, // red
 	{0.62f, 0.28f, 0.14f, 0.10f, 0.50f, 0.3f}, // embers turning to smoke
-	{0.80f, 0.16f, 0.15f, 0.15f, 0.35f, 0.f},  // dark grey
-	{1.00f, 0.12f, 0.12f, 0.12f, 0.00f, 0.f},  // gone
+	{0.80f, 0.16f, 0.15f, 0.15f, 0.35f, 0.f}, // dark grey
+	{1.00f, 0.12f, 0.12f, 0.12f, 0.00f, 0.f}, // gone
 };
 constexpr FireKey VENOM_KEYS[] = {
-	{0.00f, 0.60f, 0.88f, 0.30f, 0.00f, 1.f},  // born light green, fades in
-	{0.06f, 0.55f, 0.84f, 0.24f, 0.80f, 1.f},  // light tint of VENOM_GREEN
-	{0.25f, 0.45f, 0.75f, 0.15f, 0.85f, 1.f},  // VENOM_GREEN
+	{0.00f, 0.60f, 0.88f, 0.30f, 0.00f, 1.f}, // born light green, fades in
+	{0.06f, 0.55f, 0.84f, 0.24f, 0.80f, 1.f}, // light tint of VENOM_GREEN
+	{0.25f, 0.45f, 0.75f, 0.15f, 0.85f, 1.f}, // VENOM_GREEN
 	{0.45f, 0.25f, 0.50f, 0.08f, 0.70f, 0.8f}, // darker green
 	{0.62f, 0.15f, 0.28f, 0.08f, 0.50f, 0.3f}, // dying green
-	{0.80f, 0.18f, 0.22f, 0.15f, 0.35f, 0.f},  // sickly grey-green smoke
-	{1.00f, 0.13f, 0.15f, 0.12f, 0.00f, 0.f},  // gone
+	{0.80f, 0.18f, 0.22f, 0.15f, 0.35f, 0.f}, // sickly grey-green smoke
+	{1.00f, 0.13f, 0.15f, 0.12f, 0.00f, 0.f}, // gone
 };
 } // namespace
 const FireRamp Fire::FLAME_RAMP = {FLAME_KEYS, sizeof(FLAME_KEYS) / sizeof(FLAME_KEYS[0])};
@@ -166,7 +166,7 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 	constexpr int GRAINS = 48;
 	constexpr float FALL_MS = 700.f; // one grain from the ceiling to the floor
-	constexpr float DROP = 40.f;	 // ceiling to floor, world units
+	constexpr float DROP = 40.f; // ceiling to floor, world units
 	ensureSprite();
 
 	float m[16];
@@ -215,7 +215,7 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 
 void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed) {
 	constexpr int GRAINS = 64;
-	constexpr int CLOUDS = 10;		// soft puffs of dust round the spot
+	constexpr int CLOUDS = 10; // soft puffs of dust round the spot
 	constexpr float SPRAY_S = 0.5f; // grains leave the spot over this time, while the minion comes out
 	constexpr float GRAVITY = 260.f;
 	const float t = static_cast<float>(ageMs) / 1000.f;

@@ -98,11 +98,11 @@ std::string formatString(const char* format, va_list args) {
 }
 } // namespace
 
-#define LOGGER_FORMATTED(level)                                                                                        \
-	va_list args;                                                                                                      \
-	va_start(args, format);                                                                                            \
-	std::string message = formatString(format, args);                                                                  \
-	va_end(args);                                                                                                      \
+#define LOGGER_FORMATTED(level) \
+	va_list args; \
+	va_start(args, format); \
+	std::string message = formatString(format, args); \
+	va_end(args); \
 	log(level, category, message);
 
 void Logger::debugf(const std::string& category, const char* format, ...) { LOGGER_FORMATTED(LogLevel::DEBUG) }

@@ -10,9 +10,9 @@ namespace {
 
 constexpr int COLUMNS = 48;
 constexpr int ROWS = 20;
-constexpr float MAX_RADIUS = 5.f;	  // of the curl, in the middle of the turn
+constexpr float MAX_RADIUS = 5.f; // of the curl, in the middle of the turn
 constexpr float EYE_DISTANCE = 220.f; // the lifted part grows by d / (d - z)
-constexpr float SHADOW_REACH = 4.f;	  // beyond the curl, on the page under it
+constexpr float SHADOW_REACH = 4.f; // beyond the curl, on the page under it
 constexpr float SHADOW_ALPHA = 0.32f;
 constexpr float PI = static_cast<float>(M_PI);
 
@@ -54,7 +54,7 @@ Fold foldOf(const PageCurl& c) {
 }
 
 struct Vertex {
-	float x, y, z;	 // canvas, before the perspective
+	float x, y, z; // canvas, before the perspective
 	float shade = 1; // light on the surface
 };
 

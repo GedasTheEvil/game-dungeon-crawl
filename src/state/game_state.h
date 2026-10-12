@@ -40,7 +40,7 @@ struct Camera {
 
 struct RenderSettings {
 	bool Hitboxes = false; // debug outlines of the monster and player hitboxes (F3, scenario `hitboxes on`)
-	int resX = 800;		   // the window's size now; Settings::display holds the one it opens with
+	int resX = 800; // the window's size now; Settings::display holds the one it opens with
 
 	int resY = 500;
 };
@@ -76,7 +76,7 @@ class GameState {
 	GameRandom random;
 	UIContext ui;
 	Dungeon dungeon;
-	Journal journal;	// what the archaeologist wrote down, kept per save game
+	Journal journal; // what the archaeologist wrote down, kept per save game
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	SaveSlots saves;
 

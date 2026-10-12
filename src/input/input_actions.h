@@ -14,11 +14,11 @@ enum class GameplayAction : unsigned char {
 	Jump,
 	Attack,
 	Interact,
-	QuickHeal,	   // drink the best fitting healing potion (Inventory::QuickDrink)
-	QuickStamina,  // the same for stamina
+	QuickHeal, // drink the best fitting healing potion (Inventory::QuickDrink)
+	QuickStamina, // the same for stamina
 	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
-	EquipMelee,	   // the next melee weapon held (Inventory::EquipNext)
-	EquipRanged,   // the next ranged one
+	EquipMelee, // the next melee weapon held (Inventory::EquipNext)
+	EquipRanged, // the next ranged one
 };
 
 // Runs an action as if the player pressed its key (used by scenario tests). A move action takes one step.

@@ -54,11 +54,11 @@ constexpr float ROOTED_BITE_REACH = 0.25f; // a rooted monster (plant, mimic) bi
 
 // Walk-jumpers (Monster::Jump): the arc follows the _jump clip (10 frames at ~14 fps): crouch, air, landing crouch.
 constexpr int MONSTER_JUMP_MS = 650;
-constexpr float MONSTER_JUMP_TAKEOFF = 0.22f;	// fraction of the leap when the feet leave the floor
+constexpr float MONSTER_JUMP_TAKEOFF = 0.22f; // fraction of the leap when the feet leave the floor
 constexpr float MONSTER_JUMP_TOUCHDOWN = 0.83f; // ... and touch it again
-constexpr float MONSTER_JUMP_HEIGHT = 12.f;		// world units at the top of the arc
-constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000;	// from one take-off to the next
-constexpr int MONSTER_JUMP_MAX_GAP = 2;			// cells of pits and traps a leap clears
+constexpr float MONSTER_JUMP_HEIGHT = 12.f; // world units at the top of the arc
+constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000; // from one take-off to the next
+constexpr int MONSTER_JUMP_MAX_GAP = 2; // cells of pits and traps a leap clears
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
 // Climbers (plan monster-climbers): once they have seen the player they follow a path to them across floors, up to
@@ -70,29 +70,29 @@ constexpr float CLIMB_SPEED_FACTOR = 0.8f;
 constexpr float BOSS_CLIMB_SPEED_FACTOR = 1.f;
 constexpr float CLIMBER_THREAT_FACTOR = 1.05f;
 constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on the rungs drops
-constexpr int MINION_SUMMON_REACH = 3;	   // cells from its boss a summoned minion may appear
-constexpr int MINION_EMERGE_MS = 700;	   // a summoned minion digs out or drops into place, then acts
+constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
+constexpr int MINION_EMERGE_MS = 700; // a summoned minion digs out or drops into place, then acts
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
 // monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster
 // standing in it for a share of its damage; melee is not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
-constexpr int WADE_SPLASH_MS = 450;		 // a splashing step while the player wades
+constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 
 // The crocodile (Locomotion::Submerged): lies in the water, its top SUBMERGED_SHOW world units above the surface, until
 // the player comes this close along its row. A swimmer's float height follows its target at SWIM_LIFT_RATE (1/s).
 constexpr float SUBMERGED_WAKE_RANGE = 1.4f; // from its centre: its head is then ~0.65 tiles off, in view
-constexpr float BOSS_WAKE_RANGE = 4.f;		 // a lurking boss (Sobek) wakes from farther, across its room
-constexpr float SUBMERGED_SHOW = 0.5f;		 // the eyes, the nostrils and the back ridge (crocodile.py)
+constexpr float BOSS_WAKE_RANGE = 4.f; // a lurking boss (Sobek) wakes from farther, across its room
+constexpr float SUBMERGED_SHOW = 0.5f; // the eyes, the nostrils and the back ridge (crocodile.py)
 constexpr float SWIM_LIFT_RATE = 4.f;
 
 // The cobra (Locomotion::Coiled) lies coiled until the player comes this close along its row, then rears up.
 constexpr float COILED_WAKE_RANGE = 1.8f;
 // A monster's shot (Dungeon::MonsterShot): flies straight at the player's chest as it was at the release, on past it
 // until it hits a wall or the floor, or has flown SHOT_MAX_FLIGHT tiles.
-constexpr float SHOT_SPEED = 3.f;  // tiles per second
+constexpr float SHOT_SPEED = 3.f; // tiles per second
 constexpr float SHOT_CHEST = 0.6f; // of the player's height
 constexpr float SHOT_MAX_FLIGHT = 4.f;
 constexpr int SHOT_SPLAT_MS = 400; // a splat on a wall or the floor stays this long
@@ -131,19 +131,19 @@ constexpr float MUMMY_CLIMB_FROM = 0.3f, MUMMY_CLIMB_TO = 0.75f;
 
 // Bats (Monster::Fly). Distances in tiles along the row, heights in world units (a tile is 40) from the floor
 // to the model origin (the lowest point of the flying pose).
-constexpr float BAT_SIGHT = 1.75f;			 // a roosting bat wakes up when the player is this close
-constexpr float BAT_OVERSHOOT = 1.5f;		 // flies on this far past the player before it turns
-constexpr int DODGE_PERCENT = 10;			 // the Dodge skill: a monster's attack misses this often
-constexpr float BAT_BITE_REACH = 0.15f;		 // bites when this close in front of the player (it flies through him)
+constexpr float BAT_SIGHT = 1.75f; // a roosting bat wakes up when the player is this close
+constexpr float BAT_OVERSHOOT = 1.5f; // flies on this far past the player before it turns
+constexpr int DODGE_PERCENT = 10; // the Dodge skill: a monster's attack misses this often
+constexpr float BAT_BITE_REACH = 0.15f; // bites when this close in front of the player (it flies through him)
 constexpr float BAT_TILES_PER_SPEED = 0.25f; // flight speed: tiles per second per speed point
-constexpr float BAT_LOW_LIFT = 2.f;			 // height of the wing tips when passing the player (bites at head height)
-constexpr float BAT_WING_DIP = 0.25f;		 // the wing tips reach this far below the origin (wingspans, bat.py)
-constexpr float BAT_HIGH_LIFT = 19.f;		 // height at the turning point
-constexpr float BAT_LIFT_RATE = 5.f;		 // how fast the height follows its target (1/s)
-constexpr float BAT_CEILING = 40.f;			 // roosting bats hang from here
-constexpr float BAT_WALL_MARGIN = 0.35f;	 // turns this far before a wall
-constexpr int BAT_ATTACK_MS = 450;			 // attack clip after a bite
-constexpr float BAT_FALL_GRAVITY = 600.f;	 // dead bats fall to the floor (world units / s^2)
+constexpr float BAT_LOW_LIFT = 2.f; // height of the wing tips when passing the player (bites at head height)
+constexpr float BAT_WING_DIP = 0.25f; // the wing tips reach this far below the origin (wingspans, bat.py)
+constexpr float BAT_HIGH_LIFT = 19.f; // height at the turning point
+constexpr float BAT_LIFT_RATE = 5.f; // how fast the height follows its target (1/s)
+constexpr float BAT_CEILING = 40.f; // roosting bats hang from here
+constexpr float BAT_WALL_MARGIN = 0.35f; // turns this far before a wall
+constexpr int BAT_ATTACK_MS = 450; // attack clip after a bite
+constexpr float BAT_FALL_GRAVITY = 600.f; // dead bats fall to the floor (world units / s^2)
 constexpr int BAT_HUNT_ROWS = 3; // a hunting flyer (the boss, its minions) follows the player this many rows up or down
 
 // Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
@@ -154,9 +154,9 @@ constexpr float MELEE_REACH_BEHIND = 0.1f;
 // the nearest monster ahead within the bow's range (half its height), else at the floor ARROW_FREE_RANGE away. Map
 // units (tiles).
 constexpr int BOW_DRAW_MS = 450;
-constexpr float ARROW_GRAVITY = 10.f;	 // tiles / s^2
+constexpr float ARROW_GRAVITY = 10.f; // tiles / s^2
 constexpr float ARROW_FREE_RANGE = 2.5f; // with nothing to aim at
-constexpr float ARROW_MAX_RISE = 0.6f;	 // a monster's mid height higher above the bow than this is out of reach
+constexpr float ARROW_MAX_RISE = 0.6f; // a monster's mid height higher above the bow than this is out of reach
 // The arc rises this far above the higher end, more for a longer shot: a close shot flies flat.
 constexpr float ARROW_ARC_BASE = 0.05f;
 constexpr float ARROW_ARC_PER_TILE = 0.1f;
@@ -168,8 +168,8 @@ constexpr float ARROW_EDGE_CLEARANCE = 0.02f;
 constexpr float ARROW_LOB_STEP = 0.05f; // an arrow in a wall or the floor stays this long
 
 // Keys, gates and levers (dungeon_mechanisms.cpp).
-constexpr int GATE_OPEN_MS = 1200;			  // the gate slides up into the ceiling, passable once it is up
-constexpr float GATE_APPROACH = 0.45f;		  // tiles from the gate at which a held key opens it
+constexpr int GATE_OPEN_MS = 1200; // the gate slides up into the ceiling, passable once it is up
+constexpr float GATE_APPROACH = 0.45f; // tiles from the gate at which a held key opens it
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 
@@ -198,13 +198,13 @@ constexpr int DART_PLATE_WEIGHT = 2;
 constexpr int DART_DELAY_MS = 200;
 constexpr int DART_COUNT = 3; // one per hole
 constexpr int DART_GAP_MS = 160;
-constexpr float DART_SPEED = 6.f;	   // tiles a second
+constexpr float DART_SPEED = 6.f; // tiles a second
 constexpr float DART_HIT_DEPTH = 0.5f; // tiles out of the back wall: where the player and the monsters walk
 constexpr float DART_HOLE_X[3] = {-0.22f, 0.f, 0.22f}; // the holes, from the plate's centre, in firing order
-constexpr float DART_HEIGHT = 0.3f;					   // tiles over the floor
+constexpr float DART_HEIGHT = 0.3f; // tiles over the floor
 constexpr int DART_DAMAGE = 2;
 constexpr float DART_PLATE_HALF_WIDTH = 0.27f; // the slab (mechanism.py): a centre over it presses it
-constexpr float DART_HALF_WIDTH = 0.1f;		   // a dart takes a body whose box comes this near its hole
+constexpr float DART_HALF_WIDTH = 0.1f; // a dart takes a body whose box comes this near its hole
 constexpr int DART_REARM_MS = 3000;
 
 #endif

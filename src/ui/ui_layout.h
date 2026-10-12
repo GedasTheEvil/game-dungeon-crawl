@@ -87,12 +87,12 @@ constexpr float CANVAS_H = 100.f;
 
 namespace PlayerHud {
 // The health bar's lost part: after a hit it holds the old health for TRAIL_HOLD_MS, then drains down.
-constexpr int TRAIL_HOLD_MS = 500;			 // the lost part stays this long after the last hit...
+constexpr int TRAIL_HOLD_MS = 500; // the lost part stays this long after the last hit...
 constexpr float TRAIL_DRAIN_PER_MS = 0.001f; // ...then drains at this ratio per ms
 struct DamageTrail {
 	bool started = false;
 	float shown = 1.f; // the trail's end
-	float last = 1.f;  // health ratio of the last frame
+	float last = 1.f; // health ratio of the last frame
 	int hitMs = 0;
 	int lastMs = 0;
 

@@ -26,7 +26,7 @@ constexpr int SKILL_COUNT = 8;
 struct SkillDef {
 	const char* name;
 	const char* effect; // one line, on the card
-	const char* lore;	// the details, under the effect
+	const char* lore; // the details, under the effect
 	// Its rules are not in the game yet (its sub-draft in docs/plan/): shown, not learnable. A sub-draft that lands
 	// clears it.
 	bool sealed;
@@ -63,7 +63,7 @@ class Heka {
 
   private:
 	std::vector<int> levels; // campaign levels whose boss gave a heka
-	unsigned learned = 0;	 // bit per SkillId
+	unsigned learned = 0; // bit per SkillId
 
 	static constexpr unsigned bit(SkillId id) { return 1U << static_cast<unsigned>(id); }
 };

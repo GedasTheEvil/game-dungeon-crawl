@@ -36,8 +36,8 @@ constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float AMULET_DETAIL_SCALE = 16.f;
-constexpr float PLINTH_Y = 49.f;		 // detail model base
-constexpr float REST_ANGLE = 25.f;		 // degrees, idle slots show the model a little turned
+constexpr float PLINTH_Y = 49.f; // detail model base
+constexpr float REST_ANGLE = 25.f; // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
 constexpr float SCROLL_BAR_W = 1.f;

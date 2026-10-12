@@ -5,8 +5,8 @@
 
 struct TextureImage // Create A Structure
 {
-	int width;	  // Image Width
-	int height;	  // Image Height
+	int width; // Image Width
+	int height; // Image Height
 	GLuint texID; // Texture ID Used To Select A Texture
 };
 

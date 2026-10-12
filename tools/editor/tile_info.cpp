@@ -8,7 +8,7 @@ namespace {
 
 struct Choice {
 	int number;
-	const char* name;	 // in the choices list
+	const char* name; // in the choices list
 	std::string meaning; // after "n = "
 };
 

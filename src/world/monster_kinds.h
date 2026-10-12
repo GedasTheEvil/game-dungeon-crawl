@@ -17,14 +17,14 @@
 // (Courage).
 enum class Locomotion : unsigned char {
 	Stationary, // rooted to its spawn tile (plant), attacks when the player is next to it
-	Ambush,		// rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
-				// killed, it leaves a real treasure chest on its tile
-	Walk,		// follows the player along its row
-	Entombed,	// walks, but lies in its coffin (idle) until the player comes near or hits it, then climbs out (Rise)
-				// before it acts
-	WalkJump,	// walks, leaps over pits and traps (giant rat, see Leap)
-	Fly,		// see Flight
-	Submerged,	// walks, but lies idle in the water until the player comes near or hits it (the crocodile)
+	Ambush, // rooted like Stationary, idle and still (a treasure chest) until the player comes near, see Lurk;
+			// killed, it leaves a real treasure chest on its tile
+	Walk, // follows the player along its row
+	Entombed, // walks, but lies in its coffin (idle) until the player comes near or hits it, then climbs out (Rise)
+			  // before it acts
+	WalkJump, // walks, leaps over pits and traps (giant rat, see Leap)
+	Fly, // see Flight
+	Submerged, // walks, but lies idle in the water until the player comes near or hits it (the crocodile)
 	// Walks, but lies coiled (idle) until the player comes near or hits it, then rears up (Rise) before it acts (the
 	// cobra).
 	Coiled,
@@ -33,9 +33,9 @@ enum class Locomotion : unsigned char {
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
 enum class Wading : unsigned char {
-	Slowed,		// slower, like the player (MonsterKind::waterSpeed, WADE_SPEED_FACTOR unless set)
+	Slowed, // slower, like the player (MonsterKind::waterSpeed, WADE_SPEED_FACTOR unless set)
 	Unaffected, // full speed
-	Swimmer,	// faster (waterSpeed), floating with its back at the surface (swimLift)
+	Swimmer, // faster (waterSpeed), floating with its back at the surface (swimLift)
 };
 
 // Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
@@ -54,14 +54,14 @@ enum class Summon : unsigned char { DigOut, Drop, Coffin, Hatch };
 
 // A boss summons minions around itself while it lives (Dungeon::updateBoss).
 struct BossRules {
-	int minion = 0;		  // MonsterTypeId of its minions; 0: not a boss
-	int minAlive = 0;	  // minions around it when it appears
-	int maxAlive = 0;	  // no summon while this many are alive
-	int summonMs = 0;	  // between summons
-	int summonCap = 0;	  // summons per fight, after the first minAlive
+	int minion = 0; // MonsterTypeId of its minions; 0: not a boss
+	int minAlive = 0; // minions around it when it appears
+	int maxAlive = 0; // no summon while this many are alive
+	int summonMs = 0; // between summons
+	int summonCap = 0; // summons per fight, after the first minAlive
 	int lifeStealPct = 0; // heals this share of the damage it deals
 	Summon summon = Summon::DigOut;
-	int nest = 0;		 // Summon::Hatch: the MonsterTypeId its minions hatch out of
+	int nest = 0; // Summon::Hatch: the MonsterTypeId its minions hatch out of
 	int smallMinion = 0; // Summon::Hatch: a smaller kind every other hatch (the scorpion queen's scorpions); 0: none
 };
 
@@ -72,12 +72,12 @@ constexpr Rgb BOLT_RED = {0.95f, 0.15f, 0.1f};
 // spat venom, the Anubis's bolt of light. The release and its height come from the model's ranged clip, measured by
 // its script's --measure (tools/blender/models/cobra.py, anubis.py).
 struct RangedRules {
-	int damage = 0;					  // on a hit, of the type's attack mix
+	int damage = 0; // on a hit, of the type's attack mix
 	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)
-	float range = 0.f;				  // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
-	int cooldownMs = 0;				  // from one shot to the next
-	float release = 0.5f;			  // of the ranged clip: the shot leaves
-	float releaseY = 0.5f;			  // of the reference clip's height: the mouth or sceptre head at the release
+	float range = 0.f; // tiles between the boxes, at most; nearer than MONSTER_BITE_REACH it bites
+	int cooldownMs = 0; // from one shot to the next
+	float release = 0.5f; // of the ranged clip: the shot leaves
+	float releaseY = 0.5f; // of the reference clip's height: the mouth or sceptre head at the release
 	Rgb colour = VENOM_GREEN;
 	float releaseAhead = 1.f; // of the half width, ahead of the centre: 1 the hitbox front (HeadX)
 };
@@ -99,12 +99,12 @@ constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
 
 struct MonsterKind {
 	MonsterTypeId id{};
-	char glyph = 'm';			  // levelcheck --map and the ASCII level sources
-	const char* name = "";		  // the game's and the journal's ("Man-eater plant")
-	const char* label = "";		  // the editor's list ("giant rat")
+	char glyph = 'm'; // levelcheck --map and the ASCII level sources
+	const char* name = ""; // the game's and the journal's ("Man-eater plant")
+	const char* label = ""; // the editor's list ("giant rat")
 	const char* description = ""; // the editor's hint
 	const char* note = ""; // the journal's description, in the archaeologist's words, written after the first kill
-	float threat = 0.f;	   // one of them in the checker's difficulty score
+	float threat = 0.f; // one of them in the checker's difficulty score
 
 	// Look: under models/ and sounds/, under textures/ (a giant kin is the same model, bigger and darker).
 	const char* model = "";
@@ -116,9 +116,9 @@ struct MonsterKind {
 	float speed = 1.f;
 	int maxHealth = 20;
 	int damage = 1;
-	int attackMs = 800;					 // between bites
-	int xp = 0;							 // gained for the kill
-	DamageMix attackMix{};				 // what its bite deals; shared by a model's group
+	int attackMs = 800; // between bites
+	int xp = 0; // gained for the kill
+	DamageMix attackMix{}; // what its bite deals; shared by a model's group
 	Resistances resist = NO_RESISTANCES; // how it takes each type of a weapon's damage
 
 	Locomotion locomotion = Locomotion::Walk;
@@ -129,9 +129,9 @@ struct MonsterKind {
 	int weight = 2;
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
-	std::optional<PoisonTier> poison;	  // its bite or sting poisons the player
-	int poisonChancePercent = 100;		  // the share of its bites that poison
-	std::optional<TouchPoison> touch;	  // a melee hit on it poisons the player (plan plant-poison)
+	std::optional<PoisonTier> poison; // its bite or sting poisons the player
+	int poisonChancePercent = 100; // the share of its bites that poison
+	std::optional<TouchPoison> touch; // a melee hit on it poisons the player (plan plant-poison)
 	// Chance that a poisoning does not take (plan monster-poison); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
@@ -154,7 +154,7 @@ struct MonsterKind {
 	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
 	// type at least as well as its kin (plan boss-resistances).
 	int kin = 0;
-	BossRules boss{};	 // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
+	BossRules boss{}; // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters
 
 	[[nodiscard]] constexpr bool isBoss() const { return boss.minion != 0; }

@@ -14,8 +14,8 @@ constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
-constexpr int STRETCH_MIN = 3;	 // cells; a row of dressed stone is cut into stretches, painted or bare
-constexpr int STRETCH_SPAN = 6;	 // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
+constexpr int STRETCH_MIN = 3; // cells; a row of dressed stone is cut into stretches, painted or bare
+constexpr int STRETCH_SPAN = 6; // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f, 0.06f,
@@ -222,7 +222,7 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 			const bool ceiling = rockAt(cells, i, j + 1);
 			const bool floor = floorAt(cells, i, j - 1) && !inHalfWater(tile) &&
 							   layout.decor[cellIndex(i, j)].type < 0; // no dry grass under the water
-			const bool free = !layout.torch[cellIndex(i, j)];		   // the torch covers the middle of the wall
+			const bool free = !layout.torch[cellIndex(i, j)]; // the torch covers the middle of the wall
 
 			uint32_t weights[DECAL_COUNT];
 			for (int d = 0; d < DECAL_COUNT; d++) {
@@ -394,9 +394,9 @@ int decorTierUsed(const Tile* cells, const DecorLayout& layout) {
 
 namespace {
 // Flame origins in prop space (tile units, x before mirroring), from the geometry in decor.py.
-constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f};	 // on the charcoal
+constexpr float BRAZIER_FIRE[3] = {0.f, 0.22f, 0.16f}; // on the charcoal
 constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
-constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f};	 // top of the torch head
+constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f}; // top of the torch head
 } // namespace
 
 int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES]) {

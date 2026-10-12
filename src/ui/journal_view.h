@@ -42,16 +42,16 @@ class JournalScreen {
 	// to the far side (pi); dragged, it follows the mouse instead.
 	struct PageTurn {
 		bool active = false;
-		Opening from;		   // open when it began
-		Opening to;			   // open here once the page is over
-		bool forward = true;   // the right page turns to the left
+		Opening from; // open when it began
+		Opening to; // open here once the page is over
+		bool forward = true; // the right page turns to the left
 		bool dragging = false; // held by the mouse
-		float angle = 0;	   // round the ellipse
-		float spread = 1;	   // of the corner from the ellipse's centre, 1 on it; a released drag eases back to it
-		float target = 0;	   // the angle it goes to: pi over, 0 back
+		float angle = 0; // round the ellipse
+		float spread = 1; // of the corner from the ellipse's centre, 1 on it; a released drag eases back to it
+		float target = 0; // the angle it goes to: pi over, 0 back
 		float cornerX = 0, cornerY = 0; // page-local while dragging (PageCurl)
-		float progress = 0;				// 0 flat .. 1 over, this frame (curlProgress)
-		float pressX = 0, pressY = 0;	// canvas, where the drag began: a press let go nearby is a click
+		float progress = 0; // 0 flat .. 1 over, this frame (curlProgress)
+		float pressX = 0, pressY = 0; // canvas, where the drag began: a press let go nearby is a click
 		int lastMs = 0;
 	};
 	// The four pages a turn shows: the spread under it, the turning page's front and back.
@@ -61,7 +61,7 @@ class JournalScreen {
 	bool fontsLoaded = false;
 	Font title, heading, body, small;
 	Font handHeading, hand, handSmall, handTiny; // the archaeologist's handwriting, for what is written on the pages
-	Font stamp, stampSmall;						 // typewriter: page and catalogue numbers
+	Font stamp, stampSmall; // typewriter: page and catalogue numbers
 	Section section = Section::Creatures;
 	std::array<int, SECTION_COUNT> spread{}; // the spread open in each section
 	PageTurn turn;
@@ -69,7 +69,7 @@ class JournalScreen {
 	Hit pressed;
 	ui::Toast toast;
 	std::array<Texture, MONSTER_TYPE_MAX + 1> photoTextures; // monster textures in black and white, by type, on demand
-	std::array<RenderTarget, PAGE_SLOTS> pages;				 // drawn each frame, then laid on the book or bent
+	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
 	bool pagesFailed = false; // no framebuffers: the pages are drawn straight onto the book, turns are instant
 
 	[[nodiscard]] int PageCount(Section s) const;

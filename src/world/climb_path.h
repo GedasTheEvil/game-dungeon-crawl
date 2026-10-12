@@ -18,7 +18,7 @@
 
 struct ClimbAbility {
 	bool reckless = false; // walks through traps
-	bool leaps = false;	   // a walk-jumper: leaps over gaps
+	bool leaps = false; // a walk-jumper: leaps over gaps
 };
 
 // Steps from every cell to one goal cell (the player's), up to a cap. A step: to the next cell along a row, a rung up

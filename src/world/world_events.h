@@ -7,9 +7,9 @@
 
 // The world's sounds; the app maps them to its sound bank.
 enum class WorldSound : unsigned char {
-	ArrowHit,  // an arrow in a monster
+	ArrowHit, // an arrow in a monster
 	ArrowWall, // an arrow in a wall or the floor
-	StoneHit,  // a sling stone or a throwing stick on a monster
+	StoneHit, // a sling stone or a throwing stick on a monster
 	StoneWall, // off a wall or the floor
 	KeyPickup,
 	GateOpen,
@@ -18,13 +18,13 @@ enum class WorldSound : unsigned char {
 	RockRumble,
 	RockCrash,
 	Teleport,
-	SummonDig,	// a boss's minion digs out of the floor
+	SummonDig, // a boss's minion digs out of the floor
 	SummonDrop, // a boss's minion drops from the ceiling
-	Wade,		// a splashing step in half water
-	Splash,		// the player lands in half water
+	Wade, // a splashing step in half water
+	Splash, // the player lands in half water
 	PlateClick, // a dart trap's plate sinks
-	Dart,		// a dart leaves the wall
-	Dodge,		// the player sidesteps a blow (Dodge skill)
+	Dart, // a dart leaves the wall
+	Dodge, // the player sidesteps a blow (Dodge skill)
 };
 
 // A monster's or the player's own sound (CharacterModel: sounds/<model>_{die,att,jump,wake,att_ranged}.wav).

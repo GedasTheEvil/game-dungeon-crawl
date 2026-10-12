@@ -19,24 +19,24 @@ enum class CurseGrade : std::uint8_t { Lesser, Greater };
 constexpr int CURSE_MS = 120000; // every curse lasts 2 minutes
 
 // The effects, in percent (PlayerStats applies them).
-constexpr int WEAKNESS_MIGHT_CUT = 50;			   // of Might
-constexpr int GREATER_WEAKNESS_MIGHT_CUT = 125;	   // Might goes negative
-constexpr int CLUMSINESS_DAMAGE_CUT = 20;		   // of the whole hit (Might and weapon), not the venom
-constexpr int GREATER_CLUMSINESS_DAMAGE_CUT = 50;  //
-constexpr int VULNERABILITY_ARMOR_CUT = 60;		   // of the armour
-constexpr int FATIGUE_STAMINA_PERCENT = 20;		   // of max stamina at the start, at most; no regeneration
-constexpr int DISEASE_MAX_HP_CUT = 30;			   // of max HP
-constexpr int GREATER_DISEASE_MAX_HP_CUT = 70;	   //
-constexpr float SLOWNESS_WALK_FACTOR = 0.5f;	   // walk and climb: 1 -> 0.5 tiles/s
+constexpr int WEAKNESS_MIGHT_CUT = 50; // of Might
+constexpr int GREATER_WEAKNESS_MIGHT_CUT = 125; // Might goes negative
+constexpr int CLUMSINESS_DAMAGE_CUT = 20; // of the whole hit (Might and weapon), not the venom
+constexpr int GREATER_CLUMSINESS_DAMAGE_CUT = 50; //
+constexpr int VULNERABILITY_ARMOR_CUT = 60; // of the armour
+constexpr int FATIGUE_STAMINA_PERCENT = 20; // of max stamina at the start, at most; no regeneration
+constexpr int DISEASE_MAX_HP_CUT = 30; // of max HP
+constexpr int GREATER_DISEASE_MAX_HP_CUT = 70; //
+constexpr float SLOWNESS_WALK_FACTOR = 0.5f; // walk and climb: 1 -> 0.5 tiles/s
 constexpr float SLOWNESS_SPRINT_MULTIPLIER = 2.5f; // of the slowed walk: 3 -> 1.25 tiles/s
-constexpr float SPRINT_MULTIPLIER = 3.f;		   // of the walk, uncursed
+constexpr float SPRINT_MULTIPLIER = 3.f; // of the walk, uncursed
 
 struct CurseDef {
-	const char* name;		 // the HUD's and the journal's ("Weakness")
+	const char* name; // the HUD's and the journal's ("Weakness")
 	const char* greaterName; // nullptr: no greater grade
-	const char* startLine;	 // the status line when it takes
-	const char* againLine;	 // ... when it takes again while running
-	const char* endLine;	 // ... when it runs out
+	const char* startLine; // the status line when it takes
+	const char* againLine; // ... when it takes again while running
+	const char* endLine; // ... when it runs out
 };
 extern const std::array<CurseDef, CURSE_COUNT> CURSES;
 [[nodiscard]] inline const CurseDef& curseDef(Curse c) { return CURSES[static_cast<size_t>(c)]; }

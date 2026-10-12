@@ -296,10 +296,10 @@ static_assert(AMULETS.back().type == AmuletType::Venom && AMULETS.back().tier ==
 struct AmuletTypeDef {
 	const char* model; // models/items/<model>.md3
 	std::array<int, AMULET_TIER_COUNT> amount;
-	const char* noun;	   // the amulet's object: "Jackal Tooth"; its name is the tier and the noun
+	const char* noun; // the amulet's object: "Jackal Tooth"; its name is the tier and the noun
 	const char* labelNoun; // what it does, for the label ("amulet of <labelNoun>"): editor, tools, scenarios
 	const char* shortNoun; // the slot's name band, with the tier as I .. IV
-	const char* effect;	   // printf format of the amount
+	const char* effect; // printf format of the amount
 	const char* lore1;
 	const char* lore2;
 };

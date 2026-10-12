@@ -9,7 +9,7 @@ struct PageCurlPlacement {
 	bool mirror = false; // a left page, turning to the right
 	int front = 0; // the side seen while flat: u 0..1 left to right as laid out (the overhang included), v 0..1 bottom
 				   // to top
-	int back = 0;  // the side that comes into view, laid out as the page on the other side of the spine
+	int back = 0; // the side that comes into view, laid out as the page on the other side of the spine
 	float eyeX = 0, eyeY = 0; // the lifted part grows a little towards the viewer, away from this point
 };
 

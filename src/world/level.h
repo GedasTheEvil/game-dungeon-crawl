@@ -35,10 +35,10 @@ enum DungeonTileType : unsigned char {
 	Ladder = 6,
 	Treasure = 8,
 	Ankh = 9,
-	Key = 10,	// b = lock colour; picked up on touch, then the cell has no object
-	Gate = 11,	// b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
+	Key = 10, // b = lock colour; picked up on touch, then the cell has no object
+	Gate = 11, // b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
-	RockFall = 13,	// loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
+	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
 	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
 };
 
@@ -61,19 +61,19 @@ enum MonsterTypeId : unsigned char {
 	MonsterGiantBat = 8,
 	MonsterMimic = 9,
 	MonsterGiantScarab = 10,
-	MonsterBossScarab = 11,	   // boss: summons scarabs; its death opens the boss gates
-	MonsterVampireBat = 12,	   // boss: summons bats, heals by part of the damage it deals
-	MonsterMummy = 13,		   // lies in its coffin until the player comes near
-	MonsterAnubisBoss = 14,	   // boss: mummies climb out of the coffins round it
-	MonsterCrocodile = 15,	   // lies under the water until the player comes near, swims fast
-	MonsterScorpion = 16,	   // its sting poisons (weak)
-	MonsterCobra = 17,		   // lies coiled until the player comes near; its bite and spit poison (medium)
-	MonsterGiantCobra = 18,	   // the cobra's giant kin
+	MonsterBossScarab = 11, // boss: summons scarabs; its death opens the boss gates
+	MonsterVampireBat = 12, // boss: summons bats, heals by part of the damage it deals
+	MonsterMummy = 13, // lies in its coffin until the player comes near
+	MonsterAnubisBoss = 14, // boss: mummies climb out of the coffins round it
+	MonsterCrocodile = 15, // lies under the water until the player comes near, swims fast
+	MonsterScorpion = 16, // its sting poisons (weak)
+	MonsterCobra = 17, // lies coiled until the player comes near; its bite and spit poison (medium)
+	MonsterGiantCobra = 18, // the cobra's giant kin
 	MonsterGiantScorpion = 19, // the scorpion's giant kin, its sting poisons (medium); the scorpion queen's minion
-	MonsterEggCluster = 20,	   // rooted, harmless: the scorpion queen's minions hatch from it
+	MonsterEggCluster = 20, // rooted, harmless: the scorpion queen's minions hatch from it
 	MonsterScorpionQueen = 21, // boss: giant scorpions hatch from the egg clusters; her sting poisons (strong)
-	MonsterApep = 22,		   // boss: dives into the floor and comes up behind the player; cobras dig out
-	MonsterSobek = 23,		   // boss: lies in the water, charges along the row; crocodiles come out
+	MonsterApep = 22, // boss: dives into the floor and comes up behind the player; cobras dig out
+	MonsterSobek = 23, // boss: lies in the water, charges along the row; crocodiles come out
 };
 constexpr int MONSTER_TYPE_MAX = MonsterSobek; // names, glyphs, threat, boss: monster_kinds.h
 
@@ -86,8 +86,8 @@ inline bool isGateColour(int colour) { return isLockColour(colour) || colour == 
 
 struct LockColour {
 	const char* name; // texture names (key_<name>.png, ...), messages
-	const char* gem;  // the key's gem, in the game's messages
-	char keyGlyph;	  // levelcheck --map, ASCII level sources; the boss lock has no key
+	const char* gem; // the key's gem, in the game's messages
+	char keyGlyph; // levelcheck --map, ASCII level sources; the boss lock has no key
 	char gateGlyph;
 	const char* choice; // the editor's list
 };
@@ -107,8 +107,8 @@ inline const LockColour& lockColour(int colour) { return LOCK_COLOURS[colour - 1
 // which keeps its structure.
 struct Tile {
 	int type = NoObject; // DungeonTileType
-	int attr = 0;		 // attribute: meaning depends on the type (monster type, lock colour, ...)
-	int value = 0;		 // value: meaning depends on the type (gate state, ...)
+	int attr = 0; // attribute: meaning depends on the type (monster type, lock colour, ...)
+	int value = 0; // value: meaning depends on the type (gate state, ...)
 	Structure structure = Structure::Empty;
 };
 [[nodiscard]] inline Tile wallTile() { return Tile{NoObject, 0, 0, Structure::Wall}; }

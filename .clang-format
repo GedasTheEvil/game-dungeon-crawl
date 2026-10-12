@@ -8,3 +8,8 @@ AllowShortIfStatementsOnASingleLine: false
 ColumnLimit: 120
 PointerAlignment: Left
 SortIncludes: false
+# Small diffs (plan dev-friction-review): one longer line must not re-indent its neighbours' comments or line
+# continuations. Consecutive assignments, declarations and macros are not aligned already (LLVM).
+AlignTrailingComments:
+  Kind: Never
+AlignEscapedNewlines: DontAlign

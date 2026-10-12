@@ -14,11 +14,11 @@ class MainMenu {
   private:
 	static constexpr int NONE = -1;
 	// Click targets: menu buttons and save slots use their index.
-	static constexpr int BACK = 100;		   // Back button of the sub-screens
-	static constexpr int TAB_BASE = 200;	   // options tabs
-	static constexpr int OPTION_BASE = 300;	   // Options > Display / Sound: the row's switch, choice or slider
+	static constexpr int BACK = 100; // Back button of the sub-screens
+	static constexpr int TAB_BASE = 200; // options tabs
+	static constexpr int OPTION_BASE = 300; // Options > Display / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
-	static constexpr int BIND_BASE = 400;	   // Options > Controls: action * BINDING_SLOTS + slot
+	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
 
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
@@ -29,7 +29,7 @@ class MainMenu {
 	ui::Toast toast; // feedback line after an action
 	int optionsTab = 0;
 	int capturing = NONE; // the BIND_BASE target waiting for a key or a mouse button
-	int dragging = NONE;  // the slider the mouse went down on
+	int dragging = NONE; // the slider the mouse went down on
 
 	void LoadAssets();
 	void BeginCanvas();

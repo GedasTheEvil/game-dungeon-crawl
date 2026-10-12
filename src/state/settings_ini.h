@@ -16,9 +16,9 @@ struct Settings {
 	} display;
 	struct Graphics {
 		bool motionEffects = true; // sprint blur, FOV kick, vignette
-		bool toon = false;		   // cel bands and ink outlines (F1)
-		bool blood = true;		   // the blood splashes
-		bool lightFlicker = true;  // torches, braziers and lamps flicker
+		bool toon = false; // cel bands and ink outlines (F1)
+		bool blood = true; // the blood splashes
+		bool lightFlicker = true; // torches, braziers and lamps flicker
 	} graphics;
 	struct Sound {
 		int music = 80; // volume 0-100

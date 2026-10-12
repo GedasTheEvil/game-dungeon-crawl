@@ -46,26 +46,26 @@ constexpr Icon amuletIcon(AmuletType type) {
 struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
 	ui::Color tint = {1, 1, 1};
-	int count = -1;			  // badge; < 0: none (the weapon)
-	std::string badge;		  // badge text instead of the count (the amulet's tier, I .. IV)
-	std::string key;		  // the key cap under the slot (from the bindings); empty: no cap (the amulet)
+	int count = -1; // badge; < 0: none (the weapon)
+	std::string badge; // badge text instead of the count (the amulet's tier, I .. IV)
+	std::string key; // the key cap under the slot (from the bindings); empty: no cap (the amulet)
 	int flashAgeMs = 1000000; // since the last use (a quick drink), for the flash
 };
 
 struct View {
 	int hp = 0, maxHp = 1;
 	int stamina = 0, maxStamina = 1;
-	int staminaRefusedAgeMs = 1000000;		  // since the last jump or sprint refused for lack of stamina
-	float xpRatio = 0.f;					  // progress to the next level, 0..1
-	int keysHeld = 0;						  // bit (colour - 1) per key held
-	int levelKeys = 0;						  // bit (colour - 1) per key on the level: one socket each
-	Slot slots[4];							  // weapon, healing potion, stamina potion, worn amulet
+	int staminaRefusedAgeMs = 1000000; // since the last jump or sprint refused for lack of stamina
+	float xpRatio = 0.f; // progress to the next level, 0..1
+	int keysHeld = 0; // bit (colour - 1) per key held
+	int levelKeys = 0; // bit (colour - 1) per key on the level: one socket each
+	Slot slots[4]; // weapon, healing potion, stamina potion, worn amulet
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
-	int resistLeftMs = 0;					  // a resistance potion's time left, 0: none
-	bool resistGreater = false;				  // the greater one
-	int curseLeftMs[CURSE_COUNT] = {};		  // per curse, 0: not running
-	bool curseGreater[CURSE_COUNT] = {};	  // at the greater grade
-	bool hekaWaiting = false;				  // a heka to spend on a skill: a pulsing tile with the Heka key
+	int resistLeftMs = 0; // a resistance potion's time left, 0: none
+	bool resistGreater = false; // the greater one
+	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
+	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
+	bool hekaWaiting = false; // a heka to spend on a skill: a pulsing tile with the Heka key
 	std::string hekaKey;
 };
 

@@ -67,7 +67,7 @@ TEST_CASE("chest bonus loot: stamina potions, a lower weapon the player holds, s
 		for (ItemKind k : RollChestLoot(ItemKind::LargeHealth, owned, 1, rng))
 			got[k]++;
 	CHECK(got[ItemKind::LargeHealth] >= 1000 + 25); // 5% the same potion
-	CHECK(got[ItemKind::SmallHealth] > 70);			// 10%
+	CHECK(got[ItemKind::SmallHealth] > 70); // 10%
 	CHECK(got[ItemKind::SmallHealth] < 130);
 }
 

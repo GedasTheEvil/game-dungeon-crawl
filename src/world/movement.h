@@ -10,8 +10,8 @@
 
 namespace Jump {
 struct Arc {
-	int ticks = 0;	   // until the player is back at the take-off height
-	float peak = 0.f;  // tiles above the take-off
+	int ticks = 0; // until the player is back at the take-off height
+	float peak = 0.f; // tiles above the take-off
 	float drift = 0.f; // tiles the jump carries the player forward, without the walk key
 	[[nodiscard]] constexpr int ms() const { return ticks * JUMP_TICK_MS; }
 };

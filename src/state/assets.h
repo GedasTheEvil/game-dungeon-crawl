@@ -21,20 +21,20 @@ struct SoundBank {
 	Sound amulet_s; // an amulet put on or taken off
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
-	Sound dodge;				 // a whoosh (the sling swing): the player dodges a blow
-	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
-	Sound stoneHit, stoneWall;	 // a sling stone or throwing stick in a monster, off a wall
+	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
+	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
+	Sound stoneHit, stoneWall; // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
-	Sound wade, splash;			 // a step in half water, landing in it
-	Sound pageTurn;				 // the journal's paper rustle
+	Sound wade, splash; // a step in half water, landing in it
+	Sound pageTurn; // the journal's paper rustle
 };
 
 struct FontSet {
 	Font font;
 	Font loading;
-	Font status;   // proportional, for the gameplay status message
-	Font hud;	   // bold digits for the HUD level gem
-	Font hudBody;  // the player HUD's health numbers
+	Font status; // proportional, for the gameplay status message
+	Font hud; // bold digits for the HUD level gem
+	Font hudBody; // the player HUD's health numbers
 	Font hudSmall; // the player HUD's key caps and counts
 };
 
@@ -61,7 +61,7 @@ struct SceneModels {
 struct DecorSet {
 	Texture tex[DECOR_COUNT];
 	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
-	Texture decalTex;								   // atlas, DECAL_DEFS order
+	Texture decalTex; // atlas, DECAL_DEFS order
 	Texture torchTex;
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
 	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];

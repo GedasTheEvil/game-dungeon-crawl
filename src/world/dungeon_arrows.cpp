@@ -12,7 +12,7 @@
 
 namespace {
 constexpr float ARROW_LAUNCH_AHEAD = 0.1f; // tiles in front of the player's centre: the bow
-constexpr float ARROW_STEP_S = 0.005f;	   // hit test interval along the flight
+constexpr float ARROW_STEP_S = 0.005f; // hit test interval along the flight
 } // namespace
 
 float Dungeon::Missile::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }

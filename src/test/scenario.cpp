@@ -38,7 +38,7 @@ constexpr int EXIT_BAD_SCRIPT = 2;
 constexpr int EXIT_CRASH = 3;
 
 constexpr int MAX_TICKS = 10 * 60 * 1000 / Scenario::TICK_MS; // 10 min of game time
-constexpr int WALK_STALL_TICKS = 30;						  // no movement this long = blocked
+constexpr int WALK_STALL_TICKS = 30; // no movement this long = blocked
 constexpr float WALK_EPSILON = 0.0001f;
 
 struct WalkProgress {
@@ -536,7 +536,7 @@ void runCommands() {
 		gRunner.next++;
 	}
 	if (!gRunner.pendingShot.empty())
-		return;		 // render the last screenshot first
+		return; // render the last screenshot first
 	finish(EXIT_OK); // implicit quit at end of script
 }
 

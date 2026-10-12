@@ -194,7 +194,7 @@ TEST_CASE("the amulet of venom poisons on a weapon hit that does not kill; the p
 	REQUIRE(world.dungeon.NearestMonsterPoison() == 4); // strong
 	CHECK(world.Nearest() == 60 - 10 * hits);
 	CHECK(world.JournalTried() == 2); // blunt, and the poison
-	world.Wait(20000);				  // strong on 60 HP: the floor, 3 HP a second
+	world.Wait(20000); // strong on 60 HP: the floor, 3 HP a second
 	CHECK(world.Nearest() == 0);
 	CHECK(world.Xp() > 0);
 }

@@ -19,10 +19,10 @@ class Inventory {
 	static constexpr int NO_SORT = -1;
 
 	ItemBag bag;
-	int selectedSlot = 0;						// a slot is an ItemKind index; the grid shows them in tabOrder
-	ItemGroup tab = ItemGroup::Weapons;			// the selected slot's group
-	int tabSlot[ITEM_GROUP_COUNT] = {};			// the slot each tab selected last, for switching back to it
-	int scrollRow[ITEM_GROUP_COUNT] = {};		// rows each tab is scrolled down
+	int selectedSlot = 0; // a slot is an ItemKind index; the grid shows them in tabOrder
+	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
+	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
+	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
 	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab, not saved: found first at the start
 	int hoveredSlot = NO_SLOT;
 	int hoveredTab = NO_TAB;
@@ -56,7 +56,7 @@ class Inventory {
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
 	void SwitchTab(ItemGroup group); // to the slot it selected last
-	void NextTab();					 // Tab: the next enabled tab, wrapping round
+	void NextTab(); // Tab: the next enabled tab, wrapping round
 	[[nodiscard]] SortOrder Sort() const { return sortOrder[static_cast<int>(tab)]; }
 	// A click on a sort button: that order for the open tab, or found first again if it was on.
 	void ToggleSort(SortOrder order);
@@ -87,7 +87,7 @@ class Inventory {
   public:
 	Inventory();
 	~Inventory();
-	void Reset();				 // a new game: only the club
+	void Reset(); // a new game: only the club
 	void AddItem(ItemKind kind); // found: its journal notes (ItemBag::Find)
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);

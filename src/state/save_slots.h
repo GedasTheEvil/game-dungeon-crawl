@@ -13,12 +13,12 @@ class SaveSlots {
 
 	struct Info {
 		bool used = false;
-		int level = 0;	  // campaign level the save was made on, 0 if unknown
+		int level = 0; // campaign level the save was made on, 0 if unknown
 		std::string when; // date and time of the save file
 	};
 
 	[[nodiscard]] static std::string FileName(int slot);
-	void LoadNames();				  // from saves/gamelist.dat; false-free: a missing list leaves the names empty
+	void LoadNames(); // from saves/gamelist.dat; false-free: a missing list leaves the names empty
 	void Record(int slot, int level); // a game was just saved into the slot on `level`: name it, write the list
 	[[nodiscard]] Info Describe(int slot) const;
 

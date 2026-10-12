@@ -14,7 +14,7 @@ constexpr int MAX_ROW = LEVEL_HEIGHT - 2;
 constexpr int CELLS = LEVEL_WIDTH * LEVEL_HEIGHT;
 constexpr int MAX_ATTEMPTS = 80;
 constexpr int SEGMENT_TRIES = 60;
-constexpr int MONSTER_GAP = 3;		// cells between monsters in a row
+constexpr int MONSTER_GAP = 3; // cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
 constexpr int MIMIC_MIN_DIFFICULTY = 2;
 constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_DIFFICULTY on
@@ -26,7 +26,7 @@ enum class Feature : unsigned char { None, Pit, Spike, RockFall, Monster, Treasu
 constexpr int FEATURE_COUNT = 6;
 
 struct Segment {
-	int row = 0;	// floor row (the player's row)
+	int row = 0; // floor row (the player's row)
 	int height = 1; // 1 = corridor, 2 = hall
 	int x0 = 0, x1 = 0;
 	int entry = 0; // column the player arrives at

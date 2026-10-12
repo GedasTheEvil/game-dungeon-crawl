@@ -12,7 +12,7 @@ constexpr float WIDTH = 70.f;
 constexpr float BAR_BOTTOM = 5.f;
 constexpr float BAR_H = 2.4f;
 constexpr float NAME_GAP = 1.6f; // bar top to the name's pen y
-constexpr float HUD_GAP = 2.f;	 // to the player's HUD panel; closer and the bar moves up over the panel
+constexpr float HUD_GAP = 2.f; // to the player's HUD panel; closer and the bar moves up over the panel
 } // namespace
 
 namespace BossBar {

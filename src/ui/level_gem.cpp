@@ -9,29 +9,29 @@
 using namespace ui;
 
 namespace {
-constexpr float SCALE = 0.25f;	   // badge size on screen; everything below is in badge units (canvas 100 / SCALE high)
-constexpr int SIDES = 8;		   // octagonal cut
-constexpr float RADIUS = 5.5f;	   // gem
+constexpr float SCALE = 0.25f; // badge size on screen; everything below is in badge units (canvas 100 / SCALE high)
+constexpr int SIDES = 8; // octagonal cut
+constexpr float RADIUS = 5.5f; // gem
 constexpr float STRETCH_Y = 1.15f; // a little taller than wide, like a cabochon
-constexpr float BEZEL = 1.1f;	   // gold rim around the gem
-constexpr float TABLE = 0.55f;	   // flat top facet, relative to the gem
-constexpr float MARGIN_X = 10.f;   // from the right edge to the bezel
-constexpr float MARGIN_Y = 10.f;   // from the top edge to the bezel
+constexpr float BEZEL = 1.1f; // gold rim around the gem
+constexpr float TABLE = 0.55f; // flat top facet, relative to the gem
+constexpr float MARGIN_X = 10.f; // from the right edge to the bezel
+constexpr float MARGIN_Y = 10.f; // from the top edge to the bezel
 constexpr float NUMBER_DROP = 5.4f; // font pen y below the gem centre, so the digits sit in the middle
 
 struct GemLook {
 	Color dark, base, light;
-	int beads;	 // gold beads on the bezel
+	int beads; // gold beads on the bezel
 	bool flecks; // golden flecks: pyrite in lapis lazuli, gold dust on obsidian
 };
 
 constexpr GemLook GEMS[] = {
-	{{0.35f, 0.06f, 0.02f}, {0.78f, 0.22f, 0.08f}, {1.f, 0.55f, 0.30f}, 0, false},	  // carnelian
-	{{0.04f, 0.30f, 0.30f}, {0.18f, 0.70f, 0.66f}, {0.60f, 0.95f, 0.88f}, 4, false},  // turquoise
-	{{0.04f, 0.07f, 0.28f}, {0.14f, 0.24f, 0.66f}, {0.45f, 0.58f, 1.f}, 8, true},	  // lapis lazuli
+	{{0.35f, 0.06f, 0.02f}, {0.78f, 0.22f, 0.08f}, {1.f, 0.55f, 0.30f}, 0, false}, // carnelian
+	{{0.04f, 0.30f, 0.30f}, {0.18f, 0.70f, 0.66f}, {0.60f, 0.95f, 0.88f}, 4, false}, // turquoise
+	{{0.04f, 0.07f, 0.28f}, {0.14f, 0.24f, 0.66f}, {0.45f, 0.58f, 1.f}, 8, true}, // lapis lazuli
 	{{0.02f, 0.20f, 0.10f}, {0.08f, 0.52f, 0.30f}, {0.50f, 0.90f, 0.62f}, 10, false}, // malachite
-	{{0.20f, 0.05f, 0.28f}, {0.48f, 0.20f, 0.66f}, {0.82f, 0.62f, 1.f}, 12, false},	  // amethyst
-	{{0.02f, 0.02f, 0.03f}, {0.12f, 0.11f, 0.14f}, {0.48f, 0.46f, 0.55f}, 16, true},  // obsidian
+	{{0.20f, 0.05f, 0.28f}, {0.48f, 0.20f, 0.66f}, {0.82f, 0.62f, 1.f}, 12, false}, // amethyst
+	{{0.02f, 0.02f, 0.03f}, {0.12f, 0.11f, 0.14f}, {0.48f, 0.46f, 0.55f}, 16, true}, // obsidian
 };
 static_assert(sizeof(GEMS) / sizeof(GEMS[0]) == LevelGem::GEM_COUNT);
 

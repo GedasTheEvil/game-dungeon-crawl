@@ -21,9 +21,9 @@
 enum class FlightPhase : unsigned char { Roost, Swoop, Return };
 struct Flight {
 	FlightPhase phase = FlightPhase::Roost;
-	int dir = 1;		 // +1 flying right, -1 left
-	float lift = -1.f;	 // world units from the floor to the model origin; < 0: not placed yet (on the ceiling)
-	float fall = 0.f;	 // falling speed after death, world units per second
+	int dir = 1; // +1 flying right, -1 left
+	float lift = -1.f; // world units from the floor to the model origin; < 0: not placed yet (on the ceiling)
+	float fall = 0.f; // falling speed after death, world units per second
 	bool bitten = false; // this pass has bitten already
 	int attackUntilMs = 0;
 	int lastMs = -1; // GameClock time of the last update
@@ -31,9 +31,9 @@ struct Flight {
 // What a flyer knows of the level this tick (Dungeon::flightGoal): it follows the player to another row through open
 // cells (plan bats-high-ceiling).
 struct FlightGoal {
-	bool sees = false;		// the player is in sight: on its row as before, or in reach on another row with a way there
-	int toRow = -1;			// the row it heads for: the player's while it sees them, else its roost's
-	float shaftX = 0.f;		// tile-local x where it goes up or down a row next, on the way to toRow
+	bool sees = false; // the player is in sight: on its row as before, or in reach on another row with a way there
+	int toRow = -1; // the row it heads for: the player's while it sees them, else its roost's
+	float shaftX = 0.f; // tile-local x where it goes up or down a row next, on the way to toRow
 	bool openBelow = false; // the cell under it is open: a dead flyer falls on through it
 };
 
@@ -41,7 +41,7 @@ struct FlightGoal {
 struct Leap {
 	float fromX = 0.f, toX = 0.f;
 	int startMs = -1; // GameClock time of the take-off; < 0: on the ground
-	int readyMs = 0;  // no new leap before this GameClock time
+	int readyMs = 0; // no new leap before this GameClock time
 	float lift = 0.f; // world units from the floor to the model origin
 };
 
@@ -51,7 +51,7 @@ enum class BurrowPhase : unsigned char { Up, Dive, Under, Surface };
 struct Burrow {
 	BurrowPhase phase = BurrowPhase::Up;
 	int startMs = 0; // GameClock time the phase began
-	int nextMs = 0;	 // no dive before this GameClock time
+	int nextMs = 0; // no dive before this GameClock time
 	float toX = 0.f; // tile-local x it comes up at
 };
 
@@ -61,8 +61,8 @@ enum class ChargePhase : unsigned char { Ready, Windup, Rush, Stunned };
 struct Charge {
 	ChargePhase phase = ChargePhase::Ready;
 	int startMs = 0;
-	int nextMs = 0;	  // no charge before this GameClock time
-	int dir = 1;	  // -1 / +1 along the row
+	int nextMs = 0; // no charge before this GameClock time
+	int dir = 1; // -1 / +1 along the row
 	bool hit = false; // this rush has hit the player
 };
 
@@ -105,11 +105,11 @@ class Monster {
 	const MonsterType* type = nullptr; // nullptr: an empty slot
 	MonsterLinks links;
 	int col = -1, spawnRow = -1; // spawn tile
-	int row = -1;				 // the row it is on: the spawn row, until it climbs
+	int row = -1; // the row it is on: the spawn row, until it climbs
 	float x = 0.f;
 	int health = 0;
 	ModelState state = ModelState::Move;
-	int facing = 0;	 // -1 left, 0 the camera, +1 right
+	int facing = 0; // -1 left, 0 the camera, +1 right
 	int fleeDir = 0; // a fleeing coward runs this way (Flee), -1 / +1; 0: not fleeing
 	ClipPlayback playback{};
 	Flight flight;
@@ -117,8 +117,8 @@ class Monster {
 	Burrow burrow;
 	Charge charge;
 	Climb climb;
-	bool rungs = false;			  // on a ladder off the floor, or climbing (Dungeon::UpdateMonsters sets it every tick)
-	int wayMs = -1;				  // GameClock time a climber last had a way to the player; < 0: never
+	bool rungs = false; // on a ladder off the floor, or climbing (Dungeon::UpdateMonsters sets it every tick)
+	int wayMs = -1; // GameClock time a climber last had a way to the player; < 0: never
 	int wayCol = -1, wayRow = -1; // the player's cell then: it heads there until it gives up (CLIMB_GIVE_UP_MS)
 	// Created on the slot's first spawn, kept over respawns in it.
 	std::unique_ptr<ParticleSystem> blood;
@@ -127,21 +127,21 @@ class Monster {
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
-	int summonMs = -1;	 // GameClock time a boss summoned it; < 0: not summoned
+	int summonMs = -1; // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
-	float tomb = 0.f;		  // entombed: world units its body is drawn back towards the wall, in its coffin
-	bool inWater = false;	  // standing in half water (Dungeon::UpdateMonsters sets it every tick)
+	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
+	bool inWater = false; // standing in half water (Dungeon::UpdateMonsters sets it every tick)
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
-	float swim = 0.f;		  // a swimmer in the water: world units it floats up off the floor (swimLift), eased
-	bool swimPlaced = false;  // swim was set on the first Animate after the spawn
-	float sink = 0.f;		  // world units it is drawn down into a water basin (Dungeon::WaterSink)
+	float swim = 0.f; // a swimmer in the water: world units it floats up off the floor (swimLift), eased
+	bool swimPlaced = false; // swim was set on the first Animate after the spawn
+	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink)
 	TrapHurt trapHurt;
-	int trapDamageCarry = 0;	  // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
-	int rangedReadyMs = 0;		  // ranged attackers: no new shot before this GameClock time
-	bool rangedReleased = true;	  // the ranged clip's shot has left (TakeShot)
+	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
+	int rangedReadyMs = 0; // ranged attackers: no new shot before this GameClock time
+	bool rangedReleased = true; // the ranged clip's shot has left (TakeShot)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
-	Poison poison;				  // plan monster-poison
-	bool poisonByPlayer = false;  // a running tier is the player's doing: its kill is theirs
+	Poison poison; // plan monster-poison
+	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -159,7 +159,7 @@ class Monster {
 	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
 	[[nodiscard]] float lift() const;
 	[[nodiscard]] float climbLift() const; // world units up or down a ladder while climbing
-	void showClimb();					   // the climb clip's frame from its height (climbRise), as the player's
+	void showClimb(); // the climb clip's frame from its height (climbRise), as the player's
 
   public:
 	Monster() = default;
@@ -278,7 +278,7 @@ class Monster {
 	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
 	[[nodiscard]] bool canDive(float py) const;
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)
-	void DelayDive();	  // no place to come up: try again later
+	void DelayDive(); // no place to come up: try again later
 	[[nodiscard]] bool Burrowing() const { return burrow.phase != BurrowPhase::Up; }
 	// Diving or under the floor: no weapon hits it, the arrows fly over it.
 	[[nodiscard]] bool Hidden() const {

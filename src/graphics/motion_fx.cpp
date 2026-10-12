@@ -10,7 +10,7 @@
 namespace {
 constexpr int EASE_MS = 200;
 constexpr float FOV_KICK = 6.f;
-constexpr float BLUR_REACH = 0.07f;	   // the farthest sample, as a share of the way to the centre
+constexpr float BLUR_REACH = 0.07f; // the farthest sample, as a share of the way to the centre
 constexpr float VIGNETTE_DARK = 0.45f; // edge darkness at full strength
 
 const char* const VERTEX_SRC = R"(

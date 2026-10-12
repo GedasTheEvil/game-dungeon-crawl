@@ -48,7 +48,7 @@ TEST_CASE("a coward that cannot reach the player runs out of the bow's range") {
 	const float gap = (world.X() - world.player.HalfWidth()) - rat->Right();
 	CHECK(gap >= COWARD_SAFE_GAP);
 	CHECK(gap < COWARD_SAFE_GAP + 0.1f); // no farther than it has to
-	CHECK(rat->Facing() == 1);			 // stands, watching the player
+	CHECK(rat->Facing() == 1); // stands, watching the player
 	CHECK(world.Hp() == 50);
 }
 
@@ -219,11 +219,11 @@ TEST_CASE("the water basin: things in half water are drawn down into it, eased i
 	const auto row = static_cast<int>(world.Y());
 	constexpr float DEPTH = RenderConfig::WATER_BASIN_DEPTH;
 	constexpr float RAMP = RenderConfig::WATER_SINK_RAMP;
-	CHECK(d.WaterSink(3.5f, row) == 0.f);									   // dry floor
-	CHECK(d.WaterSink(5.f, row) == 0.f);									   // the bank's edge
+	CHECK(d.WaterSink(3.5f, row) == 0.f); // dry floor
+	CHECK(d.WaterSink(5.f, row) == 0.f); // the bank's edge
 	CHECK(d.WaterSink(5.f + RAMP / 2.f, row) == doctest::Approx(DEPTH / 2.f)); // half way down the ramp
 	CHECK(d.WaterSink(5.f + RAMP, row) == doctest::Approx(DEPTH));
-	CHECK(d.WaterSink(9.5f, row) == doctest::Approx(DEPTH));					// the middle of the pool
+	CHECK(d.WaterSink(9.5f, row) == doctest::Approx(DEPTH)); // the middle of the pool
 	CHECK(d.WaterSink(14.f - RAMP / 2.f, row) == doctest::Approx(DEPTH / 2.f)); // up the far bank
 	CHECK(d.WaterSink(14.5f, row) == 0.f);
 	CHECK(d.WaterSink(9.5f, row + 2) == 0.f); // the ladder's row above the water

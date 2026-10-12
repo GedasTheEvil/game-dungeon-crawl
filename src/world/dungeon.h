@@ -34,12 +34,12 @@ class Dungeon {
 	static constexpr int MAP_HEIGHT = LEVEL_HEIGHT;
 	static constexpr int MAP_CELL_COUNT = LEVEL_CELL_COUNT;
 	Tile map[MAP_CELL_COUNT];
-	DecorLayout decoration;				// props, decals, torches, ladders and surfaces (scatterDecorations)
+	DecorLayout decoration; // props, decals, torches, ladders and surfaces (scatterDecorations)
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
-	SimLinks sim;						// the player, journal, assets, ... the world was given (Link)
+	SimLinks sim; // the player, journal, assets, ... the world was given (Link)
 	float mapX, mapY;
 	int levelNumber = 1; // the campaign level loaded (campaign.h); a level loaded by path keeps the last number
-	bool won = false;	 // the ankh was taken
+	bool won = false; // the ankh was taken
 	// Solid rock for the drawing: a wall, or outside the level.
 	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || isWall(MapAt(col, row)); }
 	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
@@ -51,9 +51,9 @@ class Dungeon {
 	void exploreAroundPlayer();
 	void UpdateMovementState();
 	void UpdateMonsters();
-	void PickUp();	  // not the car... just take an item away
+	void PickUp(); // not the car... just take an item away
 	bool PullLever(); // interact on a lever cell; false if there is none
-	void useGate();	  // the exit, a teleporter, a riddle gate, the ankh
+	void useGate(); // the exit, a teleporter, a riddle gate, the ankh
 	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
 	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -74,7 +74,7 @@ class Dungeon {
 	// inside the rectangle of the two cells. The column of its next step up or down; -1: no way (or the same row).
 	[[nodiscard]] int flightShaft(int col, int row, int toCol, int toRow, bool boxed) const;
 	[[nodiscard]] int climbEnd(int col, int row) const; // the row a climb from (col, row) runs to, along climbPath
-	ClimbMap climbPath;									// the last path followPath built
+	ClimbMap climbPath; // the last path followPath built
 	void clearMonsters(); // a level or save was loaded: the old level's monsters, missiles and shots are gone
 	[[nodiscard]] MonsterLinks monsterLinks() const {
 		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};
@@ -83,8 +83,8 @@ class Dungeon {
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
 	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
 	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
-	void venomHit(Monster& mon);		  // the venom amulet's roll after a weapon hit
-	void rewardKill(Monster& mon);		  // the player killed it: journal, XP, maybe a weapon chest
+	void venomHit(Monster& mon); // the venom amulet's roll after a weapon hit
+	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest).
 	void markSlain(const Monster& mon);
@@ -101,8 +101,8 @@ class Dungeon {
 	void addLights(const CellRect& drawn);
 	void drawFires(const CellRect& drawn);
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
-	CellRect drawnCells;				 // the cells the last Draw drew, for DrawWater
-	void pushLevelFrame() const;		 // Draw's frame: the view's first cell at the origin, scrolled with the player
+	CellRect drawnCells; // the cells the last Draw drew, for DrawWater
+	void pushLevelFrame() const; // Draw's frame: the view's first cell at the origin, scrolled with the player
 	void drawWaterCell(int i, int j, float x, float y);
 	[[nodiscard]] bool dryOpen(int col, int row) const; // walkable and not water: a basin's edge
 	[[nodiscard]] bool deepAt(int col, int row) const;
@@ -115,27 +115,27 @@ class Dungeon {
 	Tile Map(float x, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
 	struct Motion {
-		int cell;	 // map index
+		int cell; // map index
 		int startMs; // GameClock time the motion began
 	};
-	int keysHeld = 0;				  // bit (colour - 1) per key picked up on this level
-	int levelKeys = 0;				  // bit (colour - 1) per key the level has, picked up or not
+	int keysHeld = 0; // bit (colour - 1) per key picked up on this level
+	int levelKeys = 0; // bit (colour - 1) per key the level has, picked up or not
 	std::vector<Motion> openingGates; // c = 2 while in here, then 1 (open)
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
-	int lockedHintMs = -1000000;	  // last "the gate is locked" message, to keep it from repeating every step
-	int waterHintMs = -1000000;		  // last "too deep to jump" message
-	int wadeSoundMs = -1000000;		  // last splashing step
+	int lockedHintMs = -1000000; // last "the gate is locked" message, to keep it from repeating every step
+	int waterHintMs = -1000000; // last "too deep to jump" message
+	int wadeSoundMs = -1000000; // last splashing step
 	void resetMechanisms();
 	void updateMechanisms();
 	void startOpeningGate(int cell);
 	void openGates(int colour);
 	void bumpGate(int col, int row); // the player walked into a closed gate
-	void startRockFall(int cell);	 // an armed rock fall cell was stepped into: the rumble starts
+	void startRockFall(int cell); // an armed rock fall cell was stepped into: the rumble starts
 	void updateRocks();
 	void drawKeyTile(int i, int j);
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
-	void drawTeleporterTile();			// at the cell origin: the columns face the camera, plasma between them
+	void drawTeleporterTile(); // at the cell origin: the columns face the camera, plasma between them
 	void drawTileContent(int i, int j); // what stands in the cell, by tile type
 	void drawAnkhTile();
 	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
@@ -152,9 +152,9 @@ class Dungeon {
 		int fired = 0; // darts out so far
 	};
 	struct Dart {
-		float x, y;			 // map units: its hole (DART_HOLE_X), at DART_HEIGHT
-		float depth = 0.f;	 // tiles out of the back wall: 0 the wall, 1 the front of the corridor
-		int lastMs;			 // GameClock time of the last update
+		float x, y; // map units: its hole (DART_HOLE_X), at DART_HEIGHT
+		float depth = 0.f; // tiles out of the back wall: 0 the wall, 1 the front of the corridor
+		int lastMs; // GameClock time of the last update
 		bool passed = false; // crossed the walking line (DART_HIT_DEPTH) without a hit
 	};
 	std::vector<Motion> pressedPlates; // c = 1 while in here, until it re-arms
@@ -165,20 +165,20 @@ class Dungeon {
 	void pressPlate(int col, int row, bool byPlayer);
 	void updateDarts();
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
-	void drawDarts();					  // with the frame origin of DrawMonsters
+	void drawDarts(); // with the frame origin of DrawMonsters
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
-	[[nodiscard]] Monster* freeMonsterSlot();			 // an empty slot, else the slot of a dead monster; null if none
+	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
 	// The level's boss fight (at most one boss per level). Monsters are not saved: a load starts the fight over.
 	struct BossFight {
-		int slot = -1;		  // monsters[] index of the boss, -1: none in play
-		int summoned = 0;	  // minions summoned this fight, after the first ones
+		int slot = -1; // monsters[] index of the boss, -1: none in play
+		int summoned = 0; // minions summoned this fight, after the first ones
 		int nextSummonMs = 0; // GameClock time of the next summon
-		int firstLeft = 0;	  // hatchers: first minions still to come (the egg clusters spawn in view after the boss)
-		int hatched = 0;	  // minions of any kind so far: picks the kind (BossRules::smallMinion) and the nest
+		int firstLeft = 0; // hatchers: first minions still to come (the egg clusters spawn in view after the boss)
+		int hatched = 0; // minions of any kind so far: picks the kind (BossRules::smallMinion) and the nest
 	} bossFight;
 	void startBossFight(int slot); // the boss appeared: its first minions with it
-	void updateBoss();			   // summons while it lives; its death opens the boss gates, for good
+	void updateBoss(); // summons while it lives; its death opens the boss gates, for good
 	bool summonMinion(const Monster& boss);
 	void drawSummonEffects(); // sand and dust where minions came out, the burrowers' holes, after the opaque scene
 	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
@@ -199,8 +199,8 @@ class Dungeon {
 		float x0, y0, vx, vy;
 		int damage;
 		DamageMix mix;
-		int startMs;	  // GameClock time of the shot
-		float t = 0.f;	  // seconds flown so far
+		int startMs; // GameClock time of the shot
+		float t = 0.f; // seconds flown so far
 		int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
 		float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
 		[[nodiscard]] float X() const { return x0 + vx * t; }
@@ -213,17 +213,17 @@ class Dungeon {
 	struct MonsterShot {
 		float x, y, vx, vy;
 		const MonsterType* from; // its damage, mix and poison
-		Rgb colour;				 // RangedRules::colour
-		int lastMs;				 // GameClock time of the last update
-		float flown = 0.f;		 // tiles
-		int splatMs = -1;		 // GameClock time it hit a wall or the floor; < 0: flying
-		int spawnMs = 0;		 // GameClock time it was shot: the seed of its flames
+		Rgb colour; // RangedRules::colour
+		int lastMs; // GameClock time of the last update
+		float flown = 0.f; // tiles
+		int splatMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
+		int spawnMs = 0; // GameClock time it was shot: the seed of its flames
 	};
 	std::vector<MonsterShot> shots;
 	void shootAtPlayer(const Monster& mon, float x, float y);
 	void updateShots();
 	void addVenomLights();
-	void drawShots();													// with the frame origin of DrawMonsters
+	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
@@ -236,7 +236,7 @@ class Dungeon {
 	bool playerVenomed = false; // the death trap's poison took this entry (reset on leaving it)
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
-	void drawMissiles();		// with the frame origin of DrawMonsters
+	void drawMissiles(); // with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
@@ -251,7 +251,7 @@ class Dungeon {
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
-	float treasureSpin = 0.f;  // degrees: the item turning over a treasure chest
+	float treasureSpin = 0.f; // degrees: the item turning over a treasure chest
 	// The monster tiles in the gameplay window (ViewWindow, 10 x 6 cells round the player) spawn their monsters.
 	void spawnInView();
 	void updateAnimations(); // the portal scroll, the riddle mark, the treasure items
@@ -321,7 +321,7 @@ class Dungeon {
 	[[nodiscard]] bool TravelToExit() const { return travelExit; }
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
-	[[nodiscard]] int MonsterBarsShown() const;				  // living monsters that show their health bar
+	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar
 	// The boss in a fight (alive and alerted), for the HUD bar; null if none.
 	[[nodiscard]] const Monster* Boss() const;
 	[[nodiscard]] int BossHealth() const; // of the boss in play (alerted or not), 0 if none
@@ -332,9 +332,9 @@ class Dungeon {
 	[[nodiscard]] const Monster* Monsters() const { return monsters; }
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
 	[[nodiscard]] int NearestMonsterPoison() const; // its running poison tiers (Poison::Mask), 0 if none
-	[[nodiscard]] int ChestCount() const;			// treasure chests not opened yet
-	[[nodiscard]] int CoffinCount() const;			// coffins standing on the level (decorations)
-	void HurtBoss(int dmg);							// scenario tests: the boss in play takes a hit, as from the player
+	[[nodiscard]] int ChestCount() const; // treasure chests not opened yet
+	[[nodiscard]] int CoffinCount() const; // coffins standing on the level (decorations)
+	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).
 	void PoisonNearestMonster(PoisonTier tier);

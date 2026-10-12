@@ -83,13 +83,13 @@ const double SPEED_STEP = 1.25; // + divides the loop duration by this, - multip
 const double MIN_DURATION_SECONDS = 0.2;
 const double MAX_DURATION_SECONDS = 60.0;
 
-float gYawDeg = 20.0f;	// matches the current fixed view exactly, so the
+float gYawDeg = 20.0f; // matches the current fixed view exactly, so the
 float gPitchDeg = 0.0f; // initial frame on launch is unchanged
 bool gDragging = false;
 int gLastMouseX = 0;
 int gLastMouseY = 0;
 const float DRAG_DEG_PER_PX = 0.4f; // empirical; tune by feel
-const float MAX_PITCH_DEG = 89.0f;	// avoid flipping past vertical
+const float MAX_PITCH_DEG = 89.0f; // avoid flipping past vertical
 
 // Stats panel: set by ApplyLoadedModel for every loaded model.
 Font gStatsFont;
@@ -286,8 +286,8 @@ void SetDuration(double seconds) {
 // Stats panel at the top right, in the look of the game's status box (docs/ui.md): dark framed panel, gold text.
 void DrawStatsPanel() {
 	// ---- layout ----, on a canvas 100 high
-	constexpr float MARGIN = 2.f;  // panel to the window edges
-	constexpr float PAD = 3.f;	   // text to the frames
+	constexpr float MARGIN = 2.f; // panel to the window edges
+	constexpr float PAD = 3.f; // text to the frames
 	constexpr float LINE_H = 4.6f; // baseline to baseline
 	constexpr float HINT_H = 4.f;
 	constexpr float GLYPH_HIGH = 3.f; // the body font's letters reach this far above the pen y

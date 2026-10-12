@@ -6,8 +6,8 @@ namespace {
 // Independent rolls, in percent.
 constexpr int SMALL_STAMINA_CHANCE = 30;
 constexpr int LARGE_STAMINA_CHANCE = 20;
-constexpr int LOWER_WEAPON_CHANCE = 5;	// weapon chests: one weapon of a lower grade
-constexpr int SAME_POTION_CHANCE = 5;	// potion chests: a second one of the same potion
+constexpr int LOWER_WEAPON_CHANCE = 5; // weapon chests: one weapon of a lower grade
+constexpr int SAME_POTION_CHANCE = 5; // potion chests: a second one of the same potion
 constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 
 // Weapons from the weakest up, by base damage (WeaponDef::damage); equal ones in ItemKind order.

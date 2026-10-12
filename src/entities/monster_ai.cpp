@@ -403,7 +403,7 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 			break;
 		}
 		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front
-		const float above = py - static_cast<float>(row);		 // the player's feet up the rungs of a ladder
+		const float above = py - static_cast<float>(row); // the player's feet up the rungs of a ladder
 		if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;

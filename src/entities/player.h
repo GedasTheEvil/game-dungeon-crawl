@@ -32,7 +32,7 @@ class Player {
 	ModelState state = ModelState::Idle;
 	ClipPlayback playback{};
 	ParticleSystem blood{0}; // stopped: no splash until the first hit
-	int shownFrame = 0;		 // of the clip shown, as of the last Animate (it advances after the drawing showed it)
+	int shownFrame = 0; // of the clip shown, as of the last Animate (it advances after the drawing showed it)
 
 	void die(WorldEvents& events); // the death pose and sound; the poison and the curses end
 

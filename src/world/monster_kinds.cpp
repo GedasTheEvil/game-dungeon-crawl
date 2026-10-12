@@ -7,31 +7,31 @@ constexpr Rgb SCORPION_BLOOD = {0.45f, 0.62f, 0.55f};
 
 // What each model group's bite or blow deals (plan monster-attack-damage-types), read from what the model attacks with.
 // The members of a group (bigger or darker) deal the same kinds, only more.
-constexpr DamageMix WORM_MIX = {60, 40, 0};		   // grinding maw
-constexpr DamageMix SCARAB_MIX = {40, 60, 0};	   // rams, mandibles
-constexpr DamageMix PLANT_MIX = {0, 40, 60};	   // bite, thorny vines
-constexpr DamageMix RAT_MIX = {0, 30, 70};		   // teeth
-constexpr DamageMix BAT_MIX = {0, 20, 80};		   // fangs, claws
-constexpr DamageMix MUMMY_MIX = {100, 0, 0};	   // fists
-constexpr DamageMix ANUBIS_MIX = {80, 0, 20};	   // was-sceptre, its forked foot
-constexpr DamageMix CROCODILE_MIX = {50, 0, 50};   // crushing jaws
-constexpr DamageMix SCORPION_MIX = {0, 30, 70};	   // claws, sting
-constexpr DamageMix MIMIC_MIX = {40, 0, 60};	   // lid slam, teeth
-constexpr DamageMix COBRA_MIX = {0, 0, 100};	   // fangs
+constexpr DamageMix WORM_MIX = {60, 40, 0}; // grinding maw
+constexpr DamageMix SCARAB_MIX = {40, 60, 0}; // rams, mandibles
+constexpr DamageMix PLANT_MIX = {0, 40, 60}; // bite, thorny vines
+constexpr DamageMix RAT_MIX = {0, 30, 70}; // teeth
+constexpr DamageMix BAT_MIX = {0, 20, 80}; // fangs, claws
+constexpr DamageMix MUMMY_MIX = {100, 0, 0}; // fists
+constexpr DamageMix ANUBIS_MIX = {80, 0, 20}; // was-sceptre, its forked foot
+constexpr DamageMix CROCODILE_MIX = {50, 0, 50}; // crushing jaws
+constexpr DamageMix SCORPION_MIX = {0, 30, 70}; // claws, sting
+constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
+constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 
 // How each group takes blunt, slash and pierce damage (plan damage-types-and-resistances). Each weapon is the best
 // against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants and mummies, the
 // spear (and the bow) against scarabs. A boss has no weak spot (bossResist).
-constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL};   // soft: a blow squashes, a blade cuts
+constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL}; // soft: a blow squashes, a blade cuts
 constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK}; // the shell turns a blade, a point goes between plates
-constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH};	   // stems: only a blade cuts; points and blows go astray
-constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH};	   // swat it; an arrow goes through the wing
-constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH};   // wood: crack it; a point only sticks in it
+constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH}; // stems: only a blade cuts; points and blows go astray
+constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH}; // swat it; an arrow goes through the wing
+constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH}; // wood: crack it; a point only sticks in it
 constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL}; // bronze armour dents, a blade glances off it
-constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH};   // dry linen tears; nothing inside to stab
+constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH}; // dry linen tears; nothing inside to stab
 constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL}; // the scutes turn a blade
-constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS};	// a blow cracks the thin shell; a point glances off
+constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS}; // a blow cracks the thin shell; a point glances off
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
 
@@ -43,7 +43,7 @@ constexpr int POISON_IMMUNE = 100;
 constexpr float ANUBIS_RELEASE = 12.f / 25.f;
 constexpr float ANUBIS_RELEASE_Y = 0.44f;
 constexpr float ANUBIS_RELEASE_AHEAD = 2.6f;
-constexpr int POISONER_RESIST = 50;		 // scorpions and cobras: half used to venom
+constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
 // A boss has no weakness: where its kin is weak, it takes the damage normally.

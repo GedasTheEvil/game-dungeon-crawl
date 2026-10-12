@@ -13,7 +13,7 @@ namespace Lighting {
 
 struct LightDef {
 	float r, g, b;
-	float radius;  // world units, the light is zero beyond it
+	float radius; // world units, the light is zero beyond it
 	float flicker; // 0 = steady, 1 = strong fire flicker
 };
 

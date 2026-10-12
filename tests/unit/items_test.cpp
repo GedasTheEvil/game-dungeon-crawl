@@ -43,8 +43,8 @@ TEST_CASE("weapon levels") {
 	CHECK(upgradeCost(4) == 11);
 	CHECK(weaponDamage(ItemKind::ShortSword, 35, 1) == 35);
 	CHECK(weaponDamage(ItemKind::ShortSword, 35, 2) == 39); // +10%
-	CHECK(weaponDamage(ItemKind::Club, 10, 5) == 26);		// +40% a level: 10 x 2.6
-	CHECK(weaponDamage(ItemKind::Spear, 20, 3) == 28);		// +20% a level
+	CHECK(weaponDamage(ItemKind::Club, 10, 5) == 26); // +40% a level: 10 x 2.6
+	CHECK(weaponDamage(ItemKind::Spear, 20, 3) == 28); // +20% a level
 }
 
 TEST_CASE("a new bag holds the club, in hand") {
@@ -462,8 +462,8 @@ TEST_CASE("sort by strength: weapons by damage now, amulets by tier, strong poti
 	bag.Add(ItemKind::Dagger);
 	std::vector<ItemKind> weapons = tabOrder(bag, ItemGroup::Weapons, SortOrder::Strength);
 	CHECK(weapons[0] == ItemKind::ShortSword); // 35
-	CHECK(weapons[1] == ItemKind::Club);	   // 10
-	CHECK(weapons[2] == ItemKind::Dagger);	   // 8
+	CHECK(weapons[1] == ItemKind::Club); // 10
+	CHECK(weapons[2] == ItemKind::Dagger); // 8
 	// the dagger levelled up past the club: damage now, not the base
 	for (int copies = 0; copies < 30; copies++)
 		bag.Add(ItemKind::Dagger);
@@ -522,7 +522,7 @@ TEST_CASE("amulet upgrade: each tier step takes its worth from same-type spares"
 	bag.Add(ItemKind::ArmorLesser);
 	CHECK(bag.UpgradePoints(ItemKind::ArmorLesser) == 1);
 	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, false)); // dead
-	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true));		   // lesser -> minor: + 1 lesser
+	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true)); // lesser -> minor: + 1 lesser
 	CHECK(bag.Count(ItemKind::ArmorLesser) == 0);
 	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
 	CHECK(bag.Found(ItemKind::ArmorMinor));

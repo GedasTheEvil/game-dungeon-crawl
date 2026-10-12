@@ -16,8 +16,8 @@ constexpr float PAPER_H = 96.f;
 constexpr float PAPER_PAD_X = 6.f;
 constexpr float PAPER_PAD_TOP = 11.f; // room for the title
 constexpr float PAPER_PAD_BOTTOM = 7.f;
-constexpr float MAX_CELL = 5.f;			 // zoom limit for a small explored part, canvas units per cell
-constexpr float JITTER = 0.07f;			 // pencil wobble, in cells
+constexpr float MAX_CELL = 5.f; // zoom limit for a small explored part, canvas units per cell
+constexpr float JITTER = 0.07f; // pencil wobble, in cells
 constexpr float REFERENCE_RES_Y = 720.f; // line widths are in pixels at this height and this cell size
 constexpr float REFERENCE_CELL = 2.f;
 
@@ -32,7 +32,7 @@ constexpr Color LOCK_PENCILS[LOCK_COLOUR_COUNT] = {
 constexpr Color ANKH_GOLD = {0.78f, 0.56f, 0.10f};
 constexpr Color WATER_BLUE = {0.16f, 0.38f, 0.70f};
 constexpr float WAVE_AMPLITUDE = 0.06f; // cells
-constexpr int WAVE_SEGMENTS = 8;		// per wave, two crests
+constexpr int WAVE_SEGMENTS = 8; // per wave, two crests
 
 // Stable per-stroke randomness, so the sketch does not crawl from frame to frame.
 float noise(uint32_t seed) {

@@ -12,13 +12,13 @@
 namespace {
 // Placement in prop space (tile units, origin = floor centre of the tile on the back wall, z towards the camera),
 // from the extents mechanism.py prints.
-constexpr float KEY_HOVER = 0.35f;					  // key height above the floor
-constexpr float KEY_BOB = 0.04f;					  // up and down while it spins
+constexpr float KEY_HOVER = 0.35f; // key height above the floor
+constexpr float KEY_BOB = 0.04f; // up and down while it spins
 constexpr float LEVER_PIVOT[3] = {0.f, 0.42f, 0.05f}; // handle pivot on the plate
-constexpr float LEVER_ANGLE = 35.f;					  // degrees either side of upright; + tips the grip left
-constexpr float ROCK_START_Y = 0.65f;				  // rock bottom when it breaks loose (rock is 0.3 tall)
-constexpr float ROCK_DEPTH = 0.5f;					  // in the middle of the corridor, where the player walks
-constexpr float DART_PLATE_SINK = 0.025f;			  // a pressed plate is flush with the floor
+constexpr float LEVER_ANGLE = 35.f; // degrees either side of upright; + tips the grip left
+constexpr float ROCK_START_Y = 0.65f; // rock bottom when it breaks loose (rock is 0.3 tall)
+constexpr float ROCK_DEPTH = 0.5f; // in the middle of the corridor, where the player walks
+constexpr float DART_PLATE_SINK = 0.025f; // a pressed plate is flush with the floor
 
 // Prop frame of the current tile (see Dungeon::drawDecorTile).
 void enterPropSpace() {

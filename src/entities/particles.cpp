@@ -36,7 +36,7 @@ void ParticleSystem::Explode() {
 	for (int i = 0; i < PARTICLE_COUNT; i++) {
 		// Chaotic explosion: completely random directions and forces
 		float explosionForce = (static_cast<float>(rng.below(100)) / 100.0f) * 0.6f + 0.05f; // 0.05-0.65 force
-		float randomAngle = static_cast<float>(rng.below(360)) * 3.14159f / 180.0f;			 // Completely random angle
+		float randomAngle = static_cast<float>(rng.below(360)) * 3.14159f / 180.0f; // Completely random angle
 
 		// Add multiple layers of randomness for chaotic explosion
 		float chaosX = (static_cast<float>(rng.below(100) - 50) / 100.0f) * 0.3f; // ±0.3 chaos

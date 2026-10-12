@@ -17,9 +17,9 @@ struct TileInfo {
 
 // One field (attribute or value) of a cell, explained.
 struct FieldHint {
-	bool used = false;	 // false: the tile ignores the field, keep it at 0
-	bool valid = true;	 // the current number means something
-	std::string label;	 // "Attribute: gate type"
+	bool used = false; // false: the tile ignores the field, keep it at 0
+	bool valid = true; // the current number means something
+	std::string label; // "Attribute: gate type"
 	std::string current; // "2 = Exit, loads the next level"
 	std::string choices; // "1 entrance, 2 exit, ..."
 };

@@ -21,13 +21,13 @@ extern const FireRamp VENOM_RAMP; // the same shape in greens, close to VENOM_GR
 } // namespace Fire
 
 struct FireStyle {
-	int count;								  // particles alive at once
-	float lifeMs;							  // average particle life
-	float spawnRadius;						  // world units around the origin
-	float height;							  // how far a particle rises over its life
-	float size;								  // sprite side at birth, world units
-	float sway;								  // sideways drift of the smoke
-	float smoke;							  // smoke opacity, 0..1
+	int count; // particles alive at once
+	float lifeMs; // average particle life
+	float spawnRadius; // world units around the origin
+	float height; // how far a particle rises over its life
+	float size; // sprite side at birth, world units
+	float sway; // sideways drift of the smoke
+	float smoke; // smoke opacity, 0..1
 	const FireRamp* ramp = &Fire::FLAME_RAMP; // colours over a particle's life
 };
 

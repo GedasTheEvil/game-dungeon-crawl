@@ -148,7 +148,7 @@ TEST_CASE("bad lines say what is wrong") {
 	CHECK_FALSE(errorOf("expect potion99 == 1").empty());
 	CHECK_FALSE(errorOf("give potion 99").empty());
 	CHECK_FALSE(errorOf("equip small_health").empty()); // not a weapon
-	CHECK_FALSE(errorOf("wear club").empty());			// not an amulet
+	CHECK_FALSE(errorOf("wear club").empty()); // not an amulet
 	CHECK_FALSE(errorOf("screenshot a/b").empty());
 	CHECK_FALSE(errorOf("hurtboss 0").empty());
 	CHECK_FALSE(errorOf("resolution 32 32").empty());

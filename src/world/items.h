@@ -170,7 +170,7 @@ struct PotionGain {
 	int might = 0;
 	int armor = 0;
 	int maxHpPercent = 0;
-	bool cure = false;	   // ends all poison
+	bool cure = false; // ends all poison
 	int resistPercent = 0; // for PotionEffect::RESIST_MS, the chance a poisoned hit does not poison
 };
 
@@ -179,8 +179,8 @@ enum class FieldNote : unsigned char; // journal.h
 struct ItemText {
 	const char* name;
 	const char* shortName; // fits an inventory slot's name band
-	const char* label;	   // plain word for the editor ("small health", "might")
-	const char* effect;	   // potions and amulets
+	const char* label; // plain word for the editor ("small health", "might")
+	const char* effect; // potions and amulets
 	const char* lore1;
 	const char* lore2;
 };
@@ -189,17 +189,17 @@ struct ItemText {
 struct WeaponDef {
 	const char* model = ""; // models/items/<model>.md3, textures/items/<model>.png
 	float scale = 1.f;
-	int damage = 0;	 // at weapon level 1; the loot grades go by it (loot.cpp)
-	int range = 0;	 // tenths of a tile (a ranged weapon's: how far it aims)
+	int damage = 0; // at weapon level 1; the loot grades go by it (loot.cpp)
+	int range = 0; // tenths of a tile (a ranged weapon's: how far it aims)
 	DamageMix mix{}; // blunt, slash, pierce percent. Its main type (mainType) is the journal's.
 	// Each weapon level adds this share of the base damage: the club grows most, the sword least (it starts
 	// strongest).
 	int growthPercent = 20;
 	WeaponMotion motion{};
-	const char* swingSound = "";			  // sounds/items/<name>.wav: the attack begins
-	const char* strikeSound = "";			  // a melee hit lands, the shot leaves
+	const char* swingSound = ""; // sounds/items/<name>.wav: the attack begins
+	const char* strikeSound = ""; // a melee hit lands, the shot leaves
 	MissileKind missile = MissileKind::Arrow; // ranged weapons
-	bool thrown = false;   // the weapon itself leaves the hand (Dungeon::Shoot): the hand is empty until the swing ends
+	bool thrown = false; // the weapon itself leaves the hand (Dungeon::Shoot): the hand is empty until the swing ends
 	int generatedFrom = 0; // levelgen's weapon chests hold it from this difficulty on (0: from the start)
 };
 
@@ -210,7 +210,7 @@ constexpr int POTION_MODEL_COUNT = 6;
 
 struct PotionModelDef {
 	const char* model; // models/items/<model>.md3
-	float scale;	   // on a chest (Item::scale)
+	float scale; // on a chest (Item::scale)
 	float detailScale; // the inventory's detail view
 };
 [[nodiscard]] const PotionModelDef& potionModelDef(PotionModel model);
@@ -219,10 +219,10 @@ struct PotionDef {
 	PotionGain gain{};
 	PotionModel model{};
 	const char* texture = ""; // textures/items/<texture>.png, on its model's UVs
-	Rgb colour{};			  // the icons' tint: the inventory's potions tab, the HUD quick slot
-	FieldNote note{};		  // the journal's, on the first one found
-	int generatedWeight = 0;  // levelgen's potion chests, in percent
-	bool mimicLoot = true;	  // a mimic can leave it (not the antidote: it lies only on the levels with poisoners)
+	Rgb colour{}; // the icons' tint: the inventory's potions tab, the HUD quick slot
+	FieldNote note{}; // the journal's, on the first one found
+	int generatedWeight = 0; // levelgen's potion chests, in percent
+	bool mimicLoot = true; // a mimic can leave it (not the antidote: it lies only on the levels with poisoners)
 };
 
 // The weapons and the potions, one row each; an amulet's row is its type's (AmuletTypeDef in items.cpp).
@@ -257,9 +257,9 @@ constexpr int SMALL_HEAL_PERCENT = 25;
 constexpr int LARGE_HEAL_PERCENT = 50;
 constexpr int SMALL_STAMINA_PERCENT = 50;
 constexpr int LARGE_STAMINA_PERCENT = 100;
-constexpr int MIGHT = 1;				  // might potion, for good
-constexpr int ARMOR = 1;				  // armour potion, for good
-constexpr int LIFE_MAX_HP_PERCENT = 5;	  // elixir of life: more max health, then a full heal
+constexpr int MIGHT = 1; // might potion, for good
+constexpr int ARMOR = 1; // armour potion, for good
+constexpr int LIFE_MAX_HP_PERCENT = 5; // elixir of life: more max health, then a full heal
 constexpr int LESSER_RESIST_PERCENT = 50; // resistance potions: added to the amulet's ward, up to 100%
 constexpr int GREATER_RESIST_PERCENT = 95;
 constexpr int RESIST_MS = 120000;
@@ -294,13 +294,13 @@ struct Amulet {
 
 // What the worn amulet gives, all zero without one.
 struct AmuletBonus {
-	int might = 0;				 // added to every hit
-	int armor = 0;				 // taken off every hit, like the armour
-	int maxHpPercent = 0;		 // more max HP, a share of the base max HP
+	int might = 0; // added to every hit
+	int armor = 0; // taken off every hit, like the armour
+	int maxHpPercent = 0; // more max HP, a share of the base max HP
 	int poisonResistPercent = 0; // chance that a poisoned hit does not poison
-	int trapCutPercent = 0;		 // less spike and death trap damage; 100: immune
-	int regenHpPerSecond = 0;	 // while no monster chases the player and no poison runs
-	int venomPercent = 0;		 // chance that a weapon hit poisons the monster (Monster::TakePoison)
+	int trapCutPercent = 0; // less spike and death trap damage; 100: immune
+	int regenHpPerSecond = 0; // while no monster chases the player and no poison runs
+	int venomPercent = 0; // chance that a weapon hit poisons the monster (Monster::TakePoison)
 	PoisonTier venomTier = PoisonTier::Weak;
 	Resistances resist = NO_RESISTANCES;
 };

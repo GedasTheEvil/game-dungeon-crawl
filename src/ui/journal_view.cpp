@@ -23,9 +23,9 @@ constexpr Rect LEFT_PAGE = {12, 12.5f, 66, 70};
 constexpr Rect RIGHT_PAGE = {78, 12.5f, 66, 70};
 constexpr float SPINE = RIGHT_PAGE.x;
 constexpr float PAGE_PAD = 6.f;
-constexpr float CLOTH_TILE = 20.f;					   // units per repeat of the cloth texture
-constexpr int EDGE_LINES = 7;						   // page edges showing, both sides together
-constexpr float EDGE_STEP = 0.24f;					   // how far each page under sticks out
+constexpr float CLOTH_TILE = 20.f; // units per repeat of the cloth texture
+constexpr int EDGE_LINES = 7; // page edges showing, both sides together
+constexpr float EDGE_STEP = 0.24f; // how far each page under sticks out
 constexpr Rect STRAP_BAND = {8.1f, 8.8f, 1.8f, 77.4f}; // round the left cover edge, a little past top and bottom
 constexpr float HEADBAND_W = 2.6f;
 constexpr float HEADBAND_OUT = 0.9f; // past the pages' top and bottom
@@ -35,10 +35,10 @@ constexpr float RIBBON_LEN = 14.f;
 constexpr float RIBBON_H = 6.f;
 constexpr float RIBBON_TOP = 76.f;
 constexpr float RIBBON_STEP = 9.f;
-constexpr float RIBBON_SHADOW = 1.f;						   // texture margin right and below
-constexpr float RIBBON_TEX_LEN = 16.f;						   // the ribbon in the texture; shorter ones crop it
+constexpr float RIBBON_SHADOW = 1.f; // texture margin right and below
+constexpr float RIBBON_TEX_LEN = 16.f; // the ribbon in the texture; shorter ones crop it
 constexpr float RIBBON_TEX_W = RIBBON_TEX_LEN + RIBBON_SHADOW; // the texture: the ribbon and its shadow
-constexpr float RIBBON_DEPTH_MAX = EDGE_LINES * EDGE_STEP;	   // the deepest page edge
+constexpr float RIBBON_DEPTH_MAX = EDGE_LINES * EDGE_STEP; // the deepest page edge
 constexpr float RIBBON_OVERHANG = RIBBON_LEN - RIBBON_IN + RIBBON_DEPTH_MAX + RIBBON_SHADOW; // past a turning page
 constexpr float RIBBON_RIDE_EASE = 0.3f; // of a turn: a riding ribbon slides in to the page, and out at the end
 
@@ -46,18 +46,18 @@ constexpr float CORNER = 7.f; // page turn corners
 constexpr float ANSWER_W = 36.f;
 constexpr float ANSWER_H = 7.f;
 
-constexpr float FLIP_MS = 650.f;	// a page over, clicked or let go of
+constexpr float FLIP_MS = 650.f; // a page over, clicked or let go of
 constexpr float CORNER_LIFT = 10.f; // how high the bottom corner swings on its way over
-constexpr float PEEK_X = 6.f;		// the hovered corner lifts this far in and up
+constexpr float PEEK_X = 6.f; // the hovered corner lifts this far in and up
 constexpr float PEEK_Y = 3.f;
 constexpr float CLICK_SLOP = 1.5f; // a press let go of within this is a click, not a drag
 
-constexpr const char* HAND_FONT = "fonts/kalam.png";	// Kalam (OFL, fonts/kalam-OFL.txt)
+constexpr const char* HAND_FONT = "fonts/kalam.png"; // Kalam (OFL, fonts/kalam-OFL.txt)
 constexpr const char* STAMP_FONT = "fonts/courier.png"; // Courier 10 Pitch (Bitstream, fonts/courier-LICENSE.txt)
-constexpr float FADED = 0.7f;							// alpha of pencil notes that matter less
+constexpr float FADED = 0.7f; // alpha of pencil notes that matter less
 
 constexpr float NUMBER_TOP = 5.8f; // page number baseline below the page top
-constexpr float XREF_TOP = 2.9f;   // the pencilled level above it
+constexpr float XREF_TOP = 2.9f; // the pencilled level above it
 constexpr float HEADING_TOP = 11.5f;
 constexpr float PHOTO_TOP = 16.f;
 constexpr float PHOTO_W = 40.f;
@@ -70,8 +70,8 @@ constexpr float MARGIN_W = 10.f; // the label column on the left of the notes
 constexpr float FORM_COLUMN = 22.f;
 constexpr float BLANK_W = 7.f; // the line of a field not filled in yet
 
-constexpr float SKETCH_YAW = -25.f;	   // from the side, turned a little towards the reader
-constexpr float SKETCH_TILT = 12.f;	   // seen a little from above
+constexpr float SKETCH_YAW = -25.f; // from the side, turned a little towards the reader
+constexpr float SKETCH_TILT = 12.f; // seen a little from above
 constexpr float SKETCH_LINE_PX = 1.6f; // at 720 rows
 
 constexpr float QUESTION_TOP = 19.f;
@@ -661,7 +661,7 @@ void JournalScreen::Draw() {
 	}
 	beginShapes();
 	line(SPINE, LEFT_PAGE.y, SPINE, LEFT_PAGE.y + LEFT_PAGE.h, BLACK, 0.35f, 1.f); // the gutter
-	DrawRibbons(true);															   // under the turning page
+	DrawRibbons(true); // under the turning page
 
 	if (turning && !pagesFailed) {
 		PageCurlPlacement at;

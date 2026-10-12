@@ -73,6 +73,9 @@ levels or balance) needs no user confirmation. Once implemented and its checks p
 When a plan moves to "docs/plan/solved/", turn the scenario tests it uses into unit tests (`tests/unit/`, docs/testing.md).
 A scenario that needs a screenshot moves to "tests/scenarios/solved/": `make test` skips it, `make test SCENARIO=...`
 still runs it as a slow regression check. Goal: lean, fast tests.
+Code, tests and level files name a plan by its slug only (`// Climbers (plan monster-climbers): ...`), never by its
+path or file name: a draft's rename or move to "solved/" then touches no code, so solving one needs no rebuild and
+no test run. Only docs (markdown) link plans by path. Old path references in code: shorten them when you touch them.
 New draft plans can arrive (and get committed) at any time, also in parallel with other work. They are not blocking:
 ignore them, don't stop or change the current task because of them, and don't include them in your own commits.
 

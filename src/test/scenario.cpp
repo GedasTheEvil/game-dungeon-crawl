@@ -17,6 +17,7 @@
 #include <GL/gl.h>
 #include <cmath>
 #include <csignal>
+#include <ctime>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -67,6 +68,9 @@ struct Runner {
 	int shotCounter = 0;
 	int executed = 0;
 	std::vector<std::string> failures;
+
+	size_t playSetup = 0; // play mode: the setup commands still to run (all of them, until the first frame)
+	bool playPending = false;
 };
 
 Runner gRunner;
@@ -575,6 +579,57 @@ bool Scenario::load(const char* path) {
 	gRunner.drawAll = drawAll != nullptr && std::string(drawAll) == "1";
 	gRunner.active = true;
 	return true;
+}
+
+namespace {
+// Play mode needs the commands, the seed (the time, unless the script says) and where its saves go.
+bool startPlay(const std::string& name) {
+	size_t count = 0;
+	const std::string error = playSetup(gRunner.script, count);
+	if (!error.empty()) {
+		fprintf(stderr, "%s: %s\n", name.c_str(), error.c_str());
+		return false;
+	}
+	gRunner.outDir = "tests/out/" + std::filesystem::path(name).stem().string();
+	gRunner.playSetup = count;
+	gRunner.playPending = true;
+	return true;
+}
+} // namespace
+
+bool Scenario::loadPlay(const char* path) {
+	std::ifstream in(path);
+	if (!in) {
+		fprintf(stderr, "scenario: cannot open %s\n", path);
+		return false;
+	}
+	gRunner.script.seed = static_cast<unsigned int>(std::time(nullptr));
+	const std::vector<std::string> errors = parseScript(in, path, gRunner.script);
+	for (const std::string& error : errors)
+		fprintf(stderr, "%s\n", error.c_str());
+	return errors.empty() && startPlay(path);
+}
+
+bool Scenario::loadPlayLevel(const char* levelArg) {
+	gRunner.script.seed = static_cast<unsigned int>(std::time(nullptr));
+	const std::string error = levelScript(levelArg, gRunner.script);
+	if (!error.empty()) {
+		fprintf(stderr, "--level %s: %s\n", levelArg, error.c_str());
+		return false;
+	}
+	return startPlay("level");
+}
+
+void Scenario::runPlaySetup() {
+	if (!gRunner.playPending || !Game().cacheLoaded)
+		return;
+	gRunner.playPending = false;
+	for (size_t i = 0; i < gRunner.playSetup; i++) {
+		runInstant(gRunner.script.commands[i]);
+		Game().ApplyWorldEvents();
+	}
+	for (const std::string& failure : gRunner.failures)
+		fprintf(stderr, "play setup: %s\n", failure.c_str());
 }
 
 bool Scenario::active() { return gRunner.active; }

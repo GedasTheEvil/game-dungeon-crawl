@@ -20,6 +20,14 @@ int tickDelayMs();
 // One fixed game step: runs due commands, Update() and Draw(). Exits the process when the script ends.
 void tick();
 
+// Play mode: a normal hand-played game (real clock, sound, settings) that starts on a script's setup.
+// `--play SCRIPT`: its setup commands (see playSetup in scenario_script.h). `--level ARG`: a level, as the `level`
+// command takes it. Both print the error and return false on a bad script. Not active(): the script is no run.
+bool loadPlay(const char* path);
+bool loadPlayLevel(const char* levelArg);
+// Call after every Update(): runs the setup once, in the first frame after the assets are loaded.
+void runPlaySetup();
+
 // Call right before swapping buffers; saves a pending screenshot from the back buffer.
 void onFrameRendered();
 } // namespace Scenario

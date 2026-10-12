@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <ctime>
+#include <cstdio>
+#include <string>
 #include "../input/input.h"
 #include "gameplay_config.h"
 #include "../graphics/draw.h"
@@ -23,6 +25,7 @@ int window = 1;
 
 static void UpdateTimerCallback(int) {
 	Update();
+	Scenario::runPlaySetup();
 	glutTimerFunc(UPDATE_TICK_MS, UpdateTimerCallback, 0);
 }
 
@@ -71,15 +74,31 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 // SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
 #undef main
 
+// The command line: a scenario run, a hand-played level or scenario (Scenario::loadPlay), or the plain game.
+// False: bad arguments, usage printed.
+static bool parseArgs(int argc, char* argv[]) {
+	const std::string flag = argc > 1 ? argv[1] : "";
+	bool ok = true;
+	if (argc == 3 && flag == "--level")
+		ok = Scenario::loadPlayLevel(argv[2]);
+	else if (argc == 3 && flag == "--play")
+		ok = Scenario::loadPlay(argv[2]);
+	else if (argc == 2 && flag.rfind("--", 0) != 0) {
+		ok = Scenario::load(argv[1]);
+		setenv("SDL_AUDIODRIVER", "dummy", 1);
+		GameClock::enableVirtual();
+	} else if (argc > 1) {
+		fprintf(stderr, "usage: %s [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n", argv[0]);
+		ok = false;
+	}
+	return ok;
+}
+
 int main(int argc, char* argv[]) {
 	Logger::initialize();
 
-	if (argc > 1) {
-		if (!Scenario::load(argv[1]))
-			return 2;
-		setenv("SDL_AUDIODRIVER", "dummy", 1);
-		GameClock::enableVirtual();
-	}
+	if (!parseArgs(argc, argv))
+		return 2;
 	bool isScenario = Scenario::active();
 
 	try {

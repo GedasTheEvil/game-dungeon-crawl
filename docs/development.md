@@ -17,6 +17,8 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 Asset paths are relative to the repo root: run every program from there.
 
 * `make` builds the game and every tool. Game: `./Play` (or `./game` from the repo root).
+* `./game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `./game --play SCENARIO.txt`: play a
+  scenario's setup (level, gear) by hand. See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor`. Runs from the repo root, see [tools/editor/readme.md](../tools/editor/readme.md).
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="models/monsters/anubis.md3"`.
 * Level tools: `make level-tools`, then `./levelcheck levels/lvl*` (validate, rank by difficulty) and

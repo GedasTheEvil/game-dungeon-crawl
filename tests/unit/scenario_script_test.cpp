@@ -177,6 +177,57 @@ TEST_CASE("a script: setup first, then level, then the rest") {
 	CHECK(scriptErrors("seed 1\n", none) == std::vector<std::string>{"test.txt: no 'level' command"});
 }
 
+TEST_CASE("--play runs the leading setup commands and stops at the first other one") {
+	Script script;
+	REQUIRE(scriptErrors("resolution 640 480\nseed 5\ngod\nlevel 2\ngive potion 2 3\nequip spear\nxp 10\nwait 1s\n"
+						 "hurt 5\nquit\n",
+						 script)
+				.empty());
+	size_t count = 0;
+	CHECK(playSetup(script, count).empty());
+	CHECK(count == 7); // not the hurt after the wait
+
+	Script only;
+	REQUIRE(scriptErrors("level 1\n", only).empty());
+	CHECK(playSetup(only, count).empty());
+	CHECK(count == 1);
+
+	Script jumps;
+	REQUIRE(scriptErrors("level 1\njump\nlevel 2\n", jumps).empty());
+	CHECK(playSetup(jumps, count).empty());
+	CHECK(count == 1);
+}
+
+TEST_CASE("--play needs a level before the first other command") {
+	Script script;
+	CHECK(scriptErrors("seed 3\nwait 1s\n", script).size() == 1); // the parser says it too; the seed is kept
+	size_t count = 9;
+	CHECK_FALSE(playSetup(script, count).empty());
+
+	Script empty;
+	CHECK_FALSE(playSetup(empty, count).empty());
+	CHECK(count == 0);
+}
+
+TEST_CASE("--level takes what the level command takes") {
+	for (const char* arg : {"3", "levels/lvl2", "gen:7:4"}) {
+		Script script;
+		CHECK(levelScript(arg, script).empty());
+		REQUIRE(script.commands.size() == 1);
+		CHECK(script.commands[0].type == CommandType::Level);
+	}
+	Script script;
+	CHECK(levelScript("3", script).empty());
+	CHECK(script.commands[0].a == 3.f);
+	Script gen;
+	CHECK(levelScript("gen:7:4", gen).empty());
+	CHECK(gen.commands[0].arg == "gen:7:4");
+
+	Script bad;
+	CHECK_FALSE(levelScript("", bad).empty());
+	CHECK(bad.commands.empty());
+}
+
 TEST_CASE("expect compares within a thousandth for == and !=") {
 	CHECK(compare(1.0004f, Op::Eq, 1.f));
 	CHECK_FALSE(compare(1.01f, Op::Eq, 1.f));

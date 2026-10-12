@@ -154,6 +154,14 @@ struct Script {
 // "<name>:<line>: <message>" per bad line, or "<name>: no 'level' command"; empty on success.
 std::vector<std::string> parseScript(std::istream& in, const std::string& name, Script& script);
 
+// `--play`: the leading commands that only set the game up (god, level, give, ... loadgame) run at once; the first
+// other command is where the player takes over. Sets count to the length of that prefix. Returns the error, empty
+// on success: the prefix must hold a `level` or `loadgame`.
+std::string playSetup(const Script& script, size_t& count);
+// `--level ARG` (a number, a path or gen:SEED:DIFFICULTY): a script of one `level` command. The error, empty on
+// success.
+std::string levelScript(const std::string& arg, Script& script);
+
 } // namespace Scenario
 
 #endif

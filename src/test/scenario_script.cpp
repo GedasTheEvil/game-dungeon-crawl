@@ -318,6 +318,38 @@ bool parseCurse(const Args& args, Command& cmd) {
 bool isSetupCommand(CommandType type) {
 	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God;
 }
+
+bool isPlaySetupCommand(CommandType type) {
+	switch (type) {
+	case CommandType::Seed:
+	case CommandType::God:
+	case CommandType::Level:
+	case CommandType::Give:
+	case CommandType::Equip:
+	case CommandType::Wear:
+	case CommandType::Xp:
+	case CommandType::Learn:
+	case CommandType::Curse:
+	case CommandType::Poison:
+	case CommandType::Hurt:
+	case CommandType::Prop:
+	case CommandType::Riddles:
+	case CommandType::Chest:
+	case CommandType::Camera:
+	case CommandType::Motion:
+	case CommandType::Toon:
+	case CommandType::Hitboxes:
+	case CommandType::KillBoss:
+	case CommandType::HurtBoss:
+	case CommandType::PoisonBoss:
+	case CommandType::PoisonMonster:
+	case CommandType::LoadGame:
+	case CommandType::Resolution: // ignored: the settings' resolution wins
+		return true;
+	default:
+		return false;
+	}
+}
 } // namespace
 
 const std::vector<CommandDef>& commandDefs() {
@@ -490,6 +522,29 @@ std::vector<std::string> parseScript(std::istream& in, const std::string& name, 
 	if (errors.empty() && !levelSeen)
 		errors.push_back(name + ": no 'level' command");
 	return errors;
+}
+
+std::string playSetup(const Script& script, size_t& count) {
+	count = 0;
+	bool placed = false;
+	for (const Command& cmd : script.commands) {
+		if (!isPlaySetupCommand(cmd.type))
+			break;
+		placed = placed || cmd.type == CommandType::Level || cmd.type == CommandType::LoadGame;
+		count++;
+	}
+	if (!placed)
+		return "nothing to play: the setup needs a 'level' or 'loadgame' before the first other command";
+	return "";
+}
+
+std::string levelScript(const std::string& arg, Script& script) {
+	Command cmd;
+	cmd.line = 1;
+	std::string error = parseCommand("level " + arg, cmd);
+	if (error.empty())
+		script.commands.push_back(cmd);
+	return error;
 }
 
 } // namespace Scenario

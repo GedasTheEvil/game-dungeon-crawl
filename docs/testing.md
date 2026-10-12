@@ -84,6 +84,28 @@ Run from the repo root.
   `SCENARIO_DRAW_ALL=1` (set by `HEADLESS=0`) draws every frame at the normal pace, to watch a run.
 - Window size comes from `resolution` (default 1280x720).
 
+## Play by hand
+
+Two flags start a normal, hand-played game: real clock, sound, `saves/settings.ini`, a time-based seed, your own
+keyboard and mouse, no main menu. Nothing is written to `saves/` unless you save.
+
+```
+./game --level 7                       # campaign level 7, a fresh player
+./game --level levels/lvl3             # a map file
+./game --level gen:42:5                # a generated level (seed 42, difficulty 5)
+./game --play tests/scenarios/cobra.txt  # a scenario's setup, then you
+```
+
+`--level` takes what the `level` command takes. The exit leads on as in the campaign (level N+1 by the level
+number; after a map file or a generated level, whatever the dungeon's level number gives).
+
+`--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
+`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `learn`, `curse`, `poison`, `hurt`, `prop`, `riddles`, `chest`,
+`camera`, `motion`, `toon`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
+other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
+The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
+`./game SCENARIO.txt` (no flag) is the scenario run described above.
+
 ## Commands
 
 One command per line. `#` starts a comment.

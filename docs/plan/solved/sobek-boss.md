@@ -1,9 +1,7 @@
 # Sobek boss
 
-Play-test: `./game --play tests/play/sobek-boss.txt`
-
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. The lvl25 boss of the [longer campaign](solved/longer-campaign.md), picked by the agent
-from [more-bosses.draft.md](old/more-bosses.draft.md) while the user was away (easy to swap for another).
+Status: implemented 2026-10-06, solved (play-tested, user-confirmed 2026-10-12). Draft 2026-10-06. The lvl25 boss of the [longer campaign](longer-campaign.md), picked by the agent
+from [more-bosses.draft.md](../old/more-bosses.draft.md) while the user was away (easy to swap for another).
 
 Sobek, the crocodile god of the Nile: a giant crocodile in a flooded boss room.
 
@@ -22,4 +20,4 @@ Sobek, the crocodile god of the Nile: a giant crocodile in a flooded boss room.
 * `MonsterSobek` (23, glyph `W`), a lurking boss wakes from `BOSS_WAKE_RANGE` (4 tiles). The charge:
   `Monster::StartCharge` / `UpdateCharge`, `CHARGE_*` in `gameplay_config.h`; stunned he lies flat (the idle clip)
   and takes double weapon damage. Crocodiles dig out beside him. In lvl25's flooded boss room.
-* Check: `tests/scenarios/sobek.txt`. Not play tested.
+* Check: `tests/scenarios/solved/sobek.txt` (parked: screenshots); the charge in `tests/unit/sim_test.cpp`.

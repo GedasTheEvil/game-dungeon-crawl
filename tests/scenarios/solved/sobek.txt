@@ -1,4 +1,3 @@
-# Kept (docs/testing.md): plan sobek-boss not solved; the boss in the lake is a picture.
 # Sobek (tests/levels/sobek): lies in the lake, wakes from afar (BOSS_WAKE_RANGE), charges along the row through the
 # player (double damage) and on into the west wall, which stuns him. A jump takes the player over a charge.
 seed 1

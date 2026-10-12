@@ -616,7 +616,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
-	// The lvl25 boss on the crocodile model (docs/plan/sobek-boss.md).
+	// The lvl25 boss on the crocodile model (docs/plan/solved/sobek-boss.md).
 	{.id = MonsterSobek,
 	 .glyph = 'W',
 	 .name = "Sobek",

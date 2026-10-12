@@ -42,7 +42,8 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
   spawn point.
 * Sound: a whoosh / crackle for the bolt if a fire sound exists by then, else the attack sound stays.
 * The cobras' spit stays poison; its green flame look is [venom-green-fire](venom-green-fire.draft.sonet.md) (a colour
-  ramp per `FireStyle`). Whichever comes second reuses the other's glob-with-flames drawing.
+  ramp per `FireStyle`). Whichever comes second reuses the other's glob-with-flames drawing
+  (one shared drawing, own colours per projectile; decided 2026-10-12).
 
 ## Tests
 

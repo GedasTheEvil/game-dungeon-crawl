@@ -143,8 +143,8 @@ format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
-	./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
-	./tools/check_sim.sh $(SIM_FILES)
+	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
+	@./tools/check_sim.sh $(SIM_FILES)
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy-fix:

@@ -165,11 +165,11 @@ struct LevelGrid {
 	}
 	// Out of bounds reads as wall.
 	[[nodiscard]] Tile at(int col, int row) const {
+		// NOLINTNEXTLINE(clang-analyzer-security.ArrayBound): inBounds checks it; the analyzer loses that.
 		return inBounds(col, row) ? cells[row * LEVEL_WIDTH + col] : wallTile();
 	}
 	void set(int col, int row, Tile t) {
 		if (inBounds(col, row))
-			// NOLINTNEXTLINE(clang-analyzer-security.ArrayBound): checked one line up; the analyzer loses inBounds.
 			cells[row * LEVEL_WIDTH + col] = t;
 	}
 };

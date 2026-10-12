@@ -85,7 +85,7 @@ export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all clean format format-check layers tidy tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
+.PHONY: all check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
@@ -152,15 +152,27 @@ tidy-fix:
 	$(GATE) $(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS); \
 		code=$$?; ./tools/load_gate.sh report tidy-fix; exit $$code
 
-# One clang-tidy per file, through the gate (a header's warnings show once per file that includes it), without
-# clang's "N warnings generated." lines (they count the warnings filtered out, e.g. in system headers). xargs keeps
-# one more than the cap: it waits at the gate. tidy-fix stays one process, so a fix in a shared header is applied once.
+# `make tidy`: clang-tidy on the sources changed since the merge base with master (and the ones including a changed
+# header); `make tidy-all`: on every source. One clang-tidy per file, through the gate. Both fail on any warning: the
+# tree is kept clean, so each warning is the run's own (tools/tidy.sh). tidy-fix stays one process, so a fix in a
+# shared header is applied once.
 tidy: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy: layers
 	@mkdir -p $(BUILD) && rm -f $(GATE_STATS)
-	printf '%s\n' $(TIDY_SOURCES) | xargs -P $$(($$(./tools/load_gate.sh jobs) + 1)) -I{} \
-		$(GATE) $(CLANG_TIDY) --quiet {} -- $(TIDY_CPPFLAGS) 2>&1 | sed '/^[0-9]* warnings\? generated\.$$/d'
-	@./tools/load_gate.sh report tidy
+	@./tools/tidy.sh changed $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS); code=$$?; ./tools/load_gate.sh report tidy; exit $$code
+
+tidy-all: export GATE_STATS=$(BUILD)/.gate-tidy
+tidy-all: layers
+	@mkdir -p $(BUILD) && rm -f $(GATE_STATS)
+	@./tools/tidy.sh all $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS); code=$$?; ./tools/load_gate.sh report tidy; exit $$code
+
+# `make check`: everything a change needs before its commit, in order. Formats the code (never by hand), then checks
+# it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`.
+check: all
+	$(MAKE) --no-print-directory format
+	$(MAKE) --no-print-directory format-check
+	$(MAKE) --no-print-directory tidy
+	$(MAKE) --no-print-directory unit
 
 editor: $(EDITOR)
 

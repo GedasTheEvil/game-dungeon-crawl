@@ -169,6 +169,7 @@ struct LevelGrid {
 	}
 	void set(int col, int row, Tile t) {
 		if (inBounds(col, row))
+			// NOLINTNEXTLINE(clang-analyzer-security.ArrayBound): checked one line up; the analyzer loses inBounds.
 			cells[row * LEVEL_WIDTH + col] = t;
 	}
 };

@@ -5,6 +5,7 @@ Checks: >
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   performance-*,
+  -performance-enum-size,
   -performance-inefficient-string-concatenation,
   portability-*,
   readability-avoid-const-params-in-decls,
@@ -33,7 +34,9 @@ FormatStyle: file
 # Naming: only what the code base follows throughout. Method and function names are mixed (older PascalCase next
 # to newer camelBack) and are not checked.
 # Off: Padding (the structs are tables and state, ordered to read; the bytes do not matter here) and
-# inefficient-string-concatenation (a + b + c is clearer than append, and no string is built in a hot loop).
+# inefficient-string-concatenation (a + b + c is clearer than append, and no string is built in a hot loop) and
+# enum-size (a byte saved per enum value is nothing here; it fired in 12 sessions and was never worth a fix).
+# Warnings do not fail clang-tidy itself: tools/tidy.sh fails `make tidy` on any warning (plan dev-friction-review).
 # int -> float narrowing is not checked: map cells, pixel sizes and counts are far below float's 2^24.
 CheckOptions:
   - key: bugprone-narrowing-conversions.WarnOnIntegerToFloatingPointNarrowingConversion

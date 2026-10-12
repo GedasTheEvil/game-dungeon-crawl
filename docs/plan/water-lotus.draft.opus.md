@@ -35,3 +35,7 @@ petals; clips: idle (floating, a slight sway), rise, bite, death (sinks). Drawn 
 * Scenario with a screenshot: idle on the water, reared up.
 * `./levelcheck levels/lvl*`: no warnings.
 * Glossary row for the new terms (the kind, the stamina drain).
+
+## Related
+
+* [water-decorations](water-decorations.draft.opus.md): decor lotus pads to hide this one among.

@@ -1,6 +1,6 @@
 # Bats under a high ceiling
 
-Status: draft 2026-10-12, ready (needs nothing first). From play-testing.
+Status: draft 2026-10-12, refined 2026-10-12, ready (needs nothing first). From play-testing.
 
 ## Bug
 
@@ -19,7 +19,7 @@ Stalemate.
 
 ## Idea
 
-The flyer AI dives down to the player's row when the cells between are open.
+The flyer AI follows the player to another row, down or up, when the cells between are open.
 
 * Waking: also see a player below, in the same column span, through open cells (no solid tile between the rows,
   within `BAT_SIGHT` horizontally). Limit: 1–2 rows down (implementer's choice; 2 rows covers the reported map).
@@ -27,7 +27,11 @@ The flyer AI dives down to the player's row when the cells between are open.
   row's floor, so `sameRow`, the bite, the player's melee and arrows, the wall probe and the draw all use the
   lower row. Drawing must stay smooth across the row change (lift in world units vs. row base).
 * Return: fly back up to the spawn row and roost there (`SpawnRow()`), climbing through the same open cells.
-* Lost player (climbed away, out of sight): return as today.
+* Up as well (user decision): a player above the bat (climbing a ladder, on a higher row of a tall shaft) is chased
+  through open cells and bitten there. A player on the rungs cannot attack ([no-attack-on-ladder](no-attack-on-ladder.md)),
+  so the bat gets free bites there; this is intended. The bite then needs the player's actual height (`py` on the
+  ladder), not only the row.
+* Lost player (out of sight, no open path): return as today.
 * Never dive through solid tiles, platforms or into water (check what tiles a flyer may pass).
 * Boss (Bat of Shezmu, `kin = MonsterBat`) and its `Summon::Drop` minions use the same flyer AI, so they get it too.
   Per the boss rule, it may see/dive farther (e.g. one more row).
@@ -39,10 +43,10 @@ below in the same column, and fix such levels. Does not fix boss rooms or summon
 
 * Scenario in `tests/scenarios/`: two-cell-high corridor, bat roosting in the upper cell, player below. Expect: bat
   wakes, dives, bites the player; player kills it with melee; a surviving bat returns to its roost.
+* Scenario: player climbs a ladder past a bat's row; the bat follows up and bites the player on the rungs.
 * Regression: a one-cell corridor bat behaves as before.
 
 ## Open points
 
 * How many rows a bat may dive (1 or 2; boss more?).
-* Whether a bat also follows a player who goes *up* (bat below, player above), or only down from the roost.
 * Whether to add the level checker warning as well.

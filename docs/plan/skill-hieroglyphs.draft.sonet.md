@@ -15,8 +15,14 @@ The skill is on the Heka screen already, sealed: implementing it clears its `sea
 ## Idea
 
 Without the skill, the player cannot read inscriptions: interact gives "Hieroglyphs. If only I could read them." and
-the journal keeps a "not yet read" entry. With it, every inscription is read, also the ones met before (the journal
-fills in).
+the archaeologist copies the signs into the journal anyway (the user, 2026-10-12): an Inscriptions page with the
+glyphs from the atlas, a "?" or "Inscription" heading instead of the title, no translation, and a pencilled line
+like "No idea what it says. Copied it anyway." With the skill, every inscription is read, also the ones copied before:
+learning it fills in their title, translation and comment (the next journal open shows them; a toast or status
+"N inscriptions translated" is a nice touch).
+
+XP ([inscription-xp](inscription-xp.draft.sonet.md)): given when an inscription is translated, not when it is copied.
+The copies filled in on learning give their XP then, once each.
 
 * Name on the card: "Deep mystic knowledge" (user's), or "Words of Thoth" (implementer's choice).
 * What it unlocks: the cartouche texts and their hints; optional extras, e.g. a riddle gate's hint shown at once, or
@@ -24,6 +30,10 @@ fills in).
 * An easy first choice: cheap in power, rich in story. Without it nothing on the exit path is lost (checker rule:
   hints only, never required).
 
+Copying needs no skill, so inscriptions can stand from level 1 on: [more-inscriptions](more-inscriptions.draft.opus.md)
+places them, after this plan.
+
 ## Tests
 
-* Unit: inscriptions read before learning are filled in after; reading needs the skill.
+* Unit: without the skill, interact copies the entry (glyphs, no text) once; learning fills in the copies; reading
+  with the skill writes the full entry; the XP comes with the translation, once.

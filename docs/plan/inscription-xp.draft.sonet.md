@@ -23,8 +23,9 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 * Unit (`tests/unit/inscriptions_test.cpp`, the SimWorld case): the first interact raises `player.stats` XP by
   `riddleXP(level) / 3`, the second does not; the status line says "+N XP".
 
-## Open points
+## With the hieroglyph skill
 
-* [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) keeps "not yet read" entries before the skill is learnt.
-  Whichever plan lands second decides: XP only when the text is actually read (with the skill), and for entries
-  filled in on learning the skill either the XP then (suggested: yes, once per inscription) or none.
+Decided by the user (2026-10-12): without [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) the archaeologist only
+copies the signs. The XP comes with the translation: when read with the skill, or, for the copies made before, when
+learning the skill fills them in (once each, at the level then). If this plan lands first, every first read gives
+the XP (all are read today); skill-hieroglyphs then moves it to the translation.

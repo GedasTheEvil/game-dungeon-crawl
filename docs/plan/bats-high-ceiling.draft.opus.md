@@ -21,8 +21,10 @@ Stalemate.
 
 The flyer AI follows the player to another row, down or up, when the cells between are open.
 
-* Waking: also see a player below, in the same column span, through open cells (no solid tile between the rows,
-  within `BAT_SIGHT` horizontally). Limit: 1–2 rows down (implementer's choice; 2 rows covers the reported map).
+* Sight is a radius (user decision): the bat sees the player within `BAT_SIGHT` as a distance in tiles (horizontal
+  and vertical), through open cells only (no solid tile on the way). So the rows it follows come from its sight:
+  1.75 tiles today = one row up or down; a longer sight reaches farther. No separate row limit.
+  The same radius decides when it loses the player (`sees` in `Fly`), as today on the row.
 * Swoop: the target row is the player's row. Change `row` (or a flight row offset) once the bat drops below its
   row's floor, so `sameRow`, the bite, the player's melee and arrows, the wall probe and the draw all use the
   lower row. Drawing must stay smooth across the row change (lift in world units vs. row base).
@@ -34,7 +36,8 @@ The flyer AI follows the player to another row, down or up, when the cells betwe
 * Lost player (out of sight, no open path): return as today.
 * Never dive through solid tiles, platforms or into water (check what tiles a flyer may pass).
 * Boss (Bat of Shezmu, `kin = MonsterBat`) and its `Summon::Drop` minions use the same flyer AI, so they get it too.
-  Per the boss rule, it may see/dive farther (e.g. one more row).
+  They hunt along the whole row (no horizontal radius); vertically they get a fixed reach, farther than a bat's
+  (about 3 rows, a gameplay constant).
 
 Alternative (cheaper, implementer may add on top): a level checker warning for a bat whose cell has an open cell
 below in the same column, and fix such levels. Does not fix boss rooms or summons, so the AI fix is the main path.
@@ -48,5 +51,4 @@ below in the same column, and fix such levels. Does not fix boss rooms or summon
 
 ## Open points
 
-* How many rows a bat may dive (1 or 2; boss more?).
 * Whether to add the level checker warning as well.

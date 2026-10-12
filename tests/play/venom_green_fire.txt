@@ -1,0 +1,4 @@
+# Play-test venom-green-fire: cobras spit green-fire venom globs. God mode, so you can watch them.
+god
+level 16
+wait 1

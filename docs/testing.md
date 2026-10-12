@@ -105,6 +105,8 @@ number; after a map file or a generated level, whatever the dungeon's level numb
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
+`tests/play/` holds play-test scripts for plans waiting for the user's play-test, one per plan (`<plan-slug>.txt`),
+for `--play` only; `make test` does not run them.
 `./game SCENARIO.txt` (no flag) is the scenario run described above; it is always silent.
 
 ## Commands

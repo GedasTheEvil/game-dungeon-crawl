@@ -62,6 +62,10 @@ Still, when reporting on drafts, warn about their open questions; when asked to 
 When writing a draft, optimize for agent reading: the first lines (status) say what it needs first, if anything,
 so readiness is clear without reading the whole file.
 Once a draft plan is implemented, rename it without the "draft.<model>" part ("<idea-slug>.md") and update links to it.
+When an implemented plan waits for the user's play-test, give the user a command that starts right at the feature,
+so they don't play through the campaign: `./game --level N` (a campaign level that has it), or a script in
+`tests/play/` (setup commands: `god`, `level`, `give`, `curse`, ...; committed, `make test` skips it) for
+`./game --play tests/play/<plan-slug>.txt`. Not needed when the plan changes the campaign itself.
 Once the user confirms an implemented plan is solved (tested / verified), move it to "docs/plan/solved/" and update links to it.
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to

@@ -29,9 +29,11 @@ While the player stands in a cell where the interact key does something, a small
   that `Interact` does something exactly when the verb is not `None`.
 * The key: the one bound to interact, `keyCap` of its first binding (`src/input/bindings.h`), so a remapped key
   shows right ("E", "F12", "LMB").
-* Look: the shared UI look ([docs/ui.md](../ui.md)): a small dark panel with a key cap and the verb, at the bottom
-  centre above the HUD, or over the player's head (implementer's choice; the bottom is steadier while walking). Fades
-  in after a short delay (~150 ms) so walking past does not flicker it; hidden while a screen is open, while
+* Look: the shared UI look ([docs/ui.md](../ui.md)): a small dark panel with a key cap and the verb in the bottom
+  right corner (the user, 2026-10-12: free today; the HUD panel holds the bottom left, the level gem the top right).
+  It mirrors the HUD panel: same frame, its bottom edge on the HUD panel's bottom edge, the same margin from the
+  screen edge. Its text is smaller than the status message's at the top centre (`StatusBox`, `src/ui/status_box.*`),
+  about the HUD's label size. Fades in after a short delay (~150 ms) so walking past does not flicker it; hidden while a screen is open, while
   travelling through a gate (`Dungeon::Travelling`), dead, or the level won.
 * No setting to switch it off (agreed with the user: always on).
 * The mimic (Chest of Set) is a monster spawn, not a `Treasure`: it gets no prompt, and a chest without "[E] Open"
@@ -59,5 +61,4 @@ read it stops: the journal has the entry (`Journal::Inscriptions`).
 
 ## Open points
 
-* Where the prompt sits: bottom centre or over the player.
 * The mimic: a prompt that springs it, or only the prompt.

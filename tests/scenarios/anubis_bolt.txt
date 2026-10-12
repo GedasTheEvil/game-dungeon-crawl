@@ -1,6 +1,6 @@
 # Kept (docs/testing.md): plan anubis-ranged-attack (draft) not solved; the red bolt is a picture. The Anubis's ranged
 # attack (tests/levels/anubis_bolt, plan anubis-ranged-attack): it walks up, shoots a red bolt of light from afar (its
-# attack clip stands in for the throw), no poison, then hits up close.
+# melee swing is the ranged clip, the bolt leaves the sceptre head), no poison, then hits up close.
 seed 1
 level tests/levels/anubis_bolt
 xp 1000000

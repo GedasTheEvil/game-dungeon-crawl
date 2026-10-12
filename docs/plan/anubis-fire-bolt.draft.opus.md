@@ -5,7 +5,7 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
 
 ## Today
 
-* The Anubis bolt is the POC of [anubis-ranged-attack](anubis-ranged-attack.draft.opus.md): `SpitRules` with no
+* The Anubis bolt is the POC of [anubis-ranged-attack](anubis-ranged-attack.md): `SpitRules` with no
   poison, `colour` `BOLT_RED`; guard {50, 1.4 tiles, 3 s}, boss {125, 2.0 tiles, 2.5 s}
   (`src/world/monster_kinds.cpp`). Its damage uses the type's melee mix (`ANUBIS_MIX`, 80 blunt / 20 pierce):
   `Dungeon::Venom::from` carries the type, the hit takes `attackMix`.

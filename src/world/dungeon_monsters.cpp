@@ -255,7 +255,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (float sx = 0.f, sy = 0.f; mon.TakeShot(sx, sy))
+		if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
 			shootAtPlayer(mon, sx, sy);
 		if (mon.AttackingRanged())
 			continue;

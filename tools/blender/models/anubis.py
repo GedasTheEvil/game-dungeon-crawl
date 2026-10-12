@@ -3,8 +3,9 @@
 Everything is generated from code, so this file is the model source. Run in Blender 5:
     MCP:  p = ".../tools/blender/models/anubis.py"; g = {"__file__": p, "__name__": "anubis"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]() to write game files
-    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--export-climb] [--boss-texture]
-          (--export-climb writes only anubis_climb.md3; ANUBIS_LADDER=1 adds a ladder stand-in for review renders)
+    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--export-climb] [--boss-texture] [--measure]
+          (--export-climb writes only anubis_climb.md3; ANUBIS_LADDER=1 adds a ladder stand-in for review renders;
+          --measure prints the sceptre head per attack frame: the ranged attack's release, RangedRules)
 
 Blender space: Z up, the model faces +Y, its right side is +X. Units are metres (~2 m tall);
 the engine rescales by the largest dimension, so only proportions matter.
@@ -348,6 +349,7 @@ def build_props(b, M, rig):
     bottom, top = 0.05, 1.90
     STAFF["grip"] = p.z - bottom
     staff_head = to_rest("hand.R", ([p, p + V((0, 0, 0.3))], [], []))[0]
+    STAFF["tip"] = to_rest("hand.R", ([V((p.x, p.y + 0.06, top + 0.03))], [], []))[0][0]  # the head's hook: bolt release
     shaft = [(V((p.x, p.y, bottom + 0.10)), 0.013, 0.013), (V((p.x, p.y, 1.0)), 0.016, 0.016), (V((p.x, p.y, top)), 0.015, 0.015)]
     b.add(to_rest("hand.R", tube(shaft, sub=6, n=10, caps=(False, False))), M["staff"], "staff")
     head = [(V((p.x, p.y - 0.01, top - 0.01)), 0.017, 0.017), (V((p.x, p.y + 0.01, top + 0.03)), 0.020, 0.024), (V((p.x, p.y + 0.06, top + 0.035)), 0.014, 0.018),
@@ -833,6 +835,42 @@ def build(bake=True, tex_path=None):
     return obj, rig
 
 
+def measure():
+    """The ranged attack's release (plan anubis-ranged-attack): the sceptre head per attack frame, its height as a share
+    of the reference (walk frame 0) height (RangedRules::releaseY), how far ahead of the reference's centre in the
+    engine's half widths (the larger of the half width and half length, ModelInfo::HalfWidth; RangedRules::releaseAhead)
+    and where the sceptre points."""
+    obj, rig = bpy.data.objects["anubis_new"], bpy.data.objects["anubis_rig"]
+    scene = bpy.context.scene
+
+    def mesh_box():
+        ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        pts = [ev.matrix_world @ v.co for v in ev.to_mesh().vertices]
+        ev.to_mesh_clear()
+        return (min(q.z for q in pts), max(q.z for q in pts), min(q.y for q in pts), max(q.y for q in pts),
+                max(q.x for q in pts) - min(q.x for q in pts))
+
+    rig.animation_data.action = bpy.data.actions["anubis_walk"]
+    scene.frame_set(0)
+    z0, z1, y0, y1, width = mesh_box()
+    height, centre, half = z1 - z0, (y0 + y1) / 2, max(width, y1 - y0) / 2
+    print("MEASURE reference: height {:.3f}, centre y {:.3f}, half width {:.3f} (x) / length {:.3f} (y): the engine's {:.3f}".format(
+        height, centre, width / 2, (y1 - y0) / 2, half))
+    rig.animation_data.action = bpy.data.actions["anubis_attack"]
+    pb = rig.pose.bones["staff"]
+    for f in range(FRAMES):
+        scene.frame_set(f)
+        m = rig.matrix_world @ pb.matrix @ pb.bone.matrix_local.inverted()
+        tip, grip = m @ STAFF["tip"], m @ pb.bone.head_local
+        d = (tip - grip).normalized()
+        print("TIP attack f{:02d} ({:.2f} of the clip): height {:.3f} = {:.3f} of the reference, ahead {:+.3f} = {:+.2f} half "
+              "widths, points {:+4.0f} deg (0 = forward, 90 = up)".format(
+                  f, f / (FRAMES - 1), tip.z - z0, (tip.z - z0) / height, tip.y - centre, (tip.y - centre) / half,
+                  math.degrees(math.atan2(d.z, d.y))))
+    rig.animation_data.action = bpy.data.actions["anubis_walk"]
+    scene.frame_set(0)
+
+
 def export(models_dir=None, clips=CLIPS):
     """Write models/monsters/anubis{,_att,_die,_climb}.md3 from the built objects."""
     common.export_files(bpy.data.objects["anubis_new"], bpy.data.objects["anubis_rig"], "anubis", clips, "monsters", models_dir)
@@ -845,6 +883,9 @@ if __name__ == "__main__" and "--" in sys.argv:
         obj, _ = build(bake=False)
         materials(COL_BOSS)
         common.bake_texture(obj, os.path.join(tex_dir, "anubis_boss.png"), TEX_SIZE, "anubis_boss")
+    elif "--measure" in args:
+        build(bake=False)
+        measure()
     elif "--export-climb" in args:
         build(bake=False)
         export(clips=[CLIMB])

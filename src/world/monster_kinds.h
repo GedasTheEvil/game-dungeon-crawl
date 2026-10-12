@@ -79,6 +79,7 @@ struct RangedRules {
 	float release = 0.5f;			  // of the ranged clip: the shot leaves
 	float releaseY = 0.5f;			  // of the reference clip's height: the mouth or sceptre head at the release
 	Rgb colour = VENOM_GREEN;
+	float releaseAhead = 1.f; // of the half width, ahead of the centre: 1 the hitbox front (HeadX)
 };
 
 // Where levelgen puts it: levels of difficulty minDifficulty .. maxDifficulty, picked by weight. Weight 0: never.

@@ -47,7 +47,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | Scenario | Guards | Why a unit test cannot |
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
-| `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.draft.opus.md)) | the bolt is drawn |
+| `anubis_bolt` | the Anubis's red bolt of light ([plan](plan/anubis-ranged-attack.md)) | the bolt is drawn |
 | `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.

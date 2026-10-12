@@ -194,8 +194,7 @@ void Monster::AttackRanged() {
 	enter(ModelState::AttackRanged);
 	rangedReadyMs = GameClock::now() + type->ranged->cooldownMs;
 	rangedReleased = false;
-	sound(type->ranged->poison ? CharacterSound::AttackRanged
-							   : CharacterSound::Attack); // the bolt: no sound of its own yet
+	sound(CharacterSound::AttackRanged);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::AttackRanged);
 }
 
@@ -203,12 +202,14 @@ bool Monster::AttackingRanged() const {
 	return Alive() && state == ModelState::AttackRanged && !type->model.Finished(state, playback);
 }
 
-bool Monster::TakeShot(float& outX, float& outY) {
+bool Monster::TakeShot(float px, float& outX, float& outY) {
 	if (!type->ranged || rangedReleased || !AttackingRanged() ||
 		type->model.Progress(state, playback) < type->ranged->release)
 		return false;
 	rangedReleased = true;
-	outX = HeadX();
+	const float ahead = CentreX() + static_cast<float>(facing) * type->ranged->releaseAhead * HalfWidth();
+	const float edge = px - static_cast<float>(facing) * links.player->HalfWidth();
+	outX = facing > 0 ? std::min(ahead, edge) : facing < 0 ? std::max(ahead, edge) : CentreX();
 	outY = static_cast<float>(row) +
 		   (lift() + type->ranged->releaseY * type->model.referenceTop * type->scale * Figures::Scale()) /
 			   RenderConfig::TILE_SIZE;

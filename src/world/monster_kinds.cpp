@@ -38,6 +38,11 @@ constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade s
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
 constexpr int POISON_IMMUNE = 100;
+// The Anubis's bolt leaves the sceptre head at frame 12 of 26 of its swing, as it points forward: 0.44 of its height,
+// 2.6 half widths ahead of its centre (tools/blender/models/anubis.py --measure).
+constexpr float ANUBIS_RELEASE = 12.f / 25.f;
+constexpr float ANUBIS_RELEASE_Y = 0.44f;
+constexpr float ANUBIS_RELEASE_AHEAD = 2.6f;
 constexpr int POISONER_RESIST = 50;		 // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
@@ -125,7 +130,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .label = "anubis",
 	 .description = "Anubis living statue",
 	 .note = "A statue of Anubis that forgot to stay on its plinth. Traps do not stop him.",
-	 .threat = 9.f, // walks faster than the player (plan anubis-speed): only a sprint gets away
+	 .threat = 10.f, // walks faster than the player (plan anubis-speed): only a sprint gets away; +1 for the bolt
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis",
 	 .scale = 19,
@@ -143,9 +148,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). The melee swing is its ranged clip; release
-	 // and sceptre height guessed.
-	 .ranged = RangedRules{50, std::nullopt, 1.4f, 3000, 0.5f, 0.6f, BOLT_RED},
+	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). The melee swing is its ranged clip.
+	 .ranged =
+		 RangedRules{50, std::nullopt, 1.4f, 3000, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_RED, ANUBIS_RELEASE_AHEAD},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
 	 .climbs = true,
@@ -380,7 +385,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 "Anubis, the god himself, mummies climb out of the coffins round it; its death opens the boss gates. One boss "
 		 "per level",
 	 .note = "The guardian of the last tomb. The dead rise at his word.",
-	 .threat = 15.f, // the finale: four hits kill a level 30 player, plus its mummies
+	 .threat = 16.f, // the finale: four hits kill a level 30 player, plus its mummies and its bolt
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis_boss",
 	 .scale = 26,
@@ -397,7 +402,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 .ranged = RangedRules{125, std::nullopt, 2.0f, 2500, 0.5f, 0.6f, BOLT_RED}, // its guard's bolt, farther and harder
+	 // Its guard's bolt, farther and harder; the same model.
+	 .ranged =
+		 RangedRules{125, std::nullopt, 2.0f, 2500, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_RED, ANUBIS_RELEASE_AHEAD},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
 	 .climbs = true,

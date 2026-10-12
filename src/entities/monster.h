@@ -272,8 +272,9 @@ class Monster {
 	[[nodiscard]] bool canAttackRanged(float px, float py) const;
 	void AttackRanged(); // stands still and plays the ranged clip; the shot leaves at its release
 	[[nodiscard]] bool AttackingRanged() const; // the ranged clip is playing: it does not walk or bite
-	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from.
-	bool TakeShot(float& outX, float& outY);
+	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from, never past the near
+	// edge of the player at px.
+	bool TakeShot(float px, float& outX, float& outY);
 	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
 	[[nodiscard]] bool canDive(float py) const;
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)

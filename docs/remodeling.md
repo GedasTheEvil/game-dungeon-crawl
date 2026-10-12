@@ -28,6 +28,10 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
   `--boss-texture` bakes only `anubis_boss.png` (the Anubis boss: obsidian, carnelian and gold) on the same UV layout.
+  The attack clip is the ranged clip too (`RANGED_CLIPS`): `-- --measure` prints the sceptre head per attack frame (height
+  of the reference, half widths ahead of its centre, angle) for `RangedRules` (release frame 12: 0.44 high, 2.6 ahead).
+  Sounds: `tools/audio/anubis_sounds.py` (`sounds/monsters/anubis_att_ranged.wav`: the grunt `anubis_att.wav` at 70%, a
+  rising hum, a crack at the release, a falling hiss).
   Climb (`anubis_climb.md3`, 24 frames, loops, back to the camera): hands and feet on IK targets, root at a fixed height, diagonal gait;
   a gripping fist or sole slides down `CLIMB_RISE` (2 holds) per cycle, fists on holds in the plane `CLIMB_GRIP_Y`, the jackal head
   looking up, the was-sceptre slung across the back. Prints `climbRise` / `climbGrip` for `KINDS`; `-- --export-climb` writes only

@@ -1,9 +1,8 @@
 # Anubis ranged attack
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)),
-spit -> ranged attack rename and sound decided 2026-10-12 ([rename](#decided-2026-10-12-spit-becomes-ranged-attack),
-[the sound](#decided-2026-10-12-the-sound)); the rename, the release point and the sound still to do. From the
-user: the Anubis gets a ranged attack, range 14, damage 50, cooldown 3 s.
+Status: implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), waits for the user's play-test:
+`./game --play tests/play/anubis-ranged-attack.txt`. From the user: the Anubis gets a ranged attack, range 14,
+damage 50, cooldown 3 s.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
@@ -115,3 +114,21 @@ ranged attack, in files and code:
 * Still to do: `release` / `mouthY` measured from the swing, the bolt sound (both decided above), maybe a glow
   instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
   [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).
+
+## Implemented (2026-10-12)
+
+* Rename (its own commit): clip and sound suffix `_att_ranged` (`cobra_att_ranged.{md3,wav}`), `RangedRules`,
+  `MonsterKind::ranged`, `ModelState` / `CharacterSound` / `CreatureMove::AttackRanged`, `Monster::AttackRanged` /
+  `AttackingRanged` / `canAttackRanged` / `TakeShot`, `Dungeon::MonsterShot` / `shots` / `shootAtPlayer`, `SHOT_*`,
+  `releaseY`. Glossary: a `ranged attack` row.
+* Release, measured (`anubis.py -- --measure`): frame 12 of 26 (`release` 12/25), the sceptre head 0.44 of the height
+  (`releaseY`), 2.6 half widths ahead of the centre (new `RangedRules::releaseAhead`, default 1 = the hitbox front;
+  the cobras keep it). The start never passes the player's near edge (`Monster::TakeShot`). Guard and boss alike
+  (`ANUBIS_RELEASE*`, `monster_kinds.cpp`).
+* Sound: `tools/audio/anubis_sounds.py` writes `anubis_att_ranged.wav` (1.23 s): the grunt at 70% from the start, a
+  0.3 s rising hum with a glassy shimmer, the crack at 0.86 s (frame 12 at 14 fps), a 0.32 s falling hiss and buzz.
+  Every ranged attack plays its `_att_ranged` sound.
+* Balance: `threat` Anubis 9 -> 10, boss 15 -> 16 (`docs/levels.md`); `./levelcheck levels/lvl*` stays clean. The
+  sim pass of [monster-balance](monster-balance.draft.opus.md) (step 5) weighs the bolt in; play data so far
+  (2026-10-10, lvl23) found the guard "hardly a threat", so the bolt goes the right way.
+* Not done: a glow instead of the glob (the red ball reads well in the scenario); a scenario for the cooldown.

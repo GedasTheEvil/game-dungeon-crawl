@@ -169,6 +169,9 @@ CellHint describeCell(const Tile& cell) {
 		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
+	case Inscription:
+		hint.attribute = anyNumber("text id", cell.attr, "id: line in inscriptions/*.txt, 1 to 64");
+		break;
 	case RockFall:
 	case DartPlate:
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");

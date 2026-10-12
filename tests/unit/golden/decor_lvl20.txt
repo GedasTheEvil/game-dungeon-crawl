@@ -345,7 +345,7 @@
 32,21 surface 6/1/2
 33,21 surface 7/2/2 ladder 0/3m
 34,21 surface 6/1/2
-35,21 surface 6/2/2 torch fire torch 0.000,0.680,0.098
+35,21 surface 6/2/2
 36,21 surface 7/1/2 prop osirism -0.024 decal 0 0.639,0.475
 37,21 surface 6/1/2
 7,22 surface 0/2/0 ladder 1/2

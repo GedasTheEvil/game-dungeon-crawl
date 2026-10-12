@@ -461,7 +461,7 @@
 30,30 surface 0/0/0 ladder 1/4
 31,30 surface 0/0/0 decal 5 0.523,0.625
 32,30 surface 1/2/0 decal 13m 0.229,0.225
-33,30 surface 0/0/0 decal 9 0.462,0.561
+33,30 surface 0/0/0
 34,30 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 35,30 surface 0/1/0 prop ushabti 0.034 decal 15m 0.262,0.511
 36,30 surface 0/0/0 decal 15m 0.350,0.555
@@ -700,7 +700,7 @@
 2,45 surface 1/2/0
 3,45 surface 0/2/0 prop cat -0.053
 4,45 surface 2/1/0 prop lampm -0.082 fire lamp 0.174,0.050,0.307
-5,45 surface 4/1/1 decal 13m 0.718,0.225
+5,45 surface 4/1/1
 6,45 surface 3/0/1 decal 12m 0.523,0.350
 7,45 surface 3/2/1
 8,45 surface 2/0/0m prop sarcophagusm -0.082 decal 3m 0.479,0.600

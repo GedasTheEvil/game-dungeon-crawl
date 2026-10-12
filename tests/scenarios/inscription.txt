@@ -1,0 +1,20 @@
+# Plan hieroglyph-cartouches: the offering formula on the back wall in level 6, read with interact, then its page in
+# the journal's Inscriptions section (the glyphs, the translation, the comment).
+seed 1
+god
+level 6
+wait 30
+walk to 3.5
+wait 10
+screenshot wall
+interact
+wait 5
+expect journal_inscriptions == 1
+screenshot status
+interact
+expect journal_inscriptions == 1
+key j
+wait 5
+key up
+wait 45
+screenshot journal_page

@@ -180,11 +180,11 @@ A cloth-bound field notebook ([plan/journal-real-book.md](plan/solved/journal-re
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
 white grid pages (`textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
 come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`INK_RED` creatures, `LAPIS` riddles,
-`GOLD_DIM` field notes, swallowtail end) marks the section's first page
+`GOLD_DIM` field notes, `INK_GREEN` inscriptions, swallowtail end) marks the section's first page
 ([plan/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from
 under the pages on top of it (the open left page's own ribbon lies on it), further out the more pages lie between it and
-the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F) in `PAPER` on the open and the hovered one; the
+the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F, I) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`fonts/courier.png`), the level pencilled

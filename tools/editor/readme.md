@@ -65,7 +65,7 @@ The glyph is the one in the level file's structure drawing and in `levelcheck --
 ## Tile reference
 
 The object layer. Palette order: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`, `Treasure`; then `Ankh`,
-`Key`, `Gate`, `Lever`, `RockFall`, `DartPlate`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
+`Key`, `Gate`, `Lever`, `RockFall`, `DartPlate`; then `Inscription`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
@@ -82,6 +82,7 @@ The object layer. Palette order: `None`, `Door`, `Death`, `Monster`, `Spike`, `L
 | 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
 | 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s. Under its centre (0.3 cells) it crushes (1000 damage), nearer its edge (0.6 cells) it grazes (50 damage); armor does not help. Walk on without stopping, sprint on or step back to get clear; a jump in place does not dodge it. The rock stays on the floor (walkable). Put a wall above it. |
 | 14 | DartPlate | - | 0 armed, 1 pressed | Pressure plate in the floor ([dart trap](../../docs/plan/solved/poison-dart-trap.md)). When the player or a monster of weight 2 and up (not rats, scarabs, scorpions, cobras or flyers) stands on the slab, it clicks and the 3 dart holes in the back wall above it shoot, 0.2 s later and 0.16 s apart, out across the corridor. At 0.3 cells over the floor (a jump at its top lets them pass, small monsters too) each takes the body in front of its hole: 2 pierce damage and medium poison. Jumping over the plate does not press it. It re-arms 3 s after the click, once nothing heavy stands on it. Cowards stop at its edge like at spikes. |
+| 15 | Inscription | Text id, 1 to 64 | - | Hieroglyphs on the back wall ([inscriptions](../../docs/inscriptions.md)). Interact to read them: the status line shows the title and the archaeologist's comment, the translation goes into the journal. The text id is an `id:` in `inscriptions/*.txt`. In the campaign from level 6 on. Put a floor under it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 

@@ -87,6 +87,7 @@ enum class Field : unsigned char {
 	JournalRiddles,
 	JournalSolved,
 	JournalNotes,
+	JournalInscriptions,
 	JournalTried,
 	Chests,
 	ItemCount, // written as the item's type + id: potion2, melee0

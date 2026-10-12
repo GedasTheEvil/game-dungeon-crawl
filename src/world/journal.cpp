@@ -5,9 +5,10 @@
 namespace {
 constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
-// damage type (older field notes are dropped: their numbers meant other notes)
-constexpr int VERSION = 5;
+// damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read
+constexpr int VERSION = 6;
 constexpr int NOTES_PER_KIND_VERSION = 5;
+constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -93,6 +94,14 @@ void Journal::LearnNote(FieldNote note) {
 		notes.push_back(note);
 }
 
+bool Journal::ReadInscription(const JournalInscription& inscription) {
+	for (const JournalInscription& i : inscriptions)
+		if (i.id == inscription.id)
+			return false;
+	inscriptions.push_back(inscription);
+	return true;
+}
+
 void Journal::Dump(std::ostream& out) const {
 	out << TAG << ' ' << VERSION << ' ' << riddles.size() << '\n';
 	for (const JournalRiddle& r : riddles) {
@@ -111,6 +120,12 @@ void Journal::Dump(std::ostream& out) const {
 	for (FieldNote n : notes)
 		out << ' ' << static_cast<int>(n);
 	out << '\n';
+	out << inscriptions.size() << '\n';
+	for (const JournalInscription& i : inscriptions) {
+		out << i.id << ' ' << i.level << ' ' << std::quoted(i.title) << ' ';
+		writeLines(out, i.text);
+		out << ' ' << std::quoted(i.note) << '\n';
+	}
 }
 
 void Journal::Load(std::istream& in) {
@@ -146,5 +161,13 @@ void Journal::Load(std::istream& in) {
 			return;
 		if (note >= 0 && note < FIELD_NOTE_COUNT)
 			LearnNote(static_cast<FieldNote>(note));
+	}
+	if (version < INSCRIPTIONS_VERSION || !(in >> count))
+		return;
+	for (size_t i = 0; i < count; i++) {
+		JournalInscription e;
+		if (!(in >> e.id >> e.level >> std::quoted(e.title)) || !readLines(in, e.text) || !(in >> std::quoted(e.note)))
+			return;
+		inscriptions.push_back(e);
 	}
 }

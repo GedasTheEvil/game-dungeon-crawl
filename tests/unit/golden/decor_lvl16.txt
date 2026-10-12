@@ -503,10 +503,10 @@
 8,42 surface 1/0/0 prop cat 0.006
 9,42 surface 0/0/0 prop sarcophagus -0.041
 10,42 surface 0/0/0 ladder 0/3m
-11,42 surface 1/2/0 torch fire torch 0.000,0.680,0.098
+11,42 surface 1/2/0
 12,42 surface 0/1/0 prop potterym 0.026 decal 8m 0.406,0.455
 13,42 surface 1/0/0
-14,42 surface 0/0/0
+14,42 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 15,42 surface 1/1/0 decal 11 0.621,0.388
 16,42 surface 0/0/0 prop coffin 0.000
 17,42 surface 0/0/0

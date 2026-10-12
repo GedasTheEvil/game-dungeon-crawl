@@ -201,6 +201,16 @@ def dartplate():  # a slab in the floor, the panel of three dart holes in the wa
     save(img, "dartplate.png")
 
 
+def inscription():  # a cartouche on its bar: three signs, sun, water, reed
+    img, d = canvas(GOLD, 35)
+    d.rounded_rectangle(p(20, 4, 44, 52), radius=12 * SS, fill=STONE, outline=GOLD, width=3 * SS)
+    d.rectangle(p(14, 52, 50, 58), fill=GOLD, outline=BRONZE_DARK, width=SS)
+    d.ellipse(p(27, 10, 37, 20), fill=RED, outline=BRONZE_DARK, width=SS)
+    d.line(p(25, 28, 28, 25, 31, 28, 34, 25, 37, 28, 40, 25), fill=LAPIS_LIGHT, width=2 * SS, joint="curve")
+    poly(d, [(32, 34), (35, 40), (33, 48), (31, 48), (29, 40)], TURQUOISE)
+    save(img, "inscription.png")
+
+
 if __name__ == "__main__":
     door()
     spikes("death.png", tall=True)
@@ -213,4 +223,5 @@ if __name__ == "__main__":
     gate()
     lever()
     rockfall()
+    inscription()
     dartplate()

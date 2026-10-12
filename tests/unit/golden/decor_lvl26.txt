@@ -398,7 +398,7 @@
 18,30 surface 2/0/0
 19,30 surface 5/0/1 ladder 1/2
 20,30 surface 4/1/1 decal 15 0.549,0.378
-21,30 surface 3/2/1 prop thoth_ibis_seated -0.149
+21,30 surface 3/2/1
 22,30 surface 5/1/1 decal 10m 0.650,0.591
 23,30 surface 3/0/1 prop skeletonm 0.149
 24,30 surface 5/0/1 torch fire torch 0.000,0.680,0.098

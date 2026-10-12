@@ -138,7 +138,7 @@
 7,23 surface 4/0/1 prop brazierm -0.160 fire brazier -0.160,0.220,0.160
 8,23 surface 3/0/1
 9,23 surface 4/2/1 decal 14m 0.503,0.375
-10,23 surface 3/2/1 torch fire torch 0.000,0.680,0.098
+10,23 surface 3/2/1
 11,23 surface 3/1/1
 12,23 surface 4/0/1 decal 11m 0.525,0.591
 13,23 surface 2/2/0m decal 9m 0.560,0.424

@@ -49,6 +49,7 @@ struct LevelReport {
 	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, treasures = 0, keys = 0, gates = 0, levers = 0,
 		riddles = 0;
 	int teleporters = 0;
+	int inscriptions = 0;
 	int bosses = 0;
 	int reachableTreasures = 0;
 	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)

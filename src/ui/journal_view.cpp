@@ -2,6 +2,8 @@
 #include "../graphics/gl_includes.h"
 #include "../input/input.h"
 #include "../state/game_state.h"
+#include "../world/decor.h"
+#include "../world/inscriptions.h"
 #include "../world/journal.h"
 #include "../world/monster_kinds.h"
 #include "page_curl.h"
@@ -80,6 +82,16 @@ constexpr float FIELD_NOTE_TOP = 19.f;
 constexpr float FIELD_NOTE_STEP = 4.6f;
 constexpr size_t MAX_QUESTION_LINES = 7;
 constexpr size_t MAX_HINT_LINES = 2;
+constexpr float GLYPHS_TOP = 14.f; // the copied hieroglyphs: their box's top below the page top, and its side
+constexpr float GLYPHS_SIDE = 17.f;
+constexpr float TRANSLATION_TOP = 35.5f;
+constexpr float TRANSLATION_STEP = 4.2f;
+constexpr float TRANSLATION_SMALL_STEP = 3.5f;
+constexpr size_t MAX_TRANSLATION_LINES = 6; // in the hand font; a longer one is written smaller
+constexpr size_t MAX_TRANSLATION_SMALL_LINES = 7;
+constexpr float COMMENT_BOTTOM = 8.5f; // the pencilled comment's first baseline above the page bottom
+constexpr float COMMENT_STEP = 3.2f;
+constexpr size_t MAX_COMMENT_LINES = 2;
 
 struct SectionLook {
 	const char* name;
@@ -90,6 +102,7 @@ constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
 	{"Creatures", "M", INK_RED},
 	{"Riddles", "R", LAPIS},
 	{"Field notes", "F", GOLD_DIM},
+	{"Inscriptions", "I", INK_GREEN},
 }};
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -338,6 +351,8 @@ int JournalScreen::PageCount(Section s) const {
 		return static_cast<int>(Game().journal.Riddles().size());
 	if (s == Section::Creatures)
 		return static_cast<int>(Game().journal.Creatures().size());
+	if (s == Section::Inscriptions)
+		return static_cast<int>(Game().journal.Inscriptions().size());
 	return static_cast<int>(Game().journal.Notes().size());
 }
 
@@ -748,6 +763,8 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		xref = "lvl " + std::to_string(Game().journal.Creatures()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Riddles)
 		xref = "lvl " + std::to_string(Game().journal.Riddles()[static_cast<size_t>(page)].level);
+	else if (at.section == Section::Inscriptions)
+		xref = "lvl " + std::to_string(Game().journal.Inscriptions()[static_cast<size_t>(page)].level);
 	auto outer = [&](const Font& f, const std::string& s) {
 		return side == 0 ? p.x + PAGE_PAD : p.x + p.w - PAGE_PAD - f.TextWidth(s.c_str());
 	};
@@ -763,6 +780,9 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		break;
 	case Section::FieldNotes:
 		DrawFieldNote(p, page);
+		break;
+	case Section::Inscriptions:
+		DrawInscription(p, page);
 		break;
 	case Section::Riddles: {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
@@ -1020,6 +1040,53 @@ void JournalScreen::DrawFieldNote(const Rect& p, int index) {
 // A creature's model, frame 0 of its move clip, from the side and a little above. As a pencil sketch: the outline
 // only (a depth pass first, so only the front surfaces get lines). As a photo: a black and white print, lit, on a
 // white-bordered card tilted by `tilt` degrees.
+// The hieroglyphs copied from the wall (their cell of the inscription atlas), the translation in ink under them, the
+// archaeologist's comment pencilled at the bottom.
+void JournalScreen::DrawInscription(const Rect& p, int index) {
+	const JournalInscription& e = Game().journal.Inscriptions()[static_cast<size_t>(index)];
+	float top = p.y + p.h;
+	float width = p.w - 2 * PAGE_PAD;
+	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, e.title.c_str());
+
+	if (isInscriptionId(e.id)) {
+		const AtlasRect uv = atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
+		Rect box = {p.cx() - GLYPHS_SIDE / 2, top - GLYPHS_TOP - GLYPHS_SIDE, GLYPHS_SIDE, GLYPHS_SIDE};
+		texturedRect(box, Game().assets.decor.inscriptionTex.ID(), PAPER, uv.u0, uv.v0, uv.u1, uv.v1);
+		beginShapes();
+	}
+
+	auto wrapAll = [&](const Font& font) {
+		std::vector<std::string> lines;
+		for (const std::string& t : e.text)
+			for (const std::string& l : wrap(font, t, width))
+				lines.push_back(l);
+		return lines;
+	};
+	Font* font = &hand;
+	float step = TRANSLATION_STEP;
+	std::vector<std::string> lines = wrapAll(hand);
+	if (lines.size() > MAX_TRANSLATION_LINES) {
+		font = &handSmall;
+		step = TRANSLATION_SMALL_STEP;
+		lines = wrapAll(handSmall);
+		lines.resize(std::min(lines.size(), MAX_TRANSLATION_SMALL_LINES));
+	}
+	beginText();
+	float y = top - TRANSLATION_TOP;
+	for (const std::string& l : lines) {
+		textCentered(*font, p.cx(), y, l.c_str(), INK_BLUE);
+		y -= step;
+	}
+	std::vector<std::string> comment = wrap(handSmall, e.note, width);
+	comment.resize(std::min(comment.size(), MAX_COMMENT_LINES));
+	y = p.y + COMMENT_BOTTOM + COMMENT_STEP * (static_cast<float>(comment.size()) - 1.f);
+	for (const std::string& l : comment) {
+		textCentered(handSmall, p.cx(), y, l.c_str(), PENCIL, FADED);
+		y -= COMMENT_STEP;
+	}
+	beginShapes();
+}
+
 void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt) {
 	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(type)];
 	const CharacterModel& model = Game().assets.monsterModels[static_cast<size_t>(type)];

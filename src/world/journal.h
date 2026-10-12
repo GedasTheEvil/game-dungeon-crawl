@@ -30,6 +30,16 @@ struct JournalRiddle {
 	}
 };
 
+// A wall inscription read (plan hieroglyph-cartouches). A copy of its text, like a riddle: inscriptions/*.txt can
+// change between saves.
+struct JournalInscription {
+	int id = 0; // the text id (inscriptions.h); its glyphs on the page come from the atlas cell of this id
+	std::string title;
+	std::vector<std::string> text;
+	std::string note;
+	int level = 0; // campaign level where it was read first
+};
+
 // Special moves a monster type can be seen doing, written down the first time.
 enum class CreatureMove : unsigned char {
 	Leap, // a walk-jumper's leap
@@ -137,10 +147,15 @@ class Journal {
 	void LearnNote(FieldNote note);
 	[[nodiscard]] const std::vector<FieldNote>& Notes() const { return notes; }
 
+	// Written once, the first time it is read; the entries keep the order they were read in. True the first time.
+	bool ReadInscription(const JournalInscription& inscription);
+	[[nodiscard]] const std::vector<JournalInscription>& Inscriptions() const { return inscriptions; }
+
 	void Clear() {
 		riddles.clear();
 		creatures.clear();
 		notes.clear();
+		inscriptions.clear();
 	}
 
 	// Saved after the dungeon. Saves from before the journal end before the tag: the journal stays empty.
@@ -151,6 +166,7 @@ class Journal {
 	std::vector<JournalRiddle> riddles;
 	std::vector<JournalCreature> creatures;
 	std::vector<FieldNote> notes;
+	std::vector<JournalInscription> inscriptions;
 
 	JournalCreature& creature(int type, int level);
 };

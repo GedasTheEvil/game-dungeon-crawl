@@ -1,7 +1,7 @@
 # The Stargate chamber
 
 Status: draft 2026-10-10, ready (needs nothing first). From the lore review, picked by the user (the user loves
-Stargate). Works better with [hieroglyph-cartouches](hieroglyph-cartouches.draft.opus.md), does not need it.
+Stargate). Works better with [hieroglyph-cartouches](hieroglyph-cartouches.md), does not need it.
 
 ## Idea
 

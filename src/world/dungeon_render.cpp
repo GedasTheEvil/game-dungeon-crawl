@@ -289,6 +289,9 @@ void Dungeon::drawTileContent(int i, int j) {
 	case DartPlate:
 		drawDartPlateTile(i, j);
 		break;
+	case Inscription:
+		drawInscriptionTile(i, j);
+		break;
 	}
 }
 //======================================================================================

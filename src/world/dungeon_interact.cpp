@@ -1,7 +1,9 @@
-// What the player does on a cell (Interact): pick up the treasure, pull a lever, use a gate (the exit, a teleport),
-// and the travel through a gate (the fade). Loading and saving the dungeon: dungeon_io.cpp.
+// What the player does on a cell (Interact): pick up the treasure, pull a lever, read an inscription, use a gate (the
+// exit, a teleport), and the travel through a gate (the fade). Loading and saving the dungeon: dungeon_io.cpp.
 #include "dungeon.h"
 #include "../entities/player.h"
+#include "inscriptions.h"
+#include "journal.h"
 #include "loot.h"
 #include "dungeon_rules.h"
 #include <string>
@@ -28,9 +30,26 @@ void Dungeon::PickUp() {
 // Keys, treasure and levers are picked up or pulled elsewhere (PickUp, the mechanisms).
 void Dungeon::Interact() {
 	PickUp();
-	if (PullLever())
+	if (PullLever() || readInscription())
 		return;
 	useGate();
+}
+//======================================================================================
+// The status line gives the archaeologist's comment; the translation goes into the journal (plan
+// hieroglyph-cartouches).
+bool Dungeon::readInscription() {
+	const Tile here = Map(mapX, mapY);
+	if (here.type != Inscription)
+		return false;
+	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(here.attr) : nullptr;
+	if (text == nullptr) {
+		sim.events->Status("The signs are too worn to read.");
+		return true;
+	}
+	const bool first = sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber});
+	sim.events->Status("%s\n%s%s", text->title.c_str(), text->note.c_str(),
+					   first ? "\n(Translation written in the journal)" : "");
+	return true;
 }
 //======================================================================================
 void Dungeon::useGate() {

@@ -621,7 +621,7 @@
 22,45 surface 0/0/0
 23,45 surface 1/0/0 decal 13m 0.644,0.225
 24,45 surface 0/0/0 prop ushabti -0.026 decal 6m 0.450,0.575
-25,45 surface 1/1/0 prop lamp 0.055 fire lamp -0.201,0.050,0.307
+25,45 surface 1/1/0
 26,45 surface 2/2/0 prop osirism -0.041 decal 7m 0.540,0.436
 27,45 surface 3/2/1 prop potterym 0.099 decal 9 0.668,0.388
 28,45 surface 4/0/1

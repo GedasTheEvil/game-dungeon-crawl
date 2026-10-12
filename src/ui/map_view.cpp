@@ -272,6 +272,10 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 			sk.loop(x + 0.28f + 0.22f * static_cast<float>(k), y + 0.4f, 0.06f, 0.06f, 5, GRAPHITE, 0.9f,
 					seed + 2 + static_cast<uint32_t>(k));
 		break;
+	case Inscription: // a cartouche on the back wall: an upright oval on its bar
+		sk.loop(x + 0.5f, y + 0.55f, 0.14f, 0.24f, 7, GRAPHITE, 0.9f, seed);
+		sk.pencil(x + 0.32f, y + 0.28f, x + 0.68f, y + 0.28f, GRAPHITE, 0.95f, seed + 1);
+		break;
 	case Ankh:
 		sk.loop(x + 0.5f, y + 0.74f, 0.12f, 0.16f, 7, ANKH_GOLD, 0.95f, seed);
 		sk.pencil(x + 0.28f, y + 0.55f, x + 0.72f, y + 0.55f, ANKH_GOLD, 0.95f, seed + 7);

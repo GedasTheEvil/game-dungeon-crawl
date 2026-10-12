@@ -1,0 +1,361 @@
+# The campaign's wall inscriptions, by level (plan hieroglyph-cartouches). Format: docs/inscriptions.md.
+# Real texts in short translations, a few hints for the level they stand in. After changing a G: or style: line,
+# rebuild the atlas: python3 tools/textures/inscriptions.py
+
+# ---- level 6
+
+id: 1
+title: The offering formula
+style: stela
+G: M23 X1 R4 X8 Q1 D4 A40 O3 X3 W22 F1 G54
+T: An offering which the king gives to Osiris, lord of Abydos:
+T: bread and beer, oxen and fowl, linen and alabaster,
+T: every good and pure thing on which a god lives,
+T: for the spirit of the one buried here.
+N: The standard tomb greeting. The ancient "Dear Sir or Madam".
+
+# ---- level 7: the first crocodile waits in the flooded stretch to the west.
+
+id: 2
+title: The curse of Meni
+style: column
+G: I3 N35A I14 N25 A2
+T: The crocodile be against him in the water,
+T: the snake be against him on land,
+T: he who would do a thing against this tomb.
+T: Never did I do a thing against him.
+T: It is the god who will judge him.
+N: A crocodile in the water. Oddly specific. Noted.
+
+# ---- level 8
+
+id: 3
+title: The ushabti spell
+style: column
+G: A53 A53 A53 G17 V31 A1
+T: O ushabti, if I am called to do any work
+T: in the realm of the dead, to till the fields,
+T: to water the banks, to carry sand from east to west,
+T: "Here I am!" you shall say.
+N: Servants who answer "Here I am!" My students never did.
+
+# ---- level 9
+
+id: 4
+title: The song of the harper
+style: row
+G: F34 S29 D54 N5 O1 A2
+T: Follow your heart as long as you live.
+T: Put myrrh on your head, dress in fine linen.
+T: Make holiday, do not weary of it!
+T: No one goes away and comes back again.
+N: The cheeriest advice in Egypt, carved in a tomb. Naturally.
+
+# ---- level 10: the vampire bat (Bat of Shezmu) heals by part of the damage it deals.
+
+id: 5
+title: Shezmu, lord of the press
+style: stela
+G: S29 N29 G17 A40 W24 Z2
+T: Shezmu, lord of the wine press, slaughterer of the gods,
+T: who squeezes the wicked like grapes.
+T: He drinks the life of those he bites:
+T: strike hard and fast, and keep your blood in you.
+N: So the big bat heals when it bites. Bring potions.
+
+id: 6
+title: The instruction of Ptahhotep
+style: column
+G: Q3 X1 V28 R4 X1 Q3 A2
+T: Do not be proud of your knowledge.
+T: Ask the ignorant as well as the wise;
+T: the limits of art are never reached,
+T: and no craftsman ever reaches perfection.
+N: Advice for professors. I shall pretend I did not read it.
+
+# ---- level 11: the first mummies.
+
+id: 7
+title: Not dying a second time
+style: column
+G: A55 D35 G17 X1 V29 Z2
+T: Spell for not dying a second time in the realm of the dead.
+T: My cave is opened, my coffin is unsealed.
+T: I rise, I live, I walk again.
+N: Book of the Dead, spell 44. The mummies took it rather literally.
+
+# ---- level 12: red key, green lever, gold key, in that order.
+
+id: 8
+title: The Book of Gates
+style: row
+G: O32 O32 O32 I14 R8 Z2
+T: Every hour of the night has its gate, every gate its keeper.
+T: The carnelian door opens first, then the turquoise,
+T: and the amber door last of all.
+T: Who knows the order passes.
+N: Red, then green, then gold. Even the ancients had keycards.
+
+# ---- level 13: rock falls, the first Anubis.
+
+id: 9
+title: A workmen's note
+style: row
+G: A9 A9 A1 Z2 O1
+T: Painted in red ochre by the crew of the left side:
+T: The ceiling is cracked here, sand runs from it.
+T: Do not linger under it. Work stops until the
+T: stonecutters come. Day 12, the scribe Ramose.
+N: Ancient health and safety. Mind the loose ceilings.
+
+id: 10
+title: Anubis upon his mountain
+style: stela
+G: M17 N35 Q3 G43 E15 R8 N26
+T: Anubis, who is upon his mountain, lord of the sacred land,
+T: foremost of the divine booth, he who is in the place
+T: of embalming. His statues keep watch, and they do not sleep.
+N: The jackal statues here look very... attentive.
+
+# ---- level 14
+
+id: 11
+title: The negative confession
+style: column
+G: D35 D4 N35 A1 H6 Z1
+T: I have not done evil. I have not robbed.
+T: I have not killed people. I have not told lies.
+T: I have not taken the offerings of the dead.
+T: I have not robbed a tomb.
+N: Book of the Dead, spell 125. That last one feels personal.
+
+# ---- level 15: the scorpion queen's brood hatches from the egg clusters.
+
+id: 12
+title: Serket
+style: stela
+G: S29 D21 N29 X1 L7 Z1
+T: Serket, she who lets the throat breathe,
+T: mistress of the scorpions in the house of life.
+T: Her brood hatches from the eggs at her side:
+T: break the clutch, and she stands alone.
+N: Smash the eggs first. Sorry, little ones.
+
+id: 13
+title: A spell against stings
+style: column
+G: G5 I3 L7 I14 E23
+T: From a healing stela: O poison, come out!
+T: Flow out upon the ground! Horus spits on you,
+T: the poison of Serket is cast out.
+T: You shall not rise, you shall not climb.
+N: Shouting at poison does not work. Antidotes do.
+
+# ---- level 16: the first dart trap, east of this inscription. A jump does not press the plate.
+
+id: 14
+title: The spitting wall
+style: row
+G: D58 X1 O36 I10 I10 Z2
+T: Cursed be the foot that treads on the slab
+T: before the house of the serpent.
+T: The wall shall spit its venom at him three times.
+N: A pressure plate ahead, darts in the wall. Jump over it.
+
+# ---- level 17
+
+id: 15
+title: Hymn to Hapi
+style: column
+G: V28 Q3 Q3 N35A N36 A40
+T: Hail to you, Hapi, who comes forth from the earth,
+T: who comes to keep Egypt alive!
+T: He floods the fields that Ra has made,
+T: he gives drink to the desert.
+N: A lovely hymn. Hapi also floods corridors, it seems.
+
+# ---- level 18: the green key lies inside the pillar, reached round it.
+
+id: 16
+title: The djed of Osiris
+style: column
+G: R11 R11 R11 Q1 D4 A40
+T: The djed stands for ever, the backbone of Osiris.
+T: What is green rests within the pillar,
+T: in the house that has no door but the way around.
+N: The green key is inside the pillar? Pillars have insides now.
+
+# ---- level 19: Apep, the boss of level 20, burrows and comes up behind the player.
+
+id: 17
+title: The serpent of chaos
+style: stela
+G: G1 Q3 Q3 I14 N5 P3
+T: Every night Apep lies in wait for the boat of Ra.
+T: He sinks into the sand and is gone,
+T: and he rises again behind the one he hunts.
+T: Turn, and face him where he comes up.
+N: A giant burrowing snake. And this way leads down.
+
+# ---- level 20
+
+id: 18
+title: Overthrowing Apep
+style: stela
+G: G1 Q3 Q3 I14 T30 T30 N5
+T: From the Book of Overthrowing Apep:
+T: Spit upon him! Trample him! Fall on your face,
+T: Apep, enemy of Ra! Your head is cut off,
+T: your coils are cut, you shall not rise again.
+N: The priests spat on him every day. I will use a weapon.
+
+# ---- level 21: the teleporter at the end of this passage leads to a hidden treasure cistern.
+
+id: 19
+title: A visitor's graffito
+style: row
+G: Y3 A1 D54 O1 R8
+T: The scribe Ahmose son of Iptah came to see this temple.
+T: He found it as though heaven were within it,
+T: the sun rising in it.
+N: Ancient tourist graffiti. Some things never change.
+
+id: 20
+title: The cistern treasury
+style: column
+G: O1 S12 N35A N35A Z2
+T: Below the halls lies the treasury of the cistern.
+T: The priests went down by the gate of light
+T: at the end of this passage. Water above, gold below.
+N: A teleporter to a treasure room? Lead the way.
+
+# ---- level 22
+
+id: 21
+title: The satire of the trades
+style: column
+G: Y3 A1 Z1 U32 A9
+T: I have seen the coppersmith at the mouth of his furnace:
+T: his fingers like crocodile hide, he stinks worse than fish.
+T: Be a scribe! It saves you from toil.
+N: Ancient career advice: be a scribe. I became an archaeologist.
+
+# ---- level 23: a dart trap right behind this inscription.
+
+id: 22
+title: The instruction of Amenemhat
+style: column
+G: M17 Y5 N35 G17 F4 X1
+T: Trust no brother, know no friend,
+T: make for yourself no intimates: it is worthless.
+T: When you lie down, guard your heart yourself,
+T: for no man has followers on the day of woe.
+N: A king's advice to his son. Paranoid, but this hall has darts.
+
+# ---- level 24: Sobek, the boss of level 25, charges along the row.
+
+id: 23
+title: Sobek of Shedet
+style: stela
+G: S29 V31 I4 R8 N35A N35A
+T: Sobek of Shedet, lord of the waters, rests in his lake.
+T: When he sees you, he charges straight along the water.
+T: Do not stand in his line; step aside, and strike.
+N: The crocodile god is near. Rule one: do not stand in front of him.
+
+# ---- level 25
+
+id: 24
+title: Hymn to Sobek
+style: column
+G: I4 S29 V31 N35A R8
+T: Hail to you, Sobek, who rises from the flood,
+T: green of plumage, who rears up against his foes.
+T: His children come from the water when he calls,
+T: and the lake is his.
+N: Lovely. I would still rather not meet him.
+
+# ---- level 26
+
+id: 25
+title: A tomb robber's confession
+style: column
+G: A1 Z2 O1 S12 Q6
+T: We opened their coffins and their wrappings.
+T: We found the noble mummy of this king.
+T: We took the gold, the amulets and the jewels,
+T: and we set fire to their coffins.
+N: Testimony from a robbery trial, 1100 BC. In my defence: I take notes.
+
+id: 26
+title: The curse of Khentika
+style: row
+G: A1 D35 G39 V28 A24
+T: As for all men who enter this my tomb impure,
+T: I shall seize his neck like a bird's.
+T: There will be judgment, and an end shall be made of him.
+N: I washed my hands this morning. That counts, surely.
+
+# ---- level 27: the drop just west of this inscription leads into the hidden chamber in the pillar.
+
+id: 27
+title: The treasury in the pillar
+style: column
+G: O28 O1 S12 D54 R8
+T: The house of eternity is within the pillar.
+T: Go down where the floor is open,
+T: and the gold of the god is yours.
+N: There is a hole in the floor right here. Subtle, ancients.
+
+# ---- level 28
+
+id: 28
+title: The heart scarab
+style: column
+G: L1 F34 Z1 F34 D35
+T: O my heart of my mother, my heart of my different ages,
+T: do not stand up as a witness against me,
+T: do not oppose me in the tribunal,
+T: do not tip the scale against me.
+N: Book of the Dead, spell 30B. Mine would tip it: too much coffee.
+
+# ---- level 29: the hidden tomb is below the exit hall, down the drop east of this inscription, out by the ladder.
+
+id: 29
+title: King of kings
+style: cartouche
+G: N5 F31 S29 S29
+T: King of kings am I, Osymandias.
+T: If anyone would know how great I am and where I lie,
+T: let him surpass one of my works.
+N: As Diodorus tells it. Shelley had a few words about that.
+
+id: 30
+title: The overseer of works
+style: column
+G: G17 D21 A1 O1 S12
+T: Here rests the overseer of works Kha, beneath this floor,
+T: with his gold and his beer. Go down, if you dare;
+T: the way up is by the ladder of the workmen.
+N: A tomb below the floor. And a ladder out. How thoughtful.
+
+# ---- level 30: the Anubis boss guards the ankh; his mummies climb out of the coffins.
+
+id: 31
+title: Lord of the necropolis
+style: stela
+G: E15 M17 N35 Q3 G43 R8 S34
+T: Anubis, lord of the necropolis, weighs the heart
+T: of all who enter. His sleepers rise from their coffins
+T: to serve him. The ankh of life lies behind him.
+N: The ankh is behind the big jackal. Of course it is.
+
+id: 32
+title: Going forth by day
+style: column
+G: O1 D21 X1 G17 O4 N5
+T: Here begin the spells of going forth by day.
+T: I have come from the Isle of Fire, filled with heka.
+T: I go out into the day, I live after death,
+T: as Ra does every day.
+N: The "Book of the Dead" is really "Going Forth by Day". Fitting.

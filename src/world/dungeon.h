@@ -53,6 +53,7 @@ class Dungeon {
 	void UpdateMonsters();
 	void PickUp(); // not the car... just take an item away
 	bool PullLever(); // interact on a lever cell; false if there is none
+	bool readInscription(); // interact on an inscription: into the journal; false if there is none
 	void useGate(); // the exit, a teleporter, a riddle gate, the ankh
 	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
 	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
@@ -165,6 +166,7 @@ class Dungeon {
 	void pressPlate(int col, int row, bool byPlayer);
 	void updateDarts();
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
+	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
 	void drawDarts(); // with the frame origin of DrawMonsters
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
@@ -308,8 +310,8 @@ class Dungeon {
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
 	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
-	// The interact key: picks up what lies here, else pulls the lever, else uses the gate (the exit, a teleporter, a
-	// riddle) or takes the ankh.
+	// The interact key: picks up what lies here, else pulls the lever, else reads the inscription, else uses the gate
+	// (the exit, a teleporter, a riddle) or takes the ankh.
 	void Interact();
 	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, wading (JumpAllowed) or
 	// out of stamina (told why), or the level is won.

@@ -169,6 +169,7 @@ void loadProp(Texture& tex, std::unique_ptr<AnimatedModel>& model, const char* t
 
 void loadDecor(DecorSet& decor) {
 	decor.decalTex.LoadPNG("textures/decorations/decals.png");
+	decor.inscriptionTex.LoadPNG("textures/decorations/inscriptions.png");
 	auto loadSurfaces = [](Texture* tex, const char* const* names, int count) {
 		for (int s = 0; s < count; s++) {
 			char path[64];

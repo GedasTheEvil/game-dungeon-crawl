@@ -146,7 +146,7 @@
 4,9 surface 0/0/0
 5,9 surface 0/2/0 prop rubble -0.014
 6,9 surface 0/1/0
-7,9 surface 1/2/0 prop lampm -0.044 fire lamp 0.212,0.050,0.307
+7,9 surface 1/2/0
 8,9 surface 0/1/0
 9,9 surface 2/2/0 prop lampm -0.035 fire lamp 0.221,0.050,0.307
 10,9 surface 3/0/1 decal 3 0.485,0.600 torch fire torch 0.000,0.680,0.098
@@ -706,7 +706,7 @@
 2,45 surface 6/1/2
 3,45 surface 7/1/2 prop jackal 0.123
 4,45 surface 6/2/2 prop ushabtim 0.011
-5,45 surface 6/1/2 decal 9m 0.592,0.423
+5,45 surface 6/1/2
 6,45 surface 6/1/2
 7,45 surface 6/1/2
 8,45 surface 6/1/2

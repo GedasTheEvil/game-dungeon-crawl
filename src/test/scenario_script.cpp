@@ -434,6 +434,7 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"journal", Field::JournalRiddles},
 											   {"journal_solved", Field::JournalSolved},
 											   {"journal_notes", Field::JournalNotes},
+											   {"journal_inscriptions", Field::JournalInscriptions},
 											   {"journal_tried", Field::JournalTried},
 											   {"maxhp", Field::MaxHp},
 											   {"worn", Field::Worn},

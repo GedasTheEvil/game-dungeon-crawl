@@ -6,6 +6,7 @@
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
 #include "../../src/core/gameplay_config.h"
+#include "../../src/world/inscriptions.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/monster_kinds.h"
@@ -176,9 +177,9 @@ void printReport(const Entry& e, bool map) {
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
 	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d dart plates, %d treasures (%d "
-		   "reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters\n",
+		   "reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters, %d inscriptions\n",
 		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.dartPlates, r.treasures,
-		   r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters);
+		   r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters, r.inscriptions);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
 			   "%d dart plates, %d gates (%d colours), %d teleports, %d monsters near\n",
@@ -187,6 +188,47 @@ void printReport(const Entry& e, bool map) {
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());
+}
+// The campaign level number of a file named lvlN, 0 for any other level.
+int campaignNumber(const std::string& path) {
+	std::string name = std::filesystem::path(path).filename().string();
+	if (name.size() < 4 || name.compare(0, 3, "lvl") != 0 ||
+		name.find_first_not_of("0123456789", 3) != std::string::npos)
+		return 0;
+	return std::stoi(name.substr(3));
+}
+
+// Inscriptions need a text in inscriptions/*.txt (read from the working directory, the repo root), campaign ones
+// come from INSCRIPTIONS_FROM_LEVEL on, and each text stands in one place only among the files checked.
+void checkInscriptions(std::vector<Entry>& entries) {
+	InscriptionBook book;
+	bool texts = std::filesystem::is_directory("inscriptions");
+	if (texts)
+		for (const std::string& m : book.Load("inscriptions"))
+			fprintf(stderr, "%s\n", m.c_str());
+	std::vector<std::string> usedIn(INSCRIPTION_MAX + 1);
+	for (Entry& e : entries) {
+		const int number = campaignNumber(e.path);
+		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
+			const Tile& t = e.grid.cells[cell];
+			if (t.type != Inscription || !isInscriptionId(t.attr))
+				continue;
+			const std::string where =
+				" at (col " + std::to_string(cell % LEVEL_WIDTH) + ", row " + std::to_string(cell / LEVEL_WIDTH) + ")";
+			if (texts && book.Find(t.attr) == nullptr)
+				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where +
+											" has no text in inscriptions/");
+			if (number > 0 && number < INSCRIPTIONS_FROM_LEVEL)
+				e.report.warnings.push_back("inscription" + where + " before level " +
+											std::to_string(INSCRIPTIONS_FROM_LEVEL) +
+											": the hieroglyph skill comes later");
+			std::string& first = usedIn[static_cast<size_t>(t.attr)];
+			if (!first.empty())
+				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where + " is also in " + first);
+			else
+				first = e.path + where;
+		}
+	}
 }
 } // namespace
 
@@ -243,6 +285,7 @@ int main(int argc, char** argv) {
 		return 2;
 	}
 
+	checkInscriptions(entries);
 	for (const Entry& e : entries) {
 		if (!quiet)
 			printReport(e, map);

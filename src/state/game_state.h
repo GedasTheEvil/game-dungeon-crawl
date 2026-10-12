@@ -23,6 +23,7 @@
 #include "../ui/journal_view.h"
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
+#include "../world/inscriptions.h"
 #include "../world/journal.h"
 #include "../world/world_events.h"
 #include "save_slots.h"
@@ -77,6 +78,7 @@ class GameState {
 	UIContext ui;
 	Dungeon dungeon;
 	Journal journal; // what the archaeologist wrote down, kept per save game
+	InscriptionBook inscriptions; // the wall inscriptions' texts, inscriptions/*.txt
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	SaveSlots saves;
 

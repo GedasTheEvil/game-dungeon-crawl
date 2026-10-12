@@ -550,7 +550,7 @@
 5,39 surface 0/1/0 prop ushabti -0.027
 6,39 surface 0/0/0 ladder 1/4
 7,39 surface 0/0/0 decal 14m 0.542,0.375
-8,39 surface 1/1/0 decal 1m 0.525,0.522
+8,39 surface 1/1/0
 9,39 surface 0/2/0 decal 14m 0.453,0.375
 10,39 surface 2/2/0
 11,39 surface 5/0/1 decal 11m 0.569,0.555

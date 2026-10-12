@@ -48,7 +48,11 @@ void GameState::Load() {
 	player = std::make_unique<Player>();
 	playerView.Load("characters/archeologist", std::move(playerTexture), *player);
 	player->scale = PLAYER_SCALE;
-	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes});
+	for (const std::string& message : inscriptions.Load("inscriptions"))
+		LOG_WARNINGF("game", "Inscriptions: %s", message.c_str());
+	LOG_INFO("game", "Loaded " + std::to_string(inscriptions.Size()) + " inscriptions");
+	dungeon.Link(
+		{player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes, &inscriptions});
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);

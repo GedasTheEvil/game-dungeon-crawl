@@ -62,6 +62,7 @@ struct DecorSet {
 	Texture tex[DECOR_COUNT];
 	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
 	Texture decalTex; // atlas, DECAL_DEFS order
+	Texture inscriptionTex; // atlas, a cell per inscription id (inscriptions.h)
 	Texture torchTex;
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
 	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];

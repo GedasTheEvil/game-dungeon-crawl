@@ -9,7 +9,8 @@ A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.
 
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`. A cell blocks when it is `Wall` or `DeepWater`.
 * **Object**: at most one thing in the cell, with attribute and value: ladder, door, gate, lever, key, treasure,
-  ankh, monster spawn, spike, death trap, rock fall. An object stands in `Empty` or `HalfWater`.
+  ankh, monster spawn, spike, death trap, rock fall, dart plate, inscription. An object stands in `Empty` or
+  `HalfWater`.
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
@@ -63,7 +64,9 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 29 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet to the exit, a drop to a hidden tomb. |
 | 30 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss among his coffins, his mummies climbing out of them; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Weak monsters give way to their giant kin: no rats, scarabs or small bats
+Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
+[inscriptions](inscriptions.md) (`inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
+ahead, a dart trap, a hidden treasure room, the order of the locks). Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
@@ -100,7 +103,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion, cobra) without an antidote in reach. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `inscriptions/`, one in a campaign level before 6, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |

@@ -1,5 +1,6 @@
 #include "level_check.h"
 #include "movement.h"
+#include "inscriptions.h"
 #include "items.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
@@ -175,6 +176,12 @@ std::vector<char> reachableCells(const Walker& walker, int startState) {
 
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
 
+std::string at(int cell) {
+	char buf[32];
+	snprintf(buf, sizeof(buf), "(col %d, row %d)", cell % LEVEL_WIDTH, cell / LEVEL_WIDTH);
+	return buf;
+}
+
 void countContent(const LevelGrid& grid, LevelReport& r) {
 	int minCol = LEVEL_WIDTH, maxCol = -1, minRow = LEVEL_HEIGHT, maxRow = -1;
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
@@ -232,6 +239,12 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Lever:
 				r.levers++;
 				break;
+			case Inscription:
+				r.inscriptions++;
+				if (!isInscriptionId(t.attr))
+					r.warnings.push_back("inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) +
+										 ") at " + at(row * LEVEL_WIDTH + col));
+				break;
 			default:
 				break;
 			}
@@ -240,12 +253,6 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 		r.boundsWidth = maxCol - minCol + 1;
 		r.boundsHeight = maxRow - minRow + 1;
 	}
-}
-
-std::string at(int cell) {
-	char buf[32];
-	snprintf(buf, sizeof(buf), "(col %d, row %d)", cell % LEVEL_WIDTH, cell / LEVEL_WIDTH);
-	return buf;
 }
 
 void checkLocks(const LevelGrid& grid, LevelReport& r) {
@@ -475,8 +482,10 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.warnings.emplace_back("poisoners but no antidote in reach");
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if (cellReached[cell] == 0 && (t.type == Key || t.type == Lever))
-			r.warnings.push_back(std::string(t.type == Key ? "key" : "lever") + " out of reach at " + at(cell));
+		if (cellReached[cell] == 0 && (t.type == Key || t.type == Lever || t.type == Inscription)) {
+			const char* what = t.type == Key ? "key" : t.type == Lever ? "lever" : "inscription";
+			r.warnings.push_back(std::string(what) + " out of reach at " + at(cell));
+		}
 	}
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");

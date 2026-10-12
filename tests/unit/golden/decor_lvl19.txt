@@ -31,7 +31,7 @@
 32,3 surface 2/0/0
 33,3 surface 4/2/1 prop jackal -0.180 decal 3m 0.581,0.600
 34,3 surface 3/1/1 prop sarcophagus 0.056 decal 11 0.451,0.378
-35,3 surface 4/2/1 prop osiris -0.012
+35,3 surface 4/2/1
 36,3 surface 5/0/1 prop pottery 0.065
 37,3 surface 3/0/1
 5,4 surface 6/1/2 ladder 1/2

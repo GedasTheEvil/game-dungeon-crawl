@@ -66,6 +66,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().journal.Riddles().size());
 	case Field::JournalNotes:
 		return static_cast<float>(Game().journal.Notes().size());
+	case Field::JournalInscriptions:
+		return static_cast<float>(Game().journal.Inscriptions().size());
 	case Field::MaxHp:
 		return static_cast<float>(Game().player->stats.CurrentMaxHP());
 	case Field::Worn: {

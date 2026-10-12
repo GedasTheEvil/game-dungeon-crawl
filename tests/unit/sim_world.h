@@ -11,6 +11,7 @@
 #include "../../src/world/dungeon.h"
 #include "../../src/world/item_bag.h"
 #include "../../src/world/items.h"
+#include "../../src/world/inscriptions.h"
 #include "../../src/world/journal.h"
 #include "../../src/world/rng.h"
 #include "../../src/world/world_events.h"
@@ -30,6 +31,7 @@ class SimWorld {
   public:
 	Player player;
 	Journal journal;
+	InscriptionBook inscriptions; // empty: a test adds the texts it reads
 	ItemBag items;
 	GameRandom random;
 	WorldEvents events;
@@ -41,7 +43,7 @@ class SimWorld {
 		GameClock::enableVirtual();
 		player.SetModel(playerModel());
 		player.scale = PLAYER_SCALE;
-		dungeon.Link({&player, &journal, &items, &random, nullptr, &events, &monsterTypes()});
+		dungeon.Link({&player, &journal, &items, &random, nullptr, &events, &monsterTypes(), &inscriptions});
 	}
 
 	// As the scenario command `level path` (with `seed`): a fresh player on the level's entrance. A number: the

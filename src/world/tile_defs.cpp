@@ -34,6 +34,10 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Pressure plate in the floor. The player or a heavy monster on it (not a jump) sets off 3 poison darts (medium) "
 	 "from the holes in the back wall above it. Re-arms 3 s after it is free.",
 	 true, true, '_', "dartplate.png"},
+	{"Inscription",
+	 "Hieroglyphs on the back wall. Interact to read them: the translation goes into the journal. Attribute: the text "
+	 "id in inscriptions/*.txt. From level 6 on in the campaign. Put a floor under it.",
+	 false, false, 'i', "inscription.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -76,6 +80,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'v', {RockFall, 0, 0}, "rock fall"},
 		{'_', {DartPlate, 0, 0}, "dart trap plate"},
 		{'/', {Lever, 1, 0}, "lever (red; other colours: 'set')"},
+		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))

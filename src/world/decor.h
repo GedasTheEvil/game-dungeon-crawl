@@ -143,7 +143,21 @@ struct DecalDef {
 	float size; // quad side, tile units
 };
 
+// A cell of a square texture atlas (the decals, the inscriptions), grid x grid, numbered row by row from the top
+// left. Row 0 is the top of the image, which the loader puts at t = 1.
+struct AtlasRect {
+	float u0, v0, u1, v1;
+};
+constexpr AtlasRect atlasCell(int index, int grid) {
+	const float step = 1.f / static_cast<float>(grid);
+	const int row = index / grid;
+	const float u0 = static_cast<float>(index % grid) * step;
+	const float v1 = 1.f - static_cast<float>(row) * step;
+	return {u0, v1 - step, u0 + step, v1};
+}
+
 constexpr int DECAL_ATLAS_GRID = 4;
+constexpr int DECAL_CARTOUCHE = 9; // an inscription without its own glyphs shows it
 constexpr int DECAL_COUNT = 16;
 constexpr DecalDef DECAL_DEFS[DECAL_COUNT] = {
 	{DecalAnchor::Free, 0.6f}, // crack

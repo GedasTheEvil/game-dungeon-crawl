@@ -37,7 +37,7 @@
 19,10 surface 3/2/1 decal 15 0.441,0.518
 20,10 surface 3/0/1 ladder 0/4
 21,10 surface 5/1/1
-22,10 surface 4/0/1 decal 6m 0.556,0.575
+22,10 surface 4/0/1
 23,10 surface 3/0/1 decal 8 0.503,0.418
 24,10 surface 3/0/1 decal 2 0.640,0.350 torch fire torch 0.000,0.680,0.098
 25,10 surface 5/2/1 prop coffin 0.000

@@ -1,15 +1,48 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
-// lights of the fires among them.
+// lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon.h"
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
 #include "../graphics/lighting.h"
+#include "inscriptions.h"
 #include <GL/gl.h>
 #include <utility>
 
 namespace {
 constexpr float LIGHT_LIFT = 4.f; // lights sit above and in front of the flame (world units)
+constexpr float INSCRIPTION_SIZE = 0.7f; // quad side, tile units, a little larger than the scattered glyph decals
+constexpr float INSCRIPTION_Y = 0.55f; // its centre on the back wall: at the archaeologist's eye height
+
+// A square of side `size` centred on (x, y) of the cell's back wall (tile units), textured from the bound atlas,
+// blended over the wall.
+void wallQuad(float x, float y, float size, AtlasRect uv, bool mirror) {
+	const float tile = RenderConfig::TILE_SIZE;
+	const float half = size * tile / 2.f;
+	const float cx = x * tile;
+	const float cy = y * tile;
+	const float z = -tile + 0.05f; // just in front of the back wall
+	if (mirror)
+		std::swap(uv.u0, uv.u1);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
+	glColor3f(1, 1, 1);
+	glBegin(GL_QUADS);
+	glNormal3f(0, 0, 1);
+	glTexCoord2f(uv.u0, uv.v0);
+	glVertex3f(cx - half, cy - half, z);
+	glTexCoord2f(uv.u1, uv.v0);
+	glVertex3f(cx + half, cy - half, z);
+	glTexCoord2f(uv.u1, uv.v1);
+	glVertex3f(cx + half, cy + half, z);
+	glTexCoord2f(uv.u0, uv.v1);
+	glVertex3f(cx - half, cy + half, z);
+	glEnd();
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+}
 } // namespace
 
 void Dungeon::drawDecorTile(int i, int j) {
@@ -36,41 +69,20 @@ void Dungeon::drawDecalTile(int i, int j) {
 	const DecalCell& cell = decoration.decal[MapIndex(i, j)];
 	if (cell.type < 0)
 		return;
-
-	float tile = RenderConfig::TILE_SIZE;
-	float half = DECAL_DEFS[cell.type].size * tile / 2.f;
-	float cx = cell.x * tile;
-	float cy = cell.y * tile;
-	float z = -tile + 0.05f; // just in front of the back wall
-
-	// Atlas cell: row 0 is the top of the image, which the loader puts at t = 1.
-	float step = 1.f / static_cast<float>(DECAL_ATLAS_GRID);
-	float u0 = static_cast<float>(cell.type % DECAL_ATLAS_GRID) * step;
-	int row = cell.type / DECAL_ATLAS_GRID;
-	float v1 = 1.f - static_cast<float>(row) * step;
-	float u1 = u0 + step;
-	float v0 = v1 - step;
-	if (cell.mirror)
-		std::swap(u0, u1);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(GL_FALSE);
-	glColor3f(1, 1, 1);
 	sim.assets->decor.decalTex.Bind();
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(u0, v0);
-	glVertex3f(cx - half, cy - half, z);
-	glTexCoord2f(u1, v0);
-	glVertex3f(cx + half, cy - half, z);
-	glTexCoord2f(u1, v1);
-	glVertex3f(cx + half, cy + half, z);
-	glTexCoord2f(u0, v1);
-	glVertex3f(cx - half, cy + half, z);
-	glEnd();
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
+	wallQuad(cell.x, cell.y, DECAL_DEFS[cell.type].size, atlasCell(cell.type, DECAL_ATLAS_GRID), cell.mirror);
+}
+//======================================================================================
+// Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
+void Dungeon::drawInscriptionTile(int i, int j) {
+	const int id = MapAt(i, j).attr;
+	if (isInscriptionId(id)) {
+		sim.assets->decor.inscriptionTex.Bind();
+		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(id - 1, INSCRIPTION_ATLAS_GRID), false);
+	} else {
+		sim.assets->decor.decalTex.Bind();
+		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID), false);
+	}
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {

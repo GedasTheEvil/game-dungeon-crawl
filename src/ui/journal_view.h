@@ -16,8 +16,8 @@
 // game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:
-	enum class Section : std::uint8_t { Creatures, Riddles, FieldNotes };
-	static constexpr int SECTION_COUNT = 3;
+	enum class Section : std::uint8_t { Creatures, Riddles, FieldNotes, Inscriptions };
+	static constexpr int SECTION_COUNT = 4;
 
 	void Draw();
 	void SpecialKeyPressed(int key);
@@ -119,6 +119,7 @@ class JournalScreen {
 	void DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered);
 	void DrawCreature(const ui::Rect& page, int index);
 	void DrawFieldNote(const ui::Rect& page, int index);
+	void DrawInscription(const ui::Rect& page, int index);
 	void DrawSketch(int type, const ui::Rect& box, bool photo, float tilt);
 	void DrawRiddle(const ui::Rect& page, int index, bool answerHovered, bool answerHeld);
 	void DrawCorners();

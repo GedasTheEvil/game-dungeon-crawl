@@ -41,6 +41,12 @@ Implementer's choice, at least one:
 * Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.md), e.g. "the feather
   of Ma'at" or "the sun disc"), four tiers like the other wardings: fire damage -20 / 40 / 60 / 80%. Never more
   than 80% (decided 2026-10-12): fire always hurts a little.
+* **Fire ignores armour** (decided 2026-10-12): only the Fire Warding amulet (and a fire resistance) cuts it. Today
+  `playerHitDamage` takes the armour's flat amount off the whole hit; split it: the fire share after resistances goes
+  through untouched, the armour comes off the other shares only, and never below 0 for them (a mixed hit like the
+  Anubis bolt, [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md): armour can soak its blunt / pierce part, never
+  its fire). Burning ticks ignore armour too. The journal / amulet text can say so ("Armour does not stop fire").
+  Unit test: a 100% fire hit on an armoured player deals the same as on an unarmoured one.
 
 ## Also
 

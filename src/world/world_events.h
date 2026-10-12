@@ -24,6 +24,7 @@ enum class WorldSound : unsigned char {
 	Splash,		// the player lands in half water
 	PlateClick, // a dart trap's plate sinks
 	Dart,		// a dart leaves the wall
+	Dodge,		// the player sidesteps a blow (Dodge skill)
 };
 
 // A monster's or the player's own sound (CharacterModel: sounds/<model>_{die,att,jump,wake,spit}.wav).

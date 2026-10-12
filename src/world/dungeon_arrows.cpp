@@ -185,9 +185,12 @@ void Dungeon::updateVenoms() {
 			}
 			if (sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
 				const SpitRules& spit = *v.from->spit;
-				sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
-				sim.journal->HitByCreature(v.from->id, levelNumber);
-				if (spit.poison) {
+				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
+				if (!dodged) {
+					sim.player->TakeHit(spit.damage, v.from->attackMix, *sim.events);
+					sim.journal->HitByCreature(v.from->id, levelNumber);
+				}
+				if (spit.poison && !dodged) {
 					sim.player->Poison(*spit.poison, *sim.events, sim.random->gameplay);
 					sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Poison);
 				}

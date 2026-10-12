@@ -134,6 +134,7 @@ constexpr float MUMMY_CLIMB_FROM = 0.3f, MUMMY_CLIMB_TO = 0.75f;
 // to the model origin (the lowest point of the flying pose).
 constexpr float BAT_SIGHT = 1.75f;			 // a roosting bat wakes up when the player is this close
 constexpr float BAT_OVERSHOOT = 1.5f;		 // flies on this far past the player before it turns
+constexpr int DODGE_PERCENT = 10;			 // the Dodge skill: a monster's attack misses this often
 constexpr float BAT_BITE_REACH = 0.15f;		 // bites when this close in front of the player (it flies through him)
 constexpr float BAT_TILES_PER_SPEED = 0.25f; // flight speed: tiles per second per speed point
 constexpr float BAT_LOW_LIFT = 2.f;			 // height of the wing tips when passing the player (bites at head height)

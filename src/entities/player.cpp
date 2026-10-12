@@ -54,6 +54,14 @@ int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ign
 	return lost;
 }
 
+bool Player::Dodges(WorldEvents& events, Rng& rng) {
+	if (!Alive() || !stats.heka.Has(SkillId::Dodge) || !rng.percent(DODGE_PERCENT))
+		return false;
+	events.Status("Dodged");
+	events.Play(WorldSound::Dodge);
+	return true;
+}
+
 void Player::die(WorldEvents& events) {
 	setModelState(ModelState::Die);
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Die);

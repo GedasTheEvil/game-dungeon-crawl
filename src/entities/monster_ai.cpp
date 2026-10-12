@@ -132,6 +132,10 @@ void Monster::Attack(float py) {
 }
 
 void Monster::bite() {
+	if (links.player->Dodges(*links.events, *links.random)) { // no damage, no poison
+		sound(CharacterSound::Attack);
+		return;
+	}
 	const int lost = links.player->TakeHit(type->damage, type->attackMix, *links.events);
 	if (type->poison && (type->poisonChancePercent >= 100 || links.random->percent(type->poisonChancePercent))) {
 		links.player->Poison(*type->poison, *links.events, *links.random);
@@ -292,8 +296,10 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 		const bool onFloor = py - static_cast<float>(row) < CHARGE_JUMP_CLEAR; // a jump takes the player over it
 		if (!charge.hit && sameRow(py) && onFloor && std::fabs(px - head) <= links.player->HalfWidth() + 0.1f) {
 			charge.hit = true;
-			links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
-			links.journal->HitByCreature(type->id, links.level);
+			if (!links.player->Dodges(*links.events, *links.random)) {
+				links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
+				links.journal->HitByCreature(type->id, links.level);
+			}
 			sound(CharacterSound::Attack);
 		}
 		if ((px - head) * static_cast<float>(charge.dir) < -CHARGE_OVERRUN) { // far past the player: it stops

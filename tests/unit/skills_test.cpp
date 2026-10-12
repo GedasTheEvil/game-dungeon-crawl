@@ -126,3 +126,39 @@ TEST_CASE("the Heka screen's cards and button fit their panels, apart, clear of 
 		CHECK(tab.x > ui::CANVAS_W / 2 + ui::SCREEN_TABS_TITLE_REACH + 1.f); // the title rule ends before the strip
 	}
 }
+
+TEST_CASE("Dodge: about 1 attack in 10 misses, none without the skill") {
+	Player player;
+	WorldEvents events;
+	Rng rng(7);
+	int dodged = 0;
+	for (int i = 0; i < 10000; i++)
+		dodged += player.Dodges(events, rng) ? 1 : 0;
+	CHECK(dodged == 0);
+	CHECK(events.Take().empty());
+
+	player.stats.heka.Earn(5);
+	REQUIRE(player.stats.heka.Learn(SkillId::Dodge, true));
+	for (int i = 0; i < 10000; i++)
+		dodged += player.Dodges(events, rng) ? 1 : 0;
+	CHECK(dodged > 900);
+	CHECK(dodged < 1100);
+	const auto said = events.Take();
+	CHECK(said.size() == static_cast<size_t>(dodged) * 2); // the line and the whoosh
+}
+
+TEST_CASE("Dodge: a plant's bites are sometimes dodged") {
+	SimWorld world; // tests/levels/idle_monsters: the plant bites, poisoning weakly on 30% of its bites
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/idle_monsters"));
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::Dodge, true));
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(3.6f));
+	REQUIRE(world.Walk(0.25f));
+	REQUIRE(world.Walk(7.4f));
+	world.Wait(40000); // some 50 bites
+	CHECK(std::ranges::count_if(world.said, [](const WorldEvent& e) {
+			  return e.kind == WorldEvent::Kind::Status && e.text == "Dodged";
+		  }) > 0);
+}

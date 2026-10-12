@@ -21,6 +21,7 @@ struct SoundBank {
 	Sound amulet_s; // an amulet put on or taken off
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
+	Sound dodge;				 // a whoosh (the sling swing): the player dodges a blow
 	Sound arrowHit, arrowWall;	 // an arrow in a monster, in a wall or the floor
 	Sound stoneHit, stoneWall;	 // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)

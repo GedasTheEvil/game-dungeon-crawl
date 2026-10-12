@@ -229,6 +229,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
 	sounds.plateClick.Load("sounds/mechanisms/plate_click.wav");
 	sounds.dart.Load("sounds/mechanisms/dart.wav");
+	sounds.dodge.Load("sounds/items/sling_swing.wav");
 	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");

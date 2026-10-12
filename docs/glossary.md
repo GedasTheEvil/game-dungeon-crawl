@@ -109,6 +109,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
 | quick-drink | | the quick keys: drink the best fitting health or stamina potion | `Inventory::QuickDrink`, `quickPotion` |
 | sealed | Sealed | a skill shown on the Heka screen whose rules are not in the game yet: not learnable | `SkillDef::sealed` |
+| dodge | Dodged | the Dodge skill: 1 monster attack in 10 (`DODGE_PERCENT`) misses the player: no damage, no poison | `Player::Dodges` |
 | skill | | a permanent ability bought with one heka; no respec | `SkillId`, `SKILLS` |
 | tier | Lesser, Minor, Grand | an amulet's strength: lesser, minor, normal, grand ("Lesser Amulet of Armor", "Amulet of Minor Armor") | `AmuletTier` |
 

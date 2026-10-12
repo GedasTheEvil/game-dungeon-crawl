@@ -1,6 +1,6 @@
 # Death spikes: strong poison
 
-Status: draft 2026-10-10. Needs nothing first. From the user.
+Status: implemented 2026-10-12 (unit test in tests/unit/scen_a_test.cpp). Awaiting user check. Judgement: ward 100% does not block poison; ward only cuts damage.
 
 ## Idea
 

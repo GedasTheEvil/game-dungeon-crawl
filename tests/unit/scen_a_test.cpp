@@ -122,3 +122,23 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 		CHECK(world.Nearest() < 30); // the plant loses health
 	}
 }
+
+// docs/plan/death-spikes-poison.md
+TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; the ward cuts the damage only") {
+	{
+		SimWorld world;
+		REQUIRE(world.Load("tests/levels/spikes_one"));
+		world.WaitTicks(5);
+		world.Walk(3.5f);
+		world.Wait(1000);
+		CHECK_FALSE(world.player.stats.poison.Any());
+	}
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/death_one"));
+	world.WaitTicks(5);
+	world.Wear(amulet(AmuletType::TrapWard, AmuletTier::Lesser));
+	world.Walk(3.5f);
+	world.Wait(1000);
+	CHECK(world.player.stats.poison.Running(PoisonTier::Strong));
+	CHECK(world.Hp() < 50);
+}

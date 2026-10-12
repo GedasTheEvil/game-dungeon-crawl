@@ -136,7 +136,7 @@ TEST_CASE("a trap on the floor is jumped over from the middle of the cell before
 		REQUIRE(world.WalkTo(5.45f));
 		world.Wait(500);
 		CHECK(world.X() >= 5.f);
-		CHECK(world.Hp() >= (level[13] == 's' ? 50 : 45));
+		CHECK(world.Hp() >= (level[13] == 's' ? 50 : 40)); // the graze also poisons (death-spikes-poison)
 	}
 }
 

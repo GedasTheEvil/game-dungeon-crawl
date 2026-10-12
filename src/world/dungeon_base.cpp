@@ -136,7 +136,7 @@ void Dungeon::updateAnimations() {
 	treasureSpin += 1.f;
 }
 //======================================================================================
-bool Dungeon::inTrap(float x, float y) const {
+std::optional<int> Dungeon::inTrap(float x, float y) const {
 	const auto col = static_cast<int>(std::floor(x));
 	const auto row = static_cast<int>(std::floor(y));
 	for (int j = row - 1; j <= row + 1; j++) // the death trap's hitbox reaches into the next cells
@@ -149,20 +149,30 @@ bool Dungeon::inTrap(float x, float y) const {
 			const float scale = type == Death ? DEATH_TRAP_SCALE : SPIKES_SCALE;
 			if (std::fabs(x - static_cast<float>(i) - 0.5f) <= TRAP_HITBOX_X_SCALE * scale &&
 				std::fabs(y - static_cast<float>(j)) <= TRAP_HITBOX_Y_SCALE * scale)
-				return true;
+				return type;
 		}
-	return false;
+	return std::nullopt;
 }
 //======================================================================================
 // Only walkers on the ground stand in a trap: flyers pass over, a leaper is in the air.
 void Dungeon::updateTraps() {
-	if (inTrap(mapX, mapY))
-		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0)
+	const std::optional<int> here = inTrap(mapX, mapY);
+	if (!here || *here != Death)
+		playerVenomed = false;
+	if (here)
+		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
 			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
+			if (*here == Death && !playerVenomed) { // the death trap's tips are venomous: once per entry
+				playerVenomed = true;
+				sim.events->Status("The spike tips are wet with venom.");
+				sim.player->Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
+			}
+		}
 	for (Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping() &&
-			inTrap(mon.CentreX(), static_cast<float>(mon.Row())))
-			mon.StandInTrap();
+		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping())
+			if (const auto type = inTrap(mon.CentreX(), static_cast<float>(mon.Row())))
+				mon.StandInTrap(*type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
+								sim.random->gameplay);
 }
 //======================================================================================
 void Dungeon::updateMonsterPoison() {

@@ -313,7 +313,8 @@ class Monster {
 	[[nodiscard]] bool Poisoned() const { return poison.Any(); }
 	[[nodiscard]] int PoisonMask() const { return poison.Mask(); }
 	// Each tick it stands in a spike or death trap (see TrapHurt).
-	void StandInTrap();
+	// venom: the death trap's poison tier, applied on a hit (no XP for the player's kill).
+	void StandInTrap(std::optional<PoisonTier> venom, Rng& rng);
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
 	// not farm kills with traps.
 	void TrapHit(int dmg);

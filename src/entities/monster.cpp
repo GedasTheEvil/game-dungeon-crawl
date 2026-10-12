@@ -222,9 +222,12 @@ bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
 	return takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
 }
 
-void Monster::StandInTrap() {
-	if (const int dmg = trapHurt.hit(); dmg > 0)
+void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
+	if (const int dmg = trapHurt.hit(); dmg > 0) {
 		TrapHit(dmg);
+		if (venom)
+			TakePoison(*venom, false, rng);
+	}
 }
 
 void Monster::TrapHit(int dmg) {

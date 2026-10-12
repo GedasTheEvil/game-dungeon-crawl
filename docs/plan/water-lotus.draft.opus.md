@@ -27,7 +27,7 @@ One bite and I could sleep for a week."
 ## Model
 
 Procedural Blender script per [docs/remodeling.md](../remodeling.md): flower on a pad, a fanged mouth in the
-petals; clips: idle (floating, a slight sway), rise, bite, death (sinks). Drawn at the water surface.
+petals; clips: idle (floating, a slight sway and a twitch now and then: the only tell against the decor lotus pads, user decision), rise, bite, death (sinks). Drawn at the water surface.
 
 ## Tests
 

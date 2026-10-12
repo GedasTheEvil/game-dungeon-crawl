@@ -27,8 +27,8 @@ reeds, tomb and temple levels add lotus pads (a temple pool).
 
 * [water-lotus](water-lotus.draft.opus.md): that monster looks like a floating flower when idle. With decorative lotus
   pads around it, the ambush works: the player cannot tell it by "a flower = a monster". Make the decor lotus and the
-  idle monster look alike. Open question: give the monster a small tell (a closed bud, a darker centre, a slight
-  twitch) so it stays fair. Default: a slight twitch when the player is 3 cells away.
+  idle monster look alike. Fairness (user decision): the monster's idle clip has a twitch; the decor lotus never
+  twitches. That is the only tell.
 * The crocodile and [hippo](hippo.draft.opus.md) lurk submerged: reeds give the scene a natural place for them, with
   no rule change.
 
@@ -43,8 +43,8 @@ reeds, tomb and temple levels add lotus pads (a temple pool).
 * Dry props stay out of the water, water props stay out of dry cells.
 * Floating props sit at `WATER_SURFACE`, standing ones on the basin floor (`WATER_BASIN_DEPTH` under the row's floor),
   `src/graphics/render_config.h`. Dry props stand on the row's floor; the water ones need their own height.
-* Slow sway (reeds, weed) and a bob (pads) would help a lot: a shader wobble or a tiny idle clip. Implementer's choice;
-  static is acceptable for a first step.
+* Animated preferred (user decision): slow sway (reeds, weed), a bob (pads); a shader wobble or a tiny idle clip,
+  implementer's choice. Static is allowed if animation costs too much.
 * Draw order: the surface is translucent; parts under it must look under water (tinted by the water), parts above it
   not. Check the reeds where they pass through the surface.
 

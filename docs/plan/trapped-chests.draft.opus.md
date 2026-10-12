@@ -31,6 +31,19 @@ A trapped chest may hold treasure, not always: the risk pays sometimes.
 * Never put what the level needs in one: the checker does not count a trapped chest's item (an antidote does not
   count as "in reach", `checkLevel`, `src/world/level_check.cpp`), and level docs say so.
 
+## The trap-ward amulet (decided with the user, 2026-10-12)
+
+No new skill: the trap-ward amulet (Eye of Horus, `AmuletType::TrapWard`, tiers 25 / 50 / 75 / 100,
+`AmuletBonus::trapCutPercent`, `src/world/items.*`) covers trapped chests.
+
+* It cuts a chest trap's damage as it does the floor traps', and with the same percentage it is the chance that the
+  trap does not go off at all. Expected harm: lesser 56%, minor 25%, normal 6%, grand none (immune, as today).
+* The chance also covers the traps the damage cut cannot (a curse, a swarm).
+* Rolled on opening from the gameplay stream, apart from the contents roll: a trap that does not go off leaves the
+  contents as they are. It is spent either way (the chest is open).
+* Amulet text: "Trap damage -%d%%" becomes e.g. "Traps -%d%%: damage, and chests' traps go off less"; the grand one
+  keeps "Immune to traps".
+
 ## Level format
 
 A new tile type `TrappedTreasure` (16) with the same attribute and value as `Treasure` (the item type and id), a

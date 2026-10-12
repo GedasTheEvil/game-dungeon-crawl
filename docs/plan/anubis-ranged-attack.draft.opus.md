@@ -1,8 +1,8 @@
 # Anubis ranged attack
 
-Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)); the
-clip, its release and a sound still to do. From the user: the Anubis gets a ranged attack, range 14, damage 50,
-cooldown 3 s.
+Status: draft 2026-10-09, refined 2026-10-09 (decided), POC implemented 2026-10-10 (see [POC](#poc-2026-10-10)),
+sound decided 2026-10-12 ([the sound](#decided-2026-10-12-the-sound)); the clip, its release and the sound still to
+do. From the user: the Anubis gets a ranged attack, range 14, damage 50, cooldown 3 s.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
@@ -39,6 +39,26 @@ Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names
 * **Boss:** range 2.0 tiles (the sling's 20), damage 125 (scaled like its melee, 140 vs 55), cooldown 2.5 s. Same bolt,
   same mix.
 
+## Decided (2026-10-12): the sound
+
+* **File name:** a ranged attack's sound is `<model>_att_ranged.wav`, beside `<model>_att.wav`. Rename the spitters'
+  `_spit.wav` with it: `cobra_spit.wav` -> `cobra_att_ranged.wav` (the `character_model.cpp` table,
+  `tools/audio/cobra_sounds.py`). The clip suffix `_spit` stays (models, `model_info.h`).
+* **Who plays it:** the ranged sound whenever the model has one, not only for a poison spit
+  (`monster_ai.cpp`, `Monster::Spit`: today a spit without poison plays the attack sound).
+* **The sound, `anubis_att_ranged.wav`, about 0.7 s:** magic, not a weapon. Over it, the Anubis grunt
+  (`anubis_att.wav`) at 70% volume, from the start.
+  1. Charge, about 0.25 s: a low hum rising in pitch, a faint glassy shimmer. It plays during the thrust, a cue to
+     jump.
+  2. Release: a short dry crack (a spark, a snapped reed).
+  3. Tail, about 0.3 s: a falling hiss and buzz as the bolt leaves.
+  Short and dry: it must not sound like the teleporter's smooth rising swell (`teleport.wav`).
+* **Made by** a new `tools/audio/anubis_sounds.py`, synthesized like the other `tools/audio/` scripts (fixed seed,
+  16-bit PCM mono 22050 Hz). The grunt is a sample in IMA ADPCM, which Python's `wave` cannot read: decode it with
+  `ffmpeg -i sounds/monsters/anubis_att.wav -f s16le -ac 1 -ar 22050 -` and mix it in at 0.7.
+* **Boss:** the same file (no per-monster pitch in the sound code). The fire bolt later swaps the shimmer for a
+  crackle ([anubis-fire-bolt](anubis-fire-bolt.draft.opus.md)).
+
 ## Open (for the implementer)
 
 * Balance: the Anubis is already tuned for "about 15 blows" on a level 55 player
@@ -55,6 +75,6 @@ Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names
 * Journal: the spit move reads "Hurls a bolt of red light from afar. A jump clears it." for a spit without poison.
 * Tests: `tests/unit/sim_test.cpp` (it shoots from afar, no poison, then comes on to hit), `tests/scenarios/anubis_bolt.txt`
   (screenshots of the bolt in flight).
-* Still to do: the sceptre-thrust clip with a release frame (Blender), `release` / `mouthY` from it, a bolt sound,
-  maybe a glow instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
+* Still to do: the sceptre-thrust clip with a release frame (Blender), `release` / `mouthY` from it, the bolt sound
+  (decided above), maybe a glow instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
   [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).

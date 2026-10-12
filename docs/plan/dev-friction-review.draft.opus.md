@@ -40,6 +40,21 @@ of 2026-10-07 was the last one).
 
 ## Work
 
+### 0. Evidence first: past sessions
+
+Base the choices on what actually cost time, not on taste. The past Claude Code sessions of this project are JSONL
+transcripts in `~/.claude/projects/-home-gediminas-skucas-Apps-game-dungeon-crawl/` (153 on 2026-10-12, 137 of them
+run `make tidy`). Look through many of them, not one: use a script (or subagents, a few transcripts each) to pull out
+the tidy, format-check and layer-check failures, then count per check:
+
+* how often it fired, and how many turns or edits the fix took;
+* whether the fix changed what the code does (a real bug) or only how it looks;
+* the warnings agents saw and left alone as "not mine".
+
+The same pass can count searches that missed (a grep or glob, then reads of files that turned out not to matter) to
+feed part 3. Put a short table of the findings in this plan, then decide parts 1 to 3 from it. The transcripts stay
+local: quote only counts and check names, no transcript text, in the commit.
+
 ### 1. Tidy: zero noise
 
 * `make tidy` must print nothing on a clean tree. Fix each known warning, or suppress it with a `NOLINT(check)` and a
@@ -86,7 +101,8 @@ here, like after the last review.
 
 ## Choices left to the implementer
 
-Not blocking; pick and write down why in the plan when it is done:
+The user trusts the implementer to decide all of these from the evidence (part 0). Not blocking; pick and write
+down why in the plan when it is done:
 
 * which tidy checks to drop, and whether tidy fails on warnings or only on new ones;
 * which alignment options to turn off;

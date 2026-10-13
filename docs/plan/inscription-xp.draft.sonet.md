@@ -28,5 +28,10 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 
 Decided by the user (2026-10-12): without [skill-hieroglyphs](solved/skill-hieroglyphs.md) the archaeologist only
 copies the signs. The XP comes with the translation: when read with the skill, or, for the copies made before, when
-learning the skill fills them in (once each, at the level then). If this plan lands first, every first read gives
-the XP (all are read today); skill-hieroglyphs then moves it to the translation.
+learning the skill fills them in (once each, at the level then). skill-hieroglyphs is in, so implement both cases:
+the gate in `Dungeon::readInscription`, the copies in `Journal::TranslateInscriptions` (called from
+`src/ui/skills_view.cpp` and the `learn` command in `src/test/scenario.cpp`).
+
+No penalty for learning the skill late (the user, 2026-10-13): a copy translated later gives the full XP, the same
+`riddleXP(level) / 3` as reading it with the skill, at the player's level then (`riddleXP` grows with the level, so
+never less). The toast on learning adds the total, e.g. "2 inscriptions translated, +N XP".

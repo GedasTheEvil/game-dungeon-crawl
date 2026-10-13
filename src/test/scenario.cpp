@@ -386,6 +386,8 @@ bool runInstant(const Command& cmd) {
 			report(cmd, false, "learnt already, or no heka to spend");
 			return true;
 		}
+		if (static_cast<SkillId>(cmd.ticks) == SkillId::Hieroglyphs)
+			Game().journal.TranslateInscriptions();
 		report(cmd, true, "");
 		return true;
 	case CommandType::Wear: // like a click on its slot in the inventory

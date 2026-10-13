@@ -6,7 +6,7 @@
 const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Stun", "Blunt hits may stun a foe", "A good knock on the head stops anything for a moment, gods' beasts too.",
 	 true},
-	{"Words of Thoth", "Read the hieroglyphs", "Thoth, lord of writing, opens the carved words on the walls.", true},
+	{"Words of Thoth", "Read the hieroglyphs", "Thoth, lord of writing, opens the carved words on the walls.", false},
 	{"Dodge", "1 blow in 10 misses you", "Step aside at the last moment: a bite or a sting may find only air.", false},
 	{"Power hit", "Harder blows for stamina", "Put your back into it: more damage a swing, paid in stamina.", true},
 	{"Sharp eye", "Ranged weapons reach 30% farther",

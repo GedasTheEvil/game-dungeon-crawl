@@ -38,6 +38,9 @@ struct JournalInscription {
 	std::vector<std::string> text;
 	std::string note;
 	int level = 0; // campaign level where it was read first
+	// False for a copy made without the hieroglyph skill: the glyphs only, the text stays hidden until the skill is
+	// learnt (plan skill-hieroglyphs).
+	bool translated = true;
 };
 
 // Special moves a monster type can be seen doing, written down the first time.
@@ -147,8 +150,11 @@ class Journal {
 	void LearnNote(FieldNote note);
 	[[nodiscard]] const std::vector<FieldNote>& Notes() const { return notes; }
 
-	// Written once, the first time it is read; the entries keep the order they were read in. True the first time.
+	// Written once, the first time it is read or copied; the entries keep the order they were read in. True the first
+	// time, or when a copy gets translated by this call (inscription.translated).
 	bool ReadInscription(const JournalInscription& inscription);
+	// The hieroglyph skill learnt: every copy shows its text. Returns how many were translated.
+	int TranslateInscriptions();
 	[[nodiscard]] const std::vector<JournalInscription>& Inscriptions() const { return inscriptions; }
 
 	void Clear() {

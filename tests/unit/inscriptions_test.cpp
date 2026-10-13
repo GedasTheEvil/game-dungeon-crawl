@@ -83,6 +83,8 @@ TEST_CASE("a journal saved before the inscriptions loads with none") {
 TEST_CASE("interact in front of an inscription: a fixed status line, its text in the journal once") {
 	SimWorld world; // level 6: the offering formula two cells east of the entrance
 	world.player.god = true;
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	REQUIRE(world.inscriptions.Load("inscriptions").empty());
 	REQUIRE(world.Load(6));
 	world.WaitTicks(30);
@@ -103,6 +105,52 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 
 	world.SaveAndLoad();
 	CHECK(world.journal.Inscriptions().size() == 1);
+}
+
+TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learning translates the copy") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.inscriptions.Load("inscriptions").empty());
+	REQUIRE(world.Load(6));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(3.5f));
+	world.WaitTicks(5);
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Cannot understand this. Copied the hieroglyphs to the journal."));
+	REQUIRE(world.journal.Inscriptions().size() == 1);
+	CHECK_FALSE(world.journal.Inscriptions()[0].translated);
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Already seen. In the journal."));
+	CHECK(world.journal.Inscriptions().size() == 1);
+
+	world.SaveAndLoad(); // the flag is saved
+	REQUIRE(world.journal.Inscriptions().size() == 1);
+	CHECK_FALSE(world.journal.Inscriptions()[0].translated);
+
+	CHECK(world.journal.TranslateInscriptions() == 1);
+	CHECK(world.journal.TranslateInscriptions() == 0);
+	CHECK(world.journal.Inscriptions()[0].translated);
+	CHECK(world.journal.Inscriptions()[0].title == "The offering formula");
+
+	// A copy kept in the journal and read with the skill later: translated at once.
+	Journal j;
+	JournalInscription copy = entry(2, 7);
+	copy.translated = false;
+	CHECK(j.ReadInscription(copy));
+	CHECK_FALSE(j.ReadInscription(copy));
+	CHECK(j.ReadInscription(entry(2, 9))); // translated now
+	CHECK(j.Inscriptions()[0].translated);
+	CHECK(j.Inscriptions()[0].level == 9);
+}
+
+TEST_CASE("a journal saved before the translated flag loads its inscriptions translated") {
+	std::istringstream old("journal 6 0\n0\n0\n1\n2 7 \"Title\" 1 \"Line\" \"Note\"\n");
+	Journal j;
+	j.Load(old);
+	REQUIRE(j.Inscriptions().size() == 1);
+	CHECK(j.Inscriptions()[0].translated);
 }
 
 TEST_CASE("every campaign inscription has a text, stands from level 6 on, and each text once") {

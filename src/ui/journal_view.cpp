@@ -1046,7 +1046,8 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 	const JournalInscription& e = Game().journal.Inscriptions()[static_cast<size_t>(index)];
 	float top = p.y + p.h;
 	float width = p.w - 2 * PAGE_PAD;
-	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, e.title.c_str());
+	// A copy made without the hieroglyph skill: the glyphs and a pencilled line, no title, no translation.
+	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, e.translated ? e.title.c_str() : "Hieroglyphs");
 
 	if (isInscriptionId(e.id)) {
 		const AtlasRect uv = atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
@@ -1057,6 +1058,8 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 
 	auto wrapAll = [&](const Font& font) {
 		std::vector<std::string> lines;
+		if (!e.translated)
+			return lines;
 		for (const std::string& t : e.text)
 			for (const std::string& l : wrap(font, t, width))
 				lines.push_back(l);
@@ -1077,7 +1080,8 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 		textCentered(*font, p.cx(), y, l.c_str(), INK_BLUE);
 		y -= step;
 	}
-	std::vector<std::string> comment = wrap(handSmall, e.note, width);
+	const std::string& pencilled = e.translated ? e.note : "No idea what it says. Copied it anyway.";
+	std::vector<std::string> comment = wrap(handSmall, pencilled, width);
 	comment.resize(std::min(comment.size(), MAX_COMMENT_LINES));
 	y = p.y + COMMENT_BOTTOM + COMMENT_STEP * (static_cast<float>(comment.size()) - 1.f);
 	for (const std::string& l : comment) {

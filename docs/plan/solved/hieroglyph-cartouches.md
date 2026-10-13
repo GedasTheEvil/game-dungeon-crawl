@@ -31,7 +31,7 @@ journal ("Inscriptions" section). Atmosphere first, hints second.
   the archaeologist's comment on the status line; the first time, the text (a copy) into the journal's new
   Inscriptions section (green ribbon "I"): the glyphs, the translation, the comment. Journal save version 6.
 * Campaign: 32 inscriptions, one or two in each level 6 to 30 (the user: from 6 on, after the first heka; the
-  hieroglyph skill comes later, [skill-hieroglyphs](../skill-hieroglyphs.draft.sonet.md)). Real texts (the offering formula, Meni's and
+  hieroglyph skill comes later, [skill-hieroglyphs](../skill-hieroglyphs.md)). Real texts (the offering formula, Meni's and
   Khentika's curses, the ushabti spell, the harper's song, Ptahhotep, Amenemhat, the negative confession, spell 30B,
   the Hymn to Hapi, a tomb robber's testimony, Ahmose's graffito) and hints: the vampire bat heals by biting (10),
   the lock order (12), loose ceilings (13), the scorpion queen's eggs (15), the dart plates (16, 23), the green key in

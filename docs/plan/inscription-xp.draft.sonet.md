@@ -26,7 +26,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 
 ## With the hieroglyph skill
 
-Decided by the user (2026-10-12): without [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) the archaeologist only
+Decided by the user (2026-10-12): without [skill-hieroglyphs](skill-hieroglyphs.md) the archaeologist only
 copies the signs. The XP comes with the translation: when read with the skill, or, for the copies made before, when
 learning the skill fills them in (once each, at the level then). If this plan lands first, every first read gives
 the XP (all are read today); skill-hieroglyphs then moves it to the translation.

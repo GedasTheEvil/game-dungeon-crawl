@@ -1,8 +1,10 @@
 # Skill: deep mystic knowledge (read hieroglyphs)
 
-Status: draft 2026-10-10. Ready: [skills](solved/skills.md) is in, and so is
-[hieroglyph-cartouches](solved/hieroglyph-cartouches.md) (solved 2026-10-12). From the
-user: an easy first choice.
+Status: implemented 2026-10-13, waiting for play-test (`./game --play tests/play/skill-hieroglyphs.txt`: level 6, no
+skill, one heka; copy the inscription two cells east, then learn Words of Thoth on K). Done: the skill gate, the
+journal flag (save version 7), the copies translated on learning, the card unsealed. Not done:
+[inscription-xp](inscription-xp.draft.sonet.md) is not in, so no XP part. Status lines as in
+[inscription-messages](inscription-messages.md). The extras (riddle hints, secret doors) are left out.
 
 Where it hooks in: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`) reads every inscription today; gate
 it on the skill there. `JournalInscription` (`src/world/journal.h`) has no "not yet read" flag yet: add one (journal

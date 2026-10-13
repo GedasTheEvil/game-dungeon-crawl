@@ -36,7 +36,7 @@ void Dungeon::Interact() {
 }
 //======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans
-// hieroglyph-cartouches, inscription-messages).
+// hieroglyph-cartouches, inscription-messages, skill-hieroglyphs).
 bool Dungeon::readInscription() {
 	const Tile here = Map(mapX, mapY);
 	if (here.type != Inscription)
@@ -46,8 +46,16 @@ bool Dungeon::readInscription() {
 		sim.events->Status("The signs are too worn to read.");
 		return true;
 	}
-	const bool first = sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber});
-	sim.events->Status(first ? "Deciphered the hieroglyphs. Journal updated." : "Already seen. In the journal.");
+	// Without the skill the glyphs are copied into the journal, the text stays hidden there (plan skill-hieroglyphs).
+	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
+	const bool first =
+		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads});
+	if (!first)
+		sim.events->Status("Already seen. In the journal.");
+	else if (reads)
+		sim.events->Status("Deciphered the hieroglyphs. Journal updated.");
+	else
+		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");
 	return true;
 }
 //======================================================================================

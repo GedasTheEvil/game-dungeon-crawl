@@ -5,10 +5,12 @@
 namespace {
 constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
-// damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read
-constexpr int VERSION = 6;
+// damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
+// whether each was translated
+constexpr int VERSION = 7;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
+constexpr int TRANSLATED_VERSION = 7;
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -95,11 +97,25 @@ void Journal::LearnNote(FieldNote note) {
 }
 
 bool Journal::ReadInscription(const JournalInscription& inscription) {
-	for (const JournalInscription& i : inscriptions)
-		if (i.id == inscription.id)
-			return false;
+	for (JournalInscription& i : inscriptions)
+		if (i.id == inscription.id) {
+			if (i.translated || !inscription.translated)
+				return false;
+			i = inscription;
+			return true;
+		}
 	inscriptions.push_back(inscription);
 	return true;
+}
+
+int Journal::TranslateInscriptions() {
+	int count = 0;
+	for (JournalInscription& i : inscriptions)
+		if (!i.translated) {
+			i.translated = true;
+			count++;
+		}
+	return count;
 }
 
 void Journal::Dump(std::ostream& out) const {
@@ -124,7 +140,7 @@ void Journal::Dump(std::ostream& out) const {
 	for (const JournalInscription& i : inscriptions) {
 		out << i.id << ' ' << i.level << ' ' << std::quoted(i.title) << ' ';
 		writeLines(out, i.text);
-		out << ' ' << std::quoted(i.note) << '\n';
+		out << ' ' << std::quoted(i.note) << ' ' << i.translated << '\n';
 	}
 }
 
@@ -166,7 +182,8 @@ void Journal::Load(std::istream& in) {
 		return;
 	for (size_t i = 0; i < count; i++) {
 		JournalInscription e;
-		if (!(in >> e.id >> e.level >> std::quoted(e.title)) || !readLines(in, e.text) || !(in >> std::quoted(e.note)))
+		if (!(in >> e.id >> e.level >> std::quoted(e.title)) || !readLines(in, e.text) ||
+			!(in >> std::quoted(e.note)) || (version >= TRANSLATED_VERSION && !(in >> e.translated)))
 			return;
 		inscriptions.push_back(e);
 	}

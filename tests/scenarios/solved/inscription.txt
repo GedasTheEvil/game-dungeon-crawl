@@ -1,8 +1,10 @@
-# Plan hieroglyph-cartouches: the offering formula on the back wall in level 6, read with interact, then its page in
+# Plans hieroglyph-cartouches, skill-hieroglyphs (read with the skill): the offering formula on the back wall in level 6, read with interact, then its page in
 # the journal's Inscriptions section (the glyphs, the translation, the comment).
 seed 1
 god
 level 6
+heka 1
+learn words_of_thoth
 wait 30
 walk to 3.5
 wait 10

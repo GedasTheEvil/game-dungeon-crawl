@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-13, waiting for play-test (`./game --level 6`: the offering formula inscription stands two
 cells east of the entrance). From the user. The "cannot read" message needs
-[skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md); whichever plan lands second adds it.
+[skill-hieroglyphs](skill-hieroglyphs.md); whichever plan lands second adds it.
 
 ## Idea
 
@@ -11,7 +11,7 @@ Reading an inscription puts its title and the archaeologist's comment (the `N:` 
 happened, the jokes belong in the journal only.
 
 * Read (today every read; later: with the hieroglyph skill): "Deciphered the hieroglyphs. Journal updated."
-* Not readable (without the skill, once [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) is in): "Cannot
+* Not readable (without the skill, once [skill-hieroglyphs](skill-hieroglyphs.md) is in): "Cannot
   understand this. Copied the hieroglyphs to the journal." This replaces that draft's "Hieroglyphs. If only I could
   read them."
 * Seen again, nothing new in the journal (the user, 2026-10-13): "Already seen. In the journal." The same for a copy

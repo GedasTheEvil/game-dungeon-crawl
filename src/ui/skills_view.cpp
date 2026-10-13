@@ -96,8 +96,14 @@ void SkillsScreen::PressLearn() {
 		Game().journal.LearnNote(FieldNote::SerketsFavour);
 	else if (id == SkillId::SharpEye)
 		Game().journal.LearnNote(FieldNote::SharpEye);
+	std::string learnt = std::string("Learnt: ") + def.name;
+	if (id == SkillId::Hieroglyphs) {
+		const int copies = Game().journal.TranslateInscriptions();
+		if (copies > 0)
+			learnt += ". " + std::to_string(copies) + (copies == 1 ? " inscription" : " inscriptions") + " translated";
+	}
 	Game().assets.sounds.amulet_s.Play();
-	toast.Show(std::string("Learnt: ") + def.name, now);
+	toast.Show(learnt, now);
 }
 
 void SkillsScreen::UpdateHover(float x, float y) {

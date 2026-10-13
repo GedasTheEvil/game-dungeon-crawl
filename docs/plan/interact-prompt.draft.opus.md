@@ -20,7 +20,7 @@ While the player stands in a cell where the interact key does something, a small
     closed one, Take once open and its item shows; whichever plan lands second adds the Take.
   * `Lever` not pulled yet: Pull (a pulled lever: none).
   * `Inscription`: Read (Copy without the hieroglyph skill, once
-    [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) is in).
+    [skill-hieroglyphs](skill-hieroglyphs.md) is in).
   * `Door`: riddle gate (`GateRiddle`) Answer; exit (`GateExit`) Enter; teleporter with a partner Enter, not while
     jumping or falling (as `useGate`). Entrance and spent riddle gate (`GateEmpty`): none.
   * `Ankh`: Take.
@@ -54,7 +54,7 @@ read it stops: the journal has the entry (`Journal::Inscriptions`).
 
 * Drawn in `Dungeon::drawInscriptionTile` (`src/world/dungeon_render_decor.cpp`): a second additive pass over the
   quad with a moving gradient, or a small glint texture; no shader needed.
-* With [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md): a copy not translated yet keeps a dimmer glint until
+* With [skill-hieroglyphs](skill-hieroglyphs.md): a copy not translated yet keeps a dimmer glint until
   the skill is learnt (whichever plan lands second wires it).
 * Chests get no glint: they stand out already, and a glow would fight the torch lighting.
 

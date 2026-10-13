@@ -58,9 +58,8 @@ No new skill: the trap-ward amulet (Eye of Horus, `AmuletType::TrapWard`, tiers 
 
 ## Level format
 
-A new tile type `TrappedTreasure` (the next free type: 16 today; rhythm traps, sunlight mirrors or expedition pages
-may take it first) with the same attribute and value as `Treasure` (the item type and id), a
-legend character and an editor icon, like `Inscription` was added (`tile_defs.*`). No format change.
+A new tile type `TrappedTreasure` (the next available ID, possibly 16) with the same attribute and value as
+`Treasure` (the item type and id), a legend character and an editor icon, like `Inscription` was added (`tile_defs.*`). No format change.
 
 * Many places test `t.type == Treasure` (`Dungeon::PickUp`, the chest count, the loot, the checker's treasure counts,
   the decoration that leaves treasure cells bare): add `isTreasure(const Tile&)` (`src/world/level.h`) and use it, so

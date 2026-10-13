@@ -260,7 +260,7 @@ why in the toast.
 
 ### Hall of Records
 
-The leaderboard ([plan/leaderboard.md](plan/leaderboard.md)), a main menu sub-screen (`recordsD`). List: panel
+The leaderboard ([plan/leaderboard.md](plan/solved/leaderboard.md)), a main menu sub-screen (`recordsD`). List: panel
 `{12, 20, 136, 64}`, three sort tiles 26 x 7 (Time, XP, Explored; the open order lapis), a table of rank, name and
 score in the open order (`small` header, striped `body` rows 4.3 high, ten visible, the wheel or Up / Down scroll).
 The run just recorded breathes lapis; the selected or hovered row has a gold frame. A click or Enter opens the run's

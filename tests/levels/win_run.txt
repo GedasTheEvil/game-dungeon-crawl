@@ -1,4 +1,4 @@
-; A rat (col 3), a chest with a small health potion (col 6), the ankh (col 9) (tests/scenarios/leaderboard.txt).
+; A rat (col 3), a chest with a small health potion (col 6), the ankh (col 9) (tests/scenarios/solved/leaderboard.txt).
 def 1 8 3 0
 ########################################
 #S.t..1..A.E############################

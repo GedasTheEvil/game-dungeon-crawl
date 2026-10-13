@@ -1,8 +1,6 @@
 # Leaderboard
 
-Status: implemented 2026-10-13, waits for the user's play-test: `./game --play tests/play/leaderboard.txt` (a short
-level marked as a campaign run; its board goes to `tests/out/leaderboard/`, not `saves/`). Draft 2026-10-12, refined
-2026-10-13. From the user. What was built: [Implemented](#implemented-2026-10-13).
+Status: solved 2026-10-13 (play-tested by the user). Draft 2026-10-12, refined 2026-10-13. From the user. What was built: [Implemented](#implemented-2026-10-13).
 
 Opus: a run statistics system (counters in the player state and the save file), a name entry on the win screen, a
 leaderboard file and a new menu sub-screen.
@@ -120,5 +118,6 @@ The counters are new fields in the save (`GameState::Save`, `src/state/game_stat
   the wheel or Up / Down scroll; Enter or a click opens the details (the run's date and version in its footer).
 * Not done: secrets found (the level data marks none).
 * Fixed on the way: Load Game after a win kept the game won (`GameState::LoadSave` clears it now).
-* Tests: `tests/unit/leaderboard_test.cpp`; scenarios `leaderboard` (win, name, list, XP order, details) and
-  `leaderboard_empty` (the menu button, the placeholder row and its details), level `tests/levels/win_run`.
+* Tests: `tests/unit/leaderboard_test.cpp`; screenshot scenarios parked in `tests/scenarios/solved/`: `leaderboard`
+  (win, name, list, XP order, details) and `leaderboard_empty` (the menu button, the placeholder row and its
+  details), level `tests/levels/win_run`.

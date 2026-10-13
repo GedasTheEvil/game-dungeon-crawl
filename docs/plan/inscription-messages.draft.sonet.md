@@ -13,8 +13,8 @@ happened, the jokes belong in the journal only.
 * Not readable (without the skill, once [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md) is in): "Cannot
   understand this. Copied the hieroglyphs to the journal." This replaces that draft's "Hieroglyphs. If only I could
   read them."
-* Read again, nothing new in the journal: a short line without "Journal updated", e.g. "Already in the journal."
-  (implementer's choice; the same for a copy read again without the skill).
+* Seen again, nothing new in the journal (the user, 2026-10-13): "Already seen. In the journal." The same for a copy
+  seen again without the skill.
 * "The signs are too worn to read." (a text id with no text) stays.
 * XP ([inscription-xp](inscription-xp.draft.sonet.md)): its "+N XP" goes on the deciphered line, e.g. "Deciphered
   the hieroglyphs. Journal updated. +N XP".
@@ -30,5 +30,4 @@ No title and no `N:` comment on the status line. The journal page keeps both, un
 ## Tests
 
 * Unit (`tests/unit/inscriptions_test.cpp`, the "interact in front of an inscription" case): the first interact tells
-  "Deciphered the hieroglyphs", and does not tell the title or the comment; the second does not tell "Journal
-  updated".
+  "Deciphered the hieroglyphs", and does not tell the title or the comment; the second tells "Already seen".

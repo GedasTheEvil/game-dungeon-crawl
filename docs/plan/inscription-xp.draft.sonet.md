@@ -15,7 +15,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
   for the divisor in `src/core/gameplay_config.h` (`INSCRIPTION_XP_PART` or similar), next to the riddle's numbers.
 * Where: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`), when `first` is true:
   `sim.player->stats.AddXP(xp, *sim.events)`. A level up shows its own status line through `AddXP`.
-* Status line ([inscription-messages](inscription-messages.md)): "Deciphered the hieroglyphs. Journal updated.
+* Status line ([inscription-messages](solved/inscription-messages.md)): "Deciphered the hieroglyphs. Journal updated.
   +N XP".
 * Docs: `docs/inscriptions.md` (the first read gives XP), `docs/riddles.md` need not change.
 
@@ -26,7 +26,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 
 ## With the hieroglyph skill
 
-Decided by the user (2026-10-12): without [skill-hieroglyphs](skill-hieroglyphs.md) the archaeologist only
+Decided by the user (2026-10-12): without [skill-hieroglyphs](solved/skill-hieroglyphs.md) the archaeologist only
 copies the signs. The XP comes with the translation: when read with the skill, or, for the copies made before, when
 learning the skill fills them in (once each, at the level then). If this plan lands first, every first read gives
 the XP (all are read today); skill-hieroglyphs then moves it to the translation.

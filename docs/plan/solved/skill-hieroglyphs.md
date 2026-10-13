@@ -1,9 +1,8 @@
 # Skill: deep mystic knowledge (read hieroglyphs)
 
-Status: implemented 2026-10-13, waiting for play-test (`./game --play tests/play/skill-hieroglyphs.txt`: level 6, no
-skill, one heka; copy the inscription two cells east, then learn Words of Thoth on K). Done: the skill gate, the
+Status: solved 2026-10-13 (play-tested by the user). Done: the skill gate, the
 journal flag (save version 7), the copies translated on learning, the card unsealed. Not done:
-[inscription-xp](inscription-xp.draft.sonet.md) is not in, so no XP part. Status lines as in
+[inscription-xp](../inscription-xp.draft.sonet.md) is not in, so no XP part. Status lines as in
 [inscription-messages](inscription-messages.md). The extras (riddle hints, secret doors) are left out.
 
 Where it hooks in: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`) reads every inscription today; gate
@@ -25,16 +24,16 @@ like "No idea what it says. Copied it anyway." With the skill, every inscription
 learning it fills in their title, translation and comment (the next journal open shows them; a toast or status
 "N inscriptions translated" is a nice touch).
 
-XP ([inscription-xp](inscription-xp.draft.sonet.md)): given when an inscription is translated, not when it is copied.
+XP ([inscription-xp](../inscription-xp.draft.sonet.md)): given when an inscription is translated, not when it is copied.
 The copies filled in on learning give their XP then, once each.
 
 * Name on the card: "Deep mystic knowledge" (user's), or "Words of Thoth" (implementer's choice).
 * What it unlocks: the cartouche texts and their hints; optional extras, e.g. a riddle gate's hint shown at once, or
-  secret doors marked by an inscription (the [Stargate chamber](stargate-chamber.draft.opus.md) hint).
+  secret doors marked by an inscription (the [Stargate chamber](../stargate-chamber.draft.opus.md) hint).
 * An easy first choice: cheap in power, rich in story. Without it nothing on the exit path is lost (checker rule:
   hints only, never required).
 
-Copying needs no skill, so inscriptions can stand from level 1 on: [more-inscriptions](more-inscriptions.draft.opus.md)
+Copying needs no skill, so inscriptions can stand from level 1 on: [more-inscriptions](../more-inscriptions.draft.opus.md)
 places them, after this plan.
 
 ## Tests

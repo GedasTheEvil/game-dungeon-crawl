@@ -1,6 +1,6 @@
 # More inscriptions, from level 1 on
 
-Status: draft 2026-10-12. Needs [skill-hieroglyphs](skill-hieroglyphs.md) first (the copy without the
+Status: draft 2026-10-12. Needs [skill-hieroglyphs](solved/skill-hieroglyphs.md) first (the copy without the
 skill). From the user.
 
 ## Idea

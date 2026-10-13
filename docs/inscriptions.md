@@ -9,7 +9,7 @@ a copy of each text, so editing the file does not change the journal.
 
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign
 they start at level 6 (`INSCRIPTIONS_FROM_LEVEL`): the hieroglyph skill comes with the first boss's heka
-([skill-hieroglyphs](plan/skill-hieroglyphs.md)). `levelcheck` warns about an inscription before that
+([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)). `levelcheck` warns about an inscription before that
 level, a text id with no text, the same text id twice among the files it checks, and an inscription the player cannot
 stand in front of.
 

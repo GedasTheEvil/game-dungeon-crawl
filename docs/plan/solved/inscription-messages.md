@@ -1,7 +1,6 @@
 # Short status messages for inscriptions; the comment only in the journal
 
-Status: implemented 2026-10-13, waiting for play-test (`./game --level 6`: the offering formula inscription stands two
-cells east of the entrance). From the user. The "cannot read" message needs
+Status: solved 2026-10-13 (play-tested by the user). From the user. The "cannot read" message needs
 [skill-hieroglyphs](skill-hieroglyphs.md); whichever plan lands second adds it.
 
 ## Idea
@@ -17,7 +16,7 @@ happened, the jokes belong in the journal only.
 * Seen again, nothing new in the journal (the user, 2026-10-13): "Already seen. In the journal." The same for a copy
   seen again without the skill.
 * "The signs are too worn to read." (a text id with no text) stays.
-* XP ([inscription-xp](inscription-xp.draft.sonet.md)): its "+N XP" goes on the deciphered line, e.g. "Deciphered
+* XP ([inscription-xp](../inscription-xp.draft.sonet.md)): its "+N XP" goes on the deciphered line, e.g. "Deciphered
   the hieroglyphs. Journal updated. +N XP".
 
 No title and no `N:` comment on the status line. The journal page keeps both, unchanged.

@@ -16,7 +16,7 @@ answers part of the curses draft's open point ("who applies which curse") for ob
 * Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus →
   weakness or vulnerability, pottery → disease.
 * The tell: an execration text on the object, seen up close (no status line, no prompt text: the shared rule). With
-  the [hieroglyph skill](skill-hieroglyphs.md) it may read as a warning when looked at; implementer's
+  the [hieroglyph skill](solved/skill-hieroglyphs.md) it may read as a warning when looked at; implementer's
   choice.
 * Reward for the risk: an object that holds loot follows trapped-chests' contents rule.
 * Journal humour: "The lid said 'cursed be he who opens this'. I opened it. The lid was right."

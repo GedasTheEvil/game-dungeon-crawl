@@ -16,7 +16,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 * Where: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`), when `first` is true:
   `sim.player->stats.AddXP(xp, *sim.events)`. A level up shows its own status line through `AddXP`.
 * Status line: the third line becomes "(Translation written in the journal, +N XP)". If
-  [inscription-messages](inscription-messages.draft.sonet.md) is in: "Deciphered the hieroglyphs. Journal updated.
+  [inscription-messages](inscription-messages.md) is in: "Deciphered the hieroglyphs. Journal updated.
   +N XP".
 * Docs: `docs/inscriptions.md` (the first read gives XP), `docs/riddles.md` need not change.
 

@@ -1,6 +1,7 @@
 # Short status messages for inscriptions; the comment only in the journal
 
-Status: draft 2026-10-13, ready (needs nothing first). From the user. The "cannot read" message needs
+Status: implemented 2026-10-13, waiting for play-test (`./game --level 6`: the offering formula inscription stands two
+cells east of the entrance). From the user. The "cannot read" message needs
 [skill-hieroglyphs](skill-hieroglyphs.draft.sonet.md); whichever plan lands second adds it.
 
 ## Idea

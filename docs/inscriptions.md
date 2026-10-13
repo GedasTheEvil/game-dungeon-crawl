@@ -2,7 +2,7 @@
 
 Hieroglyphs on the back wall of a cell that the player can read ([plan](plan/solved/hieroglyph-cartouches.md)). An
 `Inscription` tile (type 15, `i` in the [level legend](levels.md)) has a text id as its attribute. When the player
-interacts in that cell, the status line shows the inscription's title and the archaeologist's comment. The first time,
+interacts in that cell, the status line says the hieroglyphs were deciphered (a repeat: already seen). The first time,
 the translation is written in the journal (J, Inscriptions ribbon): the hieroglyphs copied from the wall, the
 translation and the comment, with the level where it was read. Reading it again writes nothing new. The save game keeps
 a copy of each text, so editing the file does not change the journal.
@@ -34,11 +34,11 @@ N: A crocodile in the water. Oddly specific. Noted.
 | Line | Meaning |
 |---|---|
 | `id: N` | Text id, 1 to 64 (`INSCRIPTION_MAX`), the tile's attribute. Each id once over all files; the atlas has a cell per id. |
-| `title: TEXT` | Heading of the journal page and first line of the status message. |
+| `title: TEXT` | Heading of the journal page only. |
 | `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 5 signs), `column` (up to 7), `row` (up to 7) or `stela` (a round-topped slab with a winged sun, up to 12 in columns). Default: `cartouche`. Only the atlas tool reads it. |
 | `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Only the atlas tool reads it. |
 | `T: TEXT` | Translation, one line each. Long lines wrap on the journal page. About six lines fit in the hand font; a longer text is written smaller (up to seven lines). |
-| `N: TEXT` | The archaeologist's comment: in the status line and pencilled at the bottom of the page. Keep it to one short line. |
+| `N: TEXT` | The archaeologist's comment: pencilled at the bottom of the journal page only. Keep it to one short line. |
 
 An entry without a `T:` line is skipped. Use plain ASCII in the texts: the fonts have no other characters.
 

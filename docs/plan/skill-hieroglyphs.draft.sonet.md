@@ -15,7 +15,7 @@ The skill is on the Heka screen already, sealed: implementing it clears its `sea
 ## Idea
 
 Without the skill, the player cannot read inscriptions: interact gives "Cannot understand this. Copied the
-hieroglyphs to the journal." ([inscription-messages](inscription-messages.draft.sonet.md); the pencilled joke goes
+hieroglyphs to the journal." ([inscription-messages](inscription-messages.md); the pencilled joke goes
 in the journal only) and
 the archaeologist copies the signs into the journal anyway (the user, 2026-10-12): an Inscriptions page with the
 glyphs from the atlas, a "?" or "Inscription" heading instead of the title, no translation, and a pencilled line

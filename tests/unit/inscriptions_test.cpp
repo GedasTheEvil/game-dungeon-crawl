@@ -80,7 +80,7 @@ TEST_CASE("a journal saved before the inscriptions loads with none") {
 	CHECK(j.Inscriptions().empty());
 }
 
-TEST_CASE("interact in front of an inscription: its comment on the status line, its text in the journal once") {
+TEST_CASE("interact in front of an inscription: a fixed status line, its text in the journal once") {
 	SimWorld world; // level 6: the offering formula two cells east of the entrance
 	world.player.god = true;
 	REQUIRE(world.inscriptions.Load("inscriptions").empty());
@@ -90,12 +90,15 @@ TEST_CASE("interact in front of an inscription: its comment on the status line, 
 	world.WaitTicks(5);
 	world.Interact();
 	world.WaitTicks(1);
-	CHECK(world.Told("The offering formula"));
-	CHECK(world.Told("written in the journal"));
+	CHECK(world.Told("Deciphered the hieroglyphs"));
+	CHECK_FALSE(world.Told("The offering formula"));
+	CHECK_FALSE(world.Told("Translation written"));
 	REQUIRE(world.journal.Inscriptions().size() == 1);
 	CHECK(world.journal.Inscriptions()[0].id == 1);
 	CHECK(world.journal.Inscriptions()[0].level == 6);
 	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Already seen"));
 	CHECK(world.journal.Inscriptions().size() == 1);
 
 	world.SaveAndLoad();

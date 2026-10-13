@@ -35,8 +35,8 @@ void Dungeon::Interact() {
 	useGate();
 }
 //======================================================================================
-// The status line gives the archaeologist's comment; the translation goes into the journal (plan
-// hieroglyph-cartouches).
+// The status line only says what happened; the title and the comment go into the journal (plans
+// hieroglyph-cartouches, inscription-messages).
 bool Dungeon::readInscription() {
 	const Tile here = Map(mapX, mapY);
 	if (here.type != Inscription)
@@ -47,8 +47,7 @@ bool Dungeon::readInscription() {
 		return true;
 	}
 	const bool first = sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber});
-	sim.events->Status("%s\n%s%s", text->title.c_str(), text->note.c_str(),
-					   first ? "\n(Translation written in the journal)" : "");
+	sim.events->Status(first ? "Deciphered the hieroglyphs. Journal updated." : "Already seen. In the journal.");
 	return true;
 }
 //======================================================================================

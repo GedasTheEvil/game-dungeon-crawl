@@ -1,9 +1,7 @@
 # XP for reading an inscription
 
-Status: implemented 2026-10-13, waiting for play-test: `./game --play tests/play/skill-hieroglyphs.txt` (level 6, no
-skill: copy the inscription two cells east, learn Words of Thoth on K, see the XP in the toast); `./game --level 6`
-for reading with the skill, if the player has it. From the user, after
-[hieroglyph-cartouches](solved/hieroglyph-cartouches.md) was solved.
+Status: solved 2026-10-13 (play-tested by the user). From the user, after
+[hieroglyph-cartouches](hieroglyph-cartouches.md) was solved.
 
 ## Idea
 
@@ -17,7 +15,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
   for the divisor in `src/core/gameplay_config.h` (`INSCRIPTION_XP_PART` or similar), next to the riddle's numbers.
 * Where: `Dungeon::readInscription` (`src/world/dungeon_interact.cpp`), when `first` is true:
   `sim.player->stats.AddXP(xp, *sim.events)`. A level up shows its own status line through `AddXP`.
-* Status line ([inscription-messages](solved/inscription-messages.md)): "Deciphered the hieroglyphs. Journal updated.
+* Status line ([inscription-messages](inscription-messages.md)): "Deciphered the hieroglyphs. Journal updated.
   +N XP".
 * Docs: `docs/inscriptions.md` (the first read gives XP), `docs/riddles.md` need not change.
 
@@ -28,7 +26,7 @@ nothing, like the journal entry (`Journal::ReadInscription` returns true only th
 
 ## With the hieroglyph skill
 
-Decided by the user (2026-10-12): without [skill-hieroglyphs](solved/skill-hieroglyphs.md) the archaeologist only
+Decided by the user (2026-10-12): without [skill-hieroglyphs](skill-hieroglyphs.md) the archaeologist only
 copies the signs. The XP comes with the translation: when read with the skill, or, for the copies made before, when
 learning the skill fills them in (once each, at the level then). skill-hieroglyphs is in, so implement both cases:
 the gate in `Dungeon::readInscription`, the copies in `Journal::TranslateInscriptions` (called from

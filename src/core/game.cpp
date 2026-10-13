@@ -118,6 +118,8 @@ int main(int argc, char* argv[]) {
 
 		// Initialize game state
 		CreateGame();
+		if (const std::string out = Scenario::outputDir(); !out.empty()) // never the real board in saves/
+			Game().leaderboard.SetPath(out + "/leaderboard.txt");
 		if (isScenario) {
 			Game().render.resX = Scenario::resolutionX();
 			Game().render.resY = Scenario::resolutionY();

@@ -212,9 +212,10 @@ void drawGameplay() {
 		glColor3f(1, 1, 1);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	}
-	PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
-					Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
-					Game().assets.textures.skillIcons.ID());
+	if (!Game().ui.winEntry.Typing()) // the win's name entry sits there
+		PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
+						Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
+						Game().assets.textures.skillIcons.ID());
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
@@ -225,5 +226,6 @@ void drawGameplay() {
 	if (!Game().statusTimer.TimePassed(true))
 		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
 						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+	Game().ui.winEntry.Draw(Game().render.resX, Game().render.resY);
 }
 } // namespace

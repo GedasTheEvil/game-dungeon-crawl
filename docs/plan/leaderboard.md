@@ -1,6 +1,8 @@
 # Leaderboard
 
-Status: draft 2026-10-12, refined 2026-10-13 (decided, not implemented). Ready: needs nothing first. From the user.
+Status: implemented 2026-10-13, waits for the user's play-test: `./game --play tests/play/leaderboard.txt` (a short
+level marked as a campaign run; its board goes to `tests/out/leaderboard/`, not `saves/`). Draft 2026-10-12, refined
+2026-10-13. From the user. What was built: [Implemented](#implemented-2026-10-13).
 
 Opus: a run statistics system (counters in the player state and the save file), a name entry on the win screen, a
 leaderboard file and a new menu sub-screen.
@@ -93,3 +95,28 @@ The counters are new fields in the save (`GameState::Save`, `src/state/game_stat
 * Unit tests: the counters (a kill, a potion, a load restores the saved counts), the leaderboard file (write, read
   back, a broken line skipped, each sort order and its score, the placeholder row on an empty or missing file).
 * A scenario: win a small level, type a name, screenshot the leaderboard screen.
+
+## Implemented (2026-10-13)
+
+* Counters: `RunStats` (`src/world/run_stats.*`), a member of `PlayerStats` (`run`), so New Game resets it and the
+  save carries it (a `RUN` line). Kills in `Dungeon::rewardKill` (every kill that gives XP: weapon, poison, trap),
+  damage dealt and the biggest hit in `Dungeon::playerHit`, damage taken in `Player::TakeHit` (hits and traps, not
+  poison), potions in `Inventory::DrinkPotion`, treasures in `Dungeon::PickUp`, inscriptions on their first reading,
+  riddles on a right answer (also late, from the journal). Play time in the game loop's tick, only while it runs in
+  play (alive, not won): menus, the UI screens and the riddle do not count; kept per level (the detail screen's
+  "Levels").
+* Campaign flag: set by New Game only; scenarios and `--level` / `--play` runs are not campaign runs, the scenario
+  command `campaign` marks one (for tests and the play-test).
+* File: `src/world/leaderboard.*`, `saves/leaderboard.txt`, one `[run]` block of `key=value` lines per record,
+  appended. A broken line is skipped with a log warning, a record without a name too; unknown keys are ignored.
+  Scenarios and play runs write to their output directory instead.
+* Version: the git hash (`git describe --always --dirty`), passed by the makefile to `src/ui/win_entry.cpp` only.
+* Win: `WinEntry` (`src/ui/win_entry.*`), a panel under the win picture's text (the HUD hidden meanwhile): time,
+  slain, potions, player level, the name field (default: the latest record's name). Enter records and opens the Hall
+  of Records with the row marked (the menu is the main menu then: the run is over); Esc skips.
+* Screen: "Hall of Records", the main menu's third button, `RecordsView` (`src/ui/records_view.*`). Ten rows visible,
+  the wheel or Up / Down scroll; Enter or a click opens the details.
+* Not done: secrets found (the level data marks none).
+* Fixed on the way: Load Game after a win kept the game won (`GameState::LoadSave` clears it now).
+* Tests: `tests/unit/leaderboard_test.cpp`; scenarios `leaderboard` (win, name, list, XP order, details) and
+  `leaderboard_empty` (the menu button, the placeholder row and its details), level `tests/levels/win_run`.

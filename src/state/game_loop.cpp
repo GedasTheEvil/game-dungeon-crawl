@@ -69,6 +69,8 @@ void tick() {
 		updateAttack();
 	}
 
+	if (Game().player->Alive() && !Game().dungeon.Won()) // play time: paused, menus and the UI screens do not count
+		Game().player->stats.run.AddPlayMs(UPDATE_TICK_MS, Game().dungeon.LevelNumber());
 	Game().player->stats.UpdateStamina(Game().events);
 	Game().player->UpdatePoison(Game().events);
 	Game().ui.inventory->FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
@@ -83,6 +85,8 @@ void tick() {
 
 void Update() {
 	tick();
+	if (Game().cacheLoaded)
+		Game().ui.winEntry.Follow();
 	if (Game().cacheLoaded)
 		Game().ApplyWorldEvents();
 }

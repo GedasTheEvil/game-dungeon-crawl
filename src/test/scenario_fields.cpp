@@ -80,6 +80,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().ui.inventory->OpenTab());
 	case Field::Selected:
 		return static_cast<float>(Game().ui.inventory->SelectedPosition());
+	case Field::Records:
+		return static_cast<float>(Game().leaderboard.Records().size());
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:

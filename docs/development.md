@@ -129,6 +129,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Player stats, XP, levels | `entities/player_stats.*`, `world/progression.*` |
 | Items: weapons, potions, amulets (rows, rules) | `world/items.*`, `world/item_bag.*`; loot `world/loot.*` |
 | Curses, poison, skills | `world/curses.*`, `world/poison.*`, `world/skills.*` |
+| Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |
 | Interact: pick up treasure, use a gate (exit, teleport), travel | `world/dungeon_interact.cpp` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Dart traps | `world/dungeon_darts.cpp` |

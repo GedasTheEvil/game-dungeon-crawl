@@ -40,6 +40,7 @@ int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ign
 	if (Alive()) {
 		const int hit = stats.HitDamage(dmg, mix, ignoreArmor);
 		lost = std::min(hit, stats.CurrentHP());
+		stats.run.damageTaken += lost;
 		stats.LoseHP(hit);
 		blood.Splash(s);
 		events.Note(FieldNote::Health);

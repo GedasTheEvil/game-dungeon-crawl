@@ -7,6 +7,8 @@ parts below instead of drawing their own.
 | Screen | Code | Canvas |
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`) | 160 x 100 |
+| Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/world/leaderboard.h`) | 160 x 100 |
+| Win entry (name for the leaderboard) | `src/ui/win_entry.cpp` | 160 x 100, over the won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
@@ -133,7 +135,7 @@ The level editor still has its own smaller buttons (`Editor::drawButton`).
 ### Icon well
 
 Dark square on the left of a tile: `ui::iconWell(tile, inset)` returns its rect; `menu.cpp` draws the `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
-(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (`menu.cpp`, `enum class Icon`: Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back)
+(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (`menu.cpp`, `enum class Icon`: Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium)
 or a number (save slots, lapis seal when the slot is used). Glyphs are shapes, not textures.
 
 ### Selection
@@ -256,6 +258,19 @@ the line in `body` `INK`, the lore in `small` `INK_FADED`, a status line, and th
 when it cannot): the first press turns it to "Sure? Learn" with a pulsing ring, the second learns. A refused press says
 why in the toast.
 
+### Hall of Records
+
+The leaderboard ([plan/leaderboard.md](plan/leaderboard.md)), a main menu sub-screen (`recordsD`). List: panel
+`{12, 20, 136, 64}`, three sort tiles 26 x 7 (Time, XP, Explored; the open order lapis), a table of rank, name and
+score in the open order (`small` header, striped `body` rows 4.3 high, ten visible, the wheel or Up / Down scroll).
+The run just recorded breathes lapis; the selected or hovered row has a gold frame. A click or Enter opens the run's
+details: the title is its name, panel `{6, 20, 148, 64}`, four columns of `heading` sections with `small` label /
+value rows (Run and Fights; Slain; Explored, Potions, Skills; the time per level in two halves); a column out of room
+ends with "+ n more". Esc or Back goes back to the list, the sort kept.
+
+Win entry: over the won game (the HUD hidden meanwhile), a panel `{36, 3, 88, 27}` under the win picture's text: the
+run summary in `body` `GOLD`, a `WELL` name field with a `GOLD` frame and a blinking caret, the key hint.
+
 ### Status box
 
 The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,
@@ -319,7 +334,8 @@ add the colour); call it only after `beginText()`, go back with `beginShapes()`.
 
 ## Menu sub-screens
 
-Save, Load, Options and Credits are flags on `MainMenu` (`saveD`, `loadD`, `optionsD`, `creditsD`). A new one needs:
+Save, Load, Options, Credits and the Hall of Records are flags on `MainMenu` (`saveD`, `loadD`, `optionsD`,
+`creditsD`, `recordsD`). A new one needs:
 
 1. A flag, added to `InSubScreen()` and cleared in `ResetSubScreens()` (Esc then backs out of it by itself).
 2. A branch in `MainMenu::Draw()`: `DrawBackground(caption)`, the contents, `DrawBackButton()`, `DrawFooter(hint)`.

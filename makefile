@@ -23,7 +23,7 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/inscriptions.cpp src/world/skills.cpp src/world/curses.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp \
 	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
-	src/entities/player_stats.cpp src/test/scenario_script.cpp
+	src/entities/player_stats.cpp src/test/scenario_script.cpp src/world/run_stats.cpp src/world/leaderboard.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/rng.h src/world/damage.h src/world/decor.h src/input/input.h
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts
 # they read, without GL: every dungeon_*.cpp but the dungeon's drawing (dungeon_render*.cpp), which stays in the game
@@ -124,6 +124,14 @@ $(BUILD)/tests/unit/main.o: tests/unit/main.cpp
 $(BUILD)/external/%.o: external/%.cpp
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
+
+# The build's version on the leaderboard (plan leaderboard): the git hash, "-dirty" with uncommitted changes. The stamp
+# is rewritten only when it changes, so a new commit rebuilds the one file that records a win.
+GAME_VERSION:=$(shell git describe --always --dirty 2>/dev/null || echo unknown)
+VERSION_STAMP=$(BUILD)/version.txt
+$(shell mkdir -p $(BUILD); [ "$$(cat $(VERSION_STAMP) 2>/dev/null)" = "$(GAME_VERSION)" ] || echo "$(GAME_VERSION)" > $(VERSION_STAMP))
+$(BUILD)/src/ui/win_entry.o: $(VERSION_STAMP)
+$(BUILD)/src/ui/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
 
 level-tools: $(LEVEL_TOOLS)
 

@@ -63,6 +63,7 @@ void GameState::Load() {
 	assets.sounds.soundtrack.Play();
 
 	saves.LoadNames();
+	leaderboard.Load();
 
 	status.clear();
 	cacheLoaded = true;
@@ -165,6 +166,7 @@ void GameState::ApplyWorldEvents() {
 void GameState::NewGame() {
 	PlayerHud::reset();
 	player->stats = PlayerStats{};
+	player->stats.run.campaign = true; // from New Game on level 1: the win goes on the leaderboard
 	ui.inventory->Reset();
 	journal.Clear();
 	dungeon.LoadCampaignLevel(1);
@@ -268,6 +270,7 @@ void GameState::LoadSave(const char filename[]) {
 	}
 
 	player->Reanimate();
+	dungeon.ClearWin(); // a save is never of a won game
 
 	LOG_INFOF("game", "Loading save %s", filename);
 	std::ifstream dump(filename);

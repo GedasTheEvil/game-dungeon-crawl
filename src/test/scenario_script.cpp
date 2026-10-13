@@ -331,6 +331,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Heka:
 	case CommandType::Learn:
 	case CommandType::Curse:
+	case CommandType::Campaign:
 	case CommandType::Poison:
 	case CommandType::Hurt:
 	case CommandType::Prop:
@@ -400,6 +401,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"learn", CommandType::Learn, parseSkill,
 		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
 		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},
+		{"campaign", CommandType::Campaign, noArgs, ""},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;
@@ -443,7 +445,8 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"selected", Field::Selected},
 											   {"heka", Field::Heka},
 											   {"skills", Field::Skills},
-											   {"curses", Field::Curses}};
+											   {"curses", Field::Curses},
+											   {"records", Field::Records}};
 	return DEFS;
 }
 

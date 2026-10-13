@@ -318,6 +318,10 @@ void keyPressed(unsigned char key, int x, int y) {
 		Game().ui.riddle->KeyboardF(key, x, y);
 		return;
 	}
+	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) {
+		Game().ui.winEntry.KeyPressed(key);
+		return;
+	}
 
 	MainMenu& menu = Game().ui.menu;
 	Screen& screen = Game().ui.screen;
@@ -336,7 +340,7 @@ void keyPressed(unsigned char key, int x, int y) {
 
 		// In the menu Esc backs out of the save / load / options screens, then returns to the game (if there is one).
 		if (screen == Screen::Menu && menu.InSubScreen()) {
-			menu.ResetSubScreens();
+			menu.BackOut();
 			return;
 		}
 		if (screen == Screen::Menu && !menu.inGame)
@@ -346,8 +350,10 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	}
 
+	if (screen == Screen::Menu)
+		menu.KeyPressed(key);
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
-		return; // while the menu is shown, only [esc] is handled
+		return; // while the menu is shown, only [esc] and the sub-screen's keys are handled
 
 	std::optional<BindAction> action = bound(InputKey::Char(key));
 	if (action && pressBinding(*action))
@@ -366,6 +372,8 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().ui.menu.CaptureKey(InputKey::Special(key));
 		return;
 	}
+	if (Game().ui.screen == Screen::Menu)
+		Game().ui.menu.SpecialKeyPressed(key);
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
 		return;
 

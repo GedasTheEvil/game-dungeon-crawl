@@ -55,6 +55,7 @@ enum class CommandType : unsigned char {
 	Heka,
 	Learn,
 	Curse,
+	Campaign,
 	Quit,
 };
 
@@ -99,7 +100,8 @@ enum class Field : unsigned char {
 	Selected,
 	Heka,
 	Skills,
-	Curses
+	Curses,
+	Records
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

@@ -31,7 +31,6 @@ constexpr int HINT_AFTER_MISSES = 2;
 constexpr int WRONG_MS = 1600;
 constexpr int SHAKE_MS = 400;
 constexpr int CARET_BLINK_MS = 500;
-constexpr unsigned char KEY_BACKSPACE = 8;
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
@@ -238,6 +237,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			return;
 		if (CheckAnswer()) {
 			Game().journal.Solve(journalIndex, late, answer);
+			Game().player->stats.run.riddles++;
 			Game().player->stats.AddXP(reward, Game().events);
 			if (late) {
 				Game().ui.screen = Screen::Journal;

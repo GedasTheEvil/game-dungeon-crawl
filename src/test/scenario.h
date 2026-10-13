@@ -4,6 +4,7 @@
 // Scripted test runs: `./game tests/scenarios/foo.txt`.
 // Command reference and output layout: docs/testing.md.
 #include "../core/gameplay_config.h"
+#include <string>
 
 namespace Scenario {
 constexpr int TICK_MS = UPDATE_TICK_MS;
@@ -27,6 +28,9 @@ bool loadPlay(const char* path);
 bool loadPlayLevel(const char* levelArg);
 // Call after every Update(): runs the setup once, in the first frame after the assets are loaded.
 void runPlaySetup();
+
+// Where a scenario or a play run writes its files (tests/out/<name>); empty for the plain game.
+std::string outputDir();
 
 // Call right before swapping buffers; saves a pending screenshot from the back buffer.
 void onFrameRendered();

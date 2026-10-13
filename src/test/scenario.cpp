@@ -413,6 +413,10 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry
+		Game().player->stats.run.campaign = true;
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::Curse: // as from a cursing hit: the status line and the field note
 		Game().player->stats.LayCurse(static_cast<Curse>(cmd.ticks),
 									  cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser, Game().events);
@@ -627,6 +631,8 @@ bool Scenario::loadPlayLevel(const char* levelArg) {
 	}
 	return startPlay("level");
 }
+
+std::string Scenario::outputDir() { return gRunner.outDir; }
 
 void Scenario::runPlaySetup() {
 	if (!gRunner.playPending || !Game().cacheLoaded)

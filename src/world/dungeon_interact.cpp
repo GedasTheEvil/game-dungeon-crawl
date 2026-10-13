@@ -11,6 +11,7 @@
 
 void Dungeon::PickUp() {
 	if (Map(mapX, mapY).type == Treasure) {
+		sim.player->stats.run.treasures++;
 		std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
 		clearObject(map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))]);
 		if (!placed) // an empty chest (type 0), or an item the game does not know
@@ -50,6 +51,8 @@ bool Dungeon::readInscription() {
 	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
 	const bool first =
 		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads});
+	if (first)
+		sim.player->stats.run.inscriptions++;
 	if (!first)
 		sim.events->Status("Already seen. In the journal.");
 	else if (reads) {

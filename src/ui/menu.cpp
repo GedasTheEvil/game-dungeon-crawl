@@ -91,8 +91,19 @@ Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.re
 
 // ---- icons -----------------------------------------------------------------
 
-enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book };
-enum class MenuAction : std::uint8_t { NewGame, Resume, Journal, Save, Load, Options, Credits, MainMenu, Quit };
+enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium };
+enum class MenuAction : std::uint8_t {
+	NewGame,
+	Resume,
+	Journal,
+	Save,
+	Load,
+	Records,
+	Options,
+	Credits,
+	MainMenu,
+	Quit
+};
 
 struct MenuButton {
 	const char* label;
@@ -101,9 +112,10 @@ struct MenuButton {
 	bool primary;
 };
 
-constexpr std::array<MenuButton, 5> MAIN_BUTTONS = {{
+constexpr std::array<MenuButton, 6> MAIN_BUTTONS = {{
 	{"New Game", Icon::Play, MenuAction::NewGame, true},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
+	{"Hall of Records", Icon::Podium, MenuAction::Records, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
 	{"Credits", Icon::Ankh, MenuAction::Credits, false},
 	{"Exit", Icon::Exit, MenuAction::Quit, false},
@@ -342,6 +354,11 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 		bar(cx + 0.1f * s, cy - 0.6f * s, cx + 0.95f * s, cy + 0.75f * s, c);
 		bar(cx + 0.45f * s, cy - 0.95f * s, cx + 0.45f * s + t, cy - 0.6f * s, c);
 		break;
+	case Icon::Podium: // the winners' steps: second, first, third
+		bar(cx - 0.95f * s, cy - 0.85f * s, cx - 0.35f * s, cy + 0.05f * s, c);
+		bar(cx - 0.3f * s, cy - 0.85f * s, cx + 0.3f * s, cy + 0.6f * s, c);
+		bar(cx + 0.35f * s, cy - 0.85f * s, cx + 0.95f * s, cy - 0.3f * s, c);
+		break;
 	}
 }
 
@@ -401,7 +418,12 @@ void MainMenu::ShowToast(const std::string& text) { toast.Show(text, GameClock::
 void MainMenu::Draw() {
 	LoadAssets();
 	BeginCanvas();
-	if (creditsD) {
+	if (recordsD) {
+		DrawBackground(records.Caption().c_str());
+		records.Draw(heading, body, small, hovered - RECORDS_BASE, pressed - RECORDS_BASE);
+		DrawBackButton();
+		DrawFooter(records.Hint());
+	} else if (creditsD) {
 		DrawBackground("Credits");
 		DrawCredits();
 		DrawBackButton();
@@ -443,10 +465,15 @@ void MainMenu::EndFrame() {
 }
 
 void MainMenu::DrawBackground(const char* caption) {
-	bool wide = saveD || loadD || optionsD;
+	bool wide = saveD || loadD || optionsD || recordsD;
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
 	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
-	panel(creditsD ? CREDITS_PANEL : optionsD ? OPTIONS_PANEL : (wide ? SLOT_PANEL : MENU_PANEL), 0.9f);
+	panel(recordsD	 ? records.Panel()
+		  : creditsD ? CREDITS_PANEL
+		  : optionsD ? OPTIONS_PANEL
+		  : wide	 ? SLOT_PANEL
+					 : MENU_PANEL,
+		  0.9f);
 }
 
 void MainMenu::DrawButtons() {
@@ -694,6 +721,11 @@ int MainMenu::TargetAt(int x, int y) {
 	float cy = 0.f;
 	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
 
+	if (recordsD) {
+		if (const int target = records.TargetAt(cx, cy); target != RecordsView::NONE)
+			return RECORDS_BASE + target;
+		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
+	}
 	if (creditsD)
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	if (optionsD) {
@@ -733,7 +765,11 @@ int MainMenu::TargetAt(int x, int y) {
 
 void MainMenu::Activate(int target) {
 	if (target == BACK) {
-		ResetSubScreens();
+		BackOut();
+		return;
+	}
+	if (recordsD) {
+		records.Activate(target - RECORDS_BASE);
 		return;
 	}
 	if (optionsD) {
@@ -780,6 +816,9 @@ void MainMenu::Activate(int target) {
 		break;
 	case MenuAction::Load:
 		loadD = true;
+		break;
+	case MenuAction::Records:
+		OpenRecords(RecordsView::NONE);
 		break;
 	case MenuAction::Options:
 		optionsD = true;
@@ -900,6 +939,11 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		}
 		return;
 	}
+	if (recordsD && state == GLUT_DOWN && (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN)) {
+		records.Scroll(button == MOUSE_WHEEL_UP ? -1 : 1);
+		hovered = TargetAt(x, y);
+		return;
+	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
 	if (state == GLUT_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
@@ -930,8 +974,34 @@ void MainMenu::MouseDrag(int x, int y) {
 		hovered = TargetAt(x, y);
 }
 
+void MainMenu::BackOut() {
+	if (recordsD && records.InDetail()) {
+		records.CloseDetail();
+		hovered = NONE;
+		return;
+	}
+	ResetSubScreens();
+}
+
+void MainMenu::OpenRecords(int marked) {
+	ResetSubScreens();
+	recordsD = true;
+	records.Open(marked);
+}
+
+void MainMenu::KeyPressed(unsigned char key) {
+	if (recordsD)
+		records.Key(key);
+}
+
+void MainMenu::SpecialKeyPressed(int key) {
+	if (recordsD)
+		records.SpecialKey(key);
+}
+
 void MainMenu::ResetSubScreens() {
 	creditsD = false;
+	recordsD = false;
 	saveD = false;
 	loadD = false;
 	optionsD = false;

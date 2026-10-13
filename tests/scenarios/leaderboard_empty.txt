@@ -1,0 +1,19 @@
+# Plan leaderboard: the main menu's Hall of Records button, the empty board's placeholder row and its details.
+seed 1
+level tests/levels/win_run
+wait 30
+key esc
+click 50 25.5
+screenshot main_menu
+mouse 50 56.1
+screenshot main_menu_hover
+click 50 56.1
+expect records == 0
+screenshot empty_board
+click 50 65.5
+screenshot placeholder_detail
+key esc
+screenshot back_to_list
+key esc
+screenshot main_menu_again
+quit

@@ -1,0 +1,48 @@
+# Plan leaderboard: a won campaign run, its name typed on the win screen, the Hall of Records and the run's details.
+seed 1
+god
+level tests/levels/win_run
+campaign
+wait 30
+walk to 2.2
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 1s
+expect nearest == 0
+walk to 6.5
+interact
+hurt 20
+key h
+walk to 9.5
+interact
+wait 500ms
+expect won == 1
+screenshot win_entry
+key backspace
+key T
+key e
+key s
+key t
+key e
+key r
+screenshot win_name
+key enter
+wait 100ms
+expect records == 1
+screenshot hall
+mouse 50 65.5
+screenshot hall_hover
+click 37.6 76.5
+screenshot hall_xp
+click 50 65.5
+screenshot detail
+click 50 13
+screenshot back_to_list
+mouse 50 13
+screenshot back_hover
+quit

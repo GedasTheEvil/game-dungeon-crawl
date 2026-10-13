@@ -19,12 +19,14 @@
 #include "../ui/riddle.h"
 #include "../ui/menu.h"
 #include "../ui/end_screens.h"
+#include "../ui/win_entry.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/inscriptions.h"
 #include "../world/journal.h"
+#include "../world/leaderboard.h"
 #include "../world/world_events.h"
 #include "save_slots.h"
 #include "settings_ini.h"
@@ -56,6 +58,7 @@ struct UIContext {
 	std::unique_ptr<Riddle> riddle;
 	MainMenu menu;
 	std::unique_ptr<EndScreens> endScreens;
+	WinEntry winEntry; // the won run's name for the leaderboard
 	DraftMap map;
 	JournalScreen journal;
 	SkillsScreen skills;
@@ -81,6 +84,7 @@ class GameState {
 	InscriptionBook inscriptions; // the wall inscriptions' texts, inscriptions/*.txt
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	SaveSlots saves;
+	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)
 
 	GameState();
 	~GameState();

@@ -267,6 +267,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	heka.Dump(f);
 	curses.Dump(f);
+	run.Dump(f);
 }
 
 void PlayerStats::LoadDump(std::ifstream& f) {
@@ -299,4 +300,5 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 		f >> resist_percent >> resist_left_ms;
 	heka.LoadDump(f);
 	curses.LoadDump(f);
+	run.LoadDump(f);
 }

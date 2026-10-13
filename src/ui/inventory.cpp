@@ -196,6 +196,7 @@ void Inventory::Use(int slot) {
 std::string Inventory::DrinkPotion(ItemKind potion) {
 	Game().assets.sounds.drink_s.Play();
 	bag.Use(potion, playerVitals());
+	Game().player->stats.run.Drink(potion);
 	return Game().player->stats.Drink(potionGain(potion));
 }
 

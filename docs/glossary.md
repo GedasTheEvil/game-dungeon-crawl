@@ -10,7 +10,7 @@ entry: `grep -i '| hold ' docs/glossary.md`.
 * New term, or unsure of one: grep here first, add a row when you name a new thing.
 
 Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#combat), [Items](#items),
-[Tooling](#tooling).
+[Runs](#runs), [Tooling](#tooling).
 
 ## Map and levels
 
@@ -120,6 +120,19 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | dodge | Dodged | the Dodge skill: 1 monster attack in 10 (`DODGE_PERCENT`) misses the player: no damage, no poison | `Player::Dodges` |
 | skill | | a permanent ability bought with one heka; no respec | `SkillId`, `SKILLS` |
 | tier | Lesser, Minor, Grand | an amulet's strength: lesser, minor, normal, grand ("Lesser Amulet of Armor", "Amulet of Minor Armor") | `AmuletTier` |
+
+## Runs
+
+| Term | In game | Meaning | Code |
+|---|---|---|---|
+| campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
+| exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 | `explorationScore` |
+| Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |
+| leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
+| play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |
+| placeholder row | Spirit of Exploration | the empty board's one row, never written to the file | `placeholderRecord` |
+| run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage), kept in the save | `RunStats` |
+| win entry | | the name field over the won game; Enter records the run, Esc skips | `WinEntry` |
 
 ## Tooling
 

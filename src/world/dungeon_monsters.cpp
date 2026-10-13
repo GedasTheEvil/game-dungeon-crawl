@@ -434,7 +434,10 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 											: "barely hurt by";
 		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
 	}
-	if (mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg))
+	const int healthBefore = mon.Health();
+	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg);
+	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
+	if (killed)
 		rewardKill(mon);
 	else if (mix)
 		venomHit(mon);
@@ -479,6 +482,7 @@ void Dungeon::rewardKill(Monster& mon) {
 	markSlain(mon);
 	const MonsterType& type = *mon.Type();
 	sim.journal->KillCreature(type.id, levelNumber);
+	sim.player->stats.run.Slay(type.id);
 	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;
 	sim.events->Status("Gained %d XP", xp);
 	sim.player->stats.AddXP(xp, *sim.events);

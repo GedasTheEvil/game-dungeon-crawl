@@ -5,10 +5,11 @@
 #include "../graphics/font.h"
 #include "../graphics/textures.h"
 #include "../input/bindings.h"
+#include "records_view.h"
 #include "ui_draw.h"
 
 /// @file menu.h
-/// Main menu, in-game menu and its save / load / options / credits screens.
+/// Main menu, in-game menu and its save / load / options / credits / Hall of Records screens.
 
 class MainMenu {
   private:
@@ -19,6 +20,7 @@ class MainMenu {
 	static constexpr int OPTION_BASE = 300; // Options > Display / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
 	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
+	static constexpr int RECORDS_BASE = 600; // Hall of Records: its own targets (RecordsView)
 
 	int hovered = NONE;
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
@@ -30,6 +32,7 @@ class MainMenu {
 	int optionsTab = 0;
 	int capturing = NONE; // the BIND_BASE target waiting for a key or a mouse button
 	int dragging = NONE; // the slider the mouse went down on
+	RecordsView records;
 
 	void LoadAssets();
 	void BeginCanvas();
@@ -62,6 +65,7 @@ class MainMenu {
 	bool loadD;
 	bool optionsD = false;
 	bool creditsD = false;
+	bool recordsD = false;
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MousePassiveMotion(int x, int y);
@@ -69,8 +73,14 @@ class MainMenu {
 	// Options > Controls waits for the key or mouse button of a binding.
 	[[nodiscard]] bool Capturing() const { return capturing != NONE; }
 	void CaptureKey(const InputKey& key); // Esc cancels, Delete clears the binding
-	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD || creditsD; }
+	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD || creditsD || recordsD; }
 	void ResetSubScreens();
+	void BackOut(); // Esc or Back: a run's details back to the Hall of Records' list, any other sub-screen closes
+	// The Hall of Records, with the run just recorded marked (an index into the board's records, or
+	// RecordsView::NONE).
+	void OpenRecords(int marked);
+	void KeyPressed(unsigned char key); // a sub-screen's keys (the Hall of Records: Enter)
+	void SpecialKeyPressed(int key); // the Hall of Records: Up / Down
 };
 
 #endif

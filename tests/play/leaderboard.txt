@@ -1,0 +1,8 @@
+# Plan leaderboard, for `./game --play tests/play/leaderboard.txt`: a short level marked as a campaign run. Kill the
+# rat, open the chest, walk to the ankh and press interact: type a name, Enter opens the Hall of Records with the run
+# marked. Try the sort buttons and a row's details. The board goes to tests/out/leaderboard/leaderboard.txt (not
+# saves/); a second win there adds a second row. Main menu > Hall of Records on an empty board shows the placeholder.
+seed 1
+god
+level tests/levels/win_run
+campaign

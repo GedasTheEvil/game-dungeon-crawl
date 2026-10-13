@@ -54,10 +54,10 @@ template <size_t N> bool loadCounts(std::istream& in, std::array<int, N>& counts
 }
 } // namespace
 
-// "RUN campaign inscriptions treasures riddles dealt taken biggest  slain...  drunk...  n levelMs..."
+// "RUN campaign inscriptions treasures riddles dealt taken biggest poisoned cursed  slain...  drunk...  n levelMs..."
 void RunStats::Dump(std::ostream& out) const {
 	out << "RUN " << (campaign ? 1 : 0) << ' ' << inscriptions << ' ' << treasures << ' ' << riddles << ' '
-		<< damageDealt << ' ' << damageTaken << ' ' << biggestHit;
+		<< damageDealt << ' ' << damageTaken << ' ' << biggestHit << ' ' << poisoned << ' ' << cursed;
 	dumpCounts(out, slain);
 	dumpCounts(out, drunk);
 	out << ' ' << levelMs.size();
@@ -79,7 +79,8 @@ void RunStats::LoadDump(std::istream& in) {
 	size_t levels = 0;
 	RunStats loaded;
 	bool ok = static_cast<bool>(in >> isCampaign >> loaded.inscriptions >> loaded.treasures >> loaded.riddles >>
-								loaded.damageDealt >> loaded.damageTaken >> loaded.biggestHit) &&
+								loaded.damageDealt >> loaded.damageTaken >> loaded.biggestHit >> loaded.poisoned >>
+								loaded.cursed) &&
 			  loadCounts(in, loaded.slain) && loadCounts(in, loaded.drunk) && static_cast<bool>(in >> levels);
 	for (size_t i = 0; ok && i < levels; i++) {
 		int ms = 0;

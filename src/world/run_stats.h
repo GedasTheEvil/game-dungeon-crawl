@@ -20,6 +20,8 @@ class RunStats {
 	int damageDealt = 0; // HP the player's hits took off monsters
 	int damageTaken = 0; // HP monsters' hits and traps took off the player (not poison)
 	int biggestHit = 0; // the most HP one hit of the player's took
+	int poisoned = 0; // poisonings that took (a warded one does not count)
+	int cursed = 0; // curses laid, also one laid again while it runs
 
 	void Slay(int monsterType);
 	void Drink(ItemKind potion);

@@ -131,7 +131,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
 | play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |
 | placeholder row | Spirit of Exploration | the empty board's one row, never written to the file | `placeholderRecord` |
-| run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage), kept in the save | `RunStats` |
+| run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage, times poisoned and cursed), kept in the save | `RunStats` |
 | win entry | | the name field over the won game; Enter records the run, Esc skips | `WinEntry` |
 
 ## Tooling

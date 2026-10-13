@@ -62,10 +62,10 @@ void drawColumn(const std::vector<DetailLine>& lines, float x, Font& heading, Fo
 	const float right = x + DETAIL_COLUMN_W;
 	for (size_t i = 0; i < lines.size(); i++) {
 		const DetailLine& l = lines[i];
-		if (y < DETAIL_BOTTOM) { // out of room: say how many lines did not fit
+		// The last row that fits, with more after it: it says how many lines did not fit.
+		if (y - DETAIL_LINE < DETAIL_BOTTOM && i + 1 < lines.size()) {
 			beginText();
-			text(small, x + 1.f, y + DETAIL_LINE, ("+ " + number(static_cast<int>(lines.size() - i)) + " more").c_str(),
-				 LABEL_DIM);
+			text(small, x + 1.f, y, ("+ " + number(static_cast<int>(lines.size() - i)) + " more").c_str(), LABEL_DIM);
 			beginShapes();
 			return;
 		}
@@ -143,8 +143,14 @@ std::string RecordsView::Caption() const {
 	return detail < static_cast<int>(records.size()) ? records[static_cast<size_t>(detail)].name : "";
 }
 
-const char* RecordsView::Hint() const {
-	return detail == NONE ? "Click a run for its details    Up / Down, Enter    Esc: back" : "Esc: back to the list";
+std::string RecordsView::Hint() const {
+	if (detail == NONE)
+		return "Click a run for its details    Up / Down, Enter    Esc: back";
+	const std::vector<RunRecord> records = shown();
+	if (detail >= static_cast<int>(records.size()) || records[static_cast<size_t>(detail)].placeholder)
+		return "Esc: back to the list";
+	const RunRecord& r = records[static_cast<size_t>(detail)];
+	return r.date + "    version " + r.version + "    Esc: back to the list"; // the run's date and build
 }
 
 ui::Rect RecordsView::Panel() const { return detail == NONE ? LIST_PANEL : DETAIL_PANEL; }
@@ -300,12 +306,12 @@ void RecordsView::drawDetail(Font& heading, Font& small) const {
 		{false, "Stamina", value(r.stamina)},
 		{false, "Armour", value(r.armor)},
 		{false, "Might", value(r.might)},
-		{false, "Date", real ? r.date : "-"},
-		{false, "Version", real ? r.version : "-"},
 		{true, "Fights", ""},
 		{false, "Damage dealt", value(r.damageDealt)},
 		{false, "Damage taken", value(r.damageTaken)},
 		{false, "Biggest hit", value(r.biggestHit)},
+		{false, "Times poisoned", value(r.poisoned)},
+		{false, "Times cursed", value(r.cursed)},
 	};
 	std::vector<DetailLine> found = {
 		{true, "Explored (" + value(explorationScore(r)) + ")", ""},

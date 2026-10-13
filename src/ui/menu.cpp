@@ -422,7 +422,7 @@ void MainMenu::Draw() {
 		DrawBackground(records.Caption().c_str());
 		records.Draw(heading, body, small, hovered - RECORDS_BASE, pressed - RECORDS_BASE);
 		DrawBackButton();
-		DrawFooter(records.Hint());
+		DrawFooter(records.Hint().c_str());
 	} else if (creditsD) {
 		DrawBackground("Credits");
 		DrawCredits();

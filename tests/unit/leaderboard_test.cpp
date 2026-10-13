@@ -68,6 +68,8 @@ TEST_CASE("run counters: potions by kind, play time per level, the save line and
 	stats.Hit(4);
 	stats.Hit(9);
 	stats.riddles = 2;
+	stats.poisoned = 4;
+	stats.cursed = 5;
 	CHECK(stats.DrunkTotal() == 3);
 	CHECK(stats.Drunk(ItemKind::SmallHealth) == 2);
 	CHECK(stats.LevelMs() == std::vector<int>{500, 0, 700});
@@ -85,6 +87,8 @@ TEST_CASE("run counters: potions by kind, play time per level, the save line and
 	CHECK(loaded.LevelMs() == stats.LevelMs());
 	CHECK(loaded.riddles == 2);
 	CHECK(loaded.biggestHit == 9);
+	CHECK(loaded.poisoned == 4);
+	CHECK(loaded.cursed == 5);
 	std::string next;
 	saved >> next;
 	CHECK(next == "NEXT");
@@ -106,6 +110,8 @@ TEST_CASE("a record written and read back; a broken line and a record without a 
 	r.potions = {{"Antidote", 1}};
 	r.levelMs = {60000, 120000};
 	r.damageTaken = 321;
+	r.poisoned = 6;
+	r.cursed = 2;
 	std::stringstream file;
 	writeRecord(file, r);
 	file << "[run]\nxp=5\n\n"; // no name
@@ -126,6 +132,8 @@ TEST_CASE("a record written and read back; a broken line and a record without a 
 	CHECK(back.potions == r.potions);
 	CHECK(back.levelMs == r.levelMs);
 	CHECK(back.damageTaken == 321);
+	CHECK(back.poisoned == 6);
+	CHECK(back.cursed == 2);
 	CHECK(back.SlainTotal() == 15);
 	CHECK(records[1].name == "Thutmose");
 	CHECK(records[1].xp == 10); // the broken xp line after it left it as it was
@@ -177,6 +185,32 @@ TEST_CASE("the board file: missing is empty with the placeholder row, a record a
 	CHECK_FALSE(again.Shown()[0].placeholder);
 	CHECK(again.Shown().size() == 2); // the placeholder is gone
 	CHECK(again.LastName() == "Nefertari");
+}
+
+TEST_CASE("a poisoning that takes and a curse count; a warded poisoning does not") {
+	Player player;
+	WorldEvents events;
+	GameRandom random;
+	random.Seed(1);
+	player.Poison(PoisonTier::Weak, events, random.gameplay);
+	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events); // laid again
+	CHECK(player.stats.run.poisoned == 1);
+	CHECK(player.stats.run.cursed == 2);
+	player.stats.Wear(amuletBonus(ItemKind::PoisonWardGrand), true);
+	REQUIRE(player.stats.PoisonResistPercent() > 0);
+	(void)events.Take();
+	constexpr int TRIES = 20;
+	for (int i = 0; i < TRIES; i++)
+		player.Poison(PoisonTier::Weak, events, random.gameplay);
+	int warded = 0;
+	for (const WorldEvent& e : events.Take())
+		warded += e.text == "Your amulet wards off the poison" ? 1 : 0;
+	REQUIRE(warded > 0);
+	CHECK(player.stats.run.poisoned == 1 + TRIES - warded);
+	const RunRecord r = recordOf(player.stats, "Seti", "", "");
+	CHECK(r.poisoned == player.stats.run.poisoned);
+	CHECK(r.cursed == 2);
 }
 
 TEST_CASE("a record of the player at the win: end stats, skills, kills and potions by name") {

@@ -266,7 +266,8 @@ score in the open order (`small` header, striped `body` rows 4.3 high, ten visib
 The run just recorded breathes lapis; the selected or hovered row has a gold frame. A click or Enter opens the run's
 details: the title is its name, panel `{6, 20, 148, 64}`, four columns of `heading` sections with `small` label /
 value rows (Run and Fights; Slain; Explored, Potions, Skills; the time per level in two halves); a column out of room
-ends with "+ n more". Esc or Back goes back to the list, the sort kept.
+ends with "+ n more" on its last row. The footer names the run's date and version. Esc or Back goes back to the list,
+the sort kept.
 
 Win entry: over the won game (the HUD hidden meanwhile), a panel `{36, 3, 88, 27}` under the win picture's text: the
 run summary in `body` `GOLD`, a `WELL` name field with a `GOLD` frame and a blinking caret, the key hint.

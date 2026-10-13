@@ -102,7 +102,9 @@ The counters are new fields in the save (`GameState::Save`, `src/state/game_stat
   save carries it (a `RUN` line). Kills in `Dungeon::rewardKill` (every kill that gives XP: weapon, poison, trap),
   damage dealt and the biggest hit in `Dungeon::playerHit`, damage taken in `Player::TakeHit` (hits and traps, not
   poison), potions in `Inventory::DrinkPotion`, treasures in `Dungeon::PickUp`, inscriptions on their first reading,
-  riddles on a right answer (also late, from the journal). Play time in the game loop's tick, only while it runs in
+  riddles on a right answer (also late, from the journal). Times poisoned (user, 2026-10-13) in `Player::Poison` when
+  it takes (a warded one does not count), times cursed in `PlayerStats::LayCurse` (also one laid again while it runs);
+  both on the detail screen under Fights. Play time in the game loop's tick, only while it runs in
   play (alive, not won): menus, the UI screens and the riddle do not count; kept per level (the detail screen's
   "Levels").
 * Campaign flag: set by New Game only; scenarios and `--level` / `--play` runs are not campaign runs, the scenario
@@ -115,7 +117,7 @@ The counters are new fields in the save (`GameState::Save`, `src/state/game_stat
   slain, potions, player level, the name field (default: the latest record's name). Enter records and opens the Hall
   of Records with the row marked (the menu is the main menu then: the run is over); Esc skips.
 * Screen: "Hall of Records", the main menu's third button, `RecordsView` (`src/ui/records_view.*`). Ten rows visible,
-  the wheel or Up / Down scroll; Enter or a click opens the details.
+  the wheel or Up / Down scroll; Enter or a click opens the details (the run's date and version in its footer).
 * Not done: secrets found (the level data marks none).
 * Fixed on the way: Load Game after a win kept the game won (`GameState::LoadSave` clears it now).
 * Tests: `tests/unit/leaderboard_test.cpp`; scenarios `leaderboard` (win, name, list, XP order, details) and

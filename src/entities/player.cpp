@@ -90,6 +90,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 	if (!stats.poison.Any())
 		events.Status("You are poisoned!");
 	stats.poison.Apply(tier, stats.heka.Has(SkillId::SerketsFavour)); // plan skill-serkets-favour
+	stats.run.poisoned++;
 	events.Note(FieldNote::Poison);
 }
 

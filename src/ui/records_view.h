@@ -23,7 +23,7 @@ class RecordsView {
 	[[nodiscard]] bool InDetail() const { return detail != NONE; }
 	void CloseDetail() { detail = NONE; } // back to the list, the sort kept
 	[[nodiscard]] std::string Caption() const; // "Hall of Records", or the run's name
-	[[nodiscard]] const char* Hint() const;
+	[[nodiscard]] std::string Hint() const;
 	[[nodiscard]] ui::Rect Panel() const;
 
 	void Draw(Font& heading, Font& body, Font& small, int hovered, int pressed);

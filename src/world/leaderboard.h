@@ -37,6 +37,8 @@ struct RunRecord {
 	int damageDealt = 0;
 	int damageTaken = 0;
 	int biggestHit = 0;
+	int poisoned = 0;
+	int cursed = 0;
 	bool placeholder = false; // the empty board's "Spirit of Exploration", never written
 
 	[[nodiscard]] int SlainTotal() const;

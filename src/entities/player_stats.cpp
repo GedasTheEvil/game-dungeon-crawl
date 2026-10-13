@@ -179,6 +179,7 @@ void PlayerStats::keepHpShare(int oldMax) {
 bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	const int oldMax = CurrentMaxHP();
 	const bool fresh = curses.Lay(c, grade);
+	run.cursed++;
 	keepHpShare(oldMax);
 	if (c == Curse::Fatigue)
 		SetStamina(std::min(stamina, MaxStamina() * FATIGUE_STAMINA_PERCENT / 100));

@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-12, ready (needs nothing first). From [dev-friction-review](solved/dev-friction-review.md),
 part 3. Tooling and structure only, no gameplay change: once implemented and its checks pass, it goes straight to
-`docs/plan/solved/` (AGENTS.md, Plans).
+`docs/plan/solved/` ([plans](../plans.md#solved)).
 
 ## Evidence (past sessions, 2026-10-12)
 

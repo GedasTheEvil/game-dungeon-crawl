@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-12 (solved: tooling only). From the user: start a hand-played game on a chosen level, or
 on a scenario's setup, without playing through the campaign. Tooling for play-tests; the game rules do not change,
-so once implemented and its checks pass it goes straight to `docs/plan/solved/` (AGENTS.md, Plans).
+so once implemented and its checks pass it goes straight to `docs/plan/solved/` ([plans](../../plans.md#solved)).
 
 ## Today
 

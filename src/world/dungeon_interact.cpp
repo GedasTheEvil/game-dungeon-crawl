@@ -52,9 +52,11 @@ bool Dungeon::readInscription() {
 		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads});
 	if (!first)
 		sim.events->Status("Already seen. In the journal.");
-	else if (reads)
-		sim.events->Status("Deciphered the hieroglyphs. Journal updated.");
-	else
+	else if (reads) {
+		const int xp = sim.player->stats.InscriptionXP(); // plan inscription-xp
+		sim.events->Status("Deciphered the hieroglyphs. Journal updated. +%d XP", xp);
+		sim.player->stats.AddXP(xp, *sim.events);
+	} else
 		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");
 	return true;
 }

@@ -3,6 +3,7 @@
 #include "../../src/world/campaign.h"
 #include "../../src/world/inscriptions.h"
 #include "../../src/world/journal.h"
+#include "../../src/world/progression.h"
 #include "sim_world.h"
 #include <set>
 #include <sstream>
@@ -90,9 +91,13 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
+	const int xp = riddleXP(world.player.stats.CurrentLevel()) / 3; // plan inscription-xp
+	const int xpBefore = world.Xp();
+	REQUIRE(xp >= 166);
 	world.Interact();
 	world.WaitTicks(1);
-	CHECK(world.Told("Deciphered the hieroglyphs"));
+	CHECK(world.Told("Deciphered the hieroglyphs. Journal updated. +" + std::to_string(xp) + " XP"));
+	CHECK(world.Xp() == xpBefore + xp);
 	CHECK_FALSE(world.Told("The offering formula"));
 	CHECK_FALSE(world.Told("Translation written"));
 	REQUIRE(world.journal.Inscriptions().size() == 1);
@@ -102,6 +107,7 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 	world.WaitTicks(1);
 	CHECK(world.Told("Already seen"));
 	CHECK(world.journal.Inscriptions().size() == 1);
+	CHECK(world.Xp() == xpBefore + xp); // reading again gives none
 
 	world.SaveAndLoad();
 	CHECK(world.journal.Inscriptions().size() == 1);
@@ -115,8 +121,10 @@ TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learni
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
+	const int xpBefore = world.Xp();
 	world.Interact();
 	world.WaitTicks(1);
+	CHECK(world.Xp() == xpBefore); // a copy gives no XP
 	CHECK(world.Told("Cannot understand this. Copied the hieroglyphs to the journal."));
 	REQUIRE(world.journal.Inscriptions().size() == 1);
 	CHECK_FALSE(world.journal.Inscriptions()[0].translated);
@@ -129,10 +137,25 @@ TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learni
 	REQUIRE(world.journal.Inscriptions().size() == 1);
 	CHECK_FALSE(world.journal.Inscriptions()[0].translated);
 
-	CHECK(world.journal.TranslateInscriptions() == 1);
-	CHECK(world.journal.TranslateInscriptions() == 0);
+	CHECK(world.Xp() == xpBefore);
+
+	// Learning translates each copy once; the XP is the full part at the level then (plan inscription-xp).
+	const int copies = world.journal.TranslateInscriptions();
+	CHECK(copies == 1);
+	world.player.stats.AddXP(copies * world.player.stats.InscriptionXP(), world.events);
+	CHECK(world.Xp() == xpBefore + riddleXP(world.player.stats.CurrentLevel()) / 3);
+	CHECK(world.journal.TranslateInscriptions() == 0); // nothing more to give
 	CHECK(world.journal.Inscriptions()[0].translated);
 	CHECK(world.journal.Inscriptions()[0].title == "The offering formula");
+
+	// Reading the translated copy with the skill gives no XP again.
+	const int xpAfter = world.Xp();
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Already seen"));
+	CHECK(world.Xp() == xpAfter);
 
 	// A copy kept in the journal and read with the skill later: translated at once.
 	Journal j;

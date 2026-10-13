@@ -387,7 +387,8 @@ bool runInstant(const Command& cmd) {
 			return true;
 		}
 		if (static_cast<SkillId>(cmd.ticks) == SkillId::Hieroglyphs)
-			Game().journal.TranslateInscriptions();
+			Game().player->stats.AddXP(Game().journal.TranslateInscriptions() * Game().player->stats.InscriptionXP(),
+									   Game().events);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Wear: // like a click on its slot in the inventory

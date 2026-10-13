@@ -16,7 +16,7 @@ happened, the jokes belong in the journal only.
 * Seen again, nothing new in the journal (the user, 2026-10-13): "Already seen. In the journal." The same for a copy
   seen again without the skill.
 * "The signs are too worn to read." (a text id with no text) stays.
-* XP ([inscription-xp](../inscription-xp.draft.sonet.md)): its "+N XP" goes on the deciphered line, e.g. "Deciphered
+* XP ([inscription-xp](../inscription-xp.md)): its "+N XP" goes on the deciphered line, e.g. "Deciphered
   the hieroglyphs. Journal updated. +N XP".
 
 No title and no `N:` comment on the status line. The journal page keeps both, unchanged.

@@ -4,7 +4,12 @@ Hieroglyphs on the back wall of a cell that the player can read ([plan](plan/sol
 `Inscription` tile (type 15, `i` in the [level legend](levels.md)) has a text id as its attribute. When the player
 interacts in that cell, the status line says the hieroglyphs were deciphered (a repeat: already seen). The first time,
 the translation is written in the journal (J, Inscriptions ribbon): the hieroglyphs copied from the wall, the
-translation and the comment, with the level where it was read. Reading it again writes nothing new. The save game keeps
+translation and the comment, with the level where it was read. Reading it again writes nothing new.
+
+The translation also gives XP ([plan](plan/inscription-xp.md)): a third of a riddle's reward (`riddleXP(level) / 3`,
+`INSCRIPTION_XP_PART`, at least 166), on the status line ("+N XP"). It is given once per inscription, when it is
+translated: read with the hieroglyph skill, or, for a copy made without it, when the skill is learned (each copy gives
+the full XP at the player's level then; the toast adds the total). Copying without the skill gives none. The save game keeps
 a copy of each text, so editing the file does not change the journal.
 
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign

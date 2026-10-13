@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <utility>
+#include "../core/gameplay_config.h"
 #include "../world/progression.h"
 
 namespace {
@@ -18,6 +19,8 @@ double PlayerStats::LevelXP(int lvl) { return levelXP(lvl); }
 float PlayerStats::LevelProgress() const { return levelProgress(level, XP); }
 
 int PlayerStats::RiddleXP() const { return riddleXP(level); }
+
+int PlayerStats::InscriptionXP() const { return riddleXP(level) / INSCRIPTION_XP_PART; }
 
 void PlayerStats::AddXP(int xp, WorldEvents& events) {
 	XP += xp;

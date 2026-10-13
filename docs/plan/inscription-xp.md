@@ -1,6 +1,8 @@
 # XP for reading an inscription
 
-Status: draft 2026-10-12, ready (needs nothing first). From the user, after
+Status: implemented 2026-10-13, waiting for play-test: `./game --play tests/play/skill-hieroglyphs.txt` (level 6, no
+skill: copy the inscription two cells east, learn Words of Thoth on K, see the XP in the toast); `./game --level 6`
+for reading with the skill, if the player has it. From the user, after
 [hieroglyph-cartouches](solved/hieroglyph-cartouches.md) was solved.
 
 ## Idea

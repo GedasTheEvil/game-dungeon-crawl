@@ -99,8 +99,13 @@ void SkillsScreen::PressLearn() {
 	std::string learnt = std::string("Learnt: ") + def.name;
 	if (id == SkillId::Hieroglyphs) {
 		const int copies = Game().journal.TranslateInscriptions();
-		if (copies > 0)
-			learnt += ". " + std::to_string(copies) + (copies == 1 ? " inscription" : " inscriptions") + " translated";
+		if (copies > 0) {
+			// Every copy gives the full XP at the level now, no penalty for learning late (plan inscription-xp).
+			const int xp = copies * Game().player->stats.InscriptionXP();
+			learnt += ". " + std::to_string(copies) + (copies == 1 ? " inscription" : " inscriptions") +
+					  " translated, +" + std::to_string(xp) + " XP";
+			Game().player->stats.AddXP(xp, Game().events);
+		}
 	}
 	Game().assets.sounds.amulet_s.Play();
 	toast.Show(learnt, now);

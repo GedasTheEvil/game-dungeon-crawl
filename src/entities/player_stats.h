@@ -79,6 +79,7 @@ class PlayerStats {
 	[[nodiscard]] static double LevelXP(int lvl);
 	[[nodiscard]] float LevelProgress() const; // 0..1 of the way from this level to the next
 	[[nodiscard]] int RiddleXP() const; // a riddle answered: about a third of a level
+	[[nodiscard]] int InscriptionXP() const; // an inscription translated: a part of a riddle's reward
 	void AddMight(int ns = 1);
 	void AddXP(int xp, WorldEvents& events); // a level up shows its status line and writes the levels note
 	void Heal(int hpPart); // percent of max HP

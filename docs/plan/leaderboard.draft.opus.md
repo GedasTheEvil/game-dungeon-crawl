@@ -1,6 +1,6 @@
 # Leaderboard
 
-Status: draft 2026-10-12. Ready: needs nothing first. From the user; not fully refined.
+Status: draft 2026-10-12, refined 2026-10-13 (decided, not implemented). Ready: needs nothing first. From the user.
 
 Opus: a run statistics system (counters in the player state and the save file), a name entry on the win screen, a
 leaderboard file and a new menu sub-screen.
@@ -21,15 +21,12 @@ From the user:
 * Potions drunk, total and per kind.
 * Player stats at the end: player level, XP, max HP, stamina, armour, might.
 * Skills learned at the end.
-* Play time (optional). Time in play only: paused, menus, the Heka screen and the inventory do not count. It is kept
-  in the save, so it adds up over sessions. A cut-scene ([cinematic-effects](cinematic-effects.draft.opus.md))
+* Play time (user, 2026-10-13: recorded). Time in play only: paused, menus, the Heka screen and the inventory do
+  not count. It is kept in the save, so it adds up over sessions. A cut-scene ([cinematic-effects](cinematic-effects.draft.opus.md))
   pauses the world: it does not count either.
 
 Added (implementer picks; the first ones are cheap):
 
-* Loads: how many times a save was loaded during the run. Deaths undone by a load show here. An honest "no loads"
-  run stands out.
-* Deaths: deaths before a load (if a death leads to the load screen, this is close to loads; keep one of the two).
 * Damage dealt and damage taken.
 * Biggest single hit dealt.
 * Riddles solved, secrets / chests found (if the level data marks them).
@@ -57,9 +54,8 @@ Added (implementer picks; the first ones are cheap):
 
 * A main menu sub-screen in the shared look (docs/ui.md), e.g. "Hall of Records" (Egyptian flavour; the name is the
   implementer's choice). Add the term to docs/glossary.md.
-* Columns: rank, name, time, slain, potions, player level, loads, date.
-* Default order: fastest time; without play time, fewest loads then most slain. Switching the sort column is a
-  nice extra.
+* Columns: rank, name, time, slain, potions, player level, date.
+* Default order: fastest time. Switching the sort column is a nice extra.
 * Selecting a row shows the full run: per kind kills, potions, skills, end stats, splits.
 
 ## Eligibility
@@ -72,11 +68,10 @@ Added (implementer picks; the first ones are cheap):
 The counters are new fields in the save (`GameState::Save`, `src/state/game_state.cpp`). Old saves do not matter
 (user, 2026-10-12): no fallback, no version number needed; old saves may break.
 
-## Open questions
+## Decided (2026-10-13)
 
-* Play time in or out (the user's "optional").
-* Loads and deaths: one counter or both.
-* Sort order of the board when play time is out.
+* Play time is recorded; the board sorts by it.
+* Saves, loads and deaths are not recorded (a death is undone by a load, so it would only count loads).
 
 ## Tests
 

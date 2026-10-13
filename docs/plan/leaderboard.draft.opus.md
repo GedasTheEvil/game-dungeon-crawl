@@ -22,14 +22,16 @@ From the user:
 * Player stats at the end: player level, XP, max HP, stamina, armour, might.
 * Skills learned at the end.
 * Play time (user, 2026-10-13: recorded). Time in play only: paused, menus, the Heka screen and the inventory do
-  not count. It is kept in the save, so it adds up over sessions. A cut-scene ([cinematic-effects](cinematic-effects.draft.opus.md))
-  pauses the world: it does not count either.
+  not count. It is kept in the save, so it adds up over sessions. A cut-scene
+  ([cinematic-effects](cinematic-effects.draft.opus.md)) pauses the world: it does not count either.
+* Exploration (user, 2026-10-13): inscriptions read (the cartouches) and treasures found (treasure cells picked
+  up), each counted once per cell. Riddles solved count here too.
 
 Added (implementer picks; the first ones are cheap):
 
 * Damage dealt and damage taken.
 * Biggest single hit dealt.
-* Riddles solved, secrets / chests found (if the level data marks them).
+* Secrets found (if the level data marks them).
 * Time per level (splits), shown on the run's detail view.
 * Date of the win and the game version (git hash at build time, or a version number). Balance changes make old
   runs not comparable; the version tells.
@@ -54,8 +56,15 @@ Added (implementer picks; the first ones are cheap):
 
 * A main menu sub-screen in the shared look (docs/ui.md), e.g. "Hall of Records" (Egyptian flavour; the name is the
   implementer's choice). Add the term to docs/glossary.md.
-* Columns: rank, name, time, slain, potions, player level, date.
-* Default order: fastest time. Switching the sort column is a nice extra.
+* Columns: rank, name, time, XP, explored, slain, potions, player level, date.
+* Sort buttons above the table (user, 2026-10-13), one per order; the rank follows the chosen order:
+  * Time: fastest first (the default).
+  * XP: most XP at the end first.
+  * Explored: most exploration actions first (inscriptions read + treasures found + riddles solved).
+  Ties in XP or exploration: the faster run first. More buttons (slain, ...) are the implementer's choice.
+* Empty board (user, 2026-10-13): when the file has no entry (or is missing), the screen shows one placeholder row,
+  "Spirit of Exploration", player level 1; its other cells show "-". It is not written to the file and is gone
+  once a real run is recorded. No row detail for it.
 * Selecting a row shows the full run: per kind kills, potions, skills, end stats, splits.
 
 ## Eligibility
@@ -70,11 +79,12 @@ The counters are new fields in the save (`GameState::Save`, `src/state/game_stat
 
 ## Decided (2026-10-13)
 
-* Play time is recorded; the board sorts by it.
+* Play time is recorded; the board sorts by it by default, with sort buttons for XP and exploration.
+* The leaderboard is a main menu item from the start, with the placeholder row while no run has won.
 * Saves, loads and deaths are not recorded (a death is undone by a load, so it would only count loads).
 
 ## Tests
 
 * Unit tests: the counters (a kill, a potion, a load restores the saved counts), the leaderboard file (write, read
-  back, a broken line skipped, sort order).
+  back, a broken line skipped, each sort order, the placeholder row on an empty or missing file).
 * A scenario: win a small level, type a name, screenshot the leaderboard screen.

@@ -8,7 +8,12 @@
 #include <vector>
 
 namespace {
-Tile spikes(SpikeSpeed speed, int phase) { return Tile{WallSpikes, static_cast<int>(speed), phase}; }
+Fixture spikes(SpikeSpeed speed, int phase) { return Fixture{WallSpikes, static_cast<int>(speed), phase}; }
+Tile spikesCell(SpikeSpeed speed, int phase) {
+	Tile cell;
+	setFixture(cell, spikes(speed, phase));
+	return cell;
+}
 
 // A corridor on row 1 with the wall spikes from col 3 on, the given phases, all at speed.
 LevelGrid corridor(const std::vector<int>& phases, SpikeSpeed speed = SpikeSpeed::Normal) {
@@ -18,7 +23,7 @@ LevelGrid corridor(const std::vector<int>& phases, SpikeSpeed speed = SpikeSpeed
 	grid.set(1, 1, Tile{Door, GateEntrance, 0});
 	grid.set(11, 1, Tile{Door, GateExit, 0});
 	for (size_t k = 0; k < phases.size(); k++)
-		grid.set(3 + static_cast<int>(k), 1, spikes(speed, phases[k]));
+		grid.set(3 + static_cast<int>(k), 1, spikesCell(speed, phases[k]));
 	return grid;
 }
 
@@ -29,7 +34,7 @@ bool warnsUncrossable(const LevelReport& r) {
 	return false;
 }
 
-SpikeState stateAt(SimWorld& world, int col, int row) { return spikeState(world.dungeon.Cell(col, row)); }
+SpikeState stateAt(SimWorld& world, int col, int row) { return spikeState(world.dungeon.Cell(col, row).fixture); }
 
 // Ticks until the wall spikes at (col, row) are in state s (at most a minute of game time).
 void waitFor(SimWorld& world, int col, int row, SpikeState s) {
@@ -40,7 +45,7 @@ void waitFor(SimWorld& world, int col, int row, SpikeState s) {
 } // namespace
 
 TEST_CASE("the wall spikes' cycle: out first, then in, the telegraph just before they come out again") {
-	const Tile t = spikes(SpikeSpeed::Normal, 0);
+	const Fixture t = spikes(SpikeSpeed::Normal, 0);
 	CHECK(spikeStateAt(t, 0) == SpikeState::Extended);
 	CHECK(spikeStateAt(t, SPIKES_OUT_MS[0] - 1) == SpikeState::Extended);
 	CHECK(spikeStateAt(t, SPIKES_OUT_MS[0]) == SpikeState::Retracted);
@@ -48,15 +53,16 @@ TEST_CASE("the wall spikes' cycle: out first, then in, the telegraph just before
 	CHECK(spikeStateAt(t, SPIKES_PERIOD_MS[0] - SPIKES_TELEGRAPH_MS) == SpikeState::Telegraph);
 	CHECK(spikeStateAt(t, SPIKES_PERIOD_MS[0]) == SpikeState::Extended);
 	// Half a cycle later: phase 4 is in when phase 0 is out.
-	const Tile half = spikes(SpikeSpeed::Normal, SPIKE_PHASES / 2);
+	const Fixture half = spikes(SpikeSpeed::Normal, SPIKE_PHASES / 2);
 	CHECK(spikeStateAt(half, 0) == SpikeState::Retracted);
 	CHECK(spikeStateAt(half, SPIKES_PERIOD_MS[0] / 2) == SpikeState::Extended);
 	// The live state in the value keeps the phase.
-	Tile live = half;
-	setSpikeState(live, SpikeState::Extended);
-	CHECK(spikePhase(live) == SPIKE_PHASES / 2);
+	Tile live;
+	setFixture(live, half);
+	setSpikeState(live.fixture, SpikeState::Extended);
+	CHECK(spikePhase(live.fixture) == SPIKE_PHASES / 2);
 	CHECK(isSolidTile(live));
-	setSpikeState(live, SpikeState::Telegraph);
+	setSpikeState(live.fixture, SpikeState::Telegraph);
 	CHECK_FALSE(isSolidTile(live));
 	// The safe windows of two traps: in, both, from the first one's retract to the second one's coming out.
 	CHECK(spikesInBetween(t, SPIKES_OUT_MS[0], SPIKES_PERIOD_MS[0] / 2 - 1));

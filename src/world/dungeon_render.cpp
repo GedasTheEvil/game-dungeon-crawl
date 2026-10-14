@@ -245,7 +245,24 @@ void Dungeon::drawDoorTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
+void Dungeon::drawFixture(int i, int j) {
+	switch (MapAt(i, j).fixture.type) {
+	case Lever:
+		drawLeverTile(i, j);
+		break;
+	case Inscription:
+		drawInscriptionTile(i, j);
+		break;
+	case WallSpikes:
+		drawWallSpikesTile(i, j);
+		break;
+	default: // none, or not a wall type: the reader keeps those out of the wall layer
+		break;
+	}
+}
+//======================================================================================
 void Dungeon::drawTileContent(int i, int j) {
+	drawFixture(i, j); // on the back wall plane, behind the object
 	const Tile tile = MapAt(i, j);
 	if (!isTileType(tile.type))
 		return; // the game treats an unknown type as open space
@@ -280,20 +297,15 @@ void Dungeon::drawTileContent(int i, int j) {
 	case Gate:
 		drawGateTile(i, j);
 		break;
-	case Lever:
-		drawLeverTile(i, j);
+	case Lever: // wall types: in the wall layer (drawFixture), never the object
+	case Inscription:
+	case WallSpikes:
 		break;
 	case RockFall:
 		drawRockFallTile(i, j);
 		break;
 	case DartPlate:
 		drawDartPlateTile(i, j);
-		break;
-	case Inscription:
-		drawInscriptionTile(i, j);
-		break;
-	case WallSpikes:
-		drawWallSpikesTile(i, j);
 		break;
 	}
 }

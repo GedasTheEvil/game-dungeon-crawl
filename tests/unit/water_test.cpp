@@ -16,7 +16,7 @@ LevelGrid drawn(const std::vector<std::string>& objects, const std::vector<std::
 		for (size_t col = 0; col < objects[i].size(); col++)
 			for (const GlyphDef& g : glyphLegend())
 				if (g.glyph == objects[i][col])
-					grid.set(static_cast<int>(col), row, g.tile);
+					grid.set(static_cast<int>(col), row, cellWith(g.tile));
 	}
 	for (size_t i = 0; i < structure.size(); i++) {
 		const int row = static_cast<int>(structure.size() - 1 - i);

@@ -197,7 +197,8 @@ void zigzag(Sketch& sk, float x, float y, float height, Color c, uint32_t seed) 
 	}
 }
 
-void symbol(Sketch& sk, int i, int j, Tile t) {
+// Draws t's symbol; false if t has none (no object, a monster other than a mimic).
+bool symbol(Sketch& sk, int i, int j, Tile t) {
 	auto x = static_cast<float>(i);
 	auto y = static_cast<float>(j);
 	uint32_t seed = cellSeed(i, j, 20);
@@ -215,7 +216,7 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 		break;
 	case MonsterSpawn: // only a mimic gets a symbol: the chest it pretends to be
 		if (const MonsterKind* kind = monsterKind(t.attr); kind == nullptr || kind->locomotion != Locomotion::Ambush)
-			break;
+			return false;
 		[[fallthrough]];
 	case Treasure: // X marks the spot
 		sk.pencil(x + 0.25f, y + 0.2f, x + 0.75f, y + 0.7f, PENCIL_RED, 0.95f, seed);
@@ -250,7 +251,7 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 	}
 	case Lever: {
 		Color c = lockPencil(t.attr);
-		float tipX = leverPulled(t) ? 0.25f : 0.75f;
+		float tipX = leverPulled(Fixture{t.type, t.attr, t.value}) ? 0.25f : 0.75f;
 		sk.pencil(x + 0.25f, y + 0.08f, x + 0.75f, y + 0.08f, c, 0.95f, seed);
 		sk.pencil(x + 0.5f, y + 0.08f, x + tipX, y + 0.55f, c, 0.95f, seed + 1);
 		sk.loop(x + tipX, y + 0.6f, 0.07f, 0.07f, 5, c, 0.95f, seed + 2);
@@ -288,8 +289,9 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 		sk.pencil(x + 0.5f, y + 0.58f, x + 0.5f, y + 0.08f, ANKH_GOLD, 0.95f, seed + 8);
 		break;
 	default:
-		break;
+		return false;
 	}
+	return true;
 }
 
 void drawBackground(float canvasW) {
@@ -398,8 +400,8 @@ void DraftMap::Draw() {
 
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j))
-				symbol(sk, i, j, d.Cell(i, j));
+			if (d.Explored(i, j) && !symbol(sk, i, j, d.Cell(i, j))) // one symbol a cell: the object, else the fixture
+				symbol(sk, i, j, fixtureAsTile(d.Cell(i, j).fixture));
 	sk.flush(1.5f * pxScale);
 
 	// "You are here": a red ring round the archaeologist.

@@ -6,9 +6,9 @@
 
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
   Above the grid: the column, row and contents of the cell under the mouse.
-* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Objects` layer buttons.
-* Right, middle: the palette of the layer (structures, or the object tiles in two rows), then the `Attribute` and
-  `Value` fields (objects only).
+* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` layer buttons.
+* Right, middle: the palette of the layer (structures, the wall types, or the object tiles in two rows), then the
+  `Attribute` and `Value` fields (fixtures and objects only).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   Numbers that mean nothing to the game show in red.
 * Right, bottom: the level name field and the `Save` and `Load` buttons.
@@ -21,17 +21,21 @@
   The level check (see [docs/levels.md](../docs/levels.md)) runs on the map: the path from the entrance to the
   goal is drawn with gold dots, the result shows under the grid.
 
-In both modes, a right click on a cell picks it into the brush: its structure, or its tile, attribute and value.
+In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, or its
+fixture's or object's tile, attribute and value. In `Check` mode with the `Wall` layer, the papyrus explains the
+clicked cell's fixture.
 
 ## Layers
 
-A cell has two layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water) and at
-most one object in it (a ladder, a monster, a key, ...). Key `L` or the `Structure` / `Objects` buttons switch the
-layer the brush paints and the palette shows. The map shows both; the other layer stays visible, dimmed.
+A cell has three layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
+most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer) and at most one object in it
+(a ladder, a monster, a key, ...). Key `L` (Structure, Wall, Objects, round) or the `Structure` / `Wall` / `Objects`
+buttons switch the layer the brush paints and the palette shows. The map shows all three; the other layers stay
+visible, dimmed, and the layer being painted is drawn on top.
 
-* Painting an object into a wall or deep water carves the cell open (`Empty`).
-* Painting a wall or deep water over an object removes the object.
-* `None` in the objects palette removes the object and keeps the structure.
+* Painting an object or a fixture into a wall or deep water carves the cell open (`Empty`).
+* Painting a wall or deep water over a cell removes its object and fixture.
+* `None` in the wall or objects palette removes the fixture or the object and keeps the rest.
 
 ## Workflow
 
@@ -64,8 +68,10 @@ The glyph is the one in the level file's structure drawing and in `levelcheck --
 
 ## Tile reference
 
-The object layer. Palette order: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`, `Treasure`; then `Ankh`,
-`Key`, `Gate`, `Lever`, `RockFall`, `DartPlate`; then `Inscription`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
+The object and wall layers share the type numbers. The wall types (`Lever`, `Inscription`, `WallSpikes`) go in the
+wall layer, the others in the object layer. Objects palette: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`,
+`Treasure`; then `Ankh`, `Key`, `Gate`, `RockFall`, `DartPlate`. Wall palette: `None`, `Lever`, `Inscription`,
+`WallSpikes`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
@@ -164,24 +170,28 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v2, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the object layer
-as a list:
+Level format v3, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the wall layer
+and the object layer as lists:
 
 ```
-DCLEVEL 2 40 47
+DCLEVEL 3 40 47
 structure
 ########################################
 #......................................#
 ...                                       47 rows of 40 glyphs, the top row (46) first
+wall 1
+6 1 15 3 0                                column row type attribute value
 objects 3
 1 1 2 1 0                                 column row type attribute value
 4 1 6 0 0
 ...
 ```
 
-The structure glyphs are in the [Structure reference](#structure-reference). The object list holds only the cells
-with an object, row 0 (the bottom) first, left to right. Rows count from the bottom, columns from the left.
+The structure glyphs are in the [Structure reference](#structure-reference). The wall list holds only the cells with
+a fixture (wall types only), the object list only the cells with an object, row 0 (the bottom) first, left to right.
+Rows count from the bottom, columns from the left.
 
-The old format (v1: the cell count `1881`, then one `type attribute value` line per cell, type 0 a wall) still loads:
-the game, the editor and `levelcheck` convert it as they read it (`levelcheck` warns). `levelconvert FILE...`
-rewrites files in v2 for good.
+The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`
+warns). v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
+`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v3 for
+good.

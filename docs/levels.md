@@ -5,12 +5,20 @@ Tile types and structures in code: `src/world/level.h`.
 
 ## Level format
 
-A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.md)):
+A cell has three layers ([level-format-layers.md](plan/solved/level-format-layers.md),
+[wall-layer.md](plan/wall-layer.md)):
 
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`. A cell blocks when it is `Wall` or `DeepWater`.
-* **Object**: at most one thing in the cell, with attribute and value: ladder, door, gate, lever, key, treasure,
-  ankh, monster spawn, spike, death trap, rock fall, dart plate, inscription, wall spikes. An object stands in `Empty` or
-  `HalfWater`.
+* **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes
+  (the wall types, `isWallType` in `src/world/level.h`).
+* **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
+  ankh, monster spawn, spike, death trap, rock fall, dart plate.
+
+Fixtures and objects stand in `Empty` or `HalfWater`. A cell can hold one of each: an inscription over a chest, a
+lever behind a monster spawn. Interact takes the chest first, then the fixture (pull the lever, read the inscription)
+with the next press; a gate (exit, teleporter) comes last. Wall spikes block their cell when out, so `levelcheck` warns
+about a monster spawn, ladder, gate, door or treasure in front of them; a key or a floor trap there is fine. The map
+screen shows one symbol a cell, the object's, else the fixture's.
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
@@ -20,10 +28,11 @@ work in it and show through the surface. `levelcheck` warns about half water tha
 deep water not under water, a ladder that goes down into water (one may start in it) and a crocodile not in or next
 to water.
 
-Level files are text, version 2: a `DCLEVEL 2 40 47` header, the structure as a drawing, then the list of objects
-(format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the same block for the
-current level. Old (v1) level files and saves still load, converted as they are read; `levelcheck` warns about a v1
-file, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+Level files are text, version 3: a `DCLEVEL 3 40 47` header, the structure as a drawing, then the list of fixtures
+and the list of objects (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the
+same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1, v2)
+level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer);
+`levelcheck` warns about a file older than v3, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v3. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -78,7 +87,7 @@ make level-tools
 bin/levelcheck content/levels/lvl*                   # report per level, then a ranking, easiest first
 bin/levelcheck --map content/levels/lvl3             # plus the map with the path drawn as '*'
 bin/levelcheck --legend                      # the map's characters, with the tile each one stands for
-bin/levelconvert content/levels/lvl*                 # rewrite v1 level files as v2 (v2 files are left alone)
+bin/levelconvert content/levels/lvl*                 # rewrite v1 and v2 level files as v3 (v3 files are left alone)
 bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -103,7 +112,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6, the same text id in two places. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a monster spawn, ladder, gate, door or treasure in front of wall spikes, a level file older than v3, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |
@@ -172,8 +181,13 @@ A `def CHAR TYPE ATTR VALUE` line adds a character to the legend for that file, 
 (blue lever) or `def 1 8 3 1` (large health potion).
 The drawing is the object layer. A line `structure` can follow it with a second drawing of the same rows, the
 structure: `#` wall, `.` empty, `~` half water, `=` deep water. Then `#` and `.` in the first drawing just mean no
-object. Without it, the structure follows from the object drawing: `#` wall, anything else empty. `levelcheck --map`
-prints the structure drawing after the map when the level has water.
+object. Without it, the structure follows from the object drawing: `#` wall, anything else empty. A line `wall` can
+follow (after the structure drawing, if any) with the wall drawing, the same rows: the fixtures (`/` lever, `i`
+inscription, `|` wall spikes, or a `def` of a wall type), `#` and `.` for none. A wall glyph in the object drawing goes
+to the wall layer too, so a fixture alone in its cell needs no wall drawing. `levelcheck --map` shows a cell's fixture
+where it has no object, prints the structure drawing after the map when the level has water, then the wall drawing
+when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`).
+Example with both layers in a cell: `tests/levels/wall_layer.txt`.
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).
 
 ## Tests

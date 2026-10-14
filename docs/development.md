@@ -67,7 +67,8 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 * **Tile type:** a value in `DungeonTileType` (`src/world/level.h`) and a row in `TILES` (`src/world/tile_defs.cpp`:
   name, editor text, decor flags, glyph, editor icon; the icon drawn by `tools/editor/icons/make_icons.py`), and its
-  glyph in the legend. `-Wswitch` then flags `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft
+  glyph in the legend. A thing on the back wall is a wall type: add it to `isWallType` (`level.h`), read it from
+  `Tile::fixture` and draw it in `Dungeon::drawFixture`. `-Wswitch` then flags `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft
   map (`ui/map_view.cpp`) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
 * **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/world/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, ranged attack, boss summons, levelgen weights. Only the fields that differ
@@ -134,13 +135,13 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Curses, poison, skills | `world/curses.*`, `world/poison.*`, `world/skills.*` |
 | Damage types, fire, burning, fire arrows | `world/damage.h` (`Burning`), `Dungeon::updateBurning` (`world/dungeon_base.cpp`), `Dungeon::lightArrows` (`world/dungeon_interact.cpp`), drawn in `world/dungeon_render_effects.cpp`, `graphics/fire.*` |
 | Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |
-| Interact: pick up treasure, use a gate (exit, teleport), travel | `world/dungeon_interact.cpp` |
+| Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture | `world/dungeon_interact.cpp` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Dart traps | `world/dungeon_darts.cpp` |
 | Wall spikes (rhythm traps): cycle, stab, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp`, drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
 | Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |
-| Tile types, level file format, level grid | `world/tile_defs.*`, `world/level.*` |
+| Tile types, level file format, level grid, wall layer (fixtures) | `world/tile_defs.*`, `world/level.*` (`Fixture`, `isWallType`); drawn by `Dungeon::drawFixture` (`world/dungeon_render.cpp`) |
 | Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |
 | Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
 | Models, textures, sounds loaded once | `state/assets.cpp` |

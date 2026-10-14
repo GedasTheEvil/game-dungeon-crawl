@@ -109,6 +109,8 @@ const StructureDef& structureDef(Structure s) { return STRUCTURES[static_cast<si
 char tileGlyph(const Tile& t) {
 	switch (t.type) {
 	case NoObject:
+		if (hasFixture(t))
+			return tileGlyph(fixtureAsTile(t.fixture));
 		return isSolidStructure(t.structure) ? '#' : '.';
 	case Door:
 		return doorGlyph(t);

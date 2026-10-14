@@ -9,29 +9,30 @@
 #include <string>
 #include <vector>
 
-void Dungeon::PickUp() {
-	if (Map(mapX, mapY).type == Treasure) {
-		sim.player->stats.run.treasures++;
-		std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
-		clearObject(map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))]);
-		if (!placed) // an empty chest (type 0), or an item the game does not know
-			return;
+bool Dungeon::PickUp() {
+	if (Map(mapX, mapY).type != Treasure)
+		return false;
+	sim.player->stats.run.treasures++;
+	std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
+	clearObject(map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))]);
+	if (!placed) // an empty chest (type 0), or an item the game does not know
+		return true;
 
-		// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
-		std::string found;
-		std::vector<ItemKind> loot = RollChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay);
-		for (size_t i = 0; i < loot.size(); i++) {
-			sim.items->Find(loot[i], *sim.journal);
-			found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;
-		}
-		sim.events->Status("%s", found.c_str());
+	// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
+	std::string found;
+	std::vector<ItemKind> loot = RollChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay);
+	for (size_t i = 0; i < loot.size(); i++) {
+		sim.items->Find(loot[i], *sim.journal);
+		found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;
 	}
+	sim.events->Status("%s", found.c_str());
+	return true;
 }
 //======================================================================================
-// Keys, treasure and levers are picked up or pulled elsewhere (PickUp, the mechanisms).
+// One thing a press (plan wall-layer): the chest in the cell first, then the fixture on its back wall (a lever,
+// an inscription), the brazier, and the gate last, as it may take the player away. Keys are picked up on touch.
 void Dungeon::Interact() {
-	PickUp();
-	if (PullLever() || readInscription() || lightArrows())
+	if (PickUp() || PullLever() || readInscription() || lightArrows())
 		return;
 	useGate();
 }
@@ -51,7 +52,7 @@ bool Dungeon::lightArrows() {
 // The status line only says what happened; the title and the comment go into the journal (plans
 // hieroglyph-cartouches, inscription-messages, skill-hieroglyphs).
 bool Dungeon::readInscription() {
-	const Tile here = Map(mapX, mapY);
+	const Fixture here = Map(mapX, mapY).fixture;
 	if (here.type != Inscription)
 		return false;
 	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(here.attr) : nullptr;

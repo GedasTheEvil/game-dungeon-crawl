@@ -188,7 +188,8 @@ int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, boo
 			const Tile tile = at(cells, i, j);
 			const int8_t prop = decor[cellIndex(i, j)].type;
 			if (isWall(tile) || tile.structure == Structure::DeepWater || !tileDef(tile.type).torch ||
-				prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop) || i - lastTorch <= TORCH_MIN_GAP)
+				!tileDef(tile.fixture.type).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop) ||
+				i - lastTorch <= TORCH_MIN_GAP)
 				continue;
 
 			const uint32_t h = cellHash(seed, cellIndex(i, j));
@@ -212,7 +213,7 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 			cell = DecalCell{};
 
 			const Tile tile = at(cells, i, j);
-			if (isWall(tile) || !tileDef(tile.type).decals)
+			if (isWall(tile) || !tileDef(tile.type).decals || !tileDef(tile.fixture.type).decals)
 				continue;
 
 			uint32_t h = cellHash(seed, cellIndex(i, j));

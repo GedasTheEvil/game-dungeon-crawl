@@ -92,13 +92,12 @@ class Walker {
 			return COST_DEATH;
 		if (t.type == RockFall && rockState(t) == RockState::Armed)
 			return COST_ROCK_FALL;
+		const int spikes = t.fixture.type == WallSpikes ? COST_WALL_SPIKES : 0; // on the back wall, over the object's
 		if (t.type == DartPlate)
-			return COST_DART_PLATE;
-		if (t.type == WallSpikes)
-			return COST_WALL_SPIKES;
+			return COST_DART_PLATE + spikes;
 		if (t.type == MonsterSpawn)
-			return COST_MONSTER;
-		return 0;
+			return COST_MONSTER + spikes;
+		return spikes;
 	}
 
 	void successors(int state, std::vector<Edge>& out) const {
@@ -114,8 +113,9 @@ class Walker {
 				out.push_back({to, base + hazardCost(cellOf(to)), move});
 		};
 
-		if (here.type == Lever && isLockColour(here.attr) && !leverPulled(here)) // a pulled lever opens nothing
-			add(stateOf(col, row, mask | bitOf(here.attr)), COST_MOVE, Move::Pull);
+		const Fixture& lever = here.fixture;
+		if (lever.type == Lever && isLockColour(lever.attr) && !leverPulled(lever)) // a pulled lever opens nothing
+			add(stateOf(col, row, mask | bitOf(lever.attr)), COST_MOVE, Move::Pull);
 
 		if (teleports && isTeleporter(here)) {
 			int to = pairs.Partner(cell);
@@ -232,9 +232,6 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case DartPlate:
 				r.dartPlates++;
 				break;
-			case WallSpikes:
-				r.wallSpikes++;
-				break;
 			case Treasure:
 				r.treasures++;
 				break;
@@ -244,17 +241,17 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Gate:
 				r.gates++;
 				break;
-			case Lever:
-				r.levers++;
-				break;
-			case Inscription:
-				r.inscriptions++;
-				if (!isInscriptionId(t.attr))
-					r.warnings.push_back("inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) +
-										 ") at " + at(row * LEVEL_WIDTH + col));
-				break;
 			default:
 				break;
+			}
+			const Fixture& f = t.fixture;
+			r.wallSpikes += f.type == WallSpikes ? 1 : 0;
+			r.levers += f.type == Lever ? 1 : 0;
+			if (f.type == Inscription) {
+				r.inscriptions++;
+				if (!isInscriptionId(f.attr))
+					r.warnings.push_back("inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) +
+										 ") at " + at(row * LEVEL_WIDTH + col));
 			}
 		}
 	if (maxCol >= 0) {
@@ -266,16 +263,18 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	int keyMask = 0, leverMask = 0, gateMask = 0;
 	for (int cell = 0; cell < CELLS; cell++) {
-		Tile t = grid.cells[cell];
-		if (((t.type == Key || t.type == Lever) && !isLockColour(t.attr)) ||
-			(t.type == Gate && !isGateColour(t.attr))) {
+		const Tile t = grid.cells[cell];
+		const Fixture& f = t.fixture;
+		if (f.type == Lever && !isLockColour(f.attr))
+			r.errors.push_back("bad lock colour " + std::to_string(f.attr) + " at " + at(cell));
+		else if (f.type == Lever)
+			leverMask |= bitOf(f.attr);
+		if ((t.type == Key && !isLockColour(t.attr)) || (t.type == Gate && !isGateColour(t.attr))) {
 			r.errors.push_back("bad lock colour " + std::to_string(t.attr) + " at " + at(cell));
 			continue;
 		}
 		if (t.type == Key)
 			keyMask |= bitOf(t.attr);
-		if (t.type == Lever)
-			leverMask |= bitOf(t.attr);
 		if (t.type == Gate && gateState(t) == GateState::Closed)
 			gateMask |= bitOf(t.attr);
 	}
@@ -312,6 +311,9 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 		if (isSolidStructure(t.structure) && hasObject(t))
 			r.warnings.push_back(std::string(tileDef(t.type).name) + " in " + structureDef(t.structure).name + " at " +
 								 at(cell));
+		if (isSolidStructure(t.structure) && hasFixture(t))
+			r.warnings.push_back(std::string(tileDef(t.fixture.type).name) + " in " + structureDef(t.structure).name +
+								 " at " + at(cell));
 	}
 }
 
@@ -360,22 +362,29 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 								 ", e.g. at " + at(cells[0]) + ": a pair needs exactly two");
 }
 
+bool wallSpikesAt(const LevelGrid& grid, int col, int row) { return grid.at(col, row).fixture.type == WallSpikes; }
+
 // Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them), and
-// each run of them in a row can be walked through both ways.
+// each run of them in a row can be walked through both ways. In front of them (plan wall-layer) only what the spikes
+// do not trap: a key or a floor trap, no monster spawn (it would spawn inside them), ladder, gate or chest (the player
+// could never stand at it safely).
 void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			if (grid.at(col, row).type != WallSpikes)
+			if (!wallSpikesAt(grid, col, row))
 				continue;
 			const int cell = row * LEVEL_WIDTH + col;
+			const int object = grid.at(col, row).type;
+			if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door || object == Treasure)
+				r.warnings.push_back(std::string(tileDef(object).name) + " in front of wall spikes at " + at(cell));
 			if (!isWall(grid.at(col, row - 1)))
 				r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
 			if (!isWall(grid.at(col, row + 1)))
 				r.warnings.push_back("wall spikes without a wall above them at " + at(cell));
-			if (grid.at(col - 1, row).type == WallSpikes)
+			if (wallSpikesAt(grid, col - 1, row))
 				continue; // not the first of its run
 			int count = 1;
-			while (grid.at(col + count, row).type == WallSpikes)
+			while (wallSpikesAt(grid, col + count, row))
 				count++;
 			if (!wallSpikesCrossable(grid, col, row, count, 1) || !wallSpikesCrossable(grid, col, row, count, -1))
 				r.warnings.push_back("the " + std::to_string(count) + " wall spikes from " + at(cell) +
@@ -429,7 +438,7 @@ float monsterThreat(int type) {
 bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {
 	int cycle = 1; // the run's pattern repeats after this long
 	for (int k = 0; k < count; k++)
-		cycle = std::lcm(cycle, spikePeriodMs(grid.at(col + k, row)));
+		cycle = std::lcm(cycle, spikePeriodMs(grid.at(col + k, row).fixture));
 	// The player walks at WALK_SPEED; a cell must stay in from the moment the body could enter it (stopped by it, at
 	// PLAYER_BODY_HALF_WIDTH) until it is out of it.
 	const auto cellMs = static_cast<int>(1000.f / WALK_SPEED);
@@ -438,7 +447,7 @@ bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int
 	for (int start = 0; start < cycle; start += START_STEP_MS) {
 		bool through = true;
 		for (int k = 0; k < count && through; k++) {
-			const Tile t = grid.at(dir > 0 ? col + k : col + count - 1 - k, row);
+			const Fixture t = grid.at(dir > 0 ? col + k : col + count - 1 - k, row).fixture;
 			through = spikesInBetween(t, start + k * cellMs, start + k * cellMs + crossMs);
 		}
 		if (through)
@@ -535,11 +544,14 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	if (poisoners && !antidote)
 		r.warnings.emplace_back("poisoners but no antidote in reach");
 	for (int cell = 0; cell < CELLS; cell++) {
-		Tile t = grid.cells[cell];
-		if (cellReached[cell] == 0 && (t.type == Key || t.type == Lever || t.type == Inscription)) {
-			const char* what = t.type == Key ? "key" : t.type == Lever ? "lever" : "inscription";
-			r.warnings.push_back(std::string(what) + " out of reach at " + at(cell));
-		}
+		if (cellReached[cell] != 0)
+			continue;
+		const Tile t = grid.cells[cell];
+		if (t.type == Key)
+			r.warnings.push_back("key out of reach at " + at(cell));
+		if (t.fixture.type == Lever || t.fixture.type == Inscription)
+			r.warnings.push_back(std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " +
+								 at(cell));
 	}
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
@@ -604,7 +616,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
 		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
 		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
-		r.pathWallSpikes += t.type == WallSpikes ? 1 : 0;
+		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);
@@ -637,27 +649,30 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 		for (const CellPos& p : report->path)
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
-	std::string objects, structure;
-	bool water = false;
+	std::string objects, structure, wall;
+	bool water = false, fixtures = false;
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
-		std::string line, structureLine;
+		std::string line, structureLine, wallLine;
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
 			char c = tileGlyph(t);
-			any = any || !isWall(t) || hasObject(t);
+			any = any || !isWall(t) || hasObject(t) || hasFixture(t);
 			water = water || t.structure == Structure::HalfWater || t.structure == Structure::DeepWater;
+			fixtures = fixtures || hasFixture(t);
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
 			line += c;
 			structureLine += structureGlyph(t.structure);
+			wallLine += hasFixture(t) ? tileGlyph(fixtureAsTile(t.fixture)) : isSolidStructure(t.structure) ? '#' : '.';
 		}
 		if (any) {
 			char head[8];
 			snprintf(head, sizeof(head), "%2d ", row);
 			objects += head + line + '\n';
 			structure += head + structureLine + '\n';
+			wall += head + wallLine + '\n';
 		}
 	}
-	return water ? objects + "structure\n" + structure : objects;
+	return objects + (water ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "");
 }

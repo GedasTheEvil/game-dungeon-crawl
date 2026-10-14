@@ -1,9 +1,9 @@
 #ifndef TILE_DEFS_H
 #define TILE_DEFS_H
 
-// One row per tile type (the object layer) and per structure: what the game, the editor, the checker and the ASCII
-// level sources know about it. A new tile type gets its row here; the compiler then points at the switches that must
-// handle it.
+// One row per tile type (the object and wall layers, isWallType) and per structure: what the game, the editor, the
+// checker and the ASCII level sources know about it. A new tile type gets its row here; the compiler then points at the
+// switches that must handle it.
 
 #include "level.h"
 #include <vector>
@@ -31,9 +31,9 @@ struct StructureDef {
 };
 [[nodiscard]] const StructureDef& structureDef(Structure s);
 
-// The level as text (levelcheck --map, the ASCII campaign sources): one character per cell, its object; a cell
-// without one is '#' in a wall or deep water, '.' anywhere else. The structure has its own drawing (structureGlyph,
-// level.h).
+// The level as text (levelcheck --map, the ASCII campaign sources): one character per cell, its object, else its
+// fixture; a cell without either is '#' in a wall or deep water, '.' anywhere else. The structure has its own drawing
+// (structureGlyph, level.h).
 [[nodiscard]] char tileGlyph(const Tile& t);
 
 // The characters an ASCII level source may use, each with the tile it stands for. Details the character does not say

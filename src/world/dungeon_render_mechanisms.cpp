@@ -30,7 +30,7 @@ constexpr int SPIKES_RETRACT_MS = 250;
 constexpr float SPIKES_TWITCH = 0.09f;
 
 // How far out the spikes are drawn, 0 (in the wall) to 1, at that point of their cycle.
-float spikesOut(const Tile& t, int nowMs) {
+float spikesOut(const Fixture& t, int nowMs) {
 	const int at = spikeCycleMs(t, nowMs);
 	const int out = spikeOutMs(t);
 	if (at < SPIKES_THRUST_MS)
@@ -100,12 +100,12 @@ void Dungeon::drawGateTile(int i, int j) {
 }
 //======================================================================================
 void Dungeon::drawLeverTile(int i, int j) {
-	Tile tile = MapAt(i, j);
+	const Fixture lever = MapAt(i, j).fixture;
 	glPushMatrix();
 	enterPropSpace();
-	showColour(sim.assets->mechanisms.leverBase, sim.assets->mechanisms.leverBaseTex, tile.attr);
+	showColour(sim.assets->mechanisms.leverBase, sim.assets->mechanisms.leverBaseTex, lever.attr);
 	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
-	glRotatef(leverPulled(tile) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
+	glRotatef(leverPulled(lever) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
 	showModel(sim.assets->mechanisms.leverHandle.get());
 	glPopMatrix();
 }
@@ -158,7 +158,7 @@ void Dungeon::drawWallSpikesTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
 	showModel(sim.assets->mechanisms.spikeSlots.get());
-	const float out = spikesOut(MapAt(i, j), GameClock::now());
+	const float out = spikesOut(MapAt(i, j).fixture, GameClock::now());
 	if (out > 0.f) {
 		glTranslatef(0, 0, -SPIKES_HIDE_DEPTH * (1.f - out));
 		showModel(sim.assets->mechanisms.wallSpikes.get());

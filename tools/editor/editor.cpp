@@ -34,10 +34,11 @@ constexpr Rect MAP_PANEL = {4.f, 6.5f, 76.f, 88.8f};
 constexpr float RIGHT_X = 84.f;
 constexpr float RIGHT_W = 72.f;
 constexpr float RIGHT_CX = RIGHT_X + RIGHT_W / 2;
-constexpr Rect PAINT_BUTTON = {86.f, 82.f, 16.f, 5.5f};
-constexpr Rect CHECK_BUTTON = {103.5f, 82.f, 16.f, 5.5f};
-constexpr Rect STRUCTURE_BUTTON = {121.5f, 82.f, 16.f, 5.5f};
-constexpr Rect OBJECTS_BUTTON = {139.f, 82.f, 16.f, 5.5f};
+constexpr Rect PAINT_BUTTON = {86.f, 82.f, 12.f, 5.5f};
+constexpr Rect CHECK_BUTTON = {98.8f, 82.f, 12.f, 5.5f};
+constexpr Rect STRUCTURE_BUTTON = {112.4f, 82.f, 16.f, 5.5f};
+constexpr Rect WALL_BUTTON = {129.2f, 82.f, 11.f, 5.5f};
+constexpr Rect OBJECTS_BUTTON = {141.f, 82.f, 14.f, 5.5f};
 constexpr Rect TILES_PANEL = {RIGHT_X, 57.5f, RIGHT_W, 22.f};
 constexpr Rect BRUSH_PANEL = {RIGHT_X, 47.f, RIGHT_W, 8.5f};
 constexpr Rect ATTRIBUTE_BOX = {102.f, 49.f, 14.f, 4.5f};
@@ -75,11 +76,13 @@ constexpr Color WATER_TOP = {0.12f, 0.30f, 0.42f};
 constexpr Color WATER_BOTTOM = {0.07f, 0.18f, 0.28f};
 constexpr Color DEEP_TOP = {0.05f, 0.12f, 0.24f};
 constexpr Color DEEP_BOTTOM = {0.03f, 0.07f, 0.15f};
-constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layer not being painted, dimmed
+constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layers not being painted, dimmed
 constexpr float HALF_WATER_OVER_OBJECT = 0.5f; // the water over the lower half of an object in it
 
 enum class Mode : unsigned char { Paint, Check };
-enum class Layer : unsigned char { Structure, Objects }; // which one the brush paints and the palette shows
+// Which one the brush paints and the palette shows: the structure, the fixtures on the back wall (plan wall-layer) or
+// the objects.
+enum class Layer : unsigned char { Structure, Wall, Objects };
 enum class Field : unsigned char { None, Attribute, Value, Name };
 // Clickable things besides the map.
 enum class Target : unsigned char {
@@ -88,6 +91,7 @@ enum class Target : unsigned char {
 	PaintMode,
 	CheckMode,
 	StructureLayer,
+	WallLayer,
 	ObjectsLayer,
 	Attribute,
 	Value,
@@ -96,7 +100,8 @@ enum class Target : unsigned char {
 	Load
 };
 
-// The palette of a layer: structure numbers or tile types, in slot order.
+// The palette of a layer: structure numbers or tile types (the wall types in the wall layer, the others in the object
+// layer, None in both), in slot order.
 std::vector<int> paletteOf(Layer layer) {
 	std::vector<int> ids;
 	if (layer == Layer::Structure) {
@@ -105,7 +110,7 @@ std::vector<int> paletteOf(Layer layer) {
 		return ids;
 	}
 	for (int type = 0; type < TILE_TYPE_COUNT; type++)
-		if (isTileType(type))
+		if (isTileType(type) && (type == NoObject || isWallType(type) == (layer == Layer::Wall)))
 			ids.push_back(type);
 	return ids;
 }
@@ -227,7 +232,7 @@ class Editor {
 	void drawTextBox(const Rect& r, const std::string& value, Field which, Target target);
 	void drawStructureSwatch(Structure s, const Rect& r, float alpha);
 	void drawObjectIcon(int type, const Rect& r, float alpha);
-	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float objectAlpha);
+	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha);
 };
 
 Editor::Editor() {
@@ -287,6 +292,7 @@ void Editor::updateHover(float x, float y) {
 		{PAINT_BUTTON, Target::PaintMode},
 		{CHECK_BUTTON, Target::CheckMode},
 		{STRUCTURE_BUTTON, Target::StructureLayer},
+		{WALL_BUTTON, Target::WallLayer},
 		{OBJECTS_BUTTON, Target::ObjectsLayer},
 		{ATTRIBUTE_BOX, Target::Attribute},
 		{VALUE_BOX, Target::Value},
@@ -343,6 +349,9 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 		break;
 	case Target::StructureLayer:
 		setLayer(Layer::Structure);
+		break;
+	case Target::WallLayer:
+		setLayer(Layer::Wall);
 		break;
 	case Target::ObjectsLayer:
 		setLayer(Layer::Objects);
@@ -410,7 +419,9 @@ void Editor::keyPressed(unsigned char key) {
 		else if (key == 'c' || key == 'C')
 			setMode(Mode::Check);
 		else if (key == 'l' || key == 'L')
-			setLayer(layer == Layer::Structure ? Layer::Objects : Layer::Structure);
+			setLayer(layer == Layer::Structure ? Layer::Wall
+					 : layer == Layer::Wall	   ? Layer::Objects
+											   : Layer::Structure);
 		else if (key == KEY_TAB)
 			field = Field::Attribute;
 		return;
@@ -443,27 +454,38 @@ void Editor::setLayer(Layer l) {
 	layer = l;
 	painting = false;
 	hoveredSlot = -1;
+	if (l != Layer::Structure && isWallType(tile) != (l == Layer::Wall))
+		tile = NoObject; // the brush's type is not in this layer's palette
 }
 
-// Keeps the level valid: an object painted into rock carves the cell open, rock painted over an object removes it.
+// Keeps the level valid: an object or fixture painted into rock carves the cell open, rock painted over them removes
+// them.
 void Editor::paint(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
 	if (layer == Layer::Structure) {
 		t.structure = structure;
-		if (isSolidStructure(structure))
+		if (isSolidStructure(structure)) {
 			clearObject(t);
+			clearFixture(t);
+		}
 	} else {
-		setObject(t, brush());
-		if (hasObject(t) && isSolidStructure(t.structure))
+		if (layer == Layer::Wall)
+			setFixture(t, Fixture{tile, parseNumber(attributeText), parseNumber(valueText)});
+		else
+			setObject(t, brush());
+		if ((hasObject(t) || hasFixture(t)) && isSolidStructure(t.structure))
 			t.structure = Structure::Empty;
 	}
 	grid.set(cell.col, cell.row, t);
 	reportStale = true;
 }
 
-// Takes the cell's structure, or its tile, attribute and value, into the brush: the layer being painted.
+// Takes the cell's structure, or its fixture's or object's type, attribute and value, into the brush: the layer being
+// painted.
 void Editor::pick(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
+	if (layer == Layer::Wall)
+		t = fixtureAsTile(t.fixture);
 	if (layer == Layer::Structure) {
 		structure = t.structure;
 		showStatus("Picked " + std::string(structureDef(t.structure).name), false);
@@ -601,12 +623,19 @@ void Editor::drawObjectIcon(int type, const Rect& r, float alpha) {
 	}
 }
 
-void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float objectAlpha) {
+// The fixture and the object share the cell: the brighter one (the layer being painted) is drawn on top.
+void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha) {
 	drawStructureSwatch(t.structure, r, structureAlpha);
-	if (!hasObject(t))
+	if (!hasObject(t) && !hasFixture(t))
 		return;
-	drawObjectIcon(t.type, r, objectAlpha);
-	if (t.structure == Structure::HalfWater) // the object stands in the water: its lower half shows through it
+	const bool wallOnTop = wallAlpha > objectAlpha;
+	if (!wallOnTop && hasFixture(t))
+		drawObjectIcon(t.fixture.type, r, wallAlpha);
+	if (hasObject(t))
+		drawObjectIcon(t.type, r, objectAlpha);
+	if (wallOnTop && hasFixture(t))
+		drawObjectIcon(t.fixture.type, r, wallAlpha);
+	if (t.structure == Structure::HalfWater) // the thing stands in the water: its lower half shows through it
 		fillRect({r.x, r.y, r.w, r.h / 2}, WATER_TOP, WATER_BOTTOM, HALF_WATER_OVER_OBJECT * structureAlpha);
 }
 
@@ -617,7 +646,7 @@ void Editor::drawMap() {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++)
 			drawCell(grid.at(col, row), cellRect(col, row), structures ? 1.f : 0.7f,
-					 structures ? OTHER_LAYER_ALPHA : 1.f);
+					 layer == Layer::Wall ? 1.f : OTHER_LAYER_ALPHA, layer == Layer::Objects ? 1.f : OTHER_LAYER_ALPHA);
 
 	// Grid lines, every 5th a little stronger to help counting.
 	for (int col = 0; col <= LEVEL_WIDTH; col++) {
@@ -656,18 +685,24 @@ void Editor::drawMapOverlay() {
 			if (layer == Layer::Structure)
 				drawStructureSwatch(structure, r, alpha);
 			else
-				drawCell(brush(), r, alpha, alpha);
+				drawCell(brush(), r, alpha, alpha, alpha); // the brush as an object: it has no fixture
 		}
 		strokeRect(r.inset(-0.15f), GOLD_BRIGHT, 1.f, 1.5f);
 	}
 
 	// Cursor readout above the map.
 	beginText();
-	char buf[96];
+	char buf[128];
 	if (hovered.col >= 0) {
 		Tile t = grid.at(hovered.col, hovered.row);
-		snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d", hovered.col, hovered.row,
-				 structureDef(t.structure).name, tileInfo(t.type).name, t.attr, t.value);
+		const Fixture& f = t.fixture;
+		if (hasFixture(t))
+			snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d,  %s  %d  %d", hovered.col, hovered.row,
+					 structureDef(t.structure).name, tileInfo(f.type).name, f.attr, f.value, tileInfo(t.type).name,
+					 t.attr, t.value);
+		else
+			snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d", hovered.col, hovered.row,
+					 structureDef(t.structure).name, tileInfo(t.type).name, t.attr, t.value);
 		text(small, MAP_PANEL.x + 1.f, 96.6f, buf, GOLD);
 	}
 	const char* modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
@@ -775,6 +810,7 @@ void Editor::drawPalette() {
 	drawButton(PAINT_BUTTON, "Paint", mode == Mode::Paint, Target::PaintMode);
 	drawButton(CHECK_BUTTON, "Check", mode == Mode::Check, Target::CheckMode);
 	drawButton(STRUCTURE_BUTTON, "Structure", layer == Layer::Structure, Target::StructureLayer);
+	drawButton(WALL_BUTTON, "Wall", layer == Layer::Wall, Target::WallLayer);
 	drawButton(OBJECTS_BUTTON, "Objects", layer == Layer::Objects, Target::ObjectsLayer);
 }
 
@@ -816,6 +852,8 @@ void Editor::drawFieldHint(float& y, const char* name, const FieldHint& hint) {
 void Editor::drawHint() {
 	bool checking = mode == Mode::Check && checked.col >= 0;
 	Tile cell = checking ? grid.at(checked.col, checked.row) : brush();
+	if (checking && layer == Layer::Wall) // the fixture, in the cell's structure
+		cell = Tile{cell.fixture.type, cell.fixture.attr, cell.fixture.value, cell.structure};
 	CellHint hint = !checking && layer == Layer::Structure ? describeStructure(structure) : describeCell(cell);
 	float cx = HINT_PANEL.cx();
 	float x = HINT_PANEL.x + 4.f;

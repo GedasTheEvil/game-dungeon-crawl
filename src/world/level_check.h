@@ -81,8 +81,9 @@ struct LevelReport {
 
 // The level as text, top row first (wall rows above and below the level are skipped), one tileGlyph per cell
 // (legend: glyphLegend in tile_defs.h, `levelcheck --legend`; m, q, Q: a monster type, key or gate colour the game
-// does not know). With a report, the path is drawn as '*' over open cells. A level with water gets a second drawing
-// after a "structure" line, the same rows in structureGlyph (level.h).
+// does not know); a cell without an object shows its fixture. With a report, the path is drawn as '*' over open
+// cells. A level with water gets a second drawing after a "structure" line, the same rows in structureGlyph (level.h);
+// a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.': none).
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

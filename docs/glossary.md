@@ -19,9 +19,10 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
 | campaign | | the 30 map levels in order, `content/levels/lvl1` .. `lvl30`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
-| cell | | one square of the level grid: a structure (wall, empty, water) and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
+| cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | column | | a vertical line of cells, counted from the left | `LevelGrid` |
 | deep water | | a cell full of water: solid, nobody walks or swims into it. "Full water" in some drafts | `Structure::DeepWater`, `isSolidStructure` |
+| fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
 | flooded cell | | a cell with water in it: half water or deep water | `Structure` |
 | floor | | a solid cell under an open one, what the player stands on. Also a storey of the map ("the upper floor") | `isSolidStructure` |
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
@@ -39,6 +40,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | softlock | | a reachable cell from which the exit can no longer be reached; the checker warns | `LevelReport` |
 | tile | | (render) a cell's size in the 3D world, 40 GL units; distances in docs are in tiles ("1.4 tiles"). Often used for "cell" | `TILE_SIZE` |
 | wade | | walk through half water: half speed, no sprint, no jump ("too deep to jump") | `Dungeon::PlayerWading`, `Dungeon::JumpAllowed` |
+| wall layer | | the cell's layer between the structure and the object: its fixture ([wall-layer](plan/wall-layer.md)). Not the structure `Wall` | `Tile::fixture`, `setFixture`, `setThing` |
 | wall spikes | | a rhythm trap ([rhythm-traps](plan/solved/rhythm-traps.md)): poison spikes out of a cell's back wall on a fixed cycle; out, they block like a gate and stab whoever stands in the cell. Drafts also say "rhythm trap" | `WallSpikes`, `spikeStateAt`, `Dungeon::updateWallSpikes` |
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 | water prop | | (planned, [water-decorations](plan/water-decorations.draft.opus.md)) a prop scattered in half water: reeds, lotus pads, weed. No function | |

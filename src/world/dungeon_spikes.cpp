@@ -14,7 +14,7 @@ void Dungeon::updateWallSpikes() {
 	const ViewWindow v = view();
 	bool scrape = false, thunk = false;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++) {
-		Tile& t = map[cell];
+		Fixture& t = map[cell].fixture;
 		if (t.type != WallSpikes)
 			continue;
 		const SpikeState was = spikeState(t), is = spikeStateAt(t, now);

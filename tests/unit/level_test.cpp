@@ -11,6 +11,9 @@ void checkSameCells(const LevelGrid& a, const LevelGrid& b) {
 		CHECK(a.cells[i].attr == b.cells[i].attr);
 		CHECK(a.cells[i].value == b.cells[i].value);
 		CHECK(a.cells[i].structure == b.cells[i].structure);
+		CHECK(a.cells[i].fixture.type == b.cells[i].fixture.type);
+		CHECK(a.cells[i].fixture.attr == b.cells[i].fixture.attr);
+		CHECK(a.cells[i].fixture.value == b.cells[i].fixture.value);
 	}
 }
 
@@ -78,18 +81,18 @@ TEST_CASE("a v1 level converts: wall, open, objects in open cells, Area3D droppe
 	CHECK(isEmptyCell(grid.at(3, 1)));
 	CHECK(slainMonster(grid.at(4, 1)) == MonsterAnubisBoss);
 
-	// Written as v2 and read back: the same cells.
-	std::stringstream v2;
-	writeLevel(v2, grid.cells);
+	// Written in the current format and read back: the same cells.
+	std::stringstream current;
+	writeLevel(current, grid.cells);
 	LevelGrid again;
-	REQUIRE(readLevel(v2, again.cells, &version).empty());
+	REQUIRE(readLevel(current, again.cells, &version).empty());
 	CHECK(version == LEVEL_VERSION);
 	checkSameCells(again, grid);
 }
 
-TEST_CASE("a broken v2 level is an error") {
+TEST_CASE("a broken level is an error") {
 	LevelGrid grid;
-	std::istringstream badVersion("DCLEVEL 3 40 47");
+	std::istringstream badVersion("DCLEVEL 4 40 47");
 	CHECK_FALSE(readLevel(badVersion, grid.cells).empty());
 	std::istringstream badSize("DCLEVEL 2 30 47");
 	CHECK_FALSE(readLevel(badSize, grid.cells).empty());
@@ -152,7 +155,7 @@ TEST_CASE("tile states keep their numbers on disk") {
 	Tile gate{Gate, 1, 0};
 	setGateState(gate, GateState::Opening);
 	CHECK(gate.value == 2);
-	Tile lever{Lever, 1, 0};
+	Fixture lever{Lever, 1, 0};
 	CHECK_FALSE(leverPulled(lever));
 	pullLever(lever);
 	CHECK(lever.value == 1);

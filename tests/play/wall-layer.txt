@@ -1,0 +1,7 @@
+# Plan wall-layer, for `bin/game --play tests/play/wall-layer.txt`: tests/levels/wall_layer. Col 3: a chest under an
+# inscription; press interact (E) twice there: the chest first, then the inscription. Col 6: an egg cluster in front
+# of the red lever; pull it (E) and walk on through the red gate to the exit. The map (M) shows the chest's X over the
+# inscription cell.
+seed 1
+god
+level tests/levels/wall_layer

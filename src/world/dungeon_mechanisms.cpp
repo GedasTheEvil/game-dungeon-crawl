@@ -169,13 +169,13 @@ void Dungeon::bumpGate(int col, int row) {
 bool Dungeon::PullLever() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);
-	Tile lever = MapAt(col, row);
+	const Fixture lever = MapAt(col, row).fixture;
 	if (lever.type != Lever || !isLockColour(lever.attr))
 		return false;
 	if (leverPulled(lever))
 		return true; // pulled already: the gates stay open
 
-	pullLever(map[MapIndex(col, row)]);
+	pullLever(map[MapIndex(col, row)].fixture);
 	sim.events->Play(WorldSound::Lever);
 	openGates(lever.attr);
 	char text[64];

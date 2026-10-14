@@ -24,9 +24,10 @@ Tile convertV1Tile(int type, int attr, int value) {
 	constexpr int V1_AREA3D = 7;
 	if (type == V1_WALL)
 		return wallTile();
-	if (type == V1_AREA3D)
-		return Tile{};
-	return Tile{type, attr, value};
+	Tile cell;
+	if (type != V1_AREA3D)
+		setThing(cell, Tile{type, attr, value});
+	return cell;
 }
 
 namespace {
@@ -42,11 +43,34 @@ std::string readV1(std::istream& in, Tile* cells) {
 	return "";
 }
 
-std::string readV2(std::istream& in, Tile* cells) {
-	int version = 0, width = 0, height = 0;
+// A layer's list: "NAME COUNT", then COUNT lines "COL ROW TYPE ATTR VALUE". Each thing goes in its own layer (a v2
+// file's wall types are in its object list); the wall list holds only wall types.
+std::string readThings(std::istream& in, Tile* cells, const char* name, bool wall) {
+	std::string word;
+	int count = 0;
+	if (!(in >> word >> count) || word != name || count < 0)
+		return std::string("no ") + (wall ? "wall" : "object") + " layer";
+	for (int k = 0; k < count; k++) {
+		int col = 0, row = 0;
+		Tile thing;
+		if (!(in >> col >> row >> thing.type >> thing.attr >> thing.value))
+			return "file ends early";
+		if (!LevelGrid::inBounds(col, row))
+			return std::string(wall ? "fixture" : "object") + " outside the level at " + std::to_string(col) + " " +
+				   std::to_string(row);
+		if (wall && !isWallType(thing.type))
+			return "type " + std::to_string(thing.type) + " in the wall layer at " + std::to_string(col) + " " +
+				   std::to_string(row);
+		setThing(cells[row * LEVEL_WIDTH + col], thing);
+	}
+	return "";
+}
+
+std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
+	int width = 0, height = 0;
 	if (!(in >> version >> width >> height))
 		return "file ends early";
-	if (version != LEVEL_VERSION)
+	if (version != 2 && version != LEVEL_VERSION)
 		return "unknown version " + std::to_string(version);
 	if (width != LEVEL_WIDTH || height != LEVEL_HEIGHT)
 		return "wrong size " + std::to_string(width) + " x " + std::to_string(height);
@@ -70,19 +94,12 @@ std::string readV2(std::istream& in, Tile* cells) {
 		}
 	}
 
-	int count = 0;
-	if (!(in >> word >> count) || word != "objects" || count < 0)
-		return "no object layer";
-	for (int k = 0; k < count; k++) {
-		int col = 0, row = 0;
-		Tile object;
-		if (!(in >> col >> row >> object.type >> object.attr >> object.value))
-			return "file ends early";
-		if (!LevelGrid::inBounds(col, row))
-			return "object outside the level at " + std::to_string(col) + " " + std::to_string(row);
-		setObject(cells[row * LEVEL_WIDTH + col], object);
+	if (version >= 3) {
+		std::string error = readThings(in, cells, "wall", true);
+		if (!error.empty())
+			return error;
 	}
-	return "";
+	return readThings(in, cells, "objects", false);
 }
 } // namespace
 
@@ -90,15 +107,14 @@ std::string readLevel(std::istream& in, Tile* cells, int* version) {
 	std::string head;
 	if (!(in >> head))
 		return "empty file";
-	if (head == LEVEL_MAGIC) {
-		if (version != nullptr)
-			*version = LEVEL_VERSION;
-		return readV2(in, cells);
-	}
+	int read = 0;
+	if (version == nullptr)
+		version = &read;
+	if (head == LEVEL_MAGIC)
+		return readDcLevel(in, cells, *version);
 	if (head != std::to_string(LEVEL_CELL_COUNT))
 		return "wrong header " + head + ", expected " + LEVEL_MAGIC + " or " + std::to_string(LEVEL_CELL_COUNT);
-	if (version != nullptr)
-		*version = 1;
+	*version = 1;
 	return readV1(in, cells);
 }
 
@@ -110,6 +126,16 @@ void writeLevel(std::ostream& out, const Tile* cells) {
 		out << '\n';
 	}
 	int count = 0;
+	for (int i = 0; i < CELLS; i++)
+		count += hasFixture(cells[i]) ? 1 : 0;
+	out << "wall " << count << '\n';
+	for (int i = 0; i < CELLS; i++) {
+		const Fixture& f = cells[i].fixture;
+		if (hasFixture(cells[i]))
+			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << f.type << ' ' << f.attr << ' ' << f.value
+				<< '\n';
+	}
+	count = 0;
 	for (int i = 0; i < CELLS; i++)
 		count += hasObject(cells[i]) ? 1 : 0;
 	out << "objects " << count << '\n';

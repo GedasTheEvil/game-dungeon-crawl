@@ -1,7 +1,32 @@
 # Wall layer: a third map layer for things on the back wall
 
-Status: draft 2026-10-14, ready (needs nothing first). From the user. Pairs with
-[denser-levels](denser-levels.draft.opus.md): a level built after this one can pack more into each cell.
+Status: implemented 2026-10-14, waits for the user's play-test: `bin/game --play tests/play/wall-layer.txt` (a chest
+under an inscription, a lever behind a monster spawn), and the editor's `Wall` layer (`make run-editor`). From the user.
+Pairs with [denser-levels](denser-levels.draft.opus.md): a level built after this one can pack more into each cell.
+
+## Done
+
+* Wall types: `Lever` (its model is a plate on the back wall), `Inscription`, `WallSpikes` (`isWallType`, `level.h`).
+  In code the wall thing is a **fixture**: `Fixture` in `Tile::fixture`, `setFixture` / `clearFixture` / `hasFixture`,
+  `setThing` (a thing into its layer by type), `cellWith`. The lever and spike helpers (`leverPulled`, `spikeState`,
+  `spike_cycle.h`) take a `Fixture`.
+* Level format v3 (`wall N` list before `objects N`), v1 and v2 read and converted. Every campaign, test and editor
+  level converted with `bin/levelconvert`; 29 of the 30 campaign ASCII sources rebuild their file byte for byte (lvl1
+  has an older hand edit, one half water cell, not from this change).
+* Interact: the chest first, then the fixture (lever, inscription), then the brazier, the gate last (it may take the
+  player away, so an inscription in a gate's cell stays readable).
+* Drawn: `Dungeon::drawFixture` before the object, on the back wall plane. A monster in front of an inscription or a
+  lever leaves it visible (`tests/scenarios/wall_layer.txt`).
+* Checker: wall spikes cost on top of the object's; the new warning "X in front of wall spikes" for a spawn, ladder,
+  gate, door or treasure; a fixture in rock warns like an object. `--map` prints a `wall` drawing, `--legend` a
+  `wall TYPE...` line and `wall:` before a wall type's meaning. Torches and decals keep off a cell whose fixture says
+  so (`TileDef::torch` / `decals`), and `isEmptyCell` means no fixture too, so the scatter and `levelgen` place as
+  before; `levelgen` puts its levers on the wall.
+* Tests: `tests/unit/wall_layer_test.cpp`, `tests/levels/wall_layer.txt`.
+* `make paths`: its scripts now wait out the gate travel fade (they waited 5 ticks since gate-travel, so every level
+  failed at the exit). 16 of 30 pass; the other 14 fail on a jump at 0 stamina, the same on master before this
+  change (lvl11 checked): a checker / stamina mismatch for a later fix, not the wall layer (none of them has wall
+  spikes).
 
 ## Today
 

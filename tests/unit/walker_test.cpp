@@ -15,7 +15,7 @@ LevelGrid drawn(const std::vector<std::string>& rows) {
 		for (size_t col = 0; col < rows[i].size(); col++)
 			for (const GlyphDef& g : glyphLegend())
 				if (g.glyph == rows[i][col])
-					grid.set(static_cast<int>(col), row, g.tile);
+					grid.set(static_cast<int>(col), row, cellWith(g.tile));
 	}
 	return grid;
 }
@@ -33,7 +33,7 @@ TEST_CASE("a lever opens the gates of its colour") {
 
 TEST_CASE("a lever pulled in the level file opens nothing") {
 	LevelGrid grid = drawn({"#########", "#S./.R.E#", "#########"});
-	pullLever(cell(grid, 3, 1));
+	pullLever(cell(grid, 3, 1).fixture);
 	CHECK_FALSE(finishable(grid));
 }
 

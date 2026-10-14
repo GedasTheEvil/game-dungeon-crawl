@@ -75,7 +75,7 @@ void Dungeon::drawDecalTile(int i, int j) {
 //======================================================================================
 // Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
 void Dungeon::drawInscriptionTile(int i, int j) {
-	const int id = MapAt(i, j).attr;
+	const int id = MapAt(i, j).fixture.attr;
 	if (isInscriptionId(id)) {
 		sim.assets->decor.inscriptionTex.Bind();
 		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(id - 1, INSCRIPTION_ATLAS_GRID), false);

@@ -186,7 +186,7 @@ TEST_CASE("every campaign inscription has a text, stands from level 6 on, and ea
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
 		int count = 0;
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
-			const Tile& t = grid.cells[cell];
+			const Fixture& t = grid.cells[cell].fixture;
 			if (t.type != Inscription)
 				continue;
 			count++;

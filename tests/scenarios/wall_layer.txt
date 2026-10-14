@@ -1,0 +1,16 @@
+# Plan wall-layer: a fixture and an object in one cell. tests/levels/wall_layer: the chest under inscription 1 (col 3),
+# the egg cluster in front of the red lever (col 6). Both stay visible: the fixture on the back wall, the object in front.
+seed 1
+god
+level tests/levels/wall_layer
+wait 30
+walk right 1.5
+wait 1s
+screenshot chest_and_inscription
+walk to 6.5
+wait 1s
+screenshot egg_and_lever
+interact
+wait 2s
+screenshot lever_pulled
+quit

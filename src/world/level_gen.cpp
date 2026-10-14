@@ -242,7 +242,7 @@ class LevelBuilder {
 			int end = farEnd(b, col);
 			if (item.type == Treasure)
 				item = randomTreasure();
-			g.set(end, b.row, item);
+			g.set(end, b.row, cellWith(item)); // a lever goes on the back wall
 			busy[index(end, b.row)] = 1;
 			if (length >= 5 && rng.chance(0.3f + 0.05f * static_cast<float>(d)))
 				placeMonster((col + end) / 2, b.row);

@@ -34,6 +34,8 @@ constexpr float GRIP = LADDER_GRIP_X;
 // script waits until it is up.
 constexpr float GATE_STOP = GATE_APPROACH - 2 * PLAYER_MOVE_STEP;
 constexpr int GATE_WAIT_MS = GATE_OPEN_MS + 200;
+// Through an exit or a teleporter: the fade out and back in (Dungeon::updateTravel), with a margin.
+const std::string TRAVEL_WAIT = "wait " + std::to_string(2 * GATE_TRAVEL_FADE_MS + 100) + "ms";
 static_assert(GATE_STOP > PLAYER_BODY_HALF_WIDTH + PLAYER_MOVE_STEP, "the walk to GATE_STOP must not bump the gate");
 constexpr float CLIMB_MARGIN = 0.03f;
 
@@ -81,7 +83,7 @@ class PathScript {
 				break;
 			case PathMove::Teleport:
 				line("interact");
-				line("wait 5");
+				line(TRAVEL_WAIT);
 				x = static_cast<float>(cur.col) + TELEPORT_ARRIVAL_X;
 				break;
 			case PathMove::Start:
@@ -99,7 +101,7 @@ class PathScript {
 		flushWalk();
 		line("dump");
 		line("interact");
-		line("wait 5");
+		line(r.finale ? "wait 5" : TRAVEL_WAIT);
 		line(r.finale ? "expect won == 1" : "expect level == 2");
 		return out;
 	}
@@ -214,7 +216,7 @@ void checkInscriptions(std::vector<Entry>& entries) {
 	for (Entry& e : entries) {
 		const int number = campaignNumber(e.path);
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
-			const Tile& t = e.grid.cells[cell];
+			const Fixture& t = e.grid.cells[cell].fixture;
 			if (t.type != Inscription || !isInscriptionId(t.attr))
 				continue;
 			const std::string where =
@@ -252,13 +254,18 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		// For tools/level/ascii2level.py: "size WIDTH HEIGHT", "format MAGIC VERSION", "structure GLYPHS" (by
-		// Structure number), then "CHAR TYPE ATTR VALUE STRUCTURE meaning" per glyph of the object drawing.
+		// Structure number), "wall TYPE..." (the wall types, isWallType), then "CHAR TYPE ATTR VALUE STRUCTURE
+		// meaning" per glyph of the drawings; a wall type's meaning starts with "wall:".
 		if (strcmp(argv[i], "--legend") == 0) {
-			printf("size %d %d\nformat %s %d\nstructure %s\n", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_MAGIC, LEVEL_VERSION,
-				   STRUCTURE_GLYPHS);
+			printf("size %d %d\nformat %s %d\nstructure %s\nwall", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_MAGIC,
+				   LEVEL_VERSION, STRUCTURE_GLYPHS);
+			for (int type = 0; type < TILE_TYPE_COUNT; type++)
+				if (isWallType(type))
+					printf(" %d", type);
+			printf("\n");
 			for (const GlyphDef& g : glyphLegend())
-				printf("%c %d %d %d %d %s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value,
-					   static_cast<int>(g.tile.structure), g.meaning);
+				printf("%c %d %d %d %d %s%s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value,
+					   static_cast<int>(g.tile.structure), isWallType(g.tile.type) ? "wall: " : "", g.meaning);
 			return 0;
 		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {

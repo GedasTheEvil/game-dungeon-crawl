@@ -1,0 +1,10 @@
+; Wall layer (tests/unit/wall_layer_test.cpp, plan wall-layer): a chest (small health potion) under inscription 1 at
+; col 3; an egg cluster (rooted, harmless) in front of a red lever at col 6, the lever opens the red gate at col 8.
+def 1 15 1 0
+###########
+#S.$..e.R.E#
+###########
+wall
+###########
+#..1../....#
+###########

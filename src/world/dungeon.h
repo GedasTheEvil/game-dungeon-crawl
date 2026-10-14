@@ -51,7 +51,7 @@ class Dungeon {
 	void exploreAroundPlayer();
 	void UpdateMovementState();
 	void UpdateMonsters();
-	void PickUp(); // not the car... just take an item away
+	bool PickUp(); // not the car... just take an item away; false if there is none
 	bool PullLever(); // interact on a lever cell; false if there is none
 	bool readInscription(); // interact on an inscription: into the journal; false if there is none
 	// Interact by a brazier with a bow held: the next FIRE_ARROW_SHOTS arrows carry fire (plan fire-damage). False:
@@ -140,7 +140,8 @@ class Dungeon {
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
 	void drawTeleporterTile(); // at the cell origin: the columns face the camera, plasma between them
-	void drawTileContent(int i, int j); // what stands in the cell, by tile type
+	void drawTileContent(int i, int j); // the fixture on the back wall, then what stands in the cell, by tile type
+	void drawFixture(int i, int j);
 	void drawAnkhTile();
 	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
 	// The scrolling plasma of the gates, over the quad v (its corners take the texture's (0, 0), (0, 1), (1, 1), (1,

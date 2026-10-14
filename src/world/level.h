@@ -2,7 +2,8 @@
 #define LEVEL_H
 
 // Level data without rendering: tile types, the cell grid and the file format.
-// A cell has two layers: its structure (what it is made of) and at most one object in it.
+// A cell has three layers: its structure (what it is made of), at most one fixture on its back wall (the wall layer)
+// and at most one object in it.
 // Shared by the game (Dungeon) and the command line tools (levelcheck, levelgen), so no GL here.
 
 #include <cstdint>
@@ -25,7 +26,8 @@ constexpr int STRUCTURE_COUNT = 4;
 // Wall and deep water: they block, and no object may stand there.
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
-// The object layer. The numbers are the v1 file's tile types: 0 was Wall (now a structure), 7 the unused Area3D.
+// The object and wall layers share one number space. The numbers are the v1 file's tile types: 0 was Wall (now a
+// structure), 7 the unused Area3D. Lever, Inscription and WallSpikes are wall types (isWallType): fixtures.
 enum DungeonTileType : unsigned char {
 	NoObject = 1,
 	Door = 2,
@@ -43,6 +45,8 @@ enum DungeonTileType : unsigned char {
 	Inscription = 15, // hieroglyphs on the back wall, b = text id (inscriptions.h): interact to read them
 	WallSpikes = 16, // spikes on a cycle out of the back wall (plan rhythm-traps); b = speed, c = phase | live state
 };
+// The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
+[[nodiscard]] constexpr bool isWallType(int type) { return type == Lever || type == Inscription || type == WallSpikes; }
 
 enum GateType : unsigned char {
 	GateEntrance = 1,
@@ -104,29 +108,62 @@ constexpr LockColour LOCK_COLOURS[BOSS_LOCK] = {
 // colour must be isGateColour.
 inline const LockColour& lockColour(int colour) { return LOCK_COLOURS[colour - 1]; }
 
-// One level cell: the object (tile type, attribute and value) and the structure it stands in.
-// Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a level with setObject,
-// which keeps its structure.
+// What hangs on or comes out of a cell's back wall (the wall layer, plan wall-layer): a wall type (isWallType),
+// attribute and value as for an object; NoObject for none.
+struct Fixture {
+	int type = NoObject;
+	int attr = 0;
+	int value = 0;
+};
+
+// One level cell: the object (tile type, attribute and value), the structure it stands in and the fixture on its back
+// wall. Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a level with setObject,
+// which keeps its structure and fixture.
 struct Tile {
 	int type = NoObject; // DungeonTileType
 	int attr = 0; // attribute: meaning depends on the type (monster type, lock colour, ...)
 	int value = 0; // value: meaning depends on the type (gate state, ...)
 	Structure structure = Structure::Empty;
+	Fixture fixture;
 };
 [[nodiscard]] inline Tile wallTile() { return Tile{NoObject, 0, 0, Structure::Wall}; }
 [[nodiscard]] inline bool isWall(const Tile& t) { return t.structure == Structure::Wall; }
 // Half water: open, the player and the walkers wade through it (crocodiles-and-flooded-cells).
 [[nodiscard]] inline bool inHalfWater(const Tile& t) { return t.structure == Structure::HalfWater; }
-// Open, dry and nothing in it: what a v1 Empty cell was.
-[[nodiscard]] inline bool isEmptyCell(const Tile& t) { return t.structure == Structure::Empty && t.type == NoObject; }
+[[nodiscard]] inline bool hasFixture(const Tile& t) { return t.fixture.type != NoObject; }
+// Open, dry and nothing in it or on its back wall: what a v1 Empty cell was.
+[[nodiscard]] inline bool isEmptyCell(const Tile& t) {
+	return t.structure == Structure::Empty && t.type == NoObject && !hasFixture(t);
+}
+// The object layer only.
 [[nodiscard]] inline bool hasObject(const Tile& t) { return t.type != NoObject || t.attr != 0 || t.value != 0; }
-// Puts object's type, attr and value in cell; the cell's structure stays.
+// Puts object's type, attr and value in cell; the cell's structure and fixture stay.
 inline void setObject(Tile& cell, const Tile& object) {
 	cell.type = object.type;
 	cell.attr = object.attr;
 	cell.value = object.value;
 }
 inline void clearObject(Tile& cell) { setObject(cell, Tile{}); }
+inline void setFixture(Tile& cell, const Fixture& fixture) { cell.fixture = fixture; }
+inline void clearFixture(Tile& cell) { cell.fixture = Fixture{}; }
+// Puts thing's type, attr and value in its layer: a wall type as the fixture, anything else as the object. For the
+// places a thing comes as a Tile (v2 files, the legend, the editor's brush).
+inline void setThing(Tile& cell, const Tile& thing) {
+	if (isWallType(thing.type))
+		setFixture(cell, Fixture{thing.type, thing.attr, thing.value});
+	else
+		setObject(cell, thing);
+}
+// A cell of thing's structure with thing in its layer: cellWith({Lever, 1, 0}) is a red lever on an empty cell's back
+// wall.
+[[nodiscard]] inline Tile cellWith(const Tile& thing) {
+	Tile cell;
+	cell.structure = thing.structure;
+	setThing(cell, thing);
+	return cell;
+}
+// The fixture as a Tile in an empty cell, for code that reads either layer's things the same way (glyphs, hints).
+[[nodiscard]] inline Tile fixtureAsTile(const Fixture& f) { return Tile{f.type, f.attr, f.value}; }
 
 // A Gate's and a RockFall's value: their state, as stored in level files and save games.
 enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
@@ -139,8 +176,8 @@ inline void setPlatePressed(Tile& t, bool pressed) { t.value = pressed ? 1 : 0; 
 inline void setGateState(Tile& t, GateState s) { t.value = static_cast<int>(s); }
 inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); }
 // A Lever's value: 0 up, 1 pulled.
-[[nodiscard]] inline bool leverPulled(const Tile& t) { return t.value != 0; }
-inline void pullLever(Tile& t) { t.value = 1; }
+[[nodiscard]] inline bool leverPulled(const Fixture& f) { return f.value != 0; }
+inline void pullLever(Fixture& f) { f.value = 1; }
 // A teleporter's value: its pair id.
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
 // A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, plan no-respawn-on-load): it does not
@@ -158,19 +195,19 @@ enum class SpikeSpeed : std::uint8_t { Normal = 0, Fast = 1, Slow = 2 };
 constexpr int SPIKE_SPEED_COUNT = 3;
 constexpr int SPIKE_PHASES = 8;
 enum class SpikeState : std::uint8_t { Retracted = 0, Telegraph = 1, Extended = 2 };
-[[nodiscard]] inline SpikeSpeed spikeSpeed(const Tile& t) {
-	return t.attr >= 0 && t.attr < SPIKE_SPEED_COUNT ? static_cast<SpikeSpeed>(t.attr) : SpikeSpeed::Normal;
+[[nodiscard]] inline SpikeSpeed spikeSpeed(const Fixture& f) {
+	return f.attr >= 0 && f.attr < SPIKE_SPEED_COUNT ? static_cast<SpikeSpeed>(f.attr) : SpikeSpeed::Normal;
 }
-[[nodiscard]] inline int spikePhase(const Tile& t) { return t.value & (SPIKE_PHASES - 1); }
-[[nodiscard]] inline SpikeState spikeState(const Tile& t) { return static_cast<SpikeState>((t.value >> 3) & 3); }
-inline void setSpikeState(Tile& t, SpikeState s) { t.value = spikePhase(t) | (static_cast<int>(s) << 3); }
-[[nodiscard]] inline bool spikesOut(const Tile& t) {
-	return t.type == WallSpikes && spikeState(t) == SpikeState::Extended;
+[[nodiscard]] inline int spikePhase(const Fixture& f) { return f.value & (SPIKE_PHASES - 1); }
+[[nodiscard]] inline SpikeState spikeState(const Fixture& f) { return static_cast<SpikeState>((f.value >> 3) & 3); }
+inline void setSpikeState(Fixture& f, SpikeState s) { f.value = spikePhase(f) | (static_cast<int>(s) << 3); }
+[[nodiscard]] inline bool spikesOut(const Fixture& f) {
+	return f.type == WallSpikes && spikeState(f) == SpikeState::Extended;
 }
 
 // Blocks the player (walls, deep water, gates not fully open, wall spikes while out). Everything else is open space.
 inline bool isSolidTile(const Tile& t) {
-	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t);
+	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t.fixture);
 }
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
@@ -209,22 +246,24 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// The level format (docs/levels.md), in level files and save games. Version 2, text:
-//   DCLEVEL 2 WIDTH HEIGHT
+// The level format (docs/levels.md), in level files and save games. Version 3, text:
+//   DCLEVEL 3 WIDTH HEIGHT
 //   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
+//   wall COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with a fixture (hasFixture)
 //   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
-// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). It is read and
-// converted (convertV1Tile), never written.
+// Version 2 has no wall layer: its wall types stand in the object layer and move to the wall layer on load (setThing).
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 and 2
+// are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
-constexpr int LEVEL_VERSION = 2;
+constexpr int LEVEL_VERSION = 3;
 constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~="; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
 
-// A v1 cell in v2: type 0 is a wall without an object, anything else an object in an empty cell (the unused
-// Area3D, type 7, no object).
+// A v1 cell: type 0 is a wall without an object, anything else a thing in an empty cell, in its layer (the unused
+// Area3D, type 7, nothing).
 [[nodiscard]] Tile convertV1Tile(int type, int attr, int value);
 
-// Reads either version into cells (LEVEL_CELL_COUNT of them; the spare cell is left as it is). Error message, empty
+// Reads any version into cells (LEVEL_CELL_COUNT of them; the spare cell is left as it is). Error message, empty
 // on success. version: the one read, if not null.
 std::string readLevel(std::istream& in, Tile* cells, int* version = nullptr);
 void writeLevel(std::ostream& out, const Tile* cells);

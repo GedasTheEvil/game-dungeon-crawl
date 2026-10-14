@@ -4,6 +4,7 @@
 #include <cstring>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
+#include "../core/paths.h"
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -19,27 +20,27 @@ std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
 void loadMechanisms(MechanismSet& set) {
 	char path[96];
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++) {
-		snprintf(path, sizeof(path), "textures/mechanisms/key_%s.png", LOCK_COLOURS[c].name);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/key_%s.png", LOCK_COLOURS[c].name);
 		set.keyTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "textures/mechanisms/gate_%s.png", LOCK_COLOURS[c].name);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/gate_%s.png", LOCK_COLOURS[c].name);
 		set.gateTex[c].LoadPNG(path);
-		snprintf(path, sizeof(path), "textures/mechanisms/lever_base_%s.png", LOCK_COLOURS[c].name);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/lever_base_%s.png", LOCK_COLOURS[c].name);
 		set.leverBaseTex[c].LoadPNG(path);
 	}
-	set.key = loadStaticModel("models/mechanisms/key.md3", set.keyTex[0]);
-	set.gate = loadStaticModel("models/mechanisms/gate.md3", set.gateTex[0]);
-	set.leverBase = loadStaticModel("models/mechanisms/lever_base.md3", set.leverBaseTex[0]);
-	set.bossGateTex.LoadPNG("textures/mechanisms/gate_boss.png");
-	set.leverHandleTex.LoadPNG("textures/mechanisms/lever_handle.png");
-	set.rockTex.LoadPNG("textures/mechanisms/rock.png");
-	set.crackTex.LoadPNG("textures/mechanisms/ceiling_crack.png");
-	set.leverHandle = loadStaticModel("models/mechanisms/lever_handle.md3", set.leverHandleTex);
-	set.rock = loadStaticModel("models/mechanisms/rock.md3", set.rockTex);
-	set.crack = loadStaticModel("models/mechanisms/ceiling_crack.md3", set.crackTex);
-	set.plateTex.LoadPNG("textures/mechanisms/pressure_plate.png");
-	set.plate = loadStaticModel("models/mechanisms/pressure_plate.md3", set.plateTex);
-	set.dartHolesTex.LoadPNG("textures/mechanisms/dart_holes.png");
-	set.dartHoles = loadStaticModel("models/mechanisms/dart_holes.md3", set.dartHolesTex);
+	set.key = loadStaticModel(MEDIA_DIR "models/mechanisms/key.md3", set.keyTex[0]);
+	set.gate = loadStaticModel(MEDIA_DIR "models/mechanisms/gate.md3", set.gateTex[0]);
+	set.leverBase = loadStaticModel(MEDIA_DIR "models/mechanisms/lever_base.md3", set.leverBaseTex[0]);
+	set.bossGateTex.LoadPNG(MEDIA_DIR "textures/mechanisms/gate_boss.png");
+	set.leverHandleTex.LoadPNG(MEDIA_DIR "textures/mechanisms/lever_handle.png");
+	set.rockTex.LoadPNG(MEDIA_DIR "textures/mechanisms/rock.png");
+	set.crackTex.LoadPNG(MEDIA_DIR "textures/mechanisms/ceiling_crack.png");
+	set.leverHandle = loadStaticModel(MEDIA_DIR "models/mechanisms/lever_handle.md3", set.leverHandleTex);
+	set.rock = loadStaticModel(MEDIA_DIR "models/mechanisms/rock.md3", set.rockTex);
+	set.crack = loadStaticModel(MEDIA_DIR "models/mechanisms/ceiling_crack.md3", set.crackTex);
+	set.plateTex.LoadPNG(MEDIA_DIR "textures/mechanisms/pressure_plate.png");
+	set.plate = loadStaticModel(MEDIA_DIR "models/mechanisms/pressure_plate.md3", set.plateTex);
+	set.dartHolesTex.LoadPNG(MEDIA_DIR "textures/mechanisms/dart_holes.png");
+	set.dartHoles = loadStaticModel(MEDIA_DIR "models/mechanisms/dart_holes.md3", set.dartHolesTex);
 }
 } // namespace
 
@@ -52,9 +53,9 @@ Item* ItemPrototypes::Of(ItemKind kind) const {
 }
 
 void Assets::LoadLoadingScreen() {
-	fonts.loading.Load("fonts/papyrus.png", 7, -1.0);
-	textures.loadingBackground.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
-	textures.loadingBar.LoadPNG("textures/ui/loading.png", TexFilter::Flat);
+	fonts.loading.Load(MEDIA_DIR "textures/fonts/papyrus.png", 7, -1.0);
+	textures.loadingBackground.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
+	textures.loadingBar.LoadPNG(MEDIA_DIR "textures/ui/loading.png", TexFilter::Flat);
 }
 
 namespace {
@@ -77,7 +78,7 @@ void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MON
 		snprintf(label, sizeof(label), "Loading Monster Models [%s]", kind.name);
 		progress(span.at(static_cast<size_t>(id - 1), MONSTER_TYPE_MAX), label);
 		char texture[64];
-		snprintf(texture, sizeof(texture), "textures/%s.png", kind.texture);
+		snprintf(texture, sizeof(texture), MEDIA_DIR "textures/%s.png", kind.texture);
 		Texture tex;
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[static_cast<size_t>(id)];
@@ -137,9 +138,9 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		auto& item = items.weapons[i];
 		item = loadItem(def.model, def.scale);
 		char sound[64];
-		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.swingSound);
+		snprintf(sound, sizeof(sound), MEDIA_DIR "sounds/items/%s.wav", def.swingSound);
 		item->swingSound.Load(sound);
-		snprintf(sound, sizeof(sound), "sounds/items/%s.wav", def.strikeSound);
+		snprintf(sound, sizeof(sound), MEDIA_DIR "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
 	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest, potions and amulets]");
@@ -150,9 +151,9 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	constexpr const char* MISSILES[MISSILE_KIND_COUNT] = {"arrow", "sling_stone", "throwing_stick", "javelin"};
 	for (size_t i = 0; i < MISSILE_KIND_COUNT; i++) {
 		char path[64];
-		snprintf(path, sizeof(path), "textures/items/%s.png", MISSILES[i]);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/items/%s.png", MISSILES[i]);
 		items.missileTex[i].LoadPNG(path);
-		snprintf(path, sizeof(path), "models/items/%s.md3", MISSILES[i]);
+		snprintf(path, sizeof(path), MEDIA_DIR "models/items/%s.md3", MISSILES[i]);
 		items.missiles[i] = loadStaticModel(path, items.missileTex[i]);
 	}
 }
@@ -168,12 +169,12 @@ void loadProp(Texture& tex, std::unique_ptr<AnimatedModel>& model, const char* t
 }
 
 void loadDecor(DecorSet& decor) {
-	decor.decalTex.LoadPNG("textures/decorations/decals.png");
-	decor.inscriptionTex.LoadPNG("textures/decorations/inscriptions.png");
+	decor.decalTex.LoadPNG(MEDIA_DIR "textures/decorations/decals.png");
+	decor.inscriptionTex.LoadPNG(MEDIA_DIR "textures/decorations/inscriptions.png");
 	auto loadSurfaces = [](Texture* tex, const char* const* names, int count) {
 		for (int s = 0; s < count; s++) {
 			char path[64];
-			snprintf(path, sizeof(path), "textures/dungeon/%s.png", names[s]);
+			snprintf(path, sizeof(path), MEDIA_DIR "textures/dungeon/%s.png", names[s]);
 			tex[s].LoadPNG(path);
 		}
 	};
@@ -183,9 +184,9 @@ void loadDecor(DecorSet& decor) {
 	decor.rockTex.LoadPNG(ROCK_TEXTURE);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		char path[64];
-		snprintf(path, sizeof(path), "textures/decorations/decor_%s.png", DECOR_NAMES[d]);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/decorations/decor_%s.png", DECOR_NAMES[d]);
 		decor.tex[d].LoadPNG(path);
-		snprintf(path, sizeof(path), "models/decorations/decor_%s.md3", DECOR_NAMES[d]);
+		snprintf(path, sizeof(path), MEDIA_DIR "models/decorations/decor_%s.md3", DECOR_NAMES[d]);
 		auto model = std::make_unique<AnimatedModel>();
 		if (!model->Load(path))
 			continue;
@@ -193,9 +194,9 @@ void loadDecor(DecorSet& decor) {
 		model->Compile(); // no Centrify: the files are in tile units
 		decor.model[d] = std::move(model);
 	}
-	decor.torchTex.LoadPNG("textures/decorations/decor_torch.png");
+	decor.torchTex.LoadPNG(MEDIA_DIR "textures/decorations/decor_torch.png");
 	auto torchModel = std::make_unique<AnimatedModel>();
-	if (torchModel->Load("models/decorations/decor_torch.md3")) {
+	if (torchModel->Load(MEDIA_DIR "models/decorations/decor_torch.md3")) {
 		torchModel->BindTexture(decor.torchTex.ID());
 		torchModel->Compile();
 		decor.torch = std::move(torchModel);
@@ -203,10 +204,10 @@ void loadDecor(DecorSet& decor) {
 	for (int s = 0; s < LADDER_STYLE_COUNT; s++)
 		for (int p = 0; p < LADDER_PIECE_COUNT; p++) {
 			char path[64];
-			snprintf(path, sizeof(path), "textures/ladders/ladder_%s_%s.png", LADDER_STYLE_NAMES[s],
+			snprintf(path, sizeof(path), MEDIA_DIR "textures/ladders/ladder_%s_%s.png", LADDER_STYLE_NAMES[s],
 					 LADDER_PIECE_NAMES[p]);
 			decor.ladderTex[s][p].LoadPNG(path);
-			snprintf(path, sizeof(path), "models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
+			snprintf(path, sizeof(path), MEDIA_DIR "models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
 					 LADDER_PIECE_NAMES[p]);
 			auto model = std::make_unique<AnimatedModel>();
 			if (!model->Load(path))
@@ -218,33 +219,33 @@ void loadDecor(DecorSet& decor) {
 }
 
 void loadSounds(SoundBank& sounds) {
-	sounds.drink_s.Load("sounds/items/potion_drink.wav");
-	sounds.amulet_s.Load("sounds/items/amulet.wav");
-	sounds.keyPickup.Load("sounds/mechanisms/key_pickup.wav");
-	sounds.gateOpen.Load("sounds/mechanisms/gate_open.wav");
-	sounds.teleport.Load("sounds/mechanisms/teleport.wav");
-	sounds.summonDig.Load("sounds/monsters/summon_dig.wav");
-	sounds.summonDrop.Load("sounds/monsters/summon_drop.wav");
-	sounds.gateLocked.Load("sounds/mechanisms/gate_locked.wav");
-	sounds.lever.Load("sounds/mechanisms/lever.wav");
-	sounds.rockRumble.Load("sounds/mechanisms/rock_rumble.wav");
-	sounds.plateClick.Load("sounds/mechanisms/plate_click.wav");
-	sounds.dart.Load("sounds/mechanisms/dart.wav");
-	sounds.dodge.Load("sounds/items/sling_swing.wav");
-	sounds.rockCrash.Load("sounds/mechanisms/rock_crash.wav");
-	sounds.arrowHit.Load("sounds/items/arrow_hit.wav");
-	sounds.arrowWall.Load("sounds/items/arrow_wall.wav");
-	sounds.stoneHit.Load("sounds/items/stone_hit.wav");
-	sounds.stoneWall.Load("sounds/items/stone_wall.wav");
-	sounds.pageTurn.Load("sounds/ui/page_turn.wav");
-	sounds.wade.Load("sounds/water/wade.wav");
-	sounds.splash.Load("sounds/water/splash.wav");
+	sounds.drink_s.Load(MEDIA_DIR "sounds/items/potion_drink.wav");
+	sounds.amulet_s.Load(MEDIA_DIR "sounds/items/amulet.wav");
+	sounds.keyPickup.Load(MEDIA_DIR "sounds/mechanisms/key_pickup.wav");
+	sounds.gateOpen.Load(MEDIA_DIR "sounds/mechanisms/gate_open.wav");
+	sounds.teleport.Load(MEDIA_DIR "sounds/mechanisms/teleport.wav");
+	sounds.summonDig.Load(MEDIA_DIR "sounds/monsters/summon_dig.wav");
+	sounds.summonDrop.Load(MEDIA_DIR "sounds/monsters/summon_drop.wav");
+	sounds.gateLocked.Load(MEDIA_DIR "sounds/mechanisms/gate_locked.wav");
+	sounds.lever.Load(MEDIA_DIR "sounds/mechanisms/lever.wav");
+	sounds.rockRumble.Load(MEDIA_DIR "sounds/mechanisms/rock_rumble.wav");
+	sounds.plateClick.Load(MEDIA_DIR "sounds/mechanisms/plate_click.wav");
+	sounds.dart.Load(MEDIA_DIR "sounds/mechanisms/dart.wav");
+	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
+	sounds.rockCrash.Load(MEDIA_DIR "sounds/mechanisms/rock_crash.wav");
+	sounds.arrowHit.Load(MEDIA_DIR "sounds/items/arrow_hit.wav");
+	sounds.arrowWall.Load(MEDIA_DIR "sounds/items/arrow_wall.wav");
+	sounds.stoneHit.Load(MEDIA_DIR "sounds/items/stone_hit.wav");
+	sounds.stoneWall.Load(MEDIA_DIR "sounds/items/stone_wall.wav");
+	sounds.pageTurn.Load(MEDIA_DIR "sounds/ui/page_turn.wav");
+	sounds.wade.Load(MEDIA_DIR "sounds/water/wade.wav");
+	sounds.splash.Load(MEDIA_DIR "sounds/water/splash.wav");
 }
 
 void loadTraps(TrapSet& traps, TextureRegistry& textures) {
-	textures.spikes.LoadPNG("textures/traps/spikes.png");
+	textures.spikes.LoadPNG(MEDIA_DIR "textures/traps/spikes.png");
 	traps.spikes = std::make_unique<Trap>();
-	traps.spikes->loadModel("models/traps/spikes.md3", textures.spikes);
+	traps.spikes->loadModel(MEDIA_DIR "models/traps/spikes.md3", textures.spikes);
 	traps.spikes->scale = SPIKES_SCALE;
 
 	traps.deathTrap = std::make_unique<Trap>(*traps.spikes);
@@ -252,36 +253,38 @@ void loadTraps(TrapSet& traps, TextureRegistry& textures) {
 }
 
 void loadFonts(FontSet& fonts) {
-	fonts.font.Load("fonts/papyrus.png", 3, -0.3);
-	fonts.status.Load("fonts/papyrus.png", 5, 0.3f, true);
-	fonts.hud.Load("fonts/impact.png", 11, 0.2f, true);
-	fonts.hudBody.Load("fonts/papyrus.png", 4.2f, 0.12f, true);
-	fonts.hudSmall.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	fonts.font.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3, -0.3);
+	fonts.status.Load(MEDIA_DIR "textures/fonts/papyrus.png", 5, 0.3f, true);
+	fonts.hud.Load(MEDIA_DIR "textures/fonts/impact.png", 11, 0.2f, true);
+	fonts.hudBody.Load(MEDIA_DIR "textures/fonts/papyrus.png", 4.2f, 0.12f, true);
+	fonts.hudSmall.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.f, 0.08f, true);
 }
 } // namespace
 
 void Assets::Load(const std::function<void(float, const char*)>& progress) {
-	textures.papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
-	textures.hudIcons.LoadPNG("textures/ui/hud_icons.png");
-	textures.skillIcons.LoadPNG("textures/ui/skill_icons.png");
-	textures.ribbon.LoadPNG("textures/ui/ribbon.png");
+	textures.papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	textures.hudIcons.LoadPNG(MEDIA_DIR "textures/ui/hud_icons.png");
+	textures.skillIcons.LoadPNG(MEDIA_DIR "textures/ui/skill_icons.png");
+	textures.ribbon.LoadPNG(MEDIA_DIR "textures/ui/ribbon.png");
 	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side
-	textures.journalPaper.LoadPNG("textures/ui/journal_paper.png");
+	textures.journalPaper.LoadPNG(MEDIA_DIR "textures/ui/journal_paper.png");
 	textures.journalPaper.ClampToEdge();
-	textures.journalCloth.LoadPNG("textures/ui/journal_cloth.png"); // tiles
-	textures.nullTex.LoadPNG("textures/null.png");
-	textures.riddleBackground.LoadPNG("textures/ui/riddlebg.png", TexFilter::Flat);
+	textures.journalCloth.LoadPNG(MEDIA_DIR "textures/ui/journal_cloth.png"); // tiles
+	textures.nullTex.LoadPNG(MEDIA_DIR "textures/null.png");
+	textures.riddleBackground.LoadPNG(MEDIA_DIR "textures/ui/riddlebg.png", TexFilter::Flat);
 
 	loadMonsterTypes(monsterTypes, monsterModels, progress, {30, 65});
 	loadItems(items, progress, {65, 80});
 
-	loadProp(textures.sphinx, models.sphinx, "textures/props/sphinx.png", "models/props/sphinx.md3");
-	loadProp(textures.ankh, models.ankh, "textures/props/ankh.png", "models/props/ankh.md3");
-	loadProp(textures.questionMark, models.question, "textures/props/questionmark.png",
-			 "models/props/questionmark.md3");
-	loadProp(textures.columns, models.columns, "textures/props/columns.png", "models/props/columns.md3");
-	textures.portal.LoadPNG("textures/effects/plasma.png");
-	textures.portalRed.LoadPNG("textures/effects/plasma_red.png");
+	loadProp(textures.sphinx, models.sphinx, MEDIA_DIR "textures/props/sphinx.png",
+			 MEDIA_DIR "models/props/sphinx.md3");
+	loadProp(textures.ankh, models.ankh, MEDIA_DIR "textures/props/ankh.png", MEDIA_DIR "models/props/ankh.md3");
+	loadProp(textures.questionMark, models.question, MEDIA_DIR "textures/props/questionmark.png",
+			 MEDIA_DIR "models/props/questionmark.md3");
+	loadProp(textures.columns, models.columns, MEDIA_DIR "textures/props/columns.png",
+			 MEDIA_DIR "models/props/columns.md3");
+	textures.portal.LoadPNG(MEDIA_DIR "textures/effects/plasma.png");
+	textures.portalRed.LoadPNG(MEDIA_DIR "textures/effects/plasma_red.png");
 
 	progress(80, "Loading decorations");
 	loadDecor(decor);
@@ -295,5 +298,5 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	loadFonts(fonts);
 
 	progress(100, "Loading game soundtrack");
-	sounds.soundtrack.Load("sounds/music/soundtrack.ogg");
+	sounds.soundtrack.Load(MEDIA_DIR "sounds/music/soundtrack.ogg");
 }

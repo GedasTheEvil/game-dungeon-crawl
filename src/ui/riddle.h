@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-// Riddles live in text files, one theme per file (riddles/*.txt). Format: docs/riddles.md.
+// Riddles live in text files, one theme per file (content/riddles/*.txt). Format: docs/riddles.md.
 struct RiddleEntry {
 	std::string theme;
 	std::vector<std::string> question; // one entry per Q: line, wrapped to the scroll when drawn

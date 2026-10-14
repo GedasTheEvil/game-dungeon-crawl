@@ -1,6 +1,6 @@
 """Synthesize the sounds of the rats, keys, gates, levers and rock falls.
 
-    python3 tools/audio/mechanism_sounds.py [out_dir]      (default: sounds/)
+    python3 tools/audio/mechanism_sounds.py [out_dir]      (default: media/sounds/)
 
 Writes monsters/rat_att.wav (squeak + hiss, also used by the giant rat), rat_die.wav (falling squeal),
 rat_jump.wav (the giant rat's leap: claw scrabble and squeak at take-off, whoosh, paw patter and thud on landing),
@@ -252,7 +252,7 @@ def summon_drop():
     return normalize(out, -6)
 
 
-# Paths under sounds/.
+# Paths under media/sounds/.
 def plate_click():
     out = np.zeros(int(0.35 * SR))
     t = t_axis(0.25)
@@ -289,7 +289,7 @@ SOUNDS = {
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds")
     for name, fn in SOUNDS.items():
         pcm = (fn() * 32767).astype("<i2")
         path = os.path.join(out_dir, name + ".wav")

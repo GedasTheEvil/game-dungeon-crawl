@@ -1,7 +1,7 @@
 // Model viewer: loads a .md3 file with the game's AnimatedModel, plays its animation on a loop that restarts every
 // [seconds], with a progress bar of the loop and a stats panel. Runs from the repo root.
 //
-// Usage: build/model-viewer <model.md3> [seconds] [options]
+// Usage: bin/model-viewer <model.md3> [seconds] [options]
 //   <model.md3>  required, path to a .md3 file (see tools/blender/md3.py)
 //   [seconds]    optional, animation loop duration in seconds (default 5.0).
 // Options:
@@ -11,7 +11,7 @@
 //   --shot <dir>            screenshot mode: writes <dir>/<stem>_<frame>.png for the frames and exits, no HUD
 //   --frames 0,4,8|all      the frames for --shot (default all)
 //   --size <w>x<h>          the window size (default 800x600)
-// Headless shots: xvfb-run -a -s "-screen 0 1280x1024x24" build/model-viewer <model.md3> --shot <dir> ...
+// Headless shots: xvfb-run -a -s "-screen 0 1280x1024x24" bin/model-viewer <model.md3> --shot <dir> ...
 //
 // Keys: space cycles through the model's clips, T through its textures, L the lighting (flat, game, toon),
 // + / - speed the loop up / slow it down. Drag with the left mouse button to turn the model.
@@ -43,6 +43,7 @@
 #include "../../src/core/logger.h"
 #include "../../src/core/timer.h"
 #include "../../external/stb/stb_image_write.h"
+#include "../../src/core/paths.h"
 
 namespace {
 
@@ -123,14 +124,14 @@ std::string gShotDir;
 std::vector<int> gShotFrames; // empty: all
 
 // Returns the filename with its directory stripped but extension kept,
-// e.g. "models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
+// e.g. "media/models/monsters/anubis.md3" -> "anubis.md3". Distinct from FileStem()
 // (which also strips the extension, for the window title's own use).
 std::string Basename(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
 	return (slash == std::string::npos) ? path : path.substr(slash + 1);
 }
 
-// "models/monsters/anubis.md3" -> "anubis".
+// "media/models/monsters/anubis.md3" -> "anubis".
 std::string FileStem(const std::string& path) {
 	std::size_t slash = path.find_last_of("/\\");
 	std::string base = (slash == std::string::npos) ? path : path.substr(slash + 1);
@@ -186,15 +187,16 @@ std::vector<std::string> ScanSiblingModels(const std::string& modelPath) {
 	return result;
 }
 
-// The textures that fit a model, in textures/<category>/ (<category>: the model's sub-directory under models/):
+// The textures that fit a model, in media/textures/<category>/ (<category>: the model's sub-directory under
+// media/models/):
 //   1. <stem>.png, the file's own (decorations, items, a clip with a texture of its own)
-//   2. <base>.png, the texture its clips share (models/monsters/anubis_att.md3 -> textures/monsters/anubis.png)
+//   2. <base>.png, the texture its clips share (media/models/monsters/anubis_att.md3 -> anubis.png)
 //   3. <base>_*.png, the variants that reuse the model (anubis_boss, rat_giant, key_blue), sorted
 //   4. a potion vessel (items/potion_flask): its potions' textures, in ItemKind order (PotionDef::texture)
 // Empty when none exists.
 std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	const std::string category = std::filesystem::path(modelPath).parent_path().filename().string();
-	const std::filesystem::path dir = std::filesystem::path("textures") / category;
+	const std::filesystem::path dir = std::filesystem::path(MEDIA_DIR "textures") / category;
 	const std::string stem = FileStem(modelPath);
 	const std::string baseStem = BaseStem(modelPath);
 	std::vector<std::string> result;
@@ -227,7 +229,7 @@ std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	return result;
 }
 
-// Loads gTexturePaths[gTextureIndex], else textures/null.png, else nothing (id 0). Every failure is logged as a
+// Loads gTexturePaths[gTextureIndex], else media/textures/null.png, else nothing (id 0). Every failure is logged as a
 // warning, never fatal -- a missing/wrong texture must never prevent seeing the animation.
 int LoadCurrentTexture() {
 	if (gTextureIndex < gTexturePaths.size()) {
@@ -237,14 +239,14 @@ int LoadCurrentTexture() {
 			return gTexture.ID();
 		}
 	} else {
-		LOG_WARNINGF("modelviewer", "No texture found for %s, falling back to textures/null.png",
+		LOG_WARNINGF("modelviewer", "No texture found for %s, falling back to media/textures/null.png",
 					 gStatModelName.c_str());
 	}
-	if (gTexture.LoadPNG("textures/null.png")) {
+	if (gTexture.LoadPNG(MEDIA_DIR "textures/null.png")) {
 		return gTexture.ID();
 	}
 
-	LOG_WARNINGF("modelviewer", "%s", "textures/null.png fallback also failed, continuing untextured");
+	LOG_WARNINGF("modelviewer", "%s", MEDIA_DIR "textures/null.png fallback also failed, continuing untextured");
 	return 0;
 }
 
@@ -567,6 +569,7 @@ void Reshape(int width, int height) {
 } // namespace
 
 int main(int argc, char* argv[]) {
+	Paths::enterRootDir();
 	Logger::initialize();
 
 	if (argc < 2) {
@@ -574,7 +577,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	const std::string modelPath = argv[1];
+	const std::string modelPath = Paths::fromLaunchDir(argv[1]);
 	double seconds = 5.0;
 	int arg = 2;
 	if (argc > arg && std::strncmp(argv[arg], "--", 2) != 0) {
@@ -651,13 +654,13 @@ int main(int argc, char* argv[]) {
 
 	InitGL(gWinWidth, gWinHeight);
 
-	gStatsFont.Load("fonts/papyrus.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
-	gHintFont.Load("fonts/papyrus.png", 3.f, 0.08f, true);
+	gStatsFont.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
+	gHintFont.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.f, 0.08f, true);
 
 	// Sibling-group discovery: scanned exactly once, from the path
 	// the user actually typed, and never rescanned. gCurrentSiblingIndex is found by Basename comparison so it
 	// doesn't matter whether modelPath and the scanned entries are spelled
-	// identically (e.g. "./models/monsters/anubis.md3" vs "models/monsters/anubis.md3").
+	// identically (e.g. "./media/models/monsters/anubis.md3" vs "media/models/monsters/anubis.md3").
 	gSiblingModelPaths = ScanSiblingModels(modelPath);
 	gCurrentSiblingIndex = 0;
 	for (std::size_t i = 0; i < gSiblingModelPaths.size(); ++i) {

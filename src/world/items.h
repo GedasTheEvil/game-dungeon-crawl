@@ -187,7 +187,7 @@ struct ItemText {
 [[nodiscard]] const ItemText& itemText(ItemKind kind);
 
 struct WeaponDef {
-	const char* model = ""; // models/items/<model>.md3, textures/items/<model>.png
+	const char* model = ""; // media/models/items/<model>.md3, media/textures/items/<model>.png
 	float scale = 1.f;
 	int damage = 0; // at weapon level 1; the loot grades go by it (loot.cpp)
 	int range = 0; // tenths of a tile (a ranged weapon's: how far it aims)
@@ -196,7 +196,7 @@ struct WeaponDef {
 	// strongest).
 	int growthPercent = 20;
 	WeaponMotion motion{};
-	const char* swingSound = ""; // sounds/items/<name>.wav: the attack begins
+	const char* swingSound = ""; // media/sounds/items/<name>.wav: the attack begins
 	const char* strikeSound = ""; // a melee hit lands, the shot leaves
 	MissileKind missile = MissileKind::Arrow; // ranged weapons
 	bool thrown = false; // the weapon itself leaves the hand (Dungeon::Shoot): the hand is empty until the swing ends
@@ -209,7 +209,7 @@ enum class PotionModel : std::uint8_t { Flask, Lotus, Pilgrim, Canopic, Cobra, A
 constexpr int POTION_MODEL_COUNT = 6;
 
 struct PotionModelDef {
-	const char* model; // models/items/<model>.md3
+	const char* model; // media/models/items/<model>.md3
 	float scale; // on a chest (Item::scale)
 	float detailScale; // the inventory's detail view
 };
@@ -218,7 +218,7 @@ struct PotionModelDef {
 struct PotionDef {
 	PotionGain gain{};
 	PotionModel model{};
-	const char* texture = ""; // textures/items/<texture>.png, on its model's UVs
+	const char* texture = ""; // media/textures/items/<texture>.png, on its model's UVs
 	Rgb colour{}; // the icons' tint: the inventory's potions tab, the HUD quick slot
 	FieldNote note{}; // the journal's, on the first one found
 	int generatedWeight = 0; // levelgen's potion chests, in percent
@@ -289,7 +289,7 @@ struct Amulet {
 [[nodiscard]] Amulet amuletOf(ItemKind amulet);
 // nullopt for a tier the type does not have (lesser and minor regeneration).
 [[nodiscard]] std::optional<ItemKind> amuletKind(AmuletType type, AmuletTier tier);
-// The model all tiers of a type share: models/items/<name>.md3 (tools/blender/models/amulets.py).
+// The model all tiers of a type share: media/models/items/<name>.md3 (tools/blender/models/amulets.py).
 [[nodiscard]] const char* amuletModel(AmuletType type);
 
 // What the worn amulet gives, all zero without one.

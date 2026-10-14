@@ -26,10 +26,10 @@ class CharacterModel {
 	void loadSounds(const char* name);
 
   public:
-	// sounds/<category>/<name>_{die,att,jump,wake,att_ranged}.wav, all optional
+	// media/sounds/<category>/<name>_{die,att,jump,wake,att_ranged}.wav, all optional
 	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound;
 
-	// name: "<category>/<name>", the same under models/, textures/ and sounds/.
+	// name: "<category>/<name>", the same under media/models/, media/textures/ and media/sounds/.
 	// Takes the texture over. keepFrames: see AnimatedModel::Compile.
 	bool Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames = false);
 	// The clips (and measures) of `other`, loaded from the same model files, with its own texture and sounds.

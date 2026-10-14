@@ -33,5 +33,5 @@ as fast as now.
 
 * Unit test (`tests/unit/`): an Anubis guard's `Move` playback advances twice the frames of a mummy's over the same
   GameClock time; its attack playback advances the same as before.
-* Play-test command for the user: `./game --level N` with N a level that has Anubis guards (glyph `n`, levels 13
+* Play-test command for the user: `bin/game --level N` with N a level that has Anubis guards (glyph `n`, levels 13
   on), or a `tests/play/anubis-walk-clip-speed.txt` script that summons a guard next to the player.

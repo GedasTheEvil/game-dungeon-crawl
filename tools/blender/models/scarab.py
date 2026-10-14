@@ -697,7 +697,7 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    tex_dir = os.path.join(REPO, "textures", "monsters")
+    tex_dir = os.path.join(REPO, "media", "textures", "monsters")
     if "--boss-texture" in args:
         obj, _ = build(bake=False)
         materials(COL_BOSS)

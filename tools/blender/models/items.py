@@ -21,9 +21,9 @@ tip at +Z) is the one in flight; the engine draws it in metres, not centred (Dun
 the throwing stick and the javelin fly as models in metres too: the stone is its own model, the stick and the javelin
 fly as their held models (the engine loads those twice, once centred for the hand).
 
-Textures: one 512 PNG per item (textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
+Textures: one 512 PNG per item (media/textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
 light, the engine lights them). A potion vessel has no texture of its own: each potion bakes one on it (POTIONS,
-textures/items/potion_<kind>.png) with its liquid colour; the engine draws it untinted.
+media/textures/items/potion_<kind>.png) with its liquid colour; the engine draws it untinted.
 """
 
 import importlib
@@ -51,7 +51,7 @@ ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "m
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
-# The potions, in ItemKind order: texture stem (textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
+# The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
 # vessel model (POTION_MODELS there) and the palette keys its texture overrides.
 POTIONS = [
     ("potion_small_health", "potion_flask", {"liquid": (0.70, 0.04, 0.03), "liquid_dark": (0.38, 0.02, 0.02)}),
@@ -1106,7 +1106,7 @@ def bow_frames(obj, path, g, name="bow"):
 
 
 def export(objs, models_dir=None):
-    models_dir = models_dir or os.path.join(REPO, "models", "items")
+    models_dir = models_dir or os.path.join(REPO, "media", "models", "items")
     p = os.path.join(REPO, "tools", "blender", "md3_export.py")
     g = {"__file__": p, "__name__": "md3_export"}
     exec(open(p).read(), g)
@@ -1186,7 +1186,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     only = args[args.index("--only") + 1].split(",") if "--only" in args else None
     exporting = "--export" in args
-    tex_dir = os.path.join(REPO, "textures", "items")
+    tex_dir = os.path.join(REPO, "media", "textures", "items")
     objs = build(bake=exporting or "--bake" in args, tex_dir=tex_dir if exporting else None, only=only)
     if "--review" in args:
         review(args[args.index("--review") + 1], objs)

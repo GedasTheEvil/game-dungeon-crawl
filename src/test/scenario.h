@@ -1,7 +1,7 @@
 #ifndef SCENARIO_H
 #define SCENARIO_H
 
-// Scripted test runs: `./game tests/scenarios/foo.txt`.
+// Scripted test runs: `bin/game tests/scenarios/foo.txt`.
 // Command reference and output layout: docs/testing.md.
 #include "../core/gameplay_config.h"
 #include <string>

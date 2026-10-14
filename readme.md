@@ -24,7 +24,7 @@ through the spikes.
 
 **Answer the sphinx.** Some gates are sphinxes that ask a riddle on a papyrus scroll. Type the answer to earn a
 lot of experience. The riddles are classic sphinx riddles, palindromes, film and game trivia, and science
-fiction. A hint shows after two wrong tries. You can add your own riddles as text files in `riddles/`.
+fiction. A hint shows after two wrong tries. You can add your own riddles as text files in `content/riddles/`.
 
 **An archaeologist's notebook.** The journal (`J`) is a field notebook with pages you turn by hand. It fills in
 only with what you have seen: a pencil sketch of a creature becomes a photo once you kill one, and its health and

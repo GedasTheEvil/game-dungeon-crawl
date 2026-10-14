@@ -319,7 +319,7 @@ def export(models_dir=None):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     if "--export" in args:
-        build(tex_path=os.path.join(REPO, "textures", "monsters", "egg_cluster.png"))
+        build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "egg_cluster.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "egg_cluster.blend"))
     else:

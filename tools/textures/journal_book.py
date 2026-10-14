@@ -1,6 +1,6 @@
 """Generate the journal's paper and cover textures (JournalScreen, src/ui/journal_view.cpp).
 
-    python3 tools/textures/journal_book.py [out_dir]      (default: textures/ui/)
+    python3 tools/textures/journal_book.py [out_dir]      (default: media/textures/ui/)
 
 journal_paper.png (RGB, 1024 x 1086): one page of a field notebook, 66 x 70 journal units, the spine on the left.
 White-cream paper with a fine blue-green grid (2.5 units a square) printed over the whole page, a light grain, and

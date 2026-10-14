@@ -17,7 +17,7 @@ class PlayerView {
 	void findFists();
 
   public:
-	// models/<name>... with the texture; hands the player the clips and measures (Player::SetModel).
+	// media/models/<name>... with the texture; hands the player the clips and measures (Player::SetModel).
 	bool Load(const char* name, Texture&& texture, Player& player);
 	[[nodiscard]] const CharacterModel& Model() const { return model; } // its sounds
 	void Draw(const Player& player, const TextureRegistry& textures) const;

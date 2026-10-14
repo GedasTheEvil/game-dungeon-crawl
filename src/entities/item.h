@@ -24,9 +24,9 @@ class Item {
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.
 	void Draw(float pose = 0.f);
 	void DrawHeld(float pose); // in the player's fist: Ink::heldWeaponScale instead of the figures' scale
-	// models/items/<name>.md3 with textures/items/<texture>.png (default: the same name).
+	// media/models/items/<name>.md3 with media/textures/items/<texture>.png (default: the same name).
 	bool loadModel(const char* name, const char* texture = nullptr);
-	// owner's model with textures/items/<texture>.png, on the same UVs.
+	// owner's model with media/textures/items/<texture>.png, on the same UVs.
 	void shareModel(const Item& owner, const char* texture);
 };
 

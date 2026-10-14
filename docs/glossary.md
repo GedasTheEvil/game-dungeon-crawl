@@ -18,7 +18,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
-| campaign | | the 30 map levels in order, `levels/lvl1` .. `lvl30`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
+| campaign | | the 30 map levels in order, `content/levels/lvl1` .. `lvl30`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water) and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | column | | a vertical line of cells, counted from the left | `LevelGrid` |
 | deep water | | a cell full of water: solid, nobody walks or swims into it. "Full water" in some drafts | `Structure::DeepWater`, `isSolidStructure` |
@@ -138,7 +138,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 
 | Term | In game | Meaning | Code |
 |---|---|---|---|
-| checker | | `./levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/world/level_check.h` |
+| checker | | `bin/levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/world/level_check.h` |
 | draft plan | | an idea for later, `docs/plan/<slug>.draft.<model>.md` (`sonet` simple, `opus` complex) | `docs/plan` |
 | effects stream | | the random stream for what only shows (a clip's start frame); never shifts the game's rolls | `GameRandom` |
 | gameplay stream | | the random stream for what changes the game: loot, riddles, poison rolls | `GameRandom` |

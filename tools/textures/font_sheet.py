@@ -1,4 +1,4 @@
-"""Generate a font sheet like fonts/papyrus.png from a TrueType font.
+"""Generate a font sheet like media/textures/fonts/papyrus.png from a TrueType font.
 
     python3 tools/textures/font_sheet.py FONT.ttf out.png [--weight W]
 

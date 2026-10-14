@@ -1111,7 +1111,7 @@ def coffin_check(out_dir, frames=(0, 3, 5, 6, 7, 8, 9, 10, 12, 14, 16, 19, 25)):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    build(bake="--export" in args or "--bake" in args, tex_path=os.path.join(REPO, "textures", "monsters", "mummy.png") if "--export" in args else None)
+    build(bake="--export" in args or "--bake" in args, tex_path=os.path.join(REPO, "media", "textures", "monsters", "mummy.png") if "--export" in args else None)
     report(bpy.data.objects["mummy_rig"], bpy.data.objects["mummy_new"])
     if "--export" in args:
         export()

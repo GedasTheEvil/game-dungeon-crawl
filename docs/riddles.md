@@ -8,7 +8,7 @@ Every riddle met is written down in the journal (J, Riddles ribbon), with the hi
 walked away from can be answered from there later, for a tenth of the gate's reward (at least 50 XP), fixed when the
 gate was met. The save game keeps a copy of each riddle, so editing a riddle file does not change the journal.
 
-The game loads every `riddles/*.txt` file at start-up. Add a file or edit one; no rebuild is needed.
+The game loads every `content/riddles/*.txt` file at start-up. Add a file or edit one; no rebuild is needed.
 Riddles are dealt from a shuffled deck, so none repeats until all of them were asked.
 
 ## File format

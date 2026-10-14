@@ -294,7 +294,7 @@ static_assert(AMULETS.back().type == AmuletType::Venom && AMULETS.back().tier ==
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share.
 struct AmuletTypeDef {
-	const char* model; // models/items/<model>.md3
+	const char* model; // media/models/items/<model>.md3
 	std::array<int, AMULET_TIER_COUNT> amount;
 	const char* noun; // the amulet's object: "Jackal Tooth"; its name is the tier and the noun
 	const char* labelNoun; // what it does, for the label ("amulet of <labelNoun>"): editor, tools, scenarios

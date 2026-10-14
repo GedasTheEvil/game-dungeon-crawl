@@ -1,7 +1,7 @@
 """Synthesize the amulet sound (put on or taken off): a cord slipping over the head, then beads and a small metal
 pendant clinking against each other.
 
-    python3 tools/audio/amulet_sound.py [out.wav]      (default: sounds/items/amulet.wav)
+    python3 tools/audio/amulet_sound.py [out.wav]      (default: media/sounds/items/amulet.wav)
 
 Everything is generated (no samples), so this script is the source of the sound.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -70,4 +70,4 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds", "items", "amulet.wav"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "items", "amulet.wav"))

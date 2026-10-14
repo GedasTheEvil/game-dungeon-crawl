@@ -42,14 +42,14 @@ layer the brush paints and the palette shows. The map shows both; the other laye
 3. Paint on the grid.
 4. Click the name field, type a name (max. 32 characters: letters, digits, `_`, `-`, `.`).
 5. Click `Save` (`Ctrl+S`). The file goes to `tools/editor/saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
-6. Copy the file to `levels/lvlN`. The game starts on `levels/lvl1` and each exit loads `lvl<N+1>`.
+6. Copy the file to `content/levels/lvlN`. The game starts on `content/levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it: paint `Empty` structure, or paint objects (they
 carve their cell).
 
-Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `fonts/` and
-`textures/ui/`.
+Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `media/textures/fonts/` and
+`media/textures/ui/`.
 
 ## Structure reference
 
@@ -82,7 +82,7 @@ The object layer. Palette order: `None`, `Door`, `Death`, `Monster`, `Spike`, `L
 | 12 | Lever | Lock colour, see below | 0 | Interact to pull it. Opens every gate of the same colour. |
 | 13 | RockFall | - | 0 | Loose ceiling, walkable. When the player steps into the cell, grit trickles down and a rock falls after approx. 0.65 s + 0.3 s. Under its centre (0.3 cells) it crushes (1000 damage), nearer its edge (0.6 cells) it grazes (50 damage); armor does not help. Walk on without stopping, sprint on or step back to get clear; a jump in place does not dodge it. The rock stays on the floor (walkable). Put a wall above it. |
 | 14 | DartPlate | - | 0 armed, 1 pressed | Pressure plate in the floor ([dart trap](../../docs/plan/solved/poison-dart-trap.md)). When the player or a monster of weight 2 and up (not rats, scarabs, scorpions, cobras or flyers) stands on the slab, it clicks and the 3 dart holes in the back wall above it shoot, 0.2 s later and 0.16 s apart, out across the corridor. At 0.3 cells over the floor (a jump at its top lets them pass, small monsters too) each takes the body in front of its hole: 2 pierce damage and medium poison. Jumping over the plate does not press it. It re-arms 3 s after the click, once nothing heavy stands on it. Cowards stop at its edge like at spikes. |
-| 15 | Inscription | Text id, 1 to 64 | - | Hieroglyphs on the back wall ([inscriptions](../../docs/inscriptions.md)). Interact to read them: the status line shows the title and the archaeologist's comment, the translation goes into the journal. The text id is an `id:` in `inscriptions/*.txt`. In the campaign from level 6 on. Put a floor under it. |
+| 15 | Inscription | Text id, 1 to 64 | - | Hieroglyphs on the back wall ([inscriptions](../../docs/inscriptions.md)). Interact to read them: the status line shows the title and the archaeologist's comment, the translation goes into the journal. The text id is an `id:` in `content/inscriptions/*.txt`. In the campaign from level 6 on. Put a floor under it. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 
@@ -91,7 +91,7 @@ Trap damage starts at 1 and rises while the player stays in the trap. A short ga
 | Attribute | Gate | Behaviour |
 |---|---|---|
 | 1 | Entrance | Player start position. Shows a plasma portal. Use exactly one per level; if there are more, the last one in the file wins. |
-| 2 | Exit | Plasma portal. Interact to load the next level (`levels/lvl<N+1>`). |
+| 2 | Exit | Plasma portal. Interact to load the next level (`content/levels/lvl<N+1>`). |
 | 3 | Riddle | Question mark above the sphinx. Interact to get a riddle; the gate then becomes type 4. |
 | 4 | Empty gate | Decoration only (also the state of a used riddle gate). |
 | 5 | Teleporter | Two columns facing the camera, plasma between them (no sphinx). Interact to jump to the other teleporter with the same value (pair id); the player can go back the same way. Use exactly two per pair id. |

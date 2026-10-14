@@ -170,7 +170,7 @@ CellHint describeCell(const Tile& cell) {
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case Inscription:
-		hint.attribute = anyNumber("text id", cell.attr, "id: line in inscriptions/*.txt, 1 to 64");
+		hint.attribute = anyNumber("text id", cell.attr, "id: line in content/inscriptions/*.txt, 1 to 64");
 		break;
 	case RockFall:
 	case DartPlate:

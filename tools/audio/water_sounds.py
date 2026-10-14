@@ -1,6 +1,6 @@
 """Synthesize the sounds of half water (crocodiles-and-flooded-cells).
 
-    python3 tools/audio/water_sounds.py [out_dir]      (default: sounds/)
+    python3 tools/audio/water_sounds.py [out_dir]      (default: media/sounds/)
 
 Writes water/wade.wav (one splashing step: a slosh and a few droplets; played every WADE_SPLASH_MS while the
 player wades) and water/splash.wav (the player lands in water from a fall: a heavy plunge, spray and droplets).
@@ -84,7 +84,7 @@ SOUNDS = {"water/wade": wade, "water/splash": splash}
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds")
     for name, fn in SOUNDS.items():
         pcm = (fn() * 32767).astype("<i2")
         path = os.path.join(out_dir, name + ".wav")

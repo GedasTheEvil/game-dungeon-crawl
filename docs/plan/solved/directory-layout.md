@@ -1,7 +1,6 @@
 # Directory layout: media/, content/, bin/
 
-Status: ready, needs nothing first. Big mechanical move: do it when no task worktree is open, the rename touches
-most of the tree.
+Status: solved 2026-10-14 (tooling only, no play-test). See [Done](#done).
 
 ## Goal
 
@@ -55,3 +54,16 @@ Example: `textures/ladders/ladder_vine_top.png` becomes `media/textures/ladders/
 * Editor and model viewer start and show a level / a model.
 
 Tooling-only change (no gameplay): moves straight to `docs/plan/solved/` once its checks pass.
+
+## Done
+
+* Two commits: the `git mv` alone, then the path fixes.
+* `src/core/paths.h` (base library): `MEDIA_DIR` / `CONTENT_DIR` as macros, so a path stays one literal
+  (`MEDIA_DIR "textures/items/%s.png"`). `Paths::enterRootDir()`: the game, editor and model viewer `chdir` to the
+  parent of `bin/` first thing in `main`, so saves, `game.log` and `settings.ini` stay at the root.
+  `Paths::fromLaunchDir()` keeps a relative file argument (`--level PATH`, `--play`, a scenario, a model) working
+  when started from elsewhere.
+* The level tools do not `chdir` (their file arguments are many); `levelcheck` reads `content/inscriptions/` from
+  `Paths::rootDir()`.
+* Checked: `make check`, `make test`, `bin/levelcheck content/levels/lvl*` clean; the game from the root and from
+  `/tmp` loads with no asset error; the model viewer (headless shot) and the editor start from `/tmp`.

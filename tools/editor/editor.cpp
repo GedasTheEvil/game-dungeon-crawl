@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "../../src/core/paths.h"
 
 using namespace ui;
 
@@ -230,12 +231,12 @@ class Editor {
 };
 
 Editor::Editor() {
-	title.Load("fonts/papyrus.png", 6.f, 0.26f, true);
-	heading.Load("fonts/papyrus.png", 3.6f, 0.12f, true);
-	body.Load("fonts/papyrus.png", 2.7f, 0.08f, true);
-	small.Load("fonts/papyrus.png", 2.3f, 0.06f, true);
-	wallTexture.LoadPNG("textures/ui/scarab_slate.png", TexFilter::Flat);
-	papyrus.LoadPNG("textures/ui/papyrus_sheet.png", TexFilter::Flat);
+	title.Load(MEDIA_DIR "textures/fonts/papyrus.png", 6.f, 0.26f, true);
+	heading.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.6f, 0.12f, true);
+	body.Load(MEDIA_DIR "textures/fonts/papyrus.png", 2.7f, 0.08f, true);
+	small.Load(MEDIA_DIR "textures/fonts/papyrus.png", 2.3f, 0.06f, true);
+	wallTexture.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
+	papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
 		const char* icon = tileInfo(type).icon;
 		if (icon == nullptr)
@@ -887,6 +888,7 @@ std::unique_ptr<Editor> editor;
 } // namespace
 
 int main(int argc, char* argv[]) {
+	Paths::enterRootDir();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(START_WIDTH, START_HEIGHT);

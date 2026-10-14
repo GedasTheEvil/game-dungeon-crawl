@@ -5,6 +5,7 @@
 #include <tuple>
 #include "../core/logger.h"
 #include "../core/timer.h"
+#include "../core/paths.h"
 
 const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	switch (kind.locomotion) {
@@ -93,7 +94,7 @@ bool LoadClips(const char* name, const ClipFiles& files, ModelInfo& info, ClipMe
 	ClipMeshes loaded;
 	ModelNormalization norm;
 	for (const ClipFile& file : files) {
-		const std::string path = std::string("models/") + name + file.suffix + ".md3";
+		const std::string path = std::string(MEDIA_DIR "models/") + name + file.suffix + ".md3";
 		if (!file.required && !std::filesystem::exists(path))
 			continue;
 		LOG_INFOF("entities", "Loading model: %s", path.c_str());

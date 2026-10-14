@@ -1,4 +1,4 @@
-"""Generate the skill icon atlas textures/ui/skill_icons.png (RGBA, 4 x 4 cells of 128 px).
+"""Generate the skill icon atlas media/textures/ui/skill_icons.png (RGBA, 4 x 4 cells of 128 px).
 
     python3 tools/textures/skill_icons.py [out.png]
 
@@ -199,4 +199,4 @@ def main(path):
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "textures", "ui", "skill_icons.png"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "media", "textures", "ui", "skill_icons.png"))

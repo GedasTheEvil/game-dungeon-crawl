@@ -34,7 +34,7 @@ struct SkillDef {
 extern const std::array<SkillDef, SKILL_COUNT> SKILLS;
 [[nodiscard]] inline const SkillDef& skillDef(SkillId id) { return SKILLS[static_cast<size_t>(id)]; }
 
-// Cells of textures/ui/skill_icons.png (tools/textures/skill_icons.py): the heka mark, then the skills in SkillId
+// Cells of media/textures/ui/skill_icons.png (tools/textures/skill_icons.py): the heka mark, then the skills in SkillId
 // order.
 constexpr int HEKA_ICON = 0;
 constexpr int SKILL_ICON_FIRST = 1;

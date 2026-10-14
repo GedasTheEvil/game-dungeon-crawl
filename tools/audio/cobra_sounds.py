@@ -2,7 +2,7 @@
 hiss and the snap of the strike), the spit (a short wet 'pff' and a hiss) and the death (a hiss fading out and the
 thud of the body falling).
 
-    python3 tools/audio/cobra_sounds.py [out_dir]      (default: sounds/monsters/, writes cobra_{wake,att,att_ranged,die}.wav)
+    python3 tools/audio/cobra_sounds.py [out_dir]      (default: media/sounds/monsters/, writes cobra_{wake,att,att_ranged,die}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -156,7 +156,7 @@ def write(path, x):
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds", "monsters")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "cobra_wake.wav"), wake())
     write(os.path.join(out_dir, "cobra_att.wav"), attack())
     write(os.path.join(out_dir, "cobra_att_ranged.wav"), spit())

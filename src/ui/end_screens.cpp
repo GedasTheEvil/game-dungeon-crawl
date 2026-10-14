@@ -2,10 +2,11 @@
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
+#include "../core/paths.h"
 
 EndScreens::EndScreens() {
-	win.LoadPNG("textures/ui/win.png", TexFilter::Flat);
-	lose.LoadPNG("textures/ui/dead.png", TexFilter::Flat);
+	win.LoadPNG(MEDIA_DIR "textures/ui/win.png", TexFilter::Flat);
+	lose.LoadPNG(MEDIA_DIR "textures/ui/dead.png", TexFilter::Flat);
 }
 
 void EndScreens::DrawQuad(float sx, float sy) {

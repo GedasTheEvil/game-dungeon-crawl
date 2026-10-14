@@ -1,8 +1,8 @@
-"""Generate the inscription atlas textures/decorations/inscriptions.png (RGBA, 8 x 8 cells of 256 px, one per id).
+"""Generate the inscription atlas media/textures/decorations/inscriptions.png (RGBA, 8 x 8 cells of 256 px, one per id).
 
     python3 tools/textures/inscriptions.py [inscriptions-dir] [out.png]
 
-Reads the `id:`, `style:` and `G:` lines of inscriptions/*.txt (docs/inscriptions.md): cell id - 1, row by row from
+Reads the `id:`, `style:` and `G:` lines of content/inscriptions/*.txt (docs/inscriptions.md): cell id - 1, row by row from
 the top left (INSCRIPTION_ATLAS_GRID in src/world/inscriptions.h). G: lists the signs by Gardiner code (A1, M23,
 Aa1, N35A), drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License; Debian/Ubuntu package
 fonts-noto-extra) in painted colours with an ink outline, in the frame of the style:
@@ -186,5 +186,5 @@ def main(directory, path):
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     root = os.path.join(here, "..", "..")
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "inscriptions"),
-         sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "textures", "decorations", "inscriptions.png"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "content", "inscriptions"),
+         sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "media", "textures", "decorations", "inscriptions.png"))

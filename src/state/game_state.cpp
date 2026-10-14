@@ -14,6 +14,7 @@
 #include "../graphics/ink.h"
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
+#include "../core/paths.h"
 
 namespace {
 std::unique_ptr<GameState> gGame;
@@ -44,11 +45,11 @@ void GameState::Load() {
 	ui.endScreens = std::make_unique<EndScreens>();
 
 	Texture playerTexture;
-	playerTexture.LoadPNG("textures/characters/archeologist.png");
+	playerTexture.LoadPNG(MEDIA_DIR "textures/characters/archeologist.png");
 	player = std::make_unique<Player>();
 	playerView.Load("characters/archeologist", std::move(playerTexture), *player);
 	player->scale = PLAYER_SCALE;
-	for (const std::string& message : inscriptions.Load("inscriptions"))
+	for (const std::string& message : inscriptions.Load(CONTENT_DIR "inscriptions"))
 		LOG_WARNINGF("game", "Inscriptions: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(inscriptions.Size()) + " inscriptions");
 	dungeon.Link(

@@ -1,6 +1,6 @@
 """Synthesize the weapon sounds: a swing and a hit per melee weapon, the bow's draw and release, the arrow's impacts.
 
-    python3 tools/audio/weapon_sounds.py [out_dir]      (default: sounds/)
+    python3 tools/audio/weapon_sounds.py [out_dir]      (default: media/sounds/)
 
 Writes items/club_swing.wav (heavy, low whoosh), club_hit.wav (dull wooden thud on flesh), sword_swing.wav (quick bright
 swish with a faint ring), sword_hit.wav (slash: cut, wet slap, blade ring), spear_swing.wav (short airy thrust),
@@ -224,7 +224,7 @@ def mace_hit():
     return normalize(out, -3)
 
 
-# Paths under sounds/.
+# Paths under media/sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
     "items/sword_hit": sword_hit, "items/spear_swing": spear_swing, "items/spear_hit": spear_hit,
@@ -236,7 +236,7 @@ SOUNDS = {
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds")
     for name, fn in SOUNDS.items():
         pcm = (fn() * 32767).astype("<i2")
         path = os.path.join(out_dir, name + ".wav")

@@ -18,8 +18,8 @@ they start at level 6 (`INSCRIPTIONS_FROM_LEVEL`): the hieroglyph skill comes wi
 level, a text id with no text, the same text id twice among the files it checks, and an inscription the player cannot
 stand in front of.
 
-The game loads every `inscriptions/*.txt` file at start-up. Edit the texts there; no rebuild is needed. The glyphs
-on the wall come from the atlas `textures/decorations/inscriptions.png`: after changing a `G:` or `style:` line,
+The game loads every `content/inscriptions/*.txt` file at start-up. Edit the texts there; no rebuild is needed. The glyphs
+on the wall come from the atlas `media/textures/decorations/inscriptions.png`: after changing a `G:` or `style:` line,
 rebuild it with `python3 tools/textures/inscriptions.py`.
 
 ## File format
@@ -50,4 +50,4 @@ An entry without a `T:` line is skipped. Use plain ASCII in the texts: the fonts
 ## Checking a file
 
 The game log (`game.log`) lists every problem as `file:line: message` and the count, for example
-`Loaded 32 inscriptions`. `levelcheck levels/lvl*` checks that every inscription in a level has a text.
+`Loaded 32 inscriptions`. `levelcheck content/levels/lvl*` checks that every inscription in a level has a text.

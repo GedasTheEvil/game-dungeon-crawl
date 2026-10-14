@@ -8,6 +8,7 @@
 #include <cmath>
 #include <memory>
 #include <string>
+#include "../../src/core/paths.h"
 
 TEST_CASE("decoration tiers by depth: cave, worked tunnel, tomb, temple") {
 	CHECK(decorTier(1) == 0);
@@ -70,9 +71,9 @@ TEST_CASE("the scatter is the same on every load, keyed by the level's file name
 	auto a = std::make_unique<DecorLayout>();
 	auto b = std::make_unique<DecorLayout>();
 	auto c = std::make_unique<DecorLayout>();
-	const DecorCounts first = scatterDecor(grid.cells, "levels/lvl9", 9, *a);
+	const DecorCounts first = scatterDecor(grid.cells, CONTENT_DIR "levels/lvl9", 9, *a);
 	const DecorCounts again = scatterDecor(grid.cells, "elsewhere/lvl9", 9, *b);
-	scatterDecor(grid.cells, "levels/lvl10", 9, *c);
+	scatterDecor(grid.cells, CONTENT_DIR "levels/lvl10", 9, *c);
 	CHECK(first.props > 0);
 	CHECK(first.props == again.props);
 	CHECK(first.decals == again.decals);

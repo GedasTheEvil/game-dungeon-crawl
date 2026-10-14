@@ -7,7 +7,7 @@ Two kinds: unit tests of the GL-free library code, and scenario tests of the run
 
 [doctest](https://github.com/doctest/doctest) (one header, `external/doctest/doctest.h`). `tests/unit/*_test.cpp`
 link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs
-`build/unit`; `./build/unit -tc="*gate*"` runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
+`bin/unit`; `bin/unit -tc="*gate*"` runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
 a scenario is for what needs the game running (drawing, timing, input).
 
 `tests/unit/sim_world.h` (`SimWorld`) runs the world without the game: it loads a level as `level path` does, steps
@@ -32,8 +32,8 @@ JOBS=4 make test                               # at most 4 at a time (default: (
 RESERVE_CORES=6 MIN_FREE_MB=4096 make test     # start a new one only while 6 cores idle and 4 GB free (default 4, 4096)
 MIN_SWAP_FREE_MB=2048 make test                # and 2 GB of swap free (default 4096)
 HEADLESS=0 make test                           # real windows instead of Xvfb, one at a time
-./game tests/scenarios/smoke.txt               # direct run, real window
-SCENARIO_DRAW_ALL=1 ./game tests/scenarios/smoke.txt  # the same, watchable
+bin/game tests/scenarios/smoke.txt               # direct run, real window
+SCENARIO_DRAW_ALL=1 bin/game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
 `tests/scenarios/solved/` parks the scenarios of solved plans that need a screenshot (the rest became unit tests).
@@ -79,11 +79,11 @@ Two flags start a normal, hand-played game: real clock, sound, `saves/settings.i
 keyboard and mouse, no main menu. Nothing is written to `saves/` unless you save.
 
 ```
-./game --level 7                       # campaign level 7, a fresh player
-./game --level levels/lvl3             # a map file
-./game --level gen:42:5                # a generated level (seed 42, difficulty 5)
-./game --play tests/scenarios/solved/skills.txt  # a scenario's setup, then you
-./game --no-sound --level 7            # the same, silent (any flag combines with it)
+bin/game --level 7                       # campaign level 7, a fresh player
+bin/game --level content/levels/lvl3             # a map file
+bin/game --level gen:42:5                # a generated level (seed 42, difficulty 5)
+bin/game --play tests/scenarios/solved/skills.txt  # a scenario's setup, then you
+bin/game --no-sound --level 7            # the same, silent (any flag combines with it)
 ```
 
 `--level` takes what the `level` command takes. The exit leads on as in the campaign (level N+1 by the level
@@ -97,7 +97,7 @@ The setup needs a `level` or `loadgame`, else the game prints why and exits with
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
 `tests/play/` holds play-test scripts for plans waiting for the user's play-test, one per plan (`<plan-slug>.txt`),
 for `--play` only; `make test` does not run them.
-`./game SCENARIO.txt` (no flag) is the scenario run described above; it is always silent.
+`bin/game SCENARIO.txt` (no flag) is the scenario run described above; it is always silent.
 
 ## Commands
 
@@ -113,7 +113,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | Seed of the game's random streams (`GameRandom`: loot, the riddle deck, clip start frames), applied at each `level`. Default 1. Each blood effect has its own stream. |
 | `god` | The player takes no damage (`Player::TakeHit`). Death tiles still kill. |
-| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
+| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`content/levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Hold the walk key until the player is N tiles away on that axis: the play speed (`WALK_SPEED`, one step a tick, `stepHeldWalk`). `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. Float steps can stop a hair short (4.9999 for 5): walk a bit past a cell edge you need to be in. |
 | `walk to X` | Walk along the row until the player's map x reaches X, whichever way it is. Fails like `walk` when blocked. `levelcheck --script` uses it, so its steps do not add up errors. |
@@ -130,7 +130,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `poison weak\|medium\|strong` | The player is poisoned with that tier, as by a poisoned bite: it (re)starts that tier's timer ([poison](plan/solved/poison-and-antidote.md)). Works in `god` mode too, only the damage is not taken. |
 | `poisonmonster weak\|medium\|strong` | The living monster nearest the player is poisoned with that tier, as by the player: its kill by the poison gives the XP. It may shrug it off (`MonsterKind::poisonResistPercent`, [monster poison](plan/solved/monster-poison.md)); `expect nearest_poison` tells. |
 | `prop COL NAME` | Put the prop NAME (`DECOR_NAMES` in `src/world/decor.h`: `cat`, `osiris`, `thoth_ibis_standing`, ...) on column COL of the player's row, over whatever the level's scatter picked there. For props the scatter would only place by chance. |
-| `riddles PATH` | Load the riddles from one file or a directory instead of `riddles/` ([riddles.md](riddles.md)). |
+| `riddles PATH` | Load the riddles from one file or a directory instead of `content/riddles/` ([riddles.md](riddles.md)). |
 | `give TYPE ID [N]` | Add N (default 1) items to the inventory. TYPE: `melee` (0 club, 1 short sword, 2 spear, 3 dagger, 4 khopesh, 5 epsilon axe, 6 duckbill axe, 7 mace), `ranged` (0 self-bow, 1 composite bow, 2 sling, 3 throwing stick, 4 javelin), `potion` (0 small health, 1 large health, 2 might, 3 armor, 4 life, 5 small stamina, 6 large stamina, 7 antidote, 8 lesser resistance, 9 greater resistance), `amulet` (its place among the amulets: 0-3 strength lesser .. grand, 4-7 armor, 8-11 health, 12-15 poison warding, 16-19 trap warding, 20-23 blunt, 24-27 slash, 28-31 pierce warding, 32-33 regeneration normal, grand, 34-37 venom; [tools/editor/readme.md](../tools/editor/readme.md)). |
 | `select ITEM` | In the open inventory, select the item and open its tab, like a click on its slot. ITEM: its label with `_` for spaces (`club`, `short_sword`, `spear`, `self-bow`, `small_health`, `large_health`, `might`, `armor`, `life`, `small_stamina`, `large_stamina`, `antidote`, `lesser_resistance`, `greater_resistance`). Fails when the inventory is not open. Scenarios pick items with it, not by slot position. |
 | `sort found\|name\|strength\|recent` | In the open inventory, sort the open tab's found items that way, like a click on its button (`found`: the default, `ItemKind` order; [plan](plan/inventory-sort-orders.md)). The selection stays. Fails when the inventory is not open. |

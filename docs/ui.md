@@ -178,9 +178,9 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 ### Book (journal)
 
 A cloth-bound field notebook ([plan/journal-real-book.md](plan/solved/journal-real-book.md)): grey cloth cover
-(`textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left edge,
+(`media/textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left edge,
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
-white grid pages (`textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
+white grid pages (`media/textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
 come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`INK_RED` creatures, `LAPIS` riddles,
 `GOLD_DIM` field notes, `INK_GREEN` inscriptions, swallowtail end) marks the section's first page
 ([plan/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
@@ -189,7 +189,7 @@ under the pages on top of it (the open left page's own ribbon lies on it), furth
 the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F, I) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
-On the pages: page numbers stamped in `INK_RED` in the top outer corner (`fonts/courier.png`), the level pencilled
+On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled
 above; underlined headings and the text in `INK_BLUE`; pencil (`PENCIL`, alpha 0.7) for what matters less (hints,
 captions of sketches). Creature pages have a margin column of labels (`SEEN`, `SAW`, `KILLED` in red, `TRIED`) and a
 form filled in as it is learnt (`HP = ~40`, a blank line while unknown).
@@ -207,7 +207,7 @@ corner over in 650 ms, a drag follows the mouse (let go past the spine: over, be
 lifts a little. A ribbon or Up / Down to another section turns one page in its direction; the ribbons whose first
 page it crosses ride on it to the other side (drawn into the page's texture, which reaches `RIBBON_OVERHANG` past the
 free edge, `PageCurl::overhang`), bending with the curl. Sound:
-`sounds/ui/page_turn.wav` (`tools/audio/page_sound.py`).
+`media/sounds/ui/page_turn.wav` (`tools/audio/page_sound.py`).
 
 ### Screen tabs
 
@@ -250,7 +250,7 @@ pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
 Skills bought with heka ([plan/skills.md](plan/solved/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
 (`CARDS_PANEL`): the heka mark and "Heka to spend: n" (`heading` `GOLD`, `LABEL_DIM` "No heka to spend" at none) over
 the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 13, two a row, in `SkillId` order: an icon well
-with the baked icon (`textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in
+with the baked icon (`media/textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in
 `body`, its one line in `small`. Learnt: lapis tile, `GOLD` name, a `GOLD_BRIGHT` diamond top right. Sealed (rules not
 in yet): `Disabled` tile, dim icon and text, a red wax dot. No heka left: the icons dimmed. The selected card has the
 inventory's breathing halo and gold frame. Right a papyrus scroll (`DETAIL_PANEL`): the icon at 20, the name, a rule,
@@ -283,7 +283,7 @@ frame and studs with it.
 
 A `panel` bottom left (`PlayerHud::PANEL`) over the running game, with the status box's drop shadow. Bars: dark
 trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss bar's look). Quick slots are
-`TileStyle::Stone` tiles with a flat item icon (`textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
+`TileStyle::Stone` tiles with a flat item icon (`media/textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
 count badge like the inventory slots and a key cap under each like the options table. A fourth slot, without a key
 cap, shows the worn amulet (its type's icon, the tier I .. IV in the badge) while one is on; the key sockets sit right
 of it. While a heka waits to be spent, a lapis tile with the heka mark and a breathing gold halo sits above the
@@ -315,11 +315,11 @@ Also there: `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text 
 
 ## Fonts
 
-All text uses `fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas"), except what the
-archaeologist writes by hand on the journal's pages: `fonts/kalam.png` (Kalam, SIL OFL, `fonts/kalam-OFL.txt`) in
-`INK_BLUE` / `PENCIL`, and the journal's stamped page and catalogue numbers: `fonts/courier.png` (Courier 10 Pitch,
-Bitstream, `fonts/courier-LICENSE.txt`). The journal's buttons stay papyrus. A font
-sheet comes from a TrueType font with `python3 tools/textures/font_sheet.py FONT.ttf fonts/NAME.png` (same grid,
+All text uses `media/textures/fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas"), except what the
+archaeologist writes by hand on the journal's pages: `media/textures/fonts/kalam.png` (Kalam, SIL OFL, `media/textures/fonts/kalam-OFL.txt`) in
+`INK_BLUE` / `PENCIL`, and the journal's stamped page and catalogue numbers: `media/textures/fonts/courier.png` (Courier 10 Pitch,
+Bitstream, `media/textures/fonts/courier-LICENSE.txt`). The journal's buttons stay papyrus. A font
+sheet comes from a TrueType font with `python3 tools/textures/font_sheet.py FONT.ttf media/textures/fonts/NAME.png` (same grid,
 baseline and cap height as the papyrus sheet).
 Each screen loads four sizes on its first frame (fonts need the GL context):
 

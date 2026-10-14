@@ -1,4 +1,4 @@
-# HUD quick slot icons (textures/ui/hud_icons.png): each weapon in hand, the potions tinted with their colour.
+# HUD quick slot icons (media/textures/ui/hud_icons.png): each weapon in hand, the potions tinted with their colour.
 seed 1
 god
 level tests/levels/classic1

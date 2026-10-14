@@ -1,7 +1,7 @@
 """Synthesize the scorpion egg cluster sounds: the heave while a scorpion hatches (wet squelches of the leathery eggs,
 a dry crack of a shell splitting) and the death (eggs bursting one after another, a wet splatter, the husks settling).
 
-    python3 tools/audio/egg_cluster_sounds.py [out_dir]   (default: sounds/monsters/, writes egg_cluster_{att,die}.wav)
+    python3 tools/audio/egg_cluster_sounds.py [out_dir]   (default: media/sounds/monsters/, writes egg_cluster_{att,die}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -120,7 +120,7 @@ def write(path, x):
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds", "monsters")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "egg_cluster_att.wav"), attack())
     write(os.path.join(out_dir, "egg_cluster_die.wav"), die())
 

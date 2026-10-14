@@ -23,12 +23,12 @@ to water.
 Level files are text, version 2: a `DCLEVEL 2 40 47` header, the structure as a drawing, then the list of objects
 (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the same block for the
 current level. Old (v1) level files and saves still load, converted as they are read; `levelcheck` warns about a v1
-file, and `./levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+file, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v2. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays `levels/lvl1` to `levels/lvl30` (`CAMPAIGN_LEVELS`), a boss every five
-levels ([longer-campaign.md](plan/solved/longer-campaign.md)). Each exit loads the next level. `levels/lvl30` holds the ankh that wins the game; the Anubis boss there is always the last boss.
+`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl30` (`CAMPAIGN_LEVELS`), a boss every five
+levels ([longer-campaign.md](plan/solved/longer-campaign.md)). Each exit loads the next level. `content/levels/lvl30` holds the ankh that wins the game; the Anubis boss there is always the last boss.
 Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/denser-levels.draft.opus.md)).
 
 | Levels | Content |
@@ -65,21 +65,21 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 30 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss among his coffins, his mummies climbing out of them; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
 Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
-[inscriptions](inscriptions.md) (`inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
+[inscriptions](inscriptions.md) (`content/inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
 ahead, a dart trap, a hidden treasure room, the order of the locks). Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
-`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt levels/lvl9`.
+`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt content/levels/lvl9`.
 
 ## levelcheck: validate and rank
 
 ```
 make level-tools
-./levelcheck levels/lvl*                   # report per level, then a ranking, easiest first
-./levelcheck --map levels/lvl3             # plus the map with the path drawn as '*'
-./levelcheck --legend                      # the map's characters, with the tile each one stands for
-./levelconvert levels/lvl*                 # rewrite v1 level files as v2 (v2 files are left alone)
-./levelcheck --script tests/out/paths levels/lvl*   # a scenario per level that plays the path
+bin/levelcheck content/levels/lvl*                   # report per level, then a ranking, easiest first
+bin/levelcheck --map content/levels/lvl3             # plus the map with the path drawn as '*'
+bin/levelcheck --legend                      # the map's characters, with the tile each one stands for
+bin/levelconvert content/levels/lvl*                 # rewrite v1 level files as v2 (v2 files are left alone)
+bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per level that plays the path
 ```
 
 Exit code: 0 if all levels are valid, 1 if one cannot be finished, 2 for a usage error or an unreadable file.
@@ -103,7 +103,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `inscriptions/`, one in a campaign level before 6, the same text id in two places. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object in a wall or deep water, a level file still in v1, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |
@@ -131,8 +131,8 @@ Monsters and damage do not stop it, so it proves that the level can be crossed, 
 ## levelgen: random levels
 
 ```
-./levelgen --seed 7 --difficulty 5 --map levels/test1    # one level, print the map
-./levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/gen5, seeds 1 .. 5
+bin/levelgen --seed 7 --difficulty 5 --map content/levels/test1    # one level, print the map
+bin/levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/gen5, seeds 1 .. 5
 ```
 
 Difficulty runs from 1 to 10. The same seed and difficulty always give the same level.

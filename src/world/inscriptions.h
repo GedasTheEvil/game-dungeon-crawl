@@ -2,15 +2,15 @@
 #define INSCRIPTIONS_H
 
 // Wall inscriptions the player can read (plan hieroglyph-cartouches): an Inscription tile's attribute is a text id
-// into inscriptions/*.txt (docs/inscriptions.md). Read once, the translation goes into the journal. Shared by the game
-// and levelcheck, so no GL here.
+// into content/inscriptions/*.txt (docs/inscriptions.md). Read once, the translation goes into the journal. Shared by
+// the game and levelcheck, so no GL here.
 
 #include <istream>
 #include <string>
 #include <vector>
 
-// Ids run from 1 to INSCRIPTION_MAX: the atlas textures/decorations/inscriptions.png (tools/textures/inscriptions.py)
-// has a cell per id, INSCRIPTION_ATLAS_GRID x INSCRIPTION_ATLAS_GRID, id 1 top left.
+// Ids run from 1 to INSCRIPTION_MAX: the atlas media/textures/decorations/inscriptions.png
+// (tools/textures/inscriptions.py) has a cell per id, INSCRIPTION_ATLAS_GRID x INSCRIPTION_ATLAS_GRID, id 1 top left.
 constexpr int INSCRIPTION_ATLAS_GRID = 8;
 constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
 [[nodiscard]] constexpr bool isInscriptionId(int id) { return id >= 1 && id <= INSCRIPTION_MAX; }

@@ -5,7 +5,7 @@
     CLI:  blender -b --python tools/blender/models/mimic.py -- [--export] [--bake]
 
 Blender space: Z up, the chest faces -Y (game rotA 0), like the item. The shell is the chest of items.py
-(build_chest: same geometry, and the UVs and pixels of textures/items/treasure_chest.png copied into the left half
+(build_chest: same geometry, and the UVs and pixels of media/textures/items/treasure_chest.png copied into the left half
 of mimic.png), so the rest pose is vertex for vertex the item: the lid open towards the back over a heap of gold.
 Everything else hides inside it at rest: lower fangs and gums in the walls (slide up out of the rim), upper fangs
 lying flat in the lid frame (fold down out of its underside), the tongue and a fleshy mouth floor under the gold
@@ -46,8 +46,8 @@ COLL = "mimic_new"
 CLIPS = [("mimic_walk", "", 32), ("mimic_attack", "_att", 22), ("mimic_die", "_die", 30), ("mimic_idle", "_idle", 42)]
 MOUTH_TEX = 512  # the mouth half of the 1024 x 512 texture
 REVIEW_VIEW = {"target": (0, -0.2, 0.42), "ortho": 2.0, "res": (440, 400)}
-CHEST_MD3 = os.path.join(REPO, "models", "items", "treasure_chest.md3")
-CHEST_PNG = os.path.join(REPO, "textures", "items", "treasure_chest.png")
+CHEST_MD3 = os.path.join(REPO, "media", "models", "items", "treasure_chest.md3")
+CHEST_PNG = os.path.join(REPO, "media", "textures", "items", "treasure_chest.png")
 
 W, D, H, T = items.CHEST_W, items.CHEST_D, items.CHEST_H, items.CHEST_WALL
 Z0 = items.CHEST_LEG
@@ -641,7 +641,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     bpy.ops.wm.read_factory_settings(use_empty=True)
     exporting = "--export" in args
-    build(bake=exporting or "--bake" in args, tex_path=os.path.join(REPO, "textures", "monsters", "mimic.png") if exporting else None)
+    build(bake=exporting or "--bake" in args, tex_path=os.path.join(REPO, "media", "textures", "monsters", "mimic.png") if exporting else None)
     if exporting:
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "mimic.blend"))

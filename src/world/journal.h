@@ -12,7 +12,7 @@
 // The archaeologist's notebook (plan journal-sections): what the player went through, kept per save game: creatures,
 // riddles and field notes.
 
-// A riddle met at a gate. A copy, not an index into riddles/*.txt: those files can change between saves.
+// A riddle met at a gate. A copy, not an index into content/riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
 	std::string theme;
 	std::vector<std::string> question; // one entry per Q: line
@@ -30,8 +30,8 @@ struct JournalRiddle {
 	}
 };
 
-// A wall inscription read (plan hieroglyph-cartouches). A copy of its text, like a riddle: inscriptions/*.txt can
-// change between saves.
+// A wall inscription read (plan hieroglyph-cartouches). A copy of its text, like a riddle: content/inscriptions/*.txt
+// can change between saves.
 struct JournalInscription {
 	int id = 0; // the text id (inscriptions.h); its glyphs on the page come from the atlas cell of this id
 	std::string title;

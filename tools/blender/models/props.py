@@ -20,7 +20,7 @@ So the gateway, the ankh and the teleporter are built with their largest dimensi
                 the plasma quad of Dungeon::drawTeleporterTile (x +-0.25, z 0..0.9, between the columns).
 
 Textures: albedo x ambient occlusion (no baked light: the engine lights the props like the monsters):
-textures/props/{sphinx,ankh,questionmark,columns}.png, textures/traps/spikes.png.
+media/textures/props/{sphinx,ankh,questionmark,columns}.png, media/textures/traps/spikes.png.
 """
 
 import importlib
@@ -553,7 +553,7 @@ def export(objs):
         loc = obj.location.copy()
         obj.location = (0, 0, 0)
         bpy.context.view_layer.update()
-        g["export_md3"](obj, os.path.join(REPO, "models", CATEGORY[name], "%s.md3" % name), 0, 0)
+        g["export_md3"](obj, os.path.join(REPO, "media", "models", CATEGORY[name], "%s.md3" % name), 0, 0)
         obj.location = loc
     bpy.context.view_layer.update()
 
@@ -563,7 +563,7 @@ if __name__ == "__main__" and "--" in sys.argv:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     only = args[args.index("--only") + 1].split(",") if "--only" in args else None
     exporting = "--export" in args
-    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "textures") if exporting else None, only=only)
+    objs = build(bake=exporting or "--bake" in args, tex_dir=os.path.join(REPO, "media", "textures") if exporting else None, only=only)
     if "--review" in args:
         items.review(args[args.index("--review") + 1], objs)
     if exporting:

@@ -3,7 +3,7 @@
 Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented). From the user: every level is 40 x 47
 cells, but most of it is solid wall.
 
-## Today (2026-10-09, `./levelcheck`)
+## Today (2026-10-09, `bin/levelcheck`)
 
 * Levels 15-30 already fill the grid: 516-736 open cells, 43-45 rows tall.
 * Levels 1-14 do not: 84-194 open cells, 5-16 rows tall. From lvl14 (194) to lvl15 (663) the size jumps more than 3x.
@@ -23,7 +23,7 @@ cells, but most of it is solid wall.
   layout may all change; the boss levels (5, 10) keep their boss. Monster count and treasures grow with the area, the
   monster mix follows what is unlocked by then (`docs/levels.md`). Update the level's line in `docs/levels.md`.
 * **Batches by boss block:** 1-5, 6-10, 11-14, one task each, play-tested in between.
-* Each level passes `./levelcheck` with no warnings.
+* Each level passes `bin/levelcheck` with no warnings.
 * **Keep what other plans placed:** a redesign carries over the content that is not layout: inscriptions
   ([more-inscriptions](more-inscriptions.draft.opus.md)), level titles ([duat-hours](duat-hours.draft.sonet.md)),
   Hapi potions ([water-blessing-potion](water-blessing-potion.draft.sonet.md)), expedition pages, mirror puzzles,

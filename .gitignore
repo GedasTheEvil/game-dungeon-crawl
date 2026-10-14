@@ -1,10 +1,7 @@
 # Build output
 *.o
 *.d
-/game
-/levelcheck
-/levelgen
-/levelconvert
+/bin/
 game.log
 tests/out/
 __pycache__/

@@ -1,6 +1,7 @@
 #include "character_model.h"
 #include <filesystem>
 #include <string>
+#include "../core/paths.h"
 
 bool CharacterModel::Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames) {
 	texture = std::move(tex);
@@ -36,7 +37,7 @@ void CharacterModel::Share(const CharacterModel& other, const char* name, Textur
 }
 
 void CharacterModel::loadSounds(const char* name) {
-	const std::string sound = std::string("sounds/") + name;
+	const std::string sound = std::string(MEDIA_DIR "sounds/") + name;
 	for (auto [suffix, target] : {std::pair{"_die.wav", &dieSound},
 								  {"_att.wav", &attackSound},
 								  {"_jump.wav", &jumpSound},

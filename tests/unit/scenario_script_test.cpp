@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "../../src/core/paths.h"
 
 using namespace Scenario;
 
@@ -212,7 +213,7 @@ TEST_CASE("--play needs a level before the first other command") {
 }
 
 TEST_CASE("--level takes what the level command takes") {
-	for (const char* arg : {"3", "levels/lvl2", "gen:7:4"}) {
+	for (const char* arg : {"3", CONTENT_DIR "levels/lvl2", "gen:7:4"}) {
 		Script script;
 		CHECK(levelScript(arg, script).empty());
 		REQUIRE(script.commands.size() == 1);

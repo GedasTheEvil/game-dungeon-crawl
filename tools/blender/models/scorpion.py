@@ -912,12 +912,12 @@ if __name__ == "__main__" and "--" in sys.argv:
     if "--boss-texture" in args:
         obj, _ = build(bake=False)
         materials(COL_QUEEN)
-        common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "scorpion_queen.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "scorpion_queen.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
     elif "--export-climb" in args:  # the climb clip alone (no texture bake)
         build(bake=False)
         common.export_files(bpy.data.objects["scorpion_new"], bpy.data.objects["scorpion_rig"], "scorpion", [CLIMB], "monsters")
     elif "--export" in args:
-        tex_dir = os.path.join(REPO, "textures", "monsters")
+        tex_dir = os.path.join(REPO, "media", "textures", "monsters")
         build(tex_path=os.path.join(tex_dir, "scorpion.png"), giant_path=os.path.join(tex_dir, "scorpion_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "scorpion.blend"))

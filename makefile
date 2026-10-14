@@ -10,6 +10,8 @@ SDL_LIBS=-lSDL_mixer -lSDL
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 BUILD=build
+# The linked programs (plan directory-layout); build/ keeps the objects and libraries. Run them from the repo root.
+BIN=bin
 # Third-party implementations (stb), compiled without warnings and outside make tidy.
 EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 
@@ -17,7 +19,7 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 # base <- level <- sim <- render <- the game and the tools. tools/check_layers.sh (make layers) keeps them apart:
 # base, level and sim have no GL, no library has SDL or Game(), and each includes only its own headers and those of
 # the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
-BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp
+BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/inscriptions.cpp src/world/skills.cpp src/world/curses.cpp \
@@ -49,29 +51,30 @@ LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 SIM_LIB_OBJECTS=$(SIM_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 RENDER_LIB_OBJECTS=$(RENDER_LIB_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
 
-EXECUTABLE=game
+EXECUTABLE=$(BIN)/game
 APP_SOURCES=$(filter-out $(BASE_LIB_SOURCES) $(LEVEL_LIB_SOURCES) $(SIM_LIB_SOURCES) $(RENDER_LIB_SOURCES),$(SOURCES))
 APP_OBJECTS=$(APP_SOURCES:%.cpp=$(BUILD)/%.o)
 
-# Level editor, runs from the repo root. Uses the game's texture, font, UI drawing and level code.
+# Level editor, works from the repo root. Uses the game's texture, font, UI drawing and level code.
 EDITOR_SOURCES=$(wildcard tools/editor/*.cpp)
 EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o)
-EDITOR=$(BUILD)/editor
+EDITOR=$(BIN)/editor
 
-# MD3 model viewer, runs from the repo root.
+# MD3 model viewer, works from the repo root.
 VIEWER_SOURCES=$(wildcard tools/model-viewer/*.cpp)
 VIEWER_OBJECTS=$(VIEWER_SOURCES:%.cpp=$(BUILD)/%.o)
-VIEWER=$(BUILD)/model-viewer
+VIEWER=$(BIN)/model-viewer
 
 # Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones, levelconvert rewrites
 # old level files in the current format. See docs/levels.md.
-LEVEL_TOOLS=levelcheck levelgen levelconvert
-LEVEL_TOOL_SOURCES=$(LEVEL_TOOLS:%=tools/level/%.cpp)
+LEVEL_TOOL_NAMES=levelcheck levelgen levelconvert
+LEVEL_TOOLS=$(LEVEL_TOOL_NAMES:%=$(BIN)/%)
+LEVEL_TOOL_SOURCES=$(LEVEL_TOOL_NAMES:%=tools/level/%.cpp)
 
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
 UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o)
-UNIT=$(BUILD)/unit
+UNIT=$(BIN)/unit
 
 TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES)
 DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES) $(UNIT_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
@@ -93,6 +96,7 @@ all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
 	$(GATE_REPORT)
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
 # Each archive also depends on the makefile: a file moved into a library is older than the archive.
@@ -135,11 +139,12 @@ $(BUILD)/src/ui/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
 
 level-tools: $(LEVEL_TOOLS)
 
-$(LEVEL_TOOLS): %: $(BUILD)/tools/level/%.o $(LEVEL_LIB) $(BASE_LIB)
+$(LEVEL_TOOLS): $(BIN)/%: $(BUILD)/tools/level/%.o $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
 clean:
-	rm -rf $(BUILD) $(EXECUTABLE) $(LEVEL_TOOLS)
+	rm -rf $(BUILD) $(BIN)
 
 FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
 	tools/model-viewer/*.h tools/model-viewer/*.cpp tests/unit/*.cpp)
@@ -186,32 +191,35 @@ check: all
 editor: $(EDITOR)
 
 $(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-editor: $(EDITOR)
-	./$(EDITOR)
+	$(EDITOR)
 
 model-viewer: $(VIEWER)
 
 $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-model-viewer: $(VIEWER)
-	./$(VIEWER) $(ARGS)
+	$(VIEWER) $(ARGS)
 
 $(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
 unit: $(UNIT)
 	$(GATE_REPORT)
-	./$(UNIT)
+	$(UNIT)
 
 # `make paths`: levelcheck's path through every campaign level, played in the game (checks the checker's movement
 # model against the real physics; docs/levels.md).
-paths: $(EXECUTABLE) levelcheck
+paths: $(EXECUTABLE) $(BIN)/levelcheck
 	$(GATE_REPORT)
 	rm -rf tests/out/paths && mkdir -p tests/out/paths
-	./levelcheck --quiet --script tests/out/paths levels/lvl* >/dev/null
+	$(BIN)/levelcheck --quiet --script tests/out/paths content/levels/lvl* >/dev/null
 	./tools/run_scenarios.sh tests/out/paths/*.txt
 
 # `make test`: the unit tests, then tests/scenarios/*.txt; `make test SCENARIO=path` runs one scenario.

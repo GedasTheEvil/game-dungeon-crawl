@@ -1,4 +1,4 @@
-"""Generate the journal's ribbon bookmark texture textures/ui/ribbon.png (RGBA, 544 x 224).
+"""Generate the journal's ribbon bookmark texture media/textures/ui/ribbon.png (RGBA, 544 x 224).
 
     python3 tools/textures/ribbon.py [out.png]
 

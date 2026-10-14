@@ -1,6 +1,6 @@
 // Golden dumps (plan scenarios-to-unit-tests technique 6): every campaign level's decorations and fires as text, diffed
 // against tests/unit/golden/decor_lvlNN.txt. A change to the scatter shows up here as a diff. After a wanted change:
-// GOLDEN_UPDATE=1 ./build/unit -tc="*golden*" writes the files anew; review them with git diff.
+// GOLDEN_UPDATE=1 bin/unit -tc="*golden*" writes the files anew; review them with git diff.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/decor.h"

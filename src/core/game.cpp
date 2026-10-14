@@ -17,6 +17,7 @@
 #include "sound.h"
 #include "../state/game_state.h"
 #include "logger.h"
+#include "paths.h"
 #include "timer.h"
 #include "../test/scenario.h"
 #include "../state/settings.h"
@@ -88,11 +89,11 @@ static bool parseArgs(int argc, char* argv[]) {
 	const std::string flag = args.empty() ? "" : args[0];
 	bool ok = true;
 	if (args.size() == 2 && flag == "--level")
-		ok = Scenario::loadPlayLevel(args[1].c_str());
+		ok = Scenario::loadPlayLevel(Paths::fromLaunchDir(args[1]).c_str());
 	else if (args.size() == 2 && flag == "--play")
-		ok = Scenario::loadPlay(args[1].c_str());
+		ok = Scenario::loadPlay(Paths::fromLaunchDir(args[1]).c_str());
 	else if (args.size() == 1 && flag.rfind("--", 0) != 0) {
-		ok = Scenario::load(args[0].c_str());
+		ok = Scenario::load(Paths::fromLaunchDir(args[0]).c_str());
 		setenv("SDL_AUDIODRIVER", "dummy", 1);
 		GameClock::enableVirtual();
 	} else if (!args.empty()) {
@@ -104,6 +105,7 @@ static bool parseArgs(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+	Paths::enterRootDir(); // game.log, saves/ and the media from the repo root, wherever bin/game starts
 	Logger::initialize();
 
 	if (!parseArgs(argc, argv))

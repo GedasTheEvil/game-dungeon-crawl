@@ -13,6 +13,7 @@
 #include "../input/input.h"
 #include <optional>
 #include <string>
+#include "../core/paths.h"
 
 // Same 160 x 100 canvas (y up) and look as the inventory: a framed panel on the carved slate, lapis and stone tiles.
 namespace {
@@ -407,7 +408,7 @@ void MainMenu::LoadAssets() {
 	if (assetsLoaded)
 		return;
 	assetsLoaded = true;
-	creditsSheet.LoadPNG("textures/ui/credits.png", TexFilter::Flat);
+	creditsSheet.LoadPNG(MEDIA_DIR "textures/ui/credits.png", TexFilter::Flat);
 	loadScreenFonts(title, heading, body, small, 8.f);
 }
 

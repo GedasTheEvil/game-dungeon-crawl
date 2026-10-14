@@ -7,6 +7,7 @@
 #include "sim_world.h"
 #include <set>
 #include <sstream>
+#include "../../src/core/paths.h"
 
 namespace {
 JournalInscription entry(int id, int level) {
@@ -86,7 +87,7 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 	world.player.god = true;
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
-	REQUIRE(world.inscriptions.Load("inscriptions").empty());
+	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
 	REQUIRE(world.Load(6));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
@@ -116,7 +117,7 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learning translates the copy") {
 	SimWorld world;
 	world.player.god = true;
-	REQUIRE(world.inscriptions.Load("inscriptions").empty());
+	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
 	REQUIRE(world.Load(6));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
@@ -178,7 +179,7 @@ TEST_CASE("a journal saved before the translated flag loads its inscriptions tra
 
 TEST_CASE("every campaign inscription has a text, stands from level 6 on, and each text once") {
 	InscriptionBook book;
-	REQUIRE(book.Load("inscriptions").empty());
+	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
 	std::set<int> used;
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		LevelGrid grid;

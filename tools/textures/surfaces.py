@@ -1,4 +1,4 @@
-"""Generate the dungeon surface textures in textures/dungeon/ (RGB, 512 x 512 each).
+"""Generate the dungeon surface textures in media/textures/dungeon/ (RGB, 512 x 512 each).
 
     python3 tools/textures/surfaces.py [out_dir] [--preview preview.png]
 
@@ -547,4 +547,4 @@ if __name__ == "__main__":
         i = args.index("--preview")
         preview_path = args[i + 1]
         del args[i:i + 2]
-    main(args[0] if args else os.path.join(here, "..", "..", "textures", "dungeon"), preview_path)
+    main(args[0] if args else os.path.join(here, "..", "..", "media", "textures", "dungeon"), preview_path)

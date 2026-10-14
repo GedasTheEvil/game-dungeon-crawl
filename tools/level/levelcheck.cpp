@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "../../src/core/paths.h"
 
 namespace {
 struct Entry {
@@ -198,13 +199,16 @@ int campaignNumber(const std::string& path) {
 	return std::stoi(name.substr(3));
 }
 
-// Inscriptions need a text in inscriptions/*.txt (read from the working directory, the repo root), campaign ones
-// come from INSCRIPTIONS_FROM_LEVEL on, and each text stands in one place only among the files checked.
+// Inscriptions need a text in content/inscriptions/*.txt (the repo root's, from the working directory when the tool
+// is not in bin/), campaign ones come from INSCRIPTIONS_FROM_LEVEL on, and each text stands in one place only among
+// the files checked.
 void checkInscriptions(std::vector<Entry>& entries) {
 	InscriptionBook book;
-	bool texts = std::filesystem::is_directory("inscriptions");
+	const std::string root = Paths::rootDir();
+	const std::string dir = (root.empty() ? "" : root + "/") + CONTENT_DIR "inscriptions";
+	bool texts = std::filesystem::is_directory(dir);
 	if (texts)
-		for (const std::string& m : book.Load("inscriptions"))
+		for (const std::string& m : book.Load(dir))
 			fprintf(stderr, "%s\n", m.c_str());
 	std::vector<std::string> usedIn(INSCRIPTION_MAX + 1);
 	for (Entry& e : entries) {
@@ -217,7 +221,7 @@ void checkInscriptions(std::vector<Entry>& entries) {
 				" at (col " + std::to_string(cell % LEVEL_WIDTH) + ", row " + std::to_string(cell / LEVEL_WIDTH) + ")";
 			if (texts && book.Find(t.attr) == nullptr)
 				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where +
-											" has no text in inscriptions/");
+											" has no text in content/inscriptions/");
 			if (number > 0 && number < INSCRIPTIONS_FROM_LEVEL)
 				e.report.warnings.push_back("inscription" + where + " before level " +
 											std::to_string(INSCRIPTIONS_FROM_LEVEL) +

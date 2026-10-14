@@ -1,7 +1,7 @@
 """Synthesize the journal's page turn: the page lifting off with a crackle, a soft paper swish over the spine, and
 the light slap of it landing on the other side.
 
-    python3 tools/audio/page_sound.py [out.wav]      (default: sounds/ui/page_turn.wav)
+    python3 tools/audio/page_sound.py [out.wav]      (default: media/sounds/ui/page_turn.wav)
 
 Everything is generated (no samples), so this script is the source of the sound. The turn takes 650 ms in the game
 (FLIP_MS, src/ui/journal_view.cpp): the landing sits near its end.
@@ -87,7 +87,7 @@ def render():
 
 
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds", "ui", "page_turn.wav")
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "ui", "page_turn.wav")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     pcm = (render() * 32767).astype("<i2")
     with wave.open(path, "wb") as w:

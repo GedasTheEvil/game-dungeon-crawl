@@ -19,7 +19,7 @@ off the early ones.
   Same rules as in [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or
   near the path; hints only, never needed. Edit the ASCII sources (`def` a free character to `15 ID 0`, check the
   character is unused in that file) and rebuild with `tools/level/ascii2level.py`.
-* Texts: new entries in `inscriptions/*.txt` with `G:` glyphs, then rebuild the atlas
+* Texts: new entries in `content/inscriptions/*.txt` with `G:` glyphs, then rebuild the atlas
   (`tools/textures/inscriptions.py`). Real texts (Pyramid Texts, Coffin Texts, the Shipwrecked Sailor, Sinuhe,
   Wenamun, workmen's ostraca from Deir el-Medina, the Amarna hymn to the Aten) and hints. Early-level hints suit
   what the player meets there (the first key and gate, the spike pit, the first mimic, the scarab king of level 5).
@@ -30,4 +30,4 @@ off the early ones.
 ## Tests
 
 * The campaign unit test: every level 1-30 has at least one inscription, each id has a text and is used once.
-* `./levelcheck levels/lvl*` with no warnings.
+* `bin/levelcheck content/levels/lvl*` with no warnings.

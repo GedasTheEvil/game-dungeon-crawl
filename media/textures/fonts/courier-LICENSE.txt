@@ -1,4 +1,4 @@
-fonts/courier.png is a font sheet made with tools/textures/font_sheet.py from Courier 10 Pitch (c0419bt_.pfb), one of
+media/textures/fonts/courier.png is a font sheet made with tools/textures/font_sheet.py from Courier 10 Pitch (c0419bt_.pfb), one of
 the Bitstream Type 1 fonts donated to the X Consortium (font-bitstream-type1, Debian package xfonts-scalable).
 
 (c) Copyright 1989-1992, Bitstream Inc., Cambridge, MA.

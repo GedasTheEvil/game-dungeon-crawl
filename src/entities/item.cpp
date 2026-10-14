@@ -3,6 +3,7 @@
 #include "../graphics/ink.h"
 #include <algorithm>
 #include <string>
+#include "../core/paths.h"
 
 void Item::Draw(float pose) { drawScaled(scale * Ink::figureScale(), pose); }
 
@@ -24,9 +25,9 @@ void Item::drawScaled(float drawScale, float pose) {
 }
 
 bool Item::loadModel(const char* name, const char* texture) {
-	tex.LoadPNG(("textures/items/" + std::string(texture != nullptr ? texture : name) + ".png").c_str());
+	tex.LoadPNG((MEDIA_DIR "textures/items/" + std::string(texture != nullptr ? texture : name) + ".png").c_str());
 	mdl = std::make_shared<AnimatedModel>();
-	mdl->Load(("models/items/" + std::string(name) + ".md3").c_str());
+	mdl->Load((MEDIA_DIR "models/items/" + std::string(name) + ".md3").c_str());
 	mdl->Centrify();
 	mdl->BindTexture(tex.ID());
 	mdl->Compile();
@@ -34,6 +35,6 @@ bool Item::loadModel(const char* name, const char* texture) {
 }
 
 void Item::shareModel(const Item& owner, const char* texture) {
-	tex.LoadPNG(("textures/items/" + std::string(texture) + ".png").c_str());
+	tex.LoadPNG((MEDIA_DIR "textures/items/" + std::string(texture) + ".png").c_str());
 	mdl = owner.mdl;
 }

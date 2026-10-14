@@ -34,7 +34,7 @@ using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 constexpr int FRAME_STEP_MS = 100;
 void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed);
 
-// models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
+// media/models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
 // it is required, sets the normalization of all clips (frame 0) and stands in for missing optional ones.
 struct ClipFile {
 	ModelState state;
@@ -119,8 +119,8 @@ struct ModelInfo {
 	[[nodiscard]] float Progress(ModelState state, const ClipPlayback& playback) const;
 };
 
-// The clips of models/<name><suffix>.md3 (name: "<category>/<name>"), every one normalized like the reference clip
-// (Centrify), so the model doesn't jump between animations. Fills info; meshes (by ModelState, if given) gets the
+// The clips of media/models/<name><suffix>.md3 (name: "<category>/<name>"), every one normalized like the reference
+// clip (Centrify), so the model doesn't jump between animations. Fills info; meshes (by ModelState, if given) gets the
 // loaded clips for drawing. False: no reference clip.
 using ClipMeshes = std::array<Md3Mesh, MODEL_STATE_COUNT>;
 bool LoadClips(const char* name, const ClipFiles& files, ModelInfo& info, ClipMeshes* meshes = nullptr);

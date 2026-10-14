@@ -1,4 +1,4 @@
-"""Generate the HUD and inventory tab icon atlas textures/ui/hud_icons.png (RGBA, 8 x 5 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas media/textures/ui/hud_icons.png (RGBA, 8 x 5 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
@@ -579,4 +579,4 @@ def main(path):
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "textures", "ui", "hud_icons.png"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here, "..", "..", "media", "textures", "ui", "hud_icons.png"))

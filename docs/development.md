@@ -14,22 +14,25 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 
 ## Build and run
 
-Asset paths are relative to the repo root: run every program from there.
+Data paths are relative to the repo root (`MEDIA_DIR`, `CONTENT_DIR` in `src/core/paths.h`). The game, editor and
+model viewer move there themselves (the parent of `bin/`), so `bin/game` also starts from elsewhere; the level tools
+read their file arguments from the current directory.
 
-* `make` builds the game and every tool. Game: `./Play` (or `./game` from the repo root).
-* `./game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `./game --play SCENARIO.txt`: play a
+* `make` builds the game and every tool. Game: `./Play` (or `bin/game` from the repo root).
+* `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
-* Level editor: `make editor`, `make run-editor`. Runs from the repo root, see [tools/editor/readme.md](../tools/editor/readme.md).
-* Model viewer: `make model-viewer`, `make run-model-viewer ARGS="models/monsters/anubis.md3"`.
-* Level tools: `make level-tools`, then `./levelcheck levels/lvl*` (validate, rank by difficulty) and
-  `./levelgen --seed 1 --difficulty 5 OUT` (random level), `./levelconvert FILE...` (old level files to the current
+* Level editor: `make editor`, `make run-editor`. See [tools/editor/readme.md](../tools/editor/readme.md).
+* Model viewer: `make model-viewer`, `make run-model-viewer ARGS="media/models/monsters/anubis.md3"`.
+* Level tools: `make level-tools`, then `bin/levelcheck content/levels/lvl*` (validate, rank by difficulty) and
+  `bin/levelgen --seed 1 --difficulty 5 OUT` (random level), `bin/levelconvert FILE...` (old level files to the current
   format). See [levels.md](levels.md).
 
 ## Project layout
 
 * `src/` - game code: `core`, `graphics`, `entities`, `world`, `ui`, `input`, `state`, `test` (scenario runner).
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
-* `build/` - object files and the editor / model viewer binaries (not tracked by git).
+* `bin/` - the game, the tools and the unit test runner (not tracked by git).
+* `build/` - object files and libraries (not tracked by git).
 * `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
 * `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), test riddles (`riddles/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
@@ -82,11 +85,11 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 ## Assets
 
-* `models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
-* `textures/<category>/`, `fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `models/` plus `ui`, `dungeon`, `effects`.
-* `sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `models/` and `textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever and rock sounds.
-* `levels/` - campaign levels, edited with the level editor.
-* `riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
+* `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
+* `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
+* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever and rock sounds.
+* `content/levels/` - campaign levels, edited with the level editor.
+* `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `saves/` - save games (not tracked by git).
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [remodeling.md](remodeling.md).
@@ -133,7 +136,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Interact: pick up treasure, use a gate (exit, teleport), travel | `world/dungeon_interact.cpp` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Dart traps | `world/dungeon_darts.cpp` |
-| Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
+| Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |
 | Tile types, level file format, level grid | `world/tile_defs.*`, `world/level.*` |
 | Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |

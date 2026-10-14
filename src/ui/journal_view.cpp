@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdio>
 #include <vector>
+#include "../core/paths.h"
 
 using namespace ui;
 
@@ -54,8 +55,10 @@ constexpr float PEEK_X = 6.f; // the hovered corner lifts this far in and up
 constexpr float PEEK_Y = 3.f;
 constexpr float CLICK_SLOP = 1.5f; // a press let go of within this is a click, not a drag
 
-constexpr const char* HAND_FONT = "fonts/kalam.png"; // Kalam (OFL, fonts/kalam-OFL.txt)
-constexpr const char* STAMP_FONT = "fonts/courier.png"; // Courier 10 Pitch (Bitstream, fonts/courier-LICENSE.txt)
+constexpr const char* HAND_FONT =
+	MEDIA_DIR "textures/fonts/kalam.png"; // Kalam (OFL, media/textures/fonts/kalam-OFL.txt)
+constexpr const char* STAMP_FONT =
+	MEDIA_DIR "textures/fonts/courier.png"; // Courier 10 Pitch (Bitstream, media/textures/fonts/courier-LICENSE.txt)
 constexpr float FADED = 0.7f; // alpha of pencil notes that matter less
 
 constexpr float NUMBER_TOP = 5.8f; // page number baseline below the page top
@@ -129,7 +132,7 @@ Rect photoBox(const Rect& p) { return {p.cx() - PHOTO_W / 2, p.y + p.h - PHOTO_T
 
 Color darker(Color c, float f) { return {c.r * f, c.g * f, c.b * f}; }
 
-// A silk ribbon with a frayed swallowtail end (textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
+// A silk ribbon with a frayed swallowtail end (media/textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
 // RIBBON_TEX_LEN x RIBBON_H plus one unit right and below for its shadow; a shorter ribbon crops its inner end. A left
 // ribbon is mirrored, the swallowtail pointing left.
 void ribbon(const Rect& r, bool left, Color c) {
@@ -1101,7 +1104,7 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		return;
 	Texture& print = photoTextures[static_cast<size_t>(type)];
 	if (photo && !print.ID()) {
-		std::string file = std::string("textures/") + t.texture + ".png";
+		std::string file = std::string(MEDIA_DIR "textures/") + t.texture + ".png";
 		print.LoadPNG(file.c_str(), TexFilter::Mipmapped, photoGrey);
 	}
 

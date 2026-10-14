@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include "../core/paths.h"
 
 // Same 160 x 100 canvas (y up) as the inventory: the gate on the left, the riddle on a papyrus scroll on the right.
 namespace {
@@ -138,7 +139,7 @@ void ParseRiddles(std::istream& in, const std::string& source, std::vector<Riddl
 
 Riddle::Riddle() {
 	loadScreenFonts(title, heading, body, small, 7.f);
-	Load("riddles");
+	Load(CONTENT_DIR "riddles");
 }
 
 size_t Riddle::Load(const std::string& path) {

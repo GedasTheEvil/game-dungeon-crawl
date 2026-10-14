@@ -2,9 +2,9 @@
 was-sceptre: a low hum rising in pitch with a faint glassy shimmer as the sceptre swings, a short dry crack at the
 release, a falling hiss and buzz as the bolt flies off. Short and dry, not the teleporter's smooth swell.
 
-    python3 tools/audio/anubis_sounds.py [out_dir]      (default: sounds/monsters/, writes anubis_att_ranged.wav)
+    python3 tools/audio/anubis_sounds.py [out_dir]      (default: media/sounds/monsters/, writes anubis_att_ranged.wav)
 
-The magic is generated (no samples), so this script is its source. The grunt is the sample sounds/monsters/anubis_att.wav
+The magic is generated (no samples), so this script is its source. The grunt is the sample media/sounds/monsters/anubis_att.wav
 (IMA ADPCM, which Python's wave cannot read: ffmpeg decodes it), mixed in at 70% from the start.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
 """
@@ -93,7 +93,7 @@ def tail(dur):
 
 def grunt():
     """The Anubis's attack grunt (anubis_att.wav), decoded by ffmpeg."""
-    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(REPO, "sounds", "monsters", "anubis_att.wav"),
+    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(REPO, "media", "sounds", "monsters", "anubis_att.wav"),
                           "-f", "s16le", "-ac", "1", "-ar", str(SR), "-"], check=True, capture_output=True).stdout
     return np.frombuffer(pcm, dtype="<i2").astype(np.float64) / 32768
 
@@ -128,7 +128,7 @@ def write(path, x):
 
 
 def main():
-    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "sounds", "monsters")
+    out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "anubis_att_ranged.wav"), att_ranged())
 
 

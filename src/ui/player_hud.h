@@ -24,7 +24,7 @@ constexpr ui::Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 constexpr ui::Color POISON_TOP = {0.45f, 0.82f, 0.2f};
 constexpr ui::Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
 
-// Cells of the icon atlas textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
+// Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
 // inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon); the curses from
 // FirstCurse on, in Curse order.
 enum class Icon : std::uint8_t {

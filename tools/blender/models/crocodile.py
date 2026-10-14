@@ -895,9 +895,9 @@ if __name__ == "__main__" and "--" in sys.argv:
     if "--boss-texture" in args:
         obj, _ = build(bake=False)
         materials(COL_SOBEK)
-        common.bake_texture(obj, os.path.join(REPO, "textures", "monsters", "crocodile_sobek.png"), TEX_SIZE, "crocodile_sobek", ao_distance=0.12)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "crocodile_sobek.png"), TEX_SIZE, "crocodile_sobek", ao_distance=0.12)
     elif "--export" in args:
-        build(tex_path=os.path.join(REPO, "textures", "monsters", "crocodile.png"))
+        build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "crocodile.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "crocodile.blend"))
     else:

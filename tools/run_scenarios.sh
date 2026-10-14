@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs scenario scripts through ./game, each through the shared load gate (tools/load_gate.sh: JOBS, RESERVE_CORES,
+# Runs scenario scripts through bin/game, each through the shared load gate (tools/load_gate.sh: JOBS, RESERVE_CORES,
 # MIN_FREE_MB, MIN_SWAP_FREE_MB). A game counts as still loading for GATE_LOAD_S seconds (default 15), with
 # GATE_LOAD_MB (default 1500) more memory to come. Each game renders with one llvmpipe thread and runs niced, so the
 # desktop stays usable.
@@ -32,9 +32,9 @@ export GATE_STATS="$tmp/load"
 run_one() {
 	local out code
 	if [ $headless = 1 ]; then
-		out=$(tools/load_gate.sh run nice -n 10 xvfb-run -a -n $((200 + $2 * 3)) -s "-screen 0 800x600x24" ./game "$1" 2>&1)
+		out=$(tools/load_gate.sh run nice -n 10 xvfb-run -a -n $((200 + $2 * 3)) -s "-screen 0 800x600x24" bin/game "$1" 2>&1)
 	else
-		out=$(tools/load_gate.sh run ./game "$1" 2>&1)
+		out=$(tools/load_gate.sh run bin/game "$1" 2>&1)
 	fi
 	code=$?
 	[ $code -ne 0 ] && out+=$'\n'"   exit $code"

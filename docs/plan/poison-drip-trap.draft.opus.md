@@ -5,48 +5,57 @@ and level check). From the user. Sibling of [fire-jet-trap](fire-jet-trap.draft.
 
 ## Idea
 
-A timed trap from above: a lump of venom swells on the ceiling, falls on a cycle onto one cell and leaves a green
-puddle that stays a few seconds. Same clock as the rhythm traps (`period`, `phase`), as a third kind of the rhythm
-trap (spikes, fire, drip), not a parallel system. The rhythm-trap spikes are already poisoned; the drip differs in
-shape: one cell, and the danger lingers after the beat.
+A timing trap and a floor trap at once. Venom has dripped from the ceiling for ages: a green puddle lies on the floor
+from the start and never dries. Above it, a lump of venom swells and falls into the puddle on a cycle. The puddle is
+always dangerous; the drop is dangerous on the beat.
 
-* **Telegraph:** the lump grows and wobbles on the ceiling, a wet creak, a last drop or two just before it falls.
-* **Drop:** falls onto its cell. A hit on whoever stands there: small damage plus poison (tier per trap, default
-  medium, [stronger-poisons](solved/stronger-poisons.md) tiers; resistance rolls as for any poisoning). The trap ward
-  (`trapCutPercent`) cuts the damage only, never the poison (as [death-spikes-poison](solved/death-spikes-poison.md)).
-* **Puddle:** after the drop, a puddle on the cell for `puddle` ms (default about half the period, per trap). Standing
-  in it poisons (weak tier, applied once per entry, re-entry refreshes as `Player::Poison` does), no damage. It
-  shrinks and fades before it goes.
-* **Bypass:** sprint helps against the drop (one cell, short moment) but the puddle stays; jumping clears the
-  puddle (it is on the floor), not the drop (a jump into the falling lump is still a hit). Levitation clears the
-  puddle too. This is the intended difference from spikes and fire.
-* **Monsters:** courage rules as for rhythm traps; cowards also stop at a puddle. Reckless ones get poisoned
-  (`Monster::TakePoison`, byPlayer false: no XP for the kill). Flyers (weight 0) ignore the puddle, not the drop.
-* **Draw:** the lump and the drop in venom green (`Fire::VENOM_RAMP` look, or a glossy green blob), a green splash on
-  impact, a flat puddle decal. A dark stain on the ceiling marks the spot even between drops.
-* **Sound:** wet creak on telegraph, splat on impact, a faint drip loop from afar.
-* Status line on the first hit, e.g. "Something on the ceiling has been saving that for you."
+Build it as a third kind of the rhythm trap (spikes, fire, drip) for the drop, plus a permanent floor-trap part for
+the puddle, not a parallel system. The rhythm-trap spikes are already poisoned; the drip differs in shape: one
+cell, from above, on a floor that is never safe.
+
+* **Puddle (floor trap, always on):** stepping into it poisons (weak tier,
+  [stronger-poisons](solved/stronger-poisons.md)), applied once per entry; re-entry refreshes as `Player::Poison`
+  does. No damage. Present from level load, never fades.
+* **Drop (timing trap):** on the cycle (`period`, `phase`), the lump falls onto the puddle cell. Whoever is there
+  takes a small hit plus poison (tier per trap, default medium). Resistance rolls as for any poisoning. The trap
+  ward (`trapCutPercent`) cuts the damage only, never the poison (as
+  [death-spikes-poison](solved/death-spikes-poison.md)).
+* **Telegraph:** the lump grows and wobbles, a wet creak, a last drop or two just before it falls.
+* **Bypass:** jumping or levitation clears the puddle, like any floor trap, but not the drop: a jump timed into
+  the falling lump is still a hit. So the safe pass is a jump between drops. Walking through always costs the weak
+  poison; walking through on the beat costs the drop too. Sprint only shortens the time under the drop.
+* **Monsters:** cowards treat the puddle as a trap tile (stop at its edge, walk-jumpers leap it, `Courage`);
+  reckless ones walk in and get poisoned (`Monster::TakePoison`, byPlayer false: no XP for the kill). Flyers
+  (weight 0) ignore the puddle, not the drop.
+* **Draw:** a flat, glossy green puddle decal with a ring ripple from each small drip; the lump on the ceiling with
+  a dark stain around it; a green splash on the big drop (`Fire::VENOM_RAMP` colours or a green blob). Map symbol
+  like other traps.
+* **Sound:** constant faint drip loop, wet creak on the telegraph, splat on the drop.
+* Status line on the first drop hit, e.g. "Something on the ceiling has been saving that for you."
 
 ## Level format
 
-A new glyph for the drip cell (pick a free one). Phase / period / speed the same way rhythm traps take them; an
-optional puddle time. Main use: a row of drips across a corridor or a hall, staggered, so the safe cells shift.
+A new glyph for the drip cell (pick a free one): puddle and lump on the same cell. Phase / period / speed the same
+way rhythm traps take them. Main use: a row of drips across a corridor or a hall, staggered, so the player must jump
+over each puddle between drops.
 
 ## Level check
 
-The rhythm-trap crossing check, with the danger window of a drip cell = drop moment + puddle time (walk speed, no
-jump). Warn if no start time crosses the run. Count drips with the other rhythm traps. Extend the checker's antidote rule
-(`level_check.cpp`, today poisoner monsters only, `isPoisoner`) to drip cells: a level with drips needs an antidote.
+* The puddle counts as a floor trap (like `spikes` / `pathSpikes`): jumpable, never a softlock.
+* The drop uses the rhythm-trap crossing check (walk speed; a jump across must fit a safe window). Warn if no
+  start time gets across without a drop hit. Count drips with the other rhythm traps.
+* Extend the checker's antidote rule (`level_check.cpp`, today poisoner monsters only, `isPoisoner`) to drip
+  cells: a level with drips needs an antidote.
 
 ## Open points
 
-* Puddle time and whether puddles spread to a neighbour cell on a big drop (default: no).
+* Puddle size: one cell, or spreading to neighbours for a big lump (default: one cell).
 * Drop damage size; maybe zero, poison only.
 * Placement in the campaign.
 
 ## Tests
 
-* Unit: the drip cell is dangerous at the drop and through the puddle time, safe after; a jump clears the puddle,
-  not the drop.
-* Unit: the checker counts the puddle time in the danger window.
-* Scenario with a screenshot: the lump falling, a puddle, the player poisoned.
+* Unit: the puddle poisons on entry at any time; the drop hits only on the beat; a jump clears the puddle, not the
+  drop.
+* Unit: the checker counts the puddle as a floor trap and warns on an uncrossable drip run.
+* Scenario with a screenshot: the lump falling into the puddle, the player poisoned.

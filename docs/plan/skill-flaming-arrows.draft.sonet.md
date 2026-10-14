@@ -13,10 +13,12 @@ burning for stamina.
   comes on top. The fire share goes through fire resistances (a mummy takes double) and ignites the target
   (burning, per fire-damage).
 * Cost: 10% of max stamina per shot.
-* Purpose (user): the answer to monsters an arrow barely scratches. **Whoever resists pierce is weak to fire.**
+* Purpose (user): the answer to monsters an arrow barely scratches. **Whoever resists pierce is weak to fire**, as a
+  rule with exceptions.
   Today (`src/world/monster_kinds.cpp`, fire column from fire-damage) plant, mummy and egg cluster already are; this
-  plan makes the rest weak to fire too, each with a reason in its comment: bat (thin wing membranes), mimic (dry
-  wood), scorpion (implementer's choice: weak, or a lore reason to keep it normal). Their bosses follow through
+  plan makes bat (thin wing membranes) and mimic (dry wood) weak to fire too, with the reason in the comment. The
+  scorpion stays normal (decided, user 2026-10-14): the exception, its comment says why (e.g. a desert hunter, used
+  to heat). Their bosses follow through
   `bossResist`. Keep the rule in the resistance table's comment, and in the journal's field note on fire arrows.
 * **Toggle**, as power hit (stamina also pays for sprint and jump). One key for both skills, default `Q`: on = every
   learned stamina skill that fits the attack applies (a bow shot: flaming arrows, and power hit if it covers ranged;
@@ -34,13 +36,12 @@ burning for stamina.
 
 ## Open (warn when reporting)
 
-* Scorpion fire weakness (above).
 * Numbers (40%, 10% stamina) need the sim (`monster-balance`).
 
 ## Tests
 
-* Unit: every kind that resists pierce (resists or tough) is weak to fire (a table check, so a new monster keeps
-  the rule).
+* Unit: every kind that resists pierce (resists or tough) is weak to fire, except a named list (the scorpion and
+  its boss): a table check, so a new monster keeps the rule or joins the list on purpose.
 * Unit: with the skill on, a bow hit deals +40% as fire and costs 10% stamina; a mummy takes the fire share double;
   the target burns; low stamina = normal arrow, no cost; toggle off = normal; a brazier-lit arrow costs nothing.
 * Scenario with a screenshot: the Heka screen with 9 cards.

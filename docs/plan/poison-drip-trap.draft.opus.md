@@ -35,8 +35,8 @@ optional puddle time. Main use: a row of drips across a corridor or a hall, stag
 ## Level check
 
 The rhythm-trap crossing check, with the danger window of a drip cell = drop moment + puddle time (walk speed, no
-jump). Warn if no start time crosses the run. Count drips with the other rhythm traps. Poisoners need an antidote
-reachable like other poison sources (the checker's poisoner antidote rule).
+jump). Warn if no start time crosses the run. Count drips with the other rhythm traps. Extend the checker's antidote rule
+(`level_check.cpp`, today poisoner monsters only, `isPoisoner`) to drip cells: a level with drips needs an antidote.
 
 ## Open points
 

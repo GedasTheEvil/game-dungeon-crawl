@@ -13,7 +13,7 @@
 enum class DamageType : unsigned char { Blunt, Slash, Pierce, Fire };
 constexpr int DAMAGE_TYPE_COUNT = 4;
 
-constexpr std::array<const char*, DAMAGE_TYPE_COUNT> DAMAGE_TYPE_NAMES = {"blunt", "slash", "pierce", "fire"};
+constexpr std::array<const char*, DAMAGE_TYPE_COUNT> DAMAGE_TYPE_NAMES = {"smash", "cut", "stab", "fire"};
 constexpr auto FIRE = static_cast<size_t>(DamageType::Fire);
 
 // A weapon's or a monster's attack damage, in percent per type; adds up to 100.
@@ -125,10 +125,10 @@ class Burning {
 // The journal's sentence on what a creature's attack deals: the largest share as the main phrase, each smaller one
 // as "a hint of"; an even split names both as the main.
 [[nodiscard]] inline std::string attackSentence(const DamageMix& mix) {
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> MAIN = {"hits me bluntly hard", "cuts me deep",
-																 "pierces me to the bone", "sets me on fire"};
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> VERB = {"crushes", "cuts", "pierces", "burns"};
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> HINT = {"crushing pain", "cutting pain", "piercing pain",
+	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> MAIN = {"smashes me hard", "cuts me deep",
+																 "stabs me to the bone", "sets me on fire"};
+	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> VERB = {"smashes", "cuts", "stabs", "burns"};
+	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> HINT = {"smashing pain", "cutting pain", "stabbing pain",
 																 "burning pain"};
 	const int top = mix[static_cast<size_t>(mainType(mix))];
 	std::string mains, hints;

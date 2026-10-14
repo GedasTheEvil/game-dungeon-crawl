@@ -1,6 +1,6 @@
 # Simple damage words
 
-Status: draft 2026-10-14. Ready, needs nothing first. From the user. Two parts: simple damage words, then a
+Status: implemented 2026-10-14, waits for the play-test (`bin/game --play tests/play/simple-damage-words.txt`). From the user. Two parts: simple damage words, then a
 plain-English rewrite of the journal.
 
 ## Why

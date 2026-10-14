@@ -88,8 +88,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | burning | You are on fire!, catches fire | a fire hit sets its target burning: 3 s at a fifth of the hit's fire share a second, armour or not; half water puts it out ([fire-damage](plan/solved/fire-damage.md)) | `Burning`, `BURN_MS`, `Fire::body` |
 | bite reach | | how close a walker comes before it bites: 0.1 tiles between hitboxes (0.25 for the rooted) | `MONSTER_BITE_REACH`, `ROOTED_BITE_REACH` |
 | damage mix | | a weapon's or a monster's damage split into blunt, slash, pierce and fire, in percent | `DamageMix` |
-| damage type | blunt, slash, pierce, fire | one of the four kinds of damage | `DamageType` |
-| fire | fire | the fourth damage type: goes through armour, sets the target burning; only the fire warding cuts it on the player | `DamageType::Fire`, `fireDamage` |
+| damage type | blunt, slash, pierce, fire (player reads: smash, cut, stab, fire) | one of the four kinds of damage | `DamageType` |
+| fire | fire | the fourth damage type: goes through armour, sets the target burning; only the fire guard cuts it on the player | `DamageType::Fire`, `fireDamage` |
 | fire arrow | Dipped 5 arrows in the brazier's fire | interact by a brazier with a bow: the next 5 arrows deal 60% of their damage as fire | `Player::fireArrows`, `Dungeon::lightArrows`, `FIRE_ARROW_SHOTS` |
 | gap | | (combat) the distance between two hitboxes' edges, in tiles. Not a gap in the floor (see Map) | `Monster::MeleeGap` |
 | hitbox | | a body's box: half width from its model, used for reach and hits; F3 / `hitboxes on` shows them | `HalfWidth` |
@@ -112,7 +112,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | amulet | Amulet | worn one at a time, gives its bonus while on; four tiers per type | `AmuletType`, `AmuletTier` |
 | bag | Inventory | what the player carries: counts, weapon levels, the worn amulet | `ItemBag` |
-| fire warding | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts) | `AmuletType::FireWard` |
+| fire guard | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts) | `AmuletType::FireWard` |
 | group | Weapons, Potions, Amulets, Rings | an inventory tab | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
 | item kind | | one item: a weapon, a potion, an amulet tier; the save ids follow it | `ItemKind` |

@@ -1,0 +1,13 @@
+# Plan simple-damage-words, for `bin/game --play tests/play/simple-damage-words.txt`: level 1, god mode. Hit a rat with
+# the club: the status line says "Journal: ..., ... smash", the journal (J) has the plain-English notes (Smash, potions).
+# In the inventory (I): weapon stats read smash/cut/stab; amulets are "Guard"s; potions are "Potion"s. Give a stab and
+# a cut weapon and an amulet to look.
+seed 1
+god
+level 1
+give melee 1
+give melee 2
+give potion 0
+give amulet 20
+give amulet 24
+give amulet 28

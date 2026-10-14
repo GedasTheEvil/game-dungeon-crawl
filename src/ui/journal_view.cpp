@@ -194,7 +194,7 @@ const char* curseMoveNote(const MonsterType& t) {
 	case Curse::Weakness:
 		return "Its blows curse: my arm goes weak.";
 	case Curse::Clumsiness:
-		return "Its bite curses: my blows go astray.";
+		return "Its bite curses: my blows get weaker.";
 	case Curse::Vulnerability:
 		return "Its blows curse: my armour turns to papyrus.";
 	case Curse::Fatigue:
@@ -224,13 +224,13 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	case CreatureMove::Summon:
 		switch (t.boss.summon) {
 		case Summon::DigOut:
-			return "Calls its brood up out of the sand.";
+			return "Calls its young up out of the sand.";
 		case Summon::Drop:
 			return "Calls its kind down from the ceiling.";
 		case Summon::Coffin:
 			return "The dead climb out of their coffins at its call.";
 		case Summon::Hatch:
-			return "Her brood hatches from the egg clusters round her.";
+			return "Her young hatch from the egg clusters around her.";
 		}
 		break;
 	case CreatureMove::Heal:
@@ -238,7 +238,7 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	case CreatureMove::Surface:
 		return "Lies under the water, only its eyes show.";
 	case CreatureMove::Poison:
-		return "Its poison burns on long after the bite.";
+		return "Its poison keeps burning long after the bite.";
 	case CreatureMove::Rear:
 		return "Lies coiled, rears up when I come near.";
 	case CreatureMove::AttackRanged:
@@ -267,67 +267,69 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Experience", "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
 				   "a new level: more health and more stamina, both filled up at once, and any poison gone. Every "
 				   "fifth level my skin gets tougher, every eighth my arm stronger."},
-	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running "
+	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of it, and running "
 				"drains it all the time. When I walk or stand, it comes back by itself."},
 	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
 					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
-	{"Poison", "Some stings and bites poison me: the health bar turns green and drains on after the fight, armour "
-			   "or not, and it can kill me. The same poison again only starts over; a stronger or weaker one burns "
-			   "beside it. A new level burns it all out."},
-	{"Weapons", "Copies of my weapons turn up in chests, and now and then a creature leaves one; with enough copies "
+	{"Poison", "Some stings and bites poison me: the health bar turns green and keeps draining after the fight, "
+			   "armour or not, and it can kill me. The same poison again only starts over; a stronger or weaker one "
+			   "runs alongside it. A new level clears all poison."},
+	{"Weapons", "Copies of my weapons are in chests, and now and then a creature leaves one; with enough copies "
 				"a weapon can be upgraded in the inventory (U). The old club gains the most from it. 1 takes up the "
 				"next hand weapon, 2 the next one to shoot or throw. Every creature takes each kind of blow "
 				"differently: I note it down."},
-	{"Blunt", "A club bludgeons, and so do the mace, the sling's stones and the throwing stick: they crush rather "
-			  "than cut."},
-	{"Slash", "A blade slashes: the bronze sword, the khopesh, the epsilon axe. Long cuts, quick to follow one "
-			  "another."},
-	{"Pierce", "A point pierces: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the "
-			   "gaps between scales and plates."},
-	{"Health draughts", "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. In a hurry, "
-						"H drinks the one that fits best."},
-	{"Stamina draughts", "Date wine, or the red beer of Hathor: a stamina draught gives me my breath back. In "
-						 "a hurry, 0 drinks the one that fits best."},
-	{"Blood of Montu", "It tingles. Whatever is in it, my arm hits harder after it, for good."},
+	{"Smash", "A club smashes, and so do the mace, the sling's stones and the throwing stick. They hit hard, but "
+			  "they do not cut."},
+	{"Cut", "A blade cuts: the bronze sword, the khopesh (a curved sword), the epsilon axe. Long cuts, quick to "
+			"follow one another."},
+	{"Stab", "A point stabs: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the "
+			 "gaps between scales and plates."},
+	{"Health potions", "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. When I am "
+					   "in a hurry, H drinks the one that fits best."},
+	{"Stamina potions", "Date wine, or the red beer of Hathor: a stamina potion gives me my stamina back. When I "
+						"am in a hurry, 0 drinks the one that fits best."},
+	{"Blood of Montu", "It tingles. Whatever is in it, my arm hits harder after I drink it, forever."},
 	{"Granite of Ptah",
-	 "Ptah's granite: my skin hardens like a temple wall, every blow takes a little less, for good."},
-	{"Breath of Osiris", "The breath of Osiris: more health for good, and every wound closed at once."},
+	 "Ptah's granite: my skin becomes hard as a temple wall, and every blow hurts a little less, forever."},
+	{"Breath of Osiris", "The breath of Osiris: more health forever, and all my wounds close at once."},
 	{"Milk of Renenutet",
 	 "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
 	{"Dart traps", "A slab with a cobra on it sank under my foot, and darts shot out of three holes in the wall "
-				   "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts take "
+				   "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts hit "
 				   "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "
 				   "them pass under me."},
-	{"Resistance draughts", "Cobra venom, a drop at a time: for two minutes a poisoned bite or sting slides off me, "
-							"half the time after the lesser draught, nearly always after the greater one, which also "
-							"cures a poison already in me. A poison warding amulet adds its share."},
+	{"Resistance potions", "Cobra venom, a drop at a time. For two minutes a poisoned bite or sting often does "
+						   "nothing to me: half the time after the lesser potion, nearly always after the greater "
+						   "one. The greater potion also cures a poison already in me. A poison guard amulet adds "
+						   "its share."},
 	{"Heka", "The guardian's heka, the magic the gods hold, went into me. It tastes of river mud and old incense. "
-			 "Each guardian gives one; on the Heka page (K) I spend it on a skill, for good. There are more skills "
+			 "Each guardian gives one; on the Heka page (K) I spend it on a skill, forever. There are more skills "
 			 "than guardians down here, so I choose with care."},
-	{"Serket's favour", "Serket likes me. Her children still bite, but they do not mean it as much: every poison "
-						"on me burns for half as long, at the same sting a second."},
+	{"Serket's favour", "Serket likes me. Her children still bite, but they hurt me less: every poison on me "
+						"lasts half as long, with the same damage each second."},
 	{"Sharp eye", "Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and "
-				  "the throwing stick all aim a third farther: a foe far off is still a foe in my sights."},
-	{"Weakness", "A curse sits on my arm: half my might is gone, and the greater curse takes more than all of it. "
-				 "Nothing I drink lifts a curse. Two minutes, then it fades. Another curse of the same kind starts "
-				 "the time again."},
-	{"Clumsiness", "Cursed with clumsy hands: every blow, shot and throw lands a fifth softer, half as hard under "
-				   "the greater curse. My venom does not care. Two minutes and it passes; no potion helps."},
-	{"Vulnerability", "Cursed: my armour feels like papyrus, it stops only two fifths of what it did. "
-					  "Two minutes, and nothing cures it. Best not be hit meanwhile."},
+				  "the throwing stick all reach a third farther: even a foe far away is in my sights."},
+	{"Weakness", "A curse sits on my arm: half my might is gone, and the greater curse takes all of it and more. "
+				 "Nothing I drink removes a curse. Two minutes, then it fades. Another curse of the same kind "
+				 "restarts the two minutes."},
+	{"Clumsiness", "Cursed with clumsy hands: every blow, shot and throw does a fifth less damage, and half as much "
+				   "under the greater curse. My venom is not affected. Two minutes and it passes; no potion helps."},
+	{"Vulnerability", "Cursed: my armour feels like papyrus. It stops only two fifths of what it did. "
+					  "Two minutes, and nothing cures it. I should not get hit in that time."},
 	{"Fatigue", "A curse drained me: my stamina fell to a fifth and does not come back by itself for two minutes. "
 				"A stamina potion still works."},
 	{"Disease", "A cursed sickness: my body holds less health, a third less, much less under the greater curse. "
-				"It gives the health back when it passes, in two minutes. No antidote touches it."},
-	{"Slowness", "Cursed legs: I walk and climb at half speed and run little faster than I used to walk. Two minutes. "
-				 "Traps timed for a quick step are not my friends now."},
+				"It gives the health back when it passes, in two minutes. No antidote helps."},
+	{"Slowness", "Cursed legs: I walk and climb at half speed, and I run hardly faster than I used to walk. Two "
+				 "minutes. Traps made for a quick step are dangerous for me now."},
 	{"Palsy", "My hands shake from a curse: no bow, sling or throw finds its mark, so I do not try. My melee weapons "
 			  "still work. Two minutes."},
-	{"Insanity", "My mind is clouded. The club is in my hand and stays there; my map, journal, pack and potions mean "
-				 "nothing to me. Two minutes, if I live."},
-	{"Fire", "Fire sets what it hits alight: it burns on for a few seconds after the hit. Armour does not stop it, "
-			 "only a fire warding amulet does, and water puts it out. A brazier lights my next five arrows (E by "
-			 "it). Mummies, it turns out, are mostly kindling."},
+	{"Insanity", "My mind is clouded. The club stays in my hand, and I cannot use my map, journal, pack or potions. "
+				 "Two minutes, if I live."},
+	{"Fire",
+	 "Fire sets what it hits on fire: it keeps burning for a few seconds after the hit. Armour does not stop it, "
+	 "only a fire guard amulet does, and water puts it out. A brazier lights my next five arrows (E by "
+	 "it). Mummies, it turns out, burn very well."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

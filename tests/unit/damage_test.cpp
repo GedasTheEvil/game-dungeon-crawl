@@ -21,17 +21,17 @@ TEST_CASE("the resistance scales the raw hit before the armour") {
 }
 
 TEST_CASE("the journal's sentence for each monster group's mix") {
-	CHECK(attackSentence({60, 40, 0}) == "It hits me bluntly hard, with a hint of cutting pain.");
-	CHECK(attackSentence({40, 60, 0}) == "It cuts me deep, with a hint of crushing pain.");
-	CHECK(attackSentence({0, 30, 70}) == "It pierces me to the bone, with a hint of cutting pain.");
-	CHECK(attackSentence({100, 0, 0}) == "It hits me bluntly hard.");
-	CHECK(attackSentence({80, 0, 20}) == "It hits me bluntly hard, with a hint of piercing pain.");
-	CHECK(attackSentence({50, 0, 50}) == "It crushes and pierces me alike.");
-	CHECK(attackSentence({40, 0, 60}) == "It pierces me to the bone, with a hint of crushing pain.");
-	CHECK(attackSentence({20, 30, 50}) == "It pierces me to the bone, with a hint of crushing pain and cutting pain.");
+	CHECK(attackSentence({60, 40, 0}) == "It smashes me hard, with a hint of cutting pain.");
+	CHECK(attackSentence({40, 60, 0}) == "It cuts me deep, with a hint of smashing pain.");
+	CHECK(attackSentence({0, 30, 70}) == "It stabs me to the bone, with a hint of cutting pain.");
+	CHECK(attackSentence({100, 0, 0}) == "It smashes me hard.");
+	CHECK(attackSentence({80, 0, 20}) == "It smashes me hard, with a hint of stabbing pain.");
+	CHECK(attackSentence({50, 0, 50}) == "It smashes and stabs me alike.");
+	CHECK(attackSentence({40, 0, 60}) == "It stabs me to the bone, with a hint of smashing pain.");
+	CHECK(attackSentence({20, 30, 50}) == "It stabs me to the bone, with a hint of smashing pain and cutting pain.");
 }
 
-TEST_CASE("fire: a share like the others; armour does not stop it, only the fire warding cuts it") {
+TEST_CASE("fire: a share like the others; armour does not stop it, only the fire guard cuts it") {
 	const DamageMix fire = {0, 0, 0, 100};
 	CHECK(resistedDamage(10, fire, NO_RESISTANCES) == 10);
 	CHECK(resistedDamage(10, fire, {NORMAL, NORMAL, NORMAL, WEAK}) == 20);
@@ -39,11 +39,11 @@ TEST_CASE("fire: a share like the others; armour does not stop it, only the fire
 	CHECK(resistedDamage(10, {0, 0, 40, 60}, {RESISTS, WEAK, TOUGH, WEAK}) == 13);
 	for (int armor : {0, 3, 12, 40})
 		CHECK(playerHitDamage(20, fire, NO_RESISTANCES, armor, false) == 20);
-	CHECK(playerHitDamage(20, fire, {NORMAL, NORMAL, NORMAL, 20}, 12, false) == 4); // grand fire warding
+	CHECK(playerHitDamage(20, fire, {NORMAL, NORMAL, NORMAL, 20}, 12, false) == 4); // grand fire guard
 	// A mixed hit: the armour soaks the blunt share only, and never more than all of it.
 	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 3, false) == 17); // 12 fire + (8 - 3)
 	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 50, false) == 12);
-	CHECK(attackSentence({40, 0, 0, 60}) == "It sets me on fire, with a hint of crushing pain.");
+	CHECK(attackSentence({40, 0, 0, 60}) == "It sets me on fire, with a hint of smashing pain.");
 }
 
 namespace {

@@ -18,7 +18,7 @@ int hpAfterSpikes(std::optional<ItemKind> worn) {
 }
 } // namespace
 
-TEST_CASE("trap warding cuts the spike damage: none without it 30 HP, grand none, lesser about a quarter off") {
+TEST_CASE("trap guard cuts the spike damage: none without it 30 HP, grand none, lesser about a quarter off") {
 	CHECK(hpAfterSpikes(std::nullopt) == 20);
 	CHECK(hpAfterSpikes(amulet(AmuletType::TrapWard, AmuletTier::Grand)) == 50);
 	CHECK(hpAfterSpikes(amulet(AmuletType::TrapWard, AmuletTier::Lesser)) == 28);

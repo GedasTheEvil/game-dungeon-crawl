@@ -1,6 +1,6 @@
 # Amulets (plan amulets): one worn at a time, swapped freely; strength and armour add, the health amulet keeps the HP's
-# share of the max, the save keeps the worn one; trap warding cuts spike damage (grand: none); regeneration heals 1 HP a
-# second while no monster chases the player and no poison runs; poison warding wards off some poisonings. The Amulets
+# share of the max, the save keeps the worn one; trap guard cuts spike damage (grand: none); regeneration heals 1 HP a
+# second while no monster chases the player and no poison runs; poison guard wards off some poisonings. The Amulets
 # tab and the HUD slot. Amulet ids (give amulet N): 0-3 strength, 4-7 armour, 8-11 health, 12-15 poison, 16-19 traps,
 # 32-33 regeneration, 34-37 venom.
 seed 1
@@ -69,7 +69,7 @@ poison weak
 wait 2s
 expect hp < 27
 
-# trap warding: without, 30 HP lost in a second; grand, no spike damage; lesser, about a quarter off (22)
+# trap guard: without, 30 HP lost in a second; grand, no spike damage; lesser, about a quarter off (22)
 level tests/levels/spikes_one
 wait 5
 wear off
@@ -79,14 +79,14 @@ expect hp == 20
 level tests/levels/spikes_one
 wait 5
 give amulet 19
-wear grand_amulet_of_trap_warding
+wear grand_amulet_of_trap_guard
 walk right 3.5
 wait 1s
 expect hp == 50
 level tests/levels/spikes_one
 wait 5
 give amulet 16
-wear lesser_amulet_of_trap_warding
+wear lesser_amulet_of_trap_guard
 walk right 3.5
 wait 1s
 expect hp == 28

@@ -151,7 +151,7 @@ TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the f
 	world.WaitTicks(40);
 	CHECK(world.Nearest() == 81);
 	CHECK(world.JournalTried() == 1);
-	CHECK(world.Told("blunt"));
+	CHECK(world.Told("smash"));
 	world.WaitTicks(60);
 	world.Attack();
 	world.WaitTicks(60);

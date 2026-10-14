@@ -83,7 +83,7 @@ wait 5
 expect journal_notes == 4
 give potion 1
 expect journal_notes == 4
-# the short sword: the weapons note and the slash note (and the chest's bonus stamina draught: its note)
+# the short sword: the weapons note and the cut note (and the chest's bonus stamina potion: its note)
 chest melee 1
 expect journal_notes >= 6
 key j

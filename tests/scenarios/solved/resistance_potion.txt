@@ -1,5 +1,5 @@
 # Resistance potions (plan resistance-potion): for 2 minutes a poisoned hit does not poison, the lesser one 50% of the
-# time, the greater one 95% and it cures a running poison. The percent adds to the poison warding amulet's, up to 100. A
+# time, the greater one 95% and it cures a running poison. The percent adds to the poison guard amulet's, up to 100. A
 # lesser one does not cut a greater one short. The HUD tile with the time left.
 seed 1
 level tests/levels/empty_row
@@ -22,8 +22,8 @@ wait 2
 expect potion8 == 1
 expect resist == 50
 expect poison == 1
-# the minor poison warding amulet adds 25%
-wear minor_amulet_of_poison_warding
+# the minor poison guard amulet adds 25%
+wear minor_amulet_of_poison_guard
 expect resist == 75
 key i
 wait 5

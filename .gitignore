@@ -12,5 +12,5 @@ __pycache__/
 # Local
 .idea
 .directory
-sounds/music/soundtrack.ogg
+media/sounds/music/soundtrack.ogg
 /build/

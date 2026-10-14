@@ -29,6 +29,9 @@ enum class Locomotion : unsigned char {
 	// cobra).
 	Coiled,
 	Burrow, // walks, and now and then dives into the floor and comes up elsewhere on its row (Apep, see Burrow)
+	// Rooted in half water like Stationary, a flower floating on the surface (idle) until the player comes near, then
+	// rears up (Rise) and bites where it stands (the blue lotus, plan water-lotus).
+	Floating,
 };
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
@@ -137,6 +140,7 @@ struct MonsterKind {
 	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<RangedRules> ranged; // a ranged attack from afar: it spits venom or shoots a bolt
+	int staminaDrainPct = 0; // a bite takes this share of the player's max stamina (the blue lotus's sedative)
 	// Curses its hits lay (plan curses): its bites and blows (a charge too), its spit or bolt. The strongest first; a
 	// boss's chances are higher than its kin's.
 	CurseEntries meleeCurses{};

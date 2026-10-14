@@ -157,6 +157,8 @@ class Monster {
 	// A swimmer in half water floats with its back (the clip's top) at the surface, a lurker with only its top
 	// SUBMERGED_SHOW above it; 0 out of the water. Off the basin floor (sink).
 	[[nodiscard]] float swimLift() const;
+	// A floater in half water: world units from the basin floor up to the surface, where it floats; 0 elsewhere.
+	[[nodiscard]] float floatLift() const;
 	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
 	[[nodiscard]] float lift() const;
 	[[nodiscard]] float climbLift() const; // world units up or down a ladder while climbing
@@ -197,13 +199,15 @@ class Monster {
 	[[nodiscard]] bool Alerted() const { return alerted; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
 	[[nodiscard]] bool rooted() const {
-		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush;
+		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush || floats();
 	}
+	[[nodiscard]] bool floats() const { return type->locomotion == Locomotion::Floating; }
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
 	[[nodiscard]] bool submerged() const { return type->locomotion == Locomotion::Submerged; }
 	[[nodiscard]] bool coiled() const { return type->locomotion == Locomotion::Coiled; }
-	// Woken, it plays its rise clip before it acts: the mummy climbs out of its coffin, the cobra rears up.
-	[[nodiscard]] bool rises() const { return entombed() || coiled(); }
+	// Woken, it plays its rise clip before it acts: the mummy climbs out of its coffin, the cobra and the lotus rear
+	// up.
+	[[nodiscard]] bool rises() const { return entombed() || coiled() || floats(); }
 	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
 	[[nodiscard]] bool lurking() const {
 		return (type->locomotion == Locomotion::Ambush || rises() || submerged()) && !alerted;
@@ -265,8 +269,9 @@ class Monster {
 	void Flee(bool blocked, int dir);
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
 	void Attack(float py);
-	// Ambushers, the entombed, the submerged and the coiled: true while still lurking; wakes (and returns false) once
-	// the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE).
+	// Ambushers, the entombed, the submerged, the coiled and the floating: true while still lurking; wakes (and returns
+	// false) once the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
+	// FLOATING_WAKE_RANGE).
 	bool Lurk(float px, float py);
 	// Ranged attackers: the player is on its row, out of bite reach but within range, and the shot is ready.
 	// The caller checks there is no wall between them.
@@ -348,7 +353,8 @@ class Monster {
 	[[nodiscard]] int Facing() const { return facing; }
 	// World units off the row's floor it is drawn at: lift(), but a flyer not placed yet is drawn below the floor.
 	[[nodiscard]] float DrawnLift() const {
-		return (flies() ? flight.lift : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
+		return (flies() ? flight.lift : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
+			   burrowLift();
 	}
 	[[nodiscard]] float Tomb() const { return tomb; }
 	// Climbing: world units it is drawn towards the wall (< 0), so its grip meets the ladder's rails; 0 otherwise.

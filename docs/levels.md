@@ -73,7 +73,7 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 29 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet to the exit, a drop to a hidden tomb. |
 | 30 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss among his coffins, his mummies climbing out of them; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). Crocodiles live in the water of levels 7-9. Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
+Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). Crocodiles live in the water of levels 7-9. Blue lotuses float in the water of levels 7-9, 16-25 and 27-30 (one to three a level; levelgen makes no water). Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
 [inscriptions](inscriptions.md) (`content/inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
 ahead, a dart trap, a hidden treasure room, the order of the locks). Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
@@ -124,7 +124,7 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2):
 the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.

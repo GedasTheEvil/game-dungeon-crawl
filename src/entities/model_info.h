@@ -73,6 +73,13 @@ inline const ClipFiles COILED_CLIPS = {
 	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
 	{ModelState::Rise, "_rise", true, false}, {ModelState::AttackRanged, "_att_ranged", true, false}};
+// Floating (the blue lotus): rooted in half water, floats as a flower (_idle) until it rears up (_rise, once), then
+// sways (the move clip, the reference) and bites.
+inline const ClipFiles FLOATING_CLIPS = {{ModelState::Move, "", true, true},
+										 {ModelState::Attack, "_att", true, true},
+										 {ModelState::Die, "_die", true, false},
+										 {ModelState::Idle, "_idle", true, true},
+										 {ModelState::Rise, "_rise", true, false}};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
 									   {ModelState::Move, "_walk", true, true},

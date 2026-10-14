@@ -17,7 +17,7 @@
 17,2 surface 3/2/1
 18,2 surface 2/1/0m prop water_padsm -0.031
 19,2 surface 0/1/0
-20,2 surface 0/2/0 prop water_weedm 0.010
+20,2 surface 0/2/0
 21,2 surface 0/0/0 prop rubble -0.024
 22,2 surface 1/2/0 torch fire torch 0.000,0.680,0.098
 23,2 surface 0/0/0 decal 1 0.722,0.511

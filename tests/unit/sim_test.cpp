@@ -276,3 +276,29 @@ TEST_CASE("a level's decorations come from the tiers its depth unlocks: cave, wo
 	REQUIRE(world.Load("tests/levels/statues29063"));
 	CHECK(d.DecorTierUsed() == 3);
 }
+
+TEST_CASE("the blue lotus floats until the player wades near, rears up, stays rooted and its bite drains stamina") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/lotus"));
+	REQUIRE(world.WalkTo(11.5f - FLOATING_WAKE_RANGE - 0.3f)); // the lotus is in col 11
+	const Monster* lotus = firstMonster(world);
+	REQUIRE(lotus != nullptr);
+	const float x = lotus->CentreX();
+	CHECK(x == doctest::Approx(11.5f));
+	world.Wait(500);
+	CHECK(lotus->lurking());
+	CHECK(lotus->InWater());
+	REQUIRE(world.WalkTo(x - FLOATING_WAKE_RANGE + 0.1f));
+	world.Tick();
+	CHECK_FALSE(lotus->lurking());
+	CHECK(world.Saw(MonsterLotus, CreatureMove::Bloom));
+	REQUIRE(world.WalkTo(lotus->Left() - world.player.HalfWidth() - ROOTED_BITE_REACH * 0.5f));
+	int lowest = world.player.stats.Stamina(); // the first bite may land on the way in
+	for (int t = 0; t < 120; t++) { // two bites, 0.9 s apart
+		world.Tick();
+		lowest = std::min(lowest, world.player.stats.Stamina());
+	}
+	CHECK(lowest <= world.player.stats.MaxStamina() / 2);
+	CHECK(world.Saw(MonsterLotus, CreatureMove::Sedate));
+	CHECK(lotus->CentreX() == doctest::Approx(x)); // rooted
+}

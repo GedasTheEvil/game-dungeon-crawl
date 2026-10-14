@@ -472,7 +472,7 @@
 22,30 surface 2/2/0m
 23,30 surface 0/0/0 decal 3m 0.564,0.600 torch fire torch 0.000,0.680,0.098
 24,30 surface 0/0/0 prop water_lotusm 0.110
-25,30 surface 0/2/0 prop water_pads 0.058
+25,30 surface 0/2/0
 26,30 surface 0/0/0
 27,30 surface 1/1/0
 28,30 surface 0/1/0

@@ -426,7 +426,7 @@
 18,29 surface 0/0/0 decal 8 0.489,0.613
 19,29 surface 0/0/0 prop water_lotus -0.001
 20,29 surface 0/2/0 prop water_pads 0.011 decal 15 0.289,0.450
-21,29 surface 0/0/0 prop water_pads -0.020 torch fire torch 0.000,0.680,0.098
+21,29 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 22,29 surface 1/1/0 prop water_weedm 0.060
 23,29 surface 0/0/0 prop water_lotus 0.165
 24,29 surface 0/0/0

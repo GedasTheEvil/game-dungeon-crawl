@@ -609,7 +609,7 @@
 17,39 surface 0/0/0
 18,39 surface 0/1/0 prop water_lotus 0.070 torch fire torch 0.000,0.680,0.098
 19,39 surface 0/2/0 prop water_weedm -0.032
-20,39 surface 2/0/0 prop water_weedm 0.080 decal 9 0.312,0.573
+20,39 surface 2/0/0 decal 9 0.312,0.573
 21,39 surface 3/0/1 prop water_weed 0.103 decal 1m 0.714,0.401
 22,39 surface 3/1/1 decal 10 0.525,0.509
 23,39 surface 4/0/1 prop water_weed -0.095

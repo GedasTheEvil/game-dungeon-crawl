@@ -104,6 +104,8 @@ float Monster::swimLift() const {
 	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
 }
 
+float Monster::floatLift() const { return floats() && inWater ? RenderConfig::WATER_DEPTH : 0.f; }
+
 float Monster::burrowLift() const {
 	const float depth = -type->model.referenceTop * type->scale * Figures::Scale();
 	const int age = GameClock::now() - burrow.startMs;
@@ -147,7 +149,8 @@ void Monster::showClimb() {
 }
 
 float Monster::lift() const {
-	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim - sink + climbLift()) + emergeLift() + burrowLift();
+	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
+		   burrowLift();
 }
 
 bool Monster::LeavesChest() const {
@@ -306,7 +309,8 @@ void Monster::Animate(float px, float py) {
 			facing = fleeDir; // runs from the player
 		else if (!flies()) {
 			facing = attackDirection(px, py);
-			if (facing == 0 && sameRow(py) && !rooted()) // biting: turned to the player, the jaws at them (the box)
+			// Biting: turned to the player, the jaws at them (the box); the lotus too, its head over its pad.
+			if (facing == 0 && sameRow(py) && (!rooted() || floats()))
 				facing = px < CentreX() ? -1 : 1;
 		} else
 			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;

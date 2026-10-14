@@ -1,0 +1,9 @@
+; A blue lotus (col 11) in a pool of half water (cols 7-13) over deep water, the player (col 2) on dry floor west of
+; it (tests/scenarios/lotus.txt, tests/unit/sim_test.cpp).
+####################
+#.S........d......E#
+####################
+structure
+####################
+#......~~~~~~~.....#
+#######=======######

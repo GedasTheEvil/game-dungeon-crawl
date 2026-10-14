@@ -142,6 +142,11 @@ void Monster::bite() {
 		links.player->Poison(*type->poison, *links.events, *links.random);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);
 	}
+	if (type->staminaDrainPct > 0) { // the blue lotus's sedative, in god mode too (as the poison)
+		PlayerStats& stats = links.player->stats;
+		stats.SetStamina(stats.Stamina() - stats.MaxStamina() * type->staminaDrainPct / 100);
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Sedate);
+	}
 	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);
 	links.journal->HitByCreature(type->id, links.level);
 	if (type->boss.lifeStealPct > 0 && lost > 0)
@@ -160,6 +165,7 @@ bool Monster::Lurk(float px, float py) {
 	const float range = entombed()	  ? MUMMY_WAKE_RANGE
 						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE : SUBMERGED_WAKE_RANGE)
 						: coiled()	  ? COILED_WAKE_RANGE
+						: floats()	  ? FLOATING_WAKE_RANGE
 									  : MIMIC_WAKE_RANGE;
 	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
@@ -174,6 +180,7 @@ void Monster::wake() {
 	const CreatureMove move = entombed()	? CreatureMove::Rise
 							  : submerged() ? CreatureMove::Surface
 							  : coiled()	? CreatureMove::Rear
+							  : floats()	? CreatureMove::Bloom
 											: CreatureMove::Ambush;
 	links.journal->SeeMove(type->id, links.level, move);
 	enter(rises() ? ModelState::Rise : ModelState::Move);

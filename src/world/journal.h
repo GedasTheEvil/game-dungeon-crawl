@@ -59,8 +59,10 @@ enum class CreatureMove : unsigned char {
 	Charge, // Sobek charges along the row
 	Climb, // a climber follows the player up or down a ladder
 	Curse, // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
+	Bloom, // the blue lotus rears up off the water
+	Sedate, // a bite that drains stamina (MonsterKind::staminaDrainPct)
 };
-constexpr int CREATURE_MOVE_COUNT = 14;
+constexpr int CREATURE_MOVE_COUNT = 16;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

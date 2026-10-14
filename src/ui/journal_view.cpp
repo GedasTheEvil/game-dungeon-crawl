@@ -252,6 +252,10 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Follows me up and down the ladders.";
 	case CreatureMove::Curse:
 		return curseMoveNote(t);
+	case CreatureMove::Bloom:
+		return "Floats among the lotus flowers, rears up when I come near.";
+	case CreatureMove::Sedate:
+		return "Its bite makes me drowsy, too tired to run or jump.";
 	}
 	return "";
 }

@@ -591,7 +591,7 @@
 22,42 surface 3/0/1
 23,42 surface 4/2/1 decal 11m 0.464,0.546
 24,42 surface 5/0/1 decal 6 0.522,0.575 torch fire torch 0.000,0.680,0.098
-25,42 surface 4/0/1 prop water_lotusm 0.015
+25,42 surface 4/0/1
 26,42 surface 3/0/1 prop water_lotusm -0.161 decal 5 0.446,0.625
 27,42 surface 5/1/1 prop water_reedsm 0.059
 28,42 surface 3/0/1 decal 14 0.535,0.375

@@ -60,6 +60,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | coward | | afraid of traps: a walker stops at their edge, a walk-jumper leaps over them | `Courage::Coward` |
 | creature | Creatures | the player's word for a monster; the journal's section | `Journal` |
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
+| floating | | rooted in half water, a flower on the surface until the player comes near, then rears up and bites (the blue lotus, [water-lotus](plan/water-lotus.md)) | `Locomotion::Floating`, `Monster::floatLift` |
 | flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/solved/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
 | flyer | | flies along the row and crosses pits (bats); follows the player up or down to another row through open cells ([bats-high-ceiling](plan/solved/bats-high-ceiling.md)) | `Locomotion::Fly`, `Flight`, `FlightGoal`, `Dungeon::flightGoal` |
 | hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.opus.md)) the crocodile grabs the player in water and rolls | |
@@ -68,13 +69,14 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | kind | | a monster type: one row of stats, model and rules | `MonsterKind`, `monsterKind` |
 | leap | | a walk-jumper's jump over a pit or a trap | `Leap` |
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
-| lurking | | ambush, entombed, submerged or coiled, before it wakes | `Monster::Lurk` |
+| lurking | | ambush, entombed, submerged, coiled or floating, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | reckless | | walks straight through traps and takes their damage | `Courage::Reckless` |
 | ranged attack | | a monster's shot from afar along its row: the cobras' spit, the Anubis's bolt; range in tiles; clip and sound suffix `_att_ranged` | `RangedRules`, `MonsterKind::ranged`, `Dungeon::MonsterShot`, `ModelState::AttackRanged` |
 | spit | | the cobras' ranged attack: a poisoned venom glob | `RangedRules::poison` |
 | fire ramp | | the colours of a fire over a particle's life, one per `FireStyle` (flame, venom green) | `FireRamp`, `Fire::VENOM_RAMP` |
 | glob with flames | | a spat glob drawn as a cloud of fire sprites with smaller clouds trailing, no ball; ramp per projectile (venom: green). Without flames: a plain ball | `drawGlobWithFlames` |
+| stamina drain | | a bite that takes a share of the player's max stamina (the blue lotus's sedative, 25%); the journal's "drowsy" note | `MonsterKind::staminaDrainPct`, `CreatureMove::Sedate` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
 | submerged | | lies under the water until the player comes near (the crocodile) | `Locomotion::Submerged` |
 | swimmer | | faster in half water, floats at the surface (the crocodile) | `Wading::Swimmer` |

@@ -1,0 +1,55 @@
+# The blue lotus (tests/levels/lotus, plan water-lotus): a flower on the water among decor lotus until the player wades
+# near, rears up, bites; each bite drains a quarter of the stamina. Floating, it shows no health bar.
+seed 1
+level tests/levels/lotus
+prop 10 water_lotus
+prop 12 water_pads
+walk to 9.9
+screenshot floating
+toon on
+screenshot floating_toon
+toon off
+expect bars == 0
+camera 30 10
+screenshot floating_side
+camera 0 0
+walk to 10.4
+wait 300ms
+screenshot rise
+expect bars == 1
+wait 700ms
+screenshot reared
+walk to 11.05
+wait 1s
+screenshot bite
+expect stamina <= 75
+toon on
+screenshot bite_toon
+toon off
+camera 30 10
+screenshot bite_side
+camera 0 0
+god
+hold right 300ms
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+screenshot die
+expect nearest == 0

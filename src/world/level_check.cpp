@@ -318,7 +318,7 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 }
 
 // Half water stands on deep water or a wall, deep water only under water; a ladder starts in the water and goes up,
-// none goes down into it; a crocodile lives in or next to the water.
+// none goes down into it; a crocodile lives in or next to the water, a lotus in it.
 void checkWater(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		const int col = cell % LEVEL_WIDTH;
@@ -337,6 +337,8 @@ void checkWater(const LevelGrid& grid, LevelReport& r) {
 		if (kind != nullptr && kind->locomotion == Locomotion::Submerged && !inHalfWater(t) &&
 			!inHalfWater(grid.at(col - 1, row)) && !inHalfWater(grid.at(col + 1, row)))
 			r.warnings.push_back(std::string("the ") + kind->label + " at " + at(cell) + " is not in or next to water");
+		if (kind != nullptr && kind->locomotion == Locomotion::Floating && !inHalfWater(t))
+			r.warnings.push_back(std::string("the ") + kind->label + " at " + at(cell) + " is not in half water");
 	}
 }
 

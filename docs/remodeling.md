@@ -125,6 +125,17 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   collapses into a flat husk on the mound). Every frame stays at or above the floor (printed per clip).
   Sounds: `tools/audio/egg_cluster_sounds.py` (`media/sounds/monsters/egg_cluster_{att,die}.wav`: squelches and a shell crack; bursts,
   splatter, drips).
+* `tools/blender/models/lotus.py` - the blue lotus (Nymphaea caerulea), a floating monster (faces -Y, rotA 0; plan water-lotus). No
+  rig: every frame is rebuilt from a few pose numbers (head position and pitch, jaw opening, fangs, stem base, leaf bob, wilt, sink)
+  with the same topology and written straight to MD3 with `md3.py` (the UVs and the 512 texture from the rest mesh, move frame 0).
+  Origin at the water surface (the engine floats it there, `Monster::floatLift`): three leaves (`decor.py`'s `pad`), a swan-neck stem,
+  a head of green sepals, a collar of blue petals, a dark red maw ringed with gold stamens and two petal jaws hinged across the mouth
+  with ivory fangs. Clips: move 24 (the reference: reared, swaying; 0.42 wide x 0.34 high, drawn at 0.7 of that, `KINDS` scale 12),
+  attack 14 (draws back, lunges, snaps), die 28 (wilts, flops onto the leaf, sinks under the surface), idle 112 (`_idle`: the disguise,
+  like `decor.py`'s `water_lotus`: the flower open on the water, a short stem, fangs drawn in; the leaves bob; once a loop the jaws
+  twitch, the only tell), rise 10 (`_rise`: idle frame 0 to move frame 0). `-- --review DIR` renders workbench stills of a few frames.
+  Sounds: `tools/audio/lotus_sounds.py` (`media/sounds/monsters/lotus_{wake,att,die}.wav`: water pouring off, rustle, hiss; swish and a
+  wet snap; hiss, a slap on the water, bubbles).
 * `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
   the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
   along the body integrated from the tail (the length never changes, as in `worm.py`), plus a hood amount that spreads the neck

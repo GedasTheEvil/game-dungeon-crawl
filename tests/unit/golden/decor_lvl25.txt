@@ -401,7 +401,7 @@
 20,24 surface 0/2/0
 21,24 surface 1/2/0 prop water_lotus -0.170
 22,24 surface 0/0/0 decal 5 0.463,0.625 torch fire torch 0.000,0.680,0.098
-23,24 surface 1/1/0 prop water_weed 0.098
+23,24 surface 1/1/0
 24,24 surface 0/0/0 prop water_weed 0.063 decal 6m 0.494,0.575
 25,24 surface 0/0/0 prop water_weedm 0.037
 26,24 surface 0/1/0
@@ -606,7 +606,7 @@
 28,39 surface 7/2/2
 29,39 surface 6/1/2 decal 5 0.463,0.625 torch fire torch 0.000,0.680,0.098
 30,39 surface 7/2/2 prop water_pads 0.002
-31,39 surface 6/2/2 prop water_lotus 0.059
+31,39 surface 6/2/2
 32,39 surface 6/2/2 decal 15 0.690,0.546
 33,39 surface 6/1/2 prop brazierm -0.165 fire brazier -0.165,0.220,0.160
 34,39 surface 6/1/2 torch fire torch 0.000,0.680,0.098

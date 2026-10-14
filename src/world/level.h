@@ -80,8 +80,9 @@ enum MonsterTypeId : unsigned char {
 	MonsterScorpionQueen = 21, // boss: giant scorpions hatch from the egg clusters; her sting poisons (strong)
 	MonsterApep = 22, // boss: dives into the floor and comes up behind the player; cobras dig out
 	MonsterSobek = 23, // boss: lies in the water, charges along the row; crocodiles come out
+	MonsterLotus = 24, // rooted in half water, a floating flower until the player comes near; its bite drains stamina
 };
-constexpr int MONSTER_TYPE_MAX = MonsterSobek; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterLotus; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

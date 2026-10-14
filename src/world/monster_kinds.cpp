@@ -19,6 +19,7 @@ constexpr DamageMix SCORPION_MIX = {0, 30, 70}; // claws, sting
 constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
 constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
+constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
@@ -42,6 +43,8 @@ constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL,
 									  NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS,
 											WEAK}; // a blade slits the leathery eggs, fire cooks them
+constexpr Resistances LOTUS_RESIST = {
+	RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -657,6 +660,35 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .charges = true,
 	 .kin = MonsterCrocodile,
 	 .boss = {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
+	// The blue lotus, rooted in half water among the decor lotus (plan water-lotus). Stronger than the plant, weaker
+	// than the crocodile; its bite drains stamina, so the wading player cannot sprint away. Placed by hand on the
+	// flooded levels from 7 on: levelgen makes no water.
+	{.id = MonsterLotus,
+	 .glyph = 'd',
+	 .name = "Blue lotus",
+	 .label = "lotus",
+	 .description = "Blue lotus, a flower on the water until the player comes near; its bite drains stamina. Only in "
+					"half water",
+	 .note = "Pretty, blue, and it wants my leg. One bite and I could sleep for a week. Odysseus's men ate the lotus; "
+			 "this one eats Odysseus's men.",
+	 .threat = 2.f, // does not move, but the player wades to it and cannot sprint away
+	 .model = "monsters/lotus",
+	 .texture = "monsters/lotus",
+	 .scale = 12, // 0.7 of its modelled size (lotus.py prints 16.8): reared, its head is at the wading player's face
+	 .rotA = 0,
+	 .blood = {0.35f, 0.5f, 0.85f}, // blue sap
+	 .speed = 0,
+	 .maxHealth = 50,
+	 .damage = 7,
+	 .attackMs = 900,
+	 .xp = 1300,
+	 .attackMix = LOTUS_MIX,
+	 .resist = LOTUS_RESIST,
+	 .locomotion = Locomotion::Floating,
+	 .weight = 1,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .staminaDrainPct = 25,
+	 .riseMs = 600},
 }};
 
 constexpr bool validKinds() {

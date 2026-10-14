@@ -360,7 +360,7 @@
 19,30 surface 6/2/2 prop water_weedm -0.042
 20,30 surface 6/1/2 prop water_weedm 0.072 decal 8 0.475,0.413
 21,30 surface 6/1/2
-22,30 surface 6/1/2 prop water_pads 0.047 decal 9m 0.516,0.559
+22,30 surface 6/1/2 decal 9m 0.516,0.559
 23,30 surface 6/1/2 prop water_pads -0.031 torch fire torch 0.000,0.680,0.098
 24,30 surface 6/2/2
 25,30 surface 6/1/2 prop water_reedsm -0.061 decal 11m 0.618,0.478

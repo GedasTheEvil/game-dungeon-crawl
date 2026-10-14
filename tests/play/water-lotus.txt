@@ -1,0 +1,10 @@
+# Plan water-lotus, for `bin/game --play tests/play/water-lotus.txt`: tests/levels/lotus, a blue lotus (col 11) in a
+# pool, a decor lotus (col 10) and leaves (col 12) beside it. Watch the two flowers: only the monster twitches now and
+# then. Wade east: within 1.2 cells it rears up; in reach each bite drains a quarter of the stamina (the yellow bar).
+# The short sword cuts it best (it is weak to slashing).
+seed 1
+level tests/levels/lotus
+give melee 1
+equip short_sword
+prop 10 water_lotus
+prop 12 water_pads

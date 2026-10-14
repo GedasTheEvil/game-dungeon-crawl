@@ -55,8 +55,9 @@ Rewrite every journal text in plain English: the topics (`src/ui/journal_view.cp
 
 Rules:
 
-* Reader: a child of about 10 whose first language is not English. Words from a beginner's textbook; short
-  sentences, one idea each; no idioms ("like a vice", "takes a bite out of it").
+* Reader: a 12 to 14 year old whose first language is not English (user, 2026-10-14), a school learner of a few
+  years (about A2-B1). Everyday school English; no rare or bookish words, no idioms ("like a vice", "takes a bite
+  out of it"). Short sentences, but not baby talk: a teenager must not feel talked down to.
 * Keep the first-person voice ("I", "me") and the Egyptian names (Montu, Ptah, Hathor, khopesh, ...): they are the
   game's flavour, and a name explains itself. Explain a name once, plainly, where it is not clear ("the khopesh, a
   curved sword").

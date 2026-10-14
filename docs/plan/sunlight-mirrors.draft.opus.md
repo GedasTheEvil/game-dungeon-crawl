@@ -12,7 +12,7 @@ gate, the gate opens. A light puzzle beside keys, levers and riddles.
   as a gate type: opens while lit, stays open once lit).
 * The beam travels through open cells, stops at walls, is blocked by the player? (default: no). Drawn as a bright
   dusty volume beam with motes.
-* Optional: the beam burns mummies standing in it (with [fire-damage](fire-damage.md) if implemented: fire
+* Optional: the beam burns mummies standing in it (with [fire-damage](solved/fire-damage.md) if implemented: fire
   damage per second).
 * Level format: new object types (`docs/levels.md`); `levelcheck` must model the beam to prove the level can be
   finished (mirror states are player-set: search over states).

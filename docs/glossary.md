@@ -84,7 +84,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | armour | Armor | taken off every hit on the player (its non-fire shares), at least 1 HP gets through; the game shows "Armor" | `PlayerStats::Armor` |
-| burning | You are on fire!, catches fire | a fire hit sets its target burning: 3 s at a fifth of the hit's fire share a second, armour or not; half water puts it out ([fire-damage](plan/fire-damage.md)) | `Burning`, `BURN_MS`, `Fire::body` |
+| burning | You are on fire!, catches fire | a fire hit sets its target burning: 3 s at a fifth of the hit's fire share a second, armour or not; half water puts it out ([fire-damage](plan/solved/fire-damage.md)) | `Burning`, `BURN_MS`, `Fire::body` |
 | bite reach | | how close a walker comes before it bites: 0.1 tiles between hitboxes (0.25 for the rooted) | `MONSTER_BITE_REACH`, `ROOTED_BITE_REACH` |
 | damage mix | | a weapon's or a monster's damage split into blunt, slash, pierce and fire, in percent | `DamageMix` |
 | damage type | blunt, slash, pierce, fire | one of the four kinds of damage | `DamageType` |

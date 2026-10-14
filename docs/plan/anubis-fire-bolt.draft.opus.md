@@ -1,6 +1,6 @@
 # Anubis fire bolt
 
-Status: draft 2026-10-12. Needs [fire-damage](fire-damage.md) first (the fire type and burning). From the
+Status: draft 2026-10-12. Needs [fire-damage](solved/fire-damage.md) first (the fire type and burning). From the
 user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks like fire (the torch flames).
 
 ## Today
@@ -19,7 +19,7 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
 
 * **Damage:** the bolt is mostly fire with a stone knock: fire 100 : blunt 40 : pierce 20 (decided 2026-10-12), as a
   `DamageMix` in percent (adds up to 100) fire 62 / blunt 25 / pierce 13. Fire warding tops at 80%
-  ([fire-damage](fire-damage.md)), and the physical share keeps the bolt a threat against it. Melee stays
+  ([fire-damage](solved/fire-damage.md)), and the physical share keeps the bolt a threat against it. Melee stays
   `ANUBIS_MIX`. So `SpitRules` gets its own optional mix
   (`std::optional<DamageMix> mix`; nullopt: the type's `attackMix`, as the cobras keep), and the venom hit uses it.
   Damage numbers stay (50 / 125); the fire hit sets the player burning (fire-damage's rule).

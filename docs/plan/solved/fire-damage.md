@@ -1,7 +1,6 @@
 # Fire damage
 
-Status: implemented 2026-10-14, waits for the user's play-test: `bin/game --play tests/play/fire-damage.txt`
-(see [Implemented](#implemented)). From the user: a fire damage type, for the player and for monsters. Includes the
+Status: solved 2026-10-14 (play-tested by the user). From the user: a fire damage type, for the player and for monsters. Includes the
 "mummies burn" idea from the lore review.
 
 ## Today
@@ -26,7 +25,7 @@ Implementer's choice, at least one:
 ### Monsters deal fire
 
 * The cobras' spit stays poison, not fire (decided 2026-10-12).
-* The first monster fire is the Anubis's bolt, after this plan: [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md).
+* The first monster fire is the Anubis's bolt, after this plan: [anubis-fire-bolt](../anubis-fire-bolt.draft.opus.md).
 * Optional: the Bat of Shezmu / vampire bat, Sobek: no.
 
 ### Resistances
@@ -39,17 +38,17 @@ Implementer's choice, at least one:
 | Anubis living statue (stone) | tough |
 | Bosses | normal or better, and at least their kin's (`validKinds`): the Anubis boss tough, Sobek resists |
 
-* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](solved/egyptian-names.md), e.g. "the feather
+* Player: a **Fire Warding** amulet (Egyptian name per [egyptian-names](egyptian-names.md), e.g. "the feather
   of Ma'at" or "the sun disc"), four tiers like the other wardings: fire damage -20 / 40 / 60 / 80%. Never more
   than 80% (decided 2026-10-12): fire always hurts a little.
 * **Fire ignores armour** (decided 2026-10-12): only the Fire Warding amulet (and a fire resistance) cuts it. Today
   `playerHitDamage` takes the armour's flat amount off the whole hit; split it: the fire share after resistances goes
   through untouched, the armour comes off the other shares only, and never below 0 for them (a mixed hit like the
-  Anubis bolt, [anubis-fire-bolt](anubis-fire-bolt.draft.opus.md): armour can soak its blunt / pierce part, never
+  Anubis bolt, [anubis-fire-bolt](../anubis-fire-bolt.draft.opus.md): armour can soak its blunt / pierce part, never
   its fire). Burning ticks ignore armour too. The journal / amulet text can say so ("Armour does not stop fire").
   Unit test: a 100% fire hit on an armoured player deals the same as on an unarmoured one.
   Write the split as "armour acts on the non-fire shares", whatever armour does: the
-  [monster-balance](monster-balance.draft.opus.md) sim may turn the flat cut into a percentage.
+  [monster-balance](../monster-balance.draft.opus.md) sim may turn the flat cut into a percentage.
 
 ## Also
 
@@ -88,5 +87,5 @@ Implementer's choice, at least one:
   fire", "You are on fire!", "The water puts the fire out".
 * Scenario command `firehit N` (a fire hit on the player), `expect burning` / `nearest_burning`.
 * Tests: `tests/unit/damage_test.cpp` (fire share, armour split, Burning), `tests/unit/monster_rules_test.cpp` (fire
-  arrows on the mummy, the player burning and the pool), `tests/scenarios/fire_mummy.txt` (screenshots: burning
+  arrows on the mummy, the player burning and the pool), `tests/scenarios/solved/fire_mummy.txt` (parked) (screenshots: burning
   mummy, burning player, the journal's fire row), test level `tests/levels/fire`.

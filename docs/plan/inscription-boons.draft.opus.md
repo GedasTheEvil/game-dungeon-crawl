@@ -22,7 +22,8 @@ you win, sometimes you don't. Nothing hints at a boon beforehand: not the wall, 
   the hieroglyph skill: given at once. A copy made without the skill gives nothing until the skill is learned, then
   `Journal::TranslateInscriptions` gives it. This is the reward for reading the early copies.
 * The text matches the boon: kings, Montu or the bull give Might; Ptah, granite, the djed pillar give Armor; the
-  ankh, "breath of life", going forth by day give max HP.
+  ankh, "breath of life", going forth by day give max HP; Shu and the wind, the royal messenger, the runner give
+  max stamina.
 * Rarity: about 1 in 5 inscriptions (the user; the exact share is the implementer's). With today's 32 texts that is
   6 or 7; as [more-inscriptions](more-inscriptions.draft.opus.md) adds texts, keep the share. Mix the four kinds,
   spread them out (not two in one level). Compare the might and armor potions placed in the campaign so that boons

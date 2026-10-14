@@ -9,10 +9,15 @@ A Heka skill (`SkillId`, `SKILLS` in `src/world/skills.cpp`, a new card, not sea
 burning for stamina.
 
 * Bow only (arrows); sling, javelin and throwing stick stay as they are.
-* A shot with the skill on deals **+20% bonus damage, as fire**: the arrow's own hit stays, a fire share of 20% of it
+* A shot with the skill on deals **+40% bonus damage, as fire**: the arrow's own hit stays, a fire share of 40% of it
   comes on top. The fire share goes through fire resistances (a mummy takes double) and ignites the target
   (burning, per fire-damage).
-* Cost: 10% of max stamina per shot (cheaper than power hit's 15%: the bonus is smaller).
+* Cost: 10% of max stamina per shot.
+* Purpose (user): the answer to monsters an arrow barely scratches. **Whoever resists pierce is weak to fire.**
+  Today (`src/world/monster_kinds.cpp`, fire column from fire-damage) plant, mummy and egg cluster already are; this
+  plan makes the rest weak to fire too, each with a reason in its comment: bat (thin wing membranes), mimic (dry
+  wood), scorpion (implementer's choice: weak, or a lore reason to keep it normal). Their bosses follow through
+  `bossResist`. Keep the rule in the resistance table's comment, and in the journal's field note on fire arrows.
 * **Toggle**, as power hit (stamina also pays for sprint and jump). One key for both skills, default `Q`: on = every
   learned stamina skill that fits the attack applies (a bow shot: flaming arrows, and power hit if it covers ranged;
   then both bonuses, both costs). Whichever of the two plans goes in first brings the key and its HUD sign.
@@ -29,10 +34,13 @@ burning for stamina.
 
 ## Open (warn when reporting)
 
-* Numbers (20%, 10% stamina) need the sim (`monster-balance`).
+* Scorpion fire weakness (above).
+* Numbers (40%, 10% stamina) need the sim (`monster-balance`).
 
 ## Tests
 
-* Unit: with the skill on, a bow hit deals +20% as fire and costs 10% stamina; a mummy takes the fire share double;
+* Unit: every kind that resists pierce (resists or tough) is weak to fire (a table check, so a new monster keeps
+  the rule).
+* Unit: with the skill on, a bow hit deals +40% as fire and costs 10% stamina; a mummy takes the fire share double;
   the target burns; low stamina = normal arrow, no cost; toggle off = normal; a brazier-lit arrow costs nothing.
 * Scenario with a screenshot: the Heka screen with 9 cards.

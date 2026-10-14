@@ -37,7 +37,12 @@ not a block).
 
 * Jet length and wall vs. floor vent: one or both.
 * Do both wards stack (multiply) or does the stronger win? Default: multiply.
-* Placement in the campaign: which levels get vents (after fire-damage's Fire Warding amulet can drop).
+
+## Decided
+
+* Campaign placement: not here, in [denser-levels](denser-levels.draft.opus.md) if this lands first (vents
+  only on levels where the Fire Warding amulet can drop); if denser-levels is already done, place a few vent runs
+  in existing levels here.
 
 ## Tests
 

@@ -49,9 +49,13 @@ over each puddle between drops.
 
 ## Open points
 
-* Puddle size: one cell, or spreading to neighbours for a big lump (default: one cell).
 * Drop damage size; maybe zero, poison only.
-* Placement in the campaign.
+
+## Decided
+
+* Puddle: one cell (user, 2026-10-14).
+* Campaign placement: not here, in [denser-levels](denser-levels.draft.opus.md) if this lands first; if
+  denser-levels is already done, place a few drip runs in existing levels here.
 
 ## Tests
 

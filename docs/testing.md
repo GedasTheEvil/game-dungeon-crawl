@@ -48,7 +48,6 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
 | `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
-| `wall_spikes` | the wall spikes' twitch, out and in ([plan](plan/rhythm-traps.md)) | the look is drawn |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a

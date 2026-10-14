@@ -1,5 +1,5 @@
-# Kept (docs/testing.md): wall spikes (plan rhythm-traps) through one cycle, from beside them: the look of the twitch,
-# the spikes out, back in.
+# Wall spikes (plan rhythm-traps) through one cycle, from beside them: the look of the twitch, the spikes out, back
+# in. The rules are unit tests (tests/unit/wall_spikes_test.cpp).
 seed 1
 god
 level tests/levels/wall_spikes

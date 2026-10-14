@@ -1,6 +1,6 @@
 # Rhythm traps: timed wall spikes
 
-Status: implemented 2026-10-14, waits for the user's play-test:
+Status: solved 2026-10-14, play-tested by the user:
 `bin/game --play tests/play/rhythm-traps.txt`. From the user. See [Implemented](#implemented-2026-10-14): the user
 changed the rule before it was built (out, the spikes are a wall).
 
@@ -15,7 +15,7 @@ triggered. Sprinting and jumping do not beat it: the player must time the pass a
   front of the wall is the danger zone while extended. Sideways spikes cannot be jumped: the jump gives no
   clearance, and sprint only cuts the time in the zone, not the hit. While extended, the zone does
   continuous damage to whoever stands in it (the `TrapHurt` tick, growing the longer it stays).
-* **Hit:** continuous damage while in the zone and extended, plus weak poison ([stronger-poisons](solved/stronger-poisons.md) tiers; the
+* **Hit:** continuous damage while in the zone and extended, plus weak poison ([stronger-poisons](stronger-poisons.md) tiers; the
   tier is per trap, default weak). Resistance and `trapCutPercent` (trap ward) apply as for spikes
   (`SPIKE_ATTACK_MIX`, `TrapHurt` / `Dungeon::updateTraps` are the model).
 * **Combining:** every trap has its own `phase` and `period` (a "speed": fast, normal, slow). Two or three in a row
@@ -43,7 +43,7 @@ combination must be crossable with the player's walk speed: the checker simulate
 
 * Walk speed vs. safe window: how long the minimum safe window is (suggest at least 1.5x the time to cross
   the zone at walk speed).
-* Dodge ([skill-dodge](solved/skill-dodge.md)): may avoid a single event (one stab or one tick), never sustained
+* Dodge ([skill-dodge](skill-dodge.md)): may avoid a single event (one stab or one tick), never sustained
   time in the zone. Levitation and speed do not bypass it. Default as stated; exact rule is the implementer's choice.
 * Boss ability rule: no monster gains an ability here, so no boss change.
 
@@ -85,7 +85,7 @@ What went in:
 
 Not done:
 
-* No campaign level has them yet ([denser-levels](denser-levels.draft.opus.md) or a level pass can place them).
+* No campaign level has them yet ([denser-levels](../denser-levels.draft.opus.md) or a level pass can place them).
 * No journal field note for them (the journal texts were being rewritten in parallel, plan simple-damage-words).
 * Per-trap poison tier: all weak.
 * Flyers are not stabbed (they are blocked while the spikes are out).

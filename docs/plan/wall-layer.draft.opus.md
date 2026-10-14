@@ -22,7 +22,7 @@ Split the object layer in two. Three layers per cell:
 ### What moves to the wall layer
 
 * `Inscription` (15).
-* `WallSpikes` (16, [rhythm-traps](rhythm-traps.md)).
+* `WallSpikes` (16, [rhythm-traps](solved/rhythm-traps.md)).
 * `Lever` (12), if its model sits on the back wall (check `dungeon_render*.cpp`; if it stands in the cell, it
   stays an object).
 * Later wall things go here from the start: the wall vent of [fire-jet-trap](fire-jet-trap.draft.opus.md), mirrors

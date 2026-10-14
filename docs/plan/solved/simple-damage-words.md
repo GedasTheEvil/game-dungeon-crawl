@@ -1,6 +1,6 @@
 # Simple damage words
 
-Status: implemented 2026-10-14, waits for the play-test (`bin/game --play tests/play/simple-damage-words.txt`). From the user. Two parts: simple damage words, then a
+Status: solved 2026-10-14, play-tested by the user (`bin/game --play tests/play/simple-damage-words.txt`). From the user. Two parts: simple damage words, then a
 plain-English rewrite of the journal.
 
 ## Why
@@ -66,7 +66,7 @@ Rules:
 * Keep every fact: keys (H, U, Shift, ...), numbers, which item or creature does what. A rewrite that drops or
   changes a fact is wrong. Compare each text old to new before committing.
 * A text may get longer when plain words need it, but it must still fit its page: check the journal's topic and
-  creature pages with a screenshot scenario (`tests/scenarios/`, [testing.md](../testing.md)).
+  creature pages with a screenshot scenario (`tests/scenarios/`, [testing.md](../../testing.md)).
 * Example. Old: "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running
   drains it all the time." New: "Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of
   it, and running drains it all the time." (Only the idiom goes.)

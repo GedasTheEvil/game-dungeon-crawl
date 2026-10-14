@@ -1,7 +1,7 @@
 # Fire jet trap
 
 Status: draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning) and
-[rhythm-traps](rhythm-traps.md) (the timed cycle, its telegraph and level check). From the user.
+[rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph and level check). From the user.
 
 ## Idea
 

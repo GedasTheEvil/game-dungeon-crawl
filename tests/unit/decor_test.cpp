@@ -145,8 +145,8 @@ TEST_CASE("water props grow in the half water, the dry ones stay out of it (plan
 		}
 	}
 	REQUIRE(halfWater > 0);
-	CHECK(water * 100 > halfWater * 20); // about 35% of the free ones
-	CHECK(water * 100 < halfWater * 45);
+	CHECK(water * 100 > halfWater * 35); // about 50% of the free ones
+	CHECK(water * 100 < halfWater * 60);
 	CHECK(lotus > 0);
 }
 

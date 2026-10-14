@@ -352,12 +352,12 @@
 11,30 surface 6/2/2 decal 12 0.574,0.350 torch fire torch 0.000,0.680,0.098
 12,30 surface 6/1/2 decal 2m 0.567,0.350
 13,30 surface 7/2/2 prop water_reedsm -0.012
-14,30 surface 6/1/2 decal 10 0.595,0.611
+14,30 surface 6/1/2 prop water_padsm -0.021 decal 10 0.595,0.611
 15,30 surface 6/1/2 prop water_pads -0.055 decal 1m 0.635,0.368
 16,30 surface 6/1/2 prop water_lotusm -0.036 torch fire torch 0.000,0.680,0.098
 17,30 surface 6/1/2
 18,30 surface 6/1/2 prop water_padsm 0.086 decal 1m 0.517,0.411
-19,30 surface 6/2/2
+19,30 surface 6/2/2 prop water_weedm -0.042
 20,30 surface 6/1/2 prop water_weedm 0.072 decal 8 0.475,0.413
 21,30 surface 6/1/2
 22,30 surface 6/1/2 prop water_pads 0.047 decal 9m 0.516,0.559

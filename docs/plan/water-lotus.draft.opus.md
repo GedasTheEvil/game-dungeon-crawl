@@ -38,4 +38,4 @@ petals; clips: idle (floating, a slight sway and a twitch now and then: the only
 
 ## Related
 
-* [water-decorations](water-decorations.md): decor lotus pads to hide this one among.
+* [water-decorations](solved/water-decorations.md): decor lotus pads to hide this one among.

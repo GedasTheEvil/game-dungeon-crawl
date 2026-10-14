@@ -8,7 +8,7 @@
 
 namespace {
 constexpr uint32_t DECOR_CHANCE_PERCENT = 30;
-constexpr uint32_t WATER_DECOR_CHANCE_PERCENT = 35; // pools look planted, not full
+constexpr uint32_t WATER_DECOR_CHANCE_PERCENT = 50; // water cells are fewer than dry ones: half of them planted
 // Weight of each water prop (DECOR_WATER_FIRST on) at the bank (a neighbour in the row is not half water) and in the
 // middle of a pool, times its tier's: reeds along the edge, leaves out on the water.
 constexpr uint32_t WATER_BANK_WEIGHT[DECOR_WATER_COUNT] = {4, 1, 1, 1};

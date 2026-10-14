@@ -156,11 +156,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table `DECOR_JITTER` in
   `src/world/decor_scatter.cpp`). Placement: `scatterDecor` in `src/world/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
   decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
-  Water props (plan [water-decorations](plan/water-decorations.md)): `water_reeds` (papyrus clump), `water_weed` (under the
+  Water props (plan [water-decorations](plan/solved/water-decorations.md)): `water_reeds` (papyrus clump), `water_weed` (under the
   surface), `water_pads` (lotus leaves), `water_lotus` (leaves, a blue lotus in bloom and a bud), modelled at their real
   height in the basin (`BASIN_Z`, `SURFACE_Z` from `render_config.h`), not enlarged; their bake floor is the basin's.
-  Scattered in 35% of free half water cells (reeds at the bank, leaves out on the water); swayed or bobbed at draw time
-  (`waterMotion` in `src/world/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/water_decorations.txt`.
+  Scattered in 50% of free half water cells (reeds at the bank, leaves out on the water); swayed or bobbed at draw time
+  (`waterMotion` in `src/world/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/solved/water_decorations.txt`.
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/solved/statues.txt` (puts them with the
   scenario's `prop` command); of the tiers: `tests/unit/sim_test.cpp` and the golden dumps (`tests/unit/golden/`).
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,

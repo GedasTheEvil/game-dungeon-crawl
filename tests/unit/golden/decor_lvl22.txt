@@ -20,11 +20,11 @@
 12,3 surface 0/1/0
 13,3 surface 0/0/0
 14,3 surface 0/0/0 decal 0m 0.658,0.463
-15,3 surface 2/2/0
+15,3 surface 2/2/0 prop water_pads -0.052
 16,3 surface 4/1/1 prop water_weedm -0.098
 17,3 surface 5/1/1 prop water_padsm 0.013
 18,3 surface 3/0/1
-19,3 surface 3/0/1
+19,3 surface 3/0/1 prop water_reedsm 0.059
 20,3 surface 5/0/1
 21,3 surface 3/2/1 decal 8m 0.549,0.577
 22,3 surface 3/0/1 prop water_reeds 0.050
@@ -110,7 +110,7 @@
 24,9 surface 6/1/2
 25,9 surface 6/1/2 prop water_reeds 0.065
 26,9 surface 6/2/2 decal 6m 0.487,0.575
-27,9 surface 7/2/2 torch fire torch 0.000,0.680,0.098
+27,9 surface 7/2/2 prop water_weed -0.094 torch fire torch 0.000,0.680,0.098
 28,9 surface 6/1/2
 29,9 surface 6/2/2 decal 9 0.354,0.479
 30,9 surface 7/2/2 prop water_lotusm -0.032
@@ -339,9 +339,9 @@
 4,27 surface 0/2/0 decal 9 0.637,0.354
 5,27 surface 0/0/0
 6,27 surface 1/0/0 prop water_reedsm 0.035 decal 4m 0.441,0.650
-7,27 surface 0/0/0 torch fire torch 0.000,0.680,0.098
+7,27 surface 0/0/0 prop water_lotusm 0.052 torch fire torch 0.000,0.680,0.098
 8,27 surface 0/0/0 prop water_padsm 0.024
-9,27 surface 0/0/0 decal 11m 0.606,0.510
+9,27 surface 0/0/0 prop water_padsm -0.044 decal 11m 0.606,0.510
 10,27 surface 0/1/0 ladder 1/4
 11,27 surface 1/2/0 prop water_weed 0.029
 12,27 surface 0/1/0 prop water_reedsm 0.020
@@ -353,7 +353,7 @@
 22,27 surface 1/1/0 ladder 1/3
 23,27 surface 0/0/0 decal 1 0.497,0.598
 24,27 surface 0/0/0 prop water_reeds -0.008 decal 3m 0.491,0.600 torch fire torch 0.000,0.680,0.098
-25,27 surface 1/2/0 decal 6 0.572,0.575
+25,27 surface 1/2/0 prop water_weedm -0.120 decal 6 0.572,0.575
 26,27 surface 0/0/0 decal 9 0.318,0.553
 27,27 surface 0/1/0
 28,27 surface 0/0/0 decal 7 0.610,0.555
@@ -503,9 +503,9 @@
 29,39 surface 4/2/1
 30,39 surface 3/0/1
 31,39 surface 4/1/1
-32,39 surface 2/1/0m decal 7m 0.383,0.546
+32,39 surface 2/1/0m prop water_weedm -0.082 decal 7m 0.383,0.546
 33,39 surface 0/1/0 prop water_pads -0.067
-34,39 surface 0/0/0
+34,39 surface 0/0/0 prop water_reeds -0.072
 35,39 surface 0/0/0 decal 14 0.377,0.375 torch fire torch 0.000,0.680,0.098
 36,39 surface 0/0/0 ladder 1/3
 37,39 surface 0/0/0 prop canopicm -0.057 decal 7m 0.479,0.437

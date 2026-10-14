@@ -366,7 +366,7 @@
 4,27 surface 5/0/1
 5,27 surface 3/1/1
 6,27 surface 5/2/1 prop thoth_baboon_standingm -0.200
-7,27 surface 3/0/1 torch fire torch 0.000,0.680,0.098
+7,27 surface 3/0/1 prop water_lotus 0.044 torch fire torch 0.000,0.680,0.098
 8,27 surface 4/2/1 decal 7m 0.449,0.405
 9,27 surface 3/0/1
 10,27 surface 5/1/1
@@ -374,7 +374,7 @@
 12,27 surface 3/1/1
 13,27 surface 3/2/1 prop water_padsm -0.003 decal 15 0.734,0.375
 14,27 surface 3/0/1 prop water_lotus -0.044
-15,27 surface 4/0/1 decal 15 0.450,0.431
+15,27 surface 4/0/1 prop water_pads 0.062 decal 15 0.450,0.431
 16,27 surface 3/0/1 torch fire torch 0.000,0.680,0.098
 17,27 surface 4/0/1
 18,27 surface 3/2/1
@@ -384,7 +384,7 @@
 22,27 surface 0/2/0
 23,27 surface 0/0/0 decal 9 0.569,0.535
 24,27 surface 0/0/0 prop water_lotusm 0.024 decal 3 0.430,0.600 torch fire torch 0.000,0.680,0.098
-25,27 surface 1/2/0 decal 3 0.460,0.600
+25,27 surface 1/2/0 prop water_pads 0.068 decal 3 0.460,0.600
 26,27 surface 0/0/0 decal 4m 0.649,0.650
 27,27 surface 1/1/0
 28,27 surface 0/2/0 prop water_lotusm 0.130 decal 9m 0.686,0.354

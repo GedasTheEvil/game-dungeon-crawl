@@ -463,7 +463,7 @@
 13,30 surface 1/0/0 decal 14 0.417,0.375
 14,30 surface 0/2/0 decal 12 0.493,0.350
 15,30 surface 2/1/0
-16,30 surface 4/0/1
+16,30 surface 4/0/1 prop water_weedm 0.007
 17,30 surface 5/0/1
 18,30 surface 3/0/1
 19,30 surface 5/0/1 prop water_lotus -0.032 decal 8m 0.573,0.597

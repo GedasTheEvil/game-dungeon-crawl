@@ -55,9 +55,11 @@ Rewrite every journal text in plain English: the topics (`src/ui/journal_view.cp
 
 Rules:
 
-* Reader: a 12 to 14 year old whose first language is not English (user, 2026-10-14), a school learner of a few
-  years (about A2-B1). Everyday school English; no rare or bookish words, no idioms ("like a vice", "takes a bite
-  out of it"). Short sentences, but not baby talk: a teenager must not feel talked down to.
+* Reader: a 12 to 14 year old whose first language is not English (user, 2026-10-14). English at school since the
+  2nd grade: solid basics, heading towards advanced, not there yet (about B1-B2). So: normal, natural English, not
+  simplified. Cut only what such a reader trips over: rare or bookish words ("bludgeon", "draught", "warding"),
+  idioms and figures of speech ("like a vice", "takes a bite out of it"), long sentences with several clauses. Do
+  not rewrite a text that is already clear: most need a word or two changed, not a new text.
 * Keep the first-person voice ("I", "me") and the Egyptian names (Montu, Ptah, Hathor, khopesh, ...): they are the
   game's flavour, and a name explains itself. Explain a name once, plainly, where it is not clear ("the khopesh, a
   curved sword").
@@ -66,8 +68,8 @@ Rules:
 * A text may get longer when plain words need it, but it must still fit its page: check the journal's topic and
   creature pages with a screenshot scenario (`tests/scenarios/`, [testing.md](../testing.md)).
 * Example. Old: "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running
-  drains it all the time." New: "Jumping and running (Shift) make me tired. The yellow bar shows it. Each jump uses
-  some of it. Running uses it all the time."
+  drains it all the time." New: "Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of
+  it, and running drains it all the time." (Only the idiom goes.)
 
 Not in this plan: the riddles (their wording is the puzzle, and the answers must still fit), the skill cards
 other than Stun, item descriptions. Their own pass if the user wants it.

@@ -2,7 +2,7 @@
 
 Hieroglyphs on the back wall of a cell that the player can read ([plan](plan/solved/hieroglyph-cartouches.md)). An
 `Inscription` tile (type 15, `i` in the [level legend](levels.md)) has a text id as its attribute. It is a fixture in
-the cell's wall layer ([wall-layer](plan/wall-layer.md)), so the cell can also hold an object: a chest under it is
+the cell's wall layer ([wall-layer](plan/solved/wall-layer.md)), so the cell can also hold an object: a chest under it is
 opened by the first press, the inscription read with the next. When the player interacts in that cell, the status line says the hieroglyphs were deciphered (a repeat: already seen). The first time,
 the translation is written in the journal (J, Inscriptions ribbon): the hieroglyphs copied from the wall, the
 translation and the comment, with the level where it was read. Reading it again writes nothing new.

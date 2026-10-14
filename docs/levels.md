@@ -6,7 +6,7 @@ Tile types and structures in code: `src/world/level.h`.
 ## Level format
 
 A cell has three layers ([level-format-layers.md](plan/solved/level-format-layers.md),
-[wall-layer.md](plan/wall-layer.md)):
+[wall-layer.md](plan/solved/wall-layer.md)):
 
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`. A cell blocks when it is `Wall` or `DeepWater`.
 * **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes

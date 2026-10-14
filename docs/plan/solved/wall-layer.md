@@ -1,8 +1,7 @@
 # Wall layer: a third map layer for things on the back wall
 
-Status: implemented 2026-10-14, waits for the user's play-test: `bin/game --play tests/play/wall-layer.txt` (a chest
-under an inscription, a lever behind a monster spawn), and the editor's `Wall` layer (`make run-editor`). From the user.
-Pairs with [denser-levels](denser-levels.draft.opus.md): a level built after this one can pack more into each cell.
+Status: solved 2026-10-14 (play-tested by the user). From the user.
+Pairs with [denser-levels](../denser-levels.draft.opus.md): a level built after this one can pack more into each cell.
 
 ## Done
 
@@ -16,7 +15,7 @@ Pairs with [denser-levels](denser-levels.draft.opus.md): a level built after thi
 * Interact: the chest first, then the fixture (lever, inscription), then the brazier, the gate last (it may take the
   player away, so an inscription in a gate's cell stays readable).
 * Drawn: `Dungeon::drawFixture` before the object, on the back wall plane. A monster in front of an inscription or a
-  lever leaves it visible (`tests/scenarios/wall_layer.txt`).
+  lever leaves it visible (`tests/scenarios/solved/wall_layer.txt`, parked).
 * Checker: wall spikes cost on top of the object's; the new warning "X in front of wall spikes" for a spawn, ladder,
   gate, door or treasure; a fixture in rock warns like an object. `--map` prints a `wall` drawing, `--legend` a
   `wall TYPE...` line and `wall:` before a wall type's meaning. Torches and decals keep off a cell whose fixture says
@@ -30,7 +29,7 @@ Pairs with [denser-levels](denser-levels.draft.opus.md): a level built after thi
 
 ## Today
 
-A cell has two layers ([level-format-layers](solved/level-format-layers.md), [levels.md](../levels.md#level-format)):
+A cell has two layers ([level-format-layers](level-format-layers.md), [levels.md](../../levels.md#level-format)):
 the structure (wall, empty, half water, deep water) and **one** object. Some objects sit on the cell's back wall but
 still use up the cell's only object slot, so nothing else can go there: an inscription and a monster cannot share a
 cell. Levels pad corridors with empty cells to place them.
@@ -47,12 +46,12 @@ Split the object layer in two. Three layers per cell:
 ### What moves to the wall layer
 
 * `Inscription` (15).
-* `WallSpikes` (16, [rhythm-traps](solved/rhythm-traps.md)).
+* `WallSpikes` (16, [rhythm-traps](rhythm-traps.md)).
 * `Lever` (12), if its model sits on the back wall (check `dungeon_render*.cpp`; if it stands in the cell, it
   stays an object).
-* Later wall things go here from the start: the wall vent of [fire-jet-trap](fire-jet-trap.draft.opus.md), mirrors
-  and light shafts of [sunlight-mirrors](sunlight-mirrors.draft.opus.md), hand-placed wall decor (torches, reliefs),
-  a wall niche holding a treasure ([treasure-containers](treasure-containers.draft.opus.md): canopic jars in a niche).
+* Later wall things go here from the start: the wall vent of [fire-jet-trap](../fire-jet-trap.draft.opus.md), mirrors
+  and light shafts of [sunlight-mirrors](../sunlight-mirrors.draft.opus.md), hand-placed wall decor (torches, reliefs),
+  a wall niche holding a treasure ([treasure-containers](../treasure-containers.draft.opus.md): canopic jars in a niche).
 
 Stay objects: monster spawns, treasure (chests stand in the cell), keys, gates, doors, ladders, floor traps (spike,
 death, rock fall, dart plate: its darts come from the wall, but the plate is in the floor), the ankh.
@@ -64,7 +63,7 @@ number space, one legend, one `tile_defs` table.
 
 * **Interact**: both layers may hold something to interact with (an inscription over a chest, a lever by a key).
   The object goes first (open the chest, then read the inscription with the next press). With
-  [interact-prompt](interact-prompt.draft.opus.md) the prompt shows the one the next press will use.
+  [interact-prompt](../interact-prompt.draft.opus.md) the prompt shows the one the next press will use.
 * **Wall spikes** block the cell when out. `levelcheck` warns about a monster spawn, ladder, gate, door or treasure
   in a wall spikes cell (a spawn inside the spikes, a chest the player can never stand at safely). A key or a floor
   trap under them is fine.
@@ -99,13 +98,13 @@ number space, one legend, one `tile_defs` table.
 
 No redesign in this plan: the converter moves every wall thing to the wall layer and the levels play the same.
 Compacting levels (an inscription in a monster's corridor instead of its own cell, a lever in a guarded hall) is
-for the level work that follows: [denser-levels](denser-levels.draft.opus.md) and each trap plan's placement. Every
+for the level work that follows: [denser-levels](../denser-levels.draft.opus.md) and each trap plan's placement. Every
 level still passes `bin/levelcheck` with no warnings.
 
 ## Docs
 
-* [levels.md](../levels.md#level-format), [tools/editor/readme.md](../../tools/editor/readme.md) (file format),
-  [inscriptions.md](../inscriptions.md) if it says the cell must be empty.
+* [levels.md](../../levels.md#level-format), [tools/editor/readme.md](../../../tools/editor/readme.md) (file format),
+  [inscriptions.md](../../inscriptions.md) if it says the cell must be empty.
 * Glossary: add "wall layer" (and "wall thing" or the name chosen) in "Map and levels".
 
 Boss rule (AGENTS.md): no monster gains an ability here.

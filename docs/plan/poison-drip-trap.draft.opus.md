@@ -47,7 +47,7 @@ over each puddle between drops.
 * Extend the checker's antidote rule (`level_check.cpp`, today poisoner monsters only, `isPoisoner`) to drip
   cells: a level with drips needs an antidote.
 
-## Open points
+## Open points (implementer's choice, user 2026-10-14)
 
 * Drop damage size; maybe zero, poison only.
 

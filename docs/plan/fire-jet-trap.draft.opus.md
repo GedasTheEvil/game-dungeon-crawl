@@ -33,7 +33,7 @@ Reuse the rhythm-trap crossing check unchanged (the hazard kind does not matter 
 the other rhythm traps. One extra: burning after the zone; the safe-window rule stays the same (burning is a cost,
 not a block).
 
-## Open points
+## Open points (implementer's choice, user 2026-10-14)
 
 * Jet length and wall vs. floor vent: one or both.
 * Do both wards stack (multiply) or does the stronger win? Default: multiply.

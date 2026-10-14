@@ -248,3 +248,61 @@ TEST_CASE("the Anubis guard walks 20% faster than the player, the Anubis boss a 
 	world.Wait(1000);
 	CHECK(from - anubis->CentreX() == doctest::Approx(1.2f * WALK_SPEED).epsilon(0.05)); // tiles in a second
 }
+
+TEST_CASE("fire arrows from a brazier: the mummy takes double from fire and burns on; the journal learns it") {
+	SimWorld world; // tests/levels/fire: the mummy in its coffin at col 13
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/fire"));
+	CHECK(resistedDamage(10, {0, 0, 0, 100}, monsterKind(MonsterMummy)->resist) == 20);
+	world.Give(ItemKind::SelfBow);
+	world.Equip(ItemKind::SelfBow);
+	REQUIRE(world.WalkTo(12.f)); // it wakes and climbs out
+	REQUIRE(world.WalkTo(9.5f)); // back to the brazier
+	world.Interact(); // no brazier yet: nothing
+	CHECK(world.player.fireArrows == 0);
+	REQUIRE(world.dungeon.PlaceDecor(9, static_cast<int>(world.Y()), DECOR_BRAZIER));
+	world.Interact();
+	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS);
+	REQUIRE(world.WalkTo(10.3f)); // in the bow's reach, facing it
+	world.Wait(1000);
+	REQUIRE(world.Nearest() == 150);
+	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
+	world.Attack();
+	world.WaitTicks(40);
+	world.WaitTicks(40);
+	// The bow's 12: 40% pierce (tough, 25%) and 60% fire (weak, 200%): 12 * 1.3 = 16.
+	CHECK(world.Nearest() == 134);
+	CHECK(world.dungeon.NearestMonsterBurns());
+	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
+	CHECK(world.Told("Mummy catches fire"));
+	CHECK(world.Told("weak to fire"));
+	CHECK(world.Creature(MonsterMummy)->Tried(DamageType::Fire));
+	// It burns a fifth of its fire share (14.4) a second for 3 s: 8.
+	world.Wait(3500);
+	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
+	CHECK(world.Nearest() == 126);
+	CHECK(std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::Fire;
+	}));
+}
+
+TEST_CASE("the player burns through armour; half water puts the fire out") {
+	SimWorld world; // tests/levels/fire: a pool of half water at cols 4-6
+	REQUIRE(world.Load("tests/levels/fire"));
+	world.player.stats.AddArmor(5);
+	const int hp = world.Hp();
+	world.player.TakeHit(10, {0, 0, 0, 100}, world.events);
+	CHECK(world.Hp() == hp - 10);
+	CHECK(world.player.burning.Any());
+	world.Wait(3500);
+	CHECK(world.Hp() == hp - 16);
+	CHECK_FALSE(world.player.burning.Any());
+	REQUIRE(world.WalkTo(5.5f));
+	world.Wait(500);
+	const int wet = world.Hp();
+	world.player.TakeHit(10, {0, 0, 0, 100}, world.events);
+	world.Wait(3500);
+	CHECK(world.Hp() == wet - 10);
+	CHECK_FALSE(world.player.burning.Any());
+	CHECK(world.Told("The water puts the fire out"));
+}

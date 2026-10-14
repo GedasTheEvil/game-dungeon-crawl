@@ -45,6 +45,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	drop.reset();
 	poison.Cure();
 	poisonByPlayer = false;
+	burning.Douse();
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -219,7 +220,10 @@ bool Monster::takeHit(int dmg) {
 
 bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
 	const int hit = resistedDamage(dmg, mix, type->resist);
-	return takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
+	const bool killed = takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
+	if (Alive() && !inWater)
+		burning.Ignite(fireDamage(dmg, mix, type->resist));
+	return killed;
 }
 
 void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
@@ -255,6 +259,18 @@ bool Monster::UpdatePoison() {
 		return false;
 	poison.Cure();
 	return poisonByPlayer;
+}
+
+bool Monster::UpdateBurning() {
+	if (!Alive() || inWater) {
+		burning.Douse();
+		return false;
+	}
+	const int hp = burning.Advance(UPDATE_TICK_MS);
+	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
+		return false;
+	burning.Douse();
+	return true;
 }
 
 // The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.

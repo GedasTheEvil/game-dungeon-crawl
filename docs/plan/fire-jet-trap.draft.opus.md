@@ -1,6 +1,6 @@
 # Fire jet trap
 
-Status: draft 2026-10-14. Needs first: [fire-damage](fire-damage.draft.opus.md) (fire type, burning) and
+Status: draft 2026-10-14. Needs first: [fire-damage](fire-damage.md) (fire type, burning) and
 [rhythm-traps](rhythm-traps.draft.opus.md) (the timed cycle, its telegraph and level check). From the user.
 
 ## Idea

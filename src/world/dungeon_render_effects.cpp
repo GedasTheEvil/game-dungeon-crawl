@@ -23,6 +23,10 @@ constexpr float GLOB_RADIUS = 1.2f; // world units
 constexpr float GLOB_LIGHT_LIFT = 1.f;
 // Faint, steady and green: the glob's own light on the walls it passes.
 constexpr Lighting::LightDef VENOM_LIGHT = {0.45f, 0.75f, 0.15f, 40.f, 0.f};
+// A fire arrow's and a burning body's flicker (plan fire-damage).
+constexpr Lighting::LightDef FIRE_ARROW_LIGHT = {1.f, 0.6f, 0.25f, 45.f, 0.5f};
+constexpr Lighting::LightDef BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7f};
+constexpr float BURNING_FRONT = 3.f; // world units in front of the body's centre: the flames lick round its front
 
 // Flame clouds trailing behind a fiery glob, in world units along its flight.
 constexpr float GLOB_TRAIL_STEP = 2.2f;
@@ -124,6 +128,9 @@ void Dungeon::drawMissiles() {
 		glScalef(scale, scale, scale);
 		model->Show();
 		glPopMatrix();
+		if (a.fire && a.stuckMs < 0) // the tip burns
+			Fire::draw(Fire::ARROW, RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow),
+					   ARROW_DEPTH, static_cast<uint32_t>(a.startMs));
 	}
 }
 //======================================================================================
@@ -179,6 +186,31 @@ void Dungeon::addVenomLights() {
 						  RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
 						  ARROW_DEPTH + GLOB_LIGHT_LIFT, VENOM_LIGHT, 0);
 	}
+}
+// The fire arrows' and the burning monsters' light; same frame as addLights.
+void Dungeon::addFireLights() {
+	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	for (const Missile& a : missiles)
+		if (a.fire && a.stuckMs < 0)
+			Lighting::add(RenderConfig::TILE_SIZE * (a.X() - col0), RenderConfig::TILE_SIZE * (a.Y() - row0),
+						  ARROW_DEPTH + GLOB_LIGHT_LIFT, FIRE_ARROW_LIGHT, static_cast<uint32_t>(a.startMs));
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Burns())
+			Lighting::add(RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
+						  RenderConfig::TILE_SIZE * ((mon.BottomY() + mon.TopY()) / 2.f - row0),
+						  RenderConfig::MONSTER_DEPTH + BURNING_FRONT, BURNING_LIGHT, static_cast<uint32_t>(mon.Col()));
+}
+//======================================================================================
+// Flames over each burning monster's box. Same window and frame as drawSummonEffects.
+void Dungeon::drawBurning() {
+	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Burns())
+			Fire::body(RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
+					   RenderConfig::TILE_SIZE * (mon.BottomY() - row0), RenderConfig::MONSTER_DEPTH + BURNING_FRONT,
+					   RenderConfig::TILE_SIZE * mon.HalfWidth(),
+					   RenderConfig::TILE_SIZE * (mon.TopY() - mon.BottomY()),
+					   static_cast<uint32_t>(mon.Col() * 131 + mon.SpawnRow()));
 }
 //======================================================================================
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.

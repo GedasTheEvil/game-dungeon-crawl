@@ -54,6 +54,9 @@ class Dungeon {
 	void PickUp(); // not the car... just take an item away
 	bool PullLever(); // interact on a lever cell; false if there is none
 	bool readInscription(); // interact on an inscription: into the journal; false if there is none
+	// Interact by a brazier with a bow held: the next FIRE_ARROW_SHOTS arrows carry fire (plan fire-damage). False:
+	// no brazier in the player's cell or no bow.
+	bool lightArrows();
 	void useGate(); // the exit, a teleporter, a riddle gate, the ankh
 	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
 	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
@@ -202,6 +205,7 @@ class Dungeon {
 		int damage;
 		DamageMix mix;
 		int startMs; // GameClock time of the shot
+		bool fire = false; // a fire arrow (lightArrows): it flies burning
 		float t = 0.f; // seconds flown so far
 		int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
 		float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
@@ -225,6 +229,8 @@ class Dungeon {
 	void shootAtPlayer(const Monster& mon, float x, float y);
 	void updateShots();
 	void addVenomLights();
+	void addFireLights(); // the fire arrows' and the burning monsters' (plan fire-damage)
+	void drawBurning(); // flames on the burning monsters and the fire arrows; drawSummonEffects' frame
 	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 
@@ -238,6 +244,7 @@ class Dungeon {
 	bool playerVenomed = false; // the death trap's poison took this entry (reset on leaving it)
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
+	void updateBurning(); // the player's and each monster's fire (plan fire-damage); a monster's burning kill rewards
 	void drawMissiles(); // with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
@@ -334,6 +341,7 @@ class Dungeon {
 	[[nodiscard]] const Monster* Monsters() const { return monsters; }
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
 	[[nodiscard]] int NearestMonsterPoison() const; // its running poison tiers (Poison::Mask), 0 if none
+	[[nodiscard]] bool NearestMonsterBurns() const; // it is on fire (plan fire-damage)
 	[[nodiscard]] int ChestCount() const; // treasure chests not opened yet
 	[[nodiscard]] int CoffinCount() const; // coffins standing on the level (decorations)
 	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player

@@ -17,6 +17,8 @@ constexpr ItemKind OLD_SLOTS[] = {ItemKind::Club,		  ItemKind::ShortSword,	  Ite
 								  ItemKind::Might,		  ItemKind::Armor,		  ItemKind::Life,
 								  ItemKind::SmallStamina, ItemKind::LargeStamina, ItemKind::Antidote};
 constexpr int OLD_SLOT_COUNT = 12;
+constexpr int MAX_SAVED_SLOTS = 256; // a sanity bound on a save's slot count, well above ITEM_KIND_COUNT
+static_assert(ITEM_KIND_COUNT <= MAX_SAVED_SLOTS, "a save holds every item kind");
 
 // The resistance potions came in after the amulets: before INV5 the amulets follow the antidote.
 constexpr size_t RESISTANCE_POTIONS = itemIndex(ItemKind::GreaterResistance) - itemIndex(ItemKind::Antidote);
@@ -263,7 +265,7 @@ void ItemBag::Load(std::istream& in) {
 	if (tok == "INV2" || tok == "INV3" || hasFound) {
 		int slots = 0;
 		in >> slots;
-		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= 64 ? slots : 0));
+		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= MAX_SAVED_SLOTS ? slots : 0));
 		for (int& count : saved)
 			in >> count;
 		for (size_t slot = 0; slot < saved.size(); slot++)

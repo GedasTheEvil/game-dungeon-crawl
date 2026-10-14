@@ -147,3 +147,14 @@ TEST_CASE("field notes from before the notes per kind are dropped, the rest of t
 	j.Load(v4);
 	CHECK(j.Notes().empty());
 }
+
+TEST_CASE("a journal from before fire: the poison tried moves up past the fire bit") {
+	// No riddles; one creature (type 3, level 2, killed, hit by) tried with blunt and the venom's poison (old bit 3).
+	std::stringstream v7("journal 7 0\n1\n3 2 1 1 0 9\n0\n0\n");
+	Journal j;
+	j.Load(v7);
+	REQUIRE(j.Creatures().size() == 1);
+	CHECK(j.Creatures()[0].Tried(DamageType::Blunt));
+	CHECK_FALSE(j.Creatures()[0].Tried(DamageType::Fire));
+	CHECK(j.Creatures()[0].TriedPoison());
+}

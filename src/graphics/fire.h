@@ -39,9 +39,15 @@ constexpr FireStyle OIL_LAMP = {14, 600.f, 0.4f, 5.f, 1.6f, 0.8f, 0.3f};
 constexpr FireStyle VENOM = {20, 420.f, 1.4f, 5.f, 2.8f, 1.2f, 0.35f, &VENOM_RAMP};
 constexpr FireStyle VENOM_TRAIL = {10, 320.f, 1.f, 3.5f, 2.2f, 1.f, 0.4f, &VENOM_RAMP};
 
+// A fire arrow's tip, a burning body's tongues of flame (plan fire-damage).
+constexpr FireStyle ARROW = {16, 380.f, 0.5f, 4.f, 2.f, 1.f, 0.3f};
+constexpr FireStyle BODY = {24, 600.f, 2.5f, 9.f, 3.6f, 1.5f, 0.4f};
+
 // Draws one fire at (x, y, z) in the current modelview's local space. Call after the opaque scene: the sprites
 // test depth but do not write it.
 void draw(const FireStyle& style, float x, float y, float z, uint32_t seed);
+// A burning body: BODY flames over its box, bottom centre (x, y, z), halfWidth and height in world units.
+void body(float x, float y, float z, float halfWidth, float height, uint32_t seed);
 } // namespace Fire
 
 // Dust and grit trickling from a loose ceiling (rock-fall warning). Stateless like the fire.

@@ -48,6 +48,8 @@ class Player {
 	int attackStartMs = -1;
 	bool attackLanded = false;
 	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
+	Burning burning; // plan fire-damage; not saved, it lasts seconds
+	int fireArrows = 0; // the next bow shots carry fire: a brazier lit them (Dungeon::lightArrows); not saved
 
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)
@@ -55,7 +57,8 @@ class Player {
 	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Height() const;
-	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost). No damage in the scenario god mode.
+	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost), but not its fire share (playerHitDamage),
+	// which sets the player burning, in god mode too. No damage in the scenario god mode.
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
 	// health note.
 	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false);
@@ -72,7 +75,9 @@ class Player {
 	bool Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng);
 	// Once a tick: the running tiers' damage, which can kill; the resistance potion's and the curses' time.
 	void UpdatePoison(WorldEvents& events);
-	void Reanimate(); // full HP, standing, no poison, no curse
+	// Once a tick: half water (inWater) puts the fire out, else it burns (Burning), armour or not, and can kill.
+	void UpdateBurning(bool inWater, WorldEvents& events);
+	void Reanimate(); // full HP, standing, no poison, no curse, no fire
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).
 	void showClimb(float phase);

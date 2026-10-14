@@ -59,6 +59,11 @@ int Dungeon::NearestMonsterPoison() const {
 	return nearest ? nearest->PoisonMask() : 0;
 }
 //======================================================================================
+bool Dungeon::NearestMonsterBurns() const {
+	const Monster* nearest = nearestMonster();
+	return nearest != nullptr && nearest->Burns();
+}
+//======================================================================================
 void Dungeon::PoisonNearestMonster(PoisonTier tier) {
 	if (const Monster* nearest = nearestMonster())
 		monsters[nearest - monsters].TakePoison(tier, true, sim.random->gameplay);

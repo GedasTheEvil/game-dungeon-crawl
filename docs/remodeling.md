@@ -183,11 +183,11 @@ Original Blender sources are lost; models are rebuilt procedurally in Python (th
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `media/models/mechanisms/<model>.md3` +
   `media/textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the six potion vessels, the treasure chest and the ten amulets
+* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the six potion vessels, the treasure chest and the eleven amulets
   (`amulet_<type>`, one per `AmuletType`, all its tiers share it: a short cord loop with a gold bail and a pendant in
   the x-z plane facing -Y; strength a jackal's fang, armor a bronze scarab, health a carnelian ib heart, poison a gold
   scorpion, traps the eye of Horus, blunt the djed pillar, slash the tyet knot, pierce the shen ring, regeneration a
-  faience lotus, venom Wadjet's uraeus (a rearing cobra, hood to the front); their HUD icons in `tools/textures/hud_icons.py` match), real sizes in
+  faience lotus, venom Wadjet's uraeus (a rearing cobra, hood to the front), fire Ra's sun disc between cow horns; their HUD icons in `tools/textures/hud_icons.py` match), real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
   (`Player::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length

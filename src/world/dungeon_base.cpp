@@ -117,6 +117,7 @@ void Dungeon::Update() {
 	updateDarts();
 	updateTraps();
 	updateMonsterPoison();
+	updateBurning();
 	spawnInView();
 	updateAnimations();
 }
@@ -178,6 +179,13 @@ void Dungeon::updateTraps() {
 void Dungeon::updateMonsterPoison() {
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.UpdatePoison())
+			rewardKill(mon);
+}
+//======================================================================================
+void Dungeon::updateBurning() {
+	sim.player->UpdateBurning(PlayerSink() > 0.f, *sim.events);
+	for (Monster& mon : monsters)
+		if (mon.Active() && mon.UpdateBurning())
 			rewardKill(mon);
 }
 //======================================================================================

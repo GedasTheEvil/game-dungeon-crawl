@@ -334,6 +334,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Campaign:
 	case CommandType::Poison:
 	case CommandType::Hurt:
+	case CommandType::FireHit:
 	case CommandType::Prop:
 	case CommandType::Riddles:
 	case CommandType::Chest:
@@ -384,6 +385,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"wear", CommandType::Wear, parseWear, "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ..."},
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
+		{"firehit", CommandType::FireHit, numberAtLeast<1>, "<hp>"},
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
 		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
@@ -431,6 +433,8 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"decor_tier", Field::DecorTier},
 											   {"nearest", Field::Nearest},
 											   {"nearest_poison", Field::NearestPoison},
+											   {"nearest_burning", Field::NearestBurning},
+											   {"burning", Field::Burning},
 											   {"coffins", Field::Coffins},
 											   {"chests", Field::Chests},
 											   {"journal", Field::JournalRiddles},

@@ -20,7 +20,7 @@ import os
 import subprocess
 import sys
 
-LEVELCHECK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "levelcheck")
+LEVELCHECK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "bin", "levelcheck")
 NO_OBJECT = 1  # tile type
 
 

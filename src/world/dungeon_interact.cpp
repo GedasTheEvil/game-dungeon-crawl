@@ -31,9 +31,21 @@ void Dungeon::PickUp() {
 // Keys, treasure and levers are picked up or pulled elsewhere (PickUp, the mechanisms).
 void Dungeon::Interact() {
 	PickUp();
-	if (PullLever() || readInscription())
+	if (PullLever() || readInscription() || lightArrows())
 		return;
 	useGate();
+}
+//======================================================================================
+bool Dungeon::lightArrows() {
+	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
+	const OwnedWeapons& owned = sim.items->Owned();
+	if (!IsInBounds(col, row) || decoration.decor[MapIndex(col, row)].type != DECOR_BRAZIER ||
+		(!owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] &&
+		 !owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))
+		return false;
+	sim.player->fireArrows = FIRE_ARROW_SHOTS;
+	sim.events->Status("Dipped %d arrows in the brazier's fire", FIRE_ARROW_SHOTS);
+	return true;
 }
 //======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans

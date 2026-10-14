@@ -254,16 +254,13 @@ TEST_CASE("a save from before the stamps: nothing recent, found first among them
 }
 
 TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
+	constexpr int SLOTS = itemIndex(ItemKind::VenomGrand) + 1 - 2; // it ended with grand venom, without the 2 potions
 	std::stringstream old;
-	old << "INV4 " << ITEM_KIND_COUNT - 2 << " ";
-	for (int i = 0; i < ITEM_KIND_COUNT - 2; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
-		old << (i == itemIndex(ItemKind::Antidote) ? 1
-				: i == ORDERED_SAVE_SLOTS		   ? 2
-				: i == ITEM_KIND_COUNT - 3		   ? 3
-												   : 0)
-			<< " ";
-	for (int i = 0; i < 2 * (ITEM_KIND_COUNT - 2); i++) // levels, found
-		old << (i < ITEM_KIND_COUNT - 2 ? 1 : 0) << " ";
+	old << "INV4 " << SLOTS << " ";
+	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
+		old << (i == itemIndex(ItemKind::Antidote) ? 1 : i == ORDERED_SAVE_SLOTS ? 2 : i == SLOTS - 1 ? 3 : 0) << " ";
+	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
+		old << (i < SLOTS ? 1 : 0) << " ";
 	old << "1 0 " << ItemType::AMULET << " 0\n"; // the club, the lesser strength amulet on
 	ItemBag bag;
 	bag.Load(old);
@@ -311,7 +308,8 @@ TEST_CASE("an older save: 9 counts, then the map position") {
 }
 
 TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
-	CHECK(AMULET_KIND_COUNT == 9 * AMULET_TIER_COUNT + 2);
+	CHECK(AMULET_KIND_COUNT == 10 * AMULET_TIER_COUNT + 2);
+	CHECK(*amuletKind(AmuletType::FireWard, AmuletTier::Grand) == ItemKind::FireWardGrand);
 	CHECK(*amuletKind(AmuletType::Venom, AmuletTier::Lesser) == ItemKind::VenomLesser);
 	CHECK(isAmulet(ItemKind::StrengthLesser));
 	CHECK_FALSE(isPotion(ItemKind::StrengthLesser));
@@ -339,6 +337,9 @@ TEST_CASE("amulet names and effects") {
 	CHECK(std::string(itemText(ItemKind::HealthMinor).label) == "minor amulet of health");
 	CHECK(std::string(itemText(ItemKind::VenomGrand).effect) == "30% of hits poison (strong)");
 	CHECK(std::string(itemText(ItemKind::VenomLesser).label) == "lesser amulet of venom");
+	CHECK(std::string(itemText(ItemKind::FireWardMinor).name) == "Minor Sun Disc");
+	CHECK(std::string(itemText(ItemKind::FireWardMinor).effect) == "Fire damage -40%");
+	CHECK(std::string(itemText(ItemKind::FireWardGrand).label) == "grand amulet of fire warding");
 }
 
 TEST_CASE("the bonus of each amulet") {
@@ -361,6 +362,10 @@ TEST_CASE("the bonus of each amulet") {
 	CHECK(pierce[static_cast<size_t>(DamageType::Pierce)] == 60);
 	CHECK(pierce[static_cast<size_t>(DamageType::Blunt)] == NORMAL);
 	CHECK(amuletBonus(ItemKind::BluntWardLesser).resist[static_cast<size_t>(DamageType::Blunt)] == 92);
+	CHECK(pierce[FIRE] == NORMAL);
+	CHECK(amuletBonus(ItemKind::FireWardLesser).resist[FIRE] == 80);
+	CHECK(amuletBonus(ItemKind::FireWardGrand).resist[FIRE] == 20); // never more than 80% off: fire always hurts
+	CHECK(amuletBonus(ItemKind::FireWardGrand).resist[static_cast<size_t>(DamageType::Pierce)] == NORMAL);
 }
 
 TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {

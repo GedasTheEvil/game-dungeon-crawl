@@ -40,6 +40,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"wear", "wear amulet_of_health"},
 	{"xp", "xp 1000"},
 	{"hurt", "hurt 5"},
+	{"firehit", "firehit 10"},
 	{"poison", "poison medium"},
 	{"poisonmonster", "poisonmonster weak"},
 	{"riddles", "riddles tests/riddles"},
@@ -152,6 +153,7 @@ TEST_CASE("bad lines say what is wrong") {
 	CHECK_FALSE(errorOf("equip small_health").empty()); // not a weapon
 	CHECK_FALSE(errorOf("wear club").empty()); // not an amulet
 	CHECK_FALSE(errorOf("screenshot a/b").empty());
+	CHECK_FALSE(errorOf("firehit 0").empty());
 	CHECK_FALSE(errorOf("hurtboss 0").empty());
 	CHECK_FALSE(errorOf("resolution 32 32").empty());
 	CHECK_FALSE(errorOf("prop 3 dragon").empty());

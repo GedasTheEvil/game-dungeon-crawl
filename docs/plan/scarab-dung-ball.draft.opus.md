@@ -14,7 +14,7 @@ sun across the sky, rolls a bigger one.
 * Closer than 4 tiles the leap of [monster-balance](monster-balance.draft.opus.md) step 2 (2-3 tiles) wins: the
   ball for range, the leap to close in. Whichever plan lands second keeps the bands apart.
 * Khepri (the boss scarab): a bigger, faster ball, farther range, more damage (boss rule; its `kin` is the scarab,
-  but the user wants Khepri to have it). Optional: a burning sun ball with [fire-damage](fire-damage.draft.opus.md).
+  but the user wants Khepri to have it). Optional: a burning sun ball with [fire-damage](fire-damage.md).
 * The small scarab does not roll balls.
 * Journal note: "It rolls its dinner at me. I am not sure whose dinner."
 * Sound: a rolling rumble, a wet thud.

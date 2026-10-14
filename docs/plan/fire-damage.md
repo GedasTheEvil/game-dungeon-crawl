@@ -1,7 +1,8 @@
 # Fire damage
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user: a fire damage type, for the player and for
-monsters. Includes the "mummies burn" idea from the lore review.
+Status: implemented 2026-10-14, waits for the user's play-test: `bin/game --play tests/play/fire-damage.txt`
+(see [Implemented](#implemented)). From the user: a fire damage type, for the player and for monsters. Includes the
+"mummies burn" idea from the lore review.
 
 ## Today
 
@@ -61,3 +62,31 @@ Implementer's choice, at least one:
 
 * Unit: `resistedDamage` with fire; a mummy takes double from fire; burning ticks and stops in half water.
 * Scenario with a screenshot: a burning mummy.
+
+## Implemented
+
+* `DamageType::Fire` (`src/world/damage.h`), `DAMAGE_TYPE_COUNT` 4; every mix and resistance row has its fire column
+  (a zero rate is refused by `validKinds`: every type hurts). `playerHitDamage` takes the armour off the non-fire
+  shares only (`fireDamage` is the fire share after the resistances).
+* Burning: `Burning` in `damage.h`, `BURN_MS` 3 s at `BURN_TICK_PERCENT` 20% of the hit's fire share a second
+  (hundredths carried); a stronger fire takes over, a weaker one restarts the time. `Monster::UpdateBurning`,
+  `Player::UpdateBurning` from `Dungeon::updateBurning`; half water douses (the monster's `InWater`, the player's
+  `PlayerSink`). A monster burnt to death is the player's kill (only their weapons set fire). Not saved (seconds).
+* Player fire: the **fire arrows**. Interact in a brazier's cell with a bow owned (`Dungeon::lightArrows`): the next
+  `FIRE_ARROW_SHOTS` 5 arrows carry fire, `FIRE_ARROW_PERCENT` 60% of the damage (40 pierce / 60 fire, so the journal
+  learns fire from them). Every campaign level with mummies has at least one brazier (counted at implementation).
+  Not saved. Look: `Fire::ARROW` on the tip, a light (`addFireLights`).
+* Look of burning: `Fire::body` (`Fire::BODY` flames up the box), on monsters (`Dungeon::drawBurning`) and the player
+  (`draw.cpp`), with a flickering light.
+* Resistances as the table; also worm and egg cluster weak, the mimic and the rest normal. The Anubis boss stays
+  tough, Sobek resists, through `bossResist`.
+* Fire Warding: `AmuletType::FireWard`, the **Sun Disc** (Ra's disc in carnelian between gold cow horns,
+  `build_amulet_fire` in `tools/blender/models/items.py`, icon `sun_disc` in `tools/textures/hud_icons.py`), ids
+  38-41, 20 / 40 / 60 / 80%; lore line "Armour does not stop fire."
+* Journal: the FIRE field in the TRIED form (POISON moved under it; journal version 8 moves the old poison bit),
+  `attackSentence` knows fire, the field note "Fire" the first time something burns, status lines "Mummy catches
+  fire", "You are on fire!", "The water puts the fire out".
+* Scenario command `firehit N` (a fire hit on the player), `expect burning` / `nearest_burning`.
+* Tests: `tests/unit/damage_test.cpp` (fire share, armour split, Burning), `tests/unit/monster_rules_test.cpp` (fire
+  arrows on the mummy, the player burning and the pool), `tests/scenarios/fire_mummy.txt` (screenshots: burning
+  mummy, burning player, the journal's fire row), test level `tests/levels/fire`.

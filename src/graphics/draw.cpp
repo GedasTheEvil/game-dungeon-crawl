@@ -22,6 +22,9 @@
 namespace {
 constexpr float SCENE_NEAR = 10.f;
 constexpr float SCENE_FAR = 300.f;
+// The burning player's flames and their light, a little in front of the body (plan fire-damage).
+constexpr float PLAYER_FLAMES_Z = -22.f;
+constexpr Lighting::LightDef PLAYER_BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7f};
 
 // A point of the current model view on the window, as a share of its size (y up).
 struct ScreenPoint {
@@ -138,6 +141,8 @@ void drawGameplay() {
 	Lighting::begin();
 	if (Game().player->Alive())
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
+	if (Game().player->burning.Any())
+		Lighting::add(0, 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
 	const std::optional<float> sunBeam = sunBeamProgress();
 	if (sunBeam) {
 		const float k = SunBeam::strength(*sunBeam);
@@ -174,6 +179,10 @@ void drawGameplay() {
 	Game().dungeon.DrawWater();
 	glPopMatrix();
 
+	if (Game().player->burning.Any()) // plan fire-damage
+		Fire::body(0, -sink, PLAYER_FLAMES_Z + Game().player->depthOffset,
+				   Game().player->HalfWidth() * RenderConfig::TILE_SIZE,
+				   Game().player->Height() * RenderConfig::TILE_SIZE, 1);
 	if (Game().player->Alive()) {
 		if (sunBeam)
 			SunBeam::draw(0, 0, -30 + Game().player->depthOffset, *sunBeam);

@@ -1,0 +1,11 @@
+# Plan fire-damage, for `bin/game --play tests/play/fire-damage.txt`: tests/levels/fire, a self-bow, a brazier on the
+# second cell. Press interact (E) at the brazier: the next 5 arrows burn. Walk east to wake the mummy (col 13), step
+# back and shoot it: it takes double from fire and burns on for 3 s. The pool (cols 4-6) puts fire out. The player
+# starts burning (a fire hit through the armour); the grand Sun Disc (fire warding, 80%) is in the pack to try.
+seed 1
+level tests/levels/fire
+give ranged 0
+equip self-bow
+give amulet 41
+prop 2 brazier
+firehit 8

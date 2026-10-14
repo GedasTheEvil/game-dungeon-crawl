@@ -81,7 +81,21 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 			break;
 		}
 	}
-	missiles.push_back({kind, x0, y0, static_cast<float>(dir) * vx, vy, damage, mix, GameClock::now()});
+	// A fire arrow: FIRE_ARROW_PERCENT of its damage turns to fire.
+	const bool fire = kind == MissileKind::Arrow && sim.player->fireArrows > 0;
+	DamageMix dealt = mix;
+	if (fire) {
+		sim.player->fireArrows--;
+		dealt[FIRE] = 100;
+		for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
+			if (t != FIRE) {
+				dealt[t] = mix[t] * (100 - FIRE_ARROW_PERCENT) / 100;
+				dealt[FIRE] -= dealt[t];
+			}
+		if (sim.player->fireArrows == 0)
+			sim.events->Status("The last fire arrow");
+	}
+	missiles.push_back({kind, x0, y0, static_cast<float>(dir) * vx, vy, damage, dealt, GameClock::now(), fire});
 }
 //======================================================================================
 void Dungeon::updateMissiles() {

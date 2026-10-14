@@ -142,6 +142,7 @@ class Monster {
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 	Poison poison; // plan monster-poison
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
+	Burning burning; // plan fire-damage; only the player's weapons set it alight, so its kill is theirs
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -313,7 +314,8 @@ class Monster {
 	[[nodiscard]] float TopY() const;
 	// From the player or a trap. True: this hit killed it (the player's kill: Dungeon::rewardKill).
 	bool takeHit(int dmg);
-	// A hit with a weapon: its damage after resistances (resistedDamage). True: this hit killed it.
+	// A hit with a weapon: its damage after resistances (resistedDamage); a fire share sets it burning. True: this
+	// hit killed it.
 	bool TakeWeaponHit(int dmg, const DamageMix& mix);
 	// A poisoned hit (plan monster-poison): that tier (re)starts, as on the player, unless it shrugs it off
 	// (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it does
@@ -323,6 +325,10 @@ class Monster {
 	// (Dungeon::rewardKill).
 	bool UpdatePoison();
 	[[nodiscard]] bool Poisoned() const { return poison.Any(); }
+	// Once a tick: half water puts the fire out, else it burns (Burning), which can kill. True: it burnt to death
+	// (Dungeon::rewardKill).
+	bool UpdateBurning();
+	[[nodiscard]] bool Burns() const { return burning.Any(); }
 	[[nodiscard]] int PoisonMask() const { return poison.Mask(); }
 	// Each tick it stands in a spike or death trap (see TrapHurt).
 	// venom: the death trap's poison tier, applied on a hit (no XP for the player's kill).

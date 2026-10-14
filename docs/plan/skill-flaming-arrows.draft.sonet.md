@@ -1,6 +1,6 @@
 # Skill: flaming arrows
 
-Status: draft 2026-10-14. Needs first: [fire-damage](fire-damage.draft.opus.md) (fire type, burning, the brazier fire
+Status: draft 2026-10-14. Needs first: [fire-damage](fire-damage.md) (fire type, burning, the brazier fire
 arrows). Sibling of [skill-power-hit](skill-power-hit.draft.sonet.md): either can go in first. From the user.
 
 ## Idea

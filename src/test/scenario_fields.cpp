@@ -58,6 +58,10 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());
 	case Field::NearestPoison:
 		return static_cast<float>(Game().dungeon.NearestMonsterPoison());
+	case Field::NearestBurning:
+		return Game().dungeon.NearestMonsterBurns() ? 1.f : 0.f;
+	case Field::Burning:
+		return Game().player->burning.Any() ? 1.f : 0.f;
 	case Field::Coffins:
 		return static_cast<float>(Game().dungeon.CoffinCount());
 	case Field::Chests:

@@ -267,8 +267,8 @@ constexpr bool validItems() {
 			if (ITEMS[j].file.type == def.file.type && ITEMS[j].file.id == def.file.id)
 				return false;
 		const bool weapon = static_cast<int>(i) < WEAPON_KIND_COUNT;
-		if (weapon &&
-			(def.file.type == ItemType::POTION || def.weapon.mix[0] + def.weapon.mix[1] + def.weapon.mix[2] != 100))
+		if (weapon && (def.file.type == ItemType::POTION ||
+					   def.weapon.mix[0] + def.weapon.mix[1] + def.weapon.mix[2] + def.weapon.mix[3] != 100))
 			return false;
 		if (!weapon && def.file.type != ItemType::POTION)
 			return false;
@@ -289,8 +289,8 @@ constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 				amulets[static_cast<size_t>(i++)] = {static_cast<AmuletType>(type), static_cast<AmuletTier>(tier)};
 	return amulets;
 }();
-static_assert(AMULETS.back().type == AmuletType::Venom && AMULETS.back().tier == AmuletTier::Grand,
-			  "AMULETS ends with grand venom, the last ItemKind");
+static_assert(AMULETS.back().type == AmuletType::FireWard && AMULETS.back().tier == AmuletTier::Grand,
+			  "AMULETS ends with grand fire warding, the last ItemKind");
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share.
 struct AmuletTypeDef {
@@ -384,6 +384,15 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "%d%% of hits poison (%s)",
 	 "Wadjet's rearing cobra.",
 	 "Your blade grows fangs."},
+	// Never more than 80%: fire always hurts a little. Armour does not stop fire, only this does (plan fire-damage).
+	{"amulet_fire",
+	 {20, 40, 60, 80},
+	 "Sun Disc",
+	 "Fire Warding",
+	 "Fire",
+	 "Fire damage -%d%%",
+	 "Ra's disc burns daily.",
+	 "Armour does not stop fire."},
 }};
 // The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
 constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS = {PoisonTier::Weak, PoisonTier::Weak,
@@ -488,6 +497,9 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 	case AmuletType::Venom:
 		bonus.venomPercent = n;
 		bonus.venomTier = VENOM_TIERS[static_cast<size_t>(a.tier)];
+		break;
+	case AmuletType::FireWard:
+		bonus.resist[FIRE] = NORMAL - n;
 		break;
 	}
 	return bonus;

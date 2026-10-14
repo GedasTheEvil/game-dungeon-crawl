@@ -1,7 +1,7 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
 flight (arrow, sling stone), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
-share it: amulet_strength, ..., amulet_regeneration, amulet_venom).
+share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -47,7 +47,7 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
          "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
-                                                          "pierce", "regeneration", "venom")]
+                                                          "pierce", "regeneration", "venom", "fire")]
 BOWS = ("bow", "composite_bow")  # exported with their draw frames
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
@@ -884,6 +884,23 @@ def build_amulet_venom(b, M):
                ref=V((0, 1, 0))), M["gold"], "root")
 
 
+def build_amulet_fire(b, M):
+    """Ra's sun disc in carnelian with a thin gold rim, cradled in a pair of gold cow horns, a small uraeus on its
+    front (plan fire-damage)."""
+    amulet_cord(b, M)
+    cz = -0.034
+    b.add(rod((0, -0.003, cz), (0, 0.003, cz), 0.0185, n=20), M["carnelian"], "root")
+    rim = [V((0.0195 * math.sin(2 * math.pi * k / 24), 0, cz + 0.0195 * math.cos(2 * math.pi * k / 24))) for k in range(24)]
+    b.add(tube([(p, 0.0022, 0.0022) for p in rim], sub=2, n=6, ref=V((0, 1, 0)), closed=True), M["gold"], "root")
+    for side in (-1, 1):  # from the base under the disc, out round its sides, the tips turned in at the top
+        horn = [(0.0, -0.064), (0.014, -0.06), (0.025, -0.048), (0.029, -0.032), (0.026, -0.017), (0.019, -0.01)]
+        b.add(tube([(V((side * x, 0.001, z)), 0.0034 - 0.0004 * k, 0.003 - 0.0004 * k) for k, (x, z) in enumerate(horn)],
+                   sub=2, n=8, ref=V((0, 1, 0))), M["gold"], "root")
+    b.add(ellipsoid((0, -0.006, cz - 0.012), (0.0035, 0.003, 0.0055), n=8, rings=4), M["gold"], "root")  # uraeus
+    b.add(ellipsoid((0, -0.008, cz - 0.0065), (0.0025, 0.0022, 0.003), n=8, rings=4), M["gold"], "root")
+    b.add(rod((0, 0, -0.001), (0, 0, -0.0145), 0.0025, n=6), M["gold"], "root")  # from the bail to the rim
+
+
 CHEST_W, CHEST_D, CHEST_H = 0.8, 0.46, 0.36  # box outside (without legs and lid)
 CHEST_LEG = 0.05
 CHEST_WALL = 0.025
@@ -1024,6 +1041,7 @@ BUILDERS = {
     "amulet_pierce": build_amulet_pierce,
     "amulet_regeneration": build_amulet_regeneration,
     "amulet_venom": build_amulet_venom,
+    "amulet_fire": build_amulet_fire,
 }
 
 

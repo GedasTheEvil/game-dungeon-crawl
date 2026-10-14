@@ -1,0 +1,35 @@
+# Plan fire-damage: fire arrows from a brazier set the mummy burning, flames on its body; the player burning from a
+# fire hit; the journal's mummy page with its fire row. The screenshots are the look, a unit test has no window. The rules: tests/unit/monster_rules_test.cpp.
+seed 1
+god
+level tests/levels/fire
+give ranged 0
+equip self-bow
+walk to 12
+walk to 9.5
+prop 9 brazier
+interact
+walk to 10.3
+wait 1s
+expect nearest == 150
+attack
+wait 36
+screenshot arrow
+wait 30
+expect nearest == 134
+expect nearest_burning == 1
+walk to 11.2
+screenshot burning_mummy
+wait 4s
+expect nearest_burning == 0
+walk to 3.2
+firehit 10
+expect burning == 1
+wait 20
+screenshot burning_player
+walk to 5.5
+expect burning == 0
+key j
+wait 5
+screenshot journal
+quit

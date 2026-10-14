@@ -1,0 +1,9 @@
+; Fire damage (plan fire-damage, tests/unit/monster_rules_test.cpp, tests/scenarios/fire_mummy.txt): the player
+; (col 1), dry floor, a pool of half water (cols 4-6) over deep water, dry floor, a mummy in its coffin (col 13).
+####################
+#S...........u....E#
+####################
+structure
+####################
+#...~~~............#
+####===#############

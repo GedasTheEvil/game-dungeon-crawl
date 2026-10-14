@@ -112,8 +112,9 @@ enum class FieldNote : unsigned char {
 	CurseSlowness,
 	CursePalsy,
 	CurseInsanity,
+	Fire, // the first time something burns (plan fire-damage)
 };
-constexpr int FIELD_NOTE_COUNT = 28;
+constexpr int FIELD_NOTE_COUNT = 29;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);

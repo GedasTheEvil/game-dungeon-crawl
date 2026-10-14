@@ -1,6 +1,7 @@
 #include "fire.h"
 
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include "lighting.h"
 #include "../core/timer.h"
@@ -161,6 +162,20 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 	glDisable(GL_BLEND);
 	glColor4f(1, 1, 1, 1);
 	Lighting::setEmissive(false);
+}
+
+// Rows of flames up the box, one to a few across: the bigger the body, the more.
+void Fire::body(float x, float y, float z, float halfWidth, float height, uint32_t seed) {
+	constexpr float ROW_STEP = 7.f; // world units between the rows, about
+	constexpr float ACROSS_STEP = 4.f;
+	const int rows = std::clamp(static_cast<int>(std::lround(height / ROW_STEP)), 1, 4);
+	const int across = std::clamp(static_cast<int>(std::lround(halfWidth / ACROSS_STEP)), 1, 3);
+	const float step = height / static_cast<float>(rows);
+	for (int r = 0; r < rows; r++)
+		for (int i = 0; i < across; i++) {
+			const float fx = x + halfWidth * (2.f * (static_cast<float>(i) + 0.5f) / static_cast<float>(across) - 1.f);
+			draw(BODY, fx, y + step * static_cast<float>(r), z, seed + static_cast<uint32_t>(r * 4 + i) * 7919u);
+		}
 }
 
 void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {

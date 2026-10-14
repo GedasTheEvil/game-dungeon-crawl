@@ -322,6 +322,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 
 	addLights(drawn);
 	addVenomLights();
+	addFireLights();
 	Lighting::commit();
 
 	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
@@ -361,6 +362,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFires(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
+	drawBurning();
 	glPopMatrix();
 }
 //======================================================================================

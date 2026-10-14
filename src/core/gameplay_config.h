@@ -81,6 +81,10 @@ constexpr int MINION_EMERGE_MS = 700; // a summoned minion digs out or drops int
 // standing in it for a share of its damage; melee is not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
+// Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the
+// arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).
+constexpr int FIRE_ARROW_SHOTS = 5;
+constexpr int FIRE_ARROW_PERCENT = 60;
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

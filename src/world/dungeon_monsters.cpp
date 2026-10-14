@@ -435,8 +435,13 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
 	}
 	const int healthBefore = mon.Health();
+	const bool wasBurning = mon.Burns();
 	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg);
 	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
+	if (mix && (*mix)[FIRE] > 0)
+		sim.events->Note(FieldNote::Fire);
+	if (mon.Burns() && !wasBurning)
+		sim.events->Status("%s catches fire", type.name);
 	if (killed)
 		rewardKill(mon);
 	else if (mix)

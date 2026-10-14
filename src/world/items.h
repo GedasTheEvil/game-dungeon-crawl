@@ -76,8 +76,12 @@ enum class ItemKind : std::uint8_t {
 	VenomMinor,
 	VenomNormal,
 	VenomGrand,
+	FireWardLesser, // plan fire-damage
+	FireWardMinor,
+	FireWardNormal,
+	FireWardGrand,
 };
-constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::VenomGrand) + 1;
+constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::FireWardGrand) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
@@ -191,7 +195,7 @@ struct WeaponDef {
 	float scale = 1.f;
 	int damage = 0; // at weapon level 1; the loot grades go by it (loot.cpp)
 	int range = 0; // tenths of a tile (a ranged weapon's: how far it aims)
-	DamageMix mix{}; // blunt, slash, pierce percent. Its main type (mainType) is the journal's.
+	DamageMix mix{}; // blunt, slash, pierce, fire percent. Its main type (mainType) is the journal's.
 	// Each weapon level adds this share of the base damage: the club grows most, the sword least (it starts
 	// strongest).
 	int growthPercent = 20;
@@ -277,8 +281,9 @@ enum class AmuletType : std::uint8_t {
 	PierceWard,
 	Regeneration,
 	Venom, // the player's hits poison
+	FireWard, // plan fire-damage
 };
-constexpr int AMULET_TYPE_COUNT = 10;
+constexpr int AMULET_TYPE_COUNT = 11;
 enum class AmuletTier : std::uint8_t { Lesser, Minor, Normal, Grand };
 constexpr int AMULET_TIER_COUNT = 4;
 

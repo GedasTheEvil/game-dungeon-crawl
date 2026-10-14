@@ -459,8 +459,23 @@ def uraeus(d, cx, cy):
         d.ellipse([cx + side * 18 - 8, cy - 148, cx + side * 18 + 8, cy - 132], fill=INK)
 
 
+def sun_disc(d, cx, cy):
+    """Ra's sun disc in carnelian with a gold rim, cradled in gold cow horns, a small uraeus in front (items.py
+    build_amulet_fire)."""
+    for side in (-1, 1):  # half an ellipse round the disc's lower half, the tips turned in
+        horn = [(cx + side * 135 * math.sin(a), cy + 10 + 140 * math.cos(a))
+                for a in [math.radians(t) for t in range(0, 141, 10)]]
+        d.line(horn, fill=INK, width=44, joint="curve")
+        d.line(horn, fill=GOLD, width=24, joint="curve")
+    d.ellipse([cx - 100, cy - 120, cx + 100, cy + 80], fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([cx - 80, cy - 100, cx + 80, cy + 60], fill=CARNELIAN, outline=INK, width=LINE)
+    d.ellipse([cx - 18, cy - 5, cx + 18, cy + 55], fill=GOLD, outline=INK, width=LINE)  # the uraeus
+    d.ellipse([cx - 13, cy - 30, cx + 13, cy + 2], fill=GOLD, outline=INK, width=LINE)
+
+
 # By AmuletType (src/world/items.h).
-AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus)]
+AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus,
+                                     sun_disc)]
 
 # ---- the curses, one per Curse (src/world/curses.h): what the curse takes from the player, with a purple taint ----
 CURSE = (128, 58, 160, 255)
@@ -565,7 +580,7 @@ CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, 
 # curses from cell 32 on (Icon::FirstCurse).
 ICONS = [potion, amulet, ring, None, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
-         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + [None] + CURSE_ICONS
+         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

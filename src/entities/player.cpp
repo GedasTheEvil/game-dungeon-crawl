@@ -33,6 +33,12 @@ void Player::Animate() {
 }
 
 int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor) {
+	if (const double fire = fireDamage(dmg, mix, stats.resist); fire > 0.0 && Alive()) {
+		if (!burning.Any())
+			events.Status("You are on fire!");
+		burning.Ignite(fire);
+		events.Note(FieldNote::Fire);
+	}
 	if (god)
 		return 0;
 	const int s = static_cast<int>(scale);
@@ -69,6 +75,7 @@ void Player::die(WorldEvents& events) {
 	stats.poison.Cure();
 	stats.EndResistance();
 	stats.EndCurses();
+	burning.Douse();
 }
 
 bool Player::Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng) {
@@ -105,7 +112,24 @@ void Player::UpdatePoison(WorldEvents& events) {
 		die(events);
 }
 
+void Player::UpdateBurning(bool inWater, WorldEvents& events) {
+	if (inWater && burning.Any())
+		events.Status("The water puts the fire out");
+	if (inWater || !Alive()) {
+		burning.Douse();
+		return;
+	}
+	const int hp = burning.Advance(UPDATE_TICK_MS);
+	if (hp <= 0 || god)
+		return;
+	stats.LoseHP(hp); // armour does not help
+	if (!Alive())
+		die(events);
+}
+
 void Player::Reanimate() {
+	burning.Douse();
+	fireArrows = 0;
 	stats.EndCurses();
 	stats.HealFully();
 	stats.poison.Cure();

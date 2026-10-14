@@ -36,6 +36,7 @@ constexpr int EXIT_OK = 0;
 constexpr int EXIT_FAILED = 1;
 constexpr int EXIT_BAD_SCRIPT = 2;
 constexpr int EXIT_CRASH = 3;
+constexpr DamageMix FIRE_HIT = {0, 0, 0, 100}; // firehit
 
 constexpr int MAX_TICKS = 10 * 60 * 1000 / Scenario::TICK_MS; // 10 min of game time
 constexpr int WALK_STALL_TICKS = 30; // no movement this long = blocked
@@ -411,6 +412,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::FireHit: // a fire attack's hit (plan fire-damage): through the armour, it sets the player burning
+		Game().player->TakeHit(static_cast<int>(cmd.a), FIRE_HIT, Game().events);
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry

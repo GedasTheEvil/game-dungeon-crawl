@@ -325,6 +325,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 			  "still work. Two minutes."},
 	{"Insanity", "My mind is clouded. The club is in my hand and stays there; my map, journal, pack and potions mean "
 				 "nothing to me. Two minutes, if I live."},
+	{"Fire", "Fire sets what it hits alight: it burns on for a few seconds after the hit. Armour does not stop it, "
+			 "only a fire warding amulet does, and water puts it out. A brazier lights my next five arrows (E by "
+			 "it). Mummies, it turns out, are mostly kindling."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).
@@ -1022,9 +1025,8 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 		if (d % 2 == 1)
 			y -= ROW_STEP;
 	}
-	// In the free cell after PIERCE, once the venom amulet's poison was tried on it.
-	formField(handSmall, textX + FORM_COLUMN, y, "POISON",
-			  c.TriedPoison() ? poisonResistanceWord(t.poisonResistPercent) : "");
+	// Under BLUNT, once the venom amulet's poison was tried on it.
+	formField(handSmall, textX, y, "POISON", c.TriedPoison() ? poisonResistanceWord(t.poisonResistPercent) : "");
 }
 
 void JournalScreen::DrawFieldNote(const Rect& p, int index) {

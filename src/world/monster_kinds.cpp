@@ -20,20 +20,28 @@ constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
 constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 
-// How each group takes blunt, slash and pierce damage (plan damage-types-and-resistances). Each weapon is the best
-// against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants and mummies, the
-// spear (and the bow) against scarabs. A boss has no weak spot (bossResist).
-constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL}; // soft: a blow squashes, a blade cuts
-constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK}; // the shell turns a blade, a point goes between plates
-constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH}; // stems: only a blade cuts; points and blows go astray
-constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH}; // swat it; an arrow goes through the wing
-constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH}; // wood: crack it; a point only sticks in it
-constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL}; // bronze armour dents, a blade glances off it
-constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH}; // dry linen tears; nothing inside to stab
-constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL}; // the scutes turn a blade
-constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS}; // a blow cracks the thin shell; a point glances off
-constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL}; // the coils give under a blow; a blade cuts the body
-constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS}; // a blade slits the leathery eggs
+// How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
+// weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
+// and mummies, the spear (and the bow) against scarabs, fire (a brazier's arrows) against mummies, plants, worms and
+// eggs. A boss has no weak spot (bossResist).
+constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL, WEAK}; // soft: a blow squashes, a blade cuts, fire shrivels
+constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK,
+									   NORMAL}; // the shell turns a blade, a point goes between plates
+constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH,
+									  WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
+constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // swat it; an arrow goes through the wing
+constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // wood: crack it; a point only sticks in it
+constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL,
+									   TOUGH}; // bronze dents, a blade glances off, stone does not burn
+constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab
+constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL,
+										  RESISTS}; // the scutes turn a blade, wet hide a flame
+constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS,
+										 NORMAL}; // a blow cracks the thin shell; a point glances off
+constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL,
+									  NORMAL}; // the coils give under a blow; a blade cuts the body
+constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS,
+											WEAK}; // a blade slits the leathery eggs, fire cooks them
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -654,7 +662,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 constexpr bool validKinds() {
 	for (size_t i = 0; i < KINDS.size(); i++) {
 		const MonsterKind& kind = KINDS[i];
-		if (kind.id != static_cast<int>(i) + 1 || kind.attackMix[0] + kind.attackMix[1] + kind.attackMix[2] != 100)
+		if (kind.id != static_cast<int>(i) + 1 ||
+			kind.attackMix[0] + kind.attackMix[1] + kind.attackMix[2] + kind.attackMix[3] != 100)
 			return false;
 		if (kind.boss.minion < 0 || kind.boss.minion > MONSTER_TYPE_MAX || kind.boss.smallMinion < 0 ||
 			kind.boss.smallMinion > MONSTER_TYPE_MAX || (kind.boss.summon == Summon::Hatch) != (kind.boss.nest != 0))
@@ -664,6 +673,9 @@ constexpr bool validKinds() {
 		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
 			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
 			return false;
+		for (int rate : kind.resist)
+			if (rate <= 0) // every type hurts
+				return false;
 		for (size_t t = 0; kind.isBoss() && t < kind.resist.size(); t++)
 			if (kind.resist[t] > NORMAL || kind.resist[t] > KINDS[static_cast<size_t>(kind.kin - 1)].resist[t])
 				return false;

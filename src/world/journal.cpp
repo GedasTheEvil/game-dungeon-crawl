@@ -6,11 +6,13 @@ namespace {
 constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
-// whether each was translated
-constexpr int VERSION = 7;
+// whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one)
+constexpr int VERSION = 8;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
+constexpr int FIRE_VERSION = 8;
+constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
 void writeLines(std::ostream& out, const std::vector<std::string>& lines) {
@@ -84,9 +86,11 @@ FieldNote damageNote(DamageType type) {
 	case DamageType::Slash:
 		return FieldNote::Slash;
 	case DamageType::Pierce:
+		return FieldNote::Pierce;
+	case DamageType::Fire:
 		break;
 	}
-	return FieldNote::Pierce;
+	return FieldNote::Fire;
 }
 
 FieldNote potionNote(ItemKind potion) { return potionDef(potion).note; }
@@ -165,6 +169,8 @@ void Journal::Load(std::istream& in) {
 		JournalCreature c;
 		if (!(in >> c.type >> c.level >> c.killed >> c.hitBy >> c.moves) || (version >= 4 && !(in >> c.tried)))
 			return;
+		if (version < FIRE_VERSION && (c.tried & OLD_TRIED_POISON) != 0)
+			c.tried = (c.tried & ~OLD_TRIED_POISON) | JournalCreature::TRIED_POISON;
 		creatures.push_back(c);
 	}
 	if (version < 3 || !(in >> count))

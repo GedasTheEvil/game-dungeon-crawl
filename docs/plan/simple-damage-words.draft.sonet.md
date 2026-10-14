@@ -1,6 +1,7 @@
 # Simple damage words
 
-Status: draft 2026-10-14. Ready, needs nothing first. From the user.
+Status: draft 2026-10-14. Ready, needs nothing first. From the user. Two parts: simple damage words, then a
+plain-English rewrite of the journal.
 
 ## Why
 
@@ -47,7 +48,25 @@ Where:
 * "draught" → "potion" in every name and journal text ("Health draughts" → "Health potions"). "Potion" is a
   word every child who plays games knows.
 
-## Later, not in this plan
+## Plain-English journal (user, 2026-10-14: same pass)
 
-A full plain-English pass over the journal texts (shorter sentences, no rare words like "bitter", "brew",
-"bludgeons"), skill cards and riddles. Bigger and a matter of taste: its own draft if the user wants it.
+Rewrite every journal text in plain English: the topics (`src/ui/journal_view.cpp`) and the creature notes
+(`.note` in `src/world/monster_kinds.cpp`).
+
+Rules:
+
+* Reader: a child of about 10 whose first language is not English. Words from a beginner's textbook; short
+  sentences, one idea each; no idioms ("like a vice", "takes a bite out of it").
+* Keep the first-person voice ("I", "me") and the Egyptian names (Montu, Ptah, Hathor, khopesh, ...): they are the
+  game's flavour, and a name explains itself. Explain a name once, plainly, where it is not clear ("the khopesh, a
+  curved sword").
+* Keep every fact: keys (H, U, Shift, ...), numbers, which item or creature does what. A rewrite that drops or
+  changes a fact is wrong. Compare each text old to new before committing.
+* A text may get longer when plain words need it, but it must still fit its page: check the journal's topic and
+  creature pages with a screenshot scenario (`tests/scenarios/`, [testing.md](../testing.md)).
+* Example. Old: "Jumping and running (Shift) tire me out: the yellow bar. Each jump takes a bite out of it, running
+  drains it all the time." New: "Jumping and running (Shift) make me tired. The yellow bar shows it. Each jump uses
+  some of it. Running uses it all the time."
+
+Not in this plan: the riddles (their wording is the puzzle, and the answers must still fit), the skill cards
+other than Stun, item descriptions. Their own pass if the user wants it.

@@ -18,7 +18,7 @@
 12,3 surface 3/2/1
 13,3 surface 3/2/1
 14,3 surface 3/1/1 decal 10 0.276,0.444
-15,3 surface 3/1/1 decal 6 0.509,0.575
+15,3 surface 3/1/1 prop water_weedm -0.060 decal 6 0.509,0.575
 16,3 surface 4/2/1
 17,3 surface 3/2/1
 18,3 surface 3/1/1 torch fire torch 0.000,0.680,0.098

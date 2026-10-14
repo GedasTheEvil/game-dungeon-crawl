@@ -7,8 +7,9 @@
 // Static props and wall decals scattered on empty floor cells when a level loads (see scatterDecor, decor_scatter.h).
 // Models and textures: media/models/decorations/decor_<name>.md3, media/textures/decorations/decor_<name>.png, built by
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
-constexpr int DECOR_COUNT = 19;
-constexpr int DECOR_SCATTERED = 18; // the first ones; the rest are placed on purpose
+constexpr int DECOR_COUNT = 23;
+constexpr int DECOR_SCATTERED =
+	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
 constexpr int DECOR_BRAZIER = 6;
 constexpr int DECOR_LAMP = 7;
@@ -18,6 +19,17 @@ constexpr int DECOR_THOTH = 13;
 constexpr int DECOR_THOTH_VARIANTS = 4;
 constexpr bool isThoth(int decor) { return decor >= DECOR_THOTH && decor < DECOR_THOTH + DECOR_THOTH_VARIANTS; }
 constexpr int DECOR_COFFIN = 18; // empty, on every mummy's spawn tile: it lies in there until it wakes
+// Water props (plan water-decorations): plants scattered in half water cells only, modelled at their height in the
+// basin. The reeds and the weed sway, the leaves afloat bob (drawDecorTile).
+constexpr int DECOR_WATER_REEDS = 19; // papyrus, prefers the bank
+constexpr int DECOR_WATER_WEED = 20; // under the surface
+constexpr int DECOR_WATER_PADS = 21; // lotus leaves afloat, prefer the middle of a pool
+constexpr int DECOR_WATER_LOTUS = 22; // the same with a blue lotus in bloom
+constexpr int DECOR_WATER_FIRST = DECOR_WATER_REEDS;
+constexpr int DECOR_WATER_COUNT = 4;
+constexpr bool isWaterProp(int decor) {
+	return decor >= DECOR_WATER_FIRST && decor < DECOR_WATER_FIRST + DECOR_WATER_COUNT;
+}
 constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
 												  "pottery",
 												  "canopic",
@@ -36,7 +48,11 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
 												  "thoth_baboon_seated",
 												  "thoth_baboon_standing",
 												  "sarcophagus",
-												  "coffin"};
+												  "coffin",
+												  "water_reeds",
+												  "water_weed",
+												  "water_pads",
+												  "water_lotus"};
 
 // Decorations by depth (plan decor-by-depth): the tiers add up, a level draws from every tier unlocked at its depth,
 // the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is the
@@ -50,11 +66,12 @@ constexpr int decorTier(int depth) {
 		tier++;
 	return tier;
 }
-// The tier each prop comes in with; the coffin (-1) stands wherever a mummy lies.
-constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0, 0, 1, 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
-											 1, 1, 1, 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
-											 3, 2, 2, 2, 2, 3, // osiris, Thoth x 4, sarcophagus
-											 -1};
+// The tier each prop comes in with; the coffin (-1) stands wherever a mummy lies. The lotus comes in with the worked
+// tunnels, before the tombs: the water lotus monster (plan water-lotus) hides among the leaves.
+constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0,	 0, 1, 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
+											 1,	 1, 1, 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
+											 3,	 2, 2, 2, 2, 3, // osiris, Thoth x 4, sarcophagus
+											 -1, 0, 0, 1, 1}; // coffin, reeds, weed, pads, lotus
 // Rows of rough rock (the rest dressed stone), and of the dressed stretches the painted ones, per tier, in percent:
 // all cave at first, less and less deeper down.
 constexpr uint32_t ROUGH_PERCENT[DECOR_TIER_COUNT] = {100, 55, 30, 15};

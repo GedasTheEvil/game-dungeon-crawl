@@ -424,19 +424,19 @@
 16,29 surface 0/0/0 decal 0 0.643,0.437
 17,29 surface 1/0/0
 18,29 surface 0/0/0 decal 8 0.489,0.613
-19,29 surface 0/0/0
-20,29 surface 0/2/0 decal 15 0.289,0.450
-21,29 surface 0/0/0 torch fire torch 0.000,0.680,0.098
+19,29 surface 0/0/0 prop water_lotus -0.001
+20,29 surface 0/2/0 prop water_pads 0.011 decal 15 0.289,0.450
+21,29 surface 0/0/0 prop water_pads -0.020 torch fire torch 0.000,0.680,0.098
 22,29 surface 1/1/0
-23,29 surface 0/0/0
+23,29 surface 0/0/0 prop water_lotus 0.165
 24,29 surface 0/0/0
 25,29 surface 2/0/0 decal 0 0.459,0.566
 26,29 surface 3/0/1 torch fire torch 0.000,0.680,0.098
 27,29 surface 3/0/1
-28,29 surface 5/0/1 decal 8m 0.556,0.427
+28,29 surface 5/0/1 prop water_reedsm -0.005 decal 8m 0.556,0.427
 29,29 surface 4/1/1 decal 0m 0.633,0.415
 30,29 surface 3/0/1
-31,29 surface 4/0/1
+31,29 surface 4/0/1 prop water_padsm 0.015
 32,29 surface 3/1/1
 33,29 surface 3/1/1 decal 8 0.594,0.578
 34,29 surface 4/1/1 torch fire torch 0.000,0.680,0.098

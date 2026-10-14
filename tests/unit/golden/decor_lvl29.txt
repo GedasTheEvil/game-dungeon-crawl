@@ -481,15 +481,15 @@
 4,33 surface 0/0/0 prop ushabtim 0.005
 5,33 surface 0/0/0
 6,33 surface 0/0/0
-7,33 surface 0/2/0 decal 15m 0.676,0.567
+7,33 surface 0/2/0 prop water_weedm -0.076 decal 15m 0.676,0.567
 8,33 surface 2/2/0 decal 11 0.618,0.620
-9,33 surface 5/0/1 torch fire torch 0.000,0.680,0.098
+9,33 surface 5/0/1 prop water_reeds 0.031 torch fire torch 0.000,0.680,0.098
 10,33 surface 3/0/1
 11,33 surface 4/0/1
 12,33 surface 3/0/1
 13,33 surface 3/1/1
-14,33 surface 3/0/1
-15,33 surface 4/1/1
+14,33 surface 3/0/1 prop water_weedm 0.049
+15,33 surface 4/1/1 prop water_lotusm -0.137
 16,33 surface 3/0/1 torch fire torch 0.000,0.680,0.098
 17,33 surface 3/1/1 decal 0m 0.595,0.554
 18,33 surface 4/1/1 prop thoth_ibis_standing 0.108 decal 8m 0.542,0.499
@@ -497,14 +497,14 @@
 20,33 surface 2/0/0m prop sarcophagus -0.066
 21,33 surface 1/0/0 decal 0 0.336,0.609
 22,33 surface 0/0/0 decal 1m 0.564,0.597
-23,33 surface 0/2/0 torch fire torch 0.000,0.680,0.098
+23,33 surface 0/2/0 prop water_lotus 0.041 torch fire torch 0.000,0.680,0.098
 24,33 surface 0/0/0
 25,33 surface 0/0/0 decal 7m 0.474,0.599
-26,33 surface 0/1/0 decal 0m 0.697,0.476
+26,33 surface 0/1/0 prop water_weed 0.101 decal 0m 0.697,0.476
 27,33 surface 1/0/0
 28,33 surface 0/0/0
 29,33 surface 1/1/0
-30,33 surface 0/1/0
+30,33 surface 0/1/0 prop water_padsm 0.029
 31,33 surface 2/0/0 torch fire torch 0.000,0.680,0.098
 32,33 surface 3/0/1 decal 11 0.600,0.491
 33,33 surface 4/0/1

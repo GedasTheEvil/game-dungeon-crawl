@@ -47,11 +47,11 @@
 5,6 surface 4/0/1 prop canopicm -0.016
 6,6 surface 3/0/1
 7,6 surface 3/2/1 decal 15m 0.367,0.565
-8,6 surface 4/1/1
+8,6 surface 4/1/1 prop water_lotusm -0.083
 9,6 surface 3/1/1
 10,6 surface 3/1/1 decal 15m 0.706,0.593
 11,6 surface 2/0/1m torch fire torch 0.000,0.680,0.098
-12,6 surface 0/1/1 decal 1 0.656,0.578
+12,6 surface 0/1/1 prop water_weedm 0.020 decal 1 0.656,0.578
 13,6 surface 0/0/1
 14,6 surface 0/2/1 decal 7 0.463,0.427
 15,6 surface 2/0/1 ladder 1/4

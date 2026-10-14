@@ -7,12 +7,25 @@
 #include "../graphics/lighting.h"
 #include "inscriptions.h"
 #include <GL/gl.h>
+#include <cmath>
+#include <cstdint>
 #include <utility>
 
 namespace {
 constexpr float LIGHT_LIFT = 4.f; // lights sit above and in front of the flame (world units)
 constexpr float INSCRIPTION_SIZE = 0.7f; // quad side, tile units, a little larger than the scattered glyph decals
 constexpr float INSCRIPTION_Y = 0.55f; // its centre on the back wall: at the archaeologist's eye height
+// Water props (plan water-decorations), tile units and radians a second. The reeds and the weed sway (x sheared by
+// the height over the basin floor), the leaves afloat bob and drift.
+constexpr float BASIN_FLOOR = -RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
+constexpr float REED_SWAY = 0.04f; // the shear: 0.03 tile at the reeds' tips
+constexpr float REED_SWAY_SPEED = 0.9f;
+constexpr float WEED_SWAY = 0.12f; // in the current
+constexpr float WEED_SWAY_SPEED = 0.6f;
+constexpr float BOB_HEIGHT = 0.005f;
+constexpr float BOB_SPEED = 1.4f;
+constexpr float DRIFT_WIDTH = 0.012f;
+constexpr float DRIFT_SPEED = 0.35f;
 
 // A square of side `size` centred on (x, y) of the cell's back wall (tile units), textured from the bound atlas,
 // blended over the wall.
@@ -45,6 +58,24 @@ void wallQuad(float x, float y, float size, AtlasRect uv, bool mirror) {
 }
 } // namespace
 
+namespace {
+// The water prop's sway or bob, in its model space; each cell on its own phase.
+void waterMotion(int type, int cell) {
+	const float time = static_cast<float>(GameClock::now()) / 1000.f;
+	const float phase = static_cast<float>((static_cast<uint32_t>(cell) * 2654435761U) >> 20) / 4096.f * 6.2832f;
+	if (type == DECOR_WATER_REEDS || type == DECOR_WATER_WEED) {
+		const bool reeds = type == DECOR_WATER_REEDS;
+		const float k =
+			(reeds ? REED_SWAY : WEED_SWAY) * std::sin(time * (reeds ? REED_SWAY_SPEED : WEED_SWAY_SPEED) + phase);
+		// x += k * (y - BASIN_FLOOR): the foot stays put, the tips move.
+		const float shear[16] = {1, 0, 0, 0, k, 1, 0, 0, 0, 0, 1, 0, -k * BASIN_FLOOR, 0, 0, 1};
+		glMultMatrixf(shear);
+	} else
+		glTranslatef(DRIFT_WIDTH * std::sin(time * DRIFT_SPEED + phase),
+					 BOB_HEIGHT * std::sin(time * BOB_SPEED + phase), 0);
+}
+} // namespace
+
 void Dungeon::drawDecorTile(int i, int j) {
 	const DecorCell& cell = decoration.decor[MapIndex(i, j)];
 	if (cell.type < 0)
@@ -58,6 +89,8 @@ void Dungeon::drawDecorTile(int i, int j) {
 	glTranslatef(RenderConfig::TILE_HALF + cell.offsetX * RenderConfig::TILE_SIZE, 0, -RenderConfig::TILE_SIZE);
 	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
 			 RenderConfig::TILE_SIZE);
+	if (isWaterProp(cell.type))
+		waterMotion(cell.type, MapIndex(i, j));
 
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
 	sim.assets->decor.tex[cell.type].Bind();

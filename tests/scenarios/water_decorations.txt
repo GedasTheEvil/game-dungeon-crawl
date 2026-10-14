@@ -1,0 +1,33 @@
+# Water props (plan water-decorations): reeds at the banks, weed under the surface, lotus leaves and a blue lotus out on
+# the water; the surface tints what is under it, not what stands above. tests/levels/water: dry floor at x 1-5, half
+# water at x 5-14 (a ladder at x 9, spikes at x 11).
+seed 1
+god
+level tests/levels/water
+prop 5 water_reeds
+prop 6 water_weed
+prop 7 water_pads
+prop 8 water_lotus
+prop 10 water_pads
+prop 12 water_lotus
+prop 13 water_reeds
+wait 30
+walk to 3.5
+wait 10
+screenshot from_the_bank
+wait 2s
+screenshot from_the_bank_later
+walk to 7.5
+wait 10
+screenshot wading
+camera -25 0
+wait 5
+screenshot wading_side
+camera 0 0
+toon on
+wait 5
+screenshot wading_toon
+toon off
+walk to 10.5
+wait 10
+screenshot far_bank

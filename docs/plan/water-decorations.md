@@ -1,7 +1,7 @@
 # Water decorations
 
-Status: draft 2026-10-12, ready (needs nothing first). Opus: new Blender models. From the user: plants with no
-function in the water, so flooded parts look less bare.
+Status: implemented 2026-10-14, waiting for the play-test. From the user: plants with no function in the water, so
+flooded parts look less bare.
 
 ## Idea
 
@@ -67,3 +67,23 @@ units, origin at the floor centre. Low poly, alpha-tested leaves where it saves 
 * Scenario with a screenshot: a pool on a flooded level with reeds at the bank, pads in the middle; one under water
   view (player wading) to check the surface draw order.
 * Glossary row: water prop.
+
+## Implemented (2026-10-14)
+
+* Four props after the coffin in `DECOR_NAMES` (`src/world/decor.h`): `water_reeds`, `water_weed`, `water_pads`,
+  `water_lotus` (`isWaterProp`). Models: `tools/blender/models/decor.py`, at their real height in the basin.
+  Duckweed and the deep water strands (optional) are not done.
+* Scatter: `scatterWaterProp` (`src/world/decor_scatter.cpp`), 35% (`WATER_DECOR_CHANCE_PERCENT`) of half water cells
+  with nothing in them (no monster spawn, item, fixture or slain monster). Bank cells (a row neighbour not half water)
+  favour the reeds, the middle of a pool the leaves (`WATER_BANK_WEIGHT`, `WATER_MIDDLE_WEIGHT`). Dry layouts are
+  unchanged (the golden dumps only gained water props).
+* Tiers: reeds and weed from the caves, the leaves and the lotus from the worked tunnels (tier 1, level 4), not the
+  tombs: the [water-lotus](water-lotus.draft.opus.md) monster needs decor lotus to hide among from its first levels.
+* Motion at draw time (`waterMotion`, `src/world/dungeon_render_decor.cpp`): reeds and weed sway (x sheared by the
+  height over the basin floor), the leaves bob and drift; each cell on its own phase. No clips.
+* Draw order: nothing new. The water is drawn after the props, see-through, so the parts under the surface are tinted
+  and the parts above are not. In the toon view the weed under the water gets ink lines, as the player's legs do.
+* Tests: `tests/unit/decor_test.cpp` (water props only in free half water, dry props never there, share about 35%, no
+  lotus in the caves), golden dumps, scenario `tests/scenarios/water_decorations.txt` (screenshots).
+
+Play-test: `bin/game --level 21` (24 water props), or `--level 16` / `--level 25`.

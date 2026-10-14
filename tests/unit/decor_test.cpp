@@ -101,7 +101,13 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 				const DecorCell& prop = s.layout->decor[idx(i, j)];
 				if (t.type == MonsterSpawn && t.attr == MonsterMummy)
 					CHECK(prop.type == DECOR_COFFIN);
-				else if (prop.type >= 0) {
+				else if (isWaterProp(prop.type)) {
+					CHECK(inHalfWater(t));
+					CHECK(t.type == NoObject);
+					CHECK(slainMonster(t) == 0);
+					CHECK_FALSE(hasFixture(t));
+					CHECK(DECOR_TIERS[prop.type] <= tier);
+				} else if (prop.type >= 0) {
 					CHECK(isEmptyCell(t));
 					CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
 					CHECK(DECOR_TIERS[prop.type] <= tier);
@@ -115,6 +121,41 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(decal.x <= 1.f);
 				}
 			}
+	}
+}
+
+TEST_CASE("water props grow in the half water, the dry ones stay out of it (plan water-decorations)") {
+	int water = 0;
+	int halfWater = 0;
+	int lotus = 0;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		const Scattered s = campaignLevel(n);
+		for (int k = 0; k < LEVEL_CELL_COUNT; k++) {
+			const Tile t = s.grid.cells[k];
+			const int prop = s.layout->decor[k].type;
+			halfWater += inHalfWater(t) ? 1 : 0;
+			if (prop < 0)
+				continue;
+			CHECK(isWaterProp(prop) == inHalfWater(t));
+			if (isWaterProp(prop))
+				CHECK_FALSE(t.type == MonsterSpawn);
+			water += isWaterProp(prop) ? 1 : 0;
+			lotus += prop == DECOR_WATER_LOTUS || prop == DECOR_WATER_PADS ? 1 : 0;
+		}
+	}
+	REQUIRE(halfWater > 0);
+	CHECK(water * 100 > halfWater * 20); // about 35% of the free ones
+	CHECK(water * 100 < halfWater * 45);
+	CHECK(lotus > 0);
+}
+
+TEST_CASE("the caves' pools get no lotus, only reeds and weed") {
+	for (int n = 1; n < DECOR_TIER_FROM[1]; n++) {
+		CAPTURE(n);
+		const Scattered s = campaignLevel(n);
+		for (const DecorCell& c : s.layout->decor)
+			CHECK((c.type != DECOR_WATER_PADS && c.type != DECOR_WATER_LOTUS));
 	}
 }
 

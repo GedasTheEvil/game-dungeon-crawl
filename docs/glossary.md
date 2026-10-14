@@ -43,7 +43,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | wall layer | | the cell's layer between the structure and the object: its fixture ([wall-layer](plan/solved/wall-layer.md)). Not the structure `Wall` | `Tile::fixture`, `setFixture`, `setThing` |
 | wall spikes | | a rhythm trap ([rhythm-traps](plan/solved/rhythm-traps.md)): poison spikes out of a cell's back wall on a fixed cycle; out, they block like a gate and stab whoever stands in the cell. Drafts also say "rhythm trap" | `WallSpikes`, `spikeStateAt`, `Dungeon::updateWallSpikes` |
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
-| water prop | | (planned, [water-decorations](plan/water-decorations.draft.opus.md)) a prop scattered in half water: reeds, lotus pads, weed. No function | |
+| water prop | | ([water-decorations](plan/water-decorations.md)) a prop scattered in a free half water cell: papyrus reeds (at the bank), weed (under the surface), lotus leaves, a blue lotus. No function; the reeds and weed sway, the leaves bob | `isWaterProp`, `DECOR_WATER_FIRST` |
 
 ## Monsters
 

@@ -8,6 +8,11 @@
 
 namespace {
 constexpr uint32_t DECOR_CHANCE_PERCENT = 30;
+constexpr uint32_t WATER_DECOR_CHANCE_PERCENT = 35; // pools look planted, not full
+// Weight of each water prop (DECOR_WATER_FIRST on) at the bank (a neighbour in the row is not half water) and in the
+// middle of a pool, times its tier's: reeds along the edge, leaves out on the water.
+constexpr uint32_t WATER_BANK_WEIGHT[DECOR_WATER_COUNT] = {4, 1, 1, 1};
+constexpr uint32_t WATER_MIDDLE_WEIGHT[DECOR_WATER_COUNT] = {1, 2, 3, 2};
 constexpr uint32_t DECAL_CHANCE_PERCENT = 35;
 constexpr uint32_t DECAL_SALT = 0x51ed270bU;
 constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
@@ -18,8 +23,9 @@ constexpr int STRETCH_MIN = 3; // cells; a row of dressed stone is cut into stre
 constexpr int STRETCH_SPAN = 6; // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
-constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f, 0.06f,
-											 0.14f, 0.2f,  0.1f,  0.2f, 0.2f, 0.2f,	 0.2f, 0.1f, 0.f};
+constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f,	0.f,   0.15f, 0.2f, 0.1f,
+											 0.1f, 0.06f, 0.14f, 0.2f,	0.1f,  0.2f,  0.2f, 0.2f,
+											 0.2f, 0.1f,  0.f,	 0.08f, 0.12f, 0.1f,  0.2f};
 
 bool inBounds(int col, int row) { return LevelGrid::inBounds(col, row); }
 int cellIndex(int col, int row) { return row * LEVEL_WIDTH + col; }
@@ -82,6 +88,34 @@ bool entombed(int type) {
 	return kind != nullptr && kind->locomotion == Locomotion::Entombed;
 }
 
+// A water prop in half water cell (i, j), plan water-decorations. Only where nothing else is: no monster spawn (a
+// lurking crocodile stays in sight), no item, no fixture, no slain monster. False if it rolled none.
+bool scatterWaterProp(const Tile* cells, uint32_t seed, int tier, int i, int j, DecorCell& cell) {
+	const Tile tile = at(cells, i, j);
+	if (tile.type != NoObject || slainMonster(tile) != 0 || hasFixture(tile))
+		return false;
+	uint32_t h = cellHash(seed, cellIndex(i, j));
+	if (h % 100 >= WATER_DECOR_CHANCE_PERCENT)
+		return false;
+
+	const bool bank = !inBounds(i - 1, j) || !inHalfWater(at(cells, i - 1, j)) || !inBounds(i + 1, j) ||
+					  !inHalfWater(at(cells, i + 1, j));
+	uint32_t weights[DECOR_WATER_COUNT];
+	for (int d = 0; d < DECOR_WATER_COUNT; d++)
+		weights[d] = tierWeight(DECOR_TIERS[DECOR_WATER_FIRST + d], tier) *
+					 (bank ? WATER_BANK_WEIGHT[d] : WATER_MIDDLE_WEIGHT[d]);
+	h = mix(h);
+	const int pick = weightedPick(weights, DECOR_WATER_COUNT, h);
+	if (pick < 0)
+		return false;
+	const int type = DECOR_WATER_FIRST + pick;
+	h = mix(h);
+	cell.type = static_cast<int8_t>(type);
+	cell.mirror = (h & 1U) != 0;
+	cell.offsetX = (unit01(h) * 2.f - 1.f) * DECOR_JITTER[type];
+	return true;
+}
+
 int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
@@ -94,6 +128,10 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 				continue;
 			}
 
+			if (inHalfWater(tile)) {
+				placed += scatterWaterProp(cells, seed, tier, i, j, cell) ? 1 : 0;
+				continue;
+			}
 			// Only empty cells the player can stand in (floor below). A slain monster's tile stays bare, as in its
 			// life.
 			if (!isEmptyCell(tile) || slainMonster(tile) != 0 || !floorAt(cells, i, j - 1))

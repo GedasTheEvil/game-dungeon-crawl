@@ -34,7 +34,9 @@ from common import REPO, Builder, cone, ellipsoid, lathe, orient, perp, smoothst
 
 COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
-         "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin"]
+         "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
+         "water_reeds", "water_weed", "water_pads", "water_lotus"]
+WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
 # Enlargement per prop so it reads next to the player (~0.5 tile tall in game).
 # Kept inside x = +-0.42 and y >= -0.43 (the player walks at y = -0.5); the engine's DECOR_JITTER uses the slack.
@@ -91,6 +93,16 @@ COL = {
     "coffin": (0.34, 0.19, 0.08),
     "coffin_dark": (0.22, 0.12, 0.05),
     "coffin_yellow": (0.70, 0.53, 0.17),
+    "papyrus_green": (0.22, 0.36, 0.09),
+    "papyrus_pale": (0.50, 0.55, 0.20),
+    "sheath": (0.42, 0.33, 0.13),
+    "weed": (0.10, 0.26, 0.10),
+    "weed_dark": (0.04, 0.14, 0.07),
+    "pad": (0.10, 0.30, 0.08),
+    "pad_vein": (0.20, 0.42, 0.12),
+    "lotus_blue": (0.30, 0.42, 0.85),
+    "lotus_pale": (0.72, 0.78, 0.95),
+    "lotus_gold": (0.90, 0.68, 0.10),
 }
 
 
@@ -151,6 +163,16 @@ def materials():
         "coffin_band": stripes("u", 0.008, [(2, "coffin_yellow"), (1, "ink")]),
         "coffin_yellow": ("solid", "coffin_yellow"),
         "coffin_dark": ("solid", "coffin_dark"),
+        "stem": stripes("v", 0.05, [(3, "papyrus_green"), (1, "pad")], "LINEAR"),
+        "sheath": ("solid", "sheath"),
+        "umbel": stripes("v", 0.04, [(1, "papyrus_green"), (2, "papyrus_pale")], "LINEAR"),
+        "weed": stripes("v", 0.06, [(2, "weed"), (1, "pad_vein")], "LINEAR"),
+        "weed_dark": ("solid", "weed_dark"),
+        "pad": stripes("u", 1 / 14, [(4, "pad"), (1, "pad_vein")], "LINEAR"),
+        "sepal": ("solid", "papyrus_green"),
+        "lotus": stripes("v", 0.025, [(1, "lotus_pale"), (2, "lotus_blue")], "LINEAR"),
+        "bud": stripes("v", 0.03, [(1, "papyrus_green"), (2, "lotus_blue")], "LINEAR"),
+        "stamen": ("solid", "lotus_gold"),
     }
     return {name: common.make_material("decor_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -1082,6 +1104,132 @@ def build_coffin(b, M):
         b.add(tube([(V(p), 0.007, 0.0015) for p in pts], sub=3, n=6, ref=V((0, -1, 0.4))), M["wrap_plain"], "root")
 
 
+# ---------------------------------------------------------------- water props
+# Plants in half water cells (plan water-decorations). Modelled at their real height, not enlarged: the basin floor
+# lies WATER_BASIN_DEPTH and the surface WATER_SURFACE below the row's floor (src/graphics/render_config.h, 40 units
+# a tile). The engine sways the standing ones (x sheared by the height over the basin floor) and bobs the floating
+# ones (decorSway / decorBob in src/world/dungeon_render_decor.cpp).
+
+BASIN_Z = -15.0 / 40
+SURFACE_Z = -3.0 / 40
+PAD_Z = SURFACE_Z + 0.004  # floating leaves, just over the surface
+
+
+def pad(c, r, yaw, seed, notch=0.3, cup=0.012):
+    """A floating lotus leaf: a disc with its V slit, the rim turned up a little."""
+    rnd = random.Random(seed)
+    wob = [rnd.uniform(0, 6.28) for _ in range(2)]
+    c = V(c)
+
+    def fn(u, v):
+        th = notch / 2 + (2 * math.pi - notch) * u
+        rr = r * v * (1 + 0.04 * math.sin(5 * th + wob[0]))
+        a = th + math.radians(yaw)
+        return c + V((rr * math.cos(a), rr * math.sin(a) * 0.9, cup * v ** 3 + 0.003 * math.sin(3 * th + wob[1]) * v))
+
+    return surface(fn, 18, 3)
+
+
+def petal(base, direction, length, width, lift, cup=0.35):
+    """A pointed lotus petal from base along direction (horizontal angle, degrees), rising by lift (degrees), cupped."""
+    yaw, up = math.radians(direction), math.radians(lift)
+    along = V((math.cos(yaw) * math.cos(up), math.sin(yaw) * math.cos(up), math.sin(up)))
+    side = V((-math.sin(yaw), math.cos(yaw), 0.0))
+    normal = side.cross(along).normalized()
+    base = V(base)
+
+    def fn(u, v):
+        w = width * math.sin(math.pi * min(1.0, v * 0.85 + 0.15)) * (1 - v) ** 0.35
+        s = (u - 0.5) * 2
+        return base + along * (length * v) + side * (w * s) + normal * (cup * w * (1 - s * s))
+
+    return surface(fn, 4, 6)
+
+
+def lotus_flower(b, M, c, size=1.0):
+    """Blue lotus (Nymphaea caerulea): a star of pointed petals in two rings, a gold heart, on a short stem."""
+    c = V(c)
+    b.add(rod(c + V((0, 0, -0.08)), c, 0.006 * size, n=5), M["stem"], "root")
+    b.add(ellipsoid(c + V((0, 0, 0.004 * size)), (0.012 * size, 0.012 * size, 0.008 * size), n=8, rings=4), M["sepal"], "root")
+    for k in range(5):  # green sepals, flat out
+        b.add(petal(c, 18 + 72 * k, 0.052 * size, 0.014 * size, 8, 0.2), M["sepal"], "root")
+    for k in range(8):  # outer petals, open
+        b.add(petal(c + V((0, 0, 0.004 * size)), 45 * k, 0.06 * size, 0.014 * size, 32), M["lotus"], "root")
+    for k in range(7):  # inner ring, more upright
+        b.add(petal(c + V((0, 0, 0.007 * size)), 25 + 51.4 * k, 0.045 * size, 0.011 * size, 58), M["lotus"], "root")
+    b.add(ellipsoid(c + V((0, 0, 0.016 * size)), (0.011 * size, 0.011 * size, 0.01 * size), n=8, rings=4), M["stamen"], "root")
+
+
+def build_water_reeds(b, M):
+    """Papyrus: a clump of triangular stems rising out of the basin, each crowned by its umbel of fine rays."""
+    rnd = random.Random(41)
+    stems = [(-0.1, -0.12, 0.66, -8), (-0.03, -0.08, 0.78, 3), (0.05, -0.15, 0.6, 10), (0.11, -0.07, 0.7, 14), (-0.16, -0.06, 0.52, -16),
+             (0.0, -0.2, 0.5, 2), (0.15, -0.17, 0.44, 20), (-0.07, -0.22, 0.4, -6)]
+    for k, (x, y, top, lean) in enumerate(stems):
+        base = V((x * 0.5, y * 0.6 - 0.03, BASIN_Z))
+        tip = V((x + math.sin(math.radians(lean)) * 0.12, y, top - 0.38))
+        mid = base.lerp(tip, 0.55) + V((0.01 * rnd.uniform(-1, 1), 0, 0))
+        b.add(tube([(base, 0.011, 0.011), (mid, 0.008, 0.008), (tip, 0.005, 0.005)], sub=3, n=3, caps=(False, True)), M["stem"], "root")
+        b.add(tube([(base, 0.016, 0.016), (base + V((0, 0, 0.06)), 0.013, 0.013), (base + V((0, 0, 0.1)), 0.009, 0.009)], sub=1, n=5,
+                   caps=(False, False)), M["sheath"], "root")
+        # The umbel: rays bursting up and out, drooping at the tips.
+        rays = 22
+        for r in range(rays):
+            a = 2 * math.pi * (r + rnd.random() * 0.5) / rays
+            rise = rnd.uniform(0.3, 1.0)  # the outer rays droop
+            spread = rnd.uniform(0.09, 0.15) * (1.15 - 0.3 * rise)
+            out = V((math.cos(a), math.sin(a) * 0.75, 0.0))
+            p1 = tip + out * spread * 0.5 + V((0, 0, 0.06 * rise + 0.015))
+            p2 = tip + out * spread + V((0, 0, 0.07 * rise - 0.03))
+            b.add(tube([(tip, 0.004, 0.004), (p1, 0.0035, 0.0035), (p2, 0.002, 0.002)], sub=2, n=3, caps=(False, False)), M["umbel"], "root")
+        b.add(cone(tip - V((0, 0, 0.01)), V((0, 0, 1)), 0.035, 0.009, n=5), M["sheath"], "root")
+    # A broken stem lying on the water, a few blades at the foot.
+    b.add(rod((0.2, -0.3, PAD_Z), (0.02, -0.33, PAD_Z + 0.002), 0.005, n=3), M["sheath"], "root")
+    for k in range(6):
+        a = math.radians(-60 + 24 * k)
+        foot = V((-0.12 + 0.05 * k, -0.1 - 0.02 * (k % 2), BASIN_Z))
+        b.add(tube([(foot, 0.007, 0.002), (foot + V((math.sin(a) * 0.05, -0.02, 0.18)), 0.006, 0.002),
+                    (foot + V((math.sin(a) * 0.13, -0.05, 0.3 + 0.03 * (k % 3))), 0.001, 0.001)], sub=3, n=4, ref=V((0, 1, 0)), caps=(False, False)),
+              M["stem"], "root")
+
+
+def build_water_weed(b, M):
+    """Pondweed on the basin floor: ribbons waving up, all under the surface, and a few pebbles."""
+    rnd = random.Random(52)
+    top = SURFACE_Z - 0.03
+    for k in range(16):
+        x = rnd.uniform(-0.28, 0.28)
+        y = rnd.uniform(-0.32, -0.05)
+        h = rnd.uniform(0.14, top - BASIN_Z)
+        bend = rnd.uniform(-0.08, 0.08)
+        base = V((x, y, BASIN_Z))
+        keys = [(base, 0.009, 0.002), (base + V((bend * 0.3, 0, h * 0.35)), 0.011, 0.002), (base + V((bend * 0.8, 0.01, h * 0.75)), 0.008, 0.002),
+                (base + V((bend, 0.0, h)), 0.001, 0.001)]
+        b.add(tube(keys, sub=3, n=4, ref=V((0, 1, 0)), caps=(False, False)), M["weed" if k % 3 else "weed_dark"], "root")
+    for k, (x, y) in enumerate(((-0.2, -0.2), (0.05, -0.28), (0.22, -0.12), (-0.05, -0.12))):
+        b.add(place(rock((0, 0, 0), (0.025, 0.02, 0.016), 60 + k), loc=(x, y, BASIN_Z)), M["stone_dark"], "root")
+
+
+def build_water_pads(b, M):
+    """Lotus leaves afloat, one still rolled up as it comes out of the water."""
+    for c, r, yaw, seed in (((-0.14, -0.2, PAD_Z), 0.1, 30, 1), ((0.09, -0.27, PAD_Z), 0.085, 200, 2), ((0.1, -0.09, PAD_Z), 0.07, 110, 3),
+                            ((-0.27, -0.33, PAD_Z), 0.05, 300, 4)):
+        b.add(pad(c, r, yaw, seed), M["pad"], "root")
+    curl = V((-0.02, -0.08, PAD_Z))
+    b.add(tube([(curl - V((0, 0, 0.03)), 0.008, 0.008), (curl + V((0, 0, 0.03)), 0.014, 0.008), (curl + V((0.01, 0, 0.06)), 0.004, 0.004)], sub=2, n=6),
+          M["pad"], "root")
+
+
+def build_water_lotus(b, M):
+    """Leaves afloat with a blue lotus in bloom over them and a closed bud (Nefertem's flower)."""
+    for c, r, yaw, seed in (((-0.12, -0.18, PAD_Z), 0.1, 60, 5), ((0.14, -0.24, PAD_Z), 0.08, 250, 6), ((0.02, -0.33, PAD_Z), 0.06, 150, 7)):
+        b.add(pad(c, r, yaw, seed), M["pad"], "root")
+    lotus_flower(b, M, (0.02, -0.17, SURFACE_Z + 0.08), 1.7)
+    bud = V((0.17, -0.1, SURFACE_Z + 0.06))
+    b.add(rod(bud - V((0, 0, 0.09)), bud, 0.005, n=5), M["stem"], "root")
+    b.add(ellipsoid(bud + V((0, 0, 0.022)), (0.012, 0.012, 0.03), n=8, rings=5), M["bud"], "root")
+
+
 BUILDERS = {
     "web": build_web,
     "pottery": build_pottery,
@@ -1103,6 +1251,10 @@ BUILDERS = {
     "sarcophagus": build_sarcophagus,
     "torch": build_torch,
     "coffin": build_coffin,
+    "water_reeds": build_water_reeds,
+    "water_weed": build_water_weed,
+    "water_pads": build_water_pads,
+    "water_lotus": build_water_lotus,
 }
 
 
@@ -1157,11 +1309,18 @@ def bake_lit(obj, out_path, size=TEX_SIZE):
 
 
 def build_env(coll):
-    """Floor and back wall under the whole line-up: occluders for the AO bake and a backdrop for reviews."""
-    half = SPACING * len(PROPS) / 2 + 0.5
-    verts = [(-half, -1.0, 0), (half, -1.0, 0), (half, 0, 0), (-half, 0, 0), (-half, 0, 1.2), (half, 0, 1.2)]
+    """Floor and back wall under the whole line-up: occluders for the AO bake and a backdrop for reviews. A water prop's
+    stretch of floor is the basin's, down at BASIN_Z."""
+    verts, faces = [], []
+    for k, name in enumerate(PROPS):
+        x0 = (k - (len(PROPS) - 1) / 2 - 0.5) * SPACING
+        x1 = x0 + SPACING
+        z = BASIN_Z if name in WATER_PROPS else 0.0
+        n = len(verts)
+        verts += [(x0, -1.0, z), (x1, -1.0, z), (x1, 0, z), (x0, 0, z), (x0, 0, 1.2), (x1, 0, 1.2)]
+        faces += [[n, n + 1, n + 2, n + 3], [n + 3, n + 2, n + 5, n + 4]]
     mesh = bpy.data.meshes.new("decor_env")
-    mesh.from_pydata(verts, [], [[0, 1, 2, 3], [3, 2, 5, 4]])
+    mesh.from_pydata(verts, [], faces)
     obj = bpy.data.objects.new("decor_env", mesh)
     coll.objects.link(obj)
     return obj

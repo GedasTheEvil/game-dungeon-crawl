@@ -17,7 +17,7 @@ cell, from above, on a floor that is never safe.
   [stronger-poisons](solved/stronger-poisons.md)), applied once per entry; re-entry refreshes as `Player::Poison`
   does. No damage. Present from level load, never fades.
 * **Drop (timing trap):** on the cycle (`period`, `phase`), the lump falls onto the puddle cell. Whoever is there
-  takes a small hit plus poison (tier per trap, default medium). Resistance rolls as for any poisoning. The trap
+  takes a small hit plus medium poison (stronger than the puddle's weak). Resistance rolls as for any poisoning. The trap
   ward (`trapCutPercent`) cuts the damage only, never the poison (as
   [death-spikes-poison](solved/death-spikes-poison.md)).
 * **Telegraph:** the lump grows and wobbles, a wet creak, a last drop or two just before it falls.

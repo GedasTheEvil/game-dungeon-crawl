@@ -17,17 +17,41 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   normal teleporter, both ways). Wrong answers can be retried, no hint, no XP for the answer itself.
   A new gate type or a flag on `GateTeleport` (implementer's choice); its partner inside the room is a plain
   teleporter.
+* **Unstable until named** (user, 2026-10-14): the name gate looks like a normal teleporter (columns, plasma), but
+  its plasma pulses into transparency and back (a slow breath, ~1.5 s, alpha down to ~0.15, maybe a flicker) until
+  the name is spoken. Then it is a normal, steady teleporter. The look says "this one is different" without a new
+  model. Hook: `Dungeon::drawTeleporterTile` / `drawPortal` (`src/world/dungeon_render.cpp`), an alpha factor from
+  the tile's state and the clock. A short shimmer from pulsing to steady on the right answer is a nice touch.
 * **Name cartouche**: an inscription (style `cartouche`, the oval that holds a royal name: the authentic use) on
   the same level, reachable without the gate, not next to it. With the skill: the journal page says
   "The name of the king: KHUFU" plus a pencilled comment ("Somewhere on this level, something wants to hear it.").
   Without it: copied as glyphs like any other ("No idea what it says"); the name gate's refusal adds "A name is
   asked. The wall glyphs I copied might hold it."
-* **Random per run**: each level's name is picked when a new game starts, from a list of about 24 royal and divine
-  names (Khufu, Djoser, Sneferu, Hatshepsut, Thutmose, Amenhotep, Akhenaten, Nefertiti, Tutankhamun, Ramesses,
-  Seti, Merneptah, Narmer, Khafre, Menkaure, Unas, Teti, Pepi, Ahmose, Sobekneferu, Taharqa, Psamtik, Nectanebo,
-  Cleopatra). Each name has its real cartouche spelling pre-baked in the inscription atlas (one cell per name), so the
-  atlas pipeline stays as is. No name twice in a run. The pick is saved (a seed or the per-level names; save bump).
+* **Random per run**: each level's name is picked when a new game starts from the name list, no name twice in a
+  run. The pick is saved (a seed or the per-level names; save bump).
   A player who reads real hieroglyphs can decode the copy without the skill: an easter egg, fine.
+* **Names are content** (user, 2026-10-14): `content/names/*.txt`, loaded at start-up like riddles and
+  inscriptions, so names are added without a rebuild of the game. Format (document it in `docs/inscriptions.md` or a
+  new `docs/names.md`):
+
+  ```
+  name: Ramesses
+  A: ramesses
+  A: ramses
+  G: N5 F31 S29 S29
+  N: Ramesses the Great. Built half of Egypt, signed the other half.
+  ```
+
+  `name:` shown in the journal ("The name of the king: RAMESSES"), `A:` accepted spellings (compared like riddle
+  answers), `G:` the cartouche's signs by Gardiner code (the real spelling where known), `N:` an optional pencilled
+  comment. The game has no glyph font at run time, so the cartouches are baked as for inscriptions: a names atlas
+  (`media/textures/decorations/names.png`, one cell per name in file order or by an `id:` line, implementer's
+  choice) from `tools/textures/inscriptions.py` or a sibling tool. Adding a name: one entry, rerun the tool. Size the
+  atlas for growth (e.g. 128 ids); the game log warns on a name without `G:` or past the atlas.
+  Start with about 30: Khufu, Djoser, Sneferu, Hatshepsut, Thutmose, Amenhotep, Akhenaten, Nefertiti,
+  Tutankhamun, Ramesses, Seti, Merneptah, Narmer, Khafre, Menkaure, Unas, Teti, Pepi, Ahmose, Sobekneferu, Taharqa,
+  Psamtik, Nectanebo, Cleopatra, Hor-Aha, Den, Mentuhotep, Senusret, Amenemhat, Horemheb. The list needs at least
+  as many names as name gates in the campaign; the unit test checks it.
 * **The secret room**: a pocket of the level grid only reached by the gate's teleporter. Holds a reward worth part
   of a heka: a chest with a rare potion or an amulet, sometimes a strong weapon roll, plus an inscription with lore
   (the room's story). Optional and off the exit path: no keys, levers or the exit inside. A guardian now and then
@@ -57,6 +81,8 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
 * Unit: the name pick is stable for a seed, differs between seeds, no repeat in a run, save / load keeps it;
   the gate refuses a wrong name, opens on the right one (spelling variants too) and stays open after a load;
   the checker rules above (a level with the exit behind a name gate warns).
-* Scenario with screenshots: the cartouche read (journal page with the name), the scroll at the gate, arrival in
+* Scenario with screenshots: the pulsing plasma at two moments (faint and full), the steady plasma after the
+  answer, the cartouche read (journal page with the name), the scroll at the gate, arrival in
   the room.
-* Glossary rows: name gate, name cartouche.
+* Unit: the shipped name files load with no problems, every name has `G:` and at least one `A:`.
+* Glossary rows: name gate, name cartouche, name list.

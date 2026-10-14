@@ -28,8 +28,12 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   Without it: copied as glyphs like any other ("No idea what it says"); the name gate's refusal adds "A name is
   asked. The wall glyphs I copied might hold it."
 * **Random per run**: each level's name is picked when a new game starts from the name list, no name twice in a
-  run. The pick is saved (a seed or the per-level names; save bump).
-  A player who reads real hieroglyphs can decode the copy without the skill: an easter egg, fine.
+  run, and so is its cartouche picture (below). Both are saved (a seed or the per-level picks; save bump).
+* **Pictures do not spell the names** (user, 2026-10-14): a fixed set of pre-baked name cartouches (about 16,
+  plausible royal-looking sign groups), used only by name cartouches, any picture for any name. The game shows
+  hieroglyphs, the skill "translates" them: nobody checks the spelling. It keeps names pure text (no bake per name)
+  and leaves no way to decode a copy without the skill, so the room really is the skill's. No picture twice on a
+  level; across levels repeats are fine.
 * **Names are content** (user, 2026-10-14): `content/names/*.txt`, loaded at start-up like riddles and
   inscriptions, so names are added without a rebuild of the game. Format (document it in `docs/inscriptions.md` or a
   new `docs/names.md`):
@@ -38,16 +42,14 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   name: Ramesses
   A: ramesses
   A: ramses
-  G: N5 F31 S29 S29
   N: Ramesses the Great. Built half of Egypt, signed the other half.
   ```
 
   `name:` shown in the journal ("The name of the king: RAMESSES"), `A:` accepted spellings (compared like riddle
-  answers), `G:` the cartouche's signs by Gardiner code (the real spelling where known), `N:` an optional pencilled
-  comment. The game has no glyph font at run time, so the cartouches are baked as for inscriptions: a names atlas
-  (`media/textures/decorations/names.png`, one cell per name in file order or by an `id:` line, implementer's
-  choice) from `tools/textures/inscriptions.py` or a sibling tool. Adding a name: one entry, rerun the tool. Size the
-  atlas for growth (e.g. 128 ids); the game log warns on a name without `G:` or past the atlas.
+  answers), `N:` an optional pencilled comment. Adding a name: one entry, nothing to bake or build.
+  The cartouche pictures: baked once by `tools/textures/inscriptions.py` (or a sibling tool) into their own cells
+  (a names atlas `media/textures/decorations/name_cartouches.png`, or spare cells of the inscription atlas;
+  implementer's choice), sign groups listed in the tool or a small content file.
   Start with about 30: Khufu, Djoser, Sneferu, Hatshepsut, Thutmose, Amenhotep, Akhenaten, Nefertiti,
   Tutankhamun, Ramesses, Seti, Merneptah, Narmer, Khafre, Menkaure, Unas, Teti, Pepi, Ahmose, Sobekneferu, Taharqa,
   Psamtik, Nectanebo, Cleopatra, Hor-Aha, Den, Mentuhotep, Senusret, Amenemhat, Horemheb. The list needs at least
@@ -84,5 +86,6 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
 * Scenario with screenshots: the pulsing plasma at two moments (faint and full), the steady plasma after the
   answer, the cartouche read (journal page with the name), the scroll at the gate, arrival in
   the room.
-* Unit: the shipped name files load with no problems, every name has `G:` and at least one `A:`.
+* Unit: the shipped name files load with no problems, every name has at least one `A:`; the picture pick is
+  stable for a seed and never repeats on a level.
 * Glossary rows: name gate, name cartouche, name list.

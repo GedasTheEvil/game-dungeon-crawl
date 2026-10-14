@@ -73,6 +73,21 @@ const Choices POTIONS = itemIds(ItemType::POTION);
 
 const Choices GATE_STATES = {{0, "closed", "Closed"}, {1, "open", "Open"}};
 const Choices ZERO_ONLY = {{0, "only", "Set by the game while playing"}};
+const Choices SPIKE_SPEEDS = {
+	{0, "normal", "Normal: out 1.2 s of every 4 s"},
+	{1, "fast", "Fast: out 0.8 s of every 3.2 s"},
+	{2, "slow", "Slow: out 1.6 s of every 4.8 s"},
+};
+const Choices SPIKE_PHASES_LIST = {
+	{0, "0/8", "Out at the start of the cycle"},
+	{1, "1/8", "An eighth of the cycle later"},
+	{2, "2/8", "A quarter later"},
+	{3, "3/8", "Three eighths later"},
+	{4, "4/8", "Half a cycle later"},
+	{5, "5/8", "Five eighths later"},
+	{6, "6/8", "Three quarters later"},
+	{7, "7/8", "Seven eighths later"},
+};
 
 FieldHint unusedField() {
 	FieldHint hint;
@@ -175,6 +190,10 @@ CellHint describeCell(const Tile& cell) {
 	case RockFall:
 	case DartPlate:
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
+		break;
+	case WallSpikes:
+		hint.attribute = field("speed", SPIKE_SPEEDS, cell.attr, "unknown, normal speed");
+		hint.value = field("phase", SPIKE_PHASES_LIST, cell.value, "the game keeps only the low 3 bits");
 		break;
 	default:
 		break;

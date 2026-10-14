@@ -171,6 +171,12 @@ class Dungeon {
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
 	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
 	void drawDarts(); // with the frame origin of DrawMonsters
+	// Wall spikes (dungeon_spikes.cpp, plan rhythm-traps): each cell's live state from the clock; coming out, they stab
+	// and shove out whoever stands in the cell.
+	void updateWallSpikes();
+	void stabWallSpikes(int col, int row);
+	[[nodiscard]] std::optional<float> outOfSpikes(int col, int row, float centre, float half) const;
+	void drawWallSpikesTile(int i, int j); // the slotted panel and the spikes, as far out as the cycle has them
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
 	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none

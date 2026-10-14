@@ -12,7 +12,9 @@
 //   - touching a key, or pulling a lever not pulled yet, opens every gate of its colour from then on (in level data a
 //     gate is closed only with value 0);
 //   - interacting with a teleporter moves the player to its partner (both ways);
-//   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open.
+//   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open;
+//   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a run of them in a row must be
+//     crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path.
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
@@ -46,8 +48,8 @@ struct LevelReport {
 	// Content, whole level
 	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterTypeId (index 0 = unknown type)
 	int monsterCount = 0;
-	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, treasures = 0, keys = 0, gates = 0, levers = 0,
-		riddles = 0;
+	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, wallSpikes = 0, treasures = 0, keys = 0, gates = 0,
+		levers = 0, riddles = 0;
 	int teleporters = 0;
 	int inscriptions = 0;
 	int bosses = 0;
@@ -59,7 +61,8 @@ struct LevelReport {
 	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull stays in the cell)
 	int pathLength = 0; // moves
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0;
-	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathGates = 0, pathMonsters = 0;
+	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
+		pathMonsters = 0;
 	int keysNeeded = 0; // colours the path has to collect before a gate
 	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 
@@ -67,6 +70,11 @@ struct LevelReport {
 };
 
 [[nodiscard]] LevelReport checkLevel(const LevelGrid& grid);
+
+// Wall spikes (plan rhythm-traps): can the player walk through the run of them from col to col + count - 1 on row,
+// without stopping, in the direction dir (+1 / -1), at some start time? Out, a cell blocks; coming out on the player,
+// it stabs.
+[[nodiscard]] bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir);
 
 // Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);

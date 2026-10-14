@@ -41,6 +41,10 @@ void loadMechanisms(MechanismSet& set) {
 	set.plate = loadStaticModel(MEDIA_DIR "models/mechanisms/pressure_plate.md3", set.plateTex);
 	set.dartHolesTex.LoadPNG(MEDIA_DIR "textures/mechanisms/dart_holes.png");
 	set.dartHoles = loadStaticModel(MEDIA_DIR "models/mechanisms/dart_holes.md3", set.dartHolesTex);
+	set.spikeSlotsTex.LoadPNG(MEDIA_DIR "textures/mechanisms/spike_slots.png");
+	set.spikeSlots = loadStaticModel(MEDIA_DIR "models/mechanisms/spike_slots.md3", set.spikeSlotsTex);
+	set.wallSpikesTex.LoadPNG(MEDIA_DIR "textures/mechanisms/wall_spikes.png");
+	set.wallSpikes = loadStaticModel(MEDIA_DIR "models/mechanisms/wall_spikes.md3", set.wallSpikesTex);
 }
 } // namespace
 
@@ -231,6 +235,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.rockRumble.Load(MEDIA_DIR "sounds/mechanisms/rock_rumble.wav");
 	sounds.plateClick.Load(MEDIA_DIR "sounds/mechanisms/plate_click.wav");
 	sounds.dart.Load(MEDIA_DIR "sounds/mechanisms/dart.wav");
+	sounds.spikeScrape.Load(MEDIA_DIR "sounds/mechanisms/spike_scrape.wav");
+	sounds.spikeThunk.Load(MEDIA_DIR "sounds/mechanisms/spike_thunk.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
 	sounds.rockCrash.Load(MEDIA_DIR "sounds/mechanisms/rock_crash.wav");
 	sounds.arrowHit.Load(MEDIA_DIR "sounds/items/arrow_hit.wav");

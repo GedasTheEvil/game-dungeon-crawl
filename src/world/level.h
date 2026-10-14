@@ -41,6 +41,7 @@ enum DungeonTileType : unsigned char {
 	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
 	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
 	Inscription = 15, // hieroglyphs on the back wall, b = text id (inscriptions.h): interact to read them
+	WallSpikes = 16, // spikes on a cycle out of the back wall (plan rhythm-traps); b = speed, c = phase | live state
 };
 
 enum GateType : unsigned char {
@@ -150,9 +151,26 @@ inline void pullLever(Tile& t) { t.value = 1; }
 // The monster type a cell spawns, or spawned before it was slain; 0 for none.
 [[nodiscard]] inline int spawnType(const Tile& t) { return t.type == MonsterSpawn ? t.attr : slainMonster(t); }
 
-// Blocks the player (walls, deep water and gates not fully open). Everything else is open space.
+// WallSpikes (plan rhythm-traps): out of the back wall and back on a fixed cycle (spike_cycle.h). The attribute is
+// the speed, the value's low bits the phase in eighths of the cycle; the game keeps the live state in the bits above
+// it (level files leave them 0).
+enum class SpikeSpeed : std::uint8_t { Normal = 0, Fast = 1, Slow = 2 };
+constexpr int SPIKE_SPEED_COUNT = 3;
+constexpr int SPIKE_PHASES = 8;
+enum class SpikeState : std::uint8_t { Retracted = 0, Telegraph = 1, Extended = 2 };
+[[nodiscard]] inline SpikeSpeed spikeSpeed(const Tile& t) {
+	return t.attr >= 0 && t.attr < SPIKE_SPEED_COUNT ? static_cast<SpikeSpeed>(t.attr) : SpikeSpeed::Normal;
+}
+[[nodiscard]] inline int spikePhase(const Tile& t) { return t.value & (SPIKE_PHASES - 1); }
+[[nodiscard]] inline SpikeState spikeState(const Tile& t) { return static_cast<SpikeState>((t.value >> 3) & 3); }
+inline void setSpikeState(Tile& t, SpikeState s) { t.value = spikePhase(t) | (static_cast<int>(s) << 3); }
+[[nodiscard]] inline bool spikesOut(const Tile& t) {
+	return t.type == WallSpikes && spikeState(t) == SpikeState::Extended;
+}
+
+// Blocks the player (walls, deep water, gates not fully open, wall spikes while out). Everything else is open space.
 inline bool isSolidTile(const Tile& t) {
-	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open);
+	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t);
 }
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.

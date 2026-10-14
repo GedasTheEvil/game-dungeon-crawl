@@ -8,7 +8,8 @@ mechanisms/key_pickup.wav (metal chink + chime), gate_open.wav (stone grinding +
 lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling grit), rock_crash.wav (impact + debris), teleport.wav (rising plasma swell + shimmer),
 monsters/summon_dig.wav (a boss's minion digs out of the sand), summon_drop.wav (a minion drops from the ceiling),
 mechanisms/plate_click.wav (a stone pressure plate sinks: grit, a hollow knock and a latch), dart.wav (a dart leaves
-its hole in the wall: a puff and a thin whistle).
+its hole in the wall: a puff and a thin whistle), spike_scrape.wav (wall spikes twitch in their slots before they shoot
+out: metal ticks over a rising scrape), spike_thunk.wav (they shoot out: a metal shing and a heavy knock).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -277,6 +278,30 @@ def dart():
     return normalize(out, -6)
 
 
+def spike_scrape():
+    out = np.zeros(int(0.6 * SR))
+    t = t_axis(0.55)
+    scrape = band(rng.standard_normal(len(t)), 1200, 4500) * (1 + 0.5 * np.sin(2 * np.pi * 23 * t))
+    place(out, scrape * (t / 0.55) ** 1.5 * np.clip((0.55 - t) / 0.05, 0, 1), 0.0, 0.35)
+    for k, at in enumerate((0.05, 0.19, 0.31, 0.41, 0.49)):  # the twitches come faster
+        tick, _ = ring((rng.uniform(2600, 3400), rng.uniform(4800, 5600)), 0.06, 0.012)
+        place(out, tick, at, 0.25 + 0.06 * k)
+    return normalize(out, -8)
+
+
+def spike_thunk():
+    out = np.zeros(int(0.45 * SR))
+    shing, t = chirp(2400, 3600, 0.12, 0.6)
+    air = band(rng.standard_normal(len(t)), 3000, 8000)
+    place(out, (shing * 0.4 + air * 0.6) * env_ad(t, 0.004, 0.05), 0.0, 0.8)
+    t = t_axis(0.3)
+    knock = lowpass(rng.standard_normal(len(t)), 260) * env_ad(t, 0.002, 0.05)
+    place(out, knock, 0.07, 2.6)
+    clang, _ = ring((830, 1390, 2210), 0.35, 0.06)
+    place(out, clang, 0.07, 0.35)
+    return normalize(out, -4)
+
+
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
@@ -285,6 +310,7 @@ SOUNDS = {
     "mechanisms/teleport": teleport,
     "monsters/summon_dig": summon_dig, "monsters/summon_drop": summon_drop,
     "mechanisms/plate_click": plate_click, "mechanisms/dart": dart,
+    "mechanisms/spike_scrape": spike_scrape, "mechanisms/spike_thunk": spike_thunk,
 }
 
 

@@ -117,6 +117,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.plateClick;
 	case WorldSound::Dart:
 		return sounds.dart;
+	case WorldSound::SpikeScrape:
+		return sounds.spikeScrape;
+	case WorldSound::SpikeThunk:
+		return sounds.spikeThunk;
 	case WorldSound::Dodge:
 		return sounds.dodge;
 	}

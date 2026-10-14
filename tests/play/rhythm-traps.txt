@@ -1,0 +1,6 @@
+# Plan rhythm-traps, for `bin/game --play tests/play/rhythm-traps.txt`: tests/levels/wall_spikes. Wall spikes at col 5
+# (normal speed), then a pair at cols 10-11 at alternate phases: one goes in as the other comes out. Out, they block
+# like a gate, a jump too; a scrape and a twitch warn 0.6 s before. Stand in a cell as they come out: a stab (10),
+# weak poison, shoved out.
+seed 1
+level tests/levels/wall_spikes

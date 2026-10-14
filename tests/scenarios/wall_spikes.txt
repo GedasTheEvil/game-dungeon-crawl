@@ -1,0 +1,27 @@
+# Kept (docs/testing.md): wall spikes (plan rhythm-traps) through one cycle, from beside them: the look of the twitch,
+# the spikes out, back in.
+seed 1
+god
+level tests/levels/wall_spikes
+wait 30
+walk right 3.1
+screenshot c00
+wait 400ms
+screenshot c01
+wait 400ms
+screenshot c02
+wait 400ms
+screenshot c03
+wait 400ms
+screenshot c04
+wait 400ms
+screenshot c05
+wait 400ms
+screenshot c06
+wait 400ms
+screenshot c07
+wait 400ms
+screenshot c08
+wait 400ms
+screenshot c09
+quit

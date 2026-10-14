@@ -16,7 +16,8 @@ bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
 	if (isSolidTile(cell))
 		return true;
 	const bool trap = cell.type == Spike || cell.type == Death || cell.type == DartPlate ||
-					  (cell.type == RockFall && rockState(cell) != RockState::Fallen);
+					  (cell.type == RockFall && rockState(cell) != RockState::Fallen) ||
+					  (cell.type == WallSpikes && spikeState(cell) == SpikeState::Telegraph); // out: solid
 	if (trap && !reckless)
 		return true;
 	return !inBounds(col, row - 1) || !isSolidTile(at(cells, col, row - 1));

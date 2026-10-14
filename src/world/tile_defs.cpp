@@ -38,6 +38,12 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Hieroglyphs on the back wall. Interact to read them: the translation goes into the journal. Attribute: the text "
 	 "id in content/inscriptions/*.txt. From level 6 on in the campaign. Put a floor under it.",
 	 false, false, 'i', "inscription.png"},
+	{"WallSpikes",
+	 "Rhythm trap: poison spikes shoot out of the back wall and go back in, on a fixed cycle. Out, they block like a "
+	 "closed gate; whoever stands in the cell as they come out takes a stab (10, weak poison) and is shoved out. "
+	 "Attribute: speed (0 normal 4 s, 1 fast 3.2 s, 2 slow 4.8 s). Value: phase, 0 to 7 eighths of the cycle. Put a "
+	 "floor under it and a wall above it.",
+	 false, false, '|'},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -81,6 +87,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'_', {DartPlate, 0, 0}, "dart trap plate"},
 		{'/', {Lever, 1, 0}, "lever (red; other colours: 'set')"},
 		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
+		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))

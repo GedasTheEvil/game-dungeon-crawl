@@ -1,6 +1,8 @@
 # Rhythm traps: timed wall spikes
 
-Status: draft 2026-10-10. Needs nothing first. From the user.
+Status: implemented 2026-10-14, waits for the user's play-test:
+`bin/game --play tests/play/rhythm-traps.txt`. From the user. See [Implemented](#implemented-2026-10-14): the user
+changed the rule before it was built (out, the spikes are a wall).
 
 ## Idea
 
@@ -52,3 +54,38 @@ combination must be crossable with the player's walk speed: the checker simulate
 * Unit: the checker warns on an uncrossable combination, passes a crossable one.
 * Scenario: walk into the zone while extended: hit and poison; wait for the retract and cross: no hit; sprint
   and jump into it while extended: still hit.
+
+## Implemented (2026-10-14)
+
+User decisions (2026-10-14), over the idea above:
+
+* **Out, the spikes are a wall**, like a closed gate (`isSolidTile`): no walking, sprinting or jumping through. No
+  continuous damage in a danger zone: the only hit is on whoever stands in the cell as they come out, one stab
+  (`SPIKES_STAB_DAMAGE` 10, `SPIKE_ATTACK_MIX`, cut by the trap ward) and weak poison, then a shove out of the cell
+  (the near side if open). Monsters the same (`TrapHit`, no XP for the kill).
+* **Dodge**: the Dodge skill may dodge the stab (no damage, no poison); the shove happens anyway.
+
+What went in:
+
+* Tile `WallSpikes` (16), glyph `|`: attribute = speed (`SpikeSpeed`: normal 4 s, fast 3.2 s, slow 4.8 s; out 1.2,
+  0.8, 1.6 s), value = phase in eighths; the live state sits in the value's upper bits (`spikeState`). Cycle in
+  `src/world/spike_cycle.h`, numbers in `gameplay_config.h` (a `static_assert` keeps each safe window at 1.5x the walk
+  through a cell). Telegraph: the last 0.6 s before they come out, tips twitch out of the slots, a scrape.
+* Game: `Dungeon::updateWallSpikes` / `stabWallSpikes` (`dungeon_spikes.cpp`). Cowards treat a telegraphing cell as a
+  trap (`walkerBlockedAt`); out, everyone is blocked.
+* Look and sound: `spike_slots` (slotted sandstone panel, green stains) and `wall_spikes` (bronze, green tips) in
+  `tools/blender/models/mechanism.py`; `spike_scrape.wav`, `spike_thunk.wav` (`tools/audio/mechanism_sounds.py`),
+  heard only in view. Map: a 3 x 3 grid of slots. Editor hints, `tools/editor/readme.md`.
+* Checker: counts (`wallSpikes`, `pathWallSpikes`), path cost, a wall above and a floor under, and
+  `wallSpikesCrossable`: a run of them in a row must be walkable both ways at walk speed without stopping (else a
+  softlock one way). Result: at normal speed a run of 3 never is (3.5 s through, 2.8 s in), 2 at the same phase or at
+  alternate phases (0 and 4) are. Rhythm puzzles: single traps or pairs, with free cells between to wait in.
+* Tests: `tests/unit/wall_spikes_test.cpp` (cycle, checker, the trap in the world, the trap ward, a mummy stabbed and
+  shoved); `tests/scenarios/wall_spikes.txt` (screenshots through one cycle).
+
+Not done:
+
+* No campaign level has them yet ([denser-levels](denser-levels.draft.opus.md) or a level pass can place them).
+* No journal field note for them (the journal texts were being rewritten in parallel, plan simple-damage-words).
+* Per-trap poison tier: all weak.
+* Flyers are not stabbed (they are blocked while the spikes are out).

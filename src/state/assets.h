@@ -21,6 +21,7 @@ struct SoundBank {
 	Sound amulet_s; // an amulet put on or taken off
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
+	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
 	Sound stoneHit, stoneWall; // a sling stone or throwing stick in a monster, off a wall
@@ -75,9 +76,9 @@ struct DecorSet {
 // time; the boss gate (BOSS_LOCK) is the gate model with its own texture. Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex;
+	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex;
 	std::unique_ptr<AnimatedModel> key, gate, leverBase;
-	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles;
+	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes;
 };
 
 // Everything loaded once at start-up and only read afterwards: textures, models, sounds, fonts, monster types.

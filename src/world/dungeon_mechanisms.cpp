@@ -81,6 +81,7 @@ void Dungeon::updateMechanisms() {
 
 	updateRocks();
 	updateDartTraps();
+	updateWallSpikes();
 }
 //======================================================================================
 void Dungeon::startRockFall(int cell) {

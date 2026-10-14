@@ -1,0 +1,5 @@
+; A mummy (col 6) comes for the player, who waits at the wall spikes (col 5): it stops in their cell, they stab it
+; (tests/unit/wall_spikes_test.cpp).
+############
+#S...|u....E#
+############

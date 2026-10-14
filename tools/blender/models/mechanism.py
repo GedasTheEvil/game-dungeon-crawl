@@ -1,12 +1,13 @@
-"""Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks, the ceiling crack over a rock trap
-and the pressure plate of a dart trap with the dart holes in the back wall above it.
+"""Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks, the ceiling crack over a rock trap,
+the pressure plate of a dart trap with the dart holes in the back wall above it, and the wall spikes of a rhythm trap
+with their slotted panel.
 
     MCP:  p = ".../tools/blender/models/mechanism.py"; g = {"__file__": p, "__name__": "mechanism"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
     CLI:  blender -b --python tools/blender/models/mechanism.py -- [--export] [--bake] [--review out.png] [--only key,gate]
 
 Same space as decor.py: Z up, 1 unit = 1 tile, no Centrify (the engine draws them at glScale 40). Tile frame
-(gate, lever_base, ceiling_crack, pressure_plate, dart_holes): origin = floor level, horizontal centre of the tile, on the back wall plane;
+(gate, lever_base, ceiling_crack, pressure_plate, dart_holes, spike_slots, wall_spikes): origin = floor level, horizontal centre of the tile, on the back wall plane;
 the tile runs from y = 0 (back wall) to y = -1 (front opening, the camera side), the ceiling is at z = 1.
 Game space of the MD3 = (x, z, -y), so Dungeon::drawDecorTile's transform (translate TILE_HALF, 0, -TILE_SIZE;
 scale TILE_SIZE) puts these where they belong.
@@ -45,12 +46,13 @@ from common import REPO, Builder, ellipsoid, transform, tube  # noqa: E402
 from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E402
 
 COLL = "mechanism_new"
-MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes"]
+MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes", "spike_slots",
+          "wall_spikes"]
 COLOURED = {"key", "gate", "lever_base"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
-            "pressure_plate": 256, "dart_holes": 256}
+            "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
 
@@ -79,6 +81,7 @@ COL = {
     "crack": (0.05, 0.035, 0.02),
     "sand": (0.76, 0.60, 0.35),
     "enamel": (0.02, 0.015, 0.01),
+    "poison": (0.28, 0.52, 0.06),
     "wood": (0.30, 0.18, 0.08),
     "gem": GEMS["red"]["gem"],
     "glint": GEMS["red"]["glint"],
@@ -100,6 +103,7 @@ def materials():
         "crack": ("solid", "crack"),
         "sand": ("solid", "sand"),
         "enamel": ("solid", "enamel"),
+        "poison": ("solid", "poison"),
         "wood": stripes("u", 1 / 7, [(3, "wood"), (1, "bronze_dark")], "LINEAR"),
         "gem": ("solid", "gem"),
         "glint": ("solid", "glint"),
@@ -373,6 +377,36 @@ def build_dart_holes(b, M):
     b.add(ellipsoid((0, -0.028, DART_HEIGHT + 0.105), (0.012, 0.004, 0.012), n=8, rings=4), M["stone_dark"], "root")
 
 
+SPIKE_X = (-0.27, 0.0, 0.27)  # the wall spikes' grid on the back wall (plan rhythm-traps)
+SPIKE_Z = (0.2, 0.45, 0.7)
+SPIKE_LENGTH = 0.95  # out, the tips reach the front of the corridor; the engine pushes them back into the wall
+
+
+def build_spike_slots(b, M):
+    """A dressed sandstone panel in the back wall, the height of the corridor: a grid of dark slots in bronze rims the
+    wall spikes come out of, a green stain of poison running down from each."""
+    b.add(yz_box(-0.02, 0.0, 0.05, 0.85, 0.42), M["stone_light"], "root")
+    b.add(yz_box(-0.026, -0.016, 0.04, 0.06, 0.43), M["stone_dark"], "root")  # the sill
+    for x in SPIKE_X:
+        for z in SPIKE_Z:
+            rim = [V((x + 0.04 * math.cos(2 * math.pi * k / 16), -0.022, z + 0.04 * math.sin(2 * math.pi * k / 16)))
+                   for k in range(16)]
+            b.add(tube([(p, 0.008, 0.006) for p in rim], sub=1, n=6, ref=V((0, 1, 0)), closed=True), M["bronze_plain"],
+                  "root")
+            b.add(rod((x, -0.021, z), (x, -0.026, z), 0.033, n=14), M["enamel"], "root")
+            b.add(ellipsoid((x, -0.021, z - 0.075), (0.014, 0.003, 0.03), n=10, rings=4), M["poison"], "root")
+
+
+def build_wall_spikes(b, M):
+    """The spikes of a rhythm trap, out: bronze, pointing at the camera from the slots of spike_slots, their tips green
+    with poison."""
+    tip = SPIKE_LENGTH - 0.22
+    for x in SPIKE_X:
+        for z in SPIKE_Z:
+            b.add(rod((x, 0.02, z), (x, -tip, z), 0.03, 0.011, n=8), M["bronze_plain"], "root")
+            b.add(rod((x, -tip, z), (x, -SPIKE_LENGTH, z), 0.011, 0.0015, n=8, caps=(False, True)), M["poison"], "root")
+
+
 BUILDERS = {
     "key": build_key,
     "gate": build_gate,
@@ -382,6 +416,8 @@ BUILDERS = {
     "ceiling_crack": build_ceiling_crack,
     "pressure_plate": build_pressure_plate,
     "dart_holes": build_dart_holes,
+    "spike_slots": build_spike_slots,
+    "wall_spikes": build_wall_spikes,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -392,6 +428,8 @@ LIGHT = {
     "ceiling_crack": ([(-30, 0, 0.5), (60, 0, 0.3)], 0.6),
     "pressure_plate": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
     "dart_holes": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
+    "spike_slots": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
+    "wall_spikes": ([(20, 0, 0.6), (70, 0, 0.35), (70, 180, 0.2)], 0.55),
 }
 
 

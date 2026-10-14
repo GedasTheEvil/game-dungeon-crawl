@@ -336,6 +336,8 @@ class Monster {
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
 	// not farm kills with traps.
 	void TrapHit(int dmg);
+	// Out of a trap that closes on it (wall spikes, plan rhythm-traps): its centre to map x on its row.
+	void ShoveTo(float mapX) { x = mapX - static_cast<float>(col) - 0.5f; }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).
 	void Animate(float px, float py);
 

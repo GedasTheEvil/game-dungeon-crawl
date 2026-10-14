@@ -272,6 +272,12 @@ void symbol(Sketch& sk, int i, int j, Tile t) {
 			sk.loop(x + 0.28f + 0.22f * static_cast<float>(k), y + 0.4f, 0.06f, 0.06f, 5, GRAPHITE, 0.9f,
 					seed + 2 + static_cast<uint32_t>(k));
 		break;
+	case WallSpikes: // the slots in the back wall the spikes come out of, a 3 x 3 grid
+		for (int c = 0; c < 3; c++)
+			for (int r = 0; r < 3; r++)
+				sk.loop(x + 0.25f + 0.25f * static_cast<float>(c), y + 0.22f + 0.25f * static_cast<float>(r), 0.05f,
+						0.05f, 5, GRAPHITE, 0.9f, seed + static_cast<uint32_t>(c * 3 + r));
+		break;
 	case Inscription: // a cartouche on the back wall: an upright oval on its bar
 		sk.loop(x + 0.5f, y + 0.55f, 0.14f, 0.24f, 7, GRAPHITE, 0.9f, seed);
 		sk.pencil(x + 0.32f, y + 0.28f, x + 0.68f, y + 0.28f, GRAPHITE, 0.95f, seed + 1);

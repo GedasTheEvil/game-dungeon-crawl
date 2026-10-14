@@ -292,6 +292,9 @@ void Dungeon::drawTileContent(int i, int j) {
 	case Inscription:
 		drawInscriptionTile(i, j);
 		break;
+	case WallSpikes:
+		drawWallSpikesTile(i, j);
+		break;
 	}
 }
 //======================================================================================

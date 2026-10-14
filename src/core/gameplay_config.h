@@ -214,4 +214,18 @@ constexpr float DART_PLATE_HALF_WIDTH = 0.27f; // the slab (mechanism.py): a cen
 constexpr float DART_HALF_WIDTH = 0.1f; // a dart takes a body whose box comes this near its hole
 constexpr int DART_REARM_MS = 3000;
 
+// Wall spikes (plan rhythm-traps): out of the back wall for SPIKES_OUT_MS of each SPIKES_PERIOD_MS, by speed (normal,
+// fast, slow, SpikeSpeed); the last SPIKES_TELEGRAPH_MS before they come out they twitch and scrape. Out, they block
+// like a closed gate; whoever stands in the cell when they come out takes one stab of SPIKES_STAB_DAMAGE and weak
+// poison, and is shoved out of it. The safe window lets the player walk through the cell with time to spare.
+constexpr int SPIKES_PERIOD_MS[3] = {4000, 3200, 4800};
+constexpr int SPIKES_OUT_MS[3] = {1200, 800, 1600};
+constexpr int SPIKES_TELEGRAPH_MS = 600;
+constexpr int SPIKES_STAB_DAMAGE = 10;
+constexpr float SPIKES_CROSS_MS = (1.f + 2.f * PLAYER_BODY_HALF_WIDTH) / WALK_SPEED * 1000.f; // walking through
+static_assert(static_cast<float>(SPIKES_PERIOD_MS[0] - SPIKES_OUT_MS[0]) >= 1.5f * SPIKES_CROSS_MS &&
+				  static_cast<float>(SPIKES_PERIOD_MS[1] - SPIKES_OUT_MS[1]) >= 1.5f * SPIKES_CROSS_MS &&
+				  static_cast<float>(SPIKES_PERIOD_MS[2] - SPIKES_OUT_MS[2]) >= 1.5f * SPIKES_CROSS_MS,
+			  "a single wall spike's safe window is 1.5 times the walk through it");
+
 #endif

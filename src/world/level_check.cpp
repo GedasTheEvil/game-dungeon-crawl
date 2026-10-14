@@ -3,10 +3,12 @@
 #include "inscriptions.h"
 #include "items.h"
 #include "monster_kinds.h"
+#include "spike_cycle.h"
 #include "tile_defs.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>
+#include <numeric>
 #include <queue>
 #include <set>
 
@@ -23,6 +25,7 @@ constexpr int COST_SPIKE = 6;
 constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_DART_PLATE = 8;
+constexpr int COST_WALL_SPIKES = 6; // the wait for the safe window, the risk of misjudging it
 constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
@@ -91,6 +94,8 @@ class Walker {
 			return COST_ROCK_FALL;
 		if (t.type == DartPlate)
 			return COST_DART_PLATE;
+		if (t.type == WallSpikes)
+			return COST_WALL_SPIKES;
 		if (t.type == MonsterSpawn)
 			return COST_MONSTER;
 		return 0;
@@ -227,6 +232,9 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case DartPlate:
 				r.dartPlates++;
 				break;
+			case WallSpikes:
+				r.wallSpikes++;
+				break;
 			case Treasure:
 				r.treasures++;
 				break;
@@ -352,11 +360,35 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 								 ", e.g. at " + at(cells[0]) + ": a pair needs exactly two");
 }
 
+// Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them), and
+// each run of them in a row can be walked through both ways.
+void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
+	for (int row = 0; row < LEVEL_HEIGHT; row++)
+		for (int col = 0; col < LEVEL_WIDTH; col++) {
+			if (grid.at(col, row).type != WallSpikes)
+				continue;
+			const int cell = row * LEVEL_WIDTH + col;
+			if (!isWall(grid.at(col, row - 1)))
+				r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
+			if (!isWall(grid.at(col, row + 1)))
+				r.warnings.push_back("wall spikes without a wall above them at " + at(cell));
+			if (grid.at(col - 1, row).type == WallSpikes)
+				continue; // not the first of its run
+			int count = 1;
+			while (grid.at(col + count, row).type == WallSpikes)
+				count++;
+			if (!wallSpikesCrossable(grid, col, row, count, 1) || !wallSpikesCrossable(grid, col, row, count, -1))
+				r.warnings.push_back("the " + std::to_string(count) + " wall spikes from " + at(cell) +
+									 " cannot be walked through: their safe windows do not line up");
+		}
+}
+
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
 	score += 3.f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
+	score += 1.5f * static_cast<float>(r.pathWallSpikes);
 	score += 0.8f * static_cast<float>(r.pathGates);
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).
@@ -394,6 +426,27 @@ float monsterThreat(int type) {
 	return kind->climbs ? kind->threat * CLIMBER_THREAT_FACTOR : kind->threat;
 }
 
+bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {
+	int cycle = 1; // the run's pattern repeats after this long
+	for (int k = 0; k < count; k++)
+		cycle = std::lcm(cycle, spikePeriodMs(grid.at(col + k, row)));
+	// The player walks at WALK_SPEED; a cell must stay in from the moment the body could enter it (stopped by it, at
+	// PLAYER_BODY_HALF_WIDTH) until it is out of it.
+	const auto cellMs = static_cast<int>(1000.f / WALK_SPEED);
+	const auto crossMs = static_cast<int>(SPIKES_CROSS_MS);
+	constexpr int START_STEP_MS = 10;
+	for (int start = 0; start < cycle; start += START_STEP_MS) {
+		bool through = true;
+		for (int k = 0; k < count && through; k++) {
+			const Tile t = grid.at(dir > 0 ? col + k : col + count - 1 - k, row);
+			through = spikesInBetween(t, start + k * cellMs, start + k * cellMs + crossMs);
+		}
+		if (through)
+			return true;
+	}
+	return false;
+}
+
 LevelReport checkLevel(const LevelGrid& grid) {
 	LevelReport r;
 	countContent(grid, r);
@@ -402,6 +455,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkWater(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
+	checkWallSpikes(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
@@ -550,6 +604,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
 		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
 		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
+		r.pathWallSpikes += t.type == WallSpikes ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);

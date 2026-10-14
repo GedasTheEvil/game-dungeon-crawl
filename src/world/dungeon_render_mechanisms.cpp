@@ -1,11 +1,13 @@
-// Drawing the keys, gates, levers, rock falls and dart traps (dungeon_mechanisms.cpp and dungeon_darts.cpp have their
-// rules).
+// Drawing the keys, gates, levers, rock falls, dart traps and wall spikes (dungeon_mechanisms.cpp, dungeon_darts.cpp
+// and dungeon_spikes.cpp have their rules).
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
+#include "spike_cycle.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <memory>
 
@@ -19,6 +21,28 @@ constexpr float LEVER_ANGLE = 35.f; // degrees either side of upright; + tips th
 constexpr float ROCK_START_Y = 0.65f; // rock bottom when it breaks loose (rock is 0.3 tall)
 constexpr float ROCK_DEPTH = 0.5f; // in the middle of the corridor, where the player walks
 constexpr float DART_PLATE_SINK = 0.025f; // a pressed plate is flush with the floor
+// Wall spikes: pushed this far back into the wall, their tips are just inside it. Out, they shoot out in
+// SPIKES_THRUST_MS and slide back in over the last SPIKES_RETRACT_MS of their time out; in the telegraph the tips
+// twitch out of the slots, up to SPIKES_TWITCH.
+constexpr float SPIKES_HIDE_DEPTH = 1.f;
+constexpr int SPIKES_THRUST_MS = 80;
+constexpr int SPIKES_RETRACT_MS = 250;
+constexpr float SPIKES_TWITCH = 0.09f;
+
+// How far out the spikes are drawn, 0 (in the wall) to 1, at that point of their cycle.
+float spikesOut(const Tile& t, int nowMs) {
+	const int at = spikeCycleMs(t, nowMs);
+	const int out = spikeOutMs(t);
+	if (at < SPIKES_THRUST_MS)
+		return static_cast<float>(at) / SPIKES_THRUST_MS;
+	if (at < out)
+		return std::min(1.f, static_cast<float>(out - at) / SPIKES_RETRACT_MS);
+	const int toOut = spikePeriodMs(t) - at;
+	if (toOut > SPIKES_TELEGRAPH_MS)
+		return 0.f;
+	const float rise = 1.f - static_cast<float>(toOut) / SPIKES_TELEGRAPH_MS; // the twitches come faster, further
+	return SPIKES_TWITCH * rise * std::fabs(std::sin(static_cast<float>(at) * 0.03f * (1.f + rise)));
+}
 
 // Prop frame of the current tile (see Dungeon::drawDecorTile).
 void enterPropSpace() {
@@ -127,6 +151,18 @@ void Dungeon::drawDartPlateTile(int i, int j) {
 	if (platePressed(MapAt(i, j)))
 		glTranslatef(0, -DART_PLATE_SINK, 0);
 	showModel(sim.assets->mechanisms.plate.get());
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawWallSpikesTile(int i, int j) {
+	glPushMatrix();
+	enterPropSpace();
+	showModel(sim.assets->mechanisms.spikeSlots.get());
+	const float out = spikesOut(MapAt(i, j), GameClock::now());
+	if (out > 0.f) {
+		glTranslatef(0, 0, -SPIKES_HIDE_DEPTH * (1.f - out));
+		showModel(sim.assets->mechanisms.wallSpikes.get());
+	}
 	glPopMatrix();
 }
 //======================================================================================

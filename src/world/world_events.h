@@ -24,6 +24,8 @@ enum class WorldSound : unsigned char {
 	Splash, // the player lands in half water
 	PlateClick, // a dart trap's plate sinks
 	Dart, // a dart leaves the wall
+	SpikeScrape, // wall spikes twitch before they come out (plan rhythm-traps)
+	SpikeThunk, // wall spikes come out
 	Dodge, // the player sidesteps a blow (Dodge skill)
 };
 

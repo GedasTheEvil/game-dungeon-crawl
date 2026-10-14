@@ -9,7 +9,7 @@ A cell has two layers ([level-format-layers.md](plan/solved/level-format-layers.
 
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`. A cell blocks when it is `Wall` or `DeepWater`.
 * **Object**: at most one thing in the cell, with attribute and value: ladder, door, gate, lever, key, treasure,
-  ankh, monster spawn, spike, death trap, rock fall, dart plate, inscription. An object stands in `Empty` or
+  ankh, monster spawn, spike, death trap, rock fall, dart plate, inscription, wall spikes. An object stands in `Empty` or
   `HalfWater`.
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and

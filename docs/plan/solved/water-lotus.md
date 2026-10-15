@@ -1,7 +1,7 @@
 # Water lotus
 
-Status: draft 2026-10-10, ready (needs nothing first). From the user, after a lore review: a man-eating plant fits
-a tomb better in the water. A new monster; the land plant stays (see [plant-poison](solved/plant-poison.md)).
+Status: solved 2026-10-15 (play-tested), implemented 2026-10-14. From the user, after a lore review: a man-eating plant fits
+a tomb better in the water. A new monster; the land plant stays (see [plant-poison](plant-poison.md)).
 
 ## Idea
 
@@ -26,7 +26,7 @@ One bite and I could sleep for a week."
 
 ## Model
 
-Procedural Blender script per [docs/remodeling.md](../remodeling.md): flower on a pad, a fanged mouth in the
+Procedural Blender script per [docs/remodeling.md](../../remodeling.md): flower on a pad, a fanged mouth in the
 petals; clips: idle (floating, a slight sway and a twitch now and then: the only tell against the decor lotus pads, user decision), rise, bite, death (sinks). Drawn at the water surface.
 
 ## Tests
@@ -38,7 +38,7 @@ petals; clips: idle (floating, a slight sway and a twitch now and then: the only
 
 ## Related
 
-* [water-decorations](solved/water-decorations.md): decor lotus pads to hide this one among.
+* [water-decorations](water-decorations.md): decor lotus pads to hide this one among.
 
 ## Implemented (2026-10-14)
 
@@ -56,13 +56,13 @@ petals; clips: idle (floating, a slight sway and a twitch now and then: the only
   Odyssey joke.
 * Checker: "the lotus at ... is not in half water" (`checkWater`, `src/world/level_check.cpp`).
 * Model: `tools/blender/models/lotus.py` (per-frame rebuilt geometry, no rig), sounds `tools/audio/lotus_sounds.py`; see
-  [remodeling.md](../remodeling.md). Idle it matches the decor `water_lotus`; the only tell is a twitch of the jaws once in
+  [remodeling.md](../../remodeling.md). Idle it matches the decor `water_lotus`; the only tell is a twitch of the jaws once in
   its 8 s idle loop. Drawn at 0.7 of the modelled size (`scale` 12), so its reared head meets the wading player's face.
 * Levels (30 in all): one in 7, 8, 9, 19, 20, 27, 28 and 30, two in 16, 17, 18, 25 and 29, three in 21-24. In the
   longer water stretches, at least 3 cells from other monsters where the pool has room (levels 7 and 9: 2 cells from their
   crocodile, the pools are small). Level 25 got two, not three: with three it ranked above level 26. Levels 1-5 have no
   pool (lvl1's one half water cell is a lone puddle), so none there. `generated` stays empty: levelgen makes no water.
-* Tests: `tests/unit/sim_test.cpp` ("the blue lotus floats until ..."), scenario `tests/scenarios/lotus.txt` (floating
+* Tests: `tests/unit/sim_test.cpp` ("the blue lotus floats until ..."), scenario `tests/scenarios/solved/lotus.txt` (floating
   beside a decor lotus, rise, bite, toon, side view, death), test level `tests/levels/lotus`.
 
 Play-test: `bin/game --play tests/play/water-lotus.txt`, or `bin/game --level 8` (the lotus at the east end of the

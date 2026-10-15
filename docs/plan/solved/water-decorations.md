@@ -25,7 +25,7 @@ reeds, tomb and temple levels add lotus pads (a temple pool).
 
 ## Synergies
 
-* [water-lotus](../water-lotus.md): that monster looks like a floating flower when idle. With decorative lotus
+* [water-lotus](water-lotus.md): that monster looks like a floating flower when idle. With decorative lotus
   pads around it, the ambush works: the player cannot tell it by "a flower = a monster". Make the decor lotus and the
   idle monster look alike. Fairness (user decision): the monster's idle clip has a twitch; the decor lotus never
   twitches. That is the only tell.
@@ -78,7 +78,7 @@ units, origin at the floor centre. Low poly, alpha-tested leaves where it saves 
   favour the reeds, the middle of a pool the leaves (`WATER_BANK_WEIGHT`, `WATER_MIDDLE_WEIGHT`). Dry layouts are
   unchanged (the golden dumps only gained water props).
 * Tiers: reeds and weed from the caves, the leaves and the lotus from the worked tunnels (tier 1, level 4), not the
-  tombs: the [water-lotus](../water-lotus.md) monster needs decor lotus to hide among from its first levels.
+  tombs: the [water-lotus](water-lotus.md) monster needs decor lotus to hide among from its first levels.
 * Motion at draw time (`waterMotion`, `src/world/dungeon_render_decor.cpp`): reeds and weed sway (x sheared by the
   height over the basin floor), the leaves bob and drift; each cell on its own phase. No clips.
 * Draw order: nothing new. The water is drawn after the props, see-through, so the parts under the surface are tinted

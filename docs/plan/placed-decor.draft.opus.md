@@ -1,4 +1,4 @@
-# Placed decor: decor and decal layers the editor paints
+# Placed decor: decor and decal layers the editor paints (props, decals, torches)
 
 Status: draft, ready. Needs nothing first. From the user.
 
@@ -40,6 +40,23 @@ says no decals.
 
 Use: hieroglyph columns around an inscription, vines over a hidden passage, a winged sun over the ankh.
 
+### Torches, in the decal layer
+
+The wall torch is back wall dressing like a decal, and today's rules tie it to the decals: it takes the middle of the
+wall, so no free decal goes with it (`scatterDecals`). A prop stands on the floor and may share the cell, except the
+brazier, the lamp and Thoth's statues (`scatterTorches`: they bring their own fire, the crowns reach up to the torch).
+So the torch goes in the decal layer, as a second field of its cell with the same three states: unset (the 25% roll,
+`TORCH_CHANCE_PERCENT`), none, or a torch. A cell can hold a torch and a ceiling or floor decal.
+
+* Scatter: a placed torch counts for the row's gap (`TORCH_MIN_GAP`), so random torches keep their distance from it;
+  placed torches ignore the gap. A cell set to none gets no torch.
+* Editor, in the `Decals` palette: `Torch` and `No torch` set only the torch field; a decal brush sets only the decal
+  field; `Unset` and `Bare` set both. Painting a torch over a free decal, or a free decal over a torch, clears the
+  other one (they would overlap).
+* Checker: warn on a torch with a free decal, with a brazier, a lamp or a Thoth statue, in deep water, on a cell whose
+  tile says no torch (`TileDef::torch`), and two placed torches closer than `TORCH_MIN_GAP` (info, not a must).
+* A placed torch lights like a scattered one (check the light setup reads `layout.torch` only).
+
 ### Decoy: the sleeping mummy
 
 An empty coffin next to a mummy's coffin gives the mummy away. Add a prop **mummy in coffin**: the coffin with the
@@ -50,7 +67,7 @@ coiled cobra, a chest without a mimic) are the implementer's choice or a later d
 ## Format and code
 
 * Level format v4: a `decor N` list after `objects N`, `column row prop mirror`, then a `decals N` list,
-  `column row decal mirror`, only cells that are not unset.
+  `column row decal mirror torch` (torch: unset, none, torch), only cells with either field set.
   `prop` / `decal` is the index, `-1` for bare (or a name; the implementer's choice, glyphs are for tools only).
   v3 and older load with every cell unset; `levelconvert` writes v4.
 * The level holds both layers (`LevelGrid` / level loading, `level.h`); `scatterProps` and `scatterDecals` read them
@@ -69,12 +86,10 @@ coiled cobra, a chest without a mimic) are the implementer's choice or a later d
 ## Tests
 
 * Unit: v4 round trip; a v3 level loads all unset and scatters as before (same props and decals, same cells); bare
-  and placed cells beat the roll, in both layers.
+  and placed cells beat the roll, in both layers and for torches; random torches keep the gap to a placed one.
 * Scenario with a screenshot: a row of coffins, one real mummy, one sleeping mummy decoy; walk past them.
 * Every campaign level still passes `bin/levelcheck` with no warnings.
 
 ## Open points
 
-* Placed torches (unset / none / torch, same three states)? Left out here; a torch blocks free decals, so it would fit
-  the decal layer's checks.
 * A level-wide "no random props" flag instead of painting bare cells? Not needed for now.

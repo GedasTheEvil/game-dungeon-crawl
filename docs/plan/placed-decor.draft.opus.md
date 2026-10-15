@@ -1,4 +1,4 @@
-# Placed decor: a decor layer the editor paints
+# Placed decor: decor and decal layers the editor paints
 
 Status: draft, ready. Needs nothing first. From the user.
 
@@ -23,6 +23,20 @@ Three states per cell:
 
 A placed prop ignores the tiers: the designer picks it. Coffins on mummy spawns stay automatic.
 
+### Decal layer
+
+Props and decals are scattered apart today (`scatterDecals`): a cell can have both. Links: a cell with a prop gets no
+floor decal (`DecalAnchor::Floor`, nothing grows behind the prop), a torch blocks the free decals, and a cell whose
+object or fixture says `TileDef::decals = false` gets none. Decals do go behind monsters, items and fixtures.
+
+So a fifth layer, **decal**, the same three states: unset (the 35% roll as now), bare, or a decal (`DECAL_DEFS` index)
+with its mirror. Its height comes from its anchor as now; x from the cell hash, or stored (the implementer's choice).
+A placed decal ignores the tiers and the prop rule; the checker warns where its anchor does not fit (a ceiling decal
+with no rock above, a floor decal with no floor, in water or behind a prop), behind a torch, and on a cell whose tile
+says no decals.
+
+Use: hieroglyph columns around an inscription, vines over a hidden passage, a winged sun over the ankh.
+
 Use: a row of coffins next to the one with the real mummy, the decor lotus among the blue lotus, a statue where a
 room needs it, a bare corridor before a trap.
 
@@ -35,27 +49,32 @@ coiled cobra, a chest without a mimic) are the implementer's choice or a later d
 
 ## Format and code
 
-* Level format v4: a `decor N` list after `objects N`, `column row prop mirror`, only cells that are not unset.
-  `prop` is the `DECOR_NAMES` index, `-1` for bare (or a name; the implementer's choice, glyphs are for tools only).
+* Level format v4: a `decor N` list after `objects N`, `column row prop mirror`, then a `decals N` list,
+  `column row decal mirror`, only cells that are not unset.
+  `prop` / `decal` is the index, `-1` for bare (or a name; the implementer's choice, glyphs are for tools only).
   v3 and older load with every cell unset; `levelconvert` writes v4.
-* The level holds the layer (`LevelGrid` / level loading, `level.h`); `scatterProps` reads it before rolling.
+* The level holds both layers (`LevelGrid` / level loading, `level.h`); `scatterProps` and `scatterDecals` read them
+  before rolling.
 * Checker (`bin/levelcheck`): warn on a dry prop in water or with no floor under it, a water prop out of half water,
   a web with no ceiling, a prop in rock. A prop in the same cell as an object or fixture: warn where they would
   overlap on screen (a statue and a chest), the implementer decides which pairs. `--map` prints a `decor` drawing,
-  `--legend` the prop names.
-* Editor (`tools/editor`): a `Decor` layer button (key `L` goes round four layers), a palette of the props plus
-  `Unset` and `Bare`, an icon per prop in `tools/editor/icons/make_icons.py`. Right click picks a cell's decor.
+  `--legend` the prop names; the same for decals.
+* Editor (`tools/editor`): `Decor` and `Decals` layer buttons (key `L` goes round five layers), each a palette plus
+  `Unset` and `Bare`. Icons: one per prop in `tools/editor/icons/make_icons.py`; the decals can use their cell of
+  `decals.png`. Right click picks a cell's decor or decal. The right panel's layer button row needs room
+  (`STRUCTURE_BUTTON` .. `OBJECTS_BUTTON`).
   Update `tools/editor/readme.md` (layers, palette, file format).
-* Docs: `docs/levels.md` (format), glossary row for **decor layer** and **decoy**.
+* Docs: `docs/levels.md` (format), glossary rows for **decor layer**, **decal layer** and **decoy**.
 
 ## Tests
 
-* Unit: v4 round trip; a v3 level loads all unset and scatters as before (same props, same cells); bare and placed
-  cells beat the roll.
+* Unit: v4 round trip; a v3 level loads all unset and scatters as before (same props and decals, same cells); bare
+  and placed cells beat the roll, in both layers.
 * Scenario with a screenshot: a row of coffins, one real mummy, one sleeping mummy decoy; walk past them.
 * Every campaign level still passes `bin/levelcheck` with no warnings.
 
 ## Open points
 
-* Placed decals and torches in the same layer (or a decal field)? Left out here; a later draft if wanted.
+* Placed torches (unset / none / torch, same three states)? Left out here; a torch blocks free decals, so it would fit
+  the decal layer's checks.
 * A level-wide "no random props" flag instead of painting bare cells? Not needed for now.

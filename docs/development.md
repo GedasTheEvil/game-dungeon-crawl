@@ -93,7 +93,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `saves/` - save games (not tracked by git).
 
-Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [remodeling.md](remodeling.md).
+Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [modeling.md](modeling.md).
 
 ## Code structure
 

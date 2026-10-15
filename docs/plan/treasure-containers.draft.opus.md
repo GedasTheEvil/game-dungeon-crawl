@@ -31,7 +31,7 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
 * Level format unchanged if the look is derived (depth + effects roll). A `Treasure` tile has no spare field (its
   attribute and value are the item type and id): forcing a look per chest needs new data, see the level format note
   in [trapped-chests](trapped-chests.draft.opus.md).
-* Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/remodeling.md](../remodeling.md)).
+* Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/modeling.md](../modeling.md)).
 * A trapped container's trap fires in its opening clip ([trapped-chests](trapped-chests.draft.opus.md)); a trapped
   canopic jar curses by default. Its rule covers [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) too.
 

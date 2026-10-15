@@ -24,8 +24,10 @@ Always use Blender 5: `/home/gediminas.skucas/Apps/blender-5.2.2-linux-x64/blend
 Never use the system `blender` (v4.0).
 The `blender` MCP server needs Blender 5 running with the MCP add-on started (port 9876).
 
-## Model remodelling
-Models are rebuilt procedurally in Blender Python scripts. Tools, format conventions and per-model status: [docs/remodeling.md](docs/remodeling.md).
+## Modelling
+Models are built procedurally in Blender Python scripts. Making one (steps, tools, format conventions):
+[docs/modeling.md](docs/modeling.md). The finished remodel of the original models, notes per model:
+[docs/remodeling.md](docs/remodeling.md).
 
 ## Command whitelist
 These commands do not need confirmation to run

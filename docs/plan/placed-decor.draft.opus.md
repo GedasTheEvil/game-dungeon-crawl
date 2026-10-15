@@ -54,7 +54,7 @@ So the torch goes in the decal layer, as a second field of its cell with the sam
   field; `Unset` and `Bare` set both. Painting a torch over a free decal, or a free decal over a torch, clears the
   other one (they would overlap).
 * Checker: warn on a torch with a free decal, with a brazier, a lamp or a Thoth statue, in deep water, on a cell whose
-  tile says no torch (`TileDef::torch`), and two placed torches closer than `TORCH_MIN_GAP` (info, not a must).
+  tile says no torch (`TileDef::torch`). Placed torches may stand closer than the gap: the designer's choice.
 * A placed torch lights like a scattered one (check the light setup reads `layout.torch` only).
 
 ### Decoy: the sleeping mummy

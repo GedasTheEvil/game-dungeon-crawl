@@ -18,11 +18,25 @@ constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
 // boss's heka, at the end of level 5. levelcheck warns about one before it.
 constexpr int INSCRIPTIONS_FROM_LEVEL = 6;
 
+// A permanent stat a few inscriptions give the first time they are translated (plan inscription-boons). Life and
+// Stamina are percents of the max.
+enum class BoonKind : unsigned char { None, Might, Armor, Life, Stamina };
+constexpr int BOON_KIND_COUNT = 5;
+struct Boon {
+	BoonKind kind = BoonKind::None;
+	int amount = 0;
+	[[nodiscard]] bool Any() const { return kind != BoonKind::None; }
+	bool operator==(const Boon&) const = default;
+};
+// "Might +1", "Max health +10%"; empty for none.
+[[nodiscard]] std::string boonText(const Boon& boon);
+
 struct InscriptionText {
 	int id = 0;
 	std::string title; // the journal page's heading
 	std::vector<std::string> text; // the translation, one entry per T: line
 	std::string note; // the archaeologist's comment: the status line, and under the translation
+	Boon boon; // the boon: line, none for most
 	std::string source; // file:line, for messages
 };
 

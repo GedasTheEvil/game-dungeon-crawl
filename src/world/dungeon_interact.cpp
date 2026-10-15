@@ -63,14 +63,16 @@ bool Dungeon::readInscription() {
 	// Without the skill the glyphs are copied into the journal, the text stays hidden there (plan skill-hieroglyphs).
 	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
 	const bool first =
-		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads});
+		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads, text->boon});
 	if (first)
 		sim.player->stats.run.inscriptions++;
 	if (!first)
 		sim.events->Status("Already seen. In the journal.");
 	else if (reads) {
 		const int xp = sim.player->stats.InscriptionXP(); // plan inscription-xp
-		sim.events->Status("Deciphered the hieroglyphs. Journal updated. +%d XP", xp);
+		const std::string boon = sim.player->stats.Grant(text->boon); // plan inscription-boons
+		sim.events->Status("Deciphered the hieroglyphs. Journal updated. +%d XP%s%s", xp, boon.empty() ? "" : ", ",
+						   boon.c_str());
 		sim.player->stats.AddXP(xp, *sim.events);
 	} else
 		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");

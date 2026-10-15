@@ -1,0 +1,11 @@
+# Plan inscription-boons: the campaign's longest text with a boon, on the level 6 inscription (id 1).
+
+id: 1
+title: The ushabti spell
+style: column
+T: O ushabti, if I am called to do any work
+T: in the realm of the dead, to till the fields,
+T: to water the banks, to carry sand from east to west,
+T: "Here I am!" you shall say, and your legs shall not tire.
+boon: life 10
+N: Servants who answer "Here I am!" My students never did.

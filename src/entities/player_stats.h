@@ -4,6 +4,7 @@
 #include "../core/timer.h"
 #include "../world/curses.h"
 #include "../world/damage.h"
+#include "../world/inscriptions.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
 #include "../world/run_stats.h"
@@ -25,6 +26,7 @@ class PlayerStats {
 	int HP = 50;
 	int Might = 0;
 	int stamina = 100;
+	int max_stamina_percent = 0; // inscription boons' (plan inscription-boons), on top of the level's max
 	AmuletBonus amulet; // the worn amulet's (Wear); Armor, MaxHP and Might above are without it
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
 	int trap_carry = 0; // hundredths of trap damage not yet taken (TrapDamage)
@@ -56,7 +58,7 @@ class PlayerStats {
 	void NoteWalked() { walked = true; } // a walk step really moved the player (not into a wall)
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
-	[[nodiscard]] int MaxStamina() const { return 100 + (level - 1) * 10; }
+	[[nodiscard]] int MaxStamina() const { return (100 + (level - 1) * 10) * (100 + max_stamina_percent) / 100; }
 	void SetStamina(int value);
 	bool ConsumeStamina(int value); // false (and nothing spent) if there is not enough
 	void AddStamina(int value);
@@ -90,6 +92,9 @@ class PlayerStats {
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const;
 	void LoseHP(int hp) { HP -= hp; }
 	void AddMaxHP(int hpPart); // percent, heals fully
+	void AddMaxStamina(int percent); // the stamina rises by as much as the max
+	// An inscription's boon, given when it is translated; returns its text ("Might +1"), empty for none.
+	std::string Grant(const Boon& boon);
 	// Applies a drunk potion's gain (ItemBag::Use took it out of the bag); returns the status line ("Healed 12
 	// health").
 	std::string Drink(const PotionGain& gain);

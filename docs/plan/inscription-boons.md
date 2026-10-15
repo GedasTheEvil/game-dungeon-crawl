@@ -1,7 +1,21 @@
 # Inscription boons: a permanent stat for a few inscriptions
 
-Status: draft 2026-10-14. Needs nothing first. From the user. Works alongside
-[more-inscriptions](more-inscriptions.draft.opus.md) (more texts to put boons on) but does not need it.
+Status: implemented 2026-10-15, waits for the user's play-test: `bin/game --play tests/play/inscription-boons.txt`.
+From the user. Works alongside [more-inscriptions](more-inscriptions.draft.opus.md) (more texts to put boons on).
+
+## Done (2026-10-15)
+
+* Amounts (the user): max health +10 %, max stamina +10 %. Stamina is a percent too (`boon: stamina 10`), saved as
+  `BOONS` in the player stats; `MaxStamina()` adds it.
+* 7 of 32 campaign texts, one level each: 3 ushabti (lvl 8, stamina), 7 not dying a second time (lvl 11, life),
+  16 djed (lvl 18, armor), 18 overthrowing Apep (lvl 20, might, Montu), 21 satire of the trades (lvl 22, stamina, the
+  royal messenger), 28 heart scarab (lvl 28, armor, granite), 29 king of kings (lvl 29, might). One line added or
+  rewritten in each to name the gift.
+* Journal version 9 keeps each copy's boon. Page: "Gift: Might +1" in red ink under the comment, translated pages only.
+* Scenario command `inscriptions PATH` (docs/testing.md); scenario `inscription_boons`, unit tests in
+  `tests/unit/inscriptions_test.cpp` (parsing, first reading only, a copy and learning, save/load, the campaign's
+  share and spread).
+* Not done: the optional gold flash, a levelcheck boon count.
 
 ## Idea
 

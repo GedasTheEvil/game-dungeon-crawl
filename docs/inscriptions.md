@@ -13,6 +13,12 @@ translated: read with the hieroglyph skill, or, for a copy made without it, when
 the full XP at the player's level then; the toast adds the total). Copying without the skill gives none. The save game keeps
 a copy of each text, so editing the file does not change the journal.
 
+About 1 in 5 inscriptions also hold a boon ([plan](plan/inscription-boons.md)): a permanent Might +1, Armor +1, max
+health +N % or max stamina +N %, given with the XP and only once. The status line and the skill's toast name it; the
+journal page shows "Gift: ..." under the comment. Nothing hints at a boon before the translation. In the campaign:
+at most one per level, the text names the gift (kings and Montu: Might; the djed and granite: Armor; the breath of
+life: max health; tireless legs and runners: max stamina).
+
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign
 they start at level 6 (`INSCRIPTIONS_FROM_LEVEL`): the hieroglyph skill comes with the first boss's heka
 ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)). `levelcheck` warns about an inscription before that
@@ -45,6 +51,7 @@ N: A crocodile in the water. Oddly specific. Noted.
 | `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Only the atlas tool reads it. |
 | `T: TEXT` | Translation, one line each. Long lines wrap on the journal page. About six lines fit in the hand font; a longer text is written smaller (up to seven lines). |
 | `N: TEXT` | The archaeologist's comment: pencilled at the bottom of the journal page only. Keep it to one short line. |
+| `boon: KIND N` | Optional. The boon the translation gives: `might 1`, `armor 1`, `life 10` (max health %), `stamina 10` (max stamina %). An unknown kind or a number below 1 is a load error. |
 
 An entry without a `T:` line is skipped. Use plain ASCII in the texts: the fonts have no other characters.
 

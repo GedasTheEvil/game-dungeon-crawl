@@ -387,9 +387,13 @@ bool runInstant(const Command& cmd) {
 			report(cmd, false, "learnt already, or no heka to spend");
 			return true;
 		}
-		if (static_cast<SkillId>(cmd.ticks) == SkillId::Hieroglyphs)
-			Game().player->stats.AddXP(Game().journal.TranslateInscriptions() * Game().player->stats.InscriptionXP(),
+		if (static_cast<SkillId>(cmd.ticks) == SkillId::Hieroglyphs) {
+			const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
+			for (const Boon& b : boons)
+				Game().player->stats.Grant(b);
+			Game().player->stats.AddXP(static_cast<int>(boons.size()) * Game().player->stats.InscriptionXP(),
 									   Game().events);
+		}
 		report(cmd, true, "");
 		return true;
 	case CommandType::Wear: // like a click on its slot in the inventory
@@ -447,6 +451,12 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Riddles:
 		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
 		return true;
+	case CommandType::Inscriptions: {
+		Game().inscriptions = InscriptionBook{};
+		const std::vector<std::string> problems = Game().inscriptions.Load(cmd.arg);
+		report(cmd, problems.empty(), std::to_string(Game().inscriptions.Size()) + " inscriptions");
+		return true;
+	}
 	case CommandType::SaveGame: // relative paths land in the output directory
 		Game().Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
 		report(cmd, true, "");

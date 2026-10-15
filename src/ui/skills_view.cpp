@@ -98,12 +98,16 @@ void SkillsScreen::PressLearn() {
 		Game().journal.LearnNote(FieldNote::SharpEye);
 	std::string learnt = std::string("Learnt: ") + def.name;
 	if (id == SkillId::Hieroglyphs) {
-		const int copies = Game().journal.TranslateInscriptions();
+		const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
+		const int copies = static_cast<int>(boons.size());
 		if (copies > 0) {
 			// Every copy gives the full XP at the level now, no penalty for learning late (plan inscription-xp).
 			const int xp = copies * Game().player->stats.InscriptionXP();
 			learnt += ". " + std::to_string(copies) + (copies == 1 ? " inscription" : " inscriptions") +
 					  " translated, +" + std::to_string(xp) + " XP";
+			for (const Boon& b : boons) // plan inscription-boons
+				if (b.Any())
+					learnt += ", " + Game().player->stats.Grant(b);
 			Game().player->stats.AddXP(xp, Game().events);
 		}
 	}

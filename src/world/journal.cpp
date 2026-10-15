@@ -6,12 +6,14 @@ namespace {
 constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
-// whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one)
-constexpr int VERSION = 8;
+// whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
+// inscription's boon
+constexpr int VERSION = 9;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
 constexpr int FIRE_VERSION = 8;
+constexpr int BOON_VERSION = 9;
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -112,14 +114,14 @@ bool Journal::ReadInscription(const JournalInscription& inscription) {
 	return true;
 }
 
-int Journal::TranslateInscriptions() {
-	int count = 0;
+std::vector<Boon> Journal::TranslateInscriptions() {
+	std::vector<Boon> boons;
 	for (JournalInscription& i : inscriptions)
 		if (!i.translated) {
 			i.translated = true;
-			count++;
+			boons.push_back(i.boon);
 		}
-	return count;
+	return boons;
 }
 
 void Journal::Dump(std::ostream& out) const {
@@ -144,7 +146,8 @@ void Journal::Dump(std::ostream& out) const {
 	for (const JournalInscription& i : inscriptions) {
 		out << i.id << ' ' << i.level << ' ' << std::quoted(i.title) << ' ';
 		writeLines(out, i.text);
-		out << ' ' << std::quoted(i.note) << ' ' << i.translated << '\n';
+		out << ' ' << std::quoted(i.note) << ' ' << i.translated << ' ' << static_cast<int>(i.boon.kind) << ' '
+			<< i.boon.amount << '\n';
 	}
 }
 
@@ -191,6 +194,13 @@ void Journal::Load(std::istream& in) {
 		if (!(in >> e.id >> e.level >> std::quoted(e.title)) || !readLines(in, e.text) ||
 			!(in >> std::quoted(e.note)) || (version >= TRANSLATED_VERSION && !(in >> e.translated)))
 			return;
+		int kind = 0;
+		if (version >= BOON_VERSION && !(in >> kind >> e.boon.amount))
+			return;
+		if (kind > 0 && kind < BOON_KIND_COUNT && e.boon.amount > 0)
+			e.boon.kind = static_cast<BoonKind>(kind);
+		else
+			e.boon = Boon{};
 		inscriptions.push_back(e);
 	}
 }

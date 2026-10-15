@@ -1,0 +1,23 @@
+# Plan inscription-boons: a boon read with the skill: the status line names it, max HP rises by 10%, the journal page
+# shows the gift under the comment.
+seed 1
+god
+level 6
+inscriptions tests/inscriptions/boons.txt
+heka 1
+learn words_of_thoth
+wait 30
+walk to 3.5
+wait 10
+expect maxhp == 50
+interact
+wait 5
+expect maxhp == 55
+screenshot status
+interact
+expect maxhp == 55
+key j
+wait 5
+key up
+wait 45
+screenshot journal_page

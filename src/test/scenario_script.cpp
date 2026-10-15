@@ -337,6 +337,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::FireHit:
 	case CommandType::Prop:
 	case CommandType::Riddles:
+	case CommandType::Inscriptions:
 	case CommandType::Chest:
 	case CommandType::Camera:
 	case CommandType::Motion:
@@ -389,6 +390,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
 		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
+		{"inscriptions", CommandType::Inscriptions, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},
 		{"savegame", CommandType::SaveGame, oneWord, "<path>"},
 		{"loadgame", CommandType::LoadGame, oneWord, "<path>"},

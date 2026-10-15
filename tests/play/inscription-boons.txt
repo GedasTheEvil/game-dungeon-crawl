@@ -1,0 +1,9 @@
+# Plan inscription-boons, for `bin/game --play tests/play/inscription-boons.txt`: level 6, its inscription holds a boon
+# (max health +10%, tests/inscriptions/boons.txt), no hieroglyph skill. Walk two cells east and press interact: a copy,
+# no boon. Then learn Words of Thoth on the Heka screen (K; one heka is given): the toast adds "Max health +10%", the
+# journal page (J, Inscriptions ribbon) shows the gift under the comment.
+seed 1
+god
+level 6
+inscriptions tests/inscriptions/boons.txt
+heka 1

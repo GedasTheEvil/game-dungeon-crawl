@@ -44,6 +44,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"poison", "poison medium"},
 	{"poisonmonster", "poisonmonster weak"},
 	{"riddles", "riddles tests/riddles"},
+	{"inscriptions", "inscriptions tests/inscriptions"},
 	{"prop", "prop 4 cat"},
 	{"savegame", "savegame one.sav"},
 	{"loadgame", "loadgame one.sav"},

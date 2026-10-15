@@ -161,6 +161,32 @@ void PlayerStats::AddMaxHP(int hpPart) {
 	HP = CurrentMaxHP();
 }
 
+void PlayerStats::AddMaxStamina(int percent) {
+	const int oldMax = MaxStamina();
+	max_stamina_percent += percent;
+	AddStamina(MaxStamina() - oldMax);
+}
+
+std::string PlayerStats::Grant(const Boon& boon) {
+	switch (boon.kind) {
+	case BoonKind::Might:
+		AddMight(boon.amount);
+		break;
+	case BoonKind::Armor:
+		AddArmor(boon.amount);
+		break;
+	case BoonKind::Life:
+		AddMaxHP(boon.amount);
+		break;
+	case BoonKind::Stamina:
+		AddMaxStamina(boon.amount);
+		break;
+	case BoonKind::None:
+		break;
+	}
+	return boonText(boon);
+}
+
 void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 	const int oldMax = CurrentMaxHP();
 	amulet = bonus;
@@ -266,6 +292,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
+	f << "BOONS " << max_stamina_percent << "\n";
 	heka.Dump(f);
 	curses.Dump(f);
 	run.Dump(f);
@@ -288,7 +315,6 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 	stamina_refused_ms.reset();
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
-	SetStamina(loadedStamina);
 	poison.Load(f);
 	resist_percent = 0;
 	resist_left_ms = 0;
@@ -299,6 +325,14 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 		f.seekg(start);
 	} else
 		f >> resist_percent >> resist_left_ms;
+	max_stamina_percent = 0;
+	const auto boons = f.tellg();
+	if (!(f >> tag) || tag != "BOONS") { // a save from before the inscription boons
+		f.clear();
+		f.seekg(boons);
+	} else
+		f >> max_stamina_percent;
+	SetStamina(loadedStamina); // clamped to the max, which needs the boons
 	heka.LoadDump(f);
 	curses.LoadDump(f);
 	run.LoadDump(f);

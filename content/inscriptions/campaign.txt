@@ -36,7 +36,8 @@ G: A53 A53 A53 G17 V31 A1
 T: O ushabti, if I am called to do any work
 T: in the realm of the dead, to till the fields,
 T: to water the banks, to carry sand from east to west,
-T: "Here I am!" you shall say.
+T: "Here I am!" you shall say, and your legs shall not tire.
+boon: stamina 10
 N: Servants who answer "Here I am!" My students never did.
 
 # ---- level 9
@@ -81,7 +82,8 @@ style: column
 G: A55 D35 G17 X1 V29 Z2
 T: Spell for not dying a second time in the realm of the dead.
 T: My cave is opened, my coffin is unsealed.
-T: I rise, I live, I walk again.
+T: I rise, I breathe the breath of life, I walk again.
+boon: life 10
 N: Book of the Dead, spell 44. The mummies took it rather literally.
 
 # ---- level 12: red key, green lever, gold key, in that order.
@@ -183,6 +185,8 @@ G: R11 R11 R11 Q1 D4 A40
 T: The djed stands for ever, the backbone of Osiris.
 T: What is green rests within the pillar,
 T: in the house that has no door but the way around.
+T: Stand firm as the djed, and no blow shall break you.
+boon: armor 1
 N: The green key is inside the pillar? Pillars have insides now.
 
 # ---- level 19: Apep, the boss of level 20, burrows and comes up behind the player.
@@ -207,6 +211,8 @@ T: From the Book of Overthrowing Apep:
 T: Spit upon him! Trample him! Fall on your face,
 T: Apep, enemy of Ra! Your head is cut off,
 T: your coils are cut, you shall not rise again.
+T: The strength of Montu is in the arm that strikes you.
+boon: might 1
 N: The priests spat on him every day. I will use a weapon.
 
 # ---- level 21: the teleporter at the end of this passage leads to a hidden treasure cistern.
@@ -237,7 +243,9 @@ style: column
 G: Y3 A1 Z1 U32 A9
 T: I have seen the coppersmith at the mouth of his furnace:
 T: his fingers like crocodile hide, he stinks worse than fish.
+T: I have seen the royal messenger run from dawn to dusk.
 T: Be a scribe! It saves you from toil.
+boon: stamina 10
 N: Ancient career advice: be a scribe. I became an archaeologist.
 
 # ---- level 23: a dart trap right behind this inscription.
@@ -317,6 +325,8 @@ T: O my heart of my mother, my heart of my different ages,
 T: do not stand up as a witness against me,
 T: do not oppose me in the tribunal,
 T: do not tip the scale against me.
+T: Be granite in my breast, and do not crack.
+boon: armor 1
 N: Book of the Dead, spell 30B. Mine would tip it: too much coffee.
 
 # ---- level 29: the hidden tomb is below the exit hall, down the drop east of this inscription, out by the ladder.
@@ -327,7 +337,9 @@ style: cartouche
 G: N5 F31 S29 S29
 T: King of kings am I, Osymandias.
 T: If anyone would know how great I am and where I lie,
-T: let him surpass one of my works.
+T: let him surpass one of my works,
+T: and the strength of kings is his.
+boon: might 1
 N: As Diodorus tells it. Shelley had a few words about that.
 
 id: 30

@@ -141,11 +141,11 @@ TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learni
 	CHECK(world.Xp() == xpBefore);
 
 	// Learning translates each copy once; the XP is the full part at the level then (plan inscription-xp).
-	const int copies = world.journal.TranslateInscriptions();
+	const int copies = static_cast<int>(world.journal.TranslateInscriptions().size());
 	CHECK(copies == 1);
 	world.player.stats.AddXP(copies * world.player.stats.InscriptionXP(), world.events);
 	CHECK(world.Xp() == xpBefore + riddleXP(world.player.stats.CurrentLevel()) / 3);
-	CHECK(world.journal.TranslateInscriptions() == 0); // nothing more to give
+	CHECK(world.journal.TranslateInscriptions().empty()); // nothing more to give
 	CHECK(world.journal.Inscriptions()[0].translated);
 	CHECK(world.journal.Inscriptions()[0].title == "The offering formula");
 
@@ -175,6 +175,123 @@ TEST_CASE("a journal saved before the translated flag loads its inscriptions tra
 	j.Load(old);
 	REQUIRE(j.Inscriptions().size() == 1);
 	CHECK(j.Inscriptions()[0].translated);
+}
+
+TEST_CASE("a boon: line: the four kinds, a bad one told by line") {
+	std::istringstream in("id: 1\nT: a\nboon: might 1\n"
+						  "id: 2\nT: b\nboon: armor 2\n"
+						  "id: 3\nT: c\nboon: life 10\n"
+						  "id: 4\nT: d\nboon: stamina 10\n"
+						  "id: 5\nT: e\nboon: luck 1\nboon: might x\nboon: might 0\nboon: might\n");
+	std::vector<InscriptionText> out;
+	std::vector<std::string> errors;
+	ParseInscriptions(in, "f.txt", out, errors);
+	REQUIRE(out.size() == 5);
+	CHECK(out[0].boon == Boon{BoonKind::Might, 1});
+	CHECK(out[1].boon == Boon{BoonKind::Armor, 2});
+	CHECK(out[2].boon == Boon{BoonKind::Life, 10});
+	CHECK(out[3].boon == Boon{BoonKind::Stamina, 10});
+	CHECK_FALSE(out[4].boon.Any());
+	REQUIRE(errors.size() == 4);
+	CHECK(errors[0].find("f.txt:15: boon:") == 0);
+	CHECK(errors[3].find("f.txt:18: boon:") == 0);
+	CHECK(boonText(out[0].boon) == "Might +1");
+	CHECK(boonText(out[2].boon) == "Max health +10%");
+	CHECK(boonText(out[3].boon) == "Max stamina +10%");
+}
+
+TEST_CASE("a boon: given by the first reading with the skill only, kept on the journal page") {
+	SimWorld world; // level 6: inscription 1 two cells east of the entrance
+	world.player.god = true;
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
+	world.inscriptions.Add(
+		{.id = 1, .title = "Kings", .text = {"The strength of kings."}, .boon = {BoonKind::Might, 1}});
+	REQUIRE(world.Load(6));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(3.5f));
+	world.WaitTicks(5);
+	const int might = world.player.stats.CurrentMight();
+	const int xp = world.player.stats.InscriptionXP();
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Deciphered the hieroglyphs. Journal updated. +" + std::to_string(xp) + " XP, Might +1"));
+	CHECK(world.player.stats.CurrentMight() == might + 1);
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.player.stats.CurrentMight() == might + 1); // the second reading gives none
+
+	world.SaveAndLoad();
+	CHECK(world.player.stats.CurrentMight() == might + 1);
+	REQUIRE(world.journal.Inscriptions().size() == 1);
+	CHECK(world.journal.Inscriptions()[0].boon == Boon{BoonKind::Might, 1});
+}
+
+TEST_CASE("a stamina boon on a copy: nothing until the skill is learnt, then once; kept by a save") {
+	SimWorld world;
+	world.player.god = true;
+	world.inscriptions.Add(
+		{.id = 1, .title = "Runner", .text = {"He does not tire."}, .boon = {BoonKind::Stamina, 10}});
+	REQUIRE(world.Load(6));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(3.5f));
+	world.WaitTicks(5);
+	const int maxStamina = world.player.stats.MaxStamina();
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Told("Copied the hieroglyphs"));
+	CHECK(world.player.stats.MaxStamina() == maxStamina); // a copy gives nothing
+
+	world.SaveAndLoad(); // the copy keeps its boon
+	REQUIRE(world.journal.Inscriptions().size() == 1);
+	CHECK(world.journal.Inscriptions()[0].boon == Boon{BoonKind::Stamina, 10});
+
+	const std::vector<Boon> boons = world.journal.TranslateInscriptions();
+	REQUIRE(boons.size() == 1);
+	CHECK(world.player.stats.Grant(boons[0]) == "Max stamina +10%");
+	CHECK(world.player.stats.MaxStamina() == maxStamina * 110 / 100);
+	CHECK(world.journal.TranslateInscriptions().empty()); // learning gives it once
+
+	world.SaveAndLoad();
+	CHECK(world.player.stats.MaxStamina() == maxStamina * 110 / 100);
+}
+
+TEST_CASE("a journal saved before the boons loads its inscriptions without one") {
+	std::istringstream old("journal 8 0\n0\n0\n1\n2 7 \"Title\" 1 \"Line\" \"Note\" 0\n");
+	Journal j;
+	j.Load(old);
+	REQUIRE(j.Inscriptions().size() == 1);
+	CHECK_FALSE(j.Inscriptions()[0].translated);
+	CHECK_FALSE(j.Inscriptions()[0].boon.Any());
+}
+
+TEST_CASE("the campaign's boons: about 1 in 5 inscriptions, all four kinds, at most one per level") {
+	InscriptionBook book;
+	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
+	std::set<BoonKind> kinds;
+	int boons = 0;
+	int texts = 0;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		int here = 0;
+		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
+			const Fixture& t = grid.cells[cell].fixture;
+			const InscriptionText* text = t.type == Inscription ? book.Find(t.attr) : nullptr;
+			if (text == nullptr)
+				continue;
+			texts++;
+			if (!text->boon.Any())
+				continue;
+			here++;
+			kinds.insert(text->boon.kind);
+		}
+		boons += here;
+		CHECK_MESSAGE(here <= 1, "lvl", n, " has ", here, " boons");
+	}
+	CHECK(kinds.size() == 4);
+	CHECK(boons * 6 >= texts); // between 1 in 6 and 1 in 4
+	CHECK(boons * 4 <= texts);
 }
 
 TEST_CASE("every campaign inscription has a text, stands from level 6 on, and each text once") {

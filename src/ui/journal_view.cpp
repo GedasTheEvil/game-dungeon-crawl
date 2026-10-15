@@ -95,6 +95,7 @@ constexpr size_t MAX_TRANSLATION_SMALL_LINES = 7;
 constexpr float COMMENT_BOTTOM = 8.5f; // the pencilled comment's first baseline above the page bottom
 constexpr float COMMENT_STEP = 3.2f;
 constexpr size_t MAX_COMMENT_LINES = 2;
+constexpr float GIFT_BOTTOM = COMMENT_BOTTOM - COMMENT_STEP; // a translated boon's line, under the comment
 
 struct SectionLook {
 	const char* name;
@@ -1099,6 +1100,9 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 		textCentered(handSmall, p.cx(), y, l.c_str(), PENCIL, FADED);
 		y -= COMMENT_STEP;
 	}
+	// No hint of a boon before the translation (plan inscription-boons).
+	if (e.translated && e.boon.Any())
+		textCentered(handSmall, p.cx(), p.y + GIFT_BOTTOM, ("Gift: " + boonText(e.boon)).c_str(), INK_RED);
 	beginShapes();
 }
 

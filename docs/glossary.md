@@ -31,6 +31,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
+| boon | Gift | a permanent stat an inscription gives when it is translated: Might, Armor, max health % or max stamina % ([inscription-boons](plan/inscription-boons.md)) | `Boon`, `InscriptionText::boon`, `JournalInscription::boon`, `PlayerStats::Grant` |
 | level | Level (save slots) | (map) one of the campaign's maps, "lvl5" in the docs. Not the player's level or a weapon's level (see Items) | `Dungeon::LevelNumber` |
 | level grid | | every level is 40 x 47 cells, row 0 at the bottom | `LEVEL_WIDTH`, `LEVEL_HEIGHT` |
 | pit | | a drop with no floor; a spike pit kills (the checker does not count it as a softlock) | `src/world/level_check.h` |

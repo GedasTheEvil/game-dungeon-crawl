@@ -11,7 +11,45 @@ std::string trim(const std::string& s) {
 		return "";
 	return s.substr(first, s.find_last_not_of(" \t\r\n") - first + 1);
 }
+
+// "might 1", "armor 1", "life 10", "stamina 10"; false for an unknown kind or a bad amount.
+bool parseBoon(const std::string& value, Boon& boon) {
+	const size_t space = value.find(' ');
+	if (space == std::string::npos)
+		return false;
+	const std::string kind = value.substr(0, space);
+	const std::string number = trim(value.substr(space + 1));
+	if (kind == "might")
+		boon.kind = BoonKind::Might;
+	else if (kind == "armor")
+		boon.kind = BoonKind::Armor;
+	else if (kind == "life")
+		boon.kind = BoonKind::Life;
+	else if (kind == "stamina")
+		boon.kind = BoonKind::Stamina;
+	else
+		return false;
+	auto [end, ec] = std::from_chars(number.data(), number.data() + number.size(), boon.amount);
+	return ec == std::errc{} && end == number.data() + number.size() && boon.amount > 0;
+}
 } // namespace
+
+std::string boonText(const Boon& boon) {
+	const std::string n = std::to_string(boon.amount);
+	switch (boon.kind) {
+	case BoonKind::Might:
+		return "Might +" + n;
+	case BoonKind::Armor:
+		return "Armor +" + n;
+	case BoonKind::Life:
+		return "Max health +" + n + "%";
+	case BoonKind::Stamina:
+		return "Max stamina +" + n + "%";
+	case BoonKind::None:
+		break;
+	}
+	return "";
+}
 
 void ParseInscriptions(std::istream& in, const std::string& source, std::vector<InscriptionText>& out,
 					   std::vector<std::string>& errors) {
@@ -67,8 +105,14 @@ void ParseInscriptions(std::istream& in, const std::string& source, std::vector<
 			current.text.push_back(value);
 		} else if (key == "N") {
 			current.note = value;
+		} else if (key == "boon") {
+			Boon boon;
+			if (parseBoon(value, boon))
+				current.boon = boon;
+			else
+				error("boon: must be might, armor, life or stamina and a number above 0, line ignored");
 		} else {
-			error("expected id:, title:, style:, G:, T: or N:, line ignored");
+			error("expected id:, title:, style:, G:, T:, N: or boon:, line ignored");
 		}
 	}
 	finish();

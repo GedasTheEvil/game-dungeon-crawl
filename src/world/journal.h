@@ -3,6 +3,7 @@
 
 #include "curses.h"
 #include "damage.h"
+#include "inscriptions.h"
 #include "items.h"
 #include <istream>
 #include <ostream>
@@ -41,6 +42,7 @@ struct JournalInscription {
 	// False for a copy made without the hieroglyph skill: the glyphs only, the text stays hidden until the skill is
 	// learnt (plan skill-hieroglyphs).
 	bool translated = true;
+	Boon boon; // given when it is translated (plan inscription-boons)
 };
 
 // Special moves a monster type can be seen doing, written down the first time.
@@ -156,8 +158,9 @@ class Journal {
 	// Written once, the first time it is read or copied; the entries keep the order they were read in. True the first
 	// time, or when a copy gets translated by this call (inscription.translated).
 	bool ReadInscription(const JournalInscription& inscription);
-	// The hieroglyph skill learnt: every copy shows its text. Returns how many were translated.
-	int TranslateInscriptions();
+	// The hieroglyph skill learnt: every copy shows its text. Returns the boon of each copy translated (none for most),
+	// one entry per copy.
+	std::vector<Boon> TranslateInscriptions();
 	[[nodiscard]] const std::vector<JournalInscription>& Inscriptions() const { return inscriptions; }
 
 	void Clear() {

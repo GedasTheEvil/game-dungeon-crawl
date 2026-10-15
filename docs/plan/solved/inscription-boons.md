@@ -1,7 +1,7 @@
 # Inscription boons: a permanent stat for a few inscriptions
 
-Status: implemented 2026-10-15, waits for the user's play-test: `bin/game --play tests/play/inscription-boons.txt`.
-From the user. Works alongside [more-inscriptions](more-inscriptions.draft.opus.md) (more texts to put boons on).
+Status: solved 2026-10-15, play-tested by the user (`bin/game --play tests/play/inscription-boons.txt`).
+From the user. Works alongside [more-inscriptions](../more-inscriptions.draft.opus.md) (more texts to put boons on).
 
 ## Done (2026-10-15)
 
@@ -12,7 +12,7 @@ From the user. Works alongside [more-inscriptions](more-inscriptions.draft.opus.
   royal messenger), 28 heart scarab (lvl 28, armor, granite), 29 king of kings (lvl 29, might). One line added or
   rewritten in each to name the gift.
 * Journal version 9 keeps each copy's boon. Page: "Gift: Might +1" in red ink under the comment, translated pages only.
-* Scenario command `inscriptions PATH` (docs/testing.md); scenario `inscription_boons`, unit tests in
+* Scenario command `inscriptions PATH` (docs/testing.md); scenario `inscription_boons` (in `tests/scenarios/solved/`), unit tests in
   `tests/unit/inscriptions_test.cpp` (parsing, first reading only, a copy and learning, save/load, the campaign's
   share and spread).
 * Not done: the optional gold flash, a levelcheck boon count.
@@ -32,14 +32,14 @@ you win, sometimes you don't. Nothing hints at a boon beforehand: not the wall, 
   potions' permanent gains (`PlayerStats::Drink`, `src/world/items.cpp`: Blood of Montu, Granite of Ptah, Life).
   Max stamina is new: `PlayerStats::MaxStamina()` is computed from the level only, so add a saved bonus field
   (player save version) and add it there.
-* When: like the XP ([inscription-xp](solved/inscription-xp.md)), on translation, once per inscription. Read with
+* When: like the XP ([inscription-xp](inscription-xp.md)), on translation, once per inscription. Read with
   the hieroglyph skill: given at once. A copy made without the skill gives nothing until the skill is learned, then
   `Journal::TranslateInscriptions` gives it. This is the reward for reading the early copies.
 * The text matches the boon: kings, Montu or the bull give Might; Ptah, granite, the djed pillar give Armor; the
   ankh, "breath of life", going forth by day give max HP; Shu and the wind, the royal messenger, the runner give
   max stamina.
 * Rarity: about 1 in 5 inscriptions (the user; the exact share is the implementer's). With today's 32 texts that is
-  6 or 7; as [more-inscriptions](more-inscriptions.draft.opus.md) adds texts, keep the share. Mix the four kinds,
+  6 or 7; as [more-inscriptions](../more-inscriptions.draft.opus.md) adds texts, keep the share. Mix the four kinds,
   spread them out (not two in one level). Compare the might and armor potions placed in the campaign so that boons
   stay a side bonus. The implementer judges the balance.
 * Candidates among the current texts: 29 "King of kings" (Might), 16 "The djed of Osiris" (Armor), 32 "Going forth

@@ -13,7 +13,7 @@ translated: read with the hieroglyph skill, or, for a copy made without it, when
 the full XP at the player's level then; the toast adds the total). Copying without the skill gives none. The save game keeps
 a copy of each text, so editing the file does not change the journal.
 
-About 1 in 5 inscriptions also hold a boon ([plan](plan/inscription-boons.md)): a permanent Might +1, Armor +1, max
+About 1 in 5 inscriptions also hold a boon ([plan](plan/solved/inscription-boons.md)): a permanent Might +1, Armor +1, max
 health +N % or max stamina +N %, given with the XP and only once. The status line and the skill's toast name it; the
 journal page shows "Gift: ..." under the comment. Nothing hints at a boon before the translation. In the campaign:
 at most one per level, the text names the gift (kings and Montu: Might; the djed and granite: Armor; the breath of

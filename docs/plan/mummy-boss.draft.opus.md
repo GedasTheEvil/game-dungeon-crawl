@@ -45,8 +45,10 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
   royal regalia; its own texture. Clips: idle, walk, rise (from the sarcophagus), staff swing (melee and ranged,
   like the Anubis), death. Steps: [modeling.md](../modeling.md).
 * **Glyph:** a free one, picked by the implementer.
-* **Name / journal:** an Egyptian-flavoured name (implementer's choice, see glossary "Egyptian names"); label
-  `mummy boss`. Note e.g. "He read the curses at the funerals. He still knows them all."
+* **Name / journal:** shown as "High Priest of Anubis" (decided 2026-10-15): he served the god the player meets on
+  lvl30, and his curses are the god's. In the journal's terms a mummified high priest. Code id `MonsterMummyPriest`,
+  label `mummy priest` (glossary "Egyptian names": add him to the row). Note e.g. "He read the curses at the
+  funerals. He still knows them all."
 * **Placement:** lvl29 (a temporary home, fine as is; the campaign gets extended and re-planned later, after the
   hippo and the other monsters). Give lvl29 a boss room and boss gates; `bin/levelcheck` passes with no warnings. A boss
   on a level that is not a 5th gives a heka like any other (by campaign level); fine for now.
@@ -69,7 +71,7 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 ## Open (for the implementer)
 
 * The wall emergence's look (dust, a stone tint that fades as it steps out, ...).
-* Name, glyph.
+* Glyph.
 
 ## Tests
 

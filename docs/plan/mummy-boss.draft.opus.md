@@ -55,21 +55,28 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 
 * `boss.minion = MonsterAnubis`. A guard is twice a mummy's threat and outruns the player: fewer and slower, e.g.
   1..2 alive, every 4 s, cap 4. Balance in play.
-* Summon: coffins do not fit statues. A new `Summon` (e.g. `Plinth`: a statue on a stand at the arena edge steps
-  down) or reuse `DigOut` (rises from the floor). Implementer's choice; a new one is preferred if cheap.
+* Summon: a new `Summon::Wall` (decided 2026-10-15): the guards step out of the wall that faces the player, like
+  statues coming out of the stone. Pick a wall cell of the boss room in front of the player (in their view, the
+  wall they look at; the nearest such cell with a free floor cell in front of it, not behind the player), so they
+  see it happen. The guard starts inside the wall and slides out onto the free cell over its `riseMs`, stone dust
+  and a grinding sound (reuse what exists: rock-fall dust, the coffin lid's sound); it can't be hit or hurt until
+  out. No such wall cell (the player in the open): fall back to the nearest wall of the room. The wall cell stays a
+  wall (no hole left), the level is not changed.
 * Update the Anubis boss's `description`, `note` ("The dead rise at his word" goes to the mummy boss), the threat
   comment ("plus its mummies") and the mummy's comment ("the Anubis boss's minion").
 * lvl30's boss room: coffins placed for the boss's mummies go, the level still passes the checker.
 
 ## Open (for the implementer)
 
-* Plinth summon or DigOut.
+* The wall emergence's look (dust, a stone tint that fades as it steps out, ...).
 * Name, glyph.
 
 ## Tests
 
-* Unit (`tests/unit/`): the mummy boss summons mummies from coffins; the Anubis boss summons guards; the mummy boss's
-  bolt is purple and lays its curses; a third `CurseEntry` is rolled (the first two
-  miss, the third takes); kind table checks (kin, minion) still pass.
-* Scenario with screenshots: the mummy priest rising from its sarcophagus, its staff swing and bolt; the Anubis boss
-  with guards. A `tests/play/mummy-boss.txt` for the play-test (`level 29`).
+* Unit (`tests/unit/`): the mummy boss summons mummies from coffins; the Anubis boss's guards come out of a wall
+  cell in front of the player and land on the free cell before it, unhittable until out; the mummy boss's bolt is
+  purple and lays its curses; a third `CurseEntry` is rolled (the first two miss, the third takes); kind table
+  checks (kin, minion) still pass.
+* Scenario with screenshots: the mummy priest rising from its sarcophagus, its staff swing and bolt; guards stepping
+  out of the wall in front of the player (mid-way and out). A `tests/play/mummy-boss.txt` for the play-test
+  (`level 29`; the guards: `level 30`).

@@ -229,7 +229,7 @@ void Dungeon::drawDoorTile(int i, int j) {
 	if (tile.attr == GateEntrance || tile.attr == GateExit) {
 		const float normal[3] = {1, 0, 0};
 		const float v[4][3] = {{-19.6f, 0, -10}, {-19.6f, 35, -10}, {-19.6f, 35, 10}, {-19.6f, 0, 10}};
-		drawPortal(normal, v, tile.attr == GateExit);
+		drawPortal(normal, v, tile.attr == GateEntrance);
 	}
 	glPopMatrix();
 

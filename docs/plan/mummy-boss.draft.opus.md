@@ -22,11 +22,21 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 * **Ranged:** a bolt from the staff head (`RangedRules`, release frame measured from the model like
   `ANUBIS_RELEASE*`). **Purple** (a new `Rgb`, e.g. `BOLT_PURPLE`; decided 2026-10-15). The base mummy gets no
   ranged attack.
-* **Curses, his speciality:** stronger and more varied than any other monster's, that is what makes the priest
-  interesting. Today a trigger holds at most two `CurseEntry` (`src/world/curses.h`). Suggestion: melee lays the
-  mummy's Weakness at a higher chance (Greater first); the bolt lays the nastier ones (Greater Disease, Insanity,
-  Slowness, ...). If two entries per trigger are too few for a varied bolt, raise the cap for the priest or roll one
-  curse from a pool (implementer's choice; keep the other monsters' rolls unchanged).
+* **Curses, his speciality:** he curses a lot, more and nastier than any other monster. Each one has a reason a
+  priest of the dead would lay it. `CurseEntries` (`src/world/curses.h`) grows from 2 to 3 entries for every kind
+  (the user: the cap was only a suggestion; the others leave the third empty, their rolls unchanged). A hit still
+  rolls in order and lays the first that takes, one curse a hit (decided 2026-10-15):
+  * Melee, the staff (the embalmer's work on the body):
+    1. Greater Disease 12%: the rot the natron was meant to stop.
+    2. Greater Weakness 12%: his mummies' curse, stronger.
+    3. Fatigue 25%: the long sleep of the tomb.
+  * Bolt (the spoken curses of the funeral rites):
+    1. Insanity 20%: the forbidden words from the Book of the Dead, heard aloud.
+    2. Slowness 25%: bound in linen like the dead.
+    3. Vulnerability 30%: weighed against the feather, found wanting.
+  * About 42% of the melee hits and 58% of the bolt hits lay a curse (the Anubis boss: 30% and 40%). Tune in play.
+  * Journal: the moves read like the others ("Curses with a touch of his staff", "Speaks curses from afar"); the
+    curse status lines stay the curses' own.
 * **Stats:** threat about 15, between Sobek (14.5) and the Anubis boss (16). Start from HP ~2000, damage ~120,
   attack ~1500 ms, Reckless, `trapDamagePct` 10, poison immune, `bossResist(MUMMY_RESIST)` (no weakness, as every
   boss). Fire stays its soft spot as far as `bossResist` allows. Tune with the monster-balance sim if it exists by then.
@@ -55,11 +65,11 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 
 * Plinth summon or DigOut.
 * Name, glyph.
-* The curse set and how the bolt picks one (see Curses).
 
 ## Tests
 
 * Unit (`tests/unit/`): the mummy boss summons mummies from coffins; the Anubis boss summons guards; the mummy boss's
-  bolt is purple and lays its curses; kind table checks (kin, minion) still pass.
+  bolt is purple and lays its curses; a third `CurseEntry` is rolled (the first two
+  miss, the third takes); kind table checks (kin, minion) still pass.
 * Scenario with screenshots: the mummy priest rising from its sarcophagus, its staff swing and bolt; the Anubis boss
   with guards. A `tests/play/mummy-boss.txt` for the play-test (`level 29`).

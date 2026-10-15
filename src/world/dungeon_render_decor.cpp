@@ -67,7 +67,7 @@ void wallQuad(float x, float y, float size, AtlasRect uv, bool mirror) {
 }
 
 // The glint over wallQuad(x, y, size, uv): the bound atlas again, added in gold through a band whose place follows the
-// clock, each cell on its own phase. Only the painted glyphs catch it (the texture's alpha).
+// clock, each cell on its own phase. The texture weighs it (colour and alpha): the light stele catches it most.
 void glintQuad(float x, float y, float size, AtlasRect uv, float strength, int cell) {
 	const int offset = static_cast<int>((static_cast<uint32_t>(cell) * 2654435761U) >> 20) % GLINT_PERIOD_MS;
 	const float t = static_cast<float>((GameClock::now() + offset) % GLINT_PERIOD_MS) /

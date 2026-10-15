@@ -23,6 +23,12 @@ constexpr ui::Color BLOOD_TOP = {0.85f, 0.14f, 0.08f};
 constexpr ui::Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
 constexpr ui::Color POISON_TOP = {0.45f, 0.82f, 0.2f};
 constexpr ui::Color POISON_BOTTOM = {0.1f, 0.36f, 0.05f};
+// The key caps under the slots, the interact prompt's too: the options screen's.
+constexpr ui::Color CAP_TOP = {0.19f, 0.15f, 0.10f};
+constexpr ui::Color CAP_BOTTOM = {0.10f, 0.08f, 0.055f};
+constexpr float CAP_H = 2.6f;
+constexpr float CAP_PAD = 2.2f; // added to the key's width
+constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
 
 // Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
 // inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon); the curses from

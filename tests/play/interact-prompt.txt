@@ -1,0 +1,9 @@
+# Plan interact-prompt, for `bin/game --play tests/play/interact-prompt.txt`: level 6, a chest and an inscription
+# nearby. Stand on a chest, a lever or an inscription: "[E] Open" / "[E] Pull" / "[E] Copy" shows at the bottom right
+# after a moment; walking through a cell does not flash it. The unread inscription glints gold now and then, dimmer
+# once copied; learn Words of Thoth (K, one heka is given) and read it: the glint stops. A mimic stays a chest when
+# you come near and shows "[E] Open" too; the key (or a hit) wakes it.
+seed 1
+god
+level 6
+heka 1

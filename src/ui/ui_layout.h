@@ -2,9 +2,10 @@
 #define UI_LAYOUT_H
 
 // Where the UI parts go and how they fade, without GL (plan scenarios-to-unit-tests technique 5): the canvas, its rects
-// and the window-to-canvas mapping, the screen tabs, the status box and the level gem. The drawing is ui_draw.h and the
-// screens'; the unit tests check the layouts at any window size (tests/unit/ui_layout_test.cpp).
+// and the window-to-canvas mapping, the screen tabs, the status box, the interact prompt and the level gem. The drawing
+// is ui_draw.h and the screens'; the unit tests check the layouts at any window size (tests/unit/ui_layout_test.cpp).
 
+#include "../world/interaction.h"
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -114,6 +115,37 @@ struct DamageTrail {
 	}
 };
 } // namespace PlayerHud
+
+// The interact prompt (plan interact-prompt): "[E] Open", a small panel at the bottom right, the player HUD's mirror on
+// its canvas (PlayerHud::draw's, panel units). It fades in DELAY_MS after a verb shows up, so walking through a cell
+// does not flash it.
+namespace InteractPrompt {
+constexpr int DELAY_MS = 150;
+constexpr int FADE_MS = 120;
+constexpr float HEIGHT = 8.f;
+constexpr float PAD_X = 2.5f; // the frame to the key cap, the verb to the frame
+constexpr float GAP = 1.6f; // the key cap to the verb
+constexpr float HUD_GAP = 2.f; // to the HUD panel; closer and the prompt moves up
+constexpr float ABOVE_HUD = 14.f; // its bottom over the HUD panel's top when it moves up: clear of the status tiles
+// ageMs since the verb showed up: 0 during the delay, then up to 1.
+[[nodiscard]] float Alpha(int ageMs);
+// The panel for content contentW wide, on a canvas canvasW wide: as far from the right and bottom edges as `hud`
+// (the HUD panel) is from the left and bottom ones. In a window too narrow for both, above the HUD and its tiles.
+[[nodiscard]] ui::Rect Box(float canvasW, float contentW, const ui::Rect& hud);
+// The verb shown and since when: a new verb starts the delay again, None hides it at once.
+struct Tracker {
+	Interaction verb = Interaction::None;
+	int sinceMs = 0;
+	// The prompt's alpha for `now`, the verb in the player's cell at GameClock time nowMs.
+	float Update(Interaction now, int nowMs) {
+		if (now != verb) {
+			verb = now;
+			sinceMs = nowMs;
+		}
+		return verb == Interaction::None ? 0.f : Alpha(nowMs - sinceMs);
+	}
+};
+} // namespace InteractPrompt
 
 // The HUD's level badge: a gem that gets more precious every LEVELS_PER_GEM levels (level_gem.h).
 namespace LevelGem {

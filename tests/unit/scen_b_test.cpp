@@ -58,7 +58,7 @@ TEST_CASE("the crocodile lies in the pool unseen, wakes when waded close, follow
 	CHECK(world.dungeon.MonsterBarsShown() == 0);
 }
 
-TEST_CASE("a mimic looks like a chest with no bar, wakes near, dies and leaves a real chest with its loot") {
+TEST_CASE("a mimic looks like a chest with no bar, wakes when opened, dies and leaves a real chest with its loot") {
 	SimWorld world;
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/mimic", 15));
@@ -71,8 +71,11 @@ TEST_CASE("a mimic looks like a chest with no bar, wakes near, dies and leaves a
 	CHECK(world.dungeon.MonsterBarsShown() == 0);
 	REQUIRE(world.Walk(1.3f));
 	world.WaitTicks(5);
+	CHECK(world.dungeon.MonsterBarsShown() == 0); // near does not wake it (plan interact-prompt)
+	REQUIRE(world.WalkTo(8.5f));
+	world.Interact(); // opened like a chest
+	world.WaitTicks(5);
 	CHECK(world.dungeon.MonsterBarsShown() == 1);
-	REQUIRE(world.Walk(0.5f));
 	world.Wait(2000);
 	swing(world, 12, 640);
 	world.Wait(3000);

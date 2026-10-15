@@ -5,6 +5,7 @@
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
 #include "decor_scatter.h"
+#include "interaction.h"
 #include "level.h"
 #include "climb_path.h"
 #include "view_window.h"
@@ -54,10 +55,13 @@ class Dungeon {
 	bool PickUp(); // not the car... just take an item away; false if there is none
 	bool PullLever(); // interact on a lever cell; false if there is none
 	bool readInscription(); // interact on an inscription: into the journal; false if there is none
-	// Interact by a brazier with a bow held: the next FIRE_ARROW_SHOTS arrows carry fire (plan fire-damage). False:
-	// no brazier in the player's cell or no bow.
-	bool lightArrows();
+	// Interact by a brazier with a bow held (InteractVerb Light): the next FIRE_ARROW_SHOTS arrows carry fire (plan
+	// fire-damage).
+	void lightArrows();
 	void useGate(); // the exit, a teleporter, a riddle gate, the ankh
+	// The slot of the mimic lying in ambush in the player's cell, looking like a chest (plan interact-prompt); -1 if
+	// none.
+	[[nodiscard]] int ambushHere() const;
 	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
 	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -324,9 +328,16 @@ class Dungeon {
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
 	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
-	// The interact key: picks up what lies here, else pulls the lever, else reads the inscription, else uses the gate
-	// (the exit, a teleporter, a riddle) or takes the ankh.
+	// The interact key: does what InteractVerb says, nothing on None.
 	void Interact();
+	// What the interact key does in the player's cell, in this order (plan wall-layer, interact-prompt): the chest or a
+	// mimic in ambush (Open), then the fixture on the back wall (Pull a lever not pulled yet, Read or Copy an
+	// inscription), the brazier with a bow (Light), and the gate last, as it may take the player away (Answer a riddle
+	// gate, Enter the exit or a teleporter not in the air, Take the ankh). Keys are picked up on touch: None.
+	[[nodiscard]] Interaction InteractVerb() const;
+	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
+	// copied without the skill, 0 translated, too worn to read, or no inscription.
+	[[nodiscard]] float InscriptionGlint(int col, int row) const;
 	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, wading (JumpAllowed) or
 	// out of stamina (told why), or the level is won.
 	void StartJump(int dir);

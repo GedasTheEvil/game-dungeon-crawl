@@ -17,7 +17,7 @@ Some chests are trapped: opening one sets off a trap. Opening any chest becomes 
 * A tell for an attentive player, never obvious from afar (as the cursed mimic's): scratch marks round the lock, a
   broken seal, a darker lid. It must survive [treasure-containers](treasure-containers.draft.opus.md)'s looks and
   orientations.
-* The [interact prompt](interact-prompt.draft.opus.md) shows "[E] Open" on every chest, trapped or not, and on a
+* The [interact prompt](interact-prompt.md) shows "[E] Open" on every chest, trapped or not, and on a
   mimic: it never tells them apart.
 * Journal: a field note the first time a trap goes off ("Some chests bite back."), per trap kind if it reads better.
 

@@ -213,8 +213,11 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   bite; every melee weapon hits them there, also in toon mode; an arrow hits a giant rat 2 tiles away
   (`tests/levels/hitbox_*`).
 - `tests/scenarios/solved/scarabs.txt`: scarab and giant scarab screenshots (size, texture).
-- `tests/scenarios/solved/mimic.txt`: a mimic next to a real chest: looks like the chest, wakes 1.5 tiles away, bites, leaves
-  a real chest when killed.
+- `tests/scenarios/solved/mimic.txt`: a mimic next to a real chest: looks like the chest, shows "[E] Open" in its cell,
+  wakes on the interact key, bites, leaves a real chest when killed.
+- `tests/unit/interact_test.cpp`: the interact verb of every usable cell (`tests/levels/interact`), the key doing
+  something exactly when there is one, a mimic waking on the key or a hit and not on coming near, the inscription
+  glint. `tests/scenarios/interact_prompt.txt`: the prompt and the glint, screenshots.
 - `tests/scenarios/solved/anubis_bolt.txt`: the Anubis walks up and shoots its red bolt from afar, then hits up close.
 - `tests/scenarios/solved/mummy.txt`: a mummy in its coffin: no health bar, wakes 1.6 tiles away, climbs out (rise clip),
   strikes, dies; the empty coffin stays.

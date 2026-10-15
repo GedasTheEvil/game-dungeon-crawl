@@ -29,24 +29,98 @@ bool Dungeon::PickUp() {
 	return true;
 }
 //======================================================================================
-// One thing a press (plan wall-layer): the chest in the cell first, then the fixture on its back wall (a lever,
-// an inscription), the brazier, and the gate last, as it may take the player away. Keys are picked up on touch.
+// One thing a press, the one the prompt shows (plan interact-prompt).
 void Dungeon::Interact() {
-	if (PickUp() || PullLever() || readInscription() || lightArrows())
-		return;
-	useGate();
+	switch (InteractVerb()) {
+	case Interaction::None:
+		break;
+	case Interaction::Open:
+		if (const int slot = ambushHere(); slot >= 0)
+			monsters[slot].Spring(); // the Chest of Set: opened like a chest, it bites
+		else
+			PickUp();
+		break;
+	case Interaction::Pull:
+		PullLever();
+		break;
+	case Interaction::Read:
+	case Interaction::Copy:
+		readInscription();
+		break;
+	case Interaction::Light:
+		lightArrows();
+		break;
+	case Interaction::Answer:
+	case Interaction::Enter:
+	case Interaction::Take:
+		useGate();
+		break;
+	}
 }
 //======================================================================================
-bool Dungeon::lightArrows() {
+Interaction Dungeon::InteractVerb() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
+	if (!IsInBounds(col, row))
+		return Interaction::None;
+	const Tile here = MapAt(col, row);
+	if (here.type == Treasure || ambushHere() >= 0)
+		return Interaction::Open;
+	if (here.fixture.type == Lever && isLockColour(here.fixture.attr) && !leverPulled(here.fixture))
+		return Interaction::Pull;
+	if (here.fixture.type == Inscription) {
+		const bool worn = sim.inscriptions == nullptr || sim.inscriptions->Find(here.fixture.attr) == nullptr;
+		return worn || sim.player->stats.heka.Has(SkillId::Hieroglyphs) ? Interaction::Read : Interaction::Copy;
+	}
 	const OwnedWeapons& owned = sim.items->Owned();
-	if (!IsInBounds(col, row) || decoration.decor[MapIndex(col, row)].type != DECOR_BRAZIER ||
-		(!owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] &&
-		 !owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))
-		return false;
+	if (decoration.decor[MapIndex(col, row)].type == DECOR_BRAZIER &&
+		(owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||
+		 owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))
+		return Interaction::Light;
+	if (here.type == Ankh)
+		return Interaction::Take;
+	if (here.type != Door)
+		return Interaction::None;
+	switch (here.attr) {
+	case GateRiddle:
+		return Interaction::Answer;
+	case GateExit:
+		return Interaction::Enter;
+	case GateTeleport:
+		return !sim.player->jump.jumping && !sim.player->jump.falling && teleportPartner(map, MapIndex(col, row)) >= 0
+				   ? Interaction::Enter
+				   : Interaction::None;
+	default: // the entrance, an answered riddle gate
+		return Interaction::None;
+	}
+}
+//======================================================================================
+int Dungeon::ambushHere() const {
+	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
+	for (int slot = 0; slot < MAX_MONSTERS; slot++) {
+		const Monster& mon = monsters[slot];
+		if (mon.Active() && mon.Alive() && mon.lurking() && mon.Type()->locomotion == Locomotion::Ambush &&
+			mon.Col() == col && mon.Row() == row)
+			return slot;
+	}
+	return -1;
+}
+//======================================================================================
+float Dungeon::InscriptionGlint(int col, int row) const {
+	constexpr float COPY_GLINT = 0.4f; // a copy keeps a dimmer glint until the skill is learnt (plan skill-hieroglyphs)
+	if (!IsInBounds(col, row) || MapAt(col, row).fixture.type != Inscription || sim.inscriptions == nullptr)
+		return 0.f;
+	const InscriptionText* text = sim.inscriptions->Find(MapAt(col, row).fixture.attr);
+	if (text == nullptr) // too worn to read: nothing to learn there
+		return 0.f;
+	for (const JournalInscription& read : sim.journal->Inscriptions())
+		if (read.id == text->id)
+			return read.translated ? 0.f : COPY_GLINT;
+	return 1.f;
+}
+//======================================================================================
+void Dungeon::lightArrows() {
 	sim.player->fireArrows = FIRE_ARROW_SHOTS;
 	sim.events->Status("Dipped %d arrows in the brazier's fire", FIRE_ARROW_SHOTS);
-	return true;
 }
 //======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans

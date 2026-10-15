@@ -1,5 +1,6 @@
 # A mimic (col 8, tests/levels/mimic) next to a real chest (col 5): idle, it looks like the chest and shows no
-# health bar; it wakes 1.5 tiles away, bites, and when killed leaves a real chest to pick up.
+# health bar, not even close by; in its cell the prompt says "[E] Open", as at a chest (plan interact-prompt). The key
+# wakes it: it bites, and when killed leaves a real chest to pick up.
 seed 15 # the mimic leaves a large stamina potion (the gameplay Rng)
 god
 level tests/levels/mimic
@@ -14,9 +15,14 @@ expect bars == 0
 screenshot still_idle
 walk right 1.3
 wait 5
+expect bars == 0
+walk to 8.5
+wait 20
+screenshot open_prompt
+interact
+wait 5
 expect bars == 1
 screenshot awake
-walk right 0.5
 wait 2s
 screenshot bite
 attack

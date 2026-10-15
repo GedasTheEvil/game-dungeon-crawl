@@ -132,7 +132,6 @@ constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's pla
 // The blue lotus (Locomotion::Floating) floats as a flower until the player comes this close along its row (from its
 // centre), then rears up.
 constexpr float FLOATING_WAKE_RANGE = 1.2f;
-constexpr float MIMIC_WAKE_RANGE = 1.5f; // tiles along the row: an idle mimic (Locomotion::Ambush) wakes this close
 // The mummy (Locomotion::Entombed) lies in its coffin (decor_coffin, drawn on its spawn tile), its body drawn
 // MUMMY_COFFIN_DEPTH world units back from the walk line. Woken, its rise clip slides it out between the two fractions.
 constexpr float MUMMY_WAKE_RANGE = 1.6f; // tiles along the row: in view (about 2 tiles each side)

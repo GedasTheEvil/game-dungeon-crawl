@@ -7,6 +7,7 @@
 #include "../graphics/lighting.h"
 #include "inscriptions.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <utility>
@@ -15,6 +16,14 @@ namespace {
 constexpr float LIGHT_LIFT = 4.f; // lights sit above and in front of the flame (world units)
 constexpr float INSCRIPTION_SIZE = 0.7f; // quad side, tile units, a little larger than the scattered glyph decals
 constexpr float INSCRIPTION_Y = 0.55f; // its centre on the back wall: at the archaeologist's eye height
+// The glint over an unread inscription (plan interact-prompt): a gold band sweeps across the glyphs, then rests.
+constexpr int GLINT_PERIOD_MS = 3200;
+constexpr float GLINT_SWEEP = 0.4f; // share of the period the band takes to cross
+constexpr float GLINT_WIDTH = 0.3f; // the band's half width, in shares of the quad
+constexpr float GLINT_SLANT = 0.35f; // the band leans: its top runs this far ahead
+constexpr int GLINT_STRIPS = 12;
+constexpr int GLINT_PASSES = 2; // added this many times: one is too faint on the torchlit stele
+constexpr float GLINT_COLOUR[3] = {1.f, 0.82f, 0.45f};
 // Water props (plan water-decorations), tile units and radians a second. The reeds and the weed sway (x sheared by
 // the height over the basin floor), the leaves afloat bob and drift.
 constexpr float BASIN_FLOOR = -RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
@@ -55,6 +64,49 @@ void wallQuad(float x, float y, float size, AtlasRect uv, bool mirror) {
 	glEnd();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
+}
+
+// The glint over wallQuad(x, y, size, uv): the bound atlas again, added in gold through a band whose place follows the
+// clock, each cell on its own phase. Only the painted glyphs catch it (the texture's alpha).
+void glintQuad(float x, float y, float size, AtlasRect uv, float strength, int cell) {
+	const int offset = static_cast<int>((static_cast<uint32_t>(cell) * 2654435761U) >> 20) % GLINT_PERIOD_MS;
+	const float t = static_cast<float>((GameClock::now() + offset) % GLINT_PERIOD_MS) /
+					static_cast<float>(GLINT_PERIOD_MS) / GLINT_SWEEP;
+	if (t >= 1.f)
+		return; // resting
+	const float centre = -GLINT_WIDTH - GLINT_SLANT + t * (1.f + 2 * GLINT_WIDTH + GLINT_SLANT);
+	const auto band = [&](float u, float v) {
+		return strength * std::max(0.f, 1.f - std::fabs(u + GLINT_SLANT * v - centre) / GLINT_WIDTH);
+	};
+	const float tile = RenderConfig::TILE_SIZE;
+	const float half = size * tile / 2.f;
+	const float z = -tile + 0.06f; // over the inscription
+
+	Lighting::setEmissive(true);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDepthMask(GL_FALSE);
+	for (int pass = 0; pass < GLINT_PASSES; pass++) {
+		glBegin(GL_QUAD_STRIP);
+		glNormal3f(0, 0, 1);
+		for (int i = 0; i <= GLINT_STRIPS; i++) {
+			const float u = static_cast<float>(i) / GLINT_STRIPS;
+			const float px = x * tile - half + u * 2 * half;
+			const float tu = uv.u0 + u * (uv.u1 - uv.u0);
+			glColor4f(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 0.f));
+			glTexCoord2f(tu, uv.v0);
+			glVertex3f(px, y * tile - half, z);
+			glColor4f(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 1.f));
+			glTexCoord2f(tu, uv.v1);
+			glVertex3f(px, y * tile + half, z);
+		}
+		glEnd();
+	}
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	glColor3f(1, 1, 1);
+	Lighting::setEmissive(false);
 }
 } // namespace
 
@@ -109,13 +161,12 @@ void Dungeon::drawDecalTile(int i, int j) {
 // Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
 void Dungeon::drawInscriptionTile(int i, int j) {
 	const int id = MapAt(i, j).fixture.attr;
-	if (isInscriptionId(id)) {
-		sim.assets->decor.inscriptionTex.Bind();
-		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(id - 1, INSCRIPTION_ATLAS_GRID), false);
-	} else {
-		sim.assets->decor.decalTex.Bind();
-		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID), false);
-	}
+	const AtlasRect uv =
+		isInscriptionId(id) ? atlasCell(id - 1, INSCRIPTION_ATLAS_GRID) : atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID);
+	(isInscriptionId(id) ? sim.assets->decor.inscriptionTex : sim.assets->decor.decalTex).Bind();
+	wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, false);
+	if (const float glint = InscriptionGlint(i, j); glint > 0.f)
+		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, glint, MapIndex(i, j));
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {

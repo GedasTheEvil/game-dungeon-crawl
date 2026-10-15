@@ -199,6 +199,39 @@ TEST_CASE("the status box fades in, holds and fades out, centred under the top, 
 	}
 }
 
+TEST_CASE("the interact prompt waits, fades in, restarts on a new verb and hides at once on none") {
+	using namespace InteractPrompt;
+	CHECK(Alpha(0) == 0.f);
+	CHECK(Alpha(DELAY_MS) == 0.f);
+	CHECK(Alpha(DELAY_MS + FADE_MS / 2) == doctest::Approx(0.5f));
+	CHECK(Alpha(DELAY_MS + FADE_MS) == 1.f);
+	Tracker tracker;
+	CHECK(tracker.Update(Interaction::None, 0) == 0.f);
+	CHECK(tracker.Update(Interaction::Open, 1000) == 0.f); // walked into a chest's cell
+	CHECK(tracker.Update(Interaction::Open, 1000 + DELAY_MS + FADE_MS) == 1.f);
+	CHECK(tracker.Update(Interaction::Pull, 2000) == 0.f); // the next cell: the delay again
+	CHECK(tracker.Update(Interaction::Pull, 2000 + DELAY_MS + FADE_MS) == 1.f);
+	CHECK(tracker.Update(Interaction::None, 2500) == 0.f);
+}
+
+TEST_CASE("the interact prompt mirrors the HUD panel at the bottom right, clear of it, in every window") {
+	constexpr Rect HUD = {1.5f, 1.5f, 58.f, 21.5f}; // PlayerHud::PANEL, on its canvas 100 / 0.85 high
+	constexpr float CANVAS_H = 100.f / 0.85f;
+	constexpr float WIDEST = 30.f; // "[E] Light arrows" in the HUD's fonts, with room to spare
+	for (const Window& win : WINDOWS) {
+		CAPTURE(win.w);
+		const float canvasW = CANVAS_H * static_cast<float>(win.w) / static_cast<float>(win.h);
+		const Rect box = InteractPrompt::Box(canvasW, WIDEST, HUD);
+		CHECK(box.within({0, 0, canvasW, CANVAS_H}));
+		CHECK(canvasW - (box.x + box.w) == doctest::Approx(HUD.x));
+		if (win.w > win.h)
+			CHECK(box.y == HUD.y);
+		else // too narrow: over the HUD and its status tiles
+			CHECK(box.y >= HUD.y + HUD.h + 12.f);
+		CHECK_FALSE(box.overlaps(HUD));
+	}
+}
+
 TEST_CASE("the level gem gets more precious every five levels, the last one from there on") {
 	CHECK(LevelGem::GemOf(1) == 0);
 	CHECK(LevelGem::GemOf(5) == 0);

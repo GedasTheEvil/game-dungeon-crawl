@@ -91,4 +91,14 @@ float LineY(int i) {
 }
 } // namespace StatusBox
 
+float InteractPrompt::Alpha(int ageMs) {
+	return std::clamp(static_cast<float>(ageMs - DELAY_MS) / static_cast<float>(FADE_MS), 0.f, 1.f);
+}
+
+ui::Rect InteractPrompt::Box(float canvasW, float contentW, const ui::Rect& hud) {
+	const float w = contentW + 2 * PAD_X;
+	const float x = canvasW - hud.x - w;
+	return {x, x < hud.x + hud.w + HUD_GAP ? hud.y + hud.h + ABOVE_HUD : hud.y, w, HEIGHT};
+}
+
 int LevelGem::GemOf(int level) { return std::clamp((level - 1) / LEVELS_PER_GEM, 0, GEM_COUNT - 1); }

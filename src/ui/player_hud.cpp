@@ -22,8 +22,6 @@ constexpr float SLOT_Y = 8.2f;
 constexpr float SLOT_SIZE = 6.6f;
 constexpr float SLOT_STEP = 8.2f;
 constexpr float CAP_Y = 4.6f; // key cap under each slot
-constexpr float CAP_H = 2.6f;
-constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
 constexpr float SOCKET_X = 40.5f; // first key socket centre, right of the amulet slot
 constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
@@ -47,6 +45,11 @@ constexpr int DRINK_FLASH_MS = 500;
 
 using PlayerHud::BLOOD_BOTTOM;
 using PlayerHud::BLOOD_TOP;
+using PlayerHud::CAP_BOTTOM;
+using PlayerHud::CAP_H;
+using PlayerHud::CAP_PAD;
+using PlayerHud::CAP_PEN_DROP;
+using PlayerHud::CAP_TOP;
 using PlayerHud::POISON_BOTTOM;
 using PlayerHud::POISON_TOP;
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
@@ -58,8 +61,6 @@ constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
-constexpr Color CAP_TOP = {0.19f, 0.15f, 0.10f}; // the options key caps
-constexpr Color CAP_BOTTOM = {0.10f, 0.08f, 0.055f};
 constexpr Color BADGE = {0.05f, 0.04f, 0.03f};
 // Key gems in LOCK_COLOURS order: carnelian, lapis, turquoise, amber.
 constexpr Color GEMS[LOCK_COLOUR_COUNT] = {
@@ -259,7 +260,7 @@ Rect slotRect(int i) { return {SLOT_X + SLOT_STEP * static_cast<float>(i), SLOT_
 Rect badgeRect(const Rect& slot) { return {slot.x + slot.w - 3.1f, slot.y + slot.h - 2.6f, 3.3f, 2.8f}; }
 
 Rect capRect(const Rect& slot, Font& small, const char* key) {
-	float w = small.TextWidth(key) + 2.2f;
+	float w = small.TextWidth(key) + CAP_PAD;
 	return {slot.cx() - w / 2, CAP_Y, w, CAP_H};
 }
 

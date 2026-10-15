@@ -1,0 +1,12 @@
+; Interact prompt (tests/unit/interact_test.cpp, plan interact-prompt): a chest under inscription 1 (col 3), the red
+; lever (col 5), inscription 2 (col 7), a teleporter pair (cols 9, 12), col 14 empty for a brazier, the ankh (col 16),
+; a riddle gate (col 18), the red gate (col 20), the exit (col 22).
+def 1 15 1 0
+def 2 15 2 0
+########################
+#S.$.....O..O...A.?.R.E#
+########################
+wall
+########################
+#..1./.2...............#
+########################

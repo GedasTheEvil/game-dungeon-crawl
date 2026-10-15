@@ -9,6 +9,8 @@
 #include "../ui/level_gem.h"
 #include "../ui/boss_bar.h"
 #include "../ui/status_box.h"
+#include "../ui/interact_prompt.h"
+#include "../input/input_actions.h"
 #include "lighting.h"
 #include "ink.h"
 #include "motion_fx.h"
@@ -226,6 +228,10 @@ void drawGameplay() {
 						Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
 						Game().assets.textures.skillIcons.ID());
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
+	const bool prompt = Game().player->Alive() && !Game().dungeon.Won() && !Game().dungeon.Travelling();
+	InteractPrompt::draw(prompt ? Game().dungeon.InteractVerb() : Interaction::None, keyCapOf(BindAction::Interact),
+						 Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
+						 Game().assets.fonts.hudSmall);
 	if (const Monster* boss = Game().dungeon.Boss())
 		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
 					  boss->Poisoned(), Game().render.resX, Game().render.resY, Game().assets.fonts.status);

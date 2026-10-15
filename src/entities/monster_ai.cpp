@@ -162,17 +162,22 @@ void Monster::curse(const CurseEntries& entries) {
 bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
+	const bool ambush = type->locomotion == Locomotion::Ambush; // waits for Spring or a hit, however near the player
 	const float range = entombed()	  ? MUMMY_WAKE_RANGE
 						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE : SUBMERGED_WAKE_RANGE)
 						: coiled()	  ? COILED_WAKE_RANGE
-						: floats()	  ? FLOATING_WAKE_RANGE
-									  : MIMIC_WAKE_RANGE;
-	if (!sameRow(py) || std::fabs(px - CentreX()) > range) {
+									  : FLOATING_WAKE_RANGE;
+	if (ambush || !sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
 		return true;
 	}
 	wake();
 	return false;
+}
+
+void Monster::Spring() {
+	if (lurking() && type->locomotion == Locomotion::Ambush)
+		wake();
 }
 
 void Monster::wake() {

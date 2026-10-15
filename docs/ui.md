@@ -18,11 +18,12 @@ parts below instead of drawing their own.
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
+| Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
 | Win / death screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`, `ui/dead.png`) in the 3D scene, not the shared look |
 
 Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
 without GL is `src/ui/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
-status box, the level gem, the health trail) and `src/ui/inventory_layout.h` (the inventory's rects and `hitAt`), in
+status box, the interact prompt, the level gem, the health trail) and `src/ui/inventory_layout.h` (the inventory's rects and `hitAt`), in
 the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 21:9.
 
 ## Canvas
@@ -174,6 +175,14 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
   (`"Click a slot to load    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
+
+### Interact prompt
+
+What the interact key does in the player's cell ([plan/interact-prompt.md](plan/interact-prompt.md)): the verb comes
+from `Dungeon::InteractVerb`, the one `Dungeon::Interact` switches on. A `panel` 8 high at the bottom right, mirroring
+the HUD panel (its bottom edge and screen margin), with the HUD's key cap (`PlayerHud::CAP_*`, the first key bound
+to Interact) and the verb in `body` `GOLD_BRIGHT` with a black shadow. It fades in 120 ms after a 150 ms delay, so
+walking through a cell does not flash it; hidden while dead, won or travelling, and with a screen open.
 
 ### Book (journal)
 

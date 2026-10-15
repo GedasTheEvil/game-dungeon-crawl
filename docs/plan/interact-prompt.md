@@ -1,7 +1,22 @@
 # Interact prompt and the inscription glint
 
-Status: draft 2026-10-12, ready (needs nothing first). From the user, after
-[hieroglyph-cartouches](solved/hieroglyph-cartouches.md). Opus: the HUD, every usable tile, and a wall effect.
+Status: implemented 2026-10-15, waiting for the user's play-test (`bin/game --play tests/play/interact-prompt.txt`).
+From the user, after [hieroglyph-cartouches](solved/hieroglyph-cartouches.md). Opus: the HUD, every usable tile, and a
+wall effect.
+
+## Done
+
+* `Interaction` (`src/world/interaction.h`) and `Dungeon::InteractVerb` (`src/world/dungeon_interact.cpp`):
+  `Interact` switches on it. Besides the verbs below: Copy (an inscription without the hieroglyph skill), Light arrows
+  (a brazier with a bow, plan fire-damage). A too worn inscription is Read either way.
+* The mimic wakes on the key (Open) or a hit; `MIMIC_WAKE_RANGE` is gone.
+* The prompt: `src/ui/interact_prompt.cpp`, layout and fade in `InteractPrompt` (`src/ui/ui_layout.h`). In a window too
+  narrow for both (portrait), it moves above the HUD and its tiles.
+* The glint: `glintQuad` in `src/world/dungeon_render_decor.cpp`, two additive passes of the inscription's own atlas
+  cell, so the lit stele catches it; strength from `Dungeon::InscriptionGlint` (1 unread, 0.5 a copy, 0 read or worn).
+* Tests: `tests/unit/interact_test.cpp` (`tests/levels/interact`), `tests/unit/ui_layout_test.cpp`,
+  `tests/scenarios/interact_prompt.txt`, the mimic tests updated. The spent riddle gate has no unit test of its own
+  (SimWorld cannot answer a riddle); it falls under the gate's None like the entrance, which is tested.
 
 ## Why
 

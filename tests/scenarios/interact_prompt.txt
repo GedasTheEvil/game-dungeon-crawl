@@ -1,0 +1,62 @@
+# Interact prompt (plan interact-prompt, tests/levels/interact): "[E] Open" at the chest, "[E] Copy" at the inscription
+# under it, "[E] Pull" at the lever, no prompt between them; the gold glint sweeping over the unread inscription, then
+# dimmer once copied, gone once read with the skill. Why a scenario: the prompt and the glint are drawn.
+seed 1
+god
+level tests/levels/interact
+wait 30
+screenshot no_prompt
+walk to 3.5
+wait 20
+screenshot open_prompt
+interact
+wait 30
+screenshot copy_prompt
+# 7 frames 300 ms apart outlast the glint's 1.9 s rest: some catch the band mid-sweep
+wait 300ms
+screenshot glint_1
+wait 300ms
+screenshot glint_2
+wait 300ms
+screenshot glint_3
+wait 300ms
+screenshot glint_4
+wait 300ms
+screenshot glint_5
+wait 300ms
+screenshot glint_6
+wait 300ms
+screenshot glint_7
+interact
+expect journal_inscriptions == 1
+wait 30
+screenshot copied_1
+wait 300ms
+screenshot copied_2
+wait 300ms
+screenshot copied_3
+wait 300ms
+screenshot copied_4
+wait 300ms
+screenshot copied_5
+wait 300ms
+screenshot copied_6
+wait 300ms
+screenshot copied_7
+wait 300ms
+screenshot copied_8
+wait 300ms
+screenshot copied_9
+heka 1
+learn words_of_thoth
+interact
+wait 30
+screenshot read_1
+wait 1200ms
+screenshot read_2
+walk to 5.5
+wait 20
+screenshot pull_prompt
+interact
+wait 30
+screenshot pulled

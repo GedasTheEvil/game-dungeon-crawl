@@ -270,9 +270,11 @@ class Monster {
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
 	void Attack(float py);
 	// Ambushers, the entombed, the submerged, the coiled and the floating: true while still lurking; wakes (and returns
-	// false) once the player is close (MIMIC_WAKE_RANGE, MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
-	// FLOATING_WAKE_RANGE).
+	// false) once the player is close (MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
+	// FLOATING_WAKE_RANGE). An ambusher never wakes this way, only by Spring or a hit (plan interact-prompt).
 	bool Lurk(float px, float py);
+	// The interact key on an ambusher lying in wait (the mimic, opened like a chest): it wakes.
+	void Spring();
 	// Ranged attackers: the player is on its row, out of bite reach but within range, and the shot is ready.
 	// The caller checks there is no wall between them.
 	[[nodiscard]] bool canAttackRanged(float px, float py) const;

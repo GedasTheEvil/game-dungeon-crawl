@@ -23,6 +23,9 @@ Three states per cell:
 
 A placed prop ignores the tiers: the designer picks it. Coffins on mummy spawns stay automatic.
 
+Use: a row of coffins next to the one with the real mummy, the decor lotus among the blue lotus, a statue where a
+room needs it, a bare corridor before a trap.
+
 ### Decal layer
 
 Props and decals are scattered apart today (`scatterDecals`): a cell can have both. Links: a cell with a prop gets no
@@ -36,9 +39,6 @@ with no rock above, a floor decal with no floor, in water or behind a prop), beh
 says no decals.
 
 Use: hieroglyph columns around an inscription, vines over a hidden passage, a winged sun over the ankh.
-
-Use: a row of coffins next to the one with the real mummy, the decor lotus among the blue lotus, a statue where a
-room needs it, a bare corridor before a trap.
 
 ### Decoy: the sleeping mummy
 

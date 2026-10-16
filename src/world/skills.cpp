@@ -15,7 +15,7 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	 true},
 	{"Serket's favour", "Poisons last half as long", "Serket's children still bite, but they do not mean it as much.",
 	 false},
-	{"Blessing of Isis", "Curses last half as long", "Isis has a knot for every curse. She ties fast.", true},
+	{"Blessing of Isis", "Curses last half as long", "Isis has a knot for every curse. She ties fast.", false},
 }};
 
 bool Heka::Earn(int level) {

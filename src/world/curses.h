@@ -57,6 +57,8 @@ class Curses {
 	// Lays it for CURSE_MS. A greater grade over a running lesser one raises it; a lesser one over a running greater
 	// one only restarts the time. True when it was not running.
 	bool Lay(Curse c, CurseGrade grade);
+	// Lays it for a custom duration in ms (used by skills that change curse time). Same grade rules as Lay.
+	bool Lay(Curse c, CurseGrade grade, int durationMs);
 	[[nodiscard]] bool Has(Curse c) const { return LeftMs(c) > 0; }
 	[[nodiscard]] int LeftMs(Curse c) const { return running[static_cast<size_t>(c)].leftMs; }
 	[[nodiscard]] CurseGrade Grade(Curse c) const { return running[static_cast<size_t>(c)].grade; }

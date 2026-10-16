@@ -19,12 +19,14 @@ namespace {
 int cut(int value, int percent) { return value * (100 - percent) / 100; }
 } // namespace
 
-bool Curses::Lay(Curse c, CurseGrade grade) {
+bool Curses::Lay(Curse c, CurseGrade grade) { return Lay(c, grade, CURSE_MS); }
+
+bool Curses::Lay(Curse c, CurseGrade grade, int durationMs) {
 	Running& r = running[static_cast<size_t>(c)];
 	const bool fresh = r.leftMs <= 0;
 	if (fresh || grade == CurseGrade::Greater)
 		r.grade = grade;
-	r.leftMs = CURSE_MS;
+	r.leftMs = std::clamp(durationMs, 0, CURSE_MS);
 	return fresh;
 }
 

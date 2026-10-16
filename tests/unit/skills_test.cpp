@@ -13,6 +13,18 @@ void killBoss(SimWorld& world) {
 	world.dungeon.HurtBoss(world.dungeon.BossHealth());
 	world.Tick();
 }
+
+TEST_CASE("Blessing of Isis: with the skill a curse that takes runs half as long") {
+	WorldEvents events;
+	Player plain;
+	Player blessed;
+	blessed.stats.heka.Earn(5);
+	REQUIRE(blessed.stats.heka.Learn(SkillId::BlessingOfIsis, true));
+	plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	CHECK(plain.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / 2);
+}
 } // namespace
 
 TEST_CASE("a boss level gives one heka, only the first time") {

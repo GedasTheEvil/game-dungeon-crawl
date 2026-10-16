@@ -1,7 +1,6 @@
 # Anubis walk clip plays faster
 
-Status: implemented 2026-10-16, waits for the user's play-test:
-`bin/game --play tests/play/anubis-walk-clip-speed.txt`. Follows up [anubis-speed](solved/anubis-speed.md) ("Not done: the walk
+Status: solved 2026-10-16 (play-tested by the user). Follows up [anubis-speed](anubis-speed.md) ("Not done: the walk
 clip still plays at its old pace").
 
 From the user (2026-10-13): the Anubis walks fast, but its legs move slowly. The walk clip must play at least twice
@@ -41,5 +40,5 @@ as fast as now.
 
 * `MonsterKind::walkClipSpeed` (default 35, `ModelInfo::CLIP_SPEED`), passed to `ModelInfo::Advance`; only `Move`
   uses it. Anubis guard 70, boss 76. Other clips keep `CLIP_SPEED`.
-* Not checked in screenshots whether the planted foot still slides: the play-test decides if it needs more.
+* The play-test found the speeds right.
 * Tests: `tests/unit/model_info_test.cpp`; play script `tests/play/anubis-walk-clip-speed.txt`.

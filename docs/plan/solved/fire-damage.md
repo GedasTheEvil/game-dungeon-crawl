@@ -25,7 +25,7 @@ Implementer's choice, at least one:
 ### Monsters deal fire
 
 * The cobras' spit stays poison, not fire (decided 2026-10-12).
-* The first monster fire is the Anubis's bolt, after this plan: [anubis-fire-bolt](../anubis-fire-bolt.md).
+* The first monster fire is the Anubis's bolt, after this plan: [anubis-fire-bolt](anubis-fire-bolt.md).
 * Optional: the Bat of Shezmu / vampire bat, Sobek: no.
 
 ### Resistances
@@ -44,7 +44,7 @@ Implementer's choice, at least one:
 * **Fire ignores armour** (decided 2026-10-12): only the Fire Warding amulet (and a fire resistance) cuts it. Today
   `playerHitDamage` takes the armour's flat amount off the whole hit; split it: the fire share after resistances goes
   through untouched, the armour comes off the other shares only, and never below 0 for them (a mixed hit like the
-  Anubis bolt, [anubis-fire-bolt](../anubis-fire-bolt.md): armour can soak its blunt / pierce part, never
+  Anubis bolt, [anubis-fire-bolt](anubis-fire-bolt.md): armour can soak its blunt / pierce part, never
   its fire). Burning ticks ignore armour too. The journal / amulet text can say so ("Armour does not stop fire").
   Unit test: a 100% fire hit on an armoured player deals the same as on an unarmoured one.
   Write the split as "armour acts on the non-fire shares", whatever armour does: the

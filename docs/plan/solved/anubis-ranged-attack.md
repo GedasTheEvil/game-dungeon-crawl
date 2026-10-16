@@ -92,7 +92,7 @@ ranged attack, in files and code:
   16-bit PCM mono 22050 Hz). The grunt is a sample in IMA ADPCM, which Python's `wave` cannot read: decode it with
   `ffmpeg -i sounds/monsters/anubis_att.wav -f s16le -ac 1 -ar 22050 -` and mix it in at 0.7.
 * **Boss:** the same file (no per-monster pitch in the sound code). The fire bolt later swaps the shimmer for a
-  crackle ([anubis-fire-bolt](../anubis-fire-bolt.md)).
+  crackle ([anubis-fire-bolt](anubis-fire-bolt.md)).
 
 ## Open (for the implementer)
 
@@ -113,7 +113,7 @@ ranged attack, in files and code:
   (screenshots of the bolt in flight).
 * Still to do: `release` / `mouthY` measured from the swing, the bolt sound (both decided above), maybe a glow
   instead of the glob; the balance check (`threat`). Fire bolt and fireball look, after fire damage:
-  [anubis-fire-bolt](../anubis-fire-bolt.md).
+  [anubis-fire-bolt](anubis-fire-bolt.md).
 
 ## Implemented (2026-10-12)
 

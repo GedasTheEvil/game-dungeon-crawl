@@ -1,11 +1,11 @@
 # Anubis fire bolt
 
-Status: implemented 2026-10-16, waits for the user's play-test: `bin/game --play tests/play/anubis-fire-bolt.txt`.
-Built on [fire-damage](solved/fire-damage.md). From the user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks like fire (the torch flames).
+Status: solved 2026-10-16 (play-tested by the user).
+Built on [fire-damage](fire-damage.md). From the user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks like fire (the torch flames).
 
 ## Today
 
-* The Anubis bolt is the POC of [anubis-ranged-attack](solved/anubis-ranged-attack.md): `SpitRules` with no
+* The Anubis bolt is the POC of [anubis-ranged-attack](anubis-ranged-attack.md): `SpitRules` with no
   poison, `colour` `BOLT_RED`; guard {50, 1.4 tiles, 3 s}, boss {125, 2.0 tiles, 2.5 s}
   (`src/world/monster_kinds.cpp`). Its damage uses the type's melee mix (`ANUBIS_MIX`, 80 blunt / 20 pierce):
   `Dungeon::Venom::from` carries the type, the hit takes `attackMix`.
@@ -19,7 +19,7 @@ Built on [fire-damage](solved/fire-damage.md). From the user: once fire exists, 
 
 * **Damage:** the bolt is mostly fire with a stone knock: fire 100 : blunt 40 : pierce 20 (decided 2026-10-12), as a
   `DamageMix` in percent (adds up to 100) fire 62 / blunt 25 / pierce 13. Fire warding tops at 80%
-  ([fire-damage](solved/fire-damage.md)), and the physical share keeps the bolt a threat against it. Melee stays
+  ([fire-damage](fire-damage.md)), and the physical share keeps the bolt a threat against it. Melee stays
   `ANUBIS_MIX`. So `SpitRules` gets its own optional mix
   (`std::optional<DamageMix> mix`; nullopt: the type's `attackMix`, as the cobras keep), and the venom hit uses it.
   Damage numbers stay (50 / 125); the fire hit sets the player burning (fire-damage's rule).
@@ -41,7 +41,7 @@ Built on [fire-damage](solved/fire-damage.md). From the user: once fire exists, 
 * Does the sceptre-thrust clip (still to do in anubis-ranged-attack) matter here? No; the release frame only moves the
   spawn point.
 * Sound: a whoosh / crackle for the bolt if a fire sound exists by then, else the attack sound stays.
-* The cobras' spit stays poison; its green flame look is [venom-green-fire](solved/venom-green-fire.md) (a colour
+* The cobras' spit stays poison; its green flame look is [venom-green-fire](venom-green-fire.md) (a colour
   ramp per `FireStyle`). Whichever comes second reuses the other's glob-with-flames drawing
   (one shared drawing, own colours per projectile; decided 2026-10-12).
 
@@ -67,4 +67,4 @@ Built on [fire-damage](solved/fire-damage.md). From the user: once fire exists, 
 * Not done: balance sim (`monster-balance` is still a draft), threat unchanged (10 / 16); no fire sound exists, the
   attack sound stays.
 * Tests: `tests/unit/sim_test.cpp` (the bolt hit burns; the mixes; the boss burns longer),
-  `tests/scenarios/anubis_fire_bolt.txt` (screenshots: the fireball in flight lighting the floor, the player burning).
+  `tests/scenarios/solved/anubis_fire_bolt.txt` (parked; screenshots: the fireball in flight lighting the floor, the player burning).

@@ -1,6 +1,6 @@
-# The Anubis's fire bolt (plan anubis-fire-bolt; tests/levels/anubis_bolt): a small fireball trailing flames, lighting
-# the walls as it flies, a burst of fire where it hits; the player hit catches fire. The rules are in
-# tests/unit/sim_test.cpp.
+# Parked (plan anubis-fire-bolt solved; the fireball is a picture, the rules are in tests/unit/sim_test.cpp). The
+# Anubis's fire bolt (tests/levels/anubis_bolt): a small fireball trailing flames, lighting the walls as it flies, a
+# burst of fire where it hits; the player hit catches fire.
 seed 1
 level tests/levels/anubis_bolt
 xp 1000000

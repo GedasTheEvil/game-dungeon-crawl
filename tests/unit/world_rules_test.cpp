@@ -223,8 +223,8 @@ TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, t
 }
 
 TEST_CASE(
-	"the Anubis boss: mummies climb out of his coffins, his blow takes 129 HP of a level 55 player, the gold key") {
-	SimWorld world; // tests/levels/anubis_boss: six coffins round the boss
+	"the Anubis boss: his guards step out of the wall, his blow takes 129 HP of a level 55 player, the gold key") {
+	SimWorld world; // tests/levels/anubis_boss
 	REQUIRE(world.Load("tests/levels/anubis_boss"));
 	world.player.stats.AddXP(1800200, world.events);
 	world.WaitTicks(30);
@@ -236,8 +236,8 @@ TEST_CASE(
 	REQUIRE(world.WalkTo(9.f));
 	world.WaitTicks(10);
 	CHECK(world.dungeon.BossHealth() == 2400);
-	CHECK(world.dungeon.LivingMinions() >= 2);
-	// He walks up and strikes: a blow takes 129 HP (his mummies' blows less).
+	CHECK(world.dungeon.LivingMinions() >= 1);
+	// He walks up and strikes: a blow takes 129 HP (his guards' blows less).
 	int last = world.Hp();
 	bool blow = false;
 	for (int t = 0; t < 600 && world.player.Alive() && !blow; t++) {
@@ -247,7 +247,7 @@ TEST_CASE(
 	}
 	CHECK(blow);
 	world.Wait(4000);
-	CHECK(world.dungeon.LivingMinions() >= 3);
+	CHECK(world.dungeon.LivingMinions() >= 2);
 
 	world.player.god = true;
 	world.dungeon.HurtBoss(world.dungeon.BossHealth());
@@ -259,13 +259,13 @@ TEST_CASE(
 	CHECK(world.dungeon.KeysHeld() == 8); // gold
 }
 
-TEST_CASE("the Anubis boss's coffins stand round his tile, also in a game saved after his death") {
+TEST_CASE("the Anubis boss has no coffins, also in a game saved after his death (plan mummy-boss)") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/anubis_boss"));
 	world.player.stats.AddXP(112000, world.events);
 	world.player.god = true;
 	world.WaitTicks(30);
-	CHECK(world.dungeon.CoffinCount() == 6);
+	CHECK(world.dungeon.CoffinCount() == 0);
 	REQUIRE(world.Walk(3.5f));
 	world.Interact();
 	world.WaitTicks(5);
@@ -278,7 +278,62 @@ TEST_CASE("the Anubis boss's coffins stand round his tile, also in a game saved 
 	world.SaveAndLoad();
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
-	CHECK(world.dungeon.CoffinCount() == 6);
+	CHECK(world.dungeon.CoffinCount() == 0);
+}
+
+TEST_CASE("the Anubis boss's guards step out of the wall in front of the player, unhittable until out") {
+	SimWorld world; // tests/levels/anubis_wall: the player looks west, the west wall at col 0
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/anubis_wall"));
+	world.WaitTicks(2);
+	const Monster* guard = nullptr;
+	for (int i = 0; i < MAX_MONSTERS; i++)
+		if (world.dungeon.Monsters()[i].Active() && world.dungeon.Monsters()[i].Minion())
+			guard = &world.dungeon.Monsters()[i];
+	REQUIRE(guard != nullptr);
+	CHECK(guard->Type()->id == MonsterAnubis);
+	CHECK(guard->Col() == 1); // the free cell in front of the wall
+	CHECK(guard->Emerging());
+	CHECK(guard->Hidden());
+	CHECK(guard->LocalX() < -0.5f); // still in the stone
+	CHECK(world.Saw(MonsterAnubisBoss, CreatureMove::Summon));
+	CHECK_FALSE(world.dungeon.AttackNearest(100, DamageMix{100, 0, 0}, 6.f, -1)); // nothing to hit west yet
+	CHECK(guard->Health() == guard->MaxHealth());
+	world.Wait(WALL_EMERGE_MS);
+	CHECK_FALSE(guard->Emerging());
+	CHECK_FALSE(guard->Hidden());
+	CHECK(guard->LocalX() == doctest::Approx(guard->CentreX() - 1.5f).epsilon(0.01)); // on its cell, walking
+	CHECK(world.dungeon.AttackNearest(100, DamageMix{100, 0, 0}, 6.f, -1));
+	CHECK(guard->Health() < guard->MaxHealth());
+}
+
+TEST_CASE("the mummy priest: his large coffin, mummies climb out of the coffins round him, his bolt curses") {
+	SimWorld world; // tests/levels/mummy_priest: he lies at col 16, coffins at cols 13-15 and 17-19
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/mummy_priest"));
+	world.WaitTicks(5);
+	CHECK(world.dungeon.CoffinCount() == 7); // six for his mummies, his own large one
+	REQUIRE(world.WalkTo(12.5f));
+	world.WaitTicks(10);
+	CHECK(world.dungeon.BossHealth() == 2000);
+	CHECK(world.dungeon.LivingMinions() >= 2);
+	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::Summon));
+	REQUIRE(world.WalkTo(15.f));
+	world.WaitTicks(5);
+	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::Rise));
+	// Back away whenever he comes near: out of bite reach, in bolt range, until a bolt lays insanity (his bolt's curse
+	// only).
+	for (int t = 0; t < 4000 && !world.player.stats.curses.Has(Curse::Insanity); t++) {
+		const Monster* priest = world.dungeon.Boss();
+		const int away = priest != nullptr && priest->CentreX() > world.X() ? -1 : 1;
+		if (priest != nullptr && std::fabs(priest->CentreX() - world.X()) < 1.6f)
+			world.HoldWalk(away, UPDATE_TICK_MS);
+		else
+			world.Tick();
+	}
+	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::AttackRanged));
+	CHECK(world.player.stats.curses.Has(Curse::Insanity));
+	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::Curse));
 }
 
 TEST_CASE("a generated level and the campaign levels load and play") {

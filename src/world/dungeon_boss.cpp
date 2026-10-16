@@ -152,6 +152,17 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 		return true;
 	}
+	if (how == Summon::Wall) {
+		int wall = 0, cell = 0, wallRow = 0;
+		Monster* slot = wallSummonCell(wall, cell, wallRow) ? freeMonsterSlot() : nullptr;
+		if (slot == nullptr)
+			return false;
+		slot->Spawn(kind, cell, wallRow, monsterLinks(), sim.random->effects);
+		slot->MakeMinion(how, static_cast<float>(wall) + 0.5f);
+		sim.events->Play(WorldSound::RockRumble);
+		sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
+		return true;
+	}
 	if (how == Summon::Hatch) {
 		// The living egg clusters not right by the player, nearest the boss first; each summon takes the next one, so
 		// the brood comes from every side, not only from behind the boss.
@@ -194,4 +205,33 @@ bool Dungeon::summonMinion(const Monster& boss) {
 	sim.events->Play(how == Summon::Drop ? WorldSound::SummonDrop : WorldSound::SummonDig);
 	sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 	return true;
+}
+//======================================================================================
+// The wall the player looks at, so they see the statue step out of the stone: on screen first (WALL_SUMMON_SIGHT),
+// then farther.
+// A gate or wall spikes are no wall.
+bool Dungeon::wallSummonCell(int& outWall, int& outCell, int& outRow) const {
+	const auto playerCol = static_cast<int>(std::floor(mapX));
+	const auto row = static_cast<int>(std::floor(mapY + STANDING_EPSILON));
+	for (int pass = 0; pass < 2; pass++)
+		for (int dir : {playerFacing, -playerFacing}) {
+			int c = playerCol + dir;
+			while (IsInBounds(c, row) && !isSolidTile(MapAt(c, row)))
+				c += dir;
+			const int cell = c - dir;
+			if (!IsInBounds(c, row) || !isWall(MapAt(c, row)) || cell == playerCol || walkerBlocked(cell, row, true) ||
+				(pass == 0 && std::abs(c - playerCol) > WALL_SUMMON_SIGHT))
+				continue;
+			bool taken = false;
+			for (const Monster& mon : monsters)
+				taken = taken || (mon.Active() && mon.Alive() && mon.Row() == row &&
+								  static_cast<int>(std::floor(mon.CentreX())) == cell);
+			if (taken)
+				continue;
+			outWall = c;
+			outCell = cell;
+			outRow = row;
+			return true;
+		}
+	return false;
 }

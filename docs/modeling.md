@@ -102,6 +102,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `anubis.py` | Anubis, its boss | humanoid: primitive parts, Euler key poses, rigid props, dropped prop bone; ranged clip, climb |
 | `archeologist.py` | the player | humanoid turned 180 by the rig, root height from the lowest point, climb on IK targets |
 | `mummy.py` | mummy | humanoid with cloth strips (verlet), idle in a coffin and a rise clip |
+| `mummy_priest.py` | mummy priest (mummy boss) | a subclass of `mummy.py`'s `Mummy`: own head, props and poses; staff bone keyed per clip; ranged clip `--measure` |
 | `worm.py` | worm | surface of revolution, spine posed from a curve, hinged jaws |
 | `cobra.py` | cobra | tube along a spine chain posed by heading / elevation / roll, ranged clip |
 | `rat.py` | rat, giant rat | quadruped: one loft over bones, trot with two-bone IK, FK tail on the floor, jump, climb |
@@ -115,7 +116,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `plant.py` | plant | static monster, FK chains, poses eased off the floor by bisection |
 | `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw frames from shape keys |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
-| `decor.py` | corridor and water decorations, torch, coffin | static, tile units, lighting baked in |
+| `decor.py` | corridor and water decorations, torch, coffins | static, tile units, lighting baked in |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |
 | `mechanism.py` | key, gate, lever, rock, crack, dart trap | static, one texture per lock colour |
 

@@ -1,0 +1,6 @@
+; The Anubis boss's guards (tests/unit/world_rules_test.cpp, plan mummy-boss): one walled row. The player at col 3
+; looking west (as the game starts), the boss at col 7: his first guard steps out of the west wall (col 0) onto col 1,
+; on screen.
+##############
+#..S...N.....#
+##############

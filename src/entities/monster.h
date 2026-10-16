@@ -76,6 +76,7 @@ class Monster {
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
 	int summonMs = -1; // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
+	float wallX = 0.f; // Summon::Wall: tile-local x of the wall cell's centre it steps out of
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
 	bool inWater = false; // standing in half water (Dungeon::UpdateMonsters sets it every tick)
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
@@ -117,9 +118,10 @@ class Monster {
 	Monster& operator=(const Monster&) = delete;
 	void Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects);
 	void Clear(); // the slot is empty
-	// Summoned by a boss: comes out of the floor or the ceiling (Emerging) or climbs out of its coffin (Rising), then
-	// chases the player at once.
-	void MakeMinion(Summon how);
+	// Summoned by a boss: comes out of the floor, the ceiling or a wall (Emerging) or climbs out of its coffin
+	// (Rising), then chases the player at once. fromMapX: Summon::Wall, the map x of the wall cell's centre it steps
+	// out of (onto its spawn cell).
+	void MakeMinion(Summon how, float fromMapX = 0.f);
 	[[nodiscard]] bool Minion() const { return minion; }
 	// Still coming out after a summon: it does not act yet, it is drawn rising or dropping into place.
 	[[nodiscard]] bool Emerging() const;
@@ -235,9 +237,10 @@ class Monster {
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)
 	void DelayDive(); // no place to come up: try again later
 	[[nodiscard]] bool Burrowing() const { return burrow.phase != BurrowPhase::Up; }
-	// Diving or under the floor: no weapon hits it, the arrows fly over it.
+	// Diving or under the floor, or still in the wall it steps out of: no weapon hits it, the arrows fly over it.
 	[[nodiscard]] bool Hidden() const {
-		return burrow.phase == BurrowPhase::Dive || burrow.phase == BurrowPhase::Under;
+		return burrow.phase == BurrowPhase::Dive || burrow.phase == BurrowPhase::Under ||
+			   (summonedBy == Summon::Wall && Emerging());
 	}
 	// Once a tick while burrowing: the phases run on the clock; true on the tick it comes up (the hole opens).
 	bool UpdateBurrow();
@@ -296,7 +299,8 @@ class Monster {
 	void Animate(float px, float py);
 
 	// What DrawMonster (monster_draw.h) shows.
-	[[nodiscard]] float LocalX() const { return x; } // map units from the spawn tile's column
+	// Map units from the spawn tile's column; on its way out of a wall, between the wall and its cell.
+	[[nodiscard]] float LocalX() const;
 	[[nodiscard]] ModelState State() const { return state; }
 	[[nodiscard]] const ClipPlayback& Playback() const { return playback; }
 	[[nodiscard]] int Facing() const { return facing; }

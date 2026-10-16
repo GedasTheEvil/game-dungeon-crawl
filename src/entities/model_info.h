@@ -68,6 +68,12 @@ inline const ClipFiles ENTOMBED_CLIPS = {
 	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
 	{ModelState::Rise, "_rise", true, false}, {ModelState::Climb, "_climb", false, true}};
+// Entombed with a ranged attack (the mummy priest): the staff swing is the ranged clip too, as RANGED_CLIPS.
+inline const ClipFiles ENTOMBED_RANGED_CLIPS = {
+	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false},  {ModelState::AttackRanged, "_att", true, false},
+	{ModelState::Climb, "_climb", false, true}};
 // Coiled (the cobra): lies coiled (_idle) until it rears up (_rise, once), then walks; spits venom (_att_ranged, once).
 inline const ClipFiles COILED_CLIPS = {
 	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},

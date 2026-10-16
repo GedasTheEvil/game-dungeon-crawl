@@ -67,6 +67,17 @@ conventions, steps). New model notes go in the script's docstring, not here.
   Climb (`mummy_climb.md3`, 24 frames, loops, back to the camera): stiff diagonal gait, one cycle per 4 rungs (1/3 tile); a hand and
   the opposite foot grip and slide down linearly while the other pair reaches; analytic two-bone IK keyed as FK (`two_bone`,
   `climb_targets`), claws hooked over rungs 0.40 in front of the root. Prints `climbRise` / `climbGrip`; `-- --export-climb` writes only it.
+  The build is the class `Mummy`; `mummy_priest.py` subclasses it.
+* `tools/blender/models/mummy_priest.py` - the mummy boss (plan mummy-boss, "High Priest of Anubis"): `mummy.py`'s `Mummy`
+  subclassed (the same body, rig, strips, walk legs, die, idle, rise and climb) with a shaved priest's skull, a leopard-skin
+  sash, a gold scarab, gilded finger stalls, dark resin-stained linen (`mummy_priest.png`) and an ebony staff crowned with a
+  gold ankh round an amethyst. The staff has its own bone under `hand.R`, keyed on every frame by `after_clip`: in the fist,
+  slid forward through it in the swing, clutched along the body in the coffin, planted while he climbs out, dropped when
+  dying, slung on the back for the climb; slid along its shaft to stay above the floor. Attack 26 frames (melee and ranged):
+  `-- --measure` prints the ankh per frame and the release (frame 12: 0.52 high, 3.0 half widths ahead). KINDS scale 20.5
+  (a head taller than the mummy), climbRise 0.650, climbGrip 0.118. Lies in `decor.py`'s `coffin_large` at the mummy's
+  depth (`MUMMY_COFFIN_DEPTH`); `-- --coffin-check out_dir` as the mummy's. Sounds: `tools/audio/mummy_priest_sounds.py`
+  (`media/sounds/monsters/mummy_priest_{wake,att,att_ranged,die}.wav`: formant voice, a spoken curse over a hum).
 * `tools/blender/models/crocodile.py` - Nile crocodile, built like `rat.py` (faces +Y, rotA 180): one flat loft for the body
   blended over hips / chest / head bones plus a leaf `breath` bone (uniform scale about the belly, swells the flanks in the idle),
   flat-topped head with the eyes and the nostril bump raised on it, lower jaw on a hinge, interlocking teeth along the jaw line,
@@ -157,6 +168,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
   interior x +-0.30, y -0.22..-0.06, inner floor z 0.012, walls 0.016 thick, rim z 0.08, headrest and wedjat eyes at the head end (-X),
   lid leaning against the wall behind, torn wrappings over the front rim. `mummy.py` `COFFIN` uses the same numbers.
+  `coffin_large` (the mummy priest's, `build_coffin` with `COFFIN_STYLE`): interior x +-0.33, y -0.23..-0.05 (the same body
+  centre y -0.14), walls 0.018, rim z 0.09; black resin with gold rim caps, gold bands, gold-lined eyes and a gold ankh.
 * `tools/blender/models/ladder.py` - ladder pieces for `Ladder` cells, same tile units and baked lighting as `decor.py`: two styles
   (`wood`: acacia poles with rope-lashed rungs; `vine`: two twisted lianas with thin vines as holds), each with three
   interchangeable middle pieces `a`/`b`/`c` plus `top` (wood: roped to a beam between the side walls; vine: roots creeping along
@@ -235,8 +248,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, crocodile 24/22/30 + idle 32, scorpion 24/24/30).
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 87 model files in total.
+* Frame counts per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, scorpion 24/24/30).
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
 Paths relative to `media/models/` and `media/textures/`. UI screens are in `media/textures/ui/`, dungeon wall textures in `media/textures/dungeon/`, `plasma.png` in `media/textures/effects/`.
@@ -250,6 +263,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
 | Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
 | Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
+| Mummy priest (mummy boss) | `monsters/mummy_priest{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy_priest.png` | new (`mummy.py` subclassed: priest with an ankh staff, in a large coffin) |
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
 | Scorpion (monster) | `monsters/scorpion{,_att,_die}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
@@ -264,6 +278,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Water props (4) | `decorations/decor_water_<name>.md3` | `decorations/decor_water_<name>.png` | new (static, `decor.py`; half water only, swayed / bobbed by the engine) |
 | Mummy's coffin | `decorations/decor_coffin.md3` | `decorations/decor_coffin.png` | new (static, `decor.py`; only at mummy spawn tiles) |
+| Mummy priest's coffin | `decorations/decor_coffin_large.md3` | `decorations/decor_coffin_large.png` | new (static, `decor.py`; the mummy boss's) |
 | Wall torch | `decorations/decor_torch.md3` | `decorations/decor_torch.png` | new (static, `decor.py`); flame = `Fire::TORCH` particles |
 | Keys (4 lock colours) | `mechanisms/key.md3` | `mechanisms/key_<colour>.png` | new (static, `mechanism.py`) |
 | Key gate (4 lock colours) | `mechanisms/gate.md3` | `mechanisms/gate_<colour>.png` | new (static, `mechanism.py`) |

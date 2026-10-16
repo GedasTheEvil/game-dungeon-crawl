@@ -193,6 +193,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 	const float startX = mapX;
 	const float startY = mapY;
 	if (dirX != 0) {
+		playerFacing = dirX > 0 ? 1 : -1;
 		float probeX = mapX + dirX + (dirX > 0 ? PLAYER_BODY_HALF_WIDTH : -PLAYER_BODY_HALF_WIDTH);
 		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
 			mapX += dirX;

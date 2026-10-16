@@ -1,0 +1,5 @@
+; Mummy priest (tests/unit/world_rules_test.cpp, plan mummy-boss): he lies in his large coffin at col 16, coffins for
+; his mummies at cols 13-15 and 17-19. The player starts at col 10, with room to back away west from his bolts.
+#########################
+#.........S.....I.......#
+#########################

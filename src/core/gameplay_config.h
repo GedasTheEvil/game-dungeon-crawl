@@ -75,6 +75,9 @@ constexpr float CLIMBER_THREAT_FACTOR = 1.05f;
 constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on the rungs drops
 constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
 constexpr int MINION_EMERGE_MS = 700; // a summoned minion digs out or drops into place, then acts
+// An Anubis guard steps out of the wall (Summon::Wall, plan mummy-boss): slower, so the player sees the stone move.
+constexpr int WALL_EMERGE_MS = 1400;
+constexpr int WALL_SUMMON_SIGHT = 3; // cells from the player: a wall this near is on screen (1280x720 shows about 3)
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
 // monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster

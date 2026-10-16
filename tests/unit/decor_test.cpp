@@ -101,6 +101,8 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 				const DecorCell& prop = s.layout->decor[idx(i, j)];
 				if (t.type == MonsterSpawn && t.attr == MonsterMummy)
 					CHECK(prop.type == DECOR_COFFIN);
+				else if (t.type == MonsterSpawn && t.attr == MonsterMummyPriest)
+					CHECK(prop.type == DECOR_COFFIN_LARGE);
 				else if (isWaterProp(prop.type)) {
 					CHECK(inHalfWater(t));
 					CHECK(t.type == NoObject);
@@ -230,7 +232,7 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	LevelGrid grid;
 	for (int i = 1; i < 30; i++)
 		grid.set(i, 1, Tile{});
-	grid.set(10, 1, Tile{MonsterSpawn, MonsterAnubisBoss, 0});
+	grid.set(10, 1, Tile{MonsterSpawn, MonsterMummyPriest, 0});
 	LevelGrid scarab = grid;
 	scarab.set(10, 1, Tile{MonsterSpawn, MonsterBossScarab, 0}); // its scarabs dig out of the floor
 	for (int i = 1; i < 30; i++) {
@@ -243,12 +245,16 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	scatterDecor(grid.cells, "coffins", 30, *layout);
 	CHECK(layout->decor[idx(10 - MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
-	CHECK(layout->decor[idx(10, 1)].type == -1); // the boss's own tile stays bare
+	CHECK(layout->decor[idx(10, 1)].type == DECOR_COFFIN_LARGE); // he lies in his own, larger one
 
-	grid.set(10, 1, slainObject(MonsterAnubisBoss)); // after a load: the boss is dead, his chamber the same
+	grid.set(10, 1, slainObject(MonsterMummyPriest)); // after a load: the boss is dead, his chamber the same
 	CHECK(bossCoffinCell(grid.cells, 9, 1));
 	scatterDecor(grid.cells, "coffins", 30, *layout);
-	CHECK(layout->decor[idx(10, 1)].type == -1);
+	CHECK(layout->decor[idx(10, 1)].type == DECOR_COFFIN_LARGE); // his coffin stays, as a mummy's
+	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
+	LevelGrid anubis = grid;
+	anubis.set(10, 1, Tile{MonsterSpawn, MonsterAnubisBoss, 0}); // his guards step out of the walls (plan mummy-boss)
+	CHECK_FALSE(bossCoffinCell(anubis.cells, 9, 1));
 }
 
 TEST_CASE("every fire of a campaign level burns inside its cell: braziers, oil lamps and torches") {

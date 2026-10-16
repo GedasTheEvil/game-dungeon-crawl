@@ -173,6 +173,12 @@ TEST_CASE("a hit rolls the entries in order, one curse a hit; death and a new ga
 	CHECK_FALSE(player.stats.curses.Has(Curse::Slowness));
 	const CurseEntries none{};
 	CHECK_FALSE(player.Curse(none, events, rng));
+	const CurseEntries third = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 0},
+								CurseEntry{Curse::Palsy, CurseGrade::Lesser, 0},
+								CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 100}};
+	CHECK(player.Curse(third, events, rng)); // the first two miss, the third takes (the mummy priest's lists)
+	CHECK(player.stats.curses.Has(Curse::Fatigue));
+	CHECK_FALSE(player.stats.curses.Has(Curse::Insanity));
 
 	player.stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events);
 	player.TakeHit(10000, DamageMix{100, 0, 0}, events, true);
@@ -200,10 +206,21 @@ TEST_CASE("the monsters' curse lists: the strongest first, a boss above its kin,
 				CHECK(l[0].grade == CurseGrade::Greater); // the greater, rarer one first
 		}
 		const MonsterKind* kin = kind->isBoss() ? monsterKind(kind->kin) : nullptr;
+		auto sum = [](const CurseEntries& l) {
+			int n = 0;
+			for (const CurseEntry& e : l)
+				n += e.percent;
+			return n;
+		};
 		if (kin != nullptr && kin->meleeCurses[0].percent > 0)
-			CHECK(kind->meleeCurses.back().percent + kind->meleeCurses.front().percent >
-				  kin->meleeCurses.back().percent + kin->meleeCurses.front().percent);
+			CHECK(sum(kind->meleeCurses) > sum(kin->meleeCurses));
 	}
+	const MonsterKind* priest = monsterKind(MonsterMummyPriest);
+	REQUIRE(priest != nullptr);
+	CHECK(priest->meleeCurses[2].kind == Curse::Fatigue); // three a trigger, his alone
+	CHECK(priest->rangedCurses[0].kind == Curse::Insanity);
+	CHECK(priest->ranged->colour.r == BOLT_PURPLE.r);
+	CHECK(priest->ranged->colour.b == BOLT_PURPLE.b);
 	const MonsterKind* mummy = monsterKind(MonsterMummy);
 	REQUIRE(mummy != nullptr);
 	CHECK(mummy->meleeCurses[1].kind == Curse::Weakness);

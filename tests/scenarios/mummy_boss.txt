@@ -1,0 +1,31 @@
+# Plan mummy-boss (open): the High Priest of Anubis in his large coffin (tests/levels/mummy_priest), his mummies
+# climbing out of the coffins round him, his rise, his staff swing and purple bolt. Then the Anubis boss's guard
+# stepping out of the east wall (tests/levels/anubis_wall), mid-way and out. Pictures only: the rules are unit tests.
+seed 1
+god
+level tests/levels/mummy_priest
+walk right 3.3
+wait 300ms
+screenshot coffins
+walk to 15
+wait 400ms
+screenshot rise_mid
+wait 800ms
+screenshot risen
+walk left 0.4
+wait 600ms
+screenshot swing_a
+wait 300ms
+screenshot swing_b
+wait 300ms
+screenshot swing_c
+wait 1500ms
+screenshot later
+expect boss > 0
+level tests/levels/anubis_wall
+wait 50ms
+screenshot wall_start
+wait 650ms
+screenshot wall_mid
+wait 800ms
+screenshot wall_out

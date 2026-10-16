@@ -64,11 +64,14 @@ void Monster::Clear() {
 	drop.reset();
 }
 
-void Monster::MakeMinion(Summon how) {
+void Monster::MakeMinion(Summon how, float fromMapX) {
 	minion = true;
 	alerted = true;
 	summonMs = GameClock::now();
 	summonedBy = how;
+	wallX = fromMapX - static_cast<float>(col) - 0.5f;
+	if (how == Summon::Wall)
+		enter(ModelState::Move);
 	if (entombed() && how == Summon::Coffin) // lies in the coffin it was summoned into, climbs out (tomb, Rising)
 		wake();
 	else if (rises()) // no coffin to climb out of; a cobra summoned comes out reared up
@@ -81,13 +84,22 @@ void Monster::MakeMinion(Summon how) {
 }
 
 bool Monster::Emerging() const {
-	return summonMs >= 0 && summonedBy != Summon::Coffin && GameClock::now() - summonMs < MINION_EMERGE_MS;
+	const int emergeMs = summonedBy == Summon::Wall ? WALL_EMERGE_MS : MINION_EMERGE_MS;
+	return summonMs >= 0 && summonedBy != Summon::Coffin && GameClock::now() - summonMs < emergeMs;
+}
+
+// Out of the wall at an even pace, slowing as it steps onto its cell.
+float Monster::LocalX() const {
+	if (summonedBy != Summon::Wall || !Emerging())
+		return x;
+	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(WALL_EMERGE_MS);
+	return wallX + (x - wallX) * (1.f - (1.f - p) * (1.f - p));
 }
 
 // Digging out it rises from its full height under the floor, slowing at the top. Dropping it falls from the
 // ceiling, where a roosting flyer hangs out of sight, speeding up.
 float Monster::emergeLift() const {
-	if (!Emerging())
+	if (!Emerging() || summonedBy == Summon::Wall)
 		return 0.f;
 	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(MINION_EMERGE_MS);
 	if (summonedBy == Summon::Drop)

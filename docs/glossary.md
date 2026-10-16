@@ -68,12 +68,13 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | flyer | | flies along the row and crosses pits (bats); follows the player up or down to another row through open cells ([bats-high-ceiling](plan/solved/bats-high-ceiling.md)) | `Locomotion::Fly`, `Flight`, `FlightGoal`, `Dungeon::flightGoal` |
 | hold | | (planned, [crocodile-hold-bite](plan/crocodile-hold-bite.draft.opus.md)) the crocodile grabs the player in water and rolls | |
 | kin | | a boss's common monster (the Anubis boss: the Anubis guard, in the game "Anubis living statue"); a new ability for the kin goes to its boss too | `MonsterKind::kin` |
-| Egyptian names | | the game shows Egyptian names, the code and the editor keep the old ids and labels: guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia; amulets are named by their object (Jackal Tooth, Eye of Horus), labels by their effect | `MonsterKind::name`, `MonsterKind::label` |
+| Egyptian names | | the game shows Egyptian names, the code and the editor keep the old ids and labels: guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia, mummy priest = High Priest of Anubis; amulets are named by their object (Jackal Tooth, Eye of Horus), labels by their effect | `MonsterKind::name`, `MonsterKind::label` |
 | kind | | a monster type: one row of stats, model and rules | `MonsterKind`, `monsterKind` |
 | leap | | a walk-jumper's jump over a pit or a trap | `Leap` |
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
 | lurking | | ambush, entombed, submerged, coiled or floating, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
+| summon | | how a boss's minions arrive: dig out, drop, climb out of a coffin, hatch, step out of a wall | `Summon` |
 | reckless | | walks straight through traps and takes their damage | `Courage::Reckless` |
 | ranged attack | | a monster's shot from afar along its row: the cobras' spit, the Anubis's bolt; range in tiles; clip and sound suffix `_att_ranged` | `RangedRules`, `MonsterKind::ranged`, `Dungeon::MonsterShot`, `ModelState::AttackRanged` |
 | spit | | the cobras' ranged attack: a poisoned venom glob | `RangedRules::poison` |

@@ -12,7 +12,7 @@ const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	case Locomotion::Ambush:
 		return AMBUSH_CLIPS;
 	case Locomotion::Entombed:
-		return ENTOMBED_CLIPS;
+		return kind.ranged ? ENTOMBED_RANGED_CLIPS : ENTOMBED_CLIPS;
 	case Locomotion::Coiled:
 	case Locomotion::Burrow:
 		return COILED_CLIPS;

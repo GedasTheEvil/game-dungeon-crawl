@@ -51,9 +51,10 @@ enum class Courage : unsigned char {
 };
 
 // How a boss's minions arrive: they dig out of the floor or drop from the ceiling (Monster::Emerging), climb out
-// of a coffin by the boss (entombed minions, Monster::Rising), or hatch out of a living nest (BossRules::nest;
-// emerging like DigOut; none left, no summons).
-enum class Summon : unsigned char { DigOut, Drop, Coffin, Hatch };
+// of a coffin by the boss (entombed minions, Monster::Rising), hatch out of a living nest (BossRules::nest;
+// emerging like DigOut; none left, no summons), or step out of the wall the player faces, like statues out of the
+// stone (Summon::Wall, plan mummy-boss).
+enum class Summon : unsigned char { DigOut, Drop, Coffin, Hatch, Wall };
 
 // A boss summons minions around itself while it lives (Dungeon::updateBoss).
 struct BossRules {
@@ -70,10 +71,11 @@ struct BossRules {
 
 constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};
 constexpr Rgb BOLT_RED = {0.95f, 0.15f, 0.1f};
+constexpr Rgb BOLT_PURPLE = {0.7f, 0.2f, 0.95f}; // the mummy priest's curse
 
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
-// spat venom, the Anubis's bolt of light. The release and its height come from the model's ranged clip, measured by
-// its script's --measure (tools/blender/models/cobra.py, anubis.py).
+// spat venom, the Anubis's bolt of light, the mummy priest's spoken curse. The release and its height come from the
+// model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py, anubis.py).
 struct RangedRules {
 	int damage = 0; // on a hit, of the type's attack mix
 	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)

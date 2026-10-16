@@ -221,7 +221,10 @@ void Dungeon::drawSummonEffects() {
 		const int age = now - mon.SummonedMs();
 		if (!mon.Active() || mon.SummonedMs() < 0 || mon.SummonedBy() == Summon::Coffin || age >= Grit::BURST_MS)
 			continue;
-		const float x = (mon.CentreX() - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
+		// Out of a wall: the dust at the wall's face, where the stone gives.
+		const float wallFace = static_cast<float>(mon.Col()) + (mon.LocalX() > 0.f ? 1.f : 0.f); // a wall to the right
+		const float from = mon.SummonedBy() == Summon::Wall ? wallFace : mon.CentreX();
+		const float x = (from - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
 		const bool drop = mon.SummonedBy() == Summon::Drop;
 		const float y = static_cast<float>(mon.Row() - view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
 		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));

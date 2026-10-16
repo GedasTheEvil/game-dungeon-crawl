@@ -25,7 +25,7 @@ constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f,	0.f,   0.15f, 0.2f, 0.1f,
 											 0.1f, 0.06f, 0.14f, 0.2f,	0.1f,  0.2f,  0.2f, 0.2f,
-											 0.2f, 0.1f,  0.f,	 0.08f, 0.12f, 0.1f,  0.2f};
+											 0.2f, 0.1f,  0.f,	 0.08f, 0.12f, 0.1f,  0.2f, 0.f};
 
 bool inBounds(int col, int row) { return LevelGrid::inBounds(col, row); }
 int cellIndex(int col, int row) { return row * LEVEL_WIDTH + col; }
@@ -124,7 +124,7 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			cell = DecorCell{};
 			const Tile tile = at(cells, i, j);
 			if (entombed(spawnType(tile)) || bossCoffinCell(cells, i, j)) {
-				cell.type = DECOR_COFFIN;
+				cell.type = static_cast<int8_t>(isBossMonster(spawnType(tile)) ? DECOR_COFFIN_LARGE : DECOR_COFFIN);
 				continue;
 			}
 

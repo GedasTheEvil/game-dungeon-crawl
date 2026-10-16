@@ -47,9 +47,9 @@ struct CurseEntry {
 	CurseGrade grade = CurseGrade::Lesser;
 	int percent = 0;
 };
-// At most two per trigger, the strongest first: a hit rolls them in order, the first that takes is laid (one curse a
-// hit).
-using CurseEntries = std::array<CurseEntry, 2>;
+// At most three per trigger, the strongest first: a hit rolls them in order, the first that takes is laid (one curse
+// a hit). Most kinds use one or two; the mummy priest all three.
+using CurseEntries = std::array<CurseEntry, 3>;
 
 // The curses running on the player. Saved with PlayerStats.
 class Curses {

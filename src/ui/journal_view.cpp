@@ -188,8 +188,10 @@ void upArrow(float x, float y, Color c) {
 // "~40 HP": the journal writes rough numbers, the way they are learnt.
 int rough(int n) { return n < 20 ? n : static_cast<int>(std::lround(n / 5.0)) * 5; }
 
-// The curse its hits lay, the first one listed (melee first).
+// The curse its hits lay, the first one listed (melee first). The mummy priest's are too many to name.
 const char* curseMoveNote(const MonsterType& t) {
+	if (t.id == MonsterMummyPriest)
+		return "Curses with a touch of his staff, and speaks curses from afar.";
 	const CurseEntry& e = t.meleeCurses[0].percent > 0 ? t.meleeCurses[0] : t.rangedCurses[0];
 	switch (e.kind) {
 	case Curse::Weakness:
@@ -232,6 +234,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 			return "The dead climb out of their coffins at its call.";
 		case Summon::Hatch:
 			return "Her young hatch from the egg clusters around her.";
+		case Summon::Wall:
+			return "His statues step out of the stone at his call.";
 		}
 		break;
 	case CreatureMove::Heal:
@@ -243,6 +247,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	case CreatureMove::Rear:
 		return "Lies coiled, rears up when I come near.";
 	case CreatureMove::AttackRanged:
+		if (t.id == MonsterMummyPriest)
+			return "Speaks curses from afar, a bolt of purple light. A jump clears it.";
 		return t.ranged && !t.ranged->poison ? "Hurls a bolt of red light from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:

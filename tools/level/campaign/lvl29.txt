@@ -2,7 +2,9 @@
 ; The red key at the west end of the third hall opens the bridge to the east tower, the blue lever there the blue gate
 ; on the way back west. The great flooded hall: giant cobras in the water, the green key on the island. Behind the green
 ; gate the gold key in the east tomb, the gold gate at the end of the Anubis hall, then the rock-fall gauntlet down to
-; the exit. A drop in the exit hall leads to a hidden tomb.
+; the teleporter. A drop in that hall leads to a hidden tomb. The teleporter leads to the sealed tomb of the High
+; Priest of Anubis (the mummy boss, plan mummy-boss; here for now): his mummies climb out of the coffins round him, the
+; exit behind the boss gate.
 ; Resistance potions: a lesser one east of the blue gate, a greater one in the hall above the gold key's tomb.
 def L 12 2 0
 def % 12 3 0
@@ -57,14 +59,14 @@ def h 15 30 0
 #H....v...k.......v...^...v...J...v...H#
 #H############X#########################
 #H######################################
-#H#..............#######################
+#H#..............##O.........I.....Z.$E#
 #H#.H.....$.....1#######################
 #H##H###################################
 #H..H....v...n...v...^...Q...v...n....H#
 ######################################H#
 ##########################1.2..?......H#
 ######################################H#
-######E...^.H.v...u.......v....H.hv...H#
+######O...^.H.v...u.......v....H.hv...H#
 ############H#########X########H####.###
 ##z....v....H...$....#########.H..8...7#
 structure
@@ -104,7 +106,7 @@ structure
 #......................................#
 #.############.#########################
 #.######################################
-#.#..............#######################
+#.#..............##....................#
 #.#..............#######################
 #.##.###################################
 #......................................#

@@ -1,6 +1,6 @@
 # Mummy boss (mummy priest)
 
-Status: draft 2026-10-15, ready (needs nothing first). From the user: a boss for the mummy, and the Anubis boss
+Status: implemented 2026-10-16, waits for the play-test (see [Implemented](#implemented-2026-10-16)). Drafted 2026-10-15. From the user: a boss for the mummy, and the Anubis boss
 summons Anubis guards instead of mummies, so every boss's minions are its kin.
 
 ## Today
@@ -82,3 +82,35 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 * Scenario with screenshots: the mummy priest rising from its sarcophagus, its staff swing and bolt; guards stepping
   out of the wall in front of the player (mid-way and out). A `tests/play/mummy-boss.txt` for the play-test
   (`level 29`; the guards: `level 30`).
+
+## Implemented (2026-10-16)
+
+Play-test: `bin/game --play tests/play/mummy-boss.txt` (the priest; its first lines say how to see the guards), or
+`bin/game --level 29` (the priest behind the teleporter at the end), `bin/game --level 30` (the guards).
+
+* **Mummy priest** (`MonsterMummyPriest` = 25, glyph `I`: `h` is a local `def` in three level sources), "High Priest of
+  Anubis", `KINDS` in `monster_kinds.cpp`: threat 15, HP 2000, damage 120 every 1500 ms, speed 3, XP 27000, staff mix
+  80 blunt / 20 pierce, `bossResist(MUMMY_RESIST)`, poison immune, Reckless, trap share 10%, climbs. Bolt:
+  `BOLT_PURPLE`, 100 damage, 1.8 tiles, every 2.8 s, released at frame 12 of 26 of the staff swing
+  (`MUMMY_PRIEST_RELEASE*`, `mummy_priest.py --measure`). Entombed with a ranged clip: `ENTOMBED_RANGED_CLIPS`.
+  Minions: mummies from the coffins round him (2..4, every 2 s, cap 10).
+* **Curses:** `CurseEntries` holds 3; his melee and bolt lists as decided, the others leave the third empty.
+* **Large coffin:** decor `coffin_large` (`DECOR_COFFIN_LARGE`), placed on an entombed boss's spawn tile; the body
+  lies at the mummy's depth, so `MUMMY_COFFIN_DEPTH` serves both.
+* **Model:** `tools/blender/models/mummy_priest.py` subclasses the refactored `mummy.py` (the mummy's files unchanged);
+  sounds `tools/audio/mummy_priest_sounds.py`. Open from the model: the staff grazes the coffin's front wall for one
+  in-between frame of the rise; a few vertices of two loose strips dip into the coffin floor in the idle.
+* **Anubis boss:** minions Anubis guards, `Summon::Wall`, 1..2 alive, every 4 s, cap 4. `Dungeon::wallSummonCell`: on
+  the player's row, the wall the way they last walked (`playerFacing`, -1 at the start as the camera), within
+  `WALL_SUMMON_SIGHT` (3) cells first (1280x720 shows about 3 each side), then behind them, then farther; a gate is no
+  wall. The guard slides out over `WALL_EMERGE_MS` (1400) to the free cell in front (`Monster::LocalX`), hidden
+  (`Hidden`: no hit, arrows pass) until out; `RockRumble` and stone dust at the wall face. lvl30's boss coffins are
+  gone with it (the scatter only puts them round a `Summon::Coffin` boss).
+* **lvl29:** the old exit is a teleporter to a sealed tomb (row 10): the priest, the coffins round him, the boss gate,
+  the exit behind it. `bin/levelcheck` passes with no warnings on every level.
+* Journal: "Curses with a touch of his staff, and speaks curses from afar", "Speaks curses from afar, a bolt of purple
+  light", "His statues step out of the stone at his call".
+* Tests: unit (`world_rules_test.cpp`: the priest's coffins, mummies and cursing bolt, the guards out of the wall;
+  `curses_test.cpp`: the third entry, the priest's lists; `decor_test.cpp`); scenario `tests/scenarios/mummy_boss.txt`
+  (screenshots of the coffins, the rise, the swing and bolt, a guard out of the wall).
+* Not done: the open look of the wall emergence beyond dust and the slide (no stone tint).

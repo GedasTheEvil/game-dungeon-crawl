@@ -54,6 +54,11 @@ constexpr int POISON_IMMUNE = 100;
 constexpr float ANUBIS_RELEASE = 12.f / 25.f;
 constexpr float ANUBIS_RELEASE_Y = 0.44f;
 constexpr float ANUBIS_RELEASE_AHEAD = 2.6f;
+// The mummy priest's bolt leaves the staff head at frame 12 of 26 of his swing, pointing straight ahead
+// (tools/blender/models/mummy_priest.py --measure).
+constexpr float MUMMY_PRIEST_RELEASE = 12.f / 25.f;
+constexpr float MUMMY_PRIEST_RELEASE_Y = 0.52f;
+constexpr float MUMMY_PRIEST_RELEASE_AHEAD = 3.03f;
 constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
@@ -355,7 +360,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .kin = MonsterBat,
 	 .boss = {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
-	// Fast for its bulk, hits hard and slowly. Levels 11 on, the Anubis boss's minion (plan boss-rooms).
+	// Fast for its bulk, hits hard and slowly. Levels 11 on, the mummy priest's minion (plan mummy-boss).
 	{.id = MonsterMummy,
 	 .glyph = 'u',
 	 .name = "Mummy",
@@ -392,11 +397,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'N',
 	 .name = "Anubis",
 	 .label = "anubis boss",
-	 .description =
-		 "Anubis, the god himself, mummies climb out of the coffins round it; its death opens the boss gates. One boss "
-		 "per level",
-	 .note = "The guardian of the last tomb. The dead rise at his word.",
-	 .threat = 16.f, // the finale: four hits kill a level 30 player, plus its mummies and its bolt
+	 .description = "Anubis, the god himself, his living statues step out of the walls; his death opens the boss "
+					"gates. One boss per level",
+	 .note = "The guardian of the last tomb. His statues step out of the stone when he calls.",
+	 .threat = 16.f, // the finale: four hits kill a level 30 player, plus its guards and its bolt
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis_boss",
 	 .scale = 26,
@@ -422,7 +426,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
 	 .kin = MonsterAnubis,
-	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
+	 // A guard is twice a mummy's threat and outruns the player: fewer, and slower to come (plan mummy-boss).
+	 .boss = {MonsterAnubis, 1, 2, 4000, 4, 0, Summon::Wall}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
 	// outwalks it), in the water faster than the player walks on land. Levels 7-9 (plan crocodiles-and-flooded-cells).
 	// A long, low body: 1.5 tiles nose to tail.
@@ -689,6 +694,52 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .staminaDrainPct = 25,
 	 .riseMs = 600},
+	// The mummies' boss (plan mummy-boss): a high priest who read the curses at the funerals, a head taller than a
+	// mummy. Lies in a large coffin; a staff for blows and for a purple bolt; curses more and nastier than any other.
+	// lvl29 for now. The player comes there at about level 52: between Sobek and the Anubis boss.
+	{.id = MonsterMummyPriest,
+	 .glyph = 'I',
+	 .name = "High Priest of Anubis",
+	 .label = "mummy priest",
+	 .description = "High Priest of Anubis, the mummy boss, lies in a large coffin; staff and a purple bolt, many "
+					"curses; mummies climb out of the coffins round him; his death opens the boss gates. One boss per "
+					"level",
+	 .note = "He read the curses at the funerals. He still knows them all. The dead rise at his word.",
+	 .threat = 15.f, // between Sobek and the Anubis boss: the curses and the bolt, plus his mummies
+	 .model = "monsters/mummy_priest",
+	 .texture = "monsters/mummy_priest",
+	 .scale = 20.5f,
+	 .blood = {0.3f, 0.2f, 0.1f},
+	 .speed = 3,
+	 .maxHealth = 2000,
+	 .damage = 120,
+	 .attackMs = 1500,
+	 .xp = 27000,
+	 .attackMix = {80, 0, 20}, // the staff, its pointed foot
+	 .resist = bossResist(MUMMY_RESIST),
+	 .locomotion = Locomotion::Entombed,
+	 .courage = Courage::Reckless,
+	 .trapDamagePct = 10,
+	 .weight = 4,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .ranged = RangedRules{100, std::nullopt, 1.8f, 2800, MUMMY_PRIEST_RELEASE, MUMMY_PRIEST_RELEASE_Y, BOLT_PURPLE,
+						   MUMMY_PRIEST_RELEASE_AHEAD},
+	 // The staff, the embalmer's work on the body: the rot the natron was meant to stop, his mummies' curse, the
+	 // long sleep of the tomb. About 42% of the blows that land lay one.
+	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Greater, 12},
+					 CurseEntry{Curse::Weakness, CurseGrade::Greater, 12},
+					 CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 25}},
+	 // The bolt, the spoken curses of the funeral rites: the forbidden words of the Book of the Dead, bound in linen
+	 // like the dead, weighed against the feather and found wanting. About 58%.
+	 .rangedCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 20},
+					  CurseEntry{Curse::Slowness, CurseGrade::Lesser, 25},
+					  CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
+	 .riseMs = 1000,
+	 .climbs = true,
+	 .climbRise = 0.65f, // tools/blender/models/mummy_priest.py
+	 .climbGrip = 0.118f,
+	 .kin = MonsterMummy,
+	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
 }};
 
 constexpr bool validKinds() {

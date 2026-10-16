@@ -6,7 +6,7 @@ bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j);
 int Dungeon::CoffinCount() const {
 	int n = 0;
 	for (const DecorCell& cell : decoration.decor)
-		if (cell.type == DECOR_COFFIN)
+		if (cell.type == DECOR_COFFIN || cell.type == DECOR_COFFIN_LARGE)
 			n++;
 	return n;
 }

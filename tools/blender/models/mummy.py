@@ -23,6 +23,9 @@ World units: the engine scales walk frame 0's largest dimension H (metres) to SC
 1 world unit = H / SCALE metres (U below, set once the walk clip is built). The coffin (decor.py `coffin`, tile units)
 is laid out around the dormant body centre: COFFIN in tile units, see coffin_box().
 Loose bandage strips are short two-bone chains run by a small verlet simulation (gravity, lag, floor and coffin).
+
+The build is the class Mummy (one instance, MODEL); mummy_priest.py subclasses it (the mummy boss: the same body and
+clips, its own head, staff, poses, texture and coffin). The module-level names (CLIPS, build, export, ...) are MODEL's.
 """
 
 import importlib
@@ -41,22 +44,11 @@ import common  # noqa: E402
 importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
-COLL = "mummy_new"
-CLIPS = [("mummy_walk", "", 24), ("mummy_attack", "_att", 22), ("mummy_die", "_die", 30), ("mummy_idle", "_idle", 32), ("mummy_rise", "_rise", 26),
-         ("mummy_climb", "_climb", 24)]
-FRAMES = {name: n for name, _, n in CLIPS}
 TEX_SIZE = 1024
-REVIEW_VIEW = {"target": (0, 0.1, 0.9), "ortho": 2.4, "res": (360, 420)}
-
-SCALE = 18.0  # KINDS scale (monster_kinds.cpp): world units of walk frame 0's largest dimension
 TILE = 40.0  # world units per tile
-TOMB_DEPTH = 14.4  # world units: the dormant body is drawn this far towards the back wall
+TOMB_DEPTH = 14.4  # world units: the dormant body is drawn this far towards the back wall (MUMMY_COFFIN_DEPTH)
 SLIDE = (0.3, 0.75)  # rise t over which the engine slides TOMB_DEPTH to 0 (smoothstep)
 IDLE_BACK = 0.6  # world units from the floor to the dormant mummy's back
-# Coffin interior in tile units, relative to the dormant body centre (decor y = -0.14): x half length, y half depth,
-# wall thickness, inner floor and rim height (decor.py build_coffin uses the same numbers around y = -0.14).
-COFFIN = {"half_x": 0.30, "half_y": 0.08, "wall": 0.016, "floor": 0.012, "rim": 0.08}
-U = {"m": 0.1}  # metres per world unit, set from walk frame 0 (H / SCALE)
 
 COL = {
     "linen": (0.50, 0.43, 0.30),
@@ -72,7 +64,7 @@ COL = {
 # ---------------------------------------------------------------- materials
 
 
-def wrap_material(name, period, turn=1.0, base="linen", grime=1.0):
+def wrap_material(name, period, turn=1.0, base="linen", grime=1.0, pal=COL):
     """Spiral bandage: stripes along the pattern uv (v / period + u * turn), dark seams, grime and stains on top."""
     mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     nt = mat.node_tree
@@ -101,10 +93,10 @@ def wrap_material(name, period, turn=1.0, base="linen", grime=1.0):
     ramp = new("ShaderNodeValToRGB")
     ramp.color_ramp.interpolation = "LINEAR"
     els = ramp.color_ramp.elements
-    els[0].position, els[0].color = 0.0, (*COL["linen_dark"], 1)
-    els[1].position, els[1].color = 1.0, (*COL["linen_dark"], 1)
+    els[0].position, els[0].color = 0.0, (*pal["linen_dark"], 1)
+    els[1].position, els[1].color = 1.0, (*pal["linen_dark"], 1)
     for pos, c in ((0.08, base), (0.45, "linen_hi"), (0.85, base), (0.95, "linen_dark")):
-        els.new(pos).color = (*COL[c], 1)
+        els.new(pos).color = (*pal[c], 1)
     link(fr.outputs[0], ramp.inputs["Fac"])
     coord = new("ShaderNodeTexCoord")
     col = ramp.outputs["Color"]
@@ -128,7 +120,7 @@ def wrap_material(name, period, turn=1.0, base="linen", grime=1.0):
             link(r.outputs["Result"], inv.inputs[0])
             link(inv.outputs[0], mix.inputs["Factor"])
             mix.blend_type = "MULTIPLY"
-            mix.inputs["B"].default_value = (COL[tint][0] * 2.2, COL[tint][1] * 2.2, COL[tint][2] * 2.2, 1)
+            mix.inputs["B"].default_value = (pal[tint][0] * 2.2, pal[tint][1] * 2.2, pal[tint][2] * 2.2, 1)
         else:  # fine grime
             r.inputs["To Min"].default_value = lo
             mix.blend_type = "MULTIPLY"
@@ -137,19 +129,6 @@ def wrap_material(name, period, turn=1.0, base="linen", grime=1.0):
         col = mix.outputs["Result"]
     link(col, bsdf.inputs["Base Color"])
     return mat
-
-
-def materials():
-    M = {
-        "wrap": wrap_material("mummy_wrap", 0.055, 1.0),
-        "wrap_limb": wrap_material("mummy_wrap_limb", 0.04, -1.0),
-        "wrap_head": wrap_material("mummy_wrap_head", 0.032, 1.0),
-        "band": wrap_material("mummy_band", 0.5, 0.0, "linen", 1.0),
-        "strip": wrap_material("mummy_strip", 0.09, 0.0, "linen_hi", 1.3),
-    }
-    for name in ("pitch", "skin", "eye"):
-        M[name] = common.make_material("mummy_" + name, ("solid", name), COL)
-    return M
 
 
 # ---------------------------------------------------------------- skeleton
@@ -175,7 +154,7 @@ def joints(s):
 
 PELVIS = V((0, 0, 0.93))  # pelvis bone head = hip centre, in root space
 TORSO_CHAIN = ([(0, 0, 0.80), (0, 0, 1.04), (0, 0, 1.24), (0, 0, 1.46), (0, 0.01, 1.56), (0, 0.02, 1.82)], ["pelvis", "spine", "chest", "neck", "head"])
-# Loose strips: (name, parent, anchor, segment lengths).
+# Loose strips: (name, parent, anchor, segment lengths[, material]).
 STRIPS = [
     ("strip_arm.R", "forearm.R", (0.272, -0.035, 1.10), (0.12, 0.12)),
     ("strip_arm.L", "forearm.L", (-0.262, -0.012, 0.97), (0.10, 0.10)),
@@ -188,51 +167,13 @@ def strip_bones(name):
     return name + ".0", name + ".1"
 
 
-def build_rig(coll):
-    arm = bpy.data.armatures.new("mummy_rig")
-    rig = bpy.data.objects.new("mummy_rig", arm)
-    coll.objects.link(rig)
-    arm.display_type = "STICK"
-    rig.show_in_front = True
-    for o in bpy.context.view_layer.objects:
-        o.select_set(False)
-    bpy.context.view_layer.objects.active = rig
-    rig.select_set(True)
-    bpy.ops.object.mode_set(mode="EDIT")
-    eb = arm.edit_bones
-
-    def bone(name, head, tail, parent=None, connect=False):
-        b = eb.new(name)
-        b.head, b.tail = V(head), V(tail)
-        b.align_roll(V((1, 0, 0)).cross((b.tail - b.head).normalized()))
-        if parent:
-            b.parent = eb[parent]
-            b.use_connect = connect
-
-    bone("root", (0, 0, 0), (0, 0.3, 0))
-    bone("pelvis", PELVIS, (0, 0, 1.04), "root")
-    bone("spine", (0, 0, 1.04), (0, 0, 1.24), "pelvis", True)
-    bone("chest", (0, 0, 1.24), (0, 0, 1.46), "spine", True)
-    bone("neck", (0, 0, 1.46), (0, 0.01, 1.56), "chest", True)
-    bone("head", (0, 0.01, 1.56), (0, 0.02, 1.80), "neck", True)
-    for s in (1, -1):
-        j = joints(s)
-        n = lambda b: side_name(b, s)  # noqa: E731
-        bone(n("thigh"), j["hip"], j["knee"], "pelvis")
-        bone(n("shin"), j["knee"], j["ankle"], n("thigh"), True)
-        bone(n("foot"), j["ankle"], j["toe"], n("shin"), True)
-        bone(n("upperarm"), j["shoulder"], j["elbow"], "chest")
-        bone(n("forearm"), j["elbow"], j["wrist"], n("upperarm"), True)
-        bone(n("hand"), j["wrist"], j["hand_end"], n("forearm"), True)
-    for name, parent, a, (l0, l1) in STRIPS:
-        b0, b1 = strip_bones(name)
-        a = V(a)
-        bone(b0, a, a - V((0, 0, l0)), parent)
-        bone(b1, a - V((0, 0, l0)), a - V((0, 0, l0 + l1)), b0, True)
-    bpy.ops.object.mode_set(mode="OBJECT")
-    for pb in rig.pose.bones:
-        pb.rotation_mode = "XYZ"
-    return rig
+def edit_bone(eb, name, head, tail, parent=None, connect=False):
+    b = eb.new(name)
+    b.head, b.tail = V(head), V(tail)
+    b.align_roll(V((1, 0, 0)).cross((b.tail - b.head).normalized()))
+    if parent:
+        b.parent = eb[parent]
+        b.use_connect = connect
 
 
 # ---------------------------------------------------------------- body parts
@@ -248,23 +189,26 @@ def band(c, axis, rx, ry, thick=0.007, n=14):
     return tube([(p, thick, thick * 2.2) for p in pts], sub=1, n=4, ref=axis, closed=True)
 
 
-def build_body(b, M):
+TORSO = [  # torso sections (centre, rx, ry), hips to the neck
+    ((0, 0.0, 0.84), 0.10, 0.075),
+    ((0, 0.0, 0.92), 0.145, 0.100),
+    ((0, 0.0, 1.02), 0.128, 0.088),
+    ((0, 0.003, 1.12), 0.124, 0.085),
+    ((0, 0.008, 1.22), 0.142, 0.092),
+    ((0, 0.01, 1.32), 0.163, 0.098),
+    ((0, 0.0, 1.40), 0.178, 0.094),
+    ((0, -0.005, 1.45), 0.138, 0.080),
+    ((0, 0.0, 1.49), 0.064, 0.058),
+    ((0, 0.01, 1.55), 0.052, 0.052),
+    ((0, 0.015, 1.60), 0.050, 0.050),
+]
+
+
+def build_body(b, M, claw="skin"):
+    """Wrapped torso, legs, feet, arms and claws; claw = the fingers' material."""
     fwd = V((0, 1, 0))
     torso_w = chain_weights(*TORSO_CHAIN, 0.06)
-    torso = [
-        ((0, 0.0, 0.84), 0.10, 0.075),
-        ((0, 0.0, 0.92), 0.145, 0.100),
-        ((0, 0.0, 1.02), 0.128, 0.088),
-        ((0, 0.003, 1.12), 0.124, 0.085),
-        ((0, 0.008, 1.22), 0.142, 0.092),
-        ((0, 0.01, 1.32), 0.163, 0.098),
-        ((0, 0.0, 1.40), 0.178, 0.094),
-        ((0, -0.005, 1.45), 0.138, 0.080),
-        ((0, 0.0, 1.49), 0.064, 0.058),
-        ((0, 0.01, 1.55), 0.052, 0.052),
-        ((0, 0.015, 1.60), 0.050, 0.050),
-    ]
-    b.add(tube(torso, sub=2, n=18, ref=fwd, caps=(True, False), bulge=(0.03, 0)), M["wrap"], torso_w)
+    b.add(tube(TORSO, sub=2, n=18, ref=fwd, caps=(True, False), bulge=(0.03, 0)), M["wrap"], torso_w)
     for z, tilt, rx, ry in ((0.90, (0.12, 0.05, 1), 0.147, 0.103), (1.06, (-0.22, 0, 1), 0.130, 0.091), (1.20, (0.25, 0.08, 1), 0.143, 0.094),
                             (1.34, (-0.15, -0.1, 1), 0.168, 0.101)):
         b.add(band((0, 0.006, z), tilt, rx, ry), M["band"], torso_w)
@@ -326,44 +270,9 @@ def build_body(b, M):
             base = w + d * 0.058 + V((0, fy, 0))
             ln = 0.055 + 0.01 * (k in (1, 2))
             pts = [base, base + d * ln * 0.55 + palm_side * 0.006, base + d * ln * 0.9 + palm_side * 0.022, base + d * ln + palm_side * 0.04]
-            b.add(tube([(p, r, r) for p, r in zip(pts, (0.010, 0.009, 0.008, 0.005))], sub=1, n=6, ref=palm_side), M["skin"], n("hand"))
+            b.add(tube([(p, r, r) for p, r in zip(pts, (0.010, 0.009, 0.008, 0.005))], sub=1, n=6, ref=palm_side), M[claw], n("hand"))
         thumb = [w + d * 0.025 + V((0, 0.03, 0)), w + d * 0.05 + V((-0.006 * s, 0.045, 0)), w + d * 0.07 + V((-0.016 * s, 0.046, 0))]
-        b.add(tube([(p, r, r) for p, r in zip(thumb, (0.011, 0.009, 0.006))], sub=1, n=6, ref=V((1, 0, 0))), M["skin"], n("hand"))
-
-
-def build_head(b, M):
-    fwd = V((0, 1, 0))
-    head = [
-        ((0, 0.015, 1.555), 0.046, 0.046),
-        ((0, 0.03, 1.60), 0.062, 0.072),
-        ((0, 0.03, 1.64), 0.074, 0.088),
-        ((0, 0.02, 1.69), 0.084, 0.097),
-        ((0, 0.01, 1.735), 0.082, 0.093),
-        ((0, 0.0, 1.77), 0.064, 0.074),
-        ((0, -0.005, 1.79), 0.034, 0.040),
-    ]
-    b.add(tube(head, sub=2, n=16, ref=fwd, caps=(False, True), bulge=(0, 0.012)), M["wrap_head"],
-          lambda co: {"head": smoothstep(1.56, 1.61, co.z), "neck": 1 - smoothstep(1.56, 1.61, co.z)})
-    b.add(ellipsoid((0, 0.112, 1.662), (0.014, 0.014, 0.026), n=8, rings=5), M["wrap_head"], "head")  # nose
-    for z, tilt, rx, ry in ((1.745, (0, -0.15, 1), 0.083, 0.094), (1.615, (0.2, 0.25, 1), 0.068, 0.082)):
-        b.add(band((0, 0.012 if z > 1.7 else 0.03, z), tilt, rx, ry, 0.006, 14), M["band"], "head")
-    for s in (1, -1):
-        sock = V((0.034 * s, 0.100, 1.697))
-        b.add(ellipsoid(sock, (0.022, 0.014, 0.012), n=10, rings=5), M["pitch"], "head")
-        b.add(ellipsoid(sock + V((0.002 * s, 0.010, 0)), (0.0075, 0.005, 0.0065), n=8, rings=4), M["eye"], "head")
-    # Torn mouth: a dark gap with a dry lip.
-    b.add(ellipsoid((0.012, 0.096, 1.612), (0.03, 0.012, 0.008), n=10, rings=4), M["pitch"], "head")
-    b.add(ellipsoid((0.012, 0.101, 1.602), (0.024, 0.008, 0.004), n=8, rings=3), M["skin"], "head")
-
-
-def build_strips(b, M):
-    for name, _parent, a, (l0, l1) in STRIPS:
-        b0, b1 = strip_bones(name)
-        a = V(a)
-        keys = [(a + V((0, 0, 0.01)), 0.024, 0.004), (a - V((0, 0, l0 * 0.5)), 0.024, 0.003), (a - V((0, 0, l0)), 0.021, 0.003),
-                (a - V((0, 0, l0 + l1 * 0.6)), 0.017, 0.0025), (a - V((0, 0, l0 + l1)), 0.008, 0.002)]
-        ref = V((0, 1, 0)) if abs(a.x) > 0.1 else V((1, 0, 0))
-        b.add(tube(keys, sub=2, n=4, ref=ref), M["strip"], chain_weights([a + V((0, 0, 0.02)), a - V((0, 0, l0)), a - V((0, 0, l0 + l1))], [b0, b1], 0.02), "strip")
+        b.add(tube([(p, r, r) for p, r in zip(thumb, (0.011, 0.009, 0.006))], sub=1, n=6, ref=V((1, 0, 0))), M[claw], n("hand"))
 
 
 # ---------------------------------------------------------------- poses
@@ -376,7 +285,6 @@ READY = {  # arms reaching forward, hands drooping, hunched, head cocked: walk f
     "upperarm.L": (92, 0, 8), "forearm.L": (14, 0, 0), "hand.L": (-24, 0, 0),
     "spine": (-4, 0, 0), "chest": (-8, 0, 0), "neck": (-4, 0, 0), "head": (-6, 4, 9),
 }
-CROSSED = {}  # arms crossed on the chest, solved in solve_crossed()
 
 
 def pose(base=READY, **bones):
@@ -431,149 +339,6 @@ def aim(rig, name, target):
     return tuple(math.degrees(a) for a in pb.rotation_euler)
 
 
-def solve_crossed(rig):
-    """Osiride pose: forearms crossed high on the chest, fists at the opposite shoulders, the right arm in front."""
-    set_pose(rig, {})
-    for s in (1, -1):
-        n = lambda bn: side_name(bn, s)  # noqa: E731
-        CROSSED[n("upperarm")] = aim(rig, n("upperarm"), (0.215 * s, 0.10, 1.18))
-        front = 0.18 if s > 0 else 0.152
-        CROSSED[n("forearm")] = aim(rig, n("forearm"), (-0.07 * s, front, 1.35))
-        CROSSED[n("hand")] = aim(rig, n("hand"), (-0.15 * s, front - 0.01, 1.40))
-    set_pose(rig, {})
-
-
-def walk_pose(t):
-    """Stiff shamble at phase t (0 = passing pose): straight knees, the left foot dragged, a lurching sway."""
-    def leg(ph, drag):
-        c = math.cos(2 * math.pi * ph)
-        swing = max(0.0, math.sin(2 * math.pi * (ph - 0.5)))
-        th = 19 * c
-        knee = -4 - (20 if not drag else 11) * swing
-        foot = 6 * c - (8 if not drag else -6) * swing
-        return th, knee, foot
-
-    ph = t + 0.25
-    thL, knL, ftL = leg(ph, True)
-    thR, knR, ftR = leg(ph + 0.5, False)
-    w = 2 * math.pi * ph
-    c, sn = math.cos(w), math.sin(w)
-    return add(pose(),
-               thigh_L=(thL, 0, 0), shin_L=(knL, 0, 0), foot_L=(ftL, 0, 0),
-               thigh_R=(thR, 0, 0), shin_R=(knR, 0, 0), foot_R=(ftR, 0, 0),
-               pelvis=(-3, 7 * c, 4 * sn), spine=(0, -3 * c, -2 * sn), chest=(0, -4 * c, -2.5 * sn), head=(1.5 * math.sin(2 * w), 2 * c, 0),
-               upperarm_R=(3 * math.sin(2 * w + 0.6), 0, 0), upperarm_L=(3 * math.sin(2 * w), 0, 0),
-               hand_R=(4 * c, 0, 0), hand_L=(-4 * c, 0, 0))
-
-
-def walk_poses():
-    n = FRAMES["mummy_walk"]
-    return [(f, walk_pose(f / n)) for f in range(0, n + 1, 2)]
-
-
-def attack_poses():
-    """One slow two-handed smash: arms up over the head, a lurch forward and down, a hold, back to the reach."""
-    n = FRAMES["mummy_attack"]
-    w0 = walk_pose(0.0)
-    lift = add(w0, upperarm_R=(42, 0, 2), upperarm_L=(46, 0, -4), forearm_R=(12, 0, 0), forearm_L=(8, 0, 0), chest=(8, 0, 0), spine=(3, 0, 0), head=(4, 0, 0))
-    windup = pose(w0, upperarm_R=(172, 0, -8), upperarm_L=(168, 0, 10), forearm_R=(36, 0, 0), forearm_L=(32, 0, 0), hand_R=(10, 0, 0), hand_L=(14, 0, 0),
-                  pelvis=(2, 0, 0), spine=(8, 0, 0), chest=(12, 0, 0), neck=(4, 0, 0), head=(6, 0, 4),
-                  thigh_L=(4, 0, 0), shin_L=(-6, 0, 0), thigh_R=(-12, 0, 0), shin_R=(-4, 0, 0), foot_R=(8, 0, 0))
-    windup["root_loc"] = (0, -0.04, 0)
-    smash = pose(w0, upperarm_R=(62, 0, -4), upperarm_L=(58, 0, 6), forearm_R=(6, 0, 0), forearm_L=(4, 0, 0), hand_R=(-30, 0, 0), hand_L=(-34, 0, 0),
-                 pelvis=(-10, 0, 0), spine=(-14, 0, 0), chest=(-20, 0, 0), neck=(-6, 0, 0), head=(4, 0, 6),
-                 thigh_L=(30, 0, 0), shin_L=(-24, 0, 0), foot_L=(-4, 0, 0), thigh_R=(-18, 0, 0), shin_R=(-6, 0, 0), foot_R=(14, 0, 0))
-    smash["root_loc"] = (0, 0.12, 0)
-    hold = add(smash, chest=(-3, 0, 0), spine=(-2, 0, 0), upperarm_R=(-4, 0, 0), upperarm_L=(-4, 0, 0), hand_R=(-6, 0, 0), hand_L=(-6, 0, 0))
-    hold["root_loc"] = (0, 0.13, 0)
-    back = add(w0, chest=(-4, 0, 0), thigh_L=(10, 0, 0), shin_L=(-8, 0, 0))
-    back["root_loc"] = (0, 0.05, 0)
-    return [(0, w0), (4, lift), (9, windup), (11, windup), (13, smash), (16, hold), (19, back), (n, w0)]
-
-
-def die_poses():
-    """Recoils, the knees give, folds forward onto the floor and sags into a heap of linen."""
-    w0 = walk_pose(0.0)
-    hit = pose(w0, upperarm_R=(120, 0, -30), upperarm_L=(110, 0, 34), forearm_R=(30, 0, 0), forearm_L=(36, 0, 0), hand_R=(20, 0, 0), hand_L=(16, 0, 0),
-               spine=(8, 0, 0), chest=(14, 0, 0), neck=(8, 0, 0), head=(18, -10, -6), thigh_R=(6, 0, 0), shin_R=(-6, 0, 0))
-    hit["root_loc"] = (0, -0.06, 0)
-    buckle = pose({}, upperarm_R=(40, 0, -16), upperarm_L=(30, 0, 18), forearm_R=(30, 0, 0), forearm_L=(24, 0, 0),
-                  pelvis=(-6, 0, 4), spine=(-6, 0, 0), chest=(-10, 0, 0), neck=(-8, 0, 0), head=(-10, 14, 10),
-                  thigh_L=(40, 0, 0), shin_L=(-75, 0, 0), foot_L=(30, 0, 0), thigh_R=(36, 0, 0), shin_R=(-72, 0, 0), foot_R=(32, 0, 0))
-    kneel = pose({}, upperarm_R=(20, 0, -12), upperarm_L=(14, 0, 14), forearm_R=(20, 0, 0), forearm_L=(18, 0, 0),
-                 pelvis=(-14, 0, 4), spine=(-12, 0, 0), chest=(-14, 0, 0), neck=(-12, 0, 0), head=(-18, 16, 12),
-                 thigh_L=(14, 0, 0), shin_L=(-102, 0, 0), foot_L=(-30, 0, 0), thigh_R=(10, 0, 0), shin_R=(-98, 0, 0), foot_R=(-32, 0, 0))
-    kneel["root_loc"] = (0, 0.02, 0)
-    fold = pose({}, upperarm_R=(95, 0, -20), upperarm_L=(100, 0, 24), forearm_R=(14, 0, 0), forearm_L=(20, 0, 0), hand_R=(-20, 0, 0),
-                pelvis=(-55, 0, 6), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-6, 0, 0), head=(4, 30, 10),
-                thigh_L=(60, 0, 0), shin_L=(-120, 0, 0), foot_L=(-35, 0, 0), thigh_R=(56, 0, 0), shin_R=(-118, 0, 0), foot_R=(-35, 0, 0))
-    fold["root_loc"] = (0, 0.20, 0)
-    down = pose({}, upperarm_R=(140, 0, -38), upperarm_L=(130, 0, 42), forearm_R=(24, 0, 0), forearm_L=(36, 0, 0), hand_R=(-40, 0, 0), hand_L=(-30, 0, 0),
-                pelvis=(-80, 0, 8), spine=(-12, 0, 4), chest=(-10, 0, 0), neck=(4, 0, 0), head=(10, 60, 0),
-                thigh_L=(78, 0, 0), shin_L=(-140, 0, 0), foot_L=(-40, 0, 0), thigh_R=(74, 0, 0), shin_R=(-136, 0, 0), foot_R=(-40, 0, 0))
-    down["root_loc"] = (0, 0.42, 0)
-    heap = add(down, spine=(-4, 0, 6), chest=(-6, 0, -4), head=(4, 6, 0), upperarm_R=(6, 0, -8), upperarm_L=(4, 0, 10))
-    heap["root_loc"] = (0, 0.46, 0)
-    heap["root_scale"] = (1.15, 1.1, 0.62)
-    sag = dict(heap)
-    sag["root_scale"] = (1.08, 1.05, 0.78)
-    last = FRAMES["mummy_die"] - 1
-    return [(0, w0), (4, hit), (8, buckle), (11, kneel), (16, fold), (20, down), (25, sag), (last, heap)]
-
-
-def idle_pose(t):
-    """On its back (root (90, 0, 90): head at +X, face up), head propped on the headrest, arms crossed; a slow breath
-    and once per loop a twitch of the right hand and the head."""
-    w = 2 * math.pi * t
-    twitch = math.exp(-((t - 0.62) / 0.04) ** 2)
-    p = pose(CROSSED, root=(90, 0, 90), neck=(-26, 0, 0), head=(-20 - 3 * twitch, 0, -5 * twitch),
-             chest=(1.2 * math.sin(w), 0, 0), spine=(0.6 * math.sin(w), 0, 0),
-             foot_R=(4, 0, -4), foot_L=(2, 0, 5))
-    p = add(p, hand_R=(14 * twitch, 0, 0), forearm_R=(4 * twitch, 0, 0))
-    return p
-
-
-# Climbing a ladder (model +Y = the ladder; the engine draws it at rotA + 180, back to the camera). The engine sets the
-# frame from the height, one cycle per CLIMB["rungs"] rung spacings (a rung every tile / 12). Diagonal gait: a hand and
-# the opposite foot grip and slide down linearly by R per cycle (they stay on the rungs while the engine lifts the
-# body), the other pair lets go, draws back, rises stiffly and thrusts onto the rung R / 2 higher in the body frame.
-# Root at a fixed height; the lowest foot of frame 0 stands on the floor (rung 0). Positions in metres, body frame.
-CLIMB = {"rungs": 4, "grip_y": 0.40, "drop": 0.08}  # R in rungs; the hands' rung plane in front of the root
-CLIMB_HAND = {"x": 0.30, "top": 5, "lift": 0.12, "wrist": V((0, -0.05, 0.06)), "dir": V((0, 0.55, -0.83))}  # top: rung index
-CLIMB_FOOT = {"x": 0.17, "top": 2, "lift": 0.12, "back": 0.12}  # ankle `back` behind the rung plane (the ball of the foot on it)
-CLIMB_POLE = {"forearm": V((1.0, -0.2, -0.6)), "shin": V((0.35, 1.0, 0.6))}  # elbows out and down, knees forward and up
-CLIMB_PHASE = {"hand.L": 0.0, "foot.R": 0.0, "hand.R": 0.5, "foot.L": 0.5}  # v = 0: grips its top rung at frame 0
-REF = {}  # walk frame 0 (model space, metres): "H" height, "S" largest extent, "C" bounding box centre y, "rig_y"
-
-
-def rung():
-    return TILE * U["m"] / 12
-
-
-def climb_limb(v, top, lift):
-    """Body-frame height and draw-back (0..1) of a limb at its phase v: grip 0..0.5 sliding down by R / 2 at the
-    climbing rate, then let go, rise and thrust back in (0.5..1), a stiff three-part move."""
-    R = CLIMB["rungs"] * rung()
-    v %= 1.0
-    if v < 0.5:
-        return top - R * v, 0.0
-    t = (v - 0.5) / 0.5
-    return top - R / 2 + R / 2 * smoothstep(0.12, 0.85, t), smoothstep(0.0, 0.22, t) * (1 - smoothstep(0.72, 1.0, t))
-
-
-def climb_targets(p, ankle_lift):
-    """Body-frame wrist and ankle targets at cycle phase p, plus the reaching hands' draw-back / feet's toe droop."""
-    r, out = rung(), {}
-    for s in (1, -1):
-        hand, foot = side_name("hand", s), side_name("foot", s)
-        z, back = climb_limb(p + CLIMB_PHASE[hand], CLIMB_HAND["top"] * r, 1.0)
-        out[hand] = (V((CLIMB_HAND["x"] * s, CLIMB["grip_y"] - CLIMB_HAND["lift"] * back, z)) + CLIMB_HAND["wrist"], back)
-        z, back = climb_limb(p + CLIMB_PHASE[foot], CLIMB_FOOT["top"] * r, 1.0)
-        droop = back * smoothstep(0.0, 0.12, z - (CLIMB_FOOT["top"] - CLIMB["rungs"] / 2) * r)  # toes droop once off the rung
-        out[foot] = (V((CLIMB_FOOT["x"] * s, CLIMB["grip_y"] - CLIMB_FOOT["back"] - CLIMB_FOOT["lift"] * back, z + ankle_lift)), droop)
-    return out
-
-
 def two_bone(rig, upper, lower, target, pole):
     """Analytic two-bone IK: aim upper at the joint (bent towards pole, a direction) and lower at target."""
     bpy.context.view_layer.update()
@@ -588,154 +353,17 @@ def two_bone(rig, upper, lower, target, pole):
     aim(rig, lower, target)
 
 
-def climb_pose(p):
-    """FK trunk of the climb at phase p: stiff, leaning a little into the ladder, the head cocked up towards it and
-    jerking towards the reaching hand."""
-    w = 2 * math.pi * p
-    q = pose({}, pelvis=(-4, 0, 3 * math.sin(w)), spine=(-3, 0, -1.5 * math.sin(w)), chest=(-4, 0, -2 * math.sin(w)),
-             neck=(4, 0, 0), head=(10, 5, 8 * math.cos(w)))
-    q["root_loc"] = (0, 0, -CLIMB["drop"])
-    return q
+# ---------------------------------------------------------------- clip helpers
 
 
-def build_climb(rig, obj, act, skip):
-    """Key every frame: FK trunk, IK hands and feet on the rungs; frame N = frame 0."""
-    scene = bpy.context.scene
-    n = FRAMES["mummy_climb"]
-    rig.location = (0, REF["rig_y"], 0)
-    set_pose(rig, {})
-    bpy.context.view_layer.update()
-    ankle_lift = rig.pose.bones["foot.R"].head.z - lowest(obj, skip)  # ankle over the sole, rest pose
-    for f in range(n + 1):
-        p = f / n
-        set_pose(rig, climb_pose(p))
-        for name, (target, back) in climb_targets(p, ankle_lift).items():
-            s = 1 if name.endswith(".R") else -1
-            if name.startswith("hand"):
-                two_bone(rig, side_name("upperarm", s), side_name("forearm", s), target, CLIMB_POLE["forearm"] * V((s, 1, 1)))
-                d = CLIMB_HAND["dir"].lerp(V((0, 0.2, -1)), back)  # the claw hooks over the rung, hangs while reaching
-                aim(rig, name, target + d)
-            else:
-                two_bone(rig, side_name("thigh", s), side_name("shin", s), target, CLIMB_POLE["shin"] * V((s, 1, 1)))
-                aim(rig, name, target + V((0.002 * s, 0.16, -0.055 - 0.08 * back)))  # sole level on the rung, toes droop
-        for pb in rig.pose.bones:
-            if is_strip(pb.name):
-                continue
-            pb.keyframe_insert("rotation_euler", frame=f)
-            if pb.name == "root":
-                pb.keyframe_insert("location", frame=f)
-                pb.keyframe_insert("scale", frame=f)
-    scene.frame_set(0)
-    r, R, H = rung(), CLIMB["rungs"] * rung(), REF["H"]
-    G = CLIMB["grip_y"] + REF["rig_y"]  # model space
-    print("mummy climb: frames {}, tile {:.4f} m, rung {:.4f} m, R {:.4f} m ({} rungs), G {:.4f}, C {:.4f}, H {:.4f}, S_ref {:.4f}".format(
-        n, TILE * U["m"], r, R, CLIMB["rungs"], G, REF["C"], H, REF["S"]))
-    print("mummy climb: climbRise = {:.4f}, climbGrip = {:.4f}, frame 0 lowest {:.4f} m".format(R / H, (G - REF["C"]) / H, lowest(obj)))
-
-
-# ---------------------------------------------------------------- strip simulation
-
-
-def coffin_box():
-    """Coffin solids in model space (metres, the dormant frame: body centre at the origin, +Y = towards the camera):
-    [(min, max)] for the floor slab and the four walls, plus the inner floor height."""
-    t = TILE * U["m"]
-    hx, hy, w, fl, rim = (COFFIN[k] * t for k in ("half_x", "half_y", "wall", "floor", "rim"))
-    boxes = [((-hx - w, -hy - w, -1.0), (hx + w, hy + w, fl)),  # floor slab
-             ((-hx - w, hy, 0), (hx + w, hy + w, rim)), ((-hx - w, -hy - w, 0), (hx + w, -hy, rim)),  # front, back
-             ((hx, -hy, 0), (hx + w, hy, rim)), ((-hx - w, -hy, 0), (-hx, hy, rim))]  # ends
-    return boxes, fl
-
-
-def collide(p, coffin):
-    """Push a strip particle (dormant-frame coordinates) out of the floor and the coffin."""
-    p = V(p)
-    floor = 0.006
-    if coffin:
-        boxes, _fl = coffin_box()
-        for lo, hi in boxes:
-            if all(lo[i] <= p[i] <= hi[i] for i in range(2)):
-                floor = max(floor, hi[2] + 0.008)
-    p.z = max(p.z, floor)
-    return p
-
-
-def constrain(parent, p, length, coffin):
-    """Put p at length from parent, out of the floor / coffin; a lifted point slides sideways to keep the length."""
-    d = p - parent
-    if d.length < 1e-6:
-        d = V((0, 0, -1))
-    p = parent + d.normalized() * length
-    q = collide(p, coffin)
-    if q.z > p.z + 1e-6:
-        h = V((d.x, d.y, 0))
-        h = h.normalized() if h.length > 1e-6 else V((1, 0, 0))
-        r = math.sqrt(max(length * length - (q.z - parent.z) ** 2, 0.0))
-        q = V((parent.x + h.x * r, parent.y + h.y * r, q.z))
-    return q
-
-
-def simulate_strips(rig, act, frames, cycles=1, shift=None, coffin=False, blend_to=None, state=None, start=None):
-    """Verlet strips: each chain's tip and joint follow its anchor with lag under gravity. shift(f) = model-space offset
-    of the coffin frame (the engine slide undone). Keys every frame of the last cycle; blend_to = (from_frame, eulers)
-    eases the strips into given Euler angles by the last frame, start = eulers for frame 0. state carries the particles
-    over from the clip before (it is updated in place); returns {frame: {bone: euler degrees}}."""
-    scene = bpy.context.scene
-    rig.animation_data.action = act
-    g, damp = 9.8 / 14.0 ** 2, 0.80
-    state = {} if state is None else state
-    shift = shift or (lambda f: V())
-    out = {}
-    for c in range(cycles):
-        for f in range(frames):
-            scene.frame_set(f)
-            off = rig.matrix_world.translation + shift(f)
-            for name, _parent, _a, (l0, l1) in STRIPS:
-                b0, b1 = strip_bones(name)
-                pb0 = rig.pose.bones[b0]
-                anchor = pb0.head + off
-                if name not in state:
-                    p1 = anchor - V((0, 0, l0))
-                    p2 = p1 - V((0, 0, l1))
-                    state[name] = [p1, p2, p1.copy(), p2.copy()]
-                p1, p2, q1, q2 = state[name]
-                n1 = p1 + (p1 - q1) * damp - V((0, 0, g))
-                n2 = p2 + (p2 - q2) * damp - V((0, 0, g))
-                for _ in range(4):
-                    n1 = constrain(anchor, n1, l0, coffin)
-                    n2 = constrain(n1, n2, l1, coffin)
-                state[name] = [n1, n2, p1, p2]
-                if c < cycles - 1:
-                    continue
-                for pb, a, tip in ((pb0, anchor, n1), (rig.pose.bones[b1], n1, n2)):
-                    bpy.context.view_layer.update()
-                    m = pb.matrix.copy()
-                    q = m.col[1].to_3d().normalized().rotation_difference((tip - a).normalized())
-                    new = (q.to_matrix() @ m.to_3x3().normalized()).to_4x4()
-                    new.translation = m.translation
-                    pb.matrix = new
-                    pb.scale = (1, 1, 1)  # the setter takes up the shear of a squashed root (die)
-                    bpy.context.view_layer.update()
-                    if start and f == 0:
-                        pb.rotation_euler = [math.radians(x) for x in start[pb.name]]
-                    if blend_to and f >= blend_to[0]:
-                        k = smoothstep(blend_to[0], frames - 1, f)
-                        target = Euler([math.radians(x) for x in blend_to[1][pb.name]], "XYZ").to_quaternion()
-                        pb.rotation_euler = pb.rotation_euler.to_quaternion().slerp(target, k).to_euler("XYZ", pb.rotation_euler)
-                    pb.location = (0, 0, 0)
-                    pb.keyframe_insert("rotation_euler", frame=f)
-                    pb.keyframe_insert("location", frame=f)
-                    pb.keyframe_insert("scale", frame=f)
-                    out.setdefault(f, {})[pb.name] = tuple(math.degrees(x) for x in pb.rotation_euler)
-    return out
-
-
-# ---------------------------------------------------------------- clip assembly
+def group_verts(obj, pred):
+    """Vertices weighted more than half to the vertex groups whose name passes pred."""
+    groups = {g.index for g in obj.vertex_groups if pred(g.name)}
+    return {v.index for v in obj.data.vertices if sum(ge.weight for ge in v.groups if ge.group in groups) > 0.5}
 
 
 def strip_verts(obj):
-    groups = {g.index for g in obj.vertex_groups if is_strip(g.name)}
-    return {v.index for v in obj.data.vertices if sum(ge.weight for ge in v.groups if ge.group in groups) > 0.5}
+    return group_verts(obj, is_strip)
 
 
 def evaluated(obj):
@@ -792,12 +420,6 @@ def hip_of(rig, p):
     return rig.matrix_world.translation + V(p.get("root_loc", (0, 0, 0))) + r @ PELVIS
 
 
-def slide(f):
-    """Model-space offset of the coffin frame at rise frame f: the engine's slide towards the camera, undone."""
-    t = f / (FRAMES["mummy_rise"] - 1)
-    return V((0, -TOMB_DEPTH * U["m"] * smoothstep(SLIDE[0], SLIDE[1], t), 0))
-
-
 def lerp_pose(keys, f):
     """Catmull-Rom through key poses (frame, pose); angles, root and the "hip" point."""
     frames = [k for k, _ in keys]
@@ -814,309 +436,750 @@ def lerp_pose(keys, f):
     return out
 
 
-def rise_keys(rig, idle0, walk0):
-    """Rise key poses in the coffin frame (dormant body centre at the origin, metres). "hip" = hip centre."""
-    u = U["m"]
-    t = TILE * u
-    rim_y, rim_out, rim_z = COFFIN["half_y"] * t, (COFFIN["half_y"] + COFFIN["wall"]) * t, COFFIN["rim"] * t
-    hip0 = hip_of(rig, idle0)
-    end = hip_of(rig, walk0) - slide(FRAMES["mummy_rise"] - 1)
-    seat_y = 0.5 * (rim_y + rim_out) + 0.01
-    arms_low = dict(upperarm_R=(-12, 0, 4), upperarm_L=(-12, 0, -4), forearm_R=(30, 0, 0), forearm_L=(30, 0, 0), hand_R=(-30, 0, 0), hand_L=(-30, 0, 0))
+# ---------------------------------------------------------------- the model
 
-    def k(base, hip, **bones):
-        p = pose(base, **bones)
-        p["hip"] = tuple(hip)
+
+class Mummy:
+    """The mummy's build: geometry, poses and clips. Subclasses (mummy_priest.py) override the parts that differ."""
+
+    name = "mummy"
+    clip_list = [("walk", "", 24), ("attack", "_att", 22), ("die", "_die", 30), ("idle", "_idle", 32), ("rise", "_rise", 26), ("climb", "_climb", 24)]
+    review_view = {"target": (0, 0.1, 0.9), "ortho": 2.4, "res": (360, 420)}
+    scale = 18.0  # KINDS scale (monster_kinds.cpp): world units of walk frame 0's largest dimension
+    # Coffin interior in tile units, relative to the dormant body centre (decor y = -0.14): x half length, y half depth,
+    # wall thickness, inner floor and rim height (decor.py build_coffin uses the same numbers around y = -0.14).
+    coffin = {"half_x": 0.30, "half_y": 0.08, "wall": 0.016, "floor": 0.012, "rim": 0.08}
+    coffin_prop = "coffin"  # decor.py prop the dormant body lies in
+    col = COL
+    strips = STRIPS
+    ready = READY
+    head_boost = ((0, 0.03, 1.67), 1.8)  # UV space boost for the head (centre, factor)
+    # Climbing a ladder (model +Y = the ladder; the engine draws it at rotA + 180, back to the camera). The engine sets
+    # the frame from the height, one cycle per CLIMB["rungs"] rung spacings (a rung every tile / 12). Diagonal gait: a
+    # hand and the opposite foot grip and slide down linearly by R per cycle (they stay on the rungs while the engine
+    # lifts the body), the other pair lets go, draws back, rises stiffly and thrusts onto the rung R / 2 higher in the
+    # body frame. Root at a fixed height; the lowest foot of frame 0 stands on the floor (rung 0). Positions in metres,
+    # body frame.
+    climb = {"rungs": 4, "grip_y": 0.40, "drop": 0.08}  # R in rungs; the hands' rung plane in front of the root
+    climb_hand = {"x": 0.30, "top": 5, "lift": 0.12, "wrist": V((0, -0.05, 0.06)), "dir": V((0, 0.55, -0.83))}  # top: rung index
+    climb_foot = {"x": 0.17, "top": 2, "lift": 0.12, "back": 0.12}  # ankle `back` behind the rung plane (the ball of the foot on it)
+    climb_pole = {"forearm": V((1.0, -0.2, -0.6)), "shin": V((0.35, 1.0, 0.6))}  # elbows out and down, knees forward and up
+    climb_phase = {"hand.L": 0.0, "foot.R": 0.0, "hand.R": 0.5, "foot.L": 0.5}  # v = 0: grips its top rung at frame 0
+
+    def __init__(self):
+        self.U = {"m": 0.1}  # metres per world unit, set from walk frame 0 (H / scale)
+        self.REF = {}  # walk frame 0 (model space, metres): "H" height, "S" largest extent, "C" bounding box centre y, "rig_y"
+        self.crossed = {}  # arms crossed on the chest, solved in solve_crossed()
+
+    # ------------------------------------------------ names
+    @property
+    def CLIPS(self):
+        """[(action, file suffix, frames)] as common.export_files and render_sheet.py take them."""
+        return [(self.act(k), suffix, n) for k, suffix, n in self.clip_list]
+
+    def act(self, key):
+        return self.name + "_" + key
+
+    def n(self, key):
+        return next(n for k, _, n in self.clip_list if k == key)
+
+    @property
+    def coll(self):
+        return self.name + "_new"
+
+    # ------------------------------------------------ materials and geometry
+    def materials(self):
+        pal, p = self.col, self.name + "_"
+        M = {
+            "wrap": wrap_material(p + "wrap", 0.055, 1.0, pal=pal),
+            "wrap_limb": wrap_material(p + "wrap_limb", 0.04, -1.0, pal=pal),
+            "wrap_head": wrap_material(p + "wrap_head", 0.032, 1.0, pal=pal),
+            "band": wrap_material(p + "band", 0.5, 0.0, "linen", 1.0, pal=pal),
+            "strip": wrap_material(p + "strip", 0.09, 0.0, "linen_hi", 1.3, pal=pal),
+        }
+        for name in ("pitch", "skin", "eye"):
+            M[name] = common.make_material(p + name, ("solid", name), pal)
+        return M
+
+    def build_rig(self, coll):
+        arm = bpy.data.armatures.new(self.name + "_rig")
+        rig = bpy.data.objects.new(self.name + "_rig", arm)
+        coll.objects.link(rig)
+        arm.display_type = "STICK"
+        rig.show_in_front = True
+        for o in bpy.context.view_layer.objects:
+            o.select_set(False)
+        bpy.context.view_layer.objects.active = rig
+        rig.select_set(True)
+        bpy.ops.object.mode_set(mode="EDIT")
+        eb = arm.edit_bones
+
+        def bone(name, head, tail, parent=None, connect=False):
+            edit_bone(eb, name, head, tail, parent, connect)
+
+        bone("root", (0, 0, 0), (0, 0.3, 0))
+        bone("pelvis", PELVIS, (0, 0, 1.04), "root")
+        bone("spine", (0, 0, 1.04), (0, 0, 1.24), "pelvis", True)
+        bone("chest", (0, 0, 1.24), (0, 0, 1.46), "spine", True)
+        bone("neck", (0, 0, 1.46), (0, 0.01, 1.56), "chest", True)
+        bone("head", (0, 0.01, 1.56), (0, 0.02, 1.80), "neck", True)
+        for s in (1, -1):
+            j = joints(s)
+            n = lambda b: side_name(b, s)  # noqa: E731
+            bone(n("thigh"), j["hip"], j["knee"], "pelvis")
+            bone(n("shin"), j["knee"], j["ankle"], n("thigh"), True)
+            bone(n("foot"), j["ankle"], j["toe"], n("shin"), True)
+            bone(n("upperarm"), j["shoulder"], j["elbow"], "chest")
+            bone(n("forearm"), j["elbow"], j["wrist"], n("upperarm"), True)
+            bone(n("hand"), j["wrist"], j["hand_end"], n("forearm"), True)
+        for name, parent, a, (l0, l1), *_ in self.strips:
+            b0, b1 = strip_bones(name)
+            a = V(a)
+            bone(b0, a, a - V((0, 0, l0)), parent)
+            bone(b1, a - V((0, 0, l0)), a - V((0, 0, l0 + l1)), b0, True)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        for pb in rig.pose.bones:
+            pb.rotation_mode = "XYZ"
+        return rig
+
+    def build_body(self, b, M):
+        build_body(b, M)
+
+    def build_head(self, b, M):
+        fwd = V((0, 1, 0))
+        head = [
+            ((0, 0.015, 1.555), 0.046, 0.046),
+            ((0, 0.03, 1.60), 0.062, 0.072),
+            ((0, 0.03, 1.64), 0.074, 0.088),
+            ((0, 0.02, 1.69), 0.084, 0.097),
+            ((0, 0.01, 1.735), 0.082, 0.093),
+            ((0, 0.0, 1.77), 0.064, 0.074),
+            ((0, -0.005, 1.79), 0.034, 0.040),
+        ]
+        b.add(tube(head, sub=2, n=16, ref=fwd, caps=(False, True), bulge=(0, 0.012)), M["wrap_head"],
+              lambda co: {"head": smoothstep(1.56, 1.61, co.z), "neck": 1 - smoothstep(1.56, 1.61, co.z)})
+        b.add(ellipsoid((0, 0.112, 1.662), (0.014, 0.014, 0.026), n=8, rings=5), M["wrap_head"], "head")  # nose
+        for z, tilt, rx, ry in ((1.745, (0, -0.15, 1), 0.083, 0.094), (1.615, (0.2, 0.25, 1), 0.068, 0.082)):
+            b.add(band((0, 0.012 if z > 1.7 else 0.03, z), tilt, rx, ry, 0.006, 14), M["band"], "head")
+        self.build_face(b, M)
+
+    def build_face(self, b, M):
+        for s in (1, -1):
+            sock = V((0.034 * s, 0.100, 1.697))
+            b.add(ellipsoid(sock, (0.022, 0.014, 0.012), n=10, rings=5), M["pitch"], "head")
+            b.add(ellipsoid(sock + V((0.002 * s, 0.010, 0)), (0.0075, 0.005, 0.0065), n=8, rings=4), M["eye"], "head")
+        # Torn mouth: a dark gap with a dry lip.
+        b.add(ellipsoid((0.012, 0.096, 1.612), (0.03, 0.012, 0.008), n=10, rings=4), M["pitch"], "head")
+        b.add(ellipsoid((0.012, 0.101, 1.602), (0.024, 0.008, 0.004), n=8, rings=3), M["skin"], "head")
+
+    def build_strips(self, b, M):
+        for name, _parent, a, (l0, l1), *mat in self.strips:
+            b0, b1 = strip_bones(name)
+            a = V(a)
+            keys = [(a + V((0, 0, 0.01)), 0.024, 0.004), (a - V((0, 0, l0 * 0.5)), 0.024, 0.003), (a - V((0, 0, l0)), 0.021, 0.003),
+                    (a - V((0, 0, l0 + l1 * 0.6)), 0.017, 0.0025), (a - V((0, 0, l0 + l1)), 0.008, 0.002)]
+            ref = V((0, 1, 0)) if abs(a.x) > 0.1 else V((1, 0, 0))
+            b.add(tube(keys, sub=2, n=4, ref=ref), M[mat[0] if mat else "strip"],
+                  chain_weights([a + V((0, 0, 0.02)), a - V((0, 0, l0)), a - V((0, 0, l0 + l1))], [b0, b1], 0.02), "strip")
+
+    def build_extras(self, b, M, rig):
+        """Parts beyond the mummy's body (the priest's staff, sash, amulet); none for the mummy."""
+
+    # ------------------------------------------------ poses
+    def solve_crossed(self, rig):
+        """Osiride pose: forearms crossed high on the chest, fists at the opposite shoulders, the right arm in front."""
+        set_pose(rig, {})
+        for s in (1, -1):
+            n = lambda bn: side_name(bn, s)  # noqa: E731
+            self.crossed[n("upperarm")] = aim(rig, n("upperarm"), (0.215 * s, 0.10, 1.18))
+            front = 0.18 if s > 0 else 0.152
+            self.crossed[n("forearm")] = aim(rig, n("forearm"), (-0.07 * s, front, 1.35))
+            self.crossed[n("hand")] = aim(rig, n("hand"), (-0.15 * s, front - 0.01, 1.40))
+        set_pose(rig, {})
+
+    def walk_legs(self, t):
+        """Stiff shamble at phase t (0 = passing pose): straight knees, the left foot dragged, a lurching sway. Legs and
+        trunk only, as offsets to add to the ready pose."""
+        def leg(ph, drag):
+            c = math.cos(2 * math.pi * ph)
+            swing = max(0.0, math.sin(2 * math.pi * (ph - 0.5)))
+            th = 19 * c
+            knee = -4 - (20 if not drag else 11) * swing
+            foot = 6 * c - (8 if not drag else -6) * swing
+            return th, knee, foot
+
+        ph = t + 0.25
+        thL, knL, ftL = leg(ph, True)
+        thR, knR, ftR = leg(ph + 0.5, False)
+        w = 2 * math.pi * ph
+        c, sn = math.cos(w), math.sin(w)
+        return dict(thigh_L=(thL, 0, 0), shin_L=(knL, 0, 0), foot_L=(ftL, 0, 0),
+                    thigh_R=(thR, 0, 0), shin_R=(knR, 0, 0), foot_R=(ftR, 0, 0),
+                    pelvis=(-3, 7 * c, 4 * sn), spine=(0, -3 * c, -2 * sn), chest=(0, -4 * c, -2.5 * sn), head=(1.5 * math.sin(2 * w), 2 * c, 0)), w, c
+
+    def walk_pose(self, t):
+        legs, w, c = self.walk_legs(t)
+        return add(pose(self.ready), **legs,
+                   upperarm_R=(3 * math.sin(2 * w + 0.6), 0, 0), upperarm_L=(3 * math.sin(2 * w), 0, 0),
+                   hand_R=(4 * c, 0, 0), hand_L=(-4 * c, 0, 0))
+
+    def walk_poses(self):
+        n = self.n("walk")
+        return [(f, self.walk_pose(f / n)) for f in range(0, n + 1, 2)]
+
+    def attack_poses(self):
+        """One slow two-handed smash: arms up over the head, a lurch forward and down, a hold, back to the reach."""
+        n = self.n("attack")
+        w0 = self.walk_pose(0.0)
+        lift = add(w0, upperarm_R=(42, 0, 2), upperarm_L=(46, 0, -4), forearm_R=(12, 0, 0), forearm_L=(8, 0, 0), chest=(8, 0, 0), spine=(3, 0, 0), head=(4, 0, 0))
+        windup = pose(w0, upperarm_R=(172, 0, -8), upperarm_L=(168, 0, 10), forearm_R=(36, 0, 0), forearm_L=(32, 0, 0), hand_R=(10, 0, 0), hand_L=(14, 0, 0),
+                      pelvis=(2, 0, 0), spine=(8, 0, 0), chest=(12, 0, 0), neck=(4, 0, 0), head=(6, 0, 4),
+                      thigh_L=(4, 0, 0), shin_L=(-6, 0, 0), thigh_R=(-12, 0, 0), shin_R=(-4, 0, 0), foot_R=(8, 0, 0))
+        windup["root_loc"] = (0, -0.04, 0)
+        smash = pose(w0, upperarm_R=(62, 0, -4), upperarm_L=(58, 0, 6), forearm_R=(6, 0, 0), forearm_L=(4, 0, 0), hand_R=(-30, 0, 0), hand_L=(-34, 0, 0),
+                     pelvis=(-10, 0, 0), spine=(-14, 0, 0), chest=(-20, 0, 0), neck=(-6, 0, 0), head=(4, 0, 6),
+                     thigh_L=(30, 0, 0), shin_L=(-24, 0, 0), foot_L=(-4, 0, 0), thigh_R=(-18, 0, 0), shin_R=(-6, 0, 0), foot_R=(14, 0, 0))
+        smash["root_loc"] = (0, 0.12, 0)
+        hold = add(smash, chest=(-3, 0, 0), spine=(-2, 0, 0), upperarm_R=(-4, 0, 0), upperarm_L=(-4, 0, 0), hand_R=(-6, 0, 0), hand_L=(-6, 0, 0))
+        hold["root_loc"] = (0, 0.13, 0)
+        back = add(w0, chest=(-4, 0, 0), thigh_L=(10, 0, 0), shin_L=(-8, 0, 0))
+        back["root_loc"] = (0, 0.05, 0)
+        return [(0, w0), (4, lift), (9, windup), (11, windup), (13, smash), (16, hold), (19, back), (n, w0)]
+
+    def die_poses(self):
+        """Recoils, the knees give, folds forward onto the floor and sags into a heap of linen."""
+        w0 = self.walk_pose(0.0)
+        hit = pose(w0, upperarm_R=(120, 0, -30), upperarm_L=(110, 0, 34), forearm_R=(30, 0, 0), forearm_L=(36, 0, 0), hand_R=(20, 0, 0), hand_L=(16, 0, 0),
+                   spine=(8, 0, 0), chest=(14, 0, 0), neck=(8, 0, 0), head=(18, -10, -6), thigh_R=(6, 0, 0), shin_R=(-6, 0, 0))
+        hit["root_loc"] = (0, -0.06, 0)
+        buckle = pose({}, upperarm_R=(40, 0, -16), upperarm_L=(30, 0, 18), forearm_R=(30, 0, 0), forearm_L=(24, 0, 0),
+                      pelvis=(-6, 0, 4), spine=(-6, 0, 0), chest=(-10, 0, 0), neck=(-8, 0, 0), head=(-10, 14, 10),
+                      thigh_L=(40, 0, 0), shin_L=(-75, 0, 0), foot_L=(30, 0, 0), thigh_R=(36, 0, 0), shin_R=(-72, 0, 0), foot_R=(32, 0, 0))
+        kneel = pose({}, upperarm_R=(20, 0, -12), upperarm_L=(14, 0, 14), forearm_R=(20, 0, 0), forearm_L=(18, 0, 0),
+                     pelvis=(-14, 0, 4), spine=(-12, 0, 0), chest=(-14, 0, 0), neck=(-12, 0, 0), head=(-18, 16, 12),
+                     thigh_L=(14, 0, 0), shin_L=(-102, 0, 0), foot_L=(-30, 0, 0), thigh_R=(10, 0, 0), shin_R=(-98, 0, 0), foot_R=(-32, 0, 0))
+        kneel["root_loc"] = (0, 0.02, 0)
+        fold = pose({}, upperarm_R=(95, 0, -20), upperarm_L=(100, 0, 24), forearm_R=(14, 0, 0), forearm_L=(20, 0, 0), hand_R=(-20, 0, 0),
+                    pelvis=(-55, 0, 6), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-6, 0, 0), head=(4, 30, 10),
+                    thigh_L=(60, 0, 0), shin_L=(-120, 0, 0), foot_L=(-35, 0, 0), thigh_R=(56, 0, 0), shin_R=(-118, 0, 0), foot_R=(-35, 0, 0))
+        fold["root_loc"] = (0, 0.20, 0)
+        down = pose({}, upperarm_R=(140, 0, -38), upperarm_L=(130, 0, 42), forearm_R=(24, 0, 0), forearm_L=(36, 0, 0), hand_R=(-40, 0, 0), hand_L=(-30, 0, 0),
+                    pelvis=(-80, 0, 8), spine=(-12, 0, 4), chest=(-10, 0, 0), neck=(4, 0, 0), head=(10, 60, 0),
+                    thigh_L=(78, 0, 0), shin_L=(-140, 0, 0), foot_L=(-40, 0, 0), thigh_R=(74, 0, 0), shin_R=(-136, 0, 0), foot_R=(-40, 0, 0))
+        down["root_loc"] = (0, 0.42, 0)
+        heap = add(down, spine=(-4, 0, 6), chest=(-6, 0, -4), head=(4, 6, 0), upperarm_R=(6, 0, -8), upperarm_L=(4, 0, 10))
+        heap["root_loc"] = (0, 0.46, 0)
+        heap["root_scale"] = (1.15, 1.1, 0.62)
+        sag = dict(heap)
+        sag["root_scale"] = (1.08, 1.05, 0.78)
+        last = self.n("die") - 1
+        return [(0, w0), (4, hit), (8, buckle), (11, kneel), (16, fold), (20, down), (25, sag), (last, heap)]
+
+    def idle_pose(self, t):
+        """On its back (root (90, 0, 90): head at +X, face up), head propped on the headrest, arms crossed; a slow breath
+        and once per loop a twitch of the right hand and the head."""
+        w = 2 * math.pi * t
+        twitch = math.exp(-((t - 0.62) / 0.04) ** 2)
+        p = pose(self.crossed, root=(90, 0, 90), neck=(-26, 0, 0), head=(-20 - 3 * twitch, 0, -5 * twitch),
+                 chest=(1.2 * math.sin(w), 0, 0), spine=(0.6 * math.sin(w), 0, 0),
+                 foot_R=(4, 0, -4), foot_L=(2, 0, 5))
+        p = add(p, hand_R=(14 * twitch, 0, 0), forearm_R=(4 * twitch, 0, 0))
         return p
 
-    sit_z = hip0.z + 0.07
-    keys = [
-        (0, dict(idle0, hip=tuple(hip0))),
-        (2, k(CROSSED, (hip0.x, hip0.y, hip0.z + 0.02), root=(55, 0, 90), thigh_R=(35, 0, 0), thigh_L=(35, 0, 0), foot_R=(-20, 0, 0), foot_L=(-22, 0, 0),
-              spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-10, 0, 0), head=(-12, 0, 0))),
-        (4, k({}, (hip0.x * 0.8, hip0.y + 0.02, sit_z), root=(8, 0, 88), thigh_R=(84, 0, -4), thigh_L=(84, 0, 4), foot_R=(-15, 0, 0), foot_L=(-15, 0, 0),
-              spine=(-6, 0, 0), chest=(-8, 0, 0), neck=(-6, 0, 0), head=(-4, 0, -6),
-              upperarm_R=(38, 0, 4), upperarm_L=(34, 0, -4), forearm_R=(20, 0, 0), forearm_L=(18, 0, 0), hand_R=(-20, 0, 0), hand_L=(-20, 0, 0))),
-        # Legs up in a V, pivoting on the seat towards the camera: the feet pass high over the front rim.
-        (5, k({}, (hip0.x * 0.6, hip0.y + 0.04, sit_z), root=(22, 0, 70), thigh_R=(112, 0, -6), thigh_L=(108, 0, 6), shin_R=(-30, 0, 0), shin_L=(-34, 0, 0),
-              foot_R=(-10, 0, 0), foot_L=(-10, 0, 0), spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-6, 0, 0), head=(-8, -10, 0), **arms_low)),
-        (6, k({}, (hip0.x * 0.4, hip0.y + 0.05, sit_z), root=(24, 0, 36), thigh_R=(114, 0, -8), thigh_L=(110, 0, 8), shin_R=(-40, 0, 0), shin_L=(-44, 0, 0),
-              foot_R=(-6, 0, 0), foot_L=(-6, 0, 0), spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-6, 0, 0), head=(-8, -6, 0), **arms_low)),
-        (7, k({}, (hip0.x * 0.2, hip0.y + 0.07, sit_z - 0.02), root=(20, 0, 6), thigh_R=(112, 0, -6), thigh_L=(110, 0, 6), shin_R=(-70, 0, 0), shin_L=(-74, 0, 0),
-              foot_R=(0, 0, 0), foot_L=(0, 0, 0), spine=(-10, 0, 0), chest=(-12, 0, 0), neck=(-6, 0, 0), head=(-6, 0, 0), **arms_low)),
-        # Knees over the rim, shins down outside; it heaves itself onto the rim.
-        (8, k({}, (hip0.x * 0.1, hip0.y + 0.10, sit_z + 0.05), root=(10, 0, 0), thigh_R=(104, 0, -5), thigh_L=(102, 0, 5), shin_R=(-104, 0, 0), shin_L=(-108, 0, 0),
-              foot_R=(8, 0, 0), foot_L=(8, 0, 0), spine=(-14, 0, 0), chest=(-14, 0, 0), neck=(-6, 0, 0), head=(-4, 0, 0), **arms_low)),
-        (9, k({}, (0.0, 0.5 * (hip0.y + 0.10 + seat_y) - 0.02, rim_z + 0.115), root=(-4, 0, 0), thigh_R=(96, 0, -4), thigh_L=(94, 0, 4), shin_R=(-104, 0, 0),
-              shin_L=(-106, 0, 0), foot_R=(10, 0, 0), foot_L=(10, 0, 0), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-4, 0, 0), head=(-2, 0, 0), **arms_low)),
-        (10, k({}, (0.0, seat_y, rim_z + 0.10), root=(-10, 0, 0), thigh_R=(98, 0, -3), thigh_L=(96, 0, 3), shin_R=(-100, 0, 0), shin_L=(-102, 0, 0),
-               foot_R=(6, 0, 0), foot_L=(6, 0, 0), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-2, 0, 0), head=(0, 0, 4),
-               upperarm_R=(10, 0, -12), upperarm_L=(10, 0, 12), forearm_R=(20, 0, 0), forearm_L=(20, 0, 0))),
-    ]
-    # Stands up over its feet, then two stiff steps (right, left) to the walk line, then straightens and reaches.
-    feet_y = seat_y + 0.42
-    stand_z = end.z - 0.03
-    keys += [
-        (12, k({}, (0.0, feet_y - 0.06, stand_z - 0.12), root=(0, 0, 0), thigh_R=(46, 0, -2), thigh_L=(44, 0, 2), shin_R=(-62, 0, 0), shin_L=(-60, 0, 0),
-               foot_R=(16, 0, 0), foot_L=(16, 0, 0), pelvis=(-24, 0, 0), spine=(-8, 0, 0), chest=(-6, 0, 0), neck=(4, 0, 0), head=(6, 0, 4),
-               upperarm_R=(28, 0, -10), upperarm_L=(26, 0, 10), forearm_R=(20, 0, 0), forearm_L=(20, 0, 0), hand_R=(-20, 0, 0), hand_L=(-20, 0, 0))),
-        (14, k({}, (0.0, feet_y + 0.16, stand_z), root=(0, 0, 0), thigh_R=(22, 0, 0), shin_R=(-16, 0, 0), foot_R=(2, 0, 0), thigh_L=(-14, 0, 0), shin_L=(-6, 0, 0),
-               foot_L=(10, 0, 0), pelvis=(-4, -6, -4), spine=(-4, 3, 2), chest=(-6, 3, 2), head=(-2, 0, 6),
-               upperarm_R=(36, 0, -8), upperarm_L=(30, 0, 8), forearm_R=(16, 0, 0), forearm_L=(16, 0, 0), hand_R=(-22, 0, 0), hand_L=(-22, 0, 0))),
-        (16, k({}, (0.0, 0.5 * (feet_y + 0.16 + end.y), stand_z + 0.02), root=(0, 0, 0), thigh_L=(22, 0, 0), shin_L=(-16, 0, 0), foot_L=(2, 0, 0),
-               thigh_R=(-14, 0, 0), shin_R=(-6, 0, 0), foot_R=(10, 0, 0), pelvis=(-4, 6, 4), spine=(-4, -3, -2), chest=(-6, -3, -2), head=(-4, 2, 8),
-               upperarm_R=(48, 0, -8), upperarm_L=(44, 0, 8), forearm_R=(14, 0, 0), forearm_L=(16, 0, 0), hand_R=(-24, 0, 0), hand_L=(-24, 0, 0))),
-        (19, k(walk_pose(0.0), (end.x, end.y, end.z), upperarm_R=(56, 0, -6), upperarm_L=(52, 0, 8), hand_R=(-30, 0, 0), hand_L=(-26, 0, 0),
-               chest=(-2, 0, 0), head=(-2, 0, 4))),
-        (22, k(walk_pose(0.0), (end.x, end.y, end.z), upperarm_R=(86, 0, -6), upperarm_L=(80, 0, 8), chest=(-12, 0, 0), head=(-10, 6, 12))),
-        (FRAMES["mummy_rise"] - 1, dict(walk0, hip=tuple(end))),
-    ]
-    return keys
+    # ------------------------------------------------ climb
+    def rung(self):
+        return TILE * self.U["m"] / 12
 
+    def climb_limb(self, v, top, lift):
+        """Body-frame height and draw-back (0..1) of a limb at its phase v: grip 0..0.5 sliding down by R / 2 at the
+        climbing rate, then let go, rise and thrust back in (0.5..1), a stiff three-part move."""
+        R = self.climb["rungs"] * self.rung()
+        v %= 1.0
+        if v < 0.5:
+            return top - R * v, 0.0
+        t = (v - 0.5) / 0.5
+        return top - R / 2 + R / 2 * smoothstep(0.12, 0.85, t), smoothstep(0.0, 0.22, t) * (1 - smoothstep(0.72, 1.0, t))
 
-def build_rise(rig, obj, act, idle0, walk0, skip):
-    """Key the rise every frame: pose from the keys, root from the hip point (coffin frame -> model space), then
-    keep the body off the coffin floor (sitting up) / on the floor (standing)."""
-    scene = bpy.context.scene
-    n = FRAMES["mummy_rise"]
-    keys = rise_keys(rig, idle0, walk0)
-    inner = COFFIN["floor"] * TILE * U["m"]
-    root = rig.pose.bones["root"]
-    for f in range(n):
-        if f == 0:
-            p = dict(idle0)
-        elif f == n - 1:
-            p = dict(walk0)
-        else:
-            p = lerp_pose(keys, f)
-            p["root_loc"] = tuple(root_for_hip(rig, p, V(p.pop("hip")) + slide(f)))
-        p.pop("hip", None)
-        key_pose(rig, p, f)
-        if 0 < f < n - 1:
-            scene.frame_set(f)
-            low = lowest(obj, skip)
-            if f <= 8:
-                fix = max(0.0, inner + 0.004 - low)  # never through the coffin floor
-            elif f <= 11:
-                fix = max(0.0, -low)  # feet hanging down to the floor, never through it
-            else:
-                fix = -low  # standing: on the floor
-            root.location.z += fix
-            root.keyframe_insert("location", frame=f)
+    def climb_targets(self, p, ankle_lift):
+        """Body-frame wrist and ankle targets at cycle phase p, plus the reaching hands' draw-back / feet's toe droop."""
+        r, out = self.rung(), {}
+        CH, CF = self.climb_hand, self.climb_foot
+        for s in (1, -1):
+            hand, foot = side_name("hand", s), side_name("foot", s)
+            z, back = self.climb_limb(p + self.climb_phase[hand], CH["top"] * r, 1.0)
+            out[hand] = (V((CH["x"] * s, self.climb["grip_y"] - CH["lift"] * back, z)) + CH["wrist"], back)
+            z, back = self.climb_limb(p + self.climb_phase[foot], CF["top"] * r, 1.0)
+            droop = back * smoothstep(0.0, 0.12, z - (CF["top"] - self.climb["rungs"] / 2) * r)  # toes droop once off the rung
+            out[foot] = (V((CF["x"] * s, self.climb["grip_y"] - CF["back"] - CF["lift"] * back, z + ankle_lift)), droop)
+        return out
 
+    def climb_pose(self, p):
+        """FK trunk of the climb at phase p: stiff, leaning a little into the ladder, the head cocked up towards it and
+        jerking towards the reaching hand."""
+        w = 2 * math.pi * p
+        q = pose({}, pelvis=(-4, 0, 3 * math.sin(w)), spine=(-3, 0, -1.5 * math.sin(w)), chest=(-4, 0, -2 * math.sin(w)),
+                 neck=(4, 0, 0), head=(10, 5, 8 * math.cos(w)))
+        q["root_loc"] = (0, 0, -self.climb["drop"])
+        return q
 
-def make_actions(rig, obj):
-    scene = bpy.context.scene
-    rig.animation_data_create()
-    skip = strip_verts(obj)
-    acts = {}
-    solve_crossed(rig)
-
-    # Walk first: it is the reference (frame 0 centred on x = y = 0, H = its largest dimension).
-    n = FRAMES["mummy_walk"]
-    act = acts["mummy_walk"] = new_action(rig, "mummy_walk")
-    for f, p in walk_poses():
-        key_pose(rig, p, f)
-    make_cyclic(rig, act)
-    floor_fix(rig, obj, range(n + 1), skip)
-    walk_strips = simulate_strips(rig, act, n, cycles=3)
-    scene.frame_set(0)
-    lo, hi = bbox(obj)
-    rig.location = (-(lo.x + hi.x) / 2, -(lo.y + hi.y) / 2, 0)
-    bpy.context.view_layer.update()
-    lo, hi = bbox(obj)
-    H = max(hi - lo)
-    U["m"] = H / SCALE
-    REF.update(H=hi.z - lo.z, S=H, C=(lo.y + hi.y) / 2, rig_y=rig.location.y)
-    walk0 = walk_pose(0.0)
-    walk0["root_loc"] = tuple(rig.pose.bones["root"].location)
-    print("mummy: walk frame 0 {:.3f} x {:.3f} x {:.3f} m, H = {:.3f} m, 1 world unit = {:.4f} m".format(*(hi - lo), H, U["m"]))
-
-    n = FRAMES["mummy_attack"]
-    act = acts["mummy_attack"] = new_action(rig, "mummy_attack")
-    for f, p in attack_poses():
-        key_pose(rig, p, f)
-    make_cyclic(rig, act)
-    floor_fix(rig, obj, range(n + 1), skip)
-    simulate_strips(rig, act, n, cycles=3)
-
-    n = FRAMES["mummy_die"]
-    act = acts["mummy_die"] = new_action(rig, "mummy_die")
-    for f, p in die_poses():
-        key_pose(rig, p, f)
-    floor_fix(rig, obj, range(n), skip)
-    simulate_strips(rig, act, n)
-
-    # Idle: centred on x = y = 0 (frame 0), the back IDLE_BACK world units above the floor.
-    n = FRAMES["mummy_idle"]
-    act = acts["mummy_idle"] = new_action(rig, "mummy_idle")
-    idle0 = idle_pose(0.0)
-    key_pose(rig, idle0, 0)
-    scene.frame_set(0)
-    lo, hi = bbox(obj, skip)
-    loc = V(rig.pose.bones["root"].location) - V(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z - IDLE_BACK * U["m"]))
-    idle0["root_loc"] = tuple(loc)
-    for f in range(0, n + 1, 2):
-        p = idle_pose(f / n)
-        p["root_loc"] = tuple(loc)
-        key_pose(rig, p, f)
-    make_cyclic(rig, act)
-    state = {}
-    idle_strips = simulate_strips(rig, act, n, cycles=3, coffin=True, state=state)
-
-    n = FRAMES["mummy_rise"]
-    act = acts["mummy_rise"] = new_action(rig, "mummy_rise")
-    build_rise(rig, obj, act, idle0, walk0, skip)
-    simulate_strips(rig, act, n, shift=lambda f: -slide(f), coffin=True, blend_to=(19, walk_strips[0]), state=state, start=idle_strips[0])
-
-    n = FRAMES["mummy_climb"]
-    act = acts["mummy_climb"] = new_action(rig, "mummy_climb")
-    build_climb(rig, obj, act, skip)
-    make_cyclic(rig, act)
-    simulate_strips(rig, act, n, cycles=3)
-    return acts
-
-
-def report(rig, obj):
-    scene = bpy.context.scene
-    for name, _, n in CLIPS:
-        rig.animation_data.action = bpy.data.actions[name]
-        lows = []
-        for f in range(n):
-            scene.frame_set(f)
-            lows.append(lowest(obj))
-        print("MINZ {}: {}".format(name, " ".join("{:.3f}".format(z) for z in lows)))
-    rig.animation_data.action = bpy.data.actions["mummy_idle"]
-    scene.frame_set(0)
-    lo, hi = bbox(obj)
-    u = U["m"]
-    print("idle frame 0 (world units): x {:.2f}..{:.2f}, y {:.2f}..{:.2f}, z {:.2f}..{:.2f}".format(lo.x / u, hi.x / u, lo.y / u, hi.y / u, lo.z / u, hi.z / u))
-    head = [p for p, v in zip(evaluated(obj), obj.data.vertices) if obj.vertex_groups["head"].index in {ge.group for ge in v.groups if ge.weight > 0.9}]
-    back = min(head, key=lambda p: p.z)
-    k = 1.0 / (TILE * u)
-    print("idle head back: decor x {:.3f}, {:.4f} tiles above the inner floor (decor.py COFFIN_HEADREST)".format(-back.x * k, back.z * k - COFFIN["floor"]))
-
-
-# ---------------------------------------------------------------- entry points
-
-
-def build(bake=True, tex_path=None):
-    if bpy.context.object and bpy.context.object.mode != "OBJECT":
-        bpy.ops.object.mode_set(mode="OBJECT")
-    coll = common.clear_collection(COLL)
-    M = materials()
-    rig = build_rig(coll)
-    b = Builder()
-    build_body(b, M)
-    first = len(b.verts)
-    build_head(b, M)
-    b.tags[first:] = ["head"] * (len(b.verts) - first)
-    build_strips(b, M)
-    obj = common.finish_mesh(b, coll, "mummy_new")
-    common.uv_unwrap(obj, b.tags, {"head": ((0, 0.03, 1.67), 1.8)})
-    if bake:
-        tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", "mummy_preview.png"), TEX_SIZE, "mummy")
-        common.use_baked_material(obj, tex)
-    common.rig_object(obj, rig)
-    acts = make_actions(rig, obj)
-    rig.animation_data.action = acts["mummy_walk"]
-    scene = bpy.context.scene
-    scene.frame_start, scene.frame_end = 0, FRAMES["mummy_walk"] - 1
-    scene.frame_set(0)
-    print("mummy: {} verts, {} tris".format(len(obj.data.vertices), common.tri_count(obj)))
-    return obj, rig
-
-
-def export(models_dir=None):
-    common.export_files(bpy.data.objects["mummy_new"], bpy.data.objects["mummy_rig"], "mummy", CLIPS, "monsters", models_dir)
-
-
-def coffin_check(out_dir, frames=(0, 3, 5, 6, 7, 8, 9, 10, 12, 14, 16, 19, 25)):
-    """Coffin prop (decor.py) + the dormant / rising mummy in decor tile units at the engine's placement; renders
-    game-camera and side views and counts mummy vertices inside the coffin's solids per rise frame."""
-    os.makedirs(out_dir, exist_ok=True)
-    obj, rig = bpy.data.objects["mummy_new"], bpy.data.objects["mummy_rig"]
-    p = os.path.join(HERE, "decor.py")
-    g = {"__file__": p, "__name__": "decor"}
-    exec(open(p).read(), g)
-    coffin = g["build"](bake=False, only=["coffin"])["coffin"]
-    coffin.location = (0, 0, 0)
-    env = bpy.data.objects.get("decor_env")
-    k = 1.0 / (TILE * U["m"])  # tile units per metre
-    holder = bpy.data.objects.new("mummy_holder", None)
-    bpy.context.scene.collection.objects.link(holder)
-    holder.rotation_euler = (0, 0, math.pi)  # rotA 180
-    holder.scale = (k, k, k)
-    rig.parent = holder
-    scene = bpy.context.scene
-    walk_y = -0.5
-    n = FRAMES["mummy_rise"]
-
-    def place(t):
-        holder.location = (0, walk_y + TOMB_DEPTH / TILE * (1 - smoothstep(SLIDE[0], SLIDE[1], t)), 0)
+    def build_climb(self, rig, obj, act, skip):
+        """Key every frame: FK trunk, IK hands and feet on the rungs; frame N = frame 0."""
+        scene = bpy.context.scene
+        n = self.n("climb")
+        rig.location = (0, self.REF["rig_y"], 0)
+        set_pose(rig, {})
         bpy.context.view_layer.update()
-
-    boxes, _fl = coffin_box()
-    frames_pts = []
-    for clip, fr in (("mummy_idle", (0,)), ("mummy_rise", range(n))):
-        rig.animation_data.action = bpy.data.actions[clip]
-        for f in fr:
-            t = f / (n - 1) if clip == "mummy_rise" else 0.0
-            scene.frame_set(f)
-            place(t)
-            # Back to the dormant frame (metres, body centre at the origin, +Y towards the camera).
-            frames_pts.append((clip, f, [V((-p.x / k, -(p.y + 0.14) / k, p.z / k)) for p in evaluated(obj)]))
-    # Every frame and the halfway point to the next one (the engine blends frames linearly).
-    checks = list(frames_pts)
-    checks += [("between", f0 + 0.5, [a.lerp(b, 0.5) for a, b in zip(p0, p1)]) for (_c, f0, p0), (_c1, _f1, p1) in zip(frames_pts[1:], frames_pts[2:])]
-    for clip, f, pts in checks:
-        inside = [[i for i, q in enumerate(pts) if all(lo[j] + 1e-4 < q[j] < hi[j] - 1e-4 for j in range(3))] for lo, hi in boxes]
-        parts = sorted({max(obj.data.vertices[i].groups, key=lambda ge: ge.weight).group for hit in inside for i in hit})
-        print("COFFIN {} {:4.1f}: inside floor/front/back/ends {} {} lowest {:.2f} wu".format(
-            clip, f, [len(h) for h in inside], [obj.vertex_groups[gi].name for gi in parts], min(q.z for q in pts) / U["m"]))
-
-    scene.render.engine = "BLENDER_EEVEE"
-    scene.render.resolution_x, scene.render.resolution_y = 640, 400
-    if scene.world is None:
-        scene.world = bpy.data.worlds.new("World")
-    scene.world.color = (0.25, 0.25, 0.25)
-    sun = bpy.data.objects.new("check_sun", bpy.data.lights.new("check_sun", "SUN"))
-    sun.data.energy = 3.0
-    sun.rotation_euler = (math.radians(60), 0, math.radians(-20))
-    scene.collection.objects.link(sun)
-    cam = bpy.data.objects.new("check_cam", bpy.data.cameras.new("check_cam"))
-    scene.collection.objects.link(cam)
-    scene.camera = cam
-    cam.data.type = "ORTHO"
-    if env:
-        env.hide_render = False
-    views = {"game": (80, 0, V((0, -0.25, 0.22)), 1.0), "side": (90, 90, V((0, -0.3, 0.22)), 1.0), "top": (20, 0, V((0, -0.2, 0.1)), 1.0),
-             "close": (78, 0, V((0, -0.14, 0.08)), 0.75)}
-    for clip, fr in (("mummy_idle", (0,)), ("mummy_rise", frames)):
-        rig.animation_data.action = bpy.data.actions[clip]
-        for f in fr:
-            scene.frame_set(f)
-            place(f / (n - 1) if clip == "mummy_rise" else 0.0)
-            for vname, (tilt, yaw, centre, scale) in views.items():
-                if vname in ("top", "close") and clip == "mummy_rise" and f > 9:
+        ankle_lift = rig.pose.bones["foot.R"].head.z - lowest(obj, skip)  # ankle over the sole, rest pose
+        for f in range(n + 1):
+            p = f / n
+            set_pose(rig, self.climb_pose(p))
+            for name, (target, back) in self.climb_targets(p, ankle_lift).items():
+                s = 1 if name.endswith(".R") else -1
+                if name.startswith("hand"):
+                    two_bone(rig, side_name("upperarm", s), side_name("forearm", s), target, self.climb_pole["forearm"] * V((s, 1, 1)))
+                    d = self.climb_hand["dir"].lerp(V((0, 0.2, -1)), back)  # the claw hooks over the rung, hangs while reaching
+                    aim(rig, name, target + d)
+                else:
+                    two_bone(rig, side_name("thigh", s), side_name("shin", s), target, self.climb_pole["shin"] * V((s, 1, 1)))
+                    aim(rig, name, target + V((0.002 * s, 0.16, -0.055 - 0.08 * back)))  # sole level on the rung, toes droop
+            for pb in rig.pose.bones:
+                if is_strip(pb.name):
                     continue
-                cam.data.ortho_scale = scale
-                rot = Euler((math.radians(tilt), 0, math.radians(yaw)), "XYZ")
-                cam.rotation_euler = rot
-                cam.location = centre + rot.to_matrix() @ V((0, 0, 6))
-                scene.render.filepath = os.path.join(out_dir, "{}_{}_{:02d}.png".format(vname, clip.split("_")[1], f))
-                bpy.ops.render.render(write_still=True)
+                pb.keyframe_insert("rotation_euler", frame=f)
+                if pb.name == "root":
+                    pb.keyframe_insert("location", frame=f)
+                    pb.keyframe_insert("scale", frame=f)
+        scene.frame_set(0)
+        r, R, H = self.rung(), self.climb["rungs"] * self.rung(), self.REF["H"]
+        G = self.climb["grip_y"] + self.REF["rig_y"]  # model space
+        print("{} climb: frames {}, tile {:.4f} m, rung {:.4f} m, R {:.4f} m ({} rungs), G {:.4f}, C {:.4f}, H {:.4f}, S_ref {:.4f}".format(
+            self.name, n, TILE * self.U["m"], r, R, self.climb["rungs"], G, self.REF["C"], H, self.REF["S"]))
+        print("{} climb: climbRise = {:.4f}, climbGrip = {:.4f}, frame 0 lowest {:.4f} m".format(self.name, R / H, (G - self.REF["C"]) / H, lowest(obj)))
+
+    # ------------------------------------------------ strip simulation
+    def coffin_box(self):
+        """Coffin solids in model space (metres, the dormant frame: body centre at the origin, +Y = towards the camera):
+        [(min, max)] for the floor slab and the four walls, plus the inner floor height."""
+        t = TILE * self.U["m"]
+        hx, hy, w, fl, rim = (self.coffin[k] * t for k in ("half_x", "half_y", "wall", "floor", "rim"))
+        boxes = [((-hx - w, -hy - w, -1.0), (hx + w, hy + w, fl)),  # floor slab
+                 ((-hx - w, hy, 0), (hx + w, hy + w, rim)), ((-hx - w, -hy - w, 0), (hx + w, -hy, rim)),  # front, back
+                 ((hx, -hy, 0), (hx + w, hy, rim)), ((-hx - w, -hy, 0), (-hx, hy, rim))]  # ends
+        return boxes, fl
+
+    def collide(self, p, coffin):
+        """Push a strip particle (dormant-frame coordinates) out of the floor and the coffin."""
+        p = V(p)
+        floor = 0.006
+        if coffin:
+            boxes, _fl = self.coffin_box()
+            for lo, hi in boxes:
+                if all(lo[i] <= p[i] <= hi[i] for i in range(2)):
+                    floor = max(floor, hi[2] + 0.008)
+        p.z = max(p.z, floor)
+        return p
+
+    def constrain(self, parent, p, length, coffin):
+        """Put p at length from parent, out of the floor / coffin; a lifted point slides sideways to keep the length."""
+        d = p - parent
+        if d.length < 1e-6:
+            d = V((0, 0, -1))
+        p = parent + d.normalized() * length
+        q = self.collide(p, coffin)
+        if q.z > p.z + 1e-6:
+            h = V((d.x, d.y, 0))
+            h = h.normalized() if h.length > 1e-6 else V((1, 0, 0))
+            r = math.sqrt(max(length * length - (q.z - parent.z) ** 2, 0.0))
+            q = V((parent.x + h.x * r, parent.y + h.y * r, q.z))
+        return q
+
+    def simulate_strips(self, rig, act, frames, cycles=1, shift=None, coffin=False, blend_to=None, state=None, start=None):
+        """Verlet strips: each chain's tip and joint follow its anchor with lag under gravity. shift(f) = model-space offset
+        of the coffin frame (the engine slide undone). Keys every frame of the last cycle; blend_to = (from_frame, eulers)
+        eases the strips into given Euler angles by the last frame, start = eulers for frame 0. state carries the particles
+        over from the clip before (it is updated in place); returns {frame: {bone: euler degrees}}."""
+        scene = bpy.context.scene
+        rig.animation_data.action = act
+        g, damp = 9.8 / 14.0 ** 2, 0.80
+        state = {} if state is None else state
+        shift = shift or (lambda f: V())
+        out = {}
+        for c in range(cycles):
+            for f in range(frames):
+                scene.frame_set(f)
+                off = rig.matrix_world.translation + shift(f)
+                for name, _parent, _a, (l0, l1), *_ in self.strips:
+                    b0, b1 = strip_bones(name)
+                    pb0 = rig.pose.bones[b0]
+                    anchor = pb0.head + off
+                    if name not in state:
+                        p1 = anchor - V((0, 0, l0))
+                        p2 = p1 - V((0, 0, l1))
+                        state[name] = [p1, p2, p1.copy(), p2.copy()]
+                    p1, p2, q1, q2 = state[name]
+                    n1 = p1 + (p1 - q1) * damp - V((0, 0, g))
+                    n2 = p2 + (p2 - q2) * damp - V((0, 0, g))
+                    for _ in range(4):
+                        n1 = self.constrain(anchor, n1, l0, coffin)
+                        n2 = self.constrain(n1, n2, l1, coffin)
+                    state[name] = [n1, n2, p1, p2]
+                    if c < cycles - 1:
+                        continue
+                    for pb, a, tip in ((pb0, anchor, n1), (rig.pose.bones[b1], n1, n2)):
+                        bpy.context.view_layer.update()
+                        m = pb.matrix.copy()
+                        q = m.col[1].to_3d().normalized().rotation_difference((tip - a).normalized())
+                        new = (q.to_matrix() @ m.to_3x3().normalized()).to_4x4()
+                        new.translation = m.translation
+                        pb.matrix = new
+                        pb.scale = (1, 1, 1)  # the setter takes up the shear of a squashed root (die)
+                        bpy.context.view_layer.update()
+                        if start and f == 0:
+                            pb.rotation_euler = [math.radians(x) for x in start[pb.name]]
+                        if blend_to and f >= blend_to[0]:
+                            k = smoothstep(blend_to[0], frames - 1, f)
+                            target = Euler([math.radians(x) for x in blend_to[1][pb.name]], "XYZ").to_quaternion()
+                            pb.rotation_euler = pb.rotation_euler.to_quaternion().slerp(target, k).to_euler("XYZ", pb.rotation_euler)
+                        pb.location = (0, 0, 0)
+                        pb.keyframe_insert("rotation_euler", frame=f)
+                        pb.keyframe_insert("location", frame=f)
+                        pb.keyframe_insert("scale", frame=f)
+                        out.setdefault(f, {})[pb.name] = tuple(math.degrees(x) for x in pb.rotation_euler)
+        return out
+
+    # ------------------------------------------------ rise
+    def slide(self, f):
+        """Model-space offset of the coffin frame at rise frame f: the engine's slide towards the camera, undone."""
+        t = f / (self.n("rise") - 1)
+        return V((0, -TOMB_DEPTH * self.U["m"] * smoothstep(SLIDE[0], SLIDE[1], t), 0))
+
+    def rise_keys(self, rig, idle0, walk0):
+        """Rise key poses in the coffin frame (dormant body centre at the origin, metres). "hip" = hip centre."""
+        u = self.U["m"]
+        t = TILE * u
+        C = self.coffin
+        rim_y, rim_out, rim_z = C["half_y"] * t, (C["half_y"] + C["wall"]) * t, C["rim"] * t
+        hip0 = hip_of(rig, idle0)
+        end = hip_of(rig, walk0) - self.slide(self.n("rise") - 1)
+        seat_y = 0.5 * (rim_y + rim_out) + 0.01
+        arms_low = dict(upperarm_R=(-12, 0, 4), upperarm_L=(-12, 0, -4), forearm_R=(30, 0, 0), forearm_L=(30, 0, 0), hand_R=(-30, 0, 0), hand_L=(-30, 0, 0))
+
+        def k(base, hip, **bones):
+            p = pose(base, **bones)
+            p["hip"] = tuple(hip)
+            return p
+
+        sit_z = hip0.z + 0.07
+        keys = [
+            (0, dict(idle0, hip=tuple(hip0))),
+            (2, k(self.crossed, (hip0.x, hip0.y, hip0.z + 0.02), root=(55, 0, 90), thigh_R=(35, 0, 0), thigh_L=(35, 0, 0), foot_R=(-20, 0, 0), foot_L=(-22, 0, 0),
+                  spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-10, 0, 0), head=(-12, 0, 0))),
+            (4, k({}, (hip0.x * 0.8, hip0.y + 0.02, sit_z), root=(8, 0, 88), thigh_R=(84, 0, -4), thigh_L=(84, 0, 4), foot_R=(-15, 0, 0), foot_L=(-15, 0, 0),
+                  spine=(-6, 0, 0), chest=(-8, 0, 0), neck=(-6, 0, 0), head=(-4, 0, -6),
+                  upperarm_R=(38, 0, 4), upperarm_L=(34, 0, -4), forearm_R=(20, 0, 0), forearm_L=(18, 0, 0), hand_R=(-20, 0, 0), hand_L=(-20, 0, 0))),
+            # Legs up in a V, pivoting on the seat towards the camera: the feet pass high over the front rim.
+            (5, k({}, (hip0.x * 0.6, hip0.y + 0.04, sit_z), root=(22, 0, 70), thigh_R=(112, 0, -6), thigh_L=(108, 0, 6), shin_R=(-30, 0, 0), shin_L=(-34, 0, 0),
+                  foot_R=(-10, 0, 0), foot_L=(-10, 0, 0), spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-6, 0, 0), head=(-8, -10, 0), **arms_low)),
+            (6, k({}, (hip0.x * 0.4, hip0.y + 0.05, sit_z), root=(24, 0, 36), thigh_R=(114, 0, -8), thigh_L=(110, 0, 8), shin_R=(-40, 0, 0), shin_L=(-44, 0, 0),
+                  foot_R=(-6, 0, 0), foot_L=(-6, 0, 0), spine=(-8, 0, 0), chest=(-10, 0, 0), neck=(-6, 0, 0), head=(-8, -6, 0), **arms_low)),
+            (7, k({}, (hip0.x * 0.2, hip0.y + 0.07, sit_z - 0.02), root=(20, 0, 6), thigh_R=(112, 0, -6), thigh_L=(110, 0, 6), shin_R=(-70, 0, 0), shin_L=(-74, 0, 0),
+                  foot_R=(0, 0, 0), foot_L=(0, 0, 0), spine=(-10, 0, 0), chest=(-12, 0, 0), neck=(-6, 0, 0), head=(-6, 0, 0), **arms_low)),
+            # Knees over the rim, shins down outside; it heaves itself onto the rim.
+            (8, k({}, (hip0.x * 0.1, hip0.y + 0.10, sit_z + 0.05), root=(10, 0, 0), thigh_R=(104, 0, -5), thigh_L=(102, 0, 5), shin_R=(-104, 0, 0), shin_L=(-108, 0, 0),
+                  foot_R=(8, 0, 0), foot_L=(8, 0, 0), spine=(-14, 0, 0), chest=(-14, 0, 0), neck=(-6, 0, 0), head=(-4, 0, 0), **arms_low)),
+            (9, k({}, (0.0, 0.5 * (hip0.y + 0.10 + seat_y) - 0.02, rim_z + 0.115), root=(-4, 0, 0), thigh_R=(96, 0, -4), thigh_L=(94, 0, 4), shin_R=(-104, 0, 0),
+                  shin_L=(-106, 0, 0), foot_R=(10, 0, 0), foot_L=(10, 0, 0), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-4, 0, 0), head=(-2, 0, 0), **arms_low)),
+            (10, k({}, (0.0, seat_y, rim_z + 0.10), root=(-10, 0, 0), thigh_R=(98, 0, -3), thigh_L=(96, 0, 3), shin_R=(-100, 0, 0), shin_L=(-102, 0, 0),
+                   foot_R=(6, 0, 0), foot_L=(6, 0, 0), spine=(-14, 0, 0), chest=(-16, 0, 0), neck=(-2, 0, 0), head=(0, 0, 4),
+                   upperarm_R=(10, 0, -12), upperarm_L=(10, 0, 12), forearm_R=(20, 0, 0), forearm_L=(20, 0, 0))),
+        ]
+        # Stands up over its feet, then two stiff steps (right, left) to the walk line, then straightens and reaches.
+        feet_y = seat_y + 0.42
+        stand_z = end.z - 0.03
+        w0 = self.walk_pose(0.0)
+        keys += [
+            (12, k({}, (0.0, feet_y - 0.06, stand_z - 0.12), root=(0, 0, 0), thigh_R=(46, 0, -2), thigh_L=(44, 0, 2), shin_R=(-62, 0, 0), shin_L=(-60, 0, 0),
+                   foot_R=(16, 0, 0), foot_L=(16, 0, 0), pelvis=(-24, 0, 0), spine=(-8, 0, 0), chest=(-6, 0, 0), neck=(4, 0, 0), head=(6, 0, 4),
+                   upperarm_R=(28, 0, -10), upperarm_L=(26, 0, 10), forearm_R=(20, 0, 0), forearm_L=(20, 0, 0), hand_R=(-20, 0, 0), hand_L=(-20, 0, 0))),
+            (14, k({}, (0.0, feet_y + 0.16, stand_z), root=(0, 0, 0), thigh_R=(22, 0, 0), shin_R=(-16, 0, 0), foot_R=(2, 0, 0), thigh_L=(-14, 0, 0), shin_L=(-6, 0, 0),
+                   foot_L=(10, 0, 0), pelvis=(-4, -6, -4), spine=(-4, 3, 2), chest=(-6, 3, 2), head=(-2, 0, 6),
+                   upperarm_R=(36, 0, -8), upperarm_L=(30, 0, 8), forearm_R=(16, 0, 0), forearm_L=(16, 0, 0), hand_R=(-22, 0, 0), hand_L=(-22, 0, 0))),
+            (16, k({}, (0.0, 0.5 * (feet_y + 0.16 + end.y), stand_z + 0.02), root=(0, 0, 0), thigh_L=(22, 0, 0), shin_L=(-16, 0, 0), foot_L=(2, 0, 0),
+                   thigh_R=(-14, 0, 0), shin_R=(-6, 0, 0), foot_R=(10, 0, 0), pelvis=(-4, 6, 4), spine=(-4, -3, -2), chest=(-6, -3, -2), head=(-4, 2, 8),
+                   upperarm_R=(48, 0, -8), upperarm_L=(44, 0, 8), forearm_R=(14, 0, 0), forearm_L=(16, 0, 0), hand_R=(-24, 0, 0), hand_L=(-24, 0, 0))),
+            (19, k(w0, (end.x, end.y, end.z), upperarm_R=(56, 0, -6), upperarm_L=(52, 0, 8), hand_R=(-30, 0, 0), hand_L=(-26, 0, 0),
+                   chest=(-2, 0, 0), head=(-2, 0, 4))),
+            (22, k(w0, (end.x, end.y, end.z), upperarm_R=(86, 0, -6), upperarm_L=(80, 0, 8), chest=(-12, 0, 0), head=(-10, 6, 12))),
+            (self.n("rise") - 1, dict(walk0, hip=tuple(end))),
+        ]
+        return keys
+
+    def build_rise(self, rig, obj, act, idle0, walk0, skip):
+        """Key the rise every frame: pose from the keys, root from the hip point (coffin frame -> model space), then
+        keep the body off the coffin floor (sitting up) / on the floor (standing)."""
+        scene = bpy.context.scene
+        n = self.n("rise")
+        keys = self.rise_keys(rig, idle0, walk0)
+        inner = self.coffin["floor"] * TILE * self.U["m"]
+        root = rig.pose.bones["root"]
+        for f in range(n):
+            if f == 0:
+                p = dict(idle0)
+            elif f == n - 1:
+                p = dict(walk0)
+            else:
+                p = lerp_pose(keys, f)
+                p["root_loc"] = tuple(root_for_hip(rig, p, V(p.pop("hip")) + self.slide(f)))
+            p.pop("hip", None)
+            key_pose(rig, p, f)
+            if 0 < f < n - 1:
+                scene.frame_set(f)
+                low = lowest(obj, skip)
+                if f <= 8:
+                    fix = max(0.0, inner + 0.004 - low)  # never through the coffin floor
+                elif f <= 11:
+                    fix = max(0.0, -low)  # feet hanging down to the floor, never through it
+                else:
+                    fix = -low  # standing: on the floor
+                root.location.z += fix
+                root.keyframe_insert("location", frame=f)
+
+    # ------------------------------------------------ clip assembly
+    def floor_skip(self, obj):
+        """Vertices left out of the floor fixes (the loose strips)."""
+        return strip_verts(obj)
+
+    def after_clip(self, rig, obj, key, act):
+        """Called once a clip's body is keyed (before its strips are simulated): the priest keys his staff here."""
+
+    def make_actions(self, rig, obj):
+        scene = bpy.context.scene
+        rig.animation_data_create()
+        skip = self.floor_skip(obj)
+        acts = {}
+        self.solve_crossed(rig)
+
+        # Walk first: it is the reference (frame 0 centred on x = y = 0, H = its largest dimension).
+        n = self.n("walk")
+        act = acts["walk"] = new_action(rig, self.act("walk"))
+        for f, p in self.walk_poses():
+            key_pose(rig, p, f)
+        make_cyclic(rig, act)
+        floor_fix(rig, obj, range(n + 1), skip)
+        self.after_clip(rig, obj, "walk", act)
+        walk_strips = self.simulate_strips(rig, act, n, cycles=3)
+        scene.frame_set(0)
+        lo, hi = bbox(obj)
+        rig.location = (-(lo.x + hi.x) / 2, -(lo.y + hi.y) / 2, 0)
+        bpy.context.view_layer.update()
+        lo, hi = bbox(obj)
+        H = max(hi - lo)
+        self.U["m"] = H / self.scale
+        self.REF.update(H=hi.z - lo.z, S=H, C=(lo.y + hi.y) / 2, rig_y=rig.location.y)
+        walk0 = self.walk_pose(0.0)
+        walk0["root_loc"] = tuple(rig.pose.bones["root"].location)
+        print("{}: walk frame 0 {:.3f} x {:.3f} x {:.3f} m, H = {:.3f} m, 1 world unit = {:.4f} m".format(self.name, *(hi - lo), H, self.U["m"]))
+
+        n = self.n("attack")
+        act = acts["attack"] = new_action(rig, self.act("attack"))
+        for f, p in self.attack_poses():
+            key_pose(rig, p, f)
+        make_cyclic(rig, act)
+        floor_fix(rig, obj, range(n + 1), skip)
+        self.after_clip(rig, obj, "attack", act)
+        self.simulate_strips(rig, act, n, cycles=3)
+
+        n = self.n("die")
+        act = acts["die"] = new_action(rig, self.act("die"))
+        for f, p in self.die_poses():
+            key_pose(rig, p, f)
+        floor_fix(rig, obj, range(n), skip)
+        self.after_clip(rig, obj, "die", act)
+        self.simulate_strips(rig, act, n)
+
+        # Idle: centred on x = y = 0 (frame 0), the back IDLE_BACK world units above the floor.
+        n = self.n("idle")
+        act = acts["idle"] = new_action(rig, self.act("idle"))
+        idle0 = self.idle_pose(0.0)
+        key_pose(rig, idle0, 0)
+        scene.frame_set(0)
+        lo, hi = bbox(obj, skip)
+        loc = V(rig.pose.bones["root"].location) - V(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z - IDLE_BACK * self.U["m"]))
+        idle0["root_loc"] = tuple(loc)
+        for f in range(0, n + 1, 2):
+            p = self.idle_pose(f / n)
+            p["root_loc"] = tuple(loc)
+            key_pose(rig, p, f)
+        make_cyclic(rig, act)
+        self.after_clip(rig, obj, "idle", act)
+        state = {}
+        idle_strips = self.simulate_strips(rig, act, n, cycles=3, coffin=True, state=state)
+
+        n = self.n("rise")
+        act = acts["rise"] = new_action(rig, self.act("rise"))
+        self.build_rise(rig, obj, act, idle0, walk0, skip)
+        self.after_clip(rig, obj, "rise", act)
+        self.simulate_strips(rig, act, n, shift=lambda f: -self.slide(f), coffin=True, blend_to=(19, walk_strips[0]), state=state, start=idle_strips[0])
+
+        n = self.n("climb")
+        act = acts["climb"] = new_action(rig, self.act("climb"))
+        self.build_climb(rig, obj, act, skip)
+        make_cyclic(rig, act)
+        self.after_clip(rig, obj, "climb", act)
+        self.simulate_strips(rig, act, n, cycles=3)
+        return acts
+
+    def report(self, rig=None, obj=None):
+        rig = rig or bpy.data.objects[self.name + "_rig"]
+        obj = obj or bpy.data.objects[self.coll]
+        scene = bpy.context.scene
+        for name, _, n in self.CLIPS:
+            rig.animation_data.action = bpy.data.actions[name]
+            lows = []
+            for f in range(n):
+                scene.frame_set(f)
+                lows.append(lowest(obj))
+            print("MINZ {}: {}".format(name, " ".join("{:.3f}".format(z) for z in lows)))
+        rig.animation_data.action = bpy.data.actions[self.act("idle")]
+        scene.frame_set(0)
+        lo, hi = bbox(obj)
+        u = self.U["m"]
+        print("idle frame 0 (world units): x {:.2f}..{:.2f}, y {:.2f}..{:.2f}, z {:.2f}..{:.2f}".format(lo.x / u, hi.x / u, lo.y / u, hi.y / u, lo.z / u, hi.z / u))
+        head = [p for p, v in zip(evaluated(obj), obj.data.vertices) if obj.vertex_groups["head"].index in {ge.group for ge in v.groups if ge.weight > 0.9}]
+        back = min(head, key=lambda p: p.z)
+        k = 1.0 / (TILE * u)
+        print("idle head back: decor x {:.3f}, {:.4f} tiles above the inner floor (decor.py COFFIN_HEADREST)".format(-back.x * k, back.z * k - self.coffin["floor"]))
+
+    # ------------------------------------------------ entry points
+    def build(self, bake=True, tex_path=None):
+        if bpy.context.object and bpy.context.object.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+        coll = common.clear_collection(self.coll)
+        M = self.materials()
+        rig = self.build_rig(coll)
+        b = Builder()
+        self.build_body(b, M)
+        first = len(b.verts)
+        self.build_head(b, M)
+        b.tags[first:] = ["head"] * (len(b.verts) - first)
+        self.build_strips(b, M)
+        self.build_extras(b, M, rig)
+        obj = common.finish_mesh(b, coll, self.coll)
+        common.uv_unwrap(obj, b.tags, {"head": self.head_boost})
+        if bake:
+            tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", self.name + "_preview.png"), TEX_SIZE, self.name)
+            common.use_baked_material(obj, tex)
+        common.rig_object(obj, rig)
+        acts = self.make_actions(rig, obj)
+        rig.animation_data.action = acts["walk"]
+        scene = bpy.context.scene
+        scene.frame_start, scene.frame_end = 0, self.n("walk") - 1
+        scene.frame_set(0)
+        print("{}: {} verts, {} tris".format(self.name, len(obj.data.vertices), common.tri_count(obj)))
+        return obj, rig
+
+    def export(self, models_dir=None, clips=None):
+        common.export_files(bpy.data.objects[self.coll], bpy.data.objects[self.name + "_rig"], self.name, clips or self.CLIPS, "monsters", models_dir)
+
+    def coffin_check(self, out_dir, frames=(0, 3, 5, 6, 7, 8, 9, 10, 12, 14, 16, 19, 25)):
+        """Coffin prop (decor.py) + the dormant / rising body in decor tile units at the engine's placement; renders
+        game-camera and side views and counts body vertices inside the coffin's solids per rise frame."""
+        os.makedirs(out_dir, exist_ok=True)
+        obj, rig = bpy.data.objects[self.coll], bpy.data.objects[self.name + "_rig"]
+        p = os.path.join(HERE, "decor.py")
+        g = {"__file__": p, "__name__": "decor"}
+        exec(open(p).read(), g)
+        coffin = g["build"](bake=False, only=[self.coffin_prop])[self.coffin_prop]
+        coffin.location = (0, 0, 0)
+        env = bpy.data.objects.get("decor_env")
+        k = 1.0 / (TILE * self.U["m"])  # tile units per metre
+        holder = bpy.data.objects.new(self.name + "_holder", None)
+        bpy.context.scene.collection.objects.link(holder)
+        holder.rotation_euler = (0, 0, math.pi)  # rotA 180
+        holder.scale = (k, k, k)
+        rig.parent = holder
+        scene = bpy.context.scene
+        walk_y = -0.5
+        n = self.n("rise")
+        idle, rise = self.act("idle"), self.act("rise")
+
+        def place(t):
+            holder.location = (0, walk_y + TOMB_DEPTH / TILE * (1 - smoothstep(SLIDE[0], SLIDE[1], t)), 0)
+            bpy.context.view_layer.update()
+
+        boxes, _fl = self.coffin_box()
+        frames_pts = []
+        for clip, fr in ((idle, (0,)), (rise, range(n))):
+            rig.animation_data.action = bpy.data.actions[clip]
+            for f in fr:
+                t = f / (n - 1) if clip == rise else 0.0
+                scene.frame_set(f)
+                place(t)
+                # Back to the dormant frame (metres, body centre at the origin, +Y towards the camera).
+                frames_pts.append((clip, f, [V((-p.x / k, -(p.y + 0.14) / k, p.z / k)) for p in evaluated(obj)]))
+        # Every frame and the halfway point to the next one (the engine blends frames linearly).
+        checks = list(frames_pts)
+        checks += [("between", f0 + 0.5, [a.lerp(b, 0.5) for a, b in zip(p0, p1)]) for (_c, f0, p0), (_c1, _f1, p1) in zip(frames_pts[1:], frames_pts[2:])]
+        for clip, f, pts in checks:
+            inside = [[i for i, q in enumerate(pts) if all(lo[j] + 1e-4 < q[j] < hi[j] - 1e-4 for j in range(3))] for lo, hi in boxes]
+            parts = sorted({max(obj.data.vertices[i].groups, key=lambda ge: ge.weight).group for hit in inside for i in hit})
+            print("COFFIN {} {:4.1f}: inside floor/front/back/ends {} {} lowest {:.2f} wu".format(
+                clip, f, [len(h) for h in inside], [obj.vertex_groups[gi].name for gi in parts], min(q.z for q in pts) / self.U["m"]))
+
+        scene.render.engine = "BLENDER_EEVEE"
+        scene.render.resolution_x, scene.render.resolution_y = 640, 400
+        if scene.world is None:
+            scene.world = bpy.data.worlds.new("World")
+        scene.world.color = (0.25, 0.25, 0.25)
+        sun = bpy.data.objects.new("check_sun", bpy.data.lights.new("check_sun", "SUN"))
+        sun.data.energy = 3.0
+        sun.rotation_euler = (math.radians(60), 0, math.radians(-20))
+        scene.collection.objects.link(sun)
+        cam = bpy.data.objects.new("check_cam", bpy.data.cameras.new("check_cam"))
+        scene.collection.objects.link(cam)
+        scene.camera = cam
+        cam.data.type = "ORTHO"
+        if env:
+            env.hide_render = False
+        views = {"game": (80, 0, V((0, -0.25, 0.22)), 1.0), "side": (90, 90, V((0, -0.3, 0.22)), 1.0), "top": (20, 0, V((0, -0.2, 0.1)), 1.0),
+                 "close": (78, 0, V((0, -0.14, 0.08)), 0.75)}
+        for clip, fr in ((idle, (0,)), (rise, frames)):
+            rig.animation_data.action = bpy.data.actions[clip]
+            for f in fr:
+                scene.frame_set(f)
+                place(f / (n - 1) if clip == rise else 0.0)
+                for vname, (tilt, yaw, centre, scale) in views.items():
+                    if vname in ("top", "close") and clip == rise and f > 9:
+                        continue
+                    cam.data.ortho_scale = scale
+                    rot = Euler((math.radians(tilt), 0, math.radians(yaw)), "XYZ")
+                    cam.rotation_euler = rot
+                    cam.location = centre + rot.to_matrix() @ V((0, 0, 6))
+                    scene.render.filepath = os.path.join(out_dir, "{}_{}_{:02d}.png".format(vname, clip.split("_")[-1], f))
+                    bpy.ops.render.render(write_still=True)
+
+    def main(self, args, tex_dir=os.path.join(REPO, "media", "textures", "monsters")):
+        """CLI: [--export] [--bake] [--export-climb] [--coffin-check out_dir]."""
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        self.build(bake="--export" in args or "--bake" in args, tex_path=os.path.join(tex_dir, self.name + ".png") if "--export" in args else None)
+        self.report()
+        if "--export" in args:
+            self.export()
+            bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, self.name + ".blend"))
+        if "--export-climb" in args:  # only <name>_climb.md3 (the UVs do not need the bake)
+            self.export(clips=[c for c in self.CLIPS if c[0] == self.act("climb")])
+        if "--coffin-check" in args:
+            self.coffin_check(args[args.index("--coffin-check") + 1])
+
+
+MODEL = Mummy()
+CLIPS = MODEL.CLIPS
+FRAMES = {name: n for name, _, n in CLIPS}
+REVIEW_VIEW = MODEL.review_view
+SCALE = MODEL.scale
+COFFIN = MODEL.coffin
+build, export, report, coffin_check = MODEL.build, MODEL.export, MODEL.report, MODEL.coffin_check
 
 
 if __name__ == "__main__" and "--" in sys.argv:
-    args = sys.argv[sys.argv.index("--") + 1 :]
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    build(bake="--export" in args or "--bake" in args, tex_path=os.path.join(REPO, "media", "textures", "monsters", "mummy.png") if "--export" in args else None)
-    report(bpy.data.objects["mummy_rig"], bpy.data.objects["mummy_new"])
-    if "--export" in args:
-        export()
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "mummy.blend"))
-    if "--export-climb" in args:  # only mummy_climb.md3 (the UVs do not need the bake)
-        common.export_files(bpy.data.objects["mummy_new"], bpy.data.objects["mummy_rig"], "mummy", [c for c in CLIPS if c[0] == "mummy_climb"], "monsters")
-    if "--coffin-check" in args:
-        coffin_check(args[args.index("--coffin-check") + 1])
+    MODEL.main(sys.argv[sys.argv.index("--") + 1 :])

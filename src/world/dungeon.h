@@ -190,6 +190,11 @@ class Dungeon {
 	void startBossFight(int slot); // the boss appeared: its first minions with it
 	void updateBoss(); // summons while it lives; its death opens the boss gates, for good
 	bool summonMinion(const Monster& boss);
+	// Summon::Wall: the wall cell on the player's row the way they look, with a free cell in front of it the minion
+	// steps onto, not the player's own; else the same behind them. One on screen first (WALL_SUMMON_SIGHT), then any.
+	// False: none (the row ends in no wall).
+	bool wallSummonCell(int& outWall, int& outCell, int& outRow) const;
+	int playerFacing = -1; // the way the player last walked or turned (Move): -1 left (as the game starts), +1 right
 	void drawSummonEffects(); // sand and dust where minions came out, the burrowers' holes, after the opaque scene
 	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
 	struct Hole {

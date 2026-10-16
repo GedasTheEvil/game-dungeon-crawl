@@ -48,13 +48,13 @@
 10,4 surface 0/2/0 prop scrollsm -0.056 decal 9 0.519,0.464
 11,4 surface 2/0/0 decal 11 0.398,0.599
 12,4 surface 5/1/1 decal 13m 0.530,0.225
-13,4 surface 3/0/1 prop coffin 0.000
-14,4 surface 4/1/1 prop coffin 0.000 torch fire torch 0.000,0.680,0.098
-15,4 surface 5/0/1 prop coffin 0.000 decal 11 0.564,0.469
+13,4 surface 3/0/1
+14,4 surface 4/1/1 torch fire torch 0.000,0.680,0.098
+15,4 surface 5/0/1 decal 7 0.564,0.469
 16,4 surface 3/0/1
-17,4 surface 3/0/1 prop coffin 0.000
-18,4 surface 3/0/1 prop coffin 0.000
-19,4 surface 4/1/1 prop coffin 0.000
+17,4 surface 3/0/1
+18,4 surface 3/0/1
+19,4 surface 4/1/1
 20,4 surface 5/0/1 prop scrollsm 0.092 decal 10m 0.262,0.442
 21,4 surface 4/2/1 prop canopic -0.015 decal 10 0.595,0.388
 22,4 surface 3/2/1 decal 7m 0.442,0.417

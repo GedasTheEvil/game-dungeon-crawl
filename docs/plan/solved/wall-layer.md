@@ -63,7 +63,7 @@ number space, one legend, one `tile_defs` table.
 
 * **Interact**: both layers may hold something to interact with (an inscription over a chest, a lever by a key).
   The object goes first (open the chest, then read the inscription with the next press). With
-  [interact-prompt](../interact-prompt.md) the prompt shows the one the next press will use.
+  [interact-prompt](interact-prompt.md) the prompt shows the one the next press will use.
 * **Wall spikes** block the cell when out. `levelcheck` warns about a monster spawn, ladder, gate, door or treasure
   in a wall spikes cell (a spawn inside the spikes, a chest the player can never stand at safely). A key or a floor
   trap under them is fine.

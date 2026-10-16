@@ -1,7 +1,7 @@
 # Interact prompt and the inscription glint
 
-Status: implemented 2026-10-15, waiting for the user's play-test (`bin/game --play tests/play/interact-prompt.txt`).
-From the user, after [hieroglyph-cartouches](solved/hieroglyph-cartouches.md). Opus: the HUD, every usable tile, and a
+Status: solved 2026-10-16, play-tested (`bin/game --play tests/play/interact-prompt.txt`). Implemented 2026-10-15.
+From the user, after [hieroglyph-cartouches](hieroglyph-cartouches.md). Opus: the HUD, every usable tile, and a
 wall effect.
 
 ## Done
@@ -15,7 +15,7 @@ wall effect.
 * The glint: `glintQuad` in `src/world/dungeon_render_decor.cpp`, two additive passes of the inscription's own atlas
   cell, so the lit stele catches it; strength from `Dungeon::InscriptionGlint` (1 unread, 0.5 a copy, 0 read or worn).
 * Tests: `tests/unit/interact_test.cpp` (`tests/levels/interact`), `tests/unit/ui_layout_test.cpp`,
-  `tests/scenarios/interact_prompt.txt`, the mimic tests updated. The spent riddle gate has no unit test of its own
+  `tests/scenarios/solved/interact_prompt.txt`, the mimic tests updated. The spent riddle gate has no unit test of its own
   (SimWorld cannot answer a riddle); it falls under the gate's None like the entrance, which is tested.
 
 ## Why
@@ -31,11 +31,11 @@ While the player stands in a cell where the interact key does something, a small
 "[E] Open", "[E] Pull", "[E] Read", "[E] Enter", "[E] Answer", "[E] Take".
 
 * Which cells, from `Dungeon::Interact` (`src/world/dungeon_interact.cpp`) and its helpers, in the same order:
-  * `Treasure`: Open. With [treasure-containers](treasure-containers.draft.opus.md) (closed until opened): Open on a
+  * `Treasure`: Open. With [treasure-containers](../treasure-containers.draft.opus.md) (closed until opened): Open on a
     closed one, Take once open and its item shows; whichever plan lands second adds the Take.
   * `Lever` not pulled yet: Pull (a pulled lever: none).
   * `Inscription`: Read (Copy without the hieroglyph skill, once
-    [skill-hieroglyphs](solved/skill-hieroglyphs.md) is in).
+    [skill-hieroglyphs](skill-hieroglyphs.md) is in).
   * `Door`: riddle gate (`GateRiddle`) Answer; exit (`GateExit`) Enter; teleporter with a partner Enter, not while
     jumping or falling (as `useGate`). Entrance and spent riddle gate (`GateEmpty`): none.
   * `Ankh`: Take.
@@ -45,7 +45,7 @@ While the player stands in a cell where the interact key does something, a small
   that `Interact` does something exactly when the verb is not `None`.
 * The key: the one bound to interact, `keyCap` of its first binding (`src/input/bindings.h`), so a remapped key
   shows right ("E", "F12", "LMB").
-* Look: the shared UI look ([docs/ui.md](../ui.md)): a small dark panel with a key cap and the verb in the bottom
+* Look: the shared UI look ([docs/ui.md](../../ui.md)): a small dark panel with a key cap and the verb in the bottom
   right corner (the user, 2026-10-12: free today; the HUD panel holds the bottom left, the level gem the top right).
   It mirrors the HUD panel: same frame, its bottom edge on the HUD panel's bottom edge, the same margin from the
   screen edge. Its text is smaller than the status message's at the top centre (`StatusBox`, `src/ui/status_box.*`),
@@ -54,11 +54,11 @@ While the player stands in a cell where the interact key does something, a small
 * No setting to switch it off (agreed with the user: always on).
 * The mimic (Chest of Set) is a monster spawn, not a `Treasure`: it gets no prompt, and a chest without "[E] Open"
   would give it away. Show "[E] Open" in front of a mimic still lying in ambush too, and the key springs it (decided
-  with the user, 2026-10-12: with [trapped-chests](trapped-chests.draft.opus.md) opening any chest is a gamble), so
+  with the user, 2026-10-12: with [trapped-chests](../trapped-chests.draft.opus.md) opening any chest is a gamble), so
   the prompt never tells them apart.
   * Today the mimic wakes at `MIMIC_WAKE_RANGE` (1.5 tiles, `src/core/gameplay_config.h`), before the player can stand
     in front of it. Change the wake: an idle mimic wakes on the interact key or a hit, not on coming near; drop
-    `MIMIC_WAKE_RANGE`. The [cursed mimic](cursed-mimic.draft.opus.md) wakes the same way. The checker's threat for
+    `MIMIC_WAKE_RANGE`. The [cursed mimic](../cursed-mimic.draft.opus.md) wakes the same way. The checker's threat for
     the mimic stays (the player opens chests anyway).
 
 ## Part 2: the glint on unread inscriptions
@@ -69,7 +69,7 @@ read it stops: the journal has the entry (`Journal::Inscriptions`).
 
 * Drawn in `Dungeon::drawInscriptionTile` (`src/world/dungeon_render_decor.cpp`): a second additive pass over the
   quad with a moving gradient, or a small glint texture; no shader needed.
-* With [skill-hieroglyphs](solved/skill-hieroglyphs.md): a copy not translated yet keeps a dimmer glint until
+* With [skill-hieroglyphs](skill-hieroglyphs.md): a copy not translated yet keeps a dimmer glint until
   the skill is learnt (whichever plan lands second wires it).
 * Chests get no glint: they stand out already, and a glow would fight the torch lighting.
 

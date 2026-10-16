@@ -178,7 +178,7 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 
 ### Interact prompt
 
-What the interact key does in the player's cell ([plan/interact-prompt.md](plan/interact-prompt.md)): the verb comes
+What the interact key does in the player's cell ([plan/solved/interact-prompt.md](plan/interact-prompt.md)): the verb comes
 from `Dungeon::InteractVerb`, the one `Dungeon::Interact` switches on. A `panel` 8 high at the bottom right, mirroring
 the HUD panel (its bottom edge and screen margin), with the HUD's key cap (`PlayerHud::CAP_*`, the first key bound
 to Interact) and the verb in `body` `GOLD_BRIGHT` with a black shadow. It fades in 120 ms after a 150 ms delay, so

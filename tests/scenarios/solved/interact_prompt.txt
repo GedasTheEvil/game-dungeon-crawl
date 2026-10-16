@@ -1,6 +1,6 @@
-# Interact prompt (plan interact-prompt, tests/levels/interact): "[E] Open" at the chest, "[E] Copy" at the inscription
-# under it, "[E] Pull" at the lever, no prompt between them; the gold glint sweeping over the unread inscription, then
-# dimmer once copied, gone once read with the skill. Why a scenario: the prompt and the glint are drawn.
+# Parked (plan interact-prompt solved; the rules are unit tests in tests/unit/interact_test.cpp, tests/levels/interact):
+# "[E] Open" at the chest, "[E] Copy" at the inscription under it, "[E] Pull" at the lever, no prompt between them;
+# the gold glint sweeping over the unread inscription, then dimmer once copied, gone once read with the skill.
 seed 1
 god
 level tests/levels/interact

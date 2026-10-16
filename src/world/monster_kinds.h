@@ -70,7 +70,7 @@ struct BossRules {
 };
 
 constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};
-constexpr Rgb BOLT_RED = {0.95f, 0.15f, 0.1f};
+constexpr Rgb BOLT_FIRE = {1.f, 0.55f, 0.15f}; // the Anubis's fire bolt, its glowing core
 constexpr Rgb BOLT_PURPLE = {0.7f, 0.2f, 0.95f}; // the mummy priest's curse
 
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
@@ -85,6 +85,12 @@ struct RangedRules {
 	float releaseY = 0.5f; // of the reference clip's height: the mouth or sceptre head at the release
 	Rgb colour = VENOM_GREEN;
 	float releaseAhead = 1.f; // of the half width, ahead of the centre: 1 the hitbox front (HeadX)
+	// What a hit deals; nullopt: the type's attackMix (the cobras). With fire it sets the player burning for burnMs
+	// and the shot is drawn as a fireball (plan anubis-fire-bolt).
+	std::optional<DamageMix> mix;
+	int burnMs = BURN_MS;
+
+	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };
 
 // Where levelgen puts it: levels of difficulty minDifficulty .. maxDifficulty, picked by weight. Weight 0: never.

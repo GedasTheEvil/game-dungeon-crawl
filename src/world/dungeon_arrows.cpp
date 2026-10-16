@@ -203,7 +203,8 @@ void Dungeon::updateShots() {
 				const RangedRules& ranged = *rules;
 				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
 				if (!dodged) {
-					sim.player->TakeHit(ranged.damage, v.from->attackMix, *sim.events);
+					sim.player->TakeHit(ranged.damage, ranged.mix.value_or(v.from->attackMix), *sim.events, false,
+										ranged.burnMs);
 					sim.journal->HitByCreature(v.from->id, levelNumber);
 					if (sim.player->Curse(v.from->rangedCurses, *sim.events, sim.random->gameplay))
 						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Curse);

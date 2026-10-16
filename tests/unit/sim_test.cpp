@@ -87,6 +87,8 @@ TEST_CASE("the Anubis shoots a bolt from afar, no poison, then hits up close") {
 		world.Tick();
 	REQUIRE(world.Saw(MonsterAnubis, CreatureMove::AttackRanged));
 	CHECK(world.Hp() < hp);
+	CHECK(world.player.burning.Any()); // a fire bolt (plan anubis-fire-bolt)
+	CHECK(world.player.burning.LeftMs() <= BURN_MS);
 	CHECK_FALSE(world.player.stats.poison.Any());
 	CHECK_FALSE(world.Saw(MonsterAnubis, CreatureMove::Poison));
 	const Monster* anubis = firstMonster(world);
@@ -94,6 +96,26 @@ TEST_CASE("the Anubis shoots a bolt from afar, no poison, then hits up close") {
 	CHECK(anubis->Left() - (world.X() + world.player.HalfWidth()) > MONSTER_BITE_REACH); // hit from afar
 	world.Wait(4000);
 	CHECK(anubis->Left() - (world.X() + world.player.HalfWidth()) <= MONSTER_BITE_REACH); // came on to hit
+}
+
+TEST_CASE("the Anubis bolt is fire, its melee is not; the boss's bolt burns longer") {
+	const MonsterKind& guard = *monsterKind(MonsterAnubis);
+	const MonsterKind& boss = *monsterKind(MonsterAnubisBoss);
+	REQUIRE(guard.ranged.has_value());
+	REQUIRE(boss.ranged.has_value());
+	CHECK(guard.ranged->burns());
+	CHECK(boss.ranged->burns());
+	CHECK(guard.attackMix[FIRE] == 0);
+	CHECK(boss.attackMix[FIRE] == 0);
+	CHECK(boss.ranged->burnMs > guard.ranged->burnMs);
+
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/anubis_bolt"));
+	world.player.stats.AddXP(1000000, world.events); // lives through both hits
+	world.player.TakeHit(boss.damage, boss.attackMix, world.events);
+	CHECK_FALSE(world.player.burning.Any());
+	world.player.TakeHit(boss.ranged->damage, *boss.ranged->mix, world.events, false, boss.ranged->burnMs);
+	CHECK(world.player.burning.LeftMs() == boss.ranged->burnMs);
 }
 
 TEST_CASE("Sobek charges along the row through the player and is stunned by the wall") {

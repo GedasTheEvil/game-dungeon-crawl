@@ -121,7 +121,7 @@ constexpr FireKey VENOM_KEYS[] = {
 const FireRamp Fire::FLAME_RAMP = {FLAME_KEYS, sizeof(FLAME_KEYS) / sizeof(FLAME_KEYS[0])};
 const FireRamp Fire::VENOM_RAMP = {VENOM_KEYS, sizeof(VENOM_KEYS) / sizeof(VENOM_KEYS[0])};
 
-void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed) {
+void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed, float fade) {
 	Particle parts[MAX_PARTICLES];
 	int n = simulate(style, seed, parts);
 	ensureSprite();
@@ -147,7 +147,7 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 				continue;
 			float h = q.size / 2.f;
 			float cx = x + q.x, cy = y + q.y, cz = z + q.z;
-			glColor4f(q.r, q.g, q.b, q.a);
+			glColor4f(q.r * fade, q.g * fade, q.b * fade, q.a * fade); // premultiplied: all four
 			glTexCoord2f(0, 0);
 			glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
 			glTexCoord2f(1, 0);

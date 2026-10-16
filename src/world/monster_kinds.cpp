@@ -14,6 +14,10 @@ constexpr DamageMix RAT_MIX = {0, 30, 70}; // teeth
 constexpr DamageMix BAT_MIX = {0, 20, 80}; // fangs, claws
 constexpr DamageMix MUMMY_MIX = {100, 0, 0}; // fists
 constexpr DamageMix ANUBIS_MIX = {80, 0, 20}; // was-sceptre, its forked foot
+// Its bolt: fire with a stone knock, fire 100 : blunt 40 : pierce 20; the physical share keeps it a threat through the
+// fire ward's 80% (plan anubis-fire-bolt).
+constexpr DamageMix ANUBIS_BOLT_MIX = {25, 0, 13, 62};
+constexpr int ANUBIS_BOSS_BURN_MS = 5000; // its guard's: BURN_MS
 constexpr DamageMix CROCODILE_MIX = {50, 0, 50}; // crushing jaws
 constexpr DamageMix SCORPION_MIX = {0, 30, 70}; // claws, sting
 constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
@@ -145,7 +149,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .name = "Anubis living statue",
 	 .label = "anubis",
 	 .description = "Anubis living statue",
-	 .note = "A statue of Anubis that forgot to stay on its stand. Traps do not stop him.",
+	 .note =
+		 "A statue of Anubis that forgot to stay on its stand. Traps do not stop him, and his stone shrugs off fire.",
 	 .threat = 10.f, // walks faster than the player (plan anubis-speed): only a sprint gets away; +1 for the bolt
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis",
@@ -164,9 +169,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 // A bolt of light from the was-sceptre (plan anubis-ranged-attack). The melee swing is its ranged clip.
-	 .ranged =
-		 RangedRules{50, std::nullopt, 1.4f, 3000, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_RED, ANUBIS_RELEASE_AHEAD},
+	 // A bolt of fire from the was-sceptre (plans anubis-ranged-attack, anubis-fire-bolt). The melee swing is its
+	 // ranged clip.
+	 .ranged = RangedRules{50, std::nullopt, 1.4f, 3000, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_FIRE,
+						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
 	 .climbs = true,
@@ -417,9 +423,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 // Its guard's bolt, farther and harder; the same model.
-	 .ranged =
-		 RangedRules{125, std::nullopt, 2.0f, 2500, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_RED, ANUBIS_RELEASE_AHEAD},
+	 // Its guard's bolt, farther and harder, burning longer; the same model.
+	 .ranged = RangedRules{125, std::nullopt, 2.0f, 2500, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_FIRE,
+						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX, ANUBIS_BOSS_BURN_MS},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
 	 .climbs = true,
@@ -748,6 +754,11 @@ constexpr bool validKinds() {
 		if (kind.id != static_cast<int>(i) + 1 ||
 			kind.attackMix[0] + kind.attackMix[1] + kind.attackMix[2] + kind.attackMix[3] != 100)
 			return false;
+		if (kind.ranged && kind.ranged->mix) {
+			const DamageMix& mix = *kind.ranged->mix;
+			if (mix[0] + mix[1] + mix[2] + mix[3] != 100)
+				return false;
+		}
 		if (kind.boss.minion < 0 || kind.boss.minion > MONSTER_TYPE_MAX || kind.boss.smallMinion < 0 ||
 			kind.boss.smallMinion > MONSTER_TYPE_MAX || (kind.boss.summon == Summon::Hatch) != (kind.boss.nest != 0))
 			return false;
@@ -765,8 +776,9 @@ constexpr bool validKinds() {
 	}
 	return true;
 }
-static_assert(validKinds(), "KINDS: one row per MonsterTypeId in order, attack mixes of 100%, hatchers with a nest, "
-							"bosses with a kin, no weakness and no resistance worse than the kin's, poison included");
+static_assert(validKinds(),
+			  "KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
+			  "bosses with a kin, no weakness and no resistance worse than the kin's, poison included");
 } // namespace
 
 const MonsterKind* monsterKind(int type) {

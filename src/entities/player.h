@@ -58,10 +58,10 @@ class Player {
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Height() const;
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost), but not its fire share (playerHitDamage),
-	// which sets the player burning, in god mode too. No damage in the scenario god mode.
+	// which sets the player burning for burnMs, in god mode too. No damage in the scenario god mode.
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the
 	// health note.
-	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false);
+	int TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor = false, int burnMs = BURN_MS);
 	// A monster's attack finds the player: with the Dodge skill (plan skills) one in DODGE_PERCENT misses, rolled on
 	// rng. True: dodged (the "Dodged" line and a whoosh); the caller deals no damage, no poison. Also in god mode
 	// (scenarios).

@@ -249,7 +249,7 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 	case CreatureMove::AttackRanged:
 		if (t.id == MonsterMummyPriest)
 			return "Speaks curses from afar, a bolt of purple light. A jump clears it.";
-		return t.ranged && !t.ranged->poison ? "Hurls a bolt of red light from afar. A jump clears it."
+		return t.ranged && t.ranged->burns() ? "Hurls a bolt of fire from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
 		return "Dives into the sand and comes up behind me.";

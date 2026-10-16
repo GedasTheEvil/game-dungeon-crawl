@@ -28,27 +28,17 @@ constexpr Lighting::LightDef FIRE_ARROW_LIGHT = {1.f, 0.6f, 0.25f, 45.f, 0.5f};
 constexpr Lighting::LightDef BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7f};
 constexpr float BURNING_FRONT = 3.f; // world units in front of the body's centre: the flames lick round its front
 
+// A fiery bolt's flickering light, an oil lamp's (plan anubis-fire-bolt).
+constexpr Lighting::LightDef FIRE_BOLT_LIGHT = {1.f, 0.6f, 0.25f, 60.f, 0.5f};
+constexpr float FIRE_BOLT_CORE = 0.6f; // the fireball's glowing core, of the plain glob's size
+
 // Flame clouds trailing behind a fiery glob, in world units along its flight.
 constexpr float GLOB_TRAIL_STEP = 2.2f;
 constexpr int GLOB_TRAIL_CLOUDS = 2;
 
-// A glob of light or of flames, at (x, y, z) in the frame origin of its tile, flying along (vx, vy). With `flames`
-// (null: none) it is all fire, no ball: a fuzzy cloud in that style (the style carries the colours), smaller clouds
-// trailing behind. Without, a small ball in `colour`, stretched along its flight; `plain` is the white texture.
-// Shared by the venom and, later, the Anubis bolt.
-void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uint32_t seed, float x, float y, float z,
-						float vx, float vy, float stretch, float squash, float alpha) {
-	if (flames != nullptr) { // billboards: no rotation in the modelview
-		Fire::draw(*flames, x, y, z, seed);
-		const float speed = std::hypot(vx, vy);
-		if (speed <= 0.f || squash < 1.f) // no trail once it splats
-			return;
-		for (int i = 1; i <= GLOB_TRAIL_CLOUDS; i++) {
-			const float back = GLOB_TRAIL_STEP * static_cast<float>(i) / speed;
-			Fire::draw(Fire::VENOM_TRAIL, x - vx * back, y - vy * back, z, seed + static_cast<uint32_t>(i) * 7919u);
-		}
-		return;
-	}
+// A ball in `colour` of `radius` world units, stretched along its flight (vx, vy); `plain` is the white texture.
+void drawBall(Texture& plain, Rgb colour, float x, float y, float z, float vx, float vy, float stretch, float squash,
+			  float alpha, float radius) {
 	constexpr int SLICES = 8, STACKS = 6;
 	plain.Bind(); // texture x colour: plain colour
 	glEnable(GL_BLEND);
@@ -56,7 +46,7 @@ void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uin
 	glPushMatrix();
 	glTranslatef(x, y, z);
 	glRotatef(std::atan2(vy, vx) * RAD_TO_DEG, 0, 0, 1);
-	glScalef(GLOB_RADIUS * stretch, GLOB_RADIUS * squash, GLOB_RADIUS);
+	glScalef(radius * stretch, radius * squash, radius);
 	glColor4f(colour.r, colour.g, colour.b, alpha);
 	for (int i = 0; i < STACKS; i++) {
 		const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
@@ -75,6 +65,52 @@ void drawGlobWithFlames(Texture& plain, Rgb colour, const FireStyle* flames, uin
 	Lighting::setEmissive(false);
 	glDisable(GL_BLEND);
 	glColor3f(1, 1, 1);
+}
+
+// How a shot looks: a plain glob of light, or flames (the style carries the colours) with smaller clouds trailing in
+// flight and a burst on a splat; with a core, a small glowing ball inside the flames.
+struct GlobLook {
+	const FireStyle* flames = nullptr; // null: the plain glob
+	const FireStyle* trail = nullptr;
+	const FireStyle* splat = nullptr;
+	const Lighting::LightDef* light = nullptr; // in flight
+	bool core = false;
+};
+constexpr GlobLook PLAIN_GLOB{};
+constexpr GlobLook VENOM_GLOB = {&Fire::VENOM, &Fire::VENOM_TRAIL, &Fire::VENOM, &VENOM_LIGHT,
+								 false}; // all flames, no ball
+constexpr GlobLook FIRE_BOLT = {&Fire::BOLT, &Fire::BOLT_TRAIL, &Fire::BOLT_SPLAT, &FIRE_BOLT_LIGHT, true};
+
+const GlobLook& globLook(const std::optional<RangedRules>& ranged) {
+	if (!ranged.has_value())
+		return PLAIN_GLOB;
+	if (ranged->poison.has_value())
+		return VENOM_GLOB;
+	return ranged->burns() ? FIRE_BOLT : PLAIN_GLOB;
+}
+
+// A glob of light or of flames, at (x, y, z) in the frame origin of its tile, flying along (vx, vy), in its look.
+// Shared by the venom and the Anubis fire bolt.
+void drawGlobWithFlames(Texture& plain, Rgb colour, const GlobLook& look, uint32_t seed, float x, float y, float z,
+						float vx, float vy, float stretch, float squash, float alpha) {
+	const bool splat = squash < 1.f;
+	if (look.flames == nullptr || (look.core && !splat))
+		drawBall(plain, colour, x, y, z, vx, vy, stretch, squash, alpha,
+				 look.flames == nullptr ? GLOB_RADIUS : GLOB_RADIUS * FIRE_BOLT_CORE);
+	if (look.flames == nullptr)
+		return;
+	if (splat) { // a burst fading with the splat
+		Fire::draw(*look.splat, x, y, z, seed, alpha);
+		return;
+	}
+	Fire::draw(*look.flames, x, y, z, seed); // billboards: no rotation in the modelview
+	const float speed = std::hypot(vx, vy);
+	if (speed <= 0.f)
+		return;
+	for (int i = 1; i <= GLOB_TRAIL_CLOUDS; i++) {
+		const float back = GLOB_TRAIL_STEP * static_cast<float>(i) / speed;
+		Fire::draw(*look.trail, x - vx * back, y - vy * back, z, seed + static_cast<uint32_t>(i) * 7919u);
+	}
 }
 } // namespace
 
@@ -156,8 +192,9 @@ void Dungeon::drawDarts() {
 	}
 }
 //======================================================================================
-// A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; else a small ball in
-// its spitter's colour, stretched along its flight, flattening into a splat on a wall or the floor.
+// A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; with fire a fireball;
+// else a small ball in its shooter's colour, stretched along its flight, flattening into a splat on a wall or the
+// floor.
 void Dungeon::drawShots() {
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);
@@ -170,21 +207,19 @@ void Dungeon::drawShots() {
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
-		const std::optional<RangedRules>& ranged = v.from->ranged;
-		drawGlobWithFlames(sim.assets->textures.nullTex, v.colour,
-						   ranged.has_value() && ranged->poison.has_value() ? &Fire::VENOM : nullptr,
+		drawGlobWithFlames(sim.assets->textures.nullTex, v.colour, globLook(v.from->ranged),
 						   static_cast<uint32_t>(v.spawnMs), RenderConfig::TILE_SIZE * (v.x - firstCol),
 						   RenderConfig::TILE_SIZE * (v.y - firstRow), ARROW_DEPTH, v.vx, v.vy, stretch, squash, alpha);
 	}
 }
-// The light of each flying glob; same frame as addLights.
+// The light of each flying glob, venom or fire; same frame as addLights.
 void Dungeon::addVenomLights() {
 	for (const MonsterShot& v : shots) {
-		const std::optional<RangedRules>& ranged = v.from->ranged;
-		if (v.splatMs < 0 && ranged.has_value() && ranged->poison.has_value())
+		const GlobLook& look = globLook(v.from->ranged);
+		if (v.splatMs < 0 && look.light != nullptr)
 			Lighting::add(RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
 						  RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
-						  ARROW_DEPTH + GLOB_LIGHT_LIFT, VENOM_LIGHT, 0);
+						  ARROW_DEPTH + GLOB_LIGHT_LIFT, *look.light, static_cast<uint32_t>(v.spawnMs));
 	}
 }
 // The fire arrows' and the burning monsters' light; same frame as addLights.

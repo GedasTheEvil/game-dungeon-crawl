@@ -42,10 +42,15 @@ constexpr FireStyle VENOM_TRAIL = {10, 320.f, 1.f, 3.5f, 2.2f, 1.f, 0.4f, &VENOM
 // A fire arrow's tip, a burning body's tongues of flame (plan fire-damage).
 constexpr FireStyle ARROW = {16, 380.f, 0.5f, 4.f, 2.f, 1.f, 0.3f};
 constexpr FireStyle BODY = {24, 600.f, 2.5f, 9.f, 3.6f, 1.5f, 0.4f};
+// The Anubis's fire bolt (plan anubis-fire-bolt): a small fireball, about an oil lamp's flame, short-lived and with
+// little smoke, smaller clouds trailing it; a short burst where it hits a wall or the floor.
+constexpr FireStyle BOLT = {20, 380.f, 0.9f, 4.f, 2.6f, 1.f, 0.15f};
+constexpr FireStyle BOLT_TRAIL = {10, 300.f, 0.8f, 3.f, 2.f, 0.8f, 0.2f};
+constexpr FireStyle BOLT_SPLAT = {40, 450.f, 2.5f, 9.f, 3.4f, 2.f, 0.5f};
 
 // Draws one fire at (x, y, z) in the current modelview's local space. Call after the opaque scene: the sprites
-// test depth but do not write it.
-void draw(const FireStyle& style, float x, float y, float z, uint32_t seed);
+// test depth but do not write it. fade 0..1 dims it (1: full).
+void draw(const FireStyle& style, float x, float y, float z, uint32_t seed, float fade = 1.f);
 // A burning body: BODY flames over its box, bottom centre (x, y, z), halfWidth and height in world units.
 void body(float x, float y, float z, float halfWidth, float height, uint32_t seed);
 } // namespace Fire

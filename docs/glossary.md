@@ -79,7 +79,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ranged attack | | a monster's shot from afar along its row: the cobras' spit, the Anubis's bolt; range in tiles; clip and sound suffix `_att_ranged` | `RangedRules`, `MonsterKind::ranged`, `Dungeon::MonsterShot`, `ModelState::AttackRanged` |
 | spit | | the cobras' ranged attack: a poisoned venom glob | `RangedRules::poison` |
 | fire ramp | | the colours of a fire over a particle's life, one per `FireStyle` (flame, venom green) | `FireRamp`, `Fire::VENOM_RAMP` |
-| glob with flames | | a spat glob drawn as a cloud of fire sprites with smaller clouds trailing, no ball; ramp per projectile (venom: green). Without flames: a plain ball | `drawGlobWithFlames` |
+| glob with flames | | a spat glob drawn as a cloud of fire sprites with smaller clouds trailing, no ball; ramp per projectile (venom: green). Without flames: a plain ball | `drawGlobWithFlames`, `GlobLook` |
+| fire bolt | | the Anubis's ranged attack: a small fireball (orange core in flames, a flickering light), mostly fire, sets the player burning (the boss's longer) | `RangedRules::mix`, `RangedRules::burnMs`, `Fire::BOLT` |
 | stamina drain | | a bite that takes a share of the player's max stamina (the blue lotus's sedative, 25%); the journal's "drowsy" note | `MonsterKind::staminaDrainPct`, `CreatureMove::Sedate` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
 | submerged | | lies under the water until the player comes near (the crocodile) | `Locomotion::Submerged` |

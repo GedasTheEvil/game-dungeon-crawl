@@ -1,0 +1,40 @@
+# The Anubis's fire bolt (plan anubis-fire-bolt; tests/levels/anubis_bolt): a small fireball trailing flames, lighting
+# the walls as it flies, a burst of fire where it hits; the player hit catches fire. The rules are in
+# tests/unit/sim_test.cpp.
+seed 1
+level tests/levels/anubis_bolt
+xp 1000000
+walk right 1
+wait 1800ms
+screenshot start
+wait 100ms
+screenshot t01
+wait 100ms
+screenshot t02
+wait 100ms
+screenshot t03
+wait 100ms
+screenshot t04
+wait 100ms
+screenshot t05
+wait 100ms
+screenshot t06
+wait 100ms
+screenshot t07
+wait 100ms
+screenshot t08
+wait 100ms
+screenshot t09
+wait 100ms
+screenshot t10
+wait 100ms
+screenshot t11
+wait 100ms
+screenshot t12
+wait 100ms
+screenshot t13
+wait 100ms
+screenshot t14
+expect hp < 614
+expect burning == 1
+expect poison == 0

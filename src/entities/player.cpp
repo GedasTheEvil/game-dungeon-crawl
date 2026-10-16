@@ -32,11 +32,11 @@ void Player::Animate() {
 	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 }
 
-int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor) {
+int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor, int burnMs) {
 	if (const double fire = fireDamage(dmg, mix, stats.resist); fire > 0.0 && Alive()) {
 		if (!burning.Any())
 			events.Status("You are on fire!");
-		burning.Ignite(fire);
+		burning.Ignite(fire, burnMs);
 		events.Note(FieldNote::Fire);
 	}
 	if (god)

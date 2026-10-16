@@ -1,7 +1,7 @@
 # Anubis fire bolt
 
-Status: draft 2026-10-12. Needs [fire-damage](solved/fire-damage.md) first (the fire type and burning). From the
-user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks like fire (the torch flames).
+Status: implemented 2026-10-16, waits for the user's play-test: `bin/game --play tests/play/anubis-fire-bolt.txt`.
+Built on [fire-damage](solved/fire-damage.md). From the user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks like fire (the torch flames).
 
 ## Today
 
@@ -51,3 +51,20 @@ user: once fire exists, the Anubis's ranged attack is fire, and the bolt looks l
   lasts longer.
 * Scenario with screenshots: the fire bolt in flight in a dark corridor (light on the walls) and its splat; extend
   `tests/scenarios/anubis_bolt.txt`.
+
+## Implemented
+
+* `RangedRules::mix` (nullopt: the type's `attackMix`) and `RangedRules::burnMs`; `burns()` when the mix has fire.
+  `validKinds` checks a ranged mix adds up to 100. `Player::TakeHit` takes the burn time.
+* Anubis guard and boss: `ANUBIS_BOLT_MIX` fire 62 / blunt 25 / pierce 13, damage 50 / 125 as before; the guard burns
+  `BURN_MS` 3 s, the boss `ANUBIS_BOSS_BURN_MS` 5 s. Melee stays `ANUBIS_MIX`. `BOLT_FIRE` (orange) replaced `BOLT_RED`.
+* Look (`dungeon_render_effects.cpp`): `GlobLook` per shot (flames, trail, splat, light, core), shared by the venom and
+  the bolt. The bolt: a small orange core (`FIRE_BOLT_CORE` 0.6 of the glob) in `Fire::BOLT` flames, two
+  `Fire::BOLT_TRAIL` clouds, a flickering oil-lamp light (`FIRE_BOLT_LIGHT`, in `addVenomLights`), a
+  `Fire::BOLT_SPLAT` burst on a wall or the floor. `Fire::draw` got a `fade`: the splats (venom too) fade over
+  `SHOT_SPLAT_MS`.
+* Journal: "Hurls a bolt of fire from afar. A jump clears it."; the guard's note adds "his stone shrugs off fire".
+* Not done: balance sim (`monster-balance` is still a draft), threat unchanged (10 / 16); no fire sound exists, the
+  attack sound stays.
+* Tests: `tests/unit/sim_test.cpp` (the bolt hit burns; the mixes; the boss burns longer),
+  `tests/scenarios/anubis_fire_bolt.txt` (screenshots: the fireball in flight lighting the floor, the player burning).

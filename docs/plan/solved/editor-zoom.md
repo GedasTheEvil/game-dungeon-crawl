@@ -1,7 +1,7 @@
 # Editor zoom: 1x, 2x, 3x map view with panning and a minimap
 
-Status: draft, ready. Needs nothing first. From the user. Tooling only: no game change, so once implemented and its
-checks pass, it goes straight to `docs/plan/solved/` (docs/plans.md, Solved).
+Status: implemented and solved (tooling only). The view state is `MapView` (`tools/editor/map_view.h`, unit tests in
+`tests/unit/map_view_test.cpp`).
 
 ## Today
 

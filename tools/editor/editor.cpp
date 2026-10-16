@@ -1,5 +1,6 @@
 // Level editor. Runs from the repo root, levels go to tools/editor/saved/<name>. See readme.md.
 
+#include "map_view.h"
 #include "tile_info.h"
 #include "../../src/graphics/font.h"
 #include "../../src/graphics/textures.h"
@@ -25,10 +26,13 @@ constexpr float CANVAS_H = 100.f;
 constexpr int START_WIDTH = 1280;
 constexpr int START_HEIGHT = 800;
 
-constexpr float CELL = 1.8f; // map cell pitch
-constexpr float MAP_X = 6.f;
-constexpr float MAP_Y = 8.5f;
-constexpr Rect MAP_AREA = {MAP_X, MAP_Y, LEVEL_WIDTH* CELL, LEVEL_HEIGHT* CELL};
+constexpr Rect MAP_AREA = EDITOR_MAP_AREA; // the window on the map; at 1x the whole map, 1.8 per cell
+constexpr float MINIMAP_CELL = 0.42f; // the minimap (zoomed only): the whole map, in a corner of the map area
+constexpr float MINIMAP_MARGIN = 0.8f;
+constexpr Rect MINIMAP = {MAP_AREA.x + MAP_AREA.w - MINIMAP_MARGIN - LEVEL_WIDTH * MINIMAP_CELL,
+						  MAP_AREA.y + MAP_AREA.h - MINIMAP_MARGIN - LEVEL_HEIGHT* MINIMAP_CELL,
+						  LEVEL_WIDTH* MINIMAP_CELL, LEVEL_HEIGHT* MINIMAP_CELL};
+constexpr float WHEEL_PAN_CELLS = 2.f; // a wheel notch or an arrow key moves the window this far
 constexpr Rect MAP_PANEL = {4.f, 6.5f, 76.f, 88.8f};
 
 constexpr float RIGHT_X = 84.f;
@@ -124,10 +128,6 @@ Rect slotRect(int slot) {
 			SLOT_H};
 }
 
-Rect cellRect(int col, int row) {
-	return {MAP_X + static_cast<float>(col) * CELL, MAP_Y + static_cast<float>(row) * CELL, CELL, CELL};
-}
-
 int parseNumber(const std::string& digits) { return digits.empty() ? 0 : std::stoi(digits); }
 
 bool isNameChar(unsigned char c) {
@@ -171,6 +171,7 @@ class Editor {
 	void mouseDrag(int x, int y);
 	void mouseMove(int x, int y);
 	void keyPressed(unsigned char key);
+	void specialKeyPressed(int key);
 
   private:
 	LevelGrid grid; // all wall, the rock the level is carved from
@@ -184,6 +185,11 @@ class Editor {
 	CellPos hovered;
 	CellPos checked;
 	bool painting = false;
+	MapView view; // zoom and pan (plan editor-zoom)
+	float pointerX = 0.f; // the mouse, canvas
+	float pointerY = 0.f;
+	bool panning = false; // middle button drag
+	bool draggingMinimap = false;
 	Target hoveredTarget = Target::None;
 	int hoveredSlot = -1;
 
@@ -207,8 +213,16 @@ class Editor {
 	[[nodiscard]] int selectedId() const { return layer == Layer::Structure ? static_cast<int>(structure) : tile; }
 	[[nodiscard]] Rect visibleArea() const;
 	void toCanvas(int mouseX, int mouseY, float& x, float& y) const;
-	[[nodiscard]] static CellPos cellAt(float x, float y);
+	[[nodiscard]] bool minimapShown() const { return view.zoom() > 1; }
+	[[nodiscard]] Rect cellRect(int col, int row) const { return view.cellRect(col, row); }
 	void updateHover(float x, float y);
+	void track(int mouseX, int mouseY);
+	void wheel(int button);
+	void zoomTo(int zoom);
+	void centerOnMinimap(float x, float y);
+	void beginMapClip() const;
+	static void endMapClip();
+	void drawMinimap();
 
 	void setMode(Mode m);
 	void setLayer(Layer l);
@@ -271,15 +285,14 @@ void Editor::toCanvas(int mouseX, int mouseY, float& x, float& y) const {
 	y = area.y + area.h - area.h * static_cast<float>(mouseY) / static_cast<float>(winH);
 }
 
-CellPos Editor::cellAt(float x, float y) {
-	if (!MAP_AREA.contains(x, y))
-		return {};
-	CellPos cell = {static_cast<int>((x - MAP_X) / CELL), static_cast<int>((y - MAP_Y) / CELL)};
-	return LevelGrid::inBounds(cell.col, cell.row) ? cell : CellPos{};
+// Remembers the mouse and what is under it.
+void Editor::track(int mouseX, int mouseY) {
+	toCanvas(mouseX, mouseY, pointerX, pointerY);
+	updateHover(pointerX, pointerY);
 }
 
 void Editor::updateHover(float x, float y) {
-	hovered = cellAt(x, y);
+	hovered = minimapShown() && MINIMAP.contains(x, y) ? CellPos{} : view.cellAt(x, y);
 	hoveredSlot = -1;
 	hoveredTarget = Target::None;
 	const size_t slots = paletteOf(layer).size();
@@ -305,14 +318,62 @@ void Editor::updateHover(float x, float y) {
 			hoveredTarget = target;
 }
 
-void Editor::mouseButton(int button, int state, int x, int y) {
-	float cx = 0.f;
-	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
-	updateHover(cx, cy);
+// Zooms to `zoom` around the cell under the mouse (the centre of the window when the mouse is not on the map).
+void Editor::zoomTo(int zoom) {
+	float fracX = 0.5f;
+	float fracY = 0.5f;
+	if (MAP_AREA.contains(pointerX, pointerY)) {
+		fracX = (pointerX - MAP_AREA.x) / MAP_AREA.w;
+		fracY = (pointerY - MAP_AREA.y) / MAP_AREA.h;
+	}
+	view.setZoom(zoom, view.originCol() + fracX * view.visibleCols(), view.originRow() + fracY * view.visibleRows(),
+				 fracX, fracY);
+	updateHover(pointerX, pointerY);
+}
 
+void Editor::centerOnMinimap(float x, float y) {
+	view.centerOn((x - MINIMAP.x) / MINIMAP_CELL, (y - MINIMAP.y) / MINIMAP_CELL);
+	updateHover(pointerX, pointerY);
+}
+
+// The mouse wheel, freeglut's buttons 3 (up), 4 (down), 5 (left), 6 (right): Ctrl zooms, Shift pans sideways.
+void Editor::wheel(int button) {
+	const bool forward = button == 3 || button == 5; // up, left
+	const int modifiers = glutGetModifiers();
+	if ((modifiers & GLUT_ACTIVE_CTRL) != 0) {
+		zoomTo(view.zoom() + (button == 3 ? 1 : (button == 4 ? -1 : 0)));
+		return;
+	}
+	const float step = forward ? WHEEL_PAN_CELLS : -WHEEL_PAN_CELLS;
+	if (button >= 5 || (modifiers & GLUT_ACTIVE_SHIFT) != 0)
+		view.pan(-step, 0.f); // wheel up: left
+	else
+		view.pan(0.f, step);
+	updateHover(pointerX, pointerY);
+}
+
+void Editor::mouseButton(int button, int state, int x, int y) {
+	track(x, y);
+
+	if (button >= 3) {
+		if (state == GLUT_DOWN)
+			wheel(button);
+		return;
+	}
+	if (button == GLUT_MIDDLE_BUTTON) {
+		panning = state == GLUT_DOWN && MAP_AREA.contains(pointerX, pointerY);
+		return;
+	}
 	if (state == GLUT_UP) {
 		painting = false;
+		draggingMinimap = false;
+		return;
+	}
+
+	if (button == GLUT_LEFT_BUTTON && minimapShown() && MINIMAP.contains(pointerX, pointerY)) {
+		field = Field::None;
+		draggingMinimap = true;
+		centerOnMinimap(pointerX, pointerY);
 		return;
 	}
 
@@ -377,20 +438,23 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 }
 
 void Editor::mouseDrag(int x, int y) {
-	float cx = 0.f;
-	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
-	updateHover(cx, cy);
+	const float lastX = pointerX;
+	const float lastY = pointerY;
+	track(x, y);
+	if (draggingMinimap) {
+		centerOnMinimap(pointerX, pointerY);
+		return;
+	}
+	if (panning) { // the map follows the mouse
+		view.pan(-(pointerX - lastX) / view.cellSize(), -(pointerY - lastY) / view.cellSize());
+		updateHover(pointerX, pointerY);
+		return;
+	}
 	if (painting && hovered.col >= 0)
 		paint(hovered);
 }
 
-void Editor::mouseMove(int x, int y) {
-	float cx = 0.f;
-	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
-	updateHover(cx, cy);
-}
+void Editor::mouseMove(int x, int y) { track(x, y); }
 
 void Editor::typeInto(std::string& text, unsigned char key, size_t maxLength, bool digitsOnly) {
 	if (key == KEY_BACKSPACE || key == KEY_DELETE) {
@@ -424,6 +488,12 @@ void Editor::keyPressed(unsigned char key) {
 											   : Layer::Structure);
 		else if (key == KEY_TAB)
 			field = Field::Attribute;
+		else if (key == '+' || key == '=')
+			zoomTo(view.zoom() + 1);
+		else if (key == '-')
+			zoomTo(view.zoom() - 1);
+		else if (key >= '1' && key <= '3')
+			zoomTo(key - '0');
 		return;
 	}
 
@@ -441,6 +511,20 @@ void Editor::keyPressed(unsigned char key) {
 		typeInto(valueText, key, VALUE_DIGITS, true);
 	else
 		typeInto(name, key, NAME_LENGTH, false);
+}
+
+void Editor::specialKeyPressed(int key) {
+	if (field != Field::None)
+		return;
+	if (key == GLUT_KEY_LEFT)
+		view.pan(-WHEEL_PAN_CELLS, 0.f);
+	else if (key == GLUT_KEY_RIGHT)
+		view.pan(WHEEL_PAN_CELLS, 0.f);
+	else if (key == GLUT_KEY_UP)
+		view.pan(0.f, WHEEL_PAN_CELLS);
+	else if (key == GLUT_KEY_DOWN)
+		view.pan(0.f, -WHEEL_PAN_CELLS);
+	updateHover(pointerX, pointerY);
 }
 
 // ---- actions ---------------------------------------------------------------
@@ -562,6 +646,8 @@ void Editor::draw() {
 	drawBackground();
 	drawMap();
 	drawMapOverlay();
+	if (minimapShown())
+		drawMinimap();
 	drawPalette();
 	drawBrush();
 	drawHint();
@@ -639,28 +725,64 @@ void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float 
 		fillRect({r.x, r.y, r.w, r.h / 2}, WATER_TOP, WATER_BOTTOM, HALF_WATER_OVER_OBJECT * structureAlpha);
 }
 
+// The map is drawn clipped to the map area: zoomed, the cells reach past it.
+void Editor::beginMapClip() const {
+	Rect area = visibleArea();
+	auto px = [&](float x) { return static_cast<float>(winW) * (x - area.x) / area.w; };
+	auto py = [&](float y) { return static_cast<float>(winH) * (y - area.y) / area.h; };
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(static_cast<int>(std::floor(px(MAP_AREA.x))), static_cast<int>(std::floor(py(MAP_AREA.y))),
+			  static_cast<int>(std::ceil(px(MAP_AREA.x + MAP_AREA.w) - px(MAP_AREA.x))),
+			  static_cast<int>(std::ceil(py(MAP_AREA.y + MAP_AREA.h) - py(MAP_AREA.y))));
+}
+
+void Editor::endMapClip() { glDisable(GL_SCISSOR_TEST); }
+
 void Editor::drawMap() {
 	beginShapes();
 	fillRect(MAP_AREA.inset(-0.4f), BLACK, BLACK, 1.f);
+	beginMapClip();
 	const bool structures = layer == Layer::Structure;
-	for (int row = 0; row < LEVEL_HEIGHT; row++)
-		for (int col = 0; col < LEVEL_WIDTH; col++)
+	const int firstCol = std::max(0, static_cast<int>(std::floor(view.originCol())));
+	const int lastCol = std::min(LEVEL_WIDTH - 1, static_cast<int>(std::ceil(view.originCol() + view.visibleCols())));
+	const int firstRow = std::max(0, static_cast<int>(std::floor(view.originRow())));
+	const int lastRow = std::min(LEVEL_HEIGHT - 1, static_cast<int>(std::ceil(view.originRow() + view.visibleRows())));
+	for (int row = firstRow; row <= lastRow; row++)
+		for (int col = firstCol; col <= lastCol; col++)
 			drawCell(grid.at(col, row), cellRect(col, row), structures ? 1.f : 0.7f,
 					 layer == Layer::Wall ? 1.f : OTHER_LAYER_ALPHA, layer == Layer::Objects ? 1.f : OTHER_LAYER_ALPHA);
 
 	// Grid lines, every 5th a little stronger to help counting.
-	for (int col = 0; col <= LEVEL_WIDTH; col++) {
-		float x = MAP_X + static_cast<float>(col) * CELL;
-		line(x, MAP_Y, x, MAP_AREA.y + MAP_AREA.h, BLACK, col % 5 == 0 ? 0.8f : 0.45f, 1.f);
+	for (int col = firstCol; col <= lastCol + 1; col++) {
+		float x = view.cellRect(col, 0).x;
+		line(x, MAP_AREA.y, x, MAP_AREA.y + MAP_AREA.h, BLACK, col % 5 == 0 ? 0.8f : 0.45f, 1.f);
 	}
-	for (int row = 0; row <= LEVEL_HEIGHT; row++) {
-		float y = MAP_Y + static_cast<float>(row) * CELL;
-		line(MAP_X, y, MAP_AREA.x + MAP_AREA.w, y, BLACK, row % 5 == 0 ? 0.8f : 0.45f, 1.f);
+	for (int row = firstRow; row <= lastRow + 1; row++) {
+		float y = view.cellRect(0, row).y;
+		line(MAP_AREA.x, y, MAP_AREA.x + MAP_AREA.w, y, BLACK, row % 5 == 0 ? 0.8f : 0.45f, 1.f);
 	}
+	endMapClip();
+}
+
+// Zoomed only: the whole map's structure, small, with a frame for the window. Click or drag to move the window.
+void Editor::drawMinimap() {
+	beginShapes();
+	fillRect(MINIMAP.inset(-0.3f), BLACK, BLACK, 0.85f);
+	for (int row = 0; row < LEVEL_HEIGHT; row++)
+		for (int col = 0; col < LEVEL_WIDTH; col++) {
+			Rect r = {MINIMAP.x + static_cast<float>(col) * MINIMAP_CELL,
+					  MINIMAP.y + static_cast<float>(row) * MINIMAP_CELL, MINIMAP_CELL, MINIMAP_CELL};
+			drawStructureSwatch(grid.at(col, row).structure, r, 1.f);
+		}
+	Rect frame = {MINIMAP.x + view.originCol() * MINIMAP_CELL, MINIMAP.y + view.originRow() * MINIMAP_CELL,
+				  view.visibleCols() * MINIMAP_CELL, view.visibleRows() * MINIMAP_CELL};
+	strokeRect(frame, GOLD_BRIGHT, 1.f, 1.5f);
+	strokeRect(MINIMAP.inset(-0.3f), BRONZE, 1.f, 1.5f);
 }
 
 void Editor::drawMapOverlay() {
 	beginShapes();
+	beginMapClip();
 	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.005f);
 
 	if (mode == Mode::Check) {
@@ -690,6 +812,8 @@ void Editor::drawMapOverlay() {
 		strokeRect(r.inset(-0.15f), GOLD_BRIGHT, 1.f, 1.5f);
 	}
 
+	endMapClip();
+
 	// Cursor readout above the map.
 	beginText();
 	char buf[128];
@@ -705,8 +829,10 @@ void Editor::drawMapOverlay() {
 					 structureDef(t.structure).name, tileInfo(t.type).name, t.attr, t.value);
 		text(small, MAP_PANEL.x + 1.f, 96.6f, buf, GOLD);
 	}
-	const char* modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
-	text(small, MAP_PANEL.x + MAP_PANEL.w - small.TextWidth(modeText) - 1.f, 96.6f, modeText, GOLD_DIM);
+	std::string modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
+	if (view.zoom() > 1)
+		modeText += "   Zoom " + std::to_string(view.zoom()) + "x";
+	text(small, MAP_PANEL.x + MAP_PANEL.w - small.TextWidth(modeText.c_str()) - 1.f, 96.6f, modeText.c_str(), GOLD_DIM);
 	beginShapes();
 }
 
@@ -916,7 +1042,7 @@ void Editor::drawFooter() {
 
 	textCentered(small, CANVAS_W / 2, 0.8f,
 				 "Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    "
-				 "Tab: next field    Ctrl+S / Ctrl+O: save / load",
+				 "+ / -: zoom    Wheel, arrows, middle drag: pan    Tab: next field    Ctrl+S / Ctrl+O: save / load",
 				 {0.55f, 0.45f, 0.30f});
 	beginShapes();
 }
@@ -937,6 +1063,7 @@ int main(int argc, char* argv[]) {
 	glutIdleFunc([] { glutPostRedisplay(); });
 	glutReshapeFunc([](int w, int h) { editor->resize(w, h); });
 	glutKeyboardFunc([](unsigned char key, int, int) { editor->keyPressed(key); });
+	glutSpecialFunc([](int key, int, int) { editor->specialKeyPressed(key); });
 	glutMouseFunc([](int button, int state, int x, int y) { editor->mouseButton(button, state, x, y); });
 	glutMotionFunc([](int x, int y) { editor->mouseDrag(x, y); });
 	glutPassiveMotionFunc([](int x, int y) { editor->mouseMove(x, y); });

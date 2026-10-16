@@ -6,6 +6,7 @@
 
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
   Above the grid: the column, row and contents of the cell under the mouse.
+  Zoomed, the grid shows a window of the map and a minimap in its top right corner (see [Zoom](#zoom)).
 * Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` layer buttons.
 * Right, middle: the palette of the layer (structures, the wall types, or the object tiles in two rows), then the
   `Attribute` and `Value` fields (fixtures and objects only).
@@ -24,6 +25,20 @@
 In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, or its
 fixture's or object's tile, attribute and value. In `Check` mode with the `Wall` layer, the papyrus explains the
 clicked cell's fixture.
+
+## Zoom
+
+The grid has three zoom levels, 1x (the whole map), 2x and 3x. The level stays 40 x 47: only the view changes, and it
+is not saved.
+
+* Zoom: `+` / `-`, or `1` / `2` / `3` (when no text field has focus); `Ctrl` + mouse wheel. It zooms around the cell
+  under the mouse.
+* Pan: mouse wheel (up / down), `Shift` + wheel (left / right), the arrow keys, or a middle button drag. The window
+  stays inside the map.
+* Minimap (zoomed only): the structure of the whole map in the top right corner of the grid, with a frame for the
+  window. Click or drag in it to move the window. Cells under it cannot be painted.
+
+Painting, picking, the check mode and the hover line work at every zoom.
 
 ## Layers
 

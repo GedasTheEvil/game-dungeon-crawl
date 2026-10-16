@@ -180,33 +180,31 @@ void Dungeon::useGate() {
 }
 //======================================================================================
 void Dungeon::startTravel(bool exitGate) {
-	travel = Travel::Out;
-	travelStartMs = GameClock::now();
-	travelExit = exitGate;
+	travel = {GateTravel::Phase::Out, GameClock::now(), exitGate};
 	if (!exitGate)
 		sim.events->Play(WorldSound::Teleport);
 }
 //======================================================================================
 void Dungeon::updateTravel() {
 	updateAnimations();
-	if (GameClock::now() - travelStartMs < GATE_TRAVEL_FADE_MS)
+	if (GameClock::now() - travel.startMs < GATE_TRAVEL_FADE_MS)
 		return;
-	if (travel == Travel::Out) {
-		if (travelExit)
+	if (travel.phase == GateTravel::Phase::Out) {
+		if (travel.exit)
 			LoadCampaignLevel(levelNumber + 1);
 		else
 			Teleport();
-		travel = Travel::In;
-		travelStartMs = GameClock::now();
+		travel.phase = GateTravel::Phase::In;
+		travel.startMs = GameClock::now();
 	} else
-		travel = Travel::None;
+		travel.phase = GateTravel::Phase::None;
 }
 //======================================================================================
 float Dungeon::TravelFade() const {
-	if (travel == Travel::None)
+	if (travel.phase == GateTravel::Phase::None)
 		return 0.f;
-	const float t = motionProgress(travelStartMs, GATE_TRAVEL_FADE_MS);
-	return travel == Travel::Out ? t : 1.f - t;
+	const float t = motionProgress(travel.startMs, GATE_TRAVEL_FADE_MS);
+	return travel.phase == GateTravel::Phase::Out ? t : 1.f - t;
 }
 //======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.

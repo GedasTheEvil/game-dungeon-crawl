@@ -1,7 +1,7 @@
 # Dev friction review: tidy rules, code style, architecture
 
 Status: implemented 2026-10-12, solved (tooling and structure only, no user check needed). See
-[Implemented](#implemented-2026-10-12). Follow-up: [split-god-objects](../split-god-objects.draft.opus.md).
+[Implemented](#implemented-2026-10-12). Follow-up: [split-god-objects](split-god-objects.md).
 
 ## Goal
 
@@ -155,6 +155,6 @@ down why in the plan when it is done:
 * **Architecture:** a where-is-X map in [development.md](../../development.md#where-is-x). `dungeon_io.cpp` split:
   loading and saving stay, interaction (pick-up, gates, travel, teleport) moves to `dungeon_interact.cpp`.
   `graphics/particles.*` → `graphics/particles_draw.*`. The sim library takes `dungeon_*.cpp` by wildcard.
-  Splitting `Dungeon` and `Monster` by feature is its own draft: [split-god-objects](../split-god-objects.draft.opus.md).
+  Splitting `Dungeon` and `Monster` by feature is its own draft: [split-god-objects](split-god-objects.md).
   The big UI files stay: each is one screen, not a search hot spot.
 * Layer checks kept; they no longer echo their file lists.

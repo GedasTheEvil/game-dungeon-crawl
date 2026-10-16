@@ -25,20 +25,20 @@ bool Dungeon::plateLoaded(int col, int row) const {
 // The click, then the volley from the holes above the plate.
 void Dungeon::pressPlate(int col, int row, bool byPlayer) {
 	setPlatePressed(map[MapIndex(col, row)], true);
-	pressedPlates.push_back({MapIndex(col, row), GameClock::now()});
+	dartTraps.pressed.push_back({MapIndex(col, row), GameClock::now()});
 	sim.events->Play(WorldSound::PlateClick);
 	if (byPlayer)
 		sim.events->Note(FieldNote::DartTraps);
-	volleys.push_back({GameClock::now(), col, row, 0});
+	dartTraps.volleys.push_back({GameClock::now(), col, row, 0});
 }
 //======================================================================================
 void Dungeon::updateDartTraps() {
 	const int now = GameClock::now();
-	for (auto it = pressedPlates.begin(); it != pressedPlates.end();) {
+	for (auto it = dartTraps.pressed.begin(); it != dartTraps.pressed.end();) {
 		const int col = it->cell % MAP_WIDTH, row = it->cell / MAP_WIDTH;
 		if (now - it->startMs >= DART_REARM_MS && !plateLoaded(col, row)) {
 			setPlatePressed(map[it->cell], false);
-			it = pressedPlates.erase(it);
+			it = dartTraps.pressed.erase(it);
 		} else
 			++it;
 	}
@@ -53,15 +53,15 @@ void Dungeon::updateDartTraps() {
 		if (mon.Active())
 			tryPress(static_cast<int>(std::floor(mon.CentreX())), mon.Row(), false);
 
-	for (auto it = volleys.begin(); it != volleys.end();) {
-		DartVolley& v = *it;
+	for (auto it = dartTraps.volleys.begin(); it != dartTraps.volleys.end();) {
+		DartTraps::Volley& v = *it;
 		while (v.fired < DART_COUNT && now - v.startMs >= DART_DELAY_MS + v.fired * DART_GAP_MS) {
-			darts.push_back({static_cast<float>(v.col) + 0.5f + DART_HOLE_X[v.fired],
-							 static_cast<float>(v.row) + DART_HEIGHT, 0.f, now});
+			dartTraps.darts.push_back({static_cast<float>(v.col) + 0.5f + DART_HOLE_X[v.fired],
+									   static_cast<float>(v.row) + DART_HEIGHT, 0.f, now});
 			sim.events->Play(WorldSound::Dart);
 			v.fired++;
 		}
-		it = v.fired >= DART_COUNT ? volleys.erase(it) : it + 1;
+		it = v.fired >= DART_COUNT ? dartTraps.volleys.erase(it) : it + 1;
 	}
 }
 //======================================================================================
@@ -71,8 +71,8 @@ void Dungeon::updateDarts() {
 	const int now = GameClock::now();
 	const float half = sim.player->HalfWidth();
 	const float height = sim.player->Height();
-	for (auto it = darts.begin(); it != darts.end();) {
-		Dart& d = *it;
+	for (auto it = dartTraps.darts.begin(); it != dartTraps.darts.end();) {
+		DartTraps::Dart& d = *it;
 		d.depth += DART_SPEED * static_cast<float>(std::min(now - d.lastMs, 100)) / 1000.f;
 		d.lastMs = now;
 		bool hit = false;
@@ -94,6 +94,6 @@ void Dungeon::updateDarts() {
 					hit = true;
 				}
 		}
-		it = hit || d.depth >= 1.f ? darts.erase(it) : it + 1;
+		it = hit || d.depth >= 1.f ? dartTraps.darts.erase(it) : it + 1;
 	}
 }

@@ -103,7 +103,7 @@ void Dungeon::UpdateMovementState() {
 }
 //======================================================================================
 void Dungeon::Update() {
-	if (travel != Travel::None) {
+	if (Travelling()) {
 		updateTravel();
 		return;
 	}

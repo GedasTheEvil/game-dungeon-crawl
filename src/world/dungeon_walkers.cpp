@@ -1,0 +1,133 @@
+// Walkers on the level (Monster::Seek, monster_leap.cpp, monster_climb.cpp): what blocks them, their leaps over gaps,
+// a coward's flight, a climber's path across floors and the step that puts it together.
+#include "dungeon.h"
+#include "../entities/player.h"
+#include "../core/gameplay_config.h"
+#include <algorithm>
+#include <cmath>
+#include "climb_path.h"
+
+bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
+//======================================================================================
+int Dungeon::leapLanding(int col, int row, int dir) const { return leapLandingAt(map, col, row, dir); }
+//======================================================================================
+// The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
+// and leap back over the gap.
+float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
+	const float centre = static_cast<float>(land) + 0.5f;
+	if (static_cast<int>(std::floor(mapX)) != land)
+		return centre;
+	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + MONSTER_BITE_REACH / 2.f;
+	const float bite = mapX - static_cast<float>(dir) * stop;
+	return dir > 0 ? std::clamp(bite, static_cast<float>(land), centre)
+				   : std::clamp(bite, centre, static_cast<float>(land + 1));
+}
+//======================================================================================
+bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
+	const auto to = static_cast<int>(std::floor(mapX));
+	const bool leaps = mon.Type()->locomotion == Locomotion::WalkJump;
+	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
+		if (!walkerBlocked(col, mon.Row(), mon.reckless()))
+			continue;
+		const int land = leaps ? leapLanding(col, mon.Row(), dir) : -1;
+		if (land < 0)
+			return false;
+		col = land;
+	}
+	return true;
+}
+//======================================================================================
+// No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
+void Dungeon::fleeFrom(Monster& mon, int dir) {
+	const float gap =
+		dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right() : mon.Left() - (mapX + sim.player->HalfWidth());
+	if (gap >= COWARD_SAFE_GAP || !clearRow(mon.CentreX(), mapX, mon.Row())) {
+		mon.Stand();
+		return;
+	}
+	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
+	mon.Flee(walkerBlocked(col, mon.Row(), mon.reckless()), -dir);
+}
+//======================================================================================
+// The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
+// leaves the ladder.
+int Dungeon::climbEnd(int col, int row) const {
+	int r = row, nc = 0, nr = 0;
+	while (climbPath.Next(col, r, nc, nr) && nc == col && nr != r)
+		r = nr;
+	return r;
+}
+//======================================================================================
+bool Dungeon::followPath(Monster& mon, int dir) {
+	if (!mon.climbs() || !mon.Alerted())
+		return false;
+	if (mon.Climbing()) { // a climb once started runs to its end
+		mon.UpdateClimb();
+		return true;
+	}
+	const auto playerCol = static_cast<int>(std::floor(mapX));
+	const auto playerRow = static_cast<int>(std::floor(mapY + STANDING_EPSILON));
+	if (mon.sameRow(mapY) && (dir == 0 || walkerReaches(mon, dir))) {
+		mon.SawWay(playerCol, playerRow);
+		return false; // the walker's rules: chase along the row and bite
+	}
+	const ClimbAbility how{mon.reckless(), mon.Type()->locomotion == Locomotion::WalkJump};
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
+	if (climbPath.Steps(col, mon.Row()) > 0)
+		mon.SawWay(playerCol, playerRow);
+	else if (int toCol = 0, toRow = 0; mon.HeadingFor(toCol, toRow))
+		climbPath.Build(map, toCol, toRow, how, CLIMB_PATH_MAX); // where the player was last
+	else
+		return false; // gave up: it stays where it is
+	int nextCol = 0, nextRow = 0;
+	if (!climbPath.Next(col, mon.Row(), nextCol, nextRow))
+		return false;
+	if (nextRow != mon.Row()) { // a rung: to the ladder's middle first
+		const float centre = static_cast<float>(col) + 0.5f;
+		if (std::fabs(mon.CentreX() - centre) > mon.WalkStep())
+			mon.WalkPath(centre > mon.CentreX() ? 1 : -1, false);
+		else
+			mon.StartClimb(col, climbEnd(col, mon.Row()));
+		return true;
+	}
+	const int step = nextCol > col ? 1 : -1;
+	if (std::abs(nextCol - col) > 1) { // a leap over a gap
+		if (mon.canJump())
+			mon.Jump(static_cast<float>(nextCol - mon.Col()));
+		else
+			mon.WalkPath(step, true);
+		return true;
+	}
+	const auto probe = static_cast<int>(std::floor(mon.seekProbeX(step)));
+	mon.WalkPath(step, probe != col && probe != nextCol && !climbPath.Stands(probe, mon.Row()));
+	return true;
+}
+//======================================================================================
+// One step of a walker that is due: a climber's path, a coward's flight, a leap over a gap, the chase and the bite.
+void Dungeon::updateWalker(Monster& mon) {
+	if (!mon.Alive() || won || !mon.StepDue())
+		return;
+	int dir = mon.attackDirection(mapX, mapY);
+	if (followPath(mon, dir))
+		return;
+	if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
+		fleeFrom(mon, dir);
+		return;
+	}
+	auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
+	bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
+	if (blocked && dir != 0 && mon.canJump()) {
+		int land = leapLanding(col, mon.Row(), dir);
+		// Not while the player is in the gap: the rat would leap over them.
+		float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
+		float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
+		if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
+			mon.Jump(leapTarget(mon, land, dir) - static_cast<float>(mon.Col()) - 0.5f);
+			return;
+		}
+	}
+	if (!mon.Seek(blocked, mapX, mapY))
+		if (mon.AttackDue() && !mon.OnRungs())
+			mon.Attack(mapY);
+}

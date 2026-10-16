@@ -106,48 +106,6 @@ float Monster::swimLift() const {
 
 float Monster::floatLift() const { return floats() && inWater ? RenderConfig::WATER_DEPTH : 0.f; }
 
-float Monster::burrowLift() const {
-	const float depth = -type->model.referenceTop * type->scale * Figures::Scale();
-	const int age = GameClock::now() - burrow.startMs;
-	switch (burrow.phase) {
-	case BurrowPhase::Up:
-		return 0.f;
-	case BurrowPhase::Dive: {
-		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_DIVE_MS), 1.f);
-		return depth * p * p;
-	}
-	case BurrowPhase::Under:
-		return depth;
-	case BurrowPhase::Surface: {
-		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_SURFACE_MS), 1.f);
-		return depth * (1.f - p) * (1.f - p);
-	}
-	}
-	return 0.f;
-}
-
-float Monster::climbLift() const { return climb.y * RenderConfig::TILE_SIZE; }
-
-float Monster::ClimbDepth() const {
-	if (!ShowsClimb() || type->climbRise <= 0.f)
-		return 0.f;
-	const float grip = type->climbGrip * type->model.referenceTop * type->scale * Figures::Scale();
-	return RenderConfig::LADDER_RAIL_Z + grip - RenderConfig::MONSTER_DEPTH;
-}
-
-// One cycle of the clip per climbRise of height, so the gripping paws stay on the rungs; it runs backwards going down
-// and holds when it stops.
-void Monster::showClimb() {
-	const ClipInfo& clip = type->model.Clip(ModelState::Climb);
-	const float cycle = type->climbRise * type->model.referenceTop * type->scale * Figures::Scale();
-	if (!clip.present || clip.frames < 1 || cycle <= 0.f)
-		return;
-	const float height = static_cast<float>(row) * RenderConfig::TILE_SIZE + climbLift();
-	const float phase = height / cycle - std::floor(height / cycle);
-	const auto frames = static_cast<float>(clip.frames);
-	playback[static_cast<size_t>(ModelState::Climb)] = {std::min(phase * frames, frames - 0.001f), 0};
-}
-
 float Monster::lift() const {
 	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
 		   burrowLift();

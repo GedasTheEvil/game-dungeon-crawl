@@ -22,9 +22,7 @@ void Dungeon::resetMechanisms() {
 			levelKeys |= lockBit(t.attr);
 	openingGates.clear();
 	fallingRocks.clear();
-	pressedPlates.clear();
-	volleys.clear();
-	darts.clear();
+	dartTraps = {};
 	// A save taken mid-motion finishes it on load.
 	for (Tile& t : map)
 		if (t.type == Gate && gateState(t) == GateState::Opening)

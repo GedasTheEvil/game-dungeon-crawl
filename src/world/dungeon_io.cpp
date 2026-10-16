@@ -16,7 +16,7 @@ bool Dungeon::Load(const char* filename, int depth) {
 }
 //======================================================================================
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
-	travel = Travel::None;
+	travel = {};
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 
 	bool entranceFound = false;

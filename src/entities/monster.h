@@ -12,67 +12,14 @@
 #include "../world/poison.h"
 #include "../world/rng.h"
 #include "../world/world_events.h"
+#include "monster_burrow.h"
+#include "monster_charge.h"
+#include "monster_climb.h"
+#include "monster_flight.h"
+#include "monster_leap.h"
 #include <array>
 #include <memory>
 #include <optional>
-
-// Flying monsters (bats): hang on the ceiling until the player comes near, then swoop through them,
-// biting on the way, fly on, turn and come back.
-enum class FlightPhase : unsigned char { Roost, Swoop, Return };
-struct Flight {
-	FlightPhase phase = FlightPhase::Roost;
-	int dir = 1; // +1 flying right, -1 left
-	float lift = -1.f; // world units from the floor to the model origin; < 0: not placed yet (on the ceiling)
-	float fall = 0.f; // falling speed after death, world units per second
-	bool bitten = false; // this pass has bitten already
-	int attackUntilMs = 0;
-	int lastMs = -1; // GameClock time of the last update
-};
-// What a flyer knows of the level this tick (Dungeon::flightGoal): it follows the player to another row through open
-// cells (plan bats-high-ceiling).
-struct FlightGoal {
-	bool sees = false; // the player is in sight: on its row as before, or in reach on another row with a way there
-	int toRow = -1; // the row it heads for: the player's while it sees them, else its roost's
-	float shaftX = 0.f; // tile-local x where it goes up or down a row next, on the way to toRow
-	bool openBelow = false; // the cell under it is open: a dead flyer falls on through it
-};
-
-// Walk-jumpers: a leap over a gap of pits and traps, x in tile-local map units like Monster::x.
-struct Leap {
-	float fromX = 0.f, toX = 0.f;
-	int startMs = -1; // GameClock time of the take-off; < 0: on the ground
-	int readyMs = 0; // no new leap before this GameClock time
-	float lift = 0.f; // world units from the floor to the model origin
-};
-
-// Burrowers (Apep): dive into the floor, stay under it, come up elsewhere on the row (Dungeon::burrowTarget picks
-// where). Hidden while diving and under: nothing hits it, it bites nothing.
-enum class BurrowPhase : unsigned char { Up, Dive, Under, Surface };
-struct Burrow {
-	BurrowPhase phase = BurrowPhase::Up;
-	int startMs = 0; // GameClock time the phase began
-	int nextMs = 0; // no dive before this GameClock time
-	float toX = 0.f; // tile-local x it comes up at
-};
-
-// Chargers (Sobek): from afar on its row it lowers its head (Windup), rushes along the row (Rush) through the player,
-// and on into a wall that stuns it (Stunned: it takes double damage). The player jumps over it or leaves the row.
-enum class ChargePhase : unsigned char { Ready, Windup, Rush, Stunned };
-struct Charge {
-	ChargePhase phase = ChargePhase::Ready;
-	int startMs = 0;
-	int nextMs = 0; // no charge before this GameClock time
-	int dir = 1; // -1 / +1 along the row
-	bool hit = false; // this rush has hit the player
-};
-
-// Climbers on a ladder (plan monster-climbers): from its row up or down to toRow, y map units off the row's floor on
-// the way. A climb once started runs to its end.
-struct Climb {
-	int toRow = -1; // < 0: not climbing
-	float y = 0.f;
-	bool falls = false; // killed on the rungs: it drops down the shaft to the floor (CLIMBER_FALL_STEP)
-};
 
 // One kind of monster (level tile attribute, MonsterTypeId in level.h): its row (monster_kinds.h) and what the sim
 // reads of its model, loaded once, shared by its monsters. The app draws it with its CharacterModel (Assets).

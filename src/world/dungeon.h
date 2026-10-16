@@ -5,6 +5,7 @@
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
 #include "decor_scatter.h"
+#include "dungeon_darts.h"
 #include "interaction.h"
 #include "level.h"
 #include "climb_path.h"
@@ -62,8 +63,15 @@ class Dungeon {
 	// The slot of the mimic lying in ambush in the player's cell, looking like a chest (plan interact-prompt); -1 if
 	// none.
 	[[nodiscard]] int ambushHere() const;
-	// A walker can't step into (col, row): a wall, no floor under it (a pit or a drop), or a trap (spikes, a death
-	// trap, a rock fall not yet fallen) unless it is reckless (Courage).
+	// UpdateMonsters' part per locomotion, each in its file (dungeon_walkers.cpp, dungeon_flight.cpp,
+	// dungeon_burrow.cpp, dungeon_charge.cpp). updateBurrower, updateCharger: true while it burrows or charges (nothing
+	// else moves it).
+	void updateWalker(Monster& mon);
+	void updateFlyer(Monster& mon);
+	bool updateBurrower(Monster& mon);
+	bool updateCharger(Monster& mon);
+	// Walkers (dungeon_walkers.cpp). A walker can't step into (col, row): a wall, no floor under it (a pit or a drop),
+	// or a trap (spikes, a death trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
@@ -76,7 +84,8 @@ class Dungeon {
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);
-	// Flyers (plan bats-high-ceiling): whether it sees the player, the row it heads for and the way there.
+	// Flyers (dungeon_flight.cpp, plan bats-high-ceiling): whether it sees the player, the row it heads for and the way
+	// there.
 	[[nodiscard]] FlightGoal flightGoal(const Monster& mon) const;
 	// A flyer's way from (col, row) to (toCol, toRow) through open cells, never up or down into half water; boxed: only
 	// inside the rectangle of the two cells. The column of its next step up or down; -1: no way (or the same row).
@@ -153,22 +162,7 @@ class Dungeon {
 	void drawPortal(const float normal[3], const float v[4][3], bool red = false) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
-	// Dart traps (dungeon_darts.cpp, plan poison-dart-trap): a pressed plate makes the holes in the back wall above it
-	// shoot a volley of poison darts out towards the camera, across the corridor.
-	struct DartVolley {
-		int startMs; // the plate's click
-		int col, row;
-		int fired = 0; // darts out so far
-	};
-	struct Dart {
-		float x, y; // map units: its hole (DART_HOLE_X), at DART_HEIGHT
-		float depth = 0.f; // tiles out of the back wall: 0 the wall, 1 the front of the corridor
-		int lastMs; // GameClock time of the last update
-		bool passed = false; // crossed the walking line (DART_HIT_DEPTH) without a hit
-	};
-	std::vector<Motion> pressedPlates; // c = 1 while in here, until it re-arms
-	std::vector<DartVolley> volleys;
-	std::vector<Dart> darts;
+	DartTraps dartTraps;
 	void updateDartTraps();
 	[[nodiscard]] bool plateLoaded(int col, int row) const; // the player or a heavy monster stands on it
 	void pressPlate(int col, int row, bool byPlayer);
@@ -262,10 +256,12 @@ class Dungeon {
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
 	// Gate travel: the view fades out (Out), the jump happens under the faded frame, the view fades in (In). The world
 	// stands still meanwhile.
-	enum class Travel : unsigned char { None, Out, In };
-	Travel travel = Travel::None;
-	int travelStartMs = 0;
-	bool travelExit = false; // the exit gate (red), else a teleporter (blue)
+	struct GateTravel {
+		enum class Phase : unsigned char { None, Out, In };
+		Phase phase = Phase::None;
+		int startMs = 0;
+		bool exit = false; // the exit gate (red), else a teleporter (blue)
+	} travel;
 	void startTravel(bool exitGate);
 	void updateTravel();
 	Timer portalTimer{50}; // steps the portal texture scroll
@@ -343,9 +339,9 @@ class Dungeon {
 	void StartJump(int dir);
 	bool SpawnMonster(int i, int j);
 	void Teleport(); // on a teleporter: jump to its partner (useGate starts it under a fade)
-	[[nodiscard]] bool Travelling() const { return travel != Travel::None; }
+	[[nodiscard]] bool Travelling() const { return travel.phase != GateTravel::Phase::None; }
 	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
-	[[nodiscard]] bool TravelToExit() const { return travelExit; }
+	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
 	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar

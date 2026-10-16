@@ -9,175 +9,7 @@
 #include <memory>
 #include "../core/gameplay_config.h"
 #include "loot.h"
-#include "climb_path.h"
 
-bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
-//======================================================================================
-int Dungeon::leapLanding(int col, int row, int dir) const { return leapLandingAt(map, col, row, dir); }
-//======================================================================================
-// The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
-// and leap back over the gap.
-float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
-	const float centre = static_cast<float>(land) + 0.5f;
-	if (static_cast<int>(std::floor(mapX)) != land)
-		return centre;
-	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + MONSTER_BITE_REACH / 2.f;
-	const float bite = mapX - static_cast<float>(dir) * stop;
-	return dir > 0 ? std::clamp(bite, static_cast<float>(land), centre)
-				   : std::clamp(bite, centre, static_cast<float>(land + 1));
-}
-//======================================================================================
-bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
-	const auto to = static_cast<int>(std::floor(mapX));
-	const bool leaps = mon.Type()->locomotion == Locomotion::WalkJump;
-	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
-		if (!walkerBlocked(col, mon.Row(), mon.reckless()))
-			continue;
-		const int land = leaps ? leapLanding(col, mon.Row(), dir) : -1;
-		if (land < 0)
-			return false;
-		col = land;
-	}
-	return true;
-}
-//======================================================================================
-// No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
-void Dungeon::fleeFrom(Monster& mon, int dir) {
-	const float gap =
-		dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right() : mon.Left() - (mapX + sim.player->HalfWidth());
-	if (gap >= COWARD_SAFE_GAP || !clearRow(mon.CentreX(), mapX, mon.Row())) {
-		mon.Stand();
-		return;
-	}
-	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
-	mon.Flee(walkerBlocked(col, mon.Row(), mon.reckless()), -dir);
-}
-//======================================================================================
-// The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
-// leaves the ladder.
-int Dungeon::climbEnd(int col, int row) const {
-	int r = row, nc = 0, nr = 0;
-	while (climbPath.Next(col, r, nc, nr) && nc == col && nr != r)
-		r = nr;
-	return r;
-}
-//======================================================================================
-bool Dungeon::followPath(Monster& mon, int dir) {
-	if (!mon.climbs() || !mon.Alerted())
-		return false;
-	if (mon.Climbing()) { // a climb once started runs to its end
-		mon.UpdateClimb();
-		return true;
-	}
-	const auto playerCol = static_cast<int>(std::floor(mapX));
-	const auto playerRow = static_cast<int>(std::floor(mapY + STANDING_EPSILON));
-	if (mon.sameRow(mapY) && (dir == 0 || walkerReaches(mon, dir))) {
-		mon.SawWay(playerCol, playerRow);
-		return false; // the walker's rules: chase along the row and bite
-	}
-	const ClimbAbility how{mon.reckless(), mon.Type()->locomotion == Locomotion::WalkJump};
-	const auto col = static_cast<int>(std::floor(mon.CentreX()));
-	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
-	if (climbPath.Steps(col, mon.Row()) > 0)
-		mon.SawWay(playerCol, playerRow);
-	else if (int toCol = 0, toRow = 0; mon.HeadingFor(toCol, toRow))
-		climbPath.Build(map, toCol, toRow, how, CLIMB_PATH_MAX); // where the player was last
-	else
-		return false; // gave up: it stays where it is
-	int nextCol = 0, nextRow = 0;
-	if (!climbPath.Next(col, mon.Row(), nextCol, nextRow))
-		return false;
-	if (nextRow != mon.Row()) { // a rung: to the ladder's middle first
-		const float centre = static_cast<float>(col) + 0.5f;
-		if (std::fabs(mon.CentreX() - centre) > mon.WalkStep())
-			mon.WalkPath(centre > mon.CentreX() ? 1 : -1, false);
-		else
-			mon.StartClimb(col, climbEnd(col, mon.Row()));
-		return true;
-	}
-	const int step = nextCol > col ? 1 : -1;
-	if (std::abs(nextCol - col) > 1) { // a leap over a gap
-		if (mon.canJump())
-			mon.Jump(static_cast<float>(nextCol - mon.Col()));
-		else
-			mon.WalkPath(step, true);
-		return true;
-	}
-	const auto probe = static_cast<int>(std::floor(mon.seekProbeX(step)));
-	mon.WalkPath(step, probe != col && probe != nextCol && !climbPath.Stands(probe, mon.Row()));
-	return true;
-}
-//======================================================================================
-int Dungeon::flightShaft(int col, int row, int toCol, int toRow, bool boxed) const {
-	const int left = boxed ? std::min(col, toCol) : 0, right = boxed ? std::max(col, toCol) : LEVEL_WIDTH - 1;
-	const int bottom = boxed ? std::min(row, toRow) : 0, top = boxed ? std::max(row, toRow) : LEVEL_HEIGHT - 1;
-	auto open = [&](int c, int r) {
-		return c >= left && c <= right && r >= bottom && r <= top && IsInBounds(c, r) && !isSolidTile(MapAt(c, r));
-	};
-	auto vertical = [&](int c, int r1, int r2) {
-		return open(c, r1) && open(c, r2) && !inHalfWater(MapAt(c, r1)) && !inHalfWater(MapAt(c, r2));
-	};
-	if (row == toRow || !open(col, row) || !open(toCol, toRow))
-		return -1;
-	// Steps to the goal from each cell, searched from the goal.
-	std::vector<int> dist(LEVEL_CELL_COUNT, -1);
-	std::vector<int> queue{MapIndex(toCol, toRow)};
-	dist[queue[0]] = 0;
-	for (size_t i = 0; i < queue.size(); i++) {
-		const int c = queue[i] % LEVEL_WIDTH, r = queue[i] / LEVEL_WIDTH;
-		auto visit = [&](int nc, int nr, bool ok) {
-			if (ok && dist[MapIndex(nc, nr)] < 0) {
-				dist[MapIndex(nc, nr)] = dist[queue[i]] + 1;
-				queue.push_back(MapIndex(nc, nr));
-			}
-		};
-		visit(c, r - 1, vertical(c, r, r - 1));
-		visit(c, r + 1, vertical(c, r, r + 1));
-		visit(c - 1, r, open(c, r) && open(c - 1, r));
-		visit(c + 1, r, open(c, r) && open(c + 1, r));
-	}
-	if (dist[MapIndex(col, row)] < 0)
-		return -1;
-	// Along the row to the first step up or down; up or down at once where it can.
-	for (int c = col;;) {
-		const int d = dist[MapIndex(c, row)];
-		for (int r : {row - 1, row + 1})
-			if (vertical(c, row, r) && dist[MapIndex(c, r)] == d - 1)
-				return c;
-		c += open(c - 1, row) && dist[MapIndex(c - 1, row)] == d - 1 ? -1 : 1;
-	}
-}
-//======================================================================================
-FlightGoal Dungeon::flightGoal(const Monster& mon) const {
-	FlightGoal goal;
-	const auto col = static_cast<int>(std::floor(mon.CentreX()));
-	const int row = mon.Row();
-	goal.openBelow = IsInBounds(col, row - 1) && !isSolidTile(MapAt(col, row - 1));
-	// The player's row: their feet's cell, on the floor, in a jump or up a ladder.
-	const auto playerCol = static_cast<int>(std::floor(mapX));
-	const auto playerRow = static_cast<int>(std::floor(mapY + 0.1f));
-	if (mon.Hunts())
-		goal.sees = std::abs(playerRow - row) <= BAT_HUNT_ROWS;
-	else
-		goal.sees =
-			std::fabs(mapX - mon.CentreX()) <= BAT_SIGHT && std::fabs(mapY - static_cast<float>(row)) <= BAT_SIGHT;
-	goal.toRow = row;
-	if (goal.sees && playerRow != row) { // in sight on another row: only with a way there
-		const int shaft = flightShaft(col, row, playerCol, playerRow, true);
-		goal.sees = shaft >= 0;
-		goal.toRow = goal.sees ? playerRow : row;
-		goal.shaftX = static_cast<float>(shaft - mon.Col());
-	}
-	if (!goal.sees && row != mon.SpawnRow()) { // back to the roost
-		const int shaft = flightShaft(col, row, mon.Col(), mon.SpawnRow(), false);
-		if (shaft >= 0) {
-			goal.toRow = mon.SpawnRow();
-			goal.shaftX = static_cast<float>(shaft - mon.Col());
-		}
-	}
-	return goal;
-}
-//======================================================================================
 void Dungeon::UpdateMonsters() {
 	updateBoss();
 	for (Monster& mon : monsters) {
@@ -209,10 +41,7 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.flies()) {
-			if (!won) {
-				const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
-				mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY, flightGoal(mon));
-			}
+			updateFlyer(mon);
 			continue;
 		}
 
@@ -231,29 +60,8 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
-		if (mon.Burrowing()) {
-			if (mon.UpdateBurrow())
-				holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+		if (updateBurrower(mon) || updateCharger(mon))
 			continue;
-		}
-		if (!won && mon.canDive(mapY)) {
-			if (float to = 0.f; burrowTarget(mon, to)) {
-				holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
-				mon.Dive(to - static_cast<float>(mon.Col()) - 0.5f);
-			} else
-				mon.DelayDive();
-			continue;
-		}
-
-		if (mon.Charging()) {
-			const auto col = static_cast<int>(std::floor(mon.HeadX() + 0.05f * static_cast<float>(mon.ChargeDir())));
-			mon.UpdateCharge(walkerBlocked(col, mon.Row(), true), mapX, mapY);
-			continue;
-		}
-		if (!won && mon.canCharge(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
-			mon.StartCharge(mapX);
-			continue;
-		}
 
 		if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
 			shootAtPlayer(mon, sx, sy);
@@ -264,30 +72,7 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (mon.Alive() && !won && mon.StepDue()) {
-			int dir = mon.attackDirection(mapX, mapY);
-			if (followPath(mon, dir))
-				continue;
-			if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
-				fleeFrom(mon, dir);
-				continue;
-			}
-			auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
-			bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
-			if (blocked && dir != 0 && mon.canJump()) {
-				int land = leapLanding(col, mon.Row(), dir);
-				// Not while the player is in the gap: the rat would leap over them.
-				float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
-				float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
-				if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
-					mon.Jump(leapTarget(mon, land, dir) - static_cast<float>(mon.Col()) - 0.5f);
-					continue;
-				}
-			}
-			if (!mon.Seek(blocked, mapX, mapY))
-				if (mon.AttackDue() && !mon.OnRungs())
-					mon.Attack(mapY);
-		}
+		updateWalker(mon);
 	}
 }
 //======================================================================================
@@ -296,18 +81,6 @@ bool Dungeon::PlayerSafe() const {
 		if (mon.Threatens(mapX, mapY) && (mon.rooted() || clearRow(mon.CentreX(), mapX, mon.Row())))
 			return false;
 	return true;
-}
-//======================================================================================
-bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
-	const int side = mon.CentreX() < mapX ? 1 : -1;
-	for (int s : {side, -side}) {
-		const float x = mapX + static_cast<float>(s) * BURROW_BEHIND;
-		if (!walkerBlocked(static_cast<int>(std::floor(x)), mon.Row(), true)) {
-			outX = x;
-			return true;
-		}
-	}
-	return false;
 }
 //======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest

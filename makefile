@@ -31,7 +31,9 @@ LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.
 # they read, without GL: every dungeon_*.cpp but the dungeon's drawing (dungeon_render*.cpp), which stays in the game
 # with the views.
 SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp src/entities/figures.cpp \
-	src/entities/particles.cpp src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/player.cpp \
+	src/entities/particles.cpp src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/monster_burrow.cpp \
+	src/entities/monster_charge.cpp src/entities/monster_climb.cpp src/entities/monster_flight.cpp \
+	src/entities/monster_leap.cpp src/entities/player.cpp \
 	$(filter-out src/world/dungeon_render%,$(sort $(wildcard src/world/dungeon_*.cpp)))
 # render_config.h: the world's sizes in GL units (a tile is 40), the sim's lifts and depths, the drawing's frame.
 SIM_LIB_HEADERS=src/world/dungeon.h src/world/dungeon_rules.h src/world/sim_links.h src/entities/trap_hurt.h \

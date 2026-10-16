@@ -47,7 +47,7 @@ base, level, sim, render.
 |---|---|---|---|
 | `build/libbase.a` | `core/timer` (the game clock), `core/logger` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
-| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
+| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
 | `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
@@ -123,9 +123,9 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Feature | Files |
 |---|---|
 | Monster type: stats, damage mix, resistances, abilities, threat | `world/monster_kinds.*` (one row per type) |
-| Monster AI decisions (chase, flee, dive, burrow, charge, dodge) | `entities/monster_ai.cpp` |
-| Monster state per locomotion (`Flight`, `Leap`, `Burrow`, `Charge`, `Climb`) | `entities/monster.h`, `monster.cpp` |
-| Monster update on the level (moves, landing, climbers' paths) | `world/dungeon_monsters.cpp`, `world/climb_path.*` |
+| Monster AI decisions (chase, flee, bite, lurk, ranged attack) | `entities/monster_ai.cpp` |
+| Monster locomotion: state and update (`Flight`, `Leap`, `Burrow`, `Charge`, `Climb`) | `entities/monster_<flight\|leap\|burrow\|charge\|climb>.{h,cpp}`; a new one: a new pair, its member in `Monster` |
+| Monster update on the level | `world/dungeon_monsters.cpp` (`UpdateMonsters`, hits, kills, spawns); per locomotion `world/dungeon_walkers.cpp` (walk, leap, flee, climbers' paths, with `world/climb_path.*`), `dungeon_flight.cpp`, `dungeon_burrow.cpp`, `dungeon_charge.cpp` |
 | Monster drawing | `entities/monster_draw.*`; in-level effects `world/dungeon_render_effects.cpp` |
 | Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
@@ -137,7 +137,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |
 | Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture | `world/dungeon_interact.cpp` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
-| Dart traps | `world/dungeon_darts.cpp` |
+| Dart traps | `world/dungeon_darts.*` (`DartTraps`) |
 | Wall spikes (rhythm traps): cycle, stab, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp`, drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
 | Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |

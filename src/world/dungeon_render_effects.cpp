@@ -137,14 +137,14 @@ void Dungeon::drawMissiles() {
 // The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
 void Dungeon::drawDarts() {
 	AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(MissileKind::Arrow)].get();
-	if (darts.empty() || !model)
+	if (dartTraps.darts.empty() || !model)
 		return;
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(view().originRow);
 	constexpr float DART_SCALE = 0.8f; // of the arrow model
 	const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale() * DART_SCALE;
 	const float high = model->YRange(0).second;
-	for (const Dart& d : darts) {
+	for (const DartTraps::Dart& d : dartTraps.darts) {
 		glPushMatrix();
 		glTranslatef(RenderConfig::TILE_SIZE * (d.x - firstCol), RenderConfig::TILE_SIZE * (d.y - firstRow),
 					 -RenderConfig::TILE_SIZE * (1.f - d.depth));

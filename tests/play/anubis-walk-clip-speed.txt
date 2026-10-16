@@ -1,0 +1,6 @@
+# Plan anubis-walk-clip-speed, for `bin/game --play tests/play/anubis-walk-clip-speed.txt`: tests/levels/anubis_bolt, an
+# Anubis guard walks up to you from col 7 (you start at col 2). Its legs move twice as fast as before and the planted
+# foot should stay still on the floor. For the boss, use `level tests/levels/anubis_boss`.
+seed 1
+level tests/levels/anubis_bolt
+god

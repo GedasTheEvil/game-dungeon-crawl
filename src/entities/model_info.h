@@ -106,7 +106,7 @@ struct ClipInfo {
 // What the sim reads from a character's model files (no GL): the clips' frame counts and loop flags, and the frame 0
 // extents the hitboxes and lifts are built from. Characters keep their own ModelState and ClipPlayback.
 struct ModelInfo {
-	static constexpr int CLIP_SPEED = 35; // AdvancePlayback's speed of every character clip
+	static constexpr int CLIP_SPEED = 35; // AdvancePlayback's default speed of a character clip
 	std::array<ClipInfo, MODEL_STATE_COUNT> clips{};
 	ModelState reference = ModelState::Move; // first clip of the ClipFiles
 	// Frame 0 extents in model units: a flyer hangs from the ceiling by the idle clip's top.
@@ -124,8 +124,9 @@ struct ModelInfo {
 	// Enters state: a one-shot clip (die, jump) plays from the start.
 	void Enter(ModelState& current, ModelState state, ClipPlayback& playback) const;
 	void Advance(ModelState state, ClipPlayback& playback) const;
-	// Advance with the rise clip run in riseMs (rounded up to FRAME_STEP_MS steps); riseMs 0: CLIP_SPEED.
-	void Advance(ModelState state, ClipPlayback& playback, int riseMs) const;
+	// Advance with the rise clip run in riseMs (rounded up to FRAME_STEP_MS steps); riseMs 0: CLIP_SPEED. The walk
+	// clip (Move) plays at walkSpeed (plan anubis-walk-clip-speed).
+	void Advance(ModelState state, ClipPlayback& playback, int riseMs, int walkSpeed = CLIP_SPEED) const;
 	// A one-shot clip (die, jump) has reached its last frame.
 	[[nodiscard]] bool Finished(ModelState state, const ClipPlayback& playback) const;
 	// Of a one-shot clip: 0 at its first frame, 1 at its last.

@@ -156,6 +156,8 @@ struct MonsterKind {
 	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;
+	// AdvancePlayback's speed of its walk clip (plan anubis-walk-clip-speed), so the legs keep up with a fast walker.
+	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
 	bool charges = false; // it charges along its row (Charge)
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;

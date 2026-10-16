@@ -175,6 +175,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
+	 .walkClipSpeed = 70, // twice the usual, so the feet do not slide (plan anubis-walk-clip-speed)
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
@@ -428,6 +429,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX, ANUBIS_BOSS_BURN_MS},
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
+	 .walkClipSpeed = 76, // its walk is 25/23 of the guard's: the same stride (plan anubis-walk-clip-speed)
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,

@@ -70,7 +70,11 @@ void ModelInfo::Advance(ModelState state, ClipPlayback& playback) const {
 	AdvancePlayback(playback[static_cast<int>(shown)], Clip(shown).frames, Clip(shown).loop, CLIP_SPEED);
 }
 
-void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs) const {
+void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs, int walkSpeed) const {
+	if (state == ModelState::Move) {
+		const ModelState shown = Shown(state);
+		return AdvancePlayback(playback[static_cast<int>(shown)], Clip(shown).frames, Clip(shown).loop, walkSpeed);
+	}
 	if (state != ModelState::Rise || riseMs <= 0)
 		return Advance(state, playback);
 	const int steps = (riseMs + FRAME_STEP_MS - 1) / FRAME_STEP_MS;

@@ -103,3 +103,31 @@ TEST_CASE("monsters spawned together start their walk at different frames") {
 	CHECK(a[static_cast<int>(ModelState::Move)].frame != b[static_cast<int>(ModelState::Move)].frame);
 	CHECK(a[static_cast<int>(ModelState::Idle)].frame == 0.f); // no idle clip
 }
+
+TEST_CASE("the Anubis walk clip plays twice as fast as a mummy's; its attack clip as before") {
+	GameClock::enableVirtual();
+	ModelInfo info;
+	info.clips[static_cast<int>(ModelState::Move)] = {true, 26, true};
+	info.clips[static_cast<int>(ModelState::Attack)] = {true, 26, true};
+	const MonsterKind& mummy = *monsterKind(MonsterMummy);
+	const MonsterKind& guard = *monsterKind(MonsterAnubis);
+	CHECK(mummy.walkClipSpeed == ModelInfo::CLIP_SPEED);
+	CHECK(guard.walkClipSpeed >= 2 * ModelInfo::CLIP_SPEED);
+	CHECK(monsterKind(MonsterAnubisBoss)->walkClipSpeed > guard.walkClipSpeed);
+
+	for (const ModelState state : {ModelState::Move, ModelState::Attack}) {
+		ClipPlayback slow{}, fast{};
+		slow[static_cast<int>(state)].stepStart = GameClock::now();
+		fast[static_cast<int>(state)].stepStart = GameClock::now();
+		for (int t = 0; t < 5; t++) {
+			GameClock::advance(FRAME_STEP_MS);
+			info.Advance(state, slow, mummy.riseMs, mummy.walkClipSpeed);
+			info.Advance(state, fast, guard.riseMs, guard.walkClipSpeed);
+		}
+		const float s = slow[static_cast<int>(state)].frame, f = fast[static_cast<int>(state)].frame;
+		if (state == ModelState::Move)
+			CHECK(f == doctest::Approx(s * static_cast<float>(guard.walkClipSpeed) / ModelInfo::CLIP_SPEED));
+		else
+			CHECK(f == s);
+	}
+}

@@ -47,5 +47,5 @@ part 3. Tooling and structure only, no gameplay change: once implemented and its
   Rock falls: left as they are, one `std::vector<Motion>` shared in shape with the opening gates, nothing to group.
 * A new locomotion now: a `monster_<name>.{h,cpp}` pair, a `dungeon_<name>.cpp` with its `update<Name>`, one line
   in `UpdateMonsters`; still a member and declarations in `monster.h` and `dungeon.h`. Measure with the next ability
-  ([mummy-boss](../mummy-boss.md)).
+  ([mummy-boss](mummy-boss.md)).
 * Checks: `make check` (tidy clean), 335 unit tests and the 3 scenarios unchanged and passing.

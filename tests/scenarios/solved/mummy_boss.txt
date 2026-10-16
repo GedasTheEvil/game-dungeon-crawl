@@ -1,6 +1,7 @@
-# Plan mummy-boss (open): the High Priest of Anubis in his large coffin (tests/levels/mummy_priest), his mummies
-# climbing out of the coffins round him, his rise, his staff swing and purple bolt. Then the Anubis boss's guard
-# stepping out of the east wall (tests/levels/anubis_wall), mid-way and out. Pictures only: the rules are unit tests.
+# Parked (plan mummy-boss solved; the rules are unit tests in tests/unit/world_rules_test.cpp): the High Priest of
+# Anubis in his large coffin (tests/levels/mummy_priest), his mummies climbing out of the coffins round him, his rise,
+# his staff swing and purple bolt. Then the Anubis boss's guard stepping out of the west wall (tests/levels/anubis_wall),
+# mid-way and out.
 seed 1
 god
 level tests/levels/mummy_priest

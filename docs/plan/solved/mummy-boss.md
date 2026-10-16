@@ -1,6 +1,6 @@
 # Mummy boss (mummy priest)
 
-Status: implemented 2026-10-16, waits for the play-test (see [Implemented](#implemented-2026-10-16)). Drafted 2026-10-15. From the user: a boss for the mummy, and the Anubis boss
+Status: solved 2026-10-16, play-tested (see [Implemented](#implemented-2026-10-16)). Drafted 2026-10-15. From the user: a boss for the mummy, and the Anubis boss
 summons Anubis guards instead of mummies, so every boss's minions are its kin.
 
 ## Today
@@ -43,7 +43,7 @@ summons Anubis guards instead of mummies, so every boss's minions are its kin.
 * **Model:** a variant of `mummy.py` (shared build code, not a copy): a head taller, a priest's staff in the hands,
   priestly touches (a leopard-skin sash over the wrappings, a shaved-head shape or a simple cap, an amulet), no
   royal regalia; its own texture. Clips: idle, walk, rise (from the sarcophagus), staff swing (melee and ranged,
-  like the Anubis), death. Steps: [modeling.md](../modeling.md).
+  like the Anubis), death. Steps: [modeling.md](../../modeling.md).
 * **Glyph:** a free one, picked by the implementer.
 * **Name / journal:** shown as "High Priest of Anubis" (decided 2026-10-15): he served the god the player meets on
   lvl30, and his curses are the god's. In the journal's terms a mummified high priest. Code id `MonsterMummyPriest`,
@@ -111,6 +111,6 @@ Play-test: `bin/game --play tests/play/mummy-boss.txt` (the priest; its first li
 * Journal: "Curses with a touch of his staff, and speaks curses from afar", "Speaks curses from afar, a bolt of purple
   light", "His statues step out of the stone at his call".
 * Tests: unit (`world_rules_test.cpp`: the priest's coffins, mummies and cursing bolt, the guards out of the wall;
-  `curses_test.cpp`: the third entry, the priest's lists; `decor_test.cpp`); scenario `tests/scenarios/mummy_boss.txt`
+  `curses_test.cpp`: the third entry, the priest's lists; `decor_test.cpp`); scenario `tests/scenarios/solved/mummy_boss.txt` (parked)
   (screenshots of the coffins, the rise, the swing and bolt, a guard out of the wall).
 * Not done: the open look of the wall emergence beyond dust and the slide (no stone tint).

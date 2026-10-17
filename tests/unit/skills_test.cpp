@@ -14,6 +14,43 @@ void killBoss(SimWorld& world) {
 	world.Tick();
 }
 
+TEST_CASE("Favour of Hapi: wading is faster with the skill") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/water"));
+	REQUIRE(world.WalkTo(10.8f));
+	for (int t = 0; t < 10 && !world.dungeon.PlayerWading(); t++)
+		world.Tick();
+	REQUIRE(world.dungeon.PlayerWading());
+	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(WADE_SPEED_FACTOR));
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::FavourOfHapi, true));
+	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(0.75f));
+}
+
+TEST_CASE("Favour of Hapi: can jump out of half water with the skill") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/water"));
+	REQUIRE(world.WalkTo(10.8f));
+	for (int t = 0; t < 10 && !world.dungeon.PlayerWading(); t++)
+		world.Tick();
+	REQUIRE(world.dungeon.PlayerWading());
+	world.said.clear();
+	world.Jump();
+	world.Tick();
+	CHECK(world.Told("too deep to jump"));
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::FavourOfHapi, true));
+	world.said.clear();
+	world.Jump();
+	world.Tick();
+	CHECK(std::ranges::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::CharacterSound && e.character == CharacterSound::Jump &&
+			   e.who == PLAYER_CHARACTER;
+	}));
+}
+
 TEST_CASE("Blessing of Isis: with the skill a curse that takes runs half as long") {
 	WorldEvents events;
 	Player plain;

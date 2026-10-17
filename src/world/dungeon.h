@@ -1,6 +1,8 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 #include "../entities/monster.h"
+#include "../entities/player.h"
+#include "skills.h"
 #include <fstream>
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
@@ -306,7 +308,12 @@ class Dungeon {
 	bool Move(float dirX, float dirY); // false: blocked, the player did not move
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR, no jump.
 	[[nodiscard]] bool PlayerWading() const;
-	[[nodiscard]] float PlayerWalkFactor() const { return PlayerWading() ? WADE_SPEED_FACTOR : 1.f; }
+	[[nodiscard]] float PlayerWalkFactor() const {
+		if (!PlayerWading())
+			return 1.f;
+		const bool hapi = sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi);
+		return hapi ? 0.75f : WADE_SPEED_FACTOR;
+	}
 	// False while wading: then the player is told why (at most every WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
 	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs. A swing already under way

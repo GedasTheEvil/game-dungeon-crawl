@@ -281,6 +281,9 @@ bool Dungeon::AttackAllowed(bool tell) {
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;
+	// With the Hapi favour, jumping out of half water is allowed.
+	if (sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi))
+		return true;
 	const int now = GameClock::now();
 	if (now - waterHintMs >= WATER_JUMP_HINT_MS) {
 		waterHintMs = now;

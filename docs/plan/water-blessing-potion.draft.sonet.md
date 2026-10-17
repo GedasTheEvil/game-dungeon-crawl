@@ -3,7 +3,8 @@
 Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user.
 
 Implementing this plan must also add the stacking part of [skill-blessing-of-hapi](skill-blessing-of-hapi.md): with
-the Favour of Hapi skill the potion lasts 4 minutes and the wade speed is 125% (the skill part is in already).
+the Favour of Hapi skill the potion lasts 4 minutes, the wade speed is 125% and the sprint in half water is the full
+land sprint with half the stamina drain (the skill part is in already; its table has the numbers).
 
 ## Idea
 
@@ -17,7 +18,7 @@ From [crocodiles-and-flooded-cells](solved/crocodiles-and-flooded-cells.md#imple
 | Limit | Where | With the blessing |
 |---|---|---|
 | Walk and climb at 50% (`WADE_SPEED_FACTOR`) | `input.cpp` | full speed |
-| No sprint while wading (no speed, no stamina drain) | `input.cpp` / sprint | sprint as on land, stamina drains as on land |
+| No sprint while wading (no speed, no stamina drain) | `input.cpp` / sprint | sprint at 40% of the land sprint speed, stamina drains as on land |
 | No jump while wading ("too deep to jump") | `Dungeon::JumpAllowed` | jump as on land |
 
 Not changed: wading still splashes (`WADE_SPLASH_MS`, `Dungeon::PlayerWading`), the player still sinks into the

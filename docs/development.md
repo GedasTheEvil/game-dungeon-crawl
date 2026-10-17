@@ -88,7 +88,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 * `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
 * `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
-* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever and rock sounds.
+* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever, rock and treasure container sounds.
 * `content/levels/` - campaign levels, edited with the level editor.
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `saves/` - save games (not tracked by git).
@@ -136,6 +136,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Damage types, fire, burning, fire arrows | `world/damage.h` (`Burning`), `Dungeon::updateBurning` (`world/dungeon_base.cpp`), `Dungeon::lightArrows` (`world/dungeon_interact.cpp`), drawn in `world/dungeon_render_effects.cpp`, `graphics/fire.*` |
 | Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |
 | Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture | `world/dungeon_interact.cpp` |
+| Treasure containers: kinds, shares by depth, stances, opening, drawing | `world/containers.h`, the look `scatterTreasures` (`world/decor_scatter.cpp`), opening `Dungeon::openContainer` (`world/dungeon_interact.cpp`), drawn by `Dungeon::DrawTreasureTile` (`world/dungeon_render.cpp`); models `tools/blender/models/containers.py`, the chest `items.py` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Dart traps | `world/dungeon_darts.*` (`DartTraps`) |
 | Wall spikes (rhythm traps): cycle, stab, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp`, drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |

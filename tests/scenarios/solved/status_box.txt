@@ -11,6 +11,8 @@ walk right 2
 wait 1s
 walk right 0.6
 interact
+wait 1s
+interact # the chest's item, once open (plan treasure-containers)
 wait 200ms
 screenshot lines
 expect potion5 == 1 # seed 4: "Found: Sword" + a small stamina bonus

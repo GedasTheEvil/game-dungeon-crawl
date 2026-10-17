@@ -54,6 +54,24 @@ class Dungeon {
 	void UpdateMovementState();
 	void UpdateMonsters();
 	bool PickUp(); // not the car... just take an item away; false if there is none
+	// Treasure containers (plan treasure-containers, containers.h): what was done to the one in each cell.
+	struct ContainerCell {
+		bool opened = false; // its clip started at openedMs: the item shows once it has played
+		bool emptied = false; // the item was taken: the open container stays
+		bool dropped = false; // a kill's or a dead mimic's chest: DROPPED_LOOK, open from the start
+		int openedMs = 0; // GameClock
+	};
+	ContainerCell containers[MAP_CELL_COUNT];
+	static constexpr int CONTAINER_OPENED_LONG_AGO_MS = 1000000; // a loaded open container's clip has played
+	static char containerChar(const ContainerCell& c); // in a save (dungeon_io.cpp)
+	static ContainerCell containerFromChar(char c);
+	void openContainer(); // Interact Open on a closed treasure: its clip starts
+	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing.
+	void placeDroppedChest(int cell, ItemFileId item);
+	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
+	// 0 closed .. 1 open, the cell's clip.
+	[[nodiscard]] float containerOpening(int cell) const;
+	[[nodiscard]] TreasureLook treasureLook(int cell) const;
 	bool PullLever(); // interact on a lever cell; false if there is none
 	bool readInscription(); // interact on an inscription: into the journal; false if there is none
 	// Interact by a brazier with a bow held (InteractVerb Light): the next FIRE_ARROW_SHOTS arrows carry fire (plan
@@ -109,7 +127,8 @@ class Dungeon {
 	[[nodiscard]] bool inView(const Monster& mon) const;
 	void noteSeenMonsters(); // the monsters on screen go in the journal
 	void drawHitboxes(const HitboxView& weapon);
-	void DrawTreasureTile(int i, int j);
+	void DrawTreasureTile(int i, int j); // the container, open or not, and the item once it shows
+	void drawContainerEffects(); // the dust of a jar breaking, after the opaque scene
 	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
@@ -296,6 +315,13 @@ class Dungeon {
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
 	// cell is outside the level.
 	bool PlaceDecor(int col, int row, int type);
+	// A treasure container stands in (col, row): a treasure, or one emptied there (it stays, open).
+	[[nodiscard]] bool ContainerStands(int col, int row) const {
+		return IsInBounds(col, row) && (MapAt(col, row).type == Treasure || containers[MapIndex(col, row)].emptied);
+	}
+	// Scenario `container`: the treasure in (col, row) looks like `kind` (CONTAINER_NAMES) in STANCES[stance],
+	// whatever the level's scatter picked. False if the cell is outside the level or the stance unknown.
+	bool PlaceContainer(int col, int row, int kind, int stance);
 	// The highest decoration tier (decor.h) among the level's props, decals and surfaces; -1 for a bare level.
 	[[nodiscard]] int DecorTierUsed() const;
 	void Update();
@@ -349,9 +375,10 @@ class Dungeon {
 	// The interact key: does what InteractVerb says, nothing on None.
 	void Interact();
 	// What the interact key does in the player's cell, in this order (plan wall-layer, interact-prompt): the chest or a
-	// mimic in ambush (Open), then the fixture on the back wall (Pull a lever not pulled yet, Read or Copy an
-	// inscription), the brazier with a bow (Light), and the gate last, as it may take the player away (Answer a riddle
-	// gate, Enter the exit or a teleporter not in the air, Take the ankh). Keys are picked up on touch: None.
+	// mimic in ambush (Open; Take once the chest's clip has played, nothing while it plays), then the fixture on the
+	// back wall (Pull a lever not pulled yet, Read or Copy an inscription), the brazier with a bow (Light), and the
+	// gate last, as it may take the player away (Answer a riddle gate, Enter the exit or a teleporter not in the air,
+	// Take the ankh). Keys are picked up on touch: None.
 	[[nodiscard]] Interaction InteractVerb() const;
 	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
 	// copied without the skill, 0 translated, too worn to read, or no inscription.

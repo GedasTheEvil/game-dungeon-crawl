@@ -31,7 +31,7 @@ While the player stands in a cell where the interact key does something, a small
 "[E] Open", "[E] Pull", "[E] Read", "[E] Enter", "[E] Answer", "[E] Take".
 
 * Which cells, from `Dungeon::Interact` (`src/world/dungeon_interact.cpp`) and its helpers, in the same order:
-  * `Treasure`: Open. With [treasure-containers](../treasure-containers.draft.opus.md) (closed until opened): Open on a
+  * `Treasure`: Open. With [treasure-containers](../treasure-containers.md) (closed until opened): Open on a
     closed one, Take once open and its item shows; whichever plan lands second adds the Take.
   * `Lever` not pulled yet: Pull (a pulled lever: none).
   * `Inscription`: Read (Copy without the hieroglyph skill, once

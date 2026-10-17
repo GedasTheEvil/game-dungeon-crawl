@@ -1,0 +1,79 @@
+# Treasure containers (plan treasure-containers, tests/levels/containers): each kind closed, halfway through its
+# opening clip and open with the item showing, then taken; a few stances; the mimic (col 16) between two real chests.
+seed 3
+god
+level tests/levels/containers
+container 3 chest 0
+container 5 coffer 1
+container 7 basket 0
+container 9 canopic 0
+container 11 jar 0
+container 13 table 0
+container 15 chest 3
+container 17 chest 5
+container 21 chest 7
+wait 30
+walk to 5.5
+wait 10
+screenshot closed_chest_coffer_basket
+walk to 11
+wait 10
+screenshot closed_canopic_jar_table
+walk to 16.5
+wait 10
+expect bars == 0
+screenshot mimic_among_chests
+walk to 20.5
+wait 10
+screenshot right_wall
+walk to 3.5
+wait 10
+interact
+wait 350ms
+screenshot chest_opening
+wait 1s
+screenshot chest_open
+expect chests == 9
+interact
+wait 5
+expect chests == 8
+walk to 5.5
+interact
+wait 350ms
+screenshot coffer_opening
+wait 1s
+screenshot coffer_open
+interact
+walk to 7.5
+interact
+wait 300ms
+screenshot basket_opening
+wait 1s
+screenshot basket_open
+interact
+walk to 9.5
+interact
+wait 450ms
+screenshot canopic_opening
+wait 1s
+screenshot canopic_open
+interact
+walk to 11.5
+interact
+wait 200ms
+screenshot jar_smashing
+wait 1s
+screenshot jar_open
+interact
+walk to 13.5
+interact
+wait 400ms
+screenshot table_opening
+wait 1s
+screenshot table_open
+interact
+wait 5
+expect chests == 3
+walk to 9
+wait 10
+screenshot emptied

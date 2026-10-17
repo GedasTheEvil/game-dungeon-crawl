@@ -12,7 +12,10 @@ item::loadModel -> Centrify, then glScale item->scale). The weapons stand uprigh
 business end at the top (+Z): the engine draws the held weapon from its lowest point, tilted 45 deg towards the
 facing direction (drawWeapon), and upright in the inventory. Flat faces (sword blade, bow) lie in the x-z plane,
 so they face the camera (-Y); the bow's back bulges towards +x (the enemy when the player faces right).
-The chest faces -Y with its lid open towards +Y; the engine draws it at rotA 0 with the tile's item standing inside.
+The chest faces -Y with its lid opening towards +Y; the engine draws it at rotA 0 (or turned, its stance) with the tile's
+item standing inside once open. It has CHEST_FRAMES frames, its opening clip (plan treasure-containers): frame 0 closed
+(the engine's centring reference, the closed chest that hides the item), the last frame open as the mimic's shell
+(mimic.py copies it). Texture and UVs come from the open chest. The other treasure containers: containers.py.
 
 The bows (bow, composite_bow) have BOW_FRAMES frames, the draw: frame 0 at rest (as the inventory and the pickups show it), then the string
 pulled further back each frame with an arrow on it (collapsed to the nock point in frame 0); the engine picks the frame
@@ -48,7 +51,11 @@ COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
          "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
                                                           "pierce", "regeneration", "venom", "fire")]
-BOWS = ("bow", "composite_bow")  # exported with their draw frames
+# Exported with frames, one shape key each on the baked object: the bows' draw, the chest's opening. Item: (keyword of
+# its builder, frames); the builder's default is the last frame.
+BOW_FRAMES = 8  # the draw, frame 0 at rest
+CHEST_FRAMES = 12  # the opening, frame 0 closed (CONTAINER_DEFS in src/world/containers.h: 700 ms)
+FRAMED = {"bow": ("draw", BOW_FRAMES), "composite_bow": ("draw", BOW_FRAMES), "chest": ("opening", CHEST_FRAMES)}
 FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 # The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
@@ -409,7 +416,6 @@ def build_spear(b, M):
 
 
 BOW_H, BOW_DEPTH = 0.6, 0.15  # half height, belly depth
-BOW_FRAMES = 8  # the draw, frame 0 at rest
 BOW_FLEX = 0.1  # the tips bend back this far at full draw
 BOW_NOCK_DRAWN = -0.4  # x of the string's centre at full draw (the grip is at BOW_DEPTH)
 ARROW_REST = V((0, -0.03, 0.025))  # the nocked arrow passes the grip on the camera side, just above the fist
@@ -909,10 +915,20 @@ LID_H = 0.09
 LID_OPEN = 105.0  # degrees
 
 
-def build_chest(b, M, lid_bone="root", heap_bone="root"):
+def chest_lid(t):
+    """Lid angle (degrees) at t 0..1 of the opening clip: it gives a little at the latch, then swings back, slowing
+    to rest at LID_OPEN."""
+    if t < 0.15:
+        return 6.0 * math.sin(math.pi * t / 0.15) ** 2 * 0.5
+    u = (t - 0.15) / 0.85
+    return LID_OPEN * (1 - (1 - u) ** 3)
+
+
+def build_chest(b, M, lid_bone="root", heap_bone="root", opening=1.0):
     """Painted cedar chest on short legs, gold corner caps and studs, a blue-red-gold frieze and ankh plaques
     on the front, red lining, the vaulted lid open towards the back, a heap of gold coins and a gem inside.
-    lid_bone / heap_bone: vertex weights of the lid and of the treasure (the mimic, mimic.py, rigs them)."""
+    lid_bone / heap_bone: vertex weights of the lid and of the treasure (the mimic, mimic.py, rigs them).
+    opening: 0 closed .. 1 open (chest_lid), the frames of the opening clip."""
     w, d, h, leg, t = CHEST_W, CHEST_D, CHEST_H, CHEST_LEG, CHEST_WALL
     z0, z1 = leg, leg + h
     # Walls as boxes (outside cedar, inside lining) and the floor.
@@ -984,7 +1000,7 @@ def build_chest(b, M, lid_bone="root", heap_bone="root"):
     lid.add(place(box(lw - 0.06, 0.004, 0.022), loc=(0, -ld / 2 - 0.002, 0.015)), M["frieze"], lid_bone)
     # Swing it open round the back top edge of the box: the lid's back edge on the hinge, the top turned to +Y.
     hinge = V((0, d / 2 + 0.01, z1))
-    r = rot(x=-LID_OPEN)
+    r = rot(x=-chest_lid(opening))
     lid.verts = [hinge + r @ (V(v) - V((0, ld / 2, 0))) for v in lid.verts]
     merge(b, lid)
 
@@ -1069,7 +1085,7 @@ def build(bake=True, tex_dir=None, only=None):
         low = min(v.z for v in b.verts)
         b.verts = [V(v) - V((0, 0, low)) for v in b.verts]
         obj = common.finish_mesh(b, coll, "item_" + name)
-        obj["low"] = low  # the draw frames are shifted the same (bow_frames)
+        obj["low"] = low  # the draw frames are shifted the same (pose_frames)
         obj.data.set_sharp_from_angle(angle=math.radians(50))
         obj.location = (xs[name], 0, 0)
         common.uv_unwrap(obj, b.tags, boost={"gem": ((0, 0, 0), 1.6)})
@@ -1096,15 +1112,16 @@ def build(bake=True, tex_dir=None, only=None):
     return objs
 
 
-def bow_frames(obj, path, g, name="bow"):
-    """Writes a bow's BOW_FRAMES draw frames to path: one shape key per frame on the baked (fully drawn) bow."""
+def pose_frames(obj, path, g, name):
+    """Writes a FRAMED item's frames to path: one shape key per frame on the baked object (its last frame)."""
     M = materials()
+    keyword, count = FRAMED[name]
     obj.shape_key_add(name="Basis")
     keys = []
-    for k in range(BOW_FRAMES):
+    for k in range(count):
         b = Builder()
-        BUILDERS[name](b, M, draw=k / (BOW_FRAMES - 1))
-        key = obj.shape_key_add(name="draw%d" % k)
+        BUILDERS[name](b, M, **{keyword: k / (count - 1)})
+        key = obj.shape_key_add(name="%s%d" % (keyword, k))
         for i, v in enumerate(b.verts):
             key.data[i].co = V(v) - V((0, 0, obj["low"]))
         keys.append(key)
@@ -1134,8 +1151,8 @@ def export(objs, models_dir=None):
         obj.location = (0, 0, 0)
         bpy.context.view_layer.update()
         path = os.path.join(models_dir, "%s.md3" % FILES.get(name, name))
-        if name in BOWS:
-            bow_frames(obj, path, g, name)
+        if name in FRAMED:
+            pose_frames(obj, path, g, name)
         else:
             g["export_md3"](obj, path, 0, 0)
         obj.location = loc

@@ -27,6 +27,12 @@ enum class WorldSound : unsigned char {
 	SpikeScrape, // wall spikes twitch before they come out (plan rhythm-traps)
 	SpikeThunk, // wall spikes come out
 	Dodge, // the player sidesteps a blow (Dodge skill)
+	// A treasure container opens (plan treasure-containers): a wooden lid creaks up (chest, coffer), reed or linen
+	// rustles (basket, the offering table's cover), the canopic jars' stone heads scrape off, the sealed jar smashes.
+	LidWood,
+	LidReed,
+	LidStone,
+	JarSmash,
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged}.wav).

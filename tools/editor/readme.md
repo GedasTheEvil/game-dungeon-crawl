@@ -96,7 +96,7 @@ wall layer, the others in the object layer. Objects palette: `None`, `Door`, `De
 | 4 | Monster | Monster type, see below | - | Monster spawns on this cell when the cell is in view. |
 | 5 | Spike | - | - | Small spike trap (scale 16). Damages the player on contact. |
 | 6 | Ladder | - | - | Column. The player climbs up and down only between vertically adjacent ladder cells, and does not fall on it. |
-| 8 | Treasure | Item type, see below | Item id, see below | Chest with the item on top. Interact to pick it up. The cell is then left without an object. |
+| 8 | Treasure | Item type, see below | Item id, see below | A treasure container (chest, coffer, basket, canopic jars, jar, offering table: rolled by depth) holding the item. Interact to open it, again to take the item. The cell is then left without an object. |
 | 9 | Ankh | - | - | Level goal. Interact with it to win the game. |
 | 10 | Key | Lock colour, see below | - | Key on the floor. The player picks it up on touch. The cell is then left without an object. |
 | 11 | Gate (lock gate) | Lock colour, see below | 0 closed, 1 open | Portcullis. A closed gate blocks the corridor. It opens when the player comes up to it with the key of its colour, or when a lever of its colour is pulled. It slides up in 1.2 s. |

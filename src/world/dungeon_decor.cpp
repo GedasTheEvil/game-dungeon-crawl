@@ -22,9 +22,15 @@ int Dungeon::DecorTierUsed() const { return decorTierUsed(map, decoration); }
 
 void Dungeon::scatterDecorations(const char* levelName, int depth) {
 	const DecorCounts counts = scatterDecor(map, levelName, depth, decoration);
+	// An opened container stays where it stood, also after its item was taken (a save): no prop on top of it.
+	for (int c = 0; c < MAP_CELL_COUNT; c++)
+		if (const int8_t prop = decoration.decor[c].type;
+			containers[c].opened && prop != DECOR_COFFIN && prop != DECOR_COFFIN_LARGE)
+			decoration.decor[c] = DecorCell{};
 	LOG_INFOF("world", "Decorations in %s: %d", levelName, counts.props);
 	LOG_INFOF("world", "Torches: %d", counts.torches);
 	LOG_INFOF("world", "Wall decals: %d", counts.decals);
 	LOG_INFOF("world", "Ladder shafts: %d", counts.ladderShafts);
+	LOG_INFOF("world", "Treasure containers: %d", counts.treasures);
 	LOG_INFOF("world", "Surfaces: %d painted, %d stone, %d rough cells", counts.painted, counts.stone, counts.rough);
 }

@@ -147,8 +147,9 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(sound, sizeof(sound), MEDIA_DIR "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
-	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Chest, potions and amulets]");
-	items.chest = loadItem("treasure_chest", 8); // faces the camera at rotA 0 (tools/blender/models/items.py)
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Containers, potions and amulets]");
+	for (size_t i = 0; i < CONTAINER_COUNT; i++) // face the camera at rotA 0 (tools/blender/models/containers.py)
+		items.containers[i] = loadItem(CONTAINER_DEFS[i].model, CONTAINER_DEFS[i].scale);
 	loadPotions(items);
 	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++)
 		items.amulets[i] = loadItem(amuletModel(static_cast<AmuletType>(i)), AMULET_SCALE);
@@ -239,6 +240,10 @@ void loadSounds(SoundBank& sounds) {
 	sounds.spikeThunk.Load(MEDIA_DIR "sounds/mechanisms/spike_thunk.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
 	sounds.rockCrash.Load(MEDIA_DIR "sounds/mechanisms/rock_crash.wav");
+	sounds.lidWood.Load(MEDIA_DIR "sounds/items/lid_wood.wav");
+	sounds.lidReed.Load(MEDIA_DIR "sounds/items/lid_reed.wav");
+	sounds.lidStone.Load(MEDIA_DIR "sounds/items/lid_stone.wav");
+	sounds.jarSmash.Load(MEDIA_DIR "sounds/items/jar_smash.wav");
 	sounds.arrowHit.Load(MEDIA_DIR "sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load(MEDIA_DIR "sounds/items/arrow_wall.wav");
 	sounds.stoneHit.Load(MEDIA_DIR "sounds/items/stone_hit.wav");

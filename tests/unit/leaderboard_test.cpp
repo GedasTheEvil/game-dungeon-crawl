@@ -47,7 +47,7 @@ TEST_CASE("a kill, a treasure and the play time count; a load puts the saved cou
 
 	world.SaveAndLoad(); // the saved run: one rat, no treasure yet
 	REQUIRE(world.WalkTo(6.5f));
-	world.Interact();
+	world.OpenChest();
 	CHECK(stats.treasures == 1);
 	CHECK(world.player.stats.run.Slain(MonsterRat) == 1);
 	world.SaveAndLoad();

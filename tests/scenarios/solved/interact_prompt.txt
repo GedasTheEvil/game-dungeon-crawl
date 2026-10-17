@@ -10,6 +10,9 @@ walk to 3.5
 wait 20
 screenshot open_prompt
 interact
+wait 1s
+screenshot take_prompt
+interact # the item (plan treasure-containers: open, its clip, then take)
 wait 30
 screenshot copy_prompt
 # 7 frames 300 ms apart outlast the glint's 1.9 s rest: some catch the band mid-sweep

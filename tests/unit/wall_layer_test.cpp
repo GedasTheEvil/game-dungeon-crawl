@@ -133,7 +133,7 @@ TEST_CASE("interact over a chest under an inscription: the chest first, the insc
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
-	world.Interact();
+	world.OpenChest();
 	world.WaitTicks(1);
 	CHECK(world.Told("Found: "));
 	CHECK(world.dungeon.Cell(3, 2).type == NoObject);

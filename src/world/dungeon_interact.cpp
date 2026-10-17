@@ -6,6 +6,7 @@
 #include "journal.h"
 #include "loot.h"
 #include "dungeon_rules.h"
+#include "world_events.h"
 #include <string>
 #include <vector>
 
@@ -14,7 +15,10 @@ bool Dungeon::PickUp() {
 		return false;
 	sim.player->stats.run.treasures++;
 	std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
-	clearObject(map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))]);
+	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
+	clearObject(map[cell]);
+	containers[cell].opened = true; // the open container stays, empty
+	containers[cell].emptied = true;
 	if (!placed) // an empty chest (type 0), or an item the game does not know
 		return true;
 
@@ -38,7 +42,13 @@ void Dungeon::Interact() {
 		if (const int slot = ambushHere(); slot >= 0)
 			monsters[slot].Spring(); // the Chest of Set: opened like a chest, it bites
 		else
+			openContainer();
+		break;
+	case Interaction::Take:
+		if (Map(mapX, mapY).type == Treasure)
 			PickUp();
+		else
+			useGate(); // the ankh
 		break;
 	case Interaction::Pull:
 		PullLever();
@@ -52,7 +62,6 @@ void Dungeon::Interact() {
 		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
-	case Interaction::Take:
 		useGate();
 		break;
 	}
@@ -63,8 +72,14 @@ Interaction Dungeon::InteractVerb() const {
 	if (!IsInBounds(col, row))
 		return Interaction::None;
 	const Tile here = MapAt(col, row);
-	if (here.type == Treasure || ambushHere() >= 0)
+	if (ambushHere() >= 0)
 		return Interaction::Open;
+	if (here.type == Treasure) {
+		const ContainerCell& c = containers[MapIndex(col, row)];
+		if (!c.opened)
+			return Interaction::Open;
+		return containerShows(MapIndex(col, row)) ? Interaction::Take : Interaction::None;
+	}
 	if (here.fixture.type == Lever && isLockColour(here.fixture.attr) && !leverPulled(here.fixture))
 		return Interaction::Pull;
 	if (here.fixture.type == Inscription) {
@@ -92,6 +107,59 @@ Interaction Dungeon::InteractVerb() const {
 	default: // the entrance, an answered riddle gate
 		return Interaction::None;
 	}
+}
+//======================================================================================
+// The clip plays, the item shows at its end (containerShows). The trap of a trapped chest would fire here.
+void Dungeon::openContainer() {
+	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
+	if (map[cell].type != Treasure || containers[cell].opened)
+		return;
+	containers[cell].opened = true;
+	containers[cell].openedMs = GameClock::now();
+	const Container kind = treasureLook(cell).kind;
+	switch (kind) {
+	case Container::Chest:
+	case Container::Coffer:
+		sim.events->Play(WorldSound::LidWood);
+		break;
+	case Container::Basket:
+	case Container::Table: // the linen cover
+		sim.events->Play(WorldSound::LidReed);
+		break;
+	case Container::Canopic:
+		sim.events->Play(WorldSound::LidStone);
+		sim.events->Note(FieldNote::CanopicJars);
+		break;
+	case Container::Jar:
+		sim.events->Play(WorldSound::JarSmash);
+		break;
+	}
+}
+//======================================================================================
+void Dungeon::placeDroppedChest(int cell, ItemFileId item) {
+	setObject(map[cell], Tile{Treasure, item.type, item.id});
+	containers[cell] = {true, false, true, GameClock::now() - containerDef(DROPPED_LOOK.kind).openMs};
+}
+//======================================================================================
+float Dungeon::containerOpening(int cell) const {
+	const ContainerCell& c = containers[cell];
+	if (!c.opened)
+		return 0.f;
+	return motionProgress(c.openedMs, containerDef(treasureLook(cell).kind).openMs);
+}
+//======================================================================================
+bool Dungeon::containerShows(int cell) const { return containerOpening(cell) >= 1.f; }
+//======================================================================================
+TreasureLook Dungeon::treasureLook(int cell) const {
+	return containers[cell].dropped ? DROPPED_LOOK : decoration.treasure[cell];
+}
+//======================================================================================
+bool Dungeon::PlaceContainer(int col, int row, int kind, int stance) {
+	if (!IsInBounds(col, row) || kind < 0 || kind >= CONTAINER_COUNT || stance < 0 || stance >= STANCE_COUNT)
+		return false;
+	const StanceDef& st = STANCES[stance];
+	decoration.treasure[MapIndex(col, row)] = {static_cast<Container>(kind), st.yaw, st.x, st.z};
+	return true;
 }
 //======================================================================================
 int Dungeon::ambushHere() const {

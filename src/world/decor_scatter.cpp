@@ -19,6 +19,7 @@ constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
+constexpr uint32_t TREASURE_SALT = 0xa54ff53aU;
 constexpr int STRETCH_MIN = 3; // cells; a row of dressed stone is cut into stretches, painted or bare
 constexpr int STRETCH_SPAN = 6; // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
@@ -168,6 +169,35 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			placed++;
 		}
 	return placed;
+}
+
+// Every open cell gets a look, not only the treasure cells: a chest taken before a save still stands there, opened,
+// after the load (its tile is empty then).
+int scatterTreasures(const Tile* cells, uint32_t seed, int tier, TreasureLook* treasure) {
+	int chests = 0;
+	for (int j = 0; j < LEVEL_HEIGHT; j++)
+		for (int i = 0; i < LEVEL_WIDTH; i++) {
+			TreasureLook& look = treasure[cellIndex(i, j)];
+			if (rockAt(cells, i, j)) {
+				look = TreasureLook{};
+				continue;
+			}
+			uint32_t h = cellHash(seed, cellIndex(i, j));
+			uint32_t kinds[CONTAINER_COUNT];
+			for (int k = 0; k < CONTAINER_COUNT; k++)
+				kinds[k] = static_cast<uint32_t>(CONTAINER_PERCENT[tier][k]);
+			const int kind = weightedPick(kinds, CONTAINER_COUNT, h);
+			uint32_t stances[STANCE_COUNT];
+			for (int k = 0; k < STANCE_COUNT; k++) {
+				const StanceDef& st = STANCES[k];
+				stances[k] =
+					st.wallSide == 0 || rockAt(cells, i + st.wallSide, j) ? static_cast<uint32_t>(st.weight) : 0;
+			}
+			const StanceDef& stance = STANCES[weightedPick(stances, STANCE_COUNT, mix(h))];
+			look = {static_cast<Container>(kind), stance.yaw, stance.x, stance.z};
+			chests += at(cells, i, j).type == Treasure ? 1 : 0;
+		}
+	return chests;
 }
 
 // Each vertical run of Ladder cells is one shaft with one style, keyed on its bottom cell: the bottom piece where it
@@ -406,6 +436,7 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, De
 	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);
 	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, layout.surface, counts);
+	counts.treasures = scatterTreasures(cells, seed ^ TREASURE_SALT, tier, layout.treasure);
 	return counts;
 }
 

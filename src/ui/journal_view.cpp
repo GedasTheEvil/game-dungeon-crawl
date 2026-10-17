@@ -346,6 +346,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Blessing of Hapi", "Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint "
 						 "and jump in half water as if it were a street. With his favour it lasts twice as long and "
 						 "the water carries me."},
+	{"Canopic jars", "Four jars, four sons of Horus: one each for the liver, the lungs, the stomach and the guts. "
+					 "Somebody swapped the insides for treasure. I try not to wonder where the insides went."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

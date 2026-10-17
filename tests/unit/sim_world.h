@@ -139,6 +139,12 @@ class SimWorld {
 
 	void Jump() { dungeon.StartJump(facing); }
 	void Interact() { dungeon.Interact(); }
+	// A closed chest: interact, its opening clip (plan treasure-containers), interact again to take the item.
+	void OpenChest() {
+		Interact();
+		Wait(containerOpenMsMax() + UPDATE_TICK_MS);
+		Interact();
+	}
 
 	// As `give`: found in a chest (its journal note).
 	void Give(ItemKind kind) { items.Find(kind, journal); }

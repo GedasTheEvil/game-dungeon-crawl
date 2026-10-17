@@ -5,6 +5,7 @@
 // each cell of a level gets. Every cell rolls from (level file name, cell index), so a level looks the same on every
 // load and a cell does not depend on the rest of the map.
 
+#include "containers.h"
 #include "decor.h"
 #include "level.h"
 #include <cstdint>
@@ -16,6 +17,7 @@ struct DecorLayout {
 	SurfaceCell surface[LEVEL_CELL_COUNT];
 	bool torch[LEVEL_CELL_COUNT] = {};
 	LadderCell ladder[LEVEL_CELL_COUNT];
+	TreasureLook treasure[LEVEL_CELL_COUNT]; // what a treasure there looks like (containers.h); set on every open cell
 };
 
 // The fires among the decorations: a brazier's or an oil lamp's flame, a torch's. The drawing gives each its fire
@@ -38,6 +40,7 @@ struct DecorCounts {
 	int torches = 0;
 	int decals = 0;
 	int ladderShafts = 0;
+	int treasures = 0;
 	int painted = 0, stone = 0, rough = 0; // surface cells by family
 };
 
@@ -45,9 +48,9 @@ struct DecorCounts {
 // row, alive or slain (slainMonster): a coffin for its minions stands there. cells: a whole level.
 [[nodiscard]] bool bossCoffinCell(const Tile* cells, int col, int row);
 
-// Props, decals, torches, ladders and surfaces, seeded by the level's file name (the part after the last '/'), from
-// the decoration tiers its depth unlocks (decorTier). Every mummy's spawn tile and every boss coffin cell gets a
-// coffin. Overwrites all of layout.
+// Props, decals, torches, ladders, surfaces and the treasure containers' looks, seeded by the level's file name (the
+// part after the last '/'), from the decoration tiers its depth unlocks (decorTier). Every mummy's spawn tile and every
+// boss coffin cell gets a coffin. Overwrites all of layout.
 DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, DecorLayout& layout);
 
 // The highest decoration tier among a level's props, decals and surfaces; -1 for a bare level.

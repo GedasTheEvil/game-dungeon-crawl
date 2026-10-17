@@ -51,8 +51,9 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			ItemFileId loot = fileIdOf(RollMimicLoot(sim.items->Owned(), sim.random->gameplay));
-			setObject(map[MapIndex(mon.Col(), mon.SpawnRow())], Tile{Treasure, loot.type, loot.id});
+			// Its die clip ends with the lid falling open over the gold: the chest stays open.
+			placeDroppedChest(MapIndex(mon.Col(), mon.SpawnRow()),
+							  fileIdOf(RollMimicLoot(sim.items->Owned(), sim.random->gameplay)));
 			mon.Clear();
 			continue;
 		}
@@ -105,8 +106,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 			const int row = IsInBounds(col, mon.Row()) ? floorCell(col, mon.Row()) : -1;
 			if (row < 0)
 				continue;
-			const ItemFileId loot = fileIdOf(weapon);
-			setObject(map[MapIndex(col, row)], Tile{Treasure, loot.type, loot.id});
+			placeDroppedChest(MapIndex(col, row), fileIdOf(weapon)); // open: the player sees what it left
 			return;
 		}
 }

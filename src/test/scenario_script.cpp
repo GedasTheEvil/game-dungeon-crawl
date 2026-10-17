@@ -3,6 +3,7 @@
 #include "../input/bindings.h"
 #include "../input/input.h"
 #include "../world/curses.h"
+#include "../world/containers.h"
 #include "../world/decor.h"
 #include "../world/item_bag.h"
 #include "../world/poison.h"
@@ -281,6 +282,19 @@ bool parseProp(const Args& args, Command& cmd) {
 	return false;
 }
 
+// A column (a), a container of CONTAINER_NAMES (ticks) and a stance (b, an index into STANCES, default 0).
+bool parseContainer(const Args& args, Command& cmd) {
+	if (args.size() < 2 || args.size() > 3 || !parseFloat(args[0], cmd.a) ||
+		(args.size() == 3 && (!parseFloat(args[2], cmd.b) || cmd.b < 0.f || cmd.b >= STANCE_COUNT)))
+		return false;
+	for (int k = 0; k < CONTAINER_COUNT; k++)
+		if (args[1] == CONTAINER_NAMES[k]) {
+			cmd.ticks = k;
+			return true;
+		}
+	return false;
+}
+
 // The skill (ticks) by its name: lower case, '_' for spaces, no apostrophes (serkets_favour).
 bool parseSkill(const Args& args, Command& cmd) {
 	for (int s = 0; args.size() == 1 && s < SKILL_COUNT; s++) {
@@ -336,6 +350,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Hurt:
 	case CommandType::FireHit:
 	case CommandType::Prop:
+	case CommandType::Container:
 	case CommandType::Riddles:
 	case CommandType::Inscriptions:
 	case CommandType::Chest:
@@ -392,6 +407,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
 		{"inscriptions", CommandType::Inscriptions, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},
+		{"container", CommandType::Container, parseContainer,
+		 "<col> <chest|coffer|basket|canopic|jar|table> [stance 0-7]: a treasure's look (STANCES)"},
 		{"savegame", CommandType::SaveGame, oneWord, "<path>"},
 		{"loadgame", CommandType::LoadGame, oneWord, "<path>"},
 		{"mouse", CommandType::Mouse, twoNumbers, "<x%> <y%> (0..100, y from the bottom)"},

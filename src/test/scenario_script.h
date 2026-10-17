@@ -45,6 +45,7 @@ enum class CommandType : unsigned char {
 	Riddles,
 	Inscriptions,
 	Prop,
+	Container,
 	SaveGame,
 	LoadGame,
 	Mouse,

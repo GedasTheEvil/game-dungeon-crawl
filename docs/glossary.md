@@ -122,6 +122,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | amulet | Amulet | worn one at a time, gives its bonus while on; four tiers per type | `AmuletType`, `AmuletTier` |
 | bag | Inventory | what the player carries: counts, weapon levels, the worn amulet | `ItemBag` |
+| container | | what a treasure looks like: a wooden chest, a painted coffer, a reed basket, canopic jars, a sealed jar (it smashes), an offering table. Closed until opened (Open), its clip, then its item shows (Take); emptied, it stays open. Rolled per cell by depth, wooden chests 40 % or more (the mimic hides among them) | `Container`, `CONTAINER_DEFS`, `CONTAINER_PERCENT` |
 | fire guard | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts) | `AmuletType::FireWard` |
 | group | Weapons, Potions, Amulets, Rings | an inventory tab | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
@@ -133,6 +134,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | quick-drink | | the quick keys: drink the best fitting health or stamina potion | `Inventory::QuickDrink`, `quickPotion` |
 | sealed | Sealed | a skill shown on the Heka screen whose rules are not in the game yet: not learnable | `SkillDef::sealed` |
 | dodge | Dodged | the Dodge skill: 1 monster attack in 10 (`DODGE_PERCENT`) misses the player: no damage, no poison | `Player::Dodges` |
+| stance | | how a container stands in its cell: facing the camera, angled, side-on, against the back wall or a side wall | `STANCES`, `TreasureLook` |
 | skill | | a permanent ability bought with one heka; no respec | `SkillId`, `SKILLS` |
 | tier | Lesser, Minor, Grand | an amulet's strength: lesser, minor, normal, grand ("Lesser Amulet of Armor", "Amulet of Minor Armor") | `AmuletTier` |
 

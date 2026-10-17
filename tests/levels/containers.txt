@@ -1,0 +1,6 @@
+; Treasure containers (plan treasure-containers; tests/unit/containers_test.cpp, tests/scenarios/containers.txt):
+; chests at cols 3, 5, 7, 9, 11 and 13 (the scenario gives each a look), a mimic (col 16) between two chests (cols 15,
+; 17), a chest at the right wall (col 21) for the side-wall stance, the exit at col 19.
+########################################
+#S.$.$.$.$.$.$.$M$.E.$#################
+########################################

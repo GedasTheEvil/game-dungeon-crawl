@@ -6,7 +6,8 @@
 
 Blender space: Z up, the chest faces -Y (game rotA 0), like the item. The shell is the chest of items.py
 (build_chest: same geometry, and the UVs and pixels of media/textures/items/treasure_chest.png copied into the left half
-of mimic.png), so the rest pose is vertex for vertex the item: the lid open towards the back over a heap of gold.
+of mimic.png), so the rest pose is vertex for vertex the item's last frame: the lid open towards the back over a heap of
+gold.
 Everything else hides inside it at rest: lower fangs and gums in the walls (slide up out of the rim), upper fangs
 lying flat in the lid frame (fold down out of its underside), the tongue and a fleshy mouth floor under the gold
 heap (the heap sinks into the box when it wakes). Rigid bones posed by deformation matrices (as in bat.py),
@@ -15,9 +16,10 @@ the legs ("base") shear under the box ("body") as it twists and sways; per-frame
 Clips (engine ~14 fps): walk (`mimic.md3`, loops on the awake pose: lid snaps, the box sways and twists), attack
 (`_att`, loops from the same awake pose: gape, lunge towards -Y with the tongue lashing out, snap, shake), die (`_die`,
 plays once from the awake pose: shudders, tongue limp, the lid slams, the gold comes back up under it and the lid
-falls open; the last frame is the rest pose again), idle (`_idle`, loops: the chest, still, but the lid dips and
-the box breathes once per loop; frame 0 = the chest item, the engine's normalization reference for the mimic,
-AMBUSH_CLIPS in src/entities/character_model.h).
+falls open; the last frame is the rest pose again, the open chest it leaves), idle (`_idle`, loops: the closed chest,
+as a treasure chest stands until opened (plan treasure-containers), still, but the lid lifts a hair and the box breathes
+once per loop; frame 0 = the chest item's frame 0, the engine's normalization reference for the mimic, AMBUSH_CLIPS in
+src/entities/model_info.h).
 
 Texture: 1024 x 512, left half = treasure_chest.png unchanged, right half = the mouth parts (AO baked on their own).
 """
@@ -246,9 +248,10 @@ def build_shell(M):
 
 
 def chest_uvs(mesh, first_tris):
-    """Per-loop UVs of the first first_tris loop triangles, read from treasure_chest.md3 (checked against positions)."""
+    """Per-loop UVs of the first first_tris loop triangles, read from treasure_chest.md3 (checked against the positions
+    of its last frame, the open chest)."""
     frames, _, uvs = md3.read_md3(CHEST_MD3)
-    pos = frames[0]
+    pos = frames[-1]
     if len(uvs) != 3 * first_tris:
         raise ValueError("treasure_chest.md3 has {} triangles, the shell {}".format(len(uvs) // 3, first_tris))
     mesh.calc_loop_triangles()
@@ -496,10 +499,10 @@ DIE = [
 
 
 def idle_params(f, n):
-    """The chest, still; once per loop the lid dips a hair and the box swells, as if it breathed."""
+    """The closed chest, still; once per loop the lid lifts a hair and the box swells, as if it breathed."""
     p = dict(REST)
     br = math.sin(math.pi * min(max((f - 24) / 14, 0.0), 1.0)) ** 2
-    p.update(lid=LID_REST - 4.5 * br, bz=0.012 * br, bx=0.005 * br, heapz=0.004 * br)
+    p.update(lid=items.chest_lid(0.0) + 3.0 * br, bz=0.012 * br, bx=0.005 * br, heapz=0.004 * br)
     return p
 
 

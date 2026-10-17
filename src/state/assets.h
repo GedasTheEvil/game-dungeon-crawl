@@ -9,6 +9,7 @@
 #include "../graphics/animated_model.h"
 #include "../graphics/font.h"
 #include "../core/sound.h"
+#include "../world/containers.h"
 #include "../world/decor.h"
 #include "../world/items.h"
 #include "../world/level.h"
@@ -23,6 +24,7 @@ struct SoundBank {
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
+	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
 	Sound stoneHit, stoneWall; // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
@@ -40,7 +42,7 @@ struct FontSet {
 };
 
 struct ItemPrototypes {
-	std::unique_ptr<Item> chest;
+	std::array<std::unique_ptr<Item>, CONTAINER_COUNT> containers; // by Container (containers.h)
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
 	std::array<std::unique_ptr<Item>, POTION_KIND_COUNT> potions; // in ItemKind order; one vessel's share its model
 	std::array<std::unique_ptr<Item>, AMULET_TYPE_COUNT> amulets; // by AmuletType: its tiers share the model

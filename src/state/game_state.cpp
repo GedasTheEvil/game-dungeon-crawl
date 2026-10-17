@@ -123,6 +123,14 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.spikeThunk;
 	case WorldSound::Dodge:
 		return sounds.dodge;
+	case WorldSound::LidWood:
+		return sounds.lidWood;
+	case WorldSound::LidReed:
+		return sounds.lidReed;
+	case WorldSound::LidStone:
+		return sounds.lidStone;
+	case WorldSound::JarSmash:
+		return sounds.jarSmash;
 	}
 	return sounds.arrowHit;
 }

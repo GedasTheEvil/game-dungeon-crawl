@@ -17,8 +17,9 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	{"Ladder", "The player climbs between vertically adjacent ladder cells and does not fall on them.", false, false,
 	 'H', "ladder.png"},
 	UNKNOWN,
-	{"Treasure", "Chest with an item on top. Interact to pick it up, the cell then becomes Empty.", true, true, '$',
-	 "treasure.png"},
+	{"Treasure",
+	 "A container (chest, jar, ...) holding an item. Interact to open, again to take it; the cell then becomes Empty.",
+	 true, true, '$', "treasure.png"},
 	{"Ankh", "Level goal. Interact with it to win the game.", true, false, 'A', "ankh.png"}, // the statue hides a torch
 	{"Key", "Key on the floor, picked up on touch. Opens the gates of its colour.", true, true, '\0', "key.png"},
 	{"Gate",

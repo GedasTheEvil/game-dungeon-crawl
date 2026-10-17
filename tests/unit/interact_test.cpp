@@ -31,6 +31,11 @@ TEST_CASE("the interact verb: Open, then Copy on the chest under the inscription
 	CHECK(world.dungeon.InteractVerb() == Interaction::None); // the entrance
 	REQUIRE(world.WalkTo(3.5f));
 	CHECK(world.dungeon.InteractVerb() == Interaction::Open);
+	CHECK(press(world) > 0); // the lid creaks
+	CHECK(world.dungeon.InteractVerb() == Interaction::None); // its clip plays
+	CHECK(press(world) == 0);
+	world.Wait(containerOpenMsMax());
+	CHECK(world.dungeon.InteractVerb() == Interaction::Take); // the item shows
 	CHECK(press(world) > 0);
 	CHECK(world.dungeon.InteractVerb() == Interaction::Copy); // no hieroglyph skill
 	world.player.stats.heka.Earn(1);
@@ -138,7 +143,8 @@ TEST_CASE("an inscription glints until it is read; a copy glints dimmer until tr
 	CHECK(world.dungeon.InscriptionGlint(7, ROW) == 0.f); // too worn to read
 	CHECK(world.dungeon.InscriptionGlint(5, ROW) == 0.f); // a lever
 	REQUIRE(world.WalkTo(3.5f));
-	press(world); // the chest
+	world.OpenChest();
+	world.WaitTicks(1);
 	CHECK(world.dungeon.InscriptionGlint(3, ROW) == 1.f);
 	press(world); // copied
 	const float copy = world.dungeon.InscriptionGlint(3, ROW);

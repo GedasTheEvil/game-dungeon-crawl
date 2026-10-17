@@ -9,11 +9,12 @@
 #include <algorithm>
 #include <cmath>
 #include "../graphics/render_config.h"
+#include "../graphics/fire.h"
 #include "../graphics/lighting.h"
 #include "tile_defs.h"
 
 namespace {
-constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the chest
+constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
 void quad(const float n[3], const float v[4][3], const float st[4][2]) {
@@ -136,26 +137,58 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
+// The container (containers.h) in its stance, at its frame of the opening clip; once open, the item turns over it
+// (treasureSpin). An emptied container stays, open. The item prototype is shared: its angle and size are only
+// borrowed.
 void Dungeon::DrawTreasureTile(int i, int j) {
-	const Tile tile = MapAt(i, j);
+	const int cell = MapIndex(i, j);
+	const TreasureLook look = treasureLook(cell);
+	const ContainerDef& def = containerDef(look.kind);
 
 	glPushMatrix();
-	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
-	sim.assets->items.chest->Draw();
+	glTranslatef(RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE, 0,
+				 RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE);
+	Item& container = *sim.assets->items.containers[static_cast<size_t>(look.kind)];
+	container.rotA = look.yaw;
+	container.Draw(containerOpening(cell));
 
-	// The item turns over the chest (treasureSpin). The prototype is shared: its angle and size are only borrowed.
-	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value)) {
+	const Tile tile = MapAt(i, j);
+	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value);
+		kind && tile.type == Treasure && containerShows(cell)) {
 		Item* item = sim.assets->items.Of(*kind);
 		const float angle = item->rotA;
 		const float scale = item->scale;
 		item->rotA = treasureSpin;
 		item->scale = std::max(scale, CHEST_MIN_SCALE);
+		glTranslatef(0, def.itemLift, 0);
 		item->Draw();
 		item->rotA = angle;
 		item->scale = scale;
 	}
 
 	glPopMatrix();
+}
+//======================================================================================
+// A jar breaking open: a puff of dust out of its shards (Grit::burst). In the tile loop's frame, like
+// drawSummonEffects.
+void Dungeon::drawContainerEffects() {
+	const int now = GameClock::now();
+	const CellRect& drawn = drawnCells;
+	for (int j = std::max(drawn.row0, 0); j < std::min(drawn.row0 + drawn.rows, MAP_HEIGHT); j++)
+		for (int i = std::max(drawn.col0, 0); i < std::min(drawn.col0 + drawn.cols, MAP_WIDTH); i++) {
+			const int cell = MapIndex(i, j);
+			const ContainerCell& c = containers[cell];
+			const TreasureLook look = treasureLook(cell);
+			if (!c.opened || !containerDef(look.kind).smashes || now - c.openedMs >= Grit::BURST_MS)
+				continue;
+			const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+							RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE;
+			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE -
+							(inHalfWater(MapAt(i, j)) ? RenderConfig::WATER_BASIN_DEPTH : 0.f);
+			const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
+			Grit::burst(x, y, z, now - c.openedMs, false,
+						static_cast<uint32_t>(cell) + static_cast<uint32_t>(c.openedMs));
+		}
 }
 //======================================================================================
 void Dungeon::DrawTrapTile(bool isDeathTrap) {
@@ -268,6 +301,9 @@ void Dungeon::drawTileContent(int i, int j) {
 		return; // the game treats an unknown type as open space
 	switch (static_cast<DungeonTileType>(tile.type)) {
 	case NoObject:
+		if (containers[MapIndex(i, j)].emptied)
+			DrawTreasureTile(i, j); // its item taken, the open container stays
+		break;
 	case MonsterSpawn: // the monster is drawn where it is now (DrawMonsters)
 		break;
 	case Treasure:
@@ -377,6 +413,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFires(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
+	drawContainerEffects();
 	drawBurning();
 	glPopMatrix();
 }

@@ -46,6 +46,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"riddles", "riddles tests/riddles"},
 	{"inscriptions", "inscriptions tests/inscriptions"},
 	{"prop", "prop 4 cat"},
+	{"container", "container 4 canopic 6"},
 	{"savegame", "savegame one.sav"},
 	{"loadgame", "loadgame one.sav"},
 	{"mouse", "mouse 50 50"},
@@ -158,6 +159,8 @@ TEST_CASE("bad lines say what is wrong") {
 	CHECK_FALSE(errorOf("hurtboss 0").empty());
 	CHECK_FALSE(errorOf("resolution 32 32").empty());
 	CHECK_FALSE(errorOf("prop 3 dragon").empty());
+	CHECK_FALSE(errorOf("container 3 urn").empty());
+	CHECK_FALSE(errorOf("container 3 jar 8").empty()); // no such stance
 	CHECK_FALSE(errorOf("key").empty());
 	CHECK(errorOf("   # only a comment") == "empty line");
 }

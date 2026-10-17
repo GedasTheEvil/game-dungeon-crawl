@@ -14,7 +14,7 @@ enum class Interaction : std::uint8_t {
 	Light, // a brazier, with a bow: fire arrows
 	Answer, // a riddle gate
 	Enter, // the exit, a teleporter with a partner
-	Take, // the ankh
+	Take, // the ankh; an open treasure container's item
 };
 
 // The prompt's verb: "Open", "Pull", ...; empty for None.

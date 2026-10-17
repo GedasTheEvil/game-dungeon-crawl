@@ -365,7 +365,7 @@ TEST_CASE("a chest holds its main item and bonus rolls on the gameplay stream") 
 	world.Jump();
 	REQUIRE(world.Walk(2.f));
 	REQUIRE(world.Walk(0.6f));
-	world.Interact();
+	world.OpenChest();
 	CHECK(world.items.Count(ItemKind::ShortSword) == 1);
 	int smallStamina = 0; // seed 4 rolls a small stamina bonus (potion 5)
 	for (int k = 0; k < ITEM_KIND_COUNT; k++)

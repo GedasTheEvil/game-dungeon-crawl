@@ -114,7 +114,8 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |
 | `lotus.py` | blue lotus | no rig: every frame rebuilt from pose numbers, written with `md3.py` |
 | `plant.py` | plant | static monster, FK chains, poses eased off the floor by bisection |
-| `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw frames from shape keys |
+| `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw and chest opening frames from shape keys |
+| `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
 | `decor.py` | corridor and water decorations, torch, coffins | static, tile units, lighting baked in |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |

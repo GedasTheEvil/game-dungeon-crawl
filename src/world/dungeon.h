@@ -308,6 +308,10 @@ class Dungeon {
 	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;
 	[[nodiscard]] float PlayerWalkFactor() const;
+	// The sprint multiplier of a step (PlayerStats::SprintMoveMultiplier) as it counts here: in half water it is 1 (no
+	// sprint), with the Favour of Hapi skill the sprint at WADE_SPRINT_FACTOR_HAPI of the land sprint once
+	// PlayerWalkFactor is applied too (plan skill-blessing-of-hapi).
+	[[nodiscard]] float PlayerSprintMultiplier(float sprint) const;
 	// The player has the Favour of Hapi skill: a faster wade, and jumping out of half water.
 	[[nodiscard]] bool PlayerHasHapi() const;
 	// False while wading (and without the Favour of Hapi): then the player is told why (at most every

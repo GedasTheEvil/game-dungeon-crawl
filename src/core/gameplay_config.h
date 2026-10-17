@@ -80,10 +80,13 @@ constexpr int WALL_EMERGE_MS = 1400;
 constexpr int WALL_SUMMON_SIGHT = 3; // cells from the player: a wall this near is on screen (1280x720 shows about 3)
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
-// monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster
-// standing in it for a share of its damage; melee is not affected.
+// monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it, except with the Favour of
+// Hapi skill (plan skill-blessing-of-hapi). An arrow hits a monster standing in it for a share of its damage; melee is
+// not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
+// With the skill the player sprints in half water at this share of the LAND sprint speed (not of the wade speed).
+constexpr float WADE_SPRINT_FACTOR_HAPI = 0.5f;
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
 // Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the
 // arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).

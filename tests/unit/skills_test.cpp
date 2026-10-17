@@ -28,6 +28,50 @@ TEST_CASE("Favour of Hapi: wading is faster with the skill") {
 	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(WADE_SPEED_FACTOR_HAPI));
 }
 
+// Tiles per second wading east for a second, shift held or not; the stamina left in `stamina`.
+float wadeSpeed(bool hapi, bool sprint, int& stamina) {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/water"));
+	if (hapi) {
+		world.player.stats.heka.Earn(5);
+		REQUIRE(world.player.stats.heka.Learn(SkillId::FavourOfHapi, true));
+	}
+	REQUIRE(world.WalkTo(10.8f));
+	for (int t = 0; t < 10 && !world.dungeon.PlayerWading(); t++)
+		world.Tick();
+	REQUIRE(world.dungeon.PlayerWading());
+	world.player.stats.SetStamina(world.player.stats.MaxStamina());
+	world.player.stats.SetSprintRequested(sprint);
+	const float from = world.X();
+	world.HoldWalk(1, 1000);
+	REQUIRE(world.dungeon.PlayerWading());
+	stamina = world.player.stats.Stamina();
+	return world.X() - from;
+}
+
+TEST_CASE("Favour of Hapi: sprint in half water at half the land sprint speed, only with the skill") {
+	int plainStamina = 0;
+	int sprintStamina = 0;
+	int hapiStamina = 0;
+	int hapiSprintStamina = 0;
+	// The virtual clock is global and the spike traps' phase follows it (wall_spikes_test): give it back whole cycles.
+	const int clockFrom = GameClock::now();
+	const float plain = wadeSpeed(false, false, plainStamina);
+	const float plainSprint = wadeSpeed(false, true, sprintStamina);
+	const float hapiWade = wadeSpeed(true, false, hapiStamina);
+	const float hapiSprint = wadeSpeed(true, true, hapiSprintStamina);
+	CHECK(plain == doctest::Approx(WALK_SPEED * WADE_SPEED_FACTOR).epsilon(0.1));
+	CHECK(plainSprint == doctest::Approx(plain));
+	CHECK(sprintStamina == plainStamina); // no sprint, no drain
+	CHECK(hapiWade == doctest::Approx(WALK_SPEED * WADE_SPEED_FACTOR_HAPI).epsilon(0.1));
+	constexpr int ALL_SPIKE_PERIODS_MS = 48000; // a multiple of every SPIKES_PERIOD_MS
+	GameClock::advance(ALL_SPIKE_PERIODS_MS - (GameClock::now() - clockFrom) % ALL_SPIKE_PERIODS_MS);
+	const float landSprint = WALK_SPEED * SPRINT_MULTIPLIER;
+	CHECK(hapiSprint == doctest::Approx(landSprint * WADE_SPRINT_FACTOR_HAPI).epsilon(0.1));
+	CHECK(hapiSprintStamina < hapiStamina); // the drain, as on land
+}
+
 TEST_CASE("Favour of Hapi: can jump out of half water with the skill") {
 	SimWorld world;
 	world.player.god = true;

@@ -1,7 +1,6 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. Skill part implemented 2026-10-17; sprint in water with the skill added 2026-10-17, not
-implemented yet. Then waiting for play-test:
+Status: draft 2026-10-10. Skill part incl. sprint in half water implemented 2026-10-17, waiting for play-test:
 `bin/game --play tests/play/skill-blessing-of-hapi.txt`. The stacking part (125%, full sprint, 4 minute potion) waits for
 [water-blessing-potion](water-blessing-potion.draft.sonet.md), which must add it. From the user.
 

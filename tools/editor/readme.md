@@ -76,7 +76,7 @@ Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/
 |---|---|---|---|
 | `#` | Wall | 0 | Solid rock. The player stands on it and cannot walk through it. Holds no object. |
 | `.` | Empty | 1 | Open space. With no wall below, the player falls. |
-| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. The player wades at half speed and cannot sprint or jump in it; put deep water or a wall under it ([docs/levels.md](../../docs/levels.md#level-format)). |
+| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. The player wades at half speed and cannot sprint or jump in it (the Favour of Hapi skill allows both); put deep water or a wall under it ([docs/levels.md](../../docs/levels.md#level-format)). |
 | `=` | Deep water | 3 | Full of water, solid like a wall. Holds no object. |
 
 The glyph is the one in the level file's structure drawing and in `levelcheck --map`.

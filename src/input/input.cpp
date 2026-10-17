@@ -30,8 +30,8 @@ class PlayerActionController {
 	}
 
 	static void run(GameplayAction action) {
-		// No sprint while wading.
-		float moveMultiplier = Game().dungeon.PlayerWading() ? 1.f : Game().player->stats.SprintMoveMultiplier();
+		// No sprint while wading, except with the Favour of Hapi skill (Dungeon::PlayerSprintMultiplier).
+		const float moveMultiplier = Game().dungeon.PlayerSprintMultiplier(Game().player->stats.SprintMoveMultiplier());
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			walk(-PLAYER_MOVE_STEP * moveMultiplier, 0);
@@ -100,12 +100,12 @@ class PlayerActionController {
 	}
 
   private:
-	// Only a step that really moved the player counts for the sprint drain, and none in the water: no sprint there.
-	// Wading slows it (PlayerWalkFactor).
+	// Only a step that really moved the player counts for the sprint drain, and none in the water (no sprint there),
+	// unless the Favour of Hapi skill lets the player sprint in it. Wading slows the step (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
 		const bool wading = Game().dungeon.PlayerWading();
 		const float factor = Game().dungeon.PlayerWalkFactor() * Game().player->stats.WalkCurseFactor();
-		if (Game().dungeon.Move(dirX * factor, dirY * factor) && !wading)
+		if (Game().dungeon.Move(dirX * factor, dirY * factor) && (!wading || Game().dungeon.PlayerHasHapi()))
 			Game().player->stats.NoteWalked();
 	}
 

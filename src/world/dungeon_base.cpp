@@ -289,6 +289,14 @@ float Dungeon::PlayerWalkFactor() const {
 	return PlayerHasHapi() ? WADE_SPEED_FACTOR_HAPI : WADE_SPEED_FACTOR;
 }
 //======================================================================================
+float Dungeon::PlayerSprintMultiplier(float sprint) const {
+	if (!PlayerWading())
+		return sprint;
+	if (!PlayerHasHapi() || sprint <= 1.f)
+		return 1.f;
+	return sprint * WADE_SPRINT_FACTOR_HAPI / WADE_SPEED_FACTOR_HAPI; // times the wade factor: sprint x 0.5
+}
+//======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;

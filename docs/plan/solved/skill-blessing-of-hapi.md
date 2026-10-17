@@ -16,7 +16,7 @@ A permanent, weaker form of the water blessing potion, and a boost when both are
 |---|---|---|---|
 | Today | 50% | no | no |
 | Skill | 75% | yes, at 50% of the land sprint speed | yes |
-| Potion ([the potion](water-blessing-potion.md)) | 100% | yes, at 40% of the land sprint speed | yes |
+| Potion ([the potion](../water-blessing-potion.md)) | 100% | yes, at 40% of the land sprint speed | yes |
 | Skill + potion | 125%, faster than on land (a swimmer, like the crocodile) | yes, full land sprint speed, stamina drain halved | yes |
 
 Sprint in half water (user 2026-10-17): the speed is the share of the land sprint (`WALK_SPEED` x3), not of the

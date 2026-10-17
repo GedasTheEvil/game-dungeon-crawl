@@ -37,6 +37,7 @@ enum class ItemKind : std::uint8_t {
 	Antidote,
 	LesserResistance, // plan resistance-potion
 	GreaterResistance,
+	WaterBlessing, // plan water-blessing-potion: the Blessing of Hapi
 	// The amulets (plan amulets), one inventory row per type: lesser, minor, normal, grand.
 	StrengthLesser, // the first amulet
 	StrengthMinor,
@@ -176,6 +177,7 @@ struct PotionGain {
 	int maxHpPercent = 0;
 	bool cure = false; // ends all poison
 	int resistPercent = 0; // for PotionEffect::RESIST_MS, the chance a poisoned hit does not poison
+	bool waterBlessing = false; // for PotionEffect::WATER_BLESSING_MS (twice with the Favour of Hapi skill)
 };
 
 enum class FieldNote : unsigned char; // journal.h
@@ -267,6 +269,7 @@ constexpr int LIFE_MAX_HP_PERCENT = 5; // elixir of life: more max health, then 
 constexpr int LESSER_RESIST_PERCENT = 50; // resistance potions: added to the amulet's ward, up to 100%
 constexpr int GREATER_RESIST_PERCENT = 95;
 constexpr int RESIST_MS = 120000;
+constexpr int WATER_BLESSING_MS = 120000; // the Blessing of Hapi; twice as long with the Favour of Hapi skill
 } // namespace PotionEffect
 
 // One amulet is worn at a time; it gives its bonus while it is on. All tiers of a type share the model.

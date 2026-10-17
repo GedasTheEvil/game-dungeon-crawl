@@ -13,7 +13,8 @@ class Font;
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line. Above it, one
 // poison drop per running tier (one, two or three pips) with its seconds left, a running resistance potion's (one pip
-// lesser, two greater), then each running curse in a purple frame (one pip lesser, two greater).
+// lesser, two greater), a running Blessing of Hapi (a blue-green drop), then each running curse in a purple frame (one
+// pip lesser, two greater).
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -69,6 +70,7 @@ struct View {
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 	int resistLeftMs = 0; // a resistance potion's time left, 0: none
 	bool resistGreater = false; // the greater one
+	int waterLeftMs = 0; // the Blessing of Hapi's time left, 0: none (plan water-blessing-potion)
 	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
 	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
 	bool hekaWaiting = false; // a heka to spend on a skill: a pulsing tile with the Heka key

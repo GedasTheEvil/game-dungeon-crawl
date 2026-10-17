@@ -30,6 +30,7 @@ void PlayerStats::AddXP(int xp, WorldEvents& events) {
 
 void PlayerStats::UpdateStamina(WorldEvents& events) {
 	const bool moved = std::exchange(walked, false);
+	const bool cheap = std::exchange(walked_cheap, false);
 	if (!Alive()) {
 		sprinting = false;
 		sprint_requested = false;
@@ -50,7 +51,7 @@ void PlayerStats::UpdateStamina(WorldEvents& events) {
 	if (!stamina_sprint_drain_timer.TimePassed())
 		return;
 
-	stamina_sprint_drain_carry += 0.05f * static_cast<float>(MaxStamina());
+	stamina_sprint_drain_carry += 0.05f * static_cast<float>(MaxStamina()) * (cheap ? WADE_SPRINT_DRAIN_BOTH : 1.f);
 
 	int staminaDrain = static_cast<int>(stamina_sprint_drain_carry);
 	if (staminaDrain <= 0)
@@ -256,6 +257,14 @@ int PlayerStats::PoisonResistPercent() const {
 
 void PlayerStats::AdvanceResistance(int ms) { resist_left_ms = std::max(0, resist_left_ms - ms); }
 
+void PlayerStats::AdvanceWaterBlessing(int ms, WorldEvents& events) {
+	if (water_left_ms <= 0)
+		return;
+	water_left_ms = std::max(0, water_left_ms - ms);
+	if (water_left_ms == 0)
+		events.Status("The water is deep again");
+}
+
 std::string PlayerStats::Drink(const PotionGain& gain) {
 	const int hpBefore = HP;
 	const int staminaBefore = stamina;
@@ -277,6 +286,9 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 		resist_left_ms = PotionEffect::RESIST_MS;
 		snprintf(buf, sizeof(buf), "%sResists poison %d%% for %d min", cured ? "Cured. " : "", PoisonResistPercent(),
 				 PotionEffect::RESIST_MS / 60000);
+	} else if (gain.waterBlessing) {
+		water_left_ms = PotionEffect::WATER_BLESSING_MS * (heka.Has(SkillId::FavourOfHapi) ? 2 : 1);
+		snprintf(buf, sizeof(buf), "The water parts for %d min", water_left_ms / 60000);
 	} else if (gain.cure) {
 		poison.Cure();
 		snprintf(buf, sizeof(buf), "The poison is gone");
@@ -294,6 +306,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
+	f << "WATER " << water_left_ms << "\n";
 	f << "BOONS " << max_stamina_percent << "\n";
 	heka.Dump(f);
 	curses.Dump(f);
@@ -327,6 +340,13 @@ void PlayerStats::LoadDump(std::ifstream& f) {
 		f.seekg(start);
 	} else
 		f >> resist_percent >> resist_left_ms;
+	water_left_ms = 0;
+	const auto water = f.tellg();
+	if (!(f >> tag) || tag != "WATER") { // a save from before the Blessing of Hapi
+		f.clear();
+		f.seekg(water);
+	} else
+		f >> water_left_ms;
 	max_stamina_percent = 0;
 	const auto boons = f.tellg();
 	if (!(f >> tag) || tag != "BOONS") { // a save from before the inscription boons

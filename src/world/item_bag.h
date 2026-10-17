@@ -92,8 +92,9 @@ class ItemBag {
 	// The potion the quick-drink key would take (quickPotion), counting from `current` of `max`.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind, int current, int max) const;
 
-	// "INV6 <slots> <counts...> <levels...> <found...> <stamps...> <equipped type> <equipped id> <worn type> <worn id>"
-	// (worn type 0: none). Load also reads INV5 (no stamps), INV4 (no resistance potions: the amulets right after the
+	// "INV7 <slots> <counts...> <levels...> <found...> <stamps...> <equipped type> <equipped id> <worn type> <worn id>"
+	// (worn type 0: none). Load also reads INV6 (no water blessing: the amulets right after the greater resistance
+	// potion), INV5 (no stamps), INV4 (no resistance potions: the amulets right after the
 	// antidote), INV3 (no worn amulet), INV2 (no found flags: found is what is held) and the older saves, which start
 	// straight with the 9 counts of the original slots.
 	void Save(std::ostream& out) const;

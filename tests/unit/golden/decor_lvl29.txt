@@ -497,7 +497,7 @@
 31,32 surface 0/0/0 decal 11 0.449,0.527
 38,32 surface 0/0/0 ladder 0/1
 2,33 surface 1/0/0 ladder 1/4
-3,33 surface 0/0/0 prop rubblem -0.079 torch fire torch 0.000,0.680,0.098
+3,33 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 4,33 surface 0/0/0 prop ushabtim 0.005
 5,33 surface 0/0/0
 6,33 surface 0/0/0

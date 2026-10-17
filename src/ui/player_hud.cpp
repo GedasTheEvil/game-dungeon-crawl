@@ -58,6 +58,7 @@ constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 
 constexpr Color CURSE_FRAME_TOP = {0.52f, 0.22f, 0.62f}; // a curse tile's frame, so it does not read as a potion
 constexpr Color CURSE_FRAME_BOTTOM = {0.22f, 0.06f, 0.3f};
 constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
+constexpr Color WATER_DROP = {0.08f, 0.52f, 0.68f}; // the Blessing of Hapi's, as its potion (ITEMS)
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
@@ -177,8 +178,20 @@ void drawResist(const PlayerHud::View& v) {
 				GOLD_BRIGHT, 1.f);
 }
 
-// The poison and resistance tiles shown, left of the curses.
-int potionTiles(const PlayerHud::View& v) { return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0); }
+// A running Blessing of Hapi (plan water-blessing-potion), right of the resistance tile: a blue-green drop.
+void drawWaterBlessing(const PlayerHud::View& v) {
+	if (v.waterLeftMs <= 0)
+		return;
+	const Rect r = poisonRect(poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0));
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	tile(r, TileStyle::Stone, false, false);
+	drop(r.cx(), r.y + 2.8f, 1.3f, WATER_DROP);
+}
+
+// The poison, resistance and water blessing tiles shown, left of the curses.
+int potionTiles(const PlayerHud::View& v) {
+	return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0);
+}
 
 // The running curses right of the resistance, in Curse order: a stone tile in a purple frame with the curse's icon, one
 // pip lesser, two greater.
@@ -229,6 +242,8 @@ void drawPoisonText(const PlayerHud::View& v, Font& small) {
 			tileSeconds(poisonRect(shown++), v.poisonLeftMs[t], small);
 	if (v.resistLeftMs > 0)
 		tileSeconds(poisonRect(shown++), v.resistLeftMs, small);
+	if (v.waterLeftMs > 0)
+		tileSeconds(poisonRect(shown++), v.waterLeftMs, small);
 	for (int c = 0; c < CURSE_COUNT; c++)
 		if (v.curseLeftMs[c] > 0)
 			tileSeconds(poisonRect(shown++), v.curseLeftMs[c], small);
@@ -363,6 +378,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawXp(view);
 	drawPoison(view);
 	drawResist(view);
+	drawWaterBlessing(view);
 	drawCurses(view, icons);
 	drawHeka(view, now, skillIcons);
 	for (int i = 0; i < SLOT_COUNT; i++)

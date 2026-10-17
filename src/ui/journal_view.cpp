@@ -343,6 +343,9 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	 "it). Mummies, it turns out, burn very well."},
 	{"Favour of Hapi", "The water parts for me now. Not much, but enough to stop wading like a heron."},
 	{"Blessing of Isis", "Isis has a knot for every curse. She ties fast."},
+	{"Blessing of Hapi", "Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint "
+						 "and jump in half water as if it were a street. With his favour it lasts twice as long and "
+						 "the water carries me."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

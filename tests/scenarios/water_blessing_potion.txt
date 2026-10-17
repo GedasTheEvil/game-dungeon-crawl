@@ -1,0 +1,114 @@
+# Blessing of Hapi (plan water-blessing-potion): for 2 minutes (4 with the Favour of Hapi skill) the half water lets the
+# player wade at full walk speed, sprint at 40% of the land sprint (125% / the full land sprint with the skill) and jump.
+# tests/levels/water: dry floor at x 1-5, half water at x 5-14. The HUD tile with the time left, "The water is deep
+# again" at the end, saved with the time left.
+seed 1
+god
+level tests/levels/water
+wait 30
+give potion 10 3
+expect water_blessing == 0
+screenshot before
+
+# in the water without it: half the walk speed, no sprint, no jump
+walk to 6
+hold right 1s
+expect x > 6.4
+expect x < 6.6
+sprint on
+hold right 1s
+sprint off
+expect x > 6.9
+expect x < 7.1
+expect stamina == 100
+
+# drink it from the inventory
+key i
+wait 5
+select water_blessing
+wait 5
+screenshot inventory
+key e
+wait 2
+expect potion10 == 2
+expect water_blessing == 120
+key i
+wait 5
+screenshot hud
+
+# wade at the full walk speed
+walk to 7
+hold right 1s
+expect x > 7.9
+expect x < 8.1
+expect stamina == 100
+# sprint at 40% of the land sprint (3 tiles a second): 1.2 tiles, the stamina drains
+sprint on
+hold right 1s
+sprint off
+expect x > 9.0
+expect x < 9.4
+expect stamina < 100
+# the jump works in the water
+jump
+wait 300ms
+expect y > 2.2
+wait 500ms
+screenshot wading_blessed
+
+# drinking again restarts the 2 minutes
+wait 30s
+expect water_blessing < 95
+key i
+wait 5
+select water_blessing
+wait 5
+key e
+wait 2
+expect potion10 == 1
+expect water_blessing == 120
+key i
+wait 5
+
+# saved and loaded with the time left
+savegame water_blessing.sav
+wait 10s
+expect water_blessing == 110
+loadgame water_blessing.sav
+expect water_blessing == 120
+
+# it wears off: half speed again, no sprint
+wait 120s
+expect water_blessing == 0
+screenshot hud_ended
+walk to 6
+hold right 1s
+expect x > 6.4
+expect x < 6.6
+
+# with the Favour of Hapi skill: 4 minutes, wade at 125%, sprint at the full land sprint, the stamina drain halved
+heka 1
+learn favour_of_hapi
+key i
+wait 5
+select water_blessing
+wait 5
+key e
+wait 2
+expect potion10 == 0
+expect water_blessing == 240
+key i
+wait 5
+screenshot hud_skill
+walk to 6
+hold right 1s
+expect x > 7.1
+expect x < 7.4
+sprint on
+hold right 1s
+sprint off
+expect x > 9.9
+expect x < 10.3
+expect stamina > 90
+wait 240s
+expect water_blessing == 0

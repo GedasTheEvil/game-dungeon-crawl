@@ -283,24 +283,37 @@ bool Dungeon::PlayerHasHapi() const {
 	return sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi); // plan skill-blessing-of-hapi
 }
 //======================================================================================
+bool Dungeon::PlayerWaterBlessed() const {
+	return sim.player != nullptr && sim.player->stats.WaterBlessed(); // plan water-blessing-potion
+}
+//======================================================================================
 float Dungeon::PlayerWalkFactor() const {
 	if (!PlayerWading())
 		return 1.f;
+	if (PlayerHasHapi() && PlayerWaterBlessed())
+		return WADE_SPEED_FACTOR_BOTH;
+	if (PlayerWaterBlessed())
+		return WADE_SPEED_FACTOR_BLESSED;
 	return PlayerHasHapi() ? WADE_SPEED_FACTOR_HAPI : WADE_SPEED_FACTOR;
 }
 //======================================================================================
 float Dungeon::PlayerSprintMultiplier(float sprint) const {
 	if (!PlayerWading())
 		return sprint;
-	if (!PlayerHasHapi() || sprint <= 1.f)
+	if (!PlayerWadesFree() || sprint <= 1.f)
 		return 1.f;
+	// The share of the land sprint, divided by the wade factor PlayerWalkFactor applies on top.
+	if (PlayerHasHapi() && PlayerWaterBlessed())
+		return sprint * WADE_SPRINT_FACTOR_BOTH / WADE_SPEED_FACTOR_BOTH;
+	if (PlayerWaterBlessed())
+		return sprint * WADE_SPRINT_FACTOR_BLESSED / WADE_SPEED_FACTOR_BLESSED;
 	return sprint * WADE_SPRINT_FACTOR_HAPI / WADE_SPEED_FACTOR_HAPI; // times the wade factor: sprint x 0.5
 }
 //======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;
-	if (PlayerHasHapi())
+	if (PlayerWadesFree())
 		return true;
 	const int now = GameClock::now();
 	if (now - waterHintMs >= WATER_JUMP_HINT_MS) {

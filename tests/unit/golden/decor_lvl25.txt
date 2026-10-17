@@ -12,7 +12,7 @@
 2,3 surface 7/1/2
 3,3 surface 6/1/2 decal 11 0.446,0.549
 4,3 surface 6/1/2 decal 2m 0.626,0.350 torch fire torch 0.000,0.680,0.098
-5,3 surface 7/2/2 prop osiris 0.093
+5,3 surface 7/2/2
 6,3 surface 6/2/2 prop scrolls -0.086
 7,3 surface 6/1/2 prop osirism -0.041 decal 11 0.597,0.407
 8,3 surface 6/1/2 prop water_weed -0.079

@@ -24,7 +24,8 @@ TEST_CASE("file ids as the level files use them") {
 	CHECK(*itemFromFile(ItemType::POTION, 7) == ItemKind::Antidote);
 	CHECK(*itemFromFile(ItemType::POTION, 8) == ItemKind::LesserResistance);
 	CHECK(*itemFromFile(ItemType::POTION, 9) == ItemKind::GreaterResistance);
-	CHECK_FALSE(itemFromFile(ItemType::POTION, 10).has_value());
+	CHECK(*itemFromFile(ItemType::POTION, 10) == ItemKind::WaterBlessing);
+	CHECK_FALSE(itemFromFile(ItemType::POTION, 11).has_value());
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 1) == ItemKind::CompositeBow);
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 4) == ItemKind::Javelin);
 	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 5).has_value());
@@ -208,7 +209,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV6 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().rfind("INV7 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -254,7 +255,7 @@ TEST_CASE("a save from before the stamps: nothing recent, found first among them
 }
 
 TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
-	constexpr int SLOTS = itemIndex(ItemKind::VenomGrand) + 1 - 2; // it ended with grand venom, without the 2 potions
+	constexpr int SLOTS = itemIndex(ItemKind::VenomGrand) + 1 - 3; // it ended with grand venom, without the 3 potions
 	std::stringstream old;
 	old << "INV4 " << SLOTS << " ";
 	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
@@ -267,8 +268,31 @@ TEST_CASE("a save from before the resistance potions: the amulets right after th
 	CHECK(bag.Count(ItemKind::Antidote) == 1);
 	CHECK(bag.Count(ItemKind::LesserResistance) == 0);
 	CHECK(bag.Count(ItemKind::GreaterResistance) == 0);
+	CHECK(bag.Count(ItemKind::WaterBlessing) == 0);
 	CHECK(bag.Count(ItemKind::StrengthLesser) == 2);
 	CHECK(bag.Count(ItemKind::VenomGrand) == 3);
+	CHECK(bag.Worn() == ItemKind::StrengthLesser);
+}
+
+TEST_CASE("a save from before the Blessing of Hapi (INV6): the amulets right after the greater resistance potion") {
+	constexpr int SLOTS = itemIndex(ItemKind::FireWardGrand); // it ended with grand fire guard, without the potion
+	std::stringstream old;
+	old << "INV6 " << SLOTS << " ";
+	for (int i = 0; i < SLOTS; i++) // counts: 1 greater resistance, 2 lesser strength amulets, 3 grand fire guard
+		old << (i == itemIndex(ItemKind::GreaterResistance) ? 1
+				: i == SLOTS - 1							? 3
+				: i == itemIndex(ItemKind::WaterBlessing)	? 2
+															: 0)
+			<< " ";
+	for (int i = 0; i < 3 * SLOTS; i++) // levels, found, stamps
+		old << (i < SLOTS ? 1 : 0) << " ";
+	old << "1 0 " << ItemType::AMULET << " 0\n";
+	ItemBag bag;
+	bag.Load(old);
+	CHECK(bag.Count(ItemKind::GreaterResistance) == 1);
+	CHECK(bag.Count(ItemKind::WaterBlessing) == 0);
+	CHECK(bag.Count(ItemKind::StrengthLesser) == 2); // the slot where the potion is now
+	CHECK(bag.Count(ItemKind::FireWardGrand) == 3);
 	CHECK(bag.Worn() == ItemKind::StrengthLesser);
 }
 

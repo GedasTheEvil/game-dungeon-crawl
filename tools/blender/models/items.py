@@ -64,6 +64,7 @@ POTIONS = [
     ("potion_antidote", "potion_cobra", {"liquid": (0.04, 0.36, 0.15), "liquid_dark": (0.02, 0.20, 0.08)}),
     ("potion_lesser_resistance", "potion_cobra", {"liquid": (0.20, 0.45, 0.80), "liquid_dark": (0.10, 0.24, 0.48)}),
     ("potion_greater_resistance", "potion_cobra", {"liquid": (0.05, 0.12, 0.62), "liquid_dark": (0.02, 0.05, 0.34)}),
+    ("potion_water_blessing", "potion_pilgrim", {"liquid": (0.06, 0.50, 0.66), "liquid_dark": (0.03, 0.27, 0.38)}),
 ]
 SPACING = 1.0  # items are spread along X in the scene (bake/review only; export is at the origin)
 

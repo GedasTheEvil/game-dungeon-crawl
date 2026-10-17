@@ -310,11 +310,20 @@ class Dungeon {
 	[[nodiscard]] float PlayerWalkFactor() const;
 	// The sprint multiplier of a step (PlayerStats::SprintMoveMultiplier) as it counts here: in half water it is 1 (no
 	// sprint), with the Favour of Hapi skill the sprint at WADE_SPRINT_FACTOR_HAPI of the land sprint once
-	// PlayerWalkFactor is applied too (plan skill-blessing-of-hapi).
+	// PlayerWalkFactor is applied too (plan skill-blessing-of-hapi); WADE_SPRINT_FACTOR_BLESSED with the Blessing of
+	// Hapi potion, the full land sprint with both (plan water-blessing-potion).
 	[[nodiscard]] float PlayerSprintMultiplier(float sprint) const;
 	// The player has the Favour of Hapi skill: a faster wade, and jumping out of half water.
 	[[nodiscard]] bool PlayerHasHapi() const;
-	// False while wading (and without the Favour of Hapi): then the player is told why (at most every
+	// The Blessing of Hapi potion runs (PlayerStats::WaterBlessed).
+	[[nodiscard]] bool PlayerWaterBlessed() const;
+	// Either of the two lets the player sprint and jump in half water.
+	[[nodiscard]] bool PlayerWadesFree() const { return PlayerHasHapi() || PlayerWaterBlessed(); }
+	// Wading with the skill and the potion: the sprint drains the stamina at WADE_SPRINT_DRAIN_BOTH.
+	[[nodiscard]] bool PlayerHalvedWadeDrain() const {
+		return PlayerWading() && PlayerHasHapi() && PlayerWaterBlessed();
+	}
+	// False while wading (and without the Favour of Hapi or the potion): then the player is told why (at most every
 	// WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
 	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs. A swing already under way

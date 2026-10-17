@@ -30,7 +30,8 @@ class PlayerActionController {
 	}
 
 	static void run(GameplayAction action) {
-		// No sprint while wading, except with the Favour of Hapi skill (Dungeon::PlayerSprintMultiplier).
+		// No sprint while wading, except with the Favour of Hapi skill or the Blessing of Hapi potion
+		// (Dungeon::PlayerSprintMultiplier).
 		const float moveMultiplier = Game().dungeon.PlayerSprintMultiplier(Game().player->stats.SprintMoveMultiplier());
 		switch (action) {
 		case GameplayAction::MoveLeft:
@@ -101,12 +102,13 @@ class PlayerActionController {
 
   private:
 	// Only a step that really moved the player counts for the sprint drain, and none in the water (no sprint there),
-	// unless the Favour of Hapi skill lets the player sprint in it. Wading slows the step (PlayerWalkFactor).
+	// unless the Favour of Hapi skill or the Blessing of Hapi potion lets the player sprint in it (plan
+	// water-blessing-potion). Wading slows the step (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
 		const bool wading = Game().dungeon.PlayerWading();
 		const float factor = Game().dungeon.PlayerWalkFactor() * Game().player->stats.WalkCurseFactor();
-		if (Game().dungeon.Move(dirX * factor, dirY * factor) && (!wading || Game().dungeon.PlayerHasHapi()))
-			Game().player->stats.NoteWalked();
+		if (Game().dungeon.Move(dirX * factor, dirY * factor) && (!wading || Game().dungeon.PlayerWadesFree()))
+			Game().player->stats.NoteWalked(Game().dungeon.PlayerHalvedWadeDrain());
 	}
 
 	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.

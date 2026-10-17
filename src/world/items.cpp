@@ -257,6 +257,18 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 				.note = FieldNote::Resistance,
 				.generatedWeight = 0,
 				.mimicLoot = false}},
+	// Blessing of Hapi (plan water-blessing-potion): Nile blue-green. Lies only in chests on the levels with half
+	// water.
+	{.file = {ItemType::POTION, 10},
+	 .text = {"Blessing of Hapi", "Hapi", "water blessing", "Wade, sprint, jump in water for 2 min",
+			  "Water of the Nile flood,", "from Hapi's own jar."},
+	 .potion = {.gain = {.waterBlessing = true},
+				.model = PotionModel::Pilgrim,
+				.texture = "potion_water_blessing",
+				.colour = {0.08f, 0.52f, 0.68f},
+				.note = FieldNote::WaterBlessing,
+				.generatedWeight = 0,
+				.mimicLoot = false}},
 }};
 
 constexpr bool validItems() {

@@ -87,6 +87,14 @@ constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
 // With the skill the player sprints in half water at this share of the LAND sprint speed (not of the wade speed).
 constexpr float WADE_SPRINT_FACTOR_HAPI = 0.5f;
+// With the Blessing of Hapi potion (plan water-blessing-potion): the wade is the walk speed, the sprint 40% of the land
+// sprint, the jump works. With the potion and the skill: faster than on land, the full land sprint at half the stamina
+// drain.
+constexpr float WADE_SPEED_FACTOR_BLESSED = 1.0f;
+constexpr float WADE_SPRINT_FACTOR_BLESSED = 0.4f;
+constexpr float WADE_SPEED_FACTOR_BOTH = 1.25f;
+constexpr float WADE_SPRINT_FACTOR_BOTH = 1.0f;
+constexpr float WADE_SPRINT_DRAIN_BOTH = 0.5f; // share of the land sprint's stamina drain
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
 // Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the
 // arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).

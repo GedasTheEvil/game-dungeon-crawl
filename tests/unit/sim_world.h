@@ -256,7 +256,7 @@ class SimWorld {
 		return true;
 	}
 
-	// input.cpp: no sprint while wading, except with the Favour of Hapi skill.
+	// input.cpp: no sprint while wading, except with the Favour of Hapi skill or the Blessing of Hapi potion.
 	[[nodiscard]] float moveMultiplier() const {
 		return dungeon.PlayerSprintMultiplier(player.stats.SprintMoveMultiplier());
 	}
@@ -265,8 +265,8 @@ class SimWorld {
 		const bool wading = dungeon.PlayerWading();
 		const float factor = dungeon.PlayerWalkFactor();
 		const bool moved = dungeon.Move(dx * factor, dy * factor);
-		if (moved && (!wading || dungeon.PlayerHasHapi()))
-			player.stats.NoteWalked();
+		if (moved && (!wading || dungeon.PlayerWadesFree()))
+			player.stats.NoteWalked(dungeon.PlayerHalvedWadeDrain());
 		return moved;
 	}
 

@@ -20,15 +20,23 @@ constexpr int OLD_SLOT_COUNT = 12;
 constexpr int MAX_SAVED_SLOTS = 256; // a sanity bound on a save's slot count, well above ITEM_KIND_COUNT
 static_assert(ITEM_KIND_COUNT <= MAX_SAVED_SLOTS, "a save holds every item kind");
 
-// The resistance potions came in after the amulets: before INV5 the amulets follow the antidote.
-constexpr size_t RESISTANCE_POTIONS = itemIndex(ItemKind::GreaterResistance) - itemIndex(ItemKind::Antidote);
+// Potions came in after the amulets: the resistance potions before INV5, the Blessing of Hapi before INV7. The amulets
+// of a save from before follow the potions it knew (plan water-blessing-potion): from slot `from` on, the slots move up
+// by `shift` (the potions it lacked).
+struct SlotShift {
+	size_t from;
+	size_t shift;
+};
+constexpr SlotShift SHIFT_BEFORE_INV5 = {static_cast<size_t>(ORDERED_SAVE_SLOTS),
+										 itemIndex(ItemKind::WaterBlessing) - itemIndex(ItemKind::Antidote)};
+constexpr SlotShift SHIFT_BEFORE_INV7 = {static_cast<size_t>(itemIndex(ItemKind::WaterBlessing)), 1};
+constexpr SlotShift NO_SHIFT = {0, 0};
 
-// The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order (newer kinds were
-// added at the end, but for the resistance potions before INV5), an older one in OLD_SLOTS order.
-std::optional<ItemKind> savedSlot(size_t slot, size_t slots, bool resistance) {
+// The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order, but for the potions
+// it was written before, an older one in OLD_SLOTS order.
+std::optional<ItemKind> savedSlot(size_t slot, size_t slots, SlotShift shift) {
 	if (slots >= ORDERED_SAVE_SLOTS) {
-		const size_t index =
-			resistance || slot < static_cast<size_t>(ORDERED_SAVE_SLOTS) ? slot : slot + RESISTANCE_POTIONS;
+		const size_t index = slot >= shift.from ? slot + shift.shift : slot;
 		return index < ITEM_KIND_COUNT ? std::optional(itemAt(static_cast<int>(index))) : std::nullopt;
 	}
 	if (slot < OLD_SLOT_COUNT)
@@ -228,7 +236,7 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV6 " << ITEM_KIND_COUNT << " ";
+	out << "INV7 " << ITEM_KIND_COUNT << " ";
 	for (int count : counts)
 		out << count << " ";
 	for (int level : levels)
@@ -257,9 +265,10 @@ void ItemBag::Load(std::istream& in) {
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	const bool hasStamps = tok == "INV6";
+	const bool hasStamps = tok == "INV6" || tok == "INV7";
 	bool hasFound = tok == "INV3" || tok == "INV4" || tok == "INV5" || hasStamps;
 	const bool resistance = tok == "INV5" || hasStamps;
+	const SlotShift shift = tok == "INV7" ? NO_SHIFT : resistance ? SHIFT_BEFORE_INV7 : SHIFT_BEFORE_INV5;
 	int wornType = ItemType::EMPTY;
 	int wornId = 0;
 	if (tok == "INV2" || tok == "INV3" || hasFound) {
@@ -269,26 +278,25 @@ void ItemBag::Load(std::istream& in) {
 		for (int& count : saved)
 			in >> count;
 		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), resistance))
+			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
 				counts[itemIndex(*kind)] = saved[slot];
 		for (int& level : saved)
 			in >> level;
 		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind =
-					savedSlot(slot, saved.size(), resistance)) // saves from before the cap of 5
+			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift)) // saves from before the cap of 5
 				levels[itemIndex(*kind)] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL);
 		if (hasFound) {
 			for (int& f : saved)
 				in >> f;
 			for (size_t slot = 0; slot < saved.size(); slot++)
-				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), resistance))
+				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
 					found[itemIndex(*kind)] = saved[slot] != 0;
 		}
 		if (hasStamps) {
 			for (int& stamp : saved)
 				in >> stamp;
 			for (size_t slot = 0; slot < saved.size(); slot++)
-				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), resistance))
+				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
 					stamps[itemIndex(*kind)] = std::max(0, saved[slot]);
 		}
 		in >> type >> id;

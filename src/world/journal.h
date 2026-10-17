@@ -121,8 +121,9 @@ enum class FieldNote : unsigned char {
 	Fire, // the first time something burns (plan fire-damage)
 	FavourOfHapi, // Favour of Hapi learnt (written on learning)
 	BlessingOfIsis, // Blessing of Isis learnt (written on learning)
+	WaterBlessing, // the first Blessing of Hapi potion (plan water-blessing-potion)
 };
-constexpr int FIELD_NOTE_COUNT = 31;
+constexpr int FIELD_NOTE_COUNT = 32;
 // The field note written when the skill is learnt, none for a skill without one.
 [[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.

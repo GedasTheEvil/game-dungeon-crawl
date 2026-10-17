@@ -1,0 +1,10 @@
+# Plan water-blessing-potion, for `bin/game --play tests/play/water-blessing-potion.txt`: tests/levels/water, a pool of
+# half water, 3 Blessing of Hapi potions in the bag (I, Potions, "Hapi"; drink with Enter). Drink one, wade east: full walk
+# speed instead of 50%, sprint (Shift) at 40% of the land sprint with the stamina draining, the jump (Space) works in the
+# water. HUD: a blue-green drop with the seconds left (120s). Drink another: the time restarts. After 2 minutes "The water
+# is deep again". Journal (J, Field notes): "Blessing of Hapi". With the skill too (wade 125%, full land sprint at half the
+# stamina drain, 240s): `bin/game --play tests/play/water-blessing-potion-skill.txt`.
+seed 1
+god
+level tests/levels/water
+give potion 10 3

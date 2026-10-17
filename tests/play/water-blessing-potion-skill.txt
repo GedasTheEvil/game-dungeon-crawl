@@ -1,0 +1,9 @@
+# Plan water-blessing-potion, for `bin/game --play tests/play/water-blessing-potion-skill.txt`: as
+# water-blessing-potion.txt, with the Favour of Hapi skill learnt too. Drink a Blessing of Hapi: 240s on the HUD tile,
+# wade east at 125% of the walk speed, sprint (Shift) at the full land sprint with half the stamina drain, jump works.
+seed 1
+god
+level tests/levels/water
+heka 1
+learn favour_of_hapi
+give potion 10 3

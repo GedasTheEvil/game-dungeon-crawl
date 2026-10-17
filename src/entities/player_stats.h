@@ -32,6 +32,7 @@ class PlayerStats {
 	int trap_carry = 0; // hundredths of trap damage not yet taken (TrapDamage)
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
+	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)
 
 	Timer stamina_regen_timer{1000};
 	Timer stamina_sprint_drain_timer{1000};
@@ -39,6 +40,7 @@ class PlayerStats {
 	float stamina_sprint_drain_carry = 0.f;
 	bool sprint_requested = false; // shift held
 	bool walked = false; // the player took a walk step this tick (NoteWalked)
+	bool walked_cheap = false; // ... a wade step that drains the sprint's stamina at half (NoteWalked)
 	bool sprinting = false; // shift held and the player moved last tick: stamina drains
 	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
@@ -55,7 +57,12 @@ class PlayerStats {
 	[[nodiscard]] float SprintMoveMultiplier() const;
 	// Walk and climb steps: 1, SLOWNESS_WALK_FACTOR while slowed.
 	[[nodiscard]] float WalkCurseFactor() const;
-	void NoteWalked() { walked = true; } // a walk step really moved the player (not into a wall)
+	// A walk step really moved the player (not into a wall). halvedDrain: it was a sprint in half water with the
+	// Blessing of Hapi and the Favour of Hapi, which drains the stamina at WADE_SPRINT_DRAIN_BOTH.
+	void NoteWalked(bool halvedDrain = false) {
+		walked = true;
+		walked_cheap = halvedDrain;
+	}
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
 	[[nodiscard]] int MaxStamina() const { return (100 + (level - 1) * 10) * (100 + max_stamina_percent) / 100; }
@@ -108,6 +115,12 @@ class PlayerStats {
 	[[nodiscard]] int PotionResistLeftMs() const { return resist_left_ms; }
 	void AdvanceResistance(int ms); // the potion's time runs out
 	void EndResistance() { resist_left_ms = 0; }
+	// The Blessing of Hapi potion (plan water-blessing-potion): lifts the water's limits while it lasts.
+	[[nodiscard]] bool WaterBlessed() const { return water_left_ms > 0; }
+	[[nodiscard]] int WaterBlessingLeftMs() const { return water_left_ms; }
+	// The potion's time runs out; the status box says when it ends.
+	void AdvanceWaterBlessing(int ms, WorldEvents& events);
+	void EndWaterBlessing() { water_left_ms = 0; }
 	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
 	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
 	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }

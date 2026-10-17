@@ -2,6 +2,7 @@
 #include "../state/game_state.h"
 #include "../ui/inventory.h"
 #include <algorithm>
+#include <cmath>
 #include <optional>
 
 using namespace Scenario;
@@ -40,6 +41,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().player->stats.poison.Mask());
 	case Field::Resist:
 		return static_cast<float>(Game().player->stats.PoisonResistPercent());
+	case Field::WaterBlessing: // seconds left, rounded up
+		return std::ceil(static_cast<float>(Game().player->stats.WaterBlessingLeftMs()) / 1000.f);
 	case Field::XpTotal:
 		return static_cast<float>(Game().player->stats.CurrentXP());
 	case Field::Riddle:

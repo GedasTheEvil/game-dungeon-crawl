@@ -77,6 +77,7 @@ enum class Field : unsigned char {
 	Keys,
 	Poison,
 	Resist,
+	WaterBlessing,
 	XpTotal,
 	Riddle,
 	Bars,

@@ -26,7 +26,7 @@ cells, but most of it is solid wall.
 * Each level passes `bin/levelcheck` with no warnings.
 * **Keep what other plans placed:** a redesign carries over the content that is not layout: inscriptions
   ([more-inscriptions](more-inscriptions.draft.opus.md)), level titles ([duat-hours](duat-hours.draft.sonet.md)),
-  Hapi potions ([water-blessing-potion](water-blessing-potion.md)), expedition pages, mirror puzzles,
+  Hapi potions ([water-blessing-potion](solved/water-blessing-potion.md)), expedition pages, mirror puzzles,
   ring transporters, the Stargate chamber, trapped chests. Same count or more; the spots may move.
 * **Place the timed traps** that landed before this plan: [rhythm-traps](solved/rhythm-traps.md),
   [fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md). Not blocking: a

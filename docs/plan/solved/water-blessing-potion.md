@@ -1,10 +1,10 @@
 # Potion of water blessing (Blessing of Hapi)
 
-Status: implemented 2026-10-17, waiting for play-test: `bin/game --play tests/play/water-blessing-potion.txt` (potion
+Status: solved 2026-10-17 (play-tested by the user, alone and with the skill): `bin/game --play tests/play/water-blessing-potion.txt` (potion
 alone), `bin/game --play tests/play/water-blessing-potion-skill.txt` (with the Favour of Hapi skill). Draft 2026-10-09,
 refined 2026-10-09. From the user.
 
-It also adds the stacking part of [skill-blessing-of-hapi](solved/skill-blessing-of-hapi.md): with the Favour of Hapi skill the
+It also adds the stacking part of [skill-blessing-of-hapi](skill-blessing-of-hapi.md): with the Favour of Hapi skill the
 potion lasts 4 minutes, the wade speed is 125% and the sprint in half water is the full land sprint with half the
 stamina drain (the skill part was in already; its table has the numbers).
 
@@ -15,7 +15,7 @@ crocodile's swim are unchanged.
 
 ## What water does to the player today
 
-From [crocodiles-and-flooded-cells](solved/crocodiles-and-flooded-cells.md#implemented):
+From [crocodiles-and-flooded-cells](crocodiles-and-flooded-cells.md#implemented):
 
 | Limit | Where | With the blessing |
 |---|---|---|
@@ -33,7 +33,7 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
 * `PlayerStats`: time left (like the resistance potion's `RESIST` save line), ends on death. The checks above ask
   e.g. `PlayerStats::WaterBlessed()` / `Dungeon::PlayerWading` callers skip their limit.
 * Drinking another restarts the 2 minutes (4 with the Favour of Hapi skill,
-  [skill-blessing-of-hapi](solved/skill-blessing-of-hapi.md)).
+  [skill-blessing-of-hapi](skill-blessing-of-hapi.md)).
 * HUD: a timer icon like the resistance potion's, if it has one; the status box line on the start and the end.
 * Model / texture: a potion vessel (`PotionModel`) with its own texture, a blue-green liquid; journal note.
 * Loot: see [Decided](#decided-2026-10-09).
@@ -83,4 +83,4 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
   levels 8, 9, 24, 25, 28, 29.
 * Tests: `tests/unit/water_blessing_test.cpp` (timer, restart, end line, death, save and load, speed / sprint / drain /
   jump table, 4 minutes with the skill), `items_test.cpp` (file id, `INV7`, `INV6` and `INV4` loads),
-  `tests/scenarios/water_blessing_potion.txt`.
+  `tests/scenarios/solved/water_blessing_potion.txt`.

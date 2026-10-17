@@ -4,7 +4,7 @@ Status: implemented 2026-10-17, waiting for play-test: `bin/game --play tests/pl
 alone), `bin/game --play tests/play/water-blessing-potion-skill.txt` (with the Favour of Hapi skill). Draft 2026-10-09,
 refined 2026-10-09. From the user.
 
-It also adds the stacking part of [skill-blessing-of-hapi](skill-blessing-of-hapi.md): with the Favour of Hapi skill the
+It also adds the stacking part of [skill-blessing-of-hapi](solved/skill-blessing-of-hapi.md): with the Favour of Hapi skill the
 potion lasts 4 minutes, the wade speed is 125% and the sprint in half water is the full land sprint with half the
 stamina drain (the skill part was in already; its table has the numbers).
 
@@ -33,7 +33,7 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
 * `PlayerStats`: time left (like the resistance potion's `RESIST` save line), ends on death. The checks above ask
   e.g. `PlayerStats::WaterBlessed()` / `Dungeon::PlayerWading` callers skip their limit.
 * Drinking another restarts the 2 minutes (4 with the Favour of Hapi skill,
-  [skill-blessing-of-hapi](skill-blessing-of-hapi.md)).
+  [skill-blessing-of-hapi](solved/skill-blessing-of-hapi.md)).
 * HUD: a timer icon like the resistance potion's, if it has one; the status box line on the start and the end.
 * Model / texture: a potion vessel (`PotionModel`) with its own texture, a blue-green liquid; journal note.
 * Loot: see [Decided](#decided-2026-10-09).

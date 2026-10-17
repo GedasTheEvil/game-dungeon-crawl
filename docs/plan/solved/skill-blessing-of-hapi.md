@@ -1,8 +1,8 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. Skill part incl. sprint in half water implemented 2026-10-17, waiting for play-test:
-`bin/game --play tests/play/skill-blessing-of-hapi.txt`. The stacking part (125%, full sprint at half the stamina drain,
-4 minute potion) is implemented with [water-blessing-potion](water-blessing-potion.md), waiting for play-test too:
+Status: solved 2026-10-17 (skill part play-tested by the user): `bin/game --play tests/play/skill-blessing-of-hapi.txt`.
+The stacking part (125%, full sprint at half the stamina drain, 4 minute potion) went in with
+[water-blessing-potion](../water-blessing-potion.md); its play-test is that plan's:
 `bin/game --play tests/play/water-blessing-potion-skill.txt`. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`

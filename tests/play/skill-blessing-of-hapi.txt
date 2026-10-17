@@ -1,0 +1,8 @@
+# Plan skill-blessing-of-hapi, for `bin/game --play tests/play/skill-blessing-of-hapi.txt`: tests/levels/water, a pool
+# of half water, Favour of Hapi learnt. Wade east: 75% speed instead of 50%, and the jump (Space) works in the water
+# ("The water is too deep to jump" is gone). Journal (J, Field notes): "Favour of Hapi" is written.
+seed 1
+god
+level tests/levels/water
+heka 1
+learn favour_of_hapi

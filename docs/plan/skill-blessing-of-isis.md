@@ -1,6 +1,6 @@
 # Skill: blessing of Isis
 
-Status: draft 2026-10-10. [Skills](solved/skills.md) is in; [curses](solved/curses.md) is in too (2026-10-12): ready. From the user.
+Status: draft 2026-10-10, implemented 2026-10-17, waiting for play-test: `bin/game --play tests/play/skill-blessing-of-isis.txt`. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.

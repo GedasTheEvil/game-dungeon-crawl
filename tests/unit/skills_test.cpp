@@ -25,7 +25,7 @@ TEST_CASE("Favour of Hapi: wading is faster with the skill") {
 	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(WADE_SPEED_FACTOR));
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::FavourOfHapi, true));
-	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(0.75f));
+	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(WADE_SPEED_FACTOR_HAPI));
 }
 
 TEST_CASE("Favour of Hapi: can jump out of half water with the skill") {
@@ -60,7 +60,15 @@ TEST_CASE("Blessing of Isis: with the skill a curse that takes runs half as long
 	plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
 	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
 	CHECK(plain.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS);
-	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / 2);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
+	// A restarted curse is halved too, and so is a greater one replacing a lesser one.
+	blessed.stats.curses.Advance(60000);
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
+	blessed.stats.curses.Advance(30000);
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events);
+	CHECK(blessed.stats.curses.Grade(Curse::Weakness) == CurseGrade::Greater);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
 }
 } // namespace
 

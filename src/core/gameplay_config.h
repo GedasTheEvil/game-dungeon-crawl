@@ -83,6 +83,7 @@ constexpr int WALL_SUMMON_SIGHT = 3; // cells from the player: a wall this near 
 // monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it. An arrow hits a monster
 // standing in it for a share of its damage; melee is not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
+constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
 // Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the
 // arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).

@@ -17,6 +17,7 @@ constexpr int CURSE_COUNT = 8;
 enum class CurseGrade : std::uint8_t { Lesser, Greater };
 
 constexpr int CURSE_MS = 120000; // every curse lasts 2 minutes
+constexpr int CURSE_MS_ISIS = CURSE_MS / 2; // with the Blessing of Isis skill (plan skill-blessing-of-isis)
 
 // The effects, in percent (PlayerStats applies them).
 constexpr int WEAKNESS_MIGHT_CUT = 50; // of Might

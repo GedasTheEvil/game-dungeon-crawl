@@ -1,0 +1,9 @@
+# Plan skill-blessing-of-isis, for `bin/game --play tests/play/skill-blessing-of-isis.txt`: level 1, Blessing of Isis
+# learnt, a weakness curse laid. Watch the status line and the HUD curse icon: it runs 60 seconds, not 120. Open the
+# journal (J, Field notes): "Blessing of Isis" is written.
+seed 1
+god
+level 1
+heka 1
+learn blessing_of_isis
+curse weakness

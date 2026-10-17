@@ -8,7 +8,7 @@ The skill is on the Heka screen already, sealed: implementing it clears its `sea
 ## Idea
 
 Serket, the scorpion goddess, shields the player from poison: **poisons last half as long** on the player (the same
-damage per second, half the time). A twin of [Blessing of Isis](../skill-blessing-of-isis.draft.sonet.md) for curses.
+damage per second, half the time). A twin of [Blessing of Isis](../skill-blessing-of-isis.md) for curses.
 
 * Stacks with the resistance roll (amulet + potion, `PlayerStats::PoisonResistPercent`): that roll decides whether a
   poison takes; the skill halves the ones that do.

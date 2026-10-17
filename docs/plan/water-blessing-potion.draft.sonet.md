@@ -2,6 +2,9 @@
 
 Status: draft 2026-10-09, refined 2026-10-09 (decided, not implemented). From the user.
 
+Implementing this plan must also add the stacking part of [skill-blessing-of-hapi](skill-blessing-of-hapi.md): with
+the Favour of Hapi skill the potion lasts 4 minutes and the wade speed is 125% (the skill part is in already).
+
 ## Idea
 
 A potion that lifts the water's limits from the player for 2 minutes. Only the player: monsters, arrows and the
@@ -27,7 +30,7 @@ basin (`waterSink`), arrows into water still lose damage (a monster rule).
 * `PlayerStats`: time left (like the resistance potion's `RESIST` save line), ends on death. The checks above ask
   e.g. `PlayerStats::WaterBlessed()` / `Dungeon::PlayerWading` callers skip their limit.
 * Drinking another restarts the 2 minutes (4 with the Favour of Hapi skill,
-  [skill-blessing-of-hapi](skill-blessing-of-hapi.draft.sonet.md)).
+  [skill-blessing-of-hapi](skill-blessing-of-hapi.md)).
 * HUD: a timer icon like the resistance potion's, if it has one; the status box line on the start and the end.
 * Model / texture: a potion vessel (`PotionModel`) with its own texture, a blue-green liquid; journal note.
 * Loot: see [Decided](#decided-2026-10-09).

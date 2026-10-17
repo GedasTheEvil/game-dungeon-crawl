@@ -1,8 +1,6 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 #include "../entities/monster.h"
-#include "../entities/player.h"
-#include "skills.h"
 #include <fstream>
 #include "../core/timer.h"
 #include "../core/gameplay_config.h"
@@ -306,15 +304,14 @@ class Dungeon {
 	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
 	void DrawWater();
 	bool Move(float dirX, float dirY); // false: blocked, the player did not move
-	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR, no jump.
+	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
+	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;
-	[[nodiscard]] float PlayerWalkFactor() const {
-		if (!PlayerWading())
-			return 1.f;
-		const bool hapi = sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi);
-		return hapi ? 0.75f : WADE_SPEED_FACTOR;
-	}
-	// False while wading: then the player is told why (at most every WATER_JUMP_HINT_MS).
+	[[nodiscard]] float PlayerWalkFactor() const;
+	// The player has the Favour of Hapi skill: a faster wade, and jumping out of half water.
+	[[nodiscard]] bool PlayerHasHapi() const;
+	// False while wading (and without the Favour of Hapi): then the player is told why (at most every
+	// WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
 	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs. A swing already under way
 	// finishes. tell: say why ("Hands on the rungs"), once per press of the key.

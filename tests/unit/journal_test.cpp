@@ -15,6 +15,17 @@ JournalRiddle riddle(const char* question) {
 }
 } // namespace
 
+TEST_CASE("skills with a field note: Serket's favour, Sharp eye, Favour of Hapi, Blessing of Isis") {
+	CHECK(skillNote(SkillId::SerketsFavour) == FieldNote::SerketsFavour);
+	CHECK(skillNote(SkillId::SharpEye) == FieldNote::SharpEye);
+	CHECK(skillNote(SkillId::FavourOfHapi) == FieldNote::FavourOfHapi);
+	CHECK(skillNote(SkillId::BlessingOfIsis) == FieldNote::BlessingOfIsis);
+	Journal j;
+	j.LearnNote(*skillNote(SkillId::FavourOfHapi));
+	j.LearnNote(*skillNote(SkillId::BlessingOfIsis));
+	CHECK(j.Notes().size() == 2);
+}
+
 TEST_CASE("a late riddle answer gives a tenth of the gate's XP, at least 50") {
 	CHECK(lateRiddleXP(500) == 50);
 	CHECK(lateRiddleXP(300) == 50);

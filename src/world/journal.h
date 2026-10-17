@@ -5,7 +5,9 @@
 #include "damage.h"
 #include "inscriptions.h"
 #include "items.h"
+#include "skills.h"
 #include <istream>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -117,8 +119,12 @@ enum class FieldNote : unsigned char {
 	CursePalsy,
 	CurseInsanity,
 	Fire, // the first time something burns (plan fire-damage)
+	FavourOfHapi, // Favour of Hapi learnt (written on learning)
+	BlessingOfIsis, // Blessing of Isis learnt (written on learning)
 };
-constexpr int FIELD_NOTE_COUNT = 29;
+constexpr int FIELD_NOTE_COUNT = 31;
+// The field note written when the skill is learnt, none for a skill without one.
+[[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);

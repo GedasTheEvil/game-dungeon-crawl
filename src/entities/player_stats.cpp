@@ -204,7 +204,8 @@ void PlayerStats::keepHpShare(int oldMax) {
 
 bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	const int oldMax = CurrentMaxHP();
-	const int duration = heka.Has(SkillId::BlessingOfIsis) ? CURSE_MS / 2 : CURSE_MS;
+	// Blessing of Isis (plan skill-blessing-of-isis): curses last half as long.
+	const int duration = heka.Has(SkillId::BlessingOfIsis) ? CURSE_MS_ISIS : CURSE_MS;
 	const bool fresh = curses.Lay(c, grade, duration);
 	run.cursed++;
 	keepHpShare(oldMax);

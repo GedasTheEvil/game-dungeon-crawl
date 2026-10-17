@@ -29,7 +29,7 @@ uses it for the objects that are not treasure (a sarcophagus, a coffin, pottery,
 * One roll per object, on opening, from the gameplay stream. A container that is trapped rolls its trap only; no
   second curse roll on top (a canopic jar is a container, its curse is its trap).
 * The tell: a close-up hint, never a status line or a prompt text, never obvious from afar.
-* The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](skill-blessing-of-isis.draft.sonet.md)
+* The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](skill-blessing-of-isis.md)
   halves the curse's time, as any curse.
 * Loot in a cursed object follows [Contents](#contents-decided-with-the-user-2026-10-12).
 

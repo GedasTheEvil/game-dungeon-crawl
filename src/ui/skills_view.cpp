@@ -92,10 +92,8 @@ void SkillsScreen::PressLearn() {
 	}
 	confirming = false;
 	points.Learn(id);
-	if (id == SkillId::SerketsFavour)
-		Game().journal.LearnNote(FieldNote::SerketsFavour);
-	else if (id == SkillId::SharpEye)
-		Game().journal.LearnNote(FieldNote::SharpEye);
+	if (const std::optional<FieldNote> note = skillNote(id))
+		Game().journal.LearnNote(*note);
 	std::string learnt = std::string("Learnt: ") + def.name;
 	if (id == SkillId::Hieroglyphs) {
 		const std::vector<Boon> boons = Game().journal.TranslateInscriptions();

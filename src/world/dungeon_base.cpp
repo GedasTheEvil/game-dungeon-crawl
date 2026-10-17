@@ -3,6 +3,7 @@
 #include "item_bag.h"
 #include "journal.h"
 #include "rng.h"
+#include "skills.h"
 #include "world_events.h"
 #include "../core/gameplay_config.h"
 #include "../graphics/render_config.h"
@@ -278,11 +279,20 @@ bool Dungeon::AttackAllowed(bool tell) {
 	return false;
 }
 //======================================================================================
+bool Dungeon::PlayerHasHapi() const {
+	return sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi); // plan skill-blessing-of-hapi
+}
+//======================================================================================
+float Dungeon::PlayerWalkFactor() const {
+	if (!PlayerWading())
+		return 1.f;
+	return PlayerHasHapi() ? WADE_SPEED_FACTOR_HAPI : WADE_SPEED_FACTOR;
+}
+//======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;
-	// With the Hapi favour, jumping out of half water is allowed.
-	if (sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi))
+	if (PlayerHasHapi())
 		return true;
 	const int now = GameClock::now();
 	if (now - waterHintMs >= WATER_JUMP_HINT_MS) {

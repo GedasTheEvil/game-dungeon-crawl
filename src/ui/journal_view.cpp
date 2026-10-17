@@ -341,6 +341,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	 "Fire sets what it hits on fire: it keeps burning for a few seconds after the hit. Armour does not stop it, "
 	 "only a fire guard amulet does, and water puts it out. A brazier lights my next five arrows (E by "
 	 "it). Mummies, it turns out, burn very well."},
+	{"Favour of Hapi", "The water parts for me now. Not much, but enough to stop wading like a heron."},
+	{"Blessing of Isis", "Isis has a knot for every curse. She ties fast."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

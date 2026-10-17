@@ -1,8 +1,8 @@
 # Skill: blessing of Hapi
 
-Status: draft 2026-10-10. [Skills](solved/skills.md) is in. The stacking part needs
-[water-blessing-potion](water-blessing-potion.draft.sonet.md) (skip that part if the potion is not in yet, add it with the
-potion). From the user.
+Status: draft 2026-10-10. Skill part implemented 2026-10-17, waiting for play-test:
+`bin/game --play tests/play/skill-blessing-of-hapi.txt`. The stacking part (125%, 4 minute potion) waits for
+[water-blessing-potion](water-blessing-potion.draft.sonet.md), which must add it. From the user.
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.

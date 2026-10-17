@@ -81,6 +81,21 @@ bool Journal::TryPoison(int type, int level) {
 	return true;
 }
 
+std::optional<FieldNote> skillNote(SkillId skill) {
+	switch (skill) {
+	case SkillId::SerketsFavour:
+		return FieldNote::SerketsFavour;
+	case SkillId::SharpEye:
+		return FieldNote::SharpEye;
+	case SkillId::FavourOfHapi:
+		return FieldNote::FavourOfHapi;
+	case SkillId::BlessingOfIsis:
+		return FieldNote::BlessingOfIsis;
+	default:
+		return std::nullopt;
+	}
+}
+
 FieldNote damageNote(DamageType type) {
 	switch (type) {
 	case DamageType::Blunt:

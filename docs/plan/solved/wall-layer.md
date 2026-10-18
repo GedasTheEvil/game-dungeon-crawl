@@ -51,7 +51,7 @@ Split the object layer in two. Three layers per cell:
   stays an object).
 * Later wall things go here from the start: the wall vent of [fire-jet-trap](../fire-jet-trap.draft.opus.md), mirrors
   and light shafts of [sunlight-mirrors](../sunlight-mirrors.draft.opus.md), hand-placed wall decor (torches, reliefs),
-  a wall niche holding a treasure ([treasure-containers](../treasure-containers.md): canopic jars in a niche).
+  a wall niche holding a treasure ([treasure-containers](treasure-containers.md): canopic jars in a niche).
 
 Stay objects: monster spawns, treasure (chests stand in the cell), keys, gates, doors, ladders, floor traps (spike,
 death, rock fall, dart plate: its darts come from the wall, but the plate is in the floor), the ankh.

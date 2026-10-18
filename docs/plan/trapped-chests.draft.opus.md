@@ -1,6 +1,6 @@
 # Trapped chests
 
-Status: draft 2026-10-12. Needs [treasure-containers](treasure-containers.md) first (closed chests that
+Status: draft 2026-10-12. Needs [treasure-containers](solved/treasure-containers.md) first (closed chests that
 hide their item, the opening clip the trap fires in). From the user.
 
 ## Idea
@@ -12,10 +12,10 @@ Some chests are trapped: opening one sets off a trap. Opening any chest becomes 
   * poison darts from the lock (medium poison, like the dart plate, `src/world/dungeon_darts.cpp`);
   * a puff of poison gas (a small cloud, weak poison, a few seconds);
   * a curse (one of `Curse`, `src/world/curses.h`), framed as an execration text on the lid. A trapped canopic jar
-    ([treasure-containers](treasure-containers.md)) curses by default (disease);
+    ([treasure-containers](solved/treasure-containers.md)) curses by default (disease);
   * optional: a scarab swarm crawling out (minions, like a boss's summons).
 * A tell for an attentive player, never obvious from afar (as the cursed mimic's): scratch marks round the lock, a
-  broken seal, a darker lid. It must survive [treasure-containers](treasure-containers.md)'s looks and
+  broken seal, a darker lid. It must survive [treasure-containers](solved/treasure-containers.md)'s looks and
   orientations.
 * The [interact prompt](solved/interact-prompt.md) shows "[E] Open" on every chest, trapped or not, and on a
   mimic: it never tells them apart.
@@ -65,7 +65,7 @@ A new tile type `TrappedTreasure` (the next available ID, possibly 16) with the 
   the decoration that leaves treasure cells bare): add `isTreasure(const Tile&)` (`src/world/level.h`) and use it, so
   none is missed.
 * Trap kind: implementer's choice. Random per chest from the gameplay stream on opening, by depth (darts early, curses
-  deep), or one tile type per kind. If [treasure-containers](treasure-containers.md) also needs per-chest
+  deep), or one tile type per kind. If [treasure-containers](solved/treasure-containers.md) also needs per-chest
   data (a forced look), weigh one general extra field per object (level format v3) against more tile types.
 * Boss rule (AGENTS.md): no monster gains an ability here.
 

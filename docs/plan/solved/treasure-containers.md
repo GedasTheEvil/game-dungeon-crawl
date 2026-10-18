@@ -1,8 +1,7 @@
 # Treasure: chest orientations and containers
 
-Status: implemented 2026-10-17, waiting for the user's play-test: `bin/game --play tests/play/treasure-containers.txt`
-(every container and stance in a row, a mimic among the chests), or `bin/game --level 9` (worked-tunnel and tomb
-mixes in the campaign). Draft 2026-10-10, from the user. Includes canopic jars from the lore review.
+Status: solved 2026-10-18, play-tested (`bin/game --play tests/play/treasure-containers.txt`). Implemented
+2026-10-17. Draft 2026-10-10, from the user. Includes canopic jars from the lore review.
 
 ## Today
 
@@ -22,7 +21,7 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
 3. Opening plays a short clip or effect per container (lid lifts, jar breaks) before the item can be taken.
 4. **Closed until opened** (the user, 2026-10-12): the item no longer spins on top of a closed container; it shows
    (spinning, as today) only once the container is open, then the player takes it. The player can no longer see the
-   loot from afar: a trade for mystery, wanted for [trapped-chests](trapped-chests.draft.opus.md), whose trap fires
+   loot from afar: a trade for mystery, wanted for [trapped-chests](../trapped-chests.draft.opus.md), whose trap fires
    in this clip.
 
 ## Notes
@@ -32,10 +31,10 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
   of the treasures): on a level of jars a lone chest would give the mimic away. Optional: a mimic jar.
 * Level format unchanged if the look is derived (depth + effects roll). A `Treasure` tile has no spare field (its
   attribute and value are the item type and id): forcing a look per chest needs new data, see the level format note
-  in [trapped-chests](trapped-chests.draft.opus.md).
-* Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/modeling.md](../modeling.md)).
-* A trapped container's trap fires in its opening clip ([trapped-chests](trapped-chests.draft.opus.md)); a trapped
-  canopic jar curses by default. Its rule covers [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md) too.
+  in [trapped-chests](../trapped-chests.draft.opus.md).
+* Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/modeling.md](../../modeling.md)).
+* A trapped container's trap fires in its opening clip ([trapped-chests](../trapped-chests.draft.opus.md)); a trapped
+  canopic jar curses by default. Its rule covers [tomb-curse-triggers](../tomb-curse-triggers.draft.opus.md) too.
 
 ## Tests
 
@@ -67,8 +66,8 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
   contents.
 * Tests: `tests/unit/containers_test.cpp` (tables, looks stable over loads and from the tier, side-wall stance only by
   rock, the press-clip-press order, the gameplay stream untouched, save and load, the canopic note);
-  `tests/scenarios/containers.txt` (screenshots: each kind closed, opening and open, stances, the mimic among chests),
+  `tests/scenarios/solved/containers.txt` (screenshots: each kind closed, opening and open, stances, the mimic among chests),
   level `tests/levels/containers`.
 
 Left out (open for later): a mimic jar; turning the mimic to the chests' other stances (it faces the camera, as the
-most common stance); the trap in the clip ([trapped-chests](trapped-chests.draft.opus.md)).
+most common stance); the trap in the clip ([trapped-chests](../trapped-chests.draft.opus.md)).

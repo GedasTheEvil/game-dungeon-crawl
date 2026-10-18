@@ -102,6 +102,13 @@ class Dungeon {
 	// Walkers (dungeon_walkers.cpp). A walker can't step into (col, row): a wall, no floor under it (a pit or a drop),
 	// or a trap (spikes, a death trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
+	// walkerBlocked for this walker, and a light shunner (MonsterKind::shunsLight) can't step into a lit cell either
+	// but its own.
+	[[nodiscard]] bool walkerStops(const Monster& mon, int col) const;
+	// A light shunner standing in the light: the way out along its row (-1 / +1, the nearer dark cell); 0: none.
+	[[nodiscard]] int wayOutOfLight(const Monster& mon) const;
+	// A lit cell between the walker and the player, or round the player (not its own cell).
+	[[nodiscard]] bool litBetween(const Monster& mon) const;
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
@@ -438,6 +445,12 @@ class Dungeon {
 	[[nodiscard]] bool NearestMonsterBurns() const; // it is on fire (plan fire-damage)
 	[[nodiscard]] int ChestCount() const; // treasure chests not opened yet
 	[[nodiscard]] int CoffinCount() const; // coffins standing on the level (decorations)
+	// A wall torch on (col, row) or none, over whatever the scatter picked (the scenario command torch). False: out of
+	// the level.
+	bool PlaceTorch(int col, int row, bool on);
+	// Within LIGHT_SHUN_CELLS along the row of a flame among the decorations (a wall torch, a brazier, an oil lamp):
+	// a light shunner keeps out (plan camel-spider).
+	[[nodiscard]] bool Lit(int col, int row) const;
 	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).

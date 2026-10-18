@@ -282,6 +282,14 @@ bool parseProp(const Args& args, Command& cmd) {
 	return false;
 }
 
+// A column (a) and on or off (ticks 1 / 0).
+bool parseTorch(const Args& args, Command& cmd) {
+	if (args.size() != 2 || !parseFloat(args[0], cmd.a) || (args[1] != "on" && args[1] != "off"))
+		return false;
+	cmd.ticks = args[1] == "on" ? 1 : 0;
+	return true;
+}
+
 // A column (a), a container of CONTAINER_NAMES (ticks) and a stance (b, an index into STANCES, default 0).
 bool parseContainer(const Args& args, Command& cmd) {
 	if (args.size() < 2 || args.size() > 3 || !parseFloat(args[0], cmd.a) ||
@@ -350,6 +358,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Hurt:
 	case CommandType::FireHit:
 	case CommandType::Prop:
+	case CommandType::Torch:
 	case CommandType::Container:
 	case CommandType::Riddles:
 	case CommandType::Inscriptions:
@@ -409,6 +418,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
 		{"inscriptions", CommandType::Inscriptions, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},
+		{"torch", CommandType::Torch, parseTorch, "<col> on|off: a wall torch, its light"},
 		{"container", CommandType::Container, parseContainer,
 		 "<col> <chest|coffer|basket|canopic|jar|table> [stance 0-7]: a treasure's look (STANCES)"},
 		{"savegame", CommandType::SaveGame, oneWord, "<path>"},

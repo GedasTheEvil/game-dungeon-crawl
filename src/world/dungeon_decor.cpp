@@ -1,4 +1,5 @@
 #include "dungeon.h"
+#include "../core/gameplay_config.h"
 #include "../core/logger.h"
 
 bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j); }
@@ -15,6 +16,21 @@ bool Dungeon::PlaceDecor(int col, int row, int type) {
 	if (!IsInBounds(col, row) || type < 0 || type >= DECOR_COUNT)
 		return false;
 	decoration.decor[MapIndex(col, row)] = DecorCell{static_cast<int8_t>(type), false, 0.f};
+	return true;
+}
+
+bool Dungeon::Lit(int col, int row) const {
+	Flame flames[MAX_CELL_FLAMES];
+	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++)
+		if (IsInBounds(c, row) && flamesAt(decoration, MapIndex(c, row), flames) > 0)
+			return true;
+	return false;
+}
+
+bool Dungeon::PlaceTorch(int col, int row, bool on) {
+	if (!IsInBounds(col, row))
+		return false;
+	decoration.torch[MapIndex(col, row)] = on;
 	return true;
 }
 

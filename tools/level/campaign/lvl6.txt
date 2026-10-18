@@ -1,4 +1,4 @@
-; lvl6: the rat warrens. Rats, a giant rat, the first giant scarab, two scorpions (an antidote where the shaft lands). The red key lies in the lower den, the red gate guards the exit.
+; lvl6: the rat warrens. Rats, a giant rat, the first giant scarab, two scorpions, a camel spider in the lower den (an antidote where the shaft lands). The red key lies in the lower den, the red gate guards the exit.
 ; A lesser resistance potion in the middle hall, west of the ladder.
 def 1 8 3 1
 def 2 8 3 5
@@ -12,7 +12,7 @@ def i 15 1 0
 #$...t...-..H..k....v.j......H...t.2####
 ############################.###########
 ############################.###########
-#..T......r...v.....j........a##########
+#..T......r...v.....j....h...a##########
 ##.###############X#####################
 ##...t.....R....E#######################
 ########################################

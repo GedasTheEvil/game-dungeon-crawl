@@ -1,4 +1,4 @@
-; lvl4: the treasury. Rats, scarabs and a scorpion in the vaults (an antidote at the lower hall's east end), a worm in the lower hall, plants guard the side rooms.
+; lvl4: the treasury. Rats, scarabs and a scorpion in the vaults, a camel spider in the middle hall (an antidote at the lower hall's east end), a worm in the lower hall, plants guard the side rooms.
 ; Not every chest is a chest: a mimic waits among the real ones. A riddle gate before the exit.
 ; A lesser resistance potion in the middle hall, east of the ladder foot.
 def 1 8 3 1
@@ -13,7 +13,7 @@ def - 8 3 8
 ##########X#####H#############H#########
 ################H.-.s.j...$.M.H..4.#####
 ##################################.#####
-#2.p..H....s............t...........a###
+#2.p..H....s......h.....t...........a###
 ######H#################################
 ######H#################################
 ######H...w....^......3..?.E############

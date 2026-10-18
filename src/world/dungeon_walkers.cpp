@@ -9,6 +9,39 @@
 
 bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
 //======================================================================================
+bool Dungeon::walkerStops(const Monster& mon, int col) const {
+	if (walkerBlocked(col, mon.Row(), mon.reckless()))
+		return true;
+	return mon.Type()->shunsLight && col != static_cast<int>(std::floor(mon.CentreX())) && Lit(col, mon.Row());
+}
+//======================================================================================
+// The nearer dark cell either way, short of a cell it can't walk on; on a tie, away from the player.
+int Dungeon::wayOutOfLight(const Monster& mon) const {
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	if (!mon.Type()->shunsLight || !Lit(col, mon.Row()))
+		return 0;
+	const int away = mapX < mon.CentreX() ? 1 : -1;
+	bool open[2] = {true, true}; // away, towards
+	for (int d = 1; d <= 2 * LIGHT_SHUN_CELLS + 1; d++)
+		for (int side = 0; side < 2; side++) {
+			const int dir = side == 0 ? away : -away;
+			const int c = col + dir * d;
+			open[side] = open[side] && !walkerBlocked(c, mon.Row(), mon.reckless());
+			if (open[side] && !Lit(c, mon.Row()))
+				return dir;
+		}
+	return 0;
+}
+//======================================================================================
+bool Dungeon::litBetween(const Monster& mon) const {
+	const auto from = static_cast<int>(std::floor(mon.CentreX()));
+	const auto to = static_cast<int>(std::floor(mapX));
+	for (int col = std::min(from, to); col <= std::max(from, to); col++)
+		if (col != from && Lit(col, mon.Row()))
+			return true;
+	return false;
+}
+//======================================================================================
 int Dungeon::leapLanding(int col, int row, int dir) const { return leapLandingAt(map, col, row, dir); }
 //======================================================================================
 // The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
@@ -27,14 +60,14 @@ bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	const auto to = static_cast<int>(std::floor(mapX));
 	const bool leaps = mon.Type()->locomotion == Locomotion::WalkJump;
 	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
-		if (!walkerBlocked(col, mon.Row(), mon.reckless()))
+		if (!walkerStops(mon, col))
 			continue;
 		const int land = leaps ? leapLanding(col, mon.Row(), dir) : -1;
 		if (land < 0)
 			return false;
 		col = land;
 	}
-	return true;
+	return !mon.Type()->shunsLight || !Lit(to, mon.Row()); // nor into the light around them
 }
 //======================================================================================
 // No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
@@ -46,7 +79,7 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 		return;
 	}
 	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
-	mon.Flee(walkerBlocked(col, mon.Row(), mon.reckless()), -dir);
+	mon.Flee(walkerStops(mon, col), -dir);
 }
 //======================================================================================
 // The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
@@ -111,12 +144,18 @@ void Dungeon::updateWalker(Monster& mon) {
 	int dir = mon.attackDirection(mapX, mapY);
 	if (followPath(mon, dir))
 		return;
+	if (const int out = wayOutOfLight(mon); out != 0) { // a light shunner caught in the light runs for the dark
+		mon.Flee(false, out);
+		return;
+	}
 	if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
+		if (mon.Type()->shunsLight && mon.sameRow(mapY) && litBetween(mon))
+			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::ShunLight);
 		fleeFrom(mon, dir);
 		return;
 	}
 	auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
-	bool blocked = walkerBlocked(col, mon.Row(), mon.reckless());
+	bool blocked = walkerStops(mon, col);
 	if (blocked && dir != 0 && mon.canJump()) {
 		int land = leapLanding(col, mon.Row(), dir);
 		// Not while the player is in the gap: the rat would leap over them.

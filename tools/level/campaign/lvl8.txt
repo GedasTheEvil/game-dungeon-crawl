@@ -1,4 +1,4 @@
-; lvl8: the overgrown halls. Plants, worms, giant rats, giant scarabs. Red key on the way down, green key behind the red gate.
+; lvl8: the overgrown halls. Plants, worms, giant rats, giant scarabs, a camel spider in the lower hall. Red key on the way down, green key behind the red gate.
 ; The hall to the red gate is flooded, a crocodile lies in it.
 def 3 8 1 2
 def 1 8 3 1
@@ -11,7 +11,7 @@ def i 15 3 0
 #.1g..R...C..d.H.i.k...T..v...H...w.$###
 #.######################################
 #.######################################
-#...p..^...T.a.w......p..k..G...E#######
+#...p..^...T.a.w...h..p..k..G...E#######
 ##################X#####################
 ########################################
 structure

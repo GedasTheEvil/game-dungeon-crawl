@@ -263,6 +263,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Floats among the lotus flowers, rears up when I come near.";
 	case CreatureMove::Sedate:
 		return "Its bite makes me drowsy, too tired to run or jump.";
+	case CreatureMove::ShunLight:
+		return "Will not come into the torchlight. It waits in the dark until I leave it.";
 	}
 	return "";
 }

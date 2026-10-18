@@ -24,6 +24,7 @@ constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
 constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
+constexpr DamageMix CAMEL_SPIDER_MIX = {0, 80, 20}; // jaws like shears
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
@@ -49,6 +50,8 @@ constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS,
 											WEAK}; // a blade slits the leathery eggs, fire cooks them
 constexpr Resistances LOTUS_RESIST = {
 	RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
+constexpr Resistances CAMEL_SPIDER_RESIST = {NORMAL, WEAK, RESISTS,
+											 WEAK}; // a blade lops the long legs, a point misses the slim body; fire
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -748,6 +751,32 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.118f,
 	 .kin = MonsterMummy,
 	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
+	// The camel spider of the soldiers' stories (plan camel-spider): faster than the giant rat, weak, a scissor bite.
+	// It runs at the player in the dark and keeps out of the light of torches and braziers, so a lit stretch is a wall
+	// to it. Early-middle levels, after the scorpions' sand.
+	{.id = MonsterCamelSpider,
+	 .glyph = 'h',
+	 .name = "Camel spider",
+	 .label = "camel spider",
+	 .description = "Camel spider, fast; keeps out of the light of torches, braziers and lamps",
+	 .note = "Ten legs, jaws like shears, and faster than I can run. The soldiers' stories say it chases your shadow. "
+			 "Not venomous, they say. It does not need to be. It spins no webs. So who made these?",
+	 .threat = 2.5f, // fast and bites often, but weak, and the light keeps it off
+	 .model = "monsters/camel_spider",
+	 .texture = "monsters/camel_spider",
+	 .scale = 28,
+	 .blood = {0.55f, 0.6f, 0.35f}, // pale yellow-green haemolymph
+	 .speed = 28,
+	 .maxHealth = 26,
+	 .damage = 5,
+	 .attackMs = 550,
+	 .xp = 1100,
+	 .attackMix = CAMEL_SPIDER_MIX,
+	 .resist = CAMEL_SPIDER_RESIST,
+	 .weight = 1,
+	 .walkClipSpeed = 60,
+	 .shunsLight = true,
+	 .generated = {3, 8, 2}},
 }};
 
 constexpr bool validKinds() {

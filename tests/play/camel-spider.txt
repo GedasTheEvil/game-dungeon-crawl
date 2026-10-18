@@ -1,0 +1,22 @@
+# Plan camel-spider, for `bin/game --play tests/play/camel-spider.txt`: tests/levels/camel_spider, a camel spider (col 7)
+# in a long hall, torches only on cols 3 and 5 (their light: cols 2-6). Stand in the light: it will not come in, it
+# runs off out of the bow's range and waits in the dark. Step east out of the light: it runs at you, faster than you
+# walk. Walk back into the light: it turns at the edge. In the campaign: levels 4, 6, 7 and 8 have one each.
+seed 1
+level tests/levels/camel_spider
+give melee 1
+equip short_sword
+torch 1 off
+torch 2 off
+torch 4 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+torch 13 off
+torch 14 off
+torch 3 on
+torch 5 on

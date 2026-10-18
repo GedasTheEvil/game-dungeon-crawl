@@ -127,6 +127,16 @@ conventions, steps). New model notes go in the script's docstring, not here.
   twitch, the only tell), rise 10 (`_rise`: idle frame 0 to move frame 0). `-- --review DIR` renders workbench stills of a few frames.
   Sounds: `tools/audio/lotus_sounds.py` (`media/sounds/monsters/lotus_{wake,att,die}.wav`: water pouring off, rustle, hiss; swish and a
   wet snap; hiss, a slap on the water, bubbles).
+* `tools/blender/models/camel_spider.py` - the camel spider (a solifuge, Galeodes arabs; plan camel-spider), faces +Y, rotA 180;
+  `scorpion.py`'s rig without the tail and the climb: a domed head plate with the eye tubercle, a fat segmented abdomen on a flex
+  bone, two huge pale-to-rust chelicerae (each a bone that saws forward and back, the lower finger on a hinge that gapes), eight
+  thin hairy legs (femur, tibia, tarsus; two-bone IK, tetrapod gait) and two long pedipalps held forward with a pale sucker at the
+  tip, so it looks ten-legged; cone bristles on the legs, palps and body, a speckle for the short hair. Clips: move 16 (the
+  reference: two fast gait cycles, the palps tapping in turn; 1.64 long x 1.24 wide x 0.50 high, `KINDS` scale 28), attack 18
+  (rears, palps up, jaws open, lunges and snaps), die 26 (flips onto its back, the legs curl), idle 24 (`_idle`: waits, palps
+  tapping, jaws sawing; shown while it stands off the light). Every frame lifted so the lowest vertex touches the floor.
+  Sounds: `tools/audio/camel_spider_sounds.py` (`media/sounds/monsters/camel_spider_{att,die}.wav`: a stridulating rasp, two
+  shear snaps; a rasping squeal, rattle, scrape).
 * `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
   the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
   along the body integrated from the tail (the length never changes, as in `worm.py`), plus a hood amount that spreads the neck

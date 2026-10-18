@@ -39,7 +39,7 @@
 15,5 surface 3/2/1 torch fire torch 0.000,0.680,0.098
 16,5 surface 5/2/1 decal 10 0.419,0.544
 17,5 surface 3/1/1
-18,5 surface 3/2/1 prop potterym 0.120
+18,5 surface 3/2/1
 19,5 surface 5/1/1
 20,5 surface 3/2/1
 21,5 surface 3/2/1

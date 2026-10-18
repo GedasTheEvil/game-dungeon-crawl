@@ -109,6 +109,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `crocodile.py` | crocodile, Sobek | `rat.py` style, idle floated at the water surface |
 | `scarab.py` | scarab, giant scarab | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
+| `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic | ambush monster built on an item's mesh (`items.build_chest`) |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |

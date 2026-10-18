@@ -17,7 +17,7 @@
 16,3 surface 2/0/1m prop rubble 0.033
 17,3 surface 1/0/1
 18,3 surface 0/1/1
-19,3 surface 1/2/1 prop webm -0.000 decal 5m 0.599,0.625
+19,3 surface 1/2/1 decal 6m 0.560,0.575
 20,3 surface 0/1/1 decal 7m 0.569,0.396
 21,3 surface 1/1/1 torch fire torch 0.000,0.680,0.098
 22,3 surface 0/0/1

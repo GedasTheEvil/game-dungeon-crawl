@@ -64,6 +64,10 @@ constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000; // from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2; // cells of pits and traps a leap clears
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
+// Light shunners (MonsterKind::shunsLight, the camel spider, plan camel-spider): a cell up to this many cells along the
+// row from a flame (a wall torch, a brazier, an oil lamp) is lit. It does not step into one, and one in its way is a
+// wall to it.
+constexpr int LIGHT_SHUN_CELLS = 1;
 // Climbers (plan monster-climbers): once they have seen the player they follow a path to them across floors, up to
 // CLIMB_PATH_MAX steps; with no path for CLIMB_GIVE_UP_MS they stay where they are. They climb at a share of their walk
 // speed, a boss at all of it. The checker scores a climber a little higher (the player cannot escape up a ladder).

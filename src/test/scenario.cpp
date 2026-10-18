@@ -453,6 +453,15 @@ bool runInstant(const Command& cmd) {
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;
 	}
+	case CommandType::Torch: { // on the player's row
+		float x = 0.f;
+		float y = 0.f;
+		Game().dungeon.getC(x, y);
+		const bool placed =
+			Game().dungeon.PlaceTorch(static_cast<int>(cmd.a), static_cast<int>(std::floor(y)), cmd.ticks != 0);
+		report(cmd, placed, placed ? "" : "outside the level");
+		return true;
+	}
 	case CommandType::Container: { // on the player's row
 		float x = 0.f;
 		float y = 0.f;

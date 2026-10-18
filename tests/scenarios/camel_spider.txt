@@ -1,0 +1,55 @@
+# The camel spider (tests/levels/camel_spider, plan camel-spider): it waits in the dark while the player stands in the
+# light of two torches, runs at them once the torches are gone, bites, dies on its back.
+seed 1
+level tests/levels/camel_spider
+god
+give melee 1
+equip short_sword
+torch 1 off
+torch 2 off
+torch 4 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+torch 13 off
+torch 14 off
+torch 3 on
+torch 5 on
+walk to 5.5
+wait 2s
+expect nearest > 0
+expect hp == 50
+screenshot waits
+camera 30 10
+screenshot waits_side
+camera 0 0
+torch 3 off
+torch 5 off
+wait 1500ms
+screenshot runs
+wait 2s
+screenshot bites
+camera 30 10
+screenshot bites_side
+toon on
+screenshot bites_toon
+toon off
+camera 0 0
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+screenshot dies
+expect nearest == 0

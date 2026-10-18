@@ -73,6 +73,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | kind | | a monster type: one row of stats, model and rules | `MonsterKind`, `monsterKind` |
 | leap | | a walk-jumper's jump over a pit or a trap | `Leap` |
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
+| lit cell | | within `LIGHT_SHUN_CELLS` (1) along the row of a flame: a wall torch, a brazier, an oil lamp | `Dungeon::Lit` |
+| light shunner | | a walker that does not step into a lit cell; light on its way to the player is a wall to it, so it flees; caught in the light, it runs for the dark (the camel spider, [camel-spider](plan/camel-spider.md)) | `MonsterKind::shunsLight`, `Dungeon::walkerStops`, `Dungeon::wayOutOfLight`, `CreatureMove::ShunLight` |
 | lurking | | ambush, entombed, submerged, coiled or floating, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | summon | | how a boss's minions arrive: dig out, drop, climb out of a coffin, hatch, step out of a wall | `Summon` |

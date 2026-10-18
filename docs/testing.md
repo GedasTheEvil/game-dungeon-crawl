@@ -90,7 +90,7 @@ bin/game --no-sound --level 7            # the same, silent (any flag combines w
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `poison`, `hurt`, `prop`, `riddles`, `chest`,
+`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `poison`, `hurt`, `prop`, `torch`, `riddles`, `chest`,
 `camera`, `motion`, `toon`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
@@ -132,6 +132,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `poison weak\|medium\|strong` | The player is poisoned with that tier, as by a poisoned bite: it (re)starts that tier's timer ([poison](plan/solved/poison-and-antidote.md)). Works in `god` mode too, only the damage is not taken. |
 | `poisonmonster weak\|medium\|strong` | The living monster nearest the player is poisoned with that tier, as by the player: its kill by the poison gives the XP. It may shrug it off (`MonsterKind::poisonResistPercent`, [monster poison](plan/solved/monster-poison.md)); `expect nearest_poison` tells. |
 | `prop COL NAME` | Put the prop NAME (`DECOR_NAMES` in `src/world/decor.h`: `cat`, `osiris`, `thoth_ibis_standing`, ...) on column COL of the player's row, over whatever the level's scatter picked there. For props the scatter would only place by chance. |
+| `torch COL on\|off` | Put a wall torch on column COL of the player's row, or take the scattered one away: its light (a light shunner keeps out, `Dungeon::Lit`). |
 | `container COL KIND [STANCE]` | The treasure on column COL of the player's row looks like KIND (`CONTAINER_NAMES` in `src/world/containers.h`: `chest`, `coffer`, `basket`, `canopic`, `jar`, `table`), standing as `STANCES[STANCE]` (0 facing the camera, the default; 1-2 angled, 3-4 side-on, 5 at the back wall, 6-7 against a side wall), over whatever the level's scatter picked. |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `content/riddles/` ([riddles.md](riddles.md)). |
 | `inscriptions PATH` | Load the wall inscriptions' texts from one file or a directory instead of `content/inscriptions/` ([inscriptions.md](inscriptions.md)). Fails on a problem in the files. |

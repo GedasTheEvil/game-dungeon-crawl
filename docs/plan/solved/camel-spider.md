@@ -1,6 +1,6 @@
 # Camel spider
 
-Status: implemented 2026-10-18, waits for the user's play-test. From the lore review, picked by the user.
+Status: solved 2026-10-18 (play-tested by the user). From the lore review, picked by the user.
 
 Play-test: `bin/game --play tests/play/camel-spider.txt` (a hall with two torches; stand in their light, step out of
 it, step back in), or `bin/game --level 4` (also in 6, 7 and 8).
@@ -41,7 +41,7 @@ The camel spider (solifuge) of the desert: fast, big jaws, the stuff of soldiers
 * Scenario command `torch COL on|off` (and `Dungeon::PlaceTorch`), for the tests and the play-test script.
 * Tests: `tests/unit/camel_spider_test.cpp` (the lit cells; chases and bites in the dark; keeps out of the light round
   the player and comes once it is gone; turns at a torch lit in its face; a lit stretch is a wall; runs out of the
-  light), `tests/scenarios/camel_spider.txt` (waits, runs, bites, dies; screenshots).
+  light), `tests/scenarios/solved/camel_spider.txt` (waits, runs, bites, dies; screenshots).
 
 ## Open
 

@@ -1,6 +1,6 @@
 # Cinematic effects
 
-Status: implemented 2026-10-18, waiting for the user's play-test: `bin/game --play tests/play/cinematic-effects.txt`
+Status: solved 2026-10-18 (play-tested by the user). Play-test: `bin/game --play tests/play/cinematic-effects.txt`
 (the lever by the start opens three gates: one on the screen, two far ones the cut-scene shows). From the user: short
 cut-scenes for remote events, e.g. a lever that opens a gate elsewhere: the camera moves to the gate, shows it opening,
 and comes back. The view looks distinct while it plays.
@@ -55,4 +55,4 @@ and comes back. The view looks distinct while it plays.
   plays at the pull, not as the camera arrives.
 * Tests: `tests/unit/cutscene_test.cpp` (the stops and their order, the world standing still, the end, skip, off, an
   on-screen gate, a boss's death; levels `tests/levels/cutscene`, `cutscene_boss`), scenario
-  `tests/scenarios/cinematic_effects.txt` (mid-pan, each gate, back, skipped, toon).
+  `tests/scenarios/solved/cinematic_effects.txt` (mid-pan, each gate, back, skipped, toon).

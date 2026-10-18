@@ -23,7 +23,7 @@ From the user:
 * Skills learned at the end.
 * Play time (user, 2026-10-13: recorded). Time in play only: paused, menus, the Heka screen and the inventory do
   not count. It is kept in the save, so it adds up over sessions. A cut-scene
-  ([cinematic-effects](../cinematic-effects.md)) pauses the world: it does not count either.
+  ([cinematic-effects](cinematic-effects.md)) pauses the world: it does not count either.
 * Exploration (user, 2026-10-13): inscriptions read (the cartouches) and treasures found (treasure cells picked
   up), each counted once per cell. Riddles solved count here too.
 

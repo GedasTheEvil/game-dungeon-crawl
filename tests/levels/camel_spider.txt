@@ -1,4 +1,4 @@
-; A camel spider (col 7) in a long hall, the player (col 2) at its west end (tests/scenarios/camel_spider.txt,
+; A camel spider (col 7) in a long hall, the player (col 2) at its west end (tests/scenarios/solved/camel_spider.txt,
 ; tests/unit/camel_spider_test.cpp). The torches are the test's: it takes the scattered ones away and puts its own.
 ########################################
 #.S....h..............................E#

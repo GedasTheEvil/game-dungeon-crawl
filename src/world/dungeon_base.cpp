@@ -104,6 +104,10 @@ void Dungeon::UpdateMovementState() {
 }
 //======================================================================================
 void Dungeon::Update() {
+	if (CutScenePlaying()) {
+		updateCutScene();
+		return;
+	}
 	if (Travelling()) {
 		updateTravel();
 		return;

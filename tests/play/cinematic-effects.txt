@@ -1,0 +1,7 @@
+# Play-test of plan cinematic-effects: pull the lever (interact) by the start: the near gate opens on the screen, the
+# camera shows the two far ones (along the row, then seven rows up) and comes back. Any key or click skips it.
+# Options > Display > Cut-scenes turns them off.
+seed 1
+god
+level tests/levels/cutscene
+wait 1

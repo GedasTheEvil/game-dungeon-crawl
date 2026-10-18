@@ -56,7 +56,7 @@ constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be 
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
-constexpr float OPTION_H = 8.f;
+constexpr float OPTION_H = 7.f;
 constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
@@ -155,7 +155,17 @@ MouseInput mouseInput(const InputKey& key) {
 }
 
 enum class OptionKind : std::uint8_t { Switch, Choice, Slider };
-enum class OptionId : std::uint8_t { WindowSize, Fullscreen, MotionEffects, Toon, Blood, LightFlicker, Music, Effects };
+enum class OptionId : std::uint8_t {
+	WindowSize,
+	Fullscreen,
+	MotionEffects,
+	Toon,
+	Blood,
+	LightFlicker,
+	CutScenes,
+	Music,
+	Effects
+};
 
 struct OptionRow {
 	OptionId id;
@@ -164,13 +174,14 @@ struct OptionRow {
 	const char* hint;
 };
 
-constexpr std::array<OptionRow, 6> DISPLAY_ROWS = {{
+constexpr std::array<OptionRow, 7> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
 	{OptionId::MotionEffects, OptionKind::Switch, "Motion effects", "Sprint blur, wider view and darker edges"},
 	{OptionId::Toon, OptionKind::Switch, "Toon shading", "Cel bands and ink outlines (F1)"},
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
 	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
+	{OptionId::CutScenes, OptionKind::Switch, "Cut-scenes", "The view goes to a far gate as it opens"},
 }};
 constexpr std::array<OptionRow, 2> SOUND_ROWS = {{
 	{OptionId::Music, OptionKind::Slider, "Music volume", "The soundtrack"},
@@ -208,6 +219,8 @@ bool& switchOf(OptionId id) {
 		return s.graphics.blood;
 	case OptionId::LightFlicker:
 		return s.graphics.lightFlicker;
+	case OptionId::CutScenes:
+		return s.graphics.cutScenes;
 	default:
 		return s.graphics.motionEffects;
 	}
@@ -607,9 +620,9 @@ void MainMenu::DrawRows() {
 		text(body, band.x + 3.f, band.y + 3.4f, row.name, LABEL);
 		text(small, band.x + 3.f, band.y + 0.6f, row.hint, LABEL_DIM);
 		if (row.kind == OptionKind::Slider)
-			text(heading, control.x + control.w + 2.5f, control.y + 1.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
+			text(heading, control.x + control.w + 2.5f, control.y + 0.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
-			textCentered(heading, control.cx(), control.y + 1.2f, value,
+			textCentered(heading, control.cx(), control.y + 0.2f, value,
 						 !enabled ? LABEL_DIM : (on || row.kind == OptionKind::Choice ? GOLD : LABEL));
 		beginShapes();
 	}

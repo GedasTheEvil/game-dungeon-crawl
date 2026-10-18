@@ -79,6 +79,12 @@ void drawWeapon() { // in the fist nearer the camera
 	weapon->rotA = spin;
 }
 
+void drawStatusLine() {
+	if (!Game().statusTimer.TimePassed(true))
+		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
+						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+}
+
 } // namespace
 
 namespace {
@@ -124,6 +130,11 @@ void drawGameplay() {
 	const int resX = Game().render.resX;
 	const int resY = Game().render.resY;
 	MotionFx::update(Game().settings.graphics.motionEffects && Game().player->stats.IsSprinting(), GameClock::now());
+	// A cut-scene (plan cinematic-effects): the camera is away from the player, the look comes in, the HUD goes.
+	const CutShot shot = Game().dungeon.CutSceneShot();
+	const bool cutScene = Game().dungeon.CutScenePlaying();
+	MotionFx::cinema(shot.look);
+	const float playerX = -shot.dx * RenderConfig::TILE_SIZE, playerY = -shot.dy * RenderConfig::TILE_SIZE;
 	MotionFx::begin(resX, resY, !Ink::toon()); // toon mode: no blur over the ink lines (yet), the rest stays
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -138,17 +149,21 @@ void drawGameplay() {
 
 	glRotatef(Game().camera.rotM, 0, 1, 0);
 	glRotatef(Game().camera.rotN, 1, 0, 0);
-	const ScreenPoint chest = toScreen(0, 16, -22); // the player stays sharp in the blur
+	// The player stays sharp in the blur; the vignette of a cut-scene stays on the middle.
+	const ScreenPoint chest = cutScene ? ScreenPoint{0.5f, 0.5f} : toScreen(0, 16, -22);
 
 	Lighting::begin();
 	if (Game().player->Alive())
-		Lighting::add(0, 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
+		Lighting::add(playerX, playerY + 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
+	if (cutScene) // the far gate is lit as the player would light it
+		Lighting::add(0, 16, -22, Lighting::PLAYER, 0);
 	if (Game().player->burning.Any())
-		Lighting::add(0, 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
+		Lighting::add(playerX, playerY + 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
 	const std::optional<float> sunBeam = sunBeamProgress();
 	if (sunBeam) {
 		const float k = SunBeam::strength(*sunBeam);
-		Lighting::add(0, 45, -30, {1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f}, 0); // the beam lights the room
+		Lighting::add(playerX, playerY + 45, -30, {1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f},
+					  0); // the beam lights the room
 	}
 
 	glPushMatrix();
@@ -165,7 +180,7 @@ void drawGameplay() {
 
 	const float sink = Game().dungeon.PlayerSink(); // wading: down in the water's basin, the weapon with them
 	glPushMatrix();
-	glTranslatef(0, -sink, 0);
+	glTranslatef(playerX, playerY - sink, 0);
 	Game().playerView.Draw(*Game().player, Game().assets.textures);
 
 	Lighting::setEmissive(true);
@@ -182,12 +197,12 @@ void drawGameplay() {
 	glPopMatrix();
 
 	if (Game().player->burning.Any()) // plan fire-damage
-		Fire::body(0, -sink, PLAYER_FLAMES_Z + Game().player->depthOffset,
+		Fire::body(playerX, playerY - sink, PLAYER_FLAMES_Z + Game().player->depthOffset,
 				   Game().player->HalfWidth() * RenderConfig::TILE_SIZE,
 				   Game().player->Height() * RenderConfig::TILE_SIZE, 1);
 	if (Game().player->Alive()) {
 		if (sunBeam)
-			SunBeam::draw(0, 0, -30 + Game().player->depthOffset, *sunBeam);
+			SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
 	} else {
 		Lighting::setEmissive(true);
 		Game().ui.endScreens->DrawLose();
@@ -223,6 +238,11 @@ void drawGameplay() {
 		glColor3f(1, 1, 1);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	}
+	if (cutScene) { // the HUD is hidden; the status line stays, a caption
+		glColor3f(1, 1, 1);
+		drawStatusLine();
+		return;
+	}
 	if (!Game().ui.winEntry.Typing()) // the win's name entry sits there
 		PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
 						Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
@@ -238,9 +258,7 @@ void drawGameplay() {
 
 	glColor3f(1, 1, 1);
 
-	if (!Game().statusTimer.TimePassed(true))
-		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
-						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+	drawStatusLine();
 	Game().ui.winEntry.Draw(Game().render.resX, Game().render.resY);
 }
 } // namespace

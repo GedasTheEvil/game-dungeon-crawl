@@ -12,6 +12,9 @@ constexpr int EASE_MS = 200;
 constexpr float FOV_KICK = 6.f;
 constexpr float BLUR_REACH = 0.07f; // the farthest sample, as a share of the way to the centre
 constexpr float VIGNETTE_DARK = 0.45f; // edge darkness at full strength
+constexpr float CINEMA_SEPIA = 0.7f; // a cut-scene's tint: how far the colours go to sepia
+constexpr float CINEMA_DARK = 0.55f; // its vignette
+constexpr float CINEMA_BARS = 0.08f; // its letterbox bars, each a share of the window's height
 
 const char* const VERTEX_SRC = R"(
 #version 120
@@ -29,6 +32,7 @@ uniform sampler2D uScene;
 uniform vec2 uCentre;
 uniform float uAspect;
 uniform float uReach;
+uniform float uSepia;
 varying vec2 vUv;
 void main() {
 	vec2 d = vUv - uCentre;
@@ -36,7 +40,9 @@ void main() {
 	vec3 sum = vec3(0.0);
 	for (int i = 0; i < 12; i++)
 		sum += texture2D(uScene, vUv - d * reach * float(i) / 11.0).rgb;
-	gl_FragColor = vec4(sum / 12.0, 1.0);
+	vec3 colour = sum / 12.0;
+	float grey = dot(colour, vec3(0.299, 0.587, 0.114));
+	gl_FragColor = vec4(mix(colour, grey * vec3(1.08, 0.95, 0.76), uSepia), 1.0);
 }
 )";
 
@@ -54,7 +60,7 @@ void main() {
 
 struct Program {
 	GLuint id = 0;
-	GLint centre = -1, aspect = -1, amount = -1;
+	GLint centre = -1, aspect = -1, amount = -1, sepia = -1;
 };
 
 Program gBlur, gVignette;
@@ -64,6 +70,7 @@ bool gActive = false;
 int gWidth = 0, gHeight = 0;
 float gLevel = 0.f; // linear 0..1, eased on the way out (strength())
 int gLastMs = -1;
+float gCinema = 0.f; // a cut-scene's look, 0..1
 
 Program build(const char* name, const char* fragmentSrc, const char* amountName) {
 	Program p;
@@ -82,6 +89,7 @@ void ensurePrograms() {
 		return;
 	gTried = true;
 	gBlur = build("Motion blur", BLUR_SRC, "uReach");
+	gBlur.sepia = gBlur.id != 0 ? glGetUniformLocation(gBlur.id, "uSepia") : -1;
 	gVignette = build("Vignette", VIGNETTE_SRC, "uDark");
 	if (gBlur.id != 0) {
 		glUseProgram(gBlur.id);
@@ -92,6 +100,8 @@ void ensurePrograms() {
 
 void fullScreenQuad(const Program& p, float centreX, float centreY, float amount) {
 	glUseProgram(p.id);
+	if (p.sepia >= 0)
+		glUniform1f(p.sepia, CINEMA_SEPIA * gCinema);
 	glUniform2f(p.centre, centreX, centreY);
 	glUniform1f(p.aspect, static_cast<float>(gWidth) / static_cast<float>(std::max(gHeight, 1)));
 	glUniform1f(p.amount, amount);
@@ -102,6 +112,37 @@ void fullScreenQuad(const Program& p, float centreX, float centreY, float amount
 	glVertex2f(-1.f, 1.f);
 	glEnd();
 	glUseProgram(0);
+}
+
+// A cut-scene's letterbox bars, black from the top and bottom edges.
+void bars(float share) {
+	if (share <= 0.f)
+		return;
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glColor3f(0.f, 0.f, 0.f);
+	const float h = 2.f * share;
+	glBegin(GL_QUADS);
+	glVertex2f(-1.f, -1.f);
+	glVertex2f(1.f, -1.f);
+	glVertex2f(1.f, -1.f + h);
+	glVertex2f(-1.f, -1.f + h);
+	glVertex2f(-1.f, 1.f - h);
+	glVertex2f(1.f, 1.f - h);
+	glVertex2f(1.f, 1.f);
+	glVertex2f(-1.f, 1.f);
+	glEnd();
+	glColor3f(1.f, 1.f, 1.f);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 }
 } // namespace
 
@@ -114,20 +155,22 @@ void MotionFx::update(bool on, int nowMs) {
 
 float MotionFx::strength() { return gLevel * gLevel * (3.f - 2.f * gLevel); }
 
+void MotionFx::cinema(float amount) { gCinema = std::clamp(amount, 0.f, 1.f); }
+
 float MotionFx::fov(float baseDegrees) { return baseDegrees + FOV_KICK * strength(); }
 
 void MotionFx::begin(int width, int height, bool blur) {
 	gWidth = width;
 	gHeight = height;
 	gActive = false;
-	if (strength() <= 0.f || !blur)
+	if ((strength() <= 0.f && gCinema <= 0.f) || !blur)
 		return;
 	ensurePrograms();
 	gActive = gBlur.id != 0 && gTarget.Begin(width, height);
 }
 
 void MotionFx::end(float centreX, float centreY) {
-	if (strength() <= 0.f)
+	if (strength() <= 0.f && gCinema <= 0.f)
 		return;
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
@@ -147,7 +190,8 @@ void MotionFx::end(float centreX, float centreY) {
 	if (gVignette.id != 0) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		fullScreenQuad(gVignette, centreX, centreY, VIGNETTE_DARK * strength());
+		fullScreenQuad(gVignette, centreX, centreY, std::max(VIGNETTE_DARK * strength(), CINEMA_DARK * gCinema));
 	}
+	bars(CINEMA_BARS * gCinema);
 	glPopAttrib();
 }

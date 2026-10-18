@@ -23,14 +23,16 @@ TEST_CASE("an empty file gives the defaults") {
 	CHECK(s.display.width == 800);
 	CHECK(s.graphics.motionEffects);
 	CHECK_FALSE(s.graphics.toon);
+	CHECK(s.graphics.cutScenes);
 	CHECK(s.sound.music == 80);
 	CHECK(s.controls == Bindings{});
 }
 
 TEST_CASE("sections, keys, comments and booleans") {
-	Settings s = parse("; comment\n# another\n\n[display]\n window_width = 1280 \nwindow_height=720\nfullscreen = on\n"
-					   "[Graphics]\nmotion_effects = 0\ntoon = true\nblood = off\nlight_flicker = no\n"
-					   "[sound]\nmusic_volume = 0\neffects_volume = 55\r\n");
+	Settings s =
+		parse("; comment\n# another\n\n[display]\n window_width = 1280 \nwindow_height=720\nfullscreen = on\n"
+			  "[Graphics]\nmotion_effects = 0\ntoon = true\nblood = off\nlight_flicker = no\ncut_scenes = off\n"
+			  "[sound]\nmusic_volume = 0\neffects_volume = 55\r\n");
 	CHECK(s.display.width == 1280);
 	CHECK(s.display.height == 720);
 	CHECK(s.display.fullscreen);
@@ -38,6 +40,7 @@ TEST_CASE("sections, keys, comments and booleans") {
 	CHECK(s.graphics.toon);
 	CHECK_FALSE(s.graphics.blood);
 	CHECK_FALSE(s.graphics.lightFlicker);
+	CHECK_FALSE(s.graphics.cutScenes);
 	CHECK(s.sound.music == 0);
 	CHECK(s.sound.effects == 55);
 }

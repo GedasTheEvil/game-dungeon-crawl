@@ -138,6 +138,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture | `world/dungeon_interact.cpp` |
 | Treasure containers: kinds, shares by depth, stances, opening, drawing | `world/containers.h`, the look `scatterTreasures` (`world/decor_scatter.cpp`), opening `Dungeon::openContainer` (`world/dungeon_interact.cpp`), drawn by `Dungeon::DrawTreasureTile` (`world/dungeon_render.cpp`); models `tools/blender/models/containers.py`, the chest `items.py` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
+| Cut-scenes: the far gates shown, the camera's way, skip; the look | `world/dungeon_cutscene.cpp` (`CutShot`), drawn by `graphics/draw.cpp` (the camera, the HUD hidden) and `graphics/motion_fx.*` (tint, vignette, bars); skip in `input/input.cpp` |
 | Dart traps | `world/dungeon_darts.*` (`DartTraps`) |
 | Wall spikes (rhythm traps): cycle, stab, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp`, drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
 | Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |

@@ -1,0 +1,3 @@
+; Cut-scenes (plan cinematic-effects): the boss scarab at col 4; its boss gate at col 19, off the screen, opens when it
+; dies (tests/unit/cutscene_test.cpp).
+#S..K..............Z.E#

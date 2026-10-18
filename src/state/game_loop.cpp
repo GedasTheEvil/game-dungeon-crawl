@@ -51,6 +51,19 @@ void tick() {
 		return;
 	}
 
+	// A cut-scene (plan cinematic-effects): the world stands still, the player and the clocks too, only its gates move.
+	// No key repeat meanwhile, so a key held down from before does not skip it.
+	static bool cutScene = false;
+	if (Game().dungeon.CutScenePlaying() != cutScene) {
+		cutScene = !cutScene;
+		glutIgnoreKeyRepeat(cutScene ? 1 : 0);
+	}
+	if (cutScene) {
+		Game().dungeon.Update();
+		glutPostRedisplay();
+		return;
+	}
+
 	stepHeldWalk();
 	Game().dungeon.Update();
 	Game().player->rotA = Game().camera.rotW;

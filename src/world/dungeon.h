@@ -22,6 +22,14 @@
 // Live monster slots; the campaign's busiest level has 15. No design limit: raise it at will.
 constexpr int MAX_MONSTERS = 32;
 
+// A cut-scene's camera this tick (plan cinematic-effects): how far it is from the player in tiles (x right, y up), and
+// how far the cut-scene look (letterbox bars, tint, vignette) is in, 0..1.
+struct CutShot {
+	float dx = 0.f;
+	float dy = 0.f;
+	float look = 0.f;
+};
+
 // What the hitbox debug view (F3, scenario 'hitboxes on') shows of the weapon: its reach in tiles, measured from the
 // player's box edge (melee) or the centre (the bow).
 struct HitboxView {
@@ -44,7 +52,10 @@ class Dungeon {
 	bool won = false; // the ankh was taken
 	// Solid rock for the drawing: a wall, or outside the level.
 	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || isWall(MapAt(col, row)); }
-	[[nodiscard]] ViewWindow view() const { return {static_cast<int>(mapX) - 3, static_cast<int>(mapY) - 3}; }
+	// Round the camera: the player, or where a cut-scene's camera is (cutShot).
+	[[nodiscard]] ViewWindow view() const {
+		return {static_cast<int>(mapX + cutShot.dx) - 3, static_cast<int>(mapY + cutShot.dy) - 3};
+	}
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;
 	Tile MapAt(int col, int row) const;
@@ -163,8 +174,10 @@ class Dungeon {
 	int wadeSoundMs = -1000000; // last splashing step
 	void resetMechanisms();
 	void updateMechanisms();
-	void startOpeningGate(int cell);
+	void startOpeningGate(int cell, int startMs);
+	// Opens the closed gates of the colour; a cut-scene shows the ones off the screen (startCutScene).
 	void openGates(int colour);
+	void finishOpenedGates(); // the gates whose motion has run are open
 	void bumpGate(int col, int row); // the player walked into a closed gate
 	void startRockFall(int cell); // an armed rock fall cell was stepped into: the rumble starts
 	void updateRocks();
@@ -288,6 +301,20 @@ class Dungeon {
 	} travel;
 	void startTravel(bool exitGate);
 	void updateTravel();
+	// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): the camera goes to the gates a lever or a boss's death
+	// opened off the screen, holds on each while it opens, and comes back. The world stands still meanwhile, but for
+	// the gates.
+	struct CutScene {
+		std::vector<int> stops; // gate cells (map index), in the order shown; empty: none playing
+		int startMs = 0;
+	} cutScene;
+	bool cutScenesOn = false; // Options > Display > Cut-scenes (SetCutScenes)
+	CutShot cutShot; // this tick's camera, set by updateCutScene
+	// The cut-scene for the gates just opened (cells): the nearest CUTSCENE_MAX_STOPS off the screen. Each starts to
+	// open as the camera comes to it.
+	void startCutScene(const std::vector<int>& opened);
+	void updateCutScene();
+	[[nodiscard]] int cutSceneLengthMs() const;
 	Timer portalTimer{50}; // steps the portal texture scroll
 	float portalScroll = 0.f;
 	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
@@ -391,6 +418,10 @@ class Dungeon {
 	[[nodiscard]] bool Travelling() const { return travel.phase != GateTravel::Phase::None; }
 	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
 	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
+	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen
+	[[nodiscard]] bool CutScenePlaying() const { return !cutScene.stops.empty(); }
+	[[nodiscard]] CutShot CutSceneShot() const { return cutShot; }
+	void SkipCutScene(); // back to the player at once; the gates go on opening
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets
 	[[nodiscard]] int MonsterBarsShown() const; // living monsters that show their health bar

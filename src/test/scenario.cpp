@@ -319,6 +319,11 @@ bool runInstant(const Command& cmd) {
 		Ink::setToon(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
+	case CommandType::CutScenes: // Options > Display > Cut-scenes (off in scenarios)
+		Game().settings.graphics.cutScenes = cmd.a > 0.5f;
+		Game().dungeon.SetCutScenes(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return true;
 	case CommandType::Hitboxes:
 		Game().render.Hitboxes = cmd.a > 0.5f;
 		report(cmd, true, "");

@@ -125,6 +125,7 @@ int main(int argc, char* argv[]) {
 		if (isScenario) {
 			Game().render.resX = Scenario::resolutionX();
 			Game().render.resY = Scenario::resolutionY();
+			Game().settings.graphics.cutScenes = false; // timings stay as they were; `cutscenes on` turns them on
 		} else {
 			Game().random.Seed(static_cast<uint64_t>(std::time(nullptr))); // a scenario seeds per level instead
 			SettingsFile::Load(Game().settings);

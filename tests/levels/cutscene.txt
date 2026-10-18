@@ -1,0 +1,11 @@
+; Cut-scenes (plan cinematic-effects): the red lever at col 6 opens three red gates: col 8 on the screen, col 19 on
+; the same row and col 19 seven rows up, off it. A cut-scene shows the two far ones, the nearer first. A rat waits at
+; col 11 behind the near gate (tests/unit/cutscene_test.cpp, tests/scenarios/cinematic_effects.txt).
+#..................R.....HE#
+#########################H##
+#########################H##
+#########################H##
+#########################H##
+#########################H##
+#########################H##
+#S..../.R..t.......R.....H.#

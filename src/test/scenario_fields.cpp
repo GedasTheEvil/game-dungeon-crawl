@@ -49,6 +49,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().ui.screen == Screen::Riddle ? 1.f : 0.f;
 	case Field::Bars:
 		return static_cast<float>(Game().dungeon.MonsterBarsShown());
+	case Field::CutScene:
+		return Game().dungeon.CutScenePlaying() ? 1.f : 0.f;
 	case Field::Boss:
 		return static_cast<float>(Game().dungeon.BossHealth());
 	case Field::Minions:

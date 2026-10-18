@@ -19,6 +19,7 @@ struct Settings {
 		bool toon = false; // cel bands and ink outlines (F1)
 		bool blood = true; // the blood splashes
 		bool lightFlicker = true; // torches, braziers and lamps flicker
+		bool cutScenes = true; // the camera shows a gate a lever opened off the screen (plan cinematic-effects)
 	} graphics;
 	struct Sound {
 		int music = 80; // volume 0-100

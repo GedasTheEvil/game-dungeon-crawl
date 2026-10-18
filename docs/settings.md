@@ -29,6 +29,7 @@ motion_effects = on     ; sprint blur, FOV kick, vignette
 toon = off              ; cel bands and ink outlines (F1)
 blood = on              ; blood splashes
 light_flicker = on      ; torches, braziers and lamps flicker
+cut_scenes = on         ; the view goes to a far gate a lever or a boss's death opens
 
 [sound]
 music_volume = 80       ; 0-100

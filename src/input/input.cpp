@@ -311,11 +311,21 @@ void releaseBinding(BindAction action) {
 }
 
 std::optional<BindAction> bound(const InputKey& key) { return Game().settings.controls.ActionFor(key); }
+
+// Any key or click during a cut-scene skips it and does nothing else (plan cinematic-effects).
+bool skipCutScene() {
+	if (Game().ui.screen != Screen::Gameplay || !Game().dungeon.CutScenePlaying())
+		return false;
+	Game().dungeon.SkipCutScene();
+	return true;
+}
 } // namespace
 
 void Idle() { glutPostRedisplay(); }
 
 void keyPressed(unsigned char key, int x, int y) {
+	if (skipCutScene())
+		return;
 	if (ScreenState::ShouldRouteKeyboardToRiddle(Game())) {
 		Game().ui.riddle->KeyboardF(key, x, y);
 		return;
@@ -369,6 +379,8 @@ void keyPressed(unsigned char key, int x, int y) {
 void specialKeyPressed(int key, int x, int y) {
 	(void)x;
 	(void)y;
+	if (skipCutScene())
+		return;
 
 	if (Game().ui.screen == Screen::Menu && Game().ui.menu.Capturing()) {
 		Game().ui.menu.CaptureKey(InputKey::Special(key));
@@ -416,6 +428,15 @@ void specialKeyReleased(int key, int x, int y) {
 }
 
 void processMouse(int button, int state, int x, int y) {
+	static int skipButton = -1; // the click that skipped a cut-scene: its release does nothing either
+	if (state == GLUT_DOWN && skipCutScene()) {
+		skipButton = button;
+		return;
+	}
+	if (state == GLUT_UP && button == skipButton) {
+		skipButton = -1;
+		return;
+	}
 	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
 		Game().ui.menu.MouseFunction(button, state, x, y);
 		return;

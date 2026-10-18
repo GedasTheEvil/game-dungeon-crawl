@@ -191,6 +191,7 @@ void GameState::ApplySettings(bool save) {
 	Ink::setToon(settings.graphics.toon);
 	Particles::shown = settings.graphics.blood;
 	Lighting::setFlicker(settings.graphics.lightFlicker);
+	dungeon.SetCutScenes(settings.graphics.cutScenes);
 	Audio::SetVolumes(settings.sound.music, settings.sound.effects);
 	if (save)
 		SettingsFile::Save(settings);

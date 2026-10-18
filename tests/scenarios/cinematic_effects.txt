@@ -1,0 +1,42 @@
+# Cut-scenes (plan cinematic-effects): the look (letterbox bars, sepia tint, vignette, no HUD) mid-pan and on each far
+# gate, back at the player after; a key skips the second one. tests/levels/cutscene: the red lever at col 6 opens the
+# gates at col 8 (on the screen), col 19 on the same row and col 19 seven rows up.
+seed 1
+god
+level tests/levels/cutscene
+cutscenes on
+wait 30
+walk to 6.5
+wait 10
+screenshot before
+interact
+expect cutscene == 1
+wait 300ms
+screenshot mid_pan
+wait 1000ms
+screenshot first_gate
+wait 1300ms
+screenshot pan_up
+wait 600ms
+screenshot second_gate
+wait 1600ms
+expect cutscene == 0
+screenshot back
+expect x < 7
+# A key skips it: back at the player at once, the gates open.
+level tests/levels/cutscene
+wait 30
+walk to 6.5
+interact
+wait 400ms
+key space
+expect cutscene == 0
+screenshot skipped
+toon on
+level tests/levels/cutscene
+wait 30
+walk to 6.5
+interact
+wait 1000ms
+screenshot toon_first_gate
+quit

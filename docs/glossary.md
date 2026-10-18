@@ -20,6 +20,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
 | campaign | | the 30 map levels in order, `content/levels/lvl1` .. `lvl30`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
+| cut-scene | Cut-scenes (Options) | the camera leaves the player to show a far gate a lever or a boss's death opens, then comes back; the world stands still, a key skips it | `CutShot`, `Dungeon::CutScenePlaying` |
 | column | | a vertical line of cells, counted from the left | `LevelGrid` |
 | deep water | | a cell full of water: solid, nobody walks or swims into it. "Full water" in some drafts | `Structure::DeepWater`, `isSolidStructure` |
 | fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |

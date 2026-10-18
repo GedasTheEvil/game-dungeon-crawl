@@ -197,6 +197,13 @@ constexpr float GATE_APPROACH = 0.45f; // tiles from the gate at which a held ke
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 
+// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): a lever or a boss's death opens a gate off the screen, the
+// camera goes to show it. The world stands still meanwhile.
+constexpr int CUTSCENE_PAN_MS = 600; // the camera eases from the player to a gate, from one gate to the next, back
+constexpr int CUTSCENE_HOLD_MS = GATE_OPEN_MS + 200; // it stays on a gate while it opens
+constexpr int CUTSCENE_BARS_MS = 300; // the letterbox bars and the tint come in, and go at the end
+constexpr int CUTSCENE_MAX_STOPS = 2; // the gates shown, nearest first
+
 // Rock fall: stepping into the cell starts the rumble, the rock drops after ROCK_WARN_MS and lands
 // ROCK_FALL_MS later. Walking on without stopping, sprinting, jumping on or stepping back gets the player clear.
 constexpr int ROCK_WARN_MS = 900;

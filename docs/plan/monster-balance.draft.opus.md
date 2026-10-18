@@ -4,6 +4,8 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
+Needs first: [denser-levels](denser-levels.draft.opus.md) (balance the final levels and monster set).
+
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea

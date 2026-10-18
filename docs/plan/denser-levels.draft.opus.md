@@ -3,6 +3,10 @@
 Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented). From the user: every level is 40 x 47
 cells, but most of it is solid wall.
 
+Needs first: the new monster plans, so the denser levels place them too:
+[camel-spider](camel-spider.draft.opus.md), [hippo](hippo.draft.opus.md),
+[living-ushabti](living-ushabti.draft.opus.md), [cursed-mimic](cursed-mimic.draft.opus.md).
+
 ## Today (2026-10-09, `bin/levelcheck`)
 
 * Levels 15-30 already fill the grid: 516-736 open cells, 43-45 rows tall.

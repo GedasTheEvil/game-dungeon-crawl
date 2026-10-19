@@ -34,7 +34,7 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
   in [trapped-chests](../trapped-chests.draft.opus.md).
 * Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/modeling.md](../../modeling.md)).
 * A trapped container's trap fires in its opening clip ([trapped-chests](../trapped-chests.draft.opus.md)); a trapped
-  canopic jar curses by default. Its rule covers [tomb-curse-triggers](../tomb-curse-triggers.draft.opus.md) too.
+  canopic jar curses by default. Its rule covers the tomb curses there too.
 
 ## Tests
 

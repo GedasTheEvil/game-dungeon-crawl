@@ -47,8 +47,8 @@ could be the hippo or the crocodile. Default stays Seth: reuses the hippo model,
 
 ## Placement
 
-No campaign level for now (user, 2026-10-19): the slot is picked later, in the level rebalance with more levels.
-It only has to be play-testable: a `tests/play/hippo-boss.txt` script (a flooded room, hippos, Seth), per
+No campaign level in this plan (user, 2026-10-19). His slot: the boss of the
+[desert-chapter](desert-chapter.draft.opus.md) (lvl25 there, his oasis). Here he only has to be play-testable: a `tests/play/hippo-boss.txt` script (a flooded room, hippos, Seth), per
 [plans.md](../plans.md#implemented). `levelcheck` must accept him (in or next to water, as the hippo).
 
 ## Open (warn when reporting)

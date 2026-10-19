@@ -1,7 +1,8 @@
-# Trapped chests
+# Trapped chests and tomb curses
 
-Status: draft 2026-10-12. Needs [treasure-containers](solved/treasure-containers.md) first (closed chests that
-hide their item, the opening clip the trap fires in). From the user.
+Status: draft 2026-10-12, tomb-curse-triggers (2026-10-10, from the lore review) merged in 2026-10-19 (user: one
+curse system). Ready: [treasure-containers](solved/treasure-containers.md) is in (closed chests that hide their
+item, the opening clip the trap fires in).
 
 ## Idea
 
@@ -23,8 +24,8 @@ Some chests are trapped: opening one sets off a trap. Opening any chest becomes 
 
 ## Curses from objects: one rule
 
-This plan owns the rule for every curse an object sets off; [tomb-curse-triggers](tomb-curse-triggers.draft.opus.md)
-uses it for the objects that are not treasure (a sarcophagus, a coffin, pottery, an ushabti):
+The rule for every curse an object sets off, chests and the [tomb objects](#tomb-curses-objects-that-are-not-treasure)
+alike:
 
 * One roll per object, on opening, from the gameplay stream. A container that is trapped rolls its trap only; no
   second curse roll on top (a canopic jar is a container, its curse is its trap).
@@ -32,6 +33,21 @@ uses it for the objects that are not treasure (a sarcophagus, a coffin, pottery,
 * The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](solved/skill-blessing-of-isis.md)
   halves the curse's time, as any curse.
 * Loot in a cursed object follows [Contents](#contents-decided-with-the-user-2026-10-12).
+
+## Tomb curses: objects that are not treasure
+
+The "curse of the pharaohs": desecrating the tomb curses the player. The curses read as execration texts. Same rule
+as above; canopic jars are a container, their curse is a chest trap, not a trigger here.
+
+* Triggers (each a chance, default 25%):
+  * opening a sarcophagus or a coffin (decor `sarcophagus`, `coffin`), if made interactive;
+  * smashing pottery or an ushabti ([living-ushabti](living-ushabti.draft.opus.md)).
+* Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus → weakness or
+  vulnerability, pottery → disease.
+* The tell: an execration text on the object, seen up close. With the [hieroglyph skill](solved/skill-hieroglyphs.md)
+  it may read as a warning when looked at; implementer's choice.
+* An object that holds loot follows [Contents](#contents-decided-with-the-user-2026-10-12).
+* Journal humour: "The lid said 'cursed be he who opens this'. I opened it. The lid was right."
 
 ## Contents (decided with the user, 2026-10-12)
 
@@ -71,6 +87,8 @@ A new tile type `TrappedTreasure` (the next available ID, possibly 16) with the 
 
 ## Tests
 
+* Unit / sim: a tomb trigger rolls on the gameplay stream and applies its curse; the trap-ward amulet's chance stops
+  it.
 * Unit: each trap kind fires once on opening, the contents roll (the 50%, the extra bonus roll), the same seed opens
   the same way, a save and load before opening keeps it trapped; the checker ignores a trapped chest's antidote.
 * Scenario with screenshots: the tell next to a plain chest, a trap going off.

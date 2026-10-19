@@ -1,7 +1,7 @@
 # Hippo boss: Seth, the red hippopotamus
 
 Status: draft 2026-10-19, from the user ("a hippo boss, Egyptian, stronger than just a hippopotamus"). Ready:
-[hippo](solved/hippo.md) is in. Boss slot (which level) is the implementer's choice, see Open.
+[hippo](solved/hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement.
 
 ## Myth
 
@@ -45,11 +45,14 @@ Ammit, the Devourer: crocodile head, lion front, hippo hind. She eats the hearts
 Osiris. A good fit for the Anubis side of the campaign, but a new model (three animals), so more work; her kin
 could be the hippo or the crocodile. Default stays Seth: reuses the hippo model, and the myth is a water fight.
 
+## Placement
+
+No campaign level for now (user, 2026-10-19): the slot is picked later, in the level rebalance with more levels.
+It only has to be play-testable: a `tests/play/hippo-boss.txt` script (a flooded room, hippos, Seth), per
+[plans.md](../plans.md#implemented). `levelcheck` must accept him (in or next to water, as the hippo).
+
 ## Open (warn when reporting)
 
-* Boss slot: the boss levels are full (5, 10, 15, 20, 25 Sobek, 29 the high priest, 30 Anubis). Options: a
-  flooded boss room on a non-boss level among the hippo levels (16-23, e.g. lvl22 or 23), or swap with a stand-in.
-  Two water bosses (Sobek at 25) close together: keep them apart, or make Seth come after Sobek.
 * Which "stronger" ability (storm roar, wave, or both).
 
 ## Tests

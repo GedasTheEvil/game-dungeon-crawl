@@ -19,7 +19,6 @@ enum class GameplayAction : unsigned char {
 	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
 	EquipMelee, // the next melee weapon held (Inventory::EquipNext)
 	EquipRanged, // the next ranged one
-	ToggleStaminaSkill, // shared stamina-skill toggle
 };
 
 // Runs an action as if the player pressed its key (used by scenario tests). A move action takes one step.

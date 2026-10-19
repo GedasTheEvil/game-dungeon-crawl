@@ -3,7 +3,6 @@
 #include "../input/input_actions.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
-#include "../world/skills.h"
 #include <optional>
 
 namespace {
@@ -57,12 +56,5 @@ PlayerHud::View playerHudView() {
 	}
 	view.hekaWaiting = stats.heka.Free() > 0;
 	view.hekaKey = keyCapOf(BindAction::Skills);
-	if (stats.heka.Has(SkillId::FlamingArrows)) {
-		view.staminaSkillOn = stats.StaminaSkillOn();
-		view.staminaSkillKey = keyCapOf(BindAction::ToggleStaminaSkill);
-	} else {
-		view.staminaSkillOn = false;
-		view.staminaSkillKey.clear();
-	}
 	return view;
 }

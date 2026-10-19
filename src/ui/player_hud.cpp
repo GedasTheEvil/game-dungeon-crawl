@@ -31,7 +31,6 @@ constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // th
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
 constexpr float POISON_STEP = 9.f;
-constexpr Rect STAM_TOGGLE = {PlayerHud::PANEL.x + 2.2f, STAMINA_BAR.y - 1.8f, 6.0f, 2.6f};
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
@@ -100,14 +99,6 @@ void barFrame(const Rect& bar) {
 	strokeRect(bar, GOLD_DIM, 1.f, 1.5f);
 	diamond(bar.x, bar.cy(), 0.9f, GOLD, 1.f);
 	diamond(bar.x + bar.w, bar.cy(), 0.9f, GOLD, 1.f);
-}
-
-void drawStaminaToggle(const PlayerHud::View& v) {
-	const Rect& r = STAM_TOGGLE;
-	fillRect({r.x + 0.5f, r.y - 0.5f, r.w, r.h}, BLACK, BLACK, 0.45f);
-	tile(r, TileStyle::Stone, false, false);
-	if (v.staminaSkillOn)
-		additiveRing(r, 1.3f, GOLD, 0.5f);
 }
 
 bool poisoned(const PlayerHud::View& v) {
@@ -380,7 +371,6 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	panel(PANEL, 0.9f);
 	drawHealth(view, now);
 	drawStamina(view);
-	drawStaminaToggle(view);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlot(view.slots[i], slotRect(i), small);
@@ -408,13 +398,6 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	if (view.hekaWaiting && !view.hekaKey.empty()) {
 		textCentered(small, HEKA_TILE.cx() + 0.2f, HEKA_TILE.y - 3.6f, view.hekaKey.c_str(), BLACK);
 		textCentered(small, HEKA_TILE.cx(), HEKA_TILE.y - 3.4f, view.hekaKey.c_str(), GOLD_BRIGHT);
-	}
-
-	if (!view.staminaSkillKey.empty()) {
-		textCentered(small, STAM_TOGGLE.cx() + 0.2f, STAM_TOGGLE.cy() - CAP_PEN_DROP + 0.5f,
-					 view.staminaSkillKey.c_str(), BLACK);
-		textCentered(small, STAM_TOGGLE.cx(), STAM_TOGGLE.cy() - CAP_PEN_DROP + 0.3f, view.staminaSkillKey.c_str(),
-					 GOLD_BRIGHT);
 	}
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);

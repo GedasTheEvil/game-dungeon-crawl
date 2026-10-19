@@ -47,9 +47,8 @@ enum class BindAction : std::uint8_t {
 	Map,
 	Journal,
 	Skills,
-	ToggleStaminaSkill,
 };
-constexpr int BIND_ACTION_COUNT = static_cast<int>(BindAction::ToggleStaminaSkill) + 1;
+constexpr int BIND_ACTION_COUNT = static_cast<int>(BindAction::Skills) + 1;
 
 // Key slots 0 and 1, then the mouse button.
 constexpr int BINDING_SLOTS = 3;

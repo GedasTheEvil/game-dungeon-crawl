@@ -16,7 +16,8 @@ own or inside Field notes: implementer's choice).
 * Stargate references welcome (the user loves the show): the missing archaeologist could be a nod to Daniel Jackson.
 * Placement: a new object or a treasure with a "page" item; picked up on touch, no inventory slot. Save game keeps
   which pages were found.
-* `levelcheck`: pages are optional, not on the exit path.
+* `levelcheck`: pages are optional, not on the exit path. Exception: the last page lies on the path before
+  [route-fork](route-fork.draft.opus.md)'s fork, so the player knows the routes before choosing.
 
 ## Tests
 

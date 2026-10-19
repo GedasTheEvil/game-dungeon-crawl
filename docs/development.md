@@ -128,6 +128,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Monster locomotion: state and update (`Flight`, `Leap`, `Burrow`, `Charge`, `Climb`) | `entities/monster_<flight\|leap\|burrow\|charge\|climb>.{h,cpp}`; a new one: a new pair, its member in `Monster` |
 | Monster update on the level | `world/dungeon_monsters.cpp` (`UpdateMonsters`, hits, kills, spawns); per locomotion `world/dungeon_walkers.cpp` (walk, leap, flee, climbers' paths, with `world/climb_path.*`), `dungeon_flight.cpp`, `dungeon_burrow.cpp`, `dungeon_charge.cpp` |
 | Monster drawing | `entities/monster_draw.*`; in-level effects `world/dungeon_render_effects.cpp` |
+| Holds (a bite that grabs: the tell, the lunge, the death roll, the sting), the player held | `entities/monster_grab.{h,cpp}` (`Grab`), rules `HoldRules` in `world/monster_kinds.*`, `Dungeon::PlayerHeldBy` (`world/dungeon_monsters.cpp`), the locks in `world/dungeon_base.cpp` and `input/input.cpp` |
 | Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
 | Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |

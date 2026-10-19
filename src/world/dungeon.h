@@ -363,7 +363,7 @@ class Dungeon {
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
 	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
 	void DrawWater();
-	bool Move(float dirX, float dirY); // false: blocked, the player did not move
+	bool Move(float dirX, float dirY); // false: blocked or held (PlayerHeldBy), the player did not move
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
 	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;
@@ -386,9 +386,16 @@ class Dungeon {
 	// False while wading (and without the Favour of Hapi or the potion): then the player is told why (at most every
 	// WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
-	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs. A swing already under way
-	// finishes. tell: say why ("Hands on the rungs"), once per press of the key.
+	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs, nor in a crocodile's jaws
+	// (PlayerHeldBy). A swing already under way finishes. tell: say why ("Hands on the rungs"), once per press of the
+	// key.
 	bool AttackAllowed(bool tell);
+	// The monster that holds the player (Monster::Holding, plans crocodile-hold-bite, giant-scorpion-grab); null if
+	// none. Held, the player cannot walk, jump, sprint, drink or open a screen; attack only a scorpion's claws.
+	[[nodiscard]] const Monster* PlayerHeldBy() const;
+	// Degrees the held view rolls: with the death roll's ticks (HELD_ROLL_DEG), a shake in the claws (HELD_SHAKE_DEG);
+	// 0 when not held.
+	[[nodiscard]] float HeldViewRoll() const;
 	// World units to draw something standing at map x on row's floor down into a water basin: WATER_BASIN_DEPTH in
 	// half water, growing over WATER_SINK_RAMP from a dry edge, 0 elsewhere.
 	[[nodiscard]] float WaterSink(float x, int row) const;
@@ -417,8 +424,8 @@ class Dungeon {
 	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
 	// copied without the skill, 0 translated, too worn to read, or no inscription.
 	[[nodiscard]] float InscriptionGlint(int col, int row) const;
-	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, wading (JumpAllowed) or
-	// out of stamina (told why), or the level is won.
+	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, held (PlayerHeldBy),
+	// wading (JumpAllowed) or out of stamina (told why), or the level is won.
 	void StartJump(int dir);
 	bool SpawnMonster(int i, int j);
 	void Teleport(); // on a teleporter: jump to its partner (useGate starts it under a fade)
@@ -455,6 +462,9 @@ class Dungeon {
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).
 	void PoisonNearestMonster(PoisonTier tier);
+	// Scenario `grab`: the living monster nearest the player starts a grab's tell now (Monster::StartGrab). False: it
+	// does not grab, or is grabbing already.
+	bool GrabNearest();
 	void PoisonBoss(PoisonTier tier);
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }

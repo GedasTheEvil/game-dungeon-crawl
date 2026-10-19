@@ -30,6 +30,8 @@ class PlayerActionController {
 	}
 
 	static void run(GameplayAction action) {
+		if (held(action))
+			return;
 		// No sprint while wading, except with the Favour of Hapi skill or the Blessing of Hapi potion
 		// (Dungeon::PlayerSprintMultiplier).
 		const float moveMultiplier = Game().dungeon.PlayerSprintMultiplier(Game().player->stats.SprintMoveMultiplier());
@@ -114,6 +116,31 @@ class PlayerActionController {
 	}
 
   private:
+	// Held by a crocodile or a scorpion (Dungeon::PlayerHeldBy; plans crocodile-hold-bite, giant-scorpion-grab): the
+	// walk keys only turn the player, no drink, no interact. The jump and the attack refuse in the dungeon. True: the
+	// action is refused.
+	static bool held(GameplayAction action) {
+		if (Game().dungeon.PlayerHeldBy() == nullptr)
+			return false;
+		switch (action) {
+		case GameplayAction::MoveLeft:
+			Game().camera.rotW = -110;
+			return true;
+		case GameplayAction::MoveRight:
+			Game().camera.rotW = 70;
+			return true;
+		case GameplayAction::MoveUp:
+		case GameplayAction::MoveDown:
+		case GameplayAction::Interact:
+		case GameplayAction::QuickHeal:
+		case GameplayAction::QuickStamina:
+		case GameplayAction::QuickAntidote:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	// Only a step that really moved the player counts for the sprint drain, and none in the water (no sprint there),
 	// unless the Favour of Hapi skill or the Blessing of Hapi potion lets the player sprint in it (plan
 	// water-blessing-potion). Wading slows the step (PlayerWalkFactor).
@@ -292,6 +319,8 @@ bool pressBinding(BindAction action) {
 	if (Screen target = screenOf(action); target != Screen::Gameplay) {
 		if (screen != Screen::Gameplay && !ScreenTabs::Has(screen))
 			return false;
+		if (screen == Screen::Gameplay && Game().dungeon.PlayerHeldBy() != nullptr)
+			return true; // held: no screen, as no drink
 		if (screen == Screen::Gameplay && PlayerActionController::insane()) {
 			Game().ApplyWorldEvents();
 			return true;

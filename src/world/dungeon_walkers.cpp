@@ -168,5 +168,5 @@ void Dungeon::updateWalker(Monster& mon) {
 	}
 	if (!mon.Seek(blocked, mapX, mapY))
 		if (mon.AttackDue() && !mon.OnRungs())
-			mon.Attack(mapY);
+			mon.Attack(mapY, PlayerWading());
 }

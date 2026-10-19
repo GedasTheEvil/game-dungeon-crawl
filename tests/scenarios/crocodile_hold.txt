@@ -1,0 +1,21 @@
+# The crocodile's hold (plan crocodile-hold-bite), tests/levels/crocodile: in the pool its bite grabs. The jaws gape
+# (the tell), the lunge, then the death roll: the crocodile rolls over along its body with each tick, the view rolls
+# with it. Held, the player cannot walk.
+seed 1
+god
+level tests/levels/crocodile
+motion on
+walk to 7.3
+wait 2s
+grab
+wait 10
+screenshot tell
+wait 500ms
+expect held == 1
+screenshot held
+wait 200ms
+screenshot death_roll
+hold right 20
+expect held == 1
+wait 3s
+expect held == 0

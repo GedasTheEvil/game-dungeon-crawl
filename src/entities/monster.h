@@ -16,6 +16,7 @@
 #include "monster_charge.h"
 #include "monster_climb.h"
 #include "monster_flight.h"
+#include "monster_grab.h"
 #include "monster_leap.h"
 #include <array>
 #include <memory>
@@ -63,6 +64,7 @@ class Monster {
 	Leap leap;
 	Burrow burrow;
 	Charge charge;
+	Grab grab;
 	Climb climb;
 	bool rungs = false; // on a ladder off the floor, or climbing (Dungeon::UpdateMonsters sets it every tick)
 	int wayMs = -1; // GameClock time a climber last had a way to the player; < 0: never
@@ -98,6 +100,8 @@ class Monster {
 	void sound(CharacterSound s) const { links.events->PlayCharacter(type->id, s); }
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	void curse(const CurseEntries& entries); // its hit landed: it may lay a curse (Player::Curse), the journal sees it
+	void sting(); // the scorpion's at the hold's end: a sure hit, its poison
+	void letGo(); // the grab is over, missed or held to its end; the next bite after its attackMs
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
 	[[nodiscard]] float emergeLift() const;
 	[[nodiscard]] float burrowLift() const; // world units down in the floor while burrowing, <= 0 // world units off
@@ -217,7 +221,9 @@ class Monster {
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
-	void Attack(float py);
+	// In reach: it bites, or (HoldRules, rolled on the gameplay stream) opens its jaws or claws for a grab (Grab).
+	// playerWading: the player stands in half water (a crocodile grabs only then).
+	void Attack(float py, bool playerWading);
 	// Ambushers, the entombed, the submerged, the coiled and the floating: true while still lurking; wakes (and returns
 	// false) once the player is close (MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
 	// FLOATING_WAKE_RANGE). An ambusher never wakes this way, only by Spring or a hit (plan interact-prompt).
@@ -254,6 +260,24 @@ class Monster {
 	// Once a tick while charging. wallAhead: the cell in front of its head blocks the rush (a wall, a pit). The rush
 	// hits the player (double damage) once if they are in its way on the floor.
 	void UpdateCharge(bool wallAhead, float px, float py);
+	// Grabbers (HoldRules): the tell, then the lunge, or the hold.
+	// The tell: jaws or claws wide (monster_grab.cpp); Attack's roll, or the scenario `grab`. False: it does not grab
+	// (HoldRules), or is grabbing already.
+	bool StartGrab();
+	// Its HoldRules; none (chancePercent 0) for a kind that does not grab.
+	[[nodiscard]] HoldRules Hold() const { return type->hold.value_or(HoldRules{}); }
+	[[nodiscard]] bool Grabbing() const { return Alive() && grab.phase != GrabPhase::Ready; }
+	[[nodiscard]] bool Holding() const { return Alive() && grab.phase == GrabPhase::Hold; }
+	// Once a tick while grabbing: the tell ends in the lunge (a miss out of reach or in a jump), the hold deals its
+	// ticks and lets go at its end (a scorpion's sting). playerWading as for Attack.
+	void UpdateGrab(float px, float py, bool playerWading);
+	// The player hit it while it holds them: the hold ends HoldRules::breakMs sooner, at once if that is past (they
+	// break free: no sting).
+	void Struggle();
+	// Holding: ms since the grab; 0 otherwise.
+	[[nodiscard]] int HoldAgeMs() const;
+	// Degrees it is drawn rolled over along its body: the death roll, a turn with each tick; 0 otherwise.
+	[[nodiscard]] float HoldRoll() const;
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
 	void Fly(bool wallAhead, float px, float py, const FlightGoal& goal);
 	// A boss's minion, and a boss once it is roused, hunt the player along the whole row and farther up and down.

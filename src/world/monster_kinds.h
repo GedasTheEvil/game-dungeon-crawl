@@ -108,6 +108,25 @@ struct ChargeRules {
 	float speed = CHARGE_SPEED;
 };
 
+// A bite that grabs and holds the player (Grab, plans crocodile-hold-bite and giant-scorpion-grab): a share of its
+// bites turns into a tell (GRAB_TELL_MS, jaws or claws wide), then a lunge; in reach it grabs, else it misses. While
+// held the player cannot walk, jump, sprint, drink or open a screen. The crocodile's death roll ticks; the scorpion's
+// hold ends in a sure sting, and the player's hits on it shorten the hold (break free: no sting).
+struct HoldRules {
+	int chancePercent = 0; // of its bites, rolled on the gameplay stream
+	bool inWater = false; // only while the player stands in half water (Dungeon::PlayerWading)
+	int grabDamagePct = 100; // the grab's hit, of its damage
+	std::optional<DamageMix> grabMix; // nullopt: its attackMix
+	int holdMs = 0; // from the grab to the end of the hold
+	int tickMs = 0; // a tick every tickMs of the hold, up to its end; 0: none
+	int tickDamagePct = 0; // a tick's hit, of its damage, armour counts
+	int breakMs = 0; // each of the player's hits on it ends the hold this much sooner; 0: no attack while held
+	bool sting = false; // at the hold's end a sure hit: its damage and its poison
+	// Frames of its attack clip shown frozen (tools/blender/models/*.py ATTACK): the tell, the hold.
+	float tellFrame = 0.f;
+	float holdFrame = 0.f;
+};
+
 struct GenPick {
 	int minDifficulty = 0;
 	int maxDifficulty = 0;
@@ -167,6 +186,7 @@ struct MonsterKind {
 	// AdvancePlayback's speed of its walk clip (plan anubis-walk-clip-speed), so the legs keep up with a fast walker.
 	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
+	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;

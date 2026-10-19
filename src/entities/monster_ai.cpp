@@ -66,16 +66,20 @@ void Monster::Stand() {
 	enter(ModelState::Idle);
 }
 
-void Monster::Attack(float py) {
+void Monster::Attack(float py, bool playerWading) {
 	if (!Alive() || type->damage <= 0) // harmless (an egg cluster)
 		return;
 
 	fleeDir = 0;
 	enter(ModelState::Attack);
-	if (sameRow(py)) {
-		alerted = true;
+	if (!sameRow(py))
+		return;
+	alerted = true;
+	const std::optional<HoldRules>& hold = type->hold;
+	if (hold && (!hold->inWater || playerWading) && links.random->percent(hold->chancePercent))
+		StartGrab();
+	else
 		bite();
-	}
 }
 
 void Monster::bite() {

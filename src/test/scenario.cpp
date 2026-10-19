@@ -440,6 +440,9 @@ bool runInstant(const Command& cmd) {
 		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Grab: // the nearest monster starts a grab's tell; whether it holds: expect held
+		report(cmd, Game().dungeon.GrabNearest(), stateLine());
+		return true;
 	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
 		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
 		report(cmd, true, stateLine());

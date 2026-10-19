@@ -77,6 +77,45 @@ constexpr float MUMMY_PRIEST_RELEASE_AHEAD = 3.03f;
 constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
+// Holds (HoldRules; plans crocodile-hold-bite, giant-scorpion-grab). In half water a crocodile's bite may grab: the
+// bite's damage, then the death roll, 3 ticks of 40% of it, 0.8 s apart; no breaking free. Sobek's (its kin's,
+// AGENTS.md Boss abilities): more often, a tick longer. The attack clip (tools/blender/models/crocodile.py): the gape
+// at frame 8, the jaws shut at 13.
+constexpr HoldRules CROCODILE_HOLD = {.chancePercent = 30,
+									  .inWater = true,
+									  .holdMs = 2400,
+									  .tickMs = 800,
+									  .tickDamagePct = 40,
+									  .tellFrame = 8.f,
+									  .holdFrame = 13.f};
+constexpr HoldRules SOBEK_HOLD = {.chancePercent = 40,
+								  .inWater = true,
+								  .holdMs = 3200,
+								  .tickMs = 800,
+								  .tickDamagePct = 40,
+								  .tellFrame = 8.f,
+								  .holdFrame = 13.f};
+// The giant scorpion's pincers: a small blunt hit, a 1 s hold, then the sure sting; each hit on it ends the hold
+// 0.25 s sooner. The scorpion queen's (her kin's): longer, harder to break. The attack clip
+// (tools/blender/models/scorpion.py): the claws wide and the tail up at frame 3, pinched and cocked at 8.
+constexpr DamageMix PINCER_MIX = {100, 0, 0};
+constexpr HoldRules GIANT_SCORPION_HOLD = {.chancePercent = 25,
+										   .grabDamagePct = 30,
+										   .grabMix = PINCER_MIX,
+										   .holdMs = 1000,
+										   .breakMs = 250,
+										   .sting = true,
+										   .tellFrame = 3.f,
+										   .holdFrame = 8.f};
+constexpr HoldRules SCORPION_QUEEN_HOLD = {.chancePercent = 25,
+										   .grabDamagePct = 30,
+										   .grabMix = PINCER_MIX,
+										   .holdMs = 1500,
+										   .breakMs = 200,
+										   .sting = true,
+										   .tellFrame = 3.f,
+										   .holdFrame = 8.f};
+
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {
 	for (int& rate : kin)
@@ -454,7 +493,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'C',
 	 .name = "Crocodile",
 	 .label = "crocodile",
-	 .description = "Crocodile, lies under the water until the player comes near, swims fast",
+	 .description = "Crocodile, lies under the water until the player comes near, swims fast; in the water its bite "
+					"may hold the player",
 	 .note = "Sobek's own. In the water I cannot outrun it.",
 	 .threat = 4.5f, // between the giant rat and the mummy; in the water it outswims the player
 	 .model = "monsters/crocodile",
@@ -470,7 +510,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Submerged,
 	 .weight = 3,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 2.5f},
+	 .waterSpeed = 2.5f,
+	 .hold = CROCODILE_HOLD},
 	// Small and quick like the rat, a slower sting that poisons; levels from the scorpion queen's (plan
 	// poison-and-antidote).
 	{.id = MonsterScorpion,
@@ -555,7 +596,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'J',
 	 .name = "Giant scorpion",
 	 .label = "giant scorpion",
-	 .description = "Giant scorpion, its sting poisons (medium)",
+	 .description = "Giant scorpion, its claws may hold the player for a sure sting; its sting poisons (medium)",
 	 .note = "Dark as old blood and as big as a dog. Its sting does not wear off quickly.",
 	 .threat = 3.5f, // a giant rat's, the poison on top
 	 .model = "monsters/scorpion",
@@ -571,6 +612,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCORPION_RESIST,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
+	 .hold = GIANT_SCORPION_HOLD,
 	 .climbs = true,
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
 	 .climbGrip = 0.25f},
@@ -621,6 +663,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 .hold = SCORPION_QUEEN_HOLD,
 	 .climbs = true,
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
 	 .climbGrip = 0.25f,
@@ -682,6 +725,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f,
 	 .charge = ChargeRules{},
+	 .hold = SOBEK_HOLD,
 	 .kin = MonsterCrocodile,
 	 .boss = {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
 	// The blue lotus, rooted in half water among the decor lotus (plan water-lotus). Stronger than the plant, weaker

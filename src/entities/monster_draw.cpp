@@ -113,6 +113,12 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 
 	const float figure = Ink::figureScale();
 	glScalef(figure, figure, figure);
+	if (const float roll = mon.HoldRoll(); roll != 0.f) { // the death roll: over along its body, round its middle
+		const float middle = type.model.referenceTop * 0.5f;
+		glTranslatef(0, middle, 0);
+		glRotatef(roll * static_cast<float>(mon.Facing()), 0, 0, 1);
+		glTranslatef(0, -middle, 0);
+	}
 	model.Show(mon.State(), mon.Playback());
 
 	glPopMatrix();

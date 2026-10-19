@@ -146,6 +146,8 @@ void drawGameplay() {
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);
+	if (Game().settings.graphics.motionEffects) // held in the jaws or the claws (plan crocodile-hold-bite)
+		glRotatef(Game().dungeon.HeldViewRoll(), 0, 0, 1);
 
 	glRotatef(Game().camera.rotM, 0, 1, 0);
 	glRotatef(Game().camera.rotN, 1, 0, 0);

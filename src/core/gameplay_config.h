@@ -156,6 +156,15 @@ constexpr int CHARGE_STUN_DAMAGE_FACTOR = 2;
 constexpr int CHARGE_COOLDOWN_MS = 4000;
 constexpr float CHARGE_OVERRUN = 3.f; // tiles past the player a rush with no wall ahead stops
 
+// Holds (Monster::Grab, HoldRules; plans crocodile-hold-bite, giant-scorpion-grab): the jaws or claws open wide for
+// GRAB_TELL_MS, then the lunge. It misses a player out of its reach or GRAB_JUMP_CLEAR tiles up in a jump.
+constexpr int GRAB_TELL_MS = 500;
+constexpr float GRAB_JUMP_CLEAR = 0.15f;
+// The held view (Dungeon::HeldViewRoll): the camera rolls up to HELD_ROLL_DEG with each tick of a death roll, shakes
+// by HELD_SHAKE_DEG in the claws.
+constexpr float HELD_ROLL_DEG = 14.f;
+constexpr float HELD_SHAKE_DEG = 2.f;
+
 constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's plasma colour, then back in at the arrival
 // The blue lotus (Locomotion::Floating) floats as a flower until the player comes this close along its row (from its
 // centre), then rears up.

@@ -1,0 +1,10 @@
+# Plan giant-scorpion-grab, for `bin/game --play tests/play/giant-scorpion-grab.txt`: tests/levels/giant_scorpion, a
+# giant scorpion (col 6) in a long hall. A quarter of its attacks start with the claws wide and the tail up (0.5 s):
+# back off or jump and it misses; stay and the claws hold you (1 s, no walking, jumping or drinking), then the sting
+# never misses. Hit it while held: each hit cuts the hold by 0.25 s, one late hit breaks it and skips the sting. The
+# scorpion queen, the same grab, longer and harder to break: `bin/game --level 15`.
+seed 1
+level tests/levels/giant_scorpion
+xp 100000
+give melee 4
+equip khopesh

@@ -1,0 +1,20 @@
+# The giant scorpion's grab (plan giant-scorpion-grab), tests/levels/giant_scorpion: the claws open wide and the tail
+# curls up (the tell), the lunge, then the hold: the claws shut, the tail cocked over the head, the view shakes. Its
+# end is the sting; a late hit breaks the hold instead.
+seed 1
+god
+level tests/levels/giant_scorpion
+motion on
+walk right 1
+expect nearest == 70
+wait 7s
+grab
+wait 10
+screenshot tell
+wait 500ms
+expect held == 1
+screenshot held
+wait 1s
+expect held == 0
+expect poison == 2
+screenshot sting

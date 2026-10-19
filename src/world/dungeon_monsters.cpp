@@ -61,6 +61,10 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
+		if (mon.Grabbing()) { // the tell, the hold (plans crocodile-hold-bite, giant-scorpion-grab)
+			mon.UpdateGrab(mapX, mapY, PlayerWading());
+			continue;
+		}
 		if (updateBurrower(mon) || updateCharger(mon))
 			continue;
 
@@ -219,6 +223,25 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		rewardKill(mon);
 	else if (mix)
 		venomHit(mon);
+	mon.Struggle(); // a scorpion that holds the player lets go sooner
+}
+//======================================================================================
+const Monster* Dungeon::PlayerHeldBy() const {
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Holding())
+			return &mon;
+	return nullptr;
+}
+//======================================================================================
+float Dungeon::HeldViewRoll() const {
+	const Monster* holder = PlayerHeldBy();
+	if (holder == nullptr)
+		return 0.f;
+	const HoldRules rules = holder->Hold();
+	const auto age = static_cast<float>(holder->HoldAgeMs());
+	if (rules.tickMs <= 0) // in the claws: a shake
+		return HELD_SHAKE_DEG * std::sin(age * 0.06f);
+	return HELD_ROLL_DEG * std::sin(age / static_cast<float>(rules.tickMs) * 2.f * static_cast<float>(M_PI));
 }
 //======================================================================================
 // Thorns and sap: a melee hit on the plant may poison the player (plan plant-poison).

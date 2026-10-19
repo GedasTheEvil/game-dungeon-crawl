@@ -35,6 +35,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	leap = Leap{};
 	burrow = Burrow{};
 	charge = Charge{};
+	grab = Grab{};
 	climb = Climb{};
 	rungs = false;
 	wayMs = -1;
@@ -181,6 +182,7 @@ bool Monster::takeHit(int dmg) {
 
 	if (Alive() || state == ModelState::Die)
 		return false;
+	grab = Grab{}; // a holder lets go
 	enter(ModelState::Die);
 	sound(CharacterSound::Die);
 
@@ -289,6 +291,9 @@ void Monster::Animate(float px, float py) {
 		showClimb();
 	else
 		type->model.Advance(state, playback, type->riseMs, type->walkClipSpeed);
+	if (Grabbing()) // the attack clip held at the jaws or the claws wide, then shut on the player
+		playback[static_cast<size_t>(ModelState::Attack)] = {
+			grab.phase == GrabPhase::Tell ? Hold().tellFrame : Hold().holdFrame, 0};
 	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
 	const float swimTarget = swimLift();
 	if (!swimPlaced)

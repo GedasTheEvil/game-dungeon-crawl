@@ -1,8 +1,9 @@
 # Crocodile bite with a hold
 
-Status: draft 2026-10-05, refined 2026-10-09 (decided, not implemented). Split off
-[crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md); the crocodile ships with a plain bite first.
-Shares the hold mechanic with [giant-scorpion-grab](giant-scorpion-grab.draft.opus.md): build one for both.
+Status: implemented 2026-10-19, waits for the user's play-test (`bin/game --play tests/play/crocodile-hold-bite.txt`;
+Sobek: `bin/game --level 25`). Draft 2026-10-05, refined 2026-10-09. Split off
+[crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md). One hold mechanic with
+[giant-scorpion-grab](giant-scorpion-grab.md), built together.
 
 ## Idea
 
@@ -24,7 +25,23 @@ The crocodile's bite grabs the player: a hold, a death roll.
   tell (shorter is unfair at its damage), 4 ticks of 40% of its bite, 3.2 s in all. Only while the player stands in
   water, as the crocodile's. A charge (`Charge`) never grabs: only the bite does.
 
-## Open (for the implementer)
+## Implemented (2026-10-19)
+
+* One mechanic for both plans: `HoldRules` in the kind's row (`MonsterKind::hold`, `src/world/monster_kinds.cpp`), the
+  monster's `Grab` state (`src/entities/monster_grab.{h,cpp}`), the player locked by `Dungeon::PlayerHeldBy`
+  (`Move`, `StartJump`, `AttackAllowed`; the drinks, the interact key and the screens in `src/input/input.cpp`; the
+  walk keys still turn the player). Numbers as decided; the tell is `GRAB_TELL_MS`, a jump `GRAB_JUMP_CLEAR` up makes
+  the lunge miss. The grab can be dodged (the Dodge skill), the ticks cannot.
+* Look, no new Blender clips: the attack clip held at its widest gape (frame 8) for the tell, the jaws shut (frame
+  13) in the hold; the death roll turns the model over along its body, a whole turn with each tick
+  (`Monster::HoldRoll`); the held view rolls with it (`Dungeon::HeldViewRoll`, with the motion effects on). Status
+  line "Caught in its jaws"; journal move `CreatureMove::Grab`.
+* Tests: `tests/unit/hold_test.cpp`; scenario with screenshots `tests/scenarios/crocodile_hold.txt` (scenario command
+  `grab`, field `held`).
+* Balance: the hold is short and only in water; the threat and the checker are unchanged (noted in
+  [monster-balance](monster-balance.draft.opus.md)).
+
+## Open (for the implementer, done above)
 
 * Look: the crocodile's and Sobek's open-jaws tell, the grab and the roll (Blender,
   [../modeling.md](../modeling.md)); the

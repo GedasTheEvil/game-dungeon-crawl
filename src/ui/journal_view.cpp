@@ -265,6 +265,10 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		return "Its bite makes me drowsy, too tired to run or jump.";
 	case CreatureMove::ShunLight:
 		return "Will not come into the torchlight. It waits in the dark until I leave it.";
+	case CreatureMove::Grab:
+		if (t.hold && t.hold->sting)
+			return "Two claws to hold you, one tail to finish. Hit the claws.";
+		return "In the water its jaws hold me fast and it rolls. When they gape, step back.";
 	}
 	return "";
 }

@@ -195,6 +195,8 @@ void Dungeon::updateBurning() {
 }
 //======================================================================================
 bool Dungeon::Move(float dirX, float dirY) {
+	if (PlayerHeldBy() != nullptr) // plans crocodile-hold-bite, giant-scorpion-grab
+		return false;
 	const float startX = mapX;
 	const float startY = mapY;
 	if (dirX != 0) {
@@ -255,7 +257,7 @@ float Dungeon::PlayerSink() const {
 //======================================================================================
 void Dungeon::StartJump(int dir) {
 	Player& player = *sim.player;
-	if (player.jump.jumping || player.jump.falling || !player.Alive() || won)
+	if (player.jump.jumping || player.jump.falling || !player.Alive() || won || PlayerHeldBy() != nullptr)
 		return;
 	if (!JumpAllowed())
 		return;
@@ -276,6 +278,11 @@ void Dungeon::StartJump(int dir) {
 }
 //======================================================================================
 bool Dungeon::AttackAllowed(bool tell) {
+	if (const Monster* holder = PlayerHeldBy(); holder != nullptr && holder->Hold().breakMs <= 0) {
+		if (tell)
+			sim.events->Status("%s", "Held fast in its jaws");
+		return false;
+	}
 	if (!PlayerOnLadder())
 		return true;
 	if (tell)

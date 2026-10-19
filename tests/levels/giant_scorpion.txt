@@ -1,0 +1,4 @@
+; A giant scorpion (col 6) in front of the player (col 2) in a long hall (tests/unit/hold_test.cpp).
+##################
+#.S...J.........E#
+##################

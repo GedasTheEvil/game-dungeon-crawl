@@ -1,0 +1,10 @@
+# Plan crocodile-hold-bite, for `bin/game --play tests/play/crocodile-hold-bite.txt`: tests/levels/crocodile, a
+# crocodile (col 8) under the water of a pool (cols 6-13). Wade in to wake it. In the water about a third of its bites
+# start with a gape (0.5 s): step back out of reach and the jaws snap shut on nothing; stay and it grabs you, then
+# rolls you over three times (no walking, jumping, attacking or drinking). On the dry floor it only bites. Sobek, the
+# same hold, stronger: `bin/game --level 25`.
+seed 1
+level tests/levels/crocodile
+xp 400000
+give melee 4
+equip khopesh

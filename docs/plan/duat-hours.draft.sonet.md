@@ -1,6 +1,7 @@
 # The twelve hours of the Duat
 
-Status: draft 2026-10-10, ready (needs nothing first). From the lore review, picked by the user.
+Status: draft 2026-10-10. On hold (user, 2026-10-19): do it near the end, once more bosses and levels are in (boss
+drafts are coming, not decided yet). From the lore review, picked by the user.
 
 ## Idea
 

@@ -75,6 +75,8 @@ struct View {
 	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
 	bool hekaWaiting = false; // a heka to spend on a skill: a pulsing tile with the Heka key
 	std::string hekaKey;
+	bool staminaSkillOn = false; // shared stamina-skill toggle state
+	std::string staminaSkillKey; // its key cap
 };
 
 // Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).

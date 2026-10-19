@@ -1,0 +1,23 @@
+# Play-test setup for Flaming Arrows
+# Opens the archery range with a bow and Flaming Arrows learned and toggle bound to Q.
+# After this setup runs (first frame), you take over and can play normally.
+
+#window
+resolution 1280 720
+# deterministic seed so props/braziers stay stable
+seed 7
+# start on the archery test level
+level tests/levels/archery
+
+# give and equip a bow
+give ranged 0
+select self-bow
+
+# place a brazier a tile ahead for quick lighting (optional)
+prop 12 brazier
+
+# grant a heka and learn Flaming Arrows
+heka 5
+learn flaming_arrows
+
+# nothing else — you take over now (press Q to toggle the stamina skill)

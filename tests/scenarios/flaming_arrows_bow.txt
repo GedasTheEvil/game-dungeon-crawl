@@ -1,0 +1,34 @@
+# Flaming Arrows: bow-only fire and stamina cost
+seed 1
+god
+level tests/levels/archery
+wait 30
+# Equip a self-bow
+give ranged 0
+equip self-bow
+expect equip_type == 2
+# Learn Flaming Arrows and toggle ON
+heka 5
+learn flaming_arrows
+key q
+wait 5
+# Move as in bow.txt: 2.7 tiles in front of the plant, facing away
+walk right 10
+walk left 0.2
+wait 5
+# Full stamina before the first (away) shot
+expect stamina == 100
+# Shoot away: no bars, costs 10 stamina
+attack
+wait 36
+wait 30
+expect bars == 0
+expect stamina == 90
+
+# Turn to face the plant ahead and shoot: bars show a hit
+walk right 0.2
+wait 70
+attack
+wait 36
+wait 30
+expect bars == 1

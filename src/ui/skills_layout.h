@@ -16,8 +16,8 @@ constexpr Rect LEARN_BUTTON = {111, 16, 40, 7};
 // The heka left to spend, over the cards.
 constexpr float POINTS_BASELINE = 78.f;
 // The cards: COLUMNS a row, in SkillId order.
-constexpr int COLUMNS = 2;
-constexpr float CARD_W = 45.f;
+constexpr int COLUMNS = 3;
+constexpr float CARD_W = 30.6f;
 constexpr float CARD_H = 13.f;
 constexpr float CARD_GAP_X = 2.f;
 constexpr float CARD_GAP_Y = 1.6f;

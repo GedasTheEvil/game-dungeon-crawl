@@ -81,6 +81,9 @@ class PlayerActionController {
 			if (!insane())
 				equipNext(true);
 			break;
+		case GameplayAction::ToggleStaminaSkill:
+			Game().player->stats.ToggleStaminaSkill();
+			break;
 		case GameplayAction::None:
 			break;
 		}
@@ -199,6 +202,8 @@ GameplayAction gameplayActionOf(BindAction action) {
 		return GameplayAction::EquipMelee;
 	case BindAction::EquipRanged:
 		return GameplayAction::EquipRanged;
+	case BindAction::ToggleStaminaSkill:
+		return GameplayAction::ToggleStaminaSkill;
 	case BindAction::Sprint:
 	case BindAction::LookLeft:
 	case BindAction::LookRight:

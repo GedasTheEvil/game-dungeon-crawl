@@ -84,6 +84,31 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 	// A fire arrow: FIRE_ARROW_PERCENT of its damage turns to fire.
 	const bool fire = kind == MissileKind::Arrow && sim.player->fireArrows > 0;
 	DamageMix dealt = mix;
+	int usedDamage = damage;
+	bool skillFire = false;
+	// Flaming Arrows skill: bow-only, not on top of brazier fire. Costs 10% max stamina per shot.
+	if (!fire && kind == MissileKind::Arrow && sim.player->stats.heka.Has(SkillId::FlamingArrows) &&
+		sim.player->stats.StaminaSkillOn()) {
+		const int cost = sim.player->stats.MaxStamina() / 10;
+		if (sim.player->stats.ConsumeStamina(cost)) {
+			// +40% bonus damage as fire: damage x1.4, mix reflects 100 original + 40 fire.
+			int tot[DAMAGE_TYPE_COUNT];
+			for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
+				tot[t] = mix[t];
+			tot[FIRE] += 40;
+			usedDamage = (damage * 140 + 50) / 100; // round to nearest
+			int sum = 0;
+			for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
+				dealt[t] = tot[t] * 100 / 140;
+				sum += dealt[t];
+			}
+			if (sum != 100)
+				dealt[FIRE] = std::clamp(dealt[FIRE] + (100 - sum), 0, 100);
+			skillFire = true;
+		} else {
+			sim.player->stats.RefuseStamina(*sim.events);
+		}
+	}
 	if (fire) {
 		sim.player->fireArrows--;
 		dealt[FIRE] = 100;
@@ -95,7 +120,8 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 		if (sim.player->fireArrows == 0)
 			sim.events->Status("The last fire arrow");
 	}
-	missiles.push_back({kind, x0, y0, static_cast<float>(dir) * vx, vy, damage, dealt, GameClock::now(), fire});
+	missiles.push_back(
+		{kind, x0, y0, static_cast<float>(dir) * vx, vy, usedDamage, dealt, GameClock::now(), fire || skillFire});
 }
 //======================================================================================
 void Dungeon::updateMissiles() {

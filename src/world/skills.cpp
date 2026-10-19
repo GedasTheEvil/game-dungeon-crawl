@@ -16,6 +16,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Serket's favour", "Poisons last half as long", "Serket's children still bite, but they do not mean it as much.",
 	 false},
 	{"Blessing of Isis", "Curses last half as long", "Isis has a knot for every curse. She ties fast.", false},
+	{"Flaming arrows", "+40% fire on bow shots for stamina",
+	 "Ra or Sekhmet lends the flame: bow shots can fly burning for stamina.", false},
 }};
 
 bool Heka::Earn(int level) {

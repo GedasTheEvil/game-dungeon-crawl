@@ -35,8 +35,8 @@ constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK,
 									   NORMAL}; // the shell turns a blade, a point goes between plates
 constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH,
 									  WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
-constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // swat it; an arrow goes through the wing
-constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // wood: crack it; a point only sticks in it
+constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH, WEAK}; // swat it; an arrow goes through the wing
+constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH, WEAK}; // wood: crack it; a point only sticks in it
 constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL,
 									   TOUGH}; // bronze dents, a blade glances off, stone does not burn
 constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab

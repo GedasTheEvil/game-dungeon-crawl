@@ -44,6 +44,7 @@ class PlayerStats {
 	bool sprinting = false; // shift held and the player moved last tick: stamina drains
 	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
+	bool stamina_skill_on = false;
 
 	bool AdvanceLevel(WorldEvents& events);
 	void RegenerateStamina();
@@ -72,6 +73,8 @@ class PlayerStats {
 	[[nodiscard]] float StaminaRatio() const;
 	void RefuseStamina(WorldEvents& events); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
+	void ToggleStaminaSkill() { stamina_skill_on = !stamina_skill_on; }
+	[[nodiscard]] bool StaminaSkillOn() const { return stamina_skill_on; }
 
 	// Might and weapon, cut by clumsiness; at least 1.
 	[[nodiscard]] int Damage(int weaponDamage) const { return cursedHit(CurrentMight() + weaponDamage, curses); }

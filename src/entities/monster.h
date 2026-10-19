@@ -158,9 +158,10 @@ class Monster {
 	[[nodiscard]] bool entombed() const { return type->locomotion == Locomotion::Entombed; }
 	[[nodiscard]] bool submerged() const { return type->locomotion == Locomotion::Submerged; }
 	[[nodiscard]] bool coiled() const { return type->locomotion == Locomotion::Coiled; }
+	[[nodiscard]] bool figurine() const { return type->locomotion == Locomotion::Figurine; }
 	// Woken, it plays its rise clip before it acts: the mummy climbs out of its coffin, the cobra and the lotus rear
-	// up.
-	[[nodiscard]] bool rises() const { return entombed() || coiled() || floats(); }
+	// up, the ushabti steps off its place.
+	[[nodiscard]] bool rises() const { return entombed() || coiled() || floats() || figurine(); }
 	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
 	[[nodiscard]] bool lurking() const {
 		return (type->locomotion == Locomotion::Ambush || rises() || submerged()) && !alerted;

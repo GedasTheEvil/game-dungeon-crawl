@@ -89,6 +89,12 @@ bool entombed(int type) {
 	return kind != nullptr && kind->locomotion == Locomotion::Entombed;
 }
 
+// A monster that stands among the decor figures until the player comes near (the living ushabti).
+bool figurine(int type) {
+	const MonsterKind* kind = monsterKind(type);
+	return kind != nullptr && kind->locomotion == Locomotion::Figurine;
+}
+
 // A water prop in half water cell (i, j), plan water-decorations. Only where nothing else is: no monster spawn (a
 // lurking crocodile stays in sight), no item, no fixture, no slain monster. False if it rolled none.
 bool scatterWaterProp(const Tile* cells, uint32_t seed, int tier, int i, int j, DecorCell& cell) {
@@ -126,6 +132,10 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			const Tile tile = at(cells, i, j);
 			if (entombed(spawnType(tile)) || bossCoffinCell(cells, i, j)) {
 				cell.type = static_cast<int8_t>(isBossMonster(spawnType(tile)) ? DECOR_COFFIN_LARGE : DECOR_COFFIN);
+				continue;
+			}
+			if (figurine(spawnType(tile))) { // its fellows, as the decor stands elsewhere (mirror and jitter: none)
+				cell.type = static_cast<int8_t>(DECOR_USHABTI);
 				continue;
 			}
 

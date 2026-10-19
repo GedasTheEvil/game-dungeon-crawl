@@ -119,6 +119,7 @@ bool Monster::Lurk(float px, float py) {
 										 : type->charge ? type->charge->maxRange
 														: SUBMERGED_WAKE_RANGE)
 						: coiled()	  ? COILED_WAKE_RANGE
+						: figurine()  ? FIGURINE_WAKE_RANGE
 									  : FLOATING_WAKE_RANGE;
 	if (ambush || !sameRow(py) || std::fabs(px - CentreX()) > range) {
 		enter(ModelState::Idle);
@@ -139,6 +140,7 @@ void Monster::wake() {
 							  : submerged() ? CreatureMove::Surface
 							  : coiled()	? CreatureMove::Rear
 							  : floats()	? CreatureMove::Bloom
+							  : figurine()	? CreatureMove::StepOff
 											: CreatureMove::Ambush;
 	links.journal->SeeMove(type->id, links.level, move);
 	enter(rises() ? ModelState::Rise : ModelState::Move);

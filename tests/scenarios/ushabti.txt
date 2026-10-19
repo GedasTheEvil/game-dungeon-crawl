@@ -1,0 +1,43 @@
+# The living ushabti (tests/levels/ushabti, plan living-ushabti): it stands among the decor ushabti of its cell (col 7)
+# with more on the cells beside it, still as they are; steps off when the player comes near, walks, chops with its
+# hoe, crumbles under the club.
+seed 1
+level tests/levels/ushabti
+god
+give melee 1
+equip club
+prop 5 ushabti
+prop 6 ushabti
+prop 9 ushabti
+walk to 5.1
+wait 2s
+expect nearest > 0
+screenshot idle
+camera 30 10
+screenshot idle_side
+camera 0 0
+walk to 6.3
+wait 400ms
+screenshot rises
+wait 1500ms
+screenshot walks
+camera 30 10
+screenshot attacks_side
+toon on
+screenshot attacks_toon
+toon off
+camera 0 0
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 1s
+attack
+wait 300ms
+screenshot dies
+wait 2s
+screenshot pieces
+expect nearest == 0

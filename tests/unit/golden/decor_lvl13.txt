@@ -66,7 +66,7 @@
 15,14 surface 5/2/1 torch fire torch 0.000,0.680,0.098
 16,14 surface 2/2/0m
 17,14 surface 1/0/0
-18,14 surface 0/2/0 decal 1 0.535,0.366
+18,14 surface 0/2/0 prop ushabti 0.000 decal 1 0.535,0.366
 19,14 surface 0/0/0 prop osiris -0.053 decal 6 0.491,0.575
 20,14 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 21,14 surface 1/2/0 decal 9 0.524,0.611

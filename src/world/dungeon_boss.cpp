@@ -162,6 +162,7 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		Monster* slot = wallSummonCell(wall, cell, wallRow) ? freeMonsterSlot() : nullptr;
 		if (slot == nullptr)
 			return false;
+		bossFight.hatched++;
 		slot->Spawn(kind, cell, wallRow, monsterLinks(), sim.random->effects);
 		slot->MakeMinion(how, static_cast<float>(wall) + 0.5f);
 		sim.events->Play(WorldSound::RockRumble);

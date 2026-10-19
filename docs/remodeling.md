@@ -149,6 +149,17 @@ conventions, steps). New model notes go in the script's docstring, not here.
   tapping, jaws sawing; shown while it stands off the light). Every frame lifted so the lowest vertex touches the floor.
   Sounds: `tools/audio/camel_spider_sounds.py` (`media/sounds/monsters/camel_spider_{att,die}.wav`: a stridulating rasp, two
   shear snaps; a rasping squeal, rattle, scrape).
+* `tools/blender/models/ushabti.py` - the living ushabti (plan living-ushabti), faces -Y, rotA 0: the overseer of the decor
+  ushabti (`decor.py`'s mummiform figure, its colours and ink text bands, 6.4 times taller), with a tripartite wig, a beard, a
+  hoe in the right fist and a seed bag on the back. No rig, as `lotus.py`: rigid parts (base, hips, torso, head, two folded
+  arms, the hoe, eight hidden shards) posed from numbers, every frame rebuilt and written with `md3.py`, lifted so the lowest
+  vertex touches the floor. Clips: move 20 (the reference: a waddle, rocking from one base edge onto the other, the hips
+  twisting; 0.24 wide x 0.26 deep x 0.52 high, drawn at about half: `KINDS` scale 11), attack 16 (the hoe over the head, chopped
+  down), die 30 (cracks, the shards burst out, head, arms, hoe, torso and hips fall apart; the base stands), idle 120 (`_idle`:
+  the disguise, arms crossed, the hoe over the shoulder; once a loop the head turns a little, the only tell), rise 14 (`_rise`:
+  a shiver, the arms come free, a hop off its place). `-- --review DIR` renders workbench stills.
+  Sounds: `tools/audio/ushabti_sounds.py` (`media/sounds/monsters/ushabti_{wake,att,die}.wav`: glaze crackling, a scrape, a clay
+  knock; a swish and a hollow knock; a crack, pottery shards ringing down).
 * `tools/blender/models/cobra.py` - Egyptian cobra (Naja haje), faces +Y, rotA 180: one tube along 57 spine joints (a bone each,
   the vertices blend between the two joints round them; rest frames are plain translations), posed by heading, elevation and roll
   along the body integrated from the tail (the length never changes, as in `worm.py`), plus a hood amount that spreads the neck

@@ -1,0 +1,5 @@
+; A living ushabti (col 7) among its fellows in a hall, the player (col 2) at its west end
+; (tests/unit/ushabti_test.cpp, tests/scenarios/ushabti.txt).
+########################################
+#.S....@..............................E#
+########################################

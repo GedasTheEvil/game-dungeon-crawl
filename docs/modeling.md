@@ -115,6 +115,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `mimic.py` | mimic | ambush monster built on an item's mesh (`items.build_chest`) |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |
 | `lotus.py` | blue lotus | no rig: every frame rebuilt from pose numbers, written with `md3.py` |
+| `ushabti.py` | living ushabti | `lotus.py` style: rigid parts posed from numbers, a waddle on the base edges, the die clip breaks the parts apart |
 | `plant.py` | plant | static monster, FK chains, poses eased off the floor by bisection |
 | `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw and chest opening frames from shape keys |
 | `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |

@@ -1,6 +1,7 @@
 ; lvl12: the garden of the dead. Plants, giant bats, three mummies. A chain of locks: the red key opens the red gate to
 ; the green lever, the green gate leads to the gold key (a mummy guards it), the gold gate to the way down.
-; The second mummy guards a life potion in the west of the lower hall.
+; The second mummy guards a life potion in the west of the lower hall. Two living ushabti, in the first and the third
+; hall.
 def / 12 1 0
 def L 12 2 0
 def K 12 3 0
@@ -19,13 +20,13 @@ def i 15 8 0
 #S.a..F......^......H###################
 ####################H###################
 ####################H###################
-###r..i.F.....p.....H...R...p..H.u..K###
+###r..i.F..@..p.....H...R...p..H.u..K###
 ###############################H########
 ###############################H########
 ####y....u......H.........G....H..6.j###
 ################H###########X###########
 ################H#######################
-###7.?...u......H.....Y...F..v....H#####
+###7.?...u......H...@.Y...F..v....H#####
 ##################################H#####
 ##################################H#####
 ########E...p...........F.....k...H#####

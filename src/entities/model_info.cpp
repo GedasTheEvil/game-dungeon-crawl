@@ -17,6 +17,7 @@ const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	case Locomotion::Burrow:
 		return COILED_CLIPS;
 	case Locomotion::Floating:
+	case Locomotion::Figurine:
 		return FLOATING_CLIPS;
 	case Locomotion::Walk:
 		return kind.ranged ? RANGED_CLIPS : MONSTER_CLIPS;

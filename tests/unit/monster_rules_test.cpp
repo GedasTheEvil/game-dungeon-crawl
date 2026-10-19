@@ -387,8 +387,10 @@ TEST_CASE("flaming arrows: a brazier-lit arrow gets no bonus and costs no stamin
 }
 
 TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a named list") {
-	// On purpose: the scorpions (desert hunters, used to heat) and the water lotus (a wet stem barely burns).
-	const std::set<int> exceptions = {MonsterScorpion, MonsterGiantScorpion, MonsterScorpionQueen, MonsterLotus};
+	// On purpose: the scorpions (desert hunters, used to heat), the water lotus (a wet stem barely burns) and the
+	// ushabti (faience, fired in a kiln).
+	const std::set<int> exceptions = {MonsterScorpion, MonsterGiantScorpion, MonsterScorpionQueen, MonsterLotus,
+									  MonsterUshabti};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
 		const MonsterKind& kind = *monsterKind(type);
 		if (kind.resist[static_cast<size_t>(DamageType::Pierce)] >= NORMAL || exceptions.contains(type))

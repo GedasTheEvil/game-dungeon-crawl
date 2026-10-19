@@ -67,8 +67,9 @@ enum class CreatureMove : unsigned char {
 	Sedate, // a bite that drains stamina (MonsterKind::staminaDrainPct)
 	ShunLight, // a light shunner turns back at the light round the player (MonsterKind::shunsLight)
 	Grab, // a bite that grabs and holds the player (MonsterKind::hold)
+	StepOff, // a figurine steps off its place among the decor figures (Locomotion::Figurine)
 };
-constexpr int CREATURE_MOVE_COUNT = 18;
+constexpr int CREATURE_MOVE_COUNT = 19;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

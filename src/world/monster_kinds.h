@@ -32,6 +32,9 @@ enum class Locomotion : unsigned char {
 	// Rooted in half water like Stationary, a flower floating on the surface (idle) until the player comes near, then
 	// rears up (Rise) and bites where it stands (the blue lotus, plan water-lotus).
 	Floating,
+	// Walks, but stands still among the decor figures on its cell, as one of them (idle), until the player comes near
+	// or hits it, then steps off its place (Rise) before it acts (the living ushabti, plan living-ushabti).
+	Figurine,
 };
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
@@ -66,7 +69,9 @@ struct BossRules {
 	int lifeStealPct = 0; // heals this share of the damage it deals
 	Summon summon = Summon::DigOut;
 	int nest = 0; // Summon::Hatch: the MonsterTypeId its minions hatch out of
-	int smallMinion = 0; // Summon::Hatch: a smaller kind every other hatch (the scorpion queen's scorpions); 0: none
+	// Summon::Hatch, Summon::Wall: a smaller kind every other summon (the scorpion queen's scorpions, the Anubis's
+	// ushabti); 0: none
+	int smallMinion = 0;
 };
 
 constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};

@@ -13,6 +13,7 @@ constexpr int DECOR_SCATTERED =
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
 constexpr int DECOR_BRAZIER = 6;
 constexpr int DECOR_LAMP = 7;
+constexpr int DECOR_USHABTI = 9; // also on every living ushabti's spawn tile: it stands among them until it wakes
 // Thoth's four statues: one pick among the props, then a variant at even odds (scatterDecor, decor_scatter.h). The
 // crowns reach up to a wall torch.
 constexpr int DECOR_THOTH = 13;

@@ -45,7 +45,7 @@
 17,13 surface 7/2/2
 18,13 surface 6/1/2
 19,13 surface 7/1/2 decal 2m 0.468,0.350
-20,13 surface 6/1/2 prop sand -0.000
+20,13 surface 6/1/2 prop ushabti 0.000
 21,13 surface 7/2/2 decal 5m 0.463,0.625 torch fire torch 0.000,0.680,0.098
 22,13 surface 6/1/2
 23,13 surface 6/1/2 prop catm -0.072
@@ -106,7 +106,7 @@
 8,19 surface 5/1/1 decal 4 0.502,0.650
 9,19 surface 3/0/1 prop canopic 0.044 torch fire torch 0.000,0.680,0.098
 10,19 surface 4/0/1 prop brazier 0.041 fire brazier 0.041,0.220,0.160
-11,19 surface 3/0/1 prop rubble 0.067
+11,19 surface 3/0/1 prop ushabti 0.000
 12,19 surface 3/1/1 prop sand 0.000
 13,19 surface 4/0/1 prop canopicm 0.029 decal 1 0.373,0.416
 14,19 surface 3/2/1

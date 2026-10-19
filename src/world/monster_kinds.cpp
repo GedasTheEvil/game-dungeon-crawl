@@ -26,14 +26,16 @@ constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
 constexpr DamageMix CAMEL_SPIDER_MIX = {0, 80, 20}; // jaws like shears
 constexpr DamageMix HIPPO_MIX = {70, 0, 30}; // jaws that crush, the tusks
+constexpr DamageMix USHABTI_MIX = {60, 0, 40}; // the hoe: a knock, its blade
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
 // and mummies, the spear (and the bow) against scarabs, fire (a brazier's arrows) against mummies, plants, worms and
 // eggs. A boss has no weak spot (bossResist).
 // The rule (plan skill-flaming-arrows): whoever resists pierce (an arrow barely scratches it) is weak to fire, which
-// the flaming arrows add. Exceptions, on purpose: the scorpion, a desert hunter used to heat, and the water lotus, a
-// wet stem that barely burns (a unit test keeps the list: every new monster follows the rule or joins it).
+// the flaming arrows add. Exceptions, on purpose: the scorpion, a desert hunter used to heat, the water lotus, a
+// wet stem that barely burns, and the ushabti, fired in a kiln (a unit test keeps the list: every new monster follows
+// the rule or joins it).
 constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL, WEAK}; // soft: a blow squashes, a blade cuts, fire shrivels
 constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK,
 									   NORMAL}; // the shell turns a blade, a point goes between plates
@@ -60,6 +62,9 @@ constexpr Resistances CAMEL_SPIDER_RESIST = {NORMAL, WEAK, RESISTS,
 											 WEAK}; // a blade lops the long legs, a point misses the slim body; fire
 constexpr Resistances HIPPO_RESIST = {RESISTS, NORMAL, NORMAL,
 									  RESISTS}; // a blow sinks into the fat, wet hide barely burns
+// Glazed faience shatters under a blow; a point skids off the glaze; fired in a kiln, a flame only warms it (an
+// exception to the fire rule).
+constexpr Resistances USHABTI_RESIST = {WEAK, NORMAL, RESISTS, TOUGH};
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -485,7 +490,15 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.119f,
 	 .kin = MonsterAnubis,
 	 // A guard is twice a mummy's threat and outruns the player: fewer, and slower to come (plan mummy-boss).
-	 .boss = {MonsterAnubis, 1, 2, 4000, 4, 0, Summon::Wall}},
+	 // Every other summon a servant, an ushabti, steps out of the stone (plan living-ushabti): four more summons and
+	 // one more alive, so as many guards come as before (5).
+	 .boss = {.minion = MonsterAnubis,
+			  .minAlive = 1,
+			  .maxAlive = 3,
+			  .summonMs = 4000,
+			  .summonCap = 8,
+			  .summon = Summon::Wall,
+			  .smallMinion = MonsterUshabti}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
 	// outwalks it), in the water faster than the player walks on land. Levels 7-9 (plan crocodiles-and-flooded-cells).
 	// A long, low body: 1.5 tiles nose to tail.
@@ -856,6 +869,34 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 3.f,
 	 .charge = ChargeRules{HIPPO_CHARGE_MIN, HIPPO_CHARGE_MAX, HIPPO_CHARGE_SPEED}},
+	// The living ushabti (plan living-ushabti), the overseer of the servant figures buried to work for the dead: it
+	// stands among the decor ushabti on its cell (scatterProps) until the player comes near. Small, slow, a few HP,
+	// glazed faience: the club's. The tomb levels, where the decor ushabti are (DECOR_TIERS).
+	{.id = MonsterUshabti,
+	 .glyph = '@', // the free letters are taken by the level sources' defs
+	 .name = "Living ushabti",
+	 .label = "ushabti",
+	 .description = "Living ushabti, stands still among the decor figures until the player comes near",
+	 .note = "A servant figure, buried to answer for the dead when the gods call them to work. It says 'here I am' "
+			 "on its chest. It means it.",
+	 .threat = 1.5f, // slow and frail, but it hides among the decor
+	 .model = "monsters/ushabti",
+	 .texture = "monsters/ushabti",
+	 .scale = 11, // 0.28 tiles tall, twice the decor figures, half the player
+	 .rotA = 0,
+	 .blood = {0.1f, 0.5f, 0.47f}, // faience chips
+	 .speed = 6,
+	 .maxHealth = 40,
+	 .damage = 9,
+	 .attackMs = 1300,
+	 .xp = 900,
+	 .attackMix = USHABTI_MIX,
+	 .resist = USHABTI_RESIST,
+	 .locomotion = Locomotion::Figurine,
+	 .weight = 1,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .riseMs = 900,
+	 .generated = {6, 10, 1}},
 }};
 
 constexpr bool validKinds() {

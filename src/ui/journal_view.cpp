@@ -235,6 +235,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		case Summon::Hatch:
 			return "Her young hatch from the egg clusters around her.";
 		case Summon::Wall:
+			if (t.boss.smallMinion != 0)
+				return "His statues and his servants step out of the stone at his call.";
 			return "His statues step out of the stone at his call.";
 		}
 		break;
@@ -269,6 +271,8 @@ const char* moveNote(CreatureMove move, const MonsterType& t) {
 		if (t.hold && t.hold->sting)
 			return "Two claws to hold you, one tail to finish. Hit the claws.";
 		return "In the water its jaws hold me fast and it rolls. When they gape, step back.";
+	case CreatureMove::StepOff:
+		return "Stands among the other figures, still as they are, and steps off its place when I come near.";
 	}
 	return "";
 }

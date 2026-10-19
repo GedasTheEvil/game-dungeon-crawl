@@ -77,7 +77,7 @@
 19,13 surface 3/2/1
 20,13 surface 5/2/1 ladder 0/3
 21,13 surface 4/0/1 prop potterym -0.068 torch fire torch 0.000,0.680,0.098
-22,13 surface 5/1/1
+22,13 surface 5/1/1 prop ushabti 0.000
 23,13 surface 4/0/1 prop sandm -0.000 decal 9 0.589,0.397
 24,13 surface 5/0/1 decal 15m 0.694,0.377
 25,13 surface 3/0/1 prop skeletonm 0.017

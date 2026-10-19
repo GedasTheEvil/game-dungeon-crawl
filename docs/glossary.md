@@ -65,6 +65,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | creature | Creatures | the player's word for a monster; the journal's section | `Journal` |
 | entombed | | lies in its coffin until the player comes near, then climbs out (the mummy) | `Locomotion::Entombed` |
 | floating | | rooted in half water, a flower on the surface until the player comes near, then rears up and bites (the blue lotus, [water-lotus](plan/solved/water-lotus.md)) | `Locomotion::Floating`, `Monster::floatLift` |
+| figurine | | stands still among the decor ushabti of its cell, as one of them, until the player comes near or hits it, then steps off and walks (the living ushabti, [living-ushabti](plan/living-ushabti.md)) | `Locomotion::Figurine`, `FIGURINE_WAKE_RANGE`, `CreatureMove::StepOff` |
 | flee | | a coward that cannot reach the player runs along its row out of the bow's range ([coward-flee-ranged](plan/solved/coward-flee-ranged.md)) | `Monster::flees`, `Monster::Flee`, `Dungeon::fleeFrom` |
 | flyer | | flies along the row and crosses pits (bats); follows the player up or down to another row through open cells ([bats-high-ceiling](plan/solved/bats-high-ceiling.md)) | `Locomotion::Fly`, `Flight`, `FlightGoal`, `Dungeon::flightGoal` |
 | hold | | a bite that grabs: after its tell the monster lunges and holds the player (no walk, jump, drink or screen); the crocodile's and Sobek's death roll ticks (in water only), the giant scorpion's and the queen's hold ends in a sure sting unless the player's hits break it ([crocodile-hold-bite](plan/solved/crocodile-hold-bite.md), [giant-scorpion-grab](plan/solved/giant-scorpion-grab.md)) | `HoldRules`, `MonsterKind::hold`, `Grab`, `Dungeon::PlayerHeldBy` |
@@ -77,7 +78,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
 | lit cell | | within `LIGHT_SHUN_CELLS` (1) along the row of a flame: a wall torch, a brazier, an oil lamp | `Dungeon::Lit` |
 | light shunner | | a walker that does not step into a lit cell; light on its way to the player is a wall to it, so it flees; caught in the light, it runs for the dark (the camel spider, [camel-spider](plan/solved/camel-spider.md)) | `MonsterKind::shunsLight`, `Dungeon::walkerStops`, `Dungeon::wayOutOfLight`, `CreatureMove::ShunLight` |
-| lurking | | ambush, entombed, submerged, coiled or floating, before it wakes | `Monster::Lurk` |
+| lurking | | ambush, entombed, submerged, coiled, floating or a figurine, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | summon | | how a boss's minions arrive: dig out, drop, climb out of a coffin, hatch, step out of a wall | `Summon` |
 | reckless | | walks straight through traps and takes their damage | `Courage::Reckless` |

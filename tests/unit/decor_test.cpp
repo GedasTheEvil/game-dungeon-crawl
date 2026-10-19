@@ -103,6 +103,8 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(prop.type == DECOR_COFFIN);
 				else if (t.type == MonsterSpawn && t.attr == MonsterMummyPriest)
 					CHECK(prop.type == DECOR_COFFIN_LARGE);
+				else if (t.type == MonsterSpawn && t.attr == MonsterUshabti) // among its fellows (plan living-ushabti)
+					CHECK(prop.type == DECOR_USHABTI);
 				else if (isWaterProp(prop.type)) {
 					CHECK(inHalfWater(t));
 					CHECK(t.type == NoObject);
@@ -255,6 +257,20 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 	LevelGrid anubis = grid;
 	anubis.set(10, 1, Tile{MonsterSpawn, MonsterAnubisBoss, 0}); // his guards step out of the walls (plan mummy-boss)
 	CHECK_FALSE(bossCoffinCell(anubis.cells, 9, 1));
+}
+
+TEST_CASE("a living ushabti stands among the decor ushabti, at any depth, alive or slain") {
+	LevelGrid grid;
+	for (int i = 1; i < 30; i++)
+		grid.set(i, 1, Tile{});
+	grid.set(10, 1, Tile{MonsterSpawn, MonsterUshabti, 0});
+	auto layout = std::make_unique<DecorLayout>();
+	scatterDecor(grid.cells, "ushabti", 1, *layout); // a cave level: no decor ushabti of its own
+	CHECK(layout->decor[idx(10, 1)].type == DECOR_USHABTI);
+	CHECK(layout->decor[idx(10, 1)].offsetX == 0.f);
+	grid.set(10, 1, slainObject(MonsterUshabti)); // after a load: its fellows stay
+	scatterDecor(grid.cells, "ushabti", 1, *layout);
+	CHECK(layout->decor[idx(10, 1)].type == DECOR_USHABTI);
 }
 
 TEST_CASE("every fire of a campaign level burns inside its cell: braziers, oil lamps and torches") {

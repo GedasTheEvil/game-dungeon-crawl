@@ -1,0 +1,12 @@
+# Plan living-ushabti, for `bin/game --play tests/play/living-ushabti.txt`: tests/levels/ushabti, a living ushabti
+# (col 7) among decor ushabti on cols 5-9. Walk east: it stands still like the others until you are about a cell away,
+# then steps off and waddles after you. A club breaks it fast, an arrow barely scratches it. In the campaign: levels
+# 11-14 have one each, 12 two; the Anubis boss (30) sends one out of the wall every other summon.
+seed 1
+level tests/levels/ushabti
+give melee 1
+equip club
+prop 5 ushabti
+prop 6 ushabti
+prop 8 ushabti
+prop 9 ushabti

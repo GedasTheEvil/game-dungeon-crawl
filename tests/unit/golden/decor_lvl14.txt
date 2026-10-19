@@ -142,7 +142,7 @@
 11,23 surface 3/1/1
 12,23 surface 4/0/1 decal 11m 0.525,0.591
 13,23 surface 2/2/0m decal 9m 0.560,0.424
-14,23 surface 0/0/0 decal 6 0.441,0.575
+14,23 surface 0/0/0 prop ushabti 0.000 decal 4 0.382,0.650
 15,23 surface 0/2/0
 16,23 surface 0/1/0 decal 12m 0.502,0.350 torch fire torch 0.000,0.680,0.098
 17,23 surface 0/0/0

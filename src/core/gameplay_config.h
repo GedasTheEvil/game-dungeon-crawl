@@ -121,6 +121,9 @@ constexpr float SWIM_LIFT_RATE = 4.f;
 
 // The cobra (Locomotion::Coiled) lies coiled until the player comes this close along its row, then rears up.
 constexpr float COILED_WAKE_RANGE = 1.8f;
+// The ushabti (Locomotion::Figurine) stands among the decor figures until the player comes this close along its row
+// (from its centre), then steps off its place: next to it, so the player cannot tell it from the others before.
+constexpr float FIGURINE_WAKE_RANGE = 1.3f;
 // A monster's shot (Dungeon::MonsterShot): flies straight at the player's chest as it was at the release, on past it
 // until it hits a wall or the floor, or has flown SHOT_MAX_FLIGHT tiles.
 constexpr float SHOT_SPEED = 3.f; // tiles per second

@@ -13,6 +13,7 @@
 #include "../../src/world/items.h"
 #include "../../src/world/inscriptions.h"
 #include "../../src/world/journal.h"
+#include "../../src/world/names.h"
 #include "../../src/world/rng.h"
 #include "../../src/world/world_events.h"
 #include <algorithm>
@@ -32,6 +33,7 @@ class SimWorld {
 	Player player;
 	Journal journal;
 	InscriptionBook inscriptions; // empty: a test adds the texts it reads
+	NameList names; // empty: a test loads the royal names it needs (plan secret-name-gates)
 	ItemBag items;
 	GameRandom random;
 	WorldEvents events;
@@ -43,7 +45,7 @@ class SimWorld {
 		GameClock::enableVirtual();
 		player.SetModel(playerModel());
 		player.scale = PLAYER_SCALE;
-		dungeon.Link({&player, &journal, &items, &random, nullptr, &events, &monsterTypes(), &inscriptions});
+		dungeon.Link({&player, &journal, &items, &random, nullptr, &events, &monsterTypes(), &inscriptions, &names});
 	}
 
 	// As the scenario command `level path` (with `seed`): a fresh player on the level's entrance. A number: the

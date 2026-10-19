@@ -304,7 +304,7 @@ TEST_CASE("every campaign inscription has a text, stands from level 6 on, and ea
 		int count = 0;
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
 			const Fixture& t = grid.cells[cell].fixture;
-			if (t.type != Inscription)
+			if (t.type != Inscription || t.attr == NAME_CARTOUCHE_ID) // a name cartouche holds a name, not a text
 				continue;
 			count++;
 			CHECK_MESSAGE(book.Find(t.attr) != nullptr, "lvl", n, ": inscription ", t.attr, " has no text");

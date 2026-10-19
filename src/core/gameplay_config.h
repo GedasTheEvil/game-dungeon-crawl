@@ -169,6 +169,11 @@ constexpr float HELD_ROLL_DEG = 14.f;
 constexpr float HELD_SHAKE_DEG = 2.f;
 
 constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's plasma colour, then back in at the arrival
+// A sealed name gate's plasma (plan secret-name-gates) breathes down to NAME_GATE_MIN_ALPHA and back once per
+// NAME_GATE_BREATH_MS; opened, it shimmers for NAME_GATE_SHIMMER_MS, then holds steady.
+constexpr float NAME_GATE_BREATH_MS = 1500.f;
+constexpr float NAME_GATE_MIN_ALPHA = 0.15f;
+constexpr float NAME_GATE_SHIMMER_MS = 900.f;
 // The blue lotus (Locomotion::Floating) floats as a flower until the player comes this close along its row (from its
 // centre), then rears up.
 constexpr float FLOATING_WAKE_RANGE = 1.2f;

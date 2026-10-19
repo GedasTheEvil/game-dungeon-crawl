@@ -5,8 +5,10 @@
 #include "inscriptions.h"
 #include "journal.h"
 #include "loot.h"
+#include "names.h"
 #include "dungeon_rules.h"
 #include "world_events.h"
+#include <cctype>
 #include <string>
 #include <vector>
 
@@ -83,7 +85,7 @@ Interaction Dungeon::InteractVerb() const {
 	if (here.fixture.type == Lever && isLockColour(here.fixture.attr) && !leverPulled(here.fixture))
 		return Interaction::Pull;
 	if (here.fixture.type == Inscription) {
-		const bool worn = sim.inscriptions == nullptr || sim.inscriptions->Find(here.fixture.attr) == nullptr;
+		const bool worn = !inscriptionPage(here.fixture);
 		return worn || sim.player->stats.heka.Has(SkillId::Hieroglyphs) ? Interaction::Read : Interaction::Copy;
 	}
 	const OwnedWeapons& owned = sim.items->Owned();
@@ -101,6 +103,8 @@ Interaction Dungeon::InteractVerb() const {
 	case GateExit:
 		return Interaction::Enter;
 	case GateTeleport:
+		if (isNameGate(here))
+			return Interaction::Answer;
 		return !sim.player->jump.jumping && !sim.player->jump.falling && teleportPartner(map, MapIndex(col, row)) >= 0
 				   ? Interaction::Enter
 				   : Interaction::None;
@@ -175,14 +179,13 @@ int Dungeon::ambushHere() const {
 //======================================================================================
 float Dungeon::InscriptionGlint(int col, int row) const {
 	constexpr float COPY_GLINT = 0.4f; // a copy keeps a dimmer glint until the skill is learnt (plan skill-hieroglyphs)
-	if (!IsInBounds(col, row) || MapAt(col, row).fixture.type != Inscription || sim.inscriptions == nullptr)
+	if (!IsInBounds(col, row) || MapAt(col, row).fixture.type != Inscription)
 		return 0.f;
-	const InscriptionText* text = sim.inscriptions->Find(MapAt(col, row).fixture.attr);
-	if (text == nullptr) // too worn to read: nothing to learn there
+	const std::optional<JournalInscription> page = inscriptionPage(MapAt(col, row).fixture);
+	if (!page) // too worn to read: nothing to learn there
 		return 0.f;
-	for (const JournalInscription& read : sim.journal->Inscriptions())
-		if (read.id == text->id)
-			return read.translated ? 0.f : COPY_GLINT;
+	if (const JournalInscription* read = sim.journal->FindInscription(*page))
+		return read->translated ? 0.f : COPY_GLINT;
 	return 1.f;
 }
 //======================================================================================
@@ -191,28 +194,58 @@ void Dungeon::lightArrows() {
 	sim.events->Status("Dipped %d arrows in the brazier's fire", FIRE_ARROW_SHOTS);
 }
 //======================================================================================
+const RoyalName* Dungeon::LevelName() const {
+	return sim.names != nullptr ? sim.names->ForLevel(sim.player->stats.run.nameSeed, levelNumber) : nullptr;
+}
+//======================================================================================
+int Dungeon::NameCartouchePicture() const { return nameCartouchePicture(sim.player->stats.run.nameSeed, levelNumber); }
+//======================================================================================
+std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) const {
+	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
+	if (f.attr == NAME_CARTOUCHE_ID) { // plan secret-name-gates
+		const RoyalName* name = LevelName();
+		if (name == nullptr)
+			return std::nullopt;
+		std::string upper = name->name;
+		for (char& c : upper)
+			c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+		const std::string asked = "Something on this level wants to hear it.";
+		JournalInscription page{NAME_CARTOUCHE_ID,
+								"A royal name",
+								{"The name of the " + name->title + ": " + upper},
+								name->note.empty() ? asked : name->note + " " + asked,
+								levelNumber,
+								reads};
+		page.picture = NameCartouchePicture();
+		return page;
+	}
+	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(f.attr) : nullptr;
+	if (text == nullptr)
+		return std::nullopt;
+	return JournalInscription{text->id, text->title, text->text, text->note, levelNumber, reads, text->boon};
+}
+//======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans
 // hieroglyph-cartouches, inscription-messages, skill-hieroglyphs).
 bool Dungeon::readInscription() {
 	const Fixture here = Map(mapX, mapY).fixture;
 	if (here.type != Inscription)
 		return false;
-	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(here.attr) : nullptr;
-	if (text == nullptr) {
+	const std::optional<JournalInscription> page = inscriptionPage(here);
+	if (!page) {
 		sim.events->Status("The signs are too worn to read.");
 		return true;
 	}
 	// Without the skill the glyphs are copied into the journal, the text stays hidden there (plan skill-hieroglyphs).
-	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
-	const bool first =
-		sim.journal->ReadInscription({text->id, text->title, text->text, text->note, levelNumber, reads, text->boon});
+	const bool reads = page->translated;
+	const bool first = sim.journal->ReadInscription(*page);
 	if (first)
 		sim.player->stats.run.inscriptions++;
 	if (!first)
 		sim.events->Status("Already seen. In the journal.");
 	else if (reads) {
 		const int xp = sim.player->stats.InscriptionXP(); // plan inscription-xp
-		const std::string boon = sim.player->stats.Grant(text->boon); // plan inscription-boons
+		const std::string boon = sim.player->stats.Grant(page->boon); // plan inscription-boons
 		sim.events->Status("Deciphered the hieroglyphs. Journal updated. +%d XP%s%s", xp, boon.empty() ? "" : ", ",
 						   boon.c_str());
 		sim.player->stats.AddXP(xp, *sim.events);
@@ -238,13 +271,27 @@ void Dungeon::useGate() {
 		startTravel(true);
 		break;
 	case GateTeleport:
-		if (!sim.player->jump.jumping && !sim.player->jump.falling &&
-			teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
+		if (isNameGate(here))
+			sim.events->AskName(); // plan secret-name-gates
+		else if (!sim.player->jump.jumping && !sim.player->jump.falling &&
+				 teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
 			startTravel(false);
 		break;
 	default: // the entrance, an answered riddle gate
 		break;
 	}
+}
+//======================================================================================
+bool Dungeon::SpeakName() {
+	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
+	if (!isNameGate(map[cell]))
+		return false;
+	unsealNameGate(map[cell]);
+	namedCell = cell;
+	namedAtMs = GameClock::now();
+	sim.events->Play(WorldSound::Teleport);
+	sim.events->Status("The name is spoken. The way opens.");
+	return true;
 }
 //======================================================================================
 void Dungeon::startTravel(bool exitGate) {

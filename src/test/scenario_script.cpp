@@ -436,6 +436,7 @@ const std::vector<CommandDef>& commandDefs() {
 		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
 		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},
 		{"campaign", CommandType::Campaign, noArgs, ""},
+		{"speakname", CommandType::SpeakName, noArgs, ""},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;

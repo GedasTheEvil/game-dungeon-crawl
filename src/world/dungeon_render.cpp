@@ -201,11 +201,18 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red) const {
+void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red, float alpha) const {
 	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
 	(red ? sim.assets->textures.portalRed : sim.assets->textures.portal).Bind();
 	Lighting::setEmissive(true);
+	const bool faded = alpha < 1.f;
+	if (faded) { // a name gate's breath: the columns show through
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE);
+		glColor4f(1, 1, 1, alpha);
+	}
 	glBegin(GL_QUADS);
 	glNormal3fv(normal);
 	for (int k = 0; k < 4; k++) {
@@ -213,11 +220,32 @@ void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red) c
 		glVertex3fv(v[k]);
 	}
 	glEnd();
+	if (faded) {
+		glColor4f(1, 1, 1, 1);
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
 	Lighting::setEmissive(false);
 }
 //======================================================================================
+// Plan secret-name-gates: sealed, the plasma breathes into transparency and back with a flicker; spoken, it shimmers
+// a moment, then holds steady.
+float Dungeon::nameGateAlpha(int cell) const {
+	const float now = static_cast<float>(GameClock::now());
+	if (isNameGate(map[cell])) {
+		const float breath = 0.5f + 0.5f * std::cos(now / NAME_GATE_BREATH_MS * 2.f * static_cast<float>(M_PI));
+		const float flicker = 0.06f * std::sin(now * 0.031f + static_cast<float>(cell));
+		return std::clamp(NAME_GATE_MIN_ALPHA + (1.f - NAME_GATE_MIN_ALPHA) * breath + flicker, 0.f, 1.f);
+	}
+	const float since = now - static_cast<float>(namedAtMs);
+	if (cell != namedCell || since < 0.f || since >= NAME_GATE_SHIMMER_MS)
+		return 1.f;
+	const float t = since / NAME_GATE_SHIMMER_MS; // the flicker dies down to full
+	return 1.f - (1.f - t) * 0.5f * (1.f + std::sin(since * 0.06f));
+}
+//======================================================================================
 // The plasma fills the gap between the columns, in their centre plane (props.py, build_columns).
-void Dungeon::drawTeleporterTile() {
+void Dungeon::drawTeleporterTile(int i, int j) {
 	glPushMatrix();
 	glTranslatef(20, 0, -30);
 	glScalef(40, 40, 40);
@@ -227,7 +255,7 @@ void Dungeon::drawTeleporterTile() {
 
 	const float normal[3] = {0, 0, 1};
 	const float v[4][3] = {{10, 0, -30}, {10, 36, -30}, {30, 36, -30}, {30, 0, -30}};
-	drawPortal(normal, v);
+	drawPortal(normal, v, false, nameGateAlpha(MapIndex(i, j)));
 }
 //======================================================================================
 void Dungeon::drawAnkhTile() {
@@ -320,7 +348,7 @@ void Dungeon::drawTileContent(int i, int j) {
 		break;
 	case Door:
 		if (isTeleporter(tile))
-			drawTeleporterTile();
+			drawTeleporterTile(i, j);
 		else
 			drawDoorTile(i, j);
 		break;

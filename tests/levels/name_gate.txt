@@ -1,0 +1,11 @@
+; Plan secret-name-gates: the name cartouche (col 5), the name gate (col 10), the exit (col 16) on the bottom row; the
+; sealed room above (its teleporter at col 4, a chest at col 7). Built with tools/level/ascii2level.py.
+def ! 2 5 265
+def ( 2 5 9
+def { 8 3 2
+########################################
+####(..{..##############################
+########################################
+########################################
+#S...:....!.....E#######################
+########################################

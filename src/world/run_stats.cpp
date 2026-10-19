@@ -63,7 +63,7 @@ void RunStats::Dump(std::ostream& out) const {
 	out << ' ' << levelMs.size();
 	for (int ms : levelMs)
 		out << ' ' << ms;
-	out << '\n';
+	out << "\nNAMES " << nameSeed << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -93,4 +93,11 @@ void RunStats::LoadDump(std::istream& in) {
 	}
 	loaded.campaign = isCampaign != 0;
 	*this = loaded;
+	// From the secret name gates on (plan secret-name-gates).
+	const auto names = in.tellg();
+	if (!(in >> tag) || tag != "NAMES" || !(in >> nameSeed)) {
+		in.clear();
+		in.seekg(names);
+		nameSeed = 0;
+	}
 }

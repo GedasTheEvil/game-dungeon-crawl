@@ -14,6 +14,10 @@
 constexpr int INSCRIPTION_ATLAS_GRID = 8;
 constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
 [[nodiscard]] constexpr bool isInscriptionId(int id) { return id >= 1 && id <= INSCRIPTION_MAX; }
+// A name cartouche (plan secret-name-gates): an Inscription whose attribute is NAME_CARTOUCHE_ID. It holds the
+// level's name for its name gate (names.h), not a text of content/inscriptions/; its picture is a cell of the name
+// cartouche atlas.
+constexpr int NAME_CARTOUCHE_ID = 100;
 // The first campaign level with inscriptions: the hieroglyph skill (plan skill-hieroglyphs) comes with the first
 // boss's heka, at the end of level 5. levelcheck warns about one before it.
 constexpr int INSCRIPTIONS_FROM_LEVEL = 6;

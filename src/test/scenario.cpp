@@ -477,6 +477,17 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Riddles:
 		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
 		return true;
+	case CommandType::SpeakName: { // plan secret-name-gates: the level's name typed into the open scroll, key by key
+		const RoyalName* name = Game().dungeon.LevelName();
+		if (name == nullptr || ScreenState::GetDrawScreen(Game()) != Screen::Riddle) {
+			report(cmd, false, std::string("no name, or the scroll is not open: screen ") + screenName());
+			return true;
+		}
+		for (char c : name->name)
+			keyPressed(static_cast<unsigned char>(c), 0, 0);
+		report(cmd, true, name->name);
+		return true;
+	}
 	case CommandType::Inscriptions: {
 		Game().inscriptions = InscriptionBook{};
 		const std::vector<std::string> problems = Game().inscriptions.Load(cmd.arg);

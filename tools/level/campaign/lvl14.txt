@@ -1,6 +1,7 @@
 ; lvl14: the long descent. Giant scarabs, rats and bats, two mummies, two Anubis. The red key opens the way down, the blue lever at the
 ; west end of the third hall opens the blue gate, the green key beyond the ladder the green gate.
 ; The second Anubis guards a life potion at the west end of the bottom hall. A living ushabti in the second hall.
+; The name gate (plan secret-name-gates) leads to a sealed room; the name cartouche elsewhere on the level.
 def / 12 1 0
 def L 12 2 0
 def K 12 3 0
@@ -14,11 +15,17 @@ def 8 8 3 6
 def 9 8 1 4
 def a 8 3 7
 def i 15 11 0
+def ! 2 5 265
+def ( 2 5 9
+def ] 15 37 0
+def { 8 3 4
+########################################
+############(..]..u{####################
 ########################################
 #S.a..T.....T....^..k...H###############
 ########################H###############
 ########################H###############
-##r?....k.i...@....v....H...R..F......##
+##r?....k.i...@....v....H...R..F.....!##
 ###################################.####
 ###################################.####
 ######L.....H...F...........F........9##
@@ -27,7 +34,7 @@ def i 15 11 0
 ####g..p....H.....B..k..u...v.....H..###
 ##################################H#####
 ##################################H#####
-##########...u..?.....n.....G.....H.8###
+##########:..u..?.....n.....G.....H.8###
 ############.######X####################
 ############.###########################
 ###7..n.........T......F...k....E#######

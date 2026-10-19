@@ -1,4 +1,5 @@
 #include "tile_defs.h"
+#include "inscriptions.h"
 #include "monster_kinds.h"
 #include <array>
 
@@ -37,7 +38,9 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 true, true, '_', "dartplate.png"},
 	{"Inscription",
 	 "Hieroglyphs on the back wall. Interact to read them: the translation goes into the journal. Attribute: the text "
-	 "id in content/inscriptions/*.txt. From level 6 on in the campaign. Put a floor under it.",
+	 "id in content/inscriptions/*.txt, or 100: a name cartouche, the level's name for its name gate. From level 6 on "
+	 "in "
+	 "the campaign. Put a floor under it.",
 	 false, false, 'i', "inscription.png"},
 	{"WallSpikes",
 	 "Rhythm trap: poison spikes shoot out of the back wall and go back in, on a fixed cycle. Out, they block like a "
@@ -64,7 +67,7 @@ char doorGlyph(const Tile& t) {
 	case GateRiddle:
 		return '?';
 	case GateTeleport:
-		return 'O';
+		return isNameGate(t) ? '!' : 'O';
 	default:
 		return 'D';
 	}
@@ -78,6 +81,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'E', {Door, GateExit, 0}, "exit"},
 		{'?', {Door, GateRiddle, 0}, "riddle gate"},
 		{'O', {Door, GateTeleport, 1}, "teleporter (pair id 1; more pairs: 'def')"},
+		{'!', {Door, GateTeleport, 1 | NAME_SEAL}, "name gate (teleporter pair id 1, sealed by the level's name)"},
 		{'D', {Door, 0, 0}, "gate without a purpose (checker warns)"},
 		{'H', {Ladder, 0, 0}, "ladder"},
 		{'$', {Treasure, 3, 0}, "treasure (small health potion; others: 'def')"},
@@ -88,6 +92,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'_', {DartPlate, 0, 0}, "dart trap plate"},
 		{'/', {Lever, 1, 0}, "lever (red; other colours: 'set')"},
 		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
+		{':', {Inscription, NAME_CARTOUCHE_ID, 0}, "name cartouche (the level's name, for its name gate)"},
 		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
@@ -123,6 +128,8 @@ char tileGlyph(const Tile& t) {
 		return isLockColour(t.attr) ? lockColour(t.attr).keyGlyph : 'q';
 	case Gate:
 		return isGateColour(t.attr) ? lockColour(t.attr).gateGlyph : 'Q';
+	case Inscription:
+		return t.attr == NAME_CARTOUCHE_ID ? ':' : 'i';
 	default:
 		return tileDef(t.type).glyph != '\0' ? tileDef(t.type).glyph : '?';
 	}

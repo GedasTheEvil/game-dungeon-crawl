@@ -39,6 +39,9 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | level grid | | every level is 40 x 47 cells, row 0 at the bottom | `LEVEL_WIDTH`, `LEVEL_HEIGHT` |
 | pit | | a drop with no floor; a spike pit kills (the checker does not count it as a softlock) | `src/world/level_check.h` |
 | riddle gate | | a gate that opens on the right answer to a riddle | `GateRiddle` |
+| name gate | The Name Gate | a teleporter sealed by the level's royal name: the riddle scroll asks for it, the right name opens it for good ([secret-name-gates](plan/secret-name-gates.md)). Its plasma breathes until then | `NAME_SEAL`, `isNameGate`, `Dungeon::SpeakName` |
+| name cartouche | A royal name | an inscription that holds the level's royal name for its name gate, not a text; its picture is one of 16 sign groups that do not spell the name | `NAME_CARTOUCHE_ID`, `nameCartouchePicture`, `Dungeon::NameCartouchePicture` |
+| secret room | | the pocket of a level only the name gate leads to: a chest, a lore inscription, now and then a guardian; never needed for the exit | `checkNameGates` |
 | row | | a horizontal line of cells, row 0 at the bottom. Walkers follow the player along their row | `LevelGrid` |
 | slain marker | | a monster's spawn cell remembers the monster killed there, so it does not come back after a load | `slainMonster`, `slainObject` |
 | softlock | | a reachable cell from which the exit can no longer be reached; the checker warns | `LevelReport` |
@@ -155,6 +158,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
 | play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |
 | placeholder row | Spirit of Exploration | the empty board's one row, never written to the file | `placeholderRecord` |
+| name list | | the royal names of the name gates, `content/names/*.txt` ([names](names.md)); each run gives every level its own (the run's name seed) | `NameList`, `RoyalName`, `RunStats::nameSeed` |
 | run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage, times poisoned and cursed), kept in the save | `RunStats` |
 | win entry | | the name field over the won game; Enter records the run, Esc skips | `WinEntry` |
 

@@ -1,6 +1,7 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
 // lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon.h"
+#include "names.h"
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
@@ -161,9 +162,13 @@ void Dungeon::drawDecalTile(int i, int j) {
 // Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
 void Dungeon::drawInscriptionTile(int i, int j) {
 	const int id = MapAt(i, j).fixture.attr;
-	const AtlasRect uv =
+	AtlasRect uv =
 		isInscriptionId(id) ? atlasCell(id - 1, INSCRIPTION_ATLAS_GRID) : atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID);
-	(isInscriptionId(id) ? sim.assets->decor.inscriptionTex : sim.assets->decor.decalTex).Bind();
+	if (id == NAME_CARTOUCHE_ID) { // plan secret-name-gates: this run's picture for the level
+		uv = atlasCell(NameCartouchePicture(), NAME_CARTOUCHE_GRID);
+		sim.assets->decor.nameCartoucheTex.Bind();
+	} else
+		(isInscriptionId(id) ? sim.assets->decor.inscriptionTex : sim.assets->decor.decalTex).Bind();
 	wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, false);
 	if (const float glint = InscriptionGlint(i, j); glint > 0.f)
 		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, glint, MapIndex(i, j));

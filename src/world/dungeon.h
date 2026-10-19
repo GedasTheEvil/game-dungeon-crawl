@@ -7,12 +7,16 @@
 #include "decor_scatter.h"
 #include "dungeon_darts.h"
 #include "interaction.h"
+#include "journal.h"
 #include "level.h"
 #include "climb_path.h"
 #include "view_window.h"
 #include "sim_links.h"
 #include <memory>
+#include <optional>
 #include <vector>
+
+struct RoyalName;
 
 // Coordinate spaces used throughout the world system:
 //   Map space:    float [0, MAP_W] x [0, MAP_H], tile units, used for collision
@@ -85,6 +89,12 @@ class Dungeon {
 	[[nodiscard]] TreasureLook treasureLook(int cell) const;
 	bool PullLever(); // interact on a lever cell; false if there is none
 	bool readInscription(); // interact on an inscription: into the journal; false if there is none
+	// The journal page of the inscription fixture f, translated if the player has the hieroglyph skill; a name
+	// cartouche's holds the level's name (plan secret-name-gates). None: too worn to read (no text, no name).
+	[[nodiscard]] std::optional<JournalInscription> inscriptionPage(const Fixture& f) const;
+	// The name gate opened last (map index) and when (GameClock): its plasma shimmers from the pulse to steady.
+	int namedCell = -1;
+	int namedAtMs = 0;
 	// Interact by a brazier with a bow held (InteractVerb Light): the next FIRE_ARROW_SHOTS arrows carry fire (plan
 	// fire-damage).
 	void lightArrows();
@@ -191,14 +201,18 @@ class Dungeon {
 	void drawKeyTile(int i, int j);
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
-	void drawTeleporterTile(); // at the cell origin: the columns face the camera, plasma between them
+	// At the cell origin: the columns face the camera, plasma between them; a name gate's pulses (nameGateAlpha).
+	void drawTeleporterTile(int i, int j);
+	// The plasma's opacity in a teleporter's cell: 1, but for a sealed name gate's breath and the shimmer of one just
+	// opened.
+	[[nodiscard]] float nameGateAlpha(int cell) const;
 	void drawTileContent(int i, int j); // the fixture on the back wall, then what stands in the cell, by tile type
 	void drawFixture(int i, int j);
 	void drawAnkhTile();
 	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
 	// The scrolling plasma of the gates, over the quad v (its corners take the texture's (0, 0), (0, 1), (1, 1), (1,
 	// 0)).
-	void drawPortal(const float normal[3], const float v[4][3], bool red = false) const;
+	void drawPortal(const float normal[3], const float v[4][3], bool red = false, float alpha = 1.f) const;
 	void drawRockFallTile(int i, int j);
 	void drawMechanismEffects(); // dust, after the opaque scene
 	DartTraps dartTraps;
@@ -424,6 +438,12 @@ class Dungeon {
 	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
 	// copied without the skill, 0 translated, too worn to read, or no inscription.
 	[[nodiscard]] float InscriptionGlint(int col, int row) const;
+	// The level's royal name in this run (plan secret-name-gates, names.h): the name gate asks for it, the name
+	// cartouche shows it. Null: no names loaded.
+	[[nodiscard]] const RoyalName* LevelName() const;
+	[[nodiscard]] int NameCartouchePicture() const; // the name cartouche's cell of its atlas
+	// The right name was spoken at the name gate in the player's cell: it opens for good. False: no name gate there.
+	bool SpeakName();
 	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, held (PlayerHeldBy),
 	// wading (JumpAllowed) or out of stamina (told why), or the level is won.
 	void StartJump(int dir);

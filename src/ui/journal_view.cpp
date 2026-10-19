@@ -4,6 +4,7 @@
 #include "../state/game_state.h"
 #include "../world/decor.h"
 #include "../world/inscriptions.h"
+#include "../world/names.h"
 #include "../world/journal.h"
 #include "../world/monster_kinds.h"
 #include "page_curl.h"
@@ -1085,10 +1086,13 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 	// A copy made without the hieroglyph skill: the glyphs and a pencilled line, no title, no translation.
 	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, e.translated ? e.title.c_str() : "Hieroglyphs");
 
-	if (isInscriptionId(e.id)) {
-		const AtlasRect uv = atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
+	const bool name = e.id == NAME_CARTOUCHE_ID && e.picture >= 0 && e.picture < NAME_CARTOUCHE_PICTURES;
+	if (isInscriptionId(e.id) || name) {
+		const AtlasRect uv =
+			name ? atlasCell(e.picture, NAME_CARTOUCHE_GRID) : atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
 		Rect box = {p.cx() - GLYPHS_SIDE / 2, top - GLYPHS_TOP - GLYPHS_SIDE, GLYPHS_SIDE, GLYPHS_SIDE};
-		texturedRect(box, Game().assets.decor.inscriptionTex.ID(), PAPER, uv.u0, uv.v0, uv.u1, uv.v1);
+		texturedRect(box, (name ? Game().assets.decor.nameCartoucheTex : Game().assets.decor.inscriptionTex).ID(),
+					 PAPER, uv.u0, uv.v0, uv.u1, uv.v1);
 		beginShapes();
 	}
 

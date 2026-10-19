@@ -41,9 +41,9 @@ constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the 
 
 // What the world, the monsters and the player tell the app: it drains the list at fixed points (after the input
 // actions, at the end of the tick) and plays the sound, shows the status line, writes the field note or opens the
-// riddle. The world does not reach into the sound bank or the screens.
+// riddle (or a name gate's scroll). The world does not reach into the sound bank or the screens.
 struct WorldEvent {
-	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, CharacterSound };
+	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, AskName, CharacterSound };
 	Kind kind;
 	WorldSound sound = WorldSound::ArrowHit;
 	FieldNote note = FieldNote::Health;
@@ -61,6 +61,8 @@ class WorldEvents {
 	[[gnu::format(printf, 2, 3)]] void Status(const char* format, ...);
 	void Note(FieldNote note) { list.push_back({WorldEvent::Kind::Note, {}, note, {}}); }
 	void AskRiddle() { list.push_back({WorldEvent::Kind::AskRiddle, {}, {}, {}}); }
+	// A name gate (plan secret-name-gates): the scroll asks for the level's name.
+	void AskName() { list.push_back({WorldEvent::Kind::AskName, {}, {}, {}}); }
 	// The events since the last call, oldest first; the list is empty after.
 	[[nodiscard]] std::vector<WorldEvent> Take();
 

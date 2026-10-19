@@ -75,7 +75,11 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 
 Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). One Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half water of each water level (7-9, 16-25, 27-30), a few cells before it; levelcheck assumes none. Crocodiles live in the water of levels 7-9 (and many flooded levels after). Hippos lie in the water of levels 16, 18, 21 and 23 (one a level, in a long pool; levelgen makes no water). Blue lotuses float in the water of levels 7-9, 16-25 and 27-30 (one to three a level; levelgen makes no water). Camel spiders run in levels 4 and 6-8 (one a level, levelgen from difficulty 3 to 8); they keep out of the light of torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 11-14 (one a level, two in 12; levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 30. Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
 [inscriptions](inscriptions.md) (`content/inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
-ahead, a dart trap, a hidden treasure room, the order of the locks). Weak monsters give way to their giant kin: no rats, scarabs or small bats
+ahead, a dart trap, a hidden treasure room, the order of the locks). Levels 6, 8, 10, 12, 14, 16, 18, 21, 22, 24, 26,
+28 and 30 have a secret room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name
+cartouche (`:`) elsewhere on the level, and the sealed room carved into the rock, reached only by the name gate: its
+teleporter, a lore inscription (ids 33 to 45, two with a boon), a chest with a rare potion or an amulet (two in some),
+a mummy guarding it in 14, 21, 26 and 30. Weak monsters give way to their giant kin: no rats, scarabs or small bats
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt content/levels/lvl9`.
@@ -105,14 +109,18 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   (the game opens one saved while opening), and a lever with value 1 is already pulled and opens nothing.
 - Reaching the boss counts as killing it (the checker cannot fight): the boss gates (lock colour 5) open. No key
   opens them.
-- A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways.
+- A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways. A name gate (a
+  teleporter whose value has `NAME_SEAL`, 256, added to its pair id) too, but the exit, the keys, the levers and its
+  name cartouche must also be found with it sealed.
 
 It reports:
 
 | Item | Meaning |
 |---|---|
 | errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a monster spawn, ladder, gate, door or treasure in front of wall spikes, a level file older than v3, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id. With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6, the same text id in two places. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a monster spawn, ladder, gate, door or treasure in front of wall spikes, a level file older than v3, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id, more than one name gate, a name gate without a name cartouche or one
+without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
+to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6 (a name gate too), the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |
@@ -163,7 +171,7 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    throwing stick and javelin from 4, the composite bow from 7.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a name cartouche `:`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose

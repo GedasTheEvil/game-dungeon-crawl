@@ -159,7 +159,9 @@ CellHint describeCell(const Tile& cell) {
 	case Door:
 		hint.attribute = field("gate type", GATE_TYPES, cell.attr, "unknown, decoration only");
 		if (cell.attr == GateTeleport)
-			hint.value = anyNumber("pair id", cell.value, "the other teleporter with this value is the target");
+			hint.value = anyNumber("pair id", cell.value,
+								   "the other teleporter with this value is the target; + 256: a name gate, sealed by "
+								   "the level's name");
 		break;
 	case MonsterSpawn:
 		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
@@ -185,7 +187,8 @@ CellHint describeCell(const Tile& cell) {
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case Inscription:
-		hint.attribute = anyNumber("text id", cell.attr, "id: line in content/inscriptions/*.txt, 1 to 64");
+		hint.attribute =
+			anyNumber("text id", cell.attr, "id: line in content/inscriptions/*.txt, 1 to 64; 100: a name cartouche");
 		break;
 	case RockFall:
 	case DartPlate:

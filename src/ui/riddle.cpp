@@ -27,7 +27,7 @@ constexpr Rect ANSWER_BOX = {86, 22, 62, 7.5f};
 constexpr float QUESTION_TOP = 65.f;
 constexpr float QUESTION_STEP = 4.4f;
 constexpr int MAX_QUESTION_LINES = 6;
-constexpr size_t MAX_TYPED = 32;
+constexpr size_t MAX_TYPED = MAX_ANSWER_CHARS;
 constexpr int HINT_AFTER_MISSES = 2;
 constexpr int WRONG_MS = 1600;
 constexpr int SHAKE_MS = 400;
@@ -45,25 +45,6 @@ std::string trim(const std::string& s) {
 } // namespace
 
 // ---- riddle files ----------------------------------------------------------
-
-std::string NormalizeAnswer(const std::string& text) {
-	std::string lower;
-	for (char c : text)
-		lower += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-	lower = trim(lower);
-	for (const char* article : {"a ", "an ", "the "}) {
-		std::string prefix(article);
-		if (lower.size() > prefix.size() && lower.compare(0, prefix.size(), prefix) == 0) {
-			lower = lower.substr(prefix.size());
-			break;
-		}
-	}
-	std::string out;
-	for (char c : lower)
-		if (std::isalnum(static_cast<unsigned char>(c)))
-			out += c;
-	return out;
-}
 
 void ParseRiddles(std::istream& in, const std::string& source, std::vector<RiddleEntry>& out,
 				  std::vector<std::string>& errors) {
@@ -193,6 +174,7 @@ void Riddle::Ask() {
 	shown = riddles[selected];
 	reward = Game().player->stats.RiddleXP();
 	late = false;
+	nameGate = false;
 	JournalRiddle note;
 	note.theme = shown.theme;
 	note.question = shown.question;
@@ -211,9 +193,20 @@ void Riddle::AskLate(size_t index) {
 	shown = RiddleEntry{note.theme, note.question, note.answers, note.hint, "journal"};
 	reward = note.lateXP;
 	late = true;
+	nameGate = false;
 	journalIndex = index;
 	answer.clear();
 	misses = note.hintShown ? HINT_AFTER_MISSES : 0;
+	wrongAtMs = -100000;
+}
+
+void Riddle::AskName(const RoyalName& name) {
+	shown = RiddleEntry{"The sealed way", {"Speak the name written in the cartouche."}, name.answers, "", name.source};
+	reward = 0;
+	late = false;
+	nameGate = true;
+	answer.clear();
+	misses = 0;
 	wrongAtMs = -100000;
 }
 
@@ -227,6 +220,11 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	(void)mouseY;
 
 	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost; the journal keeps the riddle
+		if (nameGate) { // it stays sealed, to be asked again
+			Game().ui.screen = Screen::Gameplay;
+			Game().ShowStatus("The way stays sealed.");
+			return;
+		}
 		if (late) {
 			Game().ui.screen = Screen::Journal;
 			return;
@@ -236,7 +234,10 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 	} else if (key == KEY_ENTER) {
 		if (NormalizeAnswer(answer).empty())
 			return;
-		if (CheckAnswer()) {
+		if (nameGate && CheckAnswer()) {
+			Game().ui.screen = Screen::Gameplay;
+			Game().dungeon.SpeakName(); // its status line, the sound
+		} else if (CheckAnswer()) {
 			Game().journal.Solve(journalIndex, late, answer);
 			Game().player->stats.run.riddles++;
 			Game().player->stats.AddXP(reward, Game().events);
@@ -249,7 +250,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			Game().ShowStatus("Riddle answered, got %d XP", reward);
 		} else {
 			misses++;
-			if (misses >= HINT_AFTER_MISSES)
+			if (!nameGate && misses >= HINT_AFTER_MISSES)
 				Game().journal.ShowHint(journalIndex);
 			wrongAtMs = GameClock::now();
 			answer.clear();
@@ -279,10 +280,11 @@ void Riddle::Draw() {
 	DrawAnswer();
 
 	beginText();
-	textCentered(small, CANVAS_W / 2, 2.2f,
-				 late ? "Type the answer    Enter: answer    Backspace: erase    Esc: back to the journal"
-					  : "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)",
-				 {0.55f, 0.45f, 0.30f});
+	const char* keys = late ? "Type the answer    Enter: answer    Backspace: erase    Esc: back to the journal"
+					   : nameGate
+						   ? "Type the name    Enter: speak    Backspace: erase    Esc: walk away"
+						   : "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)";
+	textCentered(small, CANVAS_W / 2, 2.2f, keys, {0.55f, 0.45f, 0.30f});
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -292,7 +294,11 @@ void Riddle::Draw() {
 
 void Riddle::DrawBackground() {
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
-	titleBar(title, CANVAS_W / 2, late ? "Riddle from the Journal" : "Riddle of the Gate", 72.f);
+	titleBar(title, CANVAS_W / 2,
+			 late		? "Riddle from the Journal"
+			 : nameGate ? "The Name Gate"
+						: "Riddle of the Gate",
+			 72.f);
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
@@ -318,7 +324,7 @@ void Riddle::DrawScroll() {
 	textCentered(heading, cx, 77.f, r.theme.c_str(), INK);
 	char rewardText[32];
 	snprintf(rewardText, sizeof(rewardText), late ? "Late answer %d XP" : "Reward %d XP", reward);
-	textCentered(small, cx, 72.5f, rewardText, INK_RED);
+	textCentered(small, cx, 72.5f, nameGate ? "Whoever knows the name opens the way" : rewardText, INK_RED);
 
 	std::vector<std::string> lines;
 	for (const std::string& q : r.question)
@@ -333,7 +339,14 @@ void Riddle::DrawScroll() {
 		y -= QUESTION_STEP;
 	}
 
-	if (misses >= HINT_AFTER_MISSES) {
+	// Plan secret-name-gates: no hint, but a player without the skill is told where the name might be.
+	if (nameGate && misses > 0 && !Game().player->stats.heka.Has(SkillId::Hieroglyphs)) {
+		std::vector<std::string> hintLines =
+			wrap(small, "A name is asked. The wall glyphs I copied might hold it.", SCROLL.w - 12);
+		float hy = 35.f + (hintLines.size() > 1 ? 1.7f : 0.f);
+		for (size_t i = 0; i < hintLines.size() && i < 2; i++)
+			textCentered(small, cx, hy - 3.4f * static_cast<float>(i), hintLines[i].c_str(), INK_FADED);
+	} else if (!nameGate && misses >= HINT_AFTER_MISSES) {
 		std::string hint = r.hint;
 		if (hint.empty())
 			hint = "the answer has " + std::to_string(r.answers.front().size()) + " characters";
@@ -380,7 +393,8 @@ void Riddle::DrawAnswer() {
 	if (wrong) {
 		float alpha =
 			age > WRONG_MS / 2 ? static_cast<float>(WRONG_MS - age) / (static_cast<float>(WRONG_MS) / 2) : 1.f;
-		textCentered(body, SCROLL.cx(), 16.f, "Wrong. The hounds stay silent.", INK_RED, alpha);
+		textCentered(body, SCROLL.cx(), 16.f,
+					 nameGate ? "Wrong. The way stays sealed." : "Wrong. The hounds stay silent.", INK_RED, alpha);
 	}
 	beginShapes();
 }

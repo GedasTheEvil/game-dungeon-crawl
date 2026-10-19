@@ -1,0 +1,162 @@
+# The royal names of the name gates (plan secret-name-gates, docs/names.md). One entry per name: name:, then an A:
+# line per accepted spelling (compared like riddle answers), an optional title: (default king) and N: comment.
+
+name: Khufu
+A: khufu
+A: cheops
+N: The Great Pyramid's owner. Not a modest man.
+
+name: Djoser
+A: djoser
+A: zoser
+N: First pyramid, six steps. Imhotep did the sums.
+
+name: Sneferu
+A: sneferu
+A: snefru
+N: Built three pyramids until one came out right.
+
+name: Hatshepsut
+title: queen
+A: hatshepsut
+A: hatchepsut
+N: Ruled as king, beard and all.
+
+name: Thutmose
+A: thutmose
+A: thutmosis
+A: tuthmosis
+N: There were four of them. The temple walls keep count.
+
+name: Amenhotep
+A: amenhotep
+A: amenophis
+N: Greek visitors called him Amenophis. He never answered to it.
+
+name: Akhenaten
+A: akhenaten
+A: akhenaton
+A: echnaton
+N: One god, one city, one very short dynasty.
+
+name: Nefertiti
+title: queen
+A: nefertiti
+N: The most famous face in Berlin.
+
+name: Tutankhamun
+A: tutankhamun
+A: tutankhamen
+A: tutankhamon
+A: tut
+N: A minor king with a major tomb.
+
+name: Ramesses
+A: ramesses
+A: ramses
+A: rameses
+N: Ramesses the Great. Built half of Egypt, signed the other half.
+
+name: Seti
+A: seti
+A: sethos
+N: His tomb is the longest in the valley. Bring sandwiches.
+
+name: Merneptah
+A: merneptah
+N: Thirteenth son of Ramesses. Patience pays.
+
+name: Narmer
+A: narmer
+N: Joined the two lands with one palette.
+
+name: Khafre
+A: khafre
+A: chephren
+A: khafra
+N: The Sphinx is said to wear his face.
+
+name: Menkaure
+A: menkaure
+A: mycerinus
+A: menkaura
+N: The smallest of the three pyramids. The kindest king, says Herodotus.
+
+name: Unas
+A: unas
+A: wenis
+N: The first to write spells on his burial walls.
+
+name: Teti
+A: teti
+N: Murdered by his bodyguards, says Manetho. Choose staff with care.
+
+name: Pepi
+A: pepi
+A: pepy
+N: Pepi II reigned some ninety years. The longest wait for an heir.
+
+name: Ahmose
+A: ahmose
+A: amosis
+A: ahmosis
+N: Threw out the Hyksos and kept their chariots.
+
+name: Sobekneferu
+title: queen
+A: sobekneferu
+A: sobekneferure
+N: The crocodile god's beauty. First queen with the full royal titles.
+
+name: Taharqa
+A: taharqa
+A: taharka
+A: tirhakah
+N: A pharaoh from Kush, mentioned in the Bible.
+
+name: Psamtik
+A: psamtik
+A: psammetichus
+N: Raised two children without words to find the first language. Science!
+
+name: Nectanebo
+A: nectanebo
+A: nakhtnebef
+N: The last native pharaoh. After him, the Persians.
+
+name: Cleopatra
+title: queen
+A: cleopatra
+N: Closer in time to the moon landing than to the pyramids.
+
+name: Hor-Aha
+A: horaha
+A: aha
+N: "The fighting Horus". Killed by a hippo, they say.
+
+name: Den
+A: den
+A: dewen
+N: Three letters. The shortest name on the list.
+
+name: Mentuhotep
+A: mentuhotep
+A: montuhotep
+N: Put Egypt back together after the first falling apart.
+
+name: Senusret
+A: senusret
+A: sesostris
+A: senwosret
+N: The Greeks made a world conqueror out of him.
+
+name: Amenemhat
+A: amenemhat
+A: amenemhet
+A: ammenemes
+N: Built a labyrinth, says Herodotus. Nobody found the way out since.
+
+name: Horemheb
+A: horemheb
+A: haremhab
+N: A general who made himself king. And scratched out the ones before.

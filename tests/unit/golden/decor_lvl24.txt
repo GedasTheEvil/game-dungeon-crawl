@@ -32,6 +32,14 @@
 34,3 surface 3/0/1
 7,4 surface 6/1/2 ladder 0/0m
 7,5 surface 1/0/0 ladder 0/1
+12,5 surface 1/0/0
+13,5 surface 0/2/0 decal 10 0.613,0.455
+14,5 surface 0/1/0 prop canopicm 0.027
+15,5 surface 1/0/0
+16,5 surface 2/0/0 torch fire torch 0.000,0.680,0.098
+17,5 surface 3/1/1 prop cat -0.126
+18,5 surface 4/1/1
+19,5 surface 3/0/1
 7,6 surface 7/1/2 ladder 0/2
 7,7 surface 6/1/2 ladder 0/0m
 10,7 surface 4/1/1
@@ -56,7 +64,7 @@
 3,8 surface 1/0/0 ladder 1/4
 4,8 surface 0/0/0 decal 1 0.720,0.408
 5,8 surface 2/0/0 decal 9 0.494,0.560
-6,8 surface 4/0/1
+6,8 surface 4/0/1 prop skeleton -0.133
 7,8 surface 3/0/1 ladder 0/3m
 8,8 surface 3/0/1 torch fire torch 0.000,0.680,0.098
 9,8 surface 2/0/0m prop rubblem 0.019

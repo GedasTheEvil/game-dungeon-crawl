@@ -45,8 +45,9 @@ int bitOf(int colour) { return isGateColour(colour) ? 1 << (colour - 1) : 0; }
 
 class Walker {
   public:
-	explicit Walker(const LevelGrid& grid, bool teleports = true)
-		: grid(grid), pairs(grid.cells), teleports(teleports) {}
+	// sealed: the name gates (plan secret-name-gates) do not teleport, as before the name is spoken.
+	explicit Walker(const LevelGrid& grid, bool teleports = true, bool sealed = false)
+		: grid(grid), pairs(grid.cells), teleports(teleports), sealed(sealed) {}
 
 	// In level data a gate is closed (0) or open: the game opens one saved mid-motion (2) on load.
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
@@ -117,7 +118,7 @@ class Walker {
 		if (lever.type == Lever && isLockColour(lever.attr) && !leverPulled(lever)) // a pulled lever opens nothing
 			add(stateOf(col, row, mask | bitOf(lever.attr)), COST_MOVE, Move::Pull);
 
-		if (teleports && isTeleporter(here)) {
+		if (teleports && isTeleporter(here) && !(sealed && isNameGate(here))) {
 			int to = pairs.Partner(cell);
 			if (to != NONE) {
 				int fallen = 0;
@@ -156,6 +157,7 @@ class Walker {
 	const LevelGrid& grid;
 	TeleportPairs pairs;
 	bool teleports;
+	bool sealed;
 };
 
 // Cells the walker reaches from the start state (any opened colours).
@@ -208,8 +210,10 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 					r.exits++;
 				else if (t.attr == GateRiddle)
 					r.riddles++;
-				else if (t.attr == GateTeleport)
+				else if (t.attr == GateTeleport) {
 					r.teleporters++;
+					r.nameGates += isNameGate(t) ? 1 : 0;
+				}
 				break;
 			case Ankh:
 				r.exits++;
@@ -249,7 +253,8 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			r.levers += f.type == Lever ? 1 : 0;
 			if (f.type == Inscription) {
 				r.inscriptions++;
-				if (!isInscriptionId(f.attr))
+				r.nameCartouches += f.attr == NAME_CARTOUCHE_ID ? 1 : 0;
+				if (!isInscriptionId(f.attr) && f.attr != NAME_CARTOUCHE_ID)
 					r.warnings.push_back("inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) +
 										 ") at " + at(row * LEVEL_WIDTH + col));
 			}
@@ -362,6 +367,42 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 		if (cells.size() != 2)
 			r.warnings.push_back(std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) +
 								 ", e.g. at " + at(cells[0]) + ": a pair needs exactly two");
+}
+
+// Plan secret-name-gates: at most one name gate, with one name cartouche, and both are found with the name gate
+// sealed, the cartouche not next to the gate; the exit, the keys and the levers too: nothing behind it is needed.
+void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
+	if (r.nameGates > 1)
+		r.warnings.push_back(std::to_string(r.nameGates) + " name gates, a level has at most one");
+	if (r.nameGates > 0 && r.nameCartouches == 0)
+		r.warnings.emplace_back("a name gate without a name cartouche");
+	if (r.nameGates == 0 && r.nameCartouches > 0)
+		r.warnings.emplace_back("a name cartouche without a name gate");
+	if (r.nameCartouches > 1)
+		r.warnings.push_back(std::to_string(r.nameCartouches) + " name cartouches, a level has at most one");
+	if (r.nameGates == 0)
+		return;
+	const std::vector<char> sealed = reachableCells(Walker(grid, true, true), startState);
+	const std::vector<char> open = reachableCells(Walker(grid), startState);
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile t = grid.cells[cell];
+		if (t.fixture.type == Inscription && t.fixture.attr == NAME_CARTOUCHE_ID) {
+			if (sealed[cell] == 0)
+				r.warnings.push_back("the name cartouche at " + at(cell) + " is not found with the name gate sealed");
+			for (int other = 0; other < CELLS; other++)
+				if (isNameGate(grid.cells[other]) && std::abs(other % LEVEL_WIDTH - cell % LEVEL_WIDTH) <= 2 &&
+					std::abs(other / LEVEL_WIDTH - cell / LEVEL_WIDTH) <= 1)
+					r.warnings.push_back("the name cartouche at " + at(cell) + " is next to its name gate");
+		}
+		if (open[cell] == 0 || sealed[cell] != 0)
+			continue;
+		if (isGoal(t))
+			r.warnings.push_back("the exit at " + at(cell) + " is behind a name gate");
+		if (t.type == Key)
+			r.warnings.push_back("the key at " + at(cell) + " is behind a name gate");
+		if (t.fixture.type == Lever)
+			r.warnings.push_back("the lever at " + at(cell) + " is behind a name gate");
+	}
 }
 
 bool wallSpikesAt(const LevelGrid& grid, int col, int row) { return grid.at(col, row).fixture.type == WallSpikes; }
@@ -490,6 +531,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 
 	// Dijkstra over (cell, opened colours), keeping the edges for the backward pass.
 	checkBossRoom(grid, startState, r);
+	checkNameGates(grid, startState, r);
 
 	std::vector<int> dist(STATES, NONE);
 	std::vector<int> prev(STATES, NONE);

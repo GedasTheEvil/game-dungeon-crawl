@@ -424,6 +424,14 @@
 15,33 surface 4/0/1 torch fire torch 0.000,0.680,0.098
 16,33 surface 5/1/1 ladder 0/4
 17,33 surface 2/0/0m decal 3 0.460,0.600
+20,33 surface 1/0/0
+21,33 surface 0/2/0
+22,33 surface 1/2/0 decal 0m 0.524,0.587
+23,33 surface 0/0/0
+24,33 surface 0/1/0
+25,33 surface 0/1/0 torch fire torch 0.000,0.680,0.098
+26,33 surface 1/0/0
+27,33 surface 0/1/0 prop brazierm 0.130 decal 15 0.732,0.368 fire brazier 0.130,0.220,0.160
 16,34 surface 0/2/0 ladder 0/0m
 16,35 surface 0/1/0 ladder 0/2m
 2,36 surface 5/0/1 decal 11 0.549,0.479

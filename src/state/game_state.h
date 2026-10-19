@@ -25,6 +25,7 @@
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/inscriptions.h"
+#include "../world/names.h"
 #include "../world/journal.h"
 #include "../world/leaderboard.h"
 #include "../world/world_events.h"
@@ -82,6 +83,7 @@ class GameState {
 	Dungeon dungeon;
 	Journal journal; // what the archaeologist wrote down, kept per save game
 	InscriptionBook inscriptions; // the wall inscriptions' texts, content/inscriptions/*.txt
+	NameList names; // the royal names of the name gates, content/names/*.txt (plan secret-name-gates)
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	SaveSlots saves;
 	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)

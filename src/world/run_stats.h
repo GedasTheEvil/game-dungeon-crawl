@@ -4,6 +4,7 @@
 #include "items.h"
 #include "level.h"
 #include <array>
+#include <cstdint>
 #include <istream>
 #include <ostream>
 #include <vector>
@@ -22,6 +23,8 @@ class RunStats {
 	int biggestHit = 0; // the most HP one hit of the player's took
 	int poisoned = 0; // poisonings that took (a warded one does not count)
 	int cursed = 0; // curses laid, also one laid again while it runs
+	// Picks each level's royal name and its cartouche picture (plan secret-name-gates, names.h); New Game rolls it.
+	uint32_t nameSeed = 0;
 
 	void Slay(int monsterType);
 	void Drink(ItemKind potion);
@@ -34,7 +37,8 @@ class RunStats {
 	[[nodiscard]] int PlayMs() const;
 	[[nodiscard]] const std::vector<int>& LevelMs() const { return levelMs; } // [level - 1]: time in play there
 
-	// "RUN ..." lines after the player stats; a save without them (or broken) leaves a fresh, non-campaign run.
+	// "RUN ..." and "NAMES seed" lines after the player stats; a save without them (or broken) leaves a fresh,
+	// non-campaign run (seed 0).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
 

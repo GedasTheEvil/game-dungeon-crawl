@@ -1,6 +1,7 @@
 #ifndef RIDDLE_H
 #define RIDDLE_H
 #include "../graphics/font.h"
+#include "../world/names.h"
 #include <istream>
 #include <string>
 #include <vector>
@@ -14,8 +15,6 @@ struct RiddleEntry {
 	std::string source; // "file:line" of the first Q:, for log messages
 };
 
-// Lower case letters and digits only, a leading "a " / "an " / "the " dropped: "The Force!" -> "force".
-std::string NormalizeAnswer(const std::string& text);
 // Appends the riddles of one file to `out`; problems go to `errors` as "file:line: message".
 void ParseRiddles(std::istream& in, const std::string& source, std::vector<RiddleEntry>& out,
 				  std::vector<std::string>& errors);
@@ -28,6 +27,7 @@ class Riddle {
 	RiddleEntry shown; // the riddle on the scroll: from the deck, or a journal entry asked again
 	size_t journalIndex = 0;
 	bool late = false; // asked from the journal: Esc and a right answer go back to it
+	bool nameGate = false; // a name gate's scroll (plan secret-name-gates): no reward, no hint, not in the journal
 	int reward = 0;
 	std::string answer;
 	int misses = 0;
@@ -45,6 +45,8 @@ class Riddle {
 	size_t Load(const std::string& path);
 	void Ask(); // the next riddle of the shuffled deck, written down in the journal
 	void AskLate(size_t journalIndex); // a journal riddle not solved yet, for its late XP
+	// A name gate asks for the level's name (plan secret-name-gates); the right one opens it (Dungeon::SpeakName).
+	void AskName(const RoyalName& name);
 	void Draw();
 	void KeyboardF(unsigned char key, int x, int y);
 };

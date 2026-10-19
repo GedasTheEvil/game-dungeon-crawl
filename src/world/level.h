@@ -53,7 +53,7 @@ enum GateType : unsigned char {
 	GateExit = 2,
 	GateRiddle = 3,
 	GateEmpty = 4,
-	GateTeleport = 5, // value = pair id: interact to jump to the other teleporter with the same id
+	GateTeleport = 5, // value = pair id (| NAME_SEAL): interact to jump to the other teleporter with the same id
 };
 
 enum MonsterTypeId : unsigned char {
@@ -183,8 +183,10 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 // A Lever's value: 0 up, 1 pulled.
 [[nodiscard]] inline bool leverPulled(const Fixture& f) { return f.value != 0; }
 inline void pullLever(Fixture& f) { f.value = 1; }
-// A teleporter's value: its pair id.
-[[nodiscard]] inline int teleportPair(const Tile& t) { return t.value; }
+// A teleporter's value: its pair id, and NAME_SEAL on a name gate (plan secret-name-gates): it works only once the
+// player has spoken the level's name, which takes the bit off for good (a plain teleporter then, both ways).
+constexpr int NAME_SEAL = 256;
+[[nodiscard]] inline int teleportPair(const Tile& t) { return t.value & (NAME_SEAL - 1); }
 // A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, plan no-respawn-on-load): it does not
 // come back after a load, and the decorations stay as in its life (a mummy's coffin, a boss's coffins). Only save games
 // have it.
@@ -238,6 +240,9 @@ struct LevelGrid {
 // Where in the partner's cell the player arrives (Dungeon::Teleport), for the checker's path scripts too.
 constexpr float TELEPORT_ARRIVAL_X = 0.5f;
 inline bool isTeleporter(const Tile& t) { return t.type == Door && t.attr == GateTeleport; }
+// A name gate not opened yet: it asks for the name instead of teleporting.
+[[nodiscard]] inline bool isNameGate(const Tile& t) { return isTeleporter(t) && (t.value & NAME_SEAL) != 0; }
+inline void unsealNameGate(Tile& t) { t.value &= ~NAME_SEAL; }
 // Cell index of the other teleporter with the same pair id, -1 if there is none. cells: a whole level.
 [[nodiscard]] int teleportPartner(const Tile* cells, int index);
 

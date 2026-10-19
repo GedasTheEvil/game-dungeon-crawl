@@ -371,3 +371,134 @@ T: I have come from the Isle of Fire, filled with heka.
 T: I go out into the day, I live after death,
 T: as Ra does every day.
 N: The "Book of the Dead" is really "Going Forth by Day". Fitting.
+
+# ---- The secret rooms behind the name gates (plan secret-name-gates): one lore text per room, levels 6 to 30.
+
+id: 33
+title: The steward's hoard
+style: row
+G: D21 X1 O1 S29 Y5 N35
+T: I, Nebamun, steward of the granaries,
+T: hid here what the scribes of the tax did not count.
+T: The way is sealed by my lord's name:
+T: who does not know it, does not belong here.
+N: Tax evasion, 1400 BC. Some things never change.
+
+id: 34
+title: The words of Isis
+style: column
+G: Q1 X1 H6 N5 M17
+T: Isis fashioned a serpent and laid it on the way of Ra.
+T: It bit him, and no god could heal him,
+T: until he told her his secret name.
+T: Whoever knows the name of a thing has power over it.
+N: The original password reset.
+
+id: 35
+title: The sealed treasury
+style: stela
+G: S34 F35 D28 X1 N5 Z1 O1 Q3 R8 M23 X1 G43
+T: The treasury of the king, sealed with his name.
+T: Gold from Nubia, lapis from the far mountains,
+T: oils for the body of the god.
+T: The guard who opens it without the word
+T: shall have his name struck from every wall.
+N: The word was the name. The guard was a tunic and a spear. Both gone.
+
+id: 36
+title: The priest's cell
+style: column
+G: R8 D28 X1 N35 S29
+T: Here the priest of the hidden name kept his vigil.
+T: Seventy days he spoke the name over the dead,
+T: that the gates of the west might open for them.
+N: Seventy days. I struggle with seven minutes of small talk.
+
+id: 37
+title: The sleeper at the door
+style: row
+G: A55 G17 D21 N35 Q6
+T: Disturb not the one who sleeps before the treasure.
+T: He was given the name to guard, and the name to keep.
+T: He opens his eyes for those who speak it.
+N: That last line could mean several things. None of them good.
+
+id: 38
+title: The vault of the strong arm
+style: cartouche
+G: D36 G5 F12 N5
+T: The arm of the king is strong.
+T: His strength he left here, in the dark,
+T: for the one who knows him by name.
+N: An inheritance for strangers. Generous, or careless.
+boon: might 1
+
+id: 39
+title: The hidden pharmacy
+style: column
+G: W22 Z2 S29 N35 Aa1 D58
+T: Recipe for the warding draught: honey, natron,
+T: the milk of a woman who has borne a son,
+T: and a word spoken over the cup at dawn.
+T: Kept here, where only the learned may enter.
+N: Honey and natron. The rest I will skip, thank you.
+
+id: 40
+title: The room of the kas
+style: stela
+G: D28 D28 D28 X1 Z2 N5 R4 X1 Q3 A40 O1 Z1
+T: Here dwell the kas of those whose names are lost.
+T: Speak a name, and a ka remembers who it was.
+T: Bring them bread, bring them beer,
+T: that they may not wander hungry in the dark.
+N: A room for the forgotten. I said a few names out loud, just in case.
+
+id: 41
+title: The scribe's secret
+style: row
+G: Y3 A24 S29 X1 N35
+T: The scribe Ptahhotep hid his best tools here,
+T: and the copy of the book his master burned.
+T: The name of the king keeps it: he never read.
+N: A king who never read, guarding a library. Beautiful.
+
+id: 42
+title: The armoury of Montu
+style: column
+G: T30 V28 X1 G5 D21 A24
+T: Montu, lord of war, keeps the arms of the fallen.
+T: A shield for the one who knows the king's name,
+T: a curse for the one who guesses.
+N: I did not guess. I read it on the wall. Like a professional.
+
+id: 43
+title: The house of the name
+style: cartouche
+G: N35 S29 Q3 R4
+T: A name is a house. Who has no name, has no house
+T: and no tomb, and no bread in the west.
+T: Here the names of the kings are kept safe.
+N: Every name on the list, and mine is not one of them.
+
+id: 44
+title: The last steward
+style: stela
+G: S34 Y5 N35 G17 A1 D4 F35 N29 X1 O1 Z1 A40
+T: I am the last of those who kept the hidden rooms.
+T: The others went west before me. The names stay.
+T: I lay the bread down, I lay the oil down,
+T: I close the way with the name of my king.
+T: Let no one open it who has not read.
+N: He sounds lonely. Nice of him to leave the oil.
+
+id: 45
+title: The deepest seal
+style: column
+G: Q1 X1 R8 N5 S34 Z1
+T: Below the halls of the god, the last of the sealed rooms.
+T: Isis learnt the name of Ra and was mistress of the gods.
+T: You learnt the name of a king. Take what is his:
+T: it is yours by the right of those who read,
+T: and with it the breath of life that was his.
+N: The right of those who read. I like this rule. Very much.
+boon: life 10

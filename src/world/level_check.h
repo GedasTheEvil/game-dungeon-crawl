@@ -11,7 +11,8 @@
 //     (walking through it is slower, which the checker does not count);
 //   - touching a key, or pulling a lever not pulled yet, opens every gate of its colour from then on (in level data a
 //     gate is closed only with value 0);
-//   - interacting with a teleporter moves the player to its partner (both ways);
+//   - interacting with a teleporter moves the player to its partner (both ways); a name gate too (the name spoken),
+//     but the exit, the keys, the levers and the name cartouche must be found with it sealed;
 //   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open;
 //   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a run of them in a row must be
 //     crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path.
@@ -51,7 +52,9 @@ struct LevelReport {
 	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, wallSpikes = 0, treasures = 0, keys = 0, gates = 0,
 		levers = 0, riddles = 0;
 	int teleporters = 0;
+	int nameGates = 0; // teleporters sealed by the level's name (plan secret-name-gates)
 	int inscriptions = 0;
+	int nameCartouches = 0; // among the inscriptions
 	int bosses = 0;
 	int reachableTreasures = 0;
 	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)

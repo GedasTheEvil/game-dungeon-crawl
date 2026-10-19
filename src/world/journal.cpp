@@ -7,13 +7,14 @@ constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
-// inscription's boon
-constexpr int VERSION = 9;
+// inscription's boon, 10: and its name cartouche picture
+constexpr int VERSION = 10;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
 constexpr int FIRE_VERSION = 8;
 constexpr int BOON_VERSION = 9;
+constexpr int PICTURE_VERSION = 10;
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -119,7 +120,7 @@ void Journal::LearnNote(FieldNote note) {
 
 bool Journal::ReadInscription(const JournalInscription& inscription) {
 	for (JournalInscription& i : inscriptions)
-		if (i.id == inscription.id) {
+		if (i.SameInscription(inscription)) {
 			if (i.translated || !inscription.translated)
 				return false;
 			i = inscription;
@@ -127,6 +128,13 @@ bool Journal::ReadInscription(const JournalInscription& inscription) {
 		}
 	inscriptions.push_back(inscription);
 	return true;
+}
+
+const JournalInscription* Journal::FindInscription(const JournalInscription& inscription) const {
+	for (const JournalInscription& i : inscriptions)
+		if (i.SameInscription(inscription))
+			return &i;
+	return nullptr;
 }
 
 std::vector<Boon> Journal::TranslateInscriptions() {
@@ -162,7 +170,7 @@ void Journal::Dump(std::ostream& out) const {
 		out << i.id << ' ' << i.level << ' ' << std::quoted(i.title) << ' ';
 		writeLines(out, i.text);
 		out << ' ' << std::quoted(i.note) << ' ' << i.translated << ' ' << static_cast<int>(i.boon.kind) << ' '
-			<< i.boon.amount << '\n';
+			<< i.boon.amount << ' ' << i.picture << '\n';
 	}
 }
 
@@ -211,6 +219,8 @@ void Journal::Load(std::istream& in) {
 			return;
 		int kind = 0;
 		if (version >= BOON_VERSION && !(in >> kind >> e.boon.amount))
+			return;
+		if (version >= PICTURE_VERSION && !(in >> e.picture))
 			return;
 		if (kind > 0 && kind < BOON_KIND_COUNT && e.boon.amount > 0)
 			e.boon.kind = static_cast<BoonKind>(kind);

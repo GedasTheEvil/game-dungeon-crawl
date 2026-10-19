@@ -1,15 +1,22 @@
 ; lvl6: the rat warrens. Rats, a giant rat, the first giant scarab, two scorpions, a camel spider in the lower den (an antidote where the shaft lands). The red key lies in the lower den, the red gate guards the exit.
 ; A lesser resistance potion in the middle hall, west of the ladder.
+; The name gate (plan secret-name-gates) leads to a sealed room; the name cartouche elsewhere on the level.
 def 1 8 3 1
 def 2 8 3 5
 def c 8 1 0
 def a 8 3 7
 def - 8 3 8
 def i 15 1 0
+def ! 2 5 265
+def ( 2 5 9
+def ] 15 33 0
+def { 8 3 2
 ########################################
-#S.it...^...H########1.c?..t.H##########
+####(..]..{#############################
+########################################
+#S.it...^...H########1.c?.:t.H##########
 ############H################H##########
-#$...t...-..H..k....v.j......H...t.2####
+#$...t...-..H..k....v.j......H..!t.2####
 ############################.###########
 ############################.###########
 #..T......r...v.....j....h...a##########

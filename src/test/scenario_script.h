@@ -62,6 +62,7 @@ enum class CommandType : unsigned char {
 	Learn,
 	Curse,
 	Campaign,
+	SpeakName,
 	Quit,
 };
 

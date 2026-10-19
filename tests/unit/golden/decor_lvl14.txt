@@ -192,3 +192,11 @@
 22,26 surface 6/1/2 prop jackalm 0.151 decal 9 0.494,0.450
 23,26 surface 6/1/2 prop webm 0.000
 24,26 surface 6/2/2 ladder 0/3
+12,28 surface 1/0/0
+13,28 surface 0/1/0 decal 4 0.488,0.650 torch fire torch 0.000,0.680,0.098
+14,28 surface 1/0/0
+15,28 surface 0/0/0
+16,28 surface 1/0/0
+17,28 surface 2/2/0
+18,28 surface 3/1/1 prop coffin 0.000 decal 7 0.548,0.398
+19,28 surface 3/2/1

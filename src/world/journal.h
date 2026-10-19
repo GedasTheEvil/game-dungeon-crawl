@@ -45,6 +45,13 @@ struct JournalInscription {
 	// learnt (plan skill-hieroglyphs).
 	bool translated = true;
 	Boon boon; // given when it is translated (plan inscription-boons)
+	// A name cartouche (id NAME_CARTOUCHE_ID, plan secret-name-gates): its cell of the name cartouche atlas; one per
+	// level, so the level tells them apart. -1 for any other inscription.
+	int picture = -1;
+
+	[[nodiscard]] bool SameInscription(const JournalInscription& other) const {
+		return id == other.id && (id != NAME_CARTOUCHE_ID || level == other.level);
+	}
 };
 
 // Special moves a monster type can be seen doing, written down the first time.
@@ -169,6 +176,8 @@ class Journal {
 	// Written once, the first time it is read or copied; the entries keep the order they were read in. True the first
 	// time, or when a copy gets translated by this call (inscription.translated).
 	bool ReadInscription(const JournalInscription& inscription);
+	// The entry of this inscription (SameInscription), null before it was read or copied.
+	[[nodiscard]] const JournalInscription* FindInscription(const JournalInscription& inscription) const;
 	// The hieroglyph skill learnt: every copy shows its text. Returns the boon of each copy translated (none for most),
 	// one entry per copy.
 	std::vector<Boon> TranslateInscriptions();

@@ -1,6 +1,7 @@
 # Secret name gates: rooms for those who read
 
-Status: draft 2026-10-14, ready (needs nothing first). From the user. Builds on
+Status: implemented 2026-10-19, waits for the user's play-test: `bin/game --play tests/play/secret-name-gates.txt`
+(level 6 with the hieroglyph skill; `bin/game --level 6` without it). Draft 2026-10-14, from the user. Builds on
 [skill-hieroglyphs](solved/skill-hieroglyphs.md) ("Words of Thoth") and the riddle gate's answer scroll
 ([riddles](../riddles.md)).
 
@@ -89,3 +90,26 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
 * Unit: the shipped name files load with no problems, every name has at least one `A:`; the picture pick is
   stable for a seed and never repeats on a level.
 * Glossary rows: name gate, name cartouche, name list.
+
+## Done
+
+* The name gate is a teleporter with `NAME_SEAL` (256) on its pair id (`level.h`, glyph `!`): the save keeps the bit
+  like any gate state, `Dungeon::SpeakName` takes it off. Its plasma breathes (`Dungeon::nameGateAlpha`, 1.5 s down to
+  0.15 with a flicker) and shimmers 0.9 s when opened. Interact: Answer; the riddle scroll (`Riddle::AskName`): "The
+  Name Gate", no reward, no hint; without the skill a wrong name adds the copied-glyphs line.
+* The name cartouche is an inscription with the text id 100 (`NAME_CARTOUCHE_ID`, glyph `:`): read, copied, translated
+  and given XP like one (no boon). Journal page "A royal name", "The name of the king: KHUFU" (a `title:` line gives
+  queens theirs), the name's comment and "Something on this level wants to hear it." Journal save version 10 (the
+  picture).
+* `content/names/kings.txt`: the 30 names of the draft, with spellings ([names](../names.md)). The pick: New Game
+  rolls `RunStats::nameSeed` (a `NAMES` line after the run's, old saves seed 0), a shuffle per seed, level n the n-th
+  name; the picture `nameCartouchePicture(seed, level)`. 16 pictures, `NAME_CARTOUCHES` in
+  `tools/textures/inscriptions.py`, baked to `name_cartouches.png`.
+* Checker: `checkNameGates` (warnings in [levels](../levels.md)); `levelcheck` warns about a name gate before level 6.
+* 13 rooms: levels 6, 8, 10, 12, 14, 16, 18, 21 (20 has no rock for a room), 22, 24, 26, 28, 30. Each a pocket in the
+  rock with its teleporter, a lore inscription (ids 33 to 45; 38 gives Might +1, 45 max health +10%), one or two chests
+  (rare potions, amulets up to grand strength and grand regeneration in 30), a mummy in 14, 21, 26 and 30. The small
+  levels got two rows of rock on top for it.
+* Tests: `tests/unit/names_test.cpp` (files, pick, save, gate, checker, campaign), the scenario
+  `tests/scenarios/secret_name_gate.txt` (on `tests/levels/name_gate`, with the scenario command `speakname`).
+* Not done: the ring transporter look, the Stargate chamber as a room (their own drafts).

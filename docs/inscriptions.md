@@ -19,6 +19,10 @@ journal page shows "Gift: ..." under the comment. Nothing hints at a boon before
 at most one per level, the text names the gift (kings and Montu: Might; the djed and granite: Armor; the breath of
 life: max health; tireless legs and runners: max stamina).
 
+A name cartouche ([names](names.md), plan secret-name-gates) is an inscription with the text id 100
+(`NAME_CARTOUCHE_ID`): it holds the level's royal name for its name gate, not a text from the files. It is read, copied,
+translated and rewarded like the others (no boon); its picture comes from `name_cartouches.png`, picked per run.
+
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign
 they start at level 6 (`INSCRIPTIONS_FROM_LEVEL`): the hieroglyph skill comes with the first boss's heka
 ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)). `levelcheck` warns about an inscription before that
@@ -45,7 +49,7 @@ N: A crocodile in the water. Oddly specific. Noted.
 
 | Line | Meaning |
 |---|---|
-| `id: N` | Text id, 1 to 64 (`INSCRIPTION_MAX`), the tile's attribute. Each id once over all files; the atlas has a cell per id. |
+| `id: N` | Text id, 1 to 64 (`INSCRIPTION_MAX`), the tile's attribute (100 is a name cartouche, no text). Each id once over all files; the atlas has a cell per id. |
 | `title: TEXT` | Heading of the journal page only. |
 | `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 5 signs), `column` (up to 7), `row` (up to 7) or `stela` (a round-topped slab with a winged sun, up to 12 in columns). Default: `cartouche`. Only the atlas tool reads it. |
 | `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Only the atlas tool reads it. |

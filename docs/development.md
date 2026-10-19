@@ -91,6 +91,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 * `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever, rock and treasure container sounds.
 * `content/levels/` - campaign levels, edited with the level editor.
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
+* `content/names/` - the royal names of the name gates. See [names.md](names.md).
 * `saves/` - save games (not tracked by git).
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [modeling.md](modeling.md).
@@ -146,6 +147,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |
 | Tile types, level file format, level grid, wall layer (fixtures) | `world/tile_defs.*`, `world/level.*` (`Fixture`, `isWallType`); drawn by `Dungeon::drawFixture` (`world/dungeon_render.cpp`) |
+| Name gates, name cartouches, the royal names (per run) | `world/names.*` (data `content/names/*.txt`, [names.md](names.md)), `Dungeon::SpeakName`, `inscriptionPage` in `world/dungeon_interact.cpp`, `Riddle::AskName` (`ui/riddle.cpp`), the pulse `Dungeon::nameGateAlpha` (`world/dungeon_render.cpp`), `checkNameGates` in `world/level_check.cpp` |
 | Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |
 | Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
 | Models, textures, sounds loaded once | `state/assets.cpp` |

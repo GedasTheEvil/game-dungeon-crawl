@@ -52,8 +52,11 @@ void GameState::Load() {
 	for (const std::string& message : inscriptions.Load(CONTENT_DIR "inscriptions"))
 		LOG_WARNINGF("game", "Inscriptions: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(inscriptions.Size()) + " inscriptions");
-	dungeon.Link(
-		{player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes, &inscriptions});
+	for (const std::string& message : names.Load(CONTENT_DIR "names"))
+		LOG_WARNINGF("game", "Names: %s", message.c_str());
+	LOG_INFO("game", "Loaded " + std::to_string(names.Size()) + " royal names");
+	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes,
+				  &inscriptions, &names});
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);
@@ -173,6 +176,13 @@ void GameState::ApplyWorldEvents() {
 			ui.riddle->Ask();
 			ui.screen = Screen::Riddle;
 			break;
+		case WorldEvent::Kind::AskName: // plan secret-name-gates
+			if (const RoyalName* name = dungeon.LevelName()) {
+				ui.riddle->AskName(*name);
+				ui.screen = Screen::Riddle;
+			} else
+				ShowStatus("The gate is silent.");
+			break;
 		}
 }
 //==============================================================
@@ -180,6 +190,7 @@ void GameState::NewGame() {
 	PlayerHud::reset();
 	player->stats = PlayerStats{};
 	player->stats.run.campaign = true; // from New Game on level 1: the win goes on the leaderboard
+	player->stats.run.nameSeed = random.gameplay.next(); // each level's royal name (plan secret-name-gates)
 	ui.inventory->Reset();
 	journal.Clear();
 	dungeon.LoadCampaignLevel(1);

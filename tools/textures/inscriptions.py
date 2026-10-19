@@ -1,6 +1,6 @@
 """Generate the inscription atlas media/textures/decorations/inscriptions.png (RGBA, 8 x 8 cells of 256 px, one per id).
 
-    python3 tools/textures/inscriptions.py [inscriptions-dir] [out.png]
+    python3 tools/textures/inscriptions.py [inscriptions-dir] [out.png] [names-out.png]
 
 Reads the `id:`, `style:` and `G:` lines of content/inscriptions/*.txt (docs/inscriptions.md): cell id - 1, row by row from
 the top left (INSCRIPTION_ATLAS_GRID in src/world/inscriptions.h). G: lists the signs by Gardiner code (A1, M23,
@@ -13,6 +13,10 @@ fonts-noto-extra) in painted colours with an ink outline, in the frame of the st
     stela      a round-topped slab with a winged sun, the signs in columns read right to left (up to 12)
 
 Rerun after adding or changing an inscription's glyphs; the game reads the texts themselves at start-up.
+
+It also writes the name cartouches' atlas media/textures/decorations/name_cartouches.png (4 x 4 cells, NAME_CARTOUCHE_GRID
+in src/world/names.h; plan secret-name-gates): the sign groups in NAME_CARTOUCHES below, drawn as cartouches. They do
+not spell the names (content/names/*.txt): any picture stands for any name, the skill translates it.
 """
 
 import glob
@@ -26,6 +30,26 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from decals import CELL, INK, PAINT, bleed, layer, weather  # noqa: E402
 
 GRID = 8
+NAME_GRID = 4
+# Plausible royal sign groups, by cell; a group fits a cartouche (up to 5 signs).
+NAME_CARTOUCHES = [
+    "N5 C10 Y5",
+    "G39 N5 F35",
+    "R4 X1 Q3 N35",
+    "Aa1 F12 N35 S29",
+    "N5 Z1 F9 D28",
+    "M17 Y5 N35 R4 X1",
+    "G5 Aa1 G17",
+    "S34 F35 D28",
+    "N5 D28 Z1 S29",
+    "O34 N37 F35 X1",
+    "I10 R8 F35",
+    "L2 X1 N5 Y5",
+    "E23 G17 D21",
+    "S29 N35 F35 X1 Z4",
+    "M23 X1 N5 S34",
+    "V13 G43 D46 X1",
+]
 FONT = "/usr/share/fonts/truetype/noto/NotoSansEgyptianHieroglyphs-Regular.ttf"
 COLOURS = ["blue", "red", "green", "black", "gold"]
 STYLES = ("cartouche", "column", "row", "stela")
@@ -172,7 +196,7 @@ def stela(signs, seed):
 DRAW = {"cartouche": cartouche, "column": column, "row": row, "stela": stela}
 
 
-def main(directory, path):
+def main(directory, path, names_path):
     entries = read_entries(directory)
     atlas = Image.new("RGBA", (CELL * GRID, CELL * GRID), (0, 0, 0, 0))
     for ident, (style, signs, _) in sorted(entries.items()):
@@ -182,9 +206,19 @@ def main(directory, path):
     bleed(atlas).save(path)
     print(f"wrote {path} ({len(entries)} inscriptions)")
 
+    assert len(NAME_CARTOUCHES) == NAME_GRID * NAME_GRID
+    names = Image.new("RGBA", (CELL * NAME_GRID, CELL * NAME_GRID), (0, 0, 0, 0))
+    for k, group in enumerate(NAME_CARTOUCHES):
+        cell = cartouche([sign(code) for code in group.split()], 300 + k).resize((CELL, CELL), Image.LANCZOS)
+        names.paste(cell, ((k % NAME_GRID) * CELL, (k // NAME_GRID) * CELL))
+    bleed(names).save(names_path)
+    print(f"wrote {names_path} ({len(NAME_CARTOUCHES)} name cartouches)")
+
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     root = os.path.join(here, "..", "..")
+    decorations = os.path.join(root, "media", "textures", "decorations")
     main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "content", "inscriptions"),
-         sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "media", "textures", "decorations", "inscriptions.png"))
+         sys.argv[2] if len(sys.argv) > 2 else os.path.join(decorations, "inscriptions.png"),
+         sys.argv[3] if len(sys.argv) > 3 else os.path.join(decorations, "name_cartouches.png"))

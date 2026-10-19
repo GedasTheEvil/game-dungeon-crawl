@@ -43,7 +43,7 @@
 1,6 surface 0/2/1
 2,6 surface 0/0/1
 3,6 surface 2/1/1 torch fire torch 0.000,0.680,0.098
-4,6 surface 3/0/1
+4,6 surface 3/0/1 prop cat -0.098
 5,6 surface 4/0/1 prop canopicm -0.016
 6,6 surface 3/0/1
 7,6 surface 3/2/1 decal 15m 0.367,0.565
@@ -100,9 +100,16 @@
 22,9 surface 6/2/2 decal 3m 0.541,0.600 torch fire torch 0.000,0.680,0.098
 23,9 surface 6/1/2
 24,9 surface 7/1/2
-25,9 surface 6/1/2 decal 14m 0.384,0.375
+25,9 surface 6/1/2
 26,9 surface 6/2/2
 27,9 surface 6/1/2
 28,9 surface 6/1/2
 29,9 surface 7/1/2
 30,9 surface 6/2/2 ladder 1/3
+20,11 surface 3/1/1
+21,11 surface 3/2/1 prop webm -0.000 decal 5m 0.555,0.625
+22,11 surface 3/0/1
+23,11 surface 5/1/1
+24,11 surface 3/1/1 decal 7 0.573,0.412
+25,11 surface 4/0/1 decal 14 0.443,0.375
+26,11 surface 3/0/1

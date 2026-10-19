@@ -180,9 +180,11 @@ void printReport(const Entry& e, bool map) {
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
 	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d dart plates, %d wall spikes, %d "
-		   "treasures (%d reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters, %d inscriptions\n",
+		   "treasures (%d reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters (%d name gates), %d "
+		   "inscriptions\n",
 		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.dartPlates, r.wallSpikes,
-		   r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters, r.inscriptions);
+		   r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters, r.nameGates,
+		   r.inscriptions);
 	if (r.valid || !r.path.empty())
 		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
 			   "%d dart plates, %d wall spikes, %d gates (%d colours), %d teleports, %d monsters near\n",
@@ -215,6 +217,9 @@ void checkInscriptions(std::vector<Entry>& entries) {
 	std::vector<std::string> usedIn(INSCRIPTION_MAX + 1);
 	for (Entry& e : entries) {
 		const int number = campaignNumber(e.path);
+		if (number > 0 && number < INSCRIPTIONS_FROM_LEVEL && e.report.nameGates > 0) // plan secret-name-gates
+			e.report.warnings.push_back("a name gate before level " + std::to_string(INSCRIPTIONS_FROM_LEVEL) +
+										": the hieroglyph skill comes later");
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
 			const Fixture& t = e.grid.cells[cell].fixture;
 			if (t.type != Inscription || !isInscriptionId(t.attr))

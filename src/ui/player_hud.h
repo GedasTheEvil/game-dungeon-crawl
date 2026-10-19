@@ -73,6 +73,12 @@ struct View {
 	int waterLeftMs = 0; // the Blessing of Hapi's time left, 0: none (plan water-blessing-potion)
 	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
 	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
+	// The stamina-skill sign (plan skill-flaming-arrows): shown once a stamina skill is learnt, lit while the toggle is
+	// on, it blinks when a skill was refused for lack of stamina.
+	bool staminaSkillShown = false;
+	bool staminaSkillOn = false;
+	int staminaSkillRefusedAgeMs = 1000000;
+	std::string staminaSkillKey;
 	bool hekaWaiting = false; // a heka to spend on a skill: a pulsing tile with the Heka key
 	std::string hekaKey;
 };

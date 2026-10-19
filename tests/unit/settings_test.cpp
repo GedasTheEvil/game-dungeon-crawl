@@ -93,7 +93,7 @@ TEST_CASE("bindings") {
 		CHECK(b.ActionFor(InputKey::Char('a')) == BindAction::MoveLeft);
 		CHECK(b.ActionFor(InputKey::Special(SPECIAL_INTERACT)) == BindAction::Interact);
 		CHECK(b.ActionFor(InputKey::Mouse(MOUSE_RIGHT_BUTTON)) == BindAction::Jump);
-		CHECK_FALSE(b.ActionFor(InputKey::Char('q')).has_value());
+		CHECK_FALSE(b.ActionFor(InputKey::Char('z')).has_value());
 	}
 
 	SUBCASE("the defaults use the game's key codes") {

@@ -342,7 +342,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Fire",
 	 "Fire sets what it hits on fire: it keeps burning for a few seconds after the hit. Armour does not stop it, "
 	 "only a fire guard amulet does, and water puts it out. A brazier lights my next five arrows (E by "
-	 "it). Mummies, it turns out, burn very well."},
+	 "it). Mummies, it turns out, burn very well. Whatever shrugs off an arrow, a bat's thin wing, a mimic's dry wood, "
+	 "a plant, a mummy, burns instead: fire arrows are my answer to it. Scorpions are used to the heat."},
 	{"Favour of Hapi", "The water parts for me now. Not much, but enough to stop wading like a heron."},
 	{"Blessing of Isis", "Isis has a knot for every curse. She ties fast."},
 	{"Blessing of Hapi", "Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint "

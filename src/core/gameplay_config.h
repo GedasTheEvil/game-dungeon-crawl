@@ -104,6 +104,10 @@ constexpr int ARROW_WATER_DAMAGE_PCT = 50;
 // arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).
 constexpr int FIRE_ARROW_SHOTS = 5;
 constexpr int FIRE_ARROW_PERCENT = 60;
+// Flaming arrows (plan skill-flaming-arrows): with the skill and the stamina-skill toggle on, a bow shot deals this
+// share of its damage on top as fire, for this share of max stamina. A brazier-lit arrow gets neither.
+constexpr int FLAMING_ARROW_BONUS_PERCENT = 40;
+constexpr int FLAMING_ARROW_STAMINA_PERCENT = 10;
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

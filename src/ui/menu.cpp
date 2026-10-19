@@ -45,8 +45,8 @@ constexpr float OPTIONS_RIGHT = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
 // Controls tab: two columns of rows; a row is the action, its two key cells and its mouse cell.
 constexpr float TABLE_TOP = 70.2f; // header baseline
 constexpr float TABLE_RULE = TABLE_TOP - 1.1f;
-constexpr float ROW_H = 3.8f;
-constexpr int ROWS_PER_COLUMN = 11;
+constexpr float ROW_H = 3.5f;
+constexpr int ROWS_PER_COLUMN = 12;
 constexpr float COLUMN_W = 68.f;
 constexpr float COLUMN_GAP = 2.f;
 constexpr float CELL_X = 29.f; // from the column's left edge

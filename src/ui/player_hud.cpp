@@ -33,6 +33,8 @@ constexpr float POISON_SIZE = 6.f;
 constexpr float POISON_STEP = 9.f;
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
+constexpr Rect STAMINA_SKILL_SIGN = {51.f, 13.6f, 3.6f, 3.6f}; // right of the stamina bar, under the health numbers
+constexpr Color FLAME = {0.98f, 0.45f, 0.1f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
 constexpr int ICON_COLUMNS = 8; // atlas grid
@@ -227,6 +229,21 @@ void drawHeka(const PlayerHud::View& v, int now, int skillIcons) {
 	beginShapes();
 }
 
+// The stamina-skill toggle's sign: a flame on a lapis tile while on, on stone while off; a refused skill blinks it red.
+void drawStaminaSkill(const PlayerHud::View& v) {
+	if (!v.staminaSkillShown)
+		return;
+	const Rect& r = STAMINA_SKILL_SIGN;
+	const float refused = fade(v.staminaSkillRefusedAgeMs, REFUSED_FLASH_MS);
+	if (refused > 0.f) {
+		const float blink = 0.5f + 0.5f * std::cos(static_cast<float>(v.staminaSkillRefusedAgeMs) * 0.03f);
+		additiveRing(r, 1.2f, BLOOD_TOP, refused * blink);
+	}
+	tile(r, v.staminaSkillOn ? TileStyle::Lapis : TileStyle::Stone, false, false);
+	const Color flame = v.staminaSkillOn ? FLAME : Color{FLAME.r * 0.4f, FLAME.g * 0.4f, FLAME.b * 0.4f};
+	drop(r.cx(), r.y + 1.5f, 0.95f, flame);
+}
+
 // Seconds left over a status tile.
 void tileSeconds(const Rect& r, int leftMs, Font& small) {
 	char secs[12];
@@ -371,6 +388,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	panel(PANEL, 0.9f);
 	drawHealth(view, now);
 	drawStamina(view);
+	drawStaminaSkill(view);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlot(view.slots[i], slotRect(i), small);
@@ -395,6 +413,9 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 		if (shown(view, i))
 			drawSlotText(view.slots[i], slotRect(i), small);
 	drawPoisonText(view, small);
+	if (view.staminaSkillShown && !view.staminaSkillKey.empty())
+		textCentered(small, STAMINA_SKILL_SIGN.x - 2.2f, STAMINA_SKILL_SIGN.y + 0.6f, view.staminaSkillKey.c_str(),
+					 view.staminaSkillOn ? GOLD_BRIGHT : LABEL_DIM);
 	if (view.hekaWaiting && !view.hekaKey.empty()) {
 		textCentered(small, HEKA_TILE.cx() + 0.2f, HEKA_TILE.y - 3.6f, view.hekaKey.c_str(), BLACK);
 		textCentered(small, HEKA_TILE.cx(), HEKA_TILE.y - 3.4f, view.hekaKey.c_str(), GOLD_BRIGHT);

@@ -54,6 +54,11 @@ PlayerHud::View playerHudView() {
 		view.curseLeftMs[c] = stats.curses.LeftMs(static_cast<Curse>(c));
 		view.curseGreater[c] = stats.curses.Greater(static_cast<Curse>(c));
 	}
+	view.staminaSkillShown = stats.heka.Has(SkillId::FlamingArrows);
+	view.staminaSkillOn = Game().player->staminaSkills;
+	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)
+		view.staminaSkillRefusedAgeMs = GameClock::now() - *refused;
+	view.staminaSkillKey = keyCapOf(BindAction::StaminaSkills);
 	view.hekaWaiting = stats.heka.Free() > 0;
 	view.hekaKey = keyCapOf(BindAction::Skills);
 	return view;

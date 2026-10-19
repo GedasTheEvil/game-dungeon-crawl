@@ -91,6 +91,7 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 	{"quick_heal", "Healing potion"},
 	{"quick_stamina", "Stamina potion"},
 	{"quick_antidote", "Antidote"},
+	{"stamina_skills", "Stamina skills"},
 	{"inventory", "Inventory"},
 	{"map", "Draft map"},
 	{"journal", "Journal"},
@@ -139,6 +140,7 @@ Bindings::Bindings() {
 	set(BindAction::QuickHeal, ch('h'), none(), none());
 	set(BindAction::QuickStamina, ch('0'), none(), none());
 	set(BindAction::QuickAntidote, ch('='), none(), none());
+	set(BindAction::StaminaSkills, ch('q'), none(), none());
 	set(BindAction::Inventory, ch('i'), none(), none());
 	set(BindAction::Map, ch('m'), none(), none());
 	set(BindAction::Journal, ch('j'), none(), none());

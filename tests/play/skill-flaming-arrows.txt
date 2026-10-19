@@ -1,0 +1,12 @@
+# Plan skill-flaming-arrows, for `bin/game --play tests/play/skill-flaming-arrows.txt`: tests/levels/fire, a self-bow,
+# Flaming arrows learnt, the mummy in its coffin at col 13 (walk east to wake it, step back to col ~10). Press Q: a
+# flame sign beside the stamina bar lights. Shoot (V): the arrow burns, 10% of max stamina is paid, the mummy takes the
+# fire share double and burns on. Q again: normal arrows. Drain the stamina (sprint with Shift, jump) under 10% and
+# shoot with Q on: a normal arrow, no cost, the sign blinks. K: nine cards, the fifth row fits. Bats and mimics are weak
+# to fire now (journal), scorpions are not.
+seed 1
+level tests/levels/fire
+give ranged 0
+equip self-bow
+heka 1
+learn flaming_arrows

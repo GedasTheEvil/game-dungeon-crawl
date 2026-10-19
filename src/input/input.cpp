@@ -69,6 +69,9 @@ class PlayerActionController {
 			if (!insane())
 				Game().ui.inventory->QuickDrink(QuickKind::Stamina);
 			break;
+		case GameplayAction::StaminaSkills:
+			toggleStaminaSkills();
+			break;
 		case GameplayAction::QuickAntidote:
 			if (!insane())
 				Game().ui.inventory->QuickAntidote();
@@ -90,6 +93,16 @@ class PlayerActionController {
 		Game().camera.rotM += deltaX;
 		Game().camera.rotN += deltaY;
 		clampCamera();
+	}
+
+	static void toggleStaminaSkills() {
+		Player& player = *Game().player;
+		if (!player.stats.heka.Has(SkillId::FlamingArrows)) {
+			Game().events.Status("No stamina skill learnt");
+			return;
+		}
+		player.staminaSkills = !player.staminaSkills;
+		Game().events.Status("Stamina skills %s", player.staminaSkills ? "on" : "off");
 	}
 
 	// Insanity (plan curses) locks the screens, the quick drinks and the weapon keys: true, with the status line why.
@@ -195,6 +208,8 @@ GameplayAction gameplayActionOf(BindAction action) {
 		return GameplayAction::QuickStamina;
 	case BindAction::QuickAntidote:
 		return GameplayAction::QuickAntidote;
+	case BindAction::StaminaSkills:
+		return GameplayAction::StaminaSkills;
 	case BindAction::EquipMelee:
 		return GameplayAction::EquipMelee;
 	case BindAction::EquipRanged:

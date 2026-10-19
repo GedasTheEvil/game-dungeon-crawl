@@ -16,6 +16,7 @@ enum class GameplayAction : unsigned char {
 	Interact,
 	QuickHeal, // drink the best fitting healing potion (Inventory::QuickDrink)
 	QuickStamina, // the same for stamina
+	StaminaSkills, // switch the learned stamina skills on or off (Player::staminaSkills)
 	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
 	EquipMelee, // the next melee weapon held (Inventory::EquipNext)
 	EquipRanged, // the next ranged one

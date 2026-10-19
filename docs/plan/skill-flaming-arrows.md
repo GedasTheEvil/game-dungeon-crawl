@@ -1,6 +1,6 @@
 # Skill: flaming arrows
 
-Status: draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning, the brazier fire
+Status: implemented 2026-10-19, waits for the play-test (`bin/game --play tests/play/skill-flaming-arrows.txt`). Was: draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning, the brazier fire
 arrows). Sibling of [skill-power-hit](skill-power-hit.draft.sonet.md): either can go in first. From the user.
 
 ## Idea
@@ -45,3 +45,14 @@ burning for stamina.
 * Unit: with the skill on, a bow hit deals +40% as fire and costs 10% stamina; a mummy takes the fire share double;
   the target burns; low stamina = normal arrow, no cost; toggle off = normal; a brazier-lit arrow costs nothing.
 * Scenario with a screenshot: the Heka screen with 9 cards.
+
+## Implemented
+
+* Q is the shared stamina-skill key (`BindAction::StaminaSkills`, `Player::staminaSkills`, not saved). With no stamina
+  skill learnt it only says so. Power hit brings its own bonus and cost to the same toggle when it lands.
+* The fire share is computed in `Dungeon::Shoot`: damage x 1.4 and a mix of 71% (rest, scaled) and 29% fire, so the fire
+  is 40% of the old hit up to rounding.
+* The water lotus joins the scorpions in the table test's exception list (its fire is `RESISTS`: a wet stem), the
+  draft only named the scorpions. Bosses keep a normal fire rate (`bossResist` caps weak at normal), the table test
+  checks that.
+* The Heka cards are 11 high now (five rows fit); the Controls tab got 12 rows a column for the new key.

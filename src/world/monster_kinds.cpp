@@ -31,20 +31,25 @@ constexpr DamageMix HIPPO_MIX = {70, 0, 30}; // jaws that crush, the tusks
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
 // and mummies, the spear (and the bow) against scarabs, fire (a brazier's arrows) against mummies, plants, worms and
 // eggs. A boss has no weak spot (bossResist).
+// The rule (plan skill-flaming-arrows): whoever resists pierce (an arrow barely scratches it) is weak to fire, which
+// the flaming arrows add. Exceptions, on purpose: the scorpion, a desert hunter used to heat, and the water lotus, a
+// wet stem that barely burns (a unit test keeps the list: every new monster follows the rule or joins it).
 constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL, WEAK}; // soft: a blow squashes, a blade cuts, fire shrivels
 constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK,
 									   NORMAL}; // the shell turns a blade, a point goes between plates
 constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH,
 									  WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
-constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // swat it; an arrow goes through the wing
-constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH, NORMAL}; // wood: crack it; a point only sticks in it
+constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH,
+									WEAK}; // swat it; an arrow goes through the wing, and thin membranes burn
+constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH,
+									  WEAK}; // wood: crack it; a point only sticks in it, and dry wood burns
 constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL,
 									   TOUGH}; // bronze dents, a blade glances off, stone does not burn
 constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab
 constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL,
 										  RESISTS}; // the scutes turn a blade, wet hide a flame
-constexpr Resistances SCORPION_RESIST = {WEAK, NORMAL, RESISTS,
-										 NORMAL}; // a blow cracks the thin shell; a point glances off
+constexpr Resistances SCORPION_RESIST = {
+	WEAK, NORMAL, RESISTS, NORMAL}; // a blow cracks the thin shell; a point glances off; fire: the exception
 constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL,
 									  NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS,

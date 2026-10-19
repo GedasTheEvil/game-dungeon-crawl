@@ -2,6 +2,7 @@
 // them with `expect` lines only: courage and traps, speed, leaps, poison, damage types, the health bars.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include <set>
 
 TEST_CASE("a reckless mummy sets off a rock fall and, too slow for its middle, is only grazed") {
 	SimWorld world; // tests/levels/reckless_rock: the mummy across a rock fall from the player
@@ -305,4 +306,99 @@ TEST_CASE("the player burns through armour; half water puts the fire out") {
 	CHECK(world.Hp() == wet - 10);
 	CHECK_FALSE(world.player.burning.Any());
 	CHECK(world.Told("The water puts the fire out"));
+}
+
+namespace {
+// The fire level's mummy in the bow's reach, the bow in hand, the player with the Flaming arrows skill.
+void readyFlamingArrows(SimWorld& world, bool skill, bool toggle) {
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/fire"));
+	world.Give(ItemKind::SelfBow);
+	world.Equip(ItemKind::SelfBow);
+	if (skill) {
+		world.player.stats.heka.Earn(5);
+		REQUIRE(world.player.stats.heka.Learn(SkillId::FlamingArrows));
+	}
+	world.player.staminaSkills = toggle;
+	REQUIRE(world.WalkTo(12.f)); // the mummy wakes and climbs out
+	REQUIRE(world.WalkTo(9.5f)); // back
+	REQUIRE(world.WalkTo(10.3f)); // in the bow's reach, facing it
+	world.Wait(1000);
+	REQUIRE(world.Nearest() == 150);
+}
+
+// One shot, then until the arrow has landed: the mummy's HP lost.
+int shotDamage(SimWorld& world) {
+	world.Attack();
+	world.WaitTicks(80);
+	return 150 - world.Nearest();
+}
+} // namespace
+
+TEST_CASE("flaming arrows: with the skill on, a bow hit deals 40% more as fire, costs 10% stamina, and ignites") {
+	SimWorld plain;
+	readyFlamingArrows(plain, true, false);
+	CHECK(shotDamage(plain) == 3); // toggle off: a normal arrow, the mummy's pierce is tough
+	CHECK_FALSE(plain.dungeon.NearestMonsterBurns());
+	CHECK(plain.player.stats.Stamina() == plain.player.stats.MaxStamina());
+
+	SimWorld lit;
+	readyFlamingArrows(lit, true, true);
+	const int stamina = lit.player.stats.Stamina();
+	const int cost = lit.player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100;
+	// The bow's 12 becomes 16 (+40%), 71% pierce (tough, 25%) and 29% fire (the mummy takes double): 12.
+	CHECK(shotDamage(lit) == 12);
+	CHECK(lit.dungeon.NearestMonsterBurns());
+	CHECK(lit.player.stats.Stamina() >= stamina - cost); // and a little back, regenerating while the arrow flew
+	CHECK(lit.player.stats.Stamina() <= stamina - cost + 10);
+	CHECK(lit.player.fireArrows == 0); // not a brazier's arrow
+	CHECK(lit.Told("Mummy catches fire"));
+}
+
+TEST_CASE("flaming arrows: not enough stamina is a normal arrow at no cost, and the sign blinks") {
+	SimWorld world;
+	readyFlamingArrows(world, true, true);
+	const int low = world.player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100 - 1;
+	world.player.stats.SetStamina(low);
+	CHECK_FALSE(world.player.staminaSkillRefusedMs.has_value());
+	CHECK(shotDamage(world) == 3);
+	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
+	CHECK(world.player.stats.Stamina() >= low); // no cost (it only regenerates)
+	CHECK(world.player.staminaSkillRefusedMs.has_value());
+}
+
+TEST_CASE("flaming arrows: no skill, no flames, even with the toggle on") {
+	SimWorld world;
+	readyFlamingArrows(world, false, true);
+	const int stamina = world.player.stats.Stamina();
+	CHECK(shotDamage(world) == 3);
+	CHECK(world.player.stats.Stamina() >= stamina);
+}
+
+TEST_CASE("flaming arrows: a brazier-lit arrow gets no bonus and costs no stamina") {
+	SimWorld world;
+	readyFlamingArrows(world, true, true);
+	world.player.fireArrows = FIRE_ARROW_SHOTS;
+	const int stamina = world.player.stats.Stamina();
+	// The brazier's 60% fire: 12 * (0.4 * 0.25 + 0.6 * 2) = 16, as without the skill.
+	CHECK(shotDamage(world) == 16);
+	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
+	CHECK(world.player.stats.Stamina() >= stamina);
+}
+
+TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a named list") {
+	// On purpose: the scorpions (desert hunters, used to heat) and the water lotus (a wet stem barely burns).
+	const std::set<int> exceptions = {MonsterScorpion, MonsterGiantScorpion, MonsterScorpionQueen, MonsterLotus};
+	for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
+		const MonsterKind& kind = *monsterKind(type);
+		if (kind.resist[static_cast<size_t>(DamageType::Pierce)] >= NORMAL || exceptions.contains(type))
+			continue;
+		// A boss has no weak spot (bossResist): its fire is normal at least.
+		const int fire = kind.resist[FIRE];
+		CHECK_MESSAGE(kind.isBoss() ? fire >= NORMAL : fire > NORMAL, kind.name, " resists pierce but not fire");
+	}
+	CHECK(monsterKind(MonsterBat)->resist[FIRE] == WEAK);
+	CHECK(monsterKind(MonsterMimic)->resist[FIRE] == WEAK);
+	CHECK(monsterKind(MonsterVampireBat)->resist[FIRE] == NORMAL); // the boss follows through bossResist
+	CHECK(monsterKind(MonsterScorpion)->resist[FIRE] == NORMAL);
 }

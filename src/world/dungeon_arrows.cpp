@@ -95,7 +95,31 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 		if (sim.player->fireArrows == 0)
 			sim.events->Status("The last fire arrow");
 	}
-	missiles.push_back({kind, x0, y0, static_cast<float>(dir) * vx, vy, damage, dealt, GameClock::now(), fire});
+	// Flaming arrows (plan skill-flaming-arrows): on a bow shot not already lit by a brazier,
+	// FLAMING_ARROW_BONUS_PERCENT of the damage comes on top, as fire. Too little stamina: a normal arrow, no cost, the
+	// HUD sign blinks.
+	Player& player = *sim.player;
+	int shotDamage = damage;
+	bool flaming = false;
+	if (!fire && kind == MissileKind::Arrow && player.staminaSkills && player.stats.heka.Has(SkillId::FlamingArrows)) {
+		const int cost = std::max(1, player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100);
+		if (player.stats.ConsumeStamina(cost)) {
+			flaming = true;
+			shotDamage = damage * (100 + FLAMING_ARROW_BONUS_PERCENT) / 100;
+			// The fire's share of the new total; the rest keeps its proportions, the rounding goes to the fire.
+			const int fireShare = FLAMING_ARROW_BONUS_PERCENT * 100 / (100 + FLAMING_ARROW_BONUS_PERCENT);
+			dealt[FIRE] = 100;
+			for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
+				if (t != FIRE) {
+					dealt[t] = mix[t] * (100 - fireShare) / 100;
+					dealt[FIRE] -= dealt[t];
+				}
+		} else {
+			player.staminaSkillRefusedMs = GameClock::now();
+		}
+	}
+	missiles.push_back(
+		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming});
 }
 //======================================================================================
 void Dungeon::updateMissiles() {

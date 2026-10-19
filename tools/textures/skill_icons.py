@@ -184,8 +184,21 @@ def isis():
     return img
 
 
+def flaming_arrows():
+    """An arrow flying right with a flame on its tip."""
+    img, d = canvas()
+    flame = [(300, 270), (320, 190), (380, 110), (370, 200), (430, 150), (440, 260), (470, 330), (400, 380), (330, 360)]
+    d.polygon(flame, fill=CARNELIAN, outline=INK, width=LINE)
+    inner = [(340, 300), (370, 250), (410, 230), (420, 300), (390, 340), (350, 335)]
+    d.polygon(inner, fill=GOLD, outline=INK, width=LINE)
+    stroke(d, [(50, 330), (400, 330)], WOOD, 22)
+    d.polygon([(470, 330), (390, 285), (405, 330), (390, 375)], fill=METAL, outline=INK, width=LINE)
+    d.polygon([(50, 330), (20, 290), (95, 305), (95, 355), (20, 370)], fill=BONE, outline=INK, width=LINE)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
-ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis]
+ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows]
 
 
 def main(path):

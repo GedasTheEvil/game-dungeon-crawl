@@ -258,7 +258,7 @@ pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
 
 Skills bought with heka ([plan/skills.md](plan/solved/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
 (`CARDS_PANEL`): the heka mark and "Heka to spend: n" (`heading` `GOLD`, `LABEL_DIM` "No heka to spend" at none) over
-the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 13, two a row, in `SkillId` order: an icon well
+the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 11, two a row (five rows for nine skills), in `SkillId` order: an icon well
 with the baked icon (`media/textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in
 `body`, its one line in `small`. Learnt: lapis tile, `GOLD` name, a `GOLD_BRIGHT` diamond top right. Sealed (rules not
 in yet): `Disabled` tile, dim icon and text, a red wax dot. No heka left: the icons dimmed. The selected card has the
@@ -296,7 +296,9 @@ trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss
 count badge like the inventory slots and a key cap under each like the options table. A fourth slot, without a key
 cap, shows the worn amulet (its type's icon, the tier I .. IV in the badge) while one is on; the key sockets sit right
 of it. While a heka waits to be spent, a lapis tile with the heka mark and a breathing gold halo sits above the
-panel's right end, the Heka key under it. Flashes and pulses are additive
+panel's right end, the Heka key under it. Once flaming arrows is learnt, a small tile with a flame (lapis while the
+stamina-skill key, default Q, has the skills on, stone while off) sits right of the stamina bar, the key left of it; a
+skill refused for lack of stamina blinks it red. Flashes and pulses are additive
 rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
 icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
 

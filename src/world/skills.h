@@ -20,8 +20,9 @@ enum class SkillId : std::uint8_t {
 	FavourOfHapi,
 	SerketsFavour,
 	BlessingOfIsis,
+	FlamingArrows,
 };
-constexpr int SKILL_COUNT = 8;
+constexpr int SKILL_COUNT = 9;
 
 struct SkillDef {
 	const char* name;

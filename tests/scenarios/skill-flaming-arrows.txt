@@ -1,0 +1,19 @@
+# Plan skill-flaming-arrows: the Heka screen with 9 cards (the fifth row fits its panel), the last one (Flaming arrows)
+# selected and learnt; the HUD's stamina-skill sign after Q, and a shot that burns the mummy and costs stamina.
+# Screenshots; the rules are unit tests (tests/unit/monster_rules_test.cpp, skills_test.cpp).
+god
+level tests/levels/fire
+give ranged 0
+equip self-bow
+heka 9
+learn flaming_arrows
+expect skills == 1
+screenshot hud_before
+key q
+screenshot hud_on
+key k
+mouse 18.4 20.7
+wait 2
+screenshot heka_nine_cards
+key k
+dump

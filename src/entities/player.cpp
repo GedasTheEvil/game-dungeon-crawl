@@ -132,6 +132,8 @@ void Player::UpdateBurning(bool inWater, WorldEvents& events) {
 void Player::Reanimate() {
 	burning.Douse();
 	fireArrows = 0;
+	staminaSkills = false;
+	staminaSkillRefusedMs.reset();
 	stats.EndCurses();
 	stats.HealFully();
 	stats.poison.Cure();

@@ -18,10 +18,10 @@ constexpr float POINTS_BASELINE = 78.f;
 // The cards: COLUMNS a row, in SkillId order.
 constexpr int COLUMNS = 2;
 constexpr float CARD_W = 45.f;
-constexpr float CARD_H = 13.f;
+constexpr float CARD_H = 11.f;
 constexpr float CARD_GAP_X = 2.f;
-constexpr float CARD_GAP_Y = 1.6f;
-constexpr float TOP_CARD_Y = 62.f; // the first row's bottom
+constexpr float CARD_GAP_Y = 1.2f;
+constexpr float TOP_CARD_Y = 64.f; // the first row's bottom
 constexpr int ROWS = (SKILL_COUNT + COLUMNS - 1) / COLUMNS;
 
 [[nodiscard]] Rect cardRect(int card);

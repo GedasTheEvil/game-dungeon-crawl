@@ -49,6 +49,10 @@ class Player {
 	bool attackLanded = false;
 	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
 	Burning burning; // plan fire-damage; not saved, it lasts seconds
+	// The stamina-skill toggle (plan skill-flaming-arrows): on, every learned stamina skill that fits the attack
+	// applies and costs stamina. Not saved. The refusal (too little stamina for a skill) blinks the HUD sign.
+	bool staminaSkills = false;
+	std::optional<int> staminaSkillRefusedMs;
 	int fireArrows = 0; // the next bow shots carry fire: a brazier lit them (Dungeon::lightArrows); not saved
 
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing

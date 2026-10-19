@@ -66,6 +66,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `quick_heal` | `h` | Drink a healing potion |
 | `quick_stamina` | `0` | Drink a stamina potion |
 | `quick_antidote` | `equals` | Drink an antidote (only while poisoned) |
+| `stamina_skills` | `q` | Switch the learnt stamina skills on / off (flaming arrows) |
 | `inventory` | `i` | Open / close the inventory |
 | `map` | `m` | Open / close the draft map |
 | `journal` | `j` | Open / close the journal |

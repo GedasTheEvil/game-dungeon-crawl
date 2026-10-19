@@ -1,5 +1,5 @@
 ; A hippo (col 14) in a pool of half water (cols 10-19) over deep water, a short dry floor west of it up to the wall
-; (cols 8-9), dry floor east of it (tests/unit/hippo_test.cpp, tests/scenarios/hippo.txt).
+; (cols 8-9), dry floor east of it (tests/unit/hippo_test.cpp, tests/scenarios/solved/hippo.txt).
 ##########################
 ########S.....o.........E#
 ##########################

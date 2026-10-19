@@ -1,8 +1,8 @@
 # Hippo
 
 Status: draft 2026-10-10, from the lore review, picked by the user. Implemented 2026-10-19, see
-[Implemented](#implemented); waits for the user's play-test: `bin/game --play tests/play/hippo.txt`, or
-`bin/game --level 16`.
+[Implemented](#implemented); play-tested and solved 2026-10-19 (`bin/game --play tests/play/hippo.txt`, or
+`bin/game --level 16`).
 
 ## Idea
 
@@ -41,7 +41,7 @@ the crocodile's lurk), then charges along its row through the water.
   crocodile, in or next to water.
 * Boss: none has the hippo as kin (an Ammit or a great hippo boss stays a later, separate step).
 * Tests: `tests/unit/hippo_test.cpp` (lurks out of range, charges through the player into the wall, slow on land,
-  fast in water), scenario `tests/scenarios/hippo.txt` (submerged, windup, charging, stunned).
+  fast in water), scenario `tests/scenarios/solved/hippo.txt` (submerged, windup, charging, stunned).
 * Not done: the sounds are synthesized, check them in play. The level sources (`tools/level/campaign/lvl16.txt`, 18,
   21, 23) were already out of step with the level files (a Blessing of Hapi chest each), so the hippo went into both
   by hand.

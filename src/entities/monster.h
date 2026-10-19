@@ -244,7 +244,8 @@ class Monster {
 	}
 	// Once a tick while burrowing: the phases run on the clock; true on the tick it comes up (the hole opens).
 	bool UpdateBurrow();
-	// Chargers: ready, alerted, the player on its row CHARGE_MIN..CHARGE_MAX tiles away (the caller checks for walls).
+	// Chargers: ready, alerted, the player on its row ChargeRules::minRange..maxRange tiles away (the caller checks for
+	// walls).
 	[[nodiscard]] bool canCharge(float px, float py) const;
 	void StartCharge(float px); // the windup, towards the player
 	[[nodiscard]] bool Charging() const { return charge.phase != ChargePhase::Ready; }

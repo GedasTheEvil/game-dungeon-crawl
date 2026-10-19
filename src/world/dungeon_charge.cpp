@@ -1,4 +1,5 @@
-// Chargers on the level (monster_charge.cpp, Sobek): the rush starts with a clear row, ends at what blocks it.
+// Chargers on the level (monster_charge.cpp, Sobek, the hippo): the rush starts with a clear row, ends at what blocks
+// it.
 #include "dungeon.h"
 #include <cmath>
 

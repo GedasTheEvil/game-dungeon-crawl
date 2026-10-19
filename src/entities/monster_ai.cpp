@@ -111,7 +111,9 @@ bool Monster::Lurk(float px, float py) {
 		return false;
 	const bool ambush = type->locomotion == Locomotion::Ambush; // waits for Spring or a hit, however near the player
 	const float range = entombed()	  ? MUMMY_WAKE_RANGE
-						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE : SUBMERGED_WAKE_RANGE)
+						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE
+										 : type->charge ? type->charge->maxRange
+														: SUBMERGED_WAKE_RANGE)
 						: coiled()	  ? COILED_WAKE_RANGE
 									  : FLOATING_WAKE_RANGE;
 	if (ambush || !sameRow(py) || std::fabs(px - CentreX()) > range) {

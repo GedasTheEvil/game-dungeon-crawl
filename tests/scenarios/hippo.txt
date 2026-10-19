@@ -1,0 +1,30 @@
+# The hippo (plan hippo), tests/levels/hippo: it lies in the pool (cols 10-19, the hippo at col 14), only the eyes, the
+# ears and the nostrils above the water, no health bar. The player wades in; within its charge range (4 tiles) it
+# comes up, gapes (the windup) and charges along the row through the player and on into the west wall, which stuns
+# it. In the water the player cannot jump the charge.
+seed 1
+god
+level tests/levels/hippo
+give melee 1
+# Light for the shots.
+torch 9 on
+torch 13 on
+walk to 9.3
+wait 30
+camera 30 10
+screenshot submerged
+expect bars == 0
+walk to 10.8
+wait 450ms
+expect bars == 1
+expect nearest == 280
+screenshot windup
+wait 700ms
+screenshot charging
+wait 2s
+# Turn west: the hippo stunned at the west wall.
+walk to 10.1
+wait 1s
+screenshot stunned
+toon on
+screenshot stunned_toon

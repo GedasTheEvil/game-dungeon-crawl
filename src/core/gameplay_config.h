@@ -111,6 +111,7 @@ constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most thi
 // the player comes this close along its row. A swimmer's float height follows its target at SWIM_LIFT_RATE (1/s).
 constexpr float SUBMERGED_WAKE_RANGE = 1.4f; // from its centre: its head is then ~0.65 tiles off, in view
 constexpr float BOSS_WAKE_RANGE = 4.f; // a lurking boss (Sobek) wakes from farther, across its room
+// A lurking charger (the hippo) wakes at the far end of its charge (ChargeRules::maxRange), so it comes out charging.
 constexpr float SUBMERGED_SHOW = 0.5f; // the eyes, the nostrils and the back ridge (crocodile.py)
 constexpr float SWIM_LIFT_RATE = 4.f;
 
@@ -134,12 +135,16 @@ constexpr int BURROW_RETRY_MS = 1000;
 constexpr float BURROW_BEHIND = 1.6f;
 constexpr int BURROW_HOLE_MS = 3000;
 
-// Chargers (Sobek, Monster::StartCharge): from CHARGE_MIN..CHARGE_MAX tiles along its row it winds up, then rushes
-// at CHARGE_SPEED. Its rush hits the player on the floor (not more than CHARGE_JUMP_CLEAR tiles up) for
-// CHARGE_HIT_FACTOR x its damage; into a wall it is stunned and takes CHARGE_STUN_DAMAGE_FACTOR x the weapons' damage.
+// Chargers (Sobek, the hippo; Monster::StartCharge): from CHARGE_MIN..CHARGE_MAX tiles along its row (Sobek's; per
+// type: ChargeRules) it winds up, then rushes at CHARGE_SPEED. Its rush hits the player on the floor (not more than
+// CHARGE_JUMP_CLEAR tiles up) for CHARGE_HIT_FACTOR x its damage; into a wall it is stunned and takes
+// CHARGE_STUN_DAMAGE_FACTOR x the weapons' damage.
 constexpr float CHARGE_MIN = 2.5f, CHARGE_MAX = 6.f;
 constexpr int CHARGE_WINDUP_MS = 700;
 constexpr float CHARGE_SPEED = 4.f; // tiles per second
+// The hippo's (plan hippo): nearer, shorter and slower than its boss-sized cousin Sobek's.
+constexpr float HIPPO_CHARGE_MIN = 2.f, HIPPO_CHARGE_MAX = 4.f;
+constexpr float HIPPO_CHARGE_SPEED = 3.2f;
 constexpr float CHARGE_JUMP_CLEAR = 0.15f;
 constexpr int CHARGE_HIT_FACTOR = 2;
 constexpr int CHARGE_STUN_MS = 2500;

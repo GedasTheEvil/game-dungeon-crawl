@@ -107,6 +107,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `cobra.py` | cobra | tube along a spine chain posed by heading / elevation / roll, ranged clip |
 | `rat.py` | rat, giant rat | quadruped: one loft over bones, trot with two-bone IK, FK tail on the floor, jump, climb |
 | `crocodile.py` | crocodile, Sobek | `rat.py` style, idle floated at the water surface |
+| `hippo.py` | hippo | `crocodile.py` style: barrel body, huge hinged jaw (the yawn), ear bones, idle with only eyes, ears and nostrils on top |
 | `scarab.py` | scarab, giant scarab | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
 | `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |

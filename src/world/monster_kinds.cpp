@@ -25,6 +25,7 @@ constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
 constexpr DamageMix CAMEL_SPIDER_MIX = {0, 80, 20}; // jaws like shears
+constexpr DamageMix HIPPO_MIX = {70, 0, 30}; // jaws that crush, the tusks
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
@@ -52,6 +53,8 @@ constexpr Resistances LOTUS_RESIST = {
 	RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
 constexpr Resistances CAMEL_SPIDER_RESIST = {NORMAL, WEAK, RESISTS,
 											 WEAK}; // a blade lops the long legs, a point misses the slim body; fire
+constexpr Resistances HIPPO_RESIST = {RESISTS, NORMAL, NORMAL,
+									  RESISTS}; // a blow sinks into the fat, wet hide barely burns
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -673,7 +676,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 5,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f,
-	 .charges = true,
+	 .charge = ChargeRules{},
 	 .kin = MonsterCrocodile,
 	 .boss = {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
 	// The blue lotus, rooted in half water among the decor lotus (plan water-lotus). Stronger than the plant, weaker
@@ -777,6 +780,33 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .walkClipSpeed = 60,
 	 .shunsLight = true,
 	 .generated = {3, 8, 2}},
+	// The hippo (plan hippo), the deadliest animal of the Nile: lies under the water like the crocodile, comes out
+	// charging along its row like Sobek, nearer and slower (ChargeRules). Heavy: more HP than the giant cobra, a
+	// crushing bite. Slower than the crocodile on land, in the water faster than the wading player. The flooded levels
+	// after the crocodile's, placed by hand: levelgen makes no water.
+	{.id = MonsterHippo,
+	 .glyph = 'o', // its eyes over the water
+	 .name = "Hippopotamus",
+	 .label = "hippo",
+	 .description = "Hippo, lies under the water until the player comes near, then charges along the row (a wall "
+					"stuns it); slow on land",
+	 .note = "Taweret's people. On the walls they protect mothers. In the water they protect nothing.",
+	 .threat = 6.f, // above the giant cobra: the charge in the water, where the player cannot jump it
+	 .model = "monsters/hippo",
+	 .texture = "monsters/hippo",
+	 .scale = 52,
+	 .speed = 4,
+	 .maxHealth = 280,
+	 .damage = 28,
+	 .attackMs = 1500,
+	 .xp = 3600,
+	 .attackMix = HIPPO_MIX,
+	 .resist = HIPPO_RESIST,
+	 .locomotion = Locomotion::Submerged,
+	 .weight = 4,
+	 .wading = Wading::Swimmer,
+	 .waterSpeed = 3.f,
+	 .charge = ChargeRules{HIPPO_CHARGE_MIN, HIPPO_CHARGE_MAX, HIPPO_CHARGE_SPEED}},
 }};
 
 constexpr bool validKinds() {

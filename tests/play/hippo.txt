@@ -1,0 +1,11 @@
+# Plan hippo, for `bin/game --play tests/play/hippo.txt`: tests/levels/hippo, a hippo (col 14) under the water of a
+# pool (cols 10-19), the west wall behind you. Wade in: within 4 tiles it comes up, gapes and charges along the row
+# through you into the west wall (stunned there: it takes double damage). In the water you cannot jump it; on the dry
+# floor east of the pool you can. Slow on land, fast in the water. In the campaign: levels 16, 18, 21 and 23 have one
+# each.
+seed 1
+level tests/levels/hippo
+xp 400000
+give melee 4
+equip khopesh
+give ranged 1

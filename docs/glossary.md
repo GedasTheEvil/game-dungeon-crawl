@@ -57,7 +57,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ambush | | rooted and still, a fake chest until the player comes near (the mimic) | `Locomotion::Ambush` |
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
-| charge | | a rush along its row through the player after a wind-up (Sobek) | `Charge`, `MonsterKind::charges` |
+| charge | | a rush along its row through the player after a wind-up (Sobek, the hippo); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |
 | climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |
 | courage | | whether a monster sets foot on a trap: coward or reckless | `Courage` |
@@ -86,8 +86,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | fire bolt | | the Anubis's ranged attack: a small fireball (orange core in flames, a flickering light), mostly fire, sets the player burning (the boss's longer) | `RangedRules::mix`, `RangedRules::burnMs`, `Fire::BOLT` |
 | stamina drain | | a bite that takes a share of the player's max stamina (the blue lotus's sedative, 25%); the journal's "drowsy" note | `MonsterKind::staminaDrainPct`, `CreatureMove::Sedate` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
-| submerged | | lies under the water until the player comes near (the crocodile) | `Locomotion::Submerged` |
-| swimmer | | faster in half water, floats at the surface (the crocodile) | `Wading::Swimmer` |
+| submerged | | lies under the water until the player comes near (the crocodile; the hippo wakes at its charge range) | `Locomotion::Submerged` |
+| swimmer | | faster in half water, floats at the surface (the crocodile, the hippo) | `Wading::Swimmer` |
 | threat | | (monster) one monster's weight in the checker's difficulty score. Not how dangerous it plays | `MonsterKind::threat`, `monsterThreat` |
 | walker | | follows the player along its row, stops at pits | `Locomotion::Walk` |
 | walk-jumper | | a walker that leaps pits and traps (giant rat, giant scarab) | `Locomotion::WalkJump` |

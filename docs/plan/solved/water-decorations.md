@@ -29,7 +29,7 @@ reeds, tomb and temple levels add lotus pads (a temple pool).
   pads around it, the ambush works: the player cannot tell it by "a flower = a monster". Make the decor lotus and the
   idle monster look alike. Fairness (user decision): the monster's idle clip has a twitch; the decor lotus never
   twitches. That is the only tell.
-* The crocodile and [hippo](../hippo.draft.opus.md) lurk submerged: reeds give the scene a natural place for them, with
+* The crocodile and [hippo](../hippo.md) lurk submerged: reeds give the scene a natural place for them, with
   no rule change.
 
 ## Rules

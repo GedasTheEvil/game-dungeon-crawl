@@ -91,6 +91,18 @@ conventions, steps). New model notes go in the script's docstring, not here.
   (`media/sounds/monsters/crocodile_{wake,att,die}.wav`: water surge + splash + hiss, jaw snap + hiss, bellow + splash).
   `--boss-texture` bakes only `crocodile_sobek.png` (Sobek: green-black hide, gold scutes, red eyes, a gold-and-lapis collar band
   painted round the neck at y 0.325-0.435, palette keys `collar`, `lapis`), `CROCODILE_TEX=sobek` (with `--bake`).
+* `tools/blender/models/hippo.py` - hippopotamus (plan hippo), built like `crocodile.py` (faces +Y, rotA 180): one barrel loft
+  for the body over hips / chest / head bones plus the `breath` bone, a massive head (skull and broad muzzle from profile tables)
+  with a lower jaw on a hinge that gapes to about 125 degrees, lower tusks curving up, forward lower incisors, small upper canines,
+  pink mouth, palate, tongue and cheek pouches; four short thick two-bone IK legs with round four-toed feet, two ear bones, a short
+  flat FK tail with a tuft. Eye turrets, ears and nostril bumps raised on top of the head. Clips: walk 24 (the reference: a heavy
+  plodding lateral-sequence stride in place, also shown during the charge; 1.63 long x 0.69 high x 0.62 wide, `KINDS` scale 52 for
+  1.3 tiles), attack 24 (loops from walk frame 0, also the charge wind-up: the threat yawn by frame 7-10, lunge, crushing snap,
+  head shake), die 30 (sags, rolls onto its side, legs limp), idle 32 (`hippo_idle.md3`: on the belly, legs tucked, head lifted
+  and tilted up, breath, ear flicks; 0.60 high, ears 1.00, eyes 0.99, nostrils 0.99 of it, skull 0.92, body 0.90, so of the
+  idle's ~19 units at scale 52 the shown `SUBMERGED_SHOW` 0.5 are only ears, eyes and nostrils). `-- --measure` prints these.
+  Sounds: `tools/audio/hippo_sounds.py` (`media/sounds/monsters/hippo_{wake,att,die}.wav`: surge, splash and a call of honking
+  grunts; gaping roar, crushing jaw slam, thrash; a long sagging groan, wheeze, splash).
 * `tools/blender/models/scorpion.py` - Egyptian deathstalker (Leiurus quinquestriatus), built like `scarab.py` / `rat.py` (faces +Y, rotA 180):
   rigid parts per bone; carapace with median and lateral eyes and chelicerae, seven overlapping tergites on a `meso` flex bone, eight
   two-bone IK legs (alternating tetrapod gait L1 R2 L3 R4 / R1 L2 R3 L4 with planted feet, two strides per walk clip), pedipalps by
@@ -258,8 +270,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, scorpion 24/24/30).
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
+* Frame counts per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30).
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
 Paths relative to `media/models/` and `media/textures/`. UI screens are in `media/textures/ui/`, dungeon wall textures in `media/textures/dungeon/`, `plasma.png` in `media/textures/effects/`.
@@ -275,6 +287,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
 | Mummy priest (mummy boss) | `monsters/mummy_priest{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy_priest.png` | new (`mummy.py` subclassed: priest with an ankh staff, in a large coffin) |
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
+| Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png` | new (hippopotamus; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
 | Scorpion (monster) | `monsters/scorpion{,_att,_die}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |

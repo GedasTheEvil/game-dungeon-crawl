@@ -4,7 +4,7 @@ Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented). From th
 cells, but most of it is solid wall.
 
 Needs first: the new monster plans, so the denser levels place them too:
-[camel-spider](solved/camel-spider.md) (solved), [hippo](hippo.draft.opus.md),
+[camel-spider](solved/camel-spider.md) (solved), [hippo](hippo.md),
 [living-ushabti](living-ushabti.draft.opus.md), [cursed-mimic](cursed-mimic.draft.opus.md).
 
 ## Today (2026-10-09, `bin/levelcheck`)

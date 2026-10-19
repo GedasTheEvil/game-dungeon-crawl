@@ -1,4 +1,4 @@
-// Chargers (Sobek): the windup, the rush along the row and the stun in a wall.
+// Chargers (Sobek, the hippo): the windup, the rush along the row and the stun in a wall.
 #include "monster.h"
 #include <cmath>
 #include "player.h"
@@ -6,10 +6,10 @@
 #include "../core/gameplay_config.h"
 
 bool Monster::canCharge(float px, float py) const {
-	if (!type->charges || !Alive() || !alerted || Charging() || !sameRow(py) || GameClock::now() < charge.nextMs)
+	if (!type->charge || !Alive() || !alerted || Charging() || !sameRow(py) || GameClock::now() < charge.nextMs)
 		return false;
 	const float d = std::fabs(px - CentreX());
-	return d >= CHARGE_MIN && d <= CHARGE_MAX;
+	return d >= type->charge->minRange && d <= type->charge->maxRange;
 }
 
 void Monster::StartCharge(float px) {
@@ -43,7 +43,8 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 			sound(CharacterSound::Die);
 			return;
 		}
-		x += static_cast<float>(charge.dir) * CHARGE_SPEED * static_cast<float>(UPDATE_TICK_MS) / 1000.f;
+		x += static_cast<float>(charge.dir) * type->charge.value_or(ChargeRules{}).speed *
+			 static_cast<float>(UPDATE_TICK_MS) / 1000.f;
 		const float head = HeadX();
 		const bool onFloor = py - static_cast<float>(row) < CHARGE_JUMP_CLEAR; // a jump takes the player over it
 		if (!charge.hit && sameRow(py) && onFloor && std::fabs(px - head) <= links.player->HalfWidth() + 0.1f) {

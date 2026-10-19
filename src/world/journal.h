@@ -60,7 +60,7 @@ enum class CreatureMove : unsigned char {
 	Rear, // the cobra rears up out of its coil
 	AttackRanged, // a ranged attack from afar: venom spat, a bolt shot
 	Burrow, // Apep dives into the floor and comes up elsewhere
-	Charge, // Sobek charges along the row
+	Charge, // Sobek and the hippo charge along the row
 	Climb, // a climber follows the player up or down a ladder
 	Curse, // a hit that lays a curse (MonsterKind::meleeCurses, rangedCurses)
 	Bloom, // the blue lotus rears up off the water

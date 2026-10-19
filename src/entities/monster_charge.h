@@ -2,8 +2,9 @@
 #define MONSTER_CHARGE_H
 
 // The state of a Monster that charges; its update: monster_charge.cpp.
-// Chargers (Sobek): from afar on its row it lowers its head (Windup), rushes along the row (Rush) through the player,
-// and on into a wall that stuns it (Stunned: it takes double damage). The player jumps over it or leaves the row.
+// Chargers (Sobek, the hippo): from afar on its row it lowers its head (Windup), rushes along the row (Rush) through
+// the player, and on into a wall that stuns it (Stunned: it takes double damage). The player jumps over it or leaves
+// the row.
 enum class ChargePhase : unsigned char { Ready, Windup, Rush, Stunned };
 struct Charge {
 	ChargePhase phase = ChargePhase::Ready;

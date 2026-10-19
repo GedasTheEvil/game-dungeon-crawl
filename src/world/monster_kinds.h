@@ -100,6 +100,14 @@ struct TouchPoison {
 	int chancePercent = 0;
 };
 
+// A charge along the row (Charge): from minRange..maxRange tiles away it winds up, then rushes at speed (tiles per
+// second). Sobek's are the defaults (CHARGE_MIN, CHARGE_MAX, CHARGE_SPEED).
+struct ChargeRules {
+	float minRange = CHARGE_MIN;
+	float maxRange = CHARGE_MAX;
+	float speed = CHARGE_SPEED;
+};
+
 struct GenPick {
 	int minDifficulty = 0;
 	int maxDifficulty = 0;
@@ -158,7 +166,7 @@ struct MonsterKind {
 	int riseMs = 0;
 	// AdvancePlayback's speed of its walk clip (plan anubis-walk-clip-speed), so the legs keep up with a fast walker.
 	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
-	bool charges = false; // it charges along its row (Charge)
+	std::optional<ChargeRules> charge; // it charges along its row (Charge)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;

@@ -1,9 +1,8 @@
 # Giant scorpion: pincer grab, then the sting
 
-Status: implemented 2026-10-19, waits for the user's play-test (`bin/game --play tests/play/giant-scorpion-grab.txt`;
-the queen: `bin/game --level 15`). Built together with [crocodile-hold-bite](crocodile-hold-bite.md): one hold
+Status: solved 2026-10-19 (implemented and play-tested; the queen: `bin/game --level 15`). Built together with [crocodile-hold-bite](crocodile-hold-bite.md): one hold
 mechanic for both (see there). From the user's review: each giant gets an ability of its own. Left out: lurking in
-sand, until [desert-chapter](desert-chapter.draft.opus.md) is in.
+sand, until [desert-chapter](../desert-chapter.draft.opus.md) is in.
 
 ## Idea
 
@@ -15,7 +14,7 @@ The giant scorpion grabs with its pincers and holds the player; then the tail st
   each hit on it shortens the hold by 0.25 s (mash to break free).
 * **The sting:** at the hold's end, a sure hit: its sting's damage and a medium poison (as its sting today). Breaking
   free before the end skips it.
-* In sand ([desert-chapter](desert-chapter.draft.opus.md)): it lurks under the surface like the sand worm, if that
+* In sand ([desert-chapter](../desert-chapter.draft.opus.md)): it lurks under the surface like the sand worm, if that
   plan is in.
 * Journal note: "Two claws to hold you, one tail to finish. Hit the claws."
 
@@ -32,7 +31,7 @@ shortens it by 0.2 s only.
   one hit in the last 0.25 s is enough, two from halfway.
 * Look: the attack clip held at frame 3 (claws wide, the tail up) for the tell, frame 8 (pinched, the tail cocked)
   in the hold, then the strike plays on; the held view shakes. Status line "Caught in its claws: hit them!".
-* Scenario `tests/scenarios/giant_scorpion_grab.txt` (level `tests/levels/giant_scorpion`), unit tests in
+* Scenario `tests/scenarios/solved/giant_scorpion_grab.txt` (level `tests/levels/giant_scorpion`), unit tests in
   `tests/unit/hold_test.cpp`.
 
 ## Tests

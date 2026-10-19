@@ -1,8 +1,7 @@
 # Crocodile bite with a hold
 
-Status: implemented 2026-10-19, waits for the user's play-test (`bin/game --play tests/play/crocodile-hold-bite.txt`;
-Sobek: `bin/game --level 25`). Draft 2026-10-05, refined 2026-10-09. Split off
-[crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md). One hold mechanic with
+Status: solved 2026-10-19 (implemented and play-tested; Sobek: `bin/game --level 25`). Draft 2026-10-05, refined 2026-10-09. Split off
+[crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md). One hold mechanic with
 [giant-scorpion-grab](giant-scorpion-grab.md), built together.
 
 ## Idea
@@ -36,15 +35,15 @@ The crocodile's bite grabs the player: a hold, a death roll.
   13) in the hold; the death roll turns the model over along its body, a whole turn with each tick
   (`Monster::HoldRoll`); the held view rolls with it (`Dungeon::HeldViewRoll`, with the motion effects on). Status
   line "Caught in its jaws"; journal move `CreatureMove::Grab`.
-* Tests: `tests/unit/hold_test.cpp`; scenario with screenshots `tests/scenarios/crocodile_hold.txt` (scenario command
+* Tests: `tests/unit/hold_test.cpp`; scenario with screenshots `tests/scenarios/solved/crocodile_hold.txt` (scenario command
   `grab`, field `held`).
 * Balance: the hold is short and only in water; the threat and the checker are unchanged (noted in
-  [monster-balance](monster-balance.draft.opus.md)).
+  [monster-balance](../monster-balance.draft.opus.md)).
 
 ## Open (for the implementer, done above)
 
 * Look: the crocodile's and Sobek's open-jaws tell, the grab and the roll (Blender,
-  [../modeling.md](../modeling.md)); the
+  [../../modeling.md](../../modeling.md)); the
   player's held view (camera shake or roll).
 * The checker and the balance: the hold is short and only in water, so likely nothing. Note it with the crocodile's
-  half-water weight in [monster-balance](monster-balance.draft.opus.md).
+  half-water weight in [monster-balance](../monster-balance.draft.opus.md).

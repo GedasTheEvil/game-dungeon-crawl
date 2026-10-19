@@ -49,7 +49,7 @@ three.
 * Amphibious: it leaves the water freely and walks on dry ground at its normal speed, without the water bonus.
 * Idle, it lies under the surface with only the eyes and the back showing, like the mimic's ambush.
 * A plain bite, no hold. A bite with a hold is a separate idea:
-  [crocodile-hold-bite.md](../crocodile-hold-bite.md).
+  [crocodile-hold-bite.md](crocodile-hold-bite.md).
 * Strength: between the giant rat and the mummy, with higher damage than both (numbers when the work starts, against
   [monster-balance.draft.opus.md](../monster-balance.draft.opus.md)). First crocodiles around lvl 7-9; those levels get water.
 * Model built in Blender ([../remodeling.md](../../remodeling.md)). A Sobek boss could follow later

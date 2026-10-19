@@ -2,6 +2,7 @@
 
 Status: draft 2026-10-05, refined 2026-10-09 (decided, not implemented). Split off
 [crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md); the crocodile ships with a plain bite first.
+Shares the hold mechanic with [giant-scorpion-grab](giant-scorpion-grab.draft.opus.md): build one for both.
 
 ## Idea
 

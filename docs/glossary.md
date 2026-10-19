@@ -39,7 +39,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | level grid | | every level is 40 x 47 cells, row 0 at the bottom | `LEVEL_WIDTH`, `LEVEL_HEIGHT` |
 | pit | | a drop with no floor; a spike pit kills (the checker does not count it as a softlock) | `src/world/level_check.h` |
 | riddle gate | | a gate that opens on the right answer to a riddle | `GateRiddle` |
-| name gate | The Name Gate | a teleporter sealed by the level's royal name: the riddle scroll asks for it, the right name opens it for good ([secret-name-gates](plan/secret-name-gates.md)). Its plasma breathes until then | `NAME_SEAL`, `isNameGate`, `Dungeon::SpeakName` |
+| name gate | The Name Gate | a teleporter sealed by the level's royal name: the riddle scroll asks for it, the right name opens it for good ([secret-name-gates](plan/solved/secret-name-gates.md)). Its plasma breathes until then | `NAME_SEAL`, `isNameGate`, `Dungeon::SpeakName` |
 | name cartouche | A royal name | an inscription that holds the level's royal name for its name gate, not a text; its picture is one of 16 sign groups that do not spell the name | `NAME_CARTOUCHE_ID`, `nameCartouchePicture`, `Dungeon::NameCartouchePicture` |
 | secret room | | the pocket of a level only the name gate leads to: a chest, a lore inscription, now and then a guardian; never needed for the exit | `checkNameGates` |
 | row | | a horizontal line of cells, row 0 at the bottom. Walkers follow the player along their row | `LevelGrid` |

@@ -1,9 +1,8 @@
 # Secret name gates: rooms for those who read
 
-Status: implemented 2026-10-19, waits for the user's play-test: `bin/game --play tests/play/secret-name-gates.txt`
-(level 6 with the hieroglyph skill; `bin/game --level 6` without it). Draft 2026-10-14, from the user. Builds on
-[skill-hieroglyphs](solved/skill-hieroglyphs.md) ("Words of Thoth") and the riddle gate's answer scroll
-([riddles](../riddles.md)).
+Status: solved 2026-10-19 (play-tested by the user). Draft 2026-10-14, from the user. Builds on
+[skill-hieroglyphs](skill-hieroglyphs.md) ("Words of Thoth") and the riddle gate's answer scroll
+([riddles](../../riddles.md)).
 
 ## Why
 
@@ -61,8 +60,8 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   (a mummy in a sarcophagus fits).
 * **Placement**: levels 6-30 (the skill comes with the first heka, at lvl5), about one every second level
   (12-13 rooms). A player who learns the skill late misses the earlier rooms: the choice stays a choice.
-* **Ties to other drafts**: the gate can look like a [ring transporter](ring-transporter.draft.opus.md) platform;
-  the [Stargate chamber](stargate-chamber.draft.opus.md) can be one of the secret rooms (the name as its "address").
+* **Ties to other drafts**: the gate can look like a [ring transporter](../ring-transporter.draft.opus.md) platform;
+  the [Stargate chamber](../stargate-chamber.draft.opus.md) can be one of the secret rooms (the name as its "address").
 
 ## Recommended choices (implementer may change)
 
@@ -101,15 +100,15 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   and given XP like one (no boon). Journal page "A royal name", "The name of the king: KHUFU" (a `title:` line gives
   queens theirs), the name's comment and "Something on this level wants to hear it." Journal save version 10 (the
   picture).
-* `content/names/kings.txt`: the 30 names of the draft, with spellings ([names](../names.md)). The pick: New Game
+* `content/names/kings.txt`: the 30 names of the draft, with spellings ([names](../../names.md)). The pick: New Game
   rolls `RunStats::nameSeed` (a `NAMES` line after the run's, old saves seed 0), a shuffle per seed, level n the n-th
   name; the picture `nameCartouchePicture(seed, level)`. 16 pictures, `NAME_CARTOUCHES` in
   `tools/textures/inscriptions.py`, baked to `name_cartouches.png`.
-* Checker: `checkNameGates` (warnings in [levels](../levels.md)); `levelcheck` warns about a name gate before level 6.
+* Checker: `checkNameGates` (warnings in [levels](../../levels.md)); `levelcheck` warns about a name gate before level 6.
 * 13 rooms: levels 6, 8, 10, 12, 14, 16, 18, 21 (20 has no rock for a room), 22, 24, 26, 28, 30. Each a pocket in the
   rock with its teleporter, a lore inscription (ids 33 to 45; 38 gives Might +1, 45 max health +10%), one or two chests
   (rare potions, amulets up to grand strength and grand regeneration in 30), a mummy in 14, 21, 26 and 30. The small
   levels got two rows of rock on top for it.
-* Tests: `tests/unit/names_test.cpp` (files, pick, save, gate, checker, campaign), the scenario
-  `tests/scenarios/secret_name_gate.txt` (on `tests/levels/name_gate`, with the scenario command `speakname`).
+* Tests: `tests/unit/names_test.cpp` (files, pick, save, gate, checker, campaign), the screenshot scenario
+  `tests/scenarios/solved/secret_name_gate.txt` (on `tests/levels/name_gate`, with the scenario command `speakname`).
 * Not done: the ring transporter look, the Stargate chamber as a room (their own drafts).

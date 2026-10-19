@@ -1,7 +1,7 @@
 # Royal names
 
 A name gate (`!` in the [level legend](levels.md)) is a teleporter sealed by a royal name
-([plan](plan/secret-name-gates.md)). Interacting with it opens the riddle scroll: "Speak the name written in the
+([plan](plan/solved/secret-name-gates.md)). Interacting with it opens the riddle scroll: "Speak the name written in the
 cartouche." The right name opens it for good: from then on it is a plain teleporter, both ways, to the secret room behind
 it. Wrong names can be retried; there is no hint and no XP for the name itself. Esc walks away and the gate stays
 sealed. Until it is opened, its plasma breathes into transparency and back.

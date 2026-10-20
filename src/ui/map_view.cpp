@@ -1,4 +1,5 @@
 #include "map_view.h"
+#include "../world/sun_beam.h"
 #include "ui_draw.h"
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
@@ -279,6 +280,35 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 				sk.loop(x + 0.25f + 0.25f * static_cast<float>(c), y + 0.22f + 0.25f * static_cast<float>(r), 0.05f,
 						0.05f, 5, GRAPHITE, 0.9f, seed + static_cast<uint32_t>(c * 3 + r));
 		break;
+	case LightShaft: { // rays fanning out of the crack the way the beam goes
+		const BeamDir d = shaftDir(t);
+		const float dx = static_cast<float>(beamDx(d)), dy = static_cast<float>(beamDy(d));
+		const float sx = x + 0.5f - 0.4f * dx, sy = y + 0.5f - 0.4f * dy;
+		for (int k = -1; k <= 1; k++) {
+			const float spread = 0.18f * static_cast<float>(k);
+			sk.pencil(sx, sy, sx + 0.7f * dx - spread * dy, sy + 0.7f * dy + spread * dx, ANKH_GOLD, 0.9f,
+					  seed + static_cast<uint32_t>(k + 1));
+		}
+		break;
+	}
+	case Mirror: { // the disc on its post, a stroke the way it points
+		const BeamDir d = mirrorDir(t);
+		sk.pencil(x + 0.5f, y + 0.05f, x + 0.5f, y + 0.4f, GRAPHITE, 0.9f, seed);
+		sk.loop(x + 0.5f, y + 0.55f, 0.15f, 0.15f, 7, GRAPHITE, 0.9f, seed + 1);
+		sk.pencil(x + 0.5f, y + 0.55f, x + 0.5f + 0.38f * static_cast<float>(beamDx(d)),
+				  y + 0.55f + 0.38f * static_cast<float>(beamDy(d)), ANKH_GOLD, 0.95f, seed + 2);
+		break;
+	}
+	case SunDisc: { // a disc with rays, in its lock colour
+		const Color c = lockPencil(t.attr);
+		sk.loop(x + 0.5f, y + 0.55f, 0.16f, 0.16f, 7, c, 0.95f, seed);
+		for (int k = 0; k < 6; k++) {
+			const float a = 6.2832f * static_cast<float>(k) / 6.f;
+			sk.pencil(x + 0.5f + 0.22f * std::cos(a), y + 0.55f + 0.22f * std::sin(a), x + 0.5f + 0.34f * std::cos(a),
+					  y + 0.55f + 0.34f * std::sin(a), c, 0.9f, seed + 1 + static_cast<uint32_t>(k));
+		}
+		break;
+	}
 	case Inscription: // a cartouche on the back wall: an upright oval on its bar
 		sk.loop(x + 0.5f, y + 0.55f, 0.14f, 0.24f, 7, GRAPHITE, 0.9f, seed);
 		sk.pencil(x + 0.32f, y + 0.28f, x + 0.68f, y + 0.28f, GRAPHITE, 0.95f, seed + 1);

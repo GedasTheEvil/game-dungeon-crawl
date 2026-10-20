@@ -29,6 +29,8 @@ enum class WorldSound : unsigned char {
 	Dart, // a dart leaves the wall
 	SpikeScrape, // wall spikes twitch before they come out (plan rhythm-traps)
 	SpikeThunk, // wall spikes come out
+	MirrorTurn, // a mirror turned on its stand (plan sunlight-mirrors)
+	SunDisc, // a sun disc lit by the beam
 	Dodge, // the player sidesteps a blow (Dodge skill)
 	// A treasure container opens (plan treasure-containers): a wooden lid creaks up (chest, coffer), reed or linen
 	// rustles (basket, the offering table's cover), the canopic jars' stone heads scrape off, the sealed jar smashes.

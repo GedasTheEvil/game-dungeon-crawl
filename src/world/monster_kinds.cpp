@@ -451,6 +451,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2},
 					 CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
 	 .riseMs = 1000,
+	 .sunBurns = true,
 	 .climbs = true,
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
 	 .climbGrip = 0.111f,
@@ -816,6 +817,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 					  CurseEntry{Curse::Slowness, CurseGrade::Lesser, 25},
 					  CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .riseMs = 1000,
+	 .sunBurns = true,
 	 .climbs = true,
 	 .climbRise = 0.65f, // tools/blender/models/mummy_priest.py
 	 .climbGrip = 0.118f,

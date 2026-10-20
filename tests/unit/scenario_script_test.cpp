@@ -49,6 +49,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"inscriptions", "inscriptions tests/inscriptions"},
 	{"prop", "prop 4 cat"},
 	{"torch", "torch 4 on"},
+	{"mirror", "mirror 3 2 right"},
 	{"container", "container 4 canopic 6"},
 	{"savegame", "savegame one.sav"},
 	{"loadgame", "loadgame one.sav"},

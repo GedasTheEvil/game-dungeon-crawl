@@ -469,6 +469,11 @@ bool runInstant(const Command& cmd) {
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;
 	}
+	case CommandType::Mirror: {
+		const bool set = Game().dungeon.SetMirror(static_cast<int>(cmd.a), static_cast<int>(cmd.b), cmd.ticks);
+		report(cmd, set, set ? "" : "no mirror there");
+		return true;
+	}
 	case CommandType::Container: { // on the player's row
 		float x = 0.f;
 		float y = 0.f;

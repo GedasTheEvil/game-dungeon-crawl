@@ -3,7 +3,7 @@
 Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needed first
 [hippo-boss](hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
 [Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Solved 2026-10-20, after sandier ceilings. Works better with
-[sunlight-mirrors](../sunlight-mirrors.draft.opus.md) (the chapter's lock) and [placed-decor](../placed-decor.draft.opus.md)
+[sunlight-mirrors](../sunlight-mirrors.md) (the chapter's lock) and [placed-decor](../placed-decor.draft.opus.md)
 (sand drifts placed by hand); does not need them.
 
 ## Why
@@ -45,7 +45,7 @@ limestone: own wall and floor textures, warm light, light shafts from cracks abo
   damage and a short slow, no stones. Same trigger as the rock fall.
 * **Sandstorm halls** (implementer's choice, one or two levels): wind along the row pushes the player and blurs the
   far view; it blows in gusts, a rhythm-trap clock (`period`, `phase`), so the player walks between gusts.
-* **Lock: the sun.** The chapter's gates open with [sunlight-mirrors](../sunlight-mirrors.draft.opus.md) (a shaft of sun
+* **Lock: the sun.** The chapter's gates open with [sunlight-mirrors](../sunlight-mirrors.md) (a shaft of sun
   through a crack, bronze mirrors) rather than colour keys: one or two colour locks per level at most. Without the
   mirrors plan in: levers, and the mirrors come later.
 

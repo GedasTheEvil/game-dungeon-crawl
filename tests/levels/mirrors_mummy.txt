@@ -1,0 +1,6 @@
+; A light shaft in the west wall (col 1) shines along the row; the mummy at col 9 wakes as the player comes near and
+; burns in the beam (tests/unit/sun_mirrors_test.cpp, plan sunlight-mirrors).
+def > 17 3 0
+###############
+#>S......u....E#
+###############

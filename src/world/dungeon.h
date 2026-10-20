@@ -12,6 +12,7 @@
 #include "climb_path.h"
 #include "view_window.h"
 #include "sim_links.h"
+#include "sun_beam.h"
 #include <memory>
 #include <optional>
 #include <vector>
@@ -251,6 +252,29 @@ class Dungeon {
 	void stabWallSpikes(int col, int row);
 	[[nodiscard]] std::optional<float> outOfSpikes(int col, int row, float centre, float half) const;
 	void drawWallSpikesTile(int i, int j); // the slotted panel and the spikes, as far out as the cycle has them
+	// Sunlight mirrors (dungeon_sun.cpp, plan sunlight-mirrors): the beams as the mirrors and gates stand (traceBeams),
+	// the cells they light (map index); a turned mirror swings from its old angle, a sun disc just lit flares.
+	std::vector<BeamStep> sunBeams;
+	std::vector<char> sunlit = std::vector<char>(MAP_CELL_COUNT, 0);
+	struct MirrorSwing {
+		int cell;
+		int startMs;
+		float fromDeg;
+	};
+	std::vector<MirrorSwing> mirrorSwings;
+	std::vector<Motion> litDiscs;
+	void traceSunBeams(); // sunBeams and sunlit as the map stands
+	// Traces the beams, lights the sun discs they fall on (their gates open), sets the sun burners in them on fire.
+	void updateSunBeams();
+	bool TurnMirror(); // interact on a mirror: a quarter turn clockwise; false if there is none
+	// Degrees round the depth axis, counter-clockwise as the camera sees it, from up: the mirror's face as it reflects
+	// the beam that falls on it (from above when none does), swinging after a turn.
+	[[nodiscard]] float mirrorAngle(int cell) const;
+	[[nodiscard]] float mirrorFaceDeg(int cell) const; // mirrorAngle without the swing
+	void drawMirrorTile(int i, int j); // the stand, the mirror and the pointer showing its way
+	void drawSunDiscTile(int i, int j);
+	void drawSunBeams(); // after the opaque scene, drawSummonEffects' frame
+	void addSunLights(const CellRect& drawn);
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
 	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
@@ -533,9 +557,15 @@ class Dungeon {
 	// A wall torch on (col, row) or none, over whatever the scatter picked (the scenario command torch). False: out of
 	// the level.
 	bool PlaceTorch(int col, int row, bool on);
-	// Within LIGHT_SHUN_CELLS along the row of a flame among the decorations (a wall torch, a brazier, an oil lamp):
-	// a light shunner keeps out (plan camel-spider).
+	// Within LIGHT_SHUN_CELLS along the row of a flame among the decorations (a wall torch, a brazier, an oil lamp) or
+	// of a sunlit cell (Sunlit): a light shunner keeps out (plan camel-spider).
 	[[nodiscard]] bool Lit(int col, int row) const;
+	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
+	[[nodiscard]] bool Sunlit(int col, int row) const {
+		return IsInBounds(col, row) && sunlit[static_cast<size_t>(MapIndex(col, row))] != 0;
+	}
+	// Scenario `mirror`: the mirror in (col, row) points dir (BeamDir), at once. False: no mirror there.
+	bool SetMirror(int col, int row, int dir);
 	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).

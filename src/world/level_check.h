@@ -16,11 +16,15 @@
 //   - interacting with a teleporter moves the player to its partner (both ways); a name gate too (the name spoken),
 //     but the exit, the keys, the levers and the name cartouche must be found with it sealed;
 //   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open;
+//   - turning a mirror (plan sunlight-mirrors) lights every sun disc a beam can reach with the mirrors the player
+//     reaches from there set as needed (sun_beam.h): the gates of its colour open; a disc lit as the level starts
+//     opens them from the start (and is warned about);
 //   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a run of them in a row must be
 //     crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path.
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
+#include "sun_beam.h"
 #include <string>
 #include <vector>
 
@@ -30,7 +34,7 @@ struct CellPos {
 };
 
 // How the player gets into a path cell from the one before it.
-enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport };
+enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn };
 
 struct LevelReport {
 	bool valid = false;
@@ -56,6 +60,7 @@ struct LevelReport {
 	int sandFalls = 0; // among the rock falls (plan desert-chapter)
 	int sandCells = 0, quicksandCells = 0; // sand counts the quicksand too
 	int teleporters = 0;
+	int lightShafts = 0, mirrors = 0, sunDiscs = 0; // plan sunlight-mirrors
 	int nameGates = 0; // teleporters sealed by the level's name (plan secret-name-gates)
 	int inscriptions = 0;
 	int nameCartouches = 0; // among the inscriptions
@@ -65,9 +70,11 @@ struct LevelReport {
 
 	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)
 	std::vector<CellPos> path;
-	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull stays in the cell)
+	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull and Turn stay in the cell)
+	// Per Turn on the path, in order: how the mirrors the player reaches are set for the sun disc it lights.
+	std::vector<std::vector<MirrorSetting>> pathTurnWays;
 	int pathLength = 0; // moves
-	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0;
+	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0, pathTurns = 0;
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
 		pathMonsters = 0;
 	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls

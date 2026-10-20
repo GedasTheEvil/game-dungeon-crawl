@@ -49,6 +49,18 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Attribute: speed (0 normal 4 s, 1 fast 3.2 s, 2 slow 4.8 s). Value: phase, 0 to 7 eighths of the cycle. Put a "
 	 "floor under it and a wall above it.",
 	 false, false, '|'},
+	{"LightShaft",
+	 "Sunlight through a crack in the rock: a beam runs from here through open cells until rock or a closed gate stops "
+	 "it. Attribute: its way (0 down, 1 left, 2 up, 3 right). Put rock behind it (above it for a beam down).",
+	 true, true, 'l'},
+	{"Mirror",
+	 "A bronze mirror on a stand: a beam that falls on it goes on the way it points. Interact turns it a quarter turn "
+	 "clockwise. Value: the way it points (0 down, 1 left, 2 up, 3 right).",
+	 true, true, '('},
+	{"SunDisc",
+	 "A sun disc on the back wall. A beam on it lights it for good and opens every gate of its colour, as a lever. "
+	 "Attribute: the lock colour.",
+	 false, false, 'a'},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -101,6 +113,9 @@ std::vector<GlyphDef> buildLegend() {
 		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
 		{':', {Inscription, NAME_CARTOUCHE_ID, 0}, "name cartouche (the level's name, for its name gate)"},
 		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
+		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
+		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
+		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))

@@ -25,7 +25,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | cut-scene | Cut-scenes (Options) | the camera leaves the player to show a far gate a lever or a boss's death opens, then comes back; the world stands still, a key skips it | `CutShot`, `Dungeon::CutScenePlaying` |
 | column | | a vertical line of cells, counted from the left | `LevelGrid` |
 | deep water | | a cell full of water: solid, nobody walks or swims into it. "Full water" in some drafts | `Structure::DeepWater`, `isSolidStructure` |
-| fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
+| fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes, a sun disc. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
 | flooded cell | | a cell with water in it: half water or deep water | `Structure` |
 | floor | | a solid cell under an open one, what the player stands on. Also a storey of the map ("the upper floor") | `isSolidStructure` |
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
@@ -38,16 +38,20 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
 | copy | Copy | an inscription read without the Words of Thoth skill: the glyphs go into the journal untranslated, and learning the skill translates every copy ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)) | `Interaction::Copy`, `JournalInscription::translated`, `Journal::TranslateInscriptions` |
 | glint | | the gold band sweeping now and then over an inscription not read yet; dimmer over a copy not translated ([interact-prompt](plan/solved/interact-prompt.md)) | `Dungeon::InscriptionGlint`, `glintQuad` |
-| interact verb | "[E] Open" | what the interact key does in the player's cell (Open, Pull, Read, Copy, Light arrows, Enter, Answer, Take), shown by the interact prompt at the bottom right ([interact-prompt](plan/solved/interact-prompt.md)) | `Interaction`, `Dungeon::InteractVerb`, `InteractPrompt` |
+| interact verb | "[E] Open" | what the interact key does in the player's cell (Open, Pull, Read, Copy, Light arrows, Turn, Enter, Answer, Take), shown by the interact prompt at the bottom right ([interact-prompt](plan/solved/interact-prompt.md)) | `Interaction`, `Dungeon::InteractVerb`, `InteractPrompt` |
 | boon | Gift | a permanent stat an inscription gives when it is translated: Might, Armor, max health % or max stamina % ([inscription-boons](plan/solved/inscription-boons.md)) | `Boon`, `InscriptionText::boon`, `JournalInscription::boon`, `PlayerStats::Grant` |
 | level | Level (save slots) | (map) one of the campaign's maps, "lvl5" in the docs. Not the player's level or a weapon's level (see Items) | `Dungeon::LevelNumber` |
 | level grid | | every level is 40 x 47 cells, row 0 at the bottom | `LEVEL_WIDTH`, `LEVEL_HEIGHT` |
 | pit | | a drop with no floor; a spike pit kills (the checker does not count it as a softlock) | `src/world/level_check.h` |
 | riddle gate | | a gate that opens on the right answer to a riddle | `GateRiddle` |
 | gate | Gate | a portcullis: opens with the key of its lock colour or a lever of that colour; a boss gate opens when the boss dies. The sphinx gates (`Door`) are the entrance, the exit, riddle gates and teleporters | `Gate`, `Door`, `GateType` |
-| lock colour | | ties keys, gates and levers together: four colours, and the boss lock for boss gates | `LockColour`, `LOCK_COLOURS`, `BOSS_LOCK` |
+| lock colour | | ties keys, gates, levers and sun discs together: four colours, and the boss lock for boss gates | `LockColour`, `LOCK_COLOURS`, `BOSS_LOCK` |
 | key | Key | lies on the floor, picked up on touch; opens the gates of its colour | `Key` |
 | lever | Lever | a fixture; pulled, it opens every gate of its colour | `Lever` |
+| light shaft | | sunlight through a crack in the rock: where a beam starts, shining one way (down, left, up, right) ([sunlight-mirrors](plan/sunlight-mirrors.md)) | `LightShaft`, `shaftDir` |
+| beam | | a beam of sunlight from a light shaft through open cells: mirrors turn it, rock, deep water and gates not fully open stop it; it lights sun discs, burns the sun burners, keeps light shunners out. Drafts also say "sunbeam" | `traceBeams`, `BeamStep`, `Dungeon::Sunlit` |
+| mirror | Turn | a bronze mirror on a stand: sends a beam on the way its gold pointer shows (edge-on it lets one by, facing it it catches it); interact turns it a quarter turn clockwise | `Mirror`, `mirrorDir`, `Dungeon::TurnMirror` |
+| sun disc | the Aten | a fixture: a beam on it lights it for good, and it opens every gate of its colour as a lever. Not the Sun Disc amulet (the fire guard) | `SunDisc`, `sunDiscLit`, `Dungeon::updateSunBeams` |
 | exit | | the sphinx gate to the next level (Enter); its plasma is red. The entrance is where the player starts | `GateExit`, `GateEntrance` |
 | teleporter | | a sphinx gate that sends the player to the other one with the same pair id (Enter) | `GateTeleport`, `Dungeon::Teleport` |
 | gate travel | | the fade into the gate's plasma colour and back (0.3 s each way) on the exit or a teleporter; the world stands still | `GateTravel`, `GATE_TRAVEL_FADE_MS`, `Dungeon::Travelling` |
@@ -101,7 +105,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | leap | | a walk-jumper's jump over a pit or a trap | `Leap` |
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
 | lit cell | | within `LIGHT_SHUN_CELLS` (1) along the row of a flame: a wall torch, a brazier, an oil lamp | `Dungeon::Lit` |
-| light shunner | | a walker that does not step into a lit cell; light on its way to the player is a wall to it, so it flees; caught in the light, it runs for the dark (the camel spider, [camel-spider](plan/solved/camel-spider.md)) | `MonsterKind::shunsLight`, `Dungeon::walkerStops`, `Dungeon::wayOutOfLight`, `CreatureMove::ShunLight` |
+| light shunner | | a walker that does not step into a lit cell (a flame near it, or a beam of sunlight); light on its way to the player is a wall to it, so it flees; caught in the light, it runs for the dark (the camel spider, [camel-spider](plan/solved/camel-spider.md)) | `MonsterKind::shunsLight`, `Dungeon::walkerStops`, `Dungeon::wayOutOfLight`, `CreatureMove::ShunLight` |
+| sun burner | | a monster a beam of sunlight sets on fire: the mummy and the mummy priest ([sunlight-mirrors](plan/sunlight-mirrors.md)) | `MonsterKind::sunBurns`, `Monster::Kindle` |
 | lurking | | ambush, entombed, submerged, coiled, floating or a figurine, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | summon | | how a boss's minions arrive: dig out, drop, climb out of a coffin, hatch, step out of a wall | `Summon` |
@@ -159,7 +164,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | amulet | Amulet | worn one at a time, gives its bonus while on; four tiers per type (regeneration: normal and grand only) | `AmuletType`, `AmuletTier` |
 | bag | Inventory | what the player carries: counts, weapon levels, the worn amulet | `ItemBag` |
 | container | | what a treasure looks like: a wooden chest, a painted coffer, a reed basket, canopic jars, a sealed jar (it smashes), an offering table. Closed until opened (Open), its clip, then its item shows (Take); emptied, it stays open. Rolled per cell by depth, wooden chests 40 % or more (the mimic hides among them) | `Container`, `CONTAINER_DEFS`, `CONTAINER_PERCENT` |
-| fire guard | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts) | `AmuletType::FireWard` |
+| fire guard | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts). Not the sun disc on the wall (the Aten) | `AmuletType::FireWard` |
 | group | Weapons, Potions, Amulets, Rings | an inventory tab; no rings yet, so that tab stays disabled | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
 | item kind | | one item: a weapon, a potion, an amulet tier; the save ids follow it | `ItemKind` |

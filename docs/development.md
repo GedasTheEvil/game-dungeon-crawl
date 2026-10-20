@@ -147,6 +147,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Cut-scenes: the far gates shown, the camera's way, skip; the look | `world/dungeon_cutscene.cpp` (`CutShot`), drawn by `graphics/draw.cpp` (the camera, the HUD hidden) and `graphics/motion_fx.*` (tint, vignette, bars); skip in `input/input.cpp` |
 | Dart traps | `world/dungeon_darts.*` (`DartTraps`) |
+| Sunlight mirrors: the beam's way, turning a mirror, lighting a sun disc, the sun burn, the checker's search | `world/sun_beam.*` (`traceBeams`, `sunlitCells`), `world/dungeon_sun.cpp`, drawn in `world/dungeon_render_sun.cpp` (`SunBeam::ray` in `graphics/fire.*`); `checkSunBeams`, `Walker::turns` in `world/level_check.cpp` |
 | Wall spikes (rhythm traps): cycle, stab, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp`, drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
 | Inscriptions: texts, reading, the atlas | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, drawn in `world/dungeon_render_decor.cpp`, atlas `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp` |

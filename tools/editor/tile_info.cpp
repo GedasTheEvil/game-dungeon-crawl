@@ -78,6 +78,12 @@ const Choices SPIKE_SPEEDS = {
 	{1, "fast", "Fast: out 0.8 s of every 3.2 s"},
 	{2, "slow", "Slow: out 1.6 s of every 4.8 s"},
 };
+const Choices BEAM_DIRS_LIST = {
+	{0, "down", "Down"},
+	{1, "left", "Left"},
+	{2, "up", "Up"},
+	{3, "right", "Right"},
+};
 const Choices SPIKE_PHASES_LIST = {
 	{0, "0/8", "Out at the start of the cycle"},
 	{1, "1/8", "An eighth of the cycle later"},
@@ -192,6 +198,16 @@ CellHint describeCell(const Tile& cell) {
 		break;
 	case RockFall:
 	case DartPlate:
+		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
+		break;
+	case LightShaft:
+		hint.attribute = field("way", BEAM_DIRS_LIST, cell.attr, "the game keeps only the low 2 bits");
+		break;
+	case Mirror:
+		hint.value = field("way", BEAM_DIRS_LIST, cell.value, "the game keeps only the low 2 bits");
+		break;
+	case SunDisc:
+		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case WallSpikes:

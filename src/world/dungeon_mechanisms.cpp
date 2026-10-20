@@ -25,6 +25,8 @@ void Dungeon::resetMechanisms() {
 	cutShot = {};
 	fallingRocks.clear();
 	dartTraps = {};
+	mirrorSwings.clear();
+	litDiscs.clear();
 	// A save taken mid-motion finishes it on load.
 	for (Tile& t : map)
 		if (t.type == Gate && gateState(t) == GateState::Opening)
@@ -33,6 +35,7 @@ void Dungeon::resetMechanisms() {
 			setRockState(t, RockState::Fallen);
 		else if (platePressed(t))
 			setPlatePressed(t, false);
+	traceSunBeams();
 }
 //======================================================================================
 void Dungeon::updateMechanisms() {
@@ -72,6 +75,7 @@ void Dungeon::updateMechanisms() {
 	}
 
 	finishOpenedGates();
+	updateSunBeams();
 	updateRocks();
 	updateDartTraps();
 	updateWallSpikes();

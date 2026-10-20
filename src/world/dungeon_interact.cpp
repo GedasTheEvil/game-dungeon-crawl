@@ -62,6 +62,9 @@ void Dungeon::Interact() {
 	case Interaction::Light:
 		lightArrows();
 		break;
+	case Interaction::Turn:
+		TurnMirror();
+		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
 		useGate();
@@ -88,6 +91,8 @@ Interaction Dungeon::InteractVerb() const {
 		const bool worn = !inscriptionPage(here.fixture);
 		return worn || sim.player->stats.heka.Has(SkillId::Hieroglyphs) ? Interaction::Read : Interaction::Copy;
 	}
+	if (here.type == Mirror)
+		return Interaction::Turn;
 	const OwnedWeapons& owned = sim.items->Owned();
 	if (decoration.decor[MapIndex(col, row)].type == DECOR_BRAZIER &&
 		(owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||

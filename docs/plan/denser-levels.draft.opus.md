@@ -7,7 +7,7 @@ Needs first: the new monster plans, so the denser levels place them too:
 [camel-spider](solved/camel-spider.md) (solved), [hippo](solved/hippo.md) (solved),
 [living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](solved/cursed-mimic.md) (solved).
 It also needs the mirrors and the new traps first (user, 2026-10-20), so the denser levels place them too:
-[sunlight-mirrors](sunlight-mirrors.draft.opus.md), [fire-jet-trap](fire-jet-trap.draft.opus.md),
+[sunlight-mirrors](sunlight-mirrors.md), [fire-jet-trap](fire-jet-trap.draft.opus.md),
 [poison-drip-trap](poison-drip-trap.draft.opus.md), [trapped-chests](trapped-chests.draft.opus.md).
 
 ## Today (2026-10-09, `bin/levelcheck`)

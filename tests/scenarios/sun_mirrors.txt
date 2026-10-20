@@ -1,0 +1,20 @@
+# Sunlight mirrors (plan sunlight-mirrors), tests/levels/mirrors: the light shaft at col 3 shines down onto the mirror
+# under it, which points left; turned twice it points right, the beam lights the red sun disc at col 8 and the red
+# gate at col 10 opens. The beam and the mirror before, the mirror turned up (catching the beam), the lit disc, the
+# disc up close with the beam through the open gate.
+seed 1
+god
+level tests/levels/mirrors
+wait 30
+walk to 3.5
+screenshot beam_left
+interact
+wait 600ms
+screenshot mirror_up
+interact
+wait 300ms
+screenshot disc_lit
+wait 2s
+walk to 8.3
+screenshot gate_open
+expect level == 1

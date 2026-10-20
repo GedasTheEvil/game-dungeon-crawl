@@ -339,6 +339,11 @@ class Monster {
 	// (Dungeon::rewardKill).
 	bool UpdateBurning();
 	[[nodiscard]] bool Burns() const { return burning.Any(); }
+	// Set on fire as by a hit with fire fire (a beam of sunlight on a mummy, plan sunlight-mirrors); not in water.
+	void Kindle(double fire) {
+		if (Alive() && !inWater)
+			burning.Ignite(fire);
+	}
 	[[nodiscard]] int PoisonMask() const { return poison.Mask(); }
 	// Each tick it stands in a spike or death trap (see TrapHurt).
 	// venom: the death trap's poison tier, applied on a hit (no XP for the player's kill).

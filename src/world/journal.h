@@ -137,8 +137,9 @@ enum class FieldNote : unsigned char {
 	JumpedBite, // the first bite the player jumped over (plan monster-attack-reach)
 	Sand, // the first step into sand (plan desert-chapter)
 	Quicksand, // the first time the player sinks in quicksand
+	SunMirrors, // the first mirror turned or sun disc lit (plan sunlight-mirrors)
 };
-constexpr int FIELD_NOTE_COUNT = 36;
+constexpr int FIELD_NOTE_COUNT = 37;
 // The field note written when the skill is learnt, none for a skill without one.
 [[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.

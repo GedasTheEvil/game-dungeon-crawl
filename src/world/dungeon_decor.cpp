@@ -22,7 +22,7 @@ bool Dungeon::PlaceDecor(int col, int row, int type) {
 bool Dungeon::Lit(int col, int row) const {
 	Flame flames[MAX_CELL_FLAMES];
 	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++)
-		if (IsInBounds(c, row) && flamesAt(decoration, MapIndex(c, row), flames) > 0)
+		if (IsInBounds(c, row) && (flamesAt(decoration, MapIndex(c, row), flames) > 0 || Sunlit(c, row)))
 			return true;
 	return false;
 }

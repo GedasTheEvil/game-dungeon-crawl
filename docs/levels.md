@@ -10,14 +10,14 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`, `Sand`, `Quicksand`. A cell blocks when it is `Wall` or
   `DeepWater`.
-* **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes
-  (the wall types, `isWallType` in `src/world/level.h`).
+* **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes,
+  sun disc (the wall types, `isWallType` in `src/world/level.h`).
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
-  ankh, monster spawn, spike, death trap, rock fall, dart plate.
+  ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror.
 
 Fixtures and objects stand in `Empty`, `HalfWater`, `Sand` or `Quicksand`. A cell can hold one of each: an inscription over a chest, a
 lever behind a monster spawn. Interact takes the chest first, then the fixture (pull the lever, read the inscription)
-with the next press; a gate (exit, teleporter) comes last. Wall spikes block their cell when out, so `levelcheck` warns
+with the next press, then a mirror (turn it); a gate (exit, teleporter) comes last. Wall spikes block their cell when out, so `levelcheck` warns
 about a monster spawn, ladder, gate, door or treasure in front of them; a key or a floor trap there is fine. The map
 screen shows one symbol a cell, the object's, else the fixture's.
 
@@ -36,6 +36,17 @@ jump's stamina. A sand fall (a rock fall with attribute 1, `&`) pours sand on wh
 and turns its cell to sand. A sand worm placed in sand lies under it and comes up under the player. `levelcheck`
 counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap, and warns about
 sand or quicksand not on a wall and a run of more than 2 quicksand cells.
+
+Sunlight rules ([sunlight-mirrors](plan/sunlight-mirrors.md), `src/world/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
+left, 2 up, 3 right) sends a beam of sunlight through open cells until rock, deep water or a gate not fully open stops
+it; the player does not. A mirror (`(`, value: the way it points) sends a beam that falls on it on that way: pointing
+the way the beam goes it stands edge-on and lets it by, pointing back it catches it. Interact turns a mirror a quarter
+turn clockwise (down, left, up, right). A sun disc (`a`, a fixture, attribute: lock colour) a beam falls on is lit for
+good and opens every gate of its colour, as a lever. A beam burns mummies standing in it (fire, `SUN_BURN_FIRE`) and
+counts as light for the camel spiders. `levelcheck` models the beam: turning a mirror lights every sun disc a beam can
+reach with the mirrors the player reaches from there (with the colours open by then) set as needed; it warns about a
+light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
+as the level starts.
 
 Level files are text, version 3: a `DCLEVEL 3 40 47` header, the structure as a drawing, then the list of fixtures
 and the list of objects (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the
@@ -71,7 +82,7 @@ Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 18 | The sanctuary of the uraeus, climbed bottom to top: the hall of two gates (red lever below, blue lever above), a pillar loop with the green key inside the pillar, a rock-fall gauntlet, a 3-high flooded hall with crocodiles and a riddle gate, the gold key by an Anubis. |
 | 19 | The serpent sanctum: cobras, giant bats, mummies, five Anubis, two crocodiles in a two-high flooded hall. Red key, blue lever, green key past a drop shaft, gold lever beyond a loop round a pillar, then a spike-pit gauntlet before the exit hall. |
 | 20 | Apep's pit, the fourth boss: cobras, mummies, Anubis, Apep's throat (a shaft from the second hall down to the fifth), a crocodile pool. Red key, blue lever, green lever; the teleporter in the ninth hall's east nook leads to the sealed pit: a sunken floor between two ledges, Apep and his cobras, the boss gate on the east ledge, behind it the gold key for the gold gate before the exit. |
-| 21 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. Red lever, red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
+| 21 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
 | 22 | The hall of drifts, started from the east: long sand halls, two of them two high, quicksand in pairs, sand worms, camel spiders, giant scorpions, giant cobras. The desert's first dart trap. Red key, red gate; gold lever, gold gate. A riddle gate, a name gate to a sealed room under the eleventh hall. |
 | 23 | The sand stair: twelve halls down in a zigzag, each shorter than the level, sand falls over the drifts, quicksand pits, a dart trap, giant cobras, giant scorpions, camel spiders. Blue lever, blue gate; green key, green gate; a riddle gate. A drop into the exit cavern. |
 | 24 | The house of Seth's servants: a buried temple, Anubis guards and mummies among the drifts, sand worms, giant scorpions. Red lever, red gate; gold key, gold gate; a riddle gate. A name gate to a sealed room over the exit cavern. |
@@ -123,7 +134,8 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's jump constants), so the player
   cannot step up onto a ledge. A rock fall is walked, not jumped (it drops all the same). Jumps from mid-ladder are
   not modelled. Stamina is not counted: it comes back while the player waits.
-- A key, or pulling a lever, opens every gate of its colour. In the level file a gate is closed only with value 0
+- A key, or pulling a lever, opens every gate of its colour. Turning a mirror lights the sun discs a beam can then
+  reach (the sunlight rules above): their gates open. In the level file a gate is closed only with value 0
   (the game opens one saved while opening), and a lever with value 1 is already pulled and opens nothing.
 - Reaching the boss counts as killing it (the checker cannot fight): the boss gates (lock colour 5) open. No key
   opens them.
@@ -136,7 +148,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a run of wall spikes that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v3, a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a run of wall spikes that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v3, a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6 (a name gate too), the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
@@ -148,8 +160,8 @@ A softlock cell is a cell the player can reach but cannot leave for the exit, fo
 one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
-3 per rock fall, 2 per dart plate, 1.5 per wall spikes cell and 1.2 per jump on the path, 0.8 per gate, and 1 more for
-a jump over a death pit.
+3 per rock fall, 2 per dart plate, 1.5 per wall spikes cell and 1.2 per jump on the path, 0.8 per gate and per mirror
+turn, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
 giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
@@ -193,7 +205,7 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream; from difficulty 8,
    30% of the mimics are cursed. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a name cartouche `:`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a name cartouche `:`, a light shaft `l`, a mirror `(`, a sun disc `a`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose
@@ -222,6 +234,11 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 
 ## Tests
 
+- `tests/unit/sun_mirrors_test.cpp` (plan sunlight-mirrors): the beam's way through a mirror (turned, edge-on,
+  catching it), the search over the mirrors the player can turn, the checker (the turn on the path, a mirror out of
+  reach, a disc lit at the start, the warnings), the mirror turned in the game lighting the disc and opening its gate,
+  a mummy burning in a beam (`tests/levels/mirrors`, `mirrors_mummy`). Scenario `tests/scenarios/sun_mirrors.txt`:
+  the beam, the turned mirror, the lit disc (screenshots).
 - `tests/unit/sand_test.cpp` (plan desert-chapter): sand slows and stops the sprint, quicksand sinks, hurts and a
   jump frees, the sand fall hits, slows and leaves a drift, a sand worm lies under its sand and comes up under the
   player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign's 35 levels with the desert at 21-25.

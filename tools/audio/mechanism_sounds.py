@@ -1,4 +1,4 @@
-"""Synthesize the sounds of the rats, keys, gates, levers and rock falls.
+"""Synthesize the sounds of the rats, keys, gates, levers, rock falls and the other mechanisms.
 
     python3 tools/audio/mechanism_sounds.py [out_dir]      (default: media/sounds/)
 
@@ -9,7 +9,9 @@ lever.wav (wooden clunk + latch), rock_rumble.wav (low rumble with trickling gri
 monsters/summon_dig.wav (a boss's minion digs out of the sand), summon_drop.wav (a minion drops from the ceiling),
 mechanisms/plate_click.wav (a stone pressure plate sinks: grit, a hollow knock and a latch), dart.wav (a dart leaves
 its hole in the wall: a puff and a thin whistle), spike_scrape.wav (wall spikes twitch in their slots before they shoot
-out: metal ticks over a rising scrape), spike_thunk.wav (they shoot out: a metal shing and a heavy knock).
+out: metal ticks over a rising scrape), spike_thunk.wav (they shoot out: a metal shing and a heavy knock),
+mirror_turn.wav (a bronze mirror turned a quarter on its stand: a short grind in the bearings, a squeak, a click),
+sun_disc.wav (a sun disc lit by the beam: a warm bell chord swelling up, a shimmer over it; plan sunlight-mirrors).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -302,6 +304,30 @@ def spike_thunk():
     return normalize(out, -4)
 
 
+def mirror_turn():
+    out = np.zeros(int(0.45 * SR))
+    grain, t = grind(0.3)
+    place(out, band(grain, 600, 3000) * np.sin(np.pi * t / 0.3), 0.0, 0.6)
+    squeak, _ = chirp(1500, 1900, 0.16, 1.2)
+    place(out, squeak * np.sin(np.pi * t_axis(0.16) / 0.16), 0.05, 0.15)
+    click, _ = ring((2100, 3300, 4700), 0.12, 0.015)
+    place(out, click, 0.3, 0.5)
+    return normalize(out, -7)
+
+
+def sun_disc():
+    dur = 2.2
+    out = np.zeros(int(dur * SR))
+    t = t_axis(dur - 0.1)
+    swell = np.clip(t / 0.35, 0, 1) * np.exp(-np.maximum(t - 0.35, 0) / 0.7)
+    for i, f in enumerate((392.0, 493.9, 587.3, 784.0)):  # G major, an octave on top
+        tone = np.sin(2 * np.pi * f * t) + 0.3 * np.sin(2 * np.pi * 2.01 * f * t)
+        place(out, tone * swell / (1 + 0.4 * i), 0.0, 0.3)
+    shimmer = band(rng.standard_normal(len(t)), 5000, 9000) * swell * (1 + np.sin(2 * np.pi * 9 * t))
+    place(out, shimmer, 0.0, 0.08)
+    return normalize(out, -6)
+
+
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
@@ -311,6 +337,7 @@ SOUNDS = {
     "monsters/summon_dig": summon_dig, "monsters/summon_drop": summon_drop,
     "mechanisms/plate_click": plate_click, "mechanisms/dart": dart,
     "mechanisms/spike_scrape": spike_scrape, "mechanisms/spike_thunk": spike_thunk,
+    "mechanisms/mirror_turn": mirror_turn, "mechanisms/sun_disc": sun_disc,
 }
 
 

@@ -26,6 +26,8 @@ void loadMechanisms(MechanismSet& set) {
 		set.gateTex[c].LoadPNG(path);
 		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/lever_base_%s.png", LOCK_COLOURS[c].name);
 		set.leverBaseTex[c].LoadPNG(path);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/sun_disc_%s.png", LOCK_COLOURS[c].name);
+		set.sunDiscTex[c].LoadPNG(path);
 	}
 	set.key = loadStaticModel(MEDIA_DIR "models/mechanisms/key.md3", set.keyTex[0]);
 	set.gate = loadStaticModel(MEDIA_DIR "models/mechanisms/gate.md3", set.gateTex[0]);
@@ -45,6 +47,13 @@ void loadMechanisms(MechanismSet& set) {
 	set.spikeSlots = loadStaticModel(MEDIA_DIR "models/mechanisms/spike_slots.md3", set.spikeSlotsTex);
 	set.wallSpikesTex.LoadPNG(MEDIA_DIR "textures/mechanisms/wall_spikes.png");
 	set.wallSpikes = loadStaticModel(MEDIA_DIR "models/mechanisms/wall_spikes.md3", set.wallSpikesTex);
+	set.sunDisc = loadStaticModel(MEDIA_DIR "models/mechanisms/sun_disc.md3", set.sunDiscTex[0]);
+	set.mirrorStandTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror_stand.png");
+	set.mirrorStand = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror_stand.md3", set.mirrorStandTex);
+	set.mirrorTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror.png");
+	set.mirror = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror.md3", set.mirrorTex);
+	set.mirrorPointerTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror_pointer.png");
+	set.mirrorPointer = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror_pointer.md3", set.mirrorPointerTex);
 }
 } // namespace
 
@@ -239,6 +248,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.dart.Load(MEDIA_DIR "sounds/mechanisms/dart.wav");
 	sounds.spikeScrape.Load(MEDIA_DIR "sounds/mechanisms/spike_scrape.wav");
 	sounds.spikeThunk.Load(MEDIA_DIR "sounds/mechanisms/spike_thunk.wav");
+	sounds.mirrorTurn.Load(MEDIA_DIR "sounds/mechanisms/mirror_turn.wav");
+	sounds.sunDisc.Load(MEDIA_DIR "sounds/mechanisms/sun_disc.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
 	sounds.rockCrash.Load(MEDIA_DIR "sounds/mechanisms/rock_crash.wav");
 	sounds.sandHiss.Load(MEDIA_DIR "sounds/mechanisms/sand_hiss.wav");

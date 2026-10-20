@@ -225,6 +225,7 @@ struct MonsterKind {
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
+	bool sunBurns = false; // a beam of sunlight sets it on fire (SUN_BURN_FIRE, plan sunlight-mirrors)
 	// In sand it lies under the surface and burrows to the player, coming up under their feet (plan desert-chapter,
 	// Burrow); out of sand it walks.
 	bool sandBurrow = false;

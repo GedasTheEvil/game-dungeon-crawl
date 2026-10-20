@@ -474,7 +474,7 @@
 37,32 surface 8/3/5
 5,33 surface 8/1/3 ladder 0/2
 5,34 surface 8/3/3 ladder 0/0
-2,35 surface 9/3/3 decal 11 0.381,0.431
+2,35 surface 9/3/3
 3,35 surface 8/3/4
 4,35 surface 9/3/5
 5,35 surface 8/1/3 ladder 0/3m
@@ -510,6 +510,7 @@
 35,35 surface 8/3/3 ladder 1/4
 36,35 surface 9/1/5
 37,35 surface 8/1/3
+12,36 surface 8/3/3
 35,36 surface 6/1/2 ladder 1/2
 35,37 surface 7/1/2 ladder 1/0
 2,38 surface 8/3/4

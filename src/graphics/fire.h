@@ -84,6 +84,12 @@ void draw(float x, float y, float z, float progress);
 // A shaft of daylight through a crack in the ceiling (plan desert-chapter): steady and faint, from the ceiling a tile
 // above (x, y, z) down to that floor point, dust motes drifting in it.
 void shaft(float x, float y, float z, uint32_t seed);
+// A beam of sunlight (plan sunlight-mirrors) along the row or the column from (x0, y0) to (x1, y1) at depth z: brighter
+// than a shaft, its glow round a white core, dust motes drifting along it.
+void ray(float x0, float y0, float x1, float y1, float z, uint32_t seed);
+// A soft round glow at (x, y, z), size world units across, added to what is there: where a beam starts, falls on a
+// wall or a mirror, a lit sun disc.
+void glow(float x, float y, float z, float size, float strength);
 } // namespace SunBeam
 
 #endif

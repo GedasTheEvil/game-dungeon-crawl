@@ -1,0 +1,6 @@
+# Plan sunlight-mirrors, for `bin/game --play tests/play/sunlight-mirrors.txt`: lvl21, in the hall of the red lock. A
+# shaft of sunlight falls through a crack over the mirror (col 12), which faces it; turn it (E) a quarter at a time
+# until its pointer shows west: the beam runs along the hall to the red sun disc (col 2), the red gate further down
+# opens. The mummy at col 9 burns in the beam.
+seed 1
+level 21 at 14 35

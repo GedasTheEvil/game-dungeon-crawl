@@ -22,6 +22,8 @@ constexpr LightDef TORCH = {1.0f, 0.62f, 0.28f, 115.f, 0.6f};
 constexpr LightDef BRAZIER = {1.0f, 0.55f, 0.22f, 140.f, 0.8f};
 constexpr LightDef OIL_LAMP = {1.0f, 0.68f, 0.35f, 60.f, 0.5f};
 constexpr LightDef LIGHT_SHAFT = {0.9f, 0.78f, 0.55f, 80.f, 0.f}; // daylight through a crack (plan desert-chapter)
+constexpr LightDef SUNBEAM = {1.0f, 0.86f, 0.6f, 75.f,
+							  0.f}; // a beam of sunlight, a lit sun disc (plan sunlight-mirrors)
 
 void begin();
 void add(float x, float y, float z, const LightDef& def, uint32_t seed);

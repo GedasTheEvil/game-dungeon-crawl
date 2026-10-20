@@ -566,3 +566,61 @@ void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
 	}
 	Sprites::end();
 }
+
+void SunBeam::ray(float x0, float y0, float x1, float y1, float z, uint32_t seed) {
+	constexpr float R = 1.f, G = 0.87f, B = 0.6f;
+	constexpr float MOTES_PER_TILE = 6.f;
+	constexpr float MOTE_MS = 5000.f;
+	const bool vertical = std::fabs(x1 - x0) < std::fabs(y1 - y0);
+	const float length = std::hypot(x1 - x0, y1 - y0);
+	if (length <= 0.f)
+		return;
+	Sprites s;
+	s.begin();
+	glEnd();
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBegin(GL_QUADS);
+	// Across the beam: the camera's right for a column (it turns to face the camera), up for a row.
+	const float wx = vertical ? s.rx : 0.f, wy = vertical ? 0.f : 1.f, wz = vertical ? s.rz : 0.f;
+	struct Layer {
+		float halfWidth, bright;
+	};
+	constexpr Layer LAYERS[] = {{8.f, 0.22f}, {3.f, 0.5f}, {1.f, 0.6f}};
+	for (const Layer& l : LAYERS) {
+		const float hx = wx * l.halfWidth, hy = wy * l.halfWidth, hz = wz * l.halfWidth;
+		glColor4f(R * l.bright, G * l.bright, B * l.bright, 1);
+		glTexCoord2f(0, 0.5f);
+		glVertex3f(x0 - hx, y0 - hy, z - hz);
+		glTexCoord2f(1, 0.5f);
+		glVertex3f(x0 + hx, y0 + hy, z + hz);
+		glTexCoord2f(1, 0.5f);
+		glVertex3f(x1 + hx, y1 + hy, z + hz);
+		glTexCoord2f(0, 0.5f);
+		glVertex3f(x1 - hx, y1 - hy, z - hz);
+	}
+	glEnd();
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	const float now = static_cast<float>(GameClock::now());
+	const int motes = static_cast<int>(MOTES_PER_TILE * length / RenderConfig::TILE_SIZE) + 1;
+	for (int i = 0; i < motes; i++) { // dust drifting slowly along the light, glittering in it
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x5bd1e995U));
+		const float p = std::fmod(now / MOTE_MS + unit01(h), 1.f);
+		const float off = (unit01(h >> 16) - 0.5f) * 5.f + 1.2f * std::sin(now * 0.0013f + static_cast<float>(i));
+		const float mx = x0 + (x1 - x0) * p + wx * off, my = y0 + (y1 - y0) * p + wy * off;
+		s.add(mx, my, z + wz * off + (unit01(mix(h)) - 0.5f) * 5.f, 1.1f, R, G, B, 0.6f * std::sin(3.1416f * p));
+	}
+	Sprites::end();
+}
+
+void SunBeam::glow(float x, float y, float z, float size, float strength) {
+	constexpr float R = 1.f, G = 0.88f, B = 0.62f;
+	Sprites s;
+	s.begin();
+	glEnd();
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBegin(GL_QUADS);
+	s.add(x, y, z, size, R * strength, G * strength, B * strength, 1.f);
+	s.add(x, y, z, size * 0.4f, strength, strength, strength * 0.9f, 1.f);
+	Sprites::end();
+}

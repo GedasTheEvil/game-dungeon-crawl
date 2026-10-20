@@ -29,7 +29,7 @@ constexpr int STRUCTURE_COUNT = 6;
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
 // The object and wall layers share one number space. The numbers are the v1 file's tile types: 0 was Wall (now a
-// structure), 7 the unused Area3D. Lever, Inscription and WallSpikes are wall types (isWallType): fixtures.
+// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes and SunDisc are wall types (isWallType): fixtures.
 enum DungeonTileType : unsigned char {
 	NoObject = 1,
 	Door = 2,
@@ -46,9 +46,18 @@ enum DungeonTileType : unsigned char {
 	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
 	Inscription = 15, // hieroglyphs on the back wall, b = text id (inscriptions.h): interact to read them
 	WallSpikes = 16, // spikes on a cycle out of the back wall (plan rhythm-traps); b = speed, c = phase | live state
+	// Sunlight mirrors (plan sunlight-mirrors, sun_beam.h): a beam of sunlight from a light shaft, bronze mirrors turn
+	// it, a sun disc it falls on opens the gates of its colour.
+	LightShaft =
+		17, // sunlight through a crack in the rock: b = the beam's way (BeamDir: 0 down, 1 left, 2 up, 3 right)
+	Mirror = 18, // a bronze mirror on a stand: c = the way it sends the beam (BeamDir); interact turns it clockwise
+	SunDisc =
+		19, // on the back wall: b = lock colour, c = 1 once lit; lit by the beam, it opens the gates of its colour
 };
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
-[[nodiscard]] constexpr bool isWallType(int type) { return type == Lever || type == Inscription || type == WallSpikes; }
+[[nodiscard]] constexpr bool isWallType(int type) {
+	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc;
+}
 
 enum GateType : unsigned char {
 	GateEntrance = 1,
@@ -197,6 +206,9 @@ inline void setRockState(Tile& t, RockState s) { t.value = static_cast<int>(s); 
 // A Lever's value: 0 up, 1 pulled.
 [[nodiscard]] inline bool leverPulled(const Fixture& f) { return f.value != 0; }
 inline void pullLever(Fixture& f) { f.value = 1; }
+// A SunDisc's value: 0 dark, 1 lit (for good).
+[[nodiscard]] inline bool sunDiscLit(const Fixture& f) { return f.value != 0; }
+inline void lightSunDisc(Fixture& f) { f.value = 1; }
 // A teleporter's value: its pair id, and NAME_SEAL on a name gate (plan secret-name-gates): it works only once the
 // player has spoken the level's name, which takes the bit off for good (a plain teleporter then, both ways).
 constexpr int NAME_SEAL = 256;

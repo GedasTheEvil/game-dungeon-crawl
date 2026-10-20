@@ -185,6 +185,10 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Quicksand", "The sand swallowed my boots, then my shins. Standing still makes it worse: the longer I stay, the "
 				  "slower I get, until I am stuck and it squeezes. A jump gets me out, if I have the breath for it. "
 				  "Up close it swirls, slowly. Look before you step."},
+	{"Sun mirrors", "The priests knew how to bring the sun underground. So did a certain archaeologist with a staff. "
+					"A shaft of daylight runs straight until rock stops it; a bronze mirror sends it on the way its "
+					"pointer shows, and I can turn one a quarter at a time. A sun disc, an Aten, that catches the "
+					"light opens the gates of its colour for good. The dead do not like the sun: it sets them alight."},
 }};
 } // namespace
 

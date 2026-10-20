@@ -4,6 +4,7 @@
 #include "items.h"
 #include "monster_kinds.h"
 #include "spike_cycle.h"
+#include "sun_beam.h"
 #include "tile_defs.h"
 #include <algorithm>
 #include <cstdio>
@@ -30,6 +31,7 @@ constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
 constexpr int COST_SAND = 1; // the slower walk (plan desert-chapter)
 constexpr int COST_QUICKSAND = 8; // sinking, and the jump out of it
+constexpr int COST_TURN = 4; // turning mirrors, here and elsewhere (plan sunlight-mirrors)
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
 
 using Move = PathMove;
@@ -50,6 +52,57 @@ class Walker {
 	// sealed: the name gates (plan secret-name-gates) do not teleport, as before the name is spoken.
 	explicit Walker(const LevelGrid& grid, bool teleports = true, bool sealed = false)
 		: grid(grid), pairs(grid.cells), teleports(teleports), sealed(sealed) {}
+
+	// Turning the mirror in the player's cell (plan sunlight-mirrors): a sun disc of a colour not open yet that a beam
+	// can light, the player setting the mirrors they reach from here with the colours they have (sunlitCells), and one
+	// way of setting them for it. The checker does not follow which way each mirror points: any mirror the player
+	// reaches points where the disc needs it.
+	struct Turn {
+		int colour;
+		std::vector<MirrorSetting> way;
+	};
+	[[nodiscard]] const std::vector<Turn>& turns(int state) const {
+		auto found = turnCache.find(state);
+		if (found != turnCache.end())
+			return found->second;
+		const int mask = maskOf(state);
+		std::vector<char> reach(CELLS, 0); // with the colours kept: what a key there opens does not count
+		std::vector<int> stack = {cellOf(state)};
+		reach[cellOf(state)] = 1;
+		std::vector<Edge> edges;
+		while (!stack.empty()) {
+			const int cell = stack.back();
+			stack.pop_back();
+			successors(cell * MASKS + mask, edges, false);
+			for (const Edge& e : edges)
+				if (reach[cellOf(e.to)] == 0) {
+					reach[cellOf(e.to)] = 1;
+					stack.push_back(cellOf(e.to));
+				}
+		}
+		std::vector<std::vector<MirrorSetting>> ways;
+		const std::vector<char> lit = sunlitCells(
+			grid.cells, [&](int cell) { return blocksBeam(cell, mask); }, [&](int cell) { return reach[cell] != 0; },
+			&ways);
+		std::vector<Turn>& out = turnCache[state];
+		int gained = mask;
+		for (int cell = 0; cell < CELLS; cell++) {
+			const Fixture& f = grid.cells[cell].fixture;
+			if (lit[cell] != 0 && f.type == SunDisc && isLockColour(f.attr) && (gained & bitOf(f.attr)) == 0) {
+				gained |= bitOf(f.attr);
+				out.push_back({f.attr, ways[cell]});
+			}
+		}
+		return out;
+	}
+
+	// The beam stops in the cell with these colours open (blocksBeam).
+	[[nodiscard]] bool blocksBeam(int cell, int mask) const {
+		const Tile& t = grid.cells[cell];
+		if (t.type == Gate)
+			return gateState(t) == GateState::Closed && (mask & bitOf(t.attr)) == 0;
+		return isSolidStructure(t.structure);
+	}
 
 	// In level data a gate is closed (0) or open: the game opens one saved mid-motion (2) on load.
 	[[nodiscard]] bool solid(int col, int row, int mask) const {
@@ -108,7 +161,7 @@ class Walker {
 		return spikes;
 	}
 
-	void successors(int state, std::vector<Edge>& out) const {
+	void successors(int state, std::vector<Edge>& out, bool turning = true) const {
 		out.clear();
 		int cell = cellOf(state);
 		int mask = maskOf(state);
@@ -124,6 +177,9 @@ class Walker {
 		const Fixture& lever = here.fixture;
 		if (lever.type == Lever && isLockColour(lever.attr) && !leverPulled(lever)) // a pulled lever opens nothing
 			add(stateOf(col, row, mask | bitOf(lever.attr)), COST_MOVE, Move::Pull);
+		if (turning && here.type == Mirror)
+			for (const Turn& turn : turns(state))
+				add(stateOf(col, row, mask | bitOf(turn.colour)), COST_TURN, Move::Turn);
 
 		if (teleports && isTeleporter(here) && !(sealed && isNameGate(here))) {
 			int to = pairs.Partner(cell);
@@ -167,6 +223,7 @@ class Walker {
 	TeleportPairs pairs;
 	bool teleports;
 	bool sealed;
+	mutable std::map<int, std::vector<Turn>> turnCache; // by state
 };
 
 // Cells the walker reaches from the start state (any opened colours).
@@ -255,12 +312,19 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Gate:
 				r.gates++;
 				break;
+			case LightShaft:
+				r.lightShafts++;
+				break;
+			case Mirror:
+				r.mirrors++;
+				break;
 			default:
 				break;
 			}
 			const Fixture& f = t.fixture;
 			r.wallSpikes += f.type == WallSpikes ? 1 : 0;
 			r.levers += f.type == Lever ? 1 : 0;
+			r.sunDiscs += f.type == SunDisc ? 1 : 0;
 			if (f.type == Inscription) {
 				r.inscriptions++;
 				r.nameCartouches += f.attr == NAME_CARTOUCHE_ID ? 1 : 0;
@@ -280,9 +344,9 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile t = grid.cells[cell];
 		const Fixture& f = t.fixture;
-		if (f.type == Lever && !isLockColour(f.attr))
+		if ((f.type == Lever || f.type == SunDisc) && !isLockColour(f.attr))
 			r.errors.push_back("bad lock colour " + std::to_string(f.attr) + " at " + at(cell));
-		else if (f.type == Lever)
+		else if (f.type == Lever || f.type == SunDisc)
 			leverMask |= bitOf(f.attr);
 		if ((t.type == Key && !isLockColour(t.attr)) || (t.type == Gate && !isGateColour(t.attr))) {
 			r.errors.push_back("bad lock colour " + std::to_string(t.attr) + " at " + at(cell));
@@ -295,7 +359,7 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
 		if ((gateMask & bitOf(c)) != 0 && ((keyMask | leverMask) & bitOf(c)) == 0)
-			r.warnings.push_back(std::string("no key or lever opens the ") + lockColour(c).name + " gates");
+			r.warnings.push_back(std::string("no key, lever or sun disc opens the ") + lockColour(c).name + " gates");
 
 	bool bossGates = false;
 	for (const Tile& t : grid.cells)
@@ -439,6 +503,42 @@ void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
 	}
 }
 
+// Plan sunlight-mirrors: a light shaft has rock behind it (the crack the sun comes through), a mirror is not in front
+// of an inscription (reading it would take the key), a sun disc stands where a beam can fall on it, with every mirror
+// and gate as the player may want them. Returns the colours of the discs lit as the level starts (warned about: their
+// gates open at once).
+int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile& t = grid.cells[cell];
+		const BeamDir back = opposite(shaftDir(t));
+		if (t.type == LightShaft &&
+			!isWall(grid.at(cell % LEVEL_WIDTH + beamDx(back), cell / LEVEL_WIDTH + beamDy(back))))
+			r.warnings.push_back("the light shaft at " + at(cell) + " has no rock behind it");
+		if (t.type == Mirror && t.fixture.type == Inscription) // the inscription takes the interact key first
+			r.warnings.push_back("the mirror at " + at(cell) +
+								 " stands in front of an inscription: it cannot be turned");
+	}
+	if (r.sunDiscs == 0)
+		return 0;
+	const std::vector<char> anyWay = sunlitCells(
+		grid.cells, [&](int cell) { return isSolidStructure(grid.cells[cell].structure); }, [](int) { return true; });
+	const std::vector<char> atStart =
+		sunlitCells(grid.cells, [&](int cell) { return blocksBeam(grid.cells[cell]); }, [](int) { return false; });
+	int lit = 0;
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Fixture& f = grid.cells[cell].fixture;
+		if (f.type != SunDisc || !isLockColour(f.attr))
+			continue;
+		if (anyWay[cell] == 0)
+			r.warnings.push_back("no beam reaches the sun disc at " + at(cell));
+		else if (atStart[cell] != 0) {
+			r.warnings.push_back("the sun disc at " + at(cell) + " is lit as the level starts");
+			lit |= bitOf(f.attr);
+		}
+	}
+	return lit;
+}
+
 bool wallSpikesAt(const LevelGrid& grid, int col, int row) { return grid.at(col, row).fixture.type == WallSpikes; }
 
 // Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them), and
@@ -452,7 +552,8 @@ void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 				continue;
 			const int cell = row * LEVEL_WIDTH + col;
 			const int object = grid.at(col, row).type;
-			if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door || object == Treasure)
+			if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door || object == Treasure ||
+				object == Mirror)
 				r.warnings.push_back(std::string(tileDef(object).name) + " in front of wall spikes at " + at(cell));
 			if (!isWall(grid.at(col, row - 1)))
 				r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
@@ -478,6 +579,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	score += 2.f * static_cast<float>(r.pathDartPlates);
 	score += 1.5f * static_cast<float>(r.pathWallSpikes);
 	score += 0.8f * static_cast<float>(r.pathGates);
+	score += 0.8f * static_cast<float>(r.pathTurns); // a light puzzle on the way
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).
 	std::set<int> near;
@@ -545,6 +647,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 	checkWallSpikes(grid, r);
+	const int litAtStart = checkSunBeams(grid, r);
 
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
@@ -560,7 +663,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 
 	Walker walker(grid);
 	int fallen = 0;
-	int startState = walker.settle(r.start.col, r.start.row, 0, fallen);
+	int startState = walker.settle(r.start.col, r.start.row, litAtStart, fallen);
 	if (startState == NONE) {
 		r.errors.emplace_back("the entrance has no floor below it");
 		return r;
@@ -692,6 +795,13 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			r.pathDrops += m == Move::Drop ? 1 : 0;
 			r.pathClimb += m == Move::Climb ? 1 : 0;
 			r.pathTeleports += m == Move::Teleport ? 1 : 0;
+			if (m == Move::Turn) {
+				r.pathTurns++;
+				const int gained = maskOf(states[i]) & ~maskOf(states[i - 1]);
+				for (const Walker::Turn& turn : walker.turns(states[i - 1]))
+					if (bitOf(turn.colour) == gained)
+						r.pathTurnWays.push_back(turn.way);
+			}
 		}
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;

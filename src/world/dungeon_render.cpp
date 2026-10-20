@@ -319,6 +319,9 @@ void Dungeon::drawFixture(int i, int j) {
 	case WallSpikes:
 		drawWallSpikesTile(i, j);
 		break;
+	case SunDisc:
+		drawSunDiscTile(i, j);
+		break;
 	default: // none, or not a wall type: the reader keeps those out of the wall layer
 		break;
 	}
@@ -366,6 +369,11 @@ void Dungeon::drawTileContent(int i, int j) {
 	case Lever: // wall types: in the wall layer (drawFixture), never the object
 	case Inscription:
 	case WallSpikes:
+	case SunDisc:
+	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
+		break;
+	case Mirror:
+		drawMirrorTile(i, j);
 		break;
 	case RockFall:
 		drawRockFallTile(i, j);
@@ -405,6 +413,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	addLights(drawn);
 	addVenomLights();
 	addFireLights();
+	addSunLights(drawn);
 	Lighting::commit();
 
 	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
@@ -445,6 +454,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawMechanismEffects();
 	drawSummonEffects();
 	drawSandEffects();
+	drawSunBeams();
 	drawContainerEffects();
 	drawBurning();
 	glPopMatrix();

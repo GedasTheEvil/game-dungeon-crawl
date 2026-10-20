@@ -24,6 +24,7 @@ struct SoundBank {
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
+	Sound mirrorTurn, sunDisc; // a mirror turned, a sun disc lit (plan sunlight-mirrors)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
 	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
@@ -75,14 +76,17 @@ struct DecorSet {
 	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 
-// Keys, gates, levers and rock falls: static models in tile units like the props (tools/blender/models/mechanism.py).
-// Keys, gates and lever plates have one model and one texture per lock colour (index colour - 1), bound at draw
-// time; the boss gate (BOSS_LOCK) is the gate model with its own texture. Null if the file failed to load.
+// Keys, gates, levers, rock falls and the sunlight mirrors: static models in tile units like the props
+// (tools/blender/models/mechanism.py). Keys, gates, lever plates and sun discs have one model and one texture per lock
+// colour (index colour - 1), bound at draw time; the boss gate (BOSS_LOCK) is the gate model with its own texture. Null
+// if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
 	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex;
+	Texture sunDiscTex[LOCK_COLOUR_COUNT], mirrorStandTex, mirrorTex, mirrorPointerTex; // plan sunlight-mirrors
 	std::unique_ptr<AnimatedModel> key, gate, leverBase;
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes;
+	std::unique_ptr<AnimatedModel> sunDisc, mirrorStand, mirror, mirrorPointer;
 };
 
 // Everything loaded once at start-up and only read afterwards: textures, models, sounds, fonts, monster types.

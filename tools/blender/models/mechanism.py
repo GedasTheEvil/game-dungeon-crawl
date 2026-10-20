@@ -47,12 +47,13 @@ from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E4
 
 COLL = "mechanism_new"
 MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes", "spike_slots",
-          "wall_spikes"]
-COLOURED = {"key", "gate", "lever_base"}  # one texture per lock colour
+          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer"]
+COLOURED = {"key", "gate", "lever_base", "sun_disc"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
-            "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256}
+            "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256, "sun_disc": 256,
+            "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
 
@@ -79,6 +80,7 @@ COL = {
     "sandstone_dark": (0.40, 0.29, 0.16),
     "sandstone_light": (0.74, 0.60, 0.38),
     "crack": (0.05, 0.035, 0.02),
+    "polished": (0.96, 0.84, 0.56),
     "sand": (0.76, 0.60, 0.35),
     "enamel": (0.02, 0.015, 0.01),
     "poison": (0.28, 0.52, 0.06),
@@ -94,6 +96,7 @@ def materials():
     specs = {
         "gold": stripes("v", 0.02, [(4, "gold"), (1, "gold_dark")], "LINEAR"),
         "gold_plain": ("solid", "gold"),
+        "polished": ("solid", "polished"),
         "bronze": stripes("v", 0.05, [(3, "bronze"), (1, "verdigris")], "LINEAR"),
         "bronze_plain": ("solid", "bronze"),
         "bronze_dark": ("solid", "bronze_dark"),
@@ -407,6 +410,92 @@ def build_wall_spikes(b, M):
             b.add(rod((x, -tip, z), (x, -SPIKE_LENGTH, z), 0.011, 0.0015, n=8, caps=(False, True)), M["poison"], "root")
 
 
+# Sunlight mirrors (plan sunlight-mirrors): the beam runs BEAM_DEPTH in front of the back wall, BEAM_HEIGHT over the
+# floor (the engine's, dungeon_render_sun.cpp), through the mirror's pivot and over the sun disc's middle.
+BEAM_DEPTH = 0.3
+BEAM_HEIGHT = 0.5
+MIRROR_RX, MIRROR_RY, MIRROR_T = 0.16, 0.1, 0.012  # the oval's half width, half depth and half thickness
+FORK_Y = 0.12  # the fork's arms, either side of the mirror along the axle (depth)
+POINTER_AHEAD = 0.14  # the engine draws the pointer this far in front of the pivot
+
+
+def oval_ring(rx, ry, r, z=0.0, steps=28):
+    """Closed tube round an oval in the x-y plane at height z."""
+    keys = [(V((rx * math.cos(2 * math.pi * k / steps), ry * math.sin(2 * math.pi * k / steps), z)), r, r) for k in range(steps)]
+    return tube(keys, sub=1, n=6, ref=V((0, 0, 1)), closed=True)
+
+
+def build_sun_disc(b, M):
+    """A sun disc, the Aten, on a dressed sandstone plaque on the back wall, its middle at the beam's height: a domed
+    gold disc between two rearing cobras, rays carved below it, the lock gem under it and a frieze in its colour."""
+    zc = BEAM_HEIGHT
+    b.add(yz_box(-0.025, 0.0, zc - 0.27, zc + 0.24, 0.27), M["stone_light"], "root")
+    b.add(yz_box(-0.03, -0.02, zc - 0.28, zc - 0.26, 0.28), M["stone_dark"], "root")  # the sill
+    b.add(yz_box(-0.029, -0.024, zc + 0.19, zc + 0.22, 0.25), M["frieze"], "root")
+    # The rays: grooves fanning down from the disc, each ending in a small hand (a dot).
+    for k in range(7):
+        a = math.radians(-150 + 20 * k)
+        r0, r1 = 0.15, 0.24
+        p0 = V((r0 * math.cos(a), -0.027, zc + r0 * math.sin(a)))
+        p1 = V((r1 * math.cos(a), -0.027, zc + r1 * math.sin(a)))
+        b.add(rod(p0, p1, 0.006, n=5), M["gold_plain"], "root")
+        b.add(ellipsoid(p1, (0.012, 0.012, 0.006), n=8, rings=3, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["gold_plain"], "root")
+    b.add(ellipsoid((0, -0.025, zc), (0.135, 0.135, 0.012), n=24, rings=4, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["bronze_dark"], "root")
+    b.add(ellipsoid((0, -0.03, zc), (0.12, 0.12, 0.035), n=24, rings=8, axis=V((0, -1, 0)), ref=V((0, 0, 1))), M["gold"], "root", "gem")
+    # The cobras rearing either side of the disc: a coiled body, the hood, the head.
+    for side in (-1, 1):
+        x = side * 0.165
+        body = [V((x + side * 0.01 * math.sin(k), -0.03, zc - 0.13 + 0.03 * k)) for k in range(7)]
+        b.add(tube([(p, 0.016, 0.012) for p in body], sub=2, n=8, ref=V((0, -1, 0))), M["gold_plain"], "root")
+        b.add(ellipsoid((x, -0.035, zc + 0.08), (0.026, 0.012, 0.04), n=10, rings=4), M["gold"], "root")
+        b.add(ellipsoid((x, -0.045, zc + 0.11), (0.012, 0.012, 0.014), n=8, rings=4), M["gold_plain"], "root")
+    gem(b, M, (0, -0.026, zc - 0.215), (0, -1, 0), 0.03, 0.024, 0.014, bezel=0.006)
+
+
+def build_mirror_stand(b, M):
+    """The mirror's stand, in the corridor BEAM_DEPTH in front of the back wall: a sandstone foot, a papyrus column for
+    a post, a bronze fork on it whose two arms hold the mirror's axle (along the depth) at the beam's height."""
+    y = -BEAM_DEPTH
+    b.add(place(box(0.2, 0.16, 0.045), loc=(0, y, 0.0225)), M["stone"], "root")
+    b.add(place(box(0.16, 0.12, 0.02), loc=(0, y, 0.055)), M["stone_light"], "root")
+    top = BEAM_HEIGHT - MIRROR_RX - 0.05
+    foot = 0.065
+    column = [(0.0, foot), (0.03, foot), (0.026, foot + 0.03), (0.022, top - 0.08), (0.03, top - 0.05), (0.042, top - 0.012),
+              (0.03, top), (0.0, top)]  # a papyrus column: the stem narrows up to the flaring umbel
+    revolve(b, M, column, ["stone_light", "stone", "stone", "stone_light", "stone_light", "stone_light", "stone"], n=14, loc=(0, y, 0))
+    # The fork: a crossbar along the depth, two arms up to the axle, a bearing ring on each.
+    b.add(rod((0, y - FORK_Y, top), (0, y + FORK_Y, top), 0.014, n=8), M["bronze"], "root")
+    for s in (-1, 1):
+        ay = y + s * FORK_Y
+        b.add(rod((0, ay, top), (0, ay, BEAM_HEIGHT), 0.012, n=8), M["bronze"], "root")
+        b.add(rod((0, ay - 0.012, BEAM_HEIGHT), (0, ay + 0.012, BEAM_HEIGHT), 0.022, n=12), M["bronze_plain"], "root")
+    b.add(rod((0, y - FORK_Y - 0.012, BEAM_HEIGHT), (0, y + FORK_Y + 0.012, BEAM_HEIGHT), 0.007, n=8), M["gold_plain"], "root")
+
+
+def build_mirror(b, M):
+    """The mirror: a bronze oval pivoting on its axle (the origin, along the depth), its polished face looking up (+Z)
+    as drawn at 0 deg, a gold rim, a sun engraved on its dark back."""
+    b.add(ellipsoid((0, 0, 0), (MIRROR_RX, MIRROR_RY, MIRROR_T), n=28, rings=6), M["bronze_dark"], "root")
+    b.add(ellipsoid((0, 0, 0.003), (MIRROR_RX - 0.008, MIRROR_RY - 0.008, MIRROR_T), n=28, rings=6), M["polished"], "root", "gem")
+    b.add(oval_ring(MIRROR_RX, MIRROR_RY, 0.008), M["gold_plain"], "root")
+    b.add(ellipsoid((0, 0, -MIRROR_T + 0.001), (0.05, 0.05, 0.004), n=14, rings=3), M["gold"], "root")
+    for k in range(8):
+        a = 2 * math.pi * k / 8
+        b.add(rod((0.06 * math.cos(a), 0.06 * math.sin(a) * MIRROR_RY / MIRROR_RX, -MIRROR_T),
+                  (0.11 * math.cos(a), 0.11 * math.sin(a) * MIRROR_RY / MIRROR_RX, -MIRROR_T * 0.6), 0.004, n=4), M["gold_plain"], "root")
+    for s in (-1, 1):  # the axle's ends, into the fork's bearings
+        b.add(rod((0, s * (MIRROR_RY - 0.004), 0), (0, s * (FORK_Y - 0.01), 0), 0.008, n=8), M["bronze_plain"], "root")
+
+
+def build_mirror_pointer(b, M):
+    """The gold pointer on the axle's front end, a ray of the sun ending in an arrow: it shows the way the mirror
+    sends the beam (+Z as drawn at 0 deg). Origin = the pivot; the engine puts it POINTER_AHEAD in front."""
+    b.add(rod((0, 0.004, 0), (0, -0.01, 0), 0.026, n=14), M["gold"], "root")
+    b.add(rod((0, -0.006, 0.02), (0, -0.006, 0.17), 0.009, 0.006, n=6), M["gold_plain"], "root")
+    head = [V((0.0, -0.006, 0.24)), V((-0.035, -0.006, 0.16)), V((0.035, -0.006, 0.16))]
+    b.add(place(prism([(p.x, p.z) for p in head], 0.012), r=rot(x=90), loc=(0, 0.0, 0)), M["gold"], "root")
+
+
 BUILDERS = {
     "key": build_key,
     "gate": build_gate,
@@ -418,6 +507,10 @@ BUILDERS = {
     "dart_holes": build_dart_holes,
     "spike_slots": build_spike_slots,
     "wall_spikes": build_wall_spikes,
+    "sun_disc": build_sun_disc,
+    "mirror_stand": build_mirror_stand,
+    "mirror": build_mirror,
+    "mirror_pointer": build_mirror_pointer,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -430,6 +523,10 @@ LIGHT = {
     "dart_holes": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
     "spike_slots": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
     "wall_spikes": ([(20, 0, 0.6), (70, 0, 0.35), (70, 180, 0.2)], 0.55),
+    "sun_disc": ([(20, 0, 0.6), (60, 0, 0.3)], 0.6),
+    "mirror_stand": ([(50, 30, 0.55), (50, -30, 0.35)], 0.55),
+    "mirror": ([(0, 0, 0.5), (90, 0, 0.3), (-90, 0, 0.2)], 0.6),  # it turns: light on every side
+    "mirror_pointer": ([(10, 0, 0.6)], 0.6),
 }
 
 

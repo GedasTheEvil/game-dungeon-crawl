@@ -332,4 +332,11 @@ static_assert(static_cast<float>(SPIKES_PERIOD_MS[0] - SPIKES_OUT_MS[0]) >= 1.5f
 				  static_cast<float>(SPIKES_PERIOD_MS[2] - SPIKES_OUT_MS[2]) >= 1.5f * SPIKES_CROSS_MS,
 			  "a single wall spike's safe window is 1.5 times the walk through it");
 
+// Sunlight mirrors (plan sunlight-mirrors): a turned mirror swings to its new way in MIRROR_TURN_MS. A sun burner (the
+// mummies) in a beam burns as from a hit with SUN_BURN_FIRE fire (Burning: a fifth of it a second, BURN_MS after it
+// steps out). A sun disc just lit flares for SUN_DISC_FLARE_MS, then glows steady.
+constexpr int MIRROR_TURN_MS = 350;
+constexpr int SUN_DISC_FLARE_MS = 1500;
+constexpr double SUN_BURN_FIRE = 75.0;
+
 #endif

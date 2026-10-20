@@ -12,6 +12,7 @@ enum class Interaction : std::uint8_t {
 	Read, // an inscription, with the hieroglyph skill (or too worn to read)
 	Copy, // an inscription, without the skill: the glyphs go into the journal
 	Light, // a brazier, with a bow: fire arrows
+	Turn, // a mirror (plan sunlight-mirrors): a quarter turn clockwise
 	Answer, // a riddle gate
 	Enter, // the exit, a teleporter with a partner
 	Take, // the ankh; an open treasure container's item
@@ -32,6 +33,8 @@ constexpr const char* interactionVerb(Interaction verb) {
 		return "Copy";
 	case Interaction::Light:
 		return "Light arrows";
+	case Interaction::Turn:
+		return "Turn";
 	case Interaction::Answer:
 		return "Answer";
 	case Interaction::Enter:

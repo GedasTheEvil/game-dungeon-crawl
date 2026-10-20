@@ -1,0 +1,8 @@
+; Sunlight mirrors (tests/unit/sun_mirrors_test.cpp, plan sunlight-mirrors): the light shaft at col 3 shines down onto
+; the mirror under it, which points left; turned twice it points right, the beam lights the red sun disc at col 8, the
+; red gate at col 10 opens and the beam runs on to the end wall.
+def < 18 0 1
+##############
+#..l.........#
+#S.<....a.R.E#
+##############

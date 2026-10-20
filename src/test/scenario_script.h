@@ -48,6 +48,7 @@ enum class CommandType : unsigned char {
 	Inscriptions,
 	Prop,
 	Torch,
+	Mirror,
 	Container,
 	SaveGame,
 	LoadGame,

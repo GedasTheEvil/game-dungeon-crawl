@@ -1,7 +1,7 @@
 # Autosave and the death screen
 
-Status: implemented 2026-10-20, waiting for the user's play-test: `bin/game --play tests/play/autosave.txt` (a
-riddle gate and two rats at 10 HP). Draft 2026-10-19, from the user's idea.
+Status: solved 2026-10-20 (play-tested by the user: `bin/game --play tests/play/autosave.txt`). Draft 2026-10-19,
+from the user's idea.
 
 ## Idea
 
@@ -33,7 +33,7 @@ moments, and a death screen that offers to continue from it.
 ## The death screen
 
 Today a death draws `textures/ui/dead.png` over the dying player. Instead, a panel in the shared UI look
-([ui.md](../ui.md)), after the death clip has played (about a second, so the death is seen):
+([ui.md](../../ui.md)), after the death clip has played (about a second, so the death is seen):
 
 * Title "You died" (or the dead.png art inside the panel, implementer's choice).
 * Two buttons:
@@ -89,6 +89,6 @@ the file the button is not there (the menu looks as today). One click back into 
   autosave file (`RunStats::SetDeaths`). Leaderboard key `deaths`, the run's details "Deaths" under Fights.
 * Load Game: the autosave across the top of a taller panel, the slots 12.5 high under it; "No autosave yet"
   greyed. The main menu with an autosave: seven buttons on a taller panel, Continue (lapis) on top.
-* Tests: `tests/unit/autosave_test.cpp`, `tests/scenarios/autosave.txt` (screenshots of the screens; it reads the
+* Tests: `tests/unit/autosave_test.cpp`, `tests/scenarios/solved/autosave.txt` (parked: screenshots of the screens; it reads the
   real `saves/` slots in Load Game, never clicks one).
 

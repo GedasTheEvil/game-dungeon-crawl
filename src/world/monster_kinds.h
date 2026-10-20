@@ -35,7 +35,15 @@ enum class Locomotion : unsigned char {
 	// Walks, but stands still among the decor figures on its cell, as one of them (idle), until the player comes near
 	// or hits it, then steps off its place (Rise) before it acts (the living ushabti, plan living-ushabti).
 	Figurine,
+	// A treasure chest like Ambush until woken, then it hops after the player and leaps pits and traps like WalkJump
+	// (the cursed mimic, plan cursed-mimic). Killed, it leaves its chest where it died.
+	AmbushHop,
 };
+
+// A treasure chest until woken by the interact key or a hit (Monster::Lurk, Spring): the mimics.
+[[nodiscard]] constexpr bool ambushes(Locomotion l) { return l == Locomotion::Ambush || l == Locomotion::AmbushHop; }
+// Leaps over pits and traps (Leap): the walk-jumpers, the cursed mimic once woken.
+[[nodiscard]] constexpr bool leaps(Locomotion l) { return l == Locomotion::WalkJump || l == Locomotion::AmbushHop; }
 
 // How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
 enum class Wading : unsigned char {

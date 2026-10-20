@@ -5,7 +5,7 @@ cells, but most of it is solid wall.
 
 Needs first: the new monster plans, so the denser levels place them too:
 [camel-spider](solved/camel-spider.md) (solved), [hippo](solved/hippo.md) (solved),
-[living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](cursed-mimic.draft.opus.md).
+[living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](cursed-mimic.md) (implemented).
 
 ## Today (2026-10-09, `bin/levelcheck`)
 

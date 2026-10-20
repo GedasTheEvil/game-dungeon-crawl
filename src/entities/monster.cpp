@@ -126,8 +126,7 @@ float Monster::lift() const {
 }
 
 bool Monster::LeavesChest() const {
-	return type->locomotion == Locomotion::Ambush && !Alive() && state == ModelState::Die &&
-		   type->model.Finished(state, playback);
+	return ambushes(type->locomotion) && !Alive() && state == ModelState::Die && type->model.Finished(state, playback);
 }
 
 std::optional<ItemKind> Monster::TakeDrop() {

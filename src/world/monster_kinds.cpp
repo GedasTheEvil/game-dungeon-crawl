@@ -902,6 +902,31 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .riseMs = 900,
 	 .generated = {6, 10, 1}},
+	// The cursed mimic (plan cursed-mimic): the mimic's darker kin, a chest until woken like it, then it hops after
+	// the player and leaps the pits (Locomotion::AmbushHop), a bit slower than their walk. The only source of insanity.
+	// Hand-placed on levels 21-30 beside plain mimics; levelgen turns some of its mimics into it (CURSED_MIMIC_*).
+	{.id = MonsterCursedMimic,
+	 .glyph = 'x',
+	 .name = "Cursed chest of Set",
+	 .label = "cursed mimic",
+	 .description = "Cursed chest of Set, a dark treasure chest until the player comes near; hops, its bite maddens",
+	 .note = "Some chests bite. Some bite the mind. The dark ones with the purple glow in the lock: leave them shut.",
+	 .threat = 4.f, // hits hard, follows over pits, and insanity locks the map
+	 .model = "monsters/mimic_cursed",
+	 .texture = "monsters/mimic_cursed",
+	 .scale = 10,
+	 .rotA = 0,
+	 .blood = {0.35f, 0.05f, 0.3f},
+	 .speed = 20,
+	 .maxHealth = 120,
+	 .damage = 20,
+	 .attackMs = 900,
+	 .xp = 3500,
+	 .attackMix = MIMIC_MIX,
+	 .resist = MIMIC_RESIST,
+	 .locomotion = Locomotion::AmbushHop,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}}},
 }};
 
 constexpr bool validKinds() {

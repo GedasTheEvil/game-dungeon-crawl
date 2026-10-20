@@ -112,7 +112,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
 | `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
-| `mimic.py` | mimic | ambush monster built on an item's mesh (`items.build_chest`) |
+| `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |
 | `lotus.py` | blue lotus | no rig: every frame rebuilt from pose numbers, written with `md3.py` |
 | `ushabti.py` | living ushabti | `lotus.py` style: rigid parts posed from numbers, a waddle on the base edges, the die clip breaks the parts apart |

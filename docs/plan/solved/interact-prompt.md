@@ -58,7 +58,7 @@ While the player stands in a cell where the interact key does something, a small
   the prompt never tells them apart.
   * Today the mimic wakes at `MIMIC_WAKE_RANGE` (1.5 tiles, `src/core/gameplay_config.h`), before the player can stand
     in front of it. Change the wake: an idle mimic wakes on the interact key or a hit, not on coming near; drop
-    `MIMIC_WAKE_RANGE`. The [cursed mimic](../cursed-mimic.draft.opus.md) wakes the same way. The checker's threat for
+    `MIMIC_WAKE_RANGE`. The [cursed mimic](../cursed-mimic.md) wakes the same way. The checker's threat for
     the mimic stays (the player opens chests anyway).
 
 ## Part 2: the glint on unread inscriptions

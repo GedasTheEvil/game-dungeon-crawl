@@ -215,7 +215,7 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		arch(sk, x, y, t.attr == GateExit ? PENCIL_RED : (t.attr == GateRiddle ? LOCK_PENCILS[1] : GRAPHITE), seed);
 		break;
 	case MonsterSpawn: // only a mimic gets a symbol: the chest it pretends to be
-		if (const MonsterKind* kind = monsterKind(t.attr); kind == nullptr || kind->locomotion != Locomotion::Ambush)
+		if (const MonsterKind* kind = monsterKind(t.attr); kind == nullptr || !ambushes(kind->locomotion))
 			return false;
 		[[fallthrough]];
 	case Treasure: // X marks the spot

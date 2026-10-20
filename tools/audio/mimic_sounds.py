@@ -3,6 +3,9 @@
 
     python3 tools/audio/mimic_sounds.py [out_dir]      (default: media/sounds/monsters/, writes mimic_{wake,att,die}.wav)
 
+Then the cursed mimic's (plan cursed-mimic), mimic_cursed_{wake,att,die,jump}.wav: the same sounds a fifth lower and
+slower, under a whisper (band noise wavering), and a leap (a creak, the wooden thud of its landing, coins rattling).
+
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
 """
@@ -144,6 +147,25 @@ def die():
     return finish(out)
 
 
+def cursed(x):
+    """A fifth lower and slower, a wavering whisper under it."""
+    n = int(len(x) * 1.5)
+    low = np.interp(np.arange(n) / 1.5, np.arange(len(x)), x)
+    t = t_axis(n / SR)
+    whisper = band(rng.standard_normal(n), 1800, 4200) * (0.6 + 0.4 * np.sin(2 * np.pi * 5.5 * t)) * env(t, 0.05, 0.6)
+    return finish(rms(low, 0.2) + rms(whisper, 0.035))
+
+
+def jump():
+    """The leap: a creak as it crouches, the thud of its landing, the coins inside rattling."""
+    out = np.zeros(int(0.8 * SR))
+    place(out, rms(creak(0.16, 380, 300, 40, 30), 0.05), 0.0)
+    place(out, rms(knock(0.22, 95), 0.24), 0.5)
+    for k in range(6):
+        place(out, rms(lowpass(coin(), 5000), 0.03 * (1 - k / 8)), 0.52 + 0.025 * k + 0.05 * rng.random())
+    return finish(out)
+
+
 def write(path, x):
     pcm = (x * 32767).astype("<i2")
     with wave.open(path, "wb") as w:
@@ -159,6 +181,10 @@ def main():
     write(os.path.join(out_dir, "mimic_wake.wav"), wake())
     write(os.path.join(out_dir, "mimic_att.wav"), attack())
     write(os.path.join(out_dir, "mimic_die.wav"), die())
+    write(os.path.join(out_dir, "mimic_cursed_wake.wav"), cursed(wake()))
+    write(os.path.join(out_dir, "mimic_cursed_att.wav"), cursed(attack()))
+    write(os.path.join(out_dir, "mimic_cursed_die.wav"), cursed(die()))
+    write(os.path.join(out_dir, "mimic_cursed_jump.wav"), jump())
 
 
 if __name__ == "__main__":

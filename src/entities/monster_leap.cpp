@@ -5,7 +5,7 @@
 #include "../core/gameplay_config.h"
 
 bool Monster::canJump() const {
-	return type->locomotion == Locomotion::WalkJump && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;
+	return leaps(type->locomotion) && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;
 }
 
 void Monster::Jump(float toX) {

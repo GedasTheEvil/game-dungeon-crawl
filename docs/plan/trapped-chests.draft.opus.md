@@ -7,7 +7,7 @@ item, the opening clip the trap fires in).
 ## Idea
 
 Some chests are trapped: opening one sets off a trap. Opening any chest becomes a small gamble, beside the mimic
-(Chest of Set), which is a monster, and the [cursed mimic](cursed-mimic.draft.opus.md).
+(Chest of Set), which is a monster, and the [cursed mimic](cursed-mimic.md).
 
 * Traps, fired during the opening clip:
   * poison darts from the lock (medium poison, like the dart plate, `src/world/dungeon_darts.cpp`);

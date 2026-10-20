@@ -112,7 +112,7 @@ higher, the boss (per the boss rule) highest; a greater grade is its own entry w
 | Vulnerability | Anubis 15%, Anubis boss 30% | judge of the dead, weighs the heart |
 | Palsy | Anubis 20%, Anubis boss 40%, ranged bolt only (`rangedCurses`) | |
 | Clumsiness | giant scarab 15%; scarab boss (Khepri) 30%, greater 6% | |
-| Insanity | the [cursed mimic](../cursed-mimic.draft.opus.md) 25% | |
+| Insanity | the [cursed mimic](../cursed-mimic.md) 25% | |
 
 ## Implemented (2026-10-12)
 
@@ -134,7 +134,7 @@ higher, the boss (per the boss rule) highest; a greater grade is its own entry w
   aim", once per key press. Insanity: the screen keys (inventory, map, journal and the Heka screen too), the quick
   drinks and the weapon keys say "Your mind is clouded"; `Inventory::FollowInsanity` (each tick) puts the club in
   hand and gives the old weapon back at the end. A load during insanity forgets the old weapon (the club stays).
-  No monster lays insanity yet: [cursed-mimic](../cursed-mimic.draft.opus.md) adds it.
+  No monster lays insanity yet: [cursed-mimic](../cursed-mimic.md) adds it.
 * HUD: the curse tiles right of the poison and resistance tiles, in `Curse` order: stone tile in a purple frame, the
   curse's icon (`hud_icons.png` grew a row: cells 32-39, `Icon::FirstCurse`, `tools/textures/hud_icons.py`), one pip
   lesser, two greater, the seconds under it. Many tiles at once can run under the heka tile (rare).

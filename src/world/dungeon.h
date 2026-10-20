@@ -149,7 +149,8 @@ class Dungeon {
 	void venomHit(Monster& mon); // the venom amulet's roll after a weapon hit
 	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
-	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest).
+	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest; the
+	// cursed mimic's chest is where it died).
 	void markSlain(const Monster& mon);
 	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
 	[[nodiscard]] bool inView(const Monster& mon) const;

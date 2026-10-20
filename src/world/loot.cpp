@@ -44,16 +44,23 @@ std::optional<ItemKind> pickOwned(const OwnedWeapons& owned, int grades, Rng& rn
 }
 } // namespace
 
-std::optional<ItemKind> RollChestAmulet(int level, Rng& rng) {
-	if (!rng.percent(CHEST_AMULET_CHANCE))
-		return std::nullopt;
+namespace {
+// A lesser or minor amulet (minor ones from MINOR_AMULET_LEVEL on), any type that has those tiers.
+ItemKind chestAmulet(int level, Rng& rng) {
 	const bool minor = level >= MINOR_AMULET_LEVEL && rng.percent(MINOR_AMULET_CHANCE);
 	// Every type but regeneration has a lesser and a minor tier.
 	int pick = rng.below(AMULET_TYPE_COUNT - 1);
 	if (pick >= static_cast<int>(AmuletType::Regeneration))
 		pick++;
 	const auto type = static_cast<AmuletType>(pick);
-	return amuletKind(type, minor ? AmuletTier::Minor : AmuletTier::Lesser);
+	return amuletKind(type, minor ? AmuletTier::Minor : AmuletTier::Lesser).value_or(ItemKind::StrengthLesser);
+}
+} // namespace
+
+std::optional<ItemKind> RollChestAmulet(int level, Rng& rng) {
+	if (!rng.percent(CHEST_AMULET_CHANCE))
+		return std::nullopt;
+	return chestAmulet(level, rng);
 }
 
 ItemKind RollBossAmulet(int level, Rng& rng) {
@@ -104,6 +111,12 @@ ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 		if (potionDef(itemAt(i)).mimicLoot && pick-- == 0)
 			return itemAt(i);
 	return ItemKind::SmallHealth;
+}
+
+ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng) {
+	if (rng.percent(CURSED_MIMIC_AMULET_CHANCE))
+		return chestAmulet(level, rng);
+	return RollMimicLoot(owned, rng);
 }
 
 std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng) {

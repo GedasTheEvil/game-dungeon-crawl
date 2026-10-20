@@ -1,0 +1,24 @@
+# Plan cursed-mimic (tests/levels/cursed_mimic): the cursed mimic lies as a dark chest (col 9) past a death trap (god
+# mode crosses it, its poison shows but does no harm); opened, it wakes, hops after the player, leaps the trap and
+# bites; a quarter of its bites lay insanity (the icon), which refuses the map.
+seed 1
+level tests/levels/cursed_mimic
+god
+walk to 8.3
+wait 1s
+screenshot chest
+expect nearest == 120
+walk to 9.4
+interact
+wait 500ms
+screenshot wakes
+walk to 6.2
+wait 200ms
+screenshot hops
+wait 20s
+expect curses >= 128
+screenshot insane
+key m
+wait 2
+dump
+screenshot map_refused

@@ -58,7 +58,7 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 //======================================================================================
 bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	const auto to = static_cast<int>(std::floor(mapX));
-	const bool leaps = mon.Type()->locomotion == Locomotion::WalkJump;
+	const bool leaps = ::leaps(mon.Type()->locomotion);
 	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
 		if (!walkerStops(mon, col))
 			continue;
@@ -104,7 +104,7 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 		mon.SawWay(playerCol, playerRow);
 		return false; // the walker's rules: chase along the row and bite
 	}
-	const ClimbAbility how{mon.reckless(), mon.Type()->locomotion == Locomotion::WalkJump};
+	const ClimbAbility how{mon.reckless(), leaps(mon.Type()->locomotion)};
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
 	if (climbPath.Steps(col, mon.Row()) > 0)

@@ -67,8 +67,9 @@ fill.data.energy = 1.5
 fill.rotation_euler = (math.radians(60), 0, math.radians(200))
 scene.collection.objects.link(fill)
 
-# Exported frame count per clip (the model's CLIPS: (action, suffix, frames)); a loop's frame N is frame 0.
-CLIP_FRAMES = {c[0]: c[2] for c in g.get("CLIPS", [])}
+# Exported frame count per clip (the model's CLIPS: (action, suffix, frames), or REVIEW_CLIPS for a variant the model
+# builds, e.g. the cursed mimic); a loop's frame N is frame 0.
+CLIP_FRAMES = {c[0]: c[2] for c in g.get("REVIEW_CLIPS", g.get("CLIPS", []))}
 PATH_COLOURS = [(1, 0.25, 0.2), (0.3, 0.9, 0.3), (0.3, 0.6, 1), (1, 0.85, 0.2), (1, 0.4, 1), (0.3, 1, 1), (1, 0.6, 0.2), (0.7, 0.5, 1)]
 
 

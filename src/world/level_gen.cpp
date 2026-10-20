@@ -18,6 +18,9 @@ constexpr int MONSTER_GAP = 3; // cells between monsters in a row
 constexpr float GOOD_ENOUGH = 0.1f; // stop searching within 10 % of the target score
 constexpr int MIMIC_MIN_DIFFICULTY = 2;
 constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_DIFFICULTY on
+// Of those mimics from CURSED_MIMIC_MIN_DIFFICULTY on, the share that is cursed (plan cursed-mimic).
+constexpr int CURSED_MIMIC_MIN_DIFFICULTY = 8;
+constexpr float CURSED_MIMIC_SHARE = 0.3f;
 
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 
@@ -285,8 +288,10 @@ class LevelBuilder {
 	// A treasure chest, or now and then a mimic in its place.
 	Tile randomTreasure() {
 		Tile chest = randomChest();
-		if (d >= MIMIC_MIN_DIFFICULTY && mimicRng.chance(MIMIC_CHANCE))
-			return Tile{MonsterSpawn, MonsterMimic, 0};
+		if (d >= MIMIC_MIN_DIFFICULTY && mimicRng.chance(MIMIC_CHANCE)) {
+			const bool cursed = d >= CURSED_MIMIC_MIN_DIFFICULTY && mimicRng.chance(CURSED_MIMIC_SHARE);
+			return Tile{MonsterSpawn, cursed ? MonsterCursedMimic : MonsterMimic, 0};
+		}
 		return chest;
 	}
 

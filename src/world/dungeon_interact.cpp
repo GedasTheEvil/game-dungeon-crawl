@@ -170,8 +170,8 @@ int Dungeon::ambushHere() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
 	for (int slot = 0; slot < MAX_MONSTERS; slot++) {
 		const Monster& mon = monsters[slot];
-		if (mon.Active() && mon.Alive() && mon.lurking() && mon.Type()->locomotion == Locomotion::Ambush &&
-			mon.Col() == col && mon.Row() == row)
+		if (mon.Active() && mon.Alive() && mon.lurking() && ambushes(mon.Type()->locomotion) && mon.Col() == col &&
+			mon.Row() == row)
 			return slot;
 	}
 	return -1;

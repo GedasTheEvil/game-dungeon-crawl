@@ -1,0 +1,9 @@
+# Plan cursed-mimic, for `bin/game --play tests/play/cursed-mimic.txt`: tests/levels/cursed_mimic, a cursed mimic
+# (col 9, a dark chest, purple where the treasure chest is blue) past a death trap (col 7; jump it). Open it (interact
+# on its cell): it wakes, hops after you, leaps the trap; a quarter of its bites lay insanity (map, journal, inventory
+# and quick drink locked, club in hand). Killed, it leaves its chest where it died. In the campaign: one each in
+# levels 22, 24, 26, 28 and 30.
+seed 1
+level tests/levels/cursed_mimic
+give melee 1
+equip short_sword

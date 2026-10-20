@@ -63,6 +63,13 @@ inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
 									   {ModelState::Move, "", true, true},
 									   {ModelState::Attack, "_att", true, true},
 									   {ModelState::Die, "_die", true, false}};
+// Ambushers that hop after the player once woken (the cursed mimic): the hop is the move clip, a leap over a pit the
+// optional _jump.
+inline const ClipFiles AMBUSH_HOP_CLIPS = {{ModelState::Idle, "_idle", true, true},
+										   {ModelState::Move, "", true, true},
+										   {ModelState::Attack, "_att", true, true},
+										   {ModelState::Die, "_die", true, false},
+										   {ModelState::Jump, "_jump", false, false}};
 // Entombed (the mummy): walks like the MONSTER_CLIPS, lies in its coffin (_idle) until it climbs out (_rise, once).
 inline const ClipFiles ENTOMBED_CLIPS = {
 	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},

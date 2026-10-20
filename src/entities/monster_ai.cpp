@@ -44,7 +44,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * (inWater ? type->waterSpeed : 1.f); }
 
 bool Monster::flees() const {
-	const bool walks = type->locomotion == Locomotion::Walk || type->locomotion == Locomotion::WalkJump;
+	const bool walks = type->locomotion == Locomotion::Walk || leaps(type->locomotion);
 	return walks && !reckless() && !type->isBoss();
 }
 
@@ -114,7 +114,7 @@ void Monster::curse(const CurseEntries& entries) {
 bool Monster::Lurk(float px, float py) {
 	if (!lurking())
 		return false;
-	const bool ambush = type->locomotion == Locomotion::Ambush; // waits for Spring or a hit, however near the player
+	const bool ambush = ambushes(type->locomotion); // waits for Spring or a hit, however near the player
 	const float range = entombed()	  ? MUMMY_WAKE_RANGE
 						: submerged() ? (type->isBoss() ? BOSS_WAKE_RANGE
 										 : type->charge ? type->charge->maxRange
@@ -131,7 +131,7 @@ bool Monster::Lurk(float px, float py) {
 }
 
 void Monster::Spring() {
-	if (lurking() && type->locomotion == Locomotion::Ambush)
+	if (lurking() && ambushes(type->locomotion))
 		wake();
 }
 

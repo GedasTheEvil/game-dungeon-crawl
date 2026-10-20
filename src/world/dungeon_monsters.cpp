@@ -51,9 +51,14 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			// Its die clip ends with the lid falling open over the gold: the chest stays open.
-			placeDroppedChest(MapIndex(mon.Col(), mon.SpawnRow()),
-							  fileIdOf(RollMimicLoot(sim.items->Owned(), sim.random->gameplay)));
+			// Its die clip ends with the lid falling open over the gold: the chest stays open. The cursed mimic's where
+			// it died (its spawn tile is slain), on the floor under it.
+			const OwnedWeapons& owned = sim.items->Owned();
+			if (mon.Type()->locomotion == Locomotion::AmbushHop)
+				dropChest(mon, RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay));
+			else
+				placeDroppedChest(MapIndex(mon.Col(), mon.SpawnRow()),
+								  fileIdOf(RollMimicLoot(owned, sim.random->gameplay)));
 			mon.Clear();
 			continue;
 		}
@@ -288,7 +293,7 @@ void Dungeon::venomHit(Monster& mon) {
 // A minion's XP depends on its boss (MinionXP). A mimic leaves its own chest, a minion none.
 void Dungeon::markSlain(const Monster& mon) {
 	if (mon.Minion() || mon.Type()->locomotion == Locomotion::Ambush)
-		return;
+		return; // its tile turns into its chest
 	Tile& spawn = map[MapIndex(mon.Col(), mon.SpawnRow())];
 	if (spawn.type == MonsterSpawn)
 		setObject(spawn, slainObject(spawn.attr));
@@ -302,7 +307,7 @@ void Dungeon::rewardKill(Monster& mon) {
 	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;
 	sim.events->Status("Gained %d XP", xp);
 	sim.player->stats.AddXP(xp, *sim.events);
-	if (mon.Minion() || type.locomotion == Locomotion::Ambush)
-		return;
+	if (mon.Minion() || ambushes(type.locomotion))
+		return; // a mimic leaves its own chest
 	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay));
 }

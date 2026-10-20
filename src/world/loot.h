@@ -28,6 +28,11 @@ ItemKind RollBossAmulet(int level, Rng& rng);
 // weapon or potion. The club, if nothing is held.
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng);
 
+// The cursed mimic's chest (plan cursed-mimic), a grade better: CURSED_MIMIC_AMULET_CHANCE percent a lesser or minor
+// amulet (as RollChestAmulet's on level `level`), else the mimic's loot.
+constexpr int CURSED_MIMIC_AMULET_CHANCE = 50;
+ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng);
+
 // Percent of the kills (minions and mimics excepted) that leave a weapon chest; a boss always leaves an amulet chest.
 constexpr int KILL_DROP_CHANCE = 5;
 

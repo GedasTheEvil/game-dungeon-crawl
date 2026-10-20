@@ -165,9 +165,7 @@ class Monster {
 	// up, the ushabti steps off its place.
 	[[nodiscard]] bool rises() const { return entombed() || coiled() || floats() || figurine(); }
 	[[nodiscard]] bool reckless() const { return type->courage == Courage::Reckless; }
-	[[nodiscard]] bool lurking() const {
-		return (type->locomotion == Locomotion::Ambush || rises() || submerged()) && !alerted;
-	}
+	[[nodiscard]] bool lurking() const { return (ambushes(type->locomotion) || rises() || submerged()) && !alerted; }
 	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
 	// sink: world units it is drawn down into a water basin (Dungeon::WaterSink).

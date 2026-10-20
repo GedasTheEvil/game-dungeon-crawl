@@ -2,7 +2,7 @@
 
     MCP:  p = ".../tools/blender/models/mimic.py"; g = {"__file__": p, "__name__": "mimic"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/mimic.py -- [--export] [--bake]
+    CLI:  blender -b --python tools/blender/models/mimic.py -- [--export] [--bake] [--cursed]
 
 Blender space: Z up, the chest faces -Y (game rotA 0), like the item. The shell is the chest of items.py
 (build_chest: same geometry, and the UVs and pixels of media/textures/items/treasure_chest.png copied into the left half
@@ -22,6 +22,14 @@ once per loop; frame 0 = the chest item's frame 0, the engine's normalization re
 src/entities/model_info.h).
 
 Texture: 1024 x 512, left half = treasure_chest.png unchanged, right half = the mouth parts (AO baked on their own).
+
+--cursed: the cursed mimic (plan cursed-mimic), `mimic_cursed*.md3` and `mimic_cursed.png`: the same mesh, rig, attack,
+die and idle; its move clip (`mimic_cursed.md3`) is a hop in place (crouch, spring with the lid agape, the lid snapping
+shut as it lands; the engine moves it along the row) and it has a leap (`_jump`, plays once: crouch, stretched in the
+air, the snap on landing, back to the awake pose; the engine's arc lifts it, MONSTER_JUMP_MS). Texture: the chest
+recoloured by colour class (cursed_pixels): near-black wood, tarnished bronze for the gold, a deep purple lining, purple
+where the chest has lapis blue (its panels, inlays, the keyhole plate): from afar still a chest, the hint is the
+colour; the mouth a little darker and more purple.
 """
 
 import importlib
@@ -46,6 +54,10 @@ from common import REPO, Builder, _cr, chain_weights, ellipsoid, smoothstep, tub
 
 COLL = "mimic_new"
 CLIPS = [("mimic_walk", "", 32), ("mimic_attack", "_att", 22), ("mimic_die", "_die", 30), ("mimic_idle", "_idle", 42)]
+CURSED_CLIPS = [("mimic_hop", "", 10), *CLIPS[1:], ("mimic_jump", "_jump", 10)]
+# Review renders of the cursed mimic: MIMIC_CURSED=1 blender -b --python tools/blender/render_sheet.py -- ... mimic_hop:all
+REVIEW_CURSED = os.environ.get("MIMIC_CURSED") == "1"
+REVIEW_CLIPS = CURSED_CLIPS if REVIEW_CURSED else CLIPS
 MOUTH_TEX = 512  # the mouth half of the 1024 x 512 texture
 REVIEW_VIEW = {"target": (0, -0.2, 0.42), "ortho": 2.0, "res": (440, 400)}
 CHEST_MD3 = os.path.join(REPO, "media", "models", "items", "treasure_chest.md3")
@@ -498,6 +510,32 @@ DIE = [
 ]
 
 
+# The cursed mimic's hop (a loop from the awake pose) and its leap over a pit (once, back to the awake pose).
+HOP = [
+    (0, AWAKE),
+    (2, dict(lid=62, pitch=-4, bz=-0.08, bx=0.03, tongue=0.6)),
+    (3, dict(lid=118, pitch=6, bz=0.06, bx=-0.01, lift=0.1, tongue=2.0)),
+    (5, dict(lid=132, pitch=3, bz=0.03, bx=0.0, lift=0.22, tongue=2.4)),
+    (7, dict(lid=74, pitch=-2, bz=0.0, lift=0.08, tongue=1.4)),
+    (8, dict(lid=16, pitch=-3, bz=-0.07, bx=0.03, lift=0.0, tongue=1.0)),
+    (10, AWAKE),
+]
+JUMP = [
+    (0, AWAKE),
+    (2, dict(lid=50, pitch=-5, bz=-0.09, bx=0.03, tongue=0.6)),
+    (3, dict(lid=128, pitch=8, bz=0.07, bx=-0.01, tongue=2.0)),
+    (6, dict(lid=135, pitch=2, bz=0.03, bx=0.0, tongue=3.0)),
+    (8, dict(lid=16, pitch=-4, bz=-0.08, bx=0.03, tongue=4.0)),
+    (9, AWAKE),
+]
+
+
+def hop_params(f, n):
+    p = blend(HOP, f)
+    p["wag"] = 0.05 * math.sin(2 * math.pi * f / n)
+    return p
+
+
 def idle_params(f, n):
     """The closed chest, still; once per loop the lid lifts a hair and the box swells, as if it breathed."""
     p = dict(REST)
@@ -509,6 +547,10 @@ def idle_params(f, n):
 def clip_params(name, f, n):
     if name == "mimic_walk":
         return walk_params(f, n)
+    if name == "mimic_hop":
+        return hop_params(f, n)
+    if name == "mimic_jump":
+        return blend(JUMP, f)
     if name == "mimic_attack":
         return blend(ATTACK, f)
     if name == "mimic_die":
@@ -516,10 +558,10 @@ def clip_params(name, f, n):
     return idle_params(f, n)
 
 
-def make_actions(rig, skin):
+def make_actions(rig, skin, clips):
     rig.animation_data_create()
     acts = {}
-    for name, _, frames in CLIPS:
+    for name, _, frames in clips:
         act = bpy.data.actions.get(name)
         if act:
             bpy.data.actions.remove(act)
@@ -532,14 +574,14 @@ def make_actions(rig, skin):
     return acts
 
 
-def report(skin, shell_count):
+def report(skin, shell_count, clips):
     np = skin.np
     rest = skin.coords(deformations(REST))
     lo, hi = rest[:shell_count].min(axis=0), rest[:shell_count].max(axis=0)
     alo, ahi = rest.min(axis=0), rest.max(axis=0)
     print("mimic rest: shell x {:.4f}..{:.4f} y {:.4f}..{:.4f} z {:.4f}..{:.4f}; all parts x {:.4f}..{:.4f} y {:.4f}..{:.4f} z {:.4f}..{:.4f}".format(
         lo[0], hi[0], lo[1], hi[1], lo[2], hi[2], alo[0], ahi[0], alo[1], ahi[1], alo[2], ahi[2]))
-    for name, _, frames in CLIPS:
+    for name, _, frames in clips:
         c = [skin.coords(pose(skin, clip_params(name, f, frames))) for f in range(frames)]
         front = min(float(x[:, 1].min()) for x in c)
         print("mimic {}: min z {:.4f}, front y {:.3f} (rest {:.3f}), max |coord| {:.3f}".format(
@@ -553,7 +595,60 @@ def merge(b, other):
     items.merge(b, other)
 
 
-def build(bake=True, tex_path=None):
+def rgb_to_hsv(px):
+    """numpy (..., 3) RGB in 0..1 -> hue in degrees, saturation, value."""
+    import numpy as np
+
+    mx, mn = px.max(axis=-1), px.min(axis=-1)
+    d = mx - mn
+    r, g, b = px[..., 0], px[..., 1], px[..., 2]
+    safe = np.where(d > 0, d, 1)
+    h = np.where(mx == r, ((g - b) / safe) % 6, np.where(mx == g, (b - r) / safe + 2, (r - g) / safe + 4)) * 60
+    h = np.where(d > 0, h, 0)
+    s = np.where(mx > 0, d / np.where(mx > 0, mx, 1), 0)
+    return h, s, mx
+
+
+def hsv_to_rgb(h, s, v):
+    import numpy as np
+
+    c = v * s
+    x = c * (1 - np.abs((h / 60) % 2 - 1))
+    m = v - c
+    k = (h // 60).astype(int) % 6
+    z = np.zeros_like(h)
+    parts = [(c, x, z), (x, c, z), (z, c, x), (z, x, c), (x, z, c), (c, z, x)]
+    out = np.zeros(h.shape + (3,))
+    for i, (r, g, b) in enumerate(parts):
+        sel = k == i
+        out[sel] = np.stack([r[sel], g[sel], b[sel]], axis=-1)
+    return out + m[..., None]
+
+
+def cursed_pixels(px, mouth=False):
+    """The cursed mimic's colours from the mimic's (RGBA rows): see the docstring."""
+    import numpy as np
+
+    h, s, v = rgb_to_hsv(px[..., :3])
+    out_h, out_s, out_v = h.copy(), s.copy(), v.copy()
+    if mouth:  # flesh a little darker and more purple
+        out_h = np.where(h < 30, (h - 18) % 360, np.where(h > 300, h - 12, h))
+        out_v = v * 0.8
+    else:
+        gold = (h >= 36) & (h < 70) & (s > 0.3) & (v > 0.55)
+        wood = (h >= 12) & (h < 50) & ~gold
+        red = ((h < 12) | (h >= 330)) & (s > 0.35)
+        blue = (h >= 190) & (h < 260) & (s > 0.3)
+        out_h = np.where(gold, 62.0, np.where(wood, h - 4, np.where(red, 292.0, np.where(blue, 286.0, h))))
+        out_s = np.where(gold, s * 0.55, np.where(wood, s * 0.75, np.where(red, s * 0.8, np.where(blue, s * 0.8, s * 0.7))))
+        out_v = np.where(gold, v * 0.55, np.where(wood, v * 0.42, np.where(red, v * 0.55, np.where(blue, np.minimum(1.0, v * 1.05), v * 0.6))))
+    out = px.copy()
+    out[..., :3] = np.clip(hsv_to_rgb(out_h, out_s, out_v), 0, 1)
+    return out
+
+
+def build(bake=True, tex_path=None, cursed=REVIEW_CURSED):
+    clips = CURSED_CLIPS if cursed else CLIPS
     if bpy.context.object and bpy.context.object.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
     coll = common.clear_collection(COLL)
@@ -611,8 +706,8 @@ def build(bake=True, tex_path=None):
         cw, ch = chest.size
         chest_px = np.array(chest.pixels[:]).reshape(ch, cw, 4)
         out = np.ones((MOUTH_TEX, 2 * MOUTH_TEX, 4))
-        out[:, :cw] = chest_px
-        out[:, MOUTH_TEX:] = mouth_px
+        out[:, :cw] = cursed_pixels(chest_px) if cursed else chest_px
+        out[:, MOUTH_TEX:] = cursed_pixels(mouth_px, mouth=True) if cursed else mouth_px
         bpy.data.images.remove(chest)
         tex = bpy.data.images.get("mimic_tex") or bpy.data.images.new("mimic_tex", 2 * MOUTH_TEX, MOUTH_TEX, alpha=False)
         tex.scale(2 * MOUTH_TEX, MOUTH_TEX)
@@ -625,26 +720,30 @@ def build(bake=True, tex_path=None):
     rig = build_rig(coll)
     common.rig_object(obj, rig)
     skin = Skin(b)
-    acts = make_actions(rig, skin)
-    report(skin, len(shell.verts))
-    rig.animation_data.action = acts["mimic_walk"]
+    acts = make_actions(rig, skin, clips)
+    report(skin, len(shell.verts), clips)
+    rig.animation_data.action = acts[clips[0][0]]
     scene = bpy.context.scene
     scene.render.fps = 14
-    scene.frame_start, scene.frame_end = 0, CLIPS[0][2] - 1
+    scene.frame_start, scene.frame_end = 0, clips[0][2] - 1
     scene.frame_set(0)
     print("mimic: {} verts, {} tris".format(len(obj.data.vertices), common.tri_count(obj)))
     return obj, rig
 
 
-def export(models_dir=None):
-    common.export_files(bpy.data.objects["mimic_new"], bpy.data.objects["mimic_rig"], "mimic", CLIPS, "monsters", models_dir)
+def export(models_dir=None, cursed=False):
+    base, clips = ("mimic_cursed", CURSED_CLIPS) if cursed else ("mimic", CLIPS)
+    common.export_files(bpy.data.objects["mimic_new"], bpy.data.objects["mimic_rig"], base, clips, "monsters", models_dir)
 
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     bpy.ops.wm.read_factory_settings(use_empty=True)
     exporting = "--export" in args
-    build(bake=exporting or "--bake" in args, tex_path=os.path.join(REPO, "media", "textures", "monsters", "mimic.png") if exporting else None)
+    cursed = "--cursed" in args
+    base = "mimic_cursed" if cursed else "mimic"
+    tex = os.path.join(REPO, "media", "textures", "monsters", base + ".png")
+    build(bake=exporting or "--bake" in args, tex_path=tex if exporting else None, cursed=cursed)
     if exporting:
-        export()
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "mimic.blend"))
+        export(cursed=cursed)
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, base + ".blend"))

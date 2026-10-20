@@ -1,6 +1,6 @@
 # Living ushabti
 
-Status: implemented 2026-10-19, waits for the user's play-test. From the lore review, picked by the user.
+Status: solved 2026-10-20 (play-tested by the user), implemented 2026-10-19. From the lore review, picked by the user.
 
 Play-test: `bin/game --play tests/play/living-ushabti.txt` (a hall of decor ushabti, one of them alive; walk east), or
 `bin/game --level 11` (also in 12, 13 and 14).
@@ -9,7 +9,7 @@ Play-test: `bin/game --play tests/play/living-ushabti.txt` (a hall of decor usha
 
 Ushabti are the small servant figures buried to work for the dead. The `ushabti` decor (`DECOR_NAMES`,
 `src/world/decor.h`) comes alive: a new monster that looks like the decor until the player comes near, then stands
-up and walks. Same family as the Anubis living statue ([egyptian-names](solved/egyptian-names.md)).
+up and walks. Same family as the Anubis living statue ([egyptian-names](egyptian-names.md)).
 
 * Kind: small, slow walker, a few HP. Glazed faience shatters: **weak to blunt**, resists pierce. Journal note with humour: "It says 'here I am' on its chest. It means it."
   (the ushabti spell, Book of the Dead ch. 6).
@@ -40,7 +40,7 @@ up and walks. Same family as the Anubis living statue ([egyptian-names](solved/e
   `tools/audio/ushabti_sounds.py` (wake, attack, die).
 * Tests: `tests/unit/ushabti_test.cpp` (still until in range, steps off, follows slower than the player, bites; a hit wakes
   it, half from a point, double from a blow; the Anubis boss's second wall summon), a decor case in
-  `tests/unit/decor_test.cpp`, `tests/scenarios/ushabti.txt` (idle among decor figures, rises, walks, chops, crumbles;
+  `tests/unit/decor_test.cpp`, `tests/scenarios/solved/ushabti.txt` (idle among decor figures, rises, walks, chops, crumbles;
   screenshots).
 
 ## Open

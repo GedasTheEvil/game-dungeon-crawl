@@ -41,7 +41,7 @@ as above; canopic jars are a container, their curse is a chest trap, not a trigg
 
 * Triggers (each a chance, default 25%):
   * opening a sarcophagus or a coffin (decor `sarcophagus`, `coffin`), if made interactive;
-  * smashing pottery or an ushabti ([living-ushabti](living-ushabti.md)).
+  * smashing pottery or an ushabti ([living-ushabti](solved/living-ushabti.md)).
 * Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus → weakness or
   vulnerability, pottery → disease.
 * The tell: an execration text on the object, seen up close. With the [hieroglyph skill](solved/skill-hieroglyphs.md)

@@ -48,7 +48,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | lock colour | | ties keys, gates, levers and sun discs together: four colours, and the boss lock for boss gates | `LockColour`, `LOCK_COLOURS`, `BOSS_LOCK` |
 | key | Key | lies on the floor, picked up on touch; opens the gates of its colour | `Key` |
 | lever | Lever | a fixture; pulled, it opens every gate of its colour | `Lever` |
-| light shaft | | sunlight through a crack in the rock: where a beam starts, shining one way (down, left, up, right) ([sunlight-mirrors](plan/sunlight-mirrors.md)) | `LightShaft`, `shaftDir` |
+| light shaft | | sunlight through a crack in the rock: where a beam starts, shining one way (down, left, up, right) ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)) | `LightShaft`, `shaftDir` |
 | beam | | a beam of sunlight from a light shaft through open cells: mirrors turn it, rock, deep water and gates not fully open stop it; it lights sun discs, burns the sun burners, keeps light shunners out. Drafts also say "sunbeam" | `traceBeams`, `BeamStep`, `Dungeon::Sunlit` |
 | mirror | Turn | a bronze mirror on a stand: sends a beam on the way its gold pointer shows (edge-on it lets one by, facing it it catches it); interact turns it a quarter turn clockwise | `Mirror`, `mirrorDir`, `Dungeon::TurnMirror` |
 | sun disc | the Aten | a fixture: a beam on it lights it for good, and it opens every gate of its colour as a lever. Not the Sun Disc amulet (the fire guard) | `SunDisc`, `sunDiscLit`, `Dungeon::updateSunBeams` |
@@ -106,7 +106,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | locomotion | | how a monster gets around: stationary, ambush, walk, walk-jump, fly, ... | `Locomotion` |
 | lit cell | | within `LIGHT_SHUN_CELLS` (1) along the row of a flame: a wall torch, a brazier, an oil lamp | `Dungeon::Lit` |
 | light shunner | | a walker that does not step into a lit cell (a flame near it, or a beam of sunlight); light on its way to the player is a wall to it, so it flees; caught in the light, it runs for the dark (the camel spider, [camel-spider](plan/solved/camel-spider.md)) | `MonsterKind::shunsLight`, `Dungeon::walkerStops`, `Dungeon::wayOutOfLight`, `CreatureMove::ShunLight` |
-| sun burner | | a monster a beam of sunlight sets on fire: the mummy and the mummy priest ([sunlight-mirrors](plan/sunlight-mirrors.md)) | `MonsterKind::sunBurns`, `Monster::Kindle` |
+| sun burner | | a monster a beam of sunlight sets on fire: the mummy and the mummy priest ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)) | `MonsterKind::sunBurns`, `Monster::Kindle` |
 | lurking | | ambush, entombed, submerged, coiled, floating or a figurine, before it wakes | `Monster::Lurk` |
 | minion | | a monster a boss summons; gives less XP | `Monster::Minion`, `Dungeon::MinionXP` |
 | summon | | how a boss's minions arrive: dig out, drop, climb out of a coffin, hatch, step out of a wall | `Summon` |

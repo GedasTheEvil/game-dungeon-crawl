@@ -1,6 +1,6 @@
 # Sunlight mirrors
 
-Status: draft 2026-10-10, from the lore review, picked by the user. Implemented 2026-10-20, see [Implemented](#implemented); play-test: `bin/game --play tests/play/sunlight-mirrors.txt`.
+Status: draft 2026-10-10, from the lore review, picked by the user. Implemented 2026-10-20, see [Implemented](#implemented); play-test: `bin/game --play tests/play/sunlight-mirrors.txt`. Solved 2026-10-20 (play-tested); its screenshot scenario to tests/scenarios/solved/.
 
 ## Idea
 
@@ -12,7 +12,7 @@ gate, the gate opens. A light puzzle beside keys, levers and riddles.
   as a gate type: opens while lit, stays open once lit).
 * The beam travels through open cells, stops at walls, is blocked by the player? (default: no). Drawn as a bright
   dusty volume beam with motes.
-* Optional: the beam burns mummies standing in it (with [fire-damage](solved/fire-damage.md) if implemented: fire
+* Optional: the beam burns mummies standing in it (with [fire-damage](fire-damage.md) if implemented: fire
   damage per second).
 * Level format: new object types (`docs/levels.md`); `levelcheck` must model the beam to prove the level can be
   finished (mirror states are player-set: search over states).
@@ -60,6 +60,6 @@ camel spiders out as a torch does.
   (col 12) holds the light shaft, the mirror under it faces the sun: three turns send the beam west, past the hall's
   mummy. Draft map symbols, editor hints, the field note "Sun mirrors" (with the draft's line).
 * **Tests**: `tests/unit/sun_mirrors_test.cpp` (`tests/levels/mirrors`, `mirrors_mummy`), scenario
-  `tests/scenarios/sun_mirrors.txt` (screenshots).
+  `tests/scenarios/solved/sun_mirrors.txt` (screenshots).
 * Not done: mirrors in the other desert levels (22-25 keep their levers and keys); no editor icons for the three
   tiles (flat colours).

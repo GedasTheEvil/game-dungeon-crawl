@@ -37,7 +37,7 @@ and turns its cell to sand. A sand worm placed in sand lies under it and comes u
 counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap, and warns about
 sand or quicksand not on a wall and a run of more than 2 quicksand cells.
 
-Sunlight rules ([sunlight-mirrors](plan/sunlight-mirrors.md), `src/world/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
+Sunlight rules ([sunlight-mirrors](plan/solved/sunlight-mirrors.md), `src/world/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
 left, 2 up, 3 right) sends a beam of sunlight through open cells until rock, deep water or a gate not fully open stops
 it; the player does not. A mirror (`(`, value: the way it points) sends a beam that falls on it on that way: pointing
 the way the beam goes it stands edge-on and lets it by, pointing back it catches it. Interact turns a mirror a quarter
@@ -82,7 +82,7 @@ Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 18 | The sanctuary of the uraeus, climbed bottom to top: the hall of two gates (red lever below, blue lever above), a pillar loop with the green key inside the pillar, a rock-fall gauntlet, a 3-high flooded hall with crocodiles and a riddle gate, the gold key by an Anubis. |
 | 19 | The serpent sanctum: cobras, giant bats, mummies, five Anubis, two crocodiles in a two-high flooded hall. Red key, blue lever, green key past a drop shaft, gold lever beyond a loop round a pillar, then a spike-pit gauntlet before the exit hall. |
 | 20 | Apep's pit, the fourth boss: cobras, mummies, Anubis, Apep's throat (a shaft from the second hall down to the fifth), a crocodile pool. Red key, blue lever, green lever; the teleporter in the ninth hall's east nook leads to the sealed pit: a sunken floor between two ledges, Apep and his cobras, the boss gate on the east ledge, behind it the gold key for the gold gate before the exit. |
-| 21 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
+| 21 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
 | 22 | The hall of drifts, started from the east: long sand halls, two of them two high, quicksand in pairs, sand worms, camel spiders, giant scorpions, giant cobras. The desert's first dart trap. Red key, red gate; gold lever, gold gate. A riddle gate, a name gate to a sealed room under the eleventh hall. |
 | 23 | The sand stair: twelve halls down in a zigzag, each shorter than the level, sand falls over the drifts, quicksand pits, a dart trap, giant cobras, giant scorpions, camel spiders. Blue lever, blue gate; green key, green gate; a riddle gate. A drop into the exit cavern. |
 | 24 | The house of Seth's servants: a buried temple, Anubis guards and mummies among the drifts, sand worms, giant scorpions. Red lever, red gate; gold key, gold gate; a riddle gate. A name gate to a sealed room over the exit cavern. |
@@ -237,7 +237,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/unit/sun_mirrors_test.cpp` (plan sunlight-mirrors): the beam's way through a mirror (turned, edge-on,
   catching it), the search over the mirrors the player can turn, the checker (the turn on the path, a mirror out of
   reach, a disc lit at the start, the warnings), the mirror turned in the game lighting the disc and opening its gate,
-  a mummy burning in a beam (`tests/levels/mirrors`, `mirrors_mummy`). Scenario `tests/scenarios/sun_mirrors.txt`:
+  a mummy burning in a beam (`tests/levels/mirrors`, `mirrors_mummy`). Scenario `tests/scenarios/solved/sun_mirrors.txt`:
   the beam, the turned mirror, the lit disc (screenshots).
 - `tests/unit/sand_test.cpp` (plan desert-chapter): sand slows and stops the sprint, quicksand sinks, hurts and a
   jump frees, the sand fall hits, slows and leaves a drift, a sand worm lies under its sand and comes up under the

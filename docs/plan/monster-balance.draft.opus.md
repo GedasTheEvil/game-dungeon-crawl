@@ -5,7 +5,12 @@ ranges and HP balance. The weapon reach review is done and verified in play 2026
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
 Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](solved/desert-chapter.md)
-(balance the final levels and monster set).
+(balance the final levels and monster set), and every monster and boss draft (user, 2026-10-20: balance comes
+after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
+[giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
+[giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.draft.opus.md),
+[camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md). A new monster or boss
+draft joins this list.
 
 Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
 levels named 21-30 below (play-test entries before 2026-10-20) are 26-35 now: Sobek on lvl30, the Anubis boss on lvl35.

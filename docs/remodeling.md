@@ -45,7 +45,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
   their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference
-  (`AMBUSH_CLIPS` in `src/entities/character_model.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
+  (`AMBUSH_CLIPS` in `src/entities/model_info.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
   frame (fold down), tongue and a fleshy mouth floor under the gold heap (the heap sinks into the box). Rigid bones posed by deformation
   matrices (as in `bat.py`), feet on a `base` bone so the legs shear under the twisting box, per-frame floor fix. Clips: walk 32 (loops on the awake
   pose, the same as attack frame 0: four lid snaps, sways and twists), attack 22 (loops from the awake pose: gape, lunge
@@ -53,6 +53,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
   slams, the gold regrows under it, lid falls open; last frame = rest pose, swapped for the real chest), idle 42 (the reference: still chest,
   the lid dips 4.5 deg and the box swells 1.2% once per loop).
   Sounds: `tools/audio/mimic_sounds.py` (`media/sounds/monsters/mimic_{wake,att,die}.wav`).
+  `-- --cursed` builds the cursed mimic (plan cursed-mimic, `mimic_cursed*.md3`, `mimic_cursed.png`): the same mesh, rig, attack, die
+  and idle, a hop in place as its move clip (10), a leap (`_jump`, 10, once), the chest recoloured (near-black wood, purple for the lapis).
   Mummy sounds: `tools/audio/mummy_sounds.py` (`media/sounds/monsters/mummy_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
@@ -232,7 +234,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   faience lotus, venom Wadjet's uraeus (a rearing cobra, hood to the front), fire Ra's sun disc between cow horns; their HUD icons in `tools/textures/hud_icons.py` match), real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
-  (`Player::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
+  (`PlayerView::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
   up from the lowest point, tilted and swung per its `WeaponDef` (`ITEMS` in `src/world/items.cpp`).
   The bows (`bow`, `composite_bow`) are held upright by their grip and have `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
   with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
@@ -243,7 +245,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   The potion vessels (`potion_<model>`, `PotionModel` in `src/world/items.h`; each about the flask's 0.18 m height):
   `flask` (round glass flask, cork and cord: small health, small stamina), `lotus` (glass jar on a gold foot, a lotus
   flower of faience petals at the mouth, two handles: large health, large stamina), `pilgrim` (flat faience "New Year
-  flask" with gold rings: might), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
+  flask" with gold rings: might, water blessing), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
   coiled round it, the hood is the stopper: antidote, lesser and greater resistance), `ankh` (ankh-shaped vessel, the loop is the neck: life). A vessel
   has no texture of its own: each potion bakes one on its UVs (`POTIONS`: `media/textures/items/potion_<kind>.png`, the
   palette keys `liquid` / `liquid_dark` it overrides), so look-alikes differ by the liquid only. The liquid reaches the
@@ -281,7 +283,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30).
+* Frame counts per file (Anubis 26 + climb 24, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10 + climb 16, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24).
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
@@ -289,25 +291,25 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 
 | Model | Files | Texture | Status |
 |---|---|---|---|
-| Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
+| Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die,_climb}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
 | Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
-| Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
+| Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump,_climb}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
-| Mimic (monster) | `monsters/mimic{,_att,_die,_idle}.md3` | `monsters/mimic.png` | new (treasure chest with fangs and tongue; idle = the chest item) |
-| Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
+| Mimic, cursed mimic (monsters) | `monsters/mimic{,_att,_die,_idle}.md3`, `monsters/mimic_cursed{,_att,_die,_idle,_jump}.md3` | `monsters/mimic.png`, `monsters/mimic_cursed.png` | new (treasure chest with fangs and tongue; idle = the chest item; the cursed one dark, hops) |
+| Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
 | Mummy priest (mummy boss) | `monsters/mummy_priest{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy_priest.png` | new (`mummy.py` subclassed: priest with an ankh staff, in a large coffin) |
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
 | Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png` | new (hippopotamus; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
-| Scorpion (monster) | `monsters/scorpion{,_att,_die}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
+| Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: the 13 weapons, arrow, sling stone, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
-| Potions (6 vessels, 10 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/solved/potion-textures.md)) |
-| Amulets (10 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
+| Potions (6 vessels, 11 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/solved/potion-textures.md)) |
+| Amulets (11 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Water props (4) | `decorations/decor_water_<name>.md3` | `decorations/decor_water_<name>.png` | new (static, `decor.py`; half water only, swayed / bobbed by the engine) |

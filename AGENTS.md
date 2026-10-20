@@ -1,6 +1,6 @@
 ## Process
-After writing the code, run `make check`: it builds, formats, checks the format, runs tidy on the changed files and
-the unit tests. Never format by hand: `make format` does it. The tree has no tidy warnings, so every warning
+After writing the code, run `make check`: it builds, fixes links to moved plans, formats, checks the format, runs tidy on
+the changed files and the unit tests. Never format by hand: `make format` does it. The tree has no tidy warnings, so every warning
 `make tidy` prints is yours: fix it (or `NOLINTNEXTLINE(check): reason` for a false positive).
 Where is X: [docs/development.md](docs/development.md#where-is-x).
 
@@ -17,7 +17,7 @@ its music: `xvfb-run -a timeout -k 5 N bin/game --no-sound ...`. Put `timeout` i
 the wrapper and the game lives on), with `-k` (the game ignores SIGTERM).
 
 ## UI screens
-Menu, options, credits, inventory, riddle and map share one look. Canvas, parts, colours, fonts and how to add a menu sub-screen: [docs/ui.md](docs/ui.md).
+Menu, options, credits, inventory, riddle, map, journal and Heka share one look. Canvas, parts, colours, fonts and how to add a menu sub-screen: [docs/ui.md](docs/ui.md).
 
 ## Blender
 Always use Blender 5: `/home/gediminas.skucas/Apps/blender-5.2.2-linux-x64/blender`.

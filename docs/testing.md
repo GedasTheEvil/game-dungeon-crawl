@@ -13,11 +13,15 @@ a scenario is for what needs the game running (drawing, timing, input).
 `tests/unit/sim_world.h` (`SimWorld`) runs the world without the game: it loads a level as `level path` does, steps
 it one tick at a time on the virtual clock as the game loop does (`Tick`, `Wait`, `WaitTicks`), presses the keys as
 the scenario commands do (`Walk`, `WalkTo`, `HoldWalk`, `Climb`, `Jump`, `Interact`, `Attack` with the weapon `Equip`
-put in hand, `Wear` for an amulet, `SaveAndLoad`), and reads the player, the monsters (`dungeon.Boss()`,
+put in hand, `Wear` for an amulet, `OpenChest`, `SaveAndLoad`), and reads the player, the monsters (`dungeon.Boss()`,
 `NearestMonster()`, `Monsters()`), the journal (`Saw`, `JournalTried`) and the world events (`said`, `Told`). Monster
 AI, missiles, mechanisms, traps and the bosses are tested there (`sim_test.cpp`, `monster_rules_test.cpp`,
-`world_rules_test.cpp`, `reach_test.cpp`, `clip_state_test.cpp`). A scenario is for what needs the drawing or the
-input path.
+`world_rules_test.cpp`, `reach_test.cpp`, `clip_state_test.cpp`, and a file per monster or feature: `hippo_test.cpp`,
+`climb_test.cpp`, `wall_spikes_test.cpp`, ...). A scenario is for what needs the drawing or the input path.
+
+Golden dumps (`golden_test.cpp`): every campaign level's decorations and fires as text, diffed against
+`tests/unit/golden/decor_lvlNN.txt`. A change to the decor scatter or to a level shows up as a diff. After a wanted
+change, `GOLDEN_UPDATE=1 bin/unit -tc="*golden*"` writes the files anew; review them with `git diff`.
 
 ## Scenario tests
 
@@ -51,7 +55,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a
-start it samples CPU idle (1 s), available memory and free swap, and waits while any is short or `JOBS` jobs run.
+start it samples CPU idle (0.5 s, `GATE_SAMPLE_S`), available memory and free swap, and waits while any is short or `JOBS` jobs run.
 The jobs of all runs at once count together. A game started less than `GATE_LOAD_S` seconds ago (default 15) still
 counts as `GATE_LOAD_MB` (default 1500) more memory to come: it loads its models and textures for several seconds.
 Gated jobs run on the last `GATE_CPUS` cores (default: the job cap), so the first cores stay free for the desktop.
@@ -90,8 +94,8 @@ bin/game --no-sound --level 7            # the same, silent (any flag combines w
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `poison`, `hurt`, `prop`, `torch`, `riddles`, `chest`,
-`camera`, `motion`, `toon`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
+`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `firehit`, `prop`,
+`torch`, `container`, `riddles`, `inscriptions`, `chest`, `camera`, `motion`, `toon`, `cutscenes`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.

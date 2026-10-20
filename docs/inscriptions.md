@@ -62,4 +62,4 @@ An entry without a `T:` line is skipped. Use plain ASCII in the texts: the fonts
 ## Checking a file
 
 The game log (`game.log`) lists every problem as `file:line: message` and the count, for example
-`Loaded 32 inscriptions`. `levelcheck content/levels/lvl*` checks that every inscription in a level has a text.
+`Loaded 45 inscriptions`. `levelcheck content/levels/lvl*` checks that every inscription in a level has a text.

@@ -38,7 +38,7 @@ Use plain ASCII: the fonts have no other characters (curly quotes and dashes sho
 ## Checking a file
 
 The game log (`game.log`) lists every problem as `file:line: message` and the riddle count, for example
-`Loaded 79 riddles from 4 files in riddles`. A riddle without an `A:` line is skipped.
+`Loaded 90 riddles from 5 files in content/riddles`. A riddle without an `A:` line is skipped.
 
 To see a file on screen, point a scenario at it with `riddles FILE` (see [testing.md](testing.md)), as
 `tests/scenarios/solved/riddle.txt` does.

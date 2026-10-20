@@ -9,6 +9,8 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md).
 * OpenGL
 * GLUT
 * SDL, SDL Mixer (the game's audio; the tools do not need them)
+* Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
+* clang-format, clang-tidy (`make format`, `make tidy`)
 
 PNG loading uses the bundled single-header [stb_image](https://github.com/nothings/stb) (`external/stb/stb_image.h`), no extra library needed.
 
@@ -33,8 +35,8 @@ read their file arguments from the current directory.
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
 * `build/` - object files and libraries (not tracked by git).
-* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script.
-* `tests/` - scenario scripts (`scenarios/`), test levels (`levels/`), test riddles (`riddles/`), results (`out/`, not tracked).
+* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script, the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts).
+* `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), riddles (`riddles/`), inscriptions (`inscriptions/`) and save games (`saves/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
 
 ## Libraries
@@ -45,10 +47,10 @@ base, level, sim, render.
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
-| `build/libbase.a` | `core/timer` (the game clock), `core/logger` | no GL; every library may include it | everything below |
-| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, levelcheck, levelgen, unit tests |
-| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
-| `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
+| `build/libbase.a` | `core/timer` (the game clock), `core/logger`, `core/paths` | no GL; every library may include it | everything below |
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, model viewer, level tools, unit tests |
+| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/monster_grab` (holds), `entities/monster_reach` (the bite's reach), `entities/figures` (the toon scale), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
+| `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `graphics/render_target`, `graphics/motion_fx`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
 `make layers` (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
@@ -86,9 +88,9 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 ## Assets
 
-* `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle).
+* `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle) and, by kind, `_jump`, `_climb`, `_rise`, `_att_ranged` (`entities/model_info.h`).
 * `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
-* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize the jump, rat, bat, mimic, weapon, arrow, key, gate, lever, rock and treasure container sounds.
+* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`; weapons `_swing`, `_hit`), `mechanisms/`, `items/`, `water/`, `ui/`, and `music/soundtrack.ogg` (not tracked by git). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
 * `content/levels/` - campaign levels, edited with the level editor.
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `content/names/` - the royal names of the name gates. See [names.md](names.md).
@@ -110,7 +112,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   (a `CharacterModel` plus stats, shared), `Monster` (one monster on the level: position, health, AI state, clip
   playback), `Player` (with its `PlayerStats`), `Item`, `Trap`.
 * `graphics/` - `AnimatedModel` (MD3; shared models take the playback as an argument), textures, fonts, lighting,
-  toon ink, the sprint motion effects (`MotionFx`), particles, the gameplay `Draw()` / `Update()`.
+  toon ink, the sprint motion effects (`MotionFx`), particles, the gameplay `Draw()` (`Update()` is in
+  `state/game_loop.*`).
 * `world/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, rendering, save data) and the
   GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`).
 * `ui/`, `input/`, `test/` - screens, keyboard / mouse handling (through the key bindings, `input/bindings.h`), the
@@ -130,6 +133,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Monster update on the level | `world/dungeon_monsters.cpp` (`UpdateMonsters`, hits, kills, spawns); per locomotion `world/dungeon_walkers.cpp` (walk, leap, flee, climbers' paths, with `world/climb_path.*`), `dungeon_flight.cpp`, `dungeon_burrow.cpp`, `dungeon_charge.cpp` |
 | Monster drawing | `entities/monster_draw.*`; in-level effects `world/dungeon_render_effects.cpp` |
 | Holds (a bite that grabs: the tell, the lunge, the death roll, the sting), the player held | `entities/monster_grab.{h,cpp}` (`Grab`), rules `HoldRules` in `world/monster_kinds.*`, `Dungeon::PlayerHeldBy` (`world/dungeon_monsters.cpp`), the locks in `world/dungeon_base.cpp` and `input/input.cpp` |
+| Bite reach: the cone, the wind-up, a jump over a low monster dodges | `Monster::Reaches` / `UpdateBite` (`entities/monster_reach.cpp`), the bite in `world/dungeon_monsters.cpp` |
 | Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
 | Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |
@@ -138,7 +142,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Curses, poison, skills | `world/curses.*`, `world/poison.*`, `world/skills.*` |
 | Damage types, fire, burning, fire arrows | `world/damage.h` (`Burning`), `Dungeon::updateBurning` (`world/dungeon_base.cpp`), `Dungeon::lightArrows` (`world/dungeon_interact.cpp`), drawn in `world/dungeon_render_effects.cpp`, `graphics/fire.*` |
 | Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |
-| Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture | `world/dungeon_interact.cpp` |
+| Interact: pick up treasure, use a gate (exit, teleport), travel, the order over a chest and a fixture, the prompt | `world/dungeon_interact.cpp` (`Dungeon::InteractVerb`, `world/interaction.h`), the prompt `ui/interact_prompt.*` |
 | Treasure containers: kinds, shares by depth, stances, opening, drawing | `world/containers.h`, the look `scatterTreasures` (`world/decor_scatter.cpp`), opening `Dungeon::openContainer` (`world/dungeon_interact.cpp`), drawn by `Dungeon::DrawTreasureTile` (`world/dungeon_render.cpp`); models `tools/blender/models/containers.py`, the chest `items.py` |
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | Cut-scenes: the far gates shown, the camera's way, skip; the look | `world/dungeon_cutscene.cpp` (`CutShot`), drawn by `graphics/draw.cpp` (the camera, the HUD hidden) and `graphics/motion_fx.*` (tint, vignette, bars); skip in `input/input.cpp` |
@@ -163,7 +167,8 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 ## Tests
 
 Scenario scripts in `tests/scenarios/` drive the game and take screenshots. `make test` runs all, `make test SCENARIO=path` runs one.
-See [testing.md](testing.md).
+See [testing.md](testing.md). `make paths` plays levelcheck's path through every campaign level in the game
+([levels.md](levels.md)).
 
 ## Code quality tools
 
@@ -180,7 +185,8 @@ See [testing.md](testing.md).
   master, and the ones that include a changed header. `make tidy-all` checks every source (about 2.5 minutes). Both
   run one clang-tidy per file through the load gate (`tools/load_gate.sh`, as the scenario games and the build:
   `JOBS`, `RESERVE_CORES`, `MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md)), check the project's
-  headers too, not `external/`, and fail on any warning (`tools/tidy.sh`).
+  headers too, not `external/`, and fail on any warning (`tools/tidy.sh`). `make tidy-fix` applies clang-tidy's fixes
+  to every source.
 
 The tree is kept free of warnings: every warning `make tidy` prints is the change's own. Fix it; a false positive
 gets a `NOLINTNEXTLINE(check): reason`. Naming rules (only these are checked; method and function

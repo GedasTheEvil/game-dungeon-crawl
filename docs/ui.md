@@ -1,6 +1,6 @@
 # UI screens
 
-The full-screen UI (menu with its sub-screens, inventory, riddle, draft map, journal) shares one Egyptian look:
+The full-screen UI (menu with its sub-screens, inventory, riddle, draft map, journal, Heka, death screen) shares one Egyptian look:
 carved tomb wall, dark panels with bronze and gold frames, lapis and stone tiles, papyrus text. New screens reuse the
 parts below instead of drawing their own.
 
@@ -10,12 +10,12 @@ parts below instead of drawing their own.
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/world/leaderboard.h`) | 160 x 100 |
 | Win entry (name for the leaderboard) | `src/ui/win_entry.cpp` | 160 x 100, over the won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
-| Riddle | `src/ui/riddle.cpp` | 160 x 100 |
+| Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Journal | `src/ui/journal_view.cpp` (data: `src/world/journal.h`) | 160 x 100 |
 | Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/ui/skills_layout.h`, data: `src/world/skills.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
-| Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` | 100 / `SCALE` high, width follows the window; over the game |
+| Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` (values: `src/ui/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
@@ -191,13 +191,13 @@ walking through a cell does not flash it; hidden while dead, won or travelling, 
 
 ### Book (journal)
 
-A cloth-bound field notebook ([plan/journal-real-book.md](plan/solved/journal-real-book.md)): grey cloth cover
+A cloth-bound field notebook ([plan/solved/journal-real-book.md](plan/solved/journal-real-book.md)): grey cloth cover
 (`media/textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left edge,
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
 white grid pages (`media/textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
 come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`INK_RED` creatures, `LAPIS` riddles,
 `GOLD_DIM` field notes, `INK_GREEN` inscriptions, swallowtail end) marks the section's first page
-([plan/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
+([plan/solved/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from
 under the pages on top of it (the open left page's own ribbon lies on it), further out the more pages lie between it and
 the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F, I) in `PAPER` on the open and the hovered one; the
@@ -242,7 +242,7 @@ takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 wrapping round (freeglut drops Shift+Tab, so there is no previous-tab key).
 
 Right of the tabs, ending with the grid, three sort buttons 6, 4.5 and 6 wide (`a-z`, a gold diamond for strength,
-`new`; [plan/inventory-sort-orders.md](plan/solved/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A
+`new`; [plan/solved/inventory-sort-orders.md](plan/solved/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A
 click picks that order for the open tab, a click on the lit one goes back to found first; on hover each names its
 order on the same dark label. Each tab keeps its own order; not saved, a new game starts in found first.
 
@@ -253,11 +253,11 @@ so the found ones fill the first rows without gaps. Two rows fit; a group with m
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
 silhouette and its place among the found. The arrow keys follow the grid's order; the number keys do nothing here
-and the slots show no key labels ([plan/inventory-keys.md](plan/solved/inventory-keys.md)).
+and the slots show no key labels ([plan/solved/inventory-keys.md](plan/solved/inventory-keys.md)).
 In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand, and its button reads "Take off"
 instead of "Wear". Under the effect the details show "Upgrade: n / m points" (green once the spares pay, "Top tier" for
 a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the
-pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/solved/amulet-upgrades.md)).
+pulsing upgrade arrow ([plan/solved/amulet-upgrades.md](plan/solved/amulet-upgrades.md)).
 
 ### Heka screen
 
@@ -285,6 +285,13 @@ the sort kept.
 
 Win entry: over the won game (the HUD hidden meanwhile), a panel `{36, 3, 88, 27}` under the win picture's text: the
 run summary in `body` `GOLD`, a `WELL` name field with a `GOLD` frame and a blinking caret, the key hint.
+
+### Death screen
+
+After the death clip ([autosave](plan/solved/autosave.md)): the game behind dimmed (black, alpha 0.55), a `panel`
+`{46, 28, 68, 38}` with the picture-frame drop shadow, "You died" in `title` `GOLD`, two 56 x 9 tiles: Retry from
+Autosave (lapis) and Main Menu (stone). Without an autosave Retry is `Disabled` and Main Menu turns lapis. The key
+hint sits under the panel. Any arrow moves the focus to the other tile, Enter picks, Esc goes to the main menu.
 
 ### Status box
 
@@ -341,7 +348,7 @@ Each screen loads four sizes on its first frame (fonts need the GL context):
 
 | Font | `Load(file, size, spacing, true)` | Use |
 |---|---|---|
-| `title` | 8, 0.3 (menu) / 7, 0.3 (inventory, riddle) | screen title, slot numbers |
+| `title` | 8, 0.3 (menu, death screen) / 7, 0.3 (the other screens) | screen title, slot numbers |
 | `heading` | 5, 0.16 | button labels, section headings |
 | `body` | 3.6, 0.1 | body text, toasts |
 | `small` | 3, 0.08 | footer, table text, captions |
@@ -354,11 +361,15 @@ add the colour); call it only after `beginText()`, go back with `beginShapes()`.
 Save, Load, Options, Credits and the Hall of Records are flags on `MainMenu` (`saveD`, `loadD`, `optionsD`,
 `creditsD`, `recordsD`). A new one needs:
 
-1. A flag, added to `InSubScreen()` and cleared in `ResetSubScreens()` (Esc then backs out of it by itself).
+1. A flag, added to `InSubScreen()` and cleared in `ResetSubScreens()` (Esc then backs out of it by itself, `BackOut()`).
 2. A branch in `MainMenu::Draw()`: `DrawBackground(caption)`, the contents, `DrawBackButton()`, `DrawFooter(hint)`.
 3. Its panel rect in `DrawBackground()`, and the title rule reach (`wide`).
 4. Its targets in `TargetAt()`; at least `BACK_BUTTON` → `BACK`.
 5. A scenario in `tests/scenarios/` with screenshots of the screen and the hovered Back button.
+
+A sub-screen with its own state, targets or an inner view is a class of its own that `MainMenu` forwards to, like
+`RecordsView`: its targets from `RECORDS_BASE` on, its panel from `Panel()`, its run details closed by `BackOut()`
+before the sub-screen itself.
 
 Scenario mouse coordinates are percent of the window, y from the bottom. With a 16:9 window the canvas fills the
 height, so canvas y = percent y, and canvas x 80 is 50 %. Back button: `click 50 13`.

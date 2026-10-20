@@ -44,7 +44,7 @@ the plan to `docs/plan/solved/`, rewrites the links and lists the scenarios and 
 
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to
-`docs/plan/solved/` in the same commit.
+`docs/plan/solved/` (`tools/plan.py move <slug> solved`) in the same commit.
 
 When a plan moves to `docs/plan/solved/`, turn the scenario tests it uses into unit tests (`tests/unit/`,
 [testing.md](testing.md)). A scenario that needs a screenshot moves to `tests/scenarios/solved/`: `make test` skips

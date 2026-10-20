@@ -1,7 +1,8 @@
 # Dungeon Crawl
 
 A 2.5D side-scroller set in the dungeons of ancient Egypt. You play an archaeologist who climbs, jumps and
-fights through tombs full of worms, scarabs, rats, bats, man-eater plants, mimics and Anubis guards. Find keys, pull
+fights through tombs full of worms, scarabs, rats, bats, scorpions, cobras, crocodiles, man-eater plants, mimics,
+mummies and Anubis guards. Find keys, pull
 levers, avoid traps and collect the treasure.
 
 My bachelor's degree work from 2011.
@@ -33,8 +34,9 @@ too. The draft map (`M`) is a pencil sketch of the rooms you have explored.
 
 **Locks, levers and portals.** Coloured keys and levers open gates of carnelian, turquoise, lapis and amber, and
 later levels chain them together. Sphinx statues hold the portals between levels and teleporters to sealed
-rooms. Three bosses guard levels 5, 10 and 15: the mother of the scarabs, a vampire bat that heals by biting,
-and Anubis himself, who raises mummies around him. The ankh behind Anubis wins the game.
+rooms. A boss guards every fifth level: Khepri, the mother of the scarabs, a vampire bat that heals by biting, the
+scorpion queen, the serpent Apep, Sobek the crocodile god and Anubis himself, whose living statues step out of the
+walls. The High Priest of Anubis waits on the level before him. The ankh behind Anubis wins the game.
 
 ## Play
 
@@ -49,11 +51,14 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Attack                           | `V`, `Enter`              | Left   |
 | Interact: pick up, lever, riddle | `E`, `F12`                | Middle |
 | Look around                      | `PgUp` `PgDn`, `Home` `End` | Move |
-| Equip club / sword / spear / bow | `1` `2` `3` `4`           |        |
+| Next melee / ranged weapon       | `1` `2`                   |        |
 | Drink healing / stamina potion   | `H` `0`                   |        |
+| Drink antidote (when poisoned)   | `=`                       |        |
+| Stamina skills on / off          | `Q`                       |        |
 | Inventory                        | `I`                       |        |
 | Draft map                        | `M`                       |        |
 | Journal                          | `J`                       |        |
+| Heka (skills)                    | `K`                       |        |
 | Menu / back                      | `Esc`                     |        |
 | Cartoon shading                  | `F1`                      |        |
 

@@ -25,8 +25,8 @@ cannot sprint or jump while standing in it (the Favour of Hapi skill and the Ble
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (the crocodile, a
 swimmer, 2.5 times its land speed; `Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
-deep water not under water, a ladder that goes down into water (one may start in it) and a crocodile not in or next
-to water.
+deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo or Sobek not
+in or next to water and a lotus not in half water.
 
 Level files are text, version 3: a `DCLEVEL 3 40 47` header, the structure as a drawing, then the list of fixtures
 and the list of objects (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the
@@ -55,14 +55,14 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 11 | Giant rats, giant bats, giant scarabs, the first two mummies. Two levers (red, blue) in two halls open two gates in a row. |
 | 12 | Plants, giant bats, three mummies. Chain: red key, green lever, gold key. |
 | 13 | Rock falls, giant scarabs, giant rats, a mummy, the first Anubis. Blue key, gold lever. |
-| 14 | Giant scarabs, rats and bats, two mummies, two Anubis. Red key, blue lever, green key. |
+| 14 | Giant scarabs, rats and bats, three mummies, two Anubis. Red key, blue lever, green key. |
 | 15 | The scorpion queen's nest, the third boss: giant scorpions and scorpions in every hall, mummies, giant scarabs, giant bats, an Anubis. The blue lever opens the way down to the nest, a cavern with two ledges (green key, green gate). The teleporter leads to the sealed queen's chamber: the scorpion queen between two egg clusters her brood hatches from; behind the boss gate the gold key for the gold gate to the spike pits and the exit cavern. Antidotes in the second hall and past the pits, a lesser resistance potion in the third hall, a greater one by the gold gate. |
 | 16 | The serpent temple's gate: cobras, crocodiles, mummies, two Anubis, giant bats. A loop of two halls round a pillar (red key, red gate, a riddle chamber), a flooded hall with a deep crocodile pool (blue lever), a rock-fall gauntlet with a drop / ladder loop to the green key; the gold lever in a side gallery opens the exit hall's gold gate. The first dart trap, in the upper loop hall, a mummy east of it. |
 | 17 | The cistern: the entrance hall forks into two wings, the west one to the red key and the blue lever (an Anubis), the east one behind the red gate down into the flooded cistern (crocodiles, a swimming cobra, the green key on a ledge). The rock-fall drain, the pool hall, the gold lever, death pits before the exit. A riddle shrine and a snake pit between the wings. |
 | 18 | The sanctuary of the uraeus, climbed bottom to top: the hall of two gates (red lever below, blue lever above), a pillar loop with the green key inside the pillar, a rock-fall gauntlet, a 3-high flooded hall with crocodiles and a riddle gate, the gold key by an Anubis. |
 | 19 | The serpent sanctum: cobras, giant bats, mummies, five Anubis, two crocodiles in a two-high flooded hall. Red key, blue lever, green key past a drop shaft, gold lever beyond a loop round a pillar, then a spike-pit gauntlet before the exit hall. |
 | 20 | Apep's pit, the fourth boss: cobras, mummies, Anubis, Apep's throat (a shaft from the second hall down to the fifth), a crocodile pool. Red key, blue lever, green lever; the teleporter in the ninth hall's east nook leads to the sealed pit: a sunken floor between two ledges, Apep and his cobras, the boss gate on the east ledge, behind it the gold key for the gold gate before the exit. |
-| 21 | The flooded halls: giant cobras, seven crocodiles in long wades, giant bats, mummies, Anubis. Red lever into the two-high flooded hall, blue key, green key past the riddle, gold lever by the last crocodile; a teleporter to a hidden treasure cistern. |
+| 21 | The flooded halls: giant cobras, six crocodiles in long wades, giant bats, mummies, Anubis. Red lever into the two-high flooded hall, blue key, green key past the riddle, gold lever by the last crocodile; a teleporter to a hidden treasure cistern. |
 | 22 | The cistern grid: halls split by a central wall and joined by full-width passages; giant cobras, crocodile pools, mummies, Anubis, giant bats. Red key, blue lever, green lever down a dead end, gold key behind a mummy; a rock-fall gauntlet, spike pits before the exit hall. |
 | 23 | The cistern stairs: fifteen halls down in a zigzag, five of them flooded; crocodiles, giant cobras, giant bats, mummies, Anubis. Red key, blue lever, green key, gold lever. A dart trap in the blue lever's hall, an Anubis coming over it. |
 | 24 | The twin cisterns: down the west wing, across a flooded hall, through a sunken crypt, up the east wing to the exit. Gold lever, red key, blue lever in the crypt; the green key near the top opens the exit gate. A bridge over a well joins the wings. |
@@ -73,7 +73,7 @@ Levels 15-30 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 29 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
 | 30 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-Scorpions live in levels 3-6, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). One Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half water of each water level (7-9, 16-25, 27-30), a few cells before it; levelcheck assumes none. Crocodiles live in the water of levels 7-9 (and many flooded levels after). Hippos lie in the water of levels 16, 18, 21 and 23 (one a level, in a long pool; levelgen makes no water). Blue lotuses float in the water of levels 7-9, 16-25 and 27-30 (one to three a level; levelgen makes no water). Camel spiders run in levels 4 and 6-8 (one a level, levelgen from difficulty 3 to 8); they keep out of the light of torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 11-14 (one a level, two in 12; levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 30. Cursed mimics (plan cursed-mimic) lie as dark chests in levels 22, 24, 26, 28 and 30 (one a level, beside a treasure, off the path; plain mimics in 21, 22, 27 and 28; levelgen makes 30% of its mimics cursed from difficulty 8). Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
+Scorpions live in levels 3-6 and 15, giant scorpions in 15 and 26-30, cobras in 16-20, giant cobras in 21-30; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). One Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half water of each water level (7-9, 16-25, 27-30), a few cells before it; levelcheck assumes none. Crocodiles live in the water of levels 7-9 (and many flooded levels after). Hippos lie in the water of levels 16, 18, 21 and 23 (one a level, in a long pool; levelgen makes no water). Blue lotuses float in the water of levels 7-9, 16-25 and 27-30 (one to three a level; levelgen makes no water). Camel spiders run in levels 4 and 6-8 (one a level, levelgen from difficulty 3 to 8); they keep out of the light of torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 11-14 (one a level, two in 12; levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 30. Cursed mimics (plan cursed-mimic) lie as dark chests in levels 22, 24, 26, 28 and 30 (one a level, beside a treasure, off the path; plain mimics in 4, 15, 17-22, 27 and 28; levelgen makes 30% of its mimics cursed from difficulty 8). Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
 [inscriptions](inscriptions.md) (`content/inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
 ahead, a dart trap, a hidden treasure room, the order of the locks). Levels 6, 8, 10, 12, 14, 16, 18, 21, 22, 24, 26,
 28 and 30 have a secret room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name
@@ -83,6 +83,9 @@ a mummy guarding it in 14, 21, 26 and 30. Weak monsters give way to their giant 
 after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
 (see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
 `python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt content/levels/lvl9`.
+Some level files have edits the drawings lack (the Blessing of Hapi potions, the cursed mimics, the hippo in 23): a
+rebuild drops them, so put them in the drawing first. To see them, build the drawing into a temporary file and
+`diff` it with the level file.
 
 ## levelcheck: validate and rank
 
@@ -101,7 +104,8 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 
 - Walk left or right into any open cell. With no floor below, fall straight down to a floor or a ladder.
 - Climb between vertically adjacent `Ladder` cells.
-- Jump over one cell: a gap in the floor, or spikes or a death trap on it, from a floor (a ladder's foot too). The
+- Jump over one cell: a gap in the floor, or spikes or a death trap on it, from a floor (a ladder's foot too), not out
+  of half water. The
   jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's jump constants), so the player
   cannot step up onto a ledge. A rock fall is walked, not jumped (it drops all the same). Jumps from mid-ladder are
   not modelled. Stamina is not counted: it comes back while the player waits.
@@ -117,8 +121,8 @@ It reports:
 
 | Item | Meaning |
 |---|---|
-| errors | No entrance, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a monster spawn, ladder, gate, door or treasure in front of wall spikes, a level file older than v3, a poisoner (scorpion, cobra) without an antidote in reach, an inscription out of reach or without a text id, more than one name gate, a name gate without a name cartouche or one
+| errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
+| warnings | More than one entrance, keys, levers or treasure out of reach, gates that nothing opens, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a run of wall spikes that cannot be walked through both ways, a level file older than v3, a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6 (a name gate too), the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
@@ -130,10 +134,12 @@ A softlock cell is a cell the player can reach but cannot leave for the exit, fo
 one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
-1.5 per rock fall and 1.2 per jump on the path, 0.8 per gate, and 1 more for a jump over a death pit.
+3 per rock fall, 2 per dart plate, 1.5 per wall spikes cell and 1.2 per jump on the path, 0.8 per gate, and 1 more for
+a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
 giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4):
-the full value within 3 cells of the path, a quarter elsewhere. Each reachable treasure takes 0.2 off.
+the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
+rats, scorpions, mummies, Anubis and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
 
@@ -165,11 +171,13 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
 4. **Content.** Along the part of each corridor the player has to cross: spike pits to jump, spikes, rock
    falls (only under a one-cell ceiling), monsters and treasure. The mix grows with the difficulty. Monster types
    unlock with the difficulty and the weak ones give way to their giant kin: rat and scarab 1-5, bat 2-6,
-   worm 3-7, plant from 3, giant rat from 4, giant scarab from 5, giant bat from 6, mummy from 7, Anubis from 9.
+   worm 3-7, plant from 3, camel spider 3-8, giant rat from 4, giant scarab from 5, giant bat and living ushabti from 6,
+   mummy from 7, Anubis from 9.
    At most 4 + 2 × difficulty monsters. Weapon chests come in by depth like in the campaign: club and dagger, the
    short sword and spear from difficulty 3, the khopesh from 5, the axes and the mace from 7; self-bow and sling, the
    throwing stick and javelin from 4, the composite bow from 7.
-   From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream. Most seeds
+   From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream; from difficulty 8,
+   30% of the mimics are cursed. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
    A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a name cartouche `:`.
 
@@ -249,3 +257,6 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   depend on their layout (ladders, chests, the draft map, ...), so the campaign levels can change.
 - `tests/unit/scen_u_test.cpp` ("a generated level (seed 81, difficulty 8) plays from start to exit"): plays `tests/levels/gen_d8` (seed 81, difficulty 8) from entrance to exit.
   Written by `levelcheck --script`.
+- `tests/unit/level_test.cpp`, `wall_layer_test.cpp`, `wall_spikes_test.cpp`, `water_test.cpp`, `climb_test.cpp`: the
+  level file (v1 and v2 converted, save and load), the wall layer, wall spikes and water in the game and the checker,
+  climbers on ladders. `tests/unit/tile_defs_test.cpp`: the legend's glyphs.

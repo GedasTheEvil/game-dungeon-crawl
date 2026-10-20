@@ -152,12 +152,13 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
 | Autosave, death screen, Continue | `GameState::Autosave` / `CountDeath` (`state/game_state.cpp`), the safe moments `AutosaveMoment` (`world/world_events.h`) and `Dungeon::PlayerInDanger` (`world/dungeon_monsters.cpp`), `ui/death_screen.*`, the Load list and Continue in `ui/menu.cpp` |
 | Models, textures, sounds loaded once | `state/assets.cpp` |
-| Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |
+| Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`, its words: creature moves, field notes `world/journal_text.*`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |
 | HUD | `ui/player_hud*`, `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
 | Keys and mouse | `input/input.cpp`, `input/bindings.*`, `input/input_actions.h` |
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
 | Blood splashes | `entities/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp` |
+| Plans: status, rename, solve | `tools/plan.py` ([plans.md](plans.md)) |
 
 ## Tests
 
@@ -166,7 +167,8 @@ See [testing.md](testing.md).
 
 ## Code quality tools
 
-* `make check`: builds, then `format`, `format-check`, `tidy` and `unit`, in order. Run it before each commit.
+* `make check`: builds, rewrites markdown links to plans that moved (`tools/plan.py links`), then `format`,
+  `format-check`, `tidy` and `unit`, in order. Run it before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
   lines that changed. The whole-tree reformat for that is in `.git-blame-ignore-revs`

@@ -1,6 +1,6 @@
 # Giant cobra
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. Asked for by the user beside the [cobra](solved/cobra.md). Needs the cobra (done).
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. Asked for by the user beside the [cobra](cobra.md). Needs the cobra (done).
 
 The cobra's giant kin, like the giant rat, bat and scarab: the same model and clips with its own texture, bigger, stronger.
 
@@ -28,7 +28,7 @@ Resistances as the cobra. Checker threat 5. Glyph `G` is taken (green gate): use
 
 ## Placement
 
-Levels 21-30 of the [longer campaign](solved/longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
+Levels 21-30 of the [longer campaign](longer-campaign.md); the cobra gives way to it after Apep (lvl20), as
 the weak monsters give way to their giant kin.
 
 ## Done (2026-10-06)

@@ -12,7 +12,7 @@ The `<model>` in `<idea-slug>.draft.<model>.md` says who can implement it:
 * `opus`: complex, needs Opus. A new system or monster, new models or animation clips, level design, checker
   modelling, balance work, or several systems at once.
 
-When refining a draft changes its size, rename it to the matching tag and update links to it.
+When refining a draft changes its size, retag it: `tools/plan.py move <slug> draft-opus` (or `draft-sonet`).
 
 ## Writing a draft
 
@@ -21,14 +21,16 @@ draft it needs first blocks it. Open points or several ideas in a draft are the 
 Still, when reporting on drafts, warn about their open questions; when asked to refine a draft, list them.
 
 Optimize for agent reading: the first lines (status) say what it needs first, if anything, so readiness is clear
-without reading the whole file.
+without reading the whole file. `tools/plan.py status` reads them: a sentence with "needs" and a link to an unsolved
+plan blocks the draft ("Needs first:" and the link; "needs nothing first" does not), "On hold" holds it, the
+first date is its age.
 
 A plan that gives a base monster an ability covers its boss too (AGENTS.md, Boss abilities).
 
 ## Implemented
 
-Once a draft plan is implemented, rename it without the `draft.<model>` part (`<idea-slug>.md`) and update links to
-it.
+Once a draft plan is implemented: `tools/plan.py move <slug> implemented` (drops the `draft.<model>` part, rewrites
+the links to it).
 
 When an implemented plan waits for the user's play-test, give the user a command that starts right at the feature,
 so they don't play through the campaign: `bin/game --level N` (a campaign level that has it), or a script in
@@ -37,8 +39,8 @@ so they don't play through the campaign: `bin/game --level N` (a campaign level 
 
 ## Solved
 
-Once the user confirms an implemented plan is solved (tested / verified), move it to `docs/plan/solved/` and update
-links to it.
+Once the user confirms an implemented plan is solved (tested / verified): `tools/plan.py move <slug> solved`. It moves
+the plan to `docs/plan/solved/`, rewrites the links and lists the scenarios and play scripts that name it.
 
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to

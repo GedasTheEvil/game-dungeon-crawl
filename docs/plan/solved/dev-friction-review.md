@@ -12,7 +12,7 @@ Agents should spend their time on the task, not on the checks. Two parts:
 2. **Structure that helps later work.** Finding the code for an issue should be fast and give few false hits. A
    change to one feature should touch few files.
 
-Re-run this review from time to time as the code grows (the [architecture review](solved/architecture-review.md)
+Re-run this review from time to time as the code grows (the [architecture review](architecture-review.md)
 of 2026-10-07 was the last one).
 
 ## Today (2026-10-12)

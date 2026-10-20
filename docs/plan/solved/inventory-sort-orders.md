@@ -1,7 +1,7 @@
 # Inventory sort orders
 
 Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Left open by
-[inventory-sorting](solved/inventory-sorting.md), which made "found first" the default.
+[inventory-sorting](inventory-sorting.md), which made "found first" the default.
 
 ## Decided (2026-10-09)
 
@@ -13,7 +13,7 @@ Three orders on top of the default. Not found items stay at the end in all of th
 | `[*]` | by strength, strongest first: weapons by damage now (`weaponDamage` at its level), amulets by tier (grand first, then the `ItemKind` order), potions by grade (large / greater before small / lesser, then the `ItemKind` order) |
 | `[new]` | recently found first |
 
-* **Control:** small buttons on the items panel, `[a-z] [*] [new]`, in the [UI](../ui.md) style. A click picks that
+* **Control:** small buttons on the items panel, `[a-z] [*] [new]`, in the [UI](../../ui.md) style. A click picks that
   order, the active one is lit; a click on the active one goes back to found first.
 * **Not saved:** every tab starts in found first when the game starts.
 * **Recently found** needs a stamp per item: a counter set by `ItemBag::Find` / `Add` on every pickup, so a fresh

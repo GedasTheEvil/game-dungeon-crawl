@@ -3,7 +3,7 @@
 Status: solved 2026-10-06, confirmed in play (the level-up cure added after). Draft
 2026-10-05. Needed by the
 [scorpion-queen-boss.md](scorpion-queen-boss.md) and
-[apep-serpent-boss.md](../apep-serpent-boss.md).
+[apep-serpent-boss.md](apep-serpent-boss.md).
 
 ## Poison
 
@@ -48,7 +48,7 @@ Decided 2026-10-06:
   poisoner yet: this lands with the scorpion / cobra placement.
 
 Not in scope: a poison resistance potion and amulets,
-[resistance-potion.md](../resistance-potion.md), [amulets.md](amulets.md).
+[resistance-potion.md](resistance-potion.md), [amulets.md](amulets.md).
 
 ## Done
 

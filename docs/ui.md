@@ -183,7 +183,7 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 
 ### Interact prompt
 
-What the interact key does in the player's cell ([plan/solved/interact-prompt.md](plan/interact-prompt.md)): the verb comes
+What the interact key does in the player's cell ([plan/solved/interact-prompt.md](plan/solved/interact-prompt.md)): the verb comes
 from `Dungeon::InteractVerb`, the one `Dungeon::Interact` switches on. A `panel` 8 high at the bottom right, mirroring
 the HUD panel (its bottom edge and screen margin), with the HUD's key cap (`PlayerHud::CAP_*`, the first key bound
 to Interact) and the verb in `body` `GOLD_BRIGHT` with a black shadow. It fades in 120 ms after a 150 ms delay, so
@@ -242,7 +242,7 @@ takes no clicks, and on hover shows "<name>: none yet" on a dark label under it.
 wrapping round (freeglut drops Shift+Tab, so there is no previous-tab key).
 
 Right of the tabs, ending with the grid, three sort buttons 6, 4.5 and 6 wide (`a-z`, a gold diamond for strength,
-`new`; [plan/inventory-sort-orders.md](plan/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A
+`new`; [plan/inventory-sort-orders.md](plan/solved/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A
 click picks that order for the open tab, a click on the lit one goes back to found first; on hover each names its
 order on the same dark label. Each tab keeps its own order; not saved, a new game starts in found first.
 
@@ -257,7 +257,7 @@ and the slots show no key labels ([plan/inventory-keys.md](plan/solved/inventory
 In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand, and its button reads "Take off"
 instead of "Wear". Under the effect the details show "Upgrade: n / m points" (green once the spares pay, "Top tier" for
 a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the
-pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/amulet-upgrades.md)).
+pulsing upgrade arrow ([plan/amulet-upgrades.md](plan/solved/amulet-upgrades.md)).
 
 ### Heka screen
 

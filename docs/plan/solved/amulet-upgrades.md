@@ -1,6 +1,6 @@
 # Amulet upgrades
 
-Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Split off [amulets.md](solved/amulets.md).
+Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Split off [amulets.md](amulets.md).
 
 ## Why not "3 of a kind"
 

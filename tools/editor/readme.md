@@ -19,7 +19,7 @@
 * `Paint` (key `P`): click or drag on the grid to write the brush (selected tile, attribute and value) into cells.
   The cell under the mouse previews the brush.
 * `Check` (key `C`): clicking a cell does not change it. The papyrus explains the clicked cell.
-  The level check (see [docs/levels.md](../docs/levels.md)) runs on the map: the path from the entrance to the
+  The level check (see [docs/levels.md](../../docs/levels.md)) runs on the map: the path from the entrance to the
   goal is drawn with gold dots, the result shows under the grid.
 
 In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, or its

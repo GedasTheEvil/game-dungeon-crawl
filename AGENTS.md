@@ -57,10 +57,14 @@ Writing, refining, reporting on, implementing or solving a plan: read [docs/plan
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.<model>.md" inside the plan directory.
 Lifecycle: `<slug>.draft.<model>.md` → implemented `<slug>.md` → user-confirmed `solved/<slug>.md`.
+Never rename or move a plan by hand: `tools/plan.py move <slug> implemented|solved|draft-opus|draft-sonet` renames it
+and rewrites every link to it. "Draft status", "what next": start from `tools/plan.py status` (ready, blocked, on
+hold, waiting for a play-test), then read only the drafts you weigh.
 The model tag `sonet` or `opus` says who can implement it. The default model stays Opus 5.5. When asked to implement
 a `sonet` draft, don't do it yourself and don't ask: delegate it to a Sonnet 5.5 agent (Agent tool,
 `model: sonnet`), then report its result. Tell the agent to follow AGENTS.md and docs/plans.md, run the checks,
-rename the plan when done and commit with a Sonnet 5.5 `Co-Authored-By` line. `opus` drafts you implement yourself.
+go through the draft point by point before it renames the plan (and report any point it left out), and commit with a
+Sonnet 5.5 `Co-Authored-By` line. `opus` drafts you implement yourself.
 Code, tests and level files name a plan by its slug only (`// Climbers (plan monster-climbers): ...`), never by its
 path or file name: a draft's rename or move to "solved/" then touches no code, so solving one needs no rebuild and
 no test run. Only docs (markdown) link plans by path. Old path references in code: shorten them when you touch them.

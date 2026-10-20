@@ -1,6 +1,6 @@
 # Apep serpent boss
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](old/more-bosses.draft.md).
+Status: implemented 2026-10-06 (not play tested). Draft 2026-10-05. Picked from the candidates in [more-bosses.draft.md](../old/more-bosses.draft.md).
 
 Apep (Apophis), the serpent of chaos, a giant snake boss.
 
@@ -14,11 +14,11 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 
 ## Minions: cobras
 
-* New regular monster, the **cobra**: [cobra.md](solved/cobra.md) (implemented, not placed yet).
-* Bite or venom gives **medium poison** ([poison-and-antidote.md](solved/poison-and-antidote.md)).
+* New regular monster, the **cobra**: [cobra.md](cobra.md) (implemented, not placed yet).
+* Bite or venom gives **medium poison** ([poison-and-antidote.md](poison-and-antidote.md)).
 * Also used outside the boss room.
 * Cobras and Apep are swimmers: 125% speed in half water
-  ([crocodiles-and-flooded-cells.md](solved/crocodiles-and-flooded-cells.md)).
+  ([crocodiles-and-flooded-cells.md](crocodiles-and-flooded-cells.md)).
 
 ## Summon: baskets / urns
 
@@ -27,10 +27,10 @@ Apep (Apophis), the serpent of chaos, a giant snake boss.
 
 ## Open
 
-* Attack damage mix ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)): the bite
+* Attack damage mix ([monster-attack-damage-types.md](monster-attack-damage-types.md)): the bite
   pierce, Apep and the cobra alike? Apep's coils crushing (blunt)?
 * Placement and its rank against the scorpion queen and the Anubis boss:
-  [longer-campaign.md](solved/longer-campaign.md).
+  [longer-campaign.md](longer-campaign.md).
 * New tile or prop for the holes, and how `levelcheck` checks them.
 * Numbers.
 

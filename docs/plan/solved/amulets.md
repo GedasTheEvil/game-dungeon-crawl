@@ -1,7 +1,7 @@
 # Amulets
 
 Status: done 2026-10-07, play-tested by the user. Split off
-[resistance-potion.md](../resistance-potion.md). See [Done](#done).
+[resistance-potion.md](resistance-potion.md). See [Done](#done).
 
 ## Idea
 
@@ -12,7 +12,7 @@ Status: done 2026-10-07, play-tested by the user. Split off
   first place (today a poisoner's hit always poisons). So the poison amulet does not count toward the level checker's
   antidote rule.
 * Duplicates allowed: the player can have more than one amulet of the same type and tier.
-* Later: [amulet upgrades](../amulet-upgrades.md) (combine or boost), [amulet of venom](venom-amulet.md)
+* Later: [amulet upgrades](amulet-upgrades.md) (combine or boost), [amulet of venom](venom-amulet.md)
   (poison monsters on hit).
 
 ### UI (decided 2026-10-07)

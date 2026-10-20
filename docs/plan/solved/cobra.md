@@ -1,7 +1,7 @@
 # Cobra: a regular monster
 
 Status: solved, play-tested by the user 2026-10-08. Was: implemented 2026-10-06, placed in levels 16-20 (not play tested). Draft 2026-10-06. The minion of
-[apep-serpent-boss.md](../apep-serpent-boss.md), built first as a regular monster, then placed with the
+[apep-serpent-boss.md](apep-serpent-boss.md), built first as a regular monster, then placed with the
 [longer campaign](longer-campaign.md).
 
 ## Decided (2026-10-06)
@@ -53,7 +53,7 @@ Sounds: `cobra_{wake,att,die,spit}.wav`.
 * Journal moves `Rear` and `Spit`.
 * Model `tools/blender/models/cobra.py`, sounds `tools/audio/cobra_sounds.py`. Check: `tests/scenarios/solved/cobra.txt`.
 * Placed (`./levelcheck`, 2026-10-07): lvl16 8, lvl17 10, lvl18 10, lvl19 7, lvl20 9 (besides the ones Apep summons).
-  The [giant cobra](../giant-cobra.md) takes over from lvl21.
+  The [giant cobra](giant-cobra.md) takes over from lvl21.
 
 ## Next
 

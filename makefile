@@ -22,7 +22,7 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
-	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/inscriptions.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
+	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp \
 	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp src/state/save_slots.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp src/world/run_stats.cpp src/world/leaderboard.cpp
@@ -152,7 +152,7 @@ FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h
 	tools/model-viewer/*.h tools/model-viewer/*.cpp tests/unit/*.cpp)
 
 format:
-	clang-format -i $(FORMAT_FILES)
+	@clang-format -i $(FORMAT_FILES)
 
 # Fails on a file `make format` would change, or one clang-format does not leave stable (flips on every run).
 format-check:
@@ -183,12 +183,14 @@ tidy-all: layers
 	@./tools/tidy.sh all $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS); code=$$?; ./tools/load_gate.sh report tidy; exit $$code
 
 # `make check`: everything a change needs before its commit, in order. Formats the code (never by hand), then checks
-# it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`.
+# it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`. Links to plans that
+# moved are rewritten first (tools/plan.py), a link it cannot fix fails.
 check: all
-	$(MAKE) --no-print-directory format
-	$(MAKE) --no-print-directory format-check
-	$(MAKE) --no-print-directory tidy
-	$(MAKE) --no-print-directory unit
+	@./tools/plan.py links
+	@$(MAKE) --no-print-directory format
+	@$(MAKE) --no-print-directory format-check
+	@$(MAKE) --no-print-directory tidy
+	@$(MAKE) --no-print-directory unit
 
 editor: $(EDITOR)
 

@@ -213,7 +213,7 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
   threat unchanged: short, only in water; the crocodile's half-water weight may want it), the cobra spit cut to 1.2 /
   1.5 tiles (2026-10-09).
 * New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss
-  must stay stronger), [apep-serpent-boss.md](apep-serpent-boss.md),
+  must stay stronger), [apep-serpent-boss.md](solved/apep-serpent-boss.md),
   [longer-campaign.md](solved/longer-campaign.md).
 * Traps still check the player's point (`Trap::Hurt`), not the player box: left out on purpose in
   [trap-and-font-bugs.md](solved/trap-and-font-bugs.md). Revisit only if trap hits feel off.

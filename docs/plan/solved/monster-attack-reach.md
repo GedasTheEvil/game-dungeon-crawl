@@ -1,6 +1,6 @@
 # Monster attack reach
 
-Status: implemented 2026-10-20, waits for the user's play-test. Draft 2026-10-20, from the user's play-test.
+Status: solved 2026-10-20 (play-tested by the user), implemented 2026-10-20. Draft 2026-10-20, from the user's play-test.
 
 Play-test: `bin/game --play tests/play/monster-attack-reach.txt` (a scarab, a giant scarab and a rat come at you; jump
 as one opens its jaws).
@@ -22,11 +22,11 @@ as one opens its jaws).
   `Reaches` along its flight.
 * A miss snaps at the air (the attack sound). The first one jumped writes the field note "Jumping a bite".
 * Dodge window: a scarab's bite is dodged by a jump started in about the first 240 ms of its wind-up
-  (`tests/scenarios/monster_attack_reach.txt`).
+  (`tests/scenarios/solved/monster_attack_reach.txt`).
 * Open questions decided: cone (as asked), hit at the wind-up, no extra cost for a jump over (it turns once the bite is
   done), no safe spot inside a box (the body check).
 * Tests: `tests/unit/bite_reach_test.cpp`, `hold_test.cpp` (jump over the giant scorpion's tell), scenario
-  `tests/scenarios/monster_attack_reach.txt` (the miss, screenshots). Bat bites: the existing bat tests in
+  `tests/scenarios/solved/monster_attack_reach.txt` (the miss, screenshots). Bat bites: the existing bat tests in
   `sim_test.cpp`.
 
 ## Problem

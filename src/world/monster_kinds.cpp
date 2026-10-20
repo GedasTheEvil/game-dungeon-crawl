@@ -156,7 +156,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'w',
 	 .name = "Sand worm",
 	 .label = "worm",
-	 .description = "Sand worm",
+	 .description = "Sand worm; in sand it lies under the surface and comes up under the player",
 	 .note = "Slow as sand, but its jaws shut tight and hold. Whoever calls it Shai-Hulud gets no answer.",
 	 .threat = 2.f,
 	 .model = "monsters/worm",
@@ -171,6 +171,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = WORM_MIX,
 	 .resist = WORM_RESIST,
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
+	 .sandBurrow = true,
 	 .generated = {3, 7, 2}},
 	{.id = MonsterPlant,
 	 .glyph = 'p',
@@ -979,6 +980,8 @@ constexpr bool validKinds() {
 			return false;
 		if (kind.isBoss() != (kind.kin != 0) || kind.kin < 0 || kind.kin > MONSTER_TYPE_MAX)
 			return false;
+		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].sandBurrow && !kind.sandBurrow)
+			return false; // the boss rule: its kin's sand burrowing too (AGENTS.md)
 		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
 			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
 			return false;

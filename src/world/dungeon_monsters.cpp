@@ -105,7 +105,7 @@ bool Dungeon::PlayerSafe() const {
 bool Dungeon::PlayerInDanger() const {
 	const Player& player = *sim.player;
 	return player.stats.poison.Any() || player.burning.Any() || PlayerHeldBy() != nullptr || PlayerOnLadder() ||
-		   player.jump.jumping || player.jump.falling || Travelling();
+		   player.jump.jumping || player.jump.falling || Travelling() || PlayerInQuicksand();
 }
 //======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
@@ -156,6 +156,8 @@ void Dungeon::clearMonsters() {
 	missiles.clear();
 	shots.clear();
 	holes.clear();
+	puffs.clear();
+	pours.clear();
 	bossFight = BossFight{};
 }
 //======================================================================================
@@ -204,6 +206,8 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (!slot)
 		return false;
 	slot->Spawn((*sim.monsterTypes)[typeId], i, j, monsterLinks(), sim.random->effects);
+	if (slot->Type()->sandBurrow && inSand(tile)) // plan desert-chapter: it lies under the sand
+		slot->BuryInSand();
 	if (slot->Type()->isBoss())
 		startBossFight(static_cast<int>(slot - monsters));
 	return true;

@@ -1,0 +1,9 @@
+; Sand (plan desert-chapter): from the entrance (col 2) dry floor to col 5, sand cols 6-11, dry 12-19 with a sand
+; fall at col 15, quicksand cols 20-21, dry to the exit (col 26) (tests/unit/sand_test.cpp).
+############################
+##S............&..........E#
+############################
+structure
+############################
+##....,,,,,,........%%.....#
+############################

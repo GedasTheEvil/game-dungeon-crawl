@@ -135,8 +135,10 @@ enum class FieldNote : unsigned char {
 	WaterBlessing, // the first Blessing of Hapi potion (plan water-blessing-potion)
 	CanopicJars, // the first canopic jars opened (plan treasure-containers)
 	JumpedBite, // the first bite the player jumped over (plan monster-attack-reach)
+	Sand, // the first step into sand (plan desert-chapter)
+	Quicksand, // the first time the player sinks in quicksand
 };
-constexpr int FIELD_NOTE_COUNT = 34;
+constexpr int FIELD_NOTE_COUNT = 36;
 // The field note written when the skill is learnt, none for a skill without one.
 [[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.

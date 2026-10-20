@@ -121,6 +121,15 @@ class Dungeon {
 	// Sand over the screen (SandHaze): from hazeStartMs (GameClock) for hazeMs.
 	int hazeStartMs = 0;
 	int hazeMs = 0;
+	// Sand and quicksand (dungeon_sand.cpp, plan desert-chapter): how long the player has stood sinking in quicksand
+	// (0 out of it or in the air), the next quicksand hurt, the end of a sand fall's slow (GameClock).
+	int sunkMs = 0;
+	int nextSinkHurtMs = 0;
+	int sandSlowUntilMs = 0;
+	void updateQuicksand();
+	// A sand fall landed on cell: the hit and the slow for the player under it, the drift it leaves (the cell turns to
+	// sand).
+	void landSandFall(int cell);
 	// Walkers (dungeon_walkers.cpp). A walker can't step into (col, row): a wall, no floor under it (a pit or a drop),
 	// or a trap (spikes, a death trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -201,7 +210,7 @@ class Dungeon {
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
 	int lockedHintMs = -1000000; // last "the gate is locked" message, to keep it from repeating every step
 	int waterHintMs = -1000000; // last "too deep to jump" message
-	int wadeSoundMs = -1000000; // last splashing step
+	int wadeSoundMs = -1000000; // last splashing step, or step in sand
 	void resetMechanisms();
 	void updateMechanisms();
 	void startOpeningGate(int cell, int startMs);
@@ -269,10 +278,22 @@ class Dungeon {
 		int startMs;
 	};
 	std::vector<Hole> holes;
+	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
+	std::vector<Hole> puffs;
+	std::vector<Hole> pours; // sand falls pouring down, from the end of the warning (startMs)
+	// Sand on the floor (dungeon_render_sand.cpp, plan desert-chapter).
+	[[nodiscard]] float driftHeight(int i, int j, float u, float v) const; // world units over the floor
+	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
+	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
+	void drawRipple(float x, float y, float z, int now) const;
 	void drawHole(float x, float y, float z, float fade) const;
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
 	// them. False: neither is floor it can stand on.
 	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
+	// Map x a sand burrower (MonsterKind::sandBurrow) in sand comes up at: under the player on its row within range
+	// tiles, through sand all the way; for a lurker (edge) at the end of its sand nearest a player off the sand too.
+	// False: none.
+	[[nodiscard]] bool sandTarget(const Monster& mon, float range, bool edge, float& outX) const;
 	// Missiles (dungeon_arrows.cpp): arrows, sling stones, throwing sticks and javelins. A parabola from the launch
 	// point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
 	struct Missile {
@@ -371,7 +392,7 @@ class Dungeon {
 	// heals. Out of combat, as the player feels it.
 	[[nodiscard]] bool PlayerSafe() const;
 	// Not the moment for an autosave (plan autosave): the player is poisoned, burning, held (PlayerHeldBy), on a
-	// ladder, in the air (a jump, a fall) or travelling through a gate.
+	// ladder, in the air (a jump, a fall), travelling through a gate or in quicksand.
 	[[nodiscard]] bool PlayerInDanger() const;
 	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
 	[[nodiscard]] bool Won() const { return won; }
@@ -409,6 +430,14 @@ class Dungeon {
 	[[nodiscard]] bool PlayerWaterBlessed() const;
 	// Either of the two lets the player sprint and jump in half water.
 	[[nodiscard]] bool PlayerWadesFree() const { return PlayerHasHapi() || PlayerWaterBlessed(); }
+	// Standing in sand or quicksand (not in the air): the walk slows to SAND_SPEED_FACTOR, no sprint (plan
+	// desert-chapter).
+	[[nodiscard]] bool PlayerInSand() const;
+	[[nodiscard]] bool PlayerInQuicksand() const { return PlayerInSand() && inQuicksand(Map(mapX, mapY)); }
+	// How long the player has been sinking in quicksand, ms; 0 out of it.
+	[[nodiscard]] int PlayerSunkMs() const { return sunkMs; }
+	// A walk step may sprint: not wading (without the Favour or the Blessing of Hapi), not in sand.
+	[[nodiscard]] bool PlayerCanSprint() const { return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand(); }
 	// Wading with the skill and the potion: the sprint drains the stamina at WADE_SPRINT_DRAIN_BOTH.
 	[[nodiscard]] bool PlayerHalvedWadeDrain() const {
 		return PlayerWading() && PlayerHasHapi() && PlayerWaterBlessed();
@@ -429,8 +458,11 @@ class Dungeon {
 	// World units to draw something standing at map x on row's floor down into a water basin: WATER_BASIN_DEPTH in
 	// half water, growing over WATER_SINK_RAMP from a dry edge, 0 elsewhere.
 	[[nodiscard]] float WaterSink(float x, int row) const;
-	// World units the player is drawn down into a water basin (WaterSink, less while above the floor: a fall, a jump).
+	// World units the player is drawn down into a water basin (WaterSink, less while above the floor: a fall, a jump),
+	// or into quicksand (QuicksandSink).
 	[[nodiscard]] float PlayerSink() const;
+	// World units the player has sunk into quicksand: down to QUICKSAND_SINK_DEPTH tiles as they get stuck.
+	[[nodiscard]] float QuicksandSink() const;
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

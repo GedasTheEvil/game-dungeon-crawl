@@ -270,10 +270,10 @@ class SimWorld {
 	}
 
 	bool walk(float dx, float dy) {
-		const bool wading = dungeon.PlayerWading();
+		const bool sprints = dungeon.PlayerCanSprint();
 		const float factor = dungeon.PlayerWalkFactor();
 		const bool moved = dungeon.Move(dx * factor, dy * factor);
-		if (moved && (!wading || dungeon.PlayerWadesFree()))
+		if (moved && sprints)
 			player.stats.NoteWalked(dungeon.PlayerHalvedWadeDrain());
 		return moved;
 	}

@@ -260,6 +260,14 @@ class Monster {
 	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
 	[[nodiscard]] bool canDive(float py) const;
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)
+	// Sand burrowers (MonsterKind::sandBurrow) spawned in sand: under it (Hidden) until Surge.
+	void BuryInSand();
+	[[nodiscard]] bool UnderSand() const { return burrow.lurk; }
+	// From under the sand since its spawn: it moves under it to tile-local x toX and comes up there, alerted.
+	void Surge(float toX);
+	// Under the sand or the floor: the map x of the ripple it makes (moving from where it went down to where it comes
+	// up); nullopt when not Under.
+	[[nodiscard]] std::optional<float> BurrowRipple() const;
 	void DelayDive(); // no place to come up: try again later
 	[[nodiscard]] bool Burrowing() const { return burrow.phase != BurrowPhase::Up; }
 	// Diving or under the floor, or still in the wall it steps out of: no weapon hits it, the arrows fly over it.

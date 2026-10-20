@@ -28,6 +28,8 @@ constexpr int COST_DART_PLATE = 8;
 constexpr int COST_WALL_SPIKES = 6; // the wait for the safe window, the risk of misjudging it
 constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
+constexpr int COST_SAND = 1; // the slower walk (plan desert-chapter)
+constexpr int COST_QUICKSAND = 8; // sinking, and the jump out of it
 constexpr int MONSTER_REACH = 3; // cells along a row a monster covers (they walk towards the player)
 
 using Move = PathMove;
@@ -87,6 +89,11 @@ class Walker {
 
 	[[nodiscard]] int hazardCost(int cell) const {
 		Tile t = grid.cells[cell];
+		const int sand = inQuicksand(t) ? COST_QUICKSAND : (inSand(t) ? COST_SAND : 0);
+		return sand + objectCost(t);
+	}
+
+	[[nodiscard]] static int objectCost(const Tile& t) {
 		if (t.type == Spike)
 			return COST_SPIKE;
 		if (t.type == Death)
@@ -134,11 +141,13 @@ class Walker {
 			int to = settle(next, row, mask, fallen);
 			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
-			// Over one cell, a gap in the floor or a trap on it, from a floor (a ladder's foot too), not out of half
-			// water. A jump from mid-ladder is not modelled: its reach depends on the walk key held during the jump.
-			// A rock fall is not jumped: the player passes through its cell either way, and it drops all the same.
-			int nextType = grid.at(next, row).type;
-			bool overHazard = fallen == 0 && (nextType == Spike || nextType == Death);
+			// Over one cell, a gap in the floor, a trap on it or quicksand, from a floor (a ladder's foot too, sand and
+			// quicksand), not out of half water. A jump from mid-ladder is not modelled: its reach depends on the walk
+			// key held during the jump. A rock fall is not jumped: the player passes through its cell either way, and
+			// it drops all the same.
+			const Tile nextTile = grid.at(next, row);
+			bool overHazard =
+				fallen == 0 && (nextTile.type == Spike || nextTile.type == Death || inQuicksand(nextTile));
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
 			if ((overGap || overHazard) && !inHalfWater(here) && solid(col, row - 1, mask) &&
@@ -232,6 +241,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				break;
 			case RockFall:
 				r.rockFalls++;
+				r.sandFalls += isSandFall(t) ? 1 : 0;
 				break;
 			case DartPlate:
 				r.dartPlates++;
@@ -347,6 +357,30 @@ void checkWater(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
+// Sand and quicksand (plan desert-chapter) lie on a wall; a run of quicksand is at most QUICKSAND_MAX_RUN cells (a jump
+// out of it lands past it).
+void checkSand(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		const int col = cell % LEVEL_WIDTH;
+		const int row = cell / LEVEL_WIDTH;
+		const Tile t = grid.cells[cell];
+		if (!inSand(t))
+			continue;
+		r.sandCells++;
+		r.quicksandCells += inQuicksand(t) ? 1 : 0;
+		if (grid.at(col, row - 1).structure != Structure::Wall)
+			r.warnings.push_back(std::string(structureDef(t.structure).name) + " at " + at(cell) + " is not on a wall");
+		if (inQuicksand(t) && !inQuicksand(grid.at(col - 1, row))) {
+			int run = 0;
+			while (inQuicksand(grid.at(col + run, row)))
+				run++;
+			if (run > QUICKSAND_MAX_RUN)
+				r.warnings.push_back("quicksand at " + at(cell) + " runs " + std::to_string(run) + " cells, at most " +
+									 std::to_string(QUICKSAND_MAX_RUN));
+		}
+	}
+}
+
 // Only the game makes a dead gate, from an answered riddle gate (GateEmpty); in level data it has no purpose.
 void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
@@ -439,6 +473,8 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
 	score += 3.f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
+	score += 1.f * static_cast<float>(r.pathSandFalls) + 1.5f * static_cast<float>(r.pathQuicksand);
+	score += 0.02f * static_cast<float>(r.pathSand);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
 	score += 1.5f * static_cast<float>(r.pathWallSpikes);
 	score += 0.8f * static_cast<float>(r.pathGates);
@@ -505,6 +541,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkLocks(grid, r);
 	checkObjectsInRock(grid, r);
 	checkWater(grid, r);
+	checkSand(grid, r);
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 	checkWallSpikes(grid, r);
@@ -658,7 +695,10 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		}
 		r.pathSpikes += t.type == Spike ? 1 : 0;
 		r.pathDeathTraps += t.type == Death ? 1 : 0;
-		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed ? 1 : 0;
+		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed && !isSandFall(t) ? 1 : 0;
+		r.pathSandFalls += isSandFall(t) && rockState(t) == RockState::Armed ? 1 : 0;
+		r.pathSand += inSand(t) && !inQuicksand(t) ? 1 : 0;
+		r.pathQuicksand += inQuicksand(t) ? 1 : 0;
 		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
 		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
@@ -694,7 +734,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
 	std::string objects, structure, wall;
-	bool water = false, fixtures = false;
+	bool layered = false, fixtures = false; // water or sand: the structure drawing too
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		std::string line, structureLine, wallLine;
 		bool any = false;
@@ -702,7 +742,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			Tile t = grid.at(col, row);
 			char c = tileGlyph(t);
 			any = any || !isWall(t) || hasObject(t) || hasFixture(t);
-			water = water || t.structure == Structure::HalfWater || t.structure == Structure::DeepWater;
+			layered = layered || (t.structure != Structure::Wall && t.structure != Structure::Empty);
 			fixtures = fixtures || hasFixture(t);
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
@@ -718,5 +758,5 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			wall += head + wallLine + '\n';
 		}
 	}
-	return objects + (water ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "");
+	return objects + (layered ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "");
 }

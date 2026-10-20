@@ -1,0 +1,17 @@
+# The sand worm in sand (plan desert-chapter), tests/levels/sand_worm: the worm (col 21) lies under the sand, only
+# a ripple shows; the player wades in and it comes up under their feet.
+seed 1
+god
+level tests/levels/sand_worm
+torch 17 on
+torch 21 on
+walk to 18.3
+camera 30 10
+wait 30
+screenshot ripple
+walk to 19.2
+wait 600ms
+screenshot under_way
+wait 1000ms
+expect bars >= 1
+screenshot up

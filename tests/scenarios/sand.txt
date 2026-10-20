@@ -1,0 +1,26 @@
+# Sand (plan desert-chapter), tests/levels/sand: a drift of sand (cols 6-11), a sand fall (col 15), quicksand
+# (cols 20-21). The drift, a step's dust, the sand pouring down and the drift it leaves, the quicksand's swirl up
+# close, the player sunk in it.
+seed 1
+god
+level tests/levels/sand
+torch 5 on
+torch 9 on
+torch 13 on
+torch 18 on
+walk to 4
+camera 30 10
+screenshot drift
+walk to 8
+screenshot in_sand
+walk to 15.5
+wait 1200ms
+screenshot pour
+wait 1500ms
+screenshot drift_left
+walk to 19.2
+wait 30
+screenshot quicksand_near
+walk to 20.5
+wait 3s
+screenshot sunk

@@ -301,6 +301,114 @@ void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_
 	Lighting::setEmissive(false);
 }
 
+namespace {
+// Camera-facing sprite quads in the current modelview, premultiplied, emissive, without depth writes: begin, add,
+// end.
+struct Sprites {
+	float rx = 1.f, ry = 0.f, rz = 0.f, ux = 0.f, uy = 1.f, uz = 0.f;
+	void begin() {
+		ensureSprite();
+		float m[16];
+		glGetFloatv(GL_MODELVIEW_MATRIX, m);
+		const float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
+		const float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
+		rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
+		ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
+		Lighting::setEmissive(true);
+		glBindTexture(GL_TEXTURE_2D, gSprite);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE);
+		glBegin(GL_QUADS);
+	}
+	void add(float cx, float cy, float cz, float size, float r, float g, float b, float a) const {
+		const float h = size / 2.f;
+		glColor4f(r * a, g * a, b * a, a);
+		glTexCoord2f(0, 0);
+		glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
+		glTexCoord2f(1, 0);
+		glVertex3f(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
+		glTexCoord2f(1, 1);
+		glVertex3f(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
+		glTexCoord2f(0, 1);
+		glVertex3f(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
+	}
+	static void end() {
+		glEnd();
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+		glColor4f(1, 1, 1, 1);
+		Lighting::setEmissive(false);
+	}
+};
+constexpr float SAND_R = 0.80f, SAND_G = 0.66f, SAND_B = 0.44f; // pale desert sand
+} // namespace
+
+void Grit::puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed) {
+	constexpr int CLOUDS = 5;
+	constexpr int GRAINS = 10;
+	const float t = static_cast<float>(ageMs) / static_cast<float>(lifeMs);
+	if (t < 0.f || t >= 1.f)
+		return;
+	Sprites s;
+	s.begin();
+	const float fade = 1.f - t;
+	const float grow = 1.f - fade * fade;
+	for (int i = 0; i < CLOUDS; i++) {
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x3c6ef372U));
+		const float cx = x + (unit01(h) - 0.5f) * (6.f + 14.f * grow);
+		const float cy = y + 1.f + 4.f * unit01(h >> 16) * grow;
+		const float cz = z + (unit01(mix(h)) - 0.5f) * 8.f;
+		s.add(cx, cy, cz, 4.f + 6.f * grow, SAND_R, SAND_G, SAND_B, 0.28f * fade);
+	}
+	const float sec = t * static_cast<float>(lifeMs) / 1000.f;
+	for (int i = 0; i < GRAINS; i++) {
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x9e3779b9U));
+		const float vx = (unit01(h) - 0.5f) * 40.f;
+		const float vy = 20.f + 30.f * unit01(h >> 16);
+		const float cy = std::fmax(y, y + vy * sec - 130.f * sec * sec);
+		s.add(x + vx * sec, cy, z + (unit01(mix(h)) - 0.5f) * 8.f, 1.f + unit01(mix(h) >> 16), SAND_R, SAND_G, SAND_B,
+			  0.8f * fade);
+	}
+	Sprites::end();
+}
+
+void Grit::pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed) {
+	constexpr int GRAINS = 140;
+	constexpr int CLOUDS = 8;
+	constexpr float FALL_S = 0.35f; // a grain's way from the ceiling to the floor
+	const float t = static_cast<float>(ageMs) / 1000.f;
+	const float life = static_cast<float>(lifeMs) / 1000.f;
+	if (t < 0.f || t >= life + FALL_S)
+		return;
+	Sprites s;
+	s.begin();
+	const float drop = RenderConfig::TILE_SIZE;
+	for (int i = 0; i < GRAINS; i++) { // grains leave the crack all through the pour, thinner at its end
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x85ebca6bU));
+		const float leave = life * unit01(h);
+		const float age = t - leave;
+		if (age < 0.f || age >= FALL_S)
+			continue;
+		const float p = age / FALL_S;
+		const float spread = 3.f + 9.f * p; // the stream fans out as it falls
+		const float cx = x + (unit01(mix(h)) - 0.5f) * spread;
+		const float cy = y - drop * p * p;
+		const float cz = z + (unit01(mix(h) >> 16) - 0.5f) * spread * 0.6f;
+		const float thin = 1.f - 0.6f * leave / life;
+		s.add(cx, cy, cz, 1.4f + 1.6f * unit01(h >> 16), SAND_R, SAND_G, SAND_B, 0.9f * thin);
+	}
+	for (int i = 0; i < CLOUDS; i++) { // dust where it lands
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x68e31da4U));
+		const float k = std::fmin(t / (life + FALL_S), 1.f);
+		const float cx = x + (unit01(h) - 0.5f) * (10.f + 20.f * k);
+		const float cy = y - drop + 2.f + 6.f * unit01(h >> 16) * k;
+		const float cz = z + (unit01(mix(h)) - 0.5f) * 12.f;
+		s.add(cx, cy, cz, 8.f + 8.f * k, SAND_R, SAND_G, SAND_B, 0.3f * (1.f - k));
+	}
+	Sprites::end();
+}
+
 float SunBeam::strength(float progress) {
 	if (progress <= 0.f || progress >= 1.f)
 		return 0.f;

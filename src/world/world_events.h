@@ -17,6 +17,9 @@ enum class WorldSound : unsigned char {
 	Lever,
 	RockRumble,
 	RockCrash,
+	SandHiss, // a sand fall starts to trickle from the ceiling crack (plan desert-chapter)
+	SandPour, // a sand fall pours down
+	SandStep, // a step in sand
 	Teleport,
 	SummonDig, // a boss's minion digs out of the floor
 	SummonDrop, // a boss's minion drops from the ceiling

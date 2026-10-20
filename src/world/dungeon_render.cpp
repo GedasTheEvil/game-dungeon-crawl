@@ -134,6 +134,8 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		tex.ceilingTex[cell.ceiling].Bind();
 		quad(n, v, st);
 	}
+	if (inSand(MapAt(i, j)))
+		drawSandDrift(i, j);
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
@@ -442,6 +444,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFires(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
+	drawSandEffects();
 	drawContainerEffects();
 	drawBurning();
 	glPopMatrix();

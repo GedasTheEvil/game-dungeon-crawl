@@ -82,7 +82,7 @@ void Dungeon::startRockFall(int cell) {
 		return;
 	setRockState(map[cell], RockState::Falling);
 	fallingRocks.push_back({cell, GameClock::now()});
-	sim.events->Play(WorldSound::RockRumble);
+	sim.events->Play(isSandFall(map[cell]) ? WorldSound::SandHiss : WorldSound::RockRumble);
 }
 //======================================================================================
 void Dungeon::updateRocks() {
@@ -92,6 +92,12 @@ void Dungeon::updateRocks() {
 			continue;
 		}
 
+		if (isSandFall(map[it->cell])) {
+			landSandFall(it->cell);
+			setRockState(map[it->cell], RockState::Fallen);
+			it = fallingRocks.erase(it);
+			continue;
+		}
 		// Landed: hits the player if they are still under it.
 		int col = it->cell % MAP_WIDTH;
 		int row = it->cell / MAP_WIDTH;

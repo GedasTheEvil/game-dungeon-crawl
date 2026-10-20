@@ -1,0 +1,9 @@
+; The sand worm in sand (plan desert-chapter): from the entrance (col 2) dry floor to col 5, sand cols 6-10 with a
+; worm (col 7), dry 11-13, sand 14-24 with a worm (col 21), dry to the exit (col 28) (tests/unit/sand_test.cpp).
+##############################
+##S....w.............w......E#
+##############################
+structure
+##############################
+##....,,,,,...,,,,,,,,,,,....#
+##############################

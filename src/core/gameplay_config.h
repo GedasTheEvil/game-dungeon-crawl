@@ -97,6 +97,27 @@ constexpr int WALL_SUMMON_SIGHT = 3; // cells from the player: a wall this near 
 // Hapi skill (plan skill-blessing-of-hapi). An arrow hits a monster standing in it for a share of its damage; melee is
 // not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
+// Sand (plan desert-chapter, Dungeon::PlayerInSand): the walk at SAND_SPEED_FACTOR, no sprint, jumping is fine.
+constexpr float SAND_SPEED_FACTOR = 0.75f;
+constexpr int SAND_STEP_MS = 380; // between the sounds and dust puffs of the steps in sand
+constexpr int SAND_PUFF_MS = 700;
+// Quicksand (Dungeon::updateQuicksand): standing in it the player sinks. The walk starts at QUICKSAND_SPEED_FACTOR and
+// slows to nothing at QUICKSAND_STUCK_MS; from QUICKSAND_HURT_MS on it takes QUICKSAND_HURT_PERCENT of the max HP
+// every QUICKSAND_HURT_EVERY_MS (no armour). A jump frees the player for QUICKSAND_JUMP_STAMINA (the jump's twice).
+// Drawn down to QUICKSAND_SINK_DEPTH tiles.
+constexpr float QUICKSAND_SPEED_FACTOR = 0.5f;
+constexpr int QUICKSAND_STUCK_MS = 3000;
+constexpr int QUICKSAND_HURT_MS = 5000;
+constexpr int QUICKSAND_HURT_EVERY_MS = 1000;
+constexpr int QUICKSAND_HURT_PERCENT = 5;
+constexpr int QUICKSAND_JUMP_STAMINA = 40;
+constexpr float QUICKSAND_SINK_DEPTH = 0.2f;
+constexpr int QUICKSAND_MAX_RUN = 2; // cells in a row (levelcheck): a jump out of the first lands past the second
+// A sand fall (RockFall, SAND_FALL): SAND_FALL_DAMAGE (no armour) to the player under it and a SAND_SLOW_MS slow at
+// SAND_SLOW_FACTOR; the cell turns to sand.
+constexpr int SAND_FALL_DAMAGE = 40;
+constexpr int SAND_SLOW_MS = 1500;
+constexpr float SAND_SLOW_FACTOR = 0.4f;
 constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
 // With the skill the player sprints in half water at this share of the LAND sprint speed (not of the wade speed).
 constexpr float WADE_SPRINT_FACTOR_HAPI = 0.5f;
@@ -150,6 +171,14 @@ constexpr int BURROW_EVERY_MS = 6000;
 constexpr int BURROW_RETRY_MS = 1000;
 constexpr float BURROW_BEHIND = 1.6f;
 constexpr int BURROW_HOLE_MS = 3000;
+// Sand burrowers (the worm in sand, plan desert-chapter, Dungeon::sandTarget): lying under the sand since its spawn it
+// comes up within SAND_WORM_WAKE_RANGE tiles of the player on its row; awake, it dives to come up under a player in
+// its sand from SAND_WORM_DIVE_MIN to SAND_WORM_DIVE_RANGE tiles away. A lurking one stirs the sand SAND_RIPPLE_SWAY
+// tiles to and fro.
+constexpr float SAND_WORM_WAKE_RANGE = 2.5f;
+constexpr float SAND_WORM_DIVE_MIN = 1.5f;
+constexpr float SAND_WORM_DIVE_RANGE = 6.f;
+constexpr float SAND_RIPPLE_SWAY = 0.12f;
 
 // Chargers (Sobek, the hippo; Monster::StartCharge): from CHARGE_MIN..CHARGE_MAX tiles along its row (Sobek's; per
 // type: ChargeRules) it winds up, then rushes at CHARGE_SPEED. Its rush hits the player on the floor (not more than

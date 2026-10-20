@@ -14,14 +14,16 @@ constexpr int LEVEL_WIDTH = 40;
 constexpr int LEVEL_HEIGHT = 47;
 constexpr int LEVEL_CELL_COUNT = LEVEL_WIDTH * LEVEL_HEIGHT + 1; // + 1 spare cell, from the v1 file format
 
-// The structure layer. Wall and DeepWater block; objects stand in Empty or HalfWater cells.
+// The structure layer. Wall and DeepWater block; objects stand in Empty, HalfWater, Sand or Quicksand cells.
 enum class Structure : std::uint8_t {
 	Wall = 0,
 	Empty = 1,
 	HalfWater = 2,
 	DeepWater = 3,
+	Sand = 4, // a drift on the floor: the player walks slower and cannot sprint (plan desert-chapter)
+	Quicksand = 5, // looks like sand; standing in it sinks the player, a jump frees them
 };
-constexpr int STRUCTURE_COUNT = 4;
+constexpr int STRUCTURE_COUNT = 6;
 [[nodiscard]] constexpr bool isStructure(int s) { return s >= 0 && s < STRUCTURE_COUNT; }
 // Wall and deep water: they block, and no object may stand there.
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
@@ -40,7 +42,7 @@ enum DungeonTileType : unsigned char {
 	Key = 10, // b = lock colour; picked up on touch, then the cell has no object
 	Gate = 11, // b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
-	RockFall = 13, // loose ceiling, walkable; c: 0 armed, 2 falling, 1 fallen
+	RockFall = 13, // loose ceiling, walkable; b: 0 rock, 1 sand (SAND_FALL); c: 0 armed, 2 falling, 1 fallen
 	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
 	Inscription = 15, // hieroglyphs on the back wall, b = text id (inscriptions.h): interact to read them
 	WallSpikes = 16, // spikes on a cycle out of the back wall (plan rhythm-traps); b = speed, c = phase | live state
@@ -138,8 +140,13 @@ struct Tile {
 [[nodiscard]] inline bool isWall(const Tile& t) { return t.structure == Structure::Wall; }
 // Half water: open, the player and the walkers wade through it (crocodiles-and-flooded-cells).
 [[nodiscard]] inline bool inHalfWater(const Tile& t) { return t.structure == Structure::HalfWater; }
+// Sand or quicksand (plan desert-chapter): open, a drift on the floor; quicksand looks the same.
+[[nodiscard]] inline bool inSand(const Tile& t) {
+	return t.structure == Structure::Sand || t.structure == Structure::Quicksand;
+}
+[[nodiscard]] inline bool inQuicksand(const Tile& t) { return t.structure == Structure::Quicksand; }
 [[nodiscard]] inline bool hasFixture(const Tile& t) { return t.fixture.type != NoObject; }
-// Open, dry and nothing in it or on its back wall: what a v1 Empty cell was.
+// Open, dry, no sand, and nothing in it or on its back wall: what a v1 Empty cell was.
 [[nodiscard]] inline bool isEmptyCell(const Tile& t) {
 	return t.structure == Structure::Empty && t.type == NoObject && !hasFixture(t);
 }
@@ -176,6 +183,10 @@ inline void setThing(Tile& cell, const Tile& thing) {
 // A Gate's and a RockFall's value: their state, as stored in level files and save games.
 enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
 enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
+// A RockFall's attribute: a rock, or a sand fall (plan desert-chapter) that pours from a ceiling crack and buries the
+// cell under a drift (it turns to Sand): a lighter hit and a short slow, no stones.
+constexpr int SAND_FALL = 1;
+[[nodiscard]] inline bool isSandFall(const Tile& t) { return t.type == RockFall && t.attr == SAND_FALL; }
 [[nodiscard]] inline GateState gateState(const Tile& t) { return static_cast<GateState>(t.value); }
 [[nodiscard]] inline RockState rockState(const Tile& t) { return static_cast<RockState>(t.value); }
 // A DartPlate's value: pressed from the volley until it re-arms (plan poison-dart-trap).
@@ -269,7 +280,7 @@ class TeleportPairs {
 // are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
 constexpr int LEVEL_VERSION = 3;
-constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~="; // by Structure
+constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
 
 // A v1 cell: type 0 is a wall without an object, anything else a thing in an empty cell, in its layer (the unused

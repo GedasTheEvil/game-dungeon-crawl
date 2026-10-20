@@ -67,6 +67,11 @@ namespace Grit {
 constexpr int BURST_MS = 1100;
 // (x, y, z) = the floor point (or the ceiling point, fromCeiling) in local space; ageMs since the summon, < BURST_MS.
 void burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed);
+// A step in sand (plan desert-chapter): a small puff of dust at the feet, (x, y, z) the floor point; ageMs < lifeMs.
+void puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
+// A sand fall pouring down from the ceiling point (x, y, z) to the floor a tile below, ageMs since it began, for
+// lifeMs: a thick stream of grains, thinning at the end, and dust where it lands.
+void pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
 } // namespace Grit
 
 // Level-up blessing: a shaft of sunlight falls on the player, gold motes rise through it. Stateless like the fire.

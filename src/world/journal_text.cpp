@@ -72,6 +72,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return t.ranged && t.ranged->burns() ? "Hurls a bolt of fire from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
+		if (t.sandBurrow)
+			return "In sand it swims under the surface and comes up under my feet. Watch the ripples.";
 		return "Dives into the sand and comes up behind me.";
 	case CreatureMove::Charge:
 		return "Charges along the hall. A wall stuns it.";
@@ -178,6 +180,11 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 					 "Somebody swapped the insides for treasure. I try not to wonder where the insides went."},
 	{"Jumping a bite", "It snapped at my heels and caught only air. A small one bites low: jump as it opens its jaws "
 					   "and the bite goes under me. Over a tall one a jump does not help."},
+	{"Sand", "Sand. Underground. Somebody left a door open, three thousand years ago. I wade through the drifts at "
+			 "three quarters of my pace, and running in it is out of the question. Jumping still works."},
+	{"Quicksand", "The sand swallowed my boots, then my shins. Standing still makes it worse: the longer I stay, the "
+				  "slower I get, until I am stuck and it squeezes. A jump gets me out, if I have the breath for it. "
+				  "Up close it swirls, slowly. Look before you step."},
 }};
 } // namespace
 

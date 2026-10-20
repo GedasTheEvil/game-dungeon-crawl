@@ -29,8 +29,9 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 true, true, '\0', "gate_lock.png"},
 	{"Lever", "Interact to pull it. Opens every gate of the same colour.", true, true, '/', "lever.png"},
 	{"RockFall",
-	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Put a wall "
-	 "above it.",
+	 "Loose ceiling, walkable. A rock falls ~1 s after the player steps in: crushes (1000) or grazes (50). Attribute "
+	 "1: a sand fall, sand pours from a crack and buries the cell under a drift (40, a short slow; the cell turns to "
+	 "sand). Put a wall above it.",
 	 true, true, 'v', "rockfall.png"},
 	{"DartPlate",
 	 "Pressure plate in the floor. The player or a heavy monster on it (not a jump) sets off 3 poison darts (medium) "
@@ -56,6 +57,11 @@ constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
 	{"Half water", "Open space, half filled with water. The player wades at half speed and cannot jump in it. Put deep "
 				   "water or a wall under it."},
 	{"Deep water", "Full of water, solid like a wall, under half water. Holds no object."},
+	{"Sand", "Open space, a drift of sand on the floor. The player walks at 3/4 speed and cannot sprint in it (jumping "
+			 "is fine). A sand worm lurks under it. Put a wall under it."},
+	{"Quicksand", "Looks like sand (a slow swirl up close). Standing in it sinks the player: slower each second, stuck "
+				  "after 3 s, hurt after 5 s; a jump frees them, at a stamina cost. A passable trap. Put a wall under "
+				  "it."},
 }};
 
 char doorGlyph(const Tile& t) {
@@ -89,6 +95,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'^', {Spike, 0, 0}, "spikes"},
 		{'X', {Death, 0, 0}, "death trap"},
 		{'v', {RockFall, 0, 0}, "rock fall"},
+		{'&', {RockFall, SAND_FALL, 0}, "sand fall"},
 		{'_', {DartPlate, 0, 0}, "dart trap plate"},
 		{'/', {Lever, 1, 0}, "lever (red; other colours: 'set')"},
 		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
@@ -130,6 +137,8 @@ char tileGlyph(const Tile& t) {
 		return isGateColour(t.attr) ? lockColour(t.attr).gateGlyph : 'Q';
 	case Inscription:
 		return t.attr == NAME_CARTOUCHE_ID ? ':' : 'i';
+	case RockFall:
+		return isSandFall(t) ? '&' : 'v';
 	default:
 		return tileDef(t.type).glyph != '\0' ? tileDef(t.type).glyph : '?';
 	}

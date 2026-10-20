@@ -108,6 +108,12 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.rockRumble;
 	case WorldSound::RockCrash:
 		return sounds.rockCrash;
+	case WorldSound::SandHiss:
+		return sounds.sandHiss;
+	case WorldSound::SandPour:
+		return sounds.sandPour;
+	case WorldSound::SandStep:
+		return sounds.sandStep;
 	case WorldSound::Teleport:
 		return sounds.teleport;
 	case WorldSound::SummonDig:

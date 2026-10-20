@@ -79,6 +79,10 @@ constexpr Color OPEN_COLOR = {0.035f, 0.028f, 0.02f};
 constexpr Color WATER_TOP = {0.12f, 0.30f, 0.42f};
 constexpr Color WATER_BOTTOM = {0.07f, 0.18f, 0.28f};
 constexpr Color DEEP_TOP = {0.05f, 0.12f, 0.24f};
+constexpr Color SAND_TOP = {0.62f, 0.48f, 0.26f}; // a drift on the bottom quarter of the cell
+constexpr Color SAND_BOTTOM = {0.45f, 0.33f, 0.17f};
+constexpr Color QUICKSAND_TOP = {0.48f, 0.36f, 0.20f}; // darker, wetter
+constexpr Color QUICKSAND_BOTTOM = {0.28f, 0.19f, 0.10f};
 constexpr Color DEEP_BOTTOM = {0.03f, 0.07f, 0.15f};
 constexpr float OTHER_LAYER_ALPHA = 0.4f; // the layers not being painted, dimmed
 constexpr float HALF_WATER_OVER_OBJECT = 0.5f; // the water over the lower half of an object in it
@@ -698,6 +702,14 @@ void Editor::drawStructureSwatch(Structure s, const Rect& r, float alpha) {
 		break;
 	case Structure::DeepWater:
 		fillRect(r, DEEP_TOP, DEEP_BOTTOM, alpha);
+		break;
+	case Structure::Sand:
+		fillRect(r, OPEN_COLOR, OPEN_COLOR, alpha);
+		fillRect({r.x, r.y, r.w, r.h / 4}, SAND_TOP, SAND_BOTTOM, alpha);
+		break;
+	case Structure::Quicksand:
+		fillRect(r, OPEN_COLOR, OPEN_COLOR, alpha);
+		fillRect({r.x, r.y, r.w, r.h / 3}, QUICKSAND_TOP, QUICKSAND_BOTTOM, alpha);
 		break;
 	}
 }

@@ -6,9 +6,11 @@
 //   - walk left / right into any open cell (not a wall, not a closed gate); without a floor below, fall straight down
 //     until there is one or a ladder catches the player;
 //   - climb up / down between vertically adjacent ladder cells;
-//   - jump over one cell, a gap in the floor or a spike / death trap on it, from a floor (a ladder's foot too; the
-//     jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step up onto a ledge), never out of half water
-//     (walking through it is slower, which the checker does not count);
+//   - jump over one cell, a gap in the floor, a spike / death trap on it or quicksand, from a floor (a ladder's foot,
+//     sand and quicksand too; the jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step up onto a ledge),
+//     never out of half water (walking through it is slower, which the checker does not count);
+//   - sand slows the walk, quicksand sinks the player (plan desert-chapter): both cost a little more on the path, a run
+//     of quicksand is at most QUICKSAND_MAX_RUN cells (checkSand);
 //   - touching a key, or pulling a lever not pulled yet, opens every gate of its colour from then on (in level data a
 //     gate is closed only with value 0);
 //   - interacting with a teleporter moves the player to its partner (both ways); a name gate too (the name spoken),
@@ -51,6 +53,8 @@ struct LevelReport {
 	int monsterCount = 0;
 	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, wallSpikes = 0, treasures = 0, keys = 0, gates = 0,
 		levers = 0, riddles = 0;
+	int sandFalls = 0; // among the rock falls (plan desert-chapter)
+	int sandCells = 0, quicksandCells = 0; // sand counts the quicksand too
 	int teleporters = 0;
 	int nameGates = 0; // teleporters sealed by the level's name (plan secret-name-gates)
 	int inscriptions = 0;
@@ -66,6 +70,7 @@ struct LevelReport {
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0;
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
 		pathMonsters = 0;
+	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls
 	int keysNeeded = 0; // colours the path has to collect before a gate
 	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 
@@ -85,8 +90,8 @@ struct LevelReport {
 // The level as text, top row first (wall rows above and below the level are skipped), one tileGlyph per cell
 // (legend: glyphLegend in tile_defs.h, `levelcheck --legend`; m, q, Q: a monster type, key or gate colour the game
 // does not know); a cell without an object shows its fixture. With a report, the path is drawn as '*' over open
-// cells. A level with water gets a second drawing after a "structure" line, the same rows in structureGlyph (level.h);
-// a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.': none).
+// cells. A level with water or sand gets a second drawing after a "structure" line, the same rows in structureGlyph
+// (level.h); a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.': none).
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

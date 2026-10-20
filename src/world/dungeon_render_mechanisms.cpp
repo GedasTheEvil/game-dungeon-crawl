@@ -128,7 +128,9 @@ void Dungeon::drawRockFallTile(int i, int j) {
 	}
 
 	float rockY = -1.f; // below the floor = not drawn
-	if (rockState(tile) == RockState::Fallen)
+	if (isSandFall(tile)) // no stone: the sand pours (drawSandEffects) and the cell turns to a drift
+		rockY = -1.f;
+	else if (rockState(tile) == RockState::Fallen)
 		rockY = 0.f;
 	else if (rockState(tile) == RockState::Falling)
 		for (const Motion& m : fallingRocks)

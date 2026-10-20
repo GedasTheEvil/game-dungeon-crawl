@@ -179,17 +179,20 @@ void printReport(const Entry& e, bool map) {
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
-	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls, %d dart plates, %d wall spikes, %d "
-		   "treasures (%d reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters (%d name gates), %d "
-		   "inscriptions\n",
-		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.dartPlates, r.wallSpikes,
-		   r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters, r.nameGates,
-		   r.inscriptions);
+	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
+		   "spikes, %d treasures (%d reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters (%d name "
+		   "gates), %d inscriptions, %d sand cells (%d quicksand)\n",
+		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.sandFalls, r.dartPlates,
+		   r.wallSpikes, r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters,
+		   r.nameGates, r.inscriptions, r.sandCells, r.quicksandCells);
 	if (r.valid || !r.path.empty())
-		printf("   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, "
-			   "%d dart plates, %d wall spikes, %d gates (%d colours), %d teleports, %d monsters near\n",
-			   r.pathLength, r.pathJumps, r.pathDrops, r.pathClimb, r.pathSpikes, r.pathDeathTraps, r.pathRockFalls,
-			   r.pathDartPlates, r.pathWallSpikes, r.pathGates, r.keysNeeded, r.pathTeleports, r.pathMonsters);
+		printf(
+			"   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, %d sand "
+			"falls, %d dart plates, %d wall spikes, %d gates (%d colours), %d teleports, %d monsters near, %d sand, %d "
+			"quicksand\n",
+			r.pathLength, r.pathJumps, r.pathDrops, r.pathClimb, r.pathSpikes, r.pathDeathTraps, r.pathRockFalls,
+			r.pathSandFalls, r.pathDartPlates, r.pathWallSpikes, r.pathGates, r.keysNeeded, r.pathTeleports,
+			r.pathMonsters, r.pathSand, r.pathQuicksand);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());

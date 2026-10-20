@@ -22,6 +22,7 @@ struct SoundBank {
 	Sound amulet_s; // an amulet put on or taken off
 	Music soundtrack;
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
+	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
 	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)

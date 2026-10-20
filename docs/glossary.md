@@ -31,6 +31,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
 | gap | | (map) an open cell in a floor, one cell wide, jumped over. Not the gap between hitboxes (see Combat) | `src/world/level_check.h` |
 | half water | | an open cell, half full: the player wades (half speed, no sprint, no jump), swimmers swim | `Structure::HalfWater`, `inHalfWater`, `WADE_SPEED_FACTOR` |
+| sand | | an open cell with a drift of sand on the floor: the player walks at 3/4 speed, no sprint, jumping is fine; a sand worm lurks under it ([desert-chapter](plan/desert-chapter.draft.opus.md)) | `Structure::Sand`, `inSand`, `Dungeon::PlayerInSand` |
+| quicksand | | looks like sand; standing in it sinks the player (slower, stuck, hurt) until a jump frees them; a passable trap for the checker | `Structure::Quicksand`, `inQuicksand`, `Dungeon::updateQuicksand` |
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
@@ -60,6 +62,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | spikes | | a small spike trap in the floor: hurts whoever stands in it, more the longer they stay | `Spike`, `TrapHurt` |
 | death trap | | a large spike trap: hurts like spikes, and its tips poison strongly once per entry | `Death`, `TrapHurt` |
 | rock fall | | loose ceiling over a walkable cell: a rock falls about 1 s after the player steps in, crushes or grazes | `RockFall` |
+| sand fall | | a rock fall of sand (attribute 1): sand pours from a crack, a lighter hit and a short slow, the cell turns to sand | `SAND_FALL`, `isSandFall`, `Dungeon::landSandFall` |
 | dart plate | | a pressure plate in the floor: the player or a heavy monster on it sets off 3 poison darts from the back wall above. Drafts also say "dart trap" | `DartPlate`, `DartTraps`, `DART_PLATE_WEIGHT` |
 | tile | | (render) a cell's size in the 3D world, 40 GL units; distances in docs are in tiles ("1.4 tiles"). Often used for "cell" | `TILE_SIZE` |
 | wade | | walk through half water: half speed, no sprint, no jump ("too deep to jump") | `Dungeon::PlayerWading`, `Dungeon::JumpAllowed` |
@@ -77,6 +80,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | cursed mimic | Cursed chest of Set | the mimic's darker kin (purple where a treasure chest is blue): a chest until opened or hit, then it hops after the player and leaps pits and traps; a quarter of its bites lay insanity (its only source); killed, it leaves its chest where it died, half the time an amulet ([cursed-mimic](plan/solved/cursed-mimic.md)) | `MonsterCursedMimic`, `Locomotion::AmbushHop`, `ambushes`, `leaps`, `RollCursedMimicLoot` |
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
+| sand burrower | | lies under the sand from its spawn, comes up under the player in its sand (the worm) | `MonsterKind::sandBurrow`, `Dungeon::sandTarget` |
 | charge | | a rush along its row through the player after a wind-up (Sobek, the hippo, Seth); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |
 | climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |

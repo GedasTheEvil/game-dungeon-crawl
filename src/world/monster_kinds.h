@@ -225,6 +225,9 @@ struct MonsterKind {
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
+	// In sand it lies under the surface and burrows to the player, coming up under their feet (plan desert-chapter,
+	// Burrow); out of sand it walks.
+	bool sandBurrow = false;
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;
 	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0

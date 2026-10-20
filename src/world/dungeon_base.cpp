@@ -42,6 +42,8 @@ void Dungeon::resetPlayerMotion() {
 	jump.fall_velocity = FALL_STEP;
 	shove = Shove{};
 	hazeMs = 0;
+	sunkMs = 0;
+	sandSlowUntilMs = 0;
 }
 //======================================================================================
 void Dungeon::exploreAroundPlayer() {
@@ -116,6 +118,7 @@ void Dungeon::Update() {
 	}
 	UpdateMovementState();
 	updateShove();
+	updateQuicksand();
 	exploreAroundPlayer();
 	updateMechanisms();
 	UpdateMonsters();
@@ -223,6 +226,14 @@ bool Dungeon::Move(float dirX, float dirY) {
 		mapX += std::clamp(offset, -std::fabs(dirY), std::fabs(dirY));
 	}
 	const bool moved = mapX != startX || mapY != startY;
+	if (moved && PlayerInSand()) {
+		sim.events->Note(FieldNote::Sand);
+		if (GameClock::now() - wadeSoundMs >= SAND_STEP_MS) {
+			wadeSoundMs = GameClock::now();
+			sim.events->Play(WorldSound::SandStep);
+			puffs.push_back({mapX, static_cast<int>(mapY), GameClock::now()});
+		}
+	}
 	if (moved && PlayerWading() && GameClock::now() - wadeSoundMs >= WADE_SPLASH_MS) {
 		wadeSoundMs = GameClock::now();
 		sim.events->Play(WorldSound::Wade);
@@ -255,7 +266,7 @@ float Dungeon::WaterSink(float x, int row) const {
 float Dungeon::PlayerSink() const {
 	const auto row = static_cast<int>(std::floor(mapY));
 	const float above = mapY - static_cast<float>(row); // in the air over the floor: sinks as it comes down
-	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f);
+	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f) + QuicksandSink();
 }
 //======================================================================================
 void Dungeon::StartJump(int dir) {
@@ -265,12 +276,13 @@ void Dungeon::StartJump(int dir) {
 	if (!JumpAllowed())
 		return;
 
-	if (player.stats.Stamina() < JUMP_STAMINA_COST) {
+	const int cost = PlayerInQuicksand() ? QUICKSAND_JUMP_STAMINA : JUMP_STAMINA_COST; // out of the sand's grip
+	if (player.stats.Stamina() < cost) {
 		player.stats.RefuseStamina(*sim.events);
 		return;
 	}
 
-	player.stats.ConsumeStamina(JUMP_STAMINA_COST);
+	player.stats.ConsumeStamina(cost);
 	player.jump.start_y = mapY;
 	player.jump.dir_x = static_cast<float>(dir);
 	player.jump.speed = JUMP_FORWARD_SPEED;
@@ -302,8 +314,14 @@ bool Dungeon::PlayerWaterBlessed() const {
 }
 //======================================================================================
 float Dungeon::PlayerWalkFactor() const {
+	const float slow = GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f; // a sand fall's
+	if (PlayerInQuicksand())
+		return slow * QUICKSAND_SPEED_FACTOR *
+			   std::max(0.f, 1.f - static_cast<float>(sunkMs) / static_cast<float>(QUICKSAND_STUCK_MS));
+	if (PlayerInSand())
+		return slow * SAND_SPEED_FACTOR;
 	if (!PlayerWading())
-		return 1.f;
+		return slow;
 	if (PlayerHasHapi() && PlayerWaterBlessed())
 		return WADE_SPEED_FACTOR_BOTH;
 	if (PlayerWaterBlessed())
@@ -312,6 +330,8 @@ float Dungeon::PlayerWalkFactor() const {
 }
 //======================================================================================
 float Dungeon::PlayerSprintMultiplier(float sprint) const {
+	if (PlayerInSand())
+		return 1.f;
 	if (!PlayerWading())
 		return sprint;
 	if (!PlayerWadesFree() || sprint <= 1.f)

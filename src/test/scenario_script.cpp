@@ -437,6 +437,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},
 		{"campaign", CommandType::Campaign, noArgs, ""},
 		{"speakname", CommandType::SpeakName, noArgs, ""},
+		{"autosave", CommandType::Autosave, noArgs, ""},
 		{"quit", CommandType::Quit, noArgs, ""},
 	};
 	return DEFS;
@@ -486,7 +487,9 @@ const std::vector<FieldDef>& fieldDefs() {
 											   {"heka", Field::Heka},
 											   {"skills", Field::Skills},
 											   {"curses", Field::Curses},
-											   {"records", Field::Records}};
+											   {"records", Field::Records},
+											   {"deaths", Field::Deaths},
+											   {"death_screen", Field::DeathScreen}};
 	return DEFS;
 }
 

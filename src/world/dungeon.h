@@ -357,6 +357,9 @@ class Dungeon {
 	// No monster can chase or attack the player now (Monster::Threatens, no wall between): the regeneration amulet
 	// heals. Out of combat, as the player feels it.
 	[[nodiscard]] bool PlayerSafe() const;
+	// Not the moment for an autosave (plan autosave): the player is poisoned, burning, held (PlayerHeldBy), on a
+	// ladder, in the air (a jump, a fall) or travelling through a gate.
+	[[nodiscard]] bool PlayerInDanger() const;
 	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
 	[[nodiscard]] bool Won() const { return won; }
 	void ClearWin() { won = false; } // a new game or a scenario level

@@ -168,6 +168,9 @@ constexpr float GRAB_JUMP_CLEAR = 0.15f;
 constexpr float HELD_ROLL_DEG = 14.f;
 constexpr float HELD_SHAKE_DEG = 2.f;
 
+// The death screen (plan autosave) comes up once the death clip has played, so the death is seen.
+constexpr int DEATH_SCREEN_DELAY_MS = 1200;
+
 constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's plasma colour, then back in at the arrival
 // A sealed name gate's plasma (plan secret-name-gates) breathes down to NAME_GATE_MIN_ALPHA and back once per
 // NAME_GATE_BREATH_MS; opened, it shimmers for NAME_GATE_SHIMMER_MS, then holds steady.

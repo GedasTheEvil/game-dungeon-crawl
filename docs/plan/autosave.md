@@ -1,6 +1,7 @@
 # Autosave and the death screen
 
-Status: draft 2026-10-19, from the user's idea. Needs nothing first.
+Status: implemented 2026-10-20, waiting for the user's play-test: `bin/game --play tests/play/autosave.txt` (a
+riddle gate and two rats at 10 HP). Draft 2026-10-19, from the user's idea.
 
 ## Idea
 
@@ -71,3 +72,23 @@ the file the button is not there (the menu looks as today). One click back into 
   counter survives the retry (1 after one death). The main menu shows Continue only with an autosave file.
 * Play-test: `tests/play/autosave.txt`: a level with a riddle gate and a monster, low HP, so the user can answer,
   die and continue.
+
+## Implemented (2026-10-20)
+
+* `GameState::Autosave(AutosaveMoment)` writes `AutosavePath()` (a scenario's: `tests/out/<name>/autosave.sav`) and
+  shows "Autosaved" top left over the game. The world asks for it with a `WorldEvent` (`AutosaveMoment::LevelStart`
+  after the exit's `LoadCampaignLevel`, `Boss` when the boss's gates open); `NewGame` and the riddle (also a late
+  answer from the journal) call it. The guard: `Dungeon::PlayerInDanger` (poisoned, burning, held, on a ladder,
+  jumping or falling, travelling); a level start skips it, a dead player never saves.
+* `--level` and `--play` write it once their setup has run. The scenario command `autosave` writes it as at a level
+  start; `expect deaths`, `expect death_screen`.
+* Death screen: `DeathScreen` (`ui/death_screen.*`), `Screen::Death`, opened `DEATH_SCREEN_DELAY_MS` (1.2 s) after
+  the death, from the game only (a menu opened in the death clip delays it). Title "You died" as text; the old
+  `dead.png` quad and the file are gone. The screen keys of a dying player do nothing.
+* Deaths: `RunStats::deaths` in a "DEATHS n" line after "NAMES"; `GameState::CountDeath` patches that line in the
+  autosave file (`RunStats::SetDeaths`). Leaderboard key `deaths`, the run's details "Deaths" under Fights.
+* Load Game: the autosave across the top of a taller panel, the slots 12.5 high under it; "No autosave yet"
+  greyed. The main menu with an autosave: seven buttons on a taller panel, Continue (lapis) on top.
+* Tests: `tests/unit/autosave_test.cpp`, `tests/scenarios/autosave.txt` (screenshots of the screens; it reads the
+  real `saves/` slots in Load Game, never clicks one).
+

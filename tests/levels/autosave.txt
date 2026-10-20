@@ -1,0 +1,4 @@
+; Autosave (tests/unit/autosave_test.cpp, plan autosave): the exit (col 4) right by the entrance.
+########
+#S..E..#
+########

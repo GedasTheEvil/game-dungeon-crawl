@@ -93,6 +93,10 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().ui.inventory->SelectedPosition());
 	case Field::Records:
 		return static_cast<float>(Game().leaderboard.Records().size());
+	case Field::Deaths:
+		return static_cast<float>(Game().player->stats.run.deaths);
+	case Field::DeathScreen:
+		return Game().ui.screen == Screen::Death ? 1.f : 0.f;
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:

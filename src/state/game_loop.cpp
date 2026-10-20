@@ -98,8 +98,10 @@ void tick() {
 
 void Update() {
 	tick();
-	if (Game().cacheLoaded)
+	if (Game().cacheLoaded) {
 		Game().ui.winEntry.Follow();
+		Game().ui.death.Follow();
+	}
 	if (Game().cacheLoaded)
 		Game().ApplyWorldEvents();
 }

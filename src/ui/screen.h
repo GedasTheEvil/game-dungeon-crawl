@@ -12,6 +12,7 @@ enum class Screen : std::uint8_t {
 	Riddle,
 	Journal,
 	Skills, // Heka: the skills bought with the bosses' heka
+	Death, // after the death clip, over the dimmed game (plan autosave, DeathScreen)
 	Gameplay,
 };
 

@@ -88,6 +88,12 @@ bool Dungeon::PlayerSafe() const {
 	return true;
 }
 //======================================================================================
+bool Dungeon::PlayerInDanger() const {
+	const Player& player = *sim.player;
+	return player.stats.poison.Any() || player.burning.Any() || PlayerHeldBy() != nullptr || PlayerOnLadder() ||
+		   player.jump.jumping || player.jump.falling || Travelling();
+}
+//======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
 // free floor cell beside it; lost if there is none (a kill over a pit or a trap).
 void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {

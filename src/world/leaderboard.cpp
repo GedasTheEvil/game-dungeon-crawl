@@ -75,7 +75,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		r.slain.emplace_back(key.substr(std::string(SLAIN_KEY).size()), number);
 	else if (key.rfind(POTION_KEY, 0) == 0)
 		r.potions.emplace_back(key.substr(std::string(POTION_KEY).size()), number);
-	const std::array<std::pair<const char*, int*>, 15> ints = {{
+	const std::array<std::pair<const char*, int*>, 16> ints = {{
 		{"time_ms", &r.playMs},
 		{"xp", &r.xp},
 		{"player_level", &r.playerLevel},
@@ -91,6 +91,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		{"biggest_hit", &r.biggestHit},
 		{"poisoned", &r.poisoned},
 		{"cursed", &r.cursed},
+		{"deaths", &r.deaths},
 	}};
 	for (const auto& [name, field] : ints)
 		if (key == name)
@@ -134,6 +135,7 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.biggestHit = run.biggestHit;
 	r.poisoned = run.poisoned;
 	r.cursed = run.cursed;
+	r.deaths = run.deaths;
 	return r;
 }
 
@@ -243,6 +245,7 @@ void writeRecord(std::ostream& out, const RunRecord& r) {
 		<< "biggest_hit=" << r.biggestHit << '\n'
 		<< "poisoned=" << r.poisoned << '\n'
 		<< "cursed=" << r.cursed << '\n'
+		<< "deaths=" << r.deaths << '\n'
 		<< "level_ms=" << list(r.levelMs, [](int ms) { return std::to_string(ms); }) << '\n';
 	for (const auto& [kind, count] : r.slain)
 		out << SLAIN_KEY << kind << '=' << count << '\n';

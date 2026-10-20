@@ -39,17 +39,23 @@ enum class WorldSound : unsigned char {
 enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged };
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
+// A safe moment for the autosave (plan autosave): the app writes it, unless the player is in danger then
+// (Dungeon::PlayerInDanger; a level start is always safe).
+enum class AutosaveMoment : unsigned char { LevelStart, Riddle, Boss };
+
 // What the world, the monsters and the player tell the app: it drains the list at fixed points (after the input
 // actions, at the end of the tick) and plays the sound, shows the status line, writes the field note or opens the
-// riddle (or a name gate's scroll). The world does not reach into the sound bank or the screens.
+// riddle (or a name gate's scroll), or writes the autosave. The world does not reach into the sound bank or the
+// screens.
 struct WorldEvent {
-	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, AskName, CharacterSound };
+	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, AskName, CharacterSound, Autosave };
 	Kind kind;
 	WorldSound sound = WorldSound::ArrowHit;
 	FieldNote note = FieldNote::Health;
 	std::string text; // Status
 	CharacterSound character = CharacterSound::Die;
 	int who = PLAYER_CHARACTER; // CharacterSound: a MonsterTypeId, or the player
+	AutosaveMoment moment = AutosaveMoment::LevelStart; // Autosave
 };
 
 class WorldEvents {
@@ -63,6 +69,9 @@ class WorldEvents {
 	void AskRiddle() { list.push_back({WorldEvent::Kind::AskRiddle, {}, {}, {}}); }
 	// A name gate (plan secret-name-gates): the scroll asks for the level's name.
 	void AskName() { list.push_back({WorldEvent::Kind::AskName, {}, {}, {}}); }
+	void Autosave(AutosaveMoment moment) {
+		list.push_back({WorldEvent::Kind::Autosave, {}, {}, {}, {}, PLAYER_CHARACTER, moment});
+	}
 	// The events since the last call, oldest first; the list is empty after.
 	[[nodiscard]] std::vector<WorldEvent> Take();
 

@@ -106,6 +106,7 @@ void Dungeon::updateBoss() {
 			sim.events->Note(FieldNote::Heka);
 		} else
 			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");
+		sim.events->Autosave(AutosaveMoment::Boss); // plan autosave
 		return;
 	}
 	const BossRules& rules = boss.Type()->boss;

@@ -119,6 +119,8 @@ const char* screenName() {
 		return "skills";
 	case Screen::Gameplay:
 		return "gameplay";
+	case Screen::Death:
+		return "death";
 	}
 	return "?";
 }
@@ -535,6 +537,10 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	}
+	case CommandType::Autosave: // as at a level start (plan autosave), into the output directory
+		Game().Autosave(AutosaveMoment::LevelStart);
+		report(cmd, Game().HasAutosave(), "");
+		return true;
 	case CommandType::Quit:
 		report(cmd, true, "");
 		finish(EXIT_OK);
@@ -694,6 +700,7 @@ void Scenario::runPlaySetup() {
 		runInstant(gRunner.script.commands[i]);
 		Game().ApplyWorldEvents();
 	}
+	Game().Autosave(AutosaveMoment::LevelStart); // plan autosave: the death screen's retry starts here
 	for (const std::string& failure : gRunner.failures)
 		fprintf(stderr, "play setup: %s\n", failure.c_str());
 }

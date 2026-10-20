@@ -24,7 +24,7 @@ LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/inscriptions.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp \
-	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp \
+	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp src/state/save_slots.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp src/world/run_stats.cpp src/world/leaderboard.cpp
 LEVEL_LIB_HEADERS=src/core/gameplay_config.h src/world/rgb.h src/world/movement.h src/world/spike_cycle.h src/world/rng.h src/world/damage.h src/world/decor.h src/world/containers.h src/input/input.h src/world/interaction.h
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts

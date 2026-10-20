@@ -6,13 +6,11 @@
 class EndScreens {
   private:
 	Texture win;
-	Texture lose;
 	void DrawQuad(float sx, float sy);
 
   public:
 	EndScreens();
 	void DrawWin();
-	void DrawLose();
 };
 
 #endif

@@ -15,6 +15,8 @@
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
 #include "../core/paths.h"
+#include "../test/scenario.h"
+#include <sstream>
 
 namespace {
 std::unique_ptr<GameState> gGame;
@@ -176,6 +178,9 @@ void GameState::ApplyWorldEvents() {
 			ui.riddle->Ask();
 			ui.screen = Screen::Riddle;
 			break;
+		case WorldEvent::Kind::Autosave:
+			Autosave(event.moment);
+			break;
 		case WorldEvent::Kind::AskName: // plan secret-name-gates
 			if (const RoyalName* name = dungeon.LevelName()) {
 				ui.riddle->AskName(*name);
@@ -196,6 +201,48 @@ void GameState::NewGame() {
 	dungeon.LoadCampaignLevel(1);
 	dungeon.ClearWin();
 	player->Reanimate();
+	Autosave(AutosaveMoment::LevelStart);
+}
+//==============================================================
+// Scenarios never touch saves/: theirs lands in tests/out/<name>/.
+std::string GameState::AutosavePath() const {
+	return Scenario::active() ? Scenario::outputDir() + "/autosave.sav" : SaveSlots::AUTOSAVE;
+}
+
+bool GameState::HasAutosave() const { return SaveSlots::DescribeAutosave(AutosavePath()).used; }
+
+void GameState::Autosave(AutosaveMoment moment) {
+	if (!player->Alive() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
+		return;
+	Save(AutosavePath().c_str());
+	ui.autosaved.Show("Autosaved", GameClock::now());
+}
+
+void GameState::LoadAutosave() {
+	LoadSave(AutosavePath().c_str());
+	ui.screen = Screen::Gameplay;
+	ui.menu.ResetSubScreens();
+	ui.menu.inGame = true;
+}
+
+// A load puts the saved count back, so the file learns the death now: a retry, or Continue after a restart, keeps it.
+void GameState::CountDeath() {
+	const int deaths = ++player->stats.run.deaths;
+	std::string text;
+	{
+		std::ifstream in(AutosavePath());
+		if (!in)
+			return;
+		std::stringstream all;
+		all << in.rdbuf();
+		text = all.str();
+	}
+	if (!RunStats::SetDeaths(text, deaths)) {
+		LOG_WARNING("game", "The autosave has no run statistics: its deaths stay");
+		return;
+	}
+	std::ofstream out(AutosavePath());
+	out << text;
 }
 //==============================================================
 void GameState::ApplySettings(bool save) {

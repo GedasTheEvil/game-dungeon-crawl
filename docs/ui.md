@@ -19,7 +19,8 @@ parts below instead of drawing their own.
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
-| Win / death screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`, `ui/dead.png`) in the 3D scene, not the shared look |
+| Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/autosave.md)) | 160 x 100, over the dimmed game |
+| Win screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`) in the 3D scene, not the shared look |
 
 Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
 without GL is `src/ui/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
@@ -88,7 +89,9 @@ riddle.
 `GOLD` corner studs. The main container of a screen. Standard rects:
 
 * Menu buttons: `{46, 19, 68, 64}`
-* Save / Load slots: `{12, 22, 136, 62}`
+* Save slots: `{12, 22, 136, 62}`; Load: `{12, 20, 136, 65}` (the autosave across the top, the slots 12.5 high under it)
+* Main menu with Continue (seven buttons): `{46, 10, 68, 74}`
+* Death screen: `{46, 28, 68, 38}`, two 56 x 9 buttons
 * Options: `{6, 20, 148, 64}`
 * Inventory items `{4, 13, 92, 72}` + details `{100, 13, 56, 72}`
 
@@ -175,6 +178,8 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
   (`"Click a slot to load    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
+* Over the game, "Autosaved" ([autosave](plan/autosave.md)) is such a toast too: `hudBody` `GOLD` with a black
+  shadow, top left on the HUD's canvas (`drawAutosaved`, `graphics/draw.cpp`).
 
 ### Interact prompt
 

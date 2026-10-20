@@ -7,6 +7,18 @@
 
 namespace {
 constexpr const char* NAME_LIST = "saves/gamelist.dat";
+
+// The file's date and time; false if there is no file.
+bool fileTime(const std::string& path, std::string& when) {
+	struct stat st = {};
+	if (stat(path.c_str(), &st) != 0)
+		return false;
+	time_t t = st.st_mtime;
+	char text[40];
+	std::strftime(text, sizeof(text), "%d %b %Y, %H:%M", std::localtime(&t));
+	when = text;
+	return true;
+}
 } // namespace
 
 std::string SaveSlots::FileName(int slot) { return "saves/save" + std::to_string(slot) + ".sav"; }
@@ -41,15 +53,21 @@ void SaveSlots::writeNames() const {
 // The name gives the level; the file time gives the full date.
 SaveSlots::Info SaveSlots::Describe(int slot) const {
 	Info info;
-	struct stat st = {};
-	if (stat(FileName(slot).c_str(), &st) != 0)
+	if (!fileTime(FileName(slot), info.when))
 		return info;
 	info.used = true;
 	if (std::sscanf(names[static_cast<size_t>(slot)].c_str(), "%d_", &info.level) != 1)
 		info.level = 0;
-	time_t t = st.st_mtime;
-	char when[40];
-	std::strftime(when, sizeof(when), "%d %b %Y, %H:%M", std::localtime(&t));
-	info.when = when;
+	return info;
+}
+
+SaveSlots::Info SaveSlots::DescribeAutosave(const std::string& path) {
+	Info info;
+	if (!fileTime(path, info.when))
+		return info;
+	info.used = true;
+	std::ifstream f(path);
+	if (!(f >> info.level))
+		info.level = 0;
 	return info;
 }

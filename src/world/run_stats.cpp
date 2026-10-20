@@ -64,6 +64,7 @@ void RunStats::Dump(std::ostream& out) const {
 	for (int ms : levelMs)
 		out << ' ' << ms;
 	out << "\nNAMES " << nameSeed << '\n';
+	out << "DEATHS " << deaths << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -99,5 +100,32 @@ void RunStats::LoadDump(std::istream& in) {
 		in.clear();
 		in.seekg(names);
 		nameSeed = 0;
+		return;
 	}
+	// From the autosave on (plan autosave).
+	const auto deathsAt = in.tellg();
+	if (!(in >> tag) || tag != "DEATHS" || !(in >> deaths)) {
+		in.clear();
+		in.seekg(deathsAt);
+		deaths = 0;
+	}
+}
+
+bool RunStats::SetDeaths(std::string& save, int count) {
+	const std::string line = "DEATHS " + std::to_string(count) + '\n';
+	size_t at = save.find("\nDEATHS ");
+	if (at != std::string::npos) {
+		const size_t end = save.find('\n', at + 1);
+		save.replace(at + 1, end == std::string::npos ? std::string::npos : end - at, line);
+		return true;
+	}
+	at = save.find("\nNAMES ");
+	if (at == std::string::npos)
+		return false;
+	const size_t end = save.find('\n', at + 1);
+	if (end == std::string::npos)
+		save += '\n' + line;
+	else
+		save.insert(end + 1, line);
+	return true;
 }

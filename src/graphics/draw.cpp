@@ -10,6 +10,7 @@
 #include "../ui/boss_bar.h"
 #include "../ui/status_box.h"
 #include "../ui/interact_prompt.h"
+#include "../ui/ui_draw.h"
 #include "../input/input_actions.h"
 #include "lighting.h"
 #include "ink.h"
@@ -79,6 +80,20 @@ void drawWeapon() { // in the fist nearer the camera
 	weapon->rotA = spin;
 }
 
+// "Autosaved" (plan autosave): small, top left, fading out as the screens' toasts do.
+void drawAutosaved() {
+	const float alpha = Game().ui.autosaved.Alpha(GameClock::now());
+	if (alpha <= 0.f)
+		return;
+	ui::beginSquareCanvas(ui::CANVAS_H, Game().render.resX, Game().render.resY);
+	ui::beginText();
+	Font& font = Game().assets.fonts.hudBody;
+	ui::text(font, 3.3f, 94.2f, "Autosaved", ui::BLACK, 0.6f * alpha); // shadow
+	ui::text(font, 3.f, 94.5f, "Autosaved", ui::GOLD, alpha);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	glColor3f(1, 1, 1);
+}
+
 void drawStatusLine() {
 	if (!Game().statusTimer.TimePassed(true))
 		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
@@ -117,6 +132,10 @@ void Draw() {
 		break;
 	case Screen::Gameplay:
 		drawGameplay();
+		break;
+	case Screen::Death:
+		drawGameplay();
+		Game().ui.death.Draw(Game().render.resX, Game().render.resY);
 		break;
 	}
 	glFlush();
@@ -202,13 +221,8 @@ void drawGameplay() {
 		Fire::body(playerX, playerY - sink, PLAYER_FLAMES_Z + Game().player->depthOffset,
 				   Game().player->HalfWidth() * RenderConfig::TILE_SIZE,
 				   Game().player->Height() * RenderConfig::TILE_SIZE, 1);
-	if (Game().player->Alive()) {
-		if (sunBeam)
-			SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
-	} else {
-		Lighting::setEmissive(true);
-		Game().ui.endScreens->DrawLose();
-	}
+	if (Game().player->Alive() && sunBeam)
+		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
 	Lighting::end();
 	Ink::end();
 	MotionFx::end(chest.x, chest.y);
@@ -261,6 +275,7 @@ void drawGameplay() {
 	glColor3f(1, 1, 1);
 
 	drawStatusLine();
+	drawAutosaved();
 	Game().ui.winEntry.Draw(Game().render.resX, Game().render.resY);
 }
 } // namespace

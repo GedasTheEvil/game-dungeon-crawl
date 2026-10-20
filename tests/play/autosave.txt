@@ -1,0 +1,6 @@
+# Plan autosave, for `bin/game --play tests/play/autosave.txt`: tests/levels/autosave_play at 10 HP.
+# "Autosaved" shows at the start (top left). Answer the riddle gate (col 4): autosaved again. Walk on: the rats
+# kill you; after the death clip the death screen offers Retry from Autosave (back at the riddle, 10 HP) or Main
+# Menu (Continue there loads the same).
+level tests/levels/autosave_play
+hurt 40

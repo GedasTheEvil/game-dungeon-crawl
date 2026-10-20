@@ -4,10 +4,7 @@
 #include "../state/game_state.h"
 #include "../core/paths.h"
 
-EndScreens::EndScreens() {
-	win.LoadPNG(MEDIA_DIR "textures/ui/win.png", TexFilter::Flat);
-	lose.LoadPNG(MEDIA_DIR "textures/ui/dead.png", TexFilter::Flat);
-}
+EndScreens::EndScreens() { win.LoadPNG(MEDIA_DIR "textures/ui/win.png", TexFilter::Flat); }
 
 void EndScreens::DrawQuad(float sx, float sy) {
 	glBegin(GL_QUADS);
@@ -35,24 +32,6 @@ void EndScreens::DrawWin() {
 	glTranslatef(0, 20, 0);
 
 	win.Bind();
-	DrawQuad(60, 40);
-	glPopMatrix();
-
-	glDisable(GL_BLEND);
-}
-
-void EndScreens::DrawLose() {
-	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glEnable(GL_BLEND);
-
-	glPushMatrix();
-
-	glRotatef(-Game().camera.rotN, 1, 0, 0);
-	glRotatef(-Game().camera.rotM, 0, 1, 0);
-
-	glTranslatef(0, 20, 0);
-
-	lose.Bind();
 	DrawQuad(60, 40);
 	glPopMatrix();
 

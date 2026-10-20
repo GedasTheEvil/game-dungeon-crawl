@@ -312,6 +312,7 @@ void RecordsView::drawDetail(Font& heading, Font& small) const {
 		{false, "Biggest hit", value(r.biggestHit)},
 		{false, "Times poisoned", value(r.poisoned)},
 		{false, "Times cursed", value(r.cursed)},
+		{false, "Deaths", value(r.deaths)},
 	};
 	std::vector<DetailLine> found = {
 		{true, "Explored (" + value(explorationScore(r)) + ")", ""},

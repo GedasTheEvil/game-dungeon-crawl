@@ -321,6 +321,8 @@ bool pressBinding(BindAction action) {
 			return false;
 		if (screen == Screen::Gameplay && Game().dungeon.PlayerHeldBy() != nullptr)
 			return true; // held: no screen, as no drink
+		if (screen == Screen::Gameplay && !Game().player->Alive())
+			return true; // the death screen comes up
 		if (screen == Screen::Gameplay && PlayerActionController::insane()) {
 			Game().ApplyWorldEvents();
 			return true;
@@ -372,6 +374,10 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	if (ScreenState::ShouldRouteKeyboardToRiddle(Game())) {
 		Game().ui.riddle->KeyboardF(key, x, y);
+		return;
+	}
+	if (Game().ui.screen == Screen::Death) {
+		Game().ui.death.KeyPressed(key);
 		return;
 	}
 	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) {
@@ -430,6 +436,10 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().ui.menu.CaptureKey(InputKey::Special(key));
 		return;
 	}
+	if (Game().ui.screen == Screen::Death) {
+		Game().ui.death.SpecialKeyPressed(key);
+		return;
+	}
 	if (Game().ui.screen == Screen::Menu)
 		Game().ui.menu.SpecialKeyPressed(key);
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
@@ -485,6 +495,10 @@ void processMouse(int button, int state, int x, int y) {
 		Game().ui.menu.MouseFunction(button, state, x, y);
 		return;
 	}
+	if (Game().ui.screen == Screen::Death) {
+		Game().ui.death.MouseFunction(button, state, x, y);
+		return;
+	}
 
 	// A held action (walk, sprint) lets go on every screen, like its key.
 	std::optional<BindAction> action = bound(InputKey::Mouse(button));
@@ -520,6 +534,12 @@ void processMousePassiveMotion(int a, int b) {
 		Game().ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
+	if (Game().ui.screen == Screen::Death) {
+		Game().ui.death.MouseMotion(a, b);
+		lastMx = a; // no camera jump on the retry
+		lastMy = b;
+		return;
+	}
 	if (ScreenTabs::Has(Game().ui.screen))
 		ScreenTabs::Motion(a, b);
 
@@ -550,6 +570,10 @@ void processMousePassiveMotion(int a, int b) {
 void processMouseActiveMotion(int a, int b) {
 	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
 		Game().ui.menu.MouseDrag(a, b);
+		return;
+	}
+	if (Game().ui.screen == Screen::Death) {
+		Game().ui.death.MouseMotion(a, b);
 		return;
 	}
 	if (ScreenTabs::Has(Game().ui.screen))

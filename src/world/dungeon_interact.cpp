@@ -305,9 +305,10 @@ void Dungeon::updateTravel() {
 	if (GameClock::now() - travel.startMs < GATE_TRAVEL_FADE_MS)
 		return;
 	if (travel.phase == GateTravel::Phase::Out) {
-		if (travel.exit)
-			LoadCampaignLevel(levelNumber + 1);
-		else
+		if (travel.exit) {
+			if (LoadCampaignLevel(levelNumber + 1))
+				sim.events->Autosave(AutosaveMoment::LevelStart); // plan autosave
+		} else
 			Teleport();
 		travel.phase = GateTravel::Phase::In;
 		travel.startMs = GameClock::now();

@@ -226,6 +226,8 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/unit/interact_test.cpp`: the interact verb of every usable cell (`tests/levels/interact`), the key doing
   something exactly when there is one, a mimic waking on the key or a hit and not on coming near, the inscription
   glint. `tests/scenarios/solved/interact_prompt.txt`: the prompt and the glint, screenshots.
+- `tests/unit/autosave_test.cpp`: the exit right by the entrance (`tests/levels/autosave`) asks for the autosave at
+  the next level's start. `tests/levels/autosave_play`: a riddle gate and two rats, for `tests/play/autosave.txt`.
 - `tests/scenarios/solved/anubis_bolt.txt`: the Anubis walks up and shoots its red bolt from afar, then hits up close.
 - `tests/scenarios/solved/mummy.txt`: a mummy in its coffin: no health bar, wakes 1.6 tiles away, climbs out (rise clip),
   strikes, dies; the empty coffin stays.

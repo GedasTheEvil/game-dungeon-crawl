@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <istream>
 #include <ostream>
+#include <string>
 #include <vector>
 
 // What the run did from New Game on (plan leaderboard): the leaderboard records it at the win. Kept in PlayerStats, so
@@ -23,6 +24,7 @@ class RunStats {
 	int biggestHit = 0; // the most HP one hit of the player's took
 	int poisoned = 0; // poisonings that took (a warded one does not count)
 	int cursed = 0; // curses laid, also one laid again while it runs
+	int deaths = 0; // counted at the death, also written into the autosave then (plan autosave)
 	// Picks each level's royal name and its cartouche picture (plan secret-name-gates, names.h); New Game rolls it.
 	uint32_t nameSeed = 0;
 
@@ -37,10 +39,13 @@ class RunStats {
 	[[nodiscard]] int PlayMs() const;
 	[[nodiscard]] const std::vector<int>& LevelMs() const { return levelMs; } // [level - 1]: time in play there
 
-	// "RUN ..." and "NAMES seed" lines after the player stats; a save without them (or broken) leaves a fresh,
-	// non-campaign run (seed 0).
+	// "RUN ...", "NAMES seed" and "DEATHS n" lines after the player stats; a save without them (or broken) leaves a
+	// fresh, non-campaign run (seed 0, no deaths).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
+	// A save game's text with its "DEATHS" line set to `count` (plan autosave: a death rewrites the autosave's count,
+	// the rest stays). An old save without the line gets one after its "NAMES" line; false if it has neither.
+	[[nodiscard]] static bool SetDeaths(std::string& save, int count);
 
   private:
 	std::array<int, MONSTER_TYPE_MAX + 1> slain{}; // by MonsterTypeId

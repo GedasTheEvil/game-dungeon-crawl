@@ -152,14 +152,17 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 
 | Term | In game | Meaning | Code |
 |---|---|---|---|
+| autosave | Autosave | the one save the game writes itself at safe moments (a level start, a riddle answered, a boss slain), never while the player is in danger; `saves/autosave.sav`, read-only for the player ([autosave](plan/autosave.md)) | `GameState::Autosave`, `SaveSlots::AUTOSAVE`, `AutosaveMoment` |
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
+| death screen | You died | the panel over the dimmed game after the death clip: Retry from Autosave, Main Menu | `DeathScreen`, `Screen::Death` |
+| deaths | Deaths | a run's deaths, counted at the death and written into the autosave then, so a retry keeps them | `RunStats::deaths` |
 | exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 | `explorationScore` |
 | Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
 | play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |
 | placeholder row | Spirit of Exploration | the empty board's one row, never written to the file | `placeholderRecord` |
 | name list | | the royal names of the name gates, `content/names/*.txt` ([names](names.md)); each run gives every level its own (the run's name seed) | `NameList`, `RoyalName`, `RunStats::nameSeed` |
-| run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage, times poisoned and cursed), kept in the save | `RunStats` |
+| run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage, times poisoned and cursed, deaths), kept in the save | `RunStats` |
 | win entry | | the name field over the won game; Enter records the run, Esc skips | `WinEntry` |
 
 ## Tooling

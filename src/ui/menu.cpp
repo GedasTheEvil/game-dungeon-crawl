@@ -24,6 +24,7 @@ constexpr float CENTRE = CANVAS_W / 2;
 // ---- layout ----------------------------------------------------------------
 
 constexpr Rect MENU_PANEL = {46, 19, 68, 64};
+constexpr Rect TALL_MENU_PANEL = {46, 10, 68, 74}; // the main menu with Continue: seven buttons (plan autosave)
 constexpr float BUTTON_W = 56.f;
 constexpr float BUTTON_H = 9.f;
 constexpr float BUTTON_STEP = 11.5f;
@@ -35,6 +36,11 @@ constexpr float SLOT_H = 16.f;
 constexpr float SLOT_GAP_X = 4.f;
 constexpr float SLOT_GAP_Y = 3.5f;
 constexpr Rect BACK_BUTTON = {63, 9.5f, 34, 8};
+// Load Game (plan autosave): the autosave across the top, the six slots in the three rows under it, a little lower.
+constexpr Rect LOAD_PANEL = {12, 20, 136, 65};
+constexpr float LOAD_SLOT_H = 12.5f;
+constexpr float LOAD_GAP_Y = 2.5f;
+constexpr int AUTOSAVE_TARGET = SaveSlots::COUNT; // the click target after the slots'
 
 constexpr Rect OPTIONS_PANEL = {6, 20, 148, 64};
 constexpr float TAB_W = 30.f;
@@ -66,21 +72,30 @@ constexpr float SLIDER_VALUE_W = 9.f; // the number right of the slider
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
 constexpr Rect CREDITS_PANEL = {CREDITS_SHEET.x - 3, CREDITS_SHEET.y - 3, CREDITS_SHEET.w + 6, CREDITS_SHEET.h + 6};
 
+Rect menuPanel(int count) { return count > 6 ? TALL_MENU_PANEL : MENU_PANEL; }
+
 // The buttons sit in the middle of the panel; more of them are closer together.
 Rect buttonRect(int index, int count) {
-	float step = std::min(BUTTON_STEP, (MENU_PANEL.h - 2 * BUTTON_MARGIN - BUTTON_H) / static_cast<float>(count - 1));
-	float first = MENU_PANEL.cy() + step * static_cast<float>(count - 1) / 2 - BUTTON_H / 2;
+	const Rect panel = menuPanel(count);
+	float step = std::min(BUTTON_STEP, (panel.h - 2 * BUTTON_MARGIN - BUTTON_H) / static_cast<float>(count - 1));
+	float first = panel.cy() + step * static_cast<float>(count - 1) / 2 - BUTTON_H / 2;
 	return {CENTRE - BUTTON_W / 2, first - static_cast<float>(index) * step, BUTTON_W, BUTTON_H};
 }
 
-// Slots 1-3 in the left column, 4-6 in the right one, top to bottom.
-Rect slotRect(int slot) {
-	float x0 = SLOT_PANEL.cx() - SLOT_W - SLOT_GAP_X / 2;
-	float top = SLOT_PANEL.y + SLOT_PANEL.h - 4.f;
+// Slots 1-3 in the left column, 4-6 in the right one, top to bottom. Load Game: AUTOSAVE_TARGET over both columns,
+// the slots a row lower and lower.
+Rect slotRect(int slot, bool load) {
+	const Rect panel = load ? LOAD_PANEL : SLOT_PANEL;
+	const float h = load ? LOAD_SLOT_H : SLOT_H;
+	const float gap = load ? LOAD_GAP_Y : SLOT_GAP_Y;
+	float x0 = panel.cx() - SLOT_W - SLOT_GAP_X / 2;
+	float top = panel.y + panel.h - 4.f;
+	if (slot == AUTOSAVE_TARGET)
+		return {x0, top - h, 2 * SLOT_W + SLOT_GAP_X, h};
 	int column = slot / 3;
-	int row = slot % 3;
-	return {x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP_X),
-			top - SLOT_H - static_cast<float>(row) * (SLOT_H + SLOT_GAP_Y), SLOT_W, SLOT_H};
+	int row = slot % 3 + (load ? 1 : 0);
+	return {x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP_X), top - h - static_cast<float>(row) * (h + gap),
+			SLOT_W, h};
 }
 
 Rect tabRect(int tab) {
@@ -94,6 +109,7 @@ Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.re
 
 enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium };
 enum class MenuAction : std::uint8_t {
+	Continue,
 	NewGame,
 	Resume,
 	Journal,
@@ -115,6 +131,16 @@ struct MenuButton {
 
 constexpr std::array<MenuButton, 6> MAIN_BUTTONS = {{
 	{"New Game", Icon::Play, MenuAction::NewGame, true},
+	{"Load Game", Icon::Load, MenuAction::Load, false},
+	{"Hall of Records", Icon::Podium, MenuAction::Records, false},
+	{"Options", Icon::Gear, MenuAction::Options, false},
+	{"Credits", Icon::Ankh, MenuAction::Credits, false},
+	{"Exit", Icon::Exit, MenuAction::Quit, false},
+}};
+// With an autosave (plan autosave): Continue first, New Game under it.
+constexpr std::array<MenuButton, 7> CONTINUE_BUTTONS = {{
+	{"Continue", Icon::Play, MenuAction::Continue, true},
+	{"New Game", Icon::Pyramid, MenuAction::NewGame, false},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Hall of Records", Icon::Podium, MenuAction::Records, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
@@ -270,6 +296,8 @@ struct ButtonList {
 ButtonList menuButtons(bool inGame) {
 	if (inGame)
 		return {IN_GAME_BUTTONS.data(), static_cast<int>(IN_GAME_BUTTONS.size())};
+	if (Game().HasAutosave())
+		return {CONTINUE_BUTTONS.data(), static_cast<int>(CONTINUE_BUTTONS.size())};
 	return {MAIN_BUTTONS.data(), static_cast<int>(MAIN_BUTTONS.size())};
 }
 
@@ -485,8 +513,9 @@ void MainMenu::DrawBackground(const char* caption) {
 	panel(recordsD	 ? records.Panel()
 		  : creditsD ? CREDITS_PANEL
 		  : optionsD ? OPTIONS_PANEL
-		  : wide	 ? SLOT_PANEL
-					 : MENU_PANEL,
+		  : loadD	 ? LOAD_PANEL
+		  : saveD	 ? SLOT_PANEL
+					 : menuPanel(menuButtons(inGame).count),
 		  0.9f);
 }
 
@@ -511,47 +540,60 @@ void MainMenu::DrawButtons() {
 }
 
 void MainMenu::DrawSlots() {
+	if (loadD)
+		DrawSlot(AUTOSAVE_TARGET);
 	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
 		DrawSlot(slot);
 }
 
+// A save slot, or the autosave (AUTOSAVE_TARGET) in Load Game. The text sits as on the Save Game's taller tiles,
+// scaled to the tile.
 void MainMenu::DrawSlot(int slot) {
-	SaveSlots::Info info = Game().saves.Describe(slot);
+	const bool autosave = slot == AUTOSAVE_TARGET;
+	SaveSlots::Info info = autosave ? SaveSlots::DescribeAutosave(Game().AutosavePath()) : Game().saves.Describe(slot);
 	bool enabled = saveD || info.used;
 	bool isHovered = enabled && hovered == slot;
 	bool held = isHovered && pressed == slot;
 	TileStyle style = !enabled ? TileStyle::Disabled : TileStyle::Stone;
-	Rect r = tile(slotRect(slot), style, isHovered, held);
+	Rect r = tile(slotRect(slot, loadD), style, isHovered, held);
+	const float k = r.h / SLOT_H;
 
-	// Slot number on a lapis seal when the slot holds a save.
-	Rect well = iconWell(r, 2.f);
+	// Slot number (the autosave: an ankh) on a lapis seal when the slot holds a save.
+	Rect well = iconWell(r, 2.f * k);
 	if (info.used)
 		fillRect(well, isHovered ? LAPIS_HOVER_TOP : LAPIS, isHovered ? LAPIS_HOVER_BOTTOM : LAPIS_DARK, 1.f);
 	else
 		fillRect(well, WELL, WELL, 0.9f);
 	strokeRect(well, info.used ? GOLD : BRONZE, 1.f, info.used ? 1.5f : 1.f);
+	if (autosave)
+		drawIcon(Icon::Ankh, well.cx(), well.cy(), well.h * 0.3f, info.used ? GOLD : LABEL_DIM);
 
 	float textX = well.x + well.w + 3.5f;
 	if (info.used) // divider between the level and the date
-		line(textX, r.y + 7.4f, r.x + r.w - 3.f, r.y + 7.4f, BRONZE, 1.f, 1.f);
+		line(textX, r.y + 7.4f * k, r.x + r.w - 3.f, r.y + 7.4f * k, BRONZE, 1.f, 1.f);
 
 	beginText();
-	char number[12];
-	std::snprintf(number, sizeof(number), "%d", slot + 1);
-	textCentered(title, well.cx(), well.y + 2.2f, number, info.used ? GOLD : LABEL_DIM);
+	if (!autosave) {
+		char number[12];
+		std::snprintf(number, sizeof(number), "%d", slot + 1);
+		textCentered(title, well.cx(), well.y + 2.2f * k, number, info.used ? GOLD : LABEL_DIM);
+	}
 
 	if (info.used) {
-		char level[24] = "Saved game";
-		if (info.level > 0)
+		char level[40] = "Saved game";
+		if (autosave)
+			std::snprintf(level, sizeof(level), info.level > 0 ? "Autosave, level %d" : "Autosave", info.level);
+		else if (info.level > 0)
 			std::snprintf(level, sizeof(level), "Level %d", info.level);
-		text(heading, textX, r.y + 8.8f, level, isHovered ? GOLD_BRIGHT : GOLD);
-		text(body, textX, r.y + 3.f, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
+		text(heading, textX, r.y + 8.8f * k, level, isHovered ? GOLD_BRIGHT : GOLD);
+		text(body, textX, r.y + 3.f * k, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
 		if (saveD && isHovered) {
 			const char* overwrite = "Overwrite";
-			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f, overwrite, {0.9f, 0.45f, 0.3f});
+			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f * k, overwrite, {0.9f, 0.45f, 0.3f});
 		}
 	} else {
-		text(heading, textX, r.y + 5.6f, "Empty slot", isHovered ? GOLD_BRIGHT : LABEL_DIM);
+		text(heading, textX, r.y + 5.6f * k, autosave ? "No autosave yet" : "Empty slot",
+			 isHovered ? GOLD_BRIGHT : LABEL_DIM);
 	}
 	beginShapes();
 }
@@ -766,8 +808,10 @@ int MainMenu::TargetAt(int x, int y) {
 	}
 	if (saveD || loadD) {
 		for (int slot = 0; slot < SaveSlots::COUNT; slot++)
-			if (slotRect(slot).contains(cx, cy))
+			if (slotRect(slot, loadD).contains(cx, cy))
 				return saveD || Game().saves.Describe(slot).used ? slot : NONE;
+		if (loadD && slotRect(AUTOSAVE_TARGET, true).contains(cx, cy))
+			return Game().HasAutosave() ? AUTOSAVE_TARGET : NONE;
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	int count = menuButtons(inGame).count;
@@ -805,6 +849,10 @@ void MainMenu::Activate(int target) {
 		ShowToast("Saved to slot " + std::to_string(target + 1));
 		return;
 	}
+	if (loadD && target == AUTOSAVE_TARGET) {
+		Game().LoadAutosave();
+		return;
+	}
 	if (loadD) {
 		Game().LoadSave(SaveSlots::FileName(target).c_str());
 		ResetSubScreens();
@@ -814,6 +862,9 @@ void MainMenu::Activate(int target) {
 	}
 
 	switch (menuButtons(inGame)[target].action) {
+	case MenuAction::Continue:
+		Game().LoadAutosave();
+		break;
 	case MenuAction::NewGame:
 		Game().ui.screen = Screen::Gameplay;
 		Game().NewGame();

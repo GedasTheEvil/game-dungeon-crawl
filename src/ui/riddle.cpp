@@ -241,6 +241,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			Game().journal.Solve(journalIndex, late, answer);
 			Game().player->stats.run.riddles++;
 			Game().player->stats.AddXP(reward, Game().events);
+			Game().Autosave(AutosaveMoment::Riddle); // plan autosave
 			if (late) {
 				Game().ui.screen = Screen::Journal;
 				Game().ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");

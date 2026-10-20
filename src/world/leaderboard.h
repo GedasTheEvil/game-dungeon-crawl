@@ -39,6 +39,7 @@ struct RunRecord {
 	int biggestHit = 0;
 	int poisoned = 0;
 	int cursed = 0;
+	int deaths = 0; // plan autosave; 0 in a record from before it
 	bool placeholder = false; // the empty board's "Spirit of Exploration", never written
 
 	[[nodiscard]] int SlainTotal() const;

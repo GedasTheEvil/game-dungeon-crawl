@@ -20,6 +20,8 @@
 #include "../ui/menu.h"
 #include "../ui/end_screens.h"
 #include "../ui/win_entry.h"
+#include "../ui/death_screen.h"
+#include "../ui/ui_layout.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
 #include "../ui/skills_view.h"
@@ -64,6 +66,8 @@ struct UIContext {
 	JournalScreen journal;
 	SkillsScreen skills;
 	ScreenTabsState tabs;
+	DeathScreen death; // after the death clip: Retry from Autosave or Main Menu (plan autosave)
+	ui::Toast autosaved; // "Autosaved" over the game
 };
 
 class GameState {
@@ -95,6 +99,14 @@ class GameState {
 	void Save(const char filename[]);
 	void LoadSave(const char filename[]);
 	void NewGame();
+	// The autosave (plan autosave): SaveSlots::AUTOSAVE, a scenario's in its output directory.
+	[[nodiscard]] std::string AutosavePath() const;
+	[[nodiscard]] bool HasAutosave() const;
+	// A safe moment: writes the autosave and shows "Autosaved". Skipped (the old one stays) while the player is dead or
+	// in danger (Dungeon::PlayerInDanger); a level start is always written.
+	void Autosave(AutosaveMoment moment);
+	void LoadAutosave(); // into the game: the screen is the gameplay
+	void CountDeath(); // the player just died: one more death, in the autosave's file too
 	// Hands the graphics and sound choices to the renderer and the mixer; with `save`, writes the file too.
 	void ApplySettings(bool save);
 	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);

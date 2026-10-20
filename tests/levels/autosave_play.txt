@@ -1,0 +1,5 @@
+; Autosave play-test (tests/play/autosave.txt, plan autosave): a riddle gate (col 4), a rat (col 10) and a giant
+; rat (col 14) on the way to the exit (col 20).
+######################
+#S..?.....t...T.....E#
+######################

@@ -63,6 +63,7 @@ enum class CommandType : unsigned char {
 	Curse,
 	Campaign,
 	SpeakName,
+	Autosave,
 	Quit,
 };
 
@@ -113,7 +114,9 @@ enum class Field : unsigned char {
 	Heka,
 	Skills,
 	Curses,
-	Records
+	Records,
+	Deaths,
+	DeathScreen
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

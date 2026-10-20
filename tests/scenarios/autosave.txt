@@ -1,0 +1,57 @@
+# Plan autosave: the death screen (Retry greyed without an autosave), Retry from Autosave back at the autosave with
+# its HP and items, the deaths counter across the retry, the autosave first in Load Game, Continue in the main menu.
+level tests/levels/classic1
+wait 5
+hurt 9999
+expect alive == 0
+wait 40
+expect death_screen == 0
+wait 50
+expect death_screen == 1
+expect deaths == 1
+screenshot death_no_autosave
+# Back to life, an autosave with one small health potion; then hurt, a second potion and a death.
+level tests/levels/classic1
+wait 5
+give potion 0
+autosave
+expect deaths == 1
+dump
+hurt 10
+give potion 0
+expect potion0 == 2
+hurt 9999
+wait 90
+expect death_screen == 1
+expect deaths == 2
+screenshot death
+click 50 46.5
+wait 2
+expect death_screen == 0
+expect alive == 1
+expect deaths == 2
+expect potion0 == 1
+dump
+# The autosave first in Load Game.
+key esc
+wait 2
+click 50 45.9
+wait 2
+screenshot load_screen
+key esc
+wait 2
+key esc
+wait 2
+# Esc on the death screen: the main menu, with Continue on top.
+hurt 9999
+wait 90
+expect death_screen == 1
+key esc
+wait 2
+screenshot main_menu_continue
+click 50 77.5
+wait 2
+expect alive == 1
+expect deaths == 3
+expect potion0 == 1
+dump

@@ -80,12 +80,12 @@ ahead, a dart trap, a hidden treasure room, the order of the locks). Levels 6, 8
 cartouche (`:`) elsewhere on the level, and the sealed room carved into the rock, reached only by the name gate: its
 teleporter, a lore inscription (ids 33 to 45, two with a boon), a chest with a rare potion or an amulet (two in some),
 a mummy guarding it in 14, 21, 26 and 30. Weak monsters give way to their giant kin: no rats, scarabs or small bats
-after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10). The sources of all levels are ASCII drawings in `tools/level/campaign/`
-(see [Test levels from ASCII](#test-levels-from-ascii)). Rebuild one with
-`python3 tools/level/ascii2level.py tools/level/campaign/lvl9.txt content/levels/lvl9`.
-Some level files have edits the drawings lack (the Blessing of Hapi potions, the cursed mimics, the hippo in 23): a
-rebuild drops them, so put them in the drawing first. To see them, build the drawing into a temporary file and
-`diff` it with the level file.
+after level 9, no small scarabs after level 5 (giant scarabs from 6), except a boss's minions (the vampire bat's bats in 10).
+
+The level files in `content/levels/` are the only source of truth. The ASCII drawings in `tools/level/campaign/` were
+the first helpers for each level and are not kept in step: never rebuild a campaign level from them. Change a level in
+its file (by hand or in the editor). A drawing is a start for a new level only ([Test levels from
+ASCII](#test-levels-from-ascii)); once built, the level file is the one to edit.
 
 ## levelcheck: validate and rank
 

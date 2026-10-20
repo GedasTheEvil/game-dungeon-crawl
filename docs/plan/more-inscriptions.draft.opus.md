@@ -17,8 +17,8 @@ off the early ones.
   (`tests/unit/inscriptions_test.cpp`) and the sentence in `docs/inscriptions.md` and `docs/levels.md`.
 * Placement: levels 1-5 get inscriptions (suggested 1-2 each), the rest one or two more (suggested 2-3 per level).
   Same rules as in [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or
-  near the path; hints only, never needed. Edit the ASCII sources (`def` a free character to `15 ID 0`, check the
-  character is unused in that file) and rebuild with `tools/level/ascii2level.py`.
+  near the path; hints only, never needed. Edit the level files in `content/levels/` (an object `15 ID 0` on the cell, by
+  hand or in the editor), never the ASCII drawings: the level files are the source of truth.
 * Texts: new entries in `content/inscriptions/*.txt` with `G:` glyphs, then rebuild the atlas
   (`tools/textures/inscriptions.py`). Real texts (Pyramid Texts, Coffin Texts, the Shipwrecked Sailor, Sinuhe,
   Wenamun, workmen's ostraca from Deir el-Medina, the Amarna hymn to the Aten) and hints. Early-level hints suit

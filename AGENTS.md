@@ -45,6 +45,8 @@ These commands do not need confirmation to run
 Every campaign level must pass the level checker with no warnings (`bin/levelcheck content/levels/lvl*`).
 When a checker change flags a level, fix the level, also the hand-made levels 1 to 5. Manual placement is no reason
 to keep a warning.
+The level files (`content/levels/`) are the source of truth. The drawings in `tools/level/campaign/` are old helpers,
+never rebuild a level from them: that drops what was added since.
 
 ## Boss abilities
 When a base monster gets a new ability (jump, ranged attack, swimming, ...), its boss gets one too (the boss whose

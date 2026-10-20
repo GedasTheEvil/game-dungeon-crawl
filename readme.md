@@ -38,6 +38,24 @@ rooms. A boss guards every fifth level: Khepri, the mother of the scarabs, a vam
 scorpion queen, the serpent Apep, Sobek the crocodile god and Anubis himself, whose living statues step out of the
 walls. The High Priest of Anubis waits on the level before him. The ankh behind Anubis wins the game.
 
+**Grow stronger, learn Heka.** Kills, riddles and read inscriptions give experience; a new level brings more health
+and stamina. Each slain boss gives a heka to spend on the Heka screen (`K`): the old magic of the gods, such as
+Dodge, the Favour of Hapi in the water, Serket's favour against poison, the Blessing of Isis against curses, or
+flaming arrows.
+
+**Read the walls.** Hieroglyph inscriptions are copied into the journal. With the Words of Thoth skill you can read
+them: lore, hints, now and then a lasting gift to your strength. A royal name carved in a cartouche opens a sealed
+name gate to a secret room, if you can read it.
+
+**Curses, poison and fire.** Mummies, priests and some beasts lay curses that weaken, slow or cloud your mind for a
+while. Stings and bites poison; antidotes and amulets help. Fire burns through armour, but water puts it out.
+Potions, amulets and weapon upgrades hide in chests, coffers, baskets, canopic jars and sealed pots, and not every
+chest is just a chest.
+
+**Die, and try again.** The game saves by itself at the start of each level, after each answered riddle and each slain
+boss. When you die, Retry starts from that autosave, and Continue in the main menu does the same. Win the game to enter your name in
+the Hall of Records.
+
 ## Play
 
 The game runs on Linux. Build it (see [docs/development.md](docs/development.md)), then start `./Play`.

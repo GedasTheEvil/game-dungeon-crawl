@@ -84,7 +84,7 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 		if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
 			flight.bitten = true;
 			flight.attackUntilMs = now + BAT_ATTACK_MS;
-			if (sameRow(py) || (above > 0.f && above < 1.f))
+			if (Reaches(px, py, flight.dir))
 				bite();
 		}
 		if (wallAhead || ahead < -BAT_OVERSHOOT) {

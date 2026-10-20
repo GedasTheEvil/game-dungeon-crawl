@@ -36,6 +36,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	burrow = Burrow{};
 	charge = Charge{};
 	grab = Grab{};
+	biteAtMs = -1;
 	climb = Climb{};
 	rungs = false;
 	wayMs = -1;
@@ -279,6 +280,8 @@ void Monster::Animate(float px, float py) {
 			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
 		else if (fleeDir != 0)
 			facing = fleeDir; // runs from the player
+		else if ((Biting() || (Grabbing() && grab.phase == GrabPhase::Tell)) && biteDir != 0)
+			facing = biteDir; // a jump over it while it winds up lands behind its back
 		else if (!flies()) {
 			facing = attackDirection(px, py);
 			// Biting: turned to the player, the jaws at them (the box); the lotus too, its head over its pad.

@@ -1,0 +1,22 @@
+# Plan monster-attack-reach (tests/levels/hitbox_scarab): the scarab walks up and bites; a jump as it starts a bite
+# carries the player over it, the bite snaps at the air (no damage, the field note), then it turns and bites again.
+# `wait 14`: the jump starts as a bite does (ticks 8 to 22 there dodge it).
+seed 1
+level tests/levels/hitbox_scarab
+hitboxes on
+walk right 1
+wait 8s
+expect hp < 50
+screenshot bites
+expect journal_notes == 1
+wait 14
+jump
+wait 100ms
+screenshot over
+wait 150ms
+screenshot snaps
+expect journal_notes == 2
+wait 400ms
+screenshot behind
+wait 3s
+screenshot turned

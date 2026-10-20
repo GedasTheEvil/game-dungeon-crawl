@@ -360,6 +360,8 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 						 "the water carries me."},
 	{"Canopic jars", "Four jars, four sons of Horus: one each for the liver, the lungs, the stomach and the guts. "
 					 "Somebody swapped the insides for treasure. I try not to wonder where the insides went."},
+	{"Jumping a bite", "It snapped at my heels and caught only air. A small one bites low: jump as it opens its jaws "
+					   "and the bite goes under me. Over a tall one a jump does not help."},
 }};
 
 // A tick before a solved riddle's answer, from its bottom left at (x, y).

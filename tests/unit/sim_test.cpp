@@ -316,7 +316,7 @@ TEST_CASE("the blue lotus floats until the player wades near, rears up, stays ro
 	CHECK(world.Saw(MonsterLotus, CreatureMove::Bloom));
 	REQUIRE(world.WalkTo(lotus->Left() - world.player.HalfWidth() - ROOTED_BITE_REACH * 0.5f));
 	int lowest = world.player.stats.Stamina(); // the first bite may land on the way in
-	for (int t = 0; t < 120; t++) { // two bites, 0.9 s apart
+	for (int t = 0; t < 150; t++) { // two bites, 0.9 s apart, each 40% of that after it starts (MELEE_WINDUP_PCT)
 		world.Tick();
 		lowest = std::min(lowest, world.player.stats.Stamina());
 	}

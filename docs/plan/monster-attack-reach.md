@@ -1,6 +1,33 @@
 # Monster attack reach
 
-Status: draft 2026-10-20, ready (needs nothing first). From the user's play-test.
+Status: implemented 2026-10-20, waits for the user's play-test. Draft 2026-10-20, from the user's play-test.
+
+Play-test: `bin/game --play tests/play/monster-attack-reach.txt` (a scarab, a giant scarab and a rat come at you; jump
+as one opens its jaws).
+
+## Done
+
+* `MeleeReach` per kind (`monster_kinds.h`): slack past the bite reach (0.15 tiles), half-angle (35°), mouth height
+  (half the body). Tall walkers (mummy, Anubis, ushabti, their bosses) strike from up high: `HIGH_BLOW` (50°, mouth at
+  3/4). `Monster::Reach` makes a boss's 1.5x longer and at least 50° wide; `validKinds` checks a boss's is no smaller
+  than its kin's.
+* `Monster::Reaches` (`monster_reach.cpp`): the player's box touches the body (no safe spot inside a monster) or the
+  cone. Heights without the water basin's sink, as the player's box has none.
+* Hit timing: `Attack` starts a bite, `UpdateBite` lands it `MELEE_WINDUP_PCT` (40%) of `attackMs` later. Not 40% of
+  the attack clip: the clip loops and is longer than most bite intervals (a rat bites every 400 ms, its clip runs
+  ~1.6 s). During the wind-up the facing stays (a jump over it lands behind its back) and a walker follows only forward
+  (`FollowBite`): walking away from a faster monster still gets bitten (the giant rat outruns the player), a jump over
+  it does not make it walk backwards.
+* Grab: the lunge checks `Reaches` the way the grab started (`GRAB_JUMP_CLEAR` is gone). Flyers: the bat's bite checks
+  `Reaches` along its flight.
+* A miss snaps at the air (the attack sound). The first one jumped writes the field note "Jumping a bite".
+* Dodge window: a scarab's bite is dodged by a jump started in about the first 240 ms of its wind-up
+  (`tests/scenarios/monster_attack_reach.txt`).
+* Open questions decided: cone (as asked), hit at the wind-up, no extra cost for a jump over (it turns once the bite is
+  done), no safe spot inside a box (the body check).
+* Tests: `tests/unit/bite_reach_test.cpp`, `hold_test.cpp` (jump over the giant scorpion's tell), scenario
+  `tests/scenarios/monster_attack_reach.txt` (the miss, screenshots). Bat bites: the existing bat tests in
+  `sim_test.cpp`.
 
 ## Problem
 

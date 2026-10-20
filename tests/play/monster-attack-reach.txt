@@ -1,0 +1,8 @@
+# Plan monster-attack-reach, for `bin/game --play tests/play/monster-attack-reach.txt`: tests/levels/scarabs, a scarab
+# (col 7), a giant scarab (col 8) and a rat (col 10) come at you. Jump as one opens its jaws: the bite snaps under you
+# (no damage; the first time a field note "Jumping a bite"). Land behind it and it turns, then bites again. Stand
+# still or walk away from the fast ones and they still bite. F3 shows the hitboxes.
+seed 1
+level tests/levels/scarabs
+give melee 1
+equip club

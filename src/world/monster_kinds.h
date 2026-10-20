@@ -138,6 +138,17 @@ struct GenPick {
 	int weight = 0;
 };
 
+// Where its bite reaches (Monster::Reaches, plan monster-attack-reach): a cone from its mouth on the front edge of its
+// box, along its facing; the player's box touching it or its body is bitten. Low ones (a rat, a scarab) bite low and a
+// jump clears them; tall ones strike from up high.
+struct MeleeReach {
+	float slack = MELEE_REACH_SLACK; // tiles past the gap it bites from (MONSTER_BITE_REACH, ROOTED_BITE_REACH)
+	float halfAngleDeg = MELEE_REACH_HALF_ANGLE;
+	float mouthY = 0.5f; // of its height (BottomY .. TopY): the cone's origin
+};
+// Tall walkers strike from up high: the mummy's arms, the Anubis's and the ushabti's blows.
+constexpr MeleeReach HIGH_BLOW = {MELEE_REACH_SLACK, 50.f, 0.75f};
+
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
 
 struct MonsterKind {
@@ -163,6 +174,7 @@ struct MonsterKind {
 	int attackMs = 800; // between bites
 	int xp = 0; // gained for the kill
 	DamageMix attackMix{}; // what its bite deals; shared by a model's group
+	MeleeReach melee{}; // where its bite reaches; a boss's is bigger (Monster::Reach)
 	Resistances resist = NO_RESISTANCES; // how it takes each type of a weapon's damage
 
 	Locomotion locomotion = Locomotion::Walk;

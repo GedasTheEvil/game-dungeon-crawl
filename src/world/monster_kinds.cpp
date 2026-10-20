@@ -217,6 +217,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1100,
 	 .xp = 10000,
 	 .attackMix = ANUBIS_MIX,
+	 .melee = HIGH_BLOW,
 	 .resist = ANUBIS_RESIST,
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 25,
@@ -440,6 +441,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1600,
 	 .xp = 2500,
 	 .attackMix = MUMMY_MIX,
+	 .melee = HIGH_BLOW,
 	 .resist = MUMMY_RESIST,
 	 .locomotion = Locomotion::Entombed,
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
@@ -472,6 +474,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1300,
 	 .xp = 30000,
 	 .attackMix = ANUBIS_MIX,
+	 .melee = HIGH_BLOW,
 	 .resist = bossResist(ANUBIS_RESIST),
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
@@ -792,6 +795,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1500,
 	 .xp = 27000,
 	 .attackMix = {80, 0, 20}, // the staff, its pointed foot
+	 .melee = HIGH_BLOW,
 	 .resist = bossResist(MUMMY_RESIST),
 	 .locomotion = Locomotion::Entombed,
 	 .courage = Courage::Reckless,
@@ -891,6 +895,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMs = 1300,
 	 .xp = 900,
 	 .attackMix = USHABTI_MIX,
+	 .melee = HIGH_BLOW,
 	 .resist = USHABTI_RESIST,
 	 .locomotion = Locomotion::Figurine,
 	 .weight = 1,
@@ -918,6 +923,11 @@ constexpr bool validKinds() {
 		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
 			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
 			return false;
+		if (kind.isBoss()) { // a boss reaches at least as far as its kin (Monster::Reach makes it bigger still)
+			const MeleeReach& kin = KINDS[static_cast<size_t>(kind.kin - 1)].melee;
+			if (kind.melee.slack < kin.slack || kind.melee.halfAngleDeg < kin.halfAngleDeg)
+				return false;
+		}
 		for (int rate : kind.resist)
 			if (rate <= 0) // every type hurts
 				return false;
@@ -929,7 +939,8 @@ constexpr bool validKinds() {
 }
 static_assert(validKinds(),
 			  "KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
-			  "bosses with a kin, no weakness and no resistance worse than the kin's, poison included");
+			  "bosses with a kin, no weakness and no resistance worse than the kin's, poison included, a reach no "
+			  "shorter than the kin's");
 } // namespace
 
 const MonsterKind* monsterKind(int type) {

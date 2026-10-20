@@ -54,6 +54,15 @@ constexpr float MONSTER_SEEK_STEP = 0.0042f;
 // between the box edges.
 constexpr float MONSTER_BITE_REACH = 0.1f; // a walker stops and bites this far from the player
 constexpr float ROOTED_BITE_REACH = 0.25f; // a rooted monster (plant, mimic) bites the player this close
+// The bite's reach (Monster::Reaches, MeleeReach; plan monster-attack-reach): a cone from its mouth along its facing,
+// MELEE_REACH_SLACK tiles longer than the gap it bites from, MELEE_REACH_HALF_ANGLE degrees wide either way. A boss's
+// is BOSS_MELEE_REACH_FACTOR longer, at least BOSS_MELEE_REACH_HALF_ANGLE wide. The bite lands MELEE_WINDUP_PCT of its
+// attackMs after it starts: a jump or a step back in time makes it miss.
+constexpr float MELEE_REACH_SLACK = 0.15f;
+constexpr float MELEE_REACH_HALF_ANGLE = 35.f;
+constexpr float BOSS_MELEE_REACH_FACTOR = 1.5f;
+constexpr float BOSS_MELEE_REACH_HALF_ANGLE = 50.f;
+constexpr int MELEE_WINDUP_PCT = 40;
 
 // Walk-jumpers (Monster::Jump): the arc follows the _jump clip (10 frames at ~14 fps): crouch, air, landing crouch.
 constexpr int MONSTER_JUMP_MS = 650;
@@ -160,9 +169,8 @@ constexpr int CHARGE_COOLDOWN_MS = 4000;
 constexpr float CHARGE_OVERRUN = 3.f; // tiles past the player a rush with no wall ahead stops
 
 // Holds (Monster::Grab, HoldRules; plans crocodile-hold-bite, giant-scorpion-grab): the jaws or claws open wide for
-// GRAB_TELL_MS, then the lunge. It misses a player out of its reach or GRAB_JUMP_CLEAR tiles up in a jump.
+// GRAB_TELL_MS, then the lunge. It misses a player out of its reach (Monster::Reaches): backed off, jumped over it.
 constexpr int GRAB_TELL_MS = 500;
-constexpr float GRAB_JUMP_CLEAR = 0.15f;
 // The held view (Dungeon::HeldViewRoll): the camera rolls up to HELD_ROLL_DEG with each tick of a death roll, shakes
 // by HELD_SHAKE_DEG in the claws.
 constexpr float HELD_ROLL_DEG = 14.f;

@@ -10,6 +10,8 @@ bool Monster::StartGrab() {
 	if (!type->hold || Grabbing())
 		return false;
 	enter(ModelState::Attack);
+	if (biteDir == 0) // the scenario's `grab`: no Attack turned it
+		biteDir = facing;
 	grab = Grab{GrabPhase::Tell, GameClock::now()};
 	sound(CharacterSound::Wake);
 	return true;
@@ -27,8 +29,7 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 		if (now - grab.startMs < GRAB_TELL_MS)
 			return;
 		sound(CharacterSound::Attack);
-		const bool onFloor = py - static_cast<float>(row) < GRAB_JUMP_CLEAR;
-		const bool caught = sameRow(py) && attackDirection(px, py) == 0 && onFloor && (!rules.inWater || playerWading);
+		const bool caught = Reaches(px, py, biteDir) && (!rules.inWater || playerWading);
 		if (!caught || player.Dodges(*links.events, *links.random)) { // backed off, jumped away: the jaws snap shut
 			letGo();
 			return;
@@ -72,6 +73,7 @@ void Monster::sting() {
 
 void Monster::letGo() {
 	grab = Grab{};
+	biteDir = 0;
 	attackTimer.Reset();
 }
 

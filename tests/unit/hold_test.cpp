@@ -106,6 +106,21 @@ TEST_CASE("on dry land the crocodile bites but never grabs") {
 	CHECK(world.Hp() < hp);
 }
 
+TEST_CASE("a jump over the giant scorpion in its tell makes the lunge miss (plan monster-attack-reach)") {
+	SimWorld world; // tests/levels/giant_scorpion: the scorpion comes from the right
+	REQUIRE(world.Load("tests/levels/giant_scorpion"));
+	world.player.god = true;
+	world.Tick();
+	const Monster* s = find(world, MonsterGiantScorpion);
+	REQUIRE(s != nullptr);
+	REQUIRE(waitFor(world, [&] { return s->Grabbing(); }, 60000));
+	world.facing = 1;
+	world.Jump();
+	REQUIRE(waitFor(world, [&] { return !s->Grabbing() || s->Holding(); }, GRAB_TELL_MS + 100));
+	CHECK_FALSE(s->Holding());
+	CHECK_FALSE(world.Saw(MonsterGiantScorpion, CreatureMove::Grab));
+}
+
 TEST_CASE("the giant scorpion's hold allows the attack and ends in a sure, poisoned sting") {
 	SimWorld world;
 	const Monster* s = scorpionHold(world);

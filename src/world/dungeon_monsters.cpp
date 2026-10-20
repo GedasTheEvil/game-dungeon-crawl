@@ -61,6 +61,15 @@ void Dungeon::UpdateMonsters() {
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 
+		if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
+			if (won)
+				continue;
+			if (mon.StepDue())
+				mon.FollowBite(walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))), mapX,
+							   mapY);
+			mon.UpdateBite(mapX, mapY);
+			continue;
+		}
 		if (mon.Grabbing()) { // the tell, the hold (plans crocodile-hold-bite, giant-scorpion-grab)
 			mon.UpdateGrab(mapX, mapY, PlayerWading());
 			continue;

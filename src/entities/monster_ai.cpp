@@ -66,7 +66,7 @@ void Monster::Stand() {
 	enter(ModelState::Idle);
 }
 
-void Monster::Attack(float py, bool playerWading) {
+void Monster::Attack(float px, float py, bool playerWading) {
 	if (!Alive() || type->damage <= 0) // harmless (an egg cluster)
 		return;
 
@@ -75,11 +75,12 @@ void Monster::Attack(float py, bool playerWading) {
 	if (!sameRow(py))
 		return;
 	alerted = true;
+	biteDir = px < CentreX() ? -1 : 1;
 	const std::optional<HoldRules>& hold = type->hold;
 	if (hold && (!hold->inWater || playerWading) && links.random->percent(hold->chancePercent))
 		StartGrab();
 	else
-		bite();
+		biteAtMs = GameClock::now() + type->attackMs * MELEE_WINDUP_PCT / 100;
 }
 
 void Monster::bite() {

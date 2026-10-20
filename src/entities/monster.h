@@ -87,6 +87,8 @@ class Monster {
 	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink)
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
+	int biteAtMs = -1; // GameClock time the bite under way lands or misses (UpdateBite); < 0: none
+	int biteDir = 0; // the way the bite or grab under way goes, -1 / +1: it does not turn till then
 	int rangedReadyMs = 0; // ranged attackers: no new shot before this GameClock time
 	bool rangedReleased = true; // the ranged clip's shot has left (TakeShot)
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
@@ -222,9 +224,27 @@ class Monster {
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
-	// In reach: it bites, or (HoldRules, rolled on the gameplay stream) opens its jaws or claws for a grab (Grab).
-	// playerWading: the player stands in half water (a crocodile grabs only then).
-	void Attack(float py, bool playerWading);
+	// In reach: it starts a bite towards the player at px, or (HoldRules, rolled on the gameplay stream) opens its jaws
+	// or claws for a grab (Grab). playerWading: the player stands in half water (a crocodile grabs only then).
+	void Attack(float px, float py, bool playerWading);
+	// A bite under way (plan monster-attack-reach): it winds up for MELEE_WINDUP_PCT of its attackMs, standing,
+	// turned the way it bites, then UpdateBite.
+	[[nodiscard]] bool Biting() const { return Alive() && biteAtMs >= 0; }
+	// Once a tick while Biting: at its time the bite lands if it Reaches the player, else it snaps at the air.
+	void UpdateBite(float px, float py);
+	// Walkers, a step while Biting: on after the player who walks away the way it bites (a fast one catches them), not
+	// back after one who jumped over it. blocked: the cell in front of it blocks the walk.
+	void FollowBite(bool blocked, float px, float py);
+	// The cone its bite reaches along (MeleeReach): tiles long from its mouth, degrees wide either way, the mouth
+	// as a share of its height. A boss's is longer and wider (BOSS_MELEE_REACH_FACTOR).
+	struct BiteCone {
+		float length = 0.f;
+		float halfAngleDeg = 0.f;
+		float mouthY = 0.f;
+	};
+	[[nodiscard]] BiteCone Reach() const;
+	// The player's box at (px, py) touches its body or its bite's cone, turned dir (-1 / +1; 0: the body only).
+	[[nodiscard]] bool Reaches(float px, float py, int dir) const;
 	// Ambushers, the entombed, the submerged, the coiled and the floating: true while still lurking; wakes (and returns
 	// false) once the player is close (MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
 	// FLOATING_WAKE_RANGE). An ambusher never wakes this way, only by Spring or a hit (plan interact-prompt).

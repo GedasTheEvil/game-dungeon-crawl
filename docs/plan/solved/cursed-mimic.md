@@ -1,11 +1,11 @@
 # Cursed mimic
 
-Status: implemented 2026-10-20, waits for the user's play-test. Draft 2026-10-10, refined 2026-10-10. From the user.
+Status: solved 2026-10-20 (play-tested by the user), implemented 2026-10-20. Draft 2026-10-10, refined 2026-10-10. From the user.
 
 Play-test: `bin/game --play tests/play/cursed-mimic.txt` (a cursed mimic past a death trap: open it, jump the trap
 back), or `bin/game --level 22` (also 24, 26, 28, 30).
 
-Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 
@@ -20,7 +20,7 @@ the harshest curse.
 * Look: the chest has to give a hint for an attentive player, e.g. dark wood, tarnished gold, faint purple glow in
   the keyhole or seams. Still has to read as a chest from afar.
 * Behaviour: a chest (ambush) until woken, like the mimic (on the interact key or a hit, once
-  [interact-prompt](solved/interact-prompt.md)). Unlike the mimic it then jumps:
+  [interact-prompt](interact-prompt.md)). Unlike the mimic it then jumps:
   it hops
   after the player and leaps pits and traps, as the walk-jumpers do (giant rat, giant scarab, `Leap`). Needs an
   ambush-then-jump locomotion (or `Ambush` with a jump flag) and hop clips on the mimic model (lid snapping as it
@@ -78,7 +78,7 @@ the harshest curse.
   lower under a whisper, and a leap).
 * Journal: its note "Some chests bite. Some bite the mind. ...".
 * Tests: `tests/unit/cursed_mimic_test.cpp` (numbers, lurking, hop and leap, insanity, the chest where it died, the
-  loot roll, levelgen), scenario `tests/scenarios/cursed_mimic.txt` (wakes, leaps the trap, the insanity icon, the
+  loot roll, levelgen), scenario `tests/scenarios/solved/cursed_mimic.txt` (wakes, leaps the trap, the insanity icon, the
   map refused).
 
 ## Open (for the implementer, decided above)

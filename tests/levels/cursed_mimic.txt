@@ -1,5 +1,5 @@
 ; The player (col 5), a death trap (col 7), a cursed mimic (col 9) lying in wait (tests/unit/cursed_mimic_test.cpp,
-; tests/scenarios/cursed_mimic.txt, tests/play/cursed-mimic.txt).
+; tests/scenarios/solved/cursed_mimic.txt, tests/play/cursed-mimic.txt).
 ####################
 #....S.X.x.......E.#
 ####################

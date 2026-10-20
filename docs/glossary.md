@@ -58,7 +58,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | alerted | | a monster that has noticed the player; shows its health bar | `Monster::Alerted` |
 | ambush | | rooted and still, a fake chest until the player comes near (the mimic) | `Locomotion::Ambush` |
-| cursed mimic | Cursed chest of Set | the mimic's darker kin (purple where a treasure chest is blue): a chest until opened or hit, then it hops after the player and leaps pits and traps; a quarter of its bites lay insanity (its only source); killed, it leaves its chest where it died, half the time an amulet ([cursed-mimic](plan/cursed-mimic.md)) | `MonsterCursedMimic`, `Locomotion::AmbushHop`, `ambushes`, `leaps`, `RollCursedMimicLoot` |
+| cursed mimic | Cursed chest of Set | the mimic's darker kin (purple where a treasure chest is blue): a chest until opened or hit, then it hops after the player and leaps pits and traps; a quarter of its bites lay insanity (its only source); killed, it leaves its chest where it died, half the time an amulet ([cursed-mimic](plan/solved/cursed-mimic.md)) | `MonsterCursedMimic`, `Locomotion::AmbushHop`, `ambushes`, `leaps`, `RollCursedMimicLoot` |
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
 | charge | | a rush along its row through the player after a wind-up (Sobek, the hippo); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |

@@ -503,18 +503,44 @@ def ceiling_slabs():
     return finish(col, h, 5.0)
 
 
-def ceiling_sandstone():
-    """Sandstone slabs with a crack or two: the desert's ceiling, where the light falls through."""
-    dist, _, tint = layout(CEILING_ROWS, 711)
-    mott = noise(712, 1.3)
+def sand_ceiling(sandy=0.0, crack_count=0):
+    """The desert's ceiling: wind-worn sandstone, its slab joints half gone under a crust of sand and dust, banded.
+    The variants share the base and fade their own detail out at the edges, so they tile with each other."""
+    big = noise(711, 1.7)
+    mid = noise(712, 1.1)
     bands = noise(713, 1.2, sx=10)
-    face = smoothstep(0.5, 12, dist + 3 * noise(714, 1.0)) ** 0.6
-    col = lerp(DESERT_STONE, DESERT_STONE_LIGHT, np.clip(0.4 + 0.2 * mott + 0.2 * bands, 0, 1)) * tint * 0.85
-    col = lerp(DESERT_MORTAR * 0.7, col, face)
-    c = cracks(715, 2, 170, 4.0) * edge_fade()
-    col *= (1 + 0.035 * noise(716, 0.4) + 0.04 * speckle(717, 0.02) - 0.5 * c)[..., None]
-    h = face + 0.08 * mott - 0.5 * c
-    return finish(col, h, 5.0)
+    dist, _, tint = layout(CEILING_ROWS, 714)
+    fade = edge_fade()
+    joint = smoothstep(9, 1, dist + 4 * noise(715, 1.0)) * smoothstep(-0.4, 0.4, noise(716, 1.4))  # here and there
+    h = 1.1 * big + 0.35 * mid + 0.15 * bands - 0.35 * joint
+    col = lerp(DESERT_STONE, DESERT_STONE_LIGHT, np.clip(0.45 + 0.18 * bands + 0.12 * mid + 0.08 * big, 0, 1)) * 0.86
+    col *= (1 + 0.04 * noise(717, 0.5) + 0.05 * speckle(718, 0.02))[..., None]
+    col = lerp(col, DESERT_MORTAR * 0.75, joint * 0.7)
+    if crack_count:  # cracks the light comes through, pale sand trickled down round them
+        c = cracks(719, crack_count, 210, 5.0) * fade
+        halo = soften(c, 6.0) * fade
+        col = lerp(col, SAND * 0.95, np.clip(halo * 2.2, 0, 0.75))
+        col *= (1 - 0.6 * c)[..., None]
+        h -= 0.6 * c
+    # A crust of sand and dust: in the hollows and joints, more of it on the sandy variant.
+    s = 0.9 * noise(720, 1.3) - 0.8 * big + 1.2 * joint + sandy * fade - 0.9
+    crust = smoothstep(-0.5, 0.7, s)
+    sand_col = lerp(SAND_DARK, SAND, np.clip(0.55 + 0.25 * noise(721, 0.7), 0, 1)) * 0.92
+    col = lerp(col, sand_col, crust)
+    h = lerp(h[..., None], (0.3 + 0.1 * noise(722, 1.2))[..., None], crust * 0.7)[..., 0]
+    return finish(col, h, 4.5)
+
+
+def ceiling_sandstone():
+    return sand_ceiling()
+
+
+def ceiling_sandstone_cracked():
+    return sand_ceiling(crack_count=2)
+
+
+def ceiling_sandstone_sandy():
+    return sand_ceiling(sandy=1.4)
 
 
 def ceiling_rough():
@@ -556,6 +582,8 @@ TEXTURES = [
     ("ceiling_slabs", ceiling_slabs),
     ("ceiling_rough", ceiling_rough),
     ("ceiling_sandstone", ceiling_sandstone),
+    ("ceiling_sandstone_cracked", ceiling_sandstone_cracked),
+    ("ceiling_sandstone_sandy", ceiling_sandstone_sandy),
     ("rock", rock),
 ]
 
@@ -585,7 +613,7 @@ def main(out_dir, preview):
         for k, name in enumerate(strip):
             sheet.paste(images[name].resize((q, q)), (k * q, (top + 1) * q))
         strip = ["wall_sandstone", "wall_sandstone_worn", "wall_sandstone", "wall_sandstone", "floor_sandstone", "floor_sand",
-                 "floor_sandstone", "ceiling_sandstone"]
+                 "ceiling_sandstone_cracked", "ceiling_sandstone"]
         for k, name in enumerate(strip):
             sheet.paste(images[name].resize((q, q)), (k * q, (top + 2) * q))
         sheet.save(preview)

@@ -118,10 +118,17 @@ constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {"floor_slabs", "fl
 constexpr int CEILING_STARS = 0; // over painted walls
 constexpr int CEILING_SLABS = 1; // over stone walls
 constexpr int CEILING_ROUGH = 2; // over rough walls
-constexpr int CEILING_SANDSTONE = 3; // over sandstone walls, cracked: the light shafts come through
-constexpr int CEILING_STYLE_COUNT = 4;
-constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {"ceiling_stars", "ceiling_slabs", "ceiling_rough",
-																  "ceiling_sandstone"};
+// Over sandstone walls: worn rock under a crust of sand; cracked where a light shaft comes through
+// (Dungeon::lightShaft), or sandier.
+constexpr int CEILING_SANDSTONE = 3;
+constexpr int CEILING_SANDSTONE_CRACKED = 4;
+constexpr int CEILING_SANDSTONE_SANDY = 5;
+constexpr int CEILING_STYLE_COUNT = 6;
+constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {
+	"ceiling_stars",		  "ceiling_slabs", "ceiling_rough", "ceiling_sandstone", "ceiling_sandstone_cracked",
+	"ceiling_sandstone_sandy"};
+// Of the desert's cells with rock above and below, about one in this many has a cracked ceiling and a light shaft.
+constexpr uint32_t LIGHT_SHAFT_EVERY = 6;
 
 // The face of a solid cell: media/textures/dungeon/rock.png, one image over 2 x 2 cells.
 constexpr const char* ROCK_TEXTURE = MEDIA_DIR "textures/dungeon/rock.png";

@@ -4,10 +4,10 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
-Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](desert-chapter.md)
+Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](solved/desert-chapter.md)
 (balance the final levels and monster set).
 
-Levels: [desert-chapter](desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
+Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
 levels named 21-30 below (play-test entries before 2026-10-20) are 26-35 now: Sobek on lvl30, the Anubis boss on lvl35.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.

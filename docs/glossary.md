@@ -31,7 +31,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
 | gap | | (map) an open cell in a floor, one cell wide, jumped over. Not the gap between hitboxes (see Combat) | `src/world/level_check.h` |
 | half water | | an open cell, half full: the player wades (half speed, no sprint, no jump), swimmers swim | `Structure::HalfWater`, `inHalfWater`, `WADE_SPEED_FACTOR` |
-| sand | | an open cell with a drift of sand on the floor: the player walks at 3/4 speed, no sprint, jumping is fine; a sand worm lurks under it ([desert-chapter](plan/desert-chapter.md)) | `Structure::Sand`, `inSand`, `Dungeon::PlayerInSand` |
+| sand | | an open cell with a drift of sand on the floor: the player walks at 3/4 speed, no sprint, jumping is fine; a sand worm lurks under it ([desert-chapter](plan/solved/desert-chapter.md)) | `Structure::Sand`, `inSand`, `Dungeon::PlayerInSand` |
 | quicksand | | looks like sand; standing in it sinks the player (slower, stuck, hurt) until a jump frees them; a passable trap for the checker | `Structure::Quicksand`, `inQuicksand`, `Dungeon::updateQuicksand` |
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |

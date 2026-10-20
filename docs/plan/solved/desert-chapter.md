@@ -1,9 +1,9 @@
 # The desert chapter: Seth's sands
 
 Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needed first
-[hippo-boss](solved/hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
-[Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Works better with
-[sunlight-mirrors](sunlight-mirrors.draft.opus.md) (the chapter's lock) and [placed-decor](placed-decor.draft.opus.md)
+[hippo-boss](hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
+[Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Solved 2026-10-20, after sandier ceilings. Works better with
+[sunlight-mirrors](../sunlight-mirrors.draft.opus.md) (the chapter's lock) and [placed-decor](../placed-decor.draft.opus.md)
 (sand drifts placed by hand); does not need them.
 
 ## Why
@@ -33,7 +33,7 @@ cisterns that follow.
 
 ## The chapter
 
-Full 40 x 47 grids from the start ([denser-levels](denser-levels.draft.opus.md)). Sandstone, not the tomb's
+Full 40 x 47 grids from the start ([denser-levels](../denser-levels.draft.opus.md)). Sandstone, not the tomb's
 limestone: own wall and floor textures, warm light, light shafts from cracks above.
 
 * **Sand** (new structure, beside `HalfWater`): drifted sand on the floor. The player walks through it at 3/4 speed
@@ -45,7 +45,7 @@ limestone: own wall and floor textures, warm light, light shafts from cracks abo
   damage and a short slow, no stones. Same trigger as the rock fall.
 * **Sandstorm halls** (implementer's choice, one or two levels): wind along the row pushes the player and blurs the
   far view; it blows in gusts, a rhythm-trap clock (`period`, `phase`), so the player walks between gusts.
-* **Lock: the sun.** The chapter's gates open with [sunlight-mirrors](sunlight-mirrors.draft.opus.md) (a shaft of sun
+* **Lock: the sun.** The chapter's gates open with [sunlight-mirrors](../sunlight-mirrors.draft.opus.md) (a shaft of sun
   through a crack, bronze mirrors) rather than colour keys: one or two colour locks per level at most. Without the
   mirrors plan in: levers, and the mirrors come later.
 
@@ -65,7 +65,7 @@ limestone: own wall and floor textures, warm light, light shafts from cracks abo
 ## Seth (lvl25)
 
 The boss level ends in Seth's oasis: a sealed chamber with a pool (deep water, half water round it), sand ledges on
-both sides, palms and reeds as decor. Seth as in [hippo-boss](solved/hippo-boss.md); the chapter adds his storm
+both sides, palms and reeds as decor. Seth as in [hippo-boss](hippo-boss.md); the chapter adds his storm
 in the land: the storm roar throws sand (if the storm roar is the chosen ability). Behind the boss gate the key to
 the exit, as the other boss levels.
 
@@ -73,7 +73,7 @@ the exit, as the other boss levels.
 
 * A field note on sand ("Sand. Underground. Somebody left a door open, three thousand years ago.") and on quicksand
   the first time the player sinks.
-* [duat-hours](duat-hours.draft.sonet.md) (on hold): its 12 hours spread over 35 levels; the desert can be the hour
+* [duat-hours](../duat-hours.draft.sonet.md) (on hold): its 12 hours spread over 35 levels; the desert can be the hour
   of the Gate of Sand.
 
 ## Tests
@@ -114,11 +114,12 @@ keys (two lock colours a level), no mirrors.
   of sand where it is, `drawRipple`), comes up within 2.5 tiles under the player in its sand, or at its sand's edge for
   a player beside it; awake, it dives to come up under a player in its sand from 1.5 to 6 tiles away. Out of sand it
   walks as before. Boss rule: `validKinds` makes a boss of the worm's kin burrow too (none yet;
-  [worm-boss](worm-boss.draft.opus.md)).
+  [worm-boss](../worm-boss.draft.opus.md)).
 * **Sandstone**: the desert's dressed rows are sandstone (`wall_sandstone`, `wall_sandstone_worn`, `floor_sandstone`,
-  `ceiling_sandstone`, `tools/textures/surfaces.py`; `desertLevel`, `DESERT_FIRST` .. `DESERT_LAST`), no plaster. About
-  one cell in six with rock above and below gets a shaft of daylight through a ceiling crack (`SunBeam::shaft`, a warm
-  light). Sounds: `tools/audio/sand_sounds.py`.
+  `tools/textures/surfaces.py`; `desertLevel`, `DESERT_FIRST` .. `DESERT_LAST`), no plaster. The ceilings (after the
+  play-test, 2026-10-20: the first one looked like bricks): worn sandstone under a crust of sand, three variants that
+  tile together, `ceiling_sandstone`, `_sandy` and `_cracked`. About one cell in six with rock above and below gets the
+  cracked one and a shaft of daylight through it (`SunBeam::shaft`, a warm light). Sounds: `tools/audio/sand_sounds.py`.
 * **The levels** (`tools/level/campaign/lvl21.txt` .. `lvl25.txt`, built with `ascii2level.py`): 13 halls each on
   the full grid, sand in every hall, quicksand singles and pairs, sand falls, worms in the sand, giant scorpions,
   giant cobras, camel spiders, giant bats, mummies, Anubis guards in 24 and 25, no crocodiles. Riddle gates in all
@@ -129,7 +130,7 @@ keys (two lock colours a level), no mirrors.
   desert, Seth in the prow, the ways of Rosetau, the red hippopotamus, the first harpoon with a might boon) and 51, 52
   for the sealed rooms.
 * **Tests**: `tests/unit/sand_test.cpp` (sand, quicksand, the sand fall, the worm in sand, the 35-level campaign and
-  the desert levels), scenarios `tests/scenarios/sand.txt`, `sand_worm.txt`, `desert.txt` (screenshots; `desert.txt`
+  the desert levels), scenarios `tests/scenarios/solved/sand.txt`, `sand_worm.txt`, `desert.txt` (screenshots; `desert.txt`
   uses the new `level N at COL ROW` to start in the oasis). `levelcheck --script` waits for a jump's stamina before each
   scripted jump.
 * Not done: the sandstorm halls (left out), the sunlight mirrors (their own plan), a new desert monster. `make paths`

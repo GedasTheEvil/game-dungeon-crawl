@@ -286,8 +286,8 @@ class Dungeon {
 	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
 	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
 	void drawRipple(float x, float y, float z, int now) const;
-	// A shaft of daylight falls through a crack in the sandstone ceiling of (i, j): some of the desert's cells with
-	// rock above and floor below.
+	// A shaft of daylight falls through the cracked sandstone ceiling of (i, j) (CEILING_SANDSTONE_CRACKED, picked by
+	// scatterSurfaces).
 	[[nodiscard]] bool lightShaft(int i, int j) const;
 	void drawHole(float x, float y, float z, float fade) const;
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of

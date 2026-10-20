@@ -32,7 +32,7 @@ The player must know what the two routes are before they drop. Both hints, on th
 ## Placement
 
 One fork in the campaign: the level of the expedition's last page, today lvl28 or lvl29 (the necropolis; lvl33 or
-lvl34 with [desert-chapter](desert-chapter.md)'s renumbering). Implementer's choice: a second, smaller
+lvl34 with [desert-chapter](solved/desert-chapter.md)'s renumbering). Implementer's choice: a second, smaller
 fork earlier, with an earlier page.
 
 ## levelcheck

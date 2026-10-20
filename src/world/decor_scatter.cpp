@@ -394,7 +394,13 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, bool desert, Su
 						cell.wall = roll < 35 ? WALL_PLASTER_WORN : WALL_PLASTER;
 					break;
 				case Stone:
-					cell.ceiling = desert ? CEILING_SANDSTONE : CEILING_SLABS;
+					cell.ceiling = CEILING_SLABS;
+					if (desert) // a crack with daylight through it where rock is above and below, else crust or sand
+						cell.ceiling = isWall(at(cells, i, j + 1)) && isWall(at(cells, i, j - 1)) &&
+											   (h >> 12) % LIGHT_SHAFT_EVERY == 0
+										   ? CEILING_SANDSTONE_CRACKED
+									   : roll % 3 == 0 ? CEILING_SANDSTONE_SANDY
+													   : CEILING_SANDSTONE;
 					if (desert)
 						cell.wall = roll < 35 ? WALL_SANDSTONE_WORN : WALL_SANDSTONE;
 					else

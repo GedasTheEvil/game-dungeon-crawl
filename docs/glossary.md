@@ -77,7 +77,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | cursed mimic | Cursed chest of Set | the mimic's darker kin (purple where a treasure chest is blue): a chest until opened or hit, then it hops after the player and leaps pits and traps; a quarter of its bites lay insanity (its only source); killed, it leaves its chest where it died, half the time an amulet ([cursed-mimic](plan/solved/cursed-mimic.md)) | `MonsterCursedMimic`, `Locomotion::AmbushHop`, `ambushes`, `leaps`, `RollCursedMimicLoot` |
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
-| charge | | a rush along its row through the player after a wind-up (Sobek, the hippo); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |
+| charge | | a rush along its row through the player after a wind-up (Sobek, the hippo, Seth); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |
 | climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |
 | courage | | whether a monster sets foot on a trap: coward or reckless | `Courage` |
@@ -109,6 +109,9 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | fire bolt | | the Anubis's ranged attack: a small fireball (orange core in flames, a flickering light), mostly fire, sets the player burning (the boss's longer) | `RangedRules::mix`, `RangedRules::burnMs`, `Fire::BOLT` |
 | stamina drain | | a bite that takes a share of the player's max stamina (the blue lotus's sedative, 25%); the journal's "drowsy" note | `MonsterKind::staminaDrainPct`, `CreatureMove::Sedate` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
+| storm roar | | Seth's burst of sand as a charge's stun ends: a blunt hit, a shove and the sand haze for the player near him on his row ([hippo-boss](plan/hippo-boss.md)) | `RoarRules`, `MonsterKind::roar`, `Dungeon::stormRoar` |
+| shove | | the player pushed along the row, sliding at `SHOVE_SPEED` until a wall (the storm roar); the wall spikes' shove is instant | `Dungeon::ShovePlayer` |
+| sand haze | | sand over the screen after a storm roar, fading out | `Dungeon::SandHaze` |
 | submerged | | lies under the water until the player comes near (the crocodile; the hippo wakes at its charge range) | `Locomotion::Submerged` |
 | swimmer | | faster in half water, floats at the surface (the crocodile, the hippo) | `Wading::Swimmer` |
 | threat | | (monster) one monster's weight in the checker's difficulty score. Not how dangerous it plays | `MonsterKind::threat`, `monsterThreat` |

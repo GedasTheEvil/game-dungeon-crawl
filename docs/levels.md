@@ -25,7 +25,7 @@ cannot sprint or jump while standing in it (the Favour of Hapi skill and the Ble
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (the crocodile, a
 swimmer, 2.5 times its land speed; `Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
-deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo or Sobek not
+deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo, Sobek or Seth not
 in or next to water and a lotus not in half water.
 
 Level files are text, version 3: a `DCLEVEL 3 40 47` header, the structure as a drawing, then the list of fixtures
@@ -137,7 +137,7 @@ Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1
 3 per rock fall, 2 per dart plate, 1.5 per wall spikes cell and 1.2 per jump on the path, 0.8 per gate, and 1 more for
 a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
 rats, scorpions, mummies, Anubis and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 

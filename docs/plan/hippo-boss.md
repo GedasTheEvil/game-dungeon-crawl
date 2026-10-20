@@ -1,7 +1,8 @@
 # Hippo boss: Seth, the red hippopotamus
 
 Status: draft 2026-10-19, from the user ("a hippo boss, Egyptian, stronger than just a hippopotamus"). Ready:
-[hippo](solved/hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement.
+[hippo](solved/hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement. Implemented 2026-10-20, see
+[Implemented](#implemented); play-test: `bin/game --play tests/play/hippo-boss.txt`.
 
 ## Myth
 
@@ -60,3 +61,27 @@ No campaign level in this plan (user, 2026-10-19). His slot: the boss of the
 * Unit / sim: lurks, charges farther and faster than the hippo, a wall stuns him, the storm roar (or wave) hits and
   pushes; hippos dig out beside him; pierce takes normal damage, blunt resisted.
 * Scenario with a screenshot: Seth submerged, charging, stunned, the roar.
+
+## Implemented
+
+* `MonsterSeth` (30), glyph `L`, game name "Seth": the hippo model at scale 88 (1.7 x the hippo's 52), texture
+  `hippo_seth` (`tools/blender/models/hippo.py --boss-texture`: deep red hide, black mottling, a gold collar with a
+  carnelian band, pale eyes). No Seth-animal ears.
+* Lurk, swim and charge as the hippo: `SETH_CHARGE_MIN` 2.5, `SETH_CHARGE_MAX` 7 tiles at `SETH_CHARGE_SPEED` 4.5
+  tiles/s; a wall stuns him (Sobek's stun). He wakes from `BOSS_WAKE_RANGE` (4 tiles), as Sobek.
+* The stronger ability: the **storm roar** only (no wave). `RoarRules` (`MonsterKind::roar`): as the stun ends
+  (`Monster::UpdateCharge` returns true) `Dungeon::stormRoar` hits the player on his row within 2 tiles of his box
+  (45 blunt, `ROAR_MIX`; a dodge avoids the hit, not the shove), shoves them 1.5 tiles away (`Dungeon::ShovePlayer`:
+  a slide at `SHOVE_SPEED` 6 tiles/s, walls stop it) and covers the screen with sand for 1 s (`Dungeon::SandHaze`, a
+  sand-coloured overlay in `draw.cpp`, fading). Journal move `CreatureMove::Roar`.
+* Pierce `NORMAL`, blunt and fire `RESISTS` (`bossResist(HIPPO_RESIST)`); the journal note hints at the spear.
+* Minions: hippos dig out, 1 / 2 / every 7 s / 4 per fight. HP 2000, 80 damage every 1500 ms, 30000 XP, threat 16,
+  `Courage::Reckless`, `trapDamagePct` 10, weight 6.
+* Sounds: `tools/audio/seth_sounds.py` (the hippo's wake, bite and death pitched down to 0.78, and `seth_roar.wav`: a
+  bellow swelling into a gust of sand). A boss's own voice on its kin's model: `MonsterKind::sounds`;
+  `CharacterSound::Roar` (`_roar.wav`).
+* Tests: `tests/unit/seth_test.cpp` (his rules against the hippo's and Sobek's, the charge into the wall and the
+  roar's hit, shove and haze, no roar out of its radius, hippos dig out), scenario `tests/scenarios/seth.txt`
+  (submerged, windup, charging, stunned, the roar's sand), level `tests/levels/seth`, play script
+  `tests/play/hippo-boss.txt`.
+* No campaign level here: his oasis comes with [desert-chapter](desert-chapter.draft.opus.md).

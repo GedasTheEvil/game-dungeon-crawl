@@ -121,6 +121,15 @@ struct ChargeRules {
 	float speed = CHARGE_SPEED;
 };
 
+// The storm roar (plan hippo-boss, Seth): as a charger's stun in a wall ends, it roars a burst of sand round itself.
+// The player on its row within radius tiles of its body is hit (blunt), shoved away and blinded by sand for hazeMs.
+struct RoarRules {
+	float radius = 0.f; // tiles from its box's edge
+	int damage = 0;
+	float shove = 0.f; // tiles the player is pushed away along the row (walls stop it)
+	int hazeMs = 0; // the sand over the screen (Dungeon::SandHaze)
+};
+
 // A bite that grabs and holds the player (Grab, plans crocodile-hold-bite and giant-scorpion-grab): a share of its
 // bites turns into a tell (GRAB_TELL_MS, jaws or claws wide), then a lunge; in reach it grabs, else it misses. While
 // held the player cannot walk, jump, sprint, drink or open a screen. The crocodile's death roll ticks; the scorpion's
@@ -172,6 +181,8 @@ struct MonsterKind {
 	// darker).
 	const char* model = "";
 	const char* texture = "";
+	// Under media/sounds/, when not the model's: a boss's own voice on its kin's model (loaded with the kin's clips).
+	const char* sounds = "";
 	float scale = 1.f;
 	float rotA = 180.f; // model yaw facing the camera
 	Rgb blood = RED_BLOOD;
@@ -211,6 +222,7 @@ struct MonsterKind {
 	// AdvancePlayback's speed of its walk clip (plan anubis-walk-clip-speed), so the legs keep up with a fast walker.
 	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
+	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).

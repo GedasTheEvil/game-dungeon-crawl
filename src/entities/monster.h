@@ -277,8 +277,9 @@ class Monster {
 	[[nodiscard]] bool Stunned() const { return charge.phase == ChargePhase::Stunned; }
 	[[nodiscard]] int ChargeDir() const { return charge.dir; }
 	// Once a tick while charging. wallAhead: the cell in front of its head blocks the rush (a wall, a pit). The rush
-	// hits the player (double damage) once if they are in its way on the floor.
-	void UpdateCharge(bool wallAhead, float px, float py);
+	// hits the player (double damage) once if they are in its way on the floor. True on the tick a stun ends with the
+	// storm roar (MonsterKind::roar): the caller lets it loose (Dungeon::stormRoar).
+	bool UpdateCharge(bool wallAhead, float px, float py);
 	// Grabbers (HoldRules): the tell, then the lunge, or the hold.
 	// The tell: jaws or claws wide (monster_grab.cpp); Attack's roll, or the scenario `grab`. False: it does not grab
 	// (HoldRules), or is grabbing already.

@@ -96,7 +96,7 @@ void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MON
 				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other) == &clips)
 				kin = &monsterModels[static_cast<size_t>(k)];
 		if (kin != nullptr)
-			model.Share(*kin, kind.model, std::move(tex));
+			model.Share(*kin, *kind.sounds != '\0' ? kind.sounds : kind.model, std::move(tex));
 		else
 			model.Load(kind.model, std::move(tex), clips);
 		type.model = model.Info();

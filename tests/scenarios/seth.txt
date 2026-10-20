@@ -1,0 +1,28 @@
+# Seth, the red hippo (plan hippo-boss), tests/levels/seth: he lies in the pool (cols 10-25, Seth at col 15), only
+# the eyes, the ears and the nostrils above the water. The player wades in; within 4 tiles he comes up, gapes (the
+# windup) and charges along the row through the player and on into the west wall, which stuns him. As the stun ends
+# he roars: the player next to him is shoved east and sand covers the screen.
+seed 1
+god
+level tests/levels/seth
+give melee 2
+equip spear
+torch 9 on
+torch 13 on
+walk to 10.2
+wait 30
+camera 30 10
+screenshot submerged
+walk to 11.6
+wait 300ms
+expect boss == 2000
+screenshot windup
+wait 700ms
+screenshot charging
+wait 1500ms
+screenshot stunned
+wait 2300ms
+screenshot roar
+expect x > 12.5
+wait 2s
+screenshot after

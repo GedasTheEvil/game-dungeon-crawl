@@ -161,6 +161,16 @@ constexpr float CHARGE_SPEED = 4.f; // tiles per second
 // The hippo's (plan hippo): nearer, shorter and slower than its boss-sized cousin Sobek's.
 constexpr float HIPPO_CHARGE_MIN = 2.f, HIPPO_CHARGE_MAX = 4.f;
 constexpr float HIPPO_CHARGE_SPEED = 3.2f;
+// Seth's (plan hippo-boss), the hippo's boss: farther and faster than Sobek's.
+constexpr float SETH_CHARGE_MIN = 2.5f, SETH_CHARGE_MAX = 7.f;
+constexpr float SETH_CHARGE_SPEED = 4.5f;
+// His storm roar as the stun ends (RoarRules): within 2 tiles of him on his row, a blunt hit, shoved 1.5 tiles away
+// (at SHOVE_SPEED), sand over the screen for a second.
+constexpr float SETH_ROAR_RADIUS = 2.f;
+constexpr int SETH_ROAR_DAMAGE = 45;
+constexpr float SETH_ROAR_SHOVE = 1.5f;
+constexpr int SETH_ROAR_HAZE_MS = 1000;
+constexpr float SHOVE_SPEED = 6.f; // tiles per second the player slides when shoved (Dungeon::ShovePlayer)
 constexpr float CHARGE_JUMP_CLEAR = 0.15f;
 constexpr int CHARGE_HIT_FACTOR = 2;
 constexpr int CHARGE_STUN_MS = 2500;

@@ -927,6 +927,40 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::AmbushHop,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}}},
+	// Seth, the red hippopotamus (plan hippo-boss), on the hippo model: the hippo's lurk and charge, farther and
+	// faster, and his storm roar as a stun ends. A spear is his bane, as Horus's harpoon: pierce stays normal while he
+	// resists blows. The boss of the desert chapter's oasis.
+	{.id = MonsterSeth,
+	 .glyph = 'L',
+	 .name = "Seth",
+	 .label = "seth",
+	 .description = "Seth, the red hippo: lies in the water, charges along the row (a wall stuns him), roars a "
+					"sandstorm as the stun ends; hippos come out round him; his death opens the boss gates. One boss "
+					"per level",
+	 .note = "Seth in the shape of the red beast. Horus took him with a harpoon. I have a spear; it will have to do.",
+	 .threat = 16.f, // Sobek's charge, farther and faster, the roar, and hippos
+	 .model = "monsters/hippo",
+	 .texture = "monsters/hippo_seth",
+	 .sounds = "monsters/seth",
+	 .scale = 88, // 1.7 x the hippo's, as Sobek on the crocodile
+	 .blood = {0.45f, 0.05f, 0.02f},
+	 .speed = 5,
+	 .maxHealth = 2000,
+	 .damage = 80,
+	 .attackMs = 1500,
+	 .xp = 30000,
+	 .attackMix = HIPPO_MIX,
+	 .resist = bossResist(HIPPO_RESIST),
+	 .locomotion = Locomotion::Submerged,
+	 .courage = Courage::Reckless,
+	 .trapDamagePct = 10,
+	 .weight = 6,
+	 .wading = Wading::Swimmer,
+	 .waterSpeed = 3.f,
+	 .charge = ChargeRules{SETH_CHARGE_MIN, SETH_CHARGE_MAX, SETH_CHARGE_SPEED},
+	 .roar = RoarRules{SETH_ROAR_RADIUS, SETH_ROAR_DAMAGE, SETH_ROAR_SHOVE, SETH_ROAR_HAZE_MS},
+	 .kin = MonsterHippo,
+	 .boss = {MonsterHippo, 1, 2, 7000, 4, 0, Summon::DigOut}},
 }};
 
 constexpr bool validKinds() {

@@ -59,6 +59,7 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 constexpr DamageMix SPIKE_ATTACK_MIX = {0, 20, 80}; // spikes and the death trap
 constexpr DamageMix ROCK_ATTACK_MIX = {100, 0, 0};
 constexpr DamageMix DART_ATTACK_MIX = {0, 0, 100};
+constexpr DamageMix ROAR_MIX = {100, 0, 0}; // a storm roar's blast of sand (RoarRules, plan hippo-boss)
 
 // A hit on the player: the type resistances first, then the armour's flat amount (none if ignoreArmor); at least 1.
 // Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only,

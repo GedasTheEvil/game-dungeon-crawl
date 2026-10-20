@@ -109,6 +109,18 @@ class Dungeon {
 	void updateFlyer(Monster& mon);
 	bool updateBurrower(Monster& mon);
 	bool updateCharger(Monster& mon);
+	// A charger's storm roar as its stun ends (RoarRules, plan hippo-boss): the player on its row near it is hit,
+	// shoved away (ShovePlayer) and blinded by sand (SandHaze).
+	void stormRoar(const Monster& mon);
+	// The player sliding away from a shove, at SHOVE_SPEED: tiles still to go, the way (-1 / +1). Walls stop it.
+	struct Shove {
+		float left = 0.f;
+		int dir = 0;
+	} shove;
+	void updateShove();
+	// Sand over the screen (SandHaze): from hazeStartMs (GameClock) for hazeMs.
+	int hazeStartMs = 0;
+	int hazeMs = 0;
 	// Walkers (dungeon_walkers.cpp). A walker can't step into (col, row): a wall, no floor under it (a pit or a drop),
 	// or a trap (spikes, a death trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -456,6 +468,10 @@ class Dungeon {
 	[[nodiscard]] bool Travelling() const { return travel.phase != GateTravel::Phase::None; }
 	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
 	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
+	// Pushes the player tiles along the row, dir -1 / +1, sliding (a storm roar). Not while held.
+	void ShovePlayer(int dir, float tiles);
+	// 0..1: how thick the sand over the screen is (a storm roar), fading out.
+	[[nodiscard]] float SandHaze() const;
 	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen
 	[[nodiscard]] bool CutScenePlaying() const { return !cutScene.stops.empty(); }
 	[[nodiscard]] CutShot CutSceneShot() const { return cutShot; }

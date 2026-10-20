@@ -26,13 +26,14 @@ class CharacterModel {
 	void loadSounds(const char* name);
 
   public:
-	// media/sounds/<category>/<name>_{die,att,jump,wake,att_ranged}.wav, all optional
-	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound;
+	// media/sounds/<category>/<name>_{die,att,jump,wake,att_ranged,roar}.wav, all optional
+	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound, roarSound;
 
 	// name: "<category>/<name>", the same under media/models/, media/textures/ and media/sounds/.
 	// Takes the texture over. keepFrames: see AnimatedModel::Compile.
 	bool Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames = false);
-	// The clips (and measures) of `other`, loaded from the same model files, with its own texture and sounds.
+	// The clips (and measures) of `other`, loaded from the same model files, with its own texture and the sounds of
+	// name.
 	void Share(const CharacterModel& other, const char* name, Texture&& tex);
 	// The clips' frame counts and loop flags, the frame 0 extents: what the sim reads.
 	[[nodiscard]] const ModelInfo& Info() const { return info; }

@@ -40,6 +40,8 @@ void Dungeon::resetPlayerMotion() {
 	jump.falling = false;
 	jump.velocity = 0.f;
 	jump.fall_velocity = FALL_STEP;
+	shove = Shove{};
+	hazeMs = 0;
 }
 //======================================================================================
 void Dungeon::exploreAroundPlayer() {
@@ -113,6 +115,7 @@ void Dungeon::Update() {
 		return;
 	}
 	UpdateMovementState();
+	updateShove();
 	exploreAroundPlayer();
 	updateMechanisms();
 	UpdateMonsters();

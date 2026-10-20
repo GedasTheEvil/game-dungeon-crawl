@@ -3,7 +3,10 @@
 
     MCP:  p = ".../tools/blender/models/hippo.py"; g = {"__file__": p, "__name__": "hippo"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/hippo.py -- [--export] [--measure] [--bake]
+    CLI:  blender -b --python tools/blender/models/hippo.py -- [--export] [--measure] [--bake] [--boss-texture]
+
+hippo_seth.png (Seth, the boss, plan hippo-boss: deep red hide, black mottling, a gold-and-carnelian collar round the
+neck, pale eyes) shares the UVs: bake it alone with --boss-texture; HIPPO_TEX=seth shows it (with --bake).
 
 Blender space: Z up, the hippo faces +Y (game uses rotA = 180, as the crocodile and the rat), its right side is +X.
 Built like crocodile.py: one barrel loft for the body blended over hips / chest / head bones (plus a leaf 'breath' bone
@@ -63,6 +66,27 @@ COL = {
     "mouth": (0.70, 0.30, 0.32),
     "throat": (0.38, 0.10, 0.12),
     "tuft": (0.05, 0.04, 0.04),
+}
+# Seth (hippo_seth.png, same UVs, the boss): the red hippopotamus of the Edfu walls. Deep red hide, black mottling
+# ("mottle"), a gold collar with a carnelian band painted round the neck ("collar", "carnelian"), pale eyes.
+COL_SETH = {
+    "belly": (0.42, 0.10, 0.06),
+    "flank": (0.30, 0.045, 0.025),
+    "back": (0.20, 0.025, 0.015),
+    "dark": (0.11, 0.015, 0.01),
+    "pink": (0.55, 0.16, 0.12),
+    "fold": (0.16, 0.02, 0.015),
+    "nail": (0.12, 0.08, 0.06),
+    "eye": (0.80, 0.78, 0.62),
+    "pupil": (0.02, 0.01, 0.005),
+    "nostril": (0.02, 0.006, 0.004),
+    "tooth": (0.88, 0.80, 0.58),
+    "mouth": (0.62, 0.16, 0.14),
+    "throat": (0.30, 0.05, 0.04),
+    "tuft": (0.03, 0.01, 0.01),
+    "mottle": (0.03, 0.01, 0.01),
+    "collar": (0.78, 0.56, 0.14),
+    "carnelian": (0.62, 0.12, 0.04),
 }
 
 UP, FWD = V((0, 0, 1)), V((0, 1, 0))
@@ -280,6 +304,12 @@ def hide_material(pal):
     creases = ramp(wave.outputs["Fac"], (0.80, 0.0), (0.95, 1.0))
     neck = mul(clamp_lin(osep.outputs["Y"], 12.0, -0.24 * 12.0), clamp_lin(osep.outputs["Y"], -12.0, 0.46 * 12.0))
     out = mix(mul(mul(neck, creases.outputs["Color"]), clamp_lin(sep.outputs["Z"], -0.8, 0.9)), out, pal["fold"])
+    if "mottle" in pal:  # Seth: black blotches over the red, mostly on the back
+        blotch = noise(5.0, 2.0, (0.56, 0.0), (0.64, 1.0))
+        out = mix(mul(blotch.outputs["Color"], clamp_lin(sep.outputs["Z"], 0.9, 0.4)), out, pal["mottle"])
+    if "collar" in pal:  # Seth: a gold collar round the neck, a carnelian band in the middle of it
+        out = mix(mul(clamp_lin(osep.outputs["Y"], 60.0, -0.28 * 60.0), clamp_lin(osep.outputs["Y"], -60.0, 0.37 * 60.0)), out, pal["collar"])
+        out = mix(mul(clamp_lin(osep.outputs["Y"], 60.0, -0.31 * 60.0), clamp_lin(osep.outputs["Y"], -60.0, 0.34 * 60.0)), out, pal["carnelian"])
     link(out, bsdf.inputs["Base Color"])
     return mat
 
@@ -795,6 +825,9 @@ def build(bake=True, tex_path=None):
     if bake:
         tmp = bpy.app.tempdir or "/tmp"
         tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "hippo_preview.png"), TEX_SIZE, "hippo", ao_distance=0.08)
+        if os.environ.get("HIPPO_TEX") == "seth":
+            materials(COL_SETH)
+            tex = common.bake_texture(obj, os.path.join(tmp, "hippo_seth_preview.png"), TEX_SIZE, "hippo_seth", ao_distance=0.08)
         common.use_baked_material(obj, tex)
     common.rig_object(obj, rig)
     rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
@@ -839,7 +872,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_SETH)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "hippo_seth.png"), TEX_SIZE, "hippo_seth", ao_distance=0.08)
+    elif "--export" in args:
         build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "hippo.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "hippo.blend"))

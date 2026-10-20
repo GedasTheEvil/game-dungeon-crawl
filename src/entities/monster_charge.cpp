@@ -1,4 +1,4 @@
-// Chargers (Sobek, the hippo): the windup, the rush along the row and the stun in a wall.
+// Chargers (Sobek, the hippo, Seth): the windup, the rush along the row, the stun in a wall and Seth's storm roar.
 #include "monster.h"
 #include <cmath>
 #include "player.h"
@@ -22,26 +22,26 @@ void Monster::StartCharge(float px) {
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Charge);
 }
 
-void Monster::UpdateCharge(bool wallAhead, float px, float py) {
+bool Monster::UpdateCharge(bool wallAhead, float px, float py) {
 	const int now = GameClock::now();
 	const int age = now - charge.startMs;
 	switch (charge.phase) {
 	case ChargePhase::Ready:
-		return;
+		return false;
 	case ChargePhase::Windup:
 		if (age >= CHARGE_WINDUP_MS) {
 			charge.phase = ChargePhase::Rush;
 			charge.startMs = now;
 			enter(ModelState::Move);
 		}
-		return;
+		return false;
 	case ChargePhase::Rush: {
 		if (wallAhead) {
 			charge.phase = ChargePhase::Stunned;
 			charge.startMs = now;
 			enter(ModelState::Idle);
 			sound(CharacterSound::Die);
-			return;
+			return false;
 		}
 		x += static_cast<float>(charge.dir) * type->charge.value_or(ChargeRules{}).speed *
 			 static_cast<float>(UPDATE_TICK_MS) / 1000.f;
@@ -60,14 +60,21 @@ void Monster::UpdateCharge(bool wallAhead, float px, float py) {
 			charge.phase = ChargePhase::Ready;
 			charge.nextMs = now + CHARGE_COOLDOWN_MS;
 		}
-		return;
+		return false;
 	}
 	case ChargePhase::Stunned:
-		if (age >= CHARGE_STUN_MS) {
-			charge.phase = ChargePhase::Ready;
-			charge.nextMs = now + CHARGE_COOLDOWN_MS;
+		if (age < CHARGE_STUN_MS)
+			return false;
+		charge.phase = ChargePhase::Ready;
+		charge.nextMs = now + CHARGE_COOLDOWN_MS;
+		if (!type->roar) {
 			enter(ModelState::Move);
+			return false;
 		}
-		return;
+		enter(ModelState::Attack); // the roar: the threat yawn
+		sound(CharacterSound::Roar);
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Roar);
+		return true;
 	}
+	return false;
 }

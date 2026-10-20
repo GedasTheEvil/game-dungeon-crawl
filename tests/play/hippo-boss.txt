@@ -1,0 +1,12 @@
+# Plan hippo-boss, for `bin/game --play tests/play/hippo-boss.txt`: tests/levels/seth, Seth, the red hippo (col 15),
+# under the water of a long pool (cols 10-25), the west wall behind you. Wade in: within 4 tiles he comes up, gapes and
+# charges along the row through you into the west wall (stunned there: double damage). As the stun ends he roars a
+# sandstorm: within 2 tiles of him you are hit, shoved away and the sand blinds you for a second. Hippos come up out of
+# the water beside him. A spear's point goes in (normal damage); blows sink into the fat (resisted).
+seed 1
+level tests/levels/seth
+xp 600000
+give melee 2
+give melee 0
+equip spear
+give ranged 1

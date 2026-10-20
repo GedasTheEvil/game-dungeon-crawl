@@ -42,7 +42,8 @@ void CharacterModel::loadSounds(const char* name) {
 								  {"_att.wav", &attackSound},
 								  {"_jump.wav", &jumpSound},
 								  {"_wake.wav", &wakeSound},
-								  {"_att_ranged.wav", &attackRangedSound}})
+								  {"_att_ranged.wav", &attackRangedSound},
+								  {"_roar.wav", &roarSound}})
 		if (std::string path = sound + suffix; std::filesystem::exists(path))
 			target->Load(path.c_str());
 }

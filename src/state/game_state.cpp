@@ -151,6 +151,8 @@ const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
 		return model.wakeSound;
 	case CharacterSound::AttackRanged:
 		return model.attackRangedSound;
+	case CharacterSound::Roar:
+		return model.roarSound;
 	}
 	return model.dieSound;
 }

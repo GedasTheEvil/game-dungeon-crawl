@@ -86,8 +86,10 @@ enum MonsterTypeId : unsigned char {
 	MonsterHippo = 27, // lies under the water, charges along the row; slow on land
 	MonsterUshabti = 28, // stands among the decor ushabti as one of them until the player comes near, then walks
 	MonsterCursedMimic = 29, // a mimic that hops after the player once woken; its bite may lay insanity
+	MonsterSeth =
+		30, // boss: the red hippo, lies in the water, charges, roars a sandstorm when stunned; hippos come out
 };
-constexpr int MONSTER_TYPE_MAX = MonsterCursedMimic; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterSeth; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

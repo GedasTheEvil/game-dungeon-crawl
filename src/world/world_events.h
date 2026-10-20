@@ -35,8 +35,8 @@ enum class WorldSound : unsigned char {
 	JarSmash,
 };
 
-// A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged}.wav).
-enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged };
+// A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).
+enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged, Roar };
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
 // A safe moment for the autosave (plan autosave): the app writes it, unless the player is in danger then

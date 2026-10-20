@@ -239,6 +239,18 @@ void drawGameplay() {
 	glEnable(GL_BLEND);
 
 	Game().assets.textures.nullTex.Bind();
+	if (const float haze = Game().dungeon.SandHaze(); haze > 0.f) { // a storm roar's sand (plan hippo-boss)
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColor4f(0.78f, 0.62f, 0.38f, 0.8f * haze);
+		glBegin(GL_QUADS);
+		glVertex2f(0, 0);
+		glVertex2f(100, 0);
+		glVertex2f(100, 100);
+		glVertex2f(0, 100);
+		glEnd();
+		glColor3f(1, 1, 1);
+		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	}
 	if (const float fade = Game().dungeon.TravelFade(); fade > 0.f) { // gate travel: the view fades into the plasma
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		if (Game().dungeon.TravelToExit())

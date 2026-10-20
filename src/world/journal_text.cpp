@@ -91,6 +91,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return "In the water its jaws hold me fast and it rolls. When they gape, step back.";
 	case CreatureMove::StepOff:
 		return "Stands among the other figures, still as they are, and steps off its place when I come near.";
+	case CreatureMove::Roar:
+		return "Stunned against the wall, he gets up roaring a storm of sand. Do not stand next to him then.";
 	}
 	return "";
 }

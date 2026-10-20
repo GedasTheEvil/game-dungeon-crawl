@@ -113,7 +113,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | fire bolt | | the Anubis's ranged attack: a small fireball (orange core in flames, a flickering light), mostly fire, sets the player burning (the boss's longer) | `RangedRules::mix`, `RangedRules::burnMs`, `Fire::BOLT` |
 | stamina drain | | a bite that takes a share of the player's max stamina (the blue lotus's sedative, 25%); the journal's "drowsy" note | `MonsterKind::staminaDrainPct`, `CreatureMove::Sedate` |
 | stationary | | rooted to its spawn cell, bites when the player is next to it (the plant) | `Locomotion::Stationary` |
-| storm roar | | Seth's burst of sand as a charge's stun ends: a blunt hit, a shove and the sand haze for the player near him on his row ([hippo-boss](plan/hippo-boss.md)) | `RoarRules`, `MonsterKind::roar`, `Dungeon::stormRoar` |
+| storm roar | | Seth's burst of sand as a charge's stun ends: a blunt hit, a shove and the sand haze for the player near him on his row ([hippo-boss](plan/solved/hippo-boss.md)) | `RoarRules`, `MonsterKind::roar`, `Dungeon::stormRoar` |
 | shove | | the player pushed along the row, sliding at `SHOVE_SPEED` until a wall (the storm roar); the wall spikes' shove is instant | `Dungeon::ShovePlayer` |
 | sand haze | | sand over the screen after a storm roar, fading out | `Dungeon::SandHaze` |
 | submerged | | lies under the water until the player comes near (the crocodile; the hippo wakes at its charge range) | `Locomotion::Submerged` |

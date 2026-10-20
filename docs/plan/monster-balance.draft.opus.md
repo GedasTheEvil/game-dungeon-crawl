@@ -70,7 +70,7 @@ From `KINDS` (`src/world/monster_kinds.cpp`). Speed, HP, damage, ms between atta
 | Scorpion queen | 5 | 700 | 45 | 1100 | 15000 | boss lvl15, strong poison |
 | Apep | 6 | 1100 | 60 | 1200 | 20000 | boss lvl20, burrows |
 | Sobek | 6 | 1600 | 70 | 1300 | 25000 | boss lvl30 (was lvl25), charges (x2) |
-| Seth | 5 | 2000 | 80 | 1500 | 30000 | boss lvl25 ([hippo-boss](hippo-boss.md)), charges, storm roar |
+| Seth | 5 | 2000 | 80 | 1500 | 30000 | boss lvl25 ([hippo-boss](solved/hippo-boss.md)), charges, storm roar |
 | Anubis boss | 4.5 | 2400 | 140 | 1300 | 30000 | boss lvl35 (was lvl30), buffed 2026-10-06 |
 
 Boss minions get their XP from `Dungeon::MinionXP`.

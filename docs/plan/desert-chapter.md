@@ -1,7 +1,7 @@
 # The desert chapter: Seth's sands
 
 Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needed first
-[hippo-boss](hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
+[hippo-boss](solved/hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
 [Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Works better with
 [sunlight-mirrors](sunlight-mirrors.draft.opus.md) (the chapter's lock) and [placed-decor](placed-decor.draft.opus.md)
 (sand drifts placed by hand); does not need them.
@@ -65,7 +65,7 @@ limestone: own wall and floor textures, warm light, light shafts from cracks abo
 ## Seth (lvl25)
 
 The boss level ends in Seth's oasis: a sealed chamber with a pool (deep water, half water round it), sand ledges on
-both sides, palms and reeds as decor. Seth as in [hippo-boss](hippo-boss.md); the chapter adds his storm
+both sides, palms and reeds as decor. Seth as in [hippo-boss](solved/hippo-boss.md); the chapter adds his storm
 in the land: the storm roar throws sand (if the storm roar is the chosen ability). Behind the boss gate the key to
 the exit, as the other boss levels.
 

@@ -1,7 +1,7 @@
 # Hippo boss: Seth, the red hippopotamus
 
 Status: draft 2026-10-19, from the user ("a hippo boss, Egyptian, stronger than just a hippopotamus"). Ready:
-[hippo](solved/hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement. Implemented 2026-10-20, see
+[hippo](hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement. Implemented 2026-10-20, see
 [Implemented](#implemented); play-test: `bin/game --play tests/play/hippo-boss.txt`.
 
 ## Myth
@@ -32,9 +32,9 @@ So the boss is not a big hippo: it is a god in hippo shape, red, raging, with a 
   like his blunt), and the journal note hints at it. `bossResist` already lifts the hippo's weaknesses.
 * Minions: hippos surfacing from the water (`Summon::DigOut` splash, as Sobek's crocodiles). Fewer than Sobek's:
   default 1 / 2 / every 7 s / 4 per fight (a hippo is heavy).
-* Numbers (starting point, balance in [monster-balance](monster-balance.draft.opus.md)): HP above Sobek's 1600
+* Numbers (starting point, balance in [monster-balance](../monster-balance.draft.opus.md)): HP above Sobek's 1600
   (~2000), damage ~80 every 1500 ms, XP ~30000, `Courage::Reckless`, `trapDamagePct` 10, weight 6.
-* Fire: the hippo resists it (wet hide); with [fire-in-water](fire-in-water.draft.sonet.md) in, fire barely
+* Fire: the hippo resists it (wet hide); with [fire-in-water](../fire-in-water.draft.sonet.md) in, fire barely
   touches him in the water anyway.
 * Journal note, in the hippo's tone: "Seth in the shape of the red beast. Horus took him with a harpoon. I have a
   spear; it will have to do."
@@ -49,8 +49,8 @@ could be the hippo or the crocodile. Default stays Seth: reuses the hippo model,
 ## Placement
 
 No campaign level in this plan (user, 2026-10-19). His slot: the boss of the
-[desert-chapter](desert-chapter.md) (lvl25 there, his oasis). Here he only has to be play-testable: a `tests/play/hippo-boss.txt` script (a flooded room, hippos, Seth), per
-[plans.md](../plans.md#implemented). `levelcheck` must accept him (in or next to water, as the hippo).
+[desert-chapter](../desert-chapter.md) (lvl25 there, his oasis). Here he only has to be play-testable: a `tests/play/hippo-boss.txt` script (a flooded room, hippos, Seth), per
+[plans.md](../../plans.md#implemented). `levelcheck` must accept him (in or next to water, as the hippo).
 
 ## Open (warn when reporting)
 
@@ -81,7 +81,7 @@ No campaign level in this plan (user, 2026-10-19). His slot: the boss of the
   bellow swelling into a gust of sand). A boss's own voice on its kin's model: `MonsterKind::sounds`;
   `CharacterSound::Roar` (`_roar.wav`).
 * Tests: `tests/unit/seth_test.cpp` (his rules against the hippo's and Sobek's, the charge into the wall and the
-  roar's hit, shove and haze, no roar out of its radius, hippos dig out), scenario `tests/scenarios/seth.txt`
+  roar's hit, shove and haze, no roar out of its radius, hippos dig out), scenario `tests/scenarios/solved/seth.txt`
   (submerged, windup, charging, stunned, the roar's sand), level `tests/levels/seth`, play script
   `tests/play/hippo-boss.txt`.
-* No campaign level here: his oasis came with [desert-chapter](desert-chapter.md), lvl25.
+* No campaign level here: his oasis came with [desert-chapter](../desert-chapter.md), lvl25.

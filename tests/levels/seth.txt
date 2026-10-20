@@ -1,5 +1,5 @@
 ; Seth (col 15) in a long pool of half water (cols 10-25) over deep water, one dry cell west of it by the wall (col 9),
-; dry floor east of it (tests/unit/seth_test.cpp, tests/scenarios/seth.txt, tests/play/hippo-boss.txt).
+; dry floor east of it (tests/unit/seth_test.cpp, tests/scenarios/solved/seth.txt, tests/play/hippo-boss.txt).
 ####################################
 #########S.....L.................E##
 ####################################

@@ -34,6 +34,17 @@ Tile Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), st
 //======================================================================================
 void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].attr = value; }
 //======================================================================================
+bool Dungeon::PlacePlayer(int col, int row) {
+	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)) ||
+		(MapAt(col, row).type != Ladder && !isSolidTile(MapAt(col, row - 1))))
+		return false;
+	mapX = static_cast<float>(col) + 0.5f;
+	mapY = static_cast<float>(row);
+	resetPlayerMotion();
+	exploreAroundPlayer();
+	return true;
+}
+//======================================================================================
 void Dungeon::resetPlayerMotion() {
 	JumpState& jump = sim.player->jump;
 	jump.jumping = false;

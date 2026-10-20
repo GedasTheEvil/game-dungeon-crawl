@@ -21,6 +21,8 @@ constexpr float SWIRL_NEAR = 2.5f; // tiles: the quicksand swirls for a player t
 constexpr float SWIRL_TWIST = 0.9f; // radians at the middle, to and fro
 constexpr int SAND_POUR_MS = ROCK_FALL_MS + 600; // a sand fall's stream, from the end of its warning
 constexpr float POUR_DEPTH = 0.5f; // of the cell's depth: in the middle of the corridor, as the rock's
+constexpr uint32_t LIGHT_SHAFT_EVERY = 6; // about one desert cell in this many, with rock above and below, has a shaft
+constexpr float SHAFT_DEPTH = 0.45f; // of the cell's depth: the crack runs along the middle of the ceiling
 
 float smooth(float e0, float e1, float x) {
 	const float k = std::clamp((x - e0) / (e1 - e0), 0.f, 1.f);
@@ -134,9 +136,25 @@ void Dungeon::drawSandEffects() {
 						 [&](const Hole& h) { return h.startMs == m.startMs + ROCK_WARN_MS; }))
 			pours.push_back(
 				{static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, m.startMs + ROCK_WARN_MS});
+	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++) // after the opaque scene
+		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++)
+			if (lightShaft(i, j))
+				SunBeam::shaft((static_cast<float>(i) + 0.5f - col0) * T, (static_cast<float>(j) - row0) * T,
+							   -T * SHAFT_DEPTH, static_cast<uint32_t>(MapIndex(i, j)));
 	for (const Hole& p : pours)
 		Grit::pour((p.x - col0) * T, (static_cast<float>(p.row + 1) - row0) * T, -T * (1.f - POUR_DEPTH),
 				   now - p.startMs, SAND_POUR_MS, static_cast<uint32_t>(p.startMs));
+}
+//======================================================================================
+bool Dungeon::lightShaft(int i, int j) const {
+	if (!IsInBounds(i, j) || isRock(i, j) || !isRock(i, j + 1) || !isRock(i, j - 1))
+		return false;
+	const int cell = MapIndex(i, j);
+	if (decoration.surface[cell].ceiling != CEILING_SANDSTONE)
+		return false;
+	auto h = static_cast<uint32_t>(cell) * 2654435761U;
+	h ^= h >> 15;
+	return h % LIGHT_SHAFT_EVERY == 0;
 }
 //======================================================================================
 // A worm under the sand: a low mound of sand that heaves, dark grains rolling off it.

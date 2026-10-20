@@ -2,6 +2,8 @@
 // sinks the player (slower, stuck, hurt) until a jump frees them; a sand fall hits, slows and leaves a drift.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/world/campaign.h"
+#include "../../src/world/level_check.h"
 #include <algorithm>
 #include <cmath>
 
@@ -184,5 +186,38 @@ TEST_CASE("a worm off the sand walks as before; no boss lacks its kin's sand bur
 		const MonsterKind& k = *monsterKind(type);
 		if (k.isBoss() && monsterKind(k.kin)->sandBurrow)
 			CHECK(k.sandBurrow);
+	}
+}
+
+TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, Sobek at 30, the Anubis boss last") {
+	CHECK(CAMPAIGN_LEVELS == 35);
+	auto bossOf = [](int n) {
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		int boss = 0;
+		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++)
+			if (grid.cells[cell].type == MonsterSpawn && isBossMonster(grid.cells[cell].attr))
+				boss = grid.cells[cell].attr;
+		return boss;
+	};
+	CHECK(bossOf(20) == MonsterApep);
+	CHECK(bossOf(25) == MonsterSeth);
+	CHECK(bossOf(30) == MonsterSobek);
+	CHECK(bossOf(34) == MonsterMummyPriest);
+	CHECK(bossOf(35) == MonsterAnubisBoss);
+	for (int n = DESERT_FIRST; n <= DESERT_LAST; n++) {
+		CAPTURE(n);
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		const LevelReport r = checkLevel(grid);
+		CHECK(r.valid);
+		CHECK(r.warnings.empty());
+		CHECK(r.sandCells > 50);
+		CHECK(r.quicksandCells > 0);
+		CHECK(r.sandFalls > 0);
+		CHECK(r.monsters[MonsterCrocodile] == 0); // no water until the oasis
+		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) // the worms lie in the sand
+			if (grid.cells[cell].type == MonsterSpawn && grid.cells[cell].attr == MonsterWorm)
+				CHECK(inSand(grid.cells[cell]));
 	}
 }

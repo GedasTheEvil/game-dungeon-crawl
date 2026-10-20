@@ -117,7 +117,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | Seed of the game's random streams (`GameRandom`: loot, the riddle deck, clip start frames), applied at each `level`. Default 1. Each blood effect has its own stream. |
 | `god` | The player takes no damage (`Player::TakeHit`). Death tiles still kill. |
-| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`content/levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. |
+| `level N` / `level path` / `level gen:SEED:D` | Load campaign level N (`content/levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10. The player starts fresh, like New Game. Required before gameplay commands. `... at COL ROW` starts in that cell instead of the entrance (on its floor; a cell sealed off from the entrance, like a boss room, too). |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `walk left\|right\|up\|down N` | Hold the walk key until the player is N tiles away on that axis: the play speed (`WALK_SPEED`, one step a tick, `stepHeldWalk`). `up`/`down` work on ladders only. The command fails if the player does not move for 30 ticks. Float steps can stop a hair short (4.9999 for 5): walk a bit past a cell edge you need to be in. |
 | `walk to X` | Walk along the row until the player's map x reaches X, whichever way it is. Fails like `walk` when blocked. `levelcheck --script` uses it, so its steps do not add up errors. |

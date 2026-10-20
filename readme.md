@@ -86,8 +86,9 @@ window size, fullscreen, the graphics effects and the volumes. The choices are k
 
 ## Levels
 
-The campaign has 30 levels, a boss every five. The gem in the top right corner shows the current level: carnelian for
-levels 1-5, turquoise for 6-10, lapis lazuli for 11-15, malachite for 16-20, amethyst for 21-25, obsidian for 26-30. You can make your own with the level editor:
+The campaign has 35 levels, a boss every five. The gem in the top right corner shows the current level: carnelian for
+levels 1-5, turquoise for 6-10, lapis lazuli for 11-15, malachite for 16-20, amethyst for 21-25 (the desert), obsidian
+for 26-30, electrum for 31-35. You can make your own with the level editor:
 [tools/editor/readme.md](tools/editor/readme.md).
 
 ## Development

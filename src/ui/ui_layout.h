@@ -150,7 +150,7 @@ struct Tracker {
 // The HUD's level badge: a gem that gets more precious every LEVELS_PER_GEM levels (level_gem.h).
 namespace LevelGem {
 constexpr int LEVELS_PER_GEM = 5;
-constexpr int GEM_COUNT = 6; // carnelian, turquoise, lapis lazuli, malachite, amethyst, obsidian
+constexpr int GEM_COUNT = 7; // carnelian, turquoise, lapis lazuli, malachite, amethyst, obsidian, electrum
 // The gem of player level `level` (from 1): 0 carnelian .. GEM_COUNT - 1, the last one from there on.
 [[nodiscard]] int GemOf(int level);
 } // namespace LevelGem

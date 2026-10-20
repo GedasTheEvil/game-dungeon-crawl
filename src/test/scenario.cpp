@@ -227,6 +227,8 @@ bool loadLevel(const Command& cmd) {
 	Game().dungeon.ClearWin();
 	Game().player->Reanimate();
 	Game().player->god = gRunner.god;
+	if (cmd.b > 0.f) // a start cell other than the entrance
+		return Game().dungeon.PlacePlayer(static_cast<int>(cmd.b) - 1, cmd.ticks);
 	return true;
 }
 

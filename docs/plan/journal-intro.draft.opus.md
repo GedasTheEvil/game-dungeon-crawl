@@ -7,7 +7,7 @@ the player into lvl1 without a word.
 
 A new game opens the journal on a first entry, the archaeologist's own words: how they got here, what they found,
 what they hope to find. The player reads it, closes the journal and stands in lvl1. The story's frame for the whole
-campaign: the ankh in lvl30 is the secret of eternal life the entry speaks of.
+campaign: the ankh in lvl35 is the secret of eternal life the entry speaks of.
 
 * When: `GameState::NewGame` only, after lvl1 is loaded, before the first frame of play. Not on load, not on a
   restart after death (implementer's choice: also after death, if it reads as "back at the start").
@@ -41,7 +41,7 @@ Two pages at most. No gender for the archaeologist.
 >
 > I will keep notes. Someone should know what happened here.
 
-The jackal-headed statue foreshadows the Anubis boss of lvl30; the club is the starting weapon (`items.cpp`).
+The jackal-headed statue foreshadows the Anubis boss of lvl35; the club is the starting weapon (`items.cpp`).
 
 ## Fits with
 

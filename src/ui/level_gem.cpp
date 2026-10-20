@@ -32,6 +32,7 @@ constexpr GemLook GEMS[] = {
 	{{0.02f, 0.20f, 0.10f}, {0.08f, 0.52f, 0.30f}, {0.50f, 0.90f, 0.62f}, 10, false}, // malachite
 	{{0.20f, 0.05f, 0.28f}, {0.48f, 0.20f, 0.66f}, {0.82f, 0.62f, 1.f}, 12, false}, // amethyst
 	{{0.02f, 0.02f, 0.03f}, {0.12f, 0.11f, 0.14f}, {0.48f, 0.46f, 0.55f}, 16, true}, // obsidian
+	{{0.34f, 0.24f, 0.05f}, {0.84f, 0.67f, 0.26f}, {1.f, 0.95f, 0.72f}, 20, false}, // electrum, the last five levels
 };
 static_assert(sizeof(GEMS) / sizeof(GEMS[0]) == LevelGem::GEM_COUNT);
 

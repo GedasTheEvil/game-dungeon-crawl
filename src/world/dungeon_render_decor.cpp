@@ -246,6 +246,10 @@ void Dungeon::addLights(const CellRect& drawn) {
 				const FlameSource f = flameSource(flames[k]);
 				Lighting::add(ox + f.x, oy + f.y + LIGHT_LIFT, f.z + LIGHT_LIFT, *f.light, f.seed);
 			}
+			if (lightShaft(i, j)) // daylight on the floor (plan desert-chapter)
+				Lighting::add(ox + RenderConfig::TILE_HALF, oy + RenderConfig::TILE_SIZE * 0.3f,
+							  -RenderConfig::TILE_SIZE * 0.45f, Lighting::LIGHT_SHAFT,
+							  static_cast<uint32_t>(MapIndex(i, j)));
 		}
 }
 //======================================================================================

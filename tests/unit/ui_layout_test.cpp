@@ -4,6 +4,7 @@
 #include "../../src/ui/inventory_layout.h"
 #include "../../src/ui/page_turn.h"
 #include "../../src/ui/ui_layout.h"
+#include "../../src/world/campaign.h"
 #include <algorithm>
 #include <cmath>
 #include <string>
@@ -237,7 +238,9 @@ TEST_CASE("the level gem gets more precious every five levels, the last one from
 	CHECK(LevelGem::GemOf(5) == 0);
 	CHECK(LevelGem::GemOf(6) == 1);
 	CHECK(LevelGem::GemOf(11) == 2);
-	CHECK(LevelGem::GemOf(26) == LevelGem::GEM_COUNT - 1);
+	CHECK(LevelGem::GemOf(26) == 5);
+	CHECK(LevelGem::GemOf(31) == LevelGem::GEM_COUNT - 1);
+	CHECK(LevelGem::GemOf(CAMPAIGN_LEVELS) == LevelGem::GEM_COUNT - 1); // a gem for every five campaign levels
 	CHECK(LevelGem::GemOf(99) == LevelGem::GEM_COUNT - 1);
 	CHECK(LevelGem::GemOf(0) == 0);
 }

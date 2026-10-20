@@ -455,7 +455,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
 	 .climbGrip = 0.111f,
 	 .generated = {7, 10, 2}},
-	// The finale's guardian, a head taller than an Anubis, the strongest boss. The player comes to lvl30 at about
+	// The finale's guardian, a head taller than an Anubis, the strongest boss. The player comes to lvl35 at about
 	// level 55 (about 700 HP, 11 armour): 6 blows kill them. Reckless: the player cannot shake him off behind a row of
 	// traps.
 	{.id = MonsterAnubisBoss,
@@ -716,7 +716,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
-	// The lvl25 boss on the crocodile model (plan sobek-boss).
+	// The lvl30 boss on the crocodile model (plan sobek-boss).
 	{.id = MonsterSobek,
 	 .glyph = 'W',
 	 .name = "Sobek",
@@ -776,7 +776,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .riseMs = 600},
 	// The mummies' boss (plan mummy-boss): a high priest who read the curses at the funerals, a head taller than a
 	// mummy. Lies in a large coffin; a staff for blows and for a purple bolt; curses more and nastier than any other.
-	// lvl29 for now. The player comes there at about level 52: between Sobek and the Anubis boss.
+	// lvl34 for now. The player comes there at about level 52: between Sobek and the Anubis boss.
 	{.id = MonsterMummyPriest,
 	 .glyph = 'I',
 	 .name = "High Priest of Anubis",
@@ -905,7 +905,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .generated = {6, 10, 1}},
 	// The cursed mimic (plan cursed-mimic): the mimic's darker kin, a chest until woken like it, then it hops after
 	// the player and leaps the pits (Locomotion::AmbushHop), a bit slower than their walk. The only source of insanity.
-	// Hand-placed on levels 21-30 beside plain mimics; levelgen turns some of its mimics into it (CURSED_MIMIC_*).
+	// Hand-placed on levels 26-35 beside plain mimics; levelgen turns some of its mimics into it (CURSED_MIMIC_*).
 	{.id = MonsterCursedMimic,
 	 .glyph = 'x',
 	 .name = "Cursed chest of Set",

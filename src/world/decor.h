@@ -99,22 +99,29 @@ constexpr int WALL_STONE_CRACKED = 4;
 constexpr int WALL_STONE_SAND = 5;
 constexpr int WALL_ROUGH = 6;
 constexpr int WALL_ROUGH_STRATA = 7;
-constexpr int WALL_STYLE_COUNT = 8;
-constexpr const char* WALL_STYLE_NAMES[WALL_STYLE_COUNT] = {"wall_plaster", "wall_plaster_worn",  "wall_plaster_broken",
-															"wall_stone",	"wall_stone_cracked", "wall_stone_sand",
-															"wall_rough",	"wall_rough_strata"};
+// The desert chapter's sandstone (plan desert-chapter, DESERT_FIRST..DESERT_LAST): every row of it, no plaster.
+constexpr int WALL_SANDSTONE = 8;
+constexpr int WALL_SANDSTONE_WORN = 9;
+constexpr int WALL_STYLE_COUNT = 10;
+constexpr const char* WALL_STYLE_NAMES[WALL_STYLE_COUNT] = {
+	"wall_plaster",	   "wall_plaster_worn", "wall_plaster_broken", "wall_stone",	 "wall_stone_cracked",
+	"wall_stone_sand", "wall_rough",		"wall_rough_strata",   "wall_sandstone", "wall_sandstone_worn"};
 
 constexpr int FLOOR_SLABS = 0;
 constexpr int FLOOR_SAND = 1;
 constexpr int FLOOR_CRACKED = 2;
-constexpr int FLOOR_STYLE_COUNT = 3;
-constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {"floor_slabs", "floor_sand", "floor_cracked"};
+constexpr int FLOOR_SANDSTONE = 3; // the desert's
+constexpr int FLOOR_STYLE_COUNT = 4;
+constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {"floor_slabs", "floor_sand", "floor_cracked",
+															  "floor_sandstone"};
 
 constexpr int CEILING_STARS = 0; // over painted walls
 constexpr int CEILING_SLABS = 1; // over stone walls
 constexpr int CEILING_ROUGH = 2; // over rough walls
-constexpr int CEILING_STYLE_COUNT = 3;
-constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {"ceiling_stars", "ceiling_slabs", "ceiling_rough"};
+constexpr int CEILING_SANDSTONE = 3; // over sandstone walls, cracked: the light shafts come through
+constexpr int CEILING_STYLE_COUNT = 4;
+constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {"ceiling_stars", "ceiling_slabs", "ceiling_rough",
+																  "ceiling_sandstone"};
 
 // The face of a solid cell: media/textures/dungeon/rock.png, one image over 2 x 2 cells.
 constexpr const char* ROCK_TEXTURE = MEDIA_DIR "textures/dungeon/rock.png";

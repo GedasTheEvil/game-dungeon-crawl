@@ -38,6 +38,7 @@ constexpr int GATE_WAIT_MS = GATE_OPEN_MS + 200;
 const std::string TRAVEL_WAIT = "wait " + std::to_string(2 * GATE_TRAVEL_FADE_MS + 100) + "ms";
 static_assert(GATE_STOP > PLAYER_BODY_HALF_WIDTH + PLAYER_MOVE_STEP, "the walk to GATE_STOP must not bump the gate");
 constexpr float CLIMB_MARGIN = 0.03f;
+constexpr int JUMP_WAIT_MS_PER_STAMINA = 200; // stamina comes back at 5 a second at level 1 (max 100)
 
 // Scenario commands for the path: walks are merged until something else has to happen.
 class PathScript {
@@ -71,6 +72,13 @@ class PathScript {
 				break;
 			case PathMove::Jump:
 				flushWalk();
+				// The checker does not count stamina; the script waits for a jump's worth (out of quicksand,
+				// QUICKSAND_JUMP_STAMINA) at the first level's regeneration.
+				line("wait " +
+					 std::to_string((inQuicksand(grid.at(r.path[i - 1].col, r.path[i - 1].row)) ? QUICKSAND_JUMP_STAMINA
+																								: JUMP_STAMINA_COST) *
+									JUMP_WAIT_MS_PER_STAMINA) +
+					 "ms");
 				line("jump");
 				walkTo(target);
 				flushWalk();

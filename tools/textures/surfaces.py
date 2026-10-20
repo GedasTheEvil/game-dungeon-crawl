@@ -206,17 +206,31 @@ def sand_line():
     return 20 + 7 * noise(101, 1.4)[0][None, :]
 
 
-def stone(extra_sand=None, chips=0, crack_count=0, joint_sand=0.0):
+# The desert chapter's sandstone (plan desert-chapter): warm, banded blocks, worn round at the edges.
+DESERT_STONE = np.array([0.72, 0.52, 0.33])
+DESERT_STONE_LIGHT = np.array([0.86, 0.66, 0.43])
+DESERT_MORTAR = np.array([0.50, 0.36, 0.22])
+
+
+def stone(extra_sand=None, chips=0, crack_count=0, joint_sand=0.0, desert=False):
     dist, dist_h, tint = layout(WALL_ROWS, 102)
     mott = noise(103, 1.3)
     grain = noise(104, 0.4)
     fine = speckle(105, 0.02)
     d = dist + 1.5 * noise(106, 1.0)
     face = smoothstep(0.5, 7, d) ** 0.7
-    col = lerp(LIME, LIME_LIGHT, np.clip(0.5 + 0.25 * mott, 0, 1)) * tint
-    col *= (1 + 0.035 * grain + 0.05 * fine)[..., None]
-    col = lerp(MORTAR, col, face)
-    h = face + 0.07 * mott
+    if desert:  # bands of the bedding through every block, the edges worn round by the wind
+        bands = noise(115, 1.2, sx=10)
+        face = smoothstep(0.5, 14, d + 3 * noise(116, 1.1)) ** 0.5
+        col = lerp(DESERT_STONE, DESERT_STONE_LIGHT, np.clip(0.5 + 0.2 * mott + 0.22 * bands, 0, 1)) * tint
+        col *= (1 + 0.04 * grain + 0.05 * fine)[..., None]
+        col = lerp(DESERT_MORTAR, col, face)
+        h = face + 0.07 * mott + 0.06 * bands
+    else:
+        col = lerp(LIME, LIME_LIGHT, np.clip(0.5 + 0.25 * mott, 0, 1)) * tint
+        col *= (1 + 0.035 * grain + 0.05 * fine)[..., None]
+        col = lerp(MORTAR, col, face)
+        h = face + 0.07 * mott
     fade = edge_fade()
 
     if chips:
@@ -351,6 +365,17 @@ def wall_stone_sand():
     return finish(col, h, 5.0)
 
 
+def wall_sandstone():
+    col, h = stone(desert=True, joint_sand=0.5)
+    return finish(col, h, 5.0)
+
+
+def wall_sandstone_worn():
+    mound = 70 * np.sin(np.pi * X / N) ** 2 * (0.75 + 0.25 * noise(302, 1.8)[0][None, :])
+    col, h = stone(extra_sand=mound * edge_fade(v=False)[0][None, :], chips=4, crack_count=1, joint_sand=1.0, desert=True)
+    return finish(col, h, 5.0)
+
+
 def rough(strata_amount, vein=False, dark=1.0):
     big = noise(401, 1.7)
     mid = noise(402, 1.1)
@@ -392,14 +417,15 @@ def wall_rough_strata():
 # ---------------------------------------------------------------- floors
 
 
-def floor(extra_sand=0.0, crack_count=0, broken=False):
+def floor(extra_sand=0.0, crack_count=0, broken=False, desert=False):
     dist, _, tint = layout(FLOOR_ROWS, 501)
     mott = noise(502, 1.3)
     grain = noise(503, 0.4)
     fade = edge_fade(v=False)
     face = smoothstep(0.5, 8, dist + 1.5 * noise(504, 1.0)) ** 0.6
-    col = SLAB * tint * (1 + 0.06 * mott + 0.03 * grain + 0.04 * speckle(505, 0.02))[..., None]
-    col = lerp(MORTAR * 0.9, col, face)
+    slab, mortar = (DESERT_STONE, DESERT_MORTAR) if desert else (SLAB, MORTAR)
+    col = slab * tint * (1 + 0.06 * mott + 0.03 * grain + 0.04 * speckle(505, 0.02))[..., None]
+    col = lerp(mortar * 0.9, col, face)
     h = face + 0.06 * mott
     if broken:  # a slab corner broken off and sunk
         m = smoothstep(0, 4, 42 - np.hypot(X - 330, Y - 340) + 10 * noise(506, 0.9)) * fade
@@ -429,6 +455,10 @@ def floor_sand():
 
 def floor_cracked():
     return floor(extra_sand=-0.4, crack_count=2, broken=True)
+
+
+def floor_sandstone():
+    return floor(extra_sand=0.6, desert=True)
 
 
 # ---------------------------------------------------------------- ceilings and rock
@@ -473,6 +503,20 @@ def ceiling_slabs():
     return finish(col, h, 5.0)
 
 
+def ceiling_sandstone():
+    """Sandstone slabs with a crack or two: the desert's ceiling, where the light falls through."""
+    dist, _, tint = layout(CEILING_ROWS, 711)
+    mott = noise(712, 1.3)
+    bands = noise(713, 1.2, sx=10)
+    face = smoothstep(0.5, 12, dist + 3 * noise(714, 1.0)) ** 0.6
+    col = lerp(DESERT_STONE, DESERT_STONE_LIGHT, np.clip(0.4 + 0.2 * mott + 0.2 * bands, 0, 1)) * tint * 0.85
+    col = lerp(DESERT_MORTAR * 0.7, col, face)
+    c = cracks(715, 2, 170, 4.0) * edge_fade()
+    col *= (1 + 0.035 * noise(716, 0.4) + 0.04 * speckle(717, 0.02) - 0.5 * c)[..., None]
+    h = face + 0.08 * mott - 0.5 * c
+    return finish(col, h, 5.0)
+
+
 def ceiling_rough():
     col, h = rough(0.5, dark=0.8)
     return finish(col, h, 4.0)
@@ -502,12 +546,16 @@ TEXTURES = [
     ("wall_stone_sand", wall_stone_sand),
     ("wall_rough", wall_rough),
     ("wall_rough_strata", wall_rough_strata),
+    ("wall_sandstone", wall_sandstone),
+    ("wall_sandstone_worn", wall_sandstone_worn),
     ("floor_slabs", floor_slabs),
     ("floor_sand", floor_sand),
     ("floor_cracked", floor_cracked),
+    ("floor_sandstone", floor_sandstone),
     ("ceiling_stars", ceiling_stars),
     ("ceiling_slabs", ceiling_slabs),
     ("ceiling_rough", ceiling_rough),
+    ("ceiling_sandstone", ceiling_sandstone),
     ("rock", rock),
 ]
 
@@ -525,16 +573,21 @@ def main(out_dir, preview):
         print("wrote", name)
     if preview:  # every texture, then two strips of walls side by side to check the seams
         q = N // 2
-        sheet = Image.new("RGB", (q * 8, q * 4), (0, 0, 0))
+        top = (len(TEXTURES) + 7) // 8
+        sheet = Image.new("RGB", (q * 8, q * (top + 3)), (0, 0, 0))
         for k, (name, _) in enumerate(TEXTURES):
             sheet.paste(images[name].resize((q, q)), ((k % 8) * q, (k // 8) * q))
         strip = ["wall_plaster", "wall_plaster_worn", "wall_plaster", "wall_plaster_broken", "wall_stone", "wall_stone_sand",
                  "wall_stone_cracked", "wall_stone"]
         for k, name in enumerate(strip):
-            sheet.paste(images[name].resize((q, q)), (k * q, 2 * q))
+            sheet.paste(images[name].resize((q, q)), (k * q, top * q))
         strip = ["wall_rough", "wall_rough_strata", "wall_rough", "floor_slabs", "floor_sand", "floor_cracked", "floor_slabs", "rock"]
         for k, name in enumerate(strip):
-            sheet.paste(images[name].resize((q, q)), (k * q, 3 * q))
+            sheet.paste(images[name].resize((q, q)), (k * q, (top + 1) * q))
+        strip = ["wall_sandstone", "wall_sandstone_worn", "wall_sandstone", "wall_sandstone", "floor_sandstone", "floor_sand",
+                 "floor_sandstone", "ceiling_sandstone"]
+        for k, name in enumerate(strip):
+            sheet.paste(images[name].resize((q, q)), (k * q, (top + 2) * q))
         sheet.save(preview)
         print("wrote", preview)
 

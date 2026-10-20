@@ -515,3 +515,54 @@ void SunBeam::draw(float x, float y, float z, float progress) {
 	glColor4f(1, 1, 1, 1);
 	Lighting::setEmissive(false);
 }
+
+void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
+	constexpr float R = 1.f, G = 0.86f, B = 0.6f;
+	constexpr float HEIGHT = RenderConfig::TILE_SIZE;
+	constexpr int MOTES = 14;
+	constexpr float MOTE_MS = 6000.f;
+	Sprites s;
+	s.begin();
+	glEnd();
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBegin(GL_QUADS);
+	struct Layer {
+		float top, bottom, bright; // half widths at the ceiling and the floor
+	};
+	constexpr Layer LAYERS[] = {{7.f, 13.f, 0.16f}, {2.5f, 5.f, 0.3f}};
+	for (const Layer& l : LAYERS) {
+		glColor4f(R * l.bright * 0.5f, G * l.bright * 0.5f, B * l.bright * 0.5f, 1);
+		glTexCoord2f(0, 0.5f);
+		glVertex3f(x - l.bottom * s.rx, y, z - l.bottom * s.rz);
+		glTexCoord2f(1, 0.5f);
+		glVertex3f(x + l.bottom * s.rx, y, z + l.bottom * s.rz);
+		glColor4f(R * l.bright, G * l.bright, B * l.bright, 1);
+		glTexCoord2f(1, 0.5f);
+		glVertex3f(x + l.top * s.rx, y + HEIGHT, z + l.top * s.rz);
+		glTexCoord2f(0, 0.5f);
+		glVertex3f(x - l.top * s.rx, y + HEIGHT, z - l.top * s.rz);
+	}
+	const float pool = 0.22f; // on the floor
+	glColor4f(R * pool, G * pool, B * pool, 1);
+	glTexCoord2f(0, 0);
+	glVertex3f(x - 16.f, y + 0.3f, z - 8.f);
+	glTexCoord2f(0, 1);
+	glVertex3f(x - 16.f, y + 0.3f, z + 8.f);
+	glTexCoord2f(1, 1);
+	glVertex3f(x + 16.f, y + 0.3f, z + 8.f);
+	glTexCoord2f(1, 0);
+	glVertex3f(x + 16.f, y + 0.3f, z - 8.f);
+	glEnd();
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	const float now = static_cast<float>(GameClock::now());
+	for (int i = 0; i < MOTES; i++) { // dust sinking slowly through the light
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x27d4eb2fU));
+		const float p = std::fmod(now / MOTE_MS + unit01(h), 1.f);
+		const float my = y + HEIGHT * (1.f - p);
+		const float mx =
+			x + (unit01(h >> 16) - 0.5f) * 8.f * (0.5f + p) + 1.5f * std::sin(now * 0.001f + static_cast<float>(i));
+		s.add(mx, my, z + (unit01(mix(h)) - 0.5f) * 6.f, 1.2f, R, G, B, 0.5f * std::sin(3.1416f * p));
+	}
+	Sprites::end();
+}

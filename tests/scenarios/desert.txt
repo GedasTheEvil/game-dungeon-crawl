@@ -1,0 +1,17 @@
+# The desert chapter (plan desert-chapter): campaign level 21, the first sand hall in sandstone with a light shaft;
+# level 25, Seth's oasis (the player put on the west sand ledge by the teleporter): the pool, the ledges, Seth lurking.
+seed 1
+god
+level 21
+camera 30 10
+wait 30
+screenshot sand_hall
+walk to 12
+screenshot drifts
+level 25 at 4 2
+camera 30 10
+wait 30
+screenshot oasis
+walk to 9
+wait 2s
+screenshot oasis_seth

@@ -1,7 +1,8 @@
 # The desert chapter: Seth's sands
 
-Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needs first:
-[hippo-boss](hippo-boss.md) (Seth, the chapter's boss). Works better with
+Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needed first
+[hippo-boss](hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
+[Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Works better with
 [sunlight-mirrors](sunlight-mirrors.draft.opus.md) (the chapter's lock) and [placed-decor](placed-decor.draft.opus.md)
 (sand drifts placed by hand); does not need them.
 
@@ -88,3 +89,49 @@ the exit, as the other boss levels.
   the sand; the water stretch then stays one block).
 * Which new monster, if any (horned viper, vulture).
 * Sandstorm halls: in or not.
+
+## Implemented
+
+Choices for the open points: 35 levels, the desert at 21-25; no new monster; no sandstorm halls; levers and colour
+keys (two lock colours a level), no mirrors.
+
+* **Campaign**: `CAMPAIGN_LEVELS` 35. The old lvl21-30 are lvl26-35 (level files, their drawings in
+  `tools/level/campaign/`, the decor goldens, the inscription headers, the play scripts and docs that named them).
+  Bosses: Seth lvl25, Sobek lvl30, the mummy priest lvl34, the Anubis boss lvl35 (the ankh). Renamed files get a new
+  decor seed (the file name): their props, torches and decals are scattered anew (goldens rewritten). A seventh level
+  gem, electrum, for 31-35. Five more royal names (`content/names/kings.txt`, 35 now: one per level).
+* **Sand** (`Structure::Sand`, `,`): the walk at `SAND_SPEED_FACTOR` 0.75, no sprint (`Dungeon::PlayerCanSprint`), a
+  jump is fine; a step kicks up dust and sounds (`SandStep`). Drawn as a rippled drift over the floor
+  (`drawSandDrift`): it runs out towards dry floor, piles against rock and the back wall.
+* **Quicksand** (`Structure::Quicksand`, `%`): as sand to look at, darker, and up close (2.5 tiles) its sand twists
+  slowly round the middle (the tell). Standing in it: the walk from 0.5 down to nothing at 3 s, 5% of the max HP a
+  second from 5 s (no armour), the player drawn sinking (`QuicksandSink`, to 0.2 tiles). A jump frees them for 40
+  stamina (twice a jump's). `levelcheck`: a passable trap, jumped like spikes, at most 2 cells in a row.
+* **Sand falls**: a `RockFall` with attribute 1 (`SAND_FALL`, `&`): the crack, the trickle and its hiss, then sand
+  pours (`Grit::pour`) instead of a rock: 40 (no armour) and a 1.5 s slow to 40% for the player under it, the cell
+  turns to sand.
+* **The worm burrows in sand** (`MonsterKind::sandBurrow`): spawned in sand it lies under it (hidden, a heaving mound
+  of sand where it is, `drawRipple`), comes up within 2.5 tiles under the player in its sand, or at its sand's edge for
+  a player beside it; awake, it dives to come up under a player in its sand from 1.5 to 6 tiles away. Out of sand it
+  walks as before. Boss rule: `validKinds` makes a boss of the worm's kin burrow too (none yet;
+  [worm-boss](worm-boss.draft.opus.md)).
+* **Sandstone**: the desert's dressed rows are sandstone (`wall_sandstone`, `wall_sandstone_worn`, `floor_sandstone`,
+  `ceiling_sandstone`, `tools/textures/surfaces.py`; `desertLevel`, `DESERT_FIRST` .. `DESERT_LAST`), no plaster. About
+  one cell in six with rock above and below gets a shaft of daylight through a ceiling crack (`SunBeam::shaft`, a warm
+  light). Sounds: `tools/audio/sand_sounds.py`.
+* **The levels** (`tools/level/campaign/lvl21.txt` .. `lvl25.txt`, built with `ascii2level.py`): 13 halls each on
+  the full grid, sand in every hall, quicksand singles and pairs, sand falls, worms in the sand, giant scorpions,
+  giant cobras, camel spiders, giant bats, mummies, Anubis guards in 24 and 25, no crocodiles. Riddle gates in all
+  five, dart traps in 22 and 23, name gates with sealed rooms in 22 and 24. Lvl25 ends in Seth's oasis: a pool (half
+  water over deep water) between two sand ledges, lotuses, the Blessing of Hapi by the teleporter; behind the boss
+  gate the gold key and the ladder up to the exit hall. Difficulty 182 to 191, between lvl20 (182) and lvl26 (192).
+* **Journal**: field notes Sand and Quicksand; the worm's burrow move in its words; inscriptions 46-50 (Sinuhe in the
+  desert, Seth in the prow, the ways of Rosetau, the red hippopotamus, the first harpoon with a might boon) and 51, 52
+  for the sealed rooms.
+* **Tests**: `tests/unit/sand_test.cpp` (sand, quicksand, the sand fall, the worm in sand, the 35-level campaign and
+  the desert levels), scenarios `tests/scenarios/sand.txt`, `sand_worm.txt`, `desert.txt` (screenshots; `desert.txt`
+  uses the new `level N at COL ROW` to start in the oasis). `levelcheck --script` waits for a jump's stamina before each
+  scripted jump.
+* Not done: the sandstorm halls (left out), the sunlight mirrors (their own plan), a new desert monster. `make paths`
+  fails on old levels as before (bats' Fatigue starves the scripted jumps); the desert paths play through on copies
+  without monsters.

@@ -10,7 +10,7 @@ own or inside Field notes: implementer's choice).
 
 * ~15-20 pages over the campaign, in order of depth; each a few lines in a different handwriting (a second hand font,
   or the same font in another ink colour).
-* Content: humour and hints. A story arc: confident at the start, doubts, the last page near lvl28-29 ("If you read
+* Content: humour and hints. A story arc: confident at the start, doubts, the last page near lvl33-34 ("If you read
   this, take the left gate. I took the right.").
   Hints point at secrets: the [Stargate chamber](stargate-chamber.draft.opus.md), a mimic, a weak spot of a boss.
 * Stargate references welcome (the user loves the show): the missing archaeologist could be a nod to Daniel Jackson.

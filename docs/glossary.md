@@ -18,7 +18,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
-| campaign | | the 30 map levels in order, `content/levels/lvl1` .. `lvl30`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
+| campaign | | the 35 map levels in order, `content/levels/lvl1` .. `lvl35`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | structure | | a cell's bottom layer: wall, empty, half water or deep water. Not the structure of the code | `Structure`, `Tile::structure` |
 | object | | a cell's middle layer, at most one: a gate, a key, a trap, a ladder, a treasure, a monster spawn, the ankh; a type, an attribute and a value | `DungeonTileType`, `hasObject`, `setObject` |
@@ -31,7 +31,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
 | gap | | (map) an open cell in a floor, one cell wide, jumped over. Not the gap between hitboxes (see Combat) | `src/world/level_check.h` |
 | half water | | an open cell, half full: the player wades (half speed, no sprint, no jump), swimmers swim | `Structure::HalfWater`, `inHalfWater`, `WADE_SPEED_FACTOR` |
-| sand | | an open cell with a drift of sand on the floor: the player walks at 3/4 speed, no sprint, jumping is fine; a sand worm lurks under it ([desert-chapter](plan/desert-chapter.draft.opus.md)) | `Structure::Sand`, `inSand`, `Dungeon::PlayerInSand` |
+| sand | | an open cell with a drift of sand on the floor: the player walks at 3/4 speed, no sprint, jumping is fine; a sand worm lurks under it ([desert-chapter](plan/desert-chapter.md)) | `Structure::Sand`, `inSand`, `Dungeon::PlayerInSand` |
 | quicksand | | looks like sand; standing in it sinks the player (slower, stuck, hurt) until a jump frees them; a passable trap for the checker | `Structure::Quicksand`, `inQuicksand`, `Dungeon::updateQuicksand` |
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |

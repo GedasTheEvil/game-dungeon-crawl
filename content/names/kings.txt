@@ -160,3 +160,28 @@ name: Horemheb
 A: horemheb
 A: haremhab
 N: A general who made himself king. And scratched out the ones before.
+
+name: Peribsen
+A: peribsen
+N: Put Seth's animal over his name instead of Horus's falcon. Brave.
+
+name: Khasekhemwy
+A: khasekhemwy
+A: khasekhemui
+N: Horus and Seth both on his name. He made peace between them.
+
+name: Sahure
+A: sahure
+A: sahura
+N: Sent ships to Punt for myrrh. The temple walls show the receipts.
+
+name: Shoshenq
+A: shoshenq
+A: sheshonq
+A: shishak
+N: A Libyan on the throne. The Bible remembers his raid on Jerusalem.
+
+name: Ptolemy
+A: ptolemy
+A: ptolemaios
+N: A Macedonian general's line. There were fifteen of them, all Ptolemy.

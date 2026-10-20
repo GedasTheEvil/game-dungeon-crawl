@@ -4,8 +4,11 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
-Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](desert-chapter.draft.opus.md)
+Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](desert-chapter.md)
 (balance the final levels and monster set).
+
+Levels: [desert-chapter](desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
+levels named 21-30 below (play-test entries before 2026-10-20) are 26-35 now: Sobek on lvl30, the Anubis boss on lvl35.
 
 Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
@@ -66,8 +69,9 @@ From `KINDS` (`src/world/monster_kinds.cpp`). Speed, HP, damage, ms between atta
 | Giant scorpion | 9 | 70 | 12 | 1000 | 2000 | medium poison |
 | Scorpion queen | 5 | 700 | 45 | 1100 | 15000 | boss lvl15, strong poison |
 | Apep | 6 | 1100 | 60 | 1200 | 20000 | boss lvl20, burrows |
-| Sobek | 6 | 1600 | 70 | 1300 | 25000 | boss lvl25, charges (x2) |
-| Anubis boss | 4.5 | 2400 | 140 | 1300 | 30000 | boss lvl30, buffed 2026-10-06 |
+| Sobek | 6 | 1600 | 70 | 1300 | 25000 | boss lvl30 (was lvl25), charges (x2) |
+| Seth | 5 | 2000 | 80 | 1500 | 30000 | boss lvl25 ([hippo-boss](hippo-boss.md)), charges, storm roar |
+| Anubis boss | 4.5 | 2400 | 140 | 1300 | 30000 | boss lvl35 (was lvl30), buffed 2026-10-06 |
 
 Boss minions get their XP from `Dungeon::MinionXP`.
 

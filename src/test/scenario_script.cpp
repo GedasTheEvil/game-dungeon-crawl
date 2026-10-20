@@ -163,12 +163,20 @@ bool twoNumbers(const Args& args, Command& cmd) {
 
 bool parseResolution(const Args& args, Command& cmd) { return twoNumbers(args, cmd) && cmd.a >= 64 && cmd.b >= 64; }
 
+// level X [at COL ROW]: the start cell instead of the entrance, cmd.b = COL + 1 (0: the entrance), ticks = ROW.
 bool parseLevel(const Args& args, Command& cmd) {
-	if (args.size() != 1)
+	if (args.size() != 1 && (args.size() != 4 || args[1] != "at"))
 		return false;
 	float number = 0.f;
 	cmd.arg = args[0];
 	cmd.a = parseFloat(args[0], number) ? number : 0.f;
+	if (args.size() == 1)
+		return true;
+	float col = 0.f, row = 0.f;
+	if (!parseFloat(args[2], col) || !parseFloat(args[3], row) || col < 0.f || row < 0.f)
+		return false;
+	cmd.b = col + 1.f;
+	cmd.ticks = static_cast<int>(row);
 	return true;
 }
 
@@ -386,7 +394,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"resolution", CommandType::Resolution, parseResolution, "<width> <height>"},
 		{"seed", CommandType::Seed, numberAtLeast<0>, "<non-negative integer>"},
 		{"god", CommandType::God, noArgs, ""},
-		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY>"},
+		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY> [at <col> <row>]"},
 		{"wait", CommandType::Wait, parseWaitArgs, "<ticks|Nms|Ns>"},
 		{"walk", CommandType::Walk, parseWalk, "<left|right|up|down> <tiles> | walk to <map x>"},
 		{"hold", CommandType::Hold, parseHold, "<left|right|up|down> <ticks|Nms|Ns>"},

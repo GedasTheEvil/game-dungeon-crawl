@@ -12,7 +12,7 @@ are copied like any other inscription, and the gate's scroll, after a wrong name
 I copied might hold it." Learning the skill later translates the copy, name and all.
 
 Each run picks the names anew: New Game rolls a seed (`RunStats::nameSeed`, kept in the save game) that shuffles the
-name list, level 1 the first name. No name repeats in a run as long as the list has at least 30 names (the unit tests
+name list, level 1 the first name. No name repeats in a run as long as the list has at least 35 names (one per campaign level) (the unit tests
 check it). The seed also picks each level's cartouche picture, one of the 16 sign groups in
 `media/textures/decorations/name_cartouches.png`. The pictures do not spell the names: the skill translates them.
 

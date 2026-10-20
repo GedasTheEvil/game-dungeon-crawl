@@ -81,6 +81,9 @@ constexpr int DURATION_MS = 1600;
 float strength(float progress);
 // (x, y, z) = the player's feet in local space. Call after the opaque scene, like the fire.
 void draw(float x, float y, float z, float progress);
+// A shaft of daylight through a crack in the ceiling (plan desert-chapter): steady and faint, from the ceiling a tile
+// above (x, y, z) down to that floor point, dust motes drifting in it.
+void shaft(float x, float y, float z, uint32_t seed);
 } // namespace SunBeam
 
 #endif

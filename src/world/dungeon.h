@@ -286,6 +286,9 @@ class Dungeon {
 	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
 	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
 	void drawRipple(float x, float y, float z, int now) const;
+	// A shaft of daylight falls through a crack in the sandstone ceiling of (i, j): some of the desert's cells with
+	// rock above and floor below.
+	[[nodiscard]] bool lightShaft(int i, int j) const;
 	void drawHole(float x, float y, float z, float fade) const;
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
 	// them. False: neither is floor it can stand on.
@@ -395,6 +398,9 @@ class Dungeon {
 	// ladder, in the air (a jump, a fall), travelling through a gate or in quicksand.
 	[[nodiscard]] bool PlayerInDanger() const;
 	void SetLevelNumber(int number) { levelNumber = number; } // a save game was loaded
+	// Puts the player in cell (col, row), on its floor (scenario `level ... at`, play scripts that start at a feature).
+	// False: not a cell to stand in (a wall, no floor and no ladder).
+	bool PlacePlayer(int col, int row);
 	[[nodiscard]] bool Won() const { return won; }
 	void ClearWin() { won = false; } // a new game or a scenario level
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the

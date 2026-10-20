@@ -1,4 +1,5 @@
 #include "decor_scatter.h"
+#include "campaign.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
 #include "../core/gameplay_config.h"
@@ -344,10 +345,12 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 // stone on one side at most). Then a variant per cell, never the same uncommon one twice in a row.
 // Rows of rough rock, dressed stone or painted plaster in the shares of the level's tier (ROUGH_PERCENT,
 // PAINTED_PERCENT); the floors and ceilings that tier has unlocked.
-void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, SurfaceCell* surface, DecorCounts& counts) {
+// In the desert (desert) the dressed rows are all sandstone, no plaster.
+void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, bool desert, SurfaceCell* surface,
+					 DecorCounts& counts) {
 	enum Family : uint8_t { Painted, Stone, Rough };
 	const uint32_t roughPercent = ROUGH_PERCENT[tier];
-	const uint32_t paintedPercent = PAINTED_PERCENT[tier];
+	const uint32_t paintedPercent = desert ? 0 : PAINTED_PERCENT[tier];
 	Family family[LEVEL_WIDTH];
 	int familyCells[3] = {};
 
@@ -391,17 +394,22 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, SurfaceCell* su
 						cell.wall = roll < 35 ? WALL_PLASTER_WORN : WALL_PLASTER;
 					break;
 				case Stone:
-					cell.ceiling = CEILING_SLABS;
-					cell.wall = roll < 25 ? WALL_STONE_CRACKED : (roll < 45 ? WALL_STONE_SAND : WALL_STONE);
+					cell.ceiling = desert ? CEILING_SANDSTONE : CEILING_SLABS;
+					if (desert)
+						cell.wall = roll < 35 ? WALL_SANDSTONE_WORN : WALL_SANDSTONE;
+					else
+						cell.wall = roll < 25 ? WALL_STONE_CRACKED : (roll < 45 ? WALL_STONE_SAND : WALL_STONE);
 					break;
 				case Rough:
 					cell.ceiling = CEILING_ROUGH;
 					cell.wall = roll < 35 ? WALL_ROUGH_STRATA : WALL_ROUGH;
 					break;
 				}
-				const bool common = cell.wall == WALL_PLASTER || cell.wall == WALL_STONE || cell.wall == WALL_ROUGH;
+				const bool common = cell.wall == WALL_PLASTER || cell.wall == WALL_STONE || cell.wall == WALL_ROUGH ||
+									cell.wall == WALL_SANDSTONE;
+				const int stone = desert ? WALL_SANDSTONE : WALL_STONE;
 				if (!common && cell.wall == prevWall && cell.wall != WALL_PLASTER_BROKEN)
-					cell.wall = family[i] == Painted ? WALL_PLASTER : (family[i] == Stone ? WALL_STONE : WALL_ROUGH);
+					cell.wall = family[i] == Painted ? WALL_PLASTER : (family[i] == Stone ? stone : WALL_ROUGH);
 				prevWall = cell.wall;
 				familyCells[family[i]]++;
 
@@ -411,6 +419,12 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, SurfaceCell* su
 				floors[FLOOR_SAND] = family[i] == Rough ? 6 : 2;
 				floors[FLOOR_CRACKED] = tier >= CRACKED_FLOOR_TIER ? 2 : 0;
 				floors[FLOOR_SLABS] = tier >= SLAB_FLOOR_TIER && family[i] != Rough ? 5 : 0;
+				if (desert) { // sandstone slabs and sand
+					floors[FLOOR_SAND] = family[i] == Rough ? 6 : 3;
+					floors[FLOOR_CRACKED] = 0;
+					floors[FLOOR_SLABS] = 0;
+					floors[FLOOR_SANDSTONE] = family[i] == Rough ? 0 : 5;
+				}
 				cell.floor = weightedPick(floors, FLOOR_STYLE_COUNT, h);
 			}
 			start = end;
@@ -445,7 +459,7 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, De
 	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, layout.decor, layout.torch);
 	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);
-	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, layout.surface, counts);
+	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, desertLevel(depth), layout.surface, counts);
 	counts.treasures = scatterTreasures(cells, seed ^ TREASURE_SALT, tier, layout.treasure);
 	return counts;
 }
@@ -464,7 +478,8 @@ int decorTierUsed(const Tile* cells, const DecorLayout& layout) {
 			used = std::max(used, STAR_CEILING_TIER);
 		else if (s.wall <= WALL_PLASTER_BROKEN || s.floor == FLOOR_SLABS)
 			used = std::max(used, SLAB_FLOOR_TIER);
-		else if (s.wall <= WALL_STONE_SAND || s.floor == FLOOR_CRACKED)
+		else if (s.wall <= WALL_STONE_SAND || s.wall >= WALL_SANDSTONE || s.floor == FLOOR_CRACKED ||
+				 s.floor == FLOOR_SANDSTONE)
 			used = std::max(used, CRACKED_FLOOR_TIER);
 		else
 			used = std::max(used, 0);

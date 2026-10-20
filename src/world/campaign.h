@@ -6,7 +6,11 @@
 
 #include <string>
 
-constexpr int CAMPAIGN_LEVELS = 30;
+constexpr int CAMPAIGN_LEVELS = 35;
+// The desert chapter (plan desert-chapter): Seth's sands, sandstone instead of the tombs' limestone.
+constexpr int DESERT_FIRST = 21;
+constexpr int DESERT_LAST = 25;
+[[nodiscard]] constexpr bool desertLevel(int number) { return number >= DESERT_FIRST && number <= DESERT_LAST; }
 
 // The level file, also the seed of its decorations.
 [[nodiscard]] std::string campaignLevelFile(int number);

@@ -215,7 +215,71 @@ T: The strength of Montu is in the arm that strikes you.
 boon: might 1
 N: The priests spat on him every day. I will use a weapon.
 
-# ---- level 21: the teleporter at the end of this passage leads to a hidden treasure cistern.
+# ---- level 21: the desert begins; sand slows, and the drifts hide worms.
+
+id: 46
+title: Sinuhe in the desert
+style: column
+G: N25 Z2 D21 N33 Z2 G17
+T: Thirst overtook me as I walked.
+T: I was parched, my throat was full of dust.
+T: I said: this is the taste of death.
+T: Then I lifted my heart and gathered my limbs,
+T: for I heard the lowing of cattle.
+N: Sinuhe made it across. Somebody brought him milk. Nobody brings me milk.
+
+# ---- level 22
+
+id: 47
+title: Seth in the prow
+style: stela
+G: C7 Q3 X1 A40 N5 P1 G7 D40 I14 Z1
+T: Seth, great of strength, beloved of Ra,
+T: stands in the prow of the barque of millions.
+T: He casts his spear at Apep, the enemy,
+T: and the serpent sinks into the sand.
+T: Every night the sun passes, because of him.
+N: So he had a good side. Apep certainly thought otherwise.
+
+# ---- level 23: the sand flows here; whoever stands still sinks.
+
+id: 48
+title: The ways of Rosetau
+style: row
+G: R8 N33 N33 N33 W24 N31
+T: These are the hidden ways of Rosetau,
+T: the roads of the sand, the gates of the gods.
+T: They are not seen, they are not perceived.
+T: Whoever stands still upon them is taken by the sand.
+N: The Amduat, fourth hour. With a footnote I do not remember from the papyrus.
+
+# ---- level 24: Seth waits below as the red hippopotamus; a spear is his bane.
+
+id: 49
+title: The red hippopotamus
+style: column
+G: C7 E25 D21 X1 N35 M17 O49
+T: Then Seth took the form of a red hippopotamus
+T: and went down into the water to fight Horus.
+T: And Horus took up his harpoon of copper
+T: and cast it at the majesty of Seth.
+N: Copper harpoon. I have a spear. Close enough, I hope.
+
+# ---- level 25
+
+id: 50
+title: The first harpoon
+style: stela
+G: T21 D2 Z1 G5 D46 N35 I9 E25 X1 D19 D21 Z1
+T: The first harpoon is lodged in his snout,
+T: the second in his forehead,
+T: the third in his neck.
+T: Strong is the arm of Horus,
+T: who slays the red one in the waters.
+boon: might 1
+N: The Edfu play, act two. Horus's arm, they say. My arm takes what it can get.
+
+# ---- level 26: the teleporter at the end of this passage leads to a hidden treasure cistern.
 
 id: 19
 title: A visitor's graffito
@@ -235,7 +299,7 @@ T: The priests went down by the gate of light
 T: at the end of this passage. Water above, gold below.
 N: A teleporter to a treasure room? Lead the way.
 
-# ---- level 22
+# ---- level 27
 
 id: 21
 title: The satire of the trades
@@ -248,7 +312,7 @@ T: Be a scribe! It saves you from toil.
 boon: stamina 10
 N: Ancient career advice: be a scribe. I became an archaeologist.
 
-# ---- level 23: a dart trap right behind this inscription.
+# ---- level 28: a dart trap right behind this inscription.
 
 id: 22
 title: The instruction of Amenemhat
@@ -260,7 +324,7 @@ T: When you lie down, guard your heart yourself,
 T: for no man has followers on the day of woe.
 N: A king's advice to his son. Paranoid, but this hall has darts.
 
-# ---- level 24: Sobek, the boss of level 25, charges along the row.
+# ---- level 29: Sobek, the boss of level 30, charges along the row.
 
 id: 23
 title: Sobek of Shedet
@@ -271,7 +335,7 @@ T: When he sees you, he charges straight along the water.
 T: Do not stand in his line; step aside, and strike.
 N: The crocodile god is near. Rule one: do not stand in front of him.
 
-# ---- level 25
+# ---- level 30
 
 id: 24
 title: Hymn to Sobek
@@ -283,7 +347,7 @@ T: His children come from the water when he calls,
 T: and the lake is his.
 N: Lovely. I would still rather not meet him.
 
-# ---- level 26
+# ---- level 31
 
 id: 25
 title: A tomb robber's confession
@@ -304,7 +368,7 @@ T: I shall seize his neck like a bird's.
 T: There will be judgment, and an end shall be made of him.
 N: I washed my hands this morning. That counts, surely.
 
-# ---- level 27: the drop just west of this inscription leads into the hidden chamber in the pillar.
+# ---- level 32: the drop just west of this inscription leads into the hidden chamber in the pillar.
 
 id: 27
 title: The treasury in the pillar
@@ -315,7 +379,7 @@ T: Go down where the floor is open,
 T: and the gold of the god is yours.
 N: There is a hole in the floor right here. Subtle, ancients.
 
-# ---- level 28
+# ---- level 33
 
 id: 28
 title: The heart scarab
@@ -329,7 +393,7 @@ T: Be granite in my breast, and do not crack.
 boon: armor 1
 N: Book of the Dead, spell 30B. Mine would tip it: too much coffee.
 
-# ---- level 29: the hidden tomb is below the exit hall, down the drop east of this inscription, out by the ladder.
+# ---- level 34: the hidden tomb is below the exit hall, down the drop east of this inscription, out by the ladder.
 
 id: 29
 title: King of kings
@@ -351,7 +415,7 @@ T: with his gold and his beer. Go down, if you dare;
 T: the way up is by the ladder of the workmen.
 N: A tomb below the floor. And a ladder out. How thoughtful.
 
-# ---- level 30: the Anubis boss guards the ankh; his mummies climb out of the coffins.
+# ---- level 35: the Anubis boss guards the ankh; his mummies climb out of the coffins.
 
 id: 31
 title: Lord of the necropolis
@@ -372,7 +436,7 @@ T: I go out into the day, I live after death,
 T: as Ra does every day.
 N: The "Book of the Dead" is really "Going Forth by Day". Fitting.
 
-# ---- The secret rooms behind the name gates (plan secret-name-gates): one lore text per room, levels 6 to 30.
+# ---- The secret rooms behind the name gates (plan secret-name-gates): one lore text per room, levels 6 to 35.
 
 id: 33
 title: The steward's hoard
@@ -502,3 +566,23 @@ T: it is yours by the right of those who read,
 T: and with it the breath of life that was his.
 N: The right of those who read. I like this rule. Very much.
 boon: life 10
+
+id: 51
+title: The water carriers
+style: row
+G: A9 W24 N35A G17 N25
+T: I, Senbi, led the water carriers to the temple in the sand.
+T: Forty jars a day, from the oasis below.
+T: The jars we filled for ourselves
+T: we hid here, behind my lord's name.
+N: Three thousand years of rationing. The jars are dry. The rest is not.
+
+id: 52
+title: The servant of Seth
+style: column
+G: C7 M17 M3 Z1 A1
+T: I am the servant of Seth, lord of the red land.
+T: My lord is the storm over the sand,
+T: the roar in the empty places.
+T: Hear his name, and keep away from his water.
+N: A fan letter, sealed in the rock. The red land is the desert. I noticed.

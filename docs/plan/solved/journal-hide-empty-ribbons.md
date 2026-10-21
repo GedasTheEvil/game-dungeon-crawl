@@ -1,6 +1,6 @@
 # Journal: hide the ribbons of empty sections
 
-Implemented 2026-10-21, waiting for a play-test. Needs nothing first.
+Solved 2026-10-21 (play-tested).
 
 A journal section with no page yet has no ribbon: a new game's journal shows only the Diary's ribbon, the Creatures
 ribbon comes with the first monster seen, the Riddles and Inscriptions ribbons with the first riddle or inscription.
@@ -10,5 +10,5 @@ ribbon comes with the first monster seen, the Riddles and Inscriptions ribbons w
 - The book never lies open on an empty section: it falls back to the first section with pages (old saves, the
   default Creatures section before any monster).
 
-Test: `tests/scenarios/journal_empty_ribbons.txt` (screenshots). Play-test: New Game, the journal opens with only
+Test: `tests/scenarios/solved/journal_empty_ribbons.txt` (screenshots). Play-test: New Game, the journal opens with only
 the Diary ribbon; see a monster, reopen the journal (J).

@@ -193,3 +193,25 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 } // namespace
 
 const FieldNoteText& fieldNoteText(FieldNote note) { return FIELD_NOTES[static_cast<size_t>(note)]; }
+
+namespace {
+// The prologue: how the archaeologist came here. The statue is Anubis (the boss of lvl35), the ankh the one won there;
+// the club is the starting weapon (items.cpp).
+constexpr std::array<DiaryText, DIARY_PAGE_COUNT> DIARY = {{
+	{"Saqqara, the third week",
+	 {"The dig gave us nothing for nineteen days. On the twentieth, under the sand of the east trench, a statue no "
+	  "catalogue knows: a jackal-headed man, life-sized, an ankh in his hand, and no name on the base. The crew would "
+	  "not go near it. I am a scientist. I touched the ankh.",
+	  "Light. Then cold stone and darkness. No sand, no sky, no crew. One torch burns on the wall, as if someone "
+	  "expected me.",
+	  nullptr}},
+	{"Later",
+	 {"At my feet lay an old acacia club. Not a trowel, but it will do: something scratches in the dark down the "
+	  "hall. The corridor slopes down. There is no way back that I can see, so down it is.",
+	  "The first signs I can read speak of one thing only: the ankh, life without end. Someone built this maze to keep "
+	  "it. Or to keep someone in. If there is a way out, it is at the bottom, with the ankh.",
+	  "I will keep notes. Someone should know what happened here."}},
+}};
+} // namespace
+
+const DiaryText& diaryText(DiaryPage page) { return DIARY[static_cast<size_t>(page)]; }

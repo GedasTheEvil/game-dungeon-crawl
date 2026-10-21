@@ -195,7 +195,7 @@ A cloth-bound field notebook ([plan/solved/journal-real-book.md](plan/solved/jou
 (`media/textures/ui/journal_cloth.png` tinted `CLOTH`) showing all round, a cream elastic strap (`STRAP`) round its left edge,
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
 white grid pages (`media/textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
-come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`INK_RED` creatures, `LAPIS` riddles,
+come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`PLUM` diary, `INK_RED` creatures, `LAPIS` riddles,
 `GOLD_DIM` field notes, `INK_GREEN` inscriptions, swallowtail end) marks the section's first page
 ([plan/solved/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from

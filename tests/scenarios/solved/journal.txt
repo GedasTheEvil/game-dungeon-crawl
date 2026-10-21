@@ -39,10 +39,10 @@ expect journal_solved == 1
 # The journal opens on the creatures (nothing yet); the blue ribbon opens the riddles.
 key j
 wait 5
-mouse 88.2 70
+mouse 88.2 61
 wait 2
 screenshot ribbon_hover
-click 88.2 70
+click 88.2 61
 wait 45
 screenshot riddles
 # The right page's Answer button: the riddle scroll, Esc goes back to the journal.

@@ -7,14 +7,15 @@ constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
-// inscription's boon, 10: and its name cartouche picture
-constexpr int VERSION = 10;
+// inscription's boon, 10: and its name cartouche picture, 11: and the diary pages
+constexpr int VERSION = 11;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
 constexpr int FIRE_VERSION = 8;
 constexpr int BOON_VERSION = 9;
 constexpr int PICTURE_VERSION = 10;
+constexpr int DIARY_VERSION = 11;
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -147,6 +148,18 @@ std::vector<Boon> Journal::TranslateInscriptions() {
 	return boons;
 }
 
+void Journal::WriteDiary(DiaryPage page) {
+	if (std::find(diary.begin(), diary.end(), page) == diary.end())
+		diary.push_back(page);
+}
+
+void Journal::Begin() {
+	Clear();
+	WriteDiary(DiaryPage::Arrival);
+	WriteDiary(DiaryPage::Descent);
+	introPending = true;
+}
+
 void Journal::Dump(std::ostream& out) const {
 	out << TAG << ' ' << VERSION << ' ' << riddles.size() << '\n';
 	for (const JournalRiddle& r : riddles) {
@@ -172,6 +185,10 @@ void Journal::Dump(std::ostream& out) const {
 		out << ' ' << std::quoted(i.note) << ' ' << i.translated << ' ' << static_cast<int>(i.boon.kind) << ' '
 			<< i.boon.amount << ' ' << i.picture << '\n';
 	}
+	out << diary.size();
+	for (DiaryPage d : diary)
+		out << ' ' << static_cast<int>(d);
+	out << '\n';
 }
 
 void Journal::Load(std::istream& in) {
@@ -227,5 +244,14 @@ void Journal::Load(std::istream& in) {
 		else
 			e.boon = Boon{};
 		inscriptions.push_back(e);
+	}
+	if (version < DIARY_VERSION || !(in >> count))
+		return;
+	for (size_t i = 0; i < count; i++) {
+		int page = 0;
+		if (!(in >> page))
+			return;
+		if (page >= 0 && page < DIARY_PAGE_COUNT)
+			WriteDiary(static_cast<DiaryPage>(page));
 	}
 }

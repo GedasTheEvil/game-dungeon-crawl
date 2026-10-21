@@ -209,11 +209,16 @@ void GameState::NewGame() {
 	player->stats.run.campaign = true; // from New Game on level 1: the win goes on the leaderboard
 	player->stats.run.nameSeed = random.gameplay.next(); // each level's royal name (plan secret-name-gates)
 	ui.inventory->Reset();
-	journal.Clear();
+	journal.Begin();
 	dungeon.LoadCampaignLevel(1);
 	dungeon.ClearWin();
 	player->Reanimate();
 	Autosave(AutosaveMoment::LevelStart);
+	// The story starts in the notebook: the prologue, open before the first frame of play (plan journal-intro).
+	if (journal.TakeIntro()) {
+		ui.journal.OpenIntro();
+		ui.screen = Screen::Journal;
+	}
 }
 //==============================================================
 // Scenarios never touch saves/: theirs lands in tests/out/<name>/.

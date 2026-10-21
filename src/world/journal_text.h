@@ -2,6 +2,7 @@
 #define JOURNAL_TEXT_H
 
 #include "journal.h"
+#include <array>
 
 struct MonsterKind;
 
@@ -17,5 +18,12 @@ struct FieldNoteText {
 };
 // The rules as the game has them (PlayerStats, ItemBag, the mechanisms); keep them in step.
 const FieldNoteText& fieldNoteText(FieldNote note);
+
+// A diary page (plan journal-intro): a dated heading, then its paragraphs.
+struct DiaryText {
+	const char* title;
+	std::array<const char*, 3> paragraphs; // null past the last one
+};
+const DiaryText& diaryText(DiaryPage page);
 
 #endif

@@ -10,10 +10,11 @@
 #include <optional>
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 // The archaeologist's notebook (plan journal-sections): what the player went through, kept per save game: creatures,
-// riddles and field notes.
+// diary, riddles, field notes and inscriptions.
 
 // A riddle met at a gate. A copy, not an index into content/riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
@@ -149,6 +150,13 @@ constexpr int FIELD_NOTE_COUNT = 37;
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::CurseWeakness) + static_cast<int>(c));
 }
 
+// The archaeologist's own entries (plan journal-intro), the Diary section: one page each, in the order written.
+enum class DiaryPage : unsigned char {
+	Arrival, // the prologue: the statue, the ankh, the torch on the wall
+	Descent, // the prologue's second page: the club, the way down, the ankh at the bottom
+};
+constexpr int DIARY_PAGE_COUNT = 2;
+
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);
 
@@ -188,11 +196,22 @@ class Journal {
 	std::vector<Boon> TranslateInscriptions();
 	[[nodiscard]] const std::vector<JournalInscription>& Inscriptions() const { return inscriptions; }
 
+	// Written once; the pages keep the order they were written in.
+	void WriteDiary(DiaryPage page);
+	[[nodiscard]] const std::vector<DiaryPage>& Diary() const { return diary; }
+
+	// A new game: an empty journal with the prologue written, and the screen asked to open it (plan journal-intro).
+	void Begin();
+	// True once after Begin: the game opens the journal on the Diary. A loaded journal never asks.
+	bool TakeIntro() { return std::exchange(introPending, false); }
+
 	void Clear() {
 		riddles.clear();
 		creatures.clear();
 		notes.clear();
 		inscriptions.clear();
+		diary.clear();
+		introPending = false;
 	}
 
 	// Saved after the dungeon. Saves from before the journal end before the tag: the journal stays empty.
@@ -204,6 +223,8 @@ class Journal {
 	std::vector<JournalCreature> creatures;
 	std::vector<FieldNote> notes;
 	std::vector<JournalInscription> inscriptions;
+	std::vector<DiaryPage> diary;
+	bool introPending = false; // not saved
 
 	JournalCreature& creature(int type, int level);
 };

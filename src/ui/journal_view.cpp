@@ -1,6 +1,7 @@
 #include "journal_view.h"
 #include "../graphics/gl_includes.h"
 #include "../input/input.h"
+#include "../input/input_actions.h"
 #include "../state/game_state.h"
 #include "../world/decor.h"
 #include "../world/inscriptions.h"
@@ -97,7 +98,13 @@ constexpr size_t MAX_TRANSLATION_SMALL_LINES = 7;
 constexpr float COMMENT_BOTTOM = 8.5f; // the pencilled comment's first baseline above the page bottom
 constexpr float COMMENT_STEP = 3.2f;
 constexpr size_t MAX_COMMENT_LINES = 2;
+constexpr float DIARY_TOP = 18.f; // the first line's baseline below the page top
+constexpr float DIARY_STEP = 4.f;
+constexpr float DIARY_SMALL_STEP = 3.4f;
+constexpr float DIARY_HEIGHT = 46.f; // room for the lines, down to above the close hint
 constexpr float GIFT_BOTTOM = COMMENT_BOTTOM - COMMENT_STEP; // a translated boon's line, under the comment
+
+constexpr Color PLUM = {0.40f, 0.15f, 0.36f}; // the diary's ribbon
 
 struct SectionLook {
 	const char* name;
@@ -105,6 +112,7 @@ struct SectionLook {
 	Color colour;
 };
 constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
+	{"Diary", "D", PLUM},
 	{"Creatures", "M", INK_RED},
 	{"Riddles", "R", LAPIS},
 	{"Field notes", "F", GOLD_DIM},
@@ -213,6 +221,8 @@ void formField(Font& font, float x, float y, const std::string& name, const std:
 // ---- pages -----------------------------------------------------------------
 
 int JournalScreen::PageCount(Section s) const {
+	if (s == Section::Diary)
+		return static_cast<int>(Game().journal.Diary().size());
 	if (s == Section::Riddles)
 		return static_cast<int>(Game().journal.Riddles().size());
 	if (s == Section::Creatures)
@@ -275,6 +285,16 @@ bool JournalScreen::CanAnswer(int side) const {
 }
 
 void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
+
+void JournalScreen::OpenIntro() {
+	turn = {};
+	hovered = {};
+	pressed = {};
+	section = Section::Diary;
+	spread[static_cast<size_t>(section)] = 0;
+	intro = true;
+	Game().assets.sounds.pageTurn.Play();
+}
 
 // ---- page turns ------------------------------------------------------------
 
@@ -641,6 +661,9 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 	beginShapes();
 
 	switch (at.section) {
+	case Section::Diary:
+		DrawDiary(p, page);
+		break;
 	case Section::Creatures:
 		DrawCreature(p, page);
 		break;
@@ -898,6 +921,46 @@ void JournalScreen::DrawFieldNote(const Rect& p, int index) {
 	for (const std::string& l : wrap(hand, note.text, p.w - 2 * PAGE_PAD)) {
 		text(hand, p.x + PAGE_PAD, y, l.c_str(), INK_BLUE);
 		y -= FIELD_NOTE_STEP;
+	}
+	beginShapes();
+}
+
+// A dated heading, the entry in ink under it, smaller when it would not fit. While a new game shows it, the last
+// page tells the key that closes the book, in pencil at the bottom.
+void JournalScreen::DrawDiary(const Rect& p, int index) {
+	const DiaryText& page = diaryText(Game().journal.Diary()[static_cast<size_t>(index)]);
+	float top = p.y + p.h;
+	float width = p.w - 2 * PAGE_PAD;
+	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, page.title);
+	auto wrapAll = [&](const Font& font) {
+		std::vector<std::string> lines;
+		for (const char* paragraph : page.paragraphs) {
+			if (paragraph == nullptr)
+				break;
+			if (!lines.empty())
+				lines.emplace_back(); // a blank line between paragraphs
+			for (const std::string& l : wrap(font, paragraph, width))
+				lines.push_back(l);
+		}
+		return lines;
+	};
+	Font* font = &hand;
+	float step = DIARY_STEP;
+	std::vector<std::string> lines = wrapAll(hand);
+	if (static_cast<float>(lines.size()) * step > DIARY_HEIGHT) {
+		font = &handSmall;
+		step = DIARY_SMALL_STEP;
+		lines = wrapAll(handSmall);
+	}
+	beginText();
+	float y = top - DIARY_TOP;
+	for (const std::string& l : lines) {
+		text(*font, p.x + PAGE_PAD, y, l.c_str(), INK_BLUE);
+		y -= l.empty() ? step / 2 : step;
+	}
+	if (intro && index == PageCount(Section::Diary) - 1) {
+		std::string hint = keyCapOf(BindAction::Journal) + " or Esc closes the journal";
+		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();
 }

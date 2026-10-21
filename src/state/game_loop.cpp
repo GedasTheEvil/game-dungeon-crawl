@@ -50,6 +50,7 @@ void tick() {
 		glutPostRedisplay();
 		return;
 	}
+	Game().ui.journal.EndIntro(); // the new game's journal was closed: no close hint any more
 
 	// A cut-scene (plan cinematic-effects): the world stands still, the player and the clocks too, only its gates move.
 	// No key repeat meanwhile, so a key held down from before does not skip it.

@@ -6,7 +6,7 @@ level tests/levels/rats
 wait 5
 key j
 wait 2
-click 88.2 59.9
+click 88.2 50.9
 wait 45
 screenshot none_yet
 key j

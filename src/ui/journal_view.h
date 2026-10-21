@@ -16,10 +16,14 @@
 // game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:
-	enum class Section : std::uint8_t { Creatures, Riddles, FieldNotes, Inscriptions };
-	static constexpr int SECTION_COUNT = 4;
+	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions };
+	static constexpr int SECTION_COUNT = 5;
 
 	void Draw();
+	// A new game (plan journal-intro): the book opens on the Diary's first spread, the close key hinted on the page
+	// until the game runs again (EndIntro).
+	void OpenIntro();
+	void EndIntro() { intro = false; }
 	void SpecialKeyPressed(int key);
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
@@ -71,6 +75,7 @@ class JournalScreen {
 	std::array<Texture, MONSTER_TYPE_MAX + 1> photoTextures; // monster textures in black and white, by type, on demand
 	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
 	bool pagesFailed = false; // no framebuffers: the pages are drawn straight onto the book, turns are instant
+	bool intro = false; // opened by a new game, not closed yet (OpenIntro)
 
 	[[nodiscard]] int PageCount(Section s) const;
 	[[nodiscard]] int SpreadCount(Section s) const;
@@ -119,6 +124,7 @@ class JournalScreen {
 	void DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered);
 	void DrawCreature(const ui::Rect& page, int index);
 	void DrawFieldNote(const ui::Rect& page, int index);
+	void DrawDiary(const ui::Rect& page, int index);
 	void DrawInscription(const ui::Rect& page, int index);
 	void DrawSketch(int type, const ui::Rect& box, bool photo, float tilt);
 	void DrawRiddle(const ui::Rect& page, int index, bool answerHovered, bool answerHeld);

@@ -1,5 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/journal.h"
+#include "../../src/world/journal_text.h"
 #include <sstream>
 
 namespace {
@@ -168,4 +169,27 @@ TEST_CASE("a journal from before fire: the poison tried moves up past the fire b
 	CHECK(j.Creatures()[0].Tried(DamageType::Blunt));
 	CHECK_FALSE(j.Creatures()[0].Tried(DamageType::Fire));
 	CHECK(j.Creatures()[0].TriedPoison());
+}
+
+TEST_CASE("a new game writes the prologue and asks once for the journal on it; a loaded game does not") {
+	Journal j;
+	j.LearnNote(FieldNote::Keys);
+	j.Begin();
+	CHECK(j.Notes().empty());
+	REQUIRE(j.Diary().size() == DIARY_PAGE_COUNT);
+	CHECK(j.Diary().front() == DiaryPage::Arrival);
+	CHECK(j.TakeIntro());
+	CHECK_FALSE(j.TakeIntro());
+	for (DiaryPage page : j.Diary()) {
+		CHECK(std::string(diaryText(page).title).size() > 0);
+		CHECK(diaryText(page).paragraphs[0] != nullptr);
+	}
+
+	j.Begin();
+	std::stringstream save;
+	j.Dump(save);
+	Journal loaded;
+	loaded.Load(save);
+	CHECK(loaded.Diary() == j.Diary());
+	CHECK_FALSE(loaded.TakeIntro());
 }

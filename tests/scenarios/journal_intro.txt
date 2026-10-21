@@ -1,0 +1,21 @@
+# A new game opens the journal on the prologue, the Diary's first spread, before the first frame of play (plan
+# journal-intro). The level loaded first only gets the game to its menu.
+level tests/levels/classic1
+wait 10
+key esc
+wait 2
+click 50 25.5
+wait 2
+screenshot main_menu
+click 50 76.4
+wait 2
+dump
+expect level == 1
+screenshot prologue
+key j
+wait 5
+dump
+screenshot closed
+key j
+wait 5
+screenshot reopened_no_hint

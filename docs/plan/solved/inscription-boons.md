@@ -1,7 +1,7 @@
 # Inscription boons: a permanent stat for a few inscriptions
 
 Status: solved 2026-10-15, play-tested by the user (`bin/game --play tests/play/inscription-boons.txt`).
-From the user. Works alongside [more-inscriptions](../more-inscriptions.draft.opus.md) (more texts to put boons on).
+From the user. Works alongside [more-inscriptions](../denser-levels.draft.opus.md#more-inscriptions-from-level-1-on) (more texts to put boons on).
 
 ## Done (2026-10-15)
 
@@ -39,7 +39,7 @@ you win, sometimes you don't. Nothing hints at a boon beforehand: not the wall, 
   ankh, "breath of life", going forth by day give max HP; Shu and the wind, the royal messenger, the runner give
   max stamina.
 * Rarity: about 1 in 5 inscriptions (the user; the exact share is the implementer's). With today's 32 texts that is
-  6 or 7; as [more-inscriptions](../more-inscriptions.draft.opus.md) adds texts, keep the share. Mix the four kinds,
+  6 or 7; as [more-inscriptions](../denser-levels.draft.opus.md#more-inscriptions-from-level-1-on) adds texts, keep the share. Mix the four kinds,
   spread them out (not two in one level). Compare the might and armor potions placed in the campaign so that boons
   stay a side bonus. The implementer judges the balance.
 * Candidates among the current texts: 29 "King of kings" (Might), 16 "The djed of Osiris" (Armor), 32 "Going forth

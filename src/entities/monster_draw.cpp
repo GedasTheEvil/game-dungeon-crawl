@@ -6,6 +6,7 @@
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
 #include "../graphics/render_config.h"
+#include "../core/gameplay_config.h"
 
 namespace {
 // Health bar in world units (a tile is 40), the same for every monster.
@@ -122,5 +123,17 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	model.Show(mon.State(), mon.Playback());
 
 	glPopMatrix();
+	glPopMatrix();
+}
+
+void DrawEntombed(const MonsterType& type, const CharacterModel& model) {
+	glPushMatrix();
+	glTranslatef(-RenderConfig::TILE_HALF, 0, -30.f - MUMMY_COFFIN_DEPTH);
+	glScalef(type.scale, type.scale, type.scale);
+	model.BindTexture();
+	glRotatef(type.rotA, 0, 1, 0);
+	const float figure = Ink::figureScale();
+	glScalef(figure, figure, figure);
+	model.Show(ModelState::Idle, ClipPlayback{});
 	glPopMatrix();
 }

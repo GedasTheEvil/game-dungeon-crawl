@@ -134,7 +134,8 @@ void Dungeon::drawDecorTile(int i, int j) {
 	if (cell.type < 0)
 		return;
 
-	AnimatedModel* model = sim.assets->decor.model[cell.type].get();
+	const int shown = decorModel(cell.type);
+	AnimatedModel* model = sim.assets->decor.model[shown].get();
 	if (model == nullptr)
 		return;
 
@@ -146,7 +147,7 @@ void Dungeon::drawDecorTile(int i, int j) {
 		waterMotion(cell.type, MapIndex(i, j));
 
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
-	sim.assets->decor.tex[cell.type].Bind();
+	sim.assets->decor.tex[shown].Bind();
 	model->Show(); // no face culling, so the mirrored winding does not matter
 	glPopMatrix();
 }

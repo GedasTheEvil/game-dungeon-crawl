@@ -175,6 +175,7 @@ class Dungeon {
 	// cursed mimic's chest is where it died).
 	void markSlain(const Monster& mon);
 	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
+	void drawDecoys(const CellRect& drawn); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool inView(const Monster& mon) const;
 	void noteSeenMonsters(); // the monsters on screen go in the journal
 	void drawHitboxes(const HitboxView& weapon);

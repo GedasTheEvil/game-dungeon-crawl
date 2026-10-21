@@ -1,4 +1,5 @@
 #include "level.h"
+#include "decor.h"
 #include <cstring>
 #include <fstream>
 
@@ -66,11 +67,62 @@ std::string readThings(std::istream& in, Tile* cells, const char* name, bool wal
 	return "";
 }
 
+std::string where(int col, int row) { return " at " + std::to_string(col) + " " + std::to_string(row); }
+
+bool placedIndex(int index, int count) {
+	return index == PLACED_UNSET || index == PLACED_BARE || (index >= 0 && index < count);
+}
+
+// The decor list (plan placed-decor): "decor COUNT", then COUNT lines "COL ROW PROP MIRROR".
+std::string readDecor(std::istream& in, Tile* cells) {
+	std::string word;
+	int count = 0;
+	if (!(in >> word >> count) || word != "decor" || count < 0)
+		return "no decor layer";
+	for (int k = 0; k < count; k++) {
+		int col = 0, row = 0, prop = 0, mirror = 0;
+		if (!(in >> col >> row >> prop >> mirror))
+			return "file ends early";
+		if (!LevelGrid::inBounds(col, row))
+			return "prop outside the level" + where(col, row);
+		if (!placedIndex(prop, DECOR_COUNT))
+			return "unknown prop " + std::to_string(prop) + where(col, row);
+		Dressing& d = cells[row * LEVEL_WIDTH + col].dressing;
+		d.prop = prop;
+		d.propMirror = mirror != 0;
+	}
+	return "";
+}
+
+// The decal list: "decals COUNT", then COUNT lines "COL ROW DECAL MIRROR TORCH".
+std::string readDecals(std::istream& in, Tile* cells) {
+	std::string word;
+	int count = 0;
+	if (!(in >> word >> count) || word != "decals" || count < 0)
+		return "no decal layer";
+	for (int k = 0; k < count; k++) {
+		int col = 0, row = 0, decal = 0, mirror = 0, torch = 0;
+		if (!(in >> col >> row >> decal >> mirror >> torch))
+			return "file ends early";
+		if (!LevelGrid::inBounds(col, row))
+			return "decal outside the level" + where(col, row);
+		if (!placedIndex(decal, DECAL_COUNT))
+			return "unknown decal " + std::to_string(decal) + where(col, row);
+		if (torch < 0 || torch >= TORCH_PLACING_COUNT)
+			return "unknown torch " + std::to_string(torch) + where(col, row);
+		Dressing& d = cells[row * LEVEL_WIDTH + col].dressing;
+		d.decal = decal;
+		d.decalMirror = mirror != 0;
+		d.torch = static_cast<TorchPlacing>(torch);
+	}
+	return "";
+}
+
 std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
 	int width = 0, height = 0;
 	if (!(in >> version >> width >> height))
 		return "file ends early";
-	if (version != 2 && version != LEVEL_VERSION)
+	if (version < 2 || version > LEVEL_VERSION)
 		return "unknown version " + std::to_string(version);
 	if (width != LEVEL_WIDTH || height != LEVEL_HEIGHT)
 		return "wrong size " + std::to_string(width) + " x " + std::to_string(height);
@@ -95,11 +147,15 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
 	}
 
 	if (version >= 3) {
-		std::string error = readThings(in, cells, "wall", true);
+		const std::string error = readThings(in, cells, "wall", true);
 		if (!error.empty())
 			return error;
 	}
-	return readThings(in, cells, "objects", false);
+	std::string error = readThings(in, cells, "objects", false);
+	if (!error.empty() || version < 4)
+		return error;
+	error = readDecor(in, cells);
+	return error.empty() ? readDecals(in, cells) : error;
 }
 } // namespace
 
@@ -144,6 +200,25 @@ void writeLevel(std::ostream& out, const Tile* cells) {
 		if (hasObject(t))
 			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << t.type << ' ' << t.attr << ' ' << t.value
 				<< '\n';
+	}
+	count = 0;
+	for (int i = 0; i < CELLS; i++)
+		count += hasPlacedProp(cells[i].dressing) ? 1 : 0;
+	out << "decor " << count << '\n';
+	for (int i = 0; i < CELLS; i++) {
+		const Dressing& d = cells[i].dressing;
+		if (hasPlacedProp(d))
+			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << d.prop << ' ' << (d.propMirror ? 1 : 0) << '\n';
+	}
+	count = 0;
+	for (int i = 0; i < CELLS; i++)
+		count += hasPlacedDecal(cells[i].dressing) ? 1 : 0;
+	out << "decals " << count << '\n';
+	for (int i = 0; i < CELLS; i++) {
+		const Dressing& d = cells[i].dressing;
+		if (hasPlacedDecal(d))
+			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << d.decal << ' ' << (d.decalMirror ? 1 : 0) << ' '
+				<< static_cast<int>(d.torch) << '\n';
 	}
 }
 

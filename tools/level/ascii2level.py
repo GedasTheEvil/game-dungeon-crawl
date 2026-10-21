@@ -41,7 +41,8 @@ def game_legend():
     _, magic, version = lines[1].split()
     structures = lines[2].split()[1]
     wall_types = {int(v) for v in lines[3].split()[1:]}
-    legend = {line[0]: tuple(int(v) for v in line[2:].split()[:4]) for line in lines[4:]}
+    # The glyph lines; "prop" and "decal" lines after them are for the --map drawings.
+    legend = {line[0]: tuple(int(v) for v in line[2:].split()[:4]) for line in lines[4:] if line[1] == " "}
     return int(w), int(h), f"{magic} {version} {w} {h}", structures, wall_types, legend
 
 
@@ -119,6 +120,7 @@ def main(src, dst):
             f.write(f"{name} {len(things)}\n")
             for (col, row), (a, b, c) in sorted(things.items(), key=lambda kv: (kv[0][1], kv[0][0])):
                 f.write(f"{col} {row} {a} {b} {c}\n")
+        f.write("decor 0\ndecals 0\n")  # no placed props or decals: the editor paints them (plan placed-decor)
 
 
 if __name__ == "__main__":

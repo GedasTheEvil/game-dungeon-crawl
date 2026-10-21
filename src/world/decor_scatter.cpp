@@ -25,9 +25,9 @@ constexpr int STRETCH_MIN = 3; // cells; a row of dressed stone is cut into stre
 constexpr int STRETCH_SPAN = 6; // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
-constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,  0.12f, 0.06f, 0.1f,	0.f,   0.15f, 0.2f, 0.1f,
-											 0.1f, 0.06f, 0.14f, 0.2f,	0.1f,  0.2f,  0.2f, 0.2f,
-											 0.2f, 0.1f,  0.f,	 0.08f, 0.12f, 0.1f,  0.2f, 0.f};
+constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f,
+											 0.06f, 0.14f, 0.2f,  0.1f, 0.2f, 0.2f,	 0.2f, 0.2f, 0.1f,
+											 0.f,	0.08f, 0.12f, 0.1f, 0.2f, 0.f,	 0.f};
 
 bool inBounds(int col, int row) { return LevelGrid::inBounds(col, row); }
 int cellIndex(int col, int row) { return row * LEVEL_WIDTH + col; }
@@ -124,6 +124,15 @@ bool scatterWaterProp(const Tile* cells, uint32_t seed, int tier, int i, int j, 
 	return true;
 }
 
+// A placed decal that grows from the floor (plan placed-decor): no random prop goes in front of it.
+bool placedFloorDecal(const Tile& tile) {
+	const int decal = tile.dressing.decal;
+	return decal >= 0 && DECAL_DEFS[decal].anchor == DecalAnchor::Floor;
+}
+
+// A prop with its own fire or a crown up to the torch: none goes with a wall torch (scatterTorches).
+bool torchless(int prop) { return prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop); }
+
 int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
@@ -143,14 +152,25 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 				cell.type = static_cast<int8_t>(DECOR_USHABTI);
 				continue;
 			}
+			// The decor layer (plan placed-decor): the designer's prop, whatever the tiers and the cell's contents.
+			if (const Dressing& dressed = tile.dressing; hasPlacedProp(dressed)) {
+				if (dressed.prop == PLACED_BARE)
+					continue;
+				const uint32_t h = mix(mix(cellHash(seed, cellIndex(i, j))));
+				cell.type = static_cast<int8_t>(dressed.prop);
+				cell.mirror = dressed.propMirror;
+				cell.offsetX = (unit01(h) * 2.f - 1.f) * DECOR_JITTER[dressed.prop];
+				placed++;
+				continue;
+			}
 
 			if (inHalfWater(tile)) {
 				placed += scatterWaterProp(cells, seed, tier, i, j, cell) ? 1 : 0;
 				continue;
 			}
 			// Only empty cells the player can stand in (floor below). A slain monster's tile stays bare, as in its
-			// life.
-			if (!isEmptyCell(tile) || slainMonster(tile) != 0 || !floorAt(cells, i, j - 1))
+			// life, a placed floor decal free.
+			if (!isEmptyCell(tile) || slainMonster(tile) != 0 || !floorAt(cells, i, j - 1) || placedFloorDecal(tile))
 				continue;
 
 			uint32_t h = cellHash(seed, cellIndex(i, j));
@@ -162,10 +182,12 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			// The web lies flat on the back wall, tucked into a side wall's corner if there is one: it needs a ceiling.
 			const bool webFits = rockAt(cells, i, j + 1);
 
-			// Thoth's variants count as one pick (the first), the variant comes after.
+			// Thoth's variants count as one pick (the first), the variant comes after. Under a placed torch no fire or
+			// crown of its own.
+			const bool torch = tile.dressing.torch == TorchPlacing::Torch;
 			uint32_t weights[DECOR_SCATTERED];
 			for (int d = 0; d < DECOR_SCATTERED; d++)
-				weights[d] = (isThoth(d) && d != DECOR_THOTH) || (d == DECOR_WEB && !webFits)
+				weights[d] = (isThoth(d) && d != DECOR_THOTH) || (d == DECOR_WEB && !webFits) || (torch && torchless(d))
 								 ? 0
 								 : tierWeight(DECOR_TIERS[d], tier);
 			h = mix(h);
@@ -257,9 +279,18 @@ int scatterLadders(const Tile* cells, uint32_t seed, LadderCell* ladder) {
 	return shafts;
 }
 
+// A torch the decal layer places within TORCH_MIN_GAP after column col of row (plan placed-decor).
+bool placedTorchAhead(const Tile* cells, int col, int row) {
+	for (int k = col + 1; k <= col + TORCH_MIN_GAP && k < LEVEL_WIDTH; k++)
+		if (at(cells, k, row).dressing.torch == TorchPlacing::Torch)
+			return true;
+	return false;
+}
+
 // Torches hang on the back wall at head height, spaced along each row. Cells with a fire of their own (brazier, oil
 // lamp), the gates and ladders and deep water (plan no-torches-under-water) are skipped; over half water the flame
-// clears the surface.
+// clears the surface. The decal layer's torches (plan placed-decor) hang where it says, whatever the rules; the random
+// ones keep the gap to them.
 int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, bool* torch) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++) {
@@ -269,10 +300,17 @@ int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, boo
 			cell = false;
 
 			const Tile tile = at(cells, i, j);
+			if (tile.dressing.torch != TorchPlacing::Unset) {
+				cell = tile.dressing.torch == TorchPlacing::Torch;
+				lastTorch = cell ? i : lastTorch;
+				placed += cell ? 1 : 0;
+				continue;
+			}
 			const int8_t prop = decor[cellIndex(i, j)].type;
+			const int decal = tile.dressing.decal; // a placed free decal takes the middle of the wall
 			if (isWall(tile) || tile.structure == Structure::DeepWater || !tileDef(tile.type).torch ||
-				!tileDef(tile.fixture.type).torch || prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop) ||
-				i - lastTorch <= TORCH_MIN_GAP)
+				!tileDef(tile.fixture.type).torch || torchless(prop) || i - lastTorch <= TORCH_MIN_GAP ||
+				(decal >= 0 && DECAL_DEFS[decal].anchor == DecalAnchor::Free) || placedTorchAhead(cells, i, j))
 				continue;
 
 			const uint32_t h = cellHash(seed, cellIndex(i, j));
@@ -286,6 +324,27 @@ int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, boo
 	return placed;
 }
 
+// Decal type in cell, its x from the roll h, its y from its anchor (and the next roll for a free one).
+void placeDecal(DecalCell& cell, int type, bool mirror, uint32_t h) {
+	const DecalDef& def = DECAL_DEFS[type];
+	const float half = def.size / 2.f;
+	cell.type = static_cast<int8_t>(type);
+	cell.mirror = mirror;
+	cell.x = half + unit01(h) * (1.f - def.size);
+	h = mix(h);
+	switch (def.anchor) {
+	case DecalAnchor::Ceiling:
+		cell.y = 1.f - half;
+		break;
+	case DecalAnchor::Floor:
+		cell.y = half;
+		break;
+	case DecalAnchor::Free: // around eye height, clear of the frieze near the top of the wall
+		cell.y = std::max(half, 0.35f) + unit01(h) * std::max(0.f, 0.62f - std::max(half, 0.35f));
+		break;
+	}
+}
+
 // One decal at most per cell with a visible back wall. Runs after the props and torches so floor decals can avoid
 // cells that already have a prop, free ones a torch.
 int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout& layout, DecalCell* decal) {
@@ -296,10 +355,17 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 			cell = DecalCell{};
 
 			const Tile tile = at(cells, i, j);
+			const int dressed = tile.dressing.decal;
+			if (dressed == PLACED_BARE)
+				continue;
+			uint32_t h = cellHash(seed, cellIndex(i, j));
+			if (dressed >= 0) { // the decal layer's (plan placed-decor): whatever the tiers and the rules
+				placeDecal(cell, dressed, tile.dressing.decalMirror, h);
+				placed++;
+				continue;
+			}
 			if (isWall(tile) || !tileDef(tile.type).decals || !tileDef(tile.fixture.type).decals)
 				continue;
-
-			uint32_t h = cellHash(seed, cellIndex(i, j));
 			if (h % 100 >= DECAL_CHANCE_PERCENT)
 				continue;
 
@@ -320,24 +386,8 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 			const int type = weightedPick(weights, DECAL_COUNT, h);
 			if (type < 0)
 				continue;
-			const DecalDef& def = DECAL_DEFS[type];
-			const float half = def.size / 2.f;
-			cell.type = static_cast<int8_t>(type);
 			h = mix(h);
-			cell.mirror = (h & 1U) != 0;
-			cell.x = half + unit01(h) * (1.f - def.size);
-			h = mix(h);
-			switch (def.anchor) {
-			case DecalAnchor::Ceiling:
-				cell.y = 1.f - half;
-				break;
-			case DecalAnchor::Floor:
-				cell.y = half;
-				break;
-			case DecalAnchor::Free: // around eye height, clear of the frieze near the top of the wall
-				cell.y = std::max(half, 0.35f) + unit01(h) * std::max(0.f, 0.62f - std::max(half, 0.35f));
-				break;
-			}
+			placeDecal(cell, type, (h & 1U) != 0, h);
 			placed++;
 		}
 	return placed;

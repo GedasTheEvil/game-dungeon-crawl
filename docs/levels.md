@@ -15,6 +15,16 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
+Two more say how the cell is dressed ([placed-decor](plan/placed-decor.md)), each unset (the game scatters
+it as on any level), bare (none) or one picked with its mirror, whatever the depth:
+
+* **Decor**: the cell's prop (`DECOR_NAMES`, `src/world/decor.h`), among them the decoy, a coffin with a mummy asleep
+  in it for good. A mummy's spawn keeps its own coffin, a page its skeleton, a living ushabti its decor ushabti.
+* **Decal**: the cell's wall decal (`DECAL_DEFS`) and, as a second field, its wall torch (unset, none, a torch).
+  Random torches keep their gap to a placed one.
+
+Rules and the editor's palettes: [tools/editor/readme.md](../tools/editor/readme.md#decor-and-decal-layers).
+
 Fixtures and objects stand in `Empty`, `HalfWater`, `Sand` or `Quicksand`. A cell can hold one of each: an inscription over a chest, a
 lever behind a monster spawn. Interact takes the chest first, then the fixture (pull the lever, read the inscription)
 with the next press, then a mirror (turn it); a gate (exit, teleporter) comes last. Wall spikes block their cell when out, so `levelcheck` warns
@@ -48,11 +58,12 @@ reach with the mirrors the player reaches from there (with the colours open by t
 light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
 as the level starts.
 
-Level files are text, version 3: a `DCLEVEL 3 40 47` header, the structure as a drawing, then the list of fixtures
-and the list of objects (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold the
-same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1, v2)
-level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer);
-`levelcheck` warns about a file older than v3, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v3. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+Level files are text, version 4: a `DCLEVEL 4 40 47` header, the structure as a drawing, then the lists of fixtures,
+objects, props and decals (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
+the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1
+to v3) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
+v3 file's cells are all unset); `levelcheck` warns about a file older than v4, and `bin/levelconvert FILE...` (built by
+`make`) rewrites one as v4. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -123,7 +134,7 @@ make level-tools
 bin/levelcheck content/levels/lvl*                   # report per level, then a ranking, easiest first
 bin/levelcheck --map content/levels/lvl3             # plus the map with the path drawn as '*'
 bin/levelcheck --legend                      # the map's characters, with the tile each one stands for
-bin/levelconvert content/levels/lvl*                 # rewrite v1 and v2 level files as v3 (v3 files are left alone)
+bin/levelconvert content/levels/lvl*                 # rewrite v1 to v3 level files as v4 (v4 files are left alone)
 bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -152,7 +163,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a run of wall spikes that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v3, a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
+| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a run of wall spikes that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6 (a name gate too), the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
@@ -232,7 +243,10 @@ follow (after the structure drawing, if any) with the wall drawing, the same row
 inscription, `|` wall spikes, or a `def` of a wall type), `#` and `.` for none. A wall glyph in the object drawing goes
 to the wall layer too, so a fixture alone in its cell needs no wall drawing. `levelcheck --map` shows a cell's fixture
 where it has no object, prints the structure drawing after the map when the level has water, then the wall drawing
-when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`).
+when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`). A level with placed props gets a `decor`
+drawing (`a` + the prop's index, `-` bare), one with placed decals or torches a `decals` drawing (`a` + the decal's
+index, upper case with a torch, `t` a torch alone, `-` bare or no torch); `--legend` ends with their `prop` and `decal`
+lines. The ASCII sources have no decor or decal drawings: the editor paints them.
 Example with both layers in a cell: `tests/levels/wall_layer.txt`.
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).
 

@@ -1,4 +1,5 @@
 #include "level_check.h"
+#include "decor_scatter.h"
 #include "movement.h"
 #include "inscriptions.h"
 #include "items.h"
@@ -402,6 +403,100 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
+// Things a placed prop would stand in front of or in the way of, on screen: a web hangs in the corner over them all.
+bool hidesBehindProp(const Tile& t) {
+	switch (t.type) {
+	case Treasure:
+	case Door:
+	case Gate:
+	case Ankh:
+	case Ladder:
+	case Mirror:
+	case MonsterSpawn:
+		return true;
+	default:
+		break;
+	}
+	return hasFixture(t);
+}
+
+// The scatter's own prop for the cell, which beats a placed one: a coffin, the skeleton under a page, an ushabti.
+bool scatterOwnsProp(const LevelGrid& grid, int col, int row) {
+	const Tile t = grid.at(col, row);
+	const MonsterKind* kind = monsterKind(spawnType(t));
+	return t.type == Page || bossCoffinCell(grid.cells, col, row) ||
+		   (kind != nullptr && (kind->locomotion == Locomotion::Entombed || kind->locomotion == Locomotion::Figurine));
+}
+
+void checkPlacedProp(const LevelGrid& grid, int cell, LevelReport& r) {
+	const int col = cell % LEVEL_WIDTH;
+	const int row = cell / LEVEL_WIDTH;
+	const Tile t = grid.cells[cell];
+	const int prop = t.dressing.prop;
+	if (prop < 0)
+		return;
+	const std::string what = std::string("the ") + DECOR_NAMES[prop] + " at " + at(cell);
+	if (isWall(t)) {
+		r.warnings.push_back(what + " is in rock");
+		return;
+	}
+	if (scatterOwnsProp(grid, col, row))
+		r.warnings.push_back(what + " is not shown: the cell has its own (a coffin, a skeleton, an ushabti)");
+	if (isWaterProp(prop) && !inHalfWater(t))
+		r.warnings.push_back(what + " is a water prop out of half water");
+	if (!isWaterProp(prop) && (t.structure == Structure::HalfWater || t.structure == Structure::DeepWater))
+		r.warnings.push_back(what + " stands in water");
+	if (!isWaterProp(prop) && prop != DECOR_WEB && !isWall(grid.at(col, row - 1)))
+		r.warnings.push_back(what + " has no floor under it");
+	if (prop == DECOR_WEB && !isWall(grid.at(col, row + 1)))
+		r.warnings.push_back(what + " has no ceiling");
+	if (prop != DECOR_WEB && hidesBehindProp(t))
+		r.warnings.push_back(what + " stands in front of the " +
+							 (hasObject(t) ? tileDef(t.type).name : tileDef(t.fixture.type).name));
+}
+
+void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
+	const int col = cell % LEVEL_WIDTH;
+	const int row = cell / LEVEL_WIDTH;
+	const Tile t = grid.cells[cell];
+	const Dressing& d = t.dressing;
+	const bool torch = d.torch == TorchPlacing::Torch;
+	if (d.decal >= 0) {
+		const DecalAnchor anchor = DECAL_DEFS[d.decal].anchor;
+		const std::string what = "decal " + std::to_string(d.decal) + " at " + at(cell);
+		if (isWall(t))
+			r.warnings.push_back(what + " is in rock");
+		else if (!tileDef(t.type).decals || !tileDef(t.fixture.type).decals)
+			r.warnings.push_back(what + " is on a cell that takes no decals");
+		if (anchor == DecalAnchor::Ceiling && !isWall(grid.at(col, row + 1)))
+			r.warnings.push_back(what + " hangs from the ceiling, there is none");
+		if (anchor == DecalAnchor::Floor &&
+			(!isWall(grid.at(col, row - 1)) || t.structure != Structure::Empty || d.prop >= 0))
+			r.warnings.push_back(what + " grows from the floor: no floor, in water or sand, or behind a prop");
+		if (anchor == DecalAnchor::Free && torch)
+			r.warnings.push_back(what + " is behind the torch");
+	}
+	if (!torch)
+		return;
+	const std::string what = "the torch at " + at(cell);
+	if (isWall(t))
+		r.warnings.push_back(what + " is in rock");
+	else if (t.structure == Structure::DeepWater)
+		r.warnings.push_back(what + " is in deep water");
+	else if (!tileDef(t.type).torch || !tileDef(t.fixture.type).torch)
+		r.warnings.push_back(what + " is on a cell that takes no torch");
+	if (d.prop == DECOR_BRAZIER || d.prop == DECOR_LAMP || isThoth(d.prop))
+		r.warnings.push_back(what + " is over a " + DECOR_NAMES[d.prop]);
+}
+
+// The decor and decal layers (plan placed-decor): a placed prop, decal or torch where it fits.
+void checkDressing(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		checkPlacedProp(grid, cell, r);
+		checkPlacedDecal(grid, cell, r);
+	}
+}
+
 // Half water stands on deep water or a wall, deep water only under water; a ladder starts in the water and goes up,
 // none goes down into it; a crocodile lives in or next to the water, a lotus in it.
 void checkWater(const LevelGrid& grid, LevelReport& r) {
@@ -653,6 +748,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 	checkWallSpikes(grid, r);
+	checkDressing(grid, r);
 	const int litAtStart = checkSunBeams(grid, r);
 
 	if (r.entrances == 0)
@@ -846,16 +942,38 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	return r;
 }
 
+char propGlyph(const Tile& t) {
+	const int prop = t.dressing.prop;
+	if (prop >= 0)
+		return static_cast<char>('a' + prop);
+	if (prop == PLACED_BARE)
+		return '-';
+	return isSolidStructure(t.structure) ? '#' : '.';
+}
+
+char decalGlyph(const Tile& t) {
+	const Dressing& d = t.dressing;
+	const bool torch = d.torch == TorchPlacing::Torch;
+	if (d.decal >= 0)
+		return static_cast<char>((torch ? 'A' : 'a') + d.decal);
+	if (torch)
+		return 't';
+	if (hasPlacedDecal(d))
+		return '-';
+	return isSolidStructure(t.structure) ? '#' : '.';
+}
+
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 	std::vector<char> onPath(CELLS, 0);
 	if (report != nullptr)
 		for (const CellPos& p : report->path)
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
-	std::string objects, structure, wall;
+	std::string objects, structure, wall, decor, decals;
 	bool layered = false, fixtures = false; // water or sand: the structure drawing too
+	bool props = false, wallDecals = false;
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
-		std::string line, structureLine, wallLine;
+		std::string line, structureLine, wallLine, decorLine, decalLine;
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
@@ -863,11 +981,15 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			any = any || !isWall(t) || hasObject(t) || hasFixture(t);
 			layered = layered || (t.structure != Structure::Wall && t.structure != Structure::Empty);
 			fixtures = fixtures || hasFixture(t);
+			props = props || hasPlacedProp(t.dressing);
+			wallDecals = wallDecals || hasPlacedDecal(t.dressing);
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
 			line += c;
 			structureLine += structureGlyph(t.structure);
 			wallLine += hasFixture(t) ? tileGlyph(fixtureAsTile(t.fixture)) : isSolidStructure(t.structure) ? '#' : '.';
+			decorLine += propGlyph(t);
+			decalLine += decalGlyph(t);
 		}
 		if (any) {
 			char head[8];
@@ -875,7 +997,10 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			objects += head + line + '\n';
 			structure += head + structureLine + '\n';
 			wall += head + wallLine + '\n';
+			decor += head + decorLine + '\n';
+			decals += head + decalLine + '\n';
 		}
 	}
-	return objects + (layered ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "");
+	return objects + (layered ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "") +
+		   (props ? "decor\n" + decor : "") + (wallDecals ? "decals\n" + decals : "");
 }

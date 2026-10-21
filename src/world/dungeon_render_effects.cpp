@@ -130,6 +130,24 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 		DrawMonster(mon, sim.assets->monsterModels[mon.Type()->id], sim.assets->textures);
 		glPopMatrix();
 	}
+	drawDecoys(drawn);
+}
+//======================================================================================
+// The decoys (plan placed-decor): a mummy asleep in every DECOR_COFFIN_MUMMY, drawn as a mummy on its spawn tile.
+void Dungeon::drawDecoys(const CellRect& drawn) {
+	const MonsterType& mummy = (*sim.monsterTypes)[MonsterMummy];
+	const CharacterModel& model = sim.assets->monsterModels[MonsterMummy];
+	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
+		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
+			if (!IsInBounds(i, j) || decoration.decor[MapIndex(i, j)].type != DECOR_COFFIN_MUMMY)
+				continue;
+			glPushMatrix();
+			glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(i - view().firstCol()),
+						 RenderConfig::TILE_SIZE * static_cast<float>(j - view().originRow), 0);
+			glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
+			DrawEntombed(mummy, model);
+			glPopMatrix();
+		}
 }
 //======================================================================================
 void Dungeon::drawMissiles() {

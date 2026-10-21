@@ -198,6 +198,8 @@ void loadDecor(DecorSet& decor) {
 	loadSurfaces(decor.ceilingTex, CEILING_STYLE_NAMES, CEILING_STYLE_COUNT);
 	decor.rockTex.LoadPNG(ROCK_TEXTURE);
 	for (int d = 0; d < DECOR_COUNT; d++) {
+		if (decorModel(d) != d)
+			continue; // drawn with another prop's model (the decoy, the coffin's)
 		char path[64];
 		snprintf(path, sizeof(path), MEDIA_DIR "textures/decorations/decor_%s.png", DECOR_NAMES[d]);
 		decor.tex[d].LoadPNG(path);

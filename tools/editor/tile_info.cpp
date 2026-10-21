@@ -1,4 +1,5 @@
 #include "tile_info.h"
+#include "dressing_brush.h"
 #include "../../src/world/items.h"
 #include "../../src/world/monster_kinds.h"
 #include <string>
@@ -224,4 +225,117 @@ CellHint describeCell(const Tile& cell) {
 	checkUnused(hint.attribute, cell.attr);
 	checkUnused(hint.value, cell.value);
 	return hint;
+}
+
+namespace {
+struct PropInfo {
+	const char* label;
+	const char* description;
+};
+constexpr PropInfo PROPS[DECOR_COUNT] = {
+	{"Web", "A cobweb in the upper corner of the back wall, tucked into a side wall if there is one. Needs a ceiling."},
+	{"Pottery", "Clay jars on the floor."},
+	{"Canopic", "Canopic jars, the lids heads of the four sons of Horus."},
+	{"Rubble", "Fallen stones."},
+	{"Sand", "A heap of sand blown in."},
+	{"Skeleton", "Remains of someone who came before. Every expedition page lies on one."},
+	{"Brazier", "A bronze brazier with its fire: it lights the cell. No wall torch over it."},
+	{"Lamp", "An oil lamp on a stand, lit. No wall torch over it."},
+	{"Scrolls", "Papyrus scrolls on the floor."},
+	{"Ushabti", "A servant figure. A living ushabti stands among them until the player comes near."},
+	{"Cat", "A statue of a seated cat, Bastet."},
+	{"Jackal", "A statue of a lying jackal, Anubis."},
+	{"Osiris", "A statue of Osiris."},
+	{"Ibis", "Thoth as a standing ibis. Its crown reaches up to a wall torch: none over it."},
+	{"Ibis sits", "Thoth as a seated ibis. No wall torch over it."},
+	{"Baboon", "Thoth as a seated baboon. No wall torch over it."},
+	{"Baboon up", "Thoth as a standing baboon. No wall torch over it."},
+	{"Sarcophagus", "A stone sarcophagus."},
+	{"Coffin", "An empty coffin, as on every mummy's spawn tile (the scatter puts that one by itself)."},
+	{"Reeds", "Papyrus reeds, in half water only. They sway."},
+	{"Weed", "Water weed under the surface, in half water only."},
+	{"Pads", "Lotus leaves afloat, in half water only."},
+	{"Lotus", "Lotus leaves with a blue lotus in bloom, in half water only. The water lotus hides among them."},
+	{"Large coffin", "The mummy priest's coffin, a head longer and gilded."},
+	{"Sleeper", "Decoy: a coffin with a mummy asleep in it that never wakes. Beside the real mummy's coffin, it keeps "
+				"the player guessing."},
+};
+
+const char* anchorText(DecalAnchor anchor) {
+	switch (anchor) {
+	case DecalAnchor::Ceiling:
+		return "It hangs from the ceiling: needs rock above.";
+	case DecalAnchor::Floor:
+		return "It grows from the floor: needs a dry floor, no sand, no prop in the cell.";
+	case DecalAnchor::Free:
+		break;
+	}
+	return "At eye height: no torch in the cell.";
+}
+
+CellHint dressingHint(const std::string& title, const std::string& description) {
+	CellHint hint;
+	hint.title = title;
+	hint.description = description;
+	return hint;
+}
+} // namespace
+
+const char* propLabel(int prop) {
+	if (prop == PLACED_UNSET)
+		return "Unset";
+	if (prop == PLACED_BARE)
+		return "Bare";
+	return prop >= 0 && prop < DECOR_COUNT ? PROPS[prop].label : "?";
+}
+
+const char* decalLabel(int brush) {
+	switch (brush) {
+	case PLACED_UNSET:
+		return "Unset";
+	case PLACED_BARE:
+		return "Bare";
+	case TORCH_BRUSH:
+		return "Torch";
+	case NO_TORCH_BRUSH:
+		return "No torch";
+	default:
+		break;
+	}
+	return brush >= 0 && brush < DECAL_COUNT ? DECAL_DEFS[brush].name : "?";
+}
+
+CellHint describeProp(int prop) {
+	if (prop == PLACED_UNSET)
+		return dressingHint("Unset prop",
+							"The scatter rolls the cell's prop as on any level (by depth, 30% of free "
+							"floor, half of the half water). Coffins on mummy spawns come by themselves.");
+	if (prop == PLACED_BARE)
+		return dressingHint("Bare", "No prop: the scatter leaves the cell empty.");
+	if (prop < 0 || prop >= DECOR_COUNT)
+		return dressingHint("Unknown prop", "");
+	return dressingHint(std::string(PROPS[prop].label) + " (prop " + std::to_string(prop) + ")",
+						std::string(PROPS[prop].description) + " Placed, whatever the depth. M: mirror.");
+}
+
+CellHint describeDecal(int brush) {
+	switch (brush) {
+	case PLACED_UNSET:
+		return dressingHint("Unset decal", "The scatter rolls the cell's decal (35%) and torch (25%, 4 cells apart) "
+										   "as on any level. Clears both fields.");
+	case PLACED_BARE:
+		return dressingHint("Bare", "No decal and no torch in the cell.");
+	case TORCH_BRUSH:
+		return dressingHint("Torch", "A wall torch, it lights the cell. Random torches keep 4 cells away from it. "
+									 "Clears a free decal in the cell.");
+	case NO_TORCH_BRUSH:
+		return dressingHint("No torch", "No torch in the cell; the decal stays as it is.");
+	default:
+		break;
+	}
+	if (brush < 0 || brush >= DECAL_COUNT)
+		return dressingHint("Unknown decal", "");
+	return dressingHint(std::string(DECAL_DEFS[brush].name) + " (decal " + std::to_string(brush) + ")",
+						std::string("On the back wall, whatever the depth. ") + anchorText(DECAL_DEFS[brush].anchor) +
+							" M: mirror.");
 }

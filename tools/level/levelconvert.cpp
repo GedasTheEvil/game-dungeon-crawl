@@ -1,4 +1,4 @@
-// levelconvert: rewrites level files in the current format (level format v2, docs/levels.md), in place.
+// levelconvert: rewrites level files in the current format (LEVEL_VERSION, docs/levels.md), in place.
 //   levelconvert FILE...
 // A file already in the current format is left as it is. Exit code: 0 done, 2 usage / unreadable or unwritable file.
 

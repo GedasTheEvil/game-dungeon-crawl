@@ -40,8 +40,7 @@ void Dungeon::scatterDecorations(const char* levelName, int depth) {
 	const DecorCounts counts = scatterDecor(map, levelName, depth, decoration);
 	// An opened container stays where it stood, also after its item was taken (a save): no prop on top of it.
 	for (int c = 0; c < MAP_CELL_COUNT; c++)
-		if (const int8_t prop = decoration.decor[c].type;
-			containers[c].opened && prop != DECOR_COFFIN && prop != DECOR_COFFIN_LARGE)
+		if (containers[c].opened && !isCoffin(decoration.decor[c].type))
 			decoration.decor[c] = DecorCell{};
 	LOG_INFOF("world", "Decorations in %s: %d", levelName, counts.props);
 	LOG_INFOF("world", "Torches: %d", counts.torches);

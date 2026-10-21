@@ -100,6 +100,9 @@ struct LevelReport {
 // does not know); a cell without an object shows its fixture. With a report, the path is drawn as '*' over open
 // cells. A level with water or sand gets a second drawing after a "structure" line, the same rows in structureGlyph
 // (level.h); a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.': none).
+// A level with placed props (plan placed-decor) gets a "decor" drawing: 'a' + the prop's index (DECOR_NAMES), '-'
+// bare; one with placed decals or torches a "decals" drawing: 'a' + the decal's index (DECAL_DEFS), upper case with a
+// torch, 't' a torch alone, '-' bare or no torch ('#' / '.': unset).
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

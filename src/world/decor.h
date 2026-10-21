@@ -7,7 +7,7 @@
 // Static props and wall decals scattered on empty floor cells when a level loads (see scatterDecor, decor_scatter.h).
 // Models and textures: media/models/decorations/decor_<name>.md3, media/textures/decorations/decor_<name>.png, built by
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
-constexpr int DECOR_COUNT = 24;
+constexpr int DECOR_COUNT = 25;
 constexpr int DECOR_SCATTERED =
 	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
@@ -22,6 +22,14 @@ constexpr int DECOR_THOTH_VARIANTS = 4;
 constexpr bool isThoth(int decor) { return decor >= DECOR_THOTH && decor < DECOR_THOTH + DECOR_THOTH_VARIANTS; }
 constexpr int DECOR_COFFIN = 18; // empty, on every mummy's spawn tile: it lies in there until it wakes
 constexpr int DECOR_COFFIN_LARGE = 23; // the mummy priest's, a head longer and gilded (plan mummy-boss)
+// The decoy (plan placed-decor): the coffin with a mummy asleep in it for good, its model in the entombed pose
+// (Dungeon::drawDecoys), never a monster. Placed only (the decor layer), no model file of its own: the coffin's.
+constexpr int DECOR_COFFIN_MUMMY = 24;
+[[nodiscard]] constexpr bool isCoffin(int decor) {
+	return decor == DECOR_COFFIN || decor == DECOR_COFFIN_LARGE || decor == DECOR_COFFIN_MUMMY;
+}
+// The prop whose model and texture a prop is drawn with.
+[[nodiscard]] constexpr int decorModel(int decor) { return decor == DECOR_COFFIN_MUMMY ? DECOR_COFFIN : decor; }
 // Water props (plan water-decorations): plants scattered in half water cells only, modelled at their height in the
 // basin. The reeds and the weed sway, the leaves afloat bob (drawDecorTile).
 constexpr int DECOR_WATER_REEDS = 19; // papyrus, prefers the bank
@@ -56,7 +64,8 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
 												  "water_weed",
 												  "water_pads",
 												  "water_lotus",
-												  "coffin_large"};
+												  "coffin_large",
+												  "coffin_mummy"};
 
 // Decorations by depth (plan decor-by-depth): the tiers add up, a level draws from every tier unlocked at its depth,
 // the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is the
@@ -70,13 +79,14 @@ constexpr int decorTier(int depth) {
 		tier++;
 	return tier;
 }
-// The tier each prop comes in with; the coffins (-1) stand wherever a mummy or the mummy priest lies. The lotus comes
+// The tier each prop comes in with; the coffins (-1) stand wherever a mummy or the mummy priest lies, the decoy only
+// where a level places it. The lotus comes
 // in with the worked tunnels, before the tombs: the water lotus monster (plan water-lotus) hides among the leaves.
 constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0,	 0, 1, 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
 											 1,	 1, 1, 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
 											 3,	 2, 2, 2, 2, 3, // osiris, Thoth x 4, sarcophagus
 											 -1, 0, 0, 1, 1, // coffin, reeds, weed, pads, lotus
-											 -1}; // the large coffin
+											 -1, -1}; // the large coffin, the decoy
 // Rows of rough rock (the rest dressed stone), and of the dressed stretches the painted ones, per tier, in percent:
 // all cave at first, less and less deeper down.
 constexpr uint32_t ROUGH_PERCENT[DECOR_TIER_COUNT] = {100, 55, 30, 15};
@@ -178,6 +188,7 @@ enum class DecalAnchor : int8_t {
 struct DecalDef {
 	DecalAnchor anchor;
 	float size; // quad side, tile units
+	const char* name; // tools: the editor's palette, levelcheck --legend
 };
 
 // A cell of a square texture atlas (the decals, the inscriptions), grid x grid, numbered row by row from the top
@@ -197,22 +208,22 @@ constexpr int DECAL_ATLAS_GRID = 4;
 constexpr int DECAL_CARTOUCHE = 9; // an inscription without its own glyphs shows it
 constexpr int DECAL_COUNT = 16;
 constexpr DecalDef DECAL_DEFS[DECAL_COUNT] = {
-	{DecalAnchor::Free, 0.6f}, // crack
-	{DecalAnchor::Free, 0.55f}, // impact crack
-	{DecalAnchor::Floor, 0.7f}, // crack rising from the floor
-	{DecalAnchor::Ceiling, 0.8f}, // hanging vines
-	{DecalAnchor::Ceiling, 0.7f}, // flowering vines
-	{DecalAnchor::Ceiling, 0.75f}, // roots
-	{DecalAnchor::Ceiling, 0.85f}, // damp seepage with moss
-	{DecalAnchor::Free, 0.75f}, // hieroglyph column
-	{DecalAnchor::Free, 0.8f}, // hieroglyph row
-	{DecalAnchor::Free, 0.6f}, // cartouche
-	{DecalAnchor::Free, 0.5f}, // eye of Horus
-	{DecalAnchor::Free, 0.75f}, // winged sun
-	{DecalAnchor::Floor, 0.7f}, // papyrus
-	{DecalAnchor::Floor, 0.45f}, // dry grass
-	{DecalAnchor::Floor, 0.75f}, // creeper
-	{DecalAnchor::Free, 0.5f}, // moss
+	{DecalAnchor::Free, 0.6f, "crack"},
+	{DecalAnchor::Free, 0.55f, "impact crack"},
+	{DecalAnchor::Floor, 0.7f, "floor crack"}, // crack rising from the floor
+	{DecalAnchor::Ceiling, 0.8f, "vines"}, // hanging vines
+	{DecalAnchor::Ceiling, 0.7f, "flowering vines"},
+	{DecalAnchor::Ceiling, 0.75f, "roots"},
+	{DecalAnchor::Ceiling, 0.85f, "seepage"}, // damp seepage with moss
+	{DecalAnchor::Free, 0.75f, "glyph column"}, // hieroglyph column
+	{DecalAnchor::Free, 0.8f, "glyph row"}, // hieroglyph row
+	{DecalAnchor::Free, 0.6f, "cartouche"},
+	{DecalAnchor::Free, 0.5f, "eye of Horus"},
+	{DecalAnchor::Free, 0.75f, "winged sun"},
+	{DecalAnchor::Floor, 0.7f, "papyrus"},
+	{DecalAnchor::Floor, 0.45f, "dry grass"},
+	{DecalAnchor::Floor, 0.75f, "creeper"},
+	{DecalAnchor::Free, 0.5f, "moss"},
 };
 // The tier each decal comes in with (DECOR_TIERS): cracks and growth anywhere, the single eye of Horus in the worked
 // tunnels, glyph columns, rows and cartouches in the tombs, the painted winged sun in the temples.

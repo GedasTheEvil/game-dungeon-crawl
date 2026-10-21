@@ -1,0 +1,7 @@
+# Plan placed-decor, for `bin/game --play tests/play/placed-decor.txt`: tests/levels/decoys, a row of coffins the decor
+# layer placed east of you: empty ones (cols 6, 14), sleeping mummy decoys (8, 12), the real mummy's own (10), bare
+# cells between them. A glyph column (7), a placed torch (9) and vines (11) from the decal layer. Walk east: one wakes.
+# The editor: `make run-editor`, load the level by copying it to tools/editor/saved/, layers Decor and Decals.
+god
+level tests/levels/decoys
+xp 200000

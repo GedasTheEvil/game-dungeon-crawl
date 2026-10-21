@@ -3,7 +3,8 @@
 
 // Level data without rendering: tile types, the cell grid and the file format.
 // A cell has three layers: its structure (what it is made of), at most one fixture on its back wall (the wall layer)
-// and at most one object in it.
+// and at most one object in it. Two more say how it is dressed (plan placed-decor): the decor layer (its prop) and the
+// decal layer (its wall decal and torch).
 // Shared by the game (Dungeon) and the command line tools (levelcheck, levelgen), so no GL here.
 
 #include <cstdint>
@@ -141,15 +142,35 @@ struct Fixture {
 	int value = 0;
 };
 
-// One level cell: the object (tile type, attribute and value), the structure it stands in and the fixture on its back
-// wall. Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a level with setObject,
-// which keeps its structure and fixture.
+// The decor and decal layers of a cell (plan placed-decor): what a level designer put there over the scatter's roll
+// (decor_scatter.h). A prop or decal is PLACED_UNSET (the scatter rolls as without the layers), PLACED_BARE (none) or
+// its index (DECOR_NAMES, DECAL_DEFS in decor.h), with its mirror. The torch is a second field of the decal layer.
+constexpr int PLACED_UNSET = -2;
+constexpr int PLACED_BARE = -1;
+enum class TorchPlacing : std::uint8_t { Unset = 0, None = 1, Torch = 2 };
+constexpr int TORCH_PLACING_COUNT = 3;
+struct Dressing {
+	int prop = PLACED_UNSET;
+	bool propMirror = false;
+	int decal = PLACED_UNSET;
+	bool decalMirror = false;
+	TorchPlacing torch = TorchPlacing::Unset;
+};
+[[nodiscard]] inline bool hasPlacedProp(const Dressing& d) { return d.prop != PLACED_UNSET; }
+[[nodiscard]] inline bool hasPlacedDecal(const Dressing& d) {
+	return d.decal != PLACED_UNSET || d.torch != TorchPlacing::Unset;
+}
+
+// One level cell: the object (tile type, attribute and value), the structure it stands in, the fixture on its back
+// wall and its dressing. Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a
+// level with setObject, which keeps its structure and fixture.
 struct Tile {
 	int type = NoObject; // DungeonTileType
 	int attr = 0; // attribute: meaning depends on the type (monster type, lock colour, ...)
 	int value = 0; // value: meaning depends on the type (gate state, ...)
 	Structure structure = Structure::Empty;
 	Fixture fixture;
+	Dressing dressing;
 };
 [[nodiscard]] inline Tile wallTile() { return Tile{NoObject, 0, 0, Structure::Wall}; }
 [[nodiscard]] inline bool isWall(const Tile& t) { return t.structure == Structure::Wall; }
@@ -288,16 +309,20 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// The level format (docs/levels.md), in level files and save games. Version 3, text:
-//   DCLEVEL 3 WIDTH HEIGHT
+// The level format (docs/levels.md), in level files and save games. Version 4, text:
+//   DCLEVEL 4 WIDTH HEIGHT
 //   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
 //   wall COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with a fixture (hasFixture)
 //   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
+//   decor COUNT, then COUNT lines "COL ROW PROP MIRROR", the cells with a placed prop (hasPlacedProp)
+//   decals COUNT, then COUNT lines "COL ROW DECAL MIRROR TORCH", the cells with hasPlacedDecal (TORCH: TorchPlacing)
+// PROP and DECAL as in Dressing: the index, -1 bare, -2 unset; MIRROR 0 or 1.
+// Version 3 has no decor and decal layers: every cell loads unset.
 // Version 2 has no wall layer: its wall types stand in the object layer and move to the wall layer on load (setThing).
-// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 and 2
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 3
 // are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
-constexpr int LEVEL_VERSION = 3;
+constexpr int LEVEL_VERSION = 4;
 constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
 

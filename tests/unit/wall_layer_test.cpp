@@ -11,7 +11,8 @@
 #include <string>
 
 namespace {
-// The v3 text of cells as v2: no wall list, the fixtures in the object list (as v2 files had them).
+// The current text of cells as v2: no wall list, the fixtures in the object list (as v2 files had them), no decor or
+// decal lists (the cells have none).
 std::string asV2(const Tile* cells) {
 	std::ostringstream v3;
 	writeLevel(v3, cells);
@@ -19,9 +20,11 @@ std::string asV2(const Tile* cells) {
 	std::string line, head, structure, things;
 	int count = 0;
 	std::getline(in, head);
-	head.replace(head.find(" 3 "), 3, " 2 ");
+	const std::string version = " " + std::to_string(LEVEL_VERSION) + " ";
+	head.replace(head.find(version), version.size(), " 2 ");
 	while (std::getline(in, line)) {
-		const bool list = line.rfind("wall ", 0) == 0 || line.rfind("objects ", 0) == 0;
+		const bool list = line.rfind("wall ", 0) == 0 || line.rfind("objects ", 0) == 0 ||
+						  line.rfind("decor ", 0) == 0 || line.rfind("decals ", 0) == 0;
 		if (list)
 			continue;
 		const bool thing = line.find(' ') != std::string::npos;

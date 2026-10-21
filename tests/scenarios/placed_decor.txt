@@ -1,0 +1,26 @@
+# Placed decor (plan placed-decor), tests/levels/decoys: the decor layer lays a row of coffins on row 2, empty ones at
+# cols 6 and 14, sleeping mummy decoys at 8 and 12 (12 mirrored), the real mummy's own at 10, the cells between bare.
+# The decal layer puts a glyph column at 7 (no torch), a torch alone at 9, vines at 11. Walking past, only the real
+# mummy wakes; the decoys sleep on.
+god
+level tests/levels/decoys
+xp 200000
+wait 30
+expect coffins == 3 # the decoys are props, not coffins of a monster
+walk to 8.3
+wait 10
+expect bars == 0
+screenshot row_asleep
+toon on
+wait 2
+screenshot row_asleep_toon
+toon off
+walk to 12.6
+wait 3s
+expect bars == 1
+screenshot mummy_awake
+walk to 15
+wait 2s
+camera -25 0
+wait 5
+screenshot decoys_sleep_on

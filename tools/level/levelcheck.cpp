@@ -3,9 +3,11 @@
 // --script DIR writes DIR/<level name>.txt per valid level: a scenario (docs/testing.md) that plays the path the
 // check found in the real game, in god mode, and expects the level to be finished at the end. It kills the boss
 // (killboss) where the path reaches it.
+// --legend prints the glyphs of the --map drawings and the ASCII level sources, the props and the decals.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
 #include "../../src/core/gameplay_config.h"
+#include "../../src/world/decor.h"
 #include "../../src/world/inscriptions.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
@@ -304,6 +306,10 @@ int main(int argc, char** argv) {
 			for (const GlyphDef& g : glyphLegend())
 				printf("%c %d %d %d %d %s%s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value,
 					   static_cast<int>(g.tile.structure), isWallType(g.tile.type) ? "wall: " : "", g.meaning);
+			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
+				printf("prop %c %d %s\n", 'a' + d, d, DECOR_NAMES[d]);
+			for (int d = 0; d < DECAL_COUNT; d++)
+				printf("decal %c %d %s\n", 'a' + d, d, DECAL_DEFS[d].name);
 			return 0;
 		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {

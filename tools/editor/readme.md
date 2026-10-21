@@ -7,9 +7,11 @@
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
   Above the grid: the column, row and contents of the cell under the mouse.
   Zoomed, the grid shows a window of the map and a minimap in its top right corner (see [Zoom](#zoom)).
-* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` layer buttons.
-* Right, middle: the palette of the layer (structures, the wall types, or the object tiles in two rows), then the
-  `Attribute` and `Value` fields (fixtures and objects only).
+* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` / `Decor` / `Decals` layer
+  buttons.
+* Right, middle: the palette of the layer (structures, the wall types, the object tiles, the props or the decals, up to
+  three rows of nine), then the `Attribute` and `Value` fields (fixtures and objects), or the `Mirror` button (props
+  and decals, key `M`).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   Numbers that mean nothing to the game show in red.
 * Right, bottom: the level name field and the `Save` and `Load` buttons.
@@ -23,8 +25,8 @@
   The level check (see [docs/levels.md](../../docs/levels.md)) runs on the map: the path from the entrance to the
   goal is drawn with gold dots, the result shows under the grid.
 
-In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, or its
-fixture's or object's tile, attribute and value. In `Check` mode with the `Wall` layer, the papyrus explains the
+In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, its
+fixture's or object's tile, attribute and value, its prop or its decal (else its torch) with the mirror. In `Check` mode with the `Wall` layer, the papyrus explains the
 clicked cell's fixture.
 
 ## Zoom
@@ -41,17 +43,43 @@ is not saved.
 
 Painting, picking, the check mode and the hover line work at every zoom.
 
-## Layers
-
-A cell has three layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
-most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer) and at most one object in it
-(a ladder, a monster, a key, ...). Key `L` (Structure, Wall, Objects, round) or the `Structure` / `Wall` / `Objects`
-buttons switch the layer the brush paints and the palette shows. The map shows all three; the other layers stay
-visible, dimmed, and the layer being painted is drawn on top.
+A cell has five layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
+most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer), at most one object in it
+(a ladder, a monster, a key, ...), and how it is dressed ([placed-decor](../../docs/plan/placed-decor.md)): its prop
+(the decor layer) and its wall decal and torch (the decal layer). Key `L` (Structure, Wall, Objects, Decor, Decals,
+round) or the layer buttons switch the layer the brush paints and the palette shows. The map shows the structure,
+fixtures and objects in every layer; the other layers stay visible, dimmed, and the layer being painted is drawn on
+top. The props show in the decor layer only, the decals and torches in the decal layer only.
 
 * Painting an object or a fixture into a wall or deep water carves the cell open (`Empty`).
-* Painting a wall or deep water over a cell removes its object and fixture.
+* Painting a wall or deep water over a cell removes its object, fixture, prop, decal and torch.
 * `None` in the wall or objects palette removes the fixture or the object and keeps the rest.
+* Props, decals and torches go only in open cells (painting them on rock does nothing).
+
+### Decor and decal layers
+
+A cell's prop and decal are each in one of three states. **Unset** (every cell of a new or older level): the game
+scatters them as on any level (a prop on 30% of the free dry floor and half the half water, by depth; a decal on 35%
+of the cells, a torch on 25%, 4 cells apart). **Bare**: none. **A prop or decal**: that one, with its mirror (`M`), at
+any depth, whatever is in the cell. Its jitter (a prop's offset, a decal's place on the wall) still comes from the
+level.
+
+* Decor palette: `Unset`, `Bare`, then the props: the dry ones, the water ones (half water only), the coffins and
+  `Sleeper`, the decoy: a coffin with a mummy asleep in it for good, drawn as the real one lies in its coffin. A row
+  of coffins with one real mummy and a few decoys keeps the player guessing. A mummy's spawn always gets its own
+  coffin, a page its skeleton, a living ushabti its decor ushabti: a placed prop there is not shown.
+* Decals palette: `Unset` and `Bare` (both the decal and the torch), `Torch` and `No torch` (the torch only), then the
+  decals of the game's atlas (the decal only). A torch and a free decal (one at eye height) would overlap: painting
+  one clears the other. Random torches keep 4 cells away from a placed one; placed torches may stand closer.
+* A random prop never puts a brazier, a lamp or a Thoth statue under a placed torch, nor anything in front of a placed
+  floor decal; a random torch never goes over a placed free decal.
+
+`levelcheck` warns where a placed one does not fit: a prop in rock, a dry prop in water or with no floor under it, a
+water prop out of half water, a web with no ceiling, a prop (not the web) in front of a chest, door, gate, ankh,
+ladder, mirror, monster or a fixture, a prop the game does not show; a decal in rock or on a cell that takes no decals
+(a door, a gate, ...), a ceiling decal with no rock above, a floor decal with no floor, in water or sand, or behind a
+prop, a free decal behind a torch; a torch in rock, in deep water, on a cell that takes no torch, over a brazier, a
+lamp or a Thoth statue.
 
 ## Workflow
 
@@ -68,7 +96,9 @@ Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it: paint `Empty` structure, or paint objects (they
 carve their cell).
 
-Tile icons are PNG files in `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow). Fonts and backgrounds come from the game's `media/textures/fonts/` and
+Tile and prop icons (`prop_<name>.png`, `torch.png`, `no_torch.png`, `bare.png`) are PNG files in
+`tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow); the decals show their cell of the game's
+`media/textures/decorations/decals.png`. Fonts and backgrounds come from the game's `media/textures/fonts/` and
 `media/textures/ui/`.
 
 ## Structure reference
@@ -201,11 +231,11 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v3, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the wall layer
-and the object layer as lists:
+Level format v4, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the wall layer,
+the object layer, the decor layer and the decal layer as lists:
 
 ```
-DCLEVEL 3 40 47
+DCLEVEL 4 40 47
 structure
 ########################################
 #......................................#
@@ -216,13 +246,22 @@ objects 3
 1 1 2 1 0                                 column row type attribute value
 4 1 6 0 0
 ...
+decor 2
+8 1 24 0                                  column row prop mirror
+9 1 -1 0
+decals 1
+7 1 -2 0 2                                column row decal mirror torch
 ```
 
 The structure glyphs are in the [Structure reference](#structure-reference). The wall list holds only the cells with
 a fixture (wall types only), the object list only the cells with an object, row 0 (the bottom) first, left to right.
 Rows count from the bottom, columns from the left.
 
+The decor list holds the cells whose prop is set, the decal list those whose decal or torch is set. `prop` is an
+index of `DECOR_NAMES`, `decal` one of `DECAL_DEFS` (`src/world/decor.h`, `levelcheck --legend` lists both), `-1`
+bare, `-2` unset (a decal line with only its torch set). `mirror` is 0 or 1, `torch` 0 unset, 1 none, 2 a torch.
+
 The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`
-warns). v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
-`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v3 for
+warns). v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
+`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v4 for
 good.

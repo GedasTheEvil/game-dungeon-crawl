@@ -211,6 +211,320 @@ def inscription():  # a cartouche on its bar: three signs, sun, water, reed
     save(img, "inscription.png")
 
 
+# ---- the decor and decal layers (plan placed-decor): one icon per prop (prop_<DECOR_NAMES>.png), the torch, bare --
+
+FLOOR_Y = 56  # the props stand on it
+CLAY = (160, 92, 50)
+CLAY_DARK = (104, 56, 28)
+BONE = (226, 214, 180)
+BONE_DARK = (150, 138, 108)
+BLACK = (24, 20, 16)
+GREEN = (70, 140, 60)
+GREEN_DARK = (40, 90, 36)
+LINEN = (205, 190, 150)
+LINEN_DARK = (140, 124, 90)
+WATER = (30, 76, 105)
+
+
+def floor(d):
+    d.rectangle(p(4, FLOOR_Y, 60, FLOOR_Y + 3), fill=STONE_DARK)
+
+
+def water(d, level=30):
+    d.rectangle(p(2, level, 62, 62), fill=WATER)
+    d.line(p(2, level, 62, level), fill=LAPIS_LIGHT, width=SS)
+
+
+def jar(d, cx, top, w, h, fill, dark, lid=None):
+    """A jar standing on the floor: body, neck and an optional lid colour."""
+    d.ellipse(p(cx - w / 2, top + h * 0.25, cx + w / 2, FLOOR_Y), fill=fill, outline=dark, width=SS)
+    d.rectangle(p(cx - w / 4, top + h * 0.1, cx + w / 4, top + h * 0.35), fill=fill, outline=dark, width=SS)
+    if lid:
+        d.ellipse(p(cx - w / 3, top - 2, cx + w / 3, top + h * 0.2), fill=lid, outline=dark, width=SS)
+
+
+def prop_web():
+    img, d = canvas(GOLD, 20)
+    for k in range(5):  # threads from the corner
+        a = math.radians(k * 22.5)
+        d.line(p(4, 4, 4 + 54 * math.cos(a), 4 + 54 * math.sin(a)), fill=BONE, width=SS)
+    for r in (14, 26, 38, 50):  # the rings
+        pts = [(4 + r * math.cos(math.radians(k * 22.5)), 4 + r * math.sin(math.radians(k * 22.5))) for k in range(5)]
+        d.line([v * SS for xy in pts for v in xy], fill=BONE_DARK, width=SS)
+    save(img, "prop_web.png")
+
+
+def prop_pottery():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    jar(d, 22, 22, 22, 34, CLAY, CLAY_DARK)
+    jar(d, 44, 34, 16, 22, CLAY, CLAY_DARK)
+    d.line(p(14, 40, 30, 40), fill=CLAY_DARK, width=SS)
+    save(img, "prop_pottery.png")
+
+
+def prop_canopic():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    for cx, lid in ((16, GOLD_DIM), (32, BONE), (48, LAPIS_LIGHT)):
+        jar(d, cx, 22, 13, 34, BONE_DARK, BRONZE_DARK, lid)
+    save(img, "prop_canopic.png")
+
+
+def prop_rubble():
+    img, d = canvas(GOLD, 20)
+    floor(d)
+    for pts in ([(8, 56), (12, 44), (24, 42), (28, 56)], [(26, 56), (32, 38), (44, 36), (50, 46), (48, 56)],
+                [(46, 56), (50, 48), (58, 50), (58, 56)]):
+        poly(d, pts, STONE, STONE_DARK, 1)
+    save(img, "prop_rubble.png")
+
+
+def prop_sand():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    d.chord(p(6, 34, 58, 78), 180, 360, fill=(190, 150, 90), outline=(130, 96, 50), width=SS)
+    d.line(p(18, 46, 28, 44, 36, 46), fill=(220, 184, 120), width=SS)
+    save(img, "prop_sand.png")
+
+
+def prop_skeleton():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    d.ellipse(p(6, 40, 18, 52), fill=BONE, outline=BONE_DARK, width=SS)  # skull, lying
+    d.ellipse(p(9, 44, 12, 47), fill=BLACK)
+    d.line(p(18, 48, 50, 50), fill=BONE, width=2 * SS)  # spine
+    for x in (24, 30, 36):  # ribs
+        d.arc(p(x - 4, 40, x + 4, 56), 200, 340, fill=BONE, width=SS)
+    d.line(p(50, 50, 58, 44), fill=BONE, width=2 * SS)  # legs
+    d.line(p(50, 50, 60, 54), fill=BONE, width=2 * SS)
+    save(img, "prop_skeleton.png")
+
+
+def prop_brazier():
+    img, d = canvas(RED_LIGHT, 60)
+    floor(d)
+    for x0, x1 in ((22, 16), (42, 48)):  # legs
+        d.line(p(x0, 40, x1, 56), fill=BRONZE, width=2 * SS)
+    d.chord(p(12, 22, 52, 46), 0, 180, fill=BRONZE, outline=BRONZE_DARK, width=SS)  # bowl
+    poly(d, [(18, 34), (24, 14), (30, 26), (34, 8), (40, 24), (46, 34)], RED_LIGHT)  # fire
+    poly(d, [(26, 34), (32, 18), (38, 34)], GOLD_LIGHT)
+    save(img, "prop_brazier.png")
+
+
+def prop_lamp():
+    img, d = canvas(GOLD, 50)
+    floor(d)
+    d.rectangle(p(29, 30, 35, 56), fill=BRONZE, outline=BRONZE_DARK, width=SS)  # stand
+    d.rectangle(p(22, 52, 42, 56), fill=BRONZE)
+    d.chord(p(16, 18, 48, 38), 0, 180, fill=CLAY, outline=CLAY_DARK, width=SS)  # the lamp
+    poly(d, [(14, 28), (18, 14), (22, 28)], GOLD_LIGHT)  # flame at the wick
+    save(img, "prop_lamp.png")
+
+
+def prop_scrolls():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    for x0, y in ((8, 48), (20, 40), (30, 48)):
+        d.rounded_rectangle(p(x0, y, x0 + 26, y + 8), radius=4 * SS, fill=(220, 200, 150), outline=BRONZE, width=SS)
+        d.ellipse(p(x0 + 22, y, x0 + 30, y + 8), fill=(190, 170, 120), outline=BRONZE, width=SS)
+    save(img, "prop_scrolls.png")
+
+
+def figure(d, cx, top, fill, dark, head=None):
+    """A standing mummiform figure: head, body tapering to the feet on the floor."""
+    d.ellipse(p(cx - 6, top, cx + 6, top + 12), fill=head or fill, outline=dark, width=SS)
+    poly(d, [(cx - 8, top + 11), (cx + 8, top + 11), (cx + 5, FLOOR_Y), (cx - 5, FLOOR_Y)], fill, dark, 1)
+
+
+def prop_ushabti():
+    img, d = canvas(TURQUOISE, 35)
+    floor(d)
+    figure(d, 32, 8, TURQUOISE, (20, 90, 80), head=(30, 40, 70))
+    for y in (30, 38, 46):  # columns of text
+        d.line(p(28, y, 36, y), fill=(20, 90, 80), width=SS)
+    save(img, "prop_ushabti.png")
+
+
+def prop_cat():
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    d.rectangle(p(18, 50, 46, 56), fill=STONE)  # base
+    poly(d, [(22, 50), (24, 26), (34, 22), (42, 50)], BLACK)  # seated body
+    d.ellipse(p(25, 12, 37, 26), fill=BLACK)  # head
+    poly(d, [(26, 15), (27, 7), (30, 13)], BLACK)  # ears
+    poly(d, [(32, 13), (35, 7), (36, 15)], BLACK)
+    d.ellipse(p(32, 16, 34, 18), fill=GOLD)
+    save(img, "prop_cat.png")
+
+
+def prop_jackal():
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    d.rectangle(p(6, 46, 58, 56), fill=GOLD_DIM, outline=BRONZE_DARK, width=SS)  # shrine chest
+    poly(d, [(12, 46), (14, 36), (40, 34), (44, 46)], BLACK)  # lying body
+    poly(d, [(40, 34), (46, 24), (56, 30), (48, 36)], BLACK)  # head, muzzle out
+    poly(d, [(44, 26), (44, 16), (48, 24)], BLACK)  # ear
+    save(img, "prop_jackal.png")
+
+
+def prop_osiris():
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    figure(d, 32, 14, LINEN, LINEN_DARK, head=GREEN)
+    poly(d, [(28, 15), (32, 2), (36, 15)], BONE)  # the white crown
+    d.line(p(26, 28, 38, 34), fill=GOLD, width=2 * SS)  # crook and flail
+    d.line(p(38, 28, 26, 34), fill=LAPIS_LIGHT, width=2 * SS)
+    save(img, "prop_osiris.png")
+
+
+def ibis(d, seated):
+    body_top = 32 if seated else 20
+    d.ellipse(p(20, body_top, 44, body_top + 16), fill=BONE, outline=BONE_DARK, width=SS)
+    d.line(p(38, body_top + 2, 42, body_top - 10), fill=BONE, width=3 * SS)  # neck
+    d.ellipse(p(38, body_top - 16, 46, body_top - 8), fill=BLACK)  # head
+    d.line(p(44, body_top - 12, 54, body_top - 2), fill=BLACK, width=2 * SS)  # curved beak
+    if not seated:
+        for x in (28, 34):
+            d.line(p(x, body_top + 14, x, FLOOR_Y), fill=BLACK, width=2 * SS)
+    d.rectangle(p(16, FLOOR_Y - 4 if seated else FLOOR_Y - 2, 48, FLOOR_Y), fill=STONE)
+
+
+def baboon(d, seated):
+    top = 22 if seated else 12
+    d.ellipse(p(20, top + 8, 44, FLOOR_Y - (2 if seated else 12)), fill=STONE, outline=STONE_DARK, width=SS)
+    d.ellipse(p(24, top, 40, top + 14), fill=STONE, outline=STONE_DARK, width=SS)  # head and mane
+    d.ellipse(p(28, top + 4, 36, top + 12), fill=(150, 120, 90))  # face
+    if not seated:
+        for x in (26, 38):
+            d.line(p(x, FLOOR_Y - 14, x, FLOOR_Y), fill=STONE_DARK, width=3 * SS)
+    d.ellipse(p(26, top - 8, 38, top + 2), fill=GOLD, outline=BRONZE_DARK, width=SS)  # the moon disc
+
+
+def prop_thoth(name, draw, seated):
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    draw(d, seated)
+    save(img, f"prop_{name}.png")
+
+
+def coffin(d, fill, dark, large=False, sleeper=False):
+    """A coffin seen from the front, lying on the floor: the lid with a face at one end."""
+    x0, x1 = (4, 60) if large else (8, 56)
+    d.rounded_rectangle(p(x0, 38, x1, FLOOR_Y), radius=6 * SS, fill=fill, outline=dark, width=SS)
+    d.ellipse(p(x1 - 16, 36, x1 - 2, 50), fill=GOLD if large else (190, 140, 80), outline=dark, width=SS)
+    if large:
+        for x in range(x0 + 8, x1 - 16, 6):  # gilded bands
+            d.line(p(x, 40, x, 54), fill=GOLD, width=SS)
+    if sleeper:  # the mummy in it, wrapped
+        d.rounded_rectangle(p(x0 + 4, 32, x1 - 14, 44), radius=5 * SS, fill=LINEN, outline=LINEN_DARK, width=SS)
+        for x in range(x0 + 8, x1 - 14, 5):
+            d.line(p(x, 33, x + 3, 43), fill=LINEN_DARK, width=SS)
+        d.ellipse(p(x1 - 20, 30, x1 - 8, 42), fill=LINEN, outline=LINEN_DARK, width=SS)  # head
+        d.line(p(x1 - 18, 36, x1 - 10, 36), fill=BLACK, width=SS)  # eyes closed
+
+
+def prop_sarcophagus():
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    d.rectangle(p(6, 30, 58, 56), fill=STONE, outline=STONE_DARK, width=SS)
+    d.rectangle(p(4, 26, 60, 32), fill=(130, 104, 74), outline=STONE_DARK, width=SS)  # lid
+    for x in (14, 24, 34, 44):
+        d.line(p(x, 38, x + 6, 38), fill=GOLD_DIM, width=SS)
+    save(img, "prop_sarcophagus.png")
+
+
+def prop_coffin(name, **kind):
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    coffin(d, WOOD, WOOD_DARK, **kind)
+    save(img, f"prop_{name}.png")
+
+
+def prop_water_reeds():
+    img, d = canvas(GREEN, 25)
+    water(d, 40)
+    for x, top in ((18, 6), (26, 12), (34, 4), (42, 14)):
+        d.line(p(x, 62, x + 2, top), fill=GREEN, width=2 * SS)
+        poly(d, [(x - 3, top + 2), (x + 2, top - 4), (x + 7, top + 2)], GREEN_DARK)  # the papyrus umbel
+    save(img, "prop_water_reeds.png")
+
+
+def prop_water_weed():
+    img, d = canvas(GREEN, 20)
+    water(d, 14)
+    for x in (16, 28, 40, 50):
+        d.line(p(x, 62, x - 4, 50, x + 3, 38, x - 2, 26), fill=GREEN, width=2 * SS, joint="curve")
+    save(img, "prop_water_weed.png")
+
+
+def pads(d):
+    water(d, 38)
+    for x0, x1 in ((6, 30), (26, 48), (42, 60)):
+        d.pieslice(p(x0, 34, x1, 44), 20, 340, fill=GREEN, outline=GREEN_DARK, width=SS)
+
+
+def prop_water_pads():
+    img, d = canvas(GREEN, 20)
+    pads(d)
+    save(img, "prop_water_pads.png")
+
+
+def prop_water_lotus():
+    img, d = canvas(LAPIS_LIGHT, 40)
+    pads(d)
+    for pts, c in (([(24, 36), (28, 18), (32, 36)], LAPIS_LIGHT), ([(30, 36), (34, 14), (38, 36)], LAPIS_LIGHT),
+                   ([(36, 36), (40, 18), (44, 36)], LAPIS)):
+        poly(d, pts, c)
+    d.ellipse(p(31, 30, 37, 36), fill=GOLD)
+    save(img, "prop_water_lotus.png")
+
+
+def torch():
+    img, d = canvas(GOLD, 50)
+    d.rectangle(p(24, 30, 40, 34), fill=BRONZE, outline=BRONZE_DARK, width=SS)  # the bracket on the wall
+    poly(d, [(28, 30), (36, 30), (34, 58), (30, 58)], WOOD, WOOD_DARK, 1)
+    d.rectangle(p(26, 24, 38, 30), fill=BRONZE_DARK)  # the head
+    poly(d, [(24, 24), (30, 4), (33, 14), (36, 6), (40, 24)], RED_LIGHT)
+    poly(d, [(28, 24), (32, 10), (36, 24)], GOLD_LIGHT)
+    return img, d
+
+
+def torch_icon():
+    img, _ = torch()
+    save(img, "torch.png")
+
+
+def no_torch_icon():
+    img, d = torch()
+    d.line(p(8, 56, 56, 8), fill=RED, width=5 * SS)
+    save(img, "no_torch.png")
+
+
+def bare_icon():  # nothing goes here
+    img, d = canvas(GOLD, 0)
+    d.ellipse(p(14, 14, 50, 50), outline=GOLD_DIM, width=4 * SS)
+    d.line(p(20, 44, 44, 20), fill=GOLD_DIM, width=4 * SS)
+    save(img, "bare.png")
+
+
+def props():
+    for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
+              prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
+              prop_water_weed, prop_water_pads, prop_water_lotus):
+        f()
+    prop_thoth("thoth_ibis_standing", ibis, False)
+    prop_thoth("thoth_ibis_seated", ibis, True)
+    prop_thoth("thoth_baboon_seated", baboon, True)
+    prop_thoth("thoth_baboon_standing", baboon, False)
+    prop_coffin("coffin")
+    prop_coffin("coffin_large", large=True)
+    prop_coffin("coffin_mummy", sleeper=True)
+    torch_icon()
+    no_torch_icon()
+    bare_icon()
+
+
 if __name__ == "__main__":
     door()
     spikes("death.png", tall=True)
@@ -225,3 +539,4 @@ if __name__ == "__main__":
     rockfall()
     inscription()
     dartplate()
+    props()

@@ -3,7 +3,7 @@
 Status: draft 2026-10-19, from the user's review of the campaign ("I love the desert chapters"). Needed first
 [hippo-boss](hippo-boss.md) (Seth, the chapter's boss), now in. Implemented 2026-10-20, see
 [Implemented](#implemented); play-test: `bin/game --level 21` (to 25). Solved 2026-10-20, after sandier ceilings. Works better with
-[sunlight-mirrors](sunlight-mirrors.md) (the chapter's lock) and [placed-decor](../placed-decor.md)
+[sunlight-mirrors](sunlight-mirrors.md) (the chapter's lock) and [placed-decor](placed-decor.md)
 (sand drifts placed by hand); does not need them.
 
 ## Why

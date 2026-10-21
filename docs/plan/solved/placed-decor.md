@@ -130,5 +130,5 @@ Point by point:
 * Not done: the level-wide "no random props" flag (the draft's open point: not needed).
 * Tests: `tests/unit/placed_decor_test.cpp` (v4 round trip, bad lists, every campaign level as v3 scatters the same,
   bare and placed beat the roll in both layers and for torches, the torch gap, the random prop rules, the checker's
-  warnings, the `--map` drawings, the editor brushes); scenario `tests/scenarios/placed_decor.txt` (screenshots of the
+  warnings, the `--map` drawings, the editor brushes); scenario `tests/scenarios/solved/placed_decor.txt` (screenshots of the
   row asleep, the mummy awake, the decoys asleep). Campaign levels pass `levelcheck` with no warnings.

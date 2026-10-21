@@ -45,7 +45,7 @@ Painting, picking, the check mode and the hover line work at every zoom.
 
 A cell has five layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
 most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer), at most one object in it
-(a ladder, a monster, a key, ...), and how it is dressed ([placed-decor](../../docs/plan/placed-decor.md)): its prop
+(a ladder, a monster, a key, ...), and how it is dressed ([placed-decor](../../docs/plan/solved/placed-decor.md)): its prop
 (the decor layer) and its wall decal and torch (the decal layer). Key `L` (Structure, Wall, Objects, Decor, Decals,
 round) or the layer buttons switch the layer the brush paints and the palette shows. The map shows the structure,
 fixtures and objects in every layer; the other layers stay visible, dimmed, and the layer being painted is drawn on

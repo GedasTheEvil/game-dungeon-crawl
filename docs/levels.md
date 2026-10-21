@@ -15,7 +15,7 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
-Two more say how the cell is dressed ([placed-decor](plan/placed-decor.md)), each unset (the game scatters
+Two more say how the cell is dressed ([placed-decor](plan/solved/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:
 
 * **Decor**: the cell's prop (`DECOR_NAMES`, `src/world/decor.h`), among them the decoy, a coffin with a mummy asleep

@@ -1,8 +1,7 @@
 # Campaign zones: 40-60 levels in distinct zones
 
 Status: draft 2026-10-21, from the user. Needs nothing first. Zone list decided 2026-10-21 (user: "I like it"), see
-[Zones](#zones-decided-2026-10-21). Open: split the necropolis into two for twelve zones (the Duat hours, about 54
-levels), the user's choice.
+[Zones](#zones-decided-2026-10-21); the Lake of Fire added the same day as the twelfth zone (user).
 
 ## Idea
 
@@ -18,7 +17,7 @@ rebuilds the campaign zone by zone.
 
 ## Zones (decided 2026-10-21)
 
-Eleven zones, 50 levels, four acts: down from the tomb, through the temple, out to the river and the sands, into the
+Twelve zones, about 54 levels, four acts: down from the tomb, through the temple, out to the river and the sands, into the
 Duat. Each zone brings one new main mechanic; its boss is the kin of the zone's monsters (AGENTS.md, Boss
 abilities). Level ranges are about, not exact.
 
@@ -37,8 +36,9 @@ abilities). Level ranges are about, not exact.
 | 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
 | 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](worm-boss.draft.opus.md)) |
 | **Act IV: the Duat** (dark granite) |||||
-| 10 | Necropolis | 42-46 | Anubis guards, mummies in coffins, cursed mimics | every trap mixed, the Stargate chamber, the last fork | none |
-| 11 | Hall of Judgment | 47-50 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
+| 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](baboon.draft.opus.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge ([fire-in-water](fire-in-water.draft.sonet.md)) | Babi ([babi-boss](babi-boss.draft.opus.md)) |
+| 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
+| 12 | Hall of Judgment | 51-54 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
 
 Why:
 
@@ -55,8 +55,13 @@ Costs:
 * Crocodiles move from 7-9 to 28 on; only the one preview wade in zone 2 stays early.
 * The High Priest needs retuning for about lvl18 ([monster-balance](monster-balance.draft.opus.md)).
 
-[duat-hours](duat-hours.draft.sonet.md) names the twelve hours of the Duat. With the necropolis split in two (the
-tombs and the coffin halls) the zones are twelve, about 54 levels, and duat-hours can name them.
+* The Lake of Fire (Book of the Dead 126, the Amduat): the gate of the Duat, guarded by four baboons; Babi eats the
+  hearts of the unworthy there. The step from the sands into the night. New: the baboon, a ranged kiter
+  ([monster-kiting](monster-kiting.draft.opus.md)), and its boss Babi. Fire jets come in with the priests' quarter
+  and return in force here.
+
+Twelve zones, twelve hours of the Duat: [duat-hours](duat-hours.draft.sonet.md) can name them (the zones before the
+lake as the hours of the journey, the lake the gate, the last two the deep hours and dawn).
 
 ## What changes
 
@@ -68,7 +73,7 @@ tombs and the coffin halls) the zones are twelve, about 54 levels, and duat-hour
   becomes the code table when the rebuild switches over.
 * `docs/levels.md`: a section per zone (levels, story, monsters, mechanic, boss) above the per-level table.
 * Glossary: a `zone` row.
-* The two new bosses go to zones 3 and 9. If they were placed in today's levels first, they move with the rebuild.
+* The new bosses go to zones 3, 9 and 10. If they were placed in today's levels first, they move with the rebuild.
 
 ## Tests
 

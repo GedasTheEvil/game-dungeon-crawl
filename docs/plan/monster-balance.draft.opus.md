@@ -9,10 +9,11 @@ against the final zones, their monster sets and the 40-60 level count), and ever
 after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
 [giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.draft.opus.md),
-[camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md). A new monster or boss
+[camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md),
+[baboon](baboon.draft.opus.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
 draft joins this list.
 
-Zones ([campaign-zones](campaign-zones.draft.opus.md#zones-decided-2026-10-21)): 50 levels; the High Priest moves from
+Zones ([campaign-zones](campaign-zones.draft.opus.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from
 lvl34 to about lvl18, crocodiles from 7-9 to 28 on, Sobek before Seth. Balance against that table.
 
 Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the

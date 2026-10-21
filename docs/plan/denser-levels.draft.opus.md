@@ -1,80 +1,54 @@
-# Denser levels: use the whole grid, more inscriptions, the route fork
+# Rebuild the campaign: zone by zone, the whole grid, forks
 
-Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented), more-inscriptions and route-fork merged in
-2026-10-21 (user: they go hand in hand). From the user: every level is 40 x 47 cells, but most of it is solid wall.
+Status: draft 2026-10-06 (denser levels), refined 2026-10-09; more-inscriptions and route-fork merged in 2026-10-21;
+turned into the full rebuild 2026-10-21 (user: "levels re-generated completely, adjusting to the new bosses", 40-60
+levels in zones). Slug kept from the first version.
 
-Needs first: [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the
-balanced values), and the new monster plans, so the denser levels place them too:
-[camel-spider](solved/camel-spider.md) (solved), [hippo](solved/hippo.md) (solved),
-[living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](solved/cursed-mimic.md) (solved).
-It also needs the mirrors and the new traps first (user, 2026-10-20), so the denser levels place them too:
-[sunlight-mirrors](solved/sunlight-mirrors.md), [fire-jet-trap](fire-jet-trap.draft.opus.md),
-[poison-drip-trap](poison-drip-trap.draft.opus.md), [trapped-chests](solved/trapped-chests.md).
-The merged parts build on [skill-hieroglyphs](solved/skill-hieroglyphs.md) (the copy without the skill) and
-[expedition-notes](solved/expedition-notes.md) (the page that warns before the fork), both solved.
+Needs first: [campaign-zones](campaign-zones.draft.opus.md) (the zones and level count),
+[monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
+[campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.draft.opus.md),
+[campaign-texts](campaign-texts.draft.sonet.md) (the texts to place), and the new traps, so the rebuild places them:
+[fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
+Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
-## Today (2026-10-09, `bin/levelcheck`)
+## Idea
 
-* Levels 15-30 already fill the grid: 516-736 open cells, 43-45 rows tall.
-* Levels 1-14 do not: 84-194 open cells, 5-16 rows tall. From lvl14 (194) to lvl15 (663) the size jumps more than 3x.
+Every campaign level is generated again ([campaign-levelgen](campaign-levelgen.draft.opus.md)) from the zone table
+([campaign-zones](campaign-zones.draft.opus.md)): 40-60 levels in zones, each with its bosses, monsters, looks and
+mechanics, using the whole 40 x 47 grid. Today's 35 levels are the reference for what a level carries, not a layout
+to keep.
 
-## Decided (2026-10-09)
+## Decided
 
-* No format change: the grid stays 40 x 47 (`LEVEL_WIDTH`, `LEVEL_HEIGHT`). More halls, floors, side branches, loops
+* No format change: the grid stays 40 x 47 (`LEVEL_WIDTH`, `LEVEL_HEIGHT`). Halls, floors, side branches, loops
   (two ways to the same place), vertical shafts.
-* **A smooth ramp** of open cells (about, not exact):
-
-| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Open cells | ~100 | ~110 | 150 | 190 | 220 | 260 | 300 | 340 | 370 | 410 | 450 | 490 | 520 | 560 |
-
-* Levels 1 and 2 stay about as they are (the way in).
-* **Redesign freely:** only the level's place in the difficulty curve is fixed. Monsters, keys, riddles, chests and
-  layout may all change; the boss levels (5, 10) keep their boss. Monster count and treasures grow with the area, the
-  monster mix follows what is unlocked by then (`docs/levels.md`). Update the level's line in `docs/levels.md`.
-* **Batches by boss block:** 1-5, 6-10, 11-14, one task each, play-tested in between. Each batch also places its
-  levels' inscriptions ([More inscriptions](#more-inscriptions-from-level-1-on)). Last batch: the inscriptions of
-  15-35 and the [route fork](#route-fork-left-or-right) on lvl34.
+* **A ramp of open cells:** the first zone starts small (about 100-150 open cells, the way in) and grows to the full
+  grid (500-700) by about the third zone. No jump like today's lvl14 (194) to lvl15 (663). The exact ramp goes in
+  the zone table.
+* **Redesign freely:** layouts, monsters, keys, riddles and chests may all change. Fixed: each zone's boss and
+  the ankh on the last level. Monster count and treasure grow with the area, the monster mix comes from the zone.
+  `docs/levels.md` gets a line per level again.
+* **Carry over the content that is not layout:** inscriptions from level 1 on (2-3 a level, 1-2 in the first zone;
+  the texts come from [campaign-texts](campaign-texts.draft.sonet.md), the rules are in
+  [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or near the path, hints
+  only), expedition pages, level titles ([duat-hours](duat-hours.draft.sonet.md)), Hapi potions
+  ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
+  Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
+* **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,
+  [fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
+* **Batches by zone:** one zone (or two short ones) per task, play-tested in between. The level files are written
+  by the generator and then polished by hand or in the editor; they stay the source of truth.
+* **Switching over:** the new levels replace `content/levels/lvl*` all at once, or zone by zone from the start, so
+  the campaign always plays through. The zone table and `CAMPAIGN_LEVELS` switch with them.
 * Each level passes `bin/levelcheck` with no warnings.
-* **Keep what other plans placed:** a redesign carries over the content that is not layout: inscriptions
-  ([below](#more-inscriptions-from-level-1-on)), level titles ([duat-hours](duat-hours.draft.sonet.md)),
-  Hapi potions ([water-blessing-potion](solved/water-blessing-potion.md)), expedition pages, mirror puzzles,
-  ring transporters, the Stargate chamber, trapped chests. Same count or more; the spots may move.
-* **Place the timed traps** that landed before this plan: [rhythm-traps](solved/rhythm-traps.md),
-  [fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md). Not blocking: a
-  trap plan still in draft is skipped; it then places its own runs in the finished levels.
 
 ## Watch
 
 * The spawn window (monsters spawn when they come into view), `MAX_MONSTERS` (32 live slots), the draft map's size on
   screen, the load time.
-* The XP curve: more monsters on 1-14 means a higher player level at lvl15 (today about 35,
-  [monster-balance](monster-balance.draft.opus.md)). Recheck the sum per level after each batch.
-
-## More inscriptions, from level 1 on
-
-(Merged from the more-inscriptions draft, 2026-10-12.)
-
-Once an inscription the player cannot read is copied into the journal ("No idea what it says"), nothing stops
-inscriptions in the early levels: they are a promise of the hieroglyph skill. So place them from level 1 on, and
-more than one per level, also in the lower levels. Reading them later (learning the skill fills the copies in) pays
-off the early ones. The denser levels have the room for them.
-
-* Campaign rule: drop `INSCRIPTIONS_FROM_LEVEL` (`src/world/inscriptions.h`), its `levelcheck` warning
-  (`checkInscriptions`, `tools/level/levelcheck.cpp`), the unit test's "before level 6" check
-  (`tests/unit/inscriptions_test.cpp`) and the sentence in `docs/inscriptions.md` and `docs/levels.md`.
-* Placement: levels 1-5 get inscriptions (suggested 1-2 each), the rest one or two more (suggested 2-3 per level).
-  Same rules as in [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or
-  near the path; hints only, never needed. Edit the level files in `content/levels/` (an object `15 ID 0` on the cell, by
-  hand or in the editor), never the ASCII drawings: the level files are the source of truth.
-* Texts: new entries in `content/inscriptions/*.txt` with `G:` glyphs, then rebuild the atlas
-  (`tools/textures/inscriptions.py`). Real texts (Pyramid Texts, Coffin Texts, the Shipwrecked Sailor, Sinuhe,
-  Wenamun, workmen's ostraca from Deir el-Medina, the Amarna hymn to the Aten) and hints. Early-level hints suit
-  what the player meets there (the first key and gate, the spike pit, the first mimic, the scarab king of level 5).
-  Keep the boon share of [inscription-boons](solved/inscription-boons.md).
-* Atlas capacity: ids stop at 64 (`INSCRIPTION_ATLAS_GRID` 8). Around 70-90 inscriptions need more: a larger grid
-  (12 x 12 at 256 px: 3072 px square) or 128 px cells in the same 2048 px; implementer's choice, keep the id = cell
-  rule.
+* The XP curve: recheck the XP sum per level after each batch against the curve from
+  [monster-balance](monster-balance.draft.opus.md).
+* Save games: old saves point to old level numbers. No real players yet: ignore them.
 
 ## Route fork: left or right
 
@@ -113,8 +87,8 @@ whether today's checker already finds that softlock; if so, this needs only a te
 
 ## Tests
 
-* Inscriptions, campaign unit test: every level 1-35 has at least one inscription, each id has a text and is used
-  once.
-* Fork, unit: the checker passes the fork level and warns about a copy where the right route's gate key lies on the
-  left. Scenario with screenshots: the fork hall, the page, the inscription.
+* Inscriptions, campaign unit test: every campaign level has at least one inscription, each id is used once.
+* Fork, unit: the checker passes each fork level and warns about a copy where one route's gate key lies on the other.
+  Scenario with screenshots: a fork hall, its page, its inscription.
+* Unit: every level's monsters are in its zone's set, every zone's boss is on its boss level.
 * `bin/levelcheck content/levels/lvl*` with no warnings.

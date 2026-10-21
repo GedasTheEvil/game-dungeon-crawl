@@ -29,6 +29,8 @@ stronger.
 
 ## Placement (open)
 
+[campaign-zones](campaign-zones.draft.opus.md) gives this boss a zone (2026-10-21). Until then, today's options:
+
 * The desert (21-25), where the camel spiders run: as a mid-chapter boss off the every-fifth-level rhythm, or in an
   extra level.
 * An early level near the camel spiders' first levels (4, 6-8), as a minor boss.

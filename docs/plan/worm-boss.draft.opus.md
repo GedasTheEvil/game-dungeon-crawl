@@ -36,6 +36,9 @@ choice of name, for example "Rerek" or "the Serpent of Rosetau" (check the name 
 
 ## Placement (open)
 
+[campaign-zones](campaign-zones.draft.opus.md) gives this boss a zone, for example a second desert zone, the land of
+Sokar (2026-10-21). Until then, today's options:
+
 The desert chapter has one boss slot (Seth, lvl25). Options:
 
 * A mid-chapter boss (lvl23) in a sand pit: the campaign's first boss off the every-fifth-level rhythm.

@@ -14,7 +14,7 @@ journal ("Inscriptions" section). Atmosphere first, hints second.
   lines), plus hints: a riddle's hint, the way to a secret, a warning before a boss.
 * Humour in the archaeologist's comments: "Translation: 'Whoever reads this, beware.' Too late."
 * Level format: a decal object with a text id (`docs/levels.md`); texts in a data file like the riddles, no rebuild.
-* [stargate-chamber](../stargate-chamber.draft.opus.md) and [trapped-chests](../trapped-chests.md) (its tomb curses) can use them.
+* [stargate-chamber](../stargate-chamber.draft.opus.md) and [trapped-chests](trapped-chests.md) (its tomb curses) can use them.
 
 ## Tests
 

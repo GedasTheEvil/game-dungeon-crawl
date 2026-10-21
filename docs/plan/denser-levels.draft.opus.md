@@ -8,7 +8,7 @@ Needs first: the new monster plans, so the denser levels place them too:
 [living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](solved/cursed-mimic.md) (solved).
 It also needs the mirrors and the new traps first (user, 2026-10-20), so the denser levels place them too:
 [sunlight-mirrors](solved/sunlight-mirrors.md), [fire-jet-trap](fire-jet-trap.draft.opus.md),
-[poison-drip-trap](poison-drip-trap.draft.opus.md), [trapped-chests](trapped-chests.md).
+[poison-drip-trap](poison-drip-trap.draft.opus.md), [trapped-chests](solved/trapped-chests.md).
 
 ## Today (2026-10-09, `bin/levelcheck`)
 

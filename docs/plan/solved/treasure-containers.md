@@ -21,7 +21,7 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
 3. Opening plays a short clip or effect per container (lid lifts, jar breaks) before the item can be taken.
 4. **Closed until opened** (the user, 2026-10-12): the item no longer spins on top of a closed container; it shows
    (spinning, as today) only once the container is open, then the player takes it. The player can no longer see the
-   loot from afar: a trade for mystery, wanted for [trapped-chests](../trapped-chests.md), whose trap fires
+   loot from afar: a trade for mystery, wanted for [trapped-chests](trapped-chests.md), whose trap fires
    in this clip.
 
 ## Notes
@@ -31,9 +31,9 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
   of the treasures): on a level of jars a lone chest would give the mimic away. Optional: a mimic jar.
 * Level format unchanged if the look is derived (depth + effects roll). A `Treasure` tile has no spare field (its
   attribute and value are the item type and id): forcing a look per chest needs new data, see the level format note
-  in [trapped-chests](../trapped-chests.md).
+  in [trapped-chests](trapped-chests.md).
 * Models built procedurally (`tools/blender/models/items.py` / `props.py`, [docs/modeling.md](../../modeling.md)).
-* A trapped container's trap fires in its opening clip ([trapped-chests](../trapped-chests.md)); a trapped
+* A trapped container's trap fires in its opening clip ([trapped-chests](trapped-chests.md)); a trapped
   canopic jar curses by default. Its rule covers the tomb curses there too.
 
 ## Tests
@@ -70,4 +70,4 @@ A treasure cell (`$`, `Treasure`) draws one chest model at a fixed offset and ya
   level `tests/levels/containers`.
 
 Left out (open for later): a mimic jar; turning the mimic to the chests' other stances (it faces the camera, as the
-most common stance); the trap in the clip ([trapped-chests](../trapped-chests.md)).
+most common stance); the trap in the clip ([trapped-chests](trapped-chests.md)).

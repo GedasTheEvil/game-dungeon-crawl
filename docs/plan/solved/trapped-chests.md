@@ -35,23 +35,23 @@ lore review) merged in 2026-10-19 (user: one curse system).
   (health, stamina, might, armour); every level still passes `bin/levelcheck` with no warnings.
 * Left out: sarcophagi and coffins as tomb-curse objects (they are not interactive) and smashing decor pottery (the
   props cannot be smashed; the pottery jar container curses instead); levelgen places no trapped chests.
-* Tests: `tests/unit/trapped_chests_test.cpp`, the scenario `tests/scenarios/trapped_chests.txt` (the tell, the gas).
+* Tests: `tests/unit/trapped_chests_test.cpp`, the scenario `tests/scenarios/solved/trapped_chests.txt` (the tell, the gas).
 
 ## Idea
 
 Some chests are trapped: opening one sets off a trap. Opening any chest becomes a small gamble, beside the mimic
-(Chest of Set), which is a monster, and the [cursed mimic](solved/cursed-mimic.md).
+(Chest of Set), which is a monster, and the [cursed mimic](cursed-mimic.md).
 
 * Traps, fired during the opening clip:
   * poison darts from the lock (medium poison, like the dart plate, `src/world/dungeon_darts.cpp`);
   * a puff of poison gas (a small cloud, weak poison, a few seconds);
   * a curse (one of `Curse`, `src/world/curses.h`), framed as an execration text on the lid. A trapped canopic jar
-    ([treasure-containers](solved/treasure-containers.md)) curses by default (disease);
+    ([treasure-containers](treasure-containers.md)) curses by default (disease);
   * optional: a scarab swarm crawling out (minions, like a boss's summons).
 * A tell for an attentive player, never obvious from afar (as the cursed mimic's): scratch marks round the lock, a
-  broken seal, a darker lid. It must survive [treasure-containers](solved/treasure-containers.md)'s looks and
+  broken seal, a darker lid. It must survive [treasure-containers](treasure-containers.md)'s looks and
   orientations.
-* The [interact prompt](solved/interact-prompt.md) shows "[E] Open" on every chest, trapped or not, and on a
+* The [interact prompt](interact-prompt.md) shows "[E] Open" on every chest, trapped or not, and on a
   mimic: it never tells them apart.
 * Journal: a field note the first time a trap goes off ("Some chests bite back."), per trap kind if it reads better.
 
@@ -63,7 +63,7 @@ alike:
 * One roll per object, on opening, from the gameplay stream. A container that is trapped rolls its trap only; no
   second curse roll on top (a canopic jar is a container, its curse is its trap).
 * The tell: a close-up hint, never a status line or a prompt text, never obvious from afar.
-* The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](solved/skill-blessing-of-isis.md)
+* The trap-ward amulet's chance (below) covers every one; the [Blessing of Isis](skill-blessing-of-isis.md)
   halves the curse's time, as any curse.
 * Loot in a cursed object follows [Contents](#contents-decided-with-the-user-2026-10-12).
 
@@ -74,10 +74,10 @@ as above; canopic jars are a container, their curse is a chest trap, not a trigg
 
 * Triggers (each a chance, default 25%):
   * opening a sarcophagus or a coffin (decor `sarcophagus`, `coffin`), if made interactive;
-  * smashing pottery or an ushabti ([living-ushabti](solved/living-ushabti.md)).
+  * smashing pottery or an ushabti ([living-ushabti](living-ushabti.md)).
 * Which curse: by the object (implementer's choice from the curses list), e.g. a sarcophagus → weakness or
   vulnerability, pottery → disease.
-* The tell: an execration text on the object, seen up close. With the [hieroglyph skill](solved/skill-hieroglyphs.md)
+* The tell: an execration text on the object, seen up close. With the [hieroglyph skill](skill-hieroglyphs.md)
   it may read as a warning when looked at; implementer's choice.
 * An object that holds loot follows [Contents](#contents-decided-with-the-user-2026-10-12).
 * Journal humour: "The lid said 'cursed be he who opens this'. I opened it. The lid was right."
@@ -114,7 +114,7 @@ A new tile type `TrappedTreasure` (the next available ID, possibly 16) with the 
   the decoration that leaves treasure cells bare): add `isTreasure(const Tile&)` (`src/world/level.h`) and use it, so
   none is missed.
 * Trap kind: implementer's choice. Random per chest from the gameplay stream on opening, by depth (darts early, curses
-  deep), or one tile type per kind. If [treasure-containers](solved/treasure-containers.md) also needs per-chest
+  deep), or one tile type per kind. If [treasure-containers](treasure-containers.md) also needs per-chest
   data (a forced look), weigh one general extra field per object (level format v3) against more tile types.
 * Boss rule (AGENTS.md): no monster gains an ability here.
 

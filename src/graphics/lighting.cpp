@@ -12,7 +12,6 @@
 
 namespace {
 constexpr int MAX_LIGHTS = 16;
-constexpr float AMBIENT[3] = {0.09f, 0.085f, 0.1f}; // cool, dark; torches and the player do the rest
 
 const char* const VERTEX_SRC = R"(
 #version 120
@@ -32,6 +31,8 @@ const char* const FRAGMENT_SRC = R"(
 const int MAX_LIGHTS = 16;
 uniform sampler2D uTex;
 uniform vec3 uAmbient;
+uniform vec4 uFog; // colour, density per unit past uFogStart
+uniform float uFogStart;
 uniform float uEmissive;
 uniform float uToon; // 1 = cel bands (see toonLight)
 uniform int uLightCount;
@@ -50,8 +51,9 @@ vec3 toonLight(vec3 light) {
 }
 void main() {
 	vec4 base = texture2D(uTex, gl_TexCoord[0].st) * gl_Color;
+	float haze = 1.0 - exp(-uFog.w * max(length(vPos) - uFogStart, 0.0));
 	if (uEmissive > 0.5) {
-		gl_FragColor = base;
+		gl_FragColor = vec4(mix(base.rgb, uFog.rgb, haze), base.a);
 		return;
 	}
 	vec3 n = normalize(vNormal);
@@ -72,7 +74,7 @@ void main() {
 		base.rgb = clamp(mix(vec3(grey), base.rgb, 1.25), 0.0, 1.0); // livelier paint
 		light = toonLight(light);
 	}
-	gl_FragColor = vec4(base.rgb * light, base.a);
+	gl_FragColor = vec4(mix(base.rgb * light, uFog.rgb, haze), base.a);
 }
 )";
 
@@ -84,6 +86,8 @@ struct Light {
 GLuint gProgram = 0;
 bool gFailed = false;
 bool gActive = false;
+GLint gLocFog = -1, gLocFogStart = -1;
+Lighting::Atmosphere gAir;
 GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
 Light gLights[64];
 int gLightCount = 0;
@@ -104,6 +108,8 @@ bool ensureProgram() {
 	gProgram = program;
 	gFailed = false;
 	gLocAmbient = glGetUniformLocation(program, "uAmbient");
+	gLocFog = glGetUniformLocation(program, "uFog");
+	gLocFogStart = glGetUniformLocation(program, "uFogStart");
 	gLocEmissive = glGetUniformLocation(program, "uEmissive");
 	gLocToon = glGetUniformLocation(program, "uToon");
 	gLocCount = glGetUniformLocation(program, "uLightCount");
@@ -123,7 +129,9 @@ void Lighting::begin() {
 	if (!gActive)
 		return;
 	glUseProgram(gProgram);
-	glUniform3fv(gLocAmbient, 1, AMBIENT);
+	glUniform3fv(gLocAmbient, 1, gAir.ambient);
+	glUniform4f(gLocFog, gAir.fog[0], gAir.fog[1], gAir.fog[2], gAir.fogDensity);
+	glUniform1f(gLocFogStart, gAir.fogStart);
 	glUniform1f(gLocEmissive, 0.f);
 	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
 }
@@ -177,6 +185,8 @@ void Lighting::commit() {
 		glUniform3fv(gLocColor, gLightCount, col);
 	}
 }
+
+void Lighting::setAtmosphere(const Atmosphere& air) { gAir = air; }
 
 void Lighting::end() {
 	if (gActive)

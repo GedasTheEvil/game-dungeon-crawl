@@ -283,6 +283,7 @@ void loadTraps(TrapSet& traps, TextureRegistry& textures) {
 void loadFonts(FontSet& fonts) {
 	fonts.font.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3, -0.3);
 	fonts.status.Load(MEDIA_DIR "textures/fonts/papyrus.png", 5, 0.3f, true);
+	fonts.banner.Load(MEDIA_DIR "textures/fonts/papyrus.png", 7, 0.3f, true);
 	fonts.hud.Load(MEDIA_DIR "textures/fonts/impact.png", 11, 0.2f, true);
 	fonts.hudBody.Load(MEDIA_DIR "textures/fonts/papyrus.png", 4.2f, 0.12f, true);
 	fonts.hudSmall.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.f, 0.08f, true);

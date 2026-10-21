@@ -17,6 +17,7 @@ parts below instead of drawing their own.
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` (values: `src/ui/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
+| Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/zone_banner.cpp` (text: `levelBanner`, `src/world/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
 | Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/solved/autosave.md)) | 160 x 100, over the dimmed game |

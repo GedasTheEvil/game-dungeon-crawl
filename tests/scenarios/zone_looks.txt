@@ -1,0 +1,47 @@
+# Zone looks (plan zone-looks): one hall per zone of today's campaign, its stone, decor, light and fog; the zone
+# banner on a zone's first level, the smaller level banner on another.
+seed 1
+god
+level 1
+wait 1500ms
+screenshot tomb_banner
+wait 6s
+hold right 3s
+screenshot tomb
+level 2
+wait 1500ms
+screenshot level_banner
+level 6
+wait 7s
+hold right 3s
+screenshot bats
+level 11
+wait 7s
+hold right 3s
+screenshot nest
+level 16
+wait 7s
+hold right 3s
+screenshot serpent
+level 21
+wait 1500ms
+screenshot desert_banner
+wait 6s
+hold right 3s
+screenshot desert
+level 26 at 20 3
+wait 7s
+hold right 3s
+screenshot cisterns
+level 31
+wait 7s
+hold right 3s
+screenshot necropolis
+level 35
+wait 1500ms
+screenshot judgment_banner
+wait 6s
+hold right 3s
+screenshot judgment
+expect alive == 1
+quit

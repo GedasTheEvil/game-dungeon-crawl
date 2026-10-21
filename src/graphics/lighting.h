@@ -25,6 +25,17 @@ constexpr LightDef LIGHT_SHAFT = {0.9f, 0.78f, 0.55f, 80.f, 0.f}; // daylight th
 constexpr LightDef SUNBEAM = {1.0f, 0.86f, 0.6f, 75.f,
 							  0.f}; // a beam of sunlight, a lit sun disc (plan sunlight-mirrors)
 
+// The air of the level's zone (plan zone-looks, ZoneLook): the light where no lamp reaches, the haze far away.
+struct Atmosphere {
+	float ambient[3] = {0.09f, 0.085f, 0.1f};
+	float fog[3] = {0.f, 0.f, 0.f};
+	float fogDensity = 0.f; // per world unit past fogStart; 0: none
+	float fogStart = 0.f; // eye distance
+};
+
+// Per frame, before begin(): the atmosphere the next frames are drawn in.
+void setAtmosphere(const Atmosphere& air);
+
 void begin();
 void add(float x, float y, float z, const LightDef& def, uint32_t seed);
 void commit();

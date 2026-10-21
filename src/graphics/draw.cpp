@@ -9,6 +9,7 @@
 #include "../ui/level_gem.h"
 #include "../ui/boss_bar.h"
 #include "../ui/status_box.h"
+#include "../ui/zone_banner.h"
 #include "../ui/interact_prompt.h"
 #include "../ui/ui_draw.h"
 #include "../input/input_actions.h"
@@ -94,6 +95,21 @@ void drawAutosaved() {
 	glColor3f(1, 1, 1);
 }
 
+// The level's banner (plan zone-looks): when a campaign level starts, the zone's on its first level.
+void drawLevelBanner() {
+	const int now = GameClock::now();
+	UIContext& ui = Game().ui;
+	if (!Game().dungeon.CampaignLevel())
+		return;
+	if (Game().dungeon.LevelNumber() != ui.bannerLevel) {
+		ui.bannerLevel = Game().dungeon.LevelNumber();
+		ui.bannerStartMs = now;
+	}
+	const LevelBanner banner = levelBanner(ui.bannerLevel);
+	ZoneBanner::draw(banner, ZoneBanner::Alpha(now - ui.bannerStartMs, banner.zone), Game().render.resX,
+					 Game().render.resY, Game().assets.fonts.banner, Game().assets.fonts.hudBody);
+}
+
 void drawStatusLine() {
 	if (!Game().statusTimer.TimePassed(true))
 		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
@@ -173,6 +189,11 @@ void drawGameplay() {
 	// The player stays sharp in the blur; the vignette of a cut-scene stays on the middle.
 	const ScreenPoint chest = cutScene ? ScreenPoint{0.5f, 0.5f} : toScreen(0, 16, -22);
 
+	const ZoneLook& look = Game().dungeon.Look(); // plan zone-looks
+	Lighting::setAtmosphere({{look.ambient[0], look.ambient[1], look.ambient[2]},
+							 {look.fog[0], look.fog[1], look.fog[2]},
+							 look.fogDensity,
+							 FOG_START});
 	Lighting::begin();
 	if (Game().player->Alive())
 		Lighting::add(playerX, playerY + 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
@@ -286,6 +307,7 @@ void drawGameplay() {
 
 	glColor3f(1, 1, 1);
 
+	drawLevelBanner();
 	drawStatusLine();
 	drawAutosaved();
 	Game().ui.winEntry.Draw(Game().render.resX, Game().render.resY);

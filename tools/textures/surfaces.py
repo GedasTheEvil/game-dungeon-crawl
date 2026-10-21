@@ -562,6 +562,237 @@ def rock():
     return finish(col, h, 4.0)
 
 
+# ---------------------------------------------------------------- zone stones (plan zone-looks)
+
+# The Cisterns of Sobek: cool grey-green blocks, damp streaks down them, darker where the water stood.
+WET = np.array([0.40, 0.45, 0.42])
+WET_LIGHT = np.array([0.53, 0.58, 0.53])
+WET_MORTAR = np.array([0.20, 0.24, 0.22])
+MOSS = np.array([0.20, 0.34, 0.14])
+MOSS_LIGHT = np.array([0.36, 0.50, 0.21])
+SHEEN = np.array([0.74, 0.82, 0.86])
+# The Lake of Fire: warm black basalt, roughly hewn; embers in its cracks.
+BASALT = np.array([0.15, 0.13, 0.12])
+BASALT_LIGHT = np.array([0.24, 0.21, 0.19])
+BASALT_MORTAR = np.array([0.07, 0.06, 0.06])
+ASH = np.array([0.36, 0.34, 0.32])
+EMBER = np.array([1.0, 0.42, 0.10])
+EMBER_HALO = np.array([0.55, 0.13, 0.02])
+# The Necropolis and the Hall of Judgment: dark grey granite, pink feldspar and black mica, cut fine and polished.
+GRANITE = np.array([0.30, 0.29, 0.30])
+GRANITE_LIGHT = np.array([0.41, 0.39, 0.40])
+GRANITE_JOINT = np.array([0.10, 0.10, 0.11])
+FELDSPAR = np.array([0.58, 0.40, 0.37])
+MICA = np.array([0.07, 0.07, 0.08])
+DUST = np.array([0.47, 0.45, 0.42])
+
+# Granite is cut in large blocks: two courses a wall.
+GRANITE_ROWS = [(0, 256, [100, 360]), (256, 512, [230, 490])]
+
+
+def granite_grain(seed):
+    """Colour factor of the granite's crystals: pink feldspar and black mica grains a few px wide, on grey."""
+    g = noise(seed, 0.6, lo=12, hi=110)
+    pink = smoothstep(1.0, 1.45, g)
+    mica = smoothstep(-1.2, -1.6, noise(seed + 1, 0.6, lo=20, hi=140))
+    glint = speckle(seed + 2, 0.004)
+    return pink, mica, glint
+
+
+def granite_colour(face, tint, mott, seed):
+    col = lerp(GRANITE, GRANITE_LIGHT, np.clip(0.5 + 0.18 * mott, 0, 1)) * tint
+    pink, mica, glint = granite_grain(seed)
+    col = lerp(col, FELDSPAR * tint, pink * 0.85)
+    col = lerp(col, MICA, mica * 0.9)
+    col *= (1 + 0.25 * np.maximum(glint, 0))[..., None]
+    return lerp(GRANITE_JOINT, col, face)
+
+
+def ember(col, c):
+    """Glowing cracks over a finished (shaded) texture: a hot core, a red halo round it."""
+    halo = np.clip(soften(c, 4.0) * 2.0, 0, 1)
+    col = np.clip(col + EMBER_HALO * (halo * 0.55)[..., None], 0, 1)
+    return lerp(col, EMBER, np.clip(c * 1.2, 0, 1))
+
+
+def wet_wall(moss=False):
+    dist, dist_h, tint = layout(WALL_ROWS, 901)
+    mott = noise(902, 1.3)
+    d = dist + 1.5 * noise(903, 1.0)
+    face = smoothstep(0.5, 8, d) ** 0.7
+    col = lerp(WET, WET_LIGHT, np.clip(0.5 + 0.25 * mott, 0, 1)) * tint
+    col *= (1 + 0.04 * noise(904, 0.4) + 0.05 * speckle(905, 0.02))[..., None]
+    col = lerp(WET_MORTAR, col, face)
+    h = face + 0.08 * mott
+    # Damp streaks running down from the joints, the foot dark where the water stood.
+    streak = smoothstep(0.2, 1.6, noise(906, 1.1, sy=7))
+    col *= (1 - 0.32 * streak)[..., None]
+    tide = smoothstep(-6, 6, Y - (N - 150 - 14 * noise(907, 1.4)[0][None, :]))
+    col *= (1 - 0.3 * tide)[..., None]
+    col = lerp(col, SHEEN, smoothstep(1.3, 2.0, noise(908, 1.2)) * 0.22 * face)
+    if moss:  # algae in the joints and along the foot of the wall
+        fade = edge_fade()
+        joints = smoothstep(7, 1, dist + 2 * noise(909, 0.8)) * smoothstep(-0.4, 0.5, noise(910, 1.2)) * fade
+        foot = smoothstep(-4, 4, Y - (N - 70 - 30 * noise(911, 1.5)[0][None, :])) * edge_fade(v=False)
+        m = np.clip(np.maximum(joints, foot * smoothstep(-0.8, 0.2, noise(912, 0.9))), 0, 1)
+        moss_col = lerp(MOSS, MOSS_LIGHT, np.clip(0.5 + 0.3 * noise(913, 0.6), 0, 1))
+        col = lerp(col, moss_col, m)
+        h += 0.15 * m
+    return finish(col, h, 5.0)
+
+
+def wall_wetstone():
+    return wet_wall()
+
+
+def wall_wetstone_moss():
+    return wet_wall(moss=True)
+
+
+def basalt_wall(glow=False):
+    dist, _, tint = layout(WALL_ROWS, 921)
+    mott = noise(922, 1.3)
+    hewn = noise(923, 1.0)
+    d = dist + 3 * noise(924, 1.0)
+    face = smoothstep(0.5, 12, d) ** 0.5
+    col = lerp(BASALT, BASALT_LIGHT, np.clip(0.5 + 0.2 * mott + 0.12 * hewn, 0, 1)) * tint
+    col *= (1 + 0.04 * noise(925, 0.4) + 0.04 * speckle(926, 0.02))[..., None]
+    col = lerp(BASALT_MORTAR, col, face)
+    h = face + 0.15 * soften(hewn, 2.0) + 0.08 * mott
+    out = finish(col, h, 4.0)
+    if glow:
+        out = ember(out, cracks(927, 2, 170, 3.0) * edge_fade())
+    return out
+
+
+def wall_basalt():
+    return basalt_wall()
+
+
+def wall_basalt_glow():
+    return basalt_wall(glow=True)
+
+
+def granite_wall(worn=False):
+    dist, dist_h, tint = layout(GRANITE_ROWS, 941)
+    mott = noise(942, 1.4)
+    face = smoothstep(0.5, 3, dist) ** 0.8
+    col = granite_colour(face, tint, mott, 943)
+    h = face + 0.03 * mott
+    if worn:  # chipped block corners, dust on the joints and at the foot
+        fade = edge_fade()
+        rng = random.Random(944)
+        for _ in range(4):
+            y0, y1, js = rng.choice(GRANITE_ROWS)
+            cx = min(max(rng.choice(js) + rng.uniform(-10, 10), EDGE * 2), N - EDGE * 2)
+            cy = rng.choice((y0, y1)) + rng.uniform(-8, 8)
+            r = rng.uniform(14, 30)
+            m = smoothstep(0, 2, r - np.hypot(X - cx, Y - cy) + 4 * noise(945, 1.1)) * fade
+            h -= 0.5 * m
+            col = lerp(col, col * 1.12, m)
+        dust = smoothstep(5, 1, dist_h + 2 * noise(946, 0.7)) * smoothstep(-0.3, 0.6, noise(947, 1.2)) * fade
+        foot = smoothstep(-3, 3, Y - (N - 26 - 10 * noise(948, 1.4)[0][None, :])) * edge_fade(v=False)
+        dust = np.maximum(dust, foot)
+        col = lerp(col, DUST * (1 + 0.06 * noise(949, 0.6))[..., None], dust * 0.8)
+    return finish(col, h, 2.5)
+
+
+def wall_granite():
+    return granite_wall()
+
+
+def wall_granite_worn():
+    return granite_wall(worn=True)
+
+
+def floor_wetstone():
+    dist, _, tint = layout(FLOOR_ROWS, 951)
+    mott = noise(952, 1.3)
+    face = smoothstep(0.5, 9, dist + 2 * noise(953, 1.0)) ** 0.6
+    col = WET * 0.92 * tint * (1 + 0.06 * mott + 0.04 * speckle(954, 0.02))[..., None]
+    col = lerp(WET_MORTAR * 0.9, col, face)
+    h = face + 0.07 * mott
+    joints = smoothstep(6, 1, dist) * smoothstep(-0.2, 0.6, noise(955, 1.1))
+    col = lerp(col, MOSS * 0.9, joints * 0.7)
+    out = finish(col, h, 5.0)
+    # Puddles: darker, with a pale sheen at the far side.
+    p = smoothstep(0.7, 1.1, noise(956, 1.6))
+    out = lerp(out, out * 0.55 + np.array([0.06, 0.08, 0.10]), p)
+    sheen = p * smoothstep(0.8, 1.6, noise(957, 1.0, sx=0.4))
+    return np.clip(lerp(out, SHEEN * 0.75, sheen * 0.35), 0, 1)
+
+
+def floor_basalt():
+    dist, _, tint = layout(FLOOR_ROWS, 961)
+    mott = noise(962, 1.3)
+    face = smoothstep(0.5, 9, dist + 2 * noise(963, 1.0)) ** 0.6
+    col = lerp(BASALT, BASALT_LIGHT, np.clip(0.5 + 0.2 * mott, 0, 1)) * tint
+    col *= (1 + 0.04 * noise(964, 0.4) + 0.04 * speckle(965, 0.02))[..., None]
+    col = lerp(BASALT_MORTAR, col, face)
+    h = face + 0.1 * mott
+    # Ash drifted against the back wall, in the joints and in patches.
+    s = 0.8 * noise(966, 1.4) + 2.4 * (1 - Y / N) ** 3 + 1.2 * smoothstep(8, 1, dist) - 1.7
+    ash = smoothstep(-0.6, 0.6, s)
+    col = lerp(col, ASH * (1 + 0.06 * noise(967, 0.6))[..., None], ash * 0.6)
+    h = lerp(h[..., None], np.full((N, N, 1), 0.9), ash)[..., 0]
+    out = finish(col, h, 5.0)
+    c = cracks(968, 1, 160, 2.5) * edge_fade(v=False) * (1 - ash)
+    return ember(out, c * 0.6)
+
+
+def floor_granite():
+    dist, _, tint = layout(FLOOR_ROWS, 971)
+    mott = noise(972, 1.4)
+    face = smoothstep(0.5, 3, dist) ** 0.8
+    col = granite_colour(face, tint, mott, 973)
+    # Polish: soft lighter bands where the lights reflect.
+    col = lerp(col, col * 1.25 + 0.03, smoothstep(0.6, 1.6, noise(974, 1.6, sy=0.35)) * 0.6 * face)
+    return finish(col, face + 0.02 * mott, 2.0)
+
+
+def ceiling_wetstone():
+    dist, _, tint = layout(CEILING_ROWS, 981)
+    mott = noise(982, 1.3)
+    face = smoothstep(0.5, 9, dist + 2 * noise(983, 1.0)) ** 0.7
+    col = lerp(WET, WET_LIGHT, np.clip(0.4 + 0.25 * mott, 0, 1)) * tint * 0.72
+    col = lerp(WET_MORTAR * 0.7, col, face)
+    col *= (1 + 0.04 * noise(984, 0.4) + 0.04 * speckle(985, 0.02))[..., None]
+    # Mineral stains seeping from the joints: pale lime and rust; drips hanging from them.
+    seep = smoothstep(12, 2, dist + 5 * noise(986, 1.0)) * smoothstep(-0.2, 0.7, noise(987, 1.3))
+    col = lerp(col, np.array([0.62, 0.64, 0.58]), seep * 0.55)
+    rust = smoothstep(0.9, 1.6, noise(988, 1.2)) * (1 - seep)
+    col = lerp(col, np.array([0.42, 0.29, 0.18]), rust * 0.5)
+    drips = np.maximum(speckle(989, 0.0015), 0) * seep
+    col = lerp(col, SHEEN, np.clip(soften(drips, 1.0) * 6, 0, 1) * 0.8)
+    return finish(col, face + 0.08 * mott - 0.1 * seep, 5.0)
+
+
+def ceiling_basalt():
+    dist, _, tint = layout(CEILING_ROWS, 991)
+    mott = noise(992, 1.3)
+    hewn = noise(993, 1.0)
+    face = smoothstep(0.5, 12, dist + 3 * noise(994, 1.0)) ** 0.5
+    col = lerp(BASALT, BASALT_LIGHT, np.clip(0.45 + 0.2 * mott + 0.1 * hewn, 0, 1)) * tint
+    col *= (1 + 0.04 * noise(995, 0.4) + 0.04 * speckle(996, 0.02))[..., None]
+    col = lerp(BASALT_MORTAR, col, face)
+    soot = smoothstep(-0.3, 1.0, noise(997, 1.5))  # blackened by the fires below
+    col *= (1 - 0.45 * soot)[..., None]
+    return finish(col, face + 0.15 * soften(hewn, 2.0) + 0.08 * mott, 4.0)
+
+
+def ceiling_granite():
+    dist, _, tint = layout(CEILING_ROWS, 1001)
+    mott = noise(1002, 1.4)
+    face = smoothstep(0.5, 3, dist) ** 0.8
+    col = granite_colour(face, tint, mott, 1003) * 0.85
+    # Two carved bands across the slabs.
+    band = np.zeros((N, N), np.float32)
+    for y0 in (150, 340):
+        band = np.maximum(band, smoothstep(0, 2, Y - y0) * smoothstep(0, 2, y0 + 14 - Y))
+    col = lerp(col, col * 0.7, band)
+    return finish(col, face + 0.03 * mott - 0.4 * band, 3.0)
+
+
 # Order = WALL_STYLE_NAMES / FLOOR_STYLE_NAMES / CEILING_STYLE_NAMES in src/world/decor.h.
 TEXTURES = [
     ("wall_plaster", wall_plaster),
@@ -574,16 +805,28 @@ TEXTURES = [
     ("wall_rough_strata", wall_rough_strata),
     ("wall_sandstone", wall_sandstone),
     ("wall_sandstone_worn", wall_sandstone_worn),
+    ("wall_wetstone", wall_wetstone),
+    ("wall_wetstone_moss", wall_wetstone_moss),
+    ("wall_basalt", wall_basalt),
+    ("wall_basalt_glow", wall_basalt_glow),
+    ("wall_granite", wall_granite),
+    ("wall_granite_worn", wall_granite_worn),
     ("floor_slabs", floor_slabs),
     ("floor_sand", floor_sand),
     ("floor_cracked", floor_cracked),
     ("floor_sandstone", floor_sandstone),
+    ("floor_wetstone", floor_wetstone),
+    ("floor_basalt", floor_basalt),
+    ("floor_granite", floor_granite),
     ("ceiling_stars", ceiling_stars),
     ("ceiling_slabs", ceiling_slabs),
     ("ceiling_rough", ceiling_rough),
     ("ceiling_sandstone", ceiling_sandstone),
     ("ceiling_sandstone_cracked", ceiling_sandstone_cracked),
     ("ceiling_sandstone_sandy", ceiling_sandstone_sandy),
+    ("ceiling_wetstone", ceiling_wetstone),
+    ("ceiling_basalt", ceiling_basalt),
+    ("ceiling_granite", ceiling_granite),
     ("rock", rock),
 ]
 
@@ -602,7 +845,7 @@ def main(out_dir, preview):
     if preview:  # every texture, then two strips of walls side by side to check the seams
         q = N // 2
         top = (len(TEXTURES) + 7) // 8
-        sheet = Image.new("RGB", (q * 8, q * (top + 3)), (0, 0, 0))
+        sheet = Image.new("RGB", (q * 8, q * (top + 6)), (0, 0, 0))
         for k, (name, _) in enumerate(TEXTURES):
             sheet.paste(images[name].resize((q, q)), ((k % 8) * q, (k // 8) * q))
         strip = ["wall_plaster", "wall_plaster_worn", "wall_plaster", "wall_plaster_broken", "wall_stone", "wall_stone_sand",
@@ -616,6 +859,15 @@ def main(out_dir, preview):
                  "ceiling_sandstone_cracked", "ceiling_sandstone"]
         for k, name in enumerate(strip):
             sheet.paste(images[name].resize((q, q)), (k * q, (top + 2) * q))
+        zone_strips = [["wall_wetstone", "wall_wetstone_moss", "wall_wetstone", "wall_wetstone_moss", "floor_wetstone",
+                        "floor_wetstone", "ceiling_wetstone", "ceiling_wetstone"],
+                       ["wall_basalt", "wall_basalt_glow", "wall_basalt", "wall_basalt_glow", "floor_basalt", "floor_basalt",
+                        "ceiling_basalt", "ceiling_basalt"],
+                       ["wall_granite", "wall_granite_worn", "wall_granite", "wall_granite_worn", "floor_granite",
+                        "floor_granite", "ceiling_granite", "ceiling_granite"]]
+        for r, strip in enumerate(zone_strips):
+            for k, name in enumerate(strip):
+                sheet.paste(images[name].resize((q, q)), (k * q, (top + 3 + r) * q))
         sheet.save(preview)
         print("wrote", preview)
 

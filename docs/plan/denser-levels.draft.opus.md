@@ -6,7 +6,7 @@ levels in zones). Slug kept from the first version.
 
 Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
 [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
-[campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.draft.opus.md),
+[campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.md),
 [campaign-texts](campaign-texts.draft.sonet.md) (the texts to place), and the new traps, so the rebuild places them:
 [fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
 Monster-balance already waits for every monster and boss draft, so they are all in before this.

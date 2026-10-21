@@ -11,7 +11,7 @@ story, look, monster set and main mechanic, and most zones end with a boss. Toda
 
 This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.draft.opus.md)
 balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.draft.opus.md) builds its
-levels, [zone-looks](../zone-looks.draft.opus.md) gives each zone its look,
+levels, [zone-looks](../zone-looks.md) gives each zone its look,
 [campaign-texts](../campaign-texts.draft.sonet.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
 rebuilds the campaign zone by zone.
 
@@ -72,7 +72,7 @@ night, the last two the deep hours and dawn.
 * A zone's full name: the hour and its gate, e.g. "The Fourth Hour: the Gate of the Priests". In the zone table.
 * Guardians: the Book of Gates names a guardian serpent per gate (e.g. Saa-set, Aqebi, Teka-hra). The zone's boss
   is that hour's guardian in the banner text; the bossless Necropolis names only its gate.
-* Shown on entering a zone (the banner, [zone-looks](../zone-looks.draft.opus.md)), in the map and in the save slots.
+* Shown on entering a zone (the banner, [zone-looks](../zone-looks.md)), in the map and in the save slots.
 * Level titles and the journal note per hour: [campaign-texts](../campaign-texts.draft.sonet.md).
 
 ## What changes
@@ -100,7 +100,7 @@ night, the last two the deep hours and dawn.
   `zoneOf(level)` (nullptr outside the campaign) replaced `desertLevel` and `DESERT_FIRST`..`DESERT_LAST`.
 * `zoneTitle`: "The Fourth Hour: the Gate of the Priests"; the hour is the zone's `ZoneId` (its place in the target
   table), so the Hall of Judgment is the Twelfth Hour already. The guardians' names are left to the banner
-  ([zone-looks](../zone-looks.draft.opus.md)).
+  ([zone-looks](../zone-looks.md)).
 * Today's High Priest (lvl34) sits in the necropolis zone until the rebuild moves him to the priests' quarter.
 * `docs/levels.md` (Zones): today's table and the target table. Glossary: `zone`.
 * Tests: `tests/unit/zones_test.cpp`. No gameplay change: the table maps today's campaign 1:1.

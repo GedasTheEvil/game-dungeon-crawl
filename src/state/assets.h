@@ -32,12 +32,14 @@ struct SoundBank {
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
+	Ambience ambience; // the zone's loop (plan zone-looks): media/sounds/ambience/<ZoneLook::ambience>.wav
 };
 
 struct FontSet {
 	Font font;
 	Font loading;
 	Font status; // proportional, for the gameplay status message
+	Font banner; // the zone banner's title (ZoneBanner)
 	Font hud; // bold digits for the HUD level gem
 	Font hudBody; // the player HUD's health numbers
 	Font hudSmall; // the player HUD's key caps and counts

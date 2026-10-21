@@ -49,8 +49,9 @@ struct DecorCounts {
 [[nodiscard]] bool bossCoffinCell(const Tile* cells, int col, int row);
 
 // Props, decals, torches, ladders, surfaces and the treasure containers' looks, seeded by the level's file name (the
-// part after the last '/'), from the decoration tiers its depth unlocks (decorTier). Every mummy's spawn tile and every
-// boss coffin cell gets a coffin. Overwrites all of layout.
+// part after the last '/'), from the decoration tiers its depth unlocks (decorTier) and the look of its zone (zoneOf,
+// zone_look.h: stone, decor set, torches). Every mummy's spawn tile and every boss coffin cell gets a coffin.
+// Overwrites all of layout.
 DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, DecorLayout& layout);
 
 // The highest decoration tier among a level's props, decals and surfaces; -1 for a bare level.

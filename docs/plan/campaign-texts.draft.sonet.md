@@ -30,7 +30,7 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
 * **Level titles** (from the duat-hours draft): each level gets a title in its zone's hour (e.g. "The Fourth Hour:
   the Gate of Sand" for the zone, "The Hall of Drifts" for a level). Titles live in the level files (a new header
   field, `docs/levels.md`), so `levelcheck` warns about a campaign level without one. Shown in the level-start
-  banner ([zone-looks](zone-looks.draft.opus.md)), the map and the save slots. Write them here, the rebuild keeps
+  banner ([zone-looks](zone-looks.md)), the map and the save slots. Write them here, the rebuild keeps
   them.
 * **Hour notes:** a journal field note on entering each zone (hour), in the archaeologist's voice ("The Seventh Hour.
   Apep waits here, says the wall. I wish the wall were wrong.").

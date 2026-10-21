@@ -6,6 +6,8 @@
 #include "../ui/inventory.h"
 #include "../ui/player_hud.h"
 #include "../ui/screen_state.h"
+#include "../core/paths.h"
+#include <string>
 
 namespace {
 constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
@@ -83,6 +85,9 @@ void tick() {
 		updateAttack();
 	}
 
+	const char* ambience = Game().dungeon.Look().ambience; // plan zone-looks
+	Game().assets.sounds.ambience.Play(
+		ambience != nullptr ? MEDIA_DIR "sounds/ambience/" + std::string(ambience) + ".wav" : std::string());
 	if (Game().player->Alive() && !Game().dungeon.Won()) // play time: paused, menus and the UI screens do not count
 		Game().player->stats.run.AddPlayMs(UPDATE_TICK_MS, Game().dungeon.LevelNumber());
 	Game().player->stats.UpdateStamina(Game().events);

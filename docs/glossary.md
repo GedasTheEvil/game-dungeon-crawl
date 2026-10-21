@@ -78,6 +78,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 | water prop | | ([water-decorations](plan/solved/water-decorations.md)) a prop scattered in a free half water cell: papyrus reeds (at the bank), weed (under the surface), lotus leaves, a blue lotus. No function; the reeds and weed sway, the leaves bob | `isWaterProp`, `DECOR_WATER_FIRST` |
 | zone | | ([campaign-zones](plan/solved/campaign-zones.md)) a run of campaign levels with its own stone, main monsters, new mechanic and (mostly) a boss on one of its levels; one hour of the Duat, its title "The Fourth Hour: the Gate of the Priests" | `Zone`, `ZONES`, `zoneOf`, `zoneTitle` |
+| zone look | | ([zone-looks](plan/zone-looks.md)) how a zone looks and sounds: its stone (the zone table), decor set, ambient light, haze, torch chance, ambient loop and banner guardian | `ZoneLook`, `ZONE_LOOKS`, `levelLook`, `Dungeon::Look` |
+| zone banner | | ([zone-looks](plan/zone-looks.md)) the panel over the game when a campaign level starts: on a zone's first level its hour and gate, the zone and its guardian; on any other the level and its zone, smaller | `ZoneBanner`, `levelBanner`, `LevelBanner` |
 
 ## Monsters
 

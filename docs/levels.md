@@ -77,8 +77,16 @@ The levels are grouped into zones ([campaign-zones](plan/solved/campaign-zones.m
 `src/world/campaign.h`, `zoneOf(level)`): a run of levels with its own stone, main monsters, new mechanic and, mostly,
 a boss. Each zone is one hour of Ra's night journey through the Duat (the Book of Gates); its title names the hour and
 its gate: "The Fourth Hour: the Gate of the Priests" (`zoneTitle`, the hour is the zone's place in the target table).
-A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities). Only the stone of the desert shows so far
-(sandstone); the others come with [zone-looks](plan/zone-looks.draft.opus.md).
+A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities).
+
+Each zone looks and sounds its own ([zone-looks](plan/zone-looks.md)): its stone dresses the walls,
+floors and ceilings (`scatterSurfaces`; plaster is limestone painted more often, wet stone, basalt and granite have
+their own textures and few rough rows), and `ZONE_LOOKS` (`src/world/zone_look.h`, by `ZoneId`, all twelve) sets its
+decor set (a factor per prop and decal on the tier weights), the ambient light, a haze far from the camera, the
+chance of a wall torch, an ambient loop (`media/sounds/ambience/`, `tools/audio/zone_ambience.py`) and the guardian
+its banner names. On a zone's first level a banner shows its hour and gate, the zone and its guardian; on every other
+level a smaller one, the level and its zone (`ZoneBanner`, `levelBanner`). A level outside the campaign keeps the
+tombs' look (`DEFAULT_LOOK`).
 
 Today's 35 levels, as the code table maps them:
 

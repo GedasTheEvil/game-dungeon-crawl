@@ -1,5 +1,6 @@
 #include "decor_scatter.h"
 #include "campaign.h"
+#include "zone_look.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
 #include "../core/gameplay_config.h"
@@ -17,13 +18,23 @@ constexpr uint32_t WATER_MIDDLE_WEIGHT[DECOR_WATER_COUNT] = {1, 2, 3, 2};
 constexpr uint32_t DECAL_CHANCE_PERCENT = 35;
 constexpr uint32_t DECAL_SALT = 0x51ed270bU;
 constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
-constexpr uint32_t TORCH_CHANCE_PERCENT = 25;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
 constexpr uint32_t TREASURE_SALT = 0xa54ff53aU;
 constexpr int STRETCH_MIN = 3; // cells; a row of dressed stone is cut into stretches, painted or bare
 constexpr int STRETCH_SPAN = 6; // lengths STRETCH_MIN .. STRETCH_MIN + STRETCH_SPAN - 1
 constexpr int TORCH_MIN_GAP = 4; // cells between torches in a row
+// The zones built of dressed stone (plan zone-looks: plaster, wet stone, basalt, granite): at most this many rows
+// rough; the temples' plaster at least this many dressed ones painted.
+constexpr uint32_t DRESSED_ROUGH_PERCENT = 15;
+constexpr uint32_t PLASTER_PAINTED_PERCENT = 70;
+// By ZoneStone: the dressed rows' walls (common, worn), floor and ceiling. Limestone and plaster have their own mix.
+constexpr int ZONE_WALL[] = {WALL_STONE, WALL_STONE, WALL_WETSTONE, WALL_SANDSTONE, WALL_BASALT, WALL_GRANITE};
+constexpr int ZONE_WALL_WORN[] = {WALL_STONE_CRACKED,  WALL_STONE_CRACKED, WALL_WETSTONE_MOSS,
+								  WALL_SANDSTONE_WORN, WALL_BASALT_GLOW,   WALL_GRANITE_WORN};
+constexpr int ZONE_FLOOR[] = {FLOOR_SLABS, FLOOR_SLABS, FLOOR_WETSTONE, FLOOR_SANDSTONE, FLOOR_BASALT, FLOOR_GRANITE};
+constexpr int ZONE_CEILING[] = {CEILING_SLABS,	   CEILING_SLABS,  CEILING_WETSTONE,
+								CEILING_SANDSTONE, CEILING_BASALT, CEILING_GRANITE};
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f,
 											 0.06f, 0.14f, 0.2f,  0.1f, 0.2f, 0.2f,	 0.2f, 0.2f, 0.1f,
@@ -133,7 +144,7 @@ bool placedFloorDecal(const Tile& tile) {
 // A prop with its own fire or a crown up to the torch: none goes with a wall torch (scatterTorches).
 bool torchless(int prop) { return prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop); }
 
-int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
+int scatterProps(const Tile* cells, uint32_t seed, int tier, const ZoneLook& look, DecorCell* decor) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++) {
@@ -189,7 +200,7 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 			for (int d = 0; d < DECOR_SCATTERED; d++)
 				weights[d] = (isThoth(d) && d != DECOR_THOTH) || (d == DECOR_WEB && !webFits) || (torch && torchless(d))
 								 ? 0
-								 : tierWeight(DECOR_TIERS[d], tier);
+								 : tierWeight(DECOR_TIERS[d], tier) * look.props[d];
 			h = mix(h);
 			int type = weightedPick(weights, DECOR_SCATTERED, h);
 			if (type < 0)
@@ -291,7 +302,7 @@ bool placedTorchAhead(const Tile* cells, int col, int row) {
 // lamp), the gates and ladders and deep water (plan no-torches-under-water) are skipped; over half water the flame
 // clears the surface. The decal layer's torches (plan placed-decor) hang where it says, whatever the rules; the random
 // ones keep the gap to them.
-int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, bool* torch) {
+int scatterTorches(const Tile* cells, uint32_t seed, uint32_t torchPercent, const DecorCell* decor, bool* torch) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++) {
 		int lastTorch = -TORCH_MIN_GAP - 1;
@@ -314,7 +325,7 @@ int scatterTorches(const Tile* cells, uint32_t seed, const DecorCell* decor, boo
 				continue;
 
 			const uint32_t h = cellHash(seed, cellIndex(i, j));
-			if (h % 100 >= TORCH_CHANCE_PERCENT)
+			if (h % 100 >= torchPercent)
 				continue;
 			cell = true;
 			lastTorch = i;
@@ -347,7 +358,8 @@ void placeDecal(DecalCell& cell, int type, bool mirror, uint32_t h) {
 
 // One decal at most per cell with a visible back wall. Runs after the props and torches so floor decals can avoid
 // cells that already have a prop, free ones a torch.
-int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout& layout, DecalCell* decal) {
+int scatterDecals(const Tile* cells, uint32_t seed, int tier, const ZoneLook& look, const DecorLayout& layout,
+				  DecalCell* decal) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++) {
@@ -380,7 +392,7 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 				const bool fits = (anchor == DecalAnchor::Free && free) ||
 								  (anchor == DecalAnchor::Ceiling && ceiling) ||
 								  (anchor == DecalAnchor::Floor && floor);
-				weights[d] = fits ? tierWeight(DECAL_TIERS[d], tier) : 0;
+				weights[d] = fits ? tierWeight(DECAL_TIERS[d], tier) * look.decals[d] : 0;
 			}
 			h = mix(h);
 			const int type = weightedPick(weights, DECAL_COUNT, h);
@@ -399,12 +411,19 @@ int scatterDecals(const Tile* cells, uint32_t seed, int tier, const DecorLayout&
 // stone on one side at most). Then a variant per cell, never the same uncommon one twice in a row.
 // Rows of rough rock, dressed stone or painted plaster in the shares of the level's tier (ROUGH_PERCENT,
 // PAINTED_PERCENT); the floors and ceilings that tier has unlocked.
-// In the desert (desert) the dressed rows are all sandstone, no plaster.
-void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, bool desert, SurfaceCell* surface,
+// The zone's stone (plan zone-looks): limestone as above, plaster the same painted more often, the other stones dress
+// every row of their own, no plaster.
+void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, ZoneStone stone, SurfaceCell* surface,
 					 DecorCounts& counts) {
 	enum Family : uint8_t { Painted, Stone, Rough };
-	const uint32_t roughPercent = ROUGH_PERCENT[tier];
-	const uint32_t paintedPercent = desert ? 0 : PAINTED_PERCENT[tier];
+	const bool desert = stone == ZoneStone::Sandstone;
+	const bool limestone = stone == ZoneStone::Limestone || stone == ZoneStone::Plaster;
+	const bool built = stone != ZoneStone::Limestone && stone != ZoneStone::Sandstone;
+	const uint32_t roughPercent = built ? std::min(ROUGH_PERCENT[tier], DRESSED_ROUGH_PERCENT) : ROUGH_PERCENT[tier];
+	const uint32_t paintedPercent = !limestone ? 0
+									: stone == ZoneStone::Plaster
+										? std::max(PAINTED_PERCENT[tier], PLASTER_PAINTED_PERCENT)
+										: PAINTED_PERCENT[tier];
 	Family family[LEVEL_WIDTH];
 	int familyCells[3] = {};
 
@@ -455,21 +474,22 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, bool desert, Su
 										   ? CEILING_SANDSTONE_CRACKED
 									   : roll % 3 == 0 ? CEILING_SANDSTONE_SANDY
 													   : CEILING_SANDSTONE;
-					if (desert)
-						cell.wall = roll < 35 ? WALL_SANDSTONE_WORN : WALL_SANDSTONE;
-					else
-						cell.wall = roll < 25 ? WALL_STONE_CRACKED : (roll < 45 ? WALL_STONE_SAND : WALL_STONE);
+					cell.wall = roll < 25 ? WALL_STONE_CRACKED : (roll < 45 ? WALL_STONE_SAND : WALL_STONE);
+					if (!limestone && !desert)
+						cell.ceiling = ZONE_CEILING[static_cast<int>(stone)];
+					if (!limestone)
+						cell.wall =
+							roll < 35 ? ZONE_WALL_WORN[static_cast<int>(stone)] : ZONE_WALL[static_cast<int>(stone)];
 					break;
 				case Rough:
 					cell.ceiling = CEILING_ROUGH;
 					cell.wall = roll < 35 ? WALL_ROUGH_STRATA : WALL_ROUGH;
 					break;
 				}
-				const bool common = cell.wall == WALL_PLASTER || cell.wall == WALL_STONE || cell.wall == WALL_ROUGH ||
-									cell.wall == WALL_SANDSTONE;
-				const int stone = desert ? WALL_SANDSTONE : WALL_STONE;
+				const int dressed = ZONE_WALL[static_cast<int>(stone)];
+				const bool common = cell.wall == WALL_PLASTER || cell.wall == dressed || cell.wall == WALL_ROUGH;
 				if (!common && cell.wall == prevWall && cell.wall != WALL_PLASTER_BROKEN)
-					cell.wall = family[i] == Painted ? WALL_PLASTER : (family[i] == Stone ? stone : WALL_ROUGH);
+					cell.wall = family[i] == Painted ? WALL_PLASTER : (family[i] == Stone ? dressed : WALL_ROUGH);
 				prevWall = cell.wall;
 				familyCells[family[i]]++;
 
@@ -479,11 +499,12 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, bool desert, Su
 				floors[FLOOR_SAND] = family[i] == Rough ? 6 : 2;
 				floors[FLOOR_CRACKED] = tier >= CRACKED_FLOOR_TIER ? 2 : 0;
 				floors[FLOOR_SLABS] = tier >= SLAB_FLOOR_TIER && family[i] != Rough ? 5 : 0;
-				if (desert) { // sandstone slabs and sand
-					floors[FLOOR_SAND] = family[i] == Rough ? 6 : 3;
+				if (!limestone) { // the stone's own slabs and sand; less sand on wet stone, none on its slabs
+					const bool wet = stone == ZoneStone::WetStone;
+					floors[FLOOR_SAND] = family[i] == Rough ? (wet ? 3 : 6) : (wet ? 0 : (desert ? 3 : 1));
 					floors[FLOOR_CRACKED] = 0;
 					floors[FLOOR_SLABS] = 0;
-					floors[FLOOR_SANDSTONE] = family[i] == Rough ? 0 : 5;
+					floors[ZONE_FLOOR[static_cast<int>(stone)]] = family[i] == Rough ? 0 : 5;
 				}
 				cell.floor = weightedPick(floors, FLOOR_STYLE_COUNT, h);
 			}
@@ -515,13 +536,14 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, De
 	const uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
 	const int tier = decorTier(depth);
 	DecorCounts counts;
-	counts.props = scatterProps(cells, seed, tier, layout.decor);
-	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, layout.decor, layout.torch);
-	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, layout, layout.decal);
+	const ZoneLook& look = levelLook(depth); // plan zone-looks: the zone's decor set and torches
+	counts.props = scatterProps(cells, seed, tier, look, layout.decor);
+	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, look.torchPercent, layout.decor, layout.torch);
+	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, look, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);
 	const Zone* zone = zoneOf(depth);
-	const bool sandstone = zone != nullptr && zone->stone == ZoneStone::Sandstone;
-	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, sandstone, layout.surface, counts);
+	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, zone != nullptr ? zone->stone : ZoneStone::Limestone,
+					layout.surface, counts);
 	counts.treasures = scatterTreasures(cells, seed ^ TREASURE_SALT, tier, layout.treasure);
 	return counts;
 }
@@ -541,7 +563,7 @@ int decorTierUsed(const Tile* cells, const DecorLayout& layout) {
 		else if (s.wall <= WALL_PLASTER_BROKEN || s.floor == FLOOR_SLABS)
 			used = std::max(used, SLAB_FLOOR_TIER);
 		else if (s.wall <= WALL_STONE_SAND || s.wall >= WALL_SANDSTONE || s.floor == FLOOR_CRACKED ||
-				 s.floor == FLOOR_SANDSTONE)
+				 s.floor >= FLOOR_SANDSTONE)
 			used = std::max(used, CRACKED_FLOOR_TIER);
 		else
 			used = std::max(used, 0);

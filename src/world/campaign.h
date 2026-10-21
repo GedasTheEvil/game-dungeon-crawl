@@ -24,8 +24,10 @@ enum class ZoneId : unsigned char {
 	Necropolis,
 	HallOfJudgment,
 };
+constexpr int ZONE_ID_COUNT = static_cast<int>(ZoneId::HallOfJudgment) + 1;
 
-// What the zone's walls and floors are made of. Only sandstone has its own surfaces so far (decor.h).
+// What the zone's dressed walls, floors and ceilings are made of (scatterSurfaces, decor.h); plaster is limestone
+// painted more often.
 enum class ZoneStone : unsigned char { Limestone, Plaster, WetStone, Sandstone, Basalt, Granite };
 
 // The new thing the zone teaches.
@@ -148,6 +150,16 @@ constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;
 
 // "The Fourth Hour: the Gate of the Priests": the zone's hour is its place in the target campaign (ZoneId).
 [[nodiscard]] std::string zoneTitle(const Zone& zone);
+
+// The banner over the game when a campaign level starts (plan zone-looks, ZoneBanner): a zone's first level names
+// the hour and its gate, the zone and its guardian (none on a bossless zone); any other level its number and zone.
+struct LevelBanner {
+	bool zone = false; // the zone's banner, else the level's smaller one
+	std::string title;
+	std::string subtitle;
+	std::string guardian; // empty: none
+};
+[[nodiscard]] LevelBanner levelBanner(int number);
 
 // The level file, also the seed of its decorations.
 [[nodiscard]] std::string campaignLevelFile(int number);

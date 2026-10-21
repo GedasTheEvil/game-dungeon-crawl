@@ -26,3 +26,18 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
 
 * Scenario with a screenshot of one hall per zone (`level gen:` with the zone, or a campaign level per zone).
 * Unit: every zone in the table has a stone, a decor set and a light setting.
+
+## Implemented (2026-10-21)
+
+* `ZONE_LOOKS` (`src/world/zone_look.h`, all twelve zones): decor set (a factor per prop and decal on the tier
+  weights), ambient light, haze (fog in the lighting shader past `FOG_START`), torch chance, ambient loop, guardian.
+  `DEFAULT_LOOK` outside the campaign (the old tombs' look).
+* Stone: wet stone, basalt and granite walls (plain and worn), floors and ceilings (`tools/textures/surfaces.py`);
+  plaster is limestone painted at least 70%; the built stones have at most 15% rough rows.
+* Sound: `tools/audio/zone_ambience.py`, 10 s loops in `media/sounds/ambience/`, on a reserved channel at the effects
+  volume (`Ambience`). No music per zone (optional).
+* Banner: `ZoneBanner` with `levelBanner`: the hour and gate, the zone, the guardian on a zone's first level; "Level N"
+  and the zone on the others, until [campaign-texts](campaign-texts.draft.sonet.md) gives the levels titles.
+* Not in today's campaign, so not seen in the game yet: the web halls' darkness, the Lake of Fire's basalt and red
+  light, the priests' quarter, Sokar. No new props (egg sacs): the web halls lean on the web and skeleton.
+* Tests: `tests/unit/zone_looks_test.cpp`, `tests/scenarios/zone_looks.txt` (a hall per zone, the banners).

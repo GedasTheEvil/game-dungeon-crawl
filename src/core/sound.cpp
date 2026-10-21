@@ -73,6 +73,38 @@ void Music::Play() const {
 		Mix_PlayMusic(music, -1);
 }
 
+namespace {
+constexpr int AMBIENCE_CHANNEL = 0; // reserved: the effects never take it
+constexpr int AMBIENCE_FADE_MS = 1500;
+} // namespace
+
+Ambience::~Ambience() {
+	if (chunk) {
+		Mix_HaltChannel(AMBIENCE_CHANNEL);
+		Mix_FreeChunk(chunk);
+	}
+}
+
+void Ambience::Play(const std::string& filename) {
+	if (filename == playing)
+		return;
+	playing = filename;
+	Mix_ReserveChannels(AMBIENCE_CHANNEL + 1);
+	if (chunk) {
+		Mix_HaltChannel(AMBIENCE_CHANNEL);
+		Mix_FreeChunk(chunk);
+		chunk = nullptr;
+	}
+	if (filename.empty())
+		return;
+	chunk = Mix_LoadWAV(filename.c_str());
+	if (!chunk) {
+		LOG_ERRORF("audio", "Ambience load error: %s: %s", filename.c_str(), Mix_GetError());
+		return;
+	}
+	Mix_FadeInChannel(AMBIENCE_CHANNEL, chunk, -1, AMBIENCE_FADE_MS);
+}
+
 void Audio::SetVolumes(int music, int effects) {
 	Mix_VolumeMusic(music * MIX_MAX_VOLUME / 100);
 	Mix_Volume(-1, effects * MIX_MAX_VOLUME / 100);

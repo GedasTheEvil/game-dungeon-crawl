@@ -14,6 +14,7 @@
 #include "view_window.h"
 #include "sim_links.h"
 #include "sun_beam.h"
+#include "zone_look.h"
 #include <memory>
 #include <optional>
 #include <string>
@@ -52,6 +53,8 @@ class Dungeon {
 	static constexpr int MAP_CELL_COUNT = LEVEL_CELL_COUNT;
 	Tile map[MAP_CELL_COUNT];
 	DecorLayout decoration; // props, decals, torches, ladders and surfaces (scatterDecorations)
+	int decorDepth = DECOR_DEPTH_ALL; // the depth the decorations were scattered for: the zone's look (Look)
+	bool campaignLevel = false; // the map is campaign level levelNumber (its file or a save of it)
 	bool explored[MAP_CELL_COUNT] = {}; // cells on the draft map (map_view.h)
 	SimLinks sim; // the player, journal, assets, ... the world was given (Link)
 	float mapX, mapY;
@@ -437,6 +440,9 @@ class Dungeon {
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	[[nodiscard]] int LevelNumber() const { return levelNumber; }
+	// The look of the level's zone (plan zone-looks): light, fog, ambience. DEFAULT_LOOK outside the campaign.
+	[[nodiscard]] const ZoneLook& Look() const { return levelLook(decorDepth); }
+	[[nodiscard]] bool CampaignLevel() const { return campaignLevel; } // not a test or generated level
 	// No monster can chase or attack the player now (Monster::Threatens, no wall between): the regeneration amulet
 	// heals. Out of combat, as the player feels it.
 	[[nodiscard]] bool PlayerSafe() const;

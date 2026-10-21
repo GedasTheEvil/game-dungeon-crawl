@@ -68,6 +68,8 @@ struct UIContext {
 	ScreenTabsState tabs;
 	DeathScreen death; // after the death clip: Retry from Autosave or Main Menu (plan autosave)
 	ui::Toast autosaved; // "Autosaved" over the game
+	int bannerLevel = 0; // the campaign level whose banner shows (plan zone-looks, ZoneBanner), since bannerStartMs
+	int bannerStartMs = 0;
 };
 
 class GameState {

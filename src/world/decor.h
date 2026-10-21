@@ -113,18 +113,30 @@ constexpr int WALL_ROUGH_STRATA = 7;
 // The desert chapter's sandstone (plan desert-chapter, its zone's stone: campaign.h): every row of it, no plaster.
 constexpr int WALL_SANDSTONE = 8;
 constexpr int WALL_SANDSTONE_WORN = 9;
-constexpr int WALL_STYLE_COUNT = 10;
+// The other zones' stones (plan zone-looks): the dressed rows, no plaster.
+constexpr int WALL_WETSTONE = 10; // the cisterns
+constexpr int WALL_WETSTONE_MOSS = 11;
+constexpr int WALL_BASALT = 12; // the Lake of Fire
+constexpr int WALL_BASALT_GLOW = 13; // ember cracks
+constexpr int WALL_GRANITE = 14; // the necropolis, the Hall of Judgment
+constexpr int WALL_GRANITE_WORN = 15;
+constexpr int WALL_STYLE_COUNT = 16;
 constexpr const char* WALL_STYLE_NAMES[WALL_STYLE_COUNT] = {
-	"wall_plaster",	   "wall_plaster_worn", "wall_plaster_broken", "wall_stone",	 "wall_stone_cracked",
-	"wall_stone_sand", "wall_rough",		"wall_rough_strata",   "wall_sandstone", "wall_sandstone_worn"};
+	"wall_plaster",		  "wall_plaster_worn",	 "wall_plaster_broken", "wall_stone",
+	"wall_stone_cracked", "wall_stone_sand",	 "wall_rough",			"wall_rough_strata",
+	"wall_sandstone",	  "wall_sandstone_worn", "wall_wetstone",		"wall_wetstone_moss",
+	"wall_basalt",		  "wall_basalt_glow",	 "wall_granite",		"wall_granite_worn"};
 
 constexpr int FLOOR_SLABS = 0;
 constexpr int FLOOR_SAND = 1;
 constexpr int FLOOR_CRACKED = 2;
 constexpr int FLOOR_SANDSTONE = 3; // the desert's
-constexpr int FLOOR_STYLE_COUNT = 4;
-constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {"floor_slabs", "floor_sand", "floor_cracked",
-															  "floor_sandstone"};
+constexpr int FLOOR_WETSTONE = 4; // the other zones' stones (plan zone-looks)
+constexpr int FLOOR_BASALT = 5;
+constexpr int FLOOR_GRANITE = 6;
+constexpr int FLOOR_STYLE_COUNT = 7;
+constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {
+	"floor_slabs", "floor_sand", "floor_cracked", "floor_sandstone", "floor_wetstone", "floor_basalt", "floor_granite"};
 
 constexpr int CEILING_STARS = 0; // over painted walls
 constexpr int CEILING_SLABS = 1; // over stone walls
@@ -134,10 +146,13 @@ constexpr int CEILING_ROUGH = 2; // over rough walls
 constexpr int CEILING_SANDSTONE = 3;
 constexpr int CEILING_SANDSTONE_CRACKED = 4;
 constexpr int CEILING_SANDSTONE_SANDY = 5;
-constexpr int CEILING_STYLE_COUNT = 6;
+constexpr int CEILING_WETSTONE = 6; // the other zones' stones (plan zone-looks)
+constexpr int CEILING_BASALT = 7;
+constexpr int CEILING_GRANITE = 8;
+constexpr int CEILING_STYLE_COUNT = 9;
 constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {
-	"ceiling_stars",		  "ceiling_slabs", "ceiling_rough", "ceiling_sandstone", "ceiling_sandstone_cracked",
-	"ceiling_sandstone_sandy"};
+	"ceiling_stars",		   "ceiling_slabs",	   "ceiling_rough",	 "ceiling_sandstone", "ceiling_sandstone_cracked",
+	"ceiling_sandstone_sandy", "ceiling_wetstone", "ceiling_basalt", "ceiling_granite"};
 // Of the desert's cells with rock above and below, about one in this many has a cracked ceiling and a light shaft.
 constexpr uint32_t LIGHT_SHAFT_EVERY = 6;
 

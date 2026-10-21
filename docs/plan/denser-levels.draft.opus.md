@@ -3,7 +3,8 @@
 Status: draft 2026-10-06, refined 2026-10-09 (decided, not implemented), more-inscriptions and route-fork merged in
 2026-10-21 (user: they go hand in hand). From the user: every level is 40 x 47 cells, but most of it is solid wall.
 
-Needs first: the new monster plans, so the denser levels place them too:
+Needs first: [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the
+balanced values), and the new monster plans, so the denser levels place them too:
 [camel-spider](solved/camel-spider.md) (solved), [hippo](solved/hippo.md) (solved),
 [living-ushabti](solved/living-ushabti.md) (solved), [cursed-mimic](solved/cursed-mimic.md) (solved).
 It also needs the mirrors and the new traps first (user, 2026-10-20), so the denser levels place them too:
@@ -79,8 +80,8 @@ off the early ones. The denser levels have the room for them.
 
 (Merged from the route-fork draft, 2026-10-19, from the user's review.)
 
-One level splits into two one-way routes that both reach the exit. The player picks one, warned before the choice.
-It pays off the expedition's last page: "If you read this, take the left gate. I took the right."
+A level splits into two one-way routes that both reach the exit. The player picks one, warned before the choice.
+The last fork pays off the expedition's last page: "If you read this, take the left gate. I took the right."
 
 * **Never a trap:** both routes reach the exit hall. The choice is cost and reward, not survival. The map stays as
   it is.
@@ -101,8 +102,10 @@ Known before the choice, both hints on the way to the fork:
   ("To the left, the long road of the living. To the right, the short road of the dead."). Without the
   [Words of Thoth](solved/skill-hieroglyphs.md) skill it is copied as unread, as today.
 
-Placement: one fork in the campaign, on the level of the expedition's last page: lvl34 today (`docs/levels.md`).
-Implementer's choice: a second, smaller fork earlier (e.g. in the denser 6-14), with an earlier page.
+Placement (user, 2026-10-21): forks come sooner too, several in the campaign. The last one on the level of the
+expedition's last page (lvl34 today, `docs/levels.md`); earlier ones from the denser levels on, each hinted on the
+way by an expedition page, an inscription, or both (the pages and texts for them are part of this plan). An early
+fork is smaller: a short detour each way, not a whole level split.
 
 levelcheck must prove the fork is fair: from the fork, each route alone reaches the exit (keys, levers and gates on
 each route, not one key on the other side). A new warning: a one-way drop whose landing cannot reach the exit. Check

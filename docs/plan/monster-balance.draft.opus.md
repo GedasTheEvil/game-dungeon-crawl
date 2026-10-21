@@ -4,8 +4,7 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
-Needs first: [denser-levels](denser-levels.draft.opus.md) and [desert-chapter](solved/desert-chapter.md)
-(balance the final levels and monster set), and every monster and boss draft (user, 2026-10-20: balance comes
+Needs first: [desert-chapter](solved/desert-chapter.md) (balance the final monster set), and every monster and boss draft (user, 2026-10-20: balance comes
 after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
 [giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.draft.opus.md),
@@ -46,7 +45,8 @@ Order of work:
    (tank in melee, kite with a bow, run past), with the player level from the XP sum per level. Propose a table of
    changes to the user before touching `KINDS`.
 
-Recheck the XP sum per level after steps 4 and 5, and again after each [denser levels](denser-levels.draft.opus.md) batch.
+Recheck the XP sum per level after steps 4 and 5. Balance comes before the level rebuild (user, 2026-10-21):
+[denser-levels](denser-levels.draft.opus.md) builds on these values and rechecks the sum after each batch.
 
 ## Current values
 

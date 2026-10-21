@@ -124,7 +124,7 @@ it zone by zone and then switches the code table to it. Level ranges are about, 
 | 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
 | 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/worm-boss.draft.opus.md)) |
 | **Act IV: the Duat** (dark granite) |||||
-| 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/babi-boss.draft.opus.md)) |
+| 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/solved/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/babi-boss.draft.opus.md)) |
 | 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
 | 12 | Hall of Judgment | 51-54 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
 

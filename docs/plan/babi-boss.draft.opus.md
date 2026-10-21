@@ -1,6 +1,6 @@
 # Babi, the boss of the Lake of Fire
 
-Status: draft 2026-10-21, from the user. Needs first: [baboon](baboon.md) (his kin: model base, ranged
+Status: draft 2026-10-21, from the user. Needs first: [baboon](solved/baboon.md) (his kin: model base, ranged
 throw, kiting AI). Boss of the Lake of Fire zone ([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)).
 
 ## Lore

@@ -107,10 +107,13 @@ TEST_CASE("cornered, a baboon closes in on the player standing nearer than its b
 	world.player.god = true;
 	const Monster& baboon = baboonIn(world, "tests/levels/baboon_wall");
 	const float near = monsterKind(MonsterBaboon)->kite->near;
-	while (baboon.PlayerGap(world.X()) > near - 0.15f) { // up to it, into the corner, then stand
+	// Up to it, until it is in the corner (the wall at col 11) and the player nearer than its band, then stand.
+	for (int t = 0; t < 14000 && (baboon.PlayerGap(world.X()) > near - 0.15f || baboon.Right() < 10.8f);
+		 t += UPDATE_TICK_MS) {
 		world.Step(1);
 		world.Tick();
 	}
+	REQUIRE(baboon.Right() >= 10.8f);
 	REQUIRE(baboon.PlayerGap(world.X()) > MONSTER_BITE_REACH);
 	bool bit = false;
 	for (int t = 0; t < 4000 && !bit; t += UPDATE_TICK_MS) {

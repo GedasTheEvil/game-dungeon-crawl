@@ -10,7 +10,7 @@ after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.dra
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
 [giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.draft.opus.md),
 [camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md),
-[baboon](baboon.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
+[baboon](solved/baboon.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
 draft joins this list.
 
 Zones ([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from

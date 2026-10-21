@@ -997,7 +997,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = BABOON_RESIST,
 	 .ranged = RangedRules{.damage = 24,
 						   .range = 1.3f,
-						   .cooldownMs = 2500,
+						   .cooldownMs = 2000,
 						   .release = BABOON_RELEASE,
 						   .releaseY = BABOON_RELEASE_Y,
 						   .colour = BOLT_FIRE,

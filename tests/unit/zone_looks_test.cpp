@@ -152,3 +152,30 @@ TEST_CASE("the level banner: a zone's first level names the hour, the gate and i
 	}
 	CHECK_FALSE(levelBanner(CAMPAIGN_LEVELS + 1).zone);
 }
+
+TEST_CASE("sand spills onto a stone floor beside a sand floor, on both sides, nowhere else") {
+	int edges = 0;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		auto layout = std::make_unique<DecorLayout>();
+		scatterDecor(grid.cells, campaignLevelFile(n).c_str(), n, grid.meta.zone, *layout);
+		auto floored = [&](int i, int j) {
+			return LevelGrid::inBounds(i, j) && j > 0 && !isWall(grid.at(i, j)) && !inHalfWater(grid.at(i, j)) &&
+				   isWall(grid.at(i, j - 1));
+		};
+		auto sandAt = [&](int i, int j) {
+			return floored(i, j) && layout->surface[j * LEVEL_WIDTH + i].floor == FLOOR_SAND;
+		};
+		for (int j = 0; j < LEVEL_HEIGHT; j++)
+			for (int i = 0; i < LEVEL_WIDTH; i++) {
+				const SurfaceCell& s = layout->surface[j * LEVEL_WIDTH + i];
+				const bool stone = floored(i, j) && s.floor != FLOOR_SAND;
+				CHECK(s.sandLeft == (stone && sandAt(i - 1, j)));
+				CHECK(s.sandRight == (stone && sandAt(i + 1, j)));
+				edges += (s.sandLeft ? 1 : 0) + (s.sandRight ? 1 : 0);
+			}
+	}
+	CHECK(edges > 100);
+}

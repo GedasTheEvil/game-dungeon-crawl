@@ -45,3 +45,6 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
   in `campaign.h` by `ZoneId`: slug, name, gate, stone, mechanic), the editor sets it (zone button, `Z`), save games
   keep it. The game dresses, lights and sounds a level by its file's zone, not its number; a unit test checks each
   campaign file names its range's zone. `zone none` (test, generated levels): the tombs' look.
+* Sand edge (user, 2026-10-21): a sand floor beside a stone one met in a hard seam (granite, wet stone). The stone
+  floor next to it now gets `floor_sand_edge` over it (`SurfaceCell::sandLeft` / `sandRight`), sand thinning out
+  by about half the cell.

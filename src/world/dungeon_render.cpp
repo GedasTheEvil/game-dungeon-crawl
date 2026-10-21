@@ -15,6 +15,7 @@
 
 namespace {
 constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container
+constexpr float SAND_EDGE_LIFT = 0.04f; // the spilled sand over the stone floor, clear of its depth
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
 void quad(const float n[3], const float v[4][3], const float st[4][2]) {
@@ -125,6 +126,23 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.floorTex[cell.floor].Bind();
 		quad(n, v, st);
+		if (cell.sandLeft || cell.sandRight) { // sand spilling over from the sand floor beside it
+			const float y = b + SAND_EDGE_LIFT;
+			const float lifted[4][3] = {{box.left, y, 0}, {box.right, y, 0}, {box.right, y, -T}, {box.left, y, -T}};
+			tex.floorSandEdge.Bind();
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDepthMask(GL_FALSE);
+			for (const bool right : {false, true}) {
+				if (right ? !cell.sandRight : !cell.sandLeft)
+					continue;
+				const float s0 = right ? 1.f : 0.f; // opaque at the sand's side
+				const float edge[4][2] = {{s0, 0}, {1 - s0, 0}, {1 - s0, 1}, {s0, 1}};
+				quad(n, lifted, edge);
+			}
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+		}
 	}
 	// The ceiling under rock, under the slab of deep water and under a basin's floor.
 	if (isRock(i, j + 1) || (!deep && (deepAt(i, j + 1) || halfAbove))) {

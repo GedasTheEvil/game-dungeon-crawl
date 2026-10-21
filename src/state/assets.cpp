@@ -197,6 +197,7 @@ void loadDecor(DecorSet& decor) {
 	loadSurfaces(decor.floorTex, FLOOR_STYLE_NAMES, FLOOR_STYLE_COUNT);
 	loadSurfaces(decor.ceilingTex, CEILING_STYLE_NAMES, CEILING_STYLE_COUNT);
 	decor.rockTex.LoadPNG(ROCK_TEXTURE);
+	decor.floorSandEdge.LoadPNG(FLOOR_SAND_EDGE_TEXTURE);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		if (decorModel(d) != d)
 			continue; // drawn with another prop's model (the decoy, the coffin's)

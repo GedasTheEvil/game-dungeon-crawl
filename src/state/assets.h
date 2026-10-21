@@ -75,6 +75,7 @@ struct DecorSet {
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
 	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
 	Texture wallTex[WALL_STYLE_COUNT], floorTex[FLOOR_STYLE_COUNT], ceilingTex[CEILING_STYLE_COUNT], rockTex;
+	Texture floorSandEdge; // FLOOR_SAND_EDGE_TEXTURE, RGBA
 	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 

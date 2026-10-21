@@ -1,6 +1,6 @@
 """Generate the dungeon surface textures in media/textures/dungeon/ (RGB, 512 x 512 each).
 
-    python3 tools/textures/surfaces.py [out_dir] [--preview preview.png]
+    python3 tools/textures/surfaces.py [out_dir] [--preview preview.png] [--only name,name]
 
 Order and file names must match the *_STYLE_NAMES tables in src/world/decor.h.
 Image top = top of a wall, back edge (against the back wall) of a floor or ceiling.
@@ -461,6 +461,21 @@ def floor_sandstone():
     return floor(extra_sand=0.6, desert=True)
 
 
+def floor_sand_edge():
+    """Sand spilling onto a stone floor from the sand floor on its left (mirrored for the right): floor_sand itself,
+    opaque at the left edge (where it meets the sand cell, which tiles with it) and thinning out, ragged and grainy,
+    by about half the cell. RGBA, drawn over whatever stone floor the cell has."""
+    rgb = floor_sand()
+    u = X / N + np.zeros_like(Y)
+    ragged = 0.1 * noise(71, p=1.7) + 0.025 * noise(72, p=1.0)  # tongues and hollows of the drift
+    reach = u - ragged
+    alpha = 1.0 - smoothstep(0.18, 0.62, reach)
+    grains = np.clip(0.75 + 0.25 * noise(74, p=0.9) + 0.25 * speckle(73, 0.2), 0, 1)
+    alpha = np.where(alpha > 0.9, alpha, alpha * grains)  # loose grains where it thins
+    alpha[:, :6] = 1.0  # the seam: the same pixels as the sand cell's edge
+    return np.dstack([rgb, np.clip(alpha, 0, 1)])
+
+
 # ---------------------------------------------------------------- ceilings and rock
 
 
@@ -818,6 +833,7 @@ TEXTURES = [
     ("floor_wetstone", floor_wetstone),
     ("floor_basalt", floor_basalt),
     ("floor_granite", floor_granite),
+    ("floor_sand_edge", floor_sand_edge),  # RGBA overlay, not a floor style (FLOOR_SAND_EDGE_TEXTURE)
     ("ceiling_stars", ceiling_stars),
     ("ceiling_slabs", ceiling_slabs),
     ("ceiling_rough", ceiling_rough),
@@ -835,9 +851,11 @@ def to_image(a):
     return Image.fromarray((np.clip(a, 0, 1) * 255 + 0.5).astype(np.uint8))
 
 
-def main(out_dir, preview):
+def main(out_dir, preview, only=None):
     images = {}
     for name, fn in TEXTURES:
+        if only and name not in only:
+            continue
         img = to_image(fn())
         img.save(os.path.join(out_dir, name + ".png"), optimize=True)
         images[name] = img
@@ -880,4 +898,9 @@ if __name__ == "__main__":
         i = args.index("--preview")
         preview_path = args[i + 1]
         del args[i:i + 2]
-    main(args[0] if args else os.path.join(here, "..", "..", "media", "textures", "dungeon"), preview_path)
+    only = None
+    if "--only" in args:  # these textures only, e.g. --only floor_sand_edge,floor_sand
+        i = args.index("--only")
+        only = set(args[i + 1].split(","))
+        del args[i:i + 2]
+    main(args[0] if args else os.path.join(here, "..", "..", "media", "textures", "dungeon"), preview_path, only)

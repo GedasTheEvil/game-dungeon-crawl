@@ -30,6 +30,8 @@ std::string dumpDecor(const Tile* cells, const DecorLayout& layout) {
 			snprintf(buf, sizeof(buf), "%d,%d surface %d/%d/%d%s", i, j, s.wall, s.floor, s.ceiling,
 					 s.wallMirror ? "m" : "");
 			out << buf;
+			if (s.sandLeft || s.sandRight)
+				out << " sand" << (s.sandLeft ? "<" : "") << (s.sandRight ? ">" : "");
 			if (const DecorCell& d = layout.decor[k]; d.type >= 0) {
 				snprintf(buf, sizeof(buf), " prop %s%s %.3f", DECOR_NAMES[d.type], d.mirror ? "m" : "", d.offsetX);
 				out << buf;

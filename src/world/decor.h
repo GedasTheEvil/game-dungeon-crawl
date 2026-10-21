@@ -156,6 +156,10 @@ constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {
 // Of the desert's cells with rock above and below, about one in this many has a cracked ceiling and a light shaft.
 constexpr uint32_t LIGHT_SHAFT_EVERY = 6;
 
+// Sand spilling from a FLOOR_SAND cell onto the stone floor beside it, drawn over that floor (SurfaceCell::sandLeft,
+// sandRight): floor_sand, opaque at its left edge and thinning out by about half the cell; mirrored for the right.
+constexpr const char* FLOOR_SAND_EDGE_TEXTURE = MEDIA_DIR "textures/dungeon/floor_sand_edge.png";
+
 // The face of a solid cell: media/textures/dungeon/rock.png, one image over 2 x 2 cells.
 constexpr const char* ROCK_TEXTURE = MEDIA_DIR "textures/dungeon/rock.png";
 
@@ -164,6 +168,9 @@ struct SurfaceCell {
 	int floor = FLOOR_SLABS;
 	int ceiling = CEILING_SLABS;
 	bool wallMirror = false; // u flipped on the walls: stone on the left of WALL_PLASTER_BROKEN
+	// Sand spills onto this stone floor from a sand floor beside it (FLOOR_SAND_EDGE_TEXTURE): no hard seam.
+	bool sandLeft = false;
+	bool sandRight = false;
 };
 
 // Ladder pieces: one model per Ladder cell, media/models/ladders/ladder_<style>_<piece>.md3 +

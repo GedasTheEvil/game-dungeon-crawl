@@ -510,6 +510,18 @@ void scatterSurfaces(const Tile* cells, uint32_t seed, int tier, ZoneStone stone
 			}
 			start = end;
 		}
+	// Where a stone floor meets a sand one on the same row, the sand spills over (both dry, on rock).
+	for (int j = 0; j < LEVEL_HEIGHT; j++)
+		for (int i = 0; i < LEVEL_WIDTH; i++) {
+			auto floored = [&](int col) {
+				return inBounds(col, j) && !isWall(at(cells, col, j)) && !inHalfWater(at(cells, col, j)) &&
+					   floorAt(cells, col, j - 1);
+			};
+			SurfaceCell& cell = surface[cellIndex(i, j)];
+			const bool stone = floored(i) && cell.floor != FLOOR_SAND;
+			cell.sandLeft = stone && floored(i - 1) && surface[cellIndex(i - 1, j)].floor == FLOOR_SAND;
+			cell.sandRight = stone && floored(i + 1) && surface[cellIndex(i + 1, j)].floor == FLOOR_SAND;
+		}
 	counts.painted = familyCells[Painted];
 	counts.stone = familyCells[Stone];
 	counts.rough = familyCells[Rough];

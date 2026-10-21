@@ -1,6 +1,6 @@
 # Baboon of the Lake of Fire
 
-Status: draft 2026-10-21, from the user; implemented 2026-10-21, see [Done](#done). Built on [monster-kiting](../monster-kiting.md) (it keeps its
+Status: draft 2026-10-21, from the user; implemented 2026-10-21, see [Done](#done). Built on [monster-kiting](monster-kiting.md) (it keeps its
 distance and shoots). Its boss: [babi-boss](../babi-boss.draft.opus.md).
 
 ## Lore
@@ -18,7 +18,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
   the burning out, and [fire-in-water](../fire-in-water.draft.sonet.md) cuts the fire share of a hit to a tenth in water:
   the lake zone's pools are the player's cover.
 * **Melee (fallback):** a bite with long fangs (slash, pierce), when cornered or the player is in reach.
-* **AI:** a kiter ([monster-kiting](../monster-kiting.md)): keeps the player at its range, backs off when they
+* **AI:** a kiter ([monster-kiting](monster-kiting.md)): keeps the player at its range, backs off when they
   come at it, never far enough to lose them.
 * **Tell:** a screech before each throw (its ranged clip lifts the coal over its head first), so the player can dodge
   by a jump or by stepping off the row.
@@ -49,7 +49,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
 * **Change from the draft: the range is 1.3 tiles, the band 0.55 to 1.1** (`KiteRules`, back-off speed 28), not
   4-5 tiles. The camera shows only about 1.7 tiles either side of the player (45° at 16:9); at 2.8 it threw from off
   the screen. The other ranged attackers shoot from 1.2 to 1.8.
-* Kiting changes (in [monster-kiting](../monster-kiting.md#done)): it breaks off its throw clip after the release to back
+* Kiting changes (in [monster-kiting](monster-kiting.md#done)): it breaks off its throw clip after the release to back
   off; cornered nearer than its band it closes in and bites; a journal move "Keeps its distance".
 * Journal: the note, and its own line for the ranged move ("Screeches, lifts a burning coal over its head ...").
 * Levels: the Lake of Fire zone has no levels yet (the rebuild, [campaign-levelgen](../campaign-levelgen.draft.opus.md)),

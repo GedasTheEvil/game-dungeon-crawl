@@ -1,9 +1,9 @@
 # Kiting monsters: keep the distance, shoot, back off
 
 Status: draft 2026-10-21, from the user (for the baboon of the Lake of Fire). Implemented 2026-10-21, see
-[Done](#done). No kind kites yet, so there is nothing to play-test until the [baboon](solved/baboon.md); the unit
+[Done](#done). No kind kites yet, so there is nothing to play-test until the [baboon](baboon.md); the unit
 tests make the Anubis a kiter. Built on the ranged attack (`RangedRules`, `Monster::AttackRanged`) and the coward's
-flight ([coward-flee-ranged](solved/coward-flee-ranged.md): `Dungeon::walkerReaches`, `Dungeon::fleeFrom`).
+flight ([coward-flee-ranged](coward-flee-ranged.md): `Dungeon::walkerReaches`, `Dungeon::fleeFrom`).
 
 ## Idea
 
@@ -33,9 +33,9 @@ row), and whether a climber also backs off up a ladder.
 
 ## Who
 
-* The baboon and its boss Babi ([baboon](solved/baboon.md), [babi-boss](babi-boss.draft.opus.md)): the first
+* The baboon and its boss Babi ([baboon](baboon.md), [babi-boss](../babi-boss.draft.opus.md)): the first
   kiters. Babi's band is wider and he backs off faster, within his arena.
-* Not today's ranged attackers by default. [monster-balance](monster-balance.draft.opus.md)'s sim pass may switch some
+* Not today's ranged attackers by default. [monster-balance](../monster-balance.draft.opus.md)'s sim pass may switch some
   on (a cobra or the mummy priest that kites), with the user's yes.
 
 ## Checker
@@ -45,7 +45,7 @@ A kiter is harder to pin down than a walker of the same stats: a `threat` factor
 
 ## Tests
 
-On the sim harness ([sim-library](solved/sim-library.md)):
+On the sim harness ([sim-library](sim-library.md)):
 
 * The player walks at a kiter: it backs off and stays in the band, and shoots.
 * The player stands still in the band: it does not move.
@@ -74,7 +74,7 @@ On the sim harness ([sim-library](solved/sim-library.md)):
   sprint catches it.
 * Fixed on the way: `tools/level/ascii2level.py` wrote level files without the zone line the loader now wants (plan
   zone-looks); it writes `zone none`.
-* Changed with the [baboon](solved/baboon.md), the first real kiter: a kiter breaks off the rest of its ranged clip
+* Changed with the [baboon](baboon.md), the first real kiter: a kiter breaks off the rest of its ranged clip
   once the shot has left, to back off (a walking player reached it in the clip's tail). Cornered means no room behind
   (`Dungeon::kiteRoom`) for a step; cornered nearer than `near`, with no room to get back to it, it closes in and bites
   (before, it sat in reach of the player's weapon, out of its own bite reach). A journal move, `CreatureMove::Kite`.

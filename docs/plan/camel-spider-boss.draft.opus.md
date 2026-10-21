@@ -29,7 +29,8 @@ stronger.
 
 ## Placement (open)
 
-[campaign-zones](campaign-zones.draft.opus.md) gives this boss a zone (2026-10-21). Until then, today's options:
+Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](campaign-zones.draft.opus.md) (about
+levels 10-13), after the rebuild. Until then, in today's campaign:
 
 * The desert (21-25), where the camel spiders run: as a mid-chapter boss off the every-fifth-level rhythm, or in an
   extra level.

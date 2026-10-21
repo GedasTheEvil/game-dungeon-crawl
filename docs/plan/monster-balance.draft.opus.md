@@ -12,6 +12,9 @@ after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.dra
 [camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md). A new monster or boss
 draft joins this list.
 
+Zones ([campaign-zones](campaign-zones.draft.opus.md#zones-decided-2026-10-21)): 50 levels; the High Priest moves from
+lvl34 to about lvl18, crocodiles from 7-9 to 28 on, Sobek before Seth. Balance against that table.
+
 Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
 levels named 21-30 below (play-test entries before 2026-10-20) are 26-35 now: Sobek on lvl30, the Anubis boss on lvl35.
 

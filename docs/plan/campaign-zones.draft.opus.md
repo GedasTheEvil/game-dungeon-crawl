@@ -1,7 +1,8 @@
 # Campaign zones: 40-60 levels in distinct zones
 
-Status: draft 2026-10-21, from the user. Needs nothing first. Open: the zone list, the level count (40-60), and where
-the two new bosses go. Propose these to the user before writing code.
+Status: draft 2026-10-21, from the user. Needs nothing first. Zone list decided 2026-10-21 (user: "I like it"), see
+[Zones](#zones-decided-2026-10-21). Open: split the necropolis into two for twelve zones (the Duat hours, about 54
+levels), the user's choice.
 
 ## Idea
 
@@ -15,25 +16,47 @@ levels, [zone-looks](zone-looks.draft.opus.md) gives each zone its look,
 [campaign-texts](campaign-texts.draft.sonet.md) writes its texts, and [denser-levels](denser-levels.draft.opus.md)
 rebuilds the campaign zone by zone.
 
-## Zones
+## Zones (decided 2026-10-21)
 
-Today's chapters already read like zones: 1-5 the tomb entrance (Khepri), 6-10 the bat roosts (Bat of Shezmu),
-11-14 the mummy halls, 15 the scorpion nest (scorpion queen), 16-20 the serpent temple (Apep), 21-25 the desert
-(Seth), 26-30 the cisterns (Sobek), 31-35 the necropolis (the High Priest on 34, Anubis on 35).
+Eleven zones, 50 levels, four acts: down from the tomb, through the temple, out to the river and the sands, into the
+Duat. Each zone brings one new main mechanic; its boss is the kin of the zone's monsters (AGENTS.md, Boss
+abilities). Level ranges are about, not exact.
 
-Bosses: 8 today, 10 with [camel-spider-boss](camel-spider-boss.draft.opus.md) and [worm-boss](worm-boss.draft.opus.md).
-About 10-12 zones of 4-5 levels gives 40-60 levels. Suggestions, the user's choice:
+| # | Zone | Levels | Monsters | New mechanic | Boss |
+|---|---|---|---|---|---|
+| **Act I: the tomb** (limestone) |||||
+| 1 | Tomb entrance | 1-4 | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri |
+| 2 | Bat galleries | 5-9 | bats, giant bats, worms, giant rats | levers, rock falls, a short first wade (one crocodile) | Bat of Shezmu |
+| 3 | Web halls | 10-13 | camel spiders, giant scarabs, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](camel-spider-boss.draft.opus.md)) |
+| **Act II: the temple** (painted plaster) |||||
+| 4 | Priests' quarter | 14-18 | mummies, living ushabti, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
+| 5 | Scorpion nest | 19-22 | scorpions, giant scorpions | poison drips, antidotes | scorpion queen |
+| 6 | Serpent temple | 23-27 | cobras, giant cobras | dart plates, rhythm traps | Apep |
+| **Act III: the river and the sands** |||||
+| 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
+| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
+| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](worm-boss.draft.opus.md)) |
+| **Act IV: the Duat** (dark granite) |||||
+| 10 | Necropolis | 42-46 | Anubis guards, mummies in coffins, cursed mimics | every trap mixed, the Stargate chamber, the last fork | none |
+| 11 | Hall of Judgment | 47-50 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
 
-* The scorpion queen gets a zone of her own: the mummy halls stop being a gap before her.
-* The High Priest gets a zone of his own (the priests' quarter), separate from Anubis's necropolis.
-* The spider's zone: dark halls full of webs (`DECOR_WEB`), camel spiders.
-* The worm's zone: a second desert zone, the land of Sokar (the Amduat's fourth and fifth hours, sand). Seth keeps the
-  oasis.
-* Zones without a boss are allowed (user: "others remain without a boss"), for example a short zone between two
-  long ones.
-* [duat-hours](duat-hours.draft.sonet.md) (on hold) names the twelve hours of the Duat. Twelve zones could be the
-  twelve hours: each zone is one hour behind a gate, with the gate's guardian as its boss. Then duat-hours becomes
-  the zones' names and banners.
+Why:
+
+* Boss strength follows the order. Fixes today's Sobek (1600 HP, lvl30) after Seth (2000 HP, lvl25).
+* The spider early, near the camel spiders' first levels; darkness early teaches the light the mirrors use later.
+* The worm gets the second desert zone (the Amduat's land of Sokar), so Seth keeps the oasis.
+* The High Priest moves from lvl34 to about lvl18 and ties to the priests' writing (inscriptions, name gates). The
+  necropolis is the one zone without a boss (user: "others remain without a boss"): a build-up before the finale.
+* Forks ([denser-levels](denser-levels.draft.opus.md#route-fork-left-or-right)): a small one in the bat galleries or
+  the web halls, one in the priests' quarter, the big one in the necropolis.
+
+Costs:
+
+* Crocodiles move from 7-9 to 28 on; only the one preview wade in zone 2 stays early.
+* The High Priest needs retuning for about lvl18 ([monster-balance](monster-balance.draft.opus.md)).
+
+[duat-hours](duat-hours.draft.sonet.md) names the twelve hours of the Duat. With the necropolis split in two (the
+tombs and the coffin halls) the zones are twelve, about 54 levels, and duat-hours can name them.
 
 ## What changes
 
@@ -45,8 +68,7 @@ About 10-12 zones of 4-5 levels gives 40-60 levels. Suggestions, the user's choi
   becomes the code table when the rebuild switches over.
 * `docs/levels.md`: a section per zone (levels, story, monsters, mechanic, boss) above the per-level table.
 * Glossary: a `zone` row.
-* The boss drafts' open placement: a zone slot each. Update [camel-spider-boss](camel-spider-boss.draft.opus.md) and
-  [worm-boss](worm-boss.draft.opus.md) if they are still drafts. If they are already done, they move with the rebuild.
+* The two new bosses go to zones 3 and 9. If they were placed in today's levels first, they move with the rebuild.
 
 ## Tests
 

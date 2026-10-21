@@ -256,6 +256,8 @@ int JournalScreen::FirstPage(int s) const {
 	return pages;
 }
 
+bool JournalScreen::Shown(int ribbon) const { return PageCount(static_cast<Section>(ribbon)) > 0; }
+
 // ---- ribbons ---------------------------------------------------------------
 
 JournalScreen::RibbonPlace JournalScreen::PlaceOf(int ribbon, const Opening& at) const {
@@ -380,6 +382,8 @@ JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
 	if (turn.active)
 		return {};
 	for (int i = 0; i < SECTION_COUNT; i++) {
+		if (!Shown(i))
+			continue;
 		RibbonPlace place = PlaceOf(i, Open());
 		bool underPage = !place.top && (place.left ? x > LEFT_PAGE.x : x < RIGHT_PAGE.x + RIGHT_PAGE.w);
 		if (!underPage && ribbonRect(i, place.left, place.depth).contains(x, y))
@@ -418,9 +422,14 @@ void JournalScreen::Activate(const Hit& hit) {
 }
 
 void JournalScreen::SpecialKeyPressed(int key) {
-	auto other = [this](int by) {
-		auto s = static_cast<Section>((static_cast<int>(section) + SECTION_COUNT + by) % SECTION_COUNT);
-		GoTo({s, spread[static_cast<size_t>(s)]});
+	auto other = [this](int by) { // the next section with a ribbon
+		for (int step = 1; step < SECTION_COUNT; step++) {
+			int s = (static_cast<int>(section) + SECTION_COUNT + by * step) % SECTION_COUNT;
+			if (Shown(s)) {
+				GoTo({static_cast<Section>(s), spread[static_cast<size_t>(s)]});
+				return;
+			}
+		}
 	};
 	if (key == SPECIAL_MOVE_LEFT)
 		Turn(-1);
@@ -511,6 +520,13 @@ void JournalScreen::Draw() {
 	for (int s = 0; s < SECTION_COUNT; s++)
 		spread[static_cast<size_t>(s)] =
 			std::clamp(spread[static_cast<size_t>(s)], 0, SpreadCount(static_cast<Section>(s)) - 1);
+	// An empty section has no ribbon to come back to: the book opens on the first one with pages.
+	if (!turn.active && !Shown(static_cast<int>(section)))
+		for (int s = 0; s < SECTION_COUNT; s++)
+			if (Shown(s)) {
+				section = static_cast<Section>(s);
+				break;
+			}
 	AdvanceTurn();
 
 	// The pages a turn shows; a hovered corner lifts a little, showing the page behind.
@@ -629,7 +645,7 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 			return;
 		beginShapes();
 		for (int i = 0; i < SECTION_COUNT; i++)
-			if (Riding(i) && PlaceOf(i, slot == PageSlot::Front ? turn.from : turn.to).top == top)
+			if (Shown(i) && Riding(i) && PlaceOf(i, slot == PageSlot::Front ? turn.from : turn.to).top == top)
 				DrawRibbon(i, side == 0, RidingDepth(i), static_cast<int>(turn.to.section) == i, false);
 	};
 	riding(false);
@@ -772,8 +788,8 @@ void JournalScreen::DrawRibbons(bool top) {
 	beginShapes();
 	Section shown = turn.active ? turn.to.section : section; // a turn to another section shows its letter at once
 	for (int i = 0; i < SECTION_COUNT; i++) {
-		if (Riding(i))
-			continue; // drawn on the turning page
+		if (!Shown(i) || Riding(i))
+			continue; // no ribbon yet, or drawn on the turning page
 		// Still, but the pages move under it: from where it lay to where it lands.
 		RibbonPlace place = PlaceOf(i, turn.active ? turn.from : Open());
 		if (turn.active) {

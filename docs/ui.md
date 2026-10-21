@@ -200,7 +200,8 @@ come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`PL
 ([plan/solved/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from
 under the pages on top of it (the open left page's own ribbon lies on it), further out the more pages lie between it and
-the open spread (`EDGE_STEP` per page edge). Its letter (D, M, R, F, I, E) in `PAPER` on the open and the hovered one; the
+the open spread (`EDGE_STEP` per page edge). An empty section has no ribbon (it keeps its place for when the first page
+is written; Up / Down skip it; the book never opens on it, [plan](plan/journal-hide-empty-ribbons.md)). Its letter (D, M, R, F, I, E) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled

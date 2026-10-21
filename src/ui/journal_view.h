@@ -11,9 +11,9 @@
 #include <string>
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
-// in the first page of each section, hanging out on the left or right. Pages turn over the spine (ui/page_curl.h): a
-// click, a key or a drag of a page corner. The data is Game().journal (world/journal.h); this is only the screen. The
-// game is paused while it is open. It opens on the section and pages looked at last.
+// in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
+// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is Game().journal (world/journal.h); this is
+// only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:
 	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition };
@@ -95,6 +95,8 @@ class JournalScreen {
 		bool top = false;
 	};
 	[[nodiscard]] RibbonPlace PlaceOf(int ribbon, const Opening& at) const;
+	// A section's ribbon shows once it has a page: an empty section can't be opened.
+	[[nodiscard]] bool Shown(int ribbon) const;
 	// The ribbon's first page goes over with the turning page.
 	[[nodiscard]] bool Riding(int ribbon) const;
 	// How far out a riding ribbon hangs from the turning page: from where it lay, in, then out to where it lands.

@@ -1,0 +1,25 @@
+# An empty journal section has no ribbon (plan journal-hide-empty-ribbons): a new game's journal shows only the
+# Diary's; the up and down keys skip the hidden sections.
+level tests/levels/classic1
+wait 10
+key esc
+wait 2
+click 50 25.5
+wait 2
+click 50 76.4
+wait 2
+screenshot prologue_one_ribbon
+key down
+wait 45
+screenshot down_stays_on_diary
+key j
+wait 5
+# A level with monsters in sight: the Creatures ribbon is there once one is seen.
+level tests/levels/rats
+wait 5
+key j
+wait 5
+screenshot creatures_ribbon
+key up
+wait 45
+screenshot up_to_next_shown

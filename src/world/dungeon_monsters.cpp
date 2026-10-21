@@ -138,7 +138,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 int Dungeon::ChestCount() const {
 	int n = 0;
 	for (const Tile& t : map)
-		n += t.type == Treasure ? 1 : 0;
+		n += isTreasure(t) ? 1 : 0;
 	return n;
 }
 //======================================================================================
@@ -311,6 +311,12 @@ void Dungeon::rewardKill(Monster& mon) {
 	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;
 	sim.events->Status("Gained %d XP", xp);
 	sim.player->stats.AddXP(xp, *sim.events);
+	// A tomb curse (plan trapped-chests): smashing a living ushabti, not a boss's, may curse; the trap ward stops it.
+	if (type.id == MonsterUshabti && !mon.Minion() && sim.random->gameplay.percent(TOMB_CURSE_PERCENT) &&
+		!sim.random->gameplay.percent(sim.player->stats.TrapWardPercent()))
+		sim.events->Status(
+			"%s",
+			tombCurse(Curse::Fatigue, "Its back is written over: who breaks this servant does its work.").c_str());
 	if (mon.Minion() || ambushes(type.locomotion))
 		return; // a mimic leaves its own chest
 	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay));

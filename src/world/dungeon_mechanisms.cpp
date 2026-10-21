@@ -25,6 +25,7 @@ void Dungeon::resetMechanisms() {
 	cutShot = {};
 	fallingRocks.clear();
 	dartTraps = {};
+	chestGas.clear();
 	mirrorSwings.clear();
 	litDiscs.clear();
 	// A save taken mid-motion finishes it on load.

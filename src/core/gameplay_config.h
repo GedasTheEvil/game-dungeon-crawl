@@ -318,6 +318,24 @@ constexpr float DART_PLATE_HALF_WIDTH = 0.27f; // the slab (mechanism.py): a cen
 constexpr float DART_HALF_WIDTH = 0.1f; // a dart takes a body whose box comes this near its hole
 constexpr int DART_REARM_MS = 3000;
 
+// Trapped chests (plan trapped-chests, ChestTrap in loot.h): the trap goes off as the lid lifts. The darts out of the
+// lock hit the player who opens it (CHEST_DART_DAMAGE, cut by the trap ward, and medium poison); the gas hangs over
+// the chest for CHEST_GAS_MS, and a player within CHEST_GAS_HALF_WIDTH of its middle takes weak poison every
+// CHEST_GAS_POISON_MS (the first at once); the swarm is CHEST_SWARM_SIZE scarabs digging out round the chest.
+constexpr int CHEST_DART_DAMAGE = 6; // the plate's three darts
+constexpr int CHEST_GAS_MS = 4000;
+constexpr int CHEST_GAS_POISON_MS = 1500;
+constexpr float CHEST_GAS_HALF_WIDTH = 0.8f; // tiles
+constexpr int CHEST_SWARM_SIZE = 3;
+// The tell: a trapped container is drawn darker, at CHEST_TELL_SHADE, but only with the player within
+// CHEST_TELL_NEAR tiles; it fades out to CHEST_TELL_FAR, so it never shows from afar.
+constexpr float CHEST_TELL_SHADE = 0.62f;
+constexpr float CHEST_TELL_NEAR = 0.8f;
+constexpr float CHEST_TELL_FAR = 1.8f; // the view shows about two tiles either side of the player
+// Tomb curses (plan trapped-chests): smashing a living ushabti curses with fatigue, at this chance; the trap ward's
+// chance stops it as a chest's trap.
+constexpr int TOMB_CURSE_PERCENT = 25;
+
 // Wall spikes (plan rhythm-traps): out of the back wall for SPIKES_OUT_MS of each SPIKES_PERIOD_MS, by speed (normal,
 // fast, slow, SpikeSpeed); the last SPIKES_TELEGRAPH_MS before they come out they twitch and scrape. Out, they block
 // like a closed gate; whoever stands in the cell when they come out takes one stab of SPIKES_STAB_DAMAGE and weak

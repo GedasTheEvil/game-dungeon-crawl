@@ -66,6 +66,11 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Attribute: the page number, 1 to 18, in order of depth over the campaign. Optional: keep it off the exit path "
 	 "(only the last one lies on it). Put a floor under it.",
 	 true, true, '='},
+	{"TrappedTreasure",
+	 "A treasure (attribute and value: the item) whose opening sets off a trap: poison darts, a puff of poison gas, a "
+	 "curse or a scarab swarm, by depth; canopic jars and pottery jars curse. Half of them hold the item and one bonus "
+	 "more, the rest nothing. Never put what the level needs in one: the checker does not count its antidote.",
+	 true, true, '%', "trapped_treasure.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -108,6 +113,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'D', {Door, 0, 0}, "gate without a purpose (checker warns)"},
 		{'H', {Ladder, 0, 0}, "ladder"},
 		{'$', {Treasure, 3, 0}, "treasure (small health potion; others: 'def')"},
+		{'%', {TrappedTreasure, 3, 0}, "trapped treasure (small health potion; others: 'def')"},
 		{'A', {Ankh, 0, 0}, "ankh"},
 		{'^', {Spike, 0, 0}, "spikes"},
 		{'X', {Death, 0, 0}, "death trap"},

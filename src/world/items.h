@@ -306,7 +306,7 @@ struct AmuletBonus {
 	int armor = 0; // taken off every hit, like the armour
 	int maxHpPercent = 0; // more max HP, a share of the base max HP
 	int poisonResistPercent = 0; // chance that a poisoned hit does not poison
-	int trapCutPercent = 0; // less spike and death trap damage; 100: immune
+	int trapCutPercent = 0; // less spike, death trap and chest dart damage, chest traps go off less; 100: immune
 	int regenHpPerSecond = 0; // while no monster chases the player and no poison runs
 	int venomPercent = 0; // chance that a weapon hit poisons the monster (Monster::TakePoison)
 	PoisonTier venomTier = PoisonTier::Weak;

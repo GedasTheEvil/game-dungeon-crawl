@@ -118,7 +118,7 @@ The glyph is the one in the level file's structure drawing and in `levelcheck --
 
 The object and wall layers share the type numbers. The wall types (`Lever`, `Inscription`, `WallSpikes`) go in the
 wall layer, the others in the object layer. Objects palette: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`,
-`Treasure`; then `Ankh`, `Key`, `Gate`, `RockFall`, `DartPlate`. Wall palette: `None`, `Lever`, `Inscription`,
+`Treasure`; then `Ankh`, `Key`, `Gate`, `RockFall`, `DartPlate`, ..., `TrappedTreasure`. Wall palette: `None`, `Lever`, `Inscription`,
 `WallSpikes`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
 
 | Type | Tile | Attribute | Value | In game |
@@ -142,6 +142,7 @@ wall layer, the others in the object layer. Objects palette: `None`, `Door`, `De
 | 18 | Mirror | - | Way it points: 0 down, 1 left, 2 up, 3 right | A bronze mirror on a stand: a beam that falls on it goes on the way it points (the gold pointer on its hub); pointing the way the beam goes it stands edge-on and lets it by, pointing back at it, it catches it. Interact turns it a quarter turn clockwise. Not in front of an inscription (reading it takes the key; the checker warns). |
 | 19 | SunDisc | Lock colour, see below | 0 | A sun disc (the Aten) on the back wall. A beam on it lights it for good and opens every gate of its colour, as a lever. The checker warns when no beam can ever reach it, and when one lights it as the level starts. |
 | 20 | Page | Page number, 1 to 18, in order of depth over the campaign | 0 (1 once taken) | A torn page of the earlier expedition's notebook ([expedition notes](../../docs/plan/solved/expedition-notes.md)), floating over a skeleton (the scatter puts one there). Picked up on touch, it goes into the journal's Expedition section; the skeleton stays. Optional: keep it off the exit path, but for the last page (18), which lies on it. The checker warns about one out of reach or without a number. |
+| 21 | TrappedTreasure | Item type, as Treasure | Item id, as Treasure | A trapped treasure ([trapped chests](../../docs/plan/trapped-chests.md)): it looks like any container (a darker one only up close) and opens the same way, but its opening sets off a trap, rolled then: poison darts (6 damage, the trap ward cuts it, medium poison), a puff of poison gas (weak poison while the player stands in it, 4 s), a curse (an execration text on the lid) or, deep down, 3 scarabs digging out; darts and gas early, curses and the swarm from the worked tunnels and the tombs on. Canopic jars and pottery jars always curse (disease). The trap ward amulet's percentage is also the chance the trap does not go off. Half of them hold the item and one bonus more, the rest are empty. Never put what the level needs in one: the checker does not count its antidote. |
 
 Trap damage starts at 1 and rises while the player stays in the trap. A short gap resets it.
 

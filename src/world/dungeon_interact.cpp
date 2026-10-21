@@ -13,9 +13,10 @@
 #include <vector>
 
 bool Dungeon::PickUp() {
-	if (Map(mapX, mapY).type != Treasure)
+	if (!isTreasure(Map(mapX, mapY)))
 		return false;
 	sim.player->stats.run.treasures++;
+	const bool trapped = Map(mapX, mapY).type == TrappedTreasure; // one bonus more (plan trapped-chests)
 	std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
 	clearObject(map[cell]);
@@ -26,7 +27,9 @@ bool Dungeon::PickUp() {
 
 	// One line per item: "Found: Sword", then "+ Small Stamina" for each bonus.
 	std::string found;
-	std::vector<ItemKind> loot = RollChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay);
+	std::vector<ItemKind> loot =
+		trapped ? RollTrappedChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay)
+				: RollChestLoot(*placed, sim.items->Owned(), levelNumber, sim.random->gameplay);
 	for (size_t i = 0; i < loot.size(); i++) {
 		sim.items->Find(loot[i], *sim.journal);
 		found += std::string(i == 0 ? "Found: " : "\n+ ") + itemText(loot[i]).name;
@@ -47,7 +50,7 @@ void Dungeon::Interact() {
 			openContainer();
 		break;
 	case Interaction::Take:
-		if (Map(mapX, mapY).type == Treasure)
+		if (isTreasure(Map(mapX, mapY)))
 			PickUp();
 		else
 			useGate(); // the ankh
@@ -79,7 +82,7 @@ Interaction Dungeon::InteractVerb() const {
 	const Tile here = MapAt(col, row);
 	if (ambushHere() >= 0)
 		return Interaction::Open;
-	if (here.type == Treasure) {
+	if (isTreasure(here)) {
 		const ContainerCell& c = containers[MapIndex(col, row)];
 		if (!c.opened)
 			return Interaction::Open;
@@ -118,10 +121,10 @@ Interaction Dungeon::InteractVerb() const {
 	}
 }
 //======================================================================================
-// The clip plays, the item shows at its end (containerShows). The trap of a trapped chest would fire here.
+// The clip plays, the item shows at its end (containerShows). A trapped chest's trap goes off as it starts.
 void Dungeon::openContainer() {
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
-	if (map[cell].type != Treasure || containers[cell].opened)
+	if (!isTreasure(map[cell]) || containers[cell].opened)
 		return;
 	containers[cell].opened = true;
 	containers[cell].openedMs = GameClock::now();
@@ -143,6 +146,8 @@ void Dungeon::openContainer() {
 		sim.events->Play(WorldSound::JarSmash);
 		break;
 	}
+	if (map[cell].type == TrappedTreasure)
+		springChestTrap(cell);
 }
 //======================================================================================
 void Dungeon::placeDroppedChest(int cell, ItemFileId item) {

@@ -1,0 +1,5 @@
+; Trapped chests (plan trapped-chests; tests/unit/trapped_chests_test.cpp, tests/scenarios/trapped_chests.txt):
+; trapped chests at cols 3, 7, 9 and 11, a plain one at col 5 beside the first, the exit at col 19.
+########################################
+#S.%.$.%.%.%.......E..#################
+########################################

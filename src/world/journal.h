@@ -140,8 +140,10 @@ enum class FieldNote : unsigned char {
 	Sand, // the first step into sand (plan desert-chapter)
 	Quicksand, // the first time the player sinks in quicksand
 	SunMirrors, // the first mirror turned or sun disc lit (plan sunlight-mirrors)
+	TrappedChests, // the first trapped chest that went off (plan trapped-chests)
+	TombCurses, // the first curse from an object: a chest's execration text, a smashed ushabti
 };
-constexpr int FIELD_NOTE_COUNT = 37;
+constexpr int FIELD_NOTE_COUNT = 39;
 // The field note written when the skill is learnt, none for a skill without one.
 [[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.

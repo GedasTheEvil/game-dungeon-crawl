@@ -307,6 +307,10 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Treasure:
 				r.treasures++;
 				break;
+			case TrappedTreasure:
+				r.treasures++;
+				r.trappedTreasures++;
+				break;
 			case Key:
 				r.keys++;
 				break;
@@ -654,7 +658,7 @@ void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 			const int cell = row * LEVEL_WIDTH + col;
 			const int object = grid.at(col, row).type;
 			if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door || object == Treasure ||
-				object == Mirror)
+				object == TrappedTreasure || object == Mirror)
 				r.warnings.push_back(std::string(tileDef(object).name) + " in front of wall spikes at " + at(cell));
 			if (!isWall(grid.at(col, row - 1)))
 				r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
@@ -823,10 +827,9 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			continue;
 		r.reachableCells++;
 		r.reachablePages += t.type == Page ? 1 : 0;
-		if (t.type == Treasure) {
-			r.reachableTreasures++;
-			antidote = antidote || itemFromFile(t.attr, t.value) == ItemKind::Antidote;
-		}
+		r.reachableTreasures += isTreasure(t) ? 1 : 0;
+		// A trapped chest's antidote does not count: half of them are empty (plan trapped-chests).
+		antidote = antidote || (t.type == Treasure && itemFromFile(t.attr, t.value) == ItemKind::Antidote);
 	}
 	if (poisoners && !antidote)
 		r.warnings.emplace_back("poisoners but no antidote in reach");

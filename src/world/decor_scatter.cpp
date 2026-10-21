@@ -232,7 +232,7 @@ int scatterTreasures(const Tile* cells, uint32_t seed, int tier, TreasureLook* t
 			}
 			const StanceDef& stance = STANCES[weightedPick(stances, STANCE_COUNT, mix(h))];
 			look = {static_cast<Container>(kind), stance.yaw, stance.x, stance.z};
-			chests += at(cells, i, j).type == Treasure ? 1 : 0;
+			chests += isTreasure(at(cells, i, j)) ? 1 : 0;
 		}
 	return chests;
 }

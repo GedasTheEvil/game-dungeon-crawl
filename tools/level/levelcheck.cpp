@@ -212,11 +212,13 @@ void printReport(const Entry& e, bool map) {
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
 	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
-		   "spikes, %d treasures (%d reachable), %d keys, %d gates, %d levers, %d riddles, %d teleporters (%d name "
+		   "spikes, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d levers, %d riddles, %d teleporters "
+		   "(%d name "
 		   "gates), %d inscriptions, %d sand cells (%d quicksand), %d light shafts, %d mirrors, %d sun discs\n",
 		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.sandFalls, r.dartPlates,
-		   r.wallSpikes, r.treasures, r.reachableTreasures, r.keys, r.gates, r.levers, r.riddles, r.teleporters,
-		   r.nameGates, r.inscriptions, r.sandCells, r.quicksandCells, r.lightShafts, r.mirrors, r.sunDiscs);
+		   r.wallSpikes, r.treasures, r.reachableTreasures, r.trappedTreasures, r.keys, r.gates, r.levers, r.riddles,
+		   r.teleporters, r.nameGates, r.inscriptions, r.sandCells, r.quicksandCells, r.lightShafts, r.mirrors,
+		   r.sunDiscs);
 	if (r.valid || !r.path.empty())
 		printf(
 			"   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, %d sand "

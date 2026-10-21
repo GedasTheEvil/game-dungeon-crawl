@@ -132,6 +132,22 @@ def treasure():
     save(img, "treasure.png")
 
 
+def trapped_treasure():
+    """The chest darker, a red glow, a broken red seal over the lock and scratches round it (plan trapped-chests)."""
+    img, d = canvas(RED, 70)
+    d.rectangle(p(8, 30, 56, 56), fill=WOOD_DARK, outline=BRONZE_DARK, width=SS)
+    d.chord(p(8, 12, 56, 44), 180, 360, fill=BRONZE, outline=BRONZE_DARK, width=SS)  # lid
+    d.rectangle(p(8, 28, 56, 32), fill=GOLD_DIM)
+    for x in (13, 47):  # straps
+        d.rectangle(p(x, 14, x + 4, 56), fill=GOLD_DIM)
+    d.rectangle(p(27, 29, 37, 40), fill=GOLD_DIM, outline=BRONZE_DARK, width=SS)  # lock
+    poly(d, [(25, 31), (31, 28), (30, 35), (25, 37)], RED_LIGHT, BRONZE_DARK, 1)  # the seal, broken in two
+    poly(d, [(33, 30), (39, 33), (38, 38), (32, 36)], RED, BRONZE_DARK, 1)
+    for x0, y0, x1, y1 in ((22, 42, 26, 48), (24, 41, 27, 46), (40, 42, 37, 49), (42, 43, 39, 47)):  # scratches
+        d.line(p(x0, y0, x1, y1), fill=GOLD_LIGHT, width=SS)
+    save(img, "trapped_treasure.png")
+
+
 def ankh():
     img, d = canvas(GOLD, 80)
     d.ellipse(p(20, 4, 44, 32), outline=GOLD, width=6 * SS)
@@ -532,6 +548,7 @@ if __name__ == "__main__":
     monster()
     ladder()
     treasure()
+    trapped_treasure()
     ankh()
     key()
     gate()

@@ -126,3 +126,30 @@ std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int l
 		return std::nullopt;
 	return pickOwned(owned, WEAPON_KIND_COUNT, rng);
 }
+
+ChestTrap RollChestTrap(Container kind, int level, Rng& rng) {
+	if (kind == Container::Canopic || kind == Container::Jar)
+		return ChestTrap::Curse;
+	const int (&percent)[CHEST_TRAP_COUNT] = CHEST_TRAP_PERCENT[decorTier(level)];
+	int pick = rng.below(100);
+	for (int k = 0; k < CHEST_TRAP_COUNT; k++) {
+		if (pick < percent[k])
+			return static_cast<ChestTrap>(k);
+		pick -= percent[k];
+	}
+	return ChestTrap::Darts;
+}
+
+Curse RollChestCurse(Container kind, Rng& rng) {
+	if (kind == Container::Canopic || kind == Container::Jar)
+		return Curse::Disease;
+	constexpr std::array<Curse, 5> CHEST_CURSES = {Curse::Weakness, Curse::Clumsiness, Curse::Vulnerability,
+												   Curse::Fatigue, Curse::Slowness};
+	return CHEST_CURSES[static_cast<size_t>(rng.below(static_cast<int>(CHEST_CURSES.size())))];
+}
+
+std::vector<ItemKind> RollTrappedChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng) {
+	std::vector<ItemKind> loot = RollChestLoot(placed, owned, level, rng);
+	loot.push_back(RollCursedMimicLoot(owned, level, rng));
+	return loot;
+}

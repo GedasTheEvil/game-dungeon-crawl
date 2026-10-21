@@ -1,6 +1,8 @@
 #ifndef LOOT_H
 #define LOOT_H
 
+#include "containers.h"
+#include "curses.h"
 #include "items.h"
 #include "rng.h"
 #include <array>
@@ -40,5 +42,33 @@ constexpr int KILL_DROP_CHANCE = 5;
 // weapon the player already has (`owned`, by itemIndex), never a new one, so the found weapons keep their place in
 // the campaign.
 std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng);
+
+// Trapped chests (plan trapped-chests): a TrappedTreasure's opening sets off one of these.
+enum class ChestTrap : std::uint8_t {
+	Darts, // poison darts out of the lock: CHEST_DART_DAMAGE (the trap ward cuts it) and medium poison
+	Gas, // a puff of poison gas over the chest for CHEST_GAS_MS: weak poison while the player breathes it
+	Curse, // an execration text on the lid: a lesser curse (RollChestCurse)
+	Swarm, // CHEST_SWARM_SIZE scarabs dig out round the chest
+};
+constexpr int CHEST_TRAP_COUNT = 4;
+// The share of each trap in percent by decoration tier (decorTier of the level): darts and gas early, the curses and
+// the swarm deep.
+constexpr int CHEST_TRAP_PERCENT[DECOR_TIER_COUNT][CHEST_TRAP_COUNT] = {
+	{60, 40, 0, 0}, // cave
+	{50, 35, 15, 0}, // worked tunnel
+	{35, 30, 25, 10}, // tomb
+	{30, 25, 25, 20}, // temple / necropolis
+};
+// Percent of the trapped chests that hold their item, with one bonus more (RollTrappedChestLoot); the others are empty.
+constexpr int TRAPPED_CHEST_FULL_PERCENT = 50;
+// Each a chance on the gameplay stream when the chest opens, in this order: the contents (TRAPPED_CHEST_FULL_PERCENT),
+// the trap ward (AmuletBonus::trapCutPercent: the trap does not go off), the trap (RollChestTrap), then the trap's own.
+// Canopic jars and pottery jars always curse, with disease; the other containers by depth.
+ChestTrap RollChestTrap(Container kind, int level, Rng& rng);
+// A chest's curse: disease from canopic jars and pottery jars, else weakness, clumsiness, vulnerability, fatigue or
+// slowness at even odds.
+Curse RollChestCurse(Container kind, Rng& rng);
+// A full trapped chest: RollChestLoot, then one bonus more, as the cursed mimic's chest (RollCursedMimicLoot).
+std::vector<ItemKind> RollTrappedChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng);
 
 #endif

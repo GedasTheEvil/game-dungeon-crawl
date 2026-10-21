@@ -57,6 +57,8 @@ enum DungeonTileType : unsigned char {
 	// A torn page of the earlier expedition's notebook on a skeleton (plan expedition-notes): b = its number (1 to
 	// EXPEDITION_PAGE_COUNT), c = 1 once taken; picked up on touch, the skeleton stays.
 	Page = 20,
+	// A trapped treasure (plan trapped-chests): a Treasure (attr, value: the item) whose opening sets off a trap.
+	TrappedTreasure = 21,
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 18;
@@ -195,6 +197,8 @@ inline void setObject(Tile& cell, const Tile& object) {
 	cell.value = object.value;
 }
 inline void clearObject(Tile& cell) { setObject(cell, Tile{}); }
+// A container with an item: a plain Treasure or a TrappedTreasure (plan trapped-chests).
+[[nodiscard]] inline bool isTreasure(const Tile& t) { return t.type == Treasure || t.type == TrappedTreasure; }
 inline void setFixture(Tile& cell, const Fixture& fixture) { cell.fixture = fixture; }
 inline void clearFixture(Tile& cell) { cell.fixture = Fixture{}; }
 // Puts thing's type, attr and value in its layer: a wall type as the fixture, anything else as the object. For the

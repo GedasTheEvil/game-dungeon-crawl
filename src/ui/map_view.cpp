@@ -220,6 +220,7 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 			return false;
 		[[fallthrough]];
 	case Treasure: // X marks the spot
+	case TrappedTreasure: // the map does not tell them apart
 		sk.pencil(x + 0.25f, y + 0.2f, x + 0.75f, y + 0.7f, PENCIL_RED, 0.95f, seed);
 		sk.pencil(x + 0.25f, y + 0.7f, x + 0.75f, y + 0.2f, PENCIL_RED, 0.95f, seed + 1);
 		break;

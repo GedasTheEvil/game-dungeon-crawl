@@ -1,8 +1,41 @@
 # Trapped chests and tomb curses
 
-Status: draft 2026-10-12, tomb-curse-triggers (2026-10-10, from the lore review) merged in 2026-10-19 (user: one
-curse system). Ready: [treasure-containers](solved/treasure-containers.md) is in (closed chests that hide their
-item, the opening clip the trap fires in).
+Status: implemented 2026-10-21, waiting for a play-test (`bin/game --play tests/play/trapped-chests.txt`, or
+`bin/game --level 3`: the trapped chest at col 1 row 7). Draft 2026-10-12, tomb-curse-triggers (2026-10-10, from the
+lore review) merged in 2026-10-19 (user: one curse system).
+
+## Implemented (2026-10-21)
+
+* `TrappedTreasure` (type 21, `%`, the editor icon `trapped_treasure.png`), attribute and value as `Treasure`;
+  `isTreasure` (`level.h`) everywhere a treasure was tested (pick up, interact, chest count, the look, the drawing,
+  the map, the checker's counts).
+* On opening (`Dungeon::springChestTrap`, `dungeon_chest_traps.cpp`), the trap goes off as the lid lifts; on the
+  gameplay stream in this order: the contents (50% full), the trap ward (its percentage: no trap), the trap kind
+  (`RollChestTrap`, `loot.h`), then the trap's own rolls.
+* Trap kinds, by the level's decoration tier (`CHEST_TRAP_PERCENT`): darts / gas / curse / swarm 60/40/0/0 in the
+  cave, 50/35/15/0 in the worked tunnels, 35/30/25/10 in the tombs, 30/25/25/20 in the temple. Canopic jars and
+  pottery jars always curse with disease.
+  * Darts: 6 damage (the trap ward cuts it), medium poison, at once (no darts drawn).
+  * Gas: a green cloud (`Fire::GAS`) over the chest for 4 s; weak poison at once and every 1.5 s while the player
+    stands in it.
+  * Curse: a lesser weakness, clumsiness, vulnerability, fatigue or slowness, "an execration text on the lid".
+  * Swarm: 3 scarabs dig out beside the chest (minions: half XP, no drop).
+* Full: the item and one bonus more (`RollTrappedChestLoot`: the plain chest's loot plus the cursed mimic's roll).
+  Empty: "Empty. The trap was the treasure."; the open container stays.
+* The tell: the closed trapped container is drawn darker (a stained brown) with the player within 0.8 tiles, fading
+  out by 1.8 tiles (`chestTell`, `CHEST_TELL_*`): any container, any stance. "[E] Open" as on any chest.
+* Trap ward text: "Trap damage and chest traps -N%"; the grand one keeps "Immune to traps".
+* Journal: field notes "Trapped chests" (the first trap gone off) and "Tomb curses" (the first curse from an object,
+  with the lid joke).
+* Tomb curses: smashing a living ushabti (not a boss's) curses with fatigue at 25% (`TOMB_CURSE_PERCENT`); the trap
+  ward's chance stops it. The tell there is the lore: every ushabti carries its spell, the curse line says so.
+* Checker: trapped treasures count as treasures (`trappedTreasures` in the report), their antidote does not count as
+  in reach.
+* Campaign: one trapped chest a level in 3-12, two in 13-24, three in 25-35, each a chest that held a plain potion
+  (health, stamina, might, armour); every level still passes `bin/levelcheck` with no warnings.
+* Left out: sarcophagi and coffins as tomb-curse objects (they are not interactive) and smashing decor pottery (the
+  props cannot be smashed; the pottery jar container curses instead); levelgen places no trapped chests.
+* Tests: `tests/unit/trapped_chests_test.cpp`, the scenario `tests/scenarios/trapped_chests.txt` (the tell, the gas).
 
 ## Idea
 

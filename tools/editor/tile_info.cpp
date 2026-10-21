@@ -174,6 +174,7 @@ CellHint describeCell(const Tile& cell) {
 		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
 		break;
 	case Treasure:
+	case TrappedTreasure:
 		hint.attribute = field("item type", ITEM_TYPES, cell.attr, "unknown, gives nothing");
 		if (cell.attr == ItemType::MELEE_WEAPON)
 			hint.value = field("weapon", MELEE_WEAPONS, cell.value, "unknown, gives nothing");

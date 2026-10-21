@@ -54,7 +54,7 @@ While the player stands in a cell where the interact key does something, a small
 * No setting to switch it off (agreed with the user: always on).
 * The mimic (Chest of Set) is a monster spawn, not a `Treasure`: it gets no prompt, and a chest without "[E] Open"
   would give it away. Show "[E] Open" in front of a mimic still lying in ambush too, and the key springs it (decided
-  with the user, 2026-10-12: with [trapped-chests](../trapped-chests.draft.opus.md) opening any chest is a gamble), so
+  with the user, 2026-10-12: with [trapped-chests](../trapped-chests.md) opening any chest is a gamble), so
   the prompt never tells them apart.
   * Today the mimic wakes at `MIMIC_WAKE_RANGE` (1.5 tiles, `src/core/gameplay_config.h`), before the player can stand
     in front of it. Change the wake: an idle mimic wakes on the interact key or a hit, not on coming near; drop

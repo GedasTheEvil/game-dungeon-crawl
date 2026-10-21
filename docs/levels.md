@@ -13,7 +13,7 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes,
   sun disc (the wall types, `isWallType` in `src/world/level.h`).
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
-  ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
+  trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
 Two more say how the cell is dressed ([placed-decor](plan/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:
@@ -108,6 +108,11 @@ Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 33 | The catacombs: the hall of coffins (3 high, two ledges, the red lever), the blue key, a flooded tomb, the green lever (two green gates), the gold key on a ledge in the 3-high hall of Anubis. |
 | 34 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
 | 35 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
+
+Trapped chests ([trapped-chests](plan/trapped-chests.md), `%`): one a level in 3-12, two in 13-24, three in 25-35,
+each a chest that held a plain potion (health, stamina, might, armour). Never put what the level needs in one (a key
+item, a new weapon, the antidote, a Hapi potion): half of them are empty, and the checker does not count a trapped
+chest's antidote as in reach.
 
 The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 18 torn pages (`=`,
 attribute: the page number, in order of depth) on skeletons in levels 2, 3, 4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23,

@@ -66,7 +66,8 @@ struct LevelReport {
 	int pages = 0, reachablePages = 0; // the earlier expedition's (plan expedition-notes)
 	int nameCartouches = 0; // among the inscriptions
 	int bosses = 0;
-	int reachableTreasures = 0;
+	int reachableTreasures = 0; // the trapped ones too
+	int trappedTreasures = 0; // among the treasures (plan trapped-chests)
 	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)
 
 	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)

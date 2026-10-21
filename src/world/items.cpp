@@ -353,7 +353,7 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Eye of Horus",
 	 "Trap Guard",
 	 "Trap",
-	 "Trap damage -%d%%",
+	 "Trap damage and chest traps -%d%%", // chest traps: the chance they do not go off (plan trapped-chests)
 	 "The eye of Horus.",
 	 "It sees the spikes first."},
 	{"amulet_blunt",

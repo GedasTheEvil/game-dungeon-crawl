@@ -10,11 +10,13 @@
 #include "journal.h"
 #include "level.h"
 #include "climb_path.h"
+#include "curses.h"
 #include "view_window.h"
 #include "sim_links.h"
 #include "sun_beam.h"
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 struct RoyalName;
@@ -84,6 +86,24 @@ class Dungeon {
 	void openContainer(); // Interact Open on a closed treasure: its clip starts
 	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing.
 	void placeDroppedChest(int cell, ItemFileId item);
+	// Trapped chests (plan trapped-chests, dungeon_chest_traps.cpp): openContainer on a TrappedTreasure rolls its
+	// contents and its trap (loot.h), the trap goes off unless the trap ward stops it.
+	void springChestTrap(int cell);
+	std::string fireChestTrap(int cell); // the trap's status line
+	void chestSwarm(int cell); // CHEST_SWARM_SIZE scarabs dig out round it
+	// A curse from an object (a chest's execration text, a smashed ushabti): laid, its field note; the status line.
+	std::string tombCurse(Curse c, const char* execration);
+	// A puff of poison gas over a chest (ChestTrap::Gas), for CHEST_GAS_MS: not saved, as the darts in flight.
+	struct ChestGas {
+		int cell; // map index
+		int startMs; // GameClock
+		int nextPoisonMs; // the next weak poison for a player in it
+	};
+	std::vector<ChestGas> chestGas;
+	void updateChestGas();
+	void drawChestGas(); // after the opaque scene, drawSummonEffects' frame
+	// 0 .. 1: how much a closed trapped container in cell shows its tell (darker), by the player's distance.
+	[[nodiscard]] float chestTell(int cell) const;
 	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
 	// 0 closed .. 1 open, the cell's clip.
 	[[nodiscard]] float containerOpening(int cell) const;
@@ -438,7 +458,7 @@ class Dungeon {
 	}
 	// A treasure container stands in (col, row): a treasure, or one emptied there (it stays, open).
 	[[nodiscard]] bool ContainerStands(int col, int row) const {
-		return IsInBounds(col, row) && (MapAt(col, row).type == Treasure || containers[MapIndex(col, row)].emptied);
+		return IsInBounds(col, row) && (isTreasure(MapAt(col, row)) || containers[MapIndex(col, row)].emptied);
 	}
 	// Scenario `container`: the treasure in (col, row) looks like `kind` (CONTAINER_NAMES) in STANCES[stance],
 	// whatever the level's scatter picked. False if the cell is outside the level or the stance unknown.

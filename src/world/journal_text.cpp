@@ -190,6 +190,13 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 					"A shaft of daylight runs straight until rock stops it; a bronze mirror sends it on the way its "
 					"pointer shows, and I can turn one a quarter at a time. A sun disc, an Aten, that catches the "
 					"light opens the gates of its colour for good. The dead do not like the sun: it sets them alight."},
+	{"Trapped chests", "Some chests bite back. Darts from the lock, a puff of green gas, a curse on the lid, deeper "
+					   "down a nest of scarabs. Up close a trapped one looks darker, as if it knew. Half of them were "
+					   "robbed long ago and only the trap is left; the rest hold a little more than a plain chest. The "
+					   "Eye of Horus sees most traps before they go off."},
+	{"Tomb curses", "The lid said 'cursed be he who opens this'. I opened it. The lid was right. The dead write their "
+					"threats on whatever they leave behind: lids, jars, the little servant figures. Not every one "
+					"means it, and the curse runs out, as any curse."},
 }};
 } // namespace
 

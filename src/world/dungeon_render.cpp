@@ -152,11 +152,17 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 				 RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE);
 	Item& container = *sim.assets->items.containers[static_cast<size_t>(look.kind)];
 	container.rotA = look.yaw;
+	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
+	if (const float tell = chestTell(cell); tell > 0.f) {
+		const float shade = 1.f - tell * (1.f - CHEST_TELL_SHADE);
+		glColor3f(shade, shade * 0.9f, shade * 0.85f);
+	}
 	container.Draw(containerOpening(cell));
+	glColor3f(1, 1, 1);
 
 	const Tile tile = MapAt(i, j);
 	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value);
-		kind && tile.type == Treasure && containerShows(cell)) {
+		kind && isTreasure(tile) && containerShows(cell)) {
 		Item* item = sim.assets->items.Of(*kind);
 		const float angle = item->rotA;
 		const float scale = item->scale;
@@ -171,9 +177,10 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-// A jar breaking open: a puff of dust out of its shards (Grit::burst). In the tile loop's frame, like
-// drawSummonEffects.
+// A jar breaking open: a puff of dust out of its shards (Grit::burst), and a trapped chest's gas. In the tile loop's
+// frame, like drawSummonEffects.
 void Dungeon::drawContainerEffects() {
+	drawChestGas();
 	const int now = GameClock::now();
 	const CellRect& drawn = drawnCells;
 	for (int j = std::max(drawn.row0, 0); j < std::min(drawn.row0 + drawn.rows, MAP_HEIGHT); j++)
@@ -191,6 +198,23 @@ void Dungeon::drawContainerEffects() {
 			Grit::burst(x, y, z, now - c.openedMs, false,
 						static_cast<uint32_t>(cell) + static_cast<uint32_t>(c.openedMs));
 		}
+}
+//======================================================================================
+// Green, thinning out over its last second.
+void Dungeon::drawChestGas() {
+	constexpr int FADE_MS = 1000;
+	const int now = GameClock::now();
+	for (const ChestGas& g : chestGas) {
+		const int i = g.cell % MAP_WIDTH, j = g.cell / MAP_WIDTH;
+		const TreasureLook look = treasureLook(g.cell);
+		const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+						RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE;
+		const float y =
+			static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE + 0.25f * RenderConfig::TILE_SIZE;
+		const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
+		const float fade = std::clamp(static_cast<float>(CHEST_GAS_MS - (now - g.startMs)) / FADE_MS, 0.f, 1.f);
+		Fire::draw(Fire::GAS, x, y, z, static_cast<uint32_t>(g.cell) + static_cast<uint32_t>(g.startMs), fade);
+	}
 }
 //======================================================================================
 void Dungeon::DrawTrapTile(bool isDeathTrap) {
@@ -340,6 +364,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	case MonsterSpawn: // the monster is drawn where it is now (DrawMonsters)
 		break;
 	case Treasure:
+	case TrappedTreasure:
 		DrawTreasureTile(i, j);
 		break;
 	case Spike:

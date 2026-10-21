@@ -1,0 +1,28 @@
+# Trapped chests (plan trapped-chests, tests/levels/trapped_chests): the tell, a trapped chest (col 3) beside a plain one
+# (col 5): the trapped one two tiles away shows nothing, both a tile away it is the darker; the trap going off: on this
+# seed a puff of poison gas.
+seed 1
+god
+level tests/levels/trapped_chests
+container 3 chest 0
+container 5 chest 0
+container 7 coffer 0
+container 9 basket 0
+wait 30
+walk to 5.4
+wait 10
+screenshot trapped_afar_plain_near
+walk to 4.5
+wait 10
+screenshot tell_left_plain_right
+walk to 8
+wait 10
+screenshot tell_coffer_basket
+walk to 3.5
+wait 10
+interact
+wait 300ms
+screenshot trap_going_off
+expect poison == 1
+wait 1s
+screenshot gas_cloud

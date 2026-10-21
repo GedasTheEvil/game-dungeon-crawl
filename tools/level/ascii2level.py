@@ -113,7 +113,7 @@ def main(src, dst):
             if structure[row][col] == wall:  # an object or fixture carves its cell
                 structure[row][col] = empty
     with open(dst, "w") as f:
-        f.write(f"{header}\nstructure\n")
+        f.write(f"{header}\nzone none\nstructure\n")  # no zone: the plain look (plan zone-looks)
         for row in range(H - 1, -1, -1):
             f.write("".join(STRUCTURES[s] for s in structure[row]) + "\n")
         for name, things in (("wall", fixtures), ("objects", objects)):

@@ -66,6 +66,28 @@ void Monster::Stand() {
 	enter(ModelState::Idle);
 }
 
+void Monster::WatchPlayer(float px) {
+	if (seenPlayerX >= 0.f && std::fabs(px - CentreX()) < std::fabs(seenPlayerX - CentreX()) && px != seenPlayerX)
+		closingUntilMs = GameClock::now() + KITE_CLOSING_MS;
+	seenPlayerX = px;
+}
+
+bool Monster::PlayerClosing() const { return closingUntilMs >= 0 && GameClock::now() < closingUntilMs; }
+
+void Monster::BackOff(int dir) {
+	if (!Alive() || !type->kite)
+		return;
+	alerted = true;
+	fleeDir = dir;
+	x += MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f) * static_cast<float>(dir);
+	enter(ModelState::Move);
+}
+
+float Monster::PlayerGap(float px) const {
+	const float player = links.player->HalfWidth();
+	return px < CentreX() ? Left() - (px + player) : (px - player) - Right();
+}
+
 void Monster::Attack(float px, float py, bool playerWading) {
 	if (!Alive() || type->damage <= 0) // harmless (an egg cluster)
 		return;
@@ -152,13 +174,13 @@ bool Monster::canAttackRanged(float px, float py) const {
 	if (!type->ranged || !Alive() || !alerted || lurking() || GameClock::now() < rangedReadyMs)
 		return false;
 	const int dir = attackDirection(px, py); // 0: in bite reach or not on its row
-	const float gap = dir > 0 ? (px - links.player->HalfWidth()) - Right() : Left() - (px + links.player->HalfWidth());
-	return dir != 0 && gap <= type->ranged->range;
+	return dir != 0 && PlayerGap(px) <= type->ranged->range;
 }
 
 void Monster::AttackRanged() {
 	if (!type->ranged)
 		return;
+	fleeDir = 0; // turns to the player for the shot
 	enter(ModelState::AttackRanged);
 	rangedReadyMs = GameClock::now() + type->ranged->cooldownMs;
 	rangedReleased = false;

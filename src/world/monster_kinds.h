@@ -106,6 +106,16 @@ struct RangedRules {
 	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };
 
+// A kiter (plan monster-kiting) keeps the player at the range of its shot (RangedRules) along its row: it backs off
+// when they come at it nearer than near, stands and shoots between near and far, closes in beyond far. Cornered (a
+// wall, a drop, a trap or another monster behind it) or with the player in bite reach, it fights in melee.
+struct KiteRules {
+	float near = 0.f; // tiles between the boxes
+	float far = 0.f; // its range or a little less
+	// Its speed while it backs off, in the points of MonsterKind::speed: about 19 the player's walk, 57 their sprint.
+	float backOffSpeed = 0.f;
+};
+
 // Where levelgen puts it: levels of difficulty minDifficulty .. maxDifficulty, picked by weight. Weight 0: never.
 // Thorns and sap: a melee hit on the monster may poison the player; arrows and thrown weapons do not.
 struct TouchPoison {
@@ -211,6 +221,7 @@ struct MonsterKind {
 	// kin's.
 	int poisonResistPercent = 0;
 	std::optional<RangedRules> ranged; // a ranged attack from afar: it spits venom or shoots a bolt
+	std::optional<KiteRules> kite; // a walker with a ranged attack keeps the player at its range (KiteRules)
 	int staminaDrainPct = 0; // a bite takes this share of the player's max stamina (the blue lotus's sedative)
 	// Curses its hits lay (plan curses): its bites and blows (a charge too), its spit or bolt. The strongest first; a
 	// boss's chances are higher than its kin's.

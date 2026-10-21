@@ -1,6 +1,6 @@
 # Baboon of the Lake of Fire
 
-Status: draft 2026-10-21, from the user. Needs first: [monster-kiting](monster-kiting.draft.opus.md) (it keeps its
+Status: draft 2026-10-21, from the user. Needs first: [monster-kiting](monster-kiting.md) (it keeps its
 distance and shoots). Its boss: [babi-boss](babi-boss.draft.opus.md).
 
 ## Lore
@@ -18,7 +18,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
   the burning out, and [fire-in-water](fire-in-water.draft.sonet.md) cuts the fire share of a hit to a tenth in water:
   the lake zone's pools are the player's cover.
 * **Melee (fallback):** a bite with long fangs (slash, pierce), when cornered or the player is in reach.
-* **AI:** a kiter ([monster-kiting](monster-kiting.draft.opus.md)): keeps the player at its range, backs off when they
+* **AI:** a kiter ([monster-kiting](monster-kiting.md)): keeps the player at its range, backs off when they
   come at it, never far enough to lose them.
 * **Tell:** a screech before each throw (its ranged clip lifts the coal over its head first), so the player can dodge
   by a jump or by stepping off the row.

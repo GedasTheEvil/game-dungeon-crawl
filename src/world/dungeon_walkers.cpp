@@ -82,6 +82,48 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 	mon.Flee(walkerStops(mon, col), -dir);
 }
 //======================================================================================
+// Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
+// it has the time for a shot at far, else KITE_HYSTERESIS past near. Never past far, and never off its floor: a wall, a
+// drop, a trap (also for a reckless one) or another monster behind it corner it.
+int Dungeon::kiteAway(const Monster& mon, int dir) const {
+	const std::optional<KiteRules>& kite = mon.Type()->kite;
+	if (!kite || dir == 0)
+		return 0;
+	const float gap = mon.PlayerGap(mapX);
+	const bool backing = mon.FleeDir() == -dir;
+	const bool closing = mon.PlayerClosing();
+	const float room = MONSTER_SEEK_STEP * kite->backOffSpeed; // one step back
+	if (gap + room > kite->far ||
+		(backing ? !closing && gap >= kite->near + KITE_HYSTERESIS : gap >= kite->near || !closing))
+		return 0;
+	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
+	if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && Lit(col, mon.Row())))
+		return 0;
+	for (const Monster& other : monsters) {
+		if (&other == &mon || !other.Active() || !other.Alive() || other.flies() || other.Row() != mon.Row() ||
+			(other.CentreX() - mon.CentreX()) * static_cast<float>(dir) > 0.f)
+			continue;
+		if ((dir > 0 ? mon.Left() - other.Right() : other.Left() - mon.Right()) < room)
+			return 0;
+	}
+	return -dir;
+}
+//======================================================================================
+// Cornered in its band or nearer, it stands and shoots; the player in bite reach is the walker's (dir 0).
+bool Dungeon::kite(Monster& mon, int dir) {
+	const std::optional<KiteRules>& kite = mon.Type()->kite;
+	if (!kite || dir == 0 || !walkerReaches(mon, dir))
+		return false;
+	if (const int away = kiteAway(mon, dir); away != 0) {
+		mon.BackOff(away);
+		return true;
+	}
+	if (mon.PlayerGap(mapX) > kite->far)
+		return false;
+	mon.Stand();
+	return true;
+}
+//======================================================================================
 // The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
 // leaves the ladder.
 int Dungeon::climbEnd(int col, int row) const {
@@ -137,7 +179,8 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	return true;
 }
 //======================================================================================
-// One step of a walker that is due: a climber's path, a coward's flight, a leap over a gap, the chase and the bite.
+// One step of a walker that is due: a climber's path, a kiter's back-off, a coward's flight, a leap over a gap, the
+// chase and the bite.
 void Dungeon::updateWalker(Monster& mon) {
 	if (!mon.Alive() || won || !mon.StepDue())
 		return;
@@ -148,6 +191,8 @@ void Dungeon::updateWalker(Monster& mon) {
 		mon.Flee(false, out);
 		return;
 	}
+	if (kite(mon, dir))
+		return;
 	if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
 		if (mon.Type()->shunsLight && mon.sameRow(mapY) && litBetween(mon))
 			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::ShunLight);

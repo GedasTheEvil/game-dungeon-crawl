@@ -65,6 +65,8 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
+		if (mon.Type()->kite)
+			mon.WatchPlayer(mapX);
 
 		if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
 			if (won)
@@ -86,7 +88,9 @@ void Dungeon::UpdateMonsters() {
 			shootAtPlayer(mon, sx, sy);
 		if (mon.AttackingRanged())
 			continue;
-		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row())) {
+		// A kiter the player comes at backs off first (plan monster-kiting).
+		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row()) &&
+			kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0) {
 			mon.AttackRanged();
 			continue;
 		}

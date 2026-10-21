@@ -73,6 +73,12 @@ constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000; // from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2; // cells of pits and traps a leap clears
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
+// Kiters (KiteRules, plan monster-kiting): the player counts as coming at one for KITE_CLOSING_MS after a step
+// towards it. Once it backs off, it goes on to its far while they keep coming, else to KITE_HYSTERESIS tiles past its
+// near, so it does not jitter at the edge. The checker scores a kiter higher: it is hard to pin down.
+constexpr int KITE_CLOSING_MS = 300;
+constexpr float KITE_HYSTERESIS = 0.4f;
+constexpr float KITER_THREAT_FACTOR = 1.15f;
 // Light shunners (MonsterKind::shunsLight, the camel spider, plan camel-spider): a cell up to this many cells along the
 // row from a flame (a wall torch, a brazier, an oil lamp) is lit. It does not step into one, and one in its way is a
 // wall to it.

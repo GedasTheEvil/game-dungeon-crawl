@@ -58,7 +58,9 @@ class Monster {
 	int health = 0;
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
-	int fleeDir = 0; // a fleeing coward runs this way (Flee), -1 / +1; 0: not fleeing
+	int fleeDir = 0; // a fleeing coward runs this way (Flee), a kiter backs off (BackOff), -1 / +1; 0: neither
+	float seenPlayerX = -1.f; // kiters: the player's map x on the last tick (WatchPlayer); < 0: not yet
+	int closingUntilMs = -1; // kiters: GameClock time until which the player counts as coming at it
 	ClipPlayback playback{};
 	Flight flight;
 	Leap leap;
@@ -222,6 +224,14 @@ class Monster {
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
+	// Kiters (KiteRules): once a tick, notes whether the player at px is coming at it (KITE_CLOSING_MS).
+	void WatchPlayer(float px);
+	[[nodiscard]] bool PlayerClosing() const;
+	[[nodiscard]] int FleeDir() const { return fleeDir; } // a coward's flight or a kiter's back-off, 0: neither
+	// Kiters: one step away from the player that way (dir -1 / +1), at its backOffSpeed.
+	void BackOff(int dir);
+	// Tiles between its box and the player's at px along the row; < 0: they overlap.
+	[[nodiscard]] float PlayerGap(float px) const;
 	// In reach: it starts a bite towards the player at px, or (HoldRules, rolled on the gameplay stream) opens its jaws
 	// or claws for a grab (Grab). playerWading: the player stands in half water (a crocodile grabs only then).
 	void Attack(float px, float py, bool playerWading);

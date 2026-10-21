@@ -1,8 +1,9 @@
 # Kiting monsters: keep the distance, shoot, back off
 
-Status: draft 2026-10-21, from the user (for the baboon of the Lake of Fire). Needs nothing first: it builds on the
-ranged attack (`RangedRules`, `Monster::AttackRanged`) and the coward's flight
-([coward-flee-ranged](solved/coward-flee-ranged.md): `Dungeon::walkerReaches`, `Dungeon::fleeFrom`), both done.
+Status: draft 2026-10-21, from the user (for the baboon of the Lake of Fire). Implemented 2026-10-21, see
+[Done](#done). No kind kites yet, so there is nothing to play-test until the [baboon](baboon.draft.opus.md); the unit
+tests make the Anubis a kiter. Built on the ranged attack (`RangedRules`, `Monster::AttackRanged`) and the coward's
+flight ([coward-flee-ranged](solved/coward-flee-ranged.md): `Dungeon::walkerReaches`, `Dungeon::fleeFrom`).
 
 ## Idea
 
@@ -51,3 +52,25 @@ On the sim harness ([sim-library](solved/sim-library.md)):
 * A wall behind it: it bites the player in reach.
 * It never backs off past its range, and does not leave the floor (a drop shaft behind it: it stops and fights).
 * The player sprints at it: they catch it.
+
+## Done
+
+* `KiteRules` (`monster_kinds.h`): `near`, `far`, `backOffSpeed` (speed points: 19 the player's walk, 57 the sprint).
+  `MonsterKind::kite` turns it on. No kind has one yet: the baboon and Babi set theirs.
+* `Dungeon::kiteAway` / `Dungeon::kite` (`dungeon_walkers.cpp`), called from `updateWalker` after the climber's path
+  and the light shunning, before the coward's flight. The shot in `UpdateMonsters` waits while it backs off.
+* Threatened: `Monster::WatchPlayer` notes a step of the player towards it (`KITE_CLOSING_MS`). Change from the draft:
+  while the player keeps coming, it backs off all the way to `far`, not only `KITE_HYSTERESIS` past `near`. With the
+  short stop, a long ranged clip (the Anubis's, about 2 s) let a walking player reach it during the shot. Once the
+  player stops, it stops `KITE_HYSTERESIS` past `near`. It never steps past `far`.
+* Cornered: a wall, a drop, a trap (also for a reckless kiter), a lit cell for a light shunner, or another monster on
+  its row behind it. Then it stands in its band, shoots when it can and bites the player in reach (the walker's rules).
+* No back-off up or down a ladder (implementer's choice): off its row it follows the player as before.
+* The back-off shares `fleeDir` with the coward's flight (it faces away while it backs off); `AttackRanged` clears it, so
+  it turns to the player for the shot.
+* Checker: `KITER_THREAT_FACTOR` 1.15 in `monsterThreat`.
+* Tests: `tests/unit/kite_test.cpp` on `tests/levels/kite_{open,wall,drop}`: band and shot, standing still, the walk at
+  it (backs off, never caught, never past `far`), a wall and a drop shaft behind it (it bites, stays on its floor), the
+  sprint catches it.
+* Fixed on the way: `tools/level/ascii2level.py` wrote level files without the zone line the loader now wants (plan
+  zone-looks); it writes `zone none`.

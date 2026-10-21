@@ -1,0 +1,4 @@
+; A kiter (an Anubis made one by tests/unit/kite_test.cpp, col 7) in front of the player (col 2), a long row behind it.
+##############################
+#.S....n....................E#
+##############################

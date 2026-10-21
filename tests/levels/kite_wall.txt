@@ -1,0 +1,4 @@
+; A kiter (col 7) with a wall three cells behind it (col 11): it backs off into the corner (tests/unit/kite_test.cpp).
+############
+#ES....n...#
+############

@@ -172,6 +172,12 @@ class Dungeon {
 	[[nodiscard]] bool walkerReaches(const Monster& mon, int dir) const;
 	// A coward that cannot reach the player (Monster::flees): runs away along its row, out of the bow's range.
 	void fleeFrom(Monster& mon, int dir);
+	// A kiter (KiteRules) on the player's row, dir the way to them: the way it backs off, -1 / +1; 0: it holds (not
+	// threatened, back in its band, or cornered).
+	[[nodiscard]] int kiteAway(const Monster& mon, int dir) const;
+	// A kiter that reaches the player that way: backs off, or stands in its band. False: the walker's rules go on (it
+	// closes in beyond its band, or bites the player in reach).
+	bool kite(Monster& mon, int dir);
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);

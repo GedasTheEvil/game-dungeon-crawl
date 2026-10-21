@@ -57,7 +57,7 @@ Costs:
 
 * The Lake of Fire (Book of the Dead 126, the Amduat): the gate of the Duat, guarded by four baboons; Babi eats the
   hearts of the unworthy there. The step from the sands into the night. New: the baboon, a ranged kiter
-  ([monster-kiting](../monster-kiting.draft.opus.md)), and its boss Babi. Fire jets come in with the priests' quarter
+  ([monster-kiting](../monster-kiting.md)), and its boss Babi. Fire jets come in with the priests' quarter
   and return in force here.
 
 ## The twelve hours of the Duat

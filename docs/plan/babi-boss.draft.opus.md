@@ -16,7 +16,7 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
 * **Bigger:** twice the baboon's height, a heavy mane, a red face; the baboon's model scaled and reshaped.
 * **Ranged:** a volley of two or three burning coals per throw, farther (6-7 tiles), a shorter cooldown. Or a big
   coal that bursts into a short burning patch on the floor where it lands (implementer's choice).
-* **Kiting:** a wider band and a faster retreat than the baboon ([monster-kiting](monster-kiting.draft.opus.md)),
+* **Kiting:** a wider band and a faster retreat than the baboon ([monster-kiting](monster-kiting.md)),
   but within his arena: he leaps from ledge to ledge (a walk-jumper, `Locomotion::WalkJump`) instead of running off.
 * **Melee:** a heavy bite and a two-handed blow when cornered.
 * **Minions:** baboons climb out over the lake's edge (`Summon`), the boss rule's "plus its kin".

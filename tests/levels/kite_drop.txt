@@ -1,0 +1,7 @@
+; A kiter (col 7) with a drop shaft three cells behind it (col 11) down to the floor below: it stops at the edge and
+; does not leave its floor (tests/unit/kite_test.cpp).
+################
+#ES....n.......#
+###########.####
+#..............#
+################

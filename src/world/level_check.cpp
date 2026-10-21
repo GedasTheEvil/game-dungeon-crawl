@@ -719,7 +719,7 @@ float monsterThreat(int type) {
 	const MonsterKind* kind = monsterKind(type);
 	if (kind == nullptr)
 		return UNKNOWN_MONSTER_THREAT;
-	return kind->climbs ? kind->threat * CLIMBER_THREAT_FACTOR : kind->threat;
+	return kind->threat * (kind->climbs ? CLIMBER_THREAT_FACTOR : 1.f) * (kind->kite ? KITER_THREAT_FACTOR : 1.f);
 }
 
 bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {

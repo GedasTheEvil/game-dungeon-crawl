@@ -31,6 +31,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	swimPlaced = false;
 	facing = 0;
 	fleeDir = 0;
+	seenPlayerX = -1.f;
+	closingUntilMs = -1;
 	flight = Flight{};
 	leap = Leap{};
 	burrow = Burrow{};

@@ -214,9 +214,9 @@ photo pasted in a little askew: white border, dark backdrop, the model lit by a 
 of its texture (`Texture::LoadPNG`'s pixel filter), a red catalogue number above (`L07-03`: level, page), a caption
 with an arrow below.
 
-Diary pages ([journal-intro](plan/journal-intro.md)): a dated heading, the entry in `INK_BLUE`, a smaller hand when it
+Diary pages ([journal-intro](plan/solved/journal-intro.md)): a dated heading, the entry in `INK_BLUE`, a smaller hand when it
 would not fit; while a new game shows the prologue, the close key in pencil at the bottom. Expedition pages
-([expedition-notes](plan/expedition-notes.md)): someone else's notebook page torn out and pasted in a little
+([expedition-notes](plan/solved/expedition-notes.md)): someone else's notebook page torn out and pasted in a little
 askew (`media/textures/ui/expedition_page.png`, `tools/textures/expedition_page.py`: yellowed ruled paper, a ragged
 left edge), their heading and lines in `SEPIA` ink standing on its rules, from the margin line.
 

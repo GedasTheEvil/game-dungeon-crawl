@@ -1,6 +1,6 @@
 # Route fork: left or right
 
-Status: draft 2026-10-19, from the user's review. Needs first: [expedition-notes](expedition-notes.md)
+Status: draft 2026-10-19, from the user's review. Needs first: [expedition-notes](solved/expedition-notes.md)
 (the page that warns before the fork).
 
 ## Idea

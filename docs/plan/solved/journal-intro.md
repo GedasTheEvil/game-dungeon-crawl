@@ -16,7 +16,7 @@ campaign: the ankh in lvl35 is the secret of eternal life the entry speaks of.
   entry; later plans can add more (an epilogue on the win, a line per boss). It stays readable in the journal.
   The other expedition's pages ([expedition-notes](expedition-notes.md)) are someone else's notebook,
   not this section.
-* Look: the journal as it is ([ui.md](../ui.md), the handwritten journal font). Opens with the page-turn sound, no
+* Look: the journal as it is ([ui.md](../../ui.md), the handwritten journal font). Opens with the page-turn sound, no
   status line. A hint at the bottom of the page: the key that closes the journal.
 * Game time does not run while it is open (as the journal today).
 
@@ -45,7 +45,7 @@ The jackal-headed statue foreshadows the Anubis boss of lvl35; the club is the s
 
 ## Fits with
 
-* [duat-hours](duat-hours.draft.sonet.md) (on hold): level titles in the archaeologist's voice, the Duat as what
+* [duat-hours](../duat-hours.draft.sonet.md) (on hold): level titles in the archaeologist's voice, the Duat as what
   the archaeologist learns the maze to be, not a second frame.
 * [expedition-notes](expedition-notes.md): the earlier expedition came through the same statue.
 

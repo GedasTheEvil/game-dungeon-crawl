@@ -1,5 +1,5 @@
 ; A page of the earlier expedition on its skeleton, on the way to the exit (plan expedition-notes; expedition_test.cpp,
-; tests/scenarios/expedition_notes.txt).
+; tests/scenarios/solved/expedition_notes.txt).
 ########################################
 #S.....=.....E##########################
 ########################################

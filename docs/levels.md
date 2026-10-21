@@ -98,7 +98,7 @@ Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 | 34 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
 | 35 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-The earlier expedition's notebook ([expedition-notes](plan/expedition-notes.md)): 18 torn pages (`=`,
+The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 18 torn pages (`=`,
 attribute: the page number, in order of depth) on skeletons in levels 2, 3, 4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23,
 24, 27, 31 and 34, each a level or so before what it hints at, off the exit path; the last one lies on lvl34's path.
 

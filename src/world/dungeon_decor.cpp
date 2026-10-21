@@ -37,9 +37,8 @@ bool Dungeon::PlaceTorch(int col, int row, bool on) {
 int Dungeon::DecorTierUsed() const { return decorTierUsed(map, decoration); }
 
 void Dungeon::scatterDecorations(const char* levelName, int depth) {
-	decorDepth = depth;
 	campaignLevel = depth == levelNumber && campaignLevelFile(depth) == levelName;
-	const DecorCounts counts = scatterDecor(map, levelName, depth, decoration);
+	const DecorCounts counts = scatterDecor(map, levelName, depth, meta.zone, decoration);
 	// An opened container stays where it stood, also after its item was taken (a save): no prop on top of it.
 	for (int c = 0; c < MAP_CELL_COUNT; c++)
 		if (containers[c].opened && !isCoffin(decoration.decor[c].type))

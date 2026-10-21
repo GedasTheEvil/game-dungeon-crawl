@@ -1,5 +1,6 @@
 #include "level.h"
 #include "decor.h"
+#include "campaign.h"
 #include <cstring>
 #include <fstream>
 
@@ -118,7 +119,17 @@ std::string readDecals(std::istream& in, Tile* cells) {
 	return "";
 }
 
-std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
+std::string readMeta(std::istream& in, LevelMeta& meta) {
+	std::string word, slug;
+	if (!(in >> word >> slug) || word != "zone")
+		return "no zone line";
+	meta.zone = slug == "none" ? NO_ZONE : zoneBySlug(slug);
+	if (slug != "none" && meta.zone == NO_ZONE)
+		return "unknown zone " + slug;
+	return "";
+}
+
+std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& meta) {
 	int width = 0, height = 0;
 	if (!(in >> version >> width >> height))
 		return "file ends early";
@@ -127,6 +138,12 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
 	if (width != LEVEL_WIDTH || height != LEVEL_HEIGHT)
 		return "wrong size " + std::to_string(width) + " x " + std::to_string(height);
 
+	meta = {};
+	if (version >= 5) {
+		const std::string error = readMeta(in, meta);
+		if (!error.empty())
+			return error;
+	}
 	std::string word;
 	if (!(in >> word) || word != "structure")
 		return "no structure layer";
@@ -159,23 +176,28 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version) {
 }
 } // namespace
 
-std::string readLevel(std::istream& in, Tile* cells, int* version) {
+std::string readLevel(std::istream& in, Tile* cells, int* version, LevelMeta* meta) {
 	std::string head;
 	if (!(in >> head))
 		return "empty file";
 	int read = 0;
 	if (version == nullptr)
 		version = &read;
+	LevelMeta ignored;
+	if (meta == nullptr)
+		meta = &ignored;
+	*meta = {};
 	if (head == LEVEL_MAGIC)
-		return readDcLevel(in, cells, *version);
+		return readDcLevel(in, cells, *version, *meta);
 	if (head != std::to_string(LEVEL_CELL_COUNT))
 		return "wrong header " + head + ", expected " + LEVEL_MAGIC + " or " + std::to_string(LEVEL_CELL_COUNT);
 	*version = 1;
 	return readV1(in, cells);
 }
 
-void writeLevel(std::ostream& out, const Tile* cells) {
-	out << LEVEL_MAGIC << ' ' << LEVEL_VERSION << ' ' << LEVEL_WIDTH << ' ' << LEVEL_HEIGHT << "\nstructure\n";
+void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta) {
+	out << LEVEL_MAGIC << ' ' << LEVEL_VERSION << ' ' << LEVEL_WIDTH << ' ' << LEVEL_HEIGHT << '\n';
+	out << "zone " << (isZone(meta.zone) ? ZONE_INFO[meta.zone].slug : "none") << "\nstructure\n";
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		for (int col = 0; col < LEVEL_WIDTH; col++)
 			out << structureGlyph(cells[row * LEVEL_WIDTH + col].structure);
@@ -226,13 +248,13 @@ std::string loadLevelFile(const char* path, LevelGrid& grid, int* version) {
 	std::ifstream in(path);
 	if (!in)
 		return "cannot open file";
-	return readLevel(in, grid.cells, version);
+	return readLevel(in, grid.cells, version, &grid.meta);
 }
 
 bool saveLevelFile(const char* path, const LevelGrid& grid) {
 	std::ofstream out(path);
 	if (!out)
 		return false;
-	writeLevel(out, grid.cells);
+	writeLevel(out, grid.cells, grid.meta);
 	return static_cast<bool>(out);
 }

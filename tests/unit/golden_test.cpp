@@ -70,7 +70,7 @@ TEST_CASE("golden: every campaign level scatters the decorations and fires it di
 		const std::string file = campaignLevelFile(n);
 		REQUIRE(loadLevelFile(file.c_str(), grid).empty());
 		auto layout = std::make_unique<DecorLayout>();
-		scatterDecor(grid.cells, file.c_str(), n, *layout);
+		scatterDecor(grid.cells, file.c_str(), n, grid.meta.zone, *layout);
 		const std::string dump = dumpDecor(grid.cells, *layout);
 		char golden[64];
 		snprintf(golden, sizeof(golden), "tests/unit/golden/decor_lvl%02d.txt", n);

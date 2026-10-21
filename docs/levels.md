@@ -58,12 +58,13 @@ reach with the mirrors the player reaches from there (with the colours open by t
 light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
 as the level starts.
 
-Level files are text, version 4: a `DCLEVEL 4 40 47` header, the structure as a drawing, then the lists of fixtures,
-objects, props and decals (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
+Level files are text, version 5: a `DCLEVEL 5 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
+`zone none`; [Zones](#zones)), the structure as a drawing, then the lists of fixtures, objects, props and decals
+(format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
 the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1
-to v3) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
-v3 file's cells are all unset); `levelcheck` warns about a file older than v4, and `bin/levelconvert FILE...` (built by
-`make`) rewrites one as v4. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+to v4) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
+v3 file's cells are all unset, a v4 file has no zone); `levelcheck` warns about a file older than v5, and
+`bin/levelconvert FILE...` (built by `make`) rewrites one as v5. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -74,7 +75,10 @@ Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/dens
 ### Zones
 
 The levels are grouped into zones ([campaign-zones](plan/solved/campaign-zones.md), `ZONES` in
-`src/world/campaign.h`, `zoneOf(level)`): a run of levels with its own stone, main monsters, new mechanic and, mostly,
+`src/world/campaign.h`, `zoneOf(level)`; what each zone is, by `ZoneId`: `ZONE_INFO`). Each level file names its zone
+too (`zone SLUG`, `LevelMeta`; the editor's zone button): the game dresses and lights the level by the file's zone, a
+unit test checks it is the one of the level's range. A level without one (`zone none`, a test or generated level)
+keeps the tombs' look. A zone is a run of levels with its own stone, main monsters, new mechanic and, mostly,
 a boss. Each zone is one hour of Ra's night journey through the Duat (the Book of Gates); its title names the hour and
 its gate: "The Fourth Hour: the Gate of the Priests" (`zoneTitle`, the hour is the zone's place in the target table).
 A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities).

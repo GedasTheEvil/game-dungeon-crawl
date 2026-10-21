@@ -51,7 +51,7 @@ TEST_CASE("the zones cover the campaign in order, without gaps or overlaps") {
 TEST_CASE("each zone's id is its own, its boss's kin among its monsters") {
 	for (int z = 0; z < ZONE_COUNT; z++) {
 		const Zone& zone = ZONES[z];
-		CAPTURE(zone.name);
+		CAPTURE(zoneInfo(zone.id).name);
 		for (int other = 0; other < z; other++)
 			CHECK(ZONES[other].id != zone.id);
 		if (zone.boss == 0)
@@ -73,7 +73,7 @@ TEST_CASE("each boss is in exactly one zone: its own, and the last zone ends wit
 	}
 	for (int z = 0; z < ZONE_COUNT; z++) {
 		const Zone& zone = ZONES[z];
-		CAPTURE(zone.name);
+		CAPTURE(zoneInfo(zone.id).name);
 		if (zone.boss == 0)
 			continue;
 		int levels = 0;
@@ -85,6 +85,17 @@ TEST_CASE("each boss is in exactly one zone: its own, and the last zone ends wit
 }
 
 TEST_CASE("a zone's title is its hour and gate") {
-	CHECK(zoneTitle(ZONES[0]) == "The First Hour: the Gate of the Tomb");
-	CHECK(zoneTitle(*zoneOf(CAMPAIGN_LEVELS)) == "The Twelfth Hour: the Gate of Judgment");
+	CHECK(zoneTitle(ZONES[0].id) == "The First Hour: the Gate of the Tomb");
+	CHECK(zoneTitle(zoneOf(CAMPAIGN_LEVELS)->id) == "The Twelfth Hour: the Gate of Judgment");
+}
+
+TEST_CASE("each campaign level file names the zone of its range") {
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		LevelGrid grid;
+		int version = 0;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid, &version).empty());
+		CHECK(version == LEVEL_VERSION);
+		CHECK(grid.meta.zone == static_cast<int>(zoneOf(n)->id));
+	}
 }

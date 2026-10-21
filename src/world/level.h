@@ -274,9 +274,16 @@ inline bool isSolidTile(const Tile& t) {
 	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t.fixture);
 }
 
+// What a level says about itself, besides its cells (the file's lines before the layers).
+constexpr int NO_ZONE = -1;
+struct LevelMeta {
+	int zone = NO_ZONE; // its campaign zone (ZoneId, campaign.h): its stone, decor, light and sound (zone_look.h)
+};
+
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
 struct LevelGrid {
 	Tile cells[LEVEL_CELL_COUNT];
+	LevelMeta meta;
 
 	LevelGrid(); // all wall, the rock a level is carved from
 
@@ -313,20 +320,22 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// The level format (docs/levels.md), in level files and save games. Version 4, text:
-//   DCLEVEL 4 WIDTH HEIGHT
+// The level format (docs/levels.md), in level files and save games. Version 5, text:
+//   DCLEVEL 5 WIDTH HEIGHT
+//   zone SLUG, the level's zone (ZoneInfo::slug, campaign.h), or "zone none"
 //   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
 //   wall COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with a fixture (hasFixture)
 //   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
 //   decor COUNT, then COUNT lines "COL ROW PROP MIRROR", the cells with a placed prop (hasPlacedProp)
 //   decals COUNT, then COUNT lines "COL ROW DECAL MIRROR TORCH", the cells with hasPlacedDecal (TORCH: TorchPlacing)
 // PROP and DECAL as in Dressing: the index, -1 bare, -2 unset; MIRROR 0 or 1.
+// Version 4 has no zone line: it loads with NO_ZONE.
 // Version 3 has no decor and decal layers: every cell loads unset.
 // Version 2 has no wall layer: its wall types stand in the object layer and move to the wall layer on load (setThing).
-// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 3
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 4
 // are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
-constexpr int LEVEL_VERSION = 4;
+constexpr int LEVEL_VERSION = 5;
 constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
 
@@ -335,9 +344,9 @@ constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] Tile convertV1Tile(int type, int attr, int value);
 
 // Reads any version into cells (LEVEL_CELL_COUNT of them; the spare cell is left as it is). Error message, empty
-// on success. version: the one read, if not null.
-std::string readLevel(std::istream& in, Tile* cells, int* version = nullptr);
-void writeLevel(std::ostream& out, const Tile* cells);
+// on success. version: the one read, meta: the level's, if not null.
+std::string readLevel(std::istream& in, Tile* cells, int* version = nullptr, LevelMeta* meta = nullptr);
+void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta = {});
 // Error message, empty on success.
 std::string loadLevelFile(const char* path, LevelGrid& grid, int* version = nullptr);
 bool saveLevelFile(const char* path, const LevelGrid& grid);

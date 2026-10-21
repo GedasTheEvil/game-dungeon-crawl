@@ -14,7 +14,9 @@
   and decals, key `M`).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   Numbers that mean nothing to the game show in red.
-* Right, bottom: the level name field and the `Save` and `Load` buttons.
+* Right, bottom: the level name field, the level's zone (click it or press `Z` for the next one; saved in the file,
+  it sets the level's stone, decor, light and sound in the game, [zone-looks](../../docs/plan/zone-looks.md)) and the
+  `Save` and `Load` buttons.
 * Bottom: a line with the mouse buttons and keys.
 
 ## Modes
@@ -232,11 +234,12 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v4, plain text (`src/world/level.h`). A header, the structure layer as a drawing, then the wall layer,
-the object layer, the decor layer and the decal layer as lists:
+Level format v5, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
+then the wall layer, the object layer, the decor layer and the decal layer as lists:
 
 ```
-DCLEVEL 4 40 47
+DCLEVEL 5 40 47
+zone tomb_entrance                        the zone's slug (ZONE_INFO, src/world/campaign.h), or none
 structure
 ########################################
 #......................................#
@@ -263,6 +266,6 @@ index of `DECOR_NAMES`, `decal` one of `DECAL_DEFS` (`src/world/decor.h`, `level
 bare, `-2` unset (a decal line with only its torch set). `mirror` is 0 or 1, `torch` 0 unset, 1 none, 2 a torch.
 
 The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`
-warns). v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
-`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v4 for
+warns). v4 has no zone line: no zone. v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
+`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v5 for
 good.

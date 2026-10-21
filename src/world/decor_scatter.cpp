@@ -531,19 +531,18 @@ bool bossCoffinCell(const Tile* cells, int col, int row) {
 	return false;
 }
 
-DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, DecorLayout& layout) {
+DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, int zone, DecorLayout& layout) {
 	const char* slash = strrchr(levelName, '/');
 	const uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
 	const int tier = decorTier(depth);
 	DecorCounts counts;
-	const ZoneLook& look = levelLook(depth); // plan zone-looks: the zone's decor set and torches
+	const ZoneLook& look = levelLook(zone); // plan zone-looks: the zone's decor set and torches
 	counts.props = scatterProps(cells, seed, tier, look, layout.decor);
 	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, look.torchPercent, layout.decor, layout.torch);
 	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, look, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);
-	const Zone* zone = zoneOf(depth);
-	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, zone != nullptr ? zone->stone : ZoneStone::Limestone,
-					layout.surface, counts);
+	const ZoneStone stone = isZone(zone) ? zoneInfo(static_cast<ZoneId>(zone)).stone : ZoneStone::Limestone;
+	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, stone, layout.surface, counts);
 	counts.treasures = scatterTreasures(cells, seed ^ TREASURE_SALT, tier, layout.treasure);
 	return counts;
 }

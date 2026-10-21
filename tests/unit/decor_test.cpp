@@ -60,7 +60,7 @@ Scattered campaignLevel(int number) {
 	s.depth = number;
 	const std::string file = campaignLevelFile(number);
 	REQUIRE(loadLevelFile(file.c_str(), s.grid).empty());
-	scatterDecor(s.grid.cells, file.c_str(), number, *s.layout);
+	scatterDecor(s.grid.cells, file.c_str(), number, s.grid.meta.zone, *s.layout);
 	return s;
 }
 } // namespace
@@ -71,9 +71,9 @@ TEST_CASE("the scatter is the same on every load, keyed by the level's file name
 	auto a = std::make_unique<DecorLayout>();
 	auto b = std::make_unique<DecorLayout>();
 	auto c = std::make_unique<DecorLayout>();
-	const DecorCounts first = scatterDecor(grid.cells, CONTENT_DIR "levels/lvl9", 9, *a);
-	const DecorCounts again = scatterDecor(grid.cells, "elsewhere/lvl9", 9, *b);
-	scatterDecor(grid.cells, CONTENT_DIR "levels/lvl10", 9, *c);
+	const DecorCounts first = scatterDecor(grid.cells, CONTENT_DIR "levels/lvl9", 9, grid.meta.zone, *a);
+	const DecorCounts again = scatterDecor(grid.cells, "elsewhere/lvl9", 9, grid.meta.zone, *b);
+	scatterDecor(grid.cells, CONTENT_DIR "levels/lvl10", 9, grid.meta.zone, *c);
 	CHECK(first.props > 0);
 	CHECK(first.props == again.props);
 	CHECK(first.decals == again.decals);
@@ -246,14 +246,14 @@ TEST_CASE("coffins stand round a boss whose minions climb out of them, alive or 
 		CHECK_FALSE(bossCoffinCell(scarab.cells, i, 1));
 	}
 	auto layout = std::make_unique<DecorLayout>();
-	scatterDecor(grid.cells, "coffins", 30, *layout);
+	scatterDecor(grid.cells, "coffins", 30, grid.meta.zone, *layout);
 	CHECK(layout->decor[idx(10 - MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	CHECK(layout->decor[idx(10, 1)].type == DECOR_COFFIN_LARGE); // he lies in his own, larger one
 
 	grid.set(10, 1, slainObject(MonsterMummyPriest)); // after a load: the boss is dead, his chamber the same
 	CHECK(bossCoffinCell(grid.cells, 9, 1));
-	scatterDecor(grid.cells, "coffins", 30, *layout);
+	scatterDecor(grid.cells, "coffins", 30, grid.meta.zone, *layout);
 	CHECK(layout->decor[idx(10, 1)].type == DECOR_COFFIN_LARGE); // his coffin stays, as a mummy's
 	CHECK(layout->decor[idx(10 + MINION_SUMMON_REACH, 1)].type == DECOR_COFFIN);
 	LevelGrid anubis = grid;
@@ -267,11 +267,11 @@ TEST_CASE("a living ushabti stands among the decor ushabti, at any depth, alive 
 		grid.set(i, 1, Tile{});
 	grid.set(10, 1, Tile{MonsterSpawn, MonsterUshabti, 0});
 	auto layout = std::make_unique<DecorLayout>();
-	scatterDecor(grid.cells, "ushabti", 1, *layout); // a cave level: no decor ushabti of its own
+	scatterDecor(grid.cells, "ushabti", 1, grid.meta.zone, *layout); // a cave level: no decor ushabti of its own
 	CHECK(layout->decor[idx(10, 1)].type == DECOR_USHABTI);
 	CHECK(layout->decor[idx(10, 1)].offsetX == 0.f);
 	grid.set(10, 1, slainObject(MonsterUshabti)); // after a load: its fellows stay
-	scatterDecor(grid.cells, "ushabti", 1, *layout);
+	scatterDecor(grid.cells, "ushabti", 1, grid.meta.zone, *layout);
 	CHECK(layout->decor[idx(10, 1)].type == DECOR_USHABTI);
 }
 
@@ -325,7 +325,7 @@ TEST_CASE("a level whose monsters are all slain scatters the same decorations: a
 			if (t.type == MonsterSpawn)
 				setObject(t, slainObject(t.attr));
 		auto layout = std::make_unique<DecorLayout>();
-		scatterDecor(slain.cells, campaignLevelFile(n).c_str(), n, *layout);
+		scatterDecor(slain.cells, campaignLevelFile(n).c_str(), n, slain.meta.zone, *layout);
 		bool same = true;
 		for (int k = 0; k < LEVEL_CELL_COUNT; k++)
 			same = same && layout->decor[k].type == alive.layout->decor[k].type &&

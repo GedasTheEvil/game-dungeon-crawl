@@ -43,6 +43,7 @@ bool Dungeon::Load(const char* filename, int depth) {
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
 	travel = {};
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
+	meta = grid.meta;
 
 	bool entranceFound = false;
 	for (int j = 0; j < MAP_HEIGHT; j++)
@@ -75,7 +76,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 		return false;
 
 	// Saves from before the level format v2 hold a v1 map: it is converted.
-	std::string error = readLevel(f, map);
+	std::string error = readLevel(f, map, nullptr, &meta);
 	if (!error.empty()) {
 		LOG_ERRORF("world", "Cannot read the saved map: %s", error.c_str());
 		return false;
@@ -114,7 +115,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 void Dungeon::Dump(std::ofstream& f) {
 	f << mapX << " " << mapY << " ";
 
-	writeLevel(f, map);
+	writeLevel(f, map, meta);
 
 	f << keysHeld << " ";
 

@@ -1,4 +1,5 @@
 #include "../../external/doctest/doctest.h"
+#include "../../src/world/campaign.h"
 #include "../../src/world/level.h"
 #include <cstdio>
 #include <sstream>
@@ -40,6 +41,42 @@ TEST_CASE("a level survives a save and a load") {
 	CHECK(version == LEVEL_VERSION);
 	checkSameCells(loaded, grid);
 	std::remove(path.c_str());
+}
+
+TEST_CASE("a level names its zone: kept by a save and a load, none by default (plan zone-looks)") {
+	LevelGrid grid;
+	CHECK(grid.meta.zone == NO_ZONE);
+	grid.meta.zone = static_cast<int>(ZoneId::LakeOfFire);
+	std::stringstream file;
+	writeLevel(file, grid.cells, grid.meta);
+	CHECK(file.str().find("\nzone lake_of_fire\n") != std::string::npos);
+	LevelGrid loaded;
+	REQUIRE(readLevel(file, loaded.cells, nullptr, &loaded.meta).empty());
+	CHECK(loaded.meta.zone == static_cast<int>(ZoneId::LakeOfFire));
+
+	std::stringstream none;
+	writeLevel(none, grid.cells);
+	CHECK(none.str().find("\nzone none\n") != std::string::npos);
+	REQUIRE(readLevel(none, loaded.cells, nullptr, &loaded.meta).empty());
+	CHECK(loaded.meta.zone == NO_ZONE);
+
+	// Version 4 has no zone line.
+	std::string v4 = file.str();
+	v4.replace(v4.find("DCLEVEL 5"), 9, "DCLEVEL 4");
+	v4.erase(v4.find("zone lake_of_fire\n"), std::string("zone lake_of_fire\n").size());
+	std::istringstream old(v4);
+	loaded.meta.zone = 3;
+	int version = 0;
+	REQUIRE(readLevel(old, loaded.cells, &version, &loaded.meta).empty());
+	CHECK(version == 4);
+	CHECK(loaded.meta.zone == NO_ZONE);
+
+	std::string unknown = file.str();
+	unknown.replace(unknown.find("lake_of_fire"), 12, "lake_of_milk");
+	std::istringstream bad(unknown);
+	CHECK(readLevel(bad, loaded.cells).find("unknown zone lake_of_milk") != std::string::npos);
+	for (int z = 0; z < ZONE_ID_COUNT; z++)
+		CHECK(zoneBySlug(ZONE_INFO[z].slug) == z);
 }
 
 TEST_CASE("a new grid is all wall") {
@@ -92,7 +129,7 @@ TEST_CASE("a v1 level converts: wall, open, objects in open cells, Area3D droppe
 
 TEST_CASE("a broken level is an error") {
 	LevelGrid grid;
-	std::istringstream badVersion("DCLEVEL 4 40 47");
+	std::istringstream badVersion("DCLEVEL 6 40 47");
 	CHECK_FALSE(readLevel(badVersion, grid.cells).empty());
 	std::istringstream badSize("DCLEVEL 2 30 47");
 	CHECK_FALSE(readLevel(badSize, grid.cells).empty());

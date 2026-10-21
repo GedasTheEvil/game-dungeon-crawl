@@ -55,8 +55,8 @@ TEST_CASE("a treasure's look is the same on every load, from its tier, against a
 		REQUIRE(loadLevelFile(file.c_str(), grid).empty());
 		auto a = std::make_unique<DecorLayout>();
 		auto b = std::make_unique<DecorLayout>();
-		scatterDecor(grid.cells, file.c_str(), n, *a);
-		scatterDecor(grid.cells, ("elsewhere/" + file.substr(file.rfind('/') + 1)).c_str(), n, *b);
+		scatterDecor(grid.cells, file.c_str(), n, grid.meta.zone, *a);
+		scatterDecor(grid.cells, ("elsewhere/" + file.substr(file.rfind('/') + 1)).c_str(), n, grid.meta.zone, *b);
 		for (int c = 0; c < LEVEL_CELL_COUNT; c++) {
 			if (grid.cells[c].type != Treasure)
 				continue;

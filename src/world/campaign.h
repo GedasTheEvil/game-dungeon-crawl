@@ -5,6 +5,7 @@
 // the last one holds the ankh that wins the game. Level numbers start at 1 (Dungeon::LevelNumber).
 // The levels are grouped into zones (plan campaign-zones): a run of levels with its own stone, monsters, main
 // mechanic and, mostly, a boss on its last level. Each zone is one hour of Ra's night journey through the Duat.
+// A level file names its zone (LevelMeta, level.h): what it looks like (zone_look.h) follows the file.
 
 #include "level.h"
 #include <string>
@@ -46,16 +47,41 @@ enum class ZoneMechanic : unsigned char {
 	Riddles,
 };
 
-constexpr int ZONE_MONSTER_MAX = 6;
-
-struct Zone {
-	ZoneId id;
+// What a zone is, by ZoneId: its name in the level files and the editor, in the game, its gate, stone and mechanic.
+struct ZoneInfo {
+	const char* slug; // the level file's "zone" line (level.h), the editor
 	const char* name;
 	const char* gate; // the hour's gate: "The Fourth Hour: the Gate of the Priests" (zoneTitle)
-	int first; // first and last level
-	int last;
 	ZoneStone stone;
 	ZoneMechanic mechanic;
+};
+constexpr ZoneInfo ZONE_INFO[ZONE_ID_COUNT] = {
+	{"tomb_entrance", "Tomb entrance", "the Gate of the Tomb", ZoneStone::Limestone, ZoneMechanic::Spikes},
+	{"bat_galleries", "Bat galleries", "the Gate of the Bats", ZoneStone::Limestone, ZoneMechanic::Levers},
+	{"web_halls", "Web halls", "the Gate of the Webs", ZoneStone::Limestone, ZoneMechanic::Dark},
+	{"priests_quarter", "Priests' quarter", "the Gate of the Priests", ZoneStone::Plaster, ZoneMechanic::Inscriptions},
+	{"scorpion_nest", "Scorpion nest", "the Gate of Serqet", ZoneStone::Plaster, ZoneMechanic::Poison},
+	{"serpent_temple", "Serpent temple", "the Gate of the Serpent", ZoneStone::Plaster, ZoneMechanic::Darts},
+	{"cisterns_of_sobek", "Cisterns of Sobek", "the Gate of Sobek", ZoneStone::WetStone, ZoneMechanic::Water},
+	{"seths_desert", "Seth's desert", "the Gate of Seth", ZoneStone::Sandstone, ZoneMechanic::Sand},
+	{"land_of_sokar", "Land of Sokar", "the Gate of Sokar", ZoneStone::Sandstone, ZoneMechanic::Quicksand},
+	{"lake_of_fire", "Lake of Fire", "the Gate of Fire", ZoneStone::Basalt, ZoneMechanic::Fire},
+	{"necropolis", "Necropolis", "the Gate of the Dead", ZoneStone::Granite, ZoneMechanic::AllTraps},
+	{"hall_of_judgment", "Hall of Judgment", "the Gate of Judgment", ZoneStone::Granite, ZoneMechanic::Riddles},
+};
+[[nodiscard]] constexpr const ZoneInfo& zoneInfo(ZoneId id) { return ZONE_INFO[static_cast<int>(id)]; }
+// A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
+[[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
+// The ZoneId of a slug, NO_ZONE if none has it.
+[[nodiscard]] int zoneBySlug(const std::string& slug);
+
+constexpr int ZONE_MONSTER_MAX = 6;
+
+// A run of campaign levels in one zone. Each level file names its zone too (LevelMeta): a test checks they agree.
+struct Zone {
+	ZoneId id;
+	int first; // first and last level
+	int last;
 	MonsterTypeId monsters[ZONE_MONSTER_MAX]; // its main monsters, 0 after the last; the boss's kin among them
 	MonsterTypeId boss; // on a level of the zone, 0: none
 };
@@ -63,76 +89,44 @@ struct Zone {
 // Today's 35 levels. The rebuild (plan denser-levels) switches it to the target table of docs/levels.md.
 constexpr Zone ZONES[] = {
 	{ZoneId::TombEntrance,
-	 "Tomb entrance",
-	 "the Gate of the Tomb",
 	 1,
 	 5,
-	 ZoneStone::Limestone,
-	 ZoneMechanic::Spikes,
 	 {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant, MonsterWorm, MonsterScorpion},
 	 MonsterBossScarab},
 	{ZoneId::BatGalleries,
-	 "Bat galleries",
-	 "the Gate of the Bats",
 	 6,
 	 10,
-	 ZoneStone::Limestone,
-	 ZoneMechanic::Levers,
 	 {MonsterBat, MonsterGiantBat, MonsterGiantRat, MonsterGiantScarab, MonsterCrocodile, MonsterCamelSpider},
 	 MonsterVampireBat},
 	{ZoneId::ScorpionNest,
-	 "Scorpion nest",
-	 "the Gate of Serqet",
 	 11,
 	 15,
-	 ZoneStone::Plaster,
-	 ZoneMechanic::Poison,
 	 {MonsterMummy, MonsterUshabti, MonsterGiantScarab, MonsterGiantBat, MonsterScorpion, MonsterGiantScorpion},
 	 MonsterScorpionQueen},
 	{ZoneId::SerpentTemple,
-	 "Serpent temple",
-	 "the Gate of the Serpent",
 	 16,
 	 20,
-	 ZoneStone::Plaster,
-	 ZoneMechanic::Darts,
 	 {MonsterCobra, MonsterMummy, MonsterAnubis, MonsterCrocodile, MonsterGiantBat},
 	 MonsterApep},
 	{ZoneId::SethsDesert,
-	 "Seth's desert",
-	 "the Gate of Seth",
 	 21,
 	 25,
-	 ZoneStone::Sandstone,
-	 ZoneMechanic::Sand,
 	 {MonsterWorm, MonsterCamelSpider, MonsterGiantScorpion, MonsterGiantCobra, MonsterGiantBat, MonsterHippo},
 	 MonsterSeth},
 	{ZoneId::CisternsOfSobek,
-	 "Cisterns of Sobek",
-	 "the Gate of Sobek",
 	 26,
 	 30,
-	 ZoneStone::WetStone,
-	 ZoneMechanic::Water,
 	 {MonsterCrocodile, MonsterGiantCobra, MonsterHippo, MonsterMummy, MonsterAnubis, MonsterGiantBat},
 	 MonsterSobek},
 	// The High Priest's temporary home until the rebuild moves him to the priests' quarter.
 	{ZoneId::Necropolis,
-	 "Necropolis",
-	 "the Gate of the Dead",
 	 31,
 	 34,
-	 ZoneStone::Granite,
-	 ZoneMechanic::AllTraps,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantScarab, MonsterGiantCobra, MonsterGiantScorpion, MonsterCursedMimic},
 	 MonsterMummyPriest},
 	{ZoneId::HallOfJudgment,
-	 "Hall of Judgment",
-	 "the Gate of Judgment",
 	 35,
 	 35,
-	 ZoneStone::Granite,
-	 ZoneMechanic::Riddles,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantCobra, MonsterCursedMimic},
 	 MonsterAnubisBoss},
 };
@@ -149,7 +143,7 @@ constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;
 }
 
 // "The Fourth Hour: the Gate of the Priests": the zone's hour is its place in the target campaign (ZoneId).
-[[nodiscard]] std::string zoneTitle(const Zone& zone);
+[[nodiscard]] std::string zoneTitle(ZoneId id);
 
 // The banner over the game when a campaign level starts (plan zone-looks, ZoneBanner): a zone's first level names
 // the hour and its gate, the zone and its guardian (none on a bossless zone); any other level its number and zone.

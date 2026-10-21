@@ -24,7 +24,7 @@ WallCount wallsOf(int number) {
 	LevelGrid grid;
 	REQUIRE(loadLevelFile(campaignLevelFile(number).c_str(), grid).empty());
 	auto layout = std::make_unique<DecorLayout>();
-	scatterDecor(grid.cells, campaignLevelFile(number).c_str(), number, *layout);
+	scatterDecor(grid.cells, campaignLevelFile(number).c_str(), number, grid.meta.zone, *layout);
 	WallCount count;
 	for (int k = 0; k < LEVEL_WIDTH * LEVEL_HEIGHT; k++)
 		if (!isWall(grid.cells[k])) {
@@ -56,8 +56,8 @@ TEST_CASE("every zone has a decor set, a light, torches and an ambience; a boss 
 		for (int d = DECOR_THOTH + 1; d < DECOR_THOTH + DECOR_THOTH_VARIANTS; d++)
 			CHECK(look.props[d] == 0); // the Thoth pick is the first variant's
 	}
-	CHECK(&levelLook(0) == &DEFAULT_LOOK);
-	CHECK(&levelLook(DECOR_DEPTH_ALL) == &DEFAULT_LOOK);
+	CHECK(&levelLook(NO_ZONE) == &DEFAULT_LOOK);
+	CHECK(&levelLook(ZONE_ID_COUNT) == &DEFAULT_LOOK);
 	CHECK(DEFAULT_LOOK.ambience == nullptr);
 }
 
@@ -74,7 +74,7 @@ TEST_CASE("a campaign level is dressed in its zone's stone") {
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		CAPTURE(n);
 		const WallCount c = wallsOf(n);
-		const ZoneStone stone = zoneOf(n)->stone;
+		const ZoneStone stone = zoneInfo(zoneOf(n)->id).stone;
 		const int painted = c.styles[WALL_PLASTER] + c.styles[WALL_PLASTER_WORN] + c.styles[WALL_PLASTER_BROKEN];
 		const int lime = c.styles[WALL_STONE] + c.styles[WALL_STONE_CRACKED] + c.styles[WALL_STONE_SAND];
 		const int sandstone = c.styles[WALL_SANDSTONE] + c.styles[WALL_SANDSTONE_WORN];
@@ -119,7 +119,7 @@ TEST_CASE("the temples' plaster: their levels are painted more than the tombs be
 	};
 	for (int n = 16; n <= 20; n++) { // the serpent temple
 		CAPTURE(n);
-		CHECK(zoneOf(n)->stone == ZoneStone::Plaster);
+		CHECK(zoneInfo(zoneOf(n)->id).stone == ZoneStone::Plaster);
 		CHECK(paintedShare(n) > 0.4f);
 	}
 }
@@ -143,10 +143,10 @@ TEST_CASE("the level banner: a zone's first level names the hour, the gate and i
 
 	for (int z = 0; z < ZONE_COUNT; z++) {
 		const Zone& zone = ZONES[z];
-		CAPTURE(zone.name);
+		CAPTURE(zoneInfo(zone.id).name);
 		const LevelBanner b = levelBanner(zone.first);
 		CHECK(b.zone);
-		CHECK(b.title == zoneTitle(zone));
+		CHECK(b.title == zoneTitle(zone.id));
 		const char* guardian = zoneLook(zone.id).guardian;
 		CHECK(b.guardian.empty() == (zone.boss == 0 || guardian == nullptr));
 	}

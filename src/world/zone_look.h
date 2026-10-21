@@ -2,8 +2,8 @@
 #define ZONE_LOOK_H
 
 // How each zone looks and sounds (plan zone-looks): its decor set, light, fog, torches, ambient loop and the guardian
-// its banner names. The stone of the walls is the zone table's (campaign.h, scatterSurfaces). A level outside the
-// campaign (generated, test) looks as the tombs always did (DEFAULT_LOOK).
+// its banner names. The stone of the walls is the zone's (ZoneInfo, campaign.h; scatterSurfaces). A level is in the
+// zone its file names (LevelMeta); one in none (generated, test) looks as the tombs always did (DEFAULT_LOOK).
 
 #include <cstdint>
 #include "campaign.h"
@@ -150,10 +150,9 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 
 [[nodiscard]] constexpr const ZoneLook& zoneLook(ZoneId id) { return ZONE_LOOKS[static_cast<int>(id)]; }
 
-// The look of a campaign level (by number), DEFAULT_LOOK outside the campaign.
-[[nodiscard]] constexpr const ZoneLook& levelLook(int number) {
-	const Zone* zone = zoneOf(number);
-	return zone != nullptr ? zoneLook(zone->id) : DEFAULT_LOOK;
+// The look of a level in this zone (LevelMeta::zone), DEFAULT_LOOK in none.
+[[nodiscard]] constexpr const ZoneLook& levelLook(int zone) {
+	return isZone(zone) ? zoneLook(static_cast<ZoneId>(zone)) : DEFAULT_LOOK;
 }
 
 #endif

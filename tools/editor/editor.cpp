@@ -6,6 +6,7 @@
 #include "../../src/graphics/font.h"
 #include "../../src/graphics/textures.h"
 #include "../../src/ui/ui_draw.h"
+#include "../../src/world/campaign.h"
 #include "../../src/world/decor.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
@@ -57,7 +58,8 @@ constexpr Rect VALUE_BOX = {134.f, 45.f, 18.f, 4.5f};
 constexpr Rect MIRROR_BUTTON = {RIGHT_CX - 9.f, 45.f, 18.f, 4.5f}; // in the decor and decal layers, instead of them
 constexpr Rect HINT_PANEL = {RIGHT_X, 16.f, RIGHT_W, 25.5f};
 constexpr Rect LEVEL_PANEL = {RIGHT_X, 6.5f, RIGHT_W, 7.5f};
-constexpr Rect NAME_BOX = {86.5f, 8.f, 44.f, 4.5f};
+constexpr Rect NAME_BOX = {86.5f, 8.f, 21.f, 4.5f};
+constexpr Rect ZONE_BUTTON = {108.5f, 8.2f, 23.f, 4.1f}; // the level's zone (LevelMeta): click or Z for the next
 constexpr Rect SAVE_BUTTON = {132.5f, 8.2f, 10.f, 4.1f};
 constexpr Rect LOAD_BUTTON = {143.8f, 8.2f, 10.f, 4.1f};
 
@@ -118,7 +120,8 @@ enum class Target : unsigned char {
 	Value,
 	Name,
 	Save,
-	Load
+	Load,
+	Zone
 };
 
 // The palette of a layer: structure numbers, tile types (the wall types in the wall layer, the others in the object
@@ -273,6 +276,7 @@ class Editor {
 	void pick(CellPos cell);
 	void save();
 	void load();
+	void nextZone();
 	void showStatus(const std::string& text, bool error);
 	void typeInto(std::string& text, unsigned char key, size_t maxLength, bool digitsOnly);
 
@@ -369,6 +373,7 @@ void Editor::updateHover(float x, float y) {
 		{NAME_BOX, Target::Name},
 		{SAVE_BUTTON, Target::Save},
 		{LOAD_BUTTON, Target::Load},
+		{ZONE_BUTTON, Target::Zone},
 	};
 	for (const auto& [rect, target] : TARGETS)
 		if (rect.contains(x, y))
@@ -509,6 +514,9 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 	case Target::Load:
 		load();
 		break;
+	case Target::Zone:
+		nextZone();
+		break;
 	case Target::None:
 		break;
 	}
@@ -561,6 +569,8 @@ void Editor::keyPressed(unsigned char key) {
 			setMode(Mode::Check);
 		else if (key == 'l' || key == 'L')
 			setLayer(static_cast<Layer>((static_cast<int>(layer) + 1) % LAYER_COUNT));
+		else if (key == 'z' || key == 'Z')
+			nextZone();
 		else if ((key == 'm' || key == 'M') && dressingLayer(layer))
 			mirror = !mirror;
 		else if (key == KEY_TAB && !dressingLayer(layer))
@@ -709,6 +719,15 @@ void Editor::load() {
 	reportStale = true;
 	checked = {};
 	showStatus("Loaded from " + path, false);
+}
+
+// None, then the zones in campaign order (ZoneId), then none again.
+void Editor::nextZone() {
+	const int zone = grid.meta.zone + 1;
+	grid.meta.zone = zone < ZONE_ID_COUNT ? zone : NO_ZONE;
+	showStatus(isZone(grid.meta.zone) ? std::string("Zone: ") + ZONE_INFO[grid.meta.zone].name
+									  : std::string("No zone: the tombs' look"),
+			   false);
 }
 
 void Editor::showStatus(const std::string& text, bool error) {
@@ -1191,6 +1210,8 @@ void Editor::drawLevelPanel() {
 	drawTextBox(NAME_BOX, name, Field::Name, Target::Name);
 	drawButton(SAVE_BUTTON, "Save", true, Target::Save);
 	drawButton(LOAD_BUTTON, "Load", true, Target::Load);
+	drawButton(ZONE_BUTTON, isZone(grid.meta.zone) ? ZONE_INFO[grid.meta.zone].name : "No zone", isZone(grid.meta.zone),
+			   Target::Zone);
 }
 
 void Editor::drawFooter() {
@@ -1217,11 +1238,11 @@ void Editor::drawFooter() {
 					 report.valid ? Color{0.55f, 0.85f, 0.4f} : Color{1.f, 0.45f, 0.3f});
 	}
 
-	textCentered(
-		small, CANVAS_W / 2, 0.8f,
-		"Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    M: mirror    "
-		"+ / -: zoom    Wheel, arrows, middle drag: pan    Tab: next field    Ctrl+S / Ctrl+O: save / load",
-		{0.55f, 0.45f, 0.30f});
+	textCentered(small, CANVAS_W / 2, 0.8f,
+				 "Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    M: "
+				 "mirror    Z: zone    "
+				 "+ / -: zoom    Wheel, arrows, middle drag: pan    Tab: next field    Ctrl+S / Ctrl+O: save / load",
+				 {0.55f, 0.45f, 0.30f});
 	beginShapes();
 }
 

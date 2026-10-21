@@ -41,3 +41,7 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
 * Not in today's campaign, so not seen in the game yet: the web halls' darkness, the Lake of Fire's basalt and red
   light, the priests' quarter, Sokar. No new props (egg sacs): the web halls lean on the web and skeleton.
 * Tests: `tests/unit/zone_looks_test.cpp`, `tests/scenarios/zone_looks.txt` (a hall per zone, the banners).
+* The zone is the level's own (user, 2026-10-21): level format v5 has a `zone SLUG` line (`LevelMeta`, `ZONE_INFO`
+  in `campaign.h` by `ZoneId`: slug, name, gate, stone, mechanic), the editor sets it (zone button, `Z`), save games
+  keep it. The game dresses, lights and sounds a level by its file's zone, not its number; a unit test checks each
+  campaign file names its range's zone. `zone none` (test, generated levels): the tombs' look.

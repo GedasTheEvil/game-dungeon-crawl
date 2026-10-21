@@ -20,7 +20,7 @@ Dressing& dressing(LevelGrid& grid, int col, int row) { return grid.cells[idx(co
 
 std::unique_ptr<DecorLayout> scatter(const LevelGrid& grid, const char* name, int depth) {
 	auto layout = std::make_unique<DecorLayout>();
-	scatterDecor(grid.cells, name, depth, *layout);
+	scatterDecor(grid.cells, name, depth, grid.meta.zone, *layout);
 	return layout;
 }
 
@@ -32,6 +32,8 @@ std::string asV3(const LevelGrid& grid) {
 	const std::string head = std::string(LEVEL_MAGIC) + " " + std::to_string(LEVEL_VERSION) + " ";
 	REQUIRE(text.rfind(head, 0) == 0);
 	text.replace(0, head.size(), std::string(LEVEL_MAGIC) + " 3 ");
+	const size_t zone = text.find("zone "); // v5 on
+	text.erase(zone, text.find('\n', zone) + 1 - zone);
 	text.erase(text.find("decor "));
 	return text;
 }
@@ -81,7 +83,7 @@ TEST_CASE("v4 keeps every cell's prop, decal and torch with their mirrors; unset
 	LevelGrid loaded;
 	int version = 0;
 	REQUIRE(readLevel(file, loaded.cells, &version).empty());
-	CHECK(version == 4);
+	CHECK(version == LEVEL_VERSION);
 	for (int c = 0; c < LEVEL_WIDTH * LEVEL_HEIGHT; c++) {
 		const Dressing& a = grid.cells[c].dressing;
 		const Dressing& b = loaded.cells[c].dressing;
@@ -127,6 +129,7 @@ TEST_CASE("a v3 level loads with every cell unset and scatters as before") {
 		for (const Tile& t : v3.cells)
 			unset = unset && !hasPlacedProp(t.dressing) && !hasPlacedDecal(t.dressing);
 		CHECK(unset);
+		v3.meta = v4.meta; // v3 has no zone line: the same zone, to compare the scatter
 		CHECK_MESSAGE(sameLayout(*scatter(v3, file.c_str(), n), *scatter(v4, file.c_str(), n)), "lvl", n);
 	}
 }

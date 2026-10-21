@@ -20,6 +20,7 @@ std::string asV2(const Tile* cells) {
 	std::string line, head, structure, things;
 	int count = 0;
 	std::getline(in, head);
+	std::getline(in, line); // the zone, v5 on
 	const std::string version = " " + std::to_string(LEVEL_VERSION) + " ";
 	head.replace(head.find(version), version.size(), " 2 ");
 	while (std::getline(in, line)) {

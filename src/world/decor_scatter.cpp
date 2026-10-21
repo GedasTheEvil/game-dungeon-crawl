@@ -135,6 +135,10 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, DecorCell* decor) {
 				cell.type = static_cast<int8_t>(isBossMonster(spawnType(tile)) ? DECOR_COFFIN_LARGE : DECOR_COFFIN);
 				continue;
 			}
+			if (tile.type == Page) { // the earlier expedition's remains, its page on them; they stay once it is taken
+				cell.type = static_cast<int8_t>(DECOR_SKELETON);
+				continue;
+			}
 			if (figurine(spawnType(tile))) { // its fellows, as the decor stands elsewhere (mirror and jitter: none)
 				cell.type = static_cast<int8_t>(DECOR_USHABTI);
 				continue;

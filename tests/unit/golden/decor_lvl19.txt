@@ -143,7 +143,7 @@
 34,14 surface 0/0/0 ladder 0/1m
 3,15 surface 6/1/2 decal 2m 0.352,0.350
 4,15 surface 7/1/2 decal 3 0.542,0.600
-5,15 surface 6/2/2 decal 5m 0.453,0.625 torch fire torch 0.000,0.680,0.098
+5,15 surface 6/2/2 prop skeleton 0.000 decal 6m 0.472,0.575 torch fire torch 0.000,0.680,0.098
 6,15 surface 6/1/2 prop skeletonm 0.100
 7,15 surface 6/2/2 decal 1m 0.474,0.553
 8,15 surface 7/1/2 ladder 0/4

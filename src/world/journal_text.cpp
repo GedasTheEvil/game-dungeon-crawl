@@ -1,5 +1,6 @@
 #include "journal_text.h"
 #include "monster_kinds.h"
+#include <algorithm>
 #include <array>
 
 namespace {
@@ -215,3 +216,67 @@ constexpr std::array<DiaryText, DIARY_PAGE_COUNT> DIARY = {{
 } // namespace
 
 const DiaryText& diaryText(DiaryPage page) { return DIARY[static_cast<size_t>(page)]; }
+
+namespace {
+// The archaeologist who came before, D. J. (a nod to Daniel Jackson): a linguist, confident at first, then doubts; the
+// last page warns before the fork. Each page lies a level or so before what it hints at (content/levels, Page tiles).
+constexpr std::array<ExpeditionPageText, EXPEDITION_PAGE_COUNT> EXPEDITION_PAGES = {{
+	{"Day 1",
+	 "Touched the jackal statue. Should not have touched the jackal statue. No crew, no sky. I still have my notebook, "
+	 "two pencils and my glasses. If anyone finds this: I am D. J., a linguist, not a soldier."},
+	{"Day 2", "The beetles grow bigger the deeper I go. A blade skids off the shell; a point slips between the plates. "
+			  "Something very large clicks down below. I named it Ramses. It does not like the name."},
+	{"Day 3", "A chest bit me today. Not a figure of speech. Wood cracks under a club; my knife only stuck in the lid. "
+			  "New rule: "
+			  "knock before opening."},
+	{"Day 5",
+	 "Ramses is dead. I did not enjoy it. Behind him a key and a way down, never a way up. Every door here opens one "
+	 "way: deeper. Someone planned this."},
+	{"Day 6",
+	 "Water! I could have kissed it, until the log in it opened its eyes. The crocodiles swim much faster than I "
+	 "wade. Stay out of the pools when you can, or cross them fast."},
+	{"Day 8",
+	 "Bats. A club swats them, an arrow goes through the wing. Something up in the roost drinks blood and heals with "
+	 "every bite. Do not let it bite. Thin out its friends first."},
+	{"Day 11",
+	 "The dead do not stay down here. Linen tears under a blade and burns like paper: dip the arrows in a brazier and "
+	 "they go up. Jack would have brought a flamethrower. Who is Jack?"},
+	{"Day 13",
+	 "I can read most of the walls now. The priests write of a ring of stone with seven marks, a road between worlds. "
+	 "If it is down here, it is hidden behind a riddle. My last pencil to see it."},
+	{"Day 15",
+	 "Scorpions everywhere, and eggs. Something lays them. Cut or burn the clusters before her brood hatches, and "
+	 "carry an antidote. Two. I sneezed for an hour: allergic to something here. Everything."},
+	{"Day 18",
+	 "The serpent temple. The cobras rear up when I come close and spit from afar: jump the spit. The great one below "
+	 "dives into the floor and comes up behind you. Turn around. Always turn around."},
+	{"Day 20",
+	 "My pencil is half its length. I have stopped believing in a way up. I still believe in a way out. Not the same "
+	 "thing, I know. It is what I have."},
+	{"Day 23",
+	 "Darts fly from the wall where the floor clicks: jump the plate. Lost my glasses for an hour and found them on a "
+	 "mummy. It was wearing them. We had words."},
+	{"Day 26",
+	 "Sand. Underground! It drags at the feet, and where it swirls it swallows: jump out, do not wait. The spiders "
+	 "here hate the light. I sleep by the torches. Well, I lie by them."},
+	{"Day 29",
+	 "Sunlight through a crack, the first in weeks. Bronze mirrors turn it onto the sun discs that open the doors, and "
+	 "the mummies burn in it. The red one in the pool below charges, then roars. Stand aside."},
+	{"Day 31",
+	 "Some doors want a name, not a key. The king's name is carved in a cartouche on the same level: find it, copy "
+	 "it, speak it. Names had power here. Mine does not seem to."},
+	{"Day 35",
+	 "The chests are darker down here, and some of them follow you. One bit me and my mind went cloudy for minutes. "
+	 "Dark wood: knock with a club first. Abydos is not on this map."},
+	{"Day 40", "The necropolis. Loose ceilings everywhere: when the stone rumbles, keep walking. The jackal from the "
+			   "statue is on "
+			   "every wall. He waits at the bottom. I think he has always been waiting."},
+	{"The last page",
+	 "If you read this, take the left gate. I took the right. Behind it, the tomb of the one who came before me, and "
+	 "worse. The ankh is real. Tell them I was right. D. J."},
+}};
+} // namespace
+
+const ExpeditionPageText& expeditionPageText(int number) {
+	return EXPEDITION_PAGES[static_cast<size_t>(std::clamp(number, 1, EXPEDITION_PAGE_COUNT) - 1)];
+}

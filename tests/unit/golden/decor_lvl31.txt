@@ -463,7 +463,7 @@
 34,33 surface 0/0/0
 35,33 surface 0/2/0 prop scrollsm -0.016 decal 0 0.646,0.570
 36,33 surface 0/2/0
-37,33 surface 0/2/0
+37,33 surface 0/2/0 prop skeleton 0.000
 38,33 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 3,34 surface 3/1/1 ladder 1/2
 3,35 surface 3/0/1 ladder 1/0

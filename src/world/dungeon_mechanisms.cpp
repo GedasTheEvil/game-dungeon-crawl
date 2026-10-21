@@ -53,6 +53,14 @@ void Dungeon::updateMechanisms() {
 		sim.journal->LearnNote(FieldNote::Keys);
 	}
 
+	// A torn page of the earlier expedition (plan expedition-notes): into the journal; the skeleton it lay on stays.
+	if (here.type == Page && here.value == 0 && sim.player->Alive()) {
+		map[MapIndex(col, row)].value = 1;
+		if (sim.journal->FindPage(here.attr, levelNumber))
+			sim.events->Status("A torn notebook page. Someone came here before me (journal)");
+		sim.events->Play(WorldSound::PagePickup);
+	}
+
 	if (here.type == RockFall && sim.player->Alive())
 		startRockFall(MapIndex(col, row));
 	// A reckless walker sets one off too (cowards keep out, flyers pass over, a leaper is in the air).

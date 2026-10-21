@@ -196,6 +196,10 @@ CellHint describeCell(const Tile& cell) {
 		hint.attribute =
 			anyNumber("text id", cell.attr, "id: line in content/inscriptions/*.txt, 1 to 64; 100: a name cartouche");
 		break;
+	case Page:
+		hint.attribute = anyNumber("page", cell.attr, "its number, 1 to 18 in order of depth over the campaign");
+		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
+		break;
 	case RockFall:
 	case DartPlate:
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");

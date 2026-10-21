@@ -5,6 +5,7 @@
 #include "damage.h"
 #include "inscriptions.h"
 #include "items.h"
+#include "level.h"
 #include "skills.h"
 #include <istream>
 #include <optional>
@@ -14,7 +15,7 @@
 #include <vector>
 
 // The archaeologist's notebook (plan journal-sections): what the player went through, kept per save game: creatures,
-// diary, riddles, field notes and inscriptions.
+// diary, riddles, field notes, inscriptions and the pages of the earlier expedition.
 
 // A riddle met at a gate. A copy, not an index into content/riddles/*.txt: those files can change between saves.
 struct JournalRiddle {
@@ -157,6 +158,13 @@ enum class DiaryPage : unsigned char {
 };
 constexpr int DIARY_PAGE_COUNT = 2;
 
+// The earlier expedition's notebook (plan expedition-notes): torn pages found over the campaign, numbered in order of
+// depth (Page tiles, level.h). Its own section of the journal, someone else's hand.
+struct ExpeditionPage {
+	int number = 0; // isExpeditionPage
+	int level = 0; // campaign level where it was found
+};
+
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);
 
@@ -200,6 +208,10 @@ class Journal {
 	void WriteDiary(DiaryPage page);
 	[[nodiscard]] const std::vector<DiaryPage>& Diary() const { return diary; }
 
+	// A torn page picked up; the pages keep their numbers' order. True the first time.
+	bool FindPage(int number, int level);
+	[[nodiscard]] const std::vector<ExpeditionPage>& Pages() const { return pages; }
+
 	// A new game: an empty journal with the prologue written, and the screen asked to open it (plan journal-intro).
 	void Begin();
 	// True once after Begin: the game opens the journal on the Diary. A loaded journal never asks.
@@ -211,6 +223,7 @@ class Journal {
 		notes.clear();
 		inscriptions.clear();
 		diary.clear();
+		pages.clear();
 		introPending = false;
 	}
 
@@ -224,6 +237,7 @@ class Journal {
 	std::vector<FieldNote> notes;
 	std::vector<JournalInscription> inscriptions;
 	std::vector<DiaryPage> diary;
+	std::vector<ExpeditionPage> pages;
 	bool introPending = false; // not saved
 
 	JournalCreature& creature(int type, int level);

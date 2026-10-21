@@ -519,7 +519,7 @@
 29,36 surface 8/3/5 ladder 1/2
 29,37 surface 8/3/3 ladder 1/0
 2,38 surface 8/1/3
-3,38 surface 9/3/4 prop web -0.000
+3,38 surface 9/3/4 prop skeleton 0.000
 4,38 surface 8/3/5
 5,38 surface 9/3/5
 6,38 surface 8/1/3 prop rubble -0.071 torch fire torch 0.000,0.680,0.098

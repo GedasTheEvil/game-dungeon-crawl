@@ -498,7 +498,7 @@
 33,39 surface 0/0/0
 34,39 surface 1/0/0
 35,39 surface 0/0/0 prop cat -0.069 decal 5m 0.563,0.625
-36,39 surface 0/0/0 torch fire torch 0.000,0.680,0.098
+36,39 surface 0/0/0 prop skeleton 0.000 torch fire torch 0.000,0.680,0.098
 37,39 surface 1/0/0
 10,40 surface 0/0/0 ladder 0/2
 28,40 surface 4/0/1 ladder 1/0

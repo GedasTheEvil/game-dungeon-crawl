@@ -12,6 +12,7 @@ constexpr int DECOR_SCATTERED =
 	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
 constexpr int DECOR_BRAZIER = 6;
+constexpr int DECOR_SKELETON = 5; // also under every page of the earlier expedition (plan expedition-notes)
 constexpr int DECOR_LAMP = 7;
 constexpr int DECOR_USHABTI = 9; // also on every living ushabti's spawn tile: it stands among them until it wakes
 // Thoth's four statues: one pick among the props, then a variant at even odds (scatterDecor, decor_scatter.h). The

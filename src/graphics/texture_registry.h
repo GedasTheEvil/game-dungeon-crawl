@@ -13,6 +13,7 @@ struct TextureRegistry {
 	Texture hudIcons; // the player HUD's quick slot icons
 	Texture skillIcons; // the heka mark and the skills (Heka screen, HUD)
 	Texture ribbon; // the journal's bookmark ribbons, tinted per section
+	Texture expeditionPage; // a torn notebook page of the earlier expedition: on a skeleton, in the journal
 	Texture journalPaper, journalCloth; // the journal's grid paper and its cover cloth
 	Texture loadingBar; // also the monster health bars
 };

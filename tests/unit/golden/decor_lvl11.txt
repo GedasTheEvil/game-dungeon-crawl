@@ -26,7 +26,7 @@
 8,10 surface 0/2/1 prop thoth_ibis_standing -0.194
 9,10 surface 0/0/1
 10,10 surface 0/2/1 torch fire torch 0.000,0.680,0.098
-11,10 surface 0/2/1 prop catm 0.057 decal 3 0.427,0.600
+11,10 surface 0/2/1 prop skeleton 0.000 decal 3 0.427,0.600
 12,10 surface 0/0/1 decal 8m 0.469,0.546
 13,10 surface 0/0/1 prop lampm 0.067 decal 1 0.718,0.544 fire lamp 0.323,0.050,0.307
 14,10 surface 1/1/1

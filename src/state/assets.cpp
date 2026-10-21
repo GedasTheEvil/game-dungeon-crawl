@@ -293,6 +293,8 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.skillIcons.LoadPNG(MEDIA_DIR "textures/ui/skill_icons.png");
 	textures.ribbon.LoadPNG(MEDIA_DIR "textures/ui/ribbon.png");
 	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side
+	textures.expeditionPage.LoadPNG(MEDIA_DIR "textures/ui/expedition_page.png"); // tools/textures/expedition_page.py
+	textures.expeditionPage.ClampToEdge();
 	textures.journalPaper.LoadPNG(MEDIA_DIR "textures/ui/journal_paper.png");
 	textures.journalPaper.ClampToEdge();
 	textures.journalCloth.LoadPNG(MEDIA_DIR "textures/ui/journal_cloth.png"); // tiles

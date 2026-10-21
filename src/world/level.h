@@ -53,7 +53,13 @@ enum DungeonTileType : unsigned char {
 	Mirror = 18, // a bronze mirror on a stand: c = the way it sends the beam (BeamDir); interact turns it clockwise
 	SunDisc =
 		19, // on the back wall: b = lock colour, c = 1 once lit; lit by the beam, it opens the gates of its colour
+	// A torn page of the earlier expedition's notebook on a skeleton (plan expedition-notes): b = its number (1 to
+	// EXPEDITION_PAGE_COUNT), c = 1 once taken; picked up on touch, the skeleton stays.
+	Page = 20,
 };
+// The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
+constexpr int EXPEDITION_PAGE_COUNT = 18;
+[[nodiscard]] constexpr bool isExpeditionPage(int number) { return number >= 1 && number <= EXPEDITION_PAGE_COUNT; }
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
 	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc;

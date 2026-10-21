@@ -79,7 +79,7 @@
 31,7 surface 3/1/1
 32,7 surface 3/1/1
 33,7 surface 3/1/1 torch fire torch 0.000,0.680,0.098
-34,7 surface 5/1/1 decal 13 0.441,0.225
+34,7 surface 5/1/1 prop skeleton 0.000 decal 10 0.446,0.558
 35,7 surface 3/2/1 decal 6m 0.547,0.575
 12,8 surface 6/1/2 ladder 1/0
 29,8 surface 6/1/2 ladder 0/2

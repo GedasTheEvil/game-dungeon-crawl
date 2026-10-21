@@ -318,6 +318,12 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Mirror:
 				r.mirrors++;
 				break;
+			case Page:
+				r.pages++;
+				if (!isExpeditionPage(t.attr))
+					r.warnings.push_back("expedition page without a number (1 to " +
+										 std::to_string(EXPEDITION_PAGE_COUNT) + ") at " + at(row * LEVEL_WIDTH + col));
+				break;
 			default:
 				break;
 			}
@@ -720,6 +726,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		if (cellReached[cell] == 0)
 			continue;
 		r.reachableCells++;
+		r.reachablePages += t.type == Page ? 1 : 0;
 		if (t.type == Treasure) {
 			r.reachableTreasures++;
 			antidote = antidote || itemFromFile(t.attr, t.value) == ItemKind::Antidote;
@@ -733,6 +740,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		const Tile t = grid.cells[cell];
 		if (t.type == Key)
 			r.warnings.push_back("key out of reach at " + at(cell));
+		if (t.type == Page)
+			r.warnings.push_back("expedition page out of reach at " + at(cell));
 		if (t.fixture.type == Lever || t.fixture.type == Inscription)
 			r.warnings.push_back(std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " +
 								 at(cell));

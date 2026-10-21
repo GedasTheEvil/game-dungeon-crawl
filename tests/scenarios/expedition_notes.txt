@@ -1,0 +1,16 @@
+# A page of the earlier expedition on its skeleton, picked up on touch, read in the journal's Expedition section
+# (plan expedition-notes).
+level tests/levels/expedition
+wait 10
+walk right 5.2
+wait 5
+screenshot page_on_skeleton
+walk right 1.2
+wait 5
+expect alive == 1
+screenshot taken
+key j
+wait 5
+click 88.2 34
+wait 45
+screenshot journal_page

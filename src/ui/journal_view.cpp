@@ -102,9 +102,21 @@ constexpr float DIARY_TOP = 18.f; // the first line's baseline below the page to
 constexpr float DIARY_STEP = 4.f;
 constexpr float DIARY_SMALL_STEP = 3.4f;
 constexpr float DIARY_HEIGHT = 46.f; // room for the lines, down to above the close hint
+// The expedition's torn page pasted in (media/textures/ui/expedition_page.png, tools/textures/expedition_page.py):
+// its height on the page, its shape, and where its rules and margin line lie, as fractions of the image.
+constexpr float TORN_H = 60.f;
+constexpr float TORN_ASPECT = 256.f / 320.f;
+constexpr float TORN_BOTTOM = 3.f; // above the page's bottom edge
+constexpr float TORN_RULE_TOP = 46.f / 320.f;
+constexpr float TORN_RULE_STEP = 22.f / 320.f;
+constexpr float TORN_MARGIN = 52.f / 256.f;
+constexpr float TORN_RIGHT = 14.f / 256.f; // the writing stops short of the right edge
+constexpr float TORN_BASELINE = 1.6f; // the font's baseline lies this far above the bottom of its line
 constexpr float GIFT_BOTTOM = COMMENT_BOTTOM - COMMENT_STEP; // a translated boon's line, under the comment
 
 constexpr Color PLUM = {0.40f, 0.15f, 0.36f}; // the diary's ribbon
+constexpr Color SLATE = {0.30f, 0.34f, 0.40f}; // the expedition's
+constexpr Color SEPIA = {0.36f, 0.20f, 0.09f}; // the earlier expedition's ink: someone else's hand
 
 struct SectionLook {
 	const char* name;
@@ -117,6 +129,7 @@ constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
 	{"Riddles", "R", LAPIS},
 	{"Field notes", "F", GOLD_DIM},
 	{"Inscriptions", "I", INK_GREEN},
+	{"Expedition", "E", SLATE},
 }};
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -229,6 +242,8 @@ int JournalScreen::PageCount(Section s) const {
 		return static_cast<int>(Game().journal.Creatures().size());
 	if (s == Section::Inscriptions)
 		return static_cast<int>(Game().journal.Inscriptions().size());
+	if (s == Section::Expedition)
+		return static_cast<int>(Game().journal.Pages().size());
 	return static_cast<int>(Game().journal.Notes().size());
 }
 
@@ -651,6 +666,8 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		xref = "lvl " + std::to_string(Game().journal.Riddles()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Inscriptions)
 		xref = "lvl " + std::to_string(Game().journal.Inscriptions()[static_cast<size_t>(page)].level);
+	else if (at.section == Section::Expedition)
+		xref = "lvl " + std::to_string(Game().journal.Pages()[static_cast<size_t>(page)].level);
 	auto outer = [&](const Font& f, const std::string& s) {
 		return side == 0 ? p.x + PAGE_PAD : p.x + p.w - PAGE_PAD - f.TextWidth(s.c_str());
 	};
@@ -672,6 +689,9 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		break;
 	case Section::Inscriptions:
 		DrawInscription(p, page);
+		break;
+	case Section::Expedition:
+		DrawExpedition(p, page);
 		break;
 	case Section::Riddles: {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
@@ -963,6 +983,40 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();
+}
+
+// Someone else's notebook page, torn out and pasted in a little askew: their heading on the first rule, their lines
+// on the rules under it, in sepia ink at the margin line.
+void JournalScreen::DrawExpedition(const Rect& p, int index) {
+	const ExpeditionPage& found = Game().journal.Pages()[static_cast<size_t>(index)];
+	const ExpeditionPageText& page = expeditionPageText(found.number);
+	const float w = TORN_H * TORN_ASPECT;
+	const Rect sheet = {p.cx() - w / 2, p.y + TORN_BOTTOM, w, TORN_H};
+	const float tilt = static_cast<float>((found.number * 3) % 5 - 2) * 0.7f;
+	glPushMatrix();
+	glTranslatef(sheet.cx(), sheet.cy(), 0);
+	glRotatef(tilt, 0, 0, 1);
+	glTranslatef(-sheet.cx(), -sheet.cy(), 0);
+	beginShapes();
+	texturedRect({sheet.x + 0.4f, sheet.y - 0.5f, sheet.w, sheet.h}, Game().assets.textures.expeditionPage.ID(), BLACK,
+				 0.f, 1.f, 1.f, 0.f); // pasted on: a thin shadow
+	texturedRect(sheet, Game().assets.textures.expeditionPage.ID(), {1, 1, 1}, 0.f, 1.f, 1.f, 0.f);
+
+	const float top = sheet.y + sheet.h;
+	const float step = TORN_RULE_STEP * sheet.h;
+	const float x = sheet.x + TORN_MARGIN * sheet.w + 1.2f;
+	const float width = sheet.x + sheet.w * (1.f - TORN_RIGHT) - x;
+	float y = top - TORN_RULE_TOP * sheet.h - TORN_BASELINE; // the letters stand on the rule
+	beginText();
+	text(hand, x, y, page.heading, SEPIA);
+	for (const std::string& l : wrap(handSmall, page.text, width)) {
+		y -= step;
+		if (y < sheet.y + step)
+			break; // past the last rule
+		text(handSmall, x, y, l.c_str(), SEPIA);
+	}
+	beginShapes();
+	glPopMatrix();
 }
 
 // A creature's model, frame 0 of its move clip, from the side and a little above. As a pencil sketch: the outline

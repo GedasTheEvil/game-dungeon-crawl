@@ -61,6 +61,11 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "A sun disc on the back wall. A beam on it lights it for good and opens every gate of its colour, as a lever. "
 	 "Attribute: the lock colour.",
 	 false, false, 'a'},
+	{"Page",
+	 "A torn page of the earlier expedition's notebook, on a skeleton; picked up on touch, it goes into the journal. "
+	 "Attribute: the page number, 1 to 18, in order of depth over the campaign. Optional: keep it off the exit path "
+	 "(only the last one lies on it). Put a floor under it.",
+	 true, true, '='},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -116,6 +121,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},
+		{'=', {Page, 1, 0}, "expedition page (number 1; others: 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))

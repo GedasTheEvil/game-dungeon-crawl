@@ -7,8 +7,9 @@ constexpr const char* TAG = "journal";
 // 1: riddles only, 2: and creatures, 3: and field notes, 4: and the damage types tried, 5: notes per potion group and
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
-// inscription's boon, 10: and its name cartouche picture, 11: and the diary pages
-constexpr int VERSION = 11;
+// inscription's boon, 10: and its name cartouche picture, 11: and the diary pages, 12: and the
+// expedition's pages
+constexpr int VERSION = 12;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
@@ -16,6 +17,7 @@ constexpr int FIRE_VERSION = 8;
 constexpr int BOON_VERSION = 9;
 constexpr int PICTURE_VERSION = 10;
 constexpr int DIARY_VERSION = 11;
+constexpr int PAGES_VERSION = 12;
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -153,6 +155,17 @@ void Journal::WriteDiary(DiaryPage page) {
 		diary.push_back(page);
 }
 
+bool Journal::FindPage(int number, int level) {
+	if (!isExpeditionPage(number))
+		return false;
+	auto at =
+		std::find_if(pages.begin(), pages.end(), [number](const ExpeditionPage& p) { return p.number >= number; });
+	if (at != pages.end() && at->number == number)
+		return false;
+	pages.insert(at, {number, level});
+	return true;
+}
+
 void Journal::Begin() {
 	Clear();
 	WriteDiary(DiaryPage::Arrival);
@@ -188,6 +201,10 @@ void Journal::Dump(std::ostream& out) const {
 	out << diary.size();
 	for (DiaryPage d : diary)
 		out << ' ' << static_cast<int>(d);
+	out << '\n';
+	out << pages.size();
+	for (const ExpeditionPage& p : pages)
+		out << ' ' << p.number << ' ' << p.level;
 	out << '\n';
 }
 
@@ -253,5 +270,13 @@ void Journal::Load(std::istream& in) {
 			return;
 		if (page >= 0 && page < DIARY_PAGE_COUNT)
 			WriteDiary(static_cast<DiaryPage>(page));
+	}
+	if (version < PAGES_VERSION || !(in >> count))
+		return;
+	for (size_t i = 0; i < count; i++) {
+		ExpeditionPage p;
+		if (!(in >> p.number >> p.level))
+			return;
+		FindPage(p.number, p.level);
 	}
 }

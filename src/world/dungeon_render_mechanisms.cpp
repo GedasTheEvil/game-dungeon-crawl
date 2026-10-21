@@ -1,5 +1,5 @@
-// Drawing the keys, gates, levers, rock falls, dart traps and wall spikes (dungeon_mechanisms.cpp, dungeon_darts.cpp
-// and dungeon_spikes.cpp have their rules).
+// Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps and wall spikes
+// (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
@@ -16,6 +16,11 @@ namespace {
 // from the extents mechanism.py prints.
 constexpr float KEY_HOVER = 0.35f; // key height above the floor
 constexpr float KEY_BOB = 0.04f; // up and down while it spins
+constexpr float PAGE_HOVER = 0.42f; // a torn page over the skeleton it lay on (plan expedition-notes)
+constexpr float PAGE_W = 0.2f; // the texture's shape, 256 x 320
+constexpr float PAGE_H = 0.25f;
+constexpr float PAGE_SPIN_DEG_PER_MS = 0.05f; // slower than a key: paper drifting round
+constexpr float PAGE_SWAY_DEG = 12.f; // and rocking a little
 constexpr float LEVER_PIVOT[3] = {0.f, 0.42f, 0.05f}; // handle pivot on the plate
 constexpr float LEVER_ANGLE = 35.f; // degrees either side of upright; + tips the grip left
 constexpr float ROCK_START_Y = 0.65f; // rock bottom when it breaks loose (rock is 0.3 tall)
@@ -70,6 +75,40 @@ void Dungeon::drawKeyTile(int i, int j) {
 	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
 	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
 	showColour(sim.assets->mechanisms.key, sim.assets->mechanisms.keyTex, tile.attr);
+	glPopMatrix();
+}
+//======================================================================================
+// Like a key: floating over its cell, turning, so it reads as something to pick up. Nothing once taken (the skeleton
+// under it is decor).
+void Dungeon::drawPageTile(int i, int j) {
+	if (MapAt(i, j).value != 0)
+		return;
+	const auto t = static_cast<float>(GameClock::now());
+	const auto phase = static_cast<float>(i * 7 + j);
+	glPushMatrix();
+	enterPropSpace();
+	glTranslatef(0, PAGE_HOVER + KEY_BOB * std::sin(t * 0.003f + phase), 0.5f);
+	glRotatef(std::fmod(t * PAGE_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
+	glRotatef(PAGE_SWAY_DEG * std::sin(t * 0.0021f + phase), 0, 0, 1);
+	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_ALPHA_TEST); // the torn edge
+	glAlphaFunc(GL_GREATER, 0.5f);
+	glEnable(GL_TEXTURE_2D);
+	sim.assets->textures.expeditionPage.Bind();
+	glColor3f(1, 1, 1);
+	glNormal3f(0, 0, 1);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 1);
+	glVertex3f(-PAGE_W / 2, -PAGE_H / 2, 0);
+	glTexCoord2f(1, 1);
+	glVertex3f(PAGE_W / 2, -PAGE_H / 2, 0);
+	glTexCoord2f(1, 0);
+	glVertex3f(PAGE_W / 2, PAGE_H / 2, 0);
+	glTexCoord2f(0, 0);
+	glVertex3f(-PAGE_W / 2, PAGE_H / 2, 0);
+	glEnd();
+	glPopAttrib();
 	glPopMatrix();
 }
 //======================================================================================

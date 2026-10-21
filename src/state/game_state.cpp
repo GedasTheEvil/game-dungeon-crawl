@@ -146,6 +146,8 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.lidStone;
 	case WorldSound::JarSmash:
 		return sounds.jarSmash;
+	case WorldSound::PagePickup:
+		return sounds.pageTurn;
 	}
 	return sounds.arrowHit;
 }

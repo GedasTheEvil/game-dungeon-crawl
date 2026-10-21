@@ -196,11 +196,11 @@ A cloth-bound field notebook ([plan/solved/journal-real-book.md](plan/solved/jou
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
 white grid pages (`media/textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
 come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`PLUM` diary, `INK_RED` creatures, `LAPIS` riddles,
-`GOLD_DIM` field notes, `INK_GREEN` inscriptions, swallowtail end) marks the section's first page
+`GOLD_DIM` field notes, `INK_GREEN` inscriptions, `SLATE` expedition, swallowtail end) marks the section's first page
 ([plan/solved/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from
 under the pages on top of it (the open left page's own ribbon lies on it), further out the more pages lie between it and
-the open spread (`EDGE_STEP` per page edge). Its letter (M, R, F, I) in `PAPER` on the open and the hovered one; the
+the open spread (`EDGE_STEP` per page edge). Its letter (D, M, R, F, I, E) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled
@@ -213,6 +213,12 @@ on the grid: a depth pass, then the back-face edges as `PENCIL` lines, front fac
 photo pasted in a little askew: white border, dark backdrop, the model lit by a fixed-function light with a grey copy
 of its texture (`Texture::LoadPNG`'s pixel filter), a red catalogue number above (`L07-03`: level, page), a caption
 with an arrow below.
+
+Diary pages ([journal-intro](plan/journal-intro.md)): a dated heading, the entry in `INK_BLUE`, a smaller hand when it
+would not fit; while a new game shows the prologue, the close key in pencil at the bottom. Expedition pages
+([expedition-notes](plan/expedition-notes.md)): someone else's notebook page torn out and pasted in a little
+askew (`media/textures/ui/expedition_page.png`, `tools/textures/expedition_page.py`: yellowed ruled paper, a ragged
+left edge), their heading and lines in `SEPIA` ink standing on its rules, from the margin line.
 
 Page turn: each page is drawn into a `RenderTarget` (the page's size in window pixels), then laid on the book or bent
 by `drawPageCurl` (`src/ui/page_curl.h`): a mesh folded along the bisector of the bottom free corner and where it is

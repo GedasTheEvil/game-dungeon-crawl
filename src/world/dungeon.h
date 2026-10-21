@@ -222,6 +222,7 @@ class Dungeon {
 	void startRockFall(int cell); // an armed rock fall cell was stepped into: the rumble starts
 	void updateRocks();
 	void drawKeyTile(int i, int j);
+	void drawPageTile(int i, int j);
 	void drawGateTile(int i, int j);
 	void drawLeverTile(int i, int j);
 	// At the cell origin: the columns face the camera, plasma between them; a name gate's pulses (nameGateAlpha).
@@ -430,6 +431,10 @@ class Dungeon {
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
 	// cell is outside the level.
 	bool PlaceDecor(int col, int row, int type);
+	// The prop standing in the cell (DECOR_NAMES), -1 for none.
+	[[nodiscard]] int PropAt(int col, int row) const {
+		return IsInBounds(col, row) ? decoration.decor[MapIndex(col, row)].type : -1;
+	}
 	// A treasure container stands in (col, row): a treasure, or one emptied there (it stays, open).
 	[[nodiscard]] bool ContainerStands(int col, int row) const {
 		return IsInBounds(col, row) && (MapAt(col, row).type == Treasure || containers[MapIndex(col, row)].emptied);

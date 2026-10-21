@@ -38,6 +38,7 @@ enum class WorldSound : unsigned char {
 	LidReed,
 	LidStone,
 	JarSmash,
+	PagePickup, // a torn notebook page picked up (plan expedition-notes): the journal's paper rustle
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).

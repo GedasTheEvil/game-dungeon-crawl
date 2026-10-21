@@ -168,10 +168,11 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | group | Weapons, Potions, Amulets, Rings | an inventory tab; no rings yet, so that tab stays disabled | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
 | item kind | | one item: a weapon, a potion, an amulet tier; the save ids follow it | `ItemKind` |
-| journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions | `Journal` |
+| journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions, expedition | `Journal` |
 | diary | Diary | the archaeologist's own entries, the journal's first section; a new game opens it on the prologue ([journal-intro](plan/journal-intro.md)) | `DiaryPage`, `Journal::Begin`, `JournalScreen::OpenIntro` |
 | prologue | | the Diary's first entry, how the archaeologist came here: the jackal-headed statue, the ankh | `DiaryPage::Arrival`, `DiaryPage::Descent` |
 | level | Lv | (weapon) a weapon's level, raised by copies found. Not the map level or the player's level | `ItemBag::Level`, `upgradeCost` |
+| expedition page | Expedition | a torn page of the earlier expedition's notebook (D. J.), on a skeleton, picked up on touch; 18 over the campaign, in the journal's Expedition section ([expedition-notes](plan/expedition-notes.md)) | `Page`, `ExpeditionPage`, `Journal::FindPage`, `expeditionPageText` |
 | note | Field notes | a journal entry on a game rule, written the first time it matters | `FieldNote` |
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
 | antidote | Antidote | the potion that cures poison; the checker wants one where something poisons | `ItemKind::Antidote` |

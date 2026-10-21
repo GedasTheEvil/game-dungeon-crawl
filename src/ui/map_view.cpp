@@ -313,6 +313,18 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		sk.loop(x + 0.5f, y + 0.55f, 0.14f, 0.24f, 7, GRAPHITE, 0.9f, seed);
 		sk.pencil(x + 0.32f, y + 0.28f, x + 0.68f, y + 0.28f, GRAPHITE, 0.95f, seed + 1);
 		break;
+	case Page: // a page of the earlier expedition not taken yet: a sheet with lines of writing (plan expedition-notes)
+		if (t.value != 0)
+			return false;
+		sk.pencil(x + 0.3f, y + 0.12f, x + 0.3f, y + 0.82f, GRAPHITE, 0.9f, seed);
+		sk.pencil(x + 0.3f, y + 0.82f, x + 0.72f, y + 0.82f, GRAPHITE, 0.9f, seed + 1);
+		sk.pencil(x + 0.72f, y + 0.82f, x + 0.72f, y + 0.12f, GRAPHITE, 0.9f, seed + 2);
+		sk.pencil(x + 0.72f, y + 0.12f, x + 0.3f, y + 0.12f, GRAPHITE, 0.9f, seed + 3);
+		for (int k = 0; k < 3; k++) {
+			const float v = y + 0.32f + 0.17f * static_cast<float>(k);
+			sk.pencil(x + 0.38f, v, x + 0.64f, v, INK_FADED, 0.9f, seed + 4 + static_cast<uint32_t>(k));
+		}
+		break;
 	case Ankh:
 		sk.loop(x + 0.5f, y + 0.74f, 0.12f, 0.16f, 7, ANKH_GOLD, 0.95f, seed);
 		sk.pencil(x + 0.28f, y + 0.55f, x + 0.72f, y + 0.55f, ANKH_GOLD, 0.95f, seed + 7);

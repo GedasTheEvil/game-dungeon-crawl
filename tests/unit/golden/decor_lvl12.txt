@@ -29,7 +29,7 @@
 34,11 surface 6/1/2 ladder 0/2m
 34,12 surface 0/0/1 ladder 0/1m
 3,13 surface 7/2/2 decal 7 0.563,0.472
-4,13 surface 6/2/2
+4,13 surface 6/2/2 prop skeleton 0.000
 5,13 surface 6/1/2
 6,13 surface 6/2/2 prop rubblem -0.005
 7,13 surface 6/2/2

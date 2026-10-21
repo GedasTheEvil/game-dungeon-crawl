@@ -520,7 +520,7 @@
 36,35 surface 0/0/0 ladder 0/1
 12,36 surface 1/0/0 ladder 1/2
 15,36 surface 3/1/1
-16,36 surface 4/0/1
+16,36 surface 4/0/1 prop skeleton 0.000
 17,36 surface 3/0/1 decal 10 0.498,0.614
 18,36 surface 3/0/1 prop jackalm -0.035 decal 11 0.618,0.526
 19,36 surface 3/0/1

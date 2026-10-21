@@ -385,7 +385,7 @@
 10,25 surface 1/0/0
 11,25 surface 0/0/0
 12,25 surface 0/0/0 torch fire torch 0.000,0.680,0.098
-13,25 surface 1/0/0 prop scrolls 0.032
+13,25 surface 1/0/0 prop skeleton 0.000
 14,25 surface 0/2/0
 15,25 surface 1/0/0
 16,25 surface 0/0/0 prop skeleton 0.098

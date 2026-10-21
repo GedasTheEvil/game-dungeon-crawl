@@ -12,7 +12,7 @@
 6,3 surface 3/2/1 prop lamp -0.015 decal 5 0.428,0.625 fire lamp -0.271,0.050,0.307
 7,3 surface 3/1/1 decal 3m 0.405,0.600
 8,3 surface 4/1/1
-9,3 surface 5/2/1 decal 3 0.554,0.600
+9,3 surface 5/2/1 prop skeleton 0.000 decal 4 0.581,0.650
 10,3 surface 3/1/1 decal 12m 0.586,0.350
 11,3 surface 3/2/1
 12,3 surface 3/2/1

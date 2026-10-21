@@ -26,4 +26,12 @@ struct DiaryText {
 };
 const DiaryText& diaryText(DiaryPage page);
 
+// A page of the earlier expedition's notebook (plan expedition-notes), in their words: a heading, then a few lines.
+struct ExpeditionPageText {
+	const char* heading;
+	const char* text;
+};
+// number: isExpeditionPage. The hints are the game's rules (monster_kinds.cpp, the levels): keep them in step.
+const ExpeditionPageText& expeditionPageText(int number);
+
 #endif

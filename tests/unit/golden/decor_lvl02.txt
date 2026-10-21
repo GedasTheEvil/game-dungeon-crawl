@@ -1,6 +1,6 @@
 21,2 surface 6/1/2 decal 13 0.744,0.225 torch fire torch 0.000,0.680,0.098
 1,3 surface 7/1/2
-2,3 surface 6/1/2
+2,3 surface 6/1/2 prop skeleton 0.000
 3,3 surface 6/1/2 decal 2 0.432,0.350
 4,3 surface 6/1/2 decal 5 0.413,0.625
 5,3 surface 6/1/2 decal 15 0.304,0.613

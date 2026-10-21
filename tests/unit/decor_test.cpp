@@ -105,6 +105,8 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(prop.type == DECOR_COFFIN_LARGE);
 				else if (t.type == MonsterSpawn && t.attr == MonsterUshabti) // among its fellows (plan living-ushabti)
 					CHECK(prop.type == DECOR_USHABTI);
+				else if (t.type == Page) // the earlier expedition's remains (plan expedition-notes)
+					CHECK(prop.type == DECOR_SKELETON);
 				else if (isWaterProp(prop.type)) {
 					CHECK(inHalfWater(t));
 					CHECK(t.type == NoObject);

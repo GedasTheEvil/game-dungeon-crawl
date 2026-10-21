@@ -63,6 +63,7 @@ struct LevelReport {
 	int lightShafts = 0, mirrors = 0, sunDiscs = 0; // plan sunlight-mirrors
 	int nameGates = 0; // teleporters sealed by the level's name (plan secret-name-gates)
 	int inscriptions = 0;
+	int pages = 0, reachablePages = 0; // the earlier expedition's (plan expedition-notes)
 	int nameCartouches = 0; // among the inscriptions
 	int bosses = 0;
 	int reachableTreasures = 0;

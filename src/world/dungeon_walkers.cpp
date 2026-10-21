@@ -83,8 +83,8 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 }
 //======================================================================================
 // Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
-// it has the time for a shot at far, else KITE_HYSTERESIS past near. Never past far, and never off its floor: a wall, a
-// drop, a trap (also for a reckless one) or another monster behind it corner it.
+// it has the time for a shot at far, else KITE_HYSTERESIS past near. Never past far, and never off its floor: cornered
+// (no kiteRoom for a step), it stays.
 int Dungeon::kiteAway(const Monster& mon, int dir) const {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
 	if (!kite || dir == 0)
@@ -96,20 +96,33 @@ int Dungeon::kiteAway(const Monster& mon, int dir) const {
 	if (gap + room > kite->far ||
 		(backing ? !closing && gap >= kite->near + KITE_HYSTERESIS : gap >= kite->near || !closing))
 		return 0;
-	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
-	if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && Lit(col, mon.Row())))
-		return 0;
+	return kiteRoom(mon, dir, room) < room ? 0 : -dir; // cornered: no step back
+}
+//======================================================================================
+// The free run behind it, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap (also for a reckless
+// one), a lit cell for a light shunner, or another monster on its row.
+float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
+	const float rear = mon.seekProbeX(-dir);
+	float room = upTo;
 	for (const Monster& other : monsters) {
 		if (&other == &mon || !other.Active() || !other.Alive() || other.flies() || other.Row() != mon.Row() ||
 			(other.CentreX() - mon.CentreX()) * static_cast<float>(dir) > 0.f)
 			continue;
-		if ((dir > 0 ? mon.Left() - other.Right() : other.Left() - mon.Right()) < room)
-			return 0;
+		room = std::min(room, std::max(0.f, dir > 0 ? mon.Left() - other.Right() : other.Left() - mon.Right()));
 	}
-	return -dir;
+	constexpr float PROBE = 0.05f;
+	const auto probes = static_cast<int>(room / PROBE);
+	for (int i = 1; i <= probes; i++) {
+		const auto col = static_cast<int>(std::floor(rear - static_cast<float>(dir * i) * PROBE));
+		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && Lit(col, mon.Row())))
+			return static_cast<float>(i - 1) * PROBE;
+	}
+	return room;
 }
 //======================================================================================
-// Cornered in its band or nearer, it stands and shoots; the player in bite reach is the walker's (dir 0).
+//======================================================================================
+// In its band it stands and shoots. Cornered nearer than near (no room behind to get back to it), it fights: the
+// walker's seek and bite.
 bool Dungeon::kite(Monster& mon, int dir) {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
 	if (!kite || dir == 0 || !walkerReaches(mon, dir))
@@ -118,7 +131,8 @@ bool Dungeon::kite(Monster& mon, int dir) {
 		mon.BackOff(away);
 		return true;
 	}
-	if (mon.PlayerGap(mapX) > kite->far)
+	const float gap = mon.PlayerGap(mapX);
+	if (gap > kite->far || gap + kiteRoom(mon, dir, kite->near) < kite->near)
 		return false;
 	mon.Stand();
 	return true;

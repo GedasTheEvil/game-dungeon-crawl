@@ -86,7 +86,9 @@ void Dungeon::UpdateMonsters() {
 
 		if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
 			shootAtPlayer(mon, sx, sy);
-		if (mon.AttackingRanged())
+		// A kiter breaks off the rest of its clip once the shot has left, to back off from the player coming at it.
+		if (mon.AttackingRanged() &&
+			(!mon.ShotReleased() || kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 || mon.OnRungs()))
 			continue;
 		// A kiter the player comes at backs off first (plan monster-kiting).
 		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row()) &&

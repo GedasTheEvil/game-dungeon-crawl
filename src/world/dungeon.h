@@ -175,8 +175,11 @@ class Dungeon {
 	// A kiter (KiteRules) on the player's row, dir the way to them: the way it backs off, -1 / +1; 0: it holds (not
 	// threatened, back in its band, or cornered).
 	[[nodiscard]] int kiteAway(const Monster& mon, int dir) const;
+	// The free run behind a kiter, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap or another
+	// monster.
+	[[nodiscard]] float kiteRoom(const Monster& mon, int dir, float upTo) const;
 	// A kiter that reaches the player that way: backs off, or stands in its band. False: the walker's rules go on (it
-	// closes in beyond its band, or bites the player in reach).
+	// closes in beyond its band, cornered it closes in nearer than near, or bites the player in reach).
 	bool kite(Monster& mon, int dir);
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).

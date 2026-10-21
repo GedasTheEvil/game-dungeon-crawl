@@ -70,6 +70,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 	case CreatureMove::AttackRanged:
 		if (t.id == MonsterMummyPriest)
 			return "Speaks curses from afar, a bolt of purple light. A jump clears it.";
+		if (t.id == MonsterBaboon)
+			return "Screeches, lifts a burning coal over its head and hurls it. A jump clears it; water puts me out.";
 		return t.ranged && t.ranged->burns() ? "Hurls a bolt of fire from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
@@ -96,6 +98,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return "Stands among the other figures, still as they are, and steps off its place when I come near.";
 	case CreatureMove::Roar:
 		return "Stunned against the wall, he gets up roaring a storm of sand. Do not stand next to him then.";
+	case CreatureMove::Kite:
+		return "Keeps its distance: backs off when I come at it, throws from afar. Corner it, or run it down.";
 	}
 	return "";
 }

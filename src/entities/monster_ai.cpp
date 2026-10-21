@@ -79,6 +79,7 @@ void Monster::BackOff(int dir) {
 		return;
 	alerted = true;
 	fleeDir = dir;
+	links.journal->SeeMove(type->id, links.level, CreatureMove::Kite);
 	x += MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f) * static_cast<float>(dir);
 	enter(ModelState::Move);
 }

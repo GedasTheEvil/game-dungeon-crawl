@@ -151,6 +151,20 @@ conventions, steps). New model notes go in the script's docstring, not here.
   tapping, jaws sawing; shown while it stands off the light). Every frame lifted so the lowest vertex touches the floor.
   Sounds: `tools/audio/camel_spider_sounds.py` (`media/sounds/monsters/camel_spider_{att,die}.wav`: a stridulating rasp, two
   shear snaps; a rasping squeal, rattle, scrape).
+* `tools/blender/models/baboon.py` - the hamadryas baboon of the Lake of Fire (plan baboon), faces +Y, rotA 180; built
+  like `rat.py`: one loft from the rump into the head over hips, chest and head bones, two-bone IK legs (the arms as long as
+  the legs), an FK tail (up from the rump, a kink, hanging in an arc). A silver mane loft over the shoulders, neck and crown
+  (its belly side buried in the body) with flat locks on the hem and back edge, cheek tufts round a long pink-red muzzle,
+  small close-set eyes under a brow, long upper fangs on a hinged jaw, a red rump pad. The hands can go to world points
+  (rearing, raised hands, palms forward). The coal is a prop bone in the right hand, scaled down to nothing where it is not
+  held. Clips: move 16 (the reference: two cycles of a quick trot, 0.8 reference sizes a second at 14 fps; 1.52 long with
+  the tail (1.21 rump to nose) x 0.42 wide x 0.76 high), attack 18 (lunge, jaw wide on the fangs, snap), att_ranged 14 (scoops a coal, rears, holds it
+  over the head and screeches, hurls it overarm: release frame 8 = 0.615, releaseY 1.371, releaseAhead 0.589 from
+  `-- --measure`), die 28 (collapses onto its side), idle 32 (`_idle`: sits on its haunches, both hands raised to the sun),
+  climb 16 (hand over hand, two rungs a cycle; climbRise / climbGrip printed for `KIND_SCALE`, 24: change it with the
+  `KINDS` scale and `-- --export-climb`). One texture, `baboon.png`; a boss texture (Babi) can be baked on the same UVs.
+  Sounds: `tools/audio/baboon_sounds.py` (`media/sounds/monsters/baboon_{wake,att,att_ranged,die}.wav`: two wa-hoo barks;
+  snarl, yelp, snap; a rising shriek, the throw's whoosh at the release; a scream breaking into grunts).
 * `tools/blender/models/ushabti.py` - the living ushabti (plan living-ushabti), faces -Y, rotA 0: the overseer of the decor
   ushabti (`decor.py`'s mummiform figure, its colours and ink text bands, 6.4 times taller), with a tripartite wig, a beard, a
   hoe in the right fist and a seed bag on the back. No rig, as `lotus.py`: rigid parts (base, hips, torso, head, two folded
@@ -301,6 +315,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Mummy priest (mummy boss) | `monsters/mummy_priest{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy_priest.png` | new (`mummy.py` subclassed: priest with an ankh staff, in a large coffin) |
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
 | Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png` | new (hippopotamus; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
+| Baboon (monster) | `monsters/baboon{,_att,_att_ranged,_die,_idle,_climb}.md3` | `monsters/baboon.png` | new (hamadryas baboon; throws a burning coal; idle = sitting, greeting the sun) |
 | Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |

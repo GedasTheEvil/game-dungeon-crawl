@@ -91,7 +91,7 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   its wake clip, climbing out; the last frame is walk frame 0). The cobra (`COILED_CLIPS`), the blue lotus and the ushabti
   (`FLOATING_CLIPS`) require `_idle` and `_rise` too.
   A ranged attack: walkers and the mummy priest (`RANGED_CLIPS`, `ENTOMBED_RANGED_CLIPS`) play `_att` once as the ranged clip;
-  the cobra has its own `_att_ranged` (plays once). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
+  the cobra (`COILED_CLIPS`) and the baboon (`THROWER_CLIPS`, `RangedRules::ownClip`) have their own `_att_ranged` (plays once). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
 * Any frame count per file; the engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the mimics 1024x512, the lotus and the ushabti 512x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
@@ -118,6 +118,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `scarab.py` | scarab, giant scarab | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
 | `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
+| `baboon.py` | baboon | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |

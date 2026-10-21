@@ -293,7 +293,7 @@
 27,21 surface 14/6/8 prop scrolls 0.039 decal 9 0.519,0.593
 28,21 surface 14/6/8 prop ushabti -0.051 decal 5 0.428,0.625 torch fire torch 0.000,0.680,0.098
 29,21 surface 15/6/8 sand> decal 9 0.409,0.415
-30,21 surface 14/1/8 prop jackalm -0.008
+30,21 surface 14/1/8
 31,21 surface 14/6/8 sand<
 32,21 surface 14/6/8
 33,21 surface 15/6/8

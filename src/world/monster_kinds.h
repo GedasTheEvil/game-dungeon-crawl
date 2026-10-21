@@ -87,8 +87,9 @@ constexpr Rgb BOLT_FIRE = {1.f, 0.55f, 0.15f}; // the Anubis's fire bolt, its gl
 constexpr Rgb BOLT_PURPLE = {0.7f, 0.2f, 0.95f}; // the mummy priest's curse
 
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
-// spat venom, the Anubis's bolt of light, the mummy priest's spoken curse. The release and its height come from the
-// model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py, anubis.py).
+// spat venom, the Anubis's bolt of light, the mummy priest's spoken curse, the baboon's burning coal. The release and
+// its height come from the model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py,
+// anubis.py).
 struct RangedRules {
 	int damage = 0; // on a hit, of the type's attack mix
 	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)
@@ -102,6 +103,8 @@ struct RangedRules {
 	// and the shot is drawn as a fireball (plan anubis-fire-bolt).
 	std::optional<DamageMix> mix;
 	int burnMs = BURN_MS;
+	// A walker's ranged clip is its own file, _att_ranged (the baboon's throw, THROWER_CLIPS); false: its melee swing.
+	bool ownClip = false;
 
 	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };

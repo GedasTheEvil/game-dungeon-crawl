@@ -27,6 +27,9 @@ constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
 constexpr DamageMix CAMEL_SPIDER_MIX = {0, 80, 20}; // jaws like shears
 constexpr DamageMix HIPPO_MIX = {70, 0, 30}; // jaws that crush, the tusks
 constexpr DamageMix USHABTI_MIX = {60, 0, 40}; // the hoe: a knock, its blade
+constexpr DamageMix BABOON_MIX = {0, 50, 50}; // long fangs that slash and stab
+// Its coal from the lake: a hot stone's knock, mostly fire; the knock keeps it a threat through the fire ward.
+constexpr DamageMix BABOON_COAL_MIX = {30, 0, 0, 70};
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
@@ -65,6 +68,8 @@ constexpr Resistances HIPPO_RESIST = {RESISTS, NORMAL, NORMAL,
 // Glazed faience shatters under a blow; a point skids off the glaze; fired in a kiln, a flame only warms it (an
 // exception to the fire rule).
 constexpr Resistances USHABTI_RESIST = {WEAK, NORMAL, RESISTS, TOUGH};
+constexpr Resistances BABOON_RESIST = {NORMAL, NORMAL, WEAK,
+									   RESISTS}; // lean, an arrow finds it; it lives by the lake of fire
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -79,6 +84,11 @@ constexpr float ANUBIS_RELEASE_AHEAD = 2.6f;
 constexpr float MUMMY_PRIEST_RELEASE = 12.f / 25.f;
 constexpr float MUMMY_PRIEST_RELEASE_Y = 0.52f;
 constexpr float MUMMY_PRIEST_RELEASE_AHEAD = 3.03f;
+// The baboon's coal leaves its hand at frame 8 of 14 of its overarm throw, reared up, the hand at head height ahead
+// of it (tools/blender/models/baboon.py --measure). Over its head for the screech before: the tell.
+constexpr float BABOON_RELEASE = 0.615f;
+constexpr float BABOON_RELEASE_Y = 1.371f;
+constexpr float BABOON_RELEASE_AHEAD = 0.589f;
 constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
@@ -964,6 +974,42 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .roar = RoarRules{SETH_ROAR_RADIUS, SETH_ROAR_DAMAGE, SETH_ROAR_SHOVE, SETH_ROAR_HAZE_MS},
 	 .kin = MonsterHippo,
 	 .boss = {MonsterHippo, 1, 2, 7000, 4, 0, Summon::DigOut}},
+	// The baboons of the Lake of Fire (plan baboon), Thoth's, at the gate of the Duat: the first kiter (plan
+	// monster-kiting). It keeps the player at the range of its throw, backs off when they come at it and bites only
+	// when cornered. The coal sets the player burning; water puts it out. Quick, a climber, mid HP.
+	{.id = MonsterBaboon,
+	 .glyph = 'z',
+	 .name = "Baboon of the Lake of Fire",
+	 .label = "baboon",
+	 .description = "Baboon, keeps its distance and hurls burning coals (a screech before each); backs off when the "
+					"player comes at it, bites when cornered; climbs",
+	 .note = "Thoth's baboons, the priests said. Thoth was a scribe. These throw things.",
+	 .threat = 5.5f, // the giant cobra's, its coal burns from afar; the kiter's factor on top (KITER_THREAT_FACTOR)
+	 .model = "monsters/baboon",
+	 .texture = "monsters/baboon",
+	 .scale = 24, // under half the player's height on all fours; KIND_SCALE in tools/blender/models/baboon.py
+	 .speed = 22, // a bit faster than the player's walk: it comes up to its band
+	 .maxHealth = 110,
+	 .damage = 22,
+	 .attackMs = 900,
+	 .xp = 3200,
+	 .attackMix = BABOON_MIX,
+	 .resist = BABOON_RESIST,
+	 .ranged = RangedRules{.damage = 24,
+						   .range = 1.3f,
+						   .cooldownMs = 2500,
+						   .release = BABOON_RELEASE,
+						   .releaseY = BABOON_RELEASE_Y,
+						   .colour = BOLT_FIRE,
+						   .releaseAhead = BABOON_RELEASE_AHEAD,
+						   .mix = BABOON_COAL_MIX,
+						   .ownClip = true},
+	 .kite = KiteRules{.near = 0.55f, .far = 1.1f, .backOffSpeed = 28.f},
+	 .walkClipSpeed = 84, // its trot covers 0.48 tiles a second at the usual 35
+	 .climbs = true,
+	 .climbRise = 0.5539f, // tools/blender/models/baboon.py
+	 .climbGrip = 0.0895f,
+	 .generated = {9, 10, 1}},
 }};
 
 constexpr bool validKinds() {

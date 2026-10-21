@@ -405,7 +405,7 @@
 24,29 surface 14/6/8 sand< decal 8 0.466,0.570
 25,29 surface 14/6/8
 26,29 surface 14/6/8 decal 5m 0.437,0.625
-27,29 surface 15/6/8 prop osirism 0.034 decal 8 0.442,0.479
+27,29 surface 15/6/8 decal 8 0.442,0.479
 28,29 surface 14/6/8
 29,29 surface 14/6/8 prop sarcophagus 0.095
 30,29 surface 15/6/8 ladder 0/4m

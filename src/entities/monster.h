@@ -264,6 +264,7 @@ class Monster {
 	[[nodiscard]] bool canAttackRanged(float px, float py) const;
 	void AttackRanged(); // stands still and plays the ranged clip; the shot leaves at its release
 	[[nodiscard]] bool AttackingRanged() const; // the ranged clip is playing: it does not walk or bite
+	[[nodiscard]] bool ShotReleased() const { return rangedReleased; } // this clip's shot has left (or none)
 	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from, never past the near
 	// edge of the player at px.
 	bool TakeShot(float px, float& outX, float& outY);

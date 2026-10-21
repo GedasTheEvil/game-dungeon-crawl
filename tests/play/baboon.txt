@@ -1,0 +1,11 @@
+# Plans baboon and monster-kiting, for `bin/game --play tests/play/baboon.txt`: tests/levels/baboon_water, a baboon
+# (col 8) in a long hall, the player in a pool of half water (cols 1-4). It comes up to its band (0.55 to 1.1 tiles, its throw reaches 1.3)
+# and stands there; it screeches, lifts a coal and throws it: a jump or the water puts it out. Walk at it: it backs off,
+# a bit faster than you walk, and goes on throwing. Sprint at it, or drive it into the east wall: cornered, it bites.
+# The spear and the javelins stab (it is weak to pierce). In the campaign: levels 31 (three), 32 and 33 (two each).
+seed 1
+level tests/levels/baboon_water
+xp 400000
+give melee 2
+give ranged 4 10
+equip spear

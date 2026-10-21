@@ -1,0 +1,58 @@
+# The baboon (tests/levels/baboon, plan baboon): it comes up to its band, rears up with the coal over its head (the
+# tell), throws a fireball, sits with its hands raised in its band; walked into the corner of baboon_wall, it bites.
+seed 1
+level tests/levels/baboon
+god
+hitboxes on
+walk right 0.1
+wait 2500ms
+wait 150ms
+screenshot t01
+wait 150ms
+screenshot t02
+wait 150ms
+screenshot t03
+wait 150ms
+screenshot t04
+wait 150ms
+screenshot t05
+wait 150ms
+screenshot t06
+wait 150ms
+screenshot t07
+wait 150ms
+screenshot t08
+wait 150ms
+screenshot t09
+wait 150ms
+screenshot t10
+wait 150ms
+screenshot t11
+wait 150ms
+screenshot t12
+wait 150ms
+screenshot t13
+wait 150ms
+screenshot t14
+wait 150ms
+screenshot t15
+wait 150ms
+screenshot t16
+camera 30 10
+screenshot side
+camera 0 0
+wait 1500ms
+screenshot sits
+level tests/levels/baboon_wall
+god
+wait 2s
+hold right 7400ms
+screenshot cornered
+hold right 700ms
+wait 300ms
+screenshot bite1
+wait 300ms
+screenshot bite2
+toon on
+screenshot bite_toon
+toon off

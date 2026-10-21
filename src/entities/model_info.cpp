@@ -22,7 +22,7 @@ const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	case Locomotion::Figurine:
 		return FLOATING_CLIPS;
 	case Locomotion::Walk:
-		return kind.ranged ? RANGED_CLIPS : MONSTER_CLIPS;
+		return !kind.ranged ? MONSTER_CLIPS : kind.ranged->ownClip ? THROWER_CLIPS : RANGED_CLIPS;
 	default:
 		return MONSTER_CLIPS;
 	}

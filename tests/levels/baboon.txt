@@ -1,0 +1,4 @@
+; A baboon (col 7) in front of the player (col 2), a long row behind it (tests/unit/baboon_test.cpp).
+##############################
+#.S....z....................E#
+##############################

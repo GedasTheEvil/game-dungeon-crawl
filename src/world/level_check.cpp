@@ -411,6 +411,7 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 bool hidesBehindProp(const Tile& t) {
 	switch (t.type) {
 	case Treasure:
+	case TrappedTreasure:
 	case Door:
 	case Gate:
 	case Ankh:

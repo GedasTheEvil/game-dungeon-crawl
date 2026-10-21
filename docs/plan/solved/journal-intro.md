@@ -45,7 +45,7 @@ The jackal-headed statue foreshadows the Anubis boss of lvl35; the club is the s
 
 ## Fits with
 
-* [duat-hours](../campaign-zones.draft.opus.md#the-twelve-hours-of-the-duat) (merged into campaign-zones): level titles in the archaeologist's voice, the Duat as what
+* [duat-hours](campaign-zones.md#the-twelve-hours-of-the-duat) (merged into campaign-zones): level titles in the archaeologist's voice, the Duat as what
   the archaeologist learns the maze to be, not a second frame.
 * [expedition-notes](expedition-notes.md): the earlier expedition came through the same statue.
 

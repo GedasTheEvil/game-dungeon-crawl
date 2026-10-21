@@ -205,7 +205,11 @@ TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, So
 	CHECK(bossOf(30) == MonsterSobek);
 	CHECK(bossOf(34) == MonsterMummyPriest);
 	CHECK(bossOf(35) == MonsterAnubisBoss);
-	for (int n = DESERT_FIRST; n <= DESERT_LAST; n++) {
+	const Zone* desert = zoneOf(21);
+	REQUIRE(desert != nullptr);
+	CHECK(desert->id == ZoneId::SethsDesert);
+	CHECK(desert->last == 25);
+	for (int n = desert->first; n <= desert->last; n++) {
 		CAPTURE(n);
 		LevelGrid grid;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());

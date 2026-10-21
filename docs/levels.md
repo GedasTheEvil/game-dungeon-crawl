@@ -71,6 +71,55 @@ v3 file's cells are all unset); `levelcheck` warns about a file older than v4, a
 levels ([longer-campaign.md](plan/solved/longer-campaign.md)). Each exit loads the next level. `content/levels/lvl35` holds the ankh that wins the game; the Anubis boss there is always the last boss.
 Levels 15-35 use the whole 40 x 47 grid ([denser-levels.draft.opus.md](plan/denser-levels.draft.opus.md)).
 
+### Zones
+
+The levels are grouped into zones ([campaign-zones](plan/solved/campaign-zones.md), `ZONES` in
+`src/world/campaign.h`, `zoneOf(level)`): a run of levels with its own stone, main monsters, new mechanic and, mostly,
+a boss. Each zone is one hour of Ra's night journey through the Duat (the Book of Gates); its title names the hour and
+its gate: "The Fourth Hour: the Gate of the Priests" (`zoneTitle`, the hour is the zone's place in the target table).
+A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities). Only the stone of the desert shows so far
+(sandstone); the others come with [zone-looks](plan/zone-looks.draft.opus.md).
+
+Today's 35 levels, as the code table maps them:
+
+| Zone | Levels | Stone | Main monsters | New mechanic | Boss |
+|---|---|---|---|---|---|
+| 1 Tomb entrance (the Gate of the Tomb) | 1-5 | limestone | rats, scarabs, bats, plants, worms, scorpions | spikes, pits, the first key and riddle | Khepri (lvl5) |
+| 2 Bat galleries (the Gate of the Bats) | 6-10 | limestone | bats, giant bats, giant rats, giant scarabs, crocodiles, camel spiders | levers, rock falls, the first water | Bat of Shezmu (lvl10) |
+| 5 Scorpion nest (the Gate of Serqet) | 11-15 | plaster | mummies, ushabti, giant scarabs, giant bats, scorpions, giant scorpions | poison | scorpion queen (lvl15) |
+| 6 Serpent temple (the Gate of the Serpent) | 16-20 | plaster | cobras, mummies, Anubis guards, crocodiles, giant bats | dart plates | Apep (lvl20) |
+| 8 Seth's desert (the Gate of Seth) | 21-25 | sandstone | sand worms, camel spiders, giant scorpions, giant cobras, giant bats, hippos | sand, quicksand, mirrors and sun discs | Seth (lvl25) |
+| 7 Cisterns of Sobek (the Gate of Sobek) | 26-30 | wet stone | crocodiles, giant cobras, hippos, mummies, Anubis guards, giant bats | deep water, swimming | Sobek (lvl30) |
+| 11 Necropolis (the Gate of the Dead) | 31-34 | granite | Anubis guards, mummies, giant scarabs, giant cobras, giant scorpions, cursed mimics | every trap mixed | High Priest (lvl34, until the rebuild) |
+| 12 Hall of Judgment (the Gate of Judgment) | 35 | granite | Anubis guards, mummies, giant cobras, cursed mimics | riddles | Anubis (lvl35) |
+
+The target campaign (decided 2026-10-21): twelve zones, about 54 levels, four acts. The rebuild
+([denser-levels](plan/denser-levels.draft.opus.md), [campaign-levelgen](plan/campaign-levelgen.draft.opus.md)) builds
+it zone by zone and then switches the code table to it. Level ranges are about, not exact.
+
+| # | Zone | Levels | Monsters | New mechanic | Boss |
+|---|---|---|---|---|---|
+| **Act I: the tomb** (limestone) |||||
+| 1 | Tomb entrance | 1-4 | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri |
+| 2 | Bat galleries | 5-9 | bats, giant bats, worms, giant rats | levers, rock falls, a short first wade (one crocodile) | Bat of Shezmu |
+| 3 | Web halls | 10-13 | camel spiders, giant scarabs, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](plan/camel-spider-boss.draft.opus.md)) |
+| **Act II: the temple** (painted plaster) |||||
+| 4 | Priests' quarter | 14-18 | mummies, living ushabti, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
+| 5 | Scorpion nest | 19-22 | scorpions, giant scorpions | poison drips, antidotes | scorpion queen |
+| 6 | Serpent temple | 23-27 | cobras, giant cobras | dart plates, rhythm traps | Apep |
+| **Act III: the river and the sands** |||||
+| 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
+| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
+| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/worm-boss.draft.opus.md)) |
+| **Act IV: the Duat** (dark granite) |||||
+| 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/baboon.draft.opus.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/babi-boss.draft.opus.md)) |
+| 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
+| 12 | Hall of Judgment | 51-54 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
+
+Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).
+
+### Levels
+
 | Levels | Content |
 |---|---|
 | 1 | The way in: rats and a scarab, spikes, a spike pit to jump, ladders, the first chests. |

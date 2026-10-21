@@ -73,7 +73,7 @@ the exit, as the other boss levels.
 
 * A field note on sand ("Sand. Underground. Somebody left a door open, three thousand years ago.") and on quicksand
   the first time the player sinks.
-* [duat-hours](../campaign-zones.draft.opus.md#the-twelve-hours-of-the-duat) (merged into campaign-zones): its 12 hours spread over 35 levels; the desert can be the hour
+* [duat-hours](campaign-zones.md#the-twelve-hours-of-the-duat) (merged into campaign-zones): its 12 hours spread over 35 levels; the desert can be the hour
   of the Gate of Sand.
 
 ## Tests

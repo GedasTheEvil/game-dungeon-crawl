@@ -36,7 +36,7 @@ choice of name, for example "Rerek" or "the Serpent of Rosetau" (check the name 
 
 ## Placement (open)
 
-Final place (user, 2026-10-21): the land of Sokar, zone 9 of [campaign-zones](campaign-zones.draft.opus.md) (about
+Final place (user, 2026-10-21): the land of Sokar, zone 9 of [campaign-zones](solved/campaign-zones.md) (about
 levels 38-41, a second desert zone after Seth's), after the rebuild. Until then, in today's campaign:
 
 The desert chapter has one boss slot (Seth, lvl25). Options:

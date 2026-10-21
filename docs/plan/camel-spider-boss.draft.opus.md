@@ -29,7 +29,7 @@ stronger.
 
 ## Placement (open)
 
-Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](campaign-zones.draft.opus.md) (about
+Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](solved/campaign-zones.md) (about
 levels 10-13), after the rebuild. Until then, in today's campaign:
 
 * The desert (21-25), where the camel spiders run: as a mid-chapter boss off the every-fifth-level rhythm, or in an

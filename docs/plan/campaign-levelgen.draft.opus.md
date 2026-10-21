@@ -1,7 +1,7 @@
 # Campaign levelgen: generate campaign-quality levels per zone
 
 Status: draft 2026-10-21, from the user ("I expect levels to be re-generated completely"). Needs first:
-[campaign-zones](campaign-zones.draft.opus.md) (the zone table the generator reads). Large: split it into steps (see
+[campaign-zones](solved/campaign-zones.md) (the zone table the generator reads). Large: split it into steps (see
 below), one task each.
 
 ## Idea

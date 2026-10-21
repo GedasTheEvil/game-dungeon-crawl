@@ -4,7 +4,7 @@ Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01
 ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
 Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
-Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](campaign-zones.draft.opus.md) (balance
+Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](solved/campaign-zones.md) (balance
 against the final zones, their monster sets and the 40-60 level count), and every monster and boss draft (user, 2026-10-20: balance comes
 after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
@@ -13,7 +13,7 @@ after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.dra
 [baboon](baboon.draft.opus.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
 draft joins this list.
 
-Zones ([campaign-zones](campaign-zones.draft.opus.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from
+Zones ([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from
 lvl34 to about lvl18, crocodiles from 7-9 to 28 on, Sobek before Seth. Balance against that table.
 
 Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the

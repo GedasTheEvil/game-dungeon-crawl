@@ -110,7 +110,7 @@ constexpr int WALL_STONE_CRACKED = 4;
 constexpr int WALL_STONE_SAND = 5;
 constexpr int WALL_ROUGH = 6;
 constexpr int WALL_ROUGH_STRATA = 7;
-// The desert chapter's sandstone (plan desert-chapter, DESERT_FIRST..DESERT_LAST): every row of it, no plaster.
+// The desert chapter's sandstone (plan desert-chapter, its zone's stone: campaign.h): every row of it, no plaster.
 constexpr int WALL_SANDSTONE = 8;
 constexpr int WALL_SANDSTONE_WORN = 9;
 constexpr int WALL_STYLE_COUNT = 10;

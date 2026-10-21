@@ -1,7 +1,7 @@
 # Zone looks: each zone looks its own
 
 Status: draft 2026-10-21, from the user (the campaign has distinct zones). Needs first:
-[campaign-zones](campaign-zones.draft.opus.md) (the zones and their stone in the zone table).
+[campaign-zones](solved/campaign-zones.md) (the zones and their stone in the zone table).
 
 ## Idea
 
@@ -19,7 +19,7 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
 * **Sound:** an ambient loop per zone (wind in the desert, drips in the cisterns). Music per zone is optional:
   today there is one soundtrack (`media/sounds/music/soundtrack.ogg`, not tracked by git).
 * **Zone banner:** on entering a new zone, the hour and its gate, and its guardian on a boss zone
-  ([campaign-zones](campaign-zones.draft.opus.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
+  ([campaign-zones](solved/campaign-zones.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
   level start a smaller banner with the level's title ([campaign-texts](campaign-texts.draft.sonet.md)).
 
 ## Tests

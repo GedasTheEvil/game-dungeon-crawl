@@ -18,7 +18,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
-| campaign | | the 35 map levels in order, `content/levels/lvl1` .. `lvl35`; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
+| campaign | | the 35 map levels in order, `content/levels/lvl1` .. `lvl35`; grouped into zones; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | structure | | a cell's bottom layer: wall, empty, half water or deep water. Not the structure of the code | `Structure`, `Tile::structure` |
 | object | | a cell's middle layer, at most one: a gate, a key, a trap, a ladder, a treasure, a monster spawn, the ankh; a type, an attribute and a value | `DungeonTileType`, `hasObject`, `setObject` |
@@ -77,6 +77,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | wall spikes | | a rhythm trap ([rhythm-traps](plan/solved/rhythm-traps.md)): poison spikes out of a cell's back wall on a fixed cycle; out, they block like a gate and stab whoever stands in the cell. Drafts also say "rhythm trap" | `WallSpikes`, `spikeStateAt`, `Dungeon::updateWallSpikes` |
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 | water prop | | ([water-decorations](plan/solved/water-decorations.md)) a prop scattered in a free half water cell: papyrus reeds (at the bank), weed (under the surface), lotus leaves, a blue lotus. No function; the reeds and weed sway, the leaves bob | `isWaterProp`, `DECOR_WATER_FIRST` |
+| zone | | ([campaign-zones](plan/solved/campaign-zones.md)) a run of campaign levels with its own stone, main monsters, new mechanic and (mostly) a boss on one of its levels; one hour of the Duat, its title "The Fourth Hour: the Gate of the Priests" | `Zone`, `ZONES`, `zoneOf`, `zoneTitle` |
 
 ## Monsters
 

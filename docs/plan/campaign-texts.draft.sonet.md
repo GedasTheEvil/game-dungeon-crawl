@@ -1,6 +1,6 @@
 # Campaign texts: enough texts for 40-60 levels
 
-Status: draft 2026-10-21, from the user. Needs first: [campaign-zones](campaign-zones.draft.opus.md) (the level count
+Status: draft 2026-10-21, from the user. Needs first: [campaign-zones](solved/campaign-zones.md) (the level count
 and the zone themes the texts follow).
 
 ## Idea

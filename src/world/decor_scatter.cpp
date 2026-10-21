@@ -519,7 +519,9 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, De
 	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, layout.decor, layout.torch);
 	counts.decals = scatterDecals(cells, seed ^ DECAL_SALT, tier, layout, layout.decal);
 	counts.ladderShafts = scatterLadders(cells, seed ^ LADDER_SALT, layout.ladder);
-	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, desertLevel(depth), layout.surface, counts);
+	const Zone* zone = zoneOf(depth);
+	const bool sandstone = zone != nullptr && zone->stone == ZoneStone::Sandstone;
+	scatterSurfaces(cells, seed ^ SURFACE_SALT, tier, sandstone, layout.surface, counts);
 	counts.treasures = scatterTreasures(cells, seed ^ TREASURE_SALT, tier, layout.treasure);
 	return counts;
 }

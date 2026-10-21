@@ -8,7 +8,7 @@ distance and shoots). Its boss: [babi-boss](babi-boss.draft.opus.md).
 The Book of the Dead (chapter 126) and the Amduat put a lake of fire at the gate of the Duat, guarded by four baboons
 that sit at its corners. Baboons were sacred to Thoth, and they greet the rising sun with raised hands. Babi, the
 "bull of the baboons", eats the hearts of the unworthy by that lake. So the Lake of Fire zone
-([campaign-zones](campaign-zones.draft.opus.md#zones-decided-2026-10-21)) is the baboons' home.
+([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)) is the baboons' home.
 
 ## Idea
 

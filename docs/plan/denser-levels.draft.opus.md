@@ -31,7 +31,7 @@ to keep.
 * **Carry over the content that is not layout:** inscriptions from level 1 on (2-3 a level, 1-2 in the first zone;
   the texts come from [campaign-texts](campaign-texts.draft.sonet.md), the rules are in
   [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or near the path, hints
-  only), expedition pages, level titles ([duat-hours](duat-hours.draft.sonet.md)), Hapi potions
+  only), expedition pages, level titles ([campaign-texts](campaign-texts.draft.sonet.md)), Hapi potions
   ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
   Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
 * **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,

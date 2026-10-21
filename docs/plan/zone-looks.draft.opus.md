@@ -18,8 +18,9 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
   shafts in the desert).
 * **Sound:** an ambient loop per zone (wind in the desert, drips in the cisterns). Music per zone is optional:
   today there is one soundtrack (`media/sounds/music/soundtrack.ogg`, not tracked by git).
-* **Zone banner:** a short title on entering a new zone (`docs/ui.md` look). Shared with
-  [duat-hours](duat-hours.draft.sonet.md) if the zones become the hours.
+* **Zone banner:** on entering a new zone, the hour and its gate, and its guardian on a boss zone
+  ([campaign-zones](campaign-zones.draft.opus.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
+  level start a smaller banner with the level's title ([campaign-texts](campaign-texts.draft.sonet.md)).
 
 ## Tests
 

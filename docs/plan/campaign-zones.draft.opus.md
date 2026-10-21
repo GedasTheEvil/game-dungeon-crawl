@@ -60,8 +60,20 @@ Costs:
   ([monster-kiting](monster-kiting.draft.opus.md)), and its boss Babi. Fire jets come in with the priests' quarter
   and return in force here.
 
-Twelve zones, twelve hours of the Duat: [duat-hours](duat-hours.draft.sonet.md) can name them (the zones before the
-lake as the hours of the journey, the lake the gate, the last two the deep hours and dawn).
+## The twelve hours of the Duat
+
+(Merged in from the duat-hours draft, 2026-10-10, from the lore review, picked by the user.)
+
+The campaign is Ra's night journey through the Duat, the underworld of the Book of Gates: twelve hours, each behind
+a gate with its guardian. Each zone is one hour: zone 1 the First Hour, zone 12 (the Hall of Judgment, the ankh) the
+Twelfth, Ra reborn at dawn. The zones before the lake are the hours of the journey, the lake the gate into the
+night, the last two the deep hours and dawn.
+
+* A zone's full name: the hour and its gate, e.g. "The Fourth Hour: the Gate of the Priests". In the zone table.
+* Guardians: the Book of Gates names a guardian serpent per gate (e.g. Saa-set, Aqebi, Teka-hra). The zone's boss
+  is that hour's guardian in the banner text; the bossless Necropolis names only its gate.
+* Shown on entering a zone (the banner, [zone-looks](zone-looks.draft.opus.md)), in the map and in the save slots.
+* Level titles and the journal note per hour: [campaign-texts](campaign-texts.draft.sonet.md).
 
 ## What changes
 

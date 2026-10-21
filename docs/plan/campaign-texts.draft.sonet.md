@@ -27,8 +27,13 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
   [denser-levels](denser-levels.draft.opus.md#route-fork-left-or-right)).
 * **Riddles and names:** count the riddle gates and name gates the rebuild needs (about one each per level today) and
   add riddles (`content/riddles/*.txt`) and king names (`content/names/kings.txt`) if any would repeat.
-* **Zone notes:** a journal field note on entering each zone, in the archaeologist's voice (shared with
-  [duat-hours](duat-hours.draft.sonet.md) if the zones become the hours).
+* **Level titles** (from the duat-hours draft): each level gets a title in its zone's hour (e.g. "The Fourth Hour:
+  the Gate of Sand" for the zone, "The Hall of Drifts" for a level). Titles live in the level files (a new header
+  field, `docs/levels.md`), so `levelcheck` warns about a campaign level without one. Shown in the level-start
+  banner ([zone-looks](zone-looks.draft.opus.md)), the map and the save slots. Write them here, the rebuild keeps
+  them.
+* **Hour notes:** a journal field note on entering each zone (hour), in the archaeologist's voice ("The Seventh Hour.
+  Apep waits here, says the wall. I wish the wall were wrong.").
 
 The texts are not placed in levels here: the rebuild places them.
 
@@ -36,3 +41,4 @@ The texts are not placed in levels here: the rebuild places them.
 
 * Unit: each inscription id has a text and a glyph line, and the atlas holds them all.
 * Unit: the expedition pages are numbered 1..N without gaps.
+* Unit: every campaign level has a title (a checker rule, no warnings).

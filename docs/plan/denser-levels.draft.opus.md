@@ -8,7 +8,7 @@ Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level cou
 [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
 [campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.md),
 [campaign-texts](campaign-texts.draft.sonet.md) (the texts to place), and the new traps, so the rebuild places them:
-[fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
+[fire-jet-trap](fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
 ## Idea
@@ -35,7 +35,7 @@ to keep.
   ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
   Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
 * **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,
-  [fire-jet-trap](fire-jet-trap.draft.opus.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
+  [fire-jet-trap](fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
 * **Batches by zone:** one zone (or two short ones) per task, play-tested in between. The level files are written
   by the generator and then polished by hand or in the editor; they stay the source of truth.
 * **Switching over:** the new levels replace `content/levels/lvl*` all at once, or zone by zone from the start, so

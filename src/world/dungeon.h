@@ -280,12 +280,19 @@ class Dungeon {
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
 	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
 	void drawDarts(); // with the frame origin of DrawMonsters
-	// Wall spikes (dungeon_spikes.cpp, plan rhythm-traps): each cell's live state from the clock; coming out, they stab
-	// and shove out whoever stands in the cell.
-	void updateWallSpikes();
+	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap): each wall spikes' and fire vent's live
+	// state from the clock; coming out, the spikes stab and shove out whoever stands in the cell. A fire vent's jet
+	// burns whoever stands in its cell, a jump too (updateTraps).
+	void updateRhythmTraps();
 	void stabWallSpikes(int col, int row);
 	[[nodiscard]] std::optional<float> outOfSpikes(int col, int row, float centre, float half) const;
 	void drawWallSpikesTile(int i, int j); // the slotted panel and the spikes, as far out as the cycle has them
+	// The fire vent's jet is on in a cell of row the body from left to right overlaps.
+	[[nodiscard]] bool inFireJet(float left, float right, int row) const;
+	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
+	void drawFireVentTile(); // the vent low in the back wall
+	void drawFireJets(const CellRect& drawn); // the jets and the telegraph's glow, after the opaque tiles
+	void addFireVentLights(const CellRect& drawn); // the jets light the corridor, the telegraph glows
 	// Sunlight mirrors (dungeon_sun.cpp, plan sunlight-mirrors): the beams as the mirrors and gates stand (traceBeams),
 	// the cells they light (map index); a turned mirror swings from its old angle, a sun disc just lit flares.
 	std::vector<BeamStep> sunBeams;

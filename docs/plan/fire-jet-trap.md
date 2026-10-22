@@ -1,6 +1,6 @@
 # Fire jet trap
 
-Status: draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning) and
+Status: implemented 2026-10-22, waiting for a play-test (see [Implemented](#implemented-2026-10-22)); draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning) and
 [rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph and level check). From the user.
 
 ## Idea
@@ -49,3 +49,34 @@ not a block).
 * Unit: a fire vent hit on an armoured player deals the same as on an unarmoured one; it sets burning.
 * Unit: a mummy in the jet takes double damage.
 * Scenario with a screenshot: the jet on, the player burning.
+
+## Implemented (2026-10-22)
+
+Play-test: `bin/game --play tests/play/fire-jet-trap.txt` (tests/levels/fire_vents).
+
+* **Kind:** a tile type of its own, `FireVent` (22), glyph `+`, a wall type (fixture) beside `WallSpikes`, not a kind
+  field in it: the wall spikes' checks (solid when out, stab, shove) stay theirs. The two share the cycle and its
+  encoding (`spike_cycle.h`, attribute = speed, value = phase | live state), `isRhythmTrap`, the clock update
+  (`Dungeon::updateRhythmTraps`) and the checker's crossing walk.
+* **Open points:** one vent kind, low in the back wall; the jet fills its one cell from the floor to the ceiling.
+  The wards multiply: the trap ward cuts the damage (`TrapDamage`), then the Fire Warding amulet's fire resistance.
+* **Hit:** the `TrapHurt` tick as for spikes, `FIRE_JET_MIX` (all fire, through armour), burning from each hit; no
+  dodge (sustained). The jet blocks nothing; a jump does not clear it. Status on entry: "The wall exhales. You smell
+  your eyebrows."
+* **Monsters:** cowards stop at a glowing or burning vent (`walkerBlockedAt`), the reckless walk through. All
+  monsters in the cell are hit, flyers and leapers too (not the hidden ones): `Monster::StandInFire`, its fire
+  resistance on top of `trapDamagePct` (a mummy: double). A trap's fire kill gives no XP: the new
+  `Monster::burnByPlayer` (a weapon's or a sunbeam's fire stays the player's).
+* **Look and sound:** `fire_vent` in `mechanism.py` (sandstone hood, bronze grille, embers, scorched floor); the jet
+  is `Fire::draw` plumes rolling out and up (`drawFireJets`), embers in the mouth in the telegraph, a light on the
+  beat (`addFireVentLights`). `fire_hiss.wav`, `fire_roar.wav` (`tools/audio/mechanism_sounds.py`), heard in view.
+  Map: the mouth and a tongue of flame. Editor hints.
+* **Checker:** `fireVents` / `pathFireVents`, path cost and difficulty as wall spikes; a run of rhythm traps (both
+  kinds mixed) must be walkable both ways; a vent needs a floor under it and no water.
+* **Tests:** `tests/unit/fire_vent_test.cpp` (checker, armour, burning, jump, wards, the mummy, no XP);
+  `tests/scenarios/fire_vents.txt` (screenshots: glow, jet, the player burning in it).
+
+Not done:
+
+* Campaign placement: left to denser-levels, as decided.
+* Fire in water: a vent in half water is warned about, not modelled (see fire-in-water).

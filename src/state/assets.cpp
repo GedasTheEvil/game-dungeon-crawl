@@ -47,6 +47,8 @@ void loadMechanisms(MechanismSet& set) {
 	set.spikeSlots = loadStaticModel(MEDIA_DIR "models/mechanisms/spike_slots.md3", set.spikeSlotsTex);
 	set.wallSpikesTex.LoadPNG(MEDIA_DIR "textures/mechanisms/wall_spikes.png");
 	set.wallSpikes = loadStaticModel(MEDIA_DIR "models/mechanisms/wall_spikes.md3", set.wallSpikesTex);
+	set.fireVentTex.LoadPNG(MEDIA_DIR "textures/mechanisms/fire_vent.png");
+	set.fireVent = loadStaticModel(MEDIA_DIR "models/mechanisms/fire_vent.md3", set.fireVentTex);
 	set.sunDisc = loadStaticModel(MEDIA_DIR "models/mechanisms/sun_disc.md3", set.sunDiscTex[0]);
 	set.mirrorStandTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror_stand.png");
 	set.mirrorStand = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror_stand.md3", set.mirrorStandTex);
@@ -251,6 +253,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.dart.Load(MEDIA_DIR "sounds/mechanisms/dart.wav");
 	sounds.spikeScrape.Load(MEDIA_DIR "sounds/mechanisms/spike_scrape.wav");
 	sounds.spikeThunk.Load(MEDIA_DIR "sounds/mechanisms/spike_thunk.wav");
+	sounds.fireHiss.Load(MEDIA_DIR "sounds/mechanisms/fire_hiss.wav");
+	sounds.fireRoar.Load(MEDIA_DIR "sounds/mechanisms/fire_roar.wav");
 	sounds.mirrorTurn.Load(MEDIA_DIR "sounds/mechanisms/mirror_turn.wav");
 	sounds.sunDisc.Load(MEDIA_DIR "sounds/mechanisms/sun_disc.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");

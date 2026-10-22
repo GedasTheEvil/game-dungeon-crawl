@@ -1,0 +1,6 @@
+; Fire vents (tests/unit/fire_vent_test.cpp, plan fire-jet-trap): a normal one at col 5 (phase 0); a normal pair at
+; cols 10-11 at alternate phases (0 and 4), which can be walked through both ways.
+def b 22 0 4
+#####################
+#S...+....+b.......E#
+#####################

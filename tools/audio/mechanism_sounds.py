@@ -11,7 +11,9 @@ mechanisms/plate_click.wav (a stone pressure plate sinks: grit, a hollow knock a
 its hole in the wall: a puff and a thin whistle), spike_scrape.wav (wall spikes twitch in their slots before they shoot
 out: metal ticks over a rising scrape), spike_thunk.wav (they shoot out: a metal shing and a heavy knock),
 mirror_turn.wav (a bronze mirror turned a quarter on its stand: a short grind in the bearings, a squeak, a click),
-sun_disc.wav (a sun disc lit by the beam: a warm bell chord swelling up, a shimmer over it; plan sunlight-mirrors).
+sun_disc.wav (a sun disc lit by the beam: a warm bell chord swelling up, a shimmer over it; plan sunlight-mirrors),
+fire_hiss.wav (a fire vent about to breathe: gas hissing louder, sparks crackling) and fire_roar.wav (its jet: a
+whoomph, then a roar of flame that dies down; plan fire-jet-trap).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -328,6 +330,31 @@ def sun_disc():
     return normalize(out, -6)
 
 
+def fire_hiss():
+    out = np.zeros(int(0.6 * SR))
+    t = t_axis(0.58)
+    hiss = band(rng.standard_normal(len(t)), 2500, 7000) * (t / 0.58) ** 2 * np.clip((0.58 - t) / 0.03, 0, 1)
+    place(out, hiss, 0.0, 0.5)
+    for at in rng.uniform(0.15, 0.55, 9):  # sparks
+        crack = band(rng.standard_normal(int(0.008 * SR)), 3000, 9000) * np.hanning(int(0.008 * SR))
+        place(out, crack, at, rng.uniform(0.3, 0.6))
+    return normalize(out, -9)
+
+
+def fire_roar():
+    dur = 1.3
+    out = np.zeros(int(dur * SR))
+    t = t_axis(0.25)
+    whoomph = lowpass(rng.standard_normal(len(t)), 180) * env_ad(t, 0.01, 0.08)
+    place(out, whoomph, 0.0, 3.0)
+    t = t_axis(dur - 0.05)
+    flutter = 1 + 0.35 * np.sin(2 * np.pi * 11 * t) * np.sin(2 * np.pi * 3.7 * t)
+    body = lowpass(rng.standard_normal(len(t)), 900) + 0.35 * band(rng.standard_normal(len(t)), 1200, 4000)
+    fade = np.clip(t / 0.04, 0, 1) * np.clip((dur - 0.05 - t) / 0.35, 0, 1)
+    place(out, body * flutter * fade, 0.0, 0.9)
+    return normalize(out, -5)
+
+
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
@@ -338,6 +365,7 @@ SOUNDS = {
     "mechanisms/plate_click": plate_click, "mechanisms/dart": dart,
     "mechanisms/spike_scrape": spike_scrape, "mechanisms/spike_thunk": spike_thunk,
     "mechanisms/mirror_turn": mirror_turn, "mechanisms/sun_disc": sun_disc,
+    "mechanisms/fire_hiss": fire_hiss, "mechanisms/fire_roar": fire_roar,
 }
 
 

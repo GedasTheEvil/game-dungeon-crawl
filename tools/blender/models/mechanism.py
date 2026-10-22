@@ -1,13 +1,13 @@
 """Procedural level mechanics: coloured keys, key gates, wall levers, falling rocks, the ceiling crack over a rock trap,
-the pressure plate of a dart trap with the dart holes in the back wall above it, and the wall spikes of a rhythm trap
-with their slotted panel.
+the pressure plate of a dart trap with the dart holes in the back wall above it, the wall spikes of a rhythm trap
+with their slotted panel, and the fire vent low in the back wall (the engine draws its jet).
 
     MCP:  p = ".../tools/blender/models/mechanism.py"; g = {"__file__": p, "__name__": "mechanism"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
     CLI:  blender -b --python tools/blender/models/mechanism.py -- [--export] [--bake] [--review out.png] [--only key,gate]
 
 Same space as decor.py: Z up, 1 unit = 1 tile, no Centrify (the engine draws them at glScale 40). Tile frame
-(gate, lever_base, ceiling_crack, pressure_plate, dart_holes, spike_slots, wall_spikes): origin = floor level, horizontal centre of the tile, on the back wall plane;
+(gate, lever_base, ceiling_crack, pressure_plate, dart_holes, spike_slots, wall_spikes, fire_vent): origin = floor level, horizontal centre of the tile, on the back wall plane;
 the tile runs from y = 0 (back wall) to y = -1 (front opening, the camera side), the ceiling is at z = 1.
 Game space of the MD3 = (x, z, -y), so Dungeon::drawDecorTile's transform (translate TILE_HALF, 0, -TILE_SIZE;
 scale TILE_SIZE) puts these where they belong.
@@ -47,13 +47,13 @@ from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E4
 
 COLL = "mechanism_new"
 MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes", "spike_slots",
-          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer"]
+          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer", "fire_vent"]
 COLOURED = {"key", "gate", "lever_base", "sun_disc"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
             "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256, "sun_disc": 256,
-            "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128}
+            "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128, "fire_vent": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
 
@@ -85,6 +85,8 @@ COL = {
     "enamel": (0.02, 0.015, 0.01),
     "poison": (0.28, 0.52, 0.06),
     "wood": (0.30, 0.18, 0.08),
+    "soot": (0.2, 0.14, 0.08),
+    "ember": (0.55, 0.12, 0.02),
     "gem": GEMS["red"]["gem"],
     "glint": GEMS["red"]["glint"],
     "accent": GEMS["red"]["accent"],
@@ -107,6 +109,8 @@ def materials():
         "sand": ("solid", "sand"),
         "enamel": ("solid", "enamel"),
         "poison": ("solid", "poison"),
+        "soot": ("solid", "soot"),
+        "ember": ("solid", "ember"),
         "wood": stripes("u", 1 / 7, [(3, "wood"), (1, "bronze_dark")], "LINEAR"),
         "gem": ("solid", "gem"),
         "glint": ("solid", "glint"),
@@ -410,6 +414,25 @@ def build_wall_spikes(b, M):
             b.add(rod((x, -tip, z), (x, -SPIKE_LENGTH, z), 0.011, 0.0015, n=8, caps=(False, True)), M["poison"], "root")
 
 
+VENT_TOP = 0.26  # the fire vent's mouth (plan fire-jet-trap): the engine's jet starts at its middle
+VENT_HALF = 0.2
+
+
+def build_fire_vent(b, M):
+    """A fire vent low in the back wall: a sandstone hood round a dark mouth barred with a bronze grille, embers glowing
+    deep inside, the floor in front scorched."""
+    b.add(yz_box(-0.05, 0.0, 0.0, VENT_TOP + 0.06, VENT_HALF + 0.08), M["stone_dark"], "root")
+    b.add(yz_box(-0.09, -0.04, VENT_TOP, VENT_TOP + 0.06, VENT_HALF + 0.1), M["stone"], "root")  # the lintel
+    b.add(yz_box(-0.052, -0.048, 0.02, VENT_TOP - 0.02, VENT_HALF), M["enamel"], "root")  # the mouth
+    b.add(yz_box(-0.05, -0.046, 0.04, 0.09, VENT_HALF * 0.8), M["ember"], "root")  # coals far in, seen through it
+    for k in range(7):
+        x = -VENT_HALF + 0.03 + k * (2 * VENT_HALF - 0.06) / 6
+        b.add(rod((x, -0.06, 0.02), (x, -0.06, VENT_TOP - 0.01), 0.011, n=6), M["bronze_dark"], "root")
+    b.add(rod((-VENT_HALF, -0.062, VENT_TOP * 0.55), (VENT_HALF, -0.062, VENT_TOP * 0.55), 0.01, n=6),
+          M["bronze_plain"], "root")
+    b.add(place(prism(blob(0.26, 7, n=12, jitter=0.15), 0.002), loc=(0, -0.38, 0.0)), M["soot"], "root")  # floor burn
+
+
 # Sunlight mirrors (plan sunlight-mirrors): the beam runs BEAM_DEPTH in front of the back wall, BEAM_HEIGHT over the
 # floor (the engine's, dungeon_render_sun.cpp), through the mirror's pivot and over the sun disc's middle.
 BEAM_DEPTH = 0.3
@@ -511,6 +534,7 @@ BUILDERS = {
     "mirror_stand": build_mirror_stand,
     "mirror": build_mirror,
     "mirror_pointer": build_mirror_pointer,
+    "fire_vent": build_fire_vent,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -527,6 +551,7 @@ LIGHT = {
     "mirror_stand": ([(50, 30, 0.55), (50, -30, 0.35)], 0.55),
     "mirror": ([(0, 0, 0.5), (90, 0, 0.3), (-90, 0, 0.2)], 0.6),  # it turns: light on every side
     "mirror_pointer": ([(10, 0, 0.6)], 0.6),
+    "fire_vent": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
 }
 
 

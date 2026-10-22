@@ -30,7 +30,8 @@ constexpr int STRUCTURE_COUNT = 6;
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
 // The object and wall layers share one number space. The numbers are the v1 file's tile types: 0 was Wall (now a
-// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes and SunDisc are wall types (isWallType): fixtures.
+// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes, SunDisc and FireVent are wall types (isWallType):
+// fixtures.
 enum DungeonTileType : unsigned char {
 	NoObject = 1,
 	Door = 2,
@@ -59,14 +60,19 @@ enum DungeonTileType : unsigned char {
 	Page = 20,
 	// A trapped treasure (plan trapped-chests): a Treasure (attr, value: the item) whose opening sets off a trap.
 	TrappedTreasure = 21,
+	// A vent low in the back wall that breathes fire up through its cell on the wall spikes' cycle (plan
+	// fire-jet-trap); b = speed, c = phase | live state, as WallSpikes.
+	FireVent = 22,
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 18;
 [[nodiscard]] constexpr bool isExpeditionPage(int number) { return number >= 1 && number <= EXPEDITION_PAGE_COUNT; }
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
-	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc;
+	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent;
 }
+// The rhythm traps (plans rhythm-traps, fire-jet-trap): wall spikes and fire vents, on the same cycle (spike_cycle.h).
+[[nodiscard]] constexpr bool isRhythmTrap(int type) { return type == WallSpikes || type == FireVent; }
 
 enum GateType : unsigned char {
 	GateEntrance = 1,
@@ -253,9 +259,9 @@ constexpr int NAME_SEAL = 256;
 // The monster type a cell spawns, or spawned before it was slain; 0 for none.
 [[nodiscard]] inline int spawnType(const Tile& t) { return t.type == MonsterSpawn ? t.attr : slainMonster(t); }
 
-// WallSpikes (plan rhythm-traps): out of the back wall and back on a fixed cycle (spike_cycle.h). The attribute is
-// the speed, the value's low bits the phase in eighths of the cycle; the game keeps the live state in the bits above
-// it (level files leave them 0).
+// WallSpikes (plan rhythm-traps) and FireVent (plan fire-jet-trap): out of the back wall and back on a fixed cycle
+// (spike_cycle.h), the vent's jet as the spikes. The attribute is the speed, the value's low bits the phase in eighths
+// of the cycle; the game keeps the live state in the bits above it (level files leave them 0).
 enum class SpikeSpeed : std::uint8_t { Normal = 0, Fast = 1, Slow = 2 };
 constexpr int SPIKE_SPEED_COUNT = 3;
 constexpr int SPIKE_PHASES = 8;
@@ -268,6 +274,9 @@ enum class SpikeState : std::uint8_t { Retracted = 0, Telegraph = 1, Extended = 
 inline void setSpikeState(Fixture& f, SpikeState s) { f.value = spikePhase(f) | (static_cast<int>(s) << 3); }
 [[nodiscard]] inline bool spikesOut(const Fixture& f) {
 	return f.type == WallSpikes && spikeState(f) == SpikeState::Extended;
+}
+[[nodiscard]] inline bool fireJetOn(const Fixture& f) {
+	return f.type == FireVent && spikeState(f) == SpikeState::Extended;
 }
 
 // Blocks the player (walls, deep water, gates not fully open, wall spikes while out). Everything else is open space.

@@ -58,6 +58,7 @@ class Monster {
 	int health = 0;
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
+	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (trapDamageCarry)
 	int fleeDir = 0; // a fleeing coward runs this way (Flee), a kiter backs off (BackOff), -1 / +1; 0: neither
 	float seenPlayerX = -1.f; // kiters: the player's map x on the last tick (WatchPlayer); < 0: not yet
 	int closingUntilMs = -1; // kiters: GameClock time until which the player counts as coming at it
@@ -96,7 +97,8 @@ class Monster {
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 	Poison poison; // plan monster-poison
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
-	Burning burning; // plan fire-damage; only the player's weapons set it alight, so its kill is theirs
+	Burning burning; // plan fire-damage
+	bool burnByPlayer = false; // the fire is the player's doing (a weapon, a sunbeam): its kill is theirs, a trap's not
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -347,13 +349,15 @@ class Monster {
 	bool UpdatePoison();
 	[[nodiscard]] bool Poisoned() const { return poison.Any(); }
 	// Once a tick: half water puts the fire out, else it burns (Burning), which can kill. True: it burnt to death
-	// (Dungeon::rewardKill).
+	// and the player set it alight (Dungeon::rewardKill).
 	bool UpdateBurning();
 	[[nodiscard]] bool Burns() const { return burning.Any(); }
 	// Set on fire as by a hit with fire fire (a beam of sunlight on a mummy, plan sunlight-mirrors); not in water.
 	void Kindle(double fire) {
-		if (Alive() && !inWater)
+		if (Alive() && !inWater) {
 			burning.Ignite(fire);
+			burnByPlayer = true;
+		}
 	}
 	[[nodiscard]] int PoisonMask() const { return poison.Mask(); }
 	// Each tick it stands in a spike or death trap (see TrapHurt).
@@ -362,6 +366,9 @@ class Monster {
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
 	// not farm kills with traps.
 	void TrapHit(int dmg);
+	// Each tick it stands in a fire vent's jet (plan fire-jet-trap): a trap's hit (TrapHurt), all fire: its fire
+	// resistance counts on top of trapDamagePct, and it sets it burning (not in water). No XP for the kill.
+	void StandInFire();
 	// Out of a trap that closes on it (wall spikes, plan rhythm-traps): its centre to map x on its row.
 	void ShoveTo(float mapX) { x = mapX - static_cast<float>(col) - 0.5f; }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).

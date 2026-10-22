@@ -178,11 +178,24 @@ std::optional<int> Dungeon::inTrap(float x, float y) const {
 	return std::nullopt;
 }
 //======================================================================================
-// Only walkers on the ground stand in a trap: flyers pass over, a leaper is in the air.
+// Only walkers on the ground stand in a spike trap: flyers pass over, a leaper is in the air. A fire vent's jet fills
+// its cell (plan fire-jet-trap): it burns them all, the player in a jump too.
 void Dungeon::updateTraps() {
 	const std::optional<int> here = inTrap(mapX, mapY);
 	if (!here || *here != Death)
 		playerVenomed = false;
+	const float half = sim.player->HalfWidth();
+	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
+	if (!jet)
+		playerScorched = false;
+	if (jet)
+		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
+			sim.player->TakeHit(dmg, FIRE_JET_MIX, *sim.events);
+			if (!playerScorched) {
+				playerScorched = true;
+				sim.events->Status("The wall exhales. You smell your eyebrows.");
+			}
+		}
 	if (here)
 		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
 			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
@@ -192,11 +205,18 @@ void Dungeon::updateTraps() {
 				sim.player->Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
 			}
 		}
-	for (Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping())
-			if (const auto type = inTrap(mon.CentreX(), static_cast<float>(mon.Row())))
+	for (Monster& mon : monsters) {
+		if (!mon.Active() || !mon.Alive())
+			continue;
+		if (!mon.flies() && !mon.jumping())
+			if (const auto type = inTrap(mon.CentreX(), static_cast<float>(mon.Row()))) {
 				mon.StandInTrap(*type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
 								sim.random->gameplay);
+				continue;
+			}
+		if (!mon.Hidden() && inFireJet(mon.Left(), mon.Right(), mon.Row()))
+			mon.StandInFire();
+	}
 }
 //======================================================================================
 void Dungeon::updateMonsterPoison() {

@@ -1,0 +1,39 @@
+# Fire vents (plan fire-jet-trap) through one cycle, from beside the one at col 5: the glow before, the jet, the player
+# standing in it (god: hurt nothing, but burning). The rules are unit tests (tests/unit/fire_vent_test.cpp).
+seed 1
+god
+level tests/levels/fire_vents
+wait 30
+walk right 3.1
+screenshot c00
+wait 400ms
+screenshot c01
+wait 400ms
+screenshot c02
+wait 400ms
+screenshot c03
+wait 400ms
+screenshot c04
+wait 400ms
+screenshot c05
+wait 400ms
+screenshot c06
+wait 400ms
+screenshot c07
+wait 400ms
+screenshot c08
+wait 400ms
+screenshot c09
+walk right 1
+screenshot in00
+wait 400ms
+screenshot in01
+wait 400ms
+screenshot in02
+wait 400ms
+screenshot in03
+wait 400ms
+screenshot in04
+wait 400ms
+screenshot in05
+quit

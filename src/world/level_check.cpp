@@ -154,7 +154,7 @@ class Walker {
 			return COST_DEATH;
 		if (t.type == RockFall && rockState(t) == RockState::Armed)
 			return COST_ROCK_FALL;
-		const int spikes = t.fixture.type == WallSpikes ? COST_WALL_SPIKES : 0; // on the back wall, over the object's
+		const int spikes = isRhythmTrap(t.fixture.type) ? COST_WALL_SPIKES : 0; // on the back wall, over the object's
 		if (t.type == DartPlate)
 			return COST_DART_PLATE + spikes;
 		if (t.type == MonsterSpawn)
@@ -334,6 +334,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			}
 			const Fixture& f = t.fixture;
 			r.wallSpikes += f.type == WallSpikes ? 1 : 0;
+			r.fireVents += f.type == FireVent ? 1 : 0;
 			r.levers += f.type == Lever ? 1 : 0;
 			r.sunDiscs += f.type == SunDisc ? 1 : 0;
 			if (f.type == Inscription) {
@@ -645,33 +646,42 @@ int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
 	return lit;
 }
 
-bool wallSpikesAt(const LevelGrid& grid, int col, int row) { return grid.at(col, row).fixture.type == WallSpikes; }
+bool rhythmTrapAt(const LevelGrid& grid, int col, int row) { return isRhythmTrap(grid.at(col, row).fixture.type); }
 
-// Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them), and
-// each run of them in a row can be walked through both ways. In front of them (plan wall-layer) only what the spikes
-// do not trap: a key or a floor trap, no monster spawn (it would spawn inside them), ladder, gate or chest (the player
-// could never stand at it safely).
+// Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them). In
+// front of them (plan wall-layer) only what the spikes do not trap: a key or a floor trap, no monster spawn (it would
+// spawn inside them), ladder, gate or chest (the player could never stand at it safely). A fire vent (plan
+// fire-jet-trap) stands on a floor, out of the water; its jet blocks nothing. Each run of rhythm traps in a row, wall
+// spikes and fire vents mixed, can be walked through both ways: the same safe windows, burning is a cost, not a block.
 void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			if (!wallSpikesAt(grid, col, row))
+			if (!rhythmTrapAt(grid, col, row))
 				continue;
 			const int cell = row * LEVEL_WIDTH + col;
-			const int object = grid.at(col, row).type;
-			if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door || object == Treasure ||
-				object == TrappedTreasure || object == Mirror)
-				r.warnings.push_back(std::string(tileDef(object).name) + " in front of wall spikes at " + at(cell));
-			if (!isWall(grid.at(col, row - 1)))
-				r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
-			if (!isWall(grid.at(col, row + 1)))
-				r.warnings.push_back("wall spikes without a wall above them at " + at(cell));
-			if (wallSpikesAt(grid, col - 1, row))
+			const Tile& t = grid.at(col, row);
+			const int object = t.type;
+			if (t.fixture.type == WallSpikes) {
+				if (object == MonsterSpawn || object == Ladder || object == Gate || object == Door ||
+					object == Treasure || object == TrappedTreasure || object == Mirror)
+					r.warnings.push_back(std::string(tileDef(object).name) + " in front of wall spikes at " + at(cell));
+				if (!isWall(grid.at(col, row - 1)))
+					r.warnings.push_back("wall spikes without a floor under them at " + at(cell));
+				if (!isWall(grid.at(col, row + 1)))
+					r.warnings.push_back("wall spikes without a wall above them at " + at(cell));
+			} else {
+				if (!isWall(grid.at(col, row - 1)))
+					r.warnings.push_back("a fire vent without a floor under it at " + at(cell));
+				if (t.structure != Structure::Empty && !inSand(t))
+					r.warnings.push_back("a fire vent in water at " + at(cell));
+			}
+			if (rhythmTrapAt(grid, col - 1, row))
 				continue; // not the first of its run
 			int count = 1;
-			while (wallSpikesAt(grid, col + count, row))
+			while (rhythmTrapAt(grid, col + count, row))
 				count++;
 			if (!wallSpikesCrossable(grid, col, row, count, 1) || !wallSpikesCrossable(grid, col, row, count, -1))
-				r.warnings.push_back("the " + std::to_string(count) + " wall spikes from " + at(cell) +
+				r.warnings.push_back("the " + std::to_string(count) + " rhythm traps from " + at(cell) +
 									 " cannot be walked through: their safe windows do not line up");
 		}
 }
@@ -683,7 +693,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	score += 1.f * static_cast<float>(r.pathSandFalls) + 1.5f * static_cast<float>(r.pathQuicksand);
 	score += 0.02f * static_cast<float>(r.pathSand);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
-	score += 1.5f * static_cast<float>(r.pathWallSpikes);
+	score += 1.5f * static_cast<float>(r.pathWallSpikes + r.pathFireVents);
 	score += 0.8f * static_cast<float>(r.pathGates);
 	score += 0.8f * static_cast<float>(r.pathTurns); // a light puzzle on the way
 
@@ -920,6 +930,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathQuicksand += inQuicksand(t) ? 1 : 0;
 		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
 		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
+		r.pathFireVents += t.fixture.type == FireVent ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);

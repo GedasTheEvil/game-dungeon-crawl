@@ -1,10 +1,11 @@
-// Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps and wall spikes
+// Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps, wall spikes and fire vents
 // (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
+#include "../graphics/lighting.h"
 #include "spike_cycle.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -33,6 +34,35 @@ constexpr float SPIKES_HIDE_DEPTH = 1.f;
 constexpr int SPIKES_THRUST_MS = 80;
 constexpr int SPIKES_RETRACT_MS = 250;
 constexpr float SPIKES_TWITCH = 0.09f;
+
+// A fire vent's jet (plan fire-jet-trap): out of the mouth low in the back wall (mechanism.py's VENT_TOP), it rolls
+// forward to the corridor's middle and up to the ceiling, JET_PLUMES fires stacked up the cell. It flares up in
+// JET_FLARE_MS and dies down over the last JET_FADE_MS of its time out. In the telegraph, embers glow in the mouth,
+// brighter as it nears.
+constexpr float VENT_MOUTH_Y = 0.13f * RenderConfig::TILE_SIZE;
+constexpr float VENT_MOUTH_Z = -0.94f * RenderConfig::TILE_SIZE;
+constexpr int JET_PLUMES = 4;
+constexpr int JET_FLARE_MS = 80;
+constexpr int JET_FADE_MS = 250;
+constexpr FireStyle JET = {64, 520.f, 7.f, 26.f, 8.f, 2.f, 0.2f};
+constexpr FireStyle VENT_EMBERS = {14, 320.f, 5.f, 5.f, 2.6f, 0.6f, 0.f};
+constexpr Lighting::LightDef JET_LIGHT = {1.f, 0.5f, 0.18f, 150.f, 0.8f};
+constexpr Lighting::LightDef VENT_GLOW = {0.9f, 0.28f, 0.08f, 45.f, 0.6f};
+
+// How strong the jet is drawn, 0 (none) to 1, at that point of its cycle; the telegraph's glow, 0 to 1.
+float jetStrength(const Fixture& t, int nowMs) {
+	const int at = spikeCycleMs(t, nowMs);
+	const int out = spikeOutMs(t);
+	if (at >= out)
+		return 0.f;
+	return std::min({1.f, static_cast<float>(at + 1) / JET_FLARE_MS, static_cast<float>(out - at) / JET_FADE_MS});
+}
+float ventGlow(const Fixture& t, int nowMs) {
+	const int toOut = spikePeriodMs(t) - spikeCycleMs(t, nowMs);
+	return toOut > SPIKES_TELEGRAPH_MS || spikeCycleMs(t, nowMs) < spikeOutMs(t)
+			   ? 0.f
+			   : 1.f - static_cast<float>(toOut) / SPIKES_TELEGRAPH_MS;
+}
 
 // How far out the spikes are drawn, 0 (in the wall) to 1, at that point of their cycle.
 float spikesOut(const Fixture& t, int nowMs) {
@@ -205,6 +235,57 @@ void Dungeon::drawWallSpikesTile(int i, int j) {
 		showModel(sim.assets->mechanisms.wallSpikes.get());
 	}
 	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawFireVentTile() {
+	glPushMatrix();
+	enterPropSpace();
+	showModel(sim.assets->mechanisms.fireVent.get());
+	glPopMatrix();
+}
+//======================================================================================
+// Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
+void Dungeon::drawFireJets(const CellRect& drawn) {
+	const int now = GameClock::now();
+	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
+		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
+			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != FireVent)
+				continue;
+			const Fixture& f = MapAt(i, j).fixture;
+			const float x =
+				static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
+			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE;
+			const auto seed = static_cast<uint32_t>(MapIndex(i, j)) * 2654435761u;
+			if (const float glow = ventGlow(f, now); glow > 0.f)
+				Fire::draw(VENT_EMBERS, x, y + VENT_MOUTH_Y * 0.5f, VENT_MOUTH_Z, seed, glow);
+			const float jet = jetStrength(f, now);
+			for (int k = 0; k < JET_PLUMES && jet > 0.f; k++) { // rolling out of the mouth, then rising up the cell
+				const float up = static_cast<float>(k) / (JET_PLUMES - 1);
+				Fire::draw(JET, x, y + VENT_MOUTH_Y * 0.5f + up * 0.6f * RenderConfig::TILE_SIZE,
+						   VENT_MOUTH_Z + (RenderConfig::MONSTER_DEPTH - VENT_MOUTH_Z) * std::min(1.f, 2.f * up),
+						   seed + static_cast<uint32_t>(k) * 7919u, jet);
+			}
+		}
+}
+//======================================================================================
+// Same frame as addLights.
+void Dungeon::addFireVentLights(const CellRect& drawn) {
+	const int now = GameClock::now();
+	const CellRect lit = drawn.grown(2);
+	for (int j = lit.row0; j < lit.row0 + lit.rows; j++)
+		for (int i = lit.col0; i < lit.col0 + lit.cols; i++) {
+			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != FireVent)
+				continue;
+			const Fixture& f = MapAt(i, j).fixture;
+			const float x =
+				static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
+			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE;
+			const auto seed = static_cast<uint32_t>(MapIndex(i, j));
+			if (jetStrength(f, now) > 0.f)
+				Lighting::add(x, y + RenderConfig::TILE_HALF, RenderConfig::MONSTER_DEPTH, JET_LIGHT, seed);
+			else if (ventGlow(f, now) > 0.f)
+				Lighting::add(x, y + VENT_MOUTH_Y, VENT_MOUTH_Z + 6.f, VENT_GLOW, seed);
+		}
 }
 //======================================================================================
 // Same window and frame as the tile loop in Draw(): cell (col0, row0) sits at the origin.

@@ -50,6 +50,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	poison.Cure();
 	poisonByPlayer = false;
 	burning.Douse();
+	burnByPlayer = false;
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -198,8 +199,10 @@ bool Monster::takeHit(int dmg) {
 bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
 	const int hit = resistedDamage(dmg, mix, type->resist);
 	const bool killed = takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
-	if (Alive() && !inWater)
+	if (Alive() && !inWater && mix[FIRE] > 0) {
 		burning.Ignite(fireDamage(dmg, mix, type->resist));
+		burnByPlayer = true;
+	}
 	return killed;
 }
 
@@ -211,11 +214,24 @@ void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
 	}
 }
 
-void Monster::TrapHit(int dmg) {
-	const int hundredths = dmg * type->trapDamagePct + trapDamageCarry;
+void Monster::TrapHit(int dmg) { trapHit(dmg * type->trapDamagePct); }
+
+void Monster::trapHit(int hundredthsDealt) {
+	const int hundredths = hundredthsDealt + trapDamageCarry;
 	trapDamageCarry = hundredths % 100;
 	if (hundredths >= 100)
 		takeHit(hundredths / 100); // no reward: the player must not farm kills with traps
+}
+
+void Monster::StandInFire() {
+	const int dmg = trapHurt.hit();
+	if (dmg <= 0)
+		return;
+	trapHit(dmg * type->trapDamagePct * type->resist[FIRE] / NORMAL);
+	if (Alive() && !inWater) {
+		burnByPlayer = burnByPlayer && burning.Any(); // the player's fire stays theirs
+		burning.Ignite(fireDamage(dmg, FIRE_JET_MIX, type->resist));
+	}
 }
 
 bool Monster::TakePoison(PoisonTier tier, bool byPlayer, Rng& rng) {
@@ -247,7 +263,7 @@ bool Monster::UpdateBurning() {
 	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
 		return false;
 	burning.Douse();
-	return true;
+	return burnByPlayer;
 }
 
 // The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.

@@ -361,6 +361,9 @@ void Dungeon::drawFixture(int i, int j) {
 	case WallSpikes:
 		drawWallSpikesTile(i, j);
 		break;
+	case FireVent:
+		drawFireVentTile();
+		break;
 	case SunDisc:
 		drawSunDiscTile(i, j);
 		break;
@@ -413,6 +416,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	case Inscription:
 	case WallSpikes:
 	case SunDisc:
+	case FireVent:
 	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
 		break;
 	case Mirror:
@@ -460,6 +464,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	addVenomLights();
 	addFireLights();
 	addSunLights(drawn);
+	addFireVentLights(drawn);
 	Lighting::commit();
 
 	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
@@ -497,6 +502,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	glPopMatrix();
 
 	drawFires(drawn);
+	drawFireJets(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
 	drawSandEffects();

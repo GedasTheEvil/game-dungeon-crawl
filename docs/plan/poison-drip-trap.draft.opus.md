@@ -1,7 +1,7 @@
 # Poison drip trap
 
 Status: draft 2026-10-14. Needs first: [rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph
-and level check). From the user. Sibling of [fire-jet-trap](fire-jet-trap.draft.opus.md).
+and level check). From the user. Sibling of [fire-jet-trap](fire-jet-trap.md).
 
 ## Idea
 

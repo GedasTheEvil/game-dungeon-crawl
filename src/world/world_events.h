@@ -29,6 +29,8 @@ enum class WorldSound : unsigned char {
 	Dart, // a dart leaves the wall
 	SpikeScrape, // wall spikes twitch before they come out (plan rhythm-traps)
 	SpikeThunk, // wall spikes come out
+	FireHiss, // a fire vent glows before its jet (plan fire-jet-trap)
+	FireRoar, // a fire vent's jet
 	MirrorTurn, // a mirror turned on its stand (plan sunlight-mirrors)
 	SunDisc, // a sun disc lit by the beam
 	Dodge, // the player sidesteps a blow (Dodge skill)

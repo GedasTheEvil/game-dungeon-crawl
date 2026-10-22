@@ -281,6 +281,12 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 				sk.loop(x + 0.25f + 0.25f * static_cast<float>(c), y + 0.22f + 0.25f * static_cast<float>(r), 0.05f,
 						0.05f, 5, GRAPHITE, 0.9f, seed + static_cast<uint32_t>(c * 3 + r));
 		break;
+	case FireVent: // the vent's mouth low in the back wall, a tongue of flame over it
+		sk.pencil(x + 0.3f, y + 0.12f, x + 0.7f, y + 0.12f, GRAPHITE, 0.95f, seed);
+		sk.pencil(x + 0.3f, y + 0.22f, x + 0.7f, y + 0.22f, GRAPHITE, 0.95f, seed + 1);
+		sk.pencil(x + 0.5f, y + 0.28f, x + 0.42f, y + 0.55f, GRAPHITE, 0.9f, seed + 2);
+		sk.pencil(x + 0.42f, y + 0.55f, x + 0.55f, y + 0.8f, GRAPHITE, 0.9f, seed + 3);
+		break;
 	case LightShaft: { // rays fanning out of the crack the way the beam goes
 		const BeamDir d = shaftDir(t);
 		const float dx = static_cast<float>(beamDx(d)), dy = static_cast<float>(beamDy(d));

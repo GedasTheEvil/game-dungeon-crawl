@@ -24,6 +24,7 @@ struct SoundBank {
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
+	Sound fireHiss, fireRoar; // a fire vent about to breathe, its jet (plan fire-jet-trap)
 	Sound mirrorTurn, sunDisc; // a mirror turned, a sun disc lit (plan sunlight-mirrors)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
 	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)
@@ -85,10 +86,11 @@ struct DecorSet {
 // if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
-	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex;
+	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex,
+		fireVentTex;
 	Texture sunDiscTex[LOCK_COLOUR_COUNT], mirrorStandTex, mirrorTex, mirrorPointerTex; // plan sunlight-mirrors
 	std::unique_ptr<AnimatedModel> key, gate, leverBase;
-	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes;
+	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes, fireVent;
 	std::unique_ptr<AnimatedModel> sunDisc, mirrorStand, mirror, mirrorPointer;
 };
 

@@ -132,6 +132,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.spikeScrape;
 	case WorldSound::SpikeThunk:
 		return sounds.spikeThunk;
+	case WorldSound::FireHiss:
+		return sounds.fireHiss;
+	case WorldSound::FireRoar:
+		return sounds.fireRoar;
 	case WorldSound::MirrorTurn:
 		return sounds.mirrorTurn;
 	case WorldSound::SunDisc:

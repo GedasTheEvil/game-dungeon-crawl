@@ -71,6 +71,12 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "curse or a scarab swarm, by depth; canopic jars and pottery jars curse. Half of them hold the item and one bonus "
 	 "more, the rest nothing. Never put what the level needs in one: the checker does not count its antidote.",
 	 true, true, '%', "trapped_treasure.png"},
+	{"FireVent",
+	 "Rhythm trap: a vent low in the back wall breathes a jet of fire up through the cell, on the wall spikes' cycle. "
+	 "It glows and hisses just before. Whoever stands in the cell while it burns takes fire damage (through armour) "
+	 "and burns on after; a jump does not clear it. Attribute: speed (0 normal 4 s, 1 fast 3.2 s, 2 slow 4.8 s). "
+	 "Value: phase, 0 to 7 eighths of the cycle. Put a floor under it.",
+	 false, false, '+'},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -124,6 +130,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'i', {Inscription, 0, 0}, "inscription (no text: give the text id with 'def')"},
 		{':', {Inscription, NAME_CARTOUCHE_ID, 0}, "name cartouche (the level's name, for its name gate)"},
 		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
+		{'+', {FireVent, 0, 0}, "fire vent (normal speed, phase 0; others: 'def')"},
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},

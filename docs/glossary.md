@@ -28,7 +28,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | decal layer | | ([placed-decor](plan/solved/placed-decor.md)) a cell's wall decal and wall torch as the level designer set them: unset (the scatter rolls them), bare, or a decal and a torch (or no torch). Not the drawn decal (`DecalCell`) | `Dressing::decal`, `Dressing::torch`, `TorchPlacing`, `hasPlacedDecal` |
 | decor layer | | ([placed-decor](plan/solved/placed-decor.md)) a cell's prop as the level designer set it: unset (the scatter rolls it), bare, or one prop with its mirror. Not the drawn prop (`DecorCell`) | `Dressing::prop`, `Tile::dressing`, `hasPlacedProp`, `PLACED_UNSET`, `PLACED_BARE` |
 | decoy | | ([placed-decor](plan/solved/placed-decor.md)) a prop that looks like a lurking monster and never wakes: the sleeping mummy, a coffin with a mummy asleep in it, beside the real mummy's coffin. Editor label "Sleeper" | `DECOR_COFFIN_MUMMY`, `Dungeon::drawDecoys`, `DrawEntombed` |
-| fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes, a sun disc. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
+| fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes, a sun disc, a fire vent. Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
 | flooded cell | | a cell with water in it: half water or deep water | `Structure` |
 | floor | | a solid cell under an open one, what the player stands on. Also a storey of the map ("the upper floor") | `isSolidStructure` |
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
@@ -66,7 +66,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | row | | a horizontal line of cells, row 0 at the bottom. Walkers follow the player along their row | `LevelGrid` |
 | slain marker | | a monster's spawn cell remembers the monster killed there, so it does not come back after a load | `slainMonster`, `slainObject` |
 | softlock | | a reachable cell from which the exit can no longer be reached; the checker warns | `LevelReport` |
-| trap | | a cell that hurts whoever steps in: spikes, a death trap, a rock fall, a dart plate, wall spikes. Cowards keep out, the reckless walk through | `TrapHurt`, `Courage` |
+| trap | | a cell that hurts whoever steps in: spikes, a death trap, a rock fall, a dart plate, wall spikes, a fire vent. Cowards keep out, the reckless walk through | `TrapHurt`, `Courage` |
 | spikes | | a small spike trap in the floor: hurts whoever stands in it, more the longer they stay | `Spike`, `TrapHurt` |
 | death trap | | a large spike trap: hurts like spikes, and its tips poison strongly once per entry | `Death`, `TrapHurt` |
 | rock fall | | loose ceiling over a walkable cell: a rock falls about 1 s after the player steps in, crushes or grazes | `RockFall` |
@@ -75,7 +75,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | tile | | (render) a cell's size in the 3D world, 40 GL units; distances in docs are in tiles ("1.4 tiles"). Often used for "cell" | `TILE_SIZE` |
 | wade | | walk through half water: half speed, no sprint, no jump ("too deep to jump") | `Dungeon::PlayerWading`, `Dungeon::JumpAllowed` |
 | wall layer | | the cell's layer between the structure and the object: its fixture ([wall-layer](plan/solved/wall-layer.md)). Not the structure `Wall` | `Tile::fixture`, `setFixture`, `setThing` |
-| wall spikes | | a rhythm trap ([rhythm-traps](plan/solved/rhythm-traps.md)): poison spikes out of a cell's back wall on a fixed cycle; out, they block like a gate and stab whoever stands in the cell. Drafts also say "rhythm trap" | `WallSpikes`, `spikeStateAt`, `Dungeon::updateWallSpikes` |
+| fire vent | | a rhythm trap ([fire-jet-trap](plan/fire-jet-trap.md)): a vent low in a cell's back wall that breathes a jet of fire up through the cell on the wall spikes' cycle; it glows and hisses before. The jet blocks nothing and burns whoever stands in the cell, a jump too. Drafts also say "fire jet" | `FireVent`, `fireJetOn`, `Dungeon::inFireJet`, `Monster::StandInFire` |
+| wall spikes | | a rhythm trap ([rhythm-traps](plan/solved/rhythm-traps.md)): poison spikes out of a cell's back wall on a fixed cycle; out, they block like a gate and stab whoever stands in the cell. "Rhythm trap" means them or a fire vent (`isRhythmTrap`) | `WallSpikes`, `spikeStateAt`, `Dungeon::updateRhythmTraps` |
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 | water prop | | ([water-decorations](plan/solved/water-decorations.md)) a prop scattered in a free half water cell: papyrus reeds (at the bank), weed (under the surface), lotus leaves, a blue lotus. No function; the reeds and weed sway, the leaves bob | `isWaterProp`, `DECOR_WATER_FIRST` |
 | zone | | ([campaign-zones](plan/solved/campaign-zones.md)) a run of campaign levels with its own stone, main monsters, new mechanic and (mostly) a boss on one of its levels; one hour of the Duat, its title "The Fourth Hour: the Gate of the Priests"; each level file names its own (`zone SLUG`, the editor's zone button) | `Zone`, `ZONES`, `ZONE_INFO`, `zoneOf`, `zoneTitle`, `LevelMeta` |

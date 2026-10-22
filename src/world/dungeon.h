@@ -405,8 +405,17 @@ class Dungeon {
 	TrapHurt trapHurt; // the player's
 	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the
 	// tile's bottom centre.
-	// The tile type (Spike or Death) it stands in, else nullopt.
-	[[nodiscard]] std::optional<int> inTrap(float x, float y) const;
+	// The trap it stands in: its tile type (Spike or Death) and x's offset from its middle in half widths (-1 to 1).
+	struct TrapContact {
+		int type;
+		float offset;
+		float centre; // its middle's map x
+		float half; // its hitbox's half width
+	};
+	[[nodiscard]] std::optional<TrapContact> inTrap(float x, float y) const;
+	float trapLastX = 0.f; // the player's x on the tick before (updateTraps): the way covered in a trap
+	void updateTrapCrossing(const std::optional<TrapContact>& here);
+	int trapBellCarry = 0; // hundredths of a HP of the crossing's damage not dealt yet
 	bool playerVenomed = false; // the death trap's poison took this entry (reset on leaving it)
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs

@@ -28,7 +28,7 @@ wait 500ms
 expect y == 2
 expect stamina == 100
 walk to 10.5
-walk to 11.5
+walk to 11.3
 expect hp < 50
 screenshot spikes_in_water
 toon on

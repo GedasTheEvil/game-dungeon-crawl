@@ -67,8 +67,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | slain marker | | a monster's spawn cell remembers the monster killed there, so it does not come back after a load | `slainMonster`, `slainObject` |
 | softlock | | a reachable cell from which the exit can no longer be reached; the checker warns | `LevelReport` |
 | trap | | a cell that hurts whoever steps in: spikes, a death trap, a rock fall, a dart plate, wall spikes, a fire vent. Cowards keep out, the reckless walk through | `TrapHurt`, `Courage` |
-| spikes | | a small spike trap in the floor: hurts whoever stands in it, more the longer they stay | `Spike`, `TrapHurt` |
-| death trap | | a large spike trap: hurts like spikes, and its tips poison strongly once per entry | `Death`, `TrapHurt` |
+| spikes | | a small spike trap in the floor: hurts whoever stands in it, more the longer they stay; walking over it costs the player about 200 HP (a bell curve over it, more at a sprint), a jump clears it | `Spike`, `TrapHurt`, `TrapBell` |
+| death trap | | a large spike trap: hurts like spikes (a walk over it about 400 HP), and its tips poison strongly once per entry | `Death`, `TrapHurt`, `TrapBell` |
 | rock fall | | loose ceiling over a walkable cell: a rock falls about 1 s after the player steps in, crushes or grazes | `RockFall` |
 | sand fall | | a rock fall of sand (attribute 1): sand pours from a crack, a lighter hit and a short slow, the cell turns to sand | `SAND_FALL`, `isSandFall`, `Dungeon::landSandFall` |
 | dart plate | | a pressure plate in the floor: the player or a heavy monster on it sets off 3 poison darts from the back wall above. Drafts also say "dart trap" | `DartPlate`, `DartTraps`, `DART_PLATE_WEIGHT` |

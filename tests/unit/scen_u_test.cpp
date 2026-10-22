@@ -83,17 +83,22 @@ TEST_CASE("loading a level or a save drops the monsters of the level before") {
 	CHECK(world.Hp() == 50);
 }
 
-TEST_CASE("spikes: a hit every 100 ms growing by 1 every 3 hits, reset after 200 ms out, two tiles as one") {
+TEST_CASE(
+	"spikes: standing in them, a hit every 100 ms growing by 1 every 3 hits; reset after 200 ms out, two tiles as "
+	"one") {
 	SimWorld world;
+	world.player.stats.AddMaxHP(3900); // 2000 HP: the crossing (SPIKES_CROSS_HP, 20%: 400) does not kill
 	REQUIRE(world.Load("tests/levels/spikes_one"));
 	world.WaitTicks(5);
 	REQUIRE(world.Walk(3.f)); // the tile edge is outside the hitbox
 	world.Wait(1000);
-	CHECK(world.Hp() == 50);
-	REQUIRE(world.Walk(0.5f));
-	CHECK(world.Hp() == 45);
-	world.Wait(1000);
-	CHECK(world.Hp() == 15);
+	CHECK(world.Hp() == 2000);
+	REQUIRE(world.Walk(0.5f)); // to the middle: half the crossing, and the first hits
+	const int inMiddle = world.Hp();
+	CHECK(2000 - inMiddle > 195);
+	CHECK(2000 - inMiddle < 245); // a step past the middle
+	world.Wait(1000); // standing: only the hits
+	CHECK(inMiddle - world.Hp() == 30);
 
 	REQUIRE(world.Load("tests/levels/spikes_two"));
 	world.WaitTicks(5);
@@ -102,7 +107,8 @@ TEST_CASE("spikes: a hit every 100 ms growing by 1 every 3 hits, reset after 200
 	REQUIRE(world.Walk(1.f));
 	world.Wait(500);
 	CHECK(world.X() > 5.4f);
-	CHECK(world.Hp() == 9);
+	CHECK(2000 - world.Hp() > 600); // one and a half crossings
+	CHECK(2000 - world.Hp() < 660); // and the hits, one streak over both
 }
 
 TEST_CASE("a jump costs stamina, it regenerates 5% a second, a level up refills it") {

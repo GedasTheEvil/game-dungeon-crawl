@@ -47,6 +47,16 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 // (Dungeon::updateTraps).
 constexpr float SPIKES_SCALE = 16.f;
 constexpr float DEATH_TRAP_SCALE = 40.f;
+// Crossing a spike or death trap on foot (the player only; TrapBell): over the whole hitbox at walking speed it deals
+// *_CROSS_HP, or *_CROSS_PERCENT of the max HP when more, spread over the hitbox as a bell curve (TRAP_BELL_SIGMA of
+// its half width): the middle hurts most, a step into its edge only a little. Faster costs more, up to
+// TRAP_SPRINT_FACTOR at a sprint (WALK_SPEED x 3). The TrapHurt ramp comes on top, so standing in it kills too.
+constexpr int SPIKES_CROSS_HP = 200;
+constexpr int SPIKES_CROSS_PERCENT = 20;
+constexpr int DEATH_TRAP_CROSS_HP = 400;
+constexpr int DEATH_TRAP_CROSS_PERCENT = 40;
+constexpr float TRAP_BELL_SIGMA = 0.35f;
+constexpr float TRAP_SPRINT_FACTOR = 1.25f;
 
 constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this still counts as standing on it
 constexpr float MONSTER_SEEK_STEP = 0.0042f;

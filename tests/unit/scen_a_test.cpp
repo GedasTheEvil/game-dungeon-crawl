@@ -5,23 +5,33 @@
 namespace {
 ItemKind amulet(AmuletType type, AmuletTier tier) { return *amuletKind(type, tier); }
 
-// tests/levels/spikes_one: the player walks 3.5 tiles onto the spikes and stands there a second.
-int hpAfterSpikes(std::optional<ItemKind> worn) {
+// A player with 2000 HP (50 x 40), who lives through a trap's crossing (SPIKES_CROSS_HP).
+void toughen(SimWorld& world) {
+	world.player.stats.AddMaxHP(3900);
+	REQUIRE(world.player.stats.CurrentMaxHP() == 2000);
+}
+
+// tests/levels/spikes_one: the HP a 2000 HP player loses walking 3.5 tiles onto the spikes and standing there a second.
+int lossOnSpikes(std::optional<ItemKind> worn) {
 	SimWorld world;
+	toughen(world);
 	REQUIRE(world.Load("tests/levels/spikes_one"));
 	world.WaitTicks(5);
 	if (worn)
 		world.Wear(*worn);
 	world.Walk(3.5f);
 	world.Wait(1000);
-	return world.Hp();
+	return 2000 - world.Hp();
 }
 } // namespace
 
-TEST_CASE("trap guard cuts the spike damage: none without it 30 HP, grand none, lesser about a quarter off") {
-	CHECK(hpAfterSpikes(std::nullopt) == 20);
-	CHECK(hpAfterSpikes(amulet(AmuletType::TrapWard, AmuletTier::Grand)) == 50);
-	CHECK(hpAfterSpikes(amulet(AmuletType::TrapWard, AmuletTier::Lesser)) == 28);
+TEST_CASE("trap guard cuts the spike damage: grand none, lesser about a quarter off") {
+	const int bare = lossOnSpikes(std::nullopt);
+	CHECK(bare > 200); // half a crossing's 400 (20% of 2000), and the second standing in it
+	CHECK(lossOnSpikes(amulet(AmuletType::TrapWard, AmuletTier::Grand)) == 0);
+	const int lesser = lossOnSpikes(amulet(AmuletType::TrapWard, AmuletTier::Lesser));
+	CHECK(lesser < bare * 85 / 100);
+	CHECK(lesser > bare * 60 / 100);
 }
 
 TEST_CASE("regeneration heals 1 HP a second while safe, none while poisoned or chased") {
@@ -126,6 +136,7 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; the ward cuts the damage only") {
 	{
 		SimWorld world;
+		toughen(world);
 		REQUIRE(world.Load("tests/levels/spikes_one"));
 		world.WaitTicks(5);
 		world.Walk(3.5f);
@@ -133,11 +144,13 @@ TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; 
 		CHECK_FALSE(world.player.stats.poison.Any());
 	}
 	SimWorld world;
+	toughen(world);
 	REQUIRE(world.Load("tests/levels/death_one"));
 	world.WaitTicks(5);
 	world.Wear(amulet(AmuletType::TrapWard, AmuletTier::Lesser));
 	world.Walk(3.5f);
 	world.Wait(1000);
+	CHECK(world.player.Alive());
 	CHECK(world.player.stats.poison.Running(PoisonTier::Strong));
-	CHECK(world.Hp() < 50);
+	CHECK(world.Hp() < 2000);
 }

@@ -23,7 +23,7 @@ constexpr int NONE = -1;
 // Path costs: the cheapest path avoids hazards when there is a way around them.
 constexpr int COST_MOVE = 2;
 constexpr int COST_JUMP = 4;
-constexpr int COST_SPIKE = 6;
+constexpr int COST_SPIKE = 30; // a walk over it costs SPIKES_CROSS_HP: deadly early on, jump it
 constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_DART_PLATE = 8;
@@ -949,6 +949,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 
 	if (r.pathDeathTraps > 0)
 		r.warnings.emplace_back("the only way to the exit walks over a death trap");
+	if (r.pathSpikes > 0) // a crossing costs SPIKES_CROSS_HP: deadly early on
+		r.warnings.emplace_back("the only way to the exit walks over spikes");
 	if (r.pathDartPlates > 0 && !antidote)
 		r.warnings.emplace_back("a dart trap on the path but no antidote in reach");
 

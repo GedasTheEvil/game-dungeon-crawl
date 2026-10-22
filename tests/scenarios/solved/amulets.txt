@@ -69,13 +69,8 @@ poison weak
 wait 2s
 expect hp < 27
 
-# trap guard: without, 30 HP lost in a second; grand, no spike damage; lesser, about a quarter off (22)
-level tests/levels/spikes_one
-wait 5
-wear off
-walk right 3.5
-wait 1s
-expect hp == 20
+# trap guard: grand, no spike damage (the cut without and with the lesser: tests/unit/scen_a_test.cpp; a walk over
+# the spikes kills a starting player)
 level tests/levels/spikes_one
 wait 5
 give amulet 19
@@ -83,13 +78,6 @@ wear grand_amulet_of_trap_guard
 walk right 3.5
 wait 1s
 expect hp == 50
-level tests/levels/spikes_one
-wait 5
-give amulet 16
-wear lesser_amulet_of_trap_guard
-walk right 3.5
-wait 1s
-expect hp == 28
 
 # a rat chasing the player: not safe, no regeneration
 level tests/levels/rat_corridor

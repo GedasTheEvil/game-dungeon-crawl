@@ -48,7 +48,8 @@ levels or balance) needs no user confirmation. Once implemented and its checks p
 
 When a plan moves to `docs/plan/solved/`, turn the scenario tests it uses into unit tests (`tests/unit/`,
 [testing.md](testing.md)). A scenario that needs a screenshot moves to `tests/scenarios/solved/`: `make test` skips
-it, `make test SCENARIO=...` still runs it as a slow regression check. Goal: lean, fast tests.
+it, `make test SCENARIO=...` still runs it; kept for history, it may fail once the rules change (no fix needed).
+Goal: lean, fast tests.
 
 ## Priority
 Being newer does not make a draft-plan more important than the older ones.

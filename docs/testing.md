@@ -41,7 +41,8 @@ SCENARIO_DRAW_ALL=1 bin/game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
 `tests/scenarios/solved/` parks the scenarios of solved plans that need a screenshot (the rest became unit tests).
-`make test` skips them; run one by name for a slow regression check.
+`make test` skips them; run one by name to look at its screenshots. They are kept for history: a parked scenario may
+fail once the rules have changed since, which is no bug and needs no fix.
 
 ### Kept scenarios
 

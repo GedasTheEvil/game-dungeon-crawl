@@ -12,7 +12,7 @@ story, look, monster set and main mechanic, and most zones end with a boss. Toda
 This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.draft.opus.md)
 balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.draft.opus.md) builds its
 levels, [zone-looks](../zone-looks.md) gives each zone its look,
-[campaign-texts](../campaign-texts.draft.sonet.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
+[campaign-texts](../campaign-texts.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
 rebuilds the campaign zone by zone.
 
 ## Zones (decided 2026-10-21)
@@ -73,7 +73,7 @@ night, the last two the deep hours and dawn.
 * Guardians: the Book of Gates names a guardian serpent per gate (e.g. Saa-set, Aqebi, Teka-hra). The zone's boss
   is that hour's guardian in the banner text; the bossless Necropolis names only its gate.
 * Shown on entering a zone (the banner, [zone-looks](../zone-looks.md)), in the map and in the save slots.
-* Level titles and the journal note per hour: [campaign-texts](../campaign-texts.draft.sonet.md).
+* Level titles and the journal note per hour: [campaign-texts](../campaign-texts.md).
 
 ## What changes
 

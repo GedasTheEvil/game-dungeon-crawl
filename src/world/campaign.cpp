@@ -1,6 +1,7 @@
 #include "campaign.h"
 #include "zone_look.h"
 #include "../core/paths.h"
+#include <map>
 
 std::string campaignLevelFile(int number) { return CONTENT_DIR "levels/lvl" + std::to_string(number); }
 
@@ -12,14 +13,24 @@ std::string zoneTitle(ZoneId id) {
 	return std::string("The ") + HOURS[hour] + " Hour: " + zoneInfo(id).gate;
 }
 
-LevelBanner levelBanner(int number) {
+const std::string& campaignLevelTitle(int number) {
+	static std::map<int, std::string> cache;
+	auto at = cache.find(number);
+	if (at == cache.end())
+		at = cache.emplace(number, zoneOf(number) == nullptr ? "" : levelFileTitle(campaignLevelFile(number).c_str()))
+				 .first;
+	return at->second;
+}
+
+LevelBanner levelBanner(int number, const std::string& title) {
 	const Zone* zone = zoneOf(number);
+	const std::string level = "Level " + std::to_string(number) + (title.empty() ? "" : ": " + title);
 	if (zone == nullptr)
-		return {false, "Level " + std::to_string(number), "", ""};
+		return {false, level, "", ""};
 	if (number != zone->first)
-		return {false, "Level " + std::to_string(number), zoneInfo(zone->id).name, ""};
+		return {false, level, zoneInfo(zone->id).name, ""};
 	const char* guardian = zoneLook(zone->id).guardian;
-	return {true, zoneTitle(zone->id), zoneInfo(zone->id).name,
+	return {true, zoneTitle(zone->id), zoneInfo(zone->id).name + (title.empty() ? "" : ", " + title),
 			zone->boss != 0 && guardian != nullptr ? std::string("Its guardian: ") + guardian : ""};
 }
 

@@ -201,6 +201,31 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	{"Tomb curses", "The lid said 'cursed be he who opens this'. I opened it. The lid was right. The dead write their "
 					"threats on whatever they leave behind: lids, jars, the little servant figures. Not every one "
 					"means it, and the curse runs out, as any curse."},
+	// The hour notes (plan campaign-texts): one per zone, in ZoneId order.
+	{"The First Hour", "The gate of the tomb. Ra's boat enters the Duat and the first gate closes behind it. It closed "
+					   "behind me too, and I did not even have a boat. The floors have teeth. Mind the floors."},
+	{"The Second Hour", "Bats, and a smell of old leather. The wall says the second hour is the water of the blessed, "
+						"where the grain grows. Nothing grows here except my doubts. And the bats."},
+	{"The Third Hour", "The dark thickens, and the walls are hung with webs. The third hour is the hour of the judging "
+					   "of Osiris. I am being judged by spiders. I keep a torch close."},
+	{"The Fourth Hour", "The priests' quarter. Ra's boat has to be towed over sand here, says the wall, and the "
+						"priests wrote a great deal on it. I can read it at last. I almost wish I could not."},
+	{"The Fifth Hour", "The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serqet's "
+					   "scorpions. I do not like her sense of humour. I count my antidotes."},
+	{"The Sixth Hour", "The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. "
+					   "The wall says: the dead are made new here. I will settle for staying the same."},
+	{"The Seventh Hour", "Apep waits here, says the wall. I wish the wall were wrong. The seventh hour is the hour of "
+						 "the great serpent and of water: the boat is hauled through the cisterns. So am I."},
+	{"The Eighth Hour", "Sand again, red and endless. Seth stands in the prow of the boat and drives the serpent back "
+						"with his spear. The wall says the dead here are clothed. I would settle for a hat."},
+	{"The Ninth Hour", "The land of Sokar, where the ground gives way and the worms sleep. The ninth hour feeds the "
+					   "dead with grain, the wall says. I would be glad of a sandwich. I would be gladder of a floor."},
+	{"The Tenth Hour", "A lake of fire, and baboons on its shore. In the tenth hour the lake is cooled for the boat of "
+					   "Ra, so there must be water somewhere. I look for it first. Everything else second."},
+	{"The Eleventh Hour", "The necropolis. Every trap I have met, in one place, and the road to the last gate. The "
+						  "eleventh hour is the one before the dawn. The dawn is not what I would call close."},
+	{"The Twelfth Hour", "The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I "
+						 "have a feeling that something here will weigh my heart. I did bring it. Let me be light."},
 }};
 } // namespace
 
@@ -249,15 +274,24 @@ constexpr std::array<ExpeditionPageText, EXPEDITION_PAGE_COUNT> EXPEDITION_PAGES
 	{"Day 8",
 	 "Bats. A club swats them, an arrow goes through the wing. Something up in the roost drinks blood and heals with "
 	 "every bite. Do not let it bite. Thin out its friends first."},
+	{"Day 9",
+	 "Webs across the halls, thick as sailcloth, and things that spin them: eight legs, fast, and they hate fire. "
+	 "A torch in the hand keeps them at a distance. Mine went out once. I will not describe that hour."},
 	{"Day 11",
 	 "The dead do not stay down here. Linen tears under a blade and burns like paper: dip the arrows in a brazier and "
 	 "they go up. Jack would have brought a flamethrower. Who is Jack?"},
+	{"Day 12",
+	 "A hall with two shafts side by side, and a priest's warning on the wall. I took the short one; the long one "
+	 "had water in it and I am a bad swimmer. Both come out in the same hall. There is no way back up to the other."},
 	{"Day 13",
 	 "I can read most of the walls now. The priests write of a ring of stone with seven marks, a road between worlds. "
 	 "If it is down here, it is hidden behind a riddle. My last pencil to see it."},
 	{"Day 15",
 	 "Scorpions everywhere, and eggs. Something lays them. Cut or burn the clusters before her brood hatches, and "
 	 "carry an antidote. Two. I sneezed for an hour: allergic to something here. Everything."},
+	{"Day 16",
+	 "The roof weeps green in the nest halls. One drop burns, two put me on my knees. Wait for the gap between the "
+	 "drops, then run. The antidote tastes of boiled socks. I have drunk four."},
 	{"Day 18",
 	 "The serpent temple. The cobras rear up when I come close and spit from afar: jump the spit. The great one below "
 	 "dives into the floor and comes up behind you. Turn around. Always turn around."},
@@ -267,18 +301,29 @@ constexpr std::array<ExpeditionPageText, EXPEDITION_PAGE_COUNT> EXPEDITION_PAGES
 	{"Day 23",
 	 "Darts fly from the wall where the floor clicks: jump the plate. Lost my glasses for an hour and found them on a "
 	 "mummy. It was wearing them. We had words."},
+	{"Day 24",
+	 "The cisterns have a deep end. Down there I swim, and swimming tires me twice as fast as walking. Rest on dry "
+	 "stone, drink the blessing of Hapi before the water, not in it. Crocodiles in every pool, hippos in the big "
+	 "ones."},
 	{"Day 26",
 	 "Sand. Underground! It drags at the feet, and where it swirls it swallows: jump out, do not wait. The spiders "
 	 "here hate the light. I sleep by the torches. Well, I lie by them."},
 	{"Day 29",
 	 "Sunlight through a crack, the first in weeks. Bronze mirrors turn it onto the sun discs that open the doors, and "
 	 "the mummies burn in it. The red one in the pool below charges, then roars. Stand aside."},
+	{"Day 30",
+	 "Worms. Not the kind in the garden. They hear a footstep on sand and come up under it; the spiders hunt in "
+	 "the dark between. A fork ahead: one way over loose drifts, one along the rock. Rock, rock, rock."},
 	{"Day 31",
 	 "Some doors want a name, not a key. The king's name is carved in a cartouche on the same level: find it, copy "
 	 "it, speak it. Names had power here. Mine does not seem to."},
 	{"Day 35",
 	 "The chests are darker down here, and some of them follow you. One bit me and my mind went cloudy for minutes. "
 	 "Dark wood: knock with a club first. Abydos is not on this map."},
+	{"Day 38",
+	 "A lake of fire, and baboons on its shore who throw coals from afar. Corner them or run them down; never "
+	 "stand in the open. The water is the one cool place here. A second fork ahead: the right is shorter. It "
+	 "always is."},
 	{"Day 40", "The necropolis. Loose ceilings everywhere: when the stone rumbles, keep walking. The jackal from the "
 			   "statue is on "
 			   "every wall. He waits at the bottom. I think he has always been waiting."},

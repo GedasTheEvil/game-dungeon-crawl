@@ -243,8 +243,7 @@ int campaignNumber(const std::string& path) {
 }
 
 // Inscriptions need a text in content/inscriptions/*.txt (the repo root's, from the working directory when the tool
-// is not in bin/), campaign ones come from INSCRIPTIONS_FROM_LEVEL on, and each text stands in one place only among
-// the files checked.
+// is not in bin/), and each text stands in one place only among the files checked.
 void checkInscriptions(std::vector<Entry>& entries) {
 	InscriptionBook book;
 	const std::string root = Paths::rootDir();
@@ -255,10 +254,6 @@ void checkInscriptions(std::vector<Entry>& entries) {
 			fprintf(stderr, "%s\n", m.c_str());
 	std::vector<std::string> usedIn(INSCRIPTION_MAX + 1);
 	for (Entry& e : entries) {
-		const int number = campaignNumber(e.path);
-		if (number > 0 && number < INSCRIPTIONS_FROM_LEVEL && e.report.nameGates > 0) // plan secret-name-gates
-			e.report.warnings.push_back("a name gate before level " + std::to_string(INSCRIPTIONS_FROM_LEVEL) +
-										": the hieroglyph skill comes later");
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
 			const Fixture& t = e.grid.cells[cell].fixture;
 			if (t.type != Inscription || !isInscriptionId(t.attr))
@@ -268,10 +263,6 @@ void checkInscriptions(std::vector<Entry>& entries) {
 			if (texts && book.Find(t.attr) == nullptr)
 				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where +
 											" has no text in content/inscriptions/");
-			if (number > 0 && number < INSCRIPTIONS_FROM_LEVEL)
-				e.report.warnings.push_back("inscription" + where + " before level " +
-											std::to_string(INSCRIPTIONS_FROM_LEVEL) +
-											": the hieroglyph skill comes later");
 			std::string& first = usedIn[static_cast<size_t>(t.attr)];
 			if (!first.empty())
 				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where + " is also in " + first);
@@ -334,6 +325,8 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		e.report = checkLevel(e.grid);
+		if (campaignNumber(e.path) > 0 && e.grid.meta.title.empty()) // plan campaign-texts
+			e.report.warnings.push_back("a campaign level without a title (the file's title line, docs/levels.md)");
 		if (version != LEVEL_VERSION)
 			e.report.warnings.push_back("level format v" + std::to_string(version) + ", convert it: levelconvert " +
 										e.path);

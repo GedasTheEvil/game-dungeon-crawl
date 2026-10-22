@@ -126,6 +126,12 @@ std::string readMeta(std::istream& in, LevelMeta& meta) {
 	meta.zone = slug == "none" ? NO_ZONE : zoneBySlug(slug);
 	if (slug != "none" && meta.zone == NO_ZONE)
 		return "unknown zone " + slug;
+	in >> std::ws;
+	if (in.peek() == 't') { // the optional title line; the next line starts with "structure"
+		if (!(in >> word) || word != "title")
+			return "unknown line " + word;
+		std::getline(in >> std::ws, meta.title);
+	}
 	return "";
 }
 
@@ -197,7 +203,10 @@ std::string readLevel(std::istream& in, Tile* cells, int* version, LevelMeta* me
 
 void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta) {
 	out << LEVEL_MAGIC << ' ' << LEVEL_VERSION << ' ' << LEVEL_WIDTH << ' ' << LEVEL_HEIGHT << '\n';
-	out << "zone " << (isZone(meta.zone) ? ZONE_INFO[meta.zone].slug : "none") << "\nstructure\n";
+	out << "zone " << (isZone(meta.zone) ? ZONE_INFO[meta.zone].slug : "none") << '\n';
+	if (!meta.title.empty())
+		out << "title " << meta.title << '\n';
+	out << "structure\n";
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		for (int col = 0; col < LEVEL_WIDTH; col++)
 			out << structureGlyph(cells[row * LEVEL_WIDTH + col].structure);
@@ -249,6 +258,17 @@ std::string loadLevelFile(const char* path, LevelGrid& grid, int* version) {
 	if (!in)
 		return "cannot open file";
 	return readLevel(in, grid.cells, version, &grid.meta);
+}
+
+std::string levelFileTitle(const char* path) {
+	std::ifstream in(path);
+	std::string word;
+	int version = 0, width = 0, height = 0;
+	LevelMeta meta;
+	if (!(in >> word >> version >> width >> height) || word != LEVEL_MAGIC || version < 5 ||
+		!readMeta(in, meta).empty())
+		return "";
+	return meta.title;
 }
 
 bool saveLevelFile(const char* path, const LevelGrid& grid) {

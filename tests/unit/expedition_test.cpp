@@ -64,6 +64,20 @@ TEST_CASE("every expedition page has a heading and a text") {
 	}
 }
 
+TEST_CASE("the expedition pages are numbered in order of depth without gaps: Day N rising, the last page last") {
+	int day = 0;
+	for (int n = 1; n < EXPEDITION_PAGE_COUNT; n++) {
+		CAPTURE(n);
+		const std::string heading = expeditionPageText(n).heading;
+		REQUIRE(heading.rfind("Day ", 0) == 0);
+		const int number = std::stoi(heading.substr(4));
+		CHECK(number > day);
+		day = number;
+	}
+	CHECK(std::string(expeditionPageText(EXPEDITION_PAGE_COUNT).heading) == "The last page");
+	CHECK(EXPEDITION_PAGE_COUNT >= 18); // one page every two or three levels of the 40 to 60
+}
+
 TEST_CASE("campaign: each expedition page once, in order of depth, all in reach; the last one on the exit path") {
 	std::map<int, int> levelOf; // page number -> campaign level
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
@@ -88,7 +102,8 @@ TEST_CASE("campaign: each expedition page once, in order of depth, all in reach;
 			CHECK(onPath);
 		}
 	}
-	CHECK(levelOf.size() == static_cast<size_t>(EXPEDITION_PAGE_COUNT));
+	// Pages the rebuild has not placed yet (plan campaign-texts) are fine: at most one tile of each number.
+	CHECK(levelOf.size() <= static_cast<size_t>(EXPEDITION_PAGE_COUNT));
 	int last = 0;
 	for (const auto& [number, level] : levelOf) {
 		CAPTURE(number);

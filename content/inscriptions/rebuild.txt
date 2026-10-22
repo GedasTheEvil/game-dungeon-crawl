@@ -1,0 +1,819 @@
+# The texts for the rebuilt campaign (plan campaign-texts): ids 53 to 137, by zone, in the zone order of docs/levels.md.
+# Format: docs/inscriptions.md. Not placed in levels yet: the rebuild places them, 2 to 3 per level (1 to 2 in zone 1).
+# Id 100 is the name cartouche (NAME_CARTOUCHE_ID), so the ids skip it. At most one boon per level when placing.
+# After changing a G: or style: line, rebuild the atlas: python3 tools/textures/inscriptions.py
+
+# ---- zone 1: Tomb entrance (spikes, pits, the first key and riddle)
+
+id: 53
+title: The appeal to the living
+style: stela
+G: A1 A24 D36 N35 D21 Q3 G17 O1 N25 A2
+T: O you who live and are upon earth,
+T: who pass by this tomb on your way down or up:
+T: if you love life and hate death, say:
+T: an offering for the one who rests here.
+T: Whoever speaks it, no harm will meet him in the house of the dead.
+N: Politely worded. I said it twice. Just in case.
+
+id: 54
+title: Mind the floor
+style: row
+G: N31 D58 D54 N35 Z1 Z2
+T: The road of the tomb is long, the step is short.
+T: Where the dust lies thin the floor is thin.
+T: Spikes are no shame to those who jump.
+N: The thin floor is a pit. A kind priest, for a priest.
+
+id: 55
+title: A good place to rest
+style: column
+G: S34 D21 N5 V28 Z1
+T: Come into my house, breathe the breath of life.
+T: The sun that rises over this land warms the dead too.
+T: Rest, and rise again with the morning.
+boon: life 10
+N: The breath of life. I took a deep one.
+
+id: 56
+title: The gang's absence list
+style: row
+G: A1 V30 W22 D21 Z1 O1
+T: Absent from work: Paneb, brewing beer for the god.
+T: Absent: Amennakht, his wife is ill.
+T: Absent: Hunro, he was embalming his brother.
+N: Even tomb builders called in sick. I find that comforting.
+
+id: 57
+title: The bolt and the door
+style: column
+G: O34 U33 O31 M17 D21
+T: The door is bolted, and the bolt has its colour.
+T: He who carries the colour opens every door of it.
+T: He who carries none waits, or finds another way.
+N: A key opens every gate of its colour. Nice of them to write it down.
+
+id: 58
+title: You have not died
+style: stela
+G: A1 N5 S34 G1 D21 Q3 Z1 M17 N35 X1 O1 V28
+T: O Unas, you have not gone dead, you have gone alive.
+T: Sit upon the throne of Osiris, your sceptre in your hand.
+T: Give commands to the living; the gates of the sky are open to you.
+T: Your offerings are yours, they will not fail you.
+N: Pyramid Texts, the oldest religious writing there is. And it is cheerful.
+
+# ---- zone 2: Bat galleries (levers, rock falls, a short first wade)
+
+id: 59
+title: Lamp wicks for the gang
+style: row
+G: W22 Z1 N35 X1 O1 Z2
+T: Issued to the gang: wicks for the lamps, and salt for the wicks.
+T: Whoever works in the dark shall not stumble.
+T: Let no one take the lamp of his neighbour.
+N: Salted wicks burn without smoke. A trade secret. Now mine.
+
+id: 60
+title: The lever of the house
+style: column
+G: S29 D36 U33 O1 Z1
+T: What the left hand pulls, the right hand frees.
+T: Every bar of stone has its handle on the wall.
+T: Pull it, and stand where the stone will not fall.
+N: A lever, a gate, and a ceiling that remembers. Stand aside.
+
+id: 61
+title: Tireless legs
+style: row
+G: D56 D54 D58 N35 N5 A1
+T: His legs are not tired, nor are his arms weary.
+T: He runs the road of the sky among the stars that never rest.
+T: He goes up and down the halls of the night.
+boon: stamina 10
+N: Legs that do not tire. I would take two.
+
+id: 62
+title: The bats of the night
+style: column
+G: G17 N14 N5 Z1 N1
+T: I am the one who flies in the dark halls.
+T: I see where the eyes of the living see nothing.
+T: I drink the lamp-oil and the blood of the careless.
+N: A bat's boast. Or a warning. Same thing, with bats.
+
+id: 63
+title: The shallow water
+style: row
+G: N35 N35 N35 I3 D54 Z2
+T: The water here is knee deep and the colour of tea.
+T: Something lives in it with eyes above the surface.
+T: Cross it quickly, or go around by the dry stone.
+N: Dry stone is slower. I am still alive. Draw your own conclusion.
+
+id: 64
+title: The Shipwrecked Sailor
+style: stela
+G: P1 A1 N35 D21 N31 W24 O1 Z1 N5 D58 G1 S34
+T: I will tell you of a thing that happened to me.
+T: I went down to the sea in a ship of a hundred and twenty cubits,
+T: and the storm came and the ship died, and I alone was left.
+T: Then the island of the serpent rose from the water.
+T: Be glad: the tale ends well for the one who tells it.
+N: The oldest adventure story. The sailor survives. Encouraging.
+
+id: 65
+title: The wheel of the day
+style: cartouche
+G: N5 N14 N5 Z1
+T: Seven times the sun has risen in these halls
+T: and none of us has seen it.
+N: Somebody counted days underground. I have started too.
+
+# ---- zone 3: Web halls (darkness and light, spiders shun the torches, trapped chests)
+
+id: 66
+title: The torch of the night watch
+style: column
+G: Q7 N5 O1 Z1 N35
+T: Where the torch burns, the spider keeps its distance.
+T: Where the torch dies, the web is spun.
+T: Take your light to the dark halls, and do not leave it behind.
+N: Spiders hate the light. A rare case of me agreeing with a spider.
+
+id: 67
+title: The spider's net
+style: row
+G: V30 N35 I14 Z1 A2 Z2
+T: In the dark halls the net is spun from wall to wall.
+T: Whoever runs through it is slowed, and what is slowed is eaten.
+T: Burn the net or walk around it.
+N: A hint with a bite in it.
+
+id: 68
+title: The djed pillar
+style: column
+G: R11 R11 S34 D28 Z1
+T: The djed is the backbone of Osiris, the pillar that stands.
+T: What is set up on the djed does not fall.
+T: Stand like it, and the blow of the strong falls on stone.
+boon: armor 1
+N: The djed: stability. Mine is somewhat less stable. The stone skin helps.
+
+id: 69
+title: The chest and its guard
+style: row
+G: O1 Q3 D4 D21 V28 Z1
+T: The chest is sealed, and in the seal a word.
+T: Whoever lifts the lid without the word,
+T: the lid will answer him.
+N: Dark wood. Knock first. Lesson learnt, with a bandage.
+
+id: 70
+title: The weaver's complaint
+style: row
+G: S29 N35 M17 Z2 A1 Z1
+T: The weavers work from dawn until the lamps go out.
+T: Their fingers are cut by the thread, their backs are bent.
+T: Yet the spider has finer linen than we.
+N: A scribe's joke about spiders. The spiders have not seen the joke.
+
+id: 71
+title: Hymn to the evening sun
+style: stela
+G: N5 N14 M17 N35 D4 Q3 O1 Z1 X1 S34
+T: Hail to you when you go down in the western mountain,
+T: Ra of the evening, whom the dark cannot swallow.
+T: The light you leave in our hands is small, but enough:
+T: keep it close, and the night will not close in.
+N: A light for the dark: keep it close. I know a good rule when I read one.
+
+id: 72
+title: The riddle of the house
+style: column
+G: S43 O1 Z1 N35 Z2
+T: What the house keeps, the house shows to him who asks well.
+T: The wise man does not break the door; he answers the door.
+N: A riddle gate is a door that asks. Be polite.
+
+# ---- zone 4: Priests' quarter (name gates, many inscriptions, fire jets, the ring transporter)
+
+id: 73
+title: The purification of the priest
+style: stela
+G: W22 N35 A1 D21 N5 R8 O1 Z1 S29 V28 Z2 N35
+T: Pure, pure is the priest who enters the house of the god.
+T: He has washed his mouth with natron and his hands with water.
+T: He has taken off the linen of the street and put on the linen of the temple.
+T: Let no unclean thing walk behind him.
+N: Priests washed twice a day and twice a night. Hygiene is old.
+
+id: 74
+title: A name is a door
+style: column
+G: D21 N5 N35 Z1 M17
+T: He who knows the name of a thing is its master.
+T: The door of the priests is shut to the unnamed.
+T: Find the name carved on the wall, and say it.
+N: Name gates. Copy the cartouche, then say the name.
+
+id: 75
+title: The might of the king
+style: column
+G: M23 X1 R4 X8 N5
+T: Strong is the king as a bull, his arm is the arm of Montu.
+T: Before him the rebel falls, and before him the stone is moved.
+T: He who reads his name takes his strength.
+boon: might 1
+N: A king's strength to whoever reads it. Reading is underrated.
+
+id: 76
+title: The flame of the brazier
+style: row
+G: Q7 N5 D21 Z1 O1 Z2
+T: The braziers burn in the halls of the priests.
+T: A jet of fire has been fed from them, for the unwary.
+T: Time your step to the breath of the flame.
+N: Fire jets and braziers. The flame has a rhythm. So will I.
+
+id: 77
+title: The ring of seven
+style: stela
+G: N5 O1 Z1 N14 N14 N14 N14 N14 N14 N14
+T: In the heart of the temple there is a ring of stone with seven marks.
+T: Who stands in it and says the seven names is carried to another hall.
+T: The priests of the second rank have forgotten the way back.
+T: The priests of the first rank never went.
+N: The ring, if I am any judge. Lord, spare me from my own theories.
+
+id: 78
+title: The scribe's wish
+style: row
+G: Y3 M17 D21 Z1 Q3 A1
+T: Be a scribe! It saves you from labour and protects you from all work.
+T: The scribe is not worried by the hoe, nor by the basket.
+T: He commands, and the others carry.
+N: Pharaonic career advice. I took it. Look where it got me.
+
+id: 79
+title: The temple cat
+style: column
+G: E13 N35 Z1 O1 D4
+T: The great cat guards the door of the sun, Mau the cat.
+T: He cuts the head of the serpent at the foot of the persea tree.
+T: Keep your hands to yourself and he will keep his claws.
+N: The cat of Ra. I will not pet it.
+
+# ---- zone 5: Scorpion nest (scorpions, giant scorpions, poison drips, antidotes)
+
+id: 80
+title: Serqet who makes the throat breathe
+style: stela
+G: I2 Q3 D21 G17 M17 O1 N35 D36 Z1 X1 N5 Z2
+T: Serqet, mistress of the scorpions, you who make the throat breathe.
+T: Her bite is a fire, but her hand heals what her sting has done.
+T: He who has her favour breathes when others choke.
+T: He who has not, drinks the antidote, or does not drink again.
+N: A friendly goddess, if you read the second line. Carry an antidote.
+
+id: 81
+title: The nest of eggs
+style: column
+G: H8 Z1 I2 M17 Z2
+T: Where the great mother lays, the eggs lie in clusters.
+T: Cut them while they are soft, or burn them.
+T: When they hatch, the nest is a river of legs.
+N: Cut or burn the clusters before the brood hatches. Noted in red.
+
+id: 82
+title: The breath of life
+style: column
+G: S34 D36 N35 N1 D21
+T: Take the breath of life that comes from the north wind.
+T: Let it fill your throat and strengthen your limbs.
+T: He who breathes it is not struck down by the sting.
+boon: life 10
+N: The breath of life again. I like a text that gives something back.
+
+id: 83
+title: The drip from the ceiling
+style: row
+G: N35 N35 N35 Z1 D21 Z2
+T: Where the roof weeps green, the weeping burns.
+T: One drop is a lesson, two drops a funeral.
+T: Walk where it falls not, or walk fast.
+N: A poison drip. Wait for the gap between the drops. There is one.
+
+id: 84
+title: The scorpion charm
+style: stela
+G: I2 D21 N5 Z1 S29 V28 N35 D36 Z2 O1 G1 X1
+T: Spell against the sting: Come, venom, come out on the ground!
+T: Horus has cursed you. Isis has spoken against you.
+T: The poison of the scorpion is not stronger than the word of the god.
+T: The patient lives. The scorpion is a fact.
+N: A medical papyrus charm. Charm plus antidote, and I will believe it.
+
+id: 85
+title: The healer's rule
+style: row
+G: A2 S29 D21 Z1 M17 A1
+T: Take the herb, bruise it, mix it with honey.
+T: Give it before the poison walks to the heart.
+T: A late cure is a prayer.
+N: Earlier is better. In medicine and in the use of antidotes.
+
+id: 86
+title: The overseer's letter
+style: column
+G: M17 N35 Z1 Z2 A1
+T: The workmen who built the nest-halls were bitten every day.
+T: The overseer wrote: "Send us more antidote and fewer scorpions."
+T: He received neither.
+N: Most bureaucrats would feel his pain.
+
+# ---- zone 6: Serpent temple (cobras, darts, rhythm traps)
+
+id: 87
+title: Spell against the serpent
+style: stela
+G: I10 I14 Z1 D21 N35 Q3 A2 M17 O1 Z2 N5 D36
+T: Back, snake! Do not rise at my face!
+T: The wall is guarded by Geb, the earth is my shield.
+T: You who rear on your tail, I step aside, you strike the air.
+T: Fall down on your belly and be silent.
+N: A cobra spell. It rears. It spits. Step aside, as instructed.
+
+id: 88
+title: The darts of the floor
+style: row
+G: T11 N35 D58 Z1 O1 Z2
+T: The floor has a voice, and what it says is an arrow.
+T: The plate is pale where the foot has been.
+T: Jump the plate, and the wall speaks to nobody.
+N: Dart plates. Jump them. Standing on one is the second mistake.
+
+id: 89
+title: The granite will not fall
+style: column
+G: N37 Z1 O1 N29 D36
+T: What is cut from granite is not shaken by the blow.
+T: Be as stone before the arrow, as the cliff before the wave.
+T: Take the strength of the mountain, and keep it.
+boon: armor 1
+N: Be like granite. Good advice, hard to follow, easy to carve.
+
+id: 90
+title: The step and the beat
+style: row
+G: D54 D58 N5 Z1 N5 Z2
+T: The temple is walked in time: one, and two, and rest.
+T: He who hurries breaks the measure,
+T: and the floor keeps the measure for him.
+N: Rhythm traps. Wait for the rest. The rest is when you go.
+
+id: 91
+title: The uraeus on the brow
+style: stela
+G: I10 N5 S34 Z1 D4 V28 M17 N35 Z2 O1 G1 X1
+T: The fire-spitting serpent sits on the brow of the king.
+T: She burns the enemies of Ra, she hisses at the dark.
+T: Not every serpent is a servant. Learn the difference.
+T: The servants do not strike you.
+N: The sacred cobra bites the other side. Not mine.
+
+id: 92
+title: The snake in the sand
+style: column
+G: I14 N35 Z1 D58 Z2
+T: When the great snake slides, the sand sings.
+T: When it stops, it has found you.
+T: Turn your face to where the sand is calm.
+N: A snake that sings. A rare warning I appreciate.
+
+id: 93
+title: Sinuhe's return
+style: stela
+G: A1 D21 N5 O1 N35 Z1 A24 D36 G1 D54 M17 Q3
+T: I was a servant in a foreign land and I came back.
+T: The queen said: "He has not been gone from us."
+T: The way home is the one that ends in the light.
+T: Mine ends here. For now.
+N: Sinuhe, who ran away, and was forgiven. A popular genre.
+
+# ---- zone 7: Cisterns of Sobek (deep water, swimming, Hapi potions)
+
+id: 94
+title: Hymn to the Nile
+style: stela
+G: N35 N35 N35 M8 N5 D21 Z1 M17 O1 Q3 D58 G43
+T: Hail to you, Hapi, who comes from the earth to feed Egypt.
+T: When he is sluggish, the people grow lean.
+T: When he floods, all faces are glad.
+T: He who drinks of him is satisfied, and he who swims in him is not drowned.
+N: The Hymn to the Nile. The last line is free translation.
+
+id: 95
+title: Sobek, the green one
+style: column
+G: I3 N5 N35 Z1 O1
+T: Sobek, the green one, lord of the waters, the crocodile of Shedet.
+T: He seizes with his teeth, he drowns with his jaw.
+T: Keep out of his reach, or keep to the shore.
+N: Crocodiles are faster in water than I. Everyone is.
+
+id: 96
+title: The runner of the king
+style: column
+G: D54 D56 D58 N35 A1
+T: The runner of the king is swift as the wind in the reeds.
+T: His breath is not short, his foot is not tired.
+T: He crosses the water as if it were land.
+boon: stamina 10
+N: A runner who crosses water. Plausible only in the second line. Take the stamina.
+
+id: 97
+title: The depth of the cistern
+style: row
+G: N35 N35 M8 D58 Z1 Z2
+T: Some of the water here is deeper than a man is tall.
+T: He who steps in it swims, and he who swims tires.
+T: Rest on the dry stone, and go on when you can breathe.
+N: Deep water drains stamina. I tried it. No one needs to try it again.
+
+id: 98
+title: The drink of Hapi
+style: column
+G: N35 N35 D21 Z1 W24
+T: The blessing of Hapi in a jar: drink, and the water bears you.
+T: The cistern priests hid it behind the weight of three stones.
+N: A potion that makes water bearable. Priests knew chemistry. Or luck.
+
+id: 99
+title: The boatman's fee
+style: row
+G: P1 P8 N35 Z1 A1
+T: Pay the ferryman with a word, and the boat will carry you.
+T: Pay him with a lie, and the boat is the last thing you see.
+N: I paid with a word. I had no other coin.
+
+id: 101
+title: The hippopotamus and the king
+style: stela
+G: E32 N35 N35 Z1 A1 S29 N5 O1 M17 Q3 D21 Z2
+T: The great red one lies in the reeds and the king hunts him.
+T: He drives his spear into the beast of Seth,
+T: and the waters are calm for a day.
+T: For a day. After that the beast is back, and the king is gone.
+N: A hippo hunt. The painters made it look easy. The painters were not there.
+
+# ---- zone 8: Seth's desert (sand, quicksand, mirrors and sun discs)
+
+id: 102
+title: The red land
+style: stela
+G: N25 N25 N5 Z1 Z2 D21 N29 O1 G43 M17 Q3
+T: The red land is the land of Seth: sand without end,
+T: wind that has no home, a sun that has no mercy.
+T: Walk in the cool of the morning, rest in the shade of the rock.
+T: He who wanders at noon wanders alone.
+N: The desert. I noticed. Then I noticed it again.
+
+id: 103
+title: The mirror of Ra
+style: column
+G: N5 S34 N35 Z1 D4
+T: The sun rises in the mirror, and the mirror sends it to the disc.
+T: When the disc is lit, the stone door remembers it is a door.
+T: Turn the mirror to where the light is wanted.
+N: Mirrors and sun discs. The light opens the door. Poetry and plumbing in one.
+
+id: 104
+title: Montu, the lord of the strong arm
+style: column
+G: G5 N5 M17 N35 D36
+T: Montu, falcon of the battle, lord of Thebes and the strong arm.
+T: He gives power to the one who calls him.
+T: Under his sign the arm does not tire and the blow does not miss.
+boon: might 1
+N: The war god of Thebes. A strong arm, then. I hold it up for the record.
+
+id: 105
+title: The sand that swallows
+style: row
+G: N35 N35 Z1 D58 Z2 N35
+T: Where the sand swirls, it drinks.
+T: Where the sand is calm, it carries.
+T: Do not wait in the swirl; leap to where it stands.
+N: Quicksand. Jump out, don't wait. The sand is more patient than I.
+
+id: 106
+title: Wenamun's letter
+style: stela
+G: N35 A1 M17 O1 Z1 Q3 N5 P1 D21 N25 G1 Z2
+T: I came to Byblos in a ship and the prince would not see me.
+T: He sent word: "Leave my harbour." I stayed nineteen days.
+T: The god's messenger is not a beggar, though he sits like one.
+T: In the end I got my cedar.
+N: Wenamun, the world's most patient, and most put-upon, ambassador.
+
+id: 107
+title: The water of the oasis
+style: row
+G: N35 M17 D21 Z1 A1 Z2
+T: There is a pool in the place of the palms,
+T: and what is the oasis for, if not for those who thirst.
+T: The red beasts do not like anyone else at their water.
+N: An oasis. Hippos. Somebody should have told them it was not for them.
+
+id: 108
+title: The heat of the day
+style: row
+G: N5 N5 N5 Z1 D21 Z2
+T: Seven suns burn in the sky of the south.
+T: He who crosses by day crosses with his tongue in his hand.
+N: The only joke I found in the desert. Dry.
+
+# ---- zone 9: Land of Sokar (sand worms, camel spiders in the dark, quicksand, sand falls)
+
+id: 109
+title: Sokar of the dark land
+style: stela
+G: G5 N5 Q3 D21 O1 N25 Z1 N5 S29 M17 Z2 X1
+T: Sokar, lord of the Shetyt, the hidden place of the dead.
+T: His land is dark, its roads are of sand, and no sun looks into it.
+T: He gives rest to the weary, and to the careless a deeper rest.
+T: Keep your light. Keep your feet.
+N: A god of the dark necropolis. His land has sand and my knees do not like it.
+
+id: 110
+title: The sand falls
+style: column
+G: N35 N5 Z1 D58 Z2
+T: Where the roof is sand, the sand will fall.
+T: When the dust runs from the stone, walk, do not wait.
+T: He who stops to look up looks up from beneath.
+N: Sand falls. When it rumbles: keep walking. Learnt this the hard way.
+
+id: 111
+title: The granite of Aswan
+style: column
+G: O1 N37 Z1 N29 D36
+T: Granite is cut at Aswan, cut with fire and ram.
+T: What the mason has made he has made for the dead:
+T: the stone shall stand when the king is dust.
+boon: armor 1
+N: Aswan granite: hard stone. I would like some for my skin.
+
+id: 112
+title: The deep drift
+style: row
+G: N35 N35 Z1 D58 Z2 S29
+T: Beneath the dune the dune goes on.
+T: Where the surface is smooth and the sand dark, there is no floor.
+T: Go along the rock and let the sand go its own way.
+N: A drift. Deep. Hug the wall.
+
+id: 113
+title: The worms of Sokar
+style: stela
+G: I14 N35 Z1 Q3 O1 G17 D21 N5 Z2 N29 M17 X1
+T: In the land of Sokar there are great worms, long as a street.
+T: They hear the foot on the sand and rise where the foot goes.
+T: Walk where the stone is, and the worm sleeps.
+T: The ground you stand on is the road he swims in.
+N: Sand worms. They hear the step. So step where the rock is.
+
+id: 114
+title: Spider in the dark
+style: column
+G: S29 N35 A1 Z1 O1
+T: In the dark halls of Sokar the spiders hunt.
+T: They run on the sand and do not make a sound.
+T: Light is the one thing they respect.
+N: Spiders again. Light again. Fine. Torch.
+
+id: 115
+title: The craftsman's prayer
+style: row
+G: D4 Z1 S29 A1 Z2 Y1
+T: The craftsman of Sokar prays at the bench:
+T: let my hand be steady, my chisel sharp,
+T: and my work outlast the one who hired me.
+N: The work has lasted. The employer has not.
+
+# ---- zone 10: Lake of Fire (baboons, fire-spitting cobras, fire everywhere, water as refuge)
+
+id: 116
+title: The lake of fire
+style: stela
+G: Q7 N35 N35 Z1 N5 D21 O1 M17 X1 Q3 G17 Z2
+T: There is a lake of fire in the Duat, and the dead must cross it.
+T: Two baboons guard the shore, and the flame is their breath.
+T: He who is justified is cooled by the water; he who is not is burnt.
+T: The blessed step into the water and are made well.
+N: Fire everywhere. And the water is the refuge. I will remember where the water is.
+
+id: 117
+title: The baboons of the lake
+style: column
+G: E32 Q7 Z1 N35 D21
+T: The baboons of the lake sit in the flame and throw it.
+T: They keep their distance and your attention.
+T: Corner them, or run them down.
+N: Baboons throw burning coals. Corner them or run them down. Not in the open.
+
+id: 118
+title: The fire that does not burn
+style: column
+G: Q7 N5 N35 S34 Z1
+T: I pass through the fire and it does not burn me,
+T: I pass through the water and it does not drown me,
+T: for the flame and the flood know my name.
+boon: life 10
+N: Spells like this make fine sense once you have been on fire. Life, then.
+
+id: 119
+title: The fiery cobras
+style: row
+G: I10 Q7 D21 Z1 N35 Z2
+T: The cobras here spit fire as other snakes spit venom.
+T: Their spit lands where you were standing.
+T: Jump the spit, and stand in the water if you can.
+N: Fire-spitting cobras. Jump the spit. Water puts the fire out.
+
+id: 120
+title: The burning ground
+style: row
+G: Q7 N16 N5 Z1 N35 Z2
+T: The floor of this hall burns for a while, then does not.
+T: What burns once will burn again at the next turn of the hour.
+T: Wait on the cold stone.
+N: Burning floor. It cools. It also reignites. Count.
+
+id: 121
+title: The Book of Gates, the lake
+style: stela
+G: N5 N14 N1 N35 Q7 Z1 O1 D21 Z2 M17 G1 X1
+T: The lake of the tenth hour is a lake of flame.
+T: The gods of this hour pour water upon it for the sun god's boat.
+T: The boat moves through, and the lake does not burn it.
+T: Then the boat is hauled up out of the flame.
+N: The Book of Gates, the tenth hour. Even the sun needs help here.
+
+id: 122
+title: The heat of Babi
+style: stela
+G: E32 G17 N5 Z1 D21 N35 O1 M17 Q3 Z2 X1 S29
+T: Babi, lord of the baboons, bull of the female baboons.
+T: His heat is the heat of the forge and his mouth is red.
+T: His servants guard the shore of fire.
+T: Where he sits no one passes unseen.
+N: Babi: he of the baboons and bad temper. The shore is his.
+
+# ---- zone 11: Necropolis (every trap mixed, the Stargate chamber, the last fork)
+
+id: 123
+title: The way of the dead
+style: stela
+G: N31 N5 Z1 D58 A1 Z2 O1 M17 X1 Q3 G17 D21
+T: Many are the roads of the dead, and all of them lead down.
+T: The loose ceiling falls, the plate sings, the wall bites.
+T: Walk the road as the dead walk it: knowing where they put their feet.
+T: The one who came before you walked this way.
+N: A tomb with every trap. The earlier expedition's trail goes this way too.
+
+id: 124
+title: Take the left gate
+style: stela
+G: N31 A1 N35 Z1 O1 D58 Q3 D21 G17 N5 M17 Z2
+T: Two gates stand before you. The left is the long road of the living.
+T: The right is the short road of the dead.
+T: A path is not good because it is short.
+T: A path is good because you walk it to the end.
+N: The warning of the last fork. The page said the same. Left it is.
+
+id: 125
+title: The unmoved
+style: column
+G: O28 Z1 N37 R11 N29
+T: Before the great ones the earth trembles, and the great stand.
+T: He who stands as the djed does not fall when the roof does.
+T: His skin is granite, his heart is of the mountain.
+boon: armor 1
+N: Another djed. I will stand like it. At least while the ceiling does.
+
+id: 126
+title: The cursed chests
+style: row
+G: N35 D21 Z1 S29 Z2 M17
+T: The cursed chests follow those who steal from the dead.
+T: The ones that move are not asleep.
+T: The darkest wood hides the brightest teeth.
+N: Cursed mimics. They follow you. Knock first, with a club, from a distance.
+
+id: 127
+title: The ring of the stars
+style: stela
+G: N14 N14 N14 N14 N14 N14 N14 O1 Z1 N5 D21 Q3
+T: Seven stars have seven names and the ring has seven marks.
+T: Say the names in the order of the sky, and the sky opens.
+T: What the priests started, the necropolis ended.
+T: The way is open for the one who knows the order.
+N: The ring chamber. Seven marks, seven names. I wrote them down.
+
+id: 128
+title: The jackal at the end
+style: column
+G: E17 Z1 N35 O1 D21
+T: Anubis waits at the end of the road with his scales.
+T: He does not hurry. He has never needed to.
+T: The jackal on the wall has always been waiting.
+N: The jackal from the statue. Waiting since Day 1. Fine. I am coming.
+
+id: 129
+title: The mummy's linen
+style: row
+G: S29 N35 D21 Z1 M17 A1
+T: Seventy days the body lay in natron, and seventy days it was wrapped.
+T: The linen carries the name of the one in it.
+T: Linen burns, and what was a man comes out of it.
+N: Mummification took 70 days. Fire takes seconds. Pick the faster one.
+
+# ---- zone 12: Hall of Judgment (riddle-heavy finale, the weighing of the heart)
+
+id: 130
+title: The negative confession
+style: stela
+G: M17 N35 D21 Z1 A1 Z2 O1 Q3 G17 N5 X1 S29
+T: I have not done wrong, I have not stolen, I have not killed.
+T: I have not made anyone weep, I have not told lies.
+T: I have not stopped the water in its season.
+T: I am pure, I am pure, I am pure.
+N: Forty-two sins denied. I would fail at number nine.
+
+id: 131
+title: The weighing of the heart
+style: stela
+G: F34 M17 N35 D21 Z1 O1 A1 X1 Q3 C10 Z2 S29
+T: Your heart is set on the scale, and the feather of Maat on the other.
+T: If it is heavy with wrong it is eaten by the devourer.
+T: If it is light, you walk to the field of reeds.
+T: Anubis steadies the scale. Thoth writes the verdict.
+N: The heart on the scale. Mine is light, I hope. Light and tired.
+
+id: 132
+title: The riddle of Thoth
+style: column
+G: G26 Z1 N35 D21 M17
+T: Thoth, ibis-headed, the scribe of the gods, asks his questions.
+T: He who answers wrongly is sent back to the start.
+T: He who answers well is let go on.
+N: Riddles all the way. Thoth is not a patient examiner.
+
+id: 133
+title: The breath of the justified
+style: column
+G: S34 N5 C10 D21 N35
+T: The one whose heart is true breathes the breath of life forever.
+T: He is called Osiris-justified, true of voice.
+T: What the scale has weighed, the gods have blessed.
+boon: life 10
+N: True of voice. I will try to be. A good breath of life at the end.
+
+id: 134
+title: Maat, the feather
+style: cartouche
+G: C10 H6 X1 Z1
+T: Maat, daughter of Ra, who sets the world in order.
+T: Nothing is true that she has not weighed.
+N: A feather. The universe, weighed against a feather.
+
+id: 135
+title: The strength of the throne
+style: column
+G: M23 X1 S34 N5 O1
+T: Great is the throne of the one who judges with Maat.
+T: His arm is strong in the right, weak in the wrong.
+T: The strength is given to him who answers true.
+boon: might 1
+N: A king's arm for a straight answer. A good bargain, if you can afford the answer.
+
+id: 136
+title: The last gate
+style: stela
+G: O1 Q3 N31 N5 D21 Z1 M17 N35 A1 O28 S34 X1
+T: Beyond this gate the field of reeds, the fields of the blessed.
+T: Beyond it also the ankh, and the way up.
+T: Your road was long. The road of the one before you was longer.
+T: He is not here. Maybe he took the right gate. Maybe he was right.
+N: I will find out. Then I will say it for the page.
+
+id: 137
+title: The scribe's farewell
+style: row
+G: Y3 M17 N35 Z1 O1 Z2 A1
+T: I have written what was done and what was not done.
+T: I have set it in the house of life so that it is remembered.
+T: Let the reader say: "He was here."
+N: "He was here." The shortest epitaph.

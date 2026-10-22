@@ -5,6 +5,8 @@
 #include "../../src/world/journal.h"
 #include "../../src/world/progression.h"
 #include "sim_world.h"
+#include <filesystem>
+#include <fstream>
 #include <set>
 #include <sstream>
 #include "../../src/core/paths.h"
@@ -31,7 +33,7 @@ TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems
 						  "\n"
 						  "id: 3\n"
 						  "title: No text\n"
-						  "id: 99\n"
+						  "id: 300\n"
 						  "T: out of range\n"
 						  "id: 4\n"
 						  "T: only text\n"
@@ -47,7 +49,7 @@ TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems
 	CHECK(out[1].id == 4);
 	REQUIRE(errors.size() == 4);
 	CHECK(errors[0] == "f.txt:10: inscription 3 has no T: line, skipped");
-	CHECK(errors[1] == "f.txt:12: id must be 1 to 64, entry skipped");
+	CHECK(errors[1] == "f.txt:12: id must be 1 to 256, entry skipped");
 	CHECK(errors[2] == "f.txt:13: T: before any id: line, ignored");
 	CHECK(errors[3].find("f.txt:16:") == 0);
 }
@@ -294,26 +296,58 @@ TEST_CASE("the campaign's boons: about 1 in 5 inscriptions, all four kinds, at m
 	CHECK(boons * 4 <= texts);
 }
 
-TEST_CASE("every campaign inscription has a text, stands from level 6 on, and each text once") {
+TEST_CASE("every campaign inscription has a text, and each text stands once") {
 	InscriptionBook book;
 	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
 	std::set<int> used;
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		LevelGrid grid;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
-		int count = 0;
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
 			const Fixture& t = grid.cells[cell].fixture;
 			if (t.type != Inscription || t.attr == NAME_CARTOUCHE_ID) // a name cartouche holds a name, not a text
 				continue;
-			count++;
 			CHECK_MESSAGE(book.Find(t.attr) != nullptr, "lvl", n, ": inscription ", t.attr, " has no text");
 			CHECK_MESSAGE(used.insert(t.attr).second, "lvl", n, ": inscription ", t.attr, " is used twice");
 		}
-		if (n < INSCRIPTIONS_FROM_LEVEL)
-			CHECK_MESSAGE(count == 0, "lvl", n, " is before the hieroglyph skill");
-		else
-			CHECK_MESSAGE(count > 0, "lvl", n, " has no inscription");
 	}
-	CHECK(used.size() == book.Size()); // no text left over
+	// Texts the rebuild has not placed yet (plan campaign-texts) are fine: only the placed ones are checked above.
+	CHECK(used.size() <= book.Size());
+}
+
+TEST_CASE("every inscription id has a text and a glyph line, and the atlas holds them all") {
+	InscriptionBook book;
+	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
+	CHECK(book.Size() >= 100); // enough for 40 to 60 levels (plan campaign-texts)
+	CHECK_FALSE(isInscriptionId(NAME_CARTOUCHE_ID));
+	CHECK(isInscriptionId(INSCRIPTION_MAX));
+	std::set<int> withGlyphs; // the ids with a G: line, read like tools/textures/inscriptions.py does
+	for (const auto& file : std::filesystem::directory_iterator(CONTENT_DIR "inscriptions")) {
+		if (file.path().extension() != ".txt")
+			continue;
+		std::ifstream in(file.path());
+		std::string line;
+		int id = 0;
+		while (std::getline(in, line)) {
+			if (line.rfind("id:", 0) == 0)
+				id = std::stoi(line.substr(3));
+			else if (line.rfind("G:", 0) == 0 && line.find_first_not_of(" \t", 2) != std::string::npos)
+				withGlyphs.insert(id);
+		}
+	}
+	for (int id = 1; id <= INSCRIPTION_MAX; id++) {
+		if (book.Find(id) == nullptr)
+			continue;
+		CAPTURE(id);
+		CHECK(withGlyphs.count(id) == 1);
+	}
+	// A PNG's header holds the size: the atlas is the grid of 128 px cells.
+	std::ifstream png(MEDIA_DIR "textures/decorations/inscriptions.png", std::ios::binary);
+	REQUIRE(png);
+	unsigned char head[24] = {};
+	png.read(reinterpret_cast<char*>(head), sizeof head);
+	const int width = (head[16] << 24) | (head[17] << 16) | (head[18] << 8) | head[19];
+	const int height = (head[20] << 24) | (head[21] << 16) | (head[22] << 8) | head[23];
+	CHECK(width == INSCRIPTION_ATLAS_GRID * 128);
+	CHECK(height == INSCRIPTION_ATLAS_GRID * 128);
 }

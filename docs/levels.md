@@ -59,7 +59,8 @@ light shaft without rock behind it, a mirror in front of an inscription, a sun d
 as the level starts.
 
 Level files are text, version 5: a `DCLEVEL 5 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
-`zone none`; [Zones](#zones)), the structure as a drawing, then the lists of fixtures, objects, props and decals
+`zone none`; [Zones](#zones)), an optional level title (`title The Hall of Drifts`, the rest of the line; every campaign
+level has one, plan campaign-texts), the structure as a drawing, then the lists of fixtures, objects, props and decals
 (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
 the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1
 to v4) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
@@ -82,6 +83,11 @@ keeps the tombs' look. A zone is a run of levels with its own stone, main monste
 a boss. Each zone is one hour of Ra's night journey through the Duat (the Book of Gates); its title names the hour and
 its gate: "The Fourth Hour: the Gate of the Priests" (`zoneTitle`, the hour is the zone's place in the target table).
 A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities).
+
+Each campaign level also has a title of its own in its file (`title`, `LevelMeta::title`; `levelcheck` warns about a
+campaign level without one): "The Hall of Drifts" is a level of "The Eighth Hour: the Gate of Seth". The level banner,
+the map and the save slots show it. On entering a zone the journal gets the hour's field note
+(`FieldNote::HourFirst` to `HourTwelfth`, by `ZoneId`), in the archaeologist's voice.
 
 Each zone looks and sounds its own ([zone-looks](plan/zone-looks.md)): its stone dresses the walls,
 floors and ceilings (`scatterSurfaces`; plaster is limestone painted more often, wet stone, basalt and granite have
@@ -175,9 +181,13 @@ each a chest that held a plain potion (health, stamina, might, armour). Never pu
 item, a new weapon, the antidote, a Hapi potion): half of them are empty, and the checker does not count a trapped
 chest's antidote as in reach.
 
-The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 18 torn pages (`=`,
-attribute: the page number, in order of depth) on skeletons in levels 2, 3, 4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23,
-24, 27, 31 and 34, each a level or so before what it hints at, off the exit path; the last one lies on lvl34's path.
+The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
+attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `journal_text.cpp`, plan
+campaign-texts). 18 of them (1-6, 8, 10, 11, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 2, 3, 4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23,
+24, 27, 31 and 34, each a level or so before what it hints at, off the exit path; the last one (24) lies on lvl34's
+path. The pages 7, 9, 12, 16, 19 and 22 (webs, an early fork, poison drips, deep water, worms and a fork, the lake of
+fire and a fork) are written but not placed: the rebuild places them, one every two or three levels. Some pages
+hint at a fork ahead; the last stays the last fork's warning.
 
 Scorpions live in levels 3-6, 15 and 21, giant scorpions in 15, 21-25 and 31-35, cobras in 16-20, giant cobras in 21-35; each level with a poisoner has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie on the poisoner levels from 3 on, greater ones from 15 on (one of each per level from 15). One Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half water of each water level (7-9, 16-20, 25 (by the oasis), 26-30, 32-35), a few cells before it; levelcheck assumes none. Crocodiles live in the water of levels 7-9 (and many flooded levels after). Hippos lie in the water of levels 16, 18, 26 and 28 (one a level, in a long pool; levelgen makes no water); Seth, their boss, in the oasis of 25. Blue lotuses float in the water of levels 7-9, 16-20, 25, 26-30 and 32-35 (one to three a level; levelgen makes no water). Camel spiders run in levels 4 and 6-8 (one a level) and in the dark desert halls of 21-25 (three to five a level; levelgen from difficulty 3 to 8); they keep out of the light of torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 11-14 (one a level, two in 12; levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 35. The desert (21-25, plan desert-chapter) has sand: drifts on the floor (the player walks at 3/4 speed and cannot sprint), quicksand (single cells or pairs), sand falls, and sand worms lying under the drifts that come up under the player. Cursed mimics (plan cursed-mimic) lie as dark chests in levels 27, 29, 31, 33 and 35 (one a level, beside a treasure, off the path; plain mimics in 4, 15, 17-22, 24, 26, 27, 32 and 33; levelgen makes 30% of its mimics cursed from difficulty 8). Baboons (plan baboon) keep their distance and throw burning coals in the necropolis halls of 31 (three), 32 and 33 (two each), on long open rows; their home, the Lake of Fire, comes with the rebuild (levelgen from difficulty 9). Mummies appear from level 11 on, Anubis from level 13. Every level from 6 on has one or two
 [inscriptions](inscriptions.md) (`content/inscriptions/campaign.txt`): real texts, some with a hint for the level (the boss
@@ -231,7 +241,7 @@ It reports:
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
 | warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a run of rhythm traps (wall spikes and fire vents) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), a poisoner (scorpion, cobra) or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
-to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, one in a campaign level before 6 (a name gate too), the same text id in two places. |
+to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |

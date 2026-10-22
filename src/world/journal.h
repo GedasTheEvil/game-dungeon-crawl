@@ -143,8 +143,25 @@ enum class FieldNote : unsigned char {
 	SunMirrors, // the first mirror turned or sun disc lit (plan sunlight-mirrors)
 	TrappedChests, // the first trapped chest that went off (plan trapped-chests)
 	TombCurses, // the first curse from an object: a chest's execration text, a smashed ushabti
+	// The hour notes (plan campaign-texts): written on entering a zone, one per ZoneId in order (hourNote).
+	HourFirst,
+	HourSecond,
+	HourThird,
+	HourFourth,
+	HourFifth,
+	HourSixth,
+	HourSeventh,
+	HourEighth,
+	HourNinth,
+	HourTenth,
+	HourEleventh,
+	HourTwelfth,
 };
-constexpr int FIELD_NOTE_COUNT = 39;
+constexpr int FIELD_NOTE_COUNT = 51;
+// The hour note of a zone (ZoneId as an int; isZone).
+[[nodiscard]] constexpr FieldNote hourNote(int zone) {
+	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);
+}
 // The field note written when the skill is learnt, none for a skill without one.
 [[nodiscard]] std::optional<FieldNote> skillNote(SkillId skill);
 // The note of a damage type, of a potion's group.

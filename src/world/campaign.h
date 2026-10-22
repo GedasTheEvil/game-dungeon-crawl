@@ -153,7 +153,10 @@ struct LevelBanner {
 	std::string subtitle;
 	std::string guardian; // empty: none
 };
-[[nodiscard]] LevelBanner levelBanner(int number);
+// title: the level's own title (LevelMeta::title), empty for none; it follows the level or the zone name.
+[[nodiscard]] LevelBanner levelBanner(int number, const std::string& title = "");
+// The title in a campaign level's file (cached), empty for none or a level outside the campaign: for the save slots.
+[[nodiscard]] const std::string& campaignLevelTitle(int number);
 
 // The level file, also the seed of its decorations.
 [[nodiscard]] std::string campaignLevelFile(int number);

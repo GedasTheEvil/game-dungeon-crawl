@@ -45,7 +45,7 @@ The game log (`game.log`) lists every problem as `file:line: message` and the co
 `Loaded 30 royal names`.
 
 `levelcheck` warns about a name gate without a name cartouche or a cartouche without a gate, more than one of either on a
-level, a name gate before level 6, a cartouche next to its gate or out of reach while the gate is sealed, and an exit, key
+level, a cartouche next to its gate or out of reach while the gate is sealed, and an exit, key
 or lever behind a name gate.
 
 ## The pictures

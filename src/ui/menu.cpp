@@ -585,6 +585,11 @@ void MainMenu::DrawSlot(int slot) {
 			std::snprintf(level, sizeof(level), info.level > 0 ? "Autosave, level %d" : "Autosave", info.level);
 		else if (info.level > 0)
 			std::snprintf(level, sizeof(level), "Level %d", info.level);
+		if (info.level > 0 && !campaignLevelTitle(info.level).empty()) { // plan campaign-texts: if it fits
+			const std::string titled = std::string(level) + ": " + campaignLevelTitle(info.level);
+			if (textX + heading.TextWidth(titled.c_str()) < r.x + r.w - 3.f)
+				std::snprintf(level, sizeof(level), "%s", titled.c_str());
+		}
 		text(heading, textX, r.y + 8.8f * k, level, isHovered ? GOLD_BRIGHT : GOLD);
 		text(body, textX, r.y + 3.f * k, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
 		if (saveD && isHovered) {

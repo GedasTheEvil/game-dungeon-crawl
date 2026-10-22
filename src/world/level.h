@@ -65,7 +65,7 @@ enum DungeonTileType : unsigned char {
 	FireVent = 22,
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
-constexpr int EXPEDITION_PAGE_COUNT = 18;
+constexpr int EXPEDITION_PAGE_COUNT = 24;
 [[nodiscard]] constexpr bool isExpeditionPage(int number) { return number >= 1 && number <= EXPEDITION_PAGE_COUNT; }
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
@@ -288,6 +288,7 @@ inline bool isSolidTile(const Tile& t) {
 constexpr int NO_ZONE = -1;
 struct LevelMeta {
 	int zone = NO_ZONE; // its campaign zone (ZoneId, campaign.h): its stone, decor, light and sound (zone_look.h)
+	std::string title; // its name for the banner, the map and the save slots ("The Hall of Drifts"), empty: none
 };
 
 // Row 0 is the bottom of the level; index = row * LEVEL_WIDTH + column.
@@ -333,6 +334,7 @@ class TeleportPairs {
 // The level format (docs/levels.md), in level files and save games. Version 5, text:
 //   DCLEVEL 5 WIDTH HEIGHT
 //   zone SLUG, the level's zone (ZoneInfo::slug, campaign.h), or "zone none"
+//   title TEXT, optional: the level's title, the rest of the line (plan campaign-texts)
 //   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
 //   wall COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with a fixture (hasFixture)
 //   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
@@ -359,6 +361,8 @@ std::string readLevel(std::istream& in, Tile* cells, int* version = nullptr, Lev
 void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta = {});
 // Error message, empty on success.
 std::string loadLevelFile(const char* path, LevelGrid& grid, int* version = nullptr);
+// The title line of a level file, empty for none or an unreadable file: reads the head only.
+[[nodiscard]] std::string levelFileTitle(const char* path);
 bool saveLevelFile(const char* path, const LevelGrid& grid);
 
 #endif

@@ -105,7 +105,7 @@ void drawLevelBanner() {
 		ui.bannerLevel = Game().dungeon.LevelNumber();
 		ui.bannerStartMs = now;
 	}
-	const LevelBanner banner = levelBanner(ui.bannerLevel);
+	const LevelBanner banner = levelBanner(ui.bannerLevel, Game().dungeon.LevelTitle());
 	ZoneBanner::draw(banner, ZoneBanner::Alpha(now - ui.bannerStartMs, banner.zone), Game().render.resX,
 					 Game().render.resY, Game().assets.fonts.banner, Game().assets.fonts.hudBody);
 }

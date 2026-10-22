@@ -7,7 +7,7 @@ levels in zones). Slug kept from the first version.
 Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
 [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
 [campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.md),
-[campaign-texts](campaign-texts.draft.sonet.md) (the texts to place), and the new traps, so the rebuild places them:
+[campaign-texts](campaign-texts.md) (the texts to place), and the new traps, so the rebuild places them:
 [fire-jet-trap](fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.draft.opus.md).
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
@@ -29,9 +29,9 @@ to keep.
   the ankh on the last level. Monster count and treasure grow with the area, the monster mix comes from the zone.
   `docs/levels.md` gets a line per level again.
 * **Carry over the content that is not layout:** inscriptions from level 1 on (2-3 a level, 1-2 in the first zone;
-  the texts come from [campaign-texts](campaign-texts.draft.sonet.md), the rules are in
+  the texts come from [campaign-texts](campaign-texts.md), the rules are in
   [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or near the path, hints
-  only), expedition pages, level titles ([campaign-texts](campaign-texts.draft.sonet.md)), Hapi potions
+  only), expedition pages, level titles ([campaign-texts](campaign-texts.md)), Hapi potions
   ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
   Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
 * **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,

@@ -456,6 +456,7 @@ class Dungeon {
 	// Level `number` of the campaign (campaign.h).
 	bool LoadCampaignLevel(int number);
 	[[nodiscard]] int LevelNumber() const { return levelNumber; }
+	[[nodiscard]] const std::string& LevelTitle() const { return meta.title; } // empty: none
 	// The look of the level's zone (plan zone-looks, LevelMeta): light, fog, ambience. DEFAULT_LOOK in none.
 	[[nodiscard]] const ZoneLook& Look() const { return levelLook(meta.zone); }
 	[[nodiscard]] bool CampaignLevel() const { return campaignLevel; } // not a test or generated level

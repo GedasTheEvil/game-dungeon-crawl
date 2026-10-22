@@ -67,7 +67,11 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) 
 //======================================================================================
 bool Dungeon::LoadCampaignLevel(int number) {
 	levelNumber = number;
-	return Load(campaignLevelFile(number).c_str(), number);
+	if (!Load(campaignLevelFile(number).c_str(), number))
+		return false;
+	if (isZone(meta.zone) && sim.events != nullptr) // plan campaign-texts: the hour's note, once
+		sim.events->Note(hourNote(meta.zone));
+	return true;
 }
 //======================================================================================
 bool Dungeon::LoadDump(std::ifstream& f) {

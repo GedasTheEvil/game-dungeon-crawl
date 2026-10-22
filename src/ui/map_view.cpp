@@ -462,6 +462,8 @@ void DraftMap::Draw() {
 	glDisable(GL_LINE_SMOOTH);
 
 	std::string title = "Level " + std::to_string(Game().dungeon.LevelNumber());
+	if (!Game().dungeon.LevelTitle().empty())
+		title += ": " + Game().dungeon.LevelTitle();
 	beginText();
 	textCentered(Game().assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
 	textCentered(Game().assets.fonts.font, paper.cx(), paper.y + 2.f, "M / Esc  close", INK_FADED);

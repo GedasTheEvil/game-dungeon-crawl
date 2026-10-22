@@ -2,10 +2,14 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/decor.h"
+#include "../../src/world/journal_text.h"
 #include "../../src/world/level.h"
 #include "../../src/world/monster_kinds.h"
 #include <algorithm>
 #include <iterator>
+#include <set>
+#include <sstream>
+#include <string>
 
 namespace {
 // The monster types on a campaign level, and whether it holds the ankh.
@@ -98,4 +102,55 @@ TEST_CASE("each campaign level file names the zone of its range") {
 		CHECK(version == LEVEL_VERSION);
 		CHECK(grid.meta.zone == static_cast<int>(zoneOf(n)->id));
 	}
+}
+
+TEST_CASE("each campaign level has a title of its own (plan campaign-texts)") {
+	std::set<std::string> seen;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		CHECK_FALSE(grid.meta.title.empty());
+		CHECK(seen.insert(grid.meta.title).second);
+		CHECK(campaignLevelTitle(n) == grid.meta.title);
+		const LevelBanner banner = levelBanner(n, grid.meta.title); // a zone's first level shows it under the zone
+		CHECK((banner.title + banner.subtitle).find(grid.meta.title) != std::string::npos);
+	}
+	CHECK(campaignLevelTitle(CAMPAIGN_LEVELS + 1).empty());
+}
+
+TEST_CASE("a level title survives writing and reading; a level without one has none") {
+	LevelGrid grid;
+	grid.meta.zone = static_cast<int>(ZoneId::SethsDesert);
+	grid.meta.title = "The Hall of Drifts";
+	std::stringstream file;
+	writeLevel(file, grid.cells, grid.meta);
+	LevelGrid back;
+	REQUIRE(readLevel(file, back.cells, nullptr, &back.meta).empty());
+	CHECK(back.meta.title == "The Hall of Drifts");
+	CHECK(back.meta.zone == grid.meta.zone);
+
+	grid.meta.title.clear();
+	std::stringstream plain;
+	writeLevel(plain, grid.cells, grid.meta);
+	LevelGrid other;
+	REQUIRE(readLevel(plain, other.cells, nullptr, &other.meta).empty());
+	CHECK(other.meta.title.empty());
+}
+
+TEST_CASE("the banner shows the level's title") {
+	CHECK(levelBanner(2, "The Beetle Passage").title == "Level 2: The Beetle Passage");
+	CHECK(levelBanner(1, "The Jackal Statue").subtitle == "Tomb entrance, The Jackal Statue");
+	CHECK(levelBanner(2).title == "Level 2");
+}
+
+TEST_CASE("each zone has an hour note, in ZoneId order") {
+	for (int z = 0; z < ZONE_ID_COUNT; z++) {
+		CAPTURE(z);
+		const FieldNote note = hourNote(z);
+		CHECK(static_cast<int>(note) < FIELD_NOTE_COUNT);
+		CHECK(std::string(fieldNoteText(note).text).size() > 40);
+	}
+	CHECK(static_cast<int>(hourNote(ZONE_ID_COUNT - 1)) == FIELD_NOTE_COUNT - 1);
+	CHECK(std::string(fieldNoteText(hourNote(0)).title) == "The First Hour");
 }

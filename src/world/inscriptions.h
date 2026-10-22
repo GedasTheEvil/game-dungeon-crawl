@@ -9,18 +9,18 @@
 #include <string>
 #include <vector>
 
-// Ids run from 1 to INSCRIPTION_MAX: the atlas media/textures/decorations/inscriptions.png
-// (tools/textures/inscriptions.py) has a cell per id, INSCRIPTION_ATLAS_GRID x INSCRIPTION_ATLAS_GRID, id 1 top left.
-constexpr int INSCRIPTION_ATLAS_GRID = 8;
-constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
-[[nodiscard]] constexpr bool isInscriptionId(int id) { return id >= 1 && id <= INSCRIPTION_MAX; }
 // A name cartouche (plan secret-name-gates): an Inscription whose attribute is NAME_CARTOUCHE_ID. It holds the
 // level's name for its name gate (names.h), not a text of content/inscriptions/; its picture is a cell of the name
 // cartouche atlas.
 constexpr int NAME_CARTOUCHE_ID = 100;
-// The first campaign level with inscriptions: the hieroglyph skill (plan skill-hieroglyphs) comes with the first
-// boss's heka, at the end of level 5. levelcheck warns about one before it.
-constexpr int INSCRIPTIONS_FROM_LEVEL = 6;
+// Ids run from 1 to INSCRIPTION_MAX: the atlas media/textures/decorations/inscriptions.png
+// (tools/textures/inscriptions.py) has a cell per id, INSCRIPTION_ATLAS_GRID x INSCRIPTION_ATLAS_GRID, id 1 top left
+// (plan campaign-texts: 16 x 16 cells of 128 px). The name cartouche's id is no text id: its cell stays empty.
+constexpr int INSCRIPTION_ATLAS_GRID = 16;
+constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
+[[nodiscard]] constexpr bool isInscriptionId(int id) {
+	return id >= 1 && id <= INSCRIPTION_MAX && id != NAME_CARTOUCHE_ID;
+}
 
 // A permanent stat a few inscriptions give the first time they are translated (plan inscription-boons). Life and
 // Stamina are percents of the max.

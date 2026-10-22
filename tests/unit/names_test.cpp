@@ -249,7 +249,7 @@ TEST_CASE("the checker: a good name gate level has no warnings, things needed be
 	CHECK(warns(checkLevel(lone), "a name cartouche without a name gate"));
 }
 
-TEST_CASE("the campaign's secret rooms: about every second level from 6 on, each name gate with its cartouche") {
+TEST_CASE("the campaign's secret rooms: about every second level, each name gate with its cartouche") {
 	int rooms = 0;
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		LevelGrid grid;
@@ -258,8 +258,6 @@ TEST_CASE("the campaign's secret rooms: about every second level from 6 on, each
 		CAPTURE(n);
 		CHECK(r.nameGates <= 1);
 		CHECK(r.nameCartouches == r.nameGates);
-		if (n < INSCRIPTIONS_FROM_LEVEL)
-			CHECK(r.nameGates == 0);
 		rooms += r.nameGates;
 	}
 	CHECK(rooms >= 12);

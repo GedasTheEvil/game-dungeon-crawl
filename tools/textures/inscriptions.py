@@ -1,4 +1,4 @@
-"""Generate the inscription atlas media/textures/decorations/inscriptions.png (RGBA, 8 x 8 cells of 256 px, one per id).
+"""Generate the inscription atlas media/textures/decorations/inscriptions.png (RGBA, 16 x 16 cells of 128 px, one per id).
 
     python3 tools/textures/inscriptions.py [inscriptions-dir] [out.png] [names-out.png]
 
@@ -29,7 +29,9 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from decals import CELL, INK, PAINT, bleed, layer, weather  # noqa: E402
 
-GRID = 8
+GRID = 16
+CELL_PX = 128  # an inscription cell of the atlas; the drawing is made at CELL and scaled down
+RESERVED_ID = 100  # NAME_CARTOUCHE_ID: no text, its cell stays empty
 NAME_GRID = 4
 # Plausible royal sign groups, by cell; a group fits a cartouche (up to 5 signs).
 NAME_CARTOUCHES = [
@@ -81,8 +83,8 @@ def read_entries(directory):
                     current = int(value)
                     if current in entries:
                         sys.exit(f"{where}: id {current} is taken by {entries[current][2]}")
-                    if not 1 <= current <= GRID * GRID:
-                        sys.exit(f"{where}: id must be 1 to {GRID * GRID}")
+                    if not 1 <= current <= GRID * GRID or current == RESERVED_ID:
+                        sys.exit(f"{where}: id must be 1 to {GRID * GRID}, not {RESERVED_ID}")
                     entries[current] = ["cartouche", [], where]
                 elif current is None:
                     continue
@@ -198,11 +200,11 @@ DRAW = {"cartouche": cartouche, "column": column, "row": row, "stela": stela}
 
 def main(directory, path, names_path):
     entries = read_entries(directory)
-    atlas = Image.new("RGBA", (CELL * GRID, CELL * GRID), (0, 0, 0, 0))
+    atlas = Image.new("RGBA", (CELL_PX * GRID, CELL_PX * GRID), (0, 0, 0, 0))
     for ident, (style, signs, _) in sorted(entries.items()):
-        cell = DRAW[style](signs, 100 + ident).resize((CELL, CELL), Image.LANCZOS)
+        cell = DRAW[style](signs, 100 + ident).resize((CELL_PX, CELL_PX), Image.LANCZOS)
         k = ident - 1
-        atlas.paste(cell, ((k % GRID) * CELL, (k // GRID) * CELL))
+        atlas.paste(cell, ((k % GRID) * CELL_PX, (k // GRID) * CELL_PX))
     bleed(atlas).save(path)
     print(f"wrote {path} ({len(entries)} inscriptions)")
 

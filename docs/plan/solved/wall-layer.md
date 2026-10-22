@@ -49,7 +49,7 @@ Split the object layer in two. Three layers per cell:
 * `WallSpikes` (16, [rhythm-traps](rhythm-traps.md)).
 * `Lever` (12), if its model sits on the back wall (check `dungeon_render*.cpp`; if it stands in the cell, it
   stays an object).
-* Later wall things go here from the start: the wall vent of [fire-jet-trap](../fire-jet-trap.md), mirrors
+* Later wall things go here from the start: the wall vent of [fire-jet-trap](fire-jet-trap.md), mirrors
   and light shafts of [sunlight-mirrors](sunlight-mirrors.md), hand-placed wall decor (torches, reliefs),
   a wall niche holding a treasure ([treasure-containers](treasure-containers.md): canopic jars in a niche).
 

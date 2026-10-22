@@ -1,7 +1,7 @@
 # Fire jet trap
 
-Status: implemented 2026-10-22, waiting for a play-test (see [Implemented](#implemented-2026-10-22)); draft 2026-10-14. Needs first: [fire-damage](solved/fire-damage.md) (fire type, burning) and
-[rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph and level check). From the user.
+Status: solved 2026-10-22, play-tested by the user: `bin/game --play tests/play/fire-jet-trap.txt`. Draft 2026-10-14. Needs first: [fire-damage](fire-damage.md) (fire type, burning) and
+[rhythm-traps](rhythm-traps.md) (the timed cycle, its telegraph and level check). From the user.
 
 ## Idea
 
@@ -40,7 +40,7 @@ not a block).
 
 ## Decided
 
-* Campaign placement: not here, in [denser-levels](denser-levels.draft.opus.md) if this lands first (vents
+* Campaign placement: not here, in [denser-levels](../denser-levels.draft.opus.md) if this lands first (vents
   only on levels where the Fire Warding amulet can drop); if denser-levels is already done, place a few vent runs
   in existing levels here.
 
@@ -78,7 +78,7 @@ Play-test: `bin/game --play tests/play/fire-jet-trap.txt` (tests/levels/fire_ven
 * **Checker:** `fireVents` / `pathFireVents`, path cost and difficulty as wall spikes; a run of rhythm traps (both
   kinds mixed) must be walkable both ways; a vent needs a floor under it and no water.
 * **Tests:** `tests/unit/fire_vent_test.cpp` (checker, armour, burning, jump, damage by max HP, wards, the mummy, no XP);
-  `tests/scenarios/fire_vents.txt` (screenshots: glow, jet, the player burning in it).
+  `tests/scenarios/solved/fire_vents.txt` (screenshots: glow, jet, the player burning in it).
 
 Not done:
 

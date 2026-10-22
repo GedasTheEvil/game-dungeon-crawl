@@ -3,7 +3,7 @@
 Status: draft 2026-10-10, implemented 2026-10-12 (see [Implemented](#implemented-2026-10-12)), solved (play-tested, user-confirmed 2026-10-12).
 From the user. The framework only; each skill has its own sub-draft, built on this one:
 [skill-stun](../skill-stun.draft.opus.md), [skill-hieroglyphs](skill-hieroglyphs.md),
-[skill-dodge](skill-dodge.md), [skill-power-hit](../skill-power-hit.draft.sonet.md),
+[skill-dodge](skill-dodge.md), [skill-power-hit](../skill-power-hit.draft.opus.md),
 [skill-sharp-eye](skill-sharp-eye.md), [skill-blessing-of-hapi](skill-blessing-of-hapi.md),
 [skill-serkets-favour](skill-serkets-favour.md), [skill-blessing-of-isis](skill-blessing-of-isis.md).
 

@@ -18,10 +18,12 @@ Decided (user, 2026-10-22): the bonus scales with the stamina spent. Not a fixed
   attack works as today.
 * **Hold to charge** (toggle on): attack becomes a held action, like walk and sprint (`input.cpp` has the key-up and
   mouse-up paths). A tap is today's attack, no cost. Held, the stamina drains and the bonus builds; the release swings.
-* **Numbers** (`gameplay_config.h`, in shares of max stamina, so the curve is the same at every level):
+* **Numbers** (`gameplay_config.h`). Decided (user, 2026-10-22): the bonus follows the **absolute** stamina points
+  spent, not their share, so a higher level with more stamina hits harder for the same 25% charge.
   * Drain: 30% of max stamina a second while charging. Cap (user): **25% of max stamina per hit**, full in ~0.85 s;
     held longer, the charge holds at the cap, no further drain.
-  * Bonus: 3 × the share spent, linear: 10% → +30%, the cap 25% → +75% of the weapon's damage.
+  * Bonus: +3% of the weapon's damage per stamina point spent, linear. Level 1 (100 max): 10 points → +30%, the cap
+    25 points → +75%. Level 50 (590 max): the cap ~148 points → ~+440%.
   * A hold under 150 ms is a tap: no cost, no bonus.
   * Stamina runs out mid-charge: the charge stops there, the release swings with what was built.
 * **While charging:** no stamina regen, no sprint; walking is allowed.
@@ -33,10 +35,12 @@ Decided (user, 2026-10-22): the bonus scales with the stamina spent. Not a fixed
 
 ## Open (warn when reporting)
 
-* Numbers need the sim (`monster-balance`): drain rate, cap, multiplier.
+* Numbers need the sim (`monster-balance`): drain rate, cap, the 3% per point. The bonus grows with the stamina and
+  the weapon both: check high levels (and inscription boons' max stamina) do not one-shot bosses.
 
 ## Tests
 
-* Unit / sim: the bonus is 3 × the stamina share spent, capped at 25%; a tap costs nothing and deals normal damage;
+* Unit / sim: the bonus is 3% per stamina point spent, the spend capped at 25% of max (a higher
+  max stamina spends more and hits harder); a tap costs nothing and deals normal damage;
   toggle off = today's attack (holding does not charge); a bow draw never charges; empty stamina mid-charge swings with
   the built charge; no regen while charging.

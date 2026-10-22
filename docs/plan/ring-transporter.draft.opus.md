@@ -11,7 +11,7 @@ player, a flash, and the player stands on the partner platform on another floor.
 
 * A new gate type or a flag on the teleporter pair (implementer's choice); pairs as today (`teleportPair`).
 * Visual: rings drop (staggered, ~0.6 s), a white flash, rings rise at the partner. The player cannot move during it.
-  Monsters standing on the platform come along? Default: no.
+  Monsters standing on the platform stay behind: only the player travels (user, 2026-10-22).
 * Sound: the ring hum and whoosh, made (not ripped) to evoke it.
 * Platform: a round metal plate with a ring groove; ceiling above shows a ring housing. Needs a ceiling cell above.
 * `levelcheck` treats it as a teleporter.

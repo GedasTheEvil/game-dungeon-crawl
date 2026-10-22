@@ -47,13 +47,11 @@ over each puddle between drops.
 * Extend the checker's antidote rule (`level_check.cpp`, today poisoner monsters only, `isPoisoner`) to drip
   cells: a level with drips needs an antidote.
 
-## Open points (implementer's choice, user 2026-10-14)
-
-* Drop damage size; maybe zero, poison only.
-
 ## Decided
 
 * Puddle: one cell (user, 2026-10-14).
+* Drop: a small hit plus medium poison, as above, not poison only (user, 2026-10-22). The size is tuned with the
+  other traps.
 * Campaign placement: not here, in [denser-levels](denser-levels.draft.opus.md) if this lands first; if
   denser-levels is already done, place a few drip runs in existing levels here.
 

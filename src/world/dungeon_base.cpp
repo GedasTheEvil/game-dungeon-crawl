@@ -188,14 +188,22 @@ void Dungeon::updateTraps() {
 	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)
 		playerScorched = false;
-	if (jet)
-		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
+	if (jet && trapHurt.hit() > 0) {
+		PlayerStats& stats = sim.player->stats;
+		const int perSecond =
+			std::max(FIRE_JET_HP_PER_SECOND * 100, stats.CurrentMaxHP() * FIRE_JET_PERCENT_PER_SECOND);
+		const int hundredths = perSecond * TRAP_HURT_INTERVAL_MS / 1000 + jetCarry;
+		jetCarry = hundredths % 100;
+		if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0) {
 			sim.player->TakeHit(dmg, FIRE_JET_MIX, *sim.events);
+			const double warded = perSecond / 100.0 * (100 - stats.TrapWardPercent()) / 100.0;
+			sim.player->burning.Ignite(fireDamage(1, FIRE_JET_MIX, stats.resist) * warded);
 			if (!playerScorched) {
 				playerScorched = true;
 				sim.events->Status("The wall exhales. You smell your eyebrows.");
 			}
 		}
+	}
 	if (here)
 		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
 			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);

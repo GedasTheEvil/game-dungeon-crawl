@@ -356,6 +356,13 @@ static_assert(static_cast<float>(SPIKES_PERIOD_MS[0] - SPIKES_OUT_MS[0]) >= 1.5f
 				  static_cast<float>(SPIKES_PERIOD_MS[2] - SPIKES_OUT_MS[2]) >= 1.5f * SPIKES_CROSS_MS,
 			  "a single wall spike's safe window is 1.5 times the walk through it");
 
+// Fire vents (plan fire-jet-trap): the jet burns whoever stands in it for FIRE_JET_PERCENT_PER_SECOND of their max HP a
+// second, at least FIRE_JET_HP_PER_SECOND (as strong poison: deadly at any level), dealt each TRAP_HURT_INTERVAL_MS;
+// monsters take the floor only (no boss melts in it). It sets them burning as from a hit of a second's fire: a fifth of
+// it a second for BURN_MS after.
+constexpr int FIRE_JET_PERCENT_PER_SECOND = 25;
+constexpr int FIRE_JET_HP_PER_SECOND = 15;
+
 // Sunlight mirrors (plan sunlight-mirrors): a turned mirror swings to its new way in MIRROR_TURN_MS. A sun burner (the
 // mummies) in a beam burns as from a hit with SUN_BURN_FIRE fire (Burning: a fifth of it a second, BURN_MS after it
 // steps out). A sun disc just lit flares for SUN_DISC_FLARE_MS, then glows steady.

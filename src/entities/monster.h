@@ -366,8 +366,9 @@ class Monster {
 	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
 	// not farm kills with traps.
 	void TrapHit(int dmg);
-	// Each tick it stands in a fire vent's jet (plan fire-jet-trap): a trap's hit (TrapHurt), all fire: its fire
-	// resistance counts on top of trapDamagePct, and it sets it burning (not in water). No XP for the kill.
+	// Each tick it stands in a fire vent's jet (plan fire-jet-trap): FIRE_JET_HP_PER_SECOND, dealt at TrapHurt's pace,
+	// all fire: its fire resistance counts on top of trapDamagePct, and it sets it burning (not in water). No XP for
+	// the kill.
 	void StandInFire();
 	// Out of a trap that closes on it (wall spikes, plan rhythm-traps): its centre to map x on its row.
 	void ShoveTo(float mapX) { x = mapX - static_cast<float>(col) - 0.5f; }

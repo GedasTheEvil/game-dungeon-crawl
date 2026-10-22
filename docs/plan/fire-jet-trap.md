@@ -60,8 +60,11 @@ Play-test: `bin/game --play tests/play/fire-jet-trap.txt` (tests/levels/fire_ven
   (`Dungeon::updateRhythmTraps`) and the checker's crossing walk.
 * **Open points:** one vent kind, low in the back wall; the jet fills its one cell from the floor to the ceiling.
   The wards multiply: the trap ward cuts the damage (`TrapDamage`), then the Fire Warding amulet's fire resistance.
-* **Hit:** the `TrapHurt` tick as for spikes, `FIRE_JET_MIX` (all fire, through armour), burning from each hit; no
-  dodge (sustained). The jet blocks nothing; a jump does not clear it. Status on entry: "The wall exhales. You smell
+* **Hit:** `FIRE_JET_MIX` (all fire, through armour) at the `TrapHurt` tick's pace, no dodge (sustained). After the
+  user's first play-test (2026-10-22: under 10 damage for a jump, no threat at 1000 HP) it scales as strong poison:
+  25% of max HP a second, at least 15 (`FIRE_JET_PERCENT_PER_SECOND`, `FIRE_JET_HP_PER_SECOND`), and burning as
+  from a second's fire (5% of max HP a second for 3 s). Standing through a whole jet costs about 45% of max HP, a
+  jump through about 30%. Monsters take the floor only, so no boss melts in it. The jet blocks nothing; a jump does not clear it. Status on entry: "The wall exhales. You smell
   your eyebrows."
 * **Monsters:** cowards stop at a glowing or burning vent (`walkerBlockedAt`), the reckless walk through. All
   monsters in the cell are hit, flyers and leapers too (not the hidden ones): `Monster::StandInFire`, its fire
@@ -73,7 +76,7 @@ Play-test: `bin/game --play tests/play/fire-jet-trap.txt` (tests/levels/fire_ven
   Map: the mouth and a tongue of flame. Editor hints.
 * **Checker:** `fireVents` / `pathFireVents`, path cost and difficulty as wall spikes; a run of rhythm traps (both
   kinds mixed) must be walkable both ways; a vent needs a floor under it and no water.
-* **Tests:** `tests/unit/fire_vent_test.cpp` (checker, armour, burning, jump, wards, the mummy, no XP);
+* **Tests:** `tests/unit/fire_vent_test.cpp` (checker, armour, burning, jump, damage by max HP, wards, the mummy, no XP);
   `tests/scenarios/fire_vents.txt` (screenshots: glow, jet, the player burning in it).
 
 Not done:

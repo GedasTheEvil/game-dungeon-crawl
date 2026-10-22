@@ -3,7 +3,6 @@
 #include "../../src/world/level_check.h"
 #include "../../src/world/spike_cycle.h"
 #include "sim_world.h"
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -98,6 +97,18 @@ TEST_CASE("the jet burns through armour: an armoured player loses as much as an 
 	CHECK(jetLoss(armoured) == lossBare);
 }
 
+TEST_CASE("the jet hurts by the player's max HP: a quarter a second, deadly at any level") {
+	SimWorld low;
+	const int lowLoss = jetLoss(low); // 50 HP: the floor, 15 HP a second, and the burning after
+	CHECK(lowLoss >= FIRE_JET_HP_PER_SECOND * SPIKES_OUT_MS[0] / 1000);
+	SimWorld high;
+	high.player.stats.AddMaxHP(1900); // 50 -> 1000
+	REQUIRE(high.player.stats.CurrentMaxHP() == 1000);
+	CHECK(jetLoss(high) >= 1000 * FIRE_JET_PERCENT_PER_SECOND / 100 * SPIKES_OUT_MS[0] / 1000 * 9 / 10);
+	high.Wait(BURN_MS);
+	CHECK(high.Hp() < 1000 * 6 / 10); // and the burning after: more than 40% gone
+}
+
 TEST_CASE("the jet blocks nothing, a jump does not clear it; off, the player walks through unhurt") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/fire_vents"));
@@ -142,21 +153,21 @@ TEST_CASE("the trap ward and the Fire Warding amulet both cut the jet, one after
 	CHECK_FALSE(immune.player.burning.Any());
 }
 
-TEST_CASE("a mummy in the jet takes double a trap's damage (weak to fire), and burns; its fire kill gives no XP") {
+TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire kill gives no XP") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/empty_row"));
 	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
-	Monster burnt, stabbed;
+	Monster burnt;
 	burnt.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 3, 1, links, world.random.effects);
-	stabbed.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 4, 1, links, world.random.effects);
+	REQUIRE(burnt.Type()->trapDamagePct == 50);
+	REQUIRE(burnt.Type()->resist[FIRE] == WEAK);
 	for (int k = 0; k < 10; k++) {
 		world.Wait(TRAP_HURT_INTERVAL_MS);
 		burnt.StandInFire();
-		stabbed.StandInTrap(std::nullopt, world.random.gameplay);
 	}
-	const int lostBurnt = burnt.MaxHealth() - burnt.Health(), lostStabbed = stabbed.MaxHealth() - stabbed.Health();
-	CHECK(lostStabbed > 0);
-	CHECK(lostBurnt == 2 * lostStabbed);
+	const int lostBurnt = burnt.MaxHealth() - burnt.Health();
+	// Ten hits of the floor rate's tenth of a second, at the mummy's trap share (50%), weak to fire (200%).
+	CHECK(lostBurnt == 10 * FIRE_JET_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100);
 	CHECK(burnt.Burns());
 	bool rewarded = false; // in the jet till it is nearly dead, then the fire alone finishes it
 	for (int t = 0; t < 60000 && burnt.Alive(); t += UPDATE_TICK_MS) {

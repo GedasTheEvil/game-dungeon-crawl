@@ -290,6 +290,7 @@ class Dungeon {
 	// The fire vent's jet is on in a cell of row the body from left to right overlaps.
 	[[nodiscard]] bool inFireJet(float left, float right, int row) const;
 	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
+	int jetCarry = 0; // hundredths of a HP of the jet's damage not dealt yet
 	void drawFireVentTile(); // the vent low in the back wall
 	void drawFireJets(const CellRect& drawn); // the jets and the telegraph's glow, after the opaque tiles
 	void addFireVentLights(const CellRect& drawn); // the jets light the corridor, the telegraph glows

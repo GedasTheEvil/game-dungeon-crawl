@@ -1,5 +1,6 @@
 # Plan fire-jet-trap, for `bin/game --play tests/play/fire-jet-trap.txt`: tests/levels/fire_vents. A fire vent at col 5
 # (normal speed), then a pair at cols 10-11 at alternate phases. 0.6 s before the jet the vent glows and hisses; the jet
-# (1.2 s of every 4 s) burns whoever stands in the cell, a jump too, and sets them burning. It blocks nothing.
+# (1.2 s of every 4 s) burns whoever stands in the cell, a jump too: 450 HP a second (half the max HP at high
+# level), so with 50 HP any touch kills. It blocks nothing.
 seed 1
 level tests/levels/fire_vents

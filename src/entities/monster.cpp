@@ -226,11 +226,11 @@ void Monster::trapHit(int hundredthsDealt) {
 void Monster::StandInFire() {
 	if (trapHurt.hit() <= 0)
 		return;
-	constexpr int HUNDREDTHS = FIRE_JET_HP_PER_SECOND * 100 * TRAP_HURT_INTERVAL_MS / 1000;
+	constexpr int HUNDREDTHS = FIRE_JET_MONSTER_HP_PER_SECOND * 100 * TRAP_HURT_INTERVAL_MS / 1000;
 	trapHit(HUNDREDTHS * type->trapDamagePct / 100 * type->resist[FIRE] / NORMAL);
 	if (Alive() && !inWater) {
 		burnByPlayer = burnByPlayer && burning.Any(); // the player's fire stays theirs
-		burning.Ignite(fireDamage(FIRE_JET_HP_PER_SECOND, FIRE_JET_MIX, type->resist));
+		burning.Ignite(fireDamage(FIRE_JET_MONSTER_HP_PER_SECOND, FIRE_JET_MIX, type->resist));
 	}
 }
 

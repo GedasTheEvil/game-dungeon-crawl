@@ -61,10 +61,11 @@ Play-test: `bin/game --play tests/play/fire-jet-trap.txt` (tests/levels/fire_ven
 * **Open points:** one vent kind, low in the back wall; the jet fills its one cell from the floor to the ceiling.
   The wards multiply: the trap ward cuts the damage (`TrapDamage`), then the Fire Warding amulet's fire resistance.
 * **Hit:** `FIRE_JET_MIX` (all fire, through armour) at the `TrapHurt` tick's pace, no dodge (sustained). After the
-  user's first play-test (2026-10-22: under 10 damage for a jump, no threat at 1000 HP) it scales as strong poison:
-  25% of max HP a second, at least 15 (`FIRE_JET_PERCENT_PER_SECOND`, `FIRE_JET_HP_PER_SECOND`), and burning as
-  from a second's fire (5% of max HP a second for 3 s). Standing through a whole jet costs about 45% of max HP, a
-  jump through about 30%. Monsters take the floor only, so no boss melts in it. The jet blocks nothing; a jump does not clear it. Status on entry: "The wall exhales. You smell
+  user's play-tests (2026-10-22: under 10 damage for a jump, then under 50 standing in it; the user wants 500 at
+  least) it deals 50% of max HP a second, at least 450 (`FIRE_JET_PERCENT_PER_SECOND`, `FIRE_JET_HP_PER_SECOND`):
+  a whole jet (1.2 s) costs 540 and more, and burning after as from a second's fire (a fifth of it a second for
+  3 s). Any touch kills a starting player. Monsters take `FIRE_JET_MONSTER_HP_PER_SECOND` (15), so no boss melts in
+  it. The jet blocks nothing; a jump does not clear it. Status on entry: "The wall exhales. You smell
   your eyebrows."
 * **Monsters:** cowards stop at a glowing or burning vent (`walkerBlockedAt`), the reckless walk through. All
   monsters in the cell are hit, flyers and leapers too (not the hidden ones): `Monster::StandInFire`, its fire

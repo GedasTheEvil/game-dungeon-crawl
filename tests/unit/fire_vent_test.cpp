@@ -49,6 +49,12 @@ void waitFor(SimWorld& world, SpikeState s) {
 	REQUIRE(stateAt(world) == s);
 }
 
+// A player with 2000 HP (50 x 40): one jet does not kill them.
+void toughen(SimWorld& world) {
+	world.player.stats.AddMaxHP(3900);
+	REQUIRE(world.player.stats.CurrentMaxHP() == 2000);
+}
+
 // The HP the player loses standing in the vent's cell through one jet, from the jet's start to its end.
 int jetLoss(SimWorld& world) {
 	REQUIRE(world.Load("tests/levels/fire_vents"));
@@ -88,35 +94,42 @@ TEST_CASE("the checker: fire vents are rhythm traps, crossed like wall spikes; t
 
 TEST_CASE("the jet burns through armour: an armoured player loses as much as an unarmoured one, and burns on") {
 	SimWorld bare;
+	toughen(bare);
 	const int lossBare = jetLoss(bare);
 	CHECK(lossBare > 0);
 	CHECK(bare.Told("You smell your eyebrows"));
 	CHECK(bare.player.burning.Any()); // leaving it late still costs a few ticks
 	SimWorld armoured;
+	toughen(armoured);
 	armoured.player.stats.AddArmor(30);
 	CHECK(jetLoss(armoured) == lossBare);
 }
 
-TEST_CASE("the jet hurts by the player's max HP: a quarter a second, deadly at any level") {
-	SimWorld low;
-	const int lowLoss = jetLoss(low); // 50 HP: the floor, 15 HP a second, and the burning after
-	CHECK(lowLoss >= FIRE_JET_HP_PER_SECOND * SPIKES_OUT_MS[0] / 1000);
+TEST_CASE("a whole jet costs 500 HP and more: at least FIRE_JET_HP_PER_SECOND, half the max HP a second") {
+	SimWorld low; // 50 HP
+	jetLoss(low);
+	CHECK_FALSE(low.player.Alive());
 	SimWorld high;
 	high.player.stats.AddMaxHP(1900); // 50 -> 1000
 	REQUIRE(high.player.stats.CurrentMaxHP() == 1000);
 	CHECK(jetLoss(high) >= 1000 * FIRE_JET_PERCENT_PER_SECOND / 100 * SPIKES_OUT_MS[0] / 1000 * 9 / 10);
 	high.Wait(BURN_MS);
-	CHECK(high.Hp() < 1000 * 6 / 10); // and the burning after: more than 40% gone
+	CHECK(high.Hp() < 250); // and the burning after
+	SimWorld tough;
+	toughen(tough); // 2000 HP: 50% a second for the 1.2 s of the jet
+	CHECK(jetLoss(tough) >= 2000 * FIRE_JET_PERCENT_PER_SECOND / 100 * SPIKES_OUT_MS[0] / 1000 * 9 / 10);
+	CHECK(FIRE_JET_HP_PER_SECOND * SPIKES_OUT_MS[0] / 1000 >= 500); // a jet's floor
 }
 
 TEST_CASE("the jet blocks nothing, a jump does not clear it; off, the player walks through unhurt") {
 	SimWorld world;
+	toughen(world);
 	REQUIRE(world.Load("tests/levels/fire_vents"));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(4.f));
 	waitFor(world, SpikeState::Retracted);
 	REQUIRE(world.WalkTo(6.6f)); // through while it is off
-	CHECK(world.Hp() == 50);
+	CHECK(world.Hp() == 2000);
 	CHECK_FALSE(world.player.burning.Any());
 
 	REQUIRE(world.WalkTo(4.4f));
@@ -125,13 +138,14 @@ TEST_CASE("the jet blocks nothing, a jump does not clear it; off, the player wal
 	world.Jump(); // over the vent: into the column
 	world.HoldWalk(1, 600);
 	CHECK(world.X() > 5.5f); // not blocked
-	CHECK(world.Hp() < 50);
+	CHECK(world.Hp() < 2000 - FIRE_JET_HP_PER_SECOND / 4);
 	CHECK(world.player.burning.Any());
 }
 
 TEST_CASE("the trap ward and the Fire Warding amulet both cut the jet, one after the other") {
 	auto lossWearing = [](int trapCut, int fireCut) {
 		SimWorld world;
+		toughen(world);
 		AmuletBonus bonus;
 		bonus.trapCutPercent = trapCut;
 		bonus.resist[FIRE] = NORMAL - fireCut;
@@ -167,7 +181,8 @@ TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire k
 	}
 	const int lostBurnt = burnt.MaxHealth() - burnt.Health();
 	// Ten hits of the floor rate's tenth of a second, at the mummy's trap share (50%), weak to fire (200%).
-	CHECK(lostBurnt == 10 * FIRE_JET_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100);
+	CHECK(lostBurnt ==
+		  10 * FIRE_JET_MONSTER_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100);
 	CHECK(burnt.Burns());
 	bool rewarded = false; // in the jet till it is nearly dead, then the fire alone finishes it
 	for (int t = 0; t < 60000 && burnt.Alive(); t += UPDATE_TICK_MS) {

@@ -23,7 +23,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   The jump clip (`scarab_jump.md3`, 10 frames, plays once: crouch, spring off with the elytra lifted, legs tucked, landing
   crouch; per-frame floor fix for the hanging tarsi) is the giant scarab's leap. The roll clip (`scarab_att_ranged.md3`,
   15 frames, plays once: a headstand, the hind legs up on the ball and paddling, the kick at frame 11) is the giant
-  scarab's and Khepri's dung ball ([scarab-dung-ball](plan/scarab-dung-ball.md)); `--export-clip SUFFIX` writes one clip
+  scarab's and Khepri's dung ball ([scarab-dung-ball](plan/solved/scarab-dung-ball.md)); `--export-clip SUFFIX` writes one clip
   without baking. The ball is `items.py`'s `dung_ball`. Bakes `scarab.png` and `scarab_giant.png`
   (obsidian and carnelian, red eyes) on the same UVs; `SCARAB_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/rat.py` - quadruped example: one loft from rump to nose blended over hips/chest/head bones, trot gait

@@ -1,5 +1,5 @@
 ; Khepri (col 13) three cells east of the player (col 10) in a long hall: her burning dung ball
-; (tests/unit/dung_ball_test.cpp, tests/scenarios/dung_ball.txt, tests/play/scarab-dung-ball.txt).
+; (tests/unit/dung_ball_test.cpp, tests/scenarios/solved/dung_ball.txt, tests/play/scarab-dung-ball.txt).
 ############################
 #.........S..K............E#
 ############################

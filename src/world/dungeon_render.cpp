@@ -463,6 +463,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	addLights(drawn);
 	addVenomLights();
 	addFireLights();
+	addBallLights();
 	addSunLights(drawn);
 	addFireVentLights(drawn);
 	Lighting::commit();
@@ -496,6 +497,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	DrawMonsters(drawn);
 	drawMissiles();
 	drawShots();
+	drawBalls();
 	drawDarts();
 	if (hitboxes != nullptr)
 		drawHitboxes(*hitboxes);
@@ -505,6 +507,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFireJets(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
+	drawBallEffects();
 	drawSandEffects();
 	drawSunBeams();
 	drawContainerEffects();
@@ -534,6 +537,9 @@ void Dungeon::drawHitboxes(const HitboxView& weapon) {
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Alive())
 			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
+	for (const DungBall& b : balls) // the box that hits the player (Dungeon::updateBalls)
+		if (b.breakMs < 0)
+			box(b.x - b.rules.radius, b.x + b.rules.radius, b.y, b.y + 2.f * b.rules.radius);
 	const Player& player = *sim.player;
 	const float half = player.HalfWidth();
 	glColor3f(0.2f, 1, 0.2f);

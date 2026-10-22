@@ -1,0 +1,51 @@
+# The dung ball (plan scarab-dung-ball, tests/levels/dung_ball, dung_ball_khepri): the giant scarab comes into its
+# range, turns its back, stands on its head and shapes the ball, kicks it off; the ball rolls at the player. Then
+# Khepri's burning one. Screenshots of the windup, the kick, the roll, the hit; the boxes; the jump over it.
+seed 1
+level tests/levels/dung_ball
+god
+walk right 0.95
+wait 1000ms
+screenshot windup1
+wait 250ms
+screenshot windup2
+wait 250ms
+screenshot windup3
+wait 250ms
+screenshot windup4
+wait 200ms
+screenshot kick
+wait 100ms
+screenshot roll1
+wait 100ms
+screenshot roll2
+wait 100ms
+screenshot hit
+level tests/levels/dung_ball
+god
+hitboxes on
+walk right 0.95
+wait 2400ms
+screenshot boxes
+hitboxes off
+level tests/levels/dung_ball_khepri
+god
+walk right 1.9
+wait 300ms
+screenshot khepri1
+wait 50ms
+screenshot khepri2
+wait 50ms
+screenshot khepri3
+wait 50ms
+screenshot khepri4
+wait 50ms
+screenshot khepri5
+wait 50ms
+screenshot khepri6
+wait 50ms
+screenshot khepri7
+wait 50ms
+screenshot khepri8
+wait 50ms
+screenshot khepri9

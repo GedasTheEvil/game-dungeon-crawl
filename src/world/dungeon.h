@@ -399,6 +399,27 @@ class Dungeon {
 	void drawBurning(); // flames on the burning monsters and the fire arrows; drawSummonEffects' frame
 	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
+	// A dung ball (plan scarab-dung-ball, dungeon_balls.cpp): kicked off by a roller (Monster::UpdateRoll), it rolls
+	// along the floor of its row; map units, (x, y) the bottom of the ball.
+	struct DungBall {
+		float x, y;
+		int dir; // -1 / +1
+		RollRules rules; // its roller's
+		int from; // the roller's MonsterTypeId: the journal's
+		int startMs; // GameClock time of the kick: the seed of its flames and crumbs
+		float rolled = 0.f; // tiles: the spin, the end of its roll
+		float vy = 0.f; // tiles per second: falling into a pit (< 0)
+		bool falling = false;
+		int breakMs = -1; // GameClock time it broke; < 0: rolling
+		bool sank = false; // broke in water: no crumbs
+	};
+	std::vector<DungBall> balls;
+	bool updateRoller(Monster& mon); // the windup and the kick; true: busy with it, no walk or bite
+	void updateBalls();
+	void breakBall(DungBall& ball, bool inWater);
+	void drawBalls(); // the balls rolling and in the windups; with the frame origin of DrawMonsters
+	void drawBallEffects(); // Khepri's flames, the crumbs of the broken ones; drawSummonEffects' frame
+	void addBallLights(); // the burning balls'; same frame as addLights
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
 	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
@@ -481,6 +502,8 @@ class Dungeon {
 	// False: not a cell to stand in (a wall, no floor and no ladder).
 	bool PlacePlayer(int col, int row);
 	[[nodiscard]] bool Won() const { return won; }
+	// The dung balls rolling, falling or broken (plan scarab-dung-ball), for the tests.
+	[[nodiscard]] const std::vector<DungBall>& Balls() const { return balls; }
 	void ClearWin() { won = false; } // a new game or a scenario level
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
 	// cell is outside the level.

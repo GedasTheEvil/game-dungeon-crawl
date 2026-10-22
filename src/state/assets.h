@@ -33,6 +33,7 @@ struct SoundBank {
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
+	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
 	Ambience ambience; // the zone's loop (plan zone-looks): media/sounds/ambience/<ZoneLook::ambience>.wav
 };
 
@@ -55,6 +56,9 @@ struct ItemPrototypes {
 	// The missiles in flight, by MissileKind: static models in metres (items.py), not centred. Null if missing.
 	std::array<Texture, MISSILE_KIND_COUNT> missileTex;
 	std::array<std::unique_ptr<AnimatedModel>, MISSILE_KIND_COUNT> missiles;
+	// The giant scarab's dung ball (plan scarab-dung-ball): in metres like the missiles, its lowest point at 0.
+	Texture dungBallTex;
+	std::unique_ptr<AnimatedModel> dungBall;
 };
 
 struct TrapSet {

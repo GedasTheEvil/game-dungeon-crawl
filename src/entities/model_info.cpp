@@ -8,6 +8,8 @@
 #include "../core/paths.h"
 
 const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
+	if (kind.roll)
+		return ROLLER_CLIPS;
 	switch (kind.locomotion) {
 	case Locomotion::Ambush:
 		return AMBUSH_CLIPS;

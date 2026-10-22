@@ -91,7 +91,8 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   its wake clip, climbing out; the last frame is walk frame 0). The cobra (`COILED_CLIPS`), the blue lotus and the ushabti
   (`FLOATING_CLIPS`) require `_idle` and `_rise` too.
   A ranged attack: walkers and the mummy priest (`RANGED_CLIPS`, `ENTOMBED_RANGED_CLIPS`) play `_att` once as the ranged clip;
-  the cobra (`COILED_CLIPS`) and the baboon (`THROWER_CLIPS`, `RangedRules::ownClip`) have their own `_att_ranged` (plays once). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
+  the cobra (`COILED_CLIPS`) and the baboon (`THROWER_CLIPS`, `RangedRules::ownClip`) have their own `_att_ranged` (plays once),
+  and so do the rollers (`ROLLER_CLIPS`, `MonsterKind::roll`: the giant scarab's and Khepri's dung ball, `scarab.py`). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
 * Any frame count per file; the engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the mimics 1024x512, the lotus and the ushabti 512x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.

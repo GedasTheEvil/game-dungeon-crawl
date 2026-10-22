@@ -79,8 +79,9 @@ enum class CreatureMove : unsigned char {
 	StepOff, // a figurine steps off its place among the decor figures (Locomotion::Figurine)
 	Roar, // a charger's storm roar as its stun ends (MonsterKind::roar)
 	Kite, // a kiter backs off from the player to keep them at its range (MonsterKind::kite)
+	RollBall, // a roller kicks a dung ball at the player (MonsterKind::roll)
 };
-constexpr int CREATURE_MOVE_COUNT = 21;
+constexpr int CREATURE_MOVE_COUNT = 22;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

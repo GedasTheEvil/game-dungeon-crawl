@@ -152,6 +152,8 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.jarSmash;
 	case WorldSound::PagePickup:
 		return sounds.pageTurn;
+	case WorldSound::DungThud:
+		return sounds.dungThud;
 	}
 	return sounds.arrowHit;
 }

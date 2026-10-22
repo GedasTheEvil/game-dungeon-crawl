@@ -49,6 +49,8 @@ constexpr FireStyle BODY = {24, 600.f, 2.5f, 9.f, 3.6f, 1.5f, 0.4f};
 constexpr FireStyle BOLT = {20, 380.f, 0.9f, 4.f, 2.6f, 1.f, 0.15f};
 constexpr FireStyle BOLT_TRAIL = {10, 300.f, 0.8f, 3.f, 2.f, 0.8f, 0.2f};
 constexpr FireStyle BOLT_SPLAT = {40, 450.f, 2.5f, 9.f, 3.4f, 2.f, 0.5f};
+// Khepri's burning dung ball (plan scarab-dung-ball): flames all over the ball's face, licking up off it.
+constexpr FireStyle SUN_BALL = {30, 420.f, 4.f, 7.f, 3.4f, 1.2f, 0.2f};
 
 // Draws one fire at (x, y, z) in the current modelview's local space. Call after the opaque scene: the sprites
 // test depth but do not write it. fade 0..1 dims it (1: full).

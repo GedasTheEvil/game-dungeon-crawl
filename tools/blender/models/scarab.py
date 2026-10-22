@@ -1,10 +1,10 @@
 """Procedural golden scarab (Scarabaeus sacer, plus the giant scarab texture): mesh, rig, baked textures and the
-.md3 animations (walk, attack, die, and jump: the giant scarab's leap over pits and traps, plays once, the game
-moves the body).
+.md3 animations (walk, attack, die, jump: the giant scarab's leap over pits and traps, plays once, the game
+moves the body; and roll, _att_ranged: the giant scarab's and Khepri's dung ball, plays once).
 
     MCP:  p = ".../tools/blender/models/scarab.py"; g = {"__file__": p, "__name__": "scarab"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/scarab.py -- [--export] [--boss-texture]
+    CLI:  blender -b --python tools/blender/models/scarab.py -- [--export] [--boss-texture] [--export-clip _att_ranged]
 
 Blender space: Z up, the beetle faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts (body, head, elytra, antennae, leg segments) each follow one bone. Every frame is
@@ -13,6 +13,12 @@ two-bone IK towards foot targets (planted on the floor or given in body space).
 Three textures share one UV layout: scarab.png (gold and lapis), scarab_giant.png (obsidian and carnelian, red eyes)
 and scarab_boss.png (deep lapis and gold, gold eyes; bake it alone with --boss-texture).
 Set SCARAB_TEX=giant to show the giant texture on the built object (review renders with --bake).
+--export-clip SUFFIX writes that clip's file only, without baking the textures (the other files stay as they are).
+
+The roll (plan scarab-dung-ball, 15 frames, ~1 s): the game turns the beetle's back to the player and draws the ball at
+the rear edge of its box, growing while the beetle shapes it. It stands on its head, the hind legs up on the ball,
+paddles them (frames 5-9), cocks them and kicks the ball off at frame 11 (0.8 s: RollRules::windupMs, the release),
+then stands up again.
 """
 
 import importlib
@@ -32,7 +38,9 @@ importlib.reload(common)
 from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "scarab_new"
-CLIPS = [("scarab_walk", "", 24), ("scarab_attack", "_att", 26), ("scarab_die", "_die", 32), ("scarab_jump", "_jump", 10)]
+CLIPS = [("scarab_walk", "", 24), ("scarab_attack", "_att", 26), ("scarab_die", "_die", 32), ("scarab_jump", "_jump", 10),
+         ("scarab_roll", "_att_ranged", 15)]
+ONE_SHOT = ("scarab_die", "scarab_jump", "scarab_roll")
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.45), "ortho": 3.6, "res": (520, 400)}
 
@@ -445,7 +453,8 @@ def build_rig(coll):
 # ---------------------------------------------------------------- animation
 
 REST = dict(x=0.0, y=0.0, z=0.0, pitch=0.0, roll=0.0, yaw=0.0, hp=0.0, hy=0.0, ely=0.0, ant=0.0,
-            plant=1.0, fplant=1.0, fup=0.0, ffwd=0.0, fout=0.0, curl=0.0, flail=0.0, fphase=0.0)
+            plant=1.0, fplant=1.0, fup=0.0, ffwd=0.0, fout=0.0, curl=0.0, flail=0.0, fphase=0.0,
+            hplant=1.0, hup=0.0, hback=0.0, hpaddle=0.0, hphase=0.0)
 STRIDE, STEP_H = 0.42, 0.14
 
 
@@ -492,6 +501,10 @@ def leg_targets(p, T):
         ph = 2 * math.pi * (p["fphase"] + {"1": 0.0, "2": 0.33, "3": 0.66}[n[0]] + (0.17 if s > 0 else 0.0))
         free += V((0.5 * s * math.sin(ph), 0.7 * math.cos(ph * 1.3), 0.6 * math.sin(ph + 1))) * p["flail"]
         w = p["fplant"] if front else p["plant"]
+        if n[0] == "3":  # the hind legs: up and back onto the ball, paddling it (the roll)
+            paddle = math.sin(2 * math.pi * p["hphase"] + (math.pi if s > 0 else 0.0)) * p["hpaddle"]
+            free += V((0, -p["hback"] - 0.10 * paddle, p["hup"] + 0.08 * paddle))
+            w *= p["hplant"]
         target = planted.lerp(T @ free, 1 - w)
         if p["roll"] < 45:
             target.z = max(target.z, FOOT_Z)
@@ -554,7 +567,7 @@ def key_frame(rig, p, frame_no):
         pb.keyframe_insert("location", frame=frame_no)
 
 
-def interpolate(keys, frame_no, linear=("fphase",)):
+def interpolate(keys, frame_no, linear=("fphase", "hphase")):
     full = []
     for f, over in keys:
         p = {k: v for k, v in READY.items() if k != "feet"}
@@ -608,6 +621,19 @@ JUMP = [
     (9, dict(z=-0.03, pitch=-2, ely=3)),
 ]
 
+# Roll (one-shot): the headstand, hind legs up on the ball behind it, paddling it into shape; cocked, the kick at frame
+# 11 (the release), legs thrust back and the body lunging forward off it; then up again.
+ROLL = [
+    (0, {}),
+    (3, dict(pitch=-16, z=0.10, y=0.06, hp=-12, ant=-10, ely=4, hplant=0, hup=0.42, hback=0.22)),
+    (5, dict(pitch=-18, z=0.11, y=0.05, hp=-14, ant=-12, ely=4, hplant=0, hup=0.45, hback=0.22, hpaddle=1.0, hphase=0.0)),
+    (9, dict(pitch=-18, z=0.11, y=0.05, hp=-14, ant=-12, ely=4, hplant=0, hup=0.45, hback=0.22, hpaddle=1.0, hphase=2.0)),
+    (10, dict(pitch=-21, z=0.12, y=0.0, hp=-16, ant=-14, ely=6, hplant=0, hup=0.40, hback=0.10, hphase=2.25)),
+    (11, dict(pitch=-9, z=0.05, y=0.18, hp=-6, ant=10, ely=10, hplant=0, hup=0.28, hback=0.60, fplant=0.5, fup=0.05)),
+    (12, dict(pitch=-6, z=0.03, y=0.14, hp=-4, ant=6, ely=6, hplant=0.3, hup=0.18, hback=0.40)),
+    (14, {}),
+]
+
 
 def lowest_z(obj):
     ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
@@ -626,12 +652,12 @@ def make_actions(rig, obj):
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         rig.animation_data.action = act
-        last = frames if name not in ("scarab_die", "scarab_jump") else frames - 1  # loops key frame N = frame 0
+        last = frames if name not in ONE_SHOT else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
             if name == "scarab_walk":
                 key_frame(rig, walk_params(f / frames), f)
             else:
-                key_frame(rig, interpolate({"scarab_attack": ATTACK, "scarab_die": DIE, "scarab_jump": JUMP}[name], f), f)
+                key_frame(rig, interpolate({"scarab_attack": ATTACK, "scarab_die": DIE, "scarab_jump": JUMP, "scarab_roll": ROLL}[name], f), f)
         acts[name] = act
     # Feet on the floor at frame 0 of the walk (shared by all files).
     rig.animation_data.action = acts["scarab_walk"]
@@ -646,14 +672,15 @@ def make_actions(rig, obj):
         if f > 2:
             root.location.z -= low
             root.keyframe_insert("location", frame=f)
-    # Leaping: the hanging tarsi would dip through the floor early in the arc, lift the root above it.
-    rig.animation_data.action = acts["scarab_jump"]
-    for f in range(CLIPS[3][2]):
-        scene.frame_set(f)
-        low = lowest_z(obj)
-        if low < 0:
-            root.location.z -= low
-            root.keyframe_insert("location", frame=f)
+    # Leaping (and the roll's headstand): the hanging tarsi would dip through the floor, lift the root above it.
+    for clip in (CLIPS[3], CLIPS[4]):
+        rig.animation_data.action = acts[clip[0]]
+        for f in range(clip[2]):
+            scene.frame_set(f)
+            low = lowest_z(obj)
+            if low < 0:
+                root.location.z -= low
+                root.keyframe_insert("location", frame=f)
     return acts
 
 
@@ -691,13 +718,18 @@ def build(bake=True, tex_path=None, giant_path=None):
     return obj, rig
 
 
-def export(models_dir=None):
-    common.export_files(bpy.data.objects["scarab_new"], bpy.data.objects["scarab_rig"], "scarab", CLIPS, "monsters", models_dir)
+def export(models_dir=None, suffix=None):
+    clips = [c for c in CLIPS if suffix is None or c[1] == suffix]
+    common.export_files(bpy.data.objects["scarab_new"], bpy.data.objects["scarab_rig"], "scarab", clips, "monsters", models_dir)
 
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     tex_dir = os.path.join(REPO, "media", "textures", "monsters")
+    if "--export-clip" in args:
+        build(bake=False)
+        export(suffix=args[args.index("--export-clip") + 1])
+        sys.exit(0)
     if "--boss-texture" in args:
         obj, _ = build(bake=False)
         materials(COL_BOSS)

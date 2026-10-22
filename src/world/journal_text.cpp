@@ -100,6 +100,11 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return "Stunned against the wall, he gets up roaring a storm of sand. Do not stand next to him then.";
 	case CreatureMove::Kite:
 		return "Keeps its distance: backs off when I come at it, throws from afar. Corner it, or run it down.";
+	case CreatureMove::RollBall:
+		if (t.roll && t.roll->burns())
+			return "She turns her back on me and rolls a burning sun along the floor, as she rolls the sun across the "
+				   "sky. A jump clears it.";
+		return "It rolls its dinner at me. I am not sure whose dinner. A jump clears it.";
 	}
 	return "";
 }

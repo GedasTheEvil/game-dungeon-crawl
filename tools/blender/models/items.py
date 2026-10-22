@@ -1,6 +1,6 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
-flight (arrow, sling stone), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
+flight (arrow, sling stone, and the giant scarab's dung ball, plan scarab-dung-ball), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
 share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
@@ -48,7 +48,7 @@ from common import REPO, Builder, cone, ellipsoid, transform, tube  # noqa: E402
 from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
-ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone",
+ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone", "dung_ball",
          "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
                                                           "pierce", "regeneration", "venom", "fire")]
 # Exported with frames, one shape key each on the baked object: the bows' draw, the chest's opening. Item: (keyword of
@@ -131,6 +131,8 @@ COL = {
     "alabaster_dark": (0.68, 0.61, 0.47),
     "falcon": (0.42, 0.28, 0.14),
     "falcon_dark": (0.22, 0.14, 0.07),
+    "dung": (0.30, 0.20, 0.09),
+    "dung_dark": (0.16, 0.10, 0.05),
 }
 
 
@@ -187,6 +189,7 @@ def materials(palette=None):
         "beak": ("solid", "gold_dark"),
         "scales": stripes("v", 0.004, [(2, "gold"), (1, "gold_dark")]),
         "hood": stripes("v", 0.005, [(2, "gold"), (1, "lapis"), (2, "gold"), (1, "carnelian")]),
+        "dung": stripes("u", 1 / 5, [(3, "dung"), (1, "dung_dark"), (5, "dung"), (2, "dung_dark"), (2, "dung"), (1, "dung_dark")], "LINEAR"),
     }
     return {name: common.make_material("item_" + name, spec, pal) for name, spec in specs.items()}
 
@@ -511,6 +514,27 @@ STONE_R = 0.05  # bigger than a real sling stone, so it reads in flight (the eng
 def build_sling_stone(b, M):
     """A rounded river pebble."""
     b.add(decor.rock(V((0, 0, STONE_R)), (STONE_R, STONE_R * 0.9, STONE_R * 0.8), seed=4, amp=0.08), M["stone"], "root")
+
+
+DUNG_R = 0.04
+
+
+def build_dung_ball(b, M):
+    """The giant scarab's dung ball: a lumpy ball of dung with bits of straw sticking out. The engine draws it at the
+    roller's RollRules::radius (its height is the diameter) and spins it as it rolls."""
+    c = V((0, 0, DUNG_R * 1.25))  # no lump flattened on the floor: it rolls
+    b.add(decor.rock(c, (DUNG_R, DUNG_R, DUNG_R), seed=11, amp=0.12, n=16, rings=10), M["dung"], "root")
+    for k in range(14):  # clumps pressed on, so it reads as packed dung, not a stone
+        a, e = 2.4 * k + 0.7, math.asin(-0.9 + 1.8 * ((k * 0.381 + 0.2) % 1.0))
+        d = V((math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)))
+        r = DUNG_R * (0.24 + 0.10 * ((k * 0.73) % 1.0))
+        b.add(decor.rock(c + d * DUNG_R * 0.84, (r, r, r), seed=20 + k, amp=0.2, n=8, rings=5), M["dung"], "root")
+    for k in range(9):  # straws: in through the surface, out at a slant
+        a, e = 2.4 * k, math.asin(-0.8 + 1.6 * ((k * 0.618) % 1.0))
+        d = V((math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)))
+        side = d.cross(V((0, 0, 1)) if abs(d.z) < 0.9 else V((1, 0, 0))).normalized()
+        out = (d + side * 0.6).normalized()
+        b.add(decor.rod(c + d * DUNG_R * 0.8, c + d * DUNG_R * 0.95 + out * DUNG_R * 0.45, 0.0022, 0.0015, n=5), M["reed"], "root")
 
 
 def build_sling(b, M):
@@ -1041,6 +1065,7 @@ BUILDERS = {
     "javelin": build_javelin,
     "arrow": build_arrow,
     "sling_stone": build_sling_stone,
+    "dung_ball": build_dung_ball,
     "potion_flask": build_potion_flask,
     "potion_lotus": build_potion_lotus,
     "potion_pilgrim": build_potion_pilgrim,

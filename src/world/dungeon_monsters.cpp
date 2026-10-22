@@ -81,7 +81,7 @@ void Dungeon::UpdateMonsters() {
 			mon.UpdateGrab(mapX, mapY, PlayerWading());
 			continue;
 		}
-		if (updateBurrower(mon) || updateCharger(mon))
+		if (updateBurrower(mon) || updateCharger(mon) || updateRoller(mon))
 			continue;
 
 		if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
@@ -161,6 +161,7 @@ void Dungeon::clearMonsters() {
 		mon.Clear();
 	missiles.clear();
 	shots.clear();
+	balls.clear();
 	holes.clear();
 	puffs.clear();
 	pours.clear();

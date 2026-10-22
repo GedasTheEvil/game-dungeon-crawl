@@ -21,7 +21,10 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/blender/models/scarab.py` - six-legged example: rigid parts per bone, analytic two-bone leg IK
   (tripod gait with planted feet, body-space targets when airborne), per-frame floor fix while rolling over in the die clip.
   The jump clip (`scarab_jump.md3`, 10 frames, plays once: crouch, spring off with the elytra lifted, legs tucked, landing
-  crouch; per-frame floor fix for the hanging tarsi) is the giant scarab's leap. Bakes `scarab.png` and `scarab_giant.png`
+  crouch; per-frame floor fix for the hanging tarsi) is the giant scarab's leap. The roll clip (`scarab_att_ranged.md3`,
+  15 frames, plays once: a headstand, the hind legs up on the ball and paddling, the kick at frame 11) is the giant
+  scarab's and Khepri's dung ball ([scarab-dung-ball](plan/scarab-dung-ball.md)); `--export-clip SUFFIX` writes one clip
+  without baking. The ball is `items.py`'s `dung_ball`. Bakes `scarab.png` and `scarab_giant.png`
   (obsidian and carnelian, red eyes) on the same UVs; `SCARAB_TEX=giant` shows the giant one in review renders.
 * `tools/blender/models/rat.py` - quadruped example: one loft from rump to nose blended over hips/chest/head bones, trot gait
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
@@ -297,7 +300,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26 + climb 24, worm 32/32/40, scarab 24/26/32 + jump 10, plant 32/26/36, rat 24/24/30 + jump 10 + climb 16, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24).
+* Frame counts per file (Anubis 26 + climb 24, worm 32/32/40, scarab 24/26/32 + jump 10 + roll 15, plant 32/26/36, rat 24/24/30 + jump 10 + climb 16, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24).
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
@@ -307,7 +310,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 |---|---|---|---|
 | Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die,_climb}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
 | Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
-| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
+| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump,_att_ranged}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump,_climb}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
 | Mimic, cursed mimic (monsters) | `monsters/mimic{,_att,_die,_idle}.md3`, `monsters/mimic_cursed{,_att,_die,_idle,_jump}.md3` | `monsters/mimic.png`, `monsters/mimic_cursed.png` | new (treasure chest with fangs and tongue; idle = the chest item; the cursed one dark, hops) |

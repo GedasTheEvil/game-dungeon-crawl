@@ -1,0 +1,5 @@
+; A giant scarab (col 12) two cells east of the player (col 10) in a long hall, spikes behind the player (col 9), walls at
+; both ends: the player steps up to the dung ball's range (tests/unit/dung_ball_test.cpp, tests/scenarios/dung_ball.txt).
+############################
+#........^S.k.............E#
+############################

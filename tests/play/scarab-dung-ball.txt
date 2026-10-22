@@ -1,0 +1,13 @@
+# Plan scarab-dung-ball, for `bin/game --play tests/play/scarab-dung-ball.txt`: tests/levels/dung_ball, a giant scarab
+# (col 12) two cells east of you in a long hall, spikes behind you. Step up to it: from 0.6 to 1 cell away it turns its
+# back, stands on its head and shapes a dung ball (0.8 s), then kicks it at you along the floor. Jump as it kicks: the
+# ball rolls under you, over the spikes, and falls apart. One every 4 s. Its sister levels: dung_ball_pit (the ball
+# falls into the pit), dung_ball_water (it sinks), dung_ball_khepri (Khepri's burning one, bigger and faster, from up
+# to 1.1 cells; it sets you burning). In the campaign: Khepri on level 5, the first giant scarab on level 6.
+seed 1
+level tests/levels/dung_ball
+xp 20000
+give melee 2
+give ranged 0
+give ranged 1
+equip spear

@@ -188,6 +188,80 @@ void Dungeon::drawMissiles() {
 	}
 }
 //======================================================================================
+// The dung balls (plan scarab-dung-ball): the rolling ones turning as they go, and the one each roller shapes in its
+// windup, growing at the edge of its box. Broken, a ball is gone (its crumbs: drawBallEffects).
+void Dungeon::drawBalls() {
+	AnimatedModel* model = sim.assets->items.dungBall.get();
+	if (!model)
+		return;
+	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame
+	const auto firstRow = static_cast<float>(view().originRow);
+	const auto [low, high] = model->YRange(0);
+	auto draw = [&](float x, float y, float radius, float turnDeg) {
+		const float scale = 2.f * radius * RenderConfig::TILE_SIZE / std::max(high - low, 0.001f);
+		glPushMatrix();
+		glTranslatef(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow + radius),
+					 RenderConfig::MONSTER_DEPTH);
+		glRotatef(turnDeg, 0, 0, 1);
+		glScalef(scale, scale, scale);
+		glTranslatef(0, -(low + high) / 2.f, 0);
+		model->Show();
+		glPopMatrix();
+	};
+	for (const DungBall& b : balls)
+		if (b.breakMs < 0) {
+			const float r = b.rules.radius;
+			draw(b.x, b.y, r, -static_cast<float>(b.dir) * b.rolled / r * RAD_TO_DEG);
+		}
+	for (const Monster& mon : monsters) {
+		const float shaped = mon.Active() ? mon.BallShaped() : 0.f;
+		if (shaped <= 0.f)
+			continue;
+		const float r = mon.BallRules().radius * (DUNG_BALL_SHAPED_FROM + (1.f - DUNG_BALL_SHAPED_FROM) * shaped);
+		draw(mon.BallX(), static_cast<float>(mon.Row()), r, static_cast<float>(mon.BallDir()) * 200.f * shaped);
+	}
+}
+//======================================================================================
+// Khepri's burning sun on its way, and the crumbs where a ball broke. Same window and frame as drawSummonEffects.
+void Dungeon::drawBallEffects() {
+	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	const int now = GameClock::now();
+	for (const DungBall& b : balls) {
+		const RollRules& rules = b.rules;
+		const float x = RenderConfig::TILE_SIZE * (b.x - col0), y = RenderConfig::TILE_SIZE * (b.y - row0);
+		const auto seed = static_cast<uint32_t>(b.startMs);
+		if (b.breakMs < 0) {
+			if (rules.burns()) // in front of the ball, or it hides them
+				Fire::draw(Fire::SUN_BALL, x, y + RenderConfig::TILE_SIZE * rules.radius,
+						   RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * rules.radius, seed);
+		} else if (!b.sank && now - b.breakMs < Grit::BURST_MS) {
+			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, now - b.breakMs, false, seed);
+			if (rules.burns())
+				Fire::draw(Fire::BOLT_SPLAT, x, y, RenderConfig::MONSTER_DEPTH, seed,
+						   1.f - static_cast<float>(now - b.breakMs) / static_cast<float>(Grit::BURST_MS));
+		}
+	}
+	for (const Monster& mon : monsters) { // a burning one catches fire as it is shaped: the tell
+		const float shaped = mon.Active() ? mon.BallShaped() : 0.f;
+		if (shaped < 0.5f || !mon.BallRules().burns())
+			continue;
+		const float r = mon.BallRules().radius * (DUNG_BALL_SHAPED_FROM + (1.f - DUNG_BALL_SHAPED_FROM) * shaped);
+		Fire::draw(Fire::SUN_BALL, RenderConfig::TILE_SIZE * (mon.BallX() - col0),
+				   RenderConfig::TILE_SIZE * (static_cast<float>(mon.Row()) + r - row0),
+				   RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * r, static_cast<uint32_t>(mon.Col()),
+				   2.f * shaped - 1.f);
+	}
+}
+// The burning balls' light; same frame as addLights.
+void Dungeon::addBallLights() {
+	for (const DungBall& b : balls)
+		if (b.breakMs < 0 && b.rules.burns())
+			Lighting::add(RenderConfig::TILE_SIZE * (b.x - static_cast<float>(view().originCol)),
+						  RenderConfig::TILE_SIZE * (b.y + b.rules.radius - static_cast<float>(view().originRow)),
+						  RenderConfig::MONSTER_DEPTH + GLOB_LIGHT_LIFT, FIRE_BOLT_LIGHT,
+						  static_cast<uint32_t>(b.startMs));
+}
+//======================================================================================
 // The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
 void Dungeon::drawDarts() {
 	AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(MissileKind::Arrow)].get();

@@ -196,6 +196,16 @@ constexpr float SAND_WORM_DIVE_MIN = 1.5f;
 constexpr float SAND_WORM_DIVE_RANGE = 6.f;
 constexpr float SAND_RIPPLE_SWAY = 0.12f;
 
+// The dung ball (RollRules, plan scarab-dung-ball): after the kick the roller stands up again for
+// DUNG_BALL_RECOVER_MS (the rest of its roll clip). The ball rolls at most DUNG_BALL_MAX_ROLL tiles, then falls apart;
+// over a pit it falls at DUNG_BALL_FALL_GRAVITY (tiles/s^2) and breaks where it lands. Broken, its crumbs show for
+// DUNG_BALL_CRUMBLE_MS. In the windup it grows from DUNG_BALL_SHAPED_FROM of its size.
+constexpr int DUNG_BALL_RECOVER_MS = 250;
+constexpr float DUNG_BALL_MAX_ROLL = 4.f;
+constexpr float DUNG_BALL_FALL_GRAVITY = 20.f;
+constexpr int DUNG_BALL_CRUMBLE_MS = 900;
+constexpr float DUNG_BALL_SHAPED_FROM = 0.35f;
+
 // Chargers (Sobek, the hippo; Monster::StartCharge): from CHARGE_MIN..CHARGE_MAX tiles along its row (Sobek's; per
 // type: ChargeRules) it winds up, then rushes at CHARGE_SPEED. Its rush hits the player on the floor (not more than
 // CHARGE_JUMP_CLEAR tiles up) for CHARGE_HIT_FACTOR x its damage; into a wall it is stunned and takes

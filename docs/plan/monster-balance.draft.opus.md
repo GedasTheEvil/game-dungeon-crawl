@@ -8,7 +8,7 @@ Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](sol
 against the final zones, their monster sets and the 40-60 level count), and every monster and boss draft (user, 2026-10-20: balance comes
 after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
-[giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.draft.opus.md),
+[giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](scarab-dung-ball.md),
 [camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](worm-boss.draft.opus.md),
 [baboon](solved/baboon.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
 draft joins this list.
@@ -41,8 +41,10 @@ Order of work:
    unit tested.
 2. **Close the gap:** the giant scarab walks at 3 (from 2). It and the giant rat leap (`Locomotion::WalkJump`) at the
    player when 2-3 tiles away on the same row with a clear way, 3 s between leaps. The giant scarab's
-   dung ball ([scarab-dung-ball](scarab-dung-ball.draft.opus.md)) takes 4-6 tiles. HP and damage only if that is not
-   enough.
+   dung ball ([scarab-dung-ball](scarab-dung-ball.md)) takes 0.6-1 tile between the boxes (Khepri's up to
+   1.1; cut from the draft's 4-6 to the view, about 1.8 tiles either side of the player): the leap keeps out of that
+   band, from farther (it closes in to the ball's range). HP and damage only if that is not enough. The ball adds to
+   the giant scarab's and Khepri's threat (`MonsterKind::threat`, left as it was).
 3. **Spear** damage 20 -> 26: the longest melee reach, still behind the sword (35).
 4. **XP, hand-tuned suspects:** plant 1000 -> 500, mimic 1500 -> 900 (they never move, the player picks the fight);
    Anubis stays 10000 (600 HP, 55 damage since the buff). No formula. Bosses keep their hand-set XP.

@@ -1,0 +1,7 @@
+; A giant scarab (col 12), a pit two cells deep (col 11), the player (col 10): its dung ball falls into the pit
+; (tests/unit/dung_ball_test.cpp).
+############################
+#.........S.k.............E#
+###########.################
+###########.################
+############################

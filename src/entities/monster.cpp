@@ -38,6 +38,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	burrow = Burrow{};
 	charge = Charge{};
 	grab = Grab{};
+	roll = Roll{};
 	biteAtMs = -1;
 	climb = Climb{};
 	rungs = false;
@@ -291,6 +292,8 @@ void Monster::Animate(float px, float py) {
 			facing = leap.toX > leap.fromX ? 1 : -1;
 		else if (Charging())
 			facing = charge.dir; // runs on past the player
+		else if (RollingBall())
+			facing = -roll.dir; // its back to the player, the hind legs on the ball
 		else if ((submerged() && lurking()) || (coiled() && (lurking() || Rising())))
 			facing = px < CentreX() ? -1 : 1; // lies along the row (in its coil), watching the player
 		else if (lurking() || Rising())

@@ -18,6 +18,7 @@
 #include "monster_flight.h"
 #include "monster_grab.h"
 #include "monster_leap.h"
+#include "monster_roll.h"
 #include <array>
 #include <memory>
 #include <optional>
@@ -69,6 +70,7 @@ class Monster {
 	Charge charge;
 	Grab grab;
 	Climb climb;
+	Roll roll;
 	bool rungs = false; // on a ladder off the floor, or climbing (Dungeon::UpdateMonsters sets it every tick)
 	int wayMs = -1; // GameClock time a climber last had a way to the player; < 0: never
 	int wayCol = -1, wayRow = -1; // the player's cell then: it heads there until it gives up (CLIMB_GIVE_UP_MS)
@@ -301,6 +303,20 @@ class Monster {
 	// hits the player (double damage) once if they are in its way on the floor. True on the tick a stun ends with the
 	// storm roar (MonsterKind::roar): the caller lets it loose (Dungeon::stormRoar).
 	bool UpdateCharge(bool wallAhead, float px, float py);
+	// Rollers (RollRules): ready, alerted, the player on its row RollRules::minRange..maxRange tiles away between the
+	// boxes (the caller checks for walls).
+	[[nodiscard]] bool canRoll(float px, float py) const;
+	void StartRoll(float px); // turns its back on the player at px and shapes the ball (the ranged clip)
+	// The windup, the kick, the stand up again: it does not walk or bite.
+	[[nodiscard]] bool RollingBall() const { return roll.startMs >= 0; }
+	// Once a tick while RollingBall: true on the tick of the kick (the caller sets the ball rolling from BallX).
+	bool UpdateRoll();
+	[[nodiscard]] int BallDir() const { return roll.dir; } // the way the ball goes, -1 / +1
+	// Its RollRules; none (radius 0) for a kind that does not roll.
+	[[nodiscard]] RollRules BallRules() const { return type->roll.value_or(RollRules{}); }
+	// The ball in the windup, before the kick: 0..1 as it grows in shape; 0 with none.
+	[[nodiscard]] float BallShaped() const;
+	[[nodiscard]] float BallX() const; // map x of the ball's centre: the edge of its box towards the player
 	// Grabbers (HoldRules): the tell, then the lunge, or the hold.
 	// The tell: jaws or claws wide (monster_grab.cpp); Attack's roll, or the scenario `grab`. False: it does not grab
 	// (HoldRules), or is grabbing already.

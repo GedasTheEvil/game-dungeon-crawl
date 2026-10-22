@@ -131,6 +131,29 @@ constexpr HoldRules SCORPION_QUEEN_HOLD = {.chancePercent = 25,
 										   .tellFrame = 3.f,
 										   .holdFrame = 8.f};
 
+// The dung ball (plan scarab-dung-ball). The draft's 4-6 tiles would kick it off the screen: the view shows about
+// 1.8 tiles either side of the player (see the baboon), and the roller, its back to them, must stand in it with its
+// head. So it rolls from 0.6 to 1 tile, slower than the draft's 4 tiles/s: the windup is the tell, a jump at the kick
+// clears it. The windup is the roll clip's kick (tools/blender/models/scarab.py). Khepri, who rolls the sun across the
+// sky, rolls a bigger, faster, burning one from a little farther (the boss rule, though her kin, the small scarab,
+// rolls none); her bigger body leaves no more room in the view.
+constexpr RollRules GIANT_SCARAB_ROLL = {.minRange = 0.6f,
+										 .maxRange = 1.f,
+										 .windupMs = 800,
+										 .cooldownMs = 4000,
+										 .speed = 2.2f,
+										 .radius = 0.1f,
+										 .damage = 10};
+constexpr RollRules KHEPRI_ROLL = {.minRange = 0.6f,
+								   .maxRange = 1.1f,
+								   .windupMs = 800,
+								   .cooldownMs = 3500,
+								   .speed = 2.8f,
+								   .radius = 0.13f,
+								   .damage = 28,
+								   .mix = {60, 0, 0, 40},
+								   .burnMs = 2000};
+
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {
 	for (int& rate : kin)
@@ -366,7 +389,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'k',
 	 .name = "Giant scarab",
 	 .label = "giant scarab",
-	 .description = "Giant scarab, leaps over pits and traps",
+	 .description = "Giant scarab, leaps over pits and traps, rolls dung balls",
 	 .note = "A shell like a shield, and it jumps.",
 	 .threat = 4.f, // jumps like a giant rat, hits harder
 	 .model = "monsters/scarab",
@@ -382,6 +405,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCARAB_RESIST,
 	 .locomotion = Locomotion::WalkJump,
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
+	 .roll = GIANT_SCARAB_ROLL,
 	 .generated = {5, 10, 3}},
 	// Bigger, faster and harder than the giant scarab. A full clear of levels 1-4 makes the player level 8 (134 HP):
 	// 3-4 bites kill them.
@@ -389,7 +413,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'K',
 	 .name = "Khepri",
 	 .label = "boss scarab",
-	 .description = "Khepri, the boss scarab, summons scarabs; its death opens the boss gates. One boss per level",
+	 .description = "Khepri, the boss scarab, summons scarabs, rolls burning dung balls; its death opens the boss "
+					"gates. One boss per level",
 	 .note = "The mother of the scarabs. Her young come when she calls.",
 	 .threat = 10.f, // a little weaker than an Anubis, plus its scarabs
 	 .model = "monsters/scarab",
@@ -407,6 +432,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6},
 					 CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
+	 .roll = KHEPRI_ROLL,
 	 .kin = MonsterScarab,
 	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.

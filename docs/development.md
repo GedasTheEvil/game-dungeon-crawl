@@ -49,7 +49,7 @@ base, level, sim, render.
 |---|---|---|---|
 | `build/libbase.a` | `core/timer` (the game clock), `core/logger`, `core/paths` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, model viewer, level tools, unit tests |
-| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/monster_grab` (holds), `entities/monster_reach` (the bite's reach), `entities/figures` (the toon scale), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
+| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/monster_grab` (holds), `entities/monster_reach` (the bite's reach), `entities/monster_roll` (the dung ball's windup), `entities/figures` (the toon scale), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
 | `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `graphics/render_target`, `graphics/motion_fx`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
@@ -135,6 +135,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Holds (a bite that grabs: the tell, the lunge, the death roll, the sting), the player held | `entities/monster_grab.{h,cpp}` (`Grab`), rules `HoldRules` in `world/monster_kinds.*`, `Dungeon::PlayerHeldBy` (`world/dungeon_monsters.cpp`), the locks in `world/dungeon_base.cpp` and `input/input.cpp` |
 | Bite reach: the cone, the wind-up, a jump over a low monster dodges | `Monster::Reaches` / `UpdateBite` (`entities/monster_reach.cpp`), the bite in `world/dungeon_monsters.cpp` |
 | Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
+| Dung balls (the giant scarab's and Khepri's roll): the windup, the kick, the roll, the fall, the hit | `entities/monster_roll.{h,cpp}` (`Roll`), `world/dungeon_balls.cpp` (`Dungeon::DungBall`), drawn by `Dungeon::drawBalls` (`world/dungeon_render_effects.cpp`); rules `RollRules` in `world/monster_kinds.*` |
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
 | Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |
 | Player stats, XP, levels | `entities/player_stats.*`, `world/progression.*` |

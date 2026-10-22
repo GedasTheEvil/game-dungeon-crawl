@@ -172,6 +172,8 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(path, sizeof(path), MEDIA_DIR "models/items/%s.md3", MISSILES[i]);
 		items.missiles[i] = loadStaticModel(path, items.missileTex[i]);
 	}
+	items.dungBallTex.LoadPNG(MEDIA_DIR "textures/items/dung_ball.png");
+	items.dungBall = loadStaticModel(MEDIA_DIR "models/items/dung_ball.md3", items.dungBallTex);
 }
 
 // A prop model in tile units, centred, with its texture.
@@ -266,6 +268,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.lidReed.Load(MEDIA_DIR "sounds/items/lid_reed.wav");
 	sounds.lidStone.Load(MEDIA_DIR "sounds/items/lid_stone.wav");
 	sounds.jarSmash.Load(MEDIA_DIR "sounds/items/jar_smash.wav");
+	sounds.dungThud.Load(MEDIA_DIR "sounds/monsters/scarab_ball_thud.wav");
 	sounds.arrowHit.Load(MEDIA_DIR "sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load(MEDIA_DIR "sounds/items/arrow_wall.wav");
 	sounds.stoneHit.Load(MEDIA_DIR "sounds/items/stone_hit.wav");

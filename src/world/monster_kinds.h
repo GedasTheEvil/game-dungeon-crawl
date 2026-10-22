@@ -143,6 +143,25 @@ struct RoarRules {
 	int hazeMs = 0; // the sand over the screen (Dungeon::SandHaze)
 };
 
+// The dung ball (plan scarab-dung-ball, Roll): with the player on its row minRange..maxRange tiles away (between the
+// boxes, out of bite reach) and no wall between, it turns its back on them and shapes a ball for windupMs (its
+// ranged clip), then kicks it off. The ball (Dungeon::DungBall) rolls along the floor towards the player at speed,
+// over traps; it falls into a pit, sinks in water, breaks on a wall, after DUNG_BALL_MAX_ROLL tiles or on the player
+// (damage, blunt). A jump clears it.
+struct RollRules {
+	float minRange = 0.f;
+	float maxRange = 0.f;
+	int windupMs = 0; // from the turn to the kick: the release
+	int cooldownMs = 0; // from one kick to the next windup
+	float speed = 0.f; // tiles per second
+	float radius = 0.f; // tiles
+	int damage = 0;
+	DamageMix mix = DUNG_BALL_MIX; // with fire it burns (Khepri's sun), and sets the player burning for burnMs
+	int burnMs = BURN_MS;
+
+	[[nodiscard]] constexpr bool burns() const { return mix[FIRE] > 0; }
+};
+
 // A bite that grabs and holds the player (Grab, plans crocodile-hold-bite and giant-scorpion-grab): a share of its
 // bites turns into a tell (GRAB_TELL_MS, jaws or claws wide), then a lunge; in reach it grabs, else it misses. While
 // held the player cannot walk, jump, sprint, drink or open a screen. The crocodile's death roll ticks; the scorpion's
@@ -238,6 +257,7 @@ struct MonsterKind {
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
+	std::optional<RollRules> roll; // it rolls dung balls at the player (Roll)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	bool sunBurns = false; // a beam of sunlight sets it on fire (SUN_BURN_FIRE, plan sunlight-mirrors)
 	// In sand it lies under the surface and burrows to the player, coming up under their feet (plan desert-chapter,

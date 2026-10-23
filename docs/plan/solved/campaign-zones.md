@@ -34,7 +34,7 @@ abilities). Level ranges are about, not exact.
 | **Act III: the river and the sands** |||||
 | 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
 | 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
-| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](../worm-boss.md)) |
+| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](worm-boss.md)) |
 | **Act IV: the Duat** (dark granite) |||||
 | 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge ([fire-in-water](../fire-in-water.draft.sonet.md)) | Babi ([babi-boss](../babi-boss.draft.opus.md)) |
 | 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |

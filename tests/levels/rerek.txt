@@ -1,5 +1,5 @@
 ; Rerek, the worm's boss (plan worm-boss), at col 24 under a long sand floor (cols 4-35); the entrance (col 2) and the
-; exit (col 37) on dry floor at either end (tests/unit/rerek_test.cpp, tests/scenarios/rerek.txt,
+; exit (col 37) on dry floor at either end (tests/unit/rerek_test.cpp, tests/scenarios/solved/rerek.txt,
 ; tests/play/worm-boss.txt).
 ########################################
 ##S.....................q............E##

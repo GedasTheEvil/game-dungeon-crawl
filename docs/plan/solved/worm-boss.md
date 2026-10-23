@@ -1,7 +1,7 @@
 # Worm boss: the serpent of the sands
 
 Status: draft 2026-10-20, from the user ("a boss of the worm type for the new desert section"). Needs first:
-[desert-chapter](solved/desert-chapter.md) (the sand it burrows in, the worm's sand burrowing).
+[desert-chapter](desert-chapter.md) (the sand it burrows in, the worm's sand burrowing).
 
 ## Lore
 
@@ -37,8 +37,8 @@ serpents (or worms)"), and the Coffin Texts' foe of the creator.
 
 ## Placement
 
-Final place (user, 2026-10-21): the land of Sokar, zone 9 of [campaign-zones](solved/campaign-zones.md) (about
-levels 38-41, a second desert zone after Seth's), placed by the rebuild ([denser-levels](denser-levels.draft.opus.md)).
+Final place (user, 2026-10-21): the land of Sokar, zone 9 of [campaign-zones](campaign-zones.md) (about
+levels 38-41, a second desert zone after Seth's), placed by the rebuild ([denser-levels](../denser-levels.draft.opus.md)).
 Until then no campaign slot: a play script only (`tests/play/worm-boss.txt`), as hippo-boss did at first (user, 2026-10-22).
 
 ## Bossless monsters (for reference)

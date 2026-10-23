@@ -114,7 +114,7 @@ keys (two lock colours a level), no mirrors.
   of sand where it is, `drawRipple`), comes up within 2.5 tiles under the player in its sand, or at its sand's edge for
   a player beside it; awake, it dives to come up under a player in its sand from 1.5 to 6 tiles away. Out of sand it
   walks as before. Boss rule: `validKinds` makes a boss of the worm's kin burrow too (none yet;
-  [worm-boss](../worm-boss.md)).
+  [worm-boss](worm-boss.md)).
 * **Sandstone**: the desert's dressed rows are sandstone (`wall_sandstone`, `wall_sandstone_worn`, `floor_sandstone`,
   `tools/textures/surfaces.py`; `desertLevel`, `DESERT_FIRST` .. `DESERT_LAST`), no plaster. The ceilings (after the
   play-test, 2026-10-20: the first one looked like bricks): worn sandstone under a crust of sand, three variants that

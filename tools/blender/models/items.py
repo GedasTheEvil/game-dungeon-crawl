@@ -1,7 +1,7 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
 flight (arrow, sling stone, and the giant scarab's dung ball, plan scarab-dung-ball), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
-share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire).
+share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire, amulet_crushing, amulet_cleaving, amulet_piercing).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -50,7 +50,7 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone", "dung_ball",
          "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
-                                                          "pierce", "regeneration", "venom", "fire")]
+                                                          "pierce", "regeneration", "venom", "fire", "crushing", "cleaving", "piercing")]
 # Exported with frames, one shape key each on the baked object: the bows' draw, the chest's opening. Item: (keyword of
 # its builder, frames); the builder's default is the last frame.
 BOW_FRAMES = 8  # the draw, frame 0 at rest
@@ -932,6 +932,37 @@ def build_amulet_fire(b, M):
     b.add(rod((0, 0, -0.001), (0, 0, -0.0145), 0.0025, n=6), M["gold"], "root")  # from the bail to the rim
 
 
+def build_amulet_crushing(b, M):
+    """Seth's mace head hanging from a gold collar: a pear of grey stone with bronze studs (plan amulet-extras)."""
+    amulet_cord(b, M)
+    b.add(rod((0, 0, -0.011), (0, 0, -0.022), 0.0055, n=8), M["gold"], "root")  # the collar
+    pear = [(-0.02, 0.0075), (-0.03, 0.0135), (-0.043, 0.019), (-0.056, 0.0165), (-0.066, 0.0085), (-0.07, 0.0025)]
+    b.add(tube([(V((0, 0, z)), r, r) for z, r in pear], sub=2, n=12, ref=V((0, 1, 0))), M["stone"], "root")
+    for x, z, r in ((0.0, -0.045, 0.019), (-0.011, -0.034, 0.0155), (0.011, -0.034, 0.0155), (-0.012, -0.057, 0.0155),
+                    (0.012, -0.057, 0.0155), (0.0, -0.065, 0.011)):
+        b.add(ellipsoid((x, -r * 0.93, z), (0.003, 0.0022, 0.003), n=8, rings=4), M["bronze_plain"], "root")
+
+
+def build_amulet_cleaving(b, M):
+    """Montu's khopesh hanging point down: a gold grip and guard, the hooked bronze blade sweeping out and back."""
+    amulet_cord(b, M)
+    b.add(rod((0, 0, -0.011), (0, 0, -0.027), 0.0035, n=8), M["gold"], "root")  # the grip
+    b.add(slab([(-0.0095, -0.0305), (0.0095, -0.0305), (0.0095, -0.0265), (-0.0095, -0.0265)], 0.006), M["gold"], "root")
+    blade = [(0.0, -0.032, 0.0055), (0.0, -0.043, 0.0075), (0.0055, -0.054, 0.0085), (0.015, -0.063, 0.0075),
+             (0.026, -0.067, 0.0055), (0.033, -0.062, 0.003), (0.0345, -0.0575, 0.0012)]
+    b.add(tube([(V((x, 0, z)), w, 0.0022) for x, z, w in blade], sub=2, n=8, ref=V((0, 1, 0))), M["bronze_plain"], "root")
+
+
+def build_amulet_piercing(b, M):
+    """Neith's arrowhead point down: a flint leaf on a gold tang bound with linen."""
+    amulet_cord(b, M)
+    b.add(rod((0, 0, -0.011), (0, 0, -0.027), 0.0032, n=8), M["gold"], "root")  # the tang
+    leaf = [(0.0, -0.074), (0.0155, -0.047), (0.0165, -0.034), (0.0, -0.026), (-0.0165, -0.034), (-0.0155, -0.047)]
+    b.add(slab(leaf[::-1], 0.0045), M["stone"], "root")
+    for z in (-0.014, -0.0195, -0.025):
+        band(b, M["leather"], z, 0.0042, 0.0022, n=8)
+
+
 CHEST_W, CHEST_D, CHEST_H = 0.8, 0.46, 0.36  # box outside (without legs and lid)
 CHEST_LEG = 0.05
 CHEST_WALL = 0.025
@@ -1084,6 +1115,9 @@ BUILDERS = {
     "amulet_regeneration": build_amulet_regeneration,
     "amulet_venom": build_amulet_venom,
     "amulet_fire": build_amulet_fire,
+    "amulet_crushing": build_amulet_crushing,
+    "amulet_cleaving": build_amulet_cleaving,
+    "amulet_piercing": build_amulet_piercing,
 }
 
 

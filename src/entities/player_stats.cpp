@@ -188,6 +188,13 @@ std::string PlayerStats::Grant(const Boon& boon) {
 	return boonText(boon);
 }
 
+int PlayerStats::TypeMightPercent(const DamageMix& mix) const {
+	int sum = 0;
+	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
+		sum += mix[t] * amulet.typeMightPercent[t];
+	return sum / 100;
+}
+
 void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 	const int oldMax = CurrentMaxHP();
 	amulet = bonus;

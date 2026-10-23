@@ -38,7 +38,7 @@ constexpr Color FLAME = {0.98f, 0.45f, 0.1f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
 constexpr int ICON_COLUMNS = 8; // atlas grid
-constexpr int ICON_ROWS = 5;
+constexpr int ICON_ROWS = 6;
 
 // ---- timing ----
 constexpr float LOW_HEALTH = 0.25f; // under this the health bar pulses

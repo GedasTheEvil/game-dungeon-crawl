@@ -1,6 +1,7 @@
 # Amulet extras
 
-Status: draft 2026-10-07, refined 2026-10-09 (decided, not implemented). Left open by [amulets](solved/amulets.md)
+Status: implemented 2026-10-23, waits for a play-test (`bin/game --play tests/play/amulet-extras.txt`). Drafted
+2026-10-07, refined 2026-10-09. Left open by [amulets](solved/amulets.md)
 (done, play-tested).
 
 ## Decided (2026-10-09)
@@ -36,3 +37,15 @@ Three new types, the warding amulets' mirror: more damage of one type.
 
 * Endurance (sprint drain), for now.
 * A faster escape from the crocodile's hold: the hold is short, no amulet ([crocodile-hold-bite](solved/crocodile-hold-bite.md)).
+
+## Done
+
+* Typed might: `AmuletType::Crushing` / `Cleaving` / `Piercing`, `ItemKind` ids 42-53 after the fire guard,
+  `AmuletBonus::typeMightPercent`, `PlayerStats::TypeMightPercent`; applied in `Dungeon::playerHit` to every weapon hit
+  with a damage mix (melee and missiles), only the matching share of the mix grows. Names by their object: Seth's Mace,
+  Montu's Khopesh, Neith's Arrowhead (labels "amulet of crushing" ...). Models `amulet_crushing|cleaving|piercing`
+  (`items.py`), icons in cells 32-34 of the HUD atlas (grid now 8 x 6, curses from cell 35).
+* Journal notes: one `FieldNote` per amulet type (`amuletNote`, after the hour notes so saved notes keep their numbers),
+  written by `ItemBag::Find` on the first amulet of the type; the lore and the four tiers' numbers.
+* Grand strength stays 1 / 2 / 4 / 6.
+* Tests: `tests/unit/amulet_extras_test.cpp`, `tests/scenarios/amulet_extras.txt` (tab, models, HUD).

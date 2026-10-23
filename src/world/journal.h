@@ -159,8 +159,12 @@ enum class FieldNote : unsigned char {
 	HourTenth,
 	HourEleventh,
 	HourTwelfth,
+	// The amulet notes (plan amulet-extras): one per AmuletType in order, written when the first amulet of the type is
+	// found (amuletNote).
+	AmuletFirst,
+	AmuletLast = AmuletFirst + AMULET_TYPE_COUNT - 1,
 };
-constexpr int FIELD_NOTE_COUNT = 51;
+constexpr int FIELD_NOTE_COUNT = 51 + AMULET_TYPE_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);
@@ -170,6 +174,9 @@ constexpr int FIELD_NOTE_COUNT = 51;
 // The note of a damage type, of a potion's group.
 [[nodiscard]] FieldNote damageNote(DamageType type);
 [[nodiscard]] FieldNote potionNote(ItemKind potion);
+[[nodiscard]] constexpr FieldNote amuletNote(AmuletType type) {
+	return static_cast<FieldNote>(static_cast<int>(FieldNote::AmuletFirst) + static_cast<int>(type));
+}
 [[nodiscard]] constexpr FieldNote curseNote(Curse c) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::CurseWeakness) + static_cast<int>(c));
 }

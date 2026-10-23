@@ -1,0 +1,12 @@
+# Plan amulet-extras, for `bin/game --play tests/play/amulet-extras.txt`: tests/levels/rat_corridor, the three grand
+# typed might amulets in the pack (I, Amulets tab: Crushing, Cleaving, Piercing). Wear one (Enter), hit the rat with the
+# club (85% smash, 15% cut), the sword and the spear and watch the damage: Crushing helps the club most, Cleaving the
+# sword, Piercing the spear and arrows. The journal (J) writes one note per amulet type the first time one is found
+# in a chest (not given here).
+seed 1
+level tests/levels/rat_corridor
+give amulet 45
+give amulet 49
+give amulet 53
+give melee 1
+give melee 2

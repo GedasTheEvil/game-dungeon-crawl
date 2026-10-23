@@ -124,6 +124,9 @@ class PlayerStats {
 	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
 	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
 	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }
+	// The crushing, cleaving and piercing amulets (plan amulet-extras): the percent more a weapon hit of this damage
+	// mix deals, only the matching shares of the mix grow (sword 85% slash, grand Cleaving +50%: +42%).
+	[[nodiscard]] int TypeMightPercent(const DamageMix& mix) const;
 	// The trap ward's cut of trap damage, and the chance a chest's trap or a tomb curse does not go off (plan
 	// trapped-chests); 100: immune.
 	[[nodiscard]] int TrapWardPercent() const { return amulet.trapCutPercent; }

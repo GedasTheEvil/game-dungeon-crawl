@@ -231,7 +231,7 @@ TEST_CASE("the monsters' curse lists: the strongest first, a boss above its kin,
 		CHECK(std::string(def.startLine).size() > 0);
 		CHECK(std::string(def.endLine).size() > 0);
 	}
-	CHECK(static_cast<int>(PlayerHud::Icon::FirstCurse) + CURSE_COUNT <= 8 * 5); // the atlas grid
+	CHECK(static_cast<int>(PlayerHud::Icon::FirstCurse) + CURSE_COUNT <= 8 * 6); // the atlas grid
 }
 
 TEST_CASE("a mummy's blows curse the player with weakness now and then, and the journal sees it") {

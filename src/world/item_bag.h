@@ -65,8 +65,8 @@ class ItemBag {
 		found[itemIndex(kind)] = true;
 		stamps[itemIndex(kind)] = ++lastStamp;
 	}
-	// Found in a chest: added; the journal's note of its potion group, or the weapons note and its damage type's (an
-	// amulet: none yet).
+	// Found in a chest: added; the journal's note of its potion group, or the weapons note and its damage type's, or
+	// its amulet type's.
 	void Find(ItemKind kind, Journal& journal);
 	[[nodiscard]] int Count(ItemKind kind) const { return counts[itemIndex(kind)]; }
 	[[nodiscard]] int Level(ItemKind kind) const { return levels[itemIndex(kind)]; }

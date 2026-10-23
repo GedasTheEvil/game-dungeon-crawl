@@ -301,8 +301,8 @@ constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 				amulets[static_cast<size_t>(i++)] = {static_cast<AmuletType>(type), static_cast<AmuletTier>(tier)};
 	return amulets;
 }();
-static_assert(AMULETS.back().type == AmuletType::FireWard && AMULETS.back().tier == AmuletTier::Grand,
-			  "AMULETS ends with grand fire guard, the last ItemKind");
+static_assert(AMULETS.back().type == AmuletType::Piercing && AMULETS.back().tier == AmuletTier::Grand,
+			  "AMULETS ends with grand piercing, the last ItemKind");
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share.
 struct AmuletTypeDef {
@@ -405,6 +405,31 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Fire damage -%d%%",
 	 "Ra's disc burns daily.",
 	 "Armour does not stop fire."},
+	// The matching share of the weapon's damage mix grows (plan amulet-extras).
+	{"amulet_crushing",
+	 {10, 20, 30, 50},
+	 "Seth's Mace",
+	 "Crushing",
+	 "Crush",
+	 "Smash damage +%d%%",
+	 "The mace head of Seth.",
+	 "What it hits stays hit."},
+	{"amulet_cleaving",
+	 {10, 20, 30, 50},
+	 "Montu's Khopesh",
+	 "Cleaving",
+	 "Cleave",
+	 "Cut damage +%d%%",
+	 "The sickle sword of Montu.",
+	 "It parts what it meets."},
+	{"amulet_piercing",
+	 {10, 20, 30, 50},
+	 "Neith's Arrowhead",
+	 "Piercing",
+	 "Pierce",
+	 "Stab damage +%d%%",
+	 "The arrowhead of Neith.",
+	 "It finds the gap."},
 }};
 // The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
 constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS = {PoisonTier::Weak, PoisonTier::Weak,
@@ -512,6 +537,15 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 		break;
 	case AmuletType::FireWard:
 		bonus.resist[FIRE] = NORMAL - n;
+		break;
+	case AmuletType::Crushing:
+		bonus.typeMightPercent[static_cast<size_t>(DamageType::Blunt)] = n;
+		break;
+	case AmuletType::Cleaving:
+		bonus.typeMightPercent[static_cast<size_t>(DamageType::Slash)] = n;
+		break;
+	case AmuletType::Piercing:
+		bonus.typeMightPercent[static_cast<size_t>(DamageType::Pierce)] = n;
 		break;
 	}
 	return bonus;

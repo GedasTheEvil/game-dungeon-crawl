@@ -151,6 +151,6 @@ TEST_CASE("each zone has an hour note, in ZoneId order") {
 		CHECK(static_cast<int>(note) < FIELD_NOTE_COUNT);
 		CHECK(std::string(fieldNoteText(note).text).size() > 40);
 	}
-	CHECK(static_cast<int>(hourNote(ZONE_ID_COUNT - 1)) == FIELD_NOTE_COUNT - 1);
+	CHECK(static_cast<int>(hourNote(ZONE_ID_COUNT - 1)) + 1 == static_cast<int>(FieldNote::AmuletFirst));
 	CHECK(std::string(fieldNoteText(hourNote(0)).title) == "The First Hour");
 }

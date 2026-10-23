@@ -258,6 +258,8 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 											: "barely hurt by";
 		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
 	}
+	if (mix) // the crushing, cleaving and piercing amulets (plan amulet-extras)
+		dmg += dmg * sim.player->stats.TypeMightPercent(*mix) / 100;
 	const int healthBefore = mon.Health();
 	const bool wasBurning = mon.Burns();
 	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg);

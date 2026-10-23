@@ -333,8 +333,10 @@ void ItemBag::Load(std::istream& in) {
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {
 	Add(kind);
-	if (isAmulet(kind)) // no journal note yet
+	if (isAmulet(kind)) {
+		journal.LearnNote(amuletNote(amuletOf(kind).type));
 		return;
+	}
 	if (isPotion(kind)) {
 		journal.LearnNote(potionNote(kind));
 		return;

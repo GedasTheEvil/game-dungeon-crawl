@@ -1,10 +1,10 @@
-"""Generate the HUD and inventory tab icon atlas media/textures/ui/hud_icons.png (RGBA, 8 x 5 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas media/textures/ui/hud_icons.png (RGBA, 8 x 6 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
 src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order, then from cell
-21 on the amulets by AmuletType, from cell 32 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+21 on the amulets by AmuletType, from cell 35 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -18,7 +18,7 @@ from decals import bleed
 
 CELL = 128
 S = CELL * 4  # drawing resolution per cell
-GRID_X, GRID_Y = 8, 5
+GRID_X, GRID_Y = 8, 6
 OUTLINE = 18  # ink round the whole glyph, in drawing pixels
 LINE = 6  # ink between the parts
 
@@ -473,9 +473,40 @@ def sun_disc(d, cx, cy):
     d.ellipse([cx - 13, cy - 30, cx + 13, cy + 2], fill=GOLD, outline=INK, width=LINE)
 
 
+def mace_head(d, cx, cy):
+    """Seth's mace head: a pear of stone with bronze studs, a gold socket at the top (items.py build_amulet_crushing)."""
+    d.rectangle([cx - 30, cy - 150, cx + 30, cy - 90], fill=GOLD, outline=INK, width=LINE)
+    head = [(cx + 105 * math.sin(a) * (0.55 + 0.45 * (1 - math.cos(a)) / 2), cy - 100 + 130 * (1 - math.cos(a)))
+            for a in [2 * math.pi * i / 40 for i in range(40)]]
+    d.polygon(head, fill=STONE, outline=INK, width=LINE)
+    for x, y in ((-45, 30), (45, 30), (0, 70), (-58, 85), (58, 85), (0, 20)):
+        d.ellipse([cx + x - 17, cy + y - 17, cx + x + 17, cy + y + 17], fill=BRONZE, outline=INK, width=LINE)
+
+
+def khopesh_blade(d, cx, cy):
+    """Montu's khopesh hanging point down: the gold grip on top, the hooked blade sweeping out and back."""
+    d.rectangle([cx - 26, cy - 160, cx + 26, cy - 70], fill=GOLD, outline=INK, width=LINE)
+    outer = [(cx - 40, cy - 70), (cx - 50, cy - 10), (cx - 30, cy + 70), (cx + 30, cy + 130), (cx + 100, cy + 150),
+             (cx + 120, cy + 120), (cx + 100, cy + 85)]
+    inner = [(cx + 64, cy + 90), (cx + 30, cy + 60), (cx + 8, cy + 10), (cx + 14, cy - 70)]
+    d.polygon(outer + inner, fill=METAL, outline=INK, width=LINE)
+    d.line([(cx - 20, cy - 60), (cx - 24, cy + 10), (cx - 4, cy + 80), (cx + 40, cy + 120)], fill=INK, width=LINE)
+
+
+def arrowhead(d, cx, cy):
+    """Neith's arrowhead point down: a flint leaf with a gold tang and a cord binding."""
+    d.rectangle([cx - 16, cy - 160, cx + 16, cy - 80], fill=GOLD, outline=INK, width=LINE)
+    leaf = [(cx - 16, cy - 90), (cx - 80, cy - 50), (cx - 62, cy + 40), (cx, cy + 175), (cx + 62, cy + 40),
+            (cx + 80, cy - 50), (cx + 16, cy - 90)]
+    d.polygon(leaf, fill=STONE, outline=INK, width=LINE)
+    d.line([(cx, cy - 80), (cx, cy + 140)], fill=INK, width=LINE)
+    for y in (-130, -110, -90):
+        d.line([(cx - 20, cy + y), (cx + 20, cy + y)], fill=STRING, width=10)
+
+
 # By AmuletType (src/world/items.h).
 AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus,
-                                     sun_disc)]
+                                     sun_disc, mace_head, khopesh_blade, arrowhead)]
 
 # ---- the curses, one per Curse (src/world/curses.h): what the curse takes from the player, with a purple taint ----
 CURSE = (128, 58, 160, 255)
@@ -577,7 +608,7 @@ def insanity():
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
-# curses from cell 32 on (Icon::FirstCurse).
+# curses from cell 35 on (Icon::FirstCurse).
 ICONS = [potion, amulet, ring, None, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS

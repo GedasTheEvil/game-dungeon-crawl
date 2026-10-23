@@ -1,0 +1,26 @@
+# Amulet extras (plan amulet-extras): the crushing, cleaving and piercing amulets (ids 42-45, 46-49, 50-53) in the
+# Amulets tab after the fire guard, their models and HUD icons. The damage maths is in tests/unit/amulet_extras_test.cpp.
+seed 1
+level tests/levels/empty_row
+wait 10
+give amulet 45
+give amulet 46
+give amulet 51
+give amulet 53
+key i
+wait 5
+select grand_amulet_of_crushing
+wait 5
+screenshot crushing
+select lesser_amulet_of_cleaving
+wait 5
+screenshot cleaving
+select minor_amulet_of_piercing
+wait 5
+screenshot piercing
+key i
+wait 5
+wear grand_amulet_of_piercing
+expect worn == 53
+wait 5
+screenshot hud_piercing

@@ -241,6 +241,39 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 						  "eleventh hour is the one before the dawn. The dawn is not what I would call close."},
 	{"The Twelfth Hour", "The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I "
 						 "have a feeling that something here will weigh my heart. I did bring it. Let me be light."},
+	// The amulet notes (plan amulet-extras): one per AmuletType in order, the numbers of the four tiers.
+	{"Jackal tooth", "A jackal's tooth on a cord. Worn, it adds to every blow I strike: Might +1, +2, +4, +6, from "
+					 "the lesser amulet to the grand one. One amulet at a time."},
+	{"Bronze scarab", "A bronze scarab. Worn, it takes a flat amount off every hit I suffer, like armour: 1, 2, 4 "
+					  "or 6 from the lesser to the grand one."},
+	{"Carnelian heart", "A carnelian heart, and it beats with mine: my health is greater by 5, 10, 20 or 30 percent "
+						"while I wear it, from the lesser to the grand one. Taking it off does not hurt me."},
+	{"Serket's scorpion", "Serket's scorpion. Her children spare me: a poisoned bite or sting fails 10, 25, 50 or "
+						  "80 percent of the time, lesser to grand. It adds to a resistance potion's share."},
+	{"Eye of Horus", "The eye of Horus sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, "
+					 "75 percent, and the grand eye makes me immune. A chest's trap goes off as much less often."},
+	{"Djed pillar", "The djed pillar does not bend. Worn, smashing blows hurt me 8, 16, 28 or 40 percent less, "
+					"lesser to grand. Falling rocks too, I hope."},
+	{"Knot of Isis", "The knot of Isis: blades slip on it. Cuts hurt me 8, 16, 28 or 40 percent less, from the "
+					 "lesser to the grand knot."},
+	{"Shen ring", "The shen ring: points glance off it. Stabs hurt me 8, 16, 28 or 40 percent less, from the lesser "
+				  "to the grand ring. Darts and arrows too."},
+	{"Faience lotus", "A faience lotus. It opens when all is calm: while nothing chases me and no poison runs, it "
+					  "heals me, 1 health a second, 2 with the grand one. There is no lesser or minor lotus."},
+	{"Wadjet's cobra", "Wadjet's rearing cobra, and my blade grows fangs: 10, 15, 20 or 30 percent of my hits "
+					   "poison the foe, weakly, weakly, then worse, then strongly. What resists poison resists "
+					   "this. A foe the poison kills still counts as mine."},
+	{"Sun disc", "Ra's disc burns daily. Fire does not care about my armour, but this does: fire hurts me 20, 40, "
+				 "60 or 80 percent less, lesser to grand. Never nothing at all."},
+	{"Seth's mace", "The mace head of Seth: what it hits stays hit. Worn, my smashing blows deal 10, 20, 30 or 50 "
+					"percent more, lesser to grand. Only the smashing part counts: a mace gains all of it, a club "
+					"nearly all."},
+	{"Montu's khopesh", "The sickle sword of Montu parts what it meets. Worn, my cutting blows deal 10, 20, 30 or "
+						"50 percent more, lesser to grand. Only the cutting part counts: a sword gains most of it, "
+						"a club hardly any."},
+	{"Neith's arrowhead", "The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 "
+						  "percent more, lesser to grand. Only the stabbing part counts: every arrow gains all of "
+						  "it."},
 }};
 } // namespace
 

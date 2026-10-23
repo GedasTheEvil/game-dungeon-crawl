@@ -81,8 +81,20 @@ enum class ItemKind : std::uint8_t {
 	FireWardMinor,
 	FireWardNormal,
 	FireWardGrand,
+	CrushingLesser, // plan amulet-extras: more damage of one type
+	CrushingMinor,
+	CrushingNormal,
+	CrushingGrand,
+	CleavingLesser,
+	CleavingMinor,
+	CleavingNormal,
+	CleavingGrand,
+	PiercingLesser,
+	PiercingMinor,
+	PiercingNormal,
+	PiercingGrand,
 };
-constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::FireWardGrand) + 1;
+constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::PiercingGrand) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
@@ -285,8 +297,11 @@ enum class AmuletType : std::uint8_t {
 	Regeneration,
 	Venom, // the player's hits poison
 	FireWard, // plan fire-damage
+	Crushing, // plan amulet-extras: the matching share of the weapon's damage grows (blunt)
+	Cleaving, // slash
+	Piercing, // pierce
 };
-constexpr int AMULET_TYPE_COUNT = 11;
+constexpr int AMULET_TYPE_COUNT = 14;
 enum class AmuletTier : std::uint8_t { Lesser, Minor, Normal, Grand };
 constexpr int AMULET_TIER_COUNT = 4;
 
@@ -310,6 +325,9 @@ struct AmuletBonus {
 	int regenHpPerSecond = 0; // while no monster chases the player and no poison runs
 	int venomPercent = 0; // chance that a weapon hit poisons the monster (Monster::TakePoison)
 	PoisonTier venomTier = PoisonTier::Weak;
+	// Percent more damage of each type in a weapon hit (plan amulet-extras): only the type's share of the weapon's
+	// damage mix grows (a sword, 85% slash, with +50% Cleaving: +42%).
+	std::array<int, DAMAGE_TYPE_COUNT> typeMightPercent{};
 	Resistances resist = NO_RESISTANCES;
 };
 [[nodiscard]] AmuletBonus amuletBonus(std::optional<ItemKind> worn);

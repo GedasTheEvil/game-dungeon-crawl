@@ -1,8 +1,14 @@
-"""Procedural man-eating worm: mesh, rig, baked texture and the three .md3 animations.
+"""Procedural man-eating worm: mesh, rig, baked texture and the four .md3 animations.
 
     MCP:  p = ".../tools/blender/models/worm.py"; g = {"__file__": p, "__name__": "worm"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/worm.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/worm.py -- [--export] [--export-rise] [--boss-texture]
+
+worm_rerek.png (Rerek, the boss, plan worm-boss: sand-coloured rings, a dark head with serpent scales, dark jaws)
+shares the UVs: bake it alone with --boss-texture; WORM_TEX=rerek shows it (in a build that bakes).
+The rise clip (_rise, plan worm-boss) bursts up out of the sand, the whole worm under the floor at frame 0 (lift
+below zero), and ends in walk frame 0; the game plays it as the worm and Rerek come up and backwards as they dive
+(Monster::showBurrow). --export-rise writes only that file.
 
 Blender space: Z up, the worm faces -Y (game uses rotA = 0), tail towards +Y.
 The spine is posed procedurally from a curve (elevation, heading, roll per bone), so every
@@ -26,7 +32,7 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, smoothstep, tube  # noqa: E402
 
 COLL = "worm_new"
-CLIPS = [("worm_walk", "", 32), ("worm_attack", "_att", 32), ("worm_die", "_die", 40)]
+CLIPS = [("worm_walk", "", 32), ("worm_attack", "_att", 32), ("worm_die", "_die", 40), ("worm_rise", "_rise", 20)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 2.0, 0.7), "ortho": 5.8, "res": (560, 320)}
 
@@ -49,6 +55,20 @@ COL = {
     "chitin_light": (0.22, 0.14, 0.11),
     "ivory": (0.78, 0.72, 0.55),
 }
+# Rerek (worm_rerek.png, same UVs, the boss): a sand serpent. Sand-coloured body, every other segment a darker ring
+# ("ring"), a dark head with serpent scales ("head", "scale_line"), dark scaled jaws.
+COL_REREK = dict(COL)
+COL_REREK.update({
+    "belly": (0.66, 0.53, 0.33),
+    "flank": (0.52, 0.38, 0.19),
+    "back": (0.40, 0.27, 0.12),
+    "back_dark": (0.27, 0.17, 0.07),
+    "ring": (0.62, 0.62, 0.62),
+    "head": (0.075, 0.055, 0.045),
+    "scale_line": (0.012, 0.008, 0.006),
+    "chitin": (0.05, 0.038, 0.032),
+    "chitin_light": (0.14, 0.10, 0.07),
+})
 
 
 # ---------------------------------------------------------------- body shape
@@ -128,8 +148,13 @@ def cone(base, direction, length, r, n=6):
 # ---------------------------------------------------------------- materials
 
 
-def body_material():
-    """Dark mottled back fading to a pale belly (pattern u), darker grooves between segments (pattern v = s)."""
+def socket(sockets, ident):
+    return next(s for s in sockets if s.identifier == ident)
+
+
+def body_material(pal):
+    """Dark mottled back fading to a pale belly (pattern u), darker grooves between segments (pattern v = s). Rerek's
+    (pal has "head"): every other segment a darker ring, the head dark with serpent scales."""
     mat = bpy.data.materials.get("worm_body") or bpy.data.materials.new("worm_body")
     nt = mat.node_tree
     for node in list(nt.nodes):
@@ -158,10 +183,10 @@ def body_material():
     nt.links.new(sn.outputs[0], remap.inputs[0])
     tone = new("ShaderNodeValToRGB")
     els = tone.color_ramp.elements
-    els[0].position, els[0].color = 0.0, (*COL["belly"], 1)
-    els[1].position, els[1].color = 1.0, (*COL["back_dark"], 1)
-    els.new(0.35).color = (*COL["flank"], 1)
-    els.new(0.7).color = (*COL["back"], 1)
+    els[0].position, els[0].color = 0.0, (*pal["belly"], 1)
+    els[1].position, els[1].color = 1.0, (*pal["back_dark"], 1)
+    els.new(0.35).color = (*pal["flank"], 1)
+    els.new(0.7).color = (*pal["back"], 1)
     nt.links.new(remap.outputs[0], tone.inputs["Fac"])
 
     div = new("ShaderNodeMath")
@@ -198,11 +223,58 @@ def body_material():
     nt.links.new(groove.outputs["Color"], m1.inputs[1])
     nt.links.new(m1.outputs[0], m2.inputs[0])
     nt.links.new(mott.outputs["Color"], m2.inputs[1])
-    nt.links.new(m2.outputs[0], bsdf.inputs["Base Color"])
+    out = m2.outputs[0]
+    if "head" in pal:
+        out = rerek_rings_and_head(nt, sep, coord, out, pal)
+    nt.links.new(out, bsdf.inputs["Base Color"])
     return mat
 
 
-def materials():
+def rerek_rings_and_head(nt, sep, coord, out, pal):
+    """Rerek: every other segment darkened to a ring, then the head (the last 0.8 of s) dark with a net of scales."""
+    new, link = nt.nodes.new, nt.links.new
+    half = new("ShaderNodeMath")
+    half.operation = "MULTIPLY"
+    half.inputs[1].default_value = 0.5 / RIDGE
+    link(sep.outputs["Y"], half.inputs[0])
+    fr = new("ShaderNodeMath")
+    fr.operation = "FRACT"
+    link(half.outputs[0], fr.inputs[0])
+    band = new("ShaderNodeValToRGB")
+    band.color_ramp.interpolation = "CONSTANT"
+    be = band.color_ramp.elements
+    be[0].position, be[0].color = 0.0, (1, 1, 1, 1)
+    be[1].position, be[1].color = 0.5, (*pal["ring"], 1)
+    link(fr.outputs[0], band.inputs["Fac"])
+    ringed = new("ShaderNodeVectorMath")
+    ringed.operation = "MULTIPLY"
+    link(out, ringed.inputs[0])
+    link(band.outputs["Color"], ringed.inputs[1])
+
+    vor = new("ShaderNodeTexVoronoi")
+    vor.feature = "DISTANCE_TO_EDGE"
+    vor.inputs["Scale"].default_value = 26.0
+    link(coord.outputs["Object"], vor.inputs["Vector"])
+    net = new("ShaderNodeValToRGB")
+    ne = net.color_ramp.elements
+    ne[0].position, ne[0].color = 0.0, (*pal["scale_line"], 1)
+    ne[1].position, ne[1].color = 0.07, (*pal["head"], 1)
+    link(vor.outputs["Distance"], net.inputs["Fac"])
+    head = new("ShaderNodeMath")  # 0 on the body .. 1 on the head, over 0.3 of s
+    head.operation = "MULTIPLY_ADD"
+    head.use_clamp = True
+    head.inputs[1].default_value = 1 / 0.3
+    head.inputs[2].default_value = -(L - 0.85) / 0.3
+    link(sep.outputs["Y"], head.inputs[0])
+    m = new("ShaderNodeMix")
+    m.data_type = "RGBA"
+    link(head.outputs[0], socket(m.inputs, "Factor_Float"))
+    link(ringed.outputs[0], socket(m.inputs, "A_Color"))
+    link(net.outputs["Color"], socket(m.inputs, "B_Color"))
+    return socket(m.outputs, "Result_Color")
+
+
+def materials(pal=COL):
     specs = {
         "throat": ("stripes", "v", 0.85, [(1, "gum"), (1.5, "red"), (3, "dark_red"), (3, "black")], "LINEAR"),
         "jaw_out": ("stripes", "v", 0.07, [(3, "chitin"), (1, "chitin_light")], "LINEAR"),
@@ -210,8 +282,8 @@ def materials():
         "tooth": ("solid", "ivory"),
         "chitin": ("solid", "chitin"),
     }
-    M = {name: common.make_material("worm_" + name, spec, COL) for name, spec in specs.items()}
-    M["body"] = body_material()
+    M = {name: common.make_material("worm_" + name, spec, pal) for name, spec in specs.items()}
+    M["body"] = body_material(pal)
     return M
 
 
@@ -451,11 +523,13 @@ def jaw_matrices(rig, head_target, p):
 def key_frame(rig, p, frame, anchor_k):
     bones = rig.data.bones
     targets = spine_targets(p, anchor_k)
-    # Open jaws must not sink into the floor: lift the worm so the lowest jaw tip touches it.
+    # Open jaws must not sink into the floor: lift the worm so the lowest jaw tip touches it. Under the sand (the rise
+    # clip's lift < 0) the floor is that far down.
     tips = [petal_point(math.radians(JAWS[k]), a, 0.97) for k in range(len(JAWS)) for a in (-1, 0, 1)]
     low = min((m @ rest.inverted() @ tip).z for (m, rest, _), k3 in zip(jaw_matrices(rig, targets[-1], p), range(3)) for tip in tips[k3 * 3:k3 * 3 + 3])
-    if low < 0:
-        p = dict(p, lift=p["lift"] - low)
+    floor = min(0.0, p["lift"])
+    if low < floor:
+        p = dict(p, lift=p["lift"] - (low - floor))
         targets = spine_targets(p, anchor_k)
     parent_pose = parent_rest = bones["root"].matrix_local
     for k, target in enumerate(targets):
@@ -515,6 +589,17 @@ DIE = [
     (39, dict(rise=0, bend=0, head=0, jaw=38, wave=0, lat=0, phase=0.45, hyaw=6, roll=75, curl=60)),
 ]
 
+# Out of the sand: the head bursts up first, the jaws wide, rears up high and falls forward onto the floor, the body
+# pulled up after it; walk frame 0 at the end. At frame 0 all of it is under the floor (lift).
+RISE = [
+    (0, dict(rise=88, bend=0, head=0, jaw=10, wave=0, lat=0, hyaw=0, lift=-2.7)),
+    (5, dict(rise=86, bend=6, head=10, jaw=95, wave=0, lat=0, hyaw=0, lift=-1.5)),
+    (9, dict(rise=80, bend=30, head=18, jaw=110, wave=0, lat=0, hyaw=8, lift=-0.7)),
+    (13, dict(rise=66, bend=55, head=10, jaw=60, wave=0, lat=0, hyaw=-6, lift=-0.2)),
+    (16, dict(rise=48, bend=48, head=-6, jaw=20, wave=6, lat=4, hyaw=0, lift=0)),
+    (19, {}),
+]
+
 
 def make_actions(rig):
     rig.animation_data_create()
@@ -526,12 +611,14 @@ def make_actions(rig):
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         rig.animation_data.action = act
-        last = frames if name != "worm_die" else frames - 1  # loops key frame N = frame 0
+        last = frames if name not in ("worm_die", "worm_rise") else frames - 1  # loops key frame N = frame 0
         for f in range(last + 1):
             if name == "worm_walk":
                 key_frame(rig, walk_params(f / frames), f, N // 2)
             elif name == "worm_attack":
                 key_frame(rig, interpolate(ATTACK, f), f, 2)  # tail planted, front lunges
+            elif name == "worm_rise":
+                key_frame(rig, interpolate(RISE, f), f, N // 2)
             else:
                 key_frame(rig, interpolate(DIE, f), f, N // 2)
         acts[name] = act
@@ -553,7 +640,11 @@ def build(bake=True, tex_path=None):
     obj = common.finish_mesh(b, coll, "worm_new")
     common.uv_unwrap(obj, b.tags, {"head": ((0, -0.1, MOUTH_Z), 1.6)})
     if bake:
-        tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", "worm_preview.png"), TEX_SIZE, "worm", ao_distance=0.25)
+        tmp = bpy.app.tempdir or "/tmp"
+        tex = common.bake_texture(obj, tex_path or os.path.join(tmp, "worm_preview.png"), TEX_SIZE, "worm", ao_distance=0.25)
+        if os.environ.get("WORM_TEX") == "rerek":
+            materials(COL_REREK)
+            tex = common.bake_texture(obj, os.path.join(tmp, "worm_rerek_preview.png"), TEX_SIZE, "worm_rerek", ao_distance=0.25)
         common.use_baked_material(obj, tex)
     common.rig_object(obj, rig)
     acts = make_actions(rig)
@@ -571,7 +662,15 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "worm.png") if "--export" in args else None)
-    if "--export" in args:
-        export()
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "worm.blend"))
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_REREK)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "worm_rerek.png"), TEX_SIZE, "worm_rerek", ao_distance=0.25)
+    elif "--export-rise" in args:
+        build(bake=False)
+        common.export_files(bpy.data.objects["worm_new"], bpy.data.objects["worm_rig"], "worm", [c for c in CLIPS if c[1] == "_rise"], "monsters")
+    else:
+        build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "worm.png") if "--export" in args else None)
+        if "--export" in args:
+            export()
+            bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "worm.blend"))

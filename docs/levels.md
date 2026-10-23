@@ -128,7 +128,7 @@ it zone by zone and then switches the code table to it. Level ranges are about, 
 | **Act III: the river and the sands** |||||
 | 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
 | 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
-| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/worm-boss.draft.opus.md)) |
+| 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/worm-boss.md)) |
 | **Act IV: the Duat** (dark granite) |||||
 | 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/solved/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/babi-boss.draft.opus.md)) |
 | 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
@@ -254,7 +254,7 @@ Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1
 3 per rock fall, 2 per dart plate, 1.5 per wall spikes or fire vent cell and 1.2 per jump on the path, 0.8 per gate and per mirror
 turn, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16, baboon 5.5; a kiter's threat x1.15):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16, baboon 5.5, Rerek 16.5; a kiter's threat x1.15):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
 rats, scorpions, mummies, Anubis and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 

@@ -1,0 +1,43 @@
+# Rerek, the worm's boss (plan worm-boss), tests/levels/rerek: he lies under the sand at col 24, a mound heaving over
+# him. The player walks into his wake range (3.5 tiles): the mound runs to the player's feet, he bursts up out of the
+# sand in a spray (sand over the screen, the player thrown off him). Then his swallow: the jaws gape, close round the
+# player and pull them down into the sand. Then, on the level again, the player walks off after he came up: he dives
+# after them, the mound runs under the sand and he comes up past them, on the far side.
+seed 1
+god
+level tests/levels/rerek
+give melee 4
+equip khopesh
+walk to 19
+wait 30
+screenshot under_sand
+expect bars == 0
+walk to 21.1
+wait 300ms
+screenshot mound_runs
+wait 500ms
+screenshot bursting
+expect boss == 2200
+wait 300ms
+screenshot spray
+wait 300ms
+screenshot up
+grab
+wait 400ms
+screenshot gape
+wait 300ms
+expect held == 1
+wait 600ms
+screenshot swallowed
+wait 3s
+expect held == 0
+level tests/levels/rerek at 19 2
+wait 30
+walk to 21.1
+wait 1400ms
+hold right 4950ms
+screenshot under_way
+hold right 450ms
+screenshot past_rising
+hold right 450ms
+screenshot past

@@ -89,7 +89,7 @@ class Monster {
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f; // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false; // swim was set on the first Animate after the spawn
-	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink)
+	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink); < 0: up onto sand
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	int biteAtMs = -1; // GameClock time the bite under way lands or misses (UpdateBite); < 0: none
@@ -114,6 +114,11 @@ class Monster {
 	[[nodiscard]] float emergeLift() const;
 	[[nodiscard]] float burrowLift() const; // world units down in the floor while burrowing, <= 0 // world units off
 											// its place while Emerging: < 0 in the floor, > 0 above
+	[[nodiscard]] int underMs() const; // a burrower's time under the floor (SandBurrowRules::underMs)
+	// A sand burrower with a rise clip: it bursts up out of the sand with it and dives with it backwards.
+	[[nodiscard]] bool burrowClip() const;
+	[[nodiscard]] float burrowProgress() const; // 0..1 through the dive or the surfacing
+	void showBurrow(); // the rise clip's frame from burrowProgress, while diving or surfacing (burrowClip)
 	// A swimmer in half water floats with its back (the clip's top) at the surface, a lurker with only its top
 	// SUBMERGED_SHOW above it; 0 out of the water. Off the basin floor (sink).
 	[[nodiscard]] float swimLift() const;
@@ -174,7 +179,8 @@ class Monster {
 	[[nodiscard]] bool lurking() const { return (ambushes(type->locomotion) || rises() || submerged()) && !alerted; }
 	// The cell it stands in is half water (Dungeon::UpdateMonsters, every tick): it wades (Wading), an arrow hits it
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
-	// sink: world units it is drawn down into a water basin (Dungeon::WaterSink).
+	// sink: world units it is drawn down into a water basin (Dungeon::WaterSink), < 0 up onto the sand
+	// (SAND_BURROWER_LIFT).
 	void SetInWater(bool water, bool head, float basin) {
 		inWater = water;
 		headInWater = head;
@@ -284,6 +290,7 @@ class Monster {
 	// up); nullopt when not Under.
 	[[nodiscard]] std::optional<float> BurrowRipple() const;
 	void DelayDive(); // no place to come up: try again later
+	[[nodiscard]] int Dives() const { return burrow.dives; } // since its spawn
 	[[nodiscard]] bool Burrowing() const { return burrow.phase != BurrowPhase::Up; }
 	// Diving or under the floor, or still in the wall it steps out of: no weapon hits it, the arrows fly over it.
 	[[nodiscard]] bool Hidden() const {
@@ -301,7 +308,7 @@ class Monster {
 	[[nodiscard]] int ChargeDir() const { return charge.dir; }
 	// Once a tick while charging. wallAhead: the cell in front of its head blocks the rush (a wall, a pit). The rush
 	// hits the player (double damage) once if they are in its way on the floor. True on the tick a stun ends with the
-	// storm roar (MonsterKind::roar): the caller lets it loose (Dungeon::stormRoar).
+	// storm roar (MonsterKind::roar): the caller lets it loose (Dungeon::sandBurst).
 	bool UpdateCharge(bool wallAhead, float px, float py);
 	// Rollers (RollRules): ready, alerted, the player on its row RollRules::minRange..maxRange tiles away between the
 	// boxes (the caller checks for walls).

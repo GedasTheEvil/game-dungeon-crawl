@@ -38,6 +38,14 @@ float Dungeon::QuicksandSink() const {
 	return QUICKSAND_SINK_DEPTH * RenderConfig::TILE_SIZE * p;
 }
 //======================================================================================
+float Dungeon::SwallowSink() const {
+	const Monster* holder = PlayerHeldBy();
+	if (holder == nullptr || !holder->Hold().swallow)
+		return 0.f;
+	const float p = std::min(static_cast<float>(holder->HoldAgeMs()) / static_cast<float>(REREK_SWALLOW_SINK_MS), 1.f);
+	return REREK_SWALLOW_DEPTH * RenderConfig::TILE_SIZE * p * (2.f - p);
+}
+//======================================================================================
 void Dungeon::landSandFall(int cell) {
 	const int col = cell % MAP_WIDTH;
 	const int row = cell / MAP_WIDTH;

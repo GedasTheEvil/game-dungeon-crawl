@@ -75,6 +75,9 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return t.ranged && t.ranged->burns() ? "Hurls a bolt of fire from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
+		if (t.sandBurrow && t.sandBurrow->behind)
+			return "Swims under the sand faster than I walk, and comes up under my feet or just past me, throwing sand "
+				   "in my eyes. Watch the ripples.";
 		if (t.sandBurrow)
 			return "In sand it swims under the surface and comes up under my feet. Watch the ripples.";
 		return "Dives into the sand and comes up behind me.";
@@ -93,6 +96,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 	case CreatureMove::Grab:
 		if (t.hold && t.hold->sting)
 			return "Two claws to hold you, one tail to finish. Hit the claws.";
+		if (t.hold && t.hold->swallow)
+			return "When the jaws gape, step back. Swallowed, the sand pulls me down; hitting him is the only way out.";
 		return "In the water its jaws hold me fast and it rolls. When they gape, step back.";
 	case CreatureMove::StepOff:
 		return "Stands among the other figures, still as they are, and steps off its place when I come near.";

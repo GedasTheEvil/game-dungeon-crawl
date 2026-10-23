@@ -10,6 +10,8 @@
 const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	if (kind.roll)
 		return ROLLER_CLIPS;
+	if (kind.sandBurrow)
+		return SAND_BURROWER_CLIPS;
 	switch (kind.locomotion) {
 	case Locomotion::Ambush:
 		return AMBUSH_CLIPS;

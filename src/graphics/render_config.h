@@ -13,6 +13,9 @@ constexpr float WATER_DEPTH = WATER_BASIN_DEPTH + WATER_SURFACE; // from the bas
 // Deep water meeting an open cell below or beside it sits on / against a rock slab this thick (Dungeon::deepWaterBox).
 constexpr float WATER_SLAB = 4.f;
 constexpr float WATER_SINK_RAMP = 0.3f; // tiles from a dry edge: wading in, the sink grows over this
+// A sand burrower (the worm, Rerek) in sand is drawn this far up, so its low body shows over the drift's crest
+// (dungeon_render_sand.cpp DRIFT_HEIGHT) instead of lying buried in it (Monster::SetInWater's sink, < 0).
+constexpr float SAND_BURROWER_LIFT = 3.2f;
 constexpr float TILE_RENDER_Y = -120.f;
 constexpr float PARTICLE_DRIFT = 0.1f;
 constexpr float MONSTER_OFFSET_X = 40.f;

@@ -1,0 +1,14 @@
+# Plan worm-boss, for `bin/game --play tests/play/worm-boss.txt`: tests/levels/rerek, Rerek, the sand serpent (col 24),
+# under a long run of sand (cols 4-35); only a heaving mound gives him away. Walk east into the sand: within 3.5 tiles
+# the mound runs to your feet and he bursts up in a spray of sand (you are thrown back, the sand blinds you a moment).
+# Back off: from 1.1 to 9 tiles he dives again, swims under the sand fast and comes up under you, every other time
+# 1.6 tiles past you. When his jaws gape, step back: some bites swallow you into the sand (a hit each second for 3 s;
+# hit him to get out sooner). Worms dig out into the sand beside him and lie in wait there. Off the sand (the dry
+# floor at either end) he walks, slowly. The khopesh cuts at normal damage, the club's blows are resisted.
+seed 1
+level tests/levels/rerek
+xp 600000
+give melee 0
+give melee 4
+equip khopesh
+give potion 1 3

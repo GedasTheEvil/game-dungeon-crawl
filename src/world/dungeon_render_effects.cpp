@@ -27,6 +27,7 @@ constexpr Lighting::LightDef VENOM_LIGHT = {0.45f, 0.75f, 0.15f, 40.f, 0.f};
 constexpr Lighting::LightDef FIRE_ARROW_LIGHT = {1.f, 0.6f, 0.25f, 45.f, 0.5f};
 constexpr Lighting::LightDef BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7f};
 constexpr float BURNING_FRONT = 3.f; // world units in front of the body's centre: the flames lick round its front
+constexpr float SPRAY_SPREAD = 0.3f; // tiles between the bursts of a sand spray
 
 // A fiery bolt's flickering light, an oil lamp's (plan anubis-fire-bolt).
 constexpr Lighting::LightDef FIRE_BOLT_LIGHT = {1.f, 0.6f, 0.25f, 60.f, 0.5f};
@@ -369,6 +370,18 @@ void Dungeon::drawSummonEffects() {
 		drawHole(x, y + 0.3f, RenderConfig::MONSTER_DEPTH,
 				 1.f - static_cast<float>(age) / static_cast<float>(BURROW_HOLE_MS));
 	}
+	// Rerek's spray as he comes up (plan worm-boss): sand thrown up all round him.
+	sprays.erase(std::remove_if(sprays.begin(), sprays.end(),
+								[now](const Hole& h) { return now - h.startMs >= Grit::BURST_MS; }),
+				 sprays.end());
+	for (const Hole& h : sprays)
+		for (int k = -2; k <= 2; k++) {
+			const float x = (h.x + SPRAY_SPREAD * static_cast<float>(k) - static_cast<float>(view().originCol)) *
+							RenderConfig::TILE_SIZE;
+			const float y = static_cast<float>(h.row - view().originRow) * RenderConfig::TILE_SIZE;
+			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, now - h.startMs, false,
+						static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(k + 2) * 7919U);
+		}
 }
 //======================================================================================
 // A dark pit in the floor, fading out (fade 1..0): a flat disc round (x, y, z), wider along the row.

@@ -22,6 +22,7 @@ constexpr float SWIRL_TWIST = 0.9f; // radians at the middle, to and fro
 constexpr int SAND_POUR_MS = ROCK_FALL_MS + 600; // a sand fall's stream, from the end of its warning
 constexpr float POUR_DEPTH = 0.5f; // of the cell's depth: in the middle of the corridor, as the rock's
 constexpr float SHAFT_DEPTH = 0.45f; // of the cell's depth: the crack runs along the middle of the ceiling
+constexpr float RIPPLE_SCALE = 18.f; // the worm's: a bigger burrower (Rerek) heaves a bigger mound
 
 float smooth(float e0, float e1, float x) {
 	const float k = std::clamp((x - e0) / (e1 - e0), 0.f, 1.f);
@@ -123,7 +124,7 @@ void Dungeon::drawSandEffects() {
 		if (!x)
 			continue;
 		const float cx = (*x - col0) * T, cy = (static_cast<float>(mon.Row()) - row0) * T + DRIFT_HEIGHT;
-		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, now);
+		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, std::sqrt(mon.Type()->scale / RIPPLE_SCALE), now);
 	}
 
 	pours.erase(std::remove_if(pours.begin(), pours.end(),
@@ -151,8 +152,8 @@ bool Dungeon::lightShaft(int i, int j) const {
 }
 //======================================================================================
 // A worm under the sand: a low mound of sand that heaves, dark grains rolling off it.
-void Dungeon::drawRipple(float x, float y, float z, int now) const {
-	constexpr float RX = 13.f, RZ = 8.f, H = 6.f; // world units
+void Dungeon::drawRipple(float x, float y, float z, float size, int now) const {
+	const float rx = 13.f * size, rz = 8.f * size, h = 6.f * size; // world units
 	constexpr int PUFF_MS = 900;
 	constexpr int SIDES = 16;
 	const float heave = 0.7f + 0.3f * std::sin(static_cast<float>(now) * 0.012f);
@@ -161,15 +162,15 @@ void Dungeon::drawRipple(float x, float y, float z, int now) const {
 	glBegin(GL_TRIANGLE_FAN);
 	glNormal3f(0, 1, 0);
 	glTexCoord2f(0.5f, 0.5f);
-	glVertex3f(x, y + H * heave, z);
+	glVertex3f(x, y + h * heave, z);
 	for (int k = 0; k <= SIDES; k++) {
 		const float a = 6.2832f * static_cast<float>(k) / SIDES;
 		glNormal3f(std::cos(a) * 0.5f, 0.85f, std::sin(a) * 0.5f);
 		glTexCoord2f(0.5f + 0.5f * std::cos(a), 0.5f + 0.5f * std::sin(a));
-		glVertex3f(x + RX * std::cos(a), y - 0.5f, z + RZ * std::sin(a));
+		glVertex3f(x + rx * std::cos(a), y - 0.5f, z + rz * std::sin(a));
 	}
 	glEnd();
 	glColor3f(1, 1, 1);
 	// Sand trickling off the heaving mound, puff after puff.
-	Grit::puff(x, y + H * heave, z, now % PUFF_MS, PUFF_MS, static_cast<uint32_t>(now / PUFF_MS));
+	Grit::puff(x, y + h * heave, z, now % PUFF_MS, PUFF_MS, static_cast<uint32_t>(now / PUFF_MS));
 }

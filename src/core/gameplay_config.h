@@ -195,6 +195,22 @@ constexpr float SAND_WORM_WAKE_RANGE = 2.5f;
 constexpr float SAND_WORM_DIVE_MIN = 1.5f;
 constexpr float SAND_WORM_DIVE_RANGE = 6.f;
 constexpr float SAND_RIPPLE_SWAY = 0.12f;
+// Rerek's (plan worm-boss), the worm's boss (SandBurrowRules): wakes and dives from farther, is under the sand for a
+// shorter time over a longer way, dives again sooner, and every other time comes up BURROW_BEHIND past the player.
+constexpr float REREK_WAKE_RANGE = 3.5f;
+constexpr float REREK_DIVE_MIN = 1.1f;
+constexpr float REREK_DIVE_RANGE = 9.f;
+constexpr int REREK_UNDER_MS = 600;
+constexpr int REREK_EVERY_MS = 4000;
+// His sand spray as he comes up (RoarRules): within 1.2 tiles of him on his row, shoved 0.8 tiles away, sand over the
+// screen for 0.8 s; no hit.
+constexpr float REREK_SPRAY_RADIUS = 1.2f;
+constexpr float REREK_SPRAY_SHOVE = 0.8f;
+constexpr int REREK_SPRAY_HAZE_MS = 800;
+// Held in his jaws (HoldRules::swallow) the player sinks REREK_SWALLOW_DEPTH tiles into the sand over
+// REREK_SWALLOW_SINK_MS (Dungeon::PlayerSink).
+constexpr float REREK_SWALLOW_DEPTH = 0.18f;
+constexpr int REREK_SWALLOW_SINK_MS = 800;
 
 // The dung ball (RollRules, plan scarab-dung-ball): after the kick the roller stands up again for
 // DUNG_BALL_RECOVER_MS (the rest of its roll clip). The ball rolls at most DUNG_BALL_MAX_ROLL tiles, then falls apart;

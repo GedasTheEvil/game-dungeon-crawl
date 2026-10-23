@@ -209,6 +209,8 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		return false;
 	slot->Spawn(kind, col, row, monsterLinks(), sim.random->effects);
 	slot->MakeMinion(how);
+	if (kind.sandBurrow && inSand(MapAt(col, row))) // plan worm-boss: dug out into the sand, it lies in wait there
+		slot->BuryInSand();
 	sim.events->Play(how == Summon::Drop ? WorldSound::SummonDrop : WorldSound::SummonDig);
 	sim.journal->SeeMove(boss.Type()->id, levelNumber, CreatureMove::Summon);
 	return true;

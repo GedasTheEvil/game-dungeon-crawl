@@ -50,6 +50,13 @@ inline const ClipFiles MONSTER_CLIPS = {
 	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", false, true},
 	{ModelState::Jump, "_jump", false, false}, {ModelState::Climb, "_climb", false, true}};
+// Sand burrowers (the worm, Rerek; MonsterKind::sandBurrow): the MONSTER_CLIPS and an optional _rise, played once as
+// it bursts up out of the sand and backwards as it dives (Monster::showBurrow, plan worm-boss).
+inline const ClipFiles SAND_BURROWER_CLIPS = {{ModelState::Move, "", true, true},
+											  {ModelState::Attack, "_att", true, true},
+											  {ModelState::Die, "_die", true, false},
+											  {ModelState::Idle, "_idle", false, true},
+											  {ModelState::Rise, "_rise", false, false}};
 // Walkers with a ranged attack (the Anubis): the melee swing is the ranged clip too, played once; the shot leaves at
 // its release (plan anubis-ranged-attack).
 inline const ClipFiles RANGED_CLIPS = {{ModelState::Move, "", true, true},

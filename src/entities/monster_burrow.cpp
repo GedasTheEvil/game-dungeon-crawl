@@ -7,24 +7,44 @@
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
 
+int Monster::underMs() const { return type->sandBurrow ? type->sandBurrow->underMs : BURROW_UNDER_MS; }
+
+bool Monster::burrowClip() const { return type->sandBurrow && type->model.Clip(ModelState::Rise).present; }
+
+float Monster::burrowProgress() const {
+	const int ms = burrow.phase == BurrowPhase::Dive ? BURROW_DIVE_MS : BURROW_SURFACE_MS;
+	return std::min(static_cast<float>(GameClock::now() - burrow.startMs) / static_cast<float>(ms), 1.f);
+}
+
 float Monster::burrowLift() const {
 	const float depth = -type->model.referenceTop * type->scale * Figures::Scale();
-	const int age = GameClock::now() - burrow.startMs;
 	switch (burrow.phase) {
 	case BurrowPhase::Up:
 		return 0.f;
 	case BurrowPhase::Dive: {
-		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_DIVE_MS), 1.f);
+		if (burrowClip()) // the clip takes it down
+			return 0.f;
+		const float p = burrowProgress();
 		return depth * p * p;
 	}
 	case BurrowPhase::Under:
 		return depth;
 	case BurrowPhase::Surface: {
-		const float p = std::min(static_cast<float>(age) / static_cast<float>(BURROW_SURFACE_MS), 1.f);
+		if (burrowClip())
+			return 0.f;
+		const float p = burrowProgress();
 		return depth * (1.f - p) * (1.f - p);
 	}
 	}
 	return 0.f;
+}
+
+void Monster::showBurrow() {
+	if (!burrowClip() || (burrow.phase != BurrowPhase::Dive && burrow.phase != BurrowPhase::Surface))
+		return;
+	const float p = burrowProgress();
+	const auto last = static_cast<float>(type->model.Clip(ModelState::Rise).frames - 1);
+	playback[static_cast<size_t>(ModelState::Rise)] = {last * (burrow.phase == BurrowPhase::Dive ? 1.f - p : p), 0};
 }
 
 bool Monster::canDive(float py) const {
@@ -37,7 +57,8 @@ void Monster::Dive(float toX) {
 	burrow.startMs = GameClock::now();
 	burrow.fromX = x;
 	burrow.toX = toX;
-	enter(ModelState::Move);
+	burrow.dives++;
+	enter(burrowClip() ? ModelState::Rise : ModelState::Move);
 	sound(CharacterSound::Wake);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Burrow);
 }
@@ -48,6 +69,8 @@ void Monster::BuryInSand() {
 	burrow.phase = BurrowPhase::Under;
 	burrow.lurk = true;
 	burrow.fromX = burrow.toX = x;
+	summonMs = -1; // a minion summoned into sand lies in wait at once, no digging out, no health bar till Surge
+	alerted = false;
 	enter(ModelState::Idle);
 }
 
@@ -69,7 +92,7 @@ std::optional<float> Monster::BurrowRipple() const {
 	if (burrow.lurk) // lying in wait: the sand stirs a little to and fro
 		return base + x + SAND_RIPPLE_SWAY * std::sin(static_cast<float>(GameClock::now()) * 0.002f);
 	const float p =
-		std::min(static_cast<float>(GameClock::now() - burrow.startMs) / static_cast<float>(BURROW_UNDER_MS), 1.f);
+		std::min(static_cast<float>(GameClock::now() - burrow.startMs) / static_cast<float>(underMs()), 1.f);
 	return base + burrow.fromX + (burrow.toX - burrow.fromX) * p;
 }
 
@@ -89,19 +112,23 @@ bool Monster::UpdateBurrow() {
 		if (burrow.lurk)
 			return false;
 		if (type->sandBurrow) // under the sand it moves along to where it comes up
-			x = burrow.fromX + (burrow.toX - burrow.fromX) *
-								   std::min(static_cast<float>(age) / static_cast<float>(BURROW_UNDER_MS), 1.f);
-		if (age < BURROW_UNDER_MS)
+			x = burrow.fromX +
+				(burrow.toX - burrow.fromX) * std::min(static_cast<float>(age) / static_cast<float>(underMs()), 1.f);
+		if (age < underMs())
 			return false;
 		x = burrow.toX;
 		burrow.phase = BurrowPhase::Surface;
 		burrow.startMs = now;
+		if (burrowClip())
+			enter(ModelState::Rise);
 		sound(CharacterSound::Wake);
 		return true;
 	case BurrowPhase::Surface:
 		if (age >= BURROW_SURFACE_MS) {
 			burrow.phase = BurrowPhase::Up;
-			burrow.nextMs = now + BURROW_EVERY_MS;
+			burrow.nextMs = now + (type->sandBurrow ? type->sandBurrow->everyMs : BURROW_EVERY_MS);
+			if (burrowClip())
+				enter(ModelState::Move);
 		}
 		return false;
 	}

@@ -134,11 +134,12 @@ struct ChargeRules {
 	float speed = CHARGE_SPEED;
 };
 
-// The storm roar (plan hippo-boss, Seth): as a charger's stun in a wall ends, it roars a burst of sand round itself.
-// The player on its row within radius tiles of its body is hit (blunt), shoved away and blinded by sand for hazeMs.
+// A burst of sand round itself: the storm roar (plan hippo-boss, Seth) as a charger's stun in a wall ends, and the
+// sand spray (plan worm-boss, Rerek) as a sand burrower comes up. The player on its row within radius tiles of its
+// body is hit (blunt), shoved away and blinded by sand for hazeMs (Dungeon::sandBurst).
 struct RoarRules {
 	float radius = 0.f; // tiles from its box's edge
-	int damage = 0;
+	int damage = 0; // 0: no hit
 	float shove = 0.f; // tiles the player is pushed away along the row (walls stop it)
 	int hazeMs = 0; // the sand over the screen (Dungeon::SandHaze)
 };
@@ -176,9 +177,24 @@ struct HoldRules {
 	int tickDamagePct = 0; // a tick's hit, of its damage, armour counts
 	int breakMs = 0; // each of the player's hits on it ends the hold this much sooner; 0: no attack while held
 	bool sting = false; // at the hold's end a sure hit: its damage and its poison
+	// Swallowed (Rerek, plan worm-boss): the player is pulled down into the sand while held (Dungeon::PlayerSink), the
+	// view shakes, no death roll.
+	bool swallow = false;
 	// Frames of its attack clip shown frozen (tools/blender/models/*.py ATTACK): the tell, the hold.
 	float tellFrame = 0.f;
 	float holdFrame = 0.f;
+};
+
+// Sand burrowing (plan desert-chapter, Burrow, Dungeon::sandTarget): in sand it lies under the surface and burrows
+// to the player, coming up under their feet; out of sand it walks. The worm's are the defaults; its boss's farther
+// and faster (plan worm-boss).
+struct SandBurrowRules {
+	float wakeRange = SAND_WORM_WAKE_RANGE; // lying in wait: comes up for a player this near on its row
+	float diveMin = SAND_WORM_DIVE_MIN; // awake, it dives for a player from diveMin to diveRange tiles away
+	float diveRange = SAND_WORM_DIVE_RANGE;
+	int underMs = BURROW_UNDER_MS; // under the sand from where it went down to where it comes up
+	int everyMs = BURROW_EVERY_MS; // up this long before the next dive
+	bool behind = false; // every other dive it comes up BURROW_BEHIND past the player (the far side), not under them
 };
 
 struct GenPick {
@@ -256,13 +272,12 @@ struct MonsterKind {
 	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
+	std::optional<RoarRules> spray; // a sand burrower sprays sand round itself as it comes up
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	std::optional<RollRules> roll; // it rolls dung balls at the player (Roll)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	bool sunBurns = false; // a beam of sunlight sets it on fire (SUN_BURN_FIRE, plan sunlight-mirrors)
-	// In sand it lies under the surface and burrows to the player, coming up under their feet (plan desert-chapter,
-	// Burrow); out of sand it walks.
-	bool sandBurrow = false;
+	std::optional<SandBurrowRules> sandBurrow; // in sand it lies under the surface and burrows to the player
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).
 	bool climbs = false;
 	// Its model's climb clip (tools/blender/models/*.py prints both), as shares of the reference clip's frame 0

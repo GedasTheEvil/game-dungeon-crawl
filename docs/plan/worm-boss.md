@@ -15,7 +15,8 @@ Egyptian myth has no giant worms. It has many serpents, and some of them live in
 So the boss is a sand serpent of Sokar's land: long, eyeless, ringed like the worm, with a snake's head. The worm
 stays the sand worm of today (the Shai-Hulud joke in its note stays). Apep is already the cobra's boss (a serpent of
 the waters of chaos), so this one has to look different from him: blind, a burrower's mouth, no hood. Name: Rerek
-(user, 2026-10-22); check it against the sources (the Pyramid Texts' snake spells) before using it.
+(user, 2026-10-22). Checked: Book of the Dead spell 33, "O rerek-snake, take yourself off" (Budge: "repulsing
+serpents (or worms)"), and the Coffin Texts' foe of the creator.
 
 ## Idea
 

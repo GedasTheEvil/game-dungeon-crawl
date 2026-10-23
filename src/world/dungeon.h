@@ -133,9 +133,10 @@ class Dungeon {
 	void updateFlyer(Monster& mon);
 	bool updateBurrower(Monster& mon);
 	bool updateCharger(Monster& mon);
-	// A charger's storm roar as its stun ends (RoarRules, plan hippo-boss): the player on its row near it is hit,
-	// shoved away (ShovePlayer) and blinded by sand (SandHaze).
-	void stormRoar(const Monster& mon);
+	// A burst of sand round mon (RoarRules): a charger's storm roar as its stun ends (plan hippo-boss), a sand
+	// burrower's spray as it comes up (plan worm-boss). The player on its row near it is hit, shoved away
+	// (ShovePlayer) and blinded by sand (SandHaze).
+	void sandBurst(const Monster& mon, const RoarRules& rules);
 	// The player sliding away from a shove, at SHOVE_SPEED: tiles still to go, the way (-1 / +1). Walls stop it.
 	struct Shove {
 		float left = 0.f;
@@ -344,6 +345,9 @@ class Dungeon {
 		int startMs;
 	};
 	std::vector<Hole> holes;
+	// A sand burrower's spray of sand as it came up (RoarRules spray, plan worm-boss), for Grit::BURST_MS: drawn with
+	// the holes.
+	std::vector<Hole> sprays;
 	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
 	std::vector<Hole> puffs;
 	std::vector<Hole> pours; // sand falls pouring down, from the end of the warning (startMs)
@@ -351,7 +355,7 @@ class Dungeon {
 	[[nodiscard]] float driftHeight(int i, int j, float u, float v) const; // world units over the floor
 	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
 	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
-	void drawRipple(float x, float y, float z, int now) const;
+	void drawRipple(float x, float y, float z, float size, int now) const; // size: 1 a worm's
 	// A shaft of daylight falls through the cracked sandstone ceiling of (i, j) (CEILING_SANDSTONE_CRACKED, picked by
 	// scatterSurfaces).
 	[[nodiscard]] bool lightShaft(int i, int j) const;
@@ -360,9 +364,9 @@ class Dungeon {
 	// them. False: neither is floor it can stand on.
 	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
 	// Map x a sand burrower (MonsterKind::sandBurrow) in sand comes up at: under the player on its row within range
-	// tiles, through sand all the way; for a lurker (edge) at the end of its sand nearest a player off the sand too.
-	// False: none.
-	[[nodiscard]] bool sandTarget(const Monster& mon, float range, bool edge, float& outX) const;
+	// tiles, through sand all the way, or past tiles beyond them if that is sand too; for a lurker (edge) at the end of
+	// its sand nearest a player off the sand too. False: none.
+	[[nodiscard]] bool sandTarget(const Monster& mon, float range, bool edge, float past, float& outX) const;
 	// Missiles (dungeon_arrows.cpp): arrows, sling stones, throwing sticks and javelins. A parabola from the launch
 	// point, x0 + vx t, y0 + vy t - g t^2 / 2 in map units.
 	struct Missile {
@@ -571,10 +575,12 @@ class Dungeon {
 	// half water, growing over WATER_SINK_RAMP from a dry edge, 0 elsewhere.
 	[[nodiscard]] float WaterSink(float x, int row) const;
 	// World units the player is drawn down into a water basin (WaterSink, less while above the floor: a fall, a jump),
-	// or into quicksand (QuicksandSink).
+	// or into quicksand (QuicksandSink), or the sand of a swallow (SwallowSink).
 	[[nodiscard]] float PlayerSink() const;
 	// World units the player has sunk into quicksand: down to QUICKSAND_SINK_DEPTH tiles as they get stuck.
 	[[nodiscard]] float QuicksandSink() const;
+	// World units the player is pulled down into the sand, held by a swallower (HoldRules::swallow, plan worm-boss).
+	[[nodiscard]] float SwallowSink() const;
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
 	[[nodiscard]] bool PlayerOnLadder() const;

@@ -36,7 +36,7 @@ a play script only (`tests/play/camel-spider-boss.txt`), as hippo-boss did at fi
 ## Others
 
 The rest stay without a boss (user, 2026-10-20): rats, plants, mimics, the lotus. The worm has its own draft
-([worm-boss](worm-boss.draft.opus.md)).
+([worm-boss](worm-boss.md)).
 
 ## Tests
 

@@ -9,6 +9,7 @@
 #include <memory>
 #include "../core/gameplay_config.h"
 #include "loot.h"
+#include "../graphics/render_config.h"
 
 void Dungeon::UpdateMonsters() {
 	updateBoss();
@@ -23,8 +24,12 @@ void Dungeon::UpdateMonsters() {
 		auto waterAt = [&](float x) {
 			return !mon.flies() && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
 		};
+		const bool onSand =
+			mon.Type()->sandBurrow && inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
 		mon.SetInWater(waterAt(mon.CentreX()), waterAt(mon.HeadX()),
-					   mon.flies() ? 0.f : WaterSink(mon.CentreX(), mon.Row()));
+					   mon.flies() ? 0.f
+					   : onSand	   ? -RenderConfig::SAND_BURROWER_LIFT
+								   : WaterSink(mon.CentreX(), mon.Row()));
 		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
 		mon.SetOnRungs(mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&
 										  IsInBounds(monCol, mon.Row()) && !isSolidTile(MapAt(monCol, mon.Row() - 1))));
@@ -151,7 +156,7 @@ int Dungeon::ChestCount() const {
 int Dungeon::MonsterBarsShown() const {
 	int n = 0;
 	for (const Monster& mon : monsters)
-		if (mon.Active() && mon.Alive() && mon.Alerted())
+		if (mon.Active() && mon.Alive() && mon.Alerted() && !mon.Hidden())
 			n++;
 	return n;
 }
@@ -163,6 +168,7 @@ void Dungeon::clearMonsters() {
 	shots.clear();
 	balls.clear();
 	holes.clear();
+	sprays.clear();
 	puffs.clear();
 	pours.clear();
 	bossFight = BossFight{};
@@ -270,7 +276,7 @@ float Dungeon::HeldViewRoll() const {
 		return 0.f;
 	const HoldRules rules = holder->Hold();
 	const auto age = static_cast<float>(holder->HoldAgeMs());
-	if (rules.tickMs <= 0) // in the claws: a shake
+	if (rules.tickMs <= 0 || rules.swallow) // in the claws, in the jaws pulling down: a shake
 		return HELD_SHAKE_DEG * std::sin(age * 0.06f);
 	return HELD_ROLL_DEG * std::sin(age / static_cast<float>(rules.tickMs) * 2.f * static_cast<float>(M_PI));
 }

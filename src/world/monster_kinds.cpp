@@ -130,6 +130,18 @@ constexpr HoldRules SCORPION_QUEEN_HOLD = {.chancePercent = 25,
 										   .sting = true,
 										   .tellFrame = 3.f,
 										   .holdFrame = 8.f};
+// Rerek's swallow (plan worm-boss): the jaws close round the player and pull them into the sand; a grinding tick each
+// second; each hit on him ends it 0.3 s sooner. The attack clip (tools/blender/models/worm.py ATTACK): reared, the
+// jaws wide at frame 9, lunged with the jaws round the player at 13.
+constexpr HoldRules REREK_HOLD = {.chancePercent = 30,
+								  .grabDamagePct = 60,
+								  .holdMs = 3000,
+								  .tickMs = 1000,
+								  .tickDamagePct = 35,
+								  .breakMs = 300,
+								  .swallow = true,
+								  .tellFrame = 9.f,
+								  .holdFrame = 13.f};
 
 // The dung ball (plan scarab-dung-ball). The draft's 4-6 tiles would kick it off the screen: the view shows about
 // 1.8 tiles either side of the player (see the baboon), and the roller, its back to them, must stand in it with its
@@ -204,7 +216,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = WORM_MIX,
 	 .resist = WORM_RESIST,
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
-	 .sandBurrow = true,
+	 .sandBurrow = SandBurrowRules{},
 	 .generated = {3, 7, 2}},
 	{.id = MonsterPlant,
 	 .glyph = 'p',
@@ -1036,6 +1048,41 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.5539f, // tools/blender/models/baboon.py
 	 .climbGrip = 0.0895f,
 	 .generated = {9, 10, 1}},
+	// Rerek, the sand serpent of Sokar's land (plan worm-boss), on the worm model: the worm's sand burrowing, farther
+	// and faster, coming up past the player every other time in a spray of sand, and a bite that swallows. Out of sand
+	// he walks, slowly. The boss of the land of Sokar (campaign zone 9), no campaign slot yet.
+	{.id = MonsterRerek,
+	 .glyph = 'q',
+	 .name = "Rerek",
+	 .label = "rerek",
+	 .description = "Rerek, the sand serpent: in sand lies under the surface, comes up under or past the player in a "
+					"spray of sand, swallows; worms dig out round him; his death opens the boss gates. One boss per "
+					"level",
+	 .note = "The Book of the Dead has a spell for driving back Rerek, the serpent of the underworld. I have it by "
+			 "heart now. He has not read it.",
+	 .threat = 16.5f, // hard to pin down, his swallow, and worms under the sand
+	 .model = "monsters/worm",
+	 .texture = "monsters/worm_rerek",
+	 .sounds = "monsters/rerek",
+	 .scale = 45, // 2.5 x the worm's
+	 .rotA = 0,
+	 .speed = 3,
+	 .maxHealth = 2200,
+	 .damage = 75,
+	 .attackMs = 1300,
+	 .xp = 32000,
+	 .attackMix = WORM_MIX,
+	 .resist = bossResist(WORM_RESIST),
+	 .courage = Courage::Reckless,
+	 .trapDamagePct = 10,
+	 .weight = 5,
+	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
+	 .spray = RoarRules{REREK_SPRAY_RADIUS, 0, REREK_SPRAY_SHOVE, REREK_SPRAY_HAZE_MS},
+	 .hold = REREK_HOLD,
+	 .sandBurrow =
+		 SandBurrowRules{REREK_WAKE_RANGE, REREK_DIVE_MIN, REREK_DIVE_RANGE, REREK_UNDER_MS, REREK_EVERY_MS, true},
+	 .kin = MonsterWorm,
+	 .boss = {MonsterWorm, 2, 4, 5000, 8, 0, Summon::DigOut}},
 }};
 
 constexpr bool validKinds() {

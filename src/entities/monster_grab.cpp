@@ -39,7 +39,9 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 		curse(type->meleeCurses);
 		links.journal->HitByCreature(type->id, links.level);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Grab);
-		links.events->Status("%s", rules.breakMs > 0 ? "Caught in its claws: hit them!" : "Caught in its jaws");
+		links.events->Status("%s", rules.swallow	   ? "Swallowed into the sand: hit it!"
+								   : rules.breakMs > 0 ? "Caught in its claws: hit them!"
+													   : "Caught in its jaws");
 		grab = Grab{GrabPhase::Hold, now, now + rules.holdMs, 0};
 		return;
 	}
@@ -92,7 +94,7 @@ int Monster::HoldAgeMs() const { return Holding() ? GameClock::now() - grab.star
 
 float Monster::HoldRoll() const {
 	const int tickMs = Hold().tickMs;
-	if (!Holding() || tickMs <= 0)
+	if (!Holding() || tickMs <= 0 || Hold().swallow)
 		return 0.f;
 	const float t = static_cast<float>(HoldAgeMs() % tickMs) / static_cast<float>(tickMs);
 	return 360.f * t * t * (3.f - 2.f * t); // a whole turn, slow out of the last tick, fast, slowing into the next

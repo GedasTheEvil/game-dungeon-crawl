@@ -1083,6 +1083,39 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 SandBurrowRules{REREK_WAKE_RANGE, REREK_DIVE_MIN, REREK_DIVE_RANGE, REREK_UNDER_MS, REREK_EVERY_MS, true},
 	 .kin = MonsterWorm,
 	 .boss = {MonsterWorm, 2, 4, 5000, 8, 0, Summon::DigOut}},
+	// The Mother of Webs (plan camel-spider-boss), on the camel spider's model: a beast, not a god (Egypt had no spider
+	// god); the webs in the halls are hers. The camel spider's shunning of the light, stronger: faster, and she puts
+	// out the torches and lamps she passes, so the dark spreads as the fight goes on; only the braziers stay lit. She
+	// spins webs over the floor that slow the player, and her spiders drop from the ceiling. The web halls' boss
+	// (campaign zone 3), no campaign slot yet.
+	{.id = MonsterMotherOfWebs,
+	 .glyph = ')',
+	 .name = "Mother of Webs",
+	 .label = "mother of webs",
+	 .description = "Mother of Webs, the camel spiders' boss: fast, keeps out of the light, puts out the torches and "
+					"lamps she passes (not the braziers), spins webs on the floor that slow the player; camel spiders "
+					"drop round her; her death opens the boss gates. One boss per level",
+	 .note = "Found the one who makes the webs. She does not hide from the torches; she puts them out.",
+	 .threat = 12.f, // fast in the dark she makes, her webs hold the player, and her spiders
+	 .model = "monsters/camel_spider",
+	 .texture = "monsters/camel_spider_mother",
+	 .sounds = "monsters/mother",
+	 .scale = 70, // 2.5 x the camel spider's
+	 .blood = {0.42f, 0.48f, 0.26f},
+	 .speed = 34,
+	 .maxHealth = 520,
+	 .damage = 26,
+	 .attackMs = 600,
+	 .xp = 9000,
+	 .attackMix = CAMEL_SPIDER_MIX,
+	 .resist = bossResist(CAMEL_SPIDER_RESIST),
+	 .weight = 4,
+	 .walkClipSpeed = 60,
+	 .shunsLight = true,
+	 .douseCells = MOTHER_DOUSE_CELLS,
+	 .webs = WebRules{MOTHER_WEB_EVERY_MS, MOTHER_WEB_MAX},
+	 .kin = MonsterCamelSpider,
+	 .boss = {MonsterCamelSpider, 2, 4, 3000, 10, 0, Summon::Drop}},
 }};
 
 constexpr bool validKinds() {
@@ -1103,6 +1136,8 @@ constexpr bool validKinds() {
 			return false;
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].sandBurrow && !kind.sandBurrow)
 			return false; // the boss rule: its kin's sand burrowing too (AGENTS.md)
+		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].shunsLight && !kind.shunsLight)
+			return false; // and its shunning of the light
 		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
 			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
 			return false;

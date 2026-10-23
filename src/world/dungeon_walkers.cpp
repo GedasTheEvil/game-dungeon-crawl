@@ -12,13 +12,15 @@ bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walk
 bool Dungeon::walkerStops(const Monster& mon, int col) const {
 	if (walkerBlocked(col, mon.Row(), mon.reckless()))
 		return true;
-	return mon.Type()->shunsLight && col != static_cast<int>(std::floor(mon.CentreX())) && Lit(col, mon.Row());
+	return mon.Type()->shunsLight && col != static_cast<int>(std::floor(mon.CentreX())) && shunned(mon, col);
 }
+//======================================================================================
+bool Dungeon::shunned(const Monster& mon, int col) const { return Lit(col, mon.Row(), mon.Type()->douseCells == 0); }
 //======================================================================================
 // The nearer dark cell either way, short of a cell it can't walk on; on a tie, away from the player.
 int Dungeon::wayOutOfLight(const Monster& mon) const {
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
-	if (!mon.Type()->shunsLight || !Lit(col, mon.Row()))
+	if (!mon.Type()->shunsLight || !shunned(mon, col))
 		return 0;
 	const int away = mapX < mon.CentreX() ? 1 : -1;
 	bool open[2] = {true, true}; // away, towards
@@ -27,7 +29,7 @@ int Dungeon::wayOutOfLight(const Monster& mon) const {
 			const int dir = side == 0 ? away : -away;
 			const int c = col + dir * d;
 			open[side] = open[side] && !walkerBlocked(c, mon.Row(), mon.reckless());
-			if (open[side] && !Lit(c, mon.Row()))
+			if (open[side] && !shunned(mon, c))
 				return dir;
 		}
 	return 0;
@@ -37,7 +39,7 @@ bool Dungeon::litBetween(const Monster& mon) const {
 	const auto from = static_cast<int>(std::floor(mon.CentreX()));
 	const auto to = static_cast<int>(std::floor(mapX));
 	for (int col = std::min(from, to); col <= std::max(from, to); col++)
-		if (col != from && Lit(col, mon.Row()))
+		if (col != from && shunned(mon, col))
 			return true;
 	return false;
 }
@@ -67,7 +69,7 @@ bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 			return false;
 		col = land;
 	}
-	return !mon.Type()->shunsLight || !Lit(to, mon.Row()); // nor into the light around them
+	return !mon.Type()->shunsLight || !shunned(mon, to); // nor into the light around them
 }
 //======================================================================================
 // No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
@@ -114,7 +116,7 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const auto probes = static_cast<int>(room / PROBE);
 	for (int i = 1; i <= probes; i++) {
 		const auto col = static_cast<int>(std::floor(rear - static_cast<float>(dir * i) * PROBE));
-		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && Lit(col, mon.Row())))
+		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && shunned(mon, col)))
 			return static_cast<float>(i - 1) * PROBE;
 	}
 	return room;

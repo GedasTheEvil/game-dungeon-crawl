@@ -271,4 +271,22 @@ void Dungeon::drawFires(const CellRect& drawn) {
 				Fire::draw(*f.fire, ox + f.x, oy + f.y, f.z, f.seed);
 			}
 		}
+	// A torch or a lamp the Mother of Webs put out (plan camel-spider-boss): its flame dies down.
+	const int now = GameClock::now();
+	for (const Motion& m : snuffs) {
+		const int age = now - m.startMs;
+		const int i = m.cell % MAP_WIDTH, j = m.cell / MAP_WIDTH;
+		if (age < 0 || age >= SNUFF_MS || !drawn.contains(static_cast<float>(i) + 0.5f, j))
+			continue;
+		Flame flames[MAX_CELL_FLAMES];
+		const int n = flamesAt(decoration, m.cell, flames, true);
+		const float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
+		const float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
+		for (int k = 0; k < n; k++)
+			if (flames[k].kind != FlameKind::Brazier) {
+				const FlameSource f = flameSource(flames[k]);
+				const float fade = 1.f - static_cast<float>(age) / static_cast<float>(SNUFF_MS);
+				Fire::draw(*f.fire, ox + f.x, oy + f.y, f.z, f.seed, fade * fade);
+			}
+	}
 }

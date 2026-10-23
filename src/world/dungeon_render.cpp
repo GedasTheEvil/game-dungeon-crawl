@@ -509,6 +509,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawSummonEffects();
 	drawBallEffects();
 	drawSandEffects();
+	drawWebs();
 	drawSunBeams();
 	drawContainerEffects();
 	drawBurning();

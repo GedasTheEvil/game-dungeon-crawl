@@ -197,6 +197,14 @@ struct SandBurrowRules {
 	bool behind = false; // every other dive it comes up BURROW_BEHIND past the player (the far side), not under them
 };
 
+// Webs over the floor (plan camel-spider-boss, the Mother of Webs, Dungeon::updateSpinner): awake, it spins one over
+// the cell it stands in every everyMs, up to max at a time. A web slows the player standing in it (WEB_SLOW_FACTOR);
+// a blade cuts it, fire burns it.
+struct WebRules {
+	int everyMs = 0;
+	int max = 0;
+};
+
 struct GenPick {
 	int minDifficulty = 0;
 	int maxDifficulty = 0;
@@ -276,6 +284,10 @@ struct MonsterKind {
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	std::optional<RollRules> roll; // it rolls dung balls at the player (Roll)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
+	// Awake, it puts out the wall torches and oil lamps up to this many cells along its row, for good (not the
+	// braziers); 0: none (plan camel-spider-boss).
+	int douseCells = 0;
+	std::optional<WebRules> webs; // it spins webs over the floor (WebRules)
 	bool sunBurns = false; // a beam of sunlight sets it on fire (SUN_BURN_FIRE, plan sunlight-mirrors)
 	std::optional<SandBurrowRules> sandBurrow; // in sand it lies under the surface and burrows to the player
 	// Follows the player up and down ladders once it has seen them (plan monster-climbers).

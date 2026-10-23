@@ -120,7 +120,7 @@ it zone by zone and then switches the code table to it. Level ranges are about, 
 | **Act I: the tomb** (limestone) |||||
 | 1 | Tomb entrance | 1-4 | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri |
 | 2 | Bat galleries | 5-9 | bats, giant bats, worms, giant rats | levers, rock falls, a short first wade (one crocodile) | Bat of Shezmu |
-| 3 | Web halls | 10-13 | camel spiders, giant scarabs, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](plan/camel-spider-boss.draft.opus.md)) |
+| 3 | Web halls | 10-13 | camel spiders, giant scarabs, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](plan/camel-spider-boss.md)) |
 | **Act II: the temple** (painted plaster) |||||
 | 4 | Priests' quarter | 14-18 | mummies, living ushabti, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
 | 5 | Scorpion nest | 19-22 | scorpions, giant scorpions | poison drips, antidotes | scorpion queen |
@@ -254,7 +254,7 @@ Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1
 3 per rock fall, 2 per dart plate, 1.5 per wall spikes or fire vent cell and 1.2 per jump on the path, 0.8 per gate and per mirror
 turn, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16, baboon 5.5, Rerek 16.5; a kiter's threat x1.15):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12; a kiter's threat x1.15):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
 rats, scorpions, mummies, Anubis and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 

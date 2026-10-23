@@ -45,7 +45,7 @@ float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * (inWa
 
 bool Monster::flees() const {
 	const bool walks = type->locomotion == Locomotion::Walk || leaps(type->locomotion);
-	return walks && !reckless() && !type->isBoss();
+	return walks && !reckless() && (!type->isBoss() || type->shunsLight);
 }
 
 void Monster::Flee(bool blocked, int dir) {

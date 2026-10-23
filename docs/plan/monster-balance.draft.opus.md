@@ -9,7 +9,7 @@ against the final zones, their monster sets and the 40-60 level count), and ever
 after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.draft.opus.md),
 [giant-cobra-blinding-spit](giant-cobra-blinding-spit.draft.opus.md),
 [giant-rat-pack-call](giant-rat-pack-call.draft.sonet.md), [scarab-dung-ball](solved/scarab-dung-ball.md),
-[camel-spider-boss](camel-spider-boss.draft.opus.md), [worm-boss](solved/worm-boss.md),
+[camel-spider-boss](camel-spider-boss.md), [worm-boss](solved/worm-boss.md),
 [baboon](solved/baboon.md), [babi-boss](babi-boss.draft.opus.md). A new monster or boss
 draft joins this list.
 

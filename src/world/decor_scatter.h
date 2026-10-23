@@ -18,6 +18,9 @@ struct DecorLayout {
 	bool torch[LEVEL_CELL_COUNT] = {};
 	LadderCell ladder[LEVEL_CELL_COUNT];
 	TreasureLook treasure[LEVEL_CELL_COUNT]; // what a treasure there looks like (containers.h); set on every open cell
+	// The torch and the oil lamp there were put out (the Mother of Webs, plan camel-spider-boss); a brazier burns on.
+	// The scatter lights them all again.
+	bool doused[LEVEL_CELL_COUNT] = {};
 };
 
 // The fires among the decorations: a brazier's or an oil lamp's flame, a torch's. The drawing gives each its fire
@@ -31,8 +34,9 @@ struct Flame {
 	uint32_t seed;
 };
 constexpr int MAX_CELL_FLAMES = 2; // a prop's fire and a torch
-// The flames in cell (LevelGrid index): how many it wrote to out.
-int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES]);
+// The flames in cell (LevelGrid index): how many it wrote to out. A doused torch or lamp has none, unless withDoused
+// (its smoke as it goes out).
+int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES], bool withDoused = false);
 
 // What a scatter placed, for the log.
 struct DecorCounts {

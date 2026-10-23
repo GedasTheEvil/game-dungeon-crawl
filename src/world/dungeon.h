@@ -161,6 +161,9 @@ class Dungeon {
 	// walkerBlocked for this walker, and a light shunner (MonsterKind::shunsLight) can't step into a lit cell either
 	// but its own.
 	[[nodiscard]] bool walkerStops(const Monster& mon, int col) const;
+	// A light shunner keeps out of (col, its row): Lit, but a douser (MonsterKind::douseCells) heeds only the braziers
+	// and the sun; the torches and lamps it puts out before it reaches their light.
+	[[nodiscard]] bool shunned(const Monster& mon, int col) const;
 	// A light shunner standing in the light: the way out along its row (-1 / +1, the nearer dark cell); 0: none.
 	[[nodiscard]] int wayOutOfLight(const Monster& mon) const;
 	// A lit cell between the walker and the player, or round the player (not its own cell).
@@ -318,6 +321,28 @@ class Dungeon {
 	void drawSunDiscTile(int i, int j);
 	void drawSunBeams(); // after the opaque scene, drawSummonEffects' frame
 	void addSunLights(const CellRect& drawn);
+	// The Mother of Webs (dungeon_webs.cpp, plan camel-spider-boss): awake, a douser (MonsterKind::douseCells) puts
+	// out the torches and lamps near it on its row (DecorLayout::doused), a spinner (MonsterKind::webs) spins webs.
+	void updateSpinner(const Monster& mon);
+	// A web over the floor of cell (map index), spun at laidMs; cut or burnt at goneMs (< 0: whole), gone WEB_CUT_MS
+	// or WEB_BURN_MS later. Not saved: a load starts the boss fight over.
+	struct Web {
+		int cell;
+		int laidMs;
+		int goneMs = -1;
+		bool burnt = false;
+	};
+	std::vector<Web> webs;
+	int nextWebMs = 0; // GameClock: the spinner's next web (one boss per level)
+	bool playerWebbed = false; // the player stood in a web on the last tick: the status line was told
+	std::vector<Motion> snuffs; // the torches and lamps just put out, their flames dying down (SNUFF_MS)
+	void updateWebs(); // the player caught in one, the fire vents' jets burn them, the cut and burnt ones go
+	[[nodiscard]] int webAt(int cell) const; // the whole web over the floor of cell (map index): its index, -1 none
+	void burnWeb(int cell); // fire on the floor of cell (map index): its web burns
+	// A blade's swing over the floor of row from fromX to toX (map x): the webs there are cut. How many.
+	int cutWebs(float fromX, float toX, int row);
+	[[nodiscard]] bool webFloor(int col, int row) const; // a web can lie there: dry floor, nothing in the cell
+	void drawWebs(); // the webs, the burning ones in flames; drawSummonEffects' frame
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
 	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
@@ -646,8 +671,19 @@ class Dungeon {
 	// the level.
 	bool PlaceTorch(int col, int row, bool on);
 	// Within LIGHT_SHUN_CELLS along the row of a flame among the decorations (a wall torch, a brazier, an oil lamp) or
-	// of a sunlit cell (Sunlit): a light shunner keeps out (plan camel-spider).
-	[[nodiscard]] bool Lit(int col, int row) const;
+	// of a sunlit cell (Sunlit): a light shunner keeps out (plan camel-spider). torches false: only a brazier's flame
+	// and the sun count.
+	[[nodiscard]] bool Lit(int col, int row, bool torches = true) const;
+	// The torch or lamp in (col, row) was put out (DecorLayout::doused, plan camel-spider-boss).
+	[[nodiscard]] bool Doused(int col, int row) const {
+		return IsInBounds(col, row) && decoration.doused[MapIndex(col, row)];
+	}
+	// A whole web lies over the floor of (col, row) (plan camel-spider-boss).
+	[[nodiscard]] bool WebAt(int col, int row) const { return IsInBounds(col, row) && webAt(MapIndex(col, row)) >= 0; }
+	// Scenario tests: a web over the floor of (col, row). False: no floor for one there (webFloor), or one lies there.
+	bool PlaceWeb(int col, int row);
+	// The player stands in a web (not in the air): the walk slows to WEB_SLOW_FACTOR (PlayerWalkFactor).
+	[[nodiscard]] bool PlayerInWeb() const;
 	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
 	[[nodiscard]] bool Sunlit(int col, int row) const {
 		return IsInBounds(col, row) && sunlit[static_cast<size_t>(MapIndex(col, row))] != 0;

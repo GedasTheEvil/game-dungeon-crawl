@@ -1,0 +1,30 @@
+# Plan camel-spider-boss, for `bin/game --play tests/play/camel-spider-boss.txt`: tests/levels/mother, the Mother of
+# Webs (col 12) in a long dark hall, two torches (cols 5 and 8), a brazier by the entrance (col 1). Walk east: she
+# comes at you faster than a camel spider and puts out the torches and lamps she passes, for good; only the brazier
+# keeps her off (she waits out of the bow's range). Camel spiders drop from the ceiling round her. She spins webs over
+# the floor behind her: in one you walk slowly; the khopesh cuts it, a fire arrow (interact at the brazier with the bow)
+# burns it. Blade and fire do normal damage to her, arrows' points are resisted.
+seed 1
+level tests/levels/mother
+xp 300000
+give melee 0
+give melee 4
+equip khopesh
+give ranged 0
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 6 off
+torch 7 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+torch 13 off
+torch 14 off
+torch 15 off
+torch 16 off
+torch 5 on
+torch 8 on
+prop 1 brazier

@@ -229,7 +229,8 @@ class Monster {
 	// front of it blocks the walk.
 	bool Seek(bool blocked, float px, float py);
 	[[nodiscard]] float seekProbeX(int dir) const; // map x the walker checks for walls: its box edge on side dir
-	// A walking coward, not a boss: it runs from a player it cannot reach (plan coward-flee-ranged).
+	// A walking coward, not a boss but a light shunner: it runs from a player it cannot reach (plan
+	// coward-flee-ranged).
 	[[nodiscard]] bool flees() const;
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);

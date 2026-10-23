@@ -134,6 +134,18 @@ constexpr int QUICKSAND_MAX_RUN = 2; // cells in a row (levelcheck): a jump out 
 constexpr int SAND_FALL_DAMAGE = 40;
 constexpr int SAND_SLOW_MS = 1500;
 constexpr float SAND_SLOW_FACTOR = 0.4f;
+// The Mother of Webs (plan camel-spider-boss, MonsterKind::webs, douseCells): every MOTHER_WEB_EVERY_MS she spins a web
+// over the floor of the cell she stands in, up to MOTHER_WEB_MAX at a time. A player standing in a web walks at the
+// sand fall's slow; a blade's swing cuts it, fire burns it (gone after WEB_BURN_MS of flames). She puts out every wall
+// torch and oil lamp up to MOTHER_DOUSE_CELLS along her row for good (a puff of smoke for SNUFF_MS); the braziers stay
+// lit.
+constexpr float WEB_SLOW_FACTOR = SAND_SLOW_FACTOR;
+constexpr int MOTHER_WEB_EVERY_MS = 1200;
+constexpr int MOTHER_WEB_MAX = 8;
+constexpr int MOTHER_DOUSE_CELLS = 2;
+constexpr int WEB_BURN_MS = 700;
+constexpr int WEB_CUT_MS = 250;
+constexpr int SNUFF_MS = 900;
 constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
 // With the skill the player sprints in half water at this share of the LAND sprint speed (not of the wade speed).
 constexpr float WADE_SPRINT_FACTOR_HAPI = 0.5f;

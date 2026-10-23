@@ -146,6 +146,8 @@ void Dungeon::updateMissiles() {
 			const bool inBasin =
 				inHalfWater(MapAt(col, row + 1)) &&
 				y >= static_cast<float>(row + 1) - RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
+			if (a.fire && y - static_cast<float>(row) < 0.5f) // low over the floor: a web there burns
+				burnWeb(MapIndex(col, row));
 			if (isSolidTile(MapAt(col, row)) && !inBasin) {
 				a.stuckMs = now; // the tip in the wall or the floor
 				sim.events->Play(rules.wall);

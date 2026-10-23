@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 
 namespace {
 constexpr uint32_t DECOR_CHANCE_PERCENT = 30;
@@ -548,6 +549,7 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, in
 	const uint32_t seed = hashName(slash != nullptr ? slash + 1 : levelName);
 	const int tier = decorTier(depth);
 	DecorCounts counts;
+	std::fill(std::begin(layout.doused), std::end(layout.doused), false);
 	const ZoneLook& look = levelLook(zone); // plan zone-looks: the zone's decor set and torches
 	counts.props = scatterProps(cells, seed, tier, look, layout.decor);
 	counts.torches = scatterTorches(cells, seed ^ TORCH_SALT, look.torchPercent, layout.decor, layout.torch);
@@ -589,7 +591,7 @@ constexpr float LAMP_FIRE[3] = {-0.256f, 0.05f, 0.307f}; // oil lamp wick
 constexpr float TORCH_FIRE[3] = {0.f, 0.68f, 0.098f}; // top of the torch head
 } // namespace
 
-int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES]) {
+int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES], bool withDoused) {
 	int n = 0;
 	auto seed = static_cast<uint32_t>(cell) * 2654435761U;
 	auto at = [&](const float* p, float offsetX, bool mirror, FlameKind kind) {
@@ -598,11 +600,12 @@ int flamesAt(const DecorLayout& layout, int cell, Flame (&out)[MAX_CELL_FLAMES])
 	};
 
 	const DecorCell& decor = layout.decor[cell];
+	const bool lit = withDoused || !layout.doused[cell];
 	if (decor.type == DECOR_BRAZIER)
 		at(BRAZIER_FIRE, decor.offsetX, decor.mirror, FlameKind::Brazier);
-	else if (decor.type == DECOR_LAMP)
+	else if (decor.type == DECOR_LAMP && lit)
 		at(LAMP_FIRE, decor.offsetX, decor.mirror, FlameKind::OilLamp);
-	if (layout.torch[cell])
+	if (layout.torch[cell] && lit)
 		at(TORCH_FIRE, 0.f, false, FlameKind::Torch);
 	return n;
 }

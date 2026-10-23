@@ -80,8 +80,10 @@ enum class CreatureMove : unsigned char {
 	Roar, // a charger's storm roar as its stun ends (MonsterKind::roar)
 	Kite, // a kiter backs off from the player to keep them at its range (MonsterKind::kite)
 	RollBall, // a roller kicks a dung ball at the player (MonsterKind::roll)
+	Douse, // a douser puts out a torch or a lamp (MonsterKind::douseCells)
+	SpinWeb, // a spinner spins a web over the floor (MonsterKind::webs)
 };
-constexpr int CREATURE_MOVE_COUNT = 22;
+constexpr int CREATURE_MOVE_COUNT = 24;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

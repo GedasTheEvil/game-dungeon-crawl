@@ -110,6 +110,10 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 			return "She turns her back on me and rolls a burning sun along the floor, as she rolls the sun across the "
 				   "sky. A jump clears it.";
 		return "It rolls its dinner at me. I am not sure whose dinner. A jump clears it.";
+	case CreatureMove::Douse:
+		return "The torches and lamps go out as she passes, and stay out. The braziers she leaves alone.";
+	case CreatureMove::SpinWeb:
+		return "Spins webs over the floor behind her; they hold my feet. A blade cuts them, fire burns them.";
 	}
 	return "";
 }

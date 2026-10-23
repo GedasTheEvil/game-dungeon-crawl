@@ -16,14 +16,22 @@ bool Dungeon::PlaceDecor(int col, int row, int type) {
 	if (!IsInBounds(col, row) || type < 0 || type >= DECOR_COUNT)
 		return false;
 	decoration.decor[MapIndex(col, row)] = DecorCell{static_cast<int8_t>(type), false, 0.f};
+	decoration.doused[MapIndex(col, row)] = false;
 	return true;
 }
 
-bool Dungeon::Lit(int col, int row) const {
+bool Dungeon::Lit(int col, int row, bool torches) const {
 	Flame flames[MAX_CELL_FLAMES];
-	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++)
-		if (IsInBounds(c, row) && (flamesAt(decoration, MapIndex(c, row), flames) > 0 || Sunlit(c, row)))
+	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++) {
+		if (!IsInBounds(c, row))
+			continue;
+		if (Sunlit(c, row))
 			return true;
+		const int n = flamesAt(decoration, MapIndex(c, row), flames);
+		for (int k = 0; k < n; k++)
+			if (torches || flames[k].kind == FlameKind::Brazier)
+				return true;
+	}
 	return false;
 }
 
@@ -31,6 +39,7 @@ bool Dungeon::PlaceTorch(int col, int row, bool on) {
 	if (!IsInBounds(col, row))
 		return false;
 	decoration.torch[MapIndex(col, row)] = on;
+	decoration.doused[MapIndex(col, row)] = false;
 	return true;
 }
 

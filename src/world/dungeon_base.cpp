@@ -135,6 +135,7 @@ void Dungeon::Update() {
 	UpdateMonsters();
 	noteSeenMonsters();
 	updateMissiles();
+	updateWebs();
 	updateShots();
 	updateBalls();
 	updateDarts();
@@ -383,7 +384,8 @@ bool Dungeon::PlayerWaterBlessed() const {
 }
 //======================================================================================
 float Dungeon::PlayerWalkFactor() const {
-	const float slow = GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f; // a sand fall's
+	const float slow = (GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f) * // a sand fall's
+					   (PlayerInWeb() ? WEB_SLOW_FACTOR : 1.f); // a web's (plan camel-spider-boss)
 	if (PlayerInQuicksand())
 		return slow * QUICKSAND_SPEED_FACTOR *
 			   std::max(0.f, 1.f - static_cast<float>(sunkMs) / static_cast<float>(QUICKSAND_STUCK_MS));

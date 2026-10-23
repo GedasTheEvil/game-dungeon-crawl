@@ -3,7 +3,10 @@ die, idle).
 
     MCP:  p = ".../tools/blender/models/camel_spider.py"; g = {"__file__": p, "__name__": "camel_spider"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/camel_spider.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/camel_spider.py -- [--export] [--boss-texture]
+
+camel_spider_mother.png (the Mother of Webs, the boss, plan camel-spider-boss: near-black, bone-pale bands, a pale
+sheen on the head plate and the legs, red-black jaws) shares the UVs: bake it alone with --boss-texture.
 
 Blender space: Z up, the spider faces +Y (game uses rotA = 180), its right side is +X.
 Built on scorpion.py's rig: rigid parts follow one bone each. The prosoma (the domed head plate, the eye tubercle) and
@@ -48,6 +51,19 @@ COL = {
     "rust_dark": (0.20, 0.07, 0.025),
     "black": (0.012, 0.008, 0.005),
     "eye": (0.004, 0.004, 0.004),
+}
+# The Mother of Webs (camel_spider_mother.png, same UVs, the boss, plan camel-spider-boss): darker, banded, a pale
+# sheen. A near-black body; the bands of the abdomen and the leg ends, the joints and the bristles bone-pale (the
+# "sand_dark" parts); the head plate and the legs a pale grey over the dark (the sheen); deep red-black jaws.
+COL_MOTHER = {
+    "sand": (0.075, 0.055, 0.045),
+    "sand_hi": (0.30, 0.28, 0.27),
+    "sand_dark": (0.72, 0.68, 0.60),
+    "pale": (0.50, 0.47, 0.43),
+    "rust": (0.24, 0.05, 0.035),
+    "rust_dark": (0.08, 0.015, 0.01),
+    "black": (0.01, 0.006, 0.004),
+    "eye": (0.25, 0.02, 0.01),
 }
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))
@@ -647,7 +663,12 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
-    if "--export" in args:
+    if "--boss-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_MOTHER)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "camel_spider_mother.png"), TEX_SIZE,
+                            "camel_spider_mother", ao_distance=0.1)
+    elif "--export" in args:
         build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "camel_spider.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "camel_spider.blend"))

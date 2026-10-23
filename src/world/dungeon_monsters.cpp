@@ -70,6 +70,9 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
+		if (mon.Alive() && mon.Alerted() &&
+			!won) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
+			updateSpinner(mon);
 		if (mon.Type()->kite)
 			mon.WatchPlayer(mapX);
 
@@ -171,6 +174,10 @@ void Dungeon::clearMonsters() {
 	sprays.clear();
 	puffs.clear();
 	pours.clear();
+	webs.clear();
+	snuffs.clear();
+	nextWebMs = 0;
+	playerWebbed = false;
 	bossFight = BossFight{};
 }
 //======================================================================================
@@ -198,8 +205,11 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 		if (mon.Active() && mon.Alive() && !mon.Hidden() && mon.Nearby(mapX, mapY, reach, dir) &&
 			(!nearest || mon.MeleeGap(mapX, dir) < nearest->MeleeGap(mapX, dir)))
 			nearest = &mon;
+	// A blade cuts the webs over the floor in its reach (plan camel-spider-boss).
+	const float tip = mapX + static_cast<float>(dir) * (sim.player->HalfWidth() + reach);
+	const bool cut = mainType(mix) == DamageType::Slash && cutWebs(mapX, tip, static_cast<int>(mapY)) > 0;
 	if (!nearest)
-		return false;
+		return cut;
 	playerHit(*nearest, damage, &mix);
 	touchPoison(*nearest);
 	return true;

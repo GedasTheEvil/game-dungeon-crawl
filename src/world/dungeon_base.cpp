@@ -304,6 +304,17 @@ bool Dungeon::Move(float dirX, float dirY) {
 			puffs.push_back({mapX, static_cast<int>(mapY), GameClock::now()});
 		}
 	}
+	if (moved && motionEffectsOn && sim.player->stats.IsSprinting() && !PlayerInSand() && !PlayerWading() &&
+		PlayerSink() <= 0.f && !sim.player->jump.jumping && !sim.player->jump.falling &&
+		Map(mapX, mapY).type != Ladder &&
+		GameClock::now() - sprintPuffMs >= SPRINT_PUFF_MS) { // plan sprint-toon-blur-and-extras
+		sprintPuffMs = GameClock::now();
+		const int now = sprintPuffMs;
+		puffs.erase(std::remove_if(puffs.begin(), puffs.end(),
+								   [now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }),
+					puffs.end()); // the draw prunes too, but a headless run never draws
+		puffs.push_back({mapX, static_cast<int>(mapY), now});
+	}
 	if (moved && PlayerWading() && GameClock::now() - wadeSoundMs >= WADE_SPLASH_MS) {
 		wadeSoundMs = GameClock::now();
 		sim.events->Play(WorldSound::Wade);

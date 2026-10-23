@@ -225,3 +225,26 @@ TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, So
 				CHECK(inSand(grid.cells[cell]));
 	}
 }
+
+TEST_CASE("sprint dust (plan sprint-toon-blur-and-extras): a puff per sprint step on a dry floor, none walking or with "
+		  "motion effects off") {
+	SimWorld world;
+	loadSand(world);
+	REQUIRE(world.WalkTo(3.f));
+	walked(world, 20);
+	CHECK(world.dungeon.DustPuffs() == 0); // walking
+	world.player.stats.SetSprintRequested(true);
+	walked(world, 20);
+	CHECK(world.dungeon.DustPuffs() > 0);
+	world.player.stats.SetSprintRequested(false);
+}
+
+TEST_CASE("sprint dust: none with motion effects off") {
+	SimWorld world;
+	loadSand(world);
+	world.dungeon.SetMotionEffects(false);
+	REQUIRE(world.WalkTo(3.f));
+	world.player.stats.SetSprintRequested(true);
+	walked(world, 20);
+	CHECK(world.dungeon.DustPuffs() == 0);
+}

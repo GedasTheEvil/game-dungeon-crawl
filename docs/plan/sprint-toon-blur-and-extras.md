@@ -14,3 +14,12 @@ gets the FOV kick (and vignette) without the blur, until this is settled.
 * **Dust puffs at the feet:** a small puff on each step while sprinting on a dry floor, none in water. Under the
   "Motion effects" option.
 * Dropped: a faster footstep sound, the camera lag.
+
+## Done
+
+Both blur orders in toon mode, switched by `MotionFx::setToonBlurFirst` (scenario `toonblurfirst on|off`; default
+after): after = the ink pass draws into the motion target and the blur streaks the finished picture; first = `Ink::end`
+blurs the scene colour into a second texture, the lines are drawn over it. Waiting for the user's pick: the other order
+and the switch go. Dust: `SPRINT_PUFF_MS` puffs (the sand's `Grit::puff`) per sprint step on a dry floor, none in
+water, sand (has its own) or with "Motion effects" off. Scenario `tests/scenarios/sprint_toon_blur.txt`, unit tests in
+`sand_test.cpp`.

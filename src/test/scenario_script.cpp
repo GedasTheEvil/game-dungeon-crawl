@@ -388,6 +388,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Camera:
 	case CommandType::Motion:
 	case CommandType::Toon:
+	case CommandType::ToonBlurFirst:
 	case CommandType::CutScenes:
 	case CommandType::Hitboxes:
 	case CommandType::KillBoss:
@@ -419,6 +420,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"interact", CommandType::Interact, noArgs, ""},
 		{"camera", CommandType::Camera, twoNumbers, "<rotM> <rotN>"},
 		{"toon", CommandType::Toon, onOff, "<on|off>"},
+		{"toonblurfirst", CommandType::ToonBlurFirst, onOff, "<on|off>"},
 		{"cutscenes", CommandType::CutScenes, onOff, "<on|off>"},
 		{"hitboxes", CommandType::Hitboxes, onOff, "<on|off>"},
 		{"screenshot", CommandType::Screenshot, parseScreenshot, "<name> (no slashes)"},

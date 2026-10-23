@@ -170,7 +170,7 @@ void drawGameplay() {
 	const bool cutScene = Game().dungeon.CutScenePlaying();
 	MotionFx::cinema(shot.look);
 	const float playerX = -shot.dx * RenderConfig::TILE_SIZE, playerY = -shot.dy * RenderConfig::TILE_SIZE;
-	MotionFx::begin(resX, resY, !Ink::toon()); // toon mode: no blur over the ink lines (yet), the rest stays
+	MotionFx::begin(resX, resY, Ink::toon());
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -245,8 +245,9 @@ void drawGameplay() {
 	if (Game().player->Alive() && sunBeam)
 		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
 	Lighting::end();
+	MotionFx::setCentre(chest.x, chest.y);
 	Ink::end();
-	MotionFx::end(chest.x, chest.y);
+	MotionFx::end();
 
 	glLoadIdentity();
 

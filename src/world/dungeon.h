@@ -248,6 +248,8 @@ class Dungeon {
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
 	int lockedHintMs = -1000000; // last "the gate is locked" message, to keep it from repeating every step
 	int waterHintMs = -1000000; // last "too deep to jump" message
+	int sprintPuffMs = -1000000; // last dust puff of a sprint step (plan sprint-toon-blur-and-extras)
+	bool motionEffectsOn = true; // Options > Display > Motion effects (SetMotionEffects): the sprint's dust
 	int wadeSoundMs = -1000000; // last splashing step, or step in sand
 	void resetMechanisms();
 	void updateMechanisms();
@@ -647,6 +649,8 @@ class Dungeon {
 	void ShovePlayer(int dir, float tiles);
 	// 0..1: how thick the sand over the screen is (a storm roar), fading out.
 	[[nodiscard]] float SandHaze() const;
+	[[nodiscard]] int DustPuffs() const { return static_cast<int>(puffs.size()); } // steps' dust still in the air
+	void SetMotionEffects(bool on) { motionEffectsOn = on; }
 	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen
 	[[nodiscard]] bool CutScenePlaying() const { return !cutScene.stops.empty(); }
 	[[nodiscard]] CutShot CutSceneShot() const { return cutShot; }

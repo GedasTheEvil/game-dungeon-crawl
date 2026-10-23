@@ -27,6 +27,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"interact", "interact"},
 	{"camera", "camera 10 -5"},
 	{"toon", "toon on"},
+	{"toonblurfirst", "toonblurfirst on"},
 	{"cutscenes", "cutscenes on"},
 	{"hitboxes", "hitboxes off"},
 	{"screenshot", "screenshot start"},

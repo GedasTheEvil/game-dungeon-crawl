@@ -71,6 +71,8 @@ int gWidth = 0, gHeight = 0;
 float gLevel = 0.f; // linear 0..1, eased on the way out (strength())
 int gLastMs = -1;
 float gCinema = 0.f; // a cut-scene's look, 0..1
+bool gToonBlurFirst = false; // toon mode: blur the scene before the ink lines (true) or the finished picture (false)
+float gCentreX = 0.5f, gCentreY = 0.5f;
 
 Program build(const char* name, const char* fragmentSrc, const char* amountName) {
 	Program p;
@@ -159,17 +161,42 @@ void MotionFx::cinema(float amount) { gCinema = std::clamp(amount, 0.f, 1.f); }
 
 float MotionFx::fov(float baseDegrees) { return baseDegrees + FOV_KICK * strength(); }
 
-void MotionFx::begin(int width, int height, bool blur) {
+void MotionFx::setToonBlurFirst(bool first) { gToonBlurFirst = first; }
+
+bool MotionFx::toonBlurFirst() { return gToonBlurFirst; }
+
+bool MotionFx::blurInInk() {
+	if (!gToonBlurFirst || (strength() <= 0.f && gCinema <= 0.f))
+		return false;
+	ensurePrograms();
+	return gBlur.id != 0;
+}
+
+void MotionFx::blurPass(unsigned sceneTexture) {
+	glDisable(GL_BLEND);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, sceneTexture);
+	fullScreenQuad(gBlur, gCentreX, gCentreY, BLUR_REACH * strength());
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void MotionFx::setCentre(float centreX, float centreY) {
+	gCentreX = centreX;
+	gCentreY = centreY;
+}
+
+void MotionFx::begin(int width, int height, bool toon) {
 	gWidth = width;
 	gHeight = height;
 	gActive = false;
-	if ((strength() <= 0.f && gCinema <= 0.f) || !blur)
+	if ((strength() <= 0.f && gCinema <= 0.f) || (toon && gToonBlurFirst))
 		return;
 	ensurePrograms();
 	gActive = gBlur.id != 0 && gTarget.Begin(width, height);
 }
 
-void MotionFx::end(float centreX, float centreY) {
+void MotionFx::end() {
+	const float centreX = gCentreX, centreY = gCentreY;
 	if (strength() <= 0.f && gCinema <= 0.f)
 		return;
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);

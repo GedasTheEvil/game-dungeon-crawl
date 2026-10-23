@@ -8,6 +8,7 @@
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
 #include "../graphics/ink.h"
+#include "../graphics/motion_fx.h"
 #include "../core/timer.h"
 #include "../core/logger.h"
 #include "../ui/screen_state.h"
@@ -316,11 +317,16 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Motion: // Options > Display > Motion effects
 		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
+		Game().dungeon.SetMotionEffects(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Toon:
 		Game().settings.graphics.toon = cmd.a > 0.5f;
 		Ink::setToon(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return true;
+	case CommandType::ToonBlurFirst: // plan sprint-toon-blur-and-extras: the sprint blur before the ink lines
+		MotionFx::setToonBlurFirst(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
 	case CommandType::CutScenes: // Options > Display > Cut-scenes (off in scenarios)

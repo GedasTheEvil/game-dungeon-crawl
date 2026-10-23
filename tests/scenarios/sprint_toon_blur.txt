@@ -1,0 +1,18 @@
+# Plan sprint-toon-blur-and-extras: the sprint blur in toon mode, over the finished picture (after) and before the ink
+# lines (first), and the dust puffs at the feet. Compare sprint_toon_after / sprint_toon_first / sprint_normal.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+walk right 1
+wait 30
+toon on
+sprint on
+hold right 400ms
+screenshot sprint_toon_after
+toonblurfirst on
+hold right 300ms
+screenshot sprint_toon_first
+toon off
+hold right 300ms
+screenshot sprint_normal_dust

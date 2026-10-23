@@ -26,6 +26,7 @@ enum class CommandType : unsigned char {
 	Interact,
 	Camera,
 	Toon,
+	ToonBlurFirst,
 	CutScenes,
 	Hitboxes,
 	Screenshot,

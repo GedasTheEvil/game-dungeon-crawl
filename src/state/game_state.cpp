@@ -275,6 +275,7 @@ void GameState::ApplySettings(bool save) {
 	Particles::shown = settings.graphics.blood;
 	Lighting::setFlicker(settings.graphics.lightFlicker);
 	dungeon.SetCutScenes(settings.graphics.cutScenes);
+	dungeon.SetMotionEffects(settings.graphics.motionEffects);
 	Audio::SetVolumes(settings.sound.music, settings.sound.effects);
 	if (save)
 		SettingsFile::Save(settings);

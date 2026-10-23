@@ -18,12 +18,22 @@ void cinema(float amount);
 // The view angle for a base angle: wider by up to FOV_KICK degrees.
 [[nodiscard]] float fov(float baseDegrees);
 
-// With blur (false: no post-processing of the scene, toon mode), the scene goes to an offscreen target for the blur
-// and the tint. Does nothing at strength 0 and no cut-scene, or without blur.
-void begin(int width, int height, bool blur);
-// The scene to the screen, blurred away from the centre (window share 0..1, y up) and tinted, then the vignette and
-// the bars over it.
-void end(float centreX, float centreY);
+// The centre of the blur and the vignette (window share 0..1, y up): the player's chest. Once a frame, before end().
+void setCentre(float centreX, float centreY);
+// Toon mode (plan sprint-toon-blur-and-extras): the blur comes before the ink lines (true, Ink::end calls blurPass,
+// the lines stay sharp) or after them (false, the lines streak with the picture). Both stay until the user picks one.
+void setToonBlurFirst(bool first);
+[[nodiscard]] bool toonBlurFirst();
+// True when this frame's blur is done inside Ink::end (toon mode, blur first, an effect is on).
+[[nodiscard]] bool blurInInk();
+// Draws the blurred, tinted texture into the bound framebuffer, the viewport the window's.
+void blurPass(unsigned sceneTexture);
+
+// With the scene going to an offscreen target for the blur and the tint (not when toon mode blurs before the ink lines,
+// that is Ink's target). Does nothing at strength 0 and no cut-scene.
+void begin(int width, int height, bool toon);
+// The scene to the screen, blurred away from the centre and tinted, then the vignette and the bars over it.
+void end();
 
 } // namespace MotionFx
 

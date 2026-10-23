@@ -1,6 +1,7 @@
 #define GL_GLEXT_PROTOTYPES // GL 2.0 shader and 3.0 framebuffer entry points, exported by libGL on Linux
 #include "ink.h"
 #include "../entities/figures.h"
+#include "motion_fx.h"
 #include "shader.h"
 
 #include <GL/gl.h>
@@ -70,6 +71,9 @@ void main() {
 GLuint gProgram = 0;
 GLint gLocPixel = -1, gLocWidth = -1, gLocNear = -1, gLocFar = -1;
 GLuint gFbo = 0, gColorTex = 0, gDepthTex = 0;
+GLuint gBlurFbo = 0,
+	   gBlurTex = 0; // the blurred colour, when toon mode blurs before the lines (plan sprint-toon-blur-and-extras)
+GLint gOuterFbo = 0; // what was bound at begin(): the screen, or the motion effects' target
 int gWidth = 0, gHeight = 0;
 bool gFailed = false;
 bool gActive = false;
@@ -107,7 +111,9 @@ void releaseTarget() {
 	glDeleteFramebuffers(1, &gFbo);
 	glDeleteTextures(1, &gColorTex);
 	glDeleteTextures(1, &gDepthTex);
-	gFbo = gColorTex = gDepthTex = 0;
+	glDeleteFramebuffers(1, &gBlurFbo);
+	glDeleteTextures(1, &gBlurTex);
+	gFbo = gColorTex = gDepthTex = gBlurFbo = gBlurTex = 0;
 }
 
 // (Re)built on a window size change.
@@ -123,6 +129,12 @@ bool ensureTarget(int width, int height) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gColorTex, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepthTex, 0);
 	bool ok = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	gBlurTex = makeTexture(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, width, height);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glGenFramebuffers(1, &gBlurFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBlurFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBlurTex, 0);
+	ok = ok && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (!ok) {
 		LOG_ERROR("graphics", "Ink framebuffer incomplete, toon outlines off");
@@ -161,6 +173,7 @@ void Ink::begin(float zNear, float zFar, int width, int height) {
 	gActive = gToon && width > 0 && height > 0 && ensureReady(width, height);
 	if (!gActive)
 		return;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &gOuterFbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, gFbo);
 	glUseProgram(gProgram);
 	glUniform2f(gLocPixel, 1.f / static_cast<float>(width), 1.f / static_cast<float>(height));
@@ -178,17 +191,22 @@ void Ink::end() {
 	if (!gActive)
 		return;
 	gActive = false;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_DEPTH_BUFFER_BIT); // the scene's depth went to the target: the HUD must not test against stale depth
-
-	glPushAttrib(GL_ENABLE_BIT);
+	glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
+	GLuint colour = gColorTex;
+	if (MotionFx::blurInInk()) { // toon mode, blur before the lines: they stay sharp over the streaked picture
+		glBindFramebuffer(GL_FRAMEBUFFER, gBlurFbo);
+		MotionFx::blurPass(gColorTex);
+		colour = gBlurTex;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, static_cast<GLuint>(gOuterFbo));
+	glClear(GL_DEPTH_BUFFER_BIT); // the scene's depth went to the target: the HUD must not test against stale depth
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gDepthTex);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gColorTex);
+	glBindTexture(GL_TEXTURE_2D, colour);
 	glUseProgram(gProgram);
 	glBegin(GL_QUADS); // clip space, the vertex shader ignores the matrices
 	glVertex2f(-1.f, -1.f);

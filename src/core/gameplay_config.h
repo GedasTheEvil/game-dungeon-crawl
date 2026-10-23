@@ -117,6 +117,8 @@ constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr float SAND_SPEED_FACTOR = 0.75f;
 constexpr int SAND_STEP_MS = 380; // between the sounds and dust puffs of the steps in sand
 constexpr int SAND_PUFF_MS = 700;
+constexpr int SPRINT_PUFF_MS =
+	220; // between the dust puffs of a sprint on a dry floor (plan sprint-toon-blur-and-extras)
 // Quicksand (Dungeon::updateQuicksand): standing in it the player sinks. The walk starts at QUICKSAND_SPEED_FACTOR and
 // slows to nothing at QUICKSAND_STUCK_MS; from QUICKSAND_HURT_MS on it takes QUICKSAND_HURT_PERCENT of the max HP
 // every QUICKSAND_HURT_EVERY_MS (no armour). A jump frees the player for QUICKSAND_JUMP_STAMINA (the jump's twice).

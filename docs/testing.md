@@ -96,7 +96,7 @@ number; after a map file or a generated level, whatever the dungeon's level numb
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
 `seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `firehit`, `prop`,
-`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `chest`, `camera`, `motion`, `toon`, `cutscenes`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
+`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
@@ -128,6 +128,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `motion on\|off` | Options > Display > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.ini` ([settings.md](settings.md)): they run with the default settings and key bindings. |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
+| `toonblurfirst on\|off` | Toon mode's sprint blur before the ink lines (on) or over the finished picture (off, default); plan sprint-toon-blur-and-extras. |
 | `cutscenes on\|off` | Options > Display > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
 | `hitboxes on\|off` | Debug outlines (F3): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |

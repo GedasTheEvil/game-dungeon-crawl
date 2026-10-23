@@ -194,3 +194,27 @@ TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire k
 	CHECK_FALSE(burnt.Alive());
 	CHECK_FALSE(rewarded);
 }
+
+TEST_CASE("fire in water: a monster or the player in water takes a tenth of a fire hit (plan fire-in-water)") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/empty_row"));
+	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
+	const DamageMix flame = {0, 0, 0, 100}, bolt = {40, 0, 20, 40};
+	const auto lost = [&](bool water, const DamageMix& mix) {
+		Monster mon;
+		mon.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 3, 1, links, world.random.effects);
+		mon.SetInWater(water, false, 0.f);
+		const int before = mon.Health();
+		mon.TakeWeaponHit(10, mix);
+		return before - mon.Health();
+	};
+	CHECK(lost(false, flame) == 20); // weak to fire: 200%
+	CHECK(lost(true, flame) == 2); // a tenth of that
+	// Mixed: only the fire share (40%) drops; the mummy's blunt 50%, pierce 25% stay.
+	CHECK(lost(false, bolt) == std::lround(10 * (40 * 50 + 20 * 25 + 40 * 200) / 10000.0));
+	CHECK(lost(true, bolt) == std::lround(10 * (40 * 50 + 20 * 25 + 40 * 20) / 10000.0));
+	world.player.UpdateBurning(true, world.events); // wading
+	const int hp = world.player.stats.CurrentHP();
+	world.player.TakeHit(20, flame, world.events);
+	CHECK(hp - world.player.stats.CurrentHP() == 2);
+}

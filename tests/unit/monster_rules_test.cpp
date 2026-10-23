@@ -303,7 +303,7 @@ TEST_CASE("the player burns through armour; half water puts the fire out") {
 	const int wet = world.Hp();
 	world.player.TakeHit(10, {0, 0, 0, 100}, world.events);
 	world.Wait(3500);
-	CHECK(world.Hp() == wet - 10);
+	CHECK(world.Hp() == wet - 1);
 	CHECK_FALSE(world.player.burning.Any());
 	CHECK(world.Told("The water puts the fire out"));
 }

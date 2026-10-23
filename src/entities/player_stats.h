@@ -96,7 +96,7 @@ class PlayerStats {
 	void HealFully() { HP = CurrentMaxHP(); }
 	void AddArmor(int na = 1);
 	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
-	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const;
+	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater = false) const;
 	void LoseHP(int hp) { HP -= hp; }
 	void AddMaxHP(int hpPart); // percent, heals fully
 	void AddMaxStamina(int percent); // the stamina rises by as much as the max

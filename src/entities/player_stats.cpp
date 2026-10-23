@@ -128,8 +128,8 @@ void PlayerStats::Heal(int hpPart) {
 
 void PlayerStats::AddArmor(int na) { Armor += na; }
 
-int PlayerStats::HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor) const {
-	return playerHitDamage(dmg, mix, resist, CurrentArmor(), ignoreArmor);
+int PlayerStats::HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater) const {
+	return playerHitDamage(dmg, mix, inWater ? inWaterResist(resist) : resist, CurrentArmor(), ignoreArmor);
 }
 
 bool PlayerStats::AdvanceLevel(WorldEvents& events) {

@@ -198,7 +198,7 @@ bool Monster::takeHit(int dmg) {
 }
 
 bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
-	const int hit = resistedDamage(dmg, mix, type->resist);
+	const int hit = resistedDamage(dmg, mix, inWater ? inWaterResist(type->resist) : type->resist);
 	const bool killed = takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
 	if (Alive() && !inWater && mix[FIRE] > 0) {
 		burning.Ignite(fireDamage(dmg, mix, type->resist));

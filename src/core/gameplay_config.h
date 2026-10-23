@@ -160,6 +160,8 @@ constexpr float WADE_SPEED_FACTOR_BOTH = 1.25f;
 constexpr float WADE_SPRINT_FACTOR_BOTH = 1.0f;
 constexpr float WADE_SPRINT_DRAIN_BOTH = 0.5f; // share of the land sprint's stamina drain
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
+// Fire in water (plan fire-in-water): whoever stands in water takes this share of a hit's fire damage.
+constexpr int WATER_FIRE_DAMAGE_PCT = 10;
 // Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the
 // arrow's damage. Mostly fire, so the journal learns the fire resistance from them (mainType).
 constexpr int FIRE_ARROW_SHOTS = 5;

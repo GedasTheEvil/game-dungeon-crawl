@@ -80,7 +80,9 @@ class Player {
 	// Once a tick: the running tiers' damage, which can kill; the resistance potion's and the curses' time.
 	void UpdatePoison(WorldEvents& events);
 	// Once a tick: half water (inWater) puts the fire out, else it burns (Burning), armour or not, and can kill.
-	void UpdateBurning(bool inWater, WorldEvents& events);
+	// Also notes whether it stands in water: a hit's fire share is then WATER_FIRE_DAMAGE_PCT % (plan fire-in-water).
+	void UpdateBurning(bool wading, WorldEvents& events);
+	bool inWater = false; // as of the last UpdateBurning; not saved
 	void Reanimate(); // full HP, standing, no poison, no curse, no fire
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

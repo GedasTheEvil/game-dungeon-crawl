@@ -33,7 +33,8 @@ void Player::Animate() {
 }
 
 int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor, int burnMs) {
-	if (const double fire = fireDamage(dmg, mix, stats.resist); fire > 0.0 && Alive()) {
+	if (const double fire = fireDamage(dmg, mix, inWater ? inWaterResist(stats.resist) : stats.resist);
+		fire > 0.0 && Alive()) {
 		if (!burning.Any())
 			events.Status("You are on fire!");
 		burning.Ignite(fire, burnMs);
@@ -44,7 +45,7 @@ int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ign
 	const int s = static_cast<int>(scale);
 	int lost = 0;
 	if (Alive()) {
-		const int hit = stats.HitDamage(dmg, mix, ignoreArmor);
+		const int hit = stats.HitDamage(dmg, mix, ignoreArmor, inWater);
 		lost = std::min(hit, stats.CurrentHP());
 		stats.run.damageTaken += lost;
 		stats.LoseHP(hit);
@@ -114,7 +115,8 @@ void Player::UpdatePoison(WorldEvents& events) {
 		die(events);
 }
 
-void Player::UpdateBurning(bool inWater, WorldEvents& events) {
+void Player::UpdateBurning(bool wading, WorldEvents& events) {
+	inWater = wading;
 	if (inWater && burning.Any())
 		events.Status("The water puts the fire out");
 	if (inWater || !Alive()) {

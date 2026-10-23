@@ -15,7 +15,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
 * **Kind:** a quick walker and climber (`climbs`, ladders), mid HP, a ranged fighter first.
 * **Ranged (preferred):** hurls a burning coal from the lake (`RangedRules` with fire in its `mix`, so it sets the
   player burning, drawn as a fireball like the Anubis's bolt). Range about 4-5 tiles, a cooldown of 2-3 s. Water puts
-  the burning out, and [fire-in-water](../fire-in-water.draft.sonet.md) cuts the fire share of a hit to a tenth in water:
+  the burning out, and [fire-in-water](../fire-in-water.md) cuts the fire share of a hit to a tenth in water:
   the lake zone's pools are the player's cover.
 * **Melee (fallback):** a bite with long fangs (slash, pierce), when cornered or the player is in reach.
 * **AI:** a kiter ([monster-kiting](monster-kiting.md)): keeps the player at its range, backs off when they
@@ -64,6 +64,6 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
 
 ## Open
 
-* [fire-in-water](../fire-in-water.draft.sonet.md) is still a draft: in water the coal's fire share is not cut yet (only
+* [fire-in-water](../fire-in-water.md) is still a draft: in water the coal's fire share is not cut yet (only
   the burning is put out). Its test goes with that plan.
 * The idle clip starts seated: standing up into the walk pops.

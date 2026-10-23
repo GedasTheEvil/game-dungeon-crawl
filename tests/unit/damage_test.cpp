@@ -73,3 +73,16 @@ TEST_CASE("burning: a fifth of the fire share a second for 3 s; a stronger fire 
 	b.Douse();
 	CHECK(burnFor(b, 4000) == 0);
 }
+
+TEST_CASE("fire in water: a tenth of the fire share, the rest unchanged (plan fire-in-water)") {
+	CHECK(inWaterResist(NO_RESISTANCES) == Resistances{NORMAL, NORMAL, NORMAL, 10});
+	CHECK(inWaterResist({RESISTS, WEAK, TOUGH, WEAK}) == Resistances{RESISTS, WEAK, TOUGH, 20});
+	const DamageMix anubis = {0, 0, 0, 100};
+	CHECK(playerHitDamage(100, anubis, inWaterResist(NO_RESISTANCES), 0, false) == 10);
+	CHECK(playerHitDamage(100, anubis, NO_RESISTANCES, 0, false) == 100);
+	// Mixed 60 fire : 40 blunt: only the fire share drops (60 -> 6), blunt 40 stays.
+	const DamageMix mixed = {40, 0, 0, 60};
+	CHECK(playerHitDamage(100, mixed, inWaterResist(NO_RESISTANCES), 0, false) == 46);
+	CHECK(resistedDamage(100, mixed, inWaterResist(NO_RESISTANCES)) == 46);
+	CHECK(fireDamage(100, mixed, inWaterResist(NO_RESISTANCES)) == doctest::Approx(6.0));
+}

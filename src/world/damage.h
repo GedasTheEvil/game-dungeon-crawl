@@ -9,6 +9,8 @@
 #include <cmath>
 #include <string>
 
+#include "../core/gameplay_config.h"
+
 // Fire (plan fire-damage) also sets its target burning (Burning) and goes through armour.
 enum class DamageType : unsigned char { Blunt, Slash, Pierce, Fire };
 constexpr int DAMAGE_TYPE_COUNT = 4;
@@ -48,6 +50,13 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 		sum += static_cast<long>(mix[t]) * resist[t];
 	const double dealt = static_cast<double>(damage) * static_cast<double>(sum) / 10000.0;
 	return std::max(1, static_cast<int>(std::lround(dealt)));
+}
+
+// The resistances of one standing in water (plan fire-in-water): its fire rate is WATER_FIRE_DAMAGE_PCT % of the
+// usual, the other types as they are.
+[[nodiscard]] inline Resistances inWaterResist(Resistances resist) {
+	resist[FIRE] = static_cast<int>(std::lround(resist[FIRE] * WATER_FIRE_DAMAGE_PCT / 100.0));
+	return resist;
 }
 
 // The fire share of a hit of `damage` after the resistances, in HP (not rounded); 0 for a hit without fire.

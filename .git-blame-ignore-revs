@@ -1,3 +1,5 @@
 # Whitespace-only commits, skipped by git blame (git config blame.ignoreRevsFile .git-blame-ignore-revs).
 # Format: align no trailing comments or line continuations; whole-tree reformat (plan dev-friction-review)
 026b6727eb71836e30bebb51592e69d01ae799ba
+# Format: wrapped calls one argument per line, `)` on its own line; whole-tree reformat
+790dbd2adbc5d08820f981ec2e23bbec4bf8a18b

@@ -1,0 +1,15 @@
+# Plan babi-boss, for `bin/game --play tests/play/babi-boss.txt`: tests/levels/babi, Babi's arena over the lake of fire,
+# you on its west ledge by a water basin (cols 4-5). Five ledges with one-cell gaps between them (jump them); below,
+# the lake: fire vents under each gap, ladders (cols 7, 14, 26) back up. Babi (col 20) keeps his distance: volleys of
+# two or three coals (jump the first, mind the next), every third throw one big coal at your feet that sets the floor
+# burning for 4 s (step off; the water basins put you out). Walk at him: he backs off faster than you walk, and with a
+# gap behind him he leaps it to the next ledge; sprint to catch him. Cornered, a two-handed slam and a bite. His
+# baboons dig out round him. Fire is resisted; the baboon's weakness to arrows is gone. His death opens the boss gate
+# (col 36) to the exit.
+seed 1
+level tests/levels/babi at 3 3
+xp 3000000
+give melee 2
+equip spear
+give ranged 0
+give potion 1 3

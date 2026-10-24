@@ -185,8 +185,16 @@ void Monster::AttackRanged() {
 	enter(ModelState::AttackRanged);
 	rangedReadyMs = GameClock::now() + type->ranged->cooldownMs;
 	rangedReleased = false;
+	throws++;
 	sound(CharacterSound::AttackRanged);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::AttackRanged);
+}
+
+bool Monster::BigThrow() const {
+	if (!type->ranged || !type->ranged->volley)
+		return false;
+	const int every = type->ranged->volley->bigEvery;
+	return every > 0 && throws > 0 && throws % every == 0;
 }
 
 bool Monster::AttackingRanged() const {

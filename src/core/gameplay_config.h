@@ -148,6 +148,11 @@ constexpr int MOTHER_DOUSE_CELLS = 2;
 constexpr int WEB_BURN_MS = 700;
 constexpr int WEB_CUT_MS = 250;
 constexpr int SNUFF_MS = 900;
+// Babi (plan babi-boss, VolleyRules): his big coal sets the floor of a cell burning (Dungeon::Blaze). The player
+// standing in it, not in a jump, takes BLAZE_DAMAGE (all fire, armour counts) every BLAZE_TICK_MS and burns on.
+constexpr int BLAZE_DAMAGE = 30;
+constexpr int BLAZE_TICK_MS = 500;
+constexpr int BLAZE_FADE_MS = 600; // the flames die down over the last of its time
 constexpr float WADE_SPEED_FACTOR_HAPI = 0.75f; // the player's wade with the Favour of Hapi skill
 // With the skill the player sprints in half water at this share of the LAND sprint speed (not of the wade speed).
 constexpr float WADE_SPRINT_FACTOR_HAPI = 0.5f;

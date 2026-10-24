@@ -71,6 +71,7 @@ constexpr DamageMix DART_ATTACK_MIX = {0, 0, 100};
 constexpr DamageMix ROAR_MIX = {100, 0, 0}; // a storm roar's blast of sand (RoarRules, plan hippo-boss)
 constexpr DamageMix DUNG_BALL_MIX = {100, 0, 0}; // a scarab's dung ball (RollRules, plan scarab-dung-ball)
 constexpr DamageMix FIRE_JET_MIX = {0, 0, 0, 100}; // a fire vent's jet (plan fire-jet-trap)
+constexpr DamageMix BLAZE_MIX = {0, 0, 0, 100}; // a floor set burning by Babi's big coal (plan babi-boss)
 
 // A hit on the player: the type resistances first, then the armour's flat amount (none if ignoreArmor); at least 1.
 // Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only,

@@ -108,9 +108,10 @@ void Dungeon::UpdateMonsters() {
 		if (mon.AttackingRanged() &&
 			(!mon.ShotReleased() || kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 || mon.OnRungs()))
 			continue;
-		// A kiter the player comes at backs off first (plan monster-kiting).
+		// A kiter the player comes at backs off (or leaps away) first (plan monster-kiting).
 		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row()) &&
-			kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0) {
+			kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
+			!leapAwayTarget(mon, mon.attackDirection(mapX, mapY))) {
 			mon.AttackRanged();
 			continue;
 		}
@@ -188,6 +189,9 @@ void Dungeon::clearMonsters() {
 	snuffs.clear();
 	nextWebMs = 0;
 	playerWebbed = false;
+	blazes.clear();
+	nextBlazeHitMs = 0;
+	playerBlazed = false;
 	bossFight = BossFight{};
 }
 //======================================================================================

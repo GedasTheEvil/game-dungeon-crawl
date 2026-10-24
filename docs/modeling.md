@@ -119,7 +119,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `scarab.py` | scarab, giant scarab | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
 | `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
-| `baboon.py` | baboon | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
+| `baboon.py` | baboon, Babi (`--boss`: reshaped, own files) | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |

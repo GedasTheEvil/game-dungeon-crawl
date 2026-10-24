@@ -30,6 +30,7 @@ constexpr DamageMix USHABTI_MIX = {60, 0, 40}; // the hoe: a knock, its blade
 constexpr DamageMix BABOON_MIX = {0, 50, 50}; // long fangs that slash and stab
 // Its coal from the lake: a hot stone's knock, mostly fire; the knock keeps it a threat through the fire ward.
 constexpr DamageMix BABOON_COAL_MIX = {30, 0, 0, 70};
+constexpr DamageMix BABI_MIX = {40, 30, 30}; // Babi: a two-handed blow, then the fangs
 
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
@@ -89,6 +90,10 @@ constexpr float MUMMY_PRIEST_RELEASE_AHEAD = 3.03f;
 constexpr float BABOON_RELEASE = 0.615f;
 constexpr float BABOON_RELEASE_Y = 1.371f;
 constexpr float BABOON_RELEASE_AHEAD = 0.589f;
+// Babi's (baboon.py --boss --measure): the same throw, his heavier mane makes the reference a little taller.
+constexpr float BABI_RELEASE = 0.615f;
+constexpr float BABI_RELEASE_Y = 1.308f;
+constexpr float BABI_RELEASE_AHEAD = 0.589f;
 constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
@@ -1166,6 +1171,56 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .webs = WebRules{MOTHER_WEB_EVERY_MS, MOTHER_WEB_MAX},
 	 .kin = MonsterCamelSpider,
 	 .boss = {MonsterCamelSpider, 2, 4, 3000, 10, 0, Summon::Drop}},
+	// Babi (plan babi-boss), the bull of the baboons, who eats the hearts of the dead by the lake of fire: a god, like
+	// Seth. The baboon's kiting and throw, stronger: a wider band and a quicker retreat, leaping the gaps between the
+	// ledges of his arena where the baboon would be cornered; volleys of coals, and every third throw a big one that
+	// sets the floor burning. Cornered, a two-handed blow and a heavy bite. The Lake of Fire's boss (campaign zone
+	// 10), no campaign slot yet.
+	{.id = MonsterBabi,
+	 .glyph = ']',
+	 .name = "Babi",
+	 .label = "babi",
+	 .description =
+		 "Babi, the baboons' boss: keeps his distance and throws volleys of burning coals, every third throw a "
+		 "big one that sets the floor burning; backs off fast and leaps over gaps; baboons climb out round "
+		 "him; his death opens the boss gates. One boss per level",
+	 .note = "The heart-eater. I keep mine, thank you.",
+	 .threat = 16.f, // between Seth and the Anubis boss: his volleys from afar, the burning floor, and baboons
+	 .model = "monsters/babi",
+	 .texture = "monsters/babi",
+	 .scale = 48, // twice the baboon's; KIND_SCALE of tools/blender/models/baboon.py --boss
+	 .blood = {0.55f, 0.08f, 0.06f},
+	 .speed = 26,
+	 .maxHealth = 2200,
+	 .damage = 110,
+	 .attackMs = 1200,
+	 .xp = 30000,
+	 .attackMix = BABI_MIX,
+	 .resist = bossResist(BABOON_RESIST),
+	 .locomotion = Locomotion::WalkJump,
+	 .courage = Courage::Reckless,
+	 .trapDamagePct = 10,
+	 .weight = 5,
+	 .ranged =
+		 RangedRules{
+			 .damage = 45,
+			 .range = 1.4f,
+			 .cooldownMs = 1600,
+			 .release = BABI_RELEASE,
+			 .releaseY = BABI_RELEASE_Y,
+			 .colour = BOLT_FIRE,
+			 .releaseAhead = BABI_RELEASE_AHEAD,
+			 .mix = BABOON_COAL_MIX,
+			 .ownClip = true,
+			 .volley = VolleyRules{2, 3, 250, 3, 90, 4000}
+		 },
+	 .kite = KiteRules{.near = 0.6f, .far = 1.25f, .backOffSpeed = 40.f},
+	 .walkClipSpeed = 50, // the baboon's trot at twice the size: 84 * 26 / 22 / 2
+	 .climbs = true,
+	 .climbRise = 0.2641f, // tools/blender/models/baboon.py --boss (KIND_SCALE 48)
+	 .climbGrip = 0.0427f,
+	 .kin = MonsterBaboon,
+	 .boss = {MonsterBaboon, 2, 4, 5000, 8, 0, Summon::DigOut}},
 }};
 
 constexpr bool validKinds() {
@@ -1188,6 +1243,11 @@ constexpr bool validKinds() {
 			return false; // the boss rule: its kin's sand burrowing too (AGENTS.md)
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].shunsLight && !kind.shunsLight)
 			return false; // and its shunning of the light
+		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].kite && !kind.kite)
+			return false; // and its kiting
+		if (kind.ranged && kind.ranged->volley &&
+			(kind.ranged->volley->minCount < 1 || kind.ranged->volley->maxCount < kind.ranged->volley->minCount))
+			return false;
 		if (kind.poisonResistPercent < 0 || kind.poisonResistPercent > POISON_IMMUNE ||
 			(kind.isBoss() && kind.poisonResistPercent < KINDS[static_cast<size_t>(kind.kin - 1)].poisonResistPercent))
 			return false;
@@ -1208,8 +1268,8 @@ constexpr bool validKinds() {
 static_assert(
 	validKinds(),
 	"KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
-	"bosses with a kin, no weakness and no resistance worse than the kin's, poison included, a reach no "
-	"shorter than the kin's"
+	"bosses with a kin (its sand burrowing, light shunning and kiting too), no weakness and no resistance worse "
+	"than the kin's, poison included, a reach no shorter than the kin's, volleys of at least one shot"
 );
 } // namespace
 

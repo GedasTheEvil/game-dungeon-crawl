@@ -96,6 +96,7 @@ class Monster {
 	int biteDir = 0; // the way the bite or grab under way goes, -1 / +1: it does not turn till then
 	int rangedReadyMs = 0; // ranged attackers: no new shot before this GameClock time
 	bool rangedReleased = true; // the ranged clip's shot has left (TakeShot)
+	int throws = 0; // ranged attacks begun since the spawn: every VolleyRules::bigEvery-th is a big coal
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
 	Poison poison; // plan monster-poison
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
@@ -276,6 +277,8 @@ class Monster {
 	void AttackRanged(); // stands still and plays the ranged clip; the shot leaves at its release
 	[[nodiscard]] bool AttackingRanged() const; // the ranged clip is playing: it does not walk or bite
 	[[nodiscard]] bool ShotReleased() const { return rangedReleased; } // this clip's shot has left (or none)
+	// The throw under way (or the last one) is a volley thrower's big coal (VolleyRules::bigEvery, plan babi-boss).
+	[[nodiscard]] bool BigThrow() const;
 	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from, never past the near
 	// edge of the player at px.
 	bool TakeShot(float px, float& outX, float& outY);

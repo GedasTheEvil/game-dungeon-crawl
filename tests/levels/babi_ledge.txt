@@ -1,0 +1,5 @@
+; Babi (col 7) on a ledge (cols 1-9), a one-cell gap behind him (col 10, a pit), a long ledge past it (cols 11-38): walked
+; at, he backs off to the edge and leaps the gap (tests/unit/babi_test.cpp).
+########################################
+#.S....]..............................E#
+##########X#############################

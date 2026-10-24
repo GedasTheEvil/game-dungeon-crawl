@@ -86,6 +86,18 @@ constexpr Rgb VENOM_GREEN = {0.45f, 0.75f, 0.15f};
 constexpr Rgb BOLT_FIRE = {1.f, 0.55f, 0.15f}; // the Anubis's fire bolt, its glowing core
 constexpr Rgb BOLT_PURPLE = {0.7f, 0.2f, 0.95f}; // the mummy priest's curse
 
+// A volley (plan babi-boss, Babi): a throw lets minCount..maxCount shots go, gapMs apart, each aimed at the player as
+// it leaves. Every bigEvery-th throw is one big coal instead, aimed at their feet: where it lands (on the floor or on
+// them) the floor of that cell burns for blazeMs (Dungeon::Blaze).
+struct VolleyRules {
+	int minCount = 1;
+	int maxCount = 1;
+	int gapMs = 0;
+	int bigEvery = 0; // 0: no big coal
+	int bigDamage = 0; // the big coal's hit, of the shot's mix
+	int blazeMs = 0;
+};
+
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
 // spat venom, the Anubis's bolt of light, the mummy priest's spoken curse, the baboon's burning coal. The release and
 // its height come from the model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py,
@@ -105,6 +117,7 @@ struct RangedRules {
 	int burnMs = BURN_MS;
 	// A walker's ranged clip is its own file, _att_ranged (the baboon's throw, THROWER_CLIPS); false: its melee swing.
 	bool ownClip = false;
+	std::optional<VolleyRules> volley; // nullopt: one shot a throw
 
 	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };

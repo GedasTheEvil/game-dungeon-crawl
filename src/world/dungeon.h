@@ -179,6 +179,13 @@ class Dungeon {
 	// A kiter (KiteRules) on the player's row, dir the way to them: the way it backs off, -1 / +1; 0: it holds (not
 	// threatened, back in its band, or cornered).
 	[[nodiscard]] int kiteAway(const Monster& mon, int dir) const;
+	// The player is nearer than its band and coming at it (or it is backing off and they keep coming).
+	[[nodiscard]] bool kiteThreatened(const Monster& mon, int dir) const;
+	// A leaping kiter (Babi, plan babi-boss) with a gap behind it (no room to back off), threatened (or, threatened
+	// false, nearer than its band, landing in it): the map x it leaps back to over the gap. nullopt: it backs off,
+	// holds or fights as a kiter does.
+	[[nodiscard]] std::optional<float> leapAwayTarget(const Monster& mon, int dir, bool threatened = true) const;
+	bool leapAway(Monster& mon, int dir, bool threatened = true); // leaps to leapAwayTarget; false: none
 	// The free run behind a kiter, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap or another
 	// monster.
 	[[nodiscard]] float kiteRoom(const Monster& mon, int dir, float upTo) const;
@@ -413,6 +420,7 @@ class Dungeon {
 	void updateMissiles();
 	// A monster's ranged attack in flight, venom or bolt (dungeon_arrows.cpp): a straight line from its release point,
 	// map units.
+	// A volley's later shots (plan babi-boss) wait at the release point until their spawnMs, then are aimed.
 	struct MonsterShot {
 		float x, y, vx, vy;
 		const MonsterType* from; // its damage, mix and poison
@@ -421,10 +429,29 @@ class Dungeon {
 		float flown = 0.f; // tiles
 		int splatMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
 		int spawnMs = 0; // GameClock time it was shot: the seed of its flames
+		bool big = false; // a volley thrower's big coal (VolleyRules): at the feet, it sets the floor burning
+		[[nodiscard]] bool waiting(int now) const { return now < spawnMs; }
 	};
 	std::vector<MonsterShot> shots;
 	void shootAtPlayer(const Monster& mon, float x, float y);
+	void aimShot(MonsterShot& v) const; // at the player as they stand: the chest, a big coal the feet
 	void updateShots();
+	// A floor burning where Babi's big coal landed (plan babi-boss, dungeon_blaze.cpp): the cell (map index) from
+	// startMs to endMs. The player standing in it, not in a jump, takes BLAZE_DAMAGE every BLAZE_TICK_MS and burns on.
+	// Not saved.
+	struct Blaze {
+		int cell;
+		int startMs;
+		int endMs;
+	};
+	std::vector<Blaze> blazes;
+	int nextBlazeHitMs = 0; // GameClock: the player's next hit standing in a blaze
+	bool playerBlazed = false; // the player stood in a blaze on the last tick: the status line was told
+	void blazeAt(float x, float y, int ms); // the floor of the cell under (x, y) burns, unless it is wet or no floor
+	void updateBlazes();
+	[[nodiscard]] bool blazeFloor(int col, int row) const; // a dry floor cell
+	void drawBlazes(); // drawSummonEffects' frame
+	void addBlazeLights();
 	void addVenomLights();
 	void addFireLights(); // the fire arrows' and the burning monsters' (plan fire-damage)
 	void drawBurning(); // flames on the burning monsters and the fire arrows; drawSummonEffects' frame
@@ -688,6 +715,13 @@ class Dungeon {
 	bool PlaceWeb(int col, int row);
 	// The player stands in a web (not in the air): the walk slows to WEB_SLOW_FACTOR (PlayerWalkFactor).
 	[[nodiscard]] bool PlayerInWeb() const;
+	// The floor of (col, row) burns (Babi's big coal, plan babi-boss).
+	[[nodiscard]] bool BlazeAt(int col, int row) const;
+	// Scenario tests: the floor of (col, row) burns for ms. False: no dry floor there (blazeFloor).
+	bool PlaceBlaze(int col, int row, int ms);
+	[[nodiscard]] bool PlayerInBlaze() const; // the player stands in a burning floor cell, not in the air
+	// Monster shots in flight or waiting in a volley (plan babi-boss); big: only the big coals.
+	[[nodiscard]] int ShotCount(bool big = false) const;
 	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
 	[[nodiscard]] bool Sunlit(int col, int row) const {
 		return IsInBounds(col, row) && sunlit[static_cast<size_t>(MapIndex(col, row))] != 0;

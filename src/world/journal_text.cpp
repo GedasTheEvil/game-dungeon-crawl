@@ -46,6 +46,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 	case CreatureMove::Summon:
 		switch (t.boss.summon) {
 		case Summon::DigOut:
+			if (t.id == MonsterBabi)
+				return "His baboons climb up out of the lake at his call.";
 			return "Calls its young up out of the sand.";
 		case Summon::Drop:
 			return "Calls its kind down from the ceiling.";
@@ -72,6 +74,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 			return "Speaks curses from afar, a bolt of purple light. A jump clears it.";
 		if (t.id == MonsterBaboon)
 			return "Screeches, lifts a burning coal over its head and hurls it. A jump clears it; water puts me out.";
+		if (t.ranged && t.ranged->volley)
+			return "Hurls burning coals two and three at a time, one after the other. Jump the first, mind the next.";
 		return t.ranged && t.ranged->burns() ? "Hurls a bolt of fire from afar. A jump clears it."
 											 : "Spits venom from afar. A jump clears it.";
 	case CreatureMove::Burrow:
@@ -114,6 +118,10 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return "The torches and lamps go out as she passes, and stay out. The braziers she leaves alone.";
 	case CreatureMove::SpinWeb:
 		return "Spins webs over the floor behind her; they hold my feet. A blade cuts them, fire burns them.";
+	case CreatureMove::Blaze:
+		return "Every third throw a coal as big as a head, at my feet: where it lands the floor burns. Off it, quick.";
+	case CreatureMove::LeapAway:
+		return "Cornered at the edge of a ledge, he leaps over the gap to the next one and throws from there.";
 	}
 	return "";
 }

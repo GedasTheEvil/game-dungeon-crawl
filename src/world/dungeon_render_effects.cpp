@@ -32,6 +32,7 @@ constexpr float SPRAY_SPREAD = 0.3f; // tiles between the bursts of a sand spray
 // A fiery bolt's flickering light, an oil lamp's (plan anubis-fire-bolt).
 constexpr Lighting::LightDef FIRE_BOLT_LIGHT = {1.f, 0.6f, 0.25f, 60.f, 0.5f};
 constexpr float FIRE_BOLT_CORE = 0.6f; // the fireball's glowing core, of the plain glob's size
+constexpr float BIG_COAL_SCALE = 2.f; // Babi's big coal (plan babi-boss), of a coal's size
 
 // Flame clouds trailing behind a fiery glob, in world units along its flight.
 constexpr float GLOB_TRAIL_STEP = 2.2f;
@@ -362,6 +363,8 @@ void Dungeon::drawShots() {
 	const auto firstRow = static_cast<float>(view().originRow);
 	const int now = GameClock::now();
 	for (const MonsterShot& v : shots) {
+		if (v.waiting(now)) // a volley's later shot, still in the thrower's hand
+			continue;
 		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
 		if (v.splatMs >= 0) {
 			const float k = std::min(static_cast<float>(now - v.splatMs) / static_cast<float>(SHOT_SPLAT_MS), 1.f);
@@ -369,27 +372,36 @@ void Dungeon::drawShots() {
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
+		glPushMatrix(); // a big coal (plan babi-boss) at BIG_COAL_SCALE round its centre
+		glTranslatef(
+			RenderConfig::TILE_SIZE * (v.x - firstCol),
+			RenderConfig::TILE_SIZE * (v.y - firstRow),
+			ARROW_DEPTH
+		);
+		if (v.big)
+			glScalef(BIG_COAL_SCALE, BIG_COAL_SCALE, BIG_COAL_SCALE);
 		drawGlobWithFlames(
 			sim.assets->textures.nullTex,
 			v.colour,
 			globLook(v.from->ranged),
 			static_cast<uint32_t>(v.spawnMs),
-			RenderConfig::TILE_SIZE * (v.x - firstCol),
-			RenderConfig::TILE_SIZE * (v.y - firstRow),
-			ARROW_DEPTH,
+			0.f,
+			0.f,
+			0.f,
 			v.vx,
 			v.vy,
 			stretch,
 			squash,
 			alpha
 		);
+		glPopMatrix();
 	}
 }
 // The light of each flying glob, venom or fire; same frame as addLights.
 void Dungeon::addVenomLights() {
 	for (const MonsterShot& v : shots) {
 		const GlobLook& look = globLook(v.from->ranged);
-		if (v.splatMs < 0 && look.light != nullptr)
+		if (v.splatMs < 0 && !v.waiting(GameClock::now()) && look.light != nullptr)
 			Lighting::add(
 				RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
 				RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),

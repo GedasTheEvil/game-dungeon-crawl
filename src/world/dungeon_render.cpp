@@ -477,6 +477,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	addLights(drawn);
 	addVenomLights();
 	addFireLights();
+	addBlazeLights();
 	addBallLights();
 	addSunLights(drawn);
 	addFireVentLights(drawn);
@@ -530,6 +531,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawBallEffects();
 	drawSandEffects();
 	drawWebs();
+	drawBlazes();
 	drawSunBeams();
 	drawContainerEffects();
 	drawBurning();

@@ -137,6 +137,7 @@ void Dungeon::Update() {
 	updateMissiles();
 	updateWebs();
 	updateShots();
+	updateBlazes();
 	updateBalls();
 	updateDarts();
 	updateChestGas();

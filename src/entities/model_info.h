@@ -73,12 +73,14 @@ inline const ClipFiles RANGED_CLIPS = {
 	{ModelState::AttackRanged, "_att", true, false},
 	{ModelState::Climb, "_climb", false, true}
 };
-// Walkers that throw (the baboon): the ranged clip is its own file, _att_ranged, played once (RangedRules::ownClip).
+// Walkers that throw (the baboon, Babi): the ranged clip is its own file, _att_ranged, played once
+// (RangedRules::ownClip); a walk-jumper's leap (Babi's) _jump.
 inline const ClipFiles THROWER_CLIPS = {
 	{ModelState::Move, "", true, true},
 	{ModelState::Attack, "_att", true, true},
 	{ModelState::Die, "_die", true, false},
 	{ModelState::Idle, "_idle", false, true},
+	{ModelState::Jump, "_jump", false, false},
 	{ModelState::AttackRanged, "_att_ranged", true, false},
 	{ModelState::Climb, "_climb", false, true}
 };

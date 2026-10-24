@@ -1,7 +1,7 @@
 # Baboon of the Lake of Fire
 
 Status: draft 2026-10-21, from the user; implemented 2026-10-21, see [Done](#done). Built on [monster-kiting](monster-kiting.md) (it keeps its
-distance and shoots). Its boss: [babi-boss](../babi-boss.draft.opus.md).
+distance and shoots). Its boss: [babi-boss](../babi-boss.md).
 
 ## Lore
 

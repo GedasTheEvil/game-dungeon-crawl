@@ -184,17 +184,41 @@ bool Dungeon::clearRow(float fromX, float toX, int row) const {
 	return true;
 }
 //======================================================================================
-// At the player's chest as they stand at the release: a jump takes them out of its line.
+// At the player's chest as they stand at the release: a jump takes them out of its line. A volley's later shots wait
+// at the release point, each aimed as it leaves; a big coal goes alone, at the feet (plan babi-boss).
 void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
 	const std::optional<RangedRules>& ranged = mon.Type()->ranged;
 	if (!ranged)
 		return;
-	const float dx = mapX - x;
-	const float dy = mapY + SHOT_CHEST * sim.player->Height() - y;
+	const int now = GameClock::now();
+	const bool big = mon.BigThrow();
+	int count = 1;
+	if (ranged->volley && !big)
+		count = sim.random->gameplay.range(ranged->volley->minCount, ranged->volley->maxCount);
+	for (int k = 0; k < count; k++) {
+		const int at = now + k * (ranged->volley ? ranged->volley->gapMs : 0);
+		MonsterShot v = {x, y, 0.f, 0.f, mon.Type(), ranged->colour, at};
+		v.spawnMs = at;
+		v.big = big;
+		aimShot(v);
+		shots.push_back(v);
+	}
+	if (big)
+		sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::Blaze);
+}
+//======================================================================================
+void Dungeon::aimShot(MonsterShot& v) const {
+	const float dx = mapX - v.x;
+	const float dy = mapY + (v.big ? 0.f : SHOT_CHEST * sim.player->Height()) - v.y;
 	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	MonsterShot v = {x, y, SHOT_SPEED * dx / len, SHOT_SPEED * dy / len, mon.Type(), ranged->colour, GameClock::now()};
-	v.spawnMs = v.lastMs;
-	shots.push_back(v);
+	v.vx = SHOT_SPEED * dx / len;
+	v.vy = SHOT_SPEED * dy / len;
+}
+//======================================================================================
+int Dungeon::ShotCount(bool big) const {
+	return static_cast<int>(std::count_if(shots.begin(), shots.end(), [big](const MonsterShot& v) {
+		return v.splatMs < 0 && (!big || v.big);
+	}));
 }
 //======================================================================================
 void Dungeon::updateShots() {
@@ -207,6 +231,12 @@ void Dungeon::updateShots() {
 			it = now - v.splatMs >= SHOT_SPLAT_MS ? shots.erase(it) : it + 1;
 			continue;
 		}
+		if (v.waiting(now)) {
+			++it;
+			continue;
+		}
+		if (v.flown == 0.f) // leaving: a volley's later shot is aimed now
+			aimShot(v);
 		float left = static_cast<float>(std::min(now - v.lastMs, 100)) / 1000.f;
 		v.lastMs = now;
 		bool gone = false;
@@ -221,17 +251,21 @@ void Dungeon::updateShots() {
 				gone = true;
 				break;
 			}
+			const std::optional<RangedRules>& rules = v.from->ranged;
 			if (isSolidTile(MapAt(col, row))) {
 				v.splatMs = now;
+				if (v.big && rules && rules->volley) // on the floor, or at the foot of a wall
+					blazeAt(v.x - v.vx * ARROW_STEP_S, v.y - v.vy * ARROW_STEP_S, rules->volley->blazeMs);
 				break;
 			}
-			const std::optional<RangedRules>& rules = v.from->ranged;
 			if (rules && sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
 				const RangedRules& ranged = *rules;
 				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
+				if (v.big && ranged.volley)
+					blazeAt(mapX, mapY, ranged.volley->blazeMs);
 				if (!dodged) {
 					sim.player->TakeHit(
-						ranged.damage,
+						v.big && ranged.volley ? ranged.volley->bigDamage : ranged.damage,
 						ranged.mix.value_or(v.from->attackMix),
 						*sim.events,
 						false,

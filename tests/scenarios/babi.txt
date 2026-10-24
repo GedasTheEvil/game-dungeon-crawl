@@ -1,0 +1,26 @@
+# Babi (plan babi-boss), tests/levels/babi: his arena, the lake of fire. The player starts on the second ledge (col 13,
+# east of the first gap). Babi (col 20) comes into view on the middle ledge with his baboons digging out round him,
+# comes up to his band and throws: a volley of two or three coals in a row, then, every third throw, one big coal at
+# the player's feet that sets the floor burning. Seen from the side: the ledges, the gaps, the lake's fire vents below.
+seed 1
+level tests/levels/babi at 13 3
+god
+xp 300000
+wait 300ms
+camera 20 8
+screenshot arena
+camera 0 0
+walk to 15.5
+wait 1500ms
+expect boss > 0
+expect minions >= 2
+screenshot appears
+wait 1200ms
+screenshot volley
+wait 400ms
+screenshot volley_late
+wait 5s
+screenshot later
+camera 30 10
+screenshot later_side
+camera 0 0

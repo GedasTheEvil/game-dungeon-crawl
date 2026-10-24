@@ -1,0 +1,18 @@
+; Babi, the baboons' boss (plan babi-boss), in his arena, the lake of fire: the player (col 1) comes by the teleporter
+; (col 4, pair 1) to the sealed boss room (row 3), its teleporter at col 1. Babi (col 20) stands on the middle of five
+; ledges (cols 1-10, 12-16, 18-22, 24-28, 30-38), one-cell gaps between them (cols 11, 17, 23, 29) over the lake of
+; fire (row 1): a pair of fire vents under each gap (alternate phases); ladders (cols 7, 14, 26) up out of it.
+; Water basins at both ends of the ledge row (cols 4-5, 32-33), the player's refuge. Behind the boss gate (col 36) the
+; exit (tests/unit/babi_test.cpp, tests/scenarios/babi.txt, tests/play/babi-boss.txt).
+def b 22 0 4
+#S..O###################################
+########################################
+#O.....H......H.....].....H.........ZE.#
+#######H###.##H##.#####.##H##.##########
+#......H...+b.H..+b....+b.H..+b........#
+structure
+#....###################################
+########################################
+#...~~..........................~~.....#
+#######.###.##.##.#####.##.##.##########
+#......................................#

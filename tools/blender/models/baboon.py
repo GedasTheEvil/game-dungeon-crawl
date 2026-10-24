@@ -3,9 +3,9 @@
 
     MCP:  p = ".../tools/blender/models/baboon.py"; g = {"__file__": p, "__name__": "baboon"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/baboon.py -- [--export | --export-climb | --measure]
+    CLI:  blender -b --python tools/blender/models/baboon.py -- [--boss] [--export | --export-climb | --measure]
           (--measure prints the coal per ranged frame: the release, RangedRules; BABOON_LADDER=1 adds a ladder
-          stand-in for review renders of the climb)
+          stand-in for review renders of the climb; --boss or BABOON_BOSS=1: Babi, see below)
 
 Blender space: Z up, units metres, the baboon faces +Y (game uses rotA = 180), its right side is +X.
 Built like rat.py: one loft from the rump to the head over a hips, a chest and a head bone, the four legs by
@@ -26,8 +26,12 @@ Clips (the engine plays ~14 fps):
   climb 16 (_climb, loops: up a ladder hand over hand, back to the camera; the frame set from the climb height).
 Numbers the engine reads: --measure prints the ranged release (RangedRules release, releaseY, releaseAhead); the
 build prints climbRise and climbGrip (shares of the reference clip's frame 0 height, computed for KIND_SCALE).
-One texture, baboon.png (1024x1024). The UVs only depend on the mesh, so a boss texture (Babi) can be baked on the same
-layout later from another palette.
+One texture, baboon.png (1024x1024).
+Babi, the baboons' boss (plan babi-boss), --boss: the same build reshaped and its own files, babi*.md3 and babi.png: a
+heavier mane (wider, down to the loins, longer and more locks), bigger cheek tufts, a blood-red face and darker fur;
+authored for KIND_SCALE 48 (twice the baboon's). His attack (_att, 20) rears with both hands over the head, slams them
+down on the floor in front and lunges into a bite (the two-handed blow and the heavy bite of the plan); he has a leap
+(_jump 10, plays once: crouch, spring, tucked in the air, landing; the engine moves the body) as a walk-jumper.
 """
 
 import importlib
@@ -47,9 +51,11 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "baboon_new"
+NAME = "baboon"  # the exported files: media/models/monsters/<NAME>*.md3, media/textures/monsters/<NAME>.png
+BOSS = False
 CLIPS = [("baboon_walk", "", 16), ("baboon_attack", "_att", 18), ("baboon_ranged", "_att_ranged", 14),
          ("baboon_die", "_die", 28), ("baboon_idle", "_idle", 32), ("baboon_climb", "_climb", 16)]
-ONCE = ("baboon_ranged", "baboon_die")  # one-shot clips: no loop frame
+ONCE = ("baboon_ranged", "baboon_die", "baboon_jump")  # one-shot clips: no loop frame
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, -0.05, 0.5), "ortho": 1.9, "res": (560, 440)}
 
@@ -78,6 +84,23 @@ COL = {
     "ember": (1.0, 0.30, 0.02),
     "ember_hi": (1.0, 0.80, 0.30),
 }
+
+# Babi (--boss): a blood-red face, darker fur, a paler, heavier silver mane.
+BOSS_COL = {
+    "fur_belly": (0.22, 0.19, 0.15),
+    "fur_flank": (0.14, 0.12, 0.095),
+    "fur_back": (0.10, 0.085, 0.07),
+    "fur_dark": (0.06, 0.05, 0.04),
+    "mane_lo": (0.30, 0.29, 0.27),
+    "mane": (0.52, 0.51, 0.48),
+    "mane_hi": (0.72, 0.71, 0.67),
+    "face": (0.72, 0.05, 0.04),
+    "face_dark": (0.42, 0.02, 0.02),
+    "nose": (0.25, 0.02, 0.02),
+    "brow": (0.36, 0.03, 0.03),
+    "eye": (0.65, 0.30, 0.02),
+}
+MANE_GROW, LOCK_GROW, HEM_LOCKS, TUFT_GROW = 1.0, 1.0, 26, 1.0  # Babi's: use_boss
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))
 DZ = 0.04  # the body, head and mane sit this much higher than their literal coordinates (the legs' length)
@@ -364,20 +387,22 @@ def build_mane(b, M):
     b.add(tube(MANE_KEYS, sub=3, n=36, ref=UP, shape=mane_shape, bulge=(0.02, 0.01)), M["mane"], w)
     b.tags[first:] = ["head" if v.y > 0.30 else "mane" for v in b.verts[first:]]
     for s in (1, -1):
-        for i in range(26):  # the hem: hanging down the flanks and over the upper arms, ragged
-            y = -0.10 + 0.30 * (i + hash01(i, s, 1)) / 26
+        for i in range(HEM_LOCKS):  # the hem: hanging down the flanks and over the upper arms, ragged
+            y = -0.10 + 0.30 * (i + hash01(i, s, 1)) / HEM_LOCKS
             th = math.radians(-12 - 26 * hash01(i, s, 2) + (8 if y > 0.05 else 0))
             th = math.pi - th if s < 0 else th
             pt, nrm = mane_point(y, th)
             d = V((0.1 * s, -0.35 + 0.3 * hash01(i, s, 3), -1))
-            b.add(lock(pt - nrm * 0.01, d, nrm, 0.06 + 0.07 * hash01(i, s, 4), 0.028 + 0.018 * hash01(i, s, 5)), M["mane"], w(pt), tag="mane")
+            b.add(lock(pt - nrm * 0.01, d, nrm, (0.06 + 0.07 * hash01(i, s, 4)) * LOCK_GROW, 0.028 + 0.018 * hash01(i, s, 5)), M["mane"], w(pt),
+                  tag="mane")
         for i in range(9):  # the back edge: lying back over the loins
             th = math.radians(8 + 82 * (i + hash01(i, s, 6)) / 9)
             th = math.pi - th if s < 0 else th
             y = -0.15 + 0.04 * hash01(i, s, 7)
             pt, nrm = mane_point(y, th)
             d = V((0.15 * s * math.cos(th), -1, -0.25 - 0.3 * math.cos(th)))
-            b.add(lock(pt - nrm * 0.01, d, nrm, 0.07 + 0.05 * hash01(i, s, 8), 0.035 + 0.015 * hash01(i, s, 9)), M["mane"], w(pt), tag="mane")
+            b.add(lock(pt - nrm * 0.01, d, nrm, (0.07 + 0.05 * hash01(i, s, 8)) * LOCK_GROW, 0.035 + 0.015 * hash01(i, s, 9)), M["mane"], w(pt),
+                  tag="mane")
 
 
 def build_head(b, M):
@@ -409,11 +434,13 @@ def build_head(b, M):
         b.add(ellipsoid(ec + eye_dir * 0.008, (0.007, 0.007, 0.004), n=8, rings=4, axis=eye_dir, ref=UP), M["pupil"], "head")
         b.add(ellipsoid(ec + eye_dir * 0.011 + V((0, 0, 0.004)), (0.003, 0.003, 0.002), n=6, rings=3, axis=eye_dir, ref=UP), M["glint"], "head")
         # Cheek tufts: the white whiskers framing the face, swept back.
-        b.add(ellipsoid((0.07 * s, 0.375, 0.565), (0.05, 0.07, 0.075), n=14, rings=7, axis=V((0.3 * s, 1, -0.2)), ref=UP), M["mane"], "head")
+        g = TUFT_GROW
+        b.add(ellipsoid((0.07 * s * g, 0.375, 0.565), (0.05 * g, 0.07 * g, 0.075 * g), n=14, rings=7, axis=V((0.3 * s, 1, -0.2)), ref=UP), M["mane"],
+              "head")
         for i in range(5):
-            base = V((0.085 * s, 0.39 - 0.012 * i, 0.61 - 0.028 * i))
+            base = V((0.085 * s * g, 0.39 - 0.012 * i, 0.61 - 0.028 * i))
             d = V((0.45 * s, -1, -0.2 - 0.25 * i))
-            b.add(lock(base, d, V((s, 0, 0.2)), 0.055 + 0.02 * hash01(i, s, 11), 0.03), M["mane"], "head")
+            b.add(lock(base, d, V((s, 0, 0.2)), (0.055 + 0.02 * hash01(i, s, 11)) * g, 0.03), M["mane"], "head")
         # Small ear hidden in the mane.
         b.add(ellipsoid((0.07 * s, 0.33, 0.635), (0.018, 0.024, 0.008), n=8, rings=4, axis=V((s, 0.3, 0)), ref=UP), M["fur"], "head")
         # Long upper fang, curved a little back.
@@ -851,6 +878,37 @@ DIE = [
     (27, dict(tflop=1.0, roll=-100, x=-0.22, z=-0.12, flex_p=-8, hp=-14, hr=-15, jaw=14, plant=0, fplant=0, flail=0.0, fphase=3.8, tcurl=40, curl=0.4)),
 ]
 
+# Babi's attack (--boss, loops): rears with both hands high over the head and a roar (4..7), slams them down on the floor
+# in front of him (10, held to 11: the two-handed blow), then lunges with the jaw wide open (14) and snaps (16).
+ATTACK_BOSS = [
+    (0, {}),
+    (4, dict(y=-0.05, pitch=46, flex_p=10, hp=-34, jaw=30, wR=1.0, aRx=0.13, aRy=0.02, aRz=1.18, pupR=0.4, elb=0.5,
+             wL=1.0, aLx=0.13, aLy=0.02, aLz=1.18, pupL=0.4, fplant=0.0, hgy=0.04, tbend=36, tsway=5)),
+    (7, dict(y=-0.07, pitch=58, flex_p=14, hp=-44, hy=5, jaw=48, wR=1.0, aRx=0.12, aRy=-0.08, aRz=1.34, pupR=0.8, elb=0.7,
+             wL=1.0, aLx=0.12, aLy=-0.08, aLz=1.34, pupL=0.8, fplant=0.0, hgy=0.05, tbend=50, tsway=5)),
+    (10, dict(y=0.10, z=-0.03, pitch=-10, flex_p=-8, hp=-12, jaw=22, wR=1.0, aRx=0.09, aRy=0.56, aRz=0.04, wL=1.0, aLx=0.09, aLy=0.56,
+              aLz=0.04, fplant=0.0, tlift=14, tsway=6)),
+    (11, dict(y=0.10, z=-0.05, pitch=-12, flex_p=-10, hp=-10, jaw=18, wR=1.0, aRx=0.09, aRy=0.56, aRz=0.04, wL=1.0, aLx=0.09,
+              aLy=0.56, aLz=0.04, fplant=0.0, tlift=16, tsway=6)),
+    (14, dict(y=0.20, pitch=-6, flex_p=-6, hp=-16, jaw=52, wR=0.5, aRx=0.09, aRy=0.56, aRz=0.04, wL=0.5, aLx=0.09, aLy=0.56,
+              aLz=0.04, fplant=0.5, ffwd=0.18, plant=0.7, hfwd=0.08, tlift=10, tsway=6)),
+    (16, dict(y=0.20, pitch=-6, flex_p=-8, hp=-18, jaw=0, fplant=0.8, ffwd=0.12, fgy=0.10, tlift=6, tsway=6)),
+    (18, dict(y=0.10, pitch=-3, flex_p=-4, hp=-8, hy=-10, hr=-10, jaw=4, fgy=0.05, tsway=7)),
+    (20, {}),
+]
+
+# Babi's leap (--boss, plays once and holds the landing): a crouch, the spring off the hind legs, tucked in the air with
+# the hands reaching forward, the landing on the hands first; the engine lifts and moves the body.
+JUMP = [
+    (0, {}),
+    (2, dict(z=-0.07, pitch=-6, flex_p=-6, hp=8, hgy=-0.04, fgy=0.03, tlift=4)),
+    (3, dict(y=0.04, z=-0.02, pitch=14, flex_p=6, hp=-6, jaw=20, fplant=0.0, fup=0.10, ffwd=0.10, tlift=18)),
+    (5, dict(y=0.04, pitch=6, flex_p=4, hp=-4, jaw=24, fplant=0.0, fup=0.08, ffwd=0.20, plant=0.0, hup=0.10, hfwd=-0.10, tlift=24, tsway=4)),
+    (7, dict(y=0.02, pitch=-8, flex_p=-4, hp=4, jaw=16, fplant=0.0, fup=0.02, ffwd=0.22, plant=0.0, hup=0.12, hfwd=0.02, tlift=18, tsway=4)),
+    (8, dict(z=-0.05, pitch=-10, flex_p=-6, hp=8, jaw=10, fplant=1.0, fgy=0.10, plant=0.4, hup=0.06, tlift=10)),
+    (9, {}),
+]
+
 # Idle (loops): sits on its haunches facing the sun, both hands raised, palms forward; breathes and sways.
 IDLE_FRAMES = 32
 IDLE_SIT = dict(y=0.0, z=-0.25, pitch=60, flex_p=8, hp=-46, wH=1.0, aHx=0.15, aHy=-0.10, plant=1.0, fplant=0.0, wR=1.0, wL=1.0, tbend=45,
@@ -994,7 +1052,7 @@ def ladder_standin(coll, rig, c, frames):
 def make_actions(rig, skin, obj):
     rig.animation_data_create()
     acts = {}
-    keyed = {"baboon_attack": ATTACK, "baboon_ranged": RANGED, "baboon_die": DIE}
+    keyed = {"baboon_attack": ATTACK_BOSS if BOSS else ATTACK, "baboon_ranged": RANGED, "baboon_die": DIE, "baboon_jump": JUMP}
     for name, suffix, frames in CLIPS:
         act = bpy.data.actions.get(name)
         if act:
@@ -1049,7 +1107,7 @@ def build(bake=True, tex_path=None):
     obj = common.finish_mesh(b, coll, "baboon_new")
     common.uv_unwrap(obj, b.tags, {"head": (V((0, 0.48, 0.57)), 1.8), "coal": (coal_centre(), 2.0)})
     if bake:
-        tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", "baboon_preview.png"), TEX_SIZE, "baboon",
+        tex = common.bake_texture(obj, tex_path or os.path.join(bpy.app.tempdir or "/tmp", NAME + "_preview.png"), TEX_SIZE, NAME,
                                   ao_distance=0.12)
         common.use_baked_material(obj, tex)
     common.rig_object(obj, rig)
@@ -1061,10 +1119,10 @@ def build(bake=True, tex_path=None):
     scene.frame_set(0)
     box = ref_box(obj, rig, acts["baboon_walk"])
     size = box["hi"] - box["lo"]
-    print("baboon: {} verts, {} tris; walk frame 0: length {:.3f} (y), width {:.3f} (x), height {:.3f} (z)".format(
+    print(NAME + ": {} verts, {} tris; walk frame 0: length {:.3f} (y), width {:.3f} (x), height {:.3f} (z)".format(
         len(obj.data.vertices), common.tri_count(obj), size[1], size[0], size[2]))
     speed = STRIDE / DUTY * CYCLES / CLIPS[0][2] * 14
-    print("baboon: walk ground speed {:.3f} m/s at 14 fps = {:.3f} reference sizes per second".format(speed, speed / box["S"]))
+    print(NAME + ": walk ground speed {:.3f} m/s at 14 fps = {:.3f} reference sizes per second".format(speed, speed / box["S"]))
     return obj, rig
 
 
@@ -1109,18 +1167,36 @@ def measure():
     scene.frame_set(0)
 
 
-def export(models_dir=None, clips=CLIPS):
-    """Write media/models/monsters/baboon{,_att,_att_ranged,_die,_idle,_climb}.md3 from the built objects."""
-    common.export_files(bpy.data.objects["baboon_new"], bpy.data.objects["baboon_rig"], "baboon", clips, "monsters", models_dir)
+def export(models_dir=None, clips=None):
+    """Write media/models/monsters/<NAME>{,_att,_att_ranged,_die,_idle,_climb}.md3 (Babi's also _jump) from the built
+    objects."""
+    common.export_files(bpy.data.objects["baboon_new"], bpy.data.objects["baboon_rig"], NAME, clips or CLIPS, "monsters", models_dir)
 
+
+def use_boss():
+    """Babi (plan babi-boss): his palette, a heavier mane, his attack and leap, his files and scale."""
+    global NAME, BOSS, KIND_SCALE, MANE_GROW, LOCK_GROW, HEM_LOCKS, TUFT_GROW, MANE_KEYS
+    if BOSS:
+        return
+    NAME, BOSS, KIND_SCALE = "babi", True, 48
+    COL.update(BOSS_COL)
+    MANE_GROW, LOCK_GROW, HEM_LOCKS, TUFT_GROW = 1.18, 1.7, 38, 1.3
+    # Wider and fuller, its hem farther back over the loins.
+    MANE_KEYS = [((0, -0.30, 0.495), 0.09, 0.10, -1.0)] + [(c, rx * MANE_GROW, ry * MANE_GROW, k) for c, rx, ry, k in MANE_KEYS]
+    CLIPS[1] = ("baboon_attack", "_att", 20)
+    CLIPS.append(("baboon_jump", "_jump", 10))
+
+
+if os.environ.get("BABOON_BOSS") or "--boss" in sys.argv:
+    use_boss()
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
     tex_dir = os.path.join(REPO, "media", "textures", "monsters")
     if "--export" in args:
-        build(tex_path=os.path.join(tex_dir, "baboon.png"))
+        build(tex_path=os.path.join(tex_dir, NAME + ".png"))
         export()
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "baboon.blend"))
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, NAME + ".blend"))
     elif "--export-climb" in args:  # only baboon_climb.md3 (the texture and the other clips stay as they are)
         build(bake=False)
         export(clips=[c for c in CLIPS if c[1] == "_climb"])

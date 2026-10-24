@@ -82,8 +82,10 @@ enum class CreatureMove : unsigned char {
 	RollBall, // a roller kicks a dung ball at the player (MonsterKind::roll)
 	Douse, // a douser puts out a torch or a lamp (MonsterKind::douseCells)
 	SpinWeb, // a spinner spins a web over the floor (MonsterKind::webs)
+	Blaze, // a volley thrower's big coal sets the floor burning (VolleyRules)
+	LeapAway, // a leaping kiter leaps back over a gap, out of the player's reach (plan babi-boss)
 };
-constexpr int CREATURE_MOVE_COUNT = 24;
+constexpr int CREATURE_MOVE_COUNT = 26;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

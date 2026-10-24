@@ -87,22 +87,60 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 // Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
 // it has the time for a shot at far, else KITE_HYSTERESIS past near. Never past far, and never off its floor: cornered
 // (no kiteRoom for a step), it stays.
-int Dungeon::kiteAway(const Monster& mon, int dir) const {
+bool Dungeon::kiteThreatened(const Monster& mon, int dir) const {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
 	if (!kite || dir == 0)
-		return 0;
+		return false;
 	const float gap = mon.PlayerGap(mapX);
 	const bool backing = mon.FleeDir() == -dir;
 	const bool closing = mon.PlayerClosing();
 	const float room = MONSTER_SEEK_STEP * kite->backOffSpeed; // one step back
-	if (gap + room > kite->far ||
-		(backing ? !closing && gap >= kite->near + KITE_HYSTERESIS : gap >= kite->near || !closing))
+	return gap + room <= kite->far &&
+		   (backing ? closing || gap < kite->near + KITE_HYSTERESIS : gap < kite->near && closing);
+}
+//======================================================================================
+int Dungeon::kiteAway(const Monster& mon, int dir) const {
+	const std::optional<KiteRules>& kite = mon.Type()->kite;
+	if (!kite || !kiteThreatened(mon, dir))
 		return 0;
+	const float room = MONSTER_SEEK_STEP * kite->backOffSpeed; // one step back
 	return kiteRoom(mon, dir, room) < room ? 0 : -dir; // cornered: no step back
 }
 //======================================================================================
+// Its whole body on the far side of the gap, its front at the gap's edge where the ledge is long enough.
+std::optional<float> Dungeon::leapAwayTarget(const Monster& mon, int dir, bool threatened) const {
+	const std::optional<KiteRules>& kite = mon.Type()->kite;
+	if (!kite || !leaps(mon.Type()->locomotion) || !mon.canJump() || kiteAway(mon, dir) != 0 ||
+		(threatened && !kiteThreatened(mon, dir)))
+		return std::nullopt;
+	constexpr float PROBE = 0.05f;
+	const float step = MONSTER_SEEK_STEP * kite->backOffSpeed; // the step back it has no room for
+	const auto behind = static_cast<int>(std::floor(mon.seekProbeX(-dir) - static_cast<float>(dir) * (step + PROBE)));
+	if (!walkerBlocked(behind, mon.Row(), mon.reckless()) || isSolidTile(MapAt(behind, mon.Row())))
+		return std::nullopt; // cornered by a wall or another monster: it fights
+	const int land = leapLanding(behind, mon.Row(), -dir);
+	if (land < 0)
+		return std::nullopt;
+	const float edge = static_cast<float>(dir < 0 ? land : land + 1); // where the ledge begins
+	const float to = edge - static_cast<float>(dir) * (mon.HalfWidth() + PROBE);
+	// Not threatened, only nearer than its band: only to a place it can throw from, or it would come back at once.
+	if (!threatened && std::fabs(to - mapX) - mon.HalfWidth() - sim.player->HalfWidth() > kite->far)
+		return std::nullopt;
+	return to;
+}
+//======================================================================================
+bool Dungeon::leapAway(Monster& mon, int dir, bool threatened) {
+	const std::optional<float> to = leapAwayTarget(mon, dir, threatened);
+	if (!to)
+		return false;
+	mon.Jump(*to - static_cast<float>(mon.Col()) - 0.5f);
+	sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::LeapAway);
+	return true;
+}
+//======================================================================================
 // The free run behind it, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap (also for a reckless
-// one), a lit cell for a light shunner, or another monster on its row.
+// one), a lit cell for a light shunner, or another monster on its row (not a boss's minion for the boss, nor the boss
+// for its minion).
 float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const float rear = mon.seekProbeX(-dir);
 	float room = upTo;
@@ -110,6 +148,8 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 		if (&other == &mon || !other.Active() || !other.Alive() || other.flies() || other.Row() != mon.Row() ||
 			(other.CentreX() - mon.CentreX()) * static_cast<float>(dir) > 0.f)
 			continue;
+		if ((mon.Type()->isBoss() && other.Minion()) || (other.Type()->isBoss() && mon.Minion()))
+			continue; // a boss and its minions make way for each other (Babi's baboons, plan babi-boss)
 		room = std::min(room, std::max(0.f, dir > 0 ? mon.Left() - other.Right() : other.Left() - mon.Right()));
 	}
 	constexpr float PROBE = 0.05f;
@@ -124,7 +164,7 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 //======================================================================================
 //======================================================================================
 // In its band it stands and shoots. Cornered nearer than near (no room behind to get back to it), it fights: the
-// walker's seek and bite.
+// walker's seek and bite; a leaper with a gap behind it leaps that first.
 bool Dungeon::kite(Monster& mon, int dir) {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
 	if (!kite || dir == 0 || !walkerReaches(mon, dir))
@@ -133,9 +173,14 @@ bool Dungeon::kite(Monster& mon, int dir) {
 		mon.BackOff(away);
 		return true;
 	}
+	if (leapAway(mon, dir)) // a leaper cornered at a gap: over it to the next ledge (plan babi-boss)
+		return true;
 	const float gap = mon.PlayerGap(mapX);
-	if (gap > kite->far || gap + kiteRoom(mon, dir, kite->near) < kite->near)
+	if (gap > kite->far)
 		return false;
+	if (gap + kiteRoom(mon, dir, kite->near) <
+		kite->near) // cornered nearer than its band: a leaper leaps, else it bites
+		return leapAway(mon, dir, false);
 	mon.Stand();
 	return true;
 }

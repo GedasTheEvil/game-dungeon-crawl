@@ -1,8 +1,8 @@
 # Babi, the boss of the Lake of Fire
 
-Status: draft 2026-10-21, from the user. Needs first: [baboon](solved/baboon.md) (his kin: model base, ranged
+Status: draft 2026-10-21, from the user. Needs first: [baboon](baboon.md) (his kin: model base, ranged
 throw, kiting AI). Implemented 2026-10-24, see [Implemented](#implemented-2026-10-24); play-test:
-`bin/game --play tests/play/babi-boss.txt`. Boss of the Lake of Fire zone ([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)).
+`bin/game --play tests/play/babi-boss.txt`; play-tested and solved 2026-10-24. Boss of the Lake of Fire zone ([campaign-zones](campaign-zones.md#zones-decided-2026-10-21)).
 
 ## Lore
 
@@ -18,14 +18,14 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
 * **Ranged, both throws alternating (user, 2026-10-22):** usually a volley of two or three burning coals, farther
   (6-7 tiles), a shorter cooldown; every few throws a big coal that bursts into a short burning patch on the floor
   where it lands.
-* **Kiting:** a wider band and a faster retreat than the baboon ([monster-kiting](solved/monster-kiting.md)),
+* **Kiting:** a wider band and a faster retreat than the baboon ([monster-kiting](monster-kiting.md)),
   but within his arena: he leaps from ledge to ledge (a walk-jumper, `Locomotion::WalkJump`) instead of running off.
 * **Melee:** a heavy bite and a two-handed blow when cornered.
 * **Minions:** baboons climb out over the lake's edge (`Summon`), the boss rule's "plus its kin".
 * **Arena:** the sealed boss room is the lake: a pool of fire in the middle (fire on the floor, not water: the burning
   oil of the lake), ledges and ladders round it, water basins at the sides as the player's refuge.
 * **Resistances:** `bossResist` of the baboon's (no weakness); fire immune is too much, resists fire.
-* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](monster-balance.draft.opus.md).
+* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](../monster-balance.draft.opus.md).
 * **Journal note:** "The heart-eater. I keep mine, thank you."
 
 ## Tests
@@ -62,11 +62,11 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
   leaps them, the player jumps them), the lake of fire a row below, ladders up out of it, water basins at both ends,
   the boss gate and the exit. **Change from the draft: the lake's fire is fire vents** (pairs at alternate phases
   under each gap), not a burning floor: there is no such tile. No campaign slot: the Lake of Fire's levels (42-45)
-  come with [campaign-levelgen](campaign-levelgen.draft.opus.md); placed there by the rebuild.
+  come with [campaign-levelgen](../campaign-levelgen.draft.opus.md); placed there by the rebuild.
 * Journal: the note; the volley's line for his throw, moves `Blaze` and `LeapAway`, his summon "His baboons climb up
   out of the lake at his call" (they dig out, as the draft's "climb out over the lake's edge" has no summon of its own).
 * Tests: `tests/unit/babi_test.cpp` (the kind's rules; volleys and every third throw the big coal; the big coal sets
   the floor at the player's feet burning; the burning floor hurts and sets burning, a jump clears it, never in water;
   walked at, he leaps the gap behind him and stays on his row; in his arena his death opens the boss gate), on
-  `tests/levels/babi{,_hall,_ledge}`; the scenario `tests/scenarios/babi.txt` (the arena, his baboons, the volley;
+  `tests/levels/babi{,_hall,_ledge}`; the scenario `tests/scenarios/solved/babi.txt`, parked once solved (the arena, his baboons, the volley;
   screenshots); play script `tests/play/babi-boss.txt`.

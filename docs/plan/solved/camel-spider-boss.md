@@ -30,14 +30,14 @@ stronger.
 
 ## Placement
 
-Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](solved/campaign-zones.md) (about
-levels 10-13), placed by the rebuild ([denser-levels](denser-levels.draft.opus.md)). Until then no campaign slot:
+Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](campaign-zones.md) (about
+levels 10-13), placed by the rebuild ([denser-levels](../denser-levels.draft.opus.md)). Until then no campaign slot:
 a play script only (`tests/play/camel-spider-boss.txt`), as hippo-boss did at first (user, 2026-10-22).
 
 ## Others
 
 The rest stay without a boss (user, 2026-10-20): rats, plants, mimics, the lotus. The worm has its own draft
-([worm-boss](solved/worm-boss.md)).
+([worm-boss](worm-boss.md)).
 
 ## Tests
 
@@ -62,5 +62,5 @@ The rest stay without a boss (user, 2026-10-20): rats, plants, mimics, the lotus
   swing whose main damage is a cut (the short sword, the khopesh, the epsilon axe) cuts the webs in its reach; a fire arrow low over a cell
   and a fire vent's jet burn them. Not saved. Drawn as faint grey threads over the floor (`dungeon_render_webs.cpp`).
 * Journal moves `Douse`, `SpinWeb`.
-* Tests: `tests/unit/mother_test.cpp`, `tests/scenarios/mother.txt`, `tests/levels/mother`; play script
+* Tests: `tests/unit/mother_test.cpp`, `tests/scenarios/solved/mother.txt`, `tests/levels/mother`; play script
   `tests/play/camel-spider-boss.txt`.

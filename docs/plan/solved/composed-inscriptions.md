@@ -56,7 +56,7 @@ The 16 `NAME_CARTOUCHES` groups in the tool go away. Two ways, implementer's cho
    page draws from the name's signs.
 2. Keep 16 random-looking groups, now as data (a `content/names/` file), still picked per run.
 
-Docs: [names.md](../names.md) "The pictures" and the glossary row "name cartouche" (it says the picture does not
+Docs: [names.md](../../names.md) "The pictures" and the glossary row "name cartouche" (it says the picture does not
 spell the name) follow the choice.
 
 ## Tests
@@ -68,8 +68,8 @@ spell the name) follow the choice.
 
 ## Docs
 
-[inscriptions.md](../inscriptions.md) (the atlas paragraph, the `style:` and `G:` rows "only the atlas tool reads
-it"), [names.md](../names.md), the tool's docstring, [development.md](../development.md#where-is-x). Add glossary
+[inscriptions.md](../../inscriptions.md) (the atlas paragraph, the `style:` and `G:` rows "only the atlas tool reads
+it"), [names.md](../../names.md), the tool's docstring, [development.md](../../development.md#where-is-x). Add glossary
 rows for the new names (plate, hieroglyph sheet) once they exist in `src/` (`docs_test.cpp` checks the code column).
 
 ## Implementation notes (2026-10-24)
@@ -84,5 +84,5 @@ rows for the new names (plate, hieroglyph sheet) once they exist in `src/` (`doc
 * The stela's thin lines between its sign columns are gone (they depended on the number of columns).
 * Name cartouches: option 1. Each name in `kings.txt` has a `G:` line from its real cartouche (shortened to 5 signs);
   `JournalInscription::glyphs` keeps a copy (journal version 13, an old save's picture is dropped).
-* Scenario `tests/scenarios/composed_inscriptions.txt` (level `tests/levels/inscription_styles`): before / after
+* Scenario `tests/scenarios/solved/composed_inscriptions.txt` (level `tests/levels/inscription_styles`): before / after
   compared, signs sharper, frames unchanged.

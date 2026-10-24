@@ -40,7 +40,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
-| plate | | the empty frame of an inscription style (cartouche, column, row, stela) the game draws the signs on ([composed-inscriptions](plan/composed-inscriptions.md)) | `InscriptionStyle`, `PLATE_GRID`, `plateCell` |
+| plate | | the empty frame of an inscription style (cartouche, column, row, stela) the game draws the signs on ([composed-inscriptions](plan/solved/composed-inscriptions.md)) | `InscriptionStyle`, `PLATE_GRID`, `plateCell` |
 | hieroglyph sheet | | the texture with a cell per hieroglyph sign in use, tinted per sign when an inscription is drawn; its manifest lists the Gardiner codes | `HieroglyphSheet`, `HIEROGLYPH_MANIFEST`, `inscriptionLayout` |
 | copy | Copy | an inscription read without the Words of Thoth skill: the glyphs go into the journal untranslated, and learning the skill translates every copy ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)) | `Interaction::Copy`, `JournalInscription::translated`, `Journal::TranslateInscriptions` |
 | glint | | the gold band sweeping now and then over an inscription not read yet; dimmer over a copy not translated ([interact-prompt](plan/solved/interact-prompt.md)) | `Dungeon::InscriptionGlint`, `glintQuad` |

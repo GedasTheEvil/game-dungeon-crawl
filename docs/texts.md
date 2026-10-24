@@ -1,6 +1,6 @@
 # Texts
 
-The game's longer prose is in `content/texts/*.txt` ([plan](plan/texts-to-content.md)): the journal's
+The game's longer prose is in `content/texts/*.txt` ([plan](plan/solved/texts-to-content.md)): the journal's
 field notes, diary and expedition pages, the creature moves and monster notes, and the lore lines of the skill and
 item cards. The game reads these files once (`gameTexts`, `world/texts.*`). The unit tests and the tools read the
 same files from the repo root. To change the wording, edit a file: no rebuild is needed. A new text also needs code

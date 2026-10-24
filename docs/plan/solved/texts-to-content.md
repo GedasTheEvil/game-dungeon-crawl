@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-21, from the user ("analyze current in-code texts, perhaps it would make sense to move some of it
 outside into content/ as text files"). Needs nothing first. An analysis first, then a move where it pays: the
-implementer decides what moves (see [Analysis](#analysis)). Overlaps [campaign-texts](campaign-texts.md)
+implementer decides what moves (see [Analysis](#analysis)). Overlaps [campaign-texts](../campaign-texts.md)
 (zone titles and notes): do that one first or agree on where its texts live.
 
 ## Idea
@@ -35,11 +35,11 @@ unit test pins its wording (`docs_test.cpp`, `journal_test.cpp`).
 * Loaded once at start into a table (`world/`, GL-free, so the sim tests read it too); a missing key is a unit test
   failure, not an empty string at runtime.
 * The unit test harness (`SimWorld`) and the tools load the same files.
-* Docs: [development.md](../development.md#where-is-x) "where is X" points to the new files.
+* Docs: [development.md](../../development.md#where-is-x) "where is X" points to the new files.
 
 ## Analysis result
 
-Done 2026-10-24. Format, files and keys: [texts.md](../texts.md).
+Done 2026-10-24. Format, files and keys: [texts.md](../../texts.md).
 
 **Moved** to `content/texts/`, 6 files, 354 texts. The code went from about 700 lines of string tables to the
 keys. The wording is unchanged: a dump of every text before and after the move is identical.

@@ -30,7 +30,7 @@ with the first boss's heka ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md
 stand in front of.
 
 The game loads every `content/inscriptions/*.txt` file at start-up. Edit the texts, styles and signs there; no rebuild
-is needed. The game composes each inscription when it draws it ([plan](plan/composed-inscriptions.md),
+is needed. The game composes each inscription when it draws it ([plan](plan/solved/composed-inscriptions.md),
 `src/world/inscription_layout.cpp`): the **plate** of its style (the empty frame,
 `media/textures/decorations/inscription_plates.png`), then a quad per sign from the **hieroglyph sheet**
 (`hieroglyphs.png`, a cell per sign, its manifest `hieroglyphs.txt`), each sign tinted with its paint. A text that only

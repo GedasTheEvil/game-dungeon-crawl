@@ -39,7 +39,8 @@ smooth at any frame rate, no re-export, no change to the Blender pipeline.
    `Key frames` (no blending, today's look), `24`, `30`, `60`, default `60`. The render position from point 1 is
    snapped to the chosen rate (`floor(clockMs * rate / 1000)` time steps) before the blend, so 24 gives a
    deliberate stop-motion look and 60 is smooth on a 60 Hz monitor. Above the render rate the cap does nothing.
-   Saved with the other settings (`src/state/settings.h`); a scenario run uses the default.
+   Saved with the other settings (`Settings::Display`, `src/state/settings_ini.h`, docs/settings.md); a scenario
+   run uses the default. The whole-game cap is a separate plan: [frame-rate-cap](frame-rate-cap.draft.sonet.md).
 
 ## Watch out
 

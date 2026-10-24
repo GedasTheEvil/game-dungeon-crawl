@@ -1,0 +1,124 @@
+# The earlier expedition's notebook (plan expedition-notes, docs/texts.md): page n is the Page tile of value n
+# (content/levels). The archaeologist who came before, D. J. (a nod to Daniel Jackson): a linguist, confident at first,
+# then doubts; the last page warns before the fork. Each page lies a level or so before what it hints at; the hints are
+# the game's rules (monster_kinds.cpp, the levels): keep them in step.
+
+[page.1]
+heading: Day 1
+text: Touched the jackal statue. Should not have touched the jackal statue. No crew, no sky. I still have my
+	notebook, two pencils and my glasses. If anyone finds this: I am D. J., a linguist, not a soldier.
+
+[page.2]
+heading: Day 2
+text: The beetles grow bigger the deeper I go. A blade skids off the shell; a point slips between the plates.
+	Something very large clicks down below. I named it Ramses. It does not like the name.
+
+[page.3]
+heading: Day 3
+text: A chest bit me today. Not a figure of speech. Wood cracks under a club; my knife only stuck in the lid. New
+	rule: knock before opening.
+
+[page.4]
+heading: Day 5
+text: Ramses is dead. I did not enjoy it. Behind him a key and a way down, never a way up. Every door here opens one
+	way: deeper. Someone planned this.
+
+[page.5]
+heading: Day 6
+text: Water! I could have kissed it, until the log in it opened its eyes. The crocodiles swim much faster than I
+	wade. Stay out of the pools when you can, or cross them fast.
+
+[page.6]
+heading: Day 8
+text: Bats. A club swats them, an arrow goes through the wing. Something up in the roost drinks blood and heals with
+	every bite. Do not let it bite. Thin out its friends first.
+
+[page.7]
+heading: Day 9
+text: Webs across the halls, thick as sailcloth, and things that spin them: eight legs, fast, and they hate fire. A
+	torch in the hand keeps them at a distance. Mine went out once. I will not describe that hour.
+
+[page.8]
+heading: Day 11
+text: The dead do not stay down here. Linen tears under a blade and burns like paper: dip the arrows in a brazier
+	and they go up. Jack would have brought a flamethrower. Who is Jack?
+
+[page.9]
+heading: Day 12
+text: A hall with two shafts side by side, and a priest's warning on the wall. I took the short one; the long one
+	had water in it and I am a bad swimmer. Both come out in the same hall. There is no way back up to the other.
+
+[page.10]
+heading: Day 13
+text: I can read most of the walls now. The priests write of a ring of stone with seven marks, a road between
+	worlds. If it is down here, it is hidden behind a riddle. My last pencil to see it.
+
+[page.11]
+heading: Day 15
+text: Scorpions everywhere, and eggs. Something lays them. Cut or burn the clusters before her brood hatches, and
+	carry an antidote. Two. I sneezed for an hour: allergic to something here. Everything.
+
+[page.12]
+heading: Day 16
+text: The roof weeps green in the nest halls. One drop burns, two put me on my knees. Wait for the gap between the
+	drops, then run. The antidote tastes of boiled socks. I have drunk four.
+
+[page.13]
+heading: Day 18
+text: The serpent temple. The cobras rear up when I come close and spit from afar: jump the spit. The great one
+	below dives into the floor and comes up behind you. Turn around. Always turn around.
+
+[page.14]
+heading: Day 20
+text: My pencil is half its length. I have stopped believing in a way up. I still believe in a way out. Not the same
+	thing, I know. It is what I have.
+
+[page.15]
+heading: Day 23
+text: Darts fly from the wall where the floor clicks: jump the plate. Lost my glasses for an hour and found them on
+	a mummy. It was wearing them. We had words.
+
+[page.16]
+heading: Day 24
+text: The cisterns have a deep end. Down there I swim, and swimming tires me twice as fast as walking. Rest on dry
+	stone, drink the blessing of Hapi before the water, not in it. Crocodiles in every pool, hippos in the big ones.
+
+[page.17]
+heading: Day 26
+text: Sand. Underground! It drags at the feet, and where it swirls it swallows: jump out, do not wait. The spiders
+	here hate the light. I sleep by the torches. Well, I lie by them.
+
+[page.18]
+heading: Day 29
+text: Sunlight through a crack, the first in weeks. Bronze mirrors turn it onto the sun discs that open the doors,
+	and the mummies burn in it. The red one in the pool below charges, then roars. Stand aside.
+
+[page.19]
+heading: Day 30
+text: Worms. Not the kind in the garden. They hear a footstep on sand and come up under it; the spiders hunt in the
+	dark between. A fork ahead: one way over loose drifts, one along the rock. Rock, rock, rock.
+
+[page.20]
+heading: Day 31
+text: Some doors want a name, not a key. The king's name is carved in a cartouche on the same level: find it, copy
+	it, speak it. Names had power here. Mine does not seem to.
+
+[page.21]
+heading: Day 35
+text: The chests are darker down here, and some of them follow you. One bit me and my mind went cloudy for minutes.
+	Dark wood: knock with a club first. Abydos is not on this map.
+
+[page.22]
+heading: Day 38
+text: A lake of fire, and baboons on its shore who throw coals from afar. Corner them or run them down; never stand
+	in the open. The water is the one cool place here. A second fork ahead: the right is shorter. It always is.
+
+[page.23]
+heading: Day 40
+text: The necropolis. Loose ceilings everywhere: when the stone rumbles, keep walking. The jackal from the statue is
+	on every wall. He waits at the bottom. I think he has always been waiting.
+
+[page.24]
+heading: The last page
+text: If you read this, take the left gate. I took the right. Behind it, the tomb of the one who came before me, and
+	worse. The ankh is real. Tell them I was right. D. J.

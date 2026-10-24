@@ -951,7 +951,7 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	};
 	std::string seen = "Level " + std::to_string(c.level) + ".";
 	if (c.killed && kind != nullptr)
-		seen += std::string(" ") + kind->note;
+		seen += std::string(" ") + monsterNote(*kind);
 	entry("SEEN", seen);
 	std::string saw = c.hitBy ? attackSentence(t.attackMix) : ""; // what its bite deals, from the first one
 	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)

@@ -1,0 +1,107 @@
+# One sentence on a move the player saw a creature make, under SAW on its journal page (plan texts-to-content,
+# docs/texts.md). [move.<CreatureMove>]; creatureMoveNote (src/world/journal_text.cpp) picks the field by the
+# monster's rules: text, or a variant (a summon's kind, a curse's name, a monster of its own).
+
+[move.leap]
+text: Leaps over pits and traps.
+
+[move.swoop]
+text: Hangs from the ceiling, swoops down to bite.
+
+[move.ambush]
+text: Lies in wait as a treasure chest!
+
+[move.rise]
+text: Lies in its coffin, climbs out when I come near.
+
+[move.summon]
+babi: His baboons climb up out of the lake at his call.
+dig-out: Calls its young up out of the sand.
+drop: Calls its kind down from the ceiling.
+coffin: The dead climb out of their coffins at its call.
+hatch: Her young hatch from the egg clusters around her.
+wall-servants: His statues and his servants step out of the stone at his call.
+wall: His statues step out of the stone at his call.
+
+[move.heal]
+text: Heals as it bites.
+
+[move.surface]
+text: Lies under the water, only its eyes show.
+
+[move.poison]
+text: Its poison keeps burning long after the bite.
+
+[move.rear]
+text: Lies coiled, rears up when I come near.
+
+[move.attack-ranged]
+priest: Speaks curses from afar, a bolt of purple light. A jump clears it.
+baboon: Screeches, lifts a burning coal over its head and hurls it. A jump clears it; water puts me out.
+volley: Hurls burning coals two and three at a time, one after the other. Jump the first, mind the next.
+fire: Hurls a bolt of fire from afar. A jump clears it.
+venom: Spits venom from afar. A jump clears it.
+
+[move.burrow]
+sand-behind: Swims under the sand faster than I walk, and comes up under my feet or just past me, throwing sand in
+	my eyes. Watch the ripples.
+sand: In sand it swims under the surface and comes up under my feet. Watch the ripples.
+text: Dives into the sand and comes up behind me.
+
+[move.charge]
+text: Charges along the hall. A wall stuns it.
+
+[move.climb]
+text: Follows me up and down the ladders.
+
+[move.curse]
+priest: Curses with a touch of his staff, and speaks curses from afar.
+weakness: Its blows curse: my arm goes weak.
+clumsiness: Its bite curses: my blows get weaker.
+vulnerability: Its blows curse: my armour turns to papyrus.
+fatigue: Its bite curses: my strength drains away.
+disease: Its bite curses: a sickness eats my health.
+slowness: Its bite curses: my legs turn to stone.
+palsy: Its bolt curses: my hands shake too much to aim.
+insanity: Its bite curses: my mind clouds over.
+touch: Its touch curses.
+
+[move.bloom]
+text: Floats among the lotus flowers, rears up when I come near.
+
+[move.sedate]
+text: Its bite makes me drowsy, too tired to run or jump.
+
+[move.shun-light]
+text: Will not come into the torchlight. It waits in the dark until I leave it.
+
+[move.grab]
+sting: Two claws to hold you, one tail to finish. Hit the claws.
+swallow: When the jaws gape, step back. Swallowed, the sand pulls me down; hitting him is the only way out.
+text: In the water its jaws hold me fast and it rolls. When they gape, step back.
+
+[move.step-off]
+text: Stands among the other figures, still as they are, and steps off its place when I come near.
+
+[move.roar]
+text: Stunned against the wall, he gets up roaring a storm of sand. Do not stand next to him then.
+
+[move.kite]
+text: Keeps its distance: backs off when I come at it, throws from afar. Corner it, or run it down.
+
+[move.roll-ball]
+burning: She turns her back on me and rolls a burning sun along the floor, as she rolls the sun across the sky. A
+	jump clears it.
+text: It rolls its dinner at me. I am not sure whose dinner. A jump clears it.
+
+[move.douse]
+text: The torches and lamps go out as she passes, and stay out. The braziers she leaves alone.
+
+[move.spin-web]
+text: Spins webs over the floor behind her; they hold my feet. A blade cuts them, fire burns them.
+
+[move.blaze]
+text: Every third throw a coal as big as a head, at my feet: where it lands the floor burns. Off it, quick.
+
+[move.leap-away]
+text: Cornered at the edge of a ledge, he leaps over the gap to the next one and throws from there.

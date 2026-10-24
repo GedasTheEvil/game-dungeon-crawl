@@ -1,0 +1,29 @@
+# The details on a skill's card of the Heka page, under its effect (plan texts-to-content, docs/texts.md).
+# [skill.<name>], the name of its row in src/world/skills.cpp.
+
+[skill.stun]
+lore: A good knock on the head stops anything for a moment, gods' beasts too.
+
+[skill.words-of-thoth]
+lore: Thoth, lord of writing, opens the carved words on the walls.
+
+[skill.dodge]
+lore: Step aside at the last moment: a bite or a sting may find only air.
+
+[skill.power-hit]
+lore: Put your back into it: more damage a swing, paid in stamina.
+
+[skill.sharp-eye]
+lore: Horus lends an eye: bows, sling, javelin and throwing stick carry farther.
+
+[skill.favour-of-hapi]
+lore: Hapi, the Nile in flood, lets you through his shallows.
+
+[skill.serkets-favour]
+lore: Serket's children still bite, but they do not mean it as much.
+
+[skill.blessing-of-isis]
+lore: Isis has a knot for every curse. She ties fast.
+
+[skill.flaming-arrows]
+lore: Sekhmet lends her flame: the arrow flies on fire, and what it hits burns.

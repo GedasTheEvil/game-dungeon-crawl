@@ -1,0 +1,358 @@
+# The journal's own words (plan texts-to-content, docs/texts.md): the field notes (FieldNote, fieldNoteText in
+# src/world/journal_text.cpp), one [note.<slug>] each in FieldNote order, then the diary pages (DiaryPage). The notes
+# say the rules as the game has them (PlayerStats, ItemBag, the mechanisms): keep them in step.
+
+[note.health]
+title: Hit points
+text: Every bite, blow and trap costs me health: the red bar in the corner. When it runs out, the expedition is
+	over. A new level fills it up.
+
+[note.levels]
+title: Experience
+text: Every creature I kill and every riddle I answer teaches me something. With enough of it I reach a new level:
+	more health and more stamina, both filled up at once, and any poison gone. Every fifth level my skin gets tougher,
+	every eighth my arm stronger.
+
+[note.stamina]
+title: Stamina
+text: Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of it, and running drains it
+	all the time. When I walk or stand, it comes back by itself.
+
+[note.keys]
+title: Keys and gates
+text: A key opens every gate of its colour on this level. Some gates answer to a lever of their colour instead. The
+	gate of a boss's lair stays shut until the boss is dead.
+
+[note.poison]
+title: Poison
+text: Some stings and bites poison me: the health bar turns green and keeps draining after the fight, armour or not,
+	and it can kill me. The same poison again only starts over; a stronger or weaker one runs alongside it. A new level
+	clears all poison.
+
+[note.weapons]
+title: Weapons
+text: Copies of my weapons are in chests, and now and then a creature leaves one; with enough copies a weapon can be
+	upgraded in the inventory (U). The old club gains the most from it. 1 takes up the next hand weapon, 2 the next one
+	to shoot or throw. Every creature takes each kind of blow differently: I note it down.
+
+[note.blunt]
+title: Smash
+text: A club smashes, and so do the mace, the sling's stones and the throwing stick. They hit hard, but they do not
+	cut.
+
+[note.slash]
+title: Cut
+text: A blade cuts: the bronze sword, the khopesh (a curved sword), the epsilon axe. Long cuts, quick to follow one
+	another.
+
+[note.pierce]
+title: Stab
+text: A point stabs: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the gaps
+	between scales and plates.
+
+[note.health-potions]
+title: Health potions
+text: Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. When I am in a hurry, H drinks
+	the one that fits best.
+
+[note.stamina-potions]
+title: Stamina potions
+text: Date wine, or the red beer of Hathor: a stamina potion gives me my stamina back. When I am in a hurry, 0
+	drinks the one that fits best.
+
+[note.might]
+title: Blood of Montu
+text: It tingles. Whatever is in it, my arm hits harder after I drink it, forever.
+
+[note.armor]
+title: Granite of Ptah
+text: Ptah's granite: my skin becomes hard as a temple wall, and every blow hurts a little less, forever.
+
+[note.life]
+title: Breath of Osiris
+text: The breath of Osiris: more health forever, and all my wounds close at once.
+
+[note.antidote]
+title: Milk of Renenutet
+text: The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned.
+
+[note.dart-traps]
+title: Dart traps
+text: A slab with a cobra on it sank under my foot, and darts shot out of three holes in the wall above it, tipped
+	with venom. A rat is too light to press it, a mummy is not, and the darts hit whoever is in their way. A jump over
+	the slab sets nothing off; a jump at the right moment lets them pass under me.
+
+[note.resistance]
+title: Resistance potions
+text: Cobra venom, a drop at a time. For two minutes a poisoned bite or sting often does nothing to me: half the
+	time after the lesser potion, nearly always after the greater one. The greater potion also cures a poison already
+	in me. A poison guard amulet adds its share.
+
+[note.heka]
+title: Heka
+text: The guardian's heka, the magic the gods hold, went into me. It tastes of river mud and old incense. Each
+	guardian gives one; on the Heka page (K) I spend it on a skill, forever. There are more skills than guardians down
+	here, so I choose with care.
+
+[note.serkets-favour]
+title: Serket's favour
+text: Serket likes me. Her children still bite, but they hurt me less: every poison on me lasts half as long, with
+	the same damage each second.
+
+[note.sharp-eye]
+title: Sharp eye
+text: Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and the
+	throwing stick all reach a third farther: even a foe far away is in my sights.
+
+[note.curse-weakness]
+title: Weakness
+text: A curse sits on my arm: half my might is gone, and the greater curse takes all of it and more. Nothing I drink
+	removes a curse. Two minutes, then it fades. Another curse of the same kind restarts the two minutes.
+
+[note.curse-clumsiness]
+title: Clumsiness
+text: Cursed with clumsy hands: every blow, shot and throw does a fifth less damage, and half as much under the
+	greater curse. My venom is not affected. Two minutes and it passes; no potion helps.
+
+[note.curse-vulnerability]
+title: Vulnerability
+text: Cursed: my armour feels like papyrus. It stops only two fifths of what it did. Two minutes, and nothing cures
+	it. I should not get hit in that time.
+
+[note.curse-fatigue]
+title: Fatigue
+text: A curse drained me: my stamina fell to a fifth and does not come back by itself for two minutes. A stamina
+	potion still works.
+
+[note.curse-disease]
+title: Disease
+text: A cursed sickness: my body holds less health, a third less, much less under the greater curse. It gives the
+	health back when it passes, in two minutes. No antidote helps.
+
+[note.curse-slowness]
+title: Slowness
+text: Cursed legs: I walk and climb at half speed, and I run hardly faster than I used to walk. Two minutes. Traps
+	made for a quick step are dangerous for me now.
+
+[note.curse-palsy]
+title: Palsy
+text: My hands shake from a curse: no bow, sling or throw finds its mark, so I do not try. My melee weapons still
+	work. Two minutes.
+
+[note.curse-insanity]
+title: Insanity
+text: My mind is clouded. The club stays in my hand, and I cannot use my map, journal, pack or potions. Two minutes,
+	if I live.
+
+[note.fire]
+title: Fire
+text: Fire sets what it hits on fire: it keeps burning for a few seconds after the hit. Armour does not stop it,
+	only a fire guard amulet does. Water puts it out, and in the water a flame barely scorches. A brazier lights my
+	next five arrows (E by it). Mummies, it turns out, burn very well. Whatever shrugs off an arrow, a bat's thin wing,
+	a mimic's dry wood, a plant, a mummy, burns instead: fire arrows are my answer to it. Scorpions are used to the
+	heat.
+
+[note.favour-of-hapi]
+title: Favour of Hapi
+text: The water parts for me now. Not much, but enough to stop wading like a heron.
+
+[note.blessing-of-isis]
+title: Blessing of Isis
+text: Isis has a knot for every curse. She ties fast.
+
+[note.water-blessing]
+title: Blessing of Hapi
+text: Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint and jump in half
+	water as if it were a street. With his favour it lasts twice as long and the water carries me.
+
+[note.canopic-jars]
+title: Canopic jars
+text: Four jars, four sons of Horus: one each for the liver, the lungs, the stomach and the guts. Somebody swapped
+	the insides for treasure. I try not to wonder where the insides went.
+
+[note.jumped-bite]
+title: Jumping a bite
+text: It snapped at my heels and caught only air. A small one bites low: jump as it opens its jaws and the bite goes
+	under me. Over a tall one a jump does not help.
+
+[note.sand]
+title: Sand
+text: Sand. Underground. Somebody left a door open, three thousand years ago. I wade through the drifts at three
+	quarters of my pace, and running in it is out of the question. Jumping still works.
+
+[note.quicksand]
+title: Quicksand
+text: The sand swallowed my boots, then my shins. Standing still makes it worse: the longer I stay, the slower I
+	get, until I am stuck and it squeezes. A jump gets me out, if I have the breath for it. Up close it swirls, slowly.
+	Look before you step.
+
+[note.sun-mirrors]
+title: Sun mirrors
+text: The priests knew how to bring the sun underground. So did a certain archaeologist with a staff. A shaft of
+	daylight runs straight until rock stops it; a bronze mirror sends it on the way its pointer shows, and I can turn
+	one a quarter at a time. A sun disc, an Aten, that catches the light opens the gates of its colour for good. The
+	dead do not like the sun: it sets them alight.
+
+[note.trapped-chests]
+title: Trapped chests
+text: Some chests bite back. Darts from the lock, a puff of green gas, a curse on the lid, deeper down a nest of
+	scarabs. Up close a trapped one looks darker, as if it knew. Half of them were robbed long ago and only the trap is
+	left; the rest hold a little more than a plain chest. The Eye of Horus sees most traps before they go off.
+
+[note.tomb-curses]
+title: Tomb curses
+text: The lid said 'cursed be he who opens this'. I opened it. The lid was right. The dead write their threats on
+	whatever they leave behind: lids, jars, the little servant figures. Not every one means it, and the curse runs out,
+	as any curse.
+
+# The hour notes (plan campaign-texts): written on entering a zone, one per ZoneId in order.
+[note.hour-1]
+title: The First Hour
+text: The gate of the tomb. Ra's boat enters the Duat and the first gate closes behind it. It closed behind me too,
+	and I did not even have a boat. The floors have teeth. Mind the floors.
+
+[note.hour-2]
+title: The Second Hour
+text: Bats, and a smell of old leather. The wall says the second hour is the water of the blessed, where the grain
+	grows. Nothing grows here except my doubts. And the bats.
+
+[note.hour-3]
+title: The Third Hour
+text: The dark thickens, and the walls are hung with webs. The third hour is the hour of the judging of Osiris. I am
+	being judged by spiders. I keep a torch close.
+
+[note.hour-4]
+title: The Fourth Hour
+text: The priests' quarter. Ra's boat has to be towed over sand here, says the wall, and the priests wrote a great
+	deal on it. I can read it at last. I almost wish I could not.
+
+[note.hour-5]
+title: The Fifth Hour
+text: The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serqet's scorpions. I do
+	not like her sense of humour. I count my antidotes.
+
+[note.hour-6]
+title: The Sixth Hour
+text: The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. The wall says:
+	the dead are made new here. I will settle for staying the same.
+
+[note.hour-7]
+title: The Seventh Hour
+text: Apep waits here, says the wall. I wish the wall were wrong. The seventh hour is the hour of the great serpent
+	and of water: the boat is hauled through the cisterns. So am I.
+
+[note.hour-8]
+title: The Eighth Hour
+text: Sand again, red and endless. Seth stands in the prow of the boat and drives the serpent back with his spear.
+	The wall says the dead here are clothed. I would settle for a hat.
+
+[note.hour-9]
+title: The Ninth Hour
+text: The land of Sokar, where the ground gives way and the worms sleep. The ninth hour feeds the dead with grain,
+	the wall says. I would be glad of a sandwich. I would be gladder of a floor.
+
+[note.hour-10]
+title: The Tenth Hour
+text: A lake of fire, and baboons on its shore. In the tenth hour the lake is cooled for the boat of Ra, so there
+	must be water somewhere. I look for it first. Everything else second.
+
+[note.hour-11]
+title: The Eleventh Hour
+text: The necropolis. Every trap I have met, in one place, and the road to the last gate. The eleventh hour is the
+	one before the dawn. The dawn is not what I would call close.
+
+[note.hour-12]
+title: The Twelfth Hour
+text: The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I have a feeling that
+	something here will weigh my heart. I did bring it. Let me be light.
+
+# The amulet notes (plan amulet-extras): one per AmuletType in order, [note.<amulet model>], the numbers
+# of the four tiers.
+[note.amulet-strength]
+title: Jackal tooth
+text: A jackal's tooth on a cord. Worn, it adds to every blow I strike: Might +1, +2, +4, +6, from the lesser amulet
+	to the grand one. One amulet at a time.
+
+[note.amulet-armor]
+title: Bronze scarab
+text: A bronze scarab. Worn, it takes a flat amount off every hit I suffer, like armour: 1, 2, 4 or 6 from the
+	lesser to the grand one.
+
+[note.amulet-health]
+title: Carnelian heart
+text: A carnelian heart, and it beats with mine: my health is greater by 5, 10, 20 or 30 percent while I wear it,
+	from the lesser to the grand one. Taking it off does not hurt me.
+
+[note.amulet-poison]
+title: Serket's scorpion
+text: Serket's scorpion. Her children spare me: a poisoned bite or sting fails 10, 25, 50 or 80 percent of the time,
+	lesser to grand. It adds to a resistance potion's share.
+
+[note.amulet-traps]
+title: Eye of Horus
+text: The eye of Horus sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, 75 percent, and
+	the grand eye makes me immune. A chest's trap goes off as much less often.
+
+[note.amulet-blunt]
+title: Djed pillar
+text: The djed pillar does not bend. Worn, smashing blows hurt me 8, 16, 28 or 40 percent less, lesser to grand.
+	Falling rocks too, I hope.
+
+[note.amulet-slash]
+title: Knot of Isis
+text: The knot of Isis: blades slip on it. Cuts hurt me 8, 16, 28 or 40 percent less, from the lesser to the grand
+	knot.
+
+[note.amulet-pierce]
+title: Shen ring
+text: The shen ring: points glance off it. Stabs hurt me 8, 16, 28 or 40 percent less, from the lesser to the grand
+	ring. Darts and arrows too.
+
+[note.amulet-regeneration]
+title: Faience lotus
+text: A faience lotus. It opens when all is calm: while nothing chases me and no poison runs, it heals me, 1 health
+	a second, 2 with the grand one. There is no lesser or minor lotus.
+
+[note.amulet-venom]
+title: Wadjet's cobra
+text: Wadjet's rearing cobra, and my blade grows fangs: 10, 15, 20 or 30 percent of my hits poison the foe, weakly,
+	weakly, then worse, then strongly. What resists poison resists this. A foe the poison kills still counts as mine.
+
+[note.amulet-fire]
+title: Sun disc
+text: Ra's disc burns daily. Fire does not care about my armour, but this does: fire hurts me 20, 40, 60 or 80
+	percent less, lesser to grand. Never nothing at all.
+
+[note.amulet-crushing]
+title: Seth's mace
+text: The mace head of Seth: what it hits stays hit. Worn, my smashing blows deal 10, 20, 30 or 50 percent more,
+	lesser to grand. Only the smashing part counts: a mace gains all of it, a club nearly all.
+
+[note.amulet-cleaving]
+title: Montu's khopesh
+text: The sickle sword of Montu parts what it meets. Worn, my cutting blows deal 10, 20, 30 or 50 percent more,
+	lesser to grand. Only the cutting part counts: a sword gains most of it, a club hardly any.
+
+[note.amulet-piercing]
+title: Neith's arrowhead
+text: The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 percent more, lesser to
+	grand. Only the stabbing part counts: every arrow gains all of it.
+
+# The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
+# per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
+# starting weapon (items.cpp).
+[diary.arrival]
+title: Saqqara, the third week
+p1: The dig gave us nothing for nineteen days. On the twentieth, under the sand of the east trench, a statue no
+	catalogue knows: a jackal-headed man, life-sized, an ankh in his hand, and no name on the base. The crew would not
+	go near it. I am a scientist. I touched the ankh.
+p2: Light. Then cold stone and darkness. No sand, no sky, no crew. One torch burns on the wall, as if someone
+	expected me.
+
+[diary.descent]
+title: Later
+p1: At my feet lay an old acacia club. Not a trowel, but it will do: something scratches in the dark down the hall.
+	The corridor slopes down. There is no way back that I can see, so down it is.
+p2: The first signs I can read speak of one thing only: the ankh, life without end. Someone built this maze to keep
+	it. Or to keep someone in. If there is a way out, it is at the bottom, with the ankh.
+p3: I will keep notes. Someone should know what happened here.

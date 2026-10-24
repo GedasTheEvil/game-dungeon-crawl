@@ -199,8 +199,8 @@ struct ItemText {
 	const char* shortName; // fits an inventory slot's name band
 	const char* label; // plain word for the editor ("small health", "might")
 	const char* effect; // potions and amulets
-	const char* lore1;
-	const char* lore2;
+	const char* lore1 = nullptr; // the card's two lore lines: content/texts/items.txt, filled by itemText
+	const char* lore2 = nullptr;
 };
 [[nodiscard]] const ItemText& itemText(ItemKind kind);
 

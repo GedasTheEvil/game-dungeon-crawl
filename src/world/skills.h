@@ -27,13 +27,14 @@ constexpr int SKILL_COUNT = 9;
 struct SkillDef {
 	const char* name;
 	const char* effect; // one line, on the card
-	const char* lore; // the details, under the effect
 	// Its rules are not in the game yet (its sub-draft in docs/plan/): shown, not learnable. A sub-draft that lands
 	// clears it.
 	bool sealed;
 };
 extern const std::array<SkillDef, SKILL_COUNT> SKILLS;
 [[nodiscard]] inline const SkillDef& skillDef(SkillId id) { return SKILLS[static_cast<size_t>(id)]; }
+// The details, under the effect on its card (content/texts/skills.txt).
+[[nodiscard]] const char* skillLore(SkillId id);
 
 // Cells of media/textures/ui/skill_icons.png (tools/textures/skill_icons.py): the heka mark, then the skills in SkillId
 // order.

@@ -182,7 +182,7 @@ item, a new weapon, the antidote, a Hapi potion): half of them are empty, and th
 chest's antidote as in reach.
 
 The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
-attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `journal_text.cpp`, plan
+attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`, plan
 campaign-texts). 18 of them (1-6, 8, 10, 11, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 2, 3, 4, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23,
 24, 27, 31 and 34, each a level or so before what it hints at, off the exit path; the last one (24) lies on lvl34's
 path. The pages 7, 9, 12, 16, 19 and 22 (webs, an early fork, poison drips, deep water, worms and a fork, the lake of

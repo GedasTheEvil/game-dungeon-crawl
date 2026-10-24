@@ -173,10 +173,11 @@ TEST_CASE("heka and the skills learnt go through a save; an old save has none") 
 }
 
 TEST_CASE("every skill has a name, an effect and its lore; the heka mark and the icons fit the atlas") {
-	for (const SkillDef& def : SKILLS) {
+	for (int s = 0; s < SKILL_COUNT; s++) {
+		const SkillDef& def = skillDef(static_cast<SkillId>(s));
 		CHECK(std::string(def.name).size() > 0);
 		CHECK(std::string(def.effect).size() > 0);
-		CHECK(std::string(def.lore).size() > 0);
+		CHECK(std::string(skillLore(static_cast<SkillId>(s))).size() > 0);
 	}
 	CHECK(skillIcon(static_cast<SkillId>(SKILL_COUNT - 1)) < SKILL_ICON_COLUMNS * SKILL_ICON_ROWS);
 	CHECK(HEKA_ICON < SKILL_ICON_FIRST);

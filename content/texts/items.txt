@@ -1,0 +1,155 @@
+# The two lore lines on an item's inventory card (plan texts-to-content, docs/texts.md), each short enough for the
+# card. [item.<label>] for the weapons and potions, the label of its row in src/world/items.cpp; [item.<model>] for
+# an amulet type, its tiers share them.
+
+[item.club]
+lore1: Good old club.
+lore2: Now with spikes.
+
+[item.dagger]
+lore1: Quick and close.
+lore2: Mind the fingers.
+
+[item.short-sword]
+lore1: Bronze blade of a
+lore2: forgotten guard.
+
+[item.khopesh]
+lore1: The sickle sword
+lore2: of the pharaoh's guard.
+
+[item.epsilon-axe]
+lore1: A broad bronze crescent.
+lore2: Swing it and wait.
+
+[item.duckbill-axe]
+lore1: Narrow and heavy.
+lore2: It goes through shells.
+
+[item.mace]
+lore1: A stone on a stick.
+lore2: The oldest argument.
+
+[item.spear]
+lore1: Long reach.
+lore2: None shall pass!
+
+[item.self-bow]
+lore1: One stave of acacia.
+lore2: For slow monsters.
+
+[item.composite-bow]
+lore1: Wood, horn and sinew,
+lore2: glued by a master.
+
+[item.sling]
+lore1: A shepherd's sling.
+lore2: Stones are everywhere.
+
+[item.throwing-stick]
+lore1: Brings down a duck.
+lore2: Comes back, mostly.
+
+[item.javelin]
+lore1: Light enough to throw,
+lore2: heavy enough to stay.
+
+[item.small-health]
+lore1: Bitter herbs from
+lore2: the Nile marshes.
+
+[item.large-health]
+lore1: Brewed by the priests
+lore2: of Sekhmet.
+
+[item.might]
+lore1: It tingles. Best not
+lore2: ask what is in it.
+
+[item.armor]
+lore1: Skin as hard as
+lore2: temple granite.
+
+[item.life]
+lore1: The breath of Osiris,
+lore2: sealed in a flask.
+
+[item.small-stamina]
+lore1: Date wine and honey.
+lore2: Mostly honey.
+
+[item.large-stamina]
+lore1: The red beer that calmed
+lore2: Sekhmet. It calms you.
+
+[item.antidote]
+lore1: Milk of the snake
+lore2: goddess Renenutet.
+
+[item.lesser-resistance]
+lore1: Venom of a young cobra,
+lore2: taken drop by drop.
+
+[item.greater-resistance]
+lore1: Wadjet's own venom.
+lore2: The cobra spares her kin.
+
+[item.water-blessing]
+lore1: Water of the Nile flood,
+lore2: from Hapi's own jar.
+
+[item.amulet-strength]
+lore1: A jackal's tooth
+lore2: on a cord. Bite back.
+
+[item.amulet-armor]
+lore1: A bronze scarab.
+lore2: Hard shell, soft heart.
+
+[item.amulet-health]
+lore1: A carnelian heart.
+lore2: It beats with yours.
+
+[item.amulet-poison]
+lore1: Serket's scorpion.
+lore2: Her children spare you.
+
+[item.amulet-traps]
+lore1: The eye of Horus.
+lore2: It sees the spikes first.
+
+[item.amulet-blunt]
+lore1: The djed pillar.
+lore2: It does not bend.
+
+[item.amulet-slash]
+lore1: The knot of Isis.
+lore2: Blades slip on it.
+
+[item.amulet-pierce]
+lore1: The shen ring.
+lore2: Points glance off it.
+
+[item.amulet-regeneration]
+lore1: A faience lotus.
+lore2: It opens when all is calm.
+
+[item.amulet-venom]
+lore1: Wadjet's rearing cobra.
+lore2: Your blade grows fangs.
+
+[item.amulet-fire]
+lore1: Ra's disc burns daily.
+lore2: Armour does not stop fire.
+
+[item.amulet-crushing]
+lore1: The mace head of Seth.
+lore2: What it hits stays hit.
+
+[item.amulet-cleaving]
+lore1: The sickle sword of Montu.
+lore2: It parts what it meets.
+
+[item.amulet-piercing]
+lore1: The arrowhead of Neith.
+lore2: It finds the gap.

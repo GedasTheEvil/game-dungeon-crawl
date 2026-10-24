@@ -242,5 +242,6 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | solved plan | | a plan the user confirmed, `docs/plan/solved/` | `docs/plan/solved` |
 | threat | | (checker) the level's difficulty score, built from its monsters' threats. See threat under Monsters | `LevelReport::difficulty` |
 | texture batch | | while the assets load, PNGs decode on worker threads and upload to GL in order on the main thread ([faster-loading](plan/solved/faster-loading.md)) | `TextureBatch`, `WorkerPool` |
+| text key | | (plan texts-to-content) a prose text's name in `content/texts/*.txt`, section and field: `note.sand.text`, `monster.giant-rat.note` ([texts.md](texts.md)) | `gameText`, `textSlug` |
 | tick | | one fixed step of the game's update, 16 ms | `UPDATE_TICK_MS` |
 | unit test | | a doctest case in `tests/unit/`, run by `make unit` | `tests/unit/main.cpp` |

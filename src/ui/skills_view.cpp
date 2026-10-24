@@ -308,7 +308,7 @@ void SkillsScreen::DrawDetails() {
 		y -= DETAIL_EFFECT_STEP;
 	}
 	y -= 1.f;
-	for (const std::string& l : wrap(small, def.lore, p.w - 2 * DETAIL_PAD)) {
+	for (const std::string& l : wrap(small, skillLore(id), p.w - 2 * DETAIL_PAD)) {
 		text(small, p.x + DETAIL_PAD, y, l.c_str(), INK_FADED);
 		y -= DETAIL_LORE_STEP;
 	}

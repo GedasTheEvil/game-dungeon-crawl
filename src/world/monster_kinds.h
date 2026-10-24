@@ -241,9 +241,8 @@ struct MonsterKind {
 	MonsterTypeId id{};
 	char glyph = 'm'; // levelcheck --map and the ASCII level sources
 	const char* name = ""; // the game's and the journal's ("Man-eater plant")
-	const char* label = ""; // the editor's list ("giant rat")
+	const char* label = ""; // the editor's list ("giant rat"); keys its journal note (monsterNote, content/texts/)
 	const char* description = ""; // the editor's hint
-	const char* note = ""; // the journal's description, in the archaeologist's words, written after the first kill
 	float threat = 0.f; // one of them in the checker's difficulty score
 
 	// Look: under media/models/ and media/sounds/, under media/textures/ (a giant kin is the same model, bigger and

@@ -1,0 +1,108 @@
+# The monsters' field notes (plan texts-to-content, docs/texts.md): the journal's description, in the archaeologist's
+# words, written after the first kill. [monster.<label>], the label of its row in src/world/monster_kinds.cpp.
+
+[monster.scarab]
+note: A beetle the size of my fist. Its bite stings.
+
+[monster.worm]
+note: Slow as sand, but its jaws shut tight and hold. Whoever calls it Shai-Hulud gets no answer.
+
+[monster.plant]
+note: It cannot move. Never stand next to it. Never touch it: hitting it counts too.
+
+[monster.anubis]
+note: A statue of Anubis that forgot to stay on its stand. Traps do not stop him, and his stone shrugs off fire.
+
+[monster.rat]
+note: Quick, filthy and always hungry.
+
+[monster.giant-rat]
+note: A rat as big as a dog. Jumps at me over the pits.
+
+[monster.bat]
+note: Flies down out of the dark. Hard to hit in the air.
+
+[monster.giant-bat]
+note: Its wings are wider than my arms.
+
+[monster.mimic]
+note: Not every chest in this tomb holds treasure. Ask Osiris.
+
+[monster.giant-scarab]
+note: A shell like a shield, and it jumps.
+
+[monster.boss-scarab]
+note: The mother of the scarabs. Her young come when she calls.
+
+[monster.vampire-bat]
+note: Grown fat on blood. Every bite makes it stronger.
+
+[monster.mummy]
+note: Wrapped in bandages and patient. It waited three thousand years for me.
+
+[monster.anubis-boss]
+note: The guardian of the last tomb. His statues step out of the stone when he calls.
+
+[monster.crocodile]
+note: Sobek's own. In the water I cannot outrun it.
+
+[monster.scorpion]
+note: Pale as straw, quick on its eight legs. The sting burns for a long while.
+
+[monster.cobra]
+note: The uraeus, the cobra on the pharaoh's crown, alive. It spits before it bites, and both burn.
+
+[monster.giant-cobra]
+note: Black as the night of Apep, long as a boat. It spits farther than I can jump.
+
+[monster.giant-scorpion]
+note: Dark as old blood and as big as a dog. Its sting does not wear off quickly.
+
+[monster.egg-cluster]
+note: Leathery eggs glued in resin. Something moves inside. Smash them before they hatch.
+
+[monster.scorpion-queen]
+note: Serket herself, or her daughter. Her sting burns like fire, and her eggs are everywhere.
+
+[monster.apep]
+note: The serpent of chaos, who swallows the sun each night. The sand is his road.
+
+[monster.sobek]
+note: The lord of the Nile, green as the river. He charges like a flood; let the wall stop him.
+
+[monster.lotus]
+note: Pretty, blue, and it wants my leg. One bite and I could sleep for a week. Odysseus's men ate the lotus; this
+	one eats Odysseus's men.
+
+[monster.mummy-priest]
+note: He read the curses at the funerals. He still knows them all. The dead rise at his word.
+
+[monster.camel-spider]
+note: Ten legs, jaws like shears, and faster than I can run. The soldiers' stories say it chases your shadow. Not
+	venomous, they say. It does not need to be. It spins no webs. So who made these?
+
+[monster.hippo]
+note: Taweret's people. On the walls they protect mothers. In the water they protect nothing.
+
+[monster.ushabti]
+note: A servant figure, buried to answer for the dead when the gods call them to work. It says 'here I am' on its
+	chest. It means it.
+
+[monster.cursed-mimic]
+note: Some chests bite. Some bite the mind. The dark ones with the purple glow in the lock: leave them shut.
+
+[monster.seth]
+note: Seth in the shape of the red beast. Horus took him with a harpoon. I have a spear; it will have to do.
+
+[monster.baboon]
+note: Thoth's baboons, the priests said. Thoth was a scribe. These throw things.
+
+[monster.rerek]
+note: The Book of the Dead has a spell for driving back Rerek, the serpent of the underworld. I have it by heart
+	now. He has not read it.
+
+[monster.mother-of-webs]
+note: Found the one who makes the webs. She does not hide from the torches; she puts them out.
+
+[monster.babi]
+note: The heart-eater. I keep mine, thank you.

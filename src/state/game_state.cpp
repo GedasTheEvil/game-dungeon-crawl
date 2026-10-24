@@ -11,6 +11,7 @@
 #include <memory>
 #include "../core/gameplay_config.h"
 #include "../world/campaign.h"
+#include "../world/texts.h"
 #include "../graphics/ink.h"
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
@@ -62,6 +63,10 @@ void GameState::Load() {
 		signProblems.push_back(message);
 	for (const std::string& message : signProblems)
 		LOG_WARNINGF("game", "Hieroglyphs: %s", message.c_str());
+	// The journal's and the cards' prose (plan texts-to-content), read here once instead of on the first page shown.
+	for (const std::string& message : textProblems())
+		LOG_WARNINGF("game", "Texts: %s", message.c_str());
+	LOG_INFO("game", "Loaded " + std::to_string(gameTexts().Size()) + " texts");
 	dungeon.Link(
 		{player.get(),
 		 &journal,

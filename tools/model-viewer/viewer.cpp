@@ -50,10 +50,6 @@ namespace {
 // AnimatedModel whose frame follows an external wall-clock ratio instead of Advance().
 class LoopedAnimatedModel : public AnimatedModel {
   public:
-	// AnimatedModel::Show()/Compile() both draw with glDrawArrays(GL_TRIANGLES, 0, VertexCount()) -- a flat,
-	// non-indexed triangle list -- so every 3 vertices are one triangle.
-	int TriangleCount() const { return VertexCount() / 3; }
-
 	void SetFrame(int frame) {
 		playback.frame = static_cast<float>(std::clamp(frame, 0, std::max(FrameCount() - 1, 0)));
 	}
@@ -239,8 +235,11 @@ int LoadCurrentTexture() {
 			return gTexture.ID();
 		}
 	} else {
-		LOG_WARNINGF("modelviewer", "No texture found for %s, falling back to media/textures/null.png",
-					 gStatModelName.c_str());
+		LOG_WARNINGF(
+			"modelviewer",
+			"No texture found for %s, falling back to media/textures/null.png",
+			gStatModelName.c_str()
+		);
 	}
 	if (gTexture.LoadPNG(MEDIA_DIR "textures/null.png")) {
 		return gTexture.ID();
@@ -300,8 +299,14 @@ void DrawStatsPanel() {
 	std::snprintf(lines[2], sizeof lines[2], "Frames: %d   Polygons: %d", gStatFrameCount, gStatPolygonCount);
 	std::snprintf(lines[3], sizeof lines[3], "Loop: %.2f s", gDurationSeconds);
 	if (gTextureIndex < gTexturePaths.size())
-		std::snprintf(lines[4], sizeof lines[4], "Texture %zu / %zu: %s", gTextureIndex + 1, gTexturePaths.size(),
-					  Basename(gTexturePaths[gTextureIndex]).c_str());
+		std::snprintf(
+			lines[4],
+			sizeof lines[4],
+			"Texture %zu / %zu: %s",
+			gTextureIndex + 1,
+			gTexturePaths.size(),
+			Basename(gTexturePaths[gTextureIndex]).c_str()
+		);
 	else
 		std::snprintf(lines[4], sizeof lines[4], "Texture: none");
 	std::snprintf(lines[5], sizeof lines[5], "Light: %s", LIGHT_MODE_NAMES[static_cast<int>(gLightMode)]);
@@ -598,8 +603,9 @@ int main(int argc, char* argv[]) {
 		}
 		const char* value = argv[++arg];
 		if (option == "--light") {
-			auto name = std::find_if(std::begin(LIGHT_MODE_NAMES), std::end(LIGHT_MODE_NAMES),
-									 [&](const char* n) { return std::strcmp(n, value) == 0; });
+			auto name = std::find_if(std::begin(LIGHT_MODE_NAMES), std::end(LIGHT_MODE_NAMES), [&](const char* n) {
+				return std::strcmp(n, value) == 0;
+			});
 			if (name == std::end(LIGHT_MODE_NAMES)) {
 				std::fprintf(stderr, "Unknown light: %s (flat, game or toon)\n", value);
 				return 1;
@@ -675,8 +681,9 @@ int main(int argc, char* argv[]) {
 	// Centrify/BindTexture (harmless but not the precedent to follow).
 	ApplyLoadedModel(modelPath);
 	if (!texture.empty()) {
-		auto picked = std::find_if(gTexturePaths.begin(), gTexturePaths.end(),
-								   [&](const std::string& path) { return FileStem(path) == texture; });
+		auto picked = std::find_if(gTexturePaths.begin(), gTexturePaths.end(), [&](const std::string& path) {
+			return FileStem(path) == texture;
+		});
 		if (picked == gTexturePaths.end()) {
 			std::fprintf(stderr, "No texture %s for this model\n", texture.c_str());
 			return 1;

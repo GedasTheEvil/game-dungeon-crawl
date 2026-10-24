@@ -29,9 +29,18 @@ class CharacterModel {
 	// media/sounds/<category>/<name>_{die,att,jump,wake,att_ranged,roar}.wav, all optional
 	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound, roarSound;
 
+	// The model files of name, parsed without GL (any thread): Load's first half.
+	struct Parsed {
+		bool loaded = false; // LoadClips
+		ModelInfo info;
+		ClipMeshes meshes;
+	};
+	static Parsed Parse(const char* name, const ClipFiles& files);
+
 	// name: "<category>/<name>", the same under media/models/, media/textures/ and media/sounds/.
 	// Takes the texture over. keepFrames: see AnimatedModel::Compile.
 	bool Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames = false);
+	bool Load(const char* name, Texture&& tex, Parsed&& parsed, bool keepFrames = false); // Parse done
 	// The clips (and measures) of `other`, loaded from the same model files, with its own texture and the sounds of
 	// name.
 	void Share(const CharacterModel& other, const char* name, Texture&& tex);

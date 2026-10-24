@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <ctime>
 #include <iomanip>
+#include <mutex>
 #include <sstream>
 
 std::unique_ptr<Logger> Logger::instance = nullptr;
@@ -55,9 +56,14 @@ void Logger::log(LogLevel level, const std::string& category, const std::string&
 		break;
 	}
 
+	// The asset loading logs from worker threads too (plan faster-loading).
+	static std::mutex lock;
+	const std::scoped_lock<std::mutex> held(lock);
+
 	// Get timestamp
 	auto now = std::time(nullptr);
-	auto tm = *std::localtime(&now);
+	std::tm tm{};
+	localtime_r(&now, &tm);
 
 	char timestamp[32];
 	std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm);

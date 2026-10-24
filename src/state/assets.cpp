@@ -1,10 +1,13 @@
 #include "assets.h"
 #include "../world/monster_kinds.h"
 #include <cstdio>
+#include <algorithm>
 #include <cstring>
+#include <future>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
 #include "../core/paths.h"
+#include "../core/worker_pool.h"
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -85,9 +88,39 @@ struct BarSpan {
 	}
 };
 
-void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels,
-					  const Progress& progress, BarSpan span) {
+// The kin before id on the same model files (normal, giant, boss): 0 if none.
+int firstKin(int id) {
+	const MonsterKind& kind = *monsterKind(id);
+	for (int k = 1; k < id; k++)
+		if (const MonsterKind& other = *monsterKind(k);
+			std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other) == &ClipFilesOf(kind))
+			return k;
+	return 0;
+}
+
+void loadMonsterTypes(
+	MonsterTypes& monsterTypes,
+	std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels,
+	WorkerPool& pool,
+	const Progress& progress,
+	BarSpan span
+) {
+	// The model files parsed on the pool's threads, the GL buffers made below, in order. At most AHEAD parsed models
+	// wait for theirs: all of them at once would hold every clip's frames.
+	constexpr int AHEAD = 8;
+	std::array<std::future<CharacterModel::Parsed>, MONSTER_TYPE_MAX + 1> parsed;
+	int next = 1; // the next id to parse
+	auto parseAhead = [&](int upTo) {
+		for (; next <= std::min(upTo, MONSTER_TYPE_MAX); next++)
+			if (firstKin(next) == 0) {
+				const MonsterKind& kind = *monsterKind(next);
+				parsed[static_cast<size_t>(next)] = pool.Run([&kind] {
+					return CharacterModel::Parse(kind.model, ClipFilesOf(kind));
+				});
+			}
+	};
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
+		parseAhead(id + AHEAD);
 		const MonsterKind& kind = *monsterKind(id);
 		char label[64];
 		snprintf(label, sizeof(label), "Loading Monster Models [%s]", kind.name);
@@ -98,18 +131,16 @@ void loadMonsterTypes(MonsterTypes& monsterTypes, std::array<CharacterModel, MON
 		tex.LoadPNG(texture);
 		MonsterType& type = monsterTypes[static_cast<size_t>(id)];
 		static_cast<MonsterKind&>(type) = kind;
-		const ClipFiles& clips = ClipFilesOf(kind);
 		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
 		CharacterModel& model = monsterModels[static_cast<size_t>(id)];
-		const CharacterModel* kin = nullptr;
-		for (int k = 1; k < id && kin == nullptr; k++)
-			if (const MonsterKind& other = *monsterKind(k);
-				std::strcmp(other.model, kind.model) == 0 && &ClipFilesOf(other) == &clips)
-				kin = &monsterModels[static_cast<size_t>(k)];
-		if (kin != nullptr)
-			model.Share(*kin, *kind.sounds != '\0' ? kind.sounds : kind.model, std::move(tex));
+		if (const int kin = firstKin(id); kin != 0)
+			model.Share(
+				monsterModels[static_cast<size_t>(kin)],
+				*kind.sounds != '\0' ? kind.sounds : kind.model,
+				std::move(tex)
+			);
 		else
-			model.Load(kind.model, std::move(tex), clips);
+			model.Load(kind.model, std::move(tex), parsed[static_cast<size_t>(id)].get());
 		type.model = model.Info();
 	}
 }
@@ -226,11 +257,21 @@ void loadDecor(DecorSet& decor) {
 	for (int s = 0; s < LADDER_STYLE_COUNT; s++)
 		for (int p = 0; p < LADDER_PIECE_COUNT; p++) {
 			char path[64];
-			snprintf(path, sizeof(path), MEDIA_DIR "textures/ladders/ladder_%s_%s.png", LADDER_STYLE_NAMES[s],
-					 LADDER_PIECE_NAMES[p]);
+			snprintf(
+				path,
+				sizeof(path),
+				MEDIA_DIR "textures/ladders/ladder_%s_%s.png",
+				LADDER_STYLE_NAMES[s],
+				LADDER_PIECE_NAMES[p]
+			);
 			decor.ladderTex[s][p].LoadPNG(path);
-			snprintf(path, sizeof(path), MEDIA_DIR "models/ladders/ladder_%s_%s.md3", LADDER_STYLE_NAMES[s],
-					 LADDER_PIECE_NAMES[p]);
+			snprintf(
+				path,
+				sizeof(path),
+				MEDIA_DIR "models/ladders/ladder_%s_%s.md3",
+				LADDER_STYLE_NAMES[s],
+				LADDER_PIECE_NAMES[p]
+			);
 			auto model = std::make_unique<AnimatedModel>();
 			if (!model->Load(path))
 				continue;
@@ -299,6 +340,9 @@ void loadFonts(FontSet& fonts) {
 } // namespace
 
 void Assets::Load(const std::function<void(float, const char*)>& progress) {
+	// Plan faster-loading: the PNGs and the monster models are decoded on these threads, GL stays on this one.
+	WorkerPool pool;
+	TextureBatch textureBatch(pool);
 	textures.papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.hudIcons.LoadPNG(MEDIA_DIR "textures/ui/hud_icons.png");
 	textures.skillIcons.LoadPNG(MEDIA_DIR "textures/ui/skill_icons.png");
@@ -312,16 +356,28 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.nullTex.LoadPNG(MEDIA_DIR "textures/null.png");
 	textures.riddleBackground.LoadPNG(MEDIA_DIR "textures/ui/riddlebg.png", TexFilter::Flat);
 
-	loadMonsterTypes(monsterTypes, monsterModels, progress, {30, 65});
+	loadMonsterTypes(monsterTypes, monsterModels, pool, progress, {30, 65});
 	loadItems(items, progress, {65, 80});
 
-	loadProp(textures.sphinx, models.sphinx, MEDIA_DIR "textures/props/sphinx.png",
-			 MEDIA_DIR "models/props/sphinx.md3");
+	loadProp(
+		textures.sphinx,
+		models.sphinx,
+		MEDIA_DIR "textures/props/sphinx.png",
+		MEDIA_DIR "models/props/sphinx.md3"
+	);
 	loadProp(textures.ankh, models.ankh, MEDIA_DIR "textures/props/ankh.png", MEDIA_DIR "models/props/ankh.md3");
-	loadProp(textures.questionMark, models.question, MEDIA_DIR "textures/props/questionmark.png",
-			 MEDIA_DIR "models/props/questionmark.md3");
-	loadProp(textures.columns, models.columns, MEDIA_DIR "textures/props/columns.png",
-			 MEDIA_DIR "models/props/columns.md3");
+	loadProp(
+		textures.questionMark,
+		models.question,
+		MEDIA_DIR "textures/props/questionmark.png",
+		MEDIA_DIR "models/props/questionmark.md3"
+	);
+	loadProp(
+		textures.columns,
+		models.columns,
+		MEDIA_DIR "textures/props/columns.png",
+		MEDIA_DIR "models/props/columns.md3"
+	);
 	textures.portal.LoadPNG(MEDIA_DIR "textures/effects/plasma.png");
 	textures.portalRed.LoadPNG(MEDIA_DIR "textures/effects/plasma_red.png");
 
@@ -338,4 +394,5 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 
 	progress(100, "Loading game soundtrack");
 	sounds.soundtrack.Load(MEDIA_DIR "sounds/music/soundtrack.ogg");
+	textureBatch.Finish();
 }

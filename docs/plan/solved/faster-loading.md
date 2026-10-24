@@ -1,7 +1,7 @@
 # Faster loading
 
 Status: draft 2026-10-22, from the user. Ready: nothing needed first. Follow-up:
-[loading-per-level](loading-per-level.draft.opus.md), only if startup is still slow after this one.
+[loading-per-level](../loading-per-level.draft.opus.md), only if startup is still slow after this one.
 
 ## Idea
 
@@ -65,6 +65,30 @@ Measure after each step. Stop when the remaining gain is not worth the work.
 
 Not part of this plan: other file formats (QOI, a binary mesh cache). Weigh them only if steps 1 to 3 are not
 enough.
+
+## Done (2026-10-24)
+
+Start to first level frame, level 1, `xvfb-run`, llvmpipe, 16 cores (the command above, several runs each):
+
+| Build | Time | Max RSS |
+|---|---|---|
+| before | 5.7 to 7.0 s | 1.20 GB |
+| steps 1 and 2 | 3.1 to 4.2 s | 1.10 GB |
+| step 3 | 1.6 to 2.1 s | 1.12 GB |
+
+* Steps 1 and 2 as written: `Md3DecodeNormal` (table), `Md3Mesh::indices`, `vertexCount`. `AnimatedModel::Compile`
+  uploads the mesh as it is. The player's fists index vertices now (same mesh in every clip, as before).
+* Step 3: `WorkerPool` (`src/core/worker_pool.h`, a thread per core). During `Assets::Load` a `TextureBatch` is open:
+  `Texture::LoadPNG` reserves the GL texture at once (ID, ClampToEdge work), `Texture::Decode` runs on the pool, the
+  uploads happen in order on the main thread (those ready at each LoadPNG, the rest at the end). The monster models
+  are parsed on the pool (`CharacterModel::Parse`, at most 8 ahead of the GL part), the rest of the models still on
+  the main thread: what is left is not worth it.
+* The logger has a mutex. stb's flip flag is set per thread (`stbi_set_flip_vertically_on_load_thread`), also in the
+  font's glyph measuring, which shared the global flag before.
+* The pool's threads gave glibc a malloc arena each, +0.3 GB RSS that stayed: `mallopt(M_ARENA_MAX, 1)` in `main`,
+  no slower.
+* Screenshots: the kept scenarios and `solved/mother.txt` (the Mother of Webs and the player, toon too), 36 pictures,
+  are pixel-identical to the build before.
 
 ## Tests
 

@@ -236,5 +236,6 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | sim | | the sim library: the dungeon, the monsters and the player without GL, unit tested | `SimLinks`, `tests/unit/sim_world.h` |
 | solved plan | | a plan the user confirmed, `docs/plan/solved/` | `docs/plan/solved` |
 | threat | | (checker) the level's difficulty score, built from its monsters' threats. See threat under Monsters | `LevelReport::difficulty` |
+| texture batch | | while the assets load, PNGs decode on worker threads and upload to GL in order on the main thread ([faster-loading](plan/solved/faster-loading.md)) | `TextureBatch`, `WorkerPool` |
 | tick | | one fixed step of the game's update, 16 ms | `UPDATE_TICK_MS` |
 | unit test | | a doctest case in `tests/unit/`, run by `make unit` | `tests/unit/main.cpp` |

@@ -4,6 +4,7 @@
 #include <GL/gl.h>
 #include <SDL/SDL.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <stdexcept>
 #include <ctime>
 #include <cstdio>
@@ -97,14 +98,20 @@ static bool parseArgs(int argc, char* argv[]) {
 		setenv("SDL_AUDIODRIVER", "dummy", 1);
 		GameClock::enableVirtual();
 	} else if (!args.empty()) {
-		fprintf(stderr, "usage: %s [--no-sound] [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n",
-				argv[0]);
+		fprintf(
+			stderr,
+			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n",
+			argv[0]
+		);
 		ok = false;
 	}
 	return ok;
 }
 
 int main(int argc, char* argv[]) {
+	// One malloc arena: the loading threads' own arenas (plan faster-loading) kept up to 0.3 GB of freed memory, and
+	// were no faster.
+	mallopt(M_ARENA_MAX, 1);
 	Paths::enterRootDir(); // game.log, saves/ and the media from the repo root, wherever bin/game starts
 	Logger::initialize();
 

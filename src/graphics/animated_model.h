@@ -15,9 +15,8 @@ class AnimatedModel {
 	int texture;
 	bool compiled;
 	Md3Mesh mesh;
-	unsigned vbo = 0; // the frames' distinct vertices, after Compile
-	unsigned ibo = 0; // a vertex per corner
-	int vertexCount = 0; // in vbo, per frame
+	unsigned vbo = 0; // the frames' vertices, after Compile
+	unsigned ibo = 0; // the triangles' indices
 
   public:
 	bool loop;
@@ -44,8 +43,9 @@ class AnimatedModel {
 	[[nodiscard]] std::pair<float, float> YRange(int f) const { return mesh.YRange(f); }
 	// Farthest |x| and |z| of frame f from the origin.
 	[[nodiscard]] std::pair<float, float> HalfXZ(int f) const { return mesh.HalfXZ(f); }
-	[[nodiscard]] int VertexCount() const { return mesh.cornerCount; }
-	// Corner i of frame f (see Compile).
+	[[nodiscard]] int VertexCount() const { return mesh.vertexCount; }
+	[[nodiscard]] int TriangleCount() const { return mesh.TriangleCount(); }
+	// Vertex i of frame f (see Compile).
 	[[nodiscard]] std::array<float, 3> Vertex(int f, int i) const { return mesh.Vertex(f, i); }
 	void Reset();
 	[[nodiscard]] int FrameCount() const { return mesh.frameCount; }

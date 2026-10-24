@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include "../core/logger.h"
+#include "../core/worker_pool.h"
 
 #include "../../external/stb/stb_image.h"
 
@@ -27,6 +28,36 @@ float anisotropy() {
 		LOG_INFOF("texture", "Anisotropic filtering: %dx", static_cast<int>(level));
 	}
 	return level;
+}
+
+TextureBatch* openBatch = nullptr;
+
+// Gives the texture `id` its pixels and filter.
+void upload(GLuint id, const DecodedImage& image, TexFilter filter) {
+	const GLenum format = image.components == 4 ? GL_RGBA : GL_RGB;
+	glBindTexture(GL_TEXTURE_2D, id);
+	bool mipmaps = filter == TexFilter::Mipmapped;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+	if (mipmaps)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy());
+
+	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		static_cast<GLint>(format),
+		image.width,
+		image.height,
+		0,
+		format,
+		GL_UNSIGNED_BYTE,
+		image.pixels.get()
+	);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	if (mipmaps)
+		glGenerateMipmap(GL_TEXTURE_2D); // keeps the real size; gluBuild2DMipmaps rescaled non-power-of-two images
 }
 } // namespace
 
@@ -54,53 +85,56 @@ void Texture::free() {
 	loaded = false;
 }
 //================================================================================================================================
-int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change) {
+DecodedImage Texture::Decode(const char* filename, PixelFilter change) {
+	DecodedImage image;
 	int channels = 0;
-	if (stbi_info(filename, &texture.width, &texture.height, &channels) == 0) {
-		LOG_WARNINGF("texture", "Cannot read %s: %s", filename, stbi_failure_reason());
-		return 0;
+	if (stbi_info(filename, &image.width, &image.height, &channels) == 0) {
+		image.error = std::string("Cannot read ") + filename + ": " + stbi_failure_reason();
+		return image;
 	}
 
 	// Grayscale PNGs are expanded to RGB; an alpha channel is kept.
-	bool hasAlpha = channels == 2 || channels == 4;
-	int components = hasAlpha ? 4 : 3;
-	GLenum format = hasAlpha ? GL_RGBA : GL_RGB;
+	image.components = channels == 2 || channels == 4 ? 4 : 3;
 
 	// PNG rows run top-down, OpenGL expects the first row at the bottom (t = 0).
-	stbi_set_flip_vertically_on_load(1);
-	unsigned char* data = stbi_load(filename, &texture.width, &texture.height, &channels, components);
-	if (data == nullptr) {
-		LOG_ERRORF("texture", "Error loading PNG %s: %s", filename, stbi_failure_reason());
+	stbi_set_flip_vertically_on_load_thread(1);
+	image.pixels = {stbi_load(filename, &image.width, &image.height, &channels, image.components), stbi_image_free};
+	if (image.pixels == nullptr) {
+		image.error = std::string("Error loading PNG ") + filename + ": " + stbi_failure_reason();
+		return image;
+	}
+	if (change != nullptr)
+		change(image.pixels.get(), image.width * image.height, image.components);
+	return image;
+}
+//================================================================================================================================
+int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change) {
+	if (TextureBatch* batch = TextureBatch::Open()) {
+		free();
+		glGenTextures(1, &texture.texID);
+		glBindTexture(
+			GL_TEXTURE_2D,
+			texture.texID
+		); // a texture from now on (glIsTexture), freed or not before the upload
+		loaded = true;
+		batch->Add(texture.texID, filename, filter, change);
+		return 1;
+	}
+
+	const DecodedImage image = Decode(filename, change);
+	if (image.pixels == nullptr) {
+		LOG_WARNINGF("texture", "%s", image.error.c_str());
 		return 0;
 	}
-	LOG_INFOF("texture", "%s: %dx%d, %d channels", filename, texture.width, texture.height, components);
-	if (change != nullptr)
-		change(data, texture.width * texture.height, components);
+	texture.width = image.width;
+	texture.height = image.height;
+	LOG_INFOF("texture", "%s: %dx%d, %d channels", filename, image.width, image.height, image.components);
 
 	free();
 	glGenTextures(1, &texture.texID);
 	LOG_INFOF("texture", "Texture id=[%d]", texture.texID);
-
-	glBindTexture(GL_TEXTURE_2D, texture.texID);
-	bool mipmaps = filter == TexFilter::Mipmapped;
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-	if (mipmaps)
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy());
-
-	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), texture.width, texture.height, 0, format,
-				 GL_UNSIGNED_BYTE, data);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	if (mipmaps)
-		glGenerateMipmap(GL_TEXTURE_2D); // keeps the real size; gluBuild2DMipmaps rescaled non-power-of-two images
-
-	// OpenGL has its own copy on the GPU.
-	stbi_image_free(data);
-
+	upload(texture.texID, image, filter); // OpenGL keeps its own copy
 	loaded = true;
-
 	return 1;
 }
 //----------------------------------------------------------------------------------
@@ -113,3 +147,55 @@ void Texture::ClampToEdge() const {
 }
 //----------------------------------------------------------------------------------
 int Texture::ID() const { return static_cast<int>(texture.texID); }
+//----------------------------------------------------------------------------------
+TextureBatch::TextureBatch(WorkerPool& pool) : pool(pool) { openBatch = this; }
+//----------------------------------------------------------------------------------
+TextureBatch::~TextureBatch() {
+	Finish();
+	openBatch = nullptr;
+}
+//----------------------------------------------------------------------------------
+TextureBatch* TextureBatch::Open() { return openBatch; }
+//----------------------------------------------------------------------------------
+void TextureBatch::Add(GLuint id, const char* filename, TexFilter filter, Texture::PixelFilter change) {
+	std::string name = filename;
+	auto image = pool.Run([name, change] { return Texture::Decode(name.c_str(), change); });
+	pending.push_back({id, filter, std::move(name), std::move(image)});
+	UploadReady();
+}
+//----------------------------------------------------------------------------------
+void TextureBatch::upload(Pending& p) {
+	const DecodedImage image = p.image.get();
+	if (image.pixels == nullptr)
+		LOG_WARNINGF("texture", "%s", image.error.c_str());
+	else if (glIsTexture(p.id) == GL_FALSE) // freed before its upload: not made again
+		LOG_INFOF("texture", "%s: freed before its upload", p.filename.c_str());
+	else {
+		LOG_INFOF(
+			"texture",
+			"%s: %dx%d, %d channels, id=[%d]",
+			p.filename.c_str(),
+			image.width,
+			image.height,
+			image.components,
+			p.id
+		);
+		::upload(p.id, image, p.filter);
+	}
+	p.filename.clear();
+}
+//----------------------------------------------------------------------------------
+void TextureBatch::UploadReady() {
+	for (; uploaded < pending.size(); uploaded++) {
+		if (pending[uploaded].image.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
+			return;
+		upload(pending[uploaded]);
+	}
+}
+//----------------------------------------------------------------------------------
+void TextureBatch::Finish() {
+	for (; uploaded < pending.size(); uploaded++)
+		upload(pending[uploaded]);
+	pending.clear();
+	uploaded = 0;
+}

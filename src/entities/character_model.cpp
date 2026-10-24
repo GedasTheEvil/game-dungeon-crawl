@@ -3,10 +3,21 @@
 #include <string>
 #include "../core/paths.h"
 
+CharacterModel::Parsed CharacterModel::Parse(const char* name, const ClipFiles& files) {
+	Parsed parsed;
+	parsed.loaded = LoadClips(name, files, parsed.info, &parsed.meshes);
+	return parsed;
+}
+
 bool CharacterModel::Load(const char* name, Texture&& tex, const ClipFiles& files, bool keepFrames) {
+	return Load(name, std::move(tex), Parse(name, files), keepFrames);
+}
+
+bool CharacterModel::Load(const char* name, Texture&& tex, Parsed&& parsed, bool keepFrames) {
 	texture = std::move(tex);
-	ClipMeshes meshes;
-	const bool loaded = LoadClips(name, files, info, &meshes);
+	info = parsed.info;
+	ClipMeshes& meshes = parsed.meshes;
+	const bool loaded = parsed.loaded;
 	auto clips = std::make_shared<CharacterClips>();
 	for (int s = 0; s < MODEL_STATE_COUNT; s++) {
 		const ClipInfo& clip = info.clips[s];
@@ -38,12 +49,13 @@ void CharacterModel::Share(const CharacterModel& other, const char* name, Textur
 
 void CharacterModel::loadSounds(const char* name) {
 	const std::string sound = std::string(MEDIA_DIR "sounds/") + name;
-	for (auto [suffix, target] : {std::pair{"_die.wav", &dieSound},
-								  {"_att.wav", &attackSound},
-								  {"_jump.wav", &jumpSound},
-								  {"_wake.wav", &wakeSound},
-								  {"_att_ranged.wav", &attackRangedSound},
-								  {"_roar.wav", &roarSound}})
+	for (auto [suffix, target] :
+		 {std::pair{"_die.wav", &dieSound},
+		  {"_att.wav", &attackSound},
+		  {"_jump.wav", &jumpSound},
+		  {"_wake.wav", &wakeSound},
+		  {"_att_ranged.wav", &attackRangedSound},
+		  {"_roar.wav", &roarSound}})
 		if (std::string path = sound + suffix; std::filesystem::exists(path))
 			target->Load(path.c_str());
 }

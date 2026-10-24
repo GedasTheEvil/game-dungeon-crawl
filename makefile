@@ -20,6 +20,7 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 # base, level and sim have no GL, no library has SDL or Game(), and each includes only its own headers and those of
 # the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
 BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
+BASE_LIB_HEADERS=src/core/worker_pool.h
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
@@ -159,7 +160,7 @@ format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
-	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
+	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
 	@./tools/check_sim.sh $(SIM_FILES)
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy

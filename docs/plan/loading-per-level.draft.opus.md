@@ -1,6 +1,6 @@
 # Loading per level
 
-Status: draft 2026-10-22, from the user. Needs first: [faster-loading](faster-loading.draft.opus.md). Then
+Status: draft 2026-10-22, from the user. Needs first: [faster-loading](solved/faster-loading.md). Then
 measure again: if startup is fast enough, drop this plan (ask the user).
 
 ## Idea

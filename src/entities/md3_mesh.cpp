@@ -53,17 +53,25 @@ template <typename T> bool readAt(const vector<char>& data, size_t offset, T& ou
 	return true;
 }
 
-// 16-bit lat/long normal: high byte azimuth, low byte polar angle, 255 steps per full turn.
-void decodeNormal(int16_t packed, float* out) {
-	auto code = static_cast<uint16_t>(packed);
-	float step = 2.0f * static_cast<float>(M_PI) / 255.0f;
-	float azimuth = static_cast<float>(code >> 8) * step;
-	float polar = static_cast<float>(code & 0xFF) * step;
-	out[0] = cosf(azimuth) * sinf(polar);
-	out[1] = sinf(azimuth) * sinf(polar);
-	out[2] = cosf(polar);
-}
 } // namespace
+
+// 16-bit lat/long normal: high byte azimuth, low byte polar angle, 255 steps per full turn. Every code is looked up
+// in a table, built once (thread safe: a function-local static).
+const float* Md3DecodeNormal(int16_t packed) {
+	static const vector<float> TABLE = [] {
+		vector<float> t(size_t{3} * 65536);
+		const float step = 2.0f * static_cast<float>(M_PI) / 255.0f;
+		for (size_t code = 0; code < 65536; code++) {
+			const float azimuth = static_cast<float>(code >> 8) * step;
+			const float polar = static_cast<float>(code & 0xFF) * step;
+			t[3 * code] = cosf(azimuth) * sinf(polar);
+			t[3 * code + 1] = sinf(azimuth) * sinf(polar);
+			t[3 * code + 2] = cosf(polar);
+		}
+		return t;
+	}();
+	return &TABLE[3 * static_cast<size_t>(static_cast<uint16_t>(packed))];
+}
 
 //============================================================
 bool Md3Mesh::Load(const char fileName[]) {
@@ -72,7 +80,8 @@ bool Md3Mesh::Load(const char fileName[]) {
 
 	auto fail = [&](const char* why) {
 		LOG_ERRORF("model", "Cannot load %s: %s", fileName, why);
-		cornerCount = 0;
+		vertexCount = 0;
+		indices.clear();
 		return false;
 	};
 
@@ -84,27 +93,31 @@ bool Md3Mesh::Load(const char fileName[]) {
 
 	frameCount = header.numFrames;
 	const float xyzScale = MD3_XYZ_SCALE * headerUnit(header.name);
-	cornerCount = 0;
+	vertexCount = 0;
 	frames.assign(frameCount, VF{});
 	texCoords.clear();
+	indices.clear();
 
 	// Exact sizes up front: grown by push_back, every frame's arrays held up to twice their size.
-	size_t corners = 0;
+	size_t vertices = 0, corners = 0;
 	for (size_t s = 0, ofs = static_cast<size_t>(header.ofsSurfaces); s < static_cast<size_t>(header.numSurfaces);
 		 s++) {
 		Md3Surface surf{};
 		if (!readAt(data, ofs, surf) || surf.ofsEnd <= 0)
 			break; // the loop below reports it
-		corners += static_cast<size_t>(surf.numTriangles) * 3;
+		vertices += static_cast<size_t>(max(surf.numVerts, 0));
+		corners += static_cast<size_t>(max(surf.numTriangles, 0)) * 3;
 		ofs += static_cast<size_t>(surf.ofsEnd);
 	}
-	texCoords.reserve(corners * 2);
+	texCoords.reserve(vertices * 2);
+	indices.reserve(corners);
 	for (VF& frame : frames) {
-		frame.v.reserve(corners * 3);
-		frame.n.reserve(corners * 3);
+		frame.v.reserve(vertices * 3);
+		frame.n.reserve(vertices * 3);
 	}
 
-	// Expand every surface's indexed triangles into the per-corner arrays the renderer draws.
+	// The surfaces one after another: their vertices, and their triangles' indices offset by the surface's first
+	// vertex. Equal vertices of two surfaces (a seam) stay apart.
 	size_t surfaceOfs = static_cast<size_t>(header.ofsSurfaces);
 	for (int s = 0; s < header.numSurfaces; s++) {
 		Md3Surface surf{};
@@ -112,41 +125,48 @@ bool Md3Mesh::Load(const char fileName[]) {
 			return fail("bad surface header");
 		if (surf.numFrames != frameCount)
 			return fail("surface frame count differs from the model's");
+		if (surf.numVerts < 0 || surf.numTriangles < 0)
+			return fail("bad surface header");
 
+		const auto first = static_cast<uint32_t>(vertexCount);
 		for (int t = 0; t < surf.numTriangles; t++) {
-			int32_t corners[3];
-			if (!readAt(data,
-						surfaceOfs + static_cast<size_t>(surf.ofsTriangles) + static_cast<size_t>(t) * sizeof(corners),
-						corners))
+			int32_t corner[3];
+			if (!readAt(
+					data,
+					surfaceOfs + static_cast<size_t>(surf.ofsTriangles) + static_cast<size_t>(t) * sizeof(corner),
+					corner
+				))
 				return fail("truncated triangles");
-
-			for (int32_t v : corners) {
+			for (int32_t v : corner) {
 				if (v < 0 || v >= surf.numVerts)
 					return fail("triangle index out of range");
-
-				float st[2];
-				if (!readAt(data, surfaceOfs + static_cast<size_t>(surf.ofsSt) + static_cast<size_t>(v) * sizeof(st),
-							st))
-					return fail("truncated texture coordinates");
-				texCoords.push_back(st[0]);
-				texCoords.push_back(1.0f - st[1]);
-
-				for (int f = 0; f < frameCount; f++) {
-					Md3Vertex mv{};
-					size_t index = static_cast<size_t>(f) * static_cast<size_t>(surf.numVerts) + static_cast<size_t>(v);
-					if (!readAt(data, surfaceOfs + static_cast<size_t>(surf.ofsXyzNormal) + index * sizeof(Md3Vertex),
-								mv))
-						return fail("truncated vertices");
-					frames[f].v.push_back(static_cast<float>(mv.x) * xyzScale);
-					frames[f].v.push_back(static_cast<float>(mv.y) * xyzScale);
-					frames[f].v.push_back(static_cast<float>(mv.z) * xyzScale);
-					float n[3];
-					decodeNormal(mv.normal, n);
-					frames[f].n.insert(frames[f].n.end(), n, n + 3);
-				}
+				indices.push_back(first + static_cast<uint32_t>(v));
 			}
 		}
-		cornerCount += surf.numTriangles * 3;
+
+		for (int v = 0; v < surf.numVerts; v++) {
+			float st[2];
+			if (!readAt(data, surfaceOfs + static_cast<size_t>(surf.ofsSt) + static_cast<size_t>(v) * sizeof(st), st))
+				return fail("truncated texture coordinates");
+			texCoords.push_back(st[0]);
+			texCoords.push_back(1.0f - st[1]);
+		}
+
+		for (int f = 0; f < frameCount; f++) {
+			const size_t at = surfaceOfs + static_cast<size_t>(surf.ofsXyzNormal) +
+							  static_cast<size_t>(f) * static_cast<size_t>(surf.numVerts) * sizeof(Md3Vertex);
+			for (int v = 0; v < surf.numVerts; v++) {
+				Md3Vertex mv{};
+				if (!readAt(data, at + static_cast<size_t>(v) * sizeof(Md3Vertex), mv))
+					return fail("truncated vertices");
+				frames[f].v.push_back(static_cast<float>(mv.x) * xyzScale);
+				frames[f].v.push_back(static_cast<float>(mv.y) * xyzScale);
+				frames[f].v.push_back(static_cast<float>(mv.z) * xyzScale);
+				const float* n = Md3DecodeNormal(mv.normal);
+				frames[f].n.insert(frames[f].n.end(), n, n + 3);
+			}
+		}
+		vertexCount += surf.numVerts;
 		surfaceOfs += static_cast<size_t>(surf.ofsEnd);
 	}
 
@@ -162,7 +182,7 @@ float Md3Mesh::getScale() {
 	float minY = 1000.0, maxY = -1000.0;
 	float minZ = 1000.0, maxZ = -1000.0;
 	const std::vector<float>& v = frames[0].v;
-	for (int i = 0; i < cornerCount * 3; i += 3) {
+	for (int i = 0; i < vertexCount * 3; i += 3) {
 		maxX = std::max(maxX, v[i]);
 		minX = std::min(minX, v[i]);
 		maxY = std::max(maxY, v[i + 1]);
@@ -192,7 +212,7 @@ ModelNormalization Md3Mesh::Centrify() {
 	float minZ = 1000.0, maxZ = -1000.0;
 
 	// find maximum dimensions of the model
-	for (int i = 0; i < cornerCount * 3; i += 3) {
+	for (int i = 0; i < vertexCount * 3; i += 3) {
 		if (frames[0].v[i] > maxX)
 			maxX = frames[0].v[i];
 		if (frames[0].v[i] < minX)
@@ -227,7 +247,7 @@ std::array<float, 3> Md3Mesh::Vertex(int f, int i) const {
 //============================================================
 std::pair<float, float> Md3Mesh::YRange(int f) const {
 	std::pair<float, float> range{1000.0f, -1000.0f};
-	for (int i = 1; i < cornerCount * 3; i += 3) {
+	for (int i = 1; i < vertexCount * 3; i += 3) {
 		range.first = std::min(range.first, frames[f].v[i]);
 		range.second = std::max(range.second, frames[f].v[i]);
 	}
@@ -236,7 +256,7 @@ std::pair<float, float> Md3Mesh::YRange(int f) const {
 //============================================================
 std::pair<float, float> Md3Mesh::HalfXZ(int f) const {
 	std::pair<float, float> half{0.0f, 0.0f};
-	for (int i = 0; i < cornerCount * 3; i += 3) {
+	for (int i = 0; i < vertexCount * 3; i += 3) {
 		half.first = std::max(half.first, std::fabs(frames[f].v[i]));
 		half.second = std::max(half.second, std::fabs(frames[f].v[i + 2]));
 	}
@@ -245,7 +265,7 @@ std::pair<float, float> Md3Mesh::HalfXZ(int f) const {
 //============================================================
 void Md3Mesh::Translate(float x, float y, float z) {
 	for (VF& frame : frames) {
-		for (int i = 0; i < cornerCount * 3; i += 3) {
+		for (int i = 0; i < vertexCount * 3; i += 3) {
 			frame.v[i] += x;
 			frame.v[i + 1] += y;
 			frame.v[i + 2] += z;
@@ -255,7 +275,7 @@ void Md3Mesh::Translate(float x, float y, float z) {
 //============================================================
 void Md3Mesh::Scale(float sc) {
 	for (VF& frame : frames)
-		for (int i = 0; i < cornerCount * 3; i++)
+		for (int i = 0; i < vertexCount * 3; i++)
 			frame.v[i] *= sc;
 }
 //============================================================

@@ -13,31 +13,35 @@
 
 namespace {
 JournalInscription entry(int id, int level) {
-	return {id,
-			"The curse of Meni",
-			{"The crocodile be against him in the water,", "the \"snake\" on land."},
-			"Oddly specific.",
-			level};
+	return {
+		id,
+		"The curse of Meni",
+		{"The crocodile be against him in the water,", "the \"snake\" on land."},
+		"Oddly specific.",
+		level
+	};
 }
 } // namespace
 
 TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems told by line") {
-	std::istringstream in("# comment\n"
-						  "id: 2\n"
-						  "title: The curse\n"
-						  "style: column\n"
-						  "G: I3 N35A\n"
-						  "T: Line one\n"
-						  "T: Line two\n"
-						  "N: A note\n"
-						  "\n"
-						  "id: 3\n"
-						  "title: No text\n"
-						  "id: 300\n"
-						  "T: out of range\n"
-						  "id: 4\n"
-						  "T: only text\n"
-						  "X: what\n");
+	std::istringstream in(
+		"# comment\n"
+		"id: 2\n"
+		"title: The curse\n"
+		"style: column\n"
+		"G: I3 N35A\n"
+		"T: Line one\n"
+		"T: Line two\n"
+		"N: A note\n"
+		"\n"
+		"id: 3\n"
+		"title: No text\n"
+		"id: 300\n"
+		"T: out of range\n"
+		"id: 4\n"
+		"T: only text\n"
+		"X: what\n"
+	);
 	std::vector<InscriptionText> out;
 	std::vector<std::string> errors;
 	ParseInscriptions(in, "f.txt", out, errors);
@@ -180,11 +184,13 @@ TEST_CASE("a journal saved before the translated flag loads its inscriptions tra
 }
 
 TEST_CASE("a boon: line: the four kinds, a bad one told by line") {
-	std::istringstream in("id: 1\nT: a\nboon: might 1\n"
-						  "id: 2\nT: b\nboon: armor 2\n"
-						  "id: 3\nT: c\nboon: life 10\n"
-						  "id: 4\nT: d\nboon: stamina 10\n"
-						  "id: 5\nT: e\nboon: luck 1\nboon: might x\nboon: might 0\nboon: might\n");
+	std::istringstream in(
+		"id: 1\nT: a\nboon: might 1\n"
+		"id: 2\nT: b\nboon: armor 2\n"
+		"id: 3\nT: c\nboon: life 10\n"
+		"id: 4\nT: d\nboon: stamina 10\n"
+		"id: 5\nT: e\nboon: luck 1\nboon: might x\nboon: might 0\nboon: might\n"
+	);
 	std::vector<InscriptionText> out;
 	std::vector<std::string> errors;
 	ParseInscriptions(in, "f.txt", out, errors);
@@ -208,7 +214,8 @@ TEST_CASE("a boon: given by the first reading with the skill only, kept on the j
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	world.inscriptions.Add(
-		{.id = 1, .title = "Kings", .text = {"The strength of kings."}, .boon = {BoonKind::Might, 1}});
+		{.id = 1, .title = "Kings", .text = {"The strength of kings."}, .boon = {BoonKind::Might, 1}}
+	);
 	REQUIRE(world.Load(6));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
@@ -233,7 +240,8 @@ TEST_CASE("a stamina boon on a copy: nothing until the skill is learnt, then onc
 	SimWorld world;
 	world.player.god = true;
 	world.inscriptions.Add(
-		{.id = 1, .title = "Runner", .text = {"He does not tire."}, .boon = {BoonKind::Stamina, 10}});
+		{.id = 1, .title = "Runner", .text = {"He does not tire."}, .boon = {BoonKind::Stamina, 10}}
+	);
 	REQUIRE(world.Load(6));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));

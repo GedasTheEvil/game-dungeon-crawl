@@ -7,8 +7,12 @@ Rect cardRect(int card) {
 	const float x0 = CARDS_PANEL.cx() - GRID_W / 2;
 	const int column = card % COLUMNS;
 	const int row = card / COLUMNS;
-	return {x0 + static_cast<float>(column) * (CARD_W + CARD_GAP_X),
-			TOP_CARD_Y - static_cast<float>(row) * (CARD_H + CARD_GAP_Y), CARD_W, CARD_H};
+	return {
+		x0 + static_cast<float>(column) * (CARD_W + CARD_GAP_X),
+		TOP_CARD_Y - static_cast<float>(row) * (CARD_H + CARD_GAP_Y),
+		CARD_W,
+		CARD_H
+	};
 }
 
 int cardAt(float x, float y) {

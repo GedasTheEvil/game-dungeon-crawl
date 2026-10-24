@@ -57,8 +57,17 @@ void GameState::Load() {
 	for (const std::string& message : names.Load(CONTENT_DIR "names"))
 		LOG_WARNINGF("game", "Names: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(names.Size()) + " royal names");
-	dungeon.Link({player.get(), &journal, &ui.inventory->Bag(), &random, &assets, &events, &assets.monsterTypes,
-				  &inscriptions, &names});
+	dungeon.Link(
+		{player.get(),
+		 &journal,
+		 &ui.inventory->Bag(),
+		 &random,
+		 &assets,
+		 &events,
+		 &assets.monsterTypes,
+		 &inscriptions,
+		 &names}
+	);
 
 	timers.idleModel.Reset();
 	statusTimer = Timer(STATUS_MS);
@@ -189,9 +198,11 @@ void GameState::ApplyWorldEvents() {
 			journal.LearnNote(event.note);
 			break;
 		case WorldEvent::Kind::CharacterSound:
-			characterSound(event.who == PLAYER_CHARACTER ? playerView.Model()
-														 : assets.monsterModels[static_cast<size_t>(event.who)],
-						   event.character)
+			characterSound(
+				event.who == PLAYER_CHARACTER ? playerView.Model()
+											  : assets.monsterModels[static_cast<size_t>(event.who)],
+				event.character
+			)
 				.Play();
 			break;
 		case WorldEvent::Kind::AskRiddle:

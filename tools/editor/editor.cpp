@@ -32,9 +32,12 @@ constexpr int START_HEIGHT = 800;
 constexpr Rect MAP_AREA = EDITOR_MAP_AREA; // the window on the map; at 1x the whole map, 1.8 per cell
 constexpr float MINIMAP_CELL = 0.42f; // the minimap (zoomed only): the whole map, in a corner of the map area
 constexpr float MINIMAP_MARGIN = 0.8f;
-constexpr Rect MINIMAP = {MAP_AREA.x + MAP_AREA.w - MINIMAP_MARGIN - LEVEL_WIDTH * MINIMAP_CELL,
-						  MAP_AREA.y + MAP_AREA.h - MINIMAP_MARGIN - LEVEL_HEIGHT* MINIMAP_CELL,
-						  LEVEL_WIDTH* MINIMAP_CELL, LEVEL_HEIGHT* MINIMAP_CELL};
+constexpr Rect MINIMAP = {
+	MAP_AREA.x + MAP_AREA.w - MINIMAP_MARGIN - LEVEL_WIDTH * MINIMAP_CELL,
+	MAP_AREA.y + MAP_AREA.h - MINIMAP_MARGIN - LEVEL_HEIGHT* MINIMAP_CELL,
+	LEVEL_WIDTH* MINIMAP_CELL,
+	LEVEL_HEIGHT* MINIMAP_CELL
+};
 constexpr float WHEEL_PAN_CELLS = 2.f; // a wheel notch or an arrow key moves the window this far
 constexpr Rect MAP_PANEL = {4.f, 6.5f, 76.f, 88.8f};
 
@@ -151,9 +154,12 @@ Rect slotRect(int slot) {
 	float x0 = RIGHT_CX - (PALETTE_COLUMNS * SLOT_W + (PALETTE_COLUMNS - 1) * SLOT_GAP) / 2;
 	int column = slot % PALETTE_COLUMNS;
 	int row = slot / PALETTE_COLUMNS;
-	return {x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP),
-			TILES_PANEL.y + TILES_PANEL.h - 2.f - SLOT_H - static_cast<float>(row) * (SLOT_H + SLOT_GAP), SLOT_W,
-			SLOT_H};
+	return {
+		x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP),
+		TILES_PANEL.y + TILES_PANEL.h - 2.f - SLOT_H - static_cast<float>(row) * (SLOT_H + SLOT_GAP),
+		SLOT_W,
+		SLOT_H
+	};
 }
 
 int parseNumber(const std::string& digits) { return digits.empty() ? 0 : std::stoi(digits); }
@@ -395,8 +401,13 @@ void Editor::zoomTo(int zoom) {
 		fracX = (pointerX - MAP_AREA.x) / MAP_AREA.w;
 		fracY = (pointerY - MAP_AREA.y) / MAP_AREA.h;
 	}
-	view.setZoom(zoom, view.originCol() + fracX * view.visibleCols(), view.originRow() + fracY * view.visibleRows(),
-				 fracX, fracY);
+	view.setZoom(
+		zoom,
+		view.originCol() + fracX * view.visibleCols(),
+		view.originRow() + fracY * view.visibleRows(),
+		fracX,
+		fracY
+	);
 	updateHover(pointerX, pointerY);
 }
 
@@ -686,9 +697,10 @@ void Editor::pick(CellPos cell) {
 		tile = t.type;
 	attributeText = t.attr != 0 ? std::to_string(t.attr) : "";
 	valueText = t.value != 0 ? std::to_string(t.value) : "";
-	showStatus("Picked " + std::string(tileInfo(t.type).name) + " " + std::to_string(t.attr) + " " +
-				   std::to_string(t.value),
-			   false);
+	showStatus(
+		"Picked " + std::string(tileInfo(t.type).name) + " " + std::to_string(t.attr) + " " + std::to_string(t.value),
+		false
+	);
 }
 
 void Editor::save() {
@@ -725,9 +737,11 @@ void Editor::load() {
 void Editor::nextZone() {
 	const int zone = grid.meta.zone + 1;
 	grid.meta.zone = zone < ZONE_ID_COUNT ? zone : NO_ZONE;
-	showStatus(isZone(grid.meta.zone) ? std::string("Zone: ") + ZONE_INFO[grid.meta.zone].name
-									  : std::string("No zone: the tombs' look"),
-			   false);
+	showStatus(
+		isZone(grid.meta.zone) ? std::string("Zone: ") + ZONE_INFO[grid.meta.zone].name
+							   : std::string("No zone: the tombs' look"),
+		false
+	);
 }
 
 void Editor::showStatus(const std::string& text, bool error) {
@@ -892,9 +906,12 @@ void Editor::beginMapClip() const {
 	auto px = [&](float x) { return static_cast<float>(winW) * (x - area.x) / area.w; };
 	auto py = [&](float y) { return static_cast<float>(winH) * (y - area.y) / area.h; };
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(static_cast<int>(std::floor(px(MAP_AREA.x))), static_cast<int>(std::floor(py(MAP_AREA.y))),
-			  static_cast<int>(std::ceil(px(MAP_AREA.x + MAP_AREA.w) - px(MAP_AREA.x))),
-			  static_cast<int>(std::ceil(py(MAP_AREA.y + MAP_AREA.h) - py(MAP_AREA.y))));
+	glScissor(
+		static_cast<int>(std::floor(px(MAP_AREA.x))),
+		static_cast<int>(std::floor(py(MAP_AREA.y))),
+		static_cast<int>(std::ceil(px(MAP_AREA.x + MAP_AREA.w) - px(MAP_AREA.x))),
+		static_cast<int>(std::ceil(py(MAP_AREA.y + MAP_AREA.h) - py(MAP_AREA.y)))
+	);
 }
 
 void Editor::endMapClip() { glDisable(GL_SCISSOR_TEST); }
@@ -911,8 +928,13 @@ void Editor::drawMap() {
 	for (int row = firstRow; row <= lastRow; row++)
 		for (int col = firstCol; col <= lastCol; col++) {
 			const Tile t = grid.at(col, row);
-			drawCell(t, cellRect(col, row), structures ? 1.f : 0.7f, layer == Layer::Wall ? 1.f : OTHER_LAYER_ALPHA,
-					 layer == Layer::Objects ? 1.f : OTHER_LAYER_ALPHA);
+			drawCell(
+				t,
+				cellRect(col, row),
+				structures ? 1.f : 0.7f,
+				layer == Layer::Wall ? 1.f : OTHER_LAYER_ALPHA,
+				layer == Layer::Objects ? 1.f : OTHER_LAYER_ALPHA
+			);
 			if (dressingLayer(layer))
 				drawDressing(t.dressing, cellRect(col, row), 1.f);
 		}
@@ -935,12 +957,20 @@ void Editor::drawMinimap() {
 	fillRect(MINIMAP.inset(-0.3f), BLACK, BLACK, 0.85f);
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			Rect r = {MINIMAP.x + static_cast<float>(col) * MINIMAP_CELL,
-					  MINIMAP.y + static_cast<float>(row) * MINIMAP_CELL, MINIMAP_CELL, MINIMAP_CELL};
+			Rect r = {
+				MINIMAP.x + static_cast<float>(col) * MINIMAP_CELL,
+				MINIMAP.y + static_cast<float>(row) * MINIMAP_CELL,
+				MINIMAP_CELL,
+				MINIMAP_CELL
+			};
 			drawStructureSwatch(grid.at(col, row).structure, r, 1.f);
 		}
-	Rect frame = {MINIMAP.x + view.originCol() * MINIMAP_CELL, MINIMAP.y + view.originRow() * MINIMAP_CELL,
-				  view.visibleCols() * MINIMAP_CELL, view.visibleRows() * MINIMAP_CELL};
+	Rect frame = {
+		MINIMAP.x + view.originCol() * MINIMAP_CELL,
+		MINIMAP.y + view.originRow() * MINIMAP_CELL,
+		view.visibleCols() * MINIMAP_CELL,
+		view.visibleRows() * MINIMAP_CELL
+	};
 	strokeRect(frame, GOLD_BRIGHT, 1.f, 1.5f);
 	strokeRect(MINIMAP.inset(-0.3f), BRONZE, 1.f, 1.5f);
 }
@@ -990,12 +1020,32 @@ void Editor::drawMapOverlay() {
 		Tile t = grid.at(hovered.col, hovered.row);
 		const Fixture& f = t.fixture;
 		if (hasFixture(t))
-			snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d,  %s  %d  %d", hovered.col, hovered.row,
-					 structureDef(t.structure).name, tileInfo(f.type).name, f.attr, f.value, tileInfo(t.type).name,
-					 t.attr, t.value);
+			snprintf(
+				buf,
+				sizeof(buf),
+				"Column %d, row %d:  %s,  %s  %d  %d,  %s  %d  %d",
+				hovered.col,
+				hovered.row,
+				structureDef(t.structure).name,
+				tileInfo(f.type).name,
+				f.attr,
+				f.value,
+				tileInfo(t.type).name,
+				t.attr,
+				t.value
+			);
 		else
-			snprintf(buf, sizeof(buf), "Column %d, row %d:  %s,  %s  %d  %d", hovered.col, hovered.row,
-					 structureDef(t.structure).name, tileInfo(t.type).name, t.attr, t.value);
+			snprintf(
+				buf,
+				sizeof(buf),
+				"Column %d, row %d:  %s,  %s  %d  %d",
+				hovered.col,
+				hovered.row,
+				structureDef(t.structure).name,
+				tileInfo(t.type).name,
+				t.attr,
+				t.value
+			);
 		std::string readout = buf;
 		const Dressing& d = t.dressing;
 		if (hasPlacedProp(d))
@@ -1023,14 +1073,22 @@ void Editor::drawButton(const Rect& area, const char* label, bool active, Target
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	if (active) {
-		fillRect(r, hovered ? Color{0.20f, 0.40f, 0.78f} : LAPIS, hovered ? Color{0.09f, 0.20f, 0.46f} : LAPIS_DARK,
-				 1.f);
+		fillRect(
+			r,
+			hovered ? Color{0.20f, 0.40f, 0.78f} : LAPIS,
+			hovered ? Color{0.09f, 0.20f, 0.46f} : LAPIS_DARK,
+			1.f
+		);
 		fillRect({r.x, r.y + r.h - 0.8f, r.w, 0.8f}, {1, 1, 1}, {1, 1, 1}, 0.12f);
 		strokeRect(r, hovered ? GOLD_BRIGHT : GOLD, 1.f, 2.5f);
 		strokeRect(r.inset(0.7f), GOLD_DIM, 0.6f, 1.f);
 	} else {
-		fillRect(r, hovered ? Color{0.33f, 0.25f, 0.15f} : STONE_TOP,
-				 hovered ? Color{0.17f, 0.13f, 0.08f} : STONE_BOTTOM, 1.f);
+		fillRect(
+			r,
+			hovered ? Color{0.33f, 0.25f, 0.15f} : STONE_TOP,
+			hovered ? Color{0.17f, 0.13f, 0.08f} : STONE_BOTTOM,
+			1.f
+		);
 		strokeRect(r, hovered ? GOLD_BRIGHT : BRONZE, 1.f, 1.5f);
 	}
 	beginText();
@@ -1183,8 +1241,14 @@ void Editor::drawHint() {
 	textCentered(heading, cx, HINT_PANEL.y + HINT_PANEL.h - 5.2f, hint.title.c_str(), INK);
 	char sub[64];
 	if (checking)
-		snprintf(sub, sizeof(sub), "Cell at column %d, row %d, %s", checked.col, checked.row,
-				 structureDef(cell.structure).name);
+		snprintf(
+			sub,
+			sizeof(sub),
+			"Cell at column %d, row %d, %s",
+			checked.col,
+			checked.row,
+			structureDef(cell.structure).name
+		);
 	else
 		snprintf(sub, sizeof(sub), "%s", mode == Mode::Check ? "Brush. Click a cell to inspect it" : "Brush");
 	textCentered(small, cx, HINT_PANEL.y + HINT_PANEL.h - 8.2f, sub, INK_RED);
@@ -1210,8 +1274,12 @@ void Editor::drawLevelPanel() {
 	drawTextBox(NAME_BOX, name, Field::Name, Target::Name);
 	drawButton(SAVE_BUTTON, "Save", true, Target::Save);
 	drawButton(LOAD_BUTTON, "Load", true, Target::Load);
-	drawButton(ZONE_BUTTON, isZone(grid.meta.zone) ? ZONE_INFO[grid.meta.zone].name : "No zone", isZone(grid.meta.zone),
-			   Target::Zone);
+	drawButton(
+		ZONE_BUTTON,
+		isZone(grid.meta.zone) ? ZONE_INFO[grid.meta.zone].name : "No zone",
+		isZone(grid.meta.zone),
+		Target::Zone
+	);
 }
 
 void Editor::drawFooter() {
@@ -1228,21 +1296,39 @@ void Editor::drawFooter() {
 	if (mode == Mode::Check) {
 		char buf[128];
 		if (report.valid)
-			snprintf(buf, sizeof(buf), "Level OK: path %d moves, difficulty %.1f%s", report.pathLength,
-					 static_cast<double>(report.difficulty),
-					 report.warnings.empty() ? "" : (", " + report.warnings.front()).c_str());
+			snprintf(
+				buf,
+				sizeof(buf),
+				"Level OK: path %d moves, difficulty %.1f%s",
+				report.pathLength,
+				static_cast<double>(report.difficulty),
+				report.warnings.empty() ? "" : (", " + report.warnings.front()).c_str()
+			);
 		else
-			snprintf(buf, sizeof(buf), "Level not finishable: %s",
-					 report.errors.empty() ? "unknown" : report.errors.front().c_str());
-		textCentered(body, MAP_PANEL.cx(), 3.5f, buf,
-					 report.valid ? Color{0.55f, 0.85f, 0.4f} : Color{1.f, 0.45f, 0.3f});
+			snprintf(
+				buf,
+				sizeof(buf),
+				"Level not finishable: %s",
+				report.errors.empty() ? "unknown" : report.errors.front().c_str()
+			);
+		textCentered(
+			body,
+			MAP_PANEL.cx(),
+			3.5f,
+			buf,
+			report.valid ? Color{0.55f, 0.85f, 0.4f} : Color{1.f, 0.45f, 0.3f}
+		);
 	}
 
-	textCentered(small, CANVAS_W / 2, 0.8f,
-				 "Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    M: "
-				 "mirror    Z: zone    "
-				 "+ / -: zoom    Wheel, arrows, middle drag: pan    Tab: next field    Ctrl+S / Ctrl+O: save / load",
-				 {0.55f, 0.45f, 0.30f});
+	textCentered(
+		small,
+		CANVAS_W / 2,
+		0.8f,
+		"Left click: paint / inspect    Right click: pick cell into brush    P / C: mode    L: layer    M: "
+		"mirror    Z: zone    "
+		"+ / -: zoom    Wheel, arrows, middle drag: pan    Tab: next field    Ctrl+S / Ctrl+O: save / load",
+		{0.55f, 0.45f, 0.30f}
+	);
 	beginShapes();
 }
 

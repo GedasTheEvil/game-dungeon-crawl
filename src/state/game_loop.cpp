@@ -29,12 +29,21 @@ void updateAttack() {
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
 		const float aimRange = weaponReach(kind, player.stats.heka);
 		if (isRanged(kind)) {
-			Game().dungeon.Shoot(missileOf(kind), damage, def.mix, Game().camera.Facing(),
-								 Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
-								 aimRange);
+			Game().dungeon.Shoot(
+				missileOf(kind),
+				damage,
+				def.mix,
+				Game().camera.Facing(),
+				Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
+				aimRange
+			);
 			weapon->strikeSound.Play();
-		} else if (Game().dungeon.AttackNearest(damage, def.mix, weaponReach(kind, player.stats.heka),
-												Game().camera.Facing()))
+		} else if (Game().dungeon.AttackNearest(
+					   damage,
+					   def.mix,
+					   weaponReach(kind, player.stats.heka),
+					   Game().camera.Facing()
+				   ))
 			weapon->strikeSound.Play();
 	}
 	if (t >= def.motion.swingMs)
@@ -87,7 +96,8 @@ void tick() {
 
 	const char* ambience = Game().dungeon.Look().ambience; // plan zone-looks
 	Game().assets.sounds.ambience.Play(
-		ambience != nullptr ? MEDIA_DIR "sounds/ambience/" + std::string(ambience) + ".wav" : std::string());
+		ambience != nullptr ? MEDIA_DIR "sounds/ambience/" + std::string(ambience) + ".wav" : std::string()
+	);
 	if (Game().player->Alive() && !Game().dungeon.Won()) // play time: paused, menus and the UI screens do not count
 		Game().player->stats.run.AddPlayMs(UPDATE_TICK_MS, Game().dungeon.LevelNumber());
 	Game().player->stats.UpdateStamina(Game().events);

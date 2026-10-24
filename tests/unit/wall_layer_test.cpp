@@ -199,6 +199,8 @@ TEST_CASE("one glyph a cell: the object, else the fixture; the --map drawing add
 	grid.set(1, 1, Tile{Door, GateEntrance, 0});
 	grid.set(2, 1, both);
 	grid.set(3, 1, Tile{Door, GateExit, 0});
-	CHECK(renderLevel(grid, nullptr) == " 1 #S$E####################################\nwall\n"
-										" 1 #.i.####################################\n");
+	CHECK(
+		renderLevel(grid, nullptr) == " 1 #S$E####################################\nwall\n"
+									  " 1 #.i.####################################\n"
+	);
 }

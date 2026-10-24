@@ -166,9 +166,12 @@ CellHint describeCell(const Tile& cell) {
 	case Door:
 		hint.attribute = field("gate type", GATE_TYPES, cell.attr, "unknown, decoration only");
 		if (cell.attr == GateTeleport)
-			hint.value = anyNumber("pair id", cell.value,
-								   "the other teleporter with this value is the target; + 256: a name gate, sealed by "
-								   "the level's name");
+			hint.value = anyNumber(
+				"pair id",
+				cell.value,
+				"the other teleporter with this value is the target; + 256: a name gate, sealed by "
+				"the level's name"
+			);
 		break;
 	case MonsterSpawn:
 		hint.attribute = field("monster type", MONSTER_TYPES, cell.attr, "unknown, spawns a copy of the player");
@@ -195,8 +198,11 @@ CellHint describeCell(const Tile& cell) {
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
 		break;
 	case Inscription:
-		hint.attribute =
-			anyNumber("text id", cell.attr, "id: line in content/inscriptions/*.txt, 1 to 64; 100: a name cartouche");
+		hint.attribute = anyNumber(
+			"text id",
+			cell.attr,
+			"id: line in content/inscriptions/*.txt, 1 to 64; 100: a name cartouche"
+		);
 		break;
 	case Page:
 		hint.attribute = anyNumber("page", cell.attr, "its number, 1 to 18 in order of depth over the campaign");
@@ -259,8 +265,9 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	{"Pads", "Lotus leaves afloat, in half water only."},
 	{"Lotus", "Lotus leaves with a blue lotus in bloom, in half water only. The water lotus hides among them."},
 	{"Large coffin", "The mummy priest's coffin, a head longer and gilded."},
-	{"Sleeper", "Decoy: a coffin with a mummy asleep in it that never wakes. Beside the real mummy's coffin, it keeps "
-				"the player guessing."},
+	{"Sleeper",
+	 "Decoy: a coffin with a mummy asleep in it that never wakes. Beside the real mummy's coffin, it keeps "
+	 "the player guessing."},
 };
 
 const char* anchorText(DecalAnchor anchor) {
@@ -309,27 +316,37 @@ const char* decalLabel(int brush) {
 
 CellHint describeProp(int prop) {
 	if (prop == PLACED_UNSET)
-		return dressingHint("Unset prop",
-							"The scatter rolls the cell's prop as on any level (by depth, 30% of free "
-							"floor, half of the half water). Coffins on mummy spawns come by themselves.");
+		return dressingHint(
+			"Unset prop",
+			"The scatter rolls the cell's prop as on any level (by depth, 30% of free "
+			"floor, half of the half water). Coffins on mummy spawns come by themselves."
+		);
 	if (prop == PLACED_BARE)
 		return dressingHint("Bare", "No prop: the scatter leaves the cell empty.");
 	if (prop < 0 || prop >= DECOR_COUNT)
 		return dressingHint("Unknown prop", "");
-	return dressingHint(std::string(PROPS[prop].label) + " (prop " + std::to_string(prop) + ")",
-						std::string(PROPS[prop].description) + " Placed, whatever the depth. M: mirror.");
+	return dressingHint(
+		std::string(PROPS[prop].label) + " (prop " + std::to_string(prop) + ")",
+		std::string(PROPS[prop].description) + " Placed, whatever the depth. M: mirror."
+	);
 }
 
 CellHint describeDecal(int brush) {
 	switch (brush) {
 	case PLACED_UNSET:
-		return dressingHint("Unset decal", "The scatter rolls the cell's decal (35%) and torch (25%, 4 cells apart) "
-										   "as on any level. Clears both fields.");
+		return dressingHint(
+			"Unset decal",
+			"The scatter rolls the cell's decal (35%) and torch (25%, 4 cells apart) "
+			"as on any level. Clears both fields."
+		);
 	case PLACED_BARE:
 		return dressingHint("Bare", "No decal and no torch in the cell.");
 	case TORCH_BRUSH:
-		return dressingHint("Torch", "A wall torch, it lights the cell. Random torches keep 4 cells away from it. "
-									 "Clears a free decal in the cell.");
+		return dressingHint(
+			"Torch",
+			"A wall torch, it lights the cell. Random torches keep 4 cells away from it. "
+			"Clears a free decal in the cell."
+		);
 	case NO_TORCH_BRUSH:
 		return dressingHint("No torch", "No torch in the cell; the decal stays as it is.");
 	default:
@@ -337,7 +354,8 @@ CellHint describeDecal(int brush) {
 	}
 	if (brush < 0 || brush >= DECAL_COUNT)
 		return dressingHint("Unknown decal", "");
-	return dressingHint(std::string(DECAL_DEFS[brush].name) + " (decal " + std::to_string(brush) + ")",
-						std::string("On the back wall, whatever the depth. ") + anchorText(DECAL_DEFS[brush].anchor) +
-							" M: mirror.");
+	return dressingHint(
+		std::string(DECAL_DEFS[brush].name) + " (decal " + std::to_string(brush) + ")",
+		std::string("On the back wall, whatever the depth. ") + anchorText(DECAL_DEFS[brush].anchor) + " M: mirror."
+	);
 }

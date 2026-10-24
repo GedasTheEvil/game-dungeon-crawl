@@ -58,8 +58,11 @@ struct MirrorSetting {
 // The cells a beam can light when the player turns the mirrors free(cell) says they can reach (the others stand as
 // they are): lit[cell] != 0. With ways not null, ways[cell] holds the mirror settings that light that cell (empty for
 // one lit as the mirrors stand), one way of doing it.
-[[nodiscard]] std::vector<char> sunlitCells(const Tile* cells, const BeamBlock& blocked,
-											const std::function<bool(int cell)>& free,
-											std::vector<std::vector<MirrorSetting>>* ways = nullptr);
+[[nodiscard]] std::vector<char> sunlitCells(
+	const Tile* cells,
+	const BeamBlock& blocked,
+	const std::function<bool(int cell)>& free,
+	std::vector<std::vector<MirrorSetting>>* ways = nullptr
+);
 
 #endif

@@ -114,10 +114,17 @@ void Dungeon::drawSandEffects() {
 	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
 	puffs.erase(
 		std::remove_if(puffs.begin(), puffs.end(), [now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }),
-		puffs.end());
+		puffs.end()
+	);
 	for (const Hole& p : puffs)
-		Grit::puff((p.x - col0) * T, (static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT, RenderConfig::MONSTER_DEPTH,
-				   now - p.startMs, SAND_PUFF_MS, static_cast<uint32_t>(p.startMs));
+		Grit::puff(
+			(p.x - col0) * T,
+			(static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT,
+			RenderConfig::MONSTER_DEPTH,
+			now - p.startMs,
+			SAND_PUFF_MS,
+			static_cast<uint32_t>(p.startMs)
+		);
 
 	for (const Monster& mon : monsters) {
 		const std::optional<float> x = mon.Active() && mon.Type()->sandBurrow ? mon.BurrowRipple() : std::nullopt;
@@ -127,23 +134,40 @@ void Dungeon::drawSandEffects() {
 		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, std::sqrt(mon.Type()->scale / RIPPLE_SCALE), now);
 	}
 
-	pours.erase(std::remove_if(pours.begin(), pours.end(),
-							   [now](const Hole& h) { return now - h.startMs >= SAND_POUR_MS + 400; }),
-				pours.end());
+	pours.erase(
+		std::remove_if(
+			pours.begin(),
+			pours.end(),
+			[now](const Hole& h) { return now - h.startMs >= SAND_POUR_MS + 400; }
+		),
+		pours.end()
+	);
 	for (const Motion& m : fallingRocks) // the stream starts as the warning ends
 		if (isSandFall(map[m.cell]) && now - m.startMs >= ROCK_WARN_MS &&
-			std::none_of(pours.begin(), pours.end(),
-						 [&](const Hole& h) { return h.startMs == m.startMs + ROCK_WARN_MS; }))
+			std::none_of(pours.begin(), pours.end(), [&](const Hole& h) {
+				return h.startMs == m.startMs + ROCK_WARN_MS;
+			}))
 			pours.push_back(
-				{static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, m.startMs + ROCK_WARN_MS});
+				{static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, m.startMs + ROCK_WARN_MS}
+			);
 	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++) // after the opaque scene
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++)
 			if (lightShaft(i, j))
-				SunBeam::shaft((static_cast<float>(i) + 0.5f - col0) * T, (static_cast<float>(j) - row0) * T,
-							   -T * SHAFT_DEPTH, static_cast<uint32_t>(MapIndex(i, j)));
+				SunBeam::shaft(
+					(static_cast<float>(i) + 0.5f - col0) * T,
+					(static_cast<float>(j) - row0) * T,
+					-T * SHAFT_DEPTH,
+					static_cast<uint32_t>(MapIndex(i, j))
+				);
 	for (const Hole& p : pours)
-		Grit::pour((p.x - col0) * T, (static_cast<float>(p.row + 1) - row0) * T, -T * (1.f - POUR_DEPTH),
-				   now - p.startMs, SAND_POUR_MS, static_cast<uint32_t>(p.startMs));
+		Grit::pour(
+			(p.x - col0) * T,
+			(static_cast<float>(p.row + 1) - row0) * T,
+			-T * (1.f - POUR_DEPTH),
+			now - p.startMs,
+			SAND_POUR_MS,
+			static_cast<uint32_t>(p.startMs)
+		);
 }
 //======================================================================================
 bool Dungeon::lightShaft(int i, int j) const {

@@ -57,8 +57,8 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 	if (mon.Hunts())
 		goal.sees = std::abs(playerRow - row) <= BAT_HUNT_ROWS;
 	else
-		goal.sees =
-			std::fabs(mapX - mon.CentreX()) <= BAT_SIGHT && std::fabs(mapY - static_cast<float>(row)) <= BAT_SIGHT;
+		goal.sees = std::fabs(mapX - mon.CentreX()) <= BAT_SIGHT &&
+					std::fabs(mapY - static_cast<float>(row)) <= BAT_SIGHT;
 	goal.toRow = row;
 	if (goal.sees && playerRow != row) { // in sight on another row: only with a way there
 		const int shaft = flightShaft(col, row, playerCol, playerRow, true);

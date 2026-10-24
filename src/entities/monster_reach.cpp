@@ -67,8 +67,11 @@ Monster::BiteCone Monster::Reach() const {
 	const float gap = rooted() ? ROOTED_BITE_REACH : MONSTER_BITE_REACH;
 	if (!type->isBoss())
 		return {gap + melee.slack, melee.halfAngleDeg, melee.mouthY};
-	return {(gap + melee.slack) * BOSS_MELEE_REACH_FACTOR, std::max(melee.halfAngleDeg, BOSS_MELEE_REACH_HALF_ANGLE),
-			melee.mouthY};
+	return {
+		(gap + melee.slack) * BOSS_MELEE_REACH_FACTOR,
+		std::max(melee.halfAngleDeg, BOSS_MELEE_REACH_HALF_ANGLE),
+		melee.mouthY
+	};
 }
 
 bool Monster::Reaches(float px, float py, int dir) const {

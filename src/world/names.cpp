@@ -38,8 +38,12 @@ bool RoyalName::Accepts(const std::string& typed) const {
 	return std::find(answers.begin(), answers.end(), NormalizeAnswer(typed)) != answers.end();
 }
 
-void ParseNames(std::istream& in, const std::string& source, std::vector<RoyalName>& out,
-				std::vector<std::string>& errors) {
+void ParseNames(
+	std::istream& in,
+	const std::string& source,
+	std::vector<RoyalName>& out,
+	std::vector<std::string>& errors
+) {
 	RoyalName current;
 	bool open = false;
 	int lineNo = 0;

@@ -48,8 +48,13 @@ int main(int argc, char** argv) {
 		GenResult result = generateLevel(o);
 		std::string path = count > 1 ? std::string(out) + std::to_string(k + 1) : std::string(out);
 		if (!result.ok) {
-			fprintf(stderr, "%s: no valid level for seed %u after %d attempts\n", path.c_str(), o.seed,
-					result.attempts);
+			fprintf(
+				stderr,
+				"%s: no valid level for seed %u after %d attempts\n",
+				path.c_str(),
+				o.seed,
+				result.attempts
+			);
 			code = 1;
 			continue;
 		}
@@ -58,10 +63,19 @@ int main(int argc, char** argv) {
 			return 2;
 		}
 		const LevelReport& r = result.report;
-		printf("%s: seed %u, difficulty %d -> score %.1f (target %.1f, %d attempts), path %d, %d monsters, "
-			   "%d gates\n",
-			   path.c_str(), o.seed, o.difficulty, r.difficulty, result.target, result.attempts, r.pathLength,
-			   r.monsterCount, r.gates);
+		printf(
+			"%s: seed %u, difficulty %d -> score %.1f (target %.1f, %d attempts), path %d, %d monsters, "
+			"%d gates\n",
+			path.c_str(),
+			o.seed,
+			o.difficulty,
+			r.difficulty,
+			result.target,
+			result.attempts,
+			r.pathLength,
+			r.monsterCount,
+			r.gates
+		);
 		if (map)
 			printf("%s", renderLevel(result.grid, &r).c_str());
 	}

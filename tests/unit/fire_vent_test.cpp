@@ -181,8 +181,9 @@ TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire k
 	}
 	const int lostBurnt = burnt.MaxHealth() - burnt.Health();
 	// Ten hits of the floor rate's tenth of a second, at the mummy's trap share (50%), weak to fire (200%).
-	CHECK(lostBurnt ==
-		  10 * FIRE_JET_MONSTER_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100);
+	CHECK(
+		lostBurnt == 10 * FIRE_JET_MONSTER_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100
+	);
 	CHECK(burnt.Burns());
 	bool rewarded = false; // in the jet till it is nearly dead, then the fire alone finishes it
 	for (int t = 0; t < 60000 && burnt.Alive(); t += UPDATE_TICK_MS) {

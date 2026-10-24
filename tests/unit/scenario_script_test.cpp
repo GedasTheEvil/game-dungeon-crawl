@@ -195,9 +195,11 @@ TEST_CASE("a script: setup first, then level, then the rest") {
 
 TEST_CASE("--play runs the leading setup commands and stops at the first other one") {
 	Script script;
-	REQUIRE(scriptErrors("resolution 640 480\nseed 5\ngod\nlevel 2\ngive potion 2 3\nequip spear\nxp 10\nwait 1s\n"
-						 "hurt 5\nquit\n",
-						 script)
+	REQUIRE(scriptErrors(
+				"resolution 640 480\nseed 5\ngod\nlevel 2\ngive potion 2 3\nequip spear\nxp 10\nwait 1s\n"
+				"hurt 5\nquit\n",
+				script
+	)
 				.empty());
 	size_t count = 0;
 	CHECK(playSetup(script, count).empty());

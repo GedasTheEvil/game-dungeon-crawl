@@ -80,11 +80,15 @@ class PathScript {
 				flushWalk();
 				// The checker does not count stamina; the script waits for a jump's worth (out of quicksand,
 				// QUICKSAND_JUMP_STAMINA) at the first level's regeneration.
-				line("wait " +
-					 std::to_string((inQuicksand(grid.at(r.path[i - 1].col, r.path[i - 1].row)) ? QUICKSAND_JUMP_STAMINA
-																								: JUMP_STAMINA_COST) *
-									JUMP_WAIT_MS_PER_STAMINA) +
-					 "ms");
+				line(
+					"wait " +
+					std::to_string(
+						(inQuicksand(grid.at(r.path[i - 1].col, r.path[i - 1].row)) ? QUICKSAND_JUMP_STAMINA
+																					: JUMP_STAMINA_COST) *
+						JUMP_WAIT_MS_PER_STAMINA
+					) +
+					"ms"
+				);
 				line("jump");
 				walkTo(target);
 				flushWalk();
@@ -103,8 +107,10 @@ class PathScript {
 						for (; mirrors[m.cell] != m.dir; mirrors[m.cell] = clockwise(mirrors[m.cell]))
 							line("interact");
 					else {
-						line("mirror " + std::to_string(m.cell % LEVEL_WIDTH) + " " +
-							 std::to_string(m.cell / LEVEL_WIDTH) + " " + std::to_string(static_cast<int>(m.dir)));
+						line(
+							"mirror " + std::to_string(m.cell % LEVEL_WIDTH) + " " +
+							std::to_string(m.cell / LEVEL_WIDTH) + " " + std::to_string(static_cast<int>(m.dir))
+						);
 						mirrors[m.cell] = m.dir;
 					}
 				}
@@ -188,8 +194,13 @@ class PathScript {
 		// Up a little past the row, down a little short of it: the player must end inside the target row, and
 		// walking down onto the exact row edge would round into the cell below.
 		char buf[64];
-		snprintf(buf, sizeof(buf), "walk %s %.2f\n", climbDir > 0 ? "up" : "down",
-				 static_cast<double>(climbRows) + (climbDir > 0 ? CLIMB_MARGIN : -CLIMB_MARGIN));
+		snprintf(
+			buf,
+			sizeof(buf),
+			"walk %s %.2f\n",
+			climbDir > 0 ? "up" : "down",
+			static_cast<double>(climbRows) + (climbDir > 0 ? CLIMB_MARGIN : -CLIMB_MARGIN)
+		);
 		out += buf;
 		climbDir = 0;
 		climbRows = 0;
@@ -203,32 +214,79 @@ void printReport(const Entry& e, bool map) {
 		printf("   error: %s\n", m.c_str());
 	for (const std::string& m : r.warnings)
 		printf("   warning: %s\n", m.c_str());
-	printf("   start (col %d, row %d), %s\n", r.start.col, r.start.row,
-		   r.finale ? "goal: ankh (finale)" : "goal: exit");
-	printf("   size: %d open cells, %d reachable, bounds %dx%d\n", r.openCells, r.reachableCells, r.boundsWidth,
-		   r.boundsHeight);
+	printf(
+		"   start (col %d, row %d), %s\n",
+		r.start.col,
+		r.start.row,
+		r.finale ? "goal: ankh (finale)" : "goal: exit"
+	);
+	printf(
+		"   size: %d open cells, %d reachable, bounds %dx%d\n",
+		r.openCells,
+		r.reachableCells,
+		r.boundsWidth,
+		r.boundsHeight
+	);
 	std::string perType;
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
-	printf("   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
-		   "spikes, %d fire vents, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d levers, %d riddles, "
-		   "%d teleporters "
-		   "(%d name "
-		   "gates), %d inscriptions, %d sand cells (%d quicksand), %d light shafts, %d mirrors, %d sun discs\n",
-		   r.monsterCount, perType.c_str(), r.spikes, r.deathTraps, r.rockFalls, r.sandFalls, r.dartPlates,
-		   r.wallSpikes, r.fireVents, r.treasures, r.reachableTreasures, r.trappedTreasures, r.keys, r.gates, r.levers,
-		   r.riddles, r.teleporters, r.nameGates, r.inscriptions, r.sandCells, r.quicksandCells, r.lightShafts,
-		   r.mirrors, r.sunDiscs);
+	printf(
+		"   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
+		"spikes, %d fire vents, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d levers, %d riddles, "
+		"%d teleporters "
+		"(%d name "
+		"gates), %d inscriptions, %d sand cells (%d quicksand), %d light shafts, %d mirrors, %d sun discs\n",
+		r.monsterCount,
+		perType.c_str(),
+		r.spikes,
+		r.deathTraps,
+		r.rockFalls,
+		r.sandFalls,
+		r.dartPlates,
+		r.wallSpikes,
+		r.fireVents,
+		r.treasures,
+		r.reachableTreasures,
+		r.trappedTreasures,
+		r.keys,
+		r.gates,
+		r.levers,
+		r.riddles,
+		r.teleporters,
+		r.nameGates,
+		r.inscriptions,
+		r.sandCells,
+		r.quicksandCells,
+		r.lightShafts,
+		r.mirrors,
+		r.sunDiscs
+	);
 	if (r.valid || !r.path.empty())
 		printf(
 			"   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, %d sand "
 			"falls, %d dart plates, %d wall spikes, %d fire vents, %d gates (%d colours), %d teleports, %d monsters "
 			"near, %d sand, %d "
 			"quicksand, %d mirror turns\n",
-			r.pathLength, r.pathJumps, r.pathDrops, r.pathClimb, r.pathSpikes, r.pathDeathTraps, r.pathRockFalls,
-			r.pathSandFalls, r.pathDartPlates, r.pathWallSpikes, r.pathFireVents, r.pathGates, r.keysNeeded,
-			r.pathTeleports, r.pathMonsters, r.pathSand, r.pathQuicksand, r.pathTurns);
+			r.pathLength,
+			r.pathJumps,
+			r.pathDrops,
+			r.pathClimb,
+			r.pathSpikes,
+			r.pathDeathTraps,
+			r.pathRockFalls,
+			r.pathSandFalls,
+			r.pathDartPlates,
+			r.pathWallSpikes,
+			r.pathFireVents,
+			r.pathGates,
+			r.keysNeeded,
+			r.pathTeleports,
+			r.pathMonsters,
+			r.pathSand,
+			r.pathQuicksand,
+			r.pathTurns
+		);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());
@@ -258,11 +316,12 @@ void checkInscriptions(std::vector<Entry>& entries) {
 			const Fixture& t = e.grid.cells[cell].fixture;
 			if (t.type != Inscription || !isInscriptionId(t.attr))
 				continue;
-			const std::string where =
-				" at (col " + std::to_string(cell % LEVEL_WIDTH) + ", row " + std::to_string(cell / LEVEL_WIDTH) + ")";
+			const std::string where = " at (col " + std::to_string(cell % LEVEL_WIDTH) + ", row " +
+									  std::to_string(cell / LEVEL_WIDTH) + ")";
 			if (texts && book.Find(t.attr) == nullptr)
-				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where +
-											" has no text in content/inscriptions/");
+				e.report.warnings.push_back(
+					"inscription " + std::to_string(t.attr) + where + " has no text in content/inscriptions/"
+				);
 			std::string& first = usedIn[static_cast<size_t>(t.attr)];
 			if (!first.empty())
 				e.report.warnings.push_back("inscription " + std::to_string(t.attr) + where + " is also in " + first);
@@ -292,15 +351,29 @@ int main(int argc, char** argv) {
 		// Structure number), "wall TYPE..." (the wall types, isWallType), then "CHAR TYPE ATTR VALUE STRUCTURE
 		// meaning" per glyph of the drawings; a wall type's meaning starts with "wall:".
 		if (strcmp(argv[i], "--legend") == 0) {
-			printf("size %d %d\nformat %s %d\nstructure %s\nwall", LEVEL_WIDTH, LEVEL_HEIGHT, LEVEL_MAGIC,
-				   LEVEL_VERSION, STRUCTURE_GLYPHS);
+			printf(
+				"size %d %d\nformat %s %d\nstructure %s\nwall",
+				LEVEL_WIDTH,
+				LEVEL_HEIGHT,
+				LEVEL_MAGIC,
+				LEVEL_VERSION,
+				STRUCTURE_GLYPHS
+			);
 			for (int type = 0; type < TILE_TYPE_COUNT; type++)
 				if (isWallType(type))
 					printf(" %d", type);
 			printf("\n");
 			for (const GlyphDef& g : glyphLegend())
-				printf("%c %d %d %d %d %s%s\n", g.glyph, g.tile.type, g.tile.attr, g.tile.value,
-					   static_cast<int>(g.tile.structure), isWallType(g.tile.type) ? "wall: " : "", g.meaning);
+				printf(
+					"%c %d %d %d %d %s%s\n",
+					g.glyph,
+					g.tile.type,
+					g.tile.attr,
+					g.tile.value,
+					static_cast<int>(g.tile.structure),
+					isWallType(g.tile.type) ? "wall: " : "",
+					g.meaning
+				);
 			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
 				printf("prop %c %d %s\n", 'a' + d, d, DECOR_NAMES[d]);
 			for (int d = 0; d < DECAL_COUNT; d++)
@@ -328,8 +401,9 @@ int main(int argc, char** argv) {
 		if (campaignNumber(e.path) > 0 && e.grid.meta.title.empty()) // plan campaign-texts
 			e.report.warnings.push_back("a campaign level without a title (the file's title line, docs/levels.md)");
 		if (version != LEVEL_VERSION)
-			e.report.warnings.push_back("level format v" + std::to_string(version) + ", convert it: levelconvert " +
-										e.path);
+			e.report.warnings.push_back(
+				"level format v" + std::to_string(version) + ", convert it: levelconvert " + e.path
+			);
 		entries.push_back(std::move(e));
 	}
 	if (entries.empty() && code == 0) {
@@ -364,8 +438,18 @@ int main(int argc, char** argv) {
 			return b->report.finale;
 		return a->report.difficulty < b->report.difficulty;
 	});
-	printf("\n%-4s %-28s %-7s %6s %5s %5s %8s %6s  %s\n", "rank", "level", "valid", "diff", "path", "reach", "monsters",
-		   "traps", "notes");
+	printf(
+		"\n%-4s %-28s %-7s %6s %5s %5s %8s %6s  %s\n",
+		"rank",
+		"level",
+		"valid",
+		"diff",
+		"path",
+		"reach",
+		"monsters",
+		"traps",
+		"notes"
+	);
 	int rank = 1;
 	for (const Entry* e : order) {
 		const LevelReport& r = e->report;
@@ -376,9 +460,18 @@ int main(int argc, char** argv) {
 			notes += std::to_string(r.warnings.size()) + " warning(s) ";
 		if (!r.errors.empty())
 			notes += r.errors.front();
-		printf("%-4d %-28s %-7s %6.1f %5d %5d %8d %6d  %s\n", rank++, e->path.c_str(), r.valid ? "yes" : "NO",
-			   r.difficulty, r.pathLength, r.reachableCells, r.monsterCount,
-			   r.spikes + r.deathTraps + r.rockFalls + r.dartPlates + r.wallSpikes + r.fireVents, notes.c_str());
+		printf(
+			"%-4d %-28s %-7s %6.1f %5d %5d %8d %6d  %s\n",
+			rank++,
+			e->path.c_str(),
+			r.valid ? "yes" : "NO",
+			r.difficulty,
+			r.pathLength,
+			r.reachableCells,
+			r.monsterCount,
+			r.spikes + r.deathTraps + r.rockFalls + r.dartPlates + r.wallSpikes + r.fireVents,
+			notes.c_str()
+		);
 	}
 	return code;
 }

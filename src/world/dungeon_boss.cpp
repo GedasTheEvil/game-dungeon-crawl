@@ -181,8 +181,9 @@ bool Dungeon::summonMinion(const Monster& boss) {
 		auto distance = [&boss](const Monster* m) {
 			return std::fabs(m->CentreX() - boss.CentreX()) + std::fabs(static_cast<float>(m->Row() - boss.Row()));
 		};
-		std::sort(nests.begin(), nests.end(),
-				  [&distance](const Monster* a, const Monster* b) { return distance(a) < distance(b); });
+		std::sort(nests.begin(), nests.end(), [&distance](const Monster* a, const Monster* b) {
+			return distance(a) < distance(b);
+		});
 		const Monster* best = nests.empty() ? nullptr : nests[static_cast<size_t>(bossFight.hatched) % nests.size()];
 		Monster* slot = best ? freeMonsterSlot() : nullptr;
 		if (slot == nullptr)

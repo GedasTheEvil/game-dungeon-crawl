@@ -29,9 +29,12 @@ struct ContainerDef {
 	bool smashes; // the jar: no lid, it breaks (dust, shards stay)
 };
 constexpr ContainerDef CONTAINER_DEFS[CONTAINER_COUNT] = {
-	{"treasure_chest", 8.f, 700, 0.f, false},	 {"container_coffer", 6.6f, 700, 0.f, false},
-	{"container_basket", 6.1f, 600, 0.f, false}, {"container_canopic", 12.f, 900, 0.f, false},
-	{"container_jar", 7.5f, 500, 0.f, true},	 {"container_table", 7.1f, 800, 4.f, false},
+	{"treasure_chest", 8.f, 700, 0.f, false},
+	{"container_coffer", 6.6f, 700, 0.f, false},
+	{"container_basket", 6.1f, 600, 0.f, false},
+	{"container_canopic", 12.f, 900, 0.f, false},
+	{"container_jar", 7.5f, 500, 0.f, true},
+	{"container_table", 7.1f, 800, 4.f, false},
 };
 constexpr const ContainerDef& containerDef(Container c) { return CONTAINER_DEFS[static_cast<int>(c)]; }
 // The longest opening clip.
@@ -72,8 +75,10 @@ constexpr int STANCE_COUNT = 8;
 constexpr StanceDef STANCES[STANCE_COUNT] = {
 	{0, 0.f, 0.f, 6, 0}, // facing the camera
 	{25, 0.f, 0.f, 2, 0}, // angled
-	{-25, 0.f, 0.f, 2, 0},	 {90, 0.f, 0.f, 1, 0}, // side-on
-	{-90, 0.f, 0.f, 1, 0},	 {0, 0.f, -0.3f, 2, 0}, // against the back wall
+	{-25, 0.f, 0.f, 2, 0},
+	{90, 0.f, 0.f, 1, 0}, // side-on
+	{-90, 0.f, 0.f, 1, 0},
+	{0, 0.f, -0.3f, 2, 0}, // against the back wall
 	{90, -0.3f, 0.f, 3, -1}, // its back against the left wall
 	{-90, 0.3f, 0.f, 3, 1}, // the right wall
 };

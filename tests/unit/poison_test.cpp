@@ -32,11 +32,12 @@ TEST_CASE("the totals of the three tiers") {
 }
 
 TEST_CASE("medium and strong scale with max HP, the floor holds at a low one") {
-	for (auto [tier, maxHp, total] : {std::tuple{PoisonTier::Medium, 1000, 600},
-									  {PoisonTier::Medium, 250, 150},
-									  {PoisonTier::Strong, 1000, 950},
-									  {PoisonTier::Strong, 60, 57},
-									  {PoisonTier::Strong, 500, 475}}) {
+	for (auto [tier, maxHp, total] :
+		 {std::tuple{PoisonTier::Medium, 1000, 600},
+		  {PoisonTier::Medium, 250, 150},
+		  {PoisonTier::Strong, 1000, 950},
+		  {PoisonTier::Strong, 60, 57},
+		  {PoisonTier::Strong, 500, 475}}) {
 		Poison p;
 		p.Apply(tier);
 		int hp = 0;

@@ -27,14 +27,16 @@ constexpr float FOG_START = 55.f; // world units from the camera: the player sta
 // Props: web, pottery, canopic, rubble, sand, skeleton, brazier, lamp, scrolls, ushabti, cat, jackal, osiris, Thoth,
 // (3 Thoth variants, never picked), sarcophagus. Decals: crack, impact crack, floor crack, vines, flowering vines,
 // roots, seepage, glyph column, glyph row, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss.
-constexpr ZoneLook DEFAULT_LOOK = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-								   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-								   {0.09f, 0.085f, 0.1f},
-								   {0.f, 0.f, 0.f},
-								   0.f,
-								   25,
-								   nullptr,
-								   nullptr};
+constexpr ZoneLook DEFAULT_LOOK = {
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{0.09f, 0.085f, 0.1f},
+	{0.f, 0.f, 0.f},
+	0.f,
+	25,
+	nullptr,
+	nullptr
+};
 
 // By ZoneId, all twelve: the zones today's campaign does not have yet are ready for the rebuild.
 constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {

@@ -91,8 +91,10 @@ std::optional<float> Monster::BurrowRipple() const {
 	const float base = static_cast<float>(col) + 0.5f;
 	if (burrow.lurk) // lying in wait: the sand stirs a little to and fro
 		return base + x + SAND_RIPPLE_SWAY * std::sin(static_cast<float>(GameClock::now()) * 0.002f);
-	const float p =
-		std::min(static_cast<float>(GameClock::now() - burrow.startMs) / static_cast<float>(underMs()), 1.f);
+	const float p = std::min(
+		static_cast<float>(GameClock::now() - burrow.startMs) / static_cast<float>(underMs()),
+		1.f
+	);
 	return base + burrow.fromX + (burrow.toX - burrow.fromX) * p;
 }
 

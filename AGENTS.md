@@ -88,3 +88,22 @@ Still ask before other git actions (push, rewriting `master` history, config, ot
 
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.
+
+## Code style (Preferred, but optional)
+When a method call is inline, format all args in new lines.
+Bad:
+```cpp
+   glBindTexture(GL_TEXTURE_2D,
+                           texture.texID); // a texture from now on (glIsTexture), freed or not before the upload
+```
+Good: 
+```cpp
+// a texture from now on (glIsTexture), freed or not before the upload
+   glBindTexture(
+      GL_TEXTURE_2D,
+      texture.texID
+   ); 
+```
+This code style is less prone to be reformatted when changes happen.
+`make format` applies it to every call too long for one line (a call that fits stays on one line). A trailing comment
+that makes the line too long: move it above the line by hand.

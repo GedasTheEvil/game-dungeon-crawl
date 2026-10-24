@@ -118,8 +118,9 @@ float Scenario::fieldValue(const Command& cmd) {
 	}
 	case Field::JournalSolved: {
 		const auto& riddles = Game().journal.Riddles();
-		return static_cast<float>(
-			std::count_if(riddles.begin(), riddles.end(), [](const JournalRiddle& r) { return r.solved; }));
+		return static_cast<float>(std::count_if(riddles.begin(), riddles.end(), [](const JournalRiddle& r) {
+			return r.solved;
+		}));
 	}
 	case Field::ItemCount:
 		return static_cast<float>(Game().ui.inventory->Count(cmd.item));

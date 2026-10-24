@@ -28,16 +28,22 @@ class MapView {
 	[[nodiscard]] float visibleRows() const { return static_cast<float>(LEVEL_HEIGHT) / static_cast<float>(zoomLevel); }
 
 	[[nodiscard]] ui::Rect cellRect(int col, int row) const {
-		return {EDITOR_MAP_X + (static_cast<float>(col) - originX) * cellSize(),
-				EDITOR_MAP_Y + (static_cast<float>(row) - originY) * cellSize(), cellSize(), cellSize()};
+		return {
+			EDITOR_MAP_X + (static_cast<float>(col) - originX) * cellSize(),
+			EDITOR_MAP_Y + (static_cast<float>(row) - originY) * cellSize(),
+			cellSize(),
+			cellSize()
+		};
 	}
 
 	// The cell under a canvas point, {} (col -1) outside the map area.
 	[[nodiscard]] CellPos cellAt(float x, float y) const {
 		if (!EDITOR_MAP_AREA.contains(x, y))
 			return {};
-		CellPos cell = {static_cast<int>(std::floor(originX + (x - EDITOR_MAP_X) / cellSize())),
-						static_cast<int>(std::floor(originY + (y - EDITOR_MAP_Y) / cellSize()))};
+		CellPos cell = {
+			static_cast<int>(std::floor(originX + (x - EDITOR_MAP_X) / cellSize())),
+			static_cast<int>(std::floor(originY + (y - EDITOR_MAP_Y) / cellSize()))
+		};
 		return LevelGrid::inBounds(cell.col, cell.row) ? cell : CellPos{};
 	}
 

@@ -252,8 +252,8 @@ void Dungeon::drawFireJets(const CellRect& drawn) {
 			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != FireVent)
 				continue;
 			const Fixture& f = MapAt(i, j).fixture;
-			const float x =
-				static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
+			const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+							RenderConfig::TILE_HALF;
 			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE;
 			const auto seed = static_cast<uint32_t>(MapIndex(i, j)) * 2654435761u;
 			if (const float glow = ventGlow(f, now); glow > 0.f)
@@ -261,9 +261,14 @@ void Dungeon::drawFireJets(const CellRect& drawn) {
 			const float jet = jetStrength(f, now);
 			for (int k = 0; k < JET_PLUMES && jet > 0.f; k++) { // rolling out of the mouth, then rising up the cell
 				const float up = static_cast<float>(k) / (JET_PLUMES - 1);
-				Fire::draw(JET, x, y + VENT_MOUTH_Y * 0.5f + up * 0.6f * RenderConfig::TILE_SIZE,
-						   VENT_MOUTH_Z + (RenderConfig::MONSTER_DEPTH - VENT_MOUTH_Z) * std::min(1.f, 2.f * up),
-						   seed + static_cast<uint32_t>(k) * 7919u, jet);
+				Fire::draw(
+					JET,
+					x,
+					y + VENT_MOUTH_Y * 0.5f + up * 0.6f * RenderConfig::TILE_SIZE,
+					VENT_MOUTH_Z + (RenderConfig::MONSTER_DEPTH - VENT_MOUTH_Z) * std::min(1.f, 2.f * up),
+					seed + static_cast<uint32_t>(k) * 7919u,
+					jet
+				);
 			}
 		}
 }
@@ -277,8 +282,8 @@ void Dungeon::addFireVentLights(const CellRect& drawn) {
 			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != FireVent)
 				continue;
 			const Fixture& f = MapAt(i, j).fixture;
-			const float x =
-				static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
+			const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+							RenderConfig::TILE_HALF;
 			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE;
 			const auto seed = static_cast<uint32_t>(MapIndex(i, j));
 			if (jetStrength(f, now) > 0.f)
@@ -299,7 +304,12 @@ void Dungeon::drawMechanismEffects() {
 		float x = static_cast<float>(col - col0) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF;
 		float y = static_cast<float>(row - row0) * RenderConfig::TILE_SIZE;
 		float z = -RenderConfig::TILE_SIZE * (1.f - ROCK_DEPTH);
-		Dust::draw(x, y + RenderConfig::TILE_SIZE, z, static_cast<float>(age) / (ROCK_WARN_MS + ROCK_FALL_MS),
-				   static_cast<uint32_t>(m.cell));
+		Dust::draw(
+			x,
+			y + RenderConfig::TILE_SIZE,
+			z,
+			static_cast<float>(age) / (ROCK_WARN_MS + ROCK_FALL_MS),
+			static_cast<uint32_t>(m.cell)
+		);
 	}
 }

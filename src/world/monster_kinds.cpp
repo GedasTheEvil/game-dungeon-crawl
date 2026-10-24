@@ -40,36 +40,36 @@ constexpr DamageMix BABOON_COAL_MIX = {30, 0, 0, 70};
 // wet stem that barely burns, and the ushabti, fired in a kiln (a unit test keeps the list: every new monster follows
 // the rule or joins it).
 constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL, WEAK}; // soft: a blow squashes, a blade cuts, fire shrivels
-constexpr Resistances SCARAB_RESIST = {NORMAL, RESISTS, WEAK,
-									   NORMAL}; // the shell turns a blade, a point goes between plates
-constexpr Resistances PLANT_RESIST = {TOUGH, WEAK, TOUGH,
-									  WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
-constexpr Resistances BAT_RESIST = {WEAK, RESISTS, TOUGH,
-									WEAK}; // swat it; an arrow goes through the wing, and thin membranes burn
-constexpr Resistances MIMIC_RESIST = {WEAK, RESISTS, TOUGH,
-									  WEAK}; // wood: crack it; a point only sticks in it, and dry wood burns
-constexpr Resistances ANUBIS_RESIST = {WEAK, RESISTS, NORMAL,
-									   TOUGH}; // bronze dents, a blade glances off, stone does not burn
+constexpr Resistances SCARAB_RESIST =
+	{NORMAL, RESISTS, WEAK, NORMAL}; // the shell turns a blade, a point goes between plates
+constexpr Resistances PLANT_RESIST =
+	{TOUGH, WEAK, TOUGH, WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
+constexpr Resistances BAT_RESIST =
+	{WEAK, RESISTS, TOUGH, WEAK}; // swat it; an arrow goes through the wing, and thin membranes burn
+constexpr Resistances MIMIC_RESIST =
+	{WEAK, RESISTS, TOUGH, WEAK}; // wood: crack it; a point only sticks in it, and dry wood burns
+constexpr Resistances ANUBIS_RESIST =
+	{WEAK, RESISTS, NORMAL, TOUGH}; // bronze dents, a blade glances off, stone does not burn
 constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab
-constexpr Resistances CROCODILE_RESIST = {NORMAL, RESISTS, NORMAL,
-										  RESISTS}; // the scutes turn a blade, wet hide a flame
-constexpr Resistances SCORPION_RESIST = {
-	WEAK, NORMAL, RESISTS, NORMAL}; // a blow cracks the thin shell; a point glances off; fire: the exception
-constexpr Resistances COBRA_RESIST = {RESISTS, WEAK, NORMAL,
-									  NORMAL}; // the coils give under a blow; a blade cuts the body
-constexpr Resistances EGG_CLUSTER_RESIST = {NORMAL, WEAK, RESISTS,
-											WEAK}; // a blade slits the leathery eggs, fire cooks them
-constexpr Resistances LOTUS_RESIST = {
-	RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
-constexpr Resistances CAMEL_SPIDER_RESIST = {NORMAL, WEAK, RESISTS,
-											 WEAK}; // a blade lops the long legs, a point misses the slim body; fire
-constexpr Resistances HIPPO_RESIST = {RESISTS, NORMAL, NORMAL,
-									  RESISTS}; // a blow sinks into the fat, wet hide barely burns
+constexpr Resistances CROCODILE_RESIST =
+	{NORMAL, RESISTS, NORMAL, RESISTS}; // the scutes turn a blade, wet hide a flame
+constexpr Resistances SCORPION_RESIST =
+	{WEAK, NORMAL, RESISTS, NORMAL}; // a blow cracks the thin shell; a point glances off; fire: the exception
+constexpr Resistances COBRA_RESIST =
+	{RESISTS, WEAK, NORMAL, NORMAL}; // the coils give under a blow; a blade cuts the body
+constexpr Resistances EGG_CLUSTER_RESIST =
+	{NORMAL, WEAK, RESISTS, WEAK}; // a blade slits the leathery eggs, fire cooks them
+constexpr Resistances LOTUS_RESIST =
+	{RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
+constexpr Resistances CAMEL_SPIDER_RESIST =
+	{NORMAL, WEAK, RESISTS, WEAK}; // a blade lops the long legs, a point misses the slim body; fire
+constexpr Resistances HIPPO_RESIST =
+	{RESISTS, NORMAL, NORMAL, RESISTS}; // a blow sinks into the fat, wet hide barely burns
 // Glazed faience shatters under a blow; a point skids off the glaze; fired in a kiln, a flame only warms it (an
 // exception to the fire rule).
 constexpr Resistances USHABTI_RESIST = {WEAK, NORMAL, RESISTS, TOUGH};
-constexpr Resistances BABOON_RESIST = {NORMAL, NORMAL, WEAK,
-									   RESISTS}; // lean, an arrow finds it; it lives by the lake of fire
+constexpr Resistances BABOON_RESIST =
+	{NORMAL, NORMAL, WEAK, RESISTS}; // lean, an arrow finds it; it lives by the lake of fire
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -96,52 +96,62 @@ constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than 
 // bite's damage, then the death roll, 3 ticks of 40% of it, 0.8 s apart; no breaking free. Sobek's (its kin's,
 // AGENTS.md Boss abilities): more often, a tick longer. The attack clip (tools/blender/models/crocodile.py): the gape
 // at frame 8, the jaws shut at 13.
-constexpr HoldRules CROCODILE_HOLD = {.chancePercent = 30,
-									  .inWater = true,
-									  .holdMs = 2400,
-									  .tickMs = 800,
-									  .tickDamagePct = 40,
-									  .tellFrame = 8.f,
-									  .holdFrame = 13.f};
-constexpr HoldRules SOBEK_HOLD = {.chancePercent = 40,
-								  .inWater = true,
-								  .holdMs = 3200,
-								  .tickMs = 800,
-								  .tickDamagePct = 40,
-								  .tellFrame = 8.f,
-								  .holdFrame = 13.f};
+constexpr HoldRules CROCODILE_HOLD = {
+	.chancePercent = 30,
+	.inWater = true,
+	.holdMs = 2400,
+	.tickMs = 800,
+	.tickDamagePct = 40,
+	.tellFrame = 8.f,
+	.holdFrame = 13.f
+};
+constexpr HoldRules SOBEK_HOLD = {
+	.chancePercent = 40,
+	.inWater = true,
+	.holdMs = 3200,
+	.tickMs = 800,
+	.tickDamagePct = 40,
+	.tellFrame = 8.f,
+	.holdFrame = 13.f
+};
 // The giant scorpion's pincers: a small blunt hit, a 1 s hold, then the sure sting; each hit on it ends the hold
 // 0.25 s sooner. The scorpion queen's (her kin's): longer, harder to break. The attack clip
 // (tools/blender/models/scorpion.py): the claws wide and the tail up at frame 3, pinched and cocked at 8.
 constexpr DamageMix PINCER_MIX = {100, 0, 0};
-constexpr HoldRules GIANT_SCORPION_HOLD = {.chancePercent = 25,
-										   .grabDamagePct = 30,
-										   .grabMix = PINCER_MIX,
-										   .holdMs = 1000,
-										   .breakMs = 250,
-										   .sting = true,
-										   .tellFrame = 3.f,
-										   .holdFrame = 8.f};
-constexpr HoldRules SCORPION_QUEEN_HOLD = {.chancePercent = 25,
-										   .grabDamagePct = 30,
-										   .grabMix = PINCER_MIX,
-										   .holdMs = 1500,
-										   .breakMs = 200,
-										   .sting = true,
-										   .tellFrame = 3.f,
-										   .holdFrame = 8.f};
+constexpr HoldRules GIANT_SCORPION_HOLD = {
+	.chancePercent = 25,
+	.grabDamagePct = 30,
+	.grabMix = PINCER_MIX,
+	.holdMs = 1000,
+	.breakMs = 250,
+	.sting = true,
+	.tellFrame = 3.f,
+	.holdFrame = 8.f
+};
+constexpr HoldRules SCORPION_QUEEN_HOLD = {
+	.chancePercent = 25,
+	.grabDamagePct = 30,
+	.grabMix = PINCER_MIX,
+	.holdMs = 1500,
+	.breakMs = 200,
+	.sting = true,
+	.tellFrame = 3.f,
+	.holdFrame = 8.f
+};
 // Rerek's swallow (plan worm-boss): the jaws close round the player and pull them into the sand; a grinding tick each
 // second; each hit on him ends it 0.3 s sooner. The attack clip (tools/blender/models/worm.py ATTACK): reared, the
 // jaws wide at frame 9, lunged with the jaws round the player at 13.
-constexpr HoldRules REREK_HOLD = {.chancePercent = 30,
-								  .grabDamagePct = 60,
-								  .holdMs = 3000,
-								  .tickMs = 1000,
-								  .tickDamagePct = 35,
-								  .breakMs = 300,
-								  .swallow = true,
-								  .tellFrame = 9.f,
-								  .holdFrame = 13.f};
+constexpr HoldRules REREK_HOLD = {
+	.chancePercent = 30,
+	.grabDamagePct = 60,
+	.holdMs = 3000,
+	.tickMs = 1000,
+	.tickDamagePct = 35,
+	.breakMs = 300,
+	.swallow = true,
+	.tellFrame = 9.f,
+	.holdFrame = 13.f
+};
 
 // The dung ball (plan scarab-dung-ball). The draft's 4-6 tiles would kick it off the screen: the view shows about
 // 1.8 tiles either side of the player (see the baboon), and the roller, its back to them, must stand in it with its
@@ -149,22 +159,26 @@ constexpr HoldRules REREK_HOLD = {.chancePercent = 30,
 // clears it. The windup is the roll clip's kick (tools/blender/models/scarab.py). Khepri, who rolls the sun across the
 // sky, rolls a bigger, faster, burning one from a little farther (the boss rule, though her kin, the small scarab,
 // rolls none); her bigger body leaves no more room in the view.
-constexpr RollRules GIANT_SCARAB_ROLL = {.minRange = 0.6f,
-										 .maxRange = 1.f,
-										 .windupMs = 800,
-										 .cooldownMs = 4000,
-										 .speed = 2.2f,
-										 .radius = 0.1f,
-										 .damage = 10};
-constexpr RollRules KHEPRI_ROLL = {.minRange = 0.6f,
-								   .maxRange = 1.1f,
-								   .windupMs = 800,
-								   .cooldownMs = 3500,
-								   .speed = 2.8f,
-								   .radius = 0.13f,
-								   .damage = 28,
-								   .mix = {60, 0, 0, 40},
-								   .burnMs = 2000};
+constexpr RollRules GIANT_SCARAB_ROLL = {
+	.minRange = 0.6f,
+	.maxRange = 1.f,
+	.windupMs = 800,
+	.cooldownMs = 4000,
+	.speed = 2.2f,
+	.radius = 0.1f,
+	.damage = 10
+};
+constexpr RollRules KHEPRI_ROLL = {
+	.minRange = 0.6f,
+	.maxRange = 1.1f,
+	.windupMs = 800,
+	.cooldownMs = 3500,
+	.speed = 2.8f,
+	.radius = 0.13f,
+	.damage = 28,
+	.mix = {60, 0, 0, 40},
+	.burnMs = 2000
+};
 
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {
@@ -273,8 +287,18 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISON_IMMUNE,
 	 // A bolt of fire from the was-sceptre (plans anubis-ranged-attack, anubis-fire-bolt). The melee swing is its
 	 // ranged clip.
-	 .ranged = RangedRules{50, std::nullopt, 1.4f, 3000, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_FIRE,
-						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX},
+	 .ranged =
+		 RangedRules{
+			 50,
+			 std::nullopt,
+			 1.4f,
+			 3000,
+			 ANUBIS_RELEASE,
+			 ANUBIS_RELEASE_Y,
+			 BOLT_FIRE,
+			 ANUBIS_RELEASE_AHEAD,
+			 ANUBIS_BOLT_MIX
+		 },
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
 	 .walkClipSpeed = 70, // twice the usual, so the feet do not slide (plan anubis-walk-clip-speed)
@@ -326,8 +350,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
-	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Greater, 3},
-					 CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
+	 .meleeCurses =
+		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
@@ -442,8 +466,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = bossResist(SCARAB_RESIST),
 	 .locomotion = Locomotion::WalkJump,
 	 .weight = 4,
-	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6},
-					 CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
+	 .meleeCurses =
+		 {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6}, CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
 	 .roll = KHEPRI_ROLL,
 	 .kin = MonsterScarab,
 	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
@@ -496,8 +520,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 .meleeCurses = {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2},
-					 CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
+	 .meleeCurses =
+		 {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2}, CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
 	 .riseMs = 1000,
 	 .sunBurns = true,
 	 .climbs = true,
@@ -533,8 +557,19 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 // Its guard's bolt, farther and harder, burning longer; the same model.
-	 .ranged = RangedRules{125, std::nullopt, 2.0f, 2500, ANUBIS_RELEASE, ANUBIS_RELEASE_Y, BOLT_FIRE,
-						   ANUBIS_RELEASE_AHEAD, ANUBIS_BOLT_MIX, ANUBIS_BOSS_BURN_MS},
+	 .ranged =
+		 RangedRules{
+			 125,
+			 std::nullopt,
+			 2.0f,
+			 2500,
+			 ANUBIS_RELEASE,
+			 ANUBIS_RELEASE_Y,
+			 BOLT_FIRE,
+			 ANUBIS_RELEASE_AHEAD,
+			 ANUBIS_BOLT_MIX,
+			 ANUBIS_BOSS_BURN_MS
+		 },
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
 	 .walkClipSpeed = 76, // its walk is 25/23 of the guard's: the same stride (plan anubis-walk-clip-speed)
@@ -545,13 +580,14 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // A guard is twice a mummy's threat and outruns the player: fewer, and slower to come (plan mummy-boss).
 	 // Every other summon a servant, an ushabti, steps out of the stone (plan living-ushabti): four more summons and
 	 // one more alive, so as many guards come as before (5).
-	 .boss = {.minion = MonsterAnubis,
-			  .minAlive = 1,
-			  .maxAlive = 3,
-			  .summonMs = 4000,
-			  .summonCap = 8,
-			  .summon = Summon::Wall,
-			  .smallMinion = MonsterUshabti}},
+	 .boss =
+		 {.minion = MonsterAnubis,
+		  .minAlive = 1,
+		  .maxAlive = 3,
+		  .summonMs = 4000,
+		  .summonCap = 8,
+		  .summon = Summon::Wall,
+		  .smallMinion = MonsterUshabti}},
 	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
 	// outwalks it), in the water faster than the player walks on land. Levels 7-9 (plan crocodiles-and-flooded-cells).
 	// A long, low body: 1.5 tiles nose to tail.
@@ -852,18 +888,29 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .weight = 4,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 .ranged = RangedRules{100, std::nullopt, 1.8f, 2800, MUMMY_PRIEST_RELEASE, MUMMY_PRIEST_RELEASE_Y, BOLT_PURPLE,
-						   MUMMY_PRIEST_RELEASE_AHEAD},
+	 .ranged =
+		 RangedRules{
+			 100,
+			 std::nullopt,
+			 1.8f,
+			 2800,
+			 MUMMY_PRIEST_RELEASE,
+			 MUMMY_PRIEST_RELEASE_Y,
+			 BOLT_PURPLE,
+			 MUMMY_PRIEST_RELEASE_AHEAD
+		 },
 	 // The staff, the embalmer's work on the body: the rot the natron was meant to stop, his mummies' curse, the
 	 // long sleep of the tomb. About 42% of the blows that land lay one.
-	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Greater, 12},
-					 CurseEntry{Curse::Weakness, CurseGrade::Greater, 12},
-					 CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 25}},
+	 .meleeCurses =
+		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 12},
+		  CurseEntry{Curse::Weakness, CurseGrade::Greater, 12},
+		  CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 25}},
 	 // The bolt, the spoken curses of the funeral rites: the forbidden words of the Book of the Dead, bound in linen
 	 // like the dead, weighed against the feather and found wanting. About 58%.
-	 .rangedCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 20},
-					  CurseEntry{Curse::Slowness, CurseGrade::Lesser, 25},
-					  CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
+	 .rangedCurses =
+		 {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 20},
+		  CurseEntry{Curse::Slowness, CurseGrade::Lesser, 25},
+		  CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .riseMs = 1000,
 	 .sunBurns = true,
 	 .climbs = true,
@@ -1033,15 +1080,18 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 3200,
 	 .attackMix = BABOON_MIX,
 	 .resist = BABOON_RESIST,
-	 .ranged = RangedRules{.damage = 24,
-						   .range = 1.3f,
-						   .cooldownMs = 2000,
-						   .release = BABOON_RELEASE,
-						   .releaseY = BABOON_RELEASE_Y,
-						   .colour = BOLT_FIRE,
-						   .releaseAhead = BABOON_RELEASE_AHEAD,
-						   .mix = BABOON_COAL_MIX,
-						   .ownClip = true},
+	 .ranged =
+		 RangedRules{
+			 .damage = 24,
+			 .range = 1.3f,
+			 .cooldownMs = 2000,
+			 .release = BABOON_RELEASE,
+			 .releaseY = BABOON_RELEASE_Y,
+			 .colour = BOLT_FIRE,
+			 .releaseAhead = BABOON_RELEASE_AHEAD,
+			 .mix = BABOON_COAL_MIX,
+			 .ownClip = true
+		 },
 	 .kite = KiteRules{.near = 0.55f, .far = 1.1f, .backOffSpeed = 28.f},
 	 .walkClipSpeed = 84, // its trot covers 0.48 tiles a second at the usual 35
 	 .climbs = true,
@@ -1155,10 +1205,12 @@ constexpr bool validKinds() {
 	}
 	return true;
 }
-static_assert(validKinds(),
-			  "KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
-			  "bosses with a kin, no weakness and no resistance worse than the kin's, poison included, a reach no "
-			  "shorter than the kin's");
+static_assert(
+	validKinds(),
+	"KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
+	"bosses with a kin, no weakness and no resistance worse than the kin's, poison included, a reach no "
+	"shorter than the kin's"
+);
 } // namespace
 
 const MonsterKind* monsterKind(int type) {

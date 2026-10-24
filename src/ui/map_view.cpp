@@ -60,9 +60,14 @@ class Sketch {
 	void pencil(float x0, float y0, float x1, float y1, Color c, float alpha, uint32_t seed) {
 		for (uint32_t pass = 0; pass < 2; pass++) {
 			uint32_t k = seed * 8 + pass * 4;
-			strokes.push_back({ox + (x0 + JITTER * noise(k)) * s, oy + (y0 + JITTER * noise(k + 1)) * s,
-							   ox + (x1 + JITTER * noise(k + 2)) * s, oy + (y1 + JITTER * noise(k + 3)) * s, c,
-							   pass == 0 ? alpha : alpha * 0.45f});
+			strokes.push_back(
+				{ox + (x0 + JITTER * noise(k)) * s,
+				 oy + (y0 + JITTER * noise(k + 1)) * s,
+				 ox + (x1 + JITTER * noise(k + 2)) * s,
+				 oy + (y1 + JITTER * noise(k + 3)) * s,
+				 c,
+				 pass == 0 ? alpha : alpha * 0.45f}
+			);
 		}
 	}
 	// Closed polygon through `n` points on an ellipse round (cx, cy).
@@ -70,8 +75,15 @@ class Sketch {
 		for (int i = 0; i < n; i++) {
 			float a0 = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / static_cast<float>(n);
 			float a1 = 2.f * static_cast<float>(M_PI) * static_cast<float>(i + 1) / static_cast<float>(n);
-			pencil(cx + rx * std::cos(a0), cy + ry * std::sin(a0), cx + rx * std::cos(a1), cy + ry * std::sin(a1), c,
-				   alpha, seed + static_cast<uint32_t>(i));
+			pencil(
+				cx + rx * std::cos(a0),
+				cy + ry * std::sin(a0),
+				cx + rx * std::cos(a1),
+				cy + ry * std::sin(a1),
+				c,
+				alpha,
+				seed + static_cast<uint32_t>(i)
+			);
 		}
 	}
 	// A wavy line ("~~") from x0 to x1 round height y: two crests, the whole wave a little off as drawn by hand.
@@ -86,9 +98,14 @@ class Sketch {
 				const auto yAt = [&](float t) {
 					return y + dy + lift + WAVE_AMPLITUDE * std::sin(t * 4.f * static_cast<float>(M_PI));
 				};
-				strokes.push_back({ox + (x0 + dx + (x1 - x0) * t0) * s, oy + yAt(t0) * s,
-								   ox + (x0 + dx + (x1 - x0) * t1) * s, oy + yAt(t1) * s, c,
-								   pass == 0 ? alpha : alpha * 0.45f});
+				strokes.push_back(
+					{ox + (x0 + dx + (x1 - x0) * t0) * s,
+					 oy + yAt(t0) * s,
+					 ox + (x0 + dx + (x1 - x0) * t1) * s,
+					 oy + yAt(t1) * s,
+					 c,
+					 pass == 0 ? alpha : alpha * 0.45f}
+				);
 			}
 		}
 	}
@@ -139,8 +156,14 @@ void water(Sketch& sk, int i, int j, Tile t) {
 		sk.wave(x + 0.25f, x + 0.75f, y + 0.2f, WATER_BLUE, 0.5f, cellSeed(i, j, 21));
 	} else if (t.structure == Structure::DeepWater) {
 		for (int k = 0; k < 3; k++)
-			sk.wave(x + 0.1f, x + 0.9f, y + 0.22f + 0.28f * static_cast<float>(k), WATER_BLUE, 0.8f,
-					cellSeed(i, j, 22 + k));
+			sk.wave(
+				x + 0.1f,
+				x + 0.9f,
+				y + 0.22f + 0.28f * static_cast<float>(k),
+				WATER_BLUE,
+				0.8f,
+				cellSeed(i, j, 22 + k)
+			);
 	}
 }
 
@@ -182,8 +205,15 @@ void arch(Sketch& sk, float x, float y, Color c, uint32_t seed) {
 	for (int k = 0; k < SEGMENTS; k++) {
 		float a0 = static_cast<float>(M_PI) * static_cast<float>(k) / SEGMENTS;
 		float a1 = static_cast<float>(M_PI) * static_cast<float>(k + 1) / SEGMENTS;
-		sk.pencil(x + 0.5f + 0.28f * std::cos(a0), y + 0.55f + 0.3f * std::sin(a0), x + 0.5f + 0.28f * std::cos(a1),
-				  y + 0.55f + 0.3f * std::sin(a1), c, 0.9f, seed + 2 + static_cast<uint32_t>(k));
+		sk.pencil(
+			x + 0.5f + 0.28f * std::cos(a0),
+			y + 0.55f + 0.3f * std::sin(a0),
+			x + 0.5f + 0.28f * std::cos(a1),
+			y + 0.55f + 0.3f * std::sin(a1),
+			c,
+			0.9f,
+			seed + 2 + static_cast<uint32_t>(k)
+		);
 	}
 }
 
@@ -272,14 +302,30 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		sk.pencil(x + 0.2f, y + 0.08f, x + 0.8f, y + 0.08f, GRAPHITE, 0.95f, seed);
 		sk.pencil(x + 0.2f, y + 0.16f, x + 0.8f, y + 0.16f, GRAPHITE, 0.95f, seed + 1);
 		for (int k = 0; k < 3; k++)
-			sk.loop(x + 0.28f + 0.22f * static_cast<float>(k), y + 0.4f, 0.06f, 0.06f, 5, GRAPHITE, 0.9f,
-					seed + 2 + static_cast<uint32_t>(k));
+			sk.loop(
+				x + 0.28f + 0.22f * static_cast<float>(k),
+				y + 0.4f,
+				0.06f,
+				0.06f,
+				5,
+				GRAPHITE,
+				0.9f,
+				seed + 2 + static_cast<uint32_t>(k)
+			);
 		break;
 	case WallSpikes: // the slots in the back wall the spikes come out of, a 3 x 3 grid
 		for (int c = 0; c < 3; c++)
 			for (int r = 0; r < 3; r++)
-				sk.loop(x + 0.25f + 0.25f * static_cast<float>(c), y + 0.22f + 0.25f * static_cast<float>(r), 0.05f,
-						0.05f, 5, GRAPHITE, 0.9f, seed + static_cast<uint32_t>(c * 3 + r));
+				sk.loop(
+					x + 0.25f + 0.25f * static_cast<float>(c),
+					y + 0.22f + 0.25f * static_cast<float>(r),
+					0.05f,
+					0.05f,
+					5,
+					GRAPHITE,
+					0.9f,
+					seed + static_cast<uint32_t>(c * 3 + r)
+				);
 		break;
 	case FireVent: // the vent's mouth low in the back wall, a tongue of flame over it
 		sk.pencil(x + 0.3f, y + 0.12f, x + 0.7f, y + 0.12f, GRAPHITE, 0.95f, seed);
@@ -293,8 +339,15 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		const float sx = x + 0.5f - 0.4f * dx, sy = y + 0.5f - 0.4f * dy;
 		for (int k = -1; k <= 1; k++) {
 			const float spread = 0.18f * static_cast<float>(k);
-			sk.pencil(sx, sy, sx + 0.7f * dx - spread * dy, sy + 0.7f * dy + spread * dx, ANKH_GOLD, 0.9f,
-					  seed + static_cast<uint32_t>(k + 1));
+			sk.pencil(
+				sx,
+				sy,
+				sx + 0.7f * dx - spread * dy,
+				sy + 0.7f * dy + spread * dx,
+				ANKH_GOLD,
+				0.9f,
+				seed + static_cast<uint32_t>(k + 1)
+			);
 		}
 		break;
 	}
@@ -302,8 +355,15 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		const BeamDir d = mirrorDir(t);
 		sk.pencil(x + 0.5f, y + 0.05f, x + 0.5f, y + 0.4f, GRAPHITE, 0.9f, seed);
 		sk.loop(x + 0.5f, y + 0.55f, 0.15f, 0.15f, 7, GRAPHITE, 0.9f, seed + 1);
-		sk.pencil(x + 0.5f, y + 0.55f, x + 0.5f + 0.38f * static_cast<float>(beamDx(d)),
-				  y + 0.55f + 0.38f * static_cast<float>(beamDy(d)), ANKH_GOLD, 0.95f, seed + 2);
+		sk.pencil(
+			x + 0.5f,
+			y + 0.55f,
+			x + 0.5f + 0.38f * static_cast<float>(beamDx(d)),
+			y + 0.55f + 0.38f * static_cast<float>(beamDy(d)),
+			ANKH_GOLD,
+			0.95f,
+			seed + 2
+		);
 		break;
 	}
 	case SunDisc: { // a disc with rays, in its lock colour
@@ -311,8 +371,15 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		sk.loop(x + 0.5f, y + 0.55f, 0.16f, 0.16f, 7, c, 0.95f, seed);
 		for (int k = 0; k < 6; k++) {
 			const float a = 6.2832f * static_cast<float>(k) / 6.f;
-			sk.pencil(x + 0.5f + 0.22f * std::cos(a), y + 0.55f + 0.22f * std::sin(a), x + 0.5f + 0.34f * std::cos(a),
-					  y + 0.55f + 0.34f * std::sin(a), c, 0.9f, seed + 1 + static_cast<uint32_t>(k));
+			sk.pencil(
+				x + 0.5f + 0.22f * std::cos(a),
+				y + 0.55f + 0.22f * std::sin(a),
+				x + 0.5f + 0.34f * std::cos(a),
+				y + 0.55f + 0.34f * std::sin(a),
+				c,
+				0.9f,
+				seed + 1 + static_cast<uint32_t>(k)
+			);
 		}
 		break;
 	}

@@ -49,10 +49,12 @@ void Dungeon::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1
 	const float t0 = static_cast<float>(j & 1) * 0.5f;
 	const float n[3] = {0, 0, 1};
 	const float v[4][3] = {{x0, y0, 0}, {x1, y0, 0}, {x1, y1, 0}, {x0, y1, 0}};
-	const float st[4][2] = {{u0 + x0 / T * 0.5f, t0 + y0 / T * 0.5f},
-							{u0 + x1 / T * 0.5f, t0 + y0 / T * 0.5f},
-							{u0 + x1 / T * 0.5f, t0 + y1 / T * 0.5f},
-							{u0 + x0 / T * 0.5f, t0 + y1 / T * 0.5f}};
+	const float st[4][2] = {
+		{u0 + x0 / T * 0.5f, t0 + y0 / T * 0.5f},
+		{u0 + x1 / T * 0.5f, t0 + y0 / T * 0.5f},
+		{u0 + x1 / T * 0.5f, t0 + y1 / T * 0.5f},
+		{u0 + x0 / T * 0.5f, t0 + y1 / T * 0.5f}
+	};
 	glDisable(GL_BLEND);
 	sim.assets->decor.rockTex.Bind();
 	quad(n, v, st);
@@ -166,8 +168,11 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	const ContainerDef& def = containerDef(look.kind);
 
 	glPushMatrix();
-	glTranslatef(RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE, 0,
-				 RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE);
+	glTranslatef(
+		RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE,
+		0,
+		RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE
+	);
 	Item& container = *sim.assets->items.containers[static_cast<size_t>(look.kind)];
 	container.rotA = look.yaw;
 	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
@@ -213,8 +218,14 @@ void Dungeon::drawContainerEffects() {
 			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE -
 							(inHalfWater(MapAt(i, j)) ? RenderConfig::WATER_BASIN_DEPTH : 0.f);
 			const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
-			Grit::burst(x, y, z, now - c.openedMs, false,
-						static_cast<uint32_t>(cell) + static_cast<uint32_t>(c.openedMs));
+			Grit::burst(
+				x,
+				y,
+				z,
+				now - c.openedMs,
+				false,
+				static_cast<uint32_t>(cell) + static_cast<uint32_t>(c.openedMs)
+			);
 		}
 }
 //======================================================================================
@@ -227,8 +238,8 @@ void Dungeon::drawChestGas() {
 		const TreasureLook look = treasureLook(g.cell);
 		const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
 						RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE;
-		const float y =
-			static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE + 0.25f * RenderConfig::TILE_SIZE;
+		const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE +
+						0.25f * RenderConfig::TILE_SIZE;
 		const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
 		const float fade = std::clamp(static_cast<float>(CHEST_GAS_MS - (now - g.startMs)) / FADE_MS, 0.f, 1.f);
 		Fire::draw(Fire::GAS, x, y, z, static_cast<uint32_t>(g.cell) + static_cast<uint32_t>(g.startMs), fade);
@@ -437,8 +448,11 @@ void Dungeon::drawTileContent(int i, int j) {
 void Dungeon::pushLevelFrame() const {
 	glPushMatrix();
 	const float x = mapX + cutShot.dx, y = mapY + cutShot.dy; // the camera's place, as view()
-	glTranslatef(-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
-				 -RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))), 0.f);
+	glTranslatef(
+		-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
+		-RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))),
+		0.f
+	);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 }
 //======================================================================================
@@ -469,8 +483,11 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	Lighting::commit();
 
 	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
-	glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(drawn.col0 - v.originCol),
-				 RenderConfig::TILE_SIZE * static_cast<float>(drawn.row0 - v.originRow), 0);
+	glTranslatef(
+		RenderConfig::TILE_SIZE * static_cast<float>(drawn.col0 - v.originCol),
+		RenderConfig::TILE_SIZE * static_cast<float>(drawn.row0 - v.originRow),
+		0
+	);
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++) {
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
 			drawCellSurfaces(i, j); // outside the level: rock
@@ -487,8 +504,11 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 			}
 			glTranslatef(RenderConfig::TILE_SIZE, 0, 0);
 		}
-		glTranslatef(-RenderConfig::TILE_SIZE * static_cast<float>(drawn.cols), RenderConfig::TILE_SIZE,
-					 0); // the next row's start
+		glTranslatef(
+			-RenderConfig::TILE_SIZE * static_cast<float>(drawn.cols),
+			RenderConfig::TILE_SIZE,
+			0
+		); // the next row's start
 	}
 	glPopMatrix();
 
@@ -643,8 +663,12 @@ void Dungeon::DrawWater() {
 			const Structure s = IsInBounds(i, j) ? MapAt(i, j).structure : Structure::Wall;
 			if (s != Structure::HalfWater && s != Structure::DeepWater)
 				continue;
-			drawWaterCell(i, j, RenderConfig::TILE_SIZE * static_cast<float>(i - v.originCol),
-						  RenderConfig::TILE_SIZE * static_cast<float>(j - v.originRow));
+			drawWaterCell(
+				i,
+				j,
+				RenderConfig::TILE_SIZE * static_cast<float>(i - v.originCol),
+				RenderConfig::TILE_SIZE * static_cast<float>(j - v.originRow)
+			);
 		}
 	glDepthMask(GL_TRUE);
 	glColor4f(1, 1, 1, 1);

@@ -85,14 +85,18 @@ int Dungeon::cutWebs(float fromX, float toX, int row) {
 //======================================================================================
 void Dungeon::updateWebs() {
 	const int now = GameClock::now();
-	webs.erase(std::remove_if(webs.begin(), webs.end(),
-							  [now](const Web& w) {
-								  return w.goneMs >= 0 && now - w.goneMs >= (w.burnt ? WEB_BURN_MS : WEB_CUT_MS);
-							  }),
-			   webs.end());
+	webs.erase(
+		std::remove_if(
+			webs.begin(),
+			webs.end(),
+			[now](const Web& w) { return w.goneMs >= 0 && now - w.goneMs >= (w.burnt ? WEB_BURN_MS : WEB_CUT_MS); }
+		),
+		webs.end()
+	);
 	snuffs.erase(
 		std::remove_if(snuffs.begin(), snuffs.end(), [now](const Motion& m) { return now - m.startMs >= SNUFF_MS; }),
-		snuffs.end());
+		snuffs.end()
+	);
 	for (Web& w : webs) {
 		const int col = w.cell % MAP_WIDTH, row = w.cell / MAP_WIDTH;
 		if (w.goneMs < 0 && inFireJet(static_cast<float>(col), static_cast<float>(col) + 1.f, row)) {

@@ -23,8 +23,17 @@ const MonsterTypes& kiterTypes() {
 
 // The level loaded, the kiter on it: it has come up to its band and stands there.
 const Monster& kiterIn(SimWorld& world, const char* level) {
-	world.dungeon.Link({&world.player, &world.journal, &world.items, &world.random, nullptr, &world.events,
-						&kiterTypes(), &world.inscriptions, &world.names});
+	world.dungeon.Link(
+		{&world.player,
+		 &world.journal,
+		 &world.items,
+		 &world.random,
+		 nullptr,
+		 &world.events,
+		 &kiterTypes(),
+		 &world.inscriptions,
+		 &world.names}
+	);
 	REQUIRE(world.Load(level));
 	world.Wait(6000);
 	for (int i = 0; i < MAX_MONSTERS; i++)

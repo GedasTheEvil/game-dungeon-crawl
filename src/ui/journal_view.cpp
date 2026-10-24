@@ -58,10 +58,10 @@ constexpr float PEEK_X = 6.f; // the hovered corner lifts this far in and up
 constexpr float PEEK_Y = 3.f;
 constexpr float CLICK_SLOP = 1.5f; // a press let go of within this is a click, not a drag
 
-constexpr const char* HAND_FONT =
-	MEDIA_DIR "textures/fonts/kalam.png"; // Kalam (OFL, media/textures/fonts/kalam-OFL.txt)
-constexpr const char* STAMP_FONT =
-	MEDIA_DIR "textures/fonts/courier.png"; // Courier 10 Pitch (Bitstream, media/textures/fonts/courier-LICENSE.txt)
+constexpr const char* HAND_FONT = MEDIA_DIR
+	"textures/fonts/kalam.png"; // Kalam (OFL, media/textures/fonts/kalam-OFL.txt)
+constexpr const char* STAMP_FONT = MEDIA_DIR
+	"textures/fonts/courier.png"; // Courier 10 Pitch (Bitstream, media/textures/fonts/courier-LICENSE.txt)
 constexpr float FADED = 0.7f; // alpha of pencil notes that matter less
 
 constexpr float NUMBER_TOP = 5.8f; // page number baseline below the page top
@@ -265,8 +265,11 @@ JournalScreen::RibbonPlace JournalScreen::PlaceOf(int ribbon, const Opening& at)
 	int before = PagesBefore(at);
 	bool left = first <= before;
 	int between = left ? before - first : first - before - 2; // under the right page: from the one after it
-	return {left, static_cast<float>(between) / static_cast<float>(PagesTotal()) * RIBBON_DEPTH_MAX,
-			left && between == 0};
+	return {
+		left,
+		static_cast<float>(between) / static_cast<float>(PagesTotal()) * RIBBON_DEPTH_MAX,
+		left && between == 0
+	};
 }
 
 bool JournalScreen::Riding(int ribbon) const {
@@ -365,8 +368,8 @@ void JournalScreen::AdvanceTurn() {
 	if (!turn.active || turn.dragging)
 		return;
 	float step = dt * static_cast<float>(M_PI) / FLIP_MS;
-	turn.angle =
-		turn.target > turn.angle ? std::min(turn.target, turn.angle + step) : std::max(turn.target, turn.angle - step);
+	turn.angle = turn.target > turn.angle ? std::min(turn.target, turn.angle + step)
+										  : std::max(turn.target, turn.angle - step);
 	float ease = dt / FLIP_MS * 3.f;
 	turn.spread += std::clamp(1.f - turn.spread, -ease, ease);
 	if (turn.angle == turn.target && std::abs(turn.spread - 1.f) < 0.01f)
@@ -518,8 +521,11 @@ void JournalScreen::Draw() {
 		fontsLoaded = true;
 	}
 	for (int s = 0; s < SECTION_COUNT; s++)
-		spread[static_cast<size_t>(s)] =
-			std::clamp(spread[static_cast<size_t>(s)], 0, SpreadCount(static_cast<Section>(s)) - 1);
+		spread[static_cast<size_t>(s)] = std::clamp(
+			spread[static_cast<size_t>(s)],
+			0,
+			SpreadCount(static_cast<Section>(s)) - 1
+		);
 	// An empty section has no ribbon to come back to: the book opens on the first one with pages.
 	if (!turn.active && !Shown(static_cast<int>(section)))
 		for (int s = 0; s < SECTION_COUNT; s++)
@@ -582,8 +588,15 @@ void JournalScreen::Draw() {
 	if (pagesFailed) {
 		for (int side = 0; side < 2; side++) {
 			const Rect& p = pageRect(side);
-			texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
-						 side == 0 ? 0.f : 1.f, 1.f);
+			texturedRect(
+				p,
+				Game().assets.textures.journalPaper.ID(),
+				{1, 1, 1},
+				side == 0 ? 1.f : 0.f,
+				0.f,
+				side == 0 ? 0.f : 1.f,
+				1.f
+			);
 			DrawPageContent(open, side, true);
 		}
 	} else {
@@ -651,8 +664,15 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	riding(false);
 	glDisable(GL_BLEND);
 	// The paper texture has its spine on the left: the left page draws it mirrored.
-	texturedRect(p, Game().assets.textures.journalPaper.ID(), {1, 1, 1}, side == 0 ? 1.f : 0.f, 0.f,
-				 side == 0 ? 0.f : 1.f, 1.f);
+	texturedRect(
+		p,
+		Game().assets.textures.journalPaper.ID(),
+		{1, 1, 1},
+		side == 0 ? 1.f : 0.f,
+		0.f,
+		side == 0 ? 0.f : 1.f,
+		1.f
+	);
 	DrawPageContent(at, side, live);
 	riding(true);
 	target.End();
@@ -721,8 +741,15 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 void JournalScreen::DrawBook(const Opening& at) {
 	beginShapes();
 	fillRect({COVER.x + 1.f, COVER.y - 1.2f, COVER.w, COVER.h}, BLACK, BLACK, 0.5f); // shadow
-	texturedRect(COVER, Game().assets.textures.journalCloth.ID(), CLOTH, 0.f, 0.f, COVER.w / CLOTH_TILE,
-				 COVER.h / CLOTH_TILE);
+	texturedRect(
+		COVER,
+		Game().assets.textures.journalCloth.ID(),
+		CLOTH,
+		0.f,
+		0.f,
+		COVER.w / CLOTH_TILE,
+		COVER.h / CLOTH_TILE
+	);
 	beginShapes();
 	// The boards' edges, worn lighter; the spine of the cover sinks between them.
 	strokeRect(COVER, darker(CLOTH, 0.35f), 1.f, 2.f);
@@ -749,8 +776,12 @@ void JournalScreen::DrawBook(const Opening& at) {
 			auto d = static_cast<float>(k) * EDGE_STEP;
 			Rect r = {dir < 0 ? page.x - d : page.x, page.y - d * 0.5f, page.w + d, page.h + d * 0.2f};
 			fillRect(r, darker(PAPER, 0.80f), darker(PAPER, 0.72f), 1.f);
-			fillRect(dir < 0 ? Rect{r.x, r.y, 0.12f, r.h} : Rect{r.x + r.w - 0.12f, r.y, 0.12f, r.h}, BLACK, BLACK,
-					 0.25f);
+			fillRect(
+				dir < 0 ? Rect{r.x, r.y, 0.12f, r.h} : Rect{r.x + r.w - 0.12f, r.y, 0.12f, r.h},
+				BLACK,
+				BLACK,
+				0.25f
+			);
 		}
 	};
 	edges(LEFT_PAGE, left, -1.f);
@@ -939,8 +970,13 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	for (int d = 0; d < DAMAGE_TYPE_COUNT; d++) {
 		const auto type = static_cast<DamageType>(d);
 		std::string value = c.Tried(type) ? resistanceWord(t.resist[static_cast<size_t>(d)]) : "";
-		formField(handSmall, textX + static_cast<float>(d % 2) * FORM_COLUMN, y,
-				  upper(DAMAGE_TYPE_NAMES[static_cast<size_t>(d)]), value);
+		formField(
+			handSmall,
+			textX + static_cast<float>(d % 2) * FORM_COLUMN,
+			y,
+			upper(DAMAGE_TYPE_NAMES[static_cast<size_t>(d)]),
+			value
+		);
 		if (d % 2 == 1)
 			y -= ROW_STEP;
 	}
@@ -1014,8 +1050,15 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 	glRotatef(tilt, 0, 0, 1);
 	glTranslatef(-sheet.cx(), -sheet.cy(), 0);
 	beginShapes();
-	texturedRect({sheet.x + 0.4f, sheet.y - 0.5f, sheet.w, sheet.h}, Game().assets.textures.expeditionPage.ID(), BLACK,
-				 0.f, 1.f, 1.f, 0.f); // pasted on: a thin shadow
+	texturedRect(
+		{sheet.x + 0.4f, sheet.y - 0.5f, sheet.w, sheet.h},
+		Game().assets.textures.expeditionPage.ID(),
+		BLACK,
+		0.f,
+		1.f,
+		1.f,
+		0.f
+	); // pasted on: a thin shadow
 	texturedRect(sheet, Game().assets.textures.expeditionPage.ID(), {1, 1, 1}, 0.f, 1.f, 1.f, 0.f);
 
 	const float top = sheet.y + sheet.h;
@@ -1049,11 +1092,18 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 
 	const bool name = e.id == NAME_CARTOUCHE_ID && e.picture >= 0 && e.picture < NAME_CARTOUCHE_PICTURES;
 	if (isInscriptionId(e.id) || name) {
-		const AtlasRect uv =
-			name ? atlasCell(e.picture, NAME_CARTOUCHE_GRID) : atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
+		const AtlasRect uv = name ? atlasCell(e.picture, NAME_CARTOUCHE_GRID)
+								  : atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
 		Rect box = {p.cx() - GLYPHS_SIDE / 2, top - GLYPHS_TOP - GLYPHS_SIDE, GLYPHS_SIDE, GLYPHS_SIDE};
-		texturedRect(box, (name ? Game().assets.decor.nameCartoucheTex : Game().assets.decor.inscriptionTex).ID(),
-					 PAPER, uv.u0, uv.v0, uv.u1, uv.v1);
+		texturedRect(
+			box,
+			(name ? Game().assets.decor.nameCartoucheTex : Game().assets.decor.inscriptionTex).ID(),
+			PAPER,
+			uv.u0,
+			uv.v0,
+			uv.u1,
+			uv.v1
+		);
 		beginShapes();
 	}
 
@@ -1111,8 +1161,10 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 
 	// The sketches change depth func, culling, polygon mode, colour mask, line width, lighting and blending: all of
 	// it goes back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
-	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT |
-				 GL_CURRENT_BIT | GL_LIGHTING_BIT);
+	glPushAttrib(
+		GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT |
+		GL_LIGHTING_BIT
+	);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 	Rect fit = box;
@@ -1204,9 +1256,13 @@ void JournalScreen::DrawFooter() {
 	beginText();
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CANVAS_W / 2, 6.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
-	textCentered(small, CANVAS_W / 2, 2.2f,
-				 "Ribbons, Up / Down: section    Corners (click or drag), Left / Right, wheel: turn the page    "
-				 "J / Esc: close",
-				 {0.55f, 0.45f, 0.30f});
+	textCentered(
+		small,
+		CANVAS_W / 2,
+		2.2f,
+		"Ribbons, Up / Down: section    Corners (click or drag), Left / Right, wheel: turn the page    "
+		"J / Esc: close",
+		{0.55f, 0.45f, 0.30f}
+	);
 	beginShapes();
 }

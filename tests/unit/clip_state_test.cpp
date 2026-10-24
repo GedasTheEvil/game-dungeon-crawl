@@ -160,11 +160,15 @@ TEST_CASE("the player stands, walks, jumps once, climbs with the height and hold
 	CHECK(world.player.climbing());
 	CHECK(world.player.Playback()[static_cast<int>(ModelState::Climb)].frame == 0.f);
 	world.player.showClimb(0.5f);
-	CHECK(world.player.Playback()[static_cast<int>(ModelState::Climb)].frame ==
-		  doctest::Approx(static_cast<float>(frames) / 2.f));
+	CHECK(
+		world.player.Playback()[static_cast<int>(ModelState::Climb)].frame ==
+		doctest::Approx(static_cast<float>(frames) / 2.f)
+	);
 	world.player.showClimb(1.25f); // one cycle per tile climbed
-	CHECK(world.player.Playback()[static_cast<int>(ModelState::Climb)].frame ==
-		  doctest::Approx(static_cast<float>(frames) / 4.f));
+	CHECK(
+		world.player.Playback()[static_cast<int>(ModelState::Climb)].frame ==
+		doctest::Approx(static_cast<float>(frames) / 4.f)
+	);
 
 	world.player.stats.LoseHP(1000);
 	world.Tick();

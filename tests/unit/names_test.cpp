@@ -29,8 +29,9 @@ LevelGrid nameGateLevel() {
 }
 
 bool warns(const LevelReport& r, const std::string& text) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(),
-					   [&](const std::string& w) { return w.find(text) != std::string::npos; });
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) {
+		return w.find(text) != std::string::npos;
+	});
 }
 
 NameList shippedNames() {
@@ -41,17 +42,19 @@ NameList shippedNames() {
 } // namespace
 
 TEST_CASE("a name file: entries by name:, the spellings normalized, problems told by line") {
-	std::istringstream in("# comment\n"
-						  "name: Hor-Aha\n"
-						  "A: Hor-Aha\n"
-						  "A: aha\n"
-						  "N: Killed by a hippo.\n"
-						  "\n"
-						  "name: Nobody\n"
-						  "name: Nefertiti\n"
-						  "title: queen\n"
-						  "A: nefertiti\n"
-						  "X: what\n");
+	std::istringstream in(
+		"# comment\n"
+		"name: Hor-Aha\n"
+		"A: Hor-Aha\n"
+		"A: aha\n"
+		"N: Killed by a hippo.\n"
+		"\n"
+		"name: Nobody\n"
+		"name: Nefertiti\n"
+		"title: queen\n"
+		"A: nefertiti\n"
+		"X: what\n"
+	);
 	std::vector<RoyalName> out;
 	std::vector<std::string> errors;
 	ParseNames(in, "f.txt", out, errors);
@@ -179,8 +182,9 @@ TEST_CASE("the name gate: asks for the name, stays sealed until it is spoken, th
 	CHECK(world.dungeon.InteractVerb() == Interaction::Answer);
 	world.Interact();
 	world.WaitTicks(world.GATE_TRAVEL_TICKS);
-	CHECK(std::any_of(world.said.begin(), world.said.end(),
-					  [](const WorldEvent& e) { return e.kind == WorldEvent::Kind::AskName; }));
+	CHECK(std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::AskName;
+	}));
 	CHECK(static_cast<int>(world.Y()) == 1); // no teleport while sealed
 	CHECK(isNameGate(world.dungeon.Cell(9, 1)));
 

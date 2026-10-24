@@ -34,14 +34,17 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 			letGo();
 			return;
 		}
-		player.TakeHit(type->damage * rules.grabDamagePct / 100, rules.grabMix.value_or(type->attackMix),
-					   *links.events);
+		player
+			.TakeHit(type->damage * rules.grabDamagePct / 100, rules.grabMix.value_or(type->attackMix), *links.events);
 		curse(type->meleeCurses);
 		links.journal->HitByCreature(type->id, links.level);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Grab);
-		links.events->Status("%s", rules.swallow	   ? "Swallowed into the sand: hit it!"
-								   : rules.breakMs > 0 ? "Caught in its claws: hit them!"
-													   : "Caught in its jaws");
+		links.events->Status(
+			"%s",
+			rules.swallow		? "Swallowed into the sand: hit it!"
+			: rules.breakMs > 0 ? "Caught in its claws: hit them!"
+								: "Caught in its jaws"
+		);
 		grab = Grab{GrabPhase::Hold, now, now + rules.holdMs, 0};
 		return;
 	}

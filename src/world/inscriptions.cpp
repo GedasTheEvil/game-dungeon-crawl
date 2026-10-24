@@ -51,8 +51,12 @@ std::string boonText(const Boon& boon) {
 	return "";
 }
 
-void ParseInscriptions(std::istream& in, const std::string& source, std::vector<InscriptionText>& out,
-					   std::vector<std::string>& errors) {
+void ParseInscriptions(
+	std::istream& in,
+	const std::string& source,
+	std::vector<InscriptionText>& out,
+	std::vector<std::string>& errors
+) {
 	InscriptionText current;
 	bool open = false;
 	int lineNo = 0;
@@ -61,8 +65,9 @@ void ParseInscriptions(std::istream& in, const std::string& source, std::vector<
 	};
 	auto finish = [&]() {
 		if (open && current.text.empty())
-			errors.push_back(current.source + ": inscription " + std::to_string(current.id) +
-							 " has no T: line, skipped");
+			errors.push_back(
+				current.source + ": inscription " + std::to_string(current.id) + " has no T: line, skipped"
+			);
 		else if (open)
 			out.push_back(current);
 		current = InscriptionText{};

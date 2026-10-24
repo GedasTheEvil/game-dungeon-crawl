@@ -20,12 +20,22 @@ void Dungeon::traceSunBeams() {
 //======================================================================================
 void Dungeon::updateSunBeams() {
 	const int now = GameClock::now();
-	mirrorSwings.erase(std::remove_if(mirrorSwings.begin(), mirrorSwings.end(),
-									  [now](const MirrorSwing& m) { return now - m.startMs >= MIRROR_TURN_MS; }),
-					   mirrorSwings.end());
-	litDiscs.erase(std::remove_if(litDiscs.begin(), litDiscs.end(),
-								  [now](const Motion& m) { return now - m.startMs >= SUN_DISC_FLARE_MS; }),
-				   litDiscs.end());
+	mirrorSwings.erase(
+		std::remove_if(
+			mirrorSwings.begin(),
+			mirrorSwings.end(),
+			[now](const MirrorSwing& m) { return now - m.startMs >= MIRROR_TURN_MS; }
+		),
+		mirrorSwings.end()
+	);
+	litDiscs.erase(
+		std::remove_if(
+			litDiscs.begin(),
+			litDiscs.end(),
+			[now](const Motion& m) { return now - m.startMs >= SUN_DISC_FLARE_MS; }
+		),
+		litDiscs.end()
+	);
 	traceSunBeams();
 	for (const BeamStep& s : sunBeams) {
 		Fixture& disc = map[s.cell].fixture;
@@ -50,9 +60,14 @@ bool Dungeon::TurnMirror() {
 	if (!IsInBounds(static_cast<int>(mapX), static_cast<int>(mapY)) || map[cell].type != Mirror)
 		return false;
 	const float from = mirrorAngle(cell);
-	mirrorSwings.erase(std::remove_if(mirrorSwings.begin(), mirrorSwings.end(),
-									  [cell](const MirrorSwing& m) { return m.cell == cell; }),
-					   mirrorSwings.end());
+	mirrorSwings.erase(
+		std::remove_if(
+			mirrorSwings.begin(),
+			mirrorSwings.end(),
+			[cell](const MirrorSwing& m) { return m.cell == cell; }
+		),
+		mirrorSwings.end()
+	);
 	turnMirror(map[cell]);
 	traceSunBeams(); // the face's new angle follows the beam it now sends
 	mirrorSwings.push_back({cell, GameClock::now(), from});

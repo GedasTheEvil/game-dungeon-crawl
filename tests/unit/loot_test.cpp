@@ -13,8 +13,10 @@ TEST_CASE("the same seed rolls the same loot") {
 	Rng a(7);
 	Rng b(7);
 	for (int i = 0; i < 50; i++)
-		CHECK(RollChestLoot(ItemKind::ShortSword, allWeapons(), 1, a) ==
-			  RollChestLoot(ItemKind::ShortSword, allWeapons(), 1, b));
+		CHECK(
+			RollChestLoot(ItemKind::ShortSword, allWeapons(), 1, a) ==
+			RollChestLoot(ItemKind::ShortSword, allWeapons(), 1, b)
+		);
 }
 
 TEST_CASE("a chest holds its item first, then bonuses") {
@@ -95,8 +97,9 @@ TEST_CASE("chests give lesser amulets, minor ones only deeper down, never regene
 TEST_CASE("an amulet chest holds only its amulet") {
 	Rng rng(17);
 	for (int i = 0; i < 200; i++)
-		CHECK(RollChestLoot(ItemKind::HealthMinor, allWeapons(), 20, rng) ==
-			  std::vector<ItemKind>{ItemKind::HealthMinor});
+		CHECK(
+			RollChestLoot(ItemKind::HealthMinor, allWeapons(), 20, rng) == std::vector<ItemKind>{ItemKind::HealthMinor}
+		);
 }
 
 TEST_CASE("a boss leaves a normal or grand amulet, grand more often deeper down") {

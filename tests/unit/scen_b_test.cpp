@@ -171,8 +171,10 @@ TEST_CASE("in half water: no sprint, no jump, a ladder leads out") {
 	CHECK(world.Y() >= 4.f);
 }
 
-TEST_CASE("keys, gates, lever: the key is picked up and kept through a save, the gate opens for it, the lever opens "
-		  "the other") {
+TEST_CASE(
+	"keys, gates, lever: the key is picked up and kept through a save, the gate opens for it, the lever opens "
+	"the other"
+) {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/mechanisms"));
 	world.WaitTicks(30);

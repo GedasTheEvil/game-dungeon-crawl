@@ -206,8 +206,11 @@ void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 
 void PlayerStats::keepHpShare(int oldMax) {
 	if (HP > 0 && oldMax > 0)
-		HP = std::clamp(static_cast<int>(std::lround(static_cast<double>(HP) * CurrentMaxHP() / oldMax)), 1,
-						CurrentMaxHP());
+		HP = std::clamp(
+			static_cast<int>(std::lround(static_cast<double>(HP) * CurrentMaxHP() / oldMax)),
+			1,
+			CurrentMaxHP()
+		);
 }
 
 bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
@@ -291,8 +294,14 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 			poison.Cure();
 		resist_percent = gain.resistPercent;
 		resist_left_ms = PotionEffect::RESIST_MS;
-		snprintf(buf, sizeof(buf), "%sResists poison %d%% for %d min", cured ? "Cured. " : "", PoisonResistPercent(),
-				 PotionEffect::RESIST_MS / 60000);
+		snprintf(
+			buf,
+			sizeof(buf),
+			"%sResists poison %d%% for %d min",
+			cured ? "Cured. " : "",
+			PoisonResistPercent(),
+			PotionEffect::RESIST_MS / 60000
+		);
 	} else if (gain.waterBlessing) {
 		water_left_ms = PotionEffect::WATER_BLESSING_MS * (heka.Has(SkillId::FavourOfHapi) ? 2 : 1);
 		snprintf(buf, sizeof(buf), "The water parts for %d min", water_left_ms / 60000);

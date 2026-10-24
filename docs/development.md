@@ -180,7 +180,8 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
   `format-check`, `tidy` and `unit`, in order. Run it before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
-  lines that changed. The whole-tree reformat for that is in `.git-blame-ignore-revs`
+  lines that changed. A call too long for one line gets one argument per line and the `)` on its own line (the same
+  for parameters). The whole-tree reformats for these are in `.git-blame-ignore-revs`
   (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 * `make format-check` fails on a file `make format` would change, and on code clang-format does not leave stable (a
   file that flips between two layouts on every `make format`, often a long trailing comment that wraps onto a second

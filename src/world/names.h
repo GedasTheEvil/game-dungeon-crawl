@@ -27,8 +27,12 @@ struct RoyalName {
 };
 
 // Appends the names of one file to out; problems go to errors as "file:line: message".
-void ParseNames(std::istream& in, const std::string& source, std::vector<RoyalName>& out,
-				std::vector<std::string>& errors);
+void ParseNames(
+	std::istream& in,
+	const std::string& source,
+	std::vector<RoyalName>& out,
+	std::vector<std::string>& errors
+);
 
 class NameList {
   public:

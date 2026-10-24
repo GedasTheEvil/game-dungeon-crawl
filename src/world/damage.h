@@ -75,8 +75,8 @@ constexpr DamageMix FIRE_JET_MIX = {0, 0, 0, 100}; // a fire vent's jet (plan fi
 // A hit on the player: the type resistances first, then the armour's flat amount (none if ignoreArmor); at least 1.
 // Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only,
 // never below 0 for them: fire goes through it (plan fire-damage).
-[[nodiscard]] inline int playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor,
-										 bool ignoreArmor) {
+[[nodiscard]] inline int
+playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor, bool ignoreArmor) {
 	if (ignoreArmor)
 		return resistedDamage(damage, mix, resist);
 	long sum = 0;
@@ -137,11 +137,11 @@ class Burning {
 // The journal's sentence on what a creature's attack deals: the largest share as the main phrase, each smaller one
 // as "a hint of"; an even split names both as the main.
 [[nodiscard]] inline std::string attackSentence(const DamageMix& mix) {
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> MAIN = {"smashes me hard", "cuts me deep",
-																 "stabs me to the bone", "sets me on fire"};
+	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> MAIN =
+		{"smashes me hard", "cuts me deep", "stabs me to the bone", "sets me on fire"};
 	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> VERB = {"smashes", "cuts", "stabs", "burns"};
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> HINT = {"smashing pain", "cutting pain", "stabbing pain",
-																 "burning pain"};
+	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> HINT =
+		{"smashing pain", "cutting pain", "stabbing pain", "burning pain"};
 	const int top = mix[static_cast<size_t>(mainType(mix))];
 	std::string mains, hints;
 	int mainCount = 0;

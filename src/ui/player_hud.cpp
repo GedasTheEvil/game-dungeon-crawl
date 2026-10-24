@@ -66,8 +66,8 @@ constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
 constexpr Color BADGE = {0.05f, 0.04f, 0.03f};
 // Key gems in LOCK_COLOURS order: carnelian, lapis, turquoise, amber.
-constexpr Color GEMS[LOCK_COLOUR_COUNT] = {
-	{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
+constexpr Color GEMS[LOCK_COLOUR_COUNT] =
+	{{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
 
 PlayerHud::DamageTrail trail;
 
@@ -154,8 +154,13 @@ void drawPoison(const PlayerHud::View& v) {
 		tile(r, TileStyle::Stone, false, false);
 		drop(r.cx(), r.y + 2.8f, 1.3f, POISON_DROPS[t]);
 		for (int p = 0; p <= t; p++)
-			diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(t) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
-					GOLD_BRIGHT, 1.f);
+			diamond(
+				r.cx() + (static_cast<float>(p) - static_cast<float>(t) / 2.f) * 1.4f,
+				r.y + 0.9f,
+				0.45f,
+				GOLD_BRIGHT,
+				1.f
+			);
 	}
 }
 
@@ -176,8 +181,13 @@ void drawResist(const PlayerHud::View& v) {
 	tile(r, TileStyle::Stone, false, false);
 	drop(r.cx(), r.y + 2.8f, 1.3f, RESIST_DROPS[pips - 1]);
 	for (int p = 0; p < pips; p++)
-		diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
-				GOLD_BRIGHT, 1.f);
+		diamond(
+			r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f,
+			r.y + 0.9f,
+			0.45f,
+			GOLD_BRIGHT,
+			1.f
+		);
 }
 
 // A running Blessing of Hapi (plan water-blessing-potion), right of the resistance tile: a blue-green drop.
@@ -206,13 +216,24 @@ void drawCurses(const PlayerHud::View& v, int icons) {
 		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
 		fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, CURSE_FRAME_TOP, CURSE_FRAME_BOTTOM, 1.f);
 		tile(r, TileStyle::Stone, false, false);
-		atlasIcon({r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f}, icons,
-				  static_cast<int>(PlayerHud::Icon::FirstCurse) + c, ICON_COLUMNS, ICON_ROWS, {1, 1, 1});
+		atlasIcon(
+			{r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f},
+			icons,
+			static_cast<int>(PlayerHud::Icon::FirstCurse) + c,
+			ICON_COLUMNS,
+			ICON_ROWS,
+			{1, 1, 1}
+		);
 		beginShapes();
 		const int pips = v.curseGreater[c] ? 2 : 1;
 		for (int p = 0; p < pips; p++)
-			diamond(r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f, r.y + 0.9f, 0.45f,
-					GOLD_BRIGHT, 1.f);
+			diamond(
+				r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f,
+				r.y + 0.9f,
+				0.45f,
+				GOLD_BRIGHT,
+				1.f
+			);
 	}
 }
 
@@ -304,8 +325,12 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	if (s.icon != PlayerHud::Icon::None && (s.count >= 0 || !s.badge.empty())) {
 		Rect badge = badgeRect(r);
 		if (!s.badge.empty()) // wider for "III"
-			badge = {badge.x + badge.w - small.TextWidth(s.badge.c_str()) - 1.6f, badge.y,
-					 small.TextWidth(s.badge.c_str()) + 1.6f, badge.h};
+			badge = {
+				badge.x + badge.w - small.TextWidth(s.badge.c_str()) - 1.6f,
+				badge.y,
+				small.TextWidth(s.badge.c_str()) + 1.6f,
+				badge.h
+			};
 		fillRect(badge, BADGE, BADGE, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
 	}
@@ -362,8 +387,12 @@ void drawKeys(const PlayerHud::View& v) {
 
 void drawXp(const PlayerHud::View& v) {
 	fillRect(XP_LINE, TROUGH, TROUGH, 0.9f);
-	fillRect({XP_LINE.x, XP_LINE.y, XP_LINE.w * std::clamp(v.xpRatio, 0.f, 1.f), XP_LINE.h}, GOLD_BRIGHT, GOLD_DIM,
-			 1.f);
+	fillRect(
+		{XP_LINE.x, XP_LINE.y, XP_LINE.w * std::clamp(v.xpRatio, 0.f, 1.f), XP_LINE.h},
+		GOLD_BRIGHT,
+		GOLD_DIM,
+		1.f
+	);
 }
 } // namespace
 
@@ -414,8 +443,13 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 			drawSlotText(view.slots[i], slotRect(i), small);
 	drawPoisonText(view, small);
 	if (view.staminaSkillShown && !view.staminaSkillKey.empty())
-		textCentered(small, STAMINA_SKILL_SIGN.x - 2.2f, STAMINA_SKILL_SIGN.y + 0.6f, view.staminaSkillKey.c_str(),
-					 view.staminaSkillOn ? GOLD_BRIGHT : LABEL_DIM);
+		textCentered(
+			small,
+			STAMINA_SKILL_SIGN.x - 2.2f,
+			STAMINA_SKILL_SIGN.y + 0.6f,
+			view.staminaSkillKey.c_str(),
+			view.staminaSkillOn ? GOLD_BRIGHT : LABEL_DIM
+		);
 	if (view.hekaWaiting && !view.hekaKey.empty()) {
 		textCentered(small, HEKA_TILE.cx() + 0.2f, HEKA_TILE.y - 3.6f, view.hekaKey.c_str(), BLACK);
 		textCentered(small, HEKA_TILE.cx(), HEKA_TILE.y - 3.4f, view.hekaKey.c_str(), GOLD_BRIGHT);

@@ -220,12 +220,14 @@ std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) con
 		for (char& c : upper)
 			c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 		const std::string asked = "Something on this level wants to hear it.";
-		JournalInscription page{NAME_CARTOUCHE_ID,
-								"A royal name",
-								{"The name of the " + name->title + ": " + upper},
-								name->note.empty() ? asked : name->note + " " + asked,
-								levelNumber,
-								reads};
+		JournalInscription page{
+			NAME_CARTOUCHE_ID,
+			"A royal name",
+			{"The name of the " + name->title + ": " + upper},
+			name->note.empty() ? asked : name->note + " " + asked,
+			levelNumber,
+			reads
+		};
 		page.picture = NameCartouchePicture();
 		return page;
 	}
@@ -256,8 +258,12 @@ bool Dungeon::readInscription() {
 	else if (reads) {
 		const int xp = sim.player->stats.InscriptionXP(); // plan inscription-xp
 		const std::string boon = sim.player->stats.Grant(page->boon); // plan inscription-boons
-		sim.events->Status("Deciphered the hieroglyphs. Journal updated. +%d XP%s%s", xp, boon.empty() ? "" : ", ",
-						   boon.c_str());
+		sim.events->Status(
+			"Deciphered the hieroglyphs. Journal updated. +%d XP%s%s",
+			xp,
+			boon.empty() ? "" : ", ",
+			boon.c_str()
+		);
 		sim.player->stats.AddXP(xp, *sim.events);
 	} else
 		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");

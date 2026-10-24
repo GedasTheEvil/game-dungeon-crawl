@@ -108,8 +108,8 @@ void drawLevels(const std::vector<int>& levelMs, float x, Font& heading, Font& s
 	beginShapes();
 }
 
-std::vector<DetailLine> countLines(const char* title, const std::vector<std::pair<std::string, int>>& counts,
-								   int total) {
+std::vector<DetailLine>
+countLines(const char* title, const std::vector<std::pair<std::string, int>>& counts, int total) {
 	std::vector<DetailLine> lines = {{true, std::string(title) + " (" + number(total) + ")", ""}};
 	if (counts.empty())
 		lines.push_back({false, "None", ""});
@@ -231,13 +231,22 @@ void RecordsView::drawList(Font& heading, Font& body, Font& small, int hovered, 
 	for (int o = 0; o < RECORD_ORDER_COUNT; o++) {
 		const bool active = static_cast<int>(order) == o;
 		const bool isHovered = hovered == SORT_BASE + o && !active;
-		Rect r = tile(sortRect(o), active ? TileStyle::Lapis : TileStyle::Stone, isHovered,
-					  isHovered && pressed == SORT_BASE + o);
+		Rect r = tile(
+			sortRect(o),
+			active ? TileStyle::Lapis : TileStyle::Stone,
+			isHovered,
+			isHovered && pressed == SORT_BASE + o
+		);
 		beginText();
-		textCentered(heading, r.cx(), r.y + 1.4f, RECORD_ORDER_NAMES[static_cast<size_t>(o)],
-					 active		 ? GOLD
-					 : isHovered ? TEXT_HOVER
-								 : LABEL);
+		textCentered(
+			heading,
+			r.cx(),
+			r.y + 1.4f,
+			RECORD_ORDER_NAMES[static_cast<size_t>(o)],
+			active		? GOLD
+			: isHovered ? TEXT_HOVER
+						: LABEL
+		);
 		beginShapes();
 	}
 
@@ -274,15 +283,26 @@ void RecordsView::drawList(Font& heading, Font& body, Font& small, int hovered, 
 		beginText();
 		text(body, band.x + RANK_X, band.y + 0.9f, r.placeholder ? "-" : number(rank + 1).c_str(), c);
 		text(body, band.x + NAME_X, band.y + 0.9f, r.name.c_str(), c);
-		text(body, band.x + band.w - SCORE_RIGHT - body.TextWidth(score.c_str()), band.y + 0.9f, score.c_str(),
-			 isHovered ? TEXT_HOVER : GOLD);
+		text(
+			body,
+			band.x + band.w - SCORE_RIGHT - body.TextWidth(score.c_str()),
+			band.y + 0.9f,
+			score.c_str(),
+			isHovered ? TEXT_HOVER : GOLD
+		);
 		beginShapes();
 	}
 
 	if (static_cast<int>(ranked.size()) > VISIBLE_ROWS) { // which part of a long board shows
 		char range[48];
-		std::snprintf(range, sizeof(range), "%d-%d of %d", first + 1,
-					  std::min(first + VISIBLE_ROWS, static_cast<int>(ranked.size())), static_cast<int>(ranked.size()));
+		std::snprintf(
+			range,
+			sizeof(range),
+			"%d-%d of %d",
+			first + 1,
+			std::min(first + VISIBLE_ROWS, static_cast<int>(ranked.size())),
+			static_cast<int>(ranked.size())
+		);
 		beginText();
 		text(small, LIST_RIGHT - small.TextWidth(range), SORT_TOP - SORT_H + 2.f, range, LABEL_DIM);
 		beginShapes();

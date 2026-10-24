@@ -96,8 +96,10 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 			x += static_cast<float>(flight.dir) * step;
 		// Swoops down to the player (to their head up a ladder too), climbs away from them.
 		const float k = std::min(std::fabs(dx) / BAT_OVERSHOOT, 1.f);
-		const float low =
-			std::min(BAT_LOW_LIFT + BAT_WING_DIP * scale + std::max(above, 0.f) * RenderConfig::TILE_SIZE, roost);
+		const float low = std::min(
+			BAT_LOW_LIFT + BAT_WING_DIP * scale + std::max(above, 0.f) * RenderConfig::TILE_SIZE,
+			roost
+		);
 		targetLift = low + (std::max(BAT_HIGH_LIFT, low) - low) * k * k * (3 - 2 * k);
 		enter(now < flight.attackUntilMs ? ModelState::Attack : ModelState::Move);
 		break;

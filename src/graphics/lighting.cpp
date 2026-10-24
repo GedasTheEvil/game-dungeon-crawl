@@ -142,13 +142,15 @@ void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed
 	float m[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, m);
 	float k = flicker(seed, def.flicker);
-	gLights[gLightCount++] = {m[0] * x + m[4] * y + m[8] * z + m[12],
-							  m[1] * x + m[5] * y + m[9] * z + m[13],
-							  m[2] * x + m[6] * y + m[10] * z + m[14],
-							  def.radius * (0.95f + 0.05f * k),
-							  def.r * k,
-							  def.g * k,
-							  def.b * k};
+	gLights[gLightCount++] = {
+		m[0] * x + m[4] * y + m[8] * z + m[12],
+		m[1] * x + m[5] * y + m[9] * z + m[13],
+		m[2] * x + m[6] * y + m[10] * z + m[14],
+		def.radius * (0.95f + 0.05f * k),
+		def.r * k,
+		def.g * k,
+		def.b * k
+	};
 }
 
 // Over MAX_LIGHTS, the ones nearest to the first light added (the player's) win.
@@ -161,8 +163,9 @@ void Lighting::commit() {
 			return (l.x - focus.x) * (l.x - focus.x) + (l.y - focus.y) * (l.y - focus.y) +
 				   (l.z - focus.z) * (l.z - focus.z);
 		};
-		std::partial_sort(gLights, gLights + MAX_LIGHTS, gLights + gLightCount,
-						  [&](const Light& a, const Light& b) { return dist2(a) < dist2(b); });
+		std::partial_sort(gLights, gLights + MAX_LIGHTS, gLights + gLightCount, [&](const Light& a, const Light& b) {
+			return dist2(a) < dist2(b);
+		});
 		gLightCount = MAX_LIGHTS;
 	}
 	float pos[MAX_LIGHTS * 4];
@@ -206,7 +209,7 @@ float Lighting::flicker(uint32_t seed, float amount) {
 		return 1.f;
 	float t = static_cast<float>(GameClock::now()) / 1000.f;
 	float s = static_cast<float>(seed % 997U);
-	float wave =
-		0.55f * std::sin(t * 7.3f + s) + 0.3f * std::sin(t * 13.9f + s * 1.7f) + 0.15f * std::sin(t * 29.1f + s * 2.3f);
+	float wave = 0.55f * std::sin(t * 7.3f + s) + 0.3f * std::sin(t * 13.9f + s * 1.7f) +
+				 0.15f * std::sin(t * 29.1f + s * 2.3f);
 	return 1.f + 0.18f * amount * wave;
 }

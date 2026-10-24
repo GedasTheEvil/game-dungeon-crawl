@@ -46,8 +46,12 @@ std::string trim(const std::string& s) {
 
 // ---- riddle files ----------------------------------------------------------
 
-void ParseRiddles(std::istream& in, const std::string& source, std::vector<RiddleEntry>& out,
-				  std::vector<std::string>& errors) {
+void ParseRiddles(
+	std::istream& in,
+	const std::string& source,
+	std::vector<RiddleEntry>& out,
+	std::vector<std::string>& errors
+) {
 	std::string theme = std::filesystem::path(source).stem().string();
 	RiddleEntry current;
 	int lineNo = 0;
@@ -152,8 +156,11 @@ size_t Riddle::Load(const std::string& path) {
 		LOG_ERRORF("ui", "No riddles found in %s, riddle gates ask a fallback one", path.c_str());
 		riddles.push_back({"The Gate", {"How many hounds guard this gate?"}, {"2", "two"}, "", "built-in"});
 	}
-	LOG_INFO("ui", "Loaded " + std::to_string(riddles.size()) + " riddles from " + std::to_string(files.size()) +
-					   " files in " + path);
+	LOG_INFO(
+		"ui",
+		"Loaded " + std::to_string(riddles.size()) + " riddles from " + std::to_string(files.size()) + " files in " +
+			path
+	);
 	return riddles.size();
 }
 
@@ -295,11 +302,14 @@ void Riddle::Draw() {
 
 void Riddle::DrawBackground() {
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
-	titleBar(title, CANVAS_W / 2,
-			 late		? "Riddle from the Journal"
-			 : nameGate ? "The Name Gate"
-						: "Riddle of the Gate",
-			 72.f);
+	titleBar(
+		title,
+		CANVAS_W / 2,
+		late	   ? "Riddle from the Journal"
+		: nameGate ? "The Name Gate"
+				   : "Riddle of the Gate",
+		72.f
+	);
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
@@ -342,8 +352,11 @@ void Riddle::DrawScroll() {
 
 	// Plan secret-name-gates: no hint, but a player without the skill is told where the name might be.
 	if (nameGate && misses > 0 && !Game().player->stats.heka.Has(SkillId::Hieroglyphs)) {
-		std::vector<std::string> hintLines =
-			wrap(small, "A name is asked. The wall glyphs I copied might hold it.", SCROLL.w - 12);
+		std::vector<std::string> hintLines = wrap(
+			small,
+			"A name is asked. The wall glyphs I copied might hold it.",
+			SCROLL.w - 12
+		);
 		float hy = 35.f + (hintLines.size() > 1 ? 1.7f : 0.f);
 		for (size_t i = 0; i < hintLines.size() && i < 2; i++)
 			textCentered(small, cx, hy - 3.4f * static_cast<float>(i), hintLines[i].c_str(), INK_FADED);
@@ -392,10 +405,16 @@ void Riddle::DrawAnswer() {
 	if ((GameClock::now() / CARET_BLINK_MS) % 2 == 0)
 		text(body, textX + body.TextWidth(answer.c_str()) + 0.3f, textY, "_", GOLD);
 	if (wrong) {
-		float alpha =
-			age > WRONG_MS / 2 ? static_cast<float>(WRONG_MS - age) / (static_cast<float>(WRONG_MS) / 2) : 1.f;
-		textCentered(body, SCROLL.cx(), 16.f,
-					 nameGate ? "Wrong. The way stays sealed." : "Wrong. The hounds stay silent.", INK_RED, alpha);
+		float alpha = age > WRONG_MS / 2 ? static_cast<float>(WRONG_MS - age) / (static_cast<float>(WRONG_MS) / 2)
+										 : 1.f;
+		textCentered(
+			body,
+			SCROLL.cx(),
+			16.f,
+			nameGate ? "Wrong. The way stays sealed." : "Wrong. The hounds stay silent.",
+			INK_RED,
+			alpha
+		);
 	}
 	beginShapes();
 }

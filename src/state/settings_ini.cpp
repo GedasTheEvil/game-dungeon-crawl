@@ -125,8 +125,9 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 			warnings.push_back(where + error);
 	}
 	if (int removed = settings.controls.RemoveDuplicates(); removed > 0)
-		warnings.push_back(std::to_string(removed) +
-						   " key(s) bound to more than one action; only the first action keeps them");
+		warnings.push_back(
+			std::to_string(removed) + " key(s) bound to more than one action; only the first action keeps them"
+		);
 	return settings;
 }
 

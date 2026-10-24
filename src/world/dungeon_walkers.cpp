@@ -74,8 +74,8 @@ bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 //======================================================================================
 // No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
 void Dungeon::fleeFrom(Monster& mon, int dir) {
-	const float gap =
-		dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right() : mon.Left() - (mapX + sim.player->HalfWidth());
+	const float gap = dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right()
+							  : mon.Left() - (mapX + sim.player->HalfWidth());
 	if (gap >= COWARD_SAFE_GAP || !clearRow(mon.CentreX(), mapX, mon.Row())) {
 		mon.Stand();
 		return;

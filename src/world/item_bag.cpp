@@ -12,10 +12,20 @@ namespace {
 constexpr int LEGACY_SLOT_COUNT = 9; // saves from before the stamina potions and item levels
 
 // The slots of the saves from before the Egyptian weapons, in their order; the older saves have the first 9 of them.
-constexpr ItemKind OLD_SLOTS[] = {ItemKind::Club,		  ItemKind::ShortSword,	  ItemKind::Spear,
-								  ItemKind::SelfBow,	  ItemKind::SmallHealth,  ItemKind::LargeHealth,
-								  ItemKind::Might,		  ItemKind::Armor,		  ItemKind::Life,
-								  ItemKind::SmallStamina, ItemKind::LargeStamina, ItemKind::Antidote};
+constexpr ItemKind OLD_SLOTS[] = {
+	ItemKind::Club,
+	ItemKind::ShortSword,
+	ItemKind::Spear,
+	ItemKind::SelfBow,
+	ItemKind::SmallHealth,
+	ItemKind::LargeHealth,
+	ItemKind::Might,
+	ItemKind::Armor,
+	ItemKind::Life,
+	ItemKind::SmallStamina,
+	ItemKind::LargeStamina,
+	ItemKind::Antidote
+};
 constexpr int OLD_SLOT_COUNT = 12;
 constexpr int MAX_SAVED_SLOTS = 256; // a sanity bound on a save's slot count, well above ITEM_KIND_COUNT
 static_assert(ITEM_KIND_COUNT <= MAX_SAVED_SLOTS, "a save holds every item kind");
@@ -27,8 +37,10 @@ struct SlotShift {
 	size_t from;
 	size_t shift;
 };
-constexpr SlotShift SHIFT_BEFORE_INV5 = {static_cast<size_t>(ORDERED_SAVE_SLOTS),
-										 itemIndex(ItemKind::WaterBlessing) - itemIndex(ItemKind::Antidote)};
+constexpr SlotShift SHIFT_BEFORE_INV5 = {
+	static_cast<size_t>(ORDERED_SAVE_SLOTS),
+	itemIndex(ItemKind::WaterBlessing) - itemIndex(ItemKind::Antidote)
+};
 constexpr SlotShift SHIFT_BEFORE_INV7 = {static_cast<size_t>(itemIndex(ItemKind::WaterBlessing)), 1};
 constexpr SlotShift NO_SHIFT = {0, 0};
 
@@ -103,8 +115,8 @@ int strength(const ItemBag& bag, ItemKind kind) {
 		return weaponDamage(kind, weaponDef(kind).damage, bag.Level(kind));
 	if (isAmulet(kind))
 		return static_cast<int>(amuletOf(kind).tier);
-	const bool strong =
-		kind == ItemKind::LargeHealth || kind == ItemKind::LargeStamina || kind == ItemKind::GreaterResistance;
+	const bool strong = kind == ItemKind::LargeHealth || kind == ItemKind::LargeStamina ||
+						kind == ItemKind::GreaterResistance;
 	return strong ? 1 : 0;
 }
 

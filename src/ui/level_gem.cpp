@@ -55,9 +55,11 @@ void facets(float cx, float cy, const GemLook& gem) {
 	for (int i = 0; i < SIDES; i++) {
 		float mid = (cornerAngle(i) + cornerAngle(i + 1)) / 2;
 		float lit = 0.5f + 0.5f * std::cos(mid - 2.3f); // light from the upper left
-		Color c = {gem.base.r + (gem.light.r - gem.base.r) * lit - (1 - lit) * (gem.base.r - gem.dark.r) * 0.6f,
-				   gem.base.g + (gem.light.g - gem.base.g) * lit - (1 - lit) * (gem.base.g - gem.dark.g) * 0.6f,
-				   gem.base.b + (gem.light.b - gem.base.b) * lit - (1 - lit) * (gem.base.b - gem.dark.b) * 0.6f};
+		Color c = {
+			gem.base.r + (gem.light.r - gem.base.r) * lit - (1 - lit) * (gem.base.r - gem.dark.r) * 0.6f,
+			gem.base.g + (gem.light.g - gem.base.g) * lit - (1 - lit) * (gem.base.g - gem.dark.g) * 0.6f,
+			gem.base.b + (gem.light.b - gem.base.b) * lit - (1 - lit) * (gem.base.b - gem.dark.b) * 0.6f
+		};
 		glColor4f(c.r, c.g, c.b, 1.f);
 		for (float r : {RADIUS, RADIUS * TABLE})
 			for (int k : {0, 1}) {

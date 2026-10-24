@@ -116,8 +116,9 @@ void Dungeon::drawSunBeams() {
 		if (mirror && s.out == opposite(s.in))
 			continue;
 		const int next = s.cell + beamDx(s.out) + beamDy(s.out) * MAP_WIDTH;
-		const Tile ahead =
-			IsInBounds(s.cell % MAP_WIDTH + beamDx(s.out), s.cell / MAP_WIDTH + beamDy(s.out)) ? map[next] : wallTile();
+		const Tile ahead = IsInBounds(s.cell % MAP_WIDTH + beamDx(s.out), s.cell / MAP_WIDTH + beamDy(s.out))
+							   ? map[next]
+							   : wallTile();
 		if (ahead.type == Gate && beamDy(s.out) == 0) // the portcullis stands in the middle of its cell
 			centrePoint(next, x, y);
 		else
@@ -154,13 +155,22 @@ void Dungeon::addSunLights(const CellRect& drawn) {
 		const int col = s.cell % MAP_WIDTH, row = s.cell / MAP_WIDTH;
 		if (!inside(col, row) || (k % 2 != 0 && s.in == s.out && !s.ends))
 			continue;
-		Lighting::add((static_cast<float>(col) + 0.5f - col0) * T, (static_cast<float>(row) + BEAM_HEIGHT - row0) * T,
-					  BEAM_Z, Lighting::SUNBEAM, static_cast<uint32_t>(s.cell));
+		Lighting::add(
+			(static_cast<float>(col) + 0.5f - col0) * T,
+			(static_cast<float>(row) + BEAM_HEIGHT - row0) * T,
+			BEAM_Z,
+			Lighting::SUNBEAM,
+			static_cast<uint32_t>(s.cell)
+		);
 	}
 	for (int j = near.row0; j < near.row0 + near.rows; j++)
 		for (int i = near.col0; i < near.col0 + near.cols; i++)
 			if (IsInBounds(i, j) && MapAt(i, j).fixture.type == SunDisc && sunDiscLit(MapAt(i, j).fixture))
-				Lighting::add((static_cast<float>(i) + 0.5f - col0) * T,
-							  (static_cast<float>(j) + BEAM_HEIGHT - row0) * T, -T + 4.f, Lighting::SUNBEAM,
-							  static_cast<uint32_t>(MapIndex(i, j)));
+				Lighting::add(
+					(static_cast<float>(i) + 0.5f - col0) * T,
+					(static_cast<float>(j) + BEAM_HEIGHT - row0) * T,
+					-T + 4.f,
+					Lighting::SUNBEAM,
+					static_cast<uint32_t>(MapIndex(i, j))
+				);
 }

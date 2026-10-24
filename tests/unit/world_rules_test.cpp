@@ -54,7 +54,8 @@ TEST_CASE("leaving a level mid-jump does not carry the jump into the next level"
 }
 
 TEST_CASE(
-	"a dart trap's plate shoots poison darts across the corridor; a jump over it, nothing; the Anubis sets it off") {
+	"a dart trap's plate shoots poison darts across the corridor; a jump over it, nothing; the Anubis sets it off"
+) {
 	SimWorld world; // tests/levels/dart_trap: the plate at col 4, another at col 12 with an Anubis guard beyond
 	REQUIRE(world.Load("tests/levels/dart_trap"));
 	world.WaitTicks(30);
@@ -223,7 +224,8 @@ TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, t
 }
 
 TEST_CASE(
-	"the Anubis boss: his guards step out of the wall, his blow takes 129 HP of a level 55 player, the gold key") {
+	"the Anubis boss: his guards step out of the wall, his blow takes 129 HP of a level 55 player, the gold key"
+) {
 	SimWorld world; // tests/levels/anubis_boss
 	REQUIRE(world.Load("tests/levels/anubis_boss"));
 	world.player.stats.AddXP(1800200, world.events);

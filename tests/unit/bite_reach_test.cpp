@@ -33,8 +33,9 @@ const Monster* find(const SimWorld& world, int type) {
 }
 
 bool noted(const SimWorld& world, FieldNote note) {
-	return std::any_of(world.said.begin(), world.said.end(),
-					   [note](const WorldEvent& e) { return e.kind == WorldEvent::Kind::Note && e.note == note; });
+	return std::any_of(world.said.begin(), world.said.end(), [note](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == note;
+	});
 }
 } // namespace
 

@@ -77,7 +77,8 @@ TEST_CASE("the checker: wall spikes the player can walk through pass, a run whos
 	CHECK_FALSE(warnsUncrossable(checkLevel(corridor({0}))));
 	CHECK_FALSE(warnsUncrossable(checkLevel(corridor({0, 0}))));
 	CHECK_FALSE(
-		warnsUncrossable(checkLevel(corridor({0, 4})))); // alternate: each way, one goes in as the other comes out
+		warnsUncrossable(checkLevel(corridor({0, 4})))
+	); // alternate: each way, one goes in as the other comes out
 	CHECK(warnsUncrossable(checkLevel(corridor({0, 2}))));
 	CHECK(warnsUncrossable(checkLevel(corridor({0, 0, 0})))); // three take longer to walk through than they stay in
 	CHECK_FALSE(warnsUncrossable(checkLevel(corridor({0, 1}, SpikeSpeed::Slow))));
@@ -98,8 +99,10 @@ TEST_CASE("the checker: wall spikes need a floor under them and a wall above the
 	CHECK(above);
 }
 
-TEST_CASE("wall spikes out block like a wall, a jump too; in, the player walks through; coming out, they stab and "
-		  "shove") {
+TEST_CASE(
+	"wall spikes out block like a wall, a jump too; in, the player walks through; coming out, they stab and "
+	"shove"
+) {
 	SimWorld world; // tests/levels/wall_spikes: the trap at col 5, row 2
 	REQUIRE(world.Load("tests/levels/wall_spikes"));
 	world.WaitTicks(30);
@@ -140,7 +143,8 @@ TEST_CASE("the trap ward wards off the wall spikes' stab and its poison") {
 			ward.trapCutPercent = 100;
 			return ward;
 		}(),
-		false);
+		false
+	);
 	REQUIRE(world.WalkTo(4.f));
 	waitFor(world, 5, 2, SpikeState::Retracted);
 	REQUIRE(world.WalkTo(5.4f));

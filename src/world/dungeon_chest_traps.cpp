@@ -13,8 +13,8 @@ void Dungeon::springChestTrap(int cell) {
 	Rng& rng = sim.random->gameplay;
 	const bool full = rng.percent(TRAPPED_CHEST_FULL_PERCENT);
 	const bool warded = rng.percent(sim.player->stats.TrapWardPercent());
-	std::string line =
-		warded ? "Something clicks inside, and nothing happens. The Eye of Horus saw it first." : fireChestTrap(cell);
+	std::string line = warded ? "Something clicks inside, and nothing happens. The Eye of Horus saw it first."
+							  : fireChestTrap(cell);
 	if (!full) {
 		clearObject(map[cell]);
 		containers[cell].emptied = true; // the open container stays

@@ -195,8 +195,9 @@ TEST_CASE("the slain boss gives a heka and the journal's Heka note; after a load
 	killBoss(world);
 	CHECK(world.player.stats.heka.Free() == 1);
 	CHECK(world.Told("heka"));
-	CHECK(std::ranges::any_of(
-		world.said, [](const WorldEvent& e) { return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::Heka; }));
+	CHECK(std::ranges::any_of(world.said, [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::Heka;
+	}));
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Stun, true));
 	world.SaveAndLoad();
 	CHECK(world.player.stats.heka.Has(SkillId::Stun));

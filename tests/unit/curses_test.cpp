@@ -166,16 +166,20 @@ TEST_CASE("a hit rolls the entries in order, one curse a hit; death and a new ga
 	Player player;
 	WorldEvents events;
 	Rng rng(1);
-	const CurseEntries sure = {CurseEntry{Curse::Weakness, CurseGrade::Greater, 100},
-							   CurseEntry{Curse::Slowness, CurseGrade::Lesser, 100}};
+	const CurseEntries sure = {
+		CurseEntry{Curse::Weakness, CurseGrade::Greater, 100},
+		CurseEntry{Curse::Slowness, CurseGrade::Lesser, 100}
+	};
 	CHECK(player.Curse(sure, events, rng));
 	CHECK(player.stats.curses.Greater(Curse::Weakness));
 	CHECK_FALSE(player.stats.curses.Has(Curse::Slowness));
 	const CurseEntries none{};
 	CHECK_FALSE(player.Curse(none, events, rng));
-	const CurseEntries third = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 0},
-								CurseEntry{Curse::Palsy, CurseGrade::Lesser, 0},
-								CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 100}};
+	const CurseEntries third = {
+		CurseEntry{Curse::Insanity, CurseGrade::Lesser, 0},
+		CurseEntry{Curse::Palsy, CurseGrade::Lesser, 0},
+		CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 100}
+	};
 	CHECK(player.Curse(third, events, rng)); // the first two miss, the third takes (the mummy priest's lists)
 	CHECK(player.stats.curses.Has(Curse::Fatigue));
 	CHECK_FALSE(player.stats.curses.Has(Curse::Insanity));

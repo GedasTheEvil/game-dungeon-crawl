@@ -13,8 +13,9 @@
 
 namespace {
 int sumCounts(const std::vector<std::pair<std::string, int>>& counts) {
-	return std::accumulate(counts.begin(), counts.end(), 0,
-						   [](int sum, const std::pair<std::string, int>& c) { return sum + c.second; });
+	return std::accumulate(counts.begin(), counts.end(), 0, [](int sum, const std::pair<std::string, int>& c) {
+		return sum + c.second;
+	});
 }
 
 constexpr const char* RECORD_START = "[run]";

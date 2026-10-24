@@ -103,7 +103,8 @@ TEST_CASE("the giant scarab turns its back, shapes a ball and kicks it at the pl
 
 TEST_CASE(
 	"a jump clears the dung ball: it rolls on past the player, over the spikes, and falls apart at the end of its "
-	"roll") {
+	"roll"
+) {
 	SimWorld world;
 	const Monster* k = load(world, "tests/levels/dung_ball");
 	REQUIRE(k != nullptr);

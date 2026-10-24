@@ -4,9 +4,15 @@
 
 const std::array<CurseDef, CURSE_COUNT> CURSES = {{
 	{"Weakness", "Greater weakness", "A curse! You feel weak", "The weakness grips you again", "The weakness passes"},
-	{"Clumsiness", "Greater clumsiness", "A curse! Your blows go astray", "Your hands grow clumsier",
+	{"Clumsiness",
+	 "Greater clumsiness",
+	 "A curse! Your blows go astray",
+	 "Your hands grow clumsier",
 	 "Your hands are your own again"},
-	{"Vulnerability", nullptr, "A curse! Your armour feels like papyrus", "Your armour weakens again",
+	{"Vulnerability",
+	 nullptr,
+	 "A curse! Your armour feels like papyrus",
+	 "Your armour weakens again",
 	 "Your armour holds again"},
 	{"Fatigue", nullptr, "A curse! Your strength drains away", "The fatigue deepens", "The fatigue lifts"},
 	{"Disease", "Greater disease", "A curse! A sickness takes you", "The sickness flares up", "The sickness passes"},
@@ -71,8 +77,10 @@ void Curses::LoadDump(std::istream& in) {
 			return;
 		if (c < 0 || c >= CURSE_COUNT)
 			continue;
-		running[static_cast<size_t>(c)] = {grade == 1 ? CurseGrade::Greater : CurseGrade::Lesser,
-										   std::clamp(ms, 0, CURSE_MS)};
+		running[static_cast<size_t>(c)] = {
+			grade == 1 ? CurseGrade::Greater : CurseGrade::Lesser,
+			std::clamp(ms, 0, CURSE_MS)
+		};
 	}
 }
 

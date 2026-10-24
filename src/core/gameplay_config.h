@@ -352,9 +352,10 @@ constexpr int ROCK_GRAZE_DAMAGE = 50;
 constexpr float ROCK_CRUSH_HALF_WIDTH = 0.3f; // tiles from the cell centre
 constexpr float ROCK_GRAZE_HALF_WIDTH = 0.6f;
 constexpr float ROCK_HIT_HEIGHT = 0.8f; // tiles above the floor the rock still hits (a jump does not dodge it)
-static_assert(WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 1000.f >
-				  1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
-			  "walking on from the cell's edge gets the player out of the graze before the rock lands");
+static_assert(
+	WALK_SPEED * static_cast<float>(ROCK_WARN_MS + ROCK_FALL_MS) / 1000.f > 1.f + ROCK_GRAZE_HALF_WIDTH - 0.5f,
+	"walking on from the cell's edge gets the player out of the graze before the rock lands"
+);
 
 // Dart trap (plan poison-dart-trap): a pressure plate under the player or a heavy monster (weight DART_PLATE_WEIGHT and
 // up, MonsterKind::weight) clicks; DART_DELAY_MS later the holes in the back wall above it shoot DART_COUNT darts out
@@ -403,10 +404,12 @@ constexpr int SPIKES_OUT_MS[3] = {1200, 800, 1600};
 constexpr int SPIKES_TELEGRAPH_MS = 600;
 constexpr int SPIKES_STAB_DAMAGE = 10;
 constexpr float SPIKES_CROSS_MS = (1.f + 2.f * PLAYER_BODY_HALF_WIDTH) / WALK_SPEED * 1000.f; // walking through
-static_assert(static_cast<float>(SPIKES_PERIOD_MS[0] - SPIKES_OUT_MS[0]) >= 1.5f * SPIKES_CROSS_MS &&
-				  static_cast<float>(SPIKES_PERIOD_MS[1] - SPIKES_OUT_MS[1]) >= 1.5f * SPIKES_CROSS_MS &&
-				  static_cast<float>(SPIKES_PERIOD_MS[2] - SPIKES_OUT_MS[2]) >= 1.5f * SPIKES_CROSS_MS,
-			  "a single wall spike's safe window is 1.5 times the walk through it");
+static_assert(
+	static_cast<float>(SPIKES_PERIOD_MS[0] - SPIKES_OUT_MS[0]) >= 1.5f * SPIKES_CROSS_MS &&
+		static_cast<float>(SPIKES_PERIOD_MS[1] - SPIKES_OUT_MS[1]) >= 1.5f * SPIKES_CROSS_MS &&
+		static_cast<float>(SPIKES_PERIOD_MS[2] - SPIKES_OUT_MS[2]) >= 1.5f * SPIKES_CROSS_MS,
+	"a single wall spike's safe window is 1.5 times the walk through it"
+);
 
 // Fire vents (plan fire-jet-trap): the jet burns the player standing in it for FIRE_JET_PERCENT_PER_SECOND of their max
 // HP a second, at least FIRE_JET_HP_PER_SECOND, dealt each TRAP_HURT_INTERVAL_MS: a whole jet costs 540 HP or more,

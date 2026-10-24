@@ -83,8 +83,11 @@ class Walker {
 		}
 		std::vector<std::vector<MirrorSetting>> ways;
 		const std::vector<char> lit = sunlitCells(
-			grid.cells, [&](int cell) { return blocksBeam(cell, mask); }, [&](int cell) { return reach[cell] != 0; },
-			&ways);
+			grid.cells,
+			[&](int cell) { return blocksBeam(cell, mask); },
+			[&](int cell) { return reach[cell] != 0; },
+			&ways
+		);
 		std::vector<Turn>& out = turnCache[state];
 		int gained = mask;
 		for (int cell = 0; cell < CELLS; cell++) {
@@ -203,8 +206,8 @@ class Walker {
 			// key held during the jump. A rock fall is not jumped: the player passes through its cell either way, and
 			// it drops all the same.
 			const Tile nextTile = grid.at(next, row);
-			bool overHazard =
-				fallen == 0 && (nextTile.type == Spike || nextTile.type == Death || inQuicksand(nextTile));
+			bool overHazard = fallen == 0 &&
+							  (nextTile.type == Spike || nextTile.type == Death || inQuicksand(nextTile));
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
 			if ((overGap || overHazard) && !inHalfWater(here) && solid(col, row - 1, mask) &&
@@ -326,8 +329,10 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			case Page:
 				r.pages++;
 				if (!isExpeditionPage(t.attr))
-					r.warnings.push_back("expedition page without a number (1 to " +
-										 std::to_string(EXPEDITION_PAGE_COUNT) + ") at " + at(row * LEVEL_WIDTH + col));
+					r.warnings.push_back(
+						"expedition page without a number (1 to " + std::to_string(EXPEDITION_PAGE_COUNT) + ") at " +
+						at(row * LEVEL_WIDTH + col)
+					);
 				break;
 			default:
 				break;
@@ -341,8 +346,10 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				r.inscriptions++;
 				r.nameCartouches += f.attr == NAME_CARTOUCHE_ID ? 1 : 0;
 				if (!isInscriptionId(f.attr) && f.attr != NAME_CARTOUCHE_ID)
-					r.warnings.push_back("inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) +
-										 ") at " + at(row * LEVEL_WIDTH + col));
+					r.warnings.push_back(
+						"inscription without a text id (1 to " + std::to_string(INSCRIPTION_MAX) + ") at " +
+						at(row * LEVEL_WIDTH + col)
+					);
 			}
 		}
 	if (maxCol >= 0) {
@@ -400,11 +407,13 @@ void checkObjectsInRock(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
 		if (isSolidStructure(t.structure) && hasObject(t))
-			r.warnings.push_back(std::string(tileDef(t.type).name) + " in " + structureDef(t.structure).name + " at " +
-								 at(cell));
+			r.warnings.push_back(
+				std::string(tileDef(t.type).name) + " in " + structureDef(t.structure).name + " at " + at(cell)
+			);
 		if (isSolidStructure(t.structure) && hasFixture(t))
-			r.warnings.push_back(std::string(tileDef(t.fixture.type).name) + " in " + structureDef(t.structure).name +
-								 " at " + at(cell));
+			r.warnings.push_back(
+				std::string(tileDef(t.fixture.type).name) + " in " + structureDef(t.structure).name + " at " + at(cell)
+			);
 	}
 }
 
@@ -457,8 +466,9 @@ void checkPlacedProp(const LevelGrid& grid, int cell, LevelReport& r) {
 	if (prop == DECOR_WEB && !isWall(grid.at(col, row + 1)))
 		r.warnings.push_back(what + " has no ceiling");
 	if (prop != DECOR_WEB && hidesBehindProp(t))
-		r.warnings.push_back(what + " stands in front of the " +
-							 (hasObject(t) ? tileDef(t.type).name : tileDef(t.fixture.type).name));
+		r.warnings.push_back(
+			what + " stands in front of the " + (hasObject(t) ? tileDef(t.type).name : tileDef(t.fixture.type).name)
+		);
 }
 
 void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
@@ -546,8 +556,10 @@ void checkSand(const LevelGrid& grid, LevelReport& r) {
 			while (inQuicksand(grid.at(col + run, row)))
 				run++;
 			if (run > QUICKSAND_MAX_RUN)
-				r.warnings.push_back("quicksand at " + at(cell) + " runs " + std::to_string(run) + " cells, at most " +
-									 std::to_string(QUICKSAND_MAX_RUN));
+				r.warnings.push_back(
+					"quicksand at " + at(cell) + " runs " + std::to_string(run) + " cells, at most " +
+					std::to_string(QUICKSAND_MAX_RUN)
+				);
 		}
 	}
 }
@@ -570,8 +582,10 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 			pairs[teleportPair(grid.cells[cell])].push_back(cell);
 	for (const auto& [id, cells] : pairs)
 		if (cells.size() != 2)
-			r.warnings.push_back(std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) +
-								 ", e.g. at " + at(cells[0]) + ": a pair needs exactly two");
+			r.warnings.push_back(
+				std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) + ", e.g. at " +
+				at(cells[0]) + ": a pair needs exactly two"
+			);
 }
 
 // Plan secret-name-gates: at most one name gate, with one name cartouche, and both are found with the name gate
@@ -622,15 +636,22 @@ int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
 			!isWall(grid.at(cell % LEVEL_WIDTH + beamDx(back), cell / LEVEL_WIDTH + beamDy(back))))
 			r.warnings.push_back("the light shaft at " + at(cell) + " has no rock behind it");
 		if (t.type == Mirror && t.fixture.type == Inscription) // the inscription takes the interact key first
-			r.warnings.push_back("the mirror at " + at(cell) +
-								 " stands in front of an inscription: it cannot be turned");
+			r.warnings.push_back(
+				"the mirror at " + at(cell) + " stands in front of an inscription: it cannot be turned"
+			);
 	}
 	if (r.sunDiscs == 0)
 		return 0;
 	const std::vector<char> anyWay = sunlitCells(
-		grid.cells, [&](int cell) { return isSolidStructure(grid.cells[cell].structure); }, [](int) { return true; });
-	const std::vector<char> atStart =
-		sunlitCells(grid.cells, [&](int cell) { return blocksBeam(grid.cells[cell]); }, [](int) { return false; });
+		grid.cells,
+		[&](int cell) { return isSolidStructure(grid.cells[cell].structure); },
+		[](int) { return true; }
+	);
+	const std::vector<char> atStart = sunlitCells(
+		grid.cells,
+		[&](int cell) { return blocksBeam(grid.cells[cell]); },
+		[](int) { return false; }
+	);
 	int lit = 0;
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Fixture& f = grid.cells[cell].fixture;
@@ -681,8 +702,10 @@ void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 			while (rhythmTrapAt(grid, col + count, row))
 				count++;
 			if (!wallSpikesCrossable(grid, col, row, count, 1) || !wallSpikesCrossable(grid, col, row, count, -1))
-				r.warnings.push_back("the " + std::to_string(count) + " rhythm traps from " + at(cell) +
-									 " cannot be walked through: their safe windows do not line up");
+				r.warnings.push_back(
+					"the " + std::to_string(count) + " rhythm traps from " + at(cell) +
+					" cannot be walked through: their safe windows do not line up"
+				);
 		}
 }
 
@@ -769,8 +792,10 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
 	if (r.entrances > 1)
-		r.warnings.push_back(std::to_string(r.entrances) + " entrances, the game starts at the last one " +
-							 at(r.start.row * LEVEL_WIDTH + r.start.col));
+		r.warnings.push_back(
+			std::to_string(r.entrances) + " entrances, the game starts at the last one " +
+			at(r.start.row * LEVEL_WIDTH + r.start.col)
+		);
 	if (r.exits == 0)
 		r.errors.emplace_back("no exit (Door with attribute 2) and no ankh");
 	if (r.entrances == 0) {
@@ -853,8 +878,9 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		if (t.type == Page)
 			r.warnings.push_back("expedition page out of reach at " + at(cell));
 		if (t.fixture.type == Lever || t.fixture.type == Inscription)
-			r.warnings.push_back(std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " +
-								 at(cell));
+			r.warnings.push_back(
+				std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " + at(cell)
+			);
 	}
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
@@ -893,8 +919,10 @@ LevelReport checkLevel(const LevelGrid& grid) {
 				example = cellOf(s);
 		}
 	if (r.softlockCells > 0)
-		r.warnings.push_back(std::to_string(r.softlockCells) +
-							 " cell(s) the player can reach but not leave for the exit, e.g. " + at(example));
+		r.warnings.push_back(
+			std::to_string(r.softlockCells) + " cell(s) the player can reach but not leave for the exit, e.g. " +
+			at(example)
+		);
 
 	// The path, entrance first.
 	std::vector<int> states;

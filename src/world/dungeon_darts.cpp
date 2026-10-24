@@ -56,8 +56,12 @@ void Dungeon::updateDartTraps() {
 	for (auto it = dartTraps.volleys.begin(); it != dartTraps.volleys.end();) {
 		DartTraps::Volley& v = *it;
 		while (v.fired < DART_COUNT && now - v.startMs >= DART_DELAY_MS + v.fired * DART_GAP_MS) {
-			dartTraps.darts.push_back({static_cast<float>(v.col) + 0.5f + DART_HOLE_X[v.fired],
-									   static_cast<float>(v.row) + DART_HEIGHT, 0.f, now});
+			dartTraps.darts.push_back(
+				{static_cast<float>(v.col) + 0.5f + DART_HOLE_X[v.fired],
+				 static_cast<float>(v.row) + DART_HEIGHT,
+				 0.f,
+				 now}
+			);
 			sim.events->Play(WorldSound::Dart);
 			v.fired++;
 		}

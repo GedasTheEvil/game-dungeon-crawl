@@ -9,8 +9,9 @@
 
 namespace {
 bool noted(const SimWorld& world, FieldNote note) {
-	return std::any_of(world.said.begin(), world.said.end(),
-					   [note](const WorldEvent& e) { return e.kind == WorldEvent::Kind::Note && e.note == note; });
+	return std::any_of(world.said.begin(), world.said.end(), [note](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == note;
+	});
 }
 
 // tests/levels/sand: dry floor to col 5, sand 6-11, dry 12-19 with a sand fall at 15, quicksand 20-21, dry on.
@@ -226,8 +227,10 @@ TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, So
 	}
 }
 
-TEST_CASE("sprint dust (plan sprint-toon-blur-and-extras): a puff per sprint step on a dry floor, none walking or with "
-		  "motion effects off") {
+TEST_CASE(
+	"sprint dust (plan sprint-toon-blur-and-extras): a puff per sprint step on a dry floor, none walking or with "
+	"motion effects off"
+) {
 	SimWorld world;
 	loadSand(world);
 	REQUIRE(world.WalkTo(3.f));

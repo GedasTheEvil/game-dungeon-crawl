@@ -15,8 +15,9 @@ const std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = [] {
 	std::array<ItemKind, WEAPON_KIND_COUNT> grades{};
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
 		grades[static_cast<size_t>(i)] = itemAt(i);
-	std::stable_sort(grades.begin(), grades.end(),
-					 [](ItemKind a, ItemKind b) { return weaponDef(a).damage < weaponDef(b).damage; });
+	std::stable_sort(grades.begin(), grades.end(), [](ItemKind a, ItemKind b) {
+		return weaponDef(a).damage < weaponDef(b).damage;
+	});
 	return grades;
 }();
 
@@ -143,8 +144,8 @@ ChestTrap RollChestTrap(Container kind, int level, Rng& rng) {
 Curse RollChestCurse(Container kind, Rng& rng) {
 	if (kind == Container::Canopic || kind == Container::Jar)
 		return Curse::Disease;
-	constexpr std::array<Curse, 5> CHEST_CURSES = {Curse::Weakness, Curse::Clumsiness, Curse::Vulnerability,
-												   Curse::Fatigue, Curse::Slowness};
+	constexpr std::array<Curse, 5> CHEST_CURSES =
+		{Curse::Weakness, Curse::Clumsiness, Curse::Vulnerability, Curse::Fatigue, Curse::Slowness};
 	return CHEST_CURSES[static_cast<size_t>(rng.below(static_cast<int>(CHEST_CURSES.size())))];
 }
 

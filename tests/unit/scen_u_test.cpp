@@ -85,7 +85,8 @@ TEST_CASE("loading a level or a save drops the monsters of the level before") {
 
 TEST_CASE(
 	"spikes: standing in them, a hit every 100 ms growing by 1 every 3 hits; reset after 200 ms out, two tiles as "
-	"one") {
+	"one"
+) {
 	SimWorld world;
 	world.player.stats.AddMaxHP(3900); // 2000 HP: the crossing (SPIKES_CROSS_HP, 20%: 400) does not kill
 	REQUIRE(world.Load("tests/levels/spikes_one"));
@@ -131,8 +132,10 @@ TEST_CASE("a jump costs stamina, it regenerates 5% a second, a level up refills 
 	CHECK(world.player.stats.Stamina() == 110);
 }
 
-TEST_CASE("a trap on the floor is jumped over from the middle of the cell before: spikes cleanly, a death trap barely "
-		  "grazes") {
+TEST_CASE(
+	"a trap on the floor is jumped over from the middle of the cell before: spikes cleanly, a death trap barely "
+	"grazes"
+) {
 	SimWorld world;
 	for (const char* level : {"tests/levels/spikes_one", "tests/levels/death_one"}) {
 		REQUIRE(world.Load(level));

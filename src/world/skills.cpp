@@ -4,21 +4,31 @@
 #include <string>
 
 const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
-	{"Stun", "Smash hits may stun a foe", "A good knock on the head stops anything for a moment, gods' beasts too.",
+	{"Stun",
+	 "Smash hits may stun a foe",
+	 "A good knock on the head stops anything for a moment, gods' beasts too.",
 	 true},
 	{"Words of Thoth", "Read the hieroglyphs", "Thoth, lord of writing, opens the carved words on the walls.", false},
 	{"Dodge", "1 blow in 10 misses you", "Step aside at the last moment: a bite or a sting may find only air.", false},
 	{"Power hit", "Harder blows for stamina", "Put your back into it: more damage a swing, paid in stamina.", true},
-	{"Sharp eye", "Ranged weapons reach 30% farther",
-	 "Horus lends an eye: bows, sling, javelin and throwing stick carry farther.", false},
-	{"Favour of Hapi", "Wade faster, jump out of water", "Hapi, the Nile in flood, lets you through his shallows.",
+	{"Sharp eye",
+	 "Ranged weapons reach 30% farther",
+	 "Horus lends an eye: bows, sling, javelin and throwing stick carry farther.",
 	 false},
-	{"Serket's favour", "Poisons last half as long", "Serket's children still bite, but they do not mean it as much.",
+	{"Favour of Hapi",
+	 "Wade faster, jump out of water",
+	 "Hapi, the Nile in flood, lets you through his shallows.",
+	 false},
+	{"Serket's favour",
+	 "Poisons last half as long",
+	 "Serket's children still bite, but they do not mean it as much.",
 	 false},
 	{"Blessing of Isis", "Curses last half as long", "Isis has a knot for every curse. She ties fast.", false},
 	// Plan skill-flaming-arrows: a stamina skill, switched with the stamina-skill key.
-	{"Flaming arrows", "Bow shots burn, for stamina",
-	 "Sekhmet lends her flame: the arrow flies on fire, and what it hits burns.", false},
+	{"Flaming arrows",
+	 "Bow shots burn, for stamina",
+	 "Sekhmet lends her flame: the arrow flies on fire, and what it hits burns.",
+	 false},
 }};
 
 bool Heka::Earn(int level) {

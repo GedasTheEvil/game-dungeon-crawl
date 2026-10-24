@@ -24,8 +24,9 @@ LevelGrid drawn(const std::vector<std::string>& objects, const std::vector<std::
 			const char* glyph = std::strchr(STRUCTURE_GLYPHS, structure[i][col]);
 			if (structure[i][col] == ' ' || glyph == nullptr)
 				continue;
-			grid.cells[row * LEVEL_WIDTH + static_cast<int>(col)].structure =
-				static_cast<Structure>(glyph - STRUCTURE_GLYPHS);
+			grid.cells[row * LEVEL_WIDTH + static_cast<int>(col)].structure = static_cast<Structure>(
+				glyph - STRUCTURE_GLYPHS
+			);
 		}
 	}
 	return grid;
@@ -78,6 +79,8 @@ TEST_CASE("a ladder may start in the water, not go down into it") {
 
 TEST_CASE("a crocodile lives in or next to the water") {
 	CHECK(warns(checkLevel(drawn({"#######", "#S.C.E#", "#######"})), "not in or next to water"));
-	CHECK_FALSE(warns(checkLevel(drawn({"#######", "#S.C.E#", "#######"}, {"", "    ~  ", "    =  "})),
-					  "not in or next to water"));
+	CHECK_FALSE(warns(
+		checkLevel(drawn({"#######", "#S.C.E#", "#######"}, {"", "    ~  ", "    =  "})),
+		"not in or next to water"
+	));
 }

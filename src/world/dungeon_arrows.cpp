@@ -119,7 +119,8 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 		}
 	}
 	missiles.push_back(
-		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming});
+		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming}
+	);
 }
 //======================================================================================
 void Dungeon::updateMissiles() {
@@ -143,9 +144,9 @@ void Dungeon::updateMissiles() {
 				break;
 			}
 			// Over half water the floor is the basin's, WATER_BASIN_DEPTH down into the cell below.
-			const bool inBasin =
-				inHalfWater(MapAt(col, row + 1)) &&
-				y >= static_cast<float>(row + 1) - RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
+			const bool inBasin = inHalfWater(MapAt(col, row + 1)) &&
+								 y >= static_cast<float>(row + 1) -
+										  RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
 			if (a.fire && y - static_cast<float>(row) < 0.5f) // low over the floor: a web there burns
 				burnWeb(MapIndex(col, row));
 			if (isSolidTile(MapAt(col, row)) && !inBasin) {
@@ -229,8 +230,13 @@ void Dungeon::updateShots() {
 				const RangedRules& ranged = *rules;
 				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
 				if (!dodged) {
-					sim.player->TakeHit(ranged.damage, ranged.mix.value_or(v.from->attackMix), *sim.events, false,
-										ranged.burnMs);
+					sim.player->TakeHit(
+						ranged.damage,
+						ranged.mix.value_or(v.from->attackMix),
+						*sim.events,
+						false,
+						ranged.burnMs
+					);
 					sim.journal->HitByCreature(v.from->id, levelNumber);
 					if (sim.player->Curse(v.from->rangedCurses, *sim.events, sim.random->gameplay))
 						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Curse);

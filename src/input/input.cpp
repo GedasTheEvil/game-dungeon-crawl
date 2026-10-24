@@ -210,7 +210,8 @@ void stepHeldWalk() {
 	for (size_t i = 0; i < walkHeld.size(); i++)
 		if (walkHeld[i])
 			PlayerActionController::execute(
-				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i));
+				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i)
+			);
 }
 
 GameplayAction gameplayActionOf(BindAction action) {
@@ -560,8 +561,10 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 
-	PlayerActionController::applyCameraDelta(-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMx - a),
-											 -MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMy - b));
+	PlayerActionController::applyCameraDelta(
+		-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMx - a),
+		-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMy - b)
+	);
 
 	lastMx = a;
 	lastMy = b;

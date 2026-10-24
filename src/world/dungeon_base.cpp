@@ -193,8 +193,10 @@ void Dungeon::updateTraps() {
 		playerScorched = false;
 	if (jet && trapHurt.hit() > 0) {
 		PlayerStats& stats = sim.player->stats;
-		const int perSecond =
-			std::max(FIRE_JET_HP_PER_SECOND * 100, stats.CurrentMaxHP() * FIRE_JET_PERCENT_PER_SECOND);
+		const int perSecond = std::max(
+			FIRE_JET_HP_PER_SECOND * 100,
+			stats.CurrentMaxHP() * FIRE_JET_PERCENT_PER_SECOND
+		);
 		const int hundredths = perSecond * TRAP_HURT_INTERVAL_MS / 1000 + jetCarry;
 		jetCarry = hundredths % 100;
 		if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0) {
@@ -221,8 +223,10 @@ void Dungeon::updateTraps() {
 			continue;
 		if (!mon.flies() && !mon.jumping())
 			if (const auto trap = inTrap(mon.CentreX(), static_cast<float>(mon.Row()))) {
-				mon.StandInTrap(trap->type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
-								sim.random->gameplay);
+				mon.StandInTrap(
+					trap->type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
+					sim.random->gameplay
+				);
 				continue;
 			}
 		if (!mon.Hidden() && inFireJet(mon.Left(), mon.Right(), mon.Row()))
@@ -242,15 +246,17 @@ void Dungeon::updateTrapCrossing(const std::optional<TrapContact>& here) {
 	}
 	PlayerStats& stats = sim.player->stats;
 	const bool death = here->type == Death;
-	const int cross =
-		TrapBell::crossHundredths(death ? DEATH_TRAP_CROSS_HP : SPIKES_CROSS_HP,
-								  death ? DEATH_TRAP_CROSS_PERCENT : SPIKES_CROSS_PERCENT, stats.CurrentMaxHP());
+	const int cross = TrapBell::crossHundredths(
+		death ? DEATH_TRAP_CROSS_HP : SPIKES_CROSS_HP,
+		death ? DEATH_TRAP_CROSS_PERCENT : SPIKES_CROSS_PERCENT,
+		stats.CurrentMaxHP()
+	);
 	const float moved = std::fabs(mapX - lastX);
 	if (moved > 1.f) // a teleport or a load, not a step
 		return;
 	const float speed = moved * 1000.f / static_cast<float>(UPDATE_TICK_MS);
-	const double dealt =
-		cross * TrapBell::share((lastX - here->centre) / here->half, here->offset) * TrapBell::speedFactor(speed);
+	const double dealt = cross * TrapBell::share((lastX - here->centre) / here->half, here->offset) *
+						 TrapBell::speedFactor(speed);
 	const int hundredths = static_cast<int>(std::lround(dealt)) + trapBellCarry;
 	trapBellCarry = hundredths % 100;
 	if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0)
@@ -310,9 +316,14 @@ bool Dungeon::Move(float dirX, float dirY) {
 		GameClock::now() - sprintPuffMs >= SPRINT_PUFF_MS) { // plan sprint-toon-blur-and-extras
 		sprintPuffMs = GameClock::now();
 		const int now = sprintPuffMs;
-		puffs.erase(std::remove_if(puffs.begin(), puffs.end(),
-								   [now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }),
-					puffs.end()); // the draw prunes too, but a headless run never draws
+		puffs.erase(
+			std::remove_if(
+				puffs.begin(),
+				puffs.end(),
+				[now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }
+			),
+			puffs.end()
+		); // the draw prunes too, but a headless run never draws
 		puffs.push_back({mapX, static_cast<int>(mapY), now});
 	}
 	if (moved && PlayerWading() && GameClock::now() - wadeSoundMs >= WADE_SPLASH_MS) {

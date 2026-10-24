@@ -38,8 +38,19 @@ constexpr float GLOB_TRAIL_STEP = 2.2f;
 constexpr int GLOB_TRAIL_CLOUDS = 2;
 
 // A ball in `colour` of `radius` world units, stretched along its flight (vx, vy); `plain` is the white texture.
-void drawBall(Texture& plain, Rgb colour, float x, float y, float z, float vx, float vy, float stretch, float squash,
-			  float alpha, float radius) {
+void drawBall(
+	Texture& plain,
+	Rgb colour,
+	float x,
+	float y,
+	float z,
+	float vx,
+	float vy,
+	float stretch,
+	float squash,
+	float alpha,
+	float radius
+) {
 	constexpr int SLICES = 8, STACKS = 6;
 	plain.Bind(); // texture x colour: plain colour
 	glEnable(GL_BLEND);
@@ -78,8 +89,8 @@ struct GlobLook {
 	bool core = false;
 };
 constexpr GlobLook PLAIN_GLOB{};
-constexpr GlobLook VENOM_GLOB = {&Fire::VENOM, &Fire::VENOM_TRAIL, &Fire::VENOM, &VENOM_LIGHT,
-								 false}; // all flames, no ball
+constexpr GlobLook VENOM_GLOB =
+	{&Fire::VENOM, &Fire::VENOM_TRAIL, &Fire::VENOM, &VENOM_LIGHT, false}; // all flames, no ball
 constexpr GlobLook FIRE_BOLT = {&Fire::BOLT, &Fire::BOLT_TRAIL, &Fire::BOLT_SPLAT, &FIRE_BOLT_LIGHT, true};
 
 const GlobLook& globLook(const std::optional<RangedRules>& ranged) {
@@ -92,12 +103,35 @@ const GlobLook& globLook(const std::optional<RangedRules>& ranged) {
 
 // A glob of light or of flames, at (x, y, z) in the frame origin of its tile, flying along (vx, vy), in its look.
 // Shared by the venom and the Anubis fire bolt.
-void drawGlobWithFlames(Texture& plain, Rgb colour, const GlobLook& look, uint32_t seed, float x, float y, float z,
-						float vx, float vy, float stretch, float squash, float alpha) {
+void drawGlobWithFlames(
+	Texture& plain,
+	Rgb colour,
+	const GlobLook& look,
+	uint32_t seed,
+	float x,
+	float y,
+	float z,
+	float vx,
+	float vy,
+	float stretch,
+	float squash,
+	float alpha
+) {
 	const bool splat = squash < 1.f;
 	if (look.flames == nullptr || (look.core && !splat))
-		drawBall(plain, colour, x, y, z, vx, vy, stretch, squash, alpha,
-				 look.flames == nullptr ? GLOB_RADIUS : GLOB_RADIUS * FIRE_BOLT_CORE);
+		drawBall(
+			plain,
+			colour,
+			x,
+			y,
+			z,
+			vx,
+			vy,
+			stretch,
+			squash,
+			alpha,
+			look.flames == nullptr ? GLOB_RADIUS : GLOB_RADIUS * FIRE_BOLT_CORE
+		);
 	if (look.flames == nullptr)
 		return;
 	if (splat) { // a burst fading with the splat
@@ -125,8 +159,11 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 			continue;
 
 		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
-					 RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow), 0);
+		glTranslatef(
+			RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
+			RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow),
+			0
+		);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
 		DrawMonster(mon, sim.assets->monsterModels[mon.Type()->id], sim.assets->textures);
 		glPopMatrix();
@@ -143,8 +180,11 @@ void Dungeon::drawDecoys(const CellRect& drawn) {
 			if (!IsInBounds(i, j) || decoration.decor[MapIndex(i, j)].type != DECOR_COFFIN_MUMMY)
 				continue;
 			glPushMatrix();
-			glTranslatef(RenderConfig::TILE_SIZE * static_cast<float>(i - view().firstCol()),
-						 RenderConfig::TILE_SIZE * static_cast<float>(j - view().originRow), 0);
+			glTranslatef(
+				RenderConfig::TILE_SIZE * static_cast<float>(i - view().firstCol()),
+				RenderConfig::TILE_SIZE * static_cast<float>(j - view().originRow),
+				0
+			);
 			glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
 			DrawEntombed(mummy, model);
 			glPopMatrix();
@@ -184,8 +224,13 @@ void Dungeon::drawMissiles() {
 		model->Show();
 		glPopMatrix();
 		if (a.fire && a.stuckMs < 0) // the tip burns
-			Fire::draw(Fire::ARROW, RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow),
-					   ARROW_DEPTH, static_cast<uint32_t>(a.startMs));
+			Fire::draw(
+				Fire::ARROW,
+				RenderConfig::TILE_SIZE * (x - firstCol),
+				RenderConfig::TILE_SIZE * (y - firstRow),
+				ARROW_DEPTH,
+				static_cast<uint32_t>(a.startMs)
+			);
 	}
 }
 //======================================================================================
@@ -201,8 +246,11 @@ void Dungeon::drawBalls() {
 	auto draw = [&](float x, float y, float radius, float turnDeg) {
 		const float scale = 2.f * radius * RenderConfig::TILE_SIZE / std::max(high - low, 0.001f);
 		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow + radius),
-					 RenderConfig::MONSTER_DEPTH);
+		glTranslatef(
+			RenderConfig::TILE_SIZE * (x - firstCol),
+			RenderConfig::TILE_SIZE * (y - firstRow + radius),
+			RenderConfig::MONSTER_DEPTH
+		);
 		glRotatef(turnDeg, 0, 0, 1);
 		glScalef(scale, scale, scale);
 		glTranslatef(0, -(low + high) / 2.f, 0);
@@ -233,13 +281,24 @@ void Dungeon::drawBallEffects() {
 		const auto seed = static_cast<uint32_t>(b.startMs);
 		if (b.breakMs < 0) {
 			if (rules.burns()) // in front of the ball, or it hides them
-				Fire::draw(Fire::SUN_BALL, x, y + RenderConfig::TILE_SIZE * rules.radius,
-						   RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * rules.radius, seed);
+				Fire::draw(
+					Fire::SUN_BALL,
+					x,
+					y + RenderConfig::TILE_SIZE * rules.radius,
+					RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * rules.radius,
+					seed
+				);
 		} else if (!b.sank && now - b.breakMs < Grit::BURST_MS) {
 			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, now - b.breakMs, false, seed);
 			if (rules.burns())
-				Fire::draw(Fire::BOLT_SPLAT, x, y, RenderConfig::MONSTER_DEPTH, seed,
-						   1.f - static_cast<float>(now - b.breakMs) / static_cast<float>(Grit::BURST_MS));
+				Fire::draw(
+					Fire::BOLT_SPLAT,
+					x,
+					y,
+					RenderConfig::MONSTER_DEPTH,
+					seed,
+					1.f - static_cast<float>(now - b.breakMs) / static_cast<float>(Grit::BURST_MS)
+				);
 		}
 	}
 	for (const Monster& mon : monsters) { // a burning one catches fire as it is shaped: the tell
@@ -247,20 +306,27 @@ void Dungeon::drawBallEffects() {
 		if (shaped < 0.5f || !mon.BallRules().burns())
 			continue;
 		const float r = mon.BallRules().radius * (DUNG_BALL_SHAPED_FROM + (1.f - DUNG_BALL_SHAPED_FROM) * shaped);
-		Fire::draw(Fire::SUN_BALL, RenderConfig::TILE_SIZE * (mon.BallX() - col0),
-				   RenderConfig::TILE_SIZE * (static_cast<float>(mon.Row()) + r - row0),
-				   RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * r, static_cast<uint32_t>(mon.Col()),
-				   2.f * shaped - 1.f);
+		Fire::draw(
+			Fire::SUN_BALL,
+			RenderConfig::TILE_SIZE * (mon.BallX() - col0),
+			RenderConfig::TILE_SIZE * (static_cast<float>(mon.Row()) + r - row0),
+			RenderConfig::MONSTER_DEPTH + RenderConfig::TILE_SIZE * r,
+			static_cast<uint32_t>(mon.Col()),
+			2.f * shaped - 1.f
+		);
 	}
 }
 // The burning balls' light; same frame as addLights.
 void Dungeon::addBallLights() {
 	for (const DungBall& b : balls)
 		if (b.breakMs < 0 && b.rules.burns())
-			Lighting::add(RenderConfig::TILE_SIZE * (b.x - static_cast<float>(view().originCol)),
-						  RenderConfig::TILE_SIZE * (b.y + b.rules.radius - static_cast<float>(view().originRow)),
-						  RenderConfig::MONSTER_DEPTH + GLOB_LIGHT_LIFT, FIRE_BOLT_LIGHT,
-						  static_cast<uint32_t>(b.startMs));
+			Lighting::add(
+				RenderConfig::TILE_SIZE * (b.x - static_cast<float>(view().originCol)),
+				RenderConfig::TILE_SIZE * (b.y + b.rules.radius - static_cast<float>(view().originRow)),
+				RenderConfig::MONSTER_DEPTH + GLOB_LIGHT_LIFT,
+				FIRE_BOLT_LIGHT,
+				static_cast<uint32_t>(b.startMs)
+			);
 }
 //======================================================================================
 // The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
@@ -275,8 +341,11 @@ void Dungeon::drawDarts() {
 	const float high = model->YRange(0).second;
 	for (const DartTraps::Dart& d : dartTraps.darts) {
 		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (d.x - firstCol), RenderConfig::TILE_SIZE * (d.y - firstRow),
-					 -RenderConfig::TILE_SIZE * (1.f - d.depth));
+		glTranslatef(
+			RenderConfig::TILE_SIZE * (d.x - firstCol),
+			RenderConfig::TILE_SIZE * (d.y - firstRow),
+			-RenderConfig::TILE_SIZE * (1.f - d.depth)
+		);
 		glRotatef(90.f, 1, 0, 0); // the model points up (+y): now at the camera (+z), the tip at the position
 		glTranslatef(0, -high * scale, 0);
 		glScalef(scale, scale, scale);
@@ -300,9 +369,20 @@ void Dungeon::drawShots() {
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
-		drawGlobWithFlames(sim.assets->textures.nullTex, v.colour, globLook(v.from->ranged),
-						   static_cast<uint32_t>(v.spawnMs), RenderConfig::TILE_SIZE * (v.x - firstCol),
-						   RenderConfig::TILE_SIZE * (v.y - firstRow), ARROW_DEPTH, v.vx, v.vy, stretch, squash, alpha);
+		drawGlobWithFlames(
+			sim.assets->textures.nullTex,
+			v.colour,
+			globLook(v.from->ranged),
+			static_cast<uint32_t>(v.spawnMs),
+			RenderConfig::TILE_SIZE * (v.x - firstCol),
+			RenderConfig::TILE_SIZE * (v.y - firstRow),
+			ARROW_DEPTH,
+			v.vx,
+			v.vy,
+			stretch,
+			squash,
+			alpha
+		);
 	}
 }
 // The light of each flying glob, venom or fire; same frame as addLights.
@@ -310,9 +390,13 @@ void Dungeon::addVenomLights() {
 	for (const MonsterShot& v : shots) {
 		const GlobLook& look = globLook(v.from->ranged);
 		if (v.splatMs < 0 && look.light != nullptr)
-			Lighting::add(RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
-						  RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
-						  ARROW_DEPTH + GLOB_LIGHT_LIFT, *look.light, static_cast<uint32_t>(v.spawnMs));
+			Lighting::add(
+				RenderConfig::TILE_SIZE * (v.x - static_cast<float>(view().originCol)),
+				RenderConfig::TILE_SIZE * (v.y - static_cast<float>(view().originRow)),
+				ARROW_DEPTH + GLOB_LIGHT_LIFT,
+				*look.light,
+				static_cast<uint32_t>(v.spawnMs)
+			);
 	}
 }
 // The fire arrows' and the burning monsters' light; same frame as addLights.
@@ -320,13 +404,22 @@ void Dungeon::addFireLights() {
 	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
 	for (const Missile& a : missiles)
 		if (a.fire && a.stuckMs < 0)
-			Lighting::add(RenderConfig::TILE_SIZE * (a.X() - col0), RenderConfig::TILE_SIZE * (a.Y() - row0),
-						  ARROW_DEPTH + GLOB_LIGHT_LIFT, FIRE_ARROW_LIGHT, static_cast<uint32_t>(a.startMs));
+			Lighting::add(
+				RenderConfig::TILE_SIZE * (a.X() - col0),
+				RenderConfig::TILE_SIZE * (a.Y() - row0),
+				ARROW_DEPTH + GLOB_LIGHT_LIFT,
+				FIRE_ARROW_LIGHT,
+				static_cast<uint32_t>(a.startMs)
+			);
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Burns())
-			Lighting::add(RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
-						  RenderConfig::TILE_SIZE * ((mon.BottomY() + mon.TopY()) / 2.f - row0),
-						  RenderConfig::MONSTER_DEPTH + BURNING_FRONT, BURNING_LIGHT, static_cast<uint32_t>(mon.Col()));
+			Lighting::add(
+				RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
+				RenderConfig::TILE_SIZE * ((mon.BottomY() + mon.TopY()) / 2.f - row0),
+				RenderConfig::MONSTER_DEPTH + BURNING_FRONT,
+				BURNING_LIGHT,
+				static_cast<uint32_t>(mon.Col())
+			);
 }
 //======================================================================================
 // Flames over each burning monster's box. Same window and frame as drawSummonEffects.
@@ -334,11 +427,14 @@ void Dungeon::drawBurning() {
 	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Burns())
-			Fire::body(RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
-					   RenderConfig::TILE_SIZE * (mon.BottomY() - row0), RenderConfig::MONSTER_DEPTH + BURNING_FRONT,
-					   RenderConfig::TILE_SIZE * mon.HalfWidth(),
-					   RenderConfig::TILE_SIZE * (mon.TopY() - mon.BottomY()),
-					   static_cast<uint32_t>(mon.Col() * 131 + mon.SpawnRow()));
+			Fire::body(
+				RenderConfig::TILE_SIZE * (mon.CentreX() - col0),
+				RenderConfig::TILE_SIZE * (mon.BottomY() - row0),
+				RenderConfig::MONSTER_DEPTH + BURNING_FRONT,
+				RenderConfig::TILE_SIZE * mon.HalfWidth(),
+				RenderConfig::TILE_SIZE * (mon.TopY() - mon.BottomY()),
+				static_cast<uint32_t>(mon.Col() * 131 + mon.SpawnRow())
+			);
 }
 //======================================================================================
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.
@@ -359,28 +455,50 @@ void Dungeon::drawSummonEffects() {
 	}
 	holes.erase(
 		std::remove_if(holes.begin(), holes.end(), [now](const Hole& h) { return now - h.startMs >= BURROW_HOLE_MS; }),
-		holes.end());
+		holes.end()
+	);
 	for (const Hole& h : holes) {
 		const float x = (h.x - static_cast<float>(view().originCol)) * RenderConfig::TILE_SIZE;
 		const float y = static_cast<float>(h.row - view().originRow) * RenderConfig::TILE_SIZE;
 		const int age = now - h.startMs;
 		if (age < Grit::BURST_MS)
-			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, false,
-						static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(h.row));
-		drawHole(x, y + 0.3f, RenderConfig::MONSTER_DEPTH,
-				 1.f - static_cast<float>(age) / static_cast<float>(BURROW_HOLE_MS));
+			Grit::burst(
+				x,
+				y,
+				RenderConfig::MONSTER_DEPTH,
+				age,
+				false,
+				static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(h.row)
+			);
+		drawHole(
+			x,
+			y + 0.3f,
+			RenderConfig::MONSTER_DEPTH,
+			1.f - static_cast<float>(age) / static_cast<float>(BURROW_HOLE_MS)
+		);
 	}
 	// Rerek's spray as he comes up (plan worm-boss): sand thrown up all round him.
-	sprays.erase(std::remove_if(sprays.begin(), sprays.end(),
-								[now](const Hole& h) { return now - h.startMs >= Grit::BURST_MS; }),
-				 sprays.end());
+	sprays.erase(
+		std::remove_if(
+			sprays.begin(),
+			sprays.end(),
+			[now](const Hole& h) { return now - h.startMs >= Grit::BURST_MS; }
+		),
+		sprays.end()
+	);
 	for (const Hole& h : sprays)
 		for (int k = -2; k <= 2; k++) {
 			const float x = (h.x + SPRAY_SPREAD * static_cast<float>(k) - static_cast<float>(view().originCol)) *
 							RenderConfig::TILE_SIZE;
 			const float y = static_cast<float>(h.row - view().originRow) * RenderConfig::TILE_SIZE;
-			Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, now - h.startMs, false,
-						static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(k + 2) * 7919U);
+			Grit::burst(
+				x,
+				y,
+				RenderConfig::MONSTER_DEPTH,
+				now - h.startMs,
+				false,
+				static_cast<uint32_t>(h.startMs) + static_cast<uint32_t>(k + 2) * 7919U
+			);
 		}
 }
 //======================================================================================

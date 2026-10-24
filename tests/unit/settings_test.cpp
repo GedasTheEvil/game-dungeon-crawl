@@ -29,10 +29,11 @@ TEST_CASE("an empty file gives the defaults") {
 }
 
 TEST_CASE("sections, keys, comments and booleans") {
-	Settings s =
-		parse("; comment\n# another\n\n[display]\n window_width = 1280 \nwindow_height=720\nfullscreen = on\n"
-			  "[Graphics]\nmotion_effects = 0\ntoon = true\nblood = off\nlight_flicker = no\ncut_scenes = off\n"
-			  "[sound]\nmusic_volume = 0\neffects_volume = 55\r\n");
+	Settings s = parse(
+		"; comment\n# another\n\n[display]\n window_width = 1280 \nwindow_height=720\nfullscreen = on\n"
+		"[Graphics]\nmotion_effects = 0\ntoon = true\nblood = off\nlight_flicker = no\ncut_scenes = off\n"
+		"[sound]\nmusic_volume = 0\neffects_volume = 55\r\n"
+	);
 	CHECK(s.display.width == 1280);
 	CHECK(s.display.height == 720);
 	CHECK(s.display.fullscreen);
@@ -47,9 +48,11 @@ TEST_CASE("sections, keys, comments and booleans") {
 
 TEST_CASE("a bad value warns and keeps the default") {
 	std::vector<std::string> warnings;
-	Settings s = parse("[sound]\nmusic_volume = 101\neffects_volume = loud\n[graphics]\nblood = maybe\n"
-					   "[display]\nwindow_width = 10\n[controls]\njump = nokey\nattack = a, b, c\n",
-					   warnings);
+	Settings s = parse(
+		"[sound]\nmusic_volume = 101\neffects_volume = loud\n[graphics]\nblood = maybe\n"
+		"[display]\nwindow_width = 10\n[controls]\njump = nokey\nattack = a, b, c\n",
+		warnings
+	);
 	CHECK(warnings.size() == 6);
 	CHECK(s.sound.music == 80);
 	CHECK(s.sound.effects == 100);
@@ -168,8 +171,8 @@ TEST_CASE("docs/settings.md lists every action with its default") {
 	const Bindings defaults;
 	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
 		auto action = static_cast<BindAction>(i);
-		std::string row =
-			std::string("| `") + bindActionName(action) + "` | `" + formatBinding(defaults.Of(action)) + "` |";
+		std::string row = std::string("| `") + bindActionName(action) + "` | `" + formatBinding(defaults.Of(action)) +
+						  "` |";
 		CHECK_MESSAGE(text.str().find(row) != std::string::npos, "missing: ", row);
 	}
 }

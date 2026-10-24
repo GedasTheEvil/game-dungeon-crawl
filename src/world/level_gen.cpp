@@ -403,12 +403,14 @@ class LevelBuilder {
 			if (busy[index(x, s.row)] != 0 || !isEmptyCell(g.at(x, s.row)))
 				continue;
 			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
-			float weights[FEATURE_COUNT] = {2.5f,
-											0.2f + 0.08f * fd,
-											0.35f + 0.05f * fd,
-											s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f,
-											0.6f + 0.25f * fd,
-											0.2f};
+			float weights[FEATURE_COUNT] = {
+				2.5f,
+				0.2f + 0.08f * fd,
+				0.35f + 0.05f * fd,
+				s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f,
+				0.6f + 0.25f * fd,
+				0.2f
+			};
 			int size = 1;
 			switch (pickFeature(weights)) {
 			case Feature::None:

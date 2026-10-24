@@ -121,70 +121,94 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 namespace {
 // By FieldNote. The rules as the game has them (PlayerStats, ItemBag, the mechanisms); keep them in step.
 constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
-	{"Hit points", "Every bite, blow and trap costs me health: the red bar in the corner. When it runs out, the "
-				   "expedition is over. A new level fills it up."},
-	{"Experience", "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
-				   "a new level: more health and more stamina, both filled up at once, and any poison gone. Every "
-				   "fifth level my skin gets tougher, every eighth my arm stronger."},
-	{"Stamina", "Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of it, and running "
-				"drains it all the time. When I walk or stand, it comes back by itself."},
-	{"Keys and gates", "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
-					   "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
-	{"Poison", "Some stings and bites poison me: the health bar turns green and keeps draining after the fight, "
-			   "armour or not, and it can kill me. The same poison again only starts over; a stronger or weaker one "
-			   "runs alongside it. A new level clears all poison."},
-	{"Weapons", "Copies of my weapons are in chests, and now and then a creature leaves one; with enough copies "
-				"a weapon can be upgraded in the inventory (U). The old club gains the most from it. 1 takes up the "
-				"next hand weapon, 2 the next one to shoot or throw. Every creature takes each kind of blow "
-				"differently: I note it down."},
-	{"Smash", "A club smashes, and so do the mace, the sling's stones and the throwing stick. They hit hard, but "
-			  "they do not cut."},
-	{"Cut", "A blade cuts: the bronze sword, the khopesh (a curved sword), the epsilon axe. Long cuts, quick to "
-			"follow one another."},
-	{"Stab", "A point stabs: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the "
-			 "gaps between scales and plates."},
-	{"Health potions", "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. When I am "
-					   "in a hurry, H drinks the one that fits best."},
-	{"Stamina potions", "Date wine, or the red beer of Hathor: a stamina potion gives me my stamina back. When I "
-						"am in a hurry, 0 drinks the one that fits best."},
+	{"Hit points",
+	 "Every bite, blow and trap costs me health: the red bar in the corner. When it runs out, the "
+	 "expedition is over. A new level fills it up."},
+	{"Experience",
+	 "Every creature I kill and every riddle I answer teaches me something. With enough of it I reach "
+	 "a new level: more health and more stamina, both filled up at once, and any poison gone. Every "
+	 "fifth level my skin gets tougher, every eighth my arm stronger."},
+	{"Stamina",
+	 "Jumping and running (Shift) tire me out: the yellow bar. Each jump uses up some of it, and running "
+	 "drains it all the time. When I walk or stand, it comes back by itself."},
+	{"Keys and gates",
+	 "A key opens every gate of its colour on this level. Some gates answer to a lever of their "
+	 "colour instead. The gate of a boss's lair stays shut until the boss is dead."},
+	{"Poison",
+	 "Some stings and bites poison me: the health bar turns green and keeps draining after the fight, "
+	 "armour or not, and it can kill me. The same poison again only starts over; a stronger or weaker one "
+	 "runs alongside it. A new level clears all poison."},
+	{"Weapons",
+	 "Copies of my weapons are in chests, and now and then a creature leaves one; with enough copies "
+	 "a weapon can be upgraded in the inventory (U). The old club gains the most from it. 1 takes up the "
+	 "next hand weapon, 2 the next one to shoot or throw. Every creature takes each kind of blow "
+	 "differently: I note it down."},
+	{"Smash",
+	 "A club smashes, and so do the mace, the sling's stones and the throwing stick. They hit hard, but "
+	 "they do not cut."},
+	{"Cut",
+	 "A blade cuts: the bronze sword, the khopesh (a curved sword), the epsilon axe. Long cuts, quick to "
+	 "follow one another."},
+	{"Stab",
+	 "A point stabs: the flint knife, the spear, the javelin, the duckbill axe, every arrow. It finds the "
+	 "gaps between scales and plates."},
+	{"Health potions",
+	 "Bitter herbs from the marshes heal my wounds, the priests' brew twice as much. When I am "
+	 "in a hurry, H drinks the one that fits best."},
+	{"Stamina potions",
+	 "Date wine, or the red beer of Hathor: a stamina potion gives me my stamina back. When I "
+	 "am in a hurry, 0 drinks the one that fits best."},
 	{"Blood of Montu", "It tingles. Whatever is in it, my arm hits harder after I drink it, forever."},
 	{"Granite of Ptah",
 	 "Ptah's granite: my skin becomes hard as a temple wall, and every blow hurts a little less, forever."},
 	{"Breath of Osiris", "The breath of Osiris: more health forever, and all my wounds close at once."},
 	{"Milk of Renenutet",
 	 "The milk of Renenutet cures every poison in me. = drinks one, but only while I am poisoned."},
-	{"Dart traps", "A slab with a cobra on it sank under my foot, and darts shot out of three holes in the wall "
-				   "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts hit "
-				   "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "
-				   "them pass under me."},
-	{"Resistance potions", "Cobra venom, a drop at a time. For two minutes a poisoned bite or sting often does "
-						   "nothing to me: half the time after the lesser potion, nearly always after the greater "
-						   "one. The greater potion also cures a poison already in me. A poison guard amulet adds "
-						   "its share."},
-	{"Heka", "The guardian's heka, the magic the gods hold, went into me. It tastes of river mud and old incense. "
-			 "Each guardian gives one; on the Heka page (K) I spend it on a skill, forever. There are more skills "
-			 "than guardians down here, so I choose with care."},
-	{"Serket's favour", "Serket likes me. Her children still bite, but they hurt me less: every poison on me "
-						"lasts half as long, with the same damage each second."},
-	{"Sharp eye", "Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and "
-				  "the throwing stick all reach a third farther: even a foe far away is in my sights."},
-	{"Weakness", "A curse sits on my arm: half my might is gone, and the greater curse takes all of it and more. "
-				 "Nothing I drink removes a curse. Two minutes, then it fades. Another curse of the same kind "
-				 "restarts the two minutes."},
-	{"Clumsiness", "Cursed with clumsy hands: every blow, shot and throw does a fifth less damage, and half as much "
-				   "under the greater curse. My venom is not affected. Two minutes and it passes; no potion helps."},
-	{"Vulnerability", "Cursed: my armour feels like papyrus. It stops only two fifths of what it did. "
-					  "Two minutes, and nothing cures it. I should not get hit in that time."},
-	{"Fatigue", "A curse drained me: my stamina fell to a fifth and does not come back by itself for two minutes. "
-				"A stamina potion still works."},
-	{"Disease", "A cursed sickness: my body holds less health, a third less, much less under the greater curse. "
-				"It gives the health back when it passes, in two minutes. No antidote helps."},
-	{"Slowness", "Cursed legs: I walk and climb at half speed, and I run hardly faster than I used to walk. Two "
-				 "minutes. Traps made for a quick step are dangerous for me now."},
-	{"Palsy", "My hands shake from a curse: no bow, sling or throw finds its mark, so I do not try. My melee weapons "
-			  "still work. Two minutes."},
-	{"Insanity", "My mind is clouded. The club stays in my hand, and I cannot use my map, journal, pack or potions. "
-				 "Two minutes, if I live."},
+	{"Dart traps",
+	 "A slab with a cobra on it sank under my foot, and darts shot out of three holes in the wall "
+	 "above it, tipped with venom. A rat is too light to press it, a mummy is not, and the darts hit "
+	 "whoever is in their way. A jump over the slab sets nothing off; a jump at the right moment lets "
+	 "them pass under me."},
+	{"Resistance potions",
+	 "Cobra venom, a drop at a time. For two minutes a poisoned bite or sting often does "
+	 "nothing to me: half the time after the lesser potion, nearly always after the greater "
+	 "one. The greater potion also cures a poison already in me. A poison guard amulet adds "
+	 "its share."},
+	{"Heka",
+	 "The guardian's heka, the magic the gods hold, went into me. It tastes of river mud and old incense. "
+	 "Each guardian gives one; on the Heka page (K) I spend it on a skill, forever. There are more skills "
+	 "than guardians down here, so I choose with care."},
+	{"Serket's favour",
+	 "Serket likes me. Her children still bite, but they hurt me less: every poison on me "
+	 "lasts half as long, with the same damage each second."},
+	{"Sharp eye",
+	 "Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and "
+	 "the throwing stick all reach a third farther: even a foe far away is in my sights."},
+	{"Weakness",
+	 "A curse sits on my arm: half my might is gone, and the greater curse takes all of it and more. "
+	 "Nothing I drink removes a curse. Two minutes, then it fades. Another curse of the same kind "
+	 "restarts the two minutes."},
+	{"Clumsiness",
+	 "Cursed with clumsy hands: every blow, shot and throw does a fifth less damage, and half as much "
+	 "under the greater curse. My venom is not affected. Two minutes and it passes; no potion helps."},
+	{"Vulnerability",
+	 "Cursed: my armour feels like papyrus. It stops only two fifths of what it did. "
+	 "Two minutes, and nothing cures it. I should not get hit in that time."},
+	{"Fatigue",
+	 "A curse drained me: my stamina fell to a fifth and does not come back by itself for two minutes. "
+	 "A stamina potion still works."},
+	{"Disease",
+	 "A cursed sickness: my body holds less health, a third less, much less under the greater curse. "
+	 "It gives the health back when it passes, in two minutes. No antidote helps."},
+	{"Slowness",
+	 "Cursed legs: I walk and climb at half speed, and I run hardly faster than I used to walk. Two "
+	 "minutes. Traps made for a quick step are dangerous for me now."},
+	{"Palsy",
+	 "My hands shake from a curse: no bow, sling or throw finds its mark, so I do not try. My melee weapons "
+	 "still work. Two minutes."},
+	{"Insanity",
+	 "My mind is clouded. The club stays in my hand, and I cannot use my map, journal, pack or potions. "
+	 "Two minutes, if I live."},
 	{"Fire",
 	 "Fire sets what it hits on fire: it keeps burning for a few seconds after the hit. Armour does not stop it, "
 	 "only a fire guard amulet does. Water puts it out, and in the water a flame barely scorches. A brazier lights my "
@@ -193,87 +217,121 @@ constexpr std::array<FieldNoteText, FIELD_NOTE_COUNT> FIELD_NOTES = {{
 	 "a plant, a mummy, burns instead: fire arrows are my answer to it. Scorpions are used to the heat."},
 	{"Favour of Hapi", "The water parts for me now. Not much, but enough to stop wading like a heron."},
 	{"Blessing of Isis", "Isis has a knot for every curse. She ties fast."},
-	{"Blessing of Hapi", "Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint "
-						 "and jump in half water as if it were a street. With his favour it lasts twice as long and "
-						 "the water carries me."},
-	{"Canopic jars", "Four jars, four sons of Horus: one each for the liver, the lungs, the stomach and the guts. "
-					 "Somebody swapped the insides for treasure. I try not to wonder where the insides went."},
-	{"Jumping a bite", "It snapped at my heels and caught only air. A small one bites low: jump as it opens its jaws "
-					   "and the bite goes under me. Over a tall one a jump does not help."},
-	{"Sand", "Sand. Underground. Somebody left a door open, three thousand years ago. I wade through the drifts at "
-			 "three quarters of my pace, and running in it is out of the question. Jumping still works."},
-	{"Quicksand", "The sand swallowed my boots, then my shins. Standing still makes it worse: the longer I stay, the "
-				  "slower I get, until I am stuck and it squeezes. A jump gets me out, if I have the breath for it. "
-				  "Up close it swirls, slowly. Look before you step."},
-	{"Sun mirrors", "The priests knew how to bring the sun underground. So did a certain archaeologist with a staff. "
-					"A shaft of daylight runs straight until rock stops it; a bronze mirror sends it on the way its "
-					"pointer shows, and I can turn one a quarter at a time. A sun disc, an Aten, that catches the "
-					"light opens the gates of its colour for good. The dead do not like the sun: it sets them alight."},
-	{"Trapped chests", "Some chests bite back. Darts from the lock, a puff of green gas, a curse on the lid, deeper "
-					   "down a nest of scarabs. Up close a trapped one looks darker, as if it knew. Half of them were "
-					   "robbed long ago and only the trap is left; the rest hold a little more than a plain chest. The "
-					   "Eye of Horus sees most traps before they go off."},
-	{"Tomb curses", "The lid said 'cursed be he who opens this'. I opened it. The lid was right. The dead write their "
-					"threats on whatever they leave behind: lids, jars, the little servant figures. Not every one "
-					"means it, and the curse runs out, as any curse."},
+	{"Blessing of Hapi",
+	 "Hapi's jar. For two minutes the Nile and I are on good terms: I wade at full speed, sprint "
+	 "and jump in half water as if it were a street. With his favour it lasts twice as long and "
+	 "the water carries me."},
+	{"Canopic jars",
+	 "Four jars, four sons of Horus: one each for the liver, the lungs, the stomach and the guts. "
+	 "Somebody swapped the insides for treasure. I try not to wonder where the insides went."},
+	{"Jumping a bite",
+	 "It snapped at my heels and caught only air. A small one bites low: jump as it opens its jaws "
+	 "and the bite goes under me. Over a tall one a jump does not help."},
+	{"Sand",
+	 "Sand. Underground. Somebody left a door open, three thousand years ago. I wade through the drifts at "
+	 "three quarters of my pace, and running in it is out of the question. Jumping still works."},
+	{"Quicksand",
+	 "The sand swallowed my boots, then my shins. Standing still makes it worse: the longer I stay, the "
+	 "slower I get, until I am stuck and it squeezes. A jump gets me out, if I have the breath for it. "
+	 "Up close it swirls, slowly. Look before you step."},
+	{"Sun mirrors",
+	 "The priests knew how to bring the sun underground. So did a certain archaeologist with a staff. "
+	 "A shaft of daylight runs straight until rock stops it; a bronze mirror sends it on the way its "
+	 "pointer shows, and I can turn one a quarter at a time. A sun disc, an Aten, that catches the "
+	 "light opens the gates of its colour for good. The dead do not like the sun: it sets them alight."},
+	{"Trapped chests",
+	 "Some chests bite back. Darts from the lock, a puff of green gas, a curse on the lid, deeper "
+	 "down a nest of scarabs. Up close a trapped one looks darker, as if it knew. Half of them were "
+	 "robbed long ago and only the trap is left; the rest hold a little more than a plain chest. The "
+	 "Eye of Horus sees most traps before they go off."},
+	{"Tomb curses",
+	 "The lid said 'cursed be he who opens this'. I opened it. The lid was right. The dead write their "
+	 "threats on whatever they leave behind: lids, jars, the little servant figures. Not every one "
+	 "means it, and the curse runs out, as any curse."},
 	// The hour notes (plan campaign-texts): one per zone, in ZoneId order.
-	{"The First Hour", "The gate of the tomb. Ra's boat enters the Duat and the first gate closes behind it. It closed "
-					   "behind me too, and I did not even have a boat. The floors have teeth. Mind the floors."},
-	{"The Second Hour", "Bats, and a smell of old leather. The wall says the second hour is the water of the blessed, "
-						"where the grain grows. Nothing grows here except my doubts. And the bats."},
-	{"The Third Hour", "The dark thickens, and the walls are hung with webs. The third hour is the hour of the judging "
-					   "of Osiris. I am being judged by spiders. I keep a torch close."},
-	{"The Fourth Hour", "The priests' quarter. Ra's boat has to be towed over sand here, says the wall, and the "
-						"priests wrote a great deal on it. I can read it at last. I almost wish I could not."},
-	{"The Fifth Hour", "The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serqet's "
-					   "scorpions. I do not like her sense of humour. I count my antidotes."},
-	{"The Sixth Hour", "The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. "
-					   "The wall says: the dead are made new here. I will settle for staying the same."},
-	{"The Seventh Hour", "Apep waits here, says the wall. I wish the wall were wrong. The seventh hour is the hour of "
-						 "the great serpent and of water: the boat is hauled through the cisterns. So am I."},
-	{"The Eighth Hour", "Sand again, red and endless. Seth stands in the prow of the boat and drives the serpent back "
-						"with his spear. The wall says the dead here are clothed. I would settle for a hat."},
-	{"The Ninth Hour", "The land of Sokar, where the ground gives way and the worms sleep. The ninth hour feeds the "
-					   "dead with grain, the wall says. I would be glad of a sandwich. I would be gladder of a floor."},
-	{"The Tenth Hour", "A lake of fire, and baboons on its shore. In the tenth hour the lake is cooled for the boat of "
-					   "Ra, so there must be water somewhere. I look for it first. Everything else second."},
-	{"The Eleventh Hour", "The necropolis. Every trap I have met, in one place, and the road to the last gate. The "
-						  "eleventh hour is the one before the dawn. The dawn is not what I would call close."},
-	{"The Twelfth Hour", "The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I "
-						 "have a feeling that something here will weigh my heart. I did bring it. Let me be light."},
+	{"The First Hour",
+	 "The gate of the tomb. Ra's boat enters the Duat and the first gate closes behind it. It closed "
+	 "behind me too, and I did not even have a boat. The floors have teeth. Mind the floors."},
+	{"The Second Hour",
+	 "Bats, and a smell of old leather. The wall says the second hour is the water of the blessed, "
+	 "where the grain grows. Nothing grows here except my doubts. And the bats."},
+	{"The Third Hour",
+	 "The dark thickens, and the walls are hung with webs. The third hour is the hour of the judging "
+	 "of Osiris. I am being judged by spiders. I keep a torch close."},
+	{"The Fourth Hour",
+	 "The priests' quarter. Ra's boat has to be towed over sand here, says the wall, and the "
+	 "priests wrote a great deal on it. I can read it at last. I almost wish I could not."},
+	{"The Fifth Hour",
+	 "The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serqet's "
+	 "scorpions. I do not like her sense of humour. I count my antidotes."},
+	{"The Sixth Hour",
+	 "The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. "
+	 "The wall says: the dead are made new here. I will settle for staying the same."},
+	{"The Seventh Hour",
+	 "Apep waits here, says the wall. I wish the wall were wrong. The seventh hour is the hour of "
+	 "the great serpent and of water: the boat is hauled through the cisterns. So am I."},
+	{"The Eighth Hour",
+	 "Sand again, red and endless. Seth stands in the prow of the boat and drives the serpent back "
+	 "with his spear. The wall says the dead here are clothed. I would settle for a hat."},
+	{"The Ninth Hour",
+	 "The land of Sokar, where the ground gives way and the worms sleep. The ninth hour feeds the "
+	 "dead with grain, the wall says. I would be glad of a sandwich. I would be gladder of a floor."},
+	{"The Tenth Hour",
+	 "A lake of fire, and baboons on its shore. In the tenth hour the lake is cooled for the boat of "
+	 "Ra, so there must be water somewhere. I look for it first. Everything else second."},
+	{"The Eleventh Hour",
+	 "The necropolis. Every trap I have met, in one place, and the road to the last gate. The "
+	 "eleventh hour is the one before the dawn. The dawn is not what I would call close."},
+	{"The Twelfth Hour",
+	 "The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I "
+	 "have a feeling that something here will weigh my heart. I did bring it. Let me be light."},
 	// The amulet notes (plan amulet-extras): one per AmuletType in order, the numbers of the four tiers.
-	{"Jackal tooth", "A jackal's tooth on a cord. Worn, it adds to every blow I strike: Might +1, +2, +4, +6, from "
-					 "the lesser amulet to the grand one. One amulet at a time."},
-	{"Bronze scarab", "A bronze scarab. Worn, it takes a flat amount off every hit I suffer, like armour: 1, 2, 4 "
-					  "or 6 from the lesser to the grand one."},
-	{"Carnelian heart", "A carnelian heart, and it beats with mine: my health is greater by 5, 10, 20 or 30 percent "
-						"while I wear it, from the lesser to the grand one. Taking it off does not hurt me."},
-	{"Serket's scorpion", "Serket's scorpion. Her children spare me: a poisoned bite or sting fails 10, 25, 50 or "
-						  "80 percent of the time, lesser to grand. It adds to a resistance potion's share."},
-	{"Eye of Horus", "The eye of Horus sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, "
-					 "75 percent, and the grand eye makes me immune. A chest's trap goes off as much less often."},
-	{"Djed pillar", "The djed pillar does not bend. Worn, smashing blows hurt me 8, 16, 28 or 40 percent less, "
-					"lesser to grand. Falling rocks too, I hope."},
-	{"Knot of Isis", "The knot of Isis: blades slip on it. Cuts hurt me 8, 16, 28 or 40 percent less, from the "
-					 "lesser to the grand knot."},
-	{"Shen ring", "The shen ring: points glance off it. Stabs hurt me 8, 16, 28 or 40 percent less, from the lesser "
-				  "to the grand ring. Darts and arrows too."},
-	{"Faience lotus", "A faience lotus. It opens when all is calm: while nothing chases me and no poison runs, it "
-					  "heals me, 1 health a second, 2 with the grand one. There is no lesser or minor lotus."},
-	{"Wadjet's cobra", "Wadjet's rearing cobra, and my blade grows fangs: 10, 15, 20 or 30 percent of my hits "
-					   "poison the foe, weakly, weakly, then worse, then strongly. What resists poison resists "
-					   "this. A foe the poison kills still counts as mine."},
-	{"Sun disc", "Ra's disc burns daily. Fire does not care about my armour, but this does: fire hurts me 20, 40, "
-				 "60 or 80 percent less, lesser to grand. Never nothing at all."},
-	{"Seth's mace", "The mace head of Seth: what it hits stays hit. Worn, my smashing blows deal 10, 20, 30 or 50 "
-					"percent more, lesser to grand. Only the smashing part counts: a mace gains all of it, a club "
-					"nearly all."},
-	{"Montu's khopesh", "The sickle sword of Montu parts what it meets. Worn, my cutting blows deal 10, 20, 30 or "
-						"50 percent more, lesser to grand. Only the cutting part counts: a sword gains most of it, "
-						"a club hardly any."},
-	{"Neith's arrowhead", "The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 "
-						  "percent more, lesser to grand. Only the stabbing part counts: every arrow gains all of "
-						  "it."},
+	{"Jackal tooth",
+	 "A jackal's tooth on a cord. Worn, it adds to every blow I strike: Might +1, +2, +4, +6, from "
+	 "the lesser amulet to the grand one. One amulet at a time."},
+	{"Bronze scarab",
+	 "A bronze scarab. Worn, it takes a flat amount off every hit I suffer, like armour: 1, 2, 4 "
+	 "or 6 from the lesser to the grand one."},
+	{"Carnelian heart",
+	 "A carnelian heart, and it beats with mine: my health is greater by 5, 10, 20 or 30 percent "
+	 "while I wear it, from the lesser to the grand one. Taking it off does not hurt me."},
+	{"Serket's scorpion",
+	 "Serket's scorpion. Her children spare me: a poisoned bite or sting fails 10, 25, 50 or "
+	 "80 percent of the time, lesser to grand. It adds to a resistance potion's share."},
+	{"Eye of Horus",
+	 "The eye of Horus sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, "
+	 "75 percent, and the grand eye makes me immune. A chest's trap goes off as much less often."},
+	{"Djed pillar",
+	 "The djed pillar does not bend. Worn, smashing blows hurt me 8, 16, 28 or 40 percent less, "
+	 "lesser to grand. Falling rocks too, I hope."},
+	{"Knot of Isis",
+	 "The knot of Isis: blades slip on it. Cuts hurt me 8, 16, 28 or 40 percent less, from the "
+	 "lesser to the grand knot."},
+	{"Shen ring",
+	 "The shen ring: points glance off it. Stabs hurt me 8, 16, 28 or 40 percent less, from the lesser "
+	 "to the grand ring. Darts and arrows too."},
+	{"Faience lotus",
+	 "A faience lotus. It opens when all is calm: while nothing chases me and no poison runs, it "
+	 "heals me, 1 health a second, 2 with the grand one. There is no lesser or minor lotus."},
+	{"Wadjet's cobra",
+	 "Wadjet's rearing cobra, and my blade grows fangs: 10, 15, 20 or 30 percent of my hits "
+	 "poison the foe, weakly, weakly, then worse, then strongly. What resists poison resists "
+	 "this. A foe the poison kills still counts as mine."},
+	{"Sun disc",
+	 "Ra's disc burns daily. Fire does not care about my armour, but this does: fire hurts me 20, 40, "
+	 "60 or 80 percent less, lesser to grand. Never nothing at all."},
+	{"Seth's mace",
+	 "The mace head of Seth: what it hits stays hit. Worn, my smashing blows deal 10, 20, 30 or 50 "
+	 "percent more, lesser to grand. Only the smashing part counts: a mace gains all of it, a club "
+	 "nearly all."},
+	{"Montu's khopesh",
+	 "The sickle sword of Montu parts what it meets. Worn, my cutting blows deal 10, 20, 30 or "
+	 "50 percent more, lesser to grand. Only the cutting part counts: a sword gains most of it, "
+	 "a club hardly any."},
+	{"Neith's arrowhead",
+	 "The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 "
+	 "percent more, lesser to grand. Only the stabbing part counts: every arrow gains all of "
+	 "it."},
 }};
 } // namespace
 
@@ -308,11 +366,13 @@ constexpr std::array<ExpeditionPageText, EXPEDITION_PAGE_COUNT> EXPEDITION_PAGES
 	{"Day 1",
 	 "Touched the jackal statue. Should not have touched the jackal statue. No crew, no sky. I still have my notebook, "
 	 "two pencils and my glasses. If anyone finds this: I am D. J., a linguist, not a soldier."},
-	{"Day 2", "The beetles grow bigger the deeper I go. A blade skids off the shell; a point slips between the plates. "
-			  "Something very large clicks down below. I named it Ramses. It does not like the name."},
-	{"Day 3", "A chest bit me today. Not a figure of speech. Wood cracks under a club; my knife only stuck in the lid. "
-			  "New rule: "
-			  "knock before opening."},
+	{"Day 2",
+	 "The beetles grow bigger the deeper I go. A blade skids off the shell; a point slips between the plates. "
+	 "Something very large clicks down below. I named it Ramses. It does not like the name."},
+	{"Day 3",
+	 "A chest bit me today. Not a figure of speech. Wood cracks under a club; my knife only stuck in the lid. "
+	 "New rule: "
+	 "knock before opening."},
 	{"Day 5",
 	 "Ramses is dead. I did not enjoy it. Behind him a key and a way down, never a way up. Every door here opens one "
 	 "way: deeper. Someone planned this."},
@@ -372,9 +432,10 @@ constexpr std::array<ExpeditionPageText, EXPEDITION_PAGE_COUNT> EXPEDITION_PAGES
 	 "A lake of fire, and baboons on its shore who throw coals from afar. Corner them or run them down; never "
 	 "stand in the open. The water is the one cool place here. A second fork ahead: the right is shorter. It "
 	 "always is."},
-	{"Day 40", "The necropolis. Loose ceilings everywhere: when the stone rumbles, keep walking. The jackal from the "
-			   "statue is on "
-			   "every wall. He waits at the bottom. I think he has always been waiting."},
+	{"Day 40",
+	 "The necropolis. Loose ceilings everywhere: when the stone rumbles, keep walking. The jackal from the "
+	 "statue is on "
+	 "every wall. He waits at the bottom. I think he has always been waiting."},
 	{"The last page",
 	 "If you read this, take the left gate. I took the right. Behind it, the tomb of the one who came before me, and "
 	 "worse. The ankh is real. Tell them I was right. D. J."},

@@ -16,8 +16,9 @@ constexpr int SECOND_COL = 5;
 constexpr int WALL_COL = 21; // the right wall beside it
 
 bool noted(const SimWorld& world, FieldNote note) {
-	return std::any_of(world.said.begin(), world.said.end(),
-					   [note](const WorldEvent& e) { return e.kind == WorldEvent::Kind::Note && e.note == note; });
+	return std::any_of(world.said.begin(), world.said.end(), [note](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == note;
+	});
 }
 
 bool sameLook(const TreasureLook& a, const TreasureLook& b) {

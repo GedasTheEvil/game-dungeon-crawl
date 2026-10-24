@@ -14,9 +14,13 @@ struct Walker {
 	bool boss;
 };
 constexpr Walker WALKERS[] = {
-	{"tests/levels/hitbox_scarab", 10, 8000, false},	   {"tests/levels/hitbox_rat", 12, 8000, false},
-	{"tests/levels/hitbox_worm", 30, 25000, false},		   {"tests/levels/hitbox_giant_scarab", 90, 12000, false},
-	{"tests/levels/hitbox_boss_scarab", 320, 12000, true}, {"tests/levels/hitbox_giant_rat", 60, 8000, false}};
+	{"tests/levels/hitbox_scarab", 10, 8000, false},
+	{"tests/levels/hitbox_rat", 12, 8000, false},
+	{"tests/levels/hitbox_worm", 30, 25000, false},
+	{"tests/levels/hitbox_giant_scarab", 90, 12000, false},
+	{"tests/levels/hitbox_boss_scarab", 320, 12000, true},
+	{"tests/levels/hitbox_giant_rat", 60, 8000, false}
+};
 
 std::vector<ItemKind> meleeWeapons() {
 	std::vector<ItemKind> kinds;
@@ -89,8 +93,14 @@ TEST_CASE("an arrow hits a giant rat two tiles away behind spikes it cannot leap
 	REQUIRE(world.WalkTo(world.X() + 3.5f));
 	world.Wait(500);
 	REQUIRE(world.dungeon.NearestMonsterHealth() == 60);
-	world.dungeon.Shoot(MissileKind::Arrow, 10, weaponDef(ItemKind::SelfBow).mix, 1, 0.5f * world.player.Height(),
-						weaponReach(ItemKind::SelfBow));
+	world.dungeon.Shoot(
+		MissileKind::Arrow,
+		10,
+		weaponDef(ItemKind::SelfBow).mix,
+		1,
+		0.5f * world.player.Height(),
+		weaponReach(ItemKind::SelfBow)
+	);
 	world.Wait(1500);
 	CHECK(world.dungeon.NearestMonsterHealth() < 60);
 }

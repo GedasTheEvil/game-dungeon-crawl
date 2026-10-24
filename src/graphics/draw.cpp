@@ -106,14 +106,26 @@ void drawLevelBanner() {
 		ui.bannerStartMs = now;
 	}
 	const LevelBanner banner = levelBanner(ui.bannerLevel, Game().dungeon.LevelTitle());
-	ZoneBanner::draw(banner, ZoneBanner::Alpha(now - ui.bannerStartMs, banner.zone), Game().render.resX,
-					 Game().render.resY, Game().assets.fonts.banner, Game().assets.fonts.hudBody);
+	ZoneBanner::draw(
+		banner,
+		ZoneBanner::Alpha(now - ui.bannerStartMs, banner.zone),
+		Game().render.resX,
+		Game().render.resY,
+		Game().assets.fonts.banner,
+		Game().assets.fonts.hudBody
+	);
 }
 
 void drawStatusLine() {
 	if (!Game().statusTimer.TimePassed(true))
-		StatusBox::draw(Game().status, GameClock::now() - Game().statusTimer.StartTime(), GameState::STATUS_MS,
-						Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+		StatusBox::draw(
+			Game().status,
+			GameClock::now() - Game().statusTimer.StartTime(),
+			GameState::STATUS_MS,
+			Game().render.resX,
+			Game().render.resY,
+			Game().assets.fonts.status
+		);
 }
 
 } // namespace
@@ -190,10 +202,12 @@ void drawGameplay() {
 	const ScreenPoint chest = cutScene ? ScreenPoint{0.5f, 0.5f} : toScreen(0, 16, -22);
 
 	const ZoneLook& look = Game().dungeon.Look(); // plan zone-looks
-	Lighting::setAtmosphere({{look.ambient[0], look.ambient[1], look.ambient[2]},
-							 {look.fog[0], look.fog[1], look.fog[2]},
-							 look.fogDensity,
-							 FOG_START});
+	Lighting::setAtmosphere(
+		{{look.ambient[0], look.ambient[1], look.ambient[2]},
+		 {look.fog[0], look.fog[1], look.fog[2]},
+		 look.fogDensity,
+		 FOG_START}
+	);
 	Lighting::begin();
 	if (Game().player->Alive())
 		Lighting::add(playerX, playerY + 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
@@ -204,8 +218,13 @@ void drawGameplay() {
 	const std::optional<float> sunBeam = sunBeamProgress();
 	if (sunBeam) {
 		const float k = SunBeam::strength(*sunBeam);
-		Lighting::add(playerX, playerY + 45, -30, {1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f},
-					  0); // the beam lights the room
+		Lighting::add(
+			playerX,
+			playerY + 45,
+			-30,
+			{1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f},
+			0
+		); // the beam lights the room
 	}
 
 	glPushMatrix();
@@ -239,9 +258,14 @@ void drawGameplay() {
 	glPopMatrix();
 
 	if (Game().player->burning.Any()) // plan fire-damage
-		Fire::body(playerX, playerY - sink, PLAYER_FLAMES_Z + Game().player->depthOffset,
-				   Game().player->HalfWidth() * RenderConfig::TILE_SIZE,
-				   Game().player->Height() * RenderConfig::TILE_SIZE, 1);
+		Fire::body(
+			playerX,
+			playerY - sink,
+			PLAYER_FLAMES_Z + Game().player->depthOffset,
+			Game().player->HalfWidth() * RenderConfig::TILE_SIZE,
+			Game().player->Height() * RenderConfig::TILE_SIZE,
+			1
+		);
 	if (Game().player->Alive() && sunBeam)
 		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
 	Lighting::end();
@@ -294,17 +318,34 @@ void drawGameplay() {
 		return;
 	}
 	if (!Game().ui.winEntry.Typing()) // the win's name entry sits there
-		PlayerHud::draw(playerHudView(), Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
-						Game().assets.fonts.hudSmall, Game().assets.textures.hudIcons.ID(),
-						Game().assets.textures.skillIcons.ID());
+		PlayerHud::draw(
+			playerHudView(),
+			Game().render.resX,
+			Game().render.resY,
+			Game().assets.fonts.hudBody,
+			Game().assets.fonts.hudSmall,
+			Game().assets.textures.hudIcons.ID(),
+			Game().assets.textures.skillIcons.ID()
+		);
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	const bool prompt = Game().player->Alive() && !Game().dungeon.Won() && !Game().dungeon.Travelling();
-	InteractPrompt::draw(prompt ? Game().dungeon.InteractVerb() : Interaction::None, keyCapOf(BindAction::Interact),
-						 Game().render.resX, Game().render.resY, Game().assets.fonts.hudBody,
-						 Game().assets.fonts.hudSmall);
+	InteractPrompt::draw(
+		prompt ? Game().dungeon.InteractVerb() : Interaction::None,
+		keyCapOf(BindAction::Interact),
+		Game().render.resX,
+		Game().render.resY,
+		Game().assets.fonts.hudBody,
+		Game().assets.fonts.hudSmall
+	);
 	if (const Monster* boss = Game().dungeon.Boss())
-		BossBar::draw(boss->Type()->name, static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
-					  boss->Poisoned(), Game().render.resX, Game().render.resY, Game().assets.fonts.status);
+		BossBar::draw(
+			boss->Type()->name,
+			static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
+			boss->Poisoned(),
+			Game().render.resX,
+			Game().render.resY,
+			Game().assets.fonts.status
+		);
 
 	glColor3f(1, 1, 1);
 

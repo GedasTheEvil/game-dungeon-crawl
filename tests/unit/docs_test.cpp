@@ -39,17 +39,22 @@ TEST_CASE("the editor readme lists every structure, tile type, monster, lock col
 		const Structure structure = static_cast<Structure>(s);
 		CHECK_MESSAGE(
 			has(readme, std::string("| `") + structureGlyph(structure) + "` | " + structureDef(structure).name),
-			structureDef(structure).name);
+			structureDef(structure).name
+		);
 	}
 	for (int type = 0; type < TILE_TYPE_COUNT; type++)
 		if (isTileType(type))
 			CHECK_MESSAGE(has(readme, "| " + std::to_string(type) + " | " + tileDef(type).name), tileDef(type).name);
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
-		CHECK_MESSAGE(has(readme, "| " + std::to_string(type) + " | " + monsterKind(type)->label),
-					  monsterKind(type)->label);
+		CHECK_MESSAGE(
+			has(readme, "| " + std::to_string(type) + " | " + monsterKind(type)->label),
+			monsterKind(type)->label
+		);
 	for (int colour = 1; colour <= BOSS_LOCK; colour++) {
-		CHECK_MESSAGE(has(readme, "| " + std::to_string(colour) + " | " + lockColour(colour).name),
-					  lockColour(colour).name);
+		CHECK_MESSAGE(
+			has(readme, "| " + std::to_string(colour) + " | " + lockColour(colour).name),
+			lockColour(colour).name
+		);
 		CHECK_MESSAGE(has(readme, lockColour(colour).gem), lockColour(colour).gem);
 	}
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {

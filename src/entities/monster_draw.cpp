@@ -58,11 +58,16 @@ void drawHealthBar(const Monster& mon, const Texture& bar) {
 					  : std::clamp(static_cast<float>(mon.Health()) / static_cast<float>(type.maxHealth), 0.f, 1.f);
 	float right = -w + 2 * w * ratio;
 	if (mon.Poisoned()) {
-		const float t = 0.5f + 0.5f * std::sin(static_cast<float>(GameClock::now() % POISON_PULSE_MS) /
-											   static_cast<float>(POISON_PULSE_MS) * 2.f * static_cast<float>(M_PI));
+		const float t = 0.5f + 0.5f * std::sin(
+										  static_cast<float>(GameClock::now() % POISON_PULSE_MS) /
+										  static_cast<float>(POISON_PULSE_MS) * 2.f * static_cast<float>(M_PI)
+									  );
 		auto mix = [t](float dark, float lit) { return dark + (lit - dark) * t; };
-		glColor3f(mix(POISON_BAR_DARK.r, POISON_BAR.r), mix(POISON_BAR_DARK.g, POISON_BAR.g),
-				  mix(POISON_BAR_DARK.b, POISON_BAR.b));
+		glColor3f(
+			mix(POISON_BAR_DARK.r, POISON_BAR.r),
+			mix(POISON_BAR_DARK.g, POISON_BAR.g),
+			mix(POISON_BAR_DARK.b, POISON_BAR.b)
+		);
 	} else
 		glColor3f(3 * (1 - ratio), 3 * ratio, 0);
 	glBegin(GL_QUADS);
@@ -87,8 +92,11 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	const MonsterType& type = *mon.Type();
 	const float scale = type.scale;
 	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF, mon.DrawnLift(),
-				 -30.f - mon.Tomb() + mon.ClimbDepth());
+	glTranslatef(
+		RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF,
+		mon.DrawnLift(),
+		-30.f - mon.Tomb() + mon.ClimbDepth()
+	);
 	glPushMatrix(); // will add rotation
 
 	// Idle monsters keep up the disguise, a hidden one (under the sand) shows none; the boss's bar is on the HUD.

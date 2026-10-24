@@ -47,77 +47,111 @@ using ClipFiles = std::vector<ClipFile>;
 // Monsters: <name>.md3 move, _att attack, _die die, optional _idle (e.g. a bat on the ceiling), _jump (a leap) and
 // _climb (a climber on a ladder, its back to the camera).
 inline const ClipFiles MONSTER_CLIPS = {
-	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
-	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", false, true},
-	{ModelState::Jump, "_jump", false, false}, {ModelState::Climb, "_climb", false, true}};
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", false, true},
+	{ModelState::Jump, "_jump", false, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 // Sand burrowers (the worm, Rerek; MonsterKind::sandBurrow): the MONSTER_CLIPS and an optional _rise, played once as
 // it bursts up out of the sand and backwards as it dives (Monster::showBurrow, plan worm-boss).
-inline const ClipFiles SAND_BURROWER_CLIPS = {{ModelState::Move, "", true, true},
-											  {ModelState::Attack, "_att", true, true},
-											  {ModelState::Die, "_die", true, false},
-											  {ModelState::Idle, "_idle", false, true},
-											  {ModelState::Rise, "_rise", false, false}};
+inline const ClipFiles SAND_BURROWER_CLIPS = {
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", false, true},
+	{ModelState::Rise, "_rise", false, false}
+};
 // Walkers with a ranged attack (the Anubis): the melee swing is the ranged clip too, played once; the shot leaves at
 // its release (plan anubis-ranged-attack).
-inline const ClipFiles RANGED_CLIPS = {{ModelState::Move, "", true, true},
-									   {ModelState::Attack, "_att", true, true},
-									   {ModelState::Die, "_die", true, false},
-									   {ModelState::Idle, "_idle", false, true},
-									   {ModelState::AttackRanged, "_att", true, false},
-									   {ModelState::Climb, "_climb", false, true}};
+inline const ClipFiles RANGED_CLIPS = {
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", false, true},
+	{ModelState::AttackRanged, "_att", true, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 // Walkers that throw (the baboon): the ranged clip is its own file, _att_ranged, played once (RangedRules::ownClip).
-inline const ClipFiles THROWER_CLIPS = {{ModelState::Move, "", true, true},
-										{ModelState::Attack, "_att", true, true},
-										{ModelState::Die, "_die", true, false},
-										{ModelState::Idle, "_idle", false, true},
-										{ModelState::AttackRanged, "_att_ranged", true, false},
-										{ModelState::Climb, "_climb", false, true}};
+inline const ClipFiles THROWER_CLIPS = {
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", false, true},
+	{ModelState::AttackRanged, "_att_ranged", true, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 // Rollers (the giant scarab, Khepri; RollRules): the MONSTER_CLIPS and the roll, _att_ranged, played once.
 inline const ClipFiles ROLLER_CLIPS = {
-	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
-	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", false, true},
-	{ModelState::Jump, "_jump", false, false}, {ModelState::AttackRanged, "_att_ranged", true, false}};
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", false, true},
+	{ModelState::Jump, "_jump", false, false},
+	{ModelState::AttackRanged, "_att_ranged", true, false}
+};
 // Ambushers (the mimic): the idle clip is the disguise and the reference, so the awake loop never has to show it.
-inline const ClipFiles AMBUSH_CLIPS = {{ModelState::Idle, "_idle", true, true},
-									   {ModelState::Move, "", true, true},
-									   {ModelState::Attack, "_att", true, true},
-									   {ModelState::Die, "_die", true, false}};
+inline const ClipFiles AMBUSH_CLIPS = {
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false}
+};
 // Ambushers that hop after the player once woken (the cursed mimic): the hop is the move clip, a leap over a pit the
 // optional _jump.
-inline const ClipFiles AMBUSH_HOP_CLIPS = {{ModelState::Idle, "_idle", true, true},
-										   {ModelState::Move, "", true, true},
-										   {ModelState::Attack, "_att", true, true},
-										   {ModelState::Die, "_die", true, false},
-										   {ModelState::Jump, "_jump", false, false}};
+inline const ClipFiles AMBUSH_HOP_CLIPS = {
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Jump, "_jump", false, false}
+};
 // Entombed (the mummy): walks like the MONSTER_CLIPS, lies in its coffin (_idle) until it climbs out (_rise, once).
 inline const ClipFiles ENTOMBED_CLIPS = {
-	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
-	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
-	{ModelState::Rise, "_rise", true, false}, {ModelState::Climb, "_climb", false, true}};
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 // Entombed with a ranged attack (the mummy priest): the staff swing is the ranged clip too, as RANGED_CLIPS.
 inline const ClipFiles ENTOMBED_RANGED_CLIPS = {
-	{ModelState::Move, "", true, true},		   {ModelState::Attack, "_att", true, true},
-	{ModelState::Die, "_die", true, false},	   {ModelState::Idle, "_idle", true, true},
-	{ModelState::Rise, "_rise", true, false},  {ModelState::AttackRanged, "_att", true, false},
-	{ModelState::Climb, "_climb", false, true}};
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false},
+	{ModelState::AttackRanged, "_att", true, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 // Coiled (the cobra): lies coiled (_idle) until it rears up (_rise, once), then walks; spits venom (_att_ranged, once).
 inline const ClipFiles COILED_CLIPS = {
-	{ModelState::Move, "", true, true},		  {ModelState::Attack, "_att", true, true},
-	{ModelState::Die, "_die", true, false},	  {ModelState::Idle, "_idle", true, true},
-	{ModelState::Rise, "_rise", true, false}, {ModelState::AttackRanged, "_att_ranged", true, false}};
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false},
+	{ModelState::AttackRanged, "_att_ranged", true, false}
+};
 // Floating (the blue lotus): rooted in half water, floats as a flower (_idle) until it rears up (_rise, once), then
 // sways (the move clip, the reference) and bites.
-inline const ClipFiles FLOATING_CLIPS = {{ModelState::Move, "", true, true},
-										 {ModelState::Attack, "_att", true, true},
-										 {ModelState::Die, "_die", true, false},
-										 {ModelState::Idle, "_idle", true, true},
-										 {ModelState::Rise, "_rise", true, false}};
+inline const ClipFiles FLOATING_CLIPS = {
+	{ModelState::Move, "", true, true},
+	{ModelState::Attack, "_att", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Idle, "_idle", true, true},
+	{ModelState::Rise, "_rise", true, false}
+};
 // The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
-inline const ClipFiles PLAYER_CLIPS = {{ModelState::Idle, "", true, true},
-									   {ModelState::Move, "_walk", true, true},
-									   {ModelState::Die, "_die", true, false},
-									   {ModelState::Jump, "_jump", false, false},
-									   {ModelState::Climb, "_climb", false, true}};
+inline const ClipFiles PLAYER_CLIPS = {
+	{ModelState::Idle, "", true, true},
+	{ModelState::Move, "_walk", true, true},
+	{ModelState::Die, "_die", true, false},
+	{ModelState::Jump, "_jump", false, false},
+	{ModelState::Climb, "_climb", false, true}
+};
 
 // The clip files of a monster kind: by how it moves, and whether it has a ranged attack.
 const ClipFiles& ClipFilesOf(const MonsterKind& kind);

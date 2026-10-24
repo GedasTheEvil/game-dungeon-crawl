@@ -94,8 +94,12 @@ Rect slotRect(int slot, bool load) {
 		return {x0, top - h, 2 * SLOT_W + SLOT_GAP_X, h};
 	int column = slot / 3;
 	int row = slot % 3 + (load ? 1 : 0);
-	return {x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP_X), top - h - static_cast<float>(row) * (h + gap),
-			SLOT_W, h};
+	return {
+		x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP_X),
+		top - h - static_cast<float>(row) * (h + gap),
+		SLOT_W,
+		h
+	};
 }
 
 Rect tabRect(int tab) {
@@ -384,8 +388,16 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 		break;
 	case Icon::Pyramid: // lit face and shaded face
 		triangle(cx - s, cy - 0.8f * s, cx + 0.15f * s, cy - 0.8f * s, cx, cy + 0.85f * s, c, 1.f);
-		triangle(cx + 0.15f * s, cy - 0.8f * s, cx + s, cy - 0.8f * s, cx, cy + 0.85f * s,
-				 {c.r * 0.6f, c.g * 0.6f, c.b * 0.6f}, 1.f);
+		triangle(
+			cx + 0.15f * s,
+			cy - 0.8f * s,
+			cx + s,
+			cy - 0.8f * s,
+			cx,
+			cy + 0.85f * s,
+			{c.r * 0.6f, c.g * 0.6f, c.b * 0.6f},
+			1.f
+		);
 		break;
 	case Icon::Back:
 		bar(cx - 0.3f * s, cy - 0.8f * t, cx + 0.9f * s, cy + 0.8f * t, c);
@@ -510,13 +522,15 @@ void MainMenu::DrawBackground(const char* caption) {
 	bool wide = saveD || loadD || optionsD || recordsD;
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
 	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
-	panel(recordsD	 ? records.Panel()
-		  : creditsD ? CREDITS_PANEL
-		  : optionsD ? OPTIONS_PANEL
-		  : loadD	 ? LOAD_PANEL
-		  : saveD	 ? SLOT_PANEL
-					 : menuPanel(menuButtons(inGame).count),
-		  0.9f);
+	panel(
+		recordsD   ? records.Panel()
+		: creditsD ? CREDITS_PANEL
+		: optionsD ? OPTIONS_PANEL
+		: loadD	   ? LOAD_PANEL
+		: saveD	   ? SLOT_PANEL
+				   : menuPanel(menuButtons(inGame).count),
+		0.9f
+	);
 }
 
 void MainMenu::DrawButtons() {
@@ -597,8 +611,13 @@ void MainMenu::DrawSlot(int slot) {
 			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f * k, overwrite, {0.9f, 0.45f, 0.3f});
 		}
 	} else {
-		text(heading, textX, r.y + 5.6f * k, autosave ? "No autosave yet" : "Empty slot",
-			 isHovered ? GOLD_BRIGHT : LABEL_DIM);
+		text(
+			heading,
+			textX,
+			r.y + 5.6f * k,
+			autosave ? "No autosave yet" : "Empty slot",
+			isHovered ? GOLD_BRIGHT : LABEL_DIM
+		);
 	}
 	beginShapes();
 }
@@ -645,8 +664,12 @@ void MainMenu::DrawRows() {
 			control = r;
 		} else if (row.kind == OptionKind::Choice) {
 			enabled = !settings.display.fullscreen; // the window size only matters in a window
-			Rect r = tile(control, enabled ? TileStyle::Stone : TileStyle::Disabled, enabled && isHovered,
-						  enabled && isHovered && pressed == target);
+			Rect r = tile(
+				control,
+				enabled ? TileStyle::Stone : TileStyle::Disabled,
+				enabled && isHovered,
+				enabled && isHovered && pressed == target
+			);
 			std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
 			control = r;
 		} else {
@@ -669,8 +692,13 @@ void MainMenu::DrawRows() {
 		if (row.kind == OptionKind::Slider)
 			text(heading, control.x + control.w + 2.5f, control.y + 0.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
-			textCentered(heading, control.cx(), control.y + 0.2f, value,
-						 !enabled ? LABEL_DIM : (on || row.kind == OptionKind::Choice ? GOLD : LABEL));
+			textCentered(
+				heading,
+				control.cx(),
+				control.y + 0.2f,
+				value,
+				!enabled ? LABEL_DIM : (on || row.kind == OptionKind::Choice ? GOLD : LABEL)
+			);
 		beginShapes();
 	}
 }
@@ -701,8 +729,13 @@ void MainMenu::DrawControlCell(int target, const Rect& r) {
 		drawMouse(r.cx() - MOUSE_W * SCALE / 2, r.cy() - MOUSE_H * SCALE / 2, mouseInput(key), SCALE);
 	} else {
 		beginText();
-		textCentered(small, r.cx(), r.y + 0.6f, key.Bound() ? keyCap(key).c_str() : "-",
-					 key.Bound() ? (isHovered ? GOLD_BRIGHT : GOLD) : LABEL_DIM);
+		textCentered(
+			small,
+			r.cx(),
+			r.y + 0.6f,
+			key.Bound() ? keyCap(key).c_str() : "-",
+			key.Bound() ? (isHovered ? GOLD_BRIGHT : GOLD) : LABEL_DIM
+		);
 		beginShapes();
 	}
 }
@@ -733,8 +766,13 @@ void MainMenu::DrawControls(float left, float right) {
 	Rect reset = tile(resetButton(), TileStyle::Stone, isHovered, isHovered && pressed == RESET_CONTROLS);
 	beginText();
 	textCentered(small, reset.cx(), reset.y + 0.7f, "Reset to defaults", isHovered ? GOLD_BRIGHT : LABEL);
-	textCentered(small, (left + right) / 2, FIXED_KEYS_Y,
-				 "Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    mouse movement looks around", LABEL_DIM);
+	textCentered(
+		small,
+		(left + right) / 2,
+		FIXED_KEYS_Y,
+		"Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    mouse movement looks around",
+		LABEL_DIM
+	);
 	beginShapes();
 }
 

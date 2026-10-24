@@ -42,9 +42,11 @@ bool Monster::UpdateRoll() {
 float Monster::BallShaped() const {
 	if (!RollingBall() || roll.kicked)
 		return 0.f;
-	return std::clamp(static_cast<float>(GameClock::now() - roll.startMs) /
-						  static_cast<float>(std::max(1, BallRules().windupMs)),
-					  0.f, 1.f);
+	return std::clamp(
+		static_cast<float>(GameClock::now() - roll.startMs) / static_cast<float>(std::max(1, BallRules().windupMs)),
+		0.f,
+		1.f
+	);
 }
 
 float Monster::BallX() const { return CentreX() + static_cast<float>(roll.dir) * HalfWidth(); }

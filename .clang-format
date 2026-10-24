@@ -13,3 +13,12 @@ SortIncludes: false
 AlignTrailingComments:
   Kind: Never
 AlignEscapedNewlines: DontAlign
+# Wrapped calls (AGENTS.md, code style): one argument per line, the closing parenthesis on its own line. A call that
+# fits on one line stays on one line. The assignment penalty keeps `x = f(` on the first line instead of breaking
+# after the `=` into the old aligned layout.
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: OnePerLine
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+PenaltyBreakAssignment: 200

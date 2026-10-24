@@ -46,8 +46,12 @@ struct InscriptionText {
 
 // Reads one file's entries into out; problems go to errors as "source:line: message". The game skips the G: and
 // style: lines (the atlas tool reads them).
-void ParseInscriptions(std::istream& in, const std::string& source, std::vector<InscriptionText>& out,
-					   std::vector<std::string>& errors);
+void ParseInscriptions(
+	std::istream& in,
+	const std::string& source,
+	std::vector<InscriptionText>& out,
+	std::vector<std::string>& errors
+);
 
 class InscriptionBook {
   public:

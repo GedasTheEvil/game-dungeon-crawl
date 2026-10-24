@@ -30,9 +30,12 @@ constexpr float NAME_BAND_H = 4.4f;
 constexpr float SLOT_SCALE = 14.5f;
 
 constexpr const char* GROUP_NAMES[ITEM_GROUP_COUNT] = {"Weapons", "Potions", "Amulets", "Rings"};
-constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {PlayerHud::weaponIcon(ItemKind::ShortSword),
-														   PlayerHud::Icon::Potion, PlayerHud::Icon::Amulet,
-														   PlayerHud::Icon::Ring};
+constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {
+	PlayerHud::weaponIcon(ItemKind::ShortSword),
+	PlayerHud::Icon::Potion,
+	PlayerHud::Icon::Amulet,
+	PlayerHud::Icon::Ring
+};
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float AMULET_DETAIL_SCALE = 16.f;
@@ -60,8 +63,15 @@ Color potionColor(ItemKind potion) {
 
 Vitals playerVitals() {
 	const PlayerStats& s = Game().player->stats;
-	return {Game().player->Alive(), s.CurrentHP(),	s.CurrentMaxHP(),		s.Stamina(),
-			s.MaxStamina(),			s.poison.Any(), s.PotionResistPercent()};
+	return {
+		Game().player->Alive(),
+		s.CurrentHP(),
+		s.CurrentMaxHP(),
+		s.Stamina(),
+		s.MaxStamina(),
+		s.poison.Any(),
+		s.PotionResistPercent()
+	};
 }
 
 const char* blockReason(UseBlock block) {
@@ -281,8 +291,9 @@ void Inventory::SwitchTab(ItemGroup group) {
 		return;
 	const int last = tabSlot[static_cast<int>(group)];
 	// A new game: the first found.
-	Select(bag.Found(kindOf(last)) ? last
-								   : itemIndex(tabOrder(bag, group, sortOrder[static_cast<int>(group)]).front()));
+	Select(
+		bag.Found(kindOf(last)) ? last : itemIndex(tabOrder(bag, group, sortOrder[static_cast<int>(group)]).front())
+	);
 }
 
 void Inventory::NextTab() {
@@ -798,8 +809,13 @@ void Inventory::DrawDetails() {
 		// One amulet at a time: what putting this one on would take off.
 		const std::optional<ItemKind> worn = bag.Worn();
 		if (worn && *worn != kindOf(selectedSlot))
-			textCentered(small, cx, STAT_Y + 0.5f, (std::string("Worn now: ") + itemText(*worn).name).c_str(),
-						 INK_FADED);
+			textCentered(
+				small,
+				cx,
+				STAT_Y + 0.5f,
+				(std::string("Worn now: ") + itemText(*worn).name).c_str(),
+				INK_FADED
+			);
 		else if (!worn)
 			textCentered(small, cx, STAT_Y + 0.5f, "One amulet at a time", INK_FADED);
 		// Upgrade progress: the spares' points of the cost (plan amulet-upgrades).
@@ -808,8 +824,14 @@ void Inventory::DrawDetails() {
 		const int cost = amuletWorth(amuletOf(kindOf(selectedSlot)).tier);
 		const int have = bag.UpgradePoints(kindOf(selectedSlot));
 		if (!top)
-			snprintf(points, sizeof(points), "Upgrade: %d / %d %s", std::min(have, cost), cost,
-					 cost == 1 ? "point" : "points");
+			snprintf(
+				points,
+				sizeof(points),
+				"Upgrade: %d / %d %s",
+				std::min(have, cost),
+				cost,
+				cost == 1 ? "point" : "points"
+			);
 		if (bag.Count(kindOf(selectedSlot)) > 0)
 			textCentered(small, cx, STAT_Y - 3.2f, points, !top && have >= cost ? INK_GREEN : INK_FADED);
 	} else {
@@ -939,8 +961,12 @@ void Inventory::DrawStatus() {
 	double levelEnd = PlayerStats::LevelXP(s->CurrentLevel() + 1);
 	bar(22.f, ROW_A, 18.f, s->LevelProgress(), {1.f, 0.85f, 0.45f}, GOLD_DIM);
 	bar(22.f, ROW_B, 18.f, ratioOf(s->CurrentHP(), s->CurrentMaxHP()), {0.85f, 0.25f, 0.15f}, HEALTH);
-	bar(66.f, ROW_B, 14.f, ratioOf(Game().player->stats.Stamina(), Game().player->stats.MaxStamina()),
-		{0.95f, 0.85f, 0.3f}, STAMINA);
+	bar(66.f,
+		ROW_B,
+		14.f,
+		ratioOf(Game().player->stats.Stamina(), Game().player->stats.MaxStamina()),
+		{0.95f, 0.85f, 0.3f},
+		STAMINA);
 
 	char buf[32];
 	beginText();
@@ -972,10 +998,14 @@ void Inventory::DrawFooter() {
 	constexpr float CENTRE = CANVAS_W / 2;
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CENTRE, 7.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
-	textCentered(small, CENTRE, 2.2f,
-				 "Click: select    Right click / Enter: use    U: upgrade    Arrows: browse    Tab: next group    I / "
-				 "Esc: close",
-				 {0.55f, 0.45f, 0.30f});
+	textCentered(
+		small,
+		CENTRE,
+		2.2f,
+		"Click: select    Right click / Enter: use    U: upgrade    Arrows: browse    Tab: next group    I / "
+		"Esc: close",
+		{0.55f, 0.45f, 0.30f}
+	);
 }
 
 // ---- saves -----------------------------------------------------------------

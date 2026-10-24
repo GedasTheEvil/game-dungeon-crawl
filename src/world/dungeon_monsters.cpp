@@ -24,15 +24,20 @@ void Dungeon::UpdateMonsters() {
 		auto waterAt = [&](float x) {
 			return !mon.flies() && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
 		};
-		const bool onSand =
-			mon.Type()->sandBurrow && inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
-		mon.SetInWater(waterAt(mon.CentreX()), waterAt(mon.HeadX()),
-					   mon.flies() ? 0.f
-					   : onSand	   ? -RenderConfig::SAND_BURROWER_LIFT
-								   : WaterSink(mon.CentreX(), mon.Row()));
+		const bool onSand = mon.Type()->sandBurrow &&
+							inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
+		mon.SetInWater(
+			waterAt(mon.CentreX()),
+			waterAt(mon.HeadX()),
+			mon.flies() ? 0.f
+			: onSand	? -RenderConfig::SAND_BURROWER_LIFT
+						: WaterSink(mon.CentreX(), mon.Row())
+		);
 		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
-		mon.SetOnRungs(mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&
-										  IsInBounds(monCol, mon.Row()) && !isSolidTile(MapAt(monCol, mon.Row() - 1))));
+		mon.SetOnRungs(
+			mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&
+							   IsInBounds(monCol, mon.Row()) && !isSolidTile(MapAt(monCol, mon.Row() - 1)))
+		);
 
 		if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
 			if (!mon.Falling()) {
@@ -62,8 +67,10 @@ void Dungeon::UpdateMonsters() {
 			if (mon.Type()->locomotion == Locomotion::AmbushHop)
 				dropChest(mon, RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay));
 			else
-				placeDroppedChest(MapIndex(mon.Col(), mon.SpawnRow()),
-								  fileIdOf(RollMimicLoot(owned, sim.random->gameplay)));
+				placeDroppedChest(
+					MapIndex(mon.Col(), mon.SpawnRow()),
+					fileIdOf(RollMimicLoot(owned, sim.random->gameplay))
+				);
 			mon.Clear();
 			continue;
 		}
@@ -80,8 +87,11 @@ void Dungeon::UpdateMonsters() {
 			if (won)
 				continue;
 			if (mon.StepDue())
-				mon.FollowBite(walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))), mapX,
-							   mapY);
+				mon.FollowBite(
+					walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))),
+					mapX,
+					mapY
+				);
 			mon.UpdateBite(mapX, mapY);
 			continue;
 		}
@@ -311,10 +321,13 @@ void Dungeon::venomHit(Monster& mon) {
 	const MonsterType& type = *mon.Type();
 	const bool took = mon.TakePoison(stats.VenomTier(), true, sim.random->gameplay);
 	if (sim.journal->TryPoison(type.id, levelNumber))
-		sim.events->Status("Journal: %s, %s", type.name,
-						   type.poisonResistPercent >= 100 ? "immune to poison"
-						   : type.poisonResistPercent > 0  ? "resists poison"
-														   : "no resistance to poison");
+		sim.events->Status(
+			"Journal: %s, %s",
+			type.name,
+			type.poisonResistPercent >= 100 ? "immune to poison"
+			: type.poisonResistPercent > 0	? "resists poison"
+											: "no resistance to poison"
+		);
 	else if (took)
 		sim.events->Status("%s is poisoned", type.name);
 }
@@ -341,7 +354,8 @@ void Dungeon::rewardKill(Monster& mon) {
 		!sim.random->gameplay.percent(sim.player->stats.TrapWardPercent()))
 		sim.events->Status(
 			"%s",
-			tombCurse(Curse::Fatigue, "Its back is written over: who breaks this servant does its work.").c_str());
+			tombCurse(Curse::Fatigue, "Its back is written over: who breaks this servant does its work.").c_str()
+		);
 	if (mon.Minion() || ambushes(type.locomotion))
 		return; // a mimic leaves its own chest
 	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay));

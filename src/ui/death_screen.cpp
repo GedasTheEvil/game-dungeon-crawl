@@ -131,8 +131,13 @@ void DeathScreen::Draw(int resX, int resY) {
 
 	beginText();
 	textCentered(title, PANEL.cx(), TITLE_Y, "You died", GOLD);
-	textCentered(small, PANEL.cx(), PANEL.y - 4.5f,
-				 retryEnabled ? "Enter: pick    Esc: main menu" : "No autosave yet    Esc: main menu", LABEL_DIM);
+	textCentered(
+		small,
+		PANEL.cx(),
+		PANEL.y - 4.5f,
+		retryEnabled ? "Enter: pick    Esc: main menu" : "No autosave yet    Esc: main menu",
+		LABEL_DIM
+	);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

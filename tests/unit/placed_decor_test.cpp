@@ -78,8 +78,10 @@ TEST_CASE("v4 keeps every cell's prop, decal and torch with their mirrors; unset
 	dressing(grid, 7, 1).decal = PLACED_BARE;
 	std::stringstream file;
 	writeLevel(file, grid.cells);
-	CHECK(file.str().find("decor 2\n3 1 24 1\n4 1 -1 0\ndecals 3\n5 1 7 1 1\n6 1 -2 0 2\n7 1 -1 0 0\n") !=
-		  std::string::npos);
+	CHECK(
+		file.str().find("decor 2\n3 1 24 1\n4 1 -1 0\ndecals 3\n5 1 7 1 1\n6 1 -2 0 2\n7 1 -1 0 0\n") !=
+		std::string::npos
+	);
 	LevelGrid loaded;
 	int version = 0;
 	REQUIRE(readLevel(file, loaded.cells, &version).empty());
@@ -107,8 +109,10 @@ TEST_CASE("v4 refuses a prop, decal or torch it does not know") {
 		LevelGrid loaded;
 		return readLevel(in, loaded.cells);
 	};
-	CHECK(readWith("decor 0\n", "decor 1\n2 1 " + std::to_string(DECOR_COUNT) + " 0\n").find("unknown prop") !=
-		  std::string::npos);
+	CHECK(
+		readWith("decor 0\n", "decor 1\n2 1 " + std::to_string(DECOR_COUNT) + " 0\n").find("unknown prop") !=
+		std::string::npos
+	);
 	CHECK(readWith("decals 0\n", "decals 1\n2 1 -3 0 0\n").find("unknown decal") != std::string::npos);
 	CHECK(readWith("decals 0\n", "decals 1\n2 1 0 0 3\n").find("unknown torch") != std::string::npos);
 	CHECK(readWith("decor 0\n", "decor 1\n2 99 0 0\n").find("outside the level") != std::string::npos);
@@ -227,8 +231,10 @@ TEST_CASE("no random brazier under a placed torch, no random prop in front of a 
 		props += prop >= 0 ? 1 : 0;
 		CHECK_FALSE((prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop)));
 		const int beforeGrass = grown->decor[c].type;
-		CHECK((beforeGrass < 0 || isCoffin(beforeGrass) || isWaterProp(beforeGrass) || beforeGrass == DECOR_SKELETON ||
-			   beforeGrass == DECOR_USHABTI));
+		CHECK(
+			(beforeGrass < 0 || isCoffin(beforeGrass) || isWaterProp(beforeGrass) || beforeGrass == DECOR_SKELETON ||
+			 beforeGrass == DECOR_USHABTI)
+		);
 	}
 	CHECK(props > 0);
 }

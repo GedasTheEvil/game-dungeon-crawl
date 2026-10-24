@@ -131,9 +131,19 @@ std::string stateLine() {
 	float y = 0.f;
 	Game().dungeon.getC(x, y);
 	char buf[256];
-	snprintf(buf, sizeof(buf), "x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d", x, y,
-			 Game().player->stats.CurrentHP(), Game().player->stats.Stamina(), Game().dungeon.LevelNumber(),
-			 screenName(), Game().player->Alive() ? 1 : 0, Game().dungeon.Won() ? 1 : 0);
+	snprintf(
+		buf,
+		sizeof(buf),
+		"x=%.3f y=%.3f hp=%d stamina=%d level=%d screen=%s alive=%d won=%d",
+		x,
+		y,
+		Game().player->stats.CurrentHP(),
+		Game().player->stats.Stamina(),
+		Game().dungeon.LevelNumber(),
+		screenName(),
+		Game().player->Alive() ? 1 : 0,
+		Game().dungeon.Won() ? 1 : 0
+	);
 	return buf;
 }
 
@@ -301,9 +311,11 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Attack:
 	case CommandType::Interact:
 		if (ScreenState::IsGameplayInteractionAllowed(Game()))
-			executeGameplayAction(cmd.type == CommandType::Jump		? GameplayAction::Jump
-								  : cmd.type == CommandType::Attack ? GameplayAction::Attack
-																	: GameplayAction::Interact);
+			executeGameplayAction(
+				cmd.type == CommandType::Jump	  ? GameplayAction::Jump
+				: cmd.type == CommandType::Attack ? GameplayAction::Attack
+												  : GameplayAction::Interact
+			);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Camera:
@@ -406,8 +418,10 @@ bool runInstant(const Command& cmd) {
 			const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
 			for (const Boon& b : boons)
 				Game().player->stats.Grant(b);
-			Game().player->stats.AddXP(static_cast<int>(boons.size()) * Game().player->stats.InscriptionXP(),
-									   Game().events);
+			Game().player->stats.AddXP(
+				static_cast<int>(boons.size()) * Game().player->stats.InscriptionXP(),
+				Game().events
+			);
 		}
 		report(cmd, true, "");
 		return true;
@@ -442,8 +456,11 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Curse: // as from a cursing hit: the status line and the field note
-		Game().player->stats.LayCurse(static_cast<Curse>(cmd.ticks),
-									  cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser, Game().events);
+		Game().player->stats.LayCurse(
+			static_cast<Curse>(cmd.ticks),
+			cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser,
+			Game().events
+		);
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
@@ -461,8 +478,11 @@ bool runInstant(const Command& cmd) {
 		float x = 0.f;
 		float y = 0.f;
 		Game().dungeon.getC(x, y);
-		const bool placed =
-			Game().dungeon.PlaceDecor(static_cast<int>(cmd.a), static_cast<int>(std::floor(y)), cmd.ticks);
+		const bool placed = Game().dungeon.PlaceDecor(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks
+		);
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;
 	}
@@ -470,8 +490,11 @@ bool runInstant(const Command& cmd) {
 		float x = 0.f;
 		float y = 0.f;
 		Game().dungeon.getC(x, y);
-		const bool placed =
-			Game().dungeon.PlaceTorch(static_cast<int>(cmd.a), static_cast<int>(std::floor(y)), cmd.ticks != 0);
+		const bool placed = Game().dungeon.PlaceTorch(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks != 0
+		);
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;
 	}
@@ -484,8 +507,12 @@ bool runInstant(const Command& cmd) {
 		float x = 0.f;
 		float y = 0.f;
 		Game().dungeon.getC(x, y);
-		const bool placed = Game().dungeon.PlaceContainer(static_cast<int>(cmd.a), static_cast<int>(std::floor(y)),
-														  cmd.ticks, static_cast<int>(cmd.b));
+		const bool placed = Game().dungeon.PlaceContainer(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks,
+			static_cast<int>(cmd.b)
+		);
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;
 	}
@@ -526,8 +553,12 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<ItemKind> loot = RollChestLoot(cmd.item, Game().ui.inventory->Bag().Owned(),
-													   Game().dungeon.LevelNumber(), Game().random.gameplay);
+			std::vector<ItemKind> loot = RollChestLoot(
+				cmd.item,
+				Game().ui.inventory->Bag().Owned(),
+				Game().dungeon.LevelNumber(),
+				Game().random.gameplay
+			);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
 				Game().ui.inventory->AddItem(entry);
@@ -781,8 +812,14 @@ void Scenario::onFrameRendered() {
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
 
 	char file[512];
-	snprintf(file, sizeof(file), "%s/%03d_%s.png", gRunner.outDir.c_str(), ++gRunner.shotCounter,
-			 gRunner.pendingShot.c_str());
+	snprintf(
+		file,
+		sizeof(file),
+		"%s/%03d_%s.png",
+		gRunner.outDir.c_str(),
+		++gRunner.shotCounter,
+		gRunner.pendingShot.c_str()
+	);
 	stbi_flip_vertically_on_write(1);
 	if (stbi_write_png(file, width, height, 3, pixels.data(), width * 3))
 		reportEvent(std::string("saved ") + file);

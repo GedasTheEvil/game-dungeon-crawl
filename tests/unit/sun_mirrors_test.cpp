@@ -41,8 +41,10 @@ auto gameBlock(const LevelGrid& grid) {
 }
 } // namespace
 
-TEST_CASE("the beam runs down from the light shaft, the mirror sends it its way; edge-on it passes, facing it it "
-		  "stops") {
+TEST_CASE(
+	"the beam runs down from the light shaft, the mirror sends it its way; edge-on it passes, facing it it "
+	"stops"
+) {
 	LevelGrid grid = mirrorsLevel();
 	std::vector<BeamStep> steps = traceBeams(grid.cells, gameBlock(grid));
 	REQUIRE(steps.size() == 4); // the shaft, the mirror, two cells to the west wall

@@ -118,14 +118,17 @@ void waterMotion(int type, int cell) {
 	const float phase = static_cast<float>((static_cast<uint32_t>(cell) * 2654435761U) >> 20) / 4096.f * 6.2832f;
 	if (type == DECOR_WATER_REEDS || type == DECOR_WATER_WEED) {
 		const bool reeds = type == DECOR_WATER_REEDS;
-		const float k =
-			(reeds ? REED_SWAY : WEED_SWAY) * std::sin(time * (reeds ? REED_SWAY_SPEED : WEED_SWAY_SPEED) + phase);
+		const float k = (reeds ? REED_SWAY : WEED_SWAY) *
+						std::sin(time * (reeds ? REED_SWAY_SPEED : WEED_SWAY_SPEED) + phase);
 		// x += k * (y - BASIN_FLOOR): the foot stays put, the tips move.
 		const float shear[16] = {1, 0, 0, 0, k, 1, 0, 0, 0, 0, 1, 0, -k * BASIN_FLOOR, 0, 0, 1};
 		glMultMatrixf(shear);
 	} else
-		glTranslatef(DRIFT_WIDTH * std::sin(time * DRIFT_SPEED + phase),
-					 BOB_HEIGHT * std::sin(time * BOB_SPEED + phase), 0);
+		glTranslatef(
+			DRIFT_WIDTH * std::sin(time * DRIFT_SPEED + phase),
+			BOB_HEIGHT * std::sin(time * BOB_SPEED + phase),
+			0
+		);
 }
 } // namespace
 
@@ -141,8 +144,11 @@ void Dungeon::drawDecorTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF + cell.offsetX * RenderConfig::TILE_SIZE, 0, -RenderConfig::TILE_SIZE);
-	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
-			 RenderConfig::TILE_SIZE);
+	glScalef(
+		cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE,
+		RenderConfig::TILE_SIZE,
+		RenderConfig::TILE_SIZE
+	);
 	if (isWaterProp(cell.type))
 		waterMotion(cell.type, MapIndex(i, j));
 
@@ -163,8 +169,8 @@ void Dungeon::drawDecalTile(int i, int j) {
 // Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
 void Dungeon::drawInscriptionTile(int i, int j) {
 	const int id = MapAt(i, j).fixture.attr;
-	AtlasRect uv =
-		isInscriptionId(id) ? atlasCell(id - 1, INSCRIPTION_ATLAS_GRID) : atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID);
+	AtlasRect uv = isInscriptionId(id) ? atlasCell(id - 1, INSCRIPTION_ATLAS_GRID)
+									   : atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID);
 	if (id == NAME_CARTOUCHE_ID) { // plan secret-name-gates: this run's picture for the level
 		uv = atlasCell(NameCartouchePicture(), NAME_CARTOUCHE_GRID);
 		sim.assets->decor.nameCartoucheTex.Bind();
@@ -198,8 +204,11 @@ void Dungeon::drawLadderTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
-	glScalef(cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE,
-			 RenderConfig::TILE_SIZE);
+	glScalef(
+		cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE,
+		RenderConfig::TILE_SIZE,
+		RenderConfig::TILE_SIZE
+	);
 	sim.assets->decor.ladderTex[cell.style][cell.piece].Bind();
 	model->Show(); // textured only, like the props
 	glPopMatrix();
@@ -248,9 +257,13 @@ void Dungeon::addLights(const CellRect& drawn) {
 				Lighting::add(ox + f.x, oy + f.y + LIGHT_LIFT, f.z + LIGHT_LIFT, *f.light, f.seed);
 			}
 			if (lightShaft(i, j)) // daylight on the floor (plan desert-chapter)
-				Lighting::add(ox + RenderConfig::TILE_HALF, oy + RenderConfig::TILE_SIZE * 0.3f,
-							  -RenderConfig::TILE_SIZE * 0.45f, Lighting::LIGHT_SHAFT,
-							  static_cast<uint32_t>(MapIndex(i, j)));
+				Lighting::add(
+					ox + RenderConfig::TILE_HALF,
+					oy + RenderConfig::TILE_SIZE * 0.3f,
+					-RenderConfig::TILE_SIZE * 0.45f,
+					Lighting::LIGHT_SHAFT,
+					static_cast<uint32_t>(MapIndex(i, j))
+				);
 		}
 }
 //======================================================================================

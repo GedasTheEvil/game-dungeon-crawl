@@ -79,9 +79,10 @@ void RunStats::LoadDump(std::istream& in) {
 	int isCampaign = 0;
 	size_t levels = 0;
 	RunStats loaded;
-	bool ok = static_cast<bool>(in >> isCampaign >> loaded.inscriptions >> loaded.treasures >> loaded.riddles >>
-								loaded.damageDealt >> loaded.damageTaken >> loaded.biggestHit >> loaded.poisoned >>
-								loaded.cursed) &&
+	bool ok = static_cast<bool>(
+				  in >> isCampaign >> loaded.inscriptions >> loaded.treasures >> loaded.riddles >> loaded.damageDealt >>
+				  loaded.damageTaken >> loaded.biggestHit >> loaded.poisoned >> loaded.cursed
+			  ) &&
 			  loadCounts(in, loaded.slain) && loadCounts(in, loaded.drunk) && static_cast<bool>(in >> levels);
 	for (size_t i = 0; ok && i < levels; i++) {
 		int ms = 0;

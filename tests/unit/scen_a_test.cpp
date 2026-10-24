@@ -114,10 +114,11 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 		ItemKind weapon;
 		float walk; // tiles right of the start
 	};
-	for (const Shot& s : {Shot{ItemKind::CompositeBow, 10.f},
-						  {ItemKind::Sling, 11.f},
-						  {ItemKind::ThrowingStick, 11.6f},
-						  {ItemKind::Javelin, 11.4f}}) {
+	for (const Shot& s :
+		 {Shot{ItemKind::CompositeBow, 10.f},
+		  {ItemKind::Sling, 11.f},
+		  {ItemKind::ThrowingStick, 11.6f},
+		  {ItemKind::Javelin, 11.4f}}) {
 		CAPTURE(std::string(itemText(s.weapon).name));
 		SimWorld world;
 		world.player.god = true;

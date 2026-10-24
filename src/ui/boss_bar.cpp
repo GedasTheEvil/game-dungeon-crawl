@@ -26,8 +26,12 @@ void draw(const char* name, float ratio, bool poisoned, int resX, int resY, Font
 	beginShapes();
 	fillRect({bar.x - 0.6f, bar.y - 0.6f, bar.w + 1.2f, bar.h + 1.2f}, BLACK, BLACK, 0.6f);
 	using namespace PlayerHud;
-	fillRect({bar.x, bar.y, bar.w * std::clamp(ratio, 0.f, 1.f), bar.h}, poisoned ? POISON_TOP : BLOOD_TOP,
-			 poisoned ? POISON_BOTTOM : BLOOD_BOTTOM, 1.f);
+	fillRect(
+		{bar.x, bar.y, bar.w * std::clamp(ratio, 0.f, 1.f), bar.h},
+		poisoned ? POISON_TOP : BLOOD_TOP,
+		poisoned ? POISON_BOTTOM : BLOOD_BOTTOM,
+		1.f
+	);
 	strokeRect(bar, GOLD_DIM, 1.f, 1.5f);
 	diamond(bar.x, bar.cy(), 1.2f, GOLD, 1.f);
 	diamond(bar.x + bar.w, bar.cy(), 1.2f, GOLD, 1.f);

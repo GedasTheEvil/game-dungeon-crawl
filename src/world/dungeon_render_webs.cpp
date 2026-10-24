@@ -88,8 +88,13 @@ void Dungeon::drawWebs() {
 			const int col = w.cell % MAP_WIDTH, row = w.cell / MAP_WIDTH;
 			const float fade = 1.f - static_cast<float>(now - w.goneMs) / static_cast<float>(WEB_BURN_MS);
 			for (int k = -1; k <= 1; k++)
-				Fire::draw(Fire::BODY, (static_cast<float>(col) + 0.5f + 0.3f * static_cast<float>(k) - col0) * T,
-						   (static_cast<float>(row) - row0) * T, -0.5f * T, static_cast<uint32_t>(w.cell * 3 + k + 1),
-						   std::max(fade, 0.f));
+				Fire::draw(
+					Fire::BODY,
+					(static_cast<float>(col) + 0.5f + 0.3f * static_cast<float>(k) - col0) * T,
+					(static_cast<float>(row) - row0) * T,
+					-0.5f * T,
+					static_cast<uint32_t>(w.cell * 3 + k + 1),
+					std::max(fade, 0.f)
+				);
 		}
 }

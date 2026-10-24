@@ -16,8 +16,12 @@ struct RiddleEntry {
 };
 
 // Appends the riddles of one file to `out`; problems go to `errors` as "file:line: message".
-void ParseRiddles(std::istream& in, const std::string& source, std::vector<RiddleEntry>& out,
-				  std::vector<std::string>& errors);
+void ParseRiddles(
+	std::istream& in,
+	const std::string& source,
+	std::vector<RiddleEntry>& out,
+	std::vector<std::string>& errors
+);
 
 class Riddle {
   private:

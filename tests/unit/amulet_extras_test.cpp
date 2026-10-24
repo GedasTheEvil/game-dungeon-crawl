@@ -14,8 +14,8 @@ constexpr size_t PIERCE = static_cast<size_t>(DamageType::Pierce);
 } // namespace
 
 TEST_CASE("the typed might amulets: four tiers, +10 / 20 / 30 / 50% of one damage type") {
-	const ItemKind crushing[4] = {ItemKind::CrushingLesser, ItemKind::CrushingMinor, ItemKind::CrushingNormal,
-								  ItemKind::CrushingGrand};
+	const ItemKind crushing[4] =
+		{ItemKind::CrushingLesser, ItemKind::CrushingMinor, ItemKind::CrushingNormal, ItemKind::CrushingGrand};
 	const int percent[4] = {10, 20, 30, 50};
 	for (int tier = 0; tier < 4; tier++) {
 		const AmuletBonus bonus = amuletBonus(crushing[tier]);

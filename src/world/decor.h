@@ -41,31 +41,33 @@ constexpr int DECOR_WATER_COUNT = 4;
 constexpr bool isWaterProp(int decor) {
 	return decor >= DECOR_WATER_FIRST && decor < DECOR_WATER_FIRST + DECOR_WATER_COUNT;
 }
-constexpr const char* DECOR_NAMES[DECOR_COUNT] = {"web",
-												  "pottery",
-												  "canopic",
-												  "rubble",
-												  "sand",
-												  "skeleton",
-												  "brazier",
-												  "lamp",
-												  "scrolls",
-												  "ushabti",
-												  "cat",
-												  "jackal",
-												  "osiris",
-												  "thoth_ibis_standing",
-												  "thoth_ibis_seated",
-												  "thoth_baboon_seated",
-												  "thoth_baboon_standing",
-												  "sarcophagus",
-												  "coffin",
-												  "water_reeds",
-												  "water_weed",
-												  "water_pads",
-												  "water_lotus",
-												  "coffin_large",
-												  "coffin_mummy"};
+constexpr const char* DECOR_NAMES[DECOR_COUNT] = {
+	"web",
+	"pottery",
+	"canopic",
+	"rubble",
+	"sand",
+	"skeleton",
+	"brazier",
+	"lamp",
+	"scrolls",
+	"ushabti",
+	"cat",
+	"jackal",
+	"osiris",
+	"thoth_ibis_standing",
+	"thoth_ibis_seated",
+	"thoth_baboon_seated",
+	"thoth_baboon_standing",
+	"sarcophagus",
+	"coffin",
+	"water_reeds",
+	"water_weed",
+	"water_pads",
+	"water_lotus",
+	"coffin_large",
+	"coffin_mummy"
+};
 
 // Decorations by depth (plan decor-by-depth): the tiers add up, a level draws from every tier unlocked at its depth,
 // the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is the
@@ -122,10 +124,23 @@ constexpr int WALL_GRANITE = 14; // the necropolis, the Hall of Judgment
 constexpr int WALL_GRANITE_WORN = 15;
 constexpr int WALL_STYLE_COUNT = 16;
 constexpr const char* WALL_STYLE_NAMES[WALL_STYLE_COUNT] = {
-	"wall_plaster",		  "wall_plaster_worn",	 "wall_plaster_broken", "wall_stone",
-	"wall_stone_cracked", "wall_stone_sand",	 "wall_rough",			"wall_rough_strata",
-	"wall_sandstone",	  "wall_sandstone_worn", "wall_wetstone",		"wall_wetstone_moss",
-	"wall_basalt",		  "wall_basalt_glow",	 "wall_granite",		"wall_granite_worn"};
+	"wall_plaster",
+	"wall_plaster_worn",
+	"wall_plaster_broken",
+	"wall_stone",
+	"wall_stone_cracked",
+	"wall_stone_sand",
+	"wall_rough",
+	"wall_rough_strata",
+	"wall_sandstone",
+	"wall_sandstone_worn",
+	"wall_wetstone",
+	"wall_wetstone_moss",
+	"wall_basalt",
+	"wall_basalt_glow",
+	"wall_granite",
+	"wall_granite_worn"
+};
 
 constexpr int FLOOR_SLABS = 0;
 constexpr int FLOOR_SAND = 1;
@@ -136,7 +151,14 @@ constexpr int FLOOR_BASALT = 5;
 constexpr int FLOOR_GRANITE = 6;
 constexpr int FLOOR_STYLE_COUNT = 7;
 constexpr const char* FLOOR_STYLE_NAMES[FLOOR_STYLE_COUNT] = {
-	"floor_slabs", "floor_sand", "floor_cracked", "floor_sandstone", "floor_wetstone", "floor_basalt", "floor_granite"};
+	"floor_slabs",
+	"floor_sand",
+	"floor_cracked",
+	"floor_sandstone",
+	"floor_wetstone",
+	"floor_basalt",
+	"floor_granite"
+};
 
 constexpr int CEILING_STARS = 0; // over painted walls
 constexpr int CEILING_SLABS = 1; // over stone walls
@@ -151,8 +173,16 @@ constexpr int CEILING_BASALT = 7;
 constexpr int CEILING_GRANITE = 8;
 constexpr int CEILING_STYLE_COUNT = 9;
 constexpr const char* CEILING_STYLE_NAMES[CEILING_STYLE_COUNT] = {
-	"ceiling_stars",		   "ceiling_slabs",	   "ceiling_rough",	 "ceiling_sandstone", "ceiling_sandstone_cracked",
-	"ceiling_sandstone_sandy", "ceiling_wetstone", "ceiling_basalt", "ceiling_granite"};
+	"ceiling_stars",
+	"ceiling_slabs",
+	"ceiling_rough",
+	"ceiling_sandstone",
+	"ceiling_sandstone_cracked",
+	"ceiling_sandstone_sandy",
+	"ceiling_wetstone",
+	"ceiling_basalt",
+	"ceiling_granite"
+};
 // Of the desert's cells with rock above and below, about one in this many has a cracked ceiling and a light shaft.
 constexpr uint32_t LIGHT_SHAFT_EVERY = 6;
 

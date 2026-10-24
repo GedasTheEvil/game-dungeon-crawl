@@ -38,8 +38,16 @@ void SaveSlots::Record(int slot, int level) {
 	time_t t = time(nullptr);
 	const struct tm* lt = localtime(&t);
 	char label[32];
-	std::snprintf(label, sizeof(label), "%02d_%02d-%02d_%02d:%02d", level, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour,
-				  lt->tm_min);
+	std::snprintf(
+		label,
+		sizeof(label),
+		"%02d_%02d-%02d_%02d:%02d",
+		level,
+		lt->tm_mon + 1,
+		lt->tm_mday,
+		lt->tm_hour,
+		lt->tm_min
+	);
 	names[static_cast<size_t>(slot)] = label;
 	writeNames();
 }

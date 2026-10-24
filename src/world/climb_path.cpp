@@ -15,11 +15,12 @@ bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
 	const Tile& cell = at(cells, col, row);
 	if (isSolidTile(cell))
 		return true;
-	const bool trap =
-		cell.type == Spike || cell.type == Death || cell.type == DartPlate ||
-		(cell.type == RockFall && rockState(cell) != RockState::Fallen) ||
-		(cell.fixture.type == WallSpikes && spikeState(cell.fixture) == SpikeState::Telegraph) || // out: solid
-		(cell.fixture.type == FireVent && spikeState(cell.fixture) != SpikeState::Retracted); // about to burn, burning
+	const bool trap = cell.type == Spike || cell.type == Death || cell.type == DartPlate ||
+					  (cell.type == RockFall && rockState(cell) != RockState::Fallen) ||
+					  (cell.fixture.type == WallSpikes &&
+					   spikeState(cell.fixture) == SpikeState::Telegraph) || // out: solid
+					  (cell.fixture.type == FireVent &&
+					   spikeState(cell.fixture) != SpikeState::Retracted); // about to burn, burning
 	if (trap && !reckless)
 		return true;
 	return !inBounds(col, row - 1) || !isSolidTile(at(cells, col, row - 1));

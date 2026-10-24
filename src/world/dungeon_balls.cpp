@@ -16,8 +16,14 @@ constexpr float BALL_STEP_S = 0.004f; // the hit test's interval along the roll
 bool Dungeon::updateRoller(Monster& mon) {
 	if (mon.RollingBall()) {
 		if (mon.UpdateRoll())
-			balls.push_back({mon.BallX(), static_cast<float>(mon.Row()), mon.BallDir(), mon.BallRules(),
-							 static_cast<int>(mon.Type()->id), GameClock::now()});
+			balls.push_back(
+				{mon.BallX(),
+				 static_cast<float>(mon.Row()),
+				 mon.BallDir(),
+				 mon.BallRules(),
+				 static_cast<int>(mon.Type()->id),
+				 GameClock::now()}
+			);
 		return true;
 	}
 	if (won || mon.OnRungs() || !mon.canRoll(mapX, mapY) || !clearRow(mon.CentreX(), mapX, mon.Row()))

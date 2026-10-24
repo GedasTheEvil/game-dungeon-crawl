@@ -37,8 +37,8 @@ void Dungeon::startCutScene(const std::vector<int>& opened) {
 
 	cutScene = {remote, GameClock::now()};
 	for (size_t k = 0; k < remote.size(); k++) { // each gate starts to open as the camera comes to it
-		const int arrival =
-			cutScene.startMs + static_cast<int>(k + 1) * CUTSCENE_PAN_MS + static_cast<int>(k) * CUTSCENE_HOLD_MS;
+		const int arrival = cutScene.startMs + static_cast<int>(k + 1) * CUTSCENE_PAN_MS +
+							static_cast<int>(k) * CUTSCENE_HOLD_MS;
 		for (Motion& m : openingGates)
 			if (m.cell == remote[k])
 				m.startMs = arrival;
@@ -81,8 +81,11 @@ void Dungeon::updateCutScene() {
 	const auto [x0, y0] = point(from);
 	const auto [x1, y1] = point(from + 1);
 	const int edge = std::min(t, length - t);
-	cutShot = {x0 + (x1 - x0) * k, y0 + (y1 - y0) * k,
-			   smooth(std::clamp(static_cast<float>(edge) / static_cast<float>(CUTSCENE_BARS_MS), 0.f, 1.f))};
+	cutShot = {
+		x0 + (x1 - x0) * k,
+		y0 + (y1 - y0) * k,
+		smooth(std::clamp(static_cast<float>(edge) / static_cast<float>(CUTSCENE_BARS_MS), 0.f, 1.f))
+	};
 }
 //======================================================================================
 void Dungeon::SkipCutScene() {

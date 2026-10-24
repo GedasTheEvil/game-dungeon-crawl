@@ -158,8 +158,9 @@ void Journal::WriteDiary(DiaryPage page) {
 bool Journal::FindPage(int number, int level) {
 	if (!isExpeditionPage(number))
 		return false;
-	auto at =
-		std::find_if(pages.begin(), pages.end(), [number](const ExpeditionPage& p) { return p.number >= number; });
+	auto at = std::find_if(pages.begin(), pages.end(), [number](const ExpeditionPage& p) {
+		return p.number >= number;
+	});
 	if (at != pages.end() && at->number == number)
 		return false;
 	pages.insert(at, {number, level});

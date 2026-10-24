@@ -44,8 +44,11 @@ std::array<float, 3> PlayerView::Fist(const Player& player, int dir) const {
 		v = clip->Vertex(player.ShownFrame(), fist);
 	// As Draw(): moved back, scaled, turned rotA round y.
 	const float a = player.rotA * DEG_TO_RAD;
-	return {s * (v[0] * std::cos(a) + v[2] * std::sin(a)), s * v[1],
-			-30.f + player.depthOffset + s * (-v[0] * std::sin(a) + v[2] * std::cos(a))};
+	return {
+		s * (v[0] * std::cos(a) + v[2] * std::sin(a)),
+		s * v[1],
+		-30.f + player.depthOffset + s * (-v[0] * std::sin(a) + v[2] * std::cos(a))
+	};
 }
 
 void PlayerView::Draw(const Player& player, const TextureRegistry& textures) const {

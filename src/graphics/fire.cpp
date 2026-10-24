@@ -367,8 +367,16 @@ void Grit::puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed)
 		const float vx = (unit01(h) - 0.5f) * 40.f;
 		const float vy = 20.f + 30.f * unit01(h >> 16);
 		const float cy = std::fmax(y, y + vy * sec - 130.f * sec * sec);
-		s.add(x + vx * sec, cy, z + (unit01(mix(h)) - 0.5f) * 8.f, 1.f + unit01(mix(h) >> 16), SAND_R, SAND_G, SAND_B,
-			  0.8f * fade);
+		s.add(
+			x + vx * sec,
+			cy,
+			z + (unit01(mix(h)) - 0.5f) * 8.f,
+			1.f + unit01(mix(h) >> 16),
+			SAND_R,
+			SAND_G,
+			SAND_B,
+			0.8f * fade
+		);
 	}
 	Sprites::end();
 }
@@ -560,8 +568,8 @@ void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
 		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x27d4eb2fU));
 		const float p = std::fmod(now / MOTE_MS + unit01(h), 1.f);
 		const float my = y + HEIGHT * (1.f - p);
-		const float mx =
-			x + (unit01(h >> 16) - 0.5f) * 8.f * (0.5f + p) + 1.5f * std::sin(now * 0.001f + static_cast<float>(i));
+		const float mx = x + (unit01(h >> 16) - 0.5f) * 8.f * (0.5f + p) +
+						 1.5f * std::sin(now * 0.001f + static_cast<float>(i));
 		s.add(mx, my, z + (unit01(mix(h)) - 0.5f) * 6.f, 1.2f, R, G, B, 0.5f * std::sin(3.1416f * p));
 	}
 	Sprites::end();

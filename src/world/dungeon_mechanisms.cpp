@@ -184,8 +184,13 @@ void Dungeon::bumpGate(int col, int row) {
 	if (gate.attr == BOSS_LOCK)
 		snprintf(text, sizeof(text), "%s", "Sealed. It opens when its guardian falls.");
 	else
-		snprintf(text, sizeof(text), "Sealed. It needs the %s key or a %s lever.", lockColour(gate.attr).gem,
-				 lockColour(gate.attr).gem);
+		snprintf(
+			text,
+			sizeof(text),
+			"Sealed. It needs the %s key or a %s lever.",
+			lockColour(gate.attr).gem,
+			lockColour(gate.attr).gem
+		);
 	sim.events->Status("%s", text);
 	sim.events->Play(WorldSound::GateLocked);
 }

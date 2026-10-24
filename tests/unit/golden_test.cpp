@@ -27,8 +27,17 @@ std::string dumpDecor(const Tile* cells, const DecorLayout& layout) {
 			if (isWall(cells[k]))
 				continue;
 			const SurfaceCell& s = layout.surface[k];
-			snprintf(buf, sizeof(buf), "%d,%d surface %d/%d/%d%s", i, j, s.wall, s.floor, s.ceiling,
-					 s.wallMirror ? "m" : "");
+			snprintf(
+				buf,
+				sizeof(buf),
+				"%d,%d surface %d/%d/%d%s",
+				i,
+				j,
+				s.wall,
+				s.floor,
+				s.ceiling,
+				s.wallMirror ? "m" : ""
+			);
 			out << buf;
 			if (s.sandLeft || s.sandRight)
 				out << " sand" << (s.sandLeft ? "<" : "") << (s.sandRight ? ">" : "");
@@ -49,8 +58,15 @@ std::string dumpDecor(const Tile* cells, const DecorLayout& layout) {
 			Flame flames[MAX_CELL_FLAMES];
 			const int n = flamesAt(layout, k, flames);
 			for (int f = 0; f < n; f++) {
-				snprintf(buf, sizeof(buf), " fire %s %.3f,%.3f,%.3f", FLAME_NAMES[static_cast<int>(flames[f].kind)],
-						 flames[f].x, flames[f].y, flames[f].z);
+				snprintf(
+					buf,
+					sizeof(buf),
+					" fire %s %.3f,%.3f,%.3f",
+					FLAME_NAMES[static_cast<int>(flames[f].kind)],
+					flames[f].x,
+					flames[f].y,
+					flames[f].z
+				);
 				out << buf;
 			}
 			out << '\n';

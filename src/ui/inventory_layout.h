@@ -57,8 +57,8 @@ struct Hit {
 	int sort = NO_HIT; // a SortOrder past Found
 	Button button = Button::None;
 };
-[[nodiscard]] Hit hitAt(const ItemBag& bag, ItemGroup tab, SortOrder sort, int scroll, bool twoButtons, float x,
-						float y);
+[[nodiscard]] Hit
+hitAt(const ItemBag& bag, ItemGroup tab, SortOrder sort, int scroll, bool twoButtons, float x, float y);
 } // namespace InventoryLayout
 
 #endif

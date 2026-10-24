@@ -42,13 +42,19 @@ std::vector<BeamStep> traceBeams(const Tile* cells, const BeamBlock& blocked) {
 	return steps;
 }
 
-std::vector<char> sunlitCells(const Tile* cells, const BeamBlock& blocked, const std::function<bool(int cell)>& free,
-							  std::vector<std::vector<MirrorSetting>>* ways) {
+std::vector<char> sunlitCells(
+	const Tile* cells,
+	const BeamBlock& blocked,
+	const std::function<bool(int cell)>& free,
+	std::vector<std::vector<MirrorSetting>>* ways
+) {
 	// A search over (cell, the way the beam comes in): a free mirror sends it any way but back.
 	constexpr int NONE = -1;
 	std::vector<char> lit(CELLS, 0);
-	std::vector<int> parent(static_cast<size_t>(CELLS) * BEAM_DIRS,
-							NONE - 1); // NONE - 1: not seen; NONE: a shaft's start
+	std::vector<int> parent(
+		static_cast<size_t>(CELLS) * BEAM_DIRS,
+		NONE - 1
+	); // NONE - 1: not seen; NONE: a shaft's start
 	std::vector<int> stack;
 	auto state = [](int cell, BeamDir in) { return cell * BEAM_DIRS + static_cast<int>(in); };
 	auto push = [&](int to, int from) {

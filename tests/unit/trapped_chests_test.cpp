@@ -16,8 +16,9 @@ constexpr int PLAIN_COL = 5;
 constexpr int DEEP_LEVEL = 20; // the temple tier: every trap kind
 
 bool noted(const SimWorld& world, FieldNote note) {
-	return std::any_of(world.said.begin(), world.said.end(),
-					   [note](const WorldEvent& e) { return e.kind == WorldEvent::Kind::Note && e.note == note; });
+	return std::any_of(world.said.begin(), world.said.end(), [note](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == note;
+	});
 }
 
 int scarabs(const SimWorld& world) {

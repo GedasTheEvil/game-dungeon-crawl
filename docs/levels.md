@@ -304,6 +304,40 @@ score is closest to `targetScore(difficulty)` = 2.5 + 2.2 × difficulty, and sto
 
 Scenario tests can load a generated level directly: `level gen:SEED:DIFFICULTY` ([testing.md](testing.md)).
 
+### Zone levels
+
+```
+bin/levelgen --seed 3 --difficulty 6 --zone necropolis --map /tmp/zone    # a zone level, about 650 open cells
+bin/levelgen --seed 3 --difficulty 6 --zone web_halls --cells 500 /tmp/zone    # a smaller one
+```
+
+With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), step 1 of 9: the shape) and names the zone in the file,
+so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
+
+1. **Halls.** Bands from the top of the grid to the bottom: halls of 1 (55%), 2 (30%) or 3 rows (15%), most of
+   the width across (their lengths scaled to the target size, `--cells`, `ZONE_OPEN_CELLS` = 650 by default), two
+   rows of rock between them, one now and then, three to five over a long shaft. A quarter of the levels is climbed
+   from the bottom.
+2. **Route.** The entrance at one end of the first hall; each hall crossed to a link at least half its length away,
+   a ladder down (a quarter of them a drop), or up on a climbed level; the exit at the far end of the last hall.
+   Up to 2 hub halls the shaft runs straight through (from a ladder, a wing either side).
+3. **Pillar loops.** Where the route crosses a hall one way and the next one back, a second ladder between them
+   (up to 3 a level): two ways round the pillar. No gate goes between the two ladders.
+4. **Wings and ledges.** A hall's ends off the route are wings. In a tall hall a long wing can end in a ledge (up to 3
+   a level): its last 3 to 5 cells raised a row, up a ladder.
+5. **Locks.** One gate more than a test level of the difficulty (1 to 4), its key or lever at the end of a wing
+   before it: on its hall before the gate, or on a hall before it with no drop on the way (else a branch, as on a
+   test level).
+6. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
+   the wings no key took; with a poisoner on the level, the first wing's chest holds an antidote. At most
+   (4 + 2 × difficulty) × size / 100 monsters. The score aimed at is `targetScore(difficulty, size)`, the test
+   level's per 50 open cells; the candidate closest to it and to the size wins.
+
+Still missing (the next steps of the plan): the zone's mechanics (water, sand, darkness, mirrors), its monster set,
+its traps, the riddle and name gates, the boss level, the supplies by the rules above, the carried content and the
+decor.
+
 ## Test levels from ASCII
 
 `tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend. It
@@ -328,6 +362,10 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 
 ## Tests
 
+- `tests/unit/level_gen_test.cpp` (plan campaign-levelgen): zone levels over two seeds per zone pass the checker
+  with no warnings, fill the grid, keep the target size and name their zone; between them tall halls, pillar loops,
+  hubs, ledges, shafts and gates turn up; the same seed gives the same level; the `gen:` specs. Scenario
+  `tests/scenarios/campaign_levelgen.txt`: one zone level per zone (screenshots).
 - `tests/unit/sun_mirrors_test.cpp` (plan sunlight-mirrors): the beam's way through a mirror (turned, edge-on,
   catching it), the search over the mirrors the player can turn, the checker (the turn on the path, a mirror out of
   reach, a disc lit at the start, the warnings), the mirror turned in the game lighting the disc and opening its gate,

@@ -1,9 +1,11 @@
 #include "level_gen.h"
+#include "campaign.h"
 #include "items.h"
 #include "monster_kinds.h"
 #include "rng.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <vector>
 
 namespace {
@@ -22,6 +24,23 @@ constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_D
 constexpr int CURSED_MIMIC_MIN_DIFFICULTY = 8;
 constexpr float CURSED_MIMIC_SHARE = 0.3f;
 
+// Zone levels (plan campaign-levelgen): the campaign's shape.
+constexpr int HALL_FULL = MAX_COL - MIN_COL + 1; // a hall across the whole grid
+constexpr int HALL_MIN = 16;
+constexpr int WING_MIN = 2; // cells of a hall's end off the route that make a wing
+constexpr int LEDGE_WING = 7; // a wing this long in a tall hall can end in a ledge
+constexpr int MAX_HUBS = 2;
+constexpr int MAX_LOOPS = 3;
+constexpr int MAX_LEDGES = 3;
+constexpr float CLIMB_CHANCE = 0.25f; // a level climbed from the bottom to the top
+constexpr float DROP_CHANCE = 0.25f; // of the links down
+constexpr float HUB_CHANCE = 0.2f;
+constexpr float LOOP_CHANCE = 0.4f;
+constexpr float LEDGE_CHANCE = 0.5f;
+constexpr float WING_TREASURE = 0.6f; // a wing no key or lever took
+constexpr float ZONE_CALM = 2.5f; // the no-feature weight along a zone level's halls (fillRun)
+constexpr int ZONE_SCORE_CELLS = 50; // a zone level aims at targetScore(d) per this many open cells
+
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 
 // What fillSegment() puts at a corridor cell.
@@ -30,24 +49,42 @@ constexpr int FEATURE_COUNT = 6;
 
 struct Segment {
 	int row = 0; // floor row (the player's row)
-	int height = 1; // 1 = corridor, 2 = hall
+	int height = 1; // 1 = corridor, 2 or 3 = hall
 	int x0 = 0, x1 = 0;
 	int entry = 0; // column the player arrives at
 	int exit = -1; // column the player leaves by
-	Link link = Link::None;
+	Link link = Link::None; // to the next segment
+	int loopCol = -1; // a second ladder to the next segment: a pillar loop (zone levels)
+};
+
+// A hall's end off the route, from the link at inner to the rock at end (zone levels): a dead end for a key, a lever
+// or treasure.
+struct Wing {
+	int seg = 0;
+	int inner = 0;
+	int end = 0;
+	int fillEnd = 0; // where its hazards stop: end, or the ladder up to its ledge
+	int itemRow = 0; // the floor at end: the hall's, or its ledge's
+	bool entrySide = false; // before the segment's gate
+	bool taken = false; // holds a key or a lever
 };
 
 class LevelBuilder {
   public:
-	LevelBuilder(uint32_t seed, int difficulty) : rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty) {
+	// openTarget: a zone level's target size, 0 for a test level.
+	LevelBuilder(uint32_t seed, int difficulty, int openTarget)
+		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
 		busy.assign(CELLS, 0);
+		monsterCap = 4 + 2 * d;
+		if (zoneTarget > 0)
+			monsterCap = monsterCap * zoneTarget / 100;
 	}
 
 	bool build(LevelGrid& out) {
-		if (!buildMainRoute())
+		if (!(zoneTarget > 0 ? buildHalls() : buildMainRoute()))
 			return false;
 		placeLocks();
 		int branches = rng.range(1, 2) + d / 4;
@@ -56,20 +93,29 @@ class LevelBuilder {
 			if (tryBranch(s, route[s].x0, route[s].x1, Tile{Treasure, 0, 0}))
 				branches--;
 		}
+		fillWings();
 		for (Segment& s : route)
 			fillSegment(s);
+		if (zoneTarget > 0)
+			placeAntidote();
 		out = g;
 		return true;
 	}
+
+	[[nodiscard]] const GenShape& Shape() const { return shape; }
 
   private:
 	Rng rng;
 	Rng mimicRng; // its own stream, so mimics leave the layout rolls of a seed alone
 	int d;
+	int zoneTarget;
+	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
 	std::vector<char> busy; // corridor cells taken by a connector or a feature
 	std::vector<Segment> route;
+	std::vector<Wing> wings;
+	GenShape shape;
 	int monsters = 0;
 	int colours[LOCK_COLOUR_COUNT] = {1, 2, 3, 4};
 	int locksPlaced = 0;
@@ -145,7 +191,12 @@ class LevelBuilder {
 		}
 		if (route.size() < 3)
 			return false;
+		placeDoors();
+		return true;
+	}
 
+	// The entrance at the first segment's entry, the exit at the far end of the last one.
+	void placeDoors() {
 		Segment& first = route.front();
 		g.set(first.entry, first.row, Tile{Door, GateEntrance, 0});
 		markBusy(first, first.entry);
@@ -155,7 +206,220 @@ class LevelBuilder {
 		last.exit = farEnd(last, last.entry);
 		g.set(last.exit, last.row, Tile{Door, GateExit, 0});
 		markBusy(last, last.exit);
+	}
+
+	void fillRock(int col, int row) {
+		g.set(col, row, wallTile());
+		used[index(col, row)] = 0;
+	}
+
+	// A ladder or a drop shaft from cur to next at col.
+	void carveLink(const Segment& cur, const Segment& next, int col, Link link) {
+		const Segment& upper = cur.row > next.row ? cur : next;
+		const Segment& lower = cur.row > next.row ? next : cur;
+		if (link == Link::Drop)
+			for (int y = upper.row - 1; y >= lower.row + lower.height; y--)
+				carve(col, y, Tile{});
+		else
+			carveLadder(col, lower.row, upper.row);
+		markBusy(cur, col);
+		markBusy(next, col);
+	}
+
+	// Zone levels (plan campaign-levelgen): bands of halls from the top of the grid to the bottom, each across most of
+	// its width, one to three rows tall, two rows of rock between them (one under a pillar, up to five over a shaft).
+	// The route crosses each hall from where it comes in to a link far along, down to the next (or up, on a level
+	// climbed from the bottom); now and then a hub hall the shaft runs straight through, or a second ladder that makes
+	// a pillar loop. The hall's ends off the route are its wings.
+	bool buildHalls() {
+		for (int top = MAX_ROW;;) {
+			Segment hall;
+			int roll = rng.range(0, 99);
+			hall.height = roll < 55 ? 1 : roll < 85 ? 2 : 3;
+			hall.row = top - hall.height + 1;
+			if (hall.row < MIN_ROW)
+				break;
+			route.push_back(hall);
+			roll = rng.range(0, 99);
+			int rock = roll < 15 ? 1 : roll < 85 ? 2 : rng.range(3, 5);
+			top = hall.row - 1 - rock;
+		}
+		if (route.size() < 6)
+			return false;
+		int full = 0;
+		for (const Segment& hall : route)
+			full += hall.height * HALL_FULL;
+		float scale = std::min(1.f, static_cast<float>(zoneTarget) / static_cast<float>(full));
+		for (Segment& hall : route) {
+			float spread = 0.85f + 0.3f * static_cast<float>(rng.range(0, 100)) / 100.f;
+			int length = std::clamp(
+				static_cast<int>(static_cast<float>(HALL_FULL) * scale * spread),
+				HALL_MIN,
+				HALL_FULL
+			);
+			hall.x0 = rng.range(MIN_COL, MAX_COL - length + 1);
+			hall.x1 = hall.x0 + length - 1;
+			shape.halls++;
+			shape.tallHalls += hall.height > 1 ? 1 : 0;
+		}
+		if (rng.chance(CLIMB_CHANCE))
+			std::reverse(route.begin(), route.end());
+		const bool down = route.front().row > route.back().row;
+
+		Segment& first = route.front();
+		first.entry = rng.chance(0.5f) ? first.x0 : first.x1;
+		for (size_t i = 0; i + 1 < route.size(); i++) {
+			Segment& cur = route[i];
+			Segment& next = route[i + 1];
+			int lo = std::max(cur.x0, next.x0) + 1;
+			int hi = std::min(cur.x1, next.x1) - 1;
+			bool hub = i > 0 && shape.hubs < MAX_HUBS && route[i - 1].link != Link::Drop && cur.entry >= lo &&
+					   cur.entry <= hi && cur.entry - cur.x0 > WING_MIN + 2 && cur.x1 - cur.entry > WING_MIN + 2 &&
+					   rng.chance(HUB_CHANCE);
+			int col = hub ? cur.entry : crossingCol(cur, lo, hi);
+			if (col < 0)
+				return false;
+			cur.exit = next.entry = col;
+			cur.link = !down ? Link::LadderUp : !hub && rng.chance(DROP_CHANCE) ? Link::Drop : Link::LadderDown;
+			shape.hubs += hub ? 1 : 0;
+		}
+		for (const Segment& hall : route)
+			carveSegment(hall);
+		for (size_t i = 0; i + 1 < route.size(); i++) {
+			const Segment& cur = route[i];
+			const Segment& next = route[i + 1];
+			carveLink(cur, next, cur.exit, cur.link);
+			const int rock = std::abs(cur.row - next.row) - (cur.row > next.row ? next.height : cur.height);
+			shape.shafts += rock >= 3 ? 1 : 0;
+		}
+		placeDoors();
+		addLoops();
+		for (int s = 0; s < static_cast<int>(route.size()); s++) {
+			const Segment& hall = route[static_cast<size_t>(s)];
+			int lo = std::min(hall.entry, hall.exit);
+			int hi = std::max(hall.entry, hall.exit);
+			addWing(s, lo, hall.x0, hall.entry == lo);
+			addWing(s, hi, hall.x1, hall.entry == hi);
+		}
 		return true;
+	}
+
+	// Where the route leaves a hall: far from where it came in, inside the next hall too. -1 if there is no room.
+	int crossingCol(const Segment& hall, int lo, int hi) {
+		int cross = std::max(8, (hall.x1 - hall.x0) / 2 - 2);
+		int leftHi = hall.entry - cross;
+		int rightLo = hall.entry + cross;
+		int left = leftHi - lo + 1;
+		int right = hi - rightLo + 1;
+		if (left <= 0 && right <= 0)
+			return -1;
+		if (right <= 0 || (left > 0 && rng.range(1, left + right) <= left))
+			return rng.range(lo, leftHi);
+		return rng.range(rightLo, hi);
+	}
+
+	// A second ladder between two halls the route crosses one way and then back: two ways down (or up) round the rock
+	// between them, the pillar. No gate goes on the loop (lockSpan).
+	void addLoops() {
+		for (size_t i = 0; i + 1 < route.size() && shape.loops < MAX_LOOPS; i++) {
+			Segment& cur = route[i];
+			const Segment& next = route[i + 1];
+			int dir = cur.exit > cur.entry ? 1 : -1;
+			if (cur.exit == cur.entry || next.exit == next.entry || (next.exit > next.entry ? 1 : -1) == dir)
+				continue;
+			int lo = dir > 0 ? std::max(cur.entry, next.exit) + 4 : cur.exit + 5;
+			int hi = dir > 0 ? cur.exit - 5 : std::min(cur.entry, next.exit) - 4;
+			if (lo > hi || !rng.chance(LOOP_CHANCE))
+				continue;
+			cur.loopCol = rng.range(lo, hi);
+			carveLink(cur, next, cur.loopCol, cur.row > next.row ? Link::LadderDown : Link::LadderUp);
+			shape.loops++;
+		}
+	}
+
+	// The wing from inner to end, if it is long enough; in a tall hall, now and then ending in a ledge: the floor
+	// raised a row over its last cells, up a ladder.
+	void addWing(int s, int inner, int end, bool entrySide) {
+		const int length = std::abs(end - inner);
+		if (length < WING_MIN)
+			return;
+		const Segment& hall = route[static_cast<size_t>(s)];
+		Wing wing{s, inner, end, end, hall.row, entrySide};
+		if (hall.height > 1 && length >= LEDGE_WING && shape.ledges < MAX_LEDGES && rng.chance(LEDGE_CHANCE)) {
+			const int dir = end > inner ? 1 : -1;
+			const int width = rng.range(3, std::min(5, length - 4));
+			for (int k = 0; k < width; k++)
+				fillRock(end - k * dir, hall.row);
+			wing.fillEnd = end - width * dir;
+			carveLadder(wing.fillEnd, hall.row, hall.row + 1);
+			wing.itemRow = hall.row + 1;
+			shape.ledges++;
+		}
+		busy[index(end, wing.itemRow)] = 1; // its item's, whatever it gets: no branch's ladder
+		wings.push_back(wing);
+	}
+
+	// The part of segment s a gate can go on, from to to: the whole crossing, but off a pillar loop.
+	void lockSpan(size_t s, int& from, int& to) const {
+		const Segment& seg = route[s];
+		from = s > 0 && route[s - 1].loopCol >= 0 ? route[s - 1].loopCol : seg.entry;
+		to = seg.loopCol >= 0 ? seg.loopCol : seg.exit;
+	}
+
+	// A wing for the key or lever of a gate on segment s: one on s before the gate, or on a segment before it with no
+	// drop on the way (the player could drop past it and be stuck at the gate).
+	bool wingOpener(int s, Tile opener) {
+		std::vector<size_t> free;
+		for (size_t w = 0; w < wings.size(); w++) {
+			const Wing& wing = wings[w];
+			bool before = wing.seg < s || (wing.seg == s && wing.entrySide);
+			for (int k = wing.seg; k < s && before; k++)
+				before = route[static_cast<size_t>(k)].link != Link::Drop;
+			if (!wing.taken && before)
+				free.push_back(w);
+		}
+		if (free.empty())
+			return false;
+		Wing& wing = wings[free[static_cast<size_t>(rng.range(0, static_cast<int>(free.size()) - 1))]];
+		g.set(wing.end, wing.itemRow, cellWith(opener));
+		busy[index(wing.end, wing.itemRow)] = 1;
+		wing.taken = true;
+		return true;
+	}
+
+	// The wings no key or lever took: treasure at the end, now and then; hazards and monsters along all of them.
+	void fillWings() {
+		for (Wing& wing : wings) {
+			if (!wing.taken && rng.chance(WING_TREASURE)) {
+				g.set(wing.end, wing.itemRow, randomTreasure());
+				busy[index(wing.end, wing.itemRow)] = 1;
+			}
+			fillRun(route[static_cast<size_t>(wing.seg)], wing.inner, wing.fillEnd);
+		}
+	}
+
+	// With a poisoner on the level, the first wing's chest (or the first wing, or else the first chest on the route)
+	// holds an antidote.
+	void placeAntidote() {
+		bool poisoners = false;
+		for (const Tile& t : g.cells)
+			poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr));
+		if (!poisoners)
+			return;
+		auto chest = [this](const Wing& w) { return !w.taken && g.at(w.end, w.itemRow).type == Treasure; };
+		auto spot = std::find_if(wings.begin(), wings.end(), chest);
+		if (spot == wings.end())
+			spot = std::find_if(wings.begin(), wings.end(), [](const Wing& w) { return !w.taken; });
+		if (spot != wings.end()) {
+			g.set(spot->end, spot->itemRow, chestOf(ItemKind::Antidote));
+			return;
+		}
+		for (const Segment& s : route)
+			for (int x = s.x0; x <= s.x1; x++)
+				if (g.at(x, s.row).type == Treasure) {
+					g.set(x, s.row, chestOf(ItemKind::Antidote));
+					return;
+				}
 	}
 
 	bool addNextSegment() {
@@ -254,28 +518,34 @@ class LevelBuilder {
 		return false;
 	}
 
-	// Gates on the route, each with its key or lever in a branch on the near side of the gate.
+	// Gates on the route, each with its key or lever on the near side of the gate: in a branch off its segment, or on
+	// a zone level in a wing before it.
 	void placeLocks() {
+		const bool zone = zoneTarget > 0;
 		int wanted = d >= 9 ? 3 : d >= 6 ? 2 : d >= 3 ? 1 : 0;
+		if (zone)
+			wanted = std::min(wanted + 1, LOCK_COLOUR_COUNT);
 		for (int i = LOCK_COLOUR_COUNT - 1; i > 0; i--)
 			std::swap(colours[i], colours[rng.range(0, i)]);
-		for (int attempt = 0; attempt < 20 && locksPlaced < wanted; attempt++) {
+		for (int attempt = 0; attempt < (zone ? 40 : 20) && locksPlaced < wanted; attempt++) {
 			int s = rng.range(1, static_cast<int>(route.size()) - 1);
 			Segment& seg = route[static_cast<size_t>(s)];
 			if (seg.exit < 0)
 				continue;
-			int dir = seg.exit > seg.entry ? 1 : -1;
-			int span = std::abs(seg.exit - seg.entry);
+			int from = 0, to = 0;
+			lockSpan(static_cast<size_t>(s), from, to);
+			int dir = to > from ? 1 : -1;
+			int span = std::abs(to - from);
 			if (span < 5)
 				continue;
-			int gate = seg.entry + dir * rng.range(3, span - 1);
+			int gate = from + dir * rng.range(3, span - 1);
 			if (busy[index(gate, seg.row)] != 0 || !isEmptyCell(g.at(gate, seg.row)))
 				continue;
 			int colour = colours[locksPlaced];
 			g.set(gate, seg.row, Tile{Gate, colour, 0});
 			busy[index(gate, seg.row)] = 1;
 			Tile opener = rng.chance(0.35f) ? Tile{Lever, colour, 0} : Tile{Key, colour, 0};
-			if (tryBranch(s, seg.entry + dir, gate - 2 * dir, opener)) {
+			if ((zone && wingOpener(s, opener)) || tryBranch(s, seg.entry + dir, gate - 2 * dir, opener)) {
 				markBusy(seg, gate);
 				locksPlaced++;
 			} else {
@@ -352,7 +622,7 @@ class LevelBuilder {
 	}
 
 	bool placeMonster(int col, int row) {
-		if (monsters >= 4 + 2 * d || !isEmptyCell(g.at(col, row)) || !isWall(g.at(col, row - 1)))
+		if (monsters >= monsterCap || !isEmptyCell(g.at(col, row)) || !isWall(g.at(col, row - 1)))
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
 			if (g.at(x, row).type == MonsterSpawn)
@@ -394,9 +664,10 @@ class LevelBuilder {
 	}
 
 	// Hazards, monsters and loot along the part of the segment the player has to cross.
-	void fillSegment(const Segment& s) {
-		int from = s.entry;
-		int to = s.exit >= 0 ? s.exit : farEnd(s, s.entry);
+	void fillSegment(const Segment& s) { fillRun(s, s.entry, s.exit >= 0 ? s.exit : farEnd(s, s.entry)); }
+
+	// The same along s's floor between from and to, not on the cells at either end.
+	void fillRun(const Segment& s, int from, int to) {
 		int dir = to >= from ? 1 : -1;
 		float fd = static_cast<float>(d);
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
@@ -404,7 +675,7 @@ class LevelBuilder {
 				continue;
 			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
 			float weights[FEATURE_COUNT] = {
-				2.5f,
+				zoneTarget > 0 ? ZONE_CALM : 2.5f,
 				0.2f + 0.08f * fd,
 				0.35f + 0.05f * fd,
 				s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f,
@@ -421,7 +692,8 @@ class LevelBuilder {
 				size = 3;
 				break;
 			case Feature::Spike:
-				size = d >= 5 && rng.chance(0.4f) ? 2 : 1;
+				// A zone level's halls are many: a pair to walk over would turn up on almost every one.
+				size = zoneTarget == 0 && d >= 5 && rng.chance(0.4f) ? 2 : 1;
 				for (int k = 0; k < size; k++)
 					if (floorCell(s, x + k * dir) && busy[index(x + k * dir, s.row)] == 0)
 						g.set(x + k * dir, s.row, Tile{Spike, 0, 0});
@@ -448,16 +720,21 @@ class LevelBuilder {
 };
 } // namespace
 
-float targetScore(int difficulty) { return 2.5f + 2.2f * static_cast<float>(difficulty); }
+float targetScore(int difficulty, int openCells) {
+	float score = 2.5f + 2.2f * static_cast<float>(difficulty);
+	return openCells > 0 ? score * static_cast<float>(openCells) / static_cast<float>(ZONE_SCORE_CELLS) : score;
+}
 
 GenResult generateLevel(const GenOptions& options) {
 	GenResult best;
 	int difficulty = std::clamp(options.difficulty, GEN_MIN_DIFFICULTY, GEN_MAX_DIFFICULTY);
-	best.target = targetScore(difficulty);
+	const bool zone = isZone(options.zone);
+	const int openTarget = !zone ? 0 : options.openCells > 0 ? options.openCells : ZONE_OPEN_CELLS;
+	best.target = targetScore(difficulty, openTarget);
 	float bestError = 0.f;
 	for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
 		best.attempts = attempt + 1;
-		LevelBuilder builder(options.seed * 7919U + static_cast<uint32_t>(attempt) * 104729U, difficulty);
+		LevelBuilder builder(options.seed * 7919U + static_cast<uint32_t>(attempt) * 104729U, difficulty, openTarget);
 		LevelGrid grid;
 		if (!builder.build(grid))
 			continue;
@@ -465,14 +742,38 @@ GenResult generateLevel(const GenOptions& options) {
 		if (!report.valid || !report.warnings.empty())
 			continue;
 		float error = std::fabs(report.difficulty - best.target) / best.target;
+		if (zone)
+			error += std::fabs(static_cast<float>(report.openCells - openTarget)) / static_cast<float>(openTarget);
 		if (!best.ok || error < bestError) {
 			best.ok = true;
 			best.grid = grid;
 			best.report = report;
+			best.shape = builder.Shape();
 			bestError = error;
 		}
 		if (bestError <= GOOD_ENOUGH)
 			break;
 	}
+	if (zone)
+		best.grid.meta.zone = options.zone;
 	return best;
+}
+
+bool parseGenSpec(const std::string& spec, GenOptions& options) {
+	unsigned int seed = 0;
+	int difficulty = 0;
+	int read = 0;
+	if (sscanf(spec.c_str(), "gen:%u:%d%n", &seed, &difficulty, &read) != 2)
+		return false;
+	GenOptions parsed;
+	parsed.seed = seed;
+	parsed.difficulty = difficulty;
+	const std::string rest = spec.substr(static_cast<size_t>(read));
+	if (!rest.empty()) {
+		parsed.zone = rest[0] == ':' ? zoneBySlug(rest.substr(1)) : NO_ZONE;
+		if (parsed.zone == NO_ZONE)
+			return false;
+	}
+	options = parsed;
+	return true;
 }

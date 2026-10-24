@@ -1,7 +1,9 @@
 // levelgen: writes random levels. See docs/levels.md.
-//   levelgen [--seed N] [--difficulty D] [--count K] [--map] OUT
-// With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1.
+//   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C]] [--count K] [--map] OUT
+// With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
+// for that zone (plan campaign-levelgen), about C open cells.
 
+#include "../../src/world/campaign.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/level_gen.h"
@@ -12,7 +14,10 @@
 
 namespace {
 int usage() {
-	fprintf(stderr, "usage: levelgen [--seed N] [--difficulty 1-10] [--count K] [--map] OUT\n");
+	fprintf(
+		stderr,
+		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C]] [--count K] [--map] OUT\n"
+	);
 	return 2;
 }
 } // namespace
@@ -28,6 +33,12 @@ int main(int argc, char** argv) {
 			options.seed = static_cast<uint32_t>(strtoul(argv[++i], nullptr, 10));
 		else if (strcmp(argv[i], "--difficulty") == 0 && hasValue)
 			options.difficulty = atoi(argv[++i]);
+		else if (strcmp(argv[i], "--zone") == 0 && hasValue) {
+			options.zone = zoneBySlug(argv[++i]);
+			if (options.zone == NO_ZONE)
+				return usage();
+		} else if (strcmp(argv[i], "--cells") == 0 && hasValue)
+			options.openCells = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--count") == 0 && hasValue)
 			count = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--map") == 0)
@@ -38,7 +49,7 @@ int main(int argc, char** argv) {
 			return usage();
 	}
 	if (out == nullptr || count < 1 || options.difficulty < GEN_MIN_DIFFICULTY ||
-		options.difficulty > GEN_MAX_DIFFICULTY)
+		options.difficulty > GEN_MAX_DIFFICULTY || options.openCells < 0)
 		return usage();
 
 	int code = 0;
@@ -65,7 +76,7 @@ int main(int argc, char** argv) {
 		const LevelReport& r = result.report;
 		printf(
 			"%s: seed %u, difficulty %d -> score %.1f (target %.1f, %d attempts), path %d, %d monsters, "
-			"%d gates\n",
+			"%d gates, %d open cells\n",
 			path.c_str(),
 			o.seed,
 			o.difficulty,
@@ -74,8 +85,22 @@ int main(int argc, char** argv) {
 			result.attempts,
 			r.pathLength,
 			r.monsterCount,
-			r.gates
+			r.gates,
+			r.openCells
 		);
+		if (isZone(o.zone)) {
+			const GenShape& s = result.shape;
+			printf(
+				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts\n",
+				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
+				s.halls,
+				s.tallHalls,
+				s.loops,
+				s.hubs,
+				s.ledges,
+				s.shafts
+			);
+		}
 		if (map)
 			printf("%s", renderLevel(result.grid, &r).c_str());
 	}

@@ -21,6 +21,15 @@ with no warnings.
 * Fixed seeds: the same input gives the same level. The seed per campaign level lives in one place
   (a table or the level header), so a level can be regenerated on its own.
 
+## Progress
+
+* **Step 1, shape: done (2026-10-24).** `bin/levelgen --zone SLUG [--cells N]`, `level gen:SEED:D:ZONE` in
+  scenarios ([levels.md](../levels.md#zone-levels)): bands of halls 1-3 rows tall across the grid, ladders, drops and
+  shafts, pillar loops, hub halls with wings, ledges; the keys and levers in the wings. Content (monsters by
+  difficulty, test-level traps) stays the test level's until steps 3, 4 and 7. Not yet: the place in the zone (first,
+  middle, boss level: step 6) and the seed table per campaign level (with the rebuild).
+* Next: step 2, zone mechanics.
+
 ## What it must build
 
 Missing today, roughly in this order (each step its own task, with its checker rules and unit tests):

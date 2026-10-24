@@ -1,0 +1,52 @@
+# Zone levels (plan campaign-levelgen): one generated level per zone, in the campaign's shape and the zone's look.
+# The first hall of each, from the entrance.
+seed 1
+god
+level gen:3:2:tomb_entrance
+wait 2s
+hold right 2s
+screenshot tomb_entrance
+level gen:3:3:bat_galleries
+wait 2s
+hold right 2s
+screenshot bat_galleries
+level gen:3:3:web_halls
+wait 2s
+hold right 2s
+screenshot web_halls
+level gen:3:4:priests_quarter
+wait 2s
+hold right 2s
+screenshot priests_quarter
+level gen:3:5:scorpion_nest
+wait 2s
+hold right 2s
+screenshot scorpion_nest
+level gen:3:5:serpent_temple
+wait 2s
+hold right 2s
+screenshot serpent_temple
+level gen:3:6:cisterns_of_sobek
+wait 2s
+hold right 2s
+screenshot cisterns_of_sobek
+level gen:3:7:seths_desert
+wait 2s
+hold right 2s
+screenshot seths_desert
+level gen:3:7:land_of_sokar
+wait 2s
+hold right 2s
+screenshot land_of_sokar
+level gen:3:8:lake_of_fire
+wait 2s
+hold right 2s
+screenshot lake_of_fire
+level gen:3:9:necropolis
+wait 2s
+hold right 2s
+screenshot necropolis
+level gen:3:10:hall_of_judgment
+wait 2s
+hold right 2s
+screenshot hall_of_judgment

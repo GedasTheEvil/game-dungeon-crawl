@@ -205,19 +205,15 @@ void toPixels(const Command& cmd, int& x, int& y) {
 
 // ---- execution -------------------------------------------------------------
 
-// "gen:SEED:DIFFICULTY" -> a generated level.
+// "gen:SEED:DIFFICULTY[:ZONE]" -> a generated level (parseGenSpec).
 bool loadGeneratedLevel(const std::string& spec) {
-	unsigned int seed = 0;
-	int difficulty = 0;
-	if (sscanf(spec.c_str(), "gen:%u:%d", &seed, &difficulty) != 2)
-		return false;
 	GenOptions options;
-	options.seed = seed;
-	options.difficulty = difficulty;
+	if (!parseGenSpec(spec, options))
+		return false;
 	GenResult result = generateLevel(options);
 	if (!result.ok)
 		return false;
-	Game().dungeon.LoadGrid(result.grid, spec.c_str(), genDecorDepth(difficulty));
+	Game().dungeon.LoadGrid(result.grid, spec.c_str(), genDecorDepth(options.difficulty));
 	return true;
 }
 

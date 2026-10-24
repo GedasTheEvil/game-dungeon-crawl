@@ -409,7 +409,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"resolution", CommandType::Resolution, parseResolution, "<width> <height>"},
 		{"seed", CommandType::Seed, numberAtLeast<0>, "<non-negative integer>"},
 		{"god", CommandType::God, noArgs, ""},
-		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY> [at <col> <row>]"},
+		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY[:ZONE]> [at <col> <row>]"},
 		{"wait", CommandType::Wait, parseWaitArgs, "<ticks|Nms|Ns>"},
 		{"walk", CommandType::Walk, parseWalk, "<left|right|up|down> <tiles> | walk to <map x>"},
 		{"hold", CommandType::Hold, parseHold, "<left|right|up|down> <ticks|Nms|Ns>"},

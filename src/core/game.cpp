@@ -100,7 +100,7 @@ static bool parseArgs(int argc, char* argv[]) {
 	} else if (!args.empty()) {
 		fprintf(
 			stderr,
-			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D | --play SCENARIO.txt | SCENARIO.txt]\n",
+			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D[:ZONE] | --play SCENARIO.txt | SCENARIO.txt]\n",
 			argv[0]
 		);
 		ok = false;

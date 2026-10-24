@@ -39,6 +39,11 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | quicksand | | looks like sand; standing in it sinks the player (slower, stuck, hurt) until a jump frees them; a passable trap for the checker | `Structure::Quicksand`, `inQuicksand`, `Dungeon::updateQuicksand` |
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
+| zone level | | (levelgen, [campaign-levelgen](plan/campaign-levelgen.draft.opus.md)) a generated level in the campaign's shape for a zone: bands of halls across the whole grid, dressed as the zone. Not a campaign level, not a test level (`gen:SEED:D`) | `GenOptions::zone`, `LevelBuilder::buildHalls` |
+| wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
+| hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |
+| pillar loop | | two ladders (or a ladder and a drop) between the same two halls: two ways round the rock between them, the pillar; no gate on it | `Segment::loopCol`, `GenShape::loops` |
+| ledge | | a floor raised over the floor of a tall hall, up a ladder; in a zone level at a wing's end. Also any raised floor a leaper jumps to | `GenShape::ledges` |
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
 | plate | | the empty frame of an inscription style (cartouche, column, row, stela) the game draws the signs on ([composed-inscriptions](plan/solved/composed-inscriptions.md)) | `InscriptionStyle`, `PLATE_GRID`, `plateCell` |
 | hieroglyph sheet | | the texture with a cell per hieroglyph sign in use, tinted per sign when an inscription is drawn; its manifest lists the Gardiner codes | `HieroglyphSheet`, `HIEROGLYPH_MANIFEST`, `inscriptionLayout` |

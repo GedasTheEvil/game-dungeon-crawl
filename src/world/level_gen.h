@@ -6,25 +6,49 @@
 // side branches off it hold treasure, keys and levers. Hazards (spike pits to jump, spikes, rock falls) and monsters
 // sit on the corridors, more and nastier with the difficulty.
 //
+// Given a zone, it builds a level in the shape of the campaign's (plan campaign-levelgen): halls across the whole
+// grid, one to three rows tall, stacked in bands from top to bottom (or climbed from the bottom), joined by ladders,
+// drops and long shafts; pillar loops (two ways down to the same hall), hub halls a shaft runs through with a wing
+// either side, ledges in the tall halls. The ends of the halls off the route (wings) hold the keys, levers and
+// treasure.
+//
 // Every candidate goes through checkLevel(); only levels that can be finished, with no softlock and every key and
 // lever in reach, are returned. Among those, the one whose difficulty score is closest to the target wins.
-// Same seed and difficulty = same level (own random generator, no rand()).
+// Same seed and difficulty (and zone) = same level (own random generator, no rand()).
 
 #include "level.h"
 #include "level_check.h"
 #include <cstdint>
+#include <string>
 
 struct GenOptions {
 	uint32_t seed = 1;
 	int difficulty = 3; // 1 (easy) .. 10 (brutal)
+	int zone =
+		NO_ZONE; // a ZoneId (campaign.h): a level in the campaign's shape, dressed as the zone; NO_ZONE: a test level
+	int openCells = 0; // a zone level's target size, 0: ZONE_OPEN_CELLS
 };
+
+// A zone level's size if GenOptions::openCells does not say (the campaign's levels 15-35 have 520-760 open cells).
+constexpr int ZONE_OPEN_CELLS = 650;
 
 // The campaign level a difficulty stands for, for the decorations by depth (decor.h): 1 -> 1, 4 -> 5, 10 -> 14.
 constexpr int genDecorDepth(int difficulty) { return 1 + (3 * (difficulty - 1)) / 2; }
 
+// What a zone level's shape is made of (plan campaign-levelgen), for the tests and levelgen's report.
+struct GenShape {
+	int halls = 0;
+	int tallHalls = 0; // two or three rows
+	int loops = 0; // a second ladder between two halls: two ways to the same place round a pillar
+	int hubs = 0; // halls a shaft runs straight through, a wing either side
+	int ledges = 0; // a raised floor at the end of a tall hall, up a ladder
+	int shafts = 0; // links through three or more rows of rock
+};
+
 struct GenResult {
 	LevelGrid grid;
 	LevelReport report;
+	GenShape shape;
 	int attempts = 0; // candidates built
 	float target = 0.f; // difficulty score aimed at
 	bool ok = false; // false only if no candidate passed the checks (should not happen)
@@ -35,7 +59,12 @@ constexpr int GEN_MAX_DIFFICULTY = 10;
 
 [[nodiscard]] GenResult generateLevel(const GenOptions& options);
 
-// The difficulty score generateLevel() aims at for a difficulty (on the checkLevel() scale).
-[[nodiscard]] float targetScore(int difficulty);
+// The difficulty score generateLevel() aims at for a difficulty (on the checkLevel() scale); openCells: a zone level's
+// target size, which the score grows with, 0 for a test level.
+[[nodiscard]] float targetScore(int difficulty, int openCells = 0);
+
+// "gen:SEED:DIFFICULTY" (a test level) or "gen:SEED:DIFFICULTY:ZONE" (ZONE: a zone's slug, campaign.h) -> options.
+// False for anything else.
+[[nodiscard]] bool parseGenSpec(const std::string& spec, GenOptions& options);
 
 #endif

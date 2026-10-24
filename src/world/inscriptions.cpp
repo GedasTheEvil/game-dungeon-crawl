@@ -3,6 +3,8 @@
 #include <charconv>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <sstream>
 
 namespace {
 std::string trim(const std::string& s) {
@@ -83,8 +85,6 @@ void ParseInscriptions(
 		size_t colon = line.find(':');
 		std::string key = colon == std::string::npos ? "" : line.substr(0, colon);
 		std::string value = colon == std::string::npos ? "" : trim(line.substr(colon + 1));
-		if (key == "G" || key == "style") // the hieroglyphs and their frame: the atlas tool's
-			continue;
 		// The fonts only have printable ASCII.
 		for (char& c : value)
 			if (static_cast<unsigned char>(c) < 32 || static_cast<unsigned char>(c) > 126) {
@@ -110,6 +110,19 @@ void ParseInscriptions(
 			current.text.push_back(value);
 		} else if (key == "N") {
 			current.note = value;
+		} else if (key == "style") {
+			const char* const styles[] = {"cartouche", "column", "row", "stela"};
+			const auto* found = std::find(std::begin(styles), std::end(styles), value);
+			if (found == std::end(styles))
+				error("style: must be cartouche, column, row or stela, line ignored");
+			else
+				current.style = static_cast<InscriptionStyle>(found - std::begin(styles));
+		} else if (key == "G") {
+			std::istringstream codes(value);
+			current.glyphs.clear();
+			for (std::string code; codes >> code;)
+				current.glyphs.push_back(code);
+			current.glyphSource = source + ":" + std::to_string(lineNo);
 		} else if (key == "boon") {
 			Boon boon;
 			if (parseBoon(value, boon))

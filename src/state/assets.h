@@ -11,6 +11,7 @@
 #include "../core/sound.h"
 #include "../world/containers.h"
 #include "../world/decor.h"
+#include "../world/inscription_layout.h"
 #include "../world/items.h"
 #include "../world/level.h"
 #include <array>
@@ -74,8 +75,10 @@ struct DecorSet {
 	Texture tex[DECOR_COUNT];
 	std::unique_ptr<AnimatedModel> model[DECOR_COUNT]; // null if the file failed to load
 	Texture decalTex; // atlas, DECAL_DEFS order
-	Texture inscriptionTex; // atlas, a cell per inscription id (inscriptions.h)
-	Texture nameCartoucheTex; // atlas of the name cartouches' pictures (names.h)
+	// The inscriptions' parts (plan composed-inscriptions, inscription_layout.h): a plate per style, the hieroglyph
+	// sheet and its manifest.
+	Texture inscriptionPlates, hieroglyphTex;
+	HieroglyphSheet hieroglyphs;
 	Texture torchTex;
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
 	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];

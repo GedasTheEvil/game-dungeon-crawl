@@ -208,8 +208,6 @@ const RoyalName* Dungeon::LevelName() const {
 	return sim.names != nullptr ? sim.names->ForLevel(sim.player->stats.run.nameSeed, levelNumber) : nullptr;
 }
 //======================================================================================
-int Dungeon::NameCartouchePicture() const { return nameCartouchePicture(sim.player->stats.run.nameSeed, levelNumber); }
-//======================================================================================
 std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) const {
 	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
 	if (f.attr == NAME_CARTOUCHE_ID) { // plan secret-name-gates
@@ -228,7 +226,7 @@ std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) con
 			levelNumber,
 			reads
 		};
-		page.picture = NameCartouchePicture();
+		page.glyphs = name->glyphs;
 		return page;
 	}
 	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(f.attr) : nullptr;

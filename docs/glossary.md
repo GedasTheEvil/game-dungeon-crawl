@@ -40,6 +40,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | inscription | Inscriptions | hieroglyphs on a cell's back wall the player reads; the text goes into the journal ([inscriptions](inscriptions.md)). Drafts also say "cartouche" | `Inscription`, `InscriptionBook`, `JournalInscription` |
+| plate | | the empty frame of an inscription style (cartouche, column, row, stela) the game draws the signs on ([composed-inscriptions](plan/composed-inscriptions.md)) | `InscriptionStyle`, `PLATE_GRID`, `plateCell` |
+| hieroglyph sheet | | the texture with a cell per hieroglyph sign in use, tinted per sign when an inscription is drawn; its manifest lists the Gardiner codes | `HieroglyphSheet`, `HIEROGLYPH_MANIFEST`, `inscriptionLayout` |
 | copy | Copy | an inscription read without the Words of Thoth skill: the glyphs go into the journal untranslated, and learning the skill translates every copy ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)) | `Interaction::Copy`, `JournalInscription::translated`, `Journal::TranslateInscriptions` |
 | glint | | the gold band sweeping now and then over an inscription not read yet; dimmer over a copy not translated ([interact-prompt](plan/solved/interact-prompt.md)) | `Dungeon::InscriptionGlint`, `glintQuad` |
 | interact verb | "[E] Open" | what the interact key does in the player's cell (Open, Pull, Read, Copy, Light arrows, Turn, Enter, Answer, Take), shown by the interact prompt at the bottom right ([interact-prompt](plan/solved/interact-prompt.md)) | `Interaction`, `Dungeon::InteractVerb`, `InteractPrompt` |
@@ -61,7 +63,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | gate travel | | the fade into the gate's plasma colour and back (0.3 s each way) on the exit or a teleporter; the world stands still | `GateTravel`, `GATE_TRAVEL_FADE_MS`, `Dungeon::Travelling` |
 | ankh | | the goal on the last level: Take wins the game | `Ankh` |
 | name gate | The Name Gate | a teleporter sealed by the level's royal name: the riddle scroll asks for it, the right name opens it for good ([secret-name-gates](plan/solved/secret-name-gates.md)). Its plasma breathes until then | `NAME_SEAL`, `isNameGate`, `Dungeon::SpeakName` |
-| name cartouche | A royal name | an inscription that holds the level's royal name for its name gate, not a text; its picture is one of 16 sign groups that do not spell the name | `NAME_CARTOUCHE_ID`, `nameCartouchePicture`, `Dungeon::NameCartouchePicture` |
+| name cartouche | A royal name | an inscription that holds the level's royal name for its name gate, not a text; its signs spell the name (the name's `G:` line) | `NAME_CARTOUCHE_ID`, `RoyalName::glyphs`, `JournalInscription::glyphs` |
 | secret room | | the pocket of a level only the name gate leads to: a chest, a lore inscription, now and then a guardian; never needed for the exit | `checkNameGates` |
 | row | | a horizontal line of cells, row 0 at the bottom. Walkers follow the player along their row | `LevelGrid` |
 | slain marker | | a monster's spawn cell remembers the monster killed there, so it does not come back after a load | `slainMonster`, `slainObject` |

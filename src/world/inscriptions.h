@@ -10,14 +10,10 @@
 #include <vector>
 
 // A name cartouche (plan secret-name-gates): an Inscription whose attribute is NAME_CARTOUCHE_ID. It holds the
-// level's name for its name gate (names.h), not a text of content/inscriptions/; its picture is a cell of the name
-// cartouche atlas.
+// level's name for its name gate (names.h), not a text of content/inscriptions/; its signs spell the name.
 constexpr int NAME_CARTOUCHE_ID = 100;
-// Ids run from 1 to INSCRIPTION_MAX: the atlas media/textures/decorations/inscriptions.png
-// (tools/textures/inscriptions.py) has a cell per id, INSCRIPTION_ATLAS_GRID x INSCRIPTION_ATLAS_GRID, id 1 top left
-// (plan campaign-texts: 16 x 16 cells of 128 px). The name cartouche's id is no text id: its cell stays empty.
-constexpr int INSCRIPTION_ATLAS_GRID = 16;
-constexpr int INSCRIPTION_MAX = INSCRIPTION_ATLAS_GRID * INSCRIPTION_ATLAS_GRID;
+// Ids run from 1 to INSCRIPTION_MAX; the name cartouche's id is no text id.
+constexpr int INSCRIPTION_MAX = 256;
 [[nodiscard]] constexpr bool isInscriptionId(int id) {
 	return id >= 1 && id <= INSCRIPTION_MAX && id != NAME_CARTOUCHE_ID;
 }
@@ -35,6 +31,10 @@ struct Boon {
 // "Might +1", "Max health +10%"; empty for none.
 [[nodiscard]] std::string boonText(const Boon& boon);
 
+// The frame on the wall (style: line), a plate each (inscription_layout.h). The order of the plates.
+enum class InscriptionStyle : unsigned char { Cartouche, Column, Row, Stela };
+constexpr int INSCRIPTION_STYLE_COUNT = 4;
+
 struct InscriptionText {
 	int id = 0;
 	std::string title; // the journal page's heading
@@ -42,10 +42,13 @@ struct InscriptionText {
 	std::string note; // the archaeologist's comment: the status line, and under the translation
 	Boon boon; // the boon: line, none for most
 	std::string source; // file:line, for messages
+	InscriptionStyle style = InscriptionStyle::Cartouche;
+	std::vector<std::string> glyphs; // the signs by Gardiner code, the G: line (plan composed-inscriptions)
+	std::string glyphSource; // file:line of the G: line
 };
 
-// Reads one file's entries into out; problems go to errors as "source:line: message". The game skips the G: and
-// style: lines (the atlas tool reads them).
+// Reads one file's entries into out; problems go to errors as "source:line: message". Whether the G: codes are in the
+// hieroglyph sheet is checkSigns' part (inscription_layout.h).
 void ParseInscriptions(
 	std::istream& in,
 	const std::string& source,
@@ -61,6 +64,7 @@ class InscriptionBook {
 	// Null for an id with no text.
 	[[nodiscard]] const InscriptionText* Find(int id) const;
 	[[nodiscard]] size_t Size() const { return entries.size(); }
+	[[nodiscard]] const std::vector<InscriptionText>& All() const { return entries; }
 
   private:
 	std::vector<InscriptionText> entries;

@@ -5,6 +5,7 @@
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
+#include "../graphics/inscription_draw.h"
 #include "../graphics/lighting.h"
 #include "inscriptions.h"
 #include <GL/gl.h>
@@ -166,19 +167,41 @@ void Dungeon::drawDecalTile(int i, int j) {
 	wallQuad(cell.x, cell.y, DECAL_DEFS[cell.type].size, atlasCell(cell.type, DECAL_ATLAS_GRID), cell.mirror);
 }
 //======================================================================================
-// Without its own glyphs (an id outside the atlas) it shows the scattered cartouche.
+// Composed from its plate and signs (plan composed-inscriptions); without a text it shows the scattered cartouche.
 void Dungeon::drawInscriptionTile(int i, int j) {
 	const int id = MapAt(i, j).fixture.attr;
-	AtlasRect uv = isInscriptionId(id) ? atlasCell(id - 1, INSCRIPTION_ATLAS_GRID)
-									   : atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID);
-	if (id == NAME_CARTOUCHE_ID) { // plan secret-name-gates: this run's picture for the level
-		uv = atlasCell(NameCartouchePicture(), NAME_CARTOUCHE_GRID);
-		sim.assets->decor.nameCartoucheTex.Bind();
-	} else
-		(isInscriptionId(id) ? sim.assets->decor.inscriptionTex : sim.assets->decor.decalTex).Bind();
-	wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, false);
-	if (const float glint = InscriptionGlint(i, j); glint > 0.f)
-		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, uv, glint, MapIndex(i, j));
+	const InscriptionText* text = isInscriptionId(id) && sim.inscriptions != nullptr ? sim.inscriptions->Find(id)
+																					 : nullptr;
+	const RoyalName* name = id == NAME_CARTOUCHE_ID ? LevelName() : nullptr; // plan secret-name-gates: it spells it
+	const DecorSet& decor = sim.assets->decor;
+	if (text == nullptr && name == nullptr) {
+		decor.decalTex.Bind();
+		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID), false);
+		return;
+	}
+	const InscriptionStyle style = text != nullptr ? text->style : InscriptionStyle::Cartouche;
+	const float tile = RenderConfig::TILE_SIZE;
+	const float side = INSCRIPTION_SIZE * tile;
+	constexpr float WHITE[3] = {1, 1, 1};
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
+	drawInscription(
+		0.5f * tile - side / 2.f,
+		INSCRIPTION_Y * tile - side / 2.f,
+		side,
+		-tile + 0.05f, // just in front of the back wall
+		style,
+		text != nullptr ? text->glyphs : name->glyphs,
+		{decor.inscriptionPlates, decor.hieroglyphTex, decor.hieroglyphs},
+		WHITE
+	);
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	if (const float glint = InscriptionGlint(i, j); glint > 0.f) {
+		decor.inscriptionPlates.Bind();
+		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, plateCell(style), glint, MapIndex(i, j));
+	}
 }
 //======================================================================================
 void Dungeon::drawTorchTile(int i, int j) {

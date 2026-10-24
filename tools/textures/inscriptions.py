@@ -1,22 +1,25 @@
-"""Generate the inscription atlas media/textures/decorations/inscriptions.png (RGBA, 16 x 16 cells of 128 px, one per id).
+"""Generate the parts the game composes the inscriptions from (plan composed-inscriptions):
 
-    python3 tools/textures/inscriptions.py [inscriptions-dir] [out.png] [names-out.png]
+    python3 tools/textures/inscriptions.py [content-dir] [out-dir]
 
-Reads the `id:`, `style:` and `G:` lines of content/inscriptions/*.txt (docs/inscriptions.md): cell id - 1, row by row from
-the top left (INSCRIPTION_ATLAS_GRID in src/world/inscriptions.h). G: lists the signs by Gardiner code (A1, M23,
-Aa1, N35A), drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License; Debian/Ubuntu package
-fonts-noto-extra) in painted colours with an ink outline, in the frame of the style:
+    inscription_plates.png  the empty frames, 2 x 2 cells of 512 px in INSCRIPTION_STYLES order (cartouche, column,
+                            row, stela; src/world/inscription_layout.h)
+    hieroglyphs.png         the hieroglyph sheet: 16 x 16 cells of 128 px, one sign each, white fill and ink outline
+                            (the game tints the fill with the paint colour)
+    hieroglyphs.txt         its manifest: one line per cell, row by row from the top left, the Gardiner code and the
+                            sign's width / height in its cell
+
+The signs are every code on a `G:` line of content/inscriptions/*.txt and content/names/*.txt (docs/inscriptions.md),
+sorted, so the cell order is stable. G: lists the signs by Gardiner code (A1, M23, Aa1, N35A), drawn with the Noto
+Sans Egyptian Hieroglyphs font (SIL Open Font License; Debian/Ubuntu package fonts-noto-extra). The game lays them
+out in the plate of the inscription's style (inscriptionLayout in src/world/inscription_layout.cpp):
 
     cartouche  an upright royal oval on its bar, the signs in a column (up to 5)
     column     a framed panel, the signs in a column (up to 7)
     row        a framed panel, the signs in a row (up to 7)
     stela      a round-topped slab with a winged sun, the signs in columns read right to left (up to 12)
 
-Rerun after adding or changing an inscription's glyphs; the game reads the texts themselves at start-up.
-
-It also writes the name cartouches' atlas media/textures/decorations/name_cartouches.png (4 x 4 cells, NAME_CARTOUCHE_GRID
-in src/world/names.h; plan secret-name-gates): the sign groups in NAME_CARTOUCHES below, drawn as cartouches. They do
-not spell the names (content/names/*.txt): any picture stands for any name, the skill translates it.
+Rerun after adding a sign no G: line used before; the game reads the texts, styles and G: lines at start-up.
 """
 
 import glob
@@ -27,34 +30,16 @@ import unicodedata
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from decals import CELL, INK, PAINT, bleed, layer, weather  # noqa: E402
+from decals import INK, PAINT, S, bleed, layer, weather  # noqa: E402
 
-GRID = 16
-CELL_PX = 128  # an inscription cell of the atlas; the drawing is made at CELL and scaled down
-RESERVED_ID = 100  # NAME_CARTOUCHE_ID: no text, its cell stays empty
-NAME_GRID = 4
-# Plausible royal sign groups, by cell; a group fits a cartouche (up to 5 signs).
-NAME_CARTOUCHES = [
-    "N5 C10 Y5",
-    "G39 N5 F35",
-    "R4 X1 Q3 N35",
-    "Aa1 F12 N35 S29",
-    "N5 Z1 F9 D28",
-    "M17 Y5 N35 R4 X1",
-    "G5 Aa1 G17",
-    "S34 F35 D28",
-    "N5 D28 Z1 S29",
-    "O34 N37 F35 X1",
-    "I10 R8 F35",
-    "L2 X1 N5 Y5",
-    "E23 G17 D21",
-    "S29 N35 F35 X1 Z4",
-    "M23 X1 N5 S34",
-    "V13 G43 D46 X1",
-]
+PLATE_GRID = 2  # PLATE_GRID in src/world/inscription_layout.h; the plates are drawn at S = 512 px
+SIGN_GRID = 16  # HIEROGLYPH_SHEET_GRID
+SIGN_PX = 128  # a sign's cell; drawn at S and scaled down
+SIGN_GUTTER = 4  # px of a cell kept clear around the sign (HIEROGLYPH_GUTTER), so filtering does not reach the next
+SIGN_OUTLINE = 21  # the ink outline's MaxFilter size at S: about a cartouche's outline before
 FONT = "/usr/share/fonts/truetype/noto/NotoSansEgyptianHieroglyphs-Regular.ttf"
-COLOURS = ["blue", "red", "green", "black", "gold"]
 STYLES = ("cartouche", "column", "row", "stela")
+WHITE = (255, 255, 255, 235)  # the fill; the paint colours have this alpha too
 
 
 def sign(code):
@@ -67,38 +52,23 @@ def sign(code):
     return unicodedata.lookup(name)
 
 
-def read_entries(directory):
-    """{id: (style, [characters], source)} from every *.txt in directory."""
-    entries = {}
-    for path in sorted(glob.glob(os.path.join(directory, "*.txt"))):
-        current = None
-        with open(path, encoding="utf-8") as f:
-            for n, raw in enumerate(f, 1):
-                line = raw.strip()
-                if not line or line.startswith("#") or ":" not in line:
-                    continue
-                key, value = (part.strip() for part in line.split(":", 1))
-                where = f"{path}:{n}"
-                if key == "id":
-                    current = int(value)
-                    if current in entries:
-                        sys.exit(f"{where}: id {current} is taken by {entries[current][2]}")
-                    if not 1 <= current <= GRID * GRID or current == RESERVED_ID:
-                        sys.exit(f"{where}: id must be 1 to {GRID * GRID}, not {RESERVED_ID}")
-                    entries[current] = ["cartouche", [], where]
-                elif current is None:
-                    continue
-                elif key == "style":
-                    if value not in STYLES:
-                        sys.exit(f"{where}: style must be one of {', '.join(STYLES)}")
-                    entries[current][0] = value
-                elif key == "G":
+def read_codes(directories):
+    """{code: first file:line} of every G: line in the *.txt files of the directories."""
+    codes = {}
+    for directory in directories:
+        for path in sorted(glob.glob(os.path.join(directory, "*.txt"))):
+            with open(path, encoding="utf-8") as f:
+                for n, raw in enumerate(f, 1):
+                    key, _, value = raw.strip().partition(":")
+                    if key.strip() != "G":
+                        continue
                     for code in value.split():
                         try:
-                            entries[current][1].append(sign(code))
+                            sign(code)
                         except (KeyError, ValueError):
-                            sys.exit(f"{where}: no hieroglyph {code}")
-    return entries
+                            sys.exit(f"{path}:{n}: no hieroglyph {code}")
+                        codes.setdefault(code, f"{path}:{n}")
+    return codes
 
 
 def glyph_mask(char, size):
@@ -110,18 +80,21 @@ def glyph_mask(char, size):
     return img
 
 
-def paint_sign(img, char, box, colour, size):
-    """The sign centred in box (x, y, w, h), filled in colour with an ink outline, scaled to fill the box: a flat sign
-    spans its width, a tall one its height."""
-    x, y, w, h = box
-    mask = glyph_mask(char, size)
-    scale = min(w / mask.width, h / mask.height)
+def sign_cell(char, seed):
+    """The sign centred in an S x S layer, as large as fits with its outline, and its width / height."""
+    inner = S - 2 * SIGN_GUTTER * S // SIGN_PX
+    pad = SIGN_OUTLINE // 2 + 2
+    mask = glyph_mask(char, inner)
+    scale = min((inner - 2 * pad) / mask.width, (inner - 2 * pad) / mask.height)
     mask = mask.resize((max(1, int(mask.width * scale)), max(1, int(mask.height * scale))), Image.LANCZOS)
-    ox = int(x + (w - mask.width) / 2)
-    oy = int(y + (h - mask.height) / 2)
-    outline = mask.filter(ImageFilter.MaxFilter(7))
-    img.paste(Image.new("RGBA", mask.size, INK), (ox, oy), outline)
-    img.paste(Image.new("RGBA", mask.size, colour), (ox, oy), mask)
+    framed = Image.new("L", (mask.width + 2 * pad, mask.height + 2 * pad), 0)
+    framed.paste(mask, (pad, pad))
+    outline = framed.filter(ImageFilter.MaxFilter(SIGN_OUTLINE))
+    img = layer()
+    at = ((S - framed.width) // 2, (S - framed.height) // 2)
+    img.paste(Image.new("RGBA", framed.size, INK), at, outline)
+    img.paste(Image.new("RGBA", framed.size, WHITE), at, framed)
+    return weather(img, seed, 0.25, grain=6), framed.width / framed.height
 
 
 def panel(d, box):
@@ -131,45 +104,28 @@ def panel(d, box):
     d.rectangle([x0 + 12, y0 + 12, x1 - 12, y1 - 12], outline=(120, 78, 40, 180), width=2)
 
 
-def column_of(img, signs, x0, y0, x1, y1, first_colour=0):
-    n = max(1, len(signs))
-    slot = (y1 - y0) / n
-    size = int(min(slot, x1 - x0) * 0.95)
-    for k, char in enumerate(signs):
-        colour = PAINT[COLOURS[(k + first_colour) % len(COLOURS)]]
-        paint_sign(img, char, (x0, y0 + k * slot + slot * 0.06, x1 - x0, slot * 0.88), colour, size)
-
-
-def cartouche(signs, seed):
+def cartouche():
     img = layer()
     d = ImageDraw.Draw(img)
     d.rounded_rectangle([168, 28, 344, 446], radius=86, fill=(232, 216, 170, 110), outline=INK, width=12)
     d.rounded_rectangle([168, 28, 344, 446], radius=86, outline=PAINT["gold"], width=6)
     d.rectangle([140, 446, 372, 476], fill=PAINT["gold"], outline=INK, width=4)
-    column_of(img, signs[:5], 196, 66, 316, 412)
-    return weather(img, seed, 0.35)
+    return weather(img, 101, 0.35)
 
 
-def column(signs, seed):
+def column():
     img = layer()
     panel(ImageDraw.Draw(img), (150, 10, 362, 502))
-    column_of(img, signs[:7], 182, 30, 330, 482, 1)
-    return weather(img, seed, 0.4)
+    return weather(img, 102, 0.4)
 
 
-def row(signs, seed):
+def row():
     img = layer()
     panel(ImageDraw.Draw(img), (8, 170, 504, 342))
-    signs = signs[:7]
-    n = max(1, len(signs))
-    slot = (476 - 36) / n
-    size = int(min(slot, 140) * 0.95)
-    for k, char in enumerate(signs):
-        paint_sign(img, char, (36 + k * slot + slot * 0.05, 192, slot * 0.9, 128), PAINT[COLOURS[(k + 2) % len(COLOURS)]], size)
-    return weather(img, seed, 0.4)
+    return weather(img, 103, 0.4)
 
 
-def stela(signs, seed):
+def stela():
     img = layer()
     d = ImageDraw.Draw(img)
     slab = (232, 216, 170, 120)
@@ -182,45 +138,38 @@ def stela(signs, seed):
         d.polygon([(256, 100), (256 + s * 150, 82), (256 + s * 160, 110), (256, 128)], fill=PAINT["blue"], outline=INK, width=3)
     d.ellipse([234, 84, 278, 128], fill=PAINT["red"], outline=INK, width=4)
     d.line([(96, 160), (416, 160)], fill=INK, width=4)
-    # Columns of signs, read from the right, as on most stelae.
-    signs = signs[:12]
-    per = 4
-    cols = max(1, (len(signs) + per - 1) // per)
-    width = (400 - 112) / cols
-    for c in range(cols):
-        x1 = 400 - c * width
-        column_of(img, signs[c * per:(c + 1) * per], x1 - width + 8, 176, x1 - 8, 488, c)
-        if c > 0:
-            d.line([(x1, 170), (x1, 490)], fill=(120, 78, 40, 180), width=3)
-    return weather(img, seed, 0.35)
+    return weather(img, 104, 0.35)
 
 
 DRAW = {"cartouche": cartouche, "column": column, "row": row, "stela": stela}
 
 
-def main(directory, path, names_path):
-    entries = read_entries(directory)
-    atlas = Image.new("RGBA", (CELL_PX * GRID, CELL_PX * GRID), (0, 0, 0, 0))
-    for ident, (style, signs, _) in sorted(entries.items()):
-        cell = DRAW[style](signs, 100 + ident).resize((CELL_PX, CELL_PX), Image.LANCZOS)
-        k = ident - 1
-        atlas.paste(cell, ((k % GRID) * CELL_PX, (k // GRID) * CELL_PX))
-    bleed(atlas).save(path)
-    print(f"wrote {path} ({len(entries)} inscriptions)")
+def main(content, out):
+    plates = Image.new("RGBA", (S * PLATE_GRID, S * PLATE_GRID), (0, 0, 0, 0))
+    for k, style in enumerate(STYLES):
+        plates.paste(DRAW[style](), ((k % PLATE_GRID) * S, (k // PLATE_GRID) * S))
+    path = os.path.join(out, "inscription_plates.png")
+    bleed(plates).save(path)
+    print(f"wrote {path}")
 
-    assert len(NAME_CARTOUCHES) == NAME_GRID * NAME_GRID
-    names = Image.new("RGBA", (CELL * NAME_GRID, CELL * NAME_GRID), (0, 0, 0, 0))
-    for k, group in enumerate(NAME_CARTOUCHES):
-        cell = cartouche([sign(code) for code in group.split()], 300 + k).resize((CELL, CELL), Image.LANCZOS)
-        names.paste(cell, ((k % NAME_GRID) * CELL, (k // NAME_GRID) * CELL))
-    bleed(names).save(names_path)
-    print(f"wrote {names_path} ({len(NAME_CARTOUCHES)} name cartouches)")
+    codes = sorted(read_codes([os.path.join(content, "inscriptions"), os.path.join(content, "names")]))
+    if len(codes) > SIGN_GRID * SIGN_GRID:
+        sys.exit(f"{len(codes)} signs, the sheet holds {SIGN_GRID * SIGN_GRID}")
+    sheet = Image.new("RGBA", (SIGN_PX * SIGN_GRID, SIGN_PX * SIGN_GRID), (0, 0, 0, 0))
+    lines = ["# The hieroglyph sheet's cells (tools/textures/inscriptions.py): Gardiner code, width / height"]
+    for k, code in enumerate(codes):
+        cell, aspect = sign_cell(sign(code), 500 + k)
+        sheet.paste(cell.resize((SIGN_PX, SIGN_PX), Image.LANCZOS), ((k % SIGN_GRID) * SIGN_PX, (k // SIGN_GRID) * SIGN_PX))
+        lines.append(f"{code} {aspect:.3f}")
+    path = os.path.join(out, "hieroglyphs.png")
+    bleed(sheet).save(path)
+    with open(os.path.join(out, "hieroglyphs.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    print(f"wrote {path} and its manifest ({len(codes)} signs)")
 
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     root = os.path.join(here, "..", "..")
-    decorations = os.path.join(root, "media", "textures", "decorations")
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "content", "inscriptions"),
-         sys.argv[2] if len(sys.argv) > 2 else os.path.join(decorations, "inscriptions.png"),
-         sys.argv[3] if len(sys.argv) > 3 else os.path.join(decorations, "name_cartouches.png"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "content"),
+         sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "media", "textures", "decorations"))

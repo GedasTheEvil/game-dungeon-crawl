@@ -5,8 +5,6 @@
 #include "../../src/world/journal.h"
 #include "../../src/world/progression.h"
 #include "sim_world.h"
-#include <filesystem>
-#include <fstream>
 #include <set>
 #include <sstream>
 #include "../../src/core/paths.h"
@@ -23,7 +21,7 @@ JournalInscription entry(int id, int level) {
 }
 } // namespace
 
-TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems told by line") {
+TEST_CASE("an inscription file: entries by id, its style and signs, problems told by line") {
 	std::istringstream in(
 		"# comment\n"
 		"id: 2\n"
@@ -41,6 +39,7 @@ TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems
 		"id: 4\n"
 		"T: only text\n"
 		"X: what\n"
+		"style: oval\n"
 	);
 	std::vector<InscriptionText> out;
 	std::vector<std::string> errors;
@@ -50,12 +49,17 @@ TEST_CASE("an inscription file: entries by id, the atlas lines skipped, problems
 	CHECK(out[0].title == "The curse");
 	CHECK(out[0].text == std::vector<std::string>{"Line one", "Line two"});
 	CHECK(out[0].note == "A note");
+	CHECK(out[0].style == InscriptionStyle::Column);
+	CHECK(out[0].glyphs == std::vector<std::string>{"I3", "N35A"});
+	CHECK(out[0].glyphSource == "f.txt:5");
 	CHECK(out[1].id == 4);
-	REQUIRE(errors.size() == 4);
+	CHECK(out[1].style == InscriptionStyle::Cartouche);
+	REQUIRE(errors.size() == 5);
 	CHECK(errors[0] == "f.txt:10: inscription 3 has no T: line, skipped");
 	CHECK(errors[1] == "f.txt:12: id must be 1 to 256, entry skipped");
 	CHECK(errors[2] == "f.txt:13: T: before any id: line, ignored");
 	CHECK(errors[3].find("f.txt:16:") == 0);
+	CHECK(errors[4] == "f.txt:17: style: must be cartouche, column, row or stela, line ignored");
 }
 
 TEST_CASE("an inscription read twice is written in the journal once, and kept by a save and load") {
@@ -323,39 +327,14 @@ TEST_CASE("every campaign inscription has a text, and each text stands once") {
 	CHECK(used.size() <= book.Size());
 }
 
-TEST_CASE("every inscription id has a text and a glyph line, and the atlas holds them all") {
+TEST_CASE("every inscription id has a text and a G: line") {
 	InscriptionBook book;
 	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
 	CHECK(book.Size() >= 100); // enough for 40 to 60 levels (plan campaign-texts)
 	CHECK_FALSE(isInscriptionId(NAME_CARTOUCHE_ID));
 	CHECK(isInscriptionId(INSCRIPTION_MAX));
-	std::set<int> withGlyphs; // the ids with a G: line, read like tools/textures/inscriptions.py does
-	for (const auto& file : std::filesystem::directory_iterator(CONTENT_DIR "inscriptions")) {
-		if (file.path().extension() != ".txt")
-			continue;
-		std::ifstream in(file.path());
-		std::string line;
-		int id = 0;
-		while (std::getline(in, line)) {
-			if (line.rfind("id:", 0) == 0)
-				id = std::stoi(line.substr(3));
-			else if (line.rfind("G:", 0) == 0 && line.find_first_not_of(" \t", 2) != std::string::npos)
-				withGlyphs.insert(id);
-		}
+	for (const InscriptionText& text : book.All()) {
+		CAPTURE(text.source);
+		CHECK_FALSE(text.glyphs.empty());
 	}
-	for (int id = 1; id <= INSCRIPTION_MAX; id++) {
-		if (book.Find(id) == nullptr)
-			continue;
-		CAPTURE(id);
-		CHECK(withGlyphs.count(id) == 1);
-	}
-	// A PNG's header holds the size: the atlas is the grid of 128 px cells.
-	std::ifstream png(MEDIA_DIR "textures/decorations/inscriptions.png", std::ios::binary);
-	REQUIRE(png);
-	unsigned char head[24] = {};
-	png.read(reinterpret_cast<char*>(head), sizeof head);
-	const int width = (head[16] << 24) | (head[17] << 16) | (head[18] << 8) | head[19];
-	const int height = (head[20] << 24) | (head[21] << 16) | (head[22] << 8) | head[23];
-	CHECK(width == INSCRIPTION_ATLAS_GRID * 128);
-	CHECK(height == INSCRIPTION_ATLAS_GRID * 128);
 }

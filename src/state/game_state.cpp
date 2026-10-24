@@ -57,6 +57,11 @@ void GameState::Load() {
 	for (const std::string& message : names.Load(CONTENT_DIR "names"))
 		LOG_WARNINGF("game", "Names: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(names.Size()) + " royal names");
+	std::vector<std::string> signProblems = assets.decor.hieroglyphs.Load(HIEROGLYPH_MANIFEST);
+	for (const std::string& message : checkSigns(assets.decor.hieroglyphs, inscriptions, names))
+		signProblems.push_back(message);
+	for (const std::string& message : signProblems)
+		LOG_WARNINGF("game", "Hieroglyphs: %s", message.c_str());
 	dungeon.Link(
 		{player.get(),
 		 &journal,

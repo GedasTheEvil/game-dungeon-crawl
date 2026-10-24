@@ -1,0 +1,48 @@
+# Plan composed-inscriptions: a name cartouche spelling the level's name (tests/levels/name_gate), then one
+# inscription of each style (tests/levels/inscription_styles), each composed from its plate and the hieroglyph sheet,
+# on the wall up close; then their journal pages, two a spread in reading order.
+seed 1
+god
+level tests/levels/name_gate
+heka 1
+learn words_of_thoth
+wait 30
+walk to 5.5
+wait 10
+screenshot name_wall
+interact
+wait 5
+level tests/levels/inscription_styles
+wait 30
+walk to 3.5
+wait 10
+screenshot cartouche_wall
+interact
+wait 5
+walk to 6.5
+wait 10
+screenshot column_wall
+interact
+wait 5
+walk to 9.5
+wait 10
+screenshot row_wall
+interact
+wait 5
+walk to 12.5
+wait 10
+screenshot stela_wall
+interact
+wait 5
+expect journal_inscriptions == 5
+key j
+wait 5
+key up
+wait 45
+screenshot pages_name_cartouche
+key right
+wait 45
+screenshot pages_column_row
+key right
+wait 45
+screenshot page_stela

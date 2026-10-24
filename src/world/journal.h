@@ -38,7 +38,7 @@ struct JournalRiddle {
 // A wall inscription read (plan hieroglyph-cartouches). A copy of its text, like a riddle: content/inscriptions/*.txt
 // can change between saves.
 struct JournalInscription {
-	int id = 0; // the text id (inscriptions.h); its glyphs on the page come from the atlas cell of this id
+	int id = 0; // the text id (inscriptions.h); its signs on the page come from the text of this id
 	std::string title;
 	std::vector<std::string> text;
 	std::string note;
@@ -47,9 +47,9 @@ struct JournalInscription {
 	// learnt (plan skill-hieroglyphs).
 	bool translated = true;
 	Boon boon; // given when it is translated (plan inscription-boons)
-	// A name cartouche (id NAME_CARTOUCHE_ID, plan secret-name-gates): its cell of the name cartouche atlas; one per
-	// level, so the level tells them apart. -1 for any other inscription.
-	int picture = -1;
+	// A name cartouche (id NAME_CARTOUCHE_ID, plan secret-name-gates): the name in signs, a copy of its G: line (plan
+	// composed-inscriptions); one per level, so the level tells them apart. Empty for any other inscription.
+	std::vector<std::string> glyphs;
 
 	[[nodiscard]] bool SameInscription(const JournalInscription& other) const {
 		return id == other.id && (id != NAME_CARTOUCHE_ID || level == other.level);

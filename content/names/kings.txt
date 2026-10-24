@@ -1,50 +1,60 @@
 # The royal names of the name gates (plan secret-name-gates, docs/names.md). One entry per name: name:, then an A:
 # line per accepted spelling (compared like riddle answers), an optional title: (default king) and N: comment.
+# G: spells the name in signs by Gardiner code, as on its cartouche (up to 5; docs/names.md).
 
 name: Khufu
+G: Aa1 G43 I9 G43
 A: khufu
 A: cheops
 N: The Great Pyramid's owner. Not a modest man.
 
 name: Djoser
+G: D45 D21
 A: djoser
 A: zoser
 N: First pyramid, six steps. Imhotep did the sums.
 
 name: Sneferu
+G: S29 F35 I9 D21 G43
 A: sneferu
 A: snefru
 N: Built three pyramids until one came out right.
 
 name: Hatshepsut
+G: F4 X1 A51 X1
 title: queen
 A: hatshepsut
 A: hatchepsut
 N: Ruled as king, beard and all.
 
 name: Thutmose
+G: G26 F31 S29
 A: thutmose
 A: thutmosis
 A: tuthmosis
 N: There were four of them. The temple walls keep count.
 
 name: Amenhotep
+G: M17 Y5 N35 R4 X1
 A: amenhotep
 A: amenophis
 N: Greek visitors called him Amenophis. He never answered to it.
 
 name: Akhenaten
+G: G25 N35 M17 X1 N5
 A: akhenaten
 A: akhenaton
 A: echnaton
 N: One god, one city, one very short dynasty.
 
 name: Nefertiti
+G: F35 X1 M18 X1 B1
 title: queen
 A: nefertiti
 N: The most famous face in Berlin.
 
 name: Tutankhamun
+G: M17 N35 X1 G43 S34
 A: tutankhamun
 A: tutankhamen
 A: tutankhamon
@@ -52,136 +62,162 @@ A: tut
 N: A minor king with a major tomb.
 
 name: Ramesses
+G: N5 F31 S29 S29
 A: ramesses
 A: ramses
 A: rameses
 N: Ramesses the Great. Built half of Egypt, signed the other half.
 
 name: Seti
+G: C7 X1 Z4
 A: seti
 A: sethos
 N: His tomb is the longest in the valley. Bring sandwiches.
 
 name: Merneptah
+G: U6 N35 Q3 X1 V28
 A: merneptah
 N: Thirteenth son of Ramesses. Patience pays.
 
 name: Narmer
+G: N35 D21 U23
 A: narmer
 N: Joined the two lands with one palette.
 
 name: Khafre
+G: N5 N28 I9
 A: khafre
 A: chephren
 A: khafra
 N: The Sphinx is said to wear his face.
 
 name: Menkaure
+G: N5 Y5 D28 D28 D28
 A: menkaure
 A: mycerinus
 A: menkaura
 N: The smallest of the three pyramids. The kindest king, says Herodotus.
 
 name: Unas
+G: E34 N35 M17 S29
 A: unas
 A: wenis
 N: The first to write spells on his burial walls.
 
 name: Teti
+G: X1 X1 M17
 A: teti
 N: Murdered by his bodyguards, says Manetho. Choose staff with care.
 
 name: Pepi
+G: Q3 Q3 M17 M17
 A: pepi
 A: pepy
 N: Pepi II reigned some ninety years. The longest wait for an heir.
 
 name: Ahmose
+G: N12 F31 S29
 A: ahmose
 A: amosis
 A: ahmosis
 N: Threw out the Hyksos and kept their chariots.
 
 name: Sobekneferu
+G: I4 F35 F35 F35
 title: queen
 A: sobekneferu
 A: sobekneferure
 N: The crocodile god's beauty. First queen with the full royal titles.
 
 name: Taharqa
+G: X1 V28 D21 N29
 A: taharqa
 A: taharka
 A: tirhakah
 N: A pharaoh from Kush, mentioned in the Bible.
 
 name: Psamtik
+G: Q3 S29 G17 V13 V31
 A: psamtik
 A: psammetichus
 N: Raised two children without words to find the first language. Science!
 
 name: Nectanebo
+G: Aa1 M3 X1 V30 I9
 A: nectanebo
 A: nakhtnebef
 N: The last native pharaoh. After him, the Persians.
 
 name: Cleopatra
+G: V31 E23 M17 Q3 G1
 title: queen
 A: cleopatra
 N: Closer in time to the moon landing than to the pyramids.
 
 name: Hor-Aha
+G: G5 D34
 A: horaha
 A: aha
 N: "The fighting Horus". Killed by a hippo, they say.
 
 name: Den
+G: D46 N35
 A: den
 A: dewen
 N: Three letters. The shortest name on the list.
 
 name: Mentuhotep
+G: Y5 N35 X1 R4 X1
 A: mentuhotep
 A: montuhotep
 N: Put Egypt back together after the first falling apart.
 
 name: Senusret
+G: O34 N35 F12 S29 X1
 A: senusret
 A: sesostris
 A: senwosret
 N: The Greeks made a world conqueror out of him.
 
 name: Amenemhat
+G: M17 N35 G17 F4 X1
 A: amenemhat
 A: amenemhet
 A: ammenemes
 N: Built a labyrinth, says Herodotus. Nobody found the way out since.
 
 name: Horemheb
+G: G5 G17 V28 W3
 A: horemheb
 A: haremhab
 N: A general who made himself king. And scratched out the ones before.
 
 name: Peribsen
+G: Q3 D21 F34 S29 N35
 A: peribsen
 N: Put Seth's animal over his name instead of Horus's falcon. Brave.
 
 name: Khasekhemwy
+G: N28 S42 Z4
 A: khasekhemwy
 A: khasekhemui
 N: Horus and Seth both on his name. He made peace between them.
 
 name: Sahure
+G: N5 S29 D61 G43
 A: sahure
 A: sahura
 N: Sent ships to Punt for myrrh. The temple walls show the receipts.
 
 name: Shoshenq
+G: N37 N37 N35 N29
 A: shoshenq
 A: sheshonq
 A: shishak
 N: A Libyan on the throne. The Bible remembers his raid on Jerusalem.
 
 name: Ptolemy
+G: Q3 X1 G43 E23 S29
 A: ptolemy
 A: ptolemaios
 N: A Macedonian general's line. There were fifteen of them, all Ptolemy.

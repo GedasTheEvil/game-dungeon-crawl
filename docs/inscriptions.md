@@ -21,7 +21,7 @@ life: max health; tireless legs and runners: max stamina).
 
 A name cartouche ([names](names.md), plan secret-name-gates) is an inscription with the text id 100
 (`NAME_CARTOUCHE_ID`, no text id: the ids skip it): it holds the level's royal name for its name gate, not a text from the files. It is read, copied,
-translated and rewarded like the others (no boon); its picture comes from `name_cartouches.png`, picked per run.
+translated and rewarded like the others (no boon); its signs spell the name (the name's `G:` line in `content/names/`).
 
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign
 they stand from level 1 on, 2 to 3 per level (1 to 2 in the first zone); without the hieroglyph skill, which comes
@@ -29,9 +29,14 @@ with the first boss's heka ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md
 `levelcheck` warns about a text id with no text, the same text id twice among the files it checks, and an inscription the player cannot
 stand in front of.
 
-The game loads every `content/inscriptions/*.txt` file at start-up. Edit the texts there; no rebuild is needed. The glyphs
-on the wall come from the atlas `media/textures/decorations/inscriptions.png`: after changing a `G:` or `style:` line,
-rebuild it with `python3 tools/textures/inscriptions.py`.
+The game loads every `content/inscriptions/*.txt` file at start-up. Edit the texts, styles and signs there; no rebuild
+is needed. The game composes each inscription when it draws it ([plan](plan/composed-inscriptions.md),
+`src/world/inscription_layout.cpp`): the **plate** of its style (the empty frame,
+`media/textures/decorations/inscription_plates.png`), then a quad per sign from the **hieroglyph sheet**
+(`hieroglyphs.png`, a cell per sign, its manifest `hieroglyphs.txt`), each sign tinted with its paint. A text that only
+reuses signs costs no texture. A `G:` code the sheet lacks is a load error in `game.log` (and fails a unit test): rebuild
+the sheet with `python3 tools/textures/inscriptions.py`. It collects the codes of every `G:` line in
+`content/inscriptions/` and `content/names/`.
 
 ## File format
 
@@ -49,10 +54,10 @@ N: A crocodile in the water. Oddly specific. Noted.
 
 | Line | Meaning |
 |---|---|
-| `id: N` | Text id, 1 to 256 (`INSCRIPTION_MAX`), the tile's attribute (100 is a name cartouche, no text: skip it). Each id once over all files; the atlas (16 x 16 cells of 128 px) has a cell per id. |
+| `id: N` | Text id, 1 to 256 (`INSCRIPTION_MAX`), the tile's attribute (100 is a name cartouche, no text: skip it). Each id once over all files. |
 | `title: TEXT` | Heading of the journal page only. |
-| `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 5 signs), `column` (up to 7), `row` (up to 7) or `stela` (a round-topped slab with a winged sun, up to 12 in columns). Default: `cartouche`. Only the atlas tool reads it. |
-| `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Only the atlas tool reads it. |
+| `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 5 signs), `column` (up to 7), `row` (up to 7) or `stela` (a round-topped slab with a winged sun, up to 12 in columns). Default: `cartouche`. Another name is a load error. |
+| `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Signs past the style's cap are not drawn. |
 | `T: TEXT` | Translation, one line each. Long lines wrap on the journal page. About six lines fit in the hand font; a longer text is written smaller (up to seven lines). |
 | `N: TEXT` | The archaeologist's comment: pencilled at the bottom of the journal page only. Keep it to one short line. |
 | `boon: KIND N` | Optional. The boon the translation gives: `might 1`, `armor 1`, `life 10` (max health %), `stamina 10` (max stamina %). An unknown kind or a number below 1 is a load error. |

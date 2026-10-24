@@ -13,11 +13,11 @@ I copied might hold it." Learning the skill later translates the copy, name and 
 
 Each run picks the names anew: New Game rolls a seed (`RunStats::nameSeed`, kept in the save game) that shuffles the
 name list, level 1 the first name. No name repeats in a run as long as the list has at least 35 names (one per campaign level) (the unit tests
-check it). The seed also picks each level's cartouche picture, one of the 16 sign groups in
-`media/textures/decorations/name_cartouches.png`. The pictures do not spell the names: the skill translates them.
+check it). The cartouche spells the name in signs (its `G:` line): a player who reads hieroglyphs can open the gate
+without the skill.
 
-The game loads every `content/names/*.txt` file at start-up. Add a name or edit one; no rebuild is needed, nothing to
-bake.
+The game loads every `content/names/*.txt` file at start-up. Add a name or edit one; no rebuild is needed. A sign no
+`G:` line used before needs the hieroglyph sheet rebuilt (below).
 
 ## File format
 
@@ -35,6 +35,7 @@ N: Ramesses the Great. Built half of Egypt, signed the other half.
 | `name: TEXT` | The name as the journal writes it, in capitals: "The name of the king: RAMESSES". |
 | `title: TEXT` | Optional. Who bore it: "The name of the queen: NEFERTITI". Default: `king`. |
 | `A: TEXT` | An accepted spelling, one line each. Compared like a riddle's answer ([riddles](riddles.md)): letters and digits only, lower case, so `Hor-Aha` matches `A: horaha`. At most 32 characters. |
+| `G: CODES` | The name in signs by Gardiner code, as on its real cartouche (`Khufu`: `Aa1 G43 I9 G43`), up to 5: drawn in the name cartouche like an inscription's `G:` line ([inscriptions](inscriptions.md)). |
 | `N: TEXT` | Optional. The archaeologist's comment, pencilled on the journal page before "Something on this level wants to hear it." Keep it to 70 characters: the page has two lines for both. |
 
 A name without an `A:` line is skipped. Use plain ASCII: the fonts have no other characters.
@@ -48,7 +49,7 @@ The game log (`game.log`) lists every problem as `file:line: message` and the co
 level, a cartouche next to its gate or out of reach while the gate is sealed, and an exit, key
 or lever behind a name gate.
 
-## The pictures
+## The signs
 
-`python3 tools/textures/inscriptions.py` bakes the cartouche pictures with the inscription atlas: their sign groups are
-`NAME_CARTOUCHES` in the tool, by Gardiner code as an inscription's `G:` line ([inscriptions](inscriptions.md)).
+`python3 tools/textures/inscriptions.py` bakes the hieroglyph sheet from the `G:` lines of the inscriptions and the names
+([inscriptions](inscriptions.md)); a code the sheet lacks is a load error in `game.log`.

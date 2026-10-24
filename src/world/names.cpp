@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <numeric>
+#include <sstream>
 
 namespace {
 std::string trim(const std::string& s) {
@@ -97,8 +98,14 @@ void ParseNames(
 				current.answers.push_back(normalized);
 		} else if (key == "N") {
 			current.note = value;
+		} else if (key == "G") {
+			std::istringstream codes(value);
+			current.glyphs.clear();
+			for (std::string code; codes >> code;)
+				current.glyphs.push_back(code);
+			current.glyphSource = source + ":" + std::to_string(lineNo);
 		} else {
-			error("expected name:, title:, A: or N:, line ignored");
+			error("expected name:, title:, A:, G: or N:, line ignored");
 		}
 	}
 	finish();
@@ -139,9 +146,4 @@ const RoyalName* NameList::ForLevel(uint32_t seed, int level) const {
 		std::swap(order[i - 1], order[static_cast<size_t>(rng.below(static_cast<int>(i)))]);
 	const auto slot = static_cast<size_t>(std::max(level - 1, 0)) % order.size();
 	return &names[order[slot]];
-}
-
-int nameCartouchePicture(uint32_t seed, int level) {
-	Rng rng((static_cast<uint64_t>(seed) << 16) ^ static_cast<uint64_t>(static_cast<uint16_t>(level)));
-	return rng.below(NAME_CARTOUCHE_PICTURES);
 }

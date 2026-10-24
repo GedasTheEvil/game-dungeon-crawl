@@ -661,7 +661,6 @@ class Dungeon {
 	// The level's royal name in this run (plan secret-name-gates, names.h): the name gate asks for it, the name
 	// cartouche shows it. Null: no names loaded.
 	[[nodiscard]] const RoyalName* LevelName() const;
-	[[nodiscard]] int NameCartouchePicture() const; // the name cartouche's cell of its atlas
 	// The right name was spoken at the name gate in the player's cell: it opens for good. False: no name gate there.
 	bool SpeakName();
 	// The jump key, facing dir (-1 / +1): a jump starts unless the player is in the air, dead, held (PlayerHeldBy),

@@ -1,5 +1,6 @@
 #include "journal_view.h"
 #include "../graphics/gl_includes.h"
+#include "../graphics/inscription_draw.h"
 #include "../input/input.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
@@ -1081,7 +1082,7 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 // A creature's model, frame 0 of its move clip, from the side and a little above. As a pencil sketch: the outline
 // only (a depth pass first, so only the front surfaces get lines). As a photo: a black and white print, lit, on a
 // white-bordered card tilted by `tilt` degrees.
-// The hieroglyphs copied from the wall (their cell of the inscription atlas), the translation in ink under them, the
+// The hieroglyphs copied from the wall (composed like the wall's), the translation in ink under them, the
 // archaeologist's comment pencilled at the bottom.
 void JournalScreen::DrawInscription(const Rect& p, int index) {
 	const JournalInscription& e = Game().journal.Inscriptions()[static_cast<size_t>(index)];
@@ -1090,20 +1091,24 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 	// A copy made without the hieroglyph skill: the glyphs and a pencilled line, no title, no translation.
 	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, e.translated ? e.title.c_str() : "Hieroglyphs");
 
-	const bool name = e.id == NAME_CARTOUCHE_ID && e.picture >= 0 && e.picture < NAME_CARTOUCHE_PICTURES;
-	if (isInscriptionId(e.id) || name) {
-		const AtlasRect uv = name ? atlasCell(e.picture, NAME_CARTOUCHE_GRID)
-								  : atlasCell(e.id - 1, INSCRIPTION_ATLAS_GRID);
-		Rect box = {p.cx() - GLYPHS_SIDE / 2, top - GLYPHS_TOP - GLYPHS_SIDE, GLYPHS_SIDE, GLYPHS_SIDE};
-		texturedRect(
-			box,
-			(name ? Game().assets.decor.nameCartoucheTex : Game().assets.decor.inscriptionTex).ID(),
-			PAPER,
-			uv.u0,
-			uv.v0,
-			uv.u1,
-			uv.v1
+	// Composed like the wall's (plan composed-inscriptions): a name cartouche from its copied signs, a text from its
+	// style and G: line.
+	const InscriptionText* source = isInscriptionId(e.id) ? Game().inscriptions.Find(e.id) : nullptr;
+	if (source != nullptr || e.id == NAME_CARTOUCHE_ID) {
+		const DecorSet& decor = Game().assets.decor;
+		const float paper[3] = {PAPER.r, PAPER.g, PAPER.b};
+		glEnable(GL_TEXTURE_2D);
+		drawInscription(
+			p.cx() - GLYPHS_SIDE / 2,
+			top - GLYPHS_TOP - GLYPHS_SIDE,
+			GLYPHS_SIDE,
+			0.f,
+			source != nullptr ? source->style : InscriptionStyle::Cartouche,
+			source != nullptr ? source->glyphs : e.glyphs,
+			{decor.inscriptionPlates, decor.hieroglyphTex, decor.hieroglyphs},
+			paper
 		);
+		glDisable(GL_TEXTURE_2D);
 		beginShapes();
 	}
 

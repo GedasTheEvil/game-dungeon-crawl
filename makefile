@@ -23,7 +23,7 @@ BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
 BASE_LIB_HEADERS=src/core/worker_pool.h
 LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
-	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
+	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/inscription_layout.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/sun_beam.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp \
 	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp src/state/save_slots.cpp \
 	src/entities/player_stats.cpp src/test/scenario_script.cpp src/world/run_stats.cpp src/world/leaderboard.cpp
@@ -41,7 +41,7 @@ SIM_LIB_HEADERS=src/world/dungeon.h src/world/dungeon_rules.h src/world/sim_link
 	src/graphics/render_config.h
 RENDER_LIB_SOURCES=src/graphics/textures.cpp src/graphics/font.cpp \
 	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
-	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp
+	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp src/graphics/inscription_draw.cpp
 BASE_LIB=$(BUILD)/libbase.a
 LEVEL_LIB=$(BUILD)/liblevel.a
 SIM_LIB=$(BUILD)/libsim.a

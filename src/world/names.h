@@ -2,7 +2,7 @@
 #define NAMES_H
 
 // The royal names that seal the name gates (plan secret-name-gates): content/names/*.txt (docs/names.md), loaded at
-// start-up like the riddles. Each run gives every campaign level its own name and the picture of its name cartouche.
+// start-up like the riddles. Each run gives every campaign level its own name; its name cartouche spells it.
 // Shared by the game and the tests, so no GL here.
 
 #include <cstdint>
@@ -20,7 +20,9 @@ struct RoyalName {
 	std::string title = "king"; // "The name of the <title>: RAMESSES"
 	std::vector<std::string> answers; // normalized, see NormalizeAnswer
 	std::string note; // the archaeologist's comment, optional
+	std::vector<std::string> glyphs; // the name in signs by Gardiner code, the G: line (plan composed-inscriptions)
 	std::string source; // "file:line" of the name: line, for messages
+	std::string glyphSource; // "file:line" of the G: line
 
 	// Typed at the gate: compared like a riddle's answer.
 	[[nodiscard]] bool Accepts(const std::string& typed) const;
@@ -48,12 +50,5 @@ class NameList {
   private:
 	std::vector<RoyalName> names;
 };
-
-// The pictures of the name cartouches, media/textures/decorations/name_cartouches.png (tools/textures/inscriptions.py):
-// NAME_CARTOUCHE_GRID x NAME_CARTOUCHE_GRID royal-looking sign groups, any picture for any name (they do not spell it).
-constexpr int NAME_CARTOUCHE_GRID = 4;
-constexpr int NAME_CARTOUCHE_PICTURES = NAME_CARTOUCHE_GRID * NAME_CARTOUCHE_GRID;
-// The picture of a level's name cartouche in the run of this seed, 0 .. NAME_CARTOUCHE_PICTURES - 1.
-[[nodiscard]] int nameCartouchePicture(uint32_t seed, int level);
 
 #endif

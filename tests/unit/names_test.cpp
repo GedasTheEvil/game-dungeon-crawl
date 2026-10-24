@@ -48,6 +48,7 @@ TEST_CASE("a name file: entries by name:, the spellings normalized, problems tol
 		"A: Hor-Aha\n"
 		"A: aha\n"
 		"N: Killed by a hippo.\n"
+		"G: G5 D34\n"
 		"\n"
 		"name: Nobody\n"
 		"name: Nefertiti\n"
@@ -63,13 +64,16 @@ TEST_CASE("a name file: entries by name:, the spellings normalized, problems tol
 	CHECK(out[0].title == "king");
 	CHECK(out[0].answers == std::vector<std::string>{"horaha", "aha"});
 	CHECK(out[0].note == "Killed by a hippo.");
+	CHECK(out[0].glyphs == std::vector<std::string>{"G5", "D34"});
+	CHECK(out[0].glyphSource == "f.txt:6");
+	CHECK(out[1].glyphs.empty());
 	CHECK(out[1].title == "queen");
 	CHECK(out[0].Accepts("HOR AHA"));
 	CHECK(out[0].Accepts("the Aha!"));
 	CHECK_FALSE(out[0].Accepts("horus"));
 	REQUIRE(errors.size() == 2);
-	CHECK(errors[0] == "f.txt:7: name Nobody has no A: line, skipped");
-	CHECK(errors[1].find("f.txt:11:") == 0);
+	CHECK(errors[0] == "f.txt:8: name Nobody has no A: line, skipped");
+	CHECK(errors[1].find("f.txt:12:") == 0);
 }
 
 TEST_CASE("the shipped names load with no problems, each with a spelling, enough for every campaign level") {
@@ -98,22 +102,14 @@ TEST_CASE("the shipped names load with no problems, each with a spelling, enough
 TEST_CASE("the name pick: stable for a seed, other seeds other names, no name twice in a run") {
 	const NameList names = shippedNames();
 	CHECK(names.ForLevel(7, 6) == names.ForLevel(7, 6));
-	CHECK(nameCartouchePicture(7, 6) == nameCartouchePicture(7, 6));
-	bool differs = false, pictureDiffers = false;
-	for (uint32_t seed = 1; seed < 20; seed++) {
+	bool differs = false;
+	for (uint32_t seed = 1; seed < 20; seed++)
 		differs = differs || names.ForLevel(seed, 6) != names.ForLevel(0, 6);
-		pictureDiffers = pictureDiffers || nameCartouchePicture(seed, 6) != nameCartouchePicture(0, 6);
-	}
 	CHECK(differs);
-	CHECK(pictureDiffers);
 	for (uint32_t seed : {0U, 1U, 12345U, 0xffffffffU}) {
 		std::set<const RoyalName*> run;
-		for (int level = 1; level <= CAMPAIGN_LEVELS; level++) {
+		for (int level = 1; level <= CAMPAIGN_LEVELS; level++)
 			run.insert(names.ForLevel(seed, level));
-			const int picture = nameCartouchePicture(seed, level);
-			CHECK(picture >= 0);
-			CHECK(picture < NAME_CARTOUCHE_PICTURES);
-		}
 		CHECK(run.size() == static_cast<size_t>(CAMPAIGN_LEVELS));
 	}
 	CHECK(NameList{}.ForLevel(1, 6) == nullptr);
@@ -161,7 +157,7 @@ TEST_CASE("the name gate: asks for the name, stays sealed until it is spoken, th
 	const JournalInscription& copy = world.journal.Inscriptions()[0];
 	CHECK(copy.id == NAME_CARTOUCHE_ID);
 	CHECK_FALSE(copy.translated);
-	CHECK(copy.picture == world.dungeon.NameCartouchePicture());
+	CHECK(copy.glyphs == name->glyphs); // the cartouche spells the name
 	REQUIRE(copy.text.size() == 1);
 	std::string upper = name->name;
 	for (char& c : upper)
@@ -172,7 +168,7 @@ TEST_CASE("the name gate: asks for the name, stays sealed until it is spoken, th
 	Journal loaded;
 	loaded.Load(page);
 	REQUIRE(loaded.Inscriptions().size() == 1);
-	CHECK(loaded.Inscriptions()[0].picture == copy.picture); // journal version 10
+	CHECK(loaded.Inscriptions()[0].glyphs == copy.glyphs); // journal version 13
 	CHECK(loaded.Inscriptions()[0].SameInscription(copy));
 	JournalInscription otherLevel = copy;
 	otherLevel.level = copy.level + 1;

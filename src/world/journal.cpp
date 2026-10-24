@@ -9,7 +9,7 @@ constexpr const char* TAG = "journal";
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
 // inscription's boon, 10: and its name cartouche picture, 11: and the diary pages, 12: and the
 // expedition's pages
-constexpr int VERSION = 12;
+constexpr int VERSION = 13;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
@@ -18,6 +18,7 @@ constexpr int BOON_VERSION = 9;
 constexpr int PICTURE_VERSION = 10;
 constexpr int DIARY_VERSION = 11;
 constexpr int PAGES_VERSION = 12;
+constexpr int GLYPHS_VERSION = 13; // a name cartouche's signs instead of its picture
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -197,7 +198,9 @@ void Journal::Dump(std::ostream& out) const {
 		out << i.id << ' ' << i.level << ' ' << std::quoted(i.title) << ' ';
 		writeLines(out, i.text);
 		out << ' ' << std::quoted(i.note) << ' ' << i.translated << ' ' << static_cast<int>(i.boon.kind) << ' '
-			<< i.boon.amount << ' ' << i.picture << '\n';
+			<< i.boon.amount << ' ';
+		writeLines(out, i.glyphs);
+		out << '\n';
 	}
 	out << diary.size();
 	for (DiaryPage d : diary)
@@ -255,7 +258,8 @@ void Journal::Load(std::istream& in) {
 		int kind = 0;
 		if (version >= BOON_VERSION && !(in >> kind >> e.boon.amount))
 			return;
-		if (version >= PICTURE_VERSION && !(in >> e.picture))
+		int picture = 0; // an old name cartouche's picture: its signs did not spell the name, dropped
+		if (version >= GLYPHS_VERSION ? !readLines(in, e.glyphs) : version >= PICTURE_VERSION && !(in >> picture))
 			return;
 		if (kind > 0 && kind < BOON_KIND_COUNT && e.boon.amount > 0)
 			e.boon.kind = static_cast<BoonKind>(kind);

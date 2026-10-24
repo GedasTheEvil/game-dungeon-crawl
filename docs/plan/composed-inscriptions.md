@@ -71,3 +71,18 @@ spell the name) follow the choice.
 [inscriptions.md](../inscriptions.md) (the atlas paragraph, the `style:` and `G:` rows "only the atlas tool reads
 it"), [names.md](../names.md), the tool's docstring, [development.md](../development.md#where-is-x). Add glossary
 rows for the new names (plate, hieroglyph sheet) once they exist in `src/` (`docs_test.cpp` checks the code column).
+
+## Implementation notes (2026-10-24)
+
+* Done as drafted: plates (`inscription_plates.png`), the sheet (`hieroglyphs.png`, 127 signs) and its manifest,
+  `style:` / `G:` parsed by the game (`InscriptionText::style`, `glyphs`), the layout `inscriptionLayout`
+  (`world/inscription_layout.*`), one draw function `drawInscription` (`graphics/inscription_draw.*`) for the wall and
+  the journal page, the glint over the plate. A `G:` code the sheet lacks: `checkSigns` at start-up, in `game.log`.
+* The manifest has a second column, the sign's width / height, so a flat sign still spans its slot as before.
+* Wear: the simple way, mild wear baked into the plates and the signs. The outline looks alike on cartouche and stela
+  signs; no second outline pass needed.
+* The stela's thin lines between its sign columns are gone (they depended on the number of columns).
+* Name cartouches: option 1. Each name in `kings.txt` has a `G:` line from its real cartouche (shortened to 5 signs);
+  `JournalInscription::glyphs` keeps a copy (journal version 13, an old save's picture is dropped).
+* Scenario `tests/scenarios/composed_inscriptions.txt` (level `tests/levels/inscription_styles`): before / after
+  compared, signs sharper, frames unchanged.

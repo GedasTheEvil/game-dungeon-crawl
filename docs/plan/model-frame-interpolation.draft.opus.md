@@ -35,6 +35,12 @@ smooth at any frame rate, no re-export, no change to the Blender pipeline.
 4. Other users of the frame number stay integer: `Player::shownFrame`, `Item` poses (`item.cpp`), `Vertex`/`YRange`
    of a frame. Check every `static_cast<int>(...frame)` reader.
 
+5. Option: Options > Display, "Animation rate" (from the user): how many poses a second a model shows. Choices:
+   `Key frames` (no blending, today's look), `24`, `30`, `60`, default `60`. The render position from point 1 is
+   snapped to the chosen rate (`floor(clockMs * rate / 1000)` time steps) before the blend, so 24 gives a
+   deliberate stop-motion look and 60 is smooth on a 60 Hz monitor. Above the render rate the cap does nothing.
+   Saved with the other settings (`src/state/settings.h`); a scenario run uses the default.
+
 ## Watch out
 
 * Clip switches (move → attack, any → die) still jump. Cross-fading between clips is a possible later step, not part

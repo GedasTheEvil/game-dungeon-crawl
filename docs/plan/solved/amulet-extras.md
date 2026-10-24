@@ -1,7 +1,7 @@
 # Amulet extras
 
 Status: implemented 2026-10-23, waits for a play-test (`bin/game --play tests/play/amulet-extras.txt`). Drafted
-2026-10-07, refined 2026-10-09. Left open by [amulets](solved/amulets.md)
+2026-10-07, refined 2026-10-09. Left open by [amulets](amulets.md)
 (done, play-tested).
 
 ## Decided (2026-10-09)
@@ -36,7 +36,7 @@ Three new types, the warding amulets' mirror: more damage of one type.
 ## Dropped
 
 * Endurance (sprint drain), for now.
-* A faster escape from the crocodile's hold: the hold is short, no amulet ([crocodile-hold-bite](solved/crocodile-hold-bite.md)).
+* A faster escape from the crocodile's hold: the hold is short, no amulet ([crocodile-hold-bite](crocodile-hold-bite.md)).
 
 ## Done
 
@@ -48,4 +48,4 @@ Three new types, the warding amulets' mirror: more damage of one type.
 * Journal notes: one `FieldNote` per amulet type (`amuletNote`, after the hour notes so saved notes keep their numbers),
   written by `ItemBag::Find` on the first amulet of the type; the lore and the four tiers' numbers.
 * Grand strength stays 1 / 2 / 4 / 6.
-* Tests: `tests/unit/amulet_extras_test.cpp`, `tests/scenarios/amulet_extras.txt` (tab, models, HUD).
+* Tests: `tests/unit/amulet_extras_test.cpp`, `tests/scenarios/solved/amulet_extras.txt` (tab, models, HUD).

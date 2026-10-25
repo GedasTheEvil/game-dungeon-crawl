@@ -49,6 +49,7 @@ struct GenShape {
 	int darkHalls = 0; // no wall torch but a few
 	int braziers = 0;
 	int sunDiscs = 0; // each with its mirror and light shaft
+	int gauntlets = 0; // trap gauntlets (ZoneTraps, campaign.h)
 };
 
 struct GenResult {

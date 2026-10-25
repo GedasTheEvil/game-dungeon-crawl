@@ -32,4 +32,16 @@
 	return fromMs + spikePeriodMs(f) - at > toMs; // the next time they come out
 }
 
+// A run of count rhythm traps in a row (run: in the order they are walked through) walked at WALK_SPEED without
+// stopping, the body stopped by the first one from startMs on: none out while the body could be in its cell (from the
+// moment it could enter it until it is out of it), each window widened by marginMs either side.
+[[nodiscard]] inline bool rhythmRunClear(const Fixture* run, int count, int startMs, int marginMs = 0) {
+	const auto cellMs = static_cast<int>(1000.f / WALK_SPEED);
+	const auto crossMs = static_cast<int>(SPIKES_CROSS_MS);
+	for (int k = 0; k < count; k++)
+		if (!spikesInBetween(run[k], startMs + k * cellMs - marginMs, startMs + k * cellMs + crossMs + marginMs))
+			return false;
+	return true;
+}
+
 #endif

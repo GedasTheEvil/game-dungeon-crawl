@@ -772,22 +772,15 @@ float monsterThreat(int type) {
 
 bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {
 	int cycle = 1; // the run's pattern repeats after this long
-	for (int k = 0; k < count; k++)
-		cycle = std::lcm(cycle, spikePeriodMs(grid.at(col + k, row).fixture));
-	// The player walks at WALK_SPEED; a cell must stay in from the moment the body could enter it (stopped by it, at
-	// PLAYER_BODY_HALF_WIDTH) until it is out of it.
-	const auto cellMs = static_cast<int>(1000.f / WALK_SPEED);
-	const auto crossMs = static_cast<int>(SPIKES_CROSS_MS);
-	constexpr int START_STEP_MS = 10;
-	for (int start = 0; start < cycle; start += START_STEP_MS) {
-		bool through = true;
-		for (int k = 0; k < count && through; k++) {
-			const Fixture t = grid.at(dir > 0 ? col + k : col + count - 1 - k, row).fixture;
-			through = spikesInBetween(t, start + k * cellMs, start + k * cellMs + crossMs);
-		}
-		if (through)
-			return true;
+	std::vector<Fixture> run;
+	for (int k = 0; k < count; k++) {
+		run.push_back(grid.at(dir > 0 ? col + k : col + count - 1 - k, row).fixture);
+		cycle = std::lcm(cycle, spikePeriodMs(run.back()));
 	}
+	constexpr int START_STEP_MS = 10;
+	for (int start = 0; start < cycle; start += START_STEP_MS)
+		if (rhythmRunClear(run.data(), count, start))
+			return true;
 	return false;
 }
 

@@ -71,6 +71,12 @@ TEST_CASE("the wall spikes' cycle: out first, then in, the telegraph just before
 	// The safe windows of two traps: in, both, from the first one's retract to the second one's coming out.
 	CHECK(spikesInBetween(t, SPIKES_OUT_MS[0], SPIKES_PERIOD_MS[0] / 2 - 1));
 	CHECK_FALSE(spikesInBetween(half, SPIKES_OUT_MS[0], SPIKES_PERIOD_MS[0] / 2));
+	// A walk through a run (waittraps, the checker): from the moment they go in, not while out or about to come out.
+	const Fixture pair[] = {t, t};
+	CHECK_FALSE(rhythmRunClear(pair, 2, 0));
+	CHECK(rhythmRunClear(pair, 2, SPIKES_OUT_MS[0]));
+	CHECK_FALSE(rhythmRunClear(pair, 2, SPIKES_PERIOD_MS[0] - SPIKES_TELEGRAPH_MS));
+	CHECK_FALSE(rhythmRunClear(pair, 2, SPIKES_OUT_MS[0] - 50, 100)); // the margin
 }
 
 TEST_CASE("the checker: wall spikes the player can walk through pass, a run whose safe windows do not line up warns") {

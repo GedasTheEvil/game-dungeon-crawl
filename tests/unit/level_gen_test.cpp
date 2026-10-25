@@ -129,6 +129,49 @@ TEST_CASE("a zone level's terrain and monsters follow the zone table") {
 	}
 }
 
+TEST_CASE("a zone level's traps follow the zone table; test levels keep theirs") {
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		const ZoneTraps& traps = zoneTraps(static_cast<ZoneId>(zone));
+		int darts = 0, wallSpikes = 0, fireVents = 0, drips = 0, gauntlets = 0, pairs = 0;
+		for (uint32_t seed = 1; seed <= 3; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			const GenResult gen = generateLevel(zoneOptions(seed, 8, zone));
+			REQUIRE(gen.ok);
+			const LevelReport& r = gen.report;
+			CHECK(r.warnings.empty()); // an antidote with the plates and drips, every run crossable
+			darts += r.dartPlates;
+			wallSpikes += r.wallSpikes;
+			fireVents += r.fireVents;
+			drips += r.poisonDrips;
+			gauntlets += gen.shape.gauntlets;
+			for (int cell = 0; cell + 1 < LEVEL_CELL_COUNT; cell++)
+				pairs += isRhythmTrap(gen.grid.cells[cell].fixture.type) &&
+								 isRhythmTrap(gen.grid.cells[cell + 1].fixture.type)
+							 ? 1
+							 : 0;
+		}
+		CAPTURE(zone);
+		CHECK((darts > 0) == (traps.darts > 0));
+		CHECK((wallSpikes > 0) == (traps.wallSpikes > 0));
+		CHECK((fireVents > 0) == (traps.fireVents > 0));
+		CHECK((drips > 0) == (traps.poisonDrips > 0));
+		CHECK((gauntlets > 0) == (traps.gauntlets > 0));
+		CHECK(gauntlets <= 3 * traps.gauntlets);
+		if (zone == static_cast<int>(ZoneId::SerpentTemple))
+			CHECK(pairs > 0); // two in step, from difficulty 6
+	}
+	for (int difficulty = GEN_MIN_DIFFICULTY; difficulty <= GEN_MAX_DIFFICULTY; difficulty++) {
+		GenOptions options;
+		options.seed = 5;
+		options.difficulty = difficulty;
+		const GenResult gen = generateLevel(options);
+		REQUIRE(gen.ok);
+		CHECK(gen.report.dartPlates + gen.report.wallSpikes + gen.report.fireVents + gen.report.poisonDrips == 0);
+		CHECK(gen.shape.gauntlets == 0);
+	}
+}
+
 TEST_CASE("a zone level comes out the same for the same seed, and its size follows the target") {
 	const int zone = static_cast<int>(ZoneId::CisternsOfSobek);
 	const GenResult a = generateLevel(zoneOptions(9, 6, zone));

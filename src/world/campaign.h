@@ -133,6 +133,36 @@ constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
 	 50},
 };
 [[nodiscard]] constexpr const ZoneFauna& zoneFauna(ZoneId id) { return ZONE_FAUNA[static_cast<int>(id)]; }
+
+// A zone level's traps (plan campaign-levelgen): the weight of each kind along its halls, in percent of a test
+// level's (100: as on a test level of the difficulty; the new kinds have a weight of their own, 0 on a test level),
+// and its trap gauntlets: a stretch of a hall on the route with a trap on every other cell.
+struct ZoneTraps {
+	int spikes;
+	int pits; // death pits: a hole with a death trap in it, jumped
+	int rockFalls; // sand falls among them in a zone with much sand
+	int darts; // dart plates
+	int wallSpikes; // the rhythm traps
+	int fireVents;
+	int poisonDrips;
+	int gauntlets; // a level
+};
+// By ZoneId (docs/levels.md, Zones: the zone's new mechanic).
+constexpr ZoneTraps ZONE_TRAPS[ZONE_ID_COUNT] = {
+	{150, 150, 50, 0, 0, 0, 0, 0}, // tomb entrance: spikes and pits
+	{100, 100, 200, 0, 0, 0, 0, 1}, // bat galleries: rock falls
+	{100, 100, 100, 0, 0, 0, 0, 0}, // web halls
+	{80, 80, 80, 0, 0, 100, 0, 1}, // priests' quarter: fire jets
+	{80, 80, 80, 0, 0, 0, 200, 1}, // scorpion nest: poison drips
+	{60, 60, 60, 150, 200, 0, 0, 2}, // serpent temple: dart plates, rhythm traps
+	{60, 40, 60, 50, 50, 0, 0, 1}, // cisterns of Sobek
+	{60, 60, 100, 50, 0, 0, 0, 1}, // Seth's desert
+	{60, 60, 150, 0, 0, 0, 0, 1}, // land of Sokar: sand falls
+	{50, 50, 50, 50, 0, 150, 0, 2}, // lake of fire: fire-jet runs
+	{100, 100, 150, 100, 100, 100, 100, 2}, // necropolis: every trap mixed
+	{80, 80, 80, 80, 80, 80, 80, 1}, // hall of judgment
+};
+[[nodiscard]] constexpr const ZoneTraps& zoneTraps(ZoneId id) { return ZONE_TRAPS[static_cast<int>(id)]; }
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.

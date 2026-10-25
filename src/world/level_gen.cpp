@@ -48,12 +48,21 @@ constexpr int QUICKSAND_RUN = 2; // QUICKSAND_MAX_RUN in the checker
 constexpr float SAND_FALL_SHARE = 0.5f; // of the rock falls in a zone with much sand
 constexpr int TORCH_GAP = 8; // between the torches in a dark hall
 constexpr float MIRROR_CHANCE = 0.6f; // of the gates in a zone with mirrors: a sun disc opens it
+// The zone's traps (ZoneTraps, campaign.h).
+constexpr ZoneTraps TEST_LEVEL_TRAPS = {100, 100, 100, 0, 0, 0, 0, 0};
+constexpr int GAUNTLET_MIN = 7; // cells, a trap at either end: odd
+constexpr int GAUNTLET_MAX = 13;
+constexpr int GAUNTLET_TRAPS = 3; // at least, else none
+constexpr int GAUNTLET_CLEAR = 2; // free cells between a gauntlet and the ends of its crossing
+constexpr int PAIR_MIN_DIFFICULTY = 6; // two rhythm traps side by side, in step
+constexpr float PAIR_CHANCE = 0.3f;
+constexpr int FAST_TRAP_MIN_DIFFICULTY = 6;
 
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 
-// What fillSegment() puts at a corridor cell.
-enum class Feature : unsigned char { None, Pit, Spike, RockFall, Monster, Treasure };
-constexpr int FEATURE_COUNT = 6;
+// What fillSegment() puts at a corridor cell; the kinds after Treasure only on zone levels (ZoneTraps).
+enum class Feature : unsigned char { None, Pit, Spike, RockFall, Monster, Treasure, Dart, WallSpikes, FireVent, Drip };
+constexpr int FEATURE_COUNT = 10;
 
 struct Segment {
 	int row = 0; // floor row (the player's row)
@@ -84,7 +93,8 @@ class LevelBuilder {
 	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone)
 		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget),
 		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
-		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr) {
+		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr),
+		  traps(isZone(zone) ? zoneTraps(static_cast<ZoneId>(zone)) : TEST_LEVEL_TRAPS) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
@@ -103,6 +113,7 @@ class LevelBuilder {
 			chooseDark();
 		}
 		placeLocks();
+		addGauntlets();
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
 			int s = rng.range(0, static_cast<int>(route.size()) - 1);
@@ -130,6 +141,7 @@ class LevelBuilder {
 	int zoneTarget;
 	ZoneTerrain terrain; // all None on a test level
 	const ZoneFauna* fauna; // the zone's monsters, nullptr on a test level (monsters by difficulty)
+	ZoneTraps traps; // TEST_LEVEL_TRAPS on a test level
 	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -699,12 +711,13 @@ class LevelBuilder {
 		return true;
 	}
 
-	// With a poisoner on the level, the first wing's chest (or the first wing, or else the first chest on the route)
-	// holds an antidote.
+	// With a poisoner, a dart plate or a poison drip on the level, the first wing's chest (or the first wing, or else
+	// the first chest on the route) holds an antidote.
 	void placeAntidote() {
 		bool poisoners = false;
 		for (const Tile& t : g.cells)
-			poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr));
+			poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr)) || t.type == DartPlate ||
+						t.fixture.type == PoisonDrip;
 		if (!poisoners)
 			return;
 		auto chest = [this](const Wing& w) { return !w.taken && g.at(w.end, w.itemRow).type == Treasure; };
@@ -1021,24 +1034,168 @@ class LevelBuilder {
 	// Hazards, monsters and loot along the part of the segment the player has to cross.
 	void fillSegment(const Segment& s) { fillRun(s, s.entry, s.exit >= 0 ? s.exit : farEnd(s, s.entry)); }
 
+	static float share(int percent) { return static_cast<float>(percent) / 100.f; }
+
+	// A cell of s's floor a trap of kind can go in: free, dry or a drift (no quicksand), on rock; a rock fall, wall
+	// spikes and a poison drip under a one-row ceiling; spikes and a dart plate on dry floor, spikes never next to half
+	// water (they are jumped).
+	[[nodiscard]] bool trapFits(const Segment& s, int col, Feature kind) const {
+		const Tile t = g.at(col, s.row);
+		if (col < s.x0 || col > s.x1 || busy[index(col, s.row)] != 0 || !freeCell(col, s.row) || inHalfWater(t) ||
+			inQuicksand(t) || !isWall(g.at(col, s.row - 1)))
+			return false;
+		const bool ceiling = isWall(g.at(col, s.row + 1));
+		switch (kind) {
+		case Feature::Spike:
+			return t.structure == Structure::Empty && jumpable(s, col);
+		case Feature::Dart:
+			return t.structure == Structure::Empty;
+		case Feature::RockFall:
+		case Feature::WallSpikes:
+		case Feature::Drip:
+			return ceiling;
+		case Feature::FireVent:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	// A rhythm trap (plan rhythm-traps) of type: a phase of its own, now and then slow, or fast deeper down.
+	Tile rhythmTrap(int type) {
+		const int roll = rng.range(0, 99);
+		const SpikeSpeed speed = d >= FAST_TRAP_MIN_DIFFICULTY && roll < 30 ? SpikeSpeed::Fast
+								 : roll >= 80								? SpikeSpeed::Slow
+																			: SpikeSpeed::Normal;
+		return Tile{type, static_cast<int>(speed), rng.range(0, SPIKE_PHASES - 1)};
+	}
+
+	Tile trapTile(Feature kind) {
+		switch (kind) {
+		case Feature::Spike:
+			return Tile{Spike, 0, 0};
+		case Feature::RockFall:
+			return Tile{
+				RockFall,
+				terrain.sand == TerrainAmount::Much && rng.chance(SAND_FALL_SHARE) ? SAND_FALL : 0,
+				0
+			};
+		case Feature::Dart:
+			return Tile{DartPlate, 0, 0};
+		case Feature::WallSpikes:
+			return rhythmTrap(WallSpikes);
+		case Feature::FireVent:
+			return rhythmTrap(FireVent);
+		default:
+			return rhythmTrap(PoisonDrip);
+		}
+	}
+
+	// Trap gauntlets (ZoneTraps::gauntlets): a stretch of a hall the route has to cross (off a pillar loop, clear of
+	// its ends) with a trap on every other cell, of the zone's kinds by their weights, and a free cell between to wait
+	// in; from PAIR_MIN_DIFFICULTY now and then two rhythm traps side by side, in step. Before the rest of the
+	// content, so the stretch is the traps' alone.
+	void addGauntlets() {
+		constexpr Feature KINDS[] =
+			{Feature::Spike, Feature::RockFall, Feature::Dart, Feature::WallSpikes, Feature::FireVent, Feature::Drip};
+		const int weights[] =
+			{traps.spikes, traps.rockFalls, traps.darts, traps.wallSpikes, traps.fireVents, traps.poisonDrips};
+		for (int n = traps.gauntlets, tries = 0; n > 0 && tries < 30; tries++) {
+			const auto s = static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1));
+			const Segment& hall = route[s];
+			if (hall.height > 1 && tries < 15)
+				continue; // a one-row ceiling first: the rock falls, wall spikes and drips need it
+			int from = 0, to = 0;
+			lockSpan(s, from, to);
+			const int dir = to >= from ? 1 : -1;
+			const int room = std::abs(to - from) - 1 - 2 * GAUNTLET_CLEAR;
+			if (room < GAUNTLET_MIN)
+				continue;
+			int length = rng.range(GAUNTLET_MIN, std::min(GAUNTLET_MAX, room));
+			length -= length % 2 == 0 ? 1 : 0;
+			const int start = from + dir * (GAUNTLET_CLEAR + 1 + rng.range(0, room - length));
+			bool clear = true;
+			for (int k = -1; k <= length && clear; k++) {
+				const int x = start + k * dir;
+				const Tile t = g.at(x, hall.row);
+				clear = busy[index(x, hall.row)] == 0 && freeCell(x, hall.row) && !inHalfWater(t) && !inQuicksand(t) &&
+						isWall(g.at(x, hall.row - 1));
+			}
+			if (!clear)
+				continue;
+			std::vector<std::pair<int, Feature>> picks;
+			for (int k = 0; k < length; k += 2) {
+				const int x = start + k * dir;
+				int total = 0;
+				for (size_t i = 0; i < std::size(KINDS); i++)
+					total += trapFits(hall, x, KINDS[i]) ? weights[i] : 0;
+				if (total == 0)
+					continue;
+				int roll = rng.range(0, total - 1);
+				for (size_t i = 0; i < std::size(KINDS); i++) {
+					if (!trapFits(hall, x, KINDS[i]))
+						continue;
+					if (roll < weights[i]) {
+						picks.emplace_back(x, KINDS[i]);
+						break;
+					}
+					roll -= weights[i];
+				}
+			}
+			if (static_cast<int>(picks.size()) < GAUNTLET_TRAPS)
+				continue;
+			for (size_t i = 0; i < picks.size(); i++) {
+				const auto [x, kind] = picks[i];
+				const Tile trap = trapTile(kind);
+				put(x, hall.row, trap);
+				const bool rhythm = isRhythmTrap(trap.type);
+				const int next = x + dir;
+				const bool lastPick = i + 1 == picks.size();
+				// The pair takes the wait cell after it; the next pick goes, so no run of three forms.
+				if (rhythm && d >= PAIR_MIN_DIFFICULTY && (next - start) * dir < length && rng.chance(PAIR_CHANCE) &&
+					trapFits(hall, next, kind)) {
+					const Tile waitCell = g.at(next, hall.row);
+					put(next, hall.row, trap);
+					const int left = std::min(x, next);
+					if (wallSpikesCrossable(g, left, hall.row, 2, 1) && wallSpikesCrossable(g, left, hall.row, 2, -1)) {
+						if (!lastPick && picks[i + 1].first == x + 2 * dir)
+							i++;
+					} else
+						g.set(next, hall.row, waitCell);
+				}
+			}
+			for (int k = -1; k <= length; k++)
+				busy[index(start + k * dir, hall.row)] = 1;
+			shape.gauntlets++;
+			n--;
+		}
+	}
+
 	// The same along s's floor between from and to, not on the cells at either end.
 	void fillRun(const Segment& s, int from, int to) {
 		int dir = to >= from ? 1 : -1;
 		float fd = static_cast<float>(d);
+		const float newTrap = 0.04f + 0.01f * fd; // dart plates and each rhythm trap, by the zone's share
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
 			if (busy[index(x, s.row)] != 0 || !freeCell(x, s.row))
 				continue;
-			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
+			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure, dart plate, wall spikes, fire
+			// vent, poison drip.
 			float weights[FEATURE_COUNT] = {
 				zoneTarget > 0 ? ZONE_CALM : 2.5f,
-				0.2f + 0.08f * fd,
-				0.35f + 0.05f * fd,
-				s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f,
+				(0.2f + 0.08f * fd) * share(traps.pits),
+				(0.35f + 0.05f * fd) * share(traps.spikes),
+				(s.height == 1 && d >= 2 ? 0.15f + 0.07f * fd : 0.f) * share(traps.rockFalls),
 				0.6f + 0.25f * fd,
-				0.2f
+				0.2f,
+				newTrap * share(traps.darts),
+				newTrap * share(traps.wallSpikes),
+				newTrap * share(traps.fireVents),
+				newTrap * share(traps.poisonDrips)
 			};
 			int size = 1;
-			switch (pickFeature(weights)) {
+			const Feature feature = pickFeature(weights);
+			switch (feature) {
 			case Feature::None:
 				continue;
 			case Feature::Pit:
@@ -1070,6 +1227,15 @@ class LevelBuilder {
 				break;
 			case Feature::Treasure:
 				put(x, s.row, randomTreasure());
+				break;
+			case Feature::Dart:
+			case Feature::WallSpikes:
+			case Feature::FireVent:
+			case Feature::Drip:
+				if (!trapFits(s, x, feature))
+					continue;
+				put(x, s.row, trapTile(feature));
+				busy[index(x, s.row)] = 1;
 				break;
 			}
 			x += dir * (size - 1 + rng.range(1, 2)); // a free cell after every feature

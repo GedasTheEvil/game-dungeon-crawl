@@ -66,6 +66,7 @@ class PathScript {
 					walkTo(static_cast<float>(cur.col) + (dir > 0 ? -GATE_STOP : 1.f + GATE_STOP));
 					line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
 				}
+				waitForTraps(r.path[i - 1], cur);
 				walkTo(target);
 				break;
 			case PathMove::Drop:
@@ -152,6 +153,30 @@ class PathScript {
 	bool bossKilled = false;
 	std::map<int, BeamDir> mirrors; // the way each mirror points by now
 	size_t turns = 0; // Turn moves so far
+
+	// Stepping from prev into a run of rhythm traps with wall spikes in it (out, they block): wait in prev until the
+	// whole run can be walked through.
+	void waitForTraps(const CellPos& prev, const CellPos& cur) {
+		auto trap = [this, &cur](int col) { return isRhythmTrap(grid.at(col, cur.row).fixture.type); };
+		if (prev.row != cur.row || trap(prev.col) || !trap(cur.col))
+			return;
+		int left = cur.col;
+		while (trap(left - 1))
+			left--;
+		int right = cur.col;
+		while (trap(right + 1))
+			right++;
+		bool spikes = false;
+		for (int c = left; c <= right; c++)
+			spikes = spikes || grid.at(c, cur.row).fixture.type == WallSpikes;
+		if (!spikes)
+			return;
+		flushWalk();
+		line(
+			"waittraps " + std::to_string(left) + " " + std::to_string(right - left + 1) +
+			(cur.col > prev.col ? " right" : " left")
+		);
+	}
 
 	void line(const std::string& text) {
 		flushWalk();

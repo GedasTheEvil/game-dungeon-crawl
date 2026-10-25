@@ -15,7 +15,9 @@
 #include "../ui/inventory.h"
 #include "../world/loot.h"
 #include "../world/level_gen.h"
+#include "../world/spike_cycle.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <csignal>
 #include <ctime>
@@ -585,11 +587,32 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		finish(EXIT_OK);
 	case CommandType::Wait:
+	case CommandType::WaitTraps:
 	case CommandType::Walk:
 	case CommandType::Hold:
 		return false;
 	}
 	return true;
+}
+
+// waittraps: can the player walk from here through the rhythm traps of cmd, starting now? The time to walk up to the
+// first one at WALK_SPEED counts, with a margin for the walk's start.
+bool trapsClear(const Command& cmd) {
+	constexpr int MARGIN_MS = 120;
+	float x = 0.f;
+	float y = 0.f;
+	Game().dungeon.getC(x, y);
+	const int row = static_cast<int>(std::floor(y));
+	const int col = static_cast<int>(cmd.a);
+	const int count = static_cast<int>(cmd.b);
+	const bool right = cmd.move == Move::Right;
+	std::vector<Fixture> run;
+	run.reserve(static_cast<size_t>(count));
+	for (int k = 0; k < count; k++)
+		run.push_back(Game().dungeon.Cell(right ? col + k : col + count - 1 - k, row).fixture);
+	const float gap = right ? static_cast<float>(col) - x : x - static_cast<float>(col + count);
+	const auto leadMs = static_cast<int>(std::max(0.f, gap - PLAYER_BODY_HALF_WIDTH) / WALK_SPEED * 1000.f);
+	return rhythmRunClear(run.data(), count, GameClock::now() + leadMs, MARGIN_MS);
 }
 
 // Executes commands until one needs more ticks.
@@ -611,6 +634,22 @@ void runCommands() {
 			}
 			gRunner.waiting = false;
 			report(cmd, true, "");
+			gRunner.next++;
+			continue;
+		}
+		if (cmd.type == CommandType::WaitTraps) {
+			constexpr int WAIT_TRAPS_TICKS = 1200; // a few cycles of the slowest
+			if (!gRunner.waiting) {
+				gRunner.waiting = true;
+				gRunner.waitLeft = WAIT_TRAPS_TICKS;
+			}
+			const bool clear = trapsClear(cmd);
+			if (!clear && gRunner.waitLeft > 0) {
+				gRunner.waitLeft--;
+				return;
+			}
+			gRunner.waiting = false;
+			report(cmd, clear, clear ? "" : "the traps never let the player through");
 			gRunner.next++;
 			continue;
 		}

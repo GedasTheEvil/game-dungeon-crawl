@@ -17,6 +17,7 @@ enum class CommandType : unsigned char {
 	God,
 	Level,
 	Wait,
+	WaitTraps,
 	Walk,
 	Hold,
 	Sprint,

@@ -303,6 +303,15 @@ bool parseMirror(const Args& args, Command& cmd) {
 	return false;
 }
 
+// A column (a), a count of at least 1 (b) and the way (move: left or right).
+bool parseWaitTraps(const Args& args, Command& cmd) {
+	if (args.size() != 3 || !parseFloat(args[0], cmd.a) || !parseFloat(args[1], cmd.b) || cmd.b < 1.f ||
+		(args[2] != "left" && args[2] != "right"))
+		return false;
+	cmd.move = args[2] == "left" ? Move::Left : Move::Right;
+	return true;
+}
+
 // A column (a) and on or off (ticks 1 / 0).
 bool parseTorch(const Args& args, Command& cmd) {
 	if (args.size() != 2 || !parseFloat(args[0], cmd.a) || (args[1] != "on" && args[1] != "off"))
@@ -411,6 +420,10 @@ const std::vector<CommandDef>& commandDefs() {
 		{"god", CommandType::God, noArgs, ""},
 		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY[:ZONE]> [at <col> <row>]"},
 		{"wait", CommandType::Wait, parseWaitArgs, "<ticks|Nms|Ns>"},
+		{"waittraps",
+		 CommandType::WaitTraps,
+		 parseWaitTraps,
+		 "<col> <count> <left|right>: until the rhythm traps from col on the player's row can be walked through"},
 		{"walk", CommandType::Walk, parseWalk, "<left|right|up|down> <tiles> | walk to <map x>"},
 		{"hold", CommandType::Hold, parseHold, "<left|right|up|down> <ticks|Nms|Ns>"},
 		{"sprint", CommandType::Sprint, onOff, "<on|off>"},

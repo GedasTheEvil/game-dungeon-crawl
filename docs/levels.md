@@ -312,8 +312,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone web_halls --cells 500 /tmp/zone    #
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 3 of 9: the shape, the terrain and the
-monsters) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 4 of 9: the shape, the terrain, the
+monsters and the traps) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
 
 1. **Halls.** Bands from the top of the grid to the bottom: halls of 1 (55%), 2 (30%) or 3 rows (15%), most of
@@ -345,8 +345,17 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    a quarter as likely in a lit one (in a zone with dark halls). Half the mummies lie between decoy coffins (a coffin
    with a sleeping mummy, `DECOR_COFFIN_MUMMY`, either side), every living ushabti among decor ushabti. The share of
    the chests that are mimics, and of the mimics that are cursed, is the zone's too.
-8. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
-   the wings no key took; with a poisoner on the level, the first wing's chest holds an antidote. Pits only on dry
+8. **Traps.** By the zone table (`ZONE_TRAPS`, `src/world/campaign.h`; step 4): the weight of spikes, death pits
+   and rock falls in percent of a test level's, and of dart plates, wall spikes, fire vents and poison drips (none on
+   a test level) along the halls; rock falls, wall spikes and drips only under a one-row ceiling, spikes and plates
+   on dry floor. A rhythm trap gets its own phase, a fifth of them slow, from difficulty 6 almost a third fast. Then
+   the zone's trap gauntlets (0 to 2 a level): a stretch of 7 to 13 cells of a hall the route crosses (off a pillar
+   loop, preferably under a one-row ceiling) with a trap of the zone's kinds on every other cell, a free cell
+   between to wait in; from difficulty 6 now and then two rhythm traps side by side, kept only where the checker
+   finds them crossable both ways. `levelgen` reports the counts. The path scripts (`levelcheck --script`) wait
+   before a run with wall spikes (`waittraps`, [testing.md](testing.md)).
+9. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
+   the wings no key took; with a poisoner, a dart plate or a poison drip on the level, the first wing's chest holds an antidote. Pits only on dry
    floor, spikes never next to half water (no jump out of it), objects keep the water or sand of their cell. At most
    (4 + 2 × difficulty) × size / 100 monsters. The score aimed at is `targetScore(difficulty, size)`, the test
    level's per 50 open cells; the candidate closest to it and to the size wins.

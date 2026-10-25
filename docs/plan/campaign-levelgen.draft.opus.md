@@ -42,7 +42,17 @@ with no warnings.
   every flyer roosts under its hall's ceiling. Played in the game with their monsters, the path scripts of four of
   six zone levels pass; in the other two a grab (a crocodile's, a giant scorpion's) holds the god-mode player, so
   `levelcheck --script` cannot prove a level with grabbers. The level itself passes without its monsters.
-* Next: step 4, traps.
+* **Step 4, traps: done (2026-10-25).** `ZONE_TRAPS` (campaign.h): per zone the weights of spikes, death pits
+  (the one-cell pits with a death trap, as before) and rock falls against a test level's, and of the new kinds along
+  the halls: dart plates, wall spikes, fire vents, poison drips; and its trap gauntlets (0 to 2 a level: a stretch of
+  a hall on the route, a trap on every other cell, now and then a pair of rhythm traps in step, checked crossable).
+  An antidote comes with the plates and drips. Test levels stay byte-identical. `levelcheck --script` now waits
+  before a run with wall spikes (the new scenario command `waittraps`): the path scripts of twelve monster-free zone
+  levels (serpent temple, lake of fire, necropolis, scorpion nest, priests' quarter, hall of judgment, two seeds
+  each, difficulty 8) pass in the game. The counts (e.g. 6-14 dart plates in the serpent temple, about 10-20 fire
+  vents by the Lake of Fire) are a first guess, for the rebuild's play-tests to tune. Rock falls by an existing
+  test-level weight already reach 20-50 in the bat galleries (200%).
+* Next: step 5, gates.
 
 ## What it must build
 

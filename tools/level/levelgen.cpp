@@ -92,7 +92,8 @@ int main(int argc, char** argv) {
 			const GenShape& s = result.shape;
 			printf(
 				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts; %d wades, %d pools, %d sand "
-				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs\n",
+				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs; %d spikes, %d death pits, "
+				"%d rock falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gauntlets\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -107,7 +108,15 @@ int main(int argc, char** argv) {
 				s.darkHalls,
 				s.braziers,
 				r.lightShafts,
-				s.sunDiscs
+				s.sunDiscs,
+				r.spikes,
+				r.deathTraps,
+				r.rockFalls,
+				r.dartPlates,
+				r.wallSpikes,
+				r.fireVents,
+				r.poisonDrips,
+				s.gauntlets
 			);
 		}
 		if (map)

@@ -18,6 +18,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"god", "god"},
 	{"level", "level 3"},
 	{"wait", "wait 2s"},
+	{"waittraps", "waittraps 12 2 left"},
 	{"walk", "walk right 2.5"},
 	{"hold", "hold left 500ms"},
 	{"sprint", "sprint on"},
@@ -117,6 +118,13 @@ TEST_CASE("arguments land in the command") {
 	CHECK(wait.ticks == (2000 + UPDATE_TICK_MS - 1) / UPDATE_TICK_MS);
 	CHECK(wait.text == "wait 2s");
 	CHECK(parsed("wait 7").ticks == 7);
+
+	Command traps = parsed("waittraps 12 2 left");
+	CHECK(traps.a == doctest::Approx(12.f));
+	CHECK(traps.b == doctest::Approx(2.f));
+	CHECK(traps.move == Move::Left);
+	CHECK_FALSE(errorOf("waittraps 12 0 left").empty());
+	CHECK_FALSE(errorOf("waittraps 12 2 up").empty());
 
 	Command walk = parsed("walk up 3");
 	CHECK(walk.move == Move::Up);

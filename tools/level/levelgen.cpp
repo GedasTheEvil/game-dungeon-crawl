@@ -91,14 +91,23 @@ int main(int argc, char** argv) {
 		if (isZone(o.zone)) {
 			const GenShape& s = result.shape;
 			printf(
-				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts\n",
+				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts; %d wades, %d pools, %d sand "
+				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
 				s.loops,
 				s.hubs,
 				s.ledges,
-				s.shafts
+				s.shafts,
+				s.wades,
+				s.pools,
+				r.sandCells,
+				r.quicksandCells,
+				s.darkHalls,
+				s.braziers,
+				r.lightShafts,
+				s.sunDiscs
 			);
 		}
 		if (map)

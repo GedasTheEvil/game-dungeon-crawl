@@ -70,6 +70,35 @@ constexpr ZoneInfo ZONE_INFO[ZONE_ID_COUNT] = {
 	{"hall_of_judgment", "Hall of Judgment", "the Gate of Judgment", ZoneStone::Granite, ZoneMechanic::Riddles},
 };
 [[nodiscard]] constexpr const ZoneInfo& zoneInfo(ZoneId id) { return ZONE_INFO[static_cast<int>(id)]; }
+
+// How much of a terrain a zone's levels have (ZoneTerrain).
+enum class TerrainAmount : unsigned char { None, Few, Some, Much };
+// What a zone level's halls are made of besides rock (plan campaign-levelgen, level_gen.h): its water, sand and light.
+struct ZoneTerrain {
+	TerrainAmount water; // Few: a short wade; Some: wades and a pool; Much: flooded halls over deep pools
+	TerrainAmount sand; // Few: a few drifts; Some: drifts and quicksand; Much: and sand falls
+	TerrainAmount dark; // halls without a wall torch, a torch or two in the dark
+	bool braziers;
+	bool lightShafts; // daylight through cracks in the ceiling
+	bool mirrors; // sun discs open gates: a mirror under a light shaft sends the beam to the disc
+};
+// By ZoneId (docs/levels.md, Zones).
+constexpr ZoneTerrain ZONE_TERRAIN[ZONE_ID_COUNT] = {
+	{TerrainAmount::None, TerrainAmount::None, TerrainAmount::None, false, false, false}, // tomb entrance
+	{TerrainAmount::Few, TerrainAmount::None, TerrainAmount::Few, false, false, false}, // bat galleries: the first wade
+	{TerrainAmount::None, TerrainAmount::None, TerrainAmount::Much, true, false, false}, // web halls: dark and light
+	{TerrainAmount::None, TerrainAmount::None, TerrainAmount::None, true, false, false}, // priests' quarter
+	{TerrainAmount::None, TerrainAmount::Few, TerrainAmount::Few, false, false, false}, // scorpion nest
+	{TerrainAmount::Some, TerrainAmount::None, TerrainAmount::Few, true, false, false}, // serpent temple
+	{TerrainAmount::Much, TerrainAmount::None, TerrainAmount::Few, false, false, false}, // cisterns of Sobek
+	{TerrainAmount::Few, TerrainAmount::Some, TerrainAmount::None, false, true, true}, // Seth's desert: the oasis
+	{TerrainAmount::None, TerrainAmount::Much, TerrainAmount::Some, false, true, false}, // land of Sokar
+	{TerrainAmount::Some, TerrainAmount::None, TerrainAmount::None, true, false, false}, // lake of fire: water the
+																						 // refuge
+	{TerrainAmount::Few, TerrainAmount::None, TerrainAmount::Some, true, false, false}, // necropolis
+	{TerrainAmount::Few, TerrainAmount::None, TerrainAmount::Few, true, false, false}, // hall of judgment
+};
+[[nodiscard]] constexpr const ZoneTerrain& zoneTerrain(ZoneId id) { return ZONE_TERRAIN[static_cast<int>(id)]; }
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.

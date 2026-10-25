@@ -43,6 +43,12 @@ struct GenShape {
 	int hubs = 0; // halls a shaft runs straight through, a wing either side
 	int ledges = 0; // a raised floor at the end of a tall hall, up a ladder
 	int shafts = 0; // links through three or more rows of rock
+	// The zone's terrain (ZoneTerrain, campaign.h); sand, quicksand and light shafts: the report's counts.
+	int wades = 0; // runs of half water on rock
+	int pools = 0; // runs of half water over deep water
+	int darkHalls = 0; // no wall torch but a few
+	int braziers = 0;
+	int sunDiscs = 0; // each with its mirror and light shaft
 };
 
 struct GenResult {

@@ -2,6 +2,7 @@
 // warnings over a range of seeds per zone.
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/campaign.h"
+#include "../../src/world/decor.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_gen.h"
 #include <cstdlib>
@@ -57,6 +58,48 @@ TEST_CASE("zone levels fill the grid in the campaign's shape and pass the checke
 	CHECK(total.ledges > 0);
 	CHECK(total.shafts > 0);
 	CHECK(gates > 0); // keys and levers in the wings
+}
+
+TEST_CASE("a zone level's terrain follows the zone table") {
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		const ZoneTerrain& terrain = zoneTerrain(static_cast<ZoneId>(zone));
+		int water = 0, deep = 0, sand = 0, quicksand = 0, sandFalls = 0, dark = 0, torches = 0, braziers = 0;
+		int shafts = 0, discs = 0, turns = 0;
+		for (uint32_t seed = 1; seed <= 4; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			const GenResult gen = generateLevel(zoneOptions(seed, 7, zone));
+			REQUIRE(gen.ok);
+			CHECK(gen.report.warnings.empty());
+			turns += gen.report.pathTurns;
+			for (const Tile& t : gen.grid.cells) {
+				water += inHalfWater(t) ? 1 : 0;
+				deep += t.structure == Structure::DeepWater ? 1 : 0;
+				sand += t.structure == Structure::Sand ? 1 : 0;
+				quicksand += inQuicksand(t) ? 1 : 0;
+				sandFalls += isSandFall(t) ? 1 : 0;
+				dark += t.dressing.torch == TorchPlacing::None ? 1 : 0;
+				torches += t.dressing.torch == TorchPlacing::Torch ? 1 : 0;
+				braziers += t.dressing.prop == DECOR_BRAZIER ? 1 : 0;
+				shafts += t.type == LightShaft ? 1 : 0;
+				discs += t.fixture.type == SunDisc ? 1 : 0;
+			}
+		}
+		CAPTURE(zone);
+		CHECK((water > 0) == (terrain.water != TerrainAmount::None));
+		CHECK((deep > 0) == (terrain.water >= TerrainAmount::Some));
+		CHECK((sand > 0) == (terrain.sand != TerrainAmount::None));
+		CHECK((quicksand > 0) == (terrain.sand >= TerrainAmount::Some));
+		CHECK((sandFalls > 0) == (terrain.sand == TerrainAmount::Much));
+		CHECK((dark > 0) == (terrain.dark != TerrainAmount::None));
+		CHECK((torches > 0) == (terrain.dark != TerrainAmount::None));
+		CHECK((braziers > 0) == terrain.braziers);
+		CHECK((shafts > 0) == (terrain.lightShafts || terrain.mirrors));
+		CHECK((discs > 0) == terrain.mirrors);
+		CHECK((turns > 0) == terrain.mirrors); // a disc opens a gate on the way: the mirror turned
+		if (terrain.water == TerrainAmount::Much)
+			CHECK(water > 4 * 60); // flooded halls
+	}
 }
 
 TEST_CASE("a zone level comes out the same for the same seed, and its size follows the target") {

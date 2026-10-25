@@ -1,5 +1,6 @@
 #include "level_gen.h"
 #include "campaign.h"
+#include "decor.h"
 #include "items.h"
 #include "monster_kinds.h"
 #include "rng.h"
@@ -40,6 +41,13 @@ constexpr float LEDGE_CHANCE = 0.5f;
 constexpr float WING_TREASURE = 0.6f; // a wing no key or lever took
 constexpr float ZONE_CALM = 2.5f; // the no-feature weight along a zone level's halls (fillRun)
 constexpr int ZONE_SCORE_CELLS = 50; // a zone level aims at targetScore(d) per this many open cells
+// The zone's terrain (ZoneTerrain, campaign.h).
+constexpr int WATER_CLEAR = 2; // cells of dry floor between the water and a drop: the jump over the hole
+constexpr int POOL_DEPTH = 2; // rows of deep water under a pool, at most
+constexpr int QUICKSAND_RUN = 2; // QUICKSAND_MAX_RUN in the checker
+constexpr float SAND_FALL_SHARE = 0.5f; // of the rock falls in a zone with much sand
+constexpr int TORCH_GAP = 8; // between the torches in a dark hall
+constexpr float MIRROR_CHANCE = 0.6f; // of the gates in a zone with mirrors: a sun disc opens it
 
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 
@@ -55,6 +63,7 @@ struct Segment {
 	int exit = -1; // column the player leaves by
 	Link link = Link::None; // to the next segment
 	int loopCol = -1; // a second ladder to the next segment: a pillar loop (zone levels)
+	bool dark = false; // no wall torch but a few (ZoneTerrain::dark)
 };
 
 // A hall's end off the route, from the link at inner to the rock at end (zone levels): a dead end for a key, a lever
@@ -71,9 +80,10 @@ struct Wing {
 
 class LevelBuilder {
   public:
-	// openTarget: a zone level's target size, 0 for a test level.
-	LevelBuilder(uint32_t seed, int difficulty, int openTarget)
-		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget) {
+	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId.
+	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone)
+		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget),
+		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
@@ -86,6 +96,10 @@ class LevelBuilder {
 	bool build(LevelGrid& out) {
 		if (!(zoneTarget > 0 ? buildHalls() : buildMainRoute()))
 			return false;
+		if (zoneTarget > 0) {
+			addWater();
+			addSand();
+		}
 		placeLocks();
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
@@ -96,8 +110,10 @@ class LevelBuilder {
 		fillWings();
 		for (Segment& s : route)
 			fillSegment(s);
-		if (zoneTarget > 0)
+		if (zoneTarget > 0) {
 			placeAntidote();
+			addLight();
+		}
 		out = g;
 		return true;
 	}
@@ -109,6 +125,7 @@ class LevelBuilder {
 	Rng mimicRng; // its own stream, so mimics leave the layout rolls of a seed alone
 	int d;
 	int zoneTarget;
+	ZoneTerrain terrain; // all None on a test level
 	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -152,6 +169,25 @@ class LevelBuilder {
 	void carve(int col, int row, Tile t) {
 		g.set(col, row, t);
 		used[index(col, row)] = 1;
+	}
+
+	// Puts thing in its layer of the cell, which keeps its water or sand (setThing).
+	void put(int col, int row, const Tile& thing) {
+		Tile cell = g.at(col, row);
+		setThing(cell, thing);
+		g.set(col, row, cell);
+	}
+
+	// Open, with nothing in it or on its back wall: dry, wet or sandy.
+	[[nodiscard]] bool freeCell(int col, int row) const {
+		const Tile t = g.at(col, row);
+		return !isSolidStructure(t.structure) && t.type == NoObject && !hasFixture(t);
+	}
+
+	void setStructure(int col, int row, Structure s) {
+		Tile cell = g.at(col, row);
+		cell.structure = s;
+		g.set(col, row, cell);
 	}
 
 	void carveSegment(const Segment& s) {
@@ -380,22 +416,250 @@ class LevelBuilder {
 		}
 		if (free.empty())
 			return false;
+		if (terrain.mirrors && rng.chance(MIRROR_CHANCE)) {
+			std::vector<size_t> sunny;
+			for (size_t w : free)
+				if (mirrorCol(wings[w]) >= 0)
+					sunny.push_back(w);
+			if (!sunny.empty()) {
+				placeSunDisc(
+					wings[sunny[static_cast<size_t>(rng.range(0, static_cast<int>(sunny.size()) - 1))]],
+					opener.attr
+				);
+				return true;
+			}
+		}
 		Wing& wing = wings[free[static_cast<size_t>(rng.range(0, static_cast<int>(free.size()) - 1))]];
-		g.set(wing.end, wing.itemRow, cellWith(opener));
+		put(wing.end, wing.itemRow, opener);
 		busy[index(wing.end, wing.itemRow)] = 1;
 		wing.taken = true;
 		return true;
+	}
+
+	// Where a sun disc puzzle's mirror goes in the wing, -1 if it takes none: a tall hall's wing without a ledge, long
+	// enough, a light shaft over the mirror in the hall's top row, nothing between the mirror and the wing's end.
+	[[nodiscard]] int mirrorCol(const Wing& wing) const {
+		const Segment& hall = route[static_cast<size_t>(wing.seg)];
+		const int dir = wing.end > wing.inner ? 1 : -1;
+		const int col = wing.inner + 2 * dir;
+		if (hall.height < 2 || wing.itemRow != hall.row || std::abs(wing.end - wing.inner) < 5 ||
+			busy[index(col, hall.row)] != 0)
+			return -1;
+		for (int y = hall.row; y < hall.row + hall.height; y++)
+			if (!freeCell(col, y))
+				return -1;
+		for (int x = col + dir; x != wing.end + dir; x += dir)
+			if (blocksBeam(g.at(x, hall.row)))
+				return -1;
+		return col;
+	}
+
+	// The sun disc of colour at the wing's end, a mirror by its link with daylight falling on it: the mirror catches
+	// the beam until the player turns it to the disc (plan sunlight-mirrors).
+	void placeSunDisc(Wing& wing, int colour) {
+		const Segment& hall = route[static_cast<size_t>(wing.seg)];
+		const int col = mirrorCol(wing);
+		put(col, hall.row + hall.height - 1, Tile{LightShaft, static_cast<int>(BeamDir::Down), 0});
+		put(col, hall.row, Tile{Mirror, 0, static_cast<int>(BeamDir::Up)});
+		put(wing.end, wing.itemRow, Tile{SunDisc, colour, 0});
+		busy[index(col, hall.row)] = 1;
+		wing.taken = true;
+		shape.sunDiscs++;
 	}
 
 	// The wings no key or lever took: treasure at the end, now and then; hazards and monsters along all of them.
 	void fillWings() {
 		for (Wing& wing : wings) {
 			if (!wing.taken && rng.chance(WING_TREASURE)) {
-				g.set(wing.end, wing.itemRow, randomTreasure());
+				put(wing.end, wing.itemRow, randomTreasure());
 				busy[index(wing.end, wing.itemRow)] = 1;
 			}
 			fillRun(route[static_cast<size_t>(wing.seg)], wing.inner, wing.fillEnd);
 		}
+	}
+
+	// Wades and pools (ZoneTerrain::water): runs of half water on a hall's floor, over rows of deep water dug into the
+	// rock under it (a pool), or over the rock; with much water, whole halls flooded. Never next to a drop (the jump
+	// over its hole starts on dry floor) and never where the floor has a hole.
+	void addWater() {
+		int runs = 0, longest = 0, pools = 0, flooded = 0;
+		switch (terrain.water) {
+		case TerrainAmount::None:
+			return;
+		case TerrainAmount::Few:
+			runs = 1, longest = 6;
+			break;
+		case TerrainAmount::Some:
+			runs = rng.range(2, 3), longest = 10, pools = 1;
+			break;
+		case TerrainAmount::Much:
+			runs = rng.range(5, 8), longest = 20, pools = 3, flooded = rng.range(2, 3);
+			break;
+		}
+		for (int tries = 0; tries < (runs + flooded) * 6 && runs + flooded > 0; tries++) {
+			const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+			const int length = flooded > 0 ? hall.x1 - hall.x0 + 1
+										   : rng.range(3, std::min(longest, hall.x1 - hall.x0 + 1));
+			const int x0 = rng.range(hall.x0, hall.x1 - length + 1);
+			const bool pool = flooded > 0 || (pools > 0 && rng.chance(0.6f));
+			if (flood(hall, x0, x0 + length - 1, pool) < 3)
+				continue;
+			(flooded > 0 ? flooded : runs)--;
+			pools -= pool && pools > 0 ? 1 : 0;
+			(pool ? shape.pools : shape.wades)++;
+		}
+	}
+
+	// Half water on the wettable cells of the hall's floor from x0 to x1, a pool's deep water under them; the cells
+	// it wetted.
+	int flood(const Segment& hall, int x0, int x1, bool pool) {
+		int wet = 0;
+		for (int x = x0; x <= x1; x++) {
+			if (!wettable(hall, x))
+				continue;
+			setStructure(x, hall.row, Structure::HalfWater);
+			wet++;
+			for (int y = hall.row - 1; pool && y >= hall.row - POOL_DEPTH && poolRock(x, y); y--) {
+				setStructure(x, y, Structure::DeepWater);
+				used[index(x, y)] = 1; // no branch digs through it
+			}
+		}
+		return wet;
+	}
+
+	// A floor cell that can take half water: dry, on rock, nothing but a ladder's foot in it, no drop near.
+	[[nodiscard]] bool wettable(const Segment& hall, int x) const {
+		const Tile t = g.at(x, hall.row);
+		if (t.structure != Structure::Empty || (t.type != NoObject && t.type != Ladder) ||
+			!isWall(g.at(x, hall.row - 1)))
+			return false;
+		for (int k = -WATER_CLEAR; k <= WATER_CLEAR; k++)
+			if (!isSolidStructure(g.at(x + k, hall.row - 1).structure) && g.at(x + k, hall.row - 1).type != Ladder)
+				return false; // a hole in the floor: a drop shaft
+		return true;
+	}
+
+	// Rock under a pool that can be water: uncarved, with uncarved rock under it (the pool's floor).
+	[[nodiscard]] bool poolRock(int x, int y) const {
+		return y - 1 >= MIN_ROW && used[index(x, y)] == 0 && used[index(x, y - 1)] == 0 && isWall(g.at(x, y)) &&
+			   isWall(g.at(x, y - 1)) && (isWall(g.at(x - 1, y)) || g.at(x - 1, y).structure == Structure::DeepWater) &&
+			   isWall(g.at(x + 1, y));
+	}
+
+	// Drifts of sand on the floor (ZoneTerrain::sand), with quicksand in them (Some and Much): one or two cells, never
+	// by a link.
+	void addSand() {
+		int drifts = 0, longest = 0, quicksand = 0;
+		switch (terrain.sand) {
+		case TerrainAmount::None:
+			return;
+		case TerrainAmount::Few:
+			drifts = rng.range(2, 3), longest = 8;
+			break;
+		case TerrainAmount::Some:
+			drifts = static_cast<int>(route.size()) / 2 + 1, longest = 16, quicksand = rng.range(2, 4);
+			break;
+		case TerrainAmount::Much:
+			drifts = static_cast<int>(route.size()), longest = 24, quicksand = rng.range(4, 8);
+			break;
+		}
+		for (int tries = 0; tries < drifts * 6 && drifts > 0; tries++) {
+			const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+			const int length = rng.range(3, std::min(longest, hall.x1 - hall.x0 + 1));
+			const int x0 = rng.range(hall.x0, hall.x1 - length + 1);
+			int laid = 0;
+			for (int x = x0; x < x0 + length; x++) {
+				const Tile t = g.at(x, hall.row);
+				if (t.structure == Structure::Empty && t.type == NoObject && isWall(g.at(x, hall.row - 1))) {
+					setStructure(x, hall.row, Structure::Sand);
+					laid++;
+				}
+			}
+			drifts -= laid > 0 ? 1 : 0;
+			for (int q = 0; q < 3 && quicksand > 0 && length >= 5; q++) {
+				const int x = rng.range(x0 + 1, x0 + length - 2);
+				const int run = rng.range(1, QUICKSAND_RUN);
+				bool fits = true;
+				for (int k = -1; k <= run && fits; k++)
+					fits = busy[index(x + k, hall.row)] == 0 &&
+						   (k < 0 || k == run ? !inQuicksand(g.at(x + k, hall.row)) : inSand(g.at(x + k, hall.row)));
+				if (!fits)
+					continue;
+				for (int k = 0; k < run; k++)
+					setStructure(x + k, hall.row, Structure::Quicksand);
+				quicksand--;
+			}
+		}
+	}
+
+	// The light (ZoneTerrain): dark halls with no wall torch but a torch or two, braziers on the floor, daylight
+	// through cracks in the ceiling. Last, so nothing else takes their cells.
+	void addLight() {
+		if (terrain.dark == TerrainAmount::Few)
+			for (int n = rng.range(1, 2); n > 0; n--)
+				darken(route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))]);
+		else if (terrain.dark != TerrainAmount::None)
+			for (Segment& hall : route)
+				if (rng.percent(terrain.dark == TerrainAmount::Much ? 75 : 40))
+					darken(hall);
+		if (terrain.braziers)
+			for (int n = rng.range(2, 5), tries = 0; n > 0 && tries < 40; tries++) {
+				const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+				const int x = rng.range(hall.x0, hall.x1);
+				const Tile t = g.at(x, hall.row);
+				if (t.structure != Structure::Empty || !freeCell(x, hall.row) || busy[index(x, hall.row)] != 0 ||
+					!isWall(g.at(x, hall.row - 1)) || t.dressing.torch == TorchPlacing::Torch ||
+					hasPlacedProp(g.at(x - 1, hall.row).dressing) || hasPlacedProp(g.at(x + 1, hall.row).dressing))
+					continue;
+				Tile cell = t;
+				cell.dressing.prop = DECOR_BRAZIER;
+				g.set(x, hall.row, cell);
+				busy[index(x, hall.row)] = 1;
+				shape.braziers++;
+				n--;
+			}
+		if (terrain.lightShafts)
+			for (int n = rng.range(2, 4), tries = 0; n > 0 && tries < 40; tries++) {
+				const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+				const int x = rng.range(hall.x0, hall.x1);
+				if (crack(hall, x)) {
+					put(x, hall.row + hall.height - 1, Tile{LightShaft, static_cast<int>(BeamDir::Down), 0});
+					n--;
+				}
+			}
+	}
+
+	// No wall torch in the hall, but one every TORCH_GAP cells or so in a few places, on free floor.
+	void darken(Segment& hall) {
+		if (hall.dark)
+			return;
+		hall.dark = true;
+		for (int y = hall.row; y < hall.row + hall.height; y++)
+			for (int x = hall.x0; x <= hall.x1; x++)
+				if (!isSolidStructure(g.at(x, y).structure)) {
+					Tile cell = g.at(x, y);
+					cell.dressing.torch = TorchPlacing::None;
+					g.set(x, y, cell);
+				}
+		for (int x = hall.x0 + rng.range(2, TORCH_GAP); x <= hall.x1 - 2; x += rng.range(TORCH_GAP, 2 * TORCH_GAP)) {
+			if (!freeCell(x, hall.row))
+				continue;
+			Tile cell = g.at(x, hall.row);
+			cell.dressing.torch = TorchPlacing::Torch;
+			g.set(x, hall.row, cell);
+		}
+		shape.darkHalls++;
+	}
+
+	// A crack for daylight over column x of the hall: rock above its top row, the beam down to the floor through
+	// free cells, onto rock (no hole, no mirror, no sun disc it would light).
+	[[nodiscard]] bool crack(const Segment& hall, int x) const {
+		if (!isWall(g.at(x, hall.row + hall.height)) || !isWall(g.at(x, hall.row - 1)) || busy[index(x, hall.row)] != 0)
+			return false;
+		for (int y = hall.row; y < hall.row + hall.height; y++)
+			if (!freeCell(x, y) || hasPlacedProp(g.at(x, y).dressing))
+				return false;
+		return true;
 	}
 
 	// With a poisoner on the level, the first wing's chest (or the first wing, or else the first chest on the route)
@@ -411,13 +675,13 @@ class LevelBuilder {
 		if (spot == wings.end())
 			spot = std::find_if(wings.begin(), wings.end(), [](const Wing& w) { return !w.taken; });
 		if (spot != wings.end()) {
-			g.set(spot->end, spot->itemRow, chestOf(ItemKind::Antidote));
+			put(spot->end, spot->itemRow, chestOf(ItemKind::Antidote));
 			return;
 		}
 		for (const Segment& s : route)
 			for (int x = s.x0; x <= s.x1; x++)
 				if (g.at(x, s.row).type == Treasure) {
-					g.set(x, s.row, chestOf(ItemKind::Antidote));
+					put(x, s.row, chestOf(ItemKind::Antidote));
 					return;
 				}
 	}
@@ -509,7 +773,7 @@ class LevelBuilder {
 			int end = farEnd(b, col);
 			if (item.type == Treasure)
 				item = randomTreasure();
-			g.set(end, b.row, cellWith(item)); // a lever goes on the back wall
+			put(end, b.row, item); // a lever goes on the back wall
 			busy[index(end, b.row)] = 1;
 			if (length >= 5 && rng.chance(0.3f + 0.05f * static_cast<float>(d)))
 				placeMonster((col + end) / 2, b.row);
@@ -622,12 +886,12 @@ class LevelBuilder {
 	}
 
 	bool placeMonster(int col, int row) {
-		if (monsters >= monsterCap || !isEmptyCell(g.at(col, row)) || !isWall(g.at(col, row - 1)))
+		if (monsters >= monsterCap || !freeCell(col, row) || !isSolidStructure(g.at(col, row - 1).structure))
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
 			if (g.at(x, row).type == MonsterSpawn)
 				return false;
-		g.set(col, row, Tile{MonsterSpawn, randomMonster(), 0});
+		put(col, row, Tile{MonsterSpawn, randomMonster(), 0});
 		busy[index(col, row)] = 1;
 		monsters++;
 		return true;
@@ -635,6 +899,18 @@ class LevelBuilder {
 
 	[[nodiscard]] bool floorCell(const Segment& s, int col) const {
 		return col >= s.x0 && col <= s.x1 && isEmptyCell(g.at(col, s.row)) && isWall(g.at(col, s.row - 1));
+	}
+
+	// A drift on rock (not quicksand) with nothing in it.
+	[[nodiscard]] bool sandFloor(const Segment& s, int col) const {
+		const Tile t = g.at(col, s.row);
+		return col >= s.x0 && col <= s.x1 && t.structure == Structure::Sand && freeCell(col, s.row) &&
+			   isWall(g.at(col, s.row - 1));
+	}
+
+	// A trap at col the player jumps: from either side, never out of half water.
+	[[nodiscard]] bool jumpable(const Segment& s, int col) const {
+		return !inHalfWater(g.at(col - 1, s.row)) && !inHalfWater(g.at(col + 1, s.row));
 	}
 
 	// A one-cell hole in the floor with a death trap in it: jump it or die.
@@ -671,7 +947,7 @@ class LevelBuilder {
 		int dir = to >= from ? 1 : -1;
 		float fd = static_cast<float>(d);
 		for (int x = from + 2 * dir; (to - x) * dir > 1; x += dir) {
-			if (busy[index(x, s.row)] != 0 || !isEmptyCell(g.at(x, s.row)))
+			if (busy[index(x, s.row)] != 0 || !freeCell(x, s.row))
 				continue;
 			// Weights in Feature order: none, pit, spike, rock fall, monster, treasure.
 			float weights[FEATURE_COUNT] = {
@@ -695,15 +971,18 @@ class LevelBuilder {
 				// A zone level's halls are many: a pair to walk over would turn up on almost every one.
 				size = zoneTarget == 0 && d >= 5 && rng.chance(0.4f) ? 2 : 1;
 				for (int k = 0; k < size; k++)
-					if (floorCell(s, x + k * dir) && busy[index(x + k * dir, s.row)] == 0)
-						g.set(x + k * dir, s.row, Tile{Spike, 0, 0});
+					if (floorCell(s, x + k * dir) && busy[index(x + k * dir, s.row)] == 0 && jumpable(s, x + k * dir))
+						put(x + k * dir, s.row, Tile{Spike, 0, 0});
 				break;
 			case Feature::RockFall:
 				size = rng.range(1, std::min(3, 1 + d / 3));
 				for (int k = 0; k < size; k++) {
 					int cx = x + k * dir;
-					if (floorCell(s, cx) && busy[index(cx, s.row)] == 0 && isWall(g.at(cx, s.row + 1)))
-						g.set(cx, s.row, Tile{RockFall, 0, 0});
+					if ((floorCell(s, cx) || sandFloor(s, cx)) && busy[index(cx, s.row)] == 0 &&
+						isWall(g.at(cx, s.row + 1))) {
+						const bool sand = terrain.sand == TerrainAmount::Much && rng.chance(SAND_FALL_SHARE);
+						put(cx, s.row, Tile{RockFall, sand ? SAND_FALL : 0, 0});
+					}
 				}
 				break;
 			case Feature::Monster:
@@ -711,7 +990,7 @@ class LevelBuilder {
 					continue;
 				break;
 			case Feature::Treasure:
-				g.set(x, s.row, randomTreasure());
+				put(x, s.row, randomTreasure());
 				break;
 			}
 			x += dir * (size - 1 + rng.range(1, 2)); // a free cell after every feature
@@ -734,7 +1013,12 @@ GenResult generateLevel(const GenOptions& options) {
 	float bestError = 0.f;
 	for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
 		best.attempts = attempt + 1;
-		LevelBuilder builder(options.seed * 7919U + static_cast<uint32_t>(attempt) * 104729U, difficulty, openTarget);
+		LevelBuilder builder(
+			options.seed * 7919U + static_cast<uint32_t>(attempt) * 104729U,
+			difficulty,
+			openTarget,
+			options.zone
+		);
 		LevelGrid grid;
 		if (!builder.build(grid))
 			continue;

@@ -28,7 +28,14 @@ with no warnings.
   shafts, pillar loops, hub halls with wings, ledges; the keys and levers in the wings. Content (monsters by
   difficulty, test-level traps) stays the test level's until steps 3, 4 and 7. Not yet: the place in the zone (first,
   middle, boss level: step 6) and the seed table per campaign level (with the rebuild).
-* Next: step 2, zone mechanics.
+* **Step 2, zone mechanics: done (2026-10-24).** The zone table's terrain (`ZONE_TERRAIN`, campaign.h): wades,
+  pools over deep water and flooded halls; sand drifts, quicksand, sand falls; dark halls with a few torches,
+  braziers, daylight cracks; sun discs as gate openers through a mirror under a light shaft. Played in the game on
+  monster-free copies (`levelcheck --script`): cisterns, Seth's desert (the mirror turned), Sokar and the web halls
+  pass. With their monsters, path scripts can stall: a monster's bites drain the stamina before a pit's jump (a
+  point for steps 3 and 7, or the monster-balance plan). Fire (the Lake of Fire's burning floors) waits for step 4
+  (traps: fire jets).
+* Next: step 3, monsters by zone.
 
 ## What it must build
 

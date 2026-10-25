@@ -40,6 +40,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ladder | Ladder | a ladder cell; the player climbs between ladder cells above each other | `Ladder`, `Dungeon::PlayerOnLadder` |
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | zone level | | (levelgen, [campaign-levelgen](plan/campaign-levelgen.draft.opus.md)) a generated level in the campaign's shape for a zone: bands of halls across the whole grid, dressed as the zone. Not a campaign level, not a test level (`gen:SEED:D`) | `GenOptions::zone`, `LevelBuilder::buildHalls` |
+| zone terrain | | (zone level) what a zone's halls are made of besides rock, by the zone table: water, sand, dark halls, braziers, daylight cracks, sun discs; each an amount (none, few, some, much) or on / off | `ZoneTerrain`, `ZONE_TERRAIN`, `TerrainAmount` |
+| pool | | (zone level) a run of half water over deep water dug into the rock under the floor; a wade is the same over rock | `GenShape::pools`, `GenShape::wades` |
 | wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
 | hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |
 | pillar loop | | two ladders (or a ladder and a drop) between the same two halls: two ways round the rock between them, the pillar; no gate on it | `Segment::loopCol`, `GenShape::loops` |

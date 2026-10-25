@@ -312,7 +312,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone web_halls --cells 500 /tmp/zone    #
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 and 2 of 9: the shape and the terrain) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 3 of 9: the shape, the terrain and the
+monsters) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
 
 1. **Halls.** Bands from the top of the grid to the bottom: halls of 1 (55%), 2 (30%) or 3 rows (15%), most of
@@ -338,14 +339,20 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    its hole starts on dry floor) nor on a ladder's top. In a zone with mirrors, 60% of the gates are opened by a sun
    disc at the end of a wing in a tall hall: a light shaft in the hall's top row falls on a mirror pointing back up
    at it (it catches the beam), the player turns it to the disc.
-7. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
+7. **Monsters.** From the zone's set (`ZONE_FAUNA`, `src/world/campaign.h`; step 3), the target campaign's
+   ([Zones](#zones)), each by its weight: crocodiles, hippos and lotuses only in half water and likelier there, sand
+   worms three times likelier on a drift (they lie under it), camel spiders three times likelier in a dark hall and
+   a quarter as likely in a lit one (in a zone with dark halls). Half the mummies lie between decoy coffins (a coffin
+   with a sleeping mummy, `DECOR_COFFIN_MUMMY`, either side), every living ushabti among decor ushabti. The share of
+   the chests that are mimics, and of the mimics that are cursed, is the zone's too.
+8. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
    the wings no key took; with a poisoner on the level, the first wing's chest holds an antidote. Pits only on dry
    floor, spikes never next to half water (no jump out of it), objects keep the water or sand of their cell. At most
    (4 + 2 × difficulty) × size / 100 monsters. The score aimed at is `targetScore(difficulty, size)`, the test
    level's per 50 open cells; the candidate closest to it and to the size wins.
 
-Still missing (the next steps of the plan): the zone's monster set, its traps, the riddle and name gates, the boss
-level, the supplies by the rules above, the carried content and the decor.
+Still missing (the next steps of the plan): the zone's traps, the riddle and name gates, the boss level, the supplies
+by the rules above, the carried content and the decor.
 
 ## Test levels from ASCII
 
@@ -374,7 +381,8 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 - `tests/unit/level_gen_test.cpp` (plan campaign-levelgen): zone levels over two seeds per zone pass the checker
   with no warnings, fill the grid, keep the target size and name their zone; between them tall halls, pillar loops,
   hubs, ledges, shafts and gates turn up; each zone's terrain is the one of the zone table (water, deep water, sand,
-  quicksand, sand falls, dark halls, torches, braziers, light shafts, sun discs turned on the path); the same seed
+  quicksand, sand falls, dark halls, torches, braziers, light shafts, sun discs turned on the path) and its monsters
+  come from its set (camel spiders mostly in the dark, worms in the sand, decoy coffins, decor ushabti); the same seed
   gives the same level; the `gen:` specs. Scenario
   `tests/scenarios/campaign_levelgen.txt`: one zone level per zone (screenshots).
 - `tests/unit/sun_mirrors_test.cpp` (plan sunlight-mirrors): the beam's way through a mirror (turned, edge-on,

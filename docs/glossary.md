@@ -41,6 +41,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | ladder top | | the highest cell of a ladder shaft | `LADDER_TOP` |
 | zone level | | (levelgen, [campaign-levelgen](plan/campaign-levelgen.draft.opus.md)) a generated level in the campaign's shape for a zone: bands of halls across the whole grid, dressed as the zone. Not a campaign level, not a test level (`gen:SEED:D`) | `GenOptions::zone`, `LevelBuilder::buildHalls` |
 | zone terrain | | (zone level) what a zone's halls are made of besides rock, by the zone table: water, sand, dark halls, braziers, daylight cracks, sun discs; each an amount (none, few, some, much) or on / off | `ZoneTerrain`, `ZONE_TERRAIN`, `TerrainAmount` |
+| zone fauna | | (zone level) the monsters a zone's levels draw from, by weight, and its mimic shares: the target campaign's set, not today's `ZONES` | `ZoneFauna`, `ZONE_FAUNA`, `LevelBuilder::zoneMonster` |
 | pool | | (zone level) a run of half water over deep water dug into the rock under the floor; a wade is the same over rock | `GenShape::pools`, `GenShape::wades` |
 | wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
 | hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |

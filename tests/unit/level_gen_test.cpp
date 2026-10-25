@@ -6,6 +6,7 @@
 #include "../../src/world/level.h"
 #include "../../src/world/level_gen.h"
 #include <cstdlib>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -60,11 +61,15 @@ TEST_CASE("zone levels fill the grid in the campaign's shape and pass the checke
 	CHECK(gates > 0); // keys and levers in the wings
 }
 
-TEST_CASE("a zone level's terrain follows the zone table") {
+TEST_CASE("a zone level's terrain and monsters follow the zone table") {
 	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
 		const ZoneTerrain& terrain = zoneTerrain(static_cast<ZoneId>(zone));
+		const ZoneFauna& fauna = zoneFauna(static_cast<ZoneId>(zone));
 		int water = 0, deep = 0, sand = 0, quicksand = 0, sandFalls = 0, dark = 0, torches = 0, braziers = 0;
 		int shafts = 0, discs = 0, turns = 0;
+		std::set<int> kinds; // of the set's, met
+		int strangers = 0; // monsters from outside the set (mimics aside)
+		int spidersDark = 0, spidersLit = 0, wormsInSand = 0, coffins = 0, figures = 0;
 		for (uint32_t seed = 1; seed <= 4; seed++) {
 			CAPTURE(zone);
 			CAPTURE(seed);
@@ -83,9 +88,31 @@ TEST_CASE("a zone level's terrain follows the zone table") {
 				braziers += t.dressing.prop == DECOR_BRAZIER ? 1 : 0;
 				shafts += t.type == LightShaft ? 1 : 0;
 				discs += t.fixture.type == SunDisc ? 1 : 0;
+				coffins += t.dressing.prop == DECOR_COFFIN_MUMMY ? 1 : 0;
+				figures += t.dressing.prop == DECOR_USHABTI ? 1 : 0;
+				if (t.type != MonsterSpawn || t.attr == MonsterMimic || t.attr == MonsterCursedMimic)
+					continue;
+				bool inSet = false;
+				for (const ZoneMonster& m : fauna.monsters)
+					inSet = inSet || (m.weight > 0 && m.type == t.attr);
+				strangers += inSet ? 0 : 1;
+				kinds.insert(t.attr);
+				if (t.attr == MonsterCamelSpider)
+					(t.dressing.torch == TorchPlacing::None ? spidersDark : spidersLit)++;
+				wormsInSand += t.attr == MonsterWorm && inSand(t) ? 1 : 0;
 			}
 		}
 		CAPTURE(zone);
+		CHECK(strangers == 0);
+		CHECK(kinds.size() >= 3);
+		if (zone == static_cast<int>(ZoneId::WebHalls))
+			CHECK(spidersDark > spidersLit); // the spiders run in the dark halls
+		if (terrain.sand == TerrainAmount::Much)
+			CHECK(wormsInSand > 0); // the worms lie under the drifts
+		if (zone == static_cast<int>(ZoneId::Necropolis))
+			CHECK(coffins > 0); // mummies among decoy coffins
+		if (zone == static_cast<int>(ZoneId::PriestsQuarter))
+			CHECK(figures > 0); // living ushabti among decor ones
 		CHECK((water > 0) == (terrain.water != TerrainAmount::None));
 		CHECK((deep > 0) == (terrain.water >= TerrainAmount::Some));
 		CHECK((sand > 0) == (terrain.sand != TerrainAmount::None));

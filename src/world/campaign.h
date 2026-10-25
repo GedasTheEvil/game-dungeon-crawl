@@ -93,18 +93,50 @@ constexpr ZoneTerrain ZONE_TERRAIN[ZONE_ID_COUNT] = {
 	{TerrainAmount::Much, TerrainAmount::None, TerrainAmount::Few, false, false, false}, // cisterns of Sobek
 	{TerrainAmount::Few, TerrainAmount::Some, TerrainAmount::None, false, true, true}, // Seth's desert: the oasis
 	{TerrainAmount::None, TerrainAmount::Much, TerrainAmount::Some, false, true, false}, // land of Sokar
-	{TerrainAmount::Some, TerrainAmount::None, TerrainAmount::None, true, false, false}, // lake of fire: water the
-																						 // refuge
+	{TerrainAmount::Some, TerrainAmount::None, TerrainAmount::None, true, false, false}, // lake of fire: a refuge
 	{TerrainAmount::Few, TerrainAmount::None, TerrainAmount::Some, true, false, false}, // necropolis
 	{TerrainAmount::Few, TerrainAmount::None, TerrainAmount::Few, true, false, false}, // hall of judgment
 };
 [[nodiscard]] constexpr const ZoneTerrain& zoneTerrain(ZoneId id) { return ZONE_TERRAIN[static_cast<int>(id)]; }
+
+constexpr int ZONE_MONSTER_MAX = 6;
+
+// A zone level's monsters (plan campaign-levelgen): the target campaign's set for the zone (docs/levels.md, Zones;
+// not today's ZONES), each by its weight, and the share of its chests that are mimics. The swimmers (crocodile,
+// hippo) and the lotus go only in half water.
+struct ZoneMonster {
+	MonsterTypeId type;
+	int weight;
+};
+struct ZoneFauna {
+	ZoneMonster monsters[ZONE_MONSTER_MAX]; // type 0 after the last
+	int mimicPercent; // of the chests
+	int cursedPercent; // of the mimics
+};
+// By ZoneId.
+constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
+	{{{MonsterRat, 4}, {MonsterScarab, 4}, {MonsterBat, 3}, {MonsterPlant, 2}}, 10, 0},
+	{{{MonsterBat, 4}, {MonsterGiantBat, 3}, {MonsterWorm, 2}, {MonsterGiantRat, 3}, {MonsterCrocodile, 2}}, 15, 0},
+	{{{MonsterCamelSpider, 4}, {MonsterGiantScarab, 3}, {MonsterGiantRat, 1}}, 30, 0},
+	{{{MonsterMummy, 4}, {MonsterUshabti, 2}, {MonsterAnubis, 1}, {MonsterGiantScarab, 1}}, 15, 0},
+	{{{MonsterScorpion, 4}, {MonsterGiantScorpion, 3}, {MonsterGiantScarab, 1}}, 15, 0},
+	{{{MonsterCobra, 4}, {MonsterGiantCobra, 2}, {MonsterCrocodile, 2}, {MonsterGiantBat, 1}}, 15, 0},
+	{{{MonsterCrocodile, 4}, {MonsterHippo, 1}, {MonsterGiantCobra, 3}, {MonsterLotus, 2}, {MonsterGiantBat, 1}},
+	 15,
+	 10},
+	{{{MonsterCamelSpider, 3}, {MonsterGiantScorpion, 3}, {MonsterHippo, 2}, {MonsterWorm, 1}}, 15, 10},
+	{{{MonsterWorm, 4}, {MonsterCamelSpider, 3}, {MonsterGiantScorpion, 1}}, 15, 10},
+	{{{MonsterBaboon, 3}, {MonsterGiantCobra, 3}, {MonsterGiantBat, 2}}, 15, 20},
+	{{{MonsterAnubis, 3}, {MonsterMummy, 4}, {MonsterBaboon, 1}, {MonsterGiantScorpion, 1}}, 25, 60},
+	{{{MonsterAnubis, 4}, {MonsterMummy, 2}, {MonsterGiantCobra, 2}, {MonsterBaboon, 1}, {MonsterCamelSpider, 1}},
+	 20,
+	 50},
+};
+[[nodiscard]] constexpr const ZoneFauna& zoneFauna(ZoneId id) { return ZONE_FAUNA[static_cast<int>(id)]; }
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.
 [[nodiscard]] int zoneBySlug(const std::string& slug);
-
-constexpr int ZONE_MONSTER_MAX = 6;
 
 // A run of campaign levels in one zone. Each level file names its zone too (LevelMeta): a test checks they agree.
 struct Zone {

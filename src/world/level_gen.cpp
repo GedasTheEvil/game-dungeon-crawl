@@ -83,7 +83,8 @@ class LevelBuilder {
 	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId.
 	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone)
 		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget),
-		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}) {
+		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
+		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
@@ -99,6 +100,7 @@ class LevelBuilder {
 		if (zoneTarget > 0) {
 			addWater();
 			addSand();
+			chooseDark();
 		}
 		placeLocks();
 		int branches = rng.range(1, 2) + d / 4;
@@ -112,6 +114,7 @@ class LevelBuilder {
 			fillSegment(s);
 		if (zoneTarget > 0) {
 			placeAntidote();
+			dressFigures();
 			addLight();
 		}
 		out = g;
@@ -126,6 +129,7 @@ class LevelBuilder {
 	int d;
 	int zoneTarget;
 	ZoneTerrain terrain; // all None on a test level
+	const ZoneFauna* fauna; // the zone's monsters, nullptr on a test level (monsters by difficulty)
 	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -595,13 +599,9 @@ class LevelBuilder {
 	// The light (ZoneTerrain): dark halls with no wall torch but a torch or two, braziers on the floor, daylight
 	// through cracks in the ceiling. Last, so nothing else takes their cells.
 	void addLight() {
-		if (terrain.dark == TerrainAmount::Few)
-			for (int n = rng.range(1, 2); n > 0; n--)
-				darken(route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))]);
-		else if (terrain.dark != TerrainAmount::None)
-			for (Segment& hall : route)
-				if (rng.percent(terrain.dark == TerrainAmount::Much ? 75 : 40))
-					darken(hall);
+		for (const Segment& hall : route)
+			if (hall.dark)
+				darken(hall);
 		if (terrain.braziers)
 			for (int n = rng.range(2, 5), tries = 0; n > 0 && tries < 40; tries++) {
 				const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
@@ -629,11 +629,48 @@ class LevelBuilder {
 			}
 	}
 
+	// The figures the zone's monsters hide among: a mummy's coffin (its own, on its spawn) between decoy coffins with
+	// a mummy asleep in them, a living ushabti (its decor ushabti on its spawn) among decor ushabti.
+	void dressFigures() {
+		for (int cell = 0; cell < CELLS; cell++) {
+			const Tile t = g.cells[cell];
+			if (t.type != MonsterSpawn || (t.attr != MonsterMummy && t.attr != MonsterUshabti))
+				continue;
+			const int prop = t.attr == MonsterMummy ? DECOR_COFFIN_MUMMY : DECOR_USHABTI;
+			if (prop == DECOR_COFFIN_MUMMY && !rng.chance(0.5f))
+				continue;
+			const int col = cell % LEVEL_WIDTH;
+			const int row = cell / LEVEL_WIDTH;
+			for (int k : {-1, 1, -2, 2})
+				if (figureCell(col + k, row)) {
+					Tile beside = g.at(col + k, row);
+					beside.dressing.prop = prop;
+					beside.dressing.propMirror = k > 0;
+					g.set(col + k, row, beside);
+					busy[index(col + k, row)] = 1;
+				}
+		}
+	}
+
+	// Dry floor with nothing in it or on its back wall, no prop yet.
+	[[nodiscard]] bool figureCell(int col, int row) const {
+		const Tile t = g.at(col, row);
+		return t.structure == Structure::Empty && freeCell(col, row) && isWall(g.at(col, row - 1)) &&
+			   !hasPlacedProp(t.dressing);
+	}
+
+	// The dark halls (ZoneTerrain::dark), chosen before the monsters: the camel spiders run in them.
+	void chooseDark() {
+		if (terrain.dark == TerrainAmount::Few)
+			for (int n = rng.range(1, 2); n > 0; n--)
+				route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))].dark = true;
+		else if (terrain.dark != TerrainAmount::None)
+			for (Segment& hall : route)
+				hall.dark = rng.percent(terrain.dark == TerrainAmount::Much ? 75 : 40);
+	}
+
 	// No wall torch in the hall, but one every TORCH_GAP cells or so in a few places, on free floor.
-	void darken(Segment& hall) {
-		if (hall.dark)
-			return;
-		hall.dark = true;
+	void darken(const Segment& hall) {
 		for (int y = hall.row; y < hall.row + hall.height; y++)
 			for (int x = hall.x0; x <= hall.x1; x++)
 				if (!isSolidStructure(g.at(x, y).structure)) {
@@ -822,6 +859,11 @@ class LevelBuilder {
 	// A treasure chest, or now and then a mimic in its place.
 	Tile randomTreasure() {
 		Tile chest = randomChest();
+		if (fauna != nullptr) {
+			if (!mimicRng.percent(fauna->mimicPercent))
+				return chest;
+			return Tile{MonsterSpawn, mimicRng.percent(fauna->cursedPercent) ? MonsterCursedMimic : MonsterMimic, 0};
+		}
 		if (d >= MIMIC_MIN_DIFFICULTY && mimicRng.chance(MIMIC_CHANCE)) {
 			const bool cursed = d >= CURSED_MIMIC_MIN_DIFFICULTY && mimicRng.chance(CURSED_MIMIC_SHARE);
 			return Tile{MonsterSpawn, cursed ? MonsterCursedMimic : MonsterMimic, 0};
@@ -885,13 +927,50 @@ class LevelBuilder {
 		return MonsterRat;
 	}
 
-	bool placeMonster(int col, int row) {
+	// A zone level's monster for the cell, from the zone's set (ZoneFauna): swimmers and lotuses only in half water and
+	// likelier there, sand burrowers likelier in sand, light shunners likelier in a dark hall and rarer in a lit one.
+	// 0 if none of the set fits.
+	int zoneMonster(int col, int row, bool dark) {
+		const Tile t = g.at(col, row);
+		int weights[ZONE_MONSTER_MAX] = {};
+		int total = 0;
+		for (int i = 0; i < ZONE_MONSTER_MAX; i++) {
+			const ZoneMonster& m = fauna->monsters[i];
+			const MonsterKind* kind = monsterKind(m.type);
+			if (kind == nullptr)
+				break;
+			const bool water = kind->locomotion == Locomotion::Submerged || kind->locomotion == Locomotion::Floating;
+			int w = m.weight * 2;
+			if (water)
+				w = inHalfWater(t) ? w * 4 : 0;
+			if (kind->sandBurrow.has_value() && inSand(t))
+				w *= 3;
+			if (kind->shunsLight && terrain.dark != TerrainAmount::None)
+				w = dark ? w * 3 : w / 4;
+			weights[i] = w;
+			total += w;
+		}
+		if (total == 0)
+			return 0;
+		int roll = rng.range(0, total - 1);
+		for (int i = 0; i < ZONE_MONSTER_MAX; i++) {
+			if (roll < weights[i])
+				return fauna->monsters[i].type;
+			roll -= weights[i];
+		}
+		return 0;
+	}
+
+	bool placeMonster(int col, int row, bool dark = false) {
 		if (monsters >= monsterCap || !freeCell(col, row) || !isSolidStructure(g.at(col, row - 1).structure))
 			return false;
 		for (int x = col - MONSTER_GAP; x <= col + MONSTER_GAP; x++)
 			if (g.at(x, row).type == MonsterSpawn)
 				return false;
-		put(col, row, Tile{MonsterSpawn, randomMonster(), 0});
+		const int type = fauna != nullptr ? zoneMonster(col, row, dark) : randomMonster();
+		if (type == 0)
+			return false;
+		put(col, row, Tile{MonsterSpawn, type, 0});
 		busy[index(col, row)] = 1;
 		monsters++;
 		return true;
@@ -986,7 +1065,7 @@ class LevelBuilder {
 				}
 				break;
 			case Feature::Monster:
-				if (!placeMonster(x, s.row))
+				if (!placeMonster(x, s.row, s.dark))
 					continue;
 				break;
 			case Feature::Treasure:

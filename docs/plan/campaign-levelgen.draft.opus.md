@@ -35,7 +35,14 @@ with no warnings.
   pass. With their monsters, path scripts can stall: a monster's bites drain the stamina before a pit's jump (a
   point for steps 3 and 7, or the monster-balance plan). Fire (the Lake of Fire's burning floors) waits for step 4
   (traps: fire jets).
-* Next: step 3, monsters by zone.
+* **Step 3, monsters by zone: done (2026-10-24).** `ZONE_FAUNA` (campaign.h): the target campaign's set per zone
+  with weights and the zone's mimic shares; swimmers and lotuses only in half water, worms likelier in sand, camel
+  spiders likelier in the dark halls (chosen before the monsters now), mummies between decoy coffins, living ushabti
+  among decor ushabti. Climbers and roosting flyers need nothing of the generator: every climber in a set climbs,
+  every flyer roosts under its hall's ceiling. Played in the game with their monsters, the path scripts of four of
+  six zone levels pass; in the other two a grab (a crocodile's, a giant scorpion's) holds the god-mode player, so
+  `levelcheck --script` cannot prove a level with grabbers. The level itself passes without its monsters.
+* Next: step 4, traps.
 
 ## What it must build
 

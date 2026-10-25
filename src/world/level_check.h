@@ -20,8 +20,9 @@
 //     reaches from there set as needed (sun_beam.h): the gates of its colour open; a disc lit as the level starts
 //     opens them from the start (and is warned about);
 //   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a fire vent's jet (plan fire-jet-trap)
-//     never blocks; a run of these rhythm traps in a row must be crossable at walking speed, which is checked on its
-//     own (checkWallSpikes), not on the path.
+//     and a poison drip's falling venom (plan poison-drip-trap) never block; a run of these rhythm traps in a row must
+//     be crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path. A poison drip's
+//     puddle is a floor trap: a cost, jumped over like spikes.
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
@@ -60,6 +61,7 @@ struct LevelReport {
 		levers = 0, riddles = 0;
 	int sandFalls = 0; // among the rock falls (plan desert-chapter)
 	int fireVents = 0; // plan fire-jet-trap
+	int poisonDrips = 0; // plan poison-drip-trap
 	int sandCells = 0, quicksandCells = 0; // sand counts the quicksand too
 	int teleporters = 0;
 	int lightShafts = 0, mirrors = 0, sunDiscs = 0; // plan sunlight-mirrors
@@ -82,7 +84,7 @@ struct LevelReport {
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
 		pathMonsters = 0;
 	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls
-	int pathFireVents = 0;
+	int pathFireVents = 0, pathPoisonDrips = 0;
 	int keysNeeded = 0; // colours the path has to collect before a gate
 	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 
@@ -91,9 +93,9 @@ struct LevelReport {
 
 [[nodiscard]] LevelReport checkLevel(const LevelGrid& grid);
 
-// Rhythm traps (plans rhythm-traps, fire-jet-trap): can the player walk through the run of them from col to col +
-// count - 1 on row, without stopping, in the direction dir (+1 / -1), at some start time? Out, wall spikes block and
-// stab the player they come out on, a fire vent's jet burns.
+// Rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): can the player walk through the run of them from
+// col to col + count - 1 on row, without stopping, in the direction dir (+1 / -1), at some start time? Out, wall spikes
+// block and stab the player they come out on, a fire vent's jet burns, a poison drip's venom falls on them.
 [[nodiscard]] bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir);
 
 // Threat of one monster of this MonsterTypeId in the difficulty score.

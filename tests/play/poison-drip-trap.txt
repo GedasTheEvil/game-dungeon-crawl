@@ -1,0 +1,7 @@
+# Plan poison-drip-trap, for `bin/game --play tests/play/poison-drip-trap.txt`: tests/levels/poison_drips. A poison
+# drip at col 5 (normal speed), then a staggered run at cols 10, 12 and 14 with a cell to wait in between, an antidote
+# chest at col 18. The puddle poisons (weak) whoever walks in, a jump clears it; the lump swells, wobbles and creaks
+# for 0.6 s, then falls and the venom pours for 1.2 s of every 4 s: whoever is in the cell then, a jump too, takes 8
+# and medium poison. The safe pass: jump each puddle between drops.
+seed 1
+level tests/levels/poison_drips

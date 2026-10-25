@@ -333,6 +333,12 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 		sk.pencil(x + 0.5f, y + 0.28f, x + 0.42f, y + 0.55f, GRAPHITE, 0.9f, seed + 2);
 		sk.pencil(x + 0.42f, y + 0.55f, x + 0.55f, y + 0.8f, GRAPHITE, 0.9f, seed + 3);
 		break;
+	case PoisonDrip: // the puddle on the floor, the drop hanging from the ceiling over it, its fall
+		sk.loop(x + 0.5f, y + 0.1f, 0.32f, 0.06f, 7, GRAPHITE, 0.95f, seed);
+		sk.loop(x + 0.5f, y + 0.84f, 0.07f, 0.09f, 5, GRAPHITE, 0.9f, seed + 1);
+		sk.pencil(x + 0.5f, y + 0.66f, x + 0.5f, y + 0.5f, GRAPHITE, 0.8f, seed + 2);
+		sk.pencil(x + 0.5f, y + 0.4f, x + 0.5f, y + 0.24f, GRAPHITE, 0.8f, seed + 3);
+		break;
 	case LightShaft: { // rays fanning out of the crack the way the beam goes
 		const BeamDir d = shaftDir(t);
 		const float dx = static_cast<float>(beamDx(d)), dy = static_cast<float>(beamDy(d));

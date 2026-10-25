@@ -13,7 +13,10 @@ out: metal ticks over a rising scrape), spike_thunk.wav (they shoot out: a metal
 mirror_turn.wav (a bronze mirror turned a quarter on its stand: a short grind in the bearings, a squeak, a click),
 sun_disc.wav (a sun disc lit by the beam: a warm bell chord swelling up, a shimmer over it; plan sunlight-mirrors),
 fire_hiss.wav (a fire vent about to breathe: gas hissing louder, sparks crackling) and fire_roar.wav (its jet: a
-whoomph, then a roar of flame that dies down; plan fire-jet-trap).
+whoomph, then a roar of flame that dies down; plan fire-jet-trap), drip_plips.wav (a poison drip's small drops into
+its puddle, faint), drip_creak.wav (its lump about to fall: a wet, stretching creak, the last two plips) and
+drip_splat.wav (the lump falls into the puddle: a heavy splat, then the venom pouring after it; plan
+poison-drip-trap).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like jump_sound.py.
 """
@@ -355,6 +358,54 @@ def fire_roar():
     return normalize(out, -5)
 
 
+def plip(gain=1.0):
+    """One drop into a puddle: a short, rising, ringing blip with a wet tick on top."""
+    s, t = chirp(900, 2100, 0.07, 0.6)
+    clip = s * env_ad(t, 0.002, 0.025)
+    tick = band(rng.standard_normal(len(t)), 2500, 7000) * env_ad(t, 0.0005, 0.004)
+    return gain * (clip + 0.4 * tick)
+
+
+# The drop times match dungeon_render_drips.cpp: SMALL_DROPS_AFTER_OUT_MS (+ SMALL_FALL_MS), LAST_DROPS_BEFORE_MS.
+def drip_plips():
+    out = np.zeros(int(2.1 * SR))
+    for at, gain in ((0.66, 1.0), (1.26, 0.8), (1.86, 0.9)):
+        place(out, plip(), at + rng.uniform(-0.01, 0.01), gain)
+    return normalize(out, -16)
+
+
+def drip_creak():
+    dur = 0.6
+    out = np.zeros(int(dur * SR))
+    t = t_axis(0.55)
+    f = 140 + 90 * (t / 0.55) ** 1.5  # stretching: the pitch creeps up
+    creak = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * (1 + 0.5 * rng.standard_normal(len(t)))
+    creak = band(creak, 300, 2500) * (t / 0.55) * np.clip((0.55 - t) / 0.05, 0, 1)
+    squelch = lowpass(rng.standard_normal(len(t)), 700) * (0.5 + 0.5 * np.sin(2 * np.pi * 6 * t))
+    place(out, creak, 0.0, 0.5)
+    place(out, squelch * (t / 0.55), 0.0, 0.25)
+    place(out, plip(), 0.30, 0.6)
+    place(out, plip(), 0.48, 0.7)
+    return normalize(out, -11)
+
+
+def drip_splat():
+    dur = 1.3
+    out = np.zeros(int(dur * SR))
+    t = t_axis(0.18)
+    place(out, band(rng.standard_normal(len(t)), 400, 1800) * (t / 0.18) ** 2, 0.0, 0.2)  # it falls
+    t = t_axis(0.3)
+    splat = lowpass(rng.standard_normal(len(t)), 1200) * env_ad(t, 0.002, 0.06)
+    thud = np.sin(2 * np.pi * 70 * t) * env_ad(t, 0.002, 0.05)
+    place(out, splat + 1.5 * thud, 0.18, 1.0)
+    for at in rng.uniform(0.2, 0.4, 5):  # spatters
+        place(out, plip(), at, rng.uniform(0.15, 0.35))
+    t = t_axis(1.0)
+    pour = band(rng.standard_normal(len(t)), 600, 3500) * (1 + 0.6 * np.sin(2 * np.pi * 17 * t))
+    place(out, pour * np.clip(t / 0.05, 0, 1) * np.clip((1.0 - t) / 0.6, 0, 1), 0.25, 0.12)
+    return normalize(out, -6)
+
+
 SOUNDS = {
     "monsters/rat_att": rat_att, "monsters/rat_die": rat_die, "mechanisms/key_pickup": key_pickup,
     "mechanisms/gate_open": gate_open, "mechanisms/gate_locked": gate_locked, "mechanisms/lever": lever,
@@ -366,6 +417,7 @@ SOUNDS = {
     "mechanisms/spike_scrape": spike_scrape, "mechanisms/spike_thunk": spike_thunk,
     "mechanisms/mirror_turn": mirror_turn, "mechanisms/sun_disc": sun_disc,
     "mechanisms/fire_hiss": fire_hiss, "mechanisms/fire_roar": fire_roar,
+    "mechanisms/drip_plips": drip_plips, "mechanisms/drip_creak": drip_creak, "mechanisms/drip_splat": drip_splat,
 }
 
 

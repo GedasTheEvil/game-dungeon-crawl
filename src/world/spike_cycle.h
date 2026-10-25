@@ -3,9 +3,9 @@
 #include "../core/gameplay_config.h"
 #include "level.h"
 
-// The rhythm traps' cycle (plans rhythm-traps, fire-jet-trap: wall spikes, a fire vent's jet): out first, then back in,
-// the telegraph at the end of the safe part. The game sets each cell's live state from the clock
-// (Dungeon::updateRhythmTraps), the checker walks through a run of them.
+// The rhythm traps' cycle (plans rhythm-traps, fire-jet-trap, poison-drip-trap: wall spikes, a fire vent's jet, a
+// poison drip's falling venom): out first, then back in, the telegraph at the end of the safe part. The game sets each
+// cell's live state from the clock (Dungeon::updateRhythmTraps), the checker walks through a run of them.
 
 [[nodiscard]] inline int spikePeriodMs(const Fixture& f) { return SPIKES_PERIOD_MS[static_cast<int>(spikeSpeed(f))]; }
 [[nodiscard]] inline int spikeOutMs(const Fixture& f) { return SPIKES_OUT_MS[static_cast<int>(spikeSpeed(f))]; }

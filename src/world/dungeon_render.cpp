@@ -428,6 +428,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	case WallSpikes:
 	case SunDisc:
 	case FireVent:
+	case PoisonDrip: // drawn after the opaque scene (drawPoisonDrips)
 	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
 		break;
 	case Mirror:
@@ -481,6 +482,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	addBallLights();
 	addSunLights(drawn);
 	addFireVentLights(drawn);
+	addPoisonDripLights(drawn);
 	Lighting::commit();
 
 	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
@@ -526,6 +528,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 
 	drawFires(drawn);
 	drawFireJets(drawn);
+	drawPoisonDrips(drawn);
 	drawMechanismEffects();
 	drawSummonEffects();
 	drawBallEffects();

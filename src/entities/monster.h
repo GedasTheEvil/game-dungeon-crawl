@@ -102,6 +102,7 @@ class Monster {
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
 	Burning burning; // plan fire-damage
 	bool burnByPlayer = false; // the fire is the player's doing (a weapon, a sunbeam): its kill is theirs, a trap's not
+	bool dripPuddled = false, dripDropped = false; // a poison drip's puddle, its drop took this entry
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -397,6 +398,9 @@ class Monster {
 	// TrapHurt's pace, all fire: its fire resistance counts on top of trapDamagePct, and it sets it burning (not in
 	// water). No XP for the kill.
 	void StandInFire();
+	// Each tick (plan poison-drip-trap): in a poison drip's puddle (on the ground), under its falling venom. Each
+	// poisons once per entry, the puddle weak, the drop medium on top of its hit (DRIP_DROP_DAMAGE, a trap's). No XP.
+	void StandInDrip(bool puddle, bool drop, Rng& rng);
 	// Out of a trap that closes on it (wall spikes, plan rhythm-traps): its centre to map x on its row.
 	void ShoveTo(float mapX) { x = mapX - static_cast<float>(col) - 0.5f; }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).

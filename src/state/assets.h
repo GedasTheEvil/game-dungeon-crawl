@@ -26,6 +26,7 @@ struct SoundBank {
 	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
 	Sound fireHiss, fireRoar; // a fire vent about to breathe, its jet (plan fire-jet-trap)
+	Sound dripPlips, dripCreak, dripSplat; // a poison drip's small drops, its lump about to fall, falling
 	Sound mirrorTurn, sunDisc; // a mirror turned, a sun disc lit (plan sunlight-mirrors)
 	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
 	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)

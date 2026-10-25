@@ -224,6 +224,7 @@ CellHint describeCell(const Tile& cell) {
 		break;
 	case WallSpikes:
 	case FireVent:
+	case PoisonDrip:
 		hint.attribute = field("speed", SPIKE_SPEEDS, cell.attr, "unknown, normal speed");
 		hint.value = field("phase", SPIKE_PHASES_LIST, cell.value, "the game keeps only the low 3 bits");
 		break;

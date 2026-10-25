@@ -233,7 +233,8 @@ void printReport(const Entry& e, bool map) {
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
 	printf(
 		"   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
-		"spikes, %d fire vents, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d levers, %d riddles, "
+		"spikes, %d fire vents, %d poison drips, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d "
+		"levers, %d riddles, "
 		"%d teleporters "
 		"(%d name "
 		"gates), %d inscriptions, %d sand cells (%d quicksand), %d light shafts, %d mirrors, %d sun discs\n",
@@ -246,6 +247,7 @@ void printReport(const Entry& e, bool map) {
 		r.dartPlates,
 		r.wallSpikes,
 		r.fireVents,
+		r.poisonDrips,
 		r.treasures,
 		r.reachableTreasures,
 		r.trappedTreasures,
@@ -265,7 +267,8 @@ void printReport(const Entry& e, bool map) {
 	if (r.valid || !r.path.empty())
 		printf(
 			"   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, %d sand "
-			"falls, %d dart plates, %d wall spikes, %d fire vents, %d gates (%d colours), %d teleports, %d monsters "
+			"falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gates (%d colours), %d "
+			"teleports, %d monsters "
 			"near, %d sand, %d "
 			"quicksand, %d mirror turns\n",
 			r.pathLength,
@@ -279,6 +282,7 @@ void printReport(const Entry& e, bool map) {
 			r.pathDartPlates,
 			r.pathWallSpikes,
 			r.pathFireVents,
+			r.pathPoisonDrips,
 			r.pathGates,
 			r.keysNeeded,
 			r.pathTeleports,
@@ -469,7 +473,7 @@ int main(int argc, char** argv) {
 			r.pathLength,
 			r.reachableCells,
 			r.monsterCount,
-			r.spikes + r.deathTraps + r.rockFalls + r.dartPlates + r.wallSpikes + r.fireVents,
+			r.spikes + r.deathTraps + r.rockFalls + r.dartPlates + r.wallSpikes + r.fireVents + r.poisonDrips,
 			notes.c_str()
 		);
 	}

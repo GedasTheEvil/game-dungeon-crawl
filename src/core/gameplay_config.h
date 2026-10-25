@@ -425,6 +425,13 @@ constexpr int FIRE_JET_PERCENT_PER_SECOND = 50;
 constexpr int FIRE_JET_HP_PER_SECOND = 450;
 constexpr int FIRE_JET_MONSTER_HP_PER_SECOND = 15;
 
+// Poison drips (plan poison-drip-trap): the puddle poisons (weak) whoever walks into it, once per entry, no damage,
+// when their middle is within DRIP_PUDDLE_HALF_WIDTH of the cell's; a jump clears it. On the cycle the lump falls into
+// it: whoever is in the cell while the venom falls (the out time of the wall spikes' cycle) takes DRIP_DROP_DAMAGE (the
+// trap ward cuts it, not the poison) and medium poison, once per entry, a jump too.
+constexpr float DRIP_PUDDLE_HALF_WIDTH = 0.35f;
+constexpr int DRIP_DROP_DAMAGE = 8;
+
 // Sunlight mirrors (plan sunlight-mirrors): a turned mirror swings to its new way in MIRROR_TURN_MS. A sun burner (the
 // mummies) in a beam burns as from a hit with SUN_BURN_FIRE fire (Burning: a fifth of it a second, BURN_MS after it
 // steps out). A sun disc just lit flares for SUN_DISC_FLARE_MS, then glows steady.

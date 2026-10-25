@@ -30,8 +30,8 @@ constexpr int STRUCTURE_COUNT = 6;
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
 // The object and wall layers share one number space. The numbers are the v1 file's tile types: 0 was Wall (now a
-// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes, SunDisc and FireVent are wall types (isWallType):
-// fixtures.
+// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes, SunDisc, FireVent and PoisonDrip are wall types
+// (isWallType): fixtures.
 enum DungeonTileType : unsigned char {
 	NoObject = 1,
 	Door = 2,
@@ -63,16 +63,24 @@ enum DungeonTileType : unsigned char {
 	// A vent low in the back wall that breathes fire up through its cell on the wall spikes' cycle (plan
 	// fire-jet-trap); b = speed, c = phase | live state, as WallSpikes.
 	FireVent = 22,
+	// Venom dripping from the ceiling (plan poison-drip-trap): a puddle on the floor that always poisons, a lump over
+	// it that falls into it on the wall spikes' cycle. In the wall layer for that cycle; b = speed, c = phase | live
+	// state.
+	PoisonDrip = 23,
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 24;
 [[nodiscard]] constexpr bool isExpeditionPage(int number) { return number >= 1 && number <= EXPEDITION_PAGE_COUNT; }
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
-	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent;
+	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent ||
+		   type == PoisonDrip;
 }
-// The rhythm traps (plans rhythm-traps, fire-jet-trap): wall spikes and fire vents, on the same cycle (spike_cycle.h).
-[[nodiscard]] constexpr bool isRhythmTrap(int type) { return type == WallSpikes || type == FireVent; }
+// The rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): wall spikes, fire vents and poison drips, on
+// the same cycle (spike_cycle.h).
+[[nodiscard]] constexpr bool isRhythmTrap(int type) {
+	return type == WallSpikes || type == FireVent || type == PoisonDrip;
+}
 
 enum GateType : unsigned char {
 	GateEntrance = 1,
@@ -264,9 +272,10 @@ constexpr int NAME_SEAL = 256;
 // The monster type a cell spawns, or spawned before it was slain; 0 for none.
 [[nodiscard]] inline int spawnType(const Tile& t) { return t.type == MonsterSpawn ? t.attr : slainMonster(t); }
 
-// WallSpikes (plan rhythm-traps) and FireVent (plan fire-jet-trap): out of the back wall and back on a fixed cycle
-// (spike_cycle.h), the vent's jet as the spikes. The attribute is the speed, the value's low bits the phase in eighths
-// of the cycle; the game keeps the live state in the bits above it (level files leave them 0).
+// WallSpikes (plan rhythm-traps), FireVent (plan fire-jet-trap) and PoisonDrip (plan poison-drip-trap): out of the back
+// wall and back on a fixed cycle (spike_cycle.h), the vent's jet and the drip's falling venom as the spikes. The
+// attribute is the speed, the value's low bits the phase in eighths of the cycle; the game keeps the live state in the
+// bits above it (level files leave them 0).
 enum class SpikeSpeed : std::uint8_t { Normal = 0, Fast = 1, Slow = 2 };
 constexpr int SPIKE_SPEED_COUNT = 3;
 constexpr int SPIKE_PHASES = 8;
@@ -282,6 +291,9 @@ inline void setSpikeState(Fixture& f, SpikeState s) { f.value = spikePhase(f) | 
 }
 [[nodiscard]] inline bool fireJetOn(const Fixture& f) {
 	return f.type == FireVent && spikeState(f) == SpikeState::Extended;
+}
+[[nodiscard]] inline bool dripFalling(const Fixture& f) {
+	return f.type == PoisonDrip && spikeState(f) == SpikeState::Extended;
 }
 
 // Blocks the player (walls, deep water, gates not fully open, wall spikes while out). Everything else is open space.

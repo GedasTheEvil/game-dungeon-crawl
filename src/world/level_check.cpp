@@ -28,6 +28,7 @@ constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_DART_PLATE = 8;
 constexpr int COST_WALL_SPIKES = 6; // the wait for the safe window, the risk of misjudging it
+constexpr int COST_DRIP_PUDDLE = 10; // a poison drip's puddle (plan poison-drip-trap): weak poison, jump it
 constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
 constexpr int COST_SAND = 1; // the slower walk (plan desert-chapter)
@@ -157,7 +158,10 @@ class Walker {
 			return COST_DEATH;
 		if (t.type == RockFall && rockState(t) == RockState::Armed)
 			return COST_ROCK_FALL;
-		const int spikes = isRhythmTrap(t.fixture.type) ? COST_WALL_SPIKES : 0; // on the back wall, over the object's
+		// On the back wall, over the object's; a poison drip's puddle on top.
+		const int spikes = isRhythmTrap(t.fixture.type)
+							   ? COST_WALL_SPIKES + (t.fixture.type == PoisonDrip ? COST_DRIP_PUDDLE : 0)
+							   : 0;
 		if (t.type == DartPlate)
 			return COST_DART_PLATE + spikes;
 		if (t.type == MonsterSpawn)
@@ -201,13 +205,13 @@ class Walker {
 			int to = settle(next, row, mask, fallen);
 			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
-			// Over one cell, a gap in the floor, a trap on it or quicksand, from a floor (a ladder's foot too, sand and
-			// quicksand), not out of half water. A jump from mid-ladder is not modelled: its reach depends on the walk
-			// key held during the jump. A rock fall is not jumped: the player passes through its cell either way, and
-			// it drops all the same.
+			// Over one cell, a gap in the floor, a trap on it (a poison drip's puddle too) or quicksand, from a floor
+			// (a ladder's foot too, sand and quicksand), not out of half water. A jump from mid-ladder is not modelled:
+			// its reach depends on the walk key held during the jump. A rock fall is not jumped: the player passes
+			// through its cell either way, and it drops all the same.
 			const Tile nextTile = grid.at(next, row);
-			bool overHazard = fallen == 0 &&
-							  (nextTile.type == Spike || nextTile.type == Death || inQuicksand(nextTile));
+			bool overHazard = fallen == 0 && (nextTile.type == Spike || nextTile.type == Death ||
+											  nextTile.fixture.type == PoisonDrip || inQuicksand(nextTile));
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
 			if ((overGap || overHazard) && !inHalfWater(here) && solid(col, row - 1, mask) &&
@@ -340,6 +344,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			const Fixture& f = t.fixture;
 			r.wallSpikes += f.type == WallSpikes ? 1 : 0;
 			r.fireVents += f.type == FireVent ? 1 : 0;
+			r.poisonDrips += f.type == PoisonDrip ? 1 : 0;
 			r.levers += f.type == Lever ? 1 : 0;
 			r.sunDiscs += f.type == SunDisc ? 1 : 0;
 			if (f.type == Inscription) {
@@ -672,8 +677,10 @@ bool rhythmTrapAt(const LevelGrid& grid, int col, int row) { return isRhythmTrap
 // Wall spikes stand on a floor under a ceiling (out, they are solid: nothing may stand on them or fall into them). In
 // front of them (plan wall-layer) only what the spikes do not trap: a key or a floor trap, no monster spawn (it would
 // spawn inside them), ladder, gate or chest (the player could never stand at it safely). A fire vent (plan
-// fire-jet-trap) stands on a floor, out of the water; its jet blocks nothing. Each run of rhythm traps in a row, wall
-// spikes and fire vents mixed, can be walked through both ways: the same safe windows, burning is a cost, not a block.
+// fire-jet-trap) stands on a floor, out of the water; its jet blocks nothing. A poison drip (plan poison-drip-trap)
+// hangs from a ceiling over a floor, out of the water, its puddle free but for a key or a page. Each run of rhythm
+// traps in a row, all kinds mixed, can be walked through both ways: the same safe windows; burning and the puddle's
+// poison are a cost, not a block.
 void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
@@ -691,10 +698,18 @@ void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 				if (!isWall(grid.at(col, row + 1)))
 					r.warnings.push_back("wall spikes without a wall above them at " + at(cell));
 			} else {
+				const bool drip = t.fixture.type == PoisonDrip;
+				const std::string name = drip ? "a poison drip" : "a fire vent";
 				if (!isWall(grid.at(col, row - 1)))
-					r.warnings.push_back("a fire vent without a floor under it at " + at(cell));
+					r.warnings.push_back(name + " without a floor under it at " + at(cell));
 				if (t.structure != Structure::Empty && !inSand(t))
-					r.warnings.push_back("a fire vent in water at " + at(cell));
+					r.warnings.push_back(name + " in water at " + at(cell));
+				if (drip && !isWall(grid.at(col, row + 1)))
+					r.warnings.push_back("a poison drip without a ceiling over it at " + at(cell));
+				if (drip && object != NoObject && object != Key && object != Page)
+					r.warnings.push_back(
+						std::string(tileDef(object).name) + " in a poison drip's puddle at " + at(cell)
+					);
 			}
 			if (rhythmTrapAt(grid, col - 1, row))
 				continue; // not the first of its run
@@ -716,7 +731,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	score += 1.f * static_cast<float>(r.pathSandFalls) + 1.5f * static_cast<float>(r.pathQuicksand);
 	score += 0.02f * static_cast<float>(r.pathSand);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
-	score += 1.5f * static_cast<float>(r.pathWallSpikes + r.pathFireVents);
+	score += 1.5f * static_cast<float>(r.pathWallSpikes + r.pathFireVents + r.pathPoisonDrips);
 	score += 0.8f * static_cast<float>(r.pathGates);
 	score += 0.8f * static_cast<float>(r.pathTurns); // a light puzzle on the way
 
@@ -869,6 +884,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 	if (poisoners && !antidote)
 		r.warnings.emplace_back("poisoners but no antidote in reach");
+	if (r.poisonDrips > 0 && !antidote) // plan poison-drip-trap
+		r.warnings.emplace_back("poison drips but no antidote in reach");
 	for (int cell = 0; cell < CELLS; cell++) {
 		if (cellReached[cell] != 0)
 			continue;
@@ -959,6 +976,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
 		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
 		r.pathFireVents += t.fixture.type == FireVent ? 1 : 0;
+		r.pathPoisonDrips += t.fixture.type == PoisonDrip ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);

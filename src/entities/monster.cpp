@@ -53,6 +53,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	poisonByPlayer = false;
 	burning.Douse();
 	burnByPlayer = false;
+	dripPuddled = dripDropped = false;
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -234,6 +235,17 @@ void Monster::StandInFire() {
 		burnByPlayer = burnByPlayer && burning.Any(); // the player's fire stays theirs
 		burning.Ignite(fireDamage(FIRE_JET_MONSTER_HP_PER_SECOND, FIRE_JET_MIX, type->resist));
 	}
+}
+
+void Monster::StandInDrip(bool puddle, bool drop, Rng& rng) {
+	if (puddle && !dripPuddled)
+		TakePoison(PoisonTier::Weak, false, rng);
+	if (drop && !dripDropped) {
+		TrapHit(DRIP_DROP_DAMAGE);
+		TakePoison(PoisonTier::Medium, false, rng);
+	}
+	dripPuddled = puddle;
+	dripDropped = drop;
 }
 
 bool Monster::TakePoison(PoisonTier tier, bool byPlayer, Rng& rng) {

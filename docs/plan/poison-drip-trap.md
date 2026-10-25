@@ -1,6 +1,6 @@
 # Poison drip trap
 
-Status: draft 2026-10-14. Needs first: [rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph
+Status: implemented 2026-10-25, waiting for the user's play-test: `bin/game --play tests/play/poison-drip-trap.txt`. Draft 2026-10-14. Needs first: [rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph
 and level check). From the user. Sibling of [fire-jet-trap](solved/fire-jet-trap.md).
 
 ## Idea
@@ -61,3 +61,42 @@ over each puddle between drops.
   drop.
 * Unit: the checker counts the puddle as a floor trap and warns on an uncrossable drip run.
 * Scenario with a screenshot: the lump falling into the puddle, the player poisoned.
+
+## Implemented (2026-10-25)
+
+Play-test: `bin/game --play tests/play/poison-drip-trap.txt` (tests/levels/poison_drips).
+
+* **Kind:** a wall type of its own, `PoisonDrip` (23), glyph `,`, on the wall spikes' cycle and encoding (attribute =
+  speed, value = phase | live state; `isRhythmTrap`, `Dungeon::updateRhythmTraps`). In the wall layer though it hangs
+  from the ceiling: that layer carries the cycle. The drop's time out is the spikes' (1.2 s of 4 s normal): the lump
+  falls in 0.18 s, then the venom pours after it, thinning, till it ends (`dripFalling`). The telegraph is the
+  spikes' last 0.6 s.
+* **Puddle:** weak poison once per entry, no damage, when the body's middle is within `DRIP_PUDDLE_HALF_WIDTH`
+  (0.35) of the cell's and the player is on the ground (not jumping or falling). No levitation exists in the game yet:
+  only the jump clears it.
+* **Drop:** whoever's body overlaps the cell while it falls, a jump too: `DRIP_DROP_DAMAGE` (8, blunt
+  `DRIP_DROP_MIX`, so armour helps; the trap ward cuts it) and medium poison, once per entry. The poison comes even
+  when the ward takes the whole hit. Status on each drop hit: "Something on the ceiling has been saving that for
+  you." No dodge.
+* **Monsters:** cowards stop at the puddle (`walkerBlockedAt`: always a trap), walk-jumpers leap it, the reckless walk
+  in. `Monster::StandInDrip` once a tick: the puddle (on the ground, not flyers or leapers in the air) and the drop
+  (all but the hidden), each once per entry, the drop as a trap's hit (`TrapHit`, `trapDamagePct`); poison not the
+  player's: no XP.
+* **Look and sound:** drawn in GL, no model (`dungeon_render_drips.cpp`): a dark stain on the ceiling, the lump
+  swelling in it on a neck, wobbling and sagging in the telegraph, falling, a green splash (`Fire::VENOM_RAMP`) and a
+  ring, the stream after it; a glossy puddle (a sheen spot) with ripples from three small drops between drops and two
+  in the telegraph; a faint green light off it. `drip_plips.wav` (the small drops, at the start of the safe part),
+  `drip_creak.wav` (the telegraph, the last two plips), `drip_splat.wav` (tools/audio/mechanism_sounds.py), heard in
+  view. Map: the puddle, the drop and its fall. Editor hints.
+* **Checker:** the puddle is a floor trap (`COST_DRIP_PUDDLE` on the path, jumped over like spikes); the cell is a
+  rhythm trap in the run crossing check (mixed with the other kinds), path cost and difficulty as wall spikes;
+  `poisonDrips` / `pathPoisonDrips`; warnings: no floor under it, no ceiling over it, in water, an object in the
+  puddle (but a key or a page), drips without an antidote in reach.
+* **Tests:** `tests/unit/poison_drip_test.cpp` (checker, puddle on entry at any time and once per entry, the drop on
+  the beat only, a jump clears the puddle not the drop, the trap ward, monsters, no XP);
+  `tests/scenarios/poison_drips.txt` (screenshots: the cycle, the player poisoned in it).
+
+Not done:
+
+* Campaign placement: left to denser-levels, as decided.
+* No boss ability: no monster gains one here.

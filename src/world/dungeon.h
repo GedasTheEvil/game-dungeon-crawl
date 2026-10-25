@@ -293,15 +293,27 @@ class Dungeon {
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
 	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
 	void drawDarts(); // with the frame origin of DrawMonsters
-	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap): each wall spikes' and fire vent's live
-	// state from the clock; coming out, the spikes stab and shove out whoever stands in the cell. A fire vent's jet
-	// burns whoever stands in its cell, a jump too (updateTraps).
+	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap, poison-drip-trap): each wall spikes', fire
+	// vent's and poison drip's live state from the clock; coming out, the spikes stab and shove out whoever stands in
+	// the cell. A fire vent's jet burns whoever stands in its cell, a jump too (updateTraps); so does a poison drip's
+	// falling venom poison them (updateDrips).
 	void updateRhythmTraps();
 	void stabWallSpikes(int col, int row);
 	[[nodiscard]] std::optional<float> outOfSpikes(int col, int row, float centre, float half) const;
 	void drawWallSpikesTile(int i, int j); // the slotted panel and the spikes, as far out as the cycle has them
 	// The fire vent's jet is on in a cell of row the body from left to right overlaps.
 	[[nodiscard]] bool inFireJet(float left, float right, int row) const;
+	// A cell of row the body from left to right overlaps has a fixture that is `on`.
+	[[nodiscard]] bool overlapsFixture(float left, float right, int row, bool (*on)(const Fixture&)) const;
+	// Poison drips (plan poison-drip-trap): the venom falls in a cell of row the body overlaps; a body's middle at x
+	// stands in a puddle (DRIP_PUDDLE_HALF_WIDTH). Each poisons once per entry, the player and the monsters.
+	[[nodiscard]] bool inFallingDrip(float left, float right, int row) const;
+	[[nodiscard]] bool inPuddle(float x, int row) const;
+	void updateDrips();
+	bool playerPuddled = false, playerDropped = false; // the puddle's poison, the drop took this entry
+	void
+	drawPoisonDrips(const CellRect& drawn); // the stain, the lump, the puddle and the falling venom, after the opaque
+	void addPoisonDripLights(const CellRect& drawn); // a faint green glow off each puddle
 	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
 	int jetCarry = 0; // hundredths of a HP of the jet's damage not dealt yet
 	void drawFireVentTile(); // the vent low in the back wall

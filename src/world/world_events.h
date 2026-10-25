@@ -31,6 +31,9 @@ enum class WorldSound : unsigned char {
 	SpikeThunk, // wall spikes come out
 	FireHiss, // a fire vent glows before its jet (plan fire-jet-trap)
 	FireRoar, // a fire vent's jet
+	DripPlips, // a poison drip's small drops into its puddle, after the big one (plan poison-drip-trap)
+	DripCreak, // its lump about to fall
+	DripSplat, // the lump falls into the puddle
 	MirrorTurn, // a mirror turned on its stand (plan sunlight-mirrors)
 	SunDisc, // a sun disc lit by the beam
 	Dodge, // the player sidesteps a blow (Dodge skill)

@@ -1,6 +1,8 @@
 // Rhythm traps on a fixed cycle (spike_cycle.h). Wall spikes (plan rhythm-traps) come out of the back wall: out, they
 // block like a closed gate (isSolidTile); whoever stands in the cell as they come out takes a stab and is shoved out of
 // it. A fire vent (plan fire-jet-trap) breathes fire up through its cell: it burns whoever stands in it (updateTraps).
+// A poison drip (plan poison-drip-trap) lets its lump of venom fall into the puddle under it: the puddle always
+// poisons, the drop hits and poisons whoever is in the cell while it falls (updateDrips).
 // Drawn in dungeon_render_mechanisms.cpp.
 #include "dungeon.h"
 #include "../entities/player.h"
@@ -13,7 +15,7 @@
 void Dungeon::updateRhythmTraps() {
 	const int now = GameClock::now();
 	const ViewWindow v = view();
-	bool scrape = false, thunk = false, hiss = false, roar = false;
+	bool scrape = false, thunk = false, hiss = false, roar = false, plips = false, creak = false, splat = false;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++) {
 		Fixture& t = map[cell].fixture;
 		if (!isRhythmTrap(t.type))
@@ -24,6 +26,12 @@ void Dungeon::updateRhythmTraps() {
 		setSpikeState(t, is);
 		const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 		const bool heard = v.contains(static_cast<float>(col) + 0.5f, row);
+		if (t.type == PoisonDrip) {
+			plips = plips || (heard && is == SpikeState::Retracted);
+			creak = creak || (heard && is == SpikeState::Telegraph);
+			splat = splat || (heard && is == SpikeState::Extended);
+			continue;
+		}
 		const bool fire = t.type == FireVent;
 		if (is == SpikeState::Telegraph) {
 			scrape = scrape || (heard && !fire);
@@ -44,13 +52,59 @@ void Dungeon::updateRhythmTraps() {
 		sim.events->Play(WorldSound::FireHiss);
 	if (roar)
 		sim.events->Play(WorldSound::FireRoar);
+	if (plips)
+		sim.events->Play(WorldSound::DripPlips);
+	if (creak)
+		sim.events->Play(WorldSound::DripCreak);
+	if (splat)
+		sim.events->Play(WorldSound::DripSplat);
 }
 //======================================================================================
-bool Dungeon::inFireJet(float left, float right, int row) const {
+bool Dungeon::overlapsFixture(float left, float right, int row, bool (*on)(const Fixture&)) const {
 	for (auto col = static_cast<int>(std::floor(left)); static_cast<float>(col) < right; col++)
-		if (IsInBounds(col, row) && fireJetOn(MapAt(col, row).fixture))
+		if (IsInBounds(col, row) && on(MapAt(col, row).fixture))
 			return true;
 	return false;
+}
+bool Dungeon::inFireJet(float left, float right, int row) const { return overlapsFixture(left, right, row, fireJetOn); }
+bool Dungeon::inFallingDrip(float left, float right, int row) const {
+	return overlapsFixture(left, right, row, dripFalling);
+}
+bool Dungeon::inPuddle(float x, int row) const {
+	const auto col = static_cast<int>(std::floor(x));
+	return IsInBounds(col, row) && MapAt(col, row).fixture.type == PoisonDrip &&
+		   std::fabs(x - static_cast<float>(col) - 0.5f) <= DRIP_PUDDLE_HALF_WIDTH;
+}
+//======================================================================================
+// The puddle poisons whoever walks into it, not in a jump (nor a flyer); the falling venom whoever is in the cell, a
+// jump and a flyer too. The trap ward cuts the drop's hit, not its poison.
+void Dungeon::updateDrips() {
+	const JumpState& jump = sim.player->jump;
+	const bool alive = sim.player->Alive();
+	const int row = static_cast<int>(mapY);
+	const float half = sim.player->HalfWidth();
+	const bool puddle = alive && !jump.jumping && !jump.falling && inPuddle(mapX, row);
+	const bool drop = alive && inFallingDrip(mapX - half, mapX + half, row);
+	if (puddle && !playerPuddled)
+		sim.player->Poison(PoisonTier::Weak, *sim.events, sim.random->gameplay);
+	if (drop && !playerDropped) {
+		if (const int dmg = sim.player->stats.TrapDamage(DRIP_DROP_DAMAGE); dmg > 0)
+			sim.player->TakeHit(dmg, DRIP_DROP_MIX, *sim.events);
+		sim.player->Poison(PoisonTier::Medium, *sim.events, sim.random->gameplay);
+		sim.events->Status("Something on the ceiling has been saving that for you.");
+	}
+	playerPuddled = puddle;
+	playerDropped = drop;
+	for (Monster& mon : monsters) {
+		if (!mon.Active() || !mon.Alive() || mon.Hidden())
+			continue;
+		const bool onGround = !mon.flies() && !mon.jumping();
+		mon.StandInDrip(
+			onGround && inPuddle(mon.CentreX(), mon.Row()),
+			inFallingDrip(mon.Left(), mon.Right(), mon.Row()),
+			sim.random->gameplay
+		);
+	}
 }
 //======================================================================================
 // Map x just out of the cell (col, row) for a body of half width half at centre, on the near side if it is open,

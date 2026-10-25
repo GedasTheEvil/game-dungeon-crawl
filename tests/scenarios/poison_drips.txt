@@ -1,0 +1,69 @@
+# Poison drips (plan poison-drip-trap) through one cycle, from beside the one at col 5: the lump swelling, wobbling in
+# the telegraph, falling into the puddle, the venom pouring after it; then the player standing in it, poisoned (god:
+# hurt nothing). The rules are unit tests (tests/unit/poison_drip_test.cpp).
+seed 1
+god
+level tests/levels/poison_drips
+wait 30
+walk right 3.25
+screenshot c00
+wait 400ms
+screenshot c01
+wait 400ms
+screenshot c02
+wait 400ms
+screenshot c03
+wait 400ms
+screenshot c04
+wait 400ms
+screenshot c05
+wait 400ms
+screenshot c06
+wait 400ms
+screenshot c07
+wait 400ms
+screenshot c08
+wait 400ms
+screenshot c09
+walk right 1
+wait 100ms
+screenshot in00
+wait 100ms
+screenshot in01
+wait 100ms
+screenshot in02
+wait 100ms
+screenshot in03
+wait 100ms
+screenshot in04
+wait 100ms
+screenshot in05
+wait 100ms
+screenshot in06
+wait 100ms
+screenshot in07
+wait 100ms
+screenshot in08
+wait 100ms
+screenshot in09
+wait 100ms
+screenshot in10
+wait 100ms
+screenshot in11
+wait 100ms
+screenshot in12
+wait 100ms
+screenshot in13
+wait 100ms
+screenshot in14
+wait 100ms
+screenshot in15
+wait 100ms
+screenshot in16
+wait 100ms
+screenshot in17
+wait 100ms
+screenshot in18
+wait 100ms
+screenshot in19
+quit

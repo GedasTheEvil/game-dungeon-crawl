@@ -298,6 +298,9 @@ void loadSounds(SoundBank& sounds) {
 	sounds.spikeThunk.Load(MEDIA_DIR "sounds/mechanisms/spike_thunk.wav");
 	sounds.fireHiss.Load(MEDIA_DIR "sounds/mechanisms/fire_hiss.wav");
 	sounds.fireRoar.Load(MEDIA_DIR "sounds/mechanisms/fire_roar.wav");
+	sounds.dripPlips.Load(MEDIA_DIR "sounds/mechanisms/drip_plips.wav");
+	sounds.dripCreak.Load(MEDIA_DIR "sounds/mechanisms/drip_creak.wav");
+	sounds.dripSplat.Load(MEDIA_DIR "sounds/mechanisms/drip_splat.wav");
 	sounds.mirrorTurn.Load(MEDIA_DIR "sounds/mechanisms/mirror_turn.wav");
 	sounds.sunDisc.Load(MEDIA_DIR "sounds/mechanisms/sun_disc.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");

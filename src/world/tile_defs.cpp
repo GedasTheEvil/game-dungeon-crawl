@@ -115,6 +115,15 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 false,
 	 false,
 	 '+'},
+	{"PoisonDrip",
+	 "Rhythm and floor trap: a green puddle on the floor that poisons whoever steps in (weak; a jump clears it), and "
+	 "a lump of venom on the ceiling over it that swells and falls into it on the wall spikes' cycle: whoever is in "
+	 "the cell then, a jump too, takes a small hit and medium poison. It wobbles and creaks just before. Attribute: "
+	 "speed (0 normal 4 s, 1 fast 3.2 s, 2 slow 4.8 s). Value: phase, 0 to 7 eighths of the cycle. Put a floor under "
+	 "it and a ceiling over it.",
+	 false,
+	 true,
+	 ','},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -172,6 +181,7 @@ std::vector<GlyphDef> buildLegend() {
 		{':', {Inscription, NAME_CARTOUCHE_ID, 0}, "name cartouche (the level's name, for its name gate)"},
 		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
 		{'+', {FireVent, 0, 0}, "fire vent (normal speed, phase 0; others: 'def')"},
+		{',', {PoisonDrip, 0, 0}, "poison drip (normal speed, phase 0; others: 'def')"},
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},

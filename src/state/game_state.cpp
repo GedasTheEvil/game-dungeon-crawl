@@ -155,6 +155,12 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.fireHiss;
 	case WorldSound::FireRoar:
 		return sounds.fireRoar;
+	case WorldSound::DripPlips:
+		return sounds.dripPlips;
+	case WorldSound::DripCreak:
+		return sounds.dripCreak;
+	case WorldSound::DripSplat:
+		return sounds.dripSplat;
 	case WorldSound::MirrorTurn:
 		return sounds.mirrorTurn;
 	case WorldSound::SunDisc:

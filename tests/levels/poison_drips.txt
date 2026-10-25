@@ -1,0 +1,8 @@
+; Poison drips (tests/unit/poison_drip_test.cpp, plan poison-drip-trap): a normal one at col 5 (phase 0); a staggered
+; run at cols 10, 12 and 14 (phases 0, 3, 6), a cell to wait in between; an antidote chest at col 18.
+def b 23 0 3
+def c 23 0 6
+def 8 8 3 7
+#####################
+#S...,....,.b.c...8E#
+#####################

@@ -188,6 +188,7 @@ void Dungeon::updateTraps() {
 	if (!here || here->type != Death)
 		playerVenomed = false;
 	updateTrapCrossing(here);
+	updateDrips();
 	const float half = sim.player->HalfWidth();
 	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)

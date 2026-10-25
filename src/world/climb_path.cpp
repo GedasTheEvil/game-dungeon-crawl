@@ -20,7 +20,8 @@ bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
 					  (cell.fixture.type == WallSpikes &&
 					   spikeState(cell.fixture) == SpikeState::Telegraph) || // out: solid
 					  (cell.fixture.type == FireVent &&
-					   spikeState(cell.fixture) != SpikeState::Retracted); // about to burn, burning
+					   spikeState(cell.fixture) != SpikeState::Retracted) || // about to burn, burning
+					  cell.fixture.type == PoisonDrip; // its puddle always poisons
 	if (trap && !reckless)
 		return true;
 	return !inBounds(col, row - 1) || !isSolidTile(at(cells, col, row - 1));

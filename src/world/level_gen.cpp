@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <optional>
 #include <vector>
 
 namespace {
@@ -126,7 +127,7 @@ class LevelBuilder {
 		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
 		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr),
 		  traps(isZone(zone) ? zoneTraps(static_cast<ZoneId>(zone)) : TEST_LEVEL_TRAPS),
-		  gates(isZone(zone) ? zoneGates(static_cast<ZoneId>(zone)) : ZoneGates{}) {
+		  gates(isZone(zone) ? zoneGates(static_cast<ZoneId>(zone)) : ZoneGates{}), zoneId(zone) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
@@ -156,6 +157,8 @@ class LevelBuilder {
 			return false;
 		addGauntlets();
 		addGateRooms();
+		if (zoneTarget > 0)
+			placeHapi();
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
 			int s = rng.range(0, static_cast<int>(route.size()) - 1);
@@ -166,7 +169,7 @@ class LevelBuilder {
 		for (Segment& s : route)
 			fillSegment(s);
 		if (zoneTarget > 0) {
-			placeAntidote();
+			placeSupplies();
 			dressFigures();
 			addLight();
 		}
@@ -188,6 +191,7 @@ class LevelBuilder {
 	const ZoneFauna* fauna; // the zone's monsters, nullptr on a test level (monsters by difficulty)
 	ZoneTraps traps; // TEST_LEVEL_TRAPS on a test level
 	ZoneGates gates; // none on a test level
+	int zoneId; // NO_ZONE on a test level
 	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -1047,20 +1051,89 @@ class LevelBuilder {
 		return true;
 	}
 
-	// With a poisoner, a dart plate or a poison drip on the level, the first wing's chest (or the first wing, or else
-	// the first chest on the route) holds an antidote.
-	void placeAntidote() {
-		bool poisoners = false;
-		for (const Tile& t : g.cells)
-			poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr)) || t.type == DartPlate ||
-						t.fixture.type == PoisonDrip;
-		if (!poisoners)
-			return;
+	// A plain potion's chest (health, stamina, might, armour): one a trapped chest or a resistance potion may take.
+	[[nodiscard]] bool plainPotionChest(const Tile& t) const {
+		if (t.type != Treasure)
+			return false;
+		const std::optional<ItemKind> kind = itemFromFile(t.attr, t.value);
+		return kind == ItemKind::SmallHealth || kind == ItemKind::LargeHealth || kind == ItemKind::SmallStamina ||
+			   kind == ItemKind::LargeStamina || kind == ItemKind::Might || kind == ItemKind::Armor;
+	}
+
+	// Treasure and supplies by the level's dangers (plan campaign-levelgen, step 7), once everything else is placed.
+	// With a poisoner, a dart plate or a poison drip: an antidote in a wing on the way before the first of them, a
+	// lesser resistance potion, a greater one too from GREATER_RESISTANCE_FROM on. Then the zone's trapped chests
+	// (ZONE_TRAPPED_CHESTS), each a chest that held a plain potion: never what the level needs.
+	void placeSupplies() {
+		int firstPoison = -1; // the first segment of the route with poison on its rows
+		bool poison = false;
+		for (int cell = 0; cell < CELLS; cell++) {
+			const Tile& t = g.cells[cell];
+			poison = poison || (t.type == MonsterSpawn && isPoisoner(t.attr)) || t.type == DartPlate ||
+					 t.fixture.type == PoisonDrip;
+		}
+		for (int si = 0; si < static_cast<int>(route.size()) && poison && firstPoison < 0; si++) {
+			const Segment& hall = route[static_cast<size_t>(si)];
+			for (int y = hall.row; y < hall.row + hall.height && firstPoison < 0; y++)
+				for (int x = hall.x0; x <= hall.x1; x++) {
+					const Tile t = g.at(x, y);
+					if ((t.type == MonsterSpawn && isPoisoner(t.attr)) || t.type == DartPlate ||
+						t.fixture.type == PoisonDrip) {
+						firstPoison = si;
+						break;
+					}
+				}
+		}
+		if (poison) {
+			placeAntidote(firstPoison < 0 ? static_cast<int>(route.size()) - 1 : firstPoison);
+			int resistance = zoneId >= static_cast<int>(GREATER_RESISTANCE_FROM) ? 2 : 1;
+			for (ItemKind kind : {ItemKind::LesserResistance, ItemKind::GreaterResistance})
+				if (resistance-- > 0 && swapPlainChest(chestOf(kind)))
+					shape.resistancePotions++;
+		}
+		for (int n = isZone(zoneId) ? ZONE_TRAPPED_CHESTS[zoneId] : 0; n > 0; n--) {
+			std::vector<int> plain;
+			for (int cell = 0; cell < CELLS; cell++)
+				if (plainPotionChest(g.cells[cell]))
+					plain.push_back(cell);
+			if (plain.empty())
+				break;
+			g.cells[plain[static_cast<size_t>(rng.range(0, static_cast<int>(plain.size()) - 1))]]
+				.type = TrappedTreasure;
+			shape.trappedChests++;
+		}
+	}
+
+	// One of the level's plain potion chests, by chance, now holds chest's item instead; false if there is none.
+	bool swapPlainChest(const Tile& chest) {
+		std::vector<int> plain;
+		for (int cell = 0; cell < CELLS; cell++)
+			if (plainPotionChest(g.cells[cell]))
+				plain.push_back(cell);
+		if (plain.empty())
+			return false;
+		const int cell = plain[static_cast<size_t>(rng.range(0, static_cast<int>(plain.size()) - 1))];
+		put(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, chest);
+		return true;
+	}
+
+	// The antidote: in the chest (or else at the free end) of the wing nearest before the segment the poison starts
+	// on, else of any wing, else in the first chest on the route.
+	void placeAntidote(int poisonSeg) {
 		auto chest = [this](const Wing& w) { return !w.taken && g.at(w.end, w.itemRow).type == Treasure; };
-		auto spot = std::find_if(wings.begin(), wings.end(), chest);
-		if (spot == wings.end())
-			spot = std::find_if(wings.begin(), wings.end(), [](const Wing& w) { return !w.taken; });
-		if (spot != wings.end()) {
+		auto open = [this](const Wing& w) { return !w.taken && freeCell(w.end, w.itemRow); };
+		const Wing* spot = nullptr;
+		for (int pass = 0; pass < 2 && spot == nullptr; pass++)
+			for (const Wing& w : wings)
+				if ((pass == 0 ? chest(w) : open(w)) && w.seg <= poisonSeg && (spot == nullptr || w.seg > spot->seg))
+					spot = &w;
+		if (spot == nullptr) {
+			auto any = std::find_if(wings.begin(), wings.end(), chest);
+			if (any == wings.end())
+				any = std::find_if(wings.begin(), wings.end(), open);
+			spot = any == wings.end() ? nullptr : &*any;
+		}
+		if (spot != nullptr) {
 			put(spot->end, spot->itemRow, chestOf(ItemKind::Antidote));
 			return;
 		}
@@ -1070,6 +1143,45 @@ class LevelBuilder {
 					put(x, s.row, chestOf(ItemKind::Antidote));
 					return;
 				}
+	}
+
+	// The Blessing of Hapi (plan water-blessing-potion): a chest a few cells before the first half water the route
+	// wades through, on dry floor of its hall or, if there is none, of the hall before it.
+	void placeHapi() {
+		for (size_t si = 0; si < route.size(); si++) {
+			const Segment& hall = route[si];
+			const int dir = hall.exit >= hall.entry ? 1 : -1;
+			int wet = -1;
+			for (int x = hall.entry; x != hall.exit + dir && wet < 0; x += dir)
+				wet = inHalfWater(g.at(x, hall.row)) ? x : -1;
+			if (wet < 0)
+				continue;
+			auto fits = [this](const Segment& s, int x) {
+				return x >= s.x0 && x <= s.x1 && busy[index(x, s.row)] == 0 && isEmptyCell(g.at(x, s.row)) &&
+					   isWall(g.at(x, s.row - 1));
+			};
+			for (int k = 2; k <= 6; k++)
+				if (fits(hall, wet - k * dir)) {
+					putHapi(wet - k * dir, hall.row);
+					return;
+				}
+			if (si == 0)
+				return;
+			const Segment& before = route[si - 1];
+			const int back = before.exit >= before.entry ? -1 : 1;
+			for (int k = 2; k <= 6; k++)
+				if (fits(before, before.exit + k * back)) {
+					putHapi(before.exit + k * back, before.row);
+					return;
+				}
+			return;
+		}
+	}
+
+	void putHapi(int col, int row) {
+		put(col, row, chestOf(ItemKind::WaterBlessing));
+		busy[index(col, row)] = 1;
+		shape.hapiPotions++;
 	}
 
 	bool addNextSegment() {

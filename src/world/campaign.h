@@ -207,6 +207,12 @@ constexpr ZoneGates ZONE_GATES[ZONE_ID_COUNT] = {
 	{3, 50, 0, 1}, // hall of judgment: riddles
 };
 [[nodiscard]] constexpr const ZoneGates& zoneGates(ZoneId id) { return ZONE_GATES[static_cast<int>(id)]; }
+
+// A zone level's trapped chests (plan campaign-levelgen, plan trapped-chests): from the web halls on, where the target
+// campaign brings them in, more deeper down. By ZoneId.
+constexpr int ZONE_TRAPPED_CHESTS[ZONE_ID_COUNT] = {0, 0, 2, 1, 2, 2, 2, 2, 3, 3, 3, 3};
+// From this zone on a level with poison gets a greater resistance potion besides the lesser one.
+constexpr ZoneId GREATER_RESISTANCE_FROM = ZoneId::ScorpionNest;
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.

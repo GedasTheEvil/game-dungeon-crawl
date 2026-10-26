@@ -98,7 +98,9 @@ int main(int argc, char** argv) {
 				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs; %d spikes, %d death pits, "
 				"%d rock falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gauntlets; %d "
 				"chained "
-				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs\n",
+				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs%s; %d trapped chests, %d "
+				"Hapi "
+				"potions, %d resistance potions\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -126,7 +128,11 @@ int main(int argc, char** argv) {
 				s.riddleGates,
 				s.nameGates,
 				s.hiddenRooms,
-				s.treasureTombs
+				s.treasureTombs,
+				s.bossRoom ? ", a boss room" : "",
+				s.trappedChests,
+				s.hapiPotions,
+				s.resistancePotions
 			);
 		}
 		if (map)

@@ -313,8 +313,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone cisterns_of_sobek --boss /tmp/zone  
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 6 of 9: the shape, the terrain, the
-monsters, the traps, the gates and the boss levels) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 7 of 9: the shape, the terrain, the
+monsters, the traps, the gates, the boss levels and the supplies) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`. With `--boss` (scenarios:
 `gen:SEED:DIFFICULTY:ZONE:boss`) it builds the zone's boss level (step 6, see Boss levels below).
 
@@ -373,10 +373,17 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    of Webs in the dark with two braziers, Apep in a pit between two ledges (the teleporter on one, the boss gate on
    the other, a ladder down from each).
 10. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
-   the wings no key took; with a poisoner, a dart plate or a poison drip on the level, the first wing's chest holds an antidote. Pits only on dry
-   floor, spikes never next to half water (no jump out of it), objects keep the water or sand of their cell. At most
+   the wings no key took. Pits only on dry floor, spikes never next to half water (no jump out of it), objects keep the water or sand of their cell. At most
    (4 + 2 × difficulty) × size / 100 monsters. The score aimed at is `targetScore(difficulty, size)`, the test
    level's per 50 open cells; the candidate closest to it and to the size wins.
+11. **Supplies** (step 7), the campaign's rules ([Levels](#levels)) as generator rules. With a poisoner (plants too),
+   a dart plate or a poison drip on the level: an antidote in the chest (or at the free end) of the wing nearest
+   before the first hall with poison, a lesser resistance potion in a plain potion's chest, from the scorpion nest
+   on a greater one too. A Blessing of Hapi in a chest 2 to 6 cells before the first half water the route wades
+   through (or near the end of the hall before). Then the zone's trapped chests (`ZONE_TRAPPED_CHESTS`,
+   `src/world/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
+   of Sokar on), each a chest that held a plain potion (health, stamina, might, armour). Weapon chests come in by the
+   difficulty as on a test level (`WeaponDef::generatedFrom`).
 
 Still missing (the next steps of the plan): the zone's traps, the riddle and name gates, the boss level, the supplies
 by the rules above, the carried content and the decor.

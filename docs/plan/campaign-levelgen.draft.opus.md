@@ -71,7 +71,14 @@ with no warnings.
   scripts of nine of eleven boss levels pass; in Sobek's a crocodile he called blocks the way to the boss gate, in
   the High Priest's his curses shorten a later jump into a pit: the god-mode script models neither (as the grabs of
   step 3).
-* Next: step 7, treasure and supplies.
+* **Step 7, treasure and supplies: done (2026-10-25).** The antidote in the wing nearest before the first hall with
+  poison; lesser (and from the scorpion nest greater) resistance potions with poison; a Blessing of Hapi a few cells
+  before the first wade on the way; the zone's trapped chests (`ZONE_TRAPPED_CHESTS`), plain potions only. Chests,
+  mimics and cursed mimics by the zone's shares came with step 3, weapon chests by the difficulty as before (the
+  difficulty stands for the depth until the rebuild's seed table gives each level its own). Not done: a cursed
+  mimic always beside a real treasure (they fall where chests do, many in wings off the path). Test levels stay
+  byte-identical.
+* Next: step 8, carried content.
 
 ## What it must build
 

@@ -60,6 +60,10 @@ struct GenShape {
 	int treasureTombs = 0; // a wing behind a second gate of a colour
 	int chains = 0; // keys and levers behind an earlier gate
 	bool bossRoom = false; // GenOptions::boss
+	// Treasure and supplies (ZONE_TRAPPED_CHESTS, campaign.h).
+	int trappedChests = 0;
+	int hapiPotions = 0; // before the first half water on the way
+	int resistancePotions = 0;
 };
 
 struct GenResult {

@@ -3,9 +3,12 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/decor.h"
+#include "../../src/world/items.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_gen.h"
+#include "../../src/world/monster_kinds.h"
 #include <cstdlib>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <string>
@@ -207,6 +210,58 @@ TEST_CASE("a zone level's gates follow the zone table: riddles, name gates, hidd
 		CHECK((tombs > 0) == (gates.treasureTombs > 0));
 	}
 	CHECK(chains > 0); // a key behind an earlier gate
+}
+
+TEST_CASE("a zone level's supplies: trapped chests of plain potions, Hapi before the water, resistance with poison") {
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		const int trappedWanted = ZONE_TRAPPED_CHESTS[zone];
+		int trapped = 0, hapiByWater = 0, hapi = 0;
+		for (uint32_t seed = 1; seed <= 3; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			const GenResult gen = generateLevel(zoneOptions(seed, 6, zone));
+			REQUIRE(gen.ok);
+			const LevelReport& r = gen.report;
+			CHECK(r.warnings.empty()); // an antidote in reach with any poison, none of it in a trapped chest
+			CHECK(r.trappedTreasures == gen.shape.trappedChests);
+			CHECK(r.trappedTreasures <= trappedWanted);
+			trapped += r.trappedTreasures;
+			bool poison = false, lesser = false, greater = false;
+			for (int cell = 0; cell < LEVEL_CELL_COUNT; cell++) {
+				const Tile& t = gen.grid.cells[cell];
+				poison = poison || (t.type == MonsterSpawn && isPoisoner(t.attr)) || t.type == DartPlate ||
+						 t.fixture.type == PoisonDrip;
+				const std::optional<ItemKind> item = isTreasure(t) ? itemFromFile(t.attr, t.value) : std::nullopt;
+				if (t.type == TrappedTreasure) // only what the level can do without
+					CHECK(
+						(item == ItemKind::SmallHealth || item == ItemKind::LargeHealth ||
+						 item == ItemKind::SmallStamina || item == ItemKind::LargeStamina || item == ItemKind::Might ||
+						 item == ItemKind::Armor)
+					);
+				lesser = lesser || (t.type == Treasure && item == ItemKind::LesserResistance);
+				greater = greater || (t.type == Treasure && item == ItemKind::GreaterResistance);
+				if (t.type != Treasure || item != ItemKind::WaterBlessing)
+					continue;
+				hapi++;
+				const int col = cell % LEVEL_WIDTH, row = cell / LEVEL_WIDTH;
+				for (int dx = -6; dx <= 6; dx++)
+					if (inHalfWater(gen.grid.at(col + dx, row))) {
+						hapiByWater++;
+						break;
+					}
+			}
+			if (poison)
+				CHECK(lesser);
+			if (poison && zone >= static_cast<int>(GREATER_RESISTANCE_FROM))
+				CHECK(greater);
+		}
+		CAPTURE(zone);
+		CHECK((trapped > 0) == (trappedWanted > 0));
+		if (zoneTerrain(static_cast<ZoneId>(zone)).water == TerrainAmount::Much)
+			CHECK(hapiByWater > 0); // a few cells before the first wade
+		if (zoneTerrain(static_cast<ZoneId>(zone)).water == TerrainAmount::None)
+			CHECK(hapi == 0);
+	}
 }
 
 TEST_CASE("a zone's boss level: the boss in a sealed room, its key for the last gate behind the boss gate") {

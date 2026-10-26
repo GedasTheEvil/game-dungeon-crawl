@@ -78,7 +78,16 @@ with no warnings.
   difficulty stands for the depth until the rebuild's seed table gives each level its own). Not done: a cursed
   mimic always beside a real treasure (they fall where chests do, many in wings off the path). Test levels stay
   byte-identical.
-* Next: step 8, carried content.
+* **Step 8a, carried texts: done (2026-10-25).** `GenOptions` takes the carried content: the inscriptions (given,
+  or 2-3 of the zone's texts from `content/inscriptions/rebuild.txt` by `ZONE_TEXT_FIRST`, at most one boon, the
+  one-thing hints only with their thing), an expedition page at a wing's end, the level's title; each secret room
+  gets a lore text. The Stargate chamber, by the user's choice (2026-10-25), stands in as a password gate for now:
+  `stargate` makes the level's name gate (its password the king's name) lead to a room with the ring's text
+  (`STARGATE_TEXT`) and a rare chest; the real chamber replaces it once
+  [stargate-chamber](stargate-chamber.draft.opus.md) is built. Played in the game: the name gate spoken, the ring's
+  text copied in its room. Which page and texts each campaign level carries is the rebuild's choice (its seed
+  table), so no id repeats over the campaign.
+* Next: step 8b, the forks and their hints (then step 9, decor).
 
 ## What it must build
 

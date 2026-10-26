@@ -16,10 +16,12 @@
 // lever in reach, are returned. Among those, the one whose difficulty score is closest to the target wins.
 // Same seed and difficulty (and zone) = same level (own random generator, no rand()).
 
+#include "inscriptions.h"
 #include "level.h"
 #include "level_check.h"
 #include <cstdint>
 #include <string>
+#include <vector>
 
 struct GenOptions {
 	uint32_t seed = 1;
@@ -30,7 +32,30 @@ struct GenOptions {
 	// The zone's boss level (ZONE_BOSS, campaign.h): the boss in a room sealed under the halls, a teleporter to it, the
 	// key for the last gate behind its boss gate. Not for a zone without a boss.
 	bool boss = false;
+	// The carried content (plan campaign-levelgen, step 8), for a zone level. texts: the inscriptions' texts
+	// (content/inscriptions/); with it and no inscriptions given, the level picks 2 or 3 of its zone's (1 or 2 in the
+	// first zone, at most one with a boon); without it, none. inscriptions: the text ids to place instead, on the
+	// halls of the route. page: the expedition page on a skeleton at a wing's end, 0 for none. title: the level's
+	// (LevelMeta::title). stargate: the Stargate chamber's stand-in, a name gate (its password) to a room with the
+	// ring's text (STARGATE_TEXT) and a rare chest, on one level of the campaign.
+	const InscriptionBook* texts = nullptr;
+	std::vector<int> inscriptions;
+	int page = 0;
+	std::string title;
+	bool stargate = false;
 };
+
+// The text ids of the rebuilt campaign's inscriptions (content/inscriptions/rebuild.txt), by zone: ZoneId z has
+// ZONE_TEXT_FIRST[z] up to ZONE_TEXT_FIRST[z + 1] - 1 (NAME_CARTOUCHE_ID skipped).
+constexpr int ZONE_TEXT_FIRST[] = {53, 59, 66, 73, 80, 87, 94, 102, 109, 116, 123, 130, 138};
+// Texts that hint at one thing, placed only with it: the name gate's, the ring transporter's (none yet), the last
+// fork's (none yet) and the Stargate chamber's.
+constexpr int NAME_GATE_TEXT = 74;
+constexpr int RING_TEXT = 77;
+constexpr int FORK_TEXT = 124;
+constexpr int STARGATE_TEXT = 127;
+// The lore of the secret rooms behind the name gates (content/inscriptions/campaign.txt).
+constexpr int SECRET_ROOM_TEXTS[] = {33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 51, 52};
 
 // A zone level's size if GenOptions::openCells does not say (the campaign's levels 15-35 have 520-760 open cells).
 constexpr int ZONE_OPEN_CELLS = 650;
@@ -64,6 +89,8 @@ struct GenShape {
 	int trappedChests = 0;
 	int hapiPotions = 0; // before the first half water on the way
 	int resistancePotions = 0;
+	int inscriptions = 0; // on the halls (step 8), the secret room's and the cartouche aside
+	int pages = 0;
 };
 
 struct GenResult {

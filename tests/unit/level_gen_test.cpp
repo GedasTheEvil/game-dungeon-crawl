@@ -1,13 +1,17 @@
 // Zone levels (plan campaign-levelgen): levels in the campaign's shape for a zone, passing the checker with no
 // warnings over a range of seeds per zone.
 #include "../../external/doctest/doctest.h"
+#include "../../src/core/paths.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/decor.h"
+#include "../../src/world/inscriptions.h"
 #include "../../src/world/items.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_gen.h"
 #include "../../src/world/monster_kinds.h"
+#include <algorithm>
 #include <cstdlib>
+#include <iterator>
 #include <optional>
 #include <set>
 #include <sstream>
@@ -262,6 +266,70 @@ TEST_CASE("a zone level's supplies: trapped chests of plain potions, Hapi before
 		if (zoneTerrain(static_cast<ZoneId>(zone)).water == TerrainAmount::None)
 			CHECK(hapi == 0);
 	}
+}
+
+TEST_CASE("a zone level's carried content: its zone's inscriptions, a page, a title, the Stargate's stand-in") {
+	InscriptionBook book;
+	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
+	// The table of the zones' texts follows content/inscriptions/rebuild.txt: every id of a range has a text.
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++)
+		for (int id = ZONE_TEXT_FIRST[zone]; id < ZONE_TEXT_FIRST[zone + 1]; id++)
+			CHECK_MESSAGE((!isInscriptionId(id) || book.Find(id) != nullptr), id);
+	for (int id : SECRET_ROOM_TEXTS)
+		CHECK(book.Find(id) != nullptr);
+
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++)
+		for (uint32_t seed = 1; seed <= 2; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			GenOptions options = zoneOptions(seed, 6, zone);
+			options.texts = &book;
+			const GenResult gen = generateLevel(options);
+			REQUIRE(gen.ok);
+			CHECK(gen.report.warnings.empty()); // each inscription where the player can stand in front of it
+			std::set<int> ids;
+			int onHalls = 0, boons = 0;
+			for (const Tile& t : gen.grid.cells) {
+				if (t.fixture.type != Inscription || t.fixture.attr == NAME_CARTOUCHE_ID)
+					continue;
+				const int id = t.fixture.attr;
+				CHECK(ids.insert(id).second); // once a level
+				REQUIRE(book.Find(id) != nullptr);
+				boons += book.Find(id)->boon.Any() ? 1 : 0;
+				const bool lore = std::find(std::begin(SECRET_ROOM_TEXTS), std::end(SECRET_ROOM_TEXTS), id) !=
+								  std::end(SECRET_ROOM_TEXTS);
+				CHECK((lore || (id >= ZONE_TEXT_FIRST[zone] && id < ZONE_TEXT_FIRST[zone + 1])));
+				CHECK(id != STARGATE_TEXT);
+				onHalls += lore ? 0 : 1;
+			}
+			CHECK(onHalls == gen.shape.inscriptions);
+			CHECK(onHalls >= (zone == 0 ? 1 : 2));
+			CHECK(onHalls <= (zone == 0 ? 2 : 3));
+			CHECK(boons <= 1);
+			CHECK(gen.report.inscriptions == onHalls + 2 * gen.shape.nameGates); // a lore text and a cartouche each
+		}
+
+	GenOptions options = zoneOptions(4, 6, static_cast<int>(ZoneId::Necropolis));
+	options.texts = &book;
+	options.inscriptions = {123, 126};
+	options.page = 22;
+	options.title = "The Hall of the Test";
+	options.stargate = true;
+	const GenResult gen = generateLevel(options);
+	REQUIRE(gen.ok);
+	CHECK(gen.report.warnings.empty());
+	CHECK(gen.grid.meta.title == "The Hall of the Test");
+	CHECK(gen.report.nameGates == 1); // the password to the ring's chamber
+	int pages = 0, given = 0, ring = 0;
+	for (const Tile& t : gen.grid.cells) {
+		pages += t.type == Page && t.attr == 22 ? 1 : 0;
+		given += t.fixture.type == Inscription && (t.fixture.attr == 123 || t.fixture.attr == 126) ? 1 : 0;
+		ring += t.fixture.type == Inscription && t.fixture.attr == STARGATE_TEXT ? 1 : 0;
+	}
+	CHECK(pages == 1);
+	CHECK(given == 2);
+	CHECK(ring == 1);
+	CHECK(gen.shape.inscriptions == 2);
 }
 
 TEST_CASE("a zone's boss level: the boss in a sealed room, its key for the last gate behind the boss gate") {

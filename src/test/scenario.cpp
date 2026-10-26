@@ -212,6 +212,7 @@ bool loadGeneratedLevel(const std::string& spec) {
 	GenOptions options;
 	if (!parseGenSpec(spec, options))
 		return false;
+	options.texts = &Game().inscriptions;
 	GenResult result = generateLevel(options);
 	if (!result.ok)
 		return false;

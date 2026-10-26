@@ -1,9 +1,14 @@
 // levelgen: writes random levels. See docs/levels.md.
-//   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss]] [--count K] [--map] OUT
+//   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] [--texts IDS]
+//            [--stargate]] [--count K] [--map] OUT
 // With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
 // for that zone (plan campaign-levelgen), about C open cells; with --boss, the zone's boss level.
+// A zone level's inscriptions come from content/inscriptions/ (run it from the repo root), or --texts 53,54 names
+// them; --page puts an expedition page, --title names the level, --stargate makes it the Stargate chamber's level.
 
+#include "../../src/core/paths.h"
 #include "../../src/world/campaign.h"
+#include "../../src/world/inscriptions.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
 #include "../../src/world/level_gen.h"
@@ -16,7 +21,8 @@ namespace {
 int usage() {
 	fprintf(
 		stderr,
-		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss]] [--count K] [--map] OUT\n"
+		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] "
+		"[--texts IDS] [--stargate]] [--count K] [--map] OUT\n"
 	);
 	return 2;
 }
@@ -43,7 +49,21 @@ int main(int argc, char** argv) {
 			count = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--boss") == 0)
 			options.boss = true;
-		else if (strcmp(argv[i], "--map") == 0)
+		else if (strcmp(argv[i], "--stargate") == 0)
+			options.stargate = true;
+		else if (strcmp(argv[i], "--title") == 0 && hasValue)
+			options.title = argv[++i];
+		else if (strcmp(argv[i], "--page") == 0 && hasValue)
+			options.page = atoi(argv[++i]);
+		else if (strcmp(argv[i], "--texts") == 0 && hasValue) {
+			for (const char* p = argv[++i]; *p != '\0';) {
+				char* end = nullptr;
+				options.inscriptions.push_back(static_cast<int>(strtol(p, &end, 10)));
+				if (end == p)
+					return usage();
+				p = *end == ',' ? end + 1 : end;
+			}
+		} else if (strcmp(argv[i], "--map") == 0)
 			map = true;
 		else if (argv[i][0] != '-' && out == nullptr)
 			out = argv[i];
@@ -55,6 +75,13 @@ int main(int argc, char** argv) {
 		(options.boss && (!isZone(options.zone) || zoneBoss(static_cast<ZoneId>(options.zone)) == 0)))
 		return usage();
 
+	InscriptionBook texts;
+	if (isZone(options.zone)) {
+		const std::string root = Paths::rootDir();
+		for (const std::string& m : texts.Load((root.empty() ? "" : root + "/") + CONTENT_DIR "inscriptions"))
+			fprintf(stderr, "%s\n", m.c_str());
+		options.texts = &texts;
+	}
 	int code = 0;
 	for (int k = 0; k < count; k++) {
 		GenOptions o = options;
@@ -100,7 +127,7 @@ int main(int argc, char** argv) {
 				"chained "
 				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs%s; %d trapped chests, %d "
 				"Hapi "
-				"potions, %d resistance potions\n",
+				"potions, %d resistance potions; %d inscriptions, %d pages%s\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -132,7 +159,10 @@ int main(int argc, char** argv) {
 				s.bossRoom ? ", a boss room" : "",
 				s.trappedChests,
 				s.hapiPotions,
-				s.resistancePotions
+				s.resistancePotions,
+				s.inscriptions,
+				s.pages,
+				o.title.empty() ? "" : (", \"" + o.title + "\"").c_str()
 			);
 		}
 		if (map)

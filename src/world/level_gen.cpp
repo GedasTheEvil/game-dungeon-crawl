@@ -121,8 +121,9 @@ class LevelBuilder {
   public:
 	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId; boss: the boss of a boss level, 0
 	// for none.
-	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone, int boss)
-		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget), boss(boss),
+	// content: the carried content (GenOptions, step 8).
+	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone, int boss, const GenOptions& content)
+		: content(content), rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget), boss(boss),
 		  hallsFloor(boss != 0 ? BOSS_ROOM_ROW + bossRoomHeight(boss) + 1 : MIN_ROW),
 		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
 		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr),
@@ -157,8 +158,10 @@ class LevelBuilder {
 			return false;
 		addGauntlets();
 		addGateRooms();
-		if (zoneTarget > 0)
+		if (zoneTarget > 0) {
 			placeHapi();
+			addTexts();
+		}
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
 			int s = rng.range(0, static_cast<int>(route.size()) - 1);
@@ -180,6 +183,7 @@ class LevelBuilder {
 	[[nodiscard]] const GenShape& Shape() const { return shape; }
 
   private:
+	const GenOptions& content;
 	Rng rng;
 	Rng mimicRng; // its own stream, so mimics leave the layout rolls of a seed alone
 	int d;
@@ -204,6 +208,7 @@ class LevelBuilder {
 	int locksPlaced = 0;
 	std::vector<Lock> locks; // the route's gates, as placed
 	int teleportPairs = 0;
+	int boons = 0; // inscriptions with a boon placed (content.texts)
 
 	static int index(int col, int row) { return row * LEVEL_WIDTH + col; }
 	static bool interior(int col, int row) {
@@ -649,11 +654,73 @@ class LevelBuilder {
 		}
 	}
 
+	[[nodiscard]] bool hasBoon(int id) const {
+		const InscriptionText* text = content.texts != nullptr ? content.texts->Find(id) : nullptr;
+		return text != nullptr && text->boon.Any();
+	}
+
+	// A secret room's lore (SECRET_ROOM_TEXTS): with the texts, none with a boon if the level has one already.
+	int pickLore() {
+		std::vector<int> pool;
+		for (int id : SECRET_ROOM_TEXTS)
+			if (content.texts == nullptr || (content.texts->Find(id) != nullptr && (boons == 0 || !hasBoon(id))))
+				pool.push_back(id);
+		return pool.empty() ? SECRET_ROOM_TEXTS[0]
+							: pool[static_cast<size_t>(rng.range(0, static_cast<int>(pool.size()) - 1))];
+	}
+
+	// The carried content (step 8): the inscriptions on the halls of the route, on the way (GenOptions::inscriptions,
+	// else 2 or 3 of the zone's texts, 1 or 2 in the first zone, at most one boon a level; the name gate's hint only
+	// with a name gate), and the expedition page on a skeleton at a wing's end.
+	void addTexts() {
+		std::vector<int> ids = content.inscriptions;
+		if (ids.empty() && content.texts != nullptr && isZone(zoneId)) {
+			std::vector<int> pool;
+			for (int id = ZONE_TEXT_FIRST[zoneId]; id < ZONE_TEXT_FIRST[zoneId + 1]; id++)
+				if (isInscriptionId(id) && id != RING_TEXT && id != FORK_TEXT && id != STARGATE_TEXT &&
+					(id != NAME_GATE_TEXT || shape.nameGates > 0) && content.texts->Find(id) != nullptr)
+					pool.push_back(id);
+			for (int i = static_cast<int>(pool.size()) - 1; i > 0; i--)
+				std::swap(pool[static_cast<size_t>(i)], pool[static_cast<size_t>(rng.range(0, i))]);
+			const int wanted = zoneId == static_cast<int>(ZoneId::TombEntrance) ? rng.range(1, 2) : rng.range(2, 3);
+			for (int id : pool) {
+				if (static_cast<int>(ids.size()) >= wanted)
+					break;
+				if (hasBoon(id) && boons > 0)
+					continue;
+				boons += hasBoon(id) ? 1 : 0;
+				ids.push_back(id);
+			}
+		}
+		for (int id : ids)
+			for (int tries = 0; tries < 60; tries++) {
+				const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+				const int x = rng.range(std::min(hall.entry, hall.exit), std::max(hall.entry, hall.exit));
+				const Structure s = g.at(x, hall.row).structure;
+				if (busy[index(x, hall.row)] == 0 && freeCell(x, hall.row) && isWall(g.at(x, hall.row - 1)) &&
+					(s == Structure::Empty || s == Structure::Sand)) {
+					put(x, hall.row, Tile{Inscription, id, 0});
+					busy[index(x, hall.row)] = 1;
+					shape.inscriptions++;
+					break;
+				}
+			}
+		if (isExpeditionPage(content.page)) {
+			const int w = freeWing();
+			if (w >= 0) {
+				Wing& wing = wings[static_cast<size_t>(w)];
+				put(wing.end, wing.itemRow, Tile{Page, content.page, 0});
+				wing.taken = true;
+				shape.pages++;
+			}
+		}
+	}
+
 	// The zone's gates besides the locks (ZoneGates): riddle gates, a name gate, hidden rooms, treasure tombs.
 	void addGateRooms() {
 		for (int n = gates.riddles; n > 0; n--)
 			placeRiddle();
-		if (gates.nameGatePercent > 0 && rng.percent(gates.nameGatePercent))
+		if (content.stargate || (gates.nameGatePercent > 0 && rng.percent(gates.nameGatePercent)))
 			placeTeleporterRoom(true);
 		for (int n = gates.hiddenRooms; n > 0; n--)
 			placeTeleporterRoom(false);
@@ -713,6 +780,10 @@ class LevelBuilder {
 		else if (!named && d >= 6 && rng.chance(0.5f))
 			placeMonster((room.x0 + room.x1) / 2, room.row);
 		if (named) {
+			// Its lore, or the ring's text in the Stargate chamber's stand-in.
+			const int lore = content.stargate ? STARGATE_TEXT : pickLore();
+			put((room.x0 + room.x1) / 2, room.row, Tile{Inscription, lore, 0});
+			boons += hasBoon(lore) ? 1 : 0;
 			put(cartoucheCol, cartoucheRow, Tile{Inscription, NAME_CARTOUCHE_ID, 0});
 			busy[index(cartoucheCol, cartoucheRow)] = 1;
 			shape.nameGates++;
@@ -1713,7 +1784,8 @@ GenResult generateLevel(const GenOptions& options) {
 			difficulty,
 			openTarget,
 			options.zone,
-			boss
+			boss,
+			options
 		);
 		LevelGrid grid;
 		if (!builder.build(grid))
@@ -1734,8 +1806,10 @@ GenResult generateLevel(const GenOptions& options) {
 		if (bestError <= GOOD_ENOUGH)
 			break;
 	}
-	if (zone)
+	if (zone) {
 		best.grid.meta.zone = options.zone;
+		best.grid.meta.title = options.title;
+	}
 	return best;
 }
 

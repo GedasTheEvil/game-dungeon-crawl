@@ -313,8 +313,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone cisterns_of_sobek --boss /tmp/zone  
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 7 of 9: the shape, the terrain, the
-monsters, the traps, the gates, the boss levels and the supplies) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 8 of 9: the shape, the terrain, the
+monsters, the traps, the gates, the boss levels, the supplies and the carried content) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`. With `--boss` (scenarios:
 `gen:SEED:DIFFICULTY:ZONE:boss`) it builds the zone's boss level (step 6, see Boss levels below).
 
@@ -384,6 +384,16 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    `src/world/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
    of Sokar on), each a chest that held a plain potion (health, stamina, might, armour). Weapon chests come in by the
    difficulty as on a test level (`WeaponDef::generatedFrom`).
+12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--page`, `--title`, `--stargate`). The
+   inscriptions on the halls of the route, between where it comes in and leaves (on the way): the ids given, else 2
+   or 3 (1 or 2 in the tomb entrance) of the zone's texts in `content/inscriptions/rebuild.txt` (`ZONE_TEXT_FIRST`,
+   `src/world/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
+   the last fork's, the Stargate's), the name gate's comes only with a name gate. Without the texts (a unit test's
+   level, levelgen run off the repo root) none. Each secret room gets a lore text (`SECRET_ROOM_TEXTS`, no second
+   boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The
+   Stargate chamber's stand-in (`--stargate`, for one level of the campaign until
+   [stargate-chamber](plan/stargate-chamber.draft.opus.md) is built): the level's name gate, its password the king's
+   name, leads to a room with the ring's text (`STARGATE_TEXT`) and a rare chest.
 
 Still missing (the next steps of the plan): the zone's traps, the riddle and name gates, the boss level, the supplies
 by the rules above, the carried content and the decor.

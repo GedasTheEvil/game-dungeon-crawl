@@ -1,140 +1,183 @@
-21,2 surface 6/1/2 decal 13 0.744,0.225 torch fire torch 0.000,0.680,0.098
-1,3 surface 7/1/2
-2,3 surface 6/1/2 prop skeleton 0.000
-3,3 surface 6/1/2 decal 6 0.466,0.575
-4,3 surface 6/1/2 decal 15 0.326,0.362
-5,3 surface 6/1/2 decal 14 0.402,0.375
-6,3 surface 7/1/2 prop pottery 0.018
-7,3 surface 6/1/2
-8,3 surface 6/1/2
-9,3 surface 6/1/2 ladder 1/4
-10,3 surface 6/1/2 prop skeletonm 0.068 decal 1m 0.707,0.369
-11,3 surface 7/1/2 decal 5m 0.536,0.625
-12,3 surface 6/1/2 decal 13m 0.622,0.225
-13,3 surface 6/1/2
-14,3 surface 6/1/2
-15,3 surface 7/1/2 prop rubblem -0.078
-16,3 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-17,3 surface 6/1/2 decal 12m 0.382,0.350
-18,3 surface 6/1/2 decal 6m 0.505,0.575
-19,3 surface 7/1/2 prop rubblem -0.013
-20,3 surface 6/1/2
-21,3 surface 7/1/2 decal 3 0.566,0.600
-22,3 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-23,3 surface 6/1/2 decal 1m 0.578,0.488
-24,3 surface 7/1/2 decal 0 0.440,0.494
-25,3 surface 6/1/2
-26,3 surface 6/1/2
-27,3 surface 6/1/2 prop web 0.000 torch fire torch 0.000,0.680,0.098
-28,3 surface 6/1/2
-29,3 surface 6/1/2
-30,3 surface 6/1/2 decal 15 0.609,0.613
-31,3 surface 6/1/2
-32,3 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-33,3 surface 6/1/2
-34,3 surface 6/1/2
-9,4 surface 6/1/2 ladder 1/0
-6,5 surface 6/1/2
-7,5 surface 6/1/2 prop skeletonm 0.147 torch fire torch 0.000,0.680,0.098
-8,5 surface 7/1/2
-9,5 surface 6/1/2 ladder 1/3
-10,5 surface 7/1/2 prop sand -0.000 decal 1m 0.598,0.357
-11,5 surface 6/1/2 prop skeleton 0.141
-12,5 surface 6/1/2 prop skeleton -0.041
-13,5 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-14,5 surface 7/1/2
-15,5 surface 6/1/2 prop webm -0.000
-16,5 surface 6/1/2
-17,5 surface 6/1/2 decal 2m 0.400,0.350
-18,5 surface 6/1/2 decal 5 0.618,0.625 torch fire torch 0.000,0.680,0.098
-19,5 surface 6/1/2
-20,5 surface 7/1/2 prop rubblem -0.100 decal 6m 0.524,0.575
-21,5 surface 6/1/2 decal 1 0.667,0.556
-22,5 surface 7/1/2
-23,5 surface 6/1/2 prop skeleton -0.026 decal 15 0.431,0.386
-24,5 surface 7/1/2
-25,5 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-26,5 surface 6/1/2
-27,5 surface 6/1/2
-28,5 surface 7/1/2 prop rubble 0.083 decal 0m 0.424,0.459
-29,5 surface 6/1/2 decal 14 0.610,0.375
-30,5 surface 7/1/2 decal 14 0.618,0.375
-31,5 surface 6/1/2 prop webm -0.000 decal 6 0.428,0.575 torch fire torch 0.000,0.680,0.098
-32,5 surface 7/1/2
-33,5 surface 6/1/2
-34,5 surface 6/1/2 prop web 0.000
-35,5 surface 7/1/2
-36,5 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-37,5 surface 6/1/2
-38,5 surface 7/1/2
-3,6 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-37,6 surface 7/1/2
-1,7 surface 6/1/2
-2,7 surface 6/1/2
-3,7 surface 6/1/2 decal 3 0.463,0.600
-4,7 surface 6/1/2 prop skeletonm -0.097
-5,7 surface 6/1/2 decal 12 0.482,0.350
-6,7 surface 6/1/2 decal 0m 0.626,0.436
-7,7 surface 7/1/2 decal 4m 0.405,0.650 torch fire torch 0.000,0.680,0.098
-8,7 surface 6/1/2 prop skeleton 0.115 decal 4m 0.629,0.650
-9,7 surface 7/1/2
-10,7 surface 6/1/2 prop web 0.000
-11,7 surface 7/1/2
-12,7 surface 6/1/2 decal 13 0.685,0.225 torch fire torch 0.000,0.680,0.098
-13,7 surface 6/1/2
-14,7 surface 6/1/2
-15,7 surface 6/1/2
-16,7 surface 6/1/2
-17,7 surface 6/1/2 ladder 1/4
-18,7 surface 7/1/2 decal 5m 0.561,0.625
-19,7 surface 6/1/2 decal 1m 0.359,0.504
-20,7 surface 6/1/2 decal 2m 0.438,0.350
-21,7 surface 6/1/2 prop skeletonm 0.051
-22,7 surface 6/1/2 decal 6m 0.471,0.575
-23,7 surface 6/1/2
-24,7 surface 6/1/2 prop skeletonm 0.038 decal 4m 0.463,0.650
-25,7 surface 6/1/2 prop skeletonm 0.030 torch fire torch 0.000,0.680,0.098
-26,7 surface 7/1/2
-27,7 surface 6/1/2
-28,7 surface 7/1/2 decal 14m 0.525,0.375
-29,7 surface 6/1/2 decal 14 0.618,0.375
-30,7 surface 6/1/2 decal 6 0.448,0.575
-31,7 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-32,7 surface 7/1/2
-33,7 surface 6/1/2 ladder 1/4
-34,7 surface 6/1/2 prop skeleton -0.037
-35,7 surface 6/1/2 decal 5m 0.485,0.625
-36,7 surface 6/1/2 decal 1m 0.460,0.595
-37,7 surface 7/1/2 decal 1m 0.701,0.365
-38,7 surface 6/1/2
-17,8 surface 6/1/2 ladder 1/1
-33,8 surface 6/1/2 ladder 1/2
-1,9 surface 6/1/2
-2,9 surface 6/1/2
-3,9 surface 6/1/2 prop rubblem 0.005 torch fire torch 0.000,0.680,0.098
-4,9 surface 6/1/2
-5,9 surface 6/1/2 decal 15 0.304,0.437
-6,9 surface 6/1/2 prop web 0.000
-7,9 surface 7/1/2
-8,9 surface 6/1/2
-9,9 surface 7/1/2
-10,9 surface 6/1/2 prop skeletonm -0.067
-11,9 surface 7/1/2
-12,9 surface 6/1/2
-13,9 surface 6/1/2
-14,9 surface 7/1/2 prop pottery 0.021
-15,9 surface 6/1/2
-16,9 surface 7/1/2
-17,9 surface 6/1/2 ladder 1/3
-22,9 surface 6/1/2 decal 4 0.529,0.650
-23,9 surface 6/1/2 decal 5m 0.572,0.625
-24,9 surface 6/1/2
-25,9 surface 7/1/2 decal 14 0.453,0.375
-26,9 surface 6/1/2
-27,9 surface 6/1/2 prop rubble 0.032 decal 5 0.571,0.625
-28,9 surface 6/1/2
-29,9 surface 7/1/2
-30,9 surface 6/1/2 prop web 0.000
-31,9 surface 7/1/2 prop potterym 0.030
-32,9 surface 6/1/2 decal 6 0.490,0.575 torch fire torch 0.000,0.680,0.098
-33,9 surface 6/1/2 ladder 1/3
+12,33 surface 6/1/2
+13,33 surface 7/1/2 prop skeleton 0.115
+14,33 surface 6/1/2
+15,33 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+16,33 surface 7/1/2 prop rubble 0.062
+17,33 surface 6/1/2 decal 5m 0.502,0.625
+18,33 surface 6/1/2 decal 12 0.578,0.350
+19,33 surface 7/1/2
+20,33 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+21,33 surface 6/1/2
+22,33 surface 6/1/2
+23,33 surface 6/1/2 ladder 1/4
+24,33 surface 6/1/2 prop rubble 0.014
+25,33 surface 6/1/2
+26,33 surface 7/1/2
+27,33 surface 6/1/2 decal 0 0.507,0.358
+28,33 surface 6/1/2
+29,33 surface 6/1/2 ladder 1/4
+30,33 surface 6/1/2 decal 6 0.518,0.575
+31,33 surface 6/1/2 decal 13m 0.543,0.225
+32,33 surface 6/1/2
+33,33 surface 6/1/2 ladder 1/4
+34,33 surface 6/1/2 prop rubblem -0.035
+35,33 surface 6/1/2
+36,33 surface 6/1/2 prop rubblem 0.002 decal 0 0.592,0.359
+37,33 surface 6/1/2 prop skeleton 0.082 decal 5 0.518,0.625
+38,33 surface 6/1/2 decal 15m 0.282,0.428
+23,34 surface 6/1/2 ladder 1/1
+29,34 surface 6/1/2 ladder 1/0
+33,34 surface 6/1/2 ladder 1/1
+16,35 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+23,35 surface 7/1/2 ladder 1/2
+29,35 surface 6/1/2 ladder 1/1
+33,35 surface 7/1/2 ladder 1/2
+2,36 surface 6/1/2
+3,36 surface 6/1/2 decal 2 0.380,0.350
+4,36 surface 7/1/2 prop sand 0.000 decal 1 0.656,0.400
+5,36 surface 6/1/2
+6,36 surface 6/1/2 prop skeletonm -0.149 decal 0m 0.343,0.556
+7,36 surface 7/1/2 decal 15 0.567,0.376
+8,36 surface 6/1/2 prop sand 0.000
+9,36 surface 6/1/2 decal 2 0.363,0.350
+10,36 surface 6/1/2 prop rubble -0.012
+11,36 surface 6/1/2 ladder 1/4
+12,36 surface 6/1/2 decal 2 0.556,0.350
+13,36 surface 6/1/2
+14,36 surface 6/1/2 prop rubble -0.098
+15,36 surface 7/1/2
+16,36 surface 6/1/2
+17,36 surface 7/1/2
+18,36 surface 6/1/2
+19,36 surface 6/1/2 decal 12m 0.384,0.350 torch fire torch 0.000,0.680,0.098
+20,36 surface 7/1/2
+21,36 surface 6/1/2
+22,36 surface 7/1/2
+23,36 surface 6/1/2 ladder 1/3
+24,36 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+25,36 surface 7/1/2
+29,36 surface 6/1/2 ladder 1/3
+30,36 surface 6/1/2 prop web -0.000
+31,36 surface 7/1/2 decal 5 0.520,0.625 torch fire torch 0.000,0.680,0.098
+33,36 surface 7/1/2 ladder 1/3
+34,36 surface 6/1/2 decal 5m 0.541,0.625
+35,36 surface 6/1/2
+2,37 surface 6/1/2 decal 5m 0.394,0.625
+3,37 surface 6/1/2
+4,37 surface 6/1/2
+5,37 surface 6/1/2 decal 3 0.580,0.600 torch fire torch 0.000,0.680,0.098
+6,37 surface 7/1/2
+7,37 surface 6/1/2 decal 1m 0.584,0.370
+8,37 surface 6/1/2
+9,37 surface 6/1/2 decal 5 0.392,0.625
+10,37 surface 6/1/2
+11,37 surface 7/1/2 ladder 1/2
+12,37 surface 6/1/2 decal 5m 0.376,0.625 torch fire torch 0.000,0.680,0.098
+13,37 surface 7/1/2 decal 3m 0.449,0.600
+14,37 surface 6/1/2
+15,37 surface 6/1/2
+16,37 surface 6/1/2 decal 3 0.555,0.600
+17,37 surface 7/1/2
+18,37 surface 6/1/2
+19,37 surface 6/1/2 decal 5 0.392,0.625
+20,37 surface 6/1/2 decal 3m 0.561,0.600
+21,37 surface 6/1/2 decal 5 0.609,0.625
+22,37 surface 6/1/2
+23,37 surface 7/1/2
+24,37 surface 6/1/2
+25,37 surface 7/1/2 decal 15 0.332,0.490
+11,38 surface 6/1/2 ladder 1/0
+11,39 surface 6/1/2 ladder 1/1
+5,40 surface 6/1/2
+6,40 surface 6/1/2 prop skeletonm -0.060 decal 15m 0.625,0.616
+7,40 surface 6/1/2
+8,40 surface 7/1/2 torch fire torch 0.000,0.680,0.098
+9,40 surface 6/1/2
+10,40 surface 6/1/2
+11,40 surface 6/1/2 ladder 1/3
+12,40 surface 6/1/2
+13,40 surface 6/1/2
+14,40 surface 6/1/2
+15,40 surface 6/1/2 decal 15 0.422,0.431
+16,40 surface 6/1/2
+17,40 surface 6/1/2 prop skeletonm 0.098 torch fire torch 0.000,0.680,0.098
+18,40 surface 6/1/2
+19,40 surface 7/1/2
+20,40 surface 6/1/2 decal 15 0.335,0.382
+21,40 surface 6/1/2
+22,40 surface 7/1/2 prop rubble -0.097
+23,40 surface 6/1/2 ladder 1/4
+24,40 surface 7/1/2 prop rubble 0.016
+25,40 surface 6/1/2
+26,40 surface 7/1/2 prop skeletonm -0.102
+27,40 surface 6/1/2
+5,41 surface 6/1/2 decal 0 0.519,0.567
+6,41 surface 6/1/2
+7,41 surface 6/1/2
+8,41 surface 7/1/2
+9,41 surface 6/1/2 decal 0 0.498,0.450
+10,41 surface 7/1/2
+11,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+12,41 surface 6/1/2
+13,41 surface 6/1/2
+14,41 surface 7/1/2
+15,41 surface 6/1/2 decal 0 0.531,0.353
+16,41 surface 6/1/2 decal 0 0.458,0.364
+17,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+18,41 surface 6/1/2
+19,41 surface 7/1/2
+20,41 surface 6/1/2 decal 15m 0.343,0.375
+21,41 surface 7/1/2
+22,41 surface 6/1/2
+23,41 surface 7/1/2 ladder 1/1
+24,41 surface 6/1/2
+25,41 surface 6/1/2 decal 1m 0.654,0.543
+26,41 surface 6/1/2
+27,41 surface 6/1/2
+5,42 surface 7/1/2 decal 15m 0.302,0.413
+6,42 surface 6/1/2 decal 6 0.543,0.575
+7,42 surface 6/1/2
+8,42 surface 7/1/2
+9,42 surface 6/1/2
+10,42 surface 6/1/2 decal 6 0.435,0.575
+11,42 surface 6/1/2
+12,42 surface 6/1/2 decal 1 0.494,0.501
+13,42 surface 7/1/2
+14,42 surface 6/1/2 decal 5 0.424,0.625
+15,42 surface 7/1/2 decal 3 0.457,0.600 torch fire torch 0.000,0.680,0.098
+16,42 surface 6/1/2
+17,42 surface 7/1/2
+18,42 surface 6/1/2
+19,42 surface 6/1/2
+20,42 surface 6/1/2
+21,42 surface 6/1/2
+22,42 surface 7/1/2
+23,42 surface 6/1/2 ladder 1/0
+24,42 surface 7/1/2 decal 5 0.392,0.625 torch fire torch 0.000,0.680,0.098
+25,42 surface 6/1/2
+26,42 surface 7/1/2
+27,42 surface 6/1/2 decal 4 0.501,0.650
+23,43 surface 6/1/2 ladder 1/1
+23,44 surface 6/1/2 ladder 1/0
+16,45 surface 7/1/2 prop skeleton 0.000 decal 6 0.539,0.575 torch fire torch 0.000,0.680,0.098
+17,45 surface 6/1/2
+18,45 surface 6/1/2
+19,45 surface 6/1/2 decal 0 0.514,0.558
+20,45 surface 6/1/2
+21,45 surface 7/1/2
+22,45 surface 6/1/2
+23,45 surface 7/1/2 ladder 1/3
+24,45 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+25,45 surface 6/1/2 decal 0 0.328,0.412
+26,45 surface 6/1/2 decal 4 0.555,0.650
+27,45 surface 7/1/2 decal 4m 0.571,0.650
+28,45 surface 6/1/2 prop pottery -0.069 decal 5 0.569,0.625
+29,45 surface 7/1/2 decal 2m 0.448,0.350
+30,45 surface 6/1/2
+31,45 surface 7/1/2 decal 13m 0.511,0.225 torch fire torch 0.000,0.680,0.098
+32,45 surface 6/1/2
+33,45 surface 6/1/2 decal 1m 0.619,0.587
+34,45 surface 6/1/2
+35,45 surface 6/1/2
+36,45 surface 6/1/2 prop web 0.000
+37,45 surface 7/1/2

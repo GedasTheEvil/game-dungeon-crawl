@@ -18,7 +18,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
 | boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena". A zone level's is sealed under the halls (`LevelBuilder::placeBoss`) | `BossRules`, `GenOptions::boss` |
-| campaign | | the 35 map levels in order, `content/levels/lvl1` .. `lvl35`; grouped into zones; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
+| campaign | | the map levels in order, `content/levels/lvl1` .. `lvl<CAMPAIGN_LEVELS>`; grouped into zones; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | structure | | a cell's bottom layer: wall, empty, half water or deep water. Not the structure of the code | `Structure`, `Tile::structure` |
 | object | | a cell's middle layer, at most one: a gate, a key, a trap, a ladder, a treasure, a monster spawn, the ankh; a type, an attribute and a value | `DungeonTileType`, `hasObject`, `setObject` |
@@ -48,6 +48,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | hidden room | | (zone level) a room sealed in the rock behind a plain teleporter at a wing's end, with treasure; a secret room is the same behind a name gate | `LevelBuilder::placeTeleporterRoom`, `GenShape::hiddenRooms` |
 | treasure tomb | | (zone level) a wing past a gate of the route, closed by a second gate of that colour, a rare chest at its end | `LevelBuilder::placeTomb`, `GenShape::treasureTombs` |
 | route fork | | (zone level) two one-way routes from a fork hall to a join hall: two drops side by side either side of a pillar of rock, the left route long, the right one short with traps and the earlier expedition's remains; drafts also say "fork" | `GenOptions::fork`, `LevelBuilder::chooseFork` |
+| rebuild | | ([denser-levels](plan/denser-levels.draft.opus.md)) the campaign generated again zone by zone on the target table; the rebuilt levels come first, today's after them; their sizes ramp from the way in to the whole grid | `REBUILT_LEVELS`, `ZONE_SIZE`, `zoneLevelCells` |
+| seed table | | the levelgen arguments of each rebuilt campaign level (seed, difficulty, size, texts, page, title), so one can be generated again | `tools/level/rebuild.txt`, `tools/level/rebuild.py` |
 | pool | | (zone level) a run of half water over deep water dug into the rock under the floor; a wade is the same over rock | `GenShape::pools`, `GenShape::wades` |
 | wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
 | hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |

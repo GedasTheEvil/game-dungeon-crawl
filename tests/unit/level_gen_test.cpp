@@ -68,6 +68,24 @@ TEST_CASE("zone levels fill the grid in the campaign's shape and pass the checke
 	CHECK(gates > 0); // keys and levers in the wings
 }
 
+TEST_CASE("small zone levels (plan denser-levels): the first zones' ramp, fewer halls, keys before levers") {
+	for (const int cells : {ZONE_SIZE[0].first, 200, ZONE_SIZE[0].last, ZONE_SIZE[1].first}) {
+		for (uint32_t seed = 1; seed <= 3; seed++) {
+			CAPTURE(cells);
+			CAPTURE(seed);
+			GenOptions options = zoneOptions(seed, 2, static_cast<int>(ZoneId::TombEntrance));
+			options.openCells = cells;
+			options.boss = seed == 3;
+			const GenResult gen = generateLevel(options);
+			REQUIRE(gen.ok);
+			CHECK(gen.report.valid);
+			CHECK(gen.report.warnings.empty());
+			CHECK(std::abs(gen.report.openCells - cells) < cells / 3); // a boss room on top
+			CHECK(gen.report.levers == 0); // the bat galleries bring them in (LEVERS_FROM)
+		}
+	}
+}
+
 TEST_CASE("a zone level's terrain and monsters follow the zone table") {
 	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
 		const ZoneTerrain& terrain = zoneTerrain(static_cast<ZoneId>(zone));

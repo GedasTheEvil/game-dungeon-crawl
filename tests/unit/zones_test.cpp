@@ -88,6 +88,37 @@ TEST_CASE("each boss is in exactly one zone: its own, and the last zone ends wit
 	CHECK(ZONES[ZONE_COUNT - 1].id == ZoneId::HallOfJudgment);
 }
 
+TEST_CASE("the rebuilt levels (plan denser-levels): the zone's monsters, its boss on its last level, inscriptions") {
+	REQUIRE(REBUILT_LEVELS <= CAMPAIGN_LEVELS);
+	std::set<int> texts;
+	for (int n = 1; n <= REBUILT_LEVELS; n++) {
+		CAPTURE(n);
+		const Zone& zone = *zoneOf(n);
+		const ZoneFauna& fauna = zoneFauna(zone.id);
+		LevelGrid grid;
+		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
+		int inscriptions = 0;
+		for (const Tile& t : grid.cells) {
+			if (t.fixture.type == Inscription) {
+				inscriptions++;
+				CHECK(texts.insert(t.fixture.attr).second); // each text once
+			}
+			if (t.type != MonsterSpawn)
+				continue;
+			CAPTURE(t.attr);
+			bool inSet = (t.attr == MonsterMimic && fauna.mimicPercent > 0) ||
+						 (t.attr == MonsterCursedMimic && fauna.cursedPercent > 0) ||
+						 (t.attr == zone.boss && n == zone.last);
+			for (const ZoneMonster& m : fauna.monsters)
+				inSet = inSet || (m.type != 0 && m.type == t.attr);
+			CHECK(inSet);
+		}
+		CHECK(inscriptions >= 1);
+		if (n == zone.last && zone.boss != 0)
+			CHECK(contentsOf(n).monsters[zone.boss]);
+	}
+}
+
 TEST_CASE("a zone's title is its hour and gate") {
 	CHECK(zoneTitle(ZONES[0].id) == "The First Hour: the Gate of the Tomb");
 	CHECK(zoneTitle(zoneOf(CAMPAIGN_LEVELS)->id) == "The Twelfth Hour: the Gate of Judgment");

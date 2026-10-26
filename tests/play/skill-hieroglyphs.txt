@@ -1,7 +1,7 @@
-# Plan skill-hieroglyphs, for `bin/game --play tests/play/skill-hieroglyphs.txt`: level 6, no hieroglyph skill. Walk two
+# Plan skill-hieroglyphs, for `bin/game --play tests/play/skill-hieroglyphs.txt`: level 5, no hieroglyph skill. Walk two
 # cells east and press interact on the inscription: the glyphs are copied into the journal (J, Inscriptions ribbon),
 # with no text. Then learn Words of Thoth on the Heka screen (K; one heka is given): the copy gets its translation.
 seed 1
 god
-level 6
+level 5
 heka 1

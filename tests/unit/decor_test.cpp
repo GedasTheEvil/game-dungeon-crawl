@@ -14,10 +14,10 @@ TEST_CASE("decoration tiers by depth: cave, worked tunnel, tomb, temple") {
 	CHECK(decorTier(1) == 0);
 	CHECK(decorTier(3) == 0);
 	CHECK(decorTier(4) == 1);
-	CHECK(decorTier(7) == 1);
-	CHECK(decorTier(8) == 2);
-	CHECK(decorTier(12) == 2);
-	CHECK(decorTier(13) == 3);
+	CHECK(decorTier(6) == 1);
+	CHECK(decorTier(7) == 2);
+	CHECK(decorTier(11) == 2);
+	CHECK(decorTier(12) == 3);
 	CHECK(decorTier(30) == 3);
 	CHECK(decorTier(DECOR_DEPTH_ALL) == DECOR_TIER_COUNT - 1);
 }
@@ -94,7 +94,15 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 		CAPTURE(n);
 		const Scattered s = campaignLevel(n);
 		const int tier = decorTier(n);
-		CHECK(decorTierUsed(s.grid.cells, *s.layout) <= tier);
+		// The placed props and decals (a generated level's tombs, plan placed-decor) stand whatever the depth.
+		auto scattered = std::make_unique<DecorLayout>(*s.layout);
+		for (int c = 0; c < LEVEL_WIDTH * LEVEL_HEIGHT; c++) {
+			if (hasPlacedProp(s.grid.cells[c].dressing))
+				scattered->decor[c].type = -1;
+			if (hasPlacedDecal(s.grid.cells[c].dressing))
+				scattered->decal[c].type = -1;
+		}
+		CHECK(decorTierUsed(s.grid.cells, *scattered) <= tier);
 		for (int j = 0; j < LEVEL_HEIGHT; j++)
 			for (int i = 0; i < LEVEL_WIDTH; i++) {
 				const Tile t = cellAt(s.grid, i, j);
@@ -116,13 +124,13 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 				} else if (prop.type >= 0) {
 					CHECK(isEmptyCell(t));
 					CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
-					CHECK(DECOR_TIERS[prop.type] <= tier);
+					CHECK((DECOR_TIERS[prop.type] <= tier || hasPlacedProp(t.dressing)));
 					CHECK((prop.type < DECOR_SCATTERED || bossCoffinCell(s.grid.cells, i, j)));
 				}
 				const DecalCell& decal = s.layout->decal[idx(i, j)];
 				if (decal.type >= 0) {
 					CHECK_FALSE(isWall(t));
-					CHECK(DECAL_TIERS[decal.type] <= tier);
+					CHECK((DECAL_TIERS[decal.type] <= tier || hasPlacedDecal(t.dressing)));
 					CHECK(decal.x >= 0.f);
 					CHECK(decal.x <= 1.f);
 				}
@@ -219,7 +227,7 @@ TEST_CASE("a ladder shaft keeps one style: the bottom piece on the floor, the to
 
 TEST_CASE("the first levels are all rough cave rock, the deep ones have painted walls") {
 	const Scattered cave = campaignLevel(1);
-	const Scattered temple = campaignLevel(20);
+	const Scattered temple = campaignLevel(19);
 	int painted = 0;
 	for (int k = 0; k < LEVEL_WIDTH * LEVEL_HEIGHT; k++) {
 		if (!isWall(cave.grid.cells[k])) {

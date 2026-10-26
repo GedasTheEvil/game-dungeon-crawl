@@ -1,9 +1,9 @@
 # Plan trapped-chests, for `bin/game --play tests/play/trapped-chests.txt`: tests/levels/trapped_chests, trapped
 # chests at cols 3, 7, 9 and 11, a plain one at col 5. Walk up to each: a trapped one looks darker only up close. Open
 # them: darts, gas, a curse or scarabs, half of them empty. A grand trap guard amulet is in the bag (wear it in the
-# inventory): no trap goes off. Campaign levels have them from level 3 on (one in lvl3, at col 1 row 7).
+# inventory): no trap goes off. Campaign levels have them from level 5 on (one in lvl5, at col 21 row 9).
 seed 4
-# A level loaded by path keeps the last campaign level's number: level 20 first, so the chests roll a temple's traps.
-level 20
+# A level loaded by path keeps the last campaign level's number: level 19 first, so the chests roll a temple's traps.
+level 19
 level tests/levels/trapped_chests
 give amulet 19

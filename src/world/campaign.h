@@ -191,7 +191,7 @@ struct ZoneGates {
 	int hiddenRooms; // a level
 	int treasureTombs; // a level
 };
-// By ZoneId (docs/levels.md, Zones). The first name gate comes with the inscriptions (lvl6 today).
+// By ZoneId (docs/levels.md, Zones). The first name gate comes in the bat galleries.
 constexpr ZoneGates ZONE_GATES[ZONE_ID_COUNT] = {
 	{1, 0, 0, 0}, // tomb entrance: the first riddle
 	{1, 30, 0, 0}, // bat galleries
@@ -213,6 +213,35 @@ constexpr ZoneGates ZONE_GATES[ZONE_ID_COUNT] = {
 constexpr int ZONE_TRAPPED_CHESTS[ZONE_ID_COUNT] = {0, 0, 2, 1, 2, 2, 2, 2, 3, 3, 3, 3};
 // From this zone on a level with poison gets a greater resistance potion besides the lesser one.
 constexpr ZoneId GREATER_RESISTANCE_FROM = ZoneId::ScorpionNest;
+// From this zone on a gate on a zone level may have a lever instead of a key: the bat galleries bring the levers in.
+constexpr ZoneId LEVERS_FROM = ZoneId::BatGalleries;
+
+// A zone level's size in the target campaign (plan denser-levels): the open cells of its first and its last level,
+// the levels between on the line. A ramp from the way in to the whole grid by the web halls, no jump.
+struct ZoneSize {
+	int first;
+	int last;
+};
+// By ZoneId.
+constexpr ZoneSize ZONE_SIZE[ZONE_ID_COUNT] = {
+	{120, 280}, // tomb entrance: the way in
+	{320, 500}, // bat galleries
+	{540, 650}, // web halls: the whole grid
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+	{650, 650},
+};
+// The open cells of level `place` (0-based) of a zone of `levels` levels.
+[[nodiscard]] constexpr int zoneLevelCells(ZoneId id, int place, int levels) {
+	const ZoneSize& size = ZONE_SIZE[static_cast<int>(id)];
+	return levels <= 1 ? size.last : size.first + (size.last - size.first) * place / (levels - 1);
+}
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.
@@ -227,50 +256,51 @@ struct Zone {
 	MonsterTypeId boss; // on a level of the zone, 0: none
 };
 
-// Today's 35 levels. The rebuild (plan denser-levels) switches it to the target table of docs/levels.md.
+// The campaign while the rebuild (plan denser-levels) goes zone by zone: the rebuilt zones on the target table of
+// docs/levels.md first (through REBUILT_LEVELS), then today's levels after them, one number earlier per level the
+// rebuilt zones are shorter.
 constexpr Zone ZONES[] = {
-	{ZoneId::TombEntrance,
-	 1,
-	 5,
-	 {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant, MonsterWorm, MonsterScorpion},
-	 MonsterBossScarab},
+	{ZoneId::TombEntrance, 1, 4, {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant}, MonsterBossScarab},
 	{ZoneId::BatGalleries,
-	 6,
-	 10,
+	 5,
+	 9,
 	 {MonsterBat, MonsterGiantBat, MonsterGiantRat, MonsterGiantScarab, MonsterCrocodile, MonsterCamelSpider},
 	 MonsterVampireBat},
 	{ZoneId::ScorpionNest,
-	 11,
-	 15,
+	 10,
+	 14,
 	 {MonsterMummy, MonsterUshabti, MonsterGiantScarab, MonsterGiantBat, MonsterScorpion, MonsterGiantScorpion},
 	 MonsterScorpionQueen},
 	{ZoneId::SerpentTemple,
-	 16,
-	 20,
+	 15,
+	 19,
 	 {MonsterCobra, MonsterMummy, MonsterAnubis, MonsterCrocodile, MonsterGiantBat},
 	 MonsterApep},
 	{ZoneId::SethsDesert,
-	 21,
-	 25,
+	 20,
+	 24,
 	 {MonsterWorm, MonsterCamelSpider, MonsterGiantScorpion, MonsterGiantCobra, MonsterGiantBat, MonsterHippo},
 	 MonsterSeth},
 	{ZoneId::CisternsOfSobek,
-	 26,
-	 30,
+	 25,
+	 29,
 	 {MonsterCrocodile, MonsterGiantCobra, MonsterHippo, MonsterMummy, MonsterAnubis, MonsterGiantBat},
 	 MonsterSobek},
 	// The High Priest's temporary home until the rebuild moves him to the priests' quarter.
 	{ZoneId::Necropolis,
-	 31,
-	 34,
+	 30,
+	 33,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantScarab, MonsterGiantCobra, MonsterGiantScorpion, MonsterCursedMimic},
 	 MonsterMummyPriest},
 	{ZoneId::HallOfJudgment,
-	 35,
-	 35,
+	 34,
+	 34,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantCobra, MonsterCursedMimic},
 	 MonsterAnubisBoss},
 };
+// The last level the rebuild has made (plan denser-levels): its levels follow the target table, their monsters the
+// zone's set (ZONE_FAUNA), a test checks them.
+constexpr int REBUILT_LEVELS = 4;
 constexpr int ZONE_COUNT = static_cast<int>(sizeof(ZONES) / sizeof(ZONES[0]));
 
 constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;

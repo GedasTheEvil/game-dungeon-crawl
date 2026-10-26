@@ -42,6 +42,11 @@ constexpr float HUB_CHANCE = 0.2f;
 constexpr float LOOP_CHANCE = 0.4f;
 constexpr float LEDGE_CHANCE = 0.5f;
 constexpr float WING_TREASURE = 0.6f; // a wing no key or lever took
+// A small zone level (the first zones' ramp, plan denser-levels): only as many halls as it needs, each about this
+// share (percent) of the width, and at least this many.
+constexpr int SMALL_LEVEL_CELLS = 450;
+constexpr int SMALL_LEVEL_FILL = 70;
+constexpr size_t SMALL_LEVEL_HALLS = 4;
 constexpr float ZONE_CALM = 2.5f; // the no-feature weight along a zone level's halls (fillRun)
 constexpr int ZONE_SCORE_CELLS = 50; // a zone level aims at targetScore(d) per this many open cells
 // The zone's terrain (ZoneTerrain, campaign.h).
@@ -381,7 +386,15 @@ class LevelBuilder {
 			int rock = roll < 15 ? 1 : roll < 85 ? 2 : rng.range(3, 5);
 			top = hall.row - 1 - rock;
 		}
-		if (route.size() < 6)
+		if (zoneTarget < SMALL_LEVEL_CELLS) { // fewer halls, still most of the width across, from the top
+			size_t keep = 0;
+			for (int rows = 0; keep < route.size() &&
+							   (keep < SMALL_LEVEL_HALLS || rows * HALL_FULL * SMALL_LEVEL_FILL / 100 < zoneTarget);
+				 keep++)
+				rows += route[keep].height;
+			route.resize(keep);
+		}
+		if (route.size() < (zoneTarget < SMALL_LEVEL_CELLS ? SMALL_LEVEL_HALLS : 6))
 			return false;
 		int full = 0;
 		for (const Segment& hall : route)
@@ -1575,7 +1588,8 @@ class LevelBuilder {
 			int colour = colours[locksPlaced];
 			g.set(gate, seg.row, Tile{Gate, colour, 0});
 			busy[index(gate, seg.row)] = 1;
-			Tile opener = rng.chance(0.35f) ? Tile{Lever, colour, 0} : Tile{Key, colour, 0};
+			const bool lever = rng.chance(0.35f) && (!isZone(zoneId) || zoneId >= static_cast<int>(LEVERS_FROM));
+			Tile opener = lever ? Tile{Lever, colour, 0} : Tile{Key, colour, 0};
 			if ((zone && wingOpener(s, opener)) || tryBranch(s, seg.entry + dir, gate - 2 * dir, opener)) {
 				markBusy(seg, gate);
 				locksPlaced++;

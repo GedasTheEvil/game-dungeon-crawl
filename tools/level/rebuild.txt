@@ -1,0 +1,14 @@
+# The rebuilt campaign's seed table (plan denser-levels): the levelgen arguments of each rebuilt campaign level, so a
+# level can be generated again on its own: tools/level/rebuild.py LEVEL. The level files stay the source of truth: a
+# level is polished by hand or in the editor after it is generated (docs/levels.md, Levels), and generating it again
+# drops that polish.
+# Sizes: ZONE_SIZE (src/world/campaign.h). Difficulty: 1 to 10 over the target campaign (tools/balance, difficultyOf).
+# Inscriptions from content/inscriptions/rebuild.txt, each id once; pages in order of depth.
+#
+# level  levelgen arguments
+
+# Zone 1: Tomb entrance
+1  --zone tomb_entrance --seed 8 --difficulty 1 --cells 120 --texts 54,57 --page 1 --title "The Jackal Statue"
+2  --zone tomb_entrance --seed 1 --difficulty 1 --cells 173 --texts 53,55 --page 2 --title "The Beetle Passage"
+3  --zone tomb_entrance --seed 2 --difficulty 1 --cells 226 --texts 56 --page 3 --title "The Biting Chest"
+4  --zone tomb_entrance --seed 8 --difficulty 2 --cells 280 --boss --texts 58 --title "The Lair of Khepri"

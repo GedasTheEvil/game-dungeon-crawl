@@ -32,7 +32,7 @@ TEST_CASE("a teleporter jumps the player to its partner and back; the sealed roo
 }
 
 TEST_CASE("leaving a level mid-jump does not carry the jump into the next level") {
-	SimWorld world; // tests/levels/classic2 exits at row 36; lvl2 starts at row 9 under a one-cell ceiling
+	SimWorld world; // tests/levels/classic2 exits at row 36; lvl2 starts at row 33 under a one-cell ceiling
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/classic2"));
 	world.WaitTicks(30);
@@ -49,7 +49,7 @@ TEST_CASE("leaving a level mid-jump does not carry the jump into the next level"
 	world.Interact();
 	world.Wait(2000);
 	CHECK(world.dungeon.LevelNumber() == 2);
-	CHECK(world.Y() == 9.f);
+	CHECK(world.Y() == 33.f);
 	CHECK(world.Walk(2.f));
 }
 
@@ -192,38 +192,84 @@ TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dea
 	CHECK(world.dungeon.LivingMinions() == 0);
 }
 
-TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, the blue gate") {
+TEST_CASE("level 4 from its entrance to its exit: Khepri's room, the key behind her gate, the last gate") {
 	SimWorld world; // the path levelcheck --script found
 	world.player.god = true;
-	REQUIRE(world.Load(5));
+	REQUIRE(world.Load(4));
 	world.WaitTicks(30);
-	REQUIRE(world.Walk(25.45f));
-	REQUIRE(world.Climb(-1.97f));
-	REQUIRE(world.Walk(4.f));
-	world.Interact();
-	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
-	REQUIRE(world.Walk(7.f));
-	world.Wait(3000);
-	CHECK(world.dungeon.LivingMinions() >= 3);
-	REQUIRE(world.Walk(2.95f));
+	REQUIRE(world.WalkTo(21.45f));
+	REQUIRE(world.Climb(-2.97f));
+	REQUIRE(world.WalkTo(20.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(18.45f));
 	world.Wait(500);
+	REQUIRE(world.WalkTo(13.45f));
+	REQUIRE(world.Climb(-1.97f));
+	REQUIRE(world.WalkTo(12.45f));
+	world.Wait(1500);
+	REQUIRE(world.WalkTo(11.45f));
+	REQUIRE(world.WalkTo(15.582f));
+	world.Wait(1400);
+	REQUIRE(world.WalkTo(24.45f));
+	REQUIRE(world.Climb(-2.97f));
+	REQUIRE(world.WalkTo(16.45f));
+	REQUIRE(world.Climb(-2.97f));
+	REQUIRE(world.WalkTo(17.45f));
+	world.Wait(1500);
+	REQUIRE(world.WalkTo(18.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(20.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(22.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(24.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(28.45f));
+	world.Wait(1500);
+	REQUIRE(world.WalkTo(21.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(19.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(12.45f));
+	world.Interact(); // the teleporter to the sealed room
+	world.Wait(700);
+	REQUIRE(world.WalkTo(12.45f));
+	world.Wait(500);
+	CHECK(world.dungeon.BossHealth() > 0);
 	world.dungeon.HurtBoss(world.dungeon.BossHealth());
 	world.Wait(1000);
-	REQUIRE(world.Walk(4.15f));
+	REQUIRE(world.WalkTo(16.582f)); // through the boss gate
 	world.Wait(1400);
-	REQUIRE(world.Walk(2.85f));
-	CHECK(world.dungeon.KeysHeld() == 2); // blue
-	REQUIRE(world.Walk(-1.05f));
+	const int keys = world.dungeon.KeysHeld();
+	REQUIRE(world.WalkTo(19.45f));
+	CHECK(world.dungeon.KeysHeld() != keys); // the key of the last gate
+	REQUIRE(world.WalkTo(18.418f));
 	world.Wait(1400);
-	REQUIRE(world.Walk(-15.95f));
+	REQUIRE(world.WalkTo(3.45f));
+	world.Interact(); // back up through the teleporter
+	world.Wait(700);
+	REQUIRE(world.WalkTo(18.45f));
+	REQUIRE(world.Climb(-2.97f));
+	REQUIRE(world.WalkTo(13.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(11.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(10.45f));
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(8.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(6.418f)); // the last gate
+	world.Wait(1400);
+	REQUIRE(world.WalkTo(3.45f));
 	world.Interact();
 	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
-	REQUIRE(world.Walk(-17.1f));
-	world.Wait(1400);
-	REQUIRE(world.Walk(-9.95f));
-	world.Interact();
-	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
-	CHECK(world.dungeon.LevelNumber() == 6);
+	CHECK(world.dungeon.LevelNumber() == 5);
 }
 
 TEST_CASE("the Anubis boss: his guards step out of the wall, his blow past a level 55 player's armour, the gold key") {

@@ -1,8 +1,8 @@
 # Plan giant-bat-screech, for `bin/game --play tests/play/giant-bat-screech.txt`: tests/levels/giant_bat, god mode. Walk
 # right towards the giant bat (col 6): it stops in the air, shakes and squeals (0.6 s), then the dazed player (1.5 s)
 # walks at half speed, cannot sprint or jump, the view wobbles. Step back out of its cone during the squeal and nothing
-# happens. On a ladder the dazed player lets go and falls: campaign levels with giant bats from `bin/game --level 7`.
-# The Bat of Shezmu (`bin/game --level 10`): a wider, longer screech; his bite on a dazed player heals him by all of it.
+# happens. On a ladder the dazed player lets go and falls: campaign levels with giant bats from `bin/game --level 6`.
+# The Bat of Shezmu (`bin/game --level 9`): a wider, longer screech; his bite on a dazed player heals him by all of it.
 seed 1
 god
 level tests/levels/giant_bat

@@ -3,7 +3,7 @@
 # back, stands on its head and shapes a dung ball (0.8 s), then kicks it at you along the floor. Jump as it kicks: the
 # ball rolls under you, over the spikes, and falls apart. One every 4 s. Its sister levels: dung_ball_pit (the ball
 # falls into the pit), dung_ball_water (it sinks), dung_ball_khepri (Khepri's burning one, bigger and faster, from up
-# to 1.1 cells; it sets you burning). In the campaign: Khepri on level 5, the first giant scarab on level 6.
+# to 1.1 cells; it sets you burning). In the campaign: Khepri on level 4, the first giant scarab on level 5.
 seed 1
 level tests/levels/dung_ball
 xp 20000

@@ -59,9 +59,8 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "dartplate.png"},
 	{"Inscription",
 	 "Hieroglyphs on the back wall. Interact to read them: the translation goes into the journal. Attribute: the text "
-	 "id in content/inscriptions/*.txt, or 100: a name cartouche, the level's name for its name gate. From level 6 on "
-	 "in "
-	 "the campaign. Put a floor under it.",
+	 "id in content/inscriptions/*.txt, or 100: a name cartouche, the level's name for its name gate. On every "
+	 "campaign level. Put a floor under it.",
 	 false,
 	 false,
 	 'i',

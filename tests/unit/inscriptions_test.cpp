@@ -93,12 +93,12 @@ TEST_CASE("a journal saved before the inscriptions loads with none") {
 }
 
 TEST_CASE("interact in front of an inscription: a fixed status line, its text in the journal once") {
-	SimWorld world; // level 6: the offering formula two cells east of the entrance
+	SimWorld world; // level 5: the offering formula two cells east of the entrance
 	world.player.god = true;
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
-	REQUIRE(world.Load(6));
+	REQUIRE(world.Load(5));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
@@ -113,7 +113,7 @@ TEST_CASE("interact in front of an inscription: a fixed status line, its text in
 	CHECK_FALSE(world.Told("Translation written"));
 	REQUIRE(world.journal.Inscriptions().size() == 1);
 	CHECK(world.journal.Inscriptions()[0].id == 1);
-	CHECK(world.journal.Inscriptions()[0].level == 6);
+	CHECK(world.journal.Inscriptions()[0].level == 5);
 	world.Interact();
 	world.WaitTicks(1);
 	CHECK(world.Told("Already seen"));
@@ -128,7 +128,7 @@ TEST_CASE("without the hieroglyph skill: interact copies the glyphs once, learni
 	SimWorld world;
 	world.player.god = true;
 	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
-	REQUIRE(world.Load(6));
+	REQUIRE(world.Load(5));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
@@ -213,14 +213,14 @@ TEST_CASE("a boon: line: the four kinds, a bad one told by line") {
 }
 
 TEST_CASE("a boon: given by the first reading with the skill only, kept on the journal page") {
-	SimWorld world; // level 6: inscription 1 two cells east of the entrance
+	SimWorld world; // level 5: inscription 1 two cells east of the entrance
 	world.player.god = true;
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	world.inscriptions.Add(
 		{.id = 1, .title = "Kings", .text = {"The strength of kings."}, .boon = {BoonKind::Might, 1}}
 	);
-	REQUIRE(world.Load(6));
+	REQUIRE(world.Load(5));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);
@@ -246,7 +246,7 @@ TEST_CASE("a stamina boon on a copy: nothing until the skill is learnt, then onc
 	world.inscriptions.Add(
 		{.id = 1, .title = "Runner", .text = {"He does not tire."}, .boon = {BoonKind::Stamina, 10}}
 	);
-	REQUIRE(world.Load(6));
+	REQUIRE(world.Load(5));
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.5f));
 	world.WaitTicks(5);

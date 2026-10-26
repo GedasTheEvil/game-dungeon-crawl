@@ -12,6 +12,29 @@ Built on [campaign-levelgen](campaign-levelgen.md) (the generator) and [campaign
 to place): both implemented, their play-test comes with this rebuild (user, 2026-10-26), so they don't block it.
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
+## Progress
+
+Batch 1, the tomb entrance: done 2026-10-26, waiting for the user's play-test (`bin/game --level 1`, play to lvl5).
+Next: batch 2, the bat galleries (levels 5-9: today's 5-9 are exactly the old bat galleries, replaced 1:1).
+
+* **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
+  one number earlier (today's lvl6 is lvl5, `CAMPAIGN_LEVELS` 34). Old lvl1-5 are gone; the decor tiers
+  (`DECOR_TIER_FROM`), tests, play scripts and docs moved with the numbers. The drawings in `tools/level/campaign/`
+  keep the old numbers (old helpers).
+* **The ramp:** `ZONE_SIZE` (campaign.h): 120 to 280 open cells in the tomb entrance, 320 to 500 in the bat galleries,
+  540 to 650 in the web halls, the whole grid on. levelgen builds small levels now (under 450 cells: only the halls
+  the size needs, at least four, about 70% of the width); `bin/balance curve` follows the ramp.
+* **The seed table:** `tools/level/rebuild.txt` (seed, difficulty, size, texts, page, title per level),
+  `tools/level/rebuild.py LEVEL` generates one again.
+* **Tomb entrance (1-4):** four levels as the target table (not five: with five the player would come to Khepri at
+  level 8, she is tuned for 6). Difficulty 1, 1, 1, 2; 124, 183, 241 and 300 open cells. Rats, scarabs, bats, plants;
+  keys only (levers come with the bat galleries, `LEVERS_FROM`), a riddle a level; inscriptions 53-58 (two, two, one,
+  one), pages 1-3 on lvl1-3, titles kept from today's levels. Polished by hand: the bronze sword on lvl3 (Khepri is
+  tuned for it), no mimic before lvl3 (page 3 tells of the biting chest), rats on lvl1. `bin/balance today`: the player
+  comes to Khepri at level 7. All four pass the checker and their path scripts in the game.
+* Not yet: forks (from the bat galleries or the web halls on), the level gem still changes every five levels (not by
+  zone), the XP over the whole campaign (the full levels' 45-55 monsters, see Watch).
+
 ## Idea
 
 Every campaign level is generated again ([campaign-levelgen](campaign-levelgen.md)) from the zone table

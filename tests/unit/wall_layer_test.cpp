@@ -23,10 +23,15 @@ std::string asV2(const Tile* cells) {
 	std::getline(in, line); // the zone, v5 on
 	const std::string version = " " + std::to_string(LEVEL_VERSION) + " ";
 	head.replace(head.find(version), version.size(), " 2 ");
+	bool dressing = false; // the decor and decal layers (v4 on): none in v2
 	while (std::getline(in, line)) {
 		const bool list = line.rfind("wall ", 0) == 0 || line.rfind("objects ", 0) == 0 ||
 						  line.rfind("decor ", 0) == 0 || line.rfind("decals ", 0) == 0;
-		if (list)
+		if (list) {
+			dressing = line.rfind("decor ", 0) == 0 || line.rfind("decals ", 0) == 0;
+			continue;
+		}
+		if (dressing)
 			continue;
 		const bool thing = line.find(' ') != std::string::npos;
 		(thing ? things : structure) += line + '\n';

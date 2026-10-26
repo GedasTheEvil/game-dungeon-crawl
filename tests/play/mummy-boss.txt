@@ -3,7 +3,7 @@
 # mummies climb out of their coffins, he climbs out of his when you come near. From afar he shoots a purple bolt (a
 # jump clears it), up close he swings his staff; both lay curses (the HUD icons). For the Anubis boss's guards
 # stepping out of the wall, change the level line to `level tests/levels/anubis_wall` (look east: the east wall), or
-# play `level 35` to the end. In the campaign the priest is on level 34, behind the teleporter at the end.
+# play `level 34` to the end. In the campaign the priest is on level 33, behind the teleporter at the end.
 seed 1
 level tests/levels/mummy_priest
 xp 1500000

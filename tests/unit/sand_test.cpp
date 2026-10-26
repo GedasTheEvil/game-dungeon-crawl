@@ -190,8 +190,8 @@ TEST_CASE("a worm off the sand walks as before; no boss lacks its kin's sand bur
 	}
 }
 
-TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, Sobek at 30, the Anubis boss last") {
-	CHECK(CAMPAIGN_LEVELS == 35);
+TEST_CASE("the campaign: Khepri at 4, the desert at 20-24 with Seth at its end, Sobek at 29, the Anubis boss last") {
+	CHECK(CAMPAIGN_LEVELS == 34);
 	auto bossOf = [](int n) {
 		LevelGrid grid;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
@@ -201,15 +201,16 @@ TEST_CASE("the campaign: 35 levels, the desert at 21-25 with Seth at its end, So
 				boss = grid.cells[cell].attr;
 		return boss;
 	};
-	CHECK(bossOf(20) == MonsterApep);
-	CHECK(bossOf(25) == MonsterSeth);
-	CHECK(bossOf(30) == MonsterSobek);
-	CHECK(bossOf(34) == MonsterMummyPriest);
-	CHECK(bossOf(35) == MonsterAnubisBoss);
-	const Zone* desert = zoneOf(21);
+	CHECK(bossOf(4) == MonsterBossScarab);
+	CHECK(bossOf(19) == MonsterApep);
+	CHECK(bossOf(24) == MonsterSeth);
+	CHECK(bossOf(29) == MonsterSobek);
+	CHECK(bossOf(33) == MonsterMummyPriest);
+	CHECK(bossOf(34) == MonsterAnubisBoss);
+	const Zone* desert = zoneOf(20);
 	REQUIRE(desert != nullptr);
 	CHECK(desert->id == ZoneId::SethsDesert);
-	CHECK(desert->last == 25);
+	CHECK(desert->last == 24);
 	for (int n = desert->first; n <= desert->last; n++) {
 		CAPTURE(n);
 		LevelGrid grid;

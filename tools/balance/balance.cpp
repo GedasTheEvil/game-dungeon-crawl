@@ -54,10 +54,12 @@ const TargetZone& targetZoneOf(int level) {
 }
 
 // The ramp the rebuild aims at (plan denser-levels): difficulty 1 to 10 over the campaign, the open cells growing to
-// the full grid by the third zone. The draft's 100-150 cells for the first levels: the generator finds no zone level
-// that small (about 400 at least, 2026-10-26), so the ramp starts there, and a size that fails is grown until it works.
+// the full grid by the third zone (ZONE_SIZE, campaign.h). A size that fails is grown until it works.
 int difficultyOf(int level) { return 1 + (9 * (level - 1) + TARGET_LEVELS / 2) / (TARGET_LEVELS - 1); }
-int openCellsOf(int level) { return std::min(ZONE_OPEN_CELLS, 400 + 30 * (level - 1)); }
+int openCellsOf(int level) {
+	const TargetZone& z = targetZoneOf(level);
+	return zoneLevelCells(z.id, level - z.first, z.last - z.first + 1);
+}
 
 // The campaign's end, as today's 35 levels (plan longer-campaign): about player level 60. The XP the generated levels
 // give is scaled to land there (balance curve prints the factor).

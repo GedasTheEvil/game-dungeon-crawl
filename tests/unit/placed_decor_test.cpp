@@ -129,8 +129,12 @@ TEST_CASE("a v3 level loads with every cell unset and scatters as before") {
 		for (const Tile& t : v3.cells)
 			unset = unset && !hasPlacedProp(t.dressing) && !hasPlacedDecal(t.dressing);
 		CHECK(unset);
+		bool placed = false; // a generated level's tombs and boss gate (level_gen.h): v3 drops them
+		for (const Tile& t : v4.cells)
+			placed = placed || hasPlacedProp(t.dressing) || hasPlacedDecal(t.dressing);
 		v3.meta = v4.meta; // v3 has no zone line: the same zone, to compare the scatter
-		CHECK_MESSAGE(sameLayout(*scatter(v3, file.c_str(), n), *scatter(v4, file.c_str(), n)), "lvl", n);
+		if (!placed)
+			CHECK_MESSAGE(sameLayout(*scatter(v3, file.c_str(), n), *scatter(v4, file.c_str(), n)), "lvl", n);
 	}
 }
 

@@ -1,6 +1,6 @@
 # Frame rate cap
 
-Status: draft 2026-10-24, from the user (with [model-frame-interpolation](model-frame-interpolation.md):
+Status: draft 2026-10-24, from the user (with [model-frame-interpolation](solved/model-frame-interpolation.md):
 "if it can work for both, that's OK as well"). Needs nothing first.
 
 ## Goal

@@ -137,9 +137,9 @@ TEST_CASE("the level banner: a zone's first level names the hour, the gate and i
 	CHECK(second.subtitle == "Tomb entrance");
 	CHECK(second.guardian.empty());
 
-	const LevelBanner desert = levelBanner(zoneOf(21)->first);
-	CHECK(desert.zone);
-	CHECK(desert.title == "The Eighth Hour: the Gate of Seth");
+	const LevelBanner priests = levelBanner(zoneOf(15)->first);
+	CHECK(priests.zone);
+	CHECK(priests.title == "The Fourth Hour: the Gate of the Priests");
 
 	for (int z = 0; z < ZONE_COUNT; z++) {
 		const Zone& zone = ZONES[z];

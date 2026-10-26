@@ -276,30 +276,30 @@ constexpr Zone ZONES[] = {
 	 18,
 	 {MonsterMummy, MonsterUshabti, MonsterAnubis, MonsterGiantScarab, MonsterMimic},
 	 MonsterMummyPriest},
-	{ZoneId::SethsDesert,
+	{ZoneId::ScorpionNest,
 	 19,
-	 23,
-	 {MonsterWorm, MonsterCamelSpider, MonsterGiantScorpion, MonsterGiantCobra, MonsterGiantBat, MonsterHippo},
-	 MonsterSeth},
+	 22,
+	 {MonsterScorpion, MonsterGiantScorpion, MonsterGiantScarab, MonsterMimic},
+	 MonsterScorpionQueen},
 	{ZoneId::CisternsOfSobek,
-	 24,
-	 28,
+	 23,
+	 27,
 	 {MonsterCrocodile, MonsterGiantCobra, MonsterHippo, MonsterMummy, MonsterAnubis, MonsterGiantBat},
 	 MonsterSobek},
 	{ZoneId::Necropolis,
-	 29,
-	 32,
+	 28,
+	 31,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantScarab, MonsterGiantCobra, MonsterGiantScorpion, MonsterCursedMimic},
 	 MonsterTypeId{}}, // no boss
 	{ZoneId::HallOfJudgment,
-	 33,
-	 33,
+	 32,
+	 32,
 	 {MonsterAnubis, MonsterMummy, MonsterGiantCobra, MonsterCursedMimic},
 	 MonsterAnubisBoss},
 };
 // The last level the rebuild has made (plan denser-levels): its levels follow the target table, their monsters the
 // zone's set (ZONE_FAUNA), a test checks them.
-constexpr int REBUILT_LEVELS = 18;
+constexpr int REBUILT_LEVELS = 22;
 constexpr int ZONE_COUNT = static_cast<int>(sizeof(ZONES) / sizeof(ZONES[0]));
 
 constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;

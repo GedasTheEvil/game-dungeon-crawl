@@ -190,8 +190,7 @@ TEST_CASE("a worm off the sand walks as before; no boss lacks its kin's sand bur
 	}
 }
 
-TEST_CASE("the campaign: Khepri at 4, the desert at 19-23 with Seth at its end, Sobek at 28, the Anubis boss last") {
-	CHECK(CAMPAIGN_LEVELS == 33);
+TEST_CASE("the campaign: each zone's boss on its last level, the Anubis boss last; the sand zones' levels have sand") {
 	auto bossOf = [](int n) {
 		LevelGrid grid;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
@@ -201,32 +200,24 @@ TEST_CASE("the campaign: Khepri at 4, the desert at 19-23 with Seth at its end, 
 				boss = grid.cells[cell].attr;
 		return boss;
 	};
-	CHECK(bossOf(4) == MonsterBossScarab);
-	CHECK(bossOf(9) == MonsterVampireBat);
-	CHECK(bossOf(13) == MonsterMotherOfWebs);
-	CHECK(bossOf(18) == MonsterMummyPriest);
-	CHECK(bossOf(23) == MonsterSeth);
-	CHECK(bossOf(28) == MonsterSobek);
-	CHECK(bossOf(32) == 0); // the necropolis has none
-	CHECK(bossOf(33) == MonsterAnubisBoss);
-	const Zone* desert = zoneOf(19);
-	REQUIRE(desert != nullptr);
-	CHECK(desert->id == ZoneId::SethsDesert);
-	CHECK(desert->last == 23);
-	for (int n = desert->first; n <= desert->last; n++) {
+	for (const Zone& zone : ZONES) {
+		CAPTURE(zoneInfo(zone.id).name);
+		CHECK(bossOf(zone.last) == zone.boss);
+	}
+	CHECK(bossOf(CAMPAIGN_LEVELS) == MonsterAnubisBoss);
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		const TerrainAmount sand = zoneTerrain(zoneOf(n)->id).sand;
+		if (sand == TerrainAmount::None)
+			continue;
 		CAPTURE(n);
 		LevelGrid grid;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
 		const LevelReport r = checkLevel(grid);
 		CHECK(r.valid);
 		CHECK(r.warnings.empty());
-		CHECK(r.sandCells > 50);
-		CHECK(r.quicksandCells > 0);
-		CHECK(r.sandFalls > 0);
-		CHECK(r.monsters[MonsterCrocodile] == 0); // no water until the oasis
-		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) // the worms lie in the sand
-			if (grid.cells[cell].type == MonsterSpawn && grid.cells[cell].attr == MonsterWorm)
-				CHECK(inSand(grid.cells[cell]));
+		CHECK(r.sandCells > 0);
+		if (sand >= TerrainAmount::Some)
+			CHECK(r.quicksandCells > 0);
 	}
 }
 

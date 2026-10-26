@@ -33,3 +33,10 @@
 16 --zone priests_quarter --seed 12 --difficulty 4 --texts 78,4 --lore 6 --title "The Scribes' Hall"
 17 --zone priests_quarter --seed 10 --difficulty 4 --texts 79,7 --lore 11 --title "The Hall of Purification"
 18 --zone priests_quarter --seed 5 --difficulty 4 --boss --texts 75 --page 11 --title "The Tomb of the High Priest"
+
+# Zone 5: Scorpion nest. Its secret rooms' lore: the freed scorpion texts of campaign.txt (12, 13); lore 51, 52 wait for
+# Seth's desert.
+19 --zone scorpion_nest --seed 3 --difficulty 4 --texts 80,83 --lore 13 --title "The Gate of Serqet"
+20 --zone scorpion_nest --seed 3 --difficulty 4 --texts 81,82 --page 12 --lore 12 --title "The Weeping Roof"
+21 --zone scorpion_nest --seed 4 --difficulty 4 --texts 84,85 --title "The Hall of Antidotes"
+22 --zone scorpion_nest --seed 3 --difficulty 5 --boss --texts 86 --page 13 --title "The Nest of the Queen"

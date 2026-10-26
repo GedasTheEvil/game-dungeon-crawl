@@ -17,9 +17,9 @@ Monster-balance already waits for every monster and boss draft, so they are all 
 Batch 1, the tomb entrance: done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
 Batch 2, the bat galleries (levels 5-9): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
 Batch 3, the web halls (levels 10-13): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
-Batch 4, the priests' quarter (levels 14-18): done 2026-10-26, waiting for the user's play-test (`bin/game --level 14`,
-play to lvl19). Next: batch 5, the scorpion nest (19-22; today's 19-23, Seth's desert, give way: one level fewer; Seth
-comes back with zone 8).
+Batch 4, the priests' quarter (levels 14-18): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
+Batch 5, the scorpion nest (levels 19-22): done 2026-10-26. The user (2026-10-26): "continue with all the remaining
+levels" without a play-test between the batches; docs/levels.md and the play scripts catch up once all are in.
 User, 2026-10-26: the bosses are retuned from the sim once all levels are done (not per batch).
 
 * **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
@@ -67,6 +67,13 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   so the necropolis has no boss as the target table says. Today's 14-18 (the old serpent temple, Apep) are gone.
   The path scripts pass in the game with the monsters; lvl32's old path stalls among its monsters as before, its
   former boss room checked on its own (the teleporter's room walked to the exit).
+* **Scorpion nest (19-22):** difficulty 4, 4, 4, 5; scorpions, giant scorpions, giant scarabs, mimics; 4 to 8
+  poison drips and a trap gauntlet a level, antidotes and resistance potions by the generator's rules; the queen
+  between her egg clusters on 22. Secret rooms on 19 and 20 with the freed scorpion texts of today's campaign
+  (Serket, the spell against stings) as lore; lore 51 and 52 (the desert's) wait for zone 8. Pages 12 (the drips)
+  and 13 (the cobras ahead, on the boss level). 37 to 39 monsters a level. Today's 19-23 (Seth's desert) are gone.
+  The path scripts pass without the monsters; with them a giant scorpion's grab holds the god-mode player (as in
+  campaign-levelgen step 3).
 * **XP (open, for the sim pass at the end):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
   lvl5, 15, 18, 21 and 26 at Shezmu (lvl9), 30 at lvl10. The monster-balance sim tuned the bat galleries for about
   level 8 and the web halls for 15 (its curve scales the monster XP by 0.27): the zone 2 monsters (giant rat 2000, giant

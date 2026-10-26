@@ -58,7 +58,7 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.jumping()) { // lands even if killed in the air
-			mon.UpdateJump();
+			mon.UpdateJump(mapX);
 			continue;
 		}
 

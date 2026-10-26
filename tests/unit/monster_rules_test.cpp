@@ -63,7 +63,7 @@ TEST_CASE("the giant rat outruns the player: neither the bow nor walking away ke
 	REQUIRE(world.Load("tests/levels/giant_rat_speed"));
 	REQUIRE(world.Walk(12.f));
 	CHECK(world.Hp() < 50); // it gains a quarter tile a second
-	CHECK(world.player.Alive());
+	CHECK(world.Saw(MonsterGiantRat, CreatureMove::Leap)); // and pounces (plan monster-balance)
 }
 
 TEST_CASE("walkers stop at pits and traps: the rats on both sides never reach the player") {
@@ -139,7 +139,7 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 }
 
 TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the first hit of each is noted, and kept") {
-	SimWorld world; // the giant scarab: club 10 * 0.925 = 9, sword 35 * 0.725 = 25, spear 20 * 1.775 = 36
+	SimWorld world; // the giant scarab: club 10 * 0.925 = 9, sword 35 * 0.725 = 25, spear 26 * 1.775 = 46
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/hitbox_giant_scarab"));
 	world.Give(ItemKind::ShortSword);
@@ -168,7 +168,7 @@ TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the f
 	world.WaitTicks(5);
 	world.Attack();
 	world.WaitTicks(60);
-	CHECK(world.Nearest() == 11);
+	CHECK(world.Nearest() == 1);
 	CHECK(world.JournalTried() == 3);
 	world.SaveAndLoad();
 	CHECK(world.JournalTried() == 3);

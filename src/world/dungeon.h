@@ -175,6 +175,9 @@ class Dungeon {
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
+	// A pouncer (PounceRules) on the player's row, dir the way to them, in its band with the way clear: it leaps into
+	// bite reach of them. False: not now.
+	bool pounce(Monster& mon, int dir);
 	// A walker on the player's row can get to them that way (dir -1 / +1): walking, a walk-jumper leaping gaps.
 	[[nodiscard]] bool walkerReaches(const Monster& mon, int dir) const;
 	// A coward that cannot reach the player (Monster::flees): runs away along its row, out of the bow's range.

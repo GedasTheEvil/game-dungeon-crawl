@@ -58,6 +58,22 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 				   : std::clamp(bite, centre, static_cast<float>(land + 1));
 }
 //======================================================================================
+bool Dungeon::pounce(Monster& mon, int dir) {
+	const std::optional<PounceRules>& rules = mon.Type()->pounce;
+	if (!rules || dir == 0 || !mon.canPounce() || mon.OnRungs() || !mon.sameRow(mapY))
+		return false;
+	const float gap = mon.PlayerGap(mapX);
+	if (gap < rules->minGap || gap > rules->maxGap)
+		return false;
+	const auto to = static_cast<int>(std::floor(mapX));
+	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir >= 0; col += dir)
+		if (walkerStops(mon, col))
+			return false;
+	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + rules->landGap;
+	mon.Pounce(mapX - static_cast<float>(dir) * stop - static_cast<float>(mon.Col()) - 0.5f, dir);
+	return true;
+}
+//======================================================================================
 bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	const auto to = static_cast<int>(std::floor(mapX));
 	const bool leaps = ::leaps(mon.Type()->locomotion);
@@ -260,6 +276,8 @@ void Dungeon::updateWalker(Monster& mon) {
 		fleeFrom(mon, dir);
 		return;
 	}
+	if (pounce(mon, dir))
+		return;
 	auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
 	bool blocked = walkerStops(mon, col);
 	if (blocked && dir != 0 && mon.canJump()) {

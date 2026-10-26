@@ -1,0 +1,5 @@
+; A giant rat (col 10), spikes (col 8), the player (col 6): no pounce over the trap, only the leap over the gap
+; (tests/unit/pounce_test.cpp).
+######################
+#.....S.^.T.........E#
+######################

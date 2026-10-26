@@ -230,7 +230,10 @@ class Monster {
 	[[nodiscard]] bool HeadingFor(int& outCol, int& outRow) const;
 	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
+	[[nodiscard]] bool pouncing() const { return jumping() && leap.pounceDir != 0; } // a leap at the player
 	[[nodiscard]] bool canJump() const;
+	// canJump, it pounces (PounceRules), its cooldown is over, and it is not wading (like the player, no leap there).
+	[[nodiscard]] bool canPounce() const;
 	[[nodiscard]] bool StepDue() { return stepTimer.TimePassed(); }
 	[[nodiscard]] bool AttackDue() { return attackTimer.TimePassed(); }
 
@@ -370,7 +373,9 @@ class Monster {
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
 	// Walk-jumpers: leap to tile-local x toX (see Dungeon::leapTarget), then move along the arc until landed.
 	void Jump(float toX);
-	void UpdateJump();
+	// A Jump at the player that way (dir), then no pounce for the cooldown (PounceRules).
+	void Pounce(float toX, int dir);
+	void UpdateJump(float px); // px: the player's map x, a pounce lands short of them
 	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.
 	[[nodiscard]] float MeleeGap(float px, int dir) const;
 	// In reach of a melee attack: MeleeGap at most reach tiles, not behind the player (MELEE_REACH_BEHIND), on

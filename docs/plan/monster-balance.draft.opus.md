@@ -45,9 +45,14 @@ Order of work:
    1.1; cut from the draft's 4-6 to the view, about 1.8 tiles either side of the player): the leap keeps out of that
    band, from farther (it closes in to the ball's range). HP and damage only if that is not enough. The ball adds to
    the giant scarab's and Khepri's threat (`MonsterKind::threat`, left as it was).
-3. **Spear** damage 20 -> 26: the longest melee reach, still behind the sword (35).
+   Done 2026-10-26: the pounce (`PounceRules`, `Dungeon::pounce`): from 2-3 tiles between the boxes, no wall, pit or
+   trap between, not from half water (the player cannot jump there either), 3 s apart. The rat lands in bite reach,
+   the scarab at 0.8 tiles, in its ball's band, so the windup follows the landing. The landing follows a player who
+   steps towards it (never in them). Khepri (the boss rule): 2-3.5 tiles, 2.5 s apart, lands at 1.05, and walks at
+   3.5 (from 3) to stay faster than the giant scarab. Tests: `tests/unit/pounce_test.cpp`.
+3. **Spear** damage 20 -> 26: the longest melee reach, still behind the sword (35). Done 2026-10-26.
 4. **XP, hand-tuned suspects:** plant 1000 -> 500, mimic 1500 -> 900 (they never move, the player picks the fight);
-   Anubis stays 10000 (600 HP, 55 damage since the buff). No formula. Bosses keep their hand-set XP.
+   Anubis stays 10000 (600 HP, 55 damage since the buff). No formula. Bosses keep their hand-set XP. Done 2026-10-26.
 5. **Strength by a sim pass:** score every monster against the player's level and gear on the levels it appears on
    (tank in melee, kite with a bow, run past), with the player level from the XP sum per level. Propose a table of
    changes to the user before touching `KINDS`.

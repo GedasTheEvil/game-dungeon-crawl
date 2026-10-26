@@ -187,6 +187,17 @@ struct CallRules {
 // ranged clip), then kicks it off. The ball (Dungeon::DungBall) rolls along the floor towards the player at speed,
 // over traps; it falls into a pit, sinks in water, breaks on a wall, after DUNG_BALL_MAX_ROLL tiles or on the player
 // (damage, blunt). A jump clears it.
+// A pounce (plan monster-balance): a leaper leaps at the player on its row from minGap..maxGap tiles away (between the
+// boxes), not from half water, the way clear of walls, pits and traps, and lands landGap tiles short of them, never
+// nearer: in bite reach, or a roller in its ball's band (Dungeon::pounce, Monster::UpdateJump). No new pounce for
+// cooldownMs after one; its leaps over gaps keep their own MONSTER_JUMP_COOLDOWN_MS.
+struct PounceRules {
+	float minGap = 0.f;
+	float maxGap = 0.f;
+	int cooldownMs = 0;
+	float landGap = MONSTER_BITE_REACH / 2.f;
+};
+
 struct RollRules {
 	float minRange = 0.f;
 	float maxRange = 0.f;
@@ -323,6 +334,7 @@ struct MonsterKind {
 	std::optional<RoarRules> spray; // a sand burrower sprays sand round itself as it comes up
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	std::optional<RollRules> roll; // it rolls dung balls at the player (Roll)
+	std::optional<PounceRules> pounce; // a leaper leaps at the player from afar (PounceRules)
 	bool shunsLight = false; // it does not step into a lit cell (Dungeon::Lit, plan camel-spider)
 	// Awake, it puts out the wall torches and oil lamps up to this many cells along its row, for good (not the
 	// braziers); 0: none (plan camel-spider-boss).

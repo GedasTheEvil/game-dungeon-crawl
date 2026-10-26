@@ -193,6 +193,13 @@ constexpr RollRules KHEPRI_ROLL = {
 	.burnMs = 2000
 };
 
+// The pounce (plan monster-balance): the giant rat and the giant scarab leap at the player from 2-3 tiles, so the bow
+// alone does not keep them off. The rat lands in bite reach; the scarab from beyond its dung ball's band into it, the
+// ball's windup the tell. Khepri (the boss rule) from farther, more often.
+constexpr PounceRules GIANT_RAT_POUNCE = {.minGap = 2.f, .maxGap = 3.f, .cooldownMs = 3000};
+constexpr PounceRules GIANT_SCARAB_POUNCE = {.minGap = 2.f, .maxGap = 3.f, .cooldownMs = 3000, .landGap = 0.8f};
+constexpr PounceRules KHEPRI_POUNCE = {.minGap = 2.f, .maxGap = 3.5f, .cooldownMs = 2500, .landGap = 1.05f};
+
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {
 	for (int& rate : kin)
@@ -258,7 +265,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .maxHealth = 30,
 	 .damage = 5,
 	 .attackMs = 800,
-	 .xp = 1000,
+	 .xp = 500,
 	 .attackMix = PLANT_MIX,
 	 .resist = PLANT_RESIST,
 	 .locomotion = Locomotion::Stationary,
@@ -361,6 +368,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
 	 .call = CallRules{RAT_CALL_RADIUS, RAT_CALL_BELOW_PCT}, // plan giant-rat-pack-call
 	 .answersCall = true,
+	 .pounce = GIANT_RAT_POUNCE,
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
@@ -423,7 +431,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .maxHealth = 40,
 	 .damage = 10,
 	 .attackMs = 800,
-	 .xp = 1500,
+	 .xp = 900,
 	 .attackMix = MIMIC_MIX,
 	 .resist = MIMIC_RESIST,
 	 .locomotion = Locomotion::Ambush,
@@ -432,13 +440,13 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'k',
 	 .name = "Giant scarab",
 	 .label = "giant scarab",
-	 .description = "Giant scarab, leaps over pits and traps, rolls dung balls",
+	 .description = "Giant scarab, leaps over pits and traps and at the player, rolls dung balls",
 	 .threat = 4.f, // jumps like a giant rat, hits harder
 	 .model = "monsters/scarab",
 	 .texture = "monsters/scarab_giant",
 	 .scale = 24,
 	 .blood = {0.4f, 0.05f, 0.55f},
-	 .speed = 2,
+	 .speed = 3,
 	 .maxHealth = 90,
 	 .damage = 12,
 	 .attackMs = 1000,
@@ -448,6 +456,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
 	 .roll = GIANT_SCARAB_ROLL,
+	 .pounce = GIANT_SCARAB_POUNCE,
 	 .generated = {5, 10, 3}},
 	// Bigger, faster and harder than the giant scarab. A full clear of levels 1-4 makes the player level 8 (134 HP):
 	// 3-4 bites kill them.
@@ -462,7 +471,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/scarab_boss",
 	 .scale = 34,
 	 .blood = {0.1f, 0.2f, 0.75f},
-	 .speed = 3,
+	 .speed = 3.5f,
 	 .maxHealth = 320,
 	 .damage = 40,
 	 .attackMs = 900,
@@ -474,6 +483,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses =
 		 {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6}, CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
 	 .roll = KHEPRI_ROLL,
+	 .pounce = KHEPRI_POUNCE,
 	 .kin = MonsterScarab,
 	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
 	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.

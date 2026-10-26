@@ -1,0 +1,5 @@
+; A giant rat (col 10) four cells east of the player (col 5) on one long floor, walls at both ends
+; (tests/unit/pounce_test.cpp).
+######################
+#...S....T..........E#
+######################

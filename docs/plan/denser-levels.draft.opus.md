@@ -6,14 +6,14 @@ levels in zones). Slug kept from the first version.
 
 Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
 [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
-[campaign-levelgen](campaign-levelgen.draft.opus.md) (the generator), [zone-looks](zone-looks.md),
+[campaign-levelgen](campaign-levelgen.md) (the generator), [zone-looks](zone-looks.md),
 [campaign-texts](campaign-texts.md) (the texts to place), and the new traps, so the rebuild places them:
 [fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.md).
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
 ## Idea
 
-Every campaign level is generated again ([campaign-levelgen](campaign-levelgen.draft.opus.md)) from the zone table
+Every campaign level is generated again ([campaign-levelgen](campaign-levelgen.md)) from the zone table
 ([campaign-zones](solved/campaign-zones.md)): 40-60 levels in zones, each with its bosses, monsters, looks and
 mechanics, using the whole 40 x 47 grid. Today's 35 levels are the reference for what a level carries, not a layout
 to keep.

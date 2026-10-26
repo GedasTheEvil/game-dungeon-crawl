@@ -112,7 +112,7 @@ Today's 35 levels, as the code table maps them:
 | 12 Hall of Judgment (the Gate of Judgment) | 35 | granite | Anubis guards, mummies, giant cobras, cursed mimics | riddles | Anubis (lvl35) |
 
 The target campaign (decided 2026-10-21): twelve zones, about 54 levels, four acts. The rebuild
-([denser-levels](plan/denser-levels.draft.opus.md), [campaign-levelgen](plan/campaign-levelgen.draft.opus.md)) builds
+([denser-levels](plan/denser-levels.draft.opus.md), [campaign-levelgen](plan/campaign-levelgen.md)) builds
 it zone by zone and then switches the code table to it. Level ranges are about, not exact.
 
 | # | Zone | Levels | Monsters | New mechanic | Boss |
@@ -313,8 +313,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone cisterns_of_sobek --boss /tmp/zone  
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 8 of 9: the shape, the terrain, the
-monsters, the traps, the gates, the boss levels, the supplies and the carried content) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.md), all 9 steps: the shape, the terrain, the monsters,
+the traps, the gates, the boss levels, the supplies, the carried content and the decor) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`. With `--boss` (scenarios:
 `gen:SEED:DIFFICULTY:ZONE:boss`) it builds the zone's boss level (step 6, see Boss levels below).
 
@@ -402,6 +402,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    Both drops are one-way: no way leads from one route to the other, and the checker's softlock rule proves each
    reaches the exit. On the last fork the warning (`FORK_TEXT`) stands between the drops; a page given lies on the
    way to the fork, on the floor. The player reaches one drop first and jumps it to take the other.
+13. **Decor** (step 9). The game scatters the rest by the zone's look (`ZONE_LOOKS`, `src/world/zone_look.h`); the
+   generator places only what tells something in the decor layer: a sarcophagus (one), canopic jars, pottery and
+   scrolls on the free floor of the treasure tombs, secret and hidden rooms and the fork's tomb; before the boss
+   gate the zone's guardian statue (`ZONE_GUARDIAN_PROP`: a cat in the web halls, a jackal in the priests' quarter,
+   Seth's desert and the Duat, Osiris in between, none in the caves) and a winged sun on the wall beside it; webs
+   under the ceiling of the web halls' dark halls. The braziers, the dark halls' torches and the figures round the
+   mummies and ushabti came with steps 2 and 3.
 
 Still missing (the next steps of the plan): the zone's traps, the riddle and name gates, the boss level, the supplies
 by the rules above, the carried content and the decor.

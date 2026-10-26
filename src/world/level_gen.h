@@ -95,6 +95,7 @@ struct GenShape {
 	int inscriptions = 0; // on the halls (step 8), the secret room's and the cartouche aside
 	int pages = 0;
 	int forks = 0;
+	int placedDecor = 0; // props and decals of the decor layers (step 9)
 };
 
 struct GenResult {

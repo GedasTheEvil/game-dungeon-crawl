@@ -53,7 +53,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
 | `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
-| `campaign_levelgen` | one zone level per zone loads and looks like its zone ([plan](plan/campaign-levelgen.draft.opus.md)) | the zone's look is drawn |
+| `campaign_levelgen` | one zone level per zone loads and looks like its zone ([plan](plan/campaign-levelgen.md)) | the zone's look is drawn |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a

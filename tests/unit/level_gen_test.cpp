@@ -374,6 +374,34 @@ TEST_CASE("a route fork: two one-way routes to the exit, the warning between the
 		}
 }
 
+TEST_CASE("a zone level's decor layer: tombs and sealed rooms dressed, the boss gate's guardian, webs in the dark") {
+	int tombProps = 0, guardians = 0, suns = 0, webs = 0;
+	for (int zone : {static_cast<int>(ZoneId::WebHalls), static_cast<int>(ZoneId::HallOfJudgment)})
+		for (uint32_t seed = 1; seed <= 2; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			GenOptions options = zoneOptions(seed, 6, zone);
+			options.boss = true;
+			const GenResult gen = generateLevel(options);
+			REQUIRE(gen.ok);
+			CHECK(gen.report.warnings.empty()); // every placed prop and decal fits its cell
+			int placed = 0;
+			for (const Tile& t : gen.grid.cells) {
+				const int prop = t.dressing.prop;
+				placed += (prop >= 0 ? 1 : 0) + (t.dressing.decal >= 0 ? 1 : 0);
+				tombProps += prop == DECOR_SARCOPHAGUS || prop == DECOR_CANOPIC || prop == DECOR_SCROLLS ? 1 : 0;
+				guardians += t.dressing.prop == DECOR_CAT || t.dressing.prop == DECOR_JACKAL ? 1 : 0;
+				suns += t.dressing.decal == DECAL_WINGED_SUN ? 1 : 0;
+				webs += prop == DECOR_WEB ? 1 : 0;
+			}
+			CHECK(placed >= gen.shape.placedDecor); // the braziers, coffins and figures besides
+		}
+	CHECK(tombProps > 0);
+	CHECK(guardians == 4); // one before each boss gate
+	CHECK(suns == 4);
+	CHECK(webs > 0); // the web halls' dark halls
+}
+
 TEST_CASE("a zone's boss level: the boss in a sealed room, its key for the last gate behind the boss gate") {
 	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
 		const int boss = zoneBoss(static_cast<ZoneId>(zone));

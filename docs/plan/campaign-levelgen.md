@@ -1,8 +1,9 @@
 # Campaign levelgen: generate campaign-quality levels per zone
 
-Status: draft 2026-10-21, from the user ("I expect levels to be re-generated completely"). Needs first:
-[campaign-zones](solved/campaign-zones.md) (the zone table the generator reads). Large: split it into steps (see
-below), one task each.
+Status: implemented 2026-10-25 (all nine steps), waiting for the user's play-test:
+`bin/game --level gen:1:6:hall_of_judgment:boss` (any zone's slug, with or without `:boss`). Draft 2026-10-21, from
+the user ("I expect levels to be re-generated completely"). Needed first:
+[campaign-zones](solved/campaign-zones.md) (the zone table the generator reads). Done in steps (see below).
 
 ## Idea
 
@@ -94,7 +95,14 @@ with no warnings.
   the game: the path script of a necropolis fork level passes by the right route, and of a copy with the right drop
   filled by the left one. Not done: the early forks' own hint texts (none written yet), and the fork's
   "left / right gate" is two drops, the first one met walked into unless jumped.
-* Next: step 9, decor.
+* **Step 9, decor: done (2026-10-25).** The decor layer where it tells something: tombs and sealed rooms dressed
+  (a sarcophagus, canopic jars, pottery, scrolls), the zone's guardian statue (`ZONE_GUARDIAN_PROP`) and a winged
+  sun at the boss gate, webs in the web halls' dark halls; everything else stays the game's scatter by the zone's
+  look. Checked in the game (screenshots of a boss gate and a tomb).
+* All nine steps are in. Play-test: `bin/game --level gen:1:6:hall_of_judgment:boss` (or any zone's slug, with or
+  without `:boss`); `tests/scenarios/campaign_levelgen.txt` shows one level per zone. Tuning left for the rebuild:
+  the trap counts, the rare key chains, first and middle levels of a zone built alike, and the seed table per
+  campaign level (its pages, texts, title, fork and Stargate level).
 
 ## What it must build
 

@@ -7,7 +7,7 @@ and the zone themes the texts follow).
 
 The texts were written for 35 levels. The rebuilt campaign ([denser-levels](denser-levels.draft.opus.md)) has 40-60
 levels, inscriptions from level 1 on, and several forks. Write the texts first, so the generator
-([campaign-levelgen](campaign-levelgen.draft.opus.md)) and the rebuild only place them.
+([campaign-levelgen](campaign-levelgen.md)) and the rebuild only place them.
 
 ## What changes
 

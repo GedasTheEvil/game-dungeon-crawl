@@ -10,10 +10,6 @@
 #include <string>
 
 namespace {
-constexpr int DECOR_CAT = 10; // DECOR_NAMES
-constexpr int DECOR_JACKAL = 11;
-constexpr int DECOR_OSIRIS = 12;
-
 int idx(int col, int row) { return row * LEVEL_WIDTH + col; }
 
 Dressing& dressing(LevelGrid& grid, int col, int row) { return grid.cells[idx(col, row)].dressing; }

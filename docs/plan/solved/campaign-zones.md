@@ -10,7 +10,7 @@ story, look, monster set and main mechanic, and most zones end with a boss. Toda
 (`DESERT_FIRST`..`DESERT_LAST`, `src/world/campaign.h`); everything else depends on the level number.
 
 This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.draft.opus.md)
-balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.draft.opus.md) builds its
+balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.md) builds its
 levels, [zone-looks](../zone-looks.md) gives each zone its look,
 [campaign-texts](../campaign-texts.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
 rebuilds the campaign zone by zone.

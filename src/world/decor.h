@@ -11,6 +11,13 @@ constexpr int DECOR_COUNT = 25;
 constexpr int DECOR_SCATTERED =
 	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
+constexpr int DECOR_POTTERY = 1;
+constexpr int DECOR_CANOPIC = 2;
+constexpr int DECOR_SCROLLS = 8;
+constexpr int DECOR_CAT = 10;
+constexpr int DECOR_JACKAL = 11;
+constexpr int DECOR_OSIRIS = 12;
+constexpr int DECOR_SARCOPHAGUS = 17;
 constexpr int DECOR_BRAZIER = 6;
 constexpr int DECOR_SKELETON = 5; // also under every page of the earlier expedition (plan expedition-notes)
 constexpr int DECOR_LAMP = 7;
@@ -258,6 +265,7 @@ constexpr AtlasRect atlasCell(int index, int grid) {
 
 constexpr int DECAL_ATLAS_GRID = 4;
 constexpr int DECAL_CARTOUCHE = 9; // an inscription without its own glyphs shows it
+constexpr int DECAL_WINGED_SUN = 11;
 constexpr int DECAL_COUNT = 16;
 constexpr DecalDef DECAL_DEFS[DECAL_COUNT] = {
 	{DecalAnchor::Free, 0.6f, "crack"},

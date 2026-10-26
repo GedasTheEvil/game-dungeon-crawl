@@ -5,6 +5,7 @@
 #include "items.h"
 #include "monster_kinds.h"
 #include "rng.h"
+#include "tile_defs.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -59,6 +60,22 @@ constexpr int GAUNTLET_CLEAR = 2; // free cells between a gauntlet and the ends 
 constexpr int PAIR_MIN_DIFFICULTY = 6; // two rhythm traps side by side, in step
 constexpr float PAIR_CHANCE = 0.3f;
 constexpr int FAST_TRAP_MIN_DIFFICULTY = 6;
+
+// The statue before a zone's boss gate (step 9), by ZoneId; -1 for none: the cave zones have none.
+constexpr int ZONE_GUARDIAN_PROP[ZONE_ID_COUNT] = {
+	-1, // tomb entrance
+	-1, // bat galleries
+	DECOR_CAT, // web halls
+	DECOR_JACKAL, // priests' quarter
+	DECOR_OSIRIS, // scorpion nest
+	DECOR_OSIRIS, // serpent temple
+	DECOR_OSIRIS, // cisterns of Sobek
+	DECOR_JACKAL, // Seth's desert
+	DECOR_OSIRIS, // land of Sokar
+	DECOR_OSIRIS, // lake of fire
+	DECOR_JACKAL, // necropolis
+	DECOR_JACKAL, // hall of judgment
+};
 
 // A boss level's room (plan campaign-levelgen, step 6): sealed under the halls, a row of rock under it (and the
 // level's outer wall), BOSS_ROOM_LENGTH cells long.
@@ -177,6 +194,7 @@ class LevelBuilder {
 			placeSupplies();
 			dressFigures();
 			addLight();
+			dressRooms();
 		}
 		out = g;
 		return true;
@@ -215,6 +233,10 @@ class LevelBuilder {
 	// side by side under the fork hall (forkSeg - 1), both dropping into the join hall (forkSeg + 1). 0: none.
 	int forkSeg = 0;
 	Segment forkRight;
+	std::vector<Segment> tombRooms; // dressed as tombs at the end (step 9): secret and hidden rooms, tombs, the fork's
+	int bossGate = -1; // the boss gate's column, the room's floor row and the way from the teleporter to it
+	int bossGateRow = 0;
+	int bossStep = 0;
 
 	static int index(int col, int row) { return row * LEVEL_WIDTH + col; }
 	static bool interior(int col, int row) {
@@ -607,7 +629,10 @@ class LevelBuilder {
 				for (int y = room.row + 1; y < room.row + room.height; y++)
 					fillRock(at(k), y);
 		put(at(0), floorRow, Tile{Door, GateTeleport, pair});
-		put(at(n - (boss == MonsterApep ? BOSS_LEDGE : 4)), floorRow, Tile{Gate, BOSS_LOCK, 0});
+		bossGate = at(n - (boss == MonsterApep ? BOSS_LEDGE : 4));
+		bossGateRow = floorRow;
+		bossStep = step;
+		put(bossGate, floorRow, Tile{Gate, BOSS_LOCK, 0});
 		put(at(n - 2), floorRow, Tile{Key, bossColour, 0});
 		put(at(n - 1), floorRow, rareChest());
 		for (int k = 0; k < n; k++)
@@ -658,7 +683,7 @@ class LevelBuilder {
 						g.set(x, y, cell);
 					}
 				}
-			for (int k : {-5, 4}) {
+			for (int k : {-5, 2}) { // clear of the boss gate's guardian
 				Tile cell = g.at(mid + k * step, room.row);
 				cell.dressing.prop = DECOR_BRAZIER;
 				g.set(mid + k * step, room.row, cell);
@@ -749,6 +774,7 @@ class LevelBuilder {
 					break;
 				}
 			}
+		tombRooms.push_back(right);
 		const int end = right.x1;
 		put(end, right.row, rng.chance(0.5f) ? chestOf(randomWeapon(true)) : rareChest());
 		busy[index(end, right.row)] = 1;
@@ -761,6 +787,63 @@ class LevelBuilder {
 		const Segment& left = route[static_cast<size_t>(forkSeg)];
 		for (int n = 0, tries = 0; n < 2 && tries < 30; tries++)
 			n += placeMonster(rng.range(left.x0 + 1, left.x1 - 1), left.row, left.dark) ? 1 : 0;
+	}
+
+	// The decor layer where it tells something (step 9); the rest the game scatters by the zone's look (zone_look.h).
+	// The tombs and sealed rooms: a sarcophagus, canopic jars, pottery and scrolls on their free floor. The boss
+	// room: the zone's guardian statue before the boss gate, a winged sun on the wall beside it. The web halls'
+	// dark halls: webs under the ceiling.
+	void dressRooms() {
+		constexpr int TOMB_PROPS[] = {DECOR_SARCOPHAGUS, DECOR_CANOPIC, DECOR_POTTERY, DECOR_SCROLLS};
+		for (const Segment& room : tombRooms) {
+			bool sarcophagus = false;
+			for (int x = room.x0; x <= room.x1; x++) {
+				if (!figureCell(x, room.row) || busy[index(x, room.row)] != 0 || !rng.chance(0.6f))
+					continue;
+				int prop = TOMB_PROPS[rng.range(sarcophagus ? 1 : 0, 3)];
+				sarcophagus = sarcophagus || prop == DECOR_SARCOPHAGUS;
+				setProp(x, room.row, prop);
+			}
+		}
+		const int guardian = isZone(zoneId) ? ZONE_GUARDIAN_PROP[zoneId] : -1;
+		if (bossGate >= 0 && guardian >= 0 && figureCell(bossGate - bossStep, bossGateRow))
+			setProp(bossGate - bossStep, bossGateRow, guardian);
+		if (bossGate >= 0) {
+			const int x = bossGate - 2 * bossStep;
+			Tile cell = g.at(x, bossGateRow);
+			if (!isWall(cell) && cell.dressing.torch != TorchPlacing::Torch && cell.dressing.decal < 0 &&
+				tileDef(cell.type).decals && tileDef(cell.fixture.type).decals) {
+				cell.dressing.decal = DECAL_WINGED_SUN;
+				g.set(x, bossGateRow, cell);
+				shape.placedDecor++;
+			}
+		}
+		if (zoneId == static_cast<int>(ZoneId::WebHalls))
+			for (const Segment& hall : route)
+				for (int n = hall.dark ? 3 : 0, tries = 0; n > 0 && tries < 20; tries++) {
+					const int x = rng.range(hall.x0, hall.x1);
+					const int y = hall.row + hall.height - 1;
+					const Tile t = g.at(x, y);
+					if (isWall(g.at(x, y + 1)) && freeCell(x, y) && !hasPlacedProp(t.dressing) && !isWall(t) &&
+						t.structure == Structure::Empty && !scatterOwns(x, y)) {
+						setProp(x, y, DECOR_WEB);
+						n--;
+					}
+				}
+	}
+
+	// A cell the scatter draws its own figure in (a page's skeleton, a mummy's coffin, an ushabti): no placed prop.
+	[[nodiscard]] bool scatterOwns(int col, int row) const {
+		const Tile t = g.at(col, row);
+		return t.type == Page || t.type == MonsterSpawn;
+	}
+
+	void setProp(int col, int row, int prop) {
+		Tile cell = g.at(col, row);
+		cell.dressing.prop = prop;
+		cell.dressing.propMirror = rng.chance(0.5f);
+		g.set(col, row, cell);
+		shape.placedDecor++;
 	}
 
 	[[nodiscard]] bool hasBoon(int id) const {
@@ -877,6 +960,7 @@ class LevelBuilder {
 		Segment room;
 		if ((named && cartoucheCol < 0) || !sealedRoom(rng.range(5, 7), room))
 			return;
+		tombRooms.push_back(room);
 		const int pair = ++teleportPairs;
 		const bool west = rng.chance(0.5f);
 		put(wing.end, wing.itemRow, Tile{Door, GateTeleport, pair + (named ? NAME_SEAL : 0)});
@@ -920,6 +1004,11 @@ class LevelBuilder {
 			return;
 		g.set(gate, hall.row, Tile{Gate, colour, 0});
 		markBusy(hall, gate);
+		Segment tomb = hall;
+		tomb.height = 1;
+		tomb.x0 = std::min(gate + dir, wing.fillEnd);
+		tomb.x1 = std::max(gate + dir, wing.fillEnd);
+		tombRooms.push_back(tomb);
 		put(wing.end, wing.itemRow, rareChest());
 		wing.taken = true;
 		shape.treasureTombs++;

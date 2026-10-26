@@ -1,7 +1,7 @@
 # Zone looks: each zone looks its own
 
 Status: draft 2026-10-21, from the user (the campaign has distinct zones). Needs first:
-[campaign-zones](solved/campaign-zones.md) (the zones and their stone in the zone table).
+[campaign-zones](campaign-zones.md) (the zones and their stone in the zone table).
 
 ## Idea
 
@@ -13,14 +13,14 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
   existing ones (`tools/textures/`).
 * **Decor set:** the props and decals the generator and the editor pick per zone (webs and egg sacs for the spider
   zone, coffins and canopic jars in the necropolis, reeds and lotus in the cisterns). New props follow
-  [modeling.md](../modeling.md).
+  [modeling.md](../../modeling.md).
 * **Light:** ambient colour and strength, torch density, fog per zone (dark halls for the spider zone, daylight
   shafts in the desert).
 * **Sound:** an ambient loop per zone (wind in the desert, drips in the cisterns). Music per zone is optional:
   today there is one soundtrack (`media/sounds/music/soundtrack.ogg`, not tracked by git).
 * **Zone banner:** on entering a new zone, the hour and its gate, and its guardian on a boss zone
-  ([campaign-zones](solved/campaign-zones.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
-  level start a smaller banner with the level's title ([campaign-texts](campaign-texts.md)).
+  ([campaign-zones](campaign-zones.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
+  level start a smaller banner with the level's title ([campaign-texts](../campaign-texts.md)).
 
 ## Tests
 
@@ -37,10 +37,10 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
 * Sound: `tools/audio/zone_ambience.py`, 10 s loops in `media/sounds/ambience/`, on a reserved channel at the effects
   volume (`Ambience`). No music per zone (optional).
 * Banner: `ZoneBanner` with `levelBanner`: the hour and gate, the zone, the guardian on a zone's first level; "Level N"
-  and the zone on the others, until [campaign-texts](campaign-texts.md) gives the levels titles.
+  and the zone on the others, until [campaign-texts](../campaign-texts.md) gives the levels titles.
 * Not in today's campaign, so not seen in the game yet: the web halls' darkness, the Lake of Fire's basalt and red
   light, the priests' quarter, Sokar. No new props (egg sacs): the web halls lean on the web and skeleton.
-* Tests: `tests/unit/zone_looks_test.cpp`, `tests/scenarios/zone_looks.txt` (a hall per zone, the banners).
+* Tests: `tests/unit/zone_looks_test.cpp`, `tests/scenarios/solved/zone_looks.txt` (a hall per zone, the banners).
 * The zone is the level's own (user, 2026-10-21): level format v5 has a `zone SLUG` line (`LevelMeta`, `ZONE_INFO`
   in `campaign.h` by `ZoneId`: slug, name, gate, stone, mechanic), the editor sets it (zone button, `Z`), save games
   keep it. The game dresses, lights and sounds a level by its file's zone, not its number; a unit test checks each

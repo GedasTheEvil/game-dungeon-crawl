@@ -1,7 +1,7 @@
 # Poison drip trap
 
-Status: implemented 2026-10-25, waiting for the user's play-test: `bin/game --play tests/play/poison-drip-trap.txt`. Draft 2026-10-14. Needs first: [rhythm-traps](solved/rhythm-traps.md) (the timed cycle, its telegraph
-and level check). From the user. Sibling of [fire-jet-trap](solved/fire-jet-trap.md).
+Status: implemented 2026-10-25, waiting for the user's play-test: `bin/game --play tests/play/poison-drip-trap.txt`. Draft 2026-10-14. Needs first: [rhythm-traps](rhythm-traps.md) (the timed cycle, its telegraph
+and level check). From the user. Sibling of [fire-jet-trap](fire-jet-trap.md).
 
 ## Idea
 
@@ -14,12 +14,12 @@ the puddle, not a parallel system. The rhythm-trap spikes are already poisoned; 
 cell, from above, on a floor that is never safe.
 
 * **Puddle (floor trap, always on):** stepping into it poisons (weak tier,
-  [stronger-poisons](solved/stronger-poisons.md)), applied once per entry; re-entry refreshes as `Player::Poison`
+  [stronger-poisons](stronger-poisons.md)), applied once per entry; re-entry refreshes as `Player::Poison`
   does. No damage. Present from level load, never fades.
 * **Drop (timing trap):** on the cycle (`period`, `phase`), the lump falls onto the puddle cell. Whoever is there
   takes a small hit plus medium poison (stronger than the puddle's weak). Resistance rolls as for any poisoning. The trap
   ward (`trapCutPercent`) cuts the damage only, never the poison (as
-  [death-spikes-poison](solved/death-spikes-poison.md)).
+  [death-spikes-poison](death-spikes-poison.md)).
 * **Telegraph:** the lump grows and wobbles, a wet creak, a last drop or two just before it falls.
 * **Bypass:** jumping or levitation clears the puddle, like any floor trap, but not the drop: a jump timed into
   the falling lump is still a hit. So the safe pass is a jump between drops. Walking through always costs the weak
@@ -52,7 +52,7 @@ over each puddle between drops.
 * Puddle: one cell (user, 2026-10-14).
 * Drop: a small hit plus medium poison, as above, not poison only (user, 2026-10-22). The size is tuned with the
   other traps.
-* Campaign placement: not here, in [denser-levels](denser-levels.draft.opus.md) if this lands first; if
+* Campaign placement: not here, in [denser-levels](../denser-levels.draft.opus.md) if this lands first; if
   denser-levels is already done, place a few drip runs in existing levels here.
 
 ## Tests
@@ -94,7 +94,7 @@ Play-test: `bin/game --play tests/play/poison-drip-trap.txt` (tests/levels/poiso
   puddle (but a key or a page), drips without an antidote in reach.
 * **Tests:** `tests/unit/poison_drip_test.cpp` (checker, puddle on entry at any time and once per entry, the drop on
   the beat only, a jump clears the puddle not the drop, the trap ward, monsters, no XP);
-  `tests/scenarios/poison_drips.txt` (screenshots: the cycle, the player poisoned in it).
+  `tests/scenarios/solved/poison_drips.txt` (screenshots: the cycle, the player poisoned in it).
 
 Not done:
 

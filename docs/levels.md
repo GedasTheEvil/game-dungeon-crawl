@@ -89,7 +89,7 @@ campaign level without one): "The Hall of Drifts" is a level of "The Eighth Hour
 the map and the save slots show it. On entering a zone the journal gets the hour's field note
 (`FieldNote::HourFirst` to `HourTwelfth`, by `ZoneId`), in the archaeologist's voice.
 
-Each zone looks and sounds its own ([zone-looks](plan/zone-looks.md)): its stone dresses the walls,
+Each zone looks and sounds its own ([zone-looks](plan/solved/zone-looks.md)): its stone dresses the walls,
 floors and ceilings (`scatterSurfaces`; plaster is limestone painted more often, wet stone, basalt and granite have
 their own textures and few rough rows), and `ZONE_LOOKS` (`src/world/zone_look.h`, by `ZoneId`, all twelve) sets its
 decor set (a factor per prop and decal on the tier weights), the ambient light, a haze far from the camera, the

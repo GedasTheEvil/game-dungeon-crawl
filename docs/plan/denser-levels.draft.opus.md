@@ -6,9 +6,10 @@ levels in zones). Slug kept from the first version.
 
 Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
 [monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
-[campaign-levelgen](campaign-levelgen.md) (the generator), [zone-looks](zone-looks.md),
-[campaign-texts](campaign-texts.md) (the texts to place), and the new traps, so the rebuild places them:
-[fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.md).
+[zone-looks](solved/zone-looks.md), and the new traps, so the rebuild places them:
+[fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](solved/poison-drip-trap.md).
+Built on [campaign-levelgen](campaign-levelgen.md) (the generator) and [campaign-texts](campaign-texts.md) (the texts
+to place): both implemented, their play-test comes with this rebuild (user, 2026-10-26), so they don't block it.
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
 
 ## Idea
@@ -35,7 +36,7 @@ to keep.
   ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
   Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
 * **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,
-  [fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.md).
+  [fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](solved/poison-drip-trap.md).
 * **Batches by zone:** one zone (or two short ones) per task, play-tested in between. The level files are written
   by the generator and then polished by hand or in the editor; they stay the source of truth.
 * **Switching over:** the new levels replace `content/levels/lvl*` all at once, or zone by zone from the start, so

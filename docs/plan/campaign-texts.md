@@ -1,6 +1,8 @@
 # Campaign texts: enough texts for 40-60 levels
 
-Status: draft 2026-10-21, from the user. Needs first: [campaign-zones](solved/campaign-zones.md) (the level count
+Status: implemented (commit 5fb4b84), waiting for the user's play-test, which comes with
+[denser-levels](denser-levels.draft.opus.md) (user, 2026-10-26: testable only on the rebuilt campaign). Draft
+2026-10-21, from the user. Needed first: [campaign-zones](solved/campaign-zones.md) (the level count
 and the zone themes the texts follow).
 
 ## Idea
@@ -30,7 +32,7 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
 * **Level titles** (from the duat-hours draft): each level gets a title in its zone's hour (e.g. "The Fourth Hour:
   the Gate of Sand" for the zone, "The Hall of Drifts" for a level). Titles live in the level files (a new header
   field, `docs/levels.md`), so `levelcheck` warns about a campaign level without one. Shown in the level-start
-  banner ([zone-looks](zone-looks.md)), the map and the save slots. Write them here, the rebuild keeps
+  banner ([zone-looks](solved/zone-looks.md)), the map and the save slots. Write them here, the rebuild keeps
   them.
 * **Hour notes:** a journal field note on entering each zone (hour), in the archaeologist's voice ("The Seventh Hour.
   Apep waits here, says the wall. I wish the wall were wrong.").

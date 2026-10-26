@@ -34,7 +34,7 @@ So the boss is not a big hippo: it is a god in hippo shape, red, raging, with a 
   default 1 / 2 / every 7 s / 4 per fight (a hippo is heavy).
 * Numbers (starting point, balance in [monster-balance](../monster-balance.draft.opus.md)): HP above Sobek's 1600
   (~2000), damage ~80 every 1500 ms, XP ~30000, `Courage::Reckless`, `trapDamagePct` 10, weight 6.
-* Fire: the hippo resists it (wet hide); with [fire-in-water](../fire-in-water.md) in, fire barely
+* Fire: the hippo resists it (wet hide); with [fire-in-water](fire-in-water.md) in, fire barely
   touches him in the water anyway.
 * Journal note, in the hippo's tone: "Seth in the shape of the red beast. Horus took him with a harpoon. I have a
   spear; it will have to do."

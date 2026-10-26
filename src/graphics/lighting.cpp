@@ -15,14 +15,23 @@ constexpr int MAX_LIGHTS = 16;
 
 const char* const VERTEX_SRC = R"(
 #version 120
+uniform float uBlend; // toward the next key frame of a model (plan model-frame-interpolation); 0: gl_Vertex as is
+attribute vec3 aNextPos;
+attribute vec3 aNextNormal;
 varying vec3 vPos;
 varying vec3 vNormal;
 void main() {
-	vPos = vec3(gl_ModelViewMatrix * gl_Vertex);
-	vNormal = gl_NormalMatrix * gl_Normal;
+	vec4 pos = gl_Vertex;
+	vec3 normal = gl_Normal;
+	if (uBlend > 0.0) {
+		pos = vec4(mix(gl_Vertex.xyz, aNextPos, uBlend), 1.0);
+		normal = normalize(mix(gl_Normal, aNextNormal, uBlend));
+	}
+	vPos = vec3(gl_ModelViewMatrix * pos);
+	vNormal = gl_NormalMatrix * normal;
 	gl_FrontColor = gl_Color;
 	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_Position = ftransform();
+	gl_Position = uBlend > 0.0 ? gl_ModelViewProjectionMatrix * pos : ftransform();
 }
 )";
 
@@ -89,6 +98,7 @@ bool gActive = false;
 GLint gLocFog = -1, gLocFogStart = -1;
 Lighting::Atmosphere gAir;
 GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
+GLint gLocBlend = -1;
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
@@ -101,7 +111,12 @@ bool ensureProgram() {
 		return false;
 	gFailed = true;
 
-	GLuint program = linkProgram("Lighting", VERTEX_SRC, FRAGMENT_SRC);
+	GLuint program = linkProgram(
+		"Lighting",
+		VERTEX_SRC,
+		FRAGMENT_SRC,
+		{{Lighting::NEXT_POSITION_ATTRIB, "aNextPos"}, {Lighting::NEXT_NORMAL_ATTRIB, "aNextNormal"}}
+	);
 	if (program == 0)
 		return false;
 
@@ -115,6 +130,7 @@ bool ensureProgram() {
 	gLocCount = glGetUniformLocation(program, "uLightCount");
 	gLocPos = glGetUniformLocation(program, "uLightPos");
 	gLocColor = glGetUniformLocation(program, "uLightColor");
+	gLocBlend = glGetUniformLocation(program, "uBlend");
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "uTex"), 0);
 	glUseProgram(0);
@@ -134,6 +150,7 @@ void Lighting::begin() {
 	glUniform1f(gLocFogStart, gAir.fogStart);
 	glUniform1f(gLocEmissive, 0.f);
 	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
+	glUniform1f(gLocBlend, 0.f);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
@@ -200,6 +217,13 @@ void Lighting::end() {
 void Lighting::setEmissive(bool on) {
 	if (gActive)
 		glUniform1f(gLocEmissive, on ? 1.f : 0.f);
+}
+
+bool Lighting::setBlend(float t) {
+	if (!gActive || gLocBlend < 0)
+		return false;
+	glUniform1f(gLocBlend, t);
+	return true;
 }
 
 void Lighting::setFlicker(bool on) { gFlicker = on; }

@@ -62,7 +62,7 @@ constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be 
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
-constexpr float OPTION_H = 7.f;
+constexpr float OPTION_H = 6.3f; // eight Display rows above the panel's bottom edge
 constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
@@ -188,6 +188,7 @@ enum class OptionKind : std::uint8_t { Switch, Choice, Slider };
 enum class OptionId : std::uint8_t {
 	WindowSize,
 	Fullscreen,
+	AnimationRate,
 	MotionEffects,
 	Toon,
 	Blood,
@@ -204,9 +205,13 @@ struct OptionRow {
 	const char* hint;
 };
 
-constexpr std::array<OptionRow, 7> DISPLAY_ROWS = {{
+constexpr std::array<OptionRow, 8> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
+	{OptionId::AnimationRate,
+	 OptionKind::Choice,
+	 "Animation rate",
+	 "Poses a second of the figures, or key frames only"},
 	{OptionId::MotionEffects, OptionKind::Switch, "Motion effects", "Sprint blur, wider view and darker edges"},
 	{OptionId::Toon, OptionKind::Switch, "Toon shading", "Cel bands and ink outlines (F1)"},
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
@@ -237,6 +242,8 @@ struct WindowSize {
 	int w, h;
 };
 constexpr std::array<WindowSize, 5> WINDOW_SIZES = {{{800, 500}, {1024, 640}, {1280, 720}, {1600, 900}, {1920, 1080}}};
+// The poses a second the Animation rate row steps through; 0: the key frames only (plan model-frame-interpolation).
+constexpr std::array<int, 4> ANIMATION_RATES = {0, 24, 30, 60};
 
 bool& switchOf(OptionId id) {
 	Settings& s = Game().settings;
@@ -663,14 +670,20 @@ void MainMenu::DrawRows() {
 			std::snprintf(value, sizeof(value), "%s", on ? "On" : "Off");
 			control = r;
 		} else if (row.kind == OptionKind::Choice) {
-			enabled = !settings.display.fullscreen; // the window size only matters in a window
+			const bool windowSize = row.id == OptionId::WindowSize;
+			enabled = !windowSize || !settings.display.fullscreen; // the window size only matters in a window
 			Rect r = tile(
 				control,
 				enabled ? TileStyle::Stone : TileStyle::Disabled,
 				enabled && isHovered,
 				enabled && isHovered && pressed == target
 			);
-			std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
+			if (windowSize)
+				std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
+			else if (settings.display.animationRate <= 0)
+				std::snprintf(value, sizeof(value), "Key frames");
+			else
+				std::snprintf(value, sizeof(value), "%d", settings.display.animationRate);
 			control = r;
 		} else {
 			// Track, the filled part, the knob; the number to the right.
@@ -687,8 +700,8 @@ void MainMenu::DrawRows() {
 		}
 
 		beginText();
-		text(body, band.x + 3.f, band.y + 3.4f, row.name, LABEL);
-		text(small, band.x + 3.f, band.y + 0.6f, row.hint, LABEL_DIM);
+		text(body, band.x + 3.f, band.y + 2.9f, row.name, LABEL);
+		text(small, band.x + 3.f, band.y + 0.5f, row.hint, LABEL_DIM);
 		if (row.kind == OptionKind::Slider)
 			text(heading, control.x + control.w + 2.5f, control.y + 0.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
@@ -960,6 +973,10 @@ void MainMenu::ActivateOption(int row) {
 		display.width = next.w;
 		display.height = next.h;
 		glutReshapeWindow(next.w, next.h);
+	} else if (option.id == OptionId::AnimationRate) {
+		// The next higher rate, after the highest the key frames.
+		const auto higher = std::ranges::find_if(ANIMATION_RATES, [&](int r) { return r > display.animationRate; });
+		display.animationRate = higher == ANIMATION_RATES.end() ? ANIMATION_RATES[0] : *higher;
 	} else if (option.kind == OptionKind::Switch) {
 		bool& on = switchOf(option.id);
 		on = !on;

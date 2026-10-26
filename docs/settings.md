@@ -23,6 +23,7 @@ Booleans are `on` / `off` (`1` / `0`, `true` / `false`, `yes` / `no` read as wel
 window_width = 800      ; 320-7680, the window when not fullscreen
 window_height = 500     ; 200-4320
 fullscreen = off
+animation_rate = 60     ; 0-240 model poses a second, blended between the key frames; 0: the key frames only
 
 [graphics]
 motion_effects = on     ; sprint blur, FOV kick, vignette

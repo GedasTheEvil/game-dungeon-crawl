@@ -44,6 +44,14 @@ void end();
 // Draws without lighting (texture x colour) while set: flames, portals, overlays.
 void setEmissive(bool on);
 
+// Model frame blending (plan model-frame-interpolation): the generic attributes a model draw puts its next key
+// frame's positions and normals in.
+constexpr unsigned NEXT_POSITION_ATTRIB = 6; // free of the built-ins' aliases (NVIDIA: 0, 2, 3, 8-15)
+constexpr unsigned NEXT_NORMAL_ATTRIB = 7;
+// While the scene is drawn with the shader: the next draws blend their vertices toward the next key frame's by t (0:
+// none). False: no shader, a model draws one key frame.
+bool setBlend(float t);
+
 // Brightness multiplier around 1 for a fire with this seed at the current game time; 1 with the flicker off.
 float flicker(uint32_t seed, float amount);
 // Options > Display > Light flicker. On at start.

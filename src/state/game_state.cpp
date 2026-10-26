@@ -12,6 +12,7 @@
 #include "../core/gameplay_config.h"
 #include "../world/campaign.h"
 #include "../world/texts.h"
+#include "../graphics/animated_model.h"
 #include "../graphics/ink.h"
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
@@ -301,6 +302,7 @@ void GameState::ApplySettings(bool save) {
 	Ink::setToon(settings.graphics.toon);
 	Particles::shown = settings.graphics.blood;
 	Lighting::setFlicker(settings.graphics.lightFlicker);
+	AnimatedModel::SetAnimationRate(settings.display.animationRate);
 	dungeon.SetCutScenes(settings.graphics.cutScenes);
 	dungeon.SetMotionEffects(settings.graphics.motionEffects);
 	Audio::SetVolumes(settings.sound.music, settings.sound.effects);

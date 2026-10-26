@@ -94,6 +94,73 @@ TEST_CASE("a looping clip starts over") {
 	CHECK(wrapped);
 }
 
+TEST_CASE("a model draws the step under way blended between two key frames") {
+	// A loop of 4 frames at 1 frame a step: frame 2 at 0 ms, the next step sets frame 3.
+	const AnimPlayback p{2.f, 0, 1.f};
+	const FrameBlend start = BlendOf(p, 4, true, 0, 1000);
+	CHECK(start.a == 2);
+	CHECK(start.b == 3);
+	CHECK(start.t == doctest::Approx(0.f));
+	const FrameBlend half = BlendOf(p, 4, true, FRAME_STEP_MS / 2, 1000);
+	CHECK(half.a == 2);
+	CHECK(half.t == doctest::Approx(0.5f));
+	// Past the step not taken yet (a late tick): held at what it will set.
+	const FrameBlend late = BlendOf(p, 4, true, 3 * FRAME_STEP_MS, 1000);
+	CHECK(late.a == 3);
+	CHECK(late.t == doctest::Approx(0.f));
+
+	SUBCASE("a loop goes on from its last frame to frame 0") {
+		const AnimPlayback end{3.f, 0, 1.f};
+		const FrameBlend f = BlendOf(end, 4, true, FRAME_STEP_MS / 4, 1000);
+		CHECK(f.a == 3);
+		CHECK(f.b == 0);
+		CHECK(f.t == doctest::Approx(0.25f));
+		CHECK(BlendOf(end, 4, true, FRAME_STEP_MS, 1000).a == 0);
+	}
+	SUBCASE("a one-shot clip holds its last frame") {
+		const AnimPlayback nearEnd{2.5f, 0, 1.f}; // the next step clamps to 3
+		const FrameBlend f = BlendOf(nearEnd, 4, false, FRAME_STEP_MS / 2, 1000);
+		CHECK(f.a == 2);
+		CHECK(f.b == 3);
+		CHECK(f.t == doctest::Approx(0.75f));
+		const FrameBlend held = BlendOf({3.f, 0, 1.f}, 4, false, FRAME_STEP_MS / 2, 1000);
+		CHECK(held.a == 3);
+		CHECK(held.b == 3);
+		CHECK(held.t == 0.f);
+	}
+	SUBCASE("a frame set by hand (a pose, the climb) blends its fraction, the clock aside") {
+		const FrameBlend f = BlendOf({1.25f, 0, 0.f}, 4, true, 3 * FRAME_STEP_MS, 1000);
+		CHECK(f.a == 1);
+		CHECK(f.b == 2);
+		CHECK(f.t == doctest::Approx(0.25f));
+		const FrameBlend wrap = BlendOf({3.5f, 0, 0.f}, 4, true, 0, 1000);
+		CHECK(wrap.a == 3);
+		CHECK(wrap.b == 0);
+	}
+	SUBCASE("the animation rate snaps the clock; key frames draw the stepped frame") {
+		// 24 poses a second: 70 ms shows the pose of 41.7 ms.
+		CHECK(BlendOf(p, 4, true, 70, 24).t == doctest::Approx(1000.f / 24.f / FRAME_STEP_MS));
+		const FrameBlend keys = BlendOf({2.6f, 0, 1.f}, 4, true, FRAME_STEP_MS / 2, 0);
+		CHECK(keys.a == 2);
+		CHECK(keys.b == 2);
+		CHECK(keys.t == 0.f);
+	}
+	SUBCASE("t stays in [0, 1) as a clip plays") {
+		GameClock::enableVirtual();
+		AnimPlayback q;
+		q.stepStart = GameClock::now();
+		for (int ms = 0; ms < 3000; ms += 7) {
+			GameClock::advance(7);
+			AdvancePlayback(q, 5, true, ModelInfo::CLIP_SPEED);
+			const FrameBlend f = BlendOf(q, 5, true, GameClock::now(), 60);
+			CHECK(f.t >= 0.f);
+			CHECK(f.t < 1.f);
+			CHECK(f.a >= 0);
+			CHECK(f.a < 5);
+		}
+	}
+}
+
 TEST_CASE("monsters spawned together start their walk at different frames") {
 	ModelInfo info;
 	info.clips[static_cast<int>(ModelState::Move)] = {true, 20, true};

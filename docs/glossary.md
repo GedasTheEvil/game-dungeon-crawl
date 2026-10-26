@@ -259,4 +259,5 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | texture batch | | while the assets load, PNGs decode on worker threads and upload to GL in order on the main thread ([faster-loading](plan/solved/faster-loading.md)) | `TextureBatch`, `WorkerPool` |
 | text key | | (plan texts-to-content) a prose text's name in `content/texts/*.txt`, section and field: `note.sand.text`, `monster.giant-rat.note` ([texts.md](texts.md)) | `gameText`, `textSlug` |
 | tick | | one fixed step of the game's update, 16 ms | `UPDATE_TICK_MS` |
+| frame blend | Animation rate (Options) | a model drawn between two key frames of its clip, by the part of the clip's step (`FRAME_STEP_MS`) already passed, on the scene shader; the sim keeps the stepped frame ([model-frame-interpolation](plan/model-frame-interpolation.md)). Animation rate: poses a second, "Key frames" none | `FrameBlend`, `BlendOf`, `AnimatedModel::SetAnimationRate`, `Lighting::setBlend` |
 | unit test | | a doctest case in `tests/unit/`, run by `make unit` | `tests/unit/main.cpp` |

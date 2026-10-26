@@ -1,0 +1,9 @@
+# Plan model-frame-interpolation, for `bin/game --play tests/play/model-frame-interpolation.txt`: Babi's arena
+# (tests/levels/babi), god mode. Watch your idle and walk, Babi's and the baboons' walk, throw and attack clips: they
+# move smoothly between their key frames. Compare in Esc > Options > Display > Animation rate: Key frames (the old,
+# stepped look), 24 (stop motion), 30, 60 (default).
+seed 1
+god
+level tests/levels/babi at 3 3
+give melee 2
+equip spear

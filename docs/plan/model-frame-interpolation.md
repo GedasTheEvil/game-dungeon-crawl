@@ -1,7 +1,20 @@
 # Model frame interpolation
 
 Status: draft 2026-10-24, from the user ("the model has key frames exported from Blender, but the animation looks
-chopped; interpolate between 2 frames for smoother movement"). Needs nothing first.
+chopped; interpolate between 2 frames for smoother movement"). Needs nothing first. Implemented 2026-10-26, waits for
+the play-test: `bin/game --play tests/play/model-frame-interpolation.txt`.
+
+## Done
+
+* `AnimPlayback::step` (set by `AdvancePlayback`) and `BlendOf` (`src/entities/model_info.cpp`, unit tested): the
+  render pose. A frame set by hand (`step` 0: the climb, the burrow rise and dive, a grab's held frame, the bow's
+  draw) blends its own fraction, so the dive runs backwards smoothly too.
+* GPU: the lighting shader's `aNextPos` / `aNextNormal` (attributes 6, 7, bound before the link) and `uBlend`;
+  `AnimatedModel::Show` feeds them. The ink pass is screen space (depth and colour), nothing to do there. Without the
+  shader (lighting failed, or a draw outside the scene's `Lighting::begin`/`end`, e.g. the journal) a model draws
+  key frame a, as before.
+* Options > Display > Animation rate (`Key frames`, 24, 30, 60), `animation_rate` in `[display]`. The Display rows
+  are a little lower (`OPTION_H` 6.3) to fit eight.
 
 ## Why it looks chopped
 

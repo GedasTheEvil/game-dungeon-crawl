@@ -21,6 +21,7 @@ Settings parse(const std::string& text) {
 TEST_CASE("an empty file gives the defaults") {
 	Settings s = parse("");
 	CHECK(s.display.width == 800);
+	CHECK(s.display.animationRate == 60);
 	CHECK(s.graphics.motionEffects);
 	CHECK_FALSE(s.graphics.toon);
 	CHECK(s.graphics.cutScenes);
@@ -50,10 +51,11 @@ TEST_CASE("a bad value warns and keeps the default") {
 	std::vector<std::string> warnings;
 	Settings s = parse(
 		"[sound]\nmusic_volume = 101\neffects_volume = loud\n[graphics]\nblood = maybe\n"
-		"[display]\nwindow_width = 10\n[controls]\njump = nokey\nattack = a, b, c\n",
+		"[display]\nwindow_width = 10\nanimation_rate = 300\n[controls]\njump = nokey\nattack = a, b, c\n",
 		warnings
 	);
-	CHECK(warnings.size() == 6);
+	CHECK(warnings.size() == 7);
+	CHECK(s.display.animationRate == 60);
 	CHECK(s.sound.music == 80);
 	CHECK(s.sound.effects == 100);
 	CHECK(s.graphics.blood);
@@ -70,7 +72,7 @@ TEST_CASE("unknown keys and sections and broken lines warn") {
 
 TEST_CASE("what is written reads back the same") {
 	Settings s;
-	s.display = {1600, 900, true};
+	s.display = {1600, 900, true, 24};
 	s.graphics = {false, true, false, false};
 	s.sound = {35, 0};
 	s.controls.Bind(BindAction::Jump, 0, InputKey::Char(','));
@@ -85,6 +87,7 @@ TEST_CASE("what is written reads back the same") {
 	CHECK(writeSettings(back) == text);
 	CHECK(back.controls == s.controls);
 	CHECK(back.display.fullscreen);
+	CHECK(back.display.animationRate == 24);
 	CHECK(back.sound.music == 35);
 }
 

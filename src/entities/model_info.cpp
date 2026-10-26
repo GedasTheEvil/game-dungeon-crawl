@@ -1,5 +1,6 @@
 #include "model_info.h"
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <string>
 #include <tuple>
@@ -37,24 +38,48 @@ void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed) {
 	if (frameCount == 1)
 		return;
 
+	p.step = 0.04f * static_cast<float>(speed);
 	const int now = GameClock::now();
 	if (now - p.stepStart < FRAME_STEP_MS)
 		return;
 	p.stepStart = now;
+	p.frame = NextFrame(p.frame, frameCount, loop, p.step);
+}
 
-	const auto frames = static_cast<float>(frameCount);
-	const float step = 0.04f * static_cast<float>(speed);
-	if (!loop && p.frame < frames)
-		p.frame += step;
+float NextFrame(float frame, int frameCount, bool loop, float step) {
+	if (!loop)
+		return std::min(frame + step, static_cast<float>(frameCount - 1));
+	const float next = frame + step;
+	return static_cast<double>(next) >= frameCount - 0.2 ? 0.f : next;
+}
 
-	if (!loop && p.frame >= frames - 1)
-		p.frame = frames - 1;
-
-	if (loop)
-		p.frame += step;
-
-	if (loop && p.frame >= (frameCount - 0.2))
-		p.frame = 0.0;
+FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, int rate) {
+	const int last = frameCount - 1;
+	if (last <= 0)
+		return {};
+	if (rate <= 0) {
+		const int a = std::clamp(static_cast<int>(p.frame), 0, last);
+		return {a, a, 0.f};
+	}
+	float pos = p.frame;
+	if (p.step > 0.f) {
+		const double shown = std::floor(static_cast<double>(now) * rate / 1000.0) * 1000.0 / rate;
+		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / FRAME_STEP_MS), 0.f, 1.f);
+		float next = NextFrame(p.frame, frameCount, loop, p.step);
+		if (next < p.frame) // a loop starting over: on to frame 0 after the last
+			next = static_cast<float>(frameCount);
+		pos += (next - p.frame) * k;
+	}
+	const auto whole = std::floor(pos);
+	const float t = pos - whole;
+	const auto a = static_cast<int>(whole);
+	if (loop) {
+		const int wrapped = ((a % frameCount) + frameCount) % frameCount;
+		return {wrapped, (wrapped + 1) % frameCount, t};
+	}
+	if (a >= last)
+		return {last, last, 0.f};
+	return {a, a + 1, t};
 }
 
 ClipPlayback ModelInfo::SpawnPlayback(Rng& rng) const {

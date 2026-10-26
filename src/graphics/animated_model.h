@@ -28,6 +28,10 @@ class AnimatedModel {
 	void Show() const;
 	void Show(const AnimPlayback& p) const; // a shared model: the caller keeps the playback
 	void Show(const AnimPlayback& p, int textureId) const; // with another texture on the same UVs
+	// Options > Display > Animation rate: the poses a second Show blends between the key frames (BlendOf); 0: the
+	// key frames only.
+	static constexpr int DEFAULT_ANIMATION_RATE = 60;
+	static void SetAnimationRate(int perSecond);
 	void Advance();
 	void Advance(AnimPlayback& p) const;
 	void setSpeed(int nSpeed);

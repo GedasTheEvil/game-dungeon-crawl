@@ -24,6 +24,7 @@ constexpr int MODEL_STATE_COUNT = 8;
 struct AnimPlayback {
 	float frame = 0.0f;
 	int stepStart = 0; // GameClock ms when the frame last advanced
+	float step = 0.0f; // what the next step adds (AdvancePlayback); 0: a frame set by hand, drawn as it is
 };
 
 // Playback of every clip, indexed by ModelState. Kept by each monster / the player, the clips are shared.
@@ -33,6 +34,19 @@ using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 // starts over, a one-shot one holds its last frame.
 constexpr int FRAME_STEP_MS = 100;
 void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed);
+// The frame one step of AdvancePlayback moves frame to.
+[[nodiscard]] float NextFrame(float frame, int frameCount, bool loop, float step);
+
+// What a model draws (plan model-frame-interpolation): key frame a, blended toward b by t in [0, 1).
+struct FrameBlend {
+	int a = 0;
+	int b = 0;
+	float t = 0.0f;
+};
+// The pose of p at GameClock ms now: its frame plus the part of the step under way, the clock snapped to rate steps a
+// second first. Never past what the next step sets: a looping clip goes on from its last frame to frame 0, a
+// one-shot one holds its last. rate 0 (key frames): p's frame, no blend.
+[[nodiscard]] FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, int rate);
 
 // media/models/<category>/<name><suffix>.md3 for one clip. The first entry of a list is the reference clip:
 // it is required, sets the normalization of all clips (frame 0) and stands in for missing optional ones.

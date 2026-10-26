@@ -22,7 +22,12 @@ GLuint compile(const char* name, GLenum type, const char* src) {
 }
 } // namespace
 
-GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragmentSrc) {
+GLuint linkProgram(
+	const char* name,
+	const char* vertexSrc,
+	const char* fragmentSrc,
+	std::initializer_list<std::pair<GLuint, const char*>> attributes
+) {
 	GLuint vs = compile(name, GL_VERTEX_SHADER, vertexSrc);
 	GLuint fs = compile(name, GL_FRAGMENT_SHADER, fragmentSrc);
 	if (vs == 0 || fs == 0)
@@ -30,6 +35,8 @@ GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragment
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
+	for (const auto& [location, attribute] : attributes)
+		glBindAttribLocation(program, location, attribute);
 	glLinkProgram(program);
 	glDeleteShader(vs);
 	glDeleteShader(fs);

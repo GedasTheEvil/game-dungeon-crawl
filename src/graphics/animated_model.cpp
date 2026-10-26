@@ -6,7 +6,9 @@
 #include <cstdlib>
 #include <vector>
 #include "animated_model.h"
+#include "lighting.h"
 #include "textures.h"
+#include <GL/glext.h>
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include <GL/glu.h>
@@ -30,6 +32,14 @@ void drawTriangles(const void* v, const void* n, const void* texCoords, const vo
 
 // GL takes an offset into the bound buffer as a pointer.
 const void* bufferOffset(size_t bytes) { return std::bit_cast<const void*>(static_cast<std::uintptr_t>(bytes)); }
+
+// One key frame's positions and normals: client memory, or offsets into the bound buffer.
+struct FrameArrays {
+	const void* v;
+	const void* n;
+};
+
+int gAnimationRate = AnimatedModel::DEFAULT_ANIMATION_RATE;
 } // namespace
 
 //============================================================
@@ -55,34 +65,51 @@ void AnimatedModel::Show() const { Show(playback); }
 void AnimatedModel::Show(const AnimPlayback& p) const { Show(p, texture); }
 //============================================================
 void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
-	const auto frame = static_cast<int>(p.frame);
+	const FrameBlend f = BlendOf(p, mesh.frameCount, loop, GameClock::now(), gAnimationRate);
 	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
 
-	if (!compiled) {
-		drawTriangles(
-			mesh.frames[frame].v.data(),
-			mesh.frames[frame].n.data(),
-			mesh.texCoords.data(),
-			mesh.indices.data(),
-			static_cast<int>(mesh.indices.size())
-		);
-		return;
+	// The positions and normals of key frames a and b, the texture coordinates, the indices.
+	FrameArrays a{};
+	FrameArrays b{};
+	const void* texCoords = mesh.texCoords.data();
+	const void* indices = mesh.indices.data();
+	if (compiled) {
+		const auto vertices = static_cast<size_t>(mesh.vertexCount);
+		const size_t frameBytes = 6 * sizeof(float) * vertices;
+		auto arrays = [&](int frame) {
+			const size_t v = 2 * sizeof(float) * vertices + static_cast<size_t>(frame) * frameBytes;
+			return FrameArrays{bufferOffset(v), bufferOffset(v + frameBytes / 2)};
+		};
+		a = arrays(f.a);
+		b = arrays(f.b);
+		texCoords = bufferOffset(0);
+		indices = nullptr;
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	} else {
+		a = {mesh.frames[f.a].v.data(), mesh.frames[f.a].n.data()};
+		b = {mesh.frames[f.b].v.data(), mesh.frames[f.b].n.data()};
 	}
-	const auto vertices = static_cast<size_t>(mesh.vertexCount);
-	const size_t frameBytes = 6 * sizeof(float) * vertices;
-	const size_t v = 2 * sizeof(float) * vertices + static_cast<size_t>(frame) * frameBytes;
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	drawTriangles(
-		bufferOffset(v),
-		bufferOffset(v + frameBytes / 2),
-		bufferOffset(0),
-		nullptr,
-		static_cast<int>(mesh.indices.size())
-	);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	const bool blend = f.t > 0.f && f.b != f.a && Lighting::setBlend(f.t);
+	if (blend) {
+		glEnableVertexAttribArray(Lighting::NEXT_POSITION_ATTRIB);
+		glEnableVertexAttribArray(Lighting::NEXT_NORMAL_ATTRIB);
+		glVertexAttribPointer(Lighting::NEXT_POSITION_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, b.v);
+		glVertexAttribPointer(Lighting::NEXT_NORMAL_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, b.n);
+	}
+	drawTriangles(a.v, a.n, texCoords, indices, static_cast<int>(mesh.indices.size()));
+	if (blend) {
+		glDisableVertexAttribArray(Lighting::NEXT_POSITION_ATTRIB);
+		glDisableVertexAttribArray(Lighting::NEXT_NORMAL_ATTRIB);
+		Lighting::setBlend(0.f);
+	}
+	if (compiled) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 }
+//============================================================
+void AnimatedModel::SetAnimationRate(int perSecond) { gAnimationRate = perSecond; }
 //============================================================
 //============================================================
 void AnimatedModel::Advance() { Advance(playback); }

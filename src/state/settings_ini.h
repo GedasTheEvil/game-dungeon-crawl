@@ -13,6 +13,9 @@ struct Settings {
 		int width = 800; // the window, when not fullscreen
 		int height = 500;
 		bool fullscreen = false;
+		// Poses a second a model shows, blended between its key frames (plan model-frame-interpolation); 0: the key
+		// frames only.
+		int animationRate = 60;
 	} display;
 	struct Graphics {
 		bool motionEffects = true; // sprint blur, FOV kick, vignette
@@ -32,6 +35,7 @@ constexpr int MIN_WINDOW_W = 320;
 constexpr int MIN_WINDOW_H = 200;
 constexpr int MAX_WINDOW_W = 7680;
 constexpr int MAX_WINDOW_H = 4320;
+constexpr int MAX_ANIMATION_RATE = 240;
 
 // `[section]`, `key = value`, `;` and `#` comments. A bad value, an unknown key or section adds a warning and keeps
 // the default.

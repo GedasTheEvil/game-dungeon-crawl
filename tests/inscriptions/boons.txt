@@ -1,4 +1,4 @@
-# Plan inscription-boons: the campaign's longest text with a boon, on the level 6 inscription (id 1).
+# Plan inscription-boons: the campaign's longest text with a boon, on tests/levels/inscription's (id 1).
 
 id: 1
 title: The ushabti spell

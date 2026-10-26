@@ -40,13 +40,13 @@ text: Webs across the halls, thick as sailcloth, and things that spin them: eigh
 
 [page.8]
 heading: Day 11
-text: The dead do not stay down here. Linen tears under a blade and burns like paper: dip the arrows in a brazier
-	and they go up. Jack would have brought a flamethrower. Who is Jack?
+text: A hall with two shafts side by side. I took the short one: the long one was dark, and I heard legs in it.
+	Many legs. Both come out in the same hall. There is no way back up to the other.
 
 [page.9]
 heading: Day 12
-text: A hall with two shafts side by side, and a priest's warning on the wall. I took the short one; the long one
-	had water in it and I am a bad swimmer. Both come out in the same hall. There is no way back up to the other.
+text: The dead do not stay down here. Linen tears under a blade and burns like paper: dip the arrows in a brazier
+	and they go up. Jack would have brought a flamethrower. Who is Jack?
 
 [page.10]
 heading: Day 13

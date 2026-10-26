@@ -117,7 +117,7 @@ TEST_CASE("the temples' plaster: their levels are painted more than the tombs be
 			all += s;
 		return static_cast<float>(painted) / static_cast<float>(all);
 	};
-	for (int n = 15; n <= 19; n++) { // the serpent temple
+	for (int n = 14; n <= 18; n++) { // the serpent temple
 		CAPTURE(n);
 		CHECK(zoneInfo(zoneOf(n)->id).stone == ZoneStone::Plaster);
 		CHECK(paintedShare(n) > 0.4f);

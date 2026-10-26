@@ -13,18 +13,19 @@
 TEST_CASE("decoration tiers by depth: cave, worked tunnel, tomb, temple") {
 	CHECK(decorTier(1) == 0);
 	CHECK(decorTier(3) == 0);
-	CHECK(decorTier(4) == 1);
-	CHECK(decorTier(6) == 1);
-	CHECK(decorTier(7) == 2);
-	CHECK(decorTier(11) == 2);
-	CHECK(decorTier(12) == 3);
+	CHECK(decorTier(4) == 0);
+	CHECK(decorTier(5) == 1);
+	CHECK(decorTier(9) == 1);
+	CHECK(decorTier(10) == 2);
+	CHECK(decorTier(13) == 2);
+	CHECK(decorTier(14) == 3);
 	CHECK(decorTier(30) == 3);
 	CHECK(decorTier(DECOR_DEPTH_ALL) == DECOR_TIER_COUNT - 1);
 }
 
 TEST_CASE("a generated level's difficulty stands for a campaign depth") {
 	CHECK(genDecorDepth(1) == 1);
-	CHECK(decorTier(genDecorDepth(3)) == 1);
+	CHECK(decorTier(genDecorDepth(4)) == 1);
 	CHECK(decorTier(genDecorDepth(10)) == DECOR_TIER_COUNT - 1);
 }
 
@@ -115,7 +116,10 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(DECOR_TIERS[prop.type] <= tier);
 				} else if (prop.type >= 0) {
 					CHECK(isEmptyCell(t));
-					CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
+					if (prop.type == DECOR_WEB) // under the ceiling (the web halls' dark halls, level_gen.h)
+						CHECK((j + 1 < LEVEL_HEIGHT && isWall(cellAt(s.grid, i, j + 1))));
+					else
+						CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
 					CHECK((DECOR_TIERS[prop.type] <= tier || hasPlacedProp(t.dressing)));
 					CHECK((prop.type < DECOR_SCATTERED || bossCoffinCell(s.grid.cells, i, j)));
 				}
@@ -219,7 +223,7 @@ TEST_CASE("a ladder shaft keeps one style: the bottom piece on the floor, the to
 
 TEST_CASE("the first levels are all rough cave rock, the deep ones have painted walls") {
 	const Scattered cave = campaignLevel(1);
-	const Scattered temple = campaignLevel(19);
+	const Scattered temple = campaignLevel(18);
 	int painted = 0;
 	for (int k = 0; k < LEVEL_WIDTH * LEVEL_HEIGHT; k++) {
 		if (!isWall(cave.grid.cells[k])) {

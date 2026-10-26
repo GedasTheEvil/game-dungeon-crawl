@@ -19,3 +19,9 @@
 7  --zone bat_galleries --seed 1 --difficulty 2 --cells 410 --texts 63,64 --title "The Flooded Stretch"
 8  --zone bat_galleries --seed 2 --difficulty 2 --cells 455 --texts 62 --page 6 --lore 35 --title "The Roost Stair"
 9  --zone bat_galleries --seed 3 --difficulty 2 --cells 500 --boss --texts 65 --page 7 --title "The Roost of Shezmu"
+
+# Zone 3: Web halls
+10 --zone web_halls --seed 4 --difficulty 3 --cells 540 --texts 66,67 --lore 36 --title "The Hall of Webs"
+11 --zone web_halls --seed 10 --difficulty 3 --cells 576 --texts 68,69 --lore 37 --title "The Dark Gallery"
+12 --zone web_halls --seed 4 --difficulty 3 --cells 613 --fork 1 --page 8 --texts 70,72 --title "The Two Shafts"
+13 --zone web_halls --seed 10 --difficulty 3 --cells 650 --boss --page 9 --texts 71 --title "The Lair of the Mother of Webs"

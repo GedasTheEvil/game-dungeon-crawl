@@ -80,8 +80,9 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {
 // the newest one counting double. The first levels are a natural cave, the deepest a painted temple. Depth is the
 // campaign level; a generated level's comes from its difficulty (level_gen.h), any other level gets them all.
 constexpr int DECOR_TIER_COUNT = 4;
-// Today's levels from 5 on are the old campaign's one number earlier (plan denser-levels): their tiers moved with them.
-constexpr int DECOR_TIER_FROM[DECOR_TIER_COUNT] = {1, 4, 7, 12}; // cave, worked tunnel, tomb, temple / necropolis
+// By zone (plan denser-levels): the tomb entrance a cave, the bat galleries worked tunnels, the web halls tombs, the
+// temples from the priests' quarter on (14).
+constexpr int DECOR_TIER_FROM[DECOR_TIER_COUNT] = {1, 5, 10, 14}; // cave, worked tunnel, tomb, temple / necropolis
 constexpr int DECOR_DEPTH_ALL = 1000; // a level outside the campaign
 constexpr int decorTier(int depth) {
 	int tier = 0;

@@ -86,8 +86,8 @@ window size, fullscreen, the graphics effects and the volumes. The choices are k
 
 ## Levels
 
-The campaign has 34 levels in zones, most of them ending with a boss (being rebuilt into about 54 levels in twelve
-zones). The gem in the top right corner shows the current level: carnelian for
+The campaign's levels are grouped into zones, most of them ending with a boss (being rebuilt into about 54 levels in
+twelve zones). The gem in the top right corner shows the current level: carnelian for
 levels 1-5, turquoise for 6-10, lapis lazuli for 11-15, malachite for 16-20, amethyst for 21-25 (the desert), obsidian
 for 26-30, electrum from 31 on. You can make your own with the level editor:
 [tools/editor/readme.md](tools/editor/readme.md).

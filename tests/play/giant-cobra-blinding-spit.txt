@@ -1,6 +1,6 @@
 # Plan giant-cobra-blinding-spit, for `bin/game --play tests/play/giant-cobra-blinding-spit.txt`: tests/levels/apep,
 # god mode. Walk up to Apep (east): between his dives he spits a fan of three; each hit blinds 3 s (dark green edges,
-# a small clear spot). The giant cobra on campaign levels blinds with half its spit hits, 2 s: `bin/game --level 20`
+# a small clear spot). The giant cobra on campaign levels blinds with half its spit hits, 2 s: `bin/game --level 19`
 # has some. Wading clears it twice as fast. The journal (J) notes it under Apep's SAW.
 seed 1
 god

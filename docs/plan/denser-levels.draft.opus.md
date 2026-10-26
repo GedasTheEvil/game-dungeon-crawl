@@ -15,8 +15,10 @@ Monster-balance already waits for every monster and boss draft, so they are all 
 ## Progress
 
 Batch 1, the tomb entrance: done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
-Batch 2, the bat galleries (levels 5-9): done 2026-10-26, waiting for the user's play-test (`bin/game --level 5`,
-play to lvl10). Next: batch 3, the web halls (10-13; today's 10-14, the old scorpion nest, give way: one level fewer).
+Batch 2, the bat galleries (levels 5-9): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
+Batch 3, the web halls (levels 10-13): done 2026-10-26, waiting for the user's play-test (`bin/game --level 10`, play to
+lvl14). Next: batch 4, the priests' quarter (14-18: today's 14-18, the old serpent temple, give way 1:1; the High
+Priest moves there from lvl32).
 User, 2026-10-26: the bosses are retuned from the sim once all levels are done (not per batch).
 
 * **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
@@ -42,6 +44,17 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   into a pool at the east end of lvl7's upper hall with a chest past it, so it can be skipped; three of lvl5's six
   worms made bats. The path scripts pass in the game; lvl8's only without its monsters (the giant bats' screech
   knocks the god-mode player off the ladders, the script cannot model it).
+* **Web halls (10-13):** difficulty 3; 587, 600, 614 and 690 open cells, the whole grid from here. Camel spiders,
+  giant scarabs, giant rats, mimics (30% of the chests); most halls dark with a few torches and braziers, webs under
+  their ceilings; two trapped chests a level, a treasure tomb, a riddle; secret rooms on 10 and 11 (lore 36, 37, the
+  last free ones: the other lore texts stay on today's later levels). 26 to 34 monsters a level (today's full levels
+  have 27 to 38). The first fork on lvl12 (`--fork 1`): page 8 on the way, the left route through camel spiders, the
+  right one to the earlier expedition's tomb; `tests/scenarios/route_fork.txt` shows it. Pages 8 and 9 swapped their
+  texts (the fork's Day 11 first, the dead's Day 12 on the boss level, a hint at the priests' quarter); the fork page
+  now tells of a dark long route with many legs in it instead of water and a priest's warning (no warning stands at an
+  early fork). Today's 10-14 (the old scorpion nest and the queen) are gone, its pages 10 and 11 unplaced until the
+  priests' quarter and the scorpion nest are rebuilt; 15-34 became 14-33. The decor tiers now go by zone
+  (`DECOR_TIER_FROM` 1, 5, 10, 14). All four levels pass their path scripts in the game, with their monsters.
 * **XP (open, for the sim pass at the end):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
   lvl5, 15, 18, 21 and 26 at Shezmu (lvl9), 30 at lvl10. The monster-balance sim tuned the bat galleries for about
   level 8 and the web halls for 15 (its curve scales the monster XP by 0.27): the zone 2 monsters (giant rat 2000, giant

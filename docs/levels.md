@@ -69,15 +69,15 @@ v3 file's cells are all unset, a v4 file has no zone); `levelcheck` warns about 
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl34` (`CAMPAIGN_LEVELS`), most zones
-ending with a boss. Each exit loads the next level. `content/levels/lvl34` holds the ankh that wins the game; the Anubis
+`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl33` (`CAMPAIGN_LEVELS`), most zones
+ending with a boss. Each exit loads the next level. `content/levels/lvl33` holds the ankh that wins the game; the Anubis
 boss there is always the last boss.
 
 The rebuild ([denser-levels](plan/denser-levels.draft.opus.md)) generates the campaign again zone by zone. The rebuilt
-zones come first, on the target table below (`REBUILT_LEVELS`: the tomb entrance and the bat galleries, levels 1-9, so
-far), today's levels after them, one number earlier per level the rebuilt zones are shorter (today's lvl6 is lvl5). Their sizes ramp from
+zones come first, on the target table below (`REBUILT_LEVELS`: the tomb entrance, the bat galleries and the web halls,
+levels 1-13, so far), today's levels after them, one number earlier per level the rebuilt zones are shorter (today's lvl6 is lvl5). Their sizes ramp from
 the way in to the whole grid (`ZONE_SIZE`, campaign.h): 120 open cells on lvl1, 280 on Khepri's level, the whole grid
-by the web halls; today's levels from 14 on use the whole 40 x 47 grid. Each rebuilt level's levelgen arguments (seed,
+by the web halls; today's levels after them use the whole 40 x 47 grid. Each rebuilt level's levelgen arguments (seed,
 difficulty, size, texts, page, title) are in the seed table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL`
 generates it again (and drops its polish: the level file stays the source of truth).
 
@@ -106,18 +106,21 @@ its banner names. On a zone's first level a banner shows its hour and gate, the 
 level a smaller one, the level and its zone (`ZoneBanner`, `levelBanner`). A level outside the campaign keeps the
 tombs' look (`DEFAULT_LOOK`).
 
-The campaign's 34 levels, as the code table maps them while the rebuild goes on:
+The campaign's 33 levels, as the code table maps them while the rebuild goes on:
 
 | Zone | Levels | Stone | Main monsters | New mechanic | Boss |
 |---|---|---|---|---|---|
 | 1 Tomb entrance (the Gate of the Tomb), rebuilt | 1-4 | limestone | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri (lvl4) |
 | 2 Bat galleries (the Gate of the Bats), rebuilt | 5-9 | limestone | bats, giant bats, worms, giant rats, a crocodile | levers, rock falls, the first wade | Bat of Shezmu (lvl9) |
-| 5 Scorpion nest (the Gate of Serqet) | 10-14 | plaster | mummies, ushabti, giant scarabs, giant bats, scorpions, giant scorpions | poison | scorpion queen (lvl14) |
-| 6 Serpent temple (the Gate of the Serpent) | 15-19 | plaster | cobras, mummies, Anubis guards, crocodiles, giant bats | dart plates | Apep (lvl19) |
-| 8 Seth's desert (the Gate of Seth) | 20-24 | sandstone | sand worms, camel spiders, giant scorpions, giant cobras, giant bats, hippos | sand, quicksand, mirrors and sun discs | Seth (lvl24) |
-| 7 Cisterns of Sobek (the Gate of Sobek) | 25-29 | wet stone | crocodiles, giant cobras, hippos, mummies, Anubis guards, giant bats | deep water, swimming | Sobek (lvl29) |
-| 11 Necropolis (the Gate of the Dead) | 30-33 | granite | Anubis guards, mummies, giant scarabs, giant cobras, giant scorpions, cursed mimics | every trap mixed | High Priest (lvl33, until the rebuild) |
-| 12 Hall of Judgment (the Gate of Judgment) | 34 | granite | Anubis guards, mummies, giant cobras, cursed mimics | riddles | Anubis (lvl34) |
+| 3 Web halls (the Gate of the Webs), rebuilt | 10-13 | limestone | camel spiders, giant scarabs, giant rats, mimics | darkness and light, trapped chests, the first fork | Mother of Webs (lvl13) |
+| 6 Serpent temple (the Gate of the Serpent) | 14-18 | plaster | cobras, mummies, Anubis guards, crocodiles, giant bats | dart plates | Apep (lvl18) |
+| 8 Seth's desert (the Gate of Seth) | 19-23 | sandstone | sand worms, camel spiders, giant scorpions, giant cobras, giant bats, hippos | sand, quicksand, mirrors and sun discs | Seth (lvl23) |
+| 7 Cisterns of Sobek (the Gate of Sobek) | 24-28 | wet stone | crocodiles, giant cobras, hippos, mummies, Anubis guards, giant bats | deep water, swimming | Sobek (lvl28) |
+| 11 Necropolis (the Gate of the Dead) | 29-32 | granite | Anubis guards, mummies, giant scarabs, giant cobras, giant scorpions, cursed mimics | every trap mixed | High Priest (lvl32, until the rebuild) |
+| 12 Hall of Judgment (the Gate of Judgment) | 33 | granite | Anubis guards, mummies, giant cobras, cursed mimics | riddles | Anubis (lvl33) |
+
+The old scorpion nest (its five levels, the scorpion queen) gave way to the web halls; the rebuild brings it back as
+zone 5.
 
 The target campaign (decided 2026-10-21): twelve zones, about 54 levels, four acts. The rebuild
 ([denser-levels](plan/denser-levels.draft.opus.md), [campaign-levelgen](plan/campaign-levelgen.md)) builds
@@ -157,72 +160,73 @@ Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).
 | 7 | The Flooded Stretch: bats, giant bats, giant rats, a worm, a mimic; many rock falls. The first wade on the way; the first crocodile in a pool off the way at the east end of the upper hall, a chest past it (skippable: a level 8 player is no match for it yet). A key and gate, a riddle gate. Inscriptions: the shallow water, the Shipwrecked Sailor. |
 | 8 | The Roost Stair: bats and giant bats (they screech), giant rats, worms; rock falls. A key and gate, a riddle gate, a name gate to a secret room. Expedition page 6. Inscription: the bats of the night. |
 | 9 | The Roost of Shezmu, the second boss: giant rats, bats, giant bats, a worm. A key and a lever, a riddle gate; the teleporter to the sealed tall roost under the halls: the Bat of Shezmu and his bats, behind the boss gate the key of the last gate before the exit. Expedition page 7 (the webs ahead). Inscription: the wheel of the day. |
-| 10 | Giant rats, giant bats, giant scarabs, the first two mummies. Two levers (red, blue) in two halls open two gates in a row. |
-| 11 | Plants, giant bats, three mummies. Chain: red key, green lever, gold key. |
-| 12 | Rock falls, giant scarabs, giant rats, a mummy, the first Anubis. Blue key, gold lever. |
-| 13 | Giant scarabs, rats and bats, three mummies, two Anubis. Red key, blue lever, green key. |
-| 14 | The scorpion queen's nest, the third boss: giant scorpions and scorpions in every hall, mummies, giant scarabs, giant bats, an Anubis. The blue lever opens the way down to the nest, a cavern with two ledges (green key, green gate). The teleporter leads to the sealed queen's chamber: the scorpion queen between two egg clusters her brood hatches from; behind the boss gate the gold key for the gold gate to the spike pits and the exit cavern. Antidotes in the second hall and past the pits, a lesser resistance potion in the third hall, a greater one by the gold gate. |
-| 15 | The serpent temple's gate: cobras, crocodiles, mummies, two Anubis, giant bats. A loop of two halls round a pillar (red key, red gate, a riddle chamber), a flooded hall with a deep crocodile pool (blue lever), a rock-fall gauntlet with a drop / ladder loop to the green key; the gold lever in a side gallery opens the exit hall's gold gate. The first dart trap, in the upper loop hall, a mummy east of it. |
-| 16 | The cistern: the entrance hall forks into two wings, the west one to the red key and the blue lever (an Anubis), the east one behind the red gate down into the flooded cistern (crocodiles, a swimming cobra, the green key on a ledge). The rock-fall drain, the pool hall, the gold lever, death pits before the exit. A riddle shrine and a snake pit between the wings. |
-| 17 | The sanctuary of the uraeus, climbed bottom to top: the hall of two gates (red lever below, blue lever above), a pillar loop with the green key inside the pillar, a rock-fall gauntlet, a 3-high flooded hall with crocodiles and a riddle gate, the gold key by an Anubis. |
-| 18 | The serpent sanctum: cobras, giant bats, mummies, five Anubis, two crocodiles in a two-high flooded hall. Red key, blue lever, green key past a drop shaft, gold lever beyond a loop round a pillar, then a spike-pit gauntlet before the exit hall. |
-| 19 | Apep's pit, the fourth boss: cobras, mummies, Anubis, Apep's throat (a shaft from the second hall down to the fifth), a crocodile pool. Red key, blue lever, green lever; the teleporter in the ninth hall's east nook leads to the sealed pit: a sunken floor between two ledges, Apep and his cobras, the boss gate on the east ledge, behind it the gold key for the gold gate before the exit. |
-| 20 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
-| 21 | The hall of drifts, started from the east: long sand halls, two of them two high, quicksand in pairs, sand worms, camel spiders, giant scorpions, giant cobras. The desert's first dart trap. Red key, red gate; gold lever, gold gate. A riddle gate, a name gate to a sealed room under the eleventh hall. |
-| 22 | The sand stair: twelve halls down in a zigzag, each shorter than the level, sand falls over the drifts, quicksand pits, a dart trap, giant cobras, giant scorpions, camel spiders. Blue lever, blue gate; green key, green gate; a riddle gate. A drop into the exit cavern. |
-| 23 | The house of Seth's servants: a buried temple, Anubis guards and mummies among the drifts, sand worms, giant scorpions. Red lever, red gate; gold key, gold gate; a riddle gate. A name gate to a sealed room over the exit cavern. |
-| 24 | Seth's oasis, the fifth boss: eleven halls of drifts and quicksand to the teleporter (red key, red gate; blue lever, blue gate; a riddle gate). It leads to the sealed oasis: Seth ([hippo-boss](plan/solved/hippo-boss.md)), the red hippo, in his pool between two sand ledges, his hippos come up out of the water; the Blessing of Hapi by the teleporter. Behind the boss gate the gold key and the ladder up to the exit hall (the gold gate before the exit). |
-| 25 | The flooded halls: giant cobras, six crocodiles in long wades, giant bats, mummies, Anubis. Red lever into the two-high flooded hall, blue key, green key past the riddle, gold lever by the last crocodile; a teleporter to a hidden treasure cistern. |
-| 26 | The cistern grid: halls split by a central wall and joined by full-width passages; giant cobras, crocodile pools, mummies, Anubis, giant bats. Red key, blue lever, green lever down a dead end, gold key behind a mummy; a rock-fall gauntlet, spike pits before the exit hall. |
-| 27 | The cistern stairs: fifteen halls down in a zigzag, five of them flooded; crocodiles, giant cobras, giant bats, mummies, Anubis. Red key, blue lever, green key, gold lever. A dart trap in the blue lever's hall, an Anubis coming over it. |
-| 28 | The twin cisterns: down the west wing, across a flooded hall, through a sunken crypt, up the east wing to the exit. Gold lever, red key, blue lever in the crypt; the green key near the top opens the exit gate. A bridge over a well joins the wings. |
-| 29 | Sobek's lake, the sixth boss: crocodiles in every pool, giant cobras, Anubis guards, a loop round a pillar with a red gate on each side. The blue lever opens the gate to the teleporter: the sealed flooded lake with two rock shelves, Sobek and his crocodiles; behind the boss gate the gold key for the gold gate on the way to the exit. |
-| 30 | The necropolis: Anubis guards, mummies in a coffin row, giant cobras, giant scarabs, giant scorpions, loose ceilings everywhere. A processional stair as a hub with wings: red key, red gate, blue lever, blue gate, green key, green gate; the gold lever before the exit. |
-| 31 | The necropolis gate: a loop of two halls round a pillar with a hidden chamber inside, a flooded crypt with giant cobras, a rock-fall gauntlet and a riddle room. Red key, blue lever, green key, gold lever (two gold gates: the way down and a treasure tomb). |
-| 32 | The catacombs: the hall of coffins (3 high, two ledges, the red lever), the blue key, a flooded tomb, the green lever (two green gates), the gold key on a ledge in the 3-high hall of Anubis. |
-| 33 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
-| 34 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
+| 10 | The Hall of Webs: the web halls' first level, most halls dark (a torch now and then, braziers), webs under their ceilings: camel spiders (they shun the light), giant scarabs, giant rats, two mimics, two trapped chests. Two keys and gates, a treasure tomb, a riddle gate, a name gate to a secret room. Inscriptions: the torch of the night watch, the spider's net. |
+| 11 | The Dark Gallery: camel spiders, giant scarabs, two mimics, two trapped chests in the dark halls. A key and a lever, a treasure tomb, a riddle gate, a name gate to a secret room. Inscriptions: the djed pillar (an armour boon), the chest and its guard. |
+| 12 | The Two Shafts, the first route fork: expedition page 8 on the way to the fork hall (row 31), two drops side by side either side of a pillar; the left route long through a hall of camel spiders, the right one short, the earlier expedition's tomb (a skeleton, jars, gear) at its end; both one-way into the same hall below. Camel spiders, giant scarabs, giant rats, six mimics, two trapped chests. A key and a lever, a treasure tomb, a riddle gate. Inscriptions: the weaver's complaint, the riddle of the house. |
+| 13 | The Lair of the Mother of Webs, the third boss: camel spiders, giant scarabs, giant rats, five mimics. Two keys and a lever, a riddle gate; the teleporter at the east end of the hall on row 15 leads to the sealed room under the halls: the Mother of Webs in the dark between two braziers, behind the boss gate the gold key for the last gate. Expedition page 9 (the dead ahead). Inscription: the hymn to the evening sun. |
+| 14 | The serpent temple's gate: cobras, crocodiles, mummies, two Anubis, giant bats. A loop of two halls round a pillar (red key, red gate, a riddle chamber), a flooded hall with a deep crocodile pool (blue lever), a rock-fall gauntlet with a drop / ladder loop to the green key; the gold lever in a side gallery opens the exit hall's gold gate. The first dart trap, in the upper loop hall, a mummy east of it. |
+| 15 | The cistern: the entrance hall forks into two wings, the west one to the red key and the blue lever (an Anubis), the east one behind the red gate down into the flooded cistern (crocodiles, a swimming cobra, the green key on a ledge). The rock-fall drain, the pool hall, the gold lever, death pits before the exit. A riddle shrine and a snake pit between the wings. |
+| 16 | The sanctuary of the uraeus, climbed bottom to top: the hall of two gates (red lever below, blue lever above), a pillar loop with the green key inside the pillar, a rock-fall gauntlet, a 3-high flooded hall with crocodiles and a riddle gate, the gold key by an Anubis. |
+| 17 | The serpent sanctum: cobras, giant bats, mummies, five Anubis, two crocodiles in a two-high flooded hall. Red key, blue lever, green key past a drop shaft, gold lever beyond a loop round a pillar, then a spike-pit gauntlet before the exit hall. |
+| 18 | Apep's pit, the fourth boss: cobras, mummies, Anubis, Apep's throat (a shaft from the second hall down to the fifth), a crocodile pool. Red key, blue lever, green lever; the teleporter in the ninth hall's east nook leads to the sealed pit: a sunken floor between two ledges, Apep and his cobras, the boss gate on the east ledge, behind it the gold key for the gold gate before the exit. |
+| 19 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
+| 20 | The hall of drifts, started from the east: long sand halls, two of them two high, quicksand in pairs, sand worms, camel spiders, giant scorpions, giant cobras. The desert's first dart trap. Red key, red gate; gold lever, gold gate. A riddle gate, a name gate to a sealed room under the eleventh hall. |
+| 21 | The sand stair: twelve halls down in a zigzag, each shorter than the level, sand falls over the drifts, quicksand pits, a dart trap, giant cobras, giant scorpions, camel spiders. Blue lever, blue gate; green key, green gate; a riddle gate. A drop into the exit cavern. |
+| 22 | The house of Seth's servants: a buried temple, Anubis guards and mummies among the drifts, sand worms, giant scorpions. Red lever, red gate; gold key, gold gate; a riddle gate. A name gate to a sealed room over the exit cavern. |
+| 23 | Seth's oasis, the fifth boss: eleven halls of drifts and quicksand to the teleporter (red key, red gate; blue lever, blue gate; a riddle gate). It leads to the sealed oasis: Seth ([hippo-boss](plan/solved/hippo-boss.md)), the red hippo, in his pool between two sand ledges, his hippos come up out of the water; the Blessing of Hapi by the teleporter. Behind the boss gate the gold key and the ladder up to the exit hall (the gold gate before the exit). |
+| 24 | The flooded halls: giant cobras, six crocodiles in long wades, giant bats, mummies, Anubis. Red lever into the two-high flooded hall, blue key, green key past the riddle, gold lever by the last crocodile; a teleporter to a hidden treasure cistern. |
+| 25 | The cistern grid: halls split by a central wall and joined by full-width passages; giant cobras, crocodile pools, mummies, Anubis, giant bats. Red key, blue lever, green lever down a dead end, gold key behind a mummy; a rock-fall gauntlet, spike pits before the exit hall. |
+| 26 | The cistern stairs: fifteen halls down in a zigzag, five of them flooded; crocodiles, giant cobras, giant bats, mummies, Anubis. Red key, blue lever, green key, gold lever. A dart trap in the blue lever's hall, an Anubis coming over it. |
+| 27 | The twin cisterns: down the west wing, across a flooded hall, through a sunken crypt, up the east wing to the exit. Gold lever, red key, blue lever in the crypt; the green key near the top opens the exit gate. A bridge over a well joins the wings. |
+| 28 | Sobek's lake, the sixth boss: crocodiles in every pool, giant cobras, Anubis guards, a loop round a pillar with a red gate on each side. The blue lever opens the gate to the teleporter: the sealed flooded lake with two rock shelves, Sobek and his crocodiles; behind the boss gate the gold key for the gold gate on the way to the exit. |
+| 29 | The necropolis: Anubis guards, mummies in a coffin row, giant cobras, giant scarabs, giant scorpions, loose ceilings everywhere. A processional stair as a hub with wings: red key, red gate, blue lever, blue gate, green key, green gate; the gold lever before the exit. |
+| 30 | The necropolis gate: a loop of two halls round a pillar with a hidden chamber inside, a flooded crypt with giant cobras, a rock-fall gauntlet and a riddle room. Red key, blue lever, green key, gold lever (two gold gates: the way down and a treasure tomb). |
+| 31 | The catacombs: the hall of coffins (3 high, two ledges, the red lever), the blue key, a flooded tomb, the green lever (two green gates), the gold key on a ledge in the 3-high hall of Anubis. |
+| 32 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
+| 33 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): none in the tomb entrance and the bat galleries (1-9), one a
-level in 10-11, two in 12-23, three in 24-34, each a chest that held a plain potion (health, stamina, might, armour). Never put
-what the level needs in one (a key item, a new weapon, the antidote, a Hapi potion): half of them are empty, and the
-checker does not count a trapped chest's antidote as in reach.
+Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): none in the tomb entrance and the bat galleries
+(1-9), two a level in 10-22, three in 23-33, each a chest that held a plain potion (health, stamina, might, armour).
+Never put what the level needs in one (a key item, a new weapon, the antidote, a Hapi potion): half of them are empty,
+and the checker does not count a trapped chest's antidote as in reach.
 
 The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
 attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`, plan
-campaign-texts). 19 of them (1-8, 10, 11, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 1, 2, 3, 5, 6,
-8, 9, 10, 11, 13, 15, 16, 18, 20, 22, 23, 26, 30 and 33, each a level or so before what it hints at, off the exit path;
-the last one (24) lies on lvl33's path. The pages 9, 12, 16, 19 and 22 (an early fork, poison drips, deep water, worms
-and a fork, the lake of fire and a fork) are written but not placed: the rebuild places them, one every
-two or three levels. Some pages hint at a fork ahead; the last stays the last fork's warning.
+campaign-texts). 18 of them (1-9, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 1, 2, 3, 5, 6, 8, 9, 12,
+13, 14, 15, 17, 19, 21, 22, 25, 29 and 32, each a level or so before what it hints at, off the exit path; page 8, the
+first fork's, on the way to it (lvl12); the last one (24) on lvl32's path. The pages 10, 11, 12, 16, 19 and 22 (the
+Stargate ring, the scorpions, poison drips, deep water, worms and a fork, the lake of fire and a fork) are written but
+not placed: the rebuild places them, one every two or three levels. Some pages hint at a fork ahead; the last stays
+the last fork's warning.
 
-Scorpions live in levels 14 and 20, giant scorpions in 14, 20-24 and 30-34, cobras in 15-19, giant cobras in 20-34;
-each level with a poisoner (the plants of the tomb entrance too) has an antidote in reach (the checker warns otherwise).
-Lesser resistance potions lie on the poisoner levels, greater ones from 14 on (one of each per level from 14). One
-Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half
-water of each water level (5-9, 15-19, 24 (by the oasis), 25-29, 31-34), a few cells before it; levelcheck assumes
-none. One crocodile lives in a pool off the way on level 7 (the bat galleries' preview), many in the flooded levels from 15 on. Hippos lie in the water of levels 15,
-17, 25 and 27 (one a level, in a long pool); Seth, their boss, in the oasis of 24. Blue lotuses float in the water of
-levels 15-19, 24, 25-29 and 31-34 (one to three a level). Camel spiders run in the
-dark desert halls of 20-24 (three to five a level; levelgen from difficulty 3 to 8); they keep out of the light of
-torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 10-13 (one a level, two in 11;
-levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 34. The desert (20-24, plan
-desert-chapter) has sand: drifts on the floor (the player walks at 3/4 speed and cannot sprint), quicksand (single cells
-or pairs), sand falls, and sand worms lying under the drifts that come up under the player. Cursed mimics (plan
-cursed-mimic) lie as dark chests in levels 26, 28, 30, 32 and 34 (one a level, beside a treasure, off the path; plain
-mimics in 3, 6, 7, 14, 16-21, 23, 25, 26, 31 and 32; levelgen makes 30% of its mimics cursed from difficulty 8). Baboons
-(plan baboon) keep their distance and throw burning coals in the necropolis halls of 30 (three), 31 and 32 (two each),
-on long open rows; their home, the Lake of Fire, comes with the rebuild (levelgen from difficulty 9). Their boss Babi
-(plan babi-boss) has no campaign slot yet: his arena is `tests/levels/babi`. Mummies appear from level 10 on, Anubis
-from level 12. Every level has [inscriptions](inscriptions.md): the rebuilt ones (1-9) one or two of their zone's texts
-(`content/inscriptions/rebuild.txt`, each id once), the others from 10 on one or two of
+Scorpions live in level 19, giant scorpions in 19-23 and 29-33, cobras in 14-18, giant cobras in 19-33; each level
+with a poisoner (the plants of the tomb entrance too) has an antidote in reach (the checker warns otherwise). Lesser
+resistance potions lie on the poisoner levels, greater ones from 14 on (one of each per level from 14). One Blessing of
+Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half water of
+each water level (5-9, 14-18, 23 (by the oasis), 24-28, 30-33), a few cells before it; levelcheck assumes none. One
+crocodile lives in a pool off the way on level 7 (the bat galleries' preview), many in the flooded levels from 14 on.
+Hippos lie in the water of levels 14, 16, 24 and 26 (one a level, in a long pool); Seth, their boss, in the oasis of
+23. Blue lotuses float in the water of levels 14-18, 23, 24-28 and 30-33 (one to three a level). Camel spiders run in
+the dark halls of the web halls (10-13, 14 to 20 a level) and of the desert (19-23, three to five a level); they keep
+out of the light of torches, braziers and lamps. Living ushabti step out of the wall with the Anubis boss's guards in
+33 (the priests' quarter brings them back with the rebuild). The desert (19-23, plan desert-chapter) has sand: drifts on
+the floor (the player walks at 3/4 speed and cannot sprint), quicksand (single cells or pairs), sand falls, and sand
+worms lying under the drifts that come up under the player. Cursed mimics (plan cursed-mimic) lie as dark chests in
+levels 25, 27, 29, 31 and 33 (one a level, beside a treasure, off the path; plain mimics in 3, 6, 7, 10-13, 15-20, 22,
+24, 25, 30 and 31; levelgen makes 30% of its mimics cursed from difficulty 8). Baboons (plan baboon) keep their
+distance and throw burning coals in the necropolis halls of 29 (three), 30 and 31 (two each), on long open rows; their
+home, the Lake of Fire, comes with the rebuild (levelgen from difficulty 9). Their boss Babi (plan babi-boss) has no
+campaign slot yet: his arena is `tests/levels/babi`. Mummies and Anubis guards appear from level 14 on. Every level has
+[inscriptions](inscriptions.md): the rebuilt ones (1-13) one or two of their zone's texts
+(`content/inscriptions/rebuild.txt`, each id once), the others from 14 on one or two of
 `content/inscriptions/campaign.txt`: real texts, some with a hint for the level (the boss ahead, a dart trap, a hidden
-treasure room, the order of the locks). Levels 5, 6, 8, 11, 13, 15, 17, 21, 23, 25, 26, 28, 30, 32 and 34 have a secret
-room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name cartouche (`:`)
+treasure room, the order of the locks). Levels 5, 6, 8, 10, 11, 14, 16, 20, 22, 24, 25, 27, 29, 31 and 33 have a
+secret room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name cartouche (`:`)
 elsewhere on the level, and the sealed room carved into the rock, reached only by the name gate: its teleporter, a lore
-inscription (ids 33 to 45, 51 and 52, two with a boon; on a rebuilt level levelgen's `--lore`), a chest with a rare potion or an amulet (two in some), a mummy
-guarding it in 13, 25, 30 and 34. Weak monsters give way to their giant kin: no rats, scarabs or small bats after level
-9, no small scarabs after level 4 (giant scarabs from 10), except a boss's minions.
+inscription (ids 33 to 45, 51 and 52, two with a boon; on a rebuilt level levelgen's `--lore`), a chest with a rare
+potion or an amulet (two in some), a mummy guarding it in 24, 29 and 33. Weak monsters give way to their giant kin: no
+rats, scarabs or small bats after level 9, no small scarabs after level 4 (giant scarabs from 10), except a boss's
+minions.
 
 The level files in `content/levels/` are the only source of truth. The ASCII drawings in `tools/level/campaign/` were
 the first helpers for each level and are not kept in step: never rebuild a campaign level from them. Change a level in
@@ -477,7 +481,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   the beam, the turned mirror, the lit disc (screenshots).
 - `tests/unit/sand_test.cpp` (plan desert-chapter): sand slows and stops the sprint, quicksand sinks, hurts and a
   jump frees, the sand fall hits, slows and leaves a drift, a sand worm lies under its sand and comes up under the
-  player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign's 34 levels with the desert at 20-24.
+  player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign's 33 levels with the desert at 19-23.
   Scenarios `tests/scenarios/solved/sand.txt`, `sand_worm.txt`, `desert.txt`: the drifts, the pour, the sunk player, the
   ripple, the sandstone halls and Seth's oasis (screenshots).
 - `tests/scenarios/solved/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.

@@ -1,0 +1,16 @@
+# The first route fork (plan denser-levels): lvl12, the two drops side by side in the fork hall (row 31), the page on
+# the way to them, and the two routes below, either side of the pillar.
+seed 1
+god
+level 12 at 26 31
+wait 2s
+screenshot fork_page
+level 12 at 19 31
+wait 2s
+screenshot fork_drops
+level 12 at 14 28
+wait 2s
+screenshot fork_left
+level 12 at 26 28
+wait 2s
+screenshot fork_right

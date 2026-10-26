@@ -1,6 +1,6 @@
 # Frame rate cap
 
-Status: draft 2026-10-24, from the user (with [model-frame-interpolation](solved/model-frame-interpolation.md):
+Status: draft 2026-10-24, from the user (with [model-frame-interpolation](model-frame-interpolation.md):
 "if it can work for both, that's OK as well"). Needs nothing first. Implemented 2026-10-26, waits for the play-test:
 `bin/game --level 1`, Esc > Options > Display > Frame rate.
 

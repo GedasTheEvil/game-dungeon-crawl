@@ -15,7 +15,7 @@ down 2 times."). Needs nothing first. Implemented 2026-10-26, waits for the play
 * `detailScale` and `SLOT_SCALE` untouched. Nothing else reads a potion prototype's `scale` (the inventory overrides
   it); there are no dropped or thrown potions.
 * `AMULET_SCALE` kept (4, raised to 10 on a chest, as before); its comment now says so.
-* Scenario `tests/scenarios/smaller_chest_potions.txt` (tests/levels/containers, every container holds a small health
+* Scenario `tests/scenarios/solved/smaller_chest_potions.txt` (tests/levels/containers, every container holds a small health
   potion; `chest potion <id>` only adds a pickup, it draws nothing): an opened chest and coffer, compared with
   before-change screenshots.
 

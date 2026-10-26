@@ -17,6 +17,8 @@ void Dungeon::UpdateMonsters() {
 		if (!mon.Active() || mon.Emerging())
 			continue;
 
+		if (mon.TakeCall())
+			callPack(mon);
 		if (!mon.Alive())
 			markSlain(mon); // also a trap's or the poison's kill
 		if (std::optional<ItemKind> drop = mon.TakeDrop())
@@ -117,6 +119,20 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		updateWalker(mon);
+	}
+}
+//======================================================================================
+void Dungeon::callPack(const Monster& caller) {
+	sim.events->PlayCharacter(caller.Type()->id, CharacterSound::Roar);
+	sim.journal->SeeMove(caller.Type()->id, levelNumber, CreatureMove::CallPack);
+	const float radius = caller.Type()->call.value_or(CallRules{}).radius;
+	for (Monster& other : monsters) {
+		if (&other == &caller || !other.Active() || !other.Alive() || !other.Type()->answersCall)
+			continue;
+		const float dx = other.CentreX() - caller.CentreX();
+		const float dy = static_cast<float>(other.Row() - caller.Row());
+		if (std::hypot(dx, dy) <= radius)
+			other.Answer();
 	}
 }
 //======================================================================================

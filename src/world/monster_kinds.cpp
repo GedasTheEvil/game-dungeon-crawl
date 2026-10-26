@@ -333,6 +333,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Lesser, 10}},
+	 .answersCall = true,
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,
@@ -358,6 +359,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.f,
 	 .meleeCurses =
 		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
+	 .call = CallRules{RAT_CALL_RADIUS, RAT_CALL_BELOW_PCT}, // plan giant-rat-pack-call
+	 .answersCall = true,
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
 	 .climbGrip = 1.14f,

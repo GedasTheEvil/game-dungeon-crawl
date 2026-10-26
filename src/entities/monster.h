@@ -80,6 +80,8 @@ class Monster {
 	bool spawned = false; // the timers start on the first spawn
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
+	bool called = false; // its pack call is made (CallRules): once per spawn
+	bool callDue = false; // made in a hit, not yet taken by the dungeon (TakeCall)
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
 	int summonMs = -1; // GameClock time a boss summoned it; < 0: not summoned
 	Summon summonedBy = Summon::DigOut;
@@ -164,6 +166,17 @@ class Monster {
 	[[nodiscard]] float NearEdge(int dir) const { return dir > 0 ? Left() : Right(); }
 	[[nodiscard]] float FarEdge(int dir) const { return dir > 0 ? Right() : Left(); }
 	[[nodiscard]] bool Alive() const { return health > 0; }
+	// True once, after a hit took it below its pack call's health (CallRules): the dungeon alerts the pack.
+	[[nodiscard]] bool TakeCall() {
+		const bool due = callDue && Alive();
+		callDue = false;
+		return due;
+	}
+	// A pack call reached it (MonsterKind::answersCall): it has noticed the player and comes.
+	void Answer() {
+		if (Alive())
+			alerted = true;
+	}
 	[[nodiscard]] bool Alerted() const { return alerted; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
 	[[nodiscard]] bool rooted() const {

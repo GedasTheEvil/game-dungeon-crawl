@@ -267,6 +267,10 @@ constexpr float SETH_ROAR_RADIUS = 2.f;
 constexpr int SETH_ROAR_DAMAGE = 45;
 constexpr float SETH_ROAR_SHOVE = 1.5f;
 constexpr int SETH_ROAR_HAZE_MS = 1000;
+// The giant rat's pack call (plan giant-rat-pack-call): once, below half its HP, every rat and giant rat within 8 tiles
+// wakes and comes for the player (CallRules).
+constexpr float RAT_CALL_RADIUS = 8.f;
+constexpr int RAT_CALL_BELOW_PCT = 50;
 constexpr float SHOVE_SPEED = 6.f; // tiles per second the player slides when shoved (Dungeon::ShovePlayer)
 constexpr float CHARGE_JUMP_CLEAR = 0.15f;
 constexpr int CHARGE_HIT_FACTOR = 2;

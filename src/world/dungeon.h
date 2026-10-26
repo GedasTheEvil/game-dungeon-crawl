@@ -348,6 +348,9 @@ class Dungeon {
 	// The Mother of Webs (dungeon_webs.cpp, plan camel-spider-boss): awake, a douser (MonsterKind::douseCells) puts
 	// out the torches and lamps near it on its row (DecorLayout::doused), a spinner (MonsterKind::webs) spins webs.
 	void updateSpinner(const Monster& mon);
+	// A hurt monster's pack call (CallRules, plan giant-rat-pack-call): the squeal, the journal, every monster that
+	// answers within the radius is alerted.
+	void callPack(const Monster& caller);
 	// A web over the floor of cell (map index), spun at laidMs; cut or burnt at goneMs (< 0: whole), gone WEB_CUT_MS
 	// or WEB_BURN_MS later. Not saved: a load starts the boss fight over.
 	struct Web {

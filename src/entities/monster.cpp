@@ -20,6 +20,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	health = kind.maxHealth;
 	x = 0.f;
 	alerted = false;
+	called = false;
+	callDue = false;
 	minion = false;
 	summonMs = -1;
 	state = flies() || lurking() ? ModelState::Idle : ModelState::Move;
@@ -184,6 +186,8 @@ bool Monster::takeHit(int dmg) {
 	if (Alive()) {
 		health -= dmg;
 		blood->Splash(scale);
+		if (type->call && !called && Alive() && health * 100 < type->maxHealth * type->call->belowPct)
+			called = callDue = true; // squeals; Dungeon::UpdateMonsters gathers the pack
 	}
 
 	if (Alive() || state == ModelState::Die)

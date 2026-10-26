@@ -1,0 +1,8 @@
+; The giant rat (col 2) walled in on the lower floor, the player at col 6; rats on the upper floor at cols 4 and 7 (within
+; 8 tiles of the giant rat) and 11 (farther; 10 x 6 cells round the player spawn): the pack call alerts the first two
+; (tests/unit/giant_rat_call_test.cpp).
+########################################
+#...t..t...t...........................#
+########################################
+#.T#..S.................E..............#
+########################################

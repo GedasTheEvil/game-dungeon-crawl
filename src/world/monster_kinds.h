@@ -174,6 +174,14 @@ struct RoarRules {
 	int hazeMs = 0; // the sand over the screen (Dungeon::SandHaze)
 };
 
+// A pack call (plan giant-rat-pack-call): once, when its health drops below belowPct of the maximum, it squeals (its
+// roar sound) and every monster that answersCall within radius tiles (a straight line, rows too), awake or not, is
+// alerted as if it had seen the player. It calls no new monsters (Dungeon::callPack).
+struct CallRules {
+	float radius = 0.f;
+	int belowPct = 50;
+};
+
 // The dung ball (plan scarab-dung-ball, Roll): with the player on its row minRange..maxRange tiles away (between the
 // boxes, out of bite reach) and no wall between, it turns its back on them and shapes a ball for windupMs (its
 // ranged clip), then kicks it off. The ball (Dungeon::DungBall) rolls along the floor towards the player at speed,
@@ -310,6 +318,8 @@ struct MonsterKind {
 	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
+	std::optional<CallRules> call; // it calls the pack once, when hurt (CallRules)
+	bool answersCall = false; // a pack call within reach alerts it (the rats)
 	std::optional<RoarRules> spray; // a sand burrower sprays sand round itself as it comes up
 	std::optional<HoldRules> hold; // some of its bites grab and hold the player (Grab)
 	std::optional<RollRules> roll; // it rolls dung balls at the player (Roll)

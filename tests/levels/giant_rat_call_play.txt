@@ -1,0 +1,6 @@
+; Play-test version of giant_rat_call (tests/play/giant-rat-pack-call.txt): no wall, the giant rat (col 2) runs at the player (col 6).
+########################################
+#...t..t...t...........................#
+########################################
+#.T...S.................E..............#
+########################################

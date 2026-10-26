@@ -1,0 +1,27 @@
+# Smaller chest potions (plan smaller-chest-potions): a potion on an opened chest is drawn at its own scale (about 5),
+# half the CHEST_MIN_SCALE the weapons get. tests/levels/containers: every chest holds a small health potion (the flask).
+seed 3
+god
+level tests/levels/containers
+container 3 chest 0
+container 5 coffer 1
+wait 30
+walk to 3.5
+wait 10
+interact
+wait 2s
+walk to 2
+wait 10
+screenshot chest_potion
+walk to 3.5
+expect chests == 9
+walk to 5.5
+interact
+wait 2s
+walk to 4.3
+wait 10
+screenshot coffer_potion
+walk to 5.5
+interact
+wait 5
+expect potion0 >= 1

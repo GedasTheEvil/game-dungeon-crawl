@@ -152,7 +152,7 @@ std::unique_ptr<Item> loadItem(const char* name, float scale) {
 	return item;
 }
 
-constexpr float AMULET_SCALE = 4.f; // on a chest and in the inventory, like the potions (about 5)
+constexpr float AMULET_SCALE = 4.f; // on a chest raised to CHEST_MIN_SCALE (10), twice a potion's there
 
 // Each vessel loaded once, by its first potion; the others with it share the model.
 void loadPotions(ItemPrototypes& items) {

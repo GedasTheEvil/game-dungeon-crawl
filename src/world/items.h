@@ -228,7 +228,7 @@ constexpr int POTION_MODEL_COUNT = 6;
 
 struct PotionModelDef {
 	const char* model; // media/models/items/<model>.md3
-	float scale; // on a chest (Item::scale)
+	float scale; // on a chest (Item::scale), as is: no CHEST_MIN_SCALE for a potion
 	float detailScale; // the inventory's detail view
 };
 [[nodiscard]] const PotionModelDef& potionModelDef(PotionModel model);

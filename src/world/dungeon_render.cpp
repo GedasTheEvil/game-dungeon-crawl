@@ -15,6 +15,9 @@
 
 namespace {
 constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container
+// A potion keeps its own scale over the container, half the minimum (plan smaller-chest-potions); lifted by half its
+// height (about 5), it stands where the minimum's centre was, not sunk in the chest.
+constexpr float POTION_CHEST_LIFT = 2.5f;
 constexpr float SAND_EDGE_LIFT = 0.04f; // the spilled sand over the stone floor, clear of its depth
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
@@ -190,8 +193,9 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		const float angle = item->rotA;
 		const float scale = item->scale;
 		item->rotA = treasureSpin;
-		item->scale = std::max(scale, CHEST_MIN_SCALE);
-		glTranslatef(0, def.itemLift, 0);
+		const bool potion = isPotion(*kind);
+		item->scale = potion ? scale : std::max(scale, CHEST_MIN_SCALE);
+		glTranslatef(0, def.itemLift + (potion ? POTION_CHEST_LIFT : 0.f), 0);
 		item->Draw();
 		item->rotA = angle;
 		item->scale = scale;

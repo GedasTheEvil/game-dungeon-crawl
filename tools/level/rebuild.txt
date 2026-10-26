@@ -47,3 +47,10 @@
 25 --zone serpent_temple --seed 7 --difficulty 5 --texts 90,22 --page 15 --lore 42 --title "The Hall of the Rhythm"
 26 --zone serpent_temple --seed 3 --difficulty 5 --texts 91,92,17 --title "The Uraeus Stair"
 27 --zone serpent_temple --seed 9 --difficulty 5 --boss --texts 93,18 --page 16 --title "The Pit of Apep"
+
+# Zone 7: Cisterns of Sobek. Freed texts on Hapi and Sobek (15, 20, 23, 24) and a boon (21); lore 19 and 2 (a crocodile curse).
+28 --zone cisterns_of_sobek --seed 3 --difficulty 6 --texts 94,97 --lore 19 --title "The Gate of Sobek"
+29 --zone cisterns_of_sobek --seed 7 --difficulty 6 --texts 96,15 --lore 2 --title "The Flooded Halls"
+30 --zone cisterns_of_sobek --seed 11 --difficulty 6 --texts 98,20,21 --title "The Cistern Grid"
+31 --zone cisterns_of_sobek --seed 7 --difficulty 6 --texts 99,101,23 --title "The Cistern Stairs"
+32 --zone cisterns_of_sobek --seed 9 --difficulty 6 --boss --texts 95,24 --page 17 --title "The Lake of Sobek"

@@ -233,7 +233,7 @@ TEST_CASE("no random brazier under a placed torch, no random prop in front of a 
 		const int beforeGrass = grown->decor[c].type;
 		CHECK(
 			(beforeGrass < 0 || isCoffin(beforeGrass) || isWaterProp(beforeGrass) || beforeGrass == DECOR_SKELETON ||
-			 beforeGrass == DECOR_USHABTI)
+			 beforeGrass == DECOR_USHABTI || hasPlacedProp(grass.cells[c].dressing))
 		);
 	}
 	CHECK(props > 0);

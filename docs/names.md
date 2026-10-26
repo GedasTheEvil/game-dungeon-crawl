@@ -12,7 +12,7 @@ are copied like any other inscription, and the gate's scroll, after a wrong name
 I copied might hold it." Learning the skill later translates the copy, name and all.
 
 Each run picks the names anew: New Game rolls a seed (`RunStats::nameSeed`, kept in the save game) that shuffles the
-name list, level 1 the first name. No name repeats in a run as long as the list has at least 35 names (one per campaign level) (the unit tests
+name list, level 1 the first name. No name repeats in a run as long as the list has at least one name per campaign level (54) (the unit tests
 check it). The cartouche spells the name in signs (its `G:` line): a player who reads hieroglyphs can open the gate
 without the skill.
 

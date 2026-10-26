@@ -221,3 +221,136 @@ G: Q3 X1 G43 E23 S29
 A: ptolemy
 A: ptolemaios
 N: A Macedonian general's line. There were fifteen of them, all Ptolemy.
+
+# More names for the rebuilt campaign's 54 levels (plan denser-levels), spelled with signs already on the sheet.
+
+name: Djer
+G: I10 D21
+A: djer
+N: First dynasty. Later Egyptians took his tomb for the tomb of Osiris.
+
+name: Semerkhet
+G: S29 G17 D21 Aa1 X1
+A: semerkhet
+N: A short reign and a big tomb. The usual ratio.
+
+name: Qaa
+G: N29 D36 D36
+A: qaa
+A: qa'a
+N: The last king of the first dynasty. Two letters, one of them twice.
+
+name: Anedjib
+G: M17 N35 I10 D58
+A: anedjib
+A: adjib
+N: Safe of heart, his name says. A rare boast.
+
+name: Merneith
+G: U6 N35 X1
+title: queen
+A: merneith
+A: meritneith
+N: Ruled for her son, buried among the kings.
+
+name: Huni
+G: V28 G43 N35 M17
+A: huni
+N: The last king of the third dynasty. Sneferu's father, maybe.
+
+name: Djedefre
+G: N5 R11 I9
+A: djedefre
+A: radjedef
+N: Khufu's son. Built far away from his father. Families.
+
+name: Shepseskaf
+G: A51 S29 D28 I9
+A: shepseskaf
+N: Built a tomb like a giant sarcophagus. Tired of triangles.
+
+name: Userkaf
+G: F12 D28 I9
+A: userkaf
+N: First of the fifth dynasty, first of the sun temples.
+
+name: Neferirkare
+G: N5 F35 D4 D28
+A: neferirkare
+A: kakai
+N: His temple's papyri are the oldest office files in the world.
+
+name: Nyuserre
+G: N5 F12 N35
+A: nyuserre
+A: niuserre
+N: The best-kept sun temple is his. Sun-worship, with a schedule.
+
+name: Djedkare
+G: N5 R11 D28
+A: djedkare
+A: isesi
+N: Patron of Ptahhotep, who wrote advice for everyone.
+
+name: Merenre
+G: N5 U6 N35
+A: merenre
+N: Sent Harkhuf south, who came back with a dancing pygmy.
+
+name: Intef
+G: M17 N35 X1 I9
+A: intef
+A: antef
+N: Several of them. Thebes before Thebes was Thebes.
+
+name: Kamose
+G: D28 F31 S29
+A: kamose
+N: Fought the Hyksos, left the rest to Ahmose.
+
+name: Siptah
+G: S29 Q3 X1 V28
+A: siptah
+N: A young king with a club foot. Short reign.
+
+name: Tawosret
+G: X1 G1 F12 X1
+title: queen
+A: tawosret
+A: twosret
+N: Queen, then king, then erased. It happened more than once.
+
+name: Setnakhte
+G: S29 X1 N35 Aa1 X1
+A: setnakhte
+A: sethnakhte
+N: Seth is strong, his name says. Founded a dynasty, briefly.
+
+name: Osorkon
+G: G1 S29 D21 V31 N35
+A: osorkon
+N: A Libyan name on an Egyptian throne. Several times.
+
+name: Piye
+G: Q3 M17 Z4
+A: piye
+A: piankhi
+N: Came down from Kush and took Egypt. Loved horses more than people.
+
+name: Shabaka
+G: N37 D58 V31
+A: shabaka
+A: shabako
+N: Had an old papyrus copied onto stone. Later used as a millstone.
+
+name: Wahibre
+G: N5 V29 F34
+A: wahibre
+A: apries
+N: Apries to the Greeks. Lost a war, a throne and his life, in order.
+
+name: Nekau
+G: N35 V31 G1 G43
+A: nekau
+A: necho
+N: Tried to dig a canal to the Red Sea. An oracle told him to stop.

@@ -95,6 +95,10 @@ constexpr float BABI_RELEASE = 0.615f;
 constexpr float BABI_RELEASE_Y = 1.308f;
 constexpr float BABI_RELEASE_AHEAD = 0.589f;
 constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
+// Spit in the eyes (plan giant-cobra-blinding-spit): the giant cobra blinds with half its spit hits, Apep with each.
+constexpr int GIANT_COBRA_BLIND_MS = 2000;
+constexpr int GIANT_COBRA_BLIND_PERCENT = 50;
+constexpr int APEP_BLIND_MS = 3000;
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
 // Holds (HoldRules; plans crocodile-hold-bite, giant-scorpion-grab). In half water a crocodile's bite may grab: the
@@ -659,7 +663,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'Q',
 	 .name = "Giant cobra",
 	 .label = "giant cobra",
-	 .description = "Giant cobra, lies coiled until the player comes near; its bite and spit poison (medium)",
+	 .description =
+		 "Giant cobra, lies coiled until the player comes near; its bite and spit poison (medium), its spit may blind",
 	 .threat = 5.f, // between the giant scarab and the crocodile, the poison and the spit on top
 	 .model = "monsters/cobra",
 	 .texture = "monsters/cobra_giant",
@@ -676,7 +681,17 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .ranged = RangedRules{5, PoisonTier::Medium, 1.5f, 3000, 0.41f, 0.87f},
+	 .ranged =
+		 RangedRules{
+			 .damage = 5,
+			 .poison = PoisonTier::Medium,
+			 .range = 1.5f,
+			 .cooldownMs = 3000,
+			 .release = 0.41f,
+			 .releaseY = 0.87f,
+			 .blindMs = GIANT_COBRA_BLIND_MS,
+			 .blindPercent = GIANT_COBRA_BLIND_PERCENT
+		 },
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .riseMs = 750},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison (plan scorpion-queen-boss).
@@ -759,7 +774,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'P',
 	 .name = "Apep",
 	 .label = "apep",
-	 .description = "Apep, dives into the floor and comes up behind the player; cobras dig out round him; his death "
+	 .description = "Apep, dives into the floor and comes up behind the player; spits a blinding fan of three; cobras "
+					"dig out round "
+					"him; his death "
 					"opens the boss gates. One boss per level",
 	 .threat = 14.f, // hard to pin down, plus his cobras
 	 .model = "monsters/cobra",
@@ -780,6 +797,19 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 1.25f,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 // Between dives, a fan of three that blinds with each hit (plan giant-cobra-blinding-spit).
+	 .ranged =
+		 RangedRules{
+			 .damage = 15,
+			 .poison = PoisonTier::Medium,
+			 .range = 2.5f,
+			 .cooldownMs = 4000,
+			 .release = 0.41f,
+			 .releaseY = 0.87f,
+			 .fan = 3,
+			 .blindMs = APEP_BLIND_MS,
+			 .blindPercent = 100
+		 },
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},

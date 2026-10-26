@@ -169,6 +169,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | armour | Armor | taken off every hit on the player (its non-fire shares), at least 1 HP gets through; the game shows "Armor" | `PlayerStats::Armor` |
 | burning | You are on fire!, catches fire | a fire hit sets its target burning: 3 s at a fifth of the hit's fire share a second, armour or not; half water puts it out ([fire-damage](plan/solved/fire-damage.md)) | `Burning`, `BURN_MS`, `Fire::body` |
+| blind | Venom in your eyes! | a blinding spit's hit (the giant cobra's half the time, Apep's always): 2 s (Apep's 3 s) of dark green edges round a small clear spot; wading clears it twice as fast ([giant-cobra-blinding-spit](plan/giant-cobra-blinding-spit.md)) | `Player::Blind`, `RangedRules::blindMs`, `MotionFx::blind` |
+| fan | | a spit of several shots at once, spread round the aim (Apep's three) | `RangedRules::fan`, `SHOT_FAN_SPREAD` |
 | bite reach | | how close a walker comes before it bites: 0.1 tiles between hitboxes (0.25 for the rooted) | `MONSTER_BITE_REACH`, `ROOTED_BITE_REACH` |
 | bite cone | | where a bite lands: a cone from the monster's mouth along the way it bites (35°, 0.15 tiles past its bite reach; a boss's longer and wider, tall walkers strike from up high), or its body; a jump clears a low one, not a tall one ([monster-attack-reach](plan/solved/monster-attack-reach.md)) | `MeleeReach`, `Monster::Reaches`, `Monster::Reach` |
 | wind-up | | a bite lands 40% of the monster's `attackMs` after it starts, if the player is still in its bite cone; meanwhile it keeps its facing and follows only forward ([monster-attack-reach](plan/solved/monster-attack-reach.md)) | `MELEE_WINDUP_PCT`, `Monster::Biting`, `Monster::UpdateBite` |

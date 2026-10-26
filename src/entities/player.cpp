@@ -131,8 +131,23 @@ void Player::UpdateBurning(bool wading, WorldEvents& events) {
 		die(events);
 }
 
+void Player::Blind(int ms, WorldEvents& events) {
+	if (!Alive())
+		return;
+	if (blindMs <= 0)
+		events.Status("Venom in your eyes!");
+	blindMs = std::max(blindMs, ms);
+}
+
+void Player::UpdateBlind() { blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (inWater ? BLIND_WATER_FACTOR : 1)); }
+
+float Player::Blindness() const {
+	return std::min(1.f, static_cast<float>(blindMs) / static_cast<float>(BLIND_CLEAR_MS));
+}
+
 void Player::Reanimate() {
 	burning.Douse();
+	blindMs = 0;
 	fireArrows = 0;
 	staminaSkills = false;
 	staminaSkillRefusedMs.reset();

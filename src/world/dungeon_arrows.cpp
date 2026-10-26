@@ -197,11 +197,14 @@ void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
 		count = sim.random->gameplay.range(ranged->volley->minCount, ranged->volley->maxCount);
 	for (int k = 0; k < count; k++) {
 		const int at = now + k * (ranged->volley ? ranged->volley->gapMs : 0);
-		MonsterShot v = {x, y, 0.f, 0.f, mon.Type(), ranged->colour, at};
-		v.spawnMs = at;
-		v.big = big;
-		aimShot(v);
-		shots.push_back(v);
+		for (int f = 0; f < ranged->fan; f++) { // a fan: the middle one at the chest, the others above and below it
+			MonsterShot v = {x, y, 0.f, 0.f, mon.Type(), ranged->colour, at};
+			v.spawnMs = at;
+			v.big = big;
+			v.spread = SHOT_FAN_SPREAD * (static_cast<float>(f) - static_cast<float>(ranged->fan - 1) / 2.f);
+			aimShot(v);
+			shots.push_back(v);
+		}
 	}
 	if (big)
 		sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::Blaze);
@@ -211,8 +214,9 @@ void Dungeon::aimShot(MonsterShot& v) const {
 	const float dx = mapX - v.x;
 	const float dy = mapY + (v.big ? 0.f : SHOT_CHEST * sim.player->Height()) - v.y;
 	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	v.vx = SHOT_SPEED * dx / len;
-	v.vy = SHOT_SPEED * dy / len;
+	const float c = std::cos(v.spread), s = std::sin(v.spread);
+	v.vx = SHOT_SPEED * (c * dx - s * dy) / len;
+	v.vy = SHOT_SPEED * (s * dx + c * dy) / len;
 }
 //======================================================================================
 int Dungeon::ShotCount(bool big) const {
@@ -274,6 +278,10 @@ void Dungeon::updateShots() {
 					sim.journal->HitByCreature(v.from->id, levelNumber);
 					if (sim.player->Curse(v.from->rangedCurses, *sim.events, sim.random->gameplay))
 						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Curse);
+					if (ranged.blindMs > 0 && sim.random->gameplay.percent(ranged.blindPercent)) {
+						sim.player->Blind(ranged.blindMs, *sim.events);
+						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Blind);
+					}
 				}
 				if (ranged.poison && !dodged) {
 					sim.player->Poison(*ranged.poison, *sim.events, sim.random->gameplay);

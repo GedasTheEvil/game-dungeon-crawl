@@ -197,6 +197,11 @@ constexpr float SHOT_SPEED = 3.f; // tiles per second
 constexpr float SHOT_CHEST = 0.6f; // of the player's height
 constexpr float SHOT_MAX_FLIGHT = 4.f;
 constexpr int SHOT_SPLAT_MS = 400; // a splat on a wall or the floor stays this long
+constexpr float SHOT_FAN_SPREAD = 0.3f; // radians between the shots of a fan (RangedRules::fan, Apep's spit)
+// A blinding spit (plan giant-cobra-blinding-spit, RangedRules::blindMs): the view clears over the last BLIND_CLEAR_MS;
+// wading, the time runs out BLIND_WATER_FACTOR times as fast (the player washes their eyes).
+constexpr int BLIND_CLEAR_MS = 500;
+constexpr int BLIND_WATER_FACTOR = 2;
 
 // Burrowers (Apep, Monster::Dive): sink into the floor, stay under, come up BURROW_BEHIND tiles past the player (the
 // side away from where it dived), then walk and bite for BURROW_EVERY_MS before the next dive. A hole stays drawn

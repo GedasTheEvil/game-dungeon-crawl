@@ -450,6 +450,10 @@ bool runInstant(const Command& cmd) {
 		Game().player->TakeHit(static_cast<int>(cmd.a), FIRE_HIT, Game().events);
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Blind: // a blinding spit's hit (plan giant-cobra-blinding-spit), without the spit
+		Game().player->Blind(static_cast<int>(cmd.a), Game().events);
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry
 		Game().player->stats.run.campaign = true;
 		report(cmd, true, stateLine());

@@ -181,6 +181,7 @@ void drawGameplay() {
 	const CutShot shot = Game().dungeon.CutSceneShot();
 	const bool cutScene = Game().dungeon.CutScenePlaying();
 	MotionFx::cinema(shot.look);
+	MotionFx::blind(Game().player->Blindness());
 	const float playerX = -shot.dx * RenderConfig::TILE_SIZE, playerY = -shot.dy * RenderConfig::TILE_SIZE;
 	MotionFx::begin(resX, resY, Ink::toon());
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);

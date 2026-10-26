@@ -1,0 +1,23 @@
+# Blinding spit (plan giant-cobra-blinding-spit): the blinded view, dark green edges round a small clear spot, blurred
+# and tinted; it clears over the last 0.5 s. Normal and toon mode. tests/levels/giant_cobra: the player (col 2), a
+# giant cobra (col 8) asleep out of its wake range.
+seed 1
+god
+level tests/levels/giant_cobra
+wait 30
+screenshot before
+blind 2000
+wait 300ms
+expect blind > 1000
+screenshot blinded
+wait 1450ms
+screenshot clearing
+wait 400ms
+expect blind == 0
+screenshot clear
+toon on
+level tests/levels/giant_cobra
+wait 30
+blind 2000
+wait 300ms
+screenshot blinded_toon

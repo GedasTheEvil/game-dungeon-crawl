@@ -105,3 +105,7 @@ text: Every third throw a coal as big as a head, at my feet: where it lands the 
 
 [move.leap-away]
 text: Cornered at the edge of a ledge, he leaps over the gap to the next one and throws from there.
+
+[move.blind]
+text: Black cobras aim for the eyes. Stand in the water and blink.
+fan: He spits three at once, and every drop finds the eyes. Stand in the water and blink.

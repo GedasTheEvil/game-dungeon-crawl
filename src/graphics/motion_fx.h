@@ -3,7 +3,8 @@
 
 // The sprint's sense of speed: a wider view (FOV kick), a radial blur that streaks the screen edges while the player
 // in the middle stays sharp, and darker edges (vignette). All three ease in and out together.
-// A cut-scene's look (plan cinematic-effects) goes the same way: a sepia tint, the vignette and letterbox bars.
+// A cut-scene's look (plan cinematic-effects) goes the same way: a sepia tint, the vignette and letterbox bars. So does
+// a blind (plan giant-cobra-blinding-spit): a green tint, the blur and a dark vignette closing in on the centre.
 //
 // Per frame: update() and cinema() -> fov() for the projection -> begin() -> draw the 3D scene -> end() -> HUD.
 // The blur needs a framebuffer and shaders, the vignette shaders; without them only the FOV kick is left.
@@ -15,6 +16,9 @@ void update(bool on, int nowMs);
 [[nodiscard]] float strength();
 // How far a cut-scene's look is in this frame, 0 (none) .. 1 (CutShot::look).
 void cinema(float amount);
+// How blind the player is this frame (plan giant-cobra-blinding-spit), 0 .. 1: green-black edges round a small clear
+// spot, blurred and tinted green. Not an option: it is the game's, not a look.
+void blind(float amount);
 // The view angle for a base angle: wider by up to FOV_KICK degrees.
 [[nodiscard]] float fov(float baseDegrees);
 

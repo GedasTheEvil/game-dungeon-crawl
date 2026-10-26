@@ -67,6 +67,8 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().dungeon.NearestMonsterBurns() ? 1.f : 0.f;
 	case Field::Burning:
 		return Game().player->burning.Any() ? 1.f : 0.f;
+	case Field::Blind: // ms left (plan giant-cobra-blinding-spit)
+		return static_cast<float>(Game().player->blindMs);
 	case Field::Held: // plans crocodile-hold-bite, giant-scorpion-grab
 		return Game().dungeon.PlayerHeldBy() != nullptr ? 1.f : 0.f;
 	case Field::Coffins:

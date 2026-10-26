@@ -273,6 +273,7 @@ void Dungeon::updateMonsterPoison() {
 //======================================================================================
 void Dungeon::updateBurning() {
 	sim.player->UpdateBurning(PlayerSink() > 0.f, *sim.events);
+	sim.player->UpdateBlind();
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.UpdateBurning())
 			rewardKill(mon);

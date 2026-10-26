@@ -83,6 +83,13 @@ class Player {
 	// Also notes whether it stands in water: a hit's fire share is then WATER_FIRE_DAMAGE_PCT % (plan fire-in-water).
 	void UpdateBurning(bool wading, WorldEvents& events);
 	bool inWater = false; // as of the last UpdateBurning; not saved
+	// Spit in the eyes (plan giant-cobra-blinding-spit): blinded for ms, at least what is left of an earlier one.
+	void Blind(int ms, WorldEvents& events);
+	// Once a tick, after UpdateBurning: the blind's time runs, BLIND_WATER_FACTOR times as fast in water.
+	void UpdateBlind();
+	// How blind the player is: 1 .. 0 over the last BLIND_CLEAR_MS, 0 when they see.
+	[[nodiscard]] float Blindness() const;
+	int blindMs = 0; // left of the blind; not saved, it lasts seconds
 	void Reanimate(); // full HP, standing, no poison, no curse, no fire
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

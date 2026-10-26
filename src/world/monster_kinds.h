@@ -118,6 +118,10 @@ struct RangedRules {
 	// A walker's ranged clip is its own file, _att_ranged (the baboon's throw, THROWER_CLIPS); false: its melee swing.
 	bool ownClip = false;
 	std::optional<VolleyRules> volley; // nullopt: one shot a throw
+	int fan = 1; // shots a spit, SHOT_FAN_SPREAD apart round the aim (Apep's three)
+	// A hit blinds the player for blindMs (plan giant-cobra-blinding-spit), blindPercent of the hits. 0: never.
+	int blindMs = 0;
+	int blindPercent = 0;
 
 	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };

@@ -442,6 +442,7 @@ class Dungeon {
 		int splatMs = -1; // GameClock time it hit a wall or the floor; < 0: flying
 		int spawnMs = 0; // GameClock time it was shot: the seed of its flames
 		bool big = false; // a volley thrower's big coal (VolleyRules): at the feet, it sets the floor burning
+		float spread = 0.f; // radians off the aim: a fan's side shots (RangedRules::fan)
 		[[nodiscard]] bool waiting(int now) const { return now < spawnMs; }
 	};
 	std::vector<MonsterShot> shots;

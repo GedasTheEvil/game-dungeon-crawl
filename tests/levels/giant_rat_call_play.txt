@@ -1,6 +1,8 @@
-; Play-test version of giant_rat_call (tests/play/giant-rat-pack-call.txt): no wall, the giant rat (col 2) runs at the player (col 6).
+; Play-test version of giant_rat_call (tests/play/giant-rat-pack-call.txt): the giant rat (col 2) runs at the player
+; (col 6). Rats on the upper floor (cols 10, 11: within 8 tiles of it; 17: farther) can come down by the ladder (col 8),
+; but only a pack call sends them: off the player's row they stay put.
 ########################################
-#...t..t...t...........................#
-########################################
-#.T...S.................E..............#
+#.......H.tt.....t.....................#
+########H###############################
+#.T...S.H...............E..............#
 ########################################

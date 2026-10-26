@@ -1,6 +1,8 @@
-# Plan giant-rat-pack-call, for `bin/game --play tests/play/giant-rat-pack-call.txt`: tests/levels/giant_rat_call_play, a giant
-# rat (col 2) that runs at you (god mode on), rats on the upper floor (cols 4, 7: near; 11: far). Hit the giant rat below
-# half its HP: it squeals (higher, louder) and the near rats show health bars (alerted); the journal gets the note.
+# Plan giant-rat-pack-call, for `bin/game --play tests/play/giant-rat-pack-call.txt`: tests/levels/giant_rat_call_play,
+# god mode, a short sword. A giant rat (col 2) runs at you; two rats wait on the floor above, by a ladder (col 8) just
+# right of you, off your row: on their own they stay up there. Hit the giant rat below half its HP: it squeals (higher,
+# louder), the two rats get health bars and come down the ladder (about 10 s) to bite; the journal (J) gets the note.
+# A third rat far along the upper floor (col 17) is out of the call's reach and stays.
 # In the campaign: giant rats on levels 4 and 5 and others.
 seed 1
 level tests/levels/giant_rat_call_play

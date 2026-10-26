@@ -6,8 +6,8 @@ Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
 
 Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](solved/campaign-zones.md) (balance
 against the final zones, their monster sets and the 40-60 level count), and every monster and boss draft (user, 2026-10-20: balance comes
-after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.md),
-[giant-cobra-blinding-spit](giant-cobra-blinding-spit.md),
+after all monsters and bosses are in): [giant-bat-screech](solved/giant-bat-screech.md),
+[giant-cobra-blinding-spit](solved/giant-cobra-blinding-spit.md),
 [giant-rat-pack-call](giant-rat-pack-call.md), [scarab-dung-ball](solved/scarab-dung-ball.md),
 [camel-spider-boss](solved/camel-spider-boss.md), [worm-boss](solved/worm-boss.md),
 [baboon](solved/baboon.md), [babi-boss](solved/babi-boss.md). A new monster or boss

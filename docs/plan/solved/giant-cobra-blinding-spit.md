@@ -11,7 +11,7 @@ The giant cobra aims its spit at the eyes. A hit blinds the player for a short t
   over the last 0.5 s. Aiming the bow and seeing what comes is hard. Movement and attacks work.
 * Only the spit blinds, at 50% of spit hits (gameplay stream); the bite does not.
 * Water helps: wading in half water or in water clears it twice as fast (wash the eyes).
-* Look and the effect: a post-process like the sprint vignette ([sprint-motion-effect](solved/sprint-motion-effect.md)),
+* Look and the effect: a post-process like the sprint vignette ([sprint-motion-effect](sprint-motion-effect.md)),
   green tinted. Toon mode too.
 * Journal note: "Black cobras aim for the eyes. Stand in the water and blink."
 

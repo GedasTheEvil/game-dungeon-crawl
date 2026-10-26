@@ -13,7 +13,7 @@ The giant bat screeches: a cone of sound that dazes the player.
 * **Daze:** ~1.5 s: the player walks at half speed, cannot sprint or jump, the view wobbles (a small camera roll and
   sway). Melee and the bow still work. No damage of its own.
 * **On a ladder:** a dazed player lets go and falls (fall damage as today). The tall halls with bats are where it
-  matters ([bats-high-ceiling](solved/bats-high-ceiling.md)).
+  matters ([bats-high-ceiling](bats-high-ceiling.md)).
 * Cooldown: default 6 s. One screech per bat in the air at a time.
 * No resistance, no amulet. Journal note in the bat's tone: "It screamed. My ears rang, my legs forgot me, the
   ladder did not wait."

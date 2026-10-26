@@ -16,6 +16,9 @@ struct Settings {
 		// Poses a second a model shows, blended between its key frames (plan model-frame-interpolation); 0: the key
 		// frames only.
 		int animationRate = 60;
+		// How often the whole game is drawn (plan frame-rate-cap): FRAME_RATE_MONITOR (vsync), FRAME_RATE_UNLIMITED,
+		// else at most that many frames a second.
+		int frameRate = 0;
 	} display;
 	struct Graphics {
 		bool motionEffects = true; // sprint blur, FOV kick, vignette
@@ -36,6 +39,13 @@ constexpr int MIN_WINDOW_H = 200;
 constexpr int MAX_WINDOW_W = 7680;
 constexpr int MAX_WINDOW_H = 4320;
 constexpr int MAX_ANIMATION_RATE = 240;
+constexpr int FRAME_RATE_MONITOR = 0; // swap interval 1: the monitor's refresh rate
+constexpr int FRAME_RATE_UNLIMITED = -1; // swap interval 0, a redraw on every idle call
+constexpr int MAX_FRAME_RATE = 240;
+
+// A capped frame rate (frameRate > 0): the next frame is due once a whole 1 / frameRate second passed since the last
+// one was asked for (both ms). Monitor and Unlimited: always due.
+[[nodiscard]] bool frameRedrawDue(int lastDrawMs, int nowMs, int frameRate);
 
 // `[section]`, `key = value`, `;` and `#` comments. A bad value, an unknown key or section adds a warning and keeps
 // the default.

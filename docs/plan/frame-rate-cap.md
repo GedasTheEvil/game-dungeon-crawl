@@ -1,7 +1,19 @@
 # Frame rate cap
 
 Status: draft 2026-10-24, from the user (with [model-frame-interpolation](solved/model-frame-interpolation.md):
-"if it can work for both, that's OK as well"). Needs nothing first.
+"if it can work for both, that's OK as well"). Needs nothing first. Implemented 2026-10-26, waits for the play-test:
+`bin/game --level 1`, Esc > Options > Display > Frame rate.
+
+## Done
+
+* `Settings::Display::frameRate` (`frame_rate` in `[display]`, -1 to 240): `FRAME_RATE_MONITOR` 0 (default),
+  `FRAME_RATE_UNLIMITED` -1, else the cap. A hand-edited cap (say 45) works too; the menu steps it back to Monitor.
+* `FrameRate::set` / `FrameRate::idle` (`src/graphics/frame_rate.cpp`), called by `ApplySettings` and `Idle()`: sets
+  the swap interval on the next idle call after a change (EXT, else MESA, else SGI, by the GLX extension string; none:
+  a `game.log` warning, the driver's rate), then posts a redraw when `frameRedrawDue` (`src/state/settings_ini.cpp`,
+  unit tested), else sleeps 1 ms.
+* Options > Display, "Frame rate" (Monitor, 30, 60, Unlimited). Nine Display rows: `OPTION_H` 5.6, the name and hint
+  a little lower in their band.
 
 ## Goal
 

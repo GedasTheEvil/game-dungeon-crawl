@@ -62,7 +62,7 @@ constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be 
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
-constexpr float OPTION_H = 6.3f; // eight Display rows above the panel's bottom edge
+constexpr float OPTION_H = 5.6f; // nine Display rows above the panel's bottom edge
 constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
@@ -189,6 +189,7 @@ enum class OptionId : std::uint8_t {
 	WindowSize,
 	Fullscreen,
 	AnimationRate,
+	FrameRate,
 	MotionEffects,
 	Toon,
 	Blood,
@@ -205,13 +206,14 @@ struct OptionRow {
 	const char* hint;
 };
 
-constexpr std::array<OptionRow, 8> DISPLAY_ROWS = {{
+constexpr std::array<OptionRow, 9> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
 	{OptionId::AnimationRate,
 	 OptionKind::Choice,
 	 "Animation rate",
 	 "Poses a second of the figures, or key frames only"},
+	{OptionId::FrameRate, OptionKind::Choice, "Frame rate", "Frames a second; lower saves power and heat"},
 	{OptionId::MotionEffects, OptionKind::Switch, "Motion effects", "Sprint blur, wider view and darker edges"},
 	{OptionId::Toon, OptionKind::Switch, "Toon shading", "Cel bands and ink outlines (F1)"},
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
@@ -244,6 +246,8 @@ struct WindowSize {
 constexpr std::array<WindowSize, 5> WINDOW_SIZES = {{{800, 500}, {1024, 640}, {1280, 720}, {1600, 900}, {1920, 1080}}};
 // The poses a second the Animation rate row steps through; 0: the key frames only (plan model-frame-interpolation).
 constexpr std::array<int, 4> ANIMATION_RATES = {0, 24, 30, 60};
+// The choices the Frame rate row steps through (plan frame-rate-cap).
+constexpr std::array<int, 4> FRAME_RATES = {FRAME_RATE_MONITOR, 30, 60, FRAME_RATE_UNLIMITED};
 
 bool& switchOf(OptionId id) {
 	Settings& s = Game().settings;
@@ -680,7 +684,15 @@ void MainMenu::DrawRows() {
 			);
 			if (windowSize)
 				std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
-			else if (settings.display.animationRate <= 0)
+			else if (row.id == OptionId::FrameRate) {
+				const int rate = settings.display.frameRate;
+				if (rate == FRAME_RATE_MONITOR)
+					std::snprintf(value, sizeof(value), "Monitor");
+				else if (rate == FRAME_RATE_UNLIMITED)
+					std::snprintf(value, sizeof(value), "Unlimited");
+				else
+					std::snprintf(value, sizeof(value), "%d", rate);
+			} else if (settings.display.animationRate <= 0)
 				std::snprintf(value, sizeof(value), "Key frames");
 			else
 				std::snprintf(value, sizeof(value), "%d", settings.display.animationRate);
@@ -700,8 +712,8 @@ void MainMenu::DrawRows() {
 		}
 
 		beginText();
-		text(body, band.x + 3.f, band.y + 2.9f, row.name, LABEL);
-		text(small, band.x + 3.f, band.y + 0.5f, row.hint, LABEL_DIM);
+		text(body, band.x + 3.f, band.y + 2.4f, row.name, LABEL);
+		text(small, band.x + 3.f, band.y + 0.3f, row.hint, LABEL_DIM);
 		if (row.kind == OptionKind::Slider)
 			text(heading, control.x + control.w + 2.5f, control.y + 0.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
@@ -977,6 +989,10 @@ void MainMenu::ActivateOption(int row) {
 		// The next higher rate, after the highest the key frames.
 		const auto higher = std::ranges::find_if(ANIMATION_RATES, [&](int r) { return r > display.animationRate; });
 		display.animationRate = higher == ANIMATION_RATES.end() ? ANIMATION_RATES[0] : *higher;
+	} else if (option.id == OptionId::FrameRate) {
+		// The next choice, after Unlimited the monitor's; a hand-edited rate goes to the first.
+		const auto at = std::ranges::find(FRAME_RATES, display.frameRate);
+		display.frameRate = at == FRAME_RATES.end() || at + 1 == FRAME_RATES.end() ? FRAME_RATES[0] : *(at + 1);
 	} else if (option.kind == OptionKind::Switch) {
 		bool& on = switchOf(option.id);
 		on = !on;

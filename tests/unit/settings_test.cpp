@@ -22,6 +22,7 @@ TEST_CASE("an empty file gives the defaults") {
 	Settings s = parse("");
 	CHECK(s.display.width == 800);
 	CHECK(s.display.animationRate == 60);
+	CHECK(s.display.frameRate == FRAME_RATE_MONITOR);
 	CHECK(s.graphics.motionEffects);
 	CHECK_FALSE(s.graphics.toon);
 	CHECK(s.graphics.cutScenes);
@@ -72,7 +73,7 @@ TEST_CASE("unknown keys and sections and broken lines warn") {
 
 TEST_CASE("what is written reads back the same") {
 	Settings s;
-	s.display = {1600, 900, true, 24};
+	s.display = {1600, 900, true, 24, 30};
 	s.graphics = {false, true, false, false};
 	s.sound = {35, 0};
 	s.controls.Bind(BindAction::Jump, 0, InputKey::Char(','));
@@ -88,6 +89,7 @@ TEST_CASE("what is written reads back the same") {
 	CHECK(back.controls == s.controls);
 	CHECK(back.display.fullscreen);
 	CHECK(back.display.animationRate == 24);
+	CHECK(back.display.frameRate == 30);
 	CHECK(back.sound.music == 35);
 }
 
@@ -177,5 +179,29 @@ TEST_CASE("docs/settings.md lists every action with its default") {
 		std::string row = std::string("| `") + bindActionName(action) + "` | `" + formatBinding(defaults.Of(action)) +
 						  "` |";
 		CHECK_MESSAGE(text.str().find(row) != std::string::npos, "missing: ", row);
+	}
+}
+
+// Plan frame-rate-cap: a capped rate draws once a whole 1 / rate second passed; Monitor and Unlimited every time.
+TEST_CASE("frame redraw due") {
+	SUBCASE("30 a second: every 34 ms") {
+		CHECK_FALSE(frameRedrawDue(1000, 1000, 30));
+		CHECK_FALSE(frameRedrawDue(1000, 1033, 30));
+		CHECK(frameRedrawDue(1000, 1034, 30));
+		CHECK(frameRedrawDue(1000, 1200, 30));
+	}
+	SUBCASE("60 a second: every 17 ms") {
+		CHECK_FALSE(frameRedrawDue(1000, 1016, 60));
+		CHECK(frameRedrawDue(1000, 1017, 60));
+	}
+	SUBCASE("monitor and unlimited: always") {
+		CHECK(frameRedrawDue(1000, 1000, FRAME_RATE_MONITOR));
+		CHECK(frameRedrawDue(1000, 1000, FRAME_RATE_UNLIMITED));
+	}
+	SUBCASE("frame_rate reads -1 to 240") {
+		CHECK(parse("[display]\nframe_rate = -1\n").display.frameRate == FRAME_RATE_UNLIMITED);
+		std::vector<std::string> warnings;
+		CHECK(parse("[display]\nframe_rate = 500\n", warnings).display.frameRate == FRAME_RATE_MONITOR);
+		CHECK(warnings.size() == 1);
 	}
 }

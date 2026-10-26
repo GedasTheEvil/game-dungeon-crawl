@@ -57,6 +57,7 @@ std::vector<Key> keysOf(Settings& s) {
 		{"display", "window_height", K::Int, MIN_WINDOW_H, MAX_WINDOW_H, nullptr, &s.display.height},
 		{"display", "fullscreen", K::Bool, 0, 0, &s.display.fullscreen, nullptr},
 		{"display", "animation_rate", K::Int, 0, MAX_ANIMATION_RATE, nullptr, &s.display.animationRate},
+		{"display", "frame_rate", K::Int, FRAME_RATE_UNLIMITED, MAX_FRAME_RATE, nullptr, &s.display.frameRate},
 		{"graphics", "motion_effects", K::Bool, 0, 0, &s.graphics.motionEffects, nullptr},
 		{"graphics", "toon", K::Bool, 0, 0, &s.graphics.toon, nullptr},
 		{"graphics", "blood", K::Bool, 0, 0, &s.graphics.blood, nullptr},
@@ -97,6 +98,12 @@ std::string readKey(Settings& settings, const std::string& section, const std::s
 }
 } // namespace
 
+bool frameRedrawDue(int lastDrawMs, int nowMs, int frameRate) {
+	if (frameRate <= 0)
+		return true;
+	return static_cast<long long>(nowMs - lastDrawMs) * frameRate >= 1000;
+}
+
 Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 	Settings settings;
 	std::string section;
@@ -136,11 +143,13 @@ std::string writeSettings(const Settings& settings) {
 	std::ostringstream out;
 	out << "; Dungeon crawl settings. The game rewrites this file on every change: own comments and unknown keys "
 		   "are lost.\n";
-	out << "\n; Window size in pixels, fullscreen on/off, model poses a second (0: the key frames only).\n[display]\n";
+	out << "\n; Window size in pixels, fullscreen on/off, model poses a second (0: the key frames only), "
+		   "frames a second (0: the monitor's, -1: unlimited).\n[display]\n";
 	out << "window_width = " << settings.display.width << "\n";
 	out << "window_height = " << settings.display.height << "\n";
 	out << "fullscreen = " << onOff(settings.display.fullscreen) << "\n";
 	out << "animation_rate = " << settings.display.animationRate << "\n";
+	out << "frame_rate = " << settings.display.frameRate << "\n";
 	out << "\n; Visual effects, each on/off.\n[graphics]\n";
 	out << "motion_effects = " << onOff(settings.graphics.motionEffects) << "\n";
 	out << "toon = " << onOff(settings.graphics.toon) << "\n";

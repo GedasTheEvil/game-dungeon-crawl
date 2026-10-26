@@ -4,6 +4,7 @@
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../graphics/ink.h"
+#include "../graphics/frame_rate.h"
 #include "input.h"
 #include "input_actions.h"
 #include "../ui/screen_state.h"
@@ -368,7 +369,7 @@ bool skipCutScene() {
 }
 } // namespace
 
-void Idle() { glutPostRedisplay(); }
+void Idle() { FrameRate::idle(); }
 
 void keyPressed(unsigned char key, int x, int y) {
 	if (skipCutScene())

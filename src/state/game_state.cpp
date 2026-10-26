@@ -14,6 +14,7 @@
 #include "../world/texts.h"
 #include "../graphics/animated_model.h"
 #include "../graphics/ink.h"
+#include "../graphics/frame_rate.h"
 #include "../graphics/lighting.h"
 #include "../graphics/particles_draw.h"
 #include "../core/paths.h"
@@ -303,6 +304,7 @@ void GameState::ApplySettings(bool save) {
 	Particles::shown = settings.graphics.blood;
 	Lighting::setFlicker(settings.graphics.lightFlicker);
 	AnimatedModel::SetAnimationRate(settings.display.animationRate);
+	FrameRate::set(settings.display.frameRate);
 	dungeon.SetCutScenes(settings.graphics.cutScenes);
 	dungeon.SetMotionEffects(settings.graphics.motionEffects);
 	Audio::SetVolumes(settings.sound.music, settings.sound.effects);

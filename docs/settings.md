@@ -24,6 +24,7 @@ window_width = 800      ; 320-7680, the window when not fullscreen
 window_height = 500     ; 200-4320
 fullscreen = off
 animation_rate = 60     ; 0-240 model poses a second, blended between the key frames; 0: the key frames only
+frame_rate = 0          ; -1-240 frames a second drawn; 0: the monitor's (vsync), -1: unlimited
 
 [graphics]
 motion_effects = on     ; sprint blur, FOV kick, vignette

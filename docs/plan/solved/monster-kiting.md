@@ -35,7 +35,7 @@ row), and whether a climber also backs off up a ladder.
 
 * The baboon and its boss Babi ([baboon](baboon.md), [babi-boss](babi-boss.md)): the first
   kiters. Babi's band is wider and he backs off faster, within his arena.
-* Not today's ranged attackers by default. [monster-balance](../monster-balance.draft.opus.md)'s sim pass may switch some
+* Not today's ranged attackers by default. [monster-balance](../monster-balance.md)'s sim pass may switch some
   on (a cobra or the mummy priest that kites), with the user's yes.
 
 ## Checker

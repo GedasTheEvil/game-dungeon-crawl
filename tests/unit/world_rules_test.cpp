@@ -89,8 +89,9 @@ TEST_CASE(
 	REQUIRE(world.WalkTo(14.5f));
 	REQUIRE(world.WalkTo(11.2f));
 	world.Wait(18000);
-	CHECK(world.Nearest() < 600); // a quarter of the darts' damage (trapDamagePct 25); immune to the poison
-	CHECK(world.Nearest() > 580);
+	const int hp = monsterKind(MonsterAnubis)->maxHealth;
+	CHECK(world.Nearest() < hp); // a quarter of the darts' damage (trapDamagePct 25); immune to the poison
+	CHECK(world.Nearest() > hp - 20);
 	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 }
 
@@ -129,23 +130,24 @@ TEST_CASE("walking into a spike pit: the fall is fast, the ramping spikes kill w
 }
 
 TEST_CASE("an arrow into a monster in half water hits for half, on dry floor in full") {
-	SimWorld world; // tests/levels/water_arrow: a giant scarab (90 HP, weak to pierce) in a pool at cols 4-7
+	SimWorld world; // tests/levels/water_arrow: a giant scarab (weak to pierce) in a pool at cols 4-7
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/water_arrow"));
 	world.Equip(ItemKind::SelfBow);
 	REQUIRE(world.WalkTo(2.8f));
 	world.HoldWalk(1, 2 * UPDATE_TICK_MS);
 	world.WaitTicks(10);
-	CHECK(world.Nearest() == 90);
+	const int hp = monsterKind(MonsterGiantScarab)->maxHealth;
+	CHECK(world.Nearest() == hp);
 	world.Attack();
 	world.Wait(2000);
-	CHECK(world.Nearest() == 78);
+	CHECK(world.Nearest() == hp - 12);
 	REQUIRE(world.WalkTo(1.5f));
 	world.HoldWalk(1, 2 * UPDATE_TICK_MS);
 	world.Wait(30000); // out of the water (its centre past col 4), still three tiles off
 	world.Attack();
 	world.Wait(1000);
-	CHECK(world.Nearest() == 54);
+	CHECK(world.Nearest() == hp - 36);
 }
 
 TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dead after a save and load") {
@@ -159,10 +161,11 @@ TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dea
 	CHECK(world.Y() > 3);
 	REQUIRE(world.Walk(5.f));
 	world.WaitTicks(5);
-	CHECK(world.dungeon.BossHealth() == 320);
-	CHECK(world.dungeon.LivingMinions() >= 3);
+	const BossRules& rules = monsterKind(MonsterBossScarab)->boss;
+	CHECK(world.dungeon.BossHealth() == monsterKind(MonsterBossScarab)->maxHealth);
+	CHECK(world.dungeon.LivingMinions() >= rules.minAlive);
 	world.Wait(5000);
-	CHECK(world.dungeon.LivingMinions() == 5); // at most 5 alive
+	CHECK(world.dungeon.LivingMinions() == rules.maxAlive); // no more alive
 
 	world.Equip(ItemKind::ShortSword);
 	world.WaitTicks(2);
@@ -223,9 +226,7 @@ TEST_CASE("level 5 from its entrance to its exit: the boss room, the blue key, t
 	CHECK(world.dungeon.LevelNumber() == 6);
 }
 
-TEST_CASE(
-	"the Anubis boss: his guards step out of the wall, his blow takes 129 HP of a level 55 player, the gold key"
-) {
+TEST_CASE("the Anubis boss: his guards step out of the wall, his blow past a level 55 player's armour, the gold key") {
 	SimWorld world; // tests/levels/anubis_boss
 	REQUIRE(world.Load("tests/levels/anubis_boss"));
 	world.player.stats.AddXP(1800200, world.events);
@@ -239,19 +240,22 @@ TEST_CASE(
 	world.WaitTicks(10);
 	CHECK(world.dungeon.BossHealth() == 2400);
 	CHECK(world.dungeon.LivingMinions() >= 1);
-	// He walks up and strikes: a blow takes 129 HP (his guards' blows less).
+	// He walks up and strikes: a blow takes its damage less armour 11's share, 50 / 61 (his guards' blows less).
+	const MonsterKind& anubis = *monsterKind(MonsterAnubisBoss);
+	const int blowHp = world.player.stats.HitDamage(anubis.damage, anubis.attackMix, false);
+	CHECK(blowHp == static_cast<int>(std::lround(anubis.damage * 50.0 / 61.0)));
 	int last = world.Hp();
 	bool blow = false;
 	for (int t = 0; t < 600 && world.player.Alive() && !blow; t++) {
 		world.Tick();
-		blow = last - world.Hp() == 129;
+		blow = last - world.Hp() == blowHp;
 		last = world.Hp();
 	}
 	CHECK(blow);
+	world.player.god = true; // his blows and his guards' would kill the player in the next seconds
 	world.Wait(4000);
 	CHECK(world.dungeon.LivingMinions() >= 2);
 
-	world.player.god = true;
 	world.dungeon.HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
@@ -317,15 +321,15 @@ TEST_CASE("the mummy priest: his large coffin, mummies climb out of the coffins 
 	CHECK(world.dungeon.CoffinCount() == 7); // six for his mummies, his own large one
 	REQUIRE(world.WalkTo(12.5f));
 	world.WaitTicks(10);
-	CHECK(world.dungeon.BossHealth() == 2000);
-	CHECK(world.dungeon.LivingMinions() >= 2);
+	CHECK(world.dungeon.BossHealth() == monsterKind(MonsterMummyPriest)->maxHealth);
+	CHECK(world.dungeon.LivingMinions() >= monsterKind(MonsterMummyPriest)->boss.minAlive);
 	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::Summon));
 	REQUIRE(world.WalkTo(15.f));
 	world.WaitTicks(5);
 	CHECK(world.Saw(MonsterMummyPriest, CreatureMove::Rise));
 	// Back away whenever he comes near: out of bite reach, in bolt range, until a bolt lays insanity (his bolt's curse
 	// only).
-	for (int t = 0; t < 4000 && !world.player.stats.curses.Has(Curse::Insanity); t++) {
+	for (int t = 0; t < 12000 && !world.player.stats.curses.Has(Curse::Insanity); t++) {
 		const Monster* priest = world.dungeon.Boss();
 		const int away = priest != nullptr && priest->CentreX() > world.X() ? -1 : 1;
 		if (priest != nullptr && std::fabs(priest->CentreX() - world.X()) < 1.6f)

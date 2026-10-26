@@ -41,6 +41,7 @@ enum class CommandType : unsigned char {
 	Equip,
 	Wear,
 	Xp,
+	Gear,
 	Hurt,
 	FireHit,
 	Blind,

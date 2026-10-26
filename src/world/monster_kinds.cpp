@@ -179,7 +179,7 @@ constexpr RollRules GIANT_SCARAB_ROLL = {
 	.cooldownMs = 4000,
 	.speed = 2.2f,
 	.radius = 0.1f,
-	.damage = 10
+	.damage = 11
 };
 constexpr RollRules KHEPRI_ROLL = {
 	.minRange = 0.6f,
@@ -188,7 +188,7 @@ constexpr RollRules KHEPRI_ROLL = {
 	.cooldownMs = 3500,
 	.speed = 2.8f,
 	.radius = 0.13f,
-	.damage = 28,
+	.damage = 12,
 	.mix = {60, 0, 0, 40},
 	.burnMs = 2000
 };
@@ -209,8 +209,11 @@ constexpr Resistances bossResist(Resistances kin) {
 }
 
 // By MonsterTypeId, from 1. Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take
-// long to kill. Flyers roost on the ceiling and swoop through the player (Monster::Fly). The boss summons are starting
-// values, to tune from playthroughs (plan boss-rooms).
+// long to kill. Flyers roost on the ceiling and swoop through the player (Monster::Fly). HP and damage (plan
+// monster-balance, 2026-10-26): each tuned with the balance sim (bin/balance) against the player halfway through its
+// first zone of the rebuilt campaign (campaign.h ZONE_FAUNA), a boss against the player of its level with up to four
+// large health potions; deeper down a monster is easier. A weak one costs that player about 6% of their HP, a giant
+// 20%, a boss two or three potions.
 constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	{.id = MonsterScarab,
 	 .glyph = 's',
@@ -223,8 +226,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 7,
 	 .blood = SCARAB_BLOOD,
 	 .speed = 4,
-	 .maxHealth = 10,
-	 .damage = 2,
+	 .maxHealth = 14,
+	 .damage = 4,
 	 .attackMs = 600,
 	 .xp = 300,
 	 .attackMix = SCARAB_MIX,
@@ -242,8 +245,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 18,
 	 .rotA = 0,
 	 .speed = 1,
-	 .maxHealth = 30,
-	 .damage = 9,
+	 .maxHealth = 200,
+	 .damage = 14,
 	 .attackMs = 1000,
 	 .xp = 1200,
 	 .attackMix = WORM_MIX,
@@ -264,7 +267,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .blood = {0.1f, 0.4f, 0.1f},
 	 .speed = 0,
 	 .maxHealth = 30,
-	 .damage = 5,
+	 .damage = 4,
 	 .attackMs = 800,
 	 .xp = 500,
 	 .attackMix = PLANT_MIX,
@@ -275,8 +278,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .touch = TouchPoison{PoisonTier::Weak, 20},
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .generated = {3, 10, 2}},
-	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Strong enough for
-	// the late levels (13-30): a level 55 player (about 700 HP, 11 armour) takes about 15 blows.
+	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Tuned for the
+	// necropolis, not its first zone: the late zones' own monster; in the priests' quarter, rare, the zone's terror.
 	{.id = MonsterAnubis,
 	 .glyph = 'n',
 	 .name = "Anubis living statue",
@@ -288,8 +291,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 19,
 	 .blood = {0.55f, 0.52f, 0.46f}, // stone chips
 	 .speed = 23, // 1.21 tiles a second, 120% of the player's walk (one point: MONSTER_SEEK_STEP each 80 ms step)
-	 .maxHealth = 600,
-	 .damage = 55,
+	 .maxHealth = 1300,
+	 .damage = 140,
 	 .attackMs = 1100,
 	 .xp = 10000,
 	 .attackMix = ANUBIS_MIX,
@@ -305,7 +308,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // ranged clip.
 	 .ranged =
 		 RangedRules{
-			 50,
+			 70,
 			 std::nullopt,
 			 1.4f,
 			 3000,
@@ -357,8 +360,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/rat_giant",
 	 .scale = 42,
 	 .speed = 24,
-	 .maxHealth = 60,
-	 .damage = 8,
+	 .maxHealth = 250,
+	 .damage = 5,
 	 .attackMs = 700,
 	 .xp = 2000,
 	 .attackMix = RAT_MIX,
@@ -385,7 +388,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 18,
 	 .speed = 5,
 	 .maxHealth = 8,
-	 .damage = 3,
+	 .damage = 4,
 	 .attackMs = 800,
 	 .xp = 400,
 	 .attackMix = BAT_MIX,
@@ -406,7 +409,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .blood = {0.45f, 0.05f, 0.05f},
 	 .speed = 4,
 	 .maxHealth = 40,
-	 .damage = 10,
+	 .damage = 28,
 	 .attackMs = 800,
 	 .xp = 1800,
 	 .attackMix = BAT_MIX,
@@ -429,8 +432,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .rotA = 0,
 	 .blood = {0.5f, 0.05f, 0.1f},
 	 .speed = 0,
-	 .maxHealth = 40,
-	 .damage = 10,
+	 .maxHealth = 50,
+	 .damage = 6,
 	 .attackMs = 800,
 	 .xp = 900,
 	 .attackMix = MIMIC_MIX,
@@ -448,8 +451,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 24,
 	 .blood = {0.4f, 0.05f, 0.55f},
 	 .speed = 3,
-	 .maxHealth = 90,
-	 .damage = 12,
+	 .maxHealth = 340,
+	 .damage = 15,
 	 .attackMs = 1000,
 	 .xp = 2500,
 	 .attackMix = SCARAB_MIX,
@@ -459,8 +462,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .roll = GIANT_SCARAB_ROLL,
 	 .pounce = GIANT_SCARAB_POUNCE,
 	 .generated = {5, 10, 3}},
-	// Bigger, faster and harder than the giant scarab. A full clear of levels 1-4 makes the player level 8 (134 HP):
-	// 3-4 bites kill them.
+	// Bigger, faster and harder than the giant scarab; few scarabs, which take the player's blows (plan
+	// monster-balance). Tuned for a level 6 player with the sword: the first zone must bring them there.
 	{.id = MonsterBossScarab,
 	 .glyph = 'K',
 	 .name = "Khepri",
@@ -473,8 +476,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 34,
 	 .blood = {0.1f, 0.2f, 0.75f},
 	 .speed = 3.5f,
-	 .maxHealth = 320,
-	 .damage = 40,
+	 .maxHealth = 400,
+	 .damage = 8,
 	 .attackMs = 900,
 	 .xp = 6000,
 	 .attackMix = SCARAB_MIX,
@@ -486,8 +489,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .roll = KHEPRI_ROLL,
 	 .pounce = KHEPRI_POUNCE,
 	 .kin = MonsterScarab,
-	 .boss = {MonsterScarab, 3, 5, 1500, 12, 0, Summon::DigOut}},
-	// A giant bat grown fat on blood. The player comes to lvl10 at about level 21 (290 HP): 3-4 bites kill them.
+	 .boss = {MonsterScarab, 2, 3, 1500, 12, 0, Summon::DigOut}},
+	// A giant bat grown fat on blood.
 	{.id = MonsterVampireBat,
 	 .glyph = 'V',
 	 .name = "Bat of Shezmu",
@@ -500,8 +503,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 42,
 	 .blood = {0.5f, 0.02f, 0.08f},
 	 .speed = 4,
-	 .maxHealth = 400,
-	 .damage = 80,
+	 .maxHealth = 350,
+	 .damage = 25,
 	 .attackMs = 800,
 	 .xp = 12000,
 	 .attackMix = BAT_MIX,
@@ -511,7 +514,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .screech = SHEZMU_SCREECH,
 	 .kin = MonsterBat,
-	 .boss = {MonsterBat, 2, 4, 2000, 8, 30, Summon::Drop}},
+	 .boss = {MonsterBat, 2, 3, 2000, 8, 30, Summon::Drop}},
 	// Fast for its bulk, hits hard and slowly. Levels 11 on, the mummy priest's minion (plan mummy-boss).
 	{.id = MonsterMummy,
 	 .glyph = 'u',
@@ -524,8 +527,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 18,
 	 .blood = {0.35f, 0.25f, 0.12f},
 	 .speed = 2.5f,
-	 .maxHealth = 150,
-	 .damage = 20,
+	 .maxHealth = 480,
+	 .damage = 100,
 	 .attackMs = 1600,
 	 .xp = 2500,
 	 .attackMix = MUMMY_MIX,
@@ -543,22 +546,21 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
 	 .climbGrip = 0.111f,
 	 .generated = {7, 10, 2}},
-	// The finale's guardian, a head taller than an Anubis, the strongest boss. The player comes to lvl35 at about
-	// level 55 (about 700 HP, 11 armour): 6 blows kill them. Reckless: the player cannot shake him off behind a row of
-	// traps.
+	// The finale's guardian, a head taller than an Anubis, the strongest boss. Reckless: the player cannot shake him
+	// off behind a row of traps.
 	{.id = MonsterAnubisBoss,
 	 .glyph = 'N',
 	 .name = "Anubis",
 	 .label = "anubis boss",
 	 .description = "Anubis, the god himself, his living statues step out of the walls; his death opens the boss "
 					"gates. One boss per level",
-	 .threat = 16.f, // the finale: four hits kill a level 30 player, plus its guards and its bolt
+	 .threat = 16.f, // the finale, plus its guards and its bolt
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis_boss",
 	 .scale = 26,
 	 .speed = 25, // 1.31 tiles a second, a little faster than its guard
 	 .maxHealth = 2400,
-	 .damage = 140,
+	 .damage = 190,
 	 .attackMs = 1300,
 	 .xp = 30000,
 	 .attackMix = ANUBIS_MIX,
@@ -602,8 +604,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		  .summonCap = 8,
 		  .summon = Summon::Wall,
 		  .smallMinion = MonsterUshabti}},
-	// HP between the giant rat and the mummy, bites harder than both. Slow on land (slower than a rat: the player
-	// outwalks it), in the water faster than the player walks on land. Levels 7-9 (plan crocodiles-and-flooded-cells).
+	// Slow on land (slower than a rat: the player outwalks it), in the water faster than the player walks on land
+	// (plan crocodiles-and-flooded-cells). Tuned for the serpent temple, its first zone after the bat galleries' one
+	// preview wade.
 	// A long, low body: 1.5 tiles nose to tail.
 	{.id = MonsterCrocodile,
 	 .glyph = 'C',
@@ -616,8 +619,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/crocodile",
 	 .scale = 60,
 	 .speed = 7,
-	 .maxHealth = 110,
-	 .damage = 26,
+	 .maxHealth = 350,
+	 .damage = 50,
 	 .attackMs = 1100,
 	 .xp = 2400,
 	 .attackMix = CROCODILE_MIX,
@@ -640,8 +643,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 15,
 	 .blood = SCORPION_BLOOD,
 	 .speed = 10,
-	 .maxHealth = 14,
-	 .damage = 3,
+	 .maxHealth = 150,
+	 .damage = 30,
 	 .attackMs = 900,
 	 .xp = 450,
 	 .attackMix = SCORPION_MIX,
@@ -664,8 +667,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/cobra",
 	 .scale = 24,
 	 .speed = 6,
-	 .maxHealth = 35,
-	 .damage = 6,
+	 .maxHealth = 330,
+	 .damage = 50,
 	 .attackMs = 1100,
 	 .xp = 1200,
 	 .attackMix = COBRA_MIX,
@@ -676,7 +679,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.25f,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
-	 .ranged = RangedRules{2, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
+	 .ranged = RangedRules{10, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
 	 .riseMs = 750},
 	// The cobra's giant kin, levels after Apep (plan giant-cobra).
 	{.id = MonsterGiantCobra,
@@ -690,8 +693,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/cobra_giant",
 	 .scale = 36,
 	 .speed = 8,
-	 .maxHealth = 160,
-	 .damage = 26,
+	 .maxHealth = 690,
+	 .damage = 85,
 	 .attackMs = 1300,
 	 .xp = 2600,
 	 .attackMix = COBRA_MIX,
@@ -703,7 +706,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISONER_RESIST,
 	 .ranged =
 		 RangedRules{
-			 .damage = 5,
+			 .damage = 12,
 			 .poison = PoisonTier::Medium,
 			 .range = 1.5f,
 			 .cooldownMs = 3000,
@@ -726,8 +729,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 26,
 	 .blood = SCORPION_BLOOD,
 	 .speed = 9,
-	 .maxHealth = 70,
-	 .damage = 12,
+	 .maxHealth = 570,
+	 .damage = 44,
 	 .attackMs = 1000,
 	 .xp = 2000,
 	 .attackMix = SCORPION_MIX,
@@ -772,8 +775,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 48,
 	 .blood = {0.5f, 0.7f, 0.6f},
 	 .speed = 5,
-	 .maxHealth = 700,
-	 .damage = 45,
+	 .maxHealth = 1800,
+	 .damage = 30,
 	 .attackMs = 1100,
 	 .xp = 15000,
 	 .attackMix = SCORPION_MIX,
@@ -804,8 +807,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 70,
 	 .blood = {0.35f, 0.05f, 0.1f},
 	 .speed = 6,
-	 .maxHealth = 1100,
-	 .damage = 60,
+	 .maxHealth = 1900,
+	 .damage = 70,
 	 .attackMs = 1200,
 	 .xp = 20000,
 	 .attackMix = COBRA_MIX,
@@ -820,7 +823,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // Between dives, a fan of three that blinds with each hit (plan giant-cobra-blinding-spit).
 	 .ranged =
 		 RangedRules{
-			 .damage = 15,
+			 .damage = 11,
 			 .poison = PoisonTier::Medium,
 			 .range = 2.5f,
 			 .cooldownMs = 4000,
@@ -832,7 +835,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 },
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
-	 .boss = {MonsterCobra, 2, 4, 3000, 10, 0, Summon::DigOut}},
+	 .boss = {MonsterCobra, 2, 3, 3000, 10, 0, Summon::DigOut}},
 	// The lvl30 boss on the crocodile model (plan sobek-boss).
 	{.id = MonsterSobek,
 	 .glyph = 'W',
@@ -845,8 +848,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/crocodile_sobek",
 	 .scale = 100,
 	 .speed = 6,
-	 .maxHealth = 1600,
-	 .damage = 70,
+	 .maxHealth = 1400,
+	 .damage = 50,
 	 .attackMs = 1300,
 	 .xp = 25000,
 	 .attackMix = CROCODILE_MIX,
@@ -860,7 +863,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .charge = ChargeRules{},
 	 .hold = SOBEK_HOLD,
 	 .kin = MonsterCrocodile,
-	 .boss = {MonsterCrocodile, 1, 3, 5000, 6, 0, Summon::DigOut}},
+	 .boss = {MonsterCrocodile, 1, 1, 5000, 6, 0, Summon::DigOut}},
 	// The blue lotus, rooted in half water among the decor lotus (plan water-lotus). Stronger than the plant, weaker
 	// than the crocodile; its bite drains stamina, so the wading player cannot sprint away. Placed by hand on the
 	// flooded levels from 7 on: levelgen makes no water.
@@ -877,8 +880,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .rotA = 0,
 	 .blood = {0.35f, 0.5f, 0.85f}, // blue sap
 	 .speed = 0,
-	 .maxHealth = 50,
-	 .damage = 7,
+	 .maxHealth = 250,
+	 .damage = 90,
 	 .attackMs = 900,
 	 .xp = 1300,
 	 .attackMix = LOTUS_MIX,
@@ -904,8 +907,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 20.5f,
 	 .blood = {0.3f, 0.2f, 0.1f},
 	 .speed = 3,
-	 .maxHealth = 2000,
-	 .damage = 120,
+	 .maxHealth = 1700,
+	 .damage = 35,
 	 .attackMs = 1500,
 	 .xp = 27000,
 	 .attackMix = {80, 0, 20}, // the staff, its pointed foot
@@ -918,7 +921,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .ranged =
 		 RangedRules{
-			 100,
+			 80,
 			 std::nullopt,
 			 1.8f,
 			 2800,
@@ -945,7 +948,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.65f, // tools/blender/models/mummy_priest.py
 	 .climbGrip = 0.118f,
 	 .kin = MonsterMummy,
-	 .boss = {MonsterMummy, 2, 4, 2000, 10, 0, Summon::Coffin}},
+	 .boss = {MonsterMummy, 1, 1, 2000, 10, 0, Summon::Coffin}},
 	// The camel spider of the soldiers' stories (plan camel-spider): faster than the giant rat, weak, a scissor bite.
 	// It runs at the player in the dark and keeps out of the light of torches and braziers, so a lit stretch is a wall
 	// to it. Early-middle levels, after the scorpions' sand.
@@ -960,7 +963,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 28,
 	 .blood = {0.55f, 0.6f, 0.35f}, // pale yellow-green haemolymph
 	 .speed = 28,
-	 .maxHealth = 26,
+	 .maxHealth = 330,
 	 .damage = 5,
 	 .attackMs = 550,
 	 .xp = 1100,
@@ -985,8 +988,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/hippo",
 	 .scale = 52,
 	 .speed = 4,
-	 .maxHealth = 280,
-	 .damage = 28,
+	 .maxHealth = 585,
+	 .damage = 91,
 	 .attackMs = 1500,
 	 .xp = 3600,
 	 .attackMix = HIPPO_MIX,
@@ -1011,8 +1014,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .rotA = 0,
 	 .blood = {0.1f, 0.5f, 0.47f}, // faience chips
 	 .speed = 6,
-	 .maxHealth = 40,
-	 .damage = 9,
+	 .maxHealth = 130,
+	 .damage = 55,
 	 .attackMs = 1300,
 	 .xp = 900,
 	 .attackMix = USHABTI_MIX,
@@ -1038,8 +1041,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .rotA = 0,
 	 .blood = {0.35f, 0.05f, 0.3f},
 	 .speed = 20,
-	 .maxHealth = 120,
-	 .damage = 20,
+	 .maxHealth = 880,
+	 .damage = 90,
 	 .attackMs = 900,
 	 .xp = 3500,
 	 .attackMix = MIMIC_MIX,
@@ -1064,8 +1067,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 88, // 1.7 x the hippo's, as Sobek on the crocodile
 	 .blood = {0.45f, 0.05f, 0.02f},
 	 .speed = 5,
-	 .maxHealth = 2000,
-	 .damage = 80,
+	 .maxHealth = 2500,
+	 .damage = 65,
 	 .attackMs = 1500,
 	 .xp = 30000,
 	 .attackMix = HIPPO_MIX,
@@ -1079,7 +1082,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .charge = ChargeRules{SETH_CHARGE_MIN, SETH_CHARGE_MAX, SETH_CHARGE_SPEED},
 	 .roar = RoarRules{SETH_ROAR_RADIUS, SETH_ROAR_DAMAGE, SETH_ROAR_SHOVE, SETH_ROAR_HAZE_MS},
 	 .kin = MonsterHippo,
-	 .boss = {MonsterHippo, 1, 2, 7000, 4, 0, Summon::DigOut}},
+	 .boss = {MonsterHippo, 1, 1, 7000, 4, 0, Summon::DigOut}},
 	// The baboons of the Lake of Fire (plan baboon), Thoth's, at the gate of the Duat: the first kiter (plan
 	// monster-kiting). It keeps the player at the range of its throw, backs off when they come at it and bites only
 	// when cornered. The coal sets the player burning; water puts it out. Quick, a climber, mid HP.
@@ -1135,8 +1138,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 45, // 2.5 x the worm's
 	 .rotA = 0,
 	 .speed = 3,
-	 .maxHealth = 2200,
-	 .damage = 75,
+	 .maxHealth = 3400,
+	 .damage = 190,
 	 .attackMs = 1300,
 	 .xp = 32000,
 	 .attackMix = WORM_MIX,
@@ -1170,8 +1173,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 70, // 2.5 x the camel spider's
 	 .blood = {0.42f, 0.48f, 0.26f},
 	 .speed = 34,
-	 .maxHealth = 520,
-	 .damage = 26,
+	 .maxHealth = 800,
+	 .damage = 10,
 	 .attackMs = 600,
 	 .xp = 9000,
 	 .attackMix = CAMEL_SPIDER_MIX,
@@ -1182,7 +1185,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .douseCells = MOTHER_DOUSE_CELLS,
 	 .webs = WebRules{MOTHER_WEB_EVERY_MS, MOTHER_WEB_MAX},
 	 .kin = MonsterCamelSpider,
-	 .boss = {MonsterCamelSpider, 2, 4, 3000, 10, 0, Summon::Drop}},
+	 .boss = {MonsterCamelSpider, 2, 2, 3000, 10, 0, Summon::Drop}},
 	// Babi (plan babi-boss), the bull of the baboons, who eats the hearts of the dead by the lake of fire: a god, like
 	// Seth. The baboon's kiting and throw, stronger: a wider band and a quicker retreat, leaping the gaps between the
 	// ledges of his arena where the baboon would be cornered; volleys of coals, and every third throw a big one that
@@ -1202,8 +1205,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .scale = 48, // twice the baboon's; KIND_SCALE of tools/blender/models/baboon.py --boss
 	 .blood = {0.55f, 0.08f, 0.06f},
 	 .speed = 26,
-	 .maxHealth = 2200,
-	 .damage = 110,
+	 .maxHealth = 1500,
+	 .damage = 45,
 	 .attackMs = 1200,
 	 .xp = 30000,
 	 .attackMix = BABI_MIX,
@@ -1214,7 +1217,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 5,
 	 .ranged =
 		 RangedRules{
-			 .damage = 45,
+			 .damage = 30,
 			 .range = 1.4f,
 			 .cooldownMs = 1600,
 			 .release = BABI_RELEASE,
@@ -1231,7 +1234,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbRise = 0.2641f, // tools/blender/models/baboon.py --boss (KIND_SCALE 48)
 	 .climbGrip = 0.0427f,
 	 .kin = MonsterBaboon,
-	 .boss = {MonsterBaboon, 2, 4, 5000, 8, 0, Summon::DigOut}},
+	 .boss = {MonsterBaboon, 2, 2, 5000, 8, 0, Summon::DigOut}},
 }};
 
 constexpr bool validKinds() {

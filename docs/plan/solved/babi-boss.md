@@ -25,7 +25,7 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
 * **Arena:** the sealed boss room is the lake: a pool of fire in the middle (fire on the floor, not water: the burning
   oil of the lake), ledges and ladders round it, water basins at the sides as the player's refuge.
 * **Resistances:** `bossResist` of the baboon's (no weakness); fire immune is too much, resists fire.
-* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](../monster-balance.draft.opus.md).
+* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](../monster-balance.md).
 * **Journal note:** "The heart-eater. I keep mine, thank you."
 
 ## Tests

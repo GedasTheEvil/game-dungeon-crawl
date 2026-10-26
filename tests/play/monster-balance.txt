@@ -1,0 +1,15 @@
+# Plan monster-balance, for `bin/game --play tests/play/monster-balance.txt`: a generated serpent temple level (zone
+# 6: cobras, giant cobras, crocodiles in the water, a giant bat) and the player the balance sim puts there: level 39,
+# the playthrough's gear (armour +14, might +18, max HP +46% on the level's own), the khopesh, the spear and the bow,
+# four large health potions. A cobra should cost about a tenth of your HP in melee, a giant cobra or a crocodile about
+# a fifth. Armour now takes a share of each hit (half at 50) instead of a flat amount: no hit drops to 1.
+# Another zone: change the `level` line's zone and the `xp` and `gear` lines (the plan's Sim pass has a line per zone).
+seed 1
+level gen:3:5:serpent_temple
+xp 367053
+gear 14 18 46
+give melee 4
+give melee 2
+give ranged 0
+give potion 1 4
+equip khopesh

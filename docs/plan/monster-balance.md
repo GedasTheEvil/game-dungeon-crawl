@@ -1,8 +1,11 @@
 # Monster and weapon balance
 
-Status: draft. Merged 2026-10-05 from three drafts: monster strength (2026-10-01), monster XP tuning, and weapon
-ranges and HP balance. The weapon reach review is done and verified in play 2026-09-30 (see [Reach](#reach-done)).
-Refined 2026-10-09: see [Decided](#decided-2026-10-09), not implemented.
+Status: implemented 2026-10-26 (steps 2-5, [Done](#done-2026-10-26)), waiting for the user's play-test:
+`bin/game --play tests/play/monster-balance.txt` (a generated serpent temple level with the player the sim puts
+there; other zones: the `level`, `xp` and `gear` lines from the table in [Done](#done-2026-10-26)). Merged 2026-10-05
+from three drafts: monster strength (2026-10-01), monster XP tuning, and weapon ranges and HP balance. The weapon reach
+review is done and verified in play 2026-09-30 (see [Reach](#reach-done)). Refined 2026-10-09: see
+[Decided](#decided-2026-10-09).
 
 Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](solved/campaign-zones.md) (balance
 against the final zones, their monster sets and the 40-60 level count), and every monster and boss draft (user, 2026-10-20: balance comes
@@ -179,6 +182,72 @@ So a table of KINDS changes alone cannot make each monster a fight on all its le
 * **C, the table only:** raise the late monsters' damage over the armour and their HP, keep the rules; a monster after
   its first zone is filler.
 
+## Done (2026-10-26)
+
+The user picked **B + C** (2026-10-26): armour as a share, then the table; no depth scaling, so a monster after its
+first zone is easy filler.
+
+* **Armour as a share** (`ARMOR_HALVES` = 50, `playerHitDamage`): a hit's physical part times 50 / (50 + armour).
+* **The table** (`KINDS`): each monster's HP and damage (its ranged, roll and roar damage by the same factor) tuned
+  with `bin/balance tune` / `home` against the player halfway through its first zone (`ZONE_FAUNA`): a weak one about
+  6% of the player's HP in a 3 s melee fight, plant, worm, ushabti, lotus, cobra 10% in 4 s, the giants and the mimic
+  20% in 6 s, the hippo and the cursed mimic 30% in 8 s. Two anchors are not the first zone: the Anubis guard is tuned
+  for the necropolis (about 30%: the late zones' own monster; in the priests' quarter, one rare guard, it kills in
+  melee but a sprint gets past it), the crocodile for the serpent temple (the bat galleries' preview wade: below).
+* **Bosses** against the player of their level with up to four large health potions: two or three potions (120-200%
+  of max HP) in about 30 s; fewer minions where the stronger kin made the fight (most to 1-3 alive).
+
+| Monster | HP | Damage | Was | | Boss | HP | Damage | Minions alive | Was |
+|---|---:|---:|---|---|---|---:|---:|---|---|
+| Scarab | 14 | 4 | 10 / 2 | | Khepri | 400 | 8 (ball 12) | 2-3 | 320 / 40 (28), 3-5 |
+| Bat | 8 | 4 | 8 / 3 | | Bat of Shezmu | 350 | 25 | 2-3 | 400 / 80, 2-4 |
+| Plant | 30 | 4 | 30 / 5 | | Mother of Webs | 800 | 10 | 2 | 520 / 26, 2-4 |
+| Mimic | 50 | 6 | 40 / 10 | | High Priest | 1700 | 35 (bolt 80) | 1 | 2000 / 120 (100), 2-4 |
+| Worm | 200 | 14 | 30 / 9 | | Scorpion queen | 1800 | 30 | | 700 / 45 |
+| Giant rat | 250 | 5 | 60 / 8 | | Apep | 1900 | 70 (spit 11) | 2-3 | 1100 / 60 (15), 2-4 |
+| Giant bat | 40 | 28 | 40 / 10 | | Sobek | 1400 | 50 | 1 | 1600 / 70, 1-3 |
+| Camel spider | 330 | 5 | 26 / 5 | | Seth | 2500 | 65 (roar 30) | 1 | 2000 / 80 (45), 1-2 |
+| Giant scarab | 340 | 15 (ball 11) | 90 / 12 (10) | | Rerek | 3400 | 190 | | 2200 / 75 |
+| Mummy | 480 | 100 | 150 / 20 | | Babi | 1500 | 45 (coals 30) | 2 | 2200 / 110 (45), 2-4 |
+| Ushabti | 130 | 55 | 40 / 9 | | Anubis | 2400 | 190 | | 2400 / 140 |
+| Anubis guard | 1300 | 140 (bolt 70) | 600 / 55 (50) | | | | | | |
+| Scorpion | 150 | 30 | 14 / 3 | | | | | | |
+| Giant scorpion | 570 | 44 | 70 / 12 | | | | | | |
+| Cobra | 330 | 50 (spit 10) | 35 / 6 (2) | | | | | | |
+| Giant cobra | 690 | 85 (spit 12) | 160 / 26 (5) | | | | | | |
+| Crocodile | 350 | 50 | 110 / 26 | | | | | | |
+| Hippo | 585 | 91 | 280 / 28 | | | | | | |
+| Lotus | 250 | 90 | 50 / 7 | | | | | | |
+| Cursed mimic | 880 | 90 | 120 / 20 | | | | | | |
+
+Rat, giant rat's call, baboon, egg cluster: unchanged (the rat and the baboon already on target).
+
+The player of each zone in the sim (play-test: `xp`, then `gear ARMOUR MIGHT HP%`, `level gen:3:D:ZONE`):
+
+| Zone | Player level | XP | Gear | | Zone | Player level | XP | Gear |
+|---|---:|---:|---|---|---|---:|---:|---|
+| tomb_entrance | 2 | 1000 | 0 0 0 | | cisterns_of_sobek | 46 | 788559 | 19 24 63 |
+| bat_galleries | 8 | 15246 | 0 0 0 | | seths_desert | 49 | 1058223 | 21 27 71 |
+| web_halls | 15 | 40233 | 0 0 0 | | land_of_sokar | 52 | 1392657 | 23 30 78 |
+| priests_quarter | 27 | 98162 | 5 7 17 | | lake_of_fire | 55 | 1800106 | 26 33 85 |
+| scorpion_nest | 32 | 160831 | 9 11 29 | | necropolis | 59 | 2471700 | 29 36 95 |
+| serpent_temple | 39 | 367053 | 14 18 46 | | hall_of_judgment | 63 | 3309148 | 32 40 105 |
+
+Left open, for the user and [denser-levels](denser-levels.draft.opus.md):
+
+* **Today's 35 levels no longer balance:** the monsters are tuned for the zones of the rebuild (scorpions of 150 HP on
+  today's lvl3-6, crocodiles of 350 on lvl7-9). Play-test on generated zone levels until the rebuild.
+* **Khepri** is tuned for a level 6 player with the sword; the paced player of lvl4 is level 4 with the club, and
+  she kills them. The first zone must bring the player there (or she needs retuning with the rebuilt zone).
+* **The preview crocodile** of the bat galleries kills a level 8 player: drop it, or put it where the wade can be
+  skipped.
+* **The late zones' fauna** (camel spiders, worms, giant scorpions, mummies, giant cobras in zones 8-12): filler after
+  their first zone, as C says; only the Anubis guard, the baboon and the bosses are fights there.
+* **XP** is unchanged: it no longer follows the new strengths (a scorpion of the scorpion nest gives 450, an ushabti
+  of the zone before 900). With the rebuild's monster counts: the XP sum per level (`bin/balance curve`).
+* The checker's `threat` values are unchanged (levelgen's difficulty target rests on them).
+* Might adds to each hit: late the flint knife has the most damage a second (a tenth of a tile's reach). Not changed.
+
 ## Monster strength
 
 * Go through every type in `KINDS`: speed, HP, damage, attack interval, XP. Compare against the player's level
@@ -241,8 +310,8 @@ Settled on the way:
 * Bosses keep their XP (2026-10-09).
 * A crocodile in half water is a harder fight than on land: the player wades at half speed, cannot sprint, jump or
   back off. But by the first crocodile the player has a ranged weapon and can shoot it before it closes in. Its
-  `monsterThreat` in the checker score gets x1.1 when it spawns in half water (decided 2026-10-08, not in the
-  checker yet: do it with step 5). A wall in the
+  `monsterThreat` in the checker score gets x1.1 when it spawns in half water (decided 2026-10-08; done 2026-10-26
+  for every swimmer, the hippo too: `SWIMMER_IN_WATER_THREAT_FACTOR`). A wall in the
   checker's walker was dropped: killing it opens the way, as with any monster.
 
 ## Reach (done)

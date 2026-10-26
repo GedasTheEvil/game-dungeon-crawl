@@ -9,7 +9,7 @@ The final campaign has 40-60 levels, grouped into zones of several levels each. 
 story, look, monster set and main mechanic, and most zones end with a boss. Today only the desert has a range in code
 (`DESERT_FIRST`..`DESERT_LAST`, `src/world/campaign.h`); everything else depends on the level number.
 
-This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.draft.opus.md)
+This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.md)
 balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.md) builds its
 levels, [zone-looks](zone-looks.md) gives each zone its look,
 [campaign-texts](../campaign-texts.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
@@ -53,7 +53,7 @@ Why:
 Costs:
 
 * Crocodiles move from 7-9 to 28 on; only the one preview wade in zone 2 stays early.
-* The High Priest needs retuning for about lvl18 ([monster-balance](../monster-balance.draft.opus.md)).
+* The High Priest needs retuning for about lvl18 ([monster-balance](../monster-balance.md)).
 
 * The Lake of Fire (Book of the Dead 126, the Amduat): the gate of the Duat, guarded by four baboons; Babi eats the
   hearts of the unworthy there. The step from the sands into the night. New: the baboon, a ranged kiter

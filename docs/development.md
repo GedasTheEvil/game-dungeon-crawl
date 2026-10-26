@@ -28,11 +28,14 @@ read their file arguments from the current directory.
 * Level tools: `make level-tools`, then `bin/levelcheck content/levels/lvl*` (validate, rank by difficulty) and
   `bin/levelgen --seed 1 --difficulty 5 OUT` (random level), `bin/levelconvert FILE...` (old level files to the current
   format). See [levels.md](levels.md).
-* Balance sim (plan [monster-balance](plan/monster-balance.draft.opus.md)): `bin/balance fight "giant rat" 30
+* Balance sim (plan [monster-balance](plan/monster-balance.md)): `bin/balance fight "giant rat" 30
   [--armor A] [--might M] [--hp P] [--difficulty D]` (one monster against a player of that level: tank in melee, kite
   with the bow, run past; HP lost as a share of max HP, seconds to the kill, potions drunk), `bin/balance table [--gear
   gen|play]` (every zone's monsters and boss against its player), `bin/balance curve` (the target campaign generated:
-  XP and gear per level), `bin/balance today` (the same for `content/levels/`). The fights run in the unit tests'
+  XP and gear per level), `bin/balance today` (the same for `content/levels/`), `bin/balance tune` (each monster's
+  HP and damage for its class's target in its first zone), `bin/balance home "giant rat" [--monster-hp HP]
+  [--monster-damage D] [--minions N]` (one monster against the player of its first zone, with stats to try). The
+  fights run in the unit tests'
   sim (`tests/unit/sim_world.h`) on an arena hall; `BALANCE_TRACE=1` prints each fight once a second.
 
 ## Project layout

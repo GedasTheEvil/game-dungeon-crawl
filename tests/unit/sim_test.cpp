@@ -17,12 +17,12 @@ TEST_CASE("a coward keeps out of an armed rock fall, a giant rat leaps over it")
 	world.player.stats.AddXP(1000, world.events);
 	world.Wait(20000);
 	CHECK(world.Hp() == 62);
-	CHECK(world.dungeon.NearestMonsterHealth() == 12);
+	CHECK(world.dungeon.NearestMonsterHealth() == monsterKind(MonsterRat)->maxHealth);
 
 	REQUIRE(world.Load("tests/levels/coward_rock_leap"));
 	world.Wait(6000);
 	CHECK(world.Hp() < 62);
-	CHECK(world.dungeon.NearestMonsterHealth() == 60);
+	CHECK(world.dungeon.NearestMonsterHealth() == monsterKind(MonsterGiantRat)->maxHealth);
 }
 
 namespace {
@@ -302,6 +302,7 @@ TEST_CASE("a level's decorations come from the tiers its depth unlocks: cave, wo
 TEST_CASE("the blue lotus floats until the player wades near, rears up, stays rooted and its bite drains stamina") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/lotus"));
+	world.player.god = true; // lives through two bites of the cisterns' lotus
 	REQUIRE(world.WalkTo(11.5f - FLOATING_WAKE_RANGE - 0.3f)); // the lotus is in col 11
 	const Monster* lotus = firstMonster(world);
 	REQUIRE(lotus != nullptr);

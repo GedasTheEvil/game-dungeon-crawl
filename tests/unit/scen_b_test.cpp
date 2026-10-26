@@ -12,6 +12,13 @@ void swing(SimWorld& world, int n, int gapMs = 640) {
 		world.Wait(gapMs);
 	}
 }
+// Swings until the nearest monster is dead, at most cap (its HP is the balance's, plan monster-balance).
+void swingUntilDead(SimWorld& world, int cap, int gapMs = 640) {
+	for (int i = 0; i < cap && world.Nearest() > 0; i++) {
+		world.Attack();
+		world.Wait(gapMs);
+	}
+}
 } // namespace
 
 TEST_CASE("the cobra lies coiled with no health bar, rears up, shows its bar and dies to the club") {
@@ -25,7 +32,7 @@ TEST_CASE("the cobra lies coiled with no health bar, rears up, shows its bar and
 	world.Wait(4000);
 	CHECK(world.player.stats.poison.Mask() == 2);
 	world.player.god = true;
-	swing(world, 8, 1000);
+	swingUntilDead(world, 80, 1000);
 	CHECK(world.Nearest() == 0);
 }
 
@@ -41,7 +48,7 @@ TEST_CASE("the crocodile lies in the pool unseen, wakes when waded close, follow
 	REQUIRE(world.WalkTo(7.3f));
 	world.WaitTicks(10);
 	CHECK(world.dungeon.MonsterBarsShown() == 1);
-	CHECK(world.Nearest() == 110);
+	CHECK(world.Nearest() == monsterKind(MonsterCrocodile)->maxHealth);
 	REQUIRE(world.WalkTo(4.2f));
 	world.Wait(5000);
 	REQUIRE(world.WalkTo(2.5f));
@@ -52,7 +59,7 @@ TEST_CASE("the crocodile lies in the pool unseen, wakes when waded close, follow
 	world.HoldWalk(1, 32);
 	world.Equip(ItemKind::ShortSword);
 	world.WaitTicks(10);
-	swing(world, 20, 640);
+	swingUntilDead(world, 60);
 	world.Wait(3000);
 	CHECK(world.Nearest() == 0);
 	CHECK(world.dungeon.MonsterBarsShown() == 0);
@@ -99,7 +106,7 @@ TEST_CASE("a mummy in its coffin shows no bar, wakes near, and leaves its coffin
 	CHECK(world.dungeon.MonsterBarsShown() == 1);
 	world.Wait(7000);
 	const int coffins = world.dungeon.CoffinCount();
-	swing(world, 40, 640);
+	swingUntilDead(world, 120);
 	world.Wait(3000);
 	CHECK(world.Nearest() == 0);
 	CHECK(world.dungeon.CoffinCount() == coffins);
@@ -131,14 +138,15 @@ TEST_CASE("the vampire bat's roost: two bats drop, wounded it heals on bites, su
 	world.WaitTicks(SimWorld::GATE_TRAVEL_TICKS);
 	CHECK(world.Y() > 3);
 	world.WaitTicks(10);
-	CHECK(world.dungeon.BossHealth() == 400);
+	const int hp = monsterKind(MonsterVampireBat)->maxHealth;
+	CHECK(world.dungeon.BossHealth() == hp);
 	CHECK(world.dungeon.LivingMinions() == 2);
 	world.dungeon.HurtBoss(100);
-	CHECK(world.dungeon.BossHealth() == 300);
+	CHECK(world.dungeon.BossHealth() == hp - 100);
 	world.Walk(5.f);
 	world.Wait(4000);
 	CHECK(world.Hp() < 326);
-	CHECK(world.dungeon.BossHealth() > 300); // drank the blood
+	CHECK(world.dungeon.BossHealth() > hp - 100); // drank the blood
 	world.player.god = true;
 	world.Wait(4000);
 	CHECK(world.dungeon.LivingMinions() >= 3);

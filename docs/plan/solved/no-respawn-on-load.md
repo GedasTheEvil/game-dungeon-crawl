@@ -40,7 +40,7 @@ Status: implemented 2026-10-10, solved (user-confirmed 2026-10-12) (see [Impleme
 * The monster needs its spawn cell (it walks away from it): check whether it is kept.
 * Anything that reads spawn tiles after the kill: `decor_scatter.cpp` (entombed monsters' coffins, the boss coffins),
   `map_view.cpp` (the mimic's symbol), `levelcheck`. Each must treat the marker right.
-* XP: the curve ([monster-balance](../monster-balance.draft.opus.md#the-30-level-curve-2026-10-06)) already assumes no
+* XP: the curve ([monster-balance](../monster-balance.md#the-30-level-curve-2026-10-06)) already assumes no
   respawns, so nothing to retune. Players who farmed with loads will level more slowly.
 * Tests: a scenario in `tests/scenarios/` (kill a monster, `savegame`, `loadgame`, the monster is not back; the
   same for walking away and back).

@@ -52,7 +52,7 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | Scenario | Guards | Why a unit test cannot |
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
-| `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.draft.opus.md)) | hit boxes are drawn |
+| `weapon_reach` | weapon hit boxes against the model ([plan](plan/monster-balance.md)) | hit boxes are drawn |
 | `campaign_levelgen` | one zone level per zone loads and looks like its zone ([plan](plan/campaign-levelgen.md)) | the zone's look is drawn |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
@@ -155,6 +155,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `equip WEAPON` | Take the weapon in hand, like a click on its slot in the inventory: `club`, `dagger`, `short_sword`, `khopesh`, `epsilon_axe`, `duckbill_axe`, `mace`, `spear`, `self-bow`, `composite_bow`, `sling`, `throwing_stick`, `javelin`. Fails when the weapon is not held. Scenarios equip with it, not with the number keys (they cycle per class). |
 | `wear AMULET` / `wear off` | Put the amulet on, like a click on its slot and the Wear button (one at a time: the worn one comes off), or take the worn one off. AMULET: its label with `_` for spaces (`lesser_amulet_of_strength`, `amulet_of_health`, `grand_amulet_of_trap_guard`). Fails when it is not held. |
 | `xp N` | Gain N XP, like killing monsters. Each level up adds max HP and refills HP and stamina (level 2 at 1000). |
+| `gear A M P` | Add A armour, M might and P % max HP, as the potions do (for a player of a later level, with `xp`; plan monster-balance). |
 | `savegame FILE` / `loadgame FILE` | Save / load the game. A bare file name is in the output directory; a path is taken as is. Never load from `saves/`: those are real games, not committed, overwritten by play. |
 | `autosave` | Write the autosave as at a level start ([autosave](plan/solved/autosave.md)), into the output directory as every autosave of a scenario: a scenario never writes `saves/autosave.sav`. Fails if it was not written (the player is dead). |
 | `chest TYPE ID [N]` | Open N (default 1) treasure chests holding that item: the item plus the random bonus loot, like a pickup. |

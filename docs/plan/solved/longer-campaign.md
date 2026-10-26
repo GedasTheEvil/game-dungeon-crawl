@@ -13,7 +13,7 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
   with a key behind its boss gate.
 * New monsters (scorpion, cobra) get their place in the level table in [../levels.md](../../levels.md).
 * Then rebalance all monsters and bosses across the longer curve: player level and gear when reaching each boss, XP per
-  level. See [monster-balance.draft.opus.md](../monster-balance.draft.opus.md).
+  level. See [monster-balance.draft.opus.md](../monster-balance.md).
 
 ## Decided (2026-10-06)
 
@@ -36,7 +36,7 @@ New bosses ([scorpion-queen-boss.md](scorpion-queen-boss.md),
 4. Apep, swapped into lvl20.
 5. Sobek, swapped into lvl25.
 6. Balance over the 30 levels: XP curve, the Anubis guards and boss,
-   [monster-balance.draft.opus.md](../monster-balance.draft.opus.md).
+   [monster-balance.draft.opus.md](../monster-balance.md).
 
 ## Level plan
 
@@ -62,4 +62,4 @@ Open:
   [../levels.md](../../levels.md#campaign-order). Level gems for 16-30: malachite, amethyst, obsidian.
 * Bosses in place: the scorpion queen (15), Apep (20), Sobek (25).
 * Open: step 6, the balance over 30 levels (XP curve, the Anubis guards and the Anubis boss stronger than every other
-  boss): [monster-balance.draft.opus.md](../monster-balance.draft.opus.md). Then a full playthrough.
+  boss): [monster-balance.draft.opus.md](../monster-balance.md). Then a full playthrough.

@@ -73,16 +73,21 @@ TEST_CASE("poison can kill the player, and the death ends it") {
 TEST_CASE("a scorpion walks up and stings (weak poison); the club kills it, it is weak to blows") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/scorpions"));
+	world.player.stats.AddXP(200000, world.events); // the player of the scorpion nest (plan monster-balance)
+	const int full = world.Hp();
 	REQUIRE(world.Walk(1.5f));
 	world.Wait(5000);
 	CHECK(world.player.stats.poison.Any());
-	CHECK(world.Hp() < 50);
-	for (int i = 0; i < 4; i++) {
+	CHECK(world.Hp() < full);
+	world.player.god = true;
+	int swings = 0;
+	for (; swings < 30 && world.Nearest() > 0; swings++) {
 		world.Attack();
 		world.Wait(1000);
 	}
 	CHECK(world.Nearest() == 0);
-	CHECK(world.player.Alive());
+	// Weak to blows: the club's mostly blunt hit counts more than its 10.
+	CHECK(swings < (monsterKind(MonsterScorpion)->maxHealth + 9) / 10);
 }
 
 TEST_CASE("the bow's arrow lands on the floor ahead; facing the plant it hits, ten arrows kill it") {

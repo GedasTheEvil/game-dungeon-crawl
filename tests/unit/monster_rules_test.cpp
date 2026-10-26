@@ -1,6 +1,7 @@
 // Monster rules on the sim harness (plan scenarios-to-unit-tests technique 7), ported from the scenarios that checked
 // them with `expect` lines only: courage and traps, speed, leaps, poison, damage types, the health bars.
 #include "../../external/doctest/doctest.h"
+#include "../../src/world/level_check.h"
 #include "sim_world.h"
 #include <set>
 
@@ -12,9 +13,10 @@ TEST_CASE("a reckless mummy sets off a rock fall and, too slow for its middle, i
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.95f));
 	world.Wait(2000);
-	CHECK(world.Nearest() == 150);
+	const int hp = monsterKind(MonsterMummy)->maxHealth;
+	CHECK(world.Nearest() == hp);
 	world.Wait(8000);
-	CHECK(world.Nearest() == 125); // half of 50 (trapDamagePct 50)
+	CHECK(world.Nearest() == hp - 25); // half of 50 (trapDamagePct 50)
 }
 
 TEST_CASE("a reckless mummy stands in the spikes to strike; the ramp kills it, a trap's kill gives no XP") {
@@ -25,11 +27,12 @@ TEST_CASE("a reckless mummy stands in the spikes to strike; the ramp kills it, a
 	world.WaitTicks(30);
 	REQUIRE(world.WalkTo(3.95f));
 	world.Wait(2000);
-	CHECK(world.Nearest() == 150);
+	const int hp = monsterKind(MonsterMummy)->maxHealth;
+	CHECK(world.Nearest() == hp);
 	world.Wait(7000);
-	CHECK(world.Nearest() < 150);
+	CHECK(world.Nearest() < hp);
 	CHECK(world.Nearest() > 0);
-	world.Wait(30000);
+	world.Wait(120000);
 	CHECK(world.Nearest() == 0);
 	CHECK(world.Xp() == 200000);
 }
@@ -40,10 +43,11 @@ TEST_CASE("the Anubis walks through the spikes to the player, taking a quarter o
 	REQUIRE(world.Load("tests/levels/reckless_anubis"));
 	world.player.stats.AddXP(200000, world.events);
 	world.WaitTicks(30);
-	CHECK(world.Nearest() == 600); // before the spikes at col 4
+	const int hp = monsterKind(MonsterAnubis)->maxHealth;
+	CHECK(world.Nearest() == hp); // before the spikes at col 4
 	REQUIRE(world.WalkTo(2.3f));
 	world.Wait(5000);
-	CHECK(world.Nearest() < 600);
+	CHECK(world.Nearest() < hp);
 	CHECK(world.Nearest() > 0);
 	CHECK(world.Xp() == 200000);
 }
@@ -128,14 +132,15 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 	world.dungeon.PoisonNearestMonster(PoisonTier::Strong);
 	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 
-	// a boss (Sobek, no resistance): strong poison, 5% of 1600 HP a second
+	// a boss (Sobek, no resistance): strong poison, 5% of his HP a second
 	REQUIRE(world.Load("tests/levels/sobek"));
 	REQUIRE(world.WalkTo(10.8f));
 	world.Wait(300);
-	CHECK(world.dungeon.BossHealth() == 1600);
+	const int sobek = monsterKind(MonsterSobek)->maxHealth;
+	CHECK(world.dungeon.BossHealth() == sobek);
 	world.dungeon.PoisonBoss(PoisonTier::Strong);
 	world.Wait(2000);
-	CHECK(world.dungeon.BossHealth() == 1440);
+	CHECK(world.dungeon.BossHealth() == sobek - 2 * sobek * 5 / 100);
 }
 
 TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the first hit of each is noted, and kept") {
@@ -147,28 +152,29 @@ TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the f
 	world.Equip(ItemKind::Club);
 	REQUIRE(world.Walk(1.f));
 	world.Wait(12000);
-	CHECK(world.Nearest() == 90);
+	const int hp = monsterKind(MonsterGiantScarab)->maxHealth;
+	CHECK(world.Nearest() == hp);
 	world.Attack();
 	world.WaitTicks(40);
-	CHECK(world.Nearest() == 81);
+	CHECK(world.Nearest() == hp - 9);
 	CHECK(world.JournalTried() == 1);
 	CHECK(world.Told("smash"));
 	world.WaitTicks(60);
 	world.Attack();
 	world.WaitTicks(60);
-	CHECK(world.Nearest() == 72);
+	CHECK(world.Nearest() == hp - 18);
 	CHECK(world.JournalTried() == 1);
 	world.Equip(ItemKind::ShortSword);
 	world.WaitTicks(5);
 	world.Attack();
 	world.WaitTicks(60);
-	CHECK(world.Nearest() == 47);
+	CHECK(world.Nearest() == hp - 43);
 	CHECK(world.JournalTried() == 2);
 	world.Equip(ItemKind::Spear);
 	world.WaitTicks(5);
 	world.Attack();
 	world.WaitTicks(60);
-	CHECK(world.Nearest() == 1);
+	CHECK(world.Nearest() == hp - 89);
 	CHECK(world.JournalTried() == 3);
 	world.SaveAndLoad();
 	CHECK(world.JournalTried() == 3);
@@ -183,7 +189,8 @@ TEST_CASE("the amulet of venom poisons on a weapon hit that does not kill; the p
 	CHECK(world.items.Worn() == ItemKind::VenomGrand);
 	REQUIRE(world.Walk(1.f));
 	world.Wait(8000);
-	CHECK(world.Nearest() == 60);
+	const int hp = monsterKind(MonsterGiantRat)->maxHealth;
+	CHECK(world.Nearest() == hp);
 	CHECK(world.JournalTried() == 0);
 	// club hits (10 HP each) until the venom takes (grand: 30%, strong)
 	int hits = 0;
@@ -193,9 +200,12 @@ TEST_CASE("the amulet of venom poisons on a weapon hit that does not kill; the p
 		hits++;
 	}
 	REQUIRE(world.dungeon.NearestMonsterPoison() == 4); // strong
-	CHECK(world.Nearest() == 60 - 10 * hits);
+	CHECK(world.Nearest() == hp - 10 * hits);
 	CHECK(world.JournalTried() == 2); // blunt, and the poison
-	world.Wait(20000); // strong on 60 HP: the floor, 3 HP a second
+	// Down to 20 HP by a plain hit, which the poison then outlasts (its run is shorter than the rat's full HP).
+	CHECK(world.dungeon.AttackNearest(world.Nearest() - 20, DamageMix{100, 0, 0}, 1.f, world.facing));
+	REQUIRE(world.Nearest() == 20);
+	world.Wait(20000); // strong: the floor, 3 HP a second
 	CHECK(world.Nearest() == 0);
 	CHECK(world.Xp() > 0);
 }
@@ -266,13 +276,14 @@ TEST_CASE("fire arrows from a brazier: the mummy takes double from fire and burn
 	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS);
 	REQUIRE(world.WalkTo(10.3f)); // in the bow's reach, facing it
 	world.Wait(1000);
-	REQUIRE(world.Nearest() == 150);
+	const int hp = monsterKind(MonsterMummy)->maxHealth;
+	REQUIRE(world.Nearest() == hp);
 	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
 	world.Attack();
 	world.WaitTicks(40);
 	world.WaitTicks(40);
 	// The bow's 12: 40% pierce (tough, 25%) and 60% fire (weak, 200%): 12 * 1.3 = 16.
-	CHECK(world.Nearest() == 134);
+	CHECK(world.Nearest() == hp - 16);
 	CHECK(world.dungeon.NearestMonsterBurns());
 	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
 	CHECK(world.Told("Mummy catches fire"));
@@ -281,7 +292,7 @@ TEST_CASE("fire arrows from a brazier: the mummy takes double from fire and burn
 	// It burns a fifth of its fire share (14.4) a second for 3 s: 8.
 	world.Wait(3500);
 	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
-	CHECK(world.Nearest() == 126);
+	CHECK(world.Nearest() == hp - 24);
 	CHECK(std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
 		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::Fire;
 	}));
@@ -324,14 +335,14 @@ void readyFlamingArrows(SimWorld& world, bool skill, bool toggle) {
 	REQUIRE(world.WalkTo(9.5f)); // back
 	REQUIRE(world.WalkTo(10.3f)); // in the bow's reach, facing it
 	world.Wait(1000);
-	REQUIRE(world.Nearest() == 150);
+	REQUIRE(world.Nearest() == monsterKind(MonsterMummy)->maxHealth);
 }
 
 // One shot, then until the arrow has landed: the mummy's HP lost.
 int shotDamage(SimWorld& world) {
 	world.Attack();
 	world.WaitTicks(80);
-	return 150 - world.Nearest();
+	return monsterKind(MonsterMummy)->maxHealth - world.Nearest();
 }
 } // namespace
 
@@ -403,4 +414,21 @@ TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a na
 	CHECK(monsterKind(MonsterMimic)->resist[FIRE] == WEAK);
 	CHECK(monsterKind(MonsterVampireBat)->resist[FIRE] == NORMAL); // the boss follows through bossResist
 	CHECK(monsterKind(MonsterScorpion)->resist[FIRE] == NORMAL);
+}
+
+TEST_CASE("the checker scores a swimmer in half water higher: the player wades and cannot back off") {
+	LevelGrid grid; // tests/levels/crocodile: the crocodile in a pool by the path
+	REQUIRE(loadLevelFile("tests/levels/crocodile", grid).empty());
+	int croc = -1;
+	for (int cell = 0; cell < LEVEL_CELL_COUNT; cell++)
+		if (grid.cells[cell].type == MonsterSpawn && grid.cells[cell].attr == MonsterCrocodile)
+			croc = cell;
+	REQUIRE(croc >= 0);
+	REQUIRE(grid.cells[croc].structure == Structure::HalfWater);
+	const float inWater = checkLevel(grid).difficulty;
+	grid.cells[croc].structure = Structure::Empty;
+	const float onLand = checkLevel(grid).difficulty;
+	CHECK(
+		inWater - onLand == doctest::Approx(monsterThreat(MonsterCrocodile) * (SWIMMER_IN_WATER_THREAT_FACTOR - 1.f))
+	);
 }

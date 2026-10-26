@@ -42,6 +42,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"equip", "equip spear"},
 	{"wear", "wear amulet_of_health"},
 	{"xp", "xp 1000"},
+	{"gear", "gear 14 18 46"},
 	{"hurt", "hurt 5"},
 	{"firehit", "firehit 10"},
 	{"blind", "blind 2000"},

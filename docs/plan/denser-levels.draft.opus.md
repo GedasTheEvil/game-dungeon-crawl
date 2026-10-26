@@ -5,7 +5,7 @@ turned into the full rebuild 2026-10-21 (user: "levels re-generated completely, 
 levels in zones). Slug kept from the first version.
 
 Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
-[monster-balance](monster-balance.draft.opus.md) (user, 2026-10-21: the levels are built on the balanced values),
+[monster-balance](monster-balance.md) (user, 2026-10-21: the levels are built on the balanced values),
 [zone-looks](solved/zone-looks.md), and the new traps, so the rebuild places them:
 [fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](solved/poison-drip-trap.md).
 Built on [campaign-levelgen](campaign-levelgen.md) (the generator) and [campaign-texts](campaign-texts.md) (the texts
@@ -48,7 +48,11 @@ to keep.
 * The spawn window (monsters spawn when they come into view), `MAX_MONSTERS` (32 live slots), the draft map's size on
   screen, the load time.
 * The XP curve: recheck the XP sum per level after each batch against the curve from
-  [monster-balance](monster-balance.draft.opus.md).
+  [monster-balance](monster-balance.md) (`bin/balance curve`). Today's levelgen puts 45-55 monsters on a
+  full level (today's levels about 31): the player would end at level 79, not 60 (2026-10-26).
+* From [monster-balance](monster-balance.md#done-2026-10-26): the first zone must bring the player to
+  about level 6 and the sword before Khepri; the bat galleries' preview crocodile kills a level 8 player (drop it or
+  make the wade skippable); levelgen builds no zone level under about 400 open cells (the ramp's first levels).
 * Save games: old saves point to old level numbers. No real players yet: ignore them.
 
 ## Route fork: left or right

@@ -39,4 +39,4 @@ Left alone, a strong poison takes the player to 5% HP (below 60 max HP the floor
 ## Related
 
 * [poison-and-antidote](poison-and-antidote.md), [monster-poison](monster-poison.md),
-  [monster-balance](../monster-balance.draft.opus.md)
+  [monster-balance](../monster-balance.md)

@@ -32,7 +32,7 @@ So the boss is not a big hippo: it is a god in hippo shape, red, raging, with a 
   like his blunt), and the journal note hints at it. `bossResist` already lifts the hippo's weaknesses.
 * Minions: hippos surfacing from the water (`Summon::DigOut` splash, as Sobek's crocodiles). Fewer than Sobek's:
   default 1 / 2 / every 7 s / 4 per fight (a hippo is heavy).
-* Numbers (starting point, balance in [monster-balance](../monster-balance.draft.opus.md)): HP above Sobek's 1600
+* Numbers (starting point, balance in [monster-balance](../monster-balance.md)): HP above Sobek's 1600
   (~2000), damage ~80 every 1500 ms, XP ~30000, `Courage::Reckless`, `trapDamagePct` 10, weight 6.
 * Fire: the hippo resists it (wet hide); with [fire-in-water](fire-in-water.md) in, fire barely
   touches him in the water anyway.

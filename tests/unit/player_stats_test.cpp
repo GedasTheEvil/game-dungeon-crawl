@@ -130,11 +130,11 @@ TEST_CASE("a hit on the player: resistances, then armour, at least 1") {
 	WorldEvents events;
 	stats.AddArmor(3);
 	const DamageMix blunt = {100, 0, 0};
-	CHECK(stats.HitDamage(10, blunt, false) == 7);
+	CHECK(stats.HitDamage(10, blunt, false) == 9); // 10 * 50 / 53
 	CHECK(stats.HitDamage(10, blunt, true) == 10);
-	CHECK(stats.HitDamage(2, blunt, false) == 1);
+	CHECK(stats.HitDamage(1, blunt, false) == 1);
 	stats.resist = {50, 100, 100};
-	CHECK(stats.HitDamage(10, blunt, false) == 2);
+	CHECK(stats.HitDamage(10, blunt, false) == 5);
 	CHECK(stats.Damage(10) == 10);
 	stats.AddMight(2);
 	CHECK(stats.Damage(10) == 12);

@@ -745,8 +745,12 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 		}
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
-		if (t.type == MonsterSpawn)
-			score += monsterThreat(t.attr) * (near.count(cell) != 0 ? 1.f : 0.25f);
+		if (t.type != MonsterSpawn)
+			continue;
+		const MonsterKind* kind = monsterKind(t.attr);
+		const bool swimsHere = kind != nullptr && kind->wading == Wading::Swimmer && inHalfWater(t);
+		score += monsterThreat(t.attr) * (swimsHere ? SWIMMER_IN_WATER_THREAT_FACTOR : 1.f) *
+				 (near.count(cell) != 0 ? 1.f : 0.25f);
 	}
 
 	// Jumps over spike pits hurt when missed.

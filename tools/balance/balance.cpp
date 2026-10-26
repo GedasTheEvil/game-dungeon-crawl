@@ -5,6 +5,8 @@
 //
 //   balance curve                  the player level and gear at the start of each target campaign level
 //   balance today                  the same for today's campaign (content/levels/)
+//   balance tune [--gear G]        each monster's HP and damage for its class's target in its home zone (G: play)
+//   balance home MONSTER [...]     one monster against the player of its home zone (play gear), fight's options
 //   balance table [--gear G]       every zone's monsters and boss against its player (G: gen, the default, or play)
 //   balance fight MONSTER LEVEL [--armor A] [--might M] [--hp P]
 //                                  one monster (its label: "giant rat") against a player of that level
@@ -209,6 +211,13 @@ std::vector<int> todayCurve(bool print) {
 
 // The player level at the start of target level L at today's pace: the same share of the way through the campaign
 // as on today's levels, the played curve (the rebuild keeps it, plan denser-levels: recheck the XP sum).
+// The weapons found by target level L at today's pace: the difficulty whose levelgen depth (genDecorDepth) is today's
+// level at the same share of the way (the sword and spear from lvl3, the axes from lvl10, as on today's levels).
+int pacedDifficulty(int level) {
+	const double at = 1.0 + (level - 1) * static_cast<double>(CAMPAIGN_LEVELS) / static_cast<double>(TARGET_LEVELS);
+	return std::clamp(static_cast<int>(1.0 + 2.0 * (at - 1.0) / 3.0), GEN_MIN_DIFFICULTY, GEN_MAX_DIFFICULTY);
+}
+
 int pacedLevel(const std::vector<int>& today, int level) {
 	const double at = 1.0 + (level - 1) * static_cast<double>(CAMPAIGN_LEVELS) / static_cast<double>(TARGET_LEVELS);
 	const auto i = static_cast<size_t>(at);
@@ -531,6 +540,144 @@ void printRow(const char* zone, const MonsterKind& kind, const Stats& s) {
 	std::fflush(stdout);
 }
 
+// A target for the tank in the home zone: the share of max HP a fight costs and its length.
+struct Target {
+	int lostPercent;
+	int seconds;
+};
+// By the monster's place (plan monster-balance, 2026-10-26): a weak one a nip, a giant a fight, the Anubis guard the
+// zone's terror, a boss two or three potions.
+Target targetOf(const MonsterKind& kind) {
+	if (kind.isBoss())
+		return {150, 30};
+	switch (kind.id) {
+	case MonsterRat:
+	case MonsterScarab:
+	case MonsterBat:
+	case MonsterScorpion:
+	case MonsterCamelSpider:
+		return {6, 3};
+	case MonsterPlant:
+	case MonsterWorm:
+	case MonsterUshabti:
+	case MonsterLotus:
+	case MonsterCobra:
+		return {10, 4};
+	case MonsterHippo:
+	case MonsterCursedMimic:
+		return {30, 8};
+	case MonsterAnubis:
+		return {45, 10};
+	default:
+		return {20, 6};
+	}
+}
+
+// Scales a kind's HP and every hit it deals in the sim's monster types (the game's KINDS stay as they are).
+void scaleKind(int id, double hp, double damage) {
+	auto& types = const_cast<MonsterTypes&>(
+		SimWorld::monsterTypes()
+	); // NOLINT(cppcoreguidelines-pro-type-const-cast): the tool's own copy
+	MonsterType& type = types[static_cast<size_t>(id)];
+	const MonsterKind& kind = *monsterKind(id);
+	const auto scaled = [](int v, double f) { return std::max(1, static_cast<int>(std::lround(v * f))); };
+	type.maxHealth = scaled(kind.maxHealth, hp);
+	type.damage = kind.damage > 0 ? scaled(kind.damage, damage) : 0;
+	if (kind.ranged && type.ranged)
+		type.ranged->damage = scaled(kind.ranged->damage, damage);
+	if (kind.roll && type.roll)
+		type.roll->damage = scaled(kind.roll->damage, damage);
+	if (kind.roar && type.roar && kind.roar->damage > 0)
+		type.roar->damage = scaled(kind.roar->damage, damage);
+}
+
+// The first zone a kind lives in (ZONE_FAUNA; the mimic in the first with mimics, the cursed one in the first with
+// cursed ones; a boss in its own), -1 for none.
+int homeZone(const MonsterKind& kind) {
+	for (int z = 0; z < ZONE_ID_COUNT; z++) {
+		const ZoneFauna& fauna = zoneFauna(static_cast<ZoneId>(z));
+		if (zoneBoss(static_cast<ZoneId>(z)) == kind.id || (kind.id == MonsterMimic && fauna.mimicPercent > 0) ||
+			(kind.id == MonsterCursedMimic && fauna.cursedPercent > 0))
+			return z;
+		for (const ZoneMonster& m : fauna.monsters)
+			if (m.type == kind.id && m.type != 0)
+				return z;
+	}
+	return -1;
+}
+
+// The player a kind meets in its home zone: halfway through it, a boss at its level.
+Stats homeStats(const MonsterKind& kind, bool play) {
+	static const std::vector<Player> PLAYERS = buildCurve(false, 1.0);
+	static const std::vector<int> TODAY = todayCurve(false);
+	const TargetZone& zone = TARGET[static_cast<size_t>(std::max(0, homeZone(kind)))];
+	const int level = kind.isBoss() ? zone.last : (zone.first + zone.last) / 2;
+	Player p = PLAYERS[static_cast<size_t>(level)];
+	p.level = pacedLevel(TODAY, level);
+	p.difficulty = pacedDifficulty(level);
+	return play ? playStats(p) : genStats(p);
+}
+
+int tune(bool play) {
+	std::printf(
+		"%-20s %-17s %4s  %-12s %5s %5s  %-16s -> %5s %5s  %-16s %-16s\n",
+		"monster",
+		"home zone",
+		"plvl",
+		"target",
+		"hp",
+		"dmg",
+		"tank now",
+		"hp",
+		"dmg",
+		"tank tuned",
+		"kite tuned"
+	);
+	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
+		const MonsterKind& kind = *monsterKind(id);
+		const int z = homeZone(kind);
+		if (z < 0 || kind.damage <= 0)
+			continue;
+		const Stats s = homeStats(kind, play);
+		const Target target = targetOf(kind);
+		scaleKind(id, 1.0, 1.0);
+		const Summary before = run(kind, s, Tactic::Tank);
+		double hp = 1.0, damage = 1.0;
+		Summary now = before;
+		for (int round = 0; round < 6; round++) {
+			// A death or no kill: no time to read; else the time follows the HP, the share lost the damage.
+			const double seconds = now.wins > 0 ? std::max(1, now.seconds) : target.seconds * 3.0;
+			hp = std::clamp(hp * target.seconds / seconds, 0.1, 10.0);
+			scaleKind(id, hp, damage);
+			now = run(kind, s, Tactic::Tank);
+			const double lost = now.deaths > 0 ? target.lostPercent * 3.0 : std::max(1, now.lost);
+			damage = std::clamp(damage * target.lostPercent / lost, 0.1, 10.0);
+			scaleKind(id, hp, damage);
+			now = run(kind, s, Tactic::Tank);
+		}
+		const Summary kite = run(kind, s, Tactic::Kite);
+		char goal[32];
+		std::snprintf(goal, sizeof(goal), "%d%% %ds", target.lostPercent, target.seconds);
+		std::printf(
+			"%-20s %-17s %4d  %-12s %5d %5d  %-16s -> %5d %5d  %-16s %-16s\n",
+			kind.label,
+			zoneSlug(static_cast<ZoneId>(z)),
+			s.level,
+			goal,
+			kind.maxHealth,
+			kind.damage,
+			cell(before, Tactic::Tank).c_str(),
+			std::max(1, static_cast<int>(std::lround(kind.maxHealth * hp))),
+			std::max(1, static_cast<int>(std::lround(kind.damage * damage))),
+			cell(now, Tactic::Tank).c_str(),
+			cell(kite, Tactic::Kite).c_str()
+		);
+		std::fflush(stdout);
+		scaleKind(id, 1.0, 1.0);
+	}
+	return 0;
+}
+
 const MonsterKind* kindByLabel(const char* label) {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++)
 		if (const MonsterKind* kind = monsterKind(id); kind != nullptr && std::strcmp(kind->label, label) == 0)
@@ -544,6 +691,7 @@ int table(bool play) {
 	const auto statsAt = [&](int level) {
 		Player p = players[static_cast<size_t>(level)];
 		p.level = pacedLevel(today, level);
+		p.difficulty = pacedDifficulty(level);
 		return play ? playStats(p) : genStats(p);
 	};
 	printHeader();
@@ -564,8 +712,9 @@ int table(bool play) {
 int usage() {
 	std::fprintf(
 		stderr,
-		"usage: balance curve | table [--gear gen|play] | fight MONSTER LEVEL [--armor A] [--might M] [--hp P] "
-		"[--difficulty D]\n"
+		"usage: balance curve | today | tune | table [--gear gen|play] | fight MONSTER LEVEL | home MONSTER [--armor "
+		"A] [--might M] "
+		"[--hp P] [--difficulty D] [--monster-hp HP] [--monster-damage D] [--minions N]\n"
 	);
 	return 2;
 }
@@ -584,22 +733,43 @@ int main(int argc, char** argv) {
 		buildCurve(true, endScale());
 		return 0;
 	}
+	if (mode == "tune") {
+		const bool play = argc < 4 || std::strcmp(argv[3], "gen") != 0;
+		return tune(play);
+	}
 	if (mode == "table") {
 		const bool play = argc >= 4 && std::strcmp(argv[2], "--gear") == 0 && std::strcmp(argv[3], "play") == 0;
 		return table(play);
 	}
-	if (mode == "fight" && argc >= 4) {
+	const bool home = mode == "home" && argc >= 3;
+	if ((mode == "fight" && argc >= 4) || home) {
 		const MonsterKind* kind = kindByLabel(argv[2]);
 		if (kind == nullptr) {
 			std::fprintf(stderr, "no monster labelled \"%s\"\n", argv[2]);
 			return 2;
 		}
 		Stats s;
-		s.level = std::atoi(argv[3]);
-		s.difficulty = 10;
-		for (int i = 4; i + 1 < argc; i += 2) {
+		if (home)
+			s = homeStats(*kind, true);
+		else {
+			s.level = std::atoi(argv[3]);
+			s.difficulty = 10;
+		}
+		double hp = 1.0, damage = 1.0;
+		for (int i = home ? 3 : 4; i + 1 < argc; i += 2) {
 			const int value = std::atoi(argv[i + 1]);
-			if (std::strcmp(argv[i], "--armor") == 0)
+			if (std::strcmp(argv[i], "--monster-hp") == 0)
+				hp = static_cast<double>(value) / kind->maxHealth;
+			else if (std::strcmp(argv[i], "--monster-damage") == 0)
+				damage = static_cast<double>(value) / kind->damage;
+			else if (std::strcmp(argv[i], "--minions") == 0) { // a boss: at most this many minions alive
+				auto& types = const_cast<MonsterTypes&>(
+					SimWorld::monsterTypes()
+				); // NOLINT(cppcoreguidelines-pro-type-const-cast): the tool's own copy
+				BossRules& boss = types[static_cast<size_t>(kind->id)].boss;
+				boss.maxAlive = value;
+				boss.minAlive = std::min(boss.minAlive, value);
+			} else if (std::strcmp(argv[i], "--armor") == 0)
 				s.armor = value;
 			else if (std::strcmp(argv[i], "--might") == 0)
 				s.might = value;
@@ -610,6 +780,7 @@ int main(int argc, char** argv) {
 			else
 				return usage();
 		}
+		scaleKind(kind->id, hp, damage);
 		printHeader();
 		printRow("-", *kind, s);
 		return 0;

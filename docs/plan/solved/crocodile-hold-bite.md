@@ -38,7 +38,7 @@ The crocodile's bite grabs the player: a hold, a death roll.
 * Tests: `tests/unit/hold_test.cpp`; scenario with screenshots `tests/scenarios/solved/crocodile_hold.txt` (scenario command
   `grab`, field `held`).
 * Balance: the hold is short and only in water; the threat and the checker are unchanged (noted in
-  [monster-balance](../monster-balance.draft.opus.md)).
+  [monster-balance](../monster-balance.md)).
 
 ## Open (for the implementer, done above)
 
@@ -46,4 +46,4 @@ The crocodile's bite grabs the player: a hold, a death roll.
   [../../modeling.md](../../modeling.md)); the
   player's held view (camera shake or roll).
 * The checker and the balance: the hold is short and only in water, so likely nothing. Note it with the crocodile's
-  half-water weight in [monster-balance](../monster-balance.draft.opus.md).
+  half-water weight in [monster-balance](../monster-balance.md).

@@ -163,6 +163,16 @@ bool twoNumbers(const Args& args, Command& cmd) {
 
 bool parseResolution(const Args& args, Command& cmd) { return twoNumbers(args, cmd) && cmd.a >= 64 && cmd.b >= 64; }
 
+// gear: armour -> a, might -> b, max HP percent -> ticks; none below 0.
+bool parseGear(const Args& args, Command& cmd) {
+	float hp = 0.f;
+	if (args.size() != 3 || !parseFloat(args[0], cmd.a) || !parseFloat(args[1], cmd.b) || !parseFloat(args[2], hp) ||
+		cmd.a < 0.f || cmd.b < 0.f || hp < 0.f)
+		return false;
+	cmd.ticks = static_cast<int>(hp);
+	return true;
+}
+
 // level X [at COL ROW]: the start cell instead of the entrance, cmd.b = COL + 1 (0: the entrance), ticks = ROW.
 bool parseLevel(const Args& args, Command& cmd) {
 	if (args.size() != 1 && (args.size() != 4 || args[1] != "at"))
@@ -380,6 +390,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Equip:
 	case CommandType::Wear:
 	case CommandType::Xp:
+	case CommandType::Gear:
 	case CommandType::Heka:
 	case CommandType::Learn:
 	case CommandType::Curse:
@@ -452,6 +463,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"equip", CommandType::Equip, parseEquip, "<weapon>: club, short_sword, spear, self-bow, ..."},
 		{"wear", CommandType::Wear, parseWear, "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ..."},
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
+		{"gear", CommandType::Gear, parseGear, "<armour> <might> <max HP %>: the potions' and amulets' gains"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
 		{"firehit", CommandType::FireHit, numberAtLeast<1>, "<hp>"},
 		{"blind", CommandType::Blind, numberAtLeast<1>, "<ms>"},

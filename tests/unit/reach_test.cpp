@@ -9,17 +9,17 @@
 namespace {
 struct Walker {
 	const char* level; // tests/levels/hitbox_*: the player at col 1, the walker two cells right
-	int health;
+	MonsterTypeId type;
 	int comesMs; // time to walk up to the player
 	bool boss;
 };
 constexpr Walker WALKERS[] = {
-	{"tests/levels/hitbox_scarab", 10, 8000, false},
-	{"tests/levels/hitbox_rat", 12, 8000, false},
-	{"tests/levels/hitbox_worm", 30, 25000, false},
-	{"tests/levels/hitbox_giant_scarab", 90, 12000, false},
-	{"tests/levels/hitbox_boss_scarab", 320, 12000, true},
-	{"tests/levels/hitbox_giant_rat", 60, 8000, false}
+	{"tests/levels/hitbox_scarab", MonsterScarab, 8000, false},
+	{"tests/levels/hitbox_rat", MonsterRat, 8000, false},
+	{"tests/levels/hitbox_worm", MonsterWorm, 25000, false},
+	{"tests/levels/hitbox_giant_scarab", MonsterGiantScarab, 12000, false},
+	{"tests/levels/hitbox_boss_scarab", MonsterBossScarab, 12000, true},
+	{"tests/levels/hitbox_giant_rat", MonsterGiantRat, 8000, false}
 };
 
 std::vector<ItemKind> meleeWeapons() {
@@ -73,7 +73,7 @@ TEST_CASE("every size of walker stops where it bites, and every melee weapon hit
 				REQUIRE(world.WalkTo(world.X() + 1.f));
 				world.Wait(w.comesMs);
 				const int before = health(world, w);
-				CHECK(before == w.health); // it came up to the player and stopped, unhurt
+				CHECK(before == monsterKind(w.type)->maxHealth); // it came up to the player and stopped, unhurt
 				CHECK(world.X() == doctest::Approx(2.f).epsilon(0.01)); // the player did not move on
 				// A boss may have a minion in front of it: strike until one reaches it (as the scenario did).
 				for (int swing = 0; swing < (w.boss ? 16 : 1) && health(world, w) == before; swing++) {
@@ -92,7 +92,8 @@ TEST_CASE("an arrow hits a giant rat two tiles away behind spikes it cannot leap
 	REQUIRE(world.Load("tests/levels/hitbox_bow"));
 	REQUIRE(world.WalkTo(world.X() + 3.5f));
 	world.Wait(500);
-	REQUIRE(world.dungeon.NearestMonsterHealth() == 60);
+	const int hp = monsterKind(MonsterGiantRat)->maxHealth;
+	REQUIRE(world.dungeon.NearestMonsterHealth() == hp);
 	world.dungeon.Shoot(
 		MissileKind::Arrow,
 		10,
@@ -102,5 +103,5 @@ TEST_CASE("an arrow hits a giant rat two tiles away behind spikes it cannot leap
 		weaponReach(ItemKind::SelfBow)
 	);
 	world.Wait(1500);
-	CHECK(world.dungeon.NearestMonsterHealth() < 60);
+	CHECK(world.dungeon.NearestMonsterHealth() < hp);
 }

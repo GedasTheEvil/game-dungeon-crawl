@@ -102,6 +102,9 @@ constexpr float CLIMB_SPEED_FACTOR = 0.8f;
 constexpr float BOSS_CLIMB_SPEED_FACTOR = 1.f;
 constexpr float CLIMBER_THREAT_FACTOR = 1.05f;
 constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on the rungs drops
+// A swimmer (Wading::Swimmer: the crocodile, the hippo) that spawns in half water (plan monster-balance): there the
+// player wades at half speed and cannot sprint, jump or back off, so the checker scores it a little higher.
+constexpr float SWIMMER_IN_WATER_THREAT_FACTOR = 1.1f;
 constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
 constexpr int MINION_EMERGE_MS = 700; // a summoned minion digs out or drops into place, then acts
 // An Anubis guard steps out of the wall (Summon::Wall, plan mummy-boss): slower, so the player sees the stone move.
@@ -264,7 +267,7 @@ constexpr float SETH_CHARGE_SPEED = 4.5f;
 // His storm roar as the stun ends (RoarRules): within 2 tiles of him on his row, a blunt hit, shoved 1.5 tiles away
 // (at SHOVE_SPEED), sand over the screen for a second.
 constexpr float SETH_ROAR_RADIUS = 2.f;
-constexpr int SETH_ROAR_DAMAGE = 45;
+constexpr int SETH_ROAR_DAMAGE = 30;
 constexpr float SETH_ROAR_SHOVE = 1.5f;
 constexpr int SETH_ROAR_HAZE_MS = 1000;
 // The giant rat's pack call (plan giant-rat-pack-call): once, below half its HP, every rat and giant rat within 8 tiles

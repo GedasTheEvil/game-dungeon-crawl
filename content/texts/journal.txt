@@ -275,8 +275,8 @@ text: A jackal's tooth on a cord. Worn, it adds to every blow I strike: Might +1
 
 [note.amulet-armor]
 title: Bronze scarab
-text: A bronze scarab. Worn, it takes a flat amount off every hit I suffer, like armour: 1, 2, 4 or 6 from the
-	lesser to the grand one.
+text: A bronze scarab. Worn, it adds to my armour, which takes a share of every hit I suffer: 1, 2, 4 or 6 from
+	the lesser to the grand one.
 
 [note.amulet-health]
 title: Carnelian heart

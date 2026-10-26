@@ -97,7 +97,7 @@ ranged attack, in files and code:
 ## Open (for the implementer)
 
 * Balance: the Anubis is already tuned for "about 15 blows" on a level 55 player
-  ([monster-balance.draft.opus.md](../monster-balance.draft.opus.md)). Check its threat (`threat` 8) and the sim with the new attack.
+  ([monster-balance.draft.opus.md](../monster-balance.md)). Check its threat (`threat` 8) and the sim with the new attack.
 * `levelcheck` does not model monster attacks; nothing to change there, likely.
 * Tests: a scenario in `tests/scenarios/` (an Anubis shoots from range, the cooldown holds, up close it hits in melee).
 
@@ -129,6 +129,6 @@ ranged attack, in files and code:
   0.3 s rising hum with a glassy shimmer, the crack at 0.86 s (frame 12 at 14 fps), a 0.32 s falling hiss and buzz.
   Every ranged attack plays its `_att_ranged` sound.
 * Balance: `threat` Anubis 9 -> 10, boss 15 -> 16 (`docs/levels.md`); `./levelcheck levels/lvl*` stays clean. The
-  sim pass of [monster-balance](../monster-balance.draft.opus.md) (step 5) weighs the bolt in; play data so far
+  sim pass of [monster-balance](../monster-balance.md) (step 5) weighs the bolt in; play data so far
   (2026-10-10, lvl23) found the guard "hardly a threat", so the bolt goes the right way.
 * Not done: a glow instead of the glob (the red ball reads well in the scenario); a scenario for the cooldown.

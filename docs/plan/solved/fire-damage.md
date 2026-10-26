@@ -48,7 +48,7 @@ Implementer's choice, at least one:
   its fire). Burning ticks ignore armour too. The journal / amulet text can say so ("Armour does not stop fire").
   Unit test: a 100% fire hit on an armoured player deals the same as on an unarmoured one.
   Write the split as "armour acts on the non-fire shares", whatever armour does: the
-  [monster-balance](../monster-balance.draft.opus.md) sim may turn the flat cut into a percentage.
+  [monster-balance](../monster-balance.md) sim may turn the flat cut into a percentage.
 
 ## Also
 

@@ -1,21 +1,35 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/damage.h"
+#include <cmath>
 
 TEST_CASE("without resistances a typed hit deals what it did untyped") {
 	for (int dmg : {1, 2, 9, 26, 110, 1000})
 		for (DamageMix mix : {DamageMix{60, 40, 0}, {0, 20, 80}, {100, 0, 0}, {50, 0, 50}}) {
 			CHECK(playerHitDamage(dmg, mix, NO_RESISTANCES, 0, false) == dmg);
-			CHECK(playerHitDamage(dmg, mix, NO_RESISTANCES, 5, false) == std::max(1, dmg - 5));
+			CHECK(
+				playerHitDamage(dmg, mix, NO_RESISTANCES, 5, false) ==
+				std::max(1, static_cast<int>(std::lround(dmg / 1.1)))
+			);
 			CHECK(playerHitDamage(dmg, mix, NO_RESISTANCES, 5, true) == dmg);
 		}
 }
 
+TEST_CASE("armour takes a share of a hit: half at ARMOR_HALVES, never all, so a weak monster still hurts") {
+	const DamageMix blunt = {100, 0, 0};
+	CHECK(ARMOR_HALVES == 50);
+	CHECK(playerHitDamage(100, blunt, NO_RESISTANCES, 10, false) == 83);
+	CHECK(playerHitDamage(100, blunt, NO_RESISTANCES, 50, false) == 50);
+	CHECK(playerHitDamage(26, blunt, NO_RESISTANCES, 32, false) == 16); // was 1 with a flat armour (the playthrough)
+	CHECK(playerHitDamage(100, blunt, NO_RESISTANCES, 1000, false) == 5);
+	CHECK(playerHitDamage(100, blunt, NO_RESISTANCES, -3, false) == 100); // a curse below 0 adds nothing
+}
+
 TEST_CASE("the resistance scales the raw hit before the armour") {
 	const Resistances pierceHalf = {NORMAL, NORMAL, RESISTS, NORMAL};
-	// Bat bite 10, 80 % pierce: 10 * (20 + 80 * 0.5) / 100 = 6, armour 2 then leaves 4.
-	CHECK(playerHitDamage(10, {0, 20, 80}, pierceHalf, 2, false) == 4);
+	// Bat bite 10, 80 % pierce: 10 * (20 + 80 * 0.5) / 100 = 6, armour 10 then leaves 6 * 50 / 60 = 5.
+	CHECK(playerHitDamage(10, {0, 20, 80}, pierceHalf, 10, false) == 5);
 	// A blunt hit does not care about a pierce resistance.
-	CHECK(playerHitDamage(20, {100, 0, 0}, pierceHalf, 2, false) == 18);
+	CHECK(playerHitDamage(20, {100, 0, 0}, pierceHalf, 10, false) == 17);
 	// Still at least 1.
 	CHECK(playerHitDamage(2, {0, 0, 100}, pierceHalf, 5, false) == 1);
 }
@@ -40,9 +54,8 @@ TEST_CASE("fire: a share like the others; armour does not stop it, only the fire
 	for (int armor : {0, 3, 12, 40})
 		CHECK(playerHitDamage(20, fire, NO_RESISTANCES, armor, false) == 20);
 	CHECK(playerHitDamage(20, fire, {NORMAL, NORMAL, NORMAL, 20}, 12, false) == 4); // grand fire guard
-	// A mixed hit: the armour soaks the blunt share only, and never more than all of it.
-	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 3, false) == 17); // 12 fire + (8 - 3)
-	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 50, false) == 12);
+	// A mixed hit: the armour takes its share of the blunt share only.
+	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 50, false) == 16); // 12 fire + 8 / 2
 	CHECK(attackSentence({40, 0, 0, 60}) == "It sets me on fire, with a hint of smashing pain.");
 }
 

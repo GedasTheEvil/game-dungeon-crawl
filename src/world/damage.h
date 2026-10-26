@@ -74,9 +74,14 @@ constexpr DamageMix FIRE_JET_MIX = {0, 0, 0, 100}; // a fire vent's jet (plan fi
 constexpr DamageMix DRIP_DROP_MIX = {100, 0, 0}; // a poison drip's falling lump (plan poison-drip-trap)
 constexpr DamageMix BLAZE_MIX = {0, 0, 0, 100}; // a floor set burning by Babi's big coal (plan babi-boss)
 
-// A hit on the player: the type resistances first, then the armour's flat amount (none if ignoreArmor); at least 1.
-// Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only,
-// never below 0 for them: fire goes through it (plan fire-damage).
+// The armour that halves a hit (plan monster-balance): armour takes armor / (armor + ARMOR_HALVES) of it, 17% at 10,
+// half at 50, never all. A share, not a flat amount: a flat one cut every hit under it to 1, so a common monster
+// stopped hurting once the potions and amulets had stacked the armour up (the balance sim, 2026-10-26).
+constexpr int ARMOR_HALVES = 50;
+
+// A hit on the player: the type resistances first, then the armour's share (none if ignoreArmor); at least 1.
+// Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only:
+// fire goes through it (plan fire-damage).
 [[nodiscard]] inline int
 playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor, bool ignoreArmor) {
 	if (ignoreArmor)
@@ -85,7 +90,8 @@ playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int
 	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
 		sum += t == FIRE ? 0 : static_cast<long>(mix[t]) * resist[t];
 	const double other = static_cast<double>(damage) * static_cast<double>(sum) / 10000.0;
-	const double dealt = fireDamage(damage, mix, resist) + std::max(0.0, other - armor);
+	const double kept = static_cast<double>(ARMOR_HALVES) / static_cast<double>(ARMOR_HALVES + std::max(0, armor));
+	const double dealt = fireDamage(damage, mix, resist) + other * kept;
 	return std::max(1, static_cast<int>(std::lround(dealt)));
 }
 

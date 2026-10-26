@@ -442,6 +442,15 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.AddXP(static_cast<int>(cmd.a), Game().events);
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Gear: { // as if drunk: the armour and might potions' points, the life potions' max HP percent
+		PlayerStats& stats = Game().player->stats;
+		stats.AddArmor(static_cast<int>(cmd.a));
+		stats.AddMight(static_cast<int>(cmd.b));
+		if (cmd.ticks > 0)
+			stats.AddMaxHP(cmd.ticks);
+		report(cmd, true, stateLine());
+		return true;
+	}
 	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());

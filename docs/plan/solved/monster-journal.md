@@ -56,6 +56,6 @@ Optional: a status box toast when a new note is written ("Journal: scarab, resis
 
 * [damage-types-and-resistances.md](damage-types-and-resistances.md): the journal is where the
   resistances show; do it with or right after the damage types.
-* [monster-balance.draft.opus.md](../monster-balance.draft.opus.md): HP and damage shown in the journal follow its retune.
+* [monster-balance.draft.opus.md](../monster-balance.md): HP and damage shown in the journal follow its retune.
 * [journal-sections.md](journal-sections.md): the journal as a whole notebook (creatures, riddles,
   traps, expedition log).

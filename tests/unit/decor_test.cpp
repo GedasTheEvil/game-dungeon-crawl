@@ -121,7 +121,10 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					else
 						CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
 					CHECK((DECOR_TIERS[prop.type] <= tier || hasPlacedProp(t.dressing)));
-					CHECK((prop.type < DECOR_SCATTERED || bossCoffinCell(s.grid.cells, i, j)));
+					// past the scatter's: a boss's coffins, or placed (the decoy coffins and figures, level_gen.h)
+					CHECK(
+						(prop.type < DECOR_SCATTERED || bossCoffinCell(s.grid.cells, i, j) || hasPlacedProp(t.dressing))
+					);
 				}
 				const DecalCell& decal = s.layout->decal[idx(i, j)];
 				if (decal.type >= 0) {

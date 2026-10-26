@@ -16,9 +16,10 @@ Monster-balance already waits for every monster and boss draft, so they are all 
 
 Batch 1, the tomb entrance: done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
 Batch 2, the bat galleries (levels 5-9): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
-Batch 3, the web halls (levels 10-13): done 2026-10-26, waiting for the user's play-test (`bin/game --level 10`, play to
-lvl14). Next: batch 4, the priests' quarter (14-18: today's 14-18, the old serpent temple, give way 1:1; the High
-Priest moves there from lvl32).
+Batch 3, the web halls (levels 10-13): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
+Batch 4, the priests' quarter (levels 14-18): done 2026-10-26, waiting for the user's play-test (`bin/game --level 14`,
+play to lvl19). Next: batch 5, the scorpion nest (19-22; today's 19-23, Seth's desert, give way: one level fewer; Seth
+comes back with zone 8).
 User, 2026-10-26: the bosses are retuned from the sim once all levels are done (not per batch).
 
 * **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
@@ -55,6 +56,17 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   early fork). Today's 10-14 (the old scorpion nest and the queen) are gone, its pages 10 and 11 unplaced until the
   priests' quarter and the scorpion nest are rebuilt; 15-34 became 14-33. The decor tiers now go by zone
   (`DECOR_TIER_FROM` 1, 5, 10, 14). All four levels pass their path scripts in the game, with their monsters.
+* **Priests' quarter (14-18):** difficulty 3, 3, 4, 4, 4; the whole grid. Mummies (8 to 17 a level, half between
+  decoy coffins), living ushabti among their figures, giant scarabs, a few mimics, Anubis guards (one on lvl14, up to
+  three later: the sim tuned them for the necropolis, a sprint gets past one); 3 to 5 fire vents a level and
+  braziers, one trapped chest, a riddle; name gates to secret rooms on 14-17. The zone's "many inscriptions": 2 or 3 of
+  its texts a level plus texts of today's campaign the replaced levels freed (`campaign.txt` 1, 3, 4, 6, 7, 10, 11,
+  fitting the priests), one boon a level at most; the secret rooms' lore 38, 39 and two of those (6, 11); the
+  boss level has no name gate (no lore left). Pages 10 (the ring) and 11 (the scorpions, on the boss level). The
+  High Priest (`ZONE_BOSS`) is the zone's boss; today's lvl32 lost him: a mummy lies in his tomb, its boss gate gone,
+  so the necropolis has no boss as the target table says. Today's 14-18 (the old serpent temple, Apep) are gone.
+  The path scripts pass in the game with the monsters; lvl32's old path stalls among its monsters as before, its
+  former boss room checked on its own (the teleporter's room walked to the exit).
 * **XP (open, for the sim pass at the end):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
   lvl5, 15, 18, 21 and 26 at Shezmu (lvl9), 30 at lvl10. The monster-balance sim tuned the bat galleries for about
   level 8 and the web halls for 15 (its curve scales the monster XP by 0.27): the zone 2 monsters (giant rat 2000, giant

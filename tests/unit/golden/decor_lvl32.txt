@@ -155,13 +155,13 @@
 23,10 surface 14/1/8
 24,10 surface 14/6/8 sand< decal 11m 0.401,0.414
 25,10 surface 15/6/8 prop sarcophagusm 0.062 decal 0 0.469,0.613
-26,10 surface 14/6/8 prop coffin 0.000 torch fire torch 0.000,0.680,0.098
-27,10 surface 15/6/8 prop coffin 0.000 decal 11m 0.541,0.616
-28,10 surface 14/6/8 prop coffin 0.000
-29,10 surface 14/6/8 sand> prop coffin_large 0.000 decal 7 0.551,0.573
-30,10 surface 14/1/8 prop coffin 0.000
-31,10 surface 15/6/8 sand< prop coffin 0.000 decal 6m 0.560,0.575 torch fire torch 0.000,0.680,0.098
-32,10 surface 14/6/8 prop coffin 0.000
+26,10 surface 14/6/8 prop osirism 0.099 torch fire torch 0.000,0.680,0.098
+27,10 surface 15/6/8 decal 8m 0.533,0.616
+28,10 surface 14/6/8
+29,10 surface 14/6/8 sand> prop coffin 0.000 decal 7 0.551,0.573
+30,10 surface 14/1/8
+31,10 surface 15/6/8 sand< decal 2m 0.619,0.350 torch fire torch 0.000,0.680,0.098
+32,10 surface 14/6/8
 33,10 surface 14/6/8
 34,10 surface 15/6/8
 35,10 surface 14/6/8

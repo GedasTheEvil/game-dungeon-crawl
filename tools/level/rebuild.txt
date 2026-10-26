@@ -25,3 +25,11 @@
 11 --zone web_halls --seed 10 --difficulty 3 --cells 576 --texts 68,69 --lore 37 --title "The Dark Gallery"
 12 --zone web_halls --seed 4 --difficulty 3 --cells 613 --fork 1 --page 8 --texts 70,72 --title "The Two Shafts"
 13 --zone web_halls --seed 10 --difficulty 3 --cells 650 --boss --page 9 --texts 71 --title "The Lair of the Mother of Webs"
+
+# Zone 4: Priests' quarter. Its many inscriptions also take freed texts of today's campaign (campaign.txt 1-11), its
+# secret rooms lore 38, 39 and two of them.
+14 --zone priests_quarter --seed 7 --difficulty 3 --texts 73,74,1 --lore 38 --title "The Gate of the Priests"
+15 --zone priests_quarter --seed 6 --difficulty 3 --texts 76,3,10 --page 10 --lore 39 --title "The House of Life"
+16 --zone priests_quarter --seed 12 --difficulty 4 --texts 78,4 --lore 6 --title "The Scribes' Hall"
+17 --zone priests_quarter --seed 10 --difficulty 4 --texts 79,7 --lore 11 --title "The Hall of Purification"
+18 --zone priests_quarter --seed 5 --difficulty 4 --boss --texts 75 --page 11 --title "The Tomb of the High Priest"

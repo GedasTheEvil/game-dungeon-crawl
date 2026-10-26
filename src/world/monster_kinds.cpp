@@ -762,7 +762,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = EGG_CLUSTER_RESIST,
 	 .locomotion = Locomotion::Stationary,
 	 .poisonResistPercent = POISON_IMMUNE},
-	// The lvl14 boss on the scorpion model, the size of a cart (plan scorpion-queen-boss).
+	// The scorpion nest's boss on the scorpion model, the size of a cart (plan scorpion-queen-boss).
 	{.id = MonsterScorpionQueen,
 	 .glyph = 'U',
 	 .name = "Scorpion queen",
@@ -792,7 +792,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.25f,
 	 .kin = MonsterScorpion,
 	 .boss = {MonsterGiantScorpion, 2, 4, 3000, 10, 0, Summon::Hatch, MonsterEggCluster, MonsterScorpion}},
-	// The lvl19 boss on the cobra model, long as the hall (plan apep-serpent-boss).
+	// The serpent temple's boss on the cobra model, long as the hall (plan apep-serpent-boss).
 	{.id = MonsterApep,
 	 .glyph = 'P',
 	 .name = "Apep",
@@ -836,7 +836,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 3, 3000, 10, 0, Summon::DigOut}},
-	// The lvl29 boss on the crocodile model (plan sobek-boss).
+	// The cisterns' boss on the crocodile model (plan sobek-boss).
 	{.id = MonsterSobek,
 	 .glyph = 'W',
 	 .name = "Sobek",
@@ -893,7 +893,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .riseMs = 600},
 	// The mummies' boss (plan mummy-boss): a high priest who read the curses at the funerals, a head taller than a
 	// mummy. Lies in a large coffin; a staff for blows and for a purple bolt; curses more and nastier than any other.
-	// lvl33 for now. The player comes there at about level 52: between Sobek and the Anubis boss.
+	// The priests' quarter's boss (lvl18).
 	{.id = MonsterMummyPriest,
 	 .glyph = 'I',
 	 .name = "High Priest of Anubis",

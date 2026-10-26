@@ -204,10 +204,10 @@ TEST_CASE("the campaign: Khepri at 4, the desert at 19-23 with Seth at its end, 
 	CHECK(bossOf(4) == MonsterBossScarab);
 	CHECK(bossOf(9) == MonsterVampireBat);
 	CHECK(bossOf(13) == MonsterMotherOfWebs);
-	CHECK(bossOf(18) == MonsterApep);
+	CHECK(bossOf(18) == MonsterMummyPriest);
 	CHECK(bossOf(23) == MonsterSeth);
 	CHECK(bossOf(28) == MonsterSobek);
-	CHECK(bossOf(32) == MonsterMummyPriest);
+	CHECK(bossOf(32) == 0); // the necropolis has none
 	CHECK(bossOf(33) == MonsterAnubisBoss);
 	const Zone* desert = zoneOf(19);
 	REQUIRE(desert != nullptr);

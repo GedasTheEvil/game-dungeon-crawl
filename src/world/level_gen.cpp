@@ -59,6 +59,27 @@ constexpr int PAIR_MIN_DIFFICULTY = 6; // two rhythm traps side by side, in step
 constexpr float PAIR_CHANCE = 0.3f;
 constexpr int FAST_TRAP_MIN_DIFFICULTY = 6;
 
+// A boss level's room (plan campaign-levelgen, step 6): sealed under the halls, a row of rock under it (and the
+// level's outer wall), BOSS_ROOM_LENGTH cells long.
+constexpr int BOSS_ROOM_ROW = MIN_ROW + 1;
+constexpr int BOSS_ROOM_LENGTH = 18;
+constexpr int BOSS_LEDGE = 3; // Apep's room: the ledges either side of his pit
+
+// Its rows, by the boss: the flyers and the Anubis boss's guards get a tall room, Apep a pit between ledges.
+constexpr int bossRoomHeight(int boss) {
+	switch (boss) {
+	case MonsterVampireBat:
+	case MonsterAnubisBoss:
+		return 3;
+	case MonsterBossScarab:
+	case MonsterMummyPriest:
+	case MonsterRerek:
+		return 1;
+	default:
+		return 2;
+	}
+}
+
 enum class Link : unsigned char { None, LadderDown, LadderUp, Drop };
 
 // What fillSegment() puts at a corridor cell; the kinds after Treasure only on zone levels (ZoneTraps).
@@ -97,9 +118,11 @@ struct Lock {
 
 class LevelBuilder {
   public:
-	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId.
-	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone)
-		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget),
+	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId; boss: the boss of a boss level, 0
+	// for none.
+	LevelBuilder(uint32_t seed, int difficulty, int openTarget, int zone, int boss)
+		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget), boss(boss),
+		  hallsFloor(boss != 0 ? BOSS_ROOM_ROW + bossRoomHeight(boss) + 1 : MIN_ROW),
 		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
 		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr),
 		  traps(isZone(zone) ? zoneTraps(static_cast<ZoneId>(zone)) : TEST_LEVEL_TRAPS),
@@ -116,12 +139,21 @@ class LevelBuilder {
 	bool build(LevelGrid& out) {
 		if (!(zoneTarget > 0 ? buildHalls() : buildMainRoute()))
 			return false;
+		if (boss != 0) { // carved first: no pool digs into it
+			bossRoom.row = BOSS_ROOM_ROW;
+			bossRoom.height = bossRoomHeight(boss);
+			bossRoom.x0 = rng.range(MIN_COL + 1, MAX_COL - BOSS_ROOM_LENGTH);
+			bossRoom.x1 = bossRoom.x0 + BOSS_ROOM_LENGTH - 1;
+			carveSegment(bossRoom);
+		}
 		if (zoneTarget > 0) {
 			addWater();
 			addSand();
 			chooseDark();
 		}
 		placeLocks();
+		if (boss != 0 && !placeBoss())
+			return false;
 		addGauntlets();
 		addGateRooms();
 		int branches = rng.range(1, 2) + d / 4;
@@ -149,6 +181,9 @@ class LevelBuilder {
 	Rng mimicRng; // its own stream, so mimics leave the layout rolls of a seed alone
 	int d;
 	int zoneTarget;
+	int boss;
+	int hallsFloor; // the lowest row a hall may stand on: over the boss room on a boss level
+	Segment bossRoom;
 	ZoneTerrain terrain; // all None on a test level
 	const ZoneFauna* fauna; // the zone's monsters, nullptr on a test level (monsters by difficulty)
 	ZoneTraps traps; // TEST_LEVEL_TRAPS on a test level
@@ -302,7 +337,7 @@ class LevelBuilder {
 			int roll = rng.range(0, 99);
 			hall.height = roll < 55 ? 1 : roll < 85 ? 2 : 3;
 			hall.row = top - hall.height + 1;
-			if (hall.row < MIN_ROW)
+			if (hall.row < hallsFloor)
 				break;
 			route.push_back(hall);
 			roll = rng.range(0, 99);
@@ -490,6 +525,124 @@ class LevelBuilder {
 			return chestOf(itemAt(itemIndex(lesser) + std::min(3, (d - 1) / 3))); // lesser, minor, normal, grand
 		}
 		return chestOf(POTIONS[rng.range(0, static_cast<int>(std::size(POTIONS)) - 1)]);
+	}
+
+	// A boss level (GenOptions::boss): the last gate on the last hall's crossing, a teleporter at a late wing's end
+	// before it to the boss room sealed under the halls. There, from the teleporter: the boss in the middle, then the
+	// boss gate and behind it the key of the last gate and a rare chest; the room shaped for the boss (bossRoomShape).
+	bool placeBoss() {
+		const int bossColour = colours[LOCK_COLOUR_COUNT - 1];
+		const auto last = route.size() - 1;
+		int from = 0, to = 0;
+		lockSpan(last, from, to);
+		const Segment& exitHall = route[last];
+		const int dir = to > from ? 1 : -1;
+		int gate = -1;
+		for (int tries = 0; tries < 30 && gate < 0 && std::abs(to - from) > 4; tries++) {
+			const int x = from + dir * rng.range(2, std::abs(to - from) - 2);
+			if (busy[index(x, exitHall.row)] == 0 && isEmptyCell(g.at(x, exitHall.row)) &&
+				isWall(g.at(x, exitHall.row - 1)))
+				gate = x;
+		}
+		std::vector<size_t> late; // the free wings before it, the latest first
+		for (size_t w = 0; w < wings.size(); w++) {
+			const Wing& wing = wings[w];
+			const Structure s = g.at(wing.end, wing.itemRow).structure;
+			if (!wing.taken && freeCell(wing.end, wing.itemRow) && (s == Structure::Empty || s == Structure::Sand) &&
+				(wing.seg < static_cast<int>(last) || wing.entrySide))
+				late.push_back(w);
+		}
+		if (gate < 0 || late.empty())
+			return false;
+		std::stable_sort(late.begin(), late.end(), [this](size_t a, size_t b) { return wings[a].seg > wings[b].seg; });
+		Wing& wing = wings[late[static_cast<size_t>(rng.range(0, std::min(3, static_cast<int>(late.size())) - 1))]];
+		g.set(gate, exitHall.row, Tile{Gate, bossColour, 0});
+		markBusy(exitHall, gate);
+		locks.push_back(Lock{static_cast<int>(last), gate, bossColour});
+		const int pair = ++teleportPairs;
+		put(wing.end, wing.itemRow, Tile{Door, GateTeleport, pair});
+		wing.taken = true;
+
+		const Segment& room = bossRoom;
+		const bool east = rng.chance(0.5f); // the teleporter's end
+		const int step = east ? -1 : 1;
+		auto at = [&room, east](int k) { return east ? room.x1 - k : room.x0 + k; };
+		const int n = BOSS_ROOM_LENGTH;
+		const int mid = n / 2;
+		int floorRow = room.row; // the ends' floor: a ledge's in Apep's room
+		if (boss == MonsterApep) {
+			for (int k = 0; k < BOSS_LEDGE; k++) {
+				fillRock(at(k), room.row);
+				fillRock(at(n - 1 - k), room.row);
+			}
+			carveLadder(at(BOSS_LEDGE), room.row, room.row + 1);
+			carveLadder(at(n - 1 - BOSS_LEDGE), room.row, room.row + 1);
+			floorRow = room.row + 1;
+		} else
+			for (int k = n - 4; k < n; k++) // the boss gate's alcove, one row tall
+				for (int y = room.row + 1; y < room.row + room.height; y++)
+					fillRock(at(k), y);
+		put(at(0), floorRow, Tile{Door, GateTeleport, pair});
+		put(at(n - (boss == MonsterApep ? BOSS_LEDGE : 4)), floorRow, Tile{Gate, BOSS_LOCK, 0});
+		put(at(n - 2), floorRow, Tile{Key, bossColour, 0});
+		put(at(n - 1), floorRow, rareChest());
+		for (int k = 0; k < n; k++)
+			busy[index(at(k), floorRow)] = busy[index(at(k), room.row)] = 1;
+		shapeBossRoom(room, at(mid), step);
+		put(at(mid), room.row, Tile{MonsterSpawn, boss, 0});
+		shape.bossRoom = true;
+		return true;
+	}
+
+	// What the boss needs in its room, round its cell mid: the scorpion queen's egg clusters, water for Sobek, a pool
+	// between drifts for Seth, a run of sand for Rerek, gaps for Babi to leap, braziers in the dark for the Mother of
+	// Webs. The High Priest's coffins need the floor round him free, as it is.
+	void shapeBossRoom(const Segment& room, int mid, int step) {
+		auto structure = [&](int from, int to, Structure s) {
+			for (int k = from; k <= to; k++)
+				setStructure(mid + k * step, room.row, s);
+		};
+		switch (boss) {
+		case MonsterScorpionQueen:
+			for (int k : {-3, 3})
+				put(mid + k * step, room.row, Tile{MonsterSpawn, MonsterEggCluster, 0});
+			break;
+		case MonsterSobek:
+			structure(-6, 4, Structure::HalfWater);
+			break;
+		case MonsterSeth:
+			structure(-6, -4, Structure::Sand);
+			structure(-3, 2, Structure::HalfWater);
+			structure(3, 4, Structure::Sand);
+			break;
+		case MonsterRerek:
+			structure(-7, 4, Structure::Sand);
+			break;
+		case MonsterBabi:
+			for (int k : {-3, 3}) {
+				busy[index(mid + k * step, room.row)] = 0;
+				busy[index(mid + (k - 1) * step, room.row)] = busy[index(mid + (k + 1) * step, room.row)] = 0;
+				placePit(room, mid + k * step);
+			}
+			break;
+		case MonsterMotherOfWebs:
+			for (int x = room.x0; x <= room.x1; x++)
+				for (int y = room.row; y < room.row + room.height; y++) {
+					Tile cell = g.at(x, y);
+					if (!isWall(cell)) {
+						cell.dressing.torch = TorchPlacing::None;
+						g.set(x, y, cell);
+					}
+				}
+			for (int k : {-5, 4}) {
+				Tile cell = g.at(mid + k * step, room.row);
+				cell.dressing.prop = DECOR_BRAZIER;
+				g.set(mid + k * step, room.row, cell);
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	// The zone's gates besides the locks (ZoneGates): riddle gates, a name gate, hidden rooms, treasure tombs.
@@ -1020,8 +1173,8 @@ class LevelBuilder {
 	void placeLocks() {
 		const bool zone = zoneTarget > 0;
 		int wanted = d >= 9 ? 3 : d >= 6 ? 2 : d >= 3 ? 1 : 0;
-		if (zone)
-			wanted = std::min(wanted + 1, LOCK_COLOUR_COUNT);
+		if (zone) // a boss level keeps the last colour for the key behind the boss gate
+			wanted = std::min(wanted + 1, LOCK_COLOUR_COUNT - (boss != 0 ? 1 : 0));
 		for (int i = LOCK_COLOUR_COUNT - 1; i > 0; i--)
 			std::swap(colours[i], colours[rng.range(0, i)]);
 		for (int attempt = 0; attempt < (zone ? 40 : 20) && locksPlaced < wanted; attempt++) {
@@ -1439,6 +1592,7 @@ GenResult generateLevel(const GenOptions& options) {
 	const bool zone = isZone(options.zone);
 	const int openTarget = !zone ? 0 : options.openCells > 0 ? options.openCells : ZONE_OPEN_CELLS;
 	best.target = targetScore(difficulty, openTarget);
+	const int boss = zone && options.boss ? zoneBoss(static_cast<ZoneId>(options.zone)) : 0;
 	float bestError = 0.f;
 	for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
 		best.attempts = attempt + 1;
@@ -1446,7 +1600,8 @@ GenResult generateLevel(const GenOptions& options) {
 			options.seed * 7919U + static_cast<uint32_t>(attempt) * 104729U,
 			difficulty,
 			openTarget,
-			options.zone
+			options.zone,
+			boss
 		);
 		LevelGrid grid;
 		if (!builder.build(grid))
@@ -1483,8 +1638,16 @@ bool parseGenSpec(const std::string& spec, GenOptions& options) {
 	parsed.difficulty = difficulty;
 	const std::string rest = spec.substr(static_cast<size_t>(read));
 	if (!rest.empty()) {
-		parsed.zone = rest[0] == ':' ? zoneBySlug(rest.substr(1)) : NO_ZONE;
-		if (parsed.zone == NO_ZONE)
+		std::string slug = rest.substr(1);
+		const size_t colon = slug.find(':');
+		if (colon != std::string::npos) {
+			if (slug.substr(colon + 1) != "boss")
+				return false;
+			parsed.boss = true;
+			slug.resize(colon);
+		}
+		parsed.zone = rest[0] == ':' ? zoneBySlug(slug) : NO_ZONE;
+		if (parsed.zone == NO_ZONE || (parsed.boss && zoneBoss(static_cast<ZoneId>(parsed.zone)) == 0))
 			return false;
 	}
 	options = parsed;

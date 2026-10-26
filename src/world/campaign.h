@@ -134,6 +134,24 @@ constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
 };
 [[nodiscard]] constexpr const ZoneFauna& zoneFauna(ZoneId id) { return ZONE_FAUNA[static_cast<int>(id)]; }
 
+// The boss on a zone's boss level in the target campaign (docs/levels.md, Zones), 0 for none (the necropolis): a
+// generated boss level's (plan campaign-levelgen). Today's ZONES name the bosses of today's campaign.
+constexpr int ZONE_BOSS[ZONE_ID_COUNT] = {
+	MonsterBossScarab,
+	MonsterVampireBat,
+	MonsterMotherOfWebs,
+	MonsterMummyPriest,
+	MonsterScorpionQueen,
+	MonsterApep,
+	MonsterSobek,
+	MonsterSeth,
+	MonsterRerek,
+	MonsterBabi,
+	0,
+	MonsterAnubisBoss,
+};
+[[nodiscard]] constexpr int zoneBoss(ZoneId id) { return ZONE_BOSS[static_cast<int>(id)]; }
+
 // A zone level's traps (plan campaign-levelgen): the weight of each kind along its halls, in percent of a test
 // level's (100: as on a test level of the difficulty; the new kinds have a weight of their own, 0 on a test level),
 // and its trap gauntlets: a stretch of a hall on the route with a trap on every other cell.

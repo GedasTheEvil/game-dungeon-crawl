@@ -17,7 +17,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | boss level | | a map level with a boss (every 5th: 5, 10, 15, ...); its boss gates open when the boss dies | `BOSS_LOCK` |
-| boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena" | `BossRules` |
+| boss room | | the part of a boss level where the boss and its minions fight; drafts also say "arena". A zone level's is sealed under the halls (`LevelBuilder::placeBoss`) | `BossRules`, `GenOptions::boss` |
 | campaign | | the 35 map levels in order, `content/levels/lvl1` .. `lvl35`; grouped into zones; the last holds the ankh | `CAMPAIGN_LEVELS`, `campaignLevelFile` |
 | cell | | one square of the level grid: a structure (wall, empty, water), at most one fixture and at most one object. Not a tile (see tile) | `Tile`, `LevelGrid` |
 | structure | | a cell's bottom layer: wall, empty, half water or deep water. Not the structure of the code | `Structure`, `Tile::structure` |

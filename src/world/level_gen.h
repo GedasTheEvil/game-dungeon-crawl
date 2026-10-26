@@ -27,6 +27,9 @@ struct GenOptions {
 	int zone =
 		NO_ZONE; // a ZoneId (campaign.h): a level in the campaign's shape, dressed as the zone; NO_ZONE: a test level
 	int openCells = 0; // a zone level's target size, 0: ZONE_OPEN_CELLS
+	// The zone's boss level (ZONE_BOSS, campaign.h): the boss in a room sealed under the halls, a teleporter to it, the
+	// key for the last gate behind its boss gate. Not for a zone without a boss.
+	bool boss = false;
 };
 
 // A zone level's size if GenOptions::openCells does not say (the campaign's levels 15-35 have 520-760 open cells).
@@ -56,6 +59,7 @@ struct GenShape {
 	int hiddenRooms = 0; // behind a plain teleporter
 	int treasureTombs = 0; // a wing behind a second gate of a colour
 	int chains = 0; // keys and levers behind an earlier gate
+	bool bossRoom = false; // GenOptions::boss
 };
 
 struct GenResult {
@@ -76,8 +80,8 @@ constexpr int GEN_MAX_DIFFICULTY = 10;
 // target size, which the score grows with, 0 for a test level.
 [[nodiscard]] float targetScore(int difficulty, int openCells = 0);
 
-// "gen:SEED:DIFFICULTY" (a test level) or "gen:SEED:DIFFICULTY:ZONE" (ZONE: a zone's slug, campaign.h) -> options.
-// False for anything else.
+// "gen:SEED:DIFFICULTY" (a test level), "gen:SEED:DIFFICULTY:ZONE" (ZONE: a zone's slug, campaign.h) or
+// "gen:SEED:DIFFICULTY:ZONE:boss" (the zone's boss level) -> options. False for anything else.
 [[nodiscard]] bool parseGenSpec(const std::string& spec, GenOptions& options);
 
 #endif

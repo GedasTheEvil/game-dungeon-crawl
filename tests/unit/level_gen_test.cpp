@@ -209,6 +209,44 @@ TEST_CASE("a zone level's gates follow the zone table: riddles, name gates, hidd
 	CHECK(chains > 0); // a key behind an earlier gate
 }
 
+TEST_CASE("a zone's boss level: the boss in a sealed room, its key for the last gate behind the boss gate") {
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		const int boss = zoneBoss(static_cast<ZoneId>(zone));
+		if (boss == 0)
+			continue;
+		for (uint32_t seed = 1; seed <= 2; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			GenOptions options = zoneOptions(seed, 6, zone);
+			options.boss = true;
+			const GenResult gen = generateLevel(options);
+			REQUIRE(gen.ok);
+			const LevelReport& r = gen.report;
+			CHECK(r.warnings.empty()); // only a teleporter leads to the boss, the boss gate opens with it
+			CHECK(gen.shape.bossRoom);
+			CHECK(r.bosses == 1);
+			CHECK(r.monsters[boss] == 1);
+			CHECK(r.pathBoss); // the way to the exit goes through the boss gate
+			CHECK(r.pathTeleports == 2); // there and back
+			int eggs = 0;
+			for (const Tile& t : gen.grid.cells) {
+				eggs += t.type == MonsterSpawn && t.attr == MonsterEggCluster ? 1 : 0;
+				if (t.type != MonsterSpawn || t.attr != boss)
+					continue;
+				if (boss == MonsterSobek || boss == MonsterSeth)
+					CHECK(inHalfWater(t));
+				if (boss == MonsterRerek)
+					CHECK(inSand(t));
+			}
+			CHECK((eggs >= 2) == (boss == MonsterScorpionQueen));
+		}
+	}
+	GenOptions options = zoneOptions(1, 6, static_cast<int>(ZoneId::CisternsOfSobek));
+	const GenResult plain = generateLevel(options);
+	CHECK(plain.report.bosses == 0);
+	CHECK_FALSE(plain.shape.bossRoom);
+}
+
 TEST_CASE("a zone level comes out the same for the same seed, and its size follows the target") {
 	const int zone = static_cast<int>(ZoneId::CisternsOfSobek);
 	const GenResult a = generateLevel(zoneOptions(9, 6, zone));
@@ -234,6 +272,12 @@ TEST_CASE("gen specs: a test level, or a zone level by the zone's slug") {
 	REQUIRE(parseGenSpec("gen:7:4:necropolis", options));
 	CHECK(options.difficulty == 4);
 	CHECK(options.zone == static_cast<int>(ZoneId::Necropolis));
+	CHECK_FALSE(options.boss);
+	REQUIRE(parseGenSpec("gen:7:4:cisterns_of_sobek:boss", options));
+	CHECK(options.boss);
+	CHECK(options.zone == static_cast<int>(ZoneId::CisternsOfSobek));
+	CHECK_FALSE(parseGenSpec("gen:7:4:necropolis:boss", options)); // no boss there
+	CHECK_FALSE(parseGenSpec("gen:7:4:necropolis:first", options));
 	CHECK_FALSE(parseGenSpec("gen:7:4:nowhere", options));
 	CHECK_FALSE(parseGenSpec("gen:7:4x", options));
 	CHECK_FALSE(parseGenSpec("gen:7", options));

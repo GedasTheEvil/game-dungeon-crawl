@@ -1,7 +1,7 @@
 // levelgen: writes random levels. See docs/levels.md.
-//   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C]] [--count K] [--map] OUT
+//   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss]] [--count K] [--map] OUT
 // With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
-// for that zone (plan campaign-levelgen), about C open cells.
+// for that zone (plan campaign-levelgen), about C open cells; with --boss, the zone's boss level.
 
 #include "../../src/world/campaign.h"
 #include "../../src/world/level.h"
@@ -16,7 +16,7 @@ namespace {
 int usage() {
 	fprintf(
 		stderr,
-		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C]] [--count K] [--map] OUT\n"
+		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss]] [--count K] [--map] OUT\n"
 	);
 	return 2;
 }
@@ -41,6 +41,8 @@ int main(int argc, char** argv) {
 			options.openCells = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--count") == 0 && hasValue)
 			count = atoi(argv[++i]);
+		else if (strcmp(argv[i], "--boss") == 0)
+			options.boss = true;
 		else if (strcmp(argv[i], "--map") == 0)
 			map = true;
 		else if (argv[i][0] != '-' && out == nullptr)
@@ -49,7 +51,8 @@ int main(int argc, char** argv) {
 			return usage();
 	}
 	if (out == nullptr || count < 1 || options.difficulty < GEN_MIN_DIFFICULTY ||
-		options.difficulty > GEN_MAX_DIFFICULTY || options.openCells < 0)
+		options.difficulty > GEN_MAX_DIFFICULTY || options.openCells < 0 ||
+		(options.boss && (!isZone(options.zone) || zoneBoss(static_cast<ZoneId>(options.zone)) == 0)))
 		return usage();
 
 	int code = 0;

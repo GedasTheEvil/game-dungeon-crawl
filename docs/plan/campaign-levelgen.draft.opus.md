@@ -61,7 +61,17 @@ with no warnings.
   levels pass. Left for later: boss gates (step 6, with the boss room), ring transporters (once
   [ring-transporter](ring-transporter.draft.opus.md) exists), the secret room's lore inscription (step 8, with the
   texts). Gates in half water only in tombs.
-* Next: step 6, boss levels.
+* **Step 6, boss levels: done (2026-10-25).** `GenOptions::boss` (`levelgen --boss`, `gen:SEED:D:ZONE:boss`) and
+  `ZONE_BOSS` (campaign.h, the target campaign's bosses; none in the necropolis): the boss room sealed under the
+  halls, a teleporter to it from a late wing, the boss gate and behind it the key of the last gate (on the last
+  hall's crossing) and a rare chest. The room by the boss: egg clusters for the scorpion queen, Sobek's wade,
+  Seth's pool between drifts, Rerek's sand, Babi's gaps, the Mother of Webs' braziers in the dark, Apep's pit
+  between ledges, a tall room for the vampire bat and Anubis. Of the first and middle levels, only the boss level
+  builds anything of its own so far. Played in the game (the boss kept, the other monsters taken out): the path
+  scripts of nine of eleven boss levels pass; in Sobek's a crocodile he called blocks the way to the boss gate, in
+  the High Priest's his curses shorten a later jump into a pit: the god-mode script models neither (as the grabs of
+  step 3).
+* Next: step 7, treasure and supplies.
 
 ## What it must build
 

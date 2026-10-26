@@ -309,12 +309,14 @@ Scenario tests can load a generated level directly: `level gen:SEED:DIFFICULTY` 
 ```
 bin/levelgen --seed 3 --difficulty 6 --zone necropolis --map /tmp/zone    # a zone level, about 650 open cells
 bin/levelgen --seed 3 --difficulty 6 --zone web_halls --cells 500 /tmp/zone    # a smaller one
+bin/levelgen --seed 3 --difficulty 6 --zone cisterns_of_sobek --boss /tmp/zone    # the zone's boss level
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 5 of 9: the shape, the terrain, the
-monsters, the traps and the gates) and names the zone in the file,
-so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 6 of 9: the shape, the terrain, the
+monsters, the traps, the gates and the boss levels) and names the zone in the file,
+so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`. With `--boss` (scenarios:
+`gen:SEED:DIFFICULTY:ZONE:boss`) it builds the zone's boss level (step 6, see Boss levels below).
 
 1. **Halls.** Bands from the top of the grid to the bottom: halls of 1 (55%), 2 (30%) or 3 rows (15%), most of
    the width across (their lengths scaled to the target size, `--cells`, `ZONE_OPEN_CELLS` = 650 by default), two
@@ -335,7 +337,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    zone's chance, none in the tomb entrance) a name gate at a wing's end to a secret room sealed in the rock (5 to 7
    cells, a rare chest: an amulet of the depth's tier or a rare potion), its name cartouche on a hall of the route;
    hidden rooms behind a plain teleporter (one or two chests, or a guard from difficulty 6); and treasure tombs, a
-   wing past a gate closed by a second gate of its colour, a rare chest at its end. No boss gates yet (step 6).
+   wing past a gate closed by a second gate of its colour, a rare chest at its end.
 6. **Terrain.** By the zone table (`ZONE_TERRAIN`, `src/world/campaign.h`; step 2): water (few: one short wade;
    some: two or three wades and a pool; much: five to eight runs, three pools and two or three flooded halls), sand
    (few: drifts; some: drifts with quicksand, one or two cells; much: also sand falls, half the rock falls), dark halls
@@ -360,7 +362,17 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    between to wait in; from difficulty 6 now and then two rhythm traps side by side, kept only where the checker
    finds them crossable both ways. `levelgen` reports the counts. The path scripts (`levelcheck --script`) wait
    before a run with wall spikes (`waittraps`, [testing.md](testing.md)).
-9. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
+9. **Boss levels** (`--boss`; step 6). The zone's boss (`ZONE_BOSS`, `src/world/campaign.h`; none in the
+   necropolis) in a room of 18 cells sealed under the halls (on row 2, the halls start over its ceiling). The last
+   gate stands on the last hall's crossing, in the colour a boss level keeps free (one lock fewer); a teleporter at
+   the end of one of the last free wings before it leads to the room. From the room's teleporter: the boss in the
+   middle, then the boss gate and behind it the last gate's key and a rare chest, in an alcove one row tall. The
+   room by the boss: one row for Khepri, the High Priest (the floor round him free for his coffins) and Rerek (a run
+   of sand); three for the vampire bat and Anubis; else two: the scorpion queen's egg clusters either side of her,
+   Sobek in a long wade, Seth in a pool between two drifts, Babi between two one-cell death pits to leap, the Mother
+   of Webs in the dark with two braziers, Apep in a pit between two ledges (the teleporter on one, the boss gate on
+   the other, a ladder down from each).
+10. **Content.** As on a test level, along the route and the wings, only single spikes; treasure at the end of 60% of
    the wings no key took; with a poisoner, a dart plate or a poison drip on the level, the first wing's chest holds an antidote. Pits only on dry
    floor, spikes never next to half water (no jump out of it), objects keep the water or sand of their cell. At most
    (4 + 2 × difficulty) × size / 100 monsters. The score aimed at is `targetScore(difficulty, size)`, the test

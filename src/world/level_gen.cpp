@@ -1,6 +1,7 @@
 #include "level_gen.h"
 #include "campaign.h"
 #include "decor.h"
+#include "inscriptions.h"
 #include "items.h"
 #include "monster_kinds.h"
 #include "rng.h"
@@ -87,6 +88,13 @@ struct Wing {
 	bool taken = false; // holds a key or a lever
 };
 
+// A gate on the route, on segment seg at col.
+struct Lock {
+	int seg = 0;
+	int col = 0;
+	int colour = 0;
+};
+
 class LevelBuilder {
   public:
 	// openTarget: a zone level's target size, 0 for a test level; zone: its ZoneId.
@@ -94,7 +102,8 @@ class LevelBuilder {
 		: rng(seed), mimicRng(seed ^ 0x5eedc0deU), d(difficulty), zoneTarget(openTarget),
 		  terrain(isZone(zone) ? zoneTerrain(static_cast<ZoneId>(zone)) : ZoneTerrain{}),
 		  fauna(isZone(zone) ? &zoneFauna(static_cast<ZoneId>(zone)) : nullptr),
-		  traps(isZone(zone) ? zoneTraps(static_cast<ZoneId>(zone)) : TEST_LEVEL_TRAPS) {
+		  traps(isZone(zone) ? zoneTraps(static_cast<ZoneId>(zone)) : TEST_LEVEL_TRAPS),
+		  gates(isZone(zone) ? zoneGates(static_cast<ZoneId>(zone)) : ZoneGates{}) {
 		for (Tile& t : g.cells)
 			t = wallTile();
 		used.assign(CELLS, 0);
@@ -114,6 +123,7 @@ class LevelBuilder {
 		}
 		placeLocks();
 		addGauntlets();
+		addGateRooms();
 		int branches = rng.range(1, 2) + d / 4;
 		for (int i = 0; i < branches * 3 && branches > 0; i++) {
 			int s = rng.range(0, static_cast<int>(route.size()) - 1);
@@ -142,6 +152,7 @@ class LevelBuilder {
 	ZoneTerrain terrain; // all None on a test level
 	const ZoneFauna* fauna; // the zone's monsters, nullptr on a test level (monsters by difficulty)
 	ZoneTraps traps; // TEST_LEVEL_TRAPS on a test level
+	ZoneGates gates; // none on a test level
 	int monsterCap;
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
@@ -152,6 +163,8 @@ class LevelBuilder {
 	int monsters = 0;
 	int colours[LOCK_COLOUR_COUNT] = {1, 2, 3, 4};
 	int locksPlaced = 0;
+	std::vector<Lock> locks; // the route's gates, as placed
+	int teleportPairs = 0;
 
 	static int index(int col, int row) { return row * LEVEL_WIDTH + col; }
 	static bool interior(int col, int row) {
@@ -418,6 +431,163 @@ class LevelBuilder {
 		to = seg.loopCol >= 0 ? seg.loopCol : seg.exit;
 	}
 
+	// The wing lies past the gate on segment seg: on a later segment, or on seg's far side (the route is a line, the
+	// gate off any pillar loop).
+	[[nodiscard]] static bool pastLock(const Wing& wing, int seg) {
+		return wing.seg > seg || (wing.seg == seg && !wing.entrySide);
+	}
+
+	// A free wing's end for a door or a chest: dry floor or a drift, nothing in it; -1 if none.
+	int freeWing() {
+		std::vector<size_t> free;
+		for (size_t w = 0; w < wings.size(); w++) {
+			const Wing& wing = wings[w];
+			const Structure s = g.at(wing.end, wing.itemRow).structure;
+			if (!wing.taken && freeCell(wing.end, wing.itemRow) && (s == Structure::Empty || s == Structure::Sand))
+				free.push_back(w);
+		}
+		return free.empty()
+				   ? -1
+				   : static_cast<int>(free[static_cast<size_t>(rng.range(0, static_cast<int>(free.size()) - 1))]);
+	}
+
+	// A room sealed in the rock, one row tall and length cells long, rock all round it: only a teleporter leads in.
+	bool sealedRoom(int length, Segment& room) {
+		for (int tries = 0; tries < 300; tries++) {
+			room = Segment{};
+			room.row = rng.range(MIN_ROW + 1, MAX_ROW - 1);
+			room.x0 = rng.range(MIN_COL + 1, MAX_COL - length);
+			room.x1 = room.x0 + length - 1;
+			if (segmentFits(room)) {
+				carveSegment(room);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// A rare chest for a secret room or a tomb: an amulet of the depth's tier, or a rare potion.
+	Tile rareChest() {
+		constexpr ItemKind AMULETS[] = {
+			ItemKind::StrengthLesser,
+			ItemKind::ArmorLesser,
+			ItemKind::HealthLesser,
+			ItemKind::PoisonWardLesser,
+			ItemKind::TrapWardLesser,
+			ItemKind::BluntWardLesser,
+			ItemKind::SlashWardLesser,
+			ItemKind::PierceWardLesser,
+			ItemKind::VenomLesser,
+			ItemKind::FireWardLesser,
+			ItemKind::CrushingLesser,
+			ItemKind::CleavingLesser,
+			ItemKind::PiercingLesser
+		};
+		constexpr ItemKind POTIONS[] =
+			{ItemKind::LargeHealth, ItemKind::Life, ItemKind::Might, ItemKind::Armor, ItemKind::GreaterResistance};
+		if (rng.chance(0.5f)) {
+			const ItemKind lesser = AMULETS[rng.range(0, static_cast<int>(std::size(AMULETS)) - 1)];
+			return chestOf(itemAt(itemIndex(lesser) + std::min(3, (d - 1) / 3))); // lesser, minor, normal, grand
+		}
+		return chestOf(POTIONS[rng.range(0, static_cast<int>(std::size(POTIONS)) - 1)]);
+	}
+
+	// The zone's gates besides the locks (ZoneGates): riddle gates, a name gate, hidden rooms, treasure tombs.
+	void addGateRooms() {
+		for (int n = gates.riddles; n > 0; n--)
+			placeRiddle();
+		if (gates.nameGatePercent > 0 && rng.percent(gates.nameGatePercent))
+			placeTeleporterRoom(true);
+		for (int n = gates.hiddenRooms; n > 0; n--)
+			placeTeleporterRoom(false);
+		for (int n = gates.treasureTombs; n > 0; n--)
+			placeTomb();
+	}
+
+	// A riddle gate: in a riddle room up a ladder off a hall, or at a wing's end.
+	void placeRiddle() {
+		const Tile riddle{Door, GateRiddle, 0};
+		for (int tries = 0; tries < 3; tries++) {
+			const int s = rng.range(0, static_cast<int>(route.size()) - 1);
+			if (rng.chance(0.5f) && tryBranch(s, route[s].x0, route[s].x1, riddle)) {
+				shape.riddleGates++;
+				return;
+			}
+		}
+		const int w = freeWing();
+		if (w < 0)
+			return;
+		Wing& wing = wings[static_cast<size_t>(w)];
+		put(wing.end, wing.itemRow, riddle);
+		wing.taken = true;
+		shape.riddleGates++;
+	}
+
+	// A teleporter at a wing's end to a sealed room with a chest at its far end (or two): a name gate (plan
+	// secret-name-gates) with its name cartouche on a hall of the route, or a plain teleporter to a hidden room, now
+	// and then with a guard from difficulty 6.
+	void placeTeleporterRoom(bool named) {
+		const int w = freeWing();
+		if (w < 0)
+			return;
+		Wing& wing = wings[static_cast<size_t>(w)];
+		int cartoucheCol = -1, cartoucheRow = -1;
+		for (int tries = 0; named && tries < 60 && cartoucheCol < 0; tries++) {
+			const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+			const int x = rng.range(hall.x0, hall.x1);
+			const Structure s = g.at(x, hall.row).structure;
+			if (busy[index(x, hall.row)] == 0 && freeCell(x, hall.row) && isWall(g.at(x, hall.row - 1)) &&
+				(s == Structure::Empty || s == Structure::Sand) &&
+				(std::abs(x - wing.end) > 2 || std::abs(hall.row - wing.itemRow) > 1))
+				cartoucheCol = x, cartoucheRow = hall.row;
+		}
+		Segment room;
+		if ((named && cartoucheCol < 0) || !sealedRoom(rng.range(5, 7), room))
+			return;
+		const int pair = ++teleportPairs;
+		const bool west = rng.chance(0.5f);
+		put(wing.end, wing.itemRow, Tile{Door, GateTeleport, pair + (named ? NAME_SEAL : 0)});
+		wing.taken = true;
+		put(west ? room.x0 : room.x1, room.row, Tile{Door, GateTeleport, pair});
+		const int far = west ? room.x1 : room.x0;
+		put(far, room.row, named ? rareChest() : randomTreasure());
+		if (!named && rng.chance(0.5f))
+			put(far + (west ? -2 : 2), room.row, randomTreasure());
+		else if (!named && d >= 6 && rng.chance(0.5f))
+			placeMonster((room.x0 + room.x1) / 2, room.row);
+		if (named) {
+			put(cartoucheCol, cartoucheRow, Tile{Inscription, NAME_CARTOUCHE_ID, 0});
+			busy[index(cartoucheCol, cartoucheRow)] = 1;
+			shape.nameGates++;
+		} else
+			shape.hiddenRooms++;
+	}
+
+	// A treasure tomb: a wing past a gate of the route closed by a second gate of its colour, a rare chest at its end.
+	void placeTomb() {
+		std::vector<std::pair<size_t, int>> spots; // a wing and a lock colour
+		for (size_t w = 0; w < wings.size(); w++)
+			for (const Lock& lock : locks)
+				if (!wings[w].taken && pastLock(wings[w], lock.seg) && std::abs(wings[w].fillEnd - wings[w].inner) >= 5)
+					spots.emplace_back(w, lock.colour);
+		if (spots.empty())
+			return;
+		const auto [w, colour] = spots[static_cast<size_t>(rng.range(0, static_cast<int>(spots.size()) - 1))];
+		Wing& wing = wings[w];
+		const Segment& hall = route[static_cast<size_t>(wing.seg)];
+		const int dir = wing.end > wing.inner ? 1 : -1;
+		const int gate = wing.inner + 2 * dir;
+		const Tile t = g.at(gate, hall.row);
+		if (busy[index(gate, hall.row)] != 0 || !freeCell(gate, hall.row) || inQuicksand(t) ||
+			!freeCell(wing.end, wing.itemRow))
+			return;
+		g.set(gate, hall.row, Tile{Gate, colour, 0});
+		markBusy(hall, gate);
+		put(wing.end, wing.itemRow, rareChest());
+		wing.taken = true;
+		shape.treasureTombs++;
+	}
+
 	// A wing for the key or lever of a gate on segment s: one on s before the gate, or on a segment before it with no
 	// drop on the way (the player could drop past it and be stuck at the gate).
 	bool wingOpener(int s, Tile opener) {
@@ -432,6 +602,19 @@ class LevelBuilder {
 		}
 		if (free.empty())
 			return false;
+		// A chain: the opener behind the nearest gate before this one, if a wing there is free.
+		int last = -1;
+		for (const Lock& lock : locks)
+			if (lock.seg < s)
+				last = std::max(last, lock.seg);
+		std::vector<size_t> behind;
+		for (size_t w : free)
+			if (last >= 0 && pastLock(wings[w], last))
+				behind.push_back(w);
+		if (!behind.empty()) {
+			free = behind;
+			shape.chains++;
+		}
 		if (terrain.mirrors && rng.chance(MIRROR_CHANCE)) {
 			std::vector<size_t> sunny;
 			for (size_t w : free)
@@ -862,6 +1045,7 @@ class LevelBuilder {
 			if ((zone && wingOpener(s, opener)) || tryBranch(s, seg.entry + dir, gate - 2 * dir, opener)) {
 				markBusy(seg, gate);
 				locksPlaced++;
+				locks.push_back(Lock{s, gate, colour});
 			} else {
 				g.set(gate, seg.row, Tile{});
 				busy[index(gate, seg.row)] = 0;

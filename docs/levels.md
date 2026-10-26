@@ -312,8 +312,8 @@ bin/levelgen --seed 3 --difficulty 6 --zone web_halls --cells 500 /tmp/zone    #
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 4 of 9: the shape, the terrain, the
-monsters and the traps) and names the zone in the file,
+([campaign-levelgen](plan/campaign-levelgen.draft.opus.md), steps 1 to 5 of 9: the shape, the terrain, the
+monsters, the traps and the gates) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
 
 1. **Halls.** Bands from the top of the grid to the bottom: halls of 1 (55%), 2 (30%) or 3 rows (15%), most of
@@ -329,7 +329,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    a level): its last 3 to 5 cells raised a row, up a ladder.
 5. **Locks.** One gate more than a test level of the difficulty (1 to 4), its key or lever at the end of a wing
    before it: on its hall before the gate, or on a hall before it with no drop on the way (else a branch, as on a
-   test level).
+   test level). A chain where it can: the wing past the nearest gate already placed before it.
+   Then the zone's other gates (`ZONE_GATES`, `src/world/campaign.h`; step 5): riddle gates (one a level, three in
+   the Hall of Judgment), half of them in a riddle room up a ladder, else at a wing's end; now and then (by the
+   zone's chance, none in the tomb entrance) a name gate at a wing's end to a secret room sealed in the rock (5 to 7
+   cells, a rare chest: an amulet of the depth's tier or a rare potion), its name cartouche on a hall of the route;
+   hidden rooms behind a plain teleporter (one or two chests, or a guard from difficulty 6); and treasure tombs, a
+   wing past a gate closed by a second gate of its colour, a rare chest at its end. No boss gates yet (step 6).
 6. **Terrain.** By the zone table (`ZONE_TERRAIN`, `src/world/campaign.h`; step 2): water (few: one short wade;
    some: two or three wades and a pool; much: five to eight runs, three pools and two or three flooded halls), sand
    (few: drifts; some: drifts with quicksand, one or two cells; much: also sand falls, half the rock falls), dark halls

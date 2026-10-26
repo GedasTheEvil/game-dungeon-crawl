@@ -152,10 +152,12 @@ TEST_CASE("a zone level's traps follow the zone table; test levels keep theirs")
 							 : 0;
 		}
 		CAPTURE(zone);
-		CHECK((darts > 0) == (traps.darts > 0));
-		CHECK((wallSpikes > 0) == (traps.wallSpikes > 0));
-		CHECK((fireVents > 0) == (traps.fireVents > 0));
-		CHECK((drips > 0) == (traps.poisonDrips > 0));
+		// None without a weight, some with the full one (a smaller one may miss three levels).
+		auto follows = [](int count, int weight) { return weight == 0 ? count == 0 : weight < 100 || count > 0; };
+		CHECK(follows(darts, traps.darts));
+		CHECK(follows(wallSpikes, traps.wallSpikes));
+		CHECK(follows(fireVents, traps.fireVents));
+		CHECK(follows(drips, traps.poisonDrips));
 		CHECK((gauntlets > 0) == (traps.gauntlets > 0));
 		CHECK(gauntlets <= 3 * traps.gauntlets);
 		if (zone == static_cast<int>(ZoneId::SerpentTemple))
@@ -170,6 +172,41 @@ TEST_CASE("a zone level's traps follow the zone table; test levels keep theirs")
 		CHECK(gen.report.dartPlates + gen.report.wallSpikes + gen.report.fireVents + gen.report.poisonDrips == 0);
 		CHECK(gen.shape.gauntlets == 0);
 	}
+}
+
+TEST_CASE("a zone level's gates follow the zone table: riddles, name gates, hidden rooms, treasure tombs, chains") {
+	int chains = 0;
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		const ZoneGates& gates = zoneGates(static_cast<ZoneId>(zone));
+		int riddles = 0, nameGates = 0, hidden = 0, tombs = 0;
+		for (uint32_t seed = 1; seed <= 3; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			const GenResult gen = generateLevel(zoneOptions(seed, 7, zone));
+			REQUIRE(gen.ok);
+			const LevelReport& r = gen.report;
+			CHECK(r.warnings.empty()); // the cartouche apart from its gate, every room's chest in reach
+			CHECK(r.riddles == gen.shape.riddleGates);
+			CHECK(r.nameGates == gen.shape.nameGates);
+			CHECK(r.nameCartouches == r.nameGates);
+			CHECK(r.teleporters == 2 * (gen.shape.nameGates + gen.shape.hiddenRooms));
+			CHECK(r.pathTeleports == 0); // the rooms are off the way to the exit
+			riddles += r.riddles;
+			nameGates += r.nameGates;
+			hidden += gen.shape.hiddenRooms;
+			tombs += gen.shape.treasureTombs;
+			chains += gen.shape.chains;
+		}
+		CAPTURE(zone);
+		CHECK(riddles >= 3 * gates.riddles - 1);
+		if (gates.nameGatePercent == 0)
+			CHECK(nameGates == 0);
+		if (gates.nameGatePercent >= 80)
+			CHECK(nameGates > 0);
+		CHECK((hidden > 0) == (gates.hiddenRooms > 0));
+		CHECK((tombs > 0) == (gates.treasureTombs > 0));
+	}
+	CHECK(chains > 0); // a key behind an earlier gate
 }
 
 TEST_CASE("a zone level comes out the same for the same seed, and its size follows the target") {

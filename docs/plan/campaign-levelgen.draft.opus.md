@@ -52,7 +52,16 @@ with no warnings.
   each, difficulty 8) pass in the game. The counts (e.g. 6-14 dart plates in the serpent temple, about 10-20 fire
   vents by the Lake of Fire) are a first guess, for the rebuild's play-tests to tune. Rock falls by an existing
   test-level weight already reach 20-50 in the bat galleries (200%).
-* Next: step 5, gates.
+* **Step 5, gates: done (2026-10-25).** `ZONE_GATES` (campaign.h): riddle gates (in a riddle room up a ladder or
+  at a wing's end), a name gate by the zone's chance to a secret room sealed in the rock with a rare chest, its
+  cartouche on the route; hidden rooms behind a plain teleporter (a treasure cistern, a hidden tomb); treasure tombs
+  (a wing behind a second gate of a colour the route opens). Keys and levers chain where a free wing lies past the
+  gate before. Test levels stay byte-identical. Played in the game: a hidden room's teleporter and a name gate
+  (`speakname`) of a necropolis level take the player into their rooms; the path scripts of three monster-free
+  levels pass. Left for later: boss gates (step 6, with the boss room), ring transporters (once
+  [ring-transporter](ring-transporter.draft.opus.md) exists), the secret room's lore inscription (step 8, with the
+  texts). Gates in half water only in tombs.
+* Next: step 6, boss levels.
 
 ## What it must build
 

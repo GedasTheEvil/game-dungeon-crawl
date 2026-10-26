@@ -93,7 +93,9 @@ int main(int argc, char** argv) {
 			printf(
 				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts; %d wades, %d pools, %d sand "
 				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs; %d spikes, %d death pits, "
-				"%d rock falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gauntlets\n",
+				"%d rock falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gauntlets; %d "
+				"chained "
+				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -116,7 +118,12 @@ int main(int argc, char** argv) {
 				r.wallSpikes,
 				r.fireVents,
 				r.poisonDrips,
-				s.gauntlets
+				s.gauntlets,
+				s.chains,
+				s.riddleGates,
+				s.nameGates,
+				s.hiddenRooms,
+				s.treasureTombs
 			);
 		}
 		if (map)

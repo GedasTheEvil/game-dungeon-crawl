@@ -163,6 +163,32 @@ constexpr ZoneTraps ZONE_TRAPS[ZONE_ID_COUNT] = {
 	{80, 80, 80, 80, 80, 80, 80, 1}, // hall of judgment
 };
 [[nodiscard]] constexpr const ZoneTraps& zoneTraps(ZoneId id) { return ZONE_TRAPS[static_cast<int>(id)]; }
+
+// A zone level's gates besides its locks (plan campaign-levelgen): riddle gates, the chance of a name gate to a secret
+// room (its cartouche elsewhere on the level), hidden rooms a plain teleporter leads to, and treasure tombs: a wing
+// behind a second gate of a colour the route already opened.
+struct ZoneGates {
+	int riddles; // a level
+	int nameGatePercent;
+	int hiddenRooms; // a level
+	int treasureTombs; // a level
+};
+// By ZoneId (docs/levels.md, Zones). The first name gate comes with the inscriptions (lvl6 today).
+constexpr ZoneGates ZONE_GATES[ZONE_ID_COUNT] = {
+	{1, 0, 0, 0}, // tomb entrance: the first riddle
+	{1, 30, 0, 0}, // bat galleries
+	{1, 40, 0, 1}, // web halls
+	{1, 80, 0, 1}, // priests' quarter: name gates
+	{1, 40, 0, 1}, // scorpion nest
+	{1, 40, 0, 1}, // serpent temple
+	{1, 40, 1, 1}, // cisterns of Sobek: a hidden treasure cistern
+	{1, 40, 0, 1}, // Seth's desert
+	{1, 40, 1, 1}, // land of Sokar
+	{1, 40, 0, 1}, // lake of fire
+	{1, 50, 1, 2}, // necropolis: hidden tombs
+	{3, 50, 0, 1}, // hall of judgment: riddles
+};
+[[nodiscard]] constexpr const ZoneGates& zoneGates(ZoneId id) { return ZONE_GATES[static_cast<int>(id)]; }
 // A level's zone (LevelMeta::zone): the ZoneId, or NO_ZONE.
 [[nodiscard]] constexpr bool isZone(int zone) { return zone >= 0 && zone < ZONE_ID_COUNT; }
 // The ZoneId of a slug, NO_ZONE if none has it.

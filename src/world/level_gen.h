@@ -50,6 +50,12 @@ struct GenShape {
 	int braziers = 0;
 	int sunDiscs = 0; // each with its mirror and light shaft
 	int gauntlets = 0; // trap gauntlets (ZoneTraps, campaign.h)
+	// The gates (ZoneGates, campaign.h).
+	int riddleGates = 0;
+	int nameGates = 0; // each with its cartouche and secret room
+	int hiddenRooms = 0; // behind a plain teleporter
+	int treasureTombs = 0; // a wing behind a second gate of a colour
+	int chains = 0; // keys and levers behind an earlier gate
 };
 
 struct GenResult {

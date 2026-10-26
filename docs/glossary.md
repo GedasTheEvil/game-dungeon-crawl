@@ -44,6 +44,9 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | zone fauna | | (zone level) the monsters a zone's levels draw from, by weight, and its mimic shares: the target campaign's set, not today's `ZONES` | `ZoneFauna`, `ZONE_FAUNA`, `LevelBuilder::zoneMonster` |
 | zone traps | | (zone level) the traps a zone's levels get, by the zone table: the weight of each kind along the halls (spikes, death pits, rock falls against a test level's; dart plates and the rhythm traps of their own) and the trap gauntlets a level | `ZoneTraps`, `ZONE_TRAPS`, `LevelBuilder::trapFits` |
 | trap gauntlet | | (zone level) a stretch of a hall the route crosses with a trap on every other cell and a free cell between to wait in; now and then a pair of rhythm traps in step. Today's level texts also say "rock-fall gauntlet" for a hall of loose ceilings | `LevelBuilder::addGauntlets`, `GenShape::gauntlets` |
+| zone gates | | (zone level) a zone's gates besides its locks, by the zone table: riddle gates, the chance of a name gate, hidden rooms, treasure tombs | `ZoneGates`, `ZONE_GATES`, `LevelBuilder::addGateRooms` |
+| hidden room | | (zone level) a room sealed in the rock behind a plain teleporter at a wing's end, with treasure; a secret room is the same behind a name gate | `LevelBuilder::placeTeleporterRoom`, `GenShape::hiddenRooms` |
+| treasure tomb | | (zone level) a wing past a gate of the route, closed by a second gate of that colour, a rare chest at its end | `LevelBuilder::placeTomb`, `GenShape::treasureTombs` |
 | pool | | (zone level) a run of half water over deep water dug into the rock under the floor; a wade is the same over rock | `GenShape::pools`, `GenShape::wades` |
 | wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
 | hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |

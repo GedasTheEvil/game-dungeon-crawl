@@ -48,9 +48,16 @@
 26 --zone serpent_temple --seed 3 --difficulty 5 --texts 91,92,17 --title "The Uraeus Stair"
 27 --zone serpent_temple --seed 9 --difficulty 5 --boss --texts 93,18 --page 16 --title "The Pit of Apep"
 
-# Zone 7: Cisterns of Sobek. Freed texts on Hapi and Sobek (15, 20, 23, 24) and a boon (21); lore 19 and 2 (a crocodile curse).
+# Zone 7: Cisterns of Sobek. Freed texts on Hapi and Sobek (15, 20, 23, 24) and a boon (21); lore 19, 2 (a crocodile curse) and 9.
 28 --zone cisterns_of_sobek --seed 3 --difficulty 6 --texts 94,97 --lore 19 --title "The Gate of Sobek"
 29 --zone cisterns_of_sobek --seed 7 --difficulty 6 --texts 96,15 --lore 2 --title "The Flooded Halls"
-30 --zone cisterns_of_sobek --seed 11 --difficulty 6 --texts 98,20,21 --title "The Cistern Grid"
+30 --zone cisterns_of_sobek --seed 11 --difficulty 6 --texts 98,20,21 --lore 9 --title "The Cistern Grid"
 31 --zone cisterns_of_sobek --seed 7 --difficulty 6 --texts 99,101,23 --title "The Cistern Stairs"
 32 --zone cisterns_of_sobek --seed 9 --difficulty 6 --boss --texts 95,24 --page 17 --title "The Lake of Sobek"
+
+# Zone 8: Seth's desert. Freed desert texts of today's campaign (46, 47, 49, 50); lore 51, 52.
+33 --zone seths_desert --seed 9 --difficulty 6 --texts 102,46 --lore 51 --title "The Gate of Seth"
+34 --zone seths_desert --seed 6 --difficulty 7 --texts 103,108 --page 18 --lore 52 --title "The Buried Gate"
+35 --zone seths_desert --seed 4 --difficulty 7 --texts 104,106 --title "The Hall of Drifts"
+36 --zone seths_desert --seed 6 --difficulty 7 --texts 105,107,47 --title "The Sand Stair"
+37 --zone seths_desert --seed 4 --difficulty 7 --boss --texts 49,50 --page 19 --title "Seth's Oasis"

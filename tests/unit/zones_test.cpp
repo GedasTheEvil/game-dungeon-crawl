@@ -99,7 +99,7 @@ TEST_CASE("the rebuilt levels (plan denser-levels): the zone's monsters, its bos
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), grid).empty());
 		int inscriptions = 0;
 		for (const Tile& t : grid.cells) {
-			if (t.fixture.type == Inscription) {
+			if (t.fixture.type == Inscription && t.fixture.attr != NAME_CARTOUCHE_ID) { // a cartouche holds a name
 				inscriptions++;
 				CHECK(texts.insert(t.fixture.attr).second); // each text once
 			}

@@ -94,15 +94,7 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 		CAPTURE(n);
 		const Scattered s = campaignLevel(n);
 		const int tier = decorTier(n);
-		// The placed props and decals (a generated level's tombs, plan placed-decor) stand whatever the depth.
-		auto scattered = std::make_unique<DecorLayout>(*s.layout);
-		for (int c = 0; c < LEVEL_WIDTH * LEVEL_HEIGHT; c++) {
-			if (hasPlacedProp(s.grid.cells[c].dressing))
-				scattered->decor[c].type = -1;
-			if (hasPlacedDecal(s.grid.cells[c].dressing))
-				scattered->decal[c].type = -1;
-		}
-		CHECK(decorTierUsed(s.grid.cells, *scattered) <= tier);
+		CHECK(decorTierUsed(s.grid.cells, *s.layout) <= tier); // the placed props and decals stand whatever the depth
 		for (int j = 0; j < LEVEL_HEIGHT; j++)
 			for (int i = 0; i < LEVEL_WIDTH; i++) {
 				const Tile t = cellAt(s.grid, i, j);

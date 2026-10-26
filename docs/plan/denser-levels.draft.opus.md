@@ -14,8 +14,10 @@ Monster-balance already waits for every monster and boss draft, so they are all 
 
 ## Progress
 
-Batch 1, the tomb entrance: done 2026-10-26, waiting for the user's play-test (`bin/game --level 1`, play to lvl5).
-Next: batch 2, the bat galleries (levels 5-9: today's 5-9 are exactly the old bat galleries, replaced 1:1).
+Batch 1, the tomb entrance: done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
+Batch 2, the bat galleries (levels 5-9): done 2026-10-26, waiting for the user's play-test (`bin/game --level 5`,
+play to lvl10). Next: batch 3, the web halls (10-13; today's 10-14, the old scorpion nest, give way: one level fewer).
+User, 2026-10-26: the bosses are retuned from the sim once all levels are done (not per batch).
 
 * **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
   one number earlier (today's lvl6 is lvl5, `CAMPAIGN_LEVELS` 34). Old lvl1-5 are gone; the decor tiers
@@ -32,6 +34,19 @@ Next: batch 2, the bat galleries (levels 5-9: today's 5-9 are exactly the old ba
   one), pages 1-3 on lvl1-3, titles kept from today's levels. Polished by hand: the bronze sword on lvl3 (Khepri is
   tuned for it), no mimic before lvl3 (page 3 tells of the biting chest), rats on lvl1. `bin/balance today`: the player
   comes to Khepri at level 7. All four pass the checker and their path scripts in the game.
+* **Bat galleries (5-9):** difficulty 2; 323, 379, 412, 487 and 531 open cells. Bats, giant bats, worms, giant rats;
+  levers come in (lvl5 opens its gate with one, lvl9 has one), rock falls (4 to 11 a level), a short wade on each
+  level, a riddle each, name gates to secret rooms on 5, 6 and 8 (lore 33-35: `--lore`, the ids today's lvl5-9 used),
+  inscriptions 59-65, pages 4-7 (5, 6, 8, 9; page 9, the early fork's, must follow page 8 on lvl10, so the first fork
+  goes to the web halls). Titles from today's 5-9. Polished by hand: the one crocodile (the preview) moved off the way
+  into a pool at the east end of lvl7's upper hall with a chest past it, so it can be skipped; three of lvl5's six
+  worms made bats. The path scripts pass in the game; lvl8's only without its monsters (the giant bats' screech
+  knocks the god-mode player off the ladders, the script cannot model it).
+* **XP (open, for the sim pass at the end):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
+  lvl5, 15, 18, 21 and 26 at Shezmu (lvl9), 30 at lvl10. The monster-balance sim tuned the bat galleries for about
+  level 8 and the web halls for 15 (its curve scales the monster XP by 0.27): the zone 2 monsters (giant rat 2000, giant
+  bat 1800, worm 1200 XP) and Khepri's 6000 give about 4 times too much. Not changed per batch: the XP and the bosses
+  are retuned together from the sim once all levels are rebuilt.
 * Not yet: forks (from the bat galleries or the web halls on), the level gem still changes every five levels (not by
   zone), the XP over the whole campaign (the full levels' 45-55 monsters, see Watch).
 

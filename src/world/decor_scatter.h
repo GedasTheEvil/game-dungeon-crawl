@@ -58,7 +58,8 @@ struct DecorCounts {
 // boss coffin cell gets a coffin. Overwrites all of layout.
 DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, int zone, DecorLayout& layout);
 
-// The highest decoration tier among a level's props, decals and surfaces; -1 for a bare level.
+// The highest decoration tier among a level's scattered props, decals and surfaces (a placed one stands whatever the
+// depth); -1 for a bare level.
 [[nodiscard]] int decorTierUsed(const Tile* cells, const DecorLayout& layout);
 
 #endif

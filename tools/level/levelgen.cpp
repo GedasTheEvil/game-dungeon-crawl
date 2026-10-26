@@ -1,10 +1,11 @@
 // levelgen: writes random levels. See docs/levels.md.
 //   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] [--texts IDS]
-//            [--stargate] [--fork 1|2]] [--count K] [--map] OUT
+//            [--lore IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT
 // With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
 // for that zone (plan campaign-levelgen), about C open cells; with --boss, the zone's boss level.
 // A zone level's inscriptions come from content/inscriptions/ (run it from the repo root), or --texts 53,54 names
-// them; --page puts an expedition page, --title names the level, --stargate makes it the Stargate chamber's level,
+// them, --lore 33,34 the secret rooms' texts; --page puts an expedition page, --title names the level, --stargate makes
+// it the Stargate chamber's level,
 // --fork 1 (2: the last fork) splits the route in two.
 
 #include "../../src/core/paths.h"
@@ -23,7 +24,7 @@ int usage() {
 	fprintf(
 		stderr,
 		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] "
-		"[--texts IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT\n"
+		"[--texts IDS] [--lore IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT\n"
 	);
 	return 2;
 }
@@ -58,10 +59,11 @@ int main(int argc, char** argv) {
 			options.title = argv[++i];
 		else if (strcmp(argv[i], "--page") == 0 && hasValue)
 			options.page = atoi(argv[++i]);
-		else if (strcmp(argv[i], "--texts") == 0 && hasValue) {
+		else if ((strcmp(argv[i], "--texts") == 0 || strcmp(argv[i], "--lore") == 0) && hasValue) {
+			std::vector<int>& ids = strcmp(argv[i], "--texts") == 0 ? options.inscriptions : options.lore;
 			for (const char* p = argv[++i]; *p != '\0';) {
 				char* end = nullptr;
-				options.inscriptions.push_back(static_cast<int>(strtol(p, &end, 10)));
+				ids.push_back(static_cast<int>(strtol(p, &end, 10)));
 				if (end == p)
 					return usage();
 				p = *end == ',' ? end + 1 : end;

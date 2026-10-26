@@ -234,6 +234,7 @@ class LevelBuilder {
 	std::vector<Lock> locks; // the route's gates, as placed
 	int teleportPairs = 0;
 	int boons = 0; // inscriptions with a boon placed (content.texts)
+	size_t lorePlaced = 0; // of content.lore
 	// A route fork (content.fork): the route's segment forkSeg is the left route's hall, forkRight the right one's,
 	// side by side under the fork hall (forkSeg - 1), both dropping into the join hall (forkSeg + 1). 0: none.
 	int forkSeg = 0;
@@ -866,6 +867,8 @@ class LevelBuilder {
 
 	// A secret room's lore (SECRET_ROOM_TEXTS): with the texts, none with a boon if the level has one already.
 	int pickLore() {
+		if (lorePlaced < content.lore.size())
+			return content.lore[lorePlaced++];
 		std::vector<int> pool;
 		for (int id : SECRET_ROOM_TEXTS)
 			if (content.texts == nullptr || (content.texts->Find(id) != nullptr && (boons == 0 || !hasBoon(id))))

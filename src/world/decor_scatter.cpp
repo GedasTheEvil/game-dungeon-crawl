@@ -582,9 +582,9 @@ DecorCounts scatterDecor(const Tile* cells, const char* levelName, int depth, in
 int decorTierUsed(const Tile* cells, const DecorLayout& layout) {
 	int used = -1;
 	for (int c = 0; c < LEVEL_CELL_COUNT; c++) {
-		if (layout.decor[c].type >= 0)
+		if (layout.decor[c].type >= 0 && !hasPlacedProp(cells[c].dressing))
 			used = std::max(used, static_cast<int>(DECOR_TIERS[layout.decor[c].type]));
-		if (layout.decal[c].type >= 0)
+		if (layout.decal[c].type >= 0 && !hasPlacedDecal(cells[c].dressing))
 			used = std::max(used, static_cast<int>(DECAL_TIERS[layout.decal[c].type]));
 		if (isWall(cells[c]))
 			continue;

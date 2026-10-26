@@ -74,8 +74,8 @@ ending with a boss. Each exit loads the next level. `content/levels/lvl34` holds
 boss there is always the last boss.
 
 The rebuild ([denser-levels](plan/denser-levels.draft.opus.md)) generates the campaign again zone by zone. The rebuilt
-zones come first, on the target table below (`REBUILT_LEVELS`: the tomb entrance, levels 1-4, so far), today's levels
-after them, one number earlier per level the rebuilt zones are shorter (today's lvl6 is lvl5). Their sizes ramp from
+zones come first, on the target table below (`REBUILT_LEVELS`: the tomb entrance and the bat galleries, levels 1-9, so
+far), today's levels after them, one number earlier per level the rebuilt zones are shorter (today's lvl6 is lvl5). Their sizes ramp from
 the way in to the whole grid (`ZONE_SIZE`, campaign.h): 120 open cells on lvl1, 280 on Khepri's level, the whole grid
 by the web halls; today's levels from 14 on use the whole 40 x 47 grid. Each rebuilt level's levelgen arguments (seed,
 difficulty, size, texts, page, title) are in the seed table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL`
@@ -111,7 +111,7 @@ The campaign's 34 levels, as the code table maps them while the rebuild goes on:
 | Zone | Levels | Stone | Main monsters | New mechanic | Boss |
 |---|---|---|---|---|---|
 | 1 Tomb entrance (the Gate of the Tomb), rebuilt | 1-4 | limestone | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri (lvl4) |
-| 2 Bat galleries (the Gate of the Bats) | 5-9 | limestone | bats, giant bats, giant rats, giant scarabs, crocodiles, camel spiders | levers, rock falls, the first water | Bat of Shezmu (lvl9) |
+| 2 Bat galleries (the Gate of the Bats), rebuilt | 5-9 | limestone | bats, giant bats, worms, giant rats, a crocodile | levers, rock falls, the first wade | Bat of Shezmu (lvl9) |
 | 5 Scorpion nest (the Gate of Serqet) | 10-14 | plaster | mummies, ushabti, giant scarabs, giant bats, scorpions, giant scorpions | poison | scorpion queen (lvl14) |
 | 6 Serpent temple (the Gate of the Serpent) | 15-19 | plaster | cobras, mummies, Anubis guards, crocodiles, giant bats | dart plates | Apep (lvl19) |
 | 8 Seth's desert (the Gate of Seth) | 20-24 | sandstone | sand worms, camel spiders, giant scorpions, giant cobras, giant bats, hippos | sand, quicksand, mirrors and sun discs | Seth (lvl24) |
@@ -152,11 +152,11 @@ Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).
 | 2 | The Beetle Passage: four halls climbed from the bottom, scarabs, bats, a rat, plants. The red key and gate, a riddle room up a ladder. Expedition page 2. Inscriptions: the appeal to the living, a boon of life. |
 | 3 | The Biting Chest: seven halls down with a pillar loop and a ledge, scarabs, plants, bats, a rat, two mimics among the chests. The bronze sword in a chest in the west wing of the third hall (the player needs it for Khepri), a club, a knife, a sling. The green key and gate, a riddle gate. Expedition page 3. |
 | 4 | The Lair of Khepri, the first boss: seven halls down, scarabs, rats, bats, plants. The green key and gate, a riddle gate; the teleporter at the west end of the sixth hall leads to the sealed room under the halls: Khepri and her scarabs, behind the boss gate the key of the last gate (red) before the exit. |
-| 5 | Rats, a giant rat, the first giant scarab, two scorpions. Red key and gate. An antidote where the shaft lands in the lower den, a lesser resistance potion in the middle hall. |
-| 6 | Bats and giant bats in low tunnels. Blue lever and gate. The first water: a flooded stretch of the west hall, the first crocodile in it, on the way to a chest. |
-| 7 | Plants, worms, giant rats, giant scarabs. Red key, then the green key behind the red gate. The hall to the red gate is flooded, a crocodile in it. |
-| 8 | Giant bats. Red key, red gate, then the blue lever behind it for the blue gate. Past the pit in the lower gallery a flooded stretch with a crocodile. |
-| 9 | The vampire's roost, the second boss: the teleporter at the east end of the upper hall leads to the sealed roost, the vampire bat and its bats. Behind the boss gate the gold key for the gold gate to the shaft down. A giant scarab by the exit. |
+| 5 | The Lever Gallery: worms, giant rats, bats, a giant bat; rock falls. The first lever opens the level's gate; a riddle gate, a short wade, a name gate to a secret room. Expedition page 4. Inscriptions: the lamp wicks, the lever of the house. |
+| 6 | The Hall of Echoes: giant rats, bats, a giant bat, two mimics; rock falls, a short wade. A key and gate, a riddle gate, a name gate to a secret room. Expedition page 5 (the crocodiles ahead). Inscription: tireless legs (a stamina boon). |
+| 7 | The Flooded Stretch: bats, giant bats, giant rats, a worm, a mimic; many rock falls. The first wade on the way; the first crocodile in a pool off the way at the east end of the upper hall, a chest past it (skippable: a level 8 player is no match for it yet). A key and gate, a riddle gate. Inscriptions: the shallow water, the Shipwrecked Sailor. |
+| 8 | The Roost Stair: bats and giant bats (they screech), giant rats, worms; rock falls. A key and gate, a riddle gate, a name gate to a secret room. Expedition page 6. Inscription: the bats of the night. |
+| 9 | The Roost of Shezmu, the second boss: giant rats, bats, giant bats, a worm. A key and a lever, a riddle gate; the teleporter to the sealed tall roost under the halls: the Bat of Shezmu and his bats, behind the boss gate the key of the last gate before the exit. Expedition page 7 (the webs ahead). Inscription: the wheel of the day. |
 | 10 | Giant rats, giant bats, giant scarabs, the first two mummies. Two levers (red, blue) in two halls open two gates in a row. |
 | 11 | Plants, giant bats, three mummies. Chain: red key, green lever, gold key. |
 | 12 | Rock falls, giant scarabs, giant rats, a mummy, the first Anubis. Blue key, gold lever. |
@@ -183,46 +183,46 @@ Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).
 | 33 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
 | 34 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
 
-Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): none in the tomb entrance (1-4), one a level in
-5-11, two in 12-23, three in 24-34, each a chest that held a plain potion (health, stamina, might, armour). Never put
+Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): none in the tomb entrance and the bat galleries (1-9), one a
+level in 10-11, two in 12-23, three in 24-34, each a chest that held a plain potion (health, stamina, might, armour). Never put
 what the level needs in one (a key item, a new weapon, the antidote, a Hapi potion): half of them are empty, and the
 checker does not count a trapped chest's antidote as in reach.
 
 The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
 attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`, plan
-campaign-texts). 18 of them (1-6, 8, 10, 11, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 1, 2, 3, 5, 6,
-8, 10, 11, 13, 15, 16, 18, 20, 22, 23, 26, 30 and 33, each a level or so before what it hints at, off the exit path;
-the last one (24) lies on lvl33's path. The pages 7, 9, 12, 16, 19 and 22 (webs, an early fork, poison drips, deep
-water, worms and a fork, the lake of fire and a fork) are written but not placed: the rebuild places them, one every
+campaign-texts). 19 of them (1-8, 10, 11, 13-15, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 1, 2, 3, 5, 6,
+8, 9, 10, 11, 13, 15, 16, 18, 20, 22, 23, 26, 30 and 33, each a level or so before what it hints at, off the exit path;
+the last one (24) lies on lvl33's path. The pages 9, 12, 16, 19 and 22 (an early fork, poison drips, deep water, worms
+and a fork, the lake of fire and a fork) are written but not placed: the rebuild places them, one every
 two or three levels. Some pages hint at a fork ahead; the last stays the last fork's warning.
 
-Scorpions live in levels 5, 14 and 20, giant scorpions in 14, 20-24 and 30-34, cobras in 15-19, giant cobras in 20-34;
+Scorpions live in levels 14 and 20, giant scorpions in 14, 20-24 and 30-34, cobras in 15-19, giant cobras in 20-34;
 each level with a poisoner (the plants of the tomb entrance too) has an antidote in reach (the checker warns otherwise).
 Lesser resistance potions lie on the poisoner levels, greater ones from 14 on (one of each per level from 14). One
 Blessing of Hapi potion (water blessing, plan water-blessing-potion) lies in a chest on the approach to the first half
-water of each water level (6-8, 15-19, 24 (by the oasis), 25-29, 31-34), a few cells before it; levelcheck assumes
-none. Crocodiles live in the water of levels 6-8 (and many flooded levels after). Hippos lie in the water of levels 15,
+water of each water level (5-9, 15-19, 24 (by the oasis), 25-29, 31-34), a few cells before it; levelcheck assumes
+none. One crocodile lives in a pool off the way on level 7 (the bat galleries' preview), many in the flooded levels from 15 on. Hippos lie in the water of levels 15,
 17, 25 and 27 (one a level, in a long pool); Seth, their boss, in the oasis of 24. Blue lotuses float in the water of
-levels 6-8, 15-19, 24, 25-29 and 31-34 (one to three a level). Camel spiders run in levels 5-7 (one a level) and in the
+levels 15-19, 24, 25-29 and 31-34 (one to three a level). Camel spiders run in the
 dark desert halls of 20-24 (three to five a level; levelgen from difficulty 3 to 8); they keep out of the light of
 torches, braziers and lamps. Living ushabti stand among the decor ushabti in levels 10-13 (one a level, two in 11;
 levelgen from difficulty 6 to 10), and step out of the wall with the Anubis boss's guards in 34. The desert (20-24, plan
 desert-chapter) has sand: drifts on the floor (the player walks at 3/4 speed and cannot sprint), quicksand (single cells
 or pairs), sand falls, and sand worms lying under the drifts that come up under the player. Cursed mimics (plan
 cursed-mimic) lie as dark chests in levels 26, 28, 30, 32 and 34 (one a level, beside a treasure, off the path; plain
-mimics in 3, 14, 16-21, 23, 25, 26, 31 and 32; levelgen makes 30% of its mimics cursed from difficulty 8). Baboons
+mimics in 3, 6, 7, 14, 16-21, 23, 25, 26, 31 and 32; levelgen makes 30% of its mimics cursed from difficulty 8). Baboons
 (plan baboon) keep their distance and throw burning coals in the necropolis halls of 30 (three), 31 and 32 (two each),
 on long open rows; their home, the Lake of Fire, comes with the rebuild (levelgen from difficulty 9). Their boss Babi
 (plan babi-boss) has no campaign slot yet: his arena is `tests/levels/babi`. Mummies appear from level 10 on, Anubis
-from level 12. Every level has [inscriptions](inscriptions.md): the rebuilt ones (1-4) one or two of their zone's texts
-(`content/inscriptions/rebuild.txt`, each id once), the others from 5 on one or two of
+from level 12. Every level has [inscriptions](inscriptions.md): the rebuilt ones (1-9) one or two of their zone's texts
+(`content/inscriptions/rebuild.txt`, each id once), the others from 10 on one or two of
 `content/inscriptions/campaign.txt`: real texts, some with a hint for the level (the boss ahead, a dart trap, a hidden
-treasure room, the order of the locks). Levels 5, 7, 9, 11, 13, 15, 17, 21, 23, 25, 26, 28, 30, 32 and 34 have a secret
+treasure room, the order of the locks). Levels 5, 6, 8, 11, 13, 15, 17, 21, 23, 25, 26, 28, 30, 32 and 34 have a secret
 room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name cartouche (`:`)
 elsewhere on the level, and the sealed room carved into the rock, reached only by the name gate: its teleporter, a lore
-inscription (ids 33 to 45, 51 and 52, two with a boon), a chest with a rare potion or an amulet (two in some), a mummy
+inscription (ids 33 to 45, 51 and 52, two with a boon; on a rebuilt level levelgen's `--lore`), a chest with a rare potion or an amulet (two in some), a mummy
 guarding it in 13, 25, 30 and 34. Weak monsters give way to their giant kin: no rats, scarabs or small bats after level
-8, no small scarabs after level 4 (giant scarabs from 5), except a boss's minions (the vampire bat's bats in 9).
+9, no small scarabs after level 4 (giant scarabs from 10), except a boss's minions.
 
 The level files in `content/levels/` are the only source of truth. The ASCII drawings in `tools/level/campaign/` were
 the first helpers for each level and are not kept in step: never rebuild a campaign level from them. Change a level in
@@ -412,13 +412,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    `src/world/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
    of Sokar on), each a chest that held a plain potion (health, stamina, might, armour). Weapon chests come in by the
    difficulty as on a test level (`WeaponDef::generatedFrom`).
-12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--page`, `--title`, `--stargate`). The
+12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--lore`, `--page`, `--title`, `--stargate`). The
    inscriptions on the halls of the route, between where it comes in and leaves (on the way): the ids given, else 2
    or 3 (1 or 2 in the tomb entrance) of the zone's texts in `content/inscriptions/rebuild.txt` (`ZONE_TEXT_FIRST`,
    `src/world/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
    the last fork's, the Stargate's), the name gate's comes only with a name gate. Without the texts (a unit test's
-   level, levelgen run off the repo root) none. Each secret room gets a lore text (`SECRET_ROOM_TEXTS`, no second
-   boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The
+   level, levelgen run off the repo root) none. Each secret room gets a lore text (the ids given, `--lore`, else one of
+   `SECRET_ROOM_TEXTS`, no second boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The
    Stargate chamber's stand-in (`--stargate`, for one level of the campaign until
    [stargate-chamber](plan/stargate-chamber.draft.opus.md) is built): the level's name gate, its password the king's
    name, leads to a room with the ring's text (`STARGATE_TEXT`) and a rare chest.

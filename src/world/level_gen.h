@@ -40,6 +40,7 @@ struct GenOptions {
 	// ring's text (STARGATE_TEXT) and a rare chest, on one level of the campaign.
 	const InscriptionBook* texts = nullptr;
 	std::vector<int> inscriptions;
+	std::vector<int> lore; // the secret rooms' texts in turn, instead of a pick of SECRET_ROOM_TEXTS
 	int page = 0;
 	std::string title;
 	bool stargate = false;

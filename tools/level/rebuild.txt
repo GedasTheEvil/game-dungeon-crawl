@@ -12,3 +12,10 @@
 2  --zone tomb_entrance --seed 1 --difficulty 1 --cells 173 --texts 53,55 --page 2 --title "The Beetle Passage"
 3  --zone tomb_entrance --seed 2 --difficulty 1 --cells 226 --texts 56 --page 3 --title "The Biting Chest"
 4  --zone tomb_entrance --seed 8 --difficulty 2 --cells 280 --boss --texts 58 --title "The Lair of Khepri"
+
+# Zone 2: Bat galleries
+5  --zone bat_galleries --seed 6 --difficulty 2 --cells 320 --texts 59,60 --page 4 --lore 33 --title "The Lever Gallery"
+6  --zone bat_galleries --seed 3 --difficulty 2 --cells 365 --texts 61 --page 5 --lore 34 --title "The Hall of Echoes"
+7  --zone bat_galleries --seed 1 --difficulty 2 --cells 410 --texts 63,64 --title "The Flooded Stretch"
+8  --zone bat_galleries --seed 2 --difficulty 2 --cells 455 --texts 62 --page 6 --lore 35 --title "The Roost Stair"
+9  --zone bat_galleries --seed 3 --difficulty 2 --cells 500 --boss --texts 65 --page 7 --title "The Roost of Shezmu"

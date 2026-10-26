@@ -68,3 +68,9 @@
 39 --zone land_of_sokar --seed 10 --difficulty 7 --fork 1 --texts 113,112 --title "The Two Drifts"
 40 --zone land_of_sokar --seed 10 --difficulty 8 --texts 110,111 --page 21 --title "The Falling Sands"
 41 --zone land_of_sokar --seed 10 --difficulty 8 --boss --texts 114,115,16 --title "The Den of Rerek"
+
+# Zone 10: Lake of Fire. The third fork on 43 (page 22 on 42 tells of it). No name gates: no lore text left free.
+42 --zone lake_of_fire --seed 9 --difficulty 8 --texts 116,117 --page 22 --title "The Gate of Fire"
+43 --zone lake_of_fire --seed 1 --difficulty 8 --fork 1 --texts 119,120 --title "The Burning Shore"
+44 --zone lake_of_fire --seed 2 --difficulty 8 --texts 118,121 --title "The Cool Water"
+45 --zone lake_of_fire --seed 1 --difficulty 8 --boss --texts 122 --title "The Shore of Babi"

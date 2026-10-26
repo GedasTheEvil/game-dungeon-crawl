@@ -1,0 +1,22 @@
+# Giant bat screech (plan giant-bat-screech): the tell (the bat hangs still in the air and shakes), then the dazed
+# view, rolled and swayed. tests/levels/giant_bat: the player (col 2), a giant bat (col 6) on the ceiling.
+seed 1
+god
+level tests/levels/giant_bat
+wait 30
+screenshot before
+walk to 4.9
+wait 200ms
+expect daze == 0
+screenshot tell
+wait 600ms
+expect daze > 0
+wait 150ms
+screenshot dazed
+wait 300ms
+screenshot dazed_later
+daze 1500
+expect daze >= 1500
+wait 1600ms
+expect daze == 0
+screenshot clear

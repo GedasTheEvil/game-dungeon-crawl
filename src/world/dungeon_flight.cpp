@@ -66,6 +66,8 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 		goal.toRow = goal.sees ? playerRow : row;
 		goal.shaftX = static_cast<float>(shaft - mon.Col());
 	}
+	if (const std::optional<ScreechRules>& screech = mon.Type()->screech; screech && sim.player->Alive())
+		goal.inCone = InScreechCone(mon, *screech);
 	if (!goal.sees && row != mon.SpawnRow()) { // back to the roost
 		const int shaft = flightShaft(col, row, mon.Col(), mon.SpawnRow(), false);
 		if (shaft >= 0) {
@@ -74,6 +76,26 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 		}
 	}
 	return goal;
+}
+//======================================================================================
+bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const {
+	constexpr float STEP = 0.1f; // tiles between the wall tests along the line
+	const float fromX = mon.CentreX(), fromY = (mon.BottomY() + mon.TopY()) / 2.f;
+	const float dx = mapX - fromX, dy = mapY + SHOT_CHEST * sim.player->Height() - fromY;
+	const float ahead = dx * static_cast<float>(mon.FlightDir());
+	const float dist = std::hypot(dx, dy);
+	const float halfAngle = rules.coneDegrees / 2.f * static_cast<float>(M_PI) / 180.f;
+	if (dist > rules.range || ahead <= 0.f || std::atan2(std::fabs(dy), ahead) > halfAngle)
+		return false;
+	const int steps = static_cast<int>(dist / STEP);
+	for (int k = 1; k < steps; k++) {
+		const float t = static_cast<float>(k) / static_cast<float>(steps);
+		const auto col = static_cast<int>(std::floor(fromX + dx * t)),
+				   row = static_cast<int>(std::floor(fromY + dy * t));
+		if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
+			return false;
+	}
+	return true;
 }
 //======================================================================================
 void Dungeon::updateFlyer(Monster& mon) {

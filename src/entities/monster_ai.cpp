@@ -122,9 +122,14 @@ void Monster::bite() {
 		stats.SetStamina(stats.Stamina() - stats.MaxStamina() * type->staminaDrainPct / 100);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Sedate);
 	}
-	health = std::min(type->maxHealth, health + lost * type->boss.lifeStealPct / 100);
+	// Shezmu drinks a dazed player's blood whole (plan giant-bat-screech).
+	const int steal = std::max(
+		type->boss.lifeStealPct,
+		type->screech && links.player->Dazed() ? type->screech->dazedHealPercent : 0
+	);
+	health = std::min(type->maxHealth, health + lost * steal / 100);
 	links.journal->HitByCreature(type->id, links.level);
-	if (type->boss.lifeStealPct > 0 && lost > 0)
+	if (steal > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);
 	sound(CharacterSound::Attack);
 }

@@ -98,6 +98,19 @@ struct VolleyRules {
 	int blazeMs = 0;
 };
 
+// A screech (plan giant-bat-screech): a flyer that has the player in its cone stops in the air and shakes for tellMs
+// (the rising squeal, its roar sound), then the cone of sound along its facing, range tiles long and coneDegrees wide
+// (walls block it), dazes the player for dazeMs (Player::Daze) if they are still in it. cooldownMs from one tell to the
+// next. Its bite on a dazed player heals it by dazedHealPercent of the damage (Shezmu), if more than lifeStealPct.
+struct ScreechRules {
+	float range = 0.f;
+	float coneDegrees = 0.f;
+	int tellMs = 0;
+	int dazeMs = 0;
+	int cooldownMs = 0;
+	int dazedHealPercent = 0;
+};
+
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
 // spat venom, the Anubis's bolt of light, the mummy priest's spoken curse, the baboon's burning coal. The release and
 // its height come from the model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py,
@@ -289,6 +302,7 @@ struct MonsterKind {
 	// boss's chances are higher than its kin's.
 	CurseEntries meleeCurses{};
 	CurseEntries rangedCurses{};
+	std::optional<ScreechRules> screech; // a flyer's screech dazes the player (ScreechRules)
 	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;

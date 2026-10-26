@@ -388,6 +388,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Hurt:
 	case CommandType::FireHit:
 	case CommandType::Blind:
+	case CommandType::Daze:
 	case CommandType::Prop:
 	case CommandType::Torch:
 	case CommandType::Mirror:
@@ -454,6 +455,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
 		{"firehit", CommandType::FireHit, numberAtLeast<1>, "<hp>"},
 		{"blind", CommandType::Blind, numberAtLeast<1>, "<ms>"},
+		{"daze", CommandType::Daze, numberAtLeast<1>, "<ms>"},
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
 		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
 		{"grab", CommandType::Grab, noArgs, ""},
@@ -522,6 +524,7 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"nearest_burning", Field::NearestBurning},
 		{"burning", Field::Burning},
 		{"blind", Field::Blind},
+		{"daze", Field::Daze},
 		{"held", Field::Held},
 		{"coffins", Field::Coffins},
 		{"chests", Field::Chests},

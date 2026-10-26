@@ -52,6 +52,7 @@ void Dungeon::resetPlayerMotion() {
 	jump.velocity = 0.f;
 	jump.fall_velocity = FALL_STEP;
 	shove = Shove{};
+	lostGrip = false;
 	hazeMs = 0;
 	sunkMs = 0;
 	sandSlowUntilMs = 0;
@@ -72,7 +73,11 @@ Dungeon::Dungeon() {
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
-	if (Map(mapX, mapY).type != Ladder && !sim.player->jump.jumping) {
+	if (sim.player->Dazed() && PlayerOnLadder()) { // a screech: the hands let go (plan giant-bat-screech)
+		lostGrip = true;
+		sim.events->Status("%s", "Your hands let go of the rungs");
+	}
+	if ((Map(mapX, mapY).type != Ladder || lostGrip) && !sim.player->jump.jumping) {
 		// Climbing steps leave float drift (38.9999 for 39): without the snap a jump off the ladder lands a hair
 		// below the floor top, falls and ends up inside the floor tile.
 		float nearestRow = std::round(mapY);
@@ -94,6 +99,7 @@ void Dungeon::UpdateMovementState() {
 			jump.falling = true;
 		} else {
 			mapY = std::floor(mapY); // drop the sub-threshold remainder left by the last step
+			lostGrip = false;
 			sim.player->jump.falling = false;
 			sim.player->jump.fall_velocity = FALL_STEP;
 		}
@@ -273,7 +279,7 @@ void Dungeon::updateMonsterPoison() {
 //======================================================================================
 void Dungeon::updateBurning() {
 	sim.player->UpdateBurning(PlayerSink() > 0.f, *sim.events);
-	sim.player->UpdateBlind();
+	sim.player->UpdateSenses();
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.UpdateBurning())
 			rewardKill(mon);
@@ -293,6 +299,8 @@ bool Dungeon::Move(float dirX, float dirY) {
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
 	}
 
+	if (lostGrip || sim.player->Dazed()) // no grip on the rungs (plan giant-bat-screech)
+		dirY = 0.f;
 	if (dirY > 0) {
 		if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY + PLAYER_CLIMB_HEADROOM).type == Ladder)
 			mapY += dirY;
@@ -366,7 +374,8 @@ float Dungeon::PlayerSink() const {
 //======================================================================================
 void Dungeon::StartJump(int dir) {
 	Player& player = *sim.player;
-	if (player.jump.jumping || player.jump.falling || !player.Alive() || won || PlayerHeldBy() != nullptr)
+	if (player.jump.jumping || player.jump.falling || !player.Alive() || won || PlayerHeldBy() != nullptr ||
+		player.Dazed())
 		return;
 	if (!JumpAllowed())
 		return;
@@ -409,6 +418,15 @@ bool Dungeon::PlayerWaterBlessed() const {
 }
 //======================================================================================
 float Dungeon::PlayerWalkFactor() const {
+	const float daze = sim.player->Dazed() ? DAZE_WALK_FACTOR : 1.f;
+	return daze * groundWalkFactor();
+}
+//======================================================================================
+bool Dungeon::PlayerCanSprint() const {
+	return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand() && !sim.player->Dazed();
+}
+//======================================================================================
+float Dungeon::groundWalkFactor() const {
 	const float slow = (GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f) * // a sand fall's
 					   (PlayerInWeb() ? WEB_SLOW_FACTOR : 1.f); // a web's (plan camel-spider-boss)
 	if (PlayerInQuicksand())
@@ -426,7 +444,7 @@ float Dungeon::PlayerWalkFactor() const {
 }
 //======================================================================================
 float Dungeon::PlayerSprintMultiplier(float sprint) const {
-	if (PlayerInSand())
+	if (PlayerInSand() || sim.player->Dazed())
 		return 1.f;
 	if (!PlayerWading())
 		return sprint;
@@ -454,7 +472,7 @@ bool Dungeon::JumpAllowed() {
 }
 //======================================================================================
 bool Dungeon::PlayerOnLadder() const {
-	if (Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
+	if (lostGrip || Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
 	bool floorBelow = isSolidTile(Map(mapX, mapY - 1));
 	return !floorBelow || mapY - std::floor(mapY) >= STANDING_EPSILON;

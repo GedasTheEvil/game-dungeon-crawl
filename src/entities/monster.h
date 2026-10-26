@@ -348,6 +348,9 @@ class Monster {
 	// Degrees it is drawn rolled over along its body: the death roll, a turn with each tick; 0 otherwise.
 	[[nodiscard]] float HoldRoll() const;
 	// Flyers: one step of the bat behaviour (see Flight); wallAhead: the cell in front of it blocks the flight.
+	// The screech (ScreechRules): begins with the player in the cone, holds the flyer through the tell, then dazes
+	// the player still in the cone. True while the tell runs.
+	bool screech(bool inCone, int now);
 	void Fly(bool wallAhead, float px, float py, const FlightGoal& goal);
 	// A boss's minion, and a boss once it is roused, hunt the player along the whole row and farther up and down.
 	[[nodiscard]] bool Hunts() const { return minion || (alerted && type->isBoss()); }
@@ -422,6 +425,9 @@ class Monster {
 	[[nodiscard]] float ClimbDepth() const;
 	[[nodiscard]] bool ShowsClimb() const { return Alive() && state == ModelState::Climb; } // back to the camera
 	[[nodiscard]] bool Roosting() const { return flies() && flight.phase == FlightPhase::Roost; }
+	// A flyer's screech tell is under way: it hangs still in the air and shakes (plan giant-bat-screech).
+	[[nodiscard]] bool Screeching() const { return flies() && flight.tellUntilMs >= 0; }
+	[[nodiscard]] int FlightDir() const { return flight.dir; } // a flyer's way, +1 right, -1 left
 	[[nodiscard]] const ParticleSystem& Blood() const { return *blood; }
 };
 

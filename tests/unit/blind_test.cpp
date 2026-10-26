@@ -31,7 +31,7 @@ TEST_CASE("a blind lasts its time, clears over the last BLIND_CLEAR_MS, twice as
 	CHECK(player.Blindness() == doctest::Approx(1.f));
 	auto run = [&player](int ms) {
 		for (int t = 0; t < ms / UPDATE_TICK_MS; t++)
-			player.UpdateBlind();
+			player.UpdateSenses();
 	};
 	run(2000 - BLIND_CLEAR_MS);
 	CHECK(player.Blindness() == doctest::Approx(1.f));

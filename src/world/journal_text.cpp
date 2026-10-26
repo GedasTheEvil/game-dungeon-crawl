@@ -101,6 +101,8 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return moveText("blaze");
 	case CreatureMove::LeapAway:
 		return moveText("leap-away");
+	case CreatureMove::Screech:
+		return moveText("screech", t.screech && t.screech->dazedHealPercent > 0 ? "drink" : "text");
 	case CreatureMove::Blind:
 		return moveText("blind", t.ranged && t.ranged->fan > 1 ? "fan" : "text");
 	}

@@ -317,6 +317,14 @@ constexpr float BAT_WALL_MARGIN = 0.35f; // turns this far before a wall
 constexpr int BAT_ATTACK_MS = 450; // attack clip after a bite
 constexpr float BAT_FALL_GRAVITY = 600.f; // dead bats fall to the floor (world units / s^2)
 constexpr int BAT_HUNT_ROWS = 3; // a hunting flyer (the boss, its minions) follows the player this many rows up or down
+// A screech (plan giant-bat-screech, ScreechRules): the flyer shakes in the air through its tell, BAT_SHAKE world units
+// each way. The dazed player (Player::Daze) walks at DAZE_WALK_FACTOR, cannot sprint, jump or hold a ladder; the view
+// rolls up to DAZE_ROLL degrees and sways DAZE_SWAY world units, easing out over the last DAZE_CLEAR_MS.
+constexpr float BAT_SHAKE = 1.2f;
+constexpr float DAZE_WALK_FACTOR = 0.5f;
+constexpr float DAZE_ROLL = 4.f;
+constexpr float DAZE_SWAY = 2.5f;
+constexpr int DAZE_CLEAR_MS = 300;
 
 // Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
 // whose far edge is this far behind the player's centre is still hit.

@@ -1,6 +1,8 @@
-"""Synthesize the bat sounds: the bite (chittering screech + leathery flap) and the death (falling squeal + soft thud).
+"""Synthesize the bat sounds: the bite (chittering screech + leathery flap), the death (falling squeal + soft thud) and
+the giant bat's screech (plan giant-bat-screech: a rising squeal through the tell, the blast at its end).
 
-    python3 tools/audio/bat_sounds.py [out_dir]      (default: media/sounds/monsters/, writes bat_att.wav and bat_die.wav)
+    python3 tools/audio/bat_sounds.py [out_dir]      (default: media/sounds/monsters/, writes bat_att.wav, bat_die.wav
+                                                      and bat_roar.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds. The giant bat uses the same files.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -101,6 +103,20 @@ def die():
     return finish(out)
 
 
+def screech():
+    """The tell's rising squeal (0.6 s, BAT_SCREECH tell), shaking (vibrato), then the shrill blast that dazes."""
+    out = np.zeros(int(1.0 * SR))
+    rise = 0.6
+    s = squeak(rise, 1500, 5200, vibrato=0.08, rough=0.5) * np.minimum(t_axis(rise) / rise, 1.0) ** 1.5
+    place(out, rms(band(s, 900, 9000), 0.12), 0.0)
+    blast = 0.35
+    b = squeak(blast, 5600, 4300, vibrato=0.12, rough=0.8) * env(t_axis(blast), 0.005, 0.14)
+    b += 0.6 * squeak(blast, 3900, 3100, vibrato=0.1, rough=0.6) * env(t_axis(blast), 0.005, 0.12)
+    place(out, rms(band(b, 1500, 9500), 0.2), rise)
+    place(out, rms(flap(), 0.04), rise - 0.05)
+    return finish(out)
+
+
 def write(path, x):
     pcm = (x * 32767).astype("<i2")
     with wave.open(path, "wb") as w:
@@ -115,6 +131,7 @@ def main():
     out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "bat_att.wav"), attack())
     write(os.path.join(out_dir, "bat_die.wav"), die())
+    write(os.path.join(out_dir, "bat_roar.wav"), screech())
 
 
 if __name__ == "__main__":

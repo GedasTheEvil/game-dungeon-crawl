@@ -3,6 +3,7 @@
 #include "monster.h"
 #include <algorithm>
 #include <cmath>
+#include "player.h"
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
 #include "../graphics/render_config.h"
@@ -15,6 +16,27 @@ float Monster::flightProbeX() const {
 }
 
 float Monster::roostLift() const { return BAT_CEILING - type->model.idleTop * type->scale; }
+
+bool Monster::screech(bool inCone, int now) {
+	const std::optional<ScreechRules>& rules = type->screech;
+	if (!rules)
+		return false;
+	if (flight.tellUntilMs < 0) {
+		if (!inCone || flight.bitten || now < flight.screechReadyMs)
+			return false;
+		flight.tellUntilMs = now + rules->tellMs;
+		flight.screechReadyMs = now + rules->cooldownMs;
+		sound(CharacterSound::Roar); // the bat's roar is its screech: the rising squeal, the blast at the tell's end
+		links.journal->SeeMove(type->id, links.level, CreatureMove::Screech);
+		return true;
+	}
+	if (now < flight.tellUntilMs)
+		return true;
+	flight.tellUntilMs = -1;
+	if (inCone) // still in it: no step out of the cone, no wall between
+		links.player->Daze(rules->dazeMs, *links.events);
+	return false;
+}
 
 void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 	const float scale = type->scale;
@@ -77,6 +99,11 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 				changeRow();
 			else
 				flight.phase = FlightPhase::Return;
+			break;
+		}
+		if (screech(goal.inCone, now)) { // stops in the air through the tell
+			targetLift = flight.lift;
+			enter(ModelState::Move);
 			break;
 		}
 		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front

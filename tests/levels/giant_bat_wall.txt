@@ -1,0 +1,5 @@
+; As giant_bat, a wall cell (col 8) in the corridor between the bat (col 6) and the far end (tests/unit/screech_test.cpp,
+; plan giant-bat-screech).
+##################
+#.S...F.#.......E#
+##################

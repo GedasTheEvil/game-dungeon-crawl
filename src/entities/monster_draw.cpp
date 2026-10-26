@@ -91,10 +91,12 @@ void drawHealthBar(const Monster& mon, const Texture& bar) {
 void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureRegistry& textures) {
 	const MonsterType& type = *mon.Type();
 	const float scale = type.scale;
+	// A screech's tell shakes the body (plan giant-bat-screech).
+	const float shake = mon.Screeching() ? BAT_SHAKE * std::sin(static_cast<float>(GameClock::now()) * 0.11f) : 0.f;
 	glPushMatrix();
 	glTranslatef(
-		RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF,
-		mon.DrawnLift(),
+		RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF + shake,
+		mon.DrawnLift() + shake * 0.5f,
 		-30.f - mon.Tomb() + mon.ClimbDepth()
 	);
 	glPushMatrix(); // will add rotation

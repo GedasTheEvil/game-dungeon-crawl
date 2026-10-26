@@ -85,11 +85,19 @@ class Player {
 	bool inWater = false; // as of the last UpdateBurning; not saved
 	// Spit in the eyes (plan giant-cobra-blinding-spit): blinded for ms, at least what is left of an earlier one.
 	void Blind(int ms, WorldEvents& events);
-	// Once a tick, after UpdateBurning: the blind's time runs, BLIND_WATER_FACTOR times as fast in water.
-	void UpdateBlind();
+	// A screech (plan giant-bat-screech): dazed for ms, at least what is left of an earlier one.
+	void Daze(int ms, WorldEvents& events);
+	// Once a tick, after UpdateBurning: the blind's and the daze's time run, the blind's BLIND_WATER_FACTOR times as
+	// fast in water.
+	void UpdateSenses();
 	// How blind the player is: 1 .. 0 over the last BLIND_CLEAR_MS, 0 when they see.
 	[[nodiscard]] float Blindness() const;
+	// Dazed: half the walk speed, no sprint, no jump, no grip on a ladder (Dungeon).
+	[[nodiscard]] bool Dazed() const { return dazeMs > 0; }
+	// How dazed, for the view's wobble: 1 .. 0 over the last DAZE_CLEAR_MS.
+	[[nodiscard]] float Daziness() const;
 	int blindMs = 0; // left of the blind; not saved, it lasts seconds
+	int dazeMs = 0; // left of the daze; not saved
 	void Reanimate(); // full HP, standing, no poison, no curse, no fire
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

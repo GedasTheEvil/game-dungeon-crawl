@@ -194,8 +194,15 @@ void drawGameplay() {
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);
-	if (Game().settings.graphics.motionEffects) // held in the jaws or the claws (plan crocodile-hold-bite)
+	if (Game().settings.graphics.motionEffects) { // held in the jaws or the claws (plan crocodile-hold-bite)
 		glRotatef(Game().dungeon.HeldViewRoll(), 0, 0, 1);
+		// Dazed by a screech (plan giant-bat-screech): the view rolls and sways, slow and out of step.
+		if (const float daze = Game().player->Daziness(); daze > 0.f) {
+			const auto t = static_cast<float>(GameClock::now()) / 1000.f;
+			glTranslatef(DAZE_SWAY * daze * std::sin(t * 3.7f), 0, 0);
+			glRotatef(DAZE_ROLL * daze * std::sin(t * 5.3f), 0, 0, 1);
+		}
+	}
 
 	glRotatef(Game().camera.rotM, 0, 1, 0);
 	glRotatef(Game().camera.rotN, 1, 0, 0);

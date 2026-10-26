@@ -139,7 +139,20 @@ void Player::Blind(int ms, WorldEvents& events) {
 	blindMs = std::max(blindMs, ms);
 }
 
-void Player::UpdateBlind() { blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (inWater ? BLIND_WATER_FACTOR : 1)); }
+void Player::Daze(int ms, WorldEvents& events) {
+	if (!Alive())
+		return;
+	if (dazeMs <= 0)
+		events.Status("Your ears ring!");
+	dazeMs = std::max(dazeMs, ms);
+}
+
+void Player::UpdateSenses() {
+	blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (inWater ? BLIND_WATER_FACTOR : 1));
+	dazeMs = std::max(0, dazeMs - UPDATE_TICK_MS);
+}
+
+float Player::Daziness() const { return std::min(1.f, static_cast<float>(dazeMs) / static_cast<float>(DAZE_CLEAR_MS)); }
 
 float Player::Blindness() const {
 	return std::min(1.f, static_cast<float>(blindMs) / static_cast<float>(BLIND_CLEAR_MS));
@@ -148,6 +161,7 @@ float Player::Blindness() const {
 void Player::Reanimate() {
 	burning.Douse();
 	blindMs = 0;
+	dazeMs = 0;
 	fireArrows = 0;
 	staminaSkills = false;
 	staminaSkillRefusedMs.reset();

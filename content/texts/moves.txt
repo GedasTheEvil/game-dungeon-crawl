@@ -109,3 +109,7 @@ text: Cornered at the edge of a ledge, he leaps over the gap to the next one and
 [move.blind]
 text: Black cobras aim for the eyes. Stand in the water and blink.
 fan: He spits three at once, and every drop finds the eyes. Stand in the water and blink.
+
+[move.screech]
+text: It screamed. My ears rang, my legs forgot me, the ladder did not wait.
+drink: He screams, and while my ears ring his bite drinks deep: every drop he takes heals him.

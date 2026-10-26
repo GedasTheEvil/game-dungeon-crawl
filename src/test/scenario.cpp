@@ -454,6 +454,10 @@ bool runInstant(const Command& cmd) {
 		Game().player->Blind(static_cast<int>(cmd.a), Game().events);
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Daze: // a screech's daze (plan giant-bat-screech), without the bat
+		Game().player->Daze(static_cast<int>(cmd.a), Game().events);
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry
 		Game().player->stats.run.campaign = true;
 		report(cmd, true, stateLine());

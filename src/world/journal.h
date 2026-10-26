@@ -85,8 +85,9 @@ enum class CreatureMove : unsigned char {
 	Blaze, // a volley thrower's big coal sets the floor burning (VolleyRules)
 	LeapAway, // a leaping kiter leaps back over a gap, out of the player's reach (plan babi-boss)
 	Blind, // a spit in the eyes blinds the player (RangedRules::blindMs)
+	Screech, // a flyer screeches, the player in its cone is dazed (MonsterKind::screech)
 };
-constexpr int CREATURE_MOVE_COUNT = 27;
+constexpr int CREATURE_MOVE_COUNT = 28;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

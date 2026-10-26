@@ -143,6 +143,9 @@ class Dungeon {
 		int dir = 0;
 	} shove;
 	void updateShove();
+	// A dazed player lets go of the ladder (plan giant-bat-screech): they fall through its cells until they stand.
+	bool lostGrip = false;
+	[[nodiscard]] float groundWalkFactor() const; // PlayerWalkFactor but the daze
 	// Sand over the screen (SandHaze): from hazeStartMs (GameClock) for hazeMs.
 	int hazeStartMs = 0;
 	int hazeMs = 0;
@@ -601,6 +604,7 @@ class Dungeon {
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
 	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;
+	// The walk's speed factor: wading, sand, a web; dazed (plan giant-bat-screech) DAZE_WALK_FACTOR on top.
 	[[nodiscard]] float PlayerWalkFactor() const;
 	// The sprint multiplier of a step (PlayerStats::SprintMoveMultiplier) as it counts here: in half water it is 1 (no
 	// sprint), with the Favour of Hapi skill the sprint at WADE_SPRINT_FACTOR_HAPI of the land sprint once
@@ -619,8 +623,8 @@ class Dungeon {
 	[[nodiscard]] bool PlayerInQuicksand() const { return PlayerInSand() && inQuicksand(Map(mapX, mapY)); }
 	// How long the player has been sinking in quicksand, ms; 0 out of it.
 	[[nodiscard]] int PlayerSunkMs() const { return sunkMs; }
-	// A walk step may sprint: not wading (without the Favour or the Blessing of Hapi), not in sand.
-	[[nodiscard]] bool PlayerCanSprint() const { return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand(); }
+	// A walk step may sprint: not wading (without the Favour or the Blessing of Hapi), not in sand, not dazed.
+	[[nodiscard]] bool PlayerCanSprint() const;
 	// Wading with the skill and the potion: the sprint drains the stamina at WADE_SPRINT_DRAIN_BOTH.
 	[[nodiscard]] bool PlayerHalvedWadeDrain() const {
 		return PlayerWading() && PlayerHasHapi() && PlayerWaterBlessed();
@@ -649,7 +653,8 @@ class Dungeon {
 	// World units the player is pulled down into the sand, held by a swallower (HoldRules::swallow, plan worm-boss).
 	[[nodiscard]] float SwallowSink() const;
 	// On a ladder, within reach of it and off the floor: the player hangs on it (climb clip, back to the camera).
-	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over.
+	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over. Not
+	// after a daze made them let go (lostGrip).
 	[[nodiscard]] bool PlayerOnLadder() const;
 	// Climb clip phase: one cycle per tile climbed, running on (at half rate) while moving sideways on the ladder.
 	[[nodiscard]] float ClimbPhase() const;
@@ -703,6 +708,9 @@ class Dungeon {
 	[[nodiscard]] int LivingMinions() const;
 	// The living monster nearest the player; null if none.
 	[[nodiscard]] const Monster* NearestMonster() const { return nearestMonster(); }
+	// The player's chest is in a screech's cone (plan giant-bat-screech): ahead along the flyer's way, within its range
+	// and half its angle off that way, no wall on the line between.
+	[[nodiscard]] bool InScreechCone(const Monster& mon, const ScreechRules& rules) const;
 	// Every slot (MAX_MONSTERS), active or not (Monster::Active).
 	[[nodiscard]] const Monster* Monsters() const { return monsters; }
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none

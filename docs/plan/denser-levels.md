@@ -1,6 +1,7 @@
 # Rebuild the campaign: zone by zone, the whole grid, forks
 
-Status: draft 2026-10-06 (denser levels), refined 2026-10-09; more-inscriptions and route-fork merged in 2026-10-21;
+Status: implemented 2026-10-26 (all twelve zones, 54 levels), waiting for the user's play-test (batches 1-4 already
+play-tested); the bosses and the XP are retuned from the sim afterwards (user). Draft 2026-10-06 (denser levels), refined 2026-10-09; more-inscriptions and route-fork merged in 2026-10-21;
 turned into the full rebuild 2026-10-21 (user: "levels re-generated completely, adjusting to the new bosses", 40-60
 levels in zones). Slug kept from the first version.
 
@@ -19,7 +20,11 @@ Batch 2, the bat galleries (levels 5-9): done 2026-10-26, play-tested (user, 202
 Batch 3, the web halls (levels 10-13): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
 Batch 4, the priests' quarter (levels 14-18): done 2026-10-26, play-tested (user, 2026-10-26: "looks good").
 Batch 5, the scorpion nest (levels 19-22): done 2026-10-26. The user (2026-10-26): "continue with all the remaining
-levels" without a play-test between the batches; docs/levels.md and the play scripts catch up once all are in.
+levels" without a play-test between the batches. Batches 6-12 (serpent temple 23-27, cisterns 28-32, Seth's desert
+33-37, land of Sokar 38-41, Lake of Fire 42-45, necropolis 46-50, Hall of Judgment 51-54): done 2026-10-26; the old
+campaign is gone, `ZONES` is the target table, `CAMPAIGN_LEVELS` 54. Play-test: `bin/game --level 19` on (each zone's
+first level: 19, 23, 28, 33, 38, 42, 46, 51), the forks on 12, 39, 43 and 49, the Stargate stand-in on 48, the finale
+on 54.
 User, 2026-10-26: the bosses are retuned from the sim once all levels are done (not per batch).
 
 * **Zone by zone from the start:** the rebuilt zones first (`REBUILT_LEVELS`, campaign.h), today's levels after them,
@@ -74,13 +79,32 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   and 13 (the cobras ahead, on the boss level). 37 to 39 monsters a level. Today's 19-23 (Seth's desert) are gone.
   The path scripts pass without the monsters; with them a giant scorpion's grab holds the god-mode player (as in
   campaign-levelgen step 3).
-* **XP (open, for the sim pass at the end):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
+* **Zones 6-12 (23-54):** the generator's levels with their zone's set, terrain, traps and gates; difficulty 5 to 10
+  (`bin/balance`'s `difficultyOf`). Seeds picked for fewer monsters (31 to 49 a level), name gates only where a lore
+  text was free (the old campaign's lore 40-45, 51, 52 as the old levels went, then freed old texts that suit; a given
+  `--lore` also steers the rolls, so a seed's layout depends on it), and layouts unlike every other level's (a check
+  of the open cells: two seeds of one difficulty can come out near alike, re-seeded). Texts: each zone's of
+  rebuild.txt plus the old campaign's that fit (Apep's on the serpent temple, Hapi's and Sobek's in the cisterns, the
+  desert's in Seth's desert, the ankh behind the jackal on 54), at most one boon a level, the boons kept at 1 in 6 of
+  the texts or more (a boon text added on 30, 41 and 54 for it). Pages 14-24 in order of depth (24 on the last fork's
+  way). Forks on 39 (page 19 tells of it) and 43 (page 22), the last on 49 with its warning; the Stargate stand-in on
+  48. New: levelgen `--finale` (the ankh behind the last boss gate, no exit), mummies and living ushabti never in half
+  water (a coffin in water, found by a decor test), 23 more king names (one per level, signs already on the sheet).
+  The path scripts pass on every level without its monsters (Sobek's room aside: the crocodiles he calls block the
+  god-mode script, as in campaign-levelgen step 6); with them many stall on grabs, the finale plays to the ankh.
+* **Left open:** no fork in the priests' quarter (the zone table's plan; the pages placed them in the web halls,
+  Sokar and the Lake of Fire instead), no inscription hints at the early forks (their pages only), the ring
+  transporter's place waits for [ring-transporter](ring-transporter.draft.opus.md), the level gem still changes every
+  five levels (not by zone), `bin/balance`'s paced player now follows the rebuilt campaign (it followed the old one).
+* **XP (open, for the sim pass at the end):** the whole campaign (`bin/balance today`, 2026-10-26): the player comes to
+  Khepri (4) at level 6, Shezmu (9) at 26, the Mother of Webs (13) 36, the High Priest (18) 44, the queen (22) 48, Apep
+  (27) 53, Sobek (32) 57, Seth (37) 61, Rerek (41) 63, Babi (45) 66, Anubis (54) 75; ends at 77. The sim's zone players
+  are 2, 8, 15, 27, 32, 39, 46, 49, 52, 55, 59, 63 (end about 60): far above them early, near them late.
+* **Earlier note (batch 2):** `bin/balance today` puts the player at level 6 at Khepri (lvl4), 10 at
   lvl5, 15, 18, 21 and 26 at Shezmu (lvl9), 30 at lvl10. The monster-balance sim tuned the bat galleries for about
   level 8 and the web halls for 15 (its curve scales the monster XP by 0.27): the zone 2 monsters (giant rat 2000, giant
   bat 1800, worm 1200 XP) and Khepri's 6000 give about 4 times too much. Not changed per batch: the XP and the bosses
   are retuned together from the sim once all levels are rebuilt.
-* Not yet: forks (from the bat galleries or the web halls on), the level gem still changes every five levels (not by
-  zone), the XP over the whole campaign (the full levels' 45-55 monsters, see Watch).
 
 ## Idea
 

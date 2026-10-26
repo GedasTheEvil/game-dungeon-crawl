@@ -1,7 +1,7 @@
 # Wall layer: a third map layer for things on the back wall
 
 Status: solved 2026-10-14 (play-tested by the user). From the user.
-Pairs with [denser-levels](../denser-levels.draft.opus.md): a level built after this one can pack more into each cell.
+Pairs with [denser-levels](../denser-levels.md): a level built after this one can pack more into each cell.
 
 ## Done
 
@@ -98,7 +98,7 @@ number space, one legend, one `tile_defs` table.
 
 No redesign in this plan: the converter moves every wall thing to the wall layer and the levels play the same.
 Compacting levels (an inscription in a monster's corridor instead of its own cell, a lever in a guarded hall) is
-for the level work that follows: [denser-levels](../denser-levels.draft.opus.md) and each trap plan's placement. Every
+for the level work that follows: [denser-levels](../denser-levels.md) and each trap plan's placement. Every
 level still passes `bin/levelcheck` with no warnings.
 
 ## Docs

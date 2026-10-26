@@ -64,7 +64,8 @@ constexpr int STARGATE_TEXT = 127;
 // The lore of the secret rooms behind the name gates (content/inscriptions/campaign.txt).
 constexpr int SECRET_ROOM_TEXTS[] = {33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 51, 52};
 
-// A zone level's size if GenOptions::openCells does not say (the campaign's levels 15-35 have 520-760 open cells).
+// A zone level's size if GenOptions::openCells does not say: the whole grid (ZONE_SIZE, campaign.h, from the web
+// halls on).
 constexpr int ZONE_OPEN_CELLS = 650;
 
 // The campaign level a difficulty stands for, for the decorations by depth (decor.h): 1 -> 1, 4 -> 5, 10 -> 14.

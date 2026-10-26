@@ -12,7 +12,7 @@ story, look, monster set and main mechanic, and most zones end with a boss. Toda
 This plan fixes the shape of the campaign. The other plans build on it: [monster-balance](../monster-balance.md)
 balances against its monster sets and level count, [campaign-levelgen](../campaign-levelgen.md) builds its
 levels, [zone-looks](zone-looks.md) gives each zone its look,
-[campaign-texts](../campaign-texts.md) writes its texts, and [denser-levels](../denser-levels.draft.opus.md)
+[campaign-texts](../campaign-texts.md) writes its texts, and [denser-levels](../denser-levels.md)
 rebuilds the campaign zone by zone.
 
 ## Zones (decided 2026-10-21)
@@ -47,7 +47,7 @@ Why:
 * The worm gets the second desert zone (the Amduat's land of Sokar), so Seth keeps the oasis.
 * The High Priest moves from lvl34 to about lvl18 and ties to the priests' writing (inscriptions, name gates). The
   necropolis is the one zone without a boss (user: "others remain without a boss"): a build-up before the finale.
-* Forks ([denser-levels](../denser-levels.draft.opus.md#route-fork-left-or-right)): a small one in the bat galleries or
+* Forks ([denser-levels](../denser-levels.md#route-fork-left-or-right)): a small one in the bat galleries or
   the web halls, one in the priests' quarter, the big one in the necropolis.
 
 Costs:
@@ -80,7 +80,7 @@ night, the last two the deep hours and dawn.
 * A zone table in code (`src/world/campaign.h` or its own file): id, name, first and last level, stone, monster set,
   boss, main mechanic (water, sand, dark, ...). `zoneOf(level)` replaces `desertLevel` and the other level-number
   checks (grep `DESERT_FIRST`, `LEVEL_` ranges, `levelNumber >=`).
-* `CAMPAIGN_LEVELS` comes from the table. Until [denser-levels](../denser-levels.draft.opus.md) rebuilds the campaign,
+* `CAMPAIGN_LEVELS` comes from the table. Until [denser-levels](../denser-levels.md) rebuilds the campaign,
   the table maps today's 35 levels. The target table (40-60 levels) goes in `docs/levels.md` as a design table and
   becomes the code table when the rebuild switches over.
 * `docs/levels.md`: a section per zone (levels, story, monsters, mechanic, boss) above the per-level table.

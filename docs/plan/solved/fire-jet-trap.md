@@ -40,7 +40,7 @@ not a block).
 
 ## Decided
 
-* Campaign placement: not here, in [denser-levels](../denser-levels.draft.opus.md) if this lands first (vents
+* Campaign placement: not here, in [denser-levels](../denser-levels.md) if this lands first (vents
   only on levels where the Fire Warding amulet can drop); if denser-levels is already done, place a few vent runs
   in existing levels here.
 

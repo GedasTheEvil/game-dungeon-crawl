@@ -37,12 +37,12 @@
 # Zone 5: Scorpion nest. Its secret rooms' lore: the freed scorpion texts of campaign.txt (12, 13); lore 51, 52 wait for
 # Seth's desert.
 19 --zone scorpion_nest --seed 3 --difficulty 4 --texts 80,83 --lore 13 --title "The Gate of Serqet"
-20 --zone scorpion_nest --seed 3 --difficulty 4 --texts 81,82 --page 12 --lore 12 --title "The Weeping Roof"
+20 --zone scorpion_nest --seed 15 --difficulty 4 --texts 81,82 --page 12 --lore 12 --title "The Weeping Roof"
 21 --zone scorpion_nest --seed 4 --difficulty 4 --texts 84,85 --title "The Hall of Antidotes"
 22 --zone scorpion_nest --seed 3 --difficulty 5 --boss --texts 86 --page 13 --title "The Nest of the Queen"
 
 # Zone 6: Serpent temple. Freed texts of today's campaign on darts and Apep (14, 17, 18, 22); lore 40-42.
-23 --zone serpent_temple --seed 12 --difficulty 5 --texts 87,88 --lore 40 --title "The Gate of the Serpent"
+23 --zone serpent_temple --seed 11 --difficulty 5 --texts 87,88 --lore 40 --title "The Gate of the Serpent"
 24 --zone serpent_temple --seed 10 --difficulty 5 --texts 89,14 --page 14 --lore 41 --title "The Spitting Wall"
 25 --zone serpent_temple --seed 7 --difficulty 5 --texts 90,22 --page 15 --lore 42 --title "The Hall of the Rhythm"
 26 --zone serpent_temple --seed 3 --difficulty 5 --texts 91,92,17 --title "The Uraeus Stair"
@@ -74,3 +74,19 @@
 43 --zone lake_of_fire --seed 1 --difficulty 8 --fork 1 --texts 119,120 --title "The Burning Shore"
 44 --zone lake_of_fire --seed 2 --difficulty 8 --texts 118,121 --title "The Cool Water"
 45 --zone lake_of_fire --seed 1 --difficulty 8 --boss --texts 122 --title "The Shore of Babi"
+
+# Zone 11: Necropolis (no boss). The Stargate chamber's stand-in on 48, the last fork on 49 (page 24 on the way, the
+# warning FORK_TEXT between the drops). Freed texts of today's necropolis (25-27, 30, 32); lore 43, 44, 28. A given
+# lore steers the rolls even unused: 49 has no name gate with it (without it, one with a lore text used elsewhere).
+46 --zone necropolis --seed 12 --difficulty 9 --texts 123,126 --page 23 --lore 43 --title "The Gate of the Dead"
+47 --zone necropolis --seed 2 --difficulty 9 --texts 125,129 --lore 44 --title "The Hall of Coffins"
+48 --zone necropolis --seed 3 --difficulty 9 --stargate --texts 128,25 --title "The Ring of Seven Marks"
+49 --zone necropolis --seed 12 --difficulty 9 --fork 2 --page 24 --texts 26,27 --lore 5 --title "The Two Gates"
+50 --zone necropolis --seed 13 --difficulty 9 --texts 30,32 --lore 28 --title "The Catacombs"
+
+# Zone 12: Hall of Judgment. The ankh behind the Anubis boss's gate on 54 (--finale). Freed texts 31 (the ankh behind
+# the big jackal) and 29 (a boon); lore 45.
+51 --zone hall_of_judgment --seed 1 --difficulty 10 --texts 130,132 --lore 45 --title "The Gate of Judgment"
+52 --zone hall_of_judgment --seed 13 --difficulty 10 --texts 131,133 --title "The Hall of the Two Truths"
+53 --zone hall_of_judgment --seed 12 --difficulty 10 --texts 134,135 --title "The Feather of Maat"
+54 --zone hall_of_judgment --seed 2 --difficulty 10 --boss --finale --texts 136,137,31,29 --title "The Weighing of the Heart"

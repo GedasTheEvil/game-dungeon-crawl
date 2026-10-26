@@ -10,7 +10,7 @@
 #include "level.h"
 #include <string>
 
-// The twelve zones of the target campaign (docs/levels.md, Zones). Today's campaign has eight of them.
+// The twelve zones of the campaign (docs/levels.md, Zones).
 enum class ZoneId : unsigned char {
 	TombEntrance,
 	BatGalleries,
@@ -101,9 +101,8 @@ constexpr ZoneTerrain ZONE_TERRAIN[ZONE_ID_COUNT] = {
 
 constexpr int ZONE_MONSTER_MAX = 6;
 
-// A zone level's monsters (plan campaign-levelgen): the target campaign's set for the zone (docs/levels.md, Zones;
-// not today's ZONES), each by its weight, and the share of its chests that are mimics. The swimmers (crocodile,
-// hippo) and the lotus go only in half water.
+// A zone level's monsters (plan campaign-levelgen): the zone's set (docs/levels.md, Zones), each by its weight, and the
+// share of its chests that are mimics. The swimmers (crocodile, hippo) and the lotus go only in half water.
 struct ZoneMonster {
 	MonsterTypeId type;
 	int weight;
@@ -134,8 +133,8 @@ constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
 };
 [[nodiscard]] constexpr const ZoneFauna& zoneFauna(ZoneId id) { return ZONE_FAUNA[static_cast<int>(id)]; }
 
-// The boss on a zone's boss level in the target campaign (docs/levels.md, Zones), 0 for none (the necropolis): a
-// generated boss level's (plan campaign-levelgen). Today's ZONES name the bosses of today's campaign.
+// The boss on a zone's boss level (docs/levels.md, Zones), 0 for none (the necropolis): a generated boss level's
+// (plan campaign-levelgen). ZONES names the same ones (a test checks the levels).
 constexpr int ZONE_BOSS[ZONE_ID_COUNT] = {
 	MonsterBossScarab,
 	MonsterVampireBat,
@@ -256,9 +255,7 @@ struct Zone {
 	MonsterTypeId boss; // on a level of the zone, 0: none
 };
 
-// The campaign while the rebuild (plan denser-levels) goes zone by zone: the rebuilt zones on the target table of
-// docs/levels.md first (through REBUILT_LEVELS), then today's levels after them, one number earlier per level the
-// rebuilt zones are shorter.
+// The campaign (docs/levels.md, Zones), generated zone by zone (plan denser-levels, tools/level/rebuild.txt).
 constexpr Zone ZONES[] = {
 	{ZoneId::TombEntrance, 1, 4, {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant}, MonsterBossScarab},
 	{ZoneId::BatGalleries,
@@ -304,18 +301,15 @@ constexpr Zone ZONES[] = {
 	 MonsterBabi},
 	{ZoneId::Necropolis,
 	 46,
-	 49,
-	 {MonsterAnubis, MonsterMummy, MonsterGiantScarab, MonsterGiantCobra, MonsterGiantScorpion, MonsterCursedMimic},
+	 50,
+	 {MonsterAnubis, MonsterMummy, MonsterBaboon, MonsterGiantScorpion, MonsterMimic, MonsterCursedMimic},
 	 MonsterTypeId{}}, // no boss
 	{ZoneId::HallOfJudgment,
-	 50,
-	 50,
-	 {MonsterAnubis, MonsterMummy, MonsterGiantCobra, MonsterCursedMimic},
+	 51,
+	 54,
+	 {MonsterAnubis, MonsterMummy, MonsterGiantCobra, MonsterBaboon, MonsterCamelSpider, MonsterCursedMimic},
 	 MonsterAnubisBoss},
 };
-// The last level the rebuild has made (plan denser-levels): its levels follow the target table, their monsters the
-// zone's set (ZONE_FAUNA), a test checks them.
-constexpr int REBUILT_LEVELS = 45;
 constexpr int ZONE_COUNT = static_cast<int>(sizeof(ZONES) / sizeof(ZONES[0]));
 
 constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;

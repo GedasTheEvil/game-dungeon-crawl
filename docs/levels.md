@@ -69,16 +69,15 @@ v3 file's cells are all unset, a v4 file has no zone); `levelcheck` warns about 
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl33` (`CAMPAIGN_LEVELS`), most zones
-ending with a boss. Each exit loads the next level. `content/levels/lvl33` holds the ankh that wins the game; the Anubis
-boss there is always the last boss.
+`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl54` (`CAMPAIGN_LEVELS`), in twelve
+zones, most of them ending with a boss. Each exit loads the next level. `content/levels/lvl54` holds the ankh that wins
+the game behind the Anubis boss's gate; he is always the last boss.
 
-The rebuild ([denser-levels](plan/denser-levels.draft.opus.md)) generates the campaign again zone by zone. The rebuilt
-zones come first, on the target table below (`REBUILT_LEVELS`: the first four zones, levels 1-18, so far), today's levels after them, one number earlier per level the rebuilt zones are shorter (today's lvl6 is lvl5). Their sizes ramp from
-the way in to the whole grid (`ZONE_SIZE`, campaign.h): 120 open cells on lvl1, 280 on Khepri's level, the whole grid
-by the web halls; today's levels after them use the whole 40 x 47 grid. Each rebuilt level's levelgen arguments (seed,
-difficulty, size, texts, page, title) are in the seed table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL`
-generates it again (and drops its polish: the level file stays the source of truth).
+The campaign was generated zone by zone ([denser-levels](plan/denser-levels.md),
+[campaign-levelgen](plan/campaign-levelgen.md)) and then polished by hand. Its sizes ramp from the way in to the whole
+grid (`ZONE_SIZE`, campaign.h): 124 open cells on lvl1, 300 on Khepri's level, the whole 40 x 47 grid from the web
+halls on. Each level's levelgen arguments (seed, difficulty, size, texts, lore, page, fork, title) are in the seed
+table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL` generates it again (and drops its polish).
 
 ### Zones
 
@@ -105,25 +104,8 @@ its banner names. On a zone's first level a banner shows its hour and gate, the 
 level a smaller one, the level and its zone (`ZoneBanner`, `levelBanner`). A level outside the campaign keeps the
 tombs' look (`DEFAULT_LOOK`).
 
-The campaign's 33 levels, as the code table maps them while the rebuild goes on:
-
-| Zone | Levels | Stone | Main monsters | New mechanic | Boss |
-|---|---|---|---|---|---|
-| 1 Tomb entrance (the Gate of the Tomb), rebuilt | 1-4 | limestone | rats, scarabs, bats, plants | spikes, pits, the first key and riddle | Khepri (lvl4) |
-| 2 Bat galleries (the Gate of the Bats), rebuilt | 5-9 | limestone | bats, giant bats, worms, giant rats, a crocodile | levers, rock falls, the first wade | Bat of Shezmu (lvl9) |
-| 3 Web halls (the Gate of the Webs), rebuilt | 10-13 | limestone | camel spiders, giant scarabs, giant rats, mimics | darkness and light, trapped chests, the first fork | Mother of Webs (lvl13) |
-| 4 Priests' quarter (the Gate of the Priests), rebuilt | 14-18 | plaster | mummies, living ushabti, Anubis guards, giant scarabs | name gates, many inscriptions, fire vents and braziers | High Priest (lvl18) |
-| 8 Seth's desert (the Gate of Seth) | 19-23 | sandstone | sand worms, camel spiders, giant scorpions, giant cobras, giant bats, hippos | sand, quicksand, mirrors and sun discs | Seth (lvl23) |
-| 7 Cisterns of Sobek (the Gate of Sobek) | 24-28 | wet stone | crocodiles, giant cobras, hippos, mummies, Anubis guards, giant bats | deep water, swimming | Sobek (lvl28) |
-| 11 Necropolis (the Gate of the Dead) | 29-32 | granite | Anubis guards, mummies, giant scarabs, giant cobras, giant scorpions, cursed mimics | every trap mixed | none (the High Priest's old tomb on lvl32 holds a mummy now) |
-| 12 Hall of Judgment (the Gate of Judgment) | 33 | granite | Anubis guards, mummies, giant cobras, cursed mimics | riddles | Anubis (lvl33) |
-
-The old scorpion nest (its five levels, the scorpion queen) gave way to the web halls, the old serpent temple (Apep)
-to the priests' quarter; the rebuild brings them back as zones 5 and 6.
-
-The target campaign (decided 2026-10-21): twelve zones, about 54 levels, four acts. The rebuild
-([denser-levels](plan/denser-levels.draft.opus.md), [campaign-levelgen](plan/campaign-levelgen.md)) builds
-it zone by zone and then switches the code table to it. Level ranges are about, not exact.
+The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`, `ZONE_TRAPS`, `ZONE_GATES` in
+`src/world/campaign.h`): twelve zones, 54 levels, four acts.
 
 | # | Zone | Levels | Monsters | New mechanic | Boss |
 |---|---|---|---|---|---|
@@ -148,91 +130,106 @@ Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).
 
 ### Levels
 
+Generated from the seed table and polished (below the table: what was done by hand). Monsters by kind, the gates'
+openers, the riddle and name gates, the expedition pages and the inscriptions (a secret room's lore among them).
+
 | Levels | Content |
 |---|---|
-| 1 | The Jackal Statue: four halls climbed from the bottom, two rats, a bat, a plant. Spikes and death pits, the first key (gold) and gate, the first riddle up a ladder. Expedition page 1. Inscriptions: mind the floor, the bolt and the door. |
-| 2 | The Beetle Passage: four halls climbed from the bottom, scarabs, bats, a rat, plants. The red key and gate, a riddle room up a ladder. Expedition page 2. Inscriptions: the appeal to the living, a boon of life. |
-| 3 | The Biting Chest: seven halls down with a pillar loop and a ledge, scarabs, plants, bats, a rat, two mimics among the chests. The bronze sword in a chest in the west wing of the third hall (the player needs it for Khepri), a club, a knife, a sling. The green key and gate, a riddle gate. Expedition page 3. |
-| 4 | The Lair of Khepri, the first boss: seven halls down, scarabs, rats, bats, plants. The green key and gate, a riddle gate; the teleporter at the west end of the sixth hall leads to the sealed room under the halls: Khepri and her scarabs, behind the boss gate the key of the last gate (red) before the exit. |
-| 5 | The Lever Gallery: worms, giant rats, bats, a giant bat; rock falls. The first lever opens the level's gate; a riddle gate, a short wade, a name gate to a secret room. Expedition page 4. Inscriptions: the lamp wicks, the lever of the house. |
-| 6 | The Hall of Echoes: giant rats, bats, a giant bat, two mimics; rock falls, a short wade. A key and gate, a riddle gate, a name gate to a secret room. Expedition page 5 (the crocodiles ahead). Inscription: tireless legs (a stamina boon). |
-| 7 | The Flooded Stretch: bats, giant bats, giant rats, a worm, a mimic; many rock falls. The first wade on the way; the first crocodile in a pool off the way at the east end of the upper hall, a chest past it (skippable: a level 8 player is no match for it yet). A key and gate, a riddle gate. Inscriptions: the shallow water, the Shipwrecked Sailor. |
-| 8 | The Roost Stair: bats and giant bats (they screech), giant rats, worms; rock falls. A key and gate, a riddle gate, a name gate to a secret room. Expedition page 6. Inscription: the bats of the night. |
-| 9 | The Roost of Shezmu, the second boss: giant rats, bats, giant bats, a worm. A key and a lever, a riddle gate; the teleporter to the sealed tall roost under the halls: the Bat of Shezmu and his bats, behind the boss gate the key of the last gate before the exit. Expedition page 7 (the webs ahead). Inscription: the wheel of the day. |
-| 10 | The Hall of Webs: the web halls' first level, most halls dark (a torch now and then, braziers), webs under their ceilings: camel spiders (they shun the light), giant scarabs, giant rats, two mimics, two trapped chests. Two keys and gates, a treasure tomb, a riddle gate, a name gate to a secret room. Inscriptions: the torch of the night watch, the spider's net. |
-| 11 | The Dark Gallery: camel spiders, giant scarabs, two mimics, two trapped chests in the dark halls. A key and a lever, a treasure tomb, a riddle gate, a name gate to a secret room. Inscriptions: the djed pillar (an armour boon), the chest and its guard. |
-| 12 | The Two Shafts, the first route fork: expedition page 8 on the way to the fork hall (row 31), two drops side by side either side of a pillar; the left route long through a hall of camel spiders, the right one short, the earlier expedition's tomb (a skeleton, jars, gear) at its end; both one-way into the same hall below. Camel spiders, giant scarabs, giant rats, six mimics, two trapped chests. A key and a lever, a treasure tomb, a riddle gate. Inscriptions: the weaver's complaint, the riddle of the house. |
-| 13 | The Lair of the Mother of Webs, the third boss: camel spiders, giant scarabs, giant rats, five mimics. Two keys and a lever, a riddle gate; the teleporter at the east end of the hall on row 15 leads to the sealed room under the halls: the Mother of Webs in the dark between two braziers, behind the boss gate the gold key for the last gate. Expedition page 9 (the dead ahead). Inscription: the hymn to the evening sun. |
-| 14 | The Gate of the Priests: the temple's painted halls, mummies between decoy coffins, living ushabti among their figures, the first Anubis guard (one, a sprint gets past him), braziers and the first fire vents, a trapped chest. Two keys and gates, a treasure tomb, a riddle gate, a name gate to a secret room. Inscriptions: the purification of the priest, a name is a door (the name gate's hint), the offering formula. |
-| 15 | The House of Life: mummies, ushabti, two Anubis guards, giant scarabs, two mimics; fire vents, braziers. A key and a lever, a riddle gate, a name gate to a secret room. Expedition page 10 (the ring of seven marks). Inscriptions: the flame of the brazier, the ushabti spell (a stamina boon), Anubis upon his mountain. |
-| 16 | The Scribes' Hall: mummies, ushabti, two Anubis guards, giant scarabs; fire vents, many rock falls. Two levers, a riddle gate, a name gate to a secret room (the instruction of Ptahhotep). Inscriptions: the scribe's wish, the song of the harper. |
-| 17 | The Hall of Purification: mummies, ushabti, three Anubis guards; fire vents. A key and a lever, a riddle gate, a name gate to a secret room (the negative confession). Inscriptions: the temple cat, not dying a second time (a life boon). |
-| 18 | The Tomb of the High Priest, the fourth boss: mummies, ushabti, three Anubis guards, giant scarabs. A key and two levers, a riddle gate in the hall on row 11; the teleporter at its east end leads to the sealed tomb under the halls: the High Priest in his large coffin, his mummies climbing out of the coffins round him; behind the boss gate the gold key for the last gate. Expedition page 11 (the scorpions ahead). Inscription: the might of the king (a might boon). |
-| 19 | The buried gate, the first desert level ([desert-chapter](plan/solved/desert-chapter.md)): sandstone halls, drifts of sand in every hall (slower, no sprint), the first quicksand (single cells), sand falls, sand worms under the drifts, camel spiders, giant scorpions, giant cobras, giant bats, mummies. The first sunlight mirror ([sunlight-mirrors](plan/solved/sunlight-mirrors.md)): in the fourth hall a shaft of sunlight falls through a crack onto a mirror facing it; turned west, the beam lights the red sun disc at the hall's west end (and burns the hall's mummy). Red gate; blue key, blue gate. A riddle gate at the east end of the eighth hall. |
-| 20 | The hall of drifts, started from the east: long sand halls, two of them two high, quicksand in pairs, sand worms, camel spiders, giant scorpions, giant cobras. The desert's first dart trap. Red key, red gate; gold lever, gold gate. A riddle gate, a name gate to a sealed room under the eleventh hall. |
-| 21 | The sand stair: twelve halls down in a zigzag, each shorter than the level, sand falls over the drifts, quicksand pits, a dart trap, giant cobras, giant scorpions, camel spiders. Blue lever, blue gate; green key, green gate; a riddle gate. A drop into the exit cavern. |
-| 22 | The house of Seth's servants: a buried temple, Anubis guards and mummies among the drifts, sand worms, giant scorpions. Red lever, red gate; gold key, gold gate; a riddle gate. A name gate to a sealed room over the exit cavern. |
-| 23 | Seth's oasis, the fifth boss: eleven halls of drifts and quicksand to the teleporter (red key, red gate; blue lever, blue gate; a riddle gate). It leads to the sealed oasis: Seth ([hippo-boss](plan/solved/hippo-boss.md)), the red hippo, in his pool between two sand ledges, his hippos come up out of the water; the Blessing of Hapi by the teleporter. Behind the boss gate the gold key and the ladder up to the exit hall (the gold gate before the exit). |
-| 24 | The flooded halls: giant cobras, six crocodiles in long wades, giant bats, mummies, Anubis. Red lever into the two-high flooded hall, blue key, green key past the riddle, gold lever by the last crocodile; a teleporter to a hidden treasure cistern. |
-| 25 | The cistern grid: halls split by a central wall and joined by full-width passages; giant cobras, crocodile pools, mummies, Anubis, giant bats. Red key, blue lever, green lever down a dead end, gold key behind a mummy; a rock-fall gauntlet, spike pits before the exit hall. |
-| 26 | The cistern stairs: fifteen halls down in a zigzag, five of them flooded; crocodiles, giant cobras, giant bats, mummies, Anubis. Red key, blue lever, green key, gold lever. A dart trap in the blue lever's hall, an Anubis coming over it. |
-| 27 | The twin cisterns: down the west wing, across a flooded hall, through a sunken crypt, up the east wing to the exit. Gold lever, red key, blue lever in the crypt; the green key near the top opens the exit gate. A bridge over a well joins the wings. |
-| 28 | Sobek's lake, the sixth boss: crocodiles in every pool, giant cobras, Anubis guards, a loop round a pillar with a red gate on each side. The blue lever opens the gate to the teleporter: the sealed flooded lake with two rock shelves, Sobek and his crocodiles; behind the boss gate the gold key for the gold gate on the way to the exit. |
-| 29 | The necropolis: Anubis guards, mummies in a coffin row, giant cobras, giant scarabs, giant scorpions, loose ceilings everywhere. A processional stair as a hub with wings: red key, red gate, blue lever, blue gate, green key, green gate; the gold lever before the exit. |
-| 30 | The necropolis gate: a loop of two halls round a pillar with a hidden chamber inside, a flooded crypt with giant cobras, a rock-fall gauntlet and a riddle room. Red key, blue lever, green key, gold lever (two gold gates: the way down and a treasure tomb). |
-| 31 | The catacombs: the hall of coffins (3 high, two ledges, the red lever), the blue key, a flooded tomb, the green lever (two green gates), the gold key on a ledge in the 3-high hall of Anubis. |
-| 32 | The two towers of the dead: the red key opens the bridge to the east tower, the blue lever there the way back west into the great flooded hall (giant cobras in the water, the green key on an island); the gold key, the Anubis hall, a rock-fall gauntlet down to the teleporter, a drop to a hidden tomb. The teleporter leads to the sealed tomb of the High Priest of Anubis (the mummy boss, plan mummy-boss; a temporary home until the campaign is re-planned): his mummies climb out of the coffins round him, the exit behind the boss gate. |
-| 33 | The ankh chamber, the finale: four lock halls (red key, blue lever, green key past a flooded stretch, gold lever), a hall of coffins and two rock-fall gauntlets down to the teleporter. It leads to the sealed 3-high ankh chamber: the Anubis boss, his guards stepping out of the walls; behind the boss gate the treasure and the ankh that wins the game. A long ladder past the chamber wall to a bottom treasure gallery. |
+| 1 | The Jackal Statue: Plant 1, rat 2, bat 1. 1 key, 1 riddle gate. Expedition page 1. Inscriptions: Mind the floor; The bolt and the door. |
+| 2 | The Beetle Passage: Scarab 3, plant 2, rat 1, bat 2. 1 key, 1 riddle gate. Expedition page 2. Inscriptions: The appeal to the living; A good place to rest (a life boon). |
+| 3 | The Biting Chest: The bronze sword in a chest (Khepri is tuned for it). Scarab 4, plant 2, rat 1, bat 2, mimic 2. 1 key, 1 riddle gate. Expedition page 3. Inscriptions: The gang's absence list. |
+| 4 | The Lair of Khepri: Khepri, the first boss. Scarab 4, plant 2, rat 3, bat 3, boss scarab 1. 2 keys, 1 riddle gate. Inscriptions: You have not died. |
+| 5 | The Lever Gallery: Worm 3, giant rat 5, bat 3, giant bat 1. 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 4. Inscriptions: The steward's hoard; Lamp wicks for the gang; The lever of the house. |
+| 6 | The Hall of Echoes: Giant rat 4, bat 5, giant bat 1, mimic 2. 1 key, 1 riddle gate, a name gate to a secret room. Expedition page 5. Inscriptions: The words of Isis; Tireless legs (a stamina boon). |
+| 7 | The Flooded Stretch: The first crocodile in a pool off the way, skippable. Worm 1, giant rat 2, bat 4, giant bat 2, mimic 1, crocodile 1. 1 key, 1 riddle gate. Inscriptions: The Shipwrecked Sailor; The shallow water. |
+| 8 | The Roost Stair: Worm 2, giant rat 2, bat 6, giant bat 6. 1 key, 1 riddle gate, a name gate to a secret room. Expedition page 6. Inscriptions: The sealed treasury; The bats of the night. |
+| 9 | The Roost of Shezmu: The Bat of Shezmu, the second boss. Worm 1, giant rat 7, bat 5, giant bat 4, vampire bat 1. 1 key, 1 lever, 1 riddle gate. Expedition page 7. Inscriptions: The wheel of the day. |
+| 10 | The Hall of Webs: Giant rat 2, mimic 2, giant scarab 8, camel spider 14. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The spider's net; The torch of the night watch; The priest's cell. |
+| 11 | The Dark Gallery: Mimic 2, giant scarab 7, camel spider 18. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The chest and its guard; The sleeper at the door; The djed pillar (a armor boon). |
+| 12 | The Two Shafts: The first route fork. Giant rat 3, mimic 6, giant scarab 5, camel spider 20. 1 key, 1 lever, 1 riddle gate. Expedition page 8. Inscriptions: The weaver's complaint; The riddle of the house. |
+| 13 | The Lair of the Mother of Webs: The Mother of Webs, the third boss. Giant rat 2, mimic 5, giant scarab 6, camel spider 15, mother of webs 1. 2 keys, 1 lever, 1 riddle gate. Expedition page 9. Inscriptions: Hymn to the evening sun. |
+| 14 | The Gate of the Priests: Anubis 1, mimic 1, giant scarab 1, mummy 16, ushabti 10. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The vault of the strong arm (a might boon); A name is a door; The purification of the priest; The offering formula. |
+| 15 | The House of Life: Anubis 2, mimic 2, giant scarab 2, mummy 14, ushabti 4. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 10. Inscriptions: The ushabti spell (a stamina boon); Anubis upon his mountain; The flame of the brazier; The hidden pharmacy. |
+| 16 | The Scribes' Hall: Anubis 2, mimic 2, giant scarab 5, mummy 8, ushabti 10. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. |
+| 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession. |
+| 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, mimic 1, giant scarab 2, mummy 17, mummy priest 1, ushabti 9. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon). |
+| 19 | The Gate of Serqet: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serqet who makes the throat breathe. |
+| 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18. 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
+| 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
+| 22 | The Nest of the Queen: The scorpion queen between her egg clusters, the fifth boss. Mimic 2, giant scarab 5, scorpion 19, giant scorpion 10, egg cluster 2, scorpion queen 1. 3 keys, 1 riddle gate. Expedition page 13. Inscriptions: The overseer's letter. |
+| 23 | The Gate of the Serpent: Giant bat 4, mimic 7, cobra 15, giant cobra 13. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The darts of the floor; The room of the kas; Spell against the serpent. |
+| 24 | The Spitting Wall: Giant bat 4, mimic 1, crocodile 1, cobra 17, giant cobra 13. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 14. Inscriptions: The granite will not fall (a armor boon); The spitting wall; The scribe's secret. |
+| 25 | The Hall of the Rhythm: Giant bat 5, mimic 2, crocodile 2, cobra 16, giant cobra 14. 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 15. Inscriptions: The armoury of Montu; The step and the beat; The instruction of Amenemhat. |
+| 26 | The Uraeus Stair: Giant bat 5, mimic 4, crocodile 1, cobra 17, giant cobra 9. 2 levers, 1 riddle gate. Inscriptions: The snake in the sand; The serpent of chaos; The uraeus on the brow. |
+| 27 | The Pit of Apep: Apep in his pit between two ledges, the sixth boss. Giant bat 2, mimic 1, crocodile 1, cobra 17, giant cobra 9, apep 1. 3 keys, 1 riddle gate. Expedition page 16. Inscriptions: Overthrowing Apep (a might boon); Sinuhe's return. |
+| 28 | The Gate of Sobek: Giant bat 6, crocodile 10, giant cobra 19, lotus 3, hippo 3. 1 key, 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The depth of the cistern; Hymn to the Nile; A visitor's graffito. |
+| 29 | The Flooded Halls: Giant bat 6, mimic 3, crocodile 8, giant cobra 26, lotus 2, hippo 1. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The curse of Meni; The runner of the king (a stamina boon); Hymn to Hapi. |
+| 30 | The Cistern Grid: Giant bat 7, mimic 1, crocodile 9, giant cobra 20, lotus 3, hippo 1, cursed mimic 1. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The drink of Hapi; A workmen's note; The cistern treasury; The satire of the trades (a stamina boon). |
+| 31 | The Cistern Stairs: Giant bat 2, mimic 1, crocodile 10, giant cobra 22, lotus 6, hippo 1. 2 keys, 1 lever, 1 riddle gate. Inscriptions: Sobek of Shedet; The boatman's fee; The hippopotamus and the king. |
+| 32 | The Lake of Sobek: Sobek in his lake, the seventh boss. Giant bat 6, mimic 1, crocodile 11, giant cobra 14, sobek 1, lotus 1, hippo 2. 2 keys, 2 levers, 1 riddle gate. Expedition page 17. Inscriptions: Sobek, the green one; Hymn to Sobek. |
+| 33 | The Gate of Seth: Worm 11, mimic 3, giant scorpion 17, camel spider 16, hippo 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. Inscriptions: The red land; The water carriers; Sinuhe in the desert. |
+| 34 | The Buried Gate: Worm 11, giant scorpion 22, camel spider 14. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. Expedition page 18. Inscriptions: The heat of the day; The servant of Seth; The mirror of Ra. |
+| 35 | The Hall of Drifts: Worm 1, mimic 4, giant scorpion 22, camel spider 15, hippo 1. 3 keys, 1 riddle gate. Inscriptions: Montu, the lord of the strong arm (a might boon); Wenamun's letter. |
+| 36 | The Sand Stair: Worm 4, mimic 2, giant scorpion 15, camel spider 19, hippo 1, cursed mimic 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate. Inscriptions: The sand that swallows; Seth in the prow; The water of the oasis. |
+| 37 | Seth's Oasis: Seth in his oasis pool, the eighth boss. Worm 11, mimic 3, giant scorpion 15, camel spider 11, seth 1. 3 keys, 1 sun disc, 1 riddle gate. Expedition page 19. Inscriptions: The first harpoon (a might boon); The red hippopotamus. |
+| 38 | The Gate of Sokar: Worm 29, giant scorpion 4, camel spider 9. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 20. Inscriptions: The Book of Gates; The ways of Rosetau; Sokar of the dark land. |
+| 39 | The Two Drifts: The second route fork. Worm 25, mimic 1, giant scorpion 5, camel spider 13. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The deep drift; The worms of Sokar. |
+| 40 | The Falling Sands: Worm 29, giant scorpion 5, camel spider 13. 1 key, 2 levers, 1 riddle gate. Expedition page 21. Inscriptions: The granite of Aswan (a armor boon); The sand falls. |
+| 41 | The Den of Rerek: Rerek under his sand, the ninth boss. Worm 25, mimic 4, giant scorpion 4, camel spider 14, cursed mimic 1, rerek 1. 4 keys, 1 riddle gate. Inscriptions: Spider in the dark; The djed of Osiris (a armor boon); The craftsman's prayer. |
+| 42 | The Gate of Fire: Giant bat 13, mimic 2, giant cobra 14, cursed mimic 1, baboon 14. 1 key, 2 levers, 1 riddle gate. Expedition page 22. Inscriptions: The lake of fire; The baboons of the lake. |
+| 43 | The Burning Shore: The third route fork. Giant bat 7, mimic 2, giant cobra 14, baboon 16. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The burning ground; The fiery cobras. |
+| 44 | The Cool Water: Giant bat 7, mimic 1, giant cobra 11, baboon 21. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The fire that does not burn (a life boon); The Book of Gates, the lake. |
+| 45 | The Shore of Babi: Babi on his shore, the tenth boss. Giant bat 10, giant cobra 18, baboon 10, babi 1. 3 keys, 1 lever, 1 riddle gate. Inscriptions: The heat of Babi. |
+| 46 | The Gate of the Dead: Anubis 9, mummy 18, giant scorpion 5, baboon 4. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 23. Inscriptions: The cursed chests; The way of the dead; The house of the name. |
+| 47 | The Hall of Coffins: Anubis 10, mimic 3, mummy 17, giant scorpion 3, cursed mimic 4, baboon 1. 1 key, 3 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The mummy's linen; The unmoved (a armor boon); The last steward. |
+| 48 | The Ring of Seven Marks: The Stargate chamber's stand-in: the name gate (the king's name) to the ring's room. Anubis 13, mimic 1, mummy 6, giant scorpion 4, cursed mimic 4, baboon 1. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The ring of the stars; A tomb robber's confession; The jackal at the end. |
+| 49 | The Two Gates: The last route fork: the warning between the two drops, page 24 on the way. Anubis 7, mimic 2, mummy 19, giant scorpion 1, cursed mimic 1, baboon 4. 2 keys, 2 levers, 1 riddle gate. Expedition page 24. Inscriptions: Take the left gate; The curse of Khentika; The treasury in the pillar. |
+| 50 | The Catacombs: Anubis 14, mummy 14, giant scorpion 1, cursed mimic 4, baboon 3. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: Going forth by day; The overseer of works; The heart scarab (a armor boon). |
+| 51 | The Gate of Judgment: Anubis 17, mimic 2, mummy 5, giant cobra 3, camel spider 1, baboon 9. 2 keys, 2 levers, 3 riddle gates, a name gate to a secret room. Inscriptions: The riddle of Thoth; The negative confession; The deepest seal (a life boon). |
+| 52 | The Hall of the Two Truths: Anubis 14, mimic 3, mummy 6, giant cobra 6, cursed mimic 1, baboon 6. 3 keys, 1 lever, 3 riddle gates. Inscriptions: The weighing of the heart; The breath of the justified (a life boon). |
+| 53 | The Feather of Maat: Anubis 19, mummy 8, giant cobra 3, cursed mimic 2, baboon 3. 1 key, 3 levers, 3 riddle gates. Inscriptions: The strength of the throne (a might boon); Maat, the feather. |
+| 54 | The Weighing of the Heart: The Anubis boss, the last; behind his gate the ankh that wins the game (no exit). Anubis 20, mimic 1, mummy 10, anubis boss 1, giant cobra 7, baboon 5. 1 key, 2 levers, 3 riddle gates. Inscriptions: The scribe's farewell; King of kings (a might boon); Lord of the necropolis; The last gate. |
 
-Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): none in the tomb entrance and the bat galleries
-(1-9), two a level in the web halls (10-13), one in the priests' quarter (14-18), two in 19-22, three in 23-33, each a
-chest that held a plain potion (health, stamina, might, armour). Never put what the level needs in one (a key item, a
-new weapon, the antidote, a Hapi potion): half of them are empty, and the checker does not count a trapped chest's
-antidote as in reach.
+Polished by hand after generating: the bronze sword on lvl3; no mimic on lvl1 (page 3 tells of the biting chest),
+rats there; lvl2 a scarab more; lvl5 three of its worms bats; lvl7's crocodile moved off the way into a pool with a
+chest past it.
+
+Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): by the zone (`ZONE_TRAPPED_CHESTS`): none
+in the first two zones, one in the priests' quarter, two a level in the web halls and from the scorpion nest on, three
+from the land of Sokar on (fewer where the level had too few plain potion chests). Each a chest that held a plain potion
+(health, stamina, might, armour); never what the level needs (a key item, a new weapon, the antidote, a Hapi potion):
+half of them are empty, and the checker does not count a trapped chest's antidote as in reach.
 
 The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
-attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`, plan
-campaign-texts). 17 of them (1-11, 17, 18, 20, 21, 23, 24) lie on skeletons in levels 1, 2, 3, 5, 6, 8, 9, 12, 13,
-15, 18, 19, 21, 22, 25, 29 and 32, each a level or so before what it hints at, off the exit path; page 8, the first
-fork's, on the way to it (lvl12); the last one (24) on lvl32's path. The pages 12-16, 19 and 22 (poison drips, the
-cobras, a lost pencil, the darts, deep water, worms and a fork, the lake of fire and a fork) are written but not
-placed: the rebuild places them, one every two or three levels. Some pages hint at a fork ahead; the last stays the
-last fork's warning.
+attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`).
+Pages 1-24 lie in levels 1, 2, 3, 5, 6, 8, 9, 12, 13, 15, 18, 20, 22, 24, 25, 27, 32, 34, 37, 38, 40, 42, 46 and 49,
+each a level or so before what it hints at, on a skeleton at a wing's end off the exit path. The fork pages lie on
+the way to their fork on the floor: page 8 on lvl12 (the first fork), page 24 on lvl49 (the last fork, on the exit
+path); pages 19 and 22 tell of the forks of lvl39 and lvl43.
 
-Scorpions live in level 19, giant scorpions in 19-23 and 29-33, giant cobras in 19-33; each level with a poisoner (the
-plants of the tomb entrance too) has an antidote in reach (the checker warns otherwise). Lesser resistance potions lie
-on the poisoner levels, greater ones from 19 on (one of each per level). One Blessing of Hapi potion (water blessing,
-plan water-blessing-potion) lies in a chest on the approach to the first half water of each water level (5-9, 23 (by
-the oasis), 24-28, 30-33), a few cells before it; levelcheck assumes none. One crocodile lives in a pool off the way
-on level 7 (the bat galleries' preview), many in the flooded levels from 24 on. Hippos lie in the water of levels 24
-and 26 (one a level, in a long pool); Seth, their boss, in the oasis of 23. Blue lotuses float in the water of levels
-23, 24-28 and 30-33 (one to three a level). Camel spiders run in the dark halls of the web halls (10-13, 14 to 20 a
-level) and of the desert (19-23, three to five a level); they keep out of the light of torches, braziers and lamps.
-Living ushabti stand among their decor figures in the priests' quarter (14-18, four to ten a level) and step out of the
-wall with the Anubis boss's guards in 33. Mummies lie between decoy coffins from 14 on; Anubis guards come in there,
-one on lvl14, up to three a level. The desert (19-23, plan desert-chapter) has sand: drifts on the floor (the player
-walks at 3/4 speed and cannot sprint), quicksand (single cells or pairs), sand falls, and sand worms lying under the
-drifts that come up under the player. Cursed mimics (plan cursed-mimic) lie as dark chests in levels 25, 27, 29, 31
-and 33 (one a level, beside a treasure, off the path; plain mimics in 3, 6, 7, 10-18, 19, 20, 22, 24, 25, 30 and 31;
-levelgen makes 30% of its mimics cursed from difficulty 8). Baboons (plan baboon) keep their distance and throw burning
-coals in the necropolis halls of 29 (three), 30 and 31 (two each), on long open rows; their home, the Lake of Fire,
-comes with the rebuild (levelgen from difficulty 9). Their boss Babi (plan babi-boss) has no campaign slot yet: his
-arena is `tests/levels/babi`. Every level has [inscriptions](inscriptions.md): the rebuilt ones (1-18) one to three
-of their zone's texts (`content/inscriptions/rebuild.txt`, each id once; the priests' quarter also takes texts of
-`content/inscriptions/campaign.txt` the replaced levels freed), the others from 19 on one or two of
-`content/inscriptions/campaign.txt`: real texts, some with a hint for the level (the boss ahead, a dart trap, a hidden
-treasure room, the order of the locks). Levels 5, 6, 8, 10, 11, 14-17, 20, 22, 24, 25, 27, 29, 31 and 33 have a
-secret room ([names](names.md), plan secret-name-gates): a name gate (`!`) off the exit path, the name cartouche (`:`)
-elsewhere on the level, and the sealed room carved into the rock, reached only by the name gate: its teleporter, a lore
-inscription (ids 33 to 45, 51 and 52, two with a boon; on a rebuilt level the ids levelgen's `--lore` gives), a chest
-with a rare potion or an amulet (two in some), a mummy guarding it in 24, 29 and 33. Weak monsters give way to their
-giant kin: no rats, scarabs or small bats after level 9, no small scarabs after level 4 (giant scarabs from 10),
-except a boss's minions.
+Route forks ([denser-levels](plan/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,
+lvl39, lvl43 and the last one on lvl49, the warning (`FORK_TEXT`) between its drops. The Stargate chamber's stand-in
+(levelgen `--stargate`) on lvl48 until [stargate-chamber](plan/stargate-chamber.draft.opus.md) is built.
 
-The level files in `content/levels/` are the only source of truth. The ASCII drawings in `tools/level/campaign/` were
-the first helpers for each level and are not kept in step: never rebuild a campaign level from them. Change a level in
-its file (by hand or in the editor). A drawing is a start for a new level only ([Test levels from
-ASCII](#test-levels-from-ascii)); once built, the level file is the one to edit.
+Monsters by zone (`ZONE_FAUNA`): the zone table above. Weak monsters give way to their giant kin: no rats, scarabs or
+small bats after the bat galleries, except a boss's minions. Each level with a poisoner (plants, scorpions, cobras,
+dart plates, poison drips) has an antidote in reach (the checker warns otherwise) and a lesser resistance potion, from
+the scorpion nest on a greater one too. One Blessing of Hapi potion lies in a chest on the approach to the first half
+water the route wades through; levelcheck assumes none. The one crocodile before the serpent temple lives in a pool off
+the way on lvl7. Mummies lie between decoy coffins, never in half water; living ushabti stand among their figures.
+
+Every level has [inscriptions](inscriptions.md): one to three of its zone's texts (`content/inscriptions/rebuild.txt`)
+and, in the priests' quarter and later, texts of `content/inscriptions/campaign.txt` that suit the zone; each id once
+in the campaign, at most one boon a level (`--texts`). 25 levels have a secret room ([names](names.md), plan
+secret-name-gates): a name gate (`!`) off the exit path, the name cartouche (`:`) elsewhere on the level, and the
+sealed room carved into the rock, reached only by the name gate: its teleporter, a lore inscription (`--lore`: the ids
+33 to 45, 51 and 52, and freed texts of the old campaign), a rare chest. The name list has a name for every level.
+
+The level files in `content/levels/` are the only source of truth. They were generated from the seed table
+(`tools/level/rebuild.txt`, `tools/level/rebuild.py LEVEL`) and then polished by hand: change a level in its file (by
+hand or in the editor), and generate one again only on purpose, it drops the polish. The ASCII drawings of the old
+campaign are gone with it; an ASCII drawing is still a start for a test level ([Test levels from
+ASCII](#test-levels-from-ascii)).
 
 ## levelcheck: validate and rank
 
@@ -482,7 +479,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   the beam, the turned mirror, the lit disc (screenshots).
 - `tests/unit/sand_test.cpp` (plan desert-chapter): sand slows and stops the sprint, quicksand sinks, hurts and a
   jump frees, the sand fall hits, slows and leaves a drift, a sand worm lies under its sand and comes up under the
-  player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign's 33 levels with the desert at 19-23.
+  player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign: each zone's boss on its last level, sand on the sand zones' levels.
   Scenarios `tests/scenarios/solved/sand.txt`, `sand_worm.txt`, `desert.txt`: the drifts, the pour, the sunk player, the
   ripple, the sandstone halls and Seth's oasis (screenshots).
 - `tests/scenarios/solved/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.

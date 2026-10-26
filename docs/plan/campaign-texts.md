@@ -1,13 +1,13 @@
 # Campaign texts: enough texts for 40-60 levels
 
 Status: implemented (commit 5fb4b84), waiting for the user's play-test, which comes with
-[denser-levels](denser-levels.draft.opus.md) (user, 2026-10-26: testable only on the rebuilt campaign). Draft
+[denser-levels](denser-levels.md) (user, 2026-10-26: testable only on the rebuilt campaign). Draft
 2026-10-21, from the user. Needed first: [campaign-zones](solved/campaign-zones.md) (the level count
 and the zone themes the texts follow).
 
 ## Idea
 
-The texts were written for 35 levels. The rebuilt campaign ([denser-levels](denser-levels.draft.opus.md)) has 40-60
+The texts were written for 35 levels. The rebuilt campaign ([denser-levels](denser-levels.md)) has 40-60
 levels, inscriptions from level 1 on, and several forks. Write the texts first, so the generator
 ([campaign-levelgen](campaign-levelgen.md)) and the rebuild only place them.
 
@@ -26,7 +26,7 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
   over the new count, written in order of depth. Some pages hint at a fork ahead; the last one stays the last
   fork's warning ("take the left gate. I took the right").
 * **Fork hints:** for each fork the zone plan places, a page text, an inscription text, or both (see
-  [denser-levels](denser-levels.draft.opus.md#route-fork-left-or-right)).
+  [denser-levels](denser-levels.md#route-fork-left-or-right)).
 * **Riddles and names:** count the riddle gates and name gates the rebuild needs (about one each per level today) and
   add riddles (`content/riddles/*.txt`) and king names (`content/names/kings.txt`) if any would repeat.
 * **Level titles** (from the duat-hours draft): each level gets a title in its zone's hour (e.g. "The Fourth Hour:

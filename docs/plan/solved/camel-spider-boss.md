@@ -31,7 +31,7 @@ stronger.
 ## Placement
 
 Final place (user, 2026-10-21): the web halls, zone 3 of [campaign-zones](campaign-zones.md) (about
-levels 10-13), placed by the rebuild ([denser-levels](../denser-levels.draft.opus.md)). Until then no campaign slot:
+levels 10-13), placed by the rebuild ([denser-levels](../denser-levels.md)). Until then no campaign slot:
 a play script only (`tests/play/camel-spider-boss.txt`), as hippo-boss did at first (user, 2026-10-22).
 
 ## Others

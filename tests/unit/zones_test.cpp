@@ -88,10 +88,9 @@ TEST_CASE("each boss is in exactly one zone: its own, and the last zone ends wit
 	CHECK(ZONES[ZONE_COUNT - 1].id == ZoneId::HallOfJudgment);
 }
 
-TEST_CASE("the rebuilt levels (plan denser-levels): the zone's monsters, its boss on its last level, inscriptions") {
-	REQUIRE(REBUILT_LEVELS <= CAMPAIGN_LEVELS);
+TEST_CASE("the campaign's levels (plan denser-levels): the zone's monsters, its boss on its last level, inscriptions") {
 	std::set<int> texts;
-	for (int n = 1; n <= REBUILT_LEVELS; n++) {
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		CAPTURE(n);
 		const Zone& zone = *zoneOf(n);
 		const ZoneFauna& fauna = zoneFauna(zone.id);

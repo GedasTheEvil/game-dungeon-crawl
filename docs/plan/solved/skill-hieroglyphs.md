@@ -33,7 +33,7 @@ The copies filled in on learning give their XP then, once each.
 * An easy first choice: cheap in power, rich in story. Without it nothing on the exit path is lost (checker rule:
   hints only, never required).
 
-Copying needs no skill, so inscriptions can stand from level 1 on: [more-inscriptions](../denser-levels.draft.opus.md#more-inscriptions-from-level-1-on)
+Copying needs no skill, so inscriptions can stand from level 1 on: [more-inscriptions](../denser-levels.md#more-inscriptions-from-level-1-on)
 places them, after this plan.
 
 ## Tests

@@ -24,7 +24,7 @@ A name cartouche ([names](names.md), plan secret-name-gates) is an inscription w
 translated and rewarded like the others (no boon); its signs spell the name (the name's `G:` line in `content/names/`).
 
 Inscriptions are for atmosphere first and hints second. They are never needed to finish a level. In the campaign
-they stand from level 1 on, 2 to 3 per level (1 to 2 in the first zone); without the hieroglyph skill, which comes
+they stand on every level, one to three (and a lore text in each secret room); without the hieroglyph skill, which comes
 with the first boss's heka ([skill-hieroglyphs](plan/solved/skill-hieroglyphs.md)), a copy waits unread in the journal.
 `levelcheck` warns about a text id with no text, the same text id twice among the files it checks, and an inscription the player cannot
 stand in front of.

@@ -4,7 +4,7 @@
 // (level_gen.h) on a ramp of difficulty and size, and the gear found on them.
 //
 //   balance curve                  the player level and gear at the start of each target campaign level
-//   balance today                  the same for today's campaign (content/levels/)
+//   balance today                  the same for the campaign's levels (content/levels/)
 //   balance tune [--gear G]        each monster's HP and damage for its class's target in its home zone (G: play)
 //   balance home MONSTER [...]     one monster against the player of its home zone (play gear), fight's options
 //   balance table [--gear G]       every zone's monsters and boss against its player (G: gen, the default, or play)
@@ -172,8 +172,9 @@ std::vector<Player> buildCurve(bool print, double xpScale) {
 	return players;
 }
 
-// Today's campaign (content/levels/), as buildCurve prints the target's: the reference the playthrough was on. The
-// player level at the start of each level, [1] for lvl1.
+// The campaign's levels (content/levels/; the rebuilt campaign since plan denser-levels, the old 35 levels the
+// playthrough was on before), as buildCurve prints the target's. The player level at the start of each level, [1]
+// for lvl1.
 std::vector<int> todayCurve(bool print) {
 	std::vector<int> levels(CAMPAIGN_LEVELS + 2, 1);
 	Player p;

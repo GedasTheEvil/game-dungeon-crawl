@@ -1,6 +1,6 @@
 # Plan anubis-fire-bolt, for `bin/game --play tests/play/anubis-fire-bolt.txt`: tests/levels/anubis_bolt, an Anubis
 # guard east of you, you at a high level. Wait: it hurls a fireball (a jump clears it), the flames light the walls as it
-# flies, a burst where it hits; a hit sets you burning. For the boss's bolt (burns 5 s), play `level 33` to the end.
+# flies, a burst where it hits; a hit sets you burning. For the boss's bolt (burns 5 s), play `level 54` to the end.
 seed 1
 level tests/levels/anubis_bolt
 xp 1000000

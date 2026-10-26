@@ -1,14 +1,14 @@
 # Campaign levelgen: generate campaign-quality levels per zone
 
 Status: implemented 2026-10-25 (all nine steps), waiting for the user's play-test, which comes
-with [denser-levels](denser-levels.draft.opus.md) (user, 2026-10-26: testable only on the rebuilt campaign). Preview:
+with [denser-levels](denser-levels.md) (user, 2026-10-26: testable only on the rebuilt campaign). Preview:
 `bin/game --level gen:1:6:hall_of_judgment:boss` (any zone's slug, with or without `:boss`). Draft 2026-10-21, from
 the user ("I expect levels to be re-generated completely"). Needed first:
 [campaign-zones](solved/campaign-zones.md) (the zone table the generator reads). Done in steps (see below).
 
 ## Idea
 
-The campaign is rebuilt by generating levels ([denser-levels](denser-levels.draft.opus.md)), not by drawing each one
+The campaign is rebuilt by generating levels ([denser-levels](denser-levels.md)), not by drawing each one
 by hand. Today's `bin/levelgen` (`src/world/level_gen.cpp`, `docs/levels.md`) makes test levels: one-cell corridors,
 ladders and drops, gates with keys or levers, spikes, rock falls, mimics, monsters by difficulty. The campaign levels
 have much more. The generator must build levels like lvl15-35, from a zone description, and pass `bin/levelcheck`
@@ -123,7 +123,7 @@ Missing today, roughly in this order (each step its own task, with its checker r
 7. **Treasure and supplies:** chests, mimics, cursed mimics, trapped chests, antidotes near poisoners, Hapi potions
    before water, resistance potions, weapon chests by depth.
 8. **Carried content:** inscriptions, expedition pages, the forks and their hints (see
-   [denser-levels](denser-levels.draft.opus.md#route-fork-left-or-right)), the Stargate chamber
+   [denser-levels](denser-levels.md#route-fork-left-or-right)), the Stargate chamber
    ([stargate-chamber](stargate-chamber.draft.opus.md), once it exists), level titles.
 9. **Decor:** decor and decal layers in the zone's style (`DECOR_*`, the editor's layers).
 

@@ -1686,8 +1686,8 @@ class LevelBuilder {
 	}
 
 	// A zone level's monster for the cell, from the zone's set (ZoneFauna): swimmers and lotuses only in half water and
-	// likelier there, sand burrowers likelier in sand, light shunners likelier in a dark hall and rarer in a lit one.
-	// 0 if none of the set fits.
+	// likelier there, mummies and living ushabti (their coffin, their fellow figures) never in it, sand burrowers
+	// likelier in sand, light shunners likelier in a dark hall and rarer in a lit one. 0 if none of the set fits.
 	int zoneMonster(int col, int row, bool dark) {
 		const Tile t = g.at(col, row);
 		int weights[ZONE_MONSTER_MAX] = {};
@@ -1701,6 +1701,9 @@ class LevelBuilder {
 			int w = m.weight * 2;
 			if (water)
 				w = inHalfWater(t) ? w * 4 : 0;
+			else if ((m.type == MonsterMummy || m.type == MonsterUshabti) && inHalfWater(t))
+				w = 0; // a coffin, a figure: on dry floor
+
 			if (kind->sandBurrow.has_value() && inSand(t))
 				w *= 3;
 			if (kind->shunsLight && terrain.dark != TerrainAmount::None)

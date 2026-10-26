@@ -38,7 +38,7 @@ constexpr ZoneLook DEFAULT_LOOK = {
 	nullptr
 };
 
-// By ZoneId, all twelve: the zones today's campaign does not have yet are ready for the rebuild.
+// By ZoneId, all twelve.
 constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	// Tomb entrance: cave and first tunnels, webs and the dead of the robbers.
 	{{2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},

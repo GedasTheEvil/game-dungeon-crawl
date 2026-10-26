@@ -61,7 +61,7 @@ Order of work:
    changes to the user before touching `KINDS`.
 
 Recheck the XP sum per level after steps 4 and 5. Balance comes before the level rebuild (user, 2026-10-21):
-[denser-levels](denser-levels.draft.opus.md) builds on these values and rechecks the sum after each batch.
+[denser-levels](denser-levels.md) builds on these values and rechecks the sum after each batch.
 
 ## Current values
 
@@ -165,9 +165,9 @@ Found:
   and short of the pounce's 2 tiles: the bow killed Khepri for nothing. Their pounce now starts at 1.2.
 * XP: the target campaign generated (`bin/balance curve`: today's levelgen, a ramp of difficulty 1-10) gives 45-55
   monsters on a full level, today's give about 31: the player would end at level 79. The monster XP needs x0.26 (or
-  the curve steeper, or fewer monsters) to end at about 60 as today. For [denser-levels](denser-levels.draft.opus.md).
+  the curve steeper, or fewer monsters) to end at about 60 as today. For [denser-levels](denser-levels.md).
 * Levelgen builds no zone level under about 400 open cells: the draft's 100-150 for the first levels does not
-  generate. For [denser-levels](denser-levels.draft.opus.md).
+  generate. For [denser-levels](denser-levels.md).
 * Might adds to each hit: late the flint knife (8, every 400 ms) deals the most per second, at a tenth of a tile.
 
 So a table of KINDS changes alone cannot make each monster a fight on all its levels: a monster in several zones
@@ -233,7 +233,7 @@ The player of each zone in the sim (play-test: `xp`, then `gear ARMOUR MIGHT HP%
 | scorpion_nest | 32 | 160831 | 9 11 29 | | necropolis | 59 | 2471700 | 29 36 95 |
 | serpent_temple | 39 | 367053 | 14 18 46 | | hall_of_judgment | 63 | 3309148 | 32 40 105 |
 
-Left open, for the user and [denser-levels](denser-levels.draft.opus.md):
+Left open, for the user and [denser-levels](denser-levels.md):
 
 * **Today's 35 levels no longer balance:** the monsters are tuned for the zones of the rebuild (scorpions of 150 HP on
   today's lvl3-6, crocodiles of 350 on lvl7-9). Play-test on generated zone levels until the rebuild.

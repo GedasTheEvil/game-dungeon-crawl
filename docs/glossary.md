@@ -47,6 +47,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | zone gates | | (zone level) a zone's gates besides its locks, by the zone table: riddle gates, the chance of a name gate, hidden rooms, treasure tombs | `ZoneGates`, `ZONE_GATES`, `LevelBuilder::addGateRooms` |
 | hidden room | | (zone level) a room sealed in the rock behind a plain teleporter at a wing's end, with treasure; a secret room is the same behind a name gate | `LevelBuilder::placeTeleporterRoom`, `GenShape::hiddenRooms` |
 | treasure tomb | | (zone level) a wing past a gate of the route, closed by a second gate of that colour, a rare chest at its end | `LevelBuilder::placeTomb`, `GenShape::treasureTombs` |
+| route fork | | (zone level) two one-way routes from a fork hall to a join hall: two drops side by side either side of a pillar of rock, the left route long, the right one short with traps and the earlier expedition's remains; drafts also say "fork" | `GenOptions::fork`, `LevelBuilder::chooseFork` |
 | pool | | (zone level) a run of half water over deep water dug into the rock under the floor; a wade is the same over rock | `GenShape::pools`, `GenShape::wades` |
 | wing | | (zone level) a hall's end off the route, a dead end from the link to the rock: its keys, levers and treasure go there | `Wing` |
 | hub hall | | (zone level) a hall a ladder shaft runs straight through, a wing either side | `GenShape::hubs` |

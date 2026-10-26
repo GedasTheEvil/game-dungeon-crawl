@@ -1,10 +1,11 @@
 // levelgen: writes random levels. See docs/levels.md.
 //   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] [--texts IDS]
-//            [--stargate]] [--count K] [--map] OUT
+//            [--stargate] [--fork 1|2]] [--count K] [--map] OUT
 // With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
 // for that zone (plan campaign-levelgen), about C open cells; with --boss, the zone's boss level.
 // A zone level's inscriptions come from content/inscriptions/ (run it from the repo root), or --texts 53,54 names
-// them; --page puts an expedition page, --title names the level, --stargate makes it the Stargate chamber's level.
+// them; --page puts an expedition page, --title names the level, --stargate makes it the Stargate chamber's level,
+// --fork 1 (2: the last fork) splits the route in two.
 
 #include "../../src/core/paths.h"
 #include "../../src/world/campaign.h"
@@ -22,7 +23,7 @@ int usage() {
 	fprintf(
 		stderr,
 		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] "
-		"[--texts IDS] [--stargate]] [--count K] [--map] OUT\n"
+		"[--texts IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT\n"
 	);
 	return 2;
 }
@@ -51,6 +52,8 @@ int main(int argc, char** argv) {
 			options.boss = true;
 		else if (strcmp(argv[i], "--stargate") == 0)
 			options.stargate = true;
+		else if (strcmp(argv[i], "--fork") == 0 && hasValue)
+			options.fork = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--title") == 0 && hasValue)
 			options.title = argv[++i];
 		else if (strcmp(argv[i], "--page") == 0 && hasValue)
@@ -127,7 +130,7 @@ int main(int argc, char** argv) {
 				"chained "
 				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs%s; %d trapped chests, %d "
 				"Hapi "
-				"potions, %d resistance potions; %d inscriptions, %d pages%s\n",
+				"potions, %d resistance potions; %d inscriptions, %d pages, %d forks%s\n",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -162,6 +165,7 @@ int main(int argc, char** argv) {
 				s.resistancePotions,
 				s.inscriptions,
 				s.pages,
+				s.forks,
 				o.title.empty() ? "" : (", \"" + o.title + "\"").c_str()
 			);
 		}

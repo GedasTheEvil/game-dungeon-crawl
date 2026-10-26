@@ -394,6 +394,14 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    Stargate chamber's stand-in (`--stargate`, for one level of the campaign until
    [stargate-chamber](plan/stargate-chamber.draft.opus.md) is built): the level's name gate, its password the king's
    name, leads to a room with the ring's text (`STARGATE_TEXT`) and a rare chest.
+   A route fork (`GenOptions::fork`, `--fork 1`, 2 for the last fork; on a level going down): a hall the route
+   crosses leftwards is split by a pillar of rock under the link into it, so the hall over it gets two drops side by
+   side, one each side of the pillar. The left route crosses the long left part and drops into the hall below where
+   the route did, two more monsters on it; the right one, short, drops a few cells along, traps on every other cell,
+   at its end the earlier expedition's remains (a skeleton) and their gear (a weapon of the depth or a rare chest).
+   Both drops are one-way: no way leads from one route to the other, and the checker's softlock rule proves each
+   reaches the exit. On the last fork the warning (`FORK_TEXT`) stands between the drops; a page given lies on the
+   way to the fork, on the floor. The player reaches one drop first and jumps it to take the other.
 
 Still missing (the next steps of the plan): the zone's traps, the riddle and name gates, the boss level, the supplies
 by the rules above, the carried content and the decor.

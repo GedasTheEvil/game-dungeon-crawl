@@ -332,6 +332,48 @@ TEST_CASE("a zone level's carried content: its zone's inscriptions, a page, a ti
 	CHECK(gen.shape.inscriptions == 2);
 }
 
+TEST_CASE("a route fork: two one-way routes to the exit, the warning between the drops, the page on the way") {
+	for (int zone : {static_cast<int>(ZoneId::Necropolis), static_cast<int>(ZoneId::SerpentTemple)})
+		for (uint32_t seed = 1; seed <= 2; seed++) {
+			CAPTURE(zone);
+			CAPTURE(seed);
+			GenOptions options = zoneOptions(seed, 6, zone);
+			options.fork = 2;
+			options.page = 24;
+			const GenResult gen = generateLevel(options);
+			REQUIRE(gen.ok);
+			CHECK(gen.report.warnings.empty()); // no softlock: each route alone reaches the exit
+			REQUIRE(gen.shape.forks == 1);
+			int warning = -1, page = -1;
+			for (int cell = 0; cell < LEVEL_CELL_COUNT; cell++) {
+				warning = gen.grid.cells[cell].fixture.type == Inscription &&
+								  gen.grid.cells[cell].fixture.attr == FORK_TEXT
+							  ? cell
+							  : warning;
+				page = gen.grid.cells[cell].type == Page && gen.grid.cells[cell].attr == 24 ? cell : page;
+			}
+			REQUIRE(warning >= 0);
+			REQUIRE(page >= 0);
+			const int col = warning % LEVEL_WIDTH, row = warning / LEVEL_WIDTH;
+			// The two drops either side of it, the pillar of rock under it.
+			CHECK_FALSE(isSolidStructure(gen.grid.at(col - 2, row - 1).structure));
+			CHECK_FALSE(isSolidStructure(gen.grid.at(col + 2, row - 1).structure));
+			CHECK(isWall(gen.grid.at(col, row - 1)));
+			bool onPath = false;
+			for (const CellPos& p : gen.report.path)
+				onPath = onPath || p.row * LEVEL_WIDTH + p.col == page;
+			CHECK(onPath); // the page lies on the way to the fork
+
+			// A copy whose right route ends short of its drop: a softlock.
+			LevelGrid blocked = gen.grid;
+			int landing = row - 1;
+			while (!isWall(blocked.at(col + 2, landing - 1)))
+				landing--;
+			blocked.set(col + 3, landing, wallTile());
+			CHECK_FALSE(checkLevel(blocked).warnings.empty());
+		}
+}
+
 TEST_CASE("a zone's boss level: the boss in a sealed room, its key for the last gate behind the boss gate") {
 	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
 		const int boss = zoneBoss(static_cast<ZoneId>(zone));

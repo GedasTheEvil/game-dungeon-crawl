@@ -87,7 +87,14 @@ with no warnings.
   [stargate-chamber](stargate-chamber.draft.opus.md) is built. Played in the game: the name gate spoken, the ring's
   text copied in its room. Which page and texts each campaign level carries is the rebuild's choice (its seed
   table), so no id repeats over the campaign.
-* Next: step 8b, the forks and their hints (then step 9, decor).
+* **Step 8b, forks: done (2026-10-25).** `GenOptions::fork` (`--fork 1|2`): a hall split by a pillar under two
+  side-by-side drops, the long left route and the short right one with its traps and the earlier expedition's
+  remains and gear, both one-way into the join hall; on the last fork the warning (`FORK_TEXT`) between the drops
+  and the page on the way. A requested fork, Stargate stand-in or page wins over a candidate without it. Played in
+  the game: the path script of a necropolis fork level passes by the right route, and of a copy with the right drop
+  filled by the left one. Not done: the early forks' own hint texts (none written yet), and the fork's
+  "left / right gate" is two drops, the first one met walked into unless jumped.
+* Next: step 9, decor.
 
 ## What it must build
 

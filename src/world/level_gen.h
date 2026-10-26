@@ -43,6 +43,9 @@ struct GenOptions {
 	int page = 0;
 	std::string title;
 	bool stargate = false;
+	// A route fork (plan denser-levels, Route fork), on a level going down: 1 a fork, 2 the last fork, its warning
+	// (FORK_TEXT) between the two drops; with a page, the page lies on the way to it.
+	int fork = 0;
 };
 
 // The text ids of the rebuilt campaign's inscriptions (content/inscriptions/rebuild.txt), by zone: ZoneId z has
@@ -91,6 +94,7 @@ struct GenShape {
 	int resistancePotions = 0;
 	int inscriptions = 0; // on the halls (step 8), the secret room's and the cartouche aside
 	int pages = 0;
+	int forks = 0;
 };
 
 struct GenResult {

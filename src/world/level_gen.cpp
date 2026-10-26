@@ -160,6 +160,8 @@ class LevelBuilder {
 		addGateRooms();
 		if (zoneTarget > 0) {
 			placeHapi();
+			if (forkSeg > 0)
+				placeForkContent();
 			addTexts();
 		}
 		int branches = rng.range(1, 2) + d / 4;
@@ -209,6 +211,10 @@ class LevelBuilder {
 	std::vector<Lock> locks; // the route's gates, as placed
 	int teleportPairs = 0;
 	int boons = 0; // inscriptions with a boon placed (content.texts)
+	// A route fork (content.fork): the route's segment forkSeg is the left route's hall, forkRight the right one's,
+	// side by side under the fork hall (forkSeg - 1), both dropping into the join hall (forkSeg + 1). 0: none.
+	int forkSeg = 0;
+	Segment forkRight;
 
 	static int index(int col, int row) { return row * LEVEL_WIDTH + col; }
 	static bool interior(int col, int row) {
@@ -392,8 +398,15 @@ class LevelBuilder {
 			cur.link = !down ? Link::LadderUp : !hub && rng.chance(DROP_CHANCE) ? Link::Drop : Link::LadderDown;
 			shape.hubs += hub ? 1 : 0;
 		}
+		if (content.fork > 0 && down)
+			chooseFork();
 		for (const Segment& hall : route)
 			carveSegment(hall);
+		if (forkSeg > 0) { // the right route: its hall, the drop into it and the drop out of it
+			carveSegment(forkRight);
+			carveLink(route[static_cast<size_t>(forkSeg - 1)], forkRight, forkRight.entry, Link::Drop);
+			carveLink(forkRight, route[static_cast<size_t>(forkSeg) + 1], forkRight.exit, Link::Drop);
+		}
 		for (size_t i = 0; i + 1 < route.size(); i++) {
 			const Segment& cur = route[i];
 			const Segment& next = route[i + 1];
@@ -431,6 +444,8 @@ class LevelBuilder {
 	// between them, the pillar. No gate goes on the loop (lockSpan).
 	void addLoops() {
 		for (size_t i = 0; i + 1 < route.size() && shape.loops < MAX_LOOPS; i++) {
+			if (forkSeg > 0 && static_cast<int>(i) >= forkSeg - 1 && static_cast<int>(i) <= forkSeg)
+				continue; // a loop would join the two routes
 			Segment& cur = route[i];
 			const Segment& next = route[i + 1];
 			int dir = cur.exit > cur.entry ? 1 : -1;
@@ -558,7 +573,7 @@ class LevelBuilder {
 			const Wing& wing = wings[w];
 			const Structure s = g.at(wing.end, wing.itemRow).structure;
 			if (!wing.taken && freeCell(wing.end, wing.itemRow) && (s == Structure::Empty || s == Structure::Sand) &&
-				(wing.seg < static_cast<int>(last) || wing.entrySide))
+				(wing.seg < static_cast<int>(last) || wing.entrySide) && (forkSeg == 0 || wing.seg != forkSeg))
 				late.push_back(w);
 		}
 		if (gate < 0 || late.empty())
@@ -654,6 +669,100 @@ class LevelBuilder {
 		}
 	}
 
+	// A route fork (plan denser-levels, Route fork): a hall B the route crosses leftwards, under a hall A, over a hall
+	// C, is split by a pillar of rock under A's link: two drops side by side in A, one each side of it. The left
+	// route crosses B's left part (long) and drops into C where the route did; the right one drops from B's right
+	// part (short) a few cells along, its end a tomb. Both drops are one-way, so no way leads from one route to the
+	// other. Before the halls are carved.
+	void chooseFork() {
+		std::vector<int> candidates;
+		for (int b = 2; b + 1 < static_cast<int>(route.size()); b++) {
+			const Segment& a = route[static_cast<size_t>(b - 1)];
+			const Segment& hall = route[static_cast<size_t>(b)];
+			const int e = hall.entry;
+			if (hall.exit <= e - 8 && std::abs(a.entry - e) > 4 && a.x0 < e - 3 && e + 3 < a.x1 && hall.x0 < e - 3 &&
+				hall.x1 >= e + 6 && forkDrop(b) >= 0)
+				candidates.push_back(b);
+		}
+		if (candidates.empty())
+			return;
+		forkSeg = candidates[static_cast<size_t>(rng.range(0, static_cast<int>(candidates.size()) - 1))];
+		Segment& a = route[static_cast<size_t>(forkSeg - 1)];
+		Segment& hall = route[static_cast<size_t>(forkSeg)];
+		const int e = hall.entry;
+		forkRight = Segment{};
+		forkRight.row = hall.row;
+		forkRight.height = hall.height;
+		forkRight.x0 = e + 1;
+		forkRight.x1 = hall.x1;
+		forkRight.entry = e + 2;
+		forkRight.exit = forkDrop(forkSeg);
+		forkRight.link = Link::Drop;
+		hall.x1 = e - 1;
+		a.exit = hall.entry = e - 2;
+		a.link = hall.link = Link::Drop;
+		busy[index(e, a.row)] = 1; // the warning's, between the drops
+		shape.forks++;
+	}
+
+	// Where the right route of a fork at segment b drops into the hall under it: 2 to 5 cells along, over that hall,
+	// 2 cells short of its end (the tomb); -1 if nowhere.
+	[[nodiscard]] int forkDrop(int b) const {
+		const Segment& hall = route[static_cast<size_t>(b)];
+		const Segment& join = route[static_cast<size_t>(b) + 1];
+		for (int x = hall.entry + 4; x <= std::min(hall.entry + 7, hall.x1 - 2); x++)
+			if (x > join.x0 && x < join.x1 && std::abs(x - hall.exit) > 2)
+				return x;
+		return -1;
+	}
+
+	// The fork's content: the warning between the drops on the last fork (FORK_TEXT) and the expedition page on the
+	// way to it, on the floor; traps on every other cell of the right route, at its end the remains of the earlier
+	// expedition (a skeleton) and their gear (a weapon of the depth or a rare chest); the left route gets two monsters
+	// more.
+	void placeForkContent() {
+		const Segment& a = route[static_cast<size_t>(forkSeg - 1)];
+		const int between = a.exit + 2; // under it, the pillar between the two routes
+		if (content.fork >= 2 && freeCell(between, a.row))
+			put(between, a.row, Tile{Inscription, FORK_TEXT, 0});
+		if (isExpeditionPage(content.page)) {
+			const int dir = a.exit > a.entry ? 1 : -1;
+			for (int k = 3; k <= 9; k++) {
+				const int x = a.exit - k * dir;
+				if ((x - a.entry) * dir > 1 && busy[index(x, a.row)] == 0 && isEmptyCell(g.at(x, a.row)) &&
+					isWall(g.at(x, a.row - 1))) {
+					put(x, a.row, Tile{Page, content.page, 0});
+					busy[index(x, a.row)] = 1;
+					shape.pages++;
+					break;
+				}
+			}
+		}
+		const Segment& right = forkRight;
+		constexpr Feature KINDS[] = {Feature::Spike, Feature::RockFall, Feature::Dart, Feature::FireVent};
+		for (int x = right.entry + 1; x < right.exit; x += 2)
+			for (int k = 0; k < 4; k++) {
+				const Feature kind = KINDS[(x + k) % 4];
+				if (trapFits(right, x, kind)) {
+					put(x, right.row, trapTile(kind));
+					busy[index(x, right.row)] = 1;
+					break;
+				}
+			}
+		const int end = right.x1;
+		put(end, right.row, rng.chance(0.5f) ? chestOf(randomWeapon(true)) : rareChest());
+		busy[index(end, right.row)] = 1;
+		Tile bones = g.at(end - 1, right.row);
+		if (freeCell(end - 1, right.row) && !hasPlacedProp(bones.dressing)) {
+			bones.dressing.prop = DECOR_SKELETON;
+			g.set(end - 1, right.row, bones);
+			busy[index(end - 1, right.row)] = 1;
+		}
+		const Segment& left = route[static_cast<size_t>(forkSeg)];
+		for (int n = 0, tries = 0; n < 2 && tries < 30; tries++)
+			n += placeMonster(rng.range(left.x0 + 1, left.x1 - 1), left.row, left.dark) ? 1 : 0;
+	}
+
 	[[nodiscard]] bool hasBoon(int id) const {
 		const InscriptionText* text = content.texts != nullptr ? content.texts->Find(id) : nullptr;
 		return text != nullptr && text->boon.Any();
@@ -705,7 +814,7 @@ class LevelBuilder {
 					break;
 				}
 			}
-		if (isExpeditionPage(content.page)) {
+		if (isExpeditionPage(content.page) && shape.pages == 0) {
 			const int w = freeWing();
 			if (w >= 0) {
 				Wing& wing = wings[static_cast<size_t>(w)];
@@ -825,7 +934,7 @@ class LevelBuilder {
 			bool before = wing.seg < s || (wing.seg == s && wing.entrySide);
 			for (int k = wing.seg; k < s && before; k++)
 				before = route[static_cast<size_t>(k)].link != Link::Drop;
-			if (!wing.taken && before)
+			if (!wing.taken && before && wing.seg != forkSeg) // a left route's wing: not on the right one
 				free.push_back(w);
 		}
 		if (free.empty())
@@ -1796,6 +1905,11 @@ GenResult generateLevel(const GenOptions& options) {
 		float error = std::fabs(report.difficulty - best.target) / best.target;
 		if (zone)
 			error += std::fabs(static_cast<float>(report.openCells - openTarget)) / static_cast<float>(openTarget);
+		// What was asked for and did not fit: a candidate with it wins over any without.
+		const GenShape& shape = builder.Shape();
+		error += (options.fork > 0 && shape.forks == 0 ? 10.f : 0.f) +
+				 (options.stargate && shape.nameGates == 0 ? 10.f : 0.f) +
+				 (isExpeditionPage(options.page) && shape.pages == 0 ? 10.f : 0.f);
 		if (!best.ok || error < bestError) {
 			best.ok = true;
 			best.grid = grid;

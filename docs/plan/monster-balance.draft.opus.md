@@ -137,6 +137,48 @@ Against the model (2026-10-10 entry):
   32. Options to weigh in the sim pass: monster damage up on the late levels, armour as a percentage cut instead of a
   flat one, or fewer armour sources (potions, amulets).
 
+## Sim pass (2026-10-26)
+
+`bin/balance table --gear play` ([development.md](../development.md)): every zone's monsters and its boss against the
+player halfway through the zone (the boss: at its level), in the real sim, three seeds. The player: the level at
+today's pace (the same share of the way through as on today's 35 levels, whose XP sum, riddles counted, matches the
+playthrough: 42 on lvl18, 49 on lvl23), the gear of the playthrough (by player level), the weapon with the hardest hit
+of those found by then; up to 4 large health potions in a boss fight, 1 otherwise. Tank: up to it, swinging. Kite:
+backs off below 1.2 tiles, shoots, cornered at the wall it fights. Run past: sprints to the far end of the hall.
+
+Found:
+
+* **The common monsters stop being a fight from the web halls on.** From player level ~15, every one costs 0-3% of
+  max HP in melee: armour cuts their hits to 1, and the player's HP grows x25 over the campaign (62 -> 1627) while
+  their stats stay. Even with no armour, a giant cobra would cost a level 46 player about 6%. Exceptions: the Anubis
+  guard (130% on its first meeting at player level 27, 5% at 63) and the baboon (20-25%, a long fight).
+* Early (zones 1-2) they are fights: plant 16%, mimic 32%, giant rat 36%; the preview crocodile kills a level 8 player.
+* Bosses (tank): Khepri kills a level 4 player, the Bat of Shezmu a level 11 one, the High Priest (moved from lvl34 to
+  lvl18) a level 30 one; the Mother of Webs 115%, the queen 49%, Apep 44%, Seth 80%, Rerek 31%, Babi 287% (4
+  potions), the Anubis boss 126%. Sobek in his pool: melee never reaches him, the bow takes 204%.
+* With the generated supplies (`--gear gen`: the potions on the generated zone levels, much more armour and life) the
+  late bosses fall apart: Seth 27%, Rerek 8%, the Anubis boss 44%.
+* Fixed on the way: a slow giant scarab or Khepri followed a player backing off at 1.2 tiles, out of the ball's band
+  and short of the pounce's 2 tiles: the bow killed Khepri for nothing. Their pounce now starts at 1.2.
+* XP: the target campaign generated (`bin/balance curve`: today's levelgen, a ramp of difficulty 1-10) gives 45-55
+  monsters on a full level, today's give about 31: the player would end at level 79. The monster XP needs x0.26 (or
+  the curve steeper, or fewer monsters) to end at about 60 as today. For [denser-levels](denser-levels.draft.opus.md).
+* Levelgen builds no zone level under about 400 open cells: the draft's 100-150 for the first levels does not
+  generate. For [denser-levels](denser-levels.draft.opus.md).
+* Might adds to each hit: late the flint knife (8, every 400 ms) deals the most per second, at a tenth of a tile.
+
+So a table of KINDS changes alone cannot make each monster a fight on all its levels: a monster in several zones
+(the giant cobra in 6, 7, 10 and 12) is tuned for one of them. The options:
+
+* **A, depth scaling:** a monster's HP and damage grow with the level it is on, past its home (its first zone), by
+  the player's expected growth there; XP with the HP. KINDS keeps the home values, tuned in the home zone with the
+  sim; bosses (one level each) stay hand-tuned.
+* **B, armour as a share:** a hit loses armour / (armour + K) of its physical part instead of armour points (K about
+  50: armour 10 takes 17%, 44 takes 47%). No cliff where a hit drops to 1, and the gear's spread matters less. Alone it
+  does not answer the HP growth.
+* **C, the table only:** raise the late monsters' damage over the armour and their HP, keep the rules; a monster after
+  its first zone is filler.
+
 ## Monster strength
 
 * Go through every type in `KINDS`: speed, HP, damage, attack interval, XP. Compare against the player's level

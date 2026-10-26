@@ -74,12 +74,16 @@ LEVEL_TOOL_NAMES=levelcheck levelgen levelconvert
 LEVEL_TOOLS=$(LEVEL_TOOL_NAMES:%=$(BIN)/%)
 LEVEL_TOOL_SOURCES=$(LEVEL_TOOL_NAMES:%=tools/level/%.cpp)
 
+# The monster balance sim pass (plan monster-balance): the unit tests' sim world, no GL. See docs/development.md.
+BALANCE_SOURCES=tools/balance/balance.cpp
+BALANCE=$(BIN)/balance
+
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
 UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o)
 UNIT=$(BIN)/unit
 
-TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES)
+TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES) $(BALANCE_SOURCES)
 DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES) $(UNIT_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
 
 CLANG_TIDY?=clang-tidy
@@ -95,7 +99,7 @@ GATE_REPORT=@./tools/load_gate.sh report build
 .PHONY: all check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
-all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT)
+all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
 	$(GATE_REPORT)
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
@@ -146,11 +150,15 @@ $(LEVEL_TOOLS): $(BIN)/%: $(BUILD)/tools/level/%.o $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
+$(BALANCE): $(BALANCE_SOURCES:%.cpp=$(BUILD)/%.o) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+	@mkdir -p $(@D)
+	$(GATE) $(CXX) $^ -o $@
+
 clean:
 	rm -rf $(BUILD) $(BIN)
 
 FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
-	tools/model-viewer/*.h tools/model-viewer/*.cpp tests/unit/*.cpp)
+	tools/model-viewer/*.h tools/model-viewer/*.cpp tools/balance/*.cpp tests/unit/*.cpp)
 
 format:
 	@clang-format -i $(FORMAT_FILES)

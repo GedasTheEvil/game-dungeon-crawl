@@ -32,15 +32,17 @@ TEST_CASE("the pouncers: the giant rat and the giant scarab; Khepri from farther
 	REQUIRE(khepri.pounce);
 	CHECK_FALSE(monsterKind(MonsterRat)->pounce);
 	CHECK_FALSE(monsterKind(MonsterScarab)->pounce);
-	for (const MonsterKind* kind : {&rat, &scarab, &khepri}) {
+	for (const MonsterKind* kind : {&rat, &scarab, &khepri})
 		CHECK(leaps(kind->locomotion));
-		CHECK(kind->pounce->minGap == 2.f);
-	}
+	CHECK(rat.pounce->minGap == 2.f);
 	CHECK(rat.pounce->maxGap == 3.f);
 	CHECK(rat.pounce->cooldownMs == 3000);
 	CHECK(rat.pounce->landGap < MONSTER_BITE_REACH);
-	// The scarab leaps from beyond its ball's band into it.
-	CHECK(scarab.pounce->minGap > scarab.roll->maxRange);
+	// The scarab leaps from just beyond its ball's band into it: no gap between the two a player can keep it in.
+	for (const MonsterKind* kind : {&scarab, &khepri}) {
+		CHECK(kind->pounce->minGap > kind->roll->maxRange);
+		CHECK(kind->pounce->minGap <= kind->roll->maxRange + 0.2f);
+	}
 	CHECK(scarab.pounce->landGap >= scarab.roll->minRange);
 	CHECK(scarab.pounce->landGap <= scarab.roll->maxRange);
 	CHECK(khepri.pounce->landGap <= khepri.roll->maxRange);

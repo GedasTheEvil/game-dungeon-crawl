@@ -194,11 +194,12 @@ constexpr RollRules KHEPRI_ROLL = {
 };
 
 // The pounce (plan monster-balance): the giant rat and the giant scarab leap at the player from 2-3 tiles, so the bow
-// alone does not keep them off. The rat lands in bite reach; the scarab from beyond its dung ball's band into it, the
-// ball's windup the tell. Khepri (the boss rule) from farther, more often.
+// alone does not keep them off. The rat lands in bite reach; the scarab from just beyond its dung ball's band into it,
+// the ball's windup the tell (from 2 tiles, a player backing off at a walk kept the slow scarab between the two, out of
+// both: the balance sim). Khepri (the boss rule) from farther, more often.
 constexpr PounceRules GIANT_RAT_POUNCE = {.minGap = 2.f, .maxGap = 3.f, .cooldownMs = 3000};
-constexpr PounceRules GIANT_SCARAB_POUNCE = {.minGap = 2.f, .maxGap = 3.f, .cooldownMs = 3000, .landGap = 0.8f};
-constexpr PounceRules KHEPRI_POUNCE = {.minGap = 2.f, .maxGap = 3.5f, .cooldownMs = 2500, .landGap = 1.05f};
+constexpr PounceRules GIANT_SCARAB_POUNCE = {.minGap = 1.2f, .maxGap = 3.f, .cooldownMs = 3000, .landGap = 0.8f};
+constexpr PounceRules KHEPRI_POUNCE = {.minGap = 1.2f, .maxGap = 3.5f, .cooldownMs = 2500, .landGap = 1.05f};
 
 // A boss has no weakness: where its kin is weak, it takes the damage normally.
 constexpr Resistances bossResist(Resistances kin) {

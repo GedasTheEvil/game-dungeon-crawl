@@ -1,12 +1,12 @@
 // levelgen: writes random levels. See docs/levels.md.
 //   levelgen [--seed N] [--difficulty D] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] [--texts IDS]
-//            [--lore IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT
+//            [--lore IDS] [--stargate] [--fork 1|2] [--finale]] [--count K] [--map] OUT
 // With --count K > 1, OUT is a prefix: OUT1 .. OUTK, seeds N .. N+K-1. With --zone, a level in the campaign's shape
 // for that zone (plan campaign-levelgen), about C open cells; with --boss, the zone's boss level.
 // A zone level's inscriptions come from content/inscriptions/ (run it from the repo root), or --texts 53,54 names
 // them, --lore 33,34 the secret rooms' texts; --page puts an expedition page, --title names the level, --stargate makes
 // it the Stargate chamber's level,
-// --fork 1 (2: the last fork) splits the route in two.
+// --fork 1 (2: the last fork) splits the route in two, --finale (with --boss) puts the ankh behind the boss gate.
 
 #include "../../src/core/paths.h"
 #include "../../src/world/campaign.h"
@@ -24,7 +24,7 @@ int usage() {
 	fprintf(
 		stderr,
 		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] "
-		"[--texts IDS] [--lore IDS] [--stargate] [--fork 1|2]] [--count K] [--map] OUT\n"
+		"[--texts IDS] [--lore IDS] [--stargate] [--fork 1|2] [--finale]] [--count K] [--map] OUT\n"
 	);
 	return 2;
 }
@@ -51,6 +51,8 @@ int main(int argc, char** argv) {
 			count = atoi(argv[++i]);
 		else if (strcmp(argv[i], "--boss") == 0)
 			options.boss = true;
+		else if (strcmp(argv[i], "--finale") == 0)
+			options.finale = true;
 		else if (strcmp(argv[i], "--stargate") == 0)
 			options.stargate = true;
 		else if (strcmp(argv[i], "--fork") == 0 && hasValue)

@@ -201,6 +201,10 @@ class LevelBuilder {
 			addLight();
 			dressRooms();
 		}
+		if (content.finale && shape.bossRoom) { // no exit: a rare chest where it stood
+			const Segment& last = route.back();
+			g.set(last.exit, last.row, rareChest());
+		}
 		out = g;
 		return true;
 	}
@@ -616,9 +620,11 @@ class LevelBuilder {
 			return false;
 		std::stable_sort(late.begin(), late.end(), [this](size_t a, size_t b) { return wings[a].seg > wings[b].seg; });
 		Wing& wing = wings[late[static_cast<size_t>(rng.range(0, std::min(3, static_cast<int>(late.size())) - 1))]];
-		g.set(gate, exitHall.row, Tile{Gate, bossColour, 0});
-		markBusy(exitHall, gate);
-		locks.push_back(Lock{static_cast<int>(last), gate, bossColour});
+		if (!content.finale) {
+			g.set(gate, exitHall.row, Tile{Gate, bossColour, 0});
+			markBusy(exitHall, gate);
+			locks.push_back(Lock{static_cast<int>(last), gate, bossColour});
+		}
 		const int pair = ++teleportPairs;
 		put(wing.end, wing.itemRow, Tile{Door, GateTeleport, pair});
 		wing.taken = true;
@@ -647,8 +653,12 @@ class LevelBuilder {
 		bossGateRow = floorRow;
 		bossStep = step;
 		put(bossGate, floorRow, Tile{Gate, BOSS_LOCK, 0});
-		put(at(n - 2), floorRow, Tile{Key, bossColour, 0});
-		put(at(n - 1), floorRow, rareChest());
+		if (content.finale) // the ankh behind the boss gate wins the game
+			put(at(n - 1), floorRow, Tile{Ankh, 0, 0});
+		else {
+			put(at(n - 2), floorRow, Tile{Key, bossColour, 0});
+			put(at(n - 1), floorRow, rareChest());
+		}
 		for (int k = 0; k < n; k++)
 			busy[index(at(k), floorRow)] = busy[index(at(k), room.row)] = 1;
 		shapeBossRoom(room, at(mid), step);

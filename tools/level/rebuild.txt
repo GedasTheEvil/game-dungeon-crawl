@@ -40,3 +40,10 @@
 20 --zone scorpion_nest --seed 3 --difficulty 4 --texts 81,82 --page 12 --lore 12 --title "The Weeping Roof"
 21 --zone scorpion_nest --seed 4 --difficulty 4 --texts 84,85 --title "The Hall of Antidotes"
 22 --zone scorpion_nest --seed 3 --difficulty 5 --boss --texts 86 --page 13 --title "The Nest of the Queen"
+
+# Zone 6: Serpent temple. Freed texts of today's campaign on darts and Apep (14, 17, 18, 22); lore 40-42.
+23 --zone serpent_temple --seed 12 --difficulty 5 --texts 87,88 --lore 40 --title "The Gate of the Serpent"
+24 --zone serpent_temple --seed 10 --difficulty 5 --texts 89,14 --page 14 --lore 41 --title "The Spitting Wall"
+25 --zone serpent_temple --seed 7 --difficulty 5 --texts 90,22 --page 15 --lore 42 --title "The Hall of the Rhythm"
+26 --zone serpent_temple --seed 3 --difficulty 5 --texts 91,92,17 --title "The Uraeus Stair"
+27 --zone serpent_temple --seed 9 --difficulty 5 --boss --texts 93,18 --page 16 --title "The Pit of Apep"

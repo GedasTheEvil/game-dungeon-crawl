@@ -47,6 +47,9 @@ struct GenOptions {
 	// A route fork (plan denser-levels, Route fork), on a level going down: 1 a fork, 2 the last fork, its warning
 	// (FORK_TEXT) between the two drops; with a page, the page lies on the way to it.
 	int fork = 0;
+	// The campaign's last level (with boss): the ankh behind the boss gate wins the game, no exit (a rare chest in its
+	// place), no last gate.
+	bool finale = false;
 };
 
 // The text ids of the rebuilt campaign's inscriptions (content/inscriptions/rebuild.txt), by zone: ZoneId z has

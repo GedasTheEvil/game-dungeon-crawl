@@ -147,7 +147,7 @@ TEST_CASE("water props grow in the half water, the dry ones stay out of it (plan
 		for (int k = 0; k < LEVEL_CELL_COUNT; k++) {
 			const Tile t = s.grid.cells[k];
 			const int prop = s.layout->decor[k].type;
-			halfWater += inHalfWater(t) ? 1 : 0;
+			halfWater += inHalfWater(t) && t.type == NoObject && !hasFixture(t) ? 1 : 0; // the free ones
 			if (prop < 0)
 				continue;
 			CHECK(isWaterProp(prop) == inHalfWater(t));

@@ -1,0 +1,774 @@
+2,1 surface 15/6/8
+3,1 surface 14/6/8
+4,1 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+5,1 surface 14/6/8 decal 7 0.571,0.536
+6,1 surface 14/6/8
+7,1 surface 15/6/8 sand> decal 7m 0.424,0.463
+8,1 surface 14/1/8
+9,1 surface 14/6/8 sand<
+10,1 surface 14/6/8 sand> prop cat 0.099 torch fire torch 0.000,0.680,0.098
+11,1 surface 14/1/8 prop thoth_ibis_standing 0.141
+12,1 surface 15/1/8 ladder 0/4
+13,1 surface 14/1/8
+14,1 surface 15/6/8 sand<>
+15,1 surface 14/1/8 decal 7 0.550,0.452
+16,1 surface 14/1/8 torch fire torch 0.000,0.680,0.098
+17,1 surface 14/6/8 sand< decal 11m 0.431,0.450
+18,1 surface 15/6/8
+19,1 surface 14/6/8 prop sarcophagus -0.063
+20,1 surface 14/6/8 prop canopic -0.055
+30,1 surface 14/6/8 prop sarcophagus 0.043 decal 9 0.552,0.602
+31,1 surface 15/6/8 sand> ladder 0/4m
+32,1 surface 14/1/8 decal 2m 0.467,0.350
+33,1 surface 14/6/8 sand< decal 6m 0.437,0.575
+34,1 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+35,1 surface 15/6/8
+36,1 surface 14/6/8 sand>
+37,1 surface 15/1/8
+38,1 surface 14/1/8
+12,2 surface 15/6/8 ladder 0/2
+22,2 surface 15/6/8
+31,2 surface 14/6/8 ladder 0/1
+36,2 surface 14/6/8
+6,3 surface 14/1/8
+7,3 surface 15/6/8 sand< prop sarcophagus -0.077
+8,3 surface 14/6/8
+9,3 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+10,3 surface 14/6/8
+11,3 surface 15/6/8 prop brazier 0.076 decal 8m 0.518,0.523 fire brazier 0.076,0.220,0.160
+12,3 surface 14/6/8 ladder 0/3
+13,3 surface 15/6/8
+14,3 surface 14/6/8 decal 8 0.597,0.431
+15,3 surface 14/6/8 prop lampm -0.057 decal 11m 0.398,0.449 fire lamp 0.199,0.050,0.307
+16,3 surface 14/6/8
+17,3 surface 15/6/8 prop skeleton 0.002 decal 7 0.624,0.512
+18,3 surface 14/6/8 prop coffin 0.000 torch fire torch 0.000,0.680,0.098
+19,3 surface 14/6/8 sand> prop lamp -0.072 decal 9m 0.373,0.514 fire lamp -0.328,0.050,0.307
+20,3 surface 14/1/8
+21,3 surface 14/6/8 sand< prop scrollsm -0.045 decal 7 0.388,0.550
+22,3 surface 14/6/8
+23,3 surface 14/6/8 sand> decal 5 0.527,0.625
+24,3 surface 14/1/8 prop jackalm 0.115 decal 0m 0.568,0.499
+25,3 surface 14/6/8 sand<> prop canopic -0.031
+26,3 surface 14/1/8
+27,3 surface 15/6/8 sand< prop jackalm 0.053 torch fire torch 0.000,0.680,0.098
+28,3 surface 14/6/8 decal 6m 0.536,0.575
+29,3 surface 14/6/8 sand>
+30,3 surface 15/1/8 decal 11m 0.445,0.530
+31,3 surface 14/6/8 ladder 0/3m
+32,3 surface 14/6/8 prop osiris -0.052
+33,3 surface 14/6/8
+34,3 surface 14/6/8 decal 6 0.519,0.575
+35,3 surface 15/6/8 prop sarcophagusm -0.063 decal 5 0.531,0.625 torch fire torch 0.000,0.680,0.098
+36,3 surface 14/6/8
+37,3 surface 14/6/8 decal 7 0.619,0.529
+38,3 surface 14/6/8 ladder 1/4
+38,4 surface 14/6/8 ladder 1/1
+26,5 surface 14/6/8 sand> decal 10m 0.357,0.561
+27,5 surface 14/1/8 prop lamp 0.064 fire lamp -0.192,0.050,0.307
+28,5 surface 14/6/8 sand<
+29,5 surface 15/6/8
+30,5 surface 14/6/8 prop sarcophagusm 0.048
+31,5 surface 15/6/8
+32,5 surface 14/6/8 sand> prop brazier -0.198 decal 9 0.554,0.457 fire brazier -0.198,0.220,0.160
+33,5 surface 15/1/8 prop potterym -0.071 decal 5m 0.501,0.625
+34,5 surface 14/6/8 sand< decal 1 0.479,0.601
+35,5 surface 14/6/8
+36,5 surface 14/6/8 sand>
+37,5 surface 15/1/8 decal 5 0.483,0.625
+38,5 surface 14/6/8 ladder 1/0
+38,6 surface 15/6/8 ladder 1/2
+1,7 surface 14/6/8 ladder 0/4m
+2,7 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+3,7 surface 15/6/8
+4,7 surface 14/6/8 sand> ladder 0/4
+5,7 surface 14/1/8 decal 8 0.557,0.530
+6,7 surface 14/6/8 sand< decal 2 0.408,0.350
+7,7 surface 15/6/8 prop osiris -0.073
+8,7 surface 14/6/8 sand> torch fire torch 0.000,0.680,0.098
+9,7 surface 14/1/8 decal 11 0.586,0.592
+10,7 surface 15/6/8 sand< prop jackal -0.098
+11,7 surface 14/6/8
+12,7 surface 14/6/8 sand> decal 5m 0.538,0.625
+13,7 surface 14/1/8
+14,7 surface 14/6/8 sand< prop jackalm 0.190 decal 8 0.600,0.440
+15,7 surface 14/6/8
+16,7 surface 14/6/8 sand> decal 1 0.581,0.510
+17,7 surface 15/1/8
+18,7 surface 14/1/8 decal 7m 0.615,0.603
+19,7 surface 15/6/8 sand< decal 9 0.675,0.608
+20,7 surface 14/6/8 prop catm -0.110 decal 8m 0.472,0.589
+21,7 surface 15/6/8 decal 9 0.345,0.444
+22,7 surface 14/6/8 prop osirism -0.100 decal 7 0.524,0.554
+23,7 surface 15/6/8
+24,7 surface 14/6/8 prop lamp 0.053 fire lamp -0.203,0.050,0.307
+25,7 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+26,7 surface 14/6/8 prop scrolls -0.018 decal 11 0.598,0.471
+27,7 surface 14/6/8 prop ushabtim 0.034
+28,7 surface 14/6/8 decal 7m 0.520,0.471
+29,7 surface 14/6/8 decal 8 0.573,0.522
+30,7 surface 14/6/8 sand> decal 9m 0.634,0.542
+31,7 surface 14/1/8 torch fire torch 0.000,0.680,0.098
+32,7 surface 15/1/8 prop pottery -0.064
+33,7 surface 14/1/8 decal 8 0.444,0.403
+34,7 surface 14/6/8 sand<>
+35,7 surface 15/1/8 prop sarcophagusm -0.034
+36,7 surface 14/6/8 sand<> decal 11 0.570,0.554
+37,7 surface 14/1/8 prop jackal -0.164 decal 5 0.568,0.625
+38,7 surface 14/6/8 ladder 1/3
+1,8 surface 15/6/8 ladder 0/1m
+4,8 surface 14/6/8 ladder 0/0m
+1,9 surface 14/6/8 ladder 0/2m
+3,9 surface 14/1/8 decal 2m 0.418,0.350 torch fire torch 0.000,0.680,0.098
+4,9 surface 14/6/8 ladder 0/3
+5,9 surface 15/6/8 decal 10 0.497,0.549
+6,9 surface 14/6/8 prop sarcophagus -0.022
+7,9 surface 15/6/8 decal 7m 0.409,0.480
+8,9 surface 14/6/8 prop sarcophagus -0.014 torch fire torch 0.000,0.680,0.098
+9,9 surface 14/6/8 decal 9 0.546,0.388
+10,9 surface 14/6/8 sand> decal 7m 0.462,0.485
+11,9 surface 14/1/8 prop sarcophagusm 0.009
+12,9 surface 14/6/8 sand< decal 7m 0.447,0.405
+13,9 surface 15/6/8
+14,9 surface 14/6/8 prop skeleton -0.138
+15,9 surface 14/6/8 sand> prop ushabtim 0.021
+16,9 surface 15/1/8
+1,10 surface 14/1/8 ladder 0/0
+3,10 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+4,10 surface 15/6/8
+5,10 surface 14/6/8 decal 8m 0.598,0.503
+6,10 surface 14/6/8
+7,10 surface 14/6/8
+8,10 surface 14/6/8
+9,10 surface 15/1/8
+10,10 surface 14/1/8 torch fire torch 0.000,0.680,0.098
+11,10 surface 14/6/8 decal 11m 0.503,0.608
+12,10 surface 14/6/8 decal 7 0.409,0.466
+13,10 surface 14/6/8
+14,10 surface 14/6/8
+15,10 surface 14/6/8 decal 10m 0.603,0.599
+16,10 surface 14/6/8
+19,10 surface 14/6/8
+20,10 surface 15/6/8
+21,10 surface 14/6/8 sand> prop sarcophagus -0.057 decal 5 0.544,0.625 torch fire torch 0.000,0.680,0.098
+22,10 surface 15/1/8
+23,10 surface 14/6/8 sand<
+24,10 surface 14/6/8
+25,10 surface 14/6/8
+26,10 surface 14/6/8
+27,10 surface 14/6/8 sand>
+28,10 surface 14/1/8
+29,10 surface 14/6/8 sand< prop coffin 0.000
+30,10 surface 15/6/8 decal 9 0.688,0.517
+31,10 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+32,10 surface 15/6/8 prop sarcophagus 0.095 decal 7 0.474,0.599
+33,10 surface 14/6/8 decal 5 0.417,0.625
+34,10 surface 14/6/8 sand>
+35,10 surface 14/1/8
+36,10 surface 14/1/8 prop canopicm 0.007
+37,10 surface 14/6/8 sand< decal 5 0.567,0.625
+38,10 surface 15/6/8
+1,11 surface 14/1/8 ladder 0/2
+1,12 surface 6/1/2 ladder 0/0
+14,12 surface 15/6/8
+1,13 surface 6/1/2 ladder 0/3m
+2,13 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+3,13 surface 7/1/2
+4,13 surface 6/1/2
+5,13 surface 6/1/2
+6,13 surface 7/1/2
+7,13 surface 6/1/2 decal 9m 0.468,0.408
+8,13 surface 6/1/2
+9,13 surface 6/1/2 decal 6m 0.528,0.575 torch fire torch 0.000,0.680,0.098
+10,13 surface 7/1/2 decal 1m 0.715,0.523
+11,13 surface 6/1/2 prop thoth_baboon_standing -0.027
+12,13 surface 6/1/2 prop sarcophagus 0.045 decal 7 0.563,0.563
+13,13 surface 7/1/2 decal 11 0.574,0.575
+14,13 surface 6/1/2
+15,13 surface 6/1/2 decal 10m 0.285,0.546
+16,13 surface 6/1/2 decal 8m 0.599,0.449
+17,13 surface 6/1/2
+18,13 surface 7/1/2 decal 0m 0.688,0.618
+19,13 surface 6/1/2
+20,13 surface 7/1/2 decal 5m 0.471,0.625 torch fire torch 0.000,0.680,0.098
+21,13 surface 6/1/2 decal 1m 0.554,0.393
+22,13 surface 6/1/2 decal 10 0.729,0.507
+23,13 surface 6/1/2 prop sarcophagusm -0.039
+24,13 surface 6/1/2 prop canopicm -0.032
+25,13 surface 7/1/2
+26,13 surface 6/1/2
+27,13 surface 7/1/2 prop osirism -0.027
+28,13 surface 6/1/2
+29,13 surface 6/1/2 prop sarcophagus 0.006 torch fire torch 0.000,0.680,0.098
+30,13 surface 6/1/2
+31,13 surface 6/1/2 prop canopicm -0.021
+32,13 surface 7/1/2 decal 7 0.572,0.589
+33,13 surface 6/1/2 decal 7 0.394,0.420
+34,13 surface 6/1/2
+35,13 surface 6/1/2
+36,13 surface 7/1/2
+37,13 surface 6/1/2 decal 11 0.469,0.601
+38,13 surface 7/1/2 ladder 0/4m
+38,14 surface 14/6/8 ladder 0/2
+22,15 surface 6/1/2
+23,15 surface 7/1/2
+24,15 surface 6/1/2 decal 2 0.515,0.350
+25,15 surface 6/1/2 decal 5m 0.493,0.625 torch fire torch 0.000,0.680,0.098
+26,15 surface 6/1/2 decal 1m 0.524,0.562
+27,15 surface 6/1/2
+28,15 surface 6/1/2 decal 9 0.592,0.547
+29,15 surface 7/1/2 prop sarcophagus 0.056 decal 0 0.419,0.459
+30,15 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+31,15 surface 7/1/2 decal 1m 0.419,0.540
+32,15 surface 6/1/2
+33,15 surface 6/1/2
+34,15 surface 6/1/2 decal 2m 0.433,0.350
+35,15 surface 7/1/2
+36,15 surface 6/1/2
+37,15 surface 6/1/2
+38,15 surface 6/1/2 ladder 0/0
+38,16 surface 15/1/8 ladder 0/1
+2,17 surface 6/1/2 ladder 1/4
+3,17 surface 7/1/2
+4,17 surface 6/1/2 decal 11m 0.585,0.564
+5,17 surface 6/1/2 decal 6 0.433,0.575 torch fire torch 0.000,0.680,0.098
+6,17 surface 7/1/2
+7,17 surface 6/1/2 decal 7 0.557,0.567
+8,17 surface 6/1/2 decal 6m 0.473,0.575
+9,17 surface 7/1/2
+10,17 surface 6/1/2
+11,17 surface 7/1/2 prop osiris 0.090
+12,17 surface 6/1/2
+13,17 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+14,17 surface 6/1/2 prop sarcophagus 0.007
+15,17 surface 6/1/2
+16,17 surface 6/1/2
+17,17 surface 6/1/2
+18,17 surface 6/1/2
+19,17 surface 7/1/2
+20,17 surface 6/1/2
+21,17 surface 7/1/2
+22,17 surface 6/1/2 prop canopicm 0.033 torch fire torch 0.000,0.680,0.098
+23,17 surface 6/1/2 prop rubblem 0.041 decal 11m 0.413,0.492
+24,17 surface 6/1/2
+25,17 surface 7/1/2 decal 7m 0.443,0.542
+26,17 surface 6/1/2
+27,17 surface 7/1/2 decal 11 0.556,0.401
+28,17 surface 6/1/2 prop potterym -0.024
+29,17 surface 7/1/2 torch fire torch 0.000,0.680,0.098
+30,17 surface 6/1/2
+31,17 surface 6/1/2
+32,17 surface 6/1/2 decal 8 0.519,0.519
+33,17 surface 7/1/2 prop canopic 0.034 decal 7 0.579,0.414
+34,17 surface 6/1/2
+35,17 surface 6/1/2 prop jackal -0.167
+36,17 surface 7/1/2
+37,17 surface 6/1/2 prop sarcophagus -0.043
+38,17 surface 6/1/2 ladder 0/3m
+2,18 surface 14/6/8 ladder 1/1
+14,18 surface 14/6/8
+15,18 surface 14/6/8
+16,18 surface 14/6/8 decal 9m 0.333,0.377
+17,18 surface 15/6/8
+18,18 surface 14/1/8
+19,18 surface 14/6/8
+20,18 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+21,18 surface 14/6/8
+22,18 surface 14/6/8
+23,18 surface 15/6/8
+24,18 surface 14/6/8
+25,18 surface 14/1/8 decal 8 0.506,0.617
+26,18 surface 14/6/8 decal 10 0.664,0.432
+27,18 surface 14/6/8 decal 11m 0.539,0.488
+28,18 surface 15/1/8
+29,18 surface 14/6/8 decal 7 0.448,0.525
+30,18 surface 15/6/8
+31,18 surface 14/6/8 decal 8 0.578,0.490
+32,18 surface 14/6/8 decal 7 0.433,0.446
+33,18 surface 15/1/8 decal 5m 0.400,0.625 torch fire torch 0.000,0.680,0.098
+34,18 surface 14/1/8 decal 7 0.548,0.527
+35,18 surface 15/6/8
+36,18 surface 14/6/8
+37,18 surface 15/1/8 decal 7m 0.559,0.525
+38,18 surface 14/6/8
+2,19 surface 14/6/8 ladder 1/0
+3,19 surface 15/6/8 prop sarcophagus 0.096 torch fire torch 0.000,0.680,0.098
+4,19 surface 14/6/8 prop sarcophagus -0.097
+5,19 surface 14/6/8
+6,19 surface 15/6/8 decal 7 0.580,0.551
+7,19 surface 14/6/8 decal 9m 0.472,0.474
+8,19 surface 14/6/8
+9,19 surface 15/6/8 prop sarcophagus 0.073 torch fire torch 0.000,0.680,0.098
+10,19 surface 14/6/8 sand>
+11,19 surface 14/1/8
+12,19 surface 14/1/8 decal 10m 0.381,0.542
+2,20 surface 15/6/8 ladder 1/1
+22,20 surface 14/6/8 decal 0m 0.615,0.391
+26,20 surface 14/6/8 decal 11 0.561,0.588
+2,21 surface 14/6/8 ladder 1/3
+3,21 surface 15/6/8 prop lamp 0.083 fire lamp -0.173,0.050,0.307
+4,21 surface 14/6/8 sand> prop sarcophagus 0.082
+5,21 surface 15/1/8
+6,21 surface 14/6/8 sand<
+7,21 surface 14/6/8 prop catm 0.126
+8,21 surface 15/6/8
+9,21 surface 14/6/8
+10,21 surface 14/6/8
+11,21 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+12,21 surface 14/6/8
+13,21 surface 14/6/8 prop skeleton 0.082
+14,21 surface 15/6/8
+15,21 surface 14/6/8 prop web 0.000
+16,21 surface 14/6/8 prop ushabti -0.016
+17,21 surface 14/6/8 prop canopicm 0.024
+18,21 surface 14/6/8 decal 5m 0.479,0.625 torch fire torch 0.000,0.680,0.098
+19,21 surface 14/6/8 decal 8 0.515,0.531
+20,21 surface 15/6/8 decal 9m 0.554,0.616
+21,21 surface 14/6/8 prop lampm -0.045 fire lamp 0.211,0.050,0.307
+22,21 surface 14/6/8
+23,21 surface 14/6/8 decal 10 0.281,0.467
+24,21 surface 15/6/8
+25,21 surface 14/6/8
+26,21 surface 15/1/8
+27,21 surface 14/1/8 decal 6 0.476,0.575 torch fire torch 0.000,0.680,0.098
+28,21 surface 15/6/8 sand<
+29,21 surface 14/6/8 sand>
+30,21 surface 14/1/8
+31,21 surface 15/6/8 sand< decal 8m 0.447,0.522
+32,21 surface 14/6/8
+33,21 surface 14/6/8 decal 9 0.323,0.500
+34,21 surface 14/6/8 decal 1 0.607,0.532
+35,21 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+36,21 surface 14/6/8 sand>
+37,21 surface 14/1/8 decal 7 0.460,0.501
+38,21 surface 14/6/8 sand< ladder 0/4m
+38,22 surface 15/1/8 ladder 0/1m
+8,23 surface 7/1/2
+9,23 surface 6/1/2
+10,23 surface 6/1/2 decal 9m 0.616,0.389
+11,23 surface 6/1/2 prop potterym -0.060
+12,23 surface 6/1/2 decal 11 0.613,0.506
+13,23 surface 6/1/2 decal 7 0.418,0.400
+14,23 surface 7/1/2
+15,23 surface 6/1/2 decal 7 0.502,0.566
+16,23 surface 6/1/2 prop jackal -0.058 decal 8 0.513,0.478
+17,23 surface 7/1/2 decal 7m 0.614,0.619
+18,23 surface 6/1/2 decal 6m 0.556,0.575 torch fire torch 0.000,0.680,0.098
+19,23 surface 6/1/2
+20,23 surface 7/1/2 decal 10 0.505,0.555
+21,23 surface 6/1/2 ladder 1/4
+24,23 surface 14/6/8 sand> decal 7m 0.614,0.592
+25,23 surface 15/1/8 decal 7m 0.496,0.569
+26,23 surface 14/6/8 sand< decal 11m 0.549,0.383
+27,23 surface 14/6/8 decal 6 0.572,0.575 torch fire torch 0.000,0.680,0.098
+28,23 surface 14/6/8 prop osirism -0.039
+29,23 surface 15/6/8 prop jackal -0.166
+30,23 surface 14/6/8 prop coffin 0.000 decal 7 0.463,0.508
+31,23 surface 14/6/8 decal 11 0.395,0.540
+32,23 surface 14/6/8
+33,23 surface 15/6/8
+34,23 surface 14/6/8
+35,23 surface 15/6/8
+36,23 surface 14/6/8 prop potterym 0.012
+37,23 surface 14/6/8 decal 10 0.576,0.556
+38,23 surface 14/6/8 ladder 0/2
+15,24 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+21,24 surface 7/1/2 ladder 1/2
+38,24 surface 7/1/2 ladder 0/1m
+3,25 surface 15/6/8 ladder 0/4
+4,25 surface 14/6/8
+5,25 surface 14/6/8 decal 11m 0.431,0.605
+6,25 surface 15/6/8 prop brazier -0.021 fire brazier -0.021,0.220,0.160
+7,25 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+8,25 surface 15/6/8 sand> prop rubble -0.023
+9,25 surface 14/1/8
+10,25 surface 14/6/8 sand<
+11,25 surface 14/6/8
+12,25 surface 15/6/8 prop pottery 0.045 decal 8m 0.417,0.471
+13,25 surface 14/6/8 prop skeleton 0.000
+14,25 surface 15/6/8 prop sarcophagusm -0.006 torch fire torch 0.000,0.680,0.098
+15,25 surface 14/6/8
+16,25 surface 15/1/8 decal 9m 0.601,0.472
+17,25 surface 14/6/8 sand< decal 8 0.542,0.515
+18,25 surface 14/6/8 sand> prop sarcophagusm -0.040
+19,25 surface 15/1/8 torch fire torch 0.000,0.680,0.098
+20,25 surface 14/6/8 sand< prop ushabti -0.027
+21,25 surface 14/6/8 ladder 1/3
+22,25 surface 15/6/8
+23,25 surface 14/6/8 sand> decal 11m 0.412,0.496
+24,25 surface 15/1/8 decal 11 0.525,0.376
+25,25 surface 14/6/8 sand< prop scrolls 0.000 torch fire torch 0.000,0.680,0.098
+26,25 surface 15/6/8 prop osirism -0.100 decal 11 0.483,0.398
+27,25 surface 14/6/8
+28,25 surface 15/6/8 prop web -0.000
+29,25 surface 14/6/8 decal 11 0.548,0.410
+30,25 surface 14/6/8 decal 8 0.485,0.567
+31,25 surface 15/6/8 decal 0m 0.591,0.594
+32,25 surface 14/6/8
+33,25 surface 15/6/8
+34,25 surface 14/6/8 sand> prop sarcophagusm -0.040
+35,25 surface 15/1/8 decal 7m 0.566,0.431
+36,25 surface 14/1/8 prop scrollsm 0.066 decal 7m 0.423,0.580
+37,25 surface 15/1/8 torch fire torch 0.000,0.680,0.098
+38,25 surface 14/1/8 ladder 0/3m
+3,26 surface 7/1/2 ladder 0/1
+3,27 surface 6/1/2 ladder 0/0
+4,27 surface 6/1/2 decal 11m 0.477,0.586
+5,27 surface 6/1/2 decal 9 0.506,0.374
+6,27 surface 6/1/2
+7,27 surface 7/1/2 torch fire torch 0.000,0.680,0.098
+8,27 surface 6/1/2
+9,27 surface 6/1/2 prop sarcophagusm -0.098
+10,27 surface 6/1/2
+11,27 surface 6/1/2 prop sarcophagus 0.041 decal 10 0.361,0.455
+12,27 surface 7/1/2
+13,27 surface 6/1/2
+14,27 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+15,27 surface 6/1/2 prop web 0.000
+16,27 surface 6/1/2
+3,28 surface 14/6/8 ladder 0/2m
+3,29 surface 6/1/2 ladder 0/3m
+4,29 surface 6/1/2 decal 2 0.610,0.350
+5,29 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+6,29 surface 6/1/2 decal 11 0.589,0.558
+7,29 surface 7/1/2
+8,29 surface 6/1/2
+9,29 surface 6/1/2
+10,29 surface 7/1/2
+11,29 surface 6/1/2 decal 5 0.443,0.625
+12,29 surface 6/1/2 prop sarcophagusm -0.062 decal 6 0.530,0.575
+13,29 surface 6/1/2 decal 7 0.533,0.450
+14,29 surface 6/1/2
+15,29 surface 6/1/2 decal 7 0.415,0.550
+16,29 surface 6/1/2 decal 9 0.323,0.616
+17,29 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+18,29 surface 7/1/2 prop sarcophagus 0.010 decal 7m 0.516,0.482
+19,29 surface 6/1/2
+20,29 surface 6/1/2
+21,29 surface 6/1/2 decal 8 0.577,0.597
+22,29 surface 6/1/2 decal 8 0.483,0.506
+23,29 surface 7/1/2
+24,29 surface 6/1/2 decal 5m 0.589,0.625 torch fire torch 0.000,0.680,0.098
+25,29 surface 7/1/2 ladder 1/4
+26,29 surface 6/1/2 decal 1 0.534,0.608
+27,29 surface 7/1/2
+28,29 surface 6/1/2
+29,29 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+30,29 surface 6/1/2 prop sarcophagus 0.057 decal 6m 0.502,0.575
+31,29 surface 6/1/2 decal 9m 0.519,0.562
+32,29 surface 6/1/2
+33,29 surface 6/1/2 prop cat -0.007 decal 10m 0.558,0.410
+34,29 surface 7/1/2 prop osiris 0.081
+35,29 surface 6/1/2 decal 0 0.499,0.614
+36,29 surface 6/1/2
+37,29 surface 7/1/2 prop canopic 0.006
+38,29 surface 6/1/2 ladder 0/4
+25,30 surface 6/1/2 ladder 1/0
+38,30 surface 15/6/8 ladder 0/0
+20,31 surface 14/6/8
+21,31 surface 15/6/8 decal 7 0.406,0.606
+22,31 surface 14/6/8
+23,31 surface 15/6/8 decal 1m 0.624,0.397
+24,31 surface 14/6/8 decal 8 0.422,0.480
+25,31 surface 14/1/8 ladder 1/3
+26,31 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+27,31 surface 14/6/8
+28,31 surface 15/6/8
+29,31 surface 14/6/8 sand> decal 0 0.415,0.427
+30,31 surface 14/1/8 decal 9m 0.379,0.417
+38,31 surface 14/6/8 ladder 0/1m
+8,32 surface 15/6/8
+9,32 surface 14/6/8
+10,32 surface 15/6/8 decal 10 0.451,0.570
+11,32 surface 14/6/8 decal 8 0.434,0.539
+12,32 surface 14/6/8 decal 11 0.535,0.593
+13,32 surface 15/6/8
+14,32 surface 14/6/8 decal 11m 0.524,0.441
+15,32 surface 14/6/8 sand> decal 10m 0.668,0.581
+16,32 surface 15/1/8
+23,32 surface 15/6/8 decal 1m 0.630,0.467
+24,32 surface 14/6/8
+25,32 surface 14/6/8
+26,32 surface 14/6/8 decal 7 0.403,0.500
+27,32 surface 14/6/8
+28,32 surface 14/1/8
+29,32 surface 15/6/8 decal 9m 0.683,0.583
+30,32 surface 14/6/8 decal 10 0.359,0.527
+31,32 surface 15/6/8
+38,32 surface 14/6/8 ladder 0/2
+2,33 surface 14/6/8 ladder 0/4
+3,33 surface 14/6/8 sand>
+4,33 surface 15/1/8 decal 2m 0.516,0.350 torch fire torch 0.000,0.680,0.098
+5,33 surface 14/6/8 sand<
+6,33 surface 14/6/8 prop water_reedsm -0.022 decal 7m 0.518,0.523
+7,33 surface 15/6/8 prop water_lotus -0.010
+8,33 surface 14/1/8 decal 11m 0.375,0.465
+9,33 surface 15/6/8 decal 11m 0.599,0.444
+10,33 surface 14/6/8 decal 0m 0.578,0.443
+11,33 surface 14/6/8 prop water_pads 0.027 decal 7 0.384,0.610
+12,33 surface 14/6/8 decal 11m 0.468,0.540
+13,33 surface 14/6/8
+14,33 surface 14/6/8
+15,33 surface 14/6/8
+16,33 surface 15/6/8 prop water_pads 0.044 torch fire torch 0.000,0.680,0.098
+17,33 surface 14/1/8 prop water_reedsm -0.021
+18,33 surface 14/6/8 decal 7m 0.394,0.583
+19,33 surface 14/6/8
+20,33 surface 15/6/8
+21,33 surface 14/6/8 prop water_lotusm 0.038
+22,33 surface 14/6/8 decal 1 0.356,0.457
+23,33 surface 14/6/8
+24,33 surface 14/1/8 prop water_weedm -0.074 torch fire torch 0.000,0.680,0.098
+25,33 surface 14/6/8
+26,33 surface 15/6/8 prop water_lotus -0.051
+27,33 surface 14/6/8
+28,33 surface 15/6/8
+29,33 surface 14/1/8 prop water_weed 0.054
+30,33 surface 15/6/8
+31,33 surface 14/1/8
+32,33 surface 15/6/8 prop water_weedm -0.057 decal 9 0.475,0.500
+33,33 surface 14/6/8 prop water_lotusm -0.153 decal 10 0.387,0.473
+34,33 surface 14/6/8 sand>
+35,33 surface 14/1/8 decal 0 0.390,0.381
+36,33 surface 15/1/8
+37,33 surface 14/1/8
+38,33 surface 14/6/8 ladder 0/3m
+2,34 surface 14/1/8 ladder 0/2m
+3,34 surface 14/6/8
+4,34 surface 14/6/8
+5,34 surface 14/6/8 decal 7 0.567,0.450
+6,34 surface 14/1/8
+7,34 surface 14/6/8
+8,34 surface 14/6/8 decal 7 0.458,0.436
+9,34 surface 15/6/8
+10,34 surface 14/6/8
+11,34 surface 14/6/8
+12,34 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+13,34 surface 14/6/8 decal 9 0.677,0.470
+14,34 surface 14/6/8 decal 8m 0.522,0.452
+15,34 surface 14/1/8
+16,34 surface 14/6/8
+17,34 surface 14/6/8 decal 9 0.563,0.447
+18,34 surface 15/6/8
+19,34 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+20,34 surface 14/6/8
+21,34 surface 14/6/8
+22,34 surface 15/6/8
+23,34 surface 14/6/8
+24,34 surface 15/6/8
+25,34 surface 14/1/8
+26,34 surface 15/6/8 decal 8 0.509,0.454
+27,34 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+28,34 surface 15/1/8
+29,34 surface 14/6/8 decal 10m 0.310,0.521
+30,34 surface 14/1/8 decal 11 0.549,0.537
+31,34 surface 14/1/8 decal 1m 0.359,0.409
+32,34 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+33,34 surface 14/6/8
+34,34 surface 15/6/8 decal 8m 0.412,0.520
+35,34 surface 14/6/8 decal 9 0.570,0.535
+36,34 surface 15/6/8
+37,34 surface 14/6/8 decal 11m 0.445,0.459
+38,34 surface 14/6/8
+2,35 surface 14/6/8 ladder 0/1
+3,35 surface 14/6/8 decal 7 0.620,0.507
+4,35 surface 14/1/8 decal 0m 0.598,0.420
+5,35 surface 15/6/8
+6,35 surface 14/6/8
+7,35 surface 15/6/8 decal 5 0.503,0.625 torch fire torch 0.000,0.680,0.098
+8,35 surface 14/6/8
+9,35 surface 14/6/8 decal 6 0.487,0.575
+10,35 surface 14/1/8 decal 11 0.464,0.503
+11,35 surface 15/6/8
+12,35 surface 14/6/8
+13,35 surface 14/6/8 decal 7 0.409,0.527
+14,35 surface 14/6/8
+15,35 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+16,35 surface 14/6/8
+17,35 surface 15/6/8
+18,35 surface 14/6/8 decal 9m 0.524,0.520
+19,35 surface 14/1/8
+20,35 surface 14/6/8 decal 5 0.495,0.625 torch fire torch 0.000,0.680,0.098
+21,35 surface 14/1/8
+22,35 surface 14/6/8 decal 8m 0.495,0.545
+23,35 surface 14/6/8
+24,35 surface 14/6/8
+25,35 surface 15/6/8 torch fire torch 0.000,0.680,0.098
+26,35 surface 14/6/8
+27,35 surface 14/6/8 decal 11m 0.484,0.595
+28,35 surface 14/1/8 decal 5m 0.525,0.625
+29,35 surface 14/6/8 decal 1m 0.521,0.583
+30,35 surface 15/1/8 decal 6 0.499,0.575 torch fire torch 0.000,0.680,0.098
+31,35 surface 14/6/8
+32,35 surface 14/6/8 decal 9m 0.310,0.440
+33,35 surface 14/6/8
+34,35 surface 14/6/8 decal 8m 0.478,0.409
+35,35 surface 15/6/8 decal 9m 0.441,0.604
+36,35 surface 14/6/8
+37,35 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+38,35 surface 14/6/8 decal 8m 0.551,0.542
+2,36 surface 7/1/2 ladder 0/2
+2,37 surface 6/1/2 ladder 0/3m
+3,37 surface 7/1/2 prop jackalm 0.182 decal 8 0.528,0.407
+4,37 surface 6/1/2 decal 11m 0.491,0.484
+5,37 surface 6/1/2 prop sarcophagus -0.030
+6,37 surface 6/1/2 prop brazierm -0.136 fire brazier -0.136,0.220,0.160
+7,37 surface 6/1/2 decal 9m 0.675,0.383
+8,37 surface 6/1/2
+9,37 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+10,37 surface 7/1/2 prop pottery -0.107
+11,37 surface 6/1/2 prop coffin 0.000
+12,37 surface 7/1/2 prop canopic -0.047 decal 11m 0.443,0.418
+13,37 surface 6/1/2 prop osiris -0.035
+14,37 surface 7/1/2 prop sarcophagus 0.087
+15,37 surface 6/1/2
+16,37 surface 7/1/2
+17,37 surface 6/1/2 prop pottery -0.055 decal 11m 0.482,0.415
+18,37 surface 7/1/2 decal 7 0.428,0.542
+19,37 surface 6/1/2
+20,37 surface 6/1/2 decal 11 0.596,0.415
+21,37 surface 7/1/2 prop ushabtim -0.044 torch fire torch 0.000,0.680,0.098
+22,37 surface 6/1/2
+23,37 surface 6/1/2 prop jackalm -0.044
+24,37 surface 6/1/2 decal 1 0.662,0.428
+25,37 surface 7/1/2 decal 8 0.477,0.417
+26,37 surface 6/1/2
+27,37 surface 7/1/2 torch fire torch 0.000,0.680,0.098
+28,37 surface 6/1/2 prop osirism -0.001 decal 9m 0.691,0.447
+29,37 surface 6/1/2 decal 8 0.486,0.466
+30,37 surface 6/1/2
+31,37 surface 6/1/2
+32,37 surface 7/1/2
+33,37 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+34,37 surface 7/1/2
+35,37 surface 6/1/2
+36,37 surface 7/1/2
+37,37 surface 6/1/2 ladder 1/4
+38,37 surface 6/1/2
+37,38 surface 14/1/8 ladder 1/0
+22,39 surface 15/6/8
+23,39 surface 14/6/8 decal 10m 0.310,0.503
+24,39 surface 15/6/8
+25,39 surface 14/6/8 prop ushabtim -0.026
+26,39 surface 14/6/8 sand> decal 6 0.550,0.575
+27,39 surface 14/1/8 prop sarcophagus -0.063
+28,39 surface 14/6/8 sand<> decal 1 0.545,0.470
+29,39 surface 14/1/8 prop osirism 0.073 decal 0 0.352,0.473
+30,39 surface 14/6/8 sand< decal 0m 0.698,0.490
+31,39 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+32,39 surface 15/6/8 prop jackalm -0.146 decal 7m 0.399,0.425
+33,39 surface 14/6/8 sand>
+34,39 surface 15/1/8 decal 9m 0.553,0.471
+35,39 surface 14/1/8
+36,39 surface 14/6/8 sand< prop sarcophagus 0.019
+37,39 surface 15/1/8 ladder 1/2
+38,39 surface 14/1/8
+37,40 surface 14/6/8 ladder 1/0
+1,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+2,41 surface 6/1/2 decal 1m 0.691,0.364
+3,41 surface 6/1/2 prop webm -0.000 decal 6 0.548,0.575
+4,41 surface 7/1/2
+5,41 surface 6/1/2 prop canopicm 0.029
+6,41 surface 6/1/2
+7,41 surface 6/1/2
+8,41 surface 6/1/2 decal 7m 0.427,0.512
+9,41 surface 6/1/2
+10,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+11,41 surface 7/1/2
+12,41 surface 6/1/2 prop osirism -0.063
+13,41 surface 6/1/2
+14,41 surface 6/1/2
+15,41 surface 6/1/2
+16,41 surface 6/1/2 decal 9 0.672,0.429
+17,41 surface 7/1/2 ladder 1/4
+18,41 surface 6/1/2 prop osiris 0.028
+19,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+20,41 surface 6/1/2
+21,41 surface 7/1/2
+22,41 surface 6/1/2
+23,41 surface 6/1/2 prop canopicm -0.020 decal 9 0.486,0.373
+24,41 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+25,41 surface 6/1/2
+26,41 surface 6/1/2 prop jackal 0.043 decal 8 0.465,0.488
+27,41 surface 6/1/2 prop sarcophagusm -0.032
+28,41 surface 6/1/2
+29,41 surface 7/1/2 decal 7 0.379,0.613
+30,41 surface 6/1/2 prop osiris 0.046
+31,41 surface 6/1/2
+32,41 surface 6/1/2 decal 7m 0.410,0.399
+33,41 surface 6/1/2 decal 11 0.375,0.499
+34,41 surface 6/1/2 decal 6m 0.507,0.575 torch fire torch 0.000,0.680,0.098
+35,41 surface 7/1/2 decal 7m 0.500,0.524
+36,41 surface 6/1/2 prop sarcophagus -0.051
+37,41 surface 6/1/2 ladder 1/1
+38,41 surface 6/1/2 decal 8m 0.561,0.506
+17,42 surface 14/6/8 ladder 1/0
+37,42 surface 14/6/8 ladder 1/0
+1,43 surface 14/6/8 sand> decal 2 0.642,0.350
+2,43 surface 15/1/8 torch fire torch 0.000,0.680,0.098
+3,43 surface 14/6/8 sand<> ladder 1/4
+4,43 surface 15/1/8
+5,43 surface 14/6/8 sand<>
+6,43 surface 15/1/8
+7,43 surface 14/6/8 sand<
+8,43 surface 14/6/8
+9,43 surface 14/6/8 decal 7 0.513,0.416
+10,43 surface 14/6/8 prop ushabtim 0.015 torch fire torch 0.000,0.680,0.098
+11,43 surface 14/6/8
+12,43 surface 14/6/8 prop sarcophagus -0.088 decal 5m 0.555,0.625
+13,43 surface 14/6/8
+14,43 surface 14/6/8
+17,43 surface 7/1/2 ladder 1/1
+26,43 surface 15/6/8
+27,43 surface 14/6/8 sand>
+28,43 surface 15/1/8
+29,43 surface 14/6/8 sand< prop brazier 0.171 decal 8 0.531,0.453 fire brazier 0.171,0.220,0.160
+30,43 surface 15/6/8
+31,43 surface 14/6/8 sand>
+32,43 surface 14/1/8
+33,43 surface 14/6/8 sand< prop ushabtim 0.033 torch fire torch 0.000,0.680,0.098
+34,43 surface 15/6/8
+35,43 surface 14/6/8
+36,43 surface 15/6/8 decal 5 0.558,0.625
+37,43 surface 14/6/8 ladder 1/2
+38,43 surface 14/6/8 decal 5 0.412,0.625 torch fire torch 0.000,0.680,0.098
+3,44 surface 14/6/8 ladder 1/1
+17,44 surface 6/1/2 ladder 1/2
+37,44 surface 14/6/8 ladder 1/1
+1,45 surface 6/1/2
+2,45 surface 6/1/2
+3,45 surface 7/1/2 ladder 1/3
+4,45 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+5,45 surface 6/1/2
+6,45 surface 6/1/2 decal 2m 0.575,0.350
+7,45 surface 7/1/2 prop jackal -0.132 decal 9m 0.544,0.545
+8,45 surface 6/1/2
+9,45 surface 6/1/2
+10,45 surface 7/1/2
+11,45 surface 6/1/2 prop canopicm -0.007 decal 6 0.527,0.575 torch fire torch 0.000,0.680,0.098
+12,45 surface 6/1/2
+13,45 surface 6/1/2
+14,45 surface 6/1/2 decal 8m 0.434,0.420
+15,45 surface 6/1/2
+16,45 surface 6/1/2
+17,45 surface 7/1/2 ladder 1/3
+19,45 surface 15/6/8 prop canopicm -0.055 decal 6m 0.564,0.575
+20,45 surface 14/6/8
+21,45 surface 15/6/8 decal 11 0.579,0.546
+22,45 surface 14/6/8 prop ushabti -0.052 decal 8 0.457,0.510
+23,45 surface 14/6/8 prop sarcophagus 0.039
+24,45 surface 14/6/8
+25,45 surface 15/6/8 decal 8 0.491,0.614
+26,45 surface 14/6/8 prop cat 0.090
+27,45 surface 15/6/8
+28,45 surface 14/6/8
+29,45 surface 15/6/8 sand>
+30,45 surface 14/1/8 decal 9m 0.668,0.359
+31,45 surface 14/1/8 torch fire torch 0.000,0.680,0.098
+32,45 surface 14/1/8 prop canopicm -0.034 decal 11 0.428,0.456
+33,45 surface 15/6/8 sand< decal 8 0.599,0.591
+34,45 surface 14/6/8 decal 9m 0.641,0.426
+35,45 surface 14/6/8
+36,45 surface 14/6/8
+37,45 surface 14/6/8 ladder 1/3
+38,45 surface 15/6/8 decal 7m 0.542,0.567

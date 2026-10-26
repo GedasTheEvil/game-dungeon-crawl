@@ -61,3 +61,10 @@
 35 --zone seths_desert --seed 4 --difficulty 7 --texts 104,106 --title "The Hall of Drifts"
 36 --zone seths_desert --seed 6 --difficulty 7 --texts 105,107,47 --title "The Sand Stair"
 37 --zone seths_desert --seed 4 --difficulty 7 --boss --texts 49,50 --page 19 --title "Seth's Oasis"
+
+# Zone 9: Land of Sokar. The second fork on 39 (page 19 on Seth's level tells of it). Freed text 48 (the ways of
+# Rosetau, Sokar's land) and a boon (16); lore 8.
+38 --zone land_of_sokar --seed 2 --difficulty 7 --texts 109,48 --page 20 --lore 8 --title "The Gate of Sokar"
+39 --zone land_of_sokar --seed 10 --difficulty 7 --fork 1 --texts 113,112 --title "The Two Drifts"
+40 --zone land_of_sokar --seed 10 --difficulty 8 --texts 110,111 --page 21 --title "The Falling Sands"
+41 --zone land_of_sokar --seed 10 --difficulty 8 --boss --texts 114,115,16 --title "The Den of Rerek"

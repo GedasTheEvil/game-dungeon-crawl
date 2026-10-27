@@ -127,7 +127,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `hold left\|right\|up\|down T` | Hold the walk key for T (ticks, `500ms`, `2s`), whether the player moves or not. Never fails: for walking into a wall. |
 | `sprint on\|off` | Shift down / up (sprint). It stays down until `sprint off`. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = open a chest, take its item once open (a second press, after its clip), a riddle, ...). |
-| `attack up` | The attack key let go: a [power hit](plan/skill-power-hit.md)'s charge (begun by `attack` with the skill and the stamina-skill toggle on) swings on the next tick. |
+| `attack up` | The attack key let go: a [power hit](plan/solved/skill-power-hit.md)'s charge (begun by `attack` with the skill and the stamina-skill toggle on) swings on the next tick. |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `motion on\|off` | Options > Display > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.ini` ([settings.md](settings.md)): they run with the default settings and key bindings. |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |

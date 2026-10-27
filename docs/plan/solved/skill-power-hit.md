@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-27 ([Implemented](#implemented)), waiting for the user's play-test:
 `bin/game --play tests/play/skill-power-hit.txt`. Was: draft 2026-10-10, refined 2026-10-22 (charged hit, decided by
-the user); needed [skills](solved/skills.md).
+the user); needed [skills](skills.md).
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.
@@ -11,7 +11,7 @@ The skill is on the Heka screen already, sealed: implementing it clears its `sea
 
 With the skill, a melee attack can be charged: the longer it is held, the more stamina it takes and the harder it hits.
 Decided (user, 2026-10-22): the bonus scales with the stamina spent. Not a fixed cost per swing; a fixed cost stays with
-[flaming arrows](solved/skill-flaming-arrows.md) only.
+[flaming arrows](skill-flaming-arrows.md) only.
 
 * **Melee only.** A bow draw never charges; bows have flaming arrows.
 * **Toggle:** the stamina-skills toggle (`GameplayAction::StaminaSkills`, `Player::staminaSkills`), shared with flaming
@@ -61,5 +61,5 @@ Decided (user, 2026-10-22): the bonus scales with the stamina spent. Not a fixed
   (`media/sounds/items/power_charge.wav`, `tools/audio/power_hit_sounds.py`) stopped at the release, a deep whoosh, on
   the hit a thump (`WorldSound::PowerHit`), a star spark and a 250 ms view shake (with motion effects on), both grown
   with the charge. The thump's volume does not grow (SDL_mixer plays a chunk at one volume).
-* Scenario `attack up` lets the key go; `tests/scenarios/skill-power-hit.txt` shows the pose and the spark.
+* Scenario `attack up` lets the key go; `tests/scenarios/solved/skill-power-hit.txt` shows the pose and the spark.
 * Play-test: `bin/game --play tests/play/skill-power-hit.txt`.

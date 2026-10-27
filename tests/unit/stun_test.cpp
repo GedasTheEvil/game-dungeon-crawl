@@ -130,3 +130,35 @@ TEST_CASE("stun: a lurker cannot be stunned until awake") {
 	CHECK_FALSE(world.dungeon.StunNearest());
 	CHECK_FALSE(mummy->Reeling());
 }
+
+TEST_CASE("stun: on the play-test level a club stuns the scorpion now and then before it dies") {
+	// tests/levels/stun_play: the scorpion at col 6. Seven or so blows that do not kill it, at 21% each: five runs. The
+	// seeds far apart: seed n + 1's stream is seed n's one draw on (Rng), so near seeds roll nearly the same.
+	int stuns = 0;
+	for (uint64_t seed = 1000; seed <= 5000; seed += 1000) {
+		SimWorld world;
+		world.player.god = true;
+		REQUIRE(world.Load("tests/levels/stun_play", seed));
+		world.player.stats.heka.Earn(5);
+		REQUIRE(world.player.stats.heka.Learn(SkillId::Stun));
+		world.Equip(ItemKind::Club);
+		REQUIRE(world.WalkTo(4.f));
+		world.Wait(1500); // it comes up
+		const Monster* scorpion = world.dungeon.NearestMonster();
+		REQUIRE(scorpion != nullptr);
+		REQUIRE(scorpion->Type()->id == MonsterScorpion);
+		const int before = stuns;
+		for (int hits = 0; hits < 30 && scorpion->Alive(); hits++) {
+			world.facing = scorpion->CentreX() > world.X() ? 1 : -1;
+			REQUIRE(world.Attack());
+			bool stunned = false;
+			for (int t = 0; t < 1500; t += UPDATE_TICK_MS) {
+				world.Tick();
+				stunned = stunned || scorpion->Reeling();
+			}
+			stuns += stunned ? 1 : 0;
+		}
+		CHECK(world.Told("is stunned") == (stuns > before));
+	}
+	CHECK(stuns >= 2);
+}

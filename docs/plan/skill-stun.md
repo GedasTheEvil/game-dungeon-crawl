@@ -48,3 +48,8 @@ Decided: a stunned monster takes normal damage, no bonus (user, 2026-10-22).
 * Scenario `stun` (the boss in play, else the nearest monster); `tests/scenarios/skill-stun.txt` shows the stars and the
   bat on the floor.
 * Bosses: no kin rule applies (not a monster ability).
+* Play-test 2026-10-27 (user): not seen. The play script then had `seed 1`, so every run rolled the same; its first
+  gameplay draws (83 49 95 24 83 58 93 ...) never fall under the club's 21%, and the bats and rats die in 1-3 club
+  blows (the mace's 1), so there were few rolls. The script has no seed now (the clock's) and a level of its own,
+  `tests/levels/stun_play`, with tough monsters (scorpion, giant scarab, cobra, Anubis statue, the Bat of Shezmu).
+  Found on the way: `Rng(seed + 1)` is `Rng(seed)` one draw on, so near seeds roll nearly alike (not changed).

@@ -1,0 +1,6 @@
+; Stun play-test (tests/play/skill-stun.txt, plan skill-stun): tough monsters a club takes many blows to kill, one at a
+; time along the corridor: a scorpion (col 6, weak to blunt), a giant scarab (col 12), a cobra (col 18), an Anubis
+; living statue (col 24, weak to blunt), the Bat of Shezmu, a boss (col 31, on the ceiling).
+########################################
+#S....j.....k.....c.....n......V.....E##
+########################################

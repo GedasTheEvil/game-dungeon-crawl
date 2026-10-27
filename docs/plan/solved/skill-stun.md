@@ -1,8 +1,8 @@
 # Skill: stun
 
-Status: implemented 2026-10-27 ([Implemented](#implemented)), waiting for the user's play-test:
+Status: implemented 2026-10-27 ([Implemented](#implemented)), play-tested and solved 2026-10-27:
 `bin/game --play tests/play/skill-stun.txt`. Was: draft 2026-10-10, from the user; refined 2026-10-22 (decided by the
-user); needed [skills](solved/skills.md).
+user); needed [skills](skills.md).
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.
@@ -45,7 +45,7 @@ Decided: a stunned monster takes normal damage, no bonus (user, 2026-10-22).
   break their move's state.
 * The first stun shows "<name> is stunned"; the field note `Stun` comes after the amulets' (notes are saved by number).
 * Look: three small stars circling the head (`drawStunStars`); the clip pauses (no stagger clip).
-* Scenario `stun` (the boss in play, else the nearest monster); `tests/scenarios/skill-stun.txt` shows the stars and the
+* Scenario `stun` (the boss in play, else the nearest monster); `tests/scenarios/solved/skill-stun.txt` shows the stars and the
   bat on the floor.
 * Bosses: no kin rule applies (not a monster ability).
 * Play-test 2026-10-27 (user): not seen. The play script then had `seed 1`, so every run rolled the same; its first

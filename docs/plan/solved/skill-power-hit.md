@@ -1,6 +1,6 @@
 # Skill: power hit
 
-Status: implemented 2026-10-27 ([Implemented](#implemented)), waiting for the user's play-test:
+Status: implemented 2026-10-27 ([Implemented](#implemented)), play-tested and solved 2026-10-27:
 `bin/game --play tests/play/skill-power-hit.txt`. Was: draft 2026-10-10, refined 2026-10-22 (charged hit, decided by
 the user); needed [skills](skills.md).
 

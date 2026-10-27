@@ -1,0 +1,10 @@
+; Plan stargate-chamber: a ring platform sealed by the level's name (col 6) on the bottom row, its partner (col 4) in a
+; sealed room above, the exit (col 17). Built with tools/level/ascii2level.py.
+def ! 2 5 769
+def 0 2 5 513
+########################################
+####0.....##############################
+########################################
+########################################
+#S....!..........E######################
+########################################

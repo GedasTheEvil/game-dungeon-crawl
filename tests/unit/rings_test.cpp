@@ -120,3 +120,24 @@ TEST_CASE("the checker: a ring platform's partner is a ring platform, rock above
 	openAbove.set(3, 2, Tile{});
 	CHECK(warns(checkLevel(openAbove), "ring platform at (col 3, row 1) without rock above it"));
 }
+
+TEST_CASE("a ring platform sealed by the name asks for it, then carries by rings (the way to the Stargate)") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/rings_sealed"));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(PLATFORM_X));
+	CHECK(world.dungeon.InteractVerb() == Interaction::Answer);
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.said.back().kind == WorldEvent::Kind::AskName);
+	CHECK_FALSE(world.dungeon.Travelling());
+	REQUIRE(world.dungeon.SpeakName());
+	CHECK(world.dungeon.InteractVerb() == Interaction::Enter);
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.dungeon.TravelByRings()); // the seal gone, the rings stay
+	world.WaitTicks(RING_TICKS);
+	CHECK(world.X() == doctest::Approx(4.f + TELEPORT_ARRIVAL_X));
+	CHECK(world.Y() > 4.f);
+}

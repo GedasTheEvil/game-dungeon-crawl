@@ -39,5 +39,8 @@ opens; it is an easter egg with a reward.
   light on the walls while chevrons glow. Sounds `chevron_lock`, `chevron_fail`, `dial_press`
   (`tools/audio/ring_sounds.py`). No torch over the ring (scatter, checker).
 * levelgen `--stargate` places the two props too, so a rebuild keeps the chamber.
+* The way in (user, 2026-10-27): the name gate is a ring platform sealed by the name (`NAME_SEAL | RING_PLATFORM`),
+  its partner in the chamber a ring platform; sealed, the plate glows and dims with the name gate's breath. Spoken,
+  the rings carry the player. lvl48: rock over the gate's cell (col 38, row 23) for the rings.
 * Tests: `tests/unit/stargate_test.cpp`, the levelgen test, scenario `tests/scenarios/stargate_chamber.txt`.
   Play-test: `bin/game --play tests/play/stargate-chamber.txt` (lvl48, in the chamber).

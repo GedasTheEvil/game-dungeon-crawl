@@ -283,7 +283,7 @@ class Dungeon {
 	// At the cell origin: the columns face the camera, plasma between them; a name gate's pulses (nameGateAlpha).
 	void drawTeleporterTile(int i, int j);
 	// A ring platform (plan ring-transporter): the plate in the floor, the housing in the ceiling, the rings while they
-	// carry the player.
+	// carry the player; a sealed one's plate breathes like a name gate's plasma.
 	void drawRingPlatformTile(int i, int j);
 	// The Stargate's inner track at its turn and its lit chevrons (plan stargate-chamber), in its prop's frame.
 	void drawStargate(int i, int j);

@@ -182,7 +182,7 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 45 | The Shore of Babi: Babi on his shore, the tenth boss. Giant bat 10, giant cobra 18, baboon 10, babi 1. 3 keys, 1 lever, 1 riddle gate. Inscriptions: The heat of Babi. |
 | 46 | The Gate of the Dead: Anubis 9, mummy 18, giant scorpion 5, baboon 4. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 23. Inscriptions: The cursed chests; The way of the dead; The house of the name. |
 | 47 | The Hall of Coffins: Anubis 10, mimic 3, mummy 17, giant scorpion 3, cursed mimic 4, baboon 1. 1 key, 3 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The mummy's linen; The unmoved (a armor boon); The last steward. |
-| 48 | The Ring of Seven Marks: The Stargate chamber: the name gate (the king's name) to the ring's room. Anubis 13, mimic 1, mummy 6, giant scorpion 4, cursed mimic 4, baboon 1. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The ring of the stars; A tomb robber's confession; The jackal at the end. |
+| 48 | The Ring of Seven Marks: The Stargate chamber: the name gate (the king's name), a sealed ring platform, to the ring's room. Anubis 13, mimic 1, mummy 6, giant scorpion 4, cursed mimic 4, baboon 1. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The ring of the stars; A tomb robber's confession; The jackal at the end. |
 | 49 | The Two Gates: The last route fork: the warning between the two drops, page 24 on the way. Anubis 7, mimic 2, mummy 19, giant scorpion 1, cursed mimic 1, baboon 4. 2 keys, 2 levers, 1 riddle gate. Expedition page 24. Inscriptions: Take the left gate; The curse of Khentika; The treasury in the pillar. |
 | 50 | The Catacombs: Anubis 14, mummy 14, giant scorpion 1, cursed mimic 4, baboon 3. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: Going forth by day; The overseer of works; The heart scarab (a armor boon). |
 | 51 | The Gate of Judgment: Anubis 17, mimic 2, mummy 5, giant cobra 3, camel spider 1, baboon 9. 2 keys, 2 levers, 3 riddle gates, a name gate to a secret room. Inscriptions: The riddle of Thoth; The negative confession; The deepest seal (a life boon). |
@@ -215,7 +215,8 @@ Route forks ([denser-levels](plan/denser-levels.md#route-fork-left-or-right), le
 lvl39, lvl43 and the last one on lvl49, the warning (`FORK_TEXT`) between its drops. The Stargate chamber
 ([stargate-chamber](plan/stargate-chamber.md), levelgen `--stargate`) on lvl48, polished by hand: the room
 a cell longer, the ring's text over the rare chest at its far end, the dial device, the ring, a torch beside it and the
-teleporter at the near end. Dialling the ring lights six chevrons, the seventh will not lock; the first dial gives a
+ring platform at the near end. Its name gate is a ring platform too, sealed by the name (its plate breathes), rock put
+over it. Dialling the ring lights six chevrons, the seventh will not lock; the first dial gives a
 riddle's XP and a field note, the dial device another note.
 
 Monsters by zone (`ZONE_FAUNA`): the zone table above. Weak monsters give way to their giant kin: no rats, scarabs or

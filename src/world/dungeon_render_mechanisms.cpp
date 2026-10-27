@@ -50,6 +50,10 @@ constexpr float RING_BASE = 0.02f;
 constexpr float RING_GAP = 0.095f;
 constexpr float RING_HIDDEN = 1.f;
 constexpr float RING_DEPTH = 0.5f;
+// A ring platform sealed as a name gate glows up to this much, in this colour, added over its plate.
+constexpr float RING_SEAL_GLOW = 1.f;
+constexpr int RING_SEAL_PASSES = 3;
+constexpr float RING_SEAL_COLOUR[3] = {1.f, 0.75f, 0.35f};
 constexpr FireStyle JET = {64, 520.f, 7.f, 26.f, 8.f, 2.f, 0.2f};
 constexpr FireStyle VENT_EMBERS = {14, 320.f, 5.f, 5.f, 2.6f, 0.6f, 0.f};
 constexpr Lighting::LightDef JET_LIGHT = {1.f, 0.5f, 0.18f, 150.f, 0.8f};
@@ -325,6 +329,22 @@ void Dungeon::drawRingPlatformTile(int i, int j) {
 	enterPropSpace();
 	showModel(sim.assets->mechanisms.ringPlatform.get());
 	showModel(sim.assets->mechanisms.ringHousing.get());
+	// Sealed by the level's name (plan stargate-chamber): the plate glows and dims with the name gate's breath; spoken,
+	// it shimmers out with the name gate's shimmer and stays still.
+	const int cell = MapIndex(i, j);
+	const float breath = nameGateAlpha(cell);
+	const float glow = isNameGate(map[cell]) ? RING_SEAL_GLOW * breath : RING_SEAL_GLOW * (1.f - breath);
+	if (glow > 0.f && sim.assets->mechanisms.ringPlatform != nullptr) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDepthMask(GL_FALSE);
+		glColor4f(RING_SEAL_COLOUR[0], RING_SEAL_COLOUR[1], RING_SEAL_COLOUR[2], glow);
+		for (int pass = 0; pass < RING_SEAL_PASSES; pass++) // one is too faint on the dark plate
+			sim.assets->mechanisms.ringPlatform->Show();
+		glColor4f(1, 1, 1, 1);
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
 	const bool here = static_cast<int>(mapX) == i && static_cast<int>(mapY) == j;
 	if (here && TravelByRings() && Travelling())
 		for (int k = 0; k < RING_COUNT; k++) {

@@ -1,14 +1,32 @@
-# Plan stargate-chamber (lvl48, the chamber behind the name gate, from its teleporter at col 37): the ring and its
-# dial device still, the dial (the track turning, chevrons lit one by one), six lit, the seventh flickering out, dark
-# again; the dial device pressed.
+# Plan stargate-chamber (lvl48): the sealed ring platform at the name gate's place (col 38, row 22) glowing with its
+# breath (two moments half a breath apart), the name spoken, the rings to the chamber (its platform at col 37); there
+# the ring and its dial device still, the dial (the track turning, chevrons lit one by one), six lit, the seventh
+# flickering out, dark again; the dial device pressed.
 seed 1
 god
-level 48 at 37 4
+level 48 at 38 22
 wait 30
+screenshot sealed_a
+wait 750ms
+screenshot sealed_b
+interact
+wait 5
+expect riddle == 1
+speakname
+key enter
+wait 30
+expect riddle == 0
+interact
+wait 600ms
+screenshot rings_to_chamber
+wait 3s
+expect y < 5
+expect x > 37.4
+expect x < 37.6
+expect xp == 0
 walk to 35.5
 wait 5
 screenshot chamber
-expect xp == 0
 interact
 wait 1s
 screenshot dialling

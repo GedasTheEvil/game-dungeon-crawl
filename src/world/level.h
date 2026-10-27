@@ -338,7 +338,8 @@ inline bool isTeleporter(const Tile& t) { return t.type == Door && t.attr == Gat
 inline void unsealNameGate(Tile& t) { t.value &= ~NAME_SEAL; }
 // A ring platform (plan ring-transporter): a teleporter with RING_PLATFORM in its value. Five rings drop from the
 // ceiling round the player, a flash, and the player stands on the partner platform, a ring platform too. Rock above it
-// holds the rings.
+// holds the rings. With NAME_SEAL too it is a name gate that carries by rings once the name is spoken (plan
+// stargate-chamber: the way to the Stargate).
 constexpr int RING_PLATFORM = 512;
 [[nodiscard]] inline bool isRingPlatform(const Tile& t) { return isTeleporter(t) && (t.value & RING_PLATFORM) != 0; }
 // Cell index of the other teleporter with the same pair id, -1 if there is none. cells: a whole level.

@@ -131,6 +131,6 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
 | `decor.py` | corridor and water decorations, torch, coffins | static, tile units, lighting baked in |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |
-| `mechanism.py` | key, gate, lever, rock, crack, dart trap, wall spikes, fire vent | static, one texture per lock colour |
+| `mechanism.py` | key, gate, lever, rock, crack, dart trap, wall spikes, fire vent, ring platform, its housing and ring | static, one texture per lock colour |
 
 Generated textures (no model): `tools/textures/decals.py`, `surfaces.py`, `hud_icons.py`.

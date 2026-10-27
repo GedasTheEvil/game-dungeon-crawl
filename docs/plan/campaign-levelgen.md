@@ -61,7 +61,7 @@ with no warnings.
   gate before. Test levels stay byte-identical. Played in the game: a hidden room's teleporter and a name gate
   (`speakname`) of a necropolis level take the player into their rooms; the path scripts of three monster-free
   levels pass. Left for later: boss gates (step 6, with the boss room), ring transporters (once
-  [ring-transporter](ring-transporter.draft.opus.md) exists), the secret room's lore inscription (step 8, with the
+  [ring-transporter](ring-transporter.md) exists), the secret room's lore inscription (step 8, with the
   texts). Gates in half water only in tombs.
 * **Step 6, boss levels: done (2026-10-25).** `GenOptions::boss` (`levelgen --boss`, `gen:SEED:D:ZONE:boss`) and
   `ZONE_BOSS` (campaign.h, the target campaign's bosses; none in the necropolis): the boss room sealed under the
@@ -117,7 +117,7 @@ Missing today, roughly in this order (each step its own task, with its checker r
    sand, climbers, roosting flyers, living ushabti among decor ushabti, mummies in coffins.
 4. **Traps:** rhythm traps, dart plates, fire jets, poison drips, death pits, trap gauntlets.
 5. **Gates:** riddle gates and riddle rooms, name gates with their cartouche, colour keys and levers in chains, boss
-   gates, teleporters, ring transporters ([ring-transporter](ring-transporter.draft.opus.md), once it exists).
+   gates, teleporters, ring transporters ([ring-transporter](ring-transporter.md), once it exists).
 6. **Boss levels:** the teleporter to the sealed boss room, the room shaped for the boss (Apep's pit, Sobek's lake,
    Seth's oasis, ...), the boss gate and the key behind it.
 7. **Treasure and supplies:** chests, mimics, cursed mimics, trapped chests, antidotes near poisoners, Hapi potions

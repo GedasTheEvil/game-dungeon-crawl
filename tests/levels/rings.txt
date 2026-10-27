@@ -1,0 +1,9 @@
+; Plan ring-transporter: a ring platform (col 6) on the bottom row, its partner (col 4) in a sealed room above, a
+; plain teleporter pair (cols 10, 14) beside them, the exit (col 17). Built with tools/level/ascii2level.py.
+def 2 2 5 2
+########################################
+####0.....##############################
+########################################
+########################################
+#S....0...2...2..E######################
+########################################

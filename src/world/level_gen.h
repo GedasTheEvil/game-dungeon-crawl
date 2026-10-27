@@ -55,7 +55,7 @@ struct GenOptions {
 // The text ids of the rebuilt campaign's inscriptions (content/inscriptions/rebuild.txt), by zone: ZoneId z has
 // ZONE_TEXT_FIRST[z] up to ZONE_TEXT_FIRST[z + 1] - 1 (NAME_CARTOUCHE_ID skipped).
 constexpr int ZONE_TEXT_FIRST[] = {53, 59, 66, 73, 80, 87, 94, 102, 109, 116, 123, 130, 138};
-// Texts that hint at one thing, placed only with it: the name gate's, the ring transporter's (none yet), the last
+// Texts that hint at one thing, placed only with it: the name gate's, the ring transporter's (by hand), the last
 // fork's (none yet) and the Stargate chamber's.
 constexpr int NAME_GATE_TEXT = 74;
 constexpr int RING_TEXT = 77;

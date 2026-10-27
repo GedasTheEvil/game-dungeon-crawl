@@ -579,7 +579,7 @@ void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
-// Each teleporter pair id is used by exactly two teleporters.
+// Each teleporter pair id is used by exactly two teleporters, two ring platforms for a ring platform's.
 void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 	std::map<int, std::vector<int>> pairs;
 	for (int cell = 0; cell < CELLS; cell++)
@@ -591,6 +591,15 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 				std::to_string(cells.size()) + " teleporter(s) with pair id " + std::to_string(id) + ", e.g. at " +
 				at(cells[0]) + ": a pair needs exactly two"
 			);
+		else if (isRingPlatform(grid.cells[cells[0]]) != isRingPlatform(grid.cells[cells[1]]))
+			r.warnings.push_back(
+				"the ring platform of pair id " + std::to_string(id) + " has a plain teleporter for a partner, at " +
+				at(cells[0]) + " and " + at(cells[1])
+			);
+	// Plan ring-transporter: the rings hide in the rock over the platform.
+	for (int cell = 0; cell < CELLS; cell++)
+		if (isRingPlatform(grid.cells[cell]) && !isWall(grid.at(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH + 1)))
+			r.warnings.push_back("ring platform at " + at(cell) + " without rock above it for its rings");
 }
 
 // Plan secret-name-gates: at most one name gate, with one name cartouche, and both are found with the name gate

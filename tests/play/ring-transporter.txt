@@ -1,0 +1,9 @@
+# Plan ring-transporter, for `bin/game --play tests/play/ring-transporter.txt`: lvl17 (The Hall of Purification), on
+# the ring platform at the wing's end (col 3, row 31; the ring's text on the wall beside it, E twice to read it with
+# the skill). E on the plate: five rings drop round you, a white flash, the rings rise in the sealed room below with
+# its chest; E again takes you back. The journal (J) gets the "Rings" note at the first ride.
+seed 1
+god
+level 17 at 3 31
+heka 1
+learn words_of_thoth

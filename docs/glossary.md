@@ -78,6 +78,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | teleporter | | a sphinx gate that sends the player to the other one with the same pair id (Enter) | `GateTeleport`, `Dungeon::Teleport` |
 | gate travel | | the fade into the gate's plasma colour and back (0.3 s each way) on the exit or a teleporter; the world stands still | `GateTravel`, `GATE_TRAVEL_FADE_MS`, `Dungeon::Travelling` |
 | ankh | | the goal on the last level: Take wins the game | `Ankh` |
+| ring platform | | a teleporter of round plates in the floor: five rings drop from the ceiling round the player, a white flash, the rings rise at the partner platform ([ring-transporter](plan/ring-transporter.md)). Rock above holds its rings | `RING_PLATFORM`, `isRingPlatform`, `Dungeon::RingDrop`, `GateTravel::Phase::RingsDown` |
 | name gate | The Name Gate | a teleporter sealed by the level's royal name: the riddle scroll asks for it, the right name opens it for good ([secret-name-gates](plan/solved/secret-name-gates.md)). Its plasma breathes until then | `NAME_SEAL`, `isNameGate`, `Dungeon::SpeakName` |
 | name cartouche | A royal name | an inscription that holds the level's royal name for its name gate, not a text; its signs spell the name (the name's `G:` line) | `NAME_CARTOUCHE_ID`, `RoyalName::glyphs`, `JournalInscription::glyphs` |
 | secret room | | the pocket of a level only the name gate leads to: a chest, a lore inscription, now and then a guardian; never needed for the exit | `checkNameGates` |

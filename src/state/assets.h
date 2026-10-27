@@ -37,6 +37,9 @@ struct SoundBank {
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
 	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
+	Sound ringsDown, ringsUp; // a ring platform's rings drop and flash, rise at the partner (plan ring-transporter)
+	Sound chevronLock, chevronFail,
+		dialPress; // the Stargate dialled, the seventh failing, its dial device (plan stargate-chamber)
 	Ambience ambience; // the zone's loop (plan zone-looks): media/sounds/ambience/<ZoneLook::ambience>.wav
 };
 
@@ -90,18 +93,20 @@ struct DecorSet {
 	std::unique_ptr<AnimatedModel> ladder[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT]; // null if the file failed to load
 };
 
-// Keys, gates, levers, rock falls and the sunlight mirrors: static models in tile units like the props
-// (tools/blender/models/mechanism.py). Keys, gates, lever plates and sun discs have one model and one texture per lock
-// colour (index colour - 1), bound at draw time; the boss gate (BOSS_LOCK) is the gate model with its own texture. Null
-// if the file failed to load.
+// Keys, gates, levers, rock falls, the sunlight mirrors and the ring platforms: static models in tile units like the
+// props (tools/blender/models/mechanism.py). Keys, gates, lever plates and sun discs have one model and one texture per
+// lock colour (index colour - 1), bound at draw time; the boss gate (BOSS_LOCK) is the gate model with its own texture.
+// Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
 	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex,
 		fireVentTex;
 	Texture sunDiscTex[LOCK_COLOUR_COUNT], mirrorStandTex, mirrorTex, mirrorPointerTex; // plan sunlight-mirrors
+	Texture ringPlatformTex, ringHousingTex, ringTex; // plan ring-transporter
 	std::unique_ptr<AnimatedModel> key, gate, leverBase;
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes, fireVent;
 	std::unique_ptr<AnimatedModel> sunDisc, mirrorStand, mirror, mirrorPointer;
+	std::unique_ptr<AnimatedModel> ringPlatform, ringHousing, ring;
 };
 
 // Everything loaded once at start-up and only read afterwards: textures, models, sounds, fonts, monster types.

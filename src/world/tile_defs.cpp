@@ -150,7 +150,7 @@ char doorGlyph(const Tile& t) {
 	case GateRiddle:
 		return '?';
 	case GateTeleport:
-		return isNameGate(t) ? '!' : 'O';
+		return isNameGate(t) ? '!' : isRingPlatform(t) ? '0' : 'O';
 	default:
 		return 'D';
 	}
@@ -165,6 +165,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'?', {Door, GateRiddle, 0}, "riddle gate"},
 		{'O', {Door, GateTeleport, 1}, "teleporter (pair id 1; more pairs: 'def')"},
 		{'!', {Door, GateTeleport, 1 | NAME_SEAL}, "name gate (teleporter pair id 1, sealed by the level's name)"},
+		{'0', {Door, GateTeleport, 1 | RING_PLATFORM}, "ring platform (teleporter pair id 1, rings from the ceiling)"},
 		{'D', {Door, 0, 0}, "gate without a purpose (checker warns)"},
 		{'H', {Ladder, 0, 0}, "ladder"},
 		{'$', {Treasure, 3, 0}, "treasure (small health potion; others: 'def')"},

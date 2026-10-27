@@ -87,7 +87,7 @@ enum GateType : unsigned char {
 	GateExit = 2,
 	GateRiddle = 3,
 	GateEmpty = 4,
-	GateTeleport = 5, // value = pair id (| NAME_SEAL): interact to jump to the other teleporter with the same id
+	GateTeleport = 5, // value = pair id (| NAME_SEAL, | RING_PLATFORM): interact to jump to the other one with that id
 };
 
 enum MonsterTypeId : unsigned char {
@@ -260,8 +260,9 @@ inline void pullLever(Fixture& f) { f.value = 1; }
 // A SunDisc's value: 0 dark, 1 lit (for good).
 [[nodiscard]] inline bool sunDiscLit(const Fixture& f) { return f.value != 0; }
 inline void lightSunDisc(Fixture& f) { f.value = 1; }
-// A teleporter's value: its pair id, and NAME_SEAL on a name gate (plan secret-name-gates): it works only once the
-// player has spoken the level's name, which takes the bit off for good (a plain teleporter then, both ways).
+// A teleporter's value: its pair id, NAME_SEAL on a name gate (plan secret-name-gates): it works only once the
+// player has spoken the level's name, which takes the bit off for good (a plain teleporter then, both ways), and
+// RING_PLATFORM on a ring platform.
 constexpr int NAME_SEAL = 256;
 [[nodiscard]] inline int teleportPair(const Tile& t) { return t.value & (NAME_SEAL - 1); }
 // A NoObject cell's attr: 0, or the monster type slain there (its spawn tile, plan no-respawn-on-load): it does not
@@ -335,6 +336,11 @@ inline bool isTeleporter(const Tile& t) { return t.type == Door && t.attr == Gat
 // A name gate not opened yet: it asks for the name instead of teleporting.
 [[nodiscard]] inline bool isNameGate(const Tile& t) { return isTeleporter(t) && (t.value & NAME_SEAL) != 0; }
 inline void unsealNameGate(Tile& t) { t.value &= ~NAME_SEAL; }
+// A ring platform (plan ring-transporter): a teleporter with RING_PLATFORM in its value. Five rings drop from the
+// ceiling round the player, a flash, and the player stands on the partner platform, a ring platform too. Rock above it
+// holds the rings.
+constexpr int RING_PLATFORM = 512;
+[[nodiscard]] inline bool isRingPlatform(const Tile& t) { return isTeleporter(t) && (t.value & RING_PLATFORM) != 0; }
 // Cell index of the other teleporter with the same pair id, -1 if there is none. cells: a whole level.
 [[nodiscard]] int teleportPartner(const Tile* cells, int index);
 

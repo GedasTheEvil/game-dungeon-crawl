@@ -170,7 +170,7 @@ CellHint describeCell(const Tile& cell) {
 				"pair id",
 				cell.value,
 				"the other teleporter with this value is the target; + 256: a name gate, sealed by "
-				"the level's name"
+				"the level's name; + 512: a ring platform, rings from the ceiling (rock above)"
 			);
 		break;
 	case MonsterSpawn:

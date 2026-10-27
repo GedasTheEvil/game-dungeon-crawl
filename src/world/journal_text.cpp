@@ -174,6 +174,7 @@ constexpr std::array<const char*, static_cast<size_t>(FieldNote::AmuletFirst)> F
 // The [note.<slug>] of each FieldNote after the amulets', in FieldNote order.
 constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::AmuletLast) - 1> LATE_NOTE_SLUGS = {
 	"stun",
+	"rings",
 };
 
 std::string fieldNoteKey(int note) {

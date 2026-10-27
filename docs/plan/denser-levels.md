@@ -94,7 +94,7 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   god-mode script, as in campaign-levelgen step 6); with them many stall on grabs, the finale plays to the ankh.
 * **Left open:** no fork in the priests' quarter (the zone table's plan; the pages placed them in the web halls,
   Sokar and the Lake of Fire instead), no inscription hints at the early forks (their pages only), the ring
-  transporter's place waits for [ring-transporter](ring-transporter.draft.opus.md), the level gem still changes every
+  transporter's place waits for [ring-transporter](ring-transporter.md), the level gem still changes every
   five levels (not by zone), `bin/balance`'s paced player now follows the rebuilt campaign (it followed the old one).
 * **XP (open, for the sim pass at the end):** the whole campaign (`bin/balance today`, 2026-10-26): the player comes to
   Khepri (4) at level 6, Shezmu (9) at 26, the Mother of Webs (13) 36, the High Priest (18) 44, the queen (22) 48, Apep

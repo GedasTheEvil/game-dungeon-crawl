@@ -168,6 +168,16 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.mirrorTurn;
 	case WorldSound::SunDisc:
 		return sounds.sunDisc;
+	case WorldSound::RingsDown:
+		return sounds.ringsDown;
+	case WorldSound::RingsUp:
+		return sounds.ringsUp;
+	case WorldSound::ChevronLock:
+		return sounds.chevronLock;
+	case WorldSound::ChevronFail:
+		return sounds.chevronFail;
+	case WorldSound::DialPress:
+		return sounds.dialPress;
 	case WorldSound::Dodge:
 		return sounds.dodge;
 	case WorldSound::PowerHit:

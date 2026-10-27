@@ -413,7 +413,9 @@ void Dungeon::drawTileContent(int i, int j) {
 		drawAnkhTile();
 		break;
 	case Door:
-		if (isTeleporter(tile))
+		if (isRingPlatform(tile))
+			drawRingPlatformTile(i, j);
+		else if (isTeleporter(tile))
 			drawTeleporterTile(i, j);
 		else
 			drawDoorTile(i, j);

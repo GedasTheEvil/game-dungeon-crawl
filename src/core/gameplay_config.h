@@ -312,6 +312,16 @@ constexpr float HELD_SHAKE_DEG = 2.f;
 constexpr int DEATH_SCREEN_DELAY_MS = 1200;
 
 constexpr int GATE_TRAVEL_FADE_MS = 300; // the view fades out into a gate's plasma colour, then back in at the arrival
+// The ring transporter (plan ring-transporter): RING_COUNT rings drop from the ceiling one after another,
+// RING_STAGGER_MS apart, RING_FALL_MS each, and hum for RING_HOLD_MS; the view flashes white for RING_FLASH_MS, the
+// player is moved, it flashes back; the rings rise at the partner the same way, the top one first.
+constexpr int RING_COUNT = 5;
+constexpr int RING_STAGGER_MS = 150;
+constexpr int RING_FALL_MS = 400;
+constexpr int RING_HOLD_MS = 250;
+constexpr int RING_FLASH_MS = 180;
+constexpr int RINGS_DOWN_MS = (RING_COUNT - 1) * RING_STAGGER_MS + RING_FALL_MS + RING_HOLD_MS;
+constexpr int RINGS_UP_MS = (RING_COUNT - 1) * RING_STAGGER_MS + RING_FALL_MS;
 // A sealed name gate's plasma (plan secret-name-gates) breathes down to NAME_GATE_MIN_ALPHA and back once per
 // NAME_GATE_BREATH_MS; opened, it shimmers for NAME_GATE_SHIMMER_MS, then holds steady.
 constexpr float NAME_GATE_BREATH_MS = 1500.f;

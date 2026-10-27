@@ -60,6 +60,12 @@ void loadMechanisms(MechanismSet& set) {
 	set.mirror = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror.md3", set.mirrorTex);
 	set.mirrorPointerTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror_pointer.png");
 	set.mirrorPointer = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror_pointer.md3", set.mirrorPointerTex);
+	set.ringPlatformTex.LoadPNG(MEDIA_DIR "textures/mechanisms/ring_platform.png");
+	set.ringPlatform = loadStaticModel(MEDIA_DIR "models/mechanisms/ring_platform.md3", set.ringPlatformTex);
+	set.ringHousingTex.LoadPNG(MEDIA_DIR "textures/mechanisms/ring_housing.png");
+	set.ringHousing = loadStaticModel(MEDIA_DIR "models/mechanisms/ring_housing.md3", set.ringHousingTex);
+	set.ringTex.LoadPNG(MEDIA_DIR "textures/mechanisms/ring.png");
+	set.ring = loadStaticModel(MEDIA_DIR "models/mechanisms/ring.md3", set.ringTex);
 }
 } // namespace
 
@@ -302,6 +308,11 @@ void loadSounds(SoundBank& sounds) {
 	sounds.dripSplat.Load(MEDIA_DIR "sounds/mechanisms/drip_splat.wav");
 	sounds.mirrorTurn.Load(MEDIA_DIR "sounds/mechanisms/mirror_turn.wav");
 	sounds.sunDisc.Load(MEDIA_DIR "sounds/mechanisms/sun_disc.wav");
+	sounds.ringsDown.Load(MEDIA_DIR "sounds/mechanisms/rings_down.wav");
+	sounds.ringsUp.Load(MEDIA_DIR "sounds/mechanisms/rings_up.wav");
+	sounds.chevronLock.Load(MEDIA_DIR "sounds/mechanisms/chevron_lock.wav");
+	sounds.chevronFail.Load(MEDIA_DIR "sounds/mechanisms/chevron_fail.wav");
+	sounds.dialPress.Load(MEDIA_DIR "sounds/mechanisms/dial_press.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
 	sounds.powerCharge.Load(MEDIA_DIR "sounds/items/power_charge.wav");
 	sounds.powerSwing.Load(MEDIA_DIR "sounds/items/power_swing.wav");

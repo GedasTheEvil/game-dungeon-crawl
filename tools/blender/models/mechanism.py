@@ -47,15 +47,16 @@ from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E4
 
 COLL = "mechanism_new"
 MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes", "spike_slots",
-          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer", "fire_vent"]
+          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer", "fire_vent", "ring_platform", "ring_housing", "ring"]
 COLOURED = {"key", "gate", "lever_base", "sun_disc"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
             "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256, "sun_disc": 256,
-            "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128, "fire_vent": 256}
+            "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128, "fire_vent": 256, "ring_platform": 256,
+            "ring_housing": 256, "ring": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
-BAKE_LIFT = {"key": 0.35, "rock": 0.3}  # free models hang in the air while baking, as in game
+BAKE_LIFT = {"key": 0.35, "rock": 0.3, "ring": 0.4}  # free models hang in the air while baking, as in game
 
 LEVER_PIVOT = V((0.0, -0.05, 0.42))  # handle pivot in the lever_base frame (tile units, Blender axes)
 LEVER_ANGLE = 35.0  # the engine swings the handle between -LEVER_ANGLE (off) and +LEVER_ANGLE (pulled)
@@ -519,6 +520,59 @@ def build_mirror_pointer(b, M):
     b.add(place(prism([(p.x, p.z) for p in head], 0.012), r=rot(x=90), loc=(0, 0.0, 0)), M["gold"], "root")
 
 
+RING_INNER, RING_OUTER, RING_H = 0.2, 0.25, 0.06  # the engine's RING_BASE, RING_GAP stack five of them up to ~0.45
+RING_CENTRE_Y = -0.5  # the middle of the corridor, where the player stands (RING_DEPTH)
+PLATFORM_R = 0.3
+
+
+def build_ring_platform(b, M):
+    """Ring transporter (plan ring-transporter): a round plate of gold-bronze set in the floor in the middle of the
+    corridor, a dark gap round it, the groove the rings come down into, and engraved circles round a gold centre."""
+    c = (0, RING_CENTRE_Y, 0)
+    revolve(b, M, [(0.0, -0.004), (PLATFORM_R + 0.025, -0.004), (PLATFORM_R + 0.025, 0.003), (0.0, 0.003)],
+            ["crack", "crack", "crack"], n=40, loc=c)
+    top = 0.02
+    revolve(b, M, [(PLATFORM_R, 0.0), (PLATFORM_R, top - 0.004), (PLATFORM_R - 0.006, top), (RING_OUTER + 0.012, top),
+                   (RING_OUTER + 0.006, top - 0.008), (RING_INNER - 0.006, top - 0.008), (RING_INNER - 0.012, top),
+                   (0.0, top)],
+            ["bronze_plain", "bronze_plain", "gold", "bronze_dark", "enamel", "bronze_dark", "gold"], n=48, loc=c)
+    for r in (0.09, 0.14):
+        b.add(place(oval_ring(r, r, 0.004, z=top), loc=(0, RING_CENTRE_Y, 0)), M["bronze_dark"], "root")
+    b.add(ellipsoid((0, RING_CENTRE_Y, top), (0.05, 0.05, 0.008), n=20, rings=4), M["gold_plain"], "root", "gem")
+    for k in range(7):  # seven marks round the centre
+        a = 2 * math.pi * k / 7
+        b.add(ellipsoid((0.165 * math.cos(a), RING_CENTRE_Y + 0.165 * math.sin(a), top), (0.012, 0.012, 0.004), n=8, rings=3),
+              M["gold_plain"], "root")
+
+
+def build_ring_housing(b, M):
+    """The ring housing in the ceiling over a ring platform: a dark round shaft where the rings wait, a bronze collar
+    round it hanging a little below the ceiling, bolted to a stone frame."""
+    top = 1.0
+    c = (0, RING_CENTRE_Y, 0)
+    revolve(b, M, [(0.0, top + 0.002), (RING_OUTER + 0.02, top + 0.002)], ["enamel"], n=40, loc=c)
+    revolve(b, M, [(PLATFORM_R + 0.05, top), (PLATFORM_R + 0.05, top - 0.012), (PLATFORM_R, top - 0.016),
+                   (RING_OUTER + 0.03, top - 0.035), (RING_OUTER + 0.02, top - 0.035), (RING_OUTER + 0.02, top)],
+               ["stone_light", "stone", "bronze", "bronze_dark", "bronze_dark"], n=48, loc=c)
+    for k in range(8):  # the bolts
+        a = 2 * math.pi * (k + 0.5) / 8
+        p = V((0.315 * math.cos(a), RING_CENTRE_Y + 0.315 * math.sin(a), top - 0.016))
+        b.add(ellipsoid(p, (0.012, 0.012, 0.008), n=8, rings=3), M["gold_plain"], "root")
+
+
+def build_ring(b, M):
+    """One ring of the transporter: a flat band of gold, its outer face engraved, raised plates round it. Free model,
+    the origin on its axis, lowest point z = 0; the engine draws five, stacked."""
+    revolve(b, M, [(RING_INNER, 0.0), (RING_OUTER - 0.006, 0.0), (RING_OUTER, 0.008), (RING_OUTER, RING_H - 0.008),
+                   (RING_OUTER - 0.006, RING_H), (RING_INNER, RING_H), (RING_INNER, 0.0)],
+            ["gold_plain", "gold_plain", "gold", "gold_plain", "gold_plain", "bronze_plain"], n=48)
+    for k in range(12):
+        a = 2 * math.pi * k / 12
+        d = V((math.cos(a), math.sin(a), 0))
+        plate = place(box(0.03, 0.008, RING_H * 0.6), r=rot(z=math.degrees(a) + 90), loc=tuple(d * (RING_OUTER + 0.002) + V((0, 0, RING_H / 2))))
+        b.add(plate, M["bronze_dark" if k % 2 else "gold_plain"], "root")
+
+
 BUILDERS = {
     "key": build_key,
     "gate": build_gate,
@@ -535,6 +589,9 @@ BUILDERS = {
     "mirror": build_mirror,
     "mirror_pointer": build_mirror_pointer,
     "fire_vent": build_fire_vent,
+    "ring_platform": build_ring_platform,
+    "ring_housing": build_ring_housing,
+    "ring": build_ring,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -552,6 +609,9 @@ LIGHT = {
     "mirror": ([(0, 0, 0.5), (90, 0, 0.3), (-90, 0, 0.2)], 0.6),  # it turns: light on every side
     "mirror_pointer": ([(10, 0, 0.6)], 0.6),
     "fire_vent": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
+    "ring_platform": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
+    "ring_housing": ([(-30, 0, 0.5), (60, 0, 0.3)], 0.6),
+    "ring": ([(65, 0, 1.0), (60, 180, 0.4)], 0.9),
 }
 
 
@@ -608,12 +668,14 @@ def bake_lit(obj, out_path, name, size, suns, sky):
 
 
 def build_env(coll, xs):
-    """Floor and back wall under the line-up (AO occluders); a ceiling slab over the ceiling crack only."""
+    """Floor and back wall under the line-up (AO occluders); a ceiling slab over the ceiling crack and the ring housing."""
     half = SPACING * len(MODELS) / 2 + 0.5
     verts = [(-half, -1.0, 0), (half, -1.0, 0), (half, 0, 0), (-half, 0, 0), (-half, 0, 1.2), (half, 0, 1.2)]
     faces = [[0, 1, 2, 3], [3, 2, 5, 4]]
-    if "ceiling_crack" in xs:
-        x = xs["ceiling_crack"]
+    for name in ("ceiling_crack", "ring_housing"):
+        if name not in xs:
+            continue
+        x = xs[name]
         base = len(verts)
         verts += [(x - 0.6, -1.0, 1.0), (x + 0.6, -1.0, 1.0), (x + 0.6, 0, 1.0), (x - 0.6, 0, 1.0)]
         faces.append([base, base + 3, base + 2, base + 1])

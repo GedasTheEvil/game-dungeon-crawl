@@ -282,6 +282,9 @@ class Dungeon {
 	void drawLeverTile(int i, int j);
 	// At the cell origin: the columns face the camera, plasma between them; a name gate's pulses (nameGateAlpha).
 	void drawTeleporterTile(int i, int j);
+	// A ring platform (plan ring-transporter): the plate in the floor, the housing in the ceiling, the rings while they
+	// carry the player.
+	void drawRingPlatformTile(int i, int j);
 	// The plasma's opacity in a teleporter's cell: 1, but for a sealed name gate's breath and the shimmer of one just
 	// opened.
 	[[nodiscard]] float nameGateAlpha(int cell) const;
@@ -538,16 +541,19 @@ class Dungeon {
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
-	// Gate travel: the view fades out (Out), the jump happens under the faded frame, the view fades in (In). The world
-	// stands still meanwhile.
+	// Gate travel: the view fades out (Out), the jump happens under the faded frame, the view fades in (In). A ring
+	// platform (plan ring-transporter) drops its rings first (RingsDown), fades in a white flash and raises them at
+	// the partner (RingsUp). The world stands still meanwhile.
 	struct GateTravel {
-		enum class Phase : unsigned char { None, Out, In };
+		enum class Phase : unsigned char { None, Out, In, RingsDown, RingsUp };
 		Phase phase = Phase::None;
 		int startMs = 0;
 		bool exit = false; // the exit gate (red), else a teleporter (blue)
+		bool rings = false; // a ring platform (white)
 	} travel;
-	void startTravel(bool exitGate);
+	void startTravel(bool exitGate, bool rings = false);
 	void updateTravel();
+	[[nodiscard]] int travelPhaseMs() const; // how long the phase lasts
 	// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): the camera goes to the gates a lever or a boss's death
 	// opened off the screen, holds on each while it opens, and comes back. The world stands still meanwhile, but for
 	// the gates.
@@ -712,6 +718,10 @@ class Dungeon {
 	[[nodiscard]] bool Travelling() const { return travel.phase != GateTravel::Phase::None; }
 	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
 	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
+	[[nodiscard]] bool TravelByRings() const { return travel.rings; }
+	// Ring k's way down out of the ceiling while a ring platform carries the player (plan ring-transporter), 0 up in
+	// its housing to 1 at rest round the player; 0 when not travelling by rings. Ring 0 drops first, to the bottom.
+	[[nodiscard]] float RingDrop(int ring) const;
 	// Pushes the player tiles along the row, dir -1 / +1, sliding (a storm roar). Not while held.
 	void ShovePlayer(int dir, float tiles);
 	// 0..1: how thick the sand over the screen is (a storm roar), fading out.

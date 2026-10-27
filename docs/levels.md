@@ -194,6 +194,10 @@ Polished by hand after generating: the bronze sword on lvl3; no mimic on lvl1 (p
 rats there; lvl2 a scarab more; lvl5 three of its worms bats; lvl7's crocodile moved off the way into a pool with a
 chest past it.
 
+Ring platforms ([ring-transporter](plan/ring-transporter.md), `0`, value pair id + `RING_PLATFORM`), placed by hand:
+lvl17 the first, at a wing's end to a sealed room with a chest, the ring's text (`RING_TEXT`, "The ring of seven") on
+the wall beside it; on lvl31, lvl39, lvl48 and lvl50 a plain teleporter pair became one. The other teleporters stay.
+
 Trapped chests ([trapped-chests](plan/solved/trapped-chests.md), `%`): by the zone (`ZONE_TRAPPED_CHESTS`): none
 in the first two zones, one in the priests' quarter, two a level in the web halls and from the scorpion nest on, three
 from the land of Sokar on (fewer where the level had too few plain potion chests). Each a chest that held a plain potion
@@ -324,7 +328,7 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream; from difficulty 8,
    30% of the mimics are cursed. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a name cartouche `:`, a light shaft `l`, a mirror `(`, a sun disc `a`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a ring platform `0`, a name cartouche `:`, a light shaft `l`, a mirror `(`, a sun disc `a`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose

@@ -8,7 +8,9 @@
 #include "names.h"
 #include "dungeon_rules.h"
 #include "world_events.h"
+#include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -289,7 +291,7 @@ void Dungeon::useGate() {
 			sim.events->AskName(); // plan secret-name-gates
 		else if (!sim.player->jump.jumping && !sim.player->jump.falling &&
 				 teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
-			startTravel(false);
+			startTravel(false, isRingPlatform(here));
 		break;
 	default: // the entrance, an answered riddle gate
 		break;
@@ -308,33 +310,93 @@ bool Dungeon::SpeakName() {
 	return true;
 }
 //======================================================================================
-void Dungeon::startTravel(bool exitGate) {
+void Dungeon::startTravel(bool exitGate, bool rings) {
+	if (rings) {
+		travel = {GateTravel::Phase::RingsDown, GameClock::now(), false, true};
+		mapX = std::floor(mapX) + TELEPORT_ARRIVAL_X; // in the middle, where the rings come down
+		resetPlayerMotion();
+		sim.events->Play(WorldSound::RingsDown);
+		return;
+	}
 	travel = {GateTravel::Phase::Out, GameClock::now(), exitGate};
 	if (!exitGate)
 		sim.events->Play(WorldSound::Teleport);
 }
 //======================================================================================
+int Dungeon::travelPhaseMs() const {
+	switch (travel.phase) {
+	case GateTravel::Phase::RingsDown:
+		return RINGS_DOWN_MS;
+	case GateTravel::Phase::RingsUp:
+		return RINGS_UP_MS;
+	case GateTravel::Phase::Out:
+	case GateTravel::Phase::In:
+		return travel.rings ? RING_FLASH_MS : GATE_TRAVEL_FADE_MS;
+	case GateTravel::Phase::None:
+		break;
+	}
+	return 0;
+}
+//======================================================================================
 void Dungeon::updateTravel() {
 	updateAnimations();
-	if (GameClock::now() - travel.startMs < GATE_TRAVEL_FADE_MS)
+	if (GameClock::now() - travel.startMs < travelPhaseMs())
 		return;
-	if (travel.phase == GateTravel::Phase::Out) {
+	const int now = GameClock::now();
+	switch (travel.phase) {
+	case GateTravel::Phase::RingsDown:
+		travel.phase = GateTravel::Phase::Out;
+		break;
+	case GateTravel::Phase::Out:
 		if (travel.exit) {
 			if (LoadCampaignLevel(levelNumber + 1))
 				sim.events->Autosave(AutosaveMoment::LevelStart); // plan autosave
 		} else
 			Teleport();
 		travel.phase = GateTravel::Phase::In;
-		travel.startMs = GameClock::now();
-	} else
+		break;
+	case GateTravel::Phase::In:
+		travel.phase = travel.rings ? GateTravel::Phase::RingsUp : GateTravel::Phase::None;
+		if (travel.rings) {
+			sim.events->Play(WorldSound::RingsUp);
+			sim.events->Note(FieldNote::Rings); // the joke about the Rings pocket, the first time
+		}
+		break;
+	case GateTravel::Phase::RingsUp:
+	case GateTravel::Phase::None:
 		travel.phase = GateTravel::Phase::None;
+		break;
+	}
+	travel.startMs = now;
 }
 //======================================================================================
 float Dungeon::TravelFade() const {
-	if (travel.phase == GateTravel::Phase::None)
+	if (travel.phase != GateTravel::Phase::Out && travel.phase != GateTravel::Phase::In)
 		return 0.f;
-	const float t = motionProgress(travel.startMs, GATE_TRAVEL_FADE_MS);
+	const float t = motionProgress(travel.startMs, travelPhaseMs());
 	return travel.phase == GateTravel::Phase::Out ? t : 1.f - t;
+}
+//======================================================================================
+float Dungeon::RingDrop(int ring) const {
+	if (!travel.rings)
+		return 0.f;
+	const int since = GameClock::now() - travel.startMs;
+	auto way = [](int ms) { // eased: they drop fast and settle
+		const float t = std::clamp(static_cast<float>(ms) / RING_FALL_MS, 0.f, 1.f);
+		return 1.f - (1.f - t) * (1.f - t);
+	};
+	switch (travel.phase) {
+	case GateTravel::Phase::RingsDown:
+		return way(since - ring * RING_STAGGER_MS);
+	case GateTravel::Phase::RingsUp:
+		return 1.f - way(since - (RING_COUNT - 1 - ring) * RING_STAGGER_MS);
+	case GateTravel::Phase::Out:
+	case GateTravel::Phase::In:
+		return 1.f;
+	case GateTravel::Phase::None:
+		break;
+	}
+	return 0.f;
 }
 //======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.

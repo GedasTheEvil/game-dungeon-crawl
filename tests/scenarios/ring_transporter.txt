@@ -1,0 +1,26 @@
+# Plan ring-transporter (tests/levels/rings): the platform and its housing, the rings dropping round the player, all
+# down, the white flash, the arrival with the rings rising, the partner platform after.
+seed 1
+god
+level tests/levels/rings
+wait 30
+walk to 5.4
+wait 10
+screenshot platform
+walk to 6.3
+interact
+wait 350ms
+screenshot rings_dropping
+wait 900ms
+screenshot rings_down
+wait 120ms
+screenshot flash
+wait 250ms
+screenshot arrival
+wait 400ms
+screenshot rings_rising
+wait 1s
+expect x > 4.4
+expect x < 4.6
+expect y > 4.5
+screenshot partner

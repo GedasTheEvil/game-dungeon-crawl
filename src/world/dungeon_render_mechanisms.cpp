@@ -1,5 +1,5 @@
-// Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps, wall spikes and fire vents
-// (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
+// Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps, wall spikes, fire vents and ring
+// platforms (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "../state/assets.h"
@@ -44,6 +44,12 @@ constexpr float VENT_MOUTH_Z = -0.94f * RenderConfig::TILE_SIZE;
 constexpr int JET_PLUMES = 4;
 constexpr int JET_FLARE_MS = 80;
 constexpr int JET_FADE_MS = 250;
+// The ring transporter (plan ring-transporter, mechanism.py's RING_*): ring k rests RING_BASE + k * RING_GAP over the
+// floor round the middle of the corridor; up, it hides in the ceiling (RING_HIDDEN).
+constexpr float RING_BASE = 0.02f;
+constexpr float RING_GAP = 0.095f;
+constexpr float RING_HIDDEN = 1.f;
+constexpr float RING_DEPTH = 0.5f;
 constexpr FireStyle JET = {64, 520.f, 7.f, 26.f, 8.f, 2.f, 0.2f};
 constexpr FireStyle VENT_EMBERS = {14, 320.f, 5.f, 5.f, 2.6f, 0.6f, 0.f};
 constexpr Lighting::LightDef JET_LIGHT = {1.f, 0.5f, 0.18f, 150.f, 0.8f};
@@ -312,4 +318,21 @@ void Dungeon::drawMechanismEffects() {
 			static_cast<uint32_t>(m.cell)
 		);
 	}
+}
+//======================================================================================
+void Dungeon::drawRingPlatformTile(int i, int j) {
+	glPushMatrix();
+	enterPropSpace();
+	showModel(sim.assets->mechanisms.ringPlatform.get());
+	showModel(sim.assets->mechanisms.ringHousing.get());
+	const bool here = static_cast<int>(mapX) == i && static_cast<int>(mapY) == j;
+	if (here && TravelByRings() && Travelling())
+		for (int k = 0; k < RING_COUNT; k++) {
+			const float rest = RING_BASE + static_cast<float>(k) * RING_GAP;
+			glPushMatrix();
+			glTranslatef(0, RING_HIDDEN + (rest - RING_HIDDEN) * RingDrop(k), RING_DEPTH);
+			showModel(sim.assets->mechanisms.ring.get());
+			glPopMatrix();
+		}
+	glPopMatrix();
 }

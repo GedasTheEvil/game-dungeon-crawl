@@ -321,6 +321,8 @@ void drawGameplay() {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		if (Game().dungeon.TravelToExit())
 			glColor4f(1.f, 0.35f, 0.25f, fade);
+		else if (Game().dungeon.TravelByRings()) // the rings' white flash (plan ring-transporter)
+			glColor4f(1.f, 1.f, 0.95f, fade);
 		else
 			glColor4f(0.35f, 0.65f, 1.f, fade);
 		glBegin(GL_QUADS);

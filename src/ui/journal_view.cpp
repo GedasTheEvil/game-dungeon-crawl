@@ -811,7 +811,7 @@ void JournalScreen::DrawRibbon(int ribbon, bool left, float depth, bool open, bo
 	if (open || hovered) { // its letter, written on the ribbon end
 		beginText();
 		float x = left ? r.x + 6.2f - handSmall.TextWidth(look.letter) : r.x + r.w - 6.2f;
-		text(handSmall, x, r.y + 1.7f, look.letter, PAPER, 0.9f);
+		textMiddle(handSmall, x, r.cy(), look.letter, PAPER, 0.9f);
 		beginShapes();
 	}
 }
@@ -845,7 +845,7 @@ void JournalScreen::DrawRibbons(bool top) {
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
 	strokeRect(label, GOLD_DIM, 1.f, 1.f);
 	beginText();
-	text(small, label.x + 1.5f, label.y + 1.2f, name, GOLD);
+	textMiddle(small, label.x + 1.5f, label.cy(), name, GOLD);
 	beginShapes();
 }
 
@@ -895,7 +895,7 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 		Rect b = tile(answerRect(p.x < RIGHT_PAGE.x ? 0 : 1), TileStyle::Lapis, answerHovered, answerHeld);
 		std::string label = "Answer  +" + std::to_string(r.lateXP) + " XP";
 		beginText();
-		textCentered(body, b.cx(), b.y + 2.1f, label.c_str(), answerHovered ? TEXT_HOVER : GOLD);
+		textCenteredIn(body, b, label.c_str(), answerHovered ? TEXT_HOVER : GOLD);
 		beginShapes();
 	}
 }

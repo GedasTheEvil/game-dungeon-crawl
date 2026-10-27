@@ -559,7 +559,7 @@ void MainMenu::DrawButtons() {
 
 		beginText();
 		Color c = isHovered ? TEXT_HOVER : (b.primary ? GOLD : LABEL);
-		text(heading, well.x + well.w + 4.f, r.y + 2.1f, b.label, c);
+		textMiddle(heading, well.x + well.w + 4.f, r.cy(), b.label, c);
 		beginShapes();
 	}
 }
@@ -601,7 +601,7 @@ void MainMenu::DrawSlot(int slot) {
 	if (!autosave) {
 		char number[12];
 		std::snprintf(number, sizeof(number), "%d", slot + 1);
-		textCentered(title, well.cx(), well.y + 2.2f * k, number, info.used ? GOLD : LABEL_DIM);
+		textCenteredIn(title, well, number, info.used ? GOLD : LABEL_DIM);
 	}
 
 	if (info.used) {
@@ -622,10 +622,10 @@ void MainMenu::DrawSlot(int slot) {
 			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f * k, overwrite, {0.9f, 0.45f, 0.3f});
 		}
 	} else {
-		text(
+		textMiddle(
 			heading,
 			textX,
-			r.y + 5.6f * k,
+			r.cy(),
 			autosave ? "No autosave yet" : "Empty slot",
 			isHovered ? GOLD_BRIGHT : LABEL_DIM
 		);
@@ -640,7 +640,7 @@ void MainMenu::DrawOptions() {
 		bool isHovered = hovered == TAB_BASE + tab;
 		Rect r = tile(tabRect(tab), active ? TileStyle::Lapis : TileStyle::Stone, isHovered && !active, false);
 		beginText();
-		textCentered(heading, r.cx(), r.y + 1.4f, TABS[static_cast<size_t>(tab)], active ? GOLD : LABEL);
+		textCenteredIn(heading, r, TABS[static_cast<size_t>(tab)], active ? GOLD : LABEL);
 		beginShapes();
 	}
 	float ruleY = tabRect(0).y;
@@ -715,12 +715,11 @@ void MainMenu::DrawRows() {
 		text(body, band.x + 3.f, band.y + 2.4f, row.name, LABEL);
 		text(small, band.x + 3.f, band.y + 0.3f, row.hint, LABEL_DIM);
 		if (row.kind == OptionKind::Slider)
-			text(heading, control.x + control.w + 2.5f, control.y + 0.2f, value, isHovered ? GOLD_BRIGHT : GOLD);
+			textMiddle(heading, control.x + control.w + 2.5f, control.cy(), value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
-			textCentered(
+			textCenteredIn(
 				heading,
-				control.cx(),
-				control.y + 0.2f,
+				control,
 				value,
 				!enabled ? LABEL_DIM : (on || row.kind == OptionKind::Choice ? GOLD : LABEL)
 			);
@@ -747,17 +746,16 @@ void MainMenu::DrawControlCell(int target, const Rect& r) {
 
 	if (waiting) {
 		beginText();
-		textCentered(small, r.cx(), r.y + 0.6f, slot == MOUSE_SLOT ? "Click" : "Press", GOLD_BRIGHT);
+		textCenteredIn(small, r, slot == MOUSE_SLOT ? "Click" : "Press", GOLD_BRIGHT);
 		beginShapes();
 	} else if (slot == MOUSE_SLOT && key.Bound()) {
 		constexpr float SCALE = 0.75f;
 		drawMouse(r.cx() - MOUSE_W * SCALE / 2, r.cy() - MOUSE_H * SCALE / 2, mouseInput(key), SCALE);
 	} else {
 		beginText();
-		textCentered(
+		textCenteredIn(
 			small,
-			r.cx(),
-			r.y + 0.6f,
+			r,
 			key.Bound() ? keyCap(key).c_str() : "-",
 			key.Bound() ? (isHovered ? GOLD_BRIGHT : GOLD) : LABEL_DIM
 		);
@@ -790,7 +788,7 @@ void MainMenu::DrawControls(float left, float right) {
 	bool isHovered = hovered == RESET_CONTROLS;
 	Rect reset = tile(resetButton(), TileStyle::Stone, isHovered, isHovered && pressed == RESET_CONTROLS);
 	beginText();
-	textCentered(small, reset.cx(), reset.y + 0.7f, "Reset to defaults", isHovered ? GOLD_BRIGHT : LABEL);
+	textCenteredIn(small, reset, "Reset to defaults", isHovered ? GOLD_BRIGHT : LABEL);
 	textCentered(
 		small,
 		(left + right) / 2,
@@ -815,7 +813,7 @@ void MainMenu::DrawBackButton() {
 	float x0 = r.cx() - (labelW + 6.f) / 2;
 	drawIcon(Icon::Back, x0 + 2.f, r.cy(), 2.f, c);
 	beginText();
-	text(heading, x0 + 6.f, r.y + 1.6f, "Back", c);
+	textMiddle(heading, x0 + 6.f, r.cy(), "Back", c);
 	beginShapes();
 }
 

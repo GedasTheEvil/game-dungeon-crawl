@@ -79,6 +79,7 @@ BALANCE_SOURCES=tools/balance/balance.cpp
 BALANCE=$(BIN)/balance
 
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
+# stb (no GL) reads PNGs for the font sheet test.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
 UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o)
 UNIT=$(BIN)/unit
@@ -219,7 +220,7 @@ $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 run-model-viewer: $(VIEWER)
 	$(VIEWER) $(ARGS)
 
-$(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
+$(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB) $(EXTERNAL_OBJECTS)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 

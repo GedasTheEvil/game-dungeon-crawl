@@ -105,6 +105,10 @@ void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Co
 // first cut the glyph out of what is below, then add the colour into the hole.
 void text(Font& font, float x, float y, const char* str, Color c, float alpha = 1.f);
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha = 1.f);
+// Labels inside a box: the cap height centred on `cy` (left-aligned from x), or on `r`'s middle (both axes).
+float textMiddleY(const Font& font, float cy);
+void textMiddle(Font& font, float x, float cy, const char* str, Color c, float alpha = 1.f);
+void textCenteredIn(Font& font, const Rect& r, const char* str, Color c, float alpha = 1.f);
 // Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 

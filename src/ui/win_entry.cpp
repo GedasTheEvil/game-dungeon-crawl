@@ -103,7 +103,7 @@ void WinEntry::Draw(int resX, int resY) {
 	if (std::fmod(static_cast<float>(GameClock::now()) / 500.f, 2.f) < 1.f) // a blinking caret
 		fillRect({caretX, FIELD.y + 1.3f, 0.5f, FIELD.h - 2.6f}, GOLD_BRIGHT, GOLD_BRIGHT, 1.f);
 	beginText();
-	text(heading, FIELD.x + 2.f, FIELD.y + 1.6f, name.c_str(), GOLD_BRIGHT);
+	textMiddle(heading, FIELD.x + 2.f, FIELD.cy(), name.c_str(), GOLD_BRIGHT);
 	textCentered(small, PANEL.cx(), PANEL.y + 2.8f, "Enter: record    Esc: skip", LABEL_DIM);
 
 	glDisable(GL_BLEND);

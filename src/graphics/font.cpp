@@ -132,7 +132,7 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 		// Proportional glyphs are shifted left so the ink starts at the pen position.
 		float shift = proportional ? -left[loop] * size : 0.f;
 		// Monospaced fonts keep their historic whole-unit quads.
-		float quad = proportional ? size : static_cast<float>(static_cast<int>(size));
+		quad = proportional ? size : static_cast<float>(static_cast<int>(size));
 		advance[loop] = size / 2 + spacing;
 		if (proportional)
 			advance[loop] = (right[loop] > left[loop] ? (right[loop] - left[loop]) * size : SPACE_WIDTH * size) +

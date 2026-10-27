@@ -400,7 +400,7 @@ void Riddle::DrawAnswer() {
 	beginText();
 	text(small, box.x, box.y + box.h + 1.2f, "Your answer", INK_FADED);
 	float textX = box.x + 2.5f;
-	float textY = box.y + 2.f;
+	float textY = textMiddleY(body, box.cy());
 	text(body, textX, textY, answer.c_str(), GOLD_BRIGHT);
 	if ((GameClock::now() / CARET_BLINK_MS) % 2 == 0)
 		text(body, textX + body.TextWidth(answer.c_str()) + 0.3f, textY, "_", GOLD);

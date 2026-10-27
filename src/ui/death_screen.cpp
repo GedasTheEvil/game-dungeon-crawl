@@ -125,7 +125,7 @@ void DeathScreen::Draw(int resX, int resY) {
 		const Rect r = tile(BUTTONS[static_cast<size_t>(i)], style, focused, focused && pressed == i);
 		beginText();
 		const Color c = !enabled ? LABEL_DIM : focused ? TEXT_HOVER : primary ? GOLD : LABEL;
-		textCentered(heading, r.cx(), r.y + 2.1f, LABELS[static_cast<size_t>(i)], c);
+		textCenteredIn(heading, r, LABELS[static_cast<size_t>(i)], c);
 		beginShapes();
 	}
 

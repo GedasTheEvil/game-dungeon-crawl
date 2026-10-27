@@ -182,7 +182,7 @@ void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
 		Color c = isHovered ? GOLD_BRIGHT : GOLD;
 		tabIcon(static_cast<ScreenTab>(tab), r.x + 3.3f, r.cy(), 1.8f, c);
 		beginText();
-		text(small, r.x + 6.4f, r.y + 2.2f, TAB_KEYS[tab], isHovered ? TEXT_HOVER : GOLD);
+		textMiddle(small, r.x + 6.4f, r.cy(), TAB_KEYS[tab], isHovered ? TEXT_HOVER : GOLD);
 		beginShapes();
 	}
 	if (hovered < 0)
@@ -194,7 +194,7 @@ void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
 	strokeRect(label, GOLD_DIM, 1.f, 1.f);
 	beginText();
-	text(small, label.x + 1.5f, label.y + 1.2f, name, GOLD);
+	textMiddle(small, label.x + 1.5f, label.cy(), name, GOLD);
 	beginShapes();
 }
 
@@ -289,6 +289,16 @@ void text(Font& font, float x, float y, const char* str, Color c, float alpha) {
 
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha) {
 	text(font, cx - font.TextWidth(str) / 2, y, str, c, alpha);
+}
+
+float textMiddleY(const Font& font, float cy) { return cy - font.Baseline() - font.CapHeight() / 2; }
+
+void textMiddle(Font& font, float x, float cy, const char* str, Color c, float alpha) {
+	text(font, x, textMiddleY(font, cy), str, c, alpha);
+}
+
+void textCenteredIn(Font& font, const Rect& r, const char* str, Color c, float alpha) {
+	textCentered(font, r.cx(), textMiddleY(font, r.cy()), str, c, alpha);
 }
 
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width) {

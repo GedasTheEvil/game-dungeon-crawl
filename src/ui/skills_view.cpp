@@ -334,10 +334,9 @@ void SkillsScreen::DrawDetails() {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	beginText();
-	textCentered(
+	textCenteredIn(
 		canLearn ? heading : body,
-		b.cx(),
-		b.y + 2.f,
+		b,
 		confirming ? "Sure? Learn" : "Learn",
 		!canLearn ? INK_FADED : (hovered ? TEXT_HOVER : GOLD)
 	);

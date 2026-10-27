@@ -1,0 +1,52 @@
+# Labels inside a box sit centred on its cap height (plan text-vertical-centre): the in-game menu, the Options tabs
+# (Controls, Display, Sound), the inventory, the Heka screen, the journal and a riddle's answer box.
+seed 1
+god
+level tests/levels/classic1
+wait 10
+give melee 1
+give potion 0 3
+key esc
+wait 2
+screenshot menu
+click 50 35.7
+wait 2
+screenshot controls
+click 37.6 76.5
+wait 2
+screenshot display
+click 55.6 76.5
+wait 2
+screenshot sound
+key esc
+key esc
+wait 2
+key i
+wait 2
+screenshot inventory
+key i
+wait 2
+key k
+wait 2
+screenshot heka
+key k
+wait 2
+key j
+wait 2
+screenshot journal
+key j
+wait 2
+level tests/levels/riddle
+riddles tests/riddles/test.txt
+wait 30
+walk right 3
+interact
+wait 5
+expect riddle == 1
+key F
+key o
+key r
+key t
+key y
+wait 2
+screenshot riddle

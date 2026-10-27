@@ -361,7 +361,10 @@ Each screen loads four sizes on its first frame (fonts need the GL context):
 | `body` | 3.6, 0.1 | body text, toasts |
 | `small` | 3, 0.08 | footer, table text, captions |
 
-The y passed to `text()` is the baseline. The font sheets have no alpha, so `ui::text()` draws twice (cut out, then
+The y passed to `text()` is the bottom of the glyph quad, not the baseline: the baseline sits `Font::Baseline()`
+(about 1/3 of the size) above it, the cap height `Font::CapHeight()` above that. A label inside a box (button, tab,
+tile, key cell, input field) goes through `textCenteredIn(font, rect, ...)` or `textMiddle(font, x, cy, ...)`,
+which centre the cap height on the box; no hand-picked y offsets. The font sheets have no alpha, so `ui::text()` draws twice (cut out, then
 add the colour); call it only after `beginText()`, go back with `beginShapes()`.
 
 ## Menu sub-screens

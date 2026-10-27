@@ -99,9 +99,7 @@ const char* blockReason(UseBlock block) {
 }
 
 // The question mark of an item not found yet, centred in `r`.
-void unknownMark(Font& font, const Rect& r, float alpha) {
-	textCentered(font, r.cx(), r.cy() - 2.5f, "?", {0.45f, 0.42f, 0.38f}, alpha);
-}
+void unknownMark(Font& font, const Rect& r, float alpha) { textCenteredIn(font, r, "?", {0.45f, 0.42f, 0.38f}, alpha); }
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
@@ -612,7 +610,7 @@ void Inventory::DrawTabs() {
 		PlayerHud::drawIcon(GROUP_ICONS[group], {r.x + 0.6f, r.y + 0.3f, r.h - 0.6f, r.h - 0.6f}, icons, tint);
 		beginText();
 		Color c = !enabled ? Color{0.36f, 0.29f, 0.20f} : (hovered ? TEXT_HOVER : GOLD);
-		text(small, r.x + r.h + 0.6f, r.y + 1.7f, GROUP_NAMES[group], c);
+		textMiddle(small, r.x + r.h + 0.6f, r.cy(), GROUP_NAMES[group], c);
 		beginShapes();
 	}
 }
@@ -629,7 +627,7 @@ void Inventory::DrawSortButtons() {
 			continue;
 		}
 		beginText();
-		textCentered(small, r.cx(), r.y + 1.7f, SORT_LABELS[order], hovered ? TEXT_HOVER : GOLD);
+		textCenteredIn(small, r, SORT_LABELS[order], hovered ? TEXT_HOVER : GOLD);
 		beginShapes();
 	}
 }
@@ -654,7 +652,7 @@ void Inventory::DrawHints() {
 	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
 	strokeRect(label, GOLD_DIM, 1.f, 1.f);
 	beginText();
-	text(small, label.x + 1.5f, label.y + 1.2f, hint, GOLD);
+	textMiddle(small, label.x + 1.5f, label.cy(), hint, GOLD);
 }
 
 void Inventory::DrawSlot(int slot) {
@@ -756,7 +754,7 @@ void Inventory::DrawSlotLabels(int slot) {
 	if (!owned)
 		nameColor = {0.36f, 0.29f, 0.20f};
 	if (bag.Found(kindOf(slot)))
-		textCentered(small, r.cx(), r.y + 0.7f, itemText(kindOf(slot)).shortName, nameColor);
+		textCenteredIn(small, {r.x, r.y, r.w, NAME_BAND_H}, itemText(kindOf(slot)).shortName, nameColor);
 	else // not even its name: the player does not know it exists
 		unknownMark(title, {r.x, r.y + NAME_BAND_H, r.w, r.h - NAME_BAND_H}, lit ? 0.9f : 0.6f);
 
@@ -933,9 +931,9 @@ void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 
 	beginText();
 	if (enabled)
-		textCentered(heading, r.cx(), r.y + 1.3f, label, hovered ? TEXT_HOVER : GOLD);
+		textCenteredIn(heading, r, label, hovered ? TEXT_HOVER : GOLD);
 	else
-		textCentered(body, r.cx(), r.y + 1.9f, label, INK_FADED);
+		textCenteredIn(body, r, label, INK_FADED);
 	beginShapes();
 }
 

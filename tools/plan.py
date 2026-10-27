@@ -2,11 +2,12 @@
 """Plan bookkeeping (docs/plans.md), so agents do not rename files and rewrite links by hand (plan dev-friction-recheck).
 
     tools/plan.py status              drafts (ready, blocked, on hold) and implemented plans waiting for a play-test
-    tools/plan.py move SLUG STAGE     STAGE: draft-sonet, draft-opus, implemented, solved. Renames the plan (git mv),
-                                      rewrites every markdown link to it and the links inside it, lists its scenarios
+    tools/plan.py move SLUG STAGE     STAGE: draft-sonet, draft-opus, implemented, solved, wont-do. Renames the plan
+                                      (git mv), rewrites every markdown link to it and the links inside it, lists its
+                                      scenarios
     tools/plan.py links               fixes markdown links to plans that moved, fails on the ones it cannot fix
 
-A plan is found by its slug: <slug>.draft.<model>.md, <slug>.md or solved/<slug>.md in docs/plan/.
+A plan is found by its slug: <slug>.draft.<model>.md, <slug>.md, solved/<slug>.md or wont-do/<slug>.md in docs/plan/.
 """
 
 import os
@@ -18,6 +19,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PLANS = ROOT / "docs/plan"
 SOLVED = PLANS / "solved"
+WONT_DO = PLANS / "wont-do"
+CLOSED = (SOLVED, WONT_DO)
 NAME = re.compile(r"^(?P<slug>[a-z0-9-]+?)(?:\.draft\.(?P<model>sonet|opus))?\.md$")
 LINK = re.compile(r"\]\((?!https?:|#|mailto:)([^)#\s]+\.md)(#[^)\s]*)?\)")
 # A link with its text, for a text that names the old path ([plan/x.md](plan/x.md)).
@@ -25,9 +28,9 @@ FULL_LINK = re.compile(r"\[([^\]]*)\]\((?!https?:|#|mailto:)([^)#\s]+\.md)(#[^)\
 
 
 def plans():
-    """slug -> path of every plan (docs/plan/ and docs/plan/solved/)."""
+    """slug -> path of every plan (docs/plan/, docs/plan/solved/ and docs/plan/wont-do/)."""
     out = {}
-    for d in (PLANS, SOLVED):
+    for d in (PLANS, *CLOSED):
         for p in d.glob("*.md"):
             m = NAME.match(p.name)
             if m:
@@ -90,7 +93,7 @@ def status_line(path):
 
 
 def blockers(path, index):
-    """Plans its status says it needs first that are not solved yet."""
+    """Plans its status says it needs first that are not solved yet (a won't-do one is marked: it never will be)."""
     out = []
     for sentence in re.split(r"(?<=[.;])\s+", status_line(path)):
         if not re.search(r"\bneeds?\b", sentence, re.I) or re.search(r"needs nothing|does not need", sentence, re.I):
@@ -98,7 +101,7 @@ def blockers(path, index):
         for target, _ in LINK.findall(sentence):
             slug = slug_of(target)
             if slug in index and index[slug].parent != SOLVED and index[slug] != path:
-                out.append(slug)
+                out.append(f"{slug} (won't do)" if index[slug].parent == WONT_DO else slug)
     return sorted(set(out))
 
 
@@ -106,7 +109,7 @@ def status():
     index = plans()
     drafts, implemented = [], []
     for slug, p in sorted(index.items()):
-        if p.parent == SOLVED:
+        if p.parent in CLOSED:
             continue
         m = NAME.match(p.name)
         if m.group("model"):
@@ -123,7 +126,8 @@ def status():
         elif line and slug_of(line):
             born[slug_of(line)] = date  # older commits come later: the first one wins in the end
     print(f"Implemented, waiting for a play-test ({len(implemented)}): {', '.join(implemented) or '-'}")
-    print(f"Solved: {sum(1 for p in index.values() if p.parent == SOLVED)}\n")
+    print(f"Solved: {sum(1 for p in index.values() if p.parent == SOLVED)}, "
+          f"won't do: {sum(1 for p in index.values() if p.parent == WONT_DO)}\n")
     print(f"Drafts ({len(drafts)}), oldest first:")
     rows = []
     for slug, model, p in drafts:
@@ -149,7 +153,8 @@ def move(slug, stage):
         print(f"no plan {slug}", file=sys.stderr)
         return 1
     names = {"draft-sonet": PLANS / f"{slug}.draft.sonet.md", "draft-opus": PLANS / f"{slug}.draft.opus.md",
-             "implemented": PLANS / f"{slug}.md", "solved": SOLVED / f"{slug}.md"}
+             "implemented": PLANS / f"{slug}.md", "solved": SOLVED / f"{slug}.md",
+             "wont-do": WONT_DO / f"{slug}.md"}
     if stage not in names:
         print(f"stage: one of {', '.join(names)}", file=sys.stderr)
         return 1
@@ -161,6 +166,7 @@ def move(slug, stage):
     text = old.read_text()
     text = LINK.sub(lambda m: f"]({(old.parent / m.group(1)).resolve()}{m.group(2) or ''})", text)
     old.write_text(text)
+    new.parent.mkdir(exist_ok=True)
     subprocess.run(["git", "mv", str(old), str(new)], cwd=ROOT, check=True)
     text = new.read_text()
     text = re.sub(r"\]\((/[^)#\s]+\.md)(#[^)\s]*)?\)",

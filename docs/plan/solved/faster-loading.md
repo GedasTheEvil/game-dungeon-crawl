@@ -1,7 +1,7 @@
 # Faster loading
 
 Status: draft 2026-10-22, from the user. Ready: nothing needed first. Follow-up:
-[loading-per-level](../loading-per-level.draft.opus.md), only if startup is still slow after this one.
+[loading-per-level](../wont-do/loading-per-level.md), only if startup is still slow after this one.
 
 ## Idea
 

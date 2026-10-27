@@ -1,7 +1,7 @@
 # Plans
 
-The plan lifecycle in `docs/plan/`: draft, implemented, solved. The core rules (naming, who implements, slug-only
-names in code, drafts that arrive mid-task) are in [AGENTS.md](../AGENTS.md#plans).
+The plan lifecycle in `docs/plan/`: draft, implemented, solved (or won't do). The core rules (naming, who
+implements, slug-only names in code, drafts that arrive mid-task) are in [AGENTS.md](../AGENTS.md#plans).
 
 ## Model tag
 
@@ -50,6 +50,13 @@ When a plan moves to `docs/plan/solved/`, turn the scenario tests it uses into u
 [testing.md](testing.md)). A scenario that needs a screenshot moves to `tests/scenarios/solved/`: `make test` skips
 it, `make test SCENARIO=...` still runs it; kept for history, it may fail once the rules change (no fix needed).
 Goal: lean, fast tests.
+
+## Won't do
+
+A draft the user drops (no longer needed, superseded, rejected) is not deleted:
+`tools/plan.py move <slug> wont-do` moves it to `docs/plan/wont-do/` and rewrites the links. First add the reason and
+the date to its status line ("Won't do 2026-10-27: ..."). `status` counts it and no longer lists it; a draft that needs
+it shows "needs <slug> (won't do)": rethink that draft. Only on the user's word, never on an agent's own judgement.
 
 ## Priority
 Being newer does not make a draft-plan more important than the older ones.

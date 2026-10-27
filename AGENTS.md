@@ -59,7 +59,8 @@ Writing, refining, reporting on, implementing or solving a plan: read [docs/plan
 The directory "docs/plan/" is used to offload ideas (in *.md files) for a latter use.
 For example, when the user says let's leave this idea for later, save info about it as "<idea-slug>.draft.<model>.md" inside the plan directory.
 Lifecycle: `<slug>.draft.<model>.md` → implemented `<slug>.md` → user-confirmed `solved/<slug>.md`.
-Never rename or move a plan by hand: `tools/plan.py move <slug> implemented|solved|draft-opus|draft-sonet` renames it
+A draft the user drops goes to `wont-do/<slug>.md` instead (docs/plans.md, Won't do).
+Never rename or move a plan by hand: `tools/plan.py move <slug> implemented|solved|wont-do|draft-opus|draft-sonet` renames it
 and rewrites every link to it. "Draft status", "what next": start from `tools/plan.py status` (ready, blocked, on
 hold, waiting for a play-test), then read only the drafts you weigh.
 The model tag `sonet` or `opus` says who can implement it. The default model stays Opus 5.5. When asked to implement

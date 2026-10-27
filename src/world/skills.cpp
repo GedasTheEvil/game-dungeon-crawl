@@ -5,7 +5,8 @@
 #include <string>
 
 const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
-	{"Stun", "Smash hits may stun a foe", true},
+	// Plan skill-stun: a blunt hit may stun.
+	{"Stun", "Blunt hits may stun a foe", false},
 	{"Words of Thoth", "Read the hieroglyphs", false},
 	{"Dodge", "1 blow in 10 misses you", false},
 	// Plan skill-power-hit: a stamina skill, switched with the stamina-skill key.

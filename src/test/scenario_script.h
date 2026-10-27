@@ -49,6 +49,7 @@ enum class CommandType : unsigned char {
 	Poison,
 	PoisonMonster,
 	Grab,
+	Stun,
 	Riddles,
 	Inscriptions,
 	Prop,

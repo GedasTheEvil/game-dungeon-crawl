@@ -83,7 +83,7 @@ TEST_CASE("a weapon hit lands harder with the matching amulet on, a boss hit wit
 }
 
 TEST_CASE("every amulet type has a journal note, written the first time one of its tiers is found") {
-	CHECK(FIELD_NOTE_COUNT == static_cast<int>(FieldNote::AmuletLast) + 1);
+	CHECK(static_cast<int>(FieldNote::AmuletLast) + 1 == static_cast<int>(FieldNote::Stun)); // the later notes after
 	for (int t = 0; t < AMULET_TYPE_COUNT; t++) {
 		CAPTURE(t);
 		const FieldNoteText& note = fieldNoteText(amuletNote(static_cast<AmuletType>(t)));

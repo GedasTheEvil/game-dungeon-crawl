@@ -57,6 +57,12 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 		flight.lift = std::max(0.f, flight.lift);
 		return;
 	}
+	if (Reeling()) { // stunned (plan skill-stun): drops to its row's floor as a dead one, lies there, then flies on
+		flight.fall += BAT_FALL_GRAVITY * dt;
+		flight.lift = std::max(0.f, flight.lift - flight.fall * dt);
+		return;
+	}
+	flight.fall = 0.f;
 
 	const float dx = px - CentreX(); // to the player
 	const bool sees = goal.sees;

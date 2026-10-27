@@ -543,6 +543,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawContainerEffects();
 	drawBurning();
 	drawPowerSpark();
+	drawStunStars();
 	glPopMatrix();
 }
 //======================================================================================

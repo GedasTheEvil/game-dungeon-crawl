@@ -168,8 +168,10 @@ enum class FieldNote : unsigned char {
 	// found (amuletNote).
 	AmuletFirst,
 	AmuletLast = AmuletFirst + AMULET_TYPE_COUNT - 1,
+	// Saved by number: new notes go here, after the amulets'.
+	Stun, // the first monster stunned (plan skill-stun)
 };
-constexpr int FIELD_NOTE_COUNT = 51 + AMULET_TYPE_COUNT;
+constexpr int FIELD_NOTE_COUNT = 52 + AMULET_TYPE_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

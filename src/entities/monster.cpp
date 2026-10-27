@@ -56,6 +56,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	burning.Douse();
 	burnByPlayer = false;
 	dripPuddled = dripDropped = false;
+	reelUntilMs = -1;
+	reelReadyMs = 0;
 	playback = kind.model.SpawnPlayback(effects);
 	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
 	if (!spawned) {
@@ -213,6 +215,24 @@ bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix) {
 	return killed;
 }
 
+bool Monster::StunHit(int ms, bool wasLurking) {
+	const int now = GameClock::now();
+	if (!Alive() || wasLurking || lurking() || Rising() || Emerging() || Hidden() || Burrowing() || jumping() ||
+		Charging() || RollingBall() || Climbing() || (type->isBoss() && now < reelReadyMs))
+		return false;
+	if (type->isBoss()) {
+		ms = ms * BOSS_STUN_PERCENT / 100;
+		reelReadyMs = now + BOSS_STUN_COOLDOWN_MS;
+	}
+	reelUntilMs = std::max(reelUntilMs, now + ms);
+	biteAtMs = -1;
+	if (Grabbing())
+		letGo(); // a held player is free
+	flight.fall = 0.f;
+	flight.tellUntilMs = -1;
+	return true;
+}
+
 void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
 	if (const int dmg = trapHurt.hit(); dmg > 0) {
 		TrapHit(dmg);
@@ -329,7 +349,7 @@ void Monster::Animate(float px, float py) {
 	}
 	if (ShowsClimb() && type->climbRise > 0.f)
 		showClimb();
-	else
+	else if (!Reeling()) // stunned: the clip stands still (plan skill-stun)
 		type->model.Advance(state, playback, type->riseMs, type->walkClipSpeed);
 	showBurrow();
 	if (Grabbing()) // the attack clip held at the jaws or the claws wide, then shut on the player

@@ -479,6 +479,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
 		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
 		{"grab", CommandType::Grab, noArgs, ""},
+		{"stun", CommandType::Stun, noArgs, ""},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
 		{"inscriptions", CommandType::Inscriptions, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},

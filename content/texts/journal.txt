@@ -338,6 +338,13 @@ title: Neith's arrowhead
 text: The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 percent more, lesser to
 	grand. Only the stabbing part counts: every arrow gains all of it.
 
+[note.stun]
+title: Stun
+text: A good knock on the head and the beast forgets what it was doing: it stands there for a moment and a half,
+	stars round its head, looking for the rest of its thoughts. A bat even forgets how to fly. A club or a mace does
+	it best (a sling stone too), a sword or a spear never; the gods' great beasts shake it off twice as fast, and not
+	twice in a row. Rude, but it works.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

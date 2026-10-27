@@ -79,6 +79,8 @@ void Dungeon::UpdateMonsters() {
 
 		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
+		if (mon.Reeling()) // stunned (plan skill-stun): it stands, no step, no bite, no shot
+			continue;
 		if (mon.Alive() && mon.Alerted() &&
 			!won) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
 			updateSpinner(mon);
@@ -304,6 +306,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		dmg += dmg * sim.player->stats.TypeMightPercent(*mix) / 100;
 	const int healthBefore = mon.Health();
 	const bool wasBurning = mon.Burns();
+	const bool wasLurking = mon.lurking();
 	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg);
 	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
 	if (mix && (*mix)[FIRE] > 0)
@@ -312,9 +315,24 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 		sim.events->Status("%s catches fire", type.name);
 	if (killed)
 		rewardKill(mon);
-	else if (mix)
+	else if (mix) {
 		venomHit(mon);
+		stunRoll(mon, *mix, wasLurking);
+	}
 	mon.Struggle(); // a scorpion that holds the player lets go sooner
+}
+//======================================================================================
+// Stun (plan skill-stun): with the skill, the hit's blunt share decides the chance, rolled on the gameplay stream.
+void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
+	if (!sim.player->stats.heka.Has(SkillId::Stun))
+		return;
+	const int chance = STUN_CHANCE_PERCENT * mix[static_cast<size_t>(DamageType::Blunt)] / 100;
+	if (chance <= 0 || !sim.random->gameplay.percent(chance) || !mon.StunHit(STUN_MS, wasLurking))
+		return;
+	const auto& notes = sim.journal->Notes();
+	if (std::find(notes.begin(), notes.end(), FieldNote::Stun) == notes.end())
+		sim.events->Status("%s is stunned", mon.Type()->name);
+	sim.events->Note(FieldNote::Stun);
 }
 //======================================================================================
 const Monster* Dungeon::PlayerHeldBy() const {

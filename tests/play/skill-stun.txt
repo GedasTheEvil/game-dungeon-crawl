@@ -1,0 +1,14 @@
+# Plan skill-stun, for `bin/game --play tests/play/skill-stun.txt`: tests/levels/bats (a bat at col 6 and a giant bat
+# at col 15 on the ceiling, a rat at col 20), a mace in hand, Stun learnt. Hit them: about one blow in four stuns (the
+# mace is all blunt; the club 21%, the sword never, 1 to switch): the monster stops, its clip stands still, stars circle
+# its head for 1.5 s; a bat drops to the floor and lies there, then flies up again. The first stun says "... is
+# stunned" and writes the Stun note in the journal (J). The boss rule (half the time, not again within 5 s) is in the
+# unit tests (tests/unit/stun_test.cpp).
+seed 1
+level tests/levels/bats
+god
+give melee 7
+equip mace
+give melee 1
+heka 1
+learn stun

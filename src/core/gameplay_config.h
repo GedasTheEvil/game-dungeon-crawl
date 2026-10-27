@@ -189,6 +189,13 @@ constexpr double POWER_CURVE_SCALE = 92.0;
 constexpr double POWER_CURVE_POINTS = 20.0;
 constexpr int POWER_SHAKE_MS = 250; // the view shakes this long after a power hit,
 constexpr float POWER_SHAKE = 1.2f; // up to this many world units at the cap
+// Stun (plan skill-stun): with the skill, a weapon hit stuns the monster it does not kill at STUN_CHANCE_PERCENT of the
+// weapon's blunt share (a club 25%, a khopesh never), for STUN_MS: it stops moving and attacking. A boss for
+// BOSS_STUN_PERCENT of it, and not again within BOSS_STUN_COOLDOWN_MS (no stun-lock).
+constexpr int STUN_CHANCE_PERCENT = 25;
+constexpr int STUN_MS = 1500;
+constexpr int BOSS_STUN_PERCENT = 50;
+constexpr int BOSS_STUN_COOLDOWN_MS = 5000;
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

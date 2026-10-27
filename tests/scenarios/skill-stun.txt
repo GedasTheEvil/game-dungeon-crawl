@@ -1,0 +1,24 @@
+# Plan skill-stun: a stunned mummy stands with stars circling over its head; a stunned giant bat drops to the floor,
+# the stars over it, then flies back up. Screenshots; the rules are unit tests
+# (tests/unit/stun_test.cpp).
+god
+level tests/levels/fire
+walk to 12
+walk to 9.5
+wait 3s
+walk to 12.1
+stun
+wait 300ms
+screenshot mummy_stunned
+wait 2s
+screenshot mummy_after
+level tests/levels/giant_bat
+walk to 4.5
+wait 300ms
+screenshot bat_flying
+stun
+wait 1s
+screenshot bat_floor
+wait 3s
+screenshot bat_up
+dump

@@ -74,6 +74,13 @@ void Dungeon::PoisonNearestMonster(PoisonTier tier) {
 		monsters[nearest - monsters].TakePoison(tier, true, sim.random->gameplay);
 }
 //======================================================================================
+bool Dungeon::StunNearest() {
+	const Monster* target = nearestMonster();
+	if (bossFight.slot >= 0 && monsters[bossFight.slot].Alive())
+		target = &monsters[bossFight.slot];
+	return target != nullptr && monsters[target - monsters].StunHit(STUN_MS, target->lurking());
+}
+//======================================================================================
 void Dungeon::startBossFight(int slot) {
 	bossFight = BossFight{slot, 0, 0};
 	const Monster& boss = monsters[slot];

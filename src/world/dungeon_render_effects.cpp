@@ -33,6 +33,13 @@ constexpr int POWER_SPARK_MS = 220;
 constexpr float POWER_SPARK_MIN = 4.f; // world units, the rays of a barely charged hit
 constexpr float POWER_SPARK_MAX = 12.f; // at the cap
 
+// A stunned monster's stars (plan skill-stun): STUN_STARS circling over its head, a turn every STUN_STAR_TURN_MS.
+constexpr int STUN_STARS = 3;
+constexpr int STUN_STAR_TURN_MS = 900;
+constexpr float STUN_STAR_SIZE = 3.f; // world units
+constexpr float STUN_STAR_LIFT = -0.08f; // tiles from its top: round the head, under the health bar
+constexpr float STUN_RING_DEPTH = 6.f; // world units the ring reaches towards the camera and back
+
 // A flat star of rays round (x, y, z), additive: rays long, turned by angle (radians), thin at the tips.
 void glowStar(float x, float y, float z, float radius, int rays, float angle, float r, float g, float b, float alpha) {
 	glBegin(GL_TRIANGLES);
@@ -492,6 +499,48 @@ void Dungeon::drawPowerSpark() {
 		0.6f,
 		1.f - k
 	);
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
+}
+//======================================================================================
+void Dungeon::drawStunStars() {
+	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	const int now = GameClock::now();
+	bool begun = false;
+	for (const Monster& mon : monsters) {
+		if (!mon.Active() || !mon.Reeling())
+			continue;
+		if (!begun) {
+			sim.assets->textures.nullTex.Bind();
+			Lighting::setEmissive(true);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glDepthMask(GL_FALSE);
+			begun = true;
+		}
+		const float turn = 2.f * PI * static_cast<float>(now % STUN_STAR_TURN_MS) / STUN_STAR_TURN_MS;
+		const float rx = RenderConfig::TILE_SIZE * mon.HalfWidth() * 0.8f;
+		for (int i = 0; i < STUN_STARS; i++) {
+			const float a = turn + 2.f * PI * static_cast<float>(i) / STUN_STARS;
+			glowStar(
+				RenderConfig::TILE_SIZE * (mon.CentreX() - col0) + rx * std::cos(a),
+				RenderConfig::TILE_SIZE * (mon.TopY() + STUN_STAR_LIFT - row0),
+				RenderConfig::MONSTER_DEPTH + STUN_RING_DEPTH * std::sin(a),
+				STUN_STAR_SIZE,
+				10,
+				turn * 2.f,
+				1.f,
+				0.85f,
+				0.3f,
+				1.f
+			);
+		}
+	}
+	if (!begun)
+		return;
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);

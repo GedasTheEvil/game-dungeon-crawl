@@ -105,6 +105,8 @@ class Monster {
 	Burning burning; // plan fire-damage
 	bool burnByPlayer = false; // the fire is the player's doing (a weapon, a sunbeam): its kill is theirs, a trap's not
 	bool dripPuddled = false, dripDropped = false; // a poison drip's puddle, its drop took this entry
+	int reelUntilMs = -1; // stunned (StunHit) until this GameClock time
+	int reelReadyMs = 0; // a boss: no new stun before this GameClock time
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
 
@@ -424,6 +426,12 @@ class Monster {
 	void StandInDrip(bool puddle, bool drop, Rng& rng);
 	// Out of a trap that closes on it (wall spikes, plan rhythm-traps): its centre to map x on its row.
 	void ShoveTo(float mapX) { x = mapX - static_cast<float>(col) - 0.5f; }
+	// Stun (plan skill-stun): a blunt hit knocks it out for ms. It stands where it is (a flyer drops to the floor, then
+	// takes off again), its clip paused: no step, no bite, no shot; a bite or a grab under way ends. A boss for half
+	// the time, and not again within BOSS_STUN_COOLDOWN_MS of the last. Not while lurking (wasLurking: before the hit
+	// that woke it), rising, hidden, in a leap, a charge or a roll, or climbing. True: it took.
+	bool StunHit(int ms, bool wasLurking);
+	[[nodiscard]] bool Reeling() const { return Alive() && GameClock::now() < reelUntilMs; }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).
 	void Animate(float px, float py);
 

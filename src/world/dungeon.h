@@ -218,6 +218,9 @@ class Dungeon {
 	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
 	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
 	void venomHit(Monster& mon); // the venom amulet's roll after a weapon hit
+	// The Stun skill's roll after a weapon hit that did not kill (plan skill-stun, Monster::StunHit); the first stun
+	// says so and writes its field note.
+	void stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking);
 	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest; the
@@ -486,6 +489,7 @@ class Dungeon {
 	};
 	PowerHitMark powerHit;
 	void drawPowerSpark(); // drawSummonEffects' frame
+	void drawStunStars(); // stars over each stunned monster's head (plan skill-stun); drawSummonEffects' frame
 	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 	// A dung ball (plan scarab-dung-ball, dungeon_balls.cpp): kicked off by a roller (Monster::UpdateRoll), it rolls
@@ -771,6 +775,10 @@ class Dungeon {
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).
 	void PoisonNearestMonster(PoisonTier tier);
+	// Scenario `stun`: the boss of the level while it lives, else the living monster nearest the player, is stunned for
+	// STUN_MS, as by a blunt hit with the Stun skill (Monster::StunHit; a boss for less). False: it cannot be (lurking,
+	// hidden, ...), or there is none.
+	bool StunNearest();
 	// Scenario `grab`: the living monster nearest the player starts a grab's tell now (Monster::StartGrab). False: it
 	// does not grab, or is grabbing already.
 	bool GrabNearest();

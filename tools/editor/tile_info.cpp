@@ -269,6 +269,10 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	{"Sleeper",
 	 "Decoy: a coffin with a mummy asleep in it that never wakes. Beside the real mummy's coffin, it keeps "
 	 "the player guessing."},
+	{"Stargate",
+	 "The great ring of seven chevrons (plan stargate-chamber), against the back wall: interact dials it, the "
+	 "seventh will not lock. Fills its cell up to the ceiling; one a campaign."},
+	{"Dial", "The Stargate's dial device: interact presses its red dome (a field note). Beside the ring."},
 };
 
 const char* anchorText(DecalAnchor anchor) {

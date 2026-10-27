@@ -171,8 +171,10 @@ enum class FieldNote : unsigned char {
 	// Saved by number: new notes go here, after the amulets'.
 	Stun, // the first monster stunned (plan skill-stun)
 	Rings, // the first ride on a ring platform (plan ring-transporter)
+	Stargate, // the Stargate dialled the first time (plan stargate-chamber), with its XP
+	DialDevice, // its dial device pressed
 };
-constexpr int FIELD_NOTE_COUNT = 53 + AMULET_TYPE_COUNT;
+constexpr int FIELD_NOTE_COUNT = 55 + AMULET_TYPE_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

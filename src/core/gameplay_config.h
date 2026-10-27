@@ -322,6 +322,17 @@ constexpr int RING_HOLD_MS = 250;
 constexpr int RING_FLASH_MS = 180;
 constexpr int RINGS_DOWN_MS = (RING_COUNT - 1) * RING_STAGGER_MS + RING_FALL_MS + RING_HOLD_MS;
 constexpr int RINGS_UP_MS = (RING_COUNT - 1) * RING_STAGGER_MS + RING_FALL_MS;
+// The Stargate (plan stargate-chamber): dialled, its inner track turns for STARGATE_TURN_MS and a chevron locks, one
+// every STARGATE_CHEVRON_MS; the seventh will not lock: it flickers for STARGATE_FAIL_MS, then the six go dark over
+// STARGATE_FADE_MS.
+constexpr int STARGATE_CHEVRONS = 7;
+constexpr int STARGATE_CHEVRON_MS = 700;
+constexpr int STARGATE_TURN_MS = 420;
+constexpr int STARGATE_FAIL_MS = 1400;
+constexpr int STARGATE_FADE_MS = 800;
+// When the seventh fails, and when the dial is over.
+constexpr int STARGATE_FAIL_AT_MS = (STARGATE_CHEVRONS - 1) * STARGATE_CHEVRON_MS + STARGATE_TURN_MS;
+constexpr int STARGATE_DIAL_MS = STARGATE_FAIL_AT_MS + STARGATE_FAIL_MS + STARGATE_FADE_MS;
 // A sealed name gate's plasma (plan secret-name-gates) breathes down to NAME_GATE_MIN_ALPHA and back once per
 // NAME_GATE_BREATH_MS; opened, it shimmers for NAME_GATE_SHIMMER_MS, then holds steady.
 constexpr float NAME_GATE_BREATH_MS = 1500.f;

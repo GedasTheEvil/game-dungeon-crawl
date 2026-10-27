@@ -285,6 +285,9 @@ class Dungeon {
 	// A ring platform (plan ring-transporter): the plate in the floor, the housing in the ceiling, the rings while they
 	// carry the player.
 	void drawRingPlatformTile(int i, int j);
+	// The Stargate's inner track at its turn and its lit chevrons (plan stargate-chamber), in its prop's frame.
+	void drawStargate(int i, int j);
+	void addStargateLights(const CellRect& drawn); // the chevrons' glow on the walls round it
 	// The plasma's opacity in a teleporter's cell: 1, but for a sealed name gate's breath and the shimmer of one just
 	// opened.
 	[[nodiscard]] float nameGateAlpha(int cell) const;
@@ -552,6 +555,19 @@ class Dungeon {
 		bool rings = false; // a ring platform (white)
 	} travel;
 	void startTravel(bool exitGate, bool rings = false);
+	// The Stargate dialled (plan stargate-chamber, dungeon_stargate.cpp): its cell while the chevrons lock, -1 when
+	// still; the dial's start, the next of its steps (a chevron's turn, the failing seventh, its message, the end);
+	// the track's turn kept from the dials before.
+	struct StargateDial {
+		int cell = -1;
+		int startMs = 0;
+		int step = 0;
+	} dial;
+	float stargateRestDeg = 0.f;
+	void startDial();
+	void pressDialDevice();
+	void updateDial();
+	[[nodiscard]] float dialTrackDeg(int elapsedMs) const; // the track's turn so far in a dial
 	void updateTravel();
 	[[nodiscard]] int travelPhaseMs() const; // how long the phase lasts
 	// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): the camera goes to the gates a lever or a boss's death
@@ -719,6 +735,11 @@ class Dungeon {
 	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
 	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
 	[[nodiscard]] bool TravelByRings() const { return travel.rings; }
+	// The Stargate in (col, row) (plan stargate-chamber): how bright its chevron k (0 to STARGATE_CHEVRONS - 1, the
+	// seventh at the top) glows, 0..1, and the turn of its inner track in degrees (counter-clockwise as seen).
+	[[nodiscard]] float ChevronGlow(int col, int row, int chevron) const;
+	[[nodiscard]] float StargateTrackDeg(int col, int row) const;
+	[[nodiscard]] bool Dialling() const { return dial.cell >= 0; }
 	// Ring k's way down out of the ceiling while a ring platform carries the player (plan ring-transporter), 0 up in
 	// its housing to 1 at rest round the player; 0 when not travelling by rings. Ring 0 drops first, to the bottom.
 	[[nodiscard]] float RingDrop(int ring) const;

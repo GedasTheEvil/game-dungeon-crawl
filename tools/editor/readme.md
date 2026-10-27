@@ -69,7 +69,9 @@ level.
 * Decor palette: `Unset`, `Bare`, then the props: the dry ones, the water ones (half water only), the coffins and
   `Sleeper`, the decoy: a coffin with a mummy asleep in it for good, drawn as the real one lies in its coffin. A row
   of coffins with one real mummy and a few decoys keeps the player guessing. A mummy's spawn always gets its own
-  coffin, a page its skeleton, a living ushabti its decor ushabti: a placed prop there is not shown.
+  coffin, a page its skeleton, a living ushabti its decor ushabti: a placed prop there is not shown. Last `Stargate`
+  and `Dial` (plan stargate-chamber): the great ring against the back wall (interact dials it; no torch over it) and
+  its dial device beside it, for the one chamber of the campaign.
 * Decals palette: `Unset` and `Bare` (both the decal and the torch), `Torch` and `No torch` (the torch only), then the
   decals of the game's atlas (the decal only). A torch and a free decal (one at eye height) would overlap: painting
   one clears the other. Random torches keep 4 cells away from a placed one; placed torches may stand closer.

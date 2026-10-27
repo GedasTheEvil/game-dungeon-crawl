@@ -36,8 +36,9 @@ struct GenOptions {
 	// (content/inscriptions/); with it and no inscriptions given, the level picks 2 or 3 of its zone's (1 or 2 in the
 	// first zone, at most one with a boon); without it, none. inscriptions: the text ids to place instead, on the
 	// halls of the route. page: the expedition page on a skeleton at a wing's end, 0 for none. title: the level's
-	// (LevelMeta::title). stargate: the Stargate chamber's stand-in, a name gate (its password) to a room with the
-	// ring's text (STARGATE_TEXT) and a rare chest, on one level of the campaign.
+	// (LevelMeta::title). stargate: the Stargate chamber (plan stargate-chamber), a name gate (its password) to a room
+	// with the ring and its dial device, the ring's text (STARGATE_TEXT) and a rare chest, on one level of the
+	// campaign.
 	const InscriptionBook* texts = nullptr;
 	std::vector<int> inscriptions;
 	std::vector<int> lore; // the secret rooms' texts in turn, instead of a pick of SECRET_ROOM_TEXTS

@@ -86,7 +86,7 @@ with no warnings.
   gets a lore text. The Stargate chamber, by the user's choice (2026-10-25), stands in as a password gate for now:
   `stargate` makes the level's name gate (its password the king's name) lead to a room with the ring's text
   (`STARGATE_TEXT`) and a rare chest; the real chamber replaces it once
-  [stargate-chamber](stargate-chamber.draft.opus.md) is built. Played in the game: the name gate spoken, the ring's
+  [stargate-chamber](stargate-chamber.md) is built. Played in the game: the name gate spoken, the ring's
   text copied in its room. Which page and texts each campaign level carries is the rebuild's choice (its seed
   table), so no id repeats over the campaign.
 * **Step 8b, forks: done (2026-10-25).** `GenOptions::fork` (`--fork 1|2`): a hall split by a pillar under two
@@ -124,7 +124,7 @@ Missing today, roughly in this order (each step its own task, with its checker r
    before water, resistance potions, weapon chests by depth.
 8. **Carried content:** inscriptions, expedition pages, the forks and their hints (see
    [denser-levels](denser-levels.md#route-fork-left-or-right)), the Stargate chamber
-   ([stargate-chamber](stargate-chamber.draft.opus.md), once it exists), level titles.
+   ([stargate-chamber](stargate-chamber.md), once it exists), level titles.
 9. **Decor:** decor and decal layers in the zone's style (`DECOR_*`, the editor's layers).
 
 The rules already in `docs/levels.md` (per-level table, trapped chests, Hapi potions, antidotes, ...) become generator

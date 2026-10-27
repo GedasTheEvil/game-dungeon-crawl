@@ -524,10 +524,37 @@ def bare_icon():  # nothing goes here
     save(img, "bare.png")
 
 
+GATE_GREY = (120, 118, 114)
+GATE_DARK = (62, 61, 60)
+
+
+def prop_stargate():  # plan stargate-chamber: the ring of seven chevrons on its base
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    d.ellipse(p(6, 2, 58, 54), outline=GATE_GREY, width=8 * SS)
+    d.ellipse(p(13, 9, 51, 47), outline=GATE_DARK, width=2 * SS)  # the track's groove
+    for k in range(7):
+        a = math.radians(90 - 360 / 7 * (k + 1))
+        x, y = 32 + 26 * math.cos(a), 28 - 26 * math.sin(a)
+        d.ellipse(p(x - 3, y - 3, x + 3, y + 3), fill=RED_LIGHT if k < 6 else RED)
+    d.rectangle(p(18, 54, 46, 58), fill=STONE, outline=STONE_DARK, width=SS)
+    save(img, "prop_stargate.png")
+
+
+def prop_dial_device():  # its dial device: a pedestal, a tilted round top with keys round a red dome
+    img, d = canvas(GOLD, 25)
+    floor(d)
+    poly(d, [(24, 58), (40, 58), (36, 32), (28, 32)], GATE_GREY, GATE_DARK, 1)
+    d.ellipse(p(12, 18, 52, 38), fill=GATE_GREY, outline=GATE_DARK, width=SS)
+    d.ellipse(p(18, 21, 46, 35), outline=GOLD_DIM, width=2 * SS)  # the keys
+    d.ellipse(p(26, 23, 38, 32), fill=RED, outline=RED_LIGHT, width=SS)
+    save(img, "prop_dial_device.png")
+
+
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
-              prop_water_weed, prop_water_pads, prop_water_lotus):
+              prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device):
         f()
     prop_thoth("thoth_ibis_standing", ibis, False)
     prop_thoth("thoth_ibis_seated", ibis, True)

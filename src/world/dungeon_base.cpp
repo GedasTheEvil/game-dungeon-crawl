@@ -138,6 +138,7 @@ void Dungeon::Update() {
 	updateQuicksand();
 	exploreAroundPlayer();
 	updateMechanisms();
+	updateDial();
 	UpdateMonsters();
 	noteSeenMonsters();
 	updateMissiles();

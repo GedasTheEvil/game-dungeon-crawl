@@ -129,7 +129,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw and chest opening frames from shape keys |
 | `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
-| `decor.py` | corridor and water decorations, torch, coffins | static, tile units, lighting baked in |
+| `decor.py` | corridor and water decorations, torch, coffins, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |
 | `mechanism.py` | key, gate, lever, rock, crack, dart trap, wall spikes, fire vent, ring platform, its housing and ring | static, one texture per lock colour |
 

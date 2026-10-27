@@ -1,6 +1,7 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
 // lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon.h"
+#include "../core/gameplay_config.h"
 #include "names.h"
 #include "../state/assets.h"
 #include "../graphics/render_config.h"
@@ -37,6 +38,12 @@ constexpr float BOB_HEIGHT = 0.005f;
 constexpr float BOB_SPEED = 1.4f;
 constexpr float DRIFT_WIDTH = 0.012f;
 constexpr float DRIFT_SPEED = 0.35f;
+// The Stargate (plan stargate-chamber, decor.py's GATE_*): the ring's centre in its prop's frame (tile units, z towards
+// the camera), the lit chevron modelled at the top; chevron k sits CHEVRON_STEP_DEG * (k + 1) clockwise from it.
+constexpr float GATE_CENTRE_Y = 0.48f;
+constexpr float GATE_CENTRE_Z = 0.2f;
+constexpr float CHEVRON_STEP_DEG = 360.f / STARGATE_CHEVRONS;
+constexpr float CHEVRON_LIGHT_RADIUS = 170.f;
 
 // A square of side `size` centred on (x, y) of the cell's back wall (tile units), textured from the bound atlas,
 // blended over the wall.
@@ -156,6 +163,8 @@ void Dungeon::drawDecorTile(int i, int j) {
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
 	sim.assets->decor.tex[shown].Bind();
 	model->Show(); // no face culling, so the mirrored winding does not matter
+	if (cell.type == DECOR_STARGATE)
+		drawStargate(i, j);
 	glPopMatrix();
 }
 //======================================================================================
@@ -325,4 +334,60 @@ void Dungeon::drawFires(const CellRect& drawn) {
 				Fire::draw(*f.fire, ox + f.x, oy + f.y, f.z, f.seed, fade * fade);
 			}
 	}
+}
+//======================================================================================
+// In the prop's frame (drawDecorTile): the track turned round the ring's centre, then each lit chevron over its dark
+// one, added on in its glow.
+void Dungeon::drawStargate(int i, int j) {
+	const DecorSet& decor = sim.assets->decor;
+	glPushMatrix();
+	glTranslatef(0, GATE_CENTRE_Y, GATE_CENTRE_Z);
+	glPushMatrix();
+	glRotatef(StargateTrackDeg(i, j), 0, 0, 1);
+	glTranslatef(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
+	if (decor.stargateTrack != nullptr)
+		decor.stargateTrack->Show();
+	glPopMatrix();
+	if (decor.stargateChevron != nullptr) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDepthMask(GL_FALSE);
+		for (int k = 0; k < STARGATE_CHEVRONS; k++) {
+			const float glow = ChevronGlow(i, j, k);
+			if (glow <= 0.f)
+				continue;
+			glPushMatrix();
+			glRotatef(-CHEVRON_STEP_DEG * static_cast<float>(k + 1), 0, 0, 1);
+			glTranslatef(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
+			glColor4f(1, 1, 1, glow);
+			decor.stargateChevron->Show();
+			glPopMatrix();
+		}
+		glColor4f(1, 1, 1, 1);
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
+	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::addStargateLights(const CellRect& drawn) {
+	if (!Dialling())
+		return;
+	const int col = dial.cell % MAP_WIDTH, row = dial.cell / MAP_WIDTH;
+	if (!drawn.grown(2).contains(static_cast<float>(col) + 0.5f, row))
+		return;
+	float glow = 0.f;
+	for (int k = 0; k < STARGATE_CHEVRONS; k++)
+		glow += ChevronGlow(col, row, k);
+	glow /= STARGATE_CHEVRONS;
+	if (glow <= 0.f)
+		return;
+	const Lighting::LightDef light = {glow, 0.55f * glow, 0.2f * glow, CHEVRON_LIGHT_RADIUS, 0.1f};
+	Lighting::add(
+		static_cast<float>(col - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF,
+		static_cast<float>(row - view().originRow) * RenderConfig::TILE_SIZE + GATE_CENTRE_Y * RenderConfig::TILE_SIZE,
+		-RenderConfig::TILE_SIZE + GATE_CENTRE_Z * RenderConfig::TILE_SIZE + 6.f,
+		light,
+		static_cast<uint32_t>(dial.cell)
+	);
 }

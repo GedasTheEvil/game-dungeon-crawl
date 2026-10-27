@@ -338,8 +338,10 @@ TEST_CASE("a zone level's carried content: its zone's inscriptions, a page, a ti
 	CHECK(gen.report.warnings.empty());
 	CHECK(gen.grid.meta.title == "The Hall of the Test");
 	CHECK(gen.report.nameGates == 1); // the password to the ring's chamber
-	int pages = 0, given = 0, ring = 0;
+	int pages = 0, given = 0, ring = 0, gates = 0, dials = 0;
 	for (const Tile& t : gen.grid.cells) {
+		gates += t.dressing.prop == DECOR_STARGATE ? 1 : 0; // plan stargate-chamber
+		dials += t.dressing.prop == DECOR_DIAL ? 1 : 0;
 		pages += t.type == Page && t.attr == 22 ? 1 : 0;
 		given += t.fixture.type == Inscription && (t.fixture.attr == 123 || t.fixture.attr == 126) ? 1 : 0;
 		ring += t.fixture.type == Inscription && t.fixture.attr == STARGATE_TEXT ? 1 : 0;
@@ -347,6 +349,8 @@ TEST_CASE("a zone level's carried content: its zone's inscriptions, a page, a ti
 	CHECK(pages == 1);
 	CHECK(given == 2);
 	CHECK(ring == 1);
+	CHECK(gates == 1);
+	CHECK(dials == 1);
 	CHECK(gen.shape.inscriptions == 2);
 }
 

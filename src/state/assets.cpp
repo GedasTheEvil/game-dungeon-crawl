@@ -252,6 +252,16 @@ void loadDecor(DecorSet& decor) {
 		model->Compile(); // no Centrify: the files are in tile units
 		decor.model[d] = std::move(model);
 	}
+	decor.stargateTrackTex.LoadPNG(MEDIA_DIR "textures/decorations/decor_stargate_track.png");
+	decor.stargateTrack = loadStaticModel(
+		MEDIA_DIR "models/decorations/decor_stargate_track.md3",
+		decor.stargateTrackTex
+	);
+	decor.stargateChevronTex.LoadPNG(MEDIA_DIR "textures/decorations/decor_stargate_chevron.png");
+	decor.stargateChevron = loadStaticModel(
+		MEDIA_DIR "models/decorations/decor_stargate_chevron.md3",
+		decor.stargateChevronTex
+	);
 	decor.torchTex.LoadPNG(MEDIA_DIR "textures/decorations/decor_torch.png");
 	auto torchModel = std::make_unique<AnimatedModel>();
 	if (torchModel->Load(MEDIA_DIR "models/decorations/decor_torch.md3")) {

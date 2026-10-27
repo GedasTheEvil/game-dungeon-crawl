@@ -351,6 +351,17 @@ text: A round plate in the floor, rings of bronze hidden in the ceiling over it.
 	came down round me, one after the other, a flash of white, and they rose again in another hall. Another plate,
 	the same rings above. It goes both ways. At last, a ring for my Rings pocket. It does not fit on a finger.
 
+[note.stargate]
+title: The ring of seven marks
+text: A ring of stone taller than two men against the wall, a track of signs inside it, seven marks round its rim. I
+	put my hand on it and the track turned: a mark lit with a clunk, then the next, six of them. The seventh flickered
+	and went dark. Chevron seven... will not lock. Seven chevrons. Only six symbols on the wall. Daniel would know.
+
+[note.dial-device]
+title: The dial
+text: A stone lectern before the ring, two circles of signs round a red dome. I pressed the dome. Nothing. I pressed
+	it again, harder. Indeed. Whatever it was built to call does not answer, and Abydos is not on this map.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

@@ -999,9 +999,16 @@ class LevelBuilder {
 		else if (!named && d >= 6 && rng.chance(0.5f))
 			placeMonster((room.x0 + room.x1) / 2, room.row);
 		if (named) {
-			// Its lore, or the ring's text in the Stargate chamber's stand-in.
+			// Its lore, or the ring's text in the Stargate chamber (plan stargate-chamber): the ring between it and
+			// the chest, its dial device on the teleporter's side.
 			const int lore = content.stargate ? STARGATE_TEXT : pickLore();
-			put((room.x0 + room.x1) / 2, room.row, Tile{Inscription, lore, 0});
+			const int mid = (room.x0 + room.x1) / 2;
+			put(mid, room.row, Tile{Inscription, lore, 0});
+			if (content.stargate) {
+				const int toChest = west ? 1 : -1;
+				g.cells[index(mid + toChest, room.row)].dressing.prop = DECOR_STARGATE;
+				g.cells[index(mid - toChest, room.row)].dressing.prop = DECOR_DIAL;
+			}
 			boons += hasBoon(lore) ? 1 : 0;
 			put(cartoucheCol, cartoucheRow, Tile{Inscription, NAME_CARTOUCHE_ID, 0});
 			busy[index(cartoucheCol, cartoucheRow)] = 1;

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -70,6 +71,12 @@ void Dungeon::Interact() {
 	case Interaction::Turn:
 		TurnMirror();
 		break;
+	case Interaction::Dial:
+		startDial();
+		break;
+	case Interaction::Press:
+		pressDialDevice();
+		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
 		useGate();
@@ -98,10 +105,14 @@ Interaction Dungeon::InteractVerb() const {
 	}
 	if (here.type == Mirror)
 		return Interaction::Turn;
+	const int8_t prop = decoration.decor[MapIndex(col, row)].type;
+	if (prop == DECOR_STARGATE) // plan stargate-chamber
+		return Dialling() ? Interaction::None : Interaction::Dial;
+	if (prop == DECOR_DIAL)
+		return Interaction::Press;
 	const OwnedWeapons& owned = sim.items->Owned();
-	if (decoration.decor[MapIndex(col, row)].type == DECOR_BRAZIER &&
-		(owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||
-		 owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))
+	if (prop == DECOR_BRAZIER && (owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||
+								  owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))
 		return Interaction::Light;
 	if (here.type == Ankh)
 		return Interaction::Take;

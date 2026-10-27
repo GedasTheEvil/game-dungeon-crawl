@@ -35,9 +35,12 @@ from common import REPO, Builder, cone, ellipsoid, lathe, orient, perp, smoothst
 COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
          "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
-         "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus"]
+         "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus", "stargate", "stargate_track", "stargate_chevron",
+         "dial_device"]
 WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
+TEX_SIZES = {"stargate": 1024}  # the props larger than the rest
+UNLIT = {"stargate_chevron"}  # glowing: baked as its colours, no light (the engine adds it on in its glow)
 # Enlargement per prop so it reads next to the player (~0.5 tile tall in game).
 # Kept inside x = +-0.42 and y >= -0.43 (the player walks at y = -0.5); the engine's DECOR_JITTER uses the slack.
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
@@ -106,6 +109,14 @@ COL = {
     "lotus_blue": (0.30, 0.42, 0.85),
     "lotus_pale": (0.72, 0.78, 0.95),
     "lotus_gold": (0.90, 0.68, 0.10),
+    "gate": (0.46, 0.45, 0.44),
+    "gate_dark": (0.20, 0.20, 0.21),
+    "gate_light": (0.66, 0.64, 0.60),
+    "glyph": (0.80, 0.72, 0.52),
+    "chevron_dark": (0.30, 0.08, 0.03),
+    "chevron_lit": (1.0, 0.50, 0.12),
+    "chevron_core": (1.0, 0.86, 0.55),
+    "dome": (0.60, 0.05, 0.03),
 }
 
 
@@ -178,6 +189,15 @@ def materials():
         "lotus": stripes("v", 0.025, [(1, "lotus_pale"), (2, "lotus_blue")], "LINEAR"),
         "bud": stripes("v", 0.03, [(1, "papyrus_green"), (2, "lotus_blue")], "LINEAR"),
         "stamen": ("solid", "lotus_gold"),
+        "gate": stripes("u", 1 / 64, [(5, "gate"), (1, "gate_dark")], "LINEAR"),
+        "gate_plain": ("solid", "gate"),
+        "gate_dark": ("solid", "gate_dark"),
+        "gate_light": ("solid", "gate_light"),
+        "glyph": ("solid", "glyph"),
+        "chevron_dark": ("solid", "chevron_dark"),
+        "chevron_lit": ("solid", "chevron_lit"),
+        "chevron_core": ("solid", "chevron_core"),
+        "dome": ("solid", "dome"),
     }
     return {name: common.make_material("decor_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -1262,6 +1282,121 @@ def build_water_lotus(b, M):
     b.add(ellipsoid(bud + V((0, 0, 0.022)), (0.012, 0.012, 0.03), n=8, rings=5), M["bud"], "root")
 
 
+# ---------------------------------------------------------------- the Stargate (plan stargate-chamber)
+# A ring of our own design that evokes it: no logo, no ripped asset. The engine's GATE_CENTRE_Y / GATE_CENTRE_Z
+# (dungeon_render_decor.cpp) are GATE_Z and -GATE_Y; it turns the track round that centre and draws the lit chevron,
+# modelled at the top, at each chevron k, CHEVRON_STEP * (k + 1) clockwise from the top.
+
+GATE_Y, GATE_Z = -0.16, 0.48  # the ring's back face and its centre's height
+GATE_R_IN, GATE_R_OUT = 0.335, 0.45
+GATE_DEPTH = 0.075  # the lips' front, in front of the back face
+GROOVE = (0.36, 0.405, 0.055)  # the track's groove: inner, outer radius, its floor's depth
+CHEVRONS = 7
+CHEVRON_STEP = 360.0 / CHEVRONS
+TRACK_SIGNS = 39
+
+
+def on_gate(geo, deg):
+    """geo built at the top of the ring, turned deg counter-clockwise (as seen) round the ring's axis."""
+    a = math.radians(deg)
+    ca, sa = math.cos(a), math.sin(a)
+
+    def fn(v):
+        x, z = v.x, v.z - GATE_Z
+        return V((x * ca - z * sa, v.y, GATE_Z + x * sa + z * ca))
+
+    return transform(geo, fn)
+
+
+def gate_revolve(b, M, profile, mats, n=96):
+    """A lathe round the ring's axis (towards the camera): profile (radius, depth in front of the back face)."""
+    revolve(b, M, profile, mats, n=n, r=rot(x=90), loc=(0, GATE_Y, GATE_Z))
+
+
+def chevron_v(depth, lit):
+    """A chevron's V at the top of the ring pointing in, its face depth in front of the back face, and a lamp at
+    its tip. Returns [(geo, mat)]."""
+    y = GATE_Y - depth
+    parts = []
+    top = GATE_Z + GATE_R_OUT + 0.03
+    tip = GATE_Z + GATE_R_OUT - 0.035
+    for s in (-1, 1):
+        a, c = V((s * 0.04, y, top)), V((s * 0.006, y, tip))
+        parts.append((tube([(a, 0.009, 0.007), (c, 0.008, 0.007)], sub=1, n=6, ref=V((0, -1, 0))), "chevron_lit" if lit else "chevron_dark"))
+    parts.append((ellipsoid((0, y - 0.004, tip - 0.006), (0.011, 0.006, 0.011), n=10, rings=4, axis=V((0, -1, 0)), ref=V((0, 0, 1))),
+                  "chevron_core" if lit else "chevron_dark"))
+    return parts
+
+
+def build_stargate(b, M):
+    """The ring: a grey stone band on a stepped base, its front a groove between two lips where the track turns,
+    seven chevron housings round the rim, each with a dark V; the inner face plain, the back dark."""
+    gate_revolve(b, M, [(GATE_R_IN, 0.0), (GATE_R_OUT, 0.0), (GATE_R_OUT, GATE_DEPTH - 0.015), (GATE_R_OUT - 0.01, GATE_DEPTH),
+                        (GROOVE[1], GATE_DEPTH), (GROOVE[1], GROOVE[2]), (GROOVE[0], GROOVE[2]), (GROOVE[0], GATE_DEPTH),
+                        (GATE_R_IN + 0.01, GATE_DEPTH), (GATE_R_IN, GATE_DEPTH - 0.015), (GATE_R_IN, 0.0)],
+                 ["gate_dark", "gate", "gate_light", "gate", "gate_dark", "gate_dark", "gate_dark", "gate", "gate_light", "gate_plain"])
+    for k in range(CHEVRONS):
+        deg = -CHEVRON_STEP * (k + 1)
+        housing = place(prism([(-0.05, 0.0), (0.05, 0.0), (0.035, 0.07), (-0.035, 0.07)], GATE_DEPTH + 0.02), r=rot(x=90),
+                        loc=(0, GATE_Y + 0.005, GATE_Z + GATE_R_OUT - 0.035))
+        b.add(on_gate(housing, deg), M["gate_light"], "root")
+        for geo, mat in chevron_v(GATE_DEPTH + 0.02, False):
+            b.add(on_gate(geo, deg), M[mat], "root")
+    # The base: a stepped stone plinth the ring stands in.
+    b.add(place(box(0.62, 0.2, 0.05), loc=(0, GATE_Y - 0.03, 0.025)), M["stone"], "root")
+    b.add(place(box(0.46, 0.16, 0.03), loc=(0, GATE_Y - 0.03, 0.065)), M["stone_dark"], "root")
+    for s in (-1, 1):  # two feet hugging the ring's foot
+        foot = place(prism([(0.0, 0.0), (0.12, 0.0), (0.04, 0.16)], 0.12), r=rot(x=90), loc=(0, GATE_Y + 0.02, 0.0))
+        b.add(transform(foot, lambda v, s=s: V((s * (0.17 + v.x), v.y, v.z))), M["gate"], "root")
+
+
+def build_stargate_track(b, M):
+    """The ring's inner track, in its groove: a band of thirty-nine signs, each of a few raised strokes, and the
+    lines between them. The engine turns it round the ring's axis."""
+    r0, r1, d = GROOVE[0] + 0.002, GROOVE[1] - 0.002, GROOVE[2]
+    gate_revolve(b, M, [(r0, d - 0.004), (r1, d - 0.004), (r1, d + 0.012), (r0, d + 0.012), (r0, d - 0.004)],
+                 ["gate_dark", "gate_light", "gate_light", "gate_light"], n=117)
+    rnd = random.Random(7)
+    y = GATE_Y - d - 0.013
+    mid = (r0 + r1) / 2
+    for k in range(TRACK_SIGNS):
+        deg = 360.0 * k / TRACK_SIGNS
+        line = place(box(0.003, 0.004, r1 - r0), loc=(0.0, y, GATE_Z + mid))
+        b.add(on_gate(place(line, None, (0, 0, 0)), deg + 180.0 / TRACK_SIGNS), M["gate_dark"], "root")
+        for _ in range(rnd.randint(2, 3)):  # a sign: a few strokes
+            w, h = rnd.uniform(0.004, 0.016), rnd.uniform(0.004, 0.02)
+            x, z = rnd.uniform(-0.008, 0.008), rnd.uniform(-0.01, 0.01)
+            stroke = place(box(w, 0.004, h), loc=(x, y, GATE_Z + mid + z))
+            b.add(on_gate(stroke, deg), M["glyph"], "root")
+
+
+def build_stargate_chevron(b, M):
+    """A lit chevron (baked unlit): the V and its lamp glowing orange, just in front of a dark one, at the top."""
+    for geo, mat in chevron_v(GATE_DEPTH + 0.026, True):
+        b.add(geo, M[mat], "root")
+
+
+def build_dial_device(b, M):
+    """The dial device: a tapering stone pedestal, its round top tilted to the camera, two rings of nineteen sign keys
+    round a red dome."""
+    y0 = -0.3
+    revolve(b, M, [(0.0, 0.0), (0.085, 0.0), (0.085, 0.02), (0.06, 0.04), (0.05, 0.17), (0.07, 0.19), (0.0, 0.19)],
+            ["stone_dark", "stone_dark", "gate", "gate", "gate_light", "gate"], n=24, loc=(0, y0, 0))
+    tilt = rot(x=35)  # its face to the camera
+    top = V((0, y0, 0.205))
+
+    def put(geo):
+        return place(geo, tilt, top)
+
+    b.add(put(revolve_geo([(0.0, -0.02), (0.12, -0.02), (0.125, 0.0), (0.0, 0.0)], n=40)), M["gate"], "root")
+    for ring_r, count, size in ((0.1, 19, 0.016), (0.068, 19, 0.012)):
+        for k in range(count):
+            a = 2 * math.pi * (k + 0.5 * (ring_r < 0.09)) / count
+            key = place(box(size, size * 1.2, 0.012), r=rot(z=math.degrees(a)), loc=(ring_r * math.cos(a), ring_r * math.sin(a), 0.006))
+            b.add(put(key), M["glyph" if (k * 7) % 3 else "gate_light"], "root")
+    b.add(put(ellipsoid((0, 0, 0.0), (0.04, 0.04, 0.03), n=18, rings=6)), M["dome"], "root")
+
+
 BUILDERS = {
     "web": build_web,
     "pottery": build_pottery,
@@ -1288,14 +1423,19 @@ BUILDERS = {
     "water_weed": build_water_weed,
     "water_pads": build_water_pads,
     "water_lotus": build_water_lotus,
+    "stargate": build_stargate,
+    "stargate_track": build_stargate_track,
+    "stargate_chevron": build_stargate_chevron,
+    "dial_device": build_dial_device,
 }
 
 
 # ---------------------------------------------------------------- texture
 
 
-def bake_lit(obj, out_path, size=TEX_SIZE):
-    """Bake colour x light (sun from the camera side and above, sky for ambient occlusion) into one PNG."""
+def bake_lit(obj, out_path, size=TEX_SIZE, lit=True):
+    """Bake colour x light (sun from the camera side and above, sky for ambient occlusion) into one PNG; not lit: the
+    colours only."""
     import numpy as np
 
     scene = bpy.context.scene
@@ -1325,7 +1465,7 @@ def bake_lit(obj, out_path, size=TEX_SIZE):
         o.select_set(False)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
-    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR", "DIRECT", "INDIRECT"}, margin=6, use_clear=True)
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR", "DIRECT", "INDIRECT"} if lit else {"COLOR"}, margin=6, use_clear=True)
     for m in obj.data.materials:
         m.node_tree.nodes.remove(m.node_tree.nodes["bake_target"])
     px = np.clip(np.array(img.pixels[:]), 0.0, 1.0)
@@ -1381,7 +1521,8 @@ def build(bake=True, tex_dir=None, only=None):
         obj.location.x = (k - (len(PROPS) - 1) / 2) * SPACING
         common.uv_unwrap(obj, b.tags)
         if bake:
-            tex = bake_lit(obj, os.path.join(tex_dir or bpy.app.tempdir or "/tmp", "decor_%s.png" % name))
+            tex = bake_lit(obj, os.path.join(tex_dir or bpy.app.tempdir or "/tmp", "decor_%s.png" % name), TEX_SIZES.get(name, TEX_SIZE),
+                           name not in UNLIT)
             common.use_baked_material(obj, tex)
         xs = [v.co.x for v in obj.data.vertices]
         print("decor_{}: {} verts, {} tris, x {:.2f}..{:.2f}, y >= {:.2f}, z <= {:.2f}".format(

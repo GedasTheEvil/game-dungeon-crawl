@@ -175,6 +175,8 @@ constexpr std::array<const char*, static_cast<size_t>(FieldNote::AmuletFirst)> F
 constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::AmuletLast) - 1> LATE_NOTE_SLUGS = {
 	"stun",
 	"rings",
+	"stargate",
+	"dial-device",
 };
 
 std::string fieldNoteKey(int note) {

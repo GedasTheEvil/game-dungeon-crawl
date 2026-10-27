@@ -45,7 +45,7 @@ constexpr int ZONE_CEILING[] =
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
 constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f,
 											 0.06f, 0.14f, 0.2f,  0.1f, 0.2f, 0.2f,	 0.2f, 0.2f, 0.1f,
-											 0.f,	0.08f, 0.12f, 0.1f, 0.2f, 0.f,	 0.f};
+											 0.f,	0.08f, 0.12f, 0.1f, 0.2f, 0.f,	 0.f,  0.f,	 0.f};
 
 bool inBounds(int col, int row) { return LevelGrid::inBounds(col, row); }
 int cellIndex(int col, int row) { return row * LEVEL_WIDTH + col; }
@@ -148,8 +148,11 @@ bool placedFloorDecal(const Tile& tile) {
 	return decal >= 0 && DECAL_DEFS[decal].anchor == DecalAnchor::Floor;
 }
 
-// A prop with its own fire or a crown up to the torch: none goes with a wall torch (scatterTorches).
-bool torchless(int prop) { return prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop); }
+// A prop with its own fire or a crown up to the torch, or the Stargate over it: none goes with a wall torch
+// (scatterTorches).
+bool torchless(int prop) {
+	return prop == DECOR_BRAZIER || prop == DECOR_LAMP || isThoth(prop) || prop == DECOR_STARGATE;
+}
 
 int scatterProps(const Tile* cells, uint32_t seed, int tier, const ZoneLook& look, DecorCell* decor) {
 	int placed = 0;

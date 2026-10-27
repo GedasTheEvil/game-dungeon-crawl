@@ -506,7 +506,7 @@ void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
 		r.warnings.push_back(what + " is in deep water");
 	else if (!tileDef(t.type).torch || !tileDef(t.fixture.type).torch)
 		r.warnings.push_back(what + " is on a cell that takes no torch");
-	if (d.prop == DECOR_BRAZIER || d.prop == DECOR_LAMP || isThoth(d.prop))
+	if (d.prop == DECOR_BRAZIER || d.prop == DECOR_LAMP || isThoth(d.prop) || d.prop == DECOR_STARGATE)
 		r.warnings.push_back(what + " is over a " + DECOR_NAMES[d.prop]);
 }
 

@@ -87,6 +87,9 @@ struct DecorSet {
 	HieroglyphSheet hieroglyphs;
 	Texture torchTex;
 	std::unique_ptr<AnimatedModel> torch; // null if the file failed to load
+	// The Stargate's inner track and a lit chevron (plan stargate-chamber), drawn over its prop. Null if missing.
+	Texture stargateTrackTex, stargateChevronTex;
+	std::unique_ptr<AnimatedModel> stargateTrack, stargateChevron;
 	Texture ladderTex[LADDER_STYLE_COUNT][LADDER_PIECE_COUNT];
 	Texture wallTex[WALL_STYLE_COUNT], floorTex[FLOOR_STYLE_COUNT], ceilingTex[CEILING_STYLE_COUNT], rockTex;
 	Texture floorSandEdge; // FLOOR_SAND_EDGE_TEXTURE, RGBA

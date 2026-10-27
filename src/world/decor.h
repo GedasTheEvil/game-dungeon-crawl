@@ -7,7 +7,7 @@
 // Static props and wall decals scattered on empty floor cells when a level loads (see scatterDecor, decor_scatter.h).
 // Models and textures: media/models/decorations/decor_<name>.md3, media/textures/decorations/decor_<name>.png, built by
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
-constexpr int DECOR_COUNT = 25;
+constexpr int DECOR_COUNT = 27;
 constexpr int DECOR_SCATTERED =
 	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
@@ -37,6 +37,11 @@ constexpr int DECOR_COFFIN_MUMMY = 24;
 }
 // The prop whose model and texture a prop is drawn with.
 [[nodiscard]] constexpr int decorModel(int decor) { return decor == DECOR_COFFIN_MUMMY ? DECOR_COFFIN : decor; }
+// The Stargate chamber (plan stargate-chamber): a great ring of stone with seven chevrons against the back wall (the
+// player dials it: its inner track turns, the chevrons light, the seventh will not lock) and its dial device. Placed
+// only. The ring's track and its lit chevron have files of their own (decor_stargate_track, decor_stargate_chevron).
+constexpr int DECOR_STARGATE = 25;
+constexpr int DECOR_DIAL = 26;
 // Water props (plan water-decorations): plants scattered in half water cells only, modelled at their height in the
 // basin. The reeds and the weed sway, the leaves afloat bob (drawDecorTile).
 constexpr int DECOR_WATER_REEDS = 19; // papyrus, prefers the bank
@@ -73,7 +78,9 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {
 	"water_pads",
 	"water_lotus",
 	"coffin_large",
-	"coffin_mummy"
+	"coffin_mummy",
+	"stargate",
+	"dial_device"
 };
 
 // Decorations by depth (plan decor-by-depth): the tiers add up, a level draws from every tier unlocked at its depth,
@@ -90,14 +97,14 @@ constexpr int decorTier(int depth) {
 		tier++;
 	return tier;
 }
-// The tier each prop comes in with; the coffins (-1) stand wherever a mummy or the mummy priest lies, the decoy only
-// where a level places it. The lotus comes
+// The tier each prop comes in with; the coffins (-1) stand wherever a mummy or the mummy priest lies, the decoy, the
+// Stargate and its dial only where a level places them. The lotus comes
 // in with the worked tunnels, before the tombs: the water lotus monster (plan water-lotus) hides among the leaves.
-constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0,	 0, 1, 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
-											 1,	 1, 1, 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
-											 3,	 2, 2, 2, 2, 3, // osiris, Thoth x 4, sarcophagus
-											 -1, 0, 0, 1, 1, // coffin, reeds, weed, pads, lotus
-											 -1, -1}; // the large coffin, the decoy
+constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0,	 0,	 1,	 0, 0, 0, // web, pottery, canopic, rubble, sand, skeleton
+											 1,	 1,	 1,	 2, 2, 3, // brazier, lamp, scrolls, ushabti, cat, jackal
+											 3,	 2,	 2,	 2, 2, 3, // osiris, Thoth x 4, sarcophagus
+											 -1, 0,	 0,	 1, 1, // coffin, reeds, weed, pads, lotus
+											 -1, -1, -1, -1}; // the large coffin, the decoy, the Stargate, its dial
 // Rows of rough rock (the rest dressed stone), and of the dressed stretches the painted ones, per tier, in percent:
 // all cave at first, less and less deeper down.
 constexpr uint32_t ROUGH_PERCENT[DECOR_TIER_COUNT] = {100, 55, 30, 15};

@@ -1,0 +1,11 @@
+# Plan stargate-chamber, for `bin/game --play tests/play/stargate-chamber.txt`: lvl48 (The Ring of Seven Marks), in
+# the chamber behind the name gate, on its teleporter (col 37). Walk left to the ring (col 35): E dials it, the track
+# turns and six chevrons lock one by one, the seventh flickers and will not (a riddle's XP the first time, a field
+# note). The dial device (col 33): E presses its red dome (another note). The ring's text and the rare chest at the far
+# end (col 32). The journal (J) has both notes. To come in the way the player does: the name cartouche at col 25,
+# row 28, the name gate at col 38, row 22.
+seed 1
+god
+level 48 at 37 4
+heka 1
+learn words_of_thoth

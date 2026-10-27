@@ -42,6 +42,8 @@ bool Dungeon::Load(const char* filename, int depth) {
 //======================================================================================
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
 	travel = {};
+	dial = {};
+	stargateRestDeg = 0.f;
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 	meta = grid.meta;
 

@@ -1,0 +1,28 @@
+# Plan stargate-chamber (lvl48, the chamber behind the name gate, from its teleporter at col 37): the ring and its
+# dial device still, the dial (the track turning, chevrons lit one by one), six lit, the seventh flickering out, dark
+# again; the dial device pressed.
+seed 1
+god
+level 48 at 37 4
+wait 30
+walk to 35.5
+wait 5
+screenshot chamber
+expect xp == 0
+interact
+wait 1s
+screenshot dialling
+wait 3200ms
+screenshot six_lit
+wait 400ms
+screenshot seventh_fails
+expect xp > 0
+wait 3s
+screenshot dark_again
+walk to 33.5
+interact
+wait 5
+expect journal_notes >= 2
+walk to 34.7
+wait 5
+screenshot dial_device

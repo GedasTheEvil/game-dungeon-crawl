@@ -42,7 +42,8 @@ struct SoundBank {
 
 struct FontSet {
 	Font font;
-	Font loading;
+	Font loading; // the loading screen: the step line
+	Font loadingDetail; // and its smaller detail line
 	Font status; // proportional, for the gameplay status message
 	Font banner; // the zone banner's title (ZoneBanner)
 	Font hud; // bold digits for the HUD level gem
@@ -119,8 +120,8 @@ struct Assets {
 
 	// The loading screen's own background, bar and font, before everything else.
 	void LoadLoadingScreen();
-	// progress(percent, text) draws the loading screen.
-	void Load(const std::function<void(float, const char*)>& progress);
+	// progress(percent, step, detail) draws the loading screen.
+	void Load(const std::function<void(float, const char*, const char*)>& progress);
 };
 
 #endif

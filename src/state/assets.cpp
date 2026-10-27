@@ -8,6 +8,7 @@
 #include "../core/gameplay_config.h"
 #include "../core/paths.h"
 #include "../core/worker_pool.h"
+#include "loading_text.h"
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -71,13 +72,15 @@ Item* ItemPrototypes::Of(ItemKind kind) const {
 }
 
 void Assets::LoadLoadingScreen() {
-	fonts.loading.Load(MEDIA_DIR "textures/fonts/papyrus.png", 7, -1.0);
+	fonts.loading.Load(MEDIA_DIR "textures/fonts/papyrus.png", loading_text::STEP_SIZE, loading_text::STEP_SPACING);
+	fonts.loadingDetail
+		.Load(MEDIA_DIR "textures/fonts/papyrus.png", loading_text::DETAIL_SIZE, loading_text::DETAIL_SPACING);
 	textures.loadingBackground.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
 	textures.loadingBar.LoadPNG(MEDIA_DIR "textures/ui/loading.png", TexFilter::Flat);
 }
 
 namespace {
-using Progress = std::function<void(float, const char*)>;
+using Progress = std::function<void(float, const char*, const char*)>;
 
 // The share [from, to) of the loading bar a table fills, one equal step per entry, so it never overruns
 struct BarSpan {
@@ -122,9 +125,7 @@ void loadMonsterTypes(
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
 		parseAhead(id + AHEAD);
 		const MonsterKind& kind = *monsterKind(id);
-		char label[64];
-		snprintf(label, sizeof(label), "Loading Monster Models [%s]", kind.name);
-		progress(span.at(static_cast<size_t>(id - 1), MONSTER_TYPE_MAX), label);
+		progress(span.at(static_cast<size_t>(id - 1), MONSTER_TYPE_MAX), "Loading monster models", kind.name);
 		char texture[64];
 		snprintf(texture, sizeof(texture), MEDIA_DIR "textures/%s.png", kind.texture);
 		Texture tex;
@@ -178,9 +179,7 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	for (size_t i = 0; i < WEAPON_KIND_COUNT; i++) {
 		const ItemKind kind = itemAt(static_cast<int>(i));
 		const WeaponDef& def = weaponDef(kind);
-		char label[64];
-		snprintf(label, sizeof(label), "Loading Item Models [%s]", itemText(kind).name);
-		progress(span.at(i, STEPS), label);
+		progress(span.at(i, STEPS), "Loading item models", itemText(kind).name);
 		auto& item = items.weapons[i];
 		item = loadItem(def.model, def.scale);
 		char sound[64];
@@ -189,7 +188,7 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(sound, sizeof(sound), MEDIA_DIR "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
-	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading Item Models [Containers, potions and amulets]");
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading item models", "Containers, potions and amulets");
 	for (size_t i = 0; i < CONTAINER_COUNT; i++) // face the camera at rotA 0 (tools/blender/models/containers.py)
 		items.containers[i] = loadItem(CONTAINER_DEFS[i].model, CONTAINER_DEFS[i].scale);
 	loadPotions(items);
@@ -345,7 +344,7 @@ void loadFonts(FontSet& fonts) {
 }
 } // namespace
 
-void Assets::Load(const std::function<void(float, const char*)>& progress) {
+void Assets::Load(const std::function<void(float, const char*, const char*)>& progress) {
 	// Plan faster-loading: the PNGs and the monster models are decoded on these threads, GL stays on this one.
 	WorkerPool pool;
 	TextureBatch textureBatch(pool);
@@ -387,18 +386,18 @@ void Assets::Load(const std::function<void(float, const char*)>& progress) {
 	textures.portal.LoadPNG(MEDIA_DIR "textures/effects/plasma.png");
 	textures.portalRed.LoadPNG(MEDIA_DIR "textures/effects/plasma_red.png");
 
-	progress(80, "Loading decorations");
+	progress(80, "Loading decorations", "");
 	loadDecor(decor);
 
-	progress(83, "Loading mechanisms");
+	progress(83, "Loading mechanisms", "");
 	loadMechanisms(mechanisms);
 	loadSounds(sounds);
 	loadTraps(traps, textures);
 
-	progress(95, "Loading game font");
+	progress(95, "Loading game font", "");
 	loadFonts(fonts);
 
-	progress(100, "Loading game soundtrack");
+	progress(100, "Loading game soundtrack", "");
 	sounds.soundtrack.Load(MEDIA_DIR "sounds/music/soundtrack.ogg");
 	textureBatch.Finish();
 }

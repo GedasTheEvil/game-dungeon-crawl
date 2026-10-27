@@ -1,4 +1,5 @@
 #include "game_state.h"
+#include "loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
 #include <GL/gl.h>
@@ -43,8 +44,8 @@ GameState::~GameState() {
 
 void GameState::Load() {
 	assets.LoadLoadingScreen();
-	DrawLoad(10, "Loading");
-	assets.Load([this](float percent, const char* text) { DrawLoad(percent, text); });
+	DrawLoad(10, "Loading", "");
+	assets.Load([this](float percent, const char* step, const char* detail) { DrawLoad(percent, step, detail); });
 	ui.riddle = std::make_unique<Riddle>();
 	ui.inventory = std::make_unique<Inventory>();
 	ui.endScreens = std::make_unique<EndScreens>();
@@ -314,8 +315,8 @@ void GameState::ApplySettings(bool save) {
 		SettingsFile::Save(settings);
 }
 //==============================================================
-void GameState::DrawLoad(float xxx, const char text[]) {
-	LOG_INFOF("loading", "DrawLoad %.0f%%: %s", static_cast<double>(xxx), text);
+void GameState::DrawLoad(float xxx, const char step[], const char detail[]) {
+	LOG_INFOF("loading", "DrawLoad %.0f%%: %s [%s]", static_cast<double>(xxx), step, detail);
 
 	if (xxx > 100)
 		xxx = 100;
@@ -364,7 +365,10 @@ void GameState::DrawLoad(float xxx, const char text[]) {
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
-	assets.fonts.loading.print(10, 15, text);
+	assets.fonts.loading.print(loading_text::LEFT, 17, step);
+	glColor3f(0.9f, 0.9f, 0.9f); // the detail line, a little dimmer
+	assets.fonts.loadingDetail.print(loading_text::LEFT, 9.5f, detail);
+	glColor3f(1, 1, 1);
 	glDisable(GL_BLEND);
 
 	glFlush();

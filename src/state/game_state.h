@@ -97,7 +97,7 @@ class GameState {
 	GameState();
 	~GameState();
 	void Load();
-	void DrawLoad(float xxx, const char text[]);
+	void DrawLoad(float xxx, const char step[], const char detail[]);
 	void Save(const char filename[]);
 	void LoadSave(const char filename[]);
 	void NewGame();

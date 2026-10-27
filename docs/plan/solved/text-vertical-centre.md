@@ -5,12 +5,12 @@ Status: draft 2026-10-27, from the user. Ready (needs nothing first).
 ## Problem
 
 Button labels sit too high: in Options > Display the "On", "Off", "Monitor" and "1920 x 1168" labels poke out of the
-top of their tiles ([screenshot](screenshots/options-out-of-bounds.png)).
+top of their tiles ([screenshot](../screenshots/options-out-of-bounds.png)).
 
 ## Cause
 
 `ui::text(font, x, y, ...)` puts the **bottom of the glyph quad** at `y`, not the baseline as
-[ui.md](../ui.md#fonts) says. The quad is `size` tall, and the sheet's glyphs sit in a 51 px cell with the baseline
+[ui.md](../../ui.md#fonts) says. The quad is `size` tall, and the sheet's glyphs sit in a 51 px cell with the baseline
 34 px from the top and a cap height of 24 px (`tools/textures/font_sheet.py`). So, from `y`:
 
 * baseline at `17/51 * size` (0.333 size),
@@ -33,7 +33,7 @@ the control is 3.6 tall, `heading` is size 5, text at `control.y + 0.2`. The cap
    control cells, Heka / inventory / journal / riddle buttons. Grep `text(` / `textCentered(` in `src/ui/`
    (164 calls). Only labels inside a box need the helper; free text (body lines, paragraphs, titles on a rule) keeps its
    layout, but check none of it moves.
-4. Fix [ui.md](../ui.md#fonts): say what `y` really is (quad bottom, baseline 1/3 size above) and point to the
+4. Fix [ui.md](../../ui.md#fonts): say what `y` really is (quad bottom, baseline 1/3 size above) and point to the
    helper for labels inside a box.
 
 ## Tests

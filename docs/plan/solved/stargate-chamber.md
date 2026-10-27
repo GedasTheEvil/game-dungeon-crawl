@@ -1,7 +1,7 @@
 # The Stargate chamber
 
-Status: implemented 2026-10-27, waiting for a play-test. Draft 2026-10-10, from the lore review, picked by the user (the user loves
-Stargate). Works better with [hieroglyph-cartouches](solved/hieroglyph-cartouches.md), does not need it.
+Status: solved 2026-10-27 (play-tested by the user). Draft 2026-10-10, from the lore review, picked by the user (the user loves
+Stargate). Works better with [hieroglyph-cartouches](hieroglyph-cartouches.md), does not need it.
 
 ## Idea
 
@@ -42,5 +42,5 @@ opens; it is an easter egg with a reward.
 * The way in (user, 2026-10-27): the name gate is a ring platform sealed by the name (`NAME_SEAL | RING_PLATFORM`),
   its partner in the chamber a ring platform; sealed, the plate glows and dims with the name gate's breath. Spoken,
   the rings carry the player. lvl48: rock over the gate's cell (col 38, row 23) for the rings.
-* Tests: `tests/unit/stargate_test.cpp`, the levelgen test, scenario `tests/scenarios/stargate_chamber.txt`.
+* Tests: `tests/unit/stargate_test.cpp`, the levelgen test, scenario `tests/scenarios/solved/stargate_chamber.txt`.
   Play-test: `bin/game --play tests/play/stargate-chamber.txt` (lvl48, in the chamber).

@@ -1,6 +1,6 @@
 # Ring transporter
 
-Status: implemented 2026-10-27, waiting for a play-test. Draft 2026-10-10, from the lore review, picked by the user (a Stargate
+Status: solved 2026-10-27 (play-tested by the user). Draft 2026-10-10, from the lore review, picked by the user (a Stargate
 reference).
 
 ## Idea
@@ -38,5 +38,5 @@ player, a flash, and the player stands on the partner platform on another floor.
 * Field note `FieldNote::Rings` at the first ride, with the Rings-pocket joke.
 * Levels: lvl17 (priests' quarter) a new ring pair from a wing's end to a sealed room with a might potion, the
   ring's text (`RING_TEXT`) beside it; plain pairs turned to rings on lvl31, lvl39, lvl48 and lvl50.
-* Tests: `tests/unit/rings_test.cpp`, scenario `tests/scenarios/ring_transporter.txt` (`tests/levels/rings`).
+* Tests: `tests/unit/rings_test.cpp`, scenario `tests/scenarios/solved/ring_transporter.txt` (`tests/levels/rings`).
   Play-test: `bin/game --play tests/play/ring-transporter.txt` (lvl17 on the platform).

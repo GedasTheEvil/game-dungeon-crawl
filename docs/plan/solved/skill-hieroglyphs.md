@@ -29,7 +29,7 @@ The copies filled in on learning give their XP then, once each.
 
 * Name on the card: "Deep mystic knowledge" (user's), or "Words of Thoth" (implementer's choice).
 * What it unlocks: the cartouche texts and their hints; optional extras, e.g. a riddle gate's hint shown at once, or
-  secret doors marked by an inscription (the [Stargate chamber](../stargate-chamber.md) hint).
+  secret doors marked by an inscription (the [Stargate chamber](stargate-chamber.md) hint).
 * An easy first choice: cheap in power, rich in story. Without it nothing on the exit path is lost (checker rule:
   hints only, never required).
 

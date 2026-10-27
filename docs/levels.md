@@ -194,7 +194,7 @@ Polished by hand after generating: the bronze sword on lvl3; no mimic on lvl1 (p
 rats there; lvl2 a scarab more; lvl5 three of its worms bats; lvl7's crocodile moved off the way into a pool with a
 chest past it.
 
-Ring platforms ([ring-transporter](plan/ring-transporter.md), `0`, value pair id + `RING_PLATFORM`), placed by hand:
+Ring platforms ([ring-transporter](plan/solved/ring-transporter.md), `0`, value pair id + `RING_PLATFORM`), placed by hand:
 lvl17 the first, at a wing's end to a sealed room with a chest, the ring's text (`RING_TEXT`, "The ring of seven") on
 the wall beside it; on lvl31, lvl39, lvl48 and lvl50 a plain teleporter pair became one. The other teleporters stay.
 
@@ -213,7 +213,7 @@ path); pages 19 and 22 tell of the forks of lvl39 and lvl43.
 
 Route forks ([denser-levels](plan/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,
 lvl39, lvl43 and the last one on lvl49, the warning (`FORK_TEXT`) between its drops. The Stargate chamber
-([stargate-chamber](plan/stargate-chamber.md), levelgen `--stargate`) on lvl48, polished by hand: the room
+([stargate-chamber](plan/solved/stargate-chamber.md), levelgen `--stargate`) on lvl48, polished by hand: the room
 a cell longer, the ring's text over the rare chest at its far end, the dial device, the ring, a torch beside it and the
 ring platform at the near end. Its name gate is a ring platform too, sealed by the name (its plate breathes), rock put
 over it. Dialling the ring lights six chevrons, the seventh will not lock; the first dial gives a
@@ -429,7 +429,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    the last fork's, the Stargate's), the name gate's comes only with a name gate. Without the texts (a unit test's
    level, levelgen run off the repo root) none. Each secret room gets a lore text (the ids given, `--lore`, else one of
    `SECRET_ROOM_TEXTS`, no second boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The
-   Stargate chamber (`--stargate`, one level of the campaign, [stargate-chamber](plan/stargate-chamber.md)):
+   Stargate chamber (`--stargate`, one level of the campaign, [stargate-chamber](plan/solved/stargate-chamber.md)):
    the level's name gate, its password the king's name, leads to a room with the ring (`DECOR_STARGATE`) between the
    ring's text (`STARGATE_TEXT`) and a rare chest, its dial device (`DECOR_DIAL`) on the teleporter's side.
    A route fork (`GenOptions::fork`, `--fork 1`, 2 for the last fork; on a level going down): a hall the route

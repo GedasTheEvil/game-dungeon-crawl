@@ -60,8 +60,8 @@ holders enter. Lore: Isis took power over Ra by learning his secret name; whoeve
   (a mummy in a sarcophagus fits).
 * **Placement**: levels 6-30 (the skill comes with the first heka, at lvl5), about one every second level
   (12-13 rooms). A player who learns the skill late misses the earlier rooms: the choice stays a choice.
-* **Ties to other drafts**: the gate can look like a [ring transporter](../ring-transporter.md) platform;
-  the [Stargate chamber](../stargate-chamber.md) can be one of the secret rooms (the name as its "address").
+* **Ties to other drafts**: the gate can look like a [ring transporter](ring-transporter.md) platform;
+  the [Stargate chamber](stargate-chamber.md) can be one of the secret rooms (the name as its "address").
 
 ## Recommended choices (implementer may change)
 

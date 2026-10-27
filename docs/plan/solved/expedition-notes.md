@@ -12,7 +12,7 @@ own or inside Field notes: implementer's choice).
   or the same font in another ink colour).
 * Content: humour and hints. A story arc: confident at the start, doubts, the last page near lvl33-34 ("If you read
   this, take the left gate. I took the right.").
-  Hints point at secrets: the [Stargate chamber](../stargate-chamber.md), a mimic, a weak spot of a boss.
+  Hints point at secrets: the [Stargate chamber](stargate-chamber.md), a mimic, a weak spot of a boss.
 * Stargate references welcome (the user loves the show): the missing archaeologist could be a nod to Daniel Jackson.
 * Placement: a new object or a treasure with a "page" item; picked up on touch, no inventory slot. Save game keeps
   which pages were found.

@@ -1,0 +1,30 @@
+# Plan skill-power-hit: the sword held back further while the charge builds (a quarter of the stamina bar gone), then
+# the charged swing's spark on the mummy; the Heka screen with the card learnt. Screenshots; the rules are unit tests
+# (tests/unit/power_hit_test.cpp).
+god
+level tests/levels/fire
+give melee 1
+equip short_sword
+heka 1
+learn power_hit
+walk to 12
+walk to 9.5
+wait 3s
+walk to 12.1
+key q
+screenshot rest
+attack
+wait 100ms
+screenshot windup
+wait 1s
+expect stamina == 75
+screenshot charged
+attack up
+wait 150ms
+screenshot spark
+expect nearest < 480
+key k
+wait 2
+screenshot heka
+key k
+dump

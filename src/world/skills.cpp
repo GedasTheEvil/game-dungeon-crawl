@@ -8,7 +8,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Stun", "Smash hits may stun a foe", true},
 	{"Words of Thoth", "Read the hieroglyphs", false},
 	{"Dodge", "1 blow in 10 misses you", false},
-	{"Power hit", "Harder blows for stamina", true},
+	// Plan skill-power-hit: a stamina skill, switched with the stamina-skill key.
+	{"Power hit", "Held blows hit harder, for stamina", false},
 	{"Sharp eye", "Ranged weapons reach 30% farther", false},
 	{"Favour of Hapi", "Wade faster, jump out of water", false},
 	{"Serket's favour", "Poisons last half as long", false},

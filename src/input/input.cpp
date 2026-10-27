@@ -1,6 +1,7 @@
 #include <GL/gl.h>
 #include <array>
 #include <optional>
+#include <utility>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../graphics/ink.h"
@@ -17,6 +18,8 @@ namespace {
 std::array<bool, 4> walkHeld{};
 // This press of the attack key was refused on a ladder and told so: the key repeat does not tell it again.
 bool attackRefusalTold = false;
+// The attack key came up while a power hit charged: the next tick swings it, unless the key is down again by then.
+bool chargeReleased = false;
 
 bool isMove(GameplayAction action) {
 	return action == GameplayAction::MoveLeft || action == GameplayAction::MoveRight ||
@@ -59,7 +62,10 @@ class PlayerActionController {
 			Game().dungeon.StartJump(Game().camera.Facing());
 			break;
 		case GameplayAction::Attack:
-			tryAttack();
+			if (Game().player->Charging())
+				chargeReleased = false; // the key repeat: still held
+			else if (!tryCharge())
+				tryAttack();
 			break;
 		case GameplayAction::Interact:
 			Game().dungeon.Interact();
@@ -100,7 +106,7 @@ class PlayerActionController {
 
 	static void toggleStaminaSkills() {
 		Player& player = *Game().player;
-		if (!player.stats.heka.Has(SkillId::FlamingArrows)) {
+		if (!player.stats.heka.HasStaminaSkill()) {
 			Game().events.Status("No stamina skill learnt");
 			return;
 		}
@@ -152,32 +158,83 @@ class PlayerActionController {
 			Game().player->stats.NoteWalked(Game().dungeon.PlayerHalvedWadeDrain());
 	}
 
-	// No switch while a swing or a bow draw is under way: it would hit with the other weapon.
+	// No switch while a swing, a bow draw or a power hit's charge is under way: it would hit with the other weapon.
 	static void equipNext(bool ranged) {
-		if (Game().player->attackStartMs < 0)
+		if (Game().player->attackStartMs < 0 && !Game().player->Charging())
 			Game().ui.inventory->EquipNext(ranged);
 	}
 
 	// The swing (or the bow draw) begins; it hits when its hit time comes (updateAttack in draw.cpp).
 	static void tryAttack() {
+		if (!attackReady())
+			return;
 		Player& player = *Game().player;
-		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed())
-			return;
-		if (!Game().dungeon.AttackAllowed(!attackRefusalTold)) {
-			attackRefusalTold = true;
-			return;
-		}
 		if (player.stats.curses.Has(Curse::Palsy) && isRanged(Game().ui.inventory->EquippedKind())) {
 			if (!attackRefusalTold)
 				Game().events.Status("Your hands shake too much to aim");
 			attackRefusalTold = true; // no shot, no ammo, no cooldown
 			return;
 		}
+		player.swingPower = 0;
+		swing(false);
+	}
+
+  public:
+	// Power hit (plan skill-power-hit): with the skill, the toggle on and a melee weapon in hand, the attack key down
+	// starts the charge instead of the swing. False: no charge (too little stamina for one: the HUD sign blinks), the
+	// attack runs as before.
+	static bool tryCharge() {
+		Player& player = *Game().player;
+		if (!player.CanCharge(isRanged(Game().ui.inventory->EquippedKind())) || player.attackStartMs >= 0 ||
+			!player.attackTimer.TimePassed(true))
+			return false;
+		if (!attackReady())
+			return true; // refused (a ladder, a hold), told: nothing more
+		if (!player.StartCharge())
+			return false;
+		chargeReleased = false;
+		chargeChannel = Game().assets.sounds.powerCharge.Play();
+		return true;
+	}
+
+	// The key came up: the charged swing (a tap's a plain one), from the windup the charge held it at.
+	static void releaseCharge() {
+		Player& player = *Game().player;
+		const bool charged = player.ReleaseCharge() > 0;
+		Sound::Stop(std::exchange(chargeChannel, -1));
+		if (!player.Alive() || !attackReady())
+			return;
+		swing(charged);
+	}
+
+  private:
+	inline static int chargeChannel = -1; // the charge's rising sound, stopped at the release
+
+	// No swing under way, its recovery over, and allowed here (not on a ladder, not held: told once a press).
+	static bool attackReady() {
+		Player& player = *Game().player;
+		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed(true))
+			return false;
+		if (!Game().dungeon.AttackAllowed(!attackRefusalTold)) {
+			attackRefusalTold = true;
+			return false;
+		}
+		return true;
+	}
+
+	// charged: a power hit, already wound up (it starts at the windup), its heavy whoosh.
+	static void swing(bool charged) {
+		Player& player = *Game().player;
 		const Item* weapon = Game().ui.inventory->Equipped();
-		player.attackTimer.SetInterval(weaponDef(Game().ui.inventory->EquippedKind()).motion.AttackMs());
-		player.attackStartMs = GameClock::now();
+		const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
+		player.attackTimer.Reset();
+		player.attackTimer.SetInterval(motion.AttackMs());
+		player.attackStartMs = GameClock::now() - (charged ? windupMs(motion) : 0);
 		player.attackLanded = false;
-		weapon->swingSound.Play();
+		if (charged)
+			Game().assets.sounds.powerSwing.Play();
+		else
+			weapon->swingSound.Play();
 	}
 
 	static void clampCamera() {
@@ -213,6 +270,22 @@ void stepHeldWalk() {
 			PlayerActionController::execute(
 				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i)
 			);
+}
+
+void releaseAttack() {
+	attackRefusalTold = false;
+	chargeReleased = Game().player->Charging();
+}
+
+void updatePowerCharge() {
+	Player& player = *Game().player;
+	if (!player.Charging())
+		return;
+	if (!player.Alive())
+		chargeReleased = true; // no swing (releaseCharge)
+	player.UpdateCharge();
+	if (std::exchange(chargeReleased, false))
+		PlayerActionController::releaseCharge();
 }
 
 GameplayAction gameplayActionOf(BindAction action) {
@@ -351,7 +424,7 @@ bool pressBinding(BindAction action) {
 // Released on every screen: a walk key let go in the inventory must not keep walking afterwards.
 void releaseBinding(BindAction action) {
 	if (action == BindAction::Attack)
-		attackRefusalTold = false;
+		releaseAttack();
 	if (action == BindAction::Sprint)
 		Game().player->stats.SetSprintRequested(false);
 	else
@@ -524,6 +597,20 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
+	// The attack button down starts a power hit's charge (plan skill-power-hit), up swings it; without one the click
+	// attacks when it comes up, as below.
+	if (action == BindAction::Attack && Game().ui.screen == Screen::Gameplay) {
+		if (state == GLUT_DOWN) {
+			attackRefusalTold = false;
+			if (ScreenState::IsGameplayInteractionAllowed(Game()) && PlayerActionController::tryCharge())
+				Game().ApplyWorldEvents();
+			return;
+		}
+		if (Game().player->Charging()) {
+			releaseBinding(*action);
+			return;
+		}
+	}
 	// Held actions start when the button goes down, the others run when it comes up: each click is a press.
 	if (action && Game().ui.screen == Screen::Gameplay && (state == GLUT_DOWN) == isHeld(*action)) {
 		if (*action == BindAction::Attack)

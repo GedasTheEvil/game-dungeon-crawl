@@ -477,6 +477,15 @@ class Dungeon {
 	void addVenomLights();
 	void addFireLights(); // the fire arrows' and the burning monsters' (plan fire-damage)
 	void drawBurning(); // flames on the burning monsters and the fire arrows; drawSummonEffects' frame
+	// The last power hit (plan skill-power-hit): where it landed (map units), when, its charge 0..1. Its spark and the
+	// view's shake (PowerHitShake) grow with the charge.
+	struct PowerHitMark {
+		float x = 0.f, y = 0.f;
+		int atMs = -1;
+		float power = 0.f;
+	};
+	PowerHitMark powerHit;
+	void drawPowerSpark(); // drawSummonEffects' frame
 	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 	// A dung ball (plan scarab-dung-ball, dungeon_balls.cpp): kicked off by a roller (Monster::UpdateRoll), it rolls
@@ -667,7 +676,11 @@ class Dungeon {
 	int Type(float x, float y);
 	void getC(float& outX, float& outY);
 	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
-	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir); // reach in tiles (Item::Reach)
+	// reach in tiles (Item::Reach). power: a power hit's charge 0..1 (plan skill-power-hit), its thump, spark and
+	// shake.
+	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power = 0.f);
+	// 0..1: how hard the view shakes after a power hit, fading over POWER_SHAKE_MS; 0 with none.
+	[[nodiscard]] float PowerHitShake() const;
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
 	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);

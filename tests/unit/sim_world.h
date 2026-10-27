@@ -63,11 +63,12 @@ class SimWorld {
 		return started();
 	}
 
-	// One tick: the held keys' step, the world's update, the attack's hit, then the player's poison and healing, then
-	// every pose (the game loop's order).
+	// One tick: the held keys' step, the world's update, a power hit's charge, the attack's hit, then the player's
+	// poison and healing, then every pose (the game loop's order).
 	void Tick() {
 		GameClock::advance(UPDATE_TICK_MS);
 		dungeon.Update();
+		player.UpdateCharge();
 		if (player.Alive())
 			updateAttack();
 		player.stats.UpdateStamina(events);
@@ -170,9 +171,26 @@ class SimWorld {
 	bool Attack() {
 		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed() || !dungeon.AttackAllowed(true))
 			return false;
-		player.attackTimer.SetInterval(weaponDef(items.Equipped()).motion.AttackMs());
-		player.attackStartMs = GameClock::now();
-		player.attackLanded = false;
+		player.swingPower = 0;
+		swing(false);
+		return true;
+	}
+
+	// As the attack key held down for ms, then let go (input.cpp, plan skill-power-hit): with the skill, the toggle on
+	// and a melee weapon, a power hit's charge, released into the swing; otherwise a plain Attack at the press. True: a
+	// swing began.
+	bool HoldAttack(int ms) {
+		if (!player.CanCharge(isRanged(items.Equipped())) || player.attackStartMs >= 0 ||
+			!player.attackTimer.TimePassed(true) || !player.StartCharge()) {
+			const bool began = Attack();
+			Wait(ms);
+			return began;
+		}
+		Wait(ms);
+		const bool charged = player.ReleaseCharge() > 0;
+		if (!dungeon.AttackAllowed(true))
+			return false;
+		swing(charged);
 		return true;
 	}
 
@@ -288,6 +306,15 @@ class SimWorld {
 				player.stats.PotionResistPercent()};
 	}
 
+	// input.cpp: the swing begins; a charged one at its windup.
+	void swing(bool charged) {
+		const WeaponMotion& motion = weaponDef(items.Equipped()).motion;
+		player.attackTimer.Reset();
+		player.attackTimer.SetInterval(motion.AttackMs());
+		player.attackStartMs = GameClock::now() - (charged ? windupMs(motion) : 0);
+		player.attackLanded = false;
+	}
+
 	// game_loop.cpp updateAttack: the hit at the weapon's hit time; the hand height of a shot is about the fists'.
 	void updateAttack() {
 		if (player.attackStartMs < 0)
@@ -301,7 +328,7 @@ class SimWorld {
 			if (isRanged(kind))
 				dungeon.Shoot(missileOf(kind), damage, def.mix, facing, 0.65f * player.Height(), weaponReach(kind));
 			else
-				dungeon.AttackNearest(damage, def.mix, weaponReach(kind), facing);
+				dungeon.AttackNearest(player.PowerDamage(damage), def.mix, weaponReach(kind), facing, player.SwingShare());
 		}
 		if (t >= def.motion.swingMs)
 			player.attackStartMs = -1;

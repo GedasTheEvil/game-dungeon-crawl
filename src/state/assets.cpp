@@ -304,6 +304,9 @@ void loadSounds(SoundBank& sounds) {
 	sounds.mirrorTurn.Load(MEDIA_DIR "sounds/mechanisms/mirror_turn.wav");
 	sounds.sunDisc.Load(MEDIA_DIR "sounds/mechanisms/sun_disc.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
+	sounds.powerCharge.Load(MEDIA_DIR "sounds/items/power_charge.wav");
+	sounds.powerSwing.Load(MEDIA_DIR "sounds/items/power_swing.wav");
+	sounds.powerHit.Load(MEDIA_DIR "sounds/items/power_hit.wav");
 	sounds.rockCrash.Load(MEDIA_DIR "sounds/mechanisms/rock_crash.wav");
 	sounds.sandHiss.Load(MEDIA_DIR "sounds/mechanisms/sand_hiss.wav");
 	sounds.sandPour.Load(MEDIA_DIR "sounds/mechanisms/sand_pour.wav");

@@ -178,6 +178,17 @@ constexpr int FIRE_ARROW_PERCENT = 60;
 // share of its damage on top as fire, for this share of max stamina. A brazier-lit arrow gets neither.
 constexpr int FLAMING_ARROW_BONUS_PERCENT = 40;
 constexpr int FLAMING_ARROW_STAMINA_PERCENT = 10;
+// Power hit (plan skill-power-hit): with the skill and the stamina-skill toggle on, a melee attack held down charges.
+// It drains POWER_DRAIN_PERCENT of max stamina a second, up to POWER_CAP_PERCENT a hit (then it holds); the swing at
+// the release deals powerHitBonusPercent of the points spent on top. A hold under POWER_TAP_MS is a plain attack, free.
+constexpr int POWER_DRAIN_PERCENT = 30;
+constexpr int POWER_CAP_PERCENT = 25;
+constexpr int POWER_TAP_MS = 150;
+// The bonus curve, bonus% = POWER_CURVE_SCALE x ln(1 + points / POWER_CURVE_POINTS): it grows with more points, slower.
+constexpr double POWER_CURVE_SCALE = 92.0;
+constexpr double POWER_CURVE_POINTS = 20.0;
+constexpr int POWER_SHAKE_MS = 250; // the view shakes this long after a power hit,
+constexpr float POWER_SHAKE = 1.2f; // up to this many world units at the cap
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

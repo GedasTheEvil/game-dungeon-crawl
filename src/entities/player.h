@@ -9,6 +9,17 @@
 #include "../world/world_events.h"
 #include "../world/rng.h"
 
+// Power hit (plan skill-power-hit): the bonus% of a melee hit charged with this many stamina points, on the weapon's
+// damage (POWER_CURVE_SCALE, POWER_CURVE_POINTS); 0 for none.
+[[nodiscard]] int powerHitBonusPercent(int points);
+
+// A power hit's charge (Player::StartCharge): the melee attack key held down.
+struct PowerCharge {
+	int startMs = -1; // GameClock time the key went down; < 0: not charging
+	int spent = 0; // stamina points drained so far
+	bool dry = false; // the stamina ran out: the charge holds what it built
+};
+
 struct JumpState {
 	bool jumping = false;
 	bool falling = false;
@@ -54,6 +65,24 @@ class Player {
 	bool staminaSkills = false;
 	std::optional<int> staminaSkillRefusedMs;
 	int fireArrows = 0; // the next bow shots carry fire: a brazier lit them (Dungeon::lightArrows); not saved
+	// Power hit (plan skill-power-hit), with the skill and the toggle on and a melee weapon in hand: the attack key
+	// down starts the charge (false, nothing started: not even a tap's worth of stamina, the HUD sign blinks), it
+	// drains once a tick (UpdateCharge, no regen meanwhile), the key up ends it (ReleaseCharge: the points spent, 0
+	// for a tap) and the swing then started hits with swingPower's bonus (PowerDamage). Not saved.
+	PowerCharge charge;
+	int swingPower = 0; // stamina points the swing under way was charged with; 0: a plain one
+	// The attack key charges: the skill, the toggle on, a melee weapon (ranged: false; a bow draw never charges).
+	[[nodiscard]] bool CanCharge(bool ranged) const {
+		return staminaSkills && stats.heka.Has(SkillId::PowerHit) && !ranged;
+	}
+	bool StartCharge();
+	void UpdateCharge();
+	int ReleaseCharge();
+	[[nodiscard]] bool Charging() const { return charge.startMs >= 0; }
+	// 0..1 of the cap (POWER_CAP_PERCENT of max stamina): the charge built so far, the one of the swing under way.
+	[[nodiscard]] float ChargeShare() const;
+	[[nodiscard]] float SwingShare() const;
+	[[nodiscard]] int PowerDamage(int damage) const { return damage + damage * powerHitBonusPercent(swingPower) / 100; }
 
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)

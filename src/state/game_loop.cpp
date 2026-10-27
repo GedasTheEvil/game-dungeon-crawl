@@ -38,11 +38,12 @@ void updateAttack() {
 				aimRange
 			);
 			weapon->strikeSound.Play();
-		} else if (Game().dungeon.AttackNearest(
-					   damage,
+		} else if (Game().dungeon.AttackNearest( // with a power hit's bonus (plan skill-power-hit)
+					   player.PowerDamage(damage),
 					   def.mix,
 					   weaponReach(kind, player.stats.heka),
-					   Game().camera.Facing()
+					   Game().camera.Facing(),
+					   player.SwingShare()
 				   ))
 			weapon->strikeSound.Play();
 	}
@@ -80,6 +81,7 @@ void tick() {
 	Game().dungeon.Update();
 	Game().player->rotA = Game().camera.rotW;
 
+	updatePowerCharge();
 	if (Game().player->Alive()) {
 		bool climbing = !Game().player->jump.jumping && Game().dungeon.PlayerOnLadder();
 		Game().player->depthOffset = climbing ? PLAYER_CLIMB_DEPTH : 0.f;

@@ -1,7 +1,8 @@
 # Skill: power hit
 
-Status: draft 2026-10-10, refined 2026-10-22 (charged hit, decided by the user). Ready: [skills](solved/skills.md) is
-in. Opus: held input, a charge animation and a scaled bonus.
+Status: implemented 2026-10-27 ([Implemented](#implemented)), waiting for the user's play-test:
+`bin/game --play tests/play/skill-power-hit.txt`. Was: draft 2026-10-10, refined 2026-10-22 (charged hit, decided by
+the user); needed [skills](solved/skills.md).
 
 The skill is on the Heka screen already, sealed: implementing it clears its `sealed` in `SKILLS`
 (`src/world/skills.cpp`) and checks its card text there.
@@ -45,3 +46,20 @@ Decided (user, 2026-10-22): the bonus scales with the stamina spent. Not a fixed
   max stamina spends more and hits harder); a tap costs nothing and deals normal damage;
   toggle off = today's attack (holding does not charge); a bow draw never charges; empty stamina mid-charge swings with
   the built charge; no regen while charging.
+
+## Implemented
+
+* The charge lives in `Player` (`StartCharge`, `UpdateCharge`, `ReleaseCharge`, `PowerCharge`), shared by the game
+  and `SimWorld`; `Player::CanCharge` is the gate (skill, toggle, melee). Nothing drains in the first 150 ms; after
+  that the drain since the press is taken at once, so a release then pays for its whole hold. No regen and no sprint
+  while charging (`PlayerStats::SetCharging`).
+* Input: the key down starts the charge, the key up asks the next tick to swing (`updatePowerCharge`): a key repeat's
+  release and press in between cancel out. The mouse button now charges on down, swings on up; without a charge a click
+  still attacks on up, as before. The charged swing starts at the windup (the charge held it there). No weapon switch
+  while charging.
+* Feedback: the weapon draws back up to 35° further (a thrust: pulls back more), a rising hum
+  (`media/sounds/items/power_charge.wav`, `tools/audio/power_hit_sounds.py`) stopped at the release, a deep whoosh, on
+  the hit a thump (`WorldSound::PowerHit`), a star spark and a 250 ms view shake (with motion effects on), both grown
+  with the charge. The thump's volume does not grow (SDL_mixer plays a chunk at one volume).
+* Scenario `attack up` lets the key go; `tests/scenarios/skill-power-hit.txt` shows the pose and the spark.
+* Play-test: `bin/game --play tests/play/skill-power-hit.txt`.

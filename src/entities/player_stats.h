@@ -42,6 +42,7 @@ class PlayerStats {
 	bool walked = false; // the player took a walk step this tick (NoteWalked)
 	bool walked_cheap = false; // ... a wade step that drains the sprint's stamina at half (NoteWalked)
 	bool sprinting = false; // shift held and the player moved last tick: stamina drains
+	bool charging = false; // a power hit is being charged (Player::StartCharge): no regen, no sprint
 	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
@@ -51,6 +52,8 @@ class PlayerStats {
 
   public:
 	void SetSprintRequested(bool requested) { sprint_requested = requested; }
+	// A power hit's charge holds the stamina (plan skill-power-hit): it does not regenerate, shift does not sprint.
+	void SetCharging(bool on) { charging = on; }
 	[[nodiscard]] bool IsSprinting() const { return sprinting; }
 	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved. Slowness
 	// sprints less (SLOWNESS_SPRINT_MULTIPLIER).

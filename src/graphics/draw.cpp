@@ -66,7 +66,14 @@ void drawWeapon() { // in the fist nearer the camera
 	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
 	const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
-	const SwingPose pose = swingPose(motion, player.attackStartMs < 0 ? -1 : GameClock::now() - player.attackStartMs);
+	// A power hit (plan skill-power-hit): drawn back further as the charge builds, and in the swing it starts.
+	const SwingPose pose = player.Charging()
+							   ? chargePose(motion, GameClock::now() - player.charge.startMs, player.ChargeShare())
+							   : swingPose(
+									 motion,
+									 player.attackStartMs < 0 ? -1 : GameClock::now() - player.attackStartMs,
+									 player.SwingShare()
+								 );
 	const std::array<float, 3> fist = Game().playerView.Fist(player, facing);
 	const float length = weapon->scale * Ink::heldWeaponScale(); // Centrify: the largest dimension is 1
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
@@ -196,6 +203,11 @@ void drawGameplay() {
 	glTranslatef(0, -20, -70);
 	if (Game().settings.graphics.motionEffects) { // held in the jaws or the claws (plan crocodile-hold-bite)
 		glRotatef(Game().dungeon.HeldViewRoll(), 0, 0, 1);
+		// A power hit (plan skill-power-hit): a short shake, harder with the charge.
+		if (const float shake = Game().dungeon.PowerHitShake(); shake > 0.f) {
+			const auto t = static_cast<float>(GameClock::now());
+			glTranslatef(POWER_SHAKE * shake * std::sin(t * 0.09f), POWER_SHAKE * shake * std::sin(t * 0.13f), 0);
+		}
 		// Dazed by a screech (plan giant-bat-screech): the view rolls and sways, slow and out of step.
 		if (const float daze = Game().player->Daziness(); daze > 0.f) {
 			const auto t = static_cast<float>(GameClock::now()) / 1000.f;

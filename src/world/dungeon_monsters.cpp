@@ -209,6 +209,14 @@ void Dungeon::clearMonsters() {
 	nextBlazeHitMs = 0;
 	playerBlazed = false;
 	bossFight = BossFight{};
+	powerHit = PowerHitMark{};
+}
+//======================================================================================
+float Dungeon::PowerHitShake() const {
+	const int age = GameClock::now() - powerHit.atMs;
+	if (powerHit.atMs < 0 || age >= POWER_SHAKE_MS)
+		return 0.f;
+	return powerHit.power * (1.f - static_cast<float>(age) / static_cast<float>(POWER_SHAKE_MS));
 }
 //======================================================================================
 // A monster walks away from its spawn tile, so it is culled by where it is now.
@@ -229,7 +237,7 @@ void Dungeon::AnimateMonsters() {
 			mon.Animate(mapX, mapY);
 }
 //======================================================================================
-bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir) {
+bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.Hidden() && mon.Nearby(mapX, mapY, reach, dir) &&
@@ -240,6 +248,10 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 	const bool cut = mainType(mix) == DamageType::Slash && cutWebs(mapX, tip, static_cast<int>(mapY)) > 0;
 	if (!nearest)
 		return cut;
+	if (power > 0.f) {
+		powerHit = {nearest->NearEdge(dir), (nearest->BottomY() + nearest->TopY()) / 2.f, GameClock::now(), power};
+		sim.events->Play(WorldSound::PowerHit);
+	}
 	playerHit(*nearest, damage, &mix);
 	touchPoison(*nearest);
 	return true;

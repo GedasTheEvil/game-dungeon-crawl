@@ -28,6 +28,26 @@ constexpr Lighting::LightDef FIRE_ARROW_LIGHT = {1.f, 0.6f, 0.25f, 45.f, 0.5f};
 constexpr Lighting::LightDef BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7f};
 constexpr float BURNING_FRONT = 3.f; // world units in front of the body's centre: the flames lick round its front
 constexpr float SPRAY_SPREAD = 0.3f; // tiles between the bursts of a sand spray
+// A power hit's spark (plan skill-power-hit): a star of rays, longer with the charge, gone after POWER_SPARK_MS.
+constexpr int POWER_SPARK_MS = 220;
+constexpr float POWER_SPARK_MIN = 4.f; // world units, the rays of a barely charged hit
+constexpr float POWER_SPARK_MAX = 12.f; // at the cap
+
+// A flat star of rays round (x, y, z), additive: rays long, turned by angle (radians), thin at the tips.
+void glowStar(float x, float y, float z, float radius, int rays, float angle, float r, float g, float b, float alpha) {
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < rays; i++) {
+		const float a = angle + 2.f * PI * static_cast<float>(i) / static_cast<float>(rays);
+		const float len = radius * (i % 2 == 0 ? 1.f : 0.6f);
+		const float side = radius * 0.12f;
+		glColor4f(r, g, b, alpha);
+		glVertex3f(x - side * std::sin(a), y + side * std::cos(a), z);
+		glVertex3f(x + side * std::sin(a), y - side * std::cos(a), z);
+		glColor4f(r, g * 0.8f, b * 0.5f, 0.f);
+		glVertex3f(x + len * std::cos(a), y + len * std::sin(a), z);
+	}
+	glEnd();
+}
 
 // A fiery bolt's flickering light, an oil lamp's (plan anubis-fire-bolt).
 constexpr Lighting::LightDef FIRE_BOLT_LIGHT = {1.f, 0.6f, 0.25f, 60.f, 0.5f};
@@ -447,6 +467,36 @@ void Dungeon::drawBurning() {
 				RenderConfig::TILE_SIZE * (mon.TopY() - mon.BottomY()),
 				static_cast<uint32_t>(mon.Col() * 131 + mon.SpawnRow())
 			);
+}
+//======================================================================================
+void Dungeon::drawPowerSpark() {
+	const int age = GameClock::now() - powerHit.atMs;
+	if (powerHit.atMs < 0 || age >= POWER_SPARK_MS)
+		return;
+	const float k = static_cast<float>(age) / static_cast<float>(POWER_SPARK_MS);
+	const float radius = (POWER_SPARK_MIN + (POWER_SPARK_MAX - POWER_SPARK_MIN) * powerHit.power) * (0.6f + 0.6f * k);
+	sim.assets->textures.nullTex.Bind();
+	Lighting::setEmissive(true);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDepthMask(GL_FALSE);
+	glowStar(
+		RenderConfig::TILE_SIZE * (powerHit.x - static_cast<float>(view().originCol)),
+		RenderConfig::TILE_SIZE * (powerHit.y - static_cast<float>(view().originRow)),
+		ARROW_DEPTH,
+		radius,
+		10,
+		static_cast<float>(powerHit.atMs % 7),
+		1.f,
+		0.9f,
+		0.6f,
+		1.f - k
+	);
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	Lighting::setEmissive(false);
+	glColor3f(1, 1, 1);
 }
 //======================================================================================
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.

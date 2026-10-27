@@ -176,8 +176,16 @@ struct SwingPose {
 constexpr float SWING_WINDUP_SHARE = 0.6f;
 constexpr float SWING_WINDUP_PULL = 0.3f; // a thrust draws back this share of its reach first
 // elapsedMs since the attack began; < 0: no attack, at rest. Smooth into the windup, gathering speed down to the
-// strike at hitMs, smooth back to rest by swingMs.
-[[nodiscard]] SwingPose swingPose(const WeaponMotion& m, int elapsedMs);
+// strike at hitMs, smooth back to rest by swingMs. back 0..1: a power hit's charge (plan skill-power-hit) draws the
+// windup further back, up to SWING_CHARGE_BACK_DEG (a thrust: SWING_CHARGE_PULL more of its reach).
+[[nodiscard]] SwingPose swingPose(const WeaponMotion& m, int elapsedMs, float back = 0.f);
+constexpr float SWING_CHARGE_BACK_DEG = 35.f;
+constexpr float SWING_CHARGE_PULL = 0.3f;
+// While a power hit charges: the weapon rises into the windup over its windup time, then further back with the
+// charge (back 0..1). heldMs since the key went down.
+[[nodiscard]] SwingPose chargePose(const WeaponMotion& m, int heldMs, float back);
+// Of a swing's hitMs, the windup: a charged swing starts there at the release.
+[[nodiscard]] int windupMs(const WeaponMotion& m);
 
 // What drinking a potion does to the player. Percentages of max health / max stamina; maxHpPercent grows max health,
 // then heals fully.

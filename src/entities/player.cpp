@@ -5,6 +5,62 @@
 #include "../core/gameplay_config.h"
 #include "../graphics/render_config.h"
 
+int powerHitBonusPercent(int points) {
+	if (points <= 0)
+		return 0;
+	return static_cast<int>(
+		std::lround(POWER_CURVE_SCALE * std::log1p(static_cast<double>(points) / POWER_CURVE_POINTS))
+	);
+}
+
+namespace {
+int powerCap(const PlayerStats& stats) { return std::max(1, stats.MaxStamina() * POWER_CAP_PERCENT / 100); }
+// Stamina points drained after held ms, before the cap.
+int powerDrain(const PlayerStats& stats, int heldMs) {
+	return static_cast<int>(static_cast<long long>(stats.MaxStamina()) * POWER_DRAIN_PERCENT * heldMs / 100000);
+}
+} // namespace
+
+bool Player::StartCharge() {
+	if (stats.Stamina() < std::max(1, powerDrain(stats, POWER_TAP_MS))) {
+		staminaSkillRefusedMs = GameClock::now();
+		return false;
+	}
+	charge = {GameClock::now(), 0, false};
+	stats.SetCharging(true);
+	return true;
+}
+
+// Nothing in the first POWER_TAP_MS: a release then is a tap. After it, the drain since the key went down at once.
+void Player::UpdateCharge() {
+	if (!Charging() || charge.dry)
+		return;
+	const int held = GameClock::now() - charge.startMs;
+	if (held < POWER_TAP_MS)
+		return;
+	const int want = std::min(powerCap(stats), powerDrain(stats, held)) - charge.spent;
+	const int take = std::min(want, stats.Stamina());
+	if (take > 0 && stats.ConsumeStamina(take))
+		charge.spent += take;
+	charge.dry = take < want;
+}
+
+int Player::ReleaseCharge() {
+	UpdateCharge();
+	swingPower = GameClock::now() - charge.startMs < POWER_TAP_MS ? 0 : charge.spent;
+	charge = {};
+	stats.SetCharging(false);
+	return swingPower;
+}
+
+float Player::ChargeShare() const {
+	return std::min(1.f, static_cast<float>(charge.spent) / static_cast<float>(powerCap(stats)));
+}
+
+float Player::SwingShare() const {
+	return std::min(1.f, static_cast<float>(swingPower) / static_cast<float>(powerCap(stats)));
+}
+
 void Player::SetModel(const ModelInfo& info) {
 	model = info;
 	for (AnimPlayback& p : playback)
@@ -165,6 +221,9 @@ void Player::Reanimate() {
 	fireArrows = 0;
 	staminaSkills = false;
 	staminaSkillRefusedMs.reset();
+	charge = {};
+	swingPower = 0;
+	stats.SetCharging(false);
 	stats.EndCurses();
 	stats.HealFully();
 	stats.poison.Cure();

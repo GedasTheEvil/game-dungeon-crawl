@@ -1,0 +1,12 @@
+# Plan skill-power-hit, for `bin/game --play tests/play/skill-power-hit.txt`: tests/levels/fire, a short sword, Power hit
+# learnt, the mummy in its coffin at col 13 (walk east to wake it, then fight it). Press Q: the sign beside the stamina
+# bar lights. Hold the attack (V or the mouse): the sword draws back further, a rising hum, the stamina bar drains up to
+# a quarter; let go: a heavy whoosh, a thump, a spark on the mummy and a short shake, all bigger with the charge. A tap
+# is a plain swing, free. Q off: holding swings at once, as before. With the stamina under 5: a plain swing, the sign
+# blinks. Shift does not sprint while charging; walking does. K: the Power hit card is learnt (no seal).
+seed 1
+level tests/levels/fire
+give melee 1
+equip short_sword
+heka 1
+learn power_hit

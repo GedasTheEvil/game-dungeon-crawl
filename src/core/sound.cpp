@@ -45,9 +45,11 @@ bool Sound::Load(const char filename[]) {
 	return true;
 }
 
-void Sound::Play() const {
-	if (chunk)
-		Mix_PlayChannel(-1, chunk, 0);
+int Sound::Play() const { return chunk ? Mix_PlayChannel(-1, chunk, 0) : -1; }
+
+void Sound::Stop(int channel) {
+	if (channel >= 0)
+		Mix_HaltChannel(channel);
 }
 
 Music::~Music() {

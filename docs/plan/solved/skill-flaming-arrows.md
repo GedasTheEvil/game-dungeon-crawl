@@ -1,7 +1,7 @@
 # Skill: flaming arrows
 
 Status: implemented 2026-10-19, play-tested and solved 2026-10-19 (`bin/game --play tests/play/skill-flaming-arrows.txt`). Was: draft 2026-10-14. Needs first: [fire-damage](fire-damage.md) (fire type, burning, the brazier fire
-arrows). Sibling of [skill-power-hit](../skill-power-hit.draft.opus.md): either can go in first. From the user.
+arrows). Sibling of [skill-power-hit](../skill-power-hit.md): either can go in first. From the user.
 
 ## Idea
 

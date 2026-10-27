@@ -574,21 +574,34 @@ float smooth(float k) { return k * k * (3.f - 2.f * k); }
 float mix(float a, float b, float k) { return a + (b - a) * k; }
 } // namespace
 
-SwingPose swingPose(const WeaponMotion& m, int elapsedMs) {
+int windupMs(const WeaponMotion& m) { return static_cast<int>(static_cast<float>(m.hitMs) * SWING_WINDUP_SHARE); }
+
+SwingPose chargePose(const WeaponMotion& m, int heldMs, float back) {
+	const int windup = windupMs(m);
+	const float k = windup > 0 ? std::min(1.f, static_cast<float>(heldMs) / static_cast<float>(windup)) : 1.f;
+	SwingPose pose = swingPose(m, std::min(heldMs, windup), back * k);
+	pose.draw = 0.f;
+	return pose;
+}
+
+SwingPose swingPose(const WeaponMotion& m, int elapsedMs, float back) {
 	if (elapsedMs < 0)
 		return {m.restTilt, 0.f, 0.f};
 	const auto t = static_cast<float>(elapsedMs);
 	const auto hit = static_cast<float>(m.hitMs);
 	const float windup = hit * SWING_WINDUP_SHARE;
-	const float pull = -SWING_WINDUP_PULL * m.thrust;
+	// Back: away from the strike, past the windup; a thrust (no tilt between) only draws back further.
+	const float away = m.windupTilt > m.strikeTilt ? 1.f : m.windupTilt < m.strikeTilt ? -1.f : 0.f;
+	const float windupTilt = m.windupTilt + away * SWING_CHARGE_BACK_DEG * back;
+	const float pull = -(SWING_WINDUP_PULL + SWING_CHARGE_PULL * back) * m.thrust;
 	if (t < windup) {
 		const float k = smooth(t / windup);
-		return {mix(m.restTilt, m.windupTilt, k), mix(0.f, pull, k), t / hit};
+		return {mix(m.restTilt, windupTilt, k), mix(0.f, pull, k), t / hit};
 	}
 	if (t < hit) {
 		float k = (t - windup) / (hit - windup);
 		k *= k; // gathering speed down to the strike
-		return {mix(m.windupTilt, m.strikeTilt, k), mix(pull, m.thrust, k), t / hit};
+		return {mix(windupTilt, m.strikeTilt, k), mix(pull, m.thrust, k), t / hit};
 	}
 	const auto recover = static_cast<float>(m.swingMs - m.hitMs);
 	const float k = recover > 0.f ? smooth(std::min(1.f, (t - hit) / recover)) : 1.f;

@@ -31,6 +31,12 @@ void setWalkHeld(GameplayAction move, bool held);
 void releaseWalk();
 void stepHeldWalk();
 
+// Power hit (plan skill-power-hit): once a tick, the charge drains; the attack key let go since the last tick swings
+// it. Waiting for the tick lets a key repeat's release and press (X sends both) cancel out.
+void updatePowerCharge();
+// The attack key let go (also the scenario `attack up`).
+void releaseAttack();
+
 // The gameplay action a binding runs; None for the ones handled outside it (sprint, look, the screens).
 GameplayAction gameplayActionOf(BindAction action);
 

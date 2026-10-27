@@ -37,6 +37,10 @@ void PlayerStats::UpdateStamina(WorldEvents& events) {
 		return;
 	}
 
+	if (charging) { // a power hit's charge (plan skill-power-hit): its own drain, no sprint, no regen
+		sprinting = false;
+		return;
+	}
 	// Standing still (or against a wall) with shift held is plain standing: no drain, no refusal.
 	if (!sprint_requested || !moved || stamina <= 0) {
 		if (sprint_requested && moved)
@@ -66,7 +70,7 @@ void PlayerStats::UpdateStamina(WorldEvents& events) {
 }
 
 float PlayerStats::SprintMoveMultiplier() const {
-	if (!sprint_requested || stamina <= 0)
+	if (!sprint_requested || stamina <= 0 || charging)
 		return 1.f;
 	return curses.Has(Curse::Slowness) ? SLOWNESS_SPRINT_MULTIPLIER : SPRINT_MULTIPLIER;
 }

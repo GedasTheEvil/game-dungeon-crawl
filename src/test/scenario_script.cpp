@@ -151,6 +151,14 @@ bool onOff(const Args& args, Command& cmd) {
 	return true;
 }
 
+// attack [up]: the key pressed (a = 0), or let go (a = 1): a power hit's charge swings (plan skill-power-hit).
+bool parseAttack(const Args& args, Command& cmd) {
+	if (args.size() > 1 || (args.size() == 1 && args[0] != "up"))
+		return false;
+	cmd.a = args.empty() ? 0.f : 1.f;
+	return true;
+}
+
 // A number of at least `min` -> a.
 template <int MIN> bool numberAtLeast(const Args& args, Command& cmd) {
 	return args.size() == 1 && parseFloat(args[0], cmd.a) && cmd.a >= static_cast<float>(MIN);
@@ -442,7 +450,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"sprint", CommandType::Sprint, onOff, "<on|off>"},
 		{"motion", CommandType::Motion, onOff, "<on|off>"},
 		{"jump", CommandType::Jump, noArgs, ""},
-		{"attack", CommandType::Attack, noArgs, ""},
+		{"attack", CommandType::Attack, parseAttack, "[up] (up: the key let go, a power hit's charge swings)"},
 		{"interact", CommandType::Interact, noArgs, ""},
 		{"camera", CommandType::Camera, twoNumbers, "<rotM> <rotN>"},
 		{"toon", CommandType::Toon, onOff, "<on|off>"},

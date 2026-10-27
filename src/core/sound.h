@@ -24,7 +24,9 @@ class Sound : AudioUser {
 	Sound() = default;
 	~Sound();
 	bool Load(const char filename[]);
-	void Play() const;
+	// The channel it plays on, for Stop; -1: none (not loaded, no free channel).
+	int Play() const;
+	static void Stop(int channel); // -1: nothing
 };
 
 // Looped background music (OGG).

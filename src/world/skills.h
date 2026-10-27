@@ -54,6 +54,8 @@ class Heka {
 	[[nodiscard]] int Free() const { return Earned() - Spent(); }
 	[[nodiscard]] int Spent() const;
 	[[nodiscard]] bool Has(SkillId id) const { return (learned & bit(id)) != 0; }
+	// One that the stamina-skill toggle switches: flaming arrows, power hit.
+	[[nodiscard]] bool HasStaminaSkill() const { return Has(SkillId::FlamingArrows) || Has(SkillId::PowerHit); }
 	// Not learnt yet, not sealed, and a heka free.
 	[[nodiscard]] bool CanLearn(SkillId id) const;
 	// Spends a heka on it; false (nothing spent) unless CanLearn. Force: also a sealed one (scenario `learn`).

@@ -309,7 +309,9 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Jump:
 	case CommandType::Attack:
 	case CommandType::Interact:
-		if (ScreenState::IsGameplayInteractionAllowed(Game()))
+		if (cmd.type == CommandType::Attack && cmd.a > 0.f)
+			releaseAttack();
+		else if (ScreenState::IsGameplayInteractionAllowed(Game()))
 			executeGameplayAction(
 				cmd.type == CommandType::Jump	  ? GameplayAction::Jump
 				: cmd.type == CommandType::Attack ? GameplayAction::Attack

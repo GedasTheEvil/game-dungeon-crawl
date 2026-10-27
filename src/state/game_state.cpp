@@ -169,6 +169,8 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.sunDisc;
 	case WorldSound::Dodge:
 		return sounds.dodge;
+	case WorldSound::PowerHit:
+		return sounds.powerHit;
 	case WorldSound::LidWood:
 		return sounds.lidWood;
 	case WorldSound::LidReed:

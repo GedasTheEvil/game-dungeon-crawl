@@ -11,7 +11,7 @@ lore: Thoth, lord of writing, opens the carved words on the walls.
 lore: Step aside at the last moment: a bite or a sting may find only air.
 
 [skill.power-hit]
-lore: Put your back into it: more damage a swing, paid in stamina.
+lore: Put your back into it: hold the blow, and the longer, the harder it lands. Paid in stamina.
 
 [skill.sharp-eye]
 lore: Horus lends an eye: bows, sling, javelin and throwing stick carry farther.

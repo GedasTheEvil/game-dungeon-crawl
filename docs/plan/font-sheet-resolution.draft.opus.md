@@ -9,8 +9,8 @@ higher resolution with the tool we have. There is no Papyrus TTF: use Parchment 
 
 * Every font is a 512 x 512 grey sheet in `media/textures/fonts/`: 10 x 10 cells of 51.2 px, printable ASCII
   (`Font::Load`, `src/graphics/font.cpp`). Papyrus is all the UI and HUD text (`src/ui/ui_draw.cpp`,
-  `src/state/assets.cpp`), kalam the journal's hand, courier its numbers, impact the HUD numbers. `papyrus_i.png`
-  is loaded nowhere.
+  `src/state/assets.cpp`), kalam the journal's hand, courier its numbers, impact the level gem's number
+  (`level_gem.cpp`). `papyrus_i.png` is loaded nowhere.
 * The menu title (size 8) and banners (7) stretch a 51 px cell over far more screen pixels: blurred edges
   (`TexFilter::Flat`, plain linear, no mipmaps so the cells do not bleed).
 * The tool: `tools/textures/font_sheet.py FONT.ttf out.png [--weight W]` draws each glyph at 4x and downsamples it,
@@ -33,7 +33,7 @@ higher resolution with the tool we have. There is no Papyrus TTF: use Parchment 
 * Narrower glyphs: lines get shorter, nothing should overflow. Check the screens with long text (riddle, inventory
   details, credits, journal buttons) for layouts that relied on Papyrus widths.
 * Regenerate kalam and courier at 2048 too (their TTFs are free: kalam OFL, courier Bitstream; fetch them if they
-  are not on the machine). impact stays at 512 unless its TTF turns up.
+  are not on the machine). impact stays at 512: the level gem looks fine (the user, 2026-10-28).
 * Small text minifies a 2048 sheet a lot: with plain linear it can shimmer. If it does: mipmaps with the level count
   capped so a cell stays at least a few px (`GL_TEXTURE_MAX_LEVEL`, cells padded), or 1024 instead of 2048.
 * Screenshots (`tests/scenarios/`): the menu, a HUD banner, a riddle, the inventory, the journal. Old sheet vs new.

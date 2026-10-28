@@ -1,0 +1,27 @@
+# A climber crossing a ladder cell (plan climber-crosses-ladder), tests/levels/climb_cross: the rat chases the player
+# left along the corridor over the ladder shaft (col 7, no floor under it), its back to the camera and its climb clip
+# on the rungs, the grip at the rails; its walk clip again past them.
+resolution 1600 1200
+seed 1
+god
+level tests/levels/climb_cross
+wait 30
+walk to 9.5
+wait 300ms
+walk to 6.5
+wait 1200ms
+wait 400ms
+screenshot rat_crossing_0
+wait 400ms
+screenshot rat_crossing_1
+wait 400ms
+screenshot rat_crossing_2
+wait 400ms
+screenshot rat_crossing_3
+wait 400ms
+screenshot rat_crossing_4
+wait 400ms
+screenshot rat_crossing_5
+walk to 4.5
+wait 1500ms
+screenshot rat_past

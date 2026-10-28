@@ -71,14 +71,15 @@ float Monster::ClimbDepth() const {
 }
 
 // One cycle of the clip per climbRise of height, so the gripping paws stay on the rungs; it runs backwards going down
-// and holds when it stops.
+// and holds when it stops. Along the rungs it runs at CLIMB_SIDE_RATE, as the player's (plan climber-crosses-ladder).
 void Monster::showClimb() {
 	const ClipInfo& clip = type->model.Clip(ModelState::Climb);
 	const float cycle = type->climbRise * type->model.referenceTop * type->scale * Figures::Scale();
 	if (!clip.present || clip.frames < 1 || cycle <= 0.f)
 		return;
-	const float height = static_cast<float>(row) * RenderConfig::TILE_SIZE + climbLift();
-	const float phase = height / cycle - std::floor(height / cycle);
+	const float climbed = (static_cast<float>(row) + CLIMB_SIDE_RATE * CentreX()) * RenderConfig::TILE_SIZE +
+						  climbLift();
+	const float phase = climbed / cycle - std::floor(climbed / cycle);
 	const auto frames = static_cast<float>(clip.frames);
 	playback[static_cast<size_t>(ModelState::Climb)] = {std::min(phase * frames, frames - 0.001f), 0};
 }

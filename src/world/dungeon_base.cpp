@@ -16,7 +16,6 @@
 
 namespace {
 constexpr float LADDER_REACH = 0.2f; // closer to LADDER_GRIP_X than this (tiles), the player holds on to the ladder
-constexpr float CLIMB_SIDE_RATE = 0.5f;
 } // namespace
 
 bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < MAP_WIDTH && row >= 0 && row < MAP_HEIGHT; }

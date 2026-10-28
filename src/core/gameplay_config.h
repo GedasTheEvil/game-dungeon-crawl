@@ -19,6 +19,9 @@ constexpr float PLAYER_FORWARD_MOVE_STEP = 0.9f * PLAYER_MOVE_STEP; // climbing 
 // tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw). Climbing pulls the
 // player there.
 constexpr float LADDER_GRIP_X = 0.45f;
+// The climb clip's phase per tile moved along the rungs, as a share of a tile climbed: the hands move on a sideways
+// climb too (Dungeon::ClimbPhase, Monster::showClimb).
+constexpr float CLIMB_SIDE_RATE = 0.5f;
 
 constexpr float JUMP_FORWARD_SPEED = 0.054f;
 constexpr float JUMP_INITIAL_VELOCITY = 0.085f;

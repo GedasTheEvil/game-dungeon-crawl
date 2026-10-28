@@ -439,6 +439,7 @@ class Monster {
 	// Map units from the spawn tile's column; on its way out of a wall, between the wall and its cell.
 	[[nodiscard]] float LocalX() const;
 	[[nodiscard]] ModelState State() const { return state; }
+	[[nodiscard]] ModelState ShownState() const { return ShowsClimb() ? ModelState::Climb : state; }
 	[[nodiscard]] const ClipPlayback& Playback() const { return playback; }
 	[[nodiscard]] int Facing() const { return facing; }
 	// World units off the row's floor it is drawn at: lift(), but a flyer not placed yet is drawn below the floor.
@@ -449,7 +450,11 @@ class Monster {
 	[[nodiscard]] float Tomb() const { return tomb; }
 	// Climbing: world units it is drawn towards the wall (< 0), so its grip meets the ladder's rails; 0 otherwise.
 	[[nodiscard]] float ClimbDepth() const;
-	[[nodiscard]] bool ShowsClimb() const { return Alive() && state == ModelState::Climb; } // back to the camera
+	// Back to the camera: climbing, or walking or standing on the rungs (plan climber-crosses-ladder).
+	[[nodiscard]] bool ShowsClimb() const {
+		return Alive() &&
+			   (state == ModelState::Climb || (rungs && (state == ModelState::Move || state == ModelState::Idle)));
+	}
 	[[nodiscard]] bool Roosting() const { return flies() && flight.phase == FlightPhase::Roost; }
 	// A flyer's screech tell is under way: it hangs still in the air and shakes (plan giant-bat-screech).
 	[[nodiscard]] bool Screeching() const { return flies() && flight.tellUntilMs >= 0; }

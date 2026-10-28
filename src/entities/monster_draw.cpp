@@ -130,7 +130,7 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 		glRotatef(roll * static_cast<float>(mon.Facing()), 0, 0, 1);
 		glTranslatef(0, -middle, 0);
 	}
-	model.Show(mon.State(), mon.Playback());
+	model.Show(mon.ShownState(), mon.Playback());
 
 	glPopMatrix();
 	glPopMatrix();

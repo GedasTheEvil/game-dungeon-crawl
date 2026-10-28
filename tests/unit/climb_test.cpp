@@ -147,6 +147,38 @@ TEST_CASE("a climber gives up once the player is out of its path's reach") {
 	CHECK(rat->CentreX() - world.X() > 8.f);
 }
 
+TEST_CASE("a climber crossing a ladder cell with no floor under it shows the climb clip there") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_cross"));
+	world.player.god = true;
+	REQUIRE(world.dungeon.SpawnMonster(11, static_cast<int>(std::floor(world.Y())))); // as in view
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	// Up to the rat, so it chases the player, then back over the ladder cell (col 7) to the left end, the rat after
+	// them.
+	REQUIRE(world.WalkTo(9.5f));
+	world.Wait(300);
+	REQUIRE(rat->Alerted());
+	constexpr int LADDER_COL = 7;
+	int before = 0, on = 0, after = 0, wrong = 0;
+	for (int t = 0; t < 1500 && after < 10; t++) {
+		const auto cell = static_cast<int>(std::floor(rat->CentreX())); // where the tick finds it (OnRungs)
+		if (world.X() > 2.f)
+			world.Step(-1);
+		world.Tick();
+		const bool shown = rat->ShowsClimb() && rat->ShownState() == ModelState::Climb;
+		if (rat->State() != ModelState::Move)
+			continue; // biting
+		int& seen = cell > LADDER_COL ? before : cell == LADDER_COL ? on : after;
+		seen++;
+		wrong += shown != (cell == LADDER_COL) ? 1 : 0;
+	}
+	CHECK(before > 0);
+	CHECK(on > 0);
+	CHECK(after > 0);
+	CHECK(wrong == 0);
+}
+
 TEST_CASE("a climber killed on the rungs drops down the shaft to the floor") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/climb_up"));

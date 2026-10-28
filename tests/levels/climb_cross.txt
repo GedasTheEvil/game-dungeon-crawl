@@ -1,0 +1,7 @@
+; A corridor over a ladder shaft (col 7: no floor under that cell), a rat on its right (col 11): it chases the player
+; along the corridor across the ladder cell, on the rungs (tests/unit/climb_test.cpp, tests/scenarios/climber_cross.txt).
+####################
+#S.....H...t.....E.#
+#######H############
+#......H...........#
+####################

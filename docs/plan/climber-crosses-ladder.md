@@ -1,6 +1,6 @@
 # A climber crossing a ladder cell shows the climb clip
 
-Status: draft 2026-10-28, needs nothing first. From the user: a climber followed me along a straight corridor with
+Status: implemented 2026-10-28 (open point: the whole ladder cell switches, no flicker); was draft 2026-10-28, needs nothing first. From the user: a climber followed me along a straight corridor with
 one ladder cell in it (no floor under it). It walked across that cell with its walk clip, as if on air. It should
 switch to the climb clip there.
 

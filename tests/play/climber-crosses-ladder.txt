@@ -1,0 +1,7 @@
+# Plan climber-crosses-ladder, for `bin/game --play tests/play/climber-crosses-ladder.txt`: tests/levels/climb_cross, a
+# corridor with one ladder cell (col 7, no floor under it) and a rat on its right. Stand left of the ladder (walk
+# left past it) and let the rat chase you: on the ladder cell it shows its back with the climb clip, paws on the rails;
+# past it, the walk clip again.
+seed 1
+god
+level tests/levels/climb_cross

@@ -1,0 +1,10 @@
+; A ladder (col 6) from the lower floor up to the upper one, past a ledge on its right (row 4, cols 7-11), a rat on
+; the lower floor (col 12): the player steps off onto the ledge and the rat leaves the rungs to bite
+; (tests/unit/climb_test.cpp, plan climber-off-the-rungs).
+####################
+#S....H........E...#
+######H#############
+######H.....########
+######H#############
+#.....H.....t......#
+####################

@@ -1,6 +1,6 @@
 # A climber in reach leaves the rungs to fight
 
-Status: draft 2026-10-28, needs nothing first. From the user: when a monster climbs after me, I can step off the
+Status: draft 2026-10-28, implemented 2026-10-28, needs nothing first. From the user: when a monster climbs after me, I can step off the
 ladder and keep hitting it, and it stays on the ladder. It should find ground to attack me from.
 
 ## Today
@@ -33,3 +33,16 @@ ladder and keep hitting it, and it stays on the ladder. It should find ground to
 * Whether the step off counts as the climb's end, or a short walk off the ladder column (`WalkPath`) once the climb
   ended. Check the climb clip does not snap.
 * Check the player cannot still kite it: stepping back onto the ladder as the climber steps off, then off again.
+
+## Done (2026-10-28)
+
+* `Dungeon::rungsExit`: a climber on the rungs with the player on its row and in reach walks off them
+  (`WalkPath`), to the floor cell on the player's side first, else the other side; then the walker's rules bite.
+  One code path for every climber and climber boss. The climb ends as before (`climbEnd`); the step off is a walk
+  with the climb clip while on the rung cell (`ShowsClimb`), so no snap.
+* Kiting: the player cannot attack from the rungs ([no-attack-on-ladder](solved/no-attack-on-ladder.md)), so going
+  back onto the ladder buys nothing. A climber does not follow onto the player's rung cell: it stands against the
+  ladder, and once the player steps off either side it crosses the rungs and bites.
+* Tests (`tests/unit/climb_test.cpp`, failing before the fix): the top of the ladder (`climb_up`), a mid-shaft ledge
+  (`tests/levels/climb_ledge`), on and off the ladder.
+* Play-test: `bin/game --play tests/play/climber-off-the-rungs.txt`.

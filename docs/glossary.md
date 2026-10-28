@@ -118,7 +118,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | burrower | | dives into the floor and comes up elsewhere on its row (Apep) | `Locomotion::Burrow`, `Burrow` |
 | sand burrower | | lies under the sand from its spawn, comes up under the player in its sand (the worm); Rerek wakes and dives from farther, swims faster and every other dive comes up past the player ([worm-boss](plan/solved/worm-boss.md)). Drawn up onto the sand (`SAND_BURROWER_LIFT`) | `MonsterKind::sandBurrow`, `SandBurrowRules`, `Dungeon::sandTarget` |
 | charge | | a rush along its row through the player after a wind-up (Sobek, the hippo, Seth); range and speed per kind | `Charge`, `ChargeRules`, `MonsterKind::charge` |
-| climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath` |
+| climber | | a monster that follows the player up and down ladders once it has seen them ([monster-climbers](plan/solved/monster-climbers.md)) | `MonsterKind::climbs`, `ClimbMap`, `Dungeon::followPath`; in reach on the rungs it steps off to bite ([climber-off-the-rungs](plan/climber-off-the-rungs.md), `Dungeon::rungsExit`) |
 | coiled | | lies coiled until the player comes near, then rears up (the cobra) | `Locomotion::Coiled` |
 | courage | | whether a monster sets foot on a trap: coward or reckless | `Courage` |
 | coward | | afraid of traps: a walker stops at their edge, a walk-jumper leaps over them | `Courage::Coward` |

@@ -1,0 +1,7 @@
+# Plan climber-off-the-rungs, for `bin/game --play tests/play/climber-off-the-rungs.txt`: tests/levels/climb_ledge, a
+# ladder (col 6) from the upper floor down past a ledge on its right to the lower floor, a rat there. Climb down to
+# the lower floor and let the rat see you, climb back up to the ledge and step off onto it, then turn: the rat climbs
+# after you, steps off the rungs onto the ledge and bites. Same at the top: step off left or right of the top rung.
+# Stepping back onto the ladder (no attack from there) and off again does not shake it off.
+seed 1
+level tests/levels/climb_ledge

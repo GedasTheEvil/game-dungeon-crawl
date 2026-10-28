@@ -210,6 +210,19 @@ int Dungeon::climbEnd(int col, int row) const {
 	return r;
 }
 //======================================================================================
+// No bite from the rungs (plan climber-off-the-rungs): the side it steps off to, where it stands on a floor; the
+// player's side first, so standing next to a ladder is no safe spot. 0: not on the rungs, or no floor either side.
+int Dungeon::rungsExit(const Monster& mon) const {
+	if (!mon.OnRungs())
+		return 0;
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	const int towards = mapX < mon.CentreX() ? -1 : 1;
+	for (const int side : {towards, -towards})
+		if (!walkerBlocked(col + side, mon.Row(), mon.reckless()))
+			return side;
+	return 0;
+}
+//======================================================================================
 bool Dungeon::followPath(Monster& mon, int dir) {
 	if (!mon.climbs() || !mon.Alerted())
 		return false;
@@ -221,6 +234,10 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	const auto playerRow = static_cast<int>(std::floor(mapY + STANDING_EPSILON));
 	if (mon.sameRow(mapY) && (dir == 0 || walkerReaches(mon, dir))) {
 		mon.SawWay(playerCol, playerRow);
+		if (const int off = rungsExit(mon); off != 0) {
+			mon.WalkPath(off, false);
+			return true;
+		}
 		return false; // the walker's rules: chase along the row and bite
 	}
 	const ClimbAbility how{mon.reckless(), leaps(mon.Type()->locomotion)};

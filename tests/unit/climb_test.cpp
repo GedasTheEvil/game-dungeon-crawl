@@ -200,3 +200,71 @@ TEST_CASE("a climber killed on the rungs drops down the shaft to the floor") {
 	CHECK(!rat->Climbing());
 	CHECK(rat->DrawnLift() == doctest::Approx(0.f));
 }
+
+namespace {
+// The player stands at x on the row the rat climbs to, no longer in god mode: true once the rat has bitten them
+// within ms, off the rungs.
+bool bitesOffTheRungs(SimWorld& world, const Monster& rat, int ms) {
+	world.player.god = false;
+	const int hp = world.player.stats.CurrentHP();
+	for (int t = 0; t < ms; t += UPDATE_TICK_MS) {
+		world.Tick();
+		if (world.player.stats.CurrentHP() < hp)
+			return !rat.OnRungs();
+	}
+	return false;
+}
+} // namespace
+
+TEST_CASE("a climber in reach at the top of the ladder steps off the rungs and bites") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_up"));
+	world.player.god = true;
+	const auto upper = static_cast<int>(world.Y());
+	showAndFlee(world, 9.f, 5.7f); // just left of the top rung (col 6)
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	for (int t = 0; t < 1500 && rat->Row() != upper; t++)
+		world.Tick();
+	REQUIRE(rat->Row() == upper);
+	CHECK(bitesOffTheRungs(world, *rat, 4000));
+}
+
+TEST_CASE("a climber in reach at a ledge beside the shaft steps off the rungs and bites") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_ledge"));
+	world.player.god = true;
+	REQUIRE(world.WalkTo(6.45f));
+	REQUIRE(world.Climb(-3.97f));
+	REQUIRE(world.WalkTo(9.f));
+	world.Wait(500); // it has seen the player
+	REQUIRE(world.WalkTo(6.45f));
+	REQUIRE(world.Climb(2.f));
+	const auto ledge = static_cast<int>(world.Y() + STANDING_EPSILON);
+	REQUIRE(world.WalkTo(7.3f)); // just right of the rungs (col 6)
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	for (int t = 0; t < 1500 && rat->Row() != ledge; t++)
+		world.Tick();
+	REQUIRE(rat->Row() == ledge);
+	CHECK(bitesOffTheRungs(world, *rat, 4000));
+}
+
+TEST_CASE("the player cannot kite a climber on and off the ladder") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_up"));
+	world.player.god = true;
+	const auto upper = static_cast<int>(world.Y());
+	showAndFlee(world, 9.f, 5.7f);
+	const Monster* rat = firstMonster(world);
+	REQUIRE(rat != nullptr);
+	for (int t = 0; t < 2000 && (rat->Row() != upper || rat->OnRungs()); t++)
+		world.Tick();
+	REQUIRE(!rat->OnRungs());
+	// Onto the top rung (no attack from there, no-attack-on-ladder), then off it on the other side: the rat crosses
+	// the rungs after them and bites.
+	REQUIRE(world.WalkTo(6.45f));
+	world.Wait(1000);
+	REQUIRE(world.WalkTo(7.3f));
+	CHECK(bitesOffTheRungs(world, *rat, 4000));
+}

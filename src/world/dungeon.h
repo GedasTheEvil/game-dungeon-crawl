@@ -199,8 +199,11 @@ class Dungeon {
 	// closes in beyond its band, cornered it closes in nearer than near, or bites the player in reach).
 	bool kite(Monster& mon, int dir);
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
-	// or out of its reach along it; dir: Monster::attackDirection. False: the walker's rules go on (no path, given up).
+	// or out of its reach along it; dir: Monster::attackDirection. On the rungs with the player in reach, it steps off
+	// them (rungsExit). False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);
+	// A climber on the rungs with the player in reach: the way off them to a floor, -1 / +1; 0: none.
+	[[nodiscard]] int rungsExit(const Monster& mon) const;
 	// Flyers (dungeon_flight.cpp, plan bats-high-ceiling): whether it sees the player, the row it heads for and the way
 	// there.
 	[[nodiscard]] FlightGoal flightGoal(const Monster& mon) const;

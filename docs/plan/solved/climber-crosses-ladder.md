@@ -6,7 +6,7 @@ switch to the climb clip there.
 
 ## Today
 
-* A climber's path ([monster-climbers](solved/monster-climbers.md)) counts a ladder cell as a cell it can stand on
+* A climber's path ([monster-climbers](monster-climbers.md)) counts a ladder cell as a cell it can stand on
   (`ClimbMap::Stands`), so along a row `Dungeon::followPath` walks it across a ladder cell with no floor under it
   (`WalkPath`, `ModelState::Move`).
 * `Dungeon::UpdateMonsters` (`dungeon_monsters.cpp`) already marks it `OnRungs` there (a ladder, no floor under it), so
@@ -32,5 +32,5 @@ switch to the climb clip there.
 * Tests: a unit test (sim harness, `tests/unit/climb_test.cpp`): a rat chasing the player along a row over a ladder
   cell with no floor under it shows `ShowsClimb()` on that cell and not before or after. A scenario in
   `tests/scenarios/` with a screenshot of a climber halfway across, to check the clip and the depth by eye.
-* Related: [climber-off-the-rungs](climber-off-the-rungs.draft.opus.md) also changes what a climber does `OnRungs`;
+* Related: [climber-off-the-rungs](../climber-off-the-rungs.draft.opus.md) also changes what a climber does `OnRungs`;
   if both are implemented together, keep one notion of "on the rungs".

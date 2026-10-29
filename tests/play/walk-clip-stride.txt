@@ -1,0 +1,7 @@
+# Plan walk-clip-stride, for `bin/game --play tests/play/walk-clip-stride.txt`: tests/levels/walk_stride_parade, god
+# mode. Walkers come down the corridor one by one as you walk east: an Anubis guard, a scarab (faster now), a scorpion,
+# a camel spider, a giant scarab, a giant scorpion. Their legs keep pace with their walk: a planted foot stays on the
+# floor, and in the half water by the start (cols 4-6) the legs slow down with the wade. Kill each to see the next.
+seed 1
+level tests/levels/walk_stride_parade
+god

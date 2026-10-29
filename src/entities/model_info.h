@@ -33,7 +33,7 @@ using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 // Steps p through a clip of frameCount frames on the clock: speed / 25 frames every FRAME_STEP_MS. A looping clip
 // starts over, a one-shot one holds its last frame.
 constexpr int FRAME_STEP_MS = 100;
-void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed);
+void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, float speed);
 // The frame one step of AdvancePlayback moves frame to.
 [[nodiscard]] float NextFrame(float frame, int frameCount, bool loop, float step);
 
@@ -201,8 +201,10 @@ struct ModelInfo {
 	void Enter(ModelState& current, ModelState state, ClipPlayback& playback) const;
 	void Advance(ModelState state, ClipPlayback& playback) const;
 	// Advance with the rise clip run in riseMs (rounded up to FRAME_STEP_MS steps); riseMs 0: CLIP_SPEED. The walk
-	// clip (Move) plays at walkSpeed (plan anubis-walk-clip-speed).
-	void Advance(ModelState state, ClipPlayback& playback, int riseMs, int walkSpeed = CLIP_SPEED) const;
+	// clip (Move) plays at walkSpeed (WalkSpeed).
+	void Advance(ModelState state, ClipPlayback& playback, int riseMs, float walkSpeed = CLIP_SPEED) const;
+	// AdvancePlayback's speed that plays the walk clip (Move) cyclesPerSecond times a second (plan walk-clip-stride).
+	[[nodiscard]] float WalkSpeed(float cyclesPerSecond) const;
 	// A one-shot clip (die, jump) has reached its last frame.
 	[[nodiscard]] bool Finished(ModelState state, const ClipPlayback& playback) const;
 	// Of a one-shot clip: 0 at its first frame, 1 at its last.

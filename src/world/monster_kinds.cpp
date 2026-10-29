@@ -214,6 +214,24 @@ constexpr Resistances bossResist(Resistances kin) {
 // first zone of the rebuilt campaign (campaign.h ZONE_FAUNA), a boss against the player of its level with up to four
 // large health potions; deeper down a monster is easier. A weak one costs that player about 6% of their HP, a giant
 // 20%, a boss two or three potions.
+// Walk strides (MonsterKind::walkStride, plan walk-clip-stride), model units. Measured from the walk clips: how far a
+// planted foot goes back in one round (tools/blender/md3_stride.py).
+constexpr float ANUBIS_STRIDE = 0.78f;
+constexpr float BABOON_STRIDE = 0.92f; // the baboon's and Babi's trot
+constexpr float CAMEL_SPIDER_STRIDE = 0.54f;
+constexpr float CROCODILE_STRIDE = 0.12f;
+constexpr float HIPPO_STRIDE = 0.19f;
+constexpr float MUMMY_STRIDE = 0.98f;
+constexpr float MUMMY_PRIEST_STRIDE = 0.93f;
+constexpr float SCARAB_STRIDE = 0.29f;
+constexpr float SCORPION_STRIDE = 0.26f;
+// Not a stride (a gallop, a crawl, a slither, a waddle, a hop): the pace they had at the usual clip speed.
+constexpr float RAT_STRIDE = 2.3f;
+constexpr float WORM_STRIDE = 0.3f;
+constexpr float COBRA_STRIDE = 0.85f;
+constexpr float USHABTI_STRIDE = 1.6f;
+constexpr float CURSED_CHEST_STRIDE = 3.f;
+
 constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	{.id = MonsterScarab,
 	 .glyph = 's',
@@ -225,7 +243,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/scarab",
 	 .scale = 7,
 	 .blood = SCARAB_BLOOD,
-	 .speed = 4,
+	 .speed = 6,
 	 .maxHealth = 14,
 	 .damage = 4,
 	 .attackMs = 600,
@@ -233,6 +251,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = SCARAB_MIX,
 	 .resist = SCARAB_RESIST,
 	 .weight = 1,
+	 .walkStride = SCARAB_STRIDE,
 	 .generated = {1, 5, 4}},
 	{.id = MonsterWorm,
 	 .glyph = 'w',
@@ -252,6 +271,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = WORM_MIX,
 	 .resist = WORM_RESIST,
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
+	 .walkStride = WORM_STRIDE,
 	 .sandBurrow = SandBurrowRules{},
 	 .generated = {3, 7, 2}},
 	{.id = MonsterPlant,
@@ -320,7 +340,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 },
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 15}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 20}},
-	 .walkClipSpeed = 70, // twice the usual, so the feet do not slide (plan anubis-walk-clip-speed)
+	 .walkStride = ANUBIS_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
@@ -344,6 +364,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Lesser, 10}},
+	 .walkStride = RAT_STRIDE,
 	 .answersCall = true,
 	 .climbs = true,
 	 .climbRise = 1.068f, // tools/blender/models/rat.py
@@ -370,6 +391,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .waterSpeed = 1.f,
 	 .meleeCurses =
 		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
+	 .walkStride = RAT_STRIDE,
 	 .call = CallRules{RAT_CALL_RADIUS, RAT_CALL_BELOW_PCT}, // plan giant-rat-pack-call
 	 .answersCall = true,
 	 .pounce = GIANT_RAT_POUNCE,
@@ -450,7 +472,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/scarab_giant",
 	 .scale = 24,
 	 .blood = {0.4f, 0.05f, 0.55f},
-	 .speed = 3,
+	 .speed = 4.5f,
 	 .maxHealth = 340,
 	 .damage = 15,
 	 .attackMs = 1000,
@@ -459,6 +481,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCARAB_RESIST,
 	 .locomotion = Locomotion::WalkJump,
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
+	 .walkStride = SCARAB_STRIDE,
 	 .roll = GIANT_SCARAB_ROLL,
 	 .pounce = GIANT_SCARAB_POUNCE,
 	 .generated = {5, 10, 3}},
@@ -475,7 +498,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/scarab_boss",
 	 .scale = 34,
 	 .blood = {0.1f, 0.2f, 0.75f},
-	 .speed = 3.5f,
+	 .speed = 5.25f,
 	 .maxHealth = 400,
 	 .damage = 8,
 	 .attackMs = 900,
@@ -486,6 +509,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .meleeCurses =
 		 {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6}, CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
+	 .walkStride = SCARAB_STRIDE,
 	 .roll = KHEPRI_ROLL,
 	 .pounce = KHEPRI_POUNCE,
 	 .kin = MonsterScarab,
@@ -541,6 +565,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .meleeCurses =
 		 {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2}, CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
 	 .riseMs = 1000,
+	 .walkStride = MUMMY_STRIDE,
 	 .sunBurns = true,
 	 .climbs = true,
 	 .climbRise = 0.741f, // tools/blender/models/mummy.py
@@ -588,7 +613,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		 },
 	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .rangedCurses = {CurseEntry{Curse::Palsy, CurseGrade::Lesser, 40}},
-	 .walkClipSpeed = 76, // its walk is 25/23 of the guard's: the same stride (plan anubis-walk-clip-speed)
+	 .walkStride = ANUBIS_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.351f, // tools/blender/models/anubis.py
 	 .climbGrip = 0.119f,
@@ -629,6 +654,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 3,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f,
+	 .walkStride = CROCODILE_STRIDE,
 	 .hold = CROCODILE_HOLD},
 	// Small and quick like the rat, a slower sting that poisons; levels from the scorpion queen's (plan
 	// poison-and-antidote).
@@ -652,6 +678,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .poison = PoisonTier::Weak,
 	 .poisonResistPercent = POISONER_RESIST,
+	 .walkStride = SCORPION_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
 	 .climbGrip = 0.25f},
@@ -680,7 +707,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .ranged = RangedRules{10, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
-	 .riseMs = 750},
+	 .riseMs = 750,
+	 .walkStride = COBRA_STRIDE},
 	// The cobra's giant kin, levels after Apep (plan giant-cobra).
 	{.id = MonsterGiantCobra,
 	 .glyph = 'Q',
@@ -716,7 +744,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .blindPercent = GIANT_COBRA_BLIND_PERCENT
 		 },
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
-	 .riseMs = 750},
+	 .riseMs = 750,
+	 .walkStride = COBRA_STRIDE},
 	// The scorpion's giant kin and the scorpion queen's minion: medium poison (plan scorpion-queen-boss).
 	{.id = MonsterGiantScorpion,
 	 .glyph = 'J',
@@ -737,6 +766,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCORPION_RESIST,
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
+	 .walkStride = SCORPION_STRIDE,
 	 .hold = GIANT_SCORPION_HOLD,
 	 .climbs = true,
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
@@ -786,6 +816,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 .walkStride = SCORPION_STRIDE,
 	 .hold = SCORPION_QUEEN_HOLD,
 	 .climbs = true,
 	 .climbRise = 0.932f, // tools/blender/models/scorpion.py
@@ -834,6 +865,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .blindPercent = 100
 		 },
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
+	 .walkStride = COBRA_STRIDE,
 	 .kin = MonsterCobra,
 	 .boss = {MonsterCobra, 2, 3, 3000, 10, 0, Summon::DigOut}},
 	// The cisterns' boss on the crocodile model (plan sobek-boss).
@@ -860,6 +892,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 5,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 2.5f,
+	 .walkStride = CROCODILE_STRIDE,
 	 .charge = ChargeRules{},
 	 .hold = SOBEK_HOLD,
 	 .kin = MonsterCrocodile,
@@ -943,6 +976,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 		  CurseEntry{Curse::Slowness, CurseGrade::Lesser, 25},
 		  CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 30}},
 	 .riseMs = 1000,
+	 .walkStride = MUMMY_PRIEST_STRIDE,
 	 .sunBurns = true,
 	 .climbs = true,
 	 .climbRise = 0.65f, // tools/blender/models/mummy_priest.py
@@ -970,7 +1004,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = CAMEL_SPIDER_MIX,
 	 .resist = CAMEL_SPIDER_RESIST,
 	 .weight = 1,
-	 .walkClipSpeed = 60,
+	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .generated = {3, 8, 2}},
 	// The hippo (plan hippo), the deadliest animal of the Nile: lies under the water like the crocodile, comes out
@@ -998,6 +1032,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 3.f,
+	 .walkStride = HIPPO_STRIDE,
 	 .charge = ChargeRules{HIPPO_CHARGE_MIN, HIPPO_CHARGE_MAX, HIPPO_CHARGE_SPEED}},
 	// The living ushabti (plan living-ushabti), the overseer of the servant figures buried to work for the dead: it
 	// stands among the decor ushabti on its cell (scatterProps) until the player comes near. Small, slow, a few HP,
@@ -1025,6 +1060,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .riseMs = 900,
+	 .walkStride = USHABTI_STRIDE,
 	 .generated = {6, 10, 1}},
 	// The cursed mimic (plan cursed-mimic): the mimic's darker kin, a chest until woken like it, then it hops after
 	// the player and leaps the pits (Locomotion::AmbushHop), a bit slower than their walk. The only source of insanity.
@@ -1049,7 +1085,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = MIMIC_RESIST,
 	 .locomotion = Locomotion::AmbushHop,
 	 .poisonResistPercent = POISON_IMMUNE,
-	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}}},
+	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}},
+	 .walkStride = CURSED_CHEST_STRIDE},
 	// Seth, the red hippopotamus (plan hippo-boss), on the hippo model: the hippo's lurk and charge, farther and
 	// faster, and his storm roar as a stun ends. A spear is his bane, as Horus's harpoon: pierce stays normal while he
 	// resists blows. The boss of the desert chapter's oasis.
@@ -1079,6 +1116,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 6,
 	 .wading = Wading::Swimmer,
 	 .waterSpeed = 3.f,
+	 .walkStride = HIPPO_STRIDE,
 	 .charge = ChargeRules{SETH_CHARGE_MIN, SETH_CHARGE_MAX, SETH_CHARGE_SPEED},
 	 .roar = RoarRules{SETH_ROAR_RADIUS, SETH_ROAR_DAMAGE, SETH_ROAR_SHOVE, SETH_ROAR_HAZE_MS},
 	 .kin = MonsterHippo,
@@ -1116,7 +1154,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .ownClip = true
 		 },
 	 .kite = KiteRules{.near = 0.55f, .far = 1.1f, .backOffSpeed = 28.f},
-	 .walkClipSpeed = 84, // its trot covers 0.48 tiles a second at the usual 35
+	 .walkStride = BABOON_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.5539f, // tools/blender/models/baboon.py
 	 .climbGrip = 0.0895f,
@@ -1148,6 +1186,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .weight = 5,
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
+	 .walkStride = WORM_STRIDE,
 	 .spray = RoarRules{REREK_SPRAY_RADIUS, 0, REREK_SPRAY_SHOVE, REREK_SPRAY_HAZE_MS},
 	 .hold = REREK_HOLD,
 	 .sandBurrow =
@@ -1180,7 +1219,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = CAMEL_SPIDER_MIX,
 	 .resist = bossResist(CAMEL_SPIDER_RESIST),
 	 .weight = 4,
-	 .walkClipSpeed = 60,
+	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .douseCells = MOTHER_DOUSE_CELLS,
 	 .webs = WebRules{MOTHER_WEB_EVERY_MS, MOTHER_WEB_MAX},
@@ -1229,7 +1268,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .volley = VolleyRules{2, 3, 250, 3, 90, 4000}
 		 },
 	 .kite = KiteRules{.near = 0.6f, .far = 1.25f, .backOffSpeed = 40.f},
-	 .walkClipSpeed = 50, // the baboon's trot at twice the size: 84 * 26 / 22 / 2
+	 .walkStride = BABOON_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.2641f, // tools/blender/models/baboon.py --boss (KIND_SCALE 48)
 	 .climbGrip = 0.0427f,

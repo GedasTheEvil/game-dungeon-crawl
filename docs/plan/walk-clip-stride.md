@@ -1,6 +1,6 @@
 # Each monster's walk clip keeps pace with its walk
 
-Status: draft 2026-10-28, needs nothing first. From the user: the walk speeds went up, but for some monsters the legs
+Status: implemented 2026-10-29, waiting for the user's play-test (draft 2026-10-28). From the user: the walk speeds went up, but for some monsters the legs
 move too slowly. The Anubis guard walks at a good speed, but its walk clip is slow. The scarab could walk even faster,
 and its legs move too slowly as well. Each monster needs its own walk clip pace, not a global one.
 
@@ -42,3 +42,27 @@ and its legs move too slowly as well. Each monster needs its own walk clip pace,
 * Fleeing, charging, kiting backwards: same walk rate, same rule. A charge with its own clip keeps its own pace.
 * Play-test: `tests/play/walk-clip-stride.txt` summoning the guard, the scarab and a few others in a row, or
   `bin/game --level N` on a level with guards and scarabs. Ask the user which other monsters look off.
+
+## Implemented (2026-10-29)
+
+* `MonsterKind::walkStride` (model units: the largest extent of frame 0 is 1) replaces `walkClipSpeed`. Kinds on one
+  model share it (constants in `monster_kinds.cpp`), so a boss's bigger scale is a longer stride. Flyers and monsters
+  that do not move have 0: their clip plays at `CLIP_SPEED`.
+* `Monster::WalkClipSpeed`: tiles a second of its last step (`walked`, set by `Seek`, `Flee`, `BackOff`; with
+  `waterSpeed`), the rush's speed while charging, divided by the stride in tiles (`scale`, toon size), times the clip's
+  frames (`ModelInfo::WalkSpeed`). Steps run every `MONSTER_STEP_PERIOD_MS` (80: the 70 ms step timer on 16 ms ticks).
+* A `Seek` blocked by the terrain (a wall, a ledge, light for a shunner) stands the walker in its idle clip.
+* A fast loop no longer snaps to frame 0 at its end (`NextFrame`, `BlendOf`): it carries on into the next round, or
+  a fast clip would drop part of each round.
+* Strides measured with the new `tools/blender/md3_stride.py`: the baboon and Babi measure exactly what they were tuned
+  to by eye (their clip speeds 84 and 50), which backs the method. The guard (0.78), the scorpions (0.26), the camel
+  spiders (0.54), the scarabs (0.29), the crocodiles (0.12) and hippos (0.19) slid a lot: their legs now play 2-9 times
+  faster (the guard 85 fps, the scarab about 150, the scorpion 127). The mummies (0.98, 0.93) slow down to half.
+  Clips that are not a stride (rat gallop, worm crawl, cobra slither, ushabti waddle, cursed chest hop) keep about the
+  pace they had.
+* Scarab `speed` 4 → 6, giant scarab 3 → 4.5, Khepri 3.5 → 5.25. `bin/levelcheck content/levels/lvl*`: no warnings.
+* Tests: `tests/unit/walk_stride_test.cpp` (every walker has a stride, one per model; a scorpion's pace in half water
+  is half its pace on land, one stride per round), `model_info_test.cpp` (`WalkSpeed`, the loop carrying on).
+* Play-test: `bin/game --play tests/play/walk-clip-stride.txt` (tests/levels/walk_stride_parade: a guard, a scarab, a
+  scorpion, a camel spider, a giant scarab, a giant scorpion in turn, a half-water pool by the start). Tell which
+  monsters still look off: a stride constant scales its legs' pace (smaller: faster legs).

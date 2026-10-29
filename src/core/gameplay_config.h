@@ -63,6 +63,9 @@ constexpr float TRAP_SPRINT_FACTOR = 1.25f;
 
 constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this still counts as standing on it
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
+// A walker steps (Monster::StepDue) once this has passed, on the next tick: every MONSTER_STEP_PERIOD_MS (80).
+constexpr int MONSTER_STEP_MS = 70;
+constexpr int MONSTER_STEP_PERIOD_MS = (MONSTER_STEP_MS + UPDATE_TICK_MS - 1) / UPDATE_TICK_MS * UPDATE_TICK_MS;
 // Monster and player hitboxes (Monster::HalfWidth, Player::HalfWidth) are measured from the models. Gaps are in tiles
 // between the box edges.
 constexpr float MONSTER_BITE_REACH = 0.1f; // a walker stops and bites this far from the player

@@ -1,0 +1,9 @@
+; The player (col 2), a scorpion (col 6) in a cell of half water: it walks out of the water at them
+; (tests/unit/walk_stride_test.cpp).
+##############################
+#.S...j.....................E#
+##############################
+structure
+##############################
+#.....~......................#
+##############################

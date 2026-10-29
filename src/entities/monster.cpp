@@ -350,7 +350,7 @@ void Monster::Animate(float px, float py) {
 	if (ShowsClimb() && type->climbRise > 0.f)
 		showClimb();
 	else if (!Reeling()) // stunned: the clip stands still (plan skill-stun)
-		type->model.Advance(state, playback, type->riseMs, type->walkClipSpeed);
+		type->model.Advance(state, playback, type->riseMs, WalkClipSpeed());
 	showBurrow();
 	if (Grabbing()) // the attack clip held at the jaws or the claws wide, then shut on the player
 		playback[static_cast<size_t>(ModelState::Attack)] = {

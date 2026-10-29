@@ -48,7 +48,7 @@ TEST_CASE("the pouncers: the giant rat and the giant scarab; Khepri from farther
 	CHECK(khepri.pounce->landGap <= khepri.roll->maxRange);
 	CHECK(khepri.pounce->maxGap > scarab.pounce->maxGap);
 	CHECK(khepri.pounce->cooldownMs < scarab.pounce->cooldownMs);
-	CHECK(monsterKind(MonsterGiantScarab)->speed == 3.f);
+	CHECK(monsterKind(MonsterGiantScarab)->speed == 4.5f);
 }
 
 TEST_CASE("the giant rat pounces from 2-3 tiles and lands in bite reach; once a cooldown") {

@@ -325,8 +325,10 @@ struct MonsterKind {
 	// Time its rise clip takes (Rising), stepped to FRAME_STEP_MS; 0: the clip at the usual speed. Short, so the
 	// player jumping on it does not kill it before it can hit once.
 	int riseMs = 0;
-	// AdvancePlayback's speed of its walk clip (plan anubis-walk-clip-speed), so the legs keep up with a fast walker.
-	int walkClipSpeed = 35; // ModelInfo::CLIP_SPEED (model_info.h includes this header; a unit test checks it)
+	// How far one round of its walk clip carries it, in model units (its largest extent at frame 0 is 1): how far a
+	// planted foot goes back in one round. Its walk clip keeps pace with its walk, whatever the speed (in water, a
+	// charge, a boss), so the feet do not slide (plan walk-clip-stride). 0: not a walker, the clip at the usual speed.
+	float walkStride = 0.f;
 	std::optional<ChargeRules> charge; // it charges along its row (Charge)
 	std::optional<RoarRules> roar; // a charger roars a sandstorm as its stun ends
 	std::optional<CallRules> call; // it calls the pack once, when hurt (CallRules)

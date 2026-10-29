@@ -34,11 +34,11 @@ const ClipFiles& ClipFilesOf(const MonsterKind& kind) {
 	}
 }
 
-void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed) {
+void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, float speed) {
 	if (frameCount == 1)
 		return;
 
-	p.step = 0.04f * static_cast<float>(speed);
+	p.step = 0.04f * speed;
 	const int now = GameClock::now();
 	if (now - p.stepStart < FRAME_STEP_MS)
 		return;
@@ -49,8 +49,9 @@ void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, int speed) {
 float NextFrame(float frame, int frameCount, bool loop, float step) {
 	if (!loop)
 		return std::min(frame + step, static_cast<float>(frameCount - 1));
+	// Past the end: on into the next round, so a fast clip (a big step) keeps its pace.
 	const float next = frame + step;
-	return static_cast<double>(next) >= frameCount - 0.2 ? 0.f : next;
+	return static_cast<double>(next) >= frameCount - 0.2 ? std::max(next - static_cast<float>(frameCount), 0.f) : next;
 }
 
 FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, int rate) {
@@ -66,8 +67,8 @@ FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, in
 		const double shown = std::floor(static_cast<double>(now) * rate / 1000.0) * 1000.0 / rate;
 		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / FRAME_STEP_MS), 0.f, 1.f);
 		float next = NextFrame(p.frame, frameCount, loop, p.step);
-		if (next < p.frame) // a loop starting over: on to frame 0 after the last
-			next = static_cast<float>(frameCount);
+		if (next < p.frame) // a loop starting over: on past the last frame into the next round
+			next += static_cast<float>(frameCount);
 		pos += (next - p.frame) * k;
 	}
 	const auto whole = std::floor(pos);
@@ -103,7 +104,7 @@ void ModelInfo::Advance(ModelState state, ClipPlayback& playback) const {
 	AdvancePlayback(playback[static_cast<int>(shown)], Clip(shown).frames, Clip(shown).loop, CLIP_SPEED);
 }
 
-void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs, int walkSpeed) const {
+void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs, float walkSpeed) const {
 	if (state == ModelState::Move) {
 		const ModelState shown = Shown(state);
 		return AdvancePlayback(playback[static_cast<int>(shown)], Clip(shown).frames, Clip(shown).loop, walkSpeed);
@@ -114,6 +115,12 @@ void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs, in
 	const int last = Clip(Shown(state)).frames - 1;
 	const int speed = (last * 25 + steps - 1) / steps; // AdvancePlayback steps speed / 25 frames
 	AdvancePlayback(playback[static_cast<int>(Shown(state))], last + 1, Clip(Shown(state)).loop, speed);
+}
+
+float ModelInfo::WalkSpeed(float cyclesPerSecond) const {
+	// AdvancePlayback steps 0.04 * speed frames every FRAME_STEP_MS.
+	const auto frames = static_cast<float>(Clip(Shown(ModelState::Move)).frames);
+	return cyclesPerSecond * frames * static_cast<float>(FRAME_STEP_MS) / 40.f;
 }
 
 bool ModelInfo::Finished(ModelState state, const ClipPlayback& playback) const {

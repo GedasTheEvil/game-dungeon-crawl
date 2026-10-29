@@ -35,13 +35,29 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (!rooted())
 		alerted = true; // chasing the player
 	fleeDir = 0;
-	if (!blocked)
-		x += WalkStep() * static_cast<float>(dir);
+	if (blocked) { // stands where it can go no further (plan walk-clip-stride)
+		walked = 0.f;
+		enter(ModelState::Idle);
+		return true;
+	}
+	walked = WalkStep();
+	x += walked * static_cast<float>(dir);
 	enter(ModelState::Move);
 	return true;
 }
 
 float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * (inWater ? type->waterSpeed : 1.f); }
+
+float Monster::WalkClipSpeed() const {
+	if (type->walkStride <= 0.f)
+		return ModelInfo::CLIP_SPEED;
+	// Tiles a second: the rush, else its last step (a summoned one coming out of the wall: its usual step).
+	const float pace = charge.phase == ChargePhase::Rush
+						   ? type->charge.value_or(ChargeRules{}).speed
+						   : (walked > 0.f ? walked : WalkStep()) * 1000.f / static_cast<float>(MONSTER_STEP_PERIOD_MS);
+	const float stride = type->walkStride * type->scale * Figures::Scale() / RenderConfig::TILE_SIZE;
+	return type->model.WalkSpeed(pace / stride);
+}
 
 bool Monster::flees() const {
 	const bool walks = type->locomotion == Locomotion::Walk || leaps(type->locomotion);
@@ -57,7 +73,8 @@ void Monster::Flee(bool blocked, int dir) {
 		return;
 	}
 	fleeDir = dir;
-	x += WalkStep() * static_cast<float>(dir);
+	walked = WalkStep();
+	x += walked * static_cast<float>(dir);
 	enter(ModelState::Move);
 }
 
@@ -80,7 +97,8 @@ void Monster::BackOff(int dir) {
 	alerted = true;
 	fleeDir = dir;
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Kite);
-	x += MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f) * static_cast<float>(dir);
+	walked = MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f);
+	x += walked * static_cast<float>(dir);
 	enter(ModelState::Move);
 }
 

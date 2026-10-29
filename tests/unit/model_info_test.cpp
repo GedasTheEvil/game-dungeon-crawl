@@ -171,30 +171,23 @@ TEST_CASE("monsters spawned together start their walk at different frames") {
 	CHECK(a[static_cast<int>(ModelState::Idle)].frame == 0.f); // no idle clip
 }
 
-TEST_CASE("the Anubis walk clip plays twice as fast as a mummy's; its attack clip as before") {
+TEST_CASE("the walk clip plays as many rounds a second as asked; its attack clip at the usual pace") {
 	GameClock::enableVirtual();
 	ModelInfo info;
 	info.clips[static_cast<int>(ModelState::Move)] = {true, 26, true};
 	info.clips[static_cast<int>(ModelState::Attack)] = {true, 26, true};
-	const MonsterKind& mummy = *monsterKind(MonsterMummy);
-	const MonsterKind& guard = *monsterKind(MonsterAnubis);
-	CHECK(mummy.walkClipSpeed == ModelInfo::CLIP_SPEED);
-	CHECK(guard.walkClipSpeed >= 2 * ModelInfo::CLIP_SPEED);
-	CHECK(monsterKind(MonsterAnubisBoss)->walkClipSpeed > guard.walkClipSpeed);
-
+	CHECK(info.WalkSpeed(0.5f) == doctest::Approx(info.WalkSpeed(1.f) / 2.f));
 	for (const ModelState state : {ModelState::Move, ModelState::Attack}) {
-		ClipPlayback slow{}, fast{};
-		slow[static_cast<int>(state)].stepStart = GameClock::now();
-		fast[static_cast<int>(state)].stepStart = GameClock::now();
-		for (int t = 0; t < 5; t++) {
+		ClipPlayback playback{};
+		playback[static_cast<int>(state)].stepStart = GameClock::now();
+		for (int t = 0; t < 5; t++) { // half a second
 			GameClock::advance(FRAME_STEP_MS);
-			info.Advance(state, slow, mummy.riseMs, mummy.walkClipSpeed);
-			info.Advance(state, fast, guard.riseMs, guard.walkClipSpeed);
+			info.Advance(state, playback, 0, info.WalkSpeed(2.2f));
 		}
-		const float s = slow[static_cast<int>(state)].frame, f = fast[static_cast<int>(state)].frame;
-		if (state == ModelState::Move)
-			CHECK(f == doctest::Approx(s * static_cast<float>(guard.walkClipSpeed) / ModelInfo::CLIP_SPEED));
+		const float frame = playback[static_cast<int>(state)].frame;
+		if (state == ModelState::Move) // 1.1 rounds: on through the loop's end, not snapped to frame 0
+			CHECK(frame == doctest::Approx(0.1f * 26.f));
 		else
-			CHECK(f == s);
+			CHECK(frame == doctest::Approx(0.04f * ModelInfo::CLIP_SPEED * 5.f));
 	}
 }

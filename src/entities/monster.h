@@ -3,6 +3,7 @@
 
 #include "model_info.h"
 #include "particles.h"
+#include "../core/gameplay_config.h"
 #include "../core/timer.h"
 #include "trap_hurt.h"
 #include "../world/damage.h"
@@ -60,6 +61,7 @@ class Monster {
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
 	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (trapDamageCarry)
+	float walked = 0.f; // tiles its last step went (Seek, Flee, BackOff); 0: it stood
 	int fleeDir = 0; // a fleeing coward runs this way (Flee), a kiter backs off (BackOff), -1 / +1; 0: neither
 	float seenPlayerX = -1.f; // kiters: the player's map x on the last tick (WatchPlayer); < 0: not yet
 	int closingUntilMs = -1; // kiters: GameClock time until which the player counts as coming at it
@@ -76,7 +78,7 @@ class Monster {
 	int wayCol = -1, wayRow = -1; // the player's cell then: it heads there until it gives up (CLIMB_GIVE_UP_MS)
 	// Created on the slot's first spawn, kept over respawns in it.
 	std::unique_ptr<ParticleSystem> blood;
-	Timer stepTimer{70}, attackTimer{800};
+	Timer stepTimer{MONSTER_STEP_MS}, attackTimer{800};
 	bool spawned = false; // the timers start on the first spawn
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
@@ -231,6 +233,8 @@ class Monster {
 	void SawWay(int toCol, int toRow);
 	[[nodiscard]] bool HeadingFor(int& outCol, int& outRow) const;
 	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
+	// AdvancePlayback's speed of its walk clip: one stride (walkStride) per stride walked (plan walk-clip-stride).
+	[[nodiscard]] float WalkClipSpeed() const;
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool pouncing() const { return jumping() && leap.pounceDir != 0; } // a leap at the player
 	[[nodiscard]] bool canJump() const;

@@ -1,0 +1,10 @@
+; Plan walk-clip-stride's play-test (tests/play/walk-clip-stride.txt): the player (col 2) by a pool of half water
+; (cols 4-6), walkers up the corridor: an Anubis guard, a scarab, a scorpion, a camel spider, a giant scarab, a giant
+; scorpion. Each comes in turn as the player walks east.
+########################################
+#.S......n.....s.....j.....h.....k...JE#
+########################################
+structure
+########################################
+#...~~~................................#
+########################################

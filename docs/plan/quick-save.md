@@ -14,7 +14,7 @@ One key saves the game at once, another loads it back, no menu: F5 saves, F9 loa
 * **F5, quick save:** only in gameplay (`Screen` is the game; not in a menu, riddle, map, journal, death screen),
   only while the player is alive. Overwrites the old quick save. Toast "Quick saved" (same toast as "Autosaved").
 * **F9, quick load:** in gameplay and on the death screen. With no quick save: toast "No quick save", nothing else.
-  Loading resets the death state as any load does.
+  Loading resets the death state as any load does. Toast "Quick loaded" after a load (user's play-test, 2026-10-29).
 * **Keys:** fixed, like F1 / F3 (`isReservedKey` already reserves F1-F11, so no binding can take them). Add them to
   the Controls tab's "Fixed:" line (`src/ui/menu.cpp`).
 * **Load Game list:** shows the quick save right after the autosave, read-only, "Quick save, level N" with its time

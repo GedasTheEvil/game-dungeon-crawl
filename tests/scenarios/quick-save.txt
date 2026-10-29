@@ -30,6 +30,7 @@ key f9
 wait 2
 expect x < 8
 expect alive == 1
+screenshot quick_loaded
 # The Load list: the autosave and the quick save across the top.
 key esc
 wait 2

@@ -88,8 +88,8 @@ void drawWeapon() { // in the fist nearer the camera
 	weapon->rotA = spin;
 }
 
-// "Autosaved" (plan autosave), "Quick saved" and "No quick save" (plan quick-save): small, top left, fading out as the
-// screens' toasts do.
+// "Autosaved" (plan autosave), "Quick saved", "Quick loaded" and "No quick save" (plan quick-save): small, top left,
+// fading out as the screens' toasts do.
 void drawAutosaved() {
 	const float alpha = Game().ui.autosaved.Alpha(GameClock::now());
 	if (alpha <= 0.f)

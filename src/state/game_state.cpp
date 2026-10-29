@@ -314,6 +314,7 @@ void GameState::LoadQuicksave() {
 		return;
 	}
 	LoadSaveIntoGame(QuicksavePath());
+	ui.autosaved.Show("Quick loaded", GameClock::now());
 }
 
 std::string GameState::SlotPath(int slot) const {

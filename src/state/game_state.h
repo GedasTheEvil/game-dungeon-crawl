@@ -114,7 +114,7 @@ class GameState {
 	[[nodiscard]] std::string QuicksavePath() const;
 	[[nodiscard]] bool HasQuicksave() const;
 	void Quicksave(); // F5: writes it and shows "Quick saved"; nothing while the player is dead
-	void LoadQuicksave(); // F9: into the game, or the toast "No quick save"
+	void LoadQuicksave(); // F9: into the game with "Quick loaded", or the toast "No quick save"
 	// The slot's file (plan retry-latest-save): SaveSlots::FileName, a scenario's in its output directory.
 	[[nodiscard]] std::string SlotPath(int slot) const;
 	// The newest of the autosave, the slots and the quick save (plan retry-latest-save): Retry and Continue load it.

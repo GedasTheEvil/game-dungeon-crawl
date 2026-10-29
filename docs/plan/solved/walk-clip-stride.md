@@ -1,13 +1,13 @@
 # Each monster's walk clip keeps pace with its walk
 
-Status: implemented 2026-10-29, waiting for the user's play-test (draft 2026-10-28). From the user: the walk speeds went up, but for some monsters the legs
+Status: solved 2026-10-29 (draft 2026-10-28). From the user: the walk speeds went up, but for some monsters the legs
 move too slowly. The Anubis guard walks at a good speed, but its walk clip is slow. The scarab could walk even faster,
 and its legs move too slowly as well. Each monster needs its own walk clip pace, not a global one.
 
 ## Today
 
 * `MonsterKind::walkClipSpeed` (`src/world/monster_kinds.h`, default `ModelInfo::CLIP_SPEED` 35) sets the `Move`
-  clip's pace ([anubis-walk-clip-speed](solved/anubis-walk-clip-speed.md)). `AdvancePlayback` adds `speed / 25`
+  clip's pace ([anubis-walk-clip-speed](anubis-walk-clip-speed.md)). `AdvancePlayback` adds `speed / 25`
   frames every `FRAME_STEP_MS` 100 ms, so 35 is 14 fps.
 * Only six kinds set it: the Anubis guard 70, the Anubis boss 76, the camel spider and the Mother of Webs 60, the
   baboon 84 and Babi 50. All others play at 35, whatever their `speed`.

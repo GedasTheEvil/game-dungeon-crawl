@@ -13,9 +13,9 @@ class Font {
 	float advance[GLYPHS] = {};
 
   public:
-	// The sheet layout (tools/textures/font_sheet.py), in px of a glyph quad (a 51.2 px tenth of the 512 px sheet):
-	// the baseline sits this far above the quad bottom, the cap height reaches this far above the baseline. Papyrus,
-	// kalam and courier share it; impact (the HUD numbers) has a lower cap height (19 px).
+	// The sheet layout (tools/textures/font_sheet.py), in px of a glyph quad (a 51.2 px tenth of a 512 px sheet; a
+	// bigger sheet scales it): the baseline sits this far above the quad bottom, the cap height reaches this far above
+	// the baseline. Parchment, kalam and courier share it; impact (the HUD numbers) has a lower cap height (19 px).
 	static constexpr float QUAD_PX = 51.2f;
 	static constexpr float BASELINE_PX = 18.f;
 	static constexpr float CAP_HEIGHT_PX = 24.f;

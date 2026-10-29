@@ -47,7 +47,7 @@ struct FontSet {
 	Font font;
 	Font loading; // the loading screen: the step line
 	Font loadingDetail; // and its smaller detail line
-	Font status; // proportional, for the gameplay status message
+	Font status; // proportional: the boss bar's name, the draft map's title
 	Font banner; // the zone banner's title (ZoneBanner)
 	Font hud; // bold digits for the HUD level gem
 	Font hudBody; // the player HUD's health numbers

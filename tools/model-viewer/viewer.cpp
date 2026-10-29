@@ -660,8 +660,8 @@ int main(int argc, char* argv[]) {
 
 	InitGL(gWinWidth, gWinHeight);
 
-	gStatsFont.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
-	gHintFont.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.f, 0.08f, true);
+	gStatsFont.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
+	gHintFont.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.f, 0.08f, true);
 
 	// Sibling-group discovery: scanned exactly once, from the path
 	// the user actually typed, and never rescanned. gCurrentSiblingIndex is found by Basename comparison so it

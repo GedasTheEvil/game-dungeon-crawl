@@ -1,0 +1,11 @@
+# Plan font-sheet-resolution, for `bin/game --play tests/play/font-sheet-resolution.txt`: the text in Parchment MF
+# from 2048 sheets. tests/levels/riddle: walk right to the gate (E) for the riddle screen, I for the inventory, J for
+# the journal's handwriting, Esc for the menus and options. Look at big titles (sharp?) and small text (too thin,
+# shimmering?).
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/journal.txt
+give melee 1
+give potion 0 3
+give potion 4 2

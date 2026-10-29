@@ -304,8 +304,8 @@ hint sits under the panel. Any arrow moves the focus to the other tile, Enter pi
 ### Status box
 
 The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,
-min 40 wide, top edge at y 86, centred, with the picture-frame drop shadow. `status` font in `GOLD`, one line per
-`'\n'`, 6 apart. Fades in over 150 ms and out over the last 500 ms of `STATUS_MS`; `panel`'s `frameAlpha` fades the
+min 40 wide, top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font (4.2) in `GOLD`, one line
+per `'\n'`, 5 apart. Fades in over 150 ms and out over the last 500 ms of `STATUS_MS`; `panel`'s `frameAlpha` fades the
 frame and studs with it.
 
 ### Player HUD
@@ -346,12 +346,16 @@ Also there: `WELL` (icon well fill), `LABEL` `{0.86, 0.72, 0.47}` for body text 
 
 ## Fonts
 
-All text uses `media/textures/fonts/papyrus.png` (printable ASCII only, no accents: write "Skucas", not "Skučas"), except what the
-archaeologist writes by hand on the journal's pages: `media/textures/fonts/kalam.png` (Kalam, SIL OFL, `media/textures/fonts/kalam-OFL.txt`) in
-`INK_BLUE` / `PENCIL`, and the journal's stamped page and catalogue numbers: `media/textures/fonts/courier.png` (Courier 10 Pitch,
-Bitstream, `media/textures/fonts/courier-LICENSE.txt`). The journal's buttons stay papyrus. A font
-sheet comes from a TrueType font with `python3 tools/textures/font_sheet.py FONT.ttf media/textures/fonts/NAME.png` (same grid,
-baseline and cap height as the papyrus sheet).
+All text uses `media/textures/fonts/parchment.png` (Parchment MF, `media/textures/fonts/parchment-LICENSE.txt`; printable
+ASCII only, no accents: write "Skucas", not "Skučas"), except what the archaeologist writes by hand on the journal's pages:
+`media/textures/fonts/kalam.png` (Kalam Regular, SIL OFL, `media/textures/fonts/kalam-OFL.txt`) in `INK_BLUE` / `PENCIL`, and
+the journal's stamped page and catalogue numbers: `media/textures/fonts/courier.png` (Courier 10 Pitch, Bitstream,
+`media/textures/fonts/courier-LICENSE.txt`). The journal's buttons stay parchment. The level gem's number is
+`media/textures/fonts/impact.png`. A font sheet comes from a TrueType font with
+`python3 tools/textures/font_sheet.py FONT.ttf media/textures/fonts/NAME.png --size 2048` (the same grid, baseline and cap
+height at any size; parchment, kalam and courier are 2048, so big text stays sharp; impact is 512; `--stroke` thickens thin
+strokes). The TTFs stay outside the repo: Kalam from Google Fonts (`ofl/kalam/Kalam-Regular.ttf`), Courier 10 Pitch from
+`xfonts-scalable` (`/usr/share/fonts/X11/Type1/c0419bt_.pfb`).
 Each screen loads four sizes on its first frame (fonts need the GL context):
 
 | Font | `Load(file, size, spacing, true)` | Use |

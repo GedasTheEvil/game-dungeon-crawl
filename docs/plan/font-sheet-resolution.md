@@ -1,6 +1,6 @@
 # Sharper text: a bigger font sheet, Parchment MF for Papyrus
 
-Status: draft 2026-10-28, refined 2026-10-28 (Parchment MF replaces Papyrus), needs nothing first. From the user: the
+Status: implemented 2026-10-29, waiting for a play-test (Done, below). Draft 2026-10-28, refined 2026-10-28 (Parchment MF replaces Papyrus). From the user: the
 fonts come from a small PNG; big text, like the menu's, already looks washed out. Regenerate the font texture at a
 higher resolution with the tool we have. There is no Papyrus TTF: use Parchment MF instead
 (`/home/gediminas.skucas/Font/Parchment-MF/Parchment MF.ttf`).
@@ -44,3 +44,19 @@ higher resolution with the tool we have. There is no Papyrus TTF: use Parchment 
   Tell the user before committing the sheet; add a `parchment-LICENSE.txt` with what is known (author, source).
 * Update `docs/ui.md` (Fonts: the file, the size, the new command line) and the `font.h` comment ("Papyrus, kalam
   and courier share it").
+
+## Done (2026-10-29)
+
+* `font_sheet.py --size N` (cells at `round(i * N / 10)`, the layout scaled from the 512 sheet) and `--stroke S` (px
+  of a 512 sheet; not used: Parchment's strokes read well at the HUD's 3 and the UI's 3.6).
+* `parchment.png` 2048 from Parchment MF; every `papyrus.png` load (game, editor, model viewer) points to it.
+  `papyrus.png` and `papyrus_i.png` removed (the user approved the look, 2026-10-29).
+* `kalam.png` (Kalam Regular, from Google Fonts; matched today's sheet pixel for pixel) and `courier.png`
+  (`c0419bt_.pfb`) regenerated at 2048. impact stays 512.
+* Parchment MF is not narrower than Papyrus at the same cap height: a bit wider, and its digits are lining (as tall as
+  the capitals; Papyrus had old-style ones). No screen overflows: menu, options, inventory, riddle, journal, credits,
+  HUD and banner checked (`tests/scenarios/font_sheet_resolution.txt`, old vs new compared).
+* No mipmaps: the screenshots show no aliasing in small text; shimmer would show only in motion, on the play-test.
+* `parchment-LICENSE.txt` with what is known; `docs/ui.md` Fonts and the `font.h` comment updated.
+* The user (2026-10-29): the font looks good, the notifications could be smaller. The status box draws in `hudBody`
+  (4.2, was `status` 5), its padding and line gap scaled to it; the boss bar and the draft map's title keep `status`.

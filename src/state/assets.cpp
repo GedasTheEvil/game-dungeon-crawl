@@ -78,9 +78,9 @@ Item* ItemPrototypes::Of(ItemKind kind) const {
 }
 
 void Assets::LoadLoadingScreen() {
-	fonts.loading.Load(MEDIA_DIR "textures/fonts/papyrus.png", loading_text::STEP_SIZE, loading_text::STEP_SPACING);
+	fonts.loading.Load(MEDIA_DIR "textures/fonts/parchment.png", loading_text::STEP_SIZE, loading_text::STEP_SPACING);
 	fonts.loadingDetail
-		.Load(MEDIA_DIR "textures/fonts/papyrus.png", loading_text::DETAIL_SIZE, loading_text::DETAIL_SPACING);
+		.Load(MEDIA_DIR "textures/fonts/parchment.png", loading_text::DETAIL_SIZE, loading_text::DETAIL_SPACING);
 	textures.loadingBackground.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
 	textures.loadingBar.LoadPNG(MEDIA_DIR "textures/ui/loading.png", TexFilter::Flat);
 }
@@ -356,12 +356,12 @@ void loadTraps(TrapSet& traps, TextureRegistry& textures) {
 }
 
 void loadFonts(FontSet& fonts) {
-	fonts.font.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3, -0.3);
-	fonts.status.Load(MEDIA_DIR "textures/fonts/papyrus.png", 5, 0.3f, true);
-	fonts.banner.Load(MEDIA_DIR "textures/fonts/papyrus.png", 7, 0.3f, true);
+	fonts.font.Load(MEDIA_DIR "textures/fonts/parchment.png", 3, -0.3);
+	fonts.status.Load(MEDIA_DIR "textures/fonts/parchment.png", 5, 0.3f, true);
+	fonts.banner.Load(MEDIA_DIR "textures/fonts/parchment.png", 7, 0.3f, true);
 	fonts.hud.Load(MEDIA_DIR "textures/fonts/impact.png", 11, 0.2f, true);
-	fonts.hudBody.Load(MEDIA_DIR "textures/fonts/papyrus.png", 4.2f, 0.12f, true);
-	fonts.hudSmall.Load(MEDIA_DIR "textures/fonts/papyrus.png", 3.f, 0.08f, true);
+	fonts.hudBody.Load(MEDIA_DIR "textures/fonts/parchment.png", 4.2f, 0.12f, true);
+	fonts.hudSmall.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.f, 0.08f, true);
 }
 } // namespace
 

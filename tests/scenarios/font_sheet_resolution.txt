@@ -1,0 +1,54 @@
+# Plan font-sheet-resolution: Parchment MF and the 2048 font sheets on the screens with the most text.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/journal.txt
+wait 30
+screenshot hud
+xp 1000
+wait 10
+screenshot level_up_banner
+walk right 3
+interact
+wait 5
+key x
+key enter
+key x
+key enter
+wait 5
+screenshot riddle_hint
+key n
+key i
+key l
+key e
+key enter
+wait 5
+key j
+wait 5
+screenshot journal
+key j
+wait 5
+give melee 1
+give potion 0 3
+give potion 4 2
+key i
+wait 5
+select short_sword
+wait 5
+screenshot inventory
+key esc
+wait 5
+key esc
+wait 2
+screenshot ingame_menu
+click 50 25.5
+wait 2
+screenshot main_menu
+click 50 36.7
+wait 2
+screenshot options
+key esc
+wait 2
+click 50 26.8
+wait 2
+screenshot credits

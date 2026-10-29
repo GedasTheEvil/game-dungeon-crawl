@@ -50,11 +50,11 @@ int screenTabAt(float x, float y) {
 namespace StatusBox {
 namespace {
 constexpr float TOP = 86.f; // top edge of the box
-constexpr float LINE_H = 6.f; // baseline to baseline
-constexpr float PAD_X = 7.f; // text to the side frames
-constexpr float GLYPH_LOW = 1.8f; // the status font draws its letters this far above the pen y...
-constexpr float GLYPH_HIGH = 4.2f; // ...up to here
-constexpr float PAD_Y = 2.8f; // letters to the top and bottom frames
+constexpr float LINE_H = 5.f; // baseline to baseline
+constexpr float PAD_X = 6.f; // text to the side frames
+constexpr float GLYPH_LOW = 1.5f; // the hudBody font (4.2) draws its letters this far above the pen y...
+constexpr float GLYPH_HIGH = 3.5f; // ...up to here
+constexpr float PAD_Y = 2.4f; // letters to the top and bottom frames
 constexpr float MIN_WIDTH = 40.f;
 constexpr float FADE_IN_MS = 150.f;
 constexpr float FADE_OUT_MS = 500.f;

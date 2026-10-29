@@ -1,0 +1,5 @@
+media/textures/fonts/parchment.png is a font sheet made with tools/textures/font_sheet.py from Parchment MF
+(Parchment MF.ttf).
+
+Author: Rick W. Mueller, 1995. The font file says: "1995 By Rick W. Mueller. All rights reserved worldwide."
+It comes with no license file. Source: ffonts.net, which lists it as a free font.

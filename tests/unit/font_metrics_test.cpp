@@ -44,7 +44,7 @@ Ink inkOf(const char* file, char glyph) {
 TEST_CASE("the font sheets' H sits on the baseline and reaches the cap height") {
 	// impact.png (the HUD numbers) has a lower cap height, font.h
 	for (const char* file :
-		 {MEDIA_DIR "textures/fonts/papyrus.png",
+		 {MEDIA_DIR "textures/fonts/parchment.png",
 		  MEDIA_DIR "textures/fonts/kalam.png",
 		  MEDIA_DIR "textures/fonts/courier.png"}) {
 		CAPTURE(file);

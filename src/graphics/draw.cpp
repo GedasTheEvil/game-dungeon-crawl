@@ -131,7 +131,7 @@ void drawStatusLine() {
 			GameState::STATUS_MS,
 			Game().render.resX,
 			Game().render.resY,
-			Game().assets.fonts.status
+			Game().assets.fonts.hudBody
 		);
 }
 

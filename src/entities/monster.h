@@ -62,6 +62,10 @@ class Monster {
 	int facing = 0; // -1 left, 0 the camera, +1 right
 	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (trapDamageCarry)
 	float walked = 0.f; // tiles its last step went (Seek, Flee, BackOff); 0: it stood
+	// A walk step is drawn sliding from glideFrom to x over glideMs from glideAtMs (< 0: none), not as a jump.
+	float glideFrom = 0.f;
+	int glideAtMs = -1;
+	int glideMs = MONSTER_STEP_PERIOD_MS;
 	int fleeDir = 0; // a fleeing coward runs this way (Flee), a kiter backs off (BackOff), -1 / +1; 0: neither
 	float seenPlayerX = -1.f; // kiters: the player's map x on the last tick (WatchPlayer); < 0: not yet
 	int closingUntilMs = -1; // kiters: GameClock time until which the player counts as coming at it
@@ -235,6 +239,8 @@ class Monster {
 	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
 	// AdvancePlayback's speed of its walk clip: one stride (walkStride) per stride walked (plan walk-clip-stride).
 	[[nodiscard]] float WalkClipSpeed() const;
+	void stepBy(float dx); // a walk step: x moves at once, the drawing slides there (LocalX)
+	[[nodiscard]] float glidingX() const;
 	[[nodiscard]] bool jumping() const { return leap.startMs >= 0; }
 	[[nodiscard]] bool pouncing() const { return jumping() && leap.pounceDir != 0; } // a leap at the player
 	[[nodiscard]] bool canJump() const;

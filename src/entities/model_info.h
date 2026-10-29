@@ -21,11 +21,18 @@ enum class ModelState : unsigned char {
 };
 constexpr int MODEL_STATE_COUNT = 8;
 
+// AdvancePlayback steps a clip every FRAME_STEP_MS, on the first tick past it: FRAME_STEP_PERIOD_MS on 16 ms ticks,
+// more when the game's ticks run late. BlendOf spreads a step over the last one's length, so a fast clip (a walk of
+// many frames a step) does not hold still at each step's end and shake.
+constexpr int FRAME_STEP_MS = 100;
+constexpr int FRAME_STEP_PERIOD_MS = (FRAME_STEP_MS + UPDATE_TICK_MS - 1) / UPDATE_TICK_MS * UPDATE_TICK_MS;
+
 // Playback position of one animation. Monsters of one type share one model, so each keeps its own.
 struct AnimPlayback {
 	float frame = 0.0f;
 	int stepStart = 0; // GameClock ms when the frame last advanced
 	float step = 0.0f; // what the next step adds (AdvancePlayback); 0: a frame set by hand, drawn as it is
+	int stepMs = FRAME_STEP_PERIOD_MS; // how long the last step took: BlendOf spreads the next one over that
 };
 
 // Playback of every clip, indexed by ModelState. Kept by each monster / the player, the clips are shared.
@@ -33,10 +40,6 @@ using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 
 // Steps p through a clip of frameCount frames on the clock: speed / 25 frames every FRAME_STEP_MS. A looping clip
 // starts over, a one-shot one holds its last frame.
-constexpr int FRAME_STEP_MS = 100;
-// What a step really takes: the first tick at or past FRAME_STEP_MS, 112 ms on 16 ms ticks. BlendOf spreads a step
-// over it, so a fast clip (a walk of many frames a step) does not hold still at each step's end and shake.
-constexpr int FRAME_STEP_PERIOD_MS = (FRAME_STEP_MS + UPDATE_TICK_MS - 1) / UPDATE_TICK_MS * UPDATE_TICK_MS;
 void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, float speed);
 // The frame one step of AdvancePlayback moves frame to.
 [[nodiscard]] float NextFrame(float frame, int frameCount, bool loop, float step);

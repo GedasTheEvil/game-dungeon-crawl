@@ -70,3 +70,10 @@ and its legs move too slowly as well. Each monster needs its own walk clip pace,
   shook. A step lands on the first 16 ms tick past `FRAME_STEP_MS`, at 112 ms, and `BlendOf` blended over 100 ms: the
   pose held still the last 12 ms of every step, unseen at a frame or two a step, a shake at 8. `BlendOf` and
   `WalkSpeed` now use the real `FRAME_STEP_PERIOD_MS` (112); clip timings are as before (the legs were 11% slow).
+* Play-test 2: still a shake. The body moved by a whole walk step every 80 ms (drawn at its sim x): with the legs in
+  pace, the planted foot shook against it. A walk step now glides over the length of the last one
+  (`Monster::stepBy`, `LocalX`), and `AnimPlayback::stepMs` measures each clip step, so late ticks do not hold either.
+* The user picked loop times by eye in the model viewer (Light: toon): scorpion 0.95 s, Anubis 0.54, mummy 1.64,
+  cobra 1.31, baboon 2.05, camel spider 1.05, bat 0.84 (a flyer: 0.86 at `CLIP_SPEED` already, kept). Their strides
+  give that at the base kind's walk on land; kin on a bigger scale take longer rounds (the scorpion queen 6.1 s, Apep
+  3.8 s, the High Priest 3.0 s).

@@ -216,19 +216,22 @@ constexpr Resistances bossResist(Resistances kin) {
 // 20%, a boss two or three potions.
 // Walk strides (MonsterKind::walkStride, plan walk-clip-stride), model units. Measured from the walk clips: how far a
 // planted foot goes back in one round (tools/blender/md3_stride.py).
-constexpr float ANUBIS_STRIDE = 0.78f;
-constexpr float BABOON_STRIDE = 0.92f; // the baboon's and Babi's trot
-constexpr float CAMEL_SPIDER_STRIDE = 0.54f;
+constexpr float BABI_STRIDE = 0.92f;
 constexpr float CROCODILE_STRIDE = 0.12f;
 constexpr float HIPPO_STRIDE = 0.19f;
-constexpr float MUMMY_STRIDE = 0.98f;
 constexpr float MUMMY_PRIEST_STRIDE = 0.93f;
 constexpr float SCARAB_STRIDE = 0.29f;
-constexpr float SCORPION_STRIDE = 0.26f;
-// Not a stride (a gallop, a crawl, a slither, a waddle, a hop): the pace they had at the usual clip speed.
+// Picked by eye in the model viewer: a round in that many seconds at the base kind's walk on land. Calmer than the
+// measured stride (Anubis 0.78, the scorpion 0.26: short steps for a fast walk, a frantic pace), the feet slide a bit.
+constexpr float ANUBIS_STRIDE = 1.37f; // 0.54 s
+constexpr float BABOON_STRIDE = 3.95f; // 2.05 s
+constexpr float CAMEL_SPIDER_STRIDE = 2.21f; // 1.05 s
+constexpr float COBRA_STRIDE = 0.69f; // 1.31 s, a slither
+constexpr float MUMMY_STRIDE = 0.48f; // 1.64 s
+constexpr float SCORPION_STRIDE = 1.33f; // 0.95 s
+// Not a stride (a gallop, a crawl, a waddle, a hop): the pace they had at the usual clip speed.
 constexpr float RAT_STRIDE = 2.3f;
 constexpr float WORM_STRIDE = 0.3f;
-constexpr float COBRA_STRIDE = 0.85f;
 constexpr float USHABTI_STRIDE = 1.6f;
 constexpr float CURSED_CHEST_STRIDE = 3.f;
 
@@ -1268,7 +1271,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .volley = VolleyRules{2, 3, 250, 3, 90, 4000}
 		 },
 	 .kite = KiteRules{.near = 0.6f, .far = 1.25f, .backOffSpeed = 40.f},
-	 .walkStride = BABOON_STRIDE,
+	 .walkStride = BABI_STRIDE,
 	 .climbs = true,
 	 .climbRise = 0.2641f, // tools/blender/models/baboon.py --boss (KIND_SCALE 48)
 	 .climbGrip = 0.0427f,

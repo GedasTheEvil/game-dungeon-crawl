@@ -42,6 +42,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	grab = Grab{};
 	roll = Roll{};
 	biteAtMs = -1;
+	glideAtMs = -1;
 	climb = Climb{};
 	rungs = false;
 	wayMs = -1;
@@ -103,9 +104,27 @@ bool Monster::Emerging() const {
 // Out of the wall at an even pace, slowing as it steps onto its cell.
 float Monster::LocalX() const {
 	if (summonedBy != Summon::Wall || !Emerging())
-		return x;
+		return glidingX();
 	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(WALL_EMERGE_MS);
 	return wallX + (x - wallX) * (1.f - (1.f - p) * (1.f - p));
+}
+
+// Steps come on the game's ticks (MONSTER_STEP_PERIOD_MS, more when they run late): each glides over the last one's
+// length, so the body moves on as evenly as its legs (plan walk-clip-stride).
+void Monster::stepBy(float dx) {
+	const int now = GameClock::now();
+	glideFrom = glidingX();
+	const int since = now - glideAtMs;
+	glideMs = glideAtMs >= 0 && since < 2 * MONSTER_STEP_PERIOD_MS ? std::max(since, 1) : MONSTER_STEP_PERIOD_MS;
+	glideAtMs = now;
+	x += dx;
+}
+
+float Monster::glidingX() const {
+	const int age = GameClock::now() - glideAtMs;
+	if (glideAtMs < 0 || age >= glideMs)
+		return x;
+	return glideFrom + (x - glideFrom) * static_cast<float>(age) / static_cast<float>(glideMs);
 }
 
 // Digging out it rises from its full height under the floor, slowing at the top. Dropping it falls from the

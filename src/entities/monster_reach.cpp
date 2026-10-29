@@ -96,7 +96,7 @@ bool Monster::Reaches(float px, float py, int dir) const {
 
 void Monster::FollowBite(bool blocked, float px, float py) {
 	if (!blocked && !rooted() && attackDirection(px, py) == biteDir)
-		x += WalkStep() * static_cast<float>(biteDir);
+		stepBy(WalkStep() * static_cast<float>(biteDir));
 }
 
 void Monster::UpdateBite(float px, float py) {

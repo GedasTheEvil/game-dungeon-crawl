@@ -1,6 +1,7 @@
 // The walk clip keeps pace with the walk (plan walk-clip-stride): one stride of the model per round of the clip.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include <algorithm>
 #include <map>
 #include <string>
 
@@ -43,4 +44,31 @@ TEST_CASE("a scorpion's legs slow down with its walk in half water") {
 	const float stride = kind.walkStride * kind.scale / 40.f;
 	const float rounds = scorpion->WalkStep() * 1000.f / MONSTER_STEP_PERIOD_MS / stride;
 	CHECK(walking == doctest::Approx(scorpion->Type()->model.WalkSpeed(rounds)));
+}
+
+TEST_CASE("a walker is drawn moving on evenly, not a jump each step") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/walk_stride"));
+	world.Tick();
+	const Monster* scorpion = nullptr;
+	for (int i = 0; i < MAX_MONSTERS; i++)
+		if (world.dungeon.Monsters()[i].Active())
+			scorpion = &world.dungeon.Monsters()[i];
+	REQUIRE(scorpion != nullptr);
+	world.Wait(5000); // out of the water, on the floor
+	float last = scorpion->LocalX(), most = 0.f;
+	int moves = 0;
+	for (int t = 0; t < 800; t += UPDATE_TICK_MS) {
+		world.Tick();
+		if (scorpion->State() != ModelState::Move || scorpion->InWater())
+			continue;
+		const float d = last - scorpion->LocalX();
+		last = scorpion->LocalX();
+		most = std::max(most, d);
+		moves += d > 0.f ? 1 : 0;
+	}
+	REQUIRE(moves > 20);
+	// A step is 5 ticks: drawn over them, no tick moves it more than about a fifth of a step.
+	CHECK(most < 0.3f * scorpion->WalkStep());
 }

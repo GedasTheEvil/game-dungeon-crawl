@@ -42,6 +42,8 @@ void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, float speed) {
 	const int now = GameClock::now();
 	if (now - p.stepStart < FRAME_STEP_MS)
 		return;
+	const int took = now - p.stepStart;
+	p.stepMs = took < 2 * FRAME_STEP_MS ? took : FRAME_STEP_PERIOD_MS; // not after a pause
 	p.stepStart = now;
 	p.frame = NextFrame(p.frame, frameCount, loop, p.step);
 }
@@ -65,7 +67,7 @@ FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, in
 	float pos = p.frame;
 	if (p.step > 0.f) {
 		const double shown = std::floor(static_cast<double>(now) * rate / 1000.0) * 1000.0 / rate;
-		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / FRAME_STEP_PERIOD_MS), 0.f, 1.f);
+		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / p.stepMs), 0.f, 1.f);
 		float next = NextFrame(p.frame, frameCount, loop, p.step);
 		if (next < p.frame) // a loop starting over: on past the last frame into the next round
 			next += static_cast<float>(frameCount);

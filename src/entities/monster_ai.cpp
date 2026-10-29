@@ -41,7 +41,7 @@ bool Monster::Seek(bool blocked, float px, float py) {
 		return true;
 	}
 	walked = WalkStep();
-	x += walked * static_cast<float>(dir);
+	stepBy(walked * static_cast<float>(dir));
 	enter(ModelState::Move);
 	return true;
 }
@@ -74,7 +74,7 @@ void Monster::Flee(bool blocked, int dir) {
 	}
 	fleeDir = dir;
 	walked = WalkStep();
-	x += walked * static_cast<float>(dir);
+	stepBy(walked * static_cast<float>(dir));
 	enter(ModelState::Move);
 }
 
@@ -98,7 +98,7 @@ void Monster::BackOff(int dir) {
 	fleeDir = dir;
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Kite);
 	walked = MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f);
-	x += walked * static_cast<float>(dir);
+	stepBy(walked * static_cast<float>(dir));
 	enter(ModelState::Move);
 }
 

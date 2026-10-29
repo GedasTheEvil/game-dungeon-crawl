@@ -5,7 +5,7 @@ ladder and keep hitting it, and it stays on the ladder. It should find ground to
 
 ## Today
 
-* A climber ([monster-climbers](solved/monster-climbers.md)) cannot attack on the rungs (`Monster::OnRungs`, the
+* A climber ([monster-climbers](monster-climbers.md)) cannot attack on the rungs (`Monster::OnRungs`, the
   `!mon.OnRungs()` check at the end of `Dungeon::updateWalker`).
 * The exploit: the player climbs, steps off the ladder onto a floor cell beside it and turns. The climber finishes its
   climb on the player's row (`climbEnd`), so it is on that row and in reach. `Dungeon::followPath` then hands it to the
@@ -40,7 +40,7 @@ ladder and keep hitting it, and it stays on the ladder. It should find ground to
   (`WalkPath`), to the floor cell on the player's side first, else the other side; then the walker's rules bite.
   One code path for every climber and climber boss. The climb ends as before (`climbEnd`); the step off is a walk
   with the climb clip while on the rung cell (`ShowsClimb`), so no snap.
-* Kiting: the player cannot attack from the rungs ([no-attack-on-ladder](solved/no-attack-on-ladder.md)), so going
+* Kiting: the player cannot attack from the rungs ([no-attack-on-ladder](no-attack-on-ladder.md)), so going
   back onto the ladder buys nothing. A climber does not follow onto the player's rung cell: it stands against the
   ladder, and once the player steps off either side it crosses the rungs and bites.
 * Tests (`tests/unit/climb_test.cpp`, failing before the fix): the top of the ladder (`climb_up`), a mid-shaft ledge

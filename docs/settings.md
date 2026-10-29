@@ -75,7 +75,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `skills` | `k` | Open / close the Heka screen (skills) |
 
 Fixed, not in the file: `Esc` (menu / back, so a bad mapping can always be undone), `F1` (toon shading) to `F11`
-(`F3`: hitboxes), and mouse movement (looks around). The inventory and the journal move their selection with
+(`F3`: hitboxes, `F5`: quick save, `F9`: quick load), and mouse movement (looks around). The inventory and the journal move their selection with
 `WASD` and the arrow keys, whatever the bindings say.
 
 Key names:

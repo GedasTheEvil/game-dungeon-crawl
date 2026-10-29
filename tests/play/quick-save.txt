@@ -1,0 +1,6 @@
+# Plan quick-save, for `bin/game --play tests/play/quick-save.txt`: tests/levels/autosave_play at 10 HP.
+# F9 now: "No quick save". Walk a bit, F5: "Quick saved". Walk on, F9: back at the saved spot. Esc > Load Game: the
+# autosave and the quick save across the top. Walk right into the rats: after you die, F9 on the death screen loads
+# the quick save too.
+level tests/levels/autosave_play
+hurt 40

@@ -1,7 +1,7 @@
 # Retry from the latest save
 
 Status: draft 2026-10-29, from the user's idea. Needs nothing first. Works with
-[quick-save](quick-save.draft.sonet.md) in either order.
+[quick-save](quick-save.md) in either order.
 
 ## Idea
 

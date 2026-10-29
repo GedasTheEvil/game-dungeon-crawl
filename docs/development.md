@@ -169,6 +169,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Name gates, name cartouches, the royal names (per run) | `world/names.*` (data `content/names/*.txt`, [names.md](names.md)), `Dungeon::SpeakName`, `inscriptionPage` in `world/dungeon_interact.cpp`, `Riddle::AskName` (`ui/riddle.cpp`), the pulse `Dungeon::nameGateAlpha` (`world/dungeon_render.cpp`), `checkNameGates` in `world/level_check.cpp` |
 | Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |
 | Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
+| Quick save (F5) and quick load (F9) | `GameState::Quicksave` / `LoadQuicksave`, the keys in `specialKeyPressed` (`input/input.cpp`), the Load list in `ui/menu.cpp` |
 | Autosave, death screen, Continue | `GameState::Autosave` / `CountDeath` (`state/game_state.cpp`), the safe moments `AutosaveMoment` (`world/world_events.h`) and `Dungeon::PlayerInDanger` (`world/dungeon_monsters.cpp`), `ui/death_screen.*`, the Load list and Continue in `ui/menu.cpp` |
 | Models, textures, sounds loaded once | `state/assets.cpp` |
 | Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`, its words: creature moves, field notes, diary `world/journal_text.*`, the prose in `content/texts/`; the new game's prologue `GameState::NewGame`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |

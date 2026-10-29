@@ -108,6 +108,12 @@ class GameState {
 	// in danger (Dungeon::PlayerInDanger); a level start is always written.
 	void Autosave(AutosaveMoment moment);
 	void LoadAutosave(); // into the game: the screen is the gameplay
+	void LoadSaveIntoGame(const std::string& path); // what loading a save file shows: the gameplay, no menu page
+	// The quick save (plan quick-save): SaveSlots::QUICKSAVE, a scenario's in its output directory.
+	[[nodiscard]] std::string QuicksavePath() const;
+	[[nodiscard]] bool HasQuicksave() const;
+	void Quicksave(); // F5: writes it and shows "Quick saved"; nothing while the player is dead
+	void LoadQuicksave(); // F9: into the game, or the toast "No quick save"
 	void CountDeath(); // the player just died: one more death, in the autosave's file too
 	// Hands the graphics and sound choices to the renderer and the mixer; with `save`, writes the file too.
 	void ApplySettings(bool save);

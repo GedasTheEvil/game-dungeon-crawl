@@ -1,0 +1,52 @@
+# Plan quick-save: F5 while dead writes nothing, F9 with no quick save only shows a toast; F5 writes it; F9 puts the
+# player back at the saved spot; the Load list shows it; F9 on the death screen loads it.
+level tests/levels/classic1
+wait 5
+hurt 9999
+expect alive == 0
+wait 140
+expect death_screen == 1
+key f5
+wait 2
+key f9
+wait 2
+expect death_screen == 1
+expect quicksave == 0
+screenshot no_quick_save
+level tests/levels/classic1
+wait 5
+expect alive == 1
+key f9
+wait 2
+expect quicksave == 0
+key f5
+wait 2
+expect quicksave == 1
+screenshot quick_saved
+walk right 3
+wait 2
+expect x > 8
+key f9
+wait 2
+expect x < 8
+expect alive == 1
+# The Load list: the autosave and the quick save across the top.
+key esc
+wait 2
+click 50 45.9
+wait 2
+screenshot load_screen
+key esc
+wait 2
+key esc
+wait 2
+# Dead: F9 on the death screen loads the quick save.
+hurt 9999
+expect alive == 0
+wait 140
+expect death_screen == 1
+key f9
+wait 2
+expect death_screen == 0
+expect alive == 1
+expect x < 8

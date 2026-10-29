@@ -69,7 +69,7 @@ SaveSlots::Info SaveSlots::Describe(int slot) const {
 	return info;
 }
 
-SaveSlots::Info SaveSlots::DescribeAutosave(const std::string& path) {
+SaveSlots::Info SaveSlots::DescribeFile(const std::string& path) {
 	Info info;
 	if (!fileTime(path, info.when))
 		return info;

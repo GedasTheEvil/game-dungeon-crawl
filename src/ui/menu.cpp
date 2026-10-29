@@ -36,11 +36,13 @@ constexpr float SLOT_H = 16.f;
 constexpr float SLOT_GAP_X = 4.f;
 constexpr float SLOT_GAP_Y = 3.5f;
 constexpr Rect BACK_BUTTON = {63, 9.5f, 34, 8};
-// Load Game (plan autosave): the autosave across the top, the six slots in the three rows under it, a little lower.
+// Load Game (plan autosave): the autosave and the quick save (plan quick-save) across the top, the six slots in the
+// three rows under it, a little lower.
 constexpr Rect LOAD_PANEL = {12, 20, 136, 65};
 constexpr float LOAD_SLOT_H = 12.5f;
 constexpr float LOAD_GAP_Y = 2.5f;
 constexpr int AUTOSAVE_TARGET = SaveSlots::COUNT; // the click target after the slots'
+constexpr int QUICKSAVE_TARGET = AUTOSAVE_TARGET + 1; // plan quick-save: right of the autosave
 
 constexpr Rect OPTIONS_PANEL = {6, 20, 148, 64};
 constexpr float TAB_W = 30.f;
@@ -82,8 +84,8 @@ Rect buttonRect(int index, int count) {
 	return {CENTRE - BUTTON_W / 2, first - static_cast<float>(index) * step, BUTTON_W, BUTTON_H};
 }
 
-// Slots 1-3 in the left column, 4-6 in the right one, top to bottom. Load Game: AUTOSAVE_TARGET over both columns,
-// the slots a row lower and lower.
+// Slots 1-3 in the left column, 4-6 in the right one, top to bottom. Load Game: AUTOSAVE_TARGET and QUICKSAVE_TARGET
+// in the top row (left, right), the slots a row lower and lower.
 Rect slotRect(int slot, bool load) {
 	const Rect panel = load ? LOAD_PANEL : SLOT_PANEL;
 	const float h = load ? LOAD_SLOT_H : SLOT_H;
@@ -91,7 +93,9 @@ Rect slotRect(int slot, bool load) {
 	float x0 = panel.cx() - SLOT_W - SLOT_GAP_X / 2;
 	float top = panel.y + panel.h - 4.f;
 	if (slot == AUTOSAVE_TARGET)
-		return {x0, top - h, 2 * SLOT_W + SLOT_GAP_X, h};
+		return {x0, top - h, SLOT_W, h};
+	if (slot == QUICKSAVE_TARGET)
+		return {x0 + SLOT_W + SLOT_GAP_X, top - h, SLOT_W, h};
 	int column = slot / 3;
 	int row = slot % 3 + (load ? 1 : 0);
 	return {
@@ -565,17 +569,22 @@ void MainMenu::DrawButtons() {
 }
 
 void MainMenu::DrawSlots() {
-	if (loadD)
+	if (loadD) {
 		DrawSlot(AUTOSAVE_TARGET);
+		DrawSlot(QUICKSAVE_TARGET);
+	}
 	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
 		DrawSlot(slot);
 }
 
-// A save slot, or the autosave (AUTOSAVE_TARGET) in Load Game. The text sits as on the Save Game's taller tiles,
-// scaled to the tile.
+// A save slot, or the autosave or the quick save (AUTOSAVE_TARGET, QUICKSAVE_TARGET) in Load Game. The text sits as on
+// the Save Game's taller tiles, scaled to the tile.
 void MainMenu::DrawSlot(int slot) {
-	const bool autosave = slot == AUTOSAVE_TARGET;
-	SaveSlots::Info info = autosave ? SaveSlots::DescribeAutosave(Game().AutosavePath()) : Game().saves.Describe(slot);
+	const bool quicksave = slot == QUICKSAVE_TARGET;
+	const bool autosave = slot == AUTOSAVE_TARGET || quicksave; // the game's own files, read-only
+	SaveSlots::Info info = slot == AUTOSAVE_TARGET ? SaveSlots::DescribeFile(Game().AutosavePath())
+						   : quicksave			   ? SaveSlots::DescribeFile(Game().QuicksavePath())
+												   : Game().saves.Describe(slot);
 	bool enabled = saveD || info.used;
 	bool isHovered = enabled && hovered == slot;
 	bool held = isHovered && pressed == slot;
@@ -591,7 +600,13 @@ void MainMenu::DrawSlot(int slot) {
 		fillRect(well, WELL, WELL, 0.9f);
 	strokeRect(well, info.used ? GOLD : BRONZE, 1.f, info.used ? 1.5f : 1.f);
 	if (autosave)
-		drawIcon(Icon::Ankh, well.cx(), well.cy(), well.h * 0.3f, info.used ? GOLD : LABEL_DIM);
+		drawIcon(
+			quicksave ? Icon::Save : Icon::Ankh,
+			well.cx(),
+			well.cy(),
+			well.h * 0.3f,
+			info.used ? GOLD : LABEL_DIM
+		);
 
 	float textX = well.x + well.w + 3.5f;
 	if (info.used) // divider between the level and the date
@@ -606,9 +621,13 @@ void MainMenu::DrawSlot(int slot) {
 
 	if (info.used) {
 		char level[40] = "Saved game";
-		if (autosave)
-			std::snprintf(level, sizeof(level), info.level > 0 ? "Autosave, level %d" : "Autosave", info.level);
-		else if (info.level > 0)
+		if (autosave) {
+			const char* name = quicksave ? "Quick save" : "Autosave";
+			if (info.level > 0)
+				std::snprintf(level, sizeof(level), "%s, level %d", name, info.level);
+			else
+				std::snprintf(level, sizeof(level), "%s", name);
+		} else if (info.level > 0)
 			std::snprintf(level, sizeof(level), "Level %d", info.level);
 		if (info.level > 0 && !campaignLevelTitle(info.level).empty()) { // plan campaign-texts: if it fits
 			const std::string titled = std::string(level) + ": " + campaignLevelTitle(info.level);
@@ -626,7 +645,9 @@ void MainMenu::DrawSlot(int slot) {
 			heading,
 			textX,
 			r.cy(),
-			autosave ? "No autosave yet" : "Empty slot",
+			quicksave  ? "No quick save yet"
+			: autosave ? "No autosave yet"
+					   : "Empty slot",
 			isHovered ? GOLD_BRIGHT : LABEL_DIM
 		);
 	}
@@ -793,7 +814,8 @@ void MainMenu::DrawControls(float left, float right) {
 		small,
 		(left + right) / 2,
 		FIXED_KEYS_Y,
-		"Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    mouse movement looks around",
+		"Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    F5 quick save    F9 quick load    mouse movement "
+		"looks around",
 		LABEL_DIM
 	);
 	beginShapes();
@@ -878,6 +900,8 @@ int MainMenu::TargetAt(int x, int y) {
 				return saveD || Game().saves.Describe(slot).used ? slot : NONE;
 		if (loadD && slotRect(AUTOSAVE_TARGET, true).contains(cx, cy))
 			return Game().HasAutosave() ? AUTOSAVE_TARGET : NONE;
+		if (loadD && slotRect(QUICKSAVE_TARGET, true).contains(cx, cy))
+			return Game().HasQuicksave() ? QUICKSAVE_TARGET : NONE;
 		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	}
 	int count = menuButtons(inGame).count;
@@ -917,6 +941,10 @@ void MainMenu::Activate(int target) {
 	}
 	if (loadD && target == AUTOSAVE_TARGET) {
 		Game().LoadAutosave();
+		return;
+	}
+	if (loadD && target == QUICKSAVE_TARGET) {
+		Game().LoadSaveIntoGame(Game().QuicksavePath());
 		return;
 	}
 	if (loadD) {

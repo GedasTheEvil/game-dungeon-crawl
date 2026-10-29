@@ -512,7 +512,10 @@ void specialKeyPressed(int key, int x, int y) {
 		return;
 	}
 	if (Game().ui.screen == Screen::Death) {
-		Game().ui.death.SpecialKeyPressed(key);
+		if (key == SPECIAL_QUICK_LOAD) // plan quick-save: also from the death screen
+			Game().LoadQuicksave();
+		else
+			Game().ui.death.SpecialKeyPressed(key);
 		return;
 	}
 	if (Game().ui.screen == Screen::Menu)
@@ -540,6 +543,10 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 	if (key == SPECIAL_TOGGLE_HITBOXES)
 		Game().render.Hitboxes = !Game().render.Hitboxes;
+	if (key == SPECIAL_QUICK_SAVE && !Game().ui.winEntry.Typing())
+		Game().Quicksave();
+	if (key == SPECIAL_QUICK_LOAD && !Game().ui.winEntry.Typing())
+		Game().LoadQuicksave();
 }
 
 void keyReleased(unsigned char key, int x, int y) {

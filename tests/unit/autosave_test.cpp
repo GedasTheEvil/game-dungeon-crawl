@@ -146,12 +146,12 @@ TEST_CASE("the autosave is no save slot: its own file, read with its level") {
 		CHECK(SaveSlots::FileName(slot) != SaveSlots::AUTOSAVE);
 	const std::string path = "build/autosave_test.sav";
 	std::filesystem::remove(path);
-	CHECK_FALSE(SaveSlots::DescribeAutosave(path).used);
+	CHECK_FALSE(SaveSlots::DescribeFile(path).used);
 	{
 		std::ofstream out(path);
 		out << "12 STATS";
 	}
-	const SaveSlots::Info info = SaveSlots::DescribeAutosave(path);
+	const SaveSlots::Info info = SaveSlots::DescribeFile(path);
 	CHECK(info.used);
 	CHECK(info.level == 12);
 	CHECK_FALSE(info.when.empty());

@@ -564,7 +564,8 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"curses", Field::Curses},
 		{"records", Field::Records},
 		{"deaths", Field::Deaths},
-		{"death_screen", Field::DeathScreen}
+		{"death_screen", Field::DeathScreen},
+		{"quicksave", Field::Quicksave}
 	};
 	return DEFS;
 }

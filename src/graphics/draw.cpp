@@ -88,7 +88,8 @@ void drawWeapon() { // in the fist nearer the camera
 	weapon->rotA = spin;
 }
 
-// "Autosaved" (plan autosave): small, top left, fading out as the screens' toasts do.
+// "Autosaved" (plan autosave), "Quick saved" and "No quick save" (plan quick-save): small, top left, fading out as the
+// screens' toasts do.
 void drawAutosaved() {
 	const float alpha = Game().ui.autosaved.Alpha(GameClock::now());
 	if (alpha <= 0.f)
@@ -96,8 +97,8 @@ void drawAutosaved() {
 	ui::beginSquareCanvas(ui::CANVAS_H, Game().render.resX, Game().render.resY);
 	ui::beginText();
 	Font& font = Game().assets.fonts.hudBody;
-	ui::text(font, 3.3f, 94.2f, "Autosaved", ui::BLACK, 0.6f * alpha); // shadow
-	ui::text(font, 3.f, 94.5f, "Autosaved", ui::GOLD, alpha);
+	ui::text(font, 3.3f, 94.2f, Game().ui.autosaved.text.c_str(), ui::BLACK, 0.6f * alpha); // shadow
+	ui::text(font, 3.f, 94.5f, Game().ui.autosaved.text.c_str(), ui::GOLD, alpha);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glColor3f(1, 1, 1);
 }

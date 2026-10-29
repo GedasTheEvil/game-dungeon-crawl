@@ -21,6 +21,8 @@ const unsigned char KEY_MOVE_UP_UPPER = 'W';
 // special key codes).
 const int SPECIAL_TOGGLE_CARTOON = 1;
 const int SPECIAL_TOGGLE_HITBOXES = 3;
+const int SPECIAL_QUICK_SAVE = 5; // F5 (plan quick-save)
+const int SPECIAL_QUICK_LOAD = 9; // F9
 const int SPECIAL_MOVE_LEFT = 100;
 const int SPECIAL_MOVE_UP = 101;
 const int SPECIAL_MOVE_RIGHT = 102;

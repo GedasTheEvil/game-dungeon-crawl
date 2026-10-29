@@ -276,7 +276,7 @@ std::string GameState::AutosavePath() const {
 	return Scenario::active() ? Scenario::outputDir() + "/autosave.sav" : SaveSlots::AUTOSAVE;
 }
 
-bool GameState::HasAutosave() const { return SaveSlots::DescribeAutosave(AutosavePath()).used; }
+bool GameState::HasAutosave() const { return SaveSlots::DescribeFile(AutosavePath()).used; }
 
 void GameState::Autosave(AutosaveMoment moment) {
 	if (!player->Alive() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
@@ -285,11 +285,34 @@ void GameState::Autosave(AutosaveMoment moment) {
 	ui.autosaved.Show("Autosaved", GameClock::now());
 }
 
-void GameState::LoadAutosave() {
-	LoadSave(AutosavePath().c_str());
+void GameState::LoadAutosave() { LoadSaveIntoGame(AutosavePath()); }
+
+void GameState::LoadSaveIntoGame(const std::string& path) {
+	LoadSave(path.c_str());
 	ui.screen = Screen::Gameplay;
 	ui.menu.ResetSubScreens();
 	ui.menu.inGame = true;
+}
+
+std::string GameState::QuicksavePath() const {
+	return Scenario::active() ? Scenario::outputDir() + "/quicksave.sav" : SaveSlots::QUICKSAVE;
+}
+
+bool GameState::HasQuicksave() const { return SaveSlots::DescribeFile(QuicksavePath()).used; }
+
+void GameState::Quicksave() {
+	if (!player->Alive())
+		return;
+	Save(QuicksavePath().c_str());
+	ui.autosaved.Show("Quick saved", GameClock::now());
+}
+
+void GameState::LoadQuicksave() {
+	if (!HasQuicksave()) {
+		ui.autosaved.Show("No quick save", GameClock::now());
+		return;
+	}
+	LoadSaveIntoGame(QuicksavePath());
 }
 
 // A load puts the saved count back, so the file learns the death now: a retry, or Continue after a restart, keeps it.

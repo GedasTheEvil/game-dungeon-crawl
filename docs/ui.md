@@ -90,7 +90,7 @@ riddle.
 `GOLD` corner studs. The main container of a screen. Standard rects:
 
 * Menu buttons: `{46, 19, 68, 64}`
-* Save slots: `{12, 22, 136, 62}`; Load: `{12, 20, 136, 65}` (the autosave across the top, the slots 12.5 high under it)
+* Save slots: `{12, 22, 136, 62}`; Load: `{12, 20, 136, 65}` (the autosave and the quick save side by side across the top, the slots 12.5 high under them)
 * Main menu with Continue (seven buttons): `{46, 10, 68, 74}`
 * Death screen: `{46, 28, 68, 38}`, two 56 x 9 buttons
 * Options: `{6, 20, 148, 64}`

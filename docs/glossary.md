@@ -241,8 +241,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | autosave | Autosave | the one save the game writes itself at safe moments (a level start, a riddle answered, a boss slain), never while the player is in danger; `saves/autosave.sav`, read-only for the player ([autosave](plan/solved/autosave.md)) | `GameState::Autosave`, `SaveSlots::AUTOSAVE`, `AutosaveMoment` |
-| quick save | Quick saved, Quick save | the one save F5 writes at once (only while alive) and F9 loads, also from the death screen; `saves/quicksave.sav`, no slot ([quick save](plan/quick-save.md)) | `GameState::Quicksave`, `LoadQuicksave`, `SaveSlots::QUICKSAVE` |
-| Continue | Continue | the main menu's first button while any save exists: loads the newest one ([retry latest save](plan/retry-latest-save.md)) | `MenuAction::Continue`, `GameState::LoadLatestSave` |
+| quick save | Quick saved, Quick save | the one save F5 writes at once (only while alive) and F9 loads, also from the death screen; `saves/quicksave.sav`, no slot ([quick save](plan/solved/quick-save.md)) | `GameState::Quicksave`, `LoadQuicksave`, `SaveSlots::QUICKSAVE` |
+| Continue | Continue | the main menu's first button while any save exists: loads the newest one ([retry latest save](plan/solved/retry-latest-save.md)) | `MenuAction::Continue`, `GameState::LoadLatestSave` |
 | newest save | Retry from Slot 3, Retry from Quick Save | the save with the latest file time among the autosave, the six slots and the quick save; the death screen's Retry and Continue load it | `GameState::LatestSave`, `SaveSlots::PickLatest` |
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
 | death screen | You died | the panel over the dimmed game after the death clip: Retry from the newest save, Main Menu | `DeathScreen`, `Screen::Death` |

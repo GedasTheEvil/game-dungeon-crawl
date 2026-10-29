@@ -1,6 +1,6 @@
 # Sharper text: a bigger font sheet, Parchment MF for Papyrus
 
-Status: implemented 2026-10-29, waiting for a play-test (Done, below). Draft 2026-10-28, refined 2026-10-28 (Parchment MF replaces Papyrus). From the user: the
+Status: done 2026-10-29, verified in play 2026-10-29 (Done, below). Draft 2026-10-28, refined 2026-10-28 (Parchment MF replaces Papyrus). From the user: the
 fonts come from a small PNG; big text, like the menu's, already looks washed out. Regenerate the font texture at a
 higher resolution with the tool we have. There is no Papyrus TTF: use Parchment MF instead
 (`/home/gediminas.skucas/Font/Parchment-MF/Parchment MF.ttf`).

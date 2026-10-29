@@ -145,7 +145,7 @@ constexpr std::array<MenuButton, 6> MAIN_BUTTONS = {{
 	{"Credits", Icon::Ankh, MenuAction::Credits, false},
 	{"Exit", Icon::Exit, MenuAction::Quit, false},
 }};
-// With an autosave (plan autosave): Continue first, New Game under it.
+// With a save (plan autosave, retry-latest-save): Continue (the newest save) first, New Game under it.
 constexpr std::array<MenuButton, 7> CONTINUE_BUTTONS = {{
 	{"Continue", Icon::Play, MenuAction::Continue, true},
 	{"New Game", Icon::Pyramid, MenuAction::NewGame, false},
@@ -315,7 +315,7 @@ struct ButtonList {
 ButtonList menuButtons(bool inGame) {
 	if (inGame)
 		return {IN_GAME_BUTTONS.data(), static_cast<int>(IN_GAME_BUTTONS.size())};
-	if (Game().HasAutosave())
+	if (Game().LatestSave())
 		return {CONTINUE_BUTTONS.data(), static_cast<int>(CONTINUE_BUTTONS.size())};
 	return {MAIN_BUTTONS.data(), static_cast<int>(MAIN_BUTTONS.size())};
 }
@@ -458,7 +458,7 @@ void drawMouse(float x, float y, MouseInput m, float scale) {
 // ---- save slots ------------------------------------------------------------
 
 void saveToSlot(int slot) {
-	Game().Save(SaveSlots::FileName(slot).c_str());
+	Game().Save(Game().SlotPath(slot).c_str());
 	Game().saves.Record(slot, Game().dungeon.LevelNumber());
 }
 } // namespace
@@ -948,7 +948,7 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (loadD) {
-		Game().LoadSave(SaveSlots::FileName(target).c_str());
+		Game().LoadSave(Game().SlotPath(target).c_str());
 		ResetSubScreens();
 		Game().ui.screen = Screen::Gameplay;
 		inGame = true;
@@ -957,7 +957,7 @@ void MainMenu::Activate(int target) {
 
 	switch (menuButtons(inGame)[target].action) {
 	case MenuAction::Continue:
-		Game().LoadAutosave();
+		Game().LoadLatestSave();
 		break;
 	case MenuAction::NewGame:
 		Game().ui.screen = Screen::Gameplay;

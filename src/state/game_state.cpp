@@ -2,6 +2,7 @@
 #include "loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
+#include <filesystem>
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
 #include <fstream>
@@ -315,6 +316,23 @@ void GameState::LoadQuicksave() {
 	LoadSaveIntoGame(QuicksavePath());
 }
 
+std::string GameState::SlotPath(int slot) const {
+	return Scenario::active() ? Scenario::outputDir() + "/save" + std::to_string(slot) + ".sav"
+							  : SaveSlots::FileName(slot);
+}
+
+std::optional<SaveSlots::Latest> GameState::LatestSave() const {
+	std::array<std::string, SaveSlots::COUNT> slots;
+	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
+		slots[static_cast<size_t>(slot)] = SlotPath(slot);
+	return SaveSlots::PickLatest(AutosavePath(), slots, QuicksavePath());
+}
+
+void GameState::LoadLatestSave() {
+	if (const auto latest = LatestSave())
+		LoadSaveIntoGame(latest->path);
+}
+
 // A load puts the saved count back, so the file learns the death now: a retry, or Continue after a restart, keeps it.
 void GameState::CountDeath() {
 	const int deaths = ++player->stats.run.deaths;
@@ -331,8 +349,15 @@ void GameState::CountDeath() {
 		LOG_WARNING("game", "The autosave has no run statistics: its deaths stay");
 		return;
 	}
-	std::ofstream out(AutosavePath());
-	out << text;
+	// The file's time stays the save's own: the newest save (plan retry-latest-save) goes by it.
+	std::error_code error;
+	const auto written = std::filesystem::last_write_time(AutosavePath(), error);
+	{
+		std::ofstream out(AutosavePath());
+		out << text;
+	}
+	if (!error)
+		std::filesystem::last_write_time(AutosavePath(), written, error);
 }
 //==============================================================
 void GameState::ApplySettings(bool save) {

@@ -242,9 +242,10 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | autosave | Autosave | the one save the game writes itself at safe moments (a level start, a riddle answered, a boss slain), never while the player is in danger; `saves/autosave.sav`, read-only for the player ([autosave](plan/solved/autosave.md)) | `GameState::Autosave`, `SaveSlots::AUTOSAVE`, `AutosaveMoment` |
 | quick save | Quick saved, Quick save | the one save F5 writes at once (only while alive) and F9 loads, also from the death screen; `saves/quicksave.sav`, no slot ([quick save](plan/quick-save.md)) | `GameState::Quicksave`, `LoadQuicksave`, `SaveSlots::QUICKSAVE` |
-| Continue | Continue | the main menu's first button while an autosave exists: loads it | `MenuAction::Continue`, `GameState::LoadAutosave` |
+| Continue | Continue | the main menu's first button while any save exists: loads the newest one ([retry latest save](plan/retry-latest-save.md)) | `MenuAction::Continue`, `GameState::LoadLatestSave` |
+| newest save | Retry from Slot 3, Retry from Quick Save | the save with the latest file time among the autosave, the six slots and the quick save; the death screen's Retry and Continue load it | `GameState::LatestSave`, `SaveSlots::PickLatest` |
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
-| death screen | You died | the panel over the dimmed game after the death clip: Retry from Autosave, Main Menu | `DeathScreen`, `Screen::Death` |
+| death screen | You died | the panel over the dimmed game after the death clip: Retry from the newest save, Main Menu | `DeathScreen`, `Screen::Death` |
 | deaths | Deaths | a run's deaths, counted at the death and written into the autosave then, so a retry keeps them | `RunStats::deaths` |
 | exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 | `explorationScore` |
 | Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |

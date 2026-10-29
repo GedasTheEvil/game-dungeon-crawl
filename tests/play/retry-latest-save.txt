@@ -1,0 +1,6 @@
+# Plan retry-latest-save, for `bin/game --play tests/play/retry-latest-save.txt`: tests/levels/autosave_play at 10 HP.
+# Esc > Save Game into a slot, then walk right into the rats and die: the first button reads "Retry from Slot N" and
+# puts you back at the slot save, not at the older autosave. F5 first and the button reads "Retry from Quick Save".
+# Esc on the death screen, the main menu: Continue loads the same newest save.
+level tests/levels/autosave_play
+hurt 40

@@ -1,6 +1,7 @@
 #include "save_slots.h"
 #include "../core/logger.h"
 #include <cstdio>
+#include <filesystem>
 #include <ctime>
 #include <fstream>
 #include <sys/stat.h>
@@ -78,4 +79,38 @@ SaveSlots::Info SaveSlots::DescribeFile(const std::string& path) {
 	if (!(f >> info.level))
 		info.level = 0;
 	return info;
+}
+
+std::string SaveSlots::Latest::Label() const {
+	switch (kind) {
+	case Kind::Slot:
+		return "Slot " + std::to_string(slot + 1);
+	case Kind::Quicksave:
+		return "Quick Save";
+	case Kind::Autosave:
+		break;
+	}
+	return "Autosave";
+}
+
+std::optional<SaveSlots::Latest> SaveSlots::PickLatest(
+	const std::string& autosave,
+	const std::array<std::string, COUNT>& slots,
+	const std::string& quicksave
+) {
+	std::optional<Latest> best;
+	std::filesystem::file_time_type bestTime;
+	const auto consider = [&](Latest::Kind kind, int slot, const std::string& path) {
+		std::error_code error;
+		const auto time = std::filesystem::last_write_time(path, error);
+		if (error || (best && time < bestTime))
+			return;
+		best = Latest{kind, slot, path};
+		bestTime = time;
+	};
+	consider(Latest::Kind::Autosave, 0, autosave);
+	for (int slot = 0; slot < COUNT; slot++)
+		consider(Latest::Kind::Slot, slot, slots[static_cast<size_t>(slot)]);
+	consider(Latest::Kind::Quicksave, 0, quicksave);
+	return best;
 }

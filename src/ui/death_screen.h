@@ -6,7 +6,7 @@
 
 /// @file death_screen.h
 /// The death screen (plan autosave): once the death clip has played, a panel over the dimmed game with two buttons,
-/// Retry from Autosave (greyed out without an autosave) and Main Menu. A screen of its own (Screen::Death): no ticks,
+/// Retry from the newest save (greyed out without one) and Main Menu. A screen of its own (Screen::Death): no ticks,
 /// no other screen opens over it.
 
 class DeathScreen {
@@ -27,7 +27,8 @@ class DeathScreen {
 	static constexpr int MAIN_MENU = 1;
 	State state = State::Alive;
 	int diedMs = 0;
-	bool retryEnabled = false; // an autosave was there when the screen opened
+	bool retryEnabled = false; // a save was there when the screen opened
+	std::string retryLabel; // "Retry from Slot 3": the newest save then (plan retry-latest-save)
 	int focus = MAIN_MENU; // the keys' and the mouse's button
 	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same button
 	bool fontsLoaded = false;

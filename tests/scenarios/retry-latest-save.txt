@@ -1,0 +1,28 @@
+# Plan retry-latest-save: the death screen's Retry names and loads the newest save: the autosave, then a slot saved
+# by hand later, then the quick save.
+level tests/levels/classic1
+wait 5
+autosave
+expect latest_save == -1
+walk right 3
+wait 2
+savegame save2.sav
+expect latest_save == 3
+hurt 9999
+expect alive == 0
+wait 140
+expect death_screen == 1
+screenshot retry_slot
+click 50 46.5
+wait 2
+expect death_screen == 0
+expect alive == 1
+expect x > 8
+# The quick save, newer still.
+key f5
+wait 2
+expect latest_save == -2
+hurt 9999
+wait 140
+expect death_screen == 1
+screenshot retry_quick_save

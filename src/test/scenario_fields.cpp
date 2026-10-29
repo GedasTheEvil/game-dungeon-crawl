@@ -103,6 +103,15 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().ui.screen == Screen::Death ? 1.f : 0.f;
 	case Field::Quicksave:
 		return Game().HasQuicksave() ? 1.f : 0.f;
+	case Field::LatestSave: { // plan retry-latest-save: 0 none, -1 autosave, -2 quick save, else the slot's number
+		const auto latest = Game().LatestSave();
+		if (!latest)
+			return 0.f;
+		using Kind = SaveSlots::Latest::Kind;
+		return latest->kind == Kind::Autosave	 ? -1.f
+			   : latest->kind == Kind::Quicksave ? -2.f
+												 : static_cast<float>(latest->slot + 1);
+	}
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:

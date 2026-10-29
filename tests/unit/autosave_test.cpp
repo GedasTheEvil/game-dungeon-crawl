@@ -6,6 +6,8 @@
 #include "../../src/world/run_stats.h"
 #include "sim_world.h"
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -156,4 +158,49 @@ TEST_CASE("the autosave is no save slot: its own file, read with its level") {
 	CHECK(info.level == 12);
 	CHECK_FALSE(info.when.empty());
 	std::filesystem::remove(path);
+}
+
+TEST_CASE("the newest save by file time wins: autosave, a slot or the quick save; none without files") {
+	namespace fs = std::filesystem;
+	const fs::path dir = "build/latest_save_test";
+	fs::remove_all(dir);
+	fs::create_directories(dir);
+	const std::string autosave = (dir / "autosave.sav").string();
+	const std::string quicksave = (dir / "quicksave.sav").string();
+	std::array<std::string, SaveSlots::COUNT> slots;
+	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
+		slots[static_cast<size_t>(slot)] = (dir / ("save" + std::to_string(slot) + ".sav")).string();
+	const auto touch = [](const std::string& path, int secondsAgo) {
+		std::ofstream(path) << "1 STATS";
+		fs::last_write_time(path, fs::file_time_type::clock::now() - std::chrono::seconds(secondsAgo));
+	};
+
+	CHECK_FALSE(SaveSlots::PickLatest(autosave, slots, quicksave).has_value());
+
+	touch(autosave, 100);
+	auto latest = SaveSlots::PickLatest(autosave, slots, quicksave);
+	REQUIRE(latest.has_value());
+	CHECK(latest->Label() == "Autosave");
+	CHECK(latest->path == autosave);
+
+	touch(slots[2], 50); // saved by hand after the autosave
+	latest = SaveSlots::PickLatest(autosave, slots, quicksave);
+	REQUIRE(latest.has_value());
+	CHECK(latest->kind == SaveSlots::Latest::Kind::Slot);
+	CHECK(latest->slot == 2);
+	CHECK(latest->Label() == "Slot 3");
+	CHECK(latest->path == slots[2]);
+
+	touch(slots[4], 80); // an older slot does not win
+	CHECK(SaveSlots::PickLatest(autosave, slots, quicksave)->slot == 2);
+
+	touch(quicksave, 10);
+	latest = SaveSlots::PickLatest(autosave, slots, quicksave);
+	REQUIRE(latest.has_value());
+	CHECK(latest->kind == SaveSlots::Latest::Kind::Quicksave);
+	CHECK(latest->Label() == "Quick Save");
+
+	touch(autosave, 1); // the autosave newest again
+	CHECK(SaveSlots::PickLatest(autosave, slots, quicksave)->Label() == "Autosave");
+	fs::remove_all(dir);
 }

@@ -126,7 +126,8 @@ enum class Field : unsigned char {
 	Records,
 	Deaths,
 	DeathScreen,
-	Quicksave
+	Quicksave,
+	LatestSave
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

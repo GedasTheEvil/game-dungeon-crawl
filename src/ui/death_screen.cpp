@@ -15,7 +15,6 @@ using namespace ui;
 constexpr Rect PANEL = {46, 28, 68, 38};
 constexpr float TITLE_Y = 56.f;
 constexpr std::array<Rect, 2> BUTTONS = {{{52, 42, 56, 9}, {52, 31, 56, 9}}};
-constexpr std::array<const char*, 2> LABELS = {"Retry from Autosave", "Main Menu"};
 constexpr float DIM = 0.55f; // the game behind the panel
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -37,14 +36,16 @@ void DeathScreen::Follow() {
 		return;
 	state = State::Shown;
 	game.ui.screen = Screen::Death;
-	retryEnabled = game.HasAutosave();
+	const auto latest = game.LatestSave();
+	retryEnabled = latest.has_value();
+	retryLabel = latest ? "Retry from " + latest->Label() : "Retry";
 	focus = retryEnabled ? RETRY : MAIN_MENU;
 	pressed = NONE;
 }
 
 void DeathScreen::activate(int button) {
-	if (button == RETRY && retryEnabled && Game().HasAutosave()) {
-		Game().LoadAutosave();
+	if (button == RETRY && retryEnabled && Game().LatestSave()) {
+		Game().LoadLatestSave();
 		return;
 	}
 	if (button != MAIN_MENU)
@@ -125,7 +126,7 @@ void DeathScreen::Draw(int resX, int resY) {
 		const Rect r = tile(BUTTONS[static_cast<size_t>(i)], style, focused, focused && pressed == i);
 		beginText();
 		const Color c = !enabled ? LABEL_DIM : focused ? TEXT_HOVER : primary ? GOLD : LABEL;
-		textCenteredIn(heading, r, LABELS[static_cast<size_t>(i)], c);
+		textCenteredIn(heading, r, i == RETRY ? retryLabel.c_str() : "Main Menu", c);
 		beginShapes();
 	}
 
@@ -135,7 +136,7 @@ void DeathScreen::Draw(int resX, int resY) {
 		small,
 		PANEL.cx(),
 		PANEL.y - 4.5f,
-		retryEnabled ? "Enter: pick    Esc: main menu" : "No autosave yet    Esc: main menu",
+		retryEnabled ? "Enter: pick    Esc: main menu" : "No save yet    Esc: main menu",
 		LABEL_DIM
 	);
 

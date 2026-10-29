@@ -77,3 +77,5 @@ and its legs move too slowly as well. Each monster needs its own walk clip pace,
   cobra 1.31, baboon 2.05, camel spider 1.05, bat 0.84 (a flyer: 0.86 at `CLIP_SPEED` already, kept). Their strides
   give that at the base kind's walk on land; kin on a bigger scale take longer rounds (the scorpion queen 6.1 s, Apep
   3.8 s, the High Priest 3.0 s).
+* By eye too: the scarab 0.67 s (its own stride now; the giant scarab and Khepri keep the measured 0.29, rated
+  perfect), the crocodile on land 1.31 s (Sobek 2.5 s). Kin on one model need not share a stride any more.

@@ -2,21 +2,15 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include <algorithm>
-#include <map>
-#include <string>
 
-TEST_CASE("every walker has a stride, the same for every kind on its model; a flyer has none") {
-	std::map<std::string, float> strides;
+TEST_CASE("every walker has a stride; a flyer has none") {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
 		const MonsterKind& kind = *monsterKind(id);
 		CAPTURE(kind.name);
-		if (kind.locomotion == Locomotion::Fly || kind.speed <= 0.f) {
+		if (kind.locomotion == Locomotion::Fly || kind.speed <= 0.f)
 			CHECK(kind.walkStride == 0.f);
-			continue;
-		}
-		CHECK(kind.walkStride > 0.f);
-		const auto [it, first] = strides.emplace(kind.model, kind.walkStride);
-		CHECK(it->second == kind.walkStride);
+		else
+			CHECK(kind.walkStride > 0.f);
 	}
 }
 

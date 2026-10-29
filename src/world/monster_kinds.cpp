@@ -217,17 +217,18 @@ constexpr Resistances bossResist(Resistances kin) {
 // Walk strides (MonsterKind::walkStride, plan walk-clip-stride), model units. Measured from the walk clips: how far a
 // planted foot goes back in one round (tools/blender/md3_stride.py).
 constexpr float BABI_STRIDE = 0.92f;
-constexpr float CROCODILE_STRIDE = 0.12f;
 constexpr float HIPPO_STRIDE = 0.19f;
 constexpr float MUMMY_PRIEST_STRIDE = 0.93f;
-constexpr float SCARAB_STRIDE = 0.29f;
+constexpr float GIANT_SCARAB_STRIDE = 0.29f; // the giant scarab and Khepri
 // Picked by eye in the model viewer: a round in that many seconds at the base kind's walk on land. Calmer than the
 // measured stride (Anubis 0.78, the scorpion 0.26: short steps for a fast walk, a frantic pace), the feet slide a bit.
 constexpr float ANUBIS_STRIDE = 1.37f; // 0.54 s
 constexpr float BABOON_STRIDE = 3.95f; // 2.05 s
 constexpr float CAMEL_SPIDER_STRIDE = 2.21f; // 1.05 s
 constexpr float COBRA_STRIDE = 0.69f; // 1.31 s, a slither
+constexpr float CROCODILE_STRIDE = 0.32f; // 1.31 s
 constexpr float MUMMY_STRIDE = 0.48f; // 1.64 s
+constexpr float SCARAB_STRIDE = 1.21f; // 0.67 s
 constexpr float SCORPION_STRIDE = 1.33f; // 0.95 s
 // Not a stride (a gallop, a crawl, a waddle, a hop): the pace they had at the usual clip speed.
 constexpr float RAT_STRIDE = 2.3f;
@@ -484,7 +485,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCARAB_RESIST,
 	 .locomotion = Locomotion::WalkJump,
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
-	 .walkStride = SCARAB_STRIDE,
+	 .walkStride = GIANT_SCARAB_STRIDE,
 	 .roll = GIANT_SCARAB_ROLL,
 	 .pounce = GIANT_SCARAB_POUNCE,
 	 .generated = {5, 10, 3}},
@@ -512,7 +513,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .meleeCurses =
 		 {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6}, CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
-	 .walkStride = SCARAB_STRIDE,
+	 .walkStride = GIANT_SCARAB_STRIDE,
 	 .roll = KHEPRI_ROLL,
 	 .pounce = KHEPRI_POUNCE,
 	 .kin = MonsterScarab,

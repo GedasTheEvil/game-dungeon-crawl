@@ -1,9 +1,11 @@
 #include "../../external/doctest/doctest.h"
+#include "../../src/core/gameplay_config.h"
 #include "../../src/core/timer.h"
 #include "../../src/entities/model_info.h"
 #include "../../src/world/level.h"
 #include "../../src/world/monster_kinds.h"
 #include "../../src/world/rng.h"
+#include <algorithm>
 #include <string>
 
 TEST_CASE("every monster model has its clips, measured round its centre") {
@@ -101,7 +103,7 @@ TEST_CASE("a model draws the step under way blended between two key frames") {
 	CHECK(start.a == 2);
 	CHECK(start.b == 3);
 	CHECK(start.t == doctest::Approx(0.f));
-	const FrameBlend half = BlendOf(p, 4, true, FRAME_STEP_MS / 2, 1000);
+	const FrameBlend half = BlendOf(p, 4, true, FRAME_STEP_PERIOD_MS / 2, 1000);
 	CHECK(half.a == 2);
 	CHECK(half.t == doctest::Approx(0.5f));
 	// Past the step not taken yet (a late tick): held at what it will set.
@@ -111,19 +113,19 @@ TEST_CASE("a model draws the step under way blended between two key frames") {
 
 	SUBCASE("a loop goes on from its last frame to frame 0") {
 		const AnimPlayback end{3.f, 0, 1.f};
-		const FrameBlend f = BlendOf(end, 4, true, FRAME_STEP_MS / 4, 1000);
+		const FrameBlend f = BlendOf(end, 4, true, FRAME_STEP_PERIOD_MS / 4, 1000);
 		CHECK(f.a == 3);
 		CHECK(f.b == 0);
 		CHECK(f.t == doctest::Approx(0.25f));
-		CHECK(BlendOf(end, 4, true, FRAME_STEP_MS, 1000).a == 0);
+		CHECK(BlendOf(end, 4, true, FRAME_STEP_PERIOD_MS, 1000).a == 0);
 	}
 	SUBCASE("a one-shot clip holds its last frame") {
 		const AnimPlayback nearEnd{2.5f, 0, 1.f}; // the next step clamps to 3
-		const FrameBlend f = BlendOf(nearEnd, 4, false, FRAME_STEP_MS / 2, 1000);
+		const FrameBlend f = BlendOf(nearEnd, 4, false, FRAME_STEP_PERIOD_MS / 2, 1000);
 		CHECK(f.a == 2);
 		CHECK(f.b == 3);
 		CHECK(f.t == doctest::Approx(0.75f));
-		const FrameBlend held = BlendOf({3.f, 0, 1.f}, 4, false, FRAME_STEP_MS / 2, 1000);
+		const FrameBlend held = BlendOf({3.f, 0, 1.f}, 4, false, FRAME_STEP_PERIOD_MS / 2, 1000);
 		CHECK(held.a == 3);
 		CHECK(held.b == 3);
 		CHECK(held.t == 0.f);
@@ -139,7 +141,7 @@ TEST_CASE("a model draws the step under way blended between two key frames") {
 	}
 	SUBCASE("the animation rate snaps the clock; key frames draw the stepped frame") {
 		// 24 poses a second: 70 ms shows the pose of 41.7 ms.
-		CHECK(BlendOf(p, 4, true, 70, 24).t == doctest::Approx(1000.f / 24.f / FRAME_STEP_MS));
+		CHECK(BlendOf(p, 4, true, 70, 24).t == doctest::Approx(1000.f / 24.f / FRAME_STEP_PERIOD_MS));
 		const FrameBlend keys = BlendOf({2.6f, 0, 1.f}, 4, true, FRAME_STEP_MS / 2, 0);
 		CHECK(keys.a == 2);
 		CHECK(keys.b == 2);
@@ -180,14 +182,38 @@ TEST_CASE("the walk clip plays as many rounds a second as asked; its attack clip
 	for (const ModelState state : {ModelState::Move, ModelState::Attack}) {
 		ClipPlayback playback{};
 		playback[static_cast<int>(state)].stepStart = GameClock::now();
-		for (int t = 0; t < 5; t++) { // half a second
-			GameClock::advance(FRAME_STEP_MS);
+		for (int t = 0; t < 5; t++) { // 0.56 s: five steps on the game's ticks
+			GameClock::advance(FRAME_STEP_PERIOD_MS);
 			info.Advance(state, playback, 0, info.WalkSpeed(2.2f));
 		}
 		const float frame = playback[static_cast<int>(state)].frame;
-		if (state == ModelState::Move) // 1.1 rounds: on through the loop's end, not snapped to frame 0
-			CHECK(frame == doctest::Approx(0.1f * 26.f));
+		if (state == ModelState::Move) // 1.232 rounds: on through the loop's end, not snapped to frame 0
+			CHECK(frame == doctest::Approx(0.232f * 26.f));
 		else
 			CHECK(frame == doctest::Approx(0.04f * ModelInfo::CLIP_SPEED * 5.f));
 	}
+}
+
+TEST_CASE("a fast walk clip plays on smoothly on the game's ticks, no hold before each step") {
+	GameClock::enableVirtual();
+	ModelInfo info;
+	info.clips[static_cast<int>(ModelState::Move)] = {true, 26, true};
+	ClipPlayback playback{};
+	AnimPlayback& p = playback[static_cast<int>(ModelState::Move)];
+	p.stepStart = GameClock::now();
+	const float speed = info.WalkSpeed(3.3f); // the Anubis guard's legs: 8.6 frames a step
+	float last = -1.f, least = 1e9f, most = 0.f;
+	for (int t = 0; t < 3000; t += UPDATE_TICK_MS) {
+		GameClock::advance(UPDATE_TICK_MS);
+		info.Advance(ModelState::Move, playback, 0, speed);
+		const FrameBlend f = BlendOf(p, 26, true, GameClock::now(), 1000);
+		const float pos = static_cast<float>(f.a) + f.t;
+		if (last >= 0.f) {
+			const float d = pos >= last ? pos - last : pos + 26.f - last;
+			least = std::min(least, d);
+			most = std::max(most, d);
+		}
+		last = pos;
+	}
+	CHECK(least > 0.5f * most); // every tick moves the legs on about as far
 }

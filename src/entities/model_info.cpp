@@ -65,7 +65,7 @@ FrameBlend BlendOf(const AnimPlayback& p, int frameCount, bool loop, int now, in
 	float pos = p.frame;
 	if (p.step > 0.f) {
 		const double shown = std::floor(static_cast<double>(now) * rate / 1000.0) * 1000.0 / rate;
-		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / FRAME_STEP_MS), 0.f, 1.f);
+		const auto k = std::clamp(static_cast<float>((shown - p.stepStart) / FRAME_STEP_PERIOD_MS), 0.f, 1.f);
 		float next = NextFrame(p.frame, frameCount, loop, p.step);
 		if (next < p.frame) // a loop starting over: on past the last frame into the next round
 			next += static_cast<float>(frameCount);
@@ -118,9 +118,9 @@ void ModelInfo::Advance(ModelState state, ClipPlayback& playback, int riseMs, fl
 }
 
 float ModelInfo::WalkSpeed(float cyclesPerSecond) const {
-	// AdvancePlayback steps 0.04 * speed frames every FRAME_STEP_MS.
+	// AdvancePlayback steps 0.04 * speed frames every FRAME_STEP_PERIOD_MS.
 	const auto frames = static_cast<float>(Clip(Shown(ModelState::Move)).frames);
-	return cyclesPerSecond * frames * static_cast<float>(FRAME_STEP_MS) / 40.f;
+	return cyclesPerSecond * frames * static_cast<float>(FRAME_STEP_PERIOD_MS) / 40.f;
 }
 
 bool ModelInfo::Finished(ModelState state, const ClipPlayback& playback) const {

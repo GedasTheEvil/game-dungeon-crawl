@@ -2,6 +2,7 @@
 #define MODEL_INFO_H
 
 #include "md3_mesh.h"
+#include "../core/gameplay_config.h"
 #include "../world/monster_kinds.h"
 #include "../world/rng.h"
 #include <array>
@@ -33,6 +34,9 @@ using ClipPlayback = std::array<AnimPlayback, MODEL_STATE_COUNT>;
 // Steps p through a clip of frameCount frames on the clock: speed / 25 frames every FRAME_STEP_MS. A looping clip
 // starts over, a one-shot one holds its last frame.
 constexpr int FRAME_STEP_MS = 100;
+// What a step really takes: the first tick at or past FRAME_STEP_MS, 112 ms on 16 ms ticks. BlendOf spreads a step
+// over it, so a fast clip (a walk of many frames a step) does not hold still at each step's end and shake.
+constexpr int FRAME_STEP_PERIOD_MS = (FRAME_STEP_MS + UPDATE_TICK_MS - 1) / UPDATE_TICK_MS * UPDATE_TICK_MS;
 void AdvancePlayback(AnimPlayback& p, int frameCount, bool loop, float speed);
 // The frame one step of AdvancePlayback moves frame to.
 [[nodiscard]] float NextFrame(float frame, int frameCount, bool loop, float step);

@@ -66,3 +66,7 @@ and its legs move too slowly as well. Each monster needs its own walk clip pace,
 * Play-test: `bin/game --play tests/play/walk-clip-stride.txt` (tests/levels/walk_stride_parade: a guard, a scarab, a
   scorpion, a camel spider, a giant scarab, a giant scorpion in turn, a half-water pool by the start). Tell which
   monsters still look off: a stride constant scales its legs' pace (smaller: faster legs).
+* Play-test 1 (2026-10-29): the giant scarab perfect, the scarab OK; the guard, the camel spider and the scorpions
+  shook. A step lands on the first 16 ms tick past `FRAME_STEP_MS`, at 112 ms, and `BlendOf` blended over 100 ms: the
+  pose held still the last 12 ms of every step, unseen at a frame or two a step, a shake at 8. `BlendOf` and
+  `WalkSpeed` now use the real `FRAME_STEP_PERIOD_MS` (112); clip timings are as before (the legs were 11% slow).

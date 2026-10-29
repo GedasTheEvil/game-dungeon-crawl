@@ -15,8 +15,8 @@ after the last autosave loses that progress. Offer the newest save instead, by f
 * **Death screen** (`src/ui/death_screen.cpp`): the first button loads that save. Its label names it:
   "Retry from Autosave", "Retry from Slot 3", "Retry from Quick Save". Greyed out with no save at all ("No save
   yet" in the hint line).
-* **Main menu Continue:** loads the same newest save; shown when any save exists (now: only with an autosave). The
-  Load Game list stays as is.
+* **Main menu Continue** (the user's call, 2026-10-29): loads the same newest save (autosave, quick save or a slot);
+  shown when any save exists (now: only with an autosave). The Load Game list stays as is.
 * One helper picks the save (e.g. `GameState::LatestSave()` returning path + kind/slot, or none), used by both
   screens. Save loading goes through `GameState::LoadSave` as now; the autosave path keeps its scenario override
   (`AutosavePath`).

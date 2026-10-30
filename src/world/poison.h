@@ -34,8 +34,9 @@ class Poison {
 	// (Re)starts that tier's timer; halved: half the time at the same damage a second (Serket's favour).
 	void Apply(PoisonTier tier, bool halved = false);
 	void Cure() { tiers = {}; }
-	// Time passes: the HP the running tiers take in it, the percent tiers by the victim's max HP.
-	int Advance(int ms, int maxHp);
+	// Time passes: the HP the running tiers take in it, the percent tiers by the victim's max HP. fasterPercent (the
+	// emerald rings): the time left runs down that much faster, the damage a second stays.
+	int Advance(int ms, int maxHp, int fasterPercent = 0);
 	[[nodiscard]] int LeftMs(PoisonTier tier) const { return tiers[static_cast<size_t>(tier)].leftMs; }
 	[[nodiscard]] bool Running(PoisonTier tier) const { return LeftMs(tier) > 0; }
 	[[nodiscard]] bool Any() const;

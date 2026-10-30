@@ -153,7 +153,9 @@ class PlayerActionController {
 	// water-blessing-potion), nor in sand (plan desert-chapter). Wading and sand slow the step (PlayerWalkFactor).
 	static void walk(float dirX, float dirY) {
 		const bool sprints = Game().dungeon.PlayerCanSprint();
-		const float factor = Game().dungeon.PlayerWalkFactor() * Game().player->stats.WalkCurseFactor();
+		const JumpState& jump = Game().player->jump;
+		const float factor = Game().dungeon.PlayerWalkFactor() *
+							 Game().player->stats.WalkFactor(jump.jumping || jump.falling);
 		if (Game().dungeon.Move(dirX * factor, dirY * factor) && sprints)
 			Game().player->stats.NoteWalked(Game().dungeon.PlayerHalvedWadeDrain());
 	}

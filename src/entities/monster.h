@@ -398,9 +398,9 @@ class Monster {
 	[[nodiscard]] float TopY() const;
 	// From the player or a trap. True: this hit killed it (the player's kill: Dungeon::rewardKill).
 	bool takeHit(int dmg);
-	// A hit with a weapon: its damage after resistances (resistedDamage); a fire share sets it burning. True: this
-	// hit killed it.
-	bool TakeWeaponHit(int dmg, const DamageMix& mix);
+	// A hit with a weapon: its damage after resistances (resistedDamage), cut by resistCutPercent (the amethyst rings,
+	// cutResistances); a fire share sets it burning. True: this hit killed it.
+	bool TakeWeaponHit(int dmg, const DamageMix& mix, int resistCutPercent = 0);
 	// A poisoned hit (plan monster-poison): that tier (re)starts, as on the player, unless it shrugs it off
 	// (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it does
 	// not, as a trap's kill. True: the poison took.

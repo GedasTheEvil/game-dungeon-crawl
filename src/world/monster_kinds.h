@@ -314,6 +314,9 @@ struct MonsterKind {
 	// Chance that a poisoning does not take (plan monster-poison); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
+	// The share of its kills that leave a ring instead of a weapon (plan ring-accessories): the ones that carry
+	// things. A cursed mimic's chest holds one at this share. Bosses leave their amulet.
+	int ringDropPercent = 0;
 	std::optional<RangedRules> ranged; // a ranged attack from afar: it spits venom or shoots a bolt
 	std::optional<KiteRules> kite; // a walker with a ranged attack keeps the player at its range (KiteRules)
 	int staminaDrainPct = 0; // a bite takes this share of the player's max stamina (the blue lotus's sedative)

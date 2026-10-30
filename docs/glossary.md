@@ -211,15 +211,15 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | amulet | Amulet | worn one at a time, gives its bonus while on; four tiers per type (regeneration: normal and grand only) | `AmuletType`, `AmuletTier` |
-| bag | Inventory | what the player carries: counts, weapon levels, the worn amulet | `ItemBag` |
+| bag | Inventory | what the player carries: counts, weapon levels, the worn amulet, the worn rings | `ItemBag` |
 | container | | what a treasure looks like: a wooden chest, a painted coffer, a reed basket, canopic jars, a sealed jar (it smashes), an offering table. Closed until opened (Open), its clip, then its item shows (Take); emptied, it stays open. Rolled per cell by depth, wooden chests 40 % or more (the mimic hides among them) | `Container`, `CONTAINER_DEFS`, `CONTAINER_PERCENT` |
 | trapped chest | | a container whose opening sets off a trap: poison darts, a puff of poison gas, a curse (an execration text on the lid) or a scarab swarm, by depth (canopic and pottery jars always curse); half hold their item and one bonus more, the rest are empty. The tell: darker, only up close. The trap ward's percentage is also the chance it does not go off ([trapped-chests](plan/solved/trapped-chests.md)) | `TrappedTreasure`, `isTreasure`, `ChestTrap`, `RollChestTrap`, `RollTrappedChestLoot`, `Dungeon::springChestTrap` |
 | tomb curse | execration text | a curse an object lays, not a monster: a trapped chest's curse, a smashed living ushabti's fatigue (a quarter of them); the trap ward's chance stops it | `Dungeon::tombCurse`, `TOMB_CURSE_PERCENT`, `FieldNote::TombCurses` |
 | crushing, cleaving, piercing | Seth's Mace, Montu's Khopesh, Neith's Arrowhead | the amulets that raise the weapon's smash, cut or stab damage 10 / 20 / 30 / 50%: only that type's share of the weapon's damage mix grows (a sword, 85% cut, with the grand cleaving: +42%) ([amulet-extras](plan/solved/amulet-extras.md)) | `AmuletType::Crushing`, `Cleaving`, `Piercing`, `AmuletBonus::typeMightPercent`, `PlayerStats::TypeMightPercent` |
 | fire guard | Sun Disc | the amulet that cuts fire damage, 20 / 40 / 60 / 80% (never more: fire always hurts). Not the sun disc on the wall (the Aten) | `AmuletType::FireWard` |
-| group | Weapons, Potions, Amulets, Rings | an inventory tab; no rings yet, so that tab stays disabled | `ItemGroup` |
+| group | Weapons, Potions, Amulets, Rings | an inventory tab; disabled until an item of the group is found | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
-| item kind | | one item: a weapon, a potion, an amulet tier; the save ids follow it | `ItemKind` |
+| item kind | | one item: a weapon, a potion, an amulet tier, a ring (gem and metal); the save ids follow it | `ItemKind` |
 | journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions, expedition | `Journal` |
 | diary | Diary | the archaeologist's own entries, the journal's first section; a new game opens it on the prologue ([journal-intro](plan/solved/journal-intro.md)) | `DiaryPage`, `Journal::Begin`, `JournalScreen::OpenIntro` |
 | prologue | | the Diary's first entry, how the archaeologist came here: the jackal-headed statue, the ankh | `DiaryPage::Arrival`, `DiaryPage::Descent` |
@@ -234,6 +234,10 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | stance | | how a container stands in its cell: facing the camera, angled, side-on, against the back wall or a side wall | `STANCES`, `TreasureLook` |
 | skill | | a permanent ability bought with one heka; no respec | `SkillId`, `SKILLS` |
 | skill names | Stun, Words of Thoth, Dodge, Power hit, Sharp eye, Favour of Hapi, Serket's favour, Blessing of Isis, Flaming arrows | Words of Thoth reads (translates) inscriptions; Sharp eye ranged weapons reach 30% farther; Favour of Hapi wade at 75%, sprint and jump in half water; Serket's favour poisons half as long; Blessing of Isis curses half as long. Dodge, flaming arrows, power hit, stun: their rows | `SKILLS`, `skillDef`, `SkillId::Hieroglyphs` |
+| ring | Ring, "Gold Ruby Ring" | worn two at once, one per hand; both count, two of the same too. Weaker than an amulet, or what no amulet gives. Only by chance: chests, the ring carriers' kills, the cursed mimic's chest ([ring-accessories](plan/ring-accessories.md)). Not the ring platform | `RingGem`, `RingMetal`, `RingBonus`, `ringBonus` |
+| gem | Ruby, Sapphire, Emerald, Topaz, Crystal, Amethyst | a ring's stone, what it does: ruby heals slowly (also in a fight, not while poisoned), sapphire brings stamina back faster, emerald runs poison out sooner, topaz walks and sprints faster (not the jump), rock crystal reaches farther, amethyst cuts through a monster's resistances (the rarest) | `RingGem`, `ringGemColour` |
+| metal | Copper, Silver, Gold | a ring's strength (I, II, III in the slot's name band), by depth: copper from the start, silver from level 11, gold from 30 | `RingMetal`, `RollRing` |
+| hand | Left hand, Right hand, L, R | where a worn ring sits; the ring card's two buttons, the slot's L / R badges | `Hand`, `ItemBag::WearOn` |
 | tier | Lesser, Minor, Grand | an amulet's strength: lesser, minor, normal, grand ("Lesser Amulet of Armor", "Amulet of Minor Armor") | `AmuletTier` |
 
 ## Runs

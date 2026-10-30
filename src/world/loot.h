@@ -11,7 +11,8 @@
 
 // Contents of one treasure chest on campaign level `level`: the item placed in the map first, then random bonus items,
 // from `rng` (the game's gameplay stream, which a scenario seeds). A weapon chest's bonus weapon is a weaker one the
-// player holds (`owned`). Any chest but an amulet's may hold a lesser or minor amulet (RollChestAmulet).
+// player holds (`owned`). Any chest but an amulet's or a ring's may hold a lesser or minor amulet (RollChestAmulet),
+// then a ring (RollChestRing).
 std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng);
 
 // Percent of the chests that hold an extra amulet; minor ones only from MINOR_AMULET_LEVEL on, then MINOR_AMULET_CHANCE
@@ -22,6 +23,20 @@ constexpr int MINOR_AMULET_CHANCE = 40;
 // A chest's extra amulet, if the roll gives one: lesser or minor, any type that has those tiers.
 std::optional<ItemKind> RollChestAmulet(int level, Rng& rng);
 
+// Percent of the chests that hold a ring (plan ring-accessories), rolled after the amulet. The metal by depth: copper
+// from the start, silver from SILVER_RING_LEVEL on at SILVER_RING_CHANCE, gold from GOLD_RING_LEVEL on at
+// GOLD_RING_CHANCE (rolled first). The amethyst, the strongest, at half the weight of the other gems.
+constexpr int CHEST_RING_CHANCE = 8;
+constexpr int SILVER_RING_LEVEL = MINOR_AMULET_LEVEL;
+constexpr int SILVER_RING_CHANCE = 40;
+constexpr int GOLD_RING_LEVEL = 30;
+constexpr int GOLD_RING_CHANCE = 15;
+constexpr int RING_GEM_WEIGHT = 2;
+constexpr int AMETHYST_WEIGHT = 1;
+// A ring for level `level`: its metal by depth, its gem by weight.
+ItemKind RollRing(int level, Rng& rng);
+std::optional<ItemKind> RollChestRing(int level, Rng& rng);
+
 // A boss's amulet: normal or grand (grand at BOSS_GRAND_PERCENT_PER_LEVEL per level, 10% on level 5), any type.
 constexpr int BOSS_GRAND_PERCENT_PER_LEVEL = 2;
 ItemKind RollBossAmulet(int level, Rng& rng);
@@ -31,17 +46,17 @@ ItemKind RollBossAmulet(int level, Rng& rng);
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng);
 
 // The cursed mimic's chest (plan cursed-mimic), a grade better: CURSED_MIMIC_AMULET_CHANCE percent a lesser or minor
-// amulet (as RollChestAmulet's on level `level`), else the mimic's loot.
+// amulet (as RollChestAmulet's on level `level`), else ringPercent a ring (RollRing), else the mimic's loot.
 constexpr int CURSED_MIMIC_AMULET_CHANCE = 50;
-ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng);
+ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng, int ringPercent = 0);
 
 // Percent of the kills (minions and mimics excepted) that leave a weapon chest; a boss always leaves an amulet chest.
 constexpr int KILL_DROP_CHANCE = 5;
 
-// The chest a killed monster on level `level` leaves, if any: a boss's amulet (RollBossAmulet), else a copy of a
-// weapon the player already has (`owned`, by itemIndex), never a new one, so the found weapons keep their place in
-// the campaign.
-std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng);
+// The chest a killed monster on level `level` leaves, if any: a boss's amulet (RollBossAmulet), else ringPercent
+// (MonsterKind::ringDropPercent) a ring (RollRing), else a copy of a weapon the player already has (`owned`, by
+// itemIndex), never a new one, so the found weapons keep their place in the campaign.
+std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng, int ringPercent = 0);
 
 // Trapped chests (plan trapped-chests): a TrappedTreasure's opening sets off one of these.
 enum class ChestTrap : std::uint8_t {
@@ -68,7 +83,8 @@ ChestTrap RollChestTrap(Container kind, int level, Rng& rng);
 // A chest's curse: disease from canopic jars and pottery jars, else weakness, clumsiness, vulnerability, fatigue or
 // slowness at even odds.
 Curse RollChestCurse(Container kind, Rng& rng);
-// A full trapped chest: RollChestLoot, then one bonus more, as the cursed mimic's chest (RollCursedMimicLoot).
+// A full trapped chest: RollChestLoot, then one bonus more, as the cursed mimic's chest without its ring
+// (RollCursedMimicLoot).
 std::vector<ItemKind> RollTrappedChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng);
 
 #endif

@@ -174,7 +174,9 @@ TEST_CASE("the item groups follow the ItemKind order") {
 	CHECK(groupItems(ItemGroup::Potions).count == POTION_KIND_COUNT);
 	CHECK(groupItems(ItemGroup::Amulets).first == FIRST_AMULET);
 	CHECK(groupItems(ItemGroup::Amulets).count == AMULET_KIND_COUNT);
-	CHECK(groupItems(ItemGroup::Rings).count == 0);
+	CHECK(groupItems(ItemGroup::Rings).first == FIRST_RING);
+	CHECK(groupItems(ItemGroup::Rings).count == RING_KIND_COUNT);
+	CHECK(RING_KIND_COUNT == RING_GEM_COUNT * RING_METAL_COUNT);
 }
 
 TEST_CASE("a save from before the antidote loads with none") {
@@ -209,7 +211,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV7 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().rfind("INV8 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -342,7 +344,7 @@ TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
 	CHECK(*amuletKind(AmuletType::Armor, AmuletTier::Normal) == ItemKind::ArmorNormal);
 	CHECK(*amuletKind(AmuletType::Regeneration, AmuletTier::Grand) == ItemKind::RegenerationGrand);
 	CHECK_FALSE(amuletKind(AmuletType::Regeneration, AmuletTier::Minor).has_value());
-	for (int i = FIRST_AMULET; i < ITEM_KIND_COUNT; i++) {
+	for (int i = FIRST_AMULET; i < FIRST_RING; i++) {
 		const Amulet a = amuletOf(itemAt(i));
 		CHECK(*amuletKind(a.type, a.tier) == itemAt(i));
 	}

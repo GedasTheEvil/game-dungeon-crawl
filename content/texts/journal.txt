@@ -380,3 +380,37 @@ p1: At my feet lay an old acacia club. Not a trowel, but it will do: something s
 p2: The first signs I can read speak of one thing only: the ankh, life without end. Someone built this maze to keep
 	it. Or to keep someone in. If there is a way out, it is at the bottom, with the ankh.
 p3: I will keep notes. Someone should know what happened here.
+
+# The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,
+# silver and gold rings.
+[note.ring-ruby]
+title: Ruby ring
+text: A ring, a ruby in it. Rings are worn one on each hand, two at once, and both count, even two of the same.
+	This one heals me slowly, also with something at my throat: 1 health every 8, 5 or 3 seconds, copper, silver,
+	gold. Not while poison runs.
+
+[note.ring-sapphire]
+title: Sapphire ring
+text: A sapphire, night blue. My breath comes back faster with it: stamina returns 15, 25 or 40 percent faster,
+	copper to gold. Rings go one on each hand, two at once.
+
+[note.ring-emerald]
+title: Emerald ring
+text: An emerald. It does not keep the venom out, but it washes it out of me sooner: poison wears off 20, 35 or 50
+	percent faster, copper to gold. It bites as hard while it lasts. Rings go one on each hand, two at once.
+
+[note.ring-topaz]
+title: Topaz ring
+text: A yellow topaz, a sliver of the sun. I walk and sprint 5, 8 or 12 percent faster with it, copper to gold. A
+	jump carries me no farther: the gaps stay as wide as they are. Rings go one on each hand, two at once.
+
+[note.ring-crystal]
+title: Rock crystal ring
+text: Rock crystal, clear as air. My weapon reaches a little farther with it, 10, 15 or 25 percent, copper to gold;
+	a bow aims farther too. A knife does not become a spear. Rings go one on each hand, two at once.
+
+[note.ring-amethyst]
+title: Amethyst ring
+text: An amethyst, the rarest of them. My blows go through what a hide or a shell holds back: a quarter, half or all
+	of a creature's resistance is gone, copper, silver, gold. What a creature is weak to stays so. Rings go one on
+	each hand, two at once.

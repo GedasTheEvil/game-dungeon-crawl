@@ -328,6 +328,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .ringDropPercent = 6,
 	 // A bolt of fire from the was-sceptre (plans anubis-ranged-attack, anubis-fire-bolt). The melee swing is its
 	 // ranged clip.
 	 .ranged =
@@ -566,6 +567,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .ringDropPercent = 6, // the tomb's dead keep their rings
 	 .meleeCurses =
 		 {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2}, CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
 	 .riseMs = 1000,
@@ -1089,6 +1091,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = MIMIC_RESIST,
 	 .locomotion = Locomotion::AmbushHop,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .ringDropPercent = 15,
 	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}},
 	 .walkStride = CURSED_CHEST_STRIDE},
 	// Seth, the red hippopotamus (plan hippo-boss), on the hippo model: the hippo's lurk and charge, farther and

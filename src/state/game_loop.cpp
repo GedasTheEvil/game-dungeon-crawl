@@ -27,7 +27,7 @@ void updateAttack() {
 	if (!player.attackLanded && t >= def.motion.hitMs) {
 		player.attackLanded = true;
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
-		const float aimRange = weaponReach(kind, player.stats.heka);
+		const float aimRange = player.stats.WeaponReach(kind);
 		if (isRanged(kind)) {
 			Game().dungeon.Shoot(
 				missileOf(kind),
@@ -41,7 +41,7 @@ void updateAttack() {
 		} else if (Game().dungeon.AttackNearest( // with a power hit's bonus (plan skill-power-hit)
 					   player.PowerDamage(damage),
 					   def.mix,
-					   weaponReach(kind, player.stats.heka),
+					   player.stats.WeaponReach(kind),
 					   Game().camera.Facing(),
 					   player.SwingShare()
 				   ))

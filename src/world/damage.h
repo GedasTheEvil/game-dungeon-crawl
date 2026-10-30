@@ -52,6 +52,15 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 	return std::max(1, static_cast<int>(std::lround(dealt)));
 }
 
+// The amethyst rings (plan ring-accessories): each rate under NORMAL moves `percent` of the way to NORMAL (RESISTS at
+// 25%: 62). Weaknesses stay.
+[[nodiscard]] constexpr Resistances cutResistances(Resistances resist, int percent) {
+	for (int& rate : resist)
+		if (rate < NORMAL)
+			rate += (NORMAL - rate) * std::min(percent, 100) / 100;
+	return resist;
+}
+
 // The resistances of one standing in water (plan fire-in-water): its fire rate is WATER_FIRE_DAMAGE_PCT % of the
 // usual, the other types as they are.
 [[nodiscard]] inline Resistances inWaterResist(Resistances resist) {

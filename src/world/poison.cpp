@@ -12,14 +12,16 @@ void Poison::Apply(PoisonTier tier, bool halved) {
 	t.leftMs = halved ? duration / 2 : duration;
 }
 
-int Poison::Advance(int ms, int maxHp) {
+int Poison::Advance(int ms, int maxHp, int fasterPercent) {
 	int hp = 0;
+	const int pace = 100 + std::max(0, fasterPercent);
 	for (size_t i = 0; i < tiers.size(); i++) {
 		TierTimer& t = tiers[i];
 		if (t.leftMs <= 0)
 			continue;
-		const int spent = ms < t.leftMs ? ms : t.leftMs;
-		t.leftMs -= spent;
+		const int drain = ms * pace / 100; // of the time left
+		const int spent = drain < t.leftMs ? ms : t.leftMs * 100 / pace; // of the clock, for the ticks
+		t.leftMs = std::max(0, t.leftMs - drain);
 		t.sinceTickMs += spent;
 		while (t.sinceTickMs >= 1000) {
 			t.sinceTickMs -= 1000;

@@ -1,0 +1,44 @@
+# Rings (plan ring-accessories, tests/levels/ring_accessories): two worn at once, one per hand; the Rings tab with the L / R marks
+# and the longest short names (Amethyst III, Sapphire III), the ring card's hand buttons, the HUD's gems; a ring on an
+# open chest, its gem see-through and shining. The rules: tests/unit/ring_accessories_test.cpp.
+seed 1
+god
+level tests/levels/ring_accessories
+container 3 chest 0
+container 5 coffer 0
+wait 10
+give ring 17
+give ring 5
+give ring 13
+give ring 2
+give ring 2
+wear gold_ring_of_sundering left
+wear gold_ring_of_vigor right
+expect tab == 0
+key i
+wait 5
+select gold_ring_of_sundering
+wait 5
+expect tab == 3
+screenshot inventory_rings
+select silver_ring_of_reach
+wait 5
+screenshot inventory_ring_card
+wear gold_ring_of_regeneration left
+wear gold_ring_of_regeneration right
+select gold_ring_of_regeneration
+wait 5
+screenshot inventory_two_rubies
+key i
+wait 5
+screenshot hud_rings
+walk to 3.5
+interact
+walk to 2
+wait 1500ms
+screenshot ring_on_chest
+walk to 5.5
+interact
+walk to 4.6
+wait 1500ms
+screenshot ring_on_coffer

@@ -64,6 +64,24 @@ std::optional<ItemKind> RollChestAmulet(int level, Rng& rng) {
 	return chestAmulet(level, rng);
 }
 
+ItemKind RollRing(int level, Rng& rng) {
+	RingMetal metal = RingMetal::Copper;
+	if (level >= GOLD_RING_LEVEL && rng.percent(GOLD_RING_CHANCE))
+		metal = RingMetal::Gold;
+	else if (level >= SILVER_RING_LEVEL && rng.percent(SILVER_RING_CHANCE))
+		metal = RingMetal::Silver;
+	constexpr int TOTAL = (RING_GEM_COUNT - 1) * RING_GEM_WEIGHT + AMETHYST_WEIGHT;
+	const int pick = rng.below(TOTAL);
+	const auto gem = static_cast<RingGem>(std::min(pick / RING_GEM_WEIGHT, RING_GEM_COUNT - 1)); // the amethyst last
+	return ringKind(gem, metal);
+}
+
+std::optional<ItemKind> RollChestRing(int level, Rng& rng) {
+	if (!rng.percent(CHEST_RING_CHANCE))
+		return std::nullopt;
+	return RollRing(level, rng);
+}
+
 ItemKind RollBossAmulet(int level, Rng& rng) {
 	const bool grand = rng.percent(BOSS_GRAND_PERCENT_PER_LEVEL * level);
 	const auto type = static_cast<AmuletType>(rng.below(AMULET_TYPE_COUNT));
@@ -72,12 +90,14 @@ ItemKind RollBossAmulet(int level, Rng& rng) {
 
 std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, int level, Rng& rng) {
 	std::vector<ItemKind> loot = {placed};
-	if (isAmulet(placed))
+	if (isAmulet(placed) || isRing(placed))
 		return loot;
-	// Rolled last, so the other bonuses come out as they did before the amulets.
+	// Rolled last, so the other bonuses come out as they did before the amulets and the rings.
 	auto withAmulet = [&]() -> std::vector<ItemKind>& {
 		if (std::optional<ItemKind> amulet = RollChestAmulet(level, rng))
 			loot.push_back(*amulet);
+		if (std::optional<ItemKind> ring = RollChestRing(level, rng))
+			loot.push_back(*ring);
 		return loot;
 	};
 
@@ -114,15 +134,19 @@ ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 	return ItemKind::SmallHealth;
 }
 
-ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng) {
+ItemKind RollCursedMimicLoot(const OwnedWeapons& owned, int level, Rng& rng, int ringPercent) {
 	if (rng.percent(CURSED_MIMIC_AMULET_CHANCE))
 		return chestAmulet(level, rng);
+	if (ringPercent > 0 && rng.percent(ringPercent))
+		return RollRing(level, rng);
 	return RollMimicLoot(owned, rng);
 }
 
-std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng) {
+std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int level, Rng& rng, int ringPercent) {
 	if (boss)
 		return RollBossAmulet(level, rng);
+	if (ringPercent > 0 && rng.percent(ringPercent))
+		return RollRing(level, rng);
 	if (!rng.percent(KILL_DROP_CHANCE))
 		return std::nullopt;
 	return pickOwned(owned, WEAPON_KIND_COUNT, rng);

@@ -15,10 +15,13 @@
 #include "sim_links.h"
 #include "sun_beam.h"
 #include "zone_look.h"
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+class Item;
 
 struct RoyalName;
 
@@ -236,6 +239,15 @@ class Dungeon {
 	void drawHitboxes(const HitboxView& weapon);
 	void DrawTreasureTile(int i, int j); // the container, open or not, and the item once it shows
 	void drawContainerEffects(); // the dust of a jar breaking, after the opaque scene
+	// The see-through second parts of the items on the chests (a ring's gem, Item::DrawPart), after the opaque scene,
+	// where DrawTreasureTile left them.
+	void drawItemParts();
+	struct ItemPartDraw {
+		std::array<float, 16> modelview; // the item's frame, as Item::Draw had it
+		Item* item;
+		float rotA, scale;
+	};
+	std::vector<ItemPartDraw> itemParts; // this frame's, from DrawTreasureTile
 	void DrawTrapTile(bool isDeathTrap);
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);

@@ -29,6 +29,8 @@ class PlayerStats {
 	int max_stamina_percent = 0; // inscription boons' (plan inscription-boons), on top of the level's max
 	AmuletBonus amulet; // the worn amulet's (Wear); Armor, MaxHP and Might above are without it
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
+	RingBonus rings; // the worn rings' (WearRings)
+	int ring_regen_carry = 0; // the rubies' ms x HP an hour not yet turned into HP
 	int trap_carry = 0; // hundredths of trap damage not yet taken (TrapDamage)
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
@@ -58,8 +60,9 @@ class PlayerStats {
 	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved. Slowness
 	// sprints less (SLOWNESS_SPRINT_MULTIPLIER).
 	[[nodiscard]] float SprintMoveMultiplier() const;
-	// Walk and climb steps: 1, SLOWNESS_WALK_FACTOR while slowed.
-	[[nodiscard]] float WalkCurseFactor() const;
+	// Walk and climb steps: SLOWNESS_WALK_FACTOR while slowed, times the topaz rings' speed on the ground (not in the
+	// air: a jump carries as far as without them, the levels are built on its reach).
+	[[nodiscard]] float WalkFactor(bool airborne) const;
 	// A walk step really moved the player (not into a wall). halvedDrain: it was a sprint in half water with the
 	// Blessing of Hapi and the Favour of Hapi, which drains the stamina at WADE_SPRINT_DRAIN_BOTH.
 	void NoteWalked(bool halvedDrain = false) {
@@ -137,8 +140,19 @@ class PlayerStats {
 	// next hit, so the small spike hits are cut too (as Monster::StandInTrap).
 	int TrapDamage(int dmg);
 	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
-	// no poison runs.
+	// no poison runs. The rubies heal too, also when not safe; not while poisoned either.
 	void Regenerate(bool safe, int tickMs);
+	// Puts on the worn rings' bonus (a default RingBonus: none).
+	void WearRings(const RingBonus& bonus);
+	[[nodiscard]] const RingBonus& Rings() const { return rings; }
+	// The emerald rings: the poison's time runs down this much faster.
+	[[nodiscard]] int PoisonFasterPercent() const { return rings.poisonFasterPercent; }
+	// The amethyst rings: the share of a monster's resistances the player's weapon hits ignore.
+	[[nodiscard]] int ResistCutPercent() const { return rings.resistCutPercent; }
+	// Tiles: the weapon's reach with the Sharp eye skill (weaponReach) and the rock crystal rings.
+	[[nodiscard]] float WeaponReach(ItemKind weapon) const {
+		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;
+	}
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
 	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
 	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);

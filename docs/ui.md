@@ -266,6 +266,11 @@ In the Amulets tab the worn amulet's name band is lapis, like the weapon in hand
 instead of "Wear". Under the effect the details show "Upgrade: n / m points" (green once the spares pay, "Top tier" for
 a grand); when they pay, the button splits into Wear / Take off and Upgrade like a weapon's, and the slot shows the
 pulsing upgrade arrow ([plan/solved/amulet-upgrades.md](plan/solved/amulet-upgrades.md)).
+In the Rings tab a worn ring's name band is lapis too, with a lapis badge per hand it is on over the band: `L` in the
+left corner, `R` in the right. The ring card has two buttons, Left hand and Right hand, where the others have Use and
+Upgrade; on the hand it is worn on the button reads "Take off". Under the effect: what each hand wears, and in green
+what the worn rings of the selected gem give together ([ring-accessories](plan/ring-accessories.md)). The
+gem is drawn see-through over the band, with a slow glint (`Item::DrawPart`).
 
 ### Heka screen
 
@@ -315,7 +320,7 @@ trough, gradient fill, 1.5 px `GOLD_DIM` frame and `GOLD` end diamonds (the boss
 `TileStyle::Stone` tiles with a flat item icon (`media/textures/ui/hud_icons.png`, from `tools/textures/hud_icons.py`), a
 count badge like the inventory slots and a key cap under each like the options table. A fourth slot, without a key
 cap, shows the worn amulet (its type's icon, the tier I .. IV in the badge) while one is on; the key sockets sit right
-of it. While a heka waits to be spent, a lapis tile with the heka mark and a breathing gold halo sits above the
+of it, and under them a gem per worn ring (left hand, then right), a lozenge in the gem's colour on a gold setting. While a heka waits to be spent, a lapis tile with the heka mark and a breathing gold halo sits above the
 panel's right end, the Heka key under it. Once flaming arrows is learnt, a small tile with a flame (lapis while the
 stamina-skill key, default Q, has the skills on, stone while off) sits right of the stamina bar, the key left of it; a
 skill refused for lack of stamina blinks it red. Flashes and pulses are additive

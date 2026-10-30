@@ -127,6 +127,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `ushabti.py` | living ushabti | `lotus.py` style: rigid parts posed from numbers, a waddle on the base edges, the die clip breaks the parts apart |
 | `plant.py` | plant | static monster, FK chains, poses eased off the floor by bisection |
 | `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw and chest opening frames from shape keys |
+| `rings.py` | ring band and gem (all 18 rings) | two models from one origin, the second drawn see-through over the first (`Item::loadPart`); a texture per metal, the gem baked pale and tinted by the engine |
 | `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
 | `decor.py` | corridor and water decorations, torch, coffins, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |

@@ -1,6 +1,7 @@
 #include "item_bag.h"
 #include "journal.h"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <istream>
@@ -91,6 +92,8 @@ void ItemBag::Reset() {
 		level = 1;
 	equipped = ItemKind::Club;
 	worn.reset();
+	rings = {};
+	olderHand = Hand::Left;
 }
 
 OwnedWeapons ItemBag::Owned() const {
@@ -115,6 +118,8 @@ int strength(const ItemBag& bag, ItemKind kind) {
 		return weaponDamage(kind, weaponDef(kind).damage, bag.Level(kind));
 	if (isAmulet(kind))
 		return static_cast<int>(amuletOf(kind).tier);
+	if (isRing(kind))
+		return static_cast<int>(ringOf(kind).metal);
 	const bool strong = kind == ItemKind::LargeHealth || kind == ItemKind::LargeStamina ||
 						kind == ItemKind::GreaterResistance;
 	return strong ? 1 : 0;
@@ -159,7 +164,7 @@ UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 		return UseBlock::Dead;
 	if (Count(kind) <= 0)
 		return Found(kind) ? UseBlock::NoneLeft : UseBlock::NotFound;
-	if (isAmulet(kind)) // put on, or taken off when worn
+	if (isAmulet(kind) || isRing(kind)) // put on, or taken off when worn
 		return UseBlock::None;
 	if (kind == equipped)
 		return UseBlock::Equipped;
@@ -181,8 +186,44 @@ bool ItemBag::Use(ItemKind kind, const Vitals& player) {
 		counts[itemIndex(kind)]--;
 	else if (isAmulet(kind))
 		worn = worn == kind ? std::nullopt : std::optional(kind);
-	else
+	else if (isRing(kind)) {
+		if (HandsWearing(kind) == 2) // off: the one put on last
+			rings[static_cast<size_t>(olderHand == Hand::Left ? Hand::Right : Hand::Left)].reset();
+		else if (RingWorn(kind))
+			rings[static_cast<size_t>(RingOn(Hand::Left) == kind ? Hand::Left : Hand::Right)].reset();
+		else if (!RingOn(Hand::Left))
+			PutOnHand(kind, Hand::Left);
+		else if (!RingOn(Hand::Right))
+			PutOnHand(kind, Hand::Right);
+		else
+			PutOnHand(kind, olderHand);
+	} else
 		equipped = kind;
+	return true;
+}
+
+int ItemBag::HandsWearing(ItemKind ring) const {
+	return static_cast<int>(std::count(rings.begin(), rings.end(), std::optional(ring)));
+}
+
+// The ring goes on `hand`, whatever was there comes off; the other hand's ring is now the one worn longer.
+void ItemBag::PutOnHand(ItemKind ring, Hand hand) {
+	rings[static_cast<size_t>(hand)] = ring;
+	olderHand = hand == Hand::Left ? Hand::Right : Hand::Left;
+}
+
+bool ItemBag::WearOn(ItemKind ring, Hand hand, bool alive) {
+	if (!alive || !isRing(ring) || Count(ring) <= 0)
+		return false;
+	std::optional<ItemKind>& on = rings[static_cast<size_t>(hand)];
+	if (on == ring) {
+		on.reset();
+		return true;
+	}
+	std::optional<ItemKind>& otherOn = rings[static_cast<size_t>(hand == Hand::Left ? Hand::Right : Hand::Left)];
+	if (otherOn == ring && Count(ring) < 2) // the only one: it moves over
+		otherOn.reset();
+	PutOnHand(ring, hand);
 	return true;
 }
 
@@ -248,7 +289,7 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV7 " << ITEM_KIND_COUNT << " ";
+	out << "INV8 " << ITEM_KIND_COUNT << " ";
 	for (int count : counts)
 		out << count << " ";
 	for (int level : levels)
@@ -260,7 +301,12 @@ void ItemBag::Save(std::ostream& out) const {
 	ItemFileId id = fileIdOf(equipped);
 	out << id.type << " " << id.id << " ";
 	const ItemFileId on = worn ? fileIdOf(*worn) : ItemFileId{ItemType::EMPTY, 0};
-	out << on.type << " " << on.id << "\n";
+	out << on.type << " " << on.id;
+	for (const std::optional<ItemKind>& ring : rings) {
+		const ItemFileId id = ring ? fileIdOf(*ring) : ItemFileId{ItemType::EMPTY, 0};
+		out << " " << id.type << " " << id.id;
+	}
+	out << " " << static_cast<int>(olderHand) << "\n";
 }
 
 void ItemBag::Load(std::istream& in) {
@@ -277,12 +323,15 @@ void ItemBag::Load(std::istream& in) {
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	const bool hasStamps = tok == "INV6" || tok == "INV7";
+	const bool hasRings = tok == "INV8";
+	const bool hasStamps = tok == "INV6" || tok == "INV7" || hasRings;
 	bool hasFound = tok == "INV3" || tok == "INV4" || tok == "INV5" || hasStamps;
 	const bool resistance = tok == "INV5" || hasStamps;
-	const SlotShift shift = tok == "INV7" ? NO_SHIFT : resistance ? SHIFT_BEFORE_INV7 : SHIFT_BEFORE_INV5;
+	const SlotShift shift = tok == "INV7" || hasRings ? NO_SHIFT : resistance ? SHIFT_BEFORE_INV7 : SHIFT_BEFORE_INV5;
 	int wornType = ItemType::EMPTY;
 	int wornId = 0;
+	std::array<ItemFileId, HAND_COUNT> ringIds = {{{ItemType::EMPTY, 0}, {ItemType::EMPTY, 0}}};
+	int older = 0;
 	if (tok == "INV2" || tok == "INV3" || hasFound) {
 		int slots = 0;
 		in >> slots;
@@ -314,6 +363,11 @@ void ItemBag::Load(std::istream& in) {
 		in >> type >> id;
 		if (tok == "INV4" || resistance)
 			in >> wornType >> wornId;
+		if (hasRings) {
+			for (size_t hand = 0; hand < ringIds.size(); hand++)
+				in >> ringIds[hand].type >> ringIds[hand].id;
+			in >> older;
+		}
 	} else {
 		counts[itemIndex(OLD_SLOTS[0])] = std::stoi(tok);
 		for (int slot = 1; slot < LEGACY_SLOT_COUNT; slot++)
@@ -341,12 +395,23 @@ void ItemBag::Load(std::istream& in) {
 	equipped = kind && isWeapon(*kind) ? *kind : ItemKind::Club;
 	std::optional<ItemKind> on = itemFromFile(wornType, wornId);
 	worn = on && isAmulet(*on) && counts[itemIndex(*on)] > 0 ? on : std::nullopt;
+	rings = {};
+	for (size_t hand = 0; hand < ringIds.size(); hand++) {
+		const std::optional<ItemKind> ring = itemFromFile(ringIds[hand].type, ringIds[hand].id);
+		if (ring && isRing(*ring) && counts[itemIndex(*ring)] > HandsWearing(*ring))
+			rings[hand] = ring;
+	}
+	olderHand = older == 1 ? Hand::Right : Hand::Left;
 }
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {
 	Add(kind);
 	if (isAmulet(kind)) {
 		journal.LearnNote(amuletNote(amuletOf(kind).type));
+		return;
+	}
+	if (isRing(kind)) {
+		journal.LearnNote(ringNote(ringOf(kind).gem));
 		return;
 	}
 	if (isPotion(kind)) {

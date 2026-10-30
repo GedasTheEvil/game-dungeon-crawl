@@ -146,3 +146,25 @@ Two models, so the gem can blend apart from the band:
   strong one).
 * Upgrades later (three copper → one silver?). Not in this plan.
 * A ring seen on the player's fist (`Item::DrawHeld`, the first-person hand): nice, not in this plan.
+
+## Implemented (2026-10-30)
+
+Choices made where the plan left them open:
+
+* The effects and numbers as in the table; not yet checked against the balance sim (`monster-balance`).
+* Labels (scenario slugs, editor words): ring of regeneration, vigor, cleansing, speed, reach, sundering
+  (`gold_ring_of_regeneration`). The rock crystal is "Crystal" in names ("Silver Crystal Ring", "Crystal II").
+* Drops: mummy and Anubis statue 6% of kills (`MonsterKind::ringDropPercent`), the cursed mimic's chest 15% (after
+  its amulet roll). No boss ring: bosses keep their amulet only. Rings in chests: 8%; silver from level 11 at 40%,
+  gold from level 30 at 15%; the amethyst at half the weight.
+* The Shen Ring amulet keeps its name.
+* The rings' sum shows on the ring card ("Worn: heals 1 health every 1.5 s"), not on the stats rows (no room) and
+  the HUD has no tooltip.
+* The topaz counts as airborne while jumping or falling (no faster walk in the air).
+* On a chest a ring has its own size (`RING_CHEST_SCALE`), as the potions, not the weapons' minimum.
+* The second part (`Item::loadPart`, `DrawPart`) is drawn unlit (emissive) with a slow additive glint; in the world
+  after the opaque scene (`Dungeon::drawItemParts`).
+* Models: `tools/blender/models/rings.py` (the amulets are in `items.py`, there is no `amulets.py`).
+
+Tests: `tests/unit/ring_accessories_test.cpp`, `tests/scenarios/ring_accessories.txt` (level
+`tests/levels/ring_accessories`), play script `tests/play/ring-accessories.txt`.

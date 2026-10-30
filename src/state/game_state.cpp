@@ -483,6 +483,7 @@ void GameState::LoadSave(const char filename[]) {
 	ui.inventory->LoadDump(dump);
 	LOG_INFO("game", "Done loading Inventory");
 	player->stats.Wear(amuletBonus(ui.inventory->Bag().Worn()), false); // the saved HP is already the worn one's
+	player->stats.WearRings(ringBonus(ui.inventory->Bag().Rings()));
 	dungeon.LoadDump(dump);
 	journal.Load(dump);
 	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str(), levelNumber);

@@ -27,10 +27,12 @@ TEST_CASE("a chest holds its item first, then bonuses") {
 		REQUIRE_FALSE(loot.empty());
 		CHECK(loot.front() == ItemKind::LargeHealth);
 		for (size_t k = 1; k < loot.size(); k++)
-			CHECK((isPotion(loot[k]) || isAmulet(loot[k]))); // a potion chest's bonuses are potions, or an amulet
+			// a potion chest's bonuses are potions, or an amulet or a ring
+			CHECK((isPotion(loot[k]) || isAmulet(loot[k]) || isRing(loot[k])));
 		bonuses += static_cast<int>(loot.size()) - 1;
 	}
-	// Small stamina 30%, large stamina 20%, the same potion 5%, a small health 10%, an amulet 10%: about 0.75 a chest.
+	// Small stamina 30%, large stamina 20%, the same potion 5%, a small health 10%, an amulet 10%, a ring 8%: about
+	// 0.83 a chest.
 	CHECK(bonuses > 600);
 	CHECK(bonuses < 900);
 }
@@ -42,13 +44,13 @@ TEST_CASE("a weapon chest may add a weaker weapon, never a better one") {
 			CHECK(item != ItemKind::ShortSword);
 }
 
-TEST_CASE("the mimic's chest holds any weapon or potion but the poison ones, never an amulet") {
+TEST_CASE("the mimic's chest holds any weapon or potion but the poison ones, never an amulet or a ring") {
 	Rng rng(5);
 	bool seen[ITEM_KIND_COUNT] = {};
 	for (int i = 0; i < 2000; i++)
 		seen[itemIndex(RollMimicLoot(allWeapons(), rng))] = true;
 	for (int i = 0; i < ITEM_KIND_COUNT; i++)
-		CHECK(seen[i] == (!isAmulet(itemAt(i)) && (isWeapon(itemAt(i)) || potionDef(itemAt(i)).mimicLoot)));
+		CHECK(seen[i] == (isWeapon(itemAt(i)) || (isPotion(itemAt(i)) && potionDef(itemAt(i)).mimicLoot)));
 }
 
 TEST_CASE("the bonus weapon and the mimic's weapon are ones the player holds") {
@@ -57,7 +59,10 @@ TEST_CASE("the bonus weapon and the mimic's weapon are ones the player holds") {
 	clubOnly[static_cast<size_t>(itemIndex(ItemKind::Club))] = true;
 	for (int i = 0; i < 2000; i++) {
 		for (ItemKind item : RollChestLoot(ItemKind::ShortSword, clubOnly, 1, rng))
-			CHECK((item == ItemKind::ShortSword || item == ItemKind::Club || isPotion(item) || isAmulet(item)));
+			CHECK(
+				(item == ItemKind::ShortSword || item == ItemKind::Club || isPotion(item) || isAmulet(item) ||
+				 isRing(item))
+			);
 		const ItemKind mimic = RollMimicLoot(clubOnly, rng);
 		CHECK((mimic == ItemKind::Club || isPotion(mimic)));
 	}

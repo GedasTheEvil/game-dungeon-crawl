@@ -26,6 +26,10 @@ constexpr float SOCKET_X = 40.5f; // first key socket centre, right of the amule
 constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
+constexpr float RING_X = SOCKET_X; // the left hand's gem, the right one's a step on
+constexpr float RING_STEP = 3.4f;
+constexpr float RING_Y = 7.6f;
+constexpr float RING_SIZE = 1.25f;
 constexpr Rect XP_LINE = {4.f, 2.9f, 52.f, 0.7f};
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
@@ -303,6 +307,18 @@ void drawStamina(const PlayerHud::View& v) {
 	bolt(ICON_X, bar.cy(), AMBER_TOP);
 }
 
+// A worn ring's gem: a lozenge in its colour on a gold setting.
+void drawRings(const PlayerHud::View& v) {
+	for (int hand = 0; hand < HAND_COUNT; hand++) {
+		if (!v.ringWorn[hand])
+			continue;
+		const float x = RING_X + RING_STEP * static_cast<float>(hand);
+		diamond(x, RING_Y, RING_SIZE + 0.45f, GOLD_DIM, 1.f);
+		diamond(x, RING_Y, RING_SIZE, v.ringGem[hand], 1.f);
+		diamond(x - 0.3f, RING_Y + 0.3f, RING_SIZE * 0.3f, {1.f, 1.f, 1.f}, 0.8f); // the glint
+	}
+}
+
 constexpr int SLOT_COUNT = 4;
 constexpr int AMULET_SLOT = 3;
 // The amulet slot only while one is worn; the others always (an empty potion slot shows none is left).
@@ -422,6 +438,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 		if (shown(view, i))
 			drawSlot(view.slots[i], slotRect(i), small);
 	drawKeys(view);
+	drawRings(view);
 	drawXp(view);
 	drawPoison(view);
 	drawResist(view);

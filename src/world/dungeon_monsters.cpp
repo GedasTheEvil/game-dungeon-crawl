@@ -67,7 +67,10 @@ void Dungeon::UpdateMonsters() {
 			// it died (its spawn tile is slain), on the floor under it.
 			const OwnedWeapons& owned = sim.items->Owned();
 			if (mon.Type()->locomotion == Locomotion::AmbushHop)
-				dropChest(mon, RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay));
+				dropChest(
+					mon,
+					RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent)
+				);
 			else
 				placeDroppedChest(
 					MapIndex(mon.Col(), mon.SpawnRow()),
@@ -307,7 +310,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	const int healthBefore = mon.Health();
 	const bool wasBurning = mon.Burns();
 	const bool wasLurking = mon.lurking();
-	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix) : mon.takeHit(dmg);
+	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix, sim.player->stats.ResistCutPercent()) : mon.takeHit(dmg);
 	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
 	if (mix && (*mix)[FIRE] > 0)
 		sim.events->Note(FieldNote::Fire);
@@ -408,5 +411,7 @@ void Dungeon::rewardKill(Monster& mon) {
 		);
 	if (mon.Minion() || ambushes(type.locomotion))
 		return; // a mimic leaves its own chest
-	mon.SetDrop(RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay));
+	mon.SetDrop(
+		RollKillDrop(type.isBoss(), sim.items->Owned(), levelNumber, sim.random->gameplay, type.ringDropPercent)
+	);
 }

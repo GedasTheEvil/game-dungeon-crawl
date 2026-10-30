@@ -39,6 +39,8 @@ constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {
 
 constexpr float WEAPON_DETAIL_SCALE = 22.f;
 constexpr float AMULET_DETAIL_SCALE = 16.f;
+constexpr float RING_DETAIL_SCALE = 15.f;
+constexpr const char* HAND_MARKS[HAND_COUNT] = {"L", "R"}; // a worn ring's slot
 constexpr float PLINTH_Y = 49.f; // detail model base
 constexpr float REST_ANGLE = 25.f; // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
@@ -53,6 +55,7 @@ ItemKind kindOf(int slot) { return itemAt(slot); }
 bool isPotion(int slot) { return ::isPotion(kindOf(slot)); }
 bool isWeapon(int slot) { return ::isWeapon(kindOf(slot)); }
 bool isAmulet(int slot) { return ::isAmulet(kindOf(slot)); }
+bool isRing(int slot) { return ::isRing(kindOf(slot)); }
 ItemGroup groupOf(int slot) { return itemGroup(kindOf(slot)); }
 ItemGroup groupAt(int index) { return static_cast<ItemGroup>(index); }
 
@@ -96,6 +99,13 @@ const char* blockReason(UseBlock block) {
 		break;
 	}
 	return "";
+}
+
+// A worn ring's hand badge in its slot `r`, over the name band: the left hand's in the left corner, the right's in the
+// right one, clear of the ring.
+Rect handBadge(const Rect& r, int hand) {
+	constexpr float W = 4.1f;
+	return {hand == 0 ? r.x + 0.5f : r.x + r.w - W - 0.5f, r.y + NAME_BAND_H + 0.5f, W, 3.5f};
 }
 
 // The question mark of an item not found yet, centred in `r`.
@@ -158,11 +168,27 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 		*reason = block != UseBlock::None ? blockReason(block)
 				  : isPotion(slot)		  ? "Drink"
 				  : isAmulet(slot)		  ? (bag.Worn() == kindOf(slot) ? "Take off" : "Wear")
+				  : isRing(slot)		  ? (bag.RingOn(Hand::Left) == kindOf(slot) ? "Take off" : "Left hand")
 										  : "Equip";
 	return block == UseBlock::None;
 }
 
 bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive()); }
+
+void Inventory::ApplyRings() { Game().player->stats.WearRings(ringBonus(bag.Rings())); }
+
+void Inventory::WearOnHand(int slot, Hand hand) {
+	const ItemKind ring = kindOf(slot);
+	if (!bag.WearOn(ring, hand, Game().player->Alive()))
+		return;
+	ApplyRings();
+	Game().assets.sounds.amulet_s.Play();
+	const char* side = hand == Hand::Left ? "left" : "right";
+	ShowToast(
+		std::string(itemText(ring).name) + (bag.RingOn(hand) == ring ? " put on the " : " taken off the ") + side +
+		" hand"
+	);
+}
 
 void Inventory::Upgrade(int slot) {
 	const ItemKind kind = kindOf(slot);
@@ -188,6 +214,22 @@ void Inventory::Use(int slot) {
 		return;
 	if (::isPotion(kind)) {
 		ShowToast(DrinkPotion(kind));
+		return;
+	}
+	if (::isRing(kind)) { // the quick way: off if worn, else on the free hand (or in place of the older one)
+		const WornRings before = bag.Rings();
+		bag.Use(kind, playerVitals());
+		ApplyRings();
+		Game().assets.sounds.amulet_s.Play();
+		for (int hand = 0; hand < HAND_COUNT; hand++)
+			if (before[static_cast<size_t>(hand)] != bag.Rings()[static_cast<size_t>(hand)]) {
+				const bool on = bag.Rings()[static_cast<size_t>(hand)] == kind;
+				ShowToast(
+					std::string(itemText(kind).name) + (on ? " put on the " : " taken off the ") +
+					(hand == 0 ? "left" : "right") + " hand"
+				);
+				break;
+			}
 		return;
 	}
 	if (::isAmulet(kind)) {
@@ -276,7 +318,7 @@ void Inventory::ToggleSort(SortOrder order) { SetSort(Sort() == order ? SortOrde
 int Inventory::SelectedPosition() const { return positionOf(bag, Sort(), selectedSlot); }
 
 bool Inventory::TwoButtons() const {
-	return isWeapon(selectedSlot) || (isAmulet(selectedSlot) && CanUpgrade(selectedSlot));
+	return isWeapon(selectedSlot) || isRing(selectedSlot) || (isAmulet(selectedSlot) && CanUpgrade(selectedSlot));
 }
 
 void Inventory::ScrollBy(int rows) {
@@ -379,11 +421,17 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	if (state != GLUT_UP || button != pressedMouseButton)
 		return;
 
-	if (pressed == Target::UseButton && hoveredButton == pressed)
-		Use(selectedSlot);
-	else if (pressed == Target::UpgradeButton && hoveredButton == pressed)
-		Upgrade(selectedSlot);
-	else if (pressed == Target::Tab && hoveredTab == pressedSlot)
+	if (pressed == Target::UseButton && hoveredButton == pressed) {
+		if (isRing(selectedSlot))
+			WearOnHand(selectedSlot, Hand::Left);
+		else
+			Use(selectedSlot);
+	} else if (pressed == Target::UpgradeButton && hoveredButton == pressed) {
+		if (isRing(selectedSlot))
+			WearOnHand(selectedSlot, Hand::Right);
+		else
+			Upgrade(selectedSlot);
+	} else if (pressed == Target::Tab && hoveredTab == pressedSlot)
 		SwitchTab(groupAt(pressedSlot));
 	else if (pressed == Target::SortButton && hoveredSort == pressedSlot)
 		ToggleSort(static_cast<SortOrder>(pressedSlot));
@@ -440,6 +488,14 @@ bool Inventory::Wear(std::optional<ItemKind> amulet) {
 	if (bag.Worn() != amulet)
 		Use(itemIndex(*amulet));
 	return bag.Worn() == amulet;
+}
+
+bool Inventory::WearRing(ItemKind ring, Hand hand) {
+	if (!::isRing(ring) || bag.Count(ring) <= 0)
+		return false;
+	if (bag.RingOn(hand) != ring)
+		WearOnHand(itemIndex(ring), hand);
+	return bag.RingOn(hand) == ring;
 }
 
 bool Inventory::Equip(ItemKind weapon) {
@@ -674,7 +730,8 @@ void Inventory::DrawSlot(int slot) {
 
 	// Name band: lapis for the weapon in hand, dark stone otherwise.
 	Rect band = {r.x, r.y, r.w, NAME_BAND_H};
-	if (kindOf(slot) == bag.Equipped() || kindOf(slot) == bag.Worn()) // the weapon in hand, the amulet on
+	// the weapon in hand, the amulet on, a ring on
+	if (kindOf(slot) == bag.Equipped() || kindOf(slot) == bag.Worn() || bag.RingWorn(kindOf(slot)))
 		fillRect(band, LAPIS, LAPIS_DARK, 1.f);
 	else
 		fillRect(band, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
@@ -696,6 +753,14 @@ void Inventory::DrawSlot(int slot) {
 		fillRect(badge, {0.05f, 0.04f, 0.03f}, {0.05f, 0.04f, 0.03f}, 0.85f);
 		strokeRect(badge, GOLD_DIM, 1.f, 1.f);
 	}
+
+	// A worn ring: a badge per hand it is on (its letter: DrawSlotLabels).
+	for (int hand = 0; hand < HAND_COUNT; hand++)
+		if (bag.RingOn(static_cast<Hand>(hand)) == kindOf(slot)) {
+			const Rect badge = handBadge(r, hand);
+			fillRect(badge, LAPIS, LAPIS_DARK, 0.95f);
+			strokeRect(badge, GOLD_DIM, 1.f, 1.f);
+		}
 
 	// Upgrade ready: a pulsing gold arrow under the level.
 	if (CanUpgrade(slot)) {
@@ -738,6 +803,7 @@ void Inventory::DrawSlotModel(int slot) {
 	glPushMatrix();
 	glTranslatef(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? TILE_SINK : 0.f), 0);
 	model->Draw();
+	model->DrawPart(); // a ring's gem, right after its band
 	glPopMatrix();
 	model->scale = savedScale;
 	model->rotA = savedAngle;
@@ -763,6 +829,10 @@ void Inventory::DrawSlotLabels(int slot) {
 		snprintf(count, sizeof(count), "%d", bag.Count(kindOf(slot)));
 		textCentered(small, r.x + r.w - 2.55f, r.y + r.h - 3.7f, count, GOLD);
 	}
+
+	for (int hand = 0; hand < HAND_COUNT; hand++) // a worn ring: the hand it is on
+		if (bag.RingOn(static_cast<Hand>(hand)) == kindOf(slot))
+			textCentered(small, handBadge(r, hand).cx(), handBadge(r, hand).y + 0.3f, HAND_MARKS[hand], GOLD);
 
 	if (isWeapon(slot) && owned) {
 		char level[8];
@@ -793,6 +863,19 @@ void Inventory::DrawDetails() {
 	char kind[48] = "Potion";
 	if (isAmulet(selectedSlot))
 		snprintf(kind, sizeof(kind), "%s", bag.Worn() == kindOf(selectedSlot) ? "Amulet, worn" : "Amulet");
+	if (isRing(selectedSlot)) {
+		const bool left = bag.RingOn(Hand::Left) == kindOf(selectedSlot);
+		const bool right = bag.RingOn(Hand::Right) == kindOf(selectedSlot);
+		snprintf(
+			kind,
+			sizeof(kind),
+			"%s",
+			left && right ? "Ring, on both hands"
+			: left		  ? "Ring, left hand"
+			: right		  ? "Ring, right hand"
+						  : "Ring"
+		);
+	}
 	if (isWeapon(selectedSlot)) {
 		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
 		snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
@@ -802,6 +885,26 @@ void Inventory::DrawDetails() {
 	constexpr float STAT_Y = 37.4f;
 	if (isPotion(selectedSlot)) {
 		textCentered(body, cx, STAT_Y, info.effect, INK);
+	} else if (isRing(selectedSlot)) {
+		textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
+		// Two at a time, one per hand: what each hand wears, and what the selected ring's gem gives in all.
+		char hands[64];
+		const std::optional<ItemKind> left = bag.RingOn(Hand::Left);
+		const std::optional<ItemKind> right = bag.RingOn(Hand::Right);
+		if (left || right)
+			snprintf(
+				hands,
+				sizeof(hands),
+				"Left: %s   Right: %s",
+				left ? itemText(*left).shortName : "-",
+				right ? itemText(*right).shortName : "-"
+			);
+		else
+			snprintf(hands, sizeof(hands), "Two rings, one on each hand");
+		textCentered(small, cx, STAT_Y + 0.5f, hands, INK_FADED);
+		const std::string sum = ringSumText(Game().player->stats.Rings(), ringOf(kindOf(selectedSlot)).gem);
+		if (!sum.empty())
+			textCentered(small, cx, STAT_Y - 3.2f, ("Worn: " + sum).c_str(), INK_GREEN);
 	} else if (isAmulet(selectedSlot)) {
 		textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
 		// One amulet at a time: what putting this one on would take off.
@@ -904,12 +1007,14 @@ void Inventory::DrawDetailModel() {
 	float savedAngle = model->rotA;
 	model->scale = isPotion(selectedSlot)	? potionModelDef(potionDef(kindOf(selectedSlot)).model).detailScale
 				   : isAmulet(selectedSlot) ? AMULET_DETAIL_SCALE
+				   : isRing(selectedSlot)	? RING_DETAIL_SCALE
 											: WEAPON_DETAIL_SCALE;
 	model->rotA = slotAngle[selectedSlot];
 	glColor3f(tint.r, tint.g, tint.b);
 	glPushMatrix();
 	glTranslatef(DETAIL_PANEL.cx(), PLINTH_Y, 0);
 	model->Draw();
+	model->DrawPart();
 	glPopMatrix();
 	model->scale = savedScale;
 	model->rotA = savedAngle;
@@ -919,7 +1024,13 @@ void Inventory::DrawButtons() {
 	const char* label = nullptr;
 	bool canUse = CanUse(selectedSlot, &label);
 	DrawButton(Target::UseButton, label, canUse);
-	if (TwoButtons())
+	if (isRing(selectedSlot))
+		DrawButton(
+			Target::UpgradeButton,
+			bag.RingOn(Hand::Right) == kindOf(selectedSlot) ? "Take off" : "Right hand",
+			canUse
+		);
+	else if (TwoButtons())
 		DrawButton(Target::UpgradeButton, "Upgrade", CanUpgrade(selectedSlot));
 }
 

@@ -56,6 +56,11 @@ class ItemBag {
 	int lastStamp = 0;
 	ItemKind equipped = ItemKind::Club;
 	std::optional<ItemKind> worn; // the amulet on, one of those counted
+	WornRings rings; // the rings on, left and right hand (plan ring-accessories), each one of those counted
+	Hand olderHand = Hand::Left; // the ring worn longer, when both hands wear one
+
+	[[nodiscard]] int HandsWearing(ItemKind ring) const; // 0, 1 or 2
+	void PutOnHand(ItemKind ring, Hand hand);
 
   public:
 	ItemBag() { Reset(); }
@@ -75,11 +80,19 @@ class ItemBag {
 	[[nodiscard]] bool AnyFound(ItemGroup group) const;
 	[[nodiscard]] ItemKind Equipped() const { return equipped; }
 	[[nodiscard]] std::optional<ItemKind> Worn() const { return worn; }
+	[[nodiscard]] const WornRings& Rings() const { return rings; }
+	[[nodiscard]] std::optional<ItemKind> RingOn(Hand hand) const { return rings[static_cast<size_t>(hand)]; }
+	[[nodiscard]] bool RingWorn(ItemKind ring) const { return HandsWearing(ring) > 0; }
+	// The ring card's hand buttons: the ring on that hand comes off; if it is the one there, it comes off. A ring worn
+	// on the other hand with no second copy held moves over. False if the ring is not held or the player is dead.
+	bool WearOn(ItemKind ring, Hand hand, bool alive);
 	[[nodiscard]] OwnedWeapons Owned() const; // the weapons held (count > 0)
 
 	[[nodiscard]] UseBlock Block(ItemKind kind, const Vitals& player) const;
 	// Equips a weapon, takes a potion out of the bag (the caller applies its potionGain), or puts an amulet on (takes
-	// it off if it is the one worn; the caller applies amuletBonus(Worn())). False if Block says no.
+	// it off if it is the one worn; the caller applies amuletBonus(Worn())). A ring: worn, it comes off (the one put on
+	// last, if both hands wear it); else on the free hand, left first, or in place of the one worn longer (the caller
+	// applies ringBonus(Rings())). False if Block says no.
 	bool Use(ItemKind kind, const Vitals& player);
 	// A weapon: its copies reach upgradeCost. An amulet: UpgradePoints reach its worth (amuletWorth), below grand.
 	[[nodiscard]] bool CanUpgrade(ItemKind kind, bool alive) const;
@@ -92,8 +105,9 @@ class ItemBag {
 	// The potion the quick-drink key would take (quickPotion), counting from `current` of `max`.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind, int current, int max) const;
 
-	// "INV7 <slots> <counts...> <levels...> <found...> <stamps...> <equipped type> <equipped id> <worn type> <worn id>"
-	// (worn type 0: none). Load also reads INV6 (no water blessing: the amulets right after the greater resistance
+	// "INV8 <slots> <counts...> <levels...> <found...> <stamps...> <equipped type> <equipped id> <worn type> <worn id>
+	// <left ring type> <left ring id> <right ring type> <right ring id> <older hand>" (type 0: none). Load also reads
+	// INV7 (no rings), INV6 (no water blessing: the amulets right after the greater resistance
 	// potion), INV5 (no stamps), INV4 (no resistance potions: the amulets right after the
 	// antidote), INV3 (no worn amulet), INV2 (no found flags: found is what is held) and the older saves, which start
 	// straight with the 9 counts of the original slots.

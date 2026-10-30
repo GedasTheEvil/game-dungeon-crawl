@@ -75,14 +75,18 @@ float PlayerStats::SprintMoveMultiplier() const {
 	return curses.Has(Curse::Slowness) ? SLOWNESS_SPRINT_MULTIPLIER : SPRINT_MULTIPLIER;
 }
 
-float PlayerStats::WalkCurseFactor() const { return curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f; }
+float PlayerStats::WalkFactor(bool airborne) const {
+	const float rings = airborne ? 1.f : static_cast<float>(100 + this->rings.speedPercent) / 100.f;
+	return (curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f) * rings;
+}
 
 void PlayerStats::RegenerateStamina() {
 	if (!stamina_regen_timer.TimePassed() || curses.Has(Curse::Fatigue))
 		return;
 
 	// 5% of max per second at level 1, +0.5% per level, up to 15%
-	const float regenRate = std::min(0.05f + 0.005f * static_cast<float>(level - 1), 0.15f);
+	const float regenRate = std::min(0.05f + 0.005f * static_cast<float>(level - 1), 0.15f) *
+							static_cast<float>(100 + rings.staminaRegenPercent) / 100.f; // the sapphire rings'
 	stamina_regen_carry += regenRate * static_cast<float>(MaxStamina());
 
 	int staminaGain = static_cast<int>(stamina_regen_carry);
@@ -256,13 +260,26 @@ int PlayerStats::TrapDamage(int dmg) {
 }
 
 void PlayerStats::Regenerate(bool safe, int tickMs) {
-	if (amulet.regenHpPerSecond <= 0 || !safe || poison.Any() || !Alive() || HP >= CurrentMaxHP()) {
+	const bool healing = !poison.Any() && Alive() && HP < CurrentMaxHP();
+	if (rings.regenHpPerHour <= 0 || !healing)
+		ring_regen_carry = 0;
+	else { // the rubies, also in a fight
+		ring_regen_carry += tickMs * rings.regenHpPerHour;
+		HP = std::min(CurrentMaxHP(), HP + ring_regen_carry / RingEffect::MS_PER_HOUR);
+		ring_regen_carry %= RingEffect::MS_PER_HOUR;
+	}
+	if (amulet.regenHpPerSecond <= 0 || !safe || !healing) {
 		regen_carry_ms = 0;
 		return;
 	}
 	regen_carry_ms += tickMs * amulet.regenHpPerSecond;
 	HP = std::min(CurrentMaxHP(), HP + regen_carry_ms / 1000);
 	regen_carry_ms %= 1000;
+}
+
+void PlayerStats::WearRings(const RingBonus& bonus) {
+	rings = bonus;
+	ring_regen_carry = 0;
 }
 
 int PlayerStats::PoisonResistPercent() const {

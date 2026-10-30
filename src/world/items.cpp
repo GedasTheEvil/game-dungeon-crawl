@@ -321,7 +321,7 @@ constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 }();
 static_assert(
 	AMULETS.back().type == AmuletType::Piercing && AMULETS.back().tier == AmuletTier::Grand,
-	"AMULETS ends with grand piercing, the last ItemKind"
+	"AMULETS ends with grand piercing, the last amulet"
 );
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share (the
@@ -438,7 +438,128 @@ struct AmuletTexts {
 		}
 	}
 };
+
+// Per gem (plan ring-accessories): its names and colour; the effect line is put together from RingEffect's numbers.
+// The lore lines: content/texts/items.txt, [item.ring-<gem slug>].
+struct RingGemDef {
+	const char* noun; // "Ruby": the name is the metal, the noun and "Ring"
+	const char* slug; // the lore's and the field note's: [item.ring-<slug>], [note.ring-<slug>]
+	const char* labelNoun; // what it does, for the label ("ring of <labelNoun>"): editor, tools, scenarios
+	Rgb colour;
+};
+constexpr std::array<RingGemDef, RING_GEM_COUNT> RING_GEMS = {{
+	{"Ruby", "ruby", "regeneration", {0.78f, 0.04f, 0.10f}},
+	{"Sapphire", "sapphire", "vigor", {0.10f, 0.28f, 0.95f}},
+	{"Emerald", "emerald", "cleansing", {0.05f, 0.75f, 0.30f}},
+	{"Topaz", "topaz", "speed", {1.f, 0.92f, 0.25f}}, // lemon: apart from the gold band
+	{"Crystal", "crystal", "reach", {0.82f, 0.92f, 1.f}}, // near clear, a cold blue
+	{"Amethyst", "amethyst", "sundering", {0.62f, 0.22f, 0.92f}},
+}};
+constexpr const char* METAL_WORDS[RING_METAL_COUNT] = {"Copper", "Silver", "Gold"};
+constexpr const char* METAL_TEXTURES[RING_METAL_COUNT] = {"ring_band_copper", "ring_band_silver", "ring_band_gold"};
+
+const RingGemDef& gemDef(RingGem gem) { return RING_GEMS[static_cast<size_t>(gem)]; }
+
+// "Heals 1 health every 3 s", "Weapon reach +25%".
+std::string ringEffect(Ring r) {
+	const auto m = static_cast<size_t>(r.metal);
+	char effect[64];
+	switch (r.gem) {
+	case RingGem::Ruby:
+		std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::RUBY_MS_PER_HP[m] / 1000);
+		break;
+	case RingGem::Sapphire:
+		std::snprintf(effect, sizeof(effect), "Stamina returns %d%% faster", RingEffect::SAPPHIRE_PERCENT[m]);
+		break;
+	case RingGem::Emerald:
+		std::snprintf(effect, sizeof(effect), "Poison wears off %d%% faster", RingEffect::EMERALD_PERCENT[m]);
+		break;
+	case RingGem::Topaz:
+		std::snprintf(effect, sizeof(effect), "Walk and sprint %d%% faster", RingEffect::TOPAZ_PERCENT[m]);
+		break;
+	case RingGem::Crystal:
+		std::snprintf(effect, sizeof(effect), "Weapon reach +%d%%", RingEffect::CRYSTAL_PERCENT[m]);
+		break;
+	case RingGem::Amethyst: {
+		constexpr const char* SHARES[RING_METAL_COUNT] =
+			{"Cuts a quarter of resistances", "Cuts half of resistances", "Ignores resistances"};
+		std::snprintf(effect, sizeof(effect), "%s", SHARES[m]);
+		break;
+	}
+	}
+	return effect;
+}
+
+// Built once, as the amulets'.
+struct RingTexts {
+	std::array<std::string, RING_KIND_COUNT> names, shortNames, labels, effects;
+	std::array<ItemText, RING_KIND_COUNT> texts{};
+	RingTexts() {
+		for (size_t i = 0; i < texts.size(); i++) {
+			const Ring r = ringOf(itemAt(FIRST_RING + static_cast<int>(i)));
+			const RingGemDef& def = gemDef(r.gem);
+			const auto m = static_cast<size_t>(r.metal);
+			names[i] = std::string(METAL_WORDS[m]) + " " + def.noun + " Ring";
+			shortNames[i] = std::string(def.noun) + " " + TIER_NUMERALS[m];
+			labels[i] = METAL_WORDS[m];
+			labels[i] += " ring of ";
+			labels[i] += def.labelNoun;
+			for (char& c : labels[i])
+				c = static_cast<char>(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
+			effects[i] = ringEffect(r);
+			const std::string lore = std::string("ring_") + def.slug;
+			texts[i] = {
+				names[i].c_str(),
+				shortNames[i].c_str(),
+				labels[i].c_str(),
+				effects[i].c_str(),
+				loreLine(lore.c_str(), 1),
+				loreLine(lore.c_str(), 2)
+			};
+		}
+	}
+};
 } // namespace
+
+Rgb ringGemColour(RingGem gem) { return gemDef(gem).colour; }
+
+const char* ringGemSlug(RingGem gem) { return gemDef(gem).slug; }
+
+const char* ringBandTexture(RingMetal metal) { return METAL_TEXTURES[static_cast<size_t>(metal)]; }
+
+RingBonus ringBonus(const WornRings& worn) {
+	RingBonus bonus;
+	for (const std::optional<ItemKind>& on : worn) {
+		if (!on || !isRing(*on))
+			continue;
+		const Ring r = ringOf(*on);
+		const auto m = static_cast<size_t>(r.metal);
+		switch (r.gem) {
+		case RingGem::Ruby:
+			bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::RUBY_MS_PER_HP[m];
+			break;
+		case RingGem::Sapphire:
+			bonus.staminaRegenPercent += RingEffect::SAPPHIRE_PERCENT[m];
+			break;
+		case RingGem::Emerald:
+			bonus.poisonFasterPercent += RingEffect::EMERALD_PERCENT[m];
+			break;
+		case RingGem::Topaz:
+			bonus.speedPercent += RingEffect::TOPAZ_PERCENT[m];
+			break;
+		case RingGem::Crystal:
+			bonus.reachPercent += RingEffect::CRYSTAL_PERCENT[m];
+			break;
+		case RingGem::Amethyst:
+			bonus.resistCutPercent += RingEffect::AMETHYST_PERCENT[m];
+			break;
+		}
+	}
+	bonus.speedPercent = std::min(bonus.speedPercent, RingEffect::TOPAZ_CAP);
+	bonus.reachPercent = std::min(bonus.reachPercent, RingEffect::CRYSTAL_CAP);
+	bonus.resistCutPercent = std::min(bonus.resistCutPercent, RingEffect::AMETHYST_CAP);
+	return bonus;
+}
 
 Amulet amuletOf(ItemKind amulet) { return AMULETS[static_cast<size_t>(itemIndex(amulet) - FIRST_AMULET)]; }
 
@@ -503,6 +624,44 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 	return bonus;
 }
 
+std::string ringSumText(const RingBonus& bonus, RingGem gem) {
+	char text[64] = "";
+	switch (gem) {
+	case RingGem::Ruby:
+		if (bonus.regenHpPerHour > 0)
+			std::snprintf(
+				text,
+				sizeof(text),
+				"heals 1 health every %.1f s",
+				static_cast<double>(RingEffect::MS_PER_HOUR) / 1000.0 / bonus.regenHpPerHour
+			);
+		break;
+	case RingGem::Sapphire:
+		if (bonus.staminaRegenPercent > 0)
+			std::snprintf(text, sizeof(text), "stamina returns %d%% faster", bonus.staminaRegenPercent);
+		break;
+	case RingGem::Emerald:
+		if (bonus.poisonFasterPercent > 0)
+			std::snprintf(text, sizeof(text), "poison wears off %d%% faster", bonus.poisonFasterPercent);
+		break;
+	case RingGem::Topaz:
+		if (bonus.speedPercent > 0)
+			std::snprintf(text, sizeof(text), "walk and sprint %d%% faster", bonus.speedPercent);
+		break;
+	case RingGem::Crystal:
+		if (bonus.reachPercent > 0)
+			std::snprintf(text, sizeof(text), "weapon reach +%d%%", bonus.reachPercent);
+		break;
+	case RingGem::Amethyst:
+		if (bonus.resistCutPercent >= RingEffect::AMETHYST_CAP)
+			std::snprintf(text, sizeof(text), "ignores resistances");
+		else if (bonus.resistCutPercent > 0)
+			std::snprintf(text, sizeof(text), "cuts %d%% of resistances", bonus.resistCutPercent);
+		break;
+	}
+	return text;
+}
+
 const char* amuletModel(AmuletType type) { return typeDef(type).model; }
 
 const WeaponDef& weaponDef(ItemKind weapon) { return ITEMS[static_cast<size_t>(itemIndex(weapon))].weapon; }
@@ -525,6 +684,8 @@ constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
 const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[static_cast<size_t>(model)]; }
 
 ItemFileId fileIdOf(ItemKind kind) {
+	if (isRing(kind))
+		return {ItemType::RING, itemIndex(kind) - FIRST_RING};
 	if (isAmulet(kind))
 		return {ItemType::AMULET, itemIndex(kind) - FIRST_AMULET};
 	return ITEMS[static_cast<size_t>(itemIndex(kind))].file;
@@ -533,6 +694,8 @@ ItemFileId fileIdOf(ItemKind kind) {
 std::optional<ItemKind> itemFromFile(int type, int id) {
 	if (type == ItemType::AMULET)
 		return id >= 0 && id < AMULET_KIND_COUNT ? std::optional(itemAt(FIRST_AMULET + id)) : std::nullopt;
+	if (type == ItemType::RING)
+		return id >= 0 && id < RING_KIND_COUNT ? std::optional(itemAt(FIRST_RING + id)) : std::nullopt;
 	for (int i = 0; i < FIRST_AMULET; i++)
 		if (ITEMS[static_cast<size_t>(i)].file.type == type && ITEMS[static_cast<size_t>(i)].file.id == id)
 			return itemAt(i);
@@ -551,6 +714,10 @@ ItemRange groupItems(ItemGroup group) {
 }
 
 const ItemText& itemText(ItemKind kind) {
+	if (isRing(kind)) {
+		static const RingTexts RING_TEXTS;
+		return RING_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_RING)];
+	}
 	if (isAmulet(kind)) {
 		static const AmuletTexts AMULET_TEXTS;
 		return AMULET_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_AMULET)];

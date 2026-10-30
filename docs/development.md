@@ -148,7 +148,8 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
 | Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |
 | Player stats, XP, levels | `entities/player_stats.*`, `world/progression.*` |
-| Items: weapons, potions, amulets (rows, rules) | `world/items.*`, `world/item_bag.*`; loot `world/loot.*` |
+| Items: weapons, potions, amulets, rings (rows, rules) | `world/items.*`, `world/item_bag.*`; loot `world/loot.*` |
+| Rings: the effects where they act | `RingBonus` (`world/items.*`) read by `PlayerStats` (`entities/player_stats.*`: regeneration, stamina, walk factor, reach), `Poison::Advance` (emerald), `Monster::TakeWeaponHit` (amethyst); worn per hand in `ItemBag`; the gem drawn see-through by `Item::DrawPart` (`entities/item.*`, after the opaque scene: `Dungeon::drawItemParts`); models `tools/blender/models/rings.py` |
 | Curses, poison, skills | `world/curses.*`, `world/poison.*`, `world/skills.*` |
 | Damage types, fire, burning, fire arrows | `world/damage.h` (`Burning`), `Dungeon::updateBurning` (`world/dungeon_base.cpp`), `Dungeon::lightArrows` (`world/dungeon_interact.cpp`), drawn in `world/dungeon_render_effects.cpp`, `graphics/fire.*` |
 | Run statistics, leaderboard (file, orders, scores) | `world/run_stats.*` (counters, in `PlayerStats`), `world/leaderboard.*`; screens `ui/win_entry.*`, `ui/records_view.*` |

@@ -11,10 +11,10 @@
 class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
-// (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets and an XP line. Above it, one
-// poison drop per running tier (one, two or three pips) with its seconds left, a running resistance potion's (one pip
-// lesser, two greater), a running Blessing of Hapi (a blue-green drop), then each running curse in a purple frame (one
-// pip lesser, two greater).
+// (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets, the worn rings' gems and an
+// XP line. Above it, one poison drop per running tier (one, two or three pips) with its seconds left, a running
+// resistance potion's (one pip lesser, two greater), a running Blessing of Hapi (a blue-green drop), then each running
+// curse in a purple frame (one pip lesser, two greater).
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -67,6 +67,9 @@ struct View {
 	int keysHeld = 0; // bit (colour - 1) per key held
 	int levelKeys = 0; // bit (colour - 1) per key on the level: one socket each
 	Slot slots[4]; // weapon, healing potion, stamina potion, worn amulet
+	// The worn rings (plan ring-accessories), left and right hand: a gem each in its colour, under the key sockets.
+	bool ringWorn[HAND_COUNT] = {};
+	ui::Color ringGem[HAND_COUNT] = {};
 	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
 	int resistLeftMs = 0; // a resistance potion's time left, 0: none
 	bool resistGreater = false; // the greater one

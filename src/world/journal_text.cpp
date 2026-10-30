@@ -171,15 +171,18 @@ constexpr std::array<const char*, static_cast<size_t>(FieldNote::AmuletFirst)> F
 	"hour-12",
 };
 
-// The [note.<slug>] of each FieldNote after the amulets', in FieldNote order.
-constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::AmuletLast) - 1> LATE_NOTE_SLUGS = {
-	"stun",
-	"rings",
-	"stargate",
-	"dial-device",
+// The [note.<slug>] of each FieldNote after the amulets' up to the rings' (note.ring-<gem slug>), in FieldNote order.
+constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - static_cast<int>(FieldNote::AmuletLast) - 1>
+	LATE_NOTE_SLUGS = {
+		"stun",
+		"rings",
+		"stargate",
+		"dial-device",
 };
 
 std::string fieldNoteKey(int note) {
+	if (const int ring = note - static_cast<int>(FieldNote::RingFirst); ring >= 0)
+		return std::string("note.ring-") + ringGemSlug(static_cast<RingGem>(ring));
 	const int amulet = note - static_cast<int>(FieldNote::AmuletFirst);
 	const int late = note - static_cast<int>(FieldNote::AmuletLast) - 1;
 	if (late >= 0)

@@ -1,0 +1,17 @@
+# Plan ring-accessories, for `bin/game --play tests/play/ring-accessories.txt`: tests/levels/rat_corridor, one ring of
+# each gem in the pack plus a second gold ruby (I, Rings tab). The card's Left hand / Right hand buttons put a ring on
+# that hand (the one there comes off); Enter or a right click: off if worn, else the free hand, else in place of the
+# older one. The HUD shows the worn rings' gems right of the amulet slot. Try: two gold rubies and fight the rats (it
+# heals in the fight), the gold topaz (walk faster, jump as far), the gold rock crystal (the club reaches farther),
+# the gold amethyst (hit harder what resists your weapon). tests/levels/ring_accessories: rings on chests.
+seed 1
+level tests/levels/rat_corridor
+give ring 2
+give ring 2
+give ring 5
+give ring 8
+give ring 11
+give ring 14
+give ring 17
+give melee 1
+hurt 30

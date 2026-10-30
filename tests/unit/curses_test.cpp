@@ -132,11 +132,11 @@ TEST_CASE("slowness halves the walk and sprints at 1.25 tiles a second") {
 	PlayerStats stats = freshStats();
 	WorldEvents events;
 	stats.SetSprintRequested(true);
-	CHECK(stats.WalkCurseFactor() == 1.f);
+	CHECK(stats.WalkFactor(false) == 1.f);
 	CHECK(stats.SprintMoveMultiplier() == 3.f);
 	stats.LayCurse(Curse::Slowness, CurseGrade::Lesser, events);
-	CHECK(stats.WalkCurseFactor() == 0.5f);
-	CHECK(stats.WalkCurseFactor() * stats.SprintMoveMultiplier() == doctest::Approx(1.25f));
+	CHECK(stats.WalkFactor(false) == 0.5f);
+	CHECK(stats.WalkFactor(false) * stats.SprintMoveMultiplier() == doctest::Approx(1.25f));
 }
 
 TEST_CASE("a curse tells the player on start, again and at the end, and writes its note once") {

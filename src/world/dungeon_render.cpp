@@ -18,6 +18,9 @@ constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are draw
 // A potion keeps its own scale over the container, half the minimum (plan smaller-chest-potions); lifted by half its
 // height (about 5), it stands where the minimum's centre was, not sunk in the chest.
 constexpr float POTION_CHEST_LIFT = 2.5f;
+// A ring (plan ring-accessories) too: its own size there, lifted by half its height, so it sits on the chest.
+constexpr float RING_CHEST_SCALE = 6.f;
+constexpr float RING_CHEST_LIFT = 3.f;
 constexpr float SAND_EDGE_LIFT = 0.04f; // the spilled sand over the stone floor, clear of its depth
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
@@ -194,14 +197,37 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		const float scale = item->scale;
 		item->rotA = treasureSpin;
 		const bool potion = isPotion(*kind);
-		item->scale = potion ? scale : std::max(scale, CHEST_MIN_SCALE);
-		glTranslatef(0, def.itemLift + (potion ? POTION_CHEST_LIFT : 0.f), 0);
+		const bool ring = isRing(*kind);
+		item->scale = potion ? scale : ring ? RING_CHEST_SCALE : std::max(scale, CHEST_MIN_SCALE);
+		glTranslatef(0, def.itemLift + (potion ? POTION_CHEST_LIFT : ring ? RING_CHEST_LIFT : 0.f), 0);
 		item->Draw();
+		if (item->HasPart()) {
+			ItemPartDraw draw{{}, item, item->rotA, item->scale};
+			glGetFloatv(GL_MODELVIEW_MATRIX, draw.modelview.data());
+			itemParts.push_back(draw);
+		}
 		item->rotA = angle;
 		item->scale = scale;
 	}
 
 	glPopMatrix();
+}
+//======================================================================================
+void Dungeon::drawItemParts() {
+	glPushMatrix();
+	for (const ItemPartDraw& draw : itemParts) {
+		glLoadMatrixf(draw.modelview.data());
+		const float angle = draw.item->rotA;
+		const float scale = draw.item->scale;
+		draw.item->rotA = draw.rotA;
+		draw.item->scale = draw.scale;
+		glColor3f(1, 1, 1);
+		draw.item->DrawPart();
+		draw.item->rotA = angle;
+		draw.item->scale = scale;
+	}
+	glPopMatrix();
+	itemParts.clear();
 }
 //======================================================================================
 // A jar breaking open: a puff of dust out of its shards (Grit::burst), and a trapped chest's gas. In the tile loop's
@@ -544,6 +570,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawBlazes();
 	drawSunBeams();
 	drawContainerEffects();
+	drawItemParts();
 	drawBurning();
 	drawPowerSpark();
 	drawStunStars();

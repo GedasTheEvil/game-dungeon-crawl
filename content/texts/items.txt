@@ -153,3 +153,28 @@ lore2: It parts what it meets.
 [item.amulet-piercing]
 lore1: The arrowhead of Neith.
 lore2: It finds the gap.
+
+# The rings (plan ring-accessories): [item.ring-<gem>], all metals of a gem share them.
+[item.ring-ruby]
+lore1: A drop of Sekhmet's blood
+lore2: that never dries.
+
+[item.ring-sapphire]
+lore1: Blue as the night sky
+lore2: Nut stretches over you.
+
+[item.ring-emerald]
+lore1: Green of the Nile reeds.
+lore2: The venom runs off.
+
+[item.ring-topaz]
+lore1: A sliver of the sun.
+lore2: Your feet grow wings.
+
+[item.ring-crystal]
+lore1: Clear as Shu's air.
+lore2: Your arm grows long.
+
+[item.ring-amethyst]
+lore1: Purple of the dusk.
+lore2: No hide is thick enough.

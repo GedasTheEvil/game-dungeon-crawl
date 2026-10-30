@@ -163,7 +163,7 @@ void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceResistance(UPDATE_TICK_MS);
 	stats.AdvanceWaterBlessing(UPDATE_TICK_MS, events);
 	stats.AdvanceCurses(UPDATE_TICK_MS, events);
-	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP());
+	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP(), stats.PoisonFasterPercent());
 	if (hp <= 0 || !Alive() || god)
 		return;
 	stats.LoseHP(hp); // armour does not help

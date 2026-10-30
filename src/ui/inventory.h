@@ -52,6 +52,9 @@ class Inventory {
 	[[nodiscard]] bool SlotHeld(int slot) const;
 	void Use(int slot);
 	void Upgrade(int slot);
+	// The ring card's hand buttons (the Use and Upgrade buttons' places): on that hand, or off it.
+	void WearOnHand(int slot, Hand hand);
+	void ApplyRings(); // the worn rings' bonus to the player
 	std::string DrinkPotion(ItemKind potion); // applies it to the player; returns the feedback line
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
@@ -60,7 +63,8 @@ class Inventory {
 	[[nodiscard]] SortOrder Sort() const { return sortOrder[static_cast<int>(tab)]; }
 	// A click on a sort button: that order for the open tab, or found first again if it was on.
 	void ToggleSort(SortOrder order);
-	// Two buttons under the details (use and upgrade): a weapon, or an amulet the spares can upgrade.
+	// Two buttons under the details (use and upgrade): a weapon, or an amulet the spares can upgrade; a ring's left and
+	// right hand.
 	[[nodiscard]] bool TwoButtons() const;
 	[[nodiscard]] int Scroll() const { return scrollRow[static_cast<int>(tab)]; }
 	void ScrollBy(int rows); // the open tab, within its rows
@@ -110,6 +114,9 @@ class Inventory {
 	// Puts the amulet on like a click on its slot, or takes the worn one off (nullopt) (scenario `wear`). False if
 	// it is not held or not worn afterwards.
 	bool Wear(std::optional<ItemKind> amulet);
+	// Puts the ring on that hand like its card's hand button (scenario `wear <ring> left|right`). False if it is not
+	// held or not on that hand afterwards.
+	bool WearRing(ItemKind ring, Hand hand);
 	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
 	// left: nothing is drunk, the status box says why.
 	void QuickDrink(QuickKind kind);

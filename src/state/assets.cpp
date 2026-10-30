@@ -70,6 +70,8 @@ void loadMechanisms(MechanismSet& set) {
 } // namespace
 
 Item* ItemPrototypes::Of(ItemKind kind) const {
+	if (isRing(kind))
+		return rings[static_cast<size_t>(itemIndex(kind) - FIRST_RING)].get();
 	if (isAmulet(kind))
 		return amulets[static_cast<size_t>(amuletOf(kind).type)].get();
 	if (isPotion(kind))
@@ -160,6 +162,26 @@ std::unique_ptr<Item> loadItem(const char* name, float scale) {
 }
 
 constexpr float AMULET_SCALE = 4.f; // on a chest raised to CHEST_MIN_SCALE (10), twice a potion's there
+constexpr float RING_SCALE = 4.f; // as the amulets: much bigger than real, so it reads on a chest and in the slot
+
+// The band and the gem loaded once, by the copper ruby; the other rings share them, in their metal and gem.
+void loadRings(ItemPrototypes& items) {
+	const Item* first = nullptr;
+	for (size_t i = 0; i < RING_KIND_COUNT; i++) {
+		const Ring r = ringOf(itemAt(FIRST_RING + static_cast<int>(i)));
+		auto ring = std::make_unique<Item>();
+		if (first == nullptr) {
+			ring->loadModel(RING_BAND_MODEL, ringBandTexture(r.metal));
+			ring->loadPart(RING_GEM_MODEL, ringGemColour(r.gem), RING_GEM_ALPHA);
+			first = ring.get();
+		} else {
+			ring->shareModel(*first, ringBandTexture(r.metal));
+			ring->sharePart(*first, ringGemColour(r.gem));
+		}
+		ring->scale = RING_SCALE;
+		items.rings[i] = std::move(ring);
+	}
+}
 
 // Each vessel loaded once, by its first potion; the others with it share the model.
 void loadPotions(ItemPrototypes& items) {
@@ -194,12 +216,13 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 		snprintf(sound, sizeof(sound), MEDIA_DIR "sounds/items/%s.wav", def.strikeSound);
 		item->strikeSound.Load(sound);
 	}
-	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading item models", "Containers, potions and amulets");
+	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading item models", "Containers, potions, amulets and rings");
 	for (size_t i = 0; i < CONTAINER_COUNT; i++) // face the camera at rotA 0 (tools/blender/models/containers.py)
 		items.containers[i] = loadItem(CONTAINER_DEFS[i].model, CONTAINER_DEFS[i].scale);
 	loadPotions(items);
 	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++)
 		items.amulets[i] = loadItem(amuletModel(static_cast<AmuletType>(i)), AMULET_SCALE);
+	loadRings(items);
 	constexpr const char* MISSILES[MISSILE_KIND_COUNT] = {"arrow", "sling_stone", "throwing_stick", "javelin"};
 	for (size_t i = 0; i < MISSILE_KIND_COUNT; i++) {
 		char path[64];

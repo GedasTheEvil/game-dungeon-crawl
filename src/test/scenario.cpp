@@ -426,8 +426,10 @@ bool runInstant(const Command& cmd) {
 		}
 		report(cmd, true, "");
 		return true;
-	case CommandType::Wear: // like a click on its slot in the inventory
-		if (!Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
+	case CommandType::Wear: // like a click on its slot in the inventory, or a ring card's hand button
+		if (isRing(cmd.item)
+				? !Game().ui.inventory->WearRing(cmd.item, static_cast<Hand>(cmd.ticks))
+				: !Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
 			report(cmd, false, "not held");
 			return true;
 		}

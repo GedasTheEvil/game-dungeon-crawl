@@ -48,7 +48,7 @@ bool parseWait(const std::string& word, int& ticks) {
 	return true;
 }
 
-// "melee", "ranged", "potion" or "amulet" -> ItemType value.
+// "melee", "ranged", "potion", "amulet" or "ring" -> ItemType value.
 bool parseItemType(const std::string& word, int& type) {
 	if (word == "melee")
 		type = ItemType::MELEE_WEAPON;
@@ -58,6 +58,8 @@ bool parseItemType(const std::string& word, int& type) {
 		type = ItemType::POTION;
 	else if (word == "amulet")
 		type = ItemType::AMULET;
+	else if (word == "ring")
+		type = ItemType::RING;
 	else
 		return false;
 	return true;
@@ -283,9 +285,14 @@ bool parseEquip(const Args& args, Command& cmd) {
 	return args.size() == 1 && parseItemSlug(args[0], 0, WEAPON_KIND_COUNT, cmd.item);
 }
 
+// An amulet or "off", or a ring and its hand (ticks: Hand).
 bool parseWear(const Args& args, Command& cmd) {
 	cmd.item = ItemKind::Club; // "off": the worn amulet comes off
-	return args.size() == 1 && (args[0] == "off" || parseItemSlug(args[0], FIRST_AMULET, ITEM_KIND_COUNT, cmd.item));
+	if (args.size() == 2 && (args[1] == "left" || args[1] == "right")) {
+		cmd.ticks = static_cast<int>(args[1] == "left" ? Hand::Left : Hand::Right);
+		return parseItemSlug(args[0], FIRST_RING, ITEM_KIND_COUNT, cmd.item);
+	}
+	return args.size() == 1 && (args[0] == "off" || parseItemSlug(args[0], FIRST_AMULET, FIRST_RING, cmd.item));
 }
 
 bool parsePoison(const Args& args, Command& cmd) {
@@ -469,7 +476,10 @@ const std::vector<CommandDef>& commandDefs() {
 		 "<item>: club, short_sword, small_health, ... (its label, _ for spaces)"},
 		{"sort", CommandType::Sort, parseSort, "<found|name|strength|recent>"},
 		{"equip", CommandType::Equip, parseEquip, "<weapon>: club, short_sword, spear, self-bow, ..."},
-		{"wear", CommandType::Wear, parseWear, "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ..."},
+		{"wear",
+		 CommandType::Wear,
+		 parseWear,
+		 "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ...; <ring> left|right: gold_ring_of_speed, ..."},
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
 		{"gear", CommandType::Gear, parseGear, "<armour> <might> <max HP %>: the potions' and amulets' gains"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},

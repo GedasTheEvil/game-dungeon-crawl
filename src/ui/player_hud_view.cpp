@@ -45,6 +45,12 @@ PlayerHud::View playerHudView() {
 		view.slots[3].icon = PlayerHud::amuletIcon(amulet.type);
 		view.slots[3].badge = TIERS[static_cast<size_t>(amulet.tier)];
 	}
+	for (int hand = 0; hand < HAND_COUNT; hand++)
+		if (std::optional<ItemKind> ring = Game().ui.inventory->Bag().RingOn(static_cast<Hand>(hand))) {
+			const Rgb c = ringGemColour(ringOf(*ring).gem);
+			view.ringWorn[hand] = true;
+			view.ringGem[hand] = {c.r, c.g, c.b};
+		}
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
 	view.resistLeftMs = stats.PotionResistLeftMs();

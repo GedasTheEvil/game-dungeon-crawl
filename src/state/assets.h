@@ -59,6 +59,8 @@ struct ItemPrototypes {
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
 	std::array<std::unique_ptr<Item>, POTION_KIND_COUNT> potions; // in ItemKind order; one vessel's share its model
 	std::array<std::unique_ptr<Item>, AMULET_TYPE_COUNT> amulets; // by AmuletType: its tiers share the model
+	// In ItemKind order: all share the band (a texture per metal) and the gem (a tint per gem, Item::DrawPart).
+	std::array<std::unique_ptr<Item>, RING_KIND_COUNT> rings;
 	[[nodiscard]] Item* Of(ItemKind kind) const;
 	// The missiles in flight, by MissileKind: static models in metres (items.py), not centred. Null if missing.
 	std::array<Texture, MISSILE_KIND_COUNT> missileTex;

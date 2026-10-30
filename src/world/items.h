@@ -10,8 +10,10 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <string>
 
-// Every item, in inventory screen and save order: the melee weapons, the ranged ones, the potions, then the amulets.
+// Every item, in inventory screen and save order: the melee weapons, the ranged ones, the potions, the amulets, then
+// the rings.
 // New kinds go at the end of their group, and groups only at the end, so a save's slots stay in this order.
 enum class ItemKind : std::uint8_t {
 	Club,
@@ -93,12 +95,33 @@ enum class ItemKind : std::uint8_t {
 	PiercingMinor,
 	PiercingNormal,
 	PiercingGrand,
+	// The rings (plan ring-accessories), one inventory row per gem: copper, silver, gold.
+	RubyCopper, // the first ring
+	RubySilver,
+	RubyGold,
+	SapphireCopper,
+	SapphireSilver,
+	SapphireGold,
+	EmeraldCopper,
+	EmeraldSilver,
+	EmeraldGold,
+	TopazCopper,
+	TopazSilver,
+	TopazGold,
+	CrystalCopper,
+	CrystalSilver,
+	CrystalGold,
+	AmethystCopper,
+	AmethystSilver,
+	AmethystGold,
 };
-constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::PiercingGrand) + 1;
+constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::AmethystGold) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
+constexpr int FIRST_RING = static_cast<int>(ItemKind::RubyCopper);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
-constexpr int AMULET_KIND_COUNT = ITEM_KIND_COUNT - FIRST_AMULET;
+constexpr int AMULET_KIND_COUNT = FIRST_RING - FIRST_AMULET;
+constexpr int RING_KIND_COUNT = ITEM_KIND_COUNT - FIRST_RING;
 // The weapons the player holds, by itemIndex.
 using OwnedWeapons = std::array<bool, WEAPON_KIND_COUNT>;
 
@@ -111,7 +134,8 @@ constexpr bool isWeapon(ItemKind kind) { return itemIndex(kind) < WEAPON_KIND_CO
 constexpr bool isPotion(ItemKind kind) {
 	return itemIndex(kind) >= WEAPON_KIND_COUNT && itemIndex(kind) < FIRST_AMULET;
 }
-constexpr bool isAmulet(ItemKind kind) { return itemIndex(kind) >= FIRST_AMULET; }
+constexpr bool isAmulet(ItemKind kind) { return itemIndex(kind) >= FIRST_AMULET && itemIndex(kind) < FIRST_RING; }
+constexpr bool isRing(ItemKind kind) { return itemIndex(kind) >= FIRST_RING; }
 constexpr bool isRanged(ItemKind kind) { return itemIndex(kind) >= itemIndex(ItemKind::SelfBow) && isWeapon(kind); }
 
 // What a ranged weapon shoots (Dungeon::Shoot): the bows an arrow, the sling a stone; the throwing stick and the
@@ -119,12 +143,15 @@ constexpr bool isRanged(ItemKind kind) { return itemIndex(kind) >= itemIndex(Ite
 enum class MissileKind : std::uint8_t { Arrow, Stone, Stick, Javelin };
 constexpr int MISSILE_KIND_COUNT = 4;
 
-// The inventory's tabs, one per group of items. Rings have no items yet.
+// The inventory's tabs, one per group of items.
 enum class ItemGroup : std::uint8_t { Weapons, Potions, Amulets, Rings };
 constexpr int ITEM_GROUP_COUNT = 4;
 
 constexpr ItemGroup itemGroup(ItemKind kind) {
-	return isAmulet(kind) ? ItemGroup::Amulets : isPotion(kind) ? ItemGroup::Potions : ItemGroup::Weapons;
+	return isRing(kind)		? ItemGroup::Rings
+		   : isAmulet(kind) ? ItemGroup::Amulets
+		   : isPotion(kind) ? ItemGroup::Potions
+							: ItemGroup::Weapons;
 }
 
 // A group's items are next to each other in ItemKind order: indexes first .. first + count - 1.
@@ -143,6 +170,7 @@ constexpr int MELEE_WEAPON = 1;
 constexpr int RANGED_WEAPON = 2;
 constexpr int POTION = 3;
 constexpr int AMULET = 4; // id: the amulet's place among the amulets (0 = lesser strength)
+constexpr int RING = 5; // id: the ring's place among the rings (0 = copper ruby)
 } // namespace ItemType
 
 struct ItemFileId {
@@ -340,4 +368,72 @@ struct AmuletBonus {
 };
 [[nodiscard]] AmuletBonus amuletBonus(std::optional<ItemKind> worn);
 
+// The rings (plan ring-accessories): two worn at once, one per hand. The gem says what a ring does, the metal how much.
+// All metals of a gem share the band and gem models (ringBandModel, ringGemModel), the metal and the gem as texture and
+// tint.
+enum class RingGem : std::uint8_t {
+	Ruby, // heals slowly, also in a fight
+	Sapphire, // stamina comes back faster
+	Emerald, // poison wears off faster
+	Topaz, // walk and sprint faster (not the jump)
+	Crystal, // rock crystal: longer weapon reach
+	Amethyst, // cuts through the monsters' resistances
+};
+constexpr int RING_GEM_COUNT = 6;
+enum class RingMetal : std::uint8_t { Copper, Silver, Gold };
+constexpr int RING_METAL_COUNT = 3;
+
+struct Ring {
+	RingGem gem;
+	RingMetal metal;
+};
+[[nodiscard]] constexpr Ring ringOf(ItemKind ring) {
+	const int i = itemIndex(ring) - FIRST_RING;
+	return {static_cast<RingGem>(i / RING_METAL_COUNT), static_cast<RingMetal>(i % RING_METAL_COUNT)};
+}
+[[nodiscard]] constexpr ItemKind ringKind(RingGem gem, RingMetal metal) {
+	return itemAt(FIRST_RING + static_cast<int>(gem) * RING_METAL_COUNT + static_cast<int>(metal));
+}
+// The gem's colour (the gem model's tint, the HUD's dot) and its see-through share (the gem's alpha).
+[[nodiscard]] Rgb ringGemColour(RingGem gem);
+[[nodiscard]] const char* ringGemSlug(RingGem gem); // "ruby": its lore and field note keys
+constexpr float RING_GEM_ALPHA = 0.62f;
+// The models all rings share: media/models/items/<name>.md3; the band's texture per metal, the gem's one texture.
+constexpr const char* RING_BAND_MODEL = "ring_band";
+constexpr const char* RING_GEM_MODEL = "ring_gem";
+[[nodiscard]] const char* ringBandTexture(RingMetal metal); // media/textures/items/<name>.png
+
+// The worn rings, left and right hand.
+enum class Hand : std::uint8_t { Left, Right };
+constexpr int HAND_COUNT = 2;
+using WornRings = std::array<std::optional<ItemKind>, HAND_COUNT>;
+
+// One ring's numbers, by metal (copper, silver, gold). Both worn rings always count, two of the same too; the sums
+// stop at the caps below.
+namespace RingEffect {
+constexpr std::array<int, RING_METAL_COUNT> RUBY_MS_PER_HP = {8000, 5000, 3000};
+constexpr std::array<int, RING_METAL_COUNT> SAPPHIRE_PERCENT = {15, 25, 40}; // faster stamina regeneration
+constexpr std::array<int, RING_METAL_COUNT> EMERALD_PERCENT = {20, 35, 50}; // poison's time runs this much faster
+constexpr std::array<int, RING_METAL_COUNT> TOPAZ_PERCENT = {5, 8, 12}; // walk, sprint and climb speed
+constexpr std::array<int, RING_METAL_COUNT> CRYSTAL_PERCENT = {10, 15, 25}; // weapon reach
+constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {25, 50, 100}; // of a resistance's way to NORMAL
+constexpr int TOPAZ_CAP = 20;
+constexpr int CRYSTAL_CAP = 40;
+constexpr int AMETHYST_CAP = 100;
+constexpr int MS_PER_HOUR = 3600000;
+} // namespace RingEffect
+
+// What the worn rings give together, all zero without one.
+struct RingBonus {
+	int regenHpPerHour = 0; // the rubies: HP an hour, also with monsters about; not while poisoned
+	int staminaRegenPercent = 0; // more stamina regeneration (PlayerStats::RegenerateStamina)
+	int poisonFasterPercent = 0; // the poison's time left runs down this much faster (Poison::Advance)
+	int speedPercent = 0; // faster walk, sprint and climb on the ground; not the jump
+	int reachPercent = 0; // more weapon reach, melee and ranged
+	int resistCutPercent = 0; // a monster's resistance moves this share of the way to NORMAL (cutResistances)
+};
+[[nodiscard]] RingBonus ringBonus(const WornRings& worn);
+// What the worn rings give together in the gem's effect, for the ring card: "heals 1 health every 1.5 s", "walk and
+// sprint 13% faster"; empty when no ring of the gem is worn.
+[[nodiscard]] std::string ringSumText(const RingBonus& bonus, RingGem gem);
 #endif

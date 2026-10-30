@@ -165,6 +165,14 @@ class SimWorld {
 			items.Use(amulet, vitals());
 		player.stats.Wear(amuletBonus(items.Worn()), true);
 	}
+	// As `wear <ring> left|right` (given first if not held): the ring on that hand, the rings' bonus applied.
+	void WearRing(ItemKind ring, Hand hand) {
+		if (items.Count(ring) == 0)
+			Give(ring);
+		if (items.RingOn(hand) != ring)
+			items.WearOn(ring, hand, true);
+		player.stats.WearRings(ringBonus(items.Rings()));
+	}
 
 	// The attack key with the equipped weapon (input.cpp tryAttack): false while a swing or its recovery runs, or on a
 	// ladder. It hits (or shoots) at the weapon's hit time, in a later Tick.
@@ -214,6 +222,7 @@ class SimWorld {
 		player.stats.LoadDump(in);
 		items.Load(in);
 		player.stats.Wear(amuletBonus(items.Worn()), false);
+		player.stats.WearRings(ringBonus(items.Rings()));
 		dungeon.LoadDump(in);
 		journal.Load(in);
 		dungeon.scatterDecorations(campaignLevelFile(level).c_str(), level);
@@ -289,7 +298,8 @@ class SimWorld {
 
 	bool walk(float dx, float dy) {
 		const bool sprints = dungeon.PlayerCanSprint();
-		const float factor = dungeon.PlayerWalkFactor();
+		const float factor =
+			dungeon.PlayerWalkFactor() * player.stats.WalkFactor(player.jump.jumping || player.jump.falling);
 		const bool moved = dungeon.Move(dx * factor, dy * factor);
 		if (moved && sprints)
 			player.stats.NoteWalked(dungeon.PlayerHalvedWadeDrain());
@@ -326,9 +336,22 @@ class SimWorld {
 			player.attackLanded = true;
 			const int damage = player.stats.Damage(weaponDamage(kind, def.damage, items.Level(kind)));
 			if (isRanged(kind))
-				dungeon.Shoot(missileOf(kind), damage, def.mix, facing, 0.65f * player.Height(), weaponReach(kind));
+				dungeon.Shoot(
+					missileOf(kind),
+					damage,
+					def.mix,
+					facing,
+					0.65f * player.Height(),
+					player.stats.WeaponReach(kind)
+				);
 			else
-				dungeon.AttackNearest(player.PowerDamage(damage), def.mix, weaponReach(kind), facing, player.SwingShare());
+				dungeon.AttackNearest(
+					player.PowerDamage(damage),
+					def.mix,
+					player.stats.WeaponReach(kind),
+					facing,
+					player.SwingShare()
+				);
 		}
 		if (t >= def.motion.swingMs)
 			player.attackStartMs = -1;

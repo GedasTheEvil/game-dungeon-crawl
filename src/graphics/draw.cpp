@@ -254,7 +254,7 @@ void drawGameplay() {
 	std::optional<HitboxView> hitboxes;
 	if (Game().render.Hitboxes) {
 		const ItemKind kind = Game().ui.inventory->EquippedKind();
-		hitboxes = HitboxView{weaponReach(kind, Game().player->stats.heka), !isRanged(kind), Game().camera.Facing()};
+		hitboxes = HitboxView{Game().player->stats.WeaponReach(kind), !isRanged(kind), Game().camera.Facing()};
 	}
 	Game().dungeon.Draw(hitboxes ? &*hitboxes : nullptr);
 

@@ -100,9 +100,9 @@ constexpr int GIANT_COBRA_BLIND_MS = 2000;
 constexpr int GIANT_COBRA_BLIND_PERCENT = 50;
 constexpr int APEP_BLIND_MS = 3000;
 // The screech (plan giant-bat-screech): the giant bat's; Shezmu's wider, farther, longer, sooner, and he drinks the
-// dazed player's blood whole.
-constexpr ScreechRules GIANT_BAT_SCREECH = {4.f, 60.f, 600, 1500, 6000, 0};
-constexpr ScreechRules SHEZMU_SCREECH = {5.f, 90.f, 600, 2000, 5000, 100};
+// dazed player's blood whole. The blast hurts a little (plan screech-bite): the giant bat's bite is 28, Shezmu's 25.
+constexpr ScreechRules GIANT_BAT_SCREECH = {4.f, 60.f, 600, 1500, 6000, 0, 8};
+constexpr ScreechRules SHEZMU_SCREECH = {5.f, 90.f, 600, 2000, 5000, 100, 12};
 constexpr int POISONER_BOSS_RESIST = 75; // the scorpion queen, Apep: more than their kin
 
 // Holds (HoldRules; plans crocodile-hold-bite, giant-scorpion-grab). In half water a crocodile's bite may grab: the
@@ -428,7 +428,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'F',
 	 .name = "Giant bat",
 	 .label = "giant bat",
-	 .description = "Giant bat, screeches: the player in its cone is dazed",
+	 .description = "Giant bat, screeches: the player in its cone is hurt and dazed",
 	 .threat = 3.5f,
 	 .model = "monsters/bat",
 	 .texture = "monsters/bat_giant",

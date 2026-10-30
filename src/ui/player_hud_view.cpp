@@ -60,6 +60,7 @@ PlayerHud::View playerHudView() {
 		view.curseLeftMs[c] = stats.curses.LeftMs(static_cast<Curse>(c));
 		view.curseGreater[c] = stats.curses.Greater(static_cast<Curse>(c));
 	}
+	view.dazeLeftMs = Game().player->dazeMs;
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
 	view.staminaSkillOn = Game().player->staminaSkills;
 	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)

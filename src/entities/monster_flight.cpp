@@ -33,8 +33,10 @@ bool Monster::screech(bool inCone, int now) {
 	if (now < flight.tellUntilMs)
 		return true;
 	flight.tellUntilMs = -1;
-	if (inCone) // still in it: no step out of the cone, no wall between
+	if (inCone) { // still in it: no step out of the cone, no wall between
+		links.player->TakeHit(rules->damage, SCREECH_MIX, *links.events); // the blast hurts (plan screech-bite)
 		links.player->Daze(rules->dazeMs, *links.events);
+	}
 	return false;
 }
 

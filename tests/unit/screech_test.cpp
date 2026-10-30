@@ -40,6 +40,8 @@ TEST_CASE("the giant bat screeches; Shezmu's screech is wider, farther, longer, 
 	CHECK(shezmu.screech->cooldownMs < giant.screech->cooldownMs);
 	CHECK(shezmu.screech->dazedHealPercent == 100);
 	CHECK(shezmu.screech->dazedHealPercent > shezmu.boss.lifeStealPct);
+	CHECK(giant.screech->damage == 8); // plan screech-bite: a little, its bite is 28
+	CHECK(shezmu.screech->damage > giant.screech->damage);
 }
 
 TEST_CASE("the cone: ahead along the bat's way, in range, not below or behind it, not through a wall") {
@@ -59,7 +61,7 @@ TEST_CASE("the cone: ahead along the bat's way, in range, not below or behind it
 	CHECK_FALSE(inCone(4)); // behind it
 
 	// A wide, long cone, so only the wall (col 8) blocks it.
-	const ScreechRules wide = {8.f, 120.f, 600, 1500, 6000, 0};
+	const ScreechRules wide = {8.f, 120.f, 600, 1500, 6000, 0, 0};
 	SimWorld walled;
 	const Monster* other = roostingBat(walled, "tests/levels/giant_bat_wall");
 	REQUIRE(walled.dungeon.PlacePlayer(7, row));
@@ -107,6 +109,38 @@ TEST_CASE("a player who steps out of the cone in the tell is not dazed") {
 	for (int t = 0; t < 60 && bat->Screeching(); t++)
 		world.Tick();
 	CHECK_FALSE(world.player.Dazed());
+}
+
+// The blast hurts (plan screech-bite): its damage through the armour, on the tick the tell ends; none out of the cone.
+TEST_CASE("the screech's blast hurts the player in the cone, through the armour; out of the cone it does not") {
+	auto blastLoss = [](bool stepOut) {
+		SimWorld world;
+		world.player.stats.AddXP(10000000, world.events); // some armour
+		const Monster* bat = roostingBat(world, "tests/levels/giant_bat");
+		REQUIRE(world.WalkTo(4.9f));
+		for (int t = 0; t < 100 && !bat->Screeching(); t++)
+			world.Tick();
+		REQUIRE(bat->Screeching());
+		if (stepOut)
+			REQUIRE(world.WalkTo(3.f));
+		int lost = 0;
+		for (int t = 0; t < 60 && bat->Screeching(); t++) {
+			const int hp = world.Hp();
+			world.Tick();
+			lost = hp - world.Hp();
+		}
+		REQUIRE_FALSE(bat->Screeching());
+		CHECK(world.player.Dazed() != stepOut);
+		return lost;
+	};
+	const ScreechRules& rules = *monsterKind(MonsterGiantBat)->screech;
+	SimWorld armoured;
+	armoured.player.stats.AddXP(10000000, armoured.events);
+	REQUIRE(armoured.player.stats.CurrentArmor() > 0);
+	const int expected = armoured.player.stats.HitDamage(rules.damage, SCREECH_MIX, false);
+	CHECK(expected < rules.damage);
+	CHECK(blastLoss(false) == expected);
+	CHECK(blastLoss(true) == 0);
 }
 
 TEST_CASE("dazed: half the walk speed, no sprint, no jump; it wears off") {

@@ -287,6 +287,13 @@ void drawGameplay() {
 			Game().player->Height() * RenderConfig::TILE_SIZE,
 			1
 		);
+	if (const float daze = Game().player->Daziness(); daze > 0.f && Game().player->Alive()) // plan screech-bite
+		DazeStars::draw(
+			playerX,
+			playerY - sink + Game().player->Height() * RenderConfig::TILE_SIZE,
+			PLAYER_FLAMES_Z + Game().player->depthOffset,
+			daze
+		);
 	if (Game().player->Alive() && sunBeam)
 		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
 	Lighting::end();

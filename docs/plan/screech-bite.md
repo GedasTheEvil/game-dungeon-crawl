@@ -1,6 +1,9 @@
 # The screech hurts, and the daze shows
 
-Status: draft 2026-10-30 (user). Needs nothing first.
+Status: draft 2026-10-30 (user). Needs nothing first. Implemented 2026-10-30: blast damage 8 (Shezmu 12, blunt
+`SCREECH_MIX`, through the armour); gold stars of Nut circle the dazed head (`DazeStars`); a daze HUD tile (sand-gold
+frame, `PlayerHud::Icon::Daze`) with the seconds left, right of the curses. Point 3 (longer daze, +25% bites) left
+out: the damage and the stars should make it count; revisit after the play-test. Play-test: `bin/game --level 8`.
 
 ## Problem
 

@@ -14,7 +14,7 @@ class Font;
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets, the worn rings' gems and an
 // XP line. Above it, one poison drop per running tier (one, two or three pips) with its seconds left, a running
 // resistance potion's (one pip lesser, two greater), a running Blessing of Hapi (a blue-green drop), then each running
-// curse in a purple frame (one pip lesser, two greater).
+// curse in a purple frame (one pip lesser, two greater), then the daze (plan screech-bite) in a sand-gold frame.
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -32,12 +32,13 @@ constexpr float CAP_PAD = 2.2f; // added to the key's width
 constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
 
 // Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
-// inventory's tabs. The weapons follow from FirstWeapon on, in ItemKind order (weaponIcon); the curses from
-// FirstCurse on, in Curse order.
+// inventory's tabs. Daze: the stars circling a dazed head (plan screech-bite). The weapons follow from FirstWeapon on,
+// in ItemKind order (weaponIcon); the curses from FirstCurse on, in Curse order.
 enum class Icon : std::uint8_t {
 	Potion,
 	Amulet,
 	Ring,
+	Daze,
 	FirstWeapon = 8,
 	FirstAmulet = 21,
 	FirstCurse = 35,
@@ -76,6 +77,7 @@ struct View {
 	int waterLeftMs = 0; // the Blessing of Hapi's time left, 0: none (plan water-blessing-potion)
 	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
 	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
+	int dazeLeftMs = 0; // a screech's daze, 0: none (plan screech-bite)
 	// The stamina-skill sign (plan skill-flaming-arrows): shown once a stamina skill is learnt, lit while the toggle is
 	// on, it blinks when a skill was refused for lack of stamina.
 	bool staminaSkillShown = false;

@@ -80,6 +80,14 @@ void puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
 void pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
 } // namespace Grit
 
+// A dazed player (plan screech-bite): gold stars of Nut circle the head, the cartoon "stunned" look. Stateless like
+// the fire.
+namespace DazeStars {
+// (x, y, z) = the top of the head in local space; strength 0..1 fades them out (Player::Daziness). Call after the
+// opaque scene, like the fire.
+void draw(float x, float y, float z, float strength);
+} // namespace DazeStars
+
 // Level-up blessing: a shaft of sunlight falls on the player, gold motes rise through it. Stateless like the fire.
 namespace SunBeam {
 constexpr int DURATION_MS = 1600;

@@ -63,6 +63,8 @@ constexpr Color LOST = {0.95f, 0.62f, 0.42f};
 constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
 constexpr Color CURSE_FRAME_TOP = {0.52f, 0.22f, 0.62f}; // a curse tile's frame, so it does not read as a potion
 constexpr Color CURSE_FRAME_BOTTOM = {0.22f, 0.06f, 0.3f};
+constexpr Color DAZE_FRAME_TOP = {0.95f, 0.78f, 0.36f}; // the daze tile's: not a curse, not a potion
+constexpr Color DAZE_FRAME_BOTTOM = {0.55f, 0.36f, 0.1f};
 constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
 constexpr Color WATER_DROP = {0.08f, 0.52f, 0.68f}; // the Blessing of Hapi's, as its potion (ITEMS)
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
@@ -241,6 +243,25 @@ void drawCurses(const PlayerHud::View& v, int icons) {
 	}
 }
 
+int curseTiles(const PlayerHud::View& v) {
+	int shown = 0;
+	for (int left : v.curseLeftMs)
+		shown += left > 0 ? 1 : 0;
+	return shown;
+}
+
+// A screech's daze (plan screech-bite), right of the curses: a stone tile in a sand-gold frame with the circling stars.
+void drawDaze(const PlayerHud::View& v, int icons) {
+	if (v.dazeLeftMs <= 0)
+		return;
+	const Rect r = poisonRect(potionTiles(v) + curseTiles(v));
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, DAZE_FRAME_TOP, DAZE_FRAME_BOTTOM, 1.f);
+	tile(r, TileStyle::Stone, false, false);
+	atlasIcon(r.inset(0.5f), icons, static_cast<int>(PlayerHud::Icon::Daze), ICON_COLUMNS, ICON_ROWS, {1, 1, 1});
+	beginShapes();
+}
+
 // A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
 void drawHeka(const PlayerHud::View& v, int now, int skillIcons) {
 	if (!v.hekaWaiting)
@@ -289,6 +310,8 @@ void drawPoisonText(const PlayerHud::View& v, Font& small) {
 	for (int c = 0; c < CURSE_COUNT; c++)
 		if (v.curseLeftMs[c] > 0)
 			tileSeconds(poisonRect(shown++), v.curseLeftMs[c], small);
+	if (v.dazeLeftMs > 0)
+		tileSeconds(poisonRect(shown), v.dazeLeftMs, small);
 }
 
 void drawStamina(const PlayerHud::View& v) {
@@ -444,6 +467,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawResist(view);
 	drawWaterBlessing(view);
 	drawCurses(view, icons);
+	drawDaze(view, icons);
 	drawHeka(view, now, skillIcons);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))

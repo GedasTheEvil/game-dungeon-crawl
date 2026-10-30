@@ -1,0 +1,15 @@
+# The daze shows (plan screech-bite): gold stars circle the dazed player's head and a HUD tile counts the seconds; both
+# go once the daze is over. tests/levels/giant_bat: the player (col 2), a giant bat (col 6) on the ceiling, asleep.
+seed 1
+god
+level tests/levels/giant_bat
+wait 30
+daze 2500
+expect daze >= 2400
+wait 200ms
+screenshot stars
+wait 350ms
+screenshot stars_turned
+wait 2100ms
+expect daze == 0
+screenshot clear

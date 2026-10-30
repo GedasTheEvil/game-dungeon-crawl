@@ -524,6 +524,96 @@ void SunBeam::draw(float x, float y, float z, float progress) {
 	Lighting::setEmissive(false);
 }
 
+void DazeStars::draw(float x, float y, float z, float strength) {
+	constexpr int STARS = 5;
+	constexpr float ORBIT_X = 5.f; // the ring round the head, world units
+	constexpr float ORBIT_Z = 4.f;
+	constexpr float ORBIT_TILT = 1.5f; // the near side lower, so the ring reads as one seen from a little above
+	constexpr float LIFT = 2.5f; // over the head
+	constexpr float TURN_MS = 1100.f; // one turn of the ring
+	constexpr float SIZE = 1.3f; // a star's outer radius
+	constexpr float INNER = 0.45f; // its inner corners, of SIZE
+	constexpr float OUTLINE = 0.4f; // the dark star behind, this much bigger
+	constexpr float R = 1.f, G = 0.82f, B = 0.3f; // gold
+	if (strength <= 0.f)
+		return;
+	ensureSprite();
+
+	float m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
+	const float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
+	const float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
+	const float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
+
+	Lighting::setEmissive(true);
+	glBindTexture(GL_TEXTURE_2D, gSprite);
+	glEnable(GL_BLEND);
+	glDepthMask(GL_FALSE);
+	const float t = static_cast<float>(GameClock::now());
+	struct Star {
+		float cx, cy, cz, size, spin, near;
+	};
+	Star stars[STARS];
+	for (int i = 0; i < STARS; i++) {
+		const float a = 2.f * static_cast<float>(M_PI) * (t / TURN_MS + static_cast<float>(i) / STARS);
+		const float near = 0.5f + 0.5f * std::sin(a); // 1: in front of the head, 0: behind it
+		stars[i] = {
+			x + ORBIT_X * std::cos(a),
+			y + LIFT - ORBIT_TILT * std::sin(a),
+			z + ORBIT_Z * std::sin(a),
+			SIZE * (0.75f + 0.35f * near),
+			t * 0.004f + static_cast<float>(i),
+			near
+		};
+	}
+	// A soft gold glow round each star, added to what is there.
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBegin(GL_QUADS);
+	for (const Star& s : stars) {
+		const float h = s.size * 2.2f;
+		const float k = 0.35f * strength * (0.5f + 0.5f * s.near);
+		glColor4f(R * k, G * k, B * k, 1);
+		glTexCoord2f(0, 0);
+		glVertex3f(s.cx - (rx + ux) * h, s.cy - (ry + uy) * h, s.cz - (rz + uz) * h);
+		glTexCoord2f(1, 0);
+		glVertex3f(s.cx + (rx - ux) * h, s.cy + (ry - uy) * h, s.cz + (rz - uz) * h);
+		glTexCoord2f(1, 1);
+		glVertex3f(s.cx + (rx + ux) * h, s.cy + (ry + uy) * h, s.cz + (rz + uz) * h);
+		glTexCoord2f(0, 1);
+		glVertex3f(s.cx - (rx - ux) * h, s.cy - (ry - uy) * h, s.cz - (rz - uz) * h);
+	}
+	glEnd();
+	// The stars: solid (the sprite's opaque middle), premultiplied, a dark star behind each for the outline.
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glTexCoord2f(0.5f, 0.5f);
+	glBegin(GL_TRIANGLES);
+	for (const Star& s : stars)
+		for (int pass = 0; pass < 2; pass++) {
+			const float outer = pass == 0 ? s.size + OUTLINE : s.size;
+			const float inner = pass == 0 ? s.size * INNER + OUTLINE : s.size * INNER;
+			const float shade = pass == 0 ? 0.12f : 0.75f + 0.25f * s.near;
+			glColor4f(R * shade * strength, G * shade * strength, B * shade * strength, strength);
+			for (int k = 0; k < 10; k++) {
+				const float a0 = s.spin + static_cast<float>(M_PI) * static_cast<float>(k) / 5.f;
+				const float a1 = s.spin + static_cast<float>(M_PI) * static_cast<float>(k + 1) / 5.f;
+				const float r0 = k % 2 == 0 ? outer : inner;
+				const float r1 = k % 2 == 0 ? inner : outer;
+				const float sx0 = r0 * std::sin(a0), sy0 = r0 * std::cos(a0);
+				const float sx1 = r1 * std::sin(a1), sy1 = r1 * std::cos(a1);
+				glVertex3f(s.cx, s.cy, s.cz);
+				glVertex3f(s.cx + rx * sx0 + ux * sy0, s.cy + ry * sx0 + uy * sy0, s.cz + rz * sx0 + uz * sy0);
+				glVertex3f(s.cx + rx * sx1 + ux * sy1, s.cy + ry * sx1 + uy * sy1, s.cz + rz * sx1 + uz * sy1);
+			}
+		}
+	glEnd();
+	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	glColor4f(1, 1, 1, 1);
+	Lighting::setEmissive(false);
+}
+
 void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
 	constexpr float R = 1.f, G = 0.86f, B = 0.6f;
 	constexpr float HEIGHT = RenderConfig::TILE_SIZE;

@@ -77,6 +77,7 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 constexpr DamageMix SPIKE_ATTACK_MIX = {0, 20, 80}; // spikes and the death trap
 constexpr DamageMix ROCK_ATTACK_MIX = {100, 0, 0};
 constexpr DamageMix DART_ATTACK_MIX = {0, 0, 100};
+constexpr DamageMix SCREECH_MIX = {100, 0, 0}; // a screech's blast of sound (ScreechRules, plan screech-bite)
 constexpr DamageMix ROAR_MIX = {100, 0, 0}; // a storm roar's blast of sand (RoarRules, plan hippo-boss)
 constexpr DamageMix DUNG_BALL_MIX = {100, 0, 0}; // a scarab's dung ball (RollRules, plan scarab-dung-ball)
 constexpr DamageMix FIRE_JET_MIX = {0, 0, 0, 100}; // a fire vent's jet (plan fire-jet-trap)

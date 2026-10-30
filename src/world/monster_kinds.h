@@ -101,7 +101,8 @@ struct VolleyRules {
 // A screech (plan giant-bat-screech): a flyer that has the player in its cone stops in the air and shakes for tellMs
 // (the rising squeal, its roar sound), then the cone of sound along its facing, range tiles long and coneDegrees wide
 // (walls block it), dazes the player for dazeMs (Player::Daze) if they are still in it. cooldownMs from one tell to the
-// next. Its bite on a dazed player heals it by dazedHealPercent of the damage (Shezmu), if more than lifeStealPct.
+// next. Its bite on a dazed player heals it by dazedHealPercent of the damage (Shezmu), if more than lifeStealPct. The
+// blast also hurts (plan screech-bite): damage, through the armour (SCREECH_MIX).
 struct ScreechRules {
 	float range = 0.f;
 	float coneDegrees = 0.f;
@@ -109,6 +110,7 @@ struct ScreechRules {
 	int dazeMs = 0;
 	int cooldownMs = 0;
 	int dazedHealPercent = 0;
+	int damage = 0;
 };
 
 // A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'

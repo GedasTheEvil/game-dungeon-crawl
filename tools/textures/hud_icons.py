@@ -3,7 +3,7 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h: the potion, amulet and ring, then from cell 8 on the weapons in ItemKind order, then from cell
+src/ui/player_hud.h: the potion, amulet, ring and daze, then from cell 8 on the weapons in ItemKind order, then from cell
 21 on the amulets by AmuletType, from cell 35 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
@@ -605,11 +605,30 @@ def insanity():
     return img
 
 
+def star(d, cx, cy, r):
+    """A five-pointed gold star of Nut, point up."""
+    pts = [(cx + (r if k % 2 == 0 else r * 0.45) * math.sin(math.pi * k / 5),
+            cy - (r if k % 2 == 0 else r * 0.45) * math.cos(math.pi * k / 5)) for k in range(10)]
+    d.polygon(pts, fill=GOLD, outline=INK, width=LINE)
+
+
+def daze():
+    """A screech's daze (plan screech-bite): gold stars of Nut circling on a tilted ring, the near one biggest."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.ellipse([30, 150, 482, 360], outline=INK, width=30)
+    d.ellipse([30, 150, 482, 360], outline=STRING, width=14)
+    star(d, 90, 190, 80)
+    star(d, 420, 180, 90)
+    star(d, 256, 350, 140)
+    return img
+
+
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
 # curses from cell 35 on (Icon::FirstCurse).
-ICONS = [potion, amulet, ring, None, None, None, None, None,
+ICONS = [potion, amulet, ring, daze, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS
 

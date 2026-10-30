@@ -1,4 +1,4 @@
-; Rings (plan ring-accessories; tests/scenarios/ring_accessories.txt): chests holding a gold ruby ring (col 3), a silver
+; Rings (plan ring-accessories; tests/scenarios/solved/ring_accessories.txt): chests holding a gold ruby ring (col 3), a silver
 ; topaz (5), a copper rock crystal (7) and a gold amethyst (9); a scarab (col 14) to fight; the exit at col 17.
 def 1 8 5 2
 def 2 8 5 10

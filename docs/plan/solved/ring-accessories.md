@@ -166,5 +166,5 @@ Choices made where the plan left them open:
   after the opaque scene (`Dungeon::drawItemParts`).
 * Models: `tools/blender/models/rings.py` (the amulets are in `items.py`, there is no `amulets.py`).
 
-Tests: `tests/unit/ring_accessories_test.cpp`, `tests/scenarios/ring_accessories.txt` (level
+Tests: `tests/unit/ring_accessories_test.cpp`, `tests/scenarios/solved/ring_accessories.txt` (level
 `tests/levels/ring_accessories`), play script `tests/play/ring-accessories.txt`.

@@ -269,7 +269,7 @@ pulsing upgrade arrow ([plan/solved/amulet-upgrades.md](plan/solved/amulet-upgra
 In the Rings tab a worn ring's name band is lapis too, with a lapis badge per hand it is on over the band: `L` in the
 left corner, `R` in the right. The ring card has two buttons, Left hand and Right hand, where the others have Use and
 Upgrade; on the hand it is worn on the button reads "Take off". Under the effect: what each hand wears, and in green
-what the worn rings of the selected gem give together ([ring-accessories](plan/ring-accessories.md)). The
+what the worn rings of the selected gem give together ([ring-accessories](plan/solved/ring-accessories.md)). The
 gem is drawn see-through over the band, with a slow glint (`Item::DrawPart`).
 
 ### Heka screen

@@ -33,7 +33,7 @@ They come back one at a time while the player does not shoot that weapon.
   not in hand.
 * A new field per ranged weapon (`WeaponDef::shots`) and the recovery times in `gameplay_config.h`. Shots and recovery
   go through one place (a `PlayerStats`-style getter) so the amulets that follow can scale them
-  ([amulet-more-shots](amulet-more-shots.draft.opus.md), [amulet-quick-shots](amulet-quick-shots.draft.opus.md)).
+  ([amulet-more-shots](../amulet-more-shots.draft.opus.md), [amulet-quick-shots](../amulet-quick-shots.draft.opus.md)).
 * **HUD:** the shots left as pips on the weapon's tile (the quick slot), the recovering one filling up. Full: no pips,
   or dimmed (implementer's choice; it must not clutter melee play).
 * Saves: the counts need not be saved; a load starts full (AGENTS.md, Old save games).
@@ -91,10 +91,10 @@ Write the rule as a comment at `ITEMS` (`src/world/items.cpp`) and in the glossa
    shots or too close). Run `balance table` before and after and report it. Expected: pure kiting gets much slower or
    fails. Not fine: a monster that only ranged can reach (Sobek in his pool, flyers out of melee reach, monsters on
    ledges) becomes unkillable or a slog. Fix such a fight (that monster's HP, a reachable spot), not the bow. List
-   them in the report. Plan [monster-balance](monster-balance.md) tuned with the old kite tactic: note there what
+   them in the report. Plan [monster-balance](../monster-balance.md) tuned with the old kite tactic: note there what
    changed.
 4. **Monsters that keep their distance** (the ranged ones, the cowards that flee, plan
-   [coward-flee-ranged](solved/coward-flee-ranged.md)): check they can still be killed without endless chasing.
+   [coward-flee-ranged](coward-flee-ranged.md)): check they can still be killed without endless chasing.
 5. **Campaign levels.** Anything placed as "shoot it from here" (a target, a lever, a monster behind water) still
    works: `bin/levelcheck content/levels/lvl*` clean, and a look at the levels with ranged-only fights.
 6. **Skills on top:** flaming arrows (40% of the shot as fire, stamina per shot) and Sharp eye scale with the new
@@ -127,4 +127,4 @@ so the user can compare: open with the bow, finish with the club or spear; kite 
   blink and a dull knock (`shot_too_close.wav`); no shot left is a dry click (`shot_dry.wav`) and the pips blink.
   A monster that comes too close during the draw stops the shot too, nothing spent.
 * The weapon keys switch at once (only not during a swing): no change needed.
-* Balance before / after: [monster-balance](monster-balance.md#the-kite-after-ranged-weaker-than-melee-2026-10-30).
+* Balance before / after: [monster-balance](../monster-balance.md#the-kite-after-ranged-weaker-than-melee-2026-10-30).

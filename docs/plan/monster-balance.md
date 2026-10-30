@@ -251,7 +251,7 @@ Left open, for the user and [denser-levels](denser-levels.md):
 ## The kite after ranged-weaker-than-melee (2026-10-30)
 
 The tables above were tuned with the old kite: endless arrows, at any range. Plan
-[ranged-weaker-than-melee](ranged-weaker-than-melee.md) gave the ranged weapons a few shots (back one
+[ranged-weaker-than-melee](solved/ranged-weaker-than-melee.md) gave the ranged weapons a few shots (back one
 every 2.5 s), a minimum range and softer hits (the self-bow 12 -> 7). The sim's kite now backs off to the bow's
 minimum range plus 0.3 tiles, shoots while it has shots, waits for them out of reach, and fights in melee at the
 wall. `bin/balance table` before -> after (kite only; tank and run past did not change):

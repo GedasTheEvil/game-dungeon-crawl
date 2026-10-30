@@ -1,5 +1,5 @@
 // Ranged weapons weaker than melee (plan ranged-weaker-than-melee): a few shots that come back one by one, no shot at
-// a monster too close, and softer hits than the melee twin. The HUD's pips: tests/scenarios/ranged_shots.txt.
+// a monster too close, and softer hits than the melee twin. The HUD's pips: tests/scenarios/solved/ranged_shots.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include <algorithm>

@@ -112,7 +112,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | alerted | | a monster that has noticed the player; shows its health bar | `Monster::Alerted` |
-| provoked | | a monster the player hit (not a trap): for the rest of the level it hunts them as if it saw them, and runs from them where it cannot reach them (a rooted one and a boss stay) ([hit-wakes-monster](plan/hit-wakes-monster.md)) | `Monster::Provoked`, `Monster::Hunts`, `FlightGoal::flee` |
+| provoked | | a monster the player hit (not a trap): for the rest of the level it hunts them as if it saw them, and runs from them where it cannot reach them (a rooted one and a boss stay) ([hit-wakes-monster](plan/solved/hit-wakes-monster.md)) | `Monster::Provoked`, `Monster::Hunts`, `FlightGoal::flee` |
 | ambush | | rooted and still, a fake chest until the player comes near (the mimic; the cursed mimic until it wakes) | `Locomotion::Ambush` |
 | cursed mimic | Cursed chest of Set | the mimic's darker kin (purple where a treasure chest is blue): a chest until opened or hit, then it hops after the player and leaps pits and traps; a quarter of its bites lay insanity (its only source); killed, it leaves its chest where it died, half the time an amulet ([cursed-mimic](plan/solved/cursed-mimic.md)) | `MonsterCursedMimic`, `Locomotion::AmbushHop`, `ambushes`, `leaps`, `RollCursedMimicLoot` |
 | boss | | one strong monster per boss level; summons minions, its death opens the boss gates | `MonsterKind::isBoss`, `BossRules` |

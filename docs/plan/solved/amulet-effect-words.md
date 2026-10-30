@@ -18,7 +18,7 @@ deals) read almost the same:
 | Sun Disc (fire guard) | `Fire II` | `Fire damage -40%` |
 
 Whose damage: the line does not say. The stab guard and the piercing amulet even share the name band (`Pierce`).
-The bands still use the hard words [simple-damage-words](solved/simple-damage-words.md) dropped (blunt, slash,
+The bands still use the hard words [simple-damage-words](simple-damage-words.md) dropped (blunt, slash,
 pierce, cleave, crush).
 
 ## Change

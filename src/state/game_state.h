@@ -24,6 +24,7 @@
 #include "../ui/ui_layout.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
+#include "../ui/message_log.h"
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/inscriptions.h"
@@ -80,8 +81,7 @@ class GameState {
 	RenderSettings render;
 	Settings settings; // the Options choices (saves/settings.ini)
 	bool cacheLoaded = false;
-	std::string status; // the gameplay status message, shown for STATUS_MS after ShowStatus
-	Timer statusTimer{STATUS_MS};
+	MessageLog messages; // the gameplay status lines and this level's log of them (plan message-log)
 	std::unique_ptr<Player> player;
 	PlayerView playerView; // the player's model, drawn
 	GameTimers timers;
@@ -124,8 +124,8 @@ class GameState {
 	// Hands the graphics and sound choices to the renderer and the mixer; with `save`, writes the file too.
 	void ApplySettings(bool save);
 	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);
+	void PushStatus(const std::string& text, StatusTone tone); // into the messages, on the level the player is on
 	void ApplyWorldEvents(); // plays, shows and writes down what is in events; runs after input and each tick
-	static constexpr int STATUS_MS = 3000;
 };
 
 // The one game state, created in main() before the window and destroyed after the main loop.

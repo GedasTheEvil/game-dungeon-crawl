@@ -225,7 +225,9 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | group | Weapons, Potions, Amulets, Rings | an inventory tab; disabled until an item of the group is found | `ItemGroup` |
 | heka | Heka | the point a slain boss gives (once per level), spent on a skill on the Heka screen (K); also the screen's name | `Heka`, `SkillsScreen` |
 | item kind | | one item: a weapon, a potion, an amulet tier, a ring (gem and metal); the save ids follow it | `ItemKind` |
-| journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions, expedition | `Journal` |
+| journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions, expedition, log | `Journal` |
+| status line | | a gameplay message over the running game ("Gained 30 XP"): up to three stack, each on its own timer; good news and dangers stay longer, in colour ([message-log](plan/message-log.md)) | `MessageLog`, `StatusMessage`, `StatusTone`, `StatusBox` |
+| log | Log | the journal's section with this level's last 50 status lines, newest first; not saved ([message-log](plan/message-log.md)) | `MessageLog::Log`, `JournalScreen::DrawLog` |
 | diary | Diary | the archaeologist's own entries, the journal's first section; a new game opens it on the prologue ([journal-intro](plan/solved/journal-intro.md)) | `DiaryPage`, `Journal::Begin`, `JournalScreen::OpenIntro` |
 | prologue | | the Diary's first entry, how the archaeologist came here: the jackal-headed statue, the ankh | `DiaryPage::Arrival`, `DiaryPage::Descent` |
 | level | Lv | (weapon) a weapon's level, raised by copies found. Not the map level or the player's level | `ItemBag::Level`, `upgradeCost` |

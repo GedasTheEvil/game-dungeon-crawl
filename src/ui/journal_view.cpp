@@ -16,6 +16,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdio>
+#include <deque>
 #include <vector>
 #include "../core/paths.h"
 
@@ -103,6 +104,10 @@ constexpr float DIARY_TOP = 18.f; // the first line's baseline below the page to
 constexpr float DIARY_STEP = 4.f;
 constexpr float DIARY_SMALL_STEP = 3.4f;
 constexpr float DIARY_HEIGHT = 46.f; // room for the lines, down to above the close hint
+constexpr float LOG_TOP = 19.f; // the log's first baseline below the page top
+constexpr float LOG_STEP = 3.4f;
+constexpr float LOG_GAP = 1.4f; // between two status lines
+constexpr float LOG_BOTTOM = 6.f; // the last baseline above the page bottom
 // The expedition's torn page pasted in (media/textures/ui/expedition_page.png, tools/textures/expedition_page.py):
 // its height on the page, its shape, and where its rules and margin line lie, as fractions of the image.
 constexpr float TORN_H = 60.f;
@@ -131,6 +136,7 @@ constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
 	{"Field notes", "F", GOLD_DIM},
 	{"Inscriptions", "I", INK_GREEN},
 	{"Expedition", "E", SLATE},
+	{"Log", "L", BRONZE},
 }};
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
@@ -245,6 +251,8 @@ int JournalScreen::PageCount(Section s) const {
 		return static_cast<int>(Game().journal.Inscriptions().size());
 	if (s == Section::Expedition)
 		return static_cast<int>(Game().journal.Pages().size());
+	if (s == Section::Log)
+		return static_cast<int>(logPages.size());
 	return static_cast<int>(Game().journal.Notes().size());
 }
 
@@ -550,6 +558,7 @@ void JournalScreen::Draw() {
 		stampSmall.Load(STAMP_FONT, 2.5f, 0.f, true);
 		fontsLoaded = true;
 	}
+	PaginateLog();
 	for (int s = 0; s < SECTION_COUNT; s++)
 		spread[static_cast<size_t>(s)] = std::clamp(
 			spread[static_cast<size_t>(s)],
@@ -735,6 +744,8 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		xref = "lvl " + std::to_string(Game().journal.Inscriptions()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Expedition)
 		xref = "lvl " + std::to_string(Game().journal.Pages()[static_cast<size_t>(page)].level);
+	else if (at.section == Section::Log)
+		xref = "lvl " + std::to_string(Game().messages.Level());
 	auto outer = [&](const Font& f, const std::string& s) {
 		return side == 0 ? p.x + PAGE_PAD : p.x + p.w - PAGE_PAD - f.TextWidth(s.c_str());
 	};
@@ -759,6 +770,9 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		break;
 	case Section::Expedition:
 		DrawExpedition(p, page);
+		break;
+	case Section::Log:
+		DrawLog(p, page);
 		break;
 	case Section::Riddles: {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
@@ -1065,6 +1079,44 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 	if (intro && index == PageCount(Section::Diary) - 1) {
 		std::string hint = keyCapOf(BindAction::Journal) + " or Esc closes the journal";
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
+	}
+	beginShapes();
+}
+
+// The status lines of this level (plan message-log), newest first, wrapped to the page, as many as fit on each.
+void JournalScreen::PaginateLog() {
+	logPages.clear();
+	const float width = LEFT_PAGE.w - 2 * PAGE_PAD;
+	const float room = LEFT_PAGE.h - LOG_TOP - LOG_BOTTOM;
+	float used = 0;
+	const std::deque<StatusMessage>& log = Game().messages.Log();
+	for (auto it = log.rbegin(); it != log.rend(); ++it) {
+		LogEntry entry{{}, it->tone};
+		for (const std::string& line : StatusBox::SplitLines(it->Shown()))
+			for (const std::string& l : wrap(handSmall, line, width))
+				entry.lines.push_back(l);
+		const float h = LOG_STEP * static_cast<float>(entry.lines.size()) + LOG_GAP;
+		if (logPages.empty() || used + h > room + LOG_GAP) {
+			logPages.emplace_back();
+			used = 0;
+		}
+		used += h;
+		logPages.back().push_back(entry);
+	}
+}
+
+void JournalScreen::DrawLog(const Rect& p, int index) {
+	const float top = p.y + p.h;
+	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, index == 0 ? "Lately" : "Earlier");
+	beginText();
+	float y = top - LOG_TOP;
+	for (const LogEntry& e : logPages[static_cast<size_t>(index)]) {
+		const Color ink = e.tone == StatusTone::Danger ? INK_RED : e.tone == StatusTone::Good ? INK_GREEN : INK_BLUE;
+		for (const std::string& l : e.lines) {
+			text(handSmall, p.x + PAGE_PAD, y, l.c_str(), ink);
+			y -= LOG_STEP;
+		}
+		y -= LOG_GAP;
 	}
 	beginShapes();
 }

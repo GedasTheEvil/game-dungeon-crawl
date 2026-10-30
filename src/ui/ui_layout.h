@@ -77,18 +77,23 @@ int screenTabAt(float x, float y);
 
 } // namespace ui
 
-// The gameplay status message ("Gained 20 XP", "Found: Sword"): a framed panel at the top centre of a square canvas
-// 100 high (StatusBox::draw), sized to the text, one line per '\n'. Fades in, then out at the end of its time.
+// The gameplay status messages ("Gained 20 XP", "Found: Sword"): framed panels at the top centre of a square canvas
+// 100 high (StatusBox::draw), each sized to its text, one line per '\n', stacked down from TOP (plan message-log).
+// Each fades in, then out at the end of its time.
 namespace StatusBox {
 constexpr float CANVAS_H = 100.f;
+constexpr float TOP = 86.f; // top edge of the first box
+constexpr float GAP = 1.5f; // between stacked boxes
 // The message's lines, without the empty ones at its end ("Now you are level 2\n").
 [[nodiscard]] std::vector<std::string> SplitLines(const std::string& message);
 // ageMs since it was shown, out of shownMs: 0 .. 1.
 [[nodiscard]] float Alpha(int ageMs, int shownMs);
-// The panel for `lines` lines, the widest textW wide, on a canvas canvasW wide.
-[[nodiscard]] ui::Rect Box(float canvasW, float textW, int lines);
-// Pen y of line i (from 0, the top one).
-[[nodiscard]] float LineY(int i);
+// sinceMs since it first showed, leftMs until its time runs out: 0 .. 1.
+[[nodiscard]] float FadeAlpha(int sinceMs, int leftMs);
+// The panel for `lines` lines, the widest textW wide, on a canvas canvasW wide, its top edge at top.
+[[nodiscard]] ui::Rect Box(float canvasW, float textW, int lines, float top = TOP);
+// Pen y of line i (from 0, the top one) in the box whose top edge is at top.
+[[nodiscard]] float LineY(int i, float top = TOP);
 } // namespace StatusBox
 
 namespace PlayerHud {

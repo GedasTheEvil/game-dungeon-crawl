@@ -6,11 +6,13 @@
 #include "../graphics/textures.h"
 #include "../world/level.h"
 #include "../input/bindings.h"
+#include "message_log.h"
 #include "pointer.h"
 #include "ui_draw.h"
 #include <array>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
 // in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
@@ -18,8 +20,9 @@
 // only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:
-	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition };
-	static constexpr int SECTION_COUNT = 6;
+	// Log (plan message-log): this level's status lines, newest first; not saved.
+	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition, Log };
+	static constexpr int SECTION_COUNT = 7;
 
 	void Draw();
 	// A new game (plan journal-intro): the book opens on the Diary's first spread, the close key hinted on the page
@@ -80,6 +83,12 @@ class JournalScreen {
 	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
 	bool pagesFailed = false; // no framebuffers: the pages are drawn straight onto the book, turns are instant
 	bool intro = false; // opened by a new game, not closed yet (OpenIntro)
+	// The log section's pages, laid out each frame from Game().messages (PaginateLog): its lines, wrapped.
+	struct LogEntry {
+		std::vector<std::string> lines;
+		StatusTone tone = StatusTone::Plain;
+	};
+	std::vector<std::vector<LogEntry>> logPages;
 
 	[[nodiscard]] int PageCount(Section s) const;
 	[[nodiscard]] int SpreadCount(Section s) const;
@@ -134,6 +143,8 @@ class JournalScreen {
 	void DrawDiary(const ui::Rect& page, int index);
 	void DrawExpedition(const ui::Rect& page, int index);
 	void DrawInscription(const ui::Rect& page, int index);
+	void PaginateLog();
+	void DrawLog(const ui::Rect& page, int index);
 	void DrawSketch(int type, const ui::Rect& box, bool photo, float tilt);
 	void DrawRiddle(const ui::Rect& page, int index, bool answerHovered, bool answerHeld);
 	void DrawCorners();

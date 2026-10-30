@@ -18,9 +18,10 @@ void Dungeon::springChestTrap(int cell) {
 	if (!full) {
 		clearObject(map[cell]);
 		containers[cell].emptied = true; // the open container stays
-		line += "\nEmpty. The trap was the treasure.";
+		line += line.empty() ? "Empty. The trap was the treasure." : "\nEmpty. The trap was the treasure.";
 	}
-	sim.events->Status("%s", line.c_str());
+	if (!line.empty()) // a tomb curse told its own lines
+		sim.events->Status("%s", line.c_str());
 }
 //======================================================================================
 std::string Dungeon::fireChestTrap(int cell) {
@@ -40,7 +41,8 @@ std::string Dungeon::fireChestTrap(int cell) {
 		chestGas.push_back({cell, GameClock::now(), GameClock::now() + CHEST_GAS_POISON_MS});
 		return "A puff of green gas. Do not breathe it.";
 	case ChestTrap::Curse:
-		return tombCurse(RollChestCurse(kind, rng), "An execration text on the lid: cursed be he who opens this.");
+		tombCurse(RollChestCurse(kind, rng), "An execration text on the lid: cursed be he who opens this.");
+		return "";
 	case ChestTrap::Swarm:
 		chestSwarm(cell);
 		return "Scarabs pour out of it!";
@@ -48,10 +50,10 @@ std::string Dungeon::fireChestTrap(int cell) {
 	return "";
 }
 //======================================================================================
-std::string Dungeon::tombCurse(Curse c, const char* execration) {
+void Dungeon::tombCurse(Curse c, const char* execration) {
+	sim.events->Status("%s", execration); // stacked over the curse's own line (plan message-log)
 	sim.player->stats.LayCurse(c, CurseGrade::Lesser, *sim.events);
 	sim.events->Note(FieldNote::TombCurses);
-	return std::string(execration) + "\n" + curseDef(c).startLine;
 }
 //======================================================================================
 // On the chest's row, nearest first, either side: the cells a walker can stand in and no one holds.

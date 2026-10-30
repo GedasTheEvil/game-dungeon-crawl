@@ -1,0 +1,22 @@
+# Plan message-log: the status lines stack (a level up, a curse, poison stay in colour) and the journal's Log section
+# lists them, newest first.
+seed 1
+god
+level tests/levels/empty_row
+wait 30
+xp 3000
+wait 200ms
+curse weakness
+wait 200ms
+poison weak
+wait 300ms
+screenshot stacked
+wait 3500ms
+screenshot toned_stay
+key j
+wait 300ms
+click 89 25
+wait 1s
+wait 10
+screenshot journal
+quit

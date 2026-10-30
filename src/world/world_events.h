@@ -59,6 +59,10 @@ enum class WorldSound : unsigned char {
 enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged, Roar };
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
+// How a status line shows (plan message-log): a plain one, good news (a level up, heka taken) or a danger (a curse,
+// poison). The two last stay longer and have a colour.
+enum class StatusTone : unsigned char { Plain, Good, Danger };
+
 // A safe moment for the autosave (plan autosave): the app writes it, unless the player is in danger then
 // (Dungeon::PlayerInDanger; a level start is always safe).
 enum class AutosaveMoment : unsigned char { LevelStart, Riddle, Boss };
@@ -76,6 +80,7 @@ struct WorldEvent {
 	CharacterSound character = CharacterSound::Die;
 	int who = PLAYER_CHARACTER; // CharacterSound: a MonsterTypeId, or the player
 	AutosaveMoment moment = AutosaveMoment::LevelStart; // Autosave
+	StatusTone tone = StatusTone::Plain; // Status
 };
 
 class WorldEvents {
@@ -85,6 +90,8 @@ class WorldEvents {
 		list.push_back({WorldEvent::Kind::CharacterSound, {}, {}, {}, sound, who});
 	}
 	[[gnu::format(printf, 2, 3)]] void Status(const char* format, ...);
+	// A status line in a tone of its own (plan message-log): good news or a danger.
+	[[gnu::format(printf, 3, 4)]] void Status(StatusTone tone, const char* format, ...);
 	void Note(FieldNote note) { list.push_back({WorldEvent::Kind::Note, {}, note, {}}); }
 	void AskRiddle() { list.push_back({WorldEvent::Kind::AskRiddle, {}, {}, {}}); }
 	// A name gate (plan secret-name-gates): the scroll asks for the level's name.

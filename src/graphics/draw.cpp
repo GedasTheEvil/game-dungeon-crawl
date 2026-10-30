@@ -125,15 +125,14 @@ void drawLevelBanner() {
 }
 
 void drawStatusLine() {
-	if (!Game().statusTimer.TimePassed(true))
-		StatusBox::draw(
-			Game().status,
-			GameClock::now() - Game().statusTimer.StartTime(),
-			GameState::STATUS_MS,
-			Game().render.resX,
-			Game().render.resY,
-			Game().assets.fonts.hudBody
-		);
+	const int now = GameClock::now();
+	StatusBox::draw(
+		Game().messages.Visible(now),
+		now,
+		Game().render.resX,
+		Game().render.resY,
+		Game().assets.fonts.hudBody
+	);
 }
 
 } // namespace

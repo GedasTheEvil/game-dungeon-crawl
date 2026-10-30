@@ -1,6 +1,6 @@
 # Message queue and log
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: implemented 2026-10-30, waiting for a play-test: `bin/game --play tests/play/message-log.txt`. From the project audit of 2026-10-30.
 
 Opus: HUD change, a new journal or screen section.
 
@@ -19,3 +19,15 @@ curse warnings get lost. There is no log to read them back.
 * Log: the last ~50 messages of this level, readable on a page (a journal tab or a section of the inventory; pick
   what fits [ui.md](../ui.md)). Not saved.
 * Unit tests for the queue (stacking, merge, expiry).
+
+## Done
+
+* `MessageLog` (`src/ui/message_log.h`): up to 3 lines stacked, oldest at the top, each on its own timer. A line told
+  again while it shows merges and moves to the bottom: XP gains add up, others count "(x2)". `StatusTone` on the
+  world's `Status` event: good news (level up, heka taken, a curse lifted) in green, dangers (curse, poison) in red,
+  6 s instead of 3.
+* The tomb curse no longer repeats the curse's line inside the execration's: both now show, stacked.
+* Log: the journal's section L, this level's last 50 lines, newest first; cleared on a new level, a new game and a
+  load. Not saved.
+* Tests: `tests/unit/message_log_test.cpp` (stacking, expiry, merges, log size, level change); screenshot scenario
+  `tests/scenarios/message-log.txt`.

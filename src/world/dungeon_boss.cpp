@@ -109,10 +109,14 @@ void Dungeon::updateBoss() {
 		bossFight = BossFight{};
 		openGates(BOSS_LOCK);
 		if (sim.player->stats.heka.Earn(levelNumber)) { // plan skills
-			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open\nYou take its heka");
+			sim.events->Status(
+				StatusTone::Good,
+				"%s",
+				"The guardian is slain!\nThe boss gate grinds open\nYou take its heka"
+			);
 			sim.events->Note(FieldNote::Heka);
 		} else
-			sim.events->Status("%s", "The guardian is slain!\nThe boss gate grinds open");
+			sim.events->Status(StatusTone::Good, "%s", "The guardian is slain!\nThe boss gate grinds open");
 		sim.events->Autosave(AutosaveMoment::Boss); // plan autosave
 		return;
 	}

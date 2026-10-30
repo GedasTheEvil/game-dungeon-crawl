@@ -197,12 +197,12 @@ A cloth-bound field notebook ([plan/solved/journal-real-book.md](plan/solved/jou
 red and white headbands at the spine, the page block's edges either side (more on the side the book is thicker). Two
 white grid pages (`media/textures/ui/journal_paper.png`, the spine shading baked in, mirrored on the left page); both textures
 come from `tools/textures/journal_book.py`. One ribbon bookmark per section (`PLUM` diary, `INK_RED` creatures, `LAPIS` riddles,
-`GOLD_DIM` field notes, `INK_GREEN` inscriptions, `SLATE` expedition, swallowtail end) marks the section's first page
+`GOLD_DIM` field notes, `INK_GREEN` inscriptions, `SLATE` expedition, `BRONZE` log, swallowtail end) marks the section's first page
 ([plan/solved/journal-ribbons-change-sides.md](plan/solved/journal-ribbons-change-sides.md)): it hangs out of the right edge
 while the section lies ahead, out of the left edge (mirrored, over the strap) once it is open or passed, coming out from
 under the pages on top of it (the open left page's own ribbon lies on it), further out the more pages lie between it and
 the open spread (`EDGE_STEP` per page edge). An empty section has no ribbon (it keeps its place for when the first page
-is written; Up / Down skip it; the book never opens on it, [plan](plan/solved/journal-hide-empty-ribbons.md)). Its letter (D, M, R, F, I, E) in `PAPER` on the open and the hovered one; the
+is written; Up / Down skip it; the book never opens on it, [plan](plan/solved/journal-hide-empty-ribbons.md)). Its letter (D, M, R, F, I, E, L) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled
@@ -308,10 +308,16 @@ hint sits under the panel. Any arrow moves the focus to the other tile, Enter pi
 
 ### Status box
 
-The gameplay message (`Game().ShowStatus`) over the running game: a `panel` (fill alpha 0.92) sized to the text,
-min 40 wide, top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font (4.2) in `GOLD`, one line
-per `'\n'`, 5 apart. Fades in over 150 ms and out over the last 500 ms of `STATUS_MS`; `panel`'s `frameAlpha` fades the
-frame and studs with it.
+The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageLog`, [message-log](plan/message-log.md))
+over the running game: up to three stacked, oldest at the top, 1.5 apart, each a `panel` (fill alpha 0.92) sized to
+its text, min 40 wide, the first one's top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font
+(4.2) in `GOLD`; good news (`StatusTone::Good`: level up, heka taken, a curse lifted) in faience green, dangers
+(`StatusTone::Danger`: curse, poison) in a light red. One line per `'\n'`, 5 apart. Each fades in over 150 ms and out
+over the last 500 ms of its time (3 s, toned ones 6 s); `panel`'s `frameAlpha` fades the frame and studs with it. A
+line told again while it shows merges into it: XP gains add up, others count "(x2)".
+
+Log pages (journal section L): this level's last 50 lines, newest first, under the heading "Lately" ("Earlier" on
+the pages after), `handSmall` in `INK_BLUE`, good news `INK_GREEN`, dangers `INK_RED`.
 
 ### Player HUD
 

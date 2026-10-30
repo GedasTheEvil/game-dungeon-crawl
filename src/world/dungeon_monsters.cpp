@@ -406,10 +406,7 @@ void Dungeon::rewardKill(Monster& mon) {
 	// A tomb curse (plan trapped-chests): smashing a living ushabti, not a boss's, may curse; the trap ward stops it.
 	if (type.id == MonsterUshabti && !mon.Minion() && sim.random->gameplay.percent(TOMB_CURSE_PERCENT) &&
 		!sim.random->gameplay.percent(sim.player->stats.TrapWardPercent()))
-		sim.events->Status(
-			"%s",
-			tombCurse(Curse::Fatigue, "Its back is written over: who breaks this servant does its work.").c_str()
-		);
+		tombCurse(Curse::Fatigue, "Its back is written over: who breaks this servant does its work.");
 	if (mon.Minion() || ambushes(type.locomotion))
 		return; // a mimic leaves its own chest
 	mon.SetDrop(

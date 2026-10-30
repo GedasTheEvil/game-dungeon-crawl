@@ -84,7 +84,6 @@ void GameState::Load() {
 	);
 
 	timers.idleModel.Reset();
-	statusTimer = Timer(STATUS_MS);
 
 	if (!dungeon.LoadCampaignLevel(dungeon.LevelNumber()))
 		LOG_WARNING("game", "Failed loading map");
@@ -94,7 +93,7 @@ void GameState::Load() {
 	saves.LoadNames();
 	leaderboard.Load();
 
-	status.clear();
+	messages.Clear();
 	cacheLoaded = true;
 }
 //==============================================================
@@ -104,8 +103,11 @@ void GameState::ShowStatus(const char* format, ...) {
 	va_start(args, format);
 	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
-	status = buf;
-	statusTimer.Reset();
+	PushStatus(buf, StatusTone::Plain);
+}
+
+void GameState::PushStatus(const std::string& text, StatusTone tone) {
+	messages.Push(text, tone, GameClock::now(), dungeon.LevelNumber());
 }
 //==============================================================
 namespace {
@@ -228,7 +230,7 @@ void GameState::ApplyWorldEvents() {
 			soundOf(assets.sounds, event.sound).Play();
 			break;
 		case WorldEvent::Kind::Status:
-			ShowStatus("%s", event.text.c_str());
+			PushStatus(event.text, event.tone);
 			break;
 		case WorldEvent::Kind::Note:
 			journal.LearnNote(event.note);
@@ -260,6 +262,7 @@ void GameState::ApplyWorldEvents() {
 //==============================================================
 void GameState::NewGame() {
 	PlayerHud::reset();
+	messages.Clear();
 	player->stats = PlayerStats{};
 	player->stats.run.campaign = true; // from New Game on level 1: the win goes on the leaderboard
 	player->stats.run.nameSeed = random.gameplay.next(); // each level's royal name (plan secret-name-gates)
@@ -466,6 +469,7 @@ void GameState::LoadSave(const char filename[]) {
 		LOG_ERROR("game", "can't load without loading cashe");
 		return;
 	}
+	messages.Clear(); // the log is not saved
 
 	player->Reanimate();
 	dungeon.ClearWin(); // a save is never of a won game

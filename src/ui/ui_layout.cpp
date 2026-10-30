@@ -72,7 +72,6 @@ int nearestRect(const std::vector<Rect>& rects, int from, int dx, int dy) {
 
 namespace StatusBox {
 namespace {
-constexpr float TOP = 86.f; // top edge of the box
 constexpr float LINE_H = 5.f; // baseline to baseline
 constexpr float PAD_X = 6.f; // text to the side frames
 constexpr float GLYPH_LOW = 1.5f; // the hudBody font (4.2) draws its letters this far above the pen y...
@@ -95,19 +94,24 @@ std::vector<std::string> SplitLines(const std::string& message) {
 	return lines;
 }
 
-float Alpha(int ageMs, int shownMs) {
-	auto age = static_cast<float>(ageMs);
-	return std::clamp(std::min(age / FADE_IN_MS, (static_cast<float>(shownMs) - age) / FADE_OUT_MS), 0.f, 1.f);
+float Alpha(int ageMs, int shownMs) { return FadeAlpha(ageMs, shownMs - ageMs); }
+
+float FadeAlpha(int sinceMs, int leftMs) {
+	return std::clamp(
+		std::min(static_cast<float>(sinceMs) / FADE_IN_MS, static_cast<float>(leftMs) / FADE_OUT_MS),
+		0.f,
+		1.f
+	);
 }
 
-ui::Rect Box(float canvasW, float textW, int lines) {
+ui::Rect Box(float canvasW, float textW, int lines, float top) {
 	float w = std::max(MIN_WIDTH, textW + 2 * PAD_X);
 	float h = 2 * PAD_Y + GLYPH_HIGH - GLYPH_LOW + LINE_H * static_cast<float>(lines - 1);
-	return {(canvasW - w) / 2, TOP - h, w, h};
+	return {(canvasW - w) / 2, top - h, w, h};
 }
 
-float LineY(int i) {
-	float y = TOP - PAD_Y - GLYPH_HIGH;
+float LineY(int i, float top) {
+	float y = top - PAD_Y - GLYPH_HIGH;
 	for (int k = 0; k < i; k++)
 		y -= LINE_H;
 	return y;

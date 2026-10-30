@@ -114,8 +114,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   `GameState`, created before the window.
 * `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
   monster types). The rows come from the level library: `KINDS` (`world/monster_kinds.cpp`), `ITEMS` (`world/items.cpp`).
-* `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status message
-  (`ShowStatus`), save / load.
+* `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status lines
+  (`ShowStatus`, `MessageLog`), save / load.
 * `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`
   ([settings.md](settings.md)).
 * `entities/` - `CharacterModel` (the clips, texture and sounds of a monster type or the player), `MonsterType`

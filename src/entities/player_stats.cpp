@@ -158,7 +158,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 
-	events.Status("Now you are level %d", level);
+	events.Status(StatusTone::Good, "Now you are level %d", level);
 	events.Note(FieldNote::Levels);
 
 	return true;
@@ -243,7 +243,7 @@ bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	if (c == Curse::Fatigue)
 		SetStamina(std::min(stamina, MaxStamina() * FATIGUE_STAMINA_PERCENT / 100));
 	const CurseDef& def = curseDef(c);
-	events.Status("%s", fresh ? def.startLine : def.againLine);
+	events.Status(StatusTone::Danger, "%s", fresh ? def.startLine : def.againLine);
 	events.Note(curseNote(c));
 	return true;
 }
@@ -256,7 +256,7 @@ void PlayerStats::AdvanceCurses(int ms, WorldEvents& events) {
 	keepHpShare(oldMax);
 	for (int c = 0; c < CURSE_COUNT; c++)
 		if ((ended & (1U << c)) != 0)
-			events.Status("%s", CURSES[static_cast<size_t>(c)].endLine);
+			events.Status(StatusTone::Good, "%s", CURSES[static_cast<size_t>(c)].endLine);
 }
 
 void PlayerStats::EndCurses() {

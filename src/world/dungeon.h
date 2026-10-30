@@ -97,10 +97,11 @@ class Dungeon {
 	// Trapped chests (plan trapped-chests, dungeon_chest_traps.cpp): openContainer on a TrappedTreasure rolls its
 	// contents and its trap (loot.h), the trap goes off unless the trap ward stops it.
 	void springChestTrap(int cell);
-	std::string fireChestTrap(int cell); // the trap's status line
+	std::string fireChestTrap(int cell); // the trap's status line; empty for a curse, which tells its own
 	void chestSwarm(int cell); // CHEST_SWARM_SIZE scarabs dig out round it
-	// A curse from an object (a chest's execration text, a smashed ushabti): laid, its field note; the status line.
-	std::string tombCurse(Curse c, const char* execration);
+	// A curse from an object (a chest's execration text, a smashed ushabti): the execration's status line, then the
+	// curse laid (its own line) and its field note.
+	void tombCurse(Curse c, const char* execration);
 	// A puff of poison gas over a chest (ChestTrap::Gas), for CHEST_GAS_MS: not saved, as the darts in flight.
 	struct ChestGas {
 		int cell; // map index

@@ -68,6 +68,12 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 	}
 	if (const std::optional<ScreechRules>& screech = mon.Type()->screech; screech && sim.player->Alive())
 		goal.inCone = InScreechCone(mon, *screech);
+	if (!goal.sees && mon.Provoked()) { // hit from where it cannot go: away from the player, not back to the roost
+		goal.flee = true;
+		if (std::fabs(mapX - mon.CentreX()) < COWARD_SAFE_GAP)
+			goal.fleeDir = mapX < mon.CentreX() ? 1 : -1;
+		return goal;
+	}
 	if (!goal.sees && row != mon.SpawnRow()) { // back to the roost
 		const int shaft = flightShaft(col, row, mon.Col(), mon.SpawnRow(), false);
 		if (shaft >= 0) {

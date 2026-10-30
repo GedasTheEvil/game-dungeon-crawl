@@ -1,0 +1,8 @@
+# Plan hit-wakes-monster, for `bin/game --play tests/play/hit-wakes-monster.txt`: campaign level 8 (bat galleries)
+# with the composite bow in hand. Shoot a roosting bat from afar: it leaves its roost and comes at you. Hit a monster
+# that cannot get to you (from a ledge, across a pit): it runs away instead of standing in your fire. A plant stays.
+seed 1
+level 8
+god
+give ranged 1
+equip composite_bow

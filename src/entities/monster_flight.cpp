@@ -83,80 +83,90 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 		enter(ModelState::Move);
 	};
 
-	switch (flight.phase) {
-	case FlightPhase::Roost:
-		if (!sees && flight.lift < roost - 1.f) { // dropped from the ceiling, no one to hunt: back up
-			enter(ModelState::Move);
-			break;
+	if (goal.flee) { // up off the roost and away from the player, on its row; Return once it sees them again
+		flight.phase = FlightPhase::Return;
+		if (goal.fleeDir != 0) {
+			if (flight.dir == goal.fleeDir && !wallAhead)
+				x += static_cast<float>(flight.dir) * step;
+			flight.dir = goal.fleeDir;
 		}
-		if (!sees) {
-			enter(ModelState::Idle);
-			return;
-		}
-		flight.phase = FlightPhase::Swoop;
-		flight.dir = dx >= 0 ? 1 : -1;
-		flight.bitten = false;
-		alerted = true;
-		links.journal->SeeMove(type->id, links.level, CreatureMove::Swoop);
-		[[fallthrough]];
-	case FlightPhase::Swoop: {
-		if (goal.toRow != row) {
-			if (sees)
-				changeRow();
-			else
-				flight.phase = FlightPhase::Return;
-			break;
-		}
-		if (screech(goal.inCone, now)) { // stops in the air through the tell
-			targetLift = flight.lift;
-			enter(ModelState::Move);
-			break;
-		}
-		const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front
-		const float above = py - static_cast<float>(row); // the player's feet up the rungs of a ladder
-		if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
-			flight.bitten = true;
-			flight.attackUntilMs = now + BAT_ATTACK_MS;
-			if (Reaches(px, py, flight.dir))
-				bite();
-		}
-		if (wallAhead || ahead < -BAT_OVERSHOOT) {
-			flight.dir = -flight.dir;
-			flight.bitten = false;
-			if (!sees && std::fabs(dx) > BAT_OVERSHOOT + 0.5f) // lost the player (climbed away, ran off)
-				flight.phase = FlightPhase::Return;
-		} else
-			x += static_cast<float>(flight.dir) * step;
-		// Swoops down to the player (to their head up a ladder too), climbs away from them.
-		const float k = std::min(std::fabs(dx) / BAT_OVERSHOOT, 1.f);
-		const float low = std::min(
-			BAT_LOW_LIFT + BAT_WING_DIP * scale + std::max(above, 0.f) * RenderConfig::TILE_SIZE,
-			roost
-		);
-		targetLift = low + (std::max(BAT_HIGH_LIFT, low) - low) * k * k * (3 - 2 * k);
-		enter(now < flight.attackUntilMs ? ModelState::Attack : ModelState::Move);
-		break;
-	}
-	case FlightPhase::Return:
-		if (sees) {
+		targetLift = BAT_HIGH_LIFT;
+		enter(ModelState::Move);
+	} else
+		switch (flight.phase) {
+		case FlightPhase::Roost:
+			if (!sees && flight.lift < roost - 1.f) { // dropped from the ceiling, no one to hunt: back up
+				enter(ModelState::Move);
+				break;
+			}
+			if (!sees) {
+				enter(ModelState::Idle);
+				return;
+			}
 			flight.phase = FlightPhase::Swoop;
 			flight.dir = dx >= 0 ? 1 : -1;
+			flight.bitten = false;
+			alerted = true;
+			links.journal->SeeMove(type->id, links.level, CreatureMove::Swoop);
+			[[fallthrough]];
+		case FlightPhase::Swoop: {
+			if (goal.toRow != row) {
+				if (sees)
+					changeRow();
+				else
+					flight.phase = FlightPhase::Return;
+				break;
+			}
+			if (screech(goal.inCone, now)) { // stops in the air through the tell
+				targetLift = flight.lift;
+				enter(ModelState::Move);
+				break;
+			}
+			const float ahead = dx * static_cast<float>(flight.dir); // > 0: the player is still in front
+			const float above = py - static_cast<float>(row); // the player's feet up the rungs of a ladder
+			if (!flight.bitten && ahead <= BAT_BITE_REACH && ahead > -BAT_OVERSHOOT) {
+				flight.bitten = true;
+				flight.attackUntilMs = now + BAT_ATTACK_MS;
+				if (Reaches(px, py, flight.dir))
+					bite();
+			}
+			if (wallAhead || ahead < -BAT_OVERSHOOT) {
+				flight.dir = -flight.dir;
+				flight.bitten = false;
+				if (!sees && std::fabs(dx) > BAT_OVERSHOOT + 0.5f) // lost the player (climbed away, ran off)
+					flight.phase = FlightPhase::Return;
+			} else
+				x += static_cast<float>(flight.dir) * step;
+			// Swoops down to the player (to their head up a ladder too), climbs away from them.
+			const float k = std::min(std::fabs(dx) / BAT_OVERSHOOT, 1.f);
+			const float low = std::min(
+				BAT_LOW_LIFT + BAT_WING_DIP * scale + std::max(above, 0.f) * RenderConfig::TILE_SIZE,
+				roost
+			);
+			targetLift = low + (std::max(BAT_HIGH_LIFT, low) - low) * k * k * (3 - 2 * k);
+			enter(now < flight.attackUntilMs ? ModelState::Attack : ModelState::Move);
 			break;
 		}
-		if (goal.toRow != row) { // back to the roost's row first
-			changeRow();
+		case FlightPhase::Return:
+			if (sees) {
+				flight.phase = FlightPhase::Swoop;
+				flight.dir = dx >= 0 ? 1 : -1;
+				break;
+			}
+			if (goal.toRow != row) { // back to the roost's row first
+				changeRow();
+				break;
+			}
+			flight.dir = x > 0 ? -1 : 1;
+			if (std::fabs(x) <= step) {
+				x = 0;
+				if (std::fabs(flight.lift - roost) < 1.f)
+					flight.phase = FlightPhase::Roost;
+			} else if (!wallAhead)
+				x += static_cast<float>(flight.dir) * step;
+			enter(ModelState::Move);
 			break;
 		}
-		flight.dir = x > 0 ? -1 : 1;
-		if (std::fabs(x) <= step) {
-			x = 0;
-			if (std::fabs(flight.lift - roost) < 1.f)
-				flight.phase = FlightPhase::Roost;
-		} else if (!wallAhead)
-			x += static_cast<float>(flight.dir) * step;
-		enter(ModelState::Move);
-		break;
-	}
 	flight.lift += (targetLift - flight.lift) * std::min(1.f, BAT_LIFT_RATE * dt);
 	// Through the floor into the row under it, or through the ceiling into the one above.
 	if (flight.lift < 0.f && goal.toRow < row) {

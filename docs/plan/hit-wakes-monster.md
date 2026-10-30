@@ -39,3 +39,17 @@ Unit tests (`tests/unit/`): a roosting bat hit from beyond `BAT_SIGHT` leaves it
 another row with no way up runs away when hit; a rooted one stays. A scenario only if a screenshot is wanted.
 
 Play-test: `bin/game --level N` with a roosting bat (lvl8 has several), shoot one from afar.
+
+## Implemented
+
+* `Monster::provoked` (`Provoke`, `Provoked`), set by `Dungeon::playerHit` only (melee, arrows, the boss hit): a
+  trap's hit does not provoke. Never forgets on this level; a respawn clears it. A pack call only alerts, as before.
+* Fliers: `Hunts()` includes provoked, so the flyer sees the player `BAT_HUNT_ROWS` up or down along any distance. No
+  way there: `FlightGoal::flee`, it rises off its roost and flies away along its row while the player is nearer than
+  `COWARD_SAFE_GAP`, then hovers there (no return to the roost).
+* Walkers (also woken lurkers: mummy, cobra, crocodile, ushabti, ...): a walker on the player's row chases them along
+  the whole row already, a climber's path starts at any `alerted`. New: a provoked walker that cannot reach the player
+  runs as a coward does (`fleeFrom`), also off a row it has no way from (the player standing on another floor). A
+  rooted kind (plant, mimic, lotus) stays, a boss stands its ground (boss fights unchanged).
+* Lurkers, burrowers, chargers, bosses: a hit already woke and alerted them (`Monster::takeHit`), their own wake ranges
+  only matter before that.

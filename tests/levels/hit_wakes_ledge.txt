@@ -1,0 +1,7 @@
+; A rat (col 6) and a plant (col 3) on the floor, the player (col 14); the ledge above (row 3) has no way down to it
+; (tests/unit/hit_wakes_test.cpp, plan hit-wakes-monster).
+######################
+#....................#
+######################
+#..p..t.......S.....E#
+######################

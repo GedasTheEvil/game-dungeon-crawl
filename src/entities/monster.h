@@ -86,6 +86,8 @@ class Monster {
 	bool spawned = false; // the timers start on the first spawn
 	// Has acted on the player (chased, bitten, left the roost) or been hit; the health bar shows from then on.
 	bool alerted = false;
+	// Hit by the player (plan hit-wakes-monster): it has noticed them for good on this level, wherever they are.
+	bool provoked = false;
 	bool called = false; // its pack call is made (CallRules): once per spawn
 	bool callDue = false; // made in a hit, not yet taken by the dungeon (TakeCall)
 	bool minion = false; // summoned by a boss: its XP depends on the boss (Dungeon::MinionXP)
@@ -186,6 +188,8 @@ class Monster {
 			alerted = true;
 	}
 	[[nodiscard]] bool Alerted() const { return alerted; }
+	void Provoke() { provoked = true; } // the player hit it (Dungeon::playerHit), not a trap
+	[[nodiscard]] bool Provoked() const { return provoked; }
 	[[nodiscard]] bool flies() const { return type->locomotion == Locomotion::Fly; }
 	[[nodiscard]] bool rooted() const {
 		return type->locomotion == Locomotion::Stationary || type->locomotion == Locomotion::Ambush || floats();
@@ -380,8 +384,9 @@ class Monster {
 	// the player still in the cone. True while the tell runs.
 	bool screech(bool inCone, int now);
 	void Fly(bool wallAhead, float px, float py, const FlightGoal& goal);
-	// A boss's minion, and a boss once it is roused, hunt the player along the whole row and farther up and down.
-	[[nodiscard]] bool Hunts() const { return minion || (alerted && type->isBoss()); }
+	// A boss's minion, a boss once it is roused and any monster the player hit (Provoked) hunt the player along the
+	// whole row and farther up and down.
+	[[nodiscard]] bool Hunts() const { return minion || provoked || (alerted && type->isBoss()); }
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
 	// Walk-jumpers: leap to tile-local x toX (see Dungeon::leapTarget), then move along the arc until landed.
 	void Jump(float toX);

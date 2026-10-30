@@ -26,6 +26,9 @@ struct FlightGoal {
 	float shaftX = 0.f; // tile-local x where it goes up or down a row next, on the way to toRow
 	bool openBelow = false; // the cell under it is open: a dead flyer falls on through it
 	bool inCone = false; // the player is in its screech's cone, no wall between (ScreechRules)
+	// Provoked, with no way to the player (plan hit-wakes-monster): it keeps off its roost, away from them.
+	bool flee = false;
+	int fleeDir = 0; // the way it flies off while the player is near along the row, -1 / +1; 0: far enough, it hovers
 };
 
 #endif

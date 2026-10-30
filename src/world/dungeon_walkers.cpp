@@ -287,7 +287,15 @@ void Dungeon::updateWalker(Monster& mon) {
 	}
 	if (kite(mon, dir))
 		return;
-	if (dir != 0 && mon.flees() && !walkerReaches(mon, dir)) {
+	// A coward, or any walker the player hit (plan hit-wakes-monster; a boss stands its ground), runs from a player it
+	// cannot reach: along its row, or off another row it has no way to.
+	const bool runs = mon.flees() || (mon.Provoked() && !mon.rooted() && !mon.Type()->isBoss());
+	if (dir == 0 && runs && mon.Provoked() && !mon.sameRow(mapY) &&
+		static_cast<int>(std::floor(mapY + STANDING_EPSILON)) != mon.Row()) {
+		fleeFrom(mon, mapX < mon.CentreX() ? -1 : 1);
+		return;
+	}
+	if (dir != 0 && runs && !walkerReaches(mon, dir)) {
 		if (mon.Type()->shunsLight && mon.sameRow(mapY) && litBetween(mon))
 			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::ShunLight);
 		fleeFrom(mon, dir);

@@ -20,6 +20,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	health = kind.maxHealth;
 	x = 0.f;
 	alerted = false;
+	provoked = false;
 	called = false;
 	callDue = false;
 	minion = false;

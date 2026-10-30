@@ -1,0 +1,5 @@
+; A bat (col 4) on the corridor ceiling, the player (col 14) far out of its sight (tests/unit/hit_wakes_test.cpp, plan
+; hit-wakes-monster).
+######################
+#...f.........S.....E#
+######################

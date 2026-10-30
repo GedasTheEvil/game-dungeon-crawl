@@ -1,4 +1,4 @@
-# Amulet effect words: armor vs. damage
+# Amulet effect words: guard vs. power
 
 Status: draft 2026-10-30 (user), needs nothing first.
 
@@ -23,19 +23,21 @@ pierce, cleave, crush).
 
 ## Change
 
-Only text the player reads (`AMULET_TYPES`, `src/world/items.cpp`: `shortNoun` and `effect`). The user's idea:
-a guard is armor against one damage type. Children know "armor" already (the scarab, the Armor stat).
+Only text the player reads (`AMULET_TYPES`, `src/world/items.cpp`: `shortNoun` and `effect`). A guard amulet
+says "guard", a damage amulet says "power". Not "armor" (the user's first idea): the Armor stat is flat and does
+not stop fire, a guard is a percentage and does; the same word would mix them up. Not "protection": longer, and a
+harder word for the children. "Guard" is already in the amulets' labels ("amulet of stab guard").
 
 | amulet | name band | effect line |
 |---|---|---|
-| smash / cut / stab guard | `Smash Armor II` | `Smash armor: you take 16% less` |
-| fire guard | `Fire Armor II` | `Fire armor: you take 40% less` |
+| smash / cut / stab guard | `Smash Guard II` | `Smash guard: you take 16% less` |
+| fire guard | `Fire Guard II` | `Fire guard: you take 40% less` |
 | crushing / cleaving / piercing | `Smash Power II` | `Smash power: you deal 20% more` |
 
 * "Power" for the damage amulets: plain, and not "Strength" (the Might amulet's word).
 * Too wide for the slot's name band (`inventory.cpp`, `NAME_BAND_H` band) or the card's effect line: shorten to
-  `Stab Arm. II` / `Stab Pow. II`, or the effect to `Stab hits on you -16%` / `Your stab hits +20%`. Check with a
-  scenario screenshot of the inventory (the longest: `Smash Power IV`, grand tier).
+  `Stab Grd. II` / `Stab Pow. II`, or the effect to `Stab hits on you -16%` / `Your stab hits +20%`. Check with a
+  scenario screenshot of the inventory (the longest: `Smash Guard IV`, `Smash Power IV`, grand tier).
 * `labelNoun` ("amulet of stab guard", for the editor, tools and scenario commands) stays: not player text.
 * Trap, poison, armor, health, strength, regeneration, venom: no change.
 

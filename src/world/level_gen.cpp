@@ -966,16 +966,18 @@ class LevelBuilder {
 	}
 
 	// A teleporter at a wing's end to a sealed room with a chest at its far end (or two): a name gate (plan
-	// secret-name-gates) with its name cartouche on a hall of the route, or a plain teleporter to a hidden room, now
-	// and then with a guard from difficulty 6.
+	// secret-name-gates) with its name cartouche on a hall of the route up to the wing's, or a plain teleporter to a
+	// hidden room, now and then with a guard from difficulty 6.
 	void placeTeleporterRoom(bool named) {
 		const int w = freeWing();
 		if (w < 0)
 			return;
 		Wing& wing = wings[static_cast<size_t>(w)];
+		// On the wing's hall or one before it on the route (plan name-gate-return): the player who read the name walks
+		// on to the gate, no drop on the way cuts it off.
 		int cartoucheCol = -1, cartoucheRow = -1;
 		for (int tries = 0; named && tries < 60 && cartoucheCol < 0; tries++) {
-			const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
+			const Segment& hall = route[static_cast<size_t>(rng.range(0, wing.seg))];
 			const int x = rng.range(hall.x0, hall.x1);
 			const Structure s = g.at(x, hall.row).structure;
 			if (busy[index(x, hall.row)] == 0 && freeCell(x, hall.row) && isWall(g.at(x, hall.row - 1)) &&

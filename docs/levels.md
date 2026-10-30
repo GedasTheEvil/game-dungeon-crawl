@@ -268,7 +268,7 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   opens them.
 - A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways. A name gate (a
   teleporter whose value has `NAME_SEAL`, 256, added to its pair id) too, but the exit, the keys, the levers and its
-  name cartouche must also be found with it sealed.
+  name cartouche must also be found with it sealed, and the name gate reached back from the cartouche.
 
 It reports:
 
@@ -277,7 +277,7 @@ It reports:
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
 | warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
-to it (2 cells along the row). With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
+to it (2 cells along the row), a name gate not reached back from its cartouche. With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
 | content | Monsters by type, traps, treasure, keys, gates, levers, riddles. |
 | path | The cheapest route: moves, jumps, drops, ladder steps, and the hazards, gates and monsters on it. |

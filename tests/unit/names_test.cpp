@@ -249,6 +249,34 @@ TEST_CASE("the checker: a good name gate level has no warnings, things needed be
 	CHECK(warns(checkLevel(lone), "a name cartouche without a name gate"));
 }
 
+TEST_CASE("the checker: the name gate is reached back from the name cartouche (plan name-gate-return)") {
+	// Row 3: the entrance (col 1), the name gate (4, pair 3). A shaft at col 9 down to row 1: the cartouche (12), the
+	// exit (14). The pocket with the partner on row 5.
+	auto level = [](bool ladder) {
+		LevelGrid grid;
+		for (int col = 1; col <= 9; col++)
+			grid.set(col, 3, Tile{});
+		for (int row = 1; row <= 3; row++)
+			grid.set(9, row, ladder ? Tile{Ladder, 0, 0} : Tile{});
+		for (int col = 10; col <= 15; col++)
+			grid.set(col, 1, Tile{});
+		for (int col = 2; col <= 6; col++)
+			grid.set(col, 5, Tile{});
+		grid.set(1, 3, cellWith({Door, GateEntrance, 0}));
+		grid.set(4, 3, cellWith({Door, GateTeleport, 3 | NAME_SEAL}));
+		grid.set(12, 1, cellWith({Inscription, NAME_CARTOUCHE_ID, 0}));
+		grid.set(14, 1, cellWith({Door, GateExit, 0}));
+		grid.set(3, 5, cellWith({Door, GateTeleport, 3}));
+		grid.set(5, 5, cellWith({Treasure, 3, 0}));
+		return grid;
+	};
+	CHECK(warns(
+		checkLevel(level(false)),
+		"the name gate at (col 4, row 3) cannot be reached back from the name cartouche at (col 12, row 1)"
+	));
+	CHECK(checkLevel(level(true)).warnings.empty());
+}
+
 TEST_CASE("the campaign's secret rooms: about every second level, each name gate with its cartouche") {
 	int rooms = 0;
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {

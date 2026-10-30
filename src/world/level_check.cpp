@@ -234,17 +234,16 @@ class Walker {
 	mutable std::map<int, std::vector<Turn>> turnCache; // by state
 };
 
-// Cells the walker reaches from the start state (any opened colours).
-std::vector<char> reachableCells(const Walker& walker, int startState) {
+// States the walker reaches from the start states.
+std::vector<char> reachableStates(const Walker& walker, const std::vector<int>& startStates) {
 	std::vector<char> seen(STATES, 0);
-	std::vector<char> cells(CELLS, 0);
-	std::vector<int> stack = {startState};
-	seen[startState] = 1;
+	std::vector<int> stack = startStates;
+	for (int state : startStates)
+		seen[state] = 1;
 	std::vector<Edge> edges;
 	while (!stack.empty()) {
 		int state = stack.back();
 		stack.pop_back();
-		cells[cellOf(state)] = 1;
 		walker.successors(state, edges);
 		for (const Edge& e : edges)
 			if (seen[e.to] == 0) {
@@ -252,7 +251,20 @@ std::vector<char> reachableCells(const Walker& walker, int startState) {
 				stack.push_back(e.to);
 			}
 	}
+	return seen;
+}
+
+std::vector<char> cellsOf(const std::vector<char>& states) {
+	std::vector<char> cells(CELLS, 0);
+	for (int state = 0; state < STATES; state++)
+		if (states[state] != 0)
+			cells[cellOf(state)] = 1;
 	return cells;
+}
+
+// Cells the walker reaches from the start state (any opened colours).
+std::vector<char> reachableCells(const Walker& walker, int startState) {
+	return cellsOf(reachableStates(walker, {startState}));
 }
 
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
@@ -602,6 +614,27 @@ void checkTeleporters(const LevelGrid& grid, LevelReport& r) {
 			r.warnings.push_back("ring platform at " + at(cell) + " without rock above it for its rings");
 }
 
+// Plan name-gate-return: the player who has read the name walks back to the name gate (still sealed: it opens once
+// they stand in it), from the cartouche with the colours they had there.
+void checkWayBackToNameGate(
+	const LevelGrid& grid,
+	const Walker& sealedWalker,
+	const std::vector<char>& sealedStates,
+	int cartouche,
+	LevelReport& r
+) {
+	std::vector<int> atCartouche;
+	for (int mask = 0; mask < MASKS; mask++)
+		if (sealedStates[cartouche * MASKS + mask] != 0)
+			atCartouche.push_back(cartouche * MASKS + mask);
+	const std::vector<char> back = cellsOf(reachableStates(sealedWalker, atCartouche));
+	for (int gate = 0; gate < CELLS; gate++)
+		if (isNameGate(grid.cells[gate]) && back[gate] == 0)
+			r.warnings.push_back(
+				"the name gate at " + at(gate) + " cannot be reached back from the name cartouche at " + at(cartouche)
+			);
+}
+
 // Plan secret-name-gates: at most one name gate, with one name cartouche, and both are found with the name gate
 // sealed, the cartouche not next to the gate; the exit, the keys and the levers too: nothing behind it is needed.
 void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
@@ -615,13 +648,17 @@ void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
 		r.warnings.push_back(std::to_string(r.nameCartouches) + " name cartouches, a level has at most one");
 	if (r.nameGates == 0)
 		return;
-	const std::vector<char> sealed = reachableCells(Walker(grid, true, true), startState);
+	const Walker sealedWalker(grid, true, true);
+	const std::vector<char> sealedStates = reachableStates(sealedWalker, {startState});
+	const std::vector<char> sealed = cellsOf(sealedStates);
 	const std::vector<char> open = reachableCells(Walker(grid), startState);
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile t = grid.cells[cell];
 		if (t.fixture.type == Inscription && t.fixture.attr == NAME_CARTOUCHE_ID) {
 			if (sealed[cell] == 0)
 				r.warnings.push_back("the name cartouche at " + at(cell) + " is not found with the name gate sealed");
+			else
+				checkWayBackToNameGate(grid, sealedWalker, sealedStates, cell, r);
 			for (int other = 0; other < CELLS; other++)
 				if (isNameGate(grid.cells[other]) && std::abs(other % LEVEL_WIDTH - cell % LEVEL_WIDTH) <= 2 &&
 					std::abs(other / LEVEL_WIDTH - cell / LEVEL_WIDTH) <= 1)
